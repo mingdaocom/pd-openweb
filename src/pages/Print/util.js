@@ -12,7 +12,7 @@ import BarCode from 'src/components/newCustomFields/widgets/BarCode';
 import { getBarCodeValue } from 'src/components/newCustomFields/tools/utils';
 import { parseDataSource } from 'src/pages/widgetConfig/util/setting.js';
 import STYLE_PRINT from './components/exportWordPrintTemCssString';
-/*
+import RegExpValidator from 'src/util/expression'; /*
   获取控件呈现内容
   sourceControlType: 他表字段type
   valueItem: 他表字段valueItem；[valueItem, valueItem]
@@ -180,7 +180,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                         );
                       })}
                     </td>
-                    {coverData && coverData.previewUrl && File.isPicture(coverData.ext) && (
+                    {coverData && coverData.previewUrl && RegExpValidator.fileIsPicture(coverData.ext) && (
                       <td width="100px">
                         <img
                           style={{
@@ -191,7 +191,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                           className="cover thumbnail"
                           role="presentation"
                           src={
-                            File.isPicture(coverData.ext)
+                            RegExpValidator.fileIsPicture(coverData.ext)
                               ? coverData.previewUrl.indexOf('imageView2') > -1
                                 ? coverData.previewUrl.replace(
                                     /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
@@ -330,7 +330,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                           className="cover thumbnail"
                           role="presentation"
                           src={
-                            File.isPicture(coverData.ext)
+                            RegExpValidator.fileIsPicture(coverData.ext)
                               ? coverData.previewUrl.indexOf('imageView2') > -1
                                 ? coverData.previewUrl.replace(
                                     /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
@@ -371,7 +371,11 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
       );
     }
     case 45: {
-      return value ? <Embed {...dataItem} formData={dataItem.controls} from="print" /> : '';
+      return value && dataItem.enumDefault !== 3 ? (
+        <Embed {...dataItem} formData={dataItem.controls} from="print" appId={item.appId} />
+      ) : (
+        ''
+      );
     }
     case 47: {
       let barCodeData = { ...dataItem, formData: dataItem.controls };
@@ -463,8 +467,8 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
   if (attachments.length <= 0) {
     return '';
   }
-  const pictureAttachments = attachments.filter(attachment => File.isPicture(attachment.ext));
-  const otherAttachments = attachments.filter(attachment => !File.isPicture(attachment.ext));
+  const pictureAttachments = attachments.filter(attachment => RegExpValidator.fileIsPicture(attachment.ext));
+  const otherAttachments = attachments.filter(attachment => !RegExpValidator.fileIsPicture(attachment.ext));
 
   return (
     <React.Fragment>
@@ -627,7 +631,7 @@ export const sortByShowControls = list => {
 };
 
 //处理打印数据
-export const getControlsForPrint = (receiveControls, relations = []) => {
+export const getControlsForPrint = (receiveControls, relationMaps = {}) => {
   //关联表数据处理
   let relation = receiveControls.filter(
     control => (control.type === 29 && control.enumDefault === 2) || control.type === 34,
@@ -635,7 +639,7 @@ export const getControlsForPrint = (receiveControls, relations = []) => {
   relation = relation
     .filter(l => l.checked)
     .map((it, i) => {
-      let relationsData = relations[i];
+      let relationsData = relationMaps[it.controlId];
       return { ...it, relationControls: getShowControl(it.relationControls), relationsData: relationsData };
     });
   receiveControls = receiveControls.map(control => {

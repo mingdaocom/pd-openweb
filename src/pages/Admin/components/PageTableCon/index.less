@@ -27,27 +27,6 @@
             background: #fff !important;
           }
         }
-        th:nth-child(2),
-        th:nth-child(3),
-        th:nth-child(5) {
-          width: 200px;
-        }
-        th:nth-child(4) {
-          width: 150px;
-        }
-      }
-    }
-    .ant-table-body {
-      height: calc(~'100vh - 257px');
-      tr {
-        td:nth-child(2),
-        td:nth-child(3),
-        td:nth-child(5) {
-          width: 200px;
-        }
-        td:nth-child(4) {
-          width: 150px;
-        }
       }
     }
     .ant-empty-normal {
@@ -55,7 +34,9 @@
     }
     .ant-table-thead
       > tr
-      > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan]):before {
+      > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not(
+        [colspan]
+      ):before {
       width: 0px !important;
     }
   }
@@ -87,8 +68,13 @@
     border-left: none !important;
   }
 
-  .ant-table-empty .ant-table-tbody > tr > td {
-    border-bottom: none;
+  .ant-table-empty {
+    table {
+      height: 100%;
+    }
+    .ant-table-tbody > tr > td {
+      border-bottom: none;
+    }
   }
   .emptyBox {
     margin: 50px 0;
@@ -121,6 +107,64 @@
     text-align: center;
     line-height: 52px;
     z-index: 99;
+  }
+  .ant-table {
+    .ant-table-body {
+      height: calc(~'100% - 52px');
+    }
+  }
+  .logsTable {
+    .ant-table {
+      .ant-table-thead {
+        font-size: 13px;
+        color: #333333;
+        tr {
+          th {
+            height: 48px;
+            background: #fff;
+            // padding: 1px 24px 12px 1px;
+            box-sizing: border-box;
+            font-weight: 600;
+            font-size: 13px;
+            color: #333333;
+            &:hover {
+              background: #fff !important;
+            }
+          }
+          th:nth-child(2),
+          th:nth-child(3),
+          th:nth-child(5) {
+            width: 200px;
+          }
+          th:nth-child(4) {
+            width: 150px;
+          }
+        }
+      }
+      .ant-table-body {
+        height: calc(~'100vh - 257px');
+        tr {
+          td:nth-child(2),
+          td:nth-child(3),
+          td:nth-child(5) {
+            width: 200px;
+          }
+          td:nth-child(4) {
+            width: 150px;
+          }
+        }
+      }
+      .ant-empty-normal {
+        display: none;
+      }
+      .ant-table-thead
+        > tr
+        > th:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not(
+          [colspan]
+        ):before {
+        width: 0px !important;
+      }
+    }
   }
 }
 

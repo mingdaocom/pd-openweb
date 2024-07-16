@@ -66,7 +66,7 @@ export default function Grid(props) {
     <VariableSizeGrid
       ref={setRef}
       className={id + ' ' + cx({ leftFixed, rightFixed, topFixed, bottomFixed }) + '' + id}
-      key={id}
+      key={`${id}-${config.width}`}
       style={{
         position: 'absolute',
         left: config.left,

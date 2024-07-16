@@ -5,6 +5,7 @@ import { getAdvanceSetting, handleAdvancedSettingChange, parseDataSource } from 
 import DynamicSelectDateControl from '../DynamicSelectDateControl';
 import InputSuffix from './InputSuffix';
 import PreSuffix from '../PreSuffix';
+import PointerConfig from '../PointerConfig';
 import _ from 'lodash';
 
 const COMPUTE_MODE = [
@@ -42,12 +43,26 @@ export default function ToTodaySetting({ data, onChange, ...rest }) {
         />
       </SettingItem>
       <InputSuffix data={data} onChange={onChange} />
-      {_.includes(['3', '4', '5'], unit) && autocarry !== '1' && (
+      {autocarry !== '1' && (
         <SettingItem>
           <div className="settingItemTitle">{_l('单位')}</div>
           <PreSuffix data={data} onChange={onChange} />
         </SettingItem>
       )}
+      <PointerConfig
+        data={data}
+        onChange={value => {
+          if (value.advancedSetting) {
+            onChange(value);
+          } else {
+            let newVal = value || {};
+            if (!Number(value.dot)) {
+              newVal.dotformat = '0';
+            }
+            onChange({ ...handleAdvancedSettingChange(data, newVal), ...value });
+          }
+        }}
+      />
     </Fragment>
   );
 }

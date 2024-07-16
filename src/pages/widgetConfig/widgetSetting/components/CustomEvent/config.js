@@ -1,5 +1,6 @@
 import React from 'react';
 import { CheckCircleFilled, CloseCircleFilled, ExclamationCircleFilled, InfoCircleFilled } from '@ant-design/icons';
+import { isUnTextWidget } from 'src/components/newCustomFields/tools/utils';
 
 // 事件
 export const ADD_EVENT_ENUM = {
@@ -21,6 +22,17 @@ export const ADD_EVENT_DISPLAY = [
   // { text: _l('点击时'), value: ADD_EVENT_ENUM.CLICK },
 ];
 
+export const dealEventDisplay = (data = {}, list = []) => {
+  if (isUnTextWidget(data)) {
+    return list;
+  } else {
+    return list.map(i => (i.value === ADD_EVENT_ENUM.CHANGE ? VALUE_CHANGE : i));
+  }
+};
+
+// 异化值改变时文案，文本类控件使用
+export const VALUE_CHANGE = { text: _l('值改变并失去焦点时'), value: ADD_EVENT_ENUM.CHANGE };
+
 // 事件筛选类型
 export const FILTER_VALUE_ENUM = {
   CONTROL_VALUE: '1',
@@ -32,7 +44,7 @@ export const FILTER_VALUE_ENUM = {
 export const FILTER_VALUE_TYPE = [
   { text: _l('按字段值'), value: FILTER_VALUE_ENUM.CONTROL_VALUE },
   { text: _l('按查询工作表'), value: FILTER_VALUE_ENUM.SEARCH_WORKSHEET },
-  { text: _l('按调用已集成 API'), value: FILTER_VALUE_ENUM.API },
+  // { text: _l('按调用已集成 API'), value: FILTER_VALUE_ENUM.API },
   { text: _l('按自定义函数'), value: FILTER_VALUE_ENUM.CUSTOM_FUN },
 ];
 
@@ -57,7 +69,7 @@ export const ACTION_VALUE_TYPE = [
   { text: _l('设置只读/可编辑'), value: ACTION_VALUE_ENUM.READONLY },
   { text: _l('设置字段值'), value: ACTION_VALUE_ENUM.SET_VALUE },
   { text: _l('刷新字段值'), value: ACTION_VALUE_ENUM.REFRESH_VALUE },
-  { text: _l('提示错误'), value: ACTION_VALUE_ENUM.ERROR },
+  // { text: _l('提示错误'), value: ACTION_VALUE_ENUM.ERROR },
   { text: _l('调用已集成 API'), value: ACTION_VALUE_ENUM.API },
   { text: _l('提示消息'), value: ACTION_VALUE_ENUM.MESSAGE },
   { text: _l('播放声音'), value: ACTION_VALUE_ENUM.VOICE },
@@ -67,10 +79,10 @@ export const ACTION_VALUE_TYPE = [
 
 // 条件信息
 export const EVENT_DETAIL = [
-  { color: '#00c345', text: _l('如果'), bgColor: '#DBF0DC' },
-  { color: '#ff9300', text: _l('否则如果'), bgColor: '#FFEBCD' },
-  { color: '#f52222', text: _l('否则如果'), bgColor: 'rgba(245, 34, 34, 0.6)' },
-  { color: '#2196F3', text: _l('否则如果'), bgColor: 'rgba(33, 150, 243, 0.6)' },
+  { color: '#00c345', bgColor: '#DBF0DC' },
+  { color: '#ff9300', bgColor: '#FFEBCD' },
+  { color: '#f52222', bgColor: 'rgba(245, 34, 34, 0.6)' },
+  { color: '#2196F3', bgColor: 'rgba(33, 150, 243, 0.6)' },
 ];
 
 // 更多操纵
@@ -91,7 +103,7 @@ export const ALERT_TYPE_OPTIONS = [
 const SUPPORT_VALUE_CHANGE_WIDGET = [
   2, 6, 8, 5, 15, 16, 46, 3, 4, 19, 23, 24, 9, 10, 11, 26, 27, 48, 14, 36, 28, 41, 7, 40, 42, 50, 29, 34, 35,
 ];
-const SUPPORT_FOCUS_WIDGET = [2, 6, 8, 5, 15, 16, 46, 3, 4, 11, 41, 7, 50];
+const SUPPORT_FOCUS_WIDGET = [2, 8, 5, 3, 4, 41, 7];
 
 // 根据字段类型筛选支持的事件
 export const getEventDisplay = (data = {}) => {
@@ -101,8 +113,7 @@ export const getEventDisplay = (data = {}) => {
   }
   if (
     _.includes(SUPPORT_FOCUS_WIDGET, data.type) ||
-    (data.type === 10 && _.get(data, 'advancedSetting.checktype') === '1') ||
-    (data.type === 29 && _.get(data, 'advancedSetting.showtype') === '3')
+    (data.type === 6 && _.get(data, 'advancedSetting.showtype') === '0')
   ) {
     filterEventEnum.push(ADD_EVENT_ENUM.FOCUS, ADD_EVENT_ENUM.BLUR);
   }
@@ -155,4 +166,24 @@ export const SPLICE_TYPE_ENUM = {
 export const FILTER_SPLICE_TYPE = [
   { text: _l('且'), value: '1' },
   { text: _l('或'), value: '2' },
+];
+
+//支持配默认值的字段
+export const HAS_DYNAMIC_TYPE = [
+  2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 29, 35, 36, 41, 46, 48,
+];
+
+export const VOICE_FILE_LIST = [
+  { fileKey: '1', filePath: require('/staticfiles/images/custom_classics.mp3'), fileName: _l('经典') },
+  { fileKey: '2', filePath: require('/staticfiles/images/custom_bubbling.mp3'), fileName: _l('冒泡') },
+  { fileKey: '3', filePath: require('/staticfiles/images/custom_diamond.mp3'), fileName: _l('钻石') },
+  { fileKey: '4', filePath: require('/staticfiles/images/custom_flicker.mp3'), fileName: _l('闪烁') },
+  { fileKey: '5', filePath: require('/staticfiles/images/custom_dong_dong.mp3'), fileName: _l('咚咚') },
+  { fileKey: '6', filePath: require('/staticfiles/images/custom_alarm.mp3'), fileName: _l('警报') },
+  { fileKey: '7', filePath: require('/staticfiles/images/custom_ding_dong.mp3'), fileName: _l('叮咚') },
+  { fileKey: '8', filePath: require('/staticfiles/images/custom_gold.mp3'), fileName: _l('金币掉落') },
+  { fileKey: '9', filePath: require('/staticfiles/images/custom_cheer.mp3'), fileName: _l('欢呼') },
+  { fileKey: '10', filePath: require('/staticfiles/images/custom_success.mp3'), fileName: _l('成功') },
+  { fileKey: '11', filePath: require('/staticfiles/images/custom_drum.mp3'), fileName: _l('鼓掌') },
+  { fileKey: '12', filePath: require('/staticfiles/images/custom_quiet.mp3'), fileName: _l('静音') },
 ];

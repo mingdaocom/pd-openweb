@@ -24,7 +24,6 @@ export default class CommonInfo extends Component {
       subDomain: '',
       companyDisplayName: '', //简称
       companyName: '', //全称
-      companyNameEnglish: '', //英文名称
       industryId: '', //行业
       geographyId: '', //所在地
       visibleType: 0,
@@ -50,11 +49,7 @@ export default class CommonInfo extends Component {
   getAllData() {
     this.setState({ isLoading: true });
     Promise.all([this.getSysColor(), this.getSubDomainInfo(), this.getCommonInfo()]).then(
-      ([
-        { homeImage, logo },
-        res,
-        { companyDisplayName, companyName, companyNameEnglish, geographyId, industryId },
-      ]) => {
+      ([{ homeImage, logo, isDefaultLogo }, res, { companyDisplayName, companyName, geographyId, industryId }]) => {
         this.setState(
           {
             homeImage: `${homeImage}?imageView2/2/w/194/h/52/q/90`,
@@ -62,10 +57,10 @@ export default class CommonInfo extends Component {
             subDomain: (res && res.subDomain) || '',
             companyDisplayName,
             companyName,
-            companyNameEnglish,
             geographyId,
             industryId,
             isLoading: false,
+            isDefaultLogo,
           },
           () => {
             if (Config.project.licenseType === 0) {
@@ -125,8 +120,8 @@ export default class CommonInfo extends Component {
   //获取设置后的值并隐藏dialog
   updateValue(value) {
     this.setState({
-      ...value,
       visibleType: 0,
+      ...value,
     });
   }
 
@@ -176,6 +171,7 @@ export default class CommonInfo extends Component {
           this.setState({
             logo: fullFilePath,
             uploadLoading: false,
+            isDefaultLogo: false,
           });
         } else {
           this.setState({
@@ -198,12 +194,23 @@ export default class CommonInfo extends Component {
     }
   };
 
+  clearLogo = async () => {
+    const clearRes = await projectSettingController.clearLogo({ projectId: Config.projectId });
+    if (clearRes) {
+      const sysInfo = await this.getSysColor();
+      const { logo, isDefaultLogo } = sysInfo;
+      this.setState({ logo, isDefaultLogo });
+    } else {
+      alert(_l('操作失败', 2));
+    }
+  };
+
   render() {
     const {
+      isDefaultLogo,
       logo,
       companyDisplayName,
       companyName,
-      companyNameEnglish,
       geographyId,
       industryId,
       visibleType,
@@ -216,6 +223,7 @@ export default class CommonInfo extends Component {
     } = this.state;
     const showInfo = [1, 2, 3].indexOf(visibleType) > -1;
     const { isSuperAdmin } = getCurrentProject(Config.projectId);
+
     return (
       <div className="orgManagementWrap">
         <div className="orgManagementHeader">
@@ -232,7 +240,6 @@ export default class CommonInfo extends Component {
                   visibleType={visibleType}
                   companyDisplayName={companyDisplayName}
                   companyName={companyName}
-                  companyNameEnglish={companyNameEnglish}
                   geographyId={geographyId}
                   industryId={industryId}
                   updateValue={this.updateValue.bind(this)}
@@ -245,23 +252,30 @@ export default class CommonInfo extends Component {
                   {Config.project.licenseType === 0 && <UpgradeIcon className="mTop2" />}
                 </div>
                 <div className="common-info-row-content">
-                  <div className="Hand">
-                    <input id="hideUploadImage" type="file" className="Hidden" />
-                    <div className="logoBoxBorder">
-                      <img src={logo} alt="avatar" />
-                      <div
-                        className="logoIconBox"
-                        id="upload_image"
-                        onClick={() => {
-                          if (Config.project.licenseType === 0) {
-                            AdminCommon.freeUpdateDialog();
-                            return;
-                          }
-                        }}
-                      >
-                        <span className="Font15 icon-upload_pictures" />
+                  <div className="flexRow alignItemsCenter">
+                    <div className="Hand">
+                      <input id="hideUploadImage" type="file" className="Hidden" />
+                      <div className="logoBoxBorder">
+                        <img src={logo} alt="avatar" />
+                        <div
+                          className="logoIconBox"
+                          id="upload_image"
+                          onClick={() => {
+                            if (Config.project.licenseType === 0) {
+                              AdminCommon.freeUpdateDialog();
+                              return;
+                            }
+                          }}
+                        >
+                          <span className="Font15 icon-upload_pictures"></span>
+                        </div>
                       </div>
                     </div>
+                    {logo && !isDefaultLogo && (
+                      <span className="clearLogo Hand mLeft15" onClick={this.clearLogo}>
+                        {_l('清除')}
+                      </span>
+                    )}
                   </div>
                   <div className="set-describe mTop10">
                     {_l('推荐尺寸 400*180 px，显示在工作台、打印、分享和企业域名页面，大小建议在512KB以内')}

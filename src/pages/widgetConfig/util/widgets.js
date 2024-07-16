@@ -40,6 +40,9 @@ export const isFullLineControl = data => {
   // 成员、部门多选 为整行控件
   // if ([26, 27].includes(type) && enumDefault === 1) return true;
 
+  // 嵌入视图
+  if (type === 45 && data.enumDefault === 3) return true;
+
   // 关联多条 列表和卡片形式为整行
   if (isSheetDisplay(data)) return true;
   // 他表字段使用关联控件

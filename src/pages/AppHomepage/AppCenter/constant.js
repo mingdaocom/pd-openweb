@@ -6,6 +6,7 @@ export const LINK_PARA_FIELDS = [
       { text: _l('用户ID'), value: 'userId' },
       { text: _l('手机号'), value: 'phone' },
       { text: _l('邮箱'), value: 'email' },
+      { text: _l('语言'), value: 'language' },
     ],
   },
   {

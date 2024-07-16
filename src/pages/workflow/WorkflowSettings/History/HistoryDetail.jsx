@@ -47,12 +47,31 @@ export default class HistoryDetail extends Component {
 
   getData = () => {
     const { id } = this.props;
+
     id &&
       api
         .getHistoryDetail({ instanceId: id }, { isIntegration: location.href.indexOf('integration') > -1 })
         .then(data => {
+          data.works = this.sortWorks(data.works);
           this.setState({ data });
         });
+  };
+
+  sortWorks = works => {
+    const gateways = works.filter(o => o.flowNode.type === 1 && o.flowNode.flowIds && o.flowNode.flowIds.length);
+
+    gateways.forEach(item => {
+      const flowId = item.flowNode.flowIds[0];
+      const id = item.flowNode.id;
+      const currentIndex = _.findIndex(works, o => o.flowNode.id === id);
+      const index = _.findIndex(works, o => _.includes([flowId, id], o.flowNode.prveId));
+
+      if (currentIndex !== index) {
+        works.filter(o => o.flowNode.id !== id).splice(index - (currentIndex < index ? 1 : 0), 0, item);
+      }
+    });
+
+    return works;
   };
 
   getProcessPublish = () => {
@@ -153,7 +172,7 @@ export default class HistoryDetail extends Component {
                       item.accounts.map((obj, j) => (
                         <Fragment key={`${i}-${j}`}>
                           <span>{obj.fullName}</span>
-                          <span className="Gray_9e">({moment(item.executeTime).format('MM-DD HH:mm')})</span>
+                          <span className="Gray_75">({moment(item.executeTime).format('MM-DD HH:mm')})</span>
                           {(i !== scheduleActions.length - 1 || j !== item.accounts.length - 1) && <span>、</span>}
                         </Fragment>
                       )),
@@ -205,16 +224,19 @@ export default class HistoryDetail extends Component {
     if (!item.flowNode.subProcessId) return null;
 
     return (
-      <span
-        className="ThemeColor3 ThemeHoverColor2 pointer"
-        onClick={() =>
-          window.open(
-            `/workflowedit/${item.flowNode.subProcessId}/2/subprocessHistory/${item.workId}_${item.instanceId}`,
-          )
-        }
-      >
-        {_l('查看详情')}
-      </span>
+      <Fragment>
+        <span className="Gray_75 mRight10">{_l('%0 行记录', item.sort)}</span>
+        <span
+          className="ThemeColor3 ThemeHoverColor2 pointer"
+          onClick={() =>
+            window.open(
+              `/workflowedit/${item.flowNode.subProcessId}/2/subprocessHistory/${item.workId}_${item.instanceId}`,
+            )
+          }
+        >
+          {_l('查看详情')}
+        </span>
+      </Fragment>
     );
   }
 
@@ -222,7 +244,7 @@ export default class HistoryDetail extends Component {
     const { data, isRetry } = this.state;
     const { instanceLog, logs } = data;
     const { cause } = instanceLog;
-    const showRetry = _.includes([3, 4], data.status) && cause !== 7777;
+    const showRetry = _.includes([3, 4], data.status) && !_.includes([6666, 7777], cause);
     const showSuspend = data.status === 1;
 
     if (showRetry || showSuspend) {
@@ -267,9 +289,13 @@ export default class HistoryDetail extends Component {
 
     this.setState({ isRetry: true });
 
-    ajax({ instanceId: id }).then(data => {
-      this.setState({ data, isRetry: false });
-    });
+    ajax({ instanceId: id })
+      .then(data => {
+        this.setState({ data, isRetry: false });
+      })
+      .catch(() => {
+        this.setState({ isRetry: false });
+      });
   };
 
   renderTemplateInfo = item => {
@@ -323,7 +349,7 @@ export default class HistoryDetail extends Component {
     return (
       <div className="historyDetailWrap">
         <div className="header" onClick={onClick}>
-          <Icon icon="backspace" className="Font20 Gray_9e" />
+          <Icon icon="backspace" className="Font20 Gray_75" />
           <span className="backText Font15">{_l('返回')}</span>
         </div>
         <div className="detailContent">
@@ -399,7 +425,7 @@ export default class HistoryDetail extends Component {
                           title={name}
                           className="pointer ThemeHoverColor3"
                           onClick={() =>
-                            (flowNode.type !== 1 || !resultTypeId) &&
+                            (flowNode.type !== 1 || (!resultTypeId && flowNode.flowIds[0])) &&
                             openNodeDetail({
                               processId: processInfo.id,
                               selectNodeId: flowNode.type === 1 ? flowNode.flowIds[0] : flowNode.id,
@@ -424,7 +450,7 @@ export default class HistoryDetail extends Component {
                     </div>
 
                     <div className="operationPerson">
-                      {_.includes([16, 20, 26], flowNode.type)
+                      {_.includes([16, 20, 26, 29], flowNode.type)
                         ? this.renderSubProcess(item)
                         : flowNode.type === 19
                         ? this.renderTemplateInfo(item)
@@ -447,7 +473,7 @@ export default class HistoryDetail extends Component {
 
               {completeType === 1 && (
                 <li className="pBottom0 pTop25">
-                  <div className="TxtCenter Gray_9e w100">{_l('流程已结束')}</div>
+                  <div className="TxtCenter Gray_75 w100">{_l('流程已结束')}</div>
                 </li>
               )}
             </ul>

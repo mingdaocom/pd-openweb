@@ -9,8 +9,8 @@ import ExitDialog from './ExitDialog';
 import EditCardInfo from './EditCardInfo';
 import { navigateTo } from 'router/navigateTo';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
-
 import './index.less';
+import { hasBackStageAdminAuth } from 'src/components/checkPermission';
 
 const optionsList = [
   { icon: 'icon-edit_17', label: _l('编辑组织名片'), click: 'handleEdit', key: 'editCard' },
@@ -26,6 +26,7 @@ export default class EnterpriseCard extends Component {
       showItem: false,
       loading: false,
       userInfo: {},
+      hasProjectAdminAuth: false,
     };
   }
 
@@ -95,6 +96,10 @@ export default class EnterpriseCard extends Component {
   getAuthInfo() {
     const { card } = this.props;
     this.setState({ loading: true });
+
+    const hasProjectAdminAuth = hasBackStageAdminAuth({ projectId: card.projectId });
+    this.setState({ hasProjectAdminAuth });
+
     account.getUserCard({ projectId: card.projectId }).then(data => {
       if (data) {
         this.setState({ userInfo: data.user, loading: false });
@@ -225,11 +230,7 @@ export default class EnterpriseCard extends Component {
           </span>
         );
       case 'default':
-        return (
-          <span className="Gray_9e">
-            {card.isProjectAdmin ? (card.isCreateUser ? _l('管理员') + _l('(创建人)') : _l('管理员')) : _l('普通成员')}
-          </span>
-        );
+        return null;
     }
   }
 
@@ -256,7 +257,7 @@ export default class EnterpriseCard extends Component {
   }
 
   render() {
-    const { showItem, userInfo, loading } = this.state;
+    const { showItem, userInfo, loading, hasProjectAdminAuth } = this.state;
     const { departmentInfos = [], jobInfos = [] } = userInfo;
     const { card } = this.props;
     const { currentLicense = {} } = card;
@@ -326,7 +327,7 @@ export default class EnterpriseCard extends Component {
                     >
                       <span className={cx('mRight12 LineHeight20 childTag', item.icon)}></span>
                       {item.key === 'manage' ? (
-                        <span className="childTag">{card.hasRole ? item.label : _l('申请管理权限')}</span>
+                        <span className="childTag">{hasProjectAdminAuth ? item.label : _l('申请管理权限')}</span>
                       ) : (
                         <span className="childTag">{item.label}</span>
                       )}

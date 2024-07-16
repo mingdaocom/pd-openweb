@@ -4,7 +4,8 @@ import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { Drawer, QiniuUpload, Icon, ScrollView } from 'ming-ui';
+import { Drawer } from 'antd';
+import { QiniuUpload, Icon, ScrollView } from 'ming-ui';
 import * as actions from '../redux/actions';
 import PictureSelect from '../components/PictureSelect';
 import { Hr, H1, H3, Absolute, CustomButton } from 'worksheet/components/Basics';
@@ -165,12 +166,7 @@ class AppearanceConfig extends React.Component {
     const { isUploading } = this.state;
     const COLORS = getThemeColors(projectId);
     return (
-      <Drawer
-        open={open}
-        style={{ position: 'absolute', top: 0, width: 300 }}
-        onRequestClose={onClose}
-        onClickAwayExceptions={['.mui-dialog-container']}
-      >
+      <Drawer visible={open} width={300} bodyStyle={{ padding: 0 }} headerStyle={{ display: 'none' }} onClose={onClose}>
         <ScrollView>
           <Con>
             <Absolute right="24" top="-2">

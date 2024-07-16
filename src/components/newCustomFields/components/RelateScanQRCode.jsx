@@ -4,7 +4,6 @@ import sheetAjax from 'src/api/worksheet';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { Toast } from 'antd-mobile';
 import ScanQRCode from './ScanQRCode';
-import RegExp from 'src/util/expression';
 import _ from 'lodash';
 
 export default class Widgets extends Component {

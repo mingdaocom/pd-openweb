@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { CityPicker } from 'ming-ui';
-import { quickSelectRole, dialogSelectDept } from 'ming-ui/functions';
+import { quickSelectRole, quickSelectDept } from 'ming-ui/functions';
 import TagCon from './TagCon';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 import _ from 'lodash';
@@ -53,7 +53,15 @@ export default class Options extends Component {
     } else if (control.type === 27 || control.type === 48) {
       return values.map(value => JSON.parse(value));
     } else if (control.type === 28) {
-      return values.map(safeParse).filter(v => !_.isEmpty(v));
+      return values
+        .filter(v => !_.isEmpty(v))
+        .map(i => {
+          if (_.isObject(safeParse(i))) return safeParse(i);
+          return {
+            id: i,
+            name: SCORE_TEXT[Number(i) - 1],
+          };
+        });
     } else if (_.includes([9, 10, 11], control.type)) {
       return values.length
         ? _.compact(
@@ -211,11 +219,12 @@ export default class Options extends Component {
       return (
         <div
           className="filterSelectDepartment"
-          onClick={() => {
-            dialogSelectDept({
+          onClick={e => {
+            quickSelectDept(e.target, {
               unique: selectSingle,
               projectId,
               isIncludeRoot: false,
+              immediate: false,
               showCurrentUserDept: !_.includes(['rule', 'portal'], from),
               selectFn: data => {
                 if (!data.length) {
@@ -247,6 +256,7 @@ export default class Options extends Component {
               unique: selectSingle,
               showCurrentOrgRole: !_.includes(['rule', 'portal'], from),
               showCompanyName: true,
+              immediate: false,
               onSave: data => {
                 if (!data.length) {
                   return;

@@ -65,11 +65,11 @@ export default function FormHeader(props) {
         <div className="worksheetNameCon" style={{ marginTop: 16 }}>
           {!(window.isPublicApp || md.global.Account.isPortal) ? (
             <a className="worksheetName Gray_9e InlineBlock" target="_blank" href={`/worksheet/${worksheetId}`}>
-              {getTranslateInfo(appId, worksheetId).name || worksheetName}
+              {getTranslateInfo(appId, null, worksheetId).name || worksheetName}
             </a>
           ) : (
             <span className="worksheetName Gray_9e InlineBlock">
-              {getTranslateInfo(appId, worksheetId).name || worksheetName}
+              {getTranslateInfo(appId, null, worksheetId).name || worksheetName}
             </span>
           )}
           <div className="Right">

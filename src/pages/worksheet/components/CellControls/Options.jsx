@@ -332,6 +332,7 @@ export default class Options extends React.Component {
       isediting,
       updateEditingStatus,
       onClick,
+      fromEmbed,
     } = this.props;
     const { value, verticalPlace } = this.state;
     const selectedOptions = value ? getSelectedOptions(cell.options, value, cell) : [];
@@ -341,7 +342,7 @@ export default class Options extends React.Component {
       this.isSubList || this.isRelateRecord
         ? () => $(this.cell.current).parents('.recordInfoForm')[0] || document.body
         : popupContainer;
-    if (this.isSubList && isOther) {
+    if ((this.isSubList && isOther) || fromEmbed) {
       getPopupContainer = () => document.body;
     }
     const showErrorAsPopup = (this.isSubList || this.isRelateRecord) && rowIndex === 0;
@@ -487,6 +488,7 @@ export default class Options extends React.Component {
             destroyPopupOnHide
             popupAlign={{
               points: ['tl', 'bl'],
+              overflow: { adjustX: true, adjustY: true },
             }}
           >
             {editcontent}

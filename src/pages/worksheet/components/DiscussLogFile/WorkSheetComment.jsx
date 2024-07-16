@@ -7,7 +7,12 @@ import WorkSheetCommenter from './WorkSheetCommenter';
 import WorkSheetCommentList from './WorkSheetCommentList';
 import _ from 'lodash';
 import '@mdfe/nanoscroller';
+import cx from 'classnames';
 
+const discussTypes = [
+  { id: 1, name: 'discuss', text: _l('内部') },
+  { id: 2, name: 'discussPortal', text: _l('外部门户') },
+];
 export default class WorkSheetComment extends React.Component {
   static propTypes = {
     appId: PropTypes.string,
@@ -22,6 +27,7 @@ export default class WorkSheetComment extends React.Component {
       discussions: [],
       worksheetInfo: {},
       atData: [],
+      disType: md.global.Account.isPortal && props.exAccountDiscussEnum === 1 ? 2 : 1, //外部门户且不可见内部讨论 则直接显示外部讨论
     };
   }
   componentDidMount() {
@@ -40,11 +46,7 @@ export default class WorkSheetComment extends React.Component {
     this.getAtData();
   }
   componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.formFlag !== this.props.formFlag ||
-      nextProps.status !== this.props.status || //内部和外部讨论
-      !_.isEqual(this.props.formdata, nextProps.formdata)
-    ) {
+    if (nextProps.formFlag !== this.props.formFlag || !_.isEqual(this.props.formdata, nextProps.formdata)) {
       this.getAtData(nextProps);
     }
   }
@@ -58,16 +60,15 @@ export default class WorkSheetComment extends React.Component {
       formdata = [],
       allowExAccountDiscuss = false, //是否配置外部门户可参与讨论
       exAccountDiscussEnum = 0, //外部门户可见讨论区域为全部
-      status, //1:线上|内部 4:外部讨论
     } = nextProps || this.props;
-    const { discussions = [] } = this.state;
+    const { discussions = [], disType } = this.state;
     let data = [];
     formdata = formdata.filter(
       o =>
         [o.sourceControlType, o.type].includes(26) && //成员字段
         (o.userPermission !== 0 || o.controlId === 'ownerid' || (o.type === 30 && _.get(o, 'strDefault.0') !== '1')), //排除仅用于记录人员数据(除了拥有者字段外)
     );
-    if (status === 1) {
+    if (disType === 1) {
       //内部讨论
       if (!allowExAccountDiscuss || (allowExAccountDiscuss && exAccountDiscussEnum !== 0)) {
         //未配置外部人员可参与讨论 或配置了外部成员不可见内部讨论 不能@外部用户
@@ -106,11 +107,11 @@ export default class WorkSheetComment extends React.Component {
     data = data.filter(
       d =>
         !(
-          status === 1 &&
+          disType === 1 &&
           (!allowExAccountDiscuss || (allowExAccountDiscuss && exAccountDiscussEnum !== 0)) &&
           d.accountId.indexOf('a#') >= 0
-        ) && //内部讨论 未配置外部人员可参与讨论 或配置了外部成员不可见内部讨论 不能@外部用户
-        d.status === 1, //状态为正常的用户
+        ),
+      //内部讨论 未配置外部人员可参与讨论 或配置了外部成员不可见内部讨论 不能@外部用户
     );
     let hash = {};
     const data2 = data.reduce((preVal, curVal) => {
@@ -148,12 +149,20 @@ export default class WorkSheetComment extends React.Component {
     }
   }
   render() {
-    const { disableScroll, addCallback, projectId, forReacordDiscussion, status, exAccountDiscussEnum } = this.props;
-    const { worksheetInfo } = this.state;
+    const {
+      disableScroll,
+      addCallback,
+      projectId,
+      forReacordDiscussion,
+      status,
+      exAccountDiscussEnum,
+      allowExAccountDiscuss,
+    } = this.props;
+    const { worksheetInfo, disType } = this.state;
     let entityType = //0 = 全部，1 = 不包含外部讨论，2=外部讨论
-      status === 4
+      disType === 2
         ? 2
-        : status === 1 && !md.global.Account.isPortal && exAccountDiscussEnum === 1 //当前内部成员，外部门户开放讨论且外部门户设置为不可见内部
+        : disType === 1 && !md.global.Account.isPortal && exAccountDiscussEnum === 1 //当前内部成员，外部门户开放讨论且外部门户设置为不可见内部
         ? 1
         : 0;
     const commenterProps = {
@@ -183,6 +192,33 @@ export default class WorkSheetComment extends React.Component {
       entityType,
     };
 
+    const renderWorkSheetCommentList = () => {
+      return (
+        <React.Fragment>
+          {/* 内部成员，且外部门户支持参与讨论，但不可见内部讨论 */}
+          {!md.global.Account.isPortal && allowExAccountDiscuss && exAccountDiscussEnum === 1 && (
+            <div className="discussType flexRow alignItemsCenter">
+              {discussTypes.map(o => {
+                return (
+                  <div
+                    className={cx('discuss TxtCenter flex Bold Hand', { isCur: disType === o.id })}
+                    onClick={() => {
+                      this.setState({ disType: o.id }, () => {
+                        this.getAtData();
+                      });
+                    }}
+                  >
+                    {o.text}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <WorkSheetCommentList {...commentListProps} discussions={this.state.discussions} atData={this.state.atData} />
+        </React.Fragment>
+      );
+    };
+
     return (
       <div className="workSheetCommentBox flex flexRow">
         {disableScroll ? (
@@ -192,11 +228,7 @@ export default class WorkSheetComment extends React.Component {
               this.scrollView = scrollView;
             }}
           >
-            <WorkSheetCommentList
-              {...commentListProps}
-              discussions={this.state.discussions}
-              atData={this.state.atData}
-            />
+            {renderWorkSheetCommentList()}
           </div>
         ) : (
           <ScrollView
@@ -207,11 +239,7 @@ export default class WorkSheetComment extends React.Component {
             updateEvent={this.handleScroll}
             preserveScrollTop
           >
-            <WorkSheetCommentList
-              {...commentListProps}
-              discussions={this.state.discussions}
-              atData={this.state.atData}
-            />
+            {renderWorkSheetCommentList()}
           </ScrollView>
         )}
         <WorkSheetCommenter {...commenterProps} discussions={this.state.discussions} atData={this.state.atData} />

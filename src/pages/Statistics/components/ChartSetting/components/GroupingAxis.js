@@ -11,11 +11,20 @@ import {
   isNumberControl,
   isTimeControl,
   isAreaControl,
+  isOptionControl,
   filterDisableParticleSizeTypes,
   timeDataParticle,
   filterTimeData,
   timeGatherParticle,
 } from 'statistics/common';
+
+const emptyTypes = [{
+  value: 0,
+  name: _l('隐藏')
+}, {
+  value: 1,
+  name: _l('显示')
+}];
 
 const timeGather = timeParticleSizeDropdownData.filter(item => [5, 8, 9, 10, 11].includes(item.value));
 const timeParticle = timeGatherParticle.filter(item => [11, 12, 14].includes(item.value));
@@ -59,16 +68,19 @@ export default class GroupingAxis extends Component {
     }
   }
   handleClear = () => {
-    const { split } = this.props;
     this.props.onChangeCurrentReport({
       controlId: null,
       particleSizeType: 0,
     });
   }
-  handleUpdateTimeParticleSizeType = value => {
-    const { split } = this.props;
+  handleChangeTimeParticleSizeType = value => {
     this.props.onChangeCurrentReport({
       particleSizeType: value,
+    });
+  }
+  handleChangeEmptyType = value => {
+    this.props.onChangeCurrentReport({
+      emptyType: value,
     });
   }
   getName = () => {
@@ -98,7 +110,7 @@ export default class GroupingAxis extends Component {
             style={{ color: item.value === split.particleSizeType ? '#1e88e5' : null }}
             key={item.value}
             onClick={() => {
-              this.handleUpdateTimeParticleSizeType(item.value);
+              this.handleChangeTimeParticleSizeType(item.value);
             }}
           >
             <div className="flex">{item.text}</div>
@@ -120,7 +132,7 @@ export default class GroupingAxis extends Component {
             style={{ color: item.value === split.particleSizeType ? '#1e88e5' : null }}
             key={item.value}
             onClick={() => {
-              this.handleUpdateTimeParticleSizeType(item.value);
+              this.handleChangeTimeParticleSizeType(item.value);
             }}
           >
             <div className="flex">{item.text}</div>
@@ -129,12 +141,44 @@ export default class GroupingAxis extends Component {
       </Menu>
     );
   }
+  renderOptionOverlay() {
+    const { split } = this.props;
+    return (
+      <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />}>
+        <Menu.SubMenu
+          popupClassName="chartMenu"
+          title={(
+            <div className="flexRow valignWrapper w100">
+              <div className="flex">{_l('无记录的项目')}</div>
+              <div className="Font12 Gray_75 emptyTypeName">{split.emptyType ? _l('显示') : _l('隐藏')}</div>
+            </div>
+          )}
+          popupOffset={[0, -15]}
+        >
+          {
+            emptyTypes.map(item => (
+              <Menu.Item
+                key={item.value}
+                style={{ color: item.value === split.emptyType ? '#1e88e5' : null }}
+                onClick={() => {
+                  this.handleChangeEmptyType(item.value);
+                }}
+              >
+                {item.name}
+              </Menu.Item>
+            ))
+          }
+        </Menu.SubMenu>
+      </Menu>
+    );
+  }
   renderAxis(item) {
-    const { split, axisControls, allControls } = this.props;
+    const { split, axisControls, allControls, reportType } = this.props;
     const axis = _.find(axisControls, { controlId: split.controlId });
     const control = _.find(allControls, { controlId: split.controlId }) || {};
     const isTime = isTimeControl(split.controlType);
     const isArea = isAreaControl(split.controlType);
+    const isOption = isOptionControl(split.controlType) && reportTypes.ScatterChart !== reportType;
     return (
       <div className="flexRow valignWrapper fidldItem">
         {axis ? (
@@ -158,6 +202,11 @@ export default class GroupingAxis extends Component {
         )}
         {isArea && (
           <Dropdown overlay={this.renderAreaOverlay(axis)} trigger={['click']} placement="bottomRight">
+            <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
+          </Dropdown>
+        )}
+        {isOption && (
+          <Dropdown overlay={this.renderOptionOverlay(axis)} trigger={['click']} placement="bottomRight">
             <Icon className="Gray_9e Font18 pointer" icon="arrow-down-border" />
           </Dropdown>
         )}

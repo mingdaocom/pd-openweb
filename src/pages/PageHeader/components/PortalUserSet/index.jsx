@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import 'src/pages/PageHeader/AppNameHeader/index.less';
 import { Icon, Menu, Dialog } from 'ming-ui';
-import CSSTransitionGroup from 'react-addons-css-transition-group';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-const ClickAwayable = createDecoratedComponent(withClickAway);
+import { Drawer } from 'antd';
 import cx from 'classnames';
 import UserInfoDialog from 'src/pages/Role/PortalCon/components/UserInfoDialog';
 import './index.less';
@@ -199,7 +196,7 @@ export default class PortalUserSet extends Component {
       (currentData.find(o => ['portal_mobile'].includes(o.controlId)) || {}).value ||
       (currentData.find(o => ['portal_email'].includes(o.controlId)) || {}).value;
     return (
-      <WrapHeader>
+      <WrapHeader className={cx({ isMobile, leftNaviStyle: [1, 3].includes(currentPcNaviStyle) })}>
         <div className={cx('appNameHeaderBoxPortal appNameHeaderBox flexRow noBorder', { isMobile })}>
           <React.Fragment>
             <div className="headerCenter">
@@ -231,247 +228,236 @@ export default class PortalUserSet extends Component {
             )}
           </React.Fragment>
         </div>
-        {showUserInfo && <div className="cover"></div>}
-        {showUserInfo && (
-          <ClickAwayable
-            className={''}
-            onClickAway={() => this.setState({ showUserInfo: false })}
-            // 知识文件选择层 点击时不收起
-            onClickAwayExceptions={[
-              '.uploadAvatorDialogId,.mui-dialog-container,.rc-trigger-popup,#uploadAvatorDialogId_mask,.am-modal-mask,.am-modal-wrap',
-            ]}
-          >
-            <CSSTransitionGroup
-              component={'div'}
-              transitionName={'userInfoSide'}
-              transitionAppearTimeout={500}
-              transitionEnterTimeout={500}
-              transitionLeaveTimeout={500}
-            >
-              {
-                <Wrap className={cx({ isMobile, leftNaviStyle: [1, 3].includes(currentPcNaviStyle) })}>
-                  {isMobile && (
-                    <React.Fragment>
-                      <span
-                        className="Font17 Hand InlineBlock back pLeft16"
-                        onClick={() => {
-                          this.setState({ showUserInfo: false });
-                        }}
-                      >
-                        <Icon icon="backspace mRight8 Gray_9e" />
-                        {_l('我的账户')}
-                      </span>
-                    </React.Fragment>
-                  )}
-                  <div className="infoConBox">
-                    <div className="account flexRow">
-                      <div className="userImage" onClick={this.handleUploadImg}>
-                        <img
-                          className="avatarImg"
-                          src={(this.state.avatar || '').split('imageView2')[0]}
-                          style={{ width: 56, height: 56, borderRadius: '50%' }}
-                        />
-                        <div className="hoverAvatar">
-                          <span className="Font20 icon-upload_pictures"></span>
-                        </div>
-                      </div>
-                      <span className="userName flex mLeft20 Font17">
-                        {(currentData.find(o => o.alias === 'name') || {}).value}
-                      </span>
-                    </div>
-                    <div className={cx('email flexRow mTop32')}>
-                      <span className="title InlineBlock Gray_9e">{_l('手机号')}</span>
-                      <span className="telNumber flex">
-                        {(currentData.find(o => o.alias === 'mobilephone') || {}).value}
-                        <span
-                          className={cx('edit ThemeColor3 Hand InlineBlock', {
-                            mLeft10: (currentData.find(o => o.alias === 'mobilephone') || {}).value,
-                          })}
-                          onClick={() => {
-                            this.setState({
-                              showTelDialog: true,
-                              type: 'phone',
-                            });
-                          }}
-                        >
-                          {(currentData.find(o => o.alias === 'mobilephone') || {}).value ? _l('修改') : _l('绑定')}
-                        </span>
-                      </span>
-                    </div>
-                    <div className={cx('tel flexRow mTop24')}>
-                      <span className="title InlineBlock Gray_9e">{_l('邮箱')}</span>
-                      <span className="telNumber flex">
-                        {(currentData.find(o => o.controlId === 'portal_email') || {}).value}
-                        <span
-                          className={cx('edit ThemeColor3 Hand InlineBlock', {
-                            mLeft10: (currentData.find(o => o.controlId === 'portal_email') || {}).value,
-                          })}
-                          onClick={() => {
-                            this.setState({
-                              showTelDialog: true,
-                              type: 'email',
-                            });
-                          }}
-                        >
-                          {(currentData.find(o => o.controlId === 'portal_email') || {}).value
-                            ? _l('修改')
-                            : _l('绑定')}
-                        </span>
-                      </span>
-                    </div>
-                    <div className={cx('tel flexRow mTop24')}>
-                      <span className="title InlineBlock Gray_9e">{_l('密码')}</span>
-                      <span
-                        className={cx('telNumber flex', {
-                          Gray_bd: !this.state.hasPassword,
-                        })}
-                      >
-                        {this.state.hasPassword ? _l('已设置') : _l('未设置')}
-                        <span
-                          className="edit ThemeColor3 Hand mLeft10 InlineBlock"
-                          onClick={() => {
-                            this.setState({
-                              showChangePwd: true,
-                            });
-                          }}
-                        >
-                          {_l('修改')}
-                        </span>
-                      </span>
-                    </div>
-                    <div className={cx('tel flexRow alignItemsCenter mTop24')}>
-                      <span className="title InlineBlock Gray_9e">{_l('语言设置')}</span>
-                      <div className="languagueSetting flexRow flex">
-                        {langConfig.map(item => {
-                          return (
-                            <div
-                              className={cx('languagueItem flex Hand', {
-                                active: (getCookie('i18n_langtag') || md.global.Config.DefaultLang) === item.key,
-                              })}
-                              onClick={() => {
-                                accountSetting
-                                  .editAccountSetting({
-                                    settingType: '6',
-                                    settingValue: getCurrentLangCode(item.key).toString(),
-                                  })
-                                  .then(res => {
-                                    if (res) {
-                                      setCookie('i18n_langtag', item.key);
-                                      window.location.reload();
-                                    } else {
-                                      alert(_l('设置失败，请稍后再试'), 2);
-                                    }
-                                  });
-                              }}
-                            >
-                              {item.value}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <h6 className={cx('Font16', { mTop32: !isMobile, mTop24: isMobile })}>{_l('我的信息')}</h6>
-                    <div className="infoBox">
-                      {info
-                        .filter(o => o.fieldPermission[2] !== '1') //不收集的信息，用户个人信息不显示
-                        .sort((a, b) => {
-                          return a.row - b.row;
-                        })
-                        .map(o => {
-                          return (
-                            <div className="tel flexRow mTop10">
-                              <span className="title InlineBlock Gray_9e WordBreak">{o.controlName}</span>
-                              <span className={cx('flex mLeft24 rInfo', { isOption: [9, 10, 11].includes(o.type) })}>
-                                {renderText({ ...o })}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      <span
-                        className="edit ThemeColor3 Hand mTop12 InlineBlock"
-                        onClick={() => {
-                          this.setState({
-                            showUserInfoDialog: true,
-                          });
-                        }}
-                      >
-                        {_l('修改')}
-                      </span>
-                    </div>
+        <Drawer
+          width={isMobile ? '100%' : 480}
+          className={[1, 3].includes(currentPcNaviStyle) ? '' : 'Absolute'}
+          onClose={() => this.setState({ showUserInfo: false })}
+          placement="right"
+          visible={showUserInfo}
+          maskClosable={true}
+          closable={false}
+          getContainer={![1, 3].includes(currentPcNaviStyle)}
+          mask={true}
+          bodyStyle={{ padding: 0 }}
+        >
+          <Wrap className={cx('flexColumn h100', { isMobile, leftNaviStyle: [1, 3].includes(currentPcNaviStyle) })}>
+            {isMobile && (
+              <React.Fragment>
+                <span
+                  className="Font17 Hand InlineBlock back pLeft16"
+                  onClick={() => {
+                    this.setState({ showUserInfo: false });
+                  }}
+                >
+                  <Icon icon="backspace mRight8 Gray_9e" />
+                  {_l('我的账户')}
+                </span>
+              </React.Fragment>
+            )}
+            <div className="infoConBox flex">
+              <div className="account flexRow">
+                <div className="userImage" onClick={this.handleUploadImg}>
+                  <img
+                    className="avatarImg"
+                    src={(this.state.avatar || '').split('imageView2')[0]}
+                    style={{ width: 56, height: 56, borderRadius: '50%' }}
+                  />
+                  <div className="hoverAvatar">
+                    <span className="Font20 icon-upload_pictures"></span>
                   </div>
-                  <div className="logoutBox">
-                    <div
-                      className="logout Hand Font14 Bold"
-                      onClick={() => {
-                        this.logout();
-                      }}
-                    >
-                      <Icon icon="exit_to_app" className="mRight5 Font18" />
-                      {_l('退出登录')}
-                    </div>
-                    {browserIsMobile() ? (
+                </div>
+                <span className="userName flex mLeft20 Font17">
+                  {(currentData.find(o => o.alias === 'name') || {}).value}
+                </span>
+              </div>
+              <div className={cx('email flexRow mTop32')}>
+                <span className="title InlineBlock Gray_9e">{_l('手机号')}</span>
+                <span className="telNumber flex">
+                  {(currentData.find(o => o.alias === 'mobilephone') || {}).value}
+                  <span
+                    className={cx('edit ThemeColor3 Hand InlineBlock', {
+                      mLeft10: (currentData.find(o => o.alias === 'mobilephone') || {}).value,
+                    })}
+                    onClick={() => {
+                      this.setState({
+                        showTelDialog: true,
+                        type: 'phone',
+                      });
+                    }}
+                  >
+                    {(currentData.find(o => o.alias === 'mobilephone') || {}).value ? _l('修改') : _l('绑定')}
+                  </span>
+                </span>
+              </div>
+              <div className={cx('tel flexRow mTop24')}>
+                <span className="title InlineBlock Gray_9e">{_l('邮箱')}</span>
+                <span className="telNumber flex">
+                  {(currentData.find(o => o.controlId === 'portal_email') || {}).value}
+                  <span
+                    className={cx('edit ThemeColor3 Hand InlineBlock', {
+                      mLeft10: (currentData.find(o => o.controlId === 'portal_email') || {}).value,
+                    })}
+                    onClick={() => {
+                      this.setState({
+                        showTelDialog: true,
+                        type: 'email',
+                      });
+                    }}
+                  >
+                    {(currentData.find(o => o.controlId === 'portal_email') || {}).value ? _l('修改') : _l('绑定')}
+                  </span>
+                </span>
+              </div>
+              <div className={cx('tel flexRow mTop24')}>
+                <span className="title InlineBlock Gray_9e">{_l('密码')}</span>
+                <span
+                  className={cx('telNumber flex', {
+                    Gray_bd: !this.state.hasPassword,
+                  })}
+                >
+                  {this.state.hasPassword ? _l('已设置') : _l('未设置')}
+                  <span
+                    className="edit ThemeColor3 Hand mLeft10 InlineBlock"
+                    onClick={() => {
+                      this.setState({
+                        showChangePwd: true,
+                      });
+                    }}
+                  >
+                    {_l('修改')}
+                  </span>
+                </span>
+              </div>
+              <div className={cx('tel flexRow alignItemsCenter mTop24')}>
+                <span className="title InlineBlock Gray_9e">{_l('语言设置')}</span>
+                <div className="languagueSetting flexRow flex">
+                  {langConfig.map(item => {
+                    return (
                       <div
-                        className="opt Hand TxtCenter"
+                        className={cx('languagueItem flex Hand', {
+                          active: (getCookie('i18n_langtag') || md.global.Config.DefaultLang) === item.key,
+                        })}
+                        onClick={() => {
+                          accountSetting
+                            .editAccountSetting({
+                              settingType: '6',
+                              settingValue: getCurrentLangCode(item.key).toString(),
+                            })
+                            .then(res => {
+                              if (res) {
+                                setCookie('i18n_langtag', item.key);
+                                window.location.reload();
+                              } else {
+                                alert(_l('设置失败，请稍后再试'), 2);
+                              }
+                            });
+                        }}
+                      >
+                        {item.value}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <h6 className={cx('Font16', { mTop32: !isMobile, mTop24: isMobile })}>{_l('我的信息')}</h6>
+              <div className="infoBox">
+                {info
+                  .filter(o => o.fieldPermission[2] !== '1') //不收集的信息，用户个人信息不显示
+                  .sort((a, b) => {
+                    return a.row - b.row;
+                  })
+                  .map(o => {
+                    return (
+                      <div className="tel flexRow mTop10">
+                        <span className="title InlineBlock Gray_9e WordBreak">{o.controlName}</span>
+                        <span className={cx('flex mLeft24 rInfo', { isOption: [9, 10, 11].includes(o.type) })}>
+                          {renderText({ ...o })}
+                        </span>
+                      </div>
+                    );
+                  })}
+                <span
+                  className="edit ThemeColor3 Hand mTop12 InlineBlock"
+                  onClick={() => {
+                    this.setState({
+                      showUserInfoDialog: true,
+                    });
+                  }}
+                >
+                  {_l('修改')}
+                </span>
+              </div>
+            </div>
+            <div className="logoutBox">
+              <div
+                className="logout Hand Font14 Bold"
+                onClick={() => {
+                  this.logout();
+                }}
+              >
+                <Icon icon="exit_to_app" className="mRight5 Font18" />
+                {_l('退出登录')}
+              </div>
+              {browserIsMobile() ? (
+                <div
+                  className="opt Hand TxtCenter"
+                  onClick={() => {
+                    this.setState({
+                      showModel: true,
+                    });
+                  }}
+                >
+                  <Icon icon="more_horiz" className="Font18" />
+                </div>
+              ) : (
+                <Trigger
+                  action={['click']}
+                  popupVisible={showMenu}
+                  onPopupVisibleChange={visible => {
+                    this.setState({
+                      showMenu: visible,
+                    });
+                  }}
+                  popup={
+                    <Menu>
+                      <RedMenuItemWrap
+                        className="RedMenuItem"
                         onClick={() => {
                           this.setState({
-                            showModel: true,
+                            showDelDialog: true,
+                            showMenu: false,
                           });
                         }}
                       >
-                        <Icon icon="more_horiz" className="Font18" />
-                      </div>
-                    ) : (
-                      <Trigger
-                        action={['click']}
-                        popupVisible={showMenu}
-                        onPopupVisibleChange={visible => {
-                          this.setState({
-                            showMenu: visible,
-                          });
-                        }}
-                        popup={
-                          <Menu>
-                            <RedMenuItemWrap
-                              className="RedMenuItem"
-                              onClick={() => {
-                                this.setState({
-                                  showDelDialog: true,
-                                  showMenu: false,
-                                });
-                              }}
-                            >
-                              <span>{_l('注销此账户')}</span>
-                            </RedMenuItemWrap>
-                          </Menu>
-                        }
-                        popupClassName={cx('dropdownTrigger')}
-                        popupAlign={{
-                          points: ['tl', 'bl'],
-                          overflow: {
-                            adjustX: true,
-                            adjustY: true,
-                          },
-                        }}
-                      >
-                        <div
-                          className="opt Hand TxtCenter"
-                          onClick={() => {
-                            this.setState({
-                              showMenu: true,
-                            });
-                          }}
-                        >
-                          <Icon icon="more_horiz" className="Font18" />
-                        </div>
-                      </Trigger>
-                    )}
+                        <span>{_l('注销此账户')}</span>
+                      </RedMenuItemWrap>
+                    </Menu>
+                  }
+                  popupClassName={cx('dropdownTrigger')}
+                  popupAlign={{
+                    points: ['tl', 'bl'],
+                    overflow: {
+                      adjustX: true,
+                      adjustY: true,
+                    },
+                  }}
+                >
+                  <div
+                    className="opt Hand TxtCenter"
+                    onClick={() => {
+                      this.setState({
+                        showMenu: true,
+                      });
+                    }}
+                  >
+                    <Icon icon="more_horiz" className="Font18" />
                   </div>
-                </Wrap>
-              }
-            </CSSTransitionGroup>
-          </ClickAwayable>
-        )}
+                </Trigger>
+              )}
+            </div>
+          </Wrap>
+        </Drawer>
         {showModel && (
           <ModalWrap
             popup

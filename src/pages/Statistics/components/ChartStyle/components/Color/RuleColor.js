@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Modal, ConfigProvider, Button, Radio, Input, Select, Checkbox } from 'antd';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import { Icon, ColorPicker } from 'ming-ui';
 import { colorGroup, reportTypes } from 'statistics/Charts/common';
 import { getIsAlienationColor } from 'statistics/common';
@@ -21,14 +21,22 @@ const SortableItem = SortableElement(({ item, ruleIndex, rulesLength, isPercent,
           className="chartSelect mRight10"
           value={type}
           suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
-          onChange={(type) => {
+          onChange={type => {
             otherProps.onSetRule({ type }, ruleIndex);
           }}
         >
-          <Select.Option className="selectOptionWrapper" value={1}>{'>'}</Select.Option>
-          <Select.Option className="selectOptionWrapper" value={2}>{'>='}</Select.Option>
-          <Select.Option className="selectOptionWrapper" value={3}>{'='}</Select.Option>
-          <Select.Option className="selectOptionWrapper" value={4}>{_l('为空')}</Select.Option>
+          <Select.Option className="selectOptionWrapper" value={1}>
+            {'>'}
+          </Select.Option>
+          <Select.Option className="selectOptionWrapper" value={2}>
+            {'>='}
+          </Select.Option>
+          <Select.Option className="selectOptionWrapper" value={3}>
+            {'='}
+          </Select.Option>
+          <Select.Option className="selectOptionWrapper" value={4}>
+            {_l('为空')}
+          </Select.Option>
         </Select>
         {[1, 2].includes(type) && (
           <Fragment>
@@ -37,7 +45,7 @@ const SortableItem = SortableElement(({ item, ruleIndex, rulesLength, isPercent,
               value={min}
               placeholder={_l('最小值')}
               className="chartInput"
-              onChange={(e) => {
+              onChange={e => {
                 const value = formatNumberFromInput(event.target.value);
                 otherProps.onSetRule({ min: value ? value : undefined }, ruleIndex);
               }}
@@ -55,7 +63,7 @@ const SortableItem = SortableElement(({ item, ruleIndex, rulesLength, isPercent,
               value={value}
               placeholder={_l('值')}
               className="chartInput"
-              onChange={(e) => {
+              onChange={e => {
                 const value = formatNumberFromInput(event.target.value);
                 otherProps.onSetRule({ value: value ? value : undefined }, ruleIndex);
               }}
@@ -74,19 +82,23 @@ const SortableItem = SortableElement(({ item, ruleIndex, rulesLength, isPercent,
               className="chartSelect mRight10"
               value={and}
               suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
-              onChange={(and) => {
+              onChange={and => {
                 otherProps.onSetRule({ and }, ruleIndex);
               }}
             >
-              <Select.Option className="selectOptionWrapper" value={5}>{'<'}</Select.Option>
-              <Select.Option className="selectOptionWrapper" value={6}>{'<='}</Select.Option>
+              <Select.Option className="selectOptionWrapper" value={5}>
+                {'<'}
+              </Select.Option>
+              <Select.Option className="selectOptionWrapper" value={6}>
+                {'<='}
+              </Select.Option>
             </Select>
             <Input
               style={{ width: isPercent ? 90 : 115 }}
               value={max}
               placeholder={_l('最大值')}
               className="chartInput"
-              onChange={(e) => {
+              onChange={e => {
                 const value = formatNumberFromInput(event.target.value);
                 otherProps.onSetRule({ max: value ? value : undefined }, ruleIndex);
               }}
@@ -155,13 +167,13 @@ class ColorLevel extends Component {
       },
       max: colorRule.max || {
         value: undefined,
-        color: '#3bb057'
+        color: '#3bb057',
       },
       controlId: colorRule.controlId || _.get(yaxisList[0], 'controlId') || null,
       applyValue: colorRule.applyValue || 1,
       centerVisible: colorRule.centerVisible || false,
-      colors: []
-    }
+      colors: [],
+    };
   }
   getGradientColors = () => {
     const { min, max, center, centerVisible } = this.state;
@@ -173,7 +185,7 @@ class ColorLevel extends Component {
       const colors = getGradientColors(min.color, max.color, 100);
       return colors;
     }
-  }
+  };
   getSaveData = () => {
     const { reportType } = this.props;
     const { min, center, max, controlId, applyValue, centerVisible } = this.state;
@@ -185,24 +197,24 @@ class ColorLevel extends Component {
       controlId,
       applyValue: reportType === reportTypes.PivotTable ? applyValue : 2,
       centerVisible,
-      colors
-    }
-  }
-  handleChangeMin = (data) => {
+      colors,
+    };
+  };
+  handleChangeMin = data => {
     this.setState({
-      min: data
+      min: data,
     });
-  }
-  handleChangeCenter = (data) => {
+  };
+  handleChangeCenter = data => {
     this.setState({
-      center: data
+      center: data,
     });
-  }
-  handleChangeMax = (data) => {
+  };
+  handleChangeMax = data => {
     this.setState({
-      max: data
+      max: data,
     });
-  }
+  };
   renderItem(name, placeholder, data, onChange) {
     const { value, color } = data;
     return (
@@ -216,7 +228,7 @@ class ColorLevel extends Component {
             onChange={value => {
               onChange({
                 ...data,
-                color: value
+                color: value,
               });
             }}
           >
@@ -229,17 +241,17 @@ class ColorLevel extends Component {
             value={value}
             placeholder={placeholder}
             className="chartInput flex mRight10"
-            onChange={(e) => {
+            onChange={e => {
               let value = formatNumberFromInput(event.target.value);
               onChange({
                 ...data,
-                value: value ? value : undefined
+                value: value ? value : undefined,
               });
             }}
             onBlur={() => {
               onChange({
                 ...data,
-                value: value ? Number(value) : undefined
+                value: value ? Number(value) : undefined,
               });
             }}
           />
@@ -259,7 +271,7 @@ class ColorLevel extends Component {
           {!isNumberControl(data.controlType) && norm && ` (${norm.text})`}
         </Select.Option>
       );
-    }
+    };
     return (
       <Fragment>
         <div className="flexRow valignWrapper mTop16">
@@ -270,7 +282,7 @@ class ColorLevel extends Component {
               className={cx('chartSelect mRight10', { Red: controlId && !_.find(filterYaxisList, { controlId }) })}
               value={controlId ? (_.find(filterYaxisList, { controlId }) ? controlId : _l('已删除')) : undefined}
               suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
-              onChange={(controlId) => {
+              onChange={controlId => {
                 this.setState({ controlId });
               }}
             >
@@ -285,41 +297,48 @@ class ColorLevel extends Component {
                 className="chartSelect mRight10"
                 value={applyValue}
                 suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
-                onChange={(applyValue) => {
+                onChange={applyValue => {
                   this.setState({ applyValue });
                 }}
               >
-                <Select.Option className="selectOptionWrapper" value={1}>{_l('仅值')}</Select.Option>
-                <Select.Option className="selectOptionWrapper" value={2}>{_l('值和总计')}</Select.Option>
-                <Select.Option className="selectOptionWrapper" value={3}>{_l('仅总计')}</Select.Option>
+                <Select.Option className="selectOptionWrapper" value={1}>
+                  {_l('仅值')}
+                </Select.Option>
+                <Select.Option className="selectOptionWrapper" value={2}>
+                  {_l('值和总计')}
+                </Select.Option>
+                <Select.Option className="selectOptionWrapper" value={3}>
+                  {_l('仅总计')}
+                </Select.Option>
               </Select>
             </div>
           )}
         </div>
         <div className="flexRow valignWrapper">
-          <div className="flex mRight10">
-            {this.renderItem(_l('开始'), _l('最小值'), min, this.handleChangeMin)}
-          </div>
+          <div className="flex mRight10">{this.renderItem(_l('开始'), _l('最小值'), min, this.handleChangeMin)}</div>
           {centerVisible && (
             <div className="flex mRight10">
               {this.renderItem(_l('中间'), _l('中间值'), center, this.handleChangeCenter)}
             </div>
           )}
-          <div className="flex">
-            {this.renderItem(_l('结束'), _l('最大值'), max, this.handleChangeMax)}
-          </div>
+          <div className="flex">{this.renderItem(_l('结束'), _l('最大值'), max, this.handleChangeMax)}</div>
         </div>
         <div className="flexRow valignWrapper mTop16">
           <Checkbox
             checked={centerVisible}
-            onChange={(e) => {
+            onChange={e => {
               this.setState({ centerVisible: e.target.checked });
             }}
           >
             {_l('中间值')}
           </Checkbox>
         </div>
-        <div className="gradientColor mTop16" style={{ background: `linear-gradient(90deg, ${min.color}, ${ centerVisible ? `${center.color},` : '' } ${max.color})` }}></div>
+        <div
+          className="gradientColor mTop16"
+          style={{
+            background: `linear-gradient(90deg, ${min.color}, ${centerVisible ? `${center.color},` : ''} ${max.color})`,
+          }}
+        ></div>
       </Fragment>
     );
   }
@@ -337,10 +356,10 @@ class ColorScope extends Component {
           min: undefined,
           max: undefined,
           value: undefined,
-          color: '#0097ef'
-        }
-      ]
-    }
+          color: '#0097ef',
+        },
+      ],
+    };
   }
   handleAddRule = () => {
     const { scopeRules } = this.state;
@@ -351,15 +370,15 @@ class ColorScope extends Component {
         min: undefined,
         max: undefined,
         value: undefined,
-        color: '#3bb057'
-      })
+        color: '#3bb057',
+      }),
     });
-  }
+  };
   getSaveData = () => {
     return {
-      scopeRules: this.state.scopeRules
+      scopeRules: this.state.scopeRules,
     };
-  }
+  };
   handleSetRule = (data, index) => {
     const { scopeRules } = this.state;
     this.setState({
@@ -367,27 +386,27 @@ class ColorScope extends Component {
         if (index === i) {
           return {
             ...rule,
-            ...data
-          }
+            ...data,
+          };
         } else {
           return rule;
         }
-      })
+      }),
     });
-  }
-  handleDeleteRule = (index) => {
+  };
+  handleDeleteRule = index => {
     const { scopeRules } = this.state;
     this.setState({
-      scopeRules: scopeRules.filter((_, i) => i !== index)
+      scopeRules: scopeRules.filter((_, i) => i !== index),
     });
-  }
+  };
   handleSortEnd = ({ oldIndex, newIndex }) => {
     if (oldIndex === newIndex) return;
     const { scopeRules } = this.state;
     this.setState({
-      scopeRules: arrayMove(scopeRules, oldIndex, newIndex)
+      scopeRules: arrayMove(scopeRules, oldIndex, newIndex),
     });
-  }
+  };
   render() {
     const { isPercent } = this.props;
     const { scopeRules } = this.state;
@@ -419,8 +438,8 @@ export default class RuleColor extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      model: 1
-    }
+      model: 1,
+    };
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.visible) {
@@ -428,29 +447,26 @@ export default class RuleColor extends Component {
       this.setState({ model });
     }
   }
-  handleChangeType = (event) => {
+  handleChangeType = event => {
     const { value } = event.target;
     this.setState({
-      model: value
+      model: value,
     });
-  }
+  };
   handleSave = () => {
     const { model } = this.state;
     const data = this.colorLevelEl.getSaveData();
     this.props.onSave({
       ...data,
-      model
+      model,
     });
-  }
+  };
   renderRuleColorFooter() {
     const { onCancel } = this.props;
     return (
       <div className="mTop20 mBottom10 pRight8">
         <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button
-            type="link"
-            onClick={onCancel}
-          >
+          <Button type="link" onClick={onCancel}>
             {_l('取消')}
           </Button>
           <Button type="primary" onClick={this.handleSave}>

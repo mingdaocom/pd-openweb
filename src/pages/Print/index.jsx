@@ -6,7 +6,6 @@ import Con from './components/content';
 import { Icon, Dialog, LoadDiv } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import homeAppApi from 'src/api/homeApp';
-import appManagementApi from 'src/api/appManagement';
 import instance from 'src/pages/workflow/api/instanceVersion';
 import './index.less';
 import SaveDia from './components/saveDia';
@@ -20,7 +19,7 @@ import { getControlsForPrint, sysToPrintData, isRelation } from './util';
 import appManagementAjax from 'src/api/appManagement';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import _ from 'lodash';
-import { addBehaviorLog, getTranslateInfo } from 'src/util';
+import { addBehaviorLog, getTranslateInfo, getAppLangDetail } from 'src/util';
 import { replaceControlsTranslateInfo } from 'worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { canEditApp, isHaveCharge } from 'src/pages/worksheet/redux/actions/util.js';
@@ -86,6 +85,7 @@ class PrintForm extends React.Component {
     const { params } = this.state;
     const { type, from, appId, printType } = params;
     homeAppApi.getApp({ appId: appId, getLang: true }, { silent: true }).then(data => {
+      window[`timeZone_${appId}`] = data.timeZone;
       this.setState({
         isHaveCharge: isHaveCharge(data.permissionType, data.isLock),
         isUserAdmin:
@@ -94,20 +94,9 @@ class PrintForm extends React.Component {
             : this.state.isUserAdmin,
       });
       if (from === fromType.PRINT && type === typeForCon.NEW && appId && printType !== 'flow') {
-        if (data.langInfo && data.langInfo.appLangId) {
-          appManagementApi
-            .getAppLangDetail({
-              projectId: data.projectId,
-              appId,
-              appLangId: data.langInfo.appLangId,
-            })
-            .then(lang => {
-              window[`langData-${appId}`] = lang.items;
-              cb && cb();
-            });
-        } else {
+        getAppLangDetail(data).then(() => {
           cb && cb();
-        }
+        });
       } else {
         cb && cb();
       }
@@ -123,7 +112,7 @@ class PrintForm extends React.Component {
         })
         .then(res => {
           if (res) {
-            let data = JSON.parse(res);
+            let data = JSON.parse(res.data);
             this.setState(
               {
                 params: {
@@ -155,7 +144,7 @@ class PrintForm extends React.Component {
         getTemplate: true,
       })
       .then(res => {
-        res.name = getTranslateInfo(res.appId, worksheetId).name || res.name;
+        res.name = getTranslateInfo(res.appId, null, worksheetId).name || res.name;
         this.setInfo(res);
       });
   };
@@ -405,10 +394,16 @@ class PrintForm extends React.Component {
         });
         return;
       }
-      res.formName = getTranslateInfo(appId, worksheetId).name || res.formName;
-      if (res.receiveControls && res.receiveControls.length) {
-        res.receiveControls = replaceControlsTranslateInfo(appId, res.receiveControls);
-      }
+      res.formName = getTranslateInfo(appId, null, worksheetId).name || res.formName;
+
+      _.forEach(res.relationMaps, function (value, key) {
+        const relaControl = res.receiveControls.find(l => l.controlId === key);
+        res.relationMaps[key].controls = replaceControlsTranslateInfo(
+          appId,
+          relaControl.dataSource,
+          relaControl.relationControls,
+        );
+      });
 
       const rules = resData[1];
       //通过规则计算
@@ -417,7 +412,7 @@ class PrintForm extends React.Component {
         recordId: rowId,
         data: res.receiveControls,
       });
-      receiveControls = getControlsForPrint(receiveControls, res.relations)
+      receiveControls = getControlsForPrint(receiveControls, res.relationMaps)
         .filter(o => ![43, 49].includes(o.type) && !FILTER_SYS.includes(o.controlId))
         .filter(o =>
           printId || (!printId && type === typeForCon.NEW && from === fromType.FORMSET) // 模版打印/配置（新建模版）=> 不考虑显隐设置
@@ -444,7 +439,7 @@ class PrintForm extends React.Component {
         ...this.state.printData,
         ..._.omit(res, ['rowId']),
         rowIdForQr: res.rowId,
-        receiveControls,
+        receiveControls: replaceControlsTranslateInfo(appId, worksheetId, receiveControls),
         rules,
         attributeName,
         font: Number(res.font || DEFAULT_FONT_SIZE),
@@ -651,7 +646,7 @@ class PrintForm extends React.Component {
             .map(it => {
               return it.receiveControlId;
             }),
-          filters: (_.get(printData, 'filters') || []).map(handleCondition)
+          filters: (_.get(printData, 'filters') || []).map(handleCondition),
         },
         saveControls: controls,
       })

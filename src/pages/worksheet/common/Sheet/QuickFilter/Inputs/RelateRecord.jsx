@@ -127,6 +127,7 @@ export default function RelateRecord(props) {
   if (String(direction) === '1') {
     return (
       <RelateRecordOptions
+        advancedSetting={advancedSetting}
         multiple={isMultiple}
         selected={values}
         formData={filtersData}
@@ -147,6 +148,7 @@ export default function RelateRecord(props) {
     <Con ref={conRef}>
       <Dropdown
         popupClassName={values.length < 2 ? 'small' : ''}
+        getFilterRowsGetType={32}
         zIndex="xxx"
         disableNewRecord
         doNotClearKeywordsWhenChange={isMultiple}

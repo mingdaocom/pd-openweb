@@ -11,6 +11,7 @@ import { VersionProductType } from 'src/util/enum';
 import syncTaskApi from 'src/pages/integration/api/syncTask.js';
 import { navigateTo } from 'src/router/navigateTo';
 import AppSettingHeader from '../AppSettingHeader';
+import { getRequest } from 'src/util';
 
 const Wrap = styled.div`
   .emptyIcon {
@@ -58,6 +59,9 @@ const Wrap = styled.div`
   .w150px {
     width: 150px;
   }
+  .w180px {
+    width: 180px;
+  }
   .w200px {
     width: 200px;
   }
@@ -67,21 +71,6 @@ const Wrap = styled.div`
   }
   .w20px {
     width: 20px;
-  }
-`;
-const Header = styled.header`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-  p {
-    margin: 0;
-  }
-  .searchInput {
-    input {
-      &::placeholder {
-        color: #9e9e9e;
-      }
-    }
   }
 `;
 const ArrowUp = styled.span`
@@ -109,12 +98,14 @@ const ArrowDown = styled.span`
 let ajaxPromise = null;
 const pageSize = 40;
 export default function AggregationTables(props) {
+  const cache = useRef({});
+  const { aggTableId } = getRequest();
   const { projectId, appId } = props;
   const [{ showInfo, list, id, loading, pageNo, keyWords, noMore, sort, displayType }, setState] = useSetState({
-    id: '',
-    showInfo: false,
+    id: aggTableId,
+    showInfo: !!aggTableId,
     list: [],
-    loading: true,
+    loading: !aggTableId,
     keyWords: '',
     pageNo: 0,
     noMore: false,
@@ -137,13 +128,14 @@ export default function AggregationTables(props) {
       appId,
     };
     //获取同步任务列表;
-    ajaxPromise = syncTaskApi.list(fetchListParams);
+    ajaxPromise = syncTaskApi.list(fetchListParams, { isAggTable: true });
     ajaxPromise.then(result => {
       if (result) {
+        cache.current.list = pageNo > 0 ? list.concat(result.content || []) : result.content;
         setState({
-          list: pageNo > 0 ? list.concat(result.content) : result.content,
+          list: cache.current.list,
           loading: false,
-          noMore: result.content.length < pageSize,
+          noMore: (_.get(result, 'content.length') || 0) < pageSize,
         });
       }
     });
@@ -151,9 +143,12 @@ export default function AggregationTables(props) {
 
   const checkCanAdd = () => {
     syncTaskApi
-      .createAggTableSyncTaskPreCheck({
-        projectId,
-      })
+      .createAggTableSyncTaskPreCheck(
+        {
+          projectId,
+        },
+        { isAggTable: true },
+      )
       .then(res => {
         if (res.currentTaskNum >= res.maxTaskNum) {
           buriedUpgradeVersionDialog(
@@ -163,7 +158,7 @@ export default function AggregationTables(props) {
               explainText: _l('已达到使用上限，请考虑购买增补包或升级版本'),
             },
             () => {
-              navigateTo(`/admin/exaggregationtable/${projectId}/aggregationtable`);
+              navigateTo(`/admin/expansionserviceAggregationtable/${projectId}/aggregationtable`);
             },
           );
         } else {
@@ -229,7 +224,7 @@ export default function AggregationTables(props) {
           </div>
           <div className="flex mRight20 flexRow alignItemsCenter Gray_75 minWidth100">{_l('数据源')}</div>
           <div className="w150px mRight20 minWidth100 Gray_75">{_l('状态')}</div>
-          <div className="w200px pRight20 mRight20 flexRow alignItemsCenter">
+          <div className="w180px pRight20 mRight20 flexRow alignItemsCenter">
             <div className="flex">
               <Dropdown
                 className="Normal"
@@ -285,21 +280,22 @@ export default function AggregationTables(props) {
             </div>
           </div>
           <div className="w100px mRight20 minWidth100 Gray_75">{_l('创建人')}</div>
-          <div className="w50px mRight20" />
+          <div className="w50px mRight20 Gray_75">{_l('操作')}</div>
           <div className="w20px mRight20" />
         </div>
         {loading && pageNo <= 0 ? (
           <LoadDiv className="mTop20" />
         ) : (
           <ScrollView className="flex" onScrollEnd={onScrollEnd}>
-            {!list.length && renderNull(!keyWords ? null : _l('没有相关聚合表'))}
+            {(list || []).length <= 0 && renderNull(!keyWords ? null : _l('没有相关聚合表'))}
             {list.map((item, index) => (
               <Item
                 {...props}
                 item={item}
-                onChange={list => {
+                onChange={(list, item) => {
+                  cache.current.list = list ? list : cache.current.list.map(o => (o.id === item.id ? item : o));
                   setState({
-                    list,
+                    list: cache.current.list,
                   });
                 }}
                 onRefresh={() => {
@@ -318,6 +314,7 @@ export default function AggregationTables(props) {
                 displayType={displayType}
                 onEdit={() => {
                   setState({ showInfo: true, id: item.aggTableId });
+                  navigateTo(`/app/${appId}/settings/aggregation/${item.aggTableId}${location.search}`);
                 }}
               />
             ))}
@@ -332,16 +329,23 @@ export default function AggregationTables(props) {
 
   return (
     <Wrap className="flexColumn h100">
-      <AppSettingHeader
-        title={_l('聚合表')}
-        addBtnName={_l('新建聚合表')}
-        description={_l('将工作表数据预处理为聚合数据，在表单、工作流和统计中进行调用')}
-        handleSearch={onSearch}
-        handleAdd={() => {
-          featureType === '2' ? buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation) : checkCanAdd();
-        }}
-      />
-      <div className="flex flexColumn aggregationList">{renderContent()}</div>
+      {!aggTableId && (
+        <React.Fragment>
+          <AppSettingHeader
+            title={_l('聚合表')}
+            addBtnName={_l('新建聚合表')}
+            description={_l('可将多个工作表连接，对数据进行归组聚合，在统计中直接使用')}
+            link="https://help.mingdao.com/application/aggregation" //帮助链接
+            handleSearch={onSearch}
+            handleAdd={() => {
+              featureType === '2'
+                ? buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation)
+                : checkCanAdd();
+            }}
+          />
+          <div className="flex flexColumn aggregationList">{renderContent()}</div>
+        </React.Fragment>
+      )}
       {showInfo && (
         <FullScreenCurtain>
           <Info
@@ -357,7 +361,9 @@ export default function AggregationTables(props) {
                 noMore: false,
                 sort: { fieldName: '', sortDirection: null },
               });
+              navigateTo(`/app/${appId}/settings/aggregations${location.search}`);
             }}
+            appName={_.get(props, 'data.name')}
           />
         </FullScreenCurtain>
       )}

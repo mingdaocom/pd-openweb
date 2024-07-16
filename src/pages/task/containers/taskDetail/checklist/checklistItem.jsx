@@ -1,5 +1,6 @@
 ﻿import React, { Component } from 'react';
-import ReactDOM, { findDOMNode, render } from 'react-dom';
+import { findDOMNode } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { DragSource, DropTarget } from 'react-dnd';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -7,12 +8,18 @@ import Textarea from 'ming-ui/components/Textarea';
 import cx from 'classnames';
 import config from './common/config';
 import DragPreview from './common/dragPreview';
+
 const ClickAwayable = createDecoratedComponent(withClickAway);
+let root;
 
 class ChecklistOperator extends Component {
   render() {
     return (
-      <ClickAwayable component="ul" className="boxShadow5 boderRadAll_3 checklistOperator" onClickAway={() => this.props.isShowOperator()}>
+      <ClickAwayable
+        component="ul"
+        className="boxShadow5 boderRadAll_3 checklistOperator"
+        onClickAway={() => this.props.isShowOperator()}
+      >
         <li className="ThemeBGColor3" onClick={() => this.props.createTask()}>
           <i className="icon-task-card" />
           {_l('转为任务')}
@@ -36,7 +43,9 @@ const cardSource = {
       x: config.mouseOffset.left - componentRect.left,
       y: config.mouseOffset.top - componentRect.top,
     };
-    render(<DragPreview preview={preview} width={outerWidth} />, $('.taskDetailDragPreviewBox:last')[0]);
+
+    root = createRoot($('.taskDetailDragPreviewBox:last')[0]);
+    root.render(<DragPreview preview={preview} width={outerWidth} />);
     props.checklistItemBeginDrag(props.data, props.index, props.topIndex);
     return {
       index: props.index,
@@ -65,7 +74,7 @@ const cardSource = {
   endDrag(props, monitor, component) {
     props.checklistItemDrop();
     clearInterval(config.setInterval);
-    ReactDOM.unmountComponentAtNode($('.taskDetailDragPreviewBox:last')[0]);
+    root.unmount();
   },
 };
 
@@ -173,8 +182,17 @@ export default class ChecklistItem extends Component {
 
     const checklistItem = () => {
       return (
-        <div className={cx('taskChecklistItem flexRow pointer', { itemActive: this.state.isShowOperator }, { itemActiveBG: this.state.isEditName })}>
-          <span className={cx('checklistItemStatus Font18', data.status ? 'icon-ok' : 'icon-check_box')} onClick={() => this.updateItemStatus()} />
+        <div
+          className={cx(
+            'taskChecklistItem flexRow pointer',
+            { itemActive: this.state.isShowOperator },
+            { itemActiveBG: this.state.isEditName },
+          )}
+        >
+          <span
+            className={cx('checklistItemStatus Font18', data.status ? 'icon-ok' : 'icon-check_box')}
+            onClick={() => this.updateItemStatus()}
+          />
 
           {this.state.isEditName ? (
             <Textarea
@@ -188,15 +206,19 @@ export default class ChecklistItem extends Component {
               onBlur={evt => this.checklistNameUpdate(evt)}
             />
           ) : (
-            <span className={cx('flex Font13 checklistItemName', { checklistItemCompleted: data.status })} onClick={(evt) => this.editName(evt)}>
+            <span
+              className={cx('flex Font13 checklistItemName', { checklistItemCompleted: data.status })}
+              onClick={evt => this.editName(evt)}
+            >
               {data.name.length > 100 ? data.name.slice(0, 99) + '...' : data.name}
             </span>
           )}
 
-          {this.props.noAuth ? (
-            undefined
-          ) : (
-            <i className="icon-moreop ThemeColor3" onMouseDown={evt => this.checkMouseDownIsLeft(evt) && this.setState({ isShowOperator: true })} />
+          {this.props.noAuth ? undefined : (
+            <i
+              className="icon-moreop ThemeColor3"
+              onMouseDown={evt => this.checkMouseDownIsLeft(evt) && this.setState({ isShowOperator: true })}
+            />
           )}
 
           {this.state.isShowOperator ? (
@@ -211,15 +233,17 @@ export default class ChecklistItem extends Component {
                 this.props.removeItem(data.itemId);
               }}
             />
-          ) : (
-            undefined
-          )}
+          ) : undefined}
         </div>
       );
     };
 
     return (
-      <div>{this.props.noDragIndex === this.props.topIndex || this.props.noAuth ? checklistItem() : connectDragSource(connectDropTarget(checklistItem()))}</div>
+      <div>
+        {this.props.noDragIndex === this.props.topIndex || this.props.noAuth
+          ? checklistItem()
+          : connectDragSource(connectDropTarget(checklistItem()))}
+      </div>
     );
   }
 }

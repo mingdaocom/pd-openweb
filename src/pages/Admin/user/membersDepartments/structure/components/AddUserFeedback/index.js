@@ -150,7 +150,6 @@ const handleMoveDepartment = ({
     const params = {
       accountId,
       companyName,
-      contactPhone: '',
       departmentIds,
       email,
       fullname: userName || fullname,

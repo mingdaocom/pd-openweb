@@ -77,7 +77,7 @@ export default () => {
       },
     });
 
-    if (status === 2) {
+    if (status === 2 && location.href.includes(`app/${appId}`)) {
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         location.href = `/app/${appId}`;

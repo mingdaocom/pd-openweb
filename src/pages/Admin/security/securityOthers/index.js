@@ -4,6 +4,7 @@ import FeatureListWrap from '../../components/FeatureListWrap';
 import LimitAttachmentUpload from './LimitAttachmentUpload';
 import projectSettingController from 'src/api/projectSetting';
 import limitFeatureDialogFunc from './LimitFeatureDialog';
+import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 
 export default class SecurityOthers extends Component {
   constructor(props) {
@@ -81,11 +82,17 @@ export default class SecurityOthers extends Component {
       pluginsOnlyManager: _l('开发插件'),
     };
 
-    const settings = Object.keys(limitInfo).filter(v => this.state[v]);
+    const settings = Object.keys(limitInfo).filter(
+      v =>
+        !(v === 'pluginsOnlyManager' && md.global.SysSettings.hidePlugin) &&
+        !(v === 'apiIntgOnlyManager' && md.global.SysSettings.hideIntegration) &&
+        this.state[v],
+    );
     const settingsTxt = settings.map(item => limitInfo[item]).join('、');
 
     return (
       <div className="orgManagementWrap">
+        <AdminTitle prefix={_l('安全 - 其他')} />
         <div className="orgManagementHeader Font17">{_l('其他')}</div>
         <FeatureListWrap
           projectId={projectId}

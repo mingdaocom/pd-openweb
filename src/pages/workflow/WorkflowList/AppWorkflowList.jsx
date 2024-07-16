@@ -61,7 +61,7 @@ const HeaderWrap = styled.div`
   }
   .Gray_bd {
     &:hover {
-      color: #9e9e9e !important;
+      color: #757575 !important;
       .applicationIcon {
         box-shadow: 0 0 20px 20px rgb(0 0 0 / 10%) inset;
       }
@@ -70,7 +70,7 @@ const HeaderWrap = styled.div`
   .trash {
     color: #757575;
     .trashIcon {
-      color: #9e9e9e;
+      color: #757575;
     }
     &:hover {
       color: #2196f3;
@@ -120,7 +120,7 @@ const DropdownBox = styled.div`
     display: none;
     top: 10px;
     right: 6px;
-    color: #9e9e9e;
+    color: #757575;
     &:hover {
       color: #2196f3;
     }
@@ -130,7 +130,7 @@ const DropdownBox = styled.div`
 const ArrowUp = styled.span`
   border-width: 5px;
   border-style: solid;
-  border-color: transparent transparent #9e9e9e transparent;
+  border-color: transparent transparent #757575 transparent;
   cursor: pointer;
   &:hover,
   &.active {
@@ -141,7 +141,7 @@ const ArrowUp = styled.span`
 const ArrowDown = styled.span`
   border-width: 5px;
   border-style: solid;
-  border-color: #9e9e9e transparent transparent transparent;
+  border-color: #757575 transparent transparent transparent;
   cursor: pointer;
   margin-top: 2px;
   &:hover,
@@ -260,7 +260,7 @@ class AppWorkflowList extends Component {
       this.ajaxRequest = null;
 
       result.forEach(list => {
-        list.groupName = getTranslateInfo(this.props.match.params.appId, list.groupId).name || list.groupName;
+        list.groupName = getTranslateInfo(this.props.match.params.appId, null, list.groupId).name || list.groupName;
       });
 
       // webhook触发
@@ -406,17 +406,17 @@ class AppWorkflowList extends Component {
             <Link className="NoUnderline" to={`${url}?type=${item.value}`} key={item.value}>
               <li className={cx({ 'active ThemeColor3': type === item.value })}>
                 {type === item.value && <span className="activeLine" />}
-                <i className={cx('Font18', item.icon, type === item.value ? 'ThemeColor3' : 'Gray_9e')} />
+                <i className={cx('Font18', item.icon, type === item.value ? 'ThemeColor3' : 'Gray_75')} />
                 <span className="flex ellipsis mLeft10">{item.text}</span>
                 {item.value === FLOW_TYPE.PBC && (
                   <Support
-                    className="pointer Gray_9e mLeft2"
+                    className="pointer Gray_75 mLeft2"
                     href="https://help.mingdao.com/workflow/pbp"
                     type={1}
                     text={_l('帮助')}
                   />
                 )}
-                <span className="Gray_9e mLeft10 Font13">{count[item.value] || ''}</span>
+                <span className="Gray_75 mLeft10 Font13">{count[item.value] || ''}</span>
               </li>
             </Link>
           </Fragment>
@@ -579,7 +579,7 @@ class AppWorkflowList extends Component {
           {!list.length && (
             <div className="flowEmptyWrap flexColumn">
               <div className="flowEmptyPic flowEmptyPic-search" />
-              <div className="Gray_9e Font14 mTop20">{_l('没有搜索到流程')}</div>
+              <div className="Gray_75 Font14 mTop20">{_l('没有搜索到流程')}</div>
             </div>
           )}
           {list.map(item => this.renderListItem(item))}
@@ -606,9 +606,9 @@ class AppWorkflowList extends Component {
             {type !== FLOW_TYPE.OTHER_APP && item.groupId !== 'otherSubProcess' && (
               <Fragment>
                 {item.iconUrl ? (
-                  <SvgIcon url={item.iconUrl} fill="#9e9e9e" size={20} addClassName="mTop2 mRight5" />
+                  <SvgIcon url={item.iconUrl} fill="#757575" size={20} addClassName="mTop2 mRight5" />
                 ) : (
-                  <i className={cx('Gray_9e Font20 mRight5', ICON[item.groupId] || 'icon-worksheet')} />
+                  <i className={cx('Gray_75 Font20 mRight5', ICON[item.groupId] || 'icon-worksheet')} />
                 )}
               </Fragment>
             )}
@@ -648,7 +648,7 @@ class AppWorkflowList extends Component {
             <div className="w20 mRight20 TxtCenter relative">
               <Icon
                 type="more_horiz"
-                className="Gray_9e ThemeHoverColor3 pointer Font16 listBtn"
+                className="Gray_75 ThemeHoverColor3 pointer Font16 listBtn"
                 onClick={() => this.setState({ selectFlowId: data.id })}
               />
               {selectFlowId === data.id && this.renderMoreOptions(data)}
@@ -723,13 +723,13 @@ class AppWorkflowList extends Component {
       >
         <MenuItem>
           <Link to={`/workflowedit/${data.id}/2`}>
-            <span className="icon-restore2 Gray_9e Font16 pLeft12 mRight10" />
+            <span className="icon-restore2 Gray_75 Font16 pLeft12 mRight10" />
             {_l('历史')}
           </Link>
         </MenuItem>
 
         {!_.includes(
-          [FLOW_TYPE.OTHER_APP, FLOW_TYPE.APPROVAL, FLOW_TYPE.CUSTOM_ACTION, FLOW_TYPE.EVENT_PUSH],
+          [FLOW_TYPE.OTHER_APP, FLOW_TYPE.APPROVAL, FLOW_TYPE.CUSTOM_ACTION, FLOW_TYPE.EVENT_PUSH, FLOW_TYPE.LOOP],
           type,
         ) && (
           <MenuItem>
@@ -759,7 +759,7 @@ class AppWorkflowList extends Component {
         {_.includes([APP_TYPE.LOOP, APP_TYPE.WEBHOOK, APP_TYPE.PBC, APP_TYPE.USER], data.startAppType) &&
           type !== FLOW_TYPE.SUB_PROCESS && (
             <MenuItem onClick={() => this.setState({ selectItem: data })}>
-              <span className="icon-swap_horiz Gray_9e Font16 pLeft12 mRight10" />
+              <span className="icon-swap_horiz Gray_75 Font16 pLeft12 mRight10" />
               {_l('移至其他应用')}
             </MenuItem>
           )}
@@ -1018,7 +1018,7 @@ class AppWorkflowList extends Component {
                   ) : !list.length ? (
                     <div className="flowEmptyWrap flexColumn">
                       <div className={cx('flowEmptyPic', `flowEmptyPic-${(FLOW_TYPE_NULL[type] || {}).icon}`)} />
-                      <div className="Gray_9e Font14 mTop20">{FLOW_TYPE_NULL[type].text}</div>
+                      <div className="Gray_75 Font14 mTop20">{FLOW_TYPE_NULL[type].text}</div>
                     </div>
                   ) : (
                     <Fragment>

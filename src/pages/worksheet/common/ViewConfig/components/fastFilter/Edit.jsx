@@ -316,19 +316,18 @@ function Edit(params) {
         fastFilters: fastFilters.map((o, i) => {
           if (o.controlId === activeFastFilterId) {
             let filters = o;
-            if (![...ADVANCEDSETTING_KEYS, ...Filter_KEYS].includes(Object.keys(data)[0])) {
-              filters = {
-                ...filters,
-                ...data,
-              };
-            } else {
-              filters = {
-                ...filters,
-                advancedSetting: formatAdvancedSettingByNavfilters(filters, _.pick(data, ADVANCEDSETTING_KEYS)),
-                ..._.omit(data, ADVANCEDSETTING_KEYS),
-              };
-            }
-            return filters;
+            Object.keys(data).map(ii => {
+              if (![...ADVANCEDSETTING_KEYS, ...Filter_KEYS].includes(ii)) {
+                filters[ii] = data[ii];
+              } else {
+                if (ADVANCEDSETTING_KEYS.includes(ii)) {
+                  filters.advancedSetting[ii] = data[ii];
+                } else {
+                  filters[ii] = data[ii];
+                }
+              }
+            });
+            return formatObjWithNavfilters(filters);
           } else {
             return formatObjWithNavfilters(o);
           }
@@ -366,29 +365,23 @@ function Edit(params) {
           className="flex"
           onChange={newValue => {
             let dataNew = { [data.key]: newValue };
-            if (data.keys.includes(type)) {
+            if (data.keys.includes(type) && [15, 16].includes(type)) {
               let daterange = getDaterange();
               if (['dateRangeType'].includes(data.key)) {
                 dataNew = {
                   ...dataNew,
-                  advancedSetting: {
-                    ...advancedSetting,
-                    daterange: JSON.stringify(
-                      daterange.filter(o =>
-                        newValue == 5 ? DATE_TYPE_Y.includes(o) : newValue == 4 ? DATE_TYPE_M.includes(o) : true,
-                      ),
+                  daterange: JSON.stringify(
+                    daterange.filter(o =>
+                      newValue == 5 ? DATE_TYPE_Y.includes(o) : newValue == 4 ? DATE_TYPE_M.includes(o) : true,
                     ),
-                  },
+                  ),
                 };
               }
               if (['filterType'].includes(data.key)) {
                 //日期字段筛选方式切换，颗粒度清空
                 dataNew = {
                   ...dataNew,
-                  advancedSetting: {
-                    ...advancedSetting,
-                    daterange: JSON.stringify(daterange.filter(o => getDefaultDateRange(conData).includes(o))),
-                  },
+                  daterange: JSON.stringify(daterange.filter(o => getDefaultDateRange(conData).includes(o))),
                   dateRangeType:
                     newValue !== FILTER_CONDITION_TYPE.DATEENUM ? undefined : getDefaultDateRangeType(conData),
                 };
@@ -434,7 +427,7 @@ function Edit(params) {
                 // disabled={data.key === 'direction' && Number(advancedSetting.allowitem) === 1 && o.value === 1} // 平铺类型只支持多选
               >
                 {o.text}
-                {o.txt && <span className="Gray_9e">{o.txt}</span>}
+                {o.txt && <span className="Gray_75">{o.txt}</span>}
               </Radio>
             );
           })}

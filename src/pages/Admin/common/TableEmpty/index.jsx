@@ -9,15 +9,19 @@ export default class TableEmpty extends React.Component {
   };
 
   render() {
-    const { icon, desc } = this.props.detail;
+    const { icon, desc, customIcon, descClassName } = this.props.detail;
     const { className } = this.props;
 
     return (
       <div className={`tableEmptyBox ${className}`}>
-        <div className="emptyIcon">
-          <span className={cx('Font40', icon)} />
-        </div>
-        <span className="Bold Font15 mTop20 desc">{desc}</span>
+        {customIcon ? (
+          customIcon
+        ) : (
+          <div className="emptyIcon">
+            <span className={cx('Font40', icon)} />
+          </div>
+        )}
+        <span className={`Bold Font15 mTop20 desc ${descClassName}`}>{desc}</span>
       </div>
     );
   }

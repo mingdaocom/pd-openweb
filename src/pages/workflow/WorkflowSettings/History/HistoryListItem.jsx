@@ -26,7 +26,7 @@ export default ({
   const [isRetry, setRetry] = useState(false);
   const [versionDate, setVersion] = useState('');
   const [currentWorkflowId, setWorkflowId] = useState('');
-  const showRetry = _.includes([3, 4], status) && cause !== 7777;
+  const showRetry = _.includes([3, 4], status) && !_.includes([6666, 7777], cause);
   const showSuspend = status === 1;
 
   return (
@@ -88,8 +88,8 @@ export default ({
 
               setRetry(true);
 
-              (showRetry ? instanceVersion.resetInstance : instanceVersion.endInstance)({ instanceId: id }).then(
-                res => {
+              (showRetry ? instanceVersion.resetInstance : instanceVersion.endInstance)({ instanceId: id })
+                .then(res => {
                   onUpdateBatchIds(
                     batchIds.map(o => {
                       if (o.id === id) {
@@ -102,11 +102,13 @@ export default ({
                   );
                   updateSource(Object.assign(res, { id }), index);
                   setRetry(false);
-                },
-              );
+                })
+                .catch(() => {
+                  setRetry(false);
+                });
             }}
           >
-            <Icon className="Font16 pointer ThemeHoverColor3 Block Gray_9e" icon={showRetry ? 'replay' : 'delete'} />
+            <Icon className="Font16 pointer ThemeHoverColor3 Block Gray_75" icon={showRetry ? 'replay' : 'delete'} />
           </span>
         )}
       </div>
@@ -132,7 +134,7 @@ export default ({
             window.open(`/workflowedit/${currentWorkflowId}`);
           }}
         >
-          <Icon className="Font16 ThemeHoverColor3 Block Gray_9e" icon="info_outline" />
+          <Icon className="Font16 ThemeHoverColor3 Block Gray_75" icon="info_outline" />
         </span>
       </div>
     </li>

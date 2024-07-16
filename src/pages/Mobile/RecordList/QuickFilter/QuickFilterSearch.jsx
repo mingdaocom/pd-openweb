@@ -85,7 +85,7 @@ export default function QuickFilterSearch(props) {
 
   return (
     <SearchWrapper className="searchWrapper flexRow valignWrapper pLeft12 pRight12 pTop15 pBottom5">
-      <Search textFilters={[]} />
+      <Search textFilters={[]} viewType={view.viewType} />
       {!_.isEmpty(excludeTextFilter) && (
         <FilterWrapper>
           <Icon icon="filter" className={cx('Font20 Gray_9e', { active: isFilter })} onClick={handleOpenDrawer} />

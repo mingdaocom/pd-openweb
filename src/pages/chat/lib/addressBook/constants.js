@@ -16,6 +16,7 @@ export const gatherProjects = () => {
   const projects = md.global.Account.projects;
   return _.map(projects, ({ projectId, companyName }) => ({
     name: companyName,
+    projectId,
     list: [
       {
         name: _l('部门'),

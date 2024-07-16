@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { string, bool, arrayOf, shape } from 'prop-types';
 import styled from 'styled-components';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import { Dialog, ScrollView, UpgradeIcon } from 'ming-ui';
 import cx from 'classnames';
 import { VerticalMiddle, FlexCenter } from 'worksheet/components/Basics';
@@ -14,6 +14,8 @@ import GroupsSkeleton from './GroupsSkeleton';
 import EditGroup from './EditGroup';
 import GroupItem from './GroupItem';
 import _ from 'lodash';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const Con = styled.div`
   width: 238px;
@@ -68,14 +70,25 @@ function getSortType(type) {
 const SortableGroupItem = SortableElement(props => <GroupItem {...props} />);
 
 const SortableGroupList = SortableContainer(
-  ({ isAdmin, projectId, activeGroupId, groups, item, isDragging, setIsEditingGroupId, actions, dashboardColor }) => {
+  ({
+    hasManageAppAuth,
+    projectId,
+    activeGroupId,
+    groups,
+    item,
+    isDragging,
+    setIsEditingGroupId,
+    actions,
+    dashboardColor,
+    projectGroupsLang = {},
+  }) => {
     return (
       <div>
         {!!item.groups.length &&
           item.groups.map((group, j) => {
             return (
               <SortableGroupItem
-                isAdmin={isAdmin}
+                hasManageAppAuth={hasManageAppAuth}
                 key={group.id}
                 index={j}
                 itemType={item.type}
@@ -88,7 +101,7 @@ const SortableGroupList = SortableContainer(
                   groupType: group.groupType,
                   icon: group.icon,
                   iconUrl: group.iconUrl,
-                  name: group.name,
+                  name: _.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name,
                   count: group.count,
                   isMarked: group.isMarked,
                   onEdit: setIsEditingGroupId,
@@ -135,7 +148,6 @@ const SortableGroupList = SortableContainer(
 );
 export default function Groups(props) {
   const {
-    isAdmin,
     loading,
     activeGroupId,
     projectId,
@@ -145,6 +157,8 @@ export default function Groups(props) {
     groups = [],
     actions,
     dashboardColor,
+    projectGroupsLang = [],
+    myPermissions = [],
   } = props;
   const [isDragging, setIsDragging] = useState();
   const [sorts, setSorts] = useState({});
@@ -163,6 +177,8 @@ export default function Groups(props) {
     groups: _.sortBy(item.groups, g => (sorts[item.type] || []).indexOf(g.id)),
   }));
   const featureType = getFeatureStatus(projectId, VersionProductType.recycle);
+  const hasManageAppAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
+
   const expandBtn = (
     <BaseBtnCon
       className={isFolded ? 'mLeft24' : ''}
@@ -174,6 +190,7 @@ export default function Groups(props) {
       <i className={`expandIcon Right Hand Font20 Gray_75 icon ${!isFolded ? 'icon-menu_left' : 'icon-menu'}`}></i>
     </BaseBtnCon>
   );
+
   if (loading && !isFolded) {
     return (
       <Con>
@@ -183,6 +200,7 @@ export default function Groups(props) {
       </Con>
     );
   }
+
   return (
     <Con className={cx({ isFolded })}>
       {trashVisible && (
@@ -268,7 +286,6 @@ export default function Groups(props) {
                       {item.groups && !!item.groups.length && (
                         <SortableGroupList
                           {...{
-                            isAdmin,
                             actions,
                             projectId,
                             activeGroupId,
@@ -278,6 +295,8 @@ export default function Groups(props) {
                             setIsEditingGroupId,
                             dashboardColor,
                           }}
+                          hasManageAppAuth={hasManageAppAuth}
+                          projectGroupsLang={projectGroupsLang}
                           axis={'y'}
                           hideSortableGhost
                           helperClass="draggingItem"
@@ -308,7 +327,8 @@ export default function Groups(props) {
       )}
       {(editingGroupId || addGroupVisible) && (
         <EditGroup
-          isAdmin={isAdmin}
+          {...props}
+          hasManageAppAuth={hasManageAppAuth}
           projectId={projectId}
           {...(editingGroup
             ? {
@@ -318,15 +338,18 @@ export default function Groups(props) {
               }
             : {})}
           type={addGroupVisible ? 'add' : 'edit'}
-          onChange={({ name, icon, groupType }) => {
+          projectGroupsLan={projectGroupsLang}
+          editingGroupId={editingGroupId}
+          onChange={({ name, icon, groupType, langData = [] }) => {
             if (addGroupVisible) {
               actions.addGroup({
                 projectId,
                 name,
                 icon,
                 groupType,
-                cb: status => {
-                  if (!status) {
+                langData,
+                cb: (status, id) => {
+                  if (status === 1) {
                     setAddGroupVisible(false);
                     alert(_l('新建分组成功'));
                   } else {
@@ -380,7 +403,6 @@ export default function Groups(props) {
 }
 
 Groups.propTypes = {
-  isAdmin: bool,
   loading: bool,
   activeGroupId: string,
   projectId: string,

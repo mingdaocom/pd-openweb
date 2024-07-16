@@ -31,7 +31,8 @@ const Wrap = styled.div`
     padding: 0 6px;
   }
   .ant-select:not(.ant-select-customize-input) .ant-select-selector {
-    height: 36px;
+    min-height: 36px;
+    height: auto;
     border-radius: 3px;
     border: 1px solid #dddddd;
   }

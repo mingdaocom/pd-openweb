@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Chart from 'statistics/Card';
+import './index.less';
 
 const PrintPivotTable = (props) => {
   const { match = {} } = props;

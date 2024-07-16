@@ -6,6 +6,8 @@ import { browserIsMobile } from 'src/util';
 import NoData from './GeneralSelect/NoData';
 import './index.less';
 import _ from 'lodash';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 // dataRange枚举(0:所有联系人, 1: 好友, 2:网络用户,3:其他协作---7.7版本移除 )
 const dataRangeTypes = {
@@ -25,7 +27,10 @@ class DialogSelectUser extends Component {
   }
 
   componentDidMount() {
-    const dropLists = this.initDropList();
+    this.initDropList();
+  }
+
+  getSettings = (dropLists = []) => {
     const { SelectUserSettings: { filterAll, filterFriend } = {} } = this.props;
     let settings = {};
     if (filterAll && filterFriend) {
@@ -38,12 +43,12 @@ class DialogSelectUser extends Component {
     if (!_.isEmpty(settings)) {
       this.setState({ ...settings });
     }
-  }
+  };
 
   /**
    * 获取下拉列表(全部联系人、好友、网络等)
    */
-  initDropList = () => {
+  initDropList = async () => {
     const { SelectUserSettings = {} } = this.props;
     let list = [];
 
@@ -59,9 +64,12 @@ class DialogSelectUser extends Component {
         text: _l('好友'),
       });
     }
-    if (md.global.Account && md.global.Account.projects) {
-      for (let i = 0, length = md.global.Account.projects.length; i < length; i++) {
-        const item = md.global.Account.projects[i];
+
+    let projects = md.global.Account.projects;
+
+    if (md.global.Account && projects) {
+      for (let i = 0, length = projects.length; i < length; i++) {
+        const item = projects[i];
         // 过滤某个
         if (
           SelectUserSettings.filterProjectId &&
@@ -83,17 +91,16 @@ class DialogSelectUser extends Component {
         });
       }
     }
-
-    return list;
+    this.getSettings(list);
+    this.setState({ list });
   };
 
   /**
    * 通讯录网络切换
    */
   renderHeader = () => {
-    const list = this.initDropList();
     const { SelectUserSettings = {} } = this.props;
-    const { dataRange, projectId } = this.state;
+    const { dataRange, projectId, list = [] } = this.state;
     const curValue =
       projectId && _.find(md.global.Account.projects, project => project.projectId === projectId)
         ? projectId
@@ -143,10 +150,7 @@ class DialogSelectUser extends Component {
     const commonSettings = {
       projectId: projectId,
       dataRange: dataRange || 0,
-      isSuperWork:
-        projectId &&
-        (_.find(md.global.Account.projects, project => project.projectId === projectId) || {}).isSuperAdmin &&
-        fromAdmin,
+      isSuperWork: projectId && checkPermission(projectId, PERMISSION_ENUM.MEMBER_MANAGE) && fromAdmin,
       callback: data => {
         this.props.onCancel();
       },

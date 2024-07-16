@@ -7,6 +7,8 @@ import PublicLink from './PublicLink';
 import DetailList from './DetailList';
 import './index.less';
 import _ from 'lodash';
+import { getMyPermissions, hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 // 0：好友  1：群组  2：任务  3：知识  4：网络 5：日程 6：项目
 export const FROM_TYPE = {
@@ -32,37 +34,37 @@ const DETAIL_MODE_TEXT = {
   2: _l('邀请记录'),
 };
 
+const TABS = [
+  { text: _l('公开邀请'), value: 1, subText: _l('链接添加') },
+  { text: _l('手机/邮箱邀请'), value: 2, subText: _l('搜索用户') },
+  { text: _l('从通讯录邀请'), value: 3 },
+];
+
 class AddFriends extends Component {
   constructor(props) {
     super(props);
     this.state = {
       visible: true,
-      selectTab: this.DEFAULT_TABS[0].value,
+      selectTab: TABS[0].value,
       isPayUsers: true,
       detailMode: 0, //
       url: '',
       code: '',
       tokens: [],
+      myPermissions: [],
     };
   }
 
-  get DEFAULT_TABS() {
-    const { projectId } = this.props;
-    const { Account: { projects = [] } = {}, SysSettings } = md.global;
-    const { enableSmsCustomContent } = SysSettings;
-    const project = _.find(projects, { projectId }) || {};
-    const { isProjectAdmin, isProjectAppManager } = project;
-    return [
-      isProjectAdmin && isProjectAppManager ? { text: _l('公开邀请'), value: 1, subText: _l('链接添加') } : null,
-      { text: !enableSmsCustomContent ?  _l('邮箱邀请') : _l('手机/邮箱邀请'), value: 2, subText: _l('搜索用户') },
-      { text: _l('从通讯录邀请'), value: 3 },
-    ].filter(_ => _);
-  }
-
   componentDidMount() {
+    const { projectId } = this.props;
     const { Config: { IsLocal } = {}, Account: { projects = [] } = {} } = md.global;
+    const myPermissions = projectId ? getMyPermissions(projectId) : [];
+    const hasMemberManageAuth = hasPermission(myPermissions, PERMISSION_ENUM.MEMBER_MANAGE);
+
     this.setState({
       isPayUsers: projects.some(item => item.licenseType !== 0) || IsLocal,
+      myPermissions,
+      selectTab: hasMemberManageAuth ? TABS[0].value : TABS[1].value,
     });
   }
 
@@ -115,13 +117,21 @@ class AddFriends extends Component {
   };
 
   renderTabs = () => {
-    const { selectTab } = this.state;
+    const { selectTab, myPermissions = [] } = this.state;
     const { fromType } = this.props;
     const isPersonal = fromType === FROM_TYPE.PERSONAL;
+    const hasMemberManageAuth = hasPermission(myPermissions, PERMISSION_ENUM.MEMBER_MANAGE);
+
     return (
       <ul className="AddFriends-head-navbar">
-        {this.DEFAULT_TABS.map(tab => {
-          return (isPersonal || fromType === FROM_TYPE.GROUPS) && tab.value === TAB_MODE.ADDRESS_BOOK ? null : (
+        {TABS.map(tab => {
+          if (tab.value === TAB_MODE.PUBLIC_LINK && !hasMemberManageAuth) {
+            return null;
+          }
+          if ((isPersonal || fromType === FROM_TYPE.GROUPS) && tab.value === TAB_MODE.ADDRESS_BOOK) {
+            return null;
+          }
+          return (
             <li
               key={tab.value}
               onClick={() => this.setState({ selectTab: tab.value })}
@@ -138,13 +148,15 @@ class AddFriends extends Component {
   };
 
   renderContent = () => {
-    const { selectTab, isPayUsers, url, code, tokens } = this.state;
+    const { selectTab, isPayUsers, url, code, tokens, myPermissions = [] } = this.state;
+    const showInviteRules = hasPermission(myPermissions, PERMISSION_ENUM.SECURITY);
     const options = {
       onCancel: this.onCancel,
       projectId: this.props.projectId,
       fromType: this.props.fromType,
       isPayUsers,
       setDetailMode: this.setDetailMode,
+      showInviteRules,
     };
     if (selectTab === TAB_MODE.PUBLIC_LINK) {
       return <PublicLink {...options} {...{ url, code, tokens, setInfo: this.setInfo }} />;

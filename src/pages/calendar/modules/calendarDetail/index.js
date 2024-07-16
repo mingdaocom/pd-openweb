@@ -1,4 +1,4 @@
-﻿import ReactDom from 'react-dom';
+﻿import { createRoot } from 'react-dom/client';
 import React, { Component } from 'react';
 import CalendarDetail from './root';
 import { getParamsFromUrl, getCalendarDetail } from './common';
@@ -179,9 +179,7 @@ export default function (options) {
   }
 
   const { isDetailPage, container, calendarId, recurTime, handleClose } = Config;
+  const root = createRoot(isDetailPage ? container : document.createElement('div'));
 
-  ReactDom.render(
-    <Container calendarId={calendarId} recurTime={recurTime} handleClose={handleClose} />,
-    isDetailPage ? container : document.createElement('div'),
-  );
+  root.render(<Container calendarId={calendarId} recurTime={recurTime} handleClose={handleClose} />);
 }

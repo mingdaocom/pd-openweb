@@ -4,6 +4,7 @@ import Config from '../../config';
 import { VersionProductType } from 'src/util/enum';
 import ContactsHiddenWrap from './contactsHidden';
 import DialogSettingInviteRules from '../../user/membersDepartments/structure/components/dialogSettingInviteRules';
+import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 
 export default class Account extends Component {
   constructor(props) {
@@ -25,6 +26,7 @@ export default class Account extends Component {
 
     return (
       <div className="orgManagementWrap">
+        <AdminTitle prefix={_l('安全 - 账号')} />
         <div className="orgManagementHeader Font17">{_l('帐号')}</div>
         <FeatureListWrap
           projectId={projectId}

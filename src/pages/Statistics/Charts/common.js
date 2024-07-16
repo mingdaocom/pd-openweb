@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import { getProjectColor, toFixed } from 'src/util';
+import { getProjectColor, toFixed, formatStrZero } from 'src/util';
+import moment from 'moment';
 
 /**
  * 图表类型
@@ -253,26 +254,26 @@ export const LegendTypeData = [
 /**
  * 自动添加数量级
  */
-export const abbreviateNumber = (value, dot) => {
-  if (md.global.Account.lang === 'en') {
+export const abbreviateNumber = (value, dot, formatValue = toFixed) => {
+  if (window.getCurrentLang() === 'en') {
     if (value >= 1000000000) {
-      return `${toFixed(value / 1000000000, dot)}B`;
+      return `${formatValue(value / 1000000000, dot)}B`;
     } else if (value >= 1000000) {
-      return `${toFixed(value / 1000000, dot)}M`;
+      return `${formatValue(value / 1000000, dot)}M`;
     } else if (value >= 1000) {
-      return `${toFixed(value / 1000, dot)}K`;
+      return `${formatValue(value / 1000, dot)}K`;
     } else {
-      return dot === '' ? value : toFixed(value, dot);
+      return dot === '' ? value : formatValue(value, dot);
     }
   } else {
     if (value >= 100000000) {
-      return `${toFixed(value / 100000000, dot)}${_l('亿')}`;
+      return `${formatValue(value / 100000000, dot)}${_l('亿')}`;
     } else if (value >= 10000) {
-      return `${toFixed(value / 10000, dot)}${_l('万')}`;
+      return `${formatValue(value / 10000, dot)}${_l('万')}`;
     } else if (value >= 1000) {
-      return `${toFixed(value / 1000, dot)}K`;
+      return `${formatValue(value / 1000, dot)}K`;
     } else {
-      return dot === '' ? value : toFixed(value, dot);
+      return dot === '' ? value : formatValue(value, dot);
     }
   }
 }
@@ -307,25 +308,36 @@ export const numberLevel = [{
   suffix: 'K',
   format: value => value / 1000
 }, {
-  value: 4,
-  text: _l('百万'),
-  suffix: 'M',
-  format: value => value / 1000000
-}, {
-  value: 6,
-  text: _l('十亿'),
-  suffix: 'B',
-  format: value => value / 1000000000
-}, {
   value: 3,
   text: _l('万%06003'),
   suffix: _l('万%06003'),
   format: value => value / 10000
 }, {
+  value: 4,
+  text: _l('百万'),
+  suffix: 'M',
+  format: value => value / 1000000
+}, {
   value: 5,
   text: _l('亿%06004'),
   suffix: _l('亿%06004'),
   format: value => value / 100000000
+}, {
+  value: 6,
+  text: _l('十亿'),
+  suffix: 'B',
+  format: value => value / 1000000000
+}];
+
+export const roundTypes = [{
+  value: 1,
+  text: _l('向上舍入')
+}, {
+  value: 0,
+  text: _l('向下舍入')
+}, {
+  value: 2,
+  text: _l('四舍五入')
 }];
 
 /**
@@ -337,7 +349,7 @@ export const formatYaxisList = (map, yaxisList, id) => {
 
   newYaxisList.forEach((item, index) => {
     if ((id ? item.controlId == id : index === 0) && item.magnitude === 0) {
-      if (md.global.Account.lang === 'en') {
+      if (window.getCurrentLang() === 'en') {
         if (maxValue >= 1000000000) {
           item.magnitude = 6;
           item.suffix = _.find(numberLevel, { value: 6 }).suffix;
@@ -380,30 +392,76 @@ export const formatControlValueDot = (value, data) => {
     return value;
   }
 
-  const { magnitude, suffix, dot, controlId, fixType, advancedSetting } = data;
-  const dotformat = _.get(advancedSetting, 'dotformat') || '0';
+  const { magnitude, roundType = 2, dotFormat = '1', suffix, dot, controlId, fixType, advancedSetting } = data;
+  // const sheetDotformat = _.get(advancedSetting, 'dotformat') || '0';
+  const ignoreZero = dotFormat === '1';
   const isRecordCount = controlId === 'record_count';
   const ydot = Number(data.ydot);
+  const formatValue = (value, dot) => {
+    const isNegative = value < 0;
+    const absValue = Math.abs(value);
+    
+    if (roundType === 0) {
+      // 向下取整
+      value = String(toFixed(Math.floor(absValue * Math.pow(10, dot)) / Math.pow(10, dot), dot) * (isNegative ? -1 : 1));
+    } else if (roundType === 1) {
+      // 向上取整
+      value = String((Math.ceil(absValue * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
+    } else {
+      // 四舍入五
+      value = String((Math.round(absValue * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
+    }
 
+    // 确保结果具有固定的小数位数
+    const parts = value.split('.');
+    let integerPart = parts[0];
+    let decimalPart = parts[1] || '';
+
+    // 处理小数点前的零
+    if (integerPart === '') {
+      integerPart = '0';
+    }
+
+    // 补充缺失的小数位数
+    if (dot > decimalPart.length) {
+      decimalPart += '0'.repeat(dot - decimalPart.length);
+    } else if (dot < decimalPart.length) {
+      decimalPart = decimalPart.substring(0, dot);
+    }
+
+    // 拼接整数部分和小数部分
+    value = integerPart + (dot > 0 ? '.' + decimalPart : '');
+
+    // 移除尾随的零
+    if (ignoreZero && dot > 0) {
+      value = value.replace(/(?:\.0+|(\.\d+?)0+)$/, "$1");
+    }
+    return value;
+  }
+  const formatThousandth = (value = '') => {
+    value = value.toString();
+    const reg = value.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
+    return value.replace(reg, '$1,'); 
+  }
   const { format } = _.find(numberLevel, { value: magnitude || 0 });
   if (magnitude === 0) {
-    return format(value, ydot);
+    // 自动
+    const newValue = format(value, ydot, formatValue);
+    return formatThousandth(newValue);
   } else if (magnitude === 1) {
+    // 无
     let newValue = 0;
     if (data.ydot === '') {
-      if (dotformat === '0') {
-        newValue = Number(toFixed(value, dot)).toLocaleString('zh', { minimumFractionDigits: dot });
-      } else {
-        newValue = Number(toFixed(value, dot));
-      }
+      newValue = formatThousandth(formatValue(value, dot));
     } else {
       const dot = isRecordCount ? 0 : ydot;
-      newValue = Number(toFixed(value, dot)).toLocaleString('zh', { minimumFractionDigits: dot });
+      newValue = formatThousandth(formatValue(value, dot));
     }
     return fixType ? `${suffix}${newValue}` : `${newValue}${suffix}`;
   } else {
-    const newValue = toFixed(format(value), ydot);
-    const result = Number(newValue).toLocaleString('zh', { minimumFractionDigits: ydot });
+    // 千、百万、...
+    const newValue = formatValue(format(value), ydot);
+    const result = formatThousandth(newValue);
     return fixType ? `${suffix}${result}` : `${result}${suffix}`;
   }
 }
@@ -700,5 +758,23 @@ export const getControlPercentValue = (map, id, value) => {
 const getPercentValue = (arr, value) => {
   const index = Math.floor((value / 100) * arr.length);
   return arr[index >= arr.length ? (arr.length - 1) : index];
+}
+
+export const getEmptyChartData = (reportData) => {
+  const { xaxes, yaxisList, valueMap } = reportData;
+  const map = valueMap[xaxes.controlId] || {};
+  const data = [];
+  for(let key in map) {
+    const name = _.get(yaxisList[0], 'controlName');
+    const id = _.get(yaxisList[0], 'controlId');
+    data.push({
+      groupName: `${name}-md-1-chart-${id}`,
+      originalId: map[key],
+      name: map[key],
+      value: undefined,
+      rightValue: undefined,
+    });
+  }
+  return data;
 }
 

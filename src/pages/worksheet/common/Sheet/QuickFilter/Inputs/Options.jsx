@@ -181,9 +181,8 @@ export default function Options(props) {
         <Checkbox
           {...{
             ...control,
-            options,
             advancedSetting: { ...control.advancedSetting, checktype: '1' },
-            options: control.options.map(o => {
+            options: options.map(o => {
               return { ...o, hide: false }; //视图 快速筛选不隐藏选项
             }),
           }}

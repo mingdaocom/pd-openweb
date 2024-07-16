@@ -4,8 +4,6 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { Icon } from 'ming-ui';
 import { sideNavList } from './config';
-import { getFeatureStatus } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
 
 const Wrap = styled.div`
   width: 241px;
@@ -96,24 +94,16 @@ class SideNav extends React.Component {
     !params.type ? localStorage.removeItem('pluginUrl') : safeLocalStorageSetItem(`pluginUrl`, params.type);
   }
   render() {
-    const { match = { params: {} }, currentProjectId, isAdmin } = this.props;
+    const { match = { params: {} }, noAssistantAuth } = this.props;
     const { type = '' } = match.params;
 
     return (
       <Wrap>
         {sideNavList
-          .filter(
-            group =>
-              !(
-                group.key === 'aiAssistant' &&
-                (!isAdmin ||
-                  !getFeatureStatus(currentProjectId, VersionProductType.assistant) ||
-                  getFeatureStatus(currentProjectId, VersionProductType.assistant) === '2')
-              ),
-          )
+          .filter(group => !(group.key === 'aiAssistant' && noAssistantAuth))
           .map((group, index) => {
             return (
-              <React.Fragment>
+              <React.Fragment key={index}>
                 {group.title && <div className="Gray_9e mTop28 pLeft18">{group.title}</div>}
                 <ul className={index === 0 ? 'mTop16' : 'mTop12'}>
                   {group.list.map((item, index) => {
@@ -129,9 +119,6 @@ class SideNav extends React.Component {
                           <Icon icon={item.icon} />
                           <span>{item.text}</span>
                           {item.type === 'assistant' && <div className="freeTag">{_l('限免')}</div>}
-                          {/* {item.featureId && getFeatureStatus(currentProjectId, item.featureId) === '2' && (
-                            <Icon icon="auto_awesome" className="upgradeIcon" />
-                          )} */}
                         </Link>
                       </li>
                     );

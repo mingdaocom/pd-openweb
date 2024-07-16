@@ -60,8 +60,8 @@ export default function CustomPageHeader(props) {
   const desc = urlTemplate ? configuration.desc : props.desc;
   const { popupVisible, editNameVisible, editIntroVisible } = visible;
   const name = pageName !== workSheetName ? workSheetName || pageName : pageName || workSheetName;
-  const showName = getTranslateInfo(appId, pageId).name || name;
-  const showAppName = getTranslateInfo(appId, appId).name || appName;
+  const showName = getTranslateInfo(appId, null, pageId).name || name;
+  const showAppName = getTranslateInfo(appId, null, appId).name || appName;
   const [shareDialogVisible, setShareDialogVisible] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   const [descIsEditing, setDescIsEditing] = useState(false);
@@ -351,7 +351,7 @@ export default function CustomPageHeader(props) {
                 >
                   <Icon
                     icon={inFull ? 'close_fullscreen' : 'open_in_full'}
-                    className={cx('hoverGray fullRotate', inFull ? 'Font20' : 'Font17')}
+                    className={cx('hoverGray fullRotate pointer', inFull ? 'Font20' : 'Font17')}
                   />
                 </div>
               </Tooltip>
@@ -377,8 +377,8 @@ export default function CustomPageHeader(props) {
               placement="bottomLeft"
               overlayClassName="sheetDescPopoverOverlay"
               content={
-                <div className="popoverContent">
-                  <RichText data={getTranslateInfo(appId, pageId).description || desc || ''} disabled={true} />
+                <div className="popoverContent" style={{ maxHeight: document.body.clientHeight / 2 }}>
+                  <RichText data={getTranslateInfo(appId, null, pageId).description || desc || ''} disabled={true} />
                 </div>
               }
             >
@@ -408,7 +408,7 @@ export default function CustomPageHeader(props) {
               }
             >
               <div className="iconWrap valignWrapper">
-                <Icon className="Font18 moreOperateIcon" icon="more_horiz" />
+                <Icon className="Font18 moreOperateIcon pointer" icon="more_horiz" />
               </div>
             </Trigger>
           )}
@@ -483,9 +483,9 @@ export default function CustomPageHeader(props) {
       </header>
       <SheetDesc
         title={_l('自定义页面说明')}
-        isCharge={isCharge}
+        permissionType={appPkg.permissionType}
         visible={editIntroVisible}
-        desc={descIsEditing ? desc || '' : getTranslateInfo(appId, pageId).description || desc || ''}
+        desc={descIsEditing ? desc || '' : getTranslateInfo(appId, null, pageId).description || desc || ''}
         isEditing={descIsEditing}
         setDescIsEditing={setDescIsEditing}
         onClose={() => {

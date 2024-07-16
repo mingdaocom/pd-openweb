@@ -178,7 +178,13 @@ export function getSelectedOptions(options, value, control) {
       get(control, 'advancedSetting.checktype') === '0'
         ? filter(
             options,
-            option => find(selectedKeys, selectedKey => selectedKey.indexOf(option.key) > -1) && !option.isDeleted,
+            option =>
+              find(selectedKeys, selectedKey => {
+                if (selectedKey.indexOf('other') > -1 || selectedKey.indexOf('add_') > -1) {
+                  return selectedKey.indexOf(option.key) > -1;
+                }
+                return selectedKey === option.key;
+              }) && !option.isDeleted,
           ).map(option => option.key)
         : selectedKeys
     )

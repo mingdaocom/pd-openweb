@@ -58,7 +58,7 @@ export default class EditRecord extends Component {
       getTemplate: true,
     };
     sheetAjax.getWorksheetInfo(args).then(data => {
-      const formData = replaceControlsTranslateInfo(data.appId, data.template.controls);
+      const formData = replaceControlsTranslateInfo(data.appId, worksheetId, data.template.controls);
       const controlsForSelect = formData.filter(
         control =>
           ((control.type < 10000 &&

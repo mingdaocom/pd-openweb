@@ -156,7 +156,7 @@ export default class Delay extends Component {
             <Fragment key={key}>
               <div className="mTop15">{text}</div>
               {key === 'secondFieldValue' && (
-                <div className="mTop5 Gray_9e">{_l('实际运行时停留的秒钟数可能比设置的时间略长')}</div>
+                <div className="mTop5 Gray_75">{_l('实际运行时停留的秒钟数可能比设置的时间略长')}</div>
               )}
               <div className="mTop10">
                 <SpecificFieldsValue

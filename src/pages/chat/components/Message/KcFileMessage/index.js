@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import ImageMessage from '../ImageMessage';
 import FileMessage from '../FileMessage';
 import kc from 'src/api/kc';
-
+import RegExpValidator from 'src/util/expression';
 export default class KcFileMessage extends Component {
   constructor(props) {
     super(props);
@@ -17,16 +17,14 @@ export default class KcFileMessage extends Component {
     const { message } = this.props;
     const { entityid } = message.card;
     if (!message.kcFile) {
-      kc
-        .getNodeDetail({
-          id: entityid,
-          actionType: 14,
-        })
-        .then((result) => {
-          if (result) {
-            this.props.onUpdateKcFile(this.format(result));
-          }
-        });
+      kc.getNodeDetail({
+        id: entityid,
+        actionType: 14,
+      }).then(result => {
+        if (result) {
+          this.props.onUpdateKcFile(this.format(result));
+        }
+      });
     }
   }
   format(kcFile) {
@@ -42,8 +40,12 @@ export default class KcFileMessage extends Component {
   render() {
     const { message, session } = this.props;
     const { title } = message.card;
-    const isPicture = File.isPicture(`.${File.GetExt(title)}`);
+    const isPicture = RegExpValidator.fileIsPicture(`.${RegExpValidator.getExtOfFileName(title)}`);
     const msg = message.kcFile ? message : this.format();
-    return isPicture && message.kcFile ? <ImageMessage message={msg} session={session} /> : <FileMessage message={msg} session={session} />;
+    return isPicture && message.kcFile ? (
+      <ImageMessage message={msg} session={session} />
+    ) : (
+      <FileMessage message={msg} session={session} />
+    );
   }
 }

@@ -22,14 +22,15 @@ import {
   toEditWidgetPage,
   isSheetDisplay,
 } from '../../util';
-import subListComponents from '../components/sublist';
+import AddSubList from '../components/sublist/AddSubList';
+import ConfigureControls from '../components/sublist/ConfigureControls';
+import Sort from '../components/sublist/Sort';
 import _, { isEmpty, find, filter, findIndex } from 'lodash';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import WidgetVerify from '../components/WidgetVerify';
 import RelateDetailInfo from '../components/RelateDetailInfo';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { ALL_SYS } from '../../config/widget';
-const { AddSubList, ConfigureControls, Sort } = subListComponents;
 
 const SettingModelWrap = styled.div`
   .transferToRelate {
@@ -91,8 +92,19 @@ export default function SubListSetting(props) {
     }
   }, [controlId]);
 
+  // 清除缓存，子表不走缓存,时间限制导致数据出入
+  const handleClear = () => {
+    if (dataSource && !dataSource.includes('-')) {
+      window.clearLocalDataTime({
+        requestData: { worksheetId: dataSource },
+        clearSpecificKey: 'Worksheet_GetWorksheetInfo',
+      });
+    }
+  };
+
   useEffect(() => {
     const { saveIndex } = status;
+    handleClear();
     if ((window.subListSheetConfig[controlId] || {}).saveIndex === saveIndex) {
       return;
     }
@@ -178,6 +190,7 @@ export default function SubListSetting(props) {
       setMode('new');
       return;
     }
+    handleClear();
     if ((window.subListSheetConfig[controlId] || {}).status && !needUpdate) {
       setMode(_.get(window.subListSheetConfig[controlId], 'mode'));
       return;

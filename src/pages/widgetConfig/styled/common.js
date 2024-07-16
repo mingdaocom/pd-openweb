@@ -47,7 +47,7 @@ export const DropdownOverlay = styled.div`
 
   .dropdownContent {
     width: 100%;
-    max-height: 400px;
+    max-height: 320px;
     overflow-y: auto;
     .emptyText {
       margin: 0 auto;

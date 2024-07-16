@@ -1,5 +1,5 @@
 ﻿import React, { Component, Fragment } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './css/taskList.less';
 import _ from 'lodash';
 import { connect } from 'react-redux';
@@ -150,7 +150,8 @@ class TaskList extends Component {
 
       if (params) $ele.data('auth', auth);
       $ele.data('hasbusinesscard', true);
-      ReactDOM.render(
+      const root = createRoot(ele);
+      root.render(
         <UserHead
           user={{
             userHead: avatar,
@@ -190,7 +191,6 @@ class TaskList extends Component {
             ) : null
           }
         />,
-        ele,
       );
     });
   }

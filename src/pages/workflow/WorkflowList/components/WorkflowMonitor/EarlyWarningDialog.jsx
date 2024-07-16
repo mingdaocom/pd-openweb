@@ -29,7 +29,7 @@ const AddNotifierBtn = styled.div`
   background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 50%;
-  color: #9e9e9e;
+  color: #757575;
   &:hover {
     border: 1px solid #2196f3;
     color: #2196f3;
@@ -161,7 +161,7 @@ class EarlyWarningDialog extends Component {
                 <div className="userName flexRow pLeft5">
                   <span className="ellipsis flex">{it.fullname}</span>
                   <i
-                    className="ming Icon icon-default icon icon-close Font16 mLeft8 Gray_9e Hand"
+                    className="ming Icon icon-default icon icon-close Font16 mLeft8 Gray_75 Hand"
                     onClick={() => this.deleteNotifier(it.accountId)}
                   />
                 </div>

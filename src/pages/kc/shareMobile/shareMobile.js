@@ -12,7 +12,7 @@ import weixinAjax from 'src/api/weixin';
 import attachmentAjax from 'src/api/attachment';
 import kcAjax from 'src/api/kc';
 import moment from 'moment';
-
+import RegExpValidator from 'src/util/expression';
 var RENDER_BY_SERVICE_TYPE = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt', 'pdf'];
 
 $('html').addClass('AppKc AppKcShare');
@@ -149,7 +149,7 @@ MobileSharePreview.prototype = {
       default:
         break;
     }
-    if (File.isPicture('.' + file.ext)) {
+    if (RegExpValidator.fileIsPicture('.' + file.ext)) {
       file.imageSrc = MSP.getImageLink();
       if (!file.downloadUrl) {
         file.downloadUrl = file.imageSrc.match(/.*(?=\?)|.*/)[0];
@@ -175,7 +175,7 @@ MobileSharePreview.prototype = {
     MSP.$html = $(
       mobileShareTpl({
         deadLineStr: MSP.deadLine ? MSP.formatTime(MSP.deadLine) : undefined,
-        isPicture: File.isPicture('.' + MSP.file.ext),
+        isPicture: RegExpValidator.fileIsPicture('.' + MSP.file.ext),
         canPreview: RENDER_BY_SERVICE_TYPE.indexOf(MSP.file.ext.toLowerCase()) > -1,
         isIOS: MSP.isIOS,
         node: MSP.file,
@@ -196,7 +196,7 @@ MobileSharePreview.prototype = {
       height: $('.mobileShareCon').height() - 50 - 112 - (MSP.deadLine ? 30 : 0),
     };
     MSP.bindEvent();
-    if (File.isPicture('.' + MSP.file.ext)) {
+    if (RegExpValidator.fileIsPicture('.' + MSP.file.ext)) {
       MSP.renderImage();
     }
   },
@@ -216,7 +216,7 @@ MobileSharePreview.prototype = {
     });
     MSP.$downloadBtn.on('click', function () {
       var attachmentType = MSP.attachmentType;
-      var canDownload = MSP.file.canDownload || File.isPicture('.' + MSP.file.ext);
+      var canDownload = MSP.file.canDownload || RegExpValidator.fileIsPicture('.' + MSP.file.ext);
       if (window.isWeiXin) {
         MSP.openMask();
       } else if (!canDownload) {

@@ -1,5 +1,5 @@
 ﻿import React, { Component, Fragment } from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './css/taskStage.less';
 import { connect } from 'react-redux';
 import doT from 'dot';
@@ -132,7 +132,9 @@ class TaskStage extends Component {
       const accountId = $ele.closest('.singleStage').data('chargeid');
 
       $ele.data('hasbusinesscard', true);
-      ReactDom.render(
+      const root = createRoot(ele);
+
+      root.render(
         <UserHead
           user={{
             userHead: $(ele).data('src'),
@@ -140,7 +142,6 @@ class TaskStage extends Component {
           }}
           size={26}
         />,
-        ele,
       );
     });
   }
@@ -165,7 +166,9 @@ class TaskStage extends Component {
 
       if (params) $ele.data('auth', auth);
       $ele.data('hasbusinesscard', true);
-      ReactDom.render(
+      const root = createRoot(ele);
+
+      root.render(
         <UserHead
           user={{
             userHead: avatar,
@@ -205,7 +208,6 @@ class TaskStage extends Component {
             ) : null
           }
         />,
-        ele,
       );
     });
   }
@@ -723,7 +725,9 @@ class TaskStage extends Component {
           foregroundColor = '#4caf50';
         }
 
-        ReactDom.render(
+        const root = createRoot($(item)[0]);
+
+        root.render(
           <Score
             type={type === 1 ? 'star' : 'line'}
             score={score}
@@ -732,7 +736,6 @@ class TaskStage extends Component {
             disabled
             count={type === 1 ? 5 : 10}
           />,
-          $(item)[0],
         );
       }
     });
@@ -1237,8 +1240,9 @@ class TaskStage extends Component {
       const $stageDate = $li.find('.stageDate');
       const bindDate = () => {
         const { start: defaultStart, end: defaultEnd } = $stageDate.data();
+        const root = createRoot($stageDate[0]);
 
-        ReactDom.render(
+        root.render(
           <DateTimeRange
             selectedValue={[defaultStart, defaultEnd]}
             mode="task"
@@ -1263,13 +1267,12 @@ class TaskStage extends Component {
               delete $stageDate.data().start;
               delete $stageDate.data().end;
 
-              ReactDom.unmountComponentAtNode($stageDate[0]);
+              root.unmount();
               bindDate();
             }}
           >
             <span class="icon-bellSchedule"></span>
           </DateTimeRange>,
-          $stageDate[0],
         );
       };
 

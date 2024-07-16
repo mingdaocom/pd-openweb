@@ -150,7 +150,26 @@ export default class PageTableCon extends Component {
                 </div>
               )}
             >
-              <Table columns={columns} dataSource={dataSource} pagination={false} tableLayout="auto" scroll={scroll} />
+              <Table
+                columns={columns.map(item => ({
+                  ...item,
+                  onCell: () => {
+                    return {
+                      style: {
+                        maxWidth: item.width || 150,
+                        minWidth: 150,
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        textOverflow: 'ellipsis',
+                      },
+                    };
+                  },
+                }))}
+                dataSource={dataSource}
+                pagination={false}
+                tableLayout="auto"
+                scroll={scroll}
+              />
             </ConfigProvider>
           )}
         </div>

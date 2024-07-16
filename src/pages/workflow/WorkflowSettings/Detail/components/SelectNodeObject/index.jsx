@@ -3,6 +3,7 @@ import cx from 'classnames';
 import { Dropdown } from 'ming-ui';
 import { getIcons } from '../../../utils';
 import _ from 'lodash';
+import { APP_TYPE } from '../../../enum';
 
 export default class SelectNodeObject extends Component {
   /**
@@ -16,18 +17,18 @@ export default class SelectNodeObject extends Component {
         <span
           className={cx(
             getIcons(item.nodeTypeId, item.appType, item.actionId),
-            item.nodeId ? 'Font16 Gray_9e' : 'Font18 errorColor',
+            item.nodeId ? 'Font16 Gray_75' : 'Font18 errorColor',
           )}
         />
         <span className={cx('Font14 mLeft5', { errorColor: !item.nodeId })}>{item.nodeName || _l('节点已删除')}</span>
 
-        {isIntegration ? null : item.appId ? (
+        {isIntegration || item.appType === APP_TYPE.LOOP_PROCESS ? null : item.appId ? (
           <Fragment>
             <span className="Font14 mLeft5 bold">{item.appTypeName}</span>
             <span className="Font14 mLeft5 bold">{`“${item.appName}”`}</span>
           </Fragment>
         ) : !_.isEmpty(item) ? (
-          <span className="Font14 mLeft5 Gray_9e">{_l('工作表已删除')}</span>
+          <span className="Font14 mLeft5 Gray_75">{_l('工作表已删除')}</span>
         ) : null}
       </Fragment>
     );
@@ -41,14 +42,15 @@ export default class SelectNodeObject extends Component {
 
     return (
       <div className="flexRow" style={{ alignItems: 'center' }}>
-        <span className={cx('Font16 Gray_9e', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
-        <span className={cx('Font14 mLeft5 ellipsis flex', { Gray_9e: !item.appId })}>{item.nodeName}</span>
-        {isIntegration ? null : item.appId && item.appName ? (
+        <span className={cx('Font16 Gray_75', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
+        <span className={cx('Font14 mLeft5 ellipsis flex', { Gray_75: !item.appId })}>{item.nodeName}</span>
+        {isIntegration || item.appType === APP_TYPE.LOOP_PROCESS ? null : item.appId && item.appName ? (
           <Fragment>
             <span className="Font14 mLeft5 bold flowDropdownGray">{item.appTypeName}</span>
-            <span className="Font14 mLeft5 bold flowDropdownGray ellipsis" style={{ maxWidth: 150 }}>{`“${
-              item.appName
-            }”`}</span>
+            <span
+              className="Font14 mLeft5 bold flowDropdownGray ellipsis"
+              style={{ maxWidth: 150 }}
+            >{`“${item.appName}”`}</span>
           </Fragment>
         ) : (
           <span className="Font14 mLeft5 Gray_75">

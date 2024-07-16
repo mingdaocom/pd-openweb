@@ -6,6 +6,7 @@ import { upgradeVersionDialog, browserIsMobile } from 'src/util';
 import { getParamsByConfigs, handleUpdateApi } from '../Search/util';
 import { formatResponseData } from 'src/components/UploadFiles/utils.js';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -24,6 +25,9 @@ export default class Widgets extends Component {
     if (this.file && this.file.upload) {
       this.width = this.file.upload.offsetWidth;
       this.cacheFile = [];
+    }
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
     }
   }
 
@@ -156,7 +160,6 @@ export default class Widgets extends Component {
       controlId,
       projectId,
       appId,
-      getControlRef,
     } = this.props;
 
     if (!dataSource) {
@@ -171,7 +174,7 @@ export default class Widgets extends Component {
       this.postList.abort();
     }
 
-    const paramsData = getParamsByConfigs(requestMap, formData, file, getControlRef);
+    const paramsData = getParamsByConfigs(requestMap, formData, file);
 
     let params = {
       data: !requestMap.length || _.isEmpty(paramsData) ? '' : paramsData,
@@ -223,6 +226,12 @@ export default class Widgets extends Component {
       this.setState({ data: null, open: false, keywords: '' });
     });
   };
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   renderContent = () => {
     const { enumDefault, advancedSetting = {}, hint = '' } = this.props;

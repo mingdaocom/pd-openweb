@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon, Menu, LoadDiv, Tooltip, SvgIcon } from 'ming-ui';
@@ -15,7 +15,8 @@ import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import processAjax from 'src/pages/workflow/api/process.js';
 import axios from 'axios';
 import moment from 'moment';
-import { getIsSuperAdmin } from 'src/pages/integration/util.js';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const Wrap = styled.div`
   width: 800px;
@@ -187,7 +188,7 @@ function APISetting(props) {
       editingName,
       curId,
       isConnectOwner,
-      isSuperAdmin,
+      hasManageAuth,
     },
     setState,
   ] = useSetState({
@@ -203,7 +204,7 @@ function APISetting(props) {
     showMenu: false,
     curId: '',
     isConnectOwner: false,
-    isSuperAdmin: props.isSuperAdmin,
+    hasManageAuth: props.hasManageAuth,
   });
   const headerRef = useRef();
   const WrapRef = useRef();
@@ -216,10 +217,8 @@ function APISetting(props) {
 
   useEffect(() => {
     window.addEventListener('keydown', keyDownListener, false);
-    window.addEventListener('scroll', HandleScroll, true);
     return () => {
       window.removeEventListener('keydown', keyDownListener, false);
-      window.removeEventListener('scroll', HandleScroll, true);
     };
   }, []);
   const keyDownListener = e => {
@@ -263,17 +262,7 @@ function APISetting(props) {
     );
     return r;
   };
-  const HandleScroll = e => {
-    e.stopPropagation();
-    if (!WrapRef.current) return;
-    let toFix = $(WrapRef.current).offset().top <= 50;
-    if (toFix !== cache.current.isFix) {
-      setState({
-        isFix: toFix,
-      });
-      cache.current.isFix = toFix;
-    }
-  };
+
   // 获取API详情
   const getInfo = async (processId, data) => {
     setState({ loading: true });
@@ -294,11 +283,11 @@ function APISetting(props) {
         { isIntegration: true },
       ),
     ]);
-    const isSuperAdmin = getIsSuperAdmin(res[0].companyId);
+    const hasManageAuth = checkPermission(res[0].companyId, PERMISSION_ENUM.MANAGE_API_CONNECTS);
     //后端——>列表上的数据可能不对，需要重新获取
     const apiData = await getAPIDetail(processId);
     setState({
-      isSuperAdmin,
+      hasManageAuth,
       info: res[0],
       data: { ...apiData, ...res[1] },
     });
@@ -316,7 +305,7 @@ function APISetting(props) {
               setState({
                 apkInfo: res,
                 loading: false,
-                isConnectOwner: isSuperAdmin || res.isOwner,
+                isConnectOwner: hasManageAuth || res.isOwner,
               });
             },
             () => {
@@ -330,7 +319,7 @@ function APISetting(props) {
           )
       : setState({
           loading: false,
-          isConnectOwner: isSuperAdmin || props.connectInfo.isOwner,
+          isConnectOwner: hasManageAuth || props.connectInfo.isOwner,
           apkInfo: props.connectInfo,
         });
   };
@@ -431,7 +420,6 @@ function APISetting(props) {
           <Set
             {...props}
             {...data}
-            isSuperAdmin={isSuperAdmin}
             connectInfo={apkInfo}
             isConnectOwner={isConnectOwner}
             info={info}
@@ -450,7 +438,7 @@ function APISetting(props) {
       case 1:
         return <Cite processId={data.id} connectInfo={apkInfo} />;
       case 2:
-        return <Log isSuperAdmin={isSuperAdmin} processId={data.id} connectInfo={apkInfo} />;
+        return <Log hasManageAuth={hasManageAuth} processId={data.id} connectInfo={apkInfo} />;
     }
   };
   const renderTabCon = () => {
@@ -582,7 +570,19 @@ function APISetting(props) {
     );
   };
   return (
-    <Wrap className={props.className}>
+    <Wrap
+      className={props.className}
+      onScroll={() => {
+        if (!WrapRef.current) return;
+        let toFix = $(WrapRef.current).offset().top <= 50;
+        if (toFix !== cache.current.isFix) {
+          setState({
+            isFix: toFix,
+          });
+          cache.current.isFix = toFix;
+        }
+      }}
+    >
       <div className="conSetting" style={{ background: tab === 2 ? '#fff' : 'none' }}>
         <div className={cx('headTop', { isFix })} ref={headerRef}>
           <div className="flexRow leftCon">

@@ -16,6 +16,8 @@ import { FROM } from './enum';
 import { browserIsMobile, accMul, formatStrZero, formatNumberFromInput } from 'src/util';
 import _, { get, isEqual } from 'lodash';
 import ChildTableContext from '../ChildTable/ChildTableContext';
+import { toFixed } from '../../../../util';
+import { flushSync } from 'react-dom';
 
 const InputCon = styled.div`
   box-sizing: border-box
@@ -97,6 +99,12 @@ export default class Text extends React.Component {
       value: props.cell.value,
       oldValue: props.cell.value,
       forceShowFullValue: _.get(props.cell, 'advancedSetting.datamask') !== '1',
+    };
+    const _handleKeydown = this.handleKeydown.bind(this);
+    this.handleKeydown = (...args) => {
+      flushSync(() => {
+        _handleKeydown(...args);
+      });
     };
   }
 
@@ -190,20 +198,20 @@ export default class Text extends React.Component {
   @autobind
   handleBlur(target) {
     this.hadBlur = true;
-    const { cell, error, updateCell, updateEditingStatus } = this.props;
+    const { isSubList, cell, error, updateCell, updateEditingStatus } = this.props;
     this.tempKey = [];
     let { oldValue = '' } = this.state;
     let { value = '' } = this.state;
     if (this.isNumberPercent && value) {
-      value = accMul(parseFloat(value), 1 / 100);
-      oldValue = accMul(parseFloat(oldValue), 1 / 100);
+      value = toFixed(accMul(parseFloat(value), 1 / 100), this.isNumberPercent ? cell.dot + 2 : cell.dot);
+      oldValue = toFixed(accMul(parseFloat(oldValue), 1 / 100), this.isNumberPercent ? cell.dot + 2 : cell.dot);
     }
     if ((cell.type === 6 || cell.type === 8) && value === '-') {
       value = '';
       this.setState({ value });
     }
 
-    if (oldValue === value) {
+    if (!isSubList && oldValue === value) {
       if (this.isNumberPercent && value) {
         this.setState({ oldValue, value });
       }
@@ -234,9 +242,11 @@ export default class Text extends React.Component {
     if (cell.type === 6 || cell.type === 8) {
       value = formatNumberFromInput(String(value), false);
     }
-    onValidate(value);
-    this.setState({
-      value,
+    flushSync(() => {
+      onValidate(value);
+      this.setState({
+        value,
+      });
     });
   }
 
@@ -322,7 +332,6 @@ export default class Text extends React.Component {
     }
   }
 
-  @autobind
   handleKeydown(e) {
     const { tableId, cell, updateEditingStatus } = this.props;
     if (e.keyCode === 27) {
@@ -413,6 +422,9 @@ export default class Text extends React.Component {
       onClick: e => e.stopPropagation(),
       onKeyDown: this.handleKeydown,
     };
+    if (cell.type === 6 || cell.type === 8) {
+      editProps.maxLength = 16;
+    }
     if (cell.type === 38 && cell.enumDefault === 3 && cell.advancedSetting.hideneg === '1' && parseInt(value, 10) < 0) {
       value = '';
     }
@@ -440,7 +452,7 @@ export default class Text extends React.Component {
               <Input
                 className="Ming stopPropagation"
                 {...editProps}
-                value={String(editProps.value || '').replace(/\r\n|\n/g, ' ')}
+                value={String(_.isUndefined(editProps.value) ? '' : editProps.value).replace(/\r\n|\n/g, ' ')}
                 onChange={this.handleChange}
               />
             ) : (
@@ -460,6 +472,7 @@ export default class Text extends React.Component {
               cellControlErrorStatus: error,
             })}
             {...editProps}
+            value={String(_.isUndefined(editProps.value) ? '' : editProps.value)}
             manualRef={ref => (this.input = { current: ref })}
             style={{
               width: style.width,

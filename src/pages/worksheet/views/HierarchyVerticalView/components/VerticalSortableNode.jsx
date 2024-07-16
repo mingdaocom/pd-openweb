@@ -4,9 +4,9 @@ import cx from 'classnames';
 import _ from 'lodash';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
-import { browserIsMobile } from 'src/util';
 import DraggableRecord from './DraggableRecord';
 import styled from 'styled-components';
+import { browserIsMobile, emitter } from 'src/util';
 
 const isMobile = browserIsMobile();
 
@@ -146,6 +146,7 @@ export default class VerticalSortableRecordItem extends Component {
       worksheetInfo,
       broCount = 1,
       isNarrow = false,
+      uniqId,
     } = this.props;
     const { recordInfoRowId, recordInfoVisible } = this.state;
     const { rowId, path = [], pathId = [] } = data;
@@ -163,7 +164,7 @@ export default class VerticalSortableRecordItem extends Component {
             { isDragging: draggingId === rowId },
             `${isNarrow ? 'w240' : 'w280'}`,
           )}
-          id={pathId.join('-')}
+          id={uniqId ? `${pathId.join('-')}-${uniqId}` : pathId.join('-')}
           ref={this.$itemWrap}
         >
           <DraggableRecord
@@ -202,6 +203,7 @@ export default class VerticalSortableRecordItem extends Component {
               currentSheetRows={this.getCurrentSheetRows()}
               hideRecordInfo={() => {
                 this.setState({ recordInfoVisible: false });
+                emitter.emit('ROWS_UPDATE');
               }}
               updateSuccess={(recordIds, value, relateSheet) => {
                 if (!relateSheet.isviewdata) {

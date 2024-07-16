@@ -95,7 +95,7 @@ function getMaxXComponentInSingleLine(layouts, y) {
  */
 function copyWebLayout(components, layout) {
   const { y, w } = layout;
-  const layouts = components.map(item => _.get(item, ['web', 'layout']));
+  const layouts = components.map(item => _.get(item, ['web', 'layout'])).filter(_ => _);
   const { x: maxX, w: maxW } = getMaxXComponentInSingleLine(layouts, y);
   // 如果当前行放不下则从最后一行开始放
   if (maxX + maxW + w > 12) {

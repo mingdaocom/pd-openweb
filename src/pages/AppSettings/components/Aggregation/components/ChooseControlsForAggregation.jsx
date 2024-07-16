@@ -44,30 +44,32 @@ function ChooseWorksheet(props) {
       <React.Fragment>
         <div className="title Bold Gray_75 Font13">{_l('工作表')}</div>
         <div className="mTop6">
-          {worksheets.map(o => {
-            const hs = worksheetId === o.workSheetId;
-            return (
-              <div
-                className={cx('itemControl flexRow alignItemsCenter', { hs })}
-                onClick={event => {
-                  onChange(o.workSheetId);
-                }}
-              >
-                <div className={cx('flex flexRow alignItemsCenter Hand')}>
-                  <SvgIcon
-                    url={o.iconUrl ? o.iconUrl : `${md.global.FileStoreConfig.pubHost}/customIcon/${o.icon}.svg`}
-                    fill={hs ? '#2196f3' : '#757575'}
-                    size={16}
-                  />
-                  <div className={cx('flex mLeft5 overflow_ellipsis WordBreak Bold', hs ? 'ThemeColor3' : 'Gray_9e')}>
-                    {o.tableName}
+          {worksheets
+            .filter(o => !o.isDelete)
+            .map(o => {
+              const hs = worksheetId === o.workSheetId;
+              return (
+                <div
+                  className={cx('itemControl flexRow alignItemsCenter', { hs })}
+                  onClick={event => {
+                    onChange(o.workSheetId);
+                  }}
+                >
+                  <div className={cx('flex flexRow alignItemsCenter Hand')}>
+                    <SvgIcon
+                      url={o.iconUrl ? o.iconUrl : `${md.global.FileStoreConfig.pubHost}/customIcon/${o.icon}.svg`}
+                      fill={hs ? '#2196f3' : '#757575'}
+                      size={16}
+                    />
+                    <div className={cx('flex mLeft5 overflow_ellipsis WordBreak Bold', hs ? 'ThemeColor3' : 'Gray')}>
+                      {o.tableName}
+                    </div>
                   </div>
-                </div>
 
-                <Icon icon={'arrow-right-tip'} className={cx('Hand mLeft10 Gray_9e')} />
-              </div>
-            );
-          })}
+                  <Icon icon={'arrow-right-tip'} className={cx('Hand mLeft10 Gray_9e')} />
+                </div>
+              );
+            })}
         </div>
       </React.Fragment>
     );

@@ -1,189 +1,141 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-
-import Dialog from 'ming-ui/components/Dialog';
-import Input from 'ming-ui/components/Input';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-
-import RoleController from 'src/api/role';
-import RoleAuthCommon from '../common/common';
-
-import PermissionList from './permissionsEdit';
-
-import './style.less';
+import React, { useState, useEffect } from 'react';
+import { useSetState } from 'react-use';
+import styled from 'styled-components';
 import _ from 'lodash';
+import { Drawer } from 'antd';
+import { Button, Icon, Input, LoadDiv, Checkbox, Tooltip } from 'ming-ui';
+import roleApi from 'src/api/role';
+import PermissionList from './PermissionList';
+import { getCheckedPermissionIds } from '../utils';
 
-const TYPES = {
-  EDIT: 'EDIT',
-  CREATE: 'CREATE',
-};
-
-export default class CreateEditRoleDialog extends React.Component {
-  static TYPES = TYPES;
-
-  static propTypes = {
-    type: PropTypes.oneOf(_.values(TYPES)),
-    roleId: PropTypes.string,
-    projectId: PropTypes.string,
-  };
-
-  static defaultProps = {
-    type: 'create',
-    onClose: () => {},
-    onOk: () => {},
-  };
-
-  constructor() {
-    super();
-    this.state = {
-      isLoading: true,
-      roleName: '',
-      permissions: null,
-      rolePermissions: {},
-      grantPermission: null,
-    };
-
-    this.submit = this.submit.bind(this);
-  }
-
-  componentWillMount() {
-    this.fetchAuth();
-  }
-
-  getGrantPermission(permissionTypes) {
-    const rolePermissionType = _.find(permissionTypes, permission => permission.typeId === 1);
-    const grantPermission = _.find(rolePermissionType.subPermissions, permission => permission.permissionId === 101);
-    this.setState({
-      grantPermission,
-    });
-  }
-
-  fetchAuth() {
-    const { type, projectId, roleId } = this.props;
-    if (type === TYPES.EDIT) {
-      return Promise.all([
-        RoleController.getUserPermissions({
-          projectId,
-          roleId,
-        }),
-        RoleController.getRolePermisson({
-          projectId,
-          roleId,
-        }),
-      ]).then(([userPermissions, rolePermissions]) => {
-        RoleAuthCommon.formatRoleAuth(rolePermissions, false);
-        this.getGrantPermission(userPermissions);
-        const _dict = {};
-        _.each(rolePermissions.permissionTypes, function (type) {
-          _.each(type.subPermissions, function (item) {
-            _dict[item.permissionId] = item;
-          });
-        });
-        this.setState({
-          isLoading: false,
-          roleName: rolePermissions.roleName,
-          rolePermissions: _dict,
-          permissions: {
-            permissionTypes: userPermissions,
-          },
-        });
-      });
-    } else {
-      return RoleController.getUserPermissions({
-        projectId,
-        roleId,
-      }).then(data => {
-        var _data = {
-          permissionTypes: data,
-        };
-        this.getGrantPermission(data);
-        RoleAuthCommon.formatRoleAuth(_data, false);
-        // 创建角色时默认勾选`允许授予他人角色相同权限`
-        this.setState(prevState => ({
-          isLoading: false,
-          rolePermissions: {
-            [prevState.grantPermission.permissionId]: prevState.grantPermission,
-          },
-          permissions: _data,
-        }));
-      });
+const RoleDrawer = styled(Drawer)`
+  .ant-drawer-header {
+    border: none;
+    .ant-drawer-close {
+      display: none;
     }
   }
+  .ant-drawer-body {
+    padding: 8px 24px 16px 24px;
+  }
+  .ant-drawer-footer {
+    padding: 12px 24px;
+    border: none;
+  }
 
-  submit() {
-    const { rolePermissions, roleName } = this.state;
-    const { projectId, roleId, type, onOk } = this.props;
-    const permissionIds = _.keys(rolePermissions);
-    if ($.trim(roleName) === '') {
+  .permissionsHeader {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eaeaea;
+    padding-bottom: 16px;
+    padding-top: 24px;
+    .Checkbox {
+      span {
+        font-size: 14px !important;
+      }
+    }
+  }
+`;
+
+export default function CreateEditRole(props) {
+  const { onClose, projectId, roleId, roleName = '', isEditHr, onSaveSuccess = () => {} } = props;
+  const [loading, setLoading] = useState(true);
+  const [roleInfo, setRoleInfo] = useSetState({ roleName, allowAddMembers: false, permissions: [] });
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  useEffect(() => {
+    (isEditHr ? roleApi.getRoleHRPermission : roleApi.getRoleStandardPermission)({ projectId, roleId }).then(res => {
+      if (res) {
+        setRoleInfo(_.pick(res, ['allowAddMembers', 'permissions']));
+        roleId && setSelectedIds(getCheckedPermissionIds(res.permissions));
+        setLoading(false);
+      }
+    });
+  }, []);
+
+  const onSave = () => {
+    if (roleInfo.roleName.trim() === '') {
       alert(_l('请输入角色名称'), 3);
       return false;
-    } else if ($.trim(roleName).length > 30) {
+    }
+
+    if (roleInfo.roleName.trim().length > 30) {
       alert(_l('角色名称长度最大为30'), 3);
       return false;
-    } else if (!permissionIds.length) {
-      alert(_l('角色权限不能为空'), 3);
-      return false;
     }
-    RoleController.editRole({
+
+    (!roleId ? roleApi.addRole : isEditHr ? roleApi.editRoleHR : roleApi.editRole)({
       projectId,
-      roleId: type === TYPES.CRETAE ? undefined : roleId,
-      roleName: $.trim(roleName),
-      permissionIds,
-    }).then(data => {
-      onOk(data);
+      roleId,
+      roleName: roleInfo.roleName.trim(),
+      permissionIds: selectedIds,
+      allowAssignSamePermission: roleInfo.allowAddMembers,
+    }).then(res => {
+      if (res) {
+        alert(roleId ? _l('修改成功') : _l('创建成功'));
+        onClose();
+        onSaveSuccess();
+      } else {
+        alert(roleId ? _l('修改失败') : _l('创建失败'), 2);
+      }
     });
-  }
+  };
 
-  render() {
-    const { visible, type, onClose } = this.props;
-    const { isLoading, rolePermissions, permissions, grantPermission, roleName } = this.state;
-    const dialogProps = {
-      className: TYPES.CREATE ? 'createRoleDialog' : 'editRoleDialog',
-      width: 950,
-      title: type === TYPES.CREATE ? _l('创建角色权限') : _l('编辑角色权限'),
-      visible,
-      onOk: this.submit,
-      onCancel: onClose,
-    };
-
-    return (
-      <Dialog {...dialogProps}>
-        {isLoading ? (
-          <LoadDiv />
-        ) : (
-          <React.Fragment>
-            <div>
-              <Input
-                placeholder={_l('请输入角色名称')}
-                className="roleNameInput"
-                value={roleName}
-                onChange={value => {
-                  this.setState({ roleName: value });
-                }}
-              />
-            </div>
-            <PermissionList
-              selectedPermissions={rolePermissions}
-              permissions={permissions}
-              grantPermission={grantPermission}
-              updateSelectedAuth={(isAdd, permission) => {
-                if (isAdd) {
-                  this.setState(prevState => ({
-                    rolePermissions: {
-                      ...prevState.rolePermissions,
-                      [permission.permissionId]: permission,
-                    },
-                  }));
-                } else {
-                  this.setState(prevState => ({
-                    rolePermissions: _.omit(prevState.rolePermissions, permission.permissionId),
-                  }));
-                }
-              }}
+  return (
+    <RoleDrawer
+      visible={true}
+      width={720}
+      maskClosable={false}
+      title={roleId ? (isEditHr ? _l('编辑人事权限') : _l('编辑权限')) : _l('新建管理员角色')}
+      extra={<Icon icon="close" className="Font20 Gray_9e Hand" onClick={onClose} />}
+      footer={
+        <div className="flexRow alignItemsCenter">
+          <Button type="primary" onClick={onSave}>
+            {roleId ? _l('保存') : _l('新建')}
+          </Button>
+          <Button type="link" className="mLeft12" onClick={onClose}>
+            {_l('取消')}
+          </Button>
+        </div>
+      }
+      onClose={onClose}
+    >
+      {loading && <LoadDiv />}
+      {!loading && (
+        <React.Fragment>
+          <div className="mBottom20">
+            <div className="mBottom12 bold">{_l('角色名称')}</div>
+            <Input
+              placeholder={_l('请输入角色名称')}
+              className="w100"
+              value={roleInfo.roleName}
+              onChange={roleName => setRoleInfo({ roleName })}
             />
-          </React.Fragment>
-        )}
-      </Dialog>
-    );
-  }
+            <div className="permissionsHeader">
+              <div className="bold flex Gray_75">{_l('分配权限')}</div>
+              {!isEditHr && (
+                <React.Fragment>
+                  <Checkbox
+                    checked={roleInfo.allowAddMembers}
+                    text={_l('允许成员自行加人')}
+                    onClick={() => setRoleInfo({ allowAddMembers: !roleInfo.allowAddMembers })}
+                  />
+                  <Tooltip text={_l('勾选后，角色下成员可以添加、移除其他成员')} popupPlacement="topLeft">
+                    <Icon icon="info_outline" className="Gray_9e Font16 mLeft4" />
+                  </Tooltip>
+                </React.Fragment>
+              )}
+            </div>
+          </div>
+
+          <PermissionList
+            projectId={projectId}
+            permissions={roleInfo.permissions}
+            selectedIds={selectedIds}
+            onChangePermission={ids => setSelectedIds(ids)}
+          />
+        </React.Fragment>
+      )}
+    </RoleDrawer>
+  );
 }

@@ -3,7 +3,7 @@ import cx from 'classnames';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import privateLegalApi from 'src/api/privateLegal';
 import AddLegalDialog from './AddLegalDialog';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import { Icon, LoadDiv, Switch, Dialog } from 'ming-ui';
 import { Button } from 'antd';
 import './index.less';

@@ -3,6 +3,7 @@ import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
 import _ from 'lodash';
 
 let detailRowsRequest = null;
+let requestViewIds = [];
 
 export const fetchRows = (pageIndex, keyWords) => {
   return (dispatch, getState) => {
@@ -10,9 +11,10 @@ export const fetchRows = (pageIndex, keyWords) => {
     const { appId, viewId, worksheetId } = base;
     let { detailViewRows, detailViewLoading } = detailView;
 
-    if (detailRowsRequest && detailRowsRequest.abort) {
+    if (detailRowsRequest && detailRowsRequest.abort && requestViewIds.includes(viewId)) {
       detailRowsRequest.abort();
     }
+    requestViewIds.push(viewId);
 
     dispatch({ type: 'CHANGE_DETAIL_VIEW_PAGE_INDEX', pageIndex });
     dispatch({ type: 'CHANGE_DETAIL_VIEW_LOADING', loading: true });
@@ -31,6 +33,8 @@ export const fetchRows = (pageIndex, keyWords) => {
     };
     detailRowsRequest = worksheetApi.getFilterRows(getFilledRequestParams(args));
     detailRowsRequest.then(res => {
+      detailRowsRequest = null;
+      requestViewIds = requestViewIds.filter(o => o !== viewId);
       dispatch({
         type: 'CHANGE_DETAIL_VIEW_ROWS',
         list: pageIndex > 1 ? detailViewRows.concat(res.data) : res.data,

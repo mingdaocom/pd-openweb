@@ -50,7 +50,7 @@ const getDepartments = (projectId, accountId) => {
   });
 };
 
-export function ButtonList({ button = {}, editable, layoutType, addRecord, info }) {
+export function ButtonList({ ids, widget, button = {}, editable, layoutType, addRecord, info }) {
   const [createRecordInfo, setInfo] = useState({
     visible: false,
     value: '',
@@ -393,7 +393,14 @@ export function ButtonList({ button = {}, editable, layoutType, addRecord, info 
 
   return (
     <ButtonListWrap>
-      <ButtonDisplay displayMode="display" layoutType={layoutType} onClick={handleClick} {...button} />
+      <ButtonDisplay
+        widget={widget}
+        appId={ids.appId}
+        displayMode="display"
+        layoutType={layoutType}
+        onClick={handleClick}
+        {...button}
+      />
       {includeScanQRCode && isMobile && (
         <ScanQRCode ref={scanQRCodeRef} projectId={projectId} onScanQRCodeResult={handleScanQRCodeResult} />
       )}

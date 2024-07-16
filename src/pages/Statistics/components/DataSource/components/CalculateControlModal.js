@@ -43,7 +43,9 @@ class CalculateControl extends Component {
       dot: editCalculateControl ? editCalculateControl.dot : 8,
       fnmatch: '',
       showInSideFormulaSelect: false,
-      dropdownVisible: false
+      dropdownVisible: false,
+      showDropdownId: '',
+      showDropdownStyle: {}
     };
   }
   handleSave = () => {
@@ -143,7 +145,7 @@ class CalculateControl extends Component {
                 `${controlId}-${item.value}`,
               );
               this.tagtextarea.setValue(newFormulaStr);
-              this.setState({ formulaStr: newFormulaStr });
+              this.setState({ formulaStr: newFormulaStr, showDropdownId: '' });
             }}
           >
             {item.text}
@@ -152,8 +154,8 @@ class CalculateControl extends Component {
       </Menu>
     );
   }
-  genControlTag(allControls, id) {
-    const control = _.find(allControls, { controlId: id.replace(/-\w/, '') }) || {};
+  genControlTag = (axisControls, id) => {
+    const control = _.find(axisControls, { controlId: id.replace(/-\w/, '') }) || {};
     const invalid = _.isEmpty(control);
     const type = id.replace(/\w+-/, '');
     const isNumber = isNumberControl(control.type);
@@ -167,12 +169,36 @@ class CalculateControl extends Component {
           </span>
         )}
         {!invalid && (
-          <Dropdown trigger={['click']} overlay={this.renderControlTypeOverlay(control, norm)}>
-            <Icon className="Font14 mLeft5 pointer" icon="arrow-down-border" />
-          </Dropdown>
+          <Icon className="Font14 mLeft5 pointer iconTrigger" icon="arrow-down-border" data-id={id} />
         )}
       </ControlTag>
     );
+  }
+  renderDropdown() {
+    const { showDropdownId, showDropdownStyle } = this.state;
+    const control = _.find(this.props.axisControls, { controlId: showDropdownId.replace(/-\w/, '') }) || {};
+    const invalid = _.isEmpty(control);
+    const type = showDropdownId.replace(/\w+-/, '');
+    const isNumber = isNumberControl(control.type);
+    const norm = _.find(isNumber ? calculateControlNormTypes : textControlNormTypes, { value: Number(type) }) || {};
+    if (showDropdownId) {
+      return (
+        <Dropdown
+          trigger={['click']}
+          overlay={this.renderControlTypeOverlay(control, norm)}
+          visible={showDropdownId}
+          onVisibleChange={visible => {
+            if (!visible) {
+              this.setState({ showDropdownId: '' });
+            }
+          }}
+        >
+          <span className="Absolute" style={showDropdownStyle} />
+        </Dropdown>
+      );
+    } else {
+      return null;
+    }
   }
   renderControlOverlay = () => {
     const { axisControls } = this.props;
@@ -198,6 +224,16 @@ class CalculateControl extends Component {
       />
     );
   };
+  handleOpenDropdown = ({ target }) => {
+    if (target.classList.contains('iconTrigger')) {
+      const rect = target.getBoundingClientRect();
+      const chartModalRect = document.querySelector('.chartModal').getBoundingClientRect();
+      this.setState({
+        showDropdownId: target.dataset.id,
+        showDropdownStyle: { left: rect.left - chartModalRect.left, top: (rect.top - chartModalRect.top) + 20 }
+      });
+    }
+  }
   render() {
     const { axisControls } = this.props;
     const { controlName, showInSideFormulaSelect, formulaStr, dot, dropdownVisible } = this.state;
@@ -235,16 +271,19 @@ class CalculateControl extends Component {
             </div>
           </Trigger>
         </div>
-        <TagTextarea
-          mode={2}
-          defaultValue={formulaStr}
-          maxHeight={240}
-          getRef={tagtextarea => {
-            this.tagtextarea = tagtextarea;
-          }}
-          renderTag={(id, options) => this.genControlTag(axisControls, id)}
-          onChange={this.handleChange}
-        />
+        <div onClick={this.handleOpenDropdown}>
+          <TagTextarea
+            mode={2}
+            defaultValue={formulaStr}
+            maxHeight={240}
+            getRef={tagtextarea => {
+              this.tagtextarea = tagtextarea;
+            }}
+            renderTag={(id, options) => this.genControlTag(axisControls, id)}
+            onChange={this.handleChange}
+          />
+          {this.renderDropdown()}
+        </div>
         <div className="mTop8 Font12 Gray_75">
           {_l('英文输入+、-、*、/、( ) 进行运算，支持输入数值或全数值的计算，不支持公式')}
         </div>

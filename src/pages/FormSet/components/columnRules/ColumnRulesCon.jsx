@@ -7,7 +7,7 @@ import * as actions from './redux/actions/columnRules';
 import * as columnRules from './redux/actions/columnRules';
 import EditBox from './EditBox';
 import RuleItem from './RuleItem';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import { hasRuleChanged } from './config';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -102,7 +102,7 @@ class ColumnRulesCon extends React.Component {
     return (
       <Fragment>
         <div className="columnRuleTitle">
-          <div className="flexCenter">
+          <div className="flexRow">
             <span className="Font17 Bold flex">{_l('业务规则')}</span>
             <div className="addRules" onClick={() => addColumnRules()}>
               <Icon icon="plus" className="mRight3" />

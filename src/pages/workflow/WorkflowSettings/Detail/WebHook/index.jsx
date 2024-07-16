@@ -15,7 +15,7 @@ import {
 import { ACTION_ID, APP_TYPE, METHODS_TYPE } from '../../enum';
 import _ from 'lodash';
 import styled from 'styled-components';
-import { checkJSON } from '../../utils';
+import { checkJSON, formatTestParameters } from '../../utils';
 
 const GenerateJSONBox = styled.textarea`
   padding: 12px;
@@ -233,7 +233,7 @@ export default class WebHook extends Component {
     return (
       <Fragment>
         <div className="Font13 bold">{_l('数据对象')}</div>
-        <div className="Font13 Gray_9e mTop10">{_l('当前流程中的节点对象')}</div>
+        <div className="Font13 Gray_75 mTop10">{_l('当前流程中的节点对象')}</div>
 
         <SelectNodeObject
           appList={data.appList}
@@ -272,7 +272,7 @@ export default class WebHook extends Component {
         {!md.global.Config.IsLocal && (
           <Fragment>
             <div className="Font13 bold mTop20">{_l('可信 IP 地址')}</div>
-            <div className="mTop10 Gray_9e">
+            <div className="mTop10 Gray_75">
               {_l('某些第三方平台需要设置白名单 IP 才能调用API，以下是系统使用的 IP 地址')}
             </div>
             <div className="mTop10">{data.realIp}</div>
@@ -282,7 +282,7 @@ export default class WebHook extends Component {
         {this.renderCustomErrorMessage()}
 
         <div className="Font13 bold mTop20">{_l('返回参数列表')}</div>
-        <div className="mTop10 Gray_9e">{_l('向URL发送请求测试获取参数列表；请求中的动态参数将取测试值')}</div>
+        <div className="mTop10 Gray_75">{_l('向URL发送请求测试获取参数列表；请求中的动态参数将取测试值')}</div>
         <div className="mTop15 webhookBtn InlineBlock" onClick={this.test}>
           {_l('测试 API')}
         </div>
@@ -385,7 +385,7 @@ export default class WebHook extends Component {
         </div>
 
         {_.includes([4, 5], data.contentType) && (
-          <div className="Gray_9e mTop5">{_l('此模式下允许发送10M以内附件')}</div>
+          <div className="Gray_75 mTop5">{_l('此模式下允许发送10M以内附件')}</div>
         )}
 
         {_.includes([1, 4, 5], data.contentType) && (
@@ -434,7 +434,7 @@ export default class WebHook extends Component {
     return (
       <Fragment>
         <div className="Font13 bold">{_l('API URL （必填）')}</div>
-        <div className="mTop10 Gray_9e flexRow">
+        <div className="mTop10 Gray_75 flexRow">
           <div className="flex">{_l('将向对应的HTTP地址发送请求；URL后面可以拼接参数')} </div>
           <Checkbox
             className="flexRow"
@@ -445,7 +445,7 @@ export default class WebHook extends Component {
             }
           />
           <Tooltip text={<span>{_l('需要管理员在「组织后台-集成-其他」中配置}')}</span>}>
-            <Icon icon="info_outline" className="Gray_9e mTop3 mLeft10 mRight20" />
+            <Icon icon="info_outline" className="Gray_75 mTop3 mLeft10 mRight20" />
           </Tooltip>
           <Checkbox
             className="flexRow"
@@ -461,8 +461,8 @@ export default class WebHook extends Component {
           <Dropdown
             className="flowDropdown mTop10 mRight10"
             style={{ width: 120 }}
-            data={METHODS_TYPE}
-            value={data.method}
+            data={METHODS_TYPE.filter(o => !o.disabled)}
+            value={data.method === 4 ? 14 : data.method}
             border
             onChange={method => this.updateSource({ method, body: _.includes([1, 5], method) ? '' : data.body })}
           />
@@ -566,14 +566,14 @@ export default class WebHook extends Component {
           processId,
           nodeId: selectNodeId,
           method,
-          url: this.formatParameters(sendContent, testMap),
-          headers: this.formatParameters(
+          url: formatTestParameters(sendContent, testMap),
+          headers: formatTestParameters(
             headers.filter(item => item.name),
             testMap,
             true,
           ),
-          body: this.formatParameters(body, testMap),
-          formControls: this.formatParameters(
+          body: formatTestParameters(body, testMap),
+          formControls: formatTestParameters(
             formControls.filter(item => item.name),
             testMap,
             true,
@@ -605,28 +605,6 @@ export default class WebHook extends Component {
   };
 
   /**
-   * 格式化参数
-   */
-  formatParameters = (source, testMap, isArray) => {
-    if (isArray) {
-      source = _.cloneDeep(source);
-      source.map(item => {
-        (item.value.match(/\$[^ \r\n]+?\$/g) || []).forEach(key => {
-          item.value = item.value.replace(key, testMap[item.type === 14 ? `${key}14` : key] || '');
-        });
-
-        return item;
-      });
-    } else {
-      (source.match(/\$[^ \r\n]+?\$/g) || []).forEach(key => {
-        source = source.replace(key, testMap[key] || '');
-      });
-    }
-
-    return source;
-  };
-
-  /**
    * 渲染自定义错误消息
    */
   renderCustomErrorMessage() {
@@ -649,7 +627,7 @@ export default class WebHook extends Component {
                   updateSource={({ fieldValue }) =>
                     this.updateSource({
                       settings: Object.assign({}, data.settings, {
-                        timeout: parseInt(fieldValue),
+                        timeout: fieldValue ? parseInt(fieldValue) : '',
                         maxRetries: fieldValue > 30 ? 0 : data.settings.maxRetries,
                       }),
                     })
@@ -719,7 +697,7 @@ export default class WebHook extends Component {
 
         <div className="mTop10">
           <span
-            className="ThemeHoverColor3 pointer Gray_9e"
+            className="ThemeHoverColor3 pointer Gray_75"
             onClick={() => this.setState({ errorMsgArray: errorMsgArray.concat({ key: '', value: '' }) })}
           >
             + {_l('状态码')}
@@ -797,7 +775,7 @@ export default class WebHook extends Component {
     return (
       <Fragment>
         <div className="Font13">
-          <span className="Gray_9e">
+          <span className="Gray_75">
             {_l('用于接收事件推送消息，格式如下：必须为HTTP/HTTPS支持POST请求的公网可访问的地址，不能携带任何参数。')}
           </span>
           <a onClick={this.openChecksheet}>{_l('查看推送数据结构')}</a>

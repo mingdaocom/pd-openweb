@@ -12,7 +12,7 @@ import './index.less';
 import _ from 'lodash';
 import TodoEntrust from './TodoEntrust';
 import { verifyPassword } from 'src/util';
-import ArchivedList from '../components/ArchivedList';
+import ArchivedList from 'src/components/ArchivedList';
 
 const dateScope = getDateScope();
 
@@ -200,7 +200,7 @@ export default class MyProcess extends Component {
       encryptType: null,
       rejectVisible: false,
       passVisible: false,
-      archivedId: '',
+      archivedItem: {}
     };
   }
   componentDidMount() {
@@ -214,10 +214,15 @@ export default class MyProcess extends Component {
     this.removeEscEvent();
   }
   updateCountData(countData) {
+    const { visible } = this.state;
     const { updateCountData } = this.props;
 
     this.setState({ countData });
     updateCountData(countData);
+    if (visible && this.filterEl) {
+      this.filterEl.getTodoListFilter();
+    }
+    
   }
   bindEscEvent = () => {
     document.body.addEventListener('keydown', this.closeGlobalSearch);
@@ -230,7 +235,7 @@ export default class MyProcess extends Component {
     }
   };
   getTodoList = () => {
-    const { loading, isMore, archivedId } = this.state;
+    const { loading, isMore } = this.state;
 
     if (loading || !isMore) {
       return;
@@ -248,7 +253,6 @@ export default class MyProcess extends Component {
     const param = {
       pageSize,
       pageIndex,
-      archivedId,
       ...getStateParam(stateTab),
       ...filter,
     };
@@ -282,7 +286,6 @@ export default class MyProcess extends Component {
     });
   };
   handleChangeTab = tab => {
-    const { archivedId } = this.state;
     this.setState(
       {
         stateTab: tab,
@@ -292,11 +295,12 @@ export default class MyProcess extends Component {
         isMore: true,
         list: [],
         filter: null,
+        archivedItem: {},
         // visible: false,
       },
       this.getTodoList,
     );
-    getTodoCount(archivedId).then(countData => {
+    getTodoCount().then(countData => {
       this.updateCountData(countData);
     });
   };
@@ -321,7 +325,7 @@ export default class MyProcess extends Component {
       });
   };
   handleAllRead = () => {
-    const { filter, archivedId } = this.state;
+    const { filter } = this.state;
     const param = { type: 5 };
     if (filter) {
       Object.assign(param, filter);
@@ -335,7 +339,7 @@ export default class MyProcess extends Component {
           isResetFilter: true,
           visible: false,
         });
-        getTodoCount(archivedId).then(countData => {
+        getTodoCount().then(countData => {
           this.updateCountData(countData);
         });
       }
@@ -375,7 +379,7 @@ export default class MyProcess extends Component {
   };
   handleBatchApprove = (signature, approveType) => {
     const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
-    const { approveCards, archivedId } = this.state;
+    const { approveCards } = this.state;
     const rejectCards = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
     const cards = approveType === 5 ? rejectCards : approveCards;
     const selects = cards.map(({ id, workId, flowNode }) => {
@@ -400,7 +404,7 @@ export default class MyProcess extends Component {
           alert(_l('操作成功'));
           this.setState({ approveCards: [] });
           this.handleChangeTab(TABS.WAITING_APPROVE);
-          getTodoCount(archivedId).then(countData => {
+          getTodoCount().then(countData => {
             this.updateCountData(countData);
           });
         }
@@ -497,19 +501,7 @@ export default class MyProcess extends Component {
           </div>
         </div>
         <div className="flex close">
-          <ArchivedList
-            className="mRight15"
-            onChange={archivedId =>
-              this.setState({ archivedId, pageIndex: 1, list: [] }, () => {
-                this.getTodoList();
-                getTodoCount(archivedId).then(countData => {
-                  this.updateCountData(countData);
-                });
-              })
-            }
-          />
           <TodoEntrust />
-
           {location.href.indexOf('myprocess') === -1 ? (
             <Fragment>
               <span className="mRight15" data-tip={_l('新页面打开')}>
@@ -721,40 +713,73 @@ export default class MyProcess extends Component {
       );
     }
     if (stateTab === TABS.COMPLETE) {
-      const { filter } = this.state;
+      const { filter, archivedItem } = this.state;
       const dateScopeIndex = filter ? (_.isNumber(filter.dateScopeIndex) ? filter.dateScopeIndex : 1) : 1;
-      return (
-        <div className="filterWrapper">
-          <Filter
-            visible={visible}
-            filter={filter}
-            handleOpen={() => this.setState({ visible: true })}
-            handleClear={() => {
-              this.setState({ isResetFilter: true });
-            }}
-          />
-          <FilterNav
-            data={SECOND_TABS[TABS.COMPLETE]}
-            checked={filter}
-            onChange={value => {
-              const { filter } = this.state;
-              this.setState(
-                {
-                  pageIndex: 1,
-                  isMore: true,
-                  loading: false,
-                  list: [],
-                  filter: {
-                    ...filter,
-                    ...value,
-                  },
+      const renderArchivedList = () => {
+        return (
+          <ArchivedList
+            type={1}
+            archivedItem={archivedItem}
+            onChange={archivedItem => {
+              this.setState({
+                archivedItem,
+                isMore: true,
+                pageIndex: 1,
+                list: [],
+                filter: {
+                  ...filter,
+                  startDate: archivedItem.start,
+                  endDate: archivedItem.end,
                 },
-                this.getTodoList,
-              );
+              }, this.getTodoList);
             }}
           />
-          <div className="flex Font13 Gray_75 TxtRight">{_l('显示%0的记录', dateScope[dateScopeIndex].text)}</div>
-        </div>
+        )
+      }
+      return (
+        <Fragment>
+          {!_.isEmpty(archivedItem) && (
+            <div className="mTop20">
+              {renderArchivedList()}
+            </div>
+          )}
+          <div className="filterWrapper">
+            <Filter
+              visible={visible}
+              filter={filter}
+              handleOpen={() => this.setState({ visible: true })}
+              handleClear={() => {
+                this.setState({ isResetFilter: true });
+              }}
+            />
+            <FilterNav
+              data={SECOND_TABS[TABS.COMPLETE]}
+              checked={filter}
+              onChange={value => {
+                const { filter } = this.state;
+                this.setState(
+                  {
+                    pageIndex: 1,
+                    isMore: true,
+                    loading: false,
+                    list: [],
+                    filter: {
+                      ...filter,
+                      ...value,
+                    },
+                  },
+                  this.getTodoList,
+                );
+              }}
+            />
+            {/*<div className="flex Font13 Gray_75 TxtRight">{_l('显示%0的记录', dateScope[dateScopeIndex].text)}</div>*/}
+            {_.isEmpty(archivedItem) && (
+              <div className="flex TxtRight">
+                {renderArchivedList()}
+              </div>
+            )}
+          </div>
+        </Fragment>
       );
     }
   }
@@ -952,6 +977,7 @@ export default class MyProcess extends Component {
       approveType,
       encryptType,
       rejectVisible,
+      archivedItem
     } = this.state;
 
     return (
@@ -963,6 +989,23 @@ export default class MyProcess extends Component {
             param={param}
             stateTab={stateTab}
             visible={visible}
+            archivedItem={archivedItem}
+            onChangeArchivedItem={(data) => {
+              this.setState({
+                pageIndex: 1,
+                isMore: true,
+                list: [],
+                archivedItem: {
+                  ...archivedItem,
+                  start: data.startDate,
+                  end: data.endDate,
+                },
+                filter: {
+                  ...filter,
+                  ...data
+                }
+              }, this.getTodoList);
+            }}
             handleChangeVisible={() => this.setState({ visible: false })}
             onChange={data => {
               const isSampleFilter = [TABS.MY_SPONSOR, TABS.WAITING_EXAMINE].includes(stateTab);
@@ -983,6 +1026,9 @@ export default class MyProcess extends Component {
                 },
                 this.getTodoList,
               );
+            }}
+            ref={el => {
+              this.filterEl = el;
             }}
           />
           {isLoading ? (

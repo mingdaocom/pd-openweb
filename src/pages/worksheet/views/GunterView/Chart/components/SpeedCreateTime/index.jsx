@@ -135,8 +135,8 @@ export default class SpeedCreateTime extends Component {
   componentWillReceiveProps({ gunterView }) {
     if (
       gunterView.periodType !== this.props.gunterView.periodType ||
-      gunterView.periodList[0].time !== this.props.gunterView.periodList[0].time ||
-      gunterView.periodList[0].width !== this.props.gunterView.periodList[0].width ||
+      _.get(gunterView.periodList[0], 'time') !== _.get(this.props.gunterView.periodList[0], 'time') ||
+      _.get(gunterView.periodList[0], 'width') !== _.get(this.props.gunterView.periodList[0], 'width') ||
       !_.isEqual(gunterView.grouping, this.props.gunterView.grouping)
     ) {
       this.initPeriodList(gunterView);

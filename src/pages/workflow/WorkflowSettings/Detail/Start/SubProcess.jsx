@@ -30,7 +30,7 @@ export default ({ data }) => {
 
         <div className="Font13 bold mTop20">{_l('被以下工作流触发')}</div>
         {!data.processList.length && (
-          <div className="Font12 Gray_9e workflowDetailDesc mTop10 subProcessDesc">{_l('未被任何流程触发')}</div>
+          <div className="Font12 Gray_75 workflowDetailDesc mTop10 subProcessDesc">{_l('未被任何流程触发')}</div>
         )}
 
         {data.processList.map((item, i) => {
@@ -45,9 +45,9 @@ export default ({ data }) => {
                 </span>
               </div>
               <div className="Font12">
-                <span className="Gray_9e mRight5">{_l('节点')}</span>
+                <span className="Gray_75 mRight5">{_l('节点')}</span>
                 <span>{item.flowNodes.map(obj => `“${obj.name}”`).join('、')}</span>
-                <span className="Gray_9e mLeft5">{_l('触发')}</span>
+                <span className="Gray_75 mLeft5">{_l('触发')}</span>
               </div>
             </div>
           );

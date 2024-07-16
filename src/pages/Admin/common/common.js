@@ -1,60 +1,50 @@
-﻿import { navigateTo } from 'router/navigateTo';
-import { upgradeVersionDialog, getCurrentProject, expireDialogAsync } from 'src/util';
+﻿import { upgradeVersionDialog, getCurrentProject } from 'src/util';
 var AdminCommon = {};
 import Config from '../config';
-import RoleController from 'src/api/role';
+import roleApi from 'src/api/role';
 import './common.less';
 import _ from 'lodash';
+import { PERMISSION_ENUM } from '../enum';
+import projectSettingApi from 'src/api/projectSetting';
+import { getMyPermissions, canPurchase, hasBackStageAdminAuth } from 'src/components/checkPermission';
 
-const { AUTHORITY_DICT } = Config;
-
-AdminCommon.init = function () {
+AdminCommon.getAuthority = async () => {
   Config.getParams();
-  Config.project = {};
-
   Config.project = getCurrentProject(Config.projectId);
-  // 是否在这个网络
-  if (Config.project.projectId) {
-    return AdminCommon.getProjectPermissionsByUser().then((...authority) => {
-      return _.flatten(_.filter(authority, item => item));
-    });
-  } else {
-    return new Promise((resolve, reject) => {
-      reject([AUTHORITY_DICT.NOT_MEMBER]);
-    });
+  let res = [];
+
+  // 不在这个网络
+  if (!Config.project.projectId) {
+    return [PERMISSION_ENUM.NOT_MEMBER];
   }
-};
 
-AdminCommon.getProjectPermissionsByUser = function () {
-  return RoleController.getProjectPermissionsByUser({
+  const userPermission = await roleApi.getProjectPermissionsByUser({
     projectId: Config.projectId,
-  }).then(data => {
-    let res = [];
-
-    if (data.IsNotProjectUser) {
-      res.push(AUTHORITY_DICT.NOT_MEMBER);
-    }
-
-    // 管理员权限（能操作 | 只能申请）
-    if (data.isProjectAdmin || data.isProjectAppManager || data.isSuperAdmin) {
-      res.push(AUTHORITY_DICT.HAS_PERMISSIONS);
-    }
-    // 组织管理员(无工作流、应用)
-    if (data.isProjectAdmin) {
-      res.push(AUTHORITY_DICT.PROJECT_ADMIN);
-    }
-    // 应用管理员(只包含应用、工作流)
-    if (data.isProjectAppManager) {
-      res.push(AUTHORITY_DICT.APK_ADMIN);
-    }
-
-    // 有角色（显示管理员菜单）
-    if (data.hasRole) {
-      res.push(AUTHORITY_DICT.SHOW_MANAGER);
-    }
-
-    return res;
   });
+
+  if (userPermission.IsNotProjectUser) {
+    return [PERMISSION_ENUM.NOT_MEMBER]; //不是组织成员
+  }
+
+  const myPermissions = getMyPermissions(Config.projectId);
+
+  if (myPermissions.length) {
+    const showManager = hasBackStageAdminAuth({ myPermissions });
+    const hasPurchaseAuth = canPurchase({ myPermissions });
+
+    res.push(
+      ...myPermissions
+        .concat(hasPurchaseAuth ? PERMISSION_ENUM.CAN_PURCHASE : [])
+        .concat(showManager ? PERMISSION_ENUM.SHOW_MANAGER : PERMISSION_ENUM.SHOW_MY_CHARACTER),
+    );
+  } else {
+    // 是否允许申请管理员
+    await projectSettingApi
+      .getAllowApplyManageRole({ projectId: Config.projectId })
+      .then(data => data && res.push(PERMISSION_ENUM.SHOW_APPLY));
+  }
+
+  return res;
 };
 
 AdminCommon.freeUpdateDialog = () => {

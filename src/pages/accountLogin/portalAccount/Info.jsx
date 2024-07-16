@@ -5,7 +5,6 @@ import { browserIsMobile } from 'src/util';
 import { LoadDiv, SvgIcon } from 'ming-ui';
 import externalPortalAjax from 'src/api/externalPortal';
 import { accountResultAction, setAutoLoginKey, statusList } from './util';
-import CustomFields from 'src/components/newCustomFields';
 import { formatControlToServer } from 'src/components/newCustomFields/tools/utils.js';
 import _ from 'lodash';
 
@@ -82,9 +81,6 @@ const Wrap = styled.div`
     &:hover {
       background: #0f82dd;
     }
-    &.sending {
-      background: #f5f5f5;
-    }
   }
 `;
 
@@ -105,12 +101,14 @@ export default function Info(props) {
   } = props;
   const [sending, setSending] = useState(false); //点击
   const [cells, setCells] = useState([]);
+  const [Components, setComponents] = useState(null);
   const customwidget = useRef(null);
   useEffect(() => {
     externalPortalAjax
       .getUserCollect({
         appId,
         exAccountId: accountId,
+        lang: getCurrentLangCode(),
       })
       .then(res => {
         res = res.map(o => {
@@ -131,6 +129,10 @@ export default function Info(props) {
         setCells(res);
         setLoading(false);
       });
+
+    import('src/components/newCustomFields').then(res => {
+      setComponents(res);
+    });
   }, []);
   return (
     <Wrap
@@ -140,7 +142,7 @@ export default function Info(props) {
         isM: browserIsMobile(),
       })}
     >
-      {loading || !CustomFields ? (
+      {loading || !Components ? (
         <LoadDiv className="" style={{ margin: '50px auto' }} />
       ) : (
         <React.Fragment>
@@ -155,10 +157,10 @@ export default function Info(props) {
           )}
           <h6 className="Font26 Bold mTop20">{_l('请继续完善信息')}</h6>
           <div className="messageConBox">
-            <CustomFields data={cells} ref={customwidget} disableRules />
+            <Components.default data={cells} ref={customwidget} disableRules />
           </div>
           <div
-            className={cx('send mTop32 TxtCenter Hand', sending)}
+            className={cx('send mTop32 TxtCenter Hand')}
             onClick={() => {
               if (sending) {
                 return;
@@ -167,6 +169,7 @@ export default function Info(props) {
               if (hasError) {
                 return;
               }
+              setSending(true);
               externalPortalAjax
                 .infoLogin({
                   state,
@@ -174,6 +177,7 @@ export default function Info(props) {
                   autoLogin: isAutoLogin,
                 })
                 .then(res => {
+                  setSending(false);
                   setAutoLoginKey({ ...res, appId });
                   // accountResult 为1则代表正常登录，会返回sessoinId，accountId，appId，projectId，正常进行登录转跳即可；accountResult 为3代表待审核
                   const { accountResult, sessionId, accountId, projectId } = res;

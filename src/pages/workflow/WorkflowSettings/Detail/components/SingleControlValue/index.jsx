@@ -12,7 +12,7 @@ import { formatResponseData } from 'src/components/UploadFiles/utils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { dialogSelectOrgRole, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
 import moment from 'moment';
-
+import RegExpValidator from 'src/util/expression';
 export default class SingleControlValue extends Component {
   constructor(props) {
     super(props);
@@ -115,7 +115,7 @@ export default class SingleControlValue extends Component {
               className="flowDetailMemberNodeName ellipsis"
               style={{ paddingRight: 10, borderRadius: 26, borderRightWidth: 1 }}
             >
-              <i className="Font14 mRight5 icon-workflow_empty Gray_9e" />
+              <i className="Font14 mRight5 icon-workflow_empty Gray_75" />
               {_l('清空')}
             </div>
           </div>
@@ -365,7 +365,7 @@ export default class SingleControlValue extends Component {
   previewAttachments(file) {
     if (file.serverName) {
       previewQiniuUrl(file.url, {
-        ext: File.GetExt(file.fileExt),
+        ext: RegExpValidator.getExtOfFileName(file.fileExt),
         name: file.originalFileName,
       });
     } else {
@@ -385,7 +385,7 @@ export default class SingleControlValue extends Component {
 
     return (
       <Fragment>
-        <span className={`${getIcons(nodeTypeId, appType, actionId)} Font16 Gray_9e mRight5`} />
+        <span className={`${getIcons(nodeTypeId, appType, actionId)} Font16 Gray_75 mRight5`} />
         <span>{nodeName}</span>
         <span className="bold mLeft4 mRight5">{appTypeName}</span>
         {appName && <span className="bold">{`“${appName}”`}</span>}
@@ -690,14 +690,14 @@ export default class SingleControlValue extends Component {
 
               <div className="actionControlBox flex clearBorderRadius pLeft10 pRight10 actionControlUsers">
                 {JSON.parse(item.fieldValue || '[]').map((o, fileIndex) => {
-                  const ext = File.GetExt(o.fileExt || o.ext);
+                  const ext = RegExpValidator.getExtOfFileName(o.fileExt || o.ext);
                   return (
                     <div
                       key={fileIndex}
                       className="InlineFlex boderRadAll_3 GrayBG alignItemsCenter mRight10 mTop3 mBottom3 pRight5 TxtTop relative"
                       style={{ height: 28, zIndex: 2 }}
                     >
-                      {File.isPicture('.' + ext) ? (
+                      {RegExpValidator.fileIsPicture('.' + ext) ? (
                         <img
                           src={o.previewUrl ? o.previewUrl : o.serverName + o.key}
                           style={{ height: 28 }}
@@ -718,7 +718,7 @@ export default class SingleControlValue extends Component {
                       </span>
                       <Icon
                         icon="close"
-                        className="pointer Gray_9e ThemeHoverColor3 mLeft10"
+                        className="pointer Gray_75 ThemeHoverColor3 mLeft10"
                         onClick={() => {
                           const newFieldValue = JSON.parse(item.fieldValue);
 
@@ -734,7 +734,7 @@ export default class SingleControlValue extends Component {
                 {!JSON.parse(item.fieldValue || '[]').length && !isUploading && (
                   <span className="Gray_bd LineHeight34">{_l('选择附件')}</span>
                 )}
-                {isUploading && <span className="Gray_9e LineHeight34">{_l('上传中...')}</span>}
+                {isUploading && <span className="Gray_75 LineHeight34">{_l('上传中...')}</span>}
               </div>
             </Fragment>
           ) : (
@@ -778,7 +778,7 @@ export default class SingleControlValue extends Component {
               {item.fieldValue && (
                 <Icon
                   icon="cancel1"
-                  className="Font16 Gray_9e ThemeHoverColor3 Absolute"
+                  className="Font16 Gray_75 ThemeHoverColor3 Absolute"
                   style={{ top: 9, right: 10 }}
                   onClick={() => this.updateSingleControlValue({ fieldValue: '' }, i)}
                 />
@@ -867,7 +867,7 @@ export default class SingleControlValue extends Component {
               {cityText && (
                 <Icon
                   icon="cancel1"
-                  className="Font16 Gray_9e ThemeHoverColor3 Absolute"
+                  className="Font16 Gray_75 ThemeHoverColor3 Absolute"
                   style={{ top: 9, right: 10 }}
                   onClick={() => {
                     this.setState({ search: '', keywords: '' });
@@ -1029,23 +1029,8 @@ export default class SingleControlValue extends Component {
       );
     }
 
-    // 签名 || 数组 || 普通数组
-    if (item.type === 42 || item.type === 10000003 || item.type === 10000007) {
-      return (
-        <div className="mTop8 flexRow relative">
-          {item.fieldValueId ? (
-            this.renderSelectFieldsValue(item, i)
-          ) : (
-            <div className="actionControlBox flex clearBorderRadius" />
-          )}
-          {this.renderOtherFields(item, i)}
-        </div>
-      );
-    }
-
     // 时间
     if (item.type === 46) {
-      const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
       const timeFormat = item.unit === '1' ? 'HH:mm' : 'HH:mm:ss';
 
       return (
@@ -1059,7 +1044,7 @@ export default class SingleControlValue extends Component {
                 showNow={false}
                 bordered={false}
                 suffixIcon={null}
-                clearIcon={<Icon icon="cancel1" className="Font16 Gray_9e ThemeHoverColor3" />}
+                clearIcon={<Icon icon="cancel1" className="Font16 Gray_75 ThemeHoverColor3" />}
                 inputReadOnly
                 placeholder={_l('请选择时间')}
                 format={timeFormat}
@@ -1073,6 +1058,15 @@ export default class SingleControlValue extends Component {
       );
     }
 
-    return null;
+    return (
+      <div className="mTop8 flexRow relative">
+        {item.fieldValueId ? (
+          this.renderSelectFieldsValue(item, i)
+        ) : (
+          <div className="actionControlBox flex clearBorderRadius" />
+        )}
+        {this.renderOtherFields(item, i)}
+      </div>
+    );
   }
 }

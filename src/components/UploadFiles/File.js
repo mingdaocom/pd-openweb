@@ -13,7 +13,7 @@ import { formatFileSize, downloadFile, getClassNameByExt } from 'src/util';
 import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
 import { addLinkFile } from 'ming-ui/functions';
 import _ from 'lodash';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 
 const vertical = {
   WebkitBoxOrient: 'vertical',
@@ -126,7 +126,7 @@ export default class FileComponent extends Component {
     } else {
       attachment = {
         id: data.fileID,
-        name: data.originalFilename || File.GetName(data.filename),
+        name: data.originalFilename || RegExpValidator.getNameOfFileName(data.filename),
         ext: getFileExtends(data.ext),
         size: data.filesize,
         path: `${data.filepath}${data.filename}`,
@@ -139,7 +139,7 @@ export default class FileComponent extends Component {
       const params = {
         attachmentType,
       };
-      const isPicture = File.isPicture('.' + attachment.ext.slice(attachment.ext.indexOf('.') + 1));
+      const isPicture = RegExpValidator.fileIsPicture('.' + attachment.ext.slice(attachment.ext.indexOf('.') + 1));
       params.id = attachment.id;
       params.name = attachment.name;
       params.ext = `.${attachment.ext}`;
@@ -274,7 +274,7 @@ export default class FileComponent extends Component {
         {this.renderFileImage(fileResponse.previewUrl)}
         <div className="UploadFiles-fileName UploadFiles-previewFileName">
           <span>
-            {fileResponse.originalFilename}
+            {fileResponse.originalFilename || _l('未命名')}
             {fileResponse.ext}
           </span>
         </div>
@@ -323,7 +323,7 @@ export default class FileComponent extends Component {
   renderTwiceView(fileResponse) {
     let isKc = !!fileResponse.refId;
     let fileClassName = getClassNameByExt(fileResponse.type === 1 ? false : fileResponse.fileExt);
-    let isPicture = File.isPicture(fileResponse.fileExt);
+    let isPicture = RegExpValidator.fileIsPicture(fileResponse.fileExt);
     let { twice = {} } = fileResponse;
 
     return isPicture ? (
@@ -347,7 +347,7 @@ export default class FileComponent extends Component {
         </div>
         <div className="UploadFiles-fileName">
           <span>
-            {fileResponse.originalFileName}
+            {fileResponse.originalFileName || _l('未命名')}
             {fileResponse.fileExt}
           </span>
         </div>
@@ -357,7 +357,7 @@ export default class FileComponent extends Component {
   renderTwicePenel(fileResponse, index) {
     let isKc = !!fileResponse.refId;
     let { isEdit, penelVisible } = this.state;
-    let isPicture = File.isPicture(fileResponse.fileExt);
+    let isPicture = RegExpValidator.fileIsPicture(fileResponse.fileExt);
     let penelClass = cx(
       'UploadFiles-filePanel',
       isPicture ? 'UploadFiles-filePanel-image' : 'UploadFiles-filePanel-accessory',
@@ -408,8 +408,11 @@ export default class FileComponent extends Component {
               }}
             />
           ) : (
-            <div className={textClass} title={`${fileResponse.originalFileName}${fileResponse.fileExt}`}>
-              <span style={vertical}>{`${fileResponse.originalFileName}${fileResponse.fileExt}`}</span>
+            <div
+              className={textClass}
+              title={`${fileResponse.originalFileName || _l('未命名')}${fileResponse.fileExt}`}
+            >
+              <span style={vertical}>{`${fileResponse.originalFileName || _l('未命名')}${fileResponse.fileExt}`}</span>
             </div>
           )}
           {!!fileResponse.refId && (
@@ -468,7 +471,7 @@ export default class FileComponent extends Component {
   }
   renderView(fileResponse, isKc) {
     let fileClassName = getClassNameByExt(fileResponse.fileExt);
-    let isPicture = File.isPicture(fileResponse.fileExt);
+    let isPicture = RegExpValidator.fileIsPicture(fileResponse.fileExt);
     let isMDLink = fileResponse.viewType === 5;
     const url = fileResponse.previewUrl || fileResponse.url || '';
 
@@ -506,7 +509,7 @@ export default class FileComponent extends Component {
         </div>
         <div className="UploadFiles-fileName">
           <span>
-            {fileResponse.originalFileName}
+            {fileResponse.originalFileName || _l('未命名')}
             {fileResponse.fileExt}
           </span>
         </div>
@@ -515,7 +518,7 @@ export default class FileComponent extends Component {
   }
   renderPenel(fileResponse, index, isKc) {
     let { isEdit, penelVisible } = this.state;
-    let isPicture = File.isPicture(fileResponse.fileExt);
+    let isPicture = RegExpValidator.fileIsPicture(fileResponse.fileExt);
     let penelClass = cx(
       'UploadFiles-filePanel',
       isPicture ? 'UploadFiles-filePanel-image' : 'UploadFiles-filePanel-accessory',
@@ -564,8 +567,11 @@ export default class FileComponent extends Component {
               }}
             />
           ) : (
-            <div className={textClass} title={`${fileResponse.originalFileName}${fileResponse.fileExt}`}>
-              <span style={vertical}>{`${fileResponse.originalFileName}${fileResponse.fileExt}`}</span>
+            <div
+              className={textClass}
+              title={`${fileResponse.originalFileName || _l('未命名')}${fileResponse.fileExt}`}
+            >
+              <span style={vertical}>{`${fileResponse.originalFileName || _l('未命名')}${fileResponse.fileExt}`}</span>
             </div>
           )}
           {!!fileResponse.refId && (
@@ -626,13 +632,13 @@ export default class FileComponent extends Component {
     let browse = true;
     let { viewImage } = this.state;
     let fileClassName = getClassNameByExt(fileResponse.attachmentType === 5 ? false : fileResponse.ext);
-    let isPicture = File.isPicture(fileResponse.ext);
+    let isPicture = RegExpValidator.fileIsPicture(fileResponse.ext);
     let isKc = !!fileResponse.refId;
     let isMDLink = fileResponse.viewType === 5;
     // fileResponse.previewUrl = "https://www.mingdao.com/api/file/owa?id=0efdb627-a3bf-486b-b27c-e9cf3c486e38&pst=1&type=preview";
     // 如果是文档，显示文档的缩略图，previewUrl 字段
     let isDoc = isDocument(fileResponse.ext);
-    let isVid = RegExp.isVideo(fileResponse.ext);
+    let isVid = RegExpValidator.isVideo(fileResponse.ext);
 
     // 如果没有 shareUrl 字段，表示权限不能浏览
     if (isKc && !fileResponse.shareUrl) {
@@ -675,7 +681,7 @@ export default class FileComponent extends Component {
         {browse ? (
           <div className="UploadFiles-fileName">
             <span>
-              {fileResponse.originalFilename}
+              {fileResponse.originalFilename || _l('未命名')}
               {fileResponse.ext}
             </span>
           </div>
@@ -693,7 +699,9 @@ export default class FileComponent extends Component {
     let { penelVisible, moreVisible, isDelete } = this.state;
     let { isUpload } = this.props;
     let isKc = !!fileResponse.refId;
-    let isPicture = File.isPicture(fileResponse.ext) || (RegExp.isVideo(fileResponse.ext) && fileResponse.previewUrl);
+    let isPicture =
+      RegExpValidator.fileIsPicture(fileResponse.ext) ||
+      (RegExpValidator.isVideo(fileResponse.ext) && fileResponse.previewUrl);
     let fileSize = formatFileSize(fileResponse.filesize);
     let isMDLink = fileResponse.viewType === 5;
 
@@ -746,8 +754,8 @@ export default class FileComponent extends Component {
         }}
       >
         <div className="UploadFiles-panelText">
-          <div className={textClass} title={`${fileResponse.originalFilename}${fileResponse.ext}`}>
-            <span style={vertical}>{`${fileResponse.originalFilename}${fileResponse.ext}`}</span>
+          <div className={textClass} title={`${fileResponse.originalFilename || _l('未命名')}${fileResponse.ext}`}>
+            <span style={vertical}>{`${fileResponse.originalFilename || _l('未命名')}${fileResponse.ext}`}</span>
           </div>
           {fileResponse.refId ? (
             <div className="UploadFiles-kcFileName" style={vertical}>
@@ -915,7 +923,7 @@ export default class FileComponent extends Component {
                 />
               </div>
               <div className="UploadFiles-panelTextName" style={{ display: base.isPic ? 'none' : '' }}>
-                <span style={vertical}>{`${base.fileName}${base.fileExt}`}</span>
+                <span style={vertical}>{`${base.fileName || _l('未命名')}${base.fileExt}`}</span>
               </div>
               <div
                 className={cx('UploadFiles-loadfileClose', {

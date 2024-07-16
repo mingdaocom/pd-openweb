@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import preall from 'src/common/preall';
 import ChartDialog from '../ChartDialog';
 import { Provider } from 'react-redux';
@@ -11,7 +11,7 @@ import './index.less';
 import 'worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 import _ from 'lodash';
 import cx from 'classnames';
-import { getRequest } from 'src/util';
+import { getRequest, getAppLangDetail } from 'src/util';
 
 const { hideHeader } = getRequest();
 
@@ -47,15 +47,12 @@ export default class PublicShareChart extends Component {
         );
         window.clientId = _.get(data, 'data.clientId');
         const { projectId, appId, langInfo } = data.data;
-        if (langInfo && langInfo.appLangId) {
-          const lang = await appManagementApi.getAppLangDetail({
-            projectId,
-            appId,
-            appLangId: langInfo.appLangId,
-          });
-          window.appInfo = { id: appId };
-          window[`langData-${appId}`] = lang.items;
-        }
+        const lang = await getAppLangDetail({
+          langInfo,
+          projectId,
+          id: appId,
+        });
+        window.appInfo = { id: appId };
         this.setState({ data, loading: false });
       });
   }
@@ -84,4 +81,6 @@ export default class PublicShareChart extends Component {
   }
 }
 
-ReactDom.render(<PublicShareChart />, document.getElementById('app'));
+const root = createRoot(document.getElementById('app'));
+
+root.render(<PublicShareChart />);

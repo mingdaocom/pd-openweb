@@ -1,10 +1,10 @@
 import React from 'react';
 import * as actions from '../redux/actions';
-import { mdNotification } from 'ming-ui/functions';
 import { getPssId } from 'src/util/pssId';
 import { removeFlashTitle } from './index';
 import sessionNewMsgAudio from 'src/pages/chat/lib/mp3player/sessionNewMsgAudio.html';
 import systemNewMsgAudio from 'src/pages/chat/lib/mp3player/systemNewMsgAudio.html';
+import { navigateToLogin } from 'src/router/navigateTo';
 
 export const socketInitEvent = function () {
   $(sessionNewMsgAudio).appendTo('html > body');
@@ -25,7 +25,7 @@ export const socketInitEvent = function () {
       $('.mdAlertDialog').remove();
       setTimeout(() => {
         if (!window.currentLeave) {
-          window.navigateToLogin({ needSecondCheck: true });
+          navigateToLogin({ needSecondCheck: true });
         }
       }, 200);
     }
@@ -135,57 +135,27 @@ export const notifyInit = function () {
 
 export const stateInit = function () {
   const key = 'chat';
-  const reconnectDelayTime = 5000;
+  const reconnectDelayTime = 10000;
   let disconnectTime = 0;
   let isOpen = true;
   let reconnectCount = 1;
 
   const reconnectFn = () => {
-    mdNotification.close(key);
-    mdNotification.success({
-      key,
-      title: _l('网络已连接'),
-      duration: 2,
-    });
+    this.props.dispatch(actions.setSocketState(0));
     IM.socket.off('reconnect', reconnectFn);
     IM.socket.off('reconnect_failed', reconnectFailedFn);
   };
   const reconnectFailedFn = () => {
-    mdNotification.close(key);
-    mdNotification.error({
-      key,
-      title: _l('网络连接已断开'),
-      duration: null,
-      description: <div className="Gray_9e">{_l('重连失败，请重新刷新页面')}</div>,
-      btnList: [
-        {
-          text: _l('刷新'),
-          onClick: () => {
-            location.reload();
-          },
-        },
-      ],
-    });
+    this.props.dispatch(actions.setSocketState(2));
     IM.socket.off('reconnect', reconnectFn);
     IM.socket.off('reconnect_failed', reconnectFailedFn);
   };
   const notificationInit = () => {
-    mdNotification.error({
-      key,
-      title: _l('网络连接已断开'),
-      loading: true,
-      className: 'closable',
-      duration: null,
-      description: <div className="ThemeColor TxtRight">{_l('正在重新连接')}</div>,
-    });
+    this.props.dispatch(actions.setSocketState(1));
     IM.socket.on('reconnect', reconnectFn);
     IM.socket.on('reconnect_failed', reconnectFailedFn);
   };
 
-  const open = () => {
-    mdNotification.close('connectedError');
-    notificationInit();
-  };
   let reconnectTime = null;
 
   IM.socket.on('error', error => {
@@ -194,7 +164,7 @@ export const stateInit = function () {
     }
     if (isOpen) {
       isOpen = false;
-      open();
+      notificationInit();
     }
   });
 
@@ -203,7 +173,7 @@ export const stateInit = function () {
     reconnectTime = setTimeout(() => {
       if (isOpen) {
         isOpen = false;
-        open();
+        notificationInit();
       }
       removeFlashTitle('', []);
     }, reconnectDelayTime);
@@ -225,10 +195,6 @@ export const stateInit = function () {
     }
     if (reconnectCount > 1) {
       isOpen = true;
-      setTimeout(() => {
-        mdNotification.close(key);
-        mdNotification.close('connectedError');
-      }, 3000);
       this.props.dispatch(actions.refresh());
     }
   });

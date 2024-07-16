@@ -1,7 +1,6 @@
 import React from 'react';
 import { CommonDisplay } from '../../styled';
 import { Slider } from 'ming-ui';
-import NumberUtil from 'src/util/number';
 import { getAdvanceSetting, levelSafeParse } from '../../util';
 import { get, head } from 'lodash';
 import styled from 'styled-components';
@@ -48,9 +47,9 @@ export default function FormulaNumber({ data }) {
         itemnames={itemnames}
         itemcolor={itemcolor}
         showInput={showinput === '1'}
-        min={NumberUtil.parseFloat(min)}
-        max={NumberUtil.parseFloat(max)}
-        step={NumberUtil.parseFloat(numinterval)}
+        min={parseFloat(min)}
+        max={parseFloat(max)}
+        step={parseFloat(numinterval)}
         value={levelSafeParse(defValue)}
       />
     );

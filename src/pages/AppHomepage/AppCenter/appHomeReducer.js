@@ -19,6 +19,8 @@ export const initialState = {
   dashboardLoading: true,
   platformSettingLoading: true,
   recentAppItems: [],
+  projectGroupsLang: [], // 组织分组多语言
+  appLang: [], // 应用多语言
 };
 
 function updateAppOfState(state, appId, update = data => data) {
@@ -64,6 +66,10 @@ export function reducer(state, action = {}) {
   let newState = { ...state };
   let newApp;
   switch (action.type) {
+    case 'PROJECT_GROUPS_NAME_LANG':
+      return { ...state, projectGroupsLang: action.data };
+    case 'PROJECT_APP_LANG':
+      return { ...state, appLang: action.data };
     case 'UPDATE_SETTING':
       return { ...state, origin: { ...state.origin, homeSetting: action.value } };
     case 'UPDATE_GROUPS_LOADING':
@@ -341,6 +347,37 @@ function handleDashboardOrAppResponse(dispatch, data, isDashboard) {
   });
 }
 
+// 分组名称多语言
+function getGroupsLangs(dispatch, projectId) {
+  appManagementAjax.getProjectLangs({ projectId, type: 20 }).then(res => {
+    dispatch({
+      type: 'PROJECT_GROUPS_NAME_LANG',
+      data: _.keyBy(
+        res.filter(o => o.langType === getCurrentLangCode()),
+        'correlationId',
+      ),
+    });
+  });
+}
+
+// 应用名称多语言
+function getAppLangs(dispatch, projectId, noCache = false) {
+  if (md.global.Account.lang === md.global.Config.DefaultLang) {
+    return;
+  }
+
+  homeAppAjax
+    .myPlatformLang({
+      projectId,
+      noCache,
+    })
+    .then(data => {
+      dispatch({
+        type: 'PROJECT_APP_LANG',
+        data: data,
+      });
+    });
+}
 export class CreateActions {
   constructor(props) {
     this.dispatch = props.dispatch;
@@ -353,11 +390,15 @@ export class CreateActions {
       value: keywords,
     });
   }
-  loadDashboardInfo({ projectId }) {
+  loadDashboardInfo({ projectId, noCache }) {
     this.dispatch({
       type: 'UPDATE_DASHBOARD_LOADING',
       value: true,
     });
+    if (projectId) {
+      getAppLangs(this.dispatch, projectId, noCache);
+      getGroupsLangs(this.dispatch, projectId);
+    }
     if (window.dashboardAjax) {
       window.dashboardAjax.abort();
     }
@@ -367,7 +408,7 @@ export class CreateActions {
       handleDashboardOrAppResponse(this.dispatch, data, true);
     });
   }
-  loadAppAndGroups({ projectId, activeGroupType, activeGroupId, noGroupsLoading }) {
+  loadAppAndGroups({ projectId, activeGroupType, activeGroupId, noGroupsLoading, noCache }) {
     if (!activeGroupId) {
       localStorage.removeItem(`latest_group_${md.global.Account.accountId}`);
     }
@@ -387,6 +428,10 @@ export class CreateActions {
     });
     if (projectId === 'external') {
       projectId = undefined;
+    }
+    if (projectId) {
+      getAppLangs(this.dispatch, projectId, noCache);
+      getGroupsLangs(this.dispatch, projectId);
     }
     if (window.homeGetMyAppAjax) {
       window.homeGetMyAppAjax.abort();
@@ -452,7 +497,7 @@ export class CreateActions {
       .addGroup({ projectId, name, icon, groupType })
       .then(({ id, status }) => {
         if (status === 1) {
-          cb();
+          cb(status, id);
           this.dispatch({
             type: 'ADD_GROUP',
             value: {

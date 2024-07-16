@@ -7,7 +7,7 @@ import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/u
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import './RecordCard.less';
 import _ from 'lodash';
-
+import RegExpValidator from 'src/util/expression';
 const FROMS = {
   RECORDDETAIL: 1,
   SELECT_RECORD_DIALOG: 2,
@@ -19,7 +19,7 @@ function getKeyOfFrom(from) {
 }
 
 function getCoverControlData(data) {
-  return _.find(data, file => File.isPicture(file.ext));
+  return _.find(data, file => RegExpValidator.fileIsPicture(file.ext));
 }
 
 export default class RecordCard extends Component {

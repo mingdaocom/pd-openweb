@@ -25,13 +25,13 @@ const DEFAULT_TEXT = {
 
 const CUSTOM_EVENT_TEXT = {
   text: _l(
-    '控件事件是指在字段控件上有交互事件发生时，如果表单内的数据满足条件，则可以根据配置执行不同动作，如显示消息、调用集成API等。',
+    '控件事件是指在应用内表单详情页中的字段控件上有交互事件发生时，如果表单内的数据满足条件，则可以根据配置执行不同动作，如显示消息、调用集成API等。',
   ),
-  href: '',
+  href: 'https://help.mingdao.com/worksheet/event',
 };
 
-export default function WidgetWarning(type) {
-  const detail = type === 'custom_event' ? CUSTOM_EVENT_TEXT : DEFAULT_TEXT;
+export default function WidgetWarning({ fromCustom = false }) {
+  const detail = fromCustom ? CUSTOM_EVENT_TEXT : DEFAULT_TEXT;
   return (
     <WarningWrap>
       {detail.text}

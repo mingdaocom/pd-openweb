@@ -7,13 +7,13 @@ import createUploader from 'src/library/plupload/createUploader';
 import { getUrlByBucketName } from 'src/util';
 import appManagementAjax from 'src/api/appManagement';
 import sheetAjax from 'src/api/worksheet';
-
+import RegExpValidator from 'src/util/expression';
 const SUFFIX = {
   Word: 'docx',
   Excel: 'xlsx',
 };
 
-const AJAXURL = {
+const AJAX_URL = {
   Word: 'Word',
   Excel: 'Xlsx',
 };
@@ -42,23 +42,26 @@ class EditPrint extends React.Component {
   componentDidMount() {
     this.setData();
   }
+
   componentWillReceiveProps(nextProps, nextState) {
-    if (nextProps.templateId !== this.props.templateId) {
+    if (nextProps.templateId !== this.props.templateId || nextProps.fileType !== this.props.fileType) {
       this.uploaderDestroy();
       this.setData(nextProps);
     }
   }
+
   componentDidUpdate(prevProps) {
     if (!this.state.bindCreateUpload) {
-      this.createUploader();
+      this.createUploader(this.props.fileType);
     }
   }
+
   componentWillUnmount() {
     this.uploaderDestroy();
   }
 
   setData = nextProps => {
-    const { printData = [], templateId } = nextProps || this.props;
+    const { printData = [], templateId, fileType } = nextProps || this.props;
     let templatedata = printData.find(it => it.id === templateId) || [];
     this.setState({
       templateName: templatedata.name,
@@ -66,7 +69,8 @@ class EditPrint extends React.Component {
       hasChange: false,
       allowDownloadPermission: templatedata.allowDownloadPermission || 0,
     });
-    this.createUploader();
+
+    this.createUploader(fileType);
     this.con.addEventListener('dragover', e => {
       e.stopPropagation();
       //阻止浏览器默认打开文件的操作
@@ -93,9 +97,7 @@ class EditPrint extends React.Component {
   /**
    * 创建上传
    */
-  createUploader() {
-    const { fileType = 'Word' } = this.props;
-
+  createUploader(fileType = 'Word') {
     this.uploader = createUploader({
       browse_button: 'editorFiles',
       bucket: 3,
@@ -104,7 +106,7 @@ class EditPrint extends React.Component {
       },
       init: {
         BeforeUpload: (up, file) => {
-          if (File.GetExt(file.name) != SUFFIX[fileType]) {
+          if (RegExpValidator.getExtOfFileName(file.name) != SUFFIX[fileType]) {
             alert(_l('上传失败，文件错误'), 3, 1000);
             return false;
           }
@@ -181,7 +183,7 @@ class EditPrint extends React.Component {
       tokenType: 5,
     });
     if (templateId) {
-      ajaxUrl = downLoadUrl + `/Export${AJAXURL[fileType]}/Upload${AJAXURL[fileType]}`;
+      ajaxUrl = downLoadUrl + `/Export${AJAX_URL[fileType]}/Upload${AJAX_URL[fileType]}`;
       option = {
         id: templateId,
         accountId: md.global.Account.accountId,
@@ -190,7 +192,7 @@ class EditPrint extends React.Component {
         token,
       };
     } else {
-      ajaxUrl = downLoadUrl + `/Export${AJAXURL[fileType]}/Create${AJAXURL[fileType]}`;
+      ajaxUrl = downLoadUrl + `/Export${AJAX_URL[fileType]}/Create${AJAX_URL[fileType]}`;
       option = {
         worksheetId: worksheetId,
         accountId: md.global.Account.accountId,
@@ -233,7 +235,7 @@ class EditPrint extends React.Component {
     const { onClose, worksheetId, downLoadUrl, templateId, fileType = 'Word' } = this.props;
 
     return (
-      <div className="editPrint upload">
+      <div className="editPrint upload flexColumn h100">
         <h5 className="title overflow_ellipsis">
           {templateId ? _l('编辑模板: %0', templateName) : _l('新建模板')}
           <Icon
@@ -244,7 +246,7 @@ class EditPrint extends React.Component {
             }}
           />
         </h5>
-        <div className="uploadBoxCon">
+        <div className="uploadBoxCon flex">
           <div className="uploadCon">
             <p className="tiTop">
               <span className="num">1</span>

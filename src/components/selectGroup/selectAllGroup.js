@@ -9,7 +9,7 @@ import normalGroupHtml from './normalGroup.html';
 import createGroup from 'src/components/group/create/creatGroup';
 import _ from 'lodash';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { UserCard } from 'ming-ui';
 
 var tpl = doT.template(selectGroupTpl);
@@ -790,11 +790,13 @@ SelectGroup.prototype = {
       var groupId = $(ele).data('groupid');
       if ($(ele).data('bindUserCard')) return;
       $(ele).data('bindUserCard', true);
-      ReactDOM.render(
+
+      const root = createRoot(ele);
+
+      root.render(
         <UserCard type={2} sourceId={groupId}>
           <span className="groupInfo"></span>
         </UserCard>,
-        ele,
       );
     });
   },

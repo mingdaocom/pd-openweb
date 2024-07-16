@@ -278,7 +278,7 @@ export default function Log(props) {
         // 只能查看触发者是自己的日志详情
         if (
           !(
-            props.isSuperAdmin ||
+            props.hasManageAuth ||
             props.connectInfo.isOwner ||
             [record.createBy.accountId].includes(md.global.Account.accountId)
           )

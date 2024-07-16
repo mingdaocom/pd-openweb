@@ -1,19 +1,33 @@
-import React from 'react';
+import React, { Component } from 'react';
 import SplitLineSection from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/SplitLineSection.jsx';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
-export default function SplitLine(props) {
-  const { from, renderData, setNavVisible, registerCell } = props;
-  const sectionStyle = _.get(props, 'widgetStyle.sectionstyle') || '0';
+export default class Widgets extends Component {
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
 
-  return (
-    <SplitLineSection
-      data={props}
-      from={from}
-      fromType="display"
-      sectionstyle={sectionStyle}
-      renderData={renderData}
-      setNavVisible={setNavVisible}
-      registerCell={registerCell}
-    />
-  );
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
+
+  render() {
+    const { from, renderData, setNavVisible, registerCell } = this.props;
+    const sectionStyle = _.get(this.props, 'widgetStyle.sectionstyle') || '0';
+    return (
+      <SplitLineSection
+        data={this.props}
+        from={from}
+        fromType="display"
+        sectionstyle={sectionStyle}
+        renderData={renderData}
+        setNavVisible={setNavVisible}
+        registerCell={registerCell}
+      />
+    );
+  }
 }

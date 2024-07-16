@@ -79,7 +79,7 @@ const getProps = (props, type = 'success') => {
           data: {
             accountId: md.global.Account.accountId,
             noticeId: props.key,
-            type: 3,
+            type: props.removeReadType ? undefined : 3,
           },
           jsonp: 'jsoncallback',
         });

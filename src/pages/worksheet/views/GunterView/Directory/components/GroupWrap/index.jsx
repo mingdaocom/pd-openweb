@@ -206,6 +206,8 @@ export default class GroupWrap extends Component {
     const { width, controls, viewConfig } = this.props;
     const displayControls = viewConfig.displayControls || [];
     const titleControl = _.find(controls, { attribute: 1 });
+    const startControl = _.find(controls, { controlId: viewConfig.startId }) || {};
+    const endControl = _.find(controls, { controlId: viewConfig.endId }) || {};
     const startIndex = displayControls.length + 1;
     const endIndex = displayControls.length + 2;
     return (
@@ -223,11 +225,11 @@ export default class GroupWrap extends Component {
             </div>
           ))}
           <div className="field" style={{ width: widthConfig[startIndex] }}>
-            {_l('开始时间')}
+            {startControl.controlName || _l('开始时间')}
             {this.renderDrag(startIndex)}
           </div>
           <div className="field" style={{ width: widthConfig[endIndex] }}>
-            {_l('结束时间')}
+            {endControl.controlName || _l('结束时间')}
             {this.renderDrag(endIndex)}
           </div>
           <div className="dayCountField overflow_ellipsis">{_l('时长')}</div>

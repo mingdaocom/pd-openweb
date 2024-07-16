@@ -4,9 +4,12 @@ import { ScrollView } from 'ming-ui';
 import { isEmpty } from 'lodash';
 import RowItem from './rowItem';
 import DisplayTab from './displayTabs';
-import Components from './components';
 import { MAX_CONTROLS_COUNT } from '../config';
 import { getSectionWidgets } from '../util';
+import BottomDragPointer from './components/BottomDragPointer';
+import WidgetStyle from './components/WidgetStyle';
+import FieldRecycleBin from './components/FieldRecycleBin';
+import WidgetBatchOption from './components/WidgetBatchOption';
 
 const DisplayRowListWrap = styled.div`
   flex: 1;
@@ -89,14 +92,10 @@ export default function DisplayRow(props) {
             )
           );
         })}
-        <Components.BottomDragPointer
-          displayItemType="common"
-          rowIndex={commonWidgets.length}
-          showEmpty={!commonWidgets.length}
-        />
+        <BottomDragPointer displayItemType="common" rowIndex={commonWidgets.length} showEmpty={!commonWidgets.length} />
       </div>
       {isEmpty(tabWidgets) ? (
-        <Components.BottomDragPointer displayItemType="tab" rowIndex={widgets.length} />
+        <BottomDragPointer displayItemType="tab" rowIndex={widgets.length} />
       ) : (
         <DisplayTab {...props} commonLength={commonWidgets.length} tabWidgets={tabWidgets} />
       )}
@@ -119,10 +118,10 @@ export default function DisplayRow(props) {
               </div>
               {!isEmpty(widgets) && (
                 <div className="flexRow">
-                  <Components.WidgetStyle {...props} />
-                  <Components.FieldRecycleBin {...props} />
+                  <WidgetStyle {...props} />
+                  <FieldRecycleBin {...props} />
 
-                  {!isEmpty(batchActive) && <Components.WidgetBatchOption batchActive={batchActive} {...props} />}
+                  {!isEmpty(batchActive) && <WidgetBatchOption batchActive={batchActive} {...props} />}
                 </div>
               )}
             </div>

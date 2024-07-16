@@ -58,7 +58,7 @@ export default class DepartmentTree extends Component {
     const project = _.find(md.global.Account.projects, { projectId: props.projectId });
     this.state = {
       groupId: null,
-      selects: [project.projectId],
+      selects: [_.get(project, 'projectId')],
       groupList: [],
       loading: false,
       pageIndex: 1,
@@ -145,7 +145,7 @@ export default class DepartmentTree extends Component {
         departmentId: id,
         projectId,
         pageIndex,
-        pageSize: 20,
+        pageSize: 100,
       })
       .then(data => {
         const groupList = this.state.groupList.concat(data.list);
@@ -279,7 +279,7 @@ export default class DepartmentTree extends Component {
   }
   renderUsers() {
     const { pageIndex } = this.props;
-    const { groupId, loading, groupList } = this.state;
+    const { groupId, loading, groupList, isMore } = this.state;
     if (loading && !groupList.length) {
       return (
         <div className="justifyCenter flexRow valignWrapper h100">
@@ -290,9 +290,9 @@ export default class DepartmentTree extends Component {
       const ids = this.props.selectedUsers.map(item => item.accountId);
       const res = groupList.filter(item => ids.includes(item.accountId));
       return (
-        <ScrollView className="flex" onScrollEnd={this.handleScrollEnd}>
+        <Fragment>
           {groupList.length ? (
-            <Fragment>
+            <div className="h100 flexColumn">
               <div className="flexRow valignWrapper pLeft15 pBottom5">
                 <Checkbox
                   checked={res.length === groupList.length}
@@ -310,6 +310,9 @@ export default class DepartmentTree extends Component {
                           };
                         });
                       this.props.addSelectedData(res);
+                      if (isMore) {
+                        alert(_l('已选%0，滚动可加载更多。', groupList.length));
+                      }
                     } else {
                       const ids = this.props.selectedUsers.map(item => item.accountId);
                       this.props.removeSelectedData(
@@ -322,27 +325,29 @@ export default class DepartmentTree extends Component {
                   {res.length ? _l('已选 %0/%1', res.length, groupList.length) : _l('全选')}
                 </div>
               </div>
-              {groupList.map(item => (
-                <User
-                  key={item.accountId}
-                  user={item}
-                  projectId={this.props.projectId}
-                  checked={this.getChecked(item)}
-                  onChange={this.props.onChange}
-                />
-              ))}
-              {loading && (
-                <div className="justifyCenter flexRow valignWrapper">
-                  <LoadDiv />
-                </div>
-              )}
-            </Fragment>
+              <ScrollView className="flex" onScrollEnd={this.handleScrollEnd}>
+                {groupList.map(item => (
+                  <User
+                    key={item.accountId}
+                    user={item}
+                    projectId={this.props.projectId}
+                    checked={this.getChecked(item)}
+                    onChange={this.props.onChange}
+                  />
+                ))}
+                {loading && (
+                  <div className="justifyCenter flexRow valignWrapper">
+                    <LoadDiv />
+                  </div>
+                )}
+              </ScrollView>
+            </div>
           ) : (
             <div className="Gray_9e TxtCenter justifyCenter flexRow valignWrapper h100">
               {groupId ? _l('部门下没有可选成员') : _l('从左侧选择部门后显示成员')}
             </div>
           )}
-        </ScrollView>
+        </Fragment>
       );
     }
   }

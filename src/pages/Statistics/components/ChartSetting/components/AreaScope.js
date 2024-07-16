@@ -42,7 +42,7 @@ export default class extends Component {
       country: {
         filterCode: '',
         particleSizeType: value ? value : 1,
-        // filterCodeName: '',
+        filterCodeName: '',
       }
     }, value ? false : true);
   }

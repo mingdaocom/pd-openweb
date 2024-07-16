@@ -9,6 +9,8 @@ import _ from 'lodash';
 import weixin from 'src/api/weixin';
 import langConfig from 'src/common/langConfig';
 import accountSetting from 'src/api/accountSetting';
+import { navigateToLogin } from 'src/router/navigateTo';
+import localForage from 'localforage';
 
 export default function UserMenu(props) {
   const [userVisible, handleChangeVisible] = useState(false);
@@ -20,9 +22,10 @@ export default function UserMenu(props) {
 
     login.loginOut().then(data => {
       if (data) {
+        localForage.clear();
         removePssId();
         window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
-        location.href = data.redirectUrl || '/network';
+        navigateToLogin({ needReturnUrl: false });
       }
     });
   };

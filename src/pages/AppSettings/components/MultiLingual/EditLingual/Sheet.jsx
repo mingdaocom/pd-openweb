@@ -47,7 +47,7 @@ export default function Sheet(props) {
   }
 
   const { desc, entityName, advancedSetting = {} } = sheetInfo;
-  const comparisonLangInfo = getTranslateInfo(app.id, selectNode.key, comparisonLangData);
+  const comparisonLangInfo = getTranslateInfo(app.id, null, selectNode.key, comparisonLangData);
   const formTitle = comparisonLangId ? comparisonLangInfo.formTitle : advancedSetting.title;
   const formSub = comparisonLangId ? comparisonLangInfo.formSub : advancedSetting.sub;
   const formContinue = comparisonLangId ? comparisonLangInfo.formContinue : advancedSetting.continue;

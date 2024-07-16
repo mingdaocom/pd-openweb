@@ -11,18 +11,14 @@ export default class ViewGroup extends PureComponent {
   componentWillEnter(callback) {
     const { hasViews } = this.props;
     if (this.list && hasViews) {
-      $(this.list)
-        .stop()
-        .slideDown(300, callback);
+      $(this.list).stop().slideDown(300, callback);
     }
   }
 
   componentWillLeave(callback) {
     const { hasViews } = this.props;
     if (this.list && hasViews) {
-      $(this.list)
-        .stop()
-        .slideUp(300, callback);
+      $(this.list).stop().slideUp(300, callback);
     }
   }
 
@@ -33,7 +29,7 @@ export default class ViewGroup extends PureComponent {
         ref={el => {
           this.list = el;
         }}
-        className={cx('Hidden', className)}
+        className={cx(className)}
       >
         {this.props.children}
       </div>

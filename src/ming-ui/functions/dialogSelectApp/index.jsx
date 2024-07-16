@@ -41,6 +41,8 @@ const AppDialog = styled(Dialog)`
     .name {
       flex: 1;
       margin-right: 25px;
+      flex-shrink: 0;
+      min-width: 0;
     }
     .createTime {
       width: 160px;

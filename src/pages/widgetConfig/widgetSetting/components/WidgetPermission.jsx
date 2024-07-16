@@ -1,12 +1,10 @@
 import React, { Fragment } from 'react';
 import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
-import Components from '../../components';
+import AutoIcon from '../../components/Icon';
 import { NOT_NEED_SET_READONLY_CONTROL } from '../../config';
 import { updateConfig } from '../../util/setting';
 import _ from 'lodash';
-
-const Icon = Components.Icon;
 
 export default ({ from, data, info, onChange }) => {
   let { fieldPermission = '111', type } = data || {};
@@ -35,7 +33,7 @@ export default ({ from, data, info, onChange }) => {
               placement="bottom"
               title={_l('设为只读的字段将不允许被用户直接编辑。但仍可以在自定义按钮和工作流中填写或更新')}
             >
-              <Icon icon="help" />
+              <AutoIcon icon="help" />
             </Tooltip>
           </Checkbox>
         </div>
@@ -60,7 +58,7 @@ export default ({ from, data, info, onChange }) => {
             placement="bottom"
             title={_l('设为隐藏的字段将不会对用户直接显示。但仍可以在自定义按钮和工作流中调用')}
           >
-            <Icon icon="help" />
+            <AutoIcon icon="help" />
           </Tooltip>
         </Checkbox>
       </div>
@@ -88,7 +86,7 @@ export default ({ from, data, info, onChange }) => {
                 '通常用于隐藏一些不需要在新增记录时显示的字段。如：用于新订单的后续处理的字段，可以在新增记录时隐藏。',
               )}
             >
-              <Icon icon="help" />
+              <AutoIcon icon="help" />
             </Tooltip>
           </Checkbox>
         </div>

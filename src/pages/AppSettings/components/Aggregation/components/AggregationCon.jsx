@@ -4,7 +4,7 @@ import { Icon, Menu, MenuItem, Checkbox } from 'ming-ui';
 import cx from 'classnames';
 import { Tooltip } from 'antd';
 import { useSetState } from 'react-use';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 import Trigger from 'rc-trigger';
@@ -15,7 +15,8 @@ import _ from 'lodash';
 import { handleAdvancedSettingChange } from 'src/util/index.js';
 import { getDefaultOperationDatas, extractBetweenDollars } from 'src/pages/AppSettings/components/Aggregation/util.js';
 import { DEFAULT_COLORS } from '../config';
-import { getRuleAlias } from '../util';
+import { getNodeInfo, getRuleAlias } from '../util';
+import { getTranslateInfo } from 'src/util';
 
 const WrapS = styled(Menu)`
   // &.rowsCountItem {
@@ -31,6 +32,9 @@ const WrapS = styled(Menu)`
     .Red {
       color: red !important;
     }
+  }
+  .ming.Item.ThemeColor3 .Item-content:not(.disabled):hover {
+    color: #1e88e5 !important;
   }
   .Red.ming.MenuItem .Item-content:not(.disabled):hover {
     color: red !important;
@@ -98,9 +102,18 @@ function FormatWrap(props) {
     items: props.items,
     show: false,
   });
+  const dot = _.get(items[num], 'controlSetting.advancedSetting.dot') || _.get(items[num], 'controlSetting.dot');
+
+  const onChangeItems = data => {
+    setState({
+      items: items.map((it, i) => {
+        return i === num ? { ...it, controlSetting: data } : it;
+      }),
+    });
+  };
   return (
     <Trigger
-      action={['click']}
+      action={['hover']}
       popupAlign={{ points: ['tl', 'tr'], offset: [0, -5], overflow: { adjustX: true, adjustY: true } }}
       popupVisible={show}
       onPopupVisibleChange={show => {
@@ -166,53 +179,34 @@ function FormatWrap(props) {
             <div className="H36">
               <Checkbox
                 size="small"
-                checked={!!_.get(items[num], 'controlSetting.advancedSetting.dot')}
+                checked={!!dot}
                 onClick={checked => {
-                  setState({
-                    items: items.map((it, i) => {
-                      if (i === num) {
-                        return {
-                          ...it,
-                          controlSetting: handleAdvancedSettingChange(_.get(items[num], 'controlSetting'), {
-                            dot: !!_.get(items[num], 'controlSetting.advancedSetting.dot') ? '' : '2',
-                          }),
-                        };
-                      } else {
-                        return it;
-                      }
+                  onChangeItems({
+                    ...handleAdvancedSettingChange(_.get(items[num], 'controlSetting'), {
+                      dot: !!dot ? '' : '2',
                     }),
+                    dot: Number(!!dot ? '0' : '2'),
                   });
                 }}
                 text={_l('小数位数')}
               />
             </div>
-            {_.get(items[num], 'controlSetting.advancedSetting.dot') && (
+            {!!dot && (
               <div className="flex mLeft20 showCount flexRow alignItemsCenter">
                 <NumInput
                   className="flex"
-                  minNum={2}
+                  minNum={0}
                   maxNum={max}
-                  value={Number(_.get(items[num], 'controlSetting.advancedSetting.dot'))}
+                  value={Number(dot)}
                   onChange={value => {
                     let count = JSON.stringify(max >= value ? value : max);
-                    if (count === _.get(items[num], 'controlSetting.advancedSetting.dot')) {
+                    if (count === dot) {
                       return;
                     }
-
-                    setState({
-                      items: items.map((it, i) => {
-                        if (i === num) {
-                          return {
-                            ...it,
-                            controlSetting: handleAdvancedSettingChange(_.get(items[num], 'controlSetting'), {
-                              dot: count,
-                            }),
-                          };
-                        } else {
-                          return it;
-                        }
-                      }),
+                    const newData = handleAdvancedSettingChange(_.get(items[num], 'controlSetting'), {
+                      dot: count,
                     });
+                    onChangeItems({ ...newData, dot: Number(count) });
                   }}
                 />
               </div>
@@ -225,23 +219,14 @@ function FormatWrap(props) {
                 className="mTop8"
                 checked={_.get(items[num], 'controlSetting.advancedSetting.dotformat') === '1'}
                 onClick={checked => {
-                  setState({
-                    items: items.map((it, i) => {
-                      if (i === num) {
-                        return {
-                          ...it,
-                          controlSetting: handleAdvancedSettingChange(_.get(items[num], 'controlSetting'), {
-                            dotformat: checked ? '0' : '1',
-                          }),
-                        };
-                      } else {
-                        return it;
-                      }
+                  onChangeItems(
+                    handleAdvancedSettingChange(_.get(items[num], 'controlSetting'), {
+                      dotformat: checked ? '0' : '1',
                     }),
-                  });
+                  );
                 }}
               >
-                <span style={{ marginRight: '4px' }}>{_l('省略末尾的0')}</span>
+                <span style={{ marginRight: '4px' }}>{_l('省略末尾的 0')}</span>
                 <Tooltip
                   title={_l(
                     '勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8',
@@ -294,10 +279,13 @@ export default function AggregationCon(props) {
       }
     }
     isDelete && updateErr();
+
+    const getInfo = (props.sourceTables || []).find(o => item.oid.indexOf(o.workSheetId) >= 0) || {};
+
     return (
       <WrapItem className="flexRow cardItem alignItemsCenter Relative mTop12 hoverBoxShadow">
         <SortHandle />
-        {!item.isCalculateField && index >= 0 && (
+        {!item.isCalculateField && index >= 0 && (sourceTables || []).length > 1 && (
           <div className="colorByWorksheet" style={{ backgroundColor: color }}></div>
         )}
         <div className="flex flexRow pLeft16 pRight12 alignItemsCenter Relative">
@@ -316,7 +304,7 @@ export default function AggregationCon(props) {
                 })}
               >
                 {item.alias}
-                {item.aggFuncType && `(${OPERATION_TYPE_DATA.find(o => o.value === item.aggFuncType).text})`}
+                {/* {item.aggFuncType && `(${OPERATION_TYPE_DATA.find(o => o.value === item.aggFuncType).text})`} */}
               </div>
             </React.Fragment>
           )}
@@ -327,10 +315,13 @@ export default function AggregationCon(props) {
               color={'#fff'}
               title={
                 <span className="Gray">{`${
-                  ((props.sourceTables || []).find(o => item.oid.indexOf(o.workSheetId) >= 0) || {}).tableName ||
-                  _l('未命名')
+                  getTranslateInfo(getInfo.appId, null, getInfo.workSheetId).name || getInfo.tableName || _l('未命名')
                 }-${
-                  !_.get(item, 'controlSetting') ? _.get(item, 'alias') : _.get(item, 'controlSetting.controlName')
+                  item.oid.indexOf('rowscount') >= 0
+                    ? _l('记录数量')
+                    : !_.get(item, 'controlSetting')
+                    ? _.get(item, 'alias')
+                    : _.get(item, 'controlSetting.controlName')
                 }`}</span>
               }
             >
@@ -362,7 +353,7 @@ export default function AggregationCon(props) {
                   {!item.isRowsCount && (
                     <React.Fragment>
                       <Trigger
-                        action={['click']}
+                        action={['hover']}
                         popupAlign={{
                           points: ['tl', 'tr'],
                           offset: [0, -5],
@@ -371,10 +362,10 @@ export default function AggregationCon(props) {
                         popup={
                           <WrapS className="Relative">
                             {/* 数值类字段配置：求和（默认）、最大值、最小值、平均值 ｜ 非数值字段配置：计数、去重计数 */}
-                            {getDefaultOperationDatas(item.mdType).map(o => {
+                            {getDefaultOperationDatas(_.get(item, 'controlSetting')).map(o => {
                               return (
                                 <MenuItem
-                                  className={cx('settingSheet flexRow', {
+                                  className={cx('settingSheet flexRow Font14', {
                                     ThemeColor3: o.value === item.aggFuncType,
                                   })}
                                   onClick={() => {
@@ -388,15 +379,13 @@ export default function AggregationCon(props) {
                                     }
                                     onUpdate(
                                       items.map((it, i) => {
-                                        if (i === num) {
-                                          return {
-                                            ...it,
-                                            aggFuncType: o.value,
-                                            alias: getRuleAlias(`${it.name}_${o.value}`, flowData),
-                                          };
-                                        } else {
-                                          return it;
-                                        }
+                                        return i === num
+                                          ? {
+                                              ...it,
+                                              aggFuncType: o.value,
+                                              alias: getRuleAlias(`${it.name}-${o.text}`, flowData),
+                                            }
+                                          : it;
                                       }),
                                     );
                                     setState({
@@ -419,7 +408,7 @@ export default function AggregationCon(props) {
                             });
                           }}
                         >
-                          <span className="text flex Font14">{_l('计算')}</span>
+                          <span className="text flex Font14">{_l('聚合方式')}</span>
                           <Icon className="Font15 Gray_9e Font14" icon="arrow-right-tip" />
                         </MenuItem>
                       </Trigger>
@@ -442,7 +431,7 @@ export default function AggregationCon(props) {
           ) : (
             <Tooltip title={_l('编辑')}>
               <Icon
-                icon="new_mail"
+                icon="edit_17"
                 className="Hand Gray_9e ThemeHoverColor3 Font16 mLeft8"
                 onClick={() => {
                   setState({
@@ -472,26 +461,45 @@ export default function AggregationCon(props) {
             }}
             calculation={item.controlSetting}
             allControls={list
-              .filter(o => !o.isCalculateField)
+              .filter(item => {
+                if (item.isCalculateField) {
+                  return false;
+                } else {
+                  let isDelete = _.get(item, 'isDelete');
+                  const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
+                  if (
+                    !(_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).find(
+                      it => item.oid && item.oid.indexOf(it.workSheetId) >= 0,
+                    )
+                  ) {
+                    isDelete = true;
+                  }
+                  return !isDelete;
+                }
+              })
               .map(o => {
                 return { ...o, controlName: o.alias, controlId: _.get(o, 'id'), type: 6 };
               })}
             onOk={control => {
+              const data = getRuleAlias(control.controlName, flowData, true, true) || [];
+              if (data.length > 1 || data.find(o => o.id !== item.id)) {
+                alert(_l('已存在该字段名称，名称不可重复'), 3);
+                return;
+              }
               let newDt = {
                 ...item,
-                alias: getRuleAlias(control.controlName, props.flowData),
+                alias: control.controlName,
                 controlSetting: control,
                 name: control.controlName,
               };
               onUpdate(
                 items.map((it, i) => {
-                  if (i === num) {
-                    return newDt;
-                  } else {
-                    return it;
-                  }
+                  return i === num ? newDt : it;
                 }),
               );
+              setState({
+                showCalculation: false,
+              });
             }}
           />
         )}
@@ -512,11 +520,7 @@ export default function AggregationCon(props) {
               }
               onUpdate(
                 items.map((o, i) => {
-                  if (i === num) {
-                    return { ...o, alias: name };
-                  } else {
-                    return o;
-                  }
+                  return i === num ? { ...o, alias: name } : o;
                 }),
                 false,
               );
@@ -544,6 +548,7 @@ export default function AggregationCon(props) {
     <React.Fragment>
       <SortableList
         items={list}
+        axis={'y'}
         flowData={props.flowData}
         sourceTables={props.sourceTables}
         distance={5}

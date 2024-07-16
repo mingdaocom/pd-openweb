@@ -56,10 +56,15 @@ const getExportPeriodList = (type, { startTime, endTime }, viewConfig) => {
 export const fetchRows = () => {
   return (dispatch, getState) => {
     const { base, controls, views, filters, quickFilter = [] } = getState().sheet;
+    const { filterControls } = getState().mobile;
     const { access_token } = getRequest();
 
     if (access_token) {
       window.access_token = access_token;
+    }
+
+    if (window.isMingDaoApp) {
+      filters.filterControls = filterControls;
     }
 
     const view = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];

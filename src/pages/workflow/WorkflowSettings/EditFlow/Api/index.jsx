@@ -26,10 +26,19 @@ export default class Api extends Component {
       );
     }
 
+    if (item.isException) {
+      return (
+        <div className="pLeft8 pRight8 yellow">
+          <i className="icon-workflow_error Font18 mRight5" />
+          {_l('节点存在异常')}
+        </div>
+      );
+    }
+
     return (
       <div className="pLeft8 pRight8 flexRow" style={{ alignItems: 'center' }}>
         <div className="ellipsis">
-          <span className="Gray_9e">{_l('调用API')}：</span>
+          <span className="Gray_75">{_l('调用API')}：</span>
           {item.appName}
         </div>
         <i className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2" onMouseDown={this.openApi} />
@@ -55,7 +64,7 @@ export default class Api extends Component {
             className={cx(
               'workflowItem',
               { workflowItemDisabled: disabled },
-              { errorShadow: item.appId && !item.appName },
+              { errorShadow: item.appId && item.isException },
               { active: selectNodeId === item.id },
             )}
             onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
@@ -65,7 +74,7 @@ export default class Api extends Component {
             </div>
             <NodeOperate nodeClassName="BGBlueAsh" {...this.props} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
             </div>
           </div>
           <CreateNode {...this.props} />

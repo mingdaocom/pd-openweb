@@ -1,6 +1,6 @@
 import { getPssId } from 'src/util/pssId';
 import langConfig from './langConfig';
-import { antAlert, destroyAlert } from 'src/util/antdWrapper';
+import { antAlert, destroyAlert } from 'ming-ui/functions/alert';
 import _, { get, isFunction, isObject, some } from 'lodash';
 import moment from 'moment';
 import baseAxios from 'axios';
@@ -13,7 +13,7 @@ import { PUBLIC_KEY } from 'src/util/enum';
 const axios = baseAxios.create();
 
 function testApiPath(apiPath, url) {
-  const apiPathOfRequest = new URL(location.origin + url).pathname;
+  const apiPathOfRequest = new URL(/^http/.test(url) ? url : location.origin + url).pathname;
   return new RegExp(apiPath + '$').test(apiPathOfRequest);
 }
 
@@ -59,19 +59,6 @@ axios.interceptors.request.use(
   },
 );
 
-axios.interceptors.response.use(
-  function (response) {
-    return response;
-  },
-  function (error) {
-    if (get(error, 'response.status') === 401 && isFunction(window.navigateToLogin)) {
-      window.navigateToLogin({ needSecondCheck: true });
-      return;
-    }
-    return Promise.reject(error);
-  },
-);
-
 /**
  * 获取当前语言
  */
@@ -87,7 +74,7 @@ window.getCurrentLang = (hasDefault = true) => {
   switch (navigator.language) {
     case 'zh-CN':
     case 'zh_cn':
-    case 'zh-CN':
+    case 'zh-cn':
     case 'zh-SG':
     case 'zh_sg':
       langKey = 'zh-Hans';
@@ -234,6 +221,7 @@ window.md = {
     Account: {
       accountId: '',
       hrVisible: true,
+      guideSettings: {},
     },
     Config: {
       DefaultLang: 'zh-Hans',
@@ -286,63 +274,6 @@ if (window.isWeiXin) {
     customAlert();
   });
 }
-
-window.File = typeof File === 'undefined' ? {} : File;
-
-/**
- * 获取文件扩展名
- * @param {string} fileName - 文件名
- * @returns {string} - 文件扩展名
- */
-File.GetExt = function (fileName) {
-  const t = (fileName || '').split('.');
-  return t.length > 1 ? t[t.length - 1] : '';
-};
-
-/**
- * 获取文件名（不包含扩展名）
- * @param {string} fileName - 文件名
- * @returns {string} - 文件名（不包含扩展名）
- */
-File.GetName = function (fileName) {
-  const t = (fileName || '').split('.');
-  t.pop();
-  return t.join('.');
-};
-
-/**
- * 检查文件扩展名是否有效
- * @param {string} fileExt - 文件扩展名
- * @returns {boolean} - 文件扩展名是否有效
- */
-File.isValid = function (fileExt) {
-  const fileExts = new Set(['.exe', '.vbs', '.bat', '.cmd', '.com', '.url']);
-  fileExt = (fileExt || '').toLowerCase();
-  return !fileExts.has(fileExt);
-};
-
-/**
- * 检查文件扩展名是否为图片类型
- * @param {string} fileExt - 文件扩展名
- * @returns {boolean} - 文件扩展名是否为图片类型
- */
-File.isPicture = function (fileExt) {
-  const fileExts = new Set([
-    '.jpg',
-    '.gif',
-    '.png',
-    '.jpeg',
-    '.bmp',
-    '.webp',
-    '.heic',
-    '.heif',
-    '.svg',
-    '.tif',
-    '.tiff',
-  ]);
-  fileExt = (fileExt || '').toLowerCase();
-  return fileExts.has(fileExt);
-};
 
 /**
  * 返回loading动画
@@ -429,25 +360,10 @@ window.createTimeSpan = (dateStr, needSecond = false) => {
 };
 
 /**
- * 是否需要设置clientId
- * @returns {boolean}
- */
-window.needSetClientId = ({ clientId, controllerName } = {}) => {
-  return (
-    location.href.indexOf('/public/') > -1 &&
-    clientId &&
-    _.includes(
-      ['AppManagement', 'Worksheet', 'PublicWorksheet', 'report_api', 'HomeApp', 'Attachment', 'Kc', 'Workflow'],
-      controllerName,
-    )
-  );
-};
-
-/**
  * 获取错误信息
  * @returns {Object}
  */
-const getErrorMessage = (jqXHR = {}, textStatus) => {
+const getErrorMessage = (jqXHR = {}, textStatus, exception) => {
   let errorMessage;
 
   switch (jqXHR.status) {
@@ -493,7 +409,7 @@ const getErrorMessage = (jqXHR = {}, textStatus) => {
   }
 
   if (!errorMessage && jqXHR.status >= 400 && jqXHR.status < 500) {
-    errorMessage = _l('请求失败，请稍后重试');
+    errorMessage = exception || _l('请求失败，请稍后重试');
   } else if (!errorMessage && jqXHR.status >= 500) {
     errorMessage = _l('服务异常，请稍后重试');
   }
@@ -520,8 +436,19 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
     'X-Requested-With': !ajaxOptions.url ? 'XMLHttpRequest' : undefined,
   };
   const clientId = window.clientId || sessionStorage.getItem('clientId');
+  const needClientIdControllerNames = [
+    'AppManagement',
+    'Worksheet',
+    'PublicWorksheet',
+    'report_api',
+    'HomeApp',
+    'Attachment',
+    'Kc',
+    'Workflow',
+    'Payment',
+  ];
 
-  if (window.needSetClientId({ clientId, controllerName })) {
+  if (location.href.indexOf('/public/') > -1 && clientId && _.includes(needClientIdControllerNames, controllerName)) {
     headers.clientId = clientId;
   }
 
@@ -557,10 +484,55 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
     data = JSON.parse(data);
   }
 
+  //工作表信息
+  if (controllerName === 'Worksheet' && actionName === 'GetWorksheetInfo') {
+    data = { ...data, getTemplate: true, getViews: true, getSwitchPermit: true, getRules: true };
+  }
+
   return {
     url: ajaxOptions.url || serverPath + encodeURIComponent(controllerName) + '/' + encodeURIComponent(actionName),
     headers,
     data,
+  };
+};
+
+/**
+ * 生成本地化存储参数
+ */
+const generateLocalizationParams = (requestData = {}) => {
+  const lang = _.get(md, 'global.Account.lang');
+
+  return {
+    AppManagement_GetAppLangDetail: {
+      moduleType: 1,
+      sourceId: `${requestData.appId}_${requestData.appLangId}`,
+      clearInterface: ['AppManagement_EditAppLang'],
+    },
+    HomeApp_GetHomePlatformSetting: {
+      moduleType: 2,
+      sourceId: `${requestData.projectId}_${lang}`,
+      clearInterface: ['HomeApp_EditPlatformSetting', 'ProjectSetting_SetLogo', 'ProjectSetting_ClearLogo'],
+    },
+    Worksheet_GetWorksheetInfo: {
+      moduleType: 3,
+      sourceId: `${requestData.worksheetId}_${lang}`,
+      clearInterface: [
+        'Worksheet_SaveWorksheetView',
+        'Worksheet_DeleteWorksheetView',
+        'Worksheet_SaveWorksheetControls',
+      ],
+    },
+    Worksheet_GetQueryBySheetId: {
+      moduleType: 4,
+      sourceId: `${requestData.worksheetId}`,
+      clearInterface: [],
+    },
+    AppManagement_GetProjectLangs: {
+      moduleType: 20,
+      sourceId:
+        requestData.correlationIds || requestData.type !== 20 ? '' : `${requestData.projectId}_${requestData.type}`,
+      clearInterface: ['AppManagement_EditProjectLangs'],
+    },
   };
 };
 
@@ -573,13 +545,7 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
  */
 const getLocalizationKey = (controllerName, actionName, requestData = {}) => {
   const key = `${controllerName}_${actionName}`;
-  const CACHE_PARAMS = {
-    AppManagement_GetAppLangDetail: {
-      moduleType: 1,
-      sourceId: requestData.appId,
-      extraKey: `_${requestData.appLangId}`,
-    },
-  };
+  const CACHE_PARAMS = generateLocalizationParams(requestData);
 
   return CACHE_PARAMS[key] ? { key, ...CACHE_PARAMS[key] } : {};
 };
@@ -587,16 +553,42 @@ const getLocalizationKey = (controllerName, actionName, requestData = {}) => {
 /**
  * 插入本地化存储数据
  */
-const insertLocalData = ({ key, moduleType, sourceId, extraKey, version, data }) => {
-  if (!key) return;
+const insertLocalData = ({ key, moduleType, sourceId, version, data }) => {
+  if (!key || !sourceId) return;
 
   if (version) {
-    localForage.setItem(`${key}_${sourceId}${extraKey || ''}`, { version, data });
+    localForage.setItem(`${key}_${sourceId}`, { version, data, time: moment().format('YYYY-MM-DD HH:mm:ss') });
   } else {
     versionApi.getVersion({ moduleType, sourceId }).then(({ version }) => {
-      localForage.setItem(`${key}_${sourceId}${extraKey || ''}`, { version, data });
+      localForage.setItem(`${key}_${sourceId}`, { version, data, time: moment().format('YYYY-MM-DD HH:mm:ss') });
     });
   }
+};
+
+/**
+ * 指定接口编辑后，需清理缓存时间
+ */
+window.clearLocalDataTime = ({ controllerName, actionName, requestData = {}, clearSpecificKey }) => {
+  const key = `${controllerName}_${actionName}`;
+  const CACHE_PARAMS = generateLocalizationParams({
+    ...requestData,
+    appLangId: requestData.langId,
+    type: 20,
+    worksheetId: requestData.worksheetId || requestData.sourceId,
+  });
+  let localKey;
+
+  Object.keys(CACHE_PARAMS).forEach(currentKey => {
+    if (CACHE_PARAMS[currentKey].clearInterface.includes(key) || currentKey === clearSpecificKey) {
+      localKey = `${currentKey}_${CACHE_PARAMS[currentKey].sourceId}`;
+    }
+  });
+
+  if (!localKey) return;
+
+  localForage.getItem(localKey).then(localSource => {
+    localForage.setItem(localKey, { version: localSource.version, data: localSource.data, time: null });
+  });
 };
 
 /**
@@ -629,7 +621,7 @@ const interfaceDataDecryption = source => {
  * @return {Promise}               返回结果的 promise
  */
 window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
-  const controller = new AbortController();
+  const controller = options.abortController || new AbortController();
   const ajaxOptions = options.ajaxOptions || {};
   const method = ajaxOptions.type || 'POST';
   const isSync = ajaxOptions.sync;
@@ -662,22 +654,31 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
   }
 
   const promise = new Promise(async (resolve, reject) => {
-    const { key, moduleType, sourceId, extraKey } = getLocalizationKey(controllerName, actionName, requestData);
+    const { key, moduleType, sourceId } = getLocalizationKey(controllerName, actionName, requestData);
     let version;
 
-    if (key) {
-      const localSource = await localForage.getItem(`${key}_${sourceId}${extraKey || ''}`);
-      if (localSource) {
-        const versionData = await versionApi.getVersion({ moduleType, sourceId });
+    if (!_.get(window, 'shareState.shareId') && key && sourceId) {
+      const localSource = await localForage.getItem(`${key}_${sourceId}`);
 
-        version = versionData.version;
+      if (localSource && !localStorage.getItem('IS_DEV_MODE')) {
+        if (!localSource.time || moment().diff(moment(localSource.time), 'm') > 1) {
+          const versionData = await versionApi.getVersion({ moduleType, sourceId: sourceId.split('_')[0] });
 
-        if (version === localSource.version) {
+          version = versionData.version;
+
+          if (version === localSource.version) {
+            insertLocalData({ key, moduleType, sourceId, version, data: localSource.data }); // 更新时间
+            resolve(localSource.data);
+            return;
+          }
+        } else {
           resolve(localSource.data);
           return;
         }
       }
     }
+
+    window.clearLocalDataTime({ controllerName, actionName, requestData });
 
     axios({
       method,
@@ -697,11 +698,18 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
         } else {
           const { data } = interfaceDataDecryption(responseData);
 
-          insertLocalData({ key, moduleType, sourceId, extraKey, version, data });
+          !_.get(window, 'shareState.shareId') && insertLocalData({ key, moduleType, sourceId, version, data });
           resolve(data);
         }
       })
       .catch(error => {
+        if (get(error, 'response.status') === 401 && !/^localhost:/.test(location.host)) {
+          import('src/router/navigateTo').then(({ navigateToLogin }) => {
+            navigateToLogin({ needSecondCheck: true });
+          });
+          return;
+        }
+
         if (
           error.response &&
           error.response.status === 402 &&
@@ -717,7 +725,11 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
         }
 
         reject({
-          ...getErrorMessage(error.response, baseAxios.isCancel(error) ? 'abort' : ''),
+          ...getErrorMessage(
+            error.response,
+            baseAxios.isCancel(error) ? 'abort' : '',
+            get(error, 'response.data.exception'),
+          ),
           errorData: baseAxios.isCancel(error) ? {} : get(error, 'response.data'),
         });
       });

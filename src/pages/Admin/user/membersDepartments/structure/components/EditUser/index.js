@@ -1,10 +1,10 @@
 import React, { Component, Fragment } from 'react';
 import { Icon, Input, LoadDiv } from 'ming-ui';
+import { Drawer } from 'antd';
 import userController from 'src/api/user';
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
-import CSSTransitionGroup from 'react-addons-css-transition-group';
 import WorkHandoverDialog from 'src/pages/Admin/components/WorkHandoverDialog';
 import DrawerFooterOption from '../DrawerFooterOption';
 import BaseFormInfo from '../BaseFormInfo';
@@ -209,7 +209,6 @@ export default class EditUser extends Component {
       const errors = {
         ...this.state.errors,
         userName: !!checkForm['userName'](userName),
-        contactPhone: !!checkForm['contactPhone'](contactPhone),
         mobilePhone: mobilePhone && !!checkForm['mobilePhone'](mobilePhone, this.iti),
         email: email && !!checkForm['email'](email),
       };
@@ -226,7 +225,6 @@ export default class EditUser extends Component {
       const params = {
         accountId,
         companyName,
-        contactPhone: '',
         departmentIds: departmentInfos.map(it => it.departmentId),
         email,
         fullname: userName,
@@ -360,15 +358,27 @@ export default class EditUser extends Component {
     );
   };
   render() {
-    const { onClose = () => {}, actType, typeCursor, editCurrentUser, projectId, departmentId, accountId } = this.props;
+    const {
+      actType,
+      typeCursor,
+      editCurrentUser,
+      projectId,
+      departmentId,
+      accountId,
+      openChangeUserInfoDrawer,
+      authority = [],
+      onClose = () => {},
+    } = this.props;
     const { isUploading, errors, jobList, worksiteList, baseInfo, showWorkHandover, userName } = this.state;
 
     return (
-      <CSSTransitionGroup
-        component={'div'}
-        transitionAppearTimeout={500}
-        transitionEnterTimeout={500}
-        transitionLeaveTimeout={500}
+      <Drawer
+        width={580}
+        placement="right"
+        onClose={onClose}
+        visible={openChangeUserInfoDrawer}
+        maskClosable={false}
+        closable={false}
       >
         <div className="addEditUserInfoWrap" key="addEditUserInfo">
           <div className="headerInfo">
@@ -405,6 +415,7 @@ export default class EditUser extends Component {
                   jobList={jobList}
                   worksiteList={worksiteList}
                   baseInfo={baseInfo}
+                  authority={authority}
                 />
               </div>
               <DrawerFooterOption
@@ -442,7 +453,7 @@ export default class EditUser extends Component {
             />
           )}
         </div>
-      </CSSTransitionGroup>
+      </Drawer>
     );
   }
 }

@@ -5,7 +5,7 @@ import { dialogSelectJob, dialogSelectDept } from 'ming-ui/functions';
 import userAjax from 'src/api/user';
 import workSiteAjax from 'src/api/workSite';
 import { encrypt } from 'src/util';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import DepartmentAction from './DepartmentAction';
 import './index.less';
 import _ from 'lodash';
@@ -147,7 +147,7 @@ export default class DialogBatchEdit extends Component {
     if (_.isEmpty(password)) {
       alert(_l('请输入新密码'), 3);
       return;
-    } else if (!RegExp.isPasswordValid(password, passwordRegex)) {
+    } else if (!RegExpValidator.isPasswordValid(password, passwordRegex)) {
       alert(passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字'), 3);
       return;
     }

@@ -44,6 +44,7 @@ export default class RecordInfo extends Component {
     this.state = {
       loading: true,
       submitLoading: false,
+      isSettingTempData: false,
       refreshBtnNeedLoading: false,
       formChanged: false,
       random: '',
@@ -99,8 +100,24 @@ export default class RecordInfo extends Component {
       });
     }
   }
+
+  componentWillUnmount() {
+    localStorage.removeItem('isMobileSingleView');
+  }
+
   loadRecord = async () => {
-    const { from, view = {}, controls, appId, viewId, worksheetId, instanceId, workId, isWorksheetQuery, needUpdateControlIds } = this.props;
+    const {
+      from,
+      view = {},
+      controls,
+      appId,
+      viewId,
+      worksheetId,
+      instanceId,
+      workId,
+      isWorksheetQuery,
+      needUpdateControlIds,
+    } = this.props;
     const { recordId, tempFormData } = this.state;
     try {
       const data = await loadRecord({
@@ -116,10 +133,10 @@ export default class RecordInfo extends Component {
       });
 
       const switchPermit = await worksheetApi.getSwitchPermit({ appId, worksheetId });
-      data.worksheetName = getTranslateInfo(appId, worksheetId).name || data.worksheetName;
+      data.worksheetName = getTranslateInfo(appId, null, worksheetId).name || data.worksheetName;
 
       // 设置隐藏字段的 hidden 属性
-      data.formData = replaceControlsTranslateInfo(appId, data.formData)
+      data.formData = replaceControlsTranslateInfo(appId, worksheetId, data.formData)
         .filter(c => c.controlId !== 'daid')
         .map(c => ({
           ...c,
@@ -127,10 +144,10 @@ export default class RecordInfo extends Component {
         }));
 
       const tempControls = needUpdateControlIds
-              ? tempFormData
-                  .filter(c => !_.find(needUpdateControlIds, id => c.controlId === id))
-                  .concat(needUpdateControlIds.map(id => _.find(data.formData, c => c.controlId === id)).filter(_.identity))
-              : data.formData;
+        ? tempFormData
+            .filter(c => !_.find(needUpdateControlIds, id => c.controlId === id))
+            .concat(needUpdateControlIds.map(id => _.find(data.formData, c => c.controlId === id)).filter(_.identity))
+        : data.formData;
 
       const childTableControlIds = updateRulesData({ rules: data.rules, data: data.formData })
         .filter(v => {
@@ -181,6 +198,7 @@ export default class RecordInfo extends Component {
     } catch (err) {
       console.error(err);
       this.setState({
+        recordInfo: err,
         abnormal: true,
         loading: false,
         refreshBtnNeedLoading: false,
@@ -222,7 +240,10 @@ export default class RecordInfo extends Component {
       .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32 && item.type !== 33)
       .filter(item => !checkCellIsEmpty(item.value));
     const formDataIds = formData.map(it => it.controlId);
-    let paramControls = draftFormControls.filter(it => !_.includes(formDataIds, it.controlId)).concat(formData);
+    let paramControls = draftFormControls
+      .map(v => (v.type === 29 && !v.value ? { ...v, value: '[]' } : v))
+      .filter(it => !_.includes(formDataIds, it.controlId))
+      .concat(formData);
 
     return paramControls.map(it => {
       if (it.type === 34) {
@@ -297,32 +318,39 @@ export default class RecordInfo extends Component {
       if (tempData && !formChanged) {
         const savedData = safeParse(tempData);
         if (_.isEmpty(savedData)) return;
+        this.setState({ isSettingTempData: true });
         const { create_at, value } = savedData;
         const tempRecordCreateTime = new Date(create_at);
         const recordUpdateTime = new Date(updateTime);
         if (tempRecordCreateTime > recordUpdateTime) {
-          this.setState({
-            restoreVisible: tempRecordCreateTime,
-            tempFormData: tempFormData.map(c =>
-              value[c.controlId] && !_.includes([29, 34], c.type)
-                ? {
-                    ...c,
-                    value:
-                      c.type === 34
-                        ? {
-                            rows: value[c.controlId],
-                          }
-                        : value[c.controlId],
-                  }
-                : c,
-            ),
-            random: Date.now(),
-          });
+          this.setState(
+            {
+              isSettingTempData: false,
+              restoreVisible: tempRecordCreateTime,
+              tempFormData: tempFormData.map(c =>
+                typeof value[c.controlId] !== 'undefined' && !((c.type === 29 && c.enumDefault !== 1) || c.type === 34)
+                  ? {
+                      ...c,
+                      value:
+                        c.type === 34
+                          ? {
+                              rows: value[c.controlId],
+                            }
+                          : value[c.controlId],
+                    }
+                  : c,
+              ),
+              random: Date.now(),
+            },
+            () => {},
+          );
           setTimeout(() => {
             this.customwidget.current.dataFormat.controlIds = tempFormData
-              .filter(c => value[c.controlId] && !_.includes([29, 34], c.type))
+              .filter(c => value[c.controlId] && !((c.type === 29 && c.enumDefault !== 1) || c.type === 34))
               .map(c => c.controlId);
-          }, 10);
+          }, 300);
+        } else {
+          this.setState({ isSettingTempData: false });
         }
       }
     };
@@ -553,7 +581,7 @@ export default class RecordInfo extends Component {
         handleClickFlow: () => this.setState({ random: Date.now() }),
       });
     }
-    if (this.isPublicShare || (currentTab.type === 51 && !isEditRecord) || currentTab.id === 'approve') {
+    if (this.isPublicShare || (currentTab.type === 51 && !isEditRecord) || ['approve', 'pay'].includes(currentTab.id)) {
       return null;
     }
     if (currentTab.type === 29 && !isEditRecord) {
@@ -616,11 +644,12 @@ export default class RecordInfo extends Component {
     }
   }
   render() {
-    const { recordId, isModal, getDataType, onClose, header, workflow, relationRow, view } = this.props;
+    const { recordId, isModal, getDataType, onClose, renderAbnormal, header, workflow, relationRow, view } = this.props;
     const {
       random,
       isEditRecord,
       loading,
+      isSettingTempData,
       submitLoading,
       refreshBtnNeedLoading,
       abnormal,
@@ -632,15 +661,19 @@ export default class RecordInfo extends Component {
       externalPortalConfig,
     } = this.state;
 
-    if (loading) {
+    if (loading || isSettingTempData) {
       return <Loading />;
     }
 
     if (abnormal) {
-      const { resultCode, entityName } = recordInfo;
-      const name = entityName || _l('记录');
-      const errorMsg = resultCode === 7 ? _l('无权限查看%0', name) : _l('%0已被删除或分享已关闭', name);
-      return <Abnormal errorMsg={errorMsg} onClose={onClose} />;
+      if (renderAbnormal) {
+        return renderAbnormal(recordInfo);
+      } else {
+        const { resultCode, entityName } = recordInfo;
+        const name = entityName || _l('记录');
+        const errorMsg = resultCode === 7 ? _l('无权限查看%0', name) : _l('%0已被删除或分享已关闭', name);
+        return <Abnormal errorMsg={errorMsg} onClose={onClose} />;
+      }
     }
 
     const useWaterMark = !isModal && recordInfo.projectId;
@@ -670,11 +703,13 @@ export default class RecordInfo extends Component {
               },
               refreshRecord: this.refreshRecord,
             }}
-            getChildTableControlIds={ids => {
+            loadDraftChildTableData={controlId => {
               const { childTableControlIds } = this.state;
-              if (childTableControlIds.every(v => _.includes(ids, v))) {
-                this.setState({ canSubmitDraft: true });
-              }
+              this.setState({ loadedChildIds: (this.state.loadedChildIds || []).concat(controlId) }, () => {
+                if (childTableControlIds.every(v => _.includes(this.state.loadedChildIds, v))) {
+                  this.setState({ canSubmitDraft: true });
+                }
+              });
             }}
             changeMobileTab={tab => {
               this.props.updateRelationRows([], relationRow.count || 0);

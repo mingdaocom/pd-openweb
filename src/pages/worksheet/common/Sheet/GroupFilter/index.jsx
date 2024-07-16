@@ -14,12 +14,12 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import { getFilledRequestParams } from 'worksheet/util';
+import { emitter } from 'src/util';
 
 const Con = styled.div(
   ({ width }) => `
   width: ${width}px;
   transition: width 0.2s;
-  // border-top: 1px solid #e0e0e0;
   position:relative;
   z-index: 3;
   .searchBar {
@@ -49,9 +49,6 @@ const Con = styled.div(
       padding-left: 6px;
       font-size: 13px;
     }
-  }
-  .nano-content{
-    max-height: calc(100% - 40px);
   }
   .groupWrap {
     width: 100%;
@@ -166,6 +163,12 @@ function GroupFilter(props) {
   const [navName, setNavName] = useState('');
   const [openKeys, setOpenKeys] = useState([]);
   const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    emitter.addListener('ROWS_UPDATE', getNavGroupCount);
+    return () => {
+      emitter.removeListener('ROWS_UPDATE', getNavGroupCount);
+    };
+  }, []);
   useEffect(() => {
     setRowIdForFilter('');
     setNavName('');
@@ -474,6 +477,7 @@ function GroupFilter(props) {
       const { advancedSetting, type } = soucre;
       const { allpath = '0' } = advancedSetting;
       const nStr = allpath === '1' && type === 35 ? (!!str ? str + '/' : '') + d.txt : d.txt; //级联选项控件，结果显示层级路径
+      const showCount = count > 0 && view.viewType !== 2;
       return (
         <React.Fragment>
           <li
@@ -488,7 +492,7 @@ function GroupFilter(props) {
               setNavName(nStr);
             }}
           >
-            <div className={cx('gListDiv', { hasCount: count > 0 })}>
+            <div className={cx('gListDiv', { hasCount: showCount })}>
               <span className={cx({ arrow: !keywords })}>
                 {hasChildren && (
                   <Icon
@@ -515,7 +519,7 @@ function GroupFilter(props) {
                 )}
               </span>
               {d.txt || _l('未命名')}
-              {count > 0 && <span className="count">{count}</span>}
+              {showCount && <span className="count">{count}</span>}
             </div>
           </li>
           {hasChildren && d.children && !isClose && renderTree(d.children, !!level ? level + 1 : 1, nStr)}
@@ -579,7 +583,7 @@ function GroupFilter(props) {
             : navData;
       }
     }
-    let isOption = [9, 10, 11].includes(soucre.type); //是否选项
+    let isOption = [9, 10, 11].includes(soucre.type) || [9, 10, 11].includes(soucre.sourceControlType); //是否选项
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
     try {
       navfilters = JSON.parse(navfilters);
@@ -622,13 +626,14 @@ function GroupFilter(props) {
                 if (navshow === '1' && count <= 0 && !['null', ''].includes(o.value)) {
                   return;
                 }
+                const showCount = count > 0 && view.viewType !== 2;
                 return (
                   <li
                     className={cx('gList Hand', {
                       current: rowIdForFilter === o.value,
                       WordBreak: !isSoucreTree(),
                       overflow_ellipsis: !isSoucreTree(),
-                      hasCount: count > 0,
+                      hasCount: showCount,
                     })}
                     onClick={() => {
                       updateFilter(o.value);
@@ -640,7 +645,7 @@ function GroupFilter(props) {
                         <span className="option" style={styleCss}></span>
                       )}
                       <span className="optionTxt InlineBlock WordBreak overflow_ellipsis">{o.txt || _l('未命名')}</span>
-                      {count > 0 && <span className="count">{count}</span>}
+                      {showCount && <span className="count">{count}</span>}
                     </div>
                   </li>
                 );
@@ -653,7 +658,7 @@ function GroupFilter(props) {
   };
   return (
     <Con
-      className="groupFilterWrap"
+      className="groupFilterWrap h100 flexColumn"
       width={width}
       style={{ borderRight: !isOpenGroup ? '1px solid rgba(0, 0, 0, 0.04)' : '0' }}
     >

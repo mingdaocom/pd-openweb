@@ -11,7 +11,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import ScrollView from 'ming-ui/components/ScrollView';
-import Drawer from 'ming-ui/components/Drawer';
+import { Drawer } from 'antd';
 import withDragSelect from 'ming-ui/decorators/withDragSelect';
 
 import AttachmentsPreview from '../../common/AttachmentsPreview';
@@ -607,11 +607,24 @@ class KcMain extends Component {
             />
           )}
         </div>
+
         <Drawer
-          open={isShowDetail}
-          onRequestClose={isPinDetail ? null : () => this.setState({ isShowDetail: false })}
-          // onClickAwayExceptions={[this.refs.toggleDetailAndTogglePinBtn]}
-          style={{ zIndex: detailAttamentsPreviewActive ? 16 : 6 }}
+          className="kcMain"
+          visible={isShowDetail}
+          width={408}
+          mask={false}
+          drawerStyle={{
+            position: 'absolute',
+            top: 95,
+            bottom: 0,
+            height: 'auto',
+            right: 68,
+            width: 340,
+          }}
+          style={{ zIndex: detailAttamentsPreviewActive ? 16 : 6, overflow: 'visible' }}
+          bodyStyle={{ padding: 0 }}
+          headerStyle={{ display: 'none' }}
+          onClose={isPinDetail ? null : () => this.setState({ isShowDetail: false })}
         >
           <Detail
             data={selectedItems.size === 1 ? selectedItems.toArray()[0] : selectedItems}

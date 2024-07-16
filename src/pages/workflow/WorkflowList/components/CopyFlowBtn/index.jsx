@@ -33,7 +33,7 @@ export default class CopyFlowBtn extends Component {
 
     return (
       <div onClick={this.copyFlow}>
-        <span className={cx('Gray_9e Font16 pLeft12 mRight10', isConvert ? 'icon-swap_horiz' : 'icon-content-copy')} />
+        <span className={cx('Gray_75 Font16 pLeft12 mRight10', isConvert ? 'icon-swap_horiz' : 'icon-content-copy')} />
         {isConvert ? _l('转为子流程') : _l('复制')}
       </div>
     );

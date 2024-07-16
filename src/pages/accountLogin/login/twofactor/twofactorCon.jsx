@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import cx from 'classnames';
 import { CodeTypeEnum, SupportFindVerifyCodeUrl } from 'src/pages/accountLogin/config.js';
 import loginAjax from 'src/api/login';
-import { getDataByFilterXSS, setWarnningData, warnningTipFn } from 'src/pages/accountLogin/util.js';
+import { getDataByFilterXSS, setWarnningData, warnningTipFn, checkReturnUrl } from 'src/pages/accountLogin/util.js';
 import { getRequest } from 'src/util';
 import { setPssId } from 'src/util/pssId';
 import 'src/pages/accountLogin/components/message.less';
@@ -126,6 +126,7 @@ export default function Twofactor(props) {
             }
           } else {
             if (request.ReturnUrl) {
+              checkReturnUrl(request.ReturnUrl);
               location.replace(getDataByFilterXSS(request.ReturnUrl));
             } else {
               window.location.replace('/dashboard');

@@ -9,6 +9,8 @@ import privateSource from 'src/api/privateSource';
 import _ from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
 import { getCurrentProject } from 'src/util';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const NATIVE_APP_ITEM = [
   { id: 'feed', icon: 'dynamic-empty', text: _l('动态'), color: '#2196f3', href: '/feed', key: 1 },
@@ -194,7 +196,7 @@ const moduleEntries = [
 ];
 
 export default function SideNav(props) {
-  const { active, currentProject = {}, countData, dashboardColor, hasBgImg } = props;
+  const { active, currentProject = {}, countData, dashboardColor, hasBgImg, myPermissions = [] } = props;
   const [isExpanded, setIsExpanded] = useState(localStorage.getItem('homeNavIsExpanded') === '1');
   const [thirdPartyAppVisible, setThirdPartyAppVisible] = useState();
   const [sourcesList, setSourcesList] = useState([]);
@@ -206,10 +208,11 @@ export default function SideNav(props) {
   );
   const count = countData ? (countData.myProcessCount > 99 ? '99+' : countData.myProcessCount) : 0;
   const isExternal = _.isEmpty(getCurrentProject(projectId));
-  const allowPlugin = _.get(
-    _.find(md.global.Account.projects, item => item.projectId === projectId),
-    'allowPlugin',
-  );
+  const hasPluginAuth =
+    _.get(
+      _.find(md.global.Account.projects, item => item.projectId === projectId),
+      'allowPlugin',
+    ) || hasPermission(myPermissions, [PERMISSION_ENUM.DEVELOP_PLUGIN, PERMISSION_ENUM.MANAGE_PLUGINS]);
 
   useEffect(() => {
     privateSource.getSources({ status: 1 }).then(result => {
@@ -217,7 +220,7 @@ export default function SideNav(props) {
         return {
           color: item.color,
           iconUrl: item.iconUrl,
-          name: (item.eventParams && item.eventParams.name == 'tpapp') ? _l('第三方应用') : item.name,
+          name: item.eventParams && item.eventParams.name == 'tpapp' ? _l('第三方应用') : item.name,
           id: item.eventParams ? 'thirdPartyApp' : item.id,
           href: item.linkParams ? item.linkParams.url : null,
         };
@@ -228,10 +231,7 @@ export default function SideNav(props) {
   }, []);
 
   const renderModuleItem = (entry, index) => {
-    if (isExternal && entry.type === 'favorite') {
-      return '';
-    }
-    if (!allowPlugin && entry.type === 'plugin') {
+    if (isExternal && ['favorite', 'integration', 'plugin'].includes(entry.type)) {
       return '';
     }
 
@@ -245,7 +245,13 @@ export default function SideNav(props) {
           libraryEntry: 'lib' === entry.type,
           isExpanded,
         })}
-        href={'lib' === entry.type ? `${entry.href}?projectId=${projectId}` : entry.href}
+        href={
+          'lib' === entry.type
+            ? projectId === 'external'
+              ? entry.href
+              : `${entry.href}?projectId=${projectId}`
+            : entry.href
+        }
         onClick={
           !entry.href
             ? e => {
@@ -269,7 +275,7 @@ export default function SideNav(props) {
     switch (entry.type) {
       case 'dashboard':
         return (
-          <DashboardEntry isExpanded={isExpanded}>
+          <DashboardEntry isExpanded={isExpanded} key={index}>
             {content}
             {!!count && <span className={cx('count', { isExpanded, outed: String(count) === '99+' })}>{count}</span>}
           </DashboardEntry>
@@ -277,6 +283,7 @@ export default function SideNav(props) {
       case 'cooperation':
         return (
           <Trigger
+            key={index}
             action={['hover']}
             popupAlign={{
               points: ['tl', 'tr'],
@@ -322,9 +329,25 @@ export default function SideNav(props) {
     );
 
     switch (true) {
-      case !isExpanded && _.includes(['thirdPartyApp', 'integration'], entry.id):
+      case entry.id === 'educate':
         return (
-          <Tooltip popupPlacement="right" text={<span>{entry.name}</span>}>
+          <Trigger
+            key={index}
+            action={['hover']}
+            popupAlign={{
+              points: ['tl', 'tr'],
+              offset: [16, -108],
+              overflow: { adjustY: true },
+            }}
+            popup={<PopupLinks openInNew items={educateEntries} />}
+            mouseLeaveDelay={0.2}
+          >
+            {content}
+          </Trigger>
+        );
+      case !isExpanded && _.includes(['recommend', 'thirdPartyApp', 'integration'], entry.id):
+        return (
+          <Tooltip key={index} popupPlacement="right" text={<span>{entry.name}</span>}>
             {content}
           </Tooltip>
         );
@@ -344,9 +367,15 @@ export default function SideNav(props) {
                 o =>
                   !(o.type === 'cooperation' && !NATIVE_APP_ITEM.length) &&
                   !(o.type === 'lib' && md.global.SysSettings.hideTemplateLibrary) &&
-                  !(o.type === 'integration' && md.global.SysSettings.hideIntegration),
+                  !(o.type === 'integration' && md.global.SysSettings.hideIntegration) &&
+                  !(o.type === 'plugin' && md.global.SysSettings.hidePlugin),
               )
-              .map((entry, index) => renderModuleItem(entry, index))}
+              .map((entry, index) => {
+                if (entry.type === 'plugin' && !hasPluginAuth) {
+                  return null;
+                }
+                return renderModuleItem(entry, index);
+              })}
           </ModuleEntries>
           <Spacer />
           <ResourceEntries>

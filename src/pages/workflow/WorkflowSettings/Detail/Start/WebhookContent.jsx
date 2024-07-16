@@ -206,10 +206,10 @@ export default class WebhookContent extends Component {
                       onClick={checked => updateSource({ hooksBody: !checked }, onSave)}
                     />
                     <span
-                      className="workflowDetailTipsWidth mLeft5 Gray_9e tip-top"
+                      className="workflowDetailTipsWidth mLeft5 Gray_75 tip-top"
                       data-tip={_l('勾选后，将会生成一个记录Body全文的文本格式参数')}
                     >
-                      <i className="Font14 icon-workflow_help" />
+                      <i className="Font14 icon-workflow_help Gray_9e" />
                     </span>
                   </Fragment>
                 )}

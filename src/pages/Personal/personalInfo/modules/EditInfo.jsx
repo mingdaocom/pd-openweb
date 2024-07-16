@@ -1,9 +1,9 @@
 import React from 'react';
 import account from 'src/api/account';
-import common from '../../common'
+import common from '../../common';
 import { navigateTo } from 'src/router/navigateTo';
 import './index.less';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 
 export default class EditInfo extends React.Component {
   constructor(props) {
@@ -23,7 +23,7 @@ export default class EditInfo extends React.Component {
   }
 
   saveBaseInfo() {
-    if(this.validateContract()) {
+    if (this.validateContract()) {
       const { baseInfo } = this.state;
       account
         .editContactInfo(baseInfo)
@@ -42,16 +42,16 @@ export default class EditInfo extends React.Component {
 
   //验证
   validateContract() {
-    const { baseInfo } = this.state
-    if (baseInfo.snsLinkedin !== '' && !RegExp.isURL(baseInfo.snsLinkedin)) {
+    const { baseInfo } = this.state;
+    if (baseInfo.snsLinkedin !== '' && !RegExpValidator.isURL(baseInfo.snsLinkedin)) {
       alert(_l('LinkedIn输入不正确,请输入有效的URL'), 3);
       return false;
     }
-    if (baseInfo.snsSina !== '' && !RegExp.isURL(baseInfo.snsSina)) {
+    if (baseInfo.snsSina !== '' && !RegExpValidator.isURL(baseInfo.snsSina)) {
       alert(_l('新浪微博主页输入不正确,请输入有效的URL'), 3);
       return false;
     }
-    return true
+    return true;
   }
 
   render() {
@@ -60,10 +60,13 @@ export default class EditInfo extends React.Component {
       <div className="baseInfoEditContent Gray">
         <div className="Gray_9e mBottom24">
           {_l('邮箱和手机设置请到 ')}
-          <span className="ThemeColor3 Hover_49 Hand" onClick={() => {
-            this.props.closeDialog();
-            navigateTo(common.url({ type: 'account' }));
-          }}>
+          <span
+            className="ThemeColor3 Hover_49 Hand"
+            onClick={() => {
+              this.props.closeDialog();
+              navigateTo(common.url({ type: 'account' }));
+            }}
+          >
             {_l('账户与隐私')}
           </span>
           {_l(' 页面设置')}
@@ -105,7 +108,8 @@ export default class EditInfo extends React.Component {
           <button
             type="button"
             className="ming Button Button--link Gray_9e mRight30"
-            onClick={() => this.props.closeDialog()}>
+            onClick={() => this.props.closeDialog()}
+          >
             {_l('取消')}
           </button>
           <button type="button" className="ming Button Button--primary saveBtn" onClick={() => this.saveBaseInfo()}>

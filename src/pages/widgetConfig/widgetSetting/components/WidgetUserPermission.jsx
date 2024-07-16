@@ -2,6 +2,7 @@ import React from 'react';
 import { Dropdown } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import { SheetViewWrap } from '../../styled';
+import { Tooltip } from 'antd';
 
 const TYPE_OPTIONS = [
   {
@@ -36,11 +37,19 @@ const TYPE_OPTIONS = [
 const DISPLAY_OPTIONS = [
   {
     value: 0,
-    text: _l('仅当前部门人员'),
+    text: _l('仅当前部门成员'),
   },
   {
     value: 1,
-    text: _l('包含所有下级部门人员'),
+    text: _l('当前部门及所有下级部门成员'),
+  },
+  {
+    value: 3,
+    text: _l('当前部门负责人'),
+  },
+  {
+    value: 4,
+    text: _l('当前部门及所有上级部门负责人'),
   },
 ];
 
@@ -49,7 +58,17 @@ export default function WidgetUserPermission({ data, onChange }) {
 
   return (
     <SettingItem>
-      <div className="settingItemTitle">{_l('权限')}</div>
+      <div className="settingItemTitle">
+        {_l('权限')}
+        {type === 27 && (
+          <Tooltip
+            placement="bottom"
+            title="若工作表数据过多，当范围设置[当前部门及所有下级部门成员]或[当前部门及所有上级部门负责人]时，用户打开表单或视图时可能会显示异常。"
+          >
+            <i className="icon-help Gray_9e Font16 Hand mLeft4"></i>
+          </Tooltip>
+        )}
+      </div>
       <Dropdown
         border
         data={TYPE_OPTIONS}
@@ -75,6 +94,7 @@ export default function WidgetUserPermission({ data, onChange }) {
             className="flex"
             value={enumDefault2}
             data={DISPLAY_OPTIONS}
+            showItemTitle={true}
             onChange={value => onChange({ enumDefault2: value })}
           />
         </SheetViewWrap>

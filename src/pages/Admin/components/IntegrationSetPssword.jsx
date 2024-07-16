@@ -5,7 +5,7 @@ import { Switch } from 'ming-ui';
 import { Button, Input } from 'antd';
 import cx from 'classnames';
 import styled from 'styled-components';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import { encrypt } from 'src/util';
 import _ from 'lodash';
 
@@ -93,7 +93,7 @@ export default class IntegrationSetPssword extends Component {
     let { password } = this.state;
     const { passwordRegex } = md.global.SysSettings;
 
-    if (RegExp.isPasswordValid(password, passwordRegex)) {
+    if (RegExpValidator.isPasswordValid(password, passwordRegex)) {
       this.setState({ passwordError: false });
       this.changeInitialPassword(password);
     } else {
@@ -135,7 +135,9 @@ export default class IntegrationSetPssword extends Component {
               <Button type="primary" onClick={this.savePassword}>
                 {_l('保存')}
               </Button>
-              {this.state.passwordError && <div className="passwordErrorTxt">{passwordRegexTip || _l('8-20位，需包含字母和数字')}</div>}
+              {this.state.passwordError && (
+                <div className="passwordErrorTxt">{passwordRegexTip || _l('8-20位，需包含字母和数字')}</div>
+              )}
             </div>
           )}
         </div>

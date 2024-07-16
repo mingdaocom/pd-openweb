@@ -176,8 +176,8 @@ export default ({
             }}
           >
             <div className="flexRow" style={{ alignItems: 'center' }}>
-              <span className={cx('Font16 Gray_9e', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
-              <span className={cx('Font14 mLeft5 ellipsis flex', { Gray_9e: !item.appId })}>{item.nodeName}</span>
+              <span className={cx('Font16 Gray_75', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
+              <span className={cx('Font14 mLeft5 ellipsis flex', { Gray_75: !item.appId })}>{item.nodeName}</span>
               {item.appId && item.appName ? (
                 <Fragment>
                   <span className="Font14 mLeft5 bold flowDropdownGray">{item.appTypeName}</span>
@@ -304,7 +304,7 @@ export default ({
       {btnText && (
         <div className="mTop10">
           <span
-            className="ThemeHoverColor3 pointer Gray_9e"
+            className="ThemeHoverColor3 pointer Gray_75"
             onClick={() =>
               updateSource({
                 [sourceKey]: source.concat(

@@ -15,12 +15,13 @@ import { RecordInfoModal } from 'mobile/Record';
 import './index.less';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
-import { getAdvanceSetting } from 'src/util';
+import { getAdvanceSetting, mdAppResponse } from 'src/util';
 import cx from 'classnames';
 import FixedPage from 'mobile/App/FixedPage.jsx';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import alreadyDelete from './State/assets/alreadyDelete.png';
 import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
+import { updateHierarchyConfigLevel } from 'src/pages/worksheet/views';
 import _ from 'lodash';
 
 @withRouter
@@ -34,13 +35,21 @@ class RecordList extends Component {
     };
   }
   componentDidMount() {
-    const { params } = this.props.match || {};
-    this.props.changeMobileGroupFilters([]);
-    this.getApp(this.props);
-    if (_.get(this.props, ['filters', 'visible'])) {
-      this.props.updateFilters({
-        visible: false,
+    if (window.isMingDaoApp) {
+      mdAppResponse({ sessionId: 'Filter test session', type: 'getFilters' }).then(data => {
+        const { value = [] } = data;
+        this.props.updateFilterControls(value);
+        this.props.changeMobileGroupFilters([]);
+        this.getApp(this.props);
       });
+    } else {
+      this.props.changeMobileGroupFilters([]);
+      this.getApp(this.props);
+      if (_.get(this.props, ['filters', 'visible'])) {
+        this.props.updateFilters({
+          visible: false,
+        });
+      }
     }
   }
   getApp(props) {
@@ -56,14 +65,19 @@ class RecordList extends Component {
   componentWillReceiveProps(nextProps) {
     const { params: newParams } = nextProps.match;
     const { params } = this.props.match;
-    const viewType = (_.find(nextProps.worksheetInfo.views, v => v.viewId === newParams.viewId) || {}).viewType;
+    const view = _.find(nextProps.worksheetInfo.views, v => v.viewId === newParams.viewId) || {};
+    const { viewType } = view;
     if (newParams.viewId !== params.viewId) {
       this.props.updateBase({ viewId: newParams.viewId });
       _.includes([0, 6], viewType) && this.props.resetSheetView();
     }
+    if (viewType === 2) {
+      updateHierarchyConfigLevel(view);
+    }
     if (newParams.worksheetId !== params.worksheetId) {
       this.props.emptySheetRows();
       this.props.emptySheetControls();
+
       this.getApp(nextProps);
     }
   }
@@ -118,9 +132,9 @@ class RecordList extends Component {
     let views = worksheetInfo.views.filter(
       v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
     );
-    const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
+    const view = _.find(views, { viewId }) || views[0];
     const { params } = match;
-    const viewIndex = viewId ? _.findIndex(views, { viewId }) : 0;
+    const viewIndex = _.findIndex(views, { viewId }) > -1 ? _.findIndex(views, { viewId }) : 0;
 
     const { calendarData = {} } = calendarview;
     let { begindate = '', enddate = '', calendarcids = '[]' } = getAdvanceSetting(view);
@@ -190,6 +204,9 @@ class RecordList extends Component {
                   this.handleChangeView(view);
                   this.props.changeMobileGroupFilters([]);
                   safeLocalStorageSetItem(`mobileViewSheet-${view.viewId}`, view.viewType);
+                  if (view.viewType === 2) {
+                    updateHierarchyConfigLevel(view);
+                  }
                 }}
                 renderTab={tab => <span className="tabName ellipsis bold">{tab.name}</span>}
               ></Tabs>
@@ -248,19 +265,25 @@ class RecordList extends Component {
                 }}
               />
             )}
-          {(canDelete || showCusTomBtn) && view.viewType === 0 && !batchOptVisible && _.isEmpty(view.navGroup) && (
-            <BatchOperationBtn
-              style={{
-                bottom: appNaviStyle === 2 && location.href.includes('mobile/app') ? bottom70 : bottom20,
-              }}
-              onClick={() => this.props.changeBatchOptVisible(true)}
-            />
-          )}
-          {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
+          {!isMingDaoApp &&
+            (canDelete || showCusTomBtn) &&
+            view.viewType === 0 &&
+            !batchOptVisible &&
+            _.isEmpty(view.navGroup) && (
+              <BatchOperationBtn
+                style={{
+                  bottom: appNaviStyle === 2 && location.href.includes('mobile/app') ? bottom70 : bottom20,
+                }}
+                onClick={() => this.props.changeBatchOptVisible(true)}
+              />
+            )}
+          {!isMingDaoApp &&
+          isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
           worksheetInfo.allowAdd &&
           isHaveSelectControl &&
           !batchOptVisible &&
-          ((view.viewType === 6 && view.childType !== 1) || view.viewType !== 6) ? (
+          ((view.viewType === 6 && view.childType !== 1) || view.viewType !== 6) &&
+          ((view.viewType === 2 && view.advancedSetting.hierarchyViewType !== '3') || view.viewType !== 2) ? (
             <AddRecordBtn
               entityName={worksheetInfo.entityName}
               backgroundColor={appColor}
@@ -378,6 +401,7 @@ export default connect(
           'updateFilters',
           'changeMobileGroupFilters',
           'changeBatchOptVisible',
+          'updateFilterControls',
         ]),
         addNewRecord,
       },

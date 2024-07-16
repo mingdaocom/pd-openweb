@@ -111,7 +111,7 @@ const Item = styled.div`
 `;
 
 function AddCollectApp(props) {
-  const { onClose, apps = [], markedApps = [], onMarkApps, projectId } = props;
+  const { onClose, apps = [], markedApps = [], onMarkApps, appLang, projectId } = props;
   const searchRef = useRef();
   const [keywords, setKeywords] = useState('');
   const [expandIds, setExpandIds] = useState([]);
@@ -180,6 +180,7 @@ function AddCollectApp(props) {
         {appList.map((app, index) => {
           const isExpand = _.includes(expandIds, app.id);
           const isAppChecked = !!_.find(selectedItems, item => item.appId === app.id && !item.type);
+          const appName = _.get(_.find(appLang, { key: app.id }), 'value') || app.name;
           return (
             <React.Fragment>
               <Item
@@ -205,12 +206,13 @@ function AddCollectApp(props) {
                 <div className="appIcon" style={{ backgroundColor: getAppOrItemColor(app).bg }}>
                   <SvgIcon url={app.iconUrl} fill={getAppOrItemColor(app).iconColor} size={20} />
                 </div>
-                <div className="overflow_ellipsis">{app.name}</div>
+                <div className="overflow_ellipsis">{appName}</div>
               </Item>
               {isExpand &&
                 (items[app.id] || []).map(item => {
                   const isItemChecked = !!_.find(selectedItems, i => i.itemId === item.workSheetId);
                   const itemType = item.type === 0 ? 2 : item.type; // 转换类型--0传2(工作表),1传1(自定义页面)
+                  const workSheetName = _.get(_.find(appLang, { key: item.workSheetId }), 'value') || item.workSheetName;
                   return (
                     <Item
                       className="isItem"
@@ -230,7 +232,7 @@ function AddCollectApp(props) {
                     >
                       <Checkbox className="mRight10" checked={isItemChecked} />
                       <SvgIcon url={item.iconUrl} fill={getAppOrItemColor(app).bg} size={16} />
-                      <div className="overflow_ellipsis mLeft6">{item.workSheetName}</div>
+                      <div className="overflow_ellipsis mLeft6">{workSheetName}</div>
                     </Item>
                   );
                 })}

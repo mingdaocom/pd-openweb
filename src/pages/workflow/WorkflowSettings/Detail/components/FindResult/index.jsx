@@ -38,7 +38,7 @@ export default ({ executeType, switchExecuteType, allowAdd = false, nodeType }) 
       {EXECUTE_TYPE.map(item => (
         <div className="mTop15" key={item.value}>
           <Radio text={item.text} checked={executeType === item.value} onClick={() => switchExecuteType(item.value)} />
-          {item.desc && <div className="mTop5 mLeft30 Gray_9e">{item.desc}</div>}
+          {item.desc && <div className="mTop5 mLeft30 Gray_75">{item.desc}</div>}
         </div>
       ))}
     </Fragment>

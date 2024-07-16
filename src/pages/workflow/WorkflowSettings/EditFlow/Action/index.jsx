@@ -34,7 +34,7 @@ export default class Action extends Component {
           <Fragment>
             {item.appType !== APP_TYPE.EXTERNAL_USER && (
               <div className="workflowContentInfo ellipsis workflowContentBG">
-                <span className="Gray_9e mRight5">{item.appTypeName}</span>“{item.appName}”
+                <span className="Gray_75 mRight5">{item.appTypeName}</span>“{item.appName}”
               </div>
             )}
             {item.fields.length === 0 ? (
@@ -65,7 +65,7 @@ export default class Action extends Component {
         return (
           <Fragment>
             <div className="workflowContentInfo ellipsis workflowContentBG">
-              <span className="Gray_9e mRight5">{item.appTypeName}</span>“{item.appName}”
+              <span className="Gray_75 mRight5">{item.appTypeName}</span>“{item.appName}”
             </div>
             {item.selectNodeId && <div className="pLeft8 pRight8 mTop8 Gray_75">{_l('批量新增')}</div>}
 
@@ -99,7 +99,7 @@ export default class Action extends Component {
         return (
           <Fragment>
             <div className="workflowContentInfo ellipsis workflowContentBG">
-              <span className="Gray_9e mRight5">{item.appTypeName}</span>“{item.appName}”
+              <span className="Gray_75 mRight5">{item.appTypeName}</span>“{item.appName}”
             </div>
             <div className="workflowContentInfo ellipsis Gray_75 mTop4">{_l('删除记录')}</div>
           </Fragment>
@@ -153,7 +153,7 @@ export default class Action extends Component {
         return (
           <Fragment>
             <div className="workflowContentInfo ellipsis workflowContentBG">
-              <span className="Gray_9e mRight5">{item.appTypeName}</span>“{item.appName}”
+              <span className="Gray_75 mRight5">{item.appTypeName}</span>“{item.appName}”
             </div>
             <div className="pLeft8 pRight8 mTop4 Gray_75 pBottom5">
               {_l('填写了%0个字段', item.fields.length)}
@@ -314,7 +314,7 @@ export default class Action extends Component {
             </div>
             <NodeOperate nodeClassName={bgClassName} {...this.props} />
             <div className="workflowContent">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
             </div>
           </div>
           <CreateNode {...this.props} />

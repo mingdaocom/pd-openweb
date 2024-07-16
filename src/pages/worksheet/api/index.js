@@ -51,7 +51,7 @@ export function getRowDetail(params, controls, options = {}) {
         let controlPermissions = safeParse(rowData.controlpermissions);
         data.formData = (
           controls ||
-          replaceControlsTranslateInfo(data.appId, data.templateControls || []).concat(SYSTEM_CONTROL) ||
+          replaceControlsTranslateInfo(data.appId, params.worksheetId, data.templateControls || []).concat(SYSTEM_CONTROL) ||
           []
         ).map(c => ({
           ...c,

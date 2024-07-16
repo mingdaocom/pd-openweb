@@ -16,6 +16,7 @@ export const FLOW_TYPE = {
   PBC: '10',
   APPROVAL: '11',
   EVENT_PUSH: '12',
+  LOOP: '13',
 };
 
 export const FLOW_TYPE_NULL = {
@@ -66,6 +67,10 @@ export const FLOW_TYPE_NULL = {
   12: {
     icon: 'sheet',
     text: _l('当满足条件事件触发时，进行数据推送'),
+  },
+  13: {
+    icon: 'sheet',
+    text: _l('在某个流程中执行一段循环的流程'),
   },
 };
 
@@ -135,6 +140,11 @@ export const START_APP_TYPE = {
     iconColor: '#4C7D9E',
     text: _l('自定义动作'),
   },
+  45: {
+    iconName: 'arrow_loop',
+    iconColor: '#4C7D9E',
+    text: _l('循环'),
+  },
 };
 
 export const TYPES = [
@@ -142,6 +152,7 @@ export const TYPES = [
   { text: _l('时间%03004'), value: FLOW_TYPE.TIME, icon: 'icon-hr_time' },
   { text: _l('人员事件%03005'), value: FLOW_TYPE.USER, icon: 'icon-hr_structure' },
   { text: _l('Webhook'), value: FLOW_TYPE.OTHER, icon: 'icon-workflow_webhook' },
+  { text: _l('循环'), value: FLOW_TYPE.LOOP, icon: 'icon-arrow_loop' },
   { text: _l('子流程%03006'), value: FLOW_TYPE.SUB_PROCESS, icon: 'icon-subprocess' },
   { text: _l('自定义动作'), value: FLOW_TYPE.CUSTOM_ACTION, icon: 'icon-custom_actions' },
   { text: _l('审批流程%03007'), value: FLOW_TYPE.APPROVAL, icon: 'icon-approval' },
@@ -275,6 +286,11 @@ export const getActionTypeContent = (type, item, disable) => {
         {item.triggerName}
       </Link>
     );
+  }
+
+  // 循环流程
+  if (type === FLOW_TYPE.LOOP) {
+    return _l('循环触发');
   }
 
   return (item.appNames || []).join('、');

@@ -53,11 +53,11 @@ export default ({ data, updateSource, processId, selectNodeId, companyId, render
             />
             {item.value === TRIGGER_ID.DELETE && (
               <span
-                className="Gray_9e"
+                className="Gray_75"
                 data-tip={_l('包括用户自行注销或被管理员注销')}
                 style={{ marginLeft: -15, marginTop: 2, verticalAlign: 'top', height: 14 }}
               >
-                <i className="Font14 icon-workflow_help" />
+                <i className="Font14 icon-workflow_help Gray_9e" />
               </span>
             )}
           </div>

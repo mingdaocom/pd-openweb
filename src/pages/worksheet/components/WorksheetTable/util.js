@@ -69,7 +69,7 @@ export function handleLifeEffect(
     const $target = $(e.originalEvent.target).closest('.cell');
     const classMatch = $target.attr('class').match(/.*(row-[0-9]+) .*/);
     if (classMatch && $tableElement) {
-      $tableElement.find('.cell').removeClass('hover');
+      $tableElement.find('.cell,.expandCell').removeClass('hover');
       $tableElement.find('.' + classMatch[1]).addClass('hover');
       if (tableType === 'classic') {
         $tableElement.find('.cell').removeClass('grayHover');
@@ -80,9 +80,12 @@ export function handleLifeEffect(
       onCellEnter($target[0]);
     }
   }
-  function handleCellLeave() {
+  function handleCellLeave(e) {
+    try {
+      if (e.relatedTarget.closest('.expandCell')) return;
+    } catch (err) {}
     if ($tableElement) {
-      $tableElement.find('.cell').removeClass('hover');
+      $tableElement.find('.cell,.expandCell').removeClass('hover');
       if (tableType === 'classic') {
         $tableElement.find('.cell').removeClass('grayHover');
       }
@@ -194,11 +197,7 @@ export function handleLifeEffect(
     }
   }
   function handleKeyDown(e) {
-    // console.log({ ..._.pick(e, ['key', 'keyCode']), tagName: e.target.tagName });
-    if (
-      tableType !== 'classic' ||
-      (!(isSubList || isRelateRecordList) && !!document.querySelector('.workSheetRecordInfo'))
-    ) {
+    if (tableType !== 'classic' || tableId !== window.activeTableId) {
       return;
     }
     removeReadOnlyTip();
@@ -230,7 +229,7 @@ export function handleLifeEffect(
     const forceOutClick = _.includes(get(e, 'target.className') || '', 'allowOutClick');
     if (
       (e.target.closest('.cellNeedFocus,.mui-dialog-container,.UploadFilesTriggerWrap,.rc-trigger-popup') ||
-        (!isSubList && e.target.closest('.recordInfoCon'))) &&
+        (!isSubList && e.target.closest('.workSheetRecordInfo'))) &&
       !forceOutClick
     ) {
       return;
@@ -241,7 +240,10 @@ export function handleLifeEffect(
           window.tempCopyForSheetView = undefined;
         }
       } catch (err) {}
-      focusCell(-10000);
+      if (window.activeTableId === tableId) {
+        focusCell(-10000);
+        window.activeTableId = undefined;
+      }
     }
   }
   emitter.addListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + tableId, showColumnWidthChangeMask);
@@ -258,27 +260,6 @@ export function handleLifeEffect(
     window.removeEventListener('keydown', handleKeyDown);
     emitter.removeListener('TRIGGER_TABLE_KEYDOWN_' + tableId, handleKeyDown);
     document.body.removeEventListener('click', handleOuterClick);
-  };
-}
-
-export function columnWidthFactory({
-  width, // 表格宽度
-  visibleColumns, // 可见字段
-  sheetColumnWidths, // 列宽
-}) {
-  // 撑不满时重设宽度
-  let averageWidth;
-  function getWidth(i) {
-    const control = visibleColumns[i];
-    return control.width || sheetColumnWidths[control.controlId] || 200;
-  }
-  if (_.sum([...new Array(visibleColumns.length)].map((a, i) => getWidth(i))) < width) {
-    let widths = visibleColumns.map(c => sheetColumnWidths[c.controlId] || c.width).filter(_.identity);
-    averageWidth = (width - _.sum(widths)) / (visibleColumns.length - widths.length);
-  }
-  return (index, noAverage) => {
-    const control = visibleColumns[index] || {};
-    return control.width || sheetColumnWidths[control.controlId] || (!noAverage && averageWidth) || 200;
   };
 }
 

@@ -3,33 +3,7 @@ import { get } from 'lodash';
 import { getPssId } from 'src/util/pssId';
 
 function mdPost({ action, controller, data, abortController } = {}) {
-  let pssId = getPssId();
-  const headers = {
-    authorization: pssId ? `md_pss_id ${pssId}` : '',
-  };
-  const clientId = window.clientId || sessionStorage.getItem('clientId');
-  if (window.needSetClientId({ clientId, controllerName: controller })) {
-    headers.clientId = clientId;
-  }
-
-  if (window.access_token) {
-    // 工作流&统计服务
-    headers.access_token = window.access_token;
-    // 主站服务
-    headers.Authorization = `access_token ${window.access_token}`;
-  }
-  return axios
-    .post(`${window.__api_server__.main.replace(/\/$/, '')}/${controller}/${action}`, data, {
-      headers,
-      signal: abortController && abortController.signal,
-    })
-    .then(res => {
-      if (res.data.state) {
-        return res.data.data;
-      } else {
-        throw new Error(res.data.exception);
-      }
-    });
+  return window.mdyAPI(controller, action, data, { abortController });
 }
 
 class RequestPool {

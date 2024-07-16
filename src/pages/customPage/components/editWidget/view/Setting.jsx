@@ -61,7 +61,7 @@ function Setting(props) {
       }).then(res => {
         const { views = [], template } = res;
         setDataSource({
-          views: views.map(({ viewId, name, viewType }) => ({ text: getTranslateInfo(appId, viewId).name || name, value: viewId, viewType }))
+          views: views.map(({ viewId, name, viewType }) => ({ text: getTranslateInfo(appId, null, viewId).name || name, value: viewId, viewType }))
         });
       });
     }

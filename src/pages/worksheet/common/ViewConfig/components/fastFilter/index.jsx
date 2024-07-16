@@ -86,11 +86,9 @@ export default function FastFilter(params) {
     let data =
       fastFilters.length > 0
         ? {
-            ...advancedSetting,
             enablebtn: fastFilters.length > 3 ? '1' : advancedSetting.enablebtn,
           }
         : {
-            ...advancedSetting,
             clicksearch: '0', //
             enablebtn: '0',
           };
@@ -99,8 +97,9 @@ export default function FastFilter(params) {
         fastFilters: fastFilters.map(o => {
           return formatObjWithNavfilters(o);
         }),
-        advancedSetting: formatAdvancedSettingByNavfilters(view, _.omit(data, 'navfilters')),
+        advancedSetting: data,
         editAttrs: ['fastFilters', 'advancedSetting'],
+        editAdKeys: Object.keys(data),
       }),
     );
   };
@@ -152,7 +151,7 @@ export default function FastFilter(params) {
       {fastFilters.length > 0 ? (
         <div className="hasData">
           <div className="viewSetTitle">{_l('快速筛选')}</div>
-          <div className="Gray_9e mTop8 mBottom4">
+          <div className="Gray_75 mTop8 mBottom4">
             {_l('选择字段作为快速筛选器平铺显示在视图中，以帮助用户快速查询记录。')}
           </div>
           {renderFastFilterCon()}
@@ -206,7 +205,7 @@ export default function FastFilter(params) {
             <img src={bgFastFilters} alt="" srcset="" />
           </div>
           <h6 className="">{_l('快速筛选')}</h6>
-          <p className="text">{_l('将字段作为快速筛选器显示在视图顶部，以帮助用户快速查找记录。')}</p>
+          <p className="text Gray_75">{_l('将字段作为快速筛选器显示在视图顶部，以帮助用户快速查找记录。')}</p>
           {renderFastFilterCon()}
         </div>
       )}

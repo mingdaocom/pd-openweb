@@ -1,16 +1,97 @@
-import { every, findIndex, get, includes, isEqual, isFunction, isUndefined, pick, some } from 'lodash';
-import React, { Fragment, memo, useCallback, useRef } from 'react';
+import { every, find, findIndex, get, includes, isEqual, isFunction, isUndefined, pick, some } from 'lodash';
+import React, { Fragment, memo, useRef } from 'react';
+import { Tooltip } from 'ming-ui';
+import CollapseExpandButton from './CollapseExpandButton';
 import DataCell from './DataCell';
-import { value } from 'jsonpath';
 import cx from 'classnames';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { ROW_HEIGHT } from 'worksheet/constants/enum';
-import { checkCellIsEmpty, controlIsNumber, getRecordColor } from 'worksheet/util';
+import { checkCellIsEmpty, controlIsNumber, getRecordColor, getTreeExpandCellWidth } from 'worksheet/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import styled from 'styled-components';
+
+const CellCon = styled.div`
+  .hoverShow {
+    visibility: hidden;
+  }
+  &.hover .hoverShow {
+    visibility: visible;
+  }
+  &.editable:hover .editIcon {
+    display: inline-flex;
+  }
+`;
+
+const TreeExpandCell = styled.div`
+  padding: 0px;
+  display: flex;
+  align-items: center;
+`;
+
+const TreeExpandIcon = styled.div`
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
+  &:hover {
+    .icon {
+      color: #2196f3;
+    }
+    background: rgba(0, 0, 0, 0.05);
+    .line {
+      transition: transform 0.2s ease-in;
+    }
+  }
+  .icon {
+    color: #757575;
+    &.folded {
+      transform: rotate(-90deg);
+    }
+  }
+`;
+
+const TreeLoadingIcon = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
+  .icon {
+    font-size: 14px;
+    color: #757575;
+    animation: 2s linear infinite rotate;
+  }
+`;
+
+const AddChildBtn = styled.div`
+  position: absolute;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 4px;
+  width: 24px;
+  height: 24px;
+  color: #9e9e9e;
+  border-radius: 3px;
+  background: #fff;
+  .icon {
+    font-size: 20px;
+  }
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+`;
 
 /**
- * 测试：
- * row 值 默认值
- * rowFormData // 整理
  * TODO
  * getIndex
  * 键盘事件改为 数据驱动型
@@ -78,10 +159,13 @@ function getCellType(id) {
 function Cell(props) {
   const { key, style = {}, data = {} } = props;
   const {
+    treeTableViewData,
     grid = {},
     tableId,
     isTrash,
     from,
+    readonly,
+    allowAdd,
     allowlink,
     isSubList,
     fromModule,
@@ -89,6 +173,7 @@ function Cell(props) {
     appId,
     worksheetId,
     viewId,
+    view,
     tableType,
     cache,
     rows = [],
@@ -120,6 +205,7 @@ function Cell(props) {
     onFocusCell,
     cellUniqueValidate,
     updateCell,
+    actions = {},
   } = data;
   const cellCache = useRef({});
   const { columnIndex, rowIndex } = getIndex({
@@ -143,9 +229,12 @@ function Cell(props) {
   }
   const value = row[control.controlId];
   const cellType = getCellType(grid.id, control, rowIndex, columnIndex);
+  const needHightLight =
+    !isUndefined(window[`sheetTableHighlightRow${tableId}`]) && window[`sheetTableHighlightRow${tableId}`] === rowIndex;
   let className = cx(
     `control-${control.type === 30 ? control.sourceControlType || control.type : control.type}`,
     `row-${includes(['head', 'foot'], cellType) ? cellType : rowIndex}`,
+    `row-id-${row.rowid}`,
     `col-${columnIndex}`,
     `cell-${cellIndex}`,
     'cell',
@@ -165,9 +254,7 @@ function Cell(props) {
       lastFixedColumn: columnIndex === fixedColumnCount,
       alignRight: controlIsNumber(control),
       // focus: !_.isUndefined(cache.focusIndex) && cellIndex === cache.focusIndex,
-      highlight:
-        !isUndefined(window[`sheetTableHighlightRow${tableId}`]) &&
-        window[`sheetTableHighlightRow${tableId}`] === rowIndex,
+      highlight: needHightLight,
       highlightFromProps: sheetViewHighlightRows[row.rowid],
       focusShowEditIcon:
         tableType === 'classic' &&
@@ -213,15 +300,19 @@ function Cell(props) {
     cellStyle.backgroundColor = recordColor.lightColor;
   }
   if (isFunction(renderFunctions.rowHead) && control.type === 'rowHead' && cellType !== 'foot') {
-    const rowHeadComp = renderFunctions.rowHead({
-      className,
-      key,
-      style: cellStyle,
-      rowIndex: cellType === 'head' ? -1 : rowIndex,
-      control,
-      row,
-      data: rows,
-    });
+    const rowHeadComp = control.empty ? (
+      <span className={className} style={cellStyle} />
+    ) : (
+      renderFunctions.rowHead({
+        className,
+        key,
+        style: cellStyle,
+        rowIndex: cellType === 'head' ? -1 : rowIndex,
+        control,
+        row,
+        data: rows,
+      })
+    );
     return recordColor && recordColorConfig.showLine ? (
       <Fragment>
         {rowHeadComp}
@@ -259,8 +350,19 @@ function Cell(props) {
     });
   }
   const error = cellErrors[`${row.rowid}-${control.controlId}`];
-  return (
+  const cellEditable = !readonly && row && row.allowedit && controlState(control).editable;
+  const newCellStyle = { ...cellStyle };
+  let cellWidth;
+  const treeNodeData = get(treeTableViewData, `treeMap.${row.key}`);
+  if (control.isTreeExpandCell && treeNodeData) {
+    cellWidth = getTreeExpandCellWidth(treeNodeData.index, rows.length);
+    newCellStyle.width = cellStyle.width - cellWidth;
+    newCellStyle.left = cellWidth;
+    newCellStyle.top = 0;
+  }
+  const cell = (
     <MemorizedDataCell
+      chatButton={data.chatButton}
       key={key}
       isTrash={isTrash}
       from={from}
@@ -277,7 +379,7 @@ function Cell(props) {
       fixedColumnCount={fixedColumnCount}
       lineEditable={lineEditable}
       className={className}
-      style={cellStyle}
+      style={newCellStyle}
       columnIndex={columnIndex}
       rowIndex={rowIndex}
       cellIndex={cellIndex}
@@ -306,6 +408,110 @@ function Cell(props) {
       registerRef={ref => registerRef(ref, cellIndex)}
     />
   );
+  if (control.isTreeExpandCell && treeNodeData) {
+    const { viewControl } = view;
+    const addChildControl = find(controls, c => c.sourceControlId === viewControl);
+    const treeStyle = get(view, 'advancedSetting.treestyle');
+    const expandShowAsPlus = treeStyle === '2';
+    return (
+      <CellCon
+        className={cx('expandCell', `row-${includes(['head', 'foot'], cellType) ? cellType : rowIndex}`, {
+          editable: lineEditable && cellEditable,
+        })}
+        style={{ ...cellStyle }}
+      >
+        <TreeExpandCell
+          className={cx(
+            `cell row-${includes(['head', 'foot'], cellType) ? cellType : rowIndex} row-id-${row.rowid} treeNode`,
+            {
+              oddRow: rowIndex % 2 === 1,
+              highlightFromProps: sheetViewHighlightRows[row.rowid],
+              highlight: needHightLight,
+            },
+          )}
+          style={{
+            width: cellWidth,
+            height: '100%',
+            textAlign: 'right',
+            borderRight: 'none',
+            backgroundColor: cellStyle.backgroundColor,
+          }}
+        >
+          <div className="flex"></div>
+          {!treeNodeData.loading && (treeNodeData.childrenIds || []).length > 0 && (
+            <Tooltip
+              mouseEnterDelay={0.8}
+              text={!get(treeTableViewData, 'expandedAllKeys.' + row.key) && _l('Shift + 点击展开所有下级')}
+              popupPlacement="bottom"
+            >
+              <TreeExpandIcon
+                onClick={e => {
+                  if (isFunction(actions.updateTreeNodeExpansion)) {
+                    actions.updateTreeNodeExpansion(row, { expandAll: e.shiftKey, forceUpdate: e.shiftKey });
+                  }
+                  delete window[`sheetTableHighlightRow${tableId}`];
+                }}
+              >
+                {expandShowAsPlus ? (
+                  <CollapseExpandButton folded={treeNodeData.folded} />
+                ) : (
+                  <i className={cx('icon-default icon icon-arrow-down', { folded: treeNodeData.folded })} />
+                )}
+              </TreeExpandIcon>
+            </Tooltip>
+          )}
+          {treeNodeData.loading && (
+            <TreeLoadingIcon>
+              <i className="icon icon-loading_button" />
+            </TreeLoadingIcon>
+          )}
+          <span className="Gray_9e">{(treeNodeData.levelList || []).join('.')}</span>
+        </TreeExpandCell>
+        {cell}
+        {addChildControl && allowAdd && cellEditable && controlState(addChildControl).editable && (
+          <Tooltip mouseEnterDelay={0.6} text={_l('添加子记录')} popupPlacement="bottom">
+            <AddChildBtn
+              className={cx('addChildBtn hoverShow ThemeHoverColor3', tableType)}
+              style={{ right: tableType === 'classic' || !(lineEditable && cellEditable) ? 8 : 36 }}
+              onClick={() => {
+                import('worksheet/common/newRecord/addRecord').then(addRecord => {
+                  addRecord.default({
+                    worksheetId: addChildControl.dataSource,
+                    masterRecord: {
+                      rowId: row.rowid,
+                      controlId: addChildControl.controlId,
+                      worksheetId,
+                    },
+                    defaultRelatedSheet: {
+                      worksheetId,
+                      relateSheetControlId: addChildControl.controlId,
+                      value: {
+                        sid: row.rowid,
+                        sourcevalue: JSON.stringify(row),
+                        type: 8,
+                      },
+                    },
+                    directAdd: true,
+                    showFillNext: true,
+                    onAdd: record => {
+                      if (record) {
+                        if (isFunction(actions.updateTreeNodeExpansion)) {
+                          actions.updateTreeNodeExpansion(row, { forceUpdate: true });
+                        }
+                      }
+                    },
+                  });
+                });
+              }}
+            >
+              <i className="icon icon-add" />
+            </AddChildBtn>
+          </Tooltip>
+        )}
+      </CellCon>
+    );
+  }
+  return cell;
 }
 
 export default Cell;

@@ -318,7 +318,7 @@ export default class FindSystem extends Component {
                 onClick={checked => this.updateSource({ relation: !checked })}
               />
             </div>
-            <div className="mLeft25 Gray_9e">
+            <div className="mLeft25 Gray_75">
               {_l(
                 '包含人员的直属上司、直接下属、所有下属；如果您的使用场景无需汇报关系相关信息，推荐不勾选以提升您的查询效率',
               )}

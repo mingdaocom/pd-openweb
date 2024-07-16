@@ -229,36 +229,37 @@ export default class CoverSetting extends React.Component {
               </div>
             </CoverSettingCon>
           </div>
-          {!!handleChangeCoverWidth && (
-            <div className="mTop24">
-              <div className="title Font13 bold">
-                {VIEW_DISPLAY_TYPE.gallery === String(viewType) ? _l('卡片最小宽度') : _l('卡片宽度')}
-              </div>
-              <div className="Relative navWidth mTop8">
-                <Input
-                  type="number"
-                  manualRef={ref => (this.input = { current: ref })}
-                  className="flex placeholderColor w100 pRight30"
-                  value={cardwidth}
-                  placeholder={_l('请输入')}
-                  onChange={value => {
-                    this.setState({
-                      cardwidth: value,
-                    });
-                  }}
-                  onKeyDown={e => {
-                    if (e.keyCode === 13) {
+          {!!handleChangeCoverWidth &&
+            ![VIEW_DISPLAY_TYPE.detail, VIEW_DISPLAY_TYPE.map].includes(String(viewType)) && (
+              <div className="mTop24">
+                <div className="title Font13 bold">
+                  {VIEW_DISPLAY_TYPE.gallery === String(viewType) ? _l('卡片最小宽度') : _l('卡片宽度')}
+                </div>
+                <div className="Relative navWidth mTop8">
+                  <Input
+                    type="number"
+                    manualRef={ref => (this.input = { current: ref })}
+                    className="flex placeholderColor w100 pRight30"
+                    value={cardwidth + ''}
+                    placeholder={_l('请输入')}
+                    onChange={value => {
+                      this.setState({
+                        cardwidth: value,
+                      });
+                    }}
+                    onKeyDown={e => {
+                      if (e.keyCode === 13) {
+                        this.onChangeWidth(e);
+                      }
+                    }}
+                    onBlur={e => {
                       this.onChangeWidth(e);
-                    }
-                  }}
-                  onBlur={e => {
-                    this.onChangeWidth(e);
-                  }}
-                />
-                <span className="Absolute unit Gray_9e">px</span>
+                    }}
+                  />
+                  <span className="Absolute unit Gray_9e">px</span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </SettingCon>
       </div>
     );

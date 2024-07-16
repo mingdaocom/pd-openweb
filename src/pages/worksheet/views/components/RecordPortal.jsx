@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { string } from 'prop-types';
-import { createPortal, findDOMNode } from 'react-dom';
+import { createPortal } from 'react-dom';
 import { useEffect } from 'react';
 import _ from 'lodash';
 

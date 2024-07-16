@@ -2,7 +2,7 @@ import React from 'react';
 import { Icon, SvgIcon } from 'ming-ui';
 import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
 import { generateRandomPassword, addBehaviorLog } from 'src/util';
-import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+import { getAppOrItemColor } from 'src/pages/AppHomepage/Dashboard/utils.js';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -51,7 +51,7 @@ const AppItemWrap = styled.div`
 `;
 
 export default function ApplicationItem(props) {
-  const { data = {}, direction = 'vertical', ...rest } = props;
+  const { data = {}, direction = 'vertical', myPlatformLang, ...rest } = props;
   const {
     id,
     createType,
@@ -66,9 +66,7 @@ export default function ApplicationItem(props) {
     fixed,
     isGoodsStatus,
     isNew,
-    name,
     type,
-    itemName,
     itemId,
     itemUrl,
     sectionId,
@@ -77,6 +75,8 @@ export default function ApplicationItem(props) {
   const black = '#1b2025' === navColor;
   const light = [lightColor, '#ffffff', '#f5f6f7'].includes(navColor);
   const isUpgrade = appStatus === 4;
+  const name = _.get(_.find(myPlatformLang, { key: id }), 'value') || data.name;
+  const itemName = _.get(_.find(myPlatformLang, { key: itemId }), 'value') || data.itemName;
 
   const { className, index, iconSize, radius = 40 } = rest;
 
@@ -108,12 +108,12 @@ export default function ApplicationItem(props) {
       >
         <div
           className="iconWrap"
-          style={{ backgroundColor: !!type ? getRgbaByColor(navColor || iconColor, 0.08) : navColor || iconColor }}
+          style={{ backgroundColor: !!type ? getAppOrItemColor(data, true).bg : getAppOrItemColor(data).bg }}
         >
           {iconUrl ? (
             <SvgIcon
               url={!!type ? itemUrl : iconUrl}
-              fill={!!type ? navColor || iconColor : black || light ? iconColor : '#fff'}
+              fill={!!type ? getAppOrItemColor(data, true).iconColor : getAppOrItemColor(data).iconColor}
               size={iconSize || 30}
               addClassName="mTop7"
             />
@@ -157,9 +157,17 @@ export default function ApplicationItem(props) {
           onClick ? onClick() : window.mobileNavigateTo(`/mobile/app/${id}`);
         }}
       >
-        <div className="myAppItemDetail TxtCenter Relative" style={{ backgroundColor: navColor || iconColor }}>
+        <div
+          className="myAppItemDetail TxtCenter Relative"
+          style={{ backgroundColor: !!type ? getAppOrItemColor(data, true).bg : getAppOrItemColor(data).bg }}
+        >
           {iconUrl ? (
-            <SvgIcon url={iconUrl} fill={black || light ? iconColor : '#fff'} size={32} addClassName="mTop12" />
+            <SvgIcon
+              url={!!type ? itemUrl : iconUrl}
+              fill={!!type ? getAppOrItemColor(data, true).iconColor : getAppOrItemColor(data).iconColor}
+              size={32}
+              addClassName="mTop12"
+            />
           ) : (
             <Icon icon={icon} className="Font30" />
           )}

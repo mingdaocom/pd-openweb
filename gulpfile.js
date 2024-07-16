@@ -8,7 +8,6 @@ const generate = require('./CI/generate');
 const serve = require('./CI/serve');
 const webpackConfig = require('./CI/webpack.config');
 const webpackConfigForMdFunction = require('./CI/webpack.mdfunction.config');
-const getWebpackSingleConfig = require('./CI/webpack.single.config');
 const { webpackTaskFactory, findEntryMap, uploadFunctionFileToWorksheet } = require('./CI/utils');
 require('./locale/gulplang');
 const isProduction = process.env.NODE_ENV === 'production';
@@ -41,13 +40,13 @@ gulp.task('server:production', done => {
 /** webpack 构建任务 */
 gulp.task(
   'webpack',
-  webpackTaskFactory(merge(webpackConfig, { entry: findEntryMap(isProduction ? 'index' : undefined) }), false),
+  webpackTaskFactory(merge(webpackConfig(), { entry: findEntryMap(isProduction ? 'index' : undefined) }), false),
 );
-gulp.task('webpack:watch', webpackTaskFactory(merge(webpackConfig, { entry: findEntryMap() }), true));
+gulp.task('webpack:watch', webpackTaskFactory(merge(webpackConfig(), { entry: findEntryMap() }), true));
 
 gulp.task(
   'singleEntryWebpack',
-  webpackTaskFactory(merge(getWebpackSingleConfig('single'), { entry: findEntryMap('single') }), false),
+  webpackTaskFactory(merge(webpackConfig('single'), { entry: findEntryMap('single') }), false),
 );
 
 /** MdFunction 库构建 */

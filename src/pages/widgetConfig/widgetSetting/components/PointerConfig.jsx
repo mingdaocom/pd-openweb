@@ -129,7 +129,7 @@ export default function PointConfig({ data = {}, onChange }) {
           checked={dotformat === '1'}
           onClick={checked => onChange(handleAdvancedSettingChange(data, { dotformat: checked ? '0' : '1' }))}
         >
-          <span style={{ marginRight: '4px' }}>{_l('省略末尾的0')}</span>
+          <span style={{ marginRight: '4px' }}>{_l('省略末尾的 0')}</span>
           <Tooltip
             title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')}
           >

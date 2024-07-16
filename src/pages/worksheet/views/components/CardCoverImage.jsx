@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
@@ -161,9 +161,9 @@ export default function CardCoverImage(props) {
   const { coverCid, coverType } = coverSetting;
   const { coverposition = '0', opencover } = getAdvanceSetting(coverSetting); //opencover 空(默认没key)或者1：允许 2：不允许
   const position = COVER_IMAGE_POSITION[coverposition];
-
+  const [isErr, setIsErr] = useState(false);
   if (!coverCid) return null;
-  if (!isGalleryView && !isHierarchyView && position !== 'left' && !coverImage && type !== 47) return null;
+  if (!isGalleryView && !isHierarchyView && position !== 'left' && !coverImage && !ext && type !== 47) return null;
   // 嵌入字段iframe展示
   const isIframeCover = isIframeControl(coverData);
   const previewAttachment = e => {
@@ -231,14 +231,19 @@ export default function CardCoverImage(props) {
 
   const getCover = () => {
     const isMobile = browserIsMobile();
-    if (!coverImage) {
+    if (!coverImage && !ext) {
       return (
         <div className={cx('coverWrap', 'emptyCoverWrap')}>
           <img src={emptyCover} />
         </div>
       );
     }
-    if (coverImage) {
+    const img = new Image();
+    img.src = coverImage;
+    img.onerror = () => {
+      setIsErr(true);
+    };
+    if (coverImage && !isErr) {
       return (
         <div className={cx('coverWrap', '')} onClick={previewAttachment} style={getStyle()}>
           {allAttachments.length > 1 && <div className="coverCount">{allAttachments.length}</div>}

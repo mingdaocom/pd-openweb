@@ -36,9 +36,11 @@ export const OPERATION_LOG_ACTION = {
   8: _l('转审'),
   9: _l('添加审批人'),
   10: _l('被移除'),
+  13: _l('撤回后重新发起'),
   16: _l('审批前加签'),
   17: _l('通过申请并加签'),
   18: _l('修改申请内容'),
+  19: _l('撤回后重新发起'),
   22: _l('无需审批'),
 };
 
@@ -150,10 +152,22 @@ export const APPROVAL_POSITION_OPTION = [
   },
 ];
 
+export const DefaultNameWidth = 80;
+
 export const TitleFont = {
-  12: { fontSize: 15 },
-  16: { fontSize: 18 },
-  18: { fontSize: 21 },
+  small: 15,
+  middle: 18,
+  big: 21,
 };
 
-export const DefaultNameWidth = 80;
+export const RecordTitleFont = {
+  small: 18,
+  middle: 24,
+  big: 30,
+};
+
+export const FONT_STYLE = {
+  12: 'small',
+  16: 'middle',
+  18: 'big',
+};

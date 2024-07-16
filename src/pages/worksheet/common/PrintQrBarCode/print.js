@@ -12,7 +12,6 @@ import {
   QR_LABEL_SIZE,
   QR_LABEL_SIZES,
 } from './enum';
-import jsPDF from 'jspdf';
 import _ from 'lodash';
 
 function cutText(text, fontSize, width) {
@@ -142,14 +141,19 @@ export class QrPdf {
     this.layout = layout;
     this.config = config;
   }
-  render() {
-    if (this.printType === PRINT_TYPE.A4) {
-      return this.renderA4();
-    } else if (this.printType === PRINT_TYPE.QR) {
-      return this.renderQr();
-    } else if (this.printType === PRINT_TYPE.BAR) {
-      return this.renderBar();
-    }
+  async render() {
+    return new Promise(async resolve => {
+      import('jspdf').then(jsPDF => {
+        this.jsPDF = jsPDF.default;
+        if (this.printType === PRINT_TYPE.A4) {
+          resolve(this.renderA4());
+        } else if (this.printType === PRINT_TYPE.QR) {
+          resolve(this.renderQr());
+        } else if (this.printType === PRINT_TYPE.BAR) {
+          resolve(this.renderBar());
+        }
+      });
+    });
   }
   async renderQr() {
     const config = this.config;
@@ -161,7 +165,7 @@ export class QrPdf {
       width = QR_LABEL_SIZES[config.labelSize].width;
       height = QR_LABEL_SIZES[config.labelSize].height;
     }
-    this.doc = new jsPDF(this.config.layout === QR_LAYOUT.PORTRAIT ? 'p' : 'l', 'mm', [width, height], true);
+    this.doc = new this.jsPDF(this.config.layout === QR_LAYOUT.PORTRAIT ? 'p' : 'l', 'mm', [width, height], true);
     this.doc.setProperties({
       title: '打印二维码',
     });
@@ -196,7 +200,7 @@ export class QrPdf {
       width = BAR_LABEL_SIZES[config.labelSize].width;
       height = BAR_LABEL_SIZES[config.labelSize].height;
     }
-    this.doc = new jsPDF(this.config.layout === BAR_LAYOUT.PORTRAIT ? 'p' : 'l', 'mm', [width, height], true);
+    this.doc = new this.jsPDF(this.config.layout === BAR_LAYOUT.PORTRAIT ? 'p' : 'l', 'mm', [width, height], true);
     this.doc.setProperties({
       title: '打印条形码',
     });
@@ -221,11 +225,11 @@ export class QrPdf {
       isFirst = false;
     }
   }
-  renderA4() {
+  async renderA4() {
     const options = A4_OPTS;
     this.size = A4_SIZE;
     this.option = options[this.layout];
-    this.doc = new jsPDF('p', 'mm', 'a4', true);
+    this.doc = new this.jsPDF('p', 'mm', 'a4', true);
     this.doc.setProperties({
       title: '打印二维码',
     });

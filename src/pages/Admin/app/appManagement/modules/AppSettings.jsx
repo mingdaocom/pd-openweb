@@ -167,7 +167,7 @@ export default class AppSettings extends React.Component {
                   <div className="mRight15 svgBox" style={{ backgroundColor: item.iconColor }}>
                     <SvgIcon url={item.iconUrl} fill="#fff" size={14} />
                   </div>
-                  <div className="flex ellipsis pRight10">{getTranslateInfo(item.appId, item.appId).name || item.appName}</div>
+                  <div className="flex ellipsis pRight10">{getTranslateInfo(item.appId, null, item.appId).name || item.appName}</div>
                   <span className={cx('icon-info mLeft8', { Hidden: !item.relation })}></span>
                 </div>
                 <div className="singleItemRight">

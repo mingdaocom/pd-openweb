@@ -51,7 +51,7 @@ const Wrapper = styled.div`
 `;
 
 export default function RecentApps(props) {
-  const { projectId, onMarkApp, recentApps, recentAppItems, dashboardColor, loading, currentTheme } = props;
+  const { projectId, onMarkApp, recentApps, appLang, recentAppItems, dashboardColor, loading, currentTheme } = props;
   const [currentTab, setCurrentTab] = useState('app');
 
   const tabs = [
@@ -85,6 +85,7 @@ export default function RecentApps(props) {
         <RecentOrCollectAppList
           projectId={projectId}
           apps={currentTab === 'app' ? recentApps : recentAppItems}
+          appLang={appLang}
           onMarkApp={onMarkApp}
           loading={loading}
         />

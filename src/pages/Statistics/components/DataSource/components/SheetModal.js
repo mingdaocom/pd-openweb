@@ -4,9 +4,10 @@ import { ConfigProvider, Select, Modal, Button, Tabs } from 'antd';
 import { Icon, Dropdown, LoadDiv, SvgIcon } from 'ming-ui';
 import sheetApi from 'src/api/worksheet';
 import homeAppApi from 'src/api/homeApp';
+import appManagementApi from 'src/api/appManagement';
 import syncTaskApi from 'src/pages/integration/api/syncTask';
-import { getTranslateInfo } from 'src/util';
-import { canEditApp } from 'worksheet/redux/actions/util';
+import { getTranslateInfo, getFeatureStatus } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'worksheet/constants/enum';
 import styled from 'styled-components';
 
@@ -15,6 +16,9 @@ const Wrap = styled.div`
     margin-bottom: 0 !important;
     &::before {
       border-bottom: none !important;
+    }
+    .ant-tabs-tab-active .ant-tabs-tab-btn {
+      font-weight: bold;
     }
   }
   .ant-tabs-content {
@@ -55,8 +59,8 @@ const Wrap = styled.div`
     }
   }
   .iconWrap {
-    width: 120px;
-    height: 120px;
+    width: 110px;
+    height: 110px;
     border-radius: 50%;
     justify-content: center;
     background: #f5f5f5;
@@ -69,41 +73,46 @@ export default class SheetModal extends Component {
     this.state = {
       myApps: [],
       sheets: [],
+      sheetsLoading: true,
       aggregationSheets: [],
+      aggregationSheetsLoading: true,
       searchValue: '',
+      activeKey: props.appType === 2 ? 'polymerizationSheet' : 'workSheet',
+      appId: props.appId,
       views: props.worksheetInfo.views,
       viewsData: {},
       viewId: props.viewId,
       newWorksheetId: props.worksheetInfo.worksheetId,
-      appType: props.appType
+      appType: props.appType,
+
     };
+    const featureType = getFeatureStatus(props.projectId, VersionProductType.aggregation);
+    this.hideAggregation =  md.global.Config.IsLocal && !md.global.Config.EnableDataPipeline || !featureType || featureType === '2';
   }
   componentDidMount() {
+    const { activeKey, newWorksheetId } = this.state;
     const { appId } = this.props;
     this.getMyApps();
-    this.getSheets(appId);
-    // this.getAggregationSheetList(appId);
+    if (activeKey === 'workSheet') {
+      this.getSheets(appId);
+      newWorksheetId && this.getWorksheetViews(newWorksheetId);
+    } else {
+      !this.hideAggregation && this.getAggregationSheetList(appId);
+    }
   }
-  componentWillReceiveProps(nextProps) {}
   getMyApps() {
-    const { projectId } = this.props;
-    homeAppApi.getAllHomeApp().then(data => {
-      let apps = [];
-      if (projectId) {
-        apps = _.flatten(
-          data.validProject.filter(project => project.projectId === projectId).map(project => project.projectApps),
-        );
-      } else {
-        apps = data.aloneApps;
-      }
+    const { appId, projectId } = this.props;
+    appManagementApi.getManagerApps({
+      projectId
+    }).then(data => {
       this.setState({
-        myApps: apps
-          .filter(app => canEditApp(app.permissionType) && !app.isLock)
-          .map(app => ({ text: app.name, value: app.id })),
+        myApps: data
+          .map(app => ({ text: appId === app.appId ? `${app.appName} (${_l('本应用')})` : app.appName, value: app.appId })),
       });
     });
   }
   getSheets(appId) {
+    this.setState({ sheetsLoading: true });
     homeAppApi
       .getWorksheetsByAppId({
         appId,
@@ -112,21 +121,26 @@ export default class SheetModal extends Component {
       .then(data => {
         this.setState({
           sheets: data,
+          sheetsLoading: false
         });
       });
   }
   getAggregationSheetList(appId) {
     const { projectId } = this.props;
+    this.setState({ aggregationSheetsLoading: true });
     syncTaskApi.list({
       projectId,
       appId,
       pageNo: 0,
       pageSize: 9999,
       taskType: 1
+    }, {
+      isAggTable: true
     }).then(data => {
       const { content } = data;
       this.setState({
-        aggregationSheets: content.filter(n => n.taskStatus === 'RUNNING')
+        aggregationSheets: content.filter(n => n.aggTableTaskStatus !== 0 && n.taskStatus !== 'ERROR'),
+        aggregationSheetsLoading: false
       });
     });
   }
@@ -167,55 +181,30 @@ export default class SheetModal extends Component {
     if (viewId || viewId === null) {
       this.props.onChange(newWorksheetId, viewId, appType);
     } else {
-      alert(_l('请选择一个视图'), 3);
+      alert(_l('请选择一个工作表和视图'), 3);
     }
   };
   renderWorkSheetItem(sheet) {
     const { newWorksheetId, viewId, viewsData } = this.state;
-    const { views = [], show, loading } = viewsData[sheet.workSheetId] || {};
+    const { views = [], show } = viewsData[sheet.workSheetId] || {};
     const isActive = newWorksheetId === sheet.workSheetId;
-
-    const renderView = view => {
-      const id = VIEW_DISPLAY_TYPE[view.viewType || 0];
-      const { icon, color } = _.find(VIEW_TYPE_ICON, { id }) || {};
-      const isActiveView = isActive && viewId === view.viewId;
-      return (
-        <div
-          className={cx('viewItem pointer flexRow alignItemsCenter', { active: isActiveView })}
-          key={view.viewId}
-          onClick={() => {
-            this.setState({
-              newWorksheetId: sheet.workSheetId,
-              viewId: view.viewId,
-              appType: 1
-            });
-          }}
-        >
-          <Icon className={cx('Font18 mRight8', { Visibility: view.viewId === null })} icon={icon} style={{ color }} />
-          <span className={cx('flex', { ThemeColor: isActiveView })}>{view.name}</span>
-          {isActiveView && <Icon className="ThemeColor Font18" icon="done" />}
-        </div>
-      );
-    };
-
     return (
       <Fragment key={sheet.workSheetId}>
         <div
-          className="sheetItem pointer flexRow alignItemsCenter"
+          className="sheetItem pointer flexRow alignItemsCenter pLeft20"
           onClick={() => {
-            this.getWorksheetViews(sheet.workSheetId);
+            this.setState({
+              newWorksheetId: sheet.workSheetId,
+              viewId: null,
+              appType: 1
+            }, () => {
+              this.getWorksheetViews(sheet.workSheetId);
+            });
           }}
         >
-          <Icon className="Gray_9e mRight8" icon={show ? 'arrow-down' : 'arrow-right-tip'} />
-          <SvgIcon className="svgIconWrap" url={sheet.iconUrl} fill={isActive || show ? '#2196f3' : '#9e9e9e'} size={18} />
-          <span className={cx('bold mLeft8', { ThemeColor: isActive || show })}>{sheet.workSheetName}</span>
-          {loading && <LoadDiv className="mLeft5" size="small" />}
+          <SvgIcon className="svgIconWrap" url={sheet.iconUrl} fill={isActive ? '#2196f3' : '#9e9e9e'} size={18} />
+          <span className={cx('bold mLeft8 ellipsis', { ThemeColor: isActive })}>{sheet.workSheetName}</span>
         </div>
-        {!!views.length && show && (
-          <div className="viewsWrap">
-            {[{ name: _l('无（所有记录）'), viewId: null }].concat(views).map(view => renderView(view))}
-          </div>
-        )}
       </Fragment>
     );
   }
@@ -234,8 +223,8 @@ export default class SheetModal extends Component {
             });
           }}
         >
-          <Icon className="Font20 Gray_9e" icon="aggregate_table" />
-          <span className={cx('bold mLeft8 flex', { ThemeColor: isActive })}>{sheet.name}</span>
+          <Icon className={cx('Font20', isActive ? 'ThemeColor' : 'Gray_9e')} icon="aggregate_table" />
+          <span className={cx('bold mLeft8 ellipsis flex', { ThemeColor: isActive })}>{sheet.name}</span>
           {isActive && <Icon className="ThemeColor Font18" icon="done" />}
         </div>
       </Fragment>
@@ -257,8 +246,8 @@ export default class SheetModal extends Component {
     );
   }
   renderContent() {
-    const { worksheetInfo, appId, projectId, sourceType, ownerId } = this.props;
-    const { myApps, sheets, views, newWorksheetId, searchValue, viewId, aggregationSheets } = this.state;
+    const { worksheetInfo, projectId, sourceType, ownerId } = this.props;
+    const { appId, myApps, sheets, sheetsLoading, views, newWorksheetId, searchValue, viewId, aggregationSheets, aggregationSheetsLoading, appType, activeKey } = this.state;
     return (
       <div>
         {sourceType ? (
@@ -275,38 +264,76 @@ export default class SheetModal extends Component {
               defaultValue={appId}
               data={myApps}
               onChange={value => {
-                this.getSheets(value);
+                this.setState({ appId: value, sheets: [], aggregationSheets: [] });
+                if (activeKey === 'workSheet') {
+                  this.getSheets(value);
+                } else {
+                  this.getAggregationSheetList(value);
+                }
               }}
             />
             <Wrap>
-              <Tabs className="mTop10" defaultActiveKey="1" centered={true}>
+              <Tabs
+                className="mTop10"
+                activeKey={activeKey}
+                onTabClick={key => {
+                  if (key === 'workSheet') {
+                    !sheets.length && this.getSheets(appId);
+                  } else {
+                    !aggregationSheets.length && this.getAggregationSheetList(appId);
+                  }
+                  this.setState({ activeKey: key });
+                }}
+                centered={true}
+              >
                 <Tabs.TabPane tab={_l('工作表')} key="workSheet">
                   {this.renderSearch()}
-                  <div className="workSheetListWrap">
-                    {sheets
-                      .filter(item => item.workSheetName.includes(searchValue))
-                      .map(item => this.renderWorkSheetItem(item))}
-                  </div>
+                  {sheetsLoading ? (
+                    <LoadDiv className="mTop10 mBottom10" />
+                  ) : (
+                    <div className="workSheetListWrap">
+                      {sheets
+                        .filter(item => item.workSheetName.includes(searchValue))
+                        .map(item => this.renderWorkSheetItem(item))}
+                    </div>
+                  )}
                 </Tabs.TabPane>
-                {/*
-                <Tabs.TabPane tab={_l('聚合表')} key="polymerizationSheet">
-                  {this.renderSearch()}
-                  <div className="workSheetListWrap">
-                    {aggregationSheets.length ? (
-                      aggregationSheets
-                        .filter(item => item.name.includes(searchValue))
-                        .map(item => this.renderAggregationSheetItem(item))
+                {!this.hideAggregation && (
+                  <Tabs.TabPane tab={_l('聚合表')} key="polymerizationSheet">
+                    {this.renderSearch()}
+                    {aggregationSheetsLoading ? (
+                      <LoadDiv className="mTop10 mBottom10" />
                     ) : (
-                      <div className="flexColumn alignItemsCenter justifyContentCenter h100">
-                        <div className="iconWrap flexRow alignItemsCenter justifyContentCenter">
-                          <Icon className="Font50 Gray_9e" icon="table" />
-                        </div>
-                        <span className="Font17 Gray_9e mTop10">{_l('将表单或多表数据预处理为聚合数据')}</span>
+                      <div className="workSheetListWrap">
+                        {aggregationSheets.length ? (
+                          aggregationSheets
+                            .filter(item => (item.name || '').includes(searchValue))
+                            .map(item => this.renderAggregationSheetItem(item))
+                        ) : (
+                          <div className="flexColumn alignItemsCenter justifyContentCenter h100">
+                            <div className="iconWrap flexRow alignItemsCenter justifyContentCenter">
+                              <Icon className="Font50 Gray_9e" icon="aggregate_table" />
+                            </div>
+                            <span className="Font14 Gray_9e mTop20 mBottom24">{_l('将表单或多表数据预处理为聚合数据')}</span>
+                            {getFeatureStatus(projectId, VersionProductType.aggregation) == '1' && (
+                              <ConfigProvider autoInsertSpaceInButton={false}>
+                                <Button
+                                  type="primary"
+                                  onClick={() => {
+                                    window.open(`/app/${this.state.appId}/settings/aggregations`);
+                                  }}
+                                  style={{ borderRadius: 20 }}
+                                >
+                                  {_l('创建')}
+                                </Button>
+                              </ConfigProvider>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
-                  </div>
-                </Tabs.TabPane>
-                */}
+                  </Tabs.TabPane>
+                )}
               </Tabs>
             </Wrap>
           </Fragment>
@@ -324,12 +351,12 @@ export default class SheetModal extends Component {
               >
                 {!ownerId && (
                   <Select.Option className="selectOptionWrapper" value={null}>
-                    {_l('无（所有记录）')}
+                    {_l('所有记录')}
                   </Select.Option>
                 )}
                 {(views || []).map(item => (
                   <Select.Option className="selectOptionWrapper" key={item.viewId} value={item.viewId}>
-                    {getTranslateInfo(appId, item.viewId).name || item.name}
+                    {getTranslateInfo(appId, null, item.viewId).name || item.name}
                   </Select.Option>
                 ))}
               </Select>
@@ -340,17 +367,47 @@ export default class SheetModal extends Component {
     );
   }
   renderFooter() {
+    const { appId, sourceType, projectId } = this.props;
+    const { newWorksheetId, sheets, viewId, viewsData, activeKey } = this.state;
+    const { views = [], show, loading } = viewsData[newWorksheetId] || {};
     return (
-      <div className="mTop20 mBottom10 pRight8">
+      <div className="mTop20 mBottom10 pLeft8 pRight8 flexRow">
+        <div className="flexRow flex alignItemsCenter">
+          {sourceType && newWorksheetId && _.find(sheets, { workSheetId: newWorksheetId }) && activeKey === 'workSheet' && (
+            loading ? (
+              <LoadDiv className="mLeft0" size="small" />
+            ) : (
+              <Fragment>
+                <div className="mRight10">{_l('视图')}</div>
+                <Select
+                  className="chartSelect leftAlign"
+                  style={{ width: 200 }}
+                  value={viewId || null}
+                  suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                  onChange={viewId => {
+                    this.setState({ viewId });
+                  }}
+                >
+                  <Select.Option className="selectOptionWrapper" value={null}>
+                    {_l('所有记录')}
+                  </Select.Option>
+                  {(views || []).map(item => (
+                    <Select.Option className="selectOptionWrapper" key={item.viewId} value={item.viewId}>
+                      {getTranslateInfo(appId, null, item.viewId).name || item.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Fragment>
+            )
+          )}
+          {activeKey === 'polymerizationSheet' && getFeatureStatus(projectId, VersionProductType.aggregation) == '1' && (
+            <div className="flexRow alignItemsCenter ThemeColor pointer" onClick={() => window.open(`/app/${this.state.appId}/settings/aggregations`)}>
+              <Icon icon="add" className="mRight2" />
+              {_l('新建聚合表')}
+            </div>
+          )}
+        </div>
         <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button
-            type="link"
-            onClick={() => {
-              this.props.onChangeDialogVisible(false);
-            }}
-          >
-            {_l('取消')}
-          </Button>
           <Button type="primary" onClick={this.handleSave}>
             {_l('确认')}
           </Button>

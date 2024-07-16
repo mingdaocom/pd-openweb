@@ -8,13 +8,14 @@ import {
   formatYaxisList,
   getMinValue,
   getChartColors,
-  getAuxiliaryLineConfig
+  getAuxiliaryLineConfig,
+  getEmptyChartData
 } from './common';
 import { Icon } from 'ming-ui';
 import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
-import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { formatSummaryName, isFormatNumber, formatterTooltipTitle } from 'statistics/common';
 import { Dropdown, Menu } from 'antd';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 
 const mergeChartData = (data, contrastData) => {
@@ -142,7 +143,7 @@ export default class extends Component {
     }
 
     const base = {
-      data: mergeData,
+      data: mergeData.length ? mergeData : getEmptyChartData(reportData),
       appendPadding: isVertical ? 10 : [10, 20, 10, 40],
       layout: isVertical ? 'vertical' : null,
       xField: 'originalId',
@@ -241,7 +242,7 @@ export default class extends Component {
           if (linkageMatch.value === data.originalId) {
             return color;
           } else {
-            return tinycolor(color).setAlpha(0.3).toRgbString();
+            return new TinyColor(color).setAlpha(0.3).toRgbString();
           }
         }
         return color;
@@ -257,6 +258,7 @@ export default class extends Component {
       tooltip: {
         shared: true,
         showMarkers: false,
+        title: formatterTooltipTitle(xaxes),
         formatter: (data) => {
           if (data['series-field-key'] === control.controlId) {
             const value = data[control.controlId] || 0;

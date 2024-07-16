@@ -4,8 +4,6 @@ import { FROM } from '../../../tools/config';
 import './style.less';
 import { getClassNameByExt } from 'src/util';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import task from './taskEntry';
-import calendar from 'src/pages/calendar/modules/calendarDetail';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -48,38 +46,20 @@ export default class List extends Component {
       return;
     }
 
-    /**
-     * 只有任务、日程、文件 、他表字段才做弹层预览处理
-     */
-    if (![1, 3, 4, 7].includes(type)) return;
+    if (type !== 4) return;
 
     // 拦截鼠标左键点击事件
     if (!e.button) {
       e.preventDefault();
 
-      const moduleId = (_.get(item, 'link') || '').split('_')[1] || '';
-      // 任务
-      if (type === 1) {
-        task(moduleId);
-      }
-      // 日程
-      if ([3, 7].includes(type)) {
-        item.calendarId = moduleId;
-        item.recurTime = item.sidext || '';
-        calendar({ calendarId: moduleId, recurTime: item.sidext || '' });
-      }
+      const attachmentId = _.last((_.get(item, 'link') || '').split('/')) || '';
 
-      // 附件
-      if (type === 4) {
-        const attachmentId = _.last((_.get(item, 'link') || '').split('/')) || '';
-
-        previewAttachments({
-          index: 0,
-          attachments: [{ previewAttachmentType: 'KC_ID', refId: attachmentId }],
-          showThumbnail: true,
-          hideFunctions: ['editFileName'],
-        });
-      }
+      previewAttachments({
+        index: 0,
+        attachments: [{ previewAttachmentType: 'KC_ID', refId: attachmentId }],
+        showThumbnail: true,
+        hideFunctions: ['editFileName'],
+      });
     }
   };
 

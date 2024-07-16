@@ -1,8 +1,8 @@
-import React, { useState, useEffect, Fragment } from 'react';
-import { string } from 'prop-types';
+import React from 'react';
 import { Dialog, Button } from 'ming-ui';
 import styled from 'styled-components';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
+
 const VerifyModifyDialogWrap = styled.div`
   p {
     color: #757575;
@@ -41,18 +41,18 @@ export default function VerifyModifyDialog({ desc, cancelText, onClose, onOk, on
 }
 
 export function verifyModifyDialog(props) {
-  const $container = document.createElement('div');
-  document.body.appendChild($container);
+  const div = document.createElement('div');
+
+  document.body.appendChild(div);
+
+  const root = createRoot(div);
+
   function handleClose() {
-    const timer = setTimeout(() => {
-      const isHaveComponent = ReactDOM.unmountComponentAtNode($container);
-      if (isHaveComponent && $container.parentElement) {
-        $container.parentElement.removeChild($container);
-        clearTimeout(timer);
-      }
-    }, 0);
+    root.unmount();
+    document.body.removeChild(div);
   }
-  ReactDOM.render(
+
+  root.render(
     <VerifyModifyDialog
       onClose={() => {
         handleClose();
@@ -67,7 +67,6 @@ export function verifyModifyDialog(props) {
       onCancel={handleClose}
       {...props}
     />,
-    $container,
   );
   return handleClose;
 }

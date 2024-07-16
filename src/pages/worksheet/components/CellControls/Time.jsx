@@ -89,12 +89,14 @@ export default class Date extends React.Component {
       error,
       updateEditingStatus,
       onClick,
+      fromEmbed,
     } = this.props;
     const { value } = this.state;
     let cellPopupContainer = popupContainer;
     if (
       tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST ||
-      tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD
+      tableFromModule === WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD ||
+      fromEmbed
     ) {
       cellPopupContainer = () => document.body;
     }

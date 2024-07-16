@@ -102,8 +102,12 @@ export function sortDataByCustomItems(data, view = {}, controls = []) {
   const viewControls = _.find(controls, c => c.controlId === view.viewControl);
   if (!_.isEmpty(customItems) && viewControls) {
     const sortIds = customItems.map(i => {
-      const itemVal = safeParse(i);
-      return _.includes([9, 10, 11, 28], viewControls.type) ? i : itemVal.id || itemVal.accountId;
+      if (_.includes([9, 10, 11, 28], viewControls.type)) {
+        return i;
+      } else {
+        const itemVal = safeParse(i);
+        return itemVal.id || itemVal.accountId;
+      }
     });
     const keyByOrder = new Map(sortIds.map((t, i) => [t, i]));
     const sortOriginData = _.sortBy(data, 'sort');

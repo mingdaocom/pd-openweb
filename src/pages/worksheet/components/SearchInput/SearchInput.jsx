@@ -39,10 +39,13 @@ export default class SearchInput extends Component {
       this.setState({ value: '', isFocus: false });
     }
   }
+  clear() {
+    this.setState({ value: '' });
+  }
   render() {
     const { inputWidth, focusedClass, style, searchIcon } = this.props;
     const { value, isFocus } = this.state;
-    const { className, keyWords, onOk, onClear, onFocus, onBlur, placeholder } = this.props;
+    const { className, keyWords, onOk, onClear, onFocus, onBlur, placeholder, triggerWhenBlurWithEmpty } = this.props;
     return (
       <div
         className={cx(
@@ -106,10 +109,13 @@ export default class SearchInput extends Component {
               this.setState({ isFocus: true });
               onFocus();
             }}
-            onBlur={() => {
+            onBlur={e => {
               if (!value && !keyWords) {
                 this.setState({ isFocus: false });
                 onBlur();
+              }
+              if (triggerWhenBlurWithEmpty && e.target.value === '' && keyWords) {
+                onOk('');
               }
             }}
           />

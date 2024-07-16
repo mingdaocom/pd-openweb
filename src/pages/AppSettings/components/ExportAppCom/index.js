@@ -141,6 +141,7 @@ export default class ExportAppCom extends Component {
       <Fragment>
         <AppSettingHeader
           title={_l('导出')}
+          addIcon="import"
           addBtnName={_l('导出应用')}
           link="https://help.mingdao.com/application/import-export"
           description={_l(
@@ -187,9 +188,8 @@ export default class ExportAppCom extends Component {
               ) : (
                 <ScrollView onScrollEnd={this.onScrollEnd}>
                   {records.map(item => {
-                    const { operator, createTime, apps = [], downLoadUrl } = item;
+                    const { operator = {}, createTime, apps = [], downLoadUrl } = item;
                     const appNames = apps.map((v, i) => (i < apps.length - 1 ? v.appName + ';' : v.appName)).join('');
-
                     return (
                       <div className="row flexRow">
                         <div className="operator flexRow">

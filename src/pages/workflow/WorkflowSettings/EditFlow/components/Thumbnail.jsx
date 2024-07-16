@@ -1,10 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import domtoimage from 'dom-to-image';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import { Drawer } from 'antd';
 
 const thumbnailWidth = 240;
 const thumbnailHeight = 240;
+
+const Thumbnail = styled.div`
+  margin: 20px;
+`;
 
 const Box = styled.div`
   width: ${thumbnailWidth}px;
@@ -12,15 +16,13 @@ const Box = styled.div`
   background-color: #f5f5f9;
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.16);
   border-radius: 6px;
-  position: fixed;
-  left: 20px;
-  bottom: 20px;
   border: 5px solid transparent;
   box-sizing: initial;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: top center;
   overflow: hidden;
+  position: relative;
 `;
 
 const Frame = styled.div`
@@ -124,8 +126,9 @@ export default ({ visible, refreshPosition, refreshThumbnail }) => {
   useEffect(() => {
     document.addEventListener('mousemove', event => {
       if (!draggable.status) return;
-      dragElement.current.style.transform = `translateX(${event.clientX - draggable.x}px) translateY(${event.clientY -
-        draggable.y}px)`;
+      dragElement.current.style.transform = `translateX(${event.clientX - draggable.x}px) translateY(${
+        event.clientY - draggable.y
+      }px)`;
     });
 
     document.addEventListener('mouseup', () => {
@@ -141,46 +144,41 @@ export default ({ visible, refreshPosition, refreshThumbnail }) => {
     });
   }, []);
 
-  useEffect(
-    () => {
-      if (visible) {
-        if (isRefreshThumbnail) {
-          domtoimage.toPng(document.getElementsByClassName('workflowEditContent')[0]).then(function(url) {
-            setImgUrl(url);
-            setRefreshThumbnail(false);
-            setThumbnailPosition();
-          });
-        } else {
+  useEffect(() => {
+    if (visible) {
+      if (isRefreshThumbnail) {
+        domtoimage.toPng(document.getElementsByClassName('workflowEditContent')[0]).then(function (url) {
+          setImgUrl(url);
+          setRefreshThumbnail(false);
           setThumbnailPosition();
-        }
-      }
-    },
-    [visible, isRefreshThumbnail],
-  );
-
-  useEffect(
-    () => {
-      setRefreshThumbnail(true);
-    },
-    [refreshThumbnail],
-  );
-
-  useEffect(
-    () => {
-      if (visible && refreshPosition) {
+        });
+      } else {
         setThumbnailPosition();
       }
-    },
-    [refreshPosition],
-  );
+    }
+  }, [visible, isRefreshThumbnail]);
+
+  useEffect(() => {
+    setRefreshThumbnail(true);
+  }, [refreshThumbnail]);
+
+  useEffect(() => {
+    if (visible && refreshPosition) {
+      setThumbnailPosition();
+    }
+  }, [refreshPosition]);
 
   return (
-    <ReactCSSTransitionGroup
-      transitionName="thumbnailTransition"
-      transitionEnterTimeout={250}
-      transitionLeaveTimeout={250}
+    <Drawer
+      placement="left"
+      className="workflowThumbnail"
+      visible={visible}
+      closable={false}
+      mask={false}
+      bodyStyle={{ padding: 0 }}
+      width={290}
     >
-      {visible && (
+      <Thumbnail>
         <Box style={{ backgroundImage: `url(${imgUrl})` }} ref={thumbnailContainer} onClick={clickPosition}>
           <Frame
             style={{ width, height, left, top }}
@@ -194,7 +192,7 @@ export default ({ visible, refreshPosition, refreshThumbnail }) => {
             }}
           />
         </Box>
-      )}
-    </ReactCSSTransitionGroup>
+      </Thumbnail>
+    </Drawer>
   );
 };

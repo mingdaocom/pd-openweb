@@ -171,6 +171,11 @@ function PreviewTable(props) {
       }
     }
   });
+  useEffect(() => {
+    try {
+      tableRef.current.forceUpdate();
+    } catch (err) {}
+  }, [columnCount]);
   const cellWidth = getCellWidth(width, columnCount, showNumber);
   const fullTableCount = Math.ceil(height / 34);
   return (

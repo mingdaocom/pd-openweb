@@ -10,14 +10,15 @@ import {
   getChartColors,
   getAuxiliaryLineConfig,
   getControlMinAndMax,
-  getStyleColor
+  getStyleColor,
+  getEmptyChartData
 } from './common';
 import { Icon } from 'ming-ui';
 import { formatChartData as formatLineChartData } from './LineChart';
 import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
-import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { formatSummaryName, isFormatNumber, formatterTooltipTitle } from 'statistics/common';
 import { Dropdown, Menu } from 'antd';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 
 const getLineChartXAxis = (controlId, data) => {
@@ -249,7 +250,7 @@ export default class extends Component {
           if (linkageMatch.value === data.originalId) {
             return color;
           } else {
-            return tinycolor(color).setAlpha(0.3).toRgbString();
+            return new TinyColor(color).setAlpha(0.3).toRgbString();
           }
         }
         return color;
@@ -307,7 +308,7 @@ export default class extends Component {
     const topPadding = position === 'bottom' ? 20 : 15;
 
     const baseConfig = {
-      data: [data, lineData],
+      data: data.length || lineData.length ? [data, lineData] : [getEmptyChartData(reportData), []],
       appendPadding: [topPadding, 0, 5, 0],
       xField: 'name',
       yField: ['value', 'rightValue'],
@@ -375,6 +376,7 @@ export default class extends Component {
         },
       },
       tooltip: {
+        title: formatterTooltipTitle(xaxes),
         formatter: ({ value, rightValue, groupName }) => {
           const { name, id } = formatControlInfo(groupName);
           if (_.isNumber(value)) {
@@ -411,7 +413,7 @@ export default class extends Component {
               autoRotate: displaySetup.fontStyle ? true : false,
               autoHide: true,
               formatter: (name, item) => {
-                return xaxes.particleSizeType === 6 ? _l('%0时', name) : name;
+                return xaxes.particleSizeType === 6 && xaxes.showFormat === '0' ? _l('%0时', name) : name;
               },
             }
           : null,

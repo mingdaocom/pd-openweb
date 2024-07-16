@@ -89,7 +89,7 @@ export default function View(props) {
   const renderViewContent = view => {
     const data = _.find(translateData, { correlationId: view.viewId }) || {};
     const translateInfo = data.data || {};
-    const comparisonLangInfo = getTranslateInfo(app.id, view.viewId, comparisonLangData);
+    const comparisonLangInfo = getTranslateInfo(app.id, null, view.viewId, comparisonLangData);
 
     const handleSave = info => {
       onEditAppLang({

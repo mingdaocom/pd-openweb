@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Row, Col } from 'antd';
 import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors, getStyleColor } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
 const isMobile = browserIsMobile();
@@ -69,7 +69,7 @@ class ProgressChart extends Component {
     this.ProgressChart.render();
   }
   getComponentConfig(props) {
-    const { data = {}, yAxis, controlMinAndMax, isThumbnail, reportData } = props;
+    const { data, yAxis, controlMinAndMax, isThumbnail, reportData } = props;
     const { yaxisList, displaySetup, style } = reportData;
     const { showChartType, showNumber, colorRules } = displaySetup;
     const { showValueType = 1 } = style;
@@ -85,7 +85,7 @@ class ProgressChart extends Component {
       if (showValueType == 2) {
         return `${(percentValue * 100).toFixed(2)} %`;
       }
-      return `${formatrChartValue(data.value, false, yaxisList, null, false)}/${formatrChartValue(data.targetValue, false, yaxisList)}`;
+      return `${formatrChartValue(data.value, false, yaxisList, null, false)}/${formatrChartValue(data.targetValue || 0, false, yaxisList)}`;
     }
     const getColor = () => {
       if (_.isEmpty(rule)) {
@@ -111,7 +111,7 @@ class ProgressChart extends Component {
         height: size,
         autoFit: false,
         percent: percentValue,
-        color: [color, tinycolor(color).setAlpha(0.3).toString()],
+        color: [color || '#f1f1f1', color ? new TinyColor(color).setAlpha(0.3).toString() : '#f1f1f1'],
         innerRadius: 0.9,
         radius: 1,
         statistic: {
@@ -148,7 +148,7 @@ class ProgressChart extends Component {
         },
         theme: {
           styleSheet: {
-            brandColor: color,
+            brandColor: color || '#f1f1f1',
           },
         },
         wave: {
@@ -179,7 +179,7 @@ class ProgressChart extends Component {
       width: '100%',
       autoFit: true,
       percent: percentValue,
-      color: [color, tinycolor(color).setAlpha(0.3).toString()],
+      color: [color || '#f1f1f1', color ? new TinyColor(color).setAlpha(0.3).toString() : '#f1f1f1'],
     };
 
     return {
@@ -201,13 +201,13 @@ class ProgressChart extends Component {
         </div>
         <div className="Gray Font13">
           {displaySetup.showNumber && (
-            `${currentValueName}: ${formatrChartValue(data.value, false, yaxisList)}`
+            `${currentValueName}: ${formatrChartValue(data.value || 0, false, yaxisList, '', false)}`
           )}
           {displaySetup.showNumber && displaySetup.showDimension && (
             ' | '
           )}
           {displaySetup.showDimension && (
-            `${targetValueName}: ${formatrChartValue(data.targetValue, false, yaxisList)}`
+            `${targetValueName}: ${formatrChartValue(data.targetValue || 0, false, yaxisList, '', false)}`
           )}
         </div>
       </Fragment>
@@ -240,7 +240,8 @@ class ProgressChart extends Component {
 export default (props) => {
   const { themeColor, projectId, customPageConfig = {}, reportData } = props;
   const { chartColor, chartColorIndex = 1 } = customPageConfig;
-  const { map, yaxisList } = reportData;
+  const { map, yaxisList, config } = reportData;
+  const { targetList } = config;
   const styleConfig = reportData.style || {};
   const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
   const color = getChartColors(style, themeColor, projectId);
@@ -255,8 +256,8 @@ export default (props) => {
           <ProgressChart
             key={data.controlId}
             {...props}
-            color={color[index % color.length]}
-            data={map[data.controlId] || {}}
+            color={map[data.controlId] ? color[index % color.length] : null}
+            data={map[data.controlId] || { value: 0, targetValue: targetList[index] ? targetList[index].value : 0 }}
             controlMinAndMax={controlMinAndMax}
             yAxis={data}
           />

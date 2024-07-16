@@ -208,17 +208,13 @@ class ChatPanelHeader extends Component {
             <i className="icon-set_top" />
             <div className="menuItem-text">{isTop ? _l('取消置顶') : _l('置顶')}</div>
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
         {isGroup ? (
           <div className="menuItem ThemeBGColor3" onClick={this.handleUpdateGroupPushNotice.bind(this)}>
             {session.isGroup ? this.renderIcon() : undefined}
             <div className="menuItem-text">{session.isPushNotice ? _l('消息免打扰') : _l('允许提醒')}</div>
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
         {/* <div className="menuItem ThemeBGColor3" onClick={this.handleStick.bind(this)}>
           <i className="icon-text" />
           <div className="menuItem-text">{_l('字体大小')}</div>
@@ -229,9 +225,7 @@ class ChatPanelHeader extends Component {
             <i className="icon-group" />
             <div className="menuItem-text">{session.isPost ? _l('群组设置') : _l('聊天设置')}</div>
           </div>
-        ) : (
-          undefined
-        )}
+        ) : undefined}
       </div>
     );
   }
@@ -260,6 +254,7 @@ class ChatPanelHeader extends Component {
     const isSet = 'isSession' in session ? (session.groupId ? true : false) : true;
     const hideChat = md.global.SysSettings.forbidSuites.includes('6');
     // const isSet = session.groupId ? true : false;
+
     return (
       <div className="ChatPanel-header">
         <div className="title" title={name}>
@@ -267,9 +262,7 @@ class ChatPanelHeader extends Component {
             <Tooltip popupPlacement="top" text={<span>{_l('关闭消息免打扰')}</span>}>
               <i onClick={this.handleUpdateGroupPushNotice.bind(this)} className="icon-chat-bell-nopush" />
             </Tooltip>
-          ) : (
-            undefined
-          )}
+          ) : undefined}
           <span onClick={this.handleGoto.bind(this)} className="ThemeColor3 name">
             {name}
           </span>
@@ -277,15 +270,11 @@ class ChatPanelHeader extends Component {
             <Tooltip popupPlacement="top" text={<span>{_l('已设为官方群')}</span>}>
               <i className="icon-chat-vip"></i>
             </Tooltip>
-          ) : (
-            undefined
-          )}
+          ) : undefined}
           {isSet ? this.renderSetting() : undefined}
         </div>
         <div className="other" style={{ marginRight: isWindow ? 15 : 0 }}>
-          {isFileTrsnsfer ? (
-            undefined
-          ) : (
+          {isFileTrsnsfer ? undefined : (
             <div className={cx('search-wrapper', { 'hidden-wrapper': !searchVisible })}>
               <i onClick={this.handleSearch.bind(this)} className="icon-search ThemeColor3 iconHover" />
               <input
@@ -304,9 +293,7 @@ class ChatPanelHeader extends Component {
               <i onClick={this.handleSearchHidden.bind(this)} className="icon-delete ThemeColor3 iconHover" />
             </div>
           )}
-          {session.isGroup || isFileTrsnsfer || hideChat ? (
-            undefined
-          ) : (
+          {session.isGroup || isFileTrsnsfer || hideChat ? undefined : (
             <Tooltip text={<span>{_l('发起聊天')}</span>}>
               <i onClick={this.handleAddSession.bind(this)} className="icon-invite ThemeColor3 iconHover" />
             </Tooltip>
@@ -331,12 +318,8 @@ class ChatPanelHeader extends Component {
                 />
               )}
             </Tooltip>
-          ) : (
-            undefined
-          )}
-          {isFileTrsnsfer ? (
-            undefined
-          ) : (
+          ) : undefined}
+          {isFileTrsnsfer ? undefined : (
             <Tooltip text={<span>{isWindow ? _l('恢复') : _l('新窗口聊天')}</span>}>
               <i
                 onClick={this.handleOpenChatWindow.bind(this)}
@@ -344,9 +327,7 @@ class ChatPanelHeader extends Component {
               />
             </Tooltip>
           )}
-          {isWindow ? (
-            undefined
-          ) : (
+          {isWindow ? undefined : (
             <i onClick={this.handleClosePanel.bind(this)} className="icon-close ThemeColor3 iconHover" />
           )}
         </div>

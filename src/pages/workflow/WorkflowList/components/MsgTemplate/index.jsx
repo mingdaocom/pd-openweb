@@ -193,7 +193,7 @@ export default class MsgTemplate extends Component {
             </ul>
           ) : (
             <EmptyStatus icon="workflow_sms" explain={_l('还没有短信模版')} className="workflowMsgTemplateEmpty">
-              <div className="moreTips Gray_9e mTop12">{_l('短信模版可在编辑短信节点时创建')}</div>
+              <div className="moreTips Gray_75 mTop12">{_l('短信模版可在编辑短信节点时创建')}</div>
             </EmptyStatus>
           )}
         </Dialog>

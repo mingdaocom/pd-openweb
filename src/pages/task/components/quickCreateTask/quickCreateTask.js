@@ -10,7 +10,7 @@ import Store from 'redux/configureStore';
 import { addTask } from 'src/pages/task/redux/actions';
 import { DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { UserHead } from 'ming-ui';
 
 class QuickCreateTask {
@@ -64,7 +64,8 @@ class QuickCreateTask {
         let accountId = $ele.data('id');
         $ele.data('hasbusinesscard', true);
 
-        ReactDom.render(
+        const root = createRoot(ele);
+        root.render(
           <UserHead
             className="circle"
             user={{
@@ -96,7 +97,6 @@ class QuickCreateTask {
               </span>
             }
           />,
-          ele,
         );
       });
   }
@@ -115,8 +115,9 @@ class QuickCreateTask {
     const $createSingleDate = $('.createNewSingle .createSingleDate');
     const bindDate = () => {
       const { start: defaultStart, end: defaultEnd } = $createSingleDate.data();
+      const root = createRoot($createSingleDate[0]);
 
-      ReactDom.render(
+      root.render(
         <DateTimeRange
           selectedValue={[defaultStart, defaultEnd]}
           mode="task"
@@ -141,13 +142,12 @@ class QuickCreateTask {
             delete $createSingleDate.data().start;
             delete $createSingleDate.data().end;
 
-            ReactDom.unmountComponentAtNode($createSingleDate[0]);
+            root.unmount();
             bindDate();
           }}
         >
           <span class="icon-bellSchedule"></span>
         </DateTimeRange>,
-        $createSingleDate[0],
       );
     };
 

@@ -12,6 +12,8 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { initIntlTelInput } from '../../../../pages/accountLogin/util';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -89,6 +91,10 @@ export default class Widgets extends Component {
         }, 10);
       }
     });
+
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -103,6 +109,10 @@ export default class Widgets extends Component {
   componentWillUnmount() {
     this.destroy = true;
     this.iti && this.iti.destroy();
+
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
   }
 
   initialCountry() {
@@ -131,6 +141,15 @@ export default class Widgets extends Component {
       this.iti.setNumber(value || '');
       this.setState({ hideCountry: !_.keys(this.iti.getSelectedCountryData()).length });
     }
+    // 有些国外号码在插件格式化时会被自动补些数字，导致跟客户录入的数据有出入
+    // 手动取值更新，避开控件本身行为
+    if (this.input) {
+      const currentValue = this.getItiInputValue(value);
+      const inputValue = this.input.value;
+      if (currentValue !== inputValue) {
+        this.input.value = currentValue;
+      }
+    }
   }
 
   onFocus = e => {
@@ -142,6 +161,10 @@ export default class Widgets extends Component {
       value = this.iti.getNumber();
     }
     this.setState({ originValue: value, isEditing: true });
+
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.FOCUS);
+    }
   };
 
   onChange = () => {
@@ -157,8 +180,25 @@ export default class Widgets extends Component {
     this.props.value !== value && this.props.onChange(value);
   };
 
+  getItiInputValue = tempValue => {
+    const value = tempValue || '';
+    if (value && value.indexOf('+') > -1) {
+      // 非编辑态iti被隐藏，本身的this.iti取不到区号
+      const iti = initIntlTelInput();
+      iti.setNumber(value);
+      const dialCode = _.get(iti.getSelectedCountryData(), 'dialCode');
+      if (dialCode) {
+        const reg = new RegExp(`^\\+${dialCode}\\s?`);
+        return value.replace(reg, '');
+      } else {
+        return value;
+      }
+    }
+    return value;
+  };
+
   getShowValue = () => {
-    const value = this.input ? $(this.input).val().replace(/ /g, '') : this.props.value || '';
+    const value = this.getItiInputValue(this.props.value) || '';
     if (value) {
       return this.state.maskStatus ? dealMaskValue({ ...this.props, value }) : value;
     } else {
@@ -240,12 +280,13 @@ export default class Widgets extends Component {
               onFocus={this.onFocus}
               onBlur={() => {
                 onBlur(originValue);
+                this.setState({ isEditing: false });
               }}
               onKeyDown={onInputKeydown}
             />
           </ClickAwayable>
         </PhoneWrap>
-        
+
         {/* 有掩码并有解码权限 || 无掩码时可拨打电话 */}
         {(maskPermissions || (!isMask && !maskStatus)) && value && browserIsMobile() && (
           <a href={`tel:${value}`} className="Absolute customFormControlTelBtn" style={{ right: 0, top: 10 }}>

@@ -169,7 +169,7 @@ export default class Code extends Component {
 
         <ParameterList controls={data.controls} />
 
-        <div className="mTop20 Gray_9e">{_l('请运行代码块以获得output对象; input对象将采用测试数据')}</div>
+        <div className="mTop20 Gray_75">{_l('请运行代码块以获得output对象; input对象将采用测试数据')}</div>
         <div className="flexRow mTop15">
           <div
             className={cx('webhookBtn InlineBlock', { disabled: sendRequest })}
@@ -385,7 +385,7 @@ export default class Code extends Component {
 
               <div className="Font13 bold mTop20">{_l('代码块')}</div>
               <div className="mTop5 flexRow alignItemsCenter">
-                <div className="flex Gray_9e">
+                <div className="flex Gray_75">
                   {data.actionId === ACTION_ID.JAVASCRIPT
                     ? _l('Output 示例：output = {output: "hello world" };')
                     : _l("Output 示例：output = {'hello': 'world!'}")}
@@ -497,6 +497,7 @@ export default class Code extends Component {
                 testMapList.map(o => o.value),
               ),
             )}
+            isSingleKey
           />
         )}
 

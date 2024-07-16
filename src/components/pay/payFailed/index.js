@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import preall from 'src/common/preall';
 import PayHeader from '../payHeader';
 import styled from 'styled-components';
@@ -48,5 +48,6 @@ function PayFailed(props) {
 }
 
 const Comp = preall(PayFailed, { allowNotLogin: false });
+const root = createRoot(document.querySelector('#payFailed'));
 
-ReactDOM.render(<Comp />, document.querySelector('#payFailed'));
+root.render(<Comp />);

@@ -300,10 +300,10 @@ export default class Search extends Component {
               className="workflowDetailDesc pTop15 pBottom15 mTop20"
               style={{ background: 'rgba(255, 163, 64, 0.12)' }}
             >
-              <div className="Gray_9e">{_l('新版查找方式支持通过多个筛选条件和排序规则来实现更精准查找。')}</div>
+              <div className="Gray_75">{_l('新版查找方式支持通过多个筛选条件和排序规则来实现更精准查找。')}</div>
               <div className="mBottom5">
                 {_l('注意：切换后您需要重新配置查找规则')}
-                <span className="Gray_9e">{_l('，是否切换为新版？')}</span>
+                <span className="Gray_75">{_l('，是否切换为新版？')}</span>
               </div>
               <span
                 className="ThemeColor3 ThemeHoverColor2 pointer"
@@ -340,7 +340,7 @@ export default class Search extends Component {
                   checked={data.returnNew === item.value}
                   onClick={() => this.updateSource({ returnNew: item.value })}
                 />
-                <div className="mTop5 mLeft30 Gray_9e">{item.desc}</div>
+                <div className="mTop5 mLeft30 Gray_75">{item.desc}</div>
               </div>
             ))}
           </Fragment>
@@ -356,7 +356,7 @@ export default class Search extends Component {
                 onClick={checked => this.updateSource({ returnNew: !checked ? false : null })}
               />
             </div>
-            <div className="Gray_9e mTop5 mLeft26">{_l('删除前保留记录数据，供之后的流程节点使用')}</div>
+            <div className="Gray_75 mTop5 mLeft26">{_l('删除前保留记录数据，供之后的流程节点使用')}</div>
 
             <div className="mTop20 flexRow">
               <Checkbox
@@ -366,7 +366,7 @@ export default class Search extends Component {
                 onClick={checked => this.updateSource({ destroy: !checked })}
               />
             </div>
-            <div className="Gray_9e mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
+            <div className="Gray_75 mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
           </Fragment>
         )}
 
@@ -391,7 +391,7 @@ export default class Search extends Component {
                     {controlName || singleObj.controlName}
                     {singleObj.required && <span className="mLeft5 red">*</span>}
                     {singleObj.type === 29 && (
-                      <span className="Gray_9e">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>
+                      <span className="Gray_75">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>
                     )}
                   </div>
                   <SingleControlValue
@@ -451,13 +451,13 @@ export default class Search extends Component {
         value={data.appId}
         renderTitle={
           !data.appId
-            ? () => <span className="Gray_9e">{_l('请选择工作表')}</span>
+            ? () => <span className="Gray_75">{_l('请选择工作表')}</span>
             : data.appId && !selectAppItem
             ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
             : () => (
                 <Fragment>
                   <span>{selectAppItem.name}</span>
-                  {selectAppItem.otherApkName && <span className="Gray_9e">（{selectAppItem.otherApkName}）</span>}
+                  {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
                 </Fragment>
               )
         }
@@ -487,7 +487,7 @@ export default class Search extends Component {
 
     return (
       <Fragment>
-        <span className="Gray_9e mRight5">[{CONTROLS_NAME[item.type === 37 ? item.enumDefault2 : item.type]}]</span>
+        <span className="Gray_75 mRight5">[{CONTROLS_NAME[item.type === 37 ? item.enumDefault2 : item.type]}]</span>
         <span>{item.controlName}</span>
       </Fragment>
     );
@@ -606,7 +606,7 @@ export default class Search extends Component {
     return (
       <Fragment>
         <div className="mTop20 bold">{_l('选择记录链接')}</div>
-        <div className="Font13 Gray_9e mTop10">
+        <div className="Font13 Gray_75 mTop10">
           {_l('当前流程节点中的文本类型字段，系统将根据此链接获取相应的记录，供流程中其他节点使用')}
         </div>
         <div className="mTop10">
@@ -625,7 +625,7 @@ export default class Search extends Component {
         </div>
 
         <div className="mTop20 bold">{_l('选择目标工作表')}</div>
-        <div className="Font13 Gray_9e mTop10">{_l('预计解析出的记录归属的工作表')}</div>
+        <div className="Font13 Gray_75 mTop10">{_l('预计解析出的记录归属的工作表')}</div>
         {this.selectWorksheet()}
 
         <FindResult executeType={data.executeType} switchExecuteType={this.switchExecuteType} />

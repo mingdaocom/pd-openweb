@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { browserIsMobile } from 'src/util';
 import '../WorksheetRecordLogValue.less';
-import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import cx from 'classnames';
 import _ from 'lodash';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
@@ -43,6 +42,7 @@ function WorksheetRecordLogSelectTags(props) {
   const [recordInfo, setRecordInfo] = useState(undefined);
   const [showMaskData, setShowMaskData] = useState(false);
   const [maskList, setMaskList] = useState([]);
+  const [Components, setComponents] = useState(null);
   const advancedSetting = _.get(control, ['advancedSetting']) || {};
   const isdecrypt = advancedSetting.isdecrypt;
   const clickHandle = (type, index) => {
@@ -58,6 +58,7 @@ function WorksheetRecordLogSelectTags(props) {
     if (advancedSetting.masktype) {
       setShowMaskData(true);
     }
+
     if (needPreview) {
       let oldObj = safeParse(data.oldValue);
       let newObj = safeParse(data.newValue);
@@ -84,6 +85,10 @@ function WorksheetRecordLogSelectTags(props) {
 
       setRecordInfo(Record);
     }
+
+    import('src/pages/worksheet/common/recordInfo/RecordInfoWrapper').then(res => {
+      setComponents(res);
+    });
   }, []);
 
   const renderText = item => {
@@ -148,8 +153,8 @@ function WorksheetRecordLogSelectTags(props) {
         {renderList(newValue, 'new')}
         {renderList(defaultValue, 'default')}
       </div>
-      {preview !== false && preType && recordInfo && (
-        <RecordInfoWrapper
+      {preview !== false && preType && recordInfo && Components && (
+        <Components.default
           visible
           allowAdd={false}
           appId={recordInfo.appId}

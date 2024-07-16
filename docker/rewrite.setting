@@ -31,6 +31,7 @@ rewrite (?i)^/public/query /publicQuery.html break;
 rewrite (?i)^/public/chart /statisticschartshare.html break;
 rewrite (?i)^/public/page /custompageshare.html break;
 rewrite (?i)^/embed/page /custompageembed.html break;
+rewrite (?i)^/embed/chart /chartembed.html break;
 rewrite (?i)^/public/print /recordshare.html break;
 rewrite (?i)^/public/form/ /publicworksheet.html break;
 rewrite (?i)^/weixinAuth /weixinAuth.html break;
@@ -111,7 +112,10 @@ rewrite (?i)^/integrationConnect /index.html break;
 rewrite (?i)^/integrationApi /index.html break;
 rewrite (?i)^/favorite /index.html break;
 rewrite (?i)^/dashboard /index.html break;
-rewrite (?i)^/aggregationTable /index.html break;
+rewrite (?i)^/aggregation /index.html break;
+
+# 购买入口
+rewrite (?i)^/orderpay /orderPay.html break;
 
 # 命令行授权
 rewrite (?i)^/cliauth/success /cli-auth-success.html break;

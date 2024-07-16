@@ -37,6 +37,12 @@ const FilterTextWrap = styled.div`
     .editFilter {
       display: none !important;
     }
+    .txtFilter {
+      padding-left: 30px;
+    }
+    .filterGroup .spliceText {
+      left: -35px;
+    }
   }
 
   .txtFilter {
@@ -125,7 +131,7 @@ export default class FilterItemTexts extends React.Component {
   }
   render() {
     let {
-      data,
+      data = {},
       allControls,
       controls,
       editFn,
@@ -153,10 +159,11 @@ export default class FilterItemTexts extends React.Component {
     return (
       <FilterTextWrap
         className={className}
-        onClick={() => {
+        onClick={e => {
           if (_.isFunction(editFn)) {
-            editFn();
+            editFn(e);
           }
+          e.stopPropagation();
         }}
       >
         <div className="txtFilter fieldEditTxtFilter">

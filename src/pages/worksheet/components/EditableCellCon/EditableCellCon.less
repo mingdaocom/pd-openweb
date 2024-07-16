@@ -18,21 +18,14 @@
       }
     }
   }
-  &.canedit:not(.isediting):not(.focusShowEditIcon):hover,&.canedit.focusShowEditIcon.focus:not(.isediting) {
+  &.canedit:not(.isediting):not(.focusShowEditIcon):hover,
+  &.canedit.focusShowEditIcon.focus:not(.isediting) {
     padding-right: 34px !important;
     .cellAttachments {
       width: auto;
     }
     .editIcon {
-      display: inline-block;
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      width: 34px;
-      height: 28px;
-      text-align: center;
-      line-height: 32px;
-      background: #fff;
+      display: inline-flex;
     }
     .worksheetCellPureString {
       width: auto;

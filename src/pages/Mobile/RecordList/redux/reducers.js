@@ -172,3 +172,12 @@ export const isClickChart = (state = false, action) => {
       return state;
   }
 };
+
+export const filterControls = (state = [], action) => {
+  switch (action.type) {
+    case 'MOBILE_UPDATE_FILTER_CONTROLS':
+      return [...action.filterControls];
+    default:
+      return state;
+  }
+};

@@ -15,6 +15,11 @@ export const SwitchStyle = styled.div`
   }
   .w30 {
     width: 30px;
+    flex-shrink: 0;
+  }
+  .w28 {
+    width: 28px;
+    flex-shrink: 0;
   }
 `;
 

@@ -1,6 +1,6 @@
 import React, { createRef, useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle } from '@mdfe/react-sortable-hoc';
 import { Icon, Tooltip } from 'ming-ui';
 import cx from 'classnames';
 import { getIconByType } from 'src/pages/widgetConfig/util';

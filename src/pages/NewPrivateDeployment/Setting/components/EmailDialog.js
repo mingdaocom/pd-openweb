@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Dialog, Input, Checkbox, Button, LoadDiv } from 'ming-ui';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import emailApi from 'src/api/email';
 import { encrypt } from 'src/util';
 import _ from 'lodash';
@@ -39,7 +39,7 @@ export default class EmailDialog extends Component {
     if (_.isEmpty(fromAddress)) {
       alert(_l('请输入发送邮箱'), 3);
       return;
-    } else if (!RegExp.isEmail(fromAddress)) {
+    } else if (!RegExpValidator.isEmail(fromAddress)) {
       alert(_l('发送邮箱格式错误'), 3);
       return;
     }

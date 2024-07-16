@@ -5,7 +5,7 @@ import { Checkbox, Tooltip, Support, Dialog, Icon } from 'ming-ui';
 import ClipboardButton from 'react-clipboard.js';
 import ajaxRequest from 'src/api/appManagement';
 import { generateRandomPassword } from 'src/util';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import cx from 'classnames';
 
 const configs = [
@@ -108,7 +108,12 @@ export default class ExportApp extends React.Component {
     let copyErrors = { ...this.state.errors };
     const { passwordRegex } = md.global.SysSettings;
 
-    if (!password || password.length < 8 || password.length > 20 || !RegExp.isPasswordValid(password, passwordRegex)) {
+    if (
+      !password ||
+      password.length < 8 ||
+      password.length > 20 ||
+      !RegExpValidator.isPasswordValid(password, passwordRegex)
+    ) {
       reason = _l('请输入8-20位字符，必须含字母+数字');
     }
 

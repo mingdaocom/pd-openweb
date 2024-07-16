@@ -17,6 +17,7 @@ import { generate } from '@ant-design/colors';
 import { VerificationPass } from 'worksheet/components/ShareState';
 import { getRequest } from 'src/util';
 import cx from 'classnames';
+import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
 
 const TopBar = styled.div(
   ({ color }) => `height: 10px; background: ${color}; opacity: .4; border-radius: 3px 3px 0 0;`,
@@ -164,8 +165,11 @@ export default class PublicWorksheet extends React.Component {
                   publicWorksheetInfo={publicWorksheetInfo}
                   formData={formData}
                   status={status}
-                  onSubmit={() => {
+                  onSubmit={(isPayOrder, rowId) => {
                     this.setState({ status: FILL_STATUS.COMPLETED });
+                    isPayOrder &&
+                      rowId &&
+                      handlePrePayOrder({ worksheetId, rowId, paymentModule: 1, sheetThemeColor: themeBgColor });
                   }}
                 />
               ))}
@@ -177,7 +181,7 @@ export default class PublicWorksheet extends React.Component {
     return (
       <div
         className={cx('publicWorksheet', { hideBg })}
-        style={{ backgroundColor: !hideBg ? (themeBgColor ? generate(themeBgColor)[0] : undefined) : '#f7f7f7' }}
+        style={{ backgroundColor: !hideBg ? (themeBgColor ? generate(themeBgColor)[0] : undefined) : '#fff' }}
       >
         {!loading && (
           <DocumentTitle

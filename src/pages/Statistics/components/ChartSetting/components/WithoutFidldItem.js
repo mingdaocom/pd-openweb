@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDrop } from 'react-dnd-latest';
 import cx from 'classnames';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 
 const WithoutFidldItem = (props) => {
   const { disable = false, allowInput, inputValue, onChnageInputValue } = props;
@@ -9,12 +10,16 @@ const WithoutFidldItem = (props) => {
   const [collectProps, drop] = useDrop({
     accept: 'ChartDnd',
     drop(item) {
+      if (item.data.type === WIDGETS_TO_API_TYPE_ENUM.RICH_TEXT) {
+        alert(_l('暂不支持统计'), 2);
+        return undefined;
+      }
       props.onAddControl(item.data);
       return undefined;
     },
     hover(item) {
       if (collectProps.isOver) {
-        const state = props.onVerification(item.data);
+        const state = item.data.type === WIDGETS_TO_API_TYPE_ENUM.RICH_TEXT ? false : props.onVerification(item.data);
         setState(state);
       }
       return undefined;

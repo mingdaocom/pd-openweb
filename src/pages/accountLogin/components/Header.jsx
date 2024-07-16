@@ -6,7 +6,11 @@ function Header(props) {
 
   let logo = '';
   if (!_.get(md, 'global.Config.IsLocal')) {
-    logo = info.logo || `${_.get(md, 'global.FileStoreConfig.pictureHost')}ProjectLogo/default.png`;
+    if (info.hasGetLogo) {
+      logo = info.isDefaultLogo ? '' : info.logo;
+    } else {
+      logo = info.logo || `${_.get(md, 'global.FileStoreConfig.pictureHost')}ProjectLogo/default.png`;
+    }
   } else {
     logo = info.logo || _.get(md, 'global.SysSettings.brandLogoUrl');
   }
@@ -14,7 +18,7 @@ function Header(props) {
   return (
     <React.Fragment>
       {lineLoading && <div className="loadingLine"></div>}
-      {!loading && !_.get(md, 'global.SysSettings.hideBrandLogo') && (
+      {!loading && !_.get(md, 'global.SysSettings.hideBrandLogo') && logo && (
         <div className="titleHeader">
           <a href={isMingDaoApp || _.get(md, 'global.Config.IsLocal') ? 'javascript:;' : '/'}>
             <img src={logo} height={_.get(md, 'global.SysSettings.brandLogoHeight') || 40} />

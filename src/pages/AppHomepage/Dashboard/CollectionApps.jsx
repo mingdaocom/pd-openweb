@@ -23,7 +23,7 @@ const Wrapper = styled.div`
 `;
 
 export default function CollectionApps(props) {
-  const { projectId, markedApps, onMarkApp, apps, onMarkApps, loading, onAppSorted, currentTheme } = props;
+  const { projectId, markedApps, onMarkApp, apps, appLang, onMarkApps, loading, onAppSorted, currentTheme } = props;
   const [isExpand, setIsExpand] = useState(localStorage.getItem(`collectAppExpand_${projectId}`) === 'true');
   const [isOverflow, setIsOverflow] = useState(false);
 
@@ -41,7 +41,7 @@ export default function CollectionApps(props) {
         <div
           className="titleBtn mLeft12"
           onClick={() => {
-            AddCollectApp({ apps, markedApps, onMarkApps, projectId });
+            AddCollectApp({ apps, markedApps, onMarkApps, projectId, appLang });
           }}
         >
           <Icon icon="add" className="mRight4" />
@@ -64,6 +64,7 @@ export default function CollectionApps(props) {
       <RecentOrCollectAppList
         projectId={projectId}
         apps={markedApps}
+        appLang={appLang}
         onMarkApp={onMarkApp}
         isFold={!isExpand}
         isCollect={true}

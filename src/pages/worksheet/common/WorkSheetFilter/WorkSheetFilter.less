@@ -366,6 +366,13 @@
     box-shadow: none;
     margin: 0;
     width: 100%;
+    .conditionItem .conditionValue {
+      &:hover {
+        .timeZoneTag {
+          display: none;
+        }
+      }
+    }
   }
 }
 .addFilterPopup {
@@ -603,6 +610,7 @@
     border-radius: 3px;
     font-size: 12px;
     background: #fff;
+    position: relative;
     .ant-picker {
       input {
         font-size: 12px !important;
@@ -647,6 +655,30 @@
     .customAntPicker {
       border: none;
       box-shadow: none;
+    }
+    .customFormControlBox {
+      font-size: 12px;
+      padding: 0px 11px !important;
+
+      &.dateTimeIcon {
+        .dateClearIcon {
+          display: none;
+          cursor: pointer;
+          color: #bdbdbd;
+          &:hover {
+            color: #777 !important;
+          }
+        }
+        &:focus,
+        &:hover {
+          .dateClearIcon {
+            display: inline-block;
+          }
+          .bellScheduleIcon {
+            display: none;
+          }
+        }
+      }
     }
   }
   .dateRangeInputCon {
@@ -872,7 +904,6 @@
       background: #fff;
       box-sizing: border-box;
       display: inline-flex;
-      justify-content: center;
       align-items: center;
       margin: 6px 6px 0 0;
       padding: 0 10px;

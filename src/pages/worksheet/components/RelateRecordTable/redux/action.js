@@ -82,6 +82,15 @@ export function updatePageIndex(pageIndex) {
   };
 }
 
+export function updatePageSize(pageSize) {
+  return async (dispatch, getState) => {
+    dispatch({
+      type: 'UPDATE_TABLE_STATE',
+      value: { pageIndex: 1, pageSize },
+    });
+    dispatch(loadRecords({ pageIndex: 1, pageSize }));
+  };
+}
 function getTableConfigFromControl(control, { from, allowEdit, relateWorksheetInfo, recordId } = {}) {
   const controlPermission = controlState(control, recordId ? 3 : 2);
   const allowRemoveRelation =
@@ -187,35 +196,36 @@ export function init() {
           });
         });
       relateWorksheetInfo = res.worksheet;
-      dispatch({
-        type: 'UPDATE_RECORDS',
-        records: res.data,
-      });
-      dispatch({
-        type: 'UPDATE_TABLE_STATE',
-        value: { count: res.count },
-      });
+      const { addedRecordIds, deletedRecordIds, isDeleteAll } = get(getState(), 'changes');
+      if (isEmpty(addedRecordIds) && isEmpty(deletedRecordIds) && !isDeleteAll) {
+        dispatch({
+          type: 'UPDATE_RECORDS',
+          records: res.data,
+        });
+        dispatch({
+          type: 'UPDATE_TABLE_STATE',
+          value: { count: res.count },
+        });
+      }
     }
     const sheetSwitchPermit = await worksheetAjax.getSwitchPermit({ worksheetId: control.dataSource });
     const sheetQuery = await worksheetAjax.getQueryBySheetId({ worksheetId: control.dataSource });
     const searchConfig = formatSearchConfigs(sheetQuery);
     const tableConfig = getTableConfigFromControl(control, { from, allowEdit, relateWorksheetInfo, recordId });
-    const controls = get(relateWorksheetInfo, 'template.controls')
-      .concat(SYSTEM_CONTROL)
-      .filter(
-        c =>
-          c &&
-          controlState({
-            ...c,
-            fieldPermission: '111',
-            controlPermissions: tableConfig.isHiddenOtherViewRecord
-              ? c.controlPermissions
-              : replaceByIndex(control.controlPermissions || '111', 0, '1'),
-          }).visible,
-      );
+    const controls = (get(relateWorksheetInfo, 'template.controls') || []).concat(SYSTEM_CONTROL).filter(
+      c =>
+        c &&
+        controlState({
+          ...c,
+          fieldPermission: '111',
+          controlPermissions: tableConfig.isHiddenOtherViewRecord
+            ? c.controlPermissions
+            : replaceByIndex(control.controlPermissions || '111', 0, '1'),
+        }).visible,
+    );
     dispatch({
       type: 'UPDATE_CONTROLS',
-      controls: replaceControlsTranslateInfo(base.appId, controls),
+      controls: replaceControlsTranslateInfo(base.appId, relateWorksheetInfo.worksheetId, controls),
     });
     if (control.type === 51) {
       dispatch(updateFilter());
@@ -527,7 +537,7 @@ export function handleSaveSheetLayout({ updateWorksheetControls, columns, column
 
 export function handleRemoveRelation(recordIds) {
   return async (dispatch, getState) => {
-    const { base = {}, tableState = {} } = getState();
+    const { base = {}, tableState = {}, records = [] } = getState();
     const { from, saveSync, recordId, appId, viewId, worksheetId, control, instanceId, workId } = base;
     if (recordIds && !isArray(recordIds)) {
       recordIds = [recordIds];
@@ -547,7 +557,7 @@ export function handleRemoveRelation(recordIds) {
           updateType: from,
         });
         dispatch(deleteRecords(recordIds));
-        dispatch(refresh({ doNotResetPageIndex: true, doNotClearKeywords: true }));
+        dispatch(refresh({ doNotResetPageIndex: records.length - recordIds.length > 0, doNotClearKeywords: true }));
       } catch (err) {
         alert(_l('取消关联失败！'), 2);
       }

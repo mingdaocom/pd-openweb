@@ -350,15 +350,21 @@ export default class Overview extends Component {
    */
   getAppList(projectId) {
     const { appList } = this.state;
+    const { appPageIndex = 1, isMoreApp, loadingApp, keyword = '' } = this.state;
+    // 加载更多
+    if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
+      return;
+    }
+    this.setState({ loadingApp: true });
 
     appManagement
       .getAppsForProject({
         projectId,
         status: '',
         order: 3,
-        pageIndex: 1,
-        pageSize: 100000,
-        keyword: '',
+        pageIndex: appPageIndex,
+        pageSize: 50,
+        keyword,
       })
       .then(({ apps }) => {
         const newAppList = apps.map(item => {
@@ -368,8 +374,18 @@ export default class Overview extends Component {
           };
         });
         this.setState({ appList: appList.concat(newAppList) });
+        this.setState({
+          appList: appPageIndex === 1 ? [].concat(newAppList) : this.state.appList.concat(newAppList),
+          isMoreApp: newAppList.length >= 50,
+          loadingApp: false,
+          appPageIndex: appPageIndex + 1,
+        });
+      })
+      .catch(err => {
+        this.setState({ loadingApp: false });
       });
   }
+
   handleSelectDepartment = () => {
     const { projectId } = this.props;
 
@@ -435,6 +451,7 @@ export default class Overview extends Component {
       totalDegree,
       appTotal,
       appStatisticsResult,
+      isMoreApp,
     } = this.state;
     return (
       <Fragment>
@@ -507,11 +524,24 @@ export default class Overview extends Component {
                   }
                   suffixIcon={<Icon icon="arrow-down-border" className="Font18" />}
                   notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+                  onSearch={_.debounce(
+                    val => this.setState({ keyword: val, appPageIndex: 1 }, () => this.getAppList(projectId)),
+                    500,
+                  )}
                   onChange={value =>
                     this.setState({ appId: value }, () => {
                       this.getChartData();
                     })
                   }
+                  onPopupScroll={e => {
+                    e.persist();
+                    const { scrollTop, offsetHeight, scrollHeight } = e.target;
+                    if (scrollTop + offsetHeight === scrollHeight) {
+                      if (isMoreApp) {
+                        this.getAppList(projectId);
+                      }
+                    }
+                  }}
                 />
               )}
               <Select

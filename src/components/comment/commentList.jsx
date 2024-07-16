@@ -15,6 +15,7 @@ class CommentList extends React.Component {
     pageSize: PropTypes.number,
     isMore: PropTypes.bool,
     isFocus: PropTypes.bool,
+    containAttachment: PropTypes.bool,
 
     commentList: PropTypes.array, // 列表
     updateCommentList: PropTypes.func,
@@ -29,6 +30,7 @@ class CommentList extends React.Component {
     pageIndex: 1,
     pageSize: 20,
     isFocus: false,
+    containAttachment: false,
     commentList: [],
     updateCommentList() {},
     removeComment() {},
@@ -59,7 +61,7 @@ class CommentList extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (
       this.props.isFocus !== nextProps.isFocus ||
-      nextProps.status !== this.props.status || //内部和外部讨论
+      this.props.containAttachment !== nextProps.containAttachment ||
       nextProps.entityType !== this.props.entityType || //内部和外部讨论
       this.props.sourceId !== nextProps.sourceId
     ) {
@@ -68,6 +70,7 @@ class CommentList extends React.Component {
         {
           pageIndex: 1,
           isFocus: nextProps.isFocus,
+          containAttachment: nextProps.containAttachment,
         },
         this.fetch,
       );
@@ -99,7 +102,7 @@ class CommentList extends React.Component {
   }
 
   fetch() {
-    const { sourceId, sourceType, isFocus, commentList, entityType } = this.props;
+    const { sourceId, sourceType, isFocus, containAttachment, commentList, entityType } = this.props;
     const { pageIndex, pageSize } = this.state;
 
     this.setState({
@@ -112,6 +115,7 @@ class CommentList extends React.Component {
       pageIndex,
       pageSize,
       isFocus,
+      containAttachment,
       entityType,
     });
     this.ajax
@@ -155,11 +159,24 @@ class CommentList extends React.Component {
   }
 
   render() {
-    const { commentList, sourceId, sourceType, isFocus, children, nullCommentList } = this.props;
+    const { commentList, sourceId, sourceType, isFocus, containAttachment, children, nullCommentList } = this.props;
     const { isLoading, showReplyCommentId, pageIndex } = this.state;
 
+    const getEmptyText = () => {
+      switch (true) {
+        case isFocus && containAttachment:
+          return _l('暂无与我有关含附件的讨论');
+        case isFocus:
+          return _l('暂无与我有关的讨论');
+        case containAttachment:
+          return _l('暂无含附件的讨论');
+        default:
+          return _l('发布评论');
+      }
+    };
+
     // 加载
-    if (isLoading && !commentList.length) {
+    if (isLoading && pageIndex === 1) {
       return <LoadDiv className="mTop10" />;
     }
 
@@ -168,7 +185,7 @@ class CommentList extends React.Component {
       if (nullCommentList) {
         return nullCommentList;
       }
-      return <div className="mTop15 Gray_bd Font13">{isFocus ? _l('没有与我有关的内容') : _l('暂无讨论')}</div>;
+      return <div className="mTop15 Gray_bd Font13 commentEmpty">{getEmptyText()}</div>;
     }
 
     return (

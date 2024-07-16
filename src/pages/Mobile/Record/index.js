@@ -8,6 +8,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 
 const ModalWrap = styled(Modal)`
   height: 95%;
@@ -58,6 +59,12 @@ export const RecordInfoModal = forwardRef((props, ref) => {
   } = props;
   const { className, visible, onClose } = props;
   const store = useMemo(configureStore, []);
+
+  useEffect(() => {
+    if (notModal) {
+      workflowPushSoket();
+    }
+  }, []);
 
   if (!visible) return null;
 

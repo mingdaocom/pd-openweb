@@ -51,7 +51,7 @@ export default function CustomPage(props) {
     );
   }
 
-  const comparisonLangInfo = getTranslateInfo(app.id, selectNode.key, comparisonLangData);
+  const comparisonLangInfo = getTranslateInfo(app.id, null, selectNode.key, comparisonLangData);
 
   return (
     <div className="pAll20">

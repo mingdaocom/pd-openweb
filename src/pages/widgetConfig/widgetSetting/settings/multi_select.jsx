@@ -1,8 +1,7 @@
 import React, { Fragment } from 'react';
-import { string } from 'prop-types';
-import { Dropdown, RadioGroup } from 'ming-ui';
+import { RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../styled';
-import OptionList from '../components/OptionList';
+import SelectOptions from '../components/OptionList/SelectOptions';
 import DisplayOptions from '../components/OptionList/DisplayOptions';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 
@@ -39,12 +38,7 @@ export default function MultiSelect(props) {
       {checktype !== '1' && <DisplayOptions {...props} />}
 
       {!fromExcel && (
-        <OptionList.SelectOptions
-          data={data}
-          globalSheetInfo={globalSheetInfo}
-          onChange={onChange}
-          fromPortal={fromPortal}
-        />
+        <SelectOptions data={data} globalSheetInfo={globalSheetInfo} onChange={onChange} fromPortal={fromPortal} />
       )}
     </Fragment>
   );

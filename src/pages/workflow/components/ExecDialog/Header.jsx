@@ -59,7 +59,6 @@ export default class Header extends Component {
     const { app } = data;
 
     if (action === 'print') {
-      safeLocalStorageSetItem('plus_projectId', projectId);
       let printId = '';
       let isDefault = true;
       let printData = {
@@ -110,14 +109,6 @@ export default class Header extends Component {
       } else {
         this.request('submit');
       }
-      return;
-    }
-
-    /**
-     * 撤回
-     */
-    if (id === 'revoke') {
-      this.request('revoke', {}, true);
       return;
     }
 
@@ -202,9 +193,9 @@ export default class Header extends Component {
     }
 
     /**
-     * 通过、否决、退回
+     * 通过、否决、退回、撤回
      */
-    if (_.includes(['pass', 'overrule', 'return'], action)) {
+    if (_.includes(['pass', 'overrule', 'return', 'revoke'], action)) {
       if (action === 'return' && !backNodeId) {
         backNodeId = _.get(this.props.data, 'backFlowNodes[0].id') || '';
       }
@@ -212,15 +203,22 @@ export default class Header extends Component {
       this.request(
         ACTION_TO_METHOD[action],
         { opinion: content, backNodeId, signature, files },
-        _.includes(['overrule', 'return'], action) && ignoreRequired,
+        (_.includes(['overrule', 'return'], action) && ignoreRequired) || action === 'revoke',
       );
     }
 
     /**
      * 添加审批人
      */
-    if (_.includes(['addApprove'], action)) {
+    if (action === 'addApprove') {
       this.request('operation', { opinion: content, forwardAccountId: userId, operationType: 16 }, true);
+    }
+
+    /**
+     * 审批人撤回
+     */
+    if (action === 'taskRevoke') {
+      this.request(ACTION_TO_METHOD[action], { opinion: content, backNodeId, files }, true);
     }
   };
 
@@ -341,6 +339,7 @@ export default class Header extends Component {
       sheetSwitchPermit = [],
       viewId,
       works,
+      noAuth,
     } = this.props;
     const { flowNode, operationTypeList, btnMap = {}, app, processName } = data;
     const { moreOperationVisible, addApproveWayVisible, otherActionVisible, action, isRequest, isUrged } = this.state;
@@ -348,7 +347,7 @@ export default class Header extends Component {
     if (errorMsg) {
       return (
         <header className="flexRow workflowStepHeader">
-          <div className="stepTitle flexRow errorHeader Gray_9e">
+          <div className="stepTitle flexRow errorHeader Gray_75">
             <Icon icon="Import-failure" className="Font18" />
             <span className="Font14 ellipsis mLeft6">{errorMsg || 'text'}</span>
           </div>
@@ -377,83 +376,87 @@ export default class Header extends Component {
               {`${app.name} · ${processName}`}
             </div>
 
-            {currentWorkItem && currentWorkItem.operationTime && !!operationTypeList[0].length && urgeTime && (
-              <div className="operationTime flexRow Gray_9e Font14">
-                {createTimeSpan(urgeTime)}
-                <span className="mLeft5 Gray_9e">{_l('已催办')}</span>
-              </div>
-            )}
-
-            {currentWorkItem && currentWorkItem.operationTime && !operationTypeList[0].length ? (
-              <div className="operationTime flexRow Gray_9e Font14">
-                {createTimeSpan(urgeTime || currentWorkItem.operationTime)}
-                {!!urgeTime && <span className="mLeft5 Gray_9e">{_l('已催办')}</span>}
-                {text && !urgeTime && (
-                  <span className="mLeft5" style={{ color }}>
-                    {text}
-                  </span>
+            {noAuth ? null : (
+              <Fragment>
+                {currentWorkItem && currentWorkItem.operationTime && !!operationTypeList[0].length && urgeTime && (
+                  <div className="operationTime flexRow Gray_75 Font14">
+                    {createTimeSpan(urgeTime)}
+                    <span className="mLeft5 Gray_75">{_l('已催办')}</span>
+                  </div>
                 )}
-              </div>
-            ) : (
-              <div className="operation flexRow">
-                {operationTypeList[0]
-                  .map(key => {
-                    return Object.assign({}, ACTION_LIST[key], { key });
-                  })
-                  .sort((a, b) => a.sort - b.sort)
-                  .map(item => {
-                    let { id, text, icon, key } = item;
-                    return (
-                      <Button
-                        disabled={(isRequest && id === action) || (isUrged && id === 'urge')}
-                        key={id}
-                        size={'tiny'}
-                        onClick={() => this.handleClick(id)}
-                        className={cx('headerBtn mLeft10', id)}
-                      >
-                        <Icon type={icon} className="Font16 mRight3" />
-                        {isRequest && id === action
-                          ? _l('处理中...')
-                          : isUrged && id === 'urge'
-                          ? _l('已催办')
-                          : SPECIAL_LANG_TEXT[btnMap[key]] || btnMap[key] || text}
-                      </Button>
-                    );
-                  })}
-              </div>
-            )}
 
-            <div
-              className="more flexRow tip-bottom mLeft15"
-              onClick={() => this.setState({ moreOperationVisible: !moreOperationVisible })}
-            >
-              <div className="iconWrap flexRow" data-tip={_l('更多操作')}>
-                <Icon icon="more_horiz Gray_9e ThemeHoverColor3" />
-              </div>
+                {currentWorkItem && currentWorkItem.operationTime && !operationTypeList[0].length ? (
+                  <div className="operationTime flexRow Gray_75 Font14">
+                    {createTimeSpan(urgeTime || currentWorkItem.operationTime)}
+                    {!!urgeTime && <span className="mLeft5 Gray_75">{_l('已催办')}</span>}
+                    {text && !urgeTime && (
+                      <span className="mLeft5" style={{ color }}>
+                        {text}
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="operation flexRow">
+                    {operationTypeList[0]
+                      .map(key => {
+                        return Object.assign({}, ACTION_LIST[key], { key });
+                      })
+                      .sort((a, b) => a.sort - b.sort)
+                      .map(item => {
+                        let { id, text, icon, key } = item;
+                        return (
+                          <Button
+                            disabled={(isRequest && id === action) || (isUrged && id === 'urge')}
+                            key={id}
+                            size={'tiny'}
+                            onClick={() => this.handleClick(id)}
+                            className={cx('headerBtn mLeft10', id)}
+                          >
+                            <Icon type={icon} className="Font16 mRight3" />
+                            {isRequest && id === action
+                              ? _l('处理中...')
+                              : isUrged && id === 'urge'
+                              ? _l('已催办')
+                              : SPECIAL_LANG_TEXT[btnMap[key]] || btnMap[key] || text}
+                          </Button>
+                        );
+                      })}
+                  </div>
+                )}
 
-              {moreOperationVisible && (
-                <Menu className="moreOperation" onClickAway={() => this.setState({ moreOperationVisible: false })}>
-                  {operationTypeList[1].map(
-                    (item, index) =>
-                      //打印需要绑定权限
-                      !(
-                        OPERATION_LIST[item].id === 'print' &&
-                        !isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId)
-                      ) && (
-                        <MenuItem key={index} onClick={() => this.handleMoreOperation(OPERATION_LIST[item].id)}>
-                          <Icon icon={OPERATION_LIST[item].icon} />
-                          <span className="actionText">{OPERATION_LIST[item].text}</span>
-                        </MenuItem>
-                      ),
+                <div
+                  className="more flexRow tip-bottom mLeft15"
+                  onClick={() => this.setState({ moreOperationVisible: !moreOperationVisible })}
+                >
+                  <div className="iconWrap flexRow" data-tip={_l('更多操作')}>
+                    <Icon icon="more_horiz Gray_75 ThemeHoverColor3" />
+                  </div>
+
+                  {moreOperationVisible && (
+                    <Menu className="moreOperation" onClickAway={() => this.setState({ moreOperationVisible: false })}>
+                      {operationTypeList[1].map(
+                        (item, index) =>
+                          //打印需要绑定权限
+                          !(
+                            OPERATION_LIST[item].id === 'print' &&
+                            !isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId)
+                          ) && (
+                            <MenuItem key={index} onClick={() => this.handleMoreOperation(OPERATION_LIST[item].id)}>
+                              <Icon icon={OPERATION_LIST[item].icon} />
+                              <span className="actionText">{OPERATION_LIST[item].text}</span>
+                            </MenuItem>
+                          ),
+                      )}
+
+                      <MenuItem onClick={() => window.open(`/app/${app.id}/workflowdetail/record/${id}/${workId}`)}>
+                        <Icon icon="launch" />
+                        <span className="actionText">{_l('新页面打开')}</span>
+                      </MenuItem>
+                    </Menu>
                   )}
-
-                  <MenuItem onClick={() => window.open(`/app/${app.id}/workflowdetail/record/${id}/${workId}`)}>
-                    <Icon icon="launch" />
-                    <span className="actionText">{_l('新页面打开')}</span>
-                  </MenuItem>
-                </Menu>
-              )}
-            </div>
+                </div>
+              </Fragment>
+            )}
           </header>
 
           {addApproveWayVisible && (

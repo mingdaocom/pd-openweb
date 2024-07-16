@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import Components from '../../components';
+import WidgetDropdown from '../../components/Dropdown';
 import styled from 'styled-components';
 import { Input } from 'antd';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import { UNIT_TYPE } from '../../config/setting';
 
 const PreSuffixWrap = styled.div`
   display: flex;
@@ -45,7 +46,7 @@ export default function PreSuffix({ data, value, onChange }) {
 
   return (
     <PreSuffixWrap>
-      <Components.Dropdown
+      <WidgetDropdown
         className="selectDropdown"
         value={type}
         data={TYPES}
@@ -57,11 +58,22 @@ export default function PreSuffix({ data, value, onChange }) {
           const nextSetting = { [prev]: '', [t]: text };
           onChange(handleAdvancedSettingChange(data, nextSetting));
         }}
-      ></Components.Dropdown>
+      />
       <Input
         value={value || setting[type]}
+        placeholder={_.get(
+          _.find(UNIT_TYPE, u => u.value === data.unit),
+          'text',
+        )}
         onChange={e => {
           onChange(handleAdvancedSettingChange(data, { [type]: e.target.value }));
+        }}
+        onBlur={e => {
+          const value = e.target.value;
+          // 空格不处理，空格代表无前后缀，不兜底处理
+          if (!(value && !value.trim())) {
+            onChange(handleAdvancedSettingChange(data, { [type]: value.trim() }));
+          }
         }}
       />
     </PreSuffixWrap>

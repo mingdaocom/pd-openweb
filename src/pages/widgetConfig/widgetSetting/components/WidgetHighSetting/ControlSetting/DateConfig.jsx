@@ -5,7 +5,7 @@ import { Dropdown as MingDropdown, Support, Dialog, Checkbox } from 'ming-ui';
 import cx from 'classnames';
 import { useSetState } from 'react-use';
 import { DATE_SHOW_TYPES } from '../../../../config/setting';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange, getDateToEn } from '../../../../util/setting';
 import { DropdownContent, DropdownPlaceholder, SettingItem, EditInfo } from '../../../../styled';
 import DateInput from '../../DynamicDefaultValue/inputTypes/DateInput.jsx';
 import moment from 'moment';
@@ -43,6 +43,12 @@ const ConfigWrap = styled.div`
   }
 `;
 
+const TimeDynamicWrap = styled.div`
+  .ming.Menu {
+    width: 100%;
+  }
+`;
+
 const CUSTOM_SHOW_FORMAT = [
   'YYYY-MM-DD',
   'YYYY/MM/DD',
@@ -61,18 +67,17 @@ const CUSTOM_SHOW_FORMAT = [
 
 const ERROR_OPTIONS = [_l('*不支持自定义时间格式！'), _l('*无效的格式化规则')];
 
-function ShowFormatDialog(props) {
+export function ShowFormatDialog(props) {
   const { showformat, onClose, onOk } = props;
   const [value, setValue] = useState(showformat);
 
   const checkError = () => {
-    // 包含时间配置
-    if (value && /[H|h|m|s|S|Z]/.test(value)) {
-      return 1;
-    }
-    const tempValue = moment().format(value);
-    if (value && new Date(moment(tempValue, value).valueOf()).toString() === 'Invalid Date') {
-      return 2;
+    if (value) {
+      // 包含时间配置
+      if (/[H|h|m|s|S|Z]/.test(value)) return 1;
+      const tempValue = moment().format(value.replace(/#EN#$/g, ''));
+      if (new Date(moment(tempValue, value.replace(/#EN#$/g, '')).valueOf()).toString() === 'Invalid Date') return 2;
+      return 0;
     }
     return 0;
   };
@@ -102,12 +107,12 @@ function ShowFormatDialog(props) {
         <div className="display">
           <SettingItem style={{ margin: '0' }}>
             <div className="settingItemTitle">{_l('格式化规则')}</div>
-            <Input.TextArea value={value} onChange={e => setValue(e.target.value.trim())} />
+            <Input.TextArea value={value} onChange={e => setValue(e.target.value)} />
             <div className="LineHeight20 Red mTop5">{ERROR_OPTIONS[checkError() - 1] || ''}</div>
           </SettingItem>
           <SettingItem className="mTop10">
             <div className="settingItemTitle">{_l('示例')}</div>
-            <Input disabled value={!value || checkError() ? '' : moment().format(value)} />
+            <Input disabled value={!value || checkError() ? '' : getDateToEn(value)} />
           </SettingItem>
         </div>
       </ConfigWrap>
@@ -193,7 +198,7 @@ function StartEndTime(props) {
     onChange(handleAdvancedSettingChange(data, { [mode]: JSON.stringify(value) }));
   };
   return (
-    <Fragment>
+    <TimeDynamicWrap>
       <div className={cx('labelWrap mTop8', { mBottom8: min })}>
         <Checkbox
           size="small"
@@ -230,7 +235,7 @@ function StartEndTime(props) {
           onDynamicValueChange={value => handleValueChange(value, 'max')}
         />
       )}
-    </Fragment>
+    </TimeDynamicWrap>
   );
 }
 

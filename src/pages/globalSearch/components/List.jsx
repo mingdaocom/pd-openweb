@@ -7,7 +7,7 @@ import TextHeightLine from './TextHeightLine';
 import { GLOBAL_SEARCH_LIST_SETTING } from '../enum';
 import { getClassNameByExt } from 'src/util';
 import { getImgUrl } from '../utils';
-
+import RegExpValidator from 'src/util/expression';
 const Box = styled.div`
   padding-bottom: 12px;
   .title {
@@ -209,7 +209,12 @@ export default function List(props) {
               >
                 <div className="avatarCon">
                   {dataKey === 'kcnode' ? (
-                    <i className={cx(getClassNameByExt(`.${File.GetExt(item.fileName)}`), 'fileIcon')} />
+                    <i
+                      className={cx(
+                        getClassNameByExt(`.${RegExpValidator.getExtOfFileName(item.fileName)}`),
+                        'fileIcon',
+                      )}
+                    />
                   ) : (
                     <Avatar size={32} src={getImgUrl(item.avatar)} />
                   )}

@@ -3,15 +3,15 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import './index.less';
 import nodeModules from './nodeModules';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import { NODE_TYPE } from '../enum';
 import { updateNodeData } from '../../redux/actions';
 import cx from 'classnames';
+import { Drawer } from 'antd';
 
 class Detail extends Component {
   static propTypes = {
-    companyId: PropTypes.string.isRequired,
-    processId: PropTypes.string.isRequired,
+    companyId: PropTypes.string,
+    processId: PropTypes.string,
     relationId: PropTypes.string,
     relationType: PropTypes.number,
     flowInfo: PropTypes.any,
@@ -21,6 +21,7 @@ class Detail extends Component {
     closeDetail: PropTypes.func.isRequired,
     haveChange: PropTypes.func,
     isIntegration: PropTypes.bool,
+    customNodeName: PropTypes.string,
     updateNodeData: PropTypes.func,
   };
 
@@ -39,6 +40,8 @@ class Detail extends Component {
   renderContent() {
     const { selectNodeType, relationId, isIntegration } = this.props;
     const NodeComponent = nodeModules[selectNodeType];
+
+    if (!NodeComponent) return null;
 
     return (
       <NodeComponent
@@ -68,19 +71,24 @@ class Detail extends Component {
     }
 
     return (
-      <ReactCSSTransitionGroup
-        transitionName="workflowDetailTransition"
-        transitionEnterTimeout={250}
-        transitionLeaveTimeout={250}
+      <Drawer
+        placement="right"
+        visible={!!selectNodeId}
+        closable={false}
+        mask={false}
+        bodyStyle={{ padding: 0 }}
+        width={800}
       >
-        {!!selectNodeId && (
+        <div className="workflowSettings h100">
           <div
-            className={cx('workflowDetail flexColumn', { workflowDetailRelease: !!flowInfo.parentId || instanceId })}
+            className={cx('workflowDetail flexColumn h100', {
+              workflowDetailRelease: !!flowInfo.parentId || instanceId,
+            })}
           >
             {this.renderContent()}
           </div>
-        )}
-      </ReactCSSTransitionGroup>
+        </div>
+      </Drawer>
     );
   }
 }

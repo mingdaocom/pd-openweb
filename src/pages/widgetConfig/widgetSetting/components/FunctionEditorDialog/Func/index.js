@@ -12,7 +12,9 @@ import './style.less';
 import cx from 'classnames';
 import _ from 'lodash';
 
-window.emitter = new EventEmitter();
+if (!window.emitter) {
+  window.emitter = new EventEmitter();
+}
 
 const Con = styled.div`
   display: flex;
@@ -74,6 +76,7 @@ const ActiveJsSwitchCon = styled.div`
 function Func(props, ref) {
   const {
     control = {},
+    setRef,
     supportJavaScript,
     value,
     value: { expression } = {},
@@ -85,6 +88,7 @@ function Func(props, ref) {
     className,
     onChange,
     customTitle,
+    fromCustom,
   } = props;
   const [type, setType] = useState(value.type || 'mdfunction');
   const [codeEditorLoading, setCodeEditorLoading] = useState(false);
@@ -132,11 +136,16 @@ function Func(props, ref) {
     codeEditor: codeEditor.current,
     handleSave,
   }));
+  useEffect(() => {
+    if (setRef) {
+      setRef('handleSave', handleSave);
+    }
+  }, []);
   return (
     <Con className={cx('functionEditor', className)}>
       <Header>
         {customTitle || _l('编辑函数')}
-        {supportJavaScript && (
+        {supportJavaScript && !fromCustom && (
           <ActiveJsSwitchCon>
             <Switch
               size="small"

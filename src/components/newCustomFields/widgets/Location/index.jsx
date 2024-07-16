@@ -20,6 +20,7 @@ import {
   handleTriggerEvent,
 } from '../../tools/authentication';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 const LocationWrap = styled.div`
   .location {
@@ -83,6 +84,12 @@ export default class Widgets extends Component {
   state = {
     visible: false,
   };
+
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
 
   handleAuthentication = () => {
     const { strDefault, projectId } = this.props;
@@ -246,6 +253,12 @@ export default class Widgets extends Component {
       });
     });
   };
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   render() {
     const { disabled, value, enumDefault, enumDefault2, advancedSetting, onChange, from, strDefault } = this.props;

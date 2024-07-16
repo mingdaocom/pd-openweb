@@ -1,13 +1,13 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import styled from 'styled-components';
-import { Icon, Modal, Switch } from 'ming-ui';
+import { Tooltip } from 'antd';
+import { Button, Modal, Switch } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { Tip99, Hr, Bold600 } from 'worksheet/components/Basics';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import Validity from './Validity';
 import { getUrl, getPublicShare, updatePublicShareStatus } from './controller';
-import _ from 'lodash';
+import _, { includes } from 'lodash';
 
 function genCard(from, type = 'public', params = {}) {
   if (from === 'recordInfo' && type === 'private') {
@@ -47,10 +47,11 @@ export default function Share(props) {
     hidePublicShare,
   } = props;
   const [url, setUrl] = useState();
+  const [urlVisible, setUrlVisible] = useState(false);
   const [isPublic, setIsPublic] = useState(props.isPublic);
   const [publicUrl, setPublicUrl] = useState(isPublic && props.publicUrl);
   const [shareData, setShareData] = useState({});
-  const privateVisible = !_.includes(['report', 'worksheetApi'], from);
+  const privateVisible = from === 'report' ? params.privateVisible : !_.includes(['worksheetApi'], from);
   const isEmbed = _.includes(['view', 'customPage'], from);
   const privateTitle = isEmbed ? _l('嵌入链接') : _l('内部成员访问');
   let disabledTip;
@@ -67,7 +68,8 @@ export default function Share(props) {
     });
     setIsPublic(active);
     setShareData(result);
-    setPublicUrl(result ? result.shareLink : undefined);
+    setPublicUrl(result ? result.shareLink : null);
+    setUrlVisible(false);
   }
   async function getPublicShareInfo(data) {
     const result = await getPublicShare({
@@ -77,7 +79,8 @@ export default function Share(props) {
       ...data,
     });
     setShareData(result);
-    setPublicUrl(result ? result.shareLink : undefined);
+    setIsPublic(result && !!result.shareLink);
+    setPublicUrl(result ? result.shareLink : null);
   }
   async function editEntityShare(data) {
     const result = await updatePublicShareStatus({
@@ -102,7 +105,7 @@ export default function Share(props) {
   }, []);
   useEffect(() => {
     (async () => {
-      if (!publicUrl && !hidePublicShare) {
+      if (!publicUrl && !hidePublicShare && !includes(['recordInfo', 'view'], from)) {
         getPublicShareInfo();
       }
     })();
@@ -147,10 +150,26 @@ export default function Share(props) {
               <Tip99 className="mTop10">{_l('获得链接的所有人都可以查看')}</Tip99>
             </React.Fragment>
           )}
-          <span data-tip={disabledTip} className="InlineBlock mTop15 tip-right">
-            <Switch disabled={!isCharge} checked={!!publicUrl} onClick={() => updatePublicShare(!publicUrl)} />
-          </span>
-          {!!publicUrl && (
+          <div className="mTop15 flexRow flexCenter">
+            <span className="tip-right" data-tip={disabledTip}>
+              <Switch disabled={!isCharge} checked={isPublic} onClick={() => updatePublicShare(!isPublic)} />
+            </span>
+            <div className="flex"></div>
+            {isPublic && !urlVisible && (
+              <Button
+                className="Right"
+                onClick={async () => {
+                  if (includes(['recordInfo', 'view'], from)) {
+                    await getPublicShareInfo();
+                  }
+                  setUrlVisible(true);
+                }}
+              >
+                {_l('获取分享链接')}
+              </Button>
+            )}
+          </div>
+          {!!publicUrl && urlVisible && (
             <Fragment>
               <ShareUrl
                 chatCard={genCard(from, 'public', params)}

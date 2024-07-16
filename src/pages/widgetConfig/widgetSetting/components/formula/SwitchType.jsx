@@ -6,7 +6,7 @@ import { handleAdvancedSettingChange } from '../../../util/setting';
 const FORMULA_TYPES = [
   {
     value: 31,
-    text: _l('数字'),
+    text: _l('数值'),
   },
   {
     value: 38,
@@ -33,7 +33,7 @@ export default function SwitchType({ data, onChange }) {
       onChange(
         handleAdvancedSettingChange(
           { ...nextData, enumDefault: 1, enumDefault2: 0, unit: '3', strDefault: '0', dot: 0 },
-          { suffix: _l('天'), prefix: '', dot: 0 },
+          { suffix: '', prefix: '', dot: 0 },
         ),
       );
       // changeFormulaEditStatus(false);

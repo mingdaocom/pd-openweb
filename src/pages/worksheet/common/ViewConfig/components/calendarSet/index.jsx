@@ -98,8 +98,9 @@ export default function CalendarSet(props) {
     updateCurrentView({
       ...view,
       appId,
-      advancedSetting: updateViewAdvancedSetting(view, { ...obj }),
+      advancedSetting: { ...obj },
       editAttrs: ['advancedSetting'],
+      editAdKeys: Object.keys(obj),
     });
   };
   let { begindate = '', hour24 = '0', enddate, weekbegin = '1', showall = '0' } = getAdvanceSetting(view);
@@ -143,8 +144,9 @@ export default function CalendarSet(props) {
             updateCurrentView({
               ...view,
               appId,
-              advancedSetting: updateViewAdvancedSetting(view, { ...obj }),
+              advancedSetting: { ...obj },
               editAttrs: ['advancedSetting'],
+              editAdKeys: Object.keys(obj),
               ...data,
             });
           } else {
@@ -203,7 +205,7 @@ export default function CalendarSet(props) {
             // .filter(o => unweekday.indexOf(o.value) < 0)
             .map((item, i) => {
               return (
-                <Select.Option value={item.value + ''} key={i} label={item.text} className='select_drop'>
+                <Select.Option value={item.value + ''} key={i} label={item.text} className="select_drop">
                   {item.text}
                 </Select.Option>
               );
@@ -253,12 +255,12 @@ export default function CalendarSet(props) {
           </div>
         )}
         <Checkbox
-          checked={unlunar !== '1'}
+          checked={unlunar === '0'} //默认不勾选“显示中国农历”功能
           className="mTop18"
           onClick={() => {
-            handleChange({ unlunar: unlunar !== '1' ? '1' : '0' });
+            handleChange({ unlunar: unlunar === '0' ? '1' : '0' });
           }}
-          text={_l('显示农历')}
+          text={_l('显示中国农历')}
         />
         <Checkbox
           checked={hour24 === '1'}

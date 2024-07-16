@@ -121,6 +121,7 @@ export default function RowHead(props) {
     isDraft,
     rowHeadOnlyNum,
     isCharge,
+    isDevAndOps,
     tableId,
     layoutChangeVisible,
     style,
@@ -190,9 +191,9 @@ export default function RowHead(props) {
         <React.Fragment>
           {showOperate && !readonly && !isTrash && !isDraft ? (
             <RecordOperate
-              {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId, isCharge }}
+              {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId, isCharge, isDevAndOps }}
               formdata={controls.map(c => ({ ...c, value: row[c.controlId] }))}
-              shows={['share', 'print', 'copy', 'openinnew', 'recreate', 'fav']}
+              shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'recreate', 'fav']}
               allowCopy={allowAdd && row.allowedit}
               allowDelete={row.allowdelete}
               allowRecreate={allowAdd}

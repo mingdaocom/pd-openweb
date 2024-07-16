@@ -1,13 +1,16 @@
 import React, { useState, Fragment, useEffect } from 'react';
-import { Dialog, Checkbox, Support } from 'ming-ui';
+import { Dialog, Checkbox, Support, Icon } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { useSetState } from 'react-use';
-import { find, isEmpty } from 'lodash';
 import { Input } from 'antd';
 import { SettingItem } from '../../../styled';
+import 'src/pages/widgetConfig/styled/style.less';
 import { getAdvanceSetting } from '../../../util';
 import { handleAdvancedSettingChange } from '../../../util/setting';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
+import renderCustomFilter from '../CustomEvent/CustomFilter';
+import { FilterItemTexts } from '../FilterData';
+import _ from 'lodash';
 
 const FORMAT_CONFIG = [
   { text: _l('字母'), value: 'char', regExp: '^[A-Za-z]*$' },
@@ -27,21 +30,6 @@ const FORMAT_CONFIG = [
     text: _l('链接'),
     value: 'link',
     regExp: '^https?:\\/\\/\\w+\\.\\w+\\.\\w+.*$',
-  },
-  {
-    text: _l('车牌号%04012'),
-    value: 'car',
-    regExp: '^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领]\\w{4,9}$',
-  },
-  {
-    text: _l('身份证号%04013'),
-    value: 'idCard',
-    regExp: '^\\d{17}[\\dX]$',
-  },
-  {
-    text: _l('中国护照'),
-    value: 'passport',
-    regExp: '(^[EeKkGgDdSsPpHh]\\d{8}$)|(^(([Ee][a-fA-F])|([DdSsPp][Ee])|([Kk][Jj])|([Mm][Aa])|(1[45]))\\d{7}$)',
   },
 ];
 
@@ -88,72 +76,225 @@ const ConfigWrap = styled.div`
 `;
 
 const FormatInfo = styled.div`
-  line-height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
-  margin-top: 8px;
+  width: 100%;
+  height: auto;
+  margin-top: 10px;
   border-radius: 3px;
+  cursor: pointer;
   border: 1px solid #e0e0e0;
-  background-color: #f5f5f5;
+  z-index: 9;
+
+  .formatHeader {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    i {
+      font-size: 16px;
+      color: #9e9e9e;
+      margin-right: 10px;
+      &:hover {
+        color: #2196f3;
+      }
+    }
+    .deleteBtn:hover {
+      color: #f44336;
+    }
+    .filterIcon.active {
+      color: #2196f3;
+    }
+  }
+  .textVerifyFilterValue {
+    padding: 0 10px 10px 10px;
+    & > div {
+      border: none;
+      margin: 0;
+      background: #f8f8f8;
+      &:hover {
+        background: rgba(33, 150, 243, 0.05);
+      }
+      .editFilter {
+        display: none;
+      }
+    }
+  }
 `;
 
-export default function InputFormatConfig({ data, onChange }) {
-  const format = getAdvanceSetting(data, 'regex') || {};
+const AddVerify = styled.div`
+  height: 21px;
+  color: #9e9e9e;
+  &:hover {
+    color: #2196f3;
+  }
+  &.disable i {
+    cursor: not-allowed;
+    color: #bdbdbd;
+  }
+`;
 
-  const [{ type, regex, err }, setData] = useSetState({
-    type: format.type || '',
-    regex: format.regex || '',
-    err: format.err || '',
-  });
+const SortableItem = SortableElement(props => {
+  const { itemData = {}, sortIndex, setIndex, onDelete, changeFilters } = props;
+  const filters = itemData.filters || [];
+  const name = itemData.name || _l('未命名');
+  const isFilterActive = filters.length > 0;
 
-  useEffect(() => {
-    setData({
-      type: format.type || '',
-      regex: format.regex || '',
-      err: format.err || '',
+  const editFilterFn = () => {
+    renderCustomFilter({
+      ...props,
+      customTitle: _l('筛选条件'),
+      filterData: { valueType: '1', filterItems: filters },
+      handleOk: value => {
+        changeFilters(_.get(value, 'filterItems') || '', sortIndex);
+      },
     });
-  }, [data.controlId]);
-
-  const [visible, setVisible] = useState(false);
-  const [testValue, setTestValue] = useState('');
-
-  const getText = () => {
-    if (!type) return '';
-    if (type === 'custom') return _l('自定义');
-    let value = find(FORMAT_CONFIG, item => item.value === type);
-    return value ? value.text : '';
   };
 
-  const text = getText();
+  return (
+    <FormatInfo className="noSelect">
+      <div className="formatHeader">
+        <Icon className="Hand" icon="drag" />
+        <div
+          className="flex flexRow flexCenter"
+          title={name}
+          onClick={e => {
+            e.stopPropagation();
+            setIndex(sortIndex);
+          }}
+        >
+          <span className="flex overflow_ellipsis mRight10">{name}</span>
+          <Icon icon="edit" />
+        </div>
+
+        <Icon
+          icon="worksheet_filter"
+          className={cx('filterIcon', { active: isFilterActive })}
+          onClick={e => {
+            e.stopPropagation();
+            if (isFilterActive) {
+              changeFilters([], sortIndex);
+            } else {
+              editFilterFn();
+            }
+          }}
+        />
+        <Icon
+          className="mRight0 deleteBtn"
+          icon="delete1"
+          onClick={e => {
+            e.stopPropagation();
+            onDelete(sortIndex);
+          }}
+        />
+      </div>
+      {isFilterActive && (
+        <div className="textVerifyFilterValue">
+          <FilterItemTexts
+            {...props}
+            filters={filters}
+            loading={false}
+            controls={props.allControls}
+            editFn={e => {
+              e.stopPropagation();
+              editFilterFn();
+            }}
+          />
+        </div>
+      )}
+    </FormatInfo>
+  );
+});
+
+const SortableList = SortableContainer(props => {
+  const { filterRegex } = props;
+  return (
+    <div className="flexColumn">
+      {filterRegex.map((item, index) => {
+        return <SortableItem itemData={item} {...props} sortIndex={index} key={'item_' + index} index={index} />;
+      })}
+    </div>
+  );
+});
+
+export default function TextVerify(props) {
+  const { data, onChange } = props;
+  const filterRegex = getAdvanceSetting(data, 'filterregex') || [];
+  const [itemData, setData] = useState({});
+  const [activeIndex, setIndex] = useState(-1);
+  const [testValue, setTestValue] = useState('');
+
+  useEffect(() => {
+    if (activeIndex >= 0) {
+      setData(filterRegex[activeIndex] || {});
+    } else {
+      setData({});
+    }
+    setTestValue('');
+  }, [activeIndex]);
 
   let reg;
   try {
-    reg = new RegExp(regex);
+    reg = new RegExp(itemData.value);
   } catch (error) {
     console.log(error);
   }
 
   const isInvalid = reg && !reg.test(testValue);
 
+  const renderItems = () => {
+    if (!filterRegex.length) return null;
+
+    return (
+      <SortableList
+        filterRegex={filterRegex}
+        {..._.pick(props, ['globalSheetInfo', 'allControls'])}
+        distance={10}
+        axis="y"
+        helperClass="filterRegexSortableList"
+        setIndex={setIndex}
+        changeFilters={(value, index) => {
+          const newList = filterRegex.map((i, idx) => {
+            return index === idx ? { ...i, filters: value } : i;
+          });
+          onChange(handleAdvancedSettingChange(data, { filterregex: JSON.stringify(newList) }));
+        }}
+        onDelete={index => {
+          const newList = filterRegex.filter((i, idx) => index !== idx);
+          onChange(handleAdvancedSettingChange(data, { filterregex: JSON.stringify(newList) }));
+        }}
+        onSortEnd={({ oldIndex, newIndex }) => {
+          if (oldIndex === newIndex) return;
+          const newList = arrayMove(filterRegex, oldIndex, newIndex);
+          onChange(handleAdvancedSettingChange(data, { filterregex: JSON.stringify(newList) }));
+        }}
+      />
+    );
+  };
+
   return (
     <Fragment>
       <Dialog
         width={720}
         className="textRegexpVerifyDialog"
-        visible={visible}
-        okDisabled={!regex}
+        visible={activeIndex >= 0}
+        okDisabled={!itemData.value || !itemData.name}
         onOk={() => {
+          const newItem = {
+            ..._.pick(itemData, ['name', 'value', 'filters']),
+            err: itemData.err || _l('请输入有效文本'),
+          };
+          const newList = filterRegex[activeIndex]
+            ? filterRegex.map((i, idx) => (idx === activeIndex ? newItem : i))
+            : filterRegex.concat(newItem);
+
           onChange(
             handleAdvancedSettingChange(data, {
-              regex: JSON.stringify({ type, regex, err: err || _l('请输入有效文本') }),
+              filterregex: JSON.stringify(newList),
             }),
           );
-          setVisible(false);
+          setIndex(-1);
         }}
         onCancel={() => {
-          setVisible(false);
+          setIndex(-1);
         }}
         title={<span className="bold">{_l('限定输入格式')}</span>}
       >
@@ -165,7 +306,11 @@ export default function InputFormatConfig({ data, onChange }) {
             </div>
             <ul className="list">
               {FORMAT_CONFIG.map(item => (
-                <li onClick={() => setData({ type: item.value, err: _l('请输入%0', item.text), regex: item.regExp })}>
+                <li
+                  onClick={() =>
+                    setData({ ...itemData, name: item.text, err: _l('请输入%0', item.text), value: item.regExp })
+                  }
+                >
                   {item.text}
                 </li>
               ))}
@@ -173,18 +318,30 @@ export default function InputFormatConfig({ data, onChange }) {
           </div>
           <div className="display">
             <SettingItem style={{ margin: '0' }}>
-              <div className="settingItemTitle">{text ? _l('正则表达式: %0', text) : _l('正则表达式')}</div>
+              <div className="settingItemTitle">{_l('标题')}</div>
+              <Input
+                placeholder={_l('请输入标题名称')}
+                value={itemData.name}
+                onChange={e => setData({ ...itemData, name: e.target.value })}
+              />
+            </SettingItem>
+            <SettingItem>
+              <div className="settingItemTitle">{_l('正则表达式')}</div>
               <Input.TextArea
                 className={cx({ isInvalid: !reg })}
-                value={regex}
+                value={itemData.value}
                 onChange={e => {
-                  setData({ regex: e.target.value, type: 'custom', err: _l('请输入有效文本') });
+                  setData({ ...itemData, value: e.target.value, err: _l('请输入有效文本') });
                 }}
               />
             </SettingItem>
             <SettingItem>
               <div className="settingItemTitle">{_l('错误时提示')}</div>
-              <Input placeholder={_l('请输入有效文本')} value={err} onChange={e => setData({ err: e.target.value })} />
+              <Input
+                placeholder={_l('请输入有效文本')}
+                value={itemData.err}
+                onChange={e => setData({ ...itemData, err: e.target.value })}
+              />
             </SettingItem>
             <SettingItem>
               <div className="settingItemTitle">{_l('测试')}</div>
@@ -196,8 +353,8 @@ export default function InputFormatConfig({ data, onChange }) {
               />
               {testValue &&
                 (isInvalid ? (
-                  <div className="hint invalid">
-                    {err}
+                  <div className="hint invalid breakAll">
+                    {itemData.err}
                     <i className="icon-cancel"></i>
                   </div>
                 ) : (
@@ -210,28 +367,37 @@ export default function InputFormatConfig({ data, onChange }) {
           </div>
         </ConfigWrap>
       </Dialog>
-      <div className="labelWrap">
+      <div className="labelWrap flexCenter" style={{ justifyContent: 'space-between' }}>
         <Checkbox
           size="small"
-          checked={!isEmpty(format)}
+          checked={!!filterRegex.length}
           onClick={checked => {
             if (checked) {
-              onChange(handleAdvancedSettingChange(data, { regex: '' }));
+              onChange(handleAdvancedSettingChange(data, { filterregex: '' }));
               setTestValue('');
-              setData({ type: '', err: '', regex: '' });
+              setData({});
               return;
             }
-            setVisible(true);
+            setIndex(0);
           }}
-          text={_l('限定输入格式')}
+          text={data.type === 14 ? _l('验证文件名') : _l('限定输入格式')}
         />
+
+        {filterRegex.length > 0 && (
+          <AddVerify className={filterRegex.length >= 5 ? 'disable' : ''}>
+            <Icon
+              icon="add"
+              className="Font20 Hand"
+              onClick={() => {
+                if (filterRegex.length >= 5) return;
+                setIndex(filterRegex.length);
+              }}
+            />
+          </AddVerify>
+        )}
       </div>
-      {!isEmpty(format) && text && (
-        <FormatInfo>
-          <span>{text}</span>
-          <i className="icon-edit pointer Gray_9e pointer" onClick={() => setVisible(true)}></i>
-        </FormatInfo>
-      )}
+
+      {filterRegex.length > 0 && renderItems()}
     </Fragment>
   );
 }

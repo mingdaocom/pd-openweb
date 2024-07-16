@@ -1,4 +1,5 @@
 import React, { Fragment, useState } from 'react';
+import { flushSync } from 'react-dom';
 import PropTypes, { func } from 'prop-types';
 import { autobind } from 'core-decorators';
 import { v4 as uuidv4 } from 'uuid';
@@ -148,6 +149,12 @@ class ChildTable extends React.Component {
     this.controls = props.controls;
     this.abortController = typeof AbortController !== 'undefined' && new AbortController();
     this.requestPool = createRequestPool({ abortController: this.abortController });
+    const _handleUpdateCell = this.handleUpdateCell.bind(this);
+    this.handleUpdateCell = (...args) => {
+      flushSync(() => {
+        _handleUpdateCell(...args);
+      });
+    };
     props.registerCell(this);
   }
 
@@ -286,7 +293,8 @@ class ChildTable extends React.Component {
     }
     const controls = replaceControlsTranslateInfo(
       appId,
-      (get(base, 'controls') || props.controls).map(c => ({
+      worksheetInfo.worksheetId,
+      (newControls || get(base, 'controls') || props.controls).map(c => ({
         ...c,
         ...(isWorkflow
           ? {}
@@ -304,42 +312,40 @@ class ChildTable extends React.Component {
     try {
       controlssorts = JSON.parse(advancedSetting.controlssorts);
     } catch (err) {}
-    let result = sortControlByIds(newControls || controls, _.isEmpty(controlssorts) ? showControls : controlssorts).map(
-      c => {
-        const control = { ...c };
-        const resetedControl = _.find(relationControls.concat(systemControls), { controlId: control.controlId });
-        if (resetedControl) {
-          control.required = resetedControl.required;
-          control.fieldPermission = resetedControl.fieldPermission;
-        }
-        if (!_.find(showControls, scid => control.controlId === scid)) {
-          control.fieldPermission = '000';
-        } else {
-          control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 2, '1');
-        }
-        if (!isWorkflow) {
-          control.controlPermissions = '111';
-        } else {
-          control.controlPermissions = replaceByIndex(control.controlPermissions || '111', 2, '1');
-        }
-        if (
-          control.controlId === 'ownerid' ||
-          (_.get(window, 'shareState.isPublicWorkflowRecord') &&
-            _.includes(
-              [
-                WIDGETS_TO_API_TYPE_ENUM.USER_PICKER,
-                WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT,
-                WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE,
-              ],
-              control.type,
-            ))
-        ) {
-          control.controlPermissions = replaceByIndex(control.controlPermissions || '111', 1, '0');
-          control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 1, '0');
-        }
-        return control;
-      },
-    );
+    let result = sortControlByIds(controls, _.isEmpty(controlssorts) ? showControls : controlssorts).map(c => {
+      const control = { ...c };
+      const resetedControl = _.find(relationControls.concat(systemControls), { controlId: control.controlId });
+      if (resetedControl) {
+        control.required = resetedControl.required;
+        control.fieldPermission = resetedControl.fieldPermission;
+      }
+      if (!_.find(showControls, scid => control.controlId === scid)) {
+        control.fieldPermission = '000';
+      } else {
+        control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 2, '1');
+      }
+      if (!isWorkflow) {
+        control.controlPermissions = '111';
+      } else {
+        control.controlPermissions = replaceByIndex(control.controlPermissions || '111', 2, '1');
+      }
+      if (
+        control.controlId === 'ownerid' ||
+        (_.get(window, 'shareState.isPublicWorkflowRecord') &&
+          _.includes(
+            [
+              WIDGETS_TO_API_TYPE_ENUM.USER_PICKER,
+              WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT,
+              WIDGETS_TO_API_TYPE_ENUM.ORG_ROLE,
+            ],
+            control.type,
+          ))
+      ) {
+        control.controlPermissions = replaceByIndex(control.controlPermissions || '111', 1, '0');
+        control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 1, '0');
+      }
+      return control;
+    });
     updateBase({ controls: result });
     result = result.filter(
       c =>
@@ -585,13 +591,15 @@ class ChildTable extends React.Component {
       abortController: this.abortController,
       masterRecordRowId: recordId,
       onAsyncChange: changes => {
-        if (!_.isEmpty(changes.controlIds)) {
-          changes.controlIds.forEach(cid => {
-            asyncUpdateCell(cid, changes.value);
-          });
-        } else if (changes.controlId) {
-          asyncUpdateCell(changes.controlId, changes.value);
-        }
+        flushSync(() => {
+          if (!_.isEmpty(changes.controlIds)) {
+            changes.controlIds.forEach(cid => {
+              asyncUpdateCell(cid, changes.value);
+            });
+          } else if (changes.controlId) {
+            asyncUpdateCell(changes.controlId, changes.value);
+          }
+        });
       },
     });
     if (controlId) {
@@ -736,7 +744,6 @@ class ChildTable extends React.Component {
     });
   }
 
-  @autobind
   handleUpdateCell({ control, cell, row = {} }, options) {
     const { rows, updateRow, addRow } = this.props;
     const { controls } = this.state;
@@ -1015,7 +1022,7 @@ class ChildTable extends React.Component {
       } else if (/^empty/.test(row.rowid)) {
         return { ...row, allowedit: allowadd };
       } else {
-        return { ...row, allowedit: from === FROM.DRAFT ? allowadd : allowedit };
+        return { ...row, allowedit: allowedit };
       }
     });
     const originRows = tableRows;
@@ -1164,7 +1171,7 @@ class ChildTable extends React.Component {
     );
     return (
       <ChildTableContext.Provider value={{ rows }}>
-        <div className="childTableCon" ref={con => (this.childTableCon = con)} onClick={e => e.stopPropagation()}>
+        <div className="childTableCon" ref={con => (this.childTableCon = con)}>
           {!_.isEmpty(cellErrors) && <span className="errorTip"> {_l('请正确填写%0', control.controlName)} </span>}
           {isBatchEditing && !!selectedRowIds.length && (
             <div className="selectedTip">{_l('已选择%0条记录', selectedRowIds.length)}</div>
@@ -1317,7 +1324,7 @@ class ChildTable extends React.Component {
             </div>
           )}
           {!isMobile && !loading && (
-            <div style={{ height: tableFooter ? tableHeight + tableFooter.height : tableHeight }}>
+            <div className="Relative" style={{ height: tableFooter ? tableHeight + tableFooter.height : tableHeight }}>
               <WorksheetTable
                 from={from}
                 tableType="classic"

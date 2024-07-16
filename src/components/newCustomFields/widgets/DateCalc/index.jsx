@@ -5,8 +5,10 @@ import { toFixed, formatStrZero } from 'src/util';
 import { formatFormulaDate } from 'src/pages/worksheet/util';
 import { getShowFormat } from 'src/pages/widgetConfig/util/setting';
 import { dateConvertToUserZone } from 'src/util';
-import _ from 'lodash';
+import _, { includes } from 'lodash';
 import moment from 'moment';
+import { UNIT_TO_TEXT } from 'src/pages/widgetConfig/config/setting.js';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -16,6 +18,18 @@ export default class Widgets extends Component {
     advancedSetting: PropTypes.object,
     dot: PropTypes.number,
   };
+
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   render() {
     const { value, enumDefault, unit, advancedSetting, dot } = this.props;
@@ -27,17 +41,7 @@ export default class Widgets extends Component {
       content = formatFormulaDate({ value, unit, dot });
     } else if (enumDefault === 1 || enumDefault === 3) {
       const prefix = advancedSetting.prefix || '';
-      const suffix =
-        advancedSetting.suffix ||
-        {
-          1: _l('分钟'),
-          2: _l('小时'),
-          3: _l('天'),
-          4: _l('月'),
-          5: _l('年'),
-          6: _l('秒'),
-        }[unit] ||
-        '';
+      const suffix = prefix ? '' : advancedSetting.suffix || UNIT_TO_TEXT[unit] || '';
       const hideUnit = !!prefix || !!suffix;
       let formatValue = toFixed(value, dot);
       if (advancedSetting.dotformat === '1') {
@@ -47,9 +51,15 @@ export default class Widgets extends Component {
       content = hideUnit ? prefix + formatValue + suffix : formatValue;
     } else {
       const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: unit || '1' } });
-      content = moment(value).year()
-        ? moment(dateConvertToUserZone(moment(moment(value), showFormat))).format(showFormat)
-        : moment(dateConvertToUserZone(moment(value, showFormat))).format(showFormat);
+      if (includes(showFormat, ':')) {
+        content = moment(value).year()
+          ? moment(dateConvertToUserZone(moment(moment(value), showFormat))).format(showFormat)
+          : moment(dateConvertToUserZone(moment(value, showFormat))).format(showFormat);
+      } else {
+        content = moment(value).year()
+          ? moment(moment(moment(value), showFormat)).format(showFormat)
+          : moment(moment(value, showFormat)).format(showFormat);
+      }
     }
 
     return <div className={cx('customFormControlBox customFormReadonly customFormTextareaBox')}>{content}</div>;

@@ -16,8 +16,8 @@ export default class SpecificFieldsValue extends Component {
 
   static defaultProps = {
     hasOtherField: true,
-    min: 0,
-    max: 0,
+    min: '',
+    max: '',
     minDate: null,
   };
 
@@ -138,12 +138,12 @@ export default class SpecificFieldsValue extends Component {
         value={data.fieldValue}
         onChange={e => updateSource({ fieldValue: this.formatVal(e.target.value) })}
         onBlur={e => {
-          if (min && min > parseInt(e.target.value || 0, 10)) {
+          if (min !== '' && min >= parseInt(e.target.value || 0, 10)) {
             e.target.value = min;
             updateSource({ fieldValue: min.toString() });
           }
 
-          if (max && max < parseInt(e.target.value || 0, 10)) {
+          if (max !== '' && max <= parseInt(e.target.value || 0, 10)) {
             e.target.value = max;
             updateSource({ fieldValue: max.toString() });
           }
@@ -153,11 +153,11 @@ export default class SpecificFieldsValue extends Component {
   }
 
   formatVal(value) {
-    const { type, allowedEmpty, min } = this.props;
+    const { type, allowedEmpty } = this.props;
     value = parseInt(value, 10);
 
     if (allowedEmpty && !value && value !== 0) return '';
-    if (typeof value !== 'number' || isNaN(value)) return min || 0;
+    if (typeof value !== 'number' || isNaN(value)) return '';
 
     switch (type) {
       case 'numberFieldValue':

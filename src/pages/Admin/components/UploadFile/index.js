@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import createUploader from 'src/library/plupload/createUploader';
-
+import RegExpValidator from 'src/util/expression';
 export default class UploadFile extends Component {
   constructor(props) {
     super(props);
@@ -35,7 +35,10 @@ export default class UploadFile extends Component {
             return false;
           }
 
-          if (File.GetExt(file.name) != 'xlsx' && File.GetExt(file.name) != 'xls') {
+          if (
+            RegExpValidator.getExtOfFileName(file.name) != 'xlsx' &&
+            RegExpValidator.getExtOfFileName(file.name) != 'xls'
+          ) {
             alert(_l('上传失败，文件错误，请下载专用模板'), 2, 1000);
             up.stop();
             up.removeFile(file);
@@ -59,7 +62,7 @@ export default class UploadFile extends Component {
           } else {
             alert(_l('上传失败，请稍后再试。'), 2);
           }
-        }
+        },
       },
     });
   }

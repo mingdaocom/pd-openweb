@@ -69,13 +69,13 @@ export default ({ accounts, multipleLevelAccounts, relationType, relationId }) =
     return (
       <Fragment>
         <div>
-          <span className="Gray_9e">{_l('一级：')}</span>
+          <span className="Gray_75">{_l('一级：')}</span>
           {getMemberNames(accounts)}
         </div>
         {multipleLevelAccounts.map((item, i) => {
           return (
             <div key={i}>
-              <span className="Gray_9e">{_l('%0级：', nzh.cn.encodeS(i + 2))}</span>
+              <span className="Gray_75">{_l('%0级：', nzh.cn.encodeS(i + 2))}</span>
               {getMemberNames(item)}
             </div>
           );

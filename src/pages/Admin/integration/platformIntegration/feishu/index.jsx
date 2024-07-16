@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import { Switch, Icon, Button, LoadDiv } from 'ming-ui';
 import { Popover } from 'antd';
 import Ajax from 'src/api/workWeiXin';
-import Dialog from 'ming-ui/components/Dialog';
 import IntegrationSetPssword from '../../../components/IntegrationSetPssword';
+import IntegrationSync from '../components/IntegrationSync';
 import CancelIntegration from '../components/CancelIntegration';
 import { integrationFailed, checkClearIntergrationData } from '../utils';
 import fsImg from './feishuSyncCourse/img/8.png';
@@ -189,51 +189,10 @@ export default class FeiShu extends React.Component {
     );
   };
 
-  syncFn = isCheck => {
-    if (isCheck) {
-      this.setState({
-        isLoading: true,
-        showSyncDiaLog: isCheck,
-        canSyncBtn: false,
-      });
-    }
-    Ajax.syncFeishuToMingByApp({
-      projectId: this.props.projectId,
-      check: isCheck,
-    }).then(res => {
-      if (res.item1) {
-        this.setState({
-          failed: false,
-        });
-        if (isCheck) {
-          //返回数据给前端展现但不进行同步
-          this.setState({
-            canSyncBtn: true,
-            data: res.item3,
-            isLoading: false,
-          });
-        } else {
-          // 进行成功同步后
-          this.setState({
-            showSyncDiaLog: false,
-            isLoading: false,
-          });
-          alert(_l('成功同步'));
-        }
-      } else {
-        //返回数据给前端展现但不进行同步
-        this.setState({
-          showSyncDiaLog: true,
-          data: res.item3,
-          isLoading: false,
-          failed: true,
-          failedStr: res.item2 ? res.item2 : _l('同步失败！'),
-        });
-      }
-    });
-  };
-
   stepRender = () => {
+    const { projectId } = this.props;
+    const { canEditInfo, isHasInfo, isCloseDing } = this.state;
+
     return (
       <div className="pBottom100">
         <div className="stepItem Relative">
@@ -324,103 +283,13 @@ export default class FeiShu extends React.Component {
             </React.Fragment>
           )}
         </div>
-        <div className="stepItem">
-          <h3 className="Font16 Gray">{_l('3.数据同步')}</h3>
-          <div className="mTop16 syncBox">
-            <span className="Font14 syncTxt Gray_75">{_l('从飞书通讯录同步到该系统')}</span>
-            <Button
-              type="primary"
-              className={cx('syncBtn', {
-                isNO:
-                  (this.state.canEditInfo && !this.state.isHasInfo) ||
-                  this.state.isCloseDing ||
-                  this.state.showSyncDiaLog,
-              })}
-              onClick={e => {
-                if (
-                  (this.state.canEditInfo && !this.state.isHasInfo) ||
-                  this.state.isCloseDing ||
-                  this.state.showSyncDiaLog
-                ) {
-                  return;
-                } else {
-                  this.syncFn(true);
-                }
-              }}
-            >
-              {this.state.showSyncDiaLog ? _l('同步中') : _l('同步')}
-            </Button>
-          </div>
-        </div>
+        <IntegrationSync
+          integrationType={6}
+          step="3."
+          syncDisabled={(canEditInfo && !isHasInfo) || isCloseDing}
+          projectId={projectId}
+        />
       </div>
-    );
-  };
-
-  renderSyncDiaLog = () => {
-    return (
-      <Dialog
-        visible={this.state.showSyncDiaLog}
-        className="SyncDiaLog"
-        onCancel={() => {
-          this.setState({
-            showSyncDiaLog: false,
-          });
-        }}
-        overlayClosable={false}
-        title={this.state.failed ? _l('同步失败') : _l('同步内容')}
-        footer={
-          <Button
-            disabled={this.state.canSyncBtn ? false : true}
-            type="primary"
-            onClick={() => {
-              if (!this.state.canSyncBtn) {
-                return;
-              }
-              if (this.state.failed) {
-                this.setState({
-                  showSyncDiaLog: false,
-                });
-              } else {
-                this.setState({
-                  canSyncBtn: false,
-                });
-                this.syncFn(false);
-              }
-            }}
-          >
-            {_l('确认')}
-          </Button>
-        }
-      >
-        <p>
-          {this.state.isLoading ? (
-            <LoadDiv className="" />
-          ) : !this.state.failed ? (
-            _.map(this.state.data, (item, i) => {
-              switch (item.type) {
-                case 4:
-                  return <p>{`新增${item.items.length}个用户`}</p>;
-                case 5:
-                  return <p>{`删除${item.items.length}个用户`}</p>;
-                case 6:
-                  return <p>{`同步${item.items.length}个用户信息`}</p>;
-                case 7:
-                  return <p>{`${item.items.length}个用户信息，由于用户数量已达上限，暂不能同步到通讯录`}</p>;
-                case 8:
-                  return <p>{`新增${item.items.length}个部门`}</p>;
-                case 9:
-                  return <p>{`删除${item.items.length}个部门`}</p>;
-                case 10:
-                  return <p>{`同步${item.items.length}个部门信息`}</p>;
-                default:
-                  break;
-              }
-            })
-          ) : (
-            this.state.failedStr
-          )}
-        </p>
-      </Dialog>
     );
   };
 
@@ -508,7 +377,6 @@ export default class FeiShu extends React.Component {
             />
           )}
         </div>
-        {this.state.showSyncDiaLog && this.renderSyncDiaLog()}
       </div>
     );
   }

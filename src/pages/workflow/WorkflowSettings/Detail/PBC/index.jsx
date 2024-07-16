@@ -266,7 +266,7 @@ export default class PBC extends Component {
               />
             </div>
             <i
-              className="icon-delete2 Font16 Gray_9e ThemeHoverColor3 mLeft10 pointer mTop8"
+              className="icon-delete2 Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer mTop8"
               onClick={() => {
                 let fields = [].concat(data.fields);
 
@@ -275,7 +275,7 @@ export default class PBC extends Component {
               }}
             />
             <i
-              className="icon-add Font16 pointer Gray_9e ThemeHoverColor3 mLeft10 pointer mTop8"
+              className="icon-add Font16 pointer Gray_75 ThemeHoverColor3 mLeft10 pointer mTop8"
               style={{ visibility: item.type === 10000008 && item.fieldValueId ? 'hidden' : 'visible' }}
               onClick={() => this.addParameters(item)}
             />
@@ -444,7 +444,7 @@ export default class PBC extends Component {
                         checked={data.executeType === item.value}
                         onClick={() => this.updateSource({ executeType: item.value })}
                       />
-                      <div className="mTop10 mLeft30 Gray_9e">{item.desc}</div>
+                      <div className="mTop10 mLeft30 Gray_75">{item.desc}</div>
                     </div>
                   );
                 })}
@@ -459,12 +459,12 @@ export default class PBC extends Component {
                 onClick={checked => this.updateSource({ nextExecute: !checked })}
               />
             </div>
-            <div className="mLeft25 mTop5 Gray_9e">
+            <div className="mLeft25 mTop5 Gray_75">
               {_l('勾选后，当执行次数为单次时，之后节点可使用业务流程的输出参数')}
             </div>
 
             <div className="mTop20 bold">{_l('传递参数')}</div>
-            <div className="mTop5 Gray_9e">{_l('向业务流程的输入参数传递初始值，供其执行时使用')}</div>
+            <div className="mTop5 Gray_75">{_l('向业务流程的输入参数传递初始值，供其执行时使用')}</div>
             <ProcessParameters {...this.props} data={data} updateSource={this.updateSource} />
           </Fragment>
         )}
@@ -502,13 +502,13 @@ export default class PBC extends Component {
         value={data.appId}
         renderTitle={
           !data.appId
-            ? () => <span className="Gray_9e">{_l('请选择')}</span>
+            ? () => <span className="Gray_75">{_l('请选择')}</span>
             : data.appId && !selectAppItem
             ? () => <span className="errorColor">{_l('业务流程无效或已删除')}</span>
             : () => (
                 <Fragment>
                   <span>{selectAppItem.name}</span>
-                  {selectAppItem.otherApkName && <span className="Gray_9e">（{selectAppItem.otherApkName}）</span>}
+                  {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
                 </Fragment>
               )
         }

@@ -42,8 +42,8 @@ export default function FilterControl(props) {
         setLoading(false);
         data = data.map(sheet => {
           const controls = _.get(sheet, 'template.controls');
-          _.set(sheet, 'template.controls', replaceControlsTranslateInfo(sheet.appId, controls).map(redefineComplexControl));
-          sheet.name = getTranslateInfo(sheet.appId, sheet.worksheetId).name || sheet.name;
+          _.set(sheet, 'template.controls', replaceControlsTranslateInfo(sheet.appId, sheet.worksheetId, controls).map(redefineComplexControl));
+          sheet.name = getTranslateInfo(sheet.appId, null, sheet.worksheetId).name || sheet.name;
           return sheet;
         });
         setSheetList(sheetList.concat(data));

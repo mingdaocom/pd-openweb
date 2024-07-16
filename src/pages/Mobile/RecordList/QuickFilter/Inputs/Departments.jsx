@@ -60,6 +60,7 @@ export default function Departments(props) {
   const deleteCurrentDepartment = item => {
     onChange({ values: values.filter(v => v.departmentId !== item.departmentId) });
   };
+
   return (
     <div className="controlWrapper">
       <div className="Font14 bold mBottom15">{control.controlName}</div>

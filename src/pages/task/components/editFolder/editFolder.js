@@ -51,7 +51,10 @@ $.extend(EditFolder.prototype, {
       ),
       width: 570,
     });
-    _this.initEvent();
+
+    setTimeout(() => {
+      _this.initEvent();
+    }, 200);
   },
 
   // 事件初始件

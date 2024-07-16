@@ -4,7 +4,7 @@ import { autobind } from 'core-decorators';
 import { RadioGroup } from 'ming-ui';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
-import _ from 'lodash';
+import _, { includes } from 'lodash';
 
 export default class YesNo extends Component {
   static propTypes = {
@@ -24,7 +24,7 @@ export default class YesNo extends Component {
       const itemnames = getSwitchItemNames(control, { isShow: true });
       return itemnames.map(item => ({ text: item.value, value: Number(item.key) }));
     }
-    if (control.type === 40) {
+    if (includes([40, 41], control.type)) {
       return [
         { text: _l('为空'), value: 0 },
         { text: _l('不为空'), value: 1 },

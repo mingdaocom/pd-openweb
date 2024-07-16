@@ -18,13 +18,12 @@ import {
 } from '../../util/setting';
 import { useSheetInfo } from '../../hooks';
 import { FilterItemTexts, FilterDialog } from '../components/FilterData';
-import CommonComponents from '../../components';
-import components from '../components';
+import WidgetDropdown from '../../components/Dropdown';
+import PointerConfig from '../components/PointerConfig';
+import PreSuffix from '../components/PreSuffix';
 import { SYSTEM_CONTROL } from '../../config/widget';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
-
-const { PointerConfig, PreSuffix } = components;
 
 const DATE_FORMULA_UNIT = [_l('分钟'), _l('小时'), _l('天'), _l('月'), _l('年')];
 
@@ -125,6 +124,7 @@ export default function Subtotal(props) {
         i.controlId,
       ),
   );
+  const filterColumns = (sheetData.info || {}).worksheetId ? sheetData.controls || [] : relationControls || [];
 
   const selectedControl = getControlByControlId(availableControls, sourceControlId);
   const totalType = getTotalType(selectedControl);
@@ -200,7 +200,7 @@ export default function Subtotal(props) {
         <Fragment>
           <SettingItem>
             <div className="settingItemTitle">{_l('汇总')}</div>
-            <CommonComponents.Dropdown
+            <WidgetDropdown
               searchable
               value={sourceControlId || 'count'}
               data={[
@@ -224,8 +224,15 @@ export default function Subtotal(props) {
                 const controlName = value === 'count' ? _l('记录数量') : get(originControl, 'controlName');
                 const invalidError =
                   originControl && originControl.type === 30 && (originControl.strDefault || '')[0] === '1';
+
                 // 数据没回不显示已删除
-                if (loading || (sheetData.info || {}).worksheetId !== worksheetId) return <div className="text"></div>;
+                if (
+                  loading ||
+                  ((sheetData.info || {}).worksheetId && (sheetData.info || {}).worksheetId !== worksheetId)
+                ) {
+                  return <div className="text"></div>;
+                }
+
                 return (
                   <div className={cx('text', { Red: !controlName || invalidError })}>
                     {controlName ? (
@@ -318,7 +325,8 @@ export default function Subtotal(props) {
             {visible && (
               <FilterDialog
                 {...props}
-                relationControls={availableControls}
+                sheetSwitchPermit={_.get(sheetData, 'info.switches')}
+                relationControls={filterColumns}
                 fromCondition={'subTotal'}
                 helpHref="https://help.mingdao.com/worksheet/control-rollup"
                 onChange={({ filters }) => {

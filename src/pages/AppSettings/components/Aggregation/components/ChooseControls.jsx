@@ -8,8 +8,8 @@ import { getCanSelectControls, formatControls } from '../util';
 
 const Wrap = styled.div`
   width: 240px;
-  height: 320px;
-  min-height: 200px;
+  max-height: 320px;
+  min-height: 300px;
   .controls {
     overflow-y: auto;
   }
@@ -81,7 +81,7 @@ function ChooseControl(props) {
           {parentName ? `>${parentName}` : title}
           {parentName && <span className="ThemeColor3 pLeft5">{title}</span>}
         </div>
-        <div className="search mTop8">
+        <div className="search mTop8 mBottom6">
           <i className="icon-search Gray_9e" />
           <input
             value={keywords}
@@ -91,7 +91,7 @@ function ChooseControl(props) {
             placeholder={_l('搜索字段')}
           />
         </div>
-        <div className="flex controls mTop6">
+        <div className="flex controls">
           {controlsByKey.length <= 0 ? (
             <div className="Gray_9e mTop40 pTop8 TxtCenter pBottom20">{_l('暂无相关字段')}</div>
           ) : (

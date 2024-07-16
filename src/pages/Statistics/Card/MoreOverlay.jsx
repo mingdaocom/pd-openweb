@@ -177,6 +177,8 @@ export default class MoreOverlay extends Component {
     } = this.props;
     const { favorite } = this.state;
     const isSheetView = ![reportTypes.PivotTable].includes(reportType);
+    const isEmbedPage = location.href.includes('embed/page');
+    const isEmbedChart = location.href.includes('embed/chart');
     const isFavorite =
       _.find(md.global.Account.projects, { projectId }) &&
       !window.isPublicApp &&
@@ -231,7 +233,7 @@ export default class MoreOverlay extends Component {
             </div>
           </Menu.Item>
         )}
-        {!md.global.Account.isPortal && !location.href.includes('embed/page') && reportStatus > 0 && sourceType !== 3 && (
+        {!md.global.Account.isPortal && !(isEmbedPage || isEmbedChart) && reportStatus > 0 && sourceType !== 3 && (
           <Menu.Item
             className="pLeft10"
             onClick={() => {
@@ -338,7 +340,7 @@ export default class MoreOverlay extends Component {
   }
   render() {
     const { shareVisible, showPageMove, dropdownVisible } = this.state;
-    const { appId, worksheetId, report, className, permissions, isCharge, isLock, sheetVisible, permissionType } =
+    const { appId, worksheetId, pageId, report, className, permissions, isCharge, isLock, sheetVisible, permissionType, sourceType } =
       this.props;
     return (
       <Fragment>
@@ -364,6 +366,8 @@ export default class MoreOverlay extends Component {
               sourceId: report.id,
               worksheetId,
               title: report.name,
+              pageId: sourceType === 1 ? pageId : undefined,
+              privateVisible: sourceType === 1 || !sourceType
             }}
             getCopyContent={(type, url) => (type === 'private' ? url : `${url} ${report.name}`)}
             onClose={() => this.setState({ shareVisible: false })}

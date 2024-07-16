@@ -20,7 +20,6 @@ const Con = styled.div`
   display: flex;
   align-items: center;
   height: 32px;
-  line-height: 30px;
   border: 1px solid ${({ active }) => (active ? '#2196f3' : '#ddd')} !important;
   border-radius: 4px 0 0 4px;
   &:hover {

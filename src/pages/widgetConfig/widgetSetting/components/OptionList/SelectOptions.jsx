@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, Fragment } from 'react';
-import Components from '../../../components';
+import AutoIcon from '../../../components/Icon';
 import { has } from 'lodash';
 import { Support, Dialog, Dropdown, Menu, MenuItem } from 'ming-ui';
 import styled from 'styled-components';
@@ -22,8 +22,6 @@ import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
 import DeleteDialog from './DelateDialog';
 import cx from 'classnames';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-
-const Icon = Components.Icon;
 
 const OPTION_TYPE = [
   {
@@ -331,17 +329,17 @@ export default function SelectOptions(props) {
                 onSuccess={() => alert(_l('复制成功，请去批量添加选项'))}
                 data-tip={_l('复制')}
               >
-                <Icon icon="content-copy" className="mRight15" />
+                <AutoIcon icon="content-copy" className="mRight15" />
               </ClipboardButton>
               {!dataSource && showtype !== '2' && (
                 <Fragment>
                   <Tooltip title={_l('转为选项集')} placement="bottom">
-                    <Icon icon="swap_horiz" onClick={toOptionList} />
+                    <AutoIcon icon="swap_horiz" onClick={toOptionList} />
                   </Tooltip>
                   {deleteOptions.length > 0 && (
                     <Tooltip title={_l('已删除选项')} placement="bottom">
                       <span className="mLeft15 flexCenter pointer" onClick={() => setVisible({ deleteVisible: true })}>
-                        <Icon icon="trash" />
+                        <AutoIcon icon="trash" />
                         <span className="mLeft5">{deleteOptions.length}</span>
                       </span>
                     </Tooltip>
@@ -355,7 +353,7 @@ export default function SelectOptions(props) {
           <Fragment>
             <OptionListItem isMore={isMore}>
               <div className="title Bold">
-                <div className="name flexColumn">
+                <div className="name flexColumn breakAll">
                   <span>
                     {(optionList || {}).name}
                     {` ( ${(getOptions(optionList) || []).length} )`}
@@ -369,7 +367,7 @@ export default function SelectOptions(props) {
                 <div className="operate flexCenter">
                   {canEditApp(optionList.permissionType) && (
                     <Tooltip title={_l('编辑')} placement="bottom">
-                      <Icon icon="edit" onClick={() => setVisible({ editVisible: true })} />
+                      <AutoIcon icon="edit" onClick={() => setVisible({ editVisible: true })} />
                     </Tooltip>
                   )}
                   <Trigger
@@ -386,7 +384,7 @@ export default function SelectOptions(props) {
                         {isNewControl && (
                           <MenuItem
                             key="newSelect"
-                            icon={<Icon icon="refresh1" />}
+                            icon={<AutoIcon icon="refresh1" />}
                             onClick={e => {
                               e.stopPropagation();
                               setVisible({ selectVisible: true, optionVisible: false });
@@ -398,7 +396,7 @@ export default function SelectOptions(props) {
                         {deleteStatus && !isNewControl && (
                           <MenuItem
                             key="recover"
-                            icon={<Icon icon="repeal-o" />}
+                            icon={<AutoIcon icon="repeal-o" />}
                             onClick={e => {
                               e.stopPropagation();
                               setVisible({ recoverVisible: true, optionVisible: false });
@@ -409,7 +407,7 @@ export default function SelectOptions(props) {
                         )}
                         <MenuItem
                           key="custom"
-                          icon={<Icon icon="swap_horiz" />}
+                          icon={<AutoIcon icon="swap_horiz" />}
                           onClick={e => {
                             e.stopPropagation();
                             setVisible({ optionVisible: false });
@@ -421,7 +419,7 @@ export default function SelectOptions(props) {
                       </MenuWrap>
                     }
                   >
-                    <Icon icon="more_horiz" className="mLeft15" />
+                    <AutoIcon icon="more_horiz" className="mLeft15" />
                   </Trigger>
                 </div>
               </div>
@@ -443,7 +441,7 @@ export default function SelectOptions(props) {
                         <div className="flexCenter">
                           {fromPortal ? null : (
                             <Tooltip title={hide ? _l('隐藏不影响已选选项') : _l('显示')} placement="bottom">
-                              <Icon
+                              <AutoIcon
                                 className={cx('hideIcon', { showIcon: hide })}
                                 icon={hide ? 'workflow_hide ' : 'visibility'}
                                 onClick={() => {

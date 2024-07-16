@@ -6,6 +6,7 @@ import { browserIsMobile, formatStrZero } from 'src/util';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import moment from 'moment';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 const Tips = styled.div`
   max-width: 230;
@@ -49,6 +50,18 @@ export default class Widgets extends Component {
     controlId: PropTypes.string,
     enumDefault2: PropTypes.number,
   };
+
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   render() {
     const { value, dot, unit, advancedSetting = {}, enumDefault2, enumDefault } = this.props;

@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { arrayOf, bool, shape, string, func, number } from 'prop-types';
 import styled from 'styled-components';
 import { Dialog } from 'ming-ui';
@@ -86,6 +86,7 @@ function Header(props, ref) {
     changePageIndex = () => {},
   } = props;
   const filterComp = useRef();
+  const inputRef = useRef();
   const [searchActive, setSearchActive] = useState();
   const [searchText, setSearchText] = useState('');
   useImperativeHandle(ref, () => ({
@@ -95,6 +96,13 @@ function Header(props, ref) {
       } catch (err) {}
     },
   }));
+  useEffect(() => {
+    if (!props.searchText) {
+      try {
+        inputRef.current.clear();
+      } catch (err) {}
+    }
+  }, [props.searchText]);
   return (
     <Con>
       <div className="flex flexRow overflow_ellipsis">
@@ -118,6 +126,7 @@ function Header(props, ref) {
       </div>
       <Operate>
         <SearchInput
+          ref={inputRef}
           active={searchActive}
           value={searchText}
           className="queryInput"
@@ -171,6 +180,7 @@ function Header(props, ref) {
 
 Header.propTypes = {
   isCharge: bool,
+  searchText: string,
   title: string,
   projectId: string,
   appId: string,

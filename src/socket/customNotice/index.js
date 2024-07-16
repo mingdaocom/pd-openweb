@@ -11,24 +11,38 @@ export default function customNotice() {
   if (socket) {
     $('body').on('click', 'a', function (evt) {
       if ($(evt.target).closest('.customNotification').length) {
-        evt.preventDefault();
-
         const href = ($(evt.target).closest('a').attr('href') || '').toLocaleLowerCase();
+        const stop = () => {
+          evt.preventDefault();
+          evt.stopImmediatePropagation();
+        };
 
         if (href.indexOf('worksheetexcel') > -1) {
           const downloadUrl = `${__api_server__.main + href}`;
+
           window.open(downloadFile(downloadUrl));
+          stop();
           return;
         }
 
         if (href.indexOf('excelerrorpage') > -1) {
           const id = href.slice(href.indexOf('excelerrorpage') + 15).split('/');
+
           new ErrorDialog({ fileKey: id[0] });
+          stop();
         }
 
         if (href.indexOf('excelbatcherrorpage') > -1) {
           const id = href.slice(href.indexOf('excelbatcherrorpage') + 15).split('/');
+
           new ErrorDialog({ fileKey: id[1], isBatch: true });
+          stop();
+        }
+
+        if (href.indexOf('applang') > -1) {
+          navigateTo(`/app/${href.match(/applang\/(.*)/)[1]}/settings/language`);
+          stop();
+          return;
         }
       }
     });

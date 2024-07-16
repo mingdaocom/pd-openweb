@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { autobind } from 'core-decorators';
@@ -16,6 +15,7 @@ import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import IconText from 'worksheet/components/IconText';
 import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
 import { checkCellIsEmpty, handleRecordError, replaceBtnsTranslateInfo } from 'worksheet/util';
+import DropMotion from 'worksheet/components/Animations/DropMotion';
 import PrintList from './PrintList';
 import ExportList from './ExportList';
 import SubButton from './SubButton';
@@ -26,6 +26,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import { canEditData, canEditApp, isHaveCharge } from 'worksheet/redux/actions/util';
 import { PRINT_TYPE } from 'src/pages/Print/config';
+import { emitter } from 'src/util';
 
 const CancelTextContent = styled.div`
   display: flex;
@@ -397,28 +398,309 @@ class BatchOperate extends React.Component {
       </div>
     );
     return (
-      <ReactCSSTransitionGroup
-        transitionName="batchOperateCon"
-        transitionEnterTimeout={500}
-        transitionLeaveTimeout={300}
+      <DropMotion
+        duration={200}
+        style={{ marginLeft: -24, marginRight: -24, position: 'absolute', width: '100%', top: 0, zIndex: 2 }}
+        visible={!!selectedLength && rows.length && !loading && !_.isEmpty(permission)}
       >
-        {!!selectedLength && rows.length && !loading && !_.isEmpty(permission) && (
-          <div className={cx('batchOperateCon', { single: type === 'single' })}>
-            {type !== 'single' && selectedTip}
-            <div className="operate flexRow">
-              {type === 'single' && selectedTip}
-              {permission && canEdit && (!selectedRow || selectedRow.allowedit) && (
-                <IconText
-                  icon="hr_edit"
-                  text={_l('编辑')}
-                  onClick={() => {
-                    const _this = this;
-                    if (window.isPublicApp) {
-                      alert(_l('预览模式下，不能操作'), 3);
-                      return;
+        <div className={cx('batchOperateCon', { single: type === 'single' })}>
+          {type !== 'single' && selectedTip}
+          <div className="operate flexRow">
+            {type === 'single' && selectedTip}
+            {permission && canEdit && (!selectedRow || selectedRow.allowedit) && (
+              <IconText
+                icon="hr_edit"
+                text={_l('编辑')}
+                onClick={() => {
+                  const _this = this;
+                  if (window.isPublicApp) {
+                    alert(_l('预览模式下，不能操作'), 3);
+                    return;
+                  }
+                  function handleEdit() {
+                    editRecord({
+                      appId,
+                      viewId,
+                      projectId,
+                      view,
+                      worksheetId,
+                      searchArgs: filters,
+                      quickFilter,
+                      navGroupFilters,
+                      filtersGroup,
+                      allWorksheetIsSelected,
+                      updateRows,
+                      getWorksheetSheetViewSummary,
+                      reloadWorksheet: () => {
+                        reload();
+                        _this.setState({ select1000: false });
+                      },
+                      selectedRows,
+                      worksheetInfo: worksheetInfo,
+                    });
+                  }
+                  if (selectedLength > md.global.SysSettings.worktableBatchOperateDataLimitCount) {
+                    Dialog.confirm({
+                      title: (
+                        <span style={{ fontWeight: 500, lineHeight: '1.5em' }}>
+                          {_l(
+                            '最大支持批量执行%0行记录，是否只选中并执行前%0行数据？',
+                            md.global.SysSettings.worktableBatchOperateDataLimitCount,
+                          )}
+                        </span>
+                      ),
+                      onOk: () => {
+                        this.setState({ select1000: true });
+                        handleEdit();
+                      },
+                    });
+                  } else {
+                    handleEdit();
+                  }
+                }}
+              />
+            )}
+            {!allWorksheetIsSelected && permission && canCopy && (!selectedRow || selectedRow.allowedit) && (
+              <IconText
+                icon="copy"
+                text={_l('复制')}
+                onClick={() => {
+                  if (window.isPublicApp) {
+                    alert(_l('预览模式下，不能操作'), 3);
+                    return;
+                  }
+                  if (selectedRows.length > 20) {
+                    alert(_l('批量复制不能超过20行'), 3);
+                    return;
+                  }
+                  Dialog.confirm({
+                    title: _l('您确认复制这%0条记录吗？', selectedRows.length),
+                    onOk: () => {
+                      const rowIds = selectedRows.map(r => r.rowid);
+                      copyRow(
+                        {
+                          worksheetId,
+                          viewId,
+                          rowIds,
+                        },
+                        newRows => {
+                          addRecord(newRows, this.findLastId(rowIds));
+                          clearSelect();
+                          setHighLightOfRows(newRows.map(r => r.rowid));
+                        },
+                      );
+                    },
+                  });
+                }}
+              />
+            )}
+            <PrintList
+              {...{
+                isCharge,
+                showCodePrint,
+                appId,
+                worksheetId,
+                projectId,
+                viewId,
+                controls,
+                selectedRows,
+                selectedRowIds: selectedRows.map(r => r.rowid),
+                count: count,
+                allowLoadMore: allWorksheetIsSelected,
+              }}
+              {...this.getFilterArgs()}
+            />
+            {showExport && <ExportList {...this.props} />}
+            {canDelete && (
+              <IconText
+                className="delete"
+                icon="delete2"
+                text={_l('删除')}
+                onClick={() => {
+                  if (window.isPublicApp) {
+                    alert(_l('预览模式下，不能操作'), 3);
+                    return;
+                  }
+                  function handleDelete(thoroughDelete) {
+                    const hasAuthRowIds = selectedRows
+                      .filter(item => item.allowdelete || item.allowDelete)
+                      .map(item => item.rowid);
+                    if (!allWorksheetIsSelected && hasAuthRowIds.length === 0) {
+                      alert(_l('无权限删除选择的记录'), 3);
+                    } else {
+                      const args = {
+                        appId,
+                        viewId,
+                        worksheetId,
+                        isAll: allWorksheetIsSelected,
+                        thoroughDelete,
+                      };
+                      if (args.isAll) {
+                        args.excludeRowIds = selectedRows.map(item => item.rowid);
+                        args.fastFilters = (quickFilter || []).map(f =>
+                          _.pick(f, [
+                            'controlId',
+                            'dataType',
+                            'spliceType',
+                            'filterType',
+                            'dateRange',
+                            'value',
+                            'values',
+                            'minValue',
+                            'maxValue',
+                          ]),
+                        );
+                        args.navGroupFilters = navGroupFilters;
+                        args.filterControls = filters.filterControls;
+                        args.keyWords = filters.keyWords;
+                        args.searchType = filters.searchType;
+                      } else {
+                        args.rowIds = hasAuthRowIds;
+                      }
+                      worksheetAjax
+                        .deleteWorksheetRows(args)
+                        .then(res => {
+                          if (res.isSuccess) {
+                            emitter.emit('ROWS_UPDATE');
+                            if (allWorksheetIsSelected && res.successCount === 0) {
+                              alert(_l('无权限删除选择的记录'), 3);
+                            } else if (hasAuthRowIds.length < selectedRows.length || allWorksheetIsSelected) {
+                              alert(_l('删除成功，无编辑权限的记录无法删除'));
+                            } else if (hasAuthRowIds.length === selectedRows.length) {
+                              alert(_l('删除成功'));
+                            }
+                            if (
+                              allWorksheetIsSelected ||
+                              selectedRows.length === pageSize ||
+                              selectedRows.length === rows.length
+                            ) {
+                              reload();
+                            } else {
+                              clearSelect();
+                              hideRows(hasAuthRowIds);
+                              getWorksheetSheetViewSummary();
+                            }
+                          }
+                        })
+                        .catch(err => {
+                          alert(_l('批量删除失败'), 3);
+                        });
                     }
-                    function handleEdit() {
-                      editRecord({
+                  }
+                  const configOptions = {
+                    title: <span className="Red">{_l('批量删除%0', entityName)}</span>,
+                    buttonType: 'danger',
+                    description:
+                      selectedLength <= md.global.SysSettings.worktableBatchOperateDataLimitCount
+                        ? _l(
+                            '%0天内可在 回收站 内找回已删除%1，无编辑权限的数据无法删除。',
+                            md.global.SysSettings.worksheetRowRecycleDays,
+                            entityName,
+                          )
+                        : _l(
+                            '批量操作单次最大支持%0行记录，点击删除后将只删除前%0行记录',
+                            md.global.SysSettings.worktableBatchOperateDataLimitCount,
+                          ),
+                    onOk: handleDelete,
+                  };
+                  if (
+                    isHaveCharge(permissionType) &&
+                    selectedLength >= md.global.SysSettings.worktableBatchOperateDataLimitCount
+                  ) {
+                    configOptions.onlyClose = true;
+                    configOptions.cancelType = 'danger-gray';
+                    configOptions.onCancel = () => {
+                      DeleteConfirm({
+                        footer: isCharge ? undefined : null,
+                        clickOmitText: false,
+                        style: { width: 560 },
+                        bodyStyle: { marginLeft: 36 },
+                        title: (
+                          <div className="Bold flexRow alignItemsCenter">
+                            <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }} />
+                            {_l('彻底删除所有%0行记录', selectedLength)}
+                          </div>
+                        ),
+                        description: (
+                          <div style={{ marginLeft: 36 }}>
+                            <span style={{ color: '#333', fontWeight: 'bold' }}>
+                              {_l('此操作将彻底删除所有数据，不可从回收站中恢复！')}
+                            </span>
+                            {_l(
+                              '当前所选记录数量超过0%行，数据不会进入回收站而直接进行彻底删除。此操作只有应用管理员可以执行。',
+                              md.global.SysSettings.worktableBatchOperateDataLimitCount,
+                            )}
+                            <div className="Bold Gray mTop18">{_l('注意:')}</div>
+                            <ul className="mTop10 9 mLeft4 Font14">
+                              <li style={{ listStyle: 'inside' }}>{_l('将直接物理删除，永远无法恢复')}</li>
+                              <li style={{ listStyle: 'inside' }}>
+                                {_l('其他表与已删除记录的关联关系不会被清除，记录将显示为“已删除”')}
+                              </li>
+                              <li style={{ listStyle: 'inside' }}>{_l('彻底删除不触发工作流')}</li>
+                            </ul>
+                            {!isCharge && <div className="Gray mTop20">{_l('你没有权限进行此操作！')}</div>}
+                          </div>
+                        ),
+                        data: isCharge ? [{ text: _l('我已了解注意事项，并确认彻底删除数据'), value: 1 }] : [],
+                        onOk: () => handleDelete(true),
+                      });
+                      return;
+                    };
+                    configOptions.cancelText = (
+                      <CancelTextContent>
+                        <i className="icon icon-error" />
+                        {_l('彻底删除所有数据', selectedLength)}
+                      </CancelTextContent>
+                    );
+                  }
+                  Dialog.confirm(configOptions);
+                }}
+              />
+            )}
+
+            <div className="flex">
+              {showCusTomBtn && (
+                <Buttons
+                  isCharge={isCharge}
+                  count={selectedLength}
+                  buttons={customButtons}
+                  appId={appId}
+                  viewId={viewId}
+                  recordId={selectedRows.length === 1 && selectedRows[0].rowid}
+                  projectId={projectId}
+                  worksheetId={worksheetId}
+                  selectedRows={selectedRows}
+                  isAll={allWorksheetIsSelected}
+                  handleTriggerCustomBtn={this.handleTriggerCustomBtn}
+                  handleUpdateWorksheetRow={this.handleUpdateWorksheetRow}
+                />
+              )}
+            </div>
+            <Tooltip popupPlacement="bottom" text={<span>{_l('刷新视图')}</span>}>
+              <i
+                className={cx(
+                  'refreshBtn icon icon-task-later refresh Gray_9e Font18 pointer ThemeHoverColor3 mTop5 mRight12',
+                )}
+                onClick={() => {
+                  refresh({ noClearSelected: true, updateWorksheetControls: true });
+                }}
+              />
+            </Tooltip>
+            {(canEditApp(permissionType) || //管理员|开发者
+              canEditData(permissionType)) && ( //运营者
+              <SubButton
+                className="mTop4"
+                list={[
+                  {
+                    text: _l('校准数据'),
+                    icon: 'Empty_nokey',
+                    onClick: () => {
+                      if (window.isPublicApp) {
+                        alert(_l('预览模式下，不能操作'), 3);
+                        return;
+                      }
+                      refreshRecord({
+                        controls,
                         appId,
                         viewId,
                         projectId,
@@ -427,302 +709,24 @@ class BatchOperate extends React.Component {
                         searchArgs: filters,
                         quickFilter,
                         navGroupFilters,
-                        filtersGroup,
                         allWorksheetIsSelected,
                         updateRows,
                         getWorksheetSheetViewSummary,
-                        reloadWorksheet: () => {
-                          reload();
-                          _this.setState({ select1000: false });
-                        },
+                        reloadWorksheet: reload,
                         selectedRows,
                         worksheetInfo: worksheetInfo,
+                        clearSelect,
                       });
-                    }
-                    if (selectedLength > md.global.SysSettings.worktableBatchOperateDataLimitCount) {
-                      Dialog.confirm({
-                        title: (
-                          <span style={{ fontWeight: 500, lineHeight: '1.5em' }}>
-                            {_l(
-                              '最大支持批量执行%0行记录，是否只选中并执行前%0行数据？',
-                              md.global.SysSettings.worktableBatchOperateDataLimitCount,
-                            )}
-                          </span>
-                        ),
-                        onOk: () => {
-                          this.setState({ select1000: true });
-                          handleEdit();
-                        },
-                      });
-                    } else {
-                      handleEdit();
-                    }
-                  }}
-                />
-              )}
-              {!allWorksheetIsSelected && permission && canCopy && (!selectedRow || selectedRow.allowedit) && (
-                <IconText
-                  icon="copy"
-                  text={_l('复制')}
-                  onClick={() => {
-                    if (window.isPublicApp) {
-                      alert(_l('预览模式下，不能操作'), 3);
-                      return;
-                    }
-                    if (selectedRows.length > 20) {
-                      alert(_l('批量复制不能超过20行'), 3);
-                      return;
-                    }
-                    Dialog.confirm({
-                      title: _l('您确认复制这%0条记录吗？', selectedRows.length),
-                      onOk: () => {
-                        const rowIds = selectedRows.map(r => r.rowid);
-                        copyRow(
-                          {
-                            worksheetId,
-                            viewId,
-                            rowIds,
-                          },
-                          newRows => {
-                            addRecord(newRows, this.findLastId(rowIds));
-                            clearSelect();
-                            setHighLightOfRows(newRows.map(r => r.rowid));
-                          },
-                        );
-                      },
-                    });
-                  }}
-                />
-              )}
-              <PrintList
-                {...{
-                  isCharge,
-                  showCodePrint,
-                  appId,
-                  worksheetId,
-                  projectId,
-                  viewId,
-                  controls,
-                  selectedRows,
-                  selectedRowIds: selectedRows.map(r => r.rowid),
-                  count: count,
-                  allowLoadMore: allWorksheetIsSelected,
-                }}
-                {...this.getFilterArgs()}
-              />
-              {showExport && <ExportList {...this.props} />}
-              {canDelete && (
-                <IconText
-                  className="delete"
-                  icon="delete2"
-                  text={_l('删除')}
-                  onClick={() => {
-                    if (window.isPublicApp) {
-                      alert(_l('预览模式下，不能操作'), 3);
-                      return;
-                    }
-                    function handleDelete(thoroughDelete) {
-                      const hasAuthRowIds = selectedRows
-                        .filter(item => item.allowdelete || item.allowDelete)
-                        .map(item => item.rowid);
-                      if (!allWorksheetIsSelected && hasAuthRowIds.length === 0) {
-                        alert(_l('无权限删除选择的记录'), 3);
-                      } else {
-                        const args = {
-                          appId,
-                          viewId,
-                          worksheetId,
-                          isAll: allWorksheetIsSelected,
-                          thoroughDelete,
-                        };
-                        if (args.isAll) {
-                          args.excludeRowIds = selectedRows.map(item => item.rowid);
-                          args.fastFilters = (quickFilter || []).map(f =>
-                            _.pick(f, [
-                              'controlId',
-                              'dataType',
-                              'spliceType',
-                              'filterType',
-                              'dateRange',
-                              'value',
-                              'values',
-                              'minValue',
-                              'maxValue',
-                            ]),
-                          );
-                          args.navGroupFilters = navGroupFilters;
-                          args.filterControls = filters.filterControls;
-                          args.keyWords = filters.keyWords;
-                          args.searchType = filters.searchType;
-                        } else {
-                          args.rowIds = hasAuthRowIds;
-                        }
-                        worksheetAjax
-                          .deleteWorksheetRows(args)
-                          .then(res => {
-                            if (res.isSuccess) {
-                              if (allWorksheetIsSelected && res.successCount === 0) {
-                                alert(_l('无权限删除选择的记录'), 3);
-                              } else if (hasAuthRowIds.length < selectedRows.length || allWorksheetIsSelected) {
-                                alert(_l('删除成功，无编辑权限的记录无法删除'));
-                              } else if (hasAuthRowIds.length === selectedRows.length) {
-                                alert(_l('删除成功'));
-                              }
-                              if (allWorksheetIsSelected || selectedRows.length === pageSize) {
-                                reload();
-                              } else {
-                                clearSelect();
-                                hideRows(hasAuthRowIds);
-                                getWorksheetSheetViewSummary();
-                              }
-                            }
-                          })
-                          .catch(err => {
-                            alert(_l('批量删除失败'), 3);
-                          });
-                      }
-                    }
-                    const configOptions = {
-                      title: <span className="Red">{_l('批量删除%0', entityName)}</span>,
-                      buttonType: 'danger',
-                      description:
-                        selectedLength <= md.global.SysSettings.worktableBatchOperateDataLimitCount
-                          ? _l(
-                              '%0天内可在 回收站 内找回已删除%1，无编辑权限的数据无法删除。',
-                              md.global.SysSettings.worksheetRowRecycleDays,
-                              entityName,
-                            )
-                          : _l(
-                              '批量操作单次最大支持%0行记录，点击删除后将只删除前%0行记录',
-                              md.global.SysSettings.worktableBatchOperateDataLimitCount,
-                            ),
-                      onOk: handleDelete,
-                    };
-                    if (
-                      isHaveCharge(permissionType) &&
-                      selectedLength >= md.global.SysSettings.worktableBatchOperateDataLimitCount
-                    ) {
-                      configOptions.onlyClose = true;
-                      configOptions.cancelType = 'danger-gray';
-                      configOptions.onCancel = () => {
-                        DeleteConfirm({
-                          footer: isCharge ? undefined : null,
-                          clickOmitText: false,
-                          style: { width: 560 },
-                          bodyStyle: { marginLeft: 36 },
-                          title: (
-                            <div className="Bold flexRow alignItemsCenter">
-                              <i className="icon-error error" style={{ fontSize: '28px', marginRight: '8px' }} />
-                              {_l('彻底删除所有%0行记录', selectedLength)}
-                            </div>
-                          ),
-                          description: (
-                            <div style={{ marginLeft: 36 }}>
-                              <span style={{ color: '#333', fontWeight: 'bold' }}>
-                                {_l('此操作将彻底删除所有数据，不可从回收站中恢复！')}
-                              </span>
-                              {_l(
-                                '当前所选记录数量超过%0行，数据不会进入回收站而直接进行彻底删除。此操作只有应用管理员可以执行。',
-                                md.global.SysSettings.worktableBatchOperateDataLimitCount,
-                              )}
-                              <div className="Bold Gray mTop18">{_l('注意:')}</div>
-                              <ul className="mTop10 9 mLeft4 Font14">
-                                <li style={{ listStyle: 'inside' }}>{_l('将直接物理删除，永远无法恢复')}</li>
-                                <li style={{ listStyle: 'inside' }}>
-                                  {_l('其他表与已删除记录的关联关系不会被清除，记录将显示为“已删除”')}
-                                </li>
-                                <li style={{ listStyle: 'inside' }}>{_l('彻底删除不触发工作流')}</li>
-                              </ul>
-                              {!isCharge && <div className="Gray mTop20">{_l('你没有权限进行此操作！')}</div>}
-                            </div>
-                          ),
-                          data: isCharge ? [{ text: _l('我已了解注意事项，并确认彻底删除数据'), value: 1 }] : [],
-                          onOk: () => handleDelete(true),
-                        });
-                        return;
-                      };
-                      configOptions.cancelText = (
-                        <CancelTextContent>
-                          <i className="icon icon-error" />
-                          {_l('彻底删除所有数据', selectedLength)}
-                        </CancelTextContent>
-                      );
-                    }
-                    Dialog.confirm(configOptions);
-                  }}
-                />
-              )}
-
-              <div className="flex">
-                {showCusTomBtn && (
-                  <Buttons
-                    isCharge={isCharge}
-                    count={selectedLength}
-                    buttons={customButtons}
-                    appId={appId}
-                    viewId={viewId}
-                    recordId={selectedRows.length === 1 && selectedRows[0].rowid}
-                    projectId={projectId}
-                    worksheetId={worksheetId}
-                    selectedRows={selectedRows}
-                    isAll={allWorksheetIsSelected}
-                    handleTriggerCustomBtn={this.handleTriggerCustomBtn}
-                    handleUpdateWorksheetRow={this.handleUpdateWorksheetRow}
-                  />
-                )}
-              </div>
-              <Tooltip popupPlacement="bottom" text={<span>{_l('刷新视图')}</span>}>
-                <i
-                  className={cx(
-                    'refreshBtn icon icon-task-later refresh Gray_9e Font18 pointer ThemeHoverColor3 mTop5 mRight12',
-                  )}
-                  onClick={() => {
-                    refresh({ noClearSelected: true, updateWorksheetControls: true });
-                  }}
-                />
-              </Tooltip>
-              {(canEditApp(permissionType) || //管理员|开发者
-                canEditData(permissionType)) && ( //运营者
-                <SubButton
-                  className="mTop4"
-                  list={[
-                    {
-                      text: _l('校准数据'),
-                      icon: 'Empty_nokey',
-                      onClick: () => {
-                        if (window.isPublicApp) {
-                          alert(_l('预览模式下，不能操作'), 3);
-                          return;
-                        }
-                        refreshRecord({
-                          controls,
-                          appId,
-                          viewId,
-                          projectId,
-                          view,
-                          worksheetId,
-                          searchArgs: filters,
-                          quickFilter,
-                          navGroupFilters,
-                          allWorksheetIsSelected,
-                          updateRows,
-                          getWorksheetSheetViewSummary,
-                          reloadWorksheet: reload,
-                          selectedRows,
-                          worksheetInfo: worksheetInfo,
-                          clearSelect,
-                        });
-                      },
                     },
-                  ]}
-                >
-                  <i className="icon icon-more_horiz  Gray_9e Font18 pointer ThemeHoverColor3  mRight12" />
-                </SubButton>
-              )}
-            </div>
+                  },
+                ]}
+              >
+                <i className="icon icon-more_horiz  Gray_9e Font18 pointer ThemeHoverColor3  mRight12" />
+              </SubButton>
+            )}
           </div>
-        )}
-      </ReactCSSTransitionGroup>
+        </div>
+      </DropMotion>
     );
   }
 }

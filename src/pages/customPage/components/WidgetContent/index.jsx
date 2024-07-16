@@ -13,6 +13,7 @@ import { get, max, throttle } from 'lodash';
 import * as actions from '../../redux/action';
 import WidgetDisplay from './WidgetDisplay';
 import { getEnumType, getDefaultLayout, reportCountLimit } from '../../util';
+import { getTranslateInfo } from 'src/util';
 import Tools from './Tools';
 import WidthProvider from './widthProvider';
 import { COLUMN_HEIGHT } from '../../config';
@@ -217,6 +218,7 @@ function WidgetContent(props) {
               value: data.reportId,
               layoutType,
               sourceValue: widget.value,
+              needUpdate: Date.now(),
               config: {
                 objectId: uuidv4()
               }
@@ -293,7 +295,7 @@ function WidgetContent(props) {
     const $wrap = document.getElementById('componentsWrap');
     if (layoutType !== 'web' || !adjustScreen || !$wrap) return config;
     const maxH = max(components.map(item => get(item, ['web', 'layout'])).map(layout => layout.h + layout.y));
-    return { ...config, rowHeight: ((isFullscreen ? window.screen.height : $wrap.offsetHeight) - (isFullscreen ? 10 : 64)) / maxH - 10 };
+    return { ...config, rowHeight: ((isFullscreen ? window.screen.height : $wrap.offsetHeight) - 10) / maxH - 10 };
   };
 
   return (
@@ -308,6 +310,7 @@ function WidgetContent(props) {
         isDraggable={editable}
         isResizable={editable}
         isFullscreen={isFullscreen}
+        layoutType={layoutType}
         draggableCancel=".disableDrag,.chartWrapper .drag"
         onResizeStop={(layout, oldItem = {}) => {
           const index = _.findIndex(layout, { i: oldItem.i });
@@ -322,9 +325,10 @@ function WidgetContent(props) {
         {...getLayoutConfig()}
       >
         {components.map((widget, index) => {
-          const { id, type } = widget;
+          const { id, type, value } = widget;
           const { title, titleVisible } = widget[layoutType] || {};
           const enumType = getEnumType(type);
+          const translateInfo = getTranslateInfo(ids.appId, null, enumType === 'analysis' ? value : id);
           return (
             <LayoutContent key={`${id || index}`} className="resizableWrap">
               {titleVisible && (
@@ -340,7 +344,7 @@ function WidgetContent(props) {
                   ) : (
                     <Fragment>
                       {title && <div className="titleSign" style={{ backgroundColor: appPkg.iconColor || apk.iconColor }} />}
-                      <span className="flex overflow_ellipsis">{title}</span>
+                      <span className="flex overflow_ellipsis">{translateInfo.title || title}</span>
                     </Fragment>
                   )}
                 </div>

@@ -4,8 +4,6 @@ import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import './less/relationControl.less';
 import cx from 'classnames';
 import ajaxRequest from 'src/api/form';
-import 'src/components/createTask/createTask';
-import createCalendar from 'src/components/createCalendar/createCalendar';
 import { LoadDiv, DatePicker, UserHead } from 'ming-ui';
 import { getClassNameByExt } from 'src/util';
 import _ from 'lodash';
@@ -18,7 +16,6 @@ const defaultArr = [
     value: 1,
     searchText: _l('搜索任务'),
     sortText: _l('按任务的最近更新排序'),
-    createText: _l('新建任务'),
   },
   {
     name: _l('项目'),
@@ -33,7 +30,6 @@ const defaultArr = [
     value: 3,
     searchText: _l('搜索日程'),
     sortText: _l('按日程的开始时间排序'),
-    createText: _l('新建日程'),
   },
   {
     name: _l('申请单'),
@@ -224,63 +220,6 @@ export default class RelationControl extends Component {
           this.getSources();
         },
       );
-    }
-  }
-
-  /**
-   * 创建
-   */
-  create() {
-    // 新建任务
-    if (this.state.selectIndex === 1) {
-      $.CreateTask({
-        relationCallback: item => {
-          let list = this.state.list;
-          list.unshift({
-            accountId: item.charge.accountID,
-            avatar: item.charge.avatar,
-            ext1: '',
-            ext2: '',
-            fullname: '',
-            name: item.taskName,
-            sid: item.taskID,
-            sidext: '',
-            type: 1,
-            link: md.global.Config.WebUrl + 'apps/task/task_' + item.taskID,
-          });
-          this.setState({ list });
-        },
-      });
-    }
-
-    // 新建日程
-    if (this.state.selectIndex === 3) {
-      createCalendar({
-        createShare: false,
-        callback: item => {
-          let { list, repeatList } = this.state;
-          const obj = {
-            accountId: md.global.Account.accountId,
-            avatar: md.global.Account.avatar,
-            ext1: item.startDate,
-            ext2: item.endDate,
-            fullname: '',
-            name: item.name,
-            sid: item.calendarID,
-            sidext: '',
-            type: 3,
-            link: md.global.Config.WebUrl + 'apps/calendar/detail_' + item.calendarID,
-          };
-
-          if (item.isRecur) {
-            repeatList.unshift(obj);
-            this.setState({ repeatList });
-          } else {
-            list.unshift(obj);
-            this.setState({ list });
-          }
-        },
-      });
     }
   }
 
@@ -507,12 +446,6 @@ export default class RelationControl extends Component {
               ) : undefined}
             </ul>
             <div className="relationControlFooter">
-              {!this.props.createDisable && currentType.createText ? (
-                <span className="relationControlCreate ThemeColor3" onClick={() => this.create()}>
-                  <i className="icon-plus" />
-                  {currentType.createText}
-                </span>
-              ) : undefined}
               <span
                 className="relationControlCancel ThemeColor3"
                 onClick={() => {

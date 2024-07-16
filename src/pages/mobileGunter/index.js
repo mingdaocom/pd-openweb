@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import preall from 'src/common/preall';
 import GunterView from 'worksheet/views/GunterView/mobile';
@@ -22,5 +22,6 @@ class MobileGunter extends React.Component {
 }
 
 const Comp = preall(MobileGunter, { allowNotLogin: false });
+const root = createRoot(document.getElementById('mobileGunter'));
 
-ReactDOM.render(<Comp />, document.querySelector('#mobileGunter'));
+root.render(<Comp />);

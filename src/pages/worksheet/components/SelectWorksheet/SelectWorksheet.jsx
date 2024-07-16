@@ -82,8 +82,7 @@ function WorksheetList(props) {
                 showSelectOther();
               }}
             >
-              {_l('选择其他应用下的')}
-              {worksheetType === 1 ? _l('自定义页面') : _l('工作表')}
+              {_l('选择其他应用下的%0', worksheetType === 1 ? _l('自定义页面') : _l('工作表'))}
             </div>
           </div>
         </div>
@@ -150,7 +149,7 @@ export default class SelectWroksheet extends React.Component {
             worksheets: data.map(sheet => {
               return {
                 ...sheet,
-                workSheetName: getTranslateInfo(appId, sheet.workSheetId).name || sheet.workSheetName,
+                workSheetName: getTranslateInfo(appId, null, sheet.workSheetId).name || sheet.workSheetName,
               };
             }),
           },

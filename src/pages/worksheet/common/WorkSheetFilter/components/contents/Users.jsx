@@ -186,7 +186,7 @@ export default class Users extends Component {
             users.map((user, index) => (
               <div className="userItem" key={index}>
                 {this.renderHead(user)}
-                <span className="fullname">{user.fullname}</span>
+                <span className="fullname breakAll">{user.fullname}</span>
                 <span
                   className="remove"
                   onClick={e => {

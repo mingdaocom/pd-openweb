@@ -1,10 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import SingleView from 'worksheet/common/SingleView';
-import MobileSingleView from 'mobile/components/SingleView';
-import { Icon, Tooltip, LoadDiv } from 'ming-ui';
-import { browserIsMobile } from 'src/util';
+import { LoadDiv } from 'ming-ui';
+import { browserIsMobile, getTranslateInfo } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
 import homeAppApi from 'src/api/homeApp';
 import _ from 'lodash';
@@ -40,14 +38,14 @@ const ViewWrap = styled.div`
     height: 50px;
     padding: 10px 16px;
     align-items: center;
-    border-bottom: 1px solid #EAEAEA;
+    border-bottom: 1px solid #eaeaea;
     &.mobile {
       font-size: 14px;
       height: 44px;
-      background-color: #F8F8F8;
+      background-color: #f8f8f8;
     }
   }
-  .SingleViewName +div {
+  .SingleViewName + div {
     display: none;
   }
   .SingleViewBody {
@@ -90,25 +88,43 @@ const ViewWrap = styled.div`
 const isMobile = browserIsMobile();
 
 const navigateToView = (workSheetId, viewId) => {
-  homeAppApi.getAppSimpleInfo({
-    workSheetId
-  }).then(data => {
-    const { appId, appSectionId } = data;
-    if (window.isMingDaoApp) {
-      window.location.href = `/mobile/recordList/${appId}/${appSectionId}/${workSheetId}/${viewId}`;
-    } else if (isMobile) {
-      window.mobileNavigateTo(`/mobile/recordList/${appId}/${appSectionId}/${workSheetId}/${viewId}`);
-    } else {
-      navigateTo(`/app/${appId}/${appSectionId}/${workSheetId}/${viewId}`);
-    }
-  });
-}
+  homeAppApi
+    .getAppSimpleInfo({
+      workSheetId,
+    })
+    .then(data => {
+      const { appId, appSectionId } = data;
+      if (window.isMingDaoApp) {
+        window.location.href = `/mobile/recordList/${appId}/${appSectionId}/${workSheetId}/${viewId}`;
+      } else if (isMobile) {
+        window.mobileNavigateTo(`/mobile/recordList/${appId}/${appSectionId}/${workSheetId}/${viewId}`);
+      } else {
+        navigateTo(`/app/${appId}/${appSectionId}/${workSheetId}/${viewId}`);
+      }
+    });
+};
 
 export function View(props) {
-  const { appId, setting, className, layoutType, filtersGroup = [] } = props;
-  const { apkId, value, viewId, config = {} } = setting;
+  const { appId, setting = {}, className, layoutType, filtersGroup = [] } = props;
+  const { id, apkId, value, viewId, config = {} } = setting;
   const singleViewRef = useRef();
   const isMobileLayout = isMobile || layoutType === 'mobile';
+  const translateInfo = getTranslateInfo(appId, null, id);
+  const [Component, setComponent] = useState(null);
+
+  useEffect(() => {
+    if (isMobileLayout) {
+      import('mobile/components/SingleView').then(component => {
+        setComponent(component.default);
+      });
+    } else {
+      import('worksheet/common/SingleView').then(component => {
+        setComponent(component.default);
+      });
+    }
+  }, []);
+
+  if (!Component) return null;
 
   if (_.isEmpty(viewId)) {
     return (
@@ -117,8 +133,6 @@ export function View(props) {
       </EmptyView>
     );
   }
-
-  const Component = isMobileLayout ? MobileSingleView : SingleView;
 
   return (
     <ViewWrap className={cx(className, { hideAddRecord: !config.isAddRecord, hideSearchRecord: !config.searchRecord })}>
@@ -129,8 +143,11 @@ export function View(props) {
         worksheetId={value}
         viewId={viewId}
         maxCount={config.maxCount}
+        pageSize={config.pageCount}
+        authRefreshTime={config.refresh}
         filtersGroup={filtersGroup}
-        headerLeft={(
+        config={config}
+        headerLeft={
           <div className="SingleViewName flex ellipsis">
             <span
               className={cx('Font15 bold Gray', { pointer: config.openView })}
@@ -140,10 +157,10 @@ export function View(props) {
                 }
               }}
             >
-              {config.name}
+              {translateInfo.name || config.name}
             </span>
           </div>
-        )}
+        }
       />
     </ViewWrap>
   );
@@ -160,11 +177,7 @@ export default function Preview(props) {
           <LoadDiv />
         </EmptyView>
       ) : (
-        <View
-          className="disableSingleView"
-          appId={appId}
-          setting={setting}
-        />
+        <View className="disableSingleView" appId={appId} setting={setting} />
       )}
     </Wrap>
   );

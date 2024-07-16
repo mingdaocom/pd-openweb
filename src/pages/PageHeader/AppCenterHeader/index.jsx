@@ -95,11 +95,12 @@ const NewMenuItem = styled(MenuItem)`
 
 function AppCenterHeader(props) {
   const projectId = _.get(props, 'match.params.projectId');
-  const projects = md.global.Account.projects;
+  const [projects, setProjects] = useState(md.global.Account.projects);
   const createRef = useRef();
   const [currentProject, setCurrentProject] = useState(
     getCurrentProject(projectId || localStorage.getItem('currentProjectId')),
   );
+
   useEffect(() => {
     const project = getCurrentProject(projectId || localStorage.getItem('currentProjectId'));
     if (_.isEmpty(project)) {
@@ -122,6 +123,7 @@ function AppCenterHeader(props) {
         },
       ].map((project, i) => (
         <ProjectItem
+          key={i}
           className={cx('ellipsis', { active: currentProject && currentProject.projectId === project.projectId })}
           onClick={() => {
             setPopupVisible(false);
@@ -140,6 +142,7 @@ function AppCenterHeader(props) {
   if (projects.length > Math.ceil((window.innerHeight - 160) / 40)) {
     menuContent = <ScrollCon height={Math.ceil((window.innerHeight - 160) / 40) * 40}>{menuContent}</ScrollCon>;
   }
+
   return (
     <Con className="appCenterHeader">
       {currentProject && (
@@ -183,8 +186,11 @@ function AppCenterHeader(props) {
           onPopupVisibleChange={setPopupVisible}
         >
           <ProjectSwitch className="Font17 bold Hand">
-            <div className="companyName ellipsis">{currentProject.companyName}</div>
-            <i className="switchIcon icon icon-arrow-down-border" />
+            <div className="companyName ellipsis">
+              {(_.find(projects, v => v.projectId === currentProject.projectId) || {}).companyName ||
+                currentProject.companyName}
+            </div>
+            <i className="switchIcon icon icon-arrow-down-border"></i>
           </ProjectSwitch>
         </Trigger>
       )}

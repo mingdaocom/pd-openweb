@@ -1,6 +1,7 @@
 import React from 'react';
-import { applicationIcon } from 'src/util';
 import { config } from '../config';
+import cx from 'classnames';
+import { APPLICATION_ICON } from 'src/util/enum';
 
 export default function Apps(props) {
   const { forbidSuites } = md.global.SysSettings;
@@ -12,10 +13,9 @@ export default function Apps(props) {
           config.callback({ type: 'worksheet' });
         }}
       >
-        <span
-          dangerouslySetInnerHTML={{ __html: applicationIcon('worksheet', 'large') }}
-          className="contacts-apps-icon"
-        />
+        <span className="contacts-apps-icon">
+          <span className={cx(APPLICATION_ICON['worksheet'], 'circle large')} />
+        </span>
         <span className="Font16">{_l('应用')}</span>
       </div>
       <div
@@ -24,10 +24,9 @@ export default function Apps(props) {
           config.callback({ type: 'workflow' });
         }}
       >
-        <span
-          dangerouslySetInnerHTML={{ __html: applicationIcon('workflow', 'large') }}
-          className="contacts-apps-icon"
-        />
+        <span className="contacts-apps-icon">
+          <span className={cx(APPLICATION_ICON['workflow'], 'circle large')} />
+        </span>
         <span className="Font16">{_l('工作流')}</span>
       </div>
       {!forbidSuites.includes('1') && (
@@ -37,7 +36,9 @@ export default function Apps(props) {
             config.callback({ type: 'post' });
           }}
         >
-          <span dangerouslySetInnerHTML={{ __html: applicationIcon('post', 'large') }} className="contacts-apps-icon" />
+          <span className="contacts-apps-icon">
+            <span className={cx(APPLICATION_ICON['post'], 'circle large')} />
+          </span>
           <span className="Font16">{_l('动态')}</span>
         </div>
       )}
@@ -48,7 +49,9 @@ export default function Apps(props) {
             config.callback({ type: 'task' });
           }}
         >
-          <span dangerouslySetInnerHTML={{ __html: applicationIcon('task', 'large') }} className="contacts-apps-icon" />
+          <span className="contacts-apps-icon">
+            <span className={cx(APPLICATION_ICON['task'], 'circle large')} />
+          </span>
           <span className="Font16">{_l('任务')}</span>
         </div>
       )}
@@ -59,10 +62,9 @@ export default function Apps(props) {
             config.callback({ type: 'calendar' });
           }}
         >
-          <span
-            dangerouslySetInnerHTML={{ __html: applicationIcon('calendar', 'large') }}
-            className="contacts-apps-icon"
-          />
+          <span className="contacts-apps-icon">
+            <span className={cx(APPLICATION_ICON['calendar'], 'circle large')} />
+          </span>
           <span className="Font16">{_l('日程')}</span>
         </div>
       )}
@@ -73,10 +75,9 @@ export default function Apps(props) {
             config.callback({ type: 'knowledge' });
           }}
         >
-          <span
-            dangerouslySetInnerHTML={{ __html: applicationIcon('knowledge', 'large') }}
-            className="contacts-apps-icon"
-          />
+          <span className="contacts-apps-icon">
+            <span className={cx(APPLICATION_ICON['knowledge'], 'circle large')} />
+          </span>
           <span className="Font16">{_l('知识')}</span>
         </div>
       )}
@@ -87,7 +88,9 @@ export default function Apps(props) {
             config.callback({ type: 'hr' });
           }}
         >
-          <span dangerouslySetInnerHTML={{ __html: applicationIcon('hr', 'large') }} className="contacts-apps-icon" />
+          <span className="contacts-apps-icon">
+            <span className={cx(APPLICATION_ICON['hr'], 'circle large')} />
+          </span>
           <span className="Font16">{_l('人事')}</span>
         </div>
       )}
@@ -97,7 +100,9 @@ export default function Apps(props) {
           config.callback({ type: 'system' });
         }}
       >
-        <span dangerouslySetInnerHTML={{ __html: applicationIcon('system', 'large') }} className="contacts-apps-icon" />
+        <span className="contacts-apps-icon">
+          <span className={cx(APPLICATION_ICON['system'], 'circle large')} />
+        </span>
         <span className="Font16">{_l('系统')}</span>
       </div>
       <div
@@ -106,10 +111,9 @@ export default function Apps(props) {
           config.callback({ type: 'file-transfer' });
         }}
       >
-        <span
-          dangerouslySetInnerHTML={{ __html: applicationIcon('uploadhelper', 'large') }}
-          className="contacts-apps-icon"
-        />
+        <span className="contacts-apps-icon">
+          <span className={cx(APPLICATION_ICON['uploadhelper'], 'circle large')} />
+        </span>
         <span className="Font16">{_l('文件传输助手')}</span>
       </div>
     </div>

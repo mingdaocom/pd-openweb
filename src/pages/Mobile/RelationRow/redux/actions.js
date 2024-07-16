@@ -72,7 +72,15 @@ export const loadRow = (control, getType) => (dispatch, getState) => {
 
   if (_.isEmpty(rowInfo)) {
     sheetAjax.getRowDetail(params).then(result => {
-      dispatch({ type: 'MOBILE_RELATION_ROW_INFO', data: result });
+      dispatch({
+        type: 'MOBILE_RELATION_ROW_INFO',
+        data: {
+          ...result,
+          templateControls: (result.templateControls || []).map(v =>
+            v.controlId === control.controlId ? { ...v, ...control } : v,
+          ),
+        },
+      });
       dispatch(loadRowRelationRows(control, getType));
     });
   } else {

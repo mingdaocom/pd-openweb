@@ -38,6 +38,7 @@ export default function OpenLink(props) {
       visible={visible}
       okDisabled={!message}
       className="SearchWorksheetDialog"
+      overlayClosable={false}
       title={_l('打开链接')}
       onCancel={() => setState({ visible: false })}
       onOk={() => {

@@ -54,7 +54,7 @@ export default ({
 
       {!!data.conditions.length && !disabledNewFilter && (
         <div className="workflowDetailDesc pTop15 pBottom15 mTop20" style={{ background: 'rgba(255, 163, 64, 0.12)' }}>
-          <div className="Gray_9e mBottom5">
+          <div className="Gray_75 mBottom5">
             {_l('筛选器现已支持且或组合；手动切换后，不会丢失您现有的配置，可以直接在现有筛选条件的基础上进一步配置')}
           </div>
           <span

@@ -36,6 +36,9 @@ export default function (props) {
     setValue(last.path);
     setSearch('');
     setKeywords('');
+    if (_.isEmpty(last)) {
+      return onDynamicValueChange([]);
+    }
     onDynamicValueChange([{ cid: '', rcid: '', staticValue: JSON.stringify({ code: last.id, name: last.path }) }]);
   };
   const onTriggerClick = () => {
@@ -73,7 +76,6 @@ export default function (props) {
           <CityPicker key={`CityPicker-${data.controlId}`} search={keywords} level={areaLevel} callback={handleChange}>
             <input
               className="CityPicker-input-placeholder-Gray3"
-              autoFocus
               placeholder={value}
               value={search}
               onChange={e => {

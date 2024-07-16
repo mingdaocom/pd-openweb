@@ -55,9 +55,10 @@ export default function HideItem(props) {
           updateAdvancedSetting({
             ...item,
             advancedSetting: {
-              ...item.advancedSetting,
               showhide: showhiden,
             },
+            editAttrs: ['advancedSetting'],
+            editAdKeys: ['showhide'],
           });
         }}
         handleClose={() => setVisible(false)}
@@ -120,7 +121,7 @@ export default function HideItem(props) {
           onFocus={handleFocus}
         />
       ) : (
-        <span className="viewName ellipsis">{getTranslateInfo(appId, item.viewId).name || item.name}</span>
+        <span className="viewName ellipsis">{getTranslateInfo(appId, null, item.viewId).name || item.name}</span>
       )}
       {isCharge &&
         type === 'drawerWorksheetShowList' &&

@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Dialog } from 'ming-ui';
 import styled from 'styled-components';
 import { UPGARADE_TYPE_LIST } from '../../../../config';
@@ -91,5 +91,7 @@ function UpgradeErrorDialog(props) {
 }
 
 export default ({}) => {
-  ReactDOM.render(<UpgradeErrorDialog />, document.createElement('div'));
+  const root = createRoot(document.createElement('div'));
+
+  root.render(<UpgradeErrorDialog />);
 };

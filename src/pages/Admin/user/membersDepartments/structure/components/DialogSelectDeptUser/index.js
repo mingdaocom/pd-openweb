@@ -4,6 +4,7 @@ import Checkbox from 'ming-ui/components/Checkbox';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import departmentController from 'src/api/department';
 import './index.less';
+import _ from 'lodash';
 
 export default class SelectDeptUser extends Component {
   constructor(props) {
@@ -14,12 +15,13 @@ export default class SelectDeptUser extends Component {
       keywords: '',
       selectedUsersIds: props.selectedUsersIds,
       dataList: [],
+      loading: true,
     };
   }
   componentDidMount() {
     this.getData();
   }
-  
+
   getData = () => {
     const { projectId, departmentId } = this.props;
     const { keywords = '', pageIndex, pageSize, dataList } = this.state;
@@ -28,7 +30,7 @@ export default class SelectDeptUser extends Component {
       .pagedDeptAccountShrotInfos({
         projectId,
         departmentId,
-        keywords,
+        keywords: _.trim(keywords),
         pageIndex,
         pageSize,
       })
@@ -76,35 +78,54 @@ export default class SelectDeptUser extends Component {
 
   render() {
     const { visible, onCancel = () => {} } = this.props;
-    const { dataList, loading, selectedUsersIds } = this.state;
+    const { dataList, loading, selectedUsersIds, keywords = '' } = this.state;
 
     return (
       <Dialog title={_l('设置部门负责人')} visible={visible} onCancel={onCancel} onOk={this.onOk}>
         <div className="selectDepartmentUserContainer">
           <div className="selectDepartmentUserContainer_search">
             <span className="searchIcon icon-search"></span>
-            <input type="text" className="searchInput" placeholder={_l('搜索成员')} />
+            <input
+              type="text"
+              className="searchInput"
+              placeholder={_l('搜索成员')}
+              onChange={e =>
+                this.setState(
+                  { keywords: e.target.value, pageIndex: 1 },
+                  _.debounce(e => this.getData(), 500),
+                )
+              }
+            />
             <span className="searchClose icon-closeelement-bg-circle"></span>
           </div>
-          <div className="selectDepartmentUserContent">
-            <ScrollView onScrollEnd={this.onScrollEnd}>
-              {dataList.map(item => {
-                const { accountId, avatar, fullname, job } = item;
-                return (
-                  <div className="userItem">
-                    <Checkbox
-                      checked={_.includes(selectedUsersIds, accountId)}
-                      onClick={checked => this.checkedCurrentUser(checked, item)}
-                    />
-                    <img className="circle userAvatar InlineBlock" src={avatar} alt={fullname} />
-                    <span className="userName overflow_ellipsis">{fullname}</span>
-                    <span className="profession overflow_ellipsis">{job}</span>
-                  </div>
-                );
-              })}
-            </ScrollView>
-            {loading && <LoadDiv />}
-          </div>
+          {!loading && _.isEmpty(dataList) ? (
+            <div className="selectDepartmentUserContent emptyUserWrap flexColumn justifyContentCenter alignItemsCenter">
+              <div className="iconWrap">
+                <i className="icon-Empty_data" />
+              </div>
+              <div className="mTop10 Gray_75">{_.trim(keywords) ? _l('无搜索结果') : _l('暂无成员')}</div>
+            </div>
+          ) : (
+            <div className="selectDepartmentUserContent">
+              <ScrollView onScrollEnd={this.onScrollEnd}>
+                {dataList.map(item => {
+                  const { accountId, avatar, fullname, job } = item;
+                  return (
+                    <div className="userItem">
+                      <Checkbox
+                        checked={_.includes(selectedUsersIds, accountId)}
+                        onClick={checked => this.checkedCurrentUser(checked, item)}
+                      />
+                      <img className="circle userAvatar InlineBlock" src={avatar} alt={fullname} />
+                      <span className="userName overflow_ellipsis">{fullname}</span>
+                      <span className="profession overflow_ellipsis">{job}</span>
+                    </div>
+                  );
+                })}
+              </ScrollView>
+              {loading && <LoadDiv />}
+            </div>
+          )}
         </div>
       </Dialog>
     );

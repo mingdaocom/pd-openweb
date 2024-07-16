@@ -66,7 +66,7 @@ class VersionList extends React.Component {
           if (isLastLeft) {
             alert('删除成功');
             this.props.onClose();
-            this.props.performRemoveItems([versionFile.id]);
+            this.props.performRemoveItems && this.props.performRemoveItems([versionFile.id]);
             return;
           }
           const versionList = this.state.versionList;

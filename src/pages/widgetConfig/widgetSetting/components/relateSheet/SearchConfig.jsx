@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Menu, MenuItem, Checkbox, RadioGroup, Dialog, Dropdown, Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
-import { arrayMove } from 'react-sortable-hoc';
+import { arrayMove } from '@mdfe/react-sortable-hoc';
 import styled from 'styled-components';
 import update from 'immutability-helper';
 import SelectControl from '../SelectControl';

@@ -12,8 +12,8 @@ import { verifyPassword } from 'src/util';
 const Wrap = styled.div`
   .ming.Dropdown,
   .dropdownTrigger {
-    min-width: 80px;
-    max-width: 200px;
+    min-width: 300px;
+    max-width: 100%;
   }
   .ming.Item .Item-content .itemText {
     padding-left: 10px;
@@ -80,12 +80,12 @@ export default function PublishSetDialog(props) {
         <p className="Gray_75">{_l('此操作会重新同步全量数据')}</p>
         <h5 className="Bold mTop32 Font14">{_l('识别重复数据')}</h5>
         <p className="mBottom12 Gray_9e">{_l('未选择目标字段时, 会根据数据源的主键字段判断重复')}</p>
-        <div className="flexRow alignItemsCenter">
-          <span className="">{_l('在同步时，依据目标字段')}</span>
+        <div className="">
+          <div className="">{_l('在同步时，依据目标字段')}</div>
           <Dropdown
             isAppendToBody
             cancelAble
-            className="controlDrop mLeft10 mRight10"
+            className="controlDrop mTop10"
             menuStyle={{ width: '100%' }}
             data={props.controls.map(o => {
               return { text: o.alias || o.name, icon: getIconByType(o.mdType, false), value: o.id };
@@ -108,23 +108,25 @@ export default function PublishSetDialog(props) {
               setState({ value, fieldForIdentifyDuplicate: props.controls.find(o => o.id === value) || {} });
             }}
           />
-          <span className="">{_l('识别重复，并')}</span>
-          <Dropdown
-            className="controlDrop mLeft10 mRight10"
-            menuStyle={{ width: '100%' }}
-            data={[
-              { text: _l('跳过'), value: 'SKIP' },
-              { text: _l('覆盖'), value: 'OVERWRITE' },
-            ]}
-            value={writeMode}
-            border
-            onChange={writeMode => {
-              setState({ writeMode });
-            }}
-          />
-          <Tooltip text={_l('“覆盖”会导致数据同步变慢')} popupPlacement="top">
-            <Icon icon="info_outline" className="Gray_bd mLeft5 Font18" />
-          </Tooltip>
+          <div className="mTop10">{_l('识别重复，并')}</div>
+          <div className="flexRow alignItemsCenter mTop10">
+            <Dropdown
+              className="controlDrop"
+              menuStyle={{ width: '100%' }}
+              data={[
+                { text: _l('跳过'), value: 'SKIP' },
+                { text: _l('覆盖'), value: 'OVERWRITE' },
+              ]}
+              value={writeMode}
+              border
+              onChange={writeMode => {
+                setState({ writeMode });
+              }}
+            />
+            <Tooltip text={_l('“覆盖”会导致数据同步变慢')} popupPlacement="top">
+              <Icon icon="info_outline" className="Gray_bd mLeft5 Font18" />
+            </Tooltip>
+          </div>
         </div>
         <h5 className="Bold mTop25 Font14">{_l('其他配置')}</h5>
         <div className="">

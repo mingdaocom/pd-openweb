@@ -43,6 +43,9 @@ export const EventActionWrap = styled.div`
   flex-direction: column;
   position: relative;
   cursor: pointer;
+  &:last-child {
+    margin-bottom: 0;
+  }
   .eventHeader {
     display: flex;
     align-items: center;
@@ -51,6 +54,7 @@ export const EventActionWrap = styled.div`
       border: none;
       border-bottom: 1px solid #dddddd;
       flex: 1;
+      min-width: 0;
     }
     .eventIcon {
       width: 16px;
@@ -110,6 +114,12 @@ export const CustomActionWrap = styled.div`
     border: 1px solid #dddddd;
     &:hover {
       border-color: #2196f3;
+      .deleteBtn {
+        display: block;
+      }
+    }
+    .deleteBtn {
+      display: none;
     }
     &.active {
       border-color: #2196f3;
@@ -153,6 +163,14 @@ export const CustomActionWrap = styled.div`
         flex: 1;
         min-width: 0;
       }
+      .sheetDynamic {
+        & > div > div > div {
+          width: 100%;
+        }
+        .selectOtherFieldContainer {
+          display: none;
+        }
+      }
       .itemFiled {
         padding: 0 12px;
         display: flex;
@@ -161,7 +179,16 @@ export const CustomActionWrap = styled.div`
         background: #f5f5f5;
         border-radius: 3px;
       }
+      .errorBorder {
+        border: 1px solid #ff0000;
+        height: 36px;
+        border-radius: 3px;
+        cursor: not-allowed;
+      }
     }
+  }
+  &.customApiDialog > div:first-child {
+    margin-top: 0px !important;
   }
 `;
 
@@ -182,11 +209,16 @@ export const DynamicBtn = styled.div`
     margin-right: 4px;
     font-size: 15px;
   }
-  &:hover {
+  &:hover(:not(.disabled)) {
     i {
       color: #1565c0;
     }
     color: #1565c0;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
@@ -209,6 +241,9 @@ export const ActionWrap = styled.div`
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+  }
+  .Max215 {
+    max-width: 215px;
   }
   .iconBox {
     display: none;
@@ -238,39 +273,5 @@ export const SpliceWrap = styled.div`
   }
   .ming.Dropdown .Dropdown--input {
     padding: 2px 8px !important;
-  }
-`;
-
-export const CustomDynamicContent = styled.div`
-  display: contents;
-  .option {
-    display: flex;
-    align-items: center;
-    height: 24px;
-    background: #e5e5e5;
-    margin: 4px 6px 0 0;
-    padding: 0 10px;
-    border-radius: 12px;
-    &.isDeleted {
-      .text {
-        color: #9e9e9e;
-      }
-    }
-  }
-`;
-
-export const CustomFieldList = styled.div`
-  & > div {
-    border: none;
-    background: transparent;
-    display: contents;
-    .remove,
-    .icon-close {
-      display: none;
-    }
-    .haveCloseIcon {
-      padding: 0 12px;
-      margin-top: 0px;
-    }
   }
 `;

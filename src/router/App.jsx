@@ -10,7 +10,6 @@ import { createDiscussion } from 'src/pages/chat/utils/group';
 import genRouteComponent from './genRouteComponent';
 import { ROUTE_CONFIG, withoutChatUrl } from './config';
 import { ROUTE_CONFIG_PORTAL } from 'src/pages/Portal/config';
-import { setHistoryObject } from './navigateTo';
 import store from 'redux/configureStore';
 import * as actions from 'src/pages/chat/redux/actions';
 import socketInit from '../socket';
@@ -30,23 +29,15 @@ import globalEvents from './globalEvents';
 export default class App extends Component {
   constructor(props) {
     super(props);
-    setHistoryObject(props.history);
-    props.history.listen(location => {
-      if (window.ga) {
-        window.ga('set', 'page', location.pathname + location.search);
-        window.ga('send', 'pageview', location.pathname + location.search);
-      }
-    });
 
     this.state = {
-      prevPath: '',
       isSupport: true,
       supportTime: '',
     };
+
+    window.reactRouterHistory = props.history;
     this.genRouteComponent = genRouteComponent();
-    if (!window.isPublicApp) {
-      socketInit();
-    }
+    !window.isPublicApp && socketInit();
   }
 
   componentDidMount() {
@@ -66,12 +57,6 @@ export default class App extends Component {
       }
     } else {
       localStorage.removeItem('supportTime');
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.location !== this.props.location) {
-      this.setState({ prevPath: this.props.location });
     }
   }
 
@@ -193,7 +178,7 @@ export default class App extends Component {
   }
 
   render() {
-    const { rp } = getAppFeaturesVisible();
+    const { rp, ch } = getAppFeaturesVisible();
 
     if (md.global.Account.isPortal) {
       return (
@@ -218,18 +203,20 @@ export default class App extends Component {
               <Route
                 path="*"
                 render={() => {
-                  window.location.goto('/dashboard');
+                  window.location.replace('/dashboard');
                   return null;
                 }}
               />
             </Switch>
           </section>
-          <section id="chat">
-            <Switch>
-              <Route path={withoutChatUrl} component={null} />
-              {!window.isPublicApp && rp && <Route path="*" component={ChatList} />}
-            </Switch>
-          </section>
+          {ch && (
+            <section id="chat">
+              <Switch>
+                <Route path={withoutChatUrl} component={null} />
+                {!window.isPublicApp && rp && <Route path="*" component={ChatList} />}
+              </Switch>
+            </section>
+          )}
         </section>
         <section id="chatPanel">{rp && <ChatPanel />}</section>
         {this.checkUpgrade()}

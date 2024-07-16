@@ -296,7 +296,7 @@ function Edit(params) {
               }
             }}
             onBlur={e => {
-              let value = (['controlName', 'desc', 'des'].includes(o) ? info[o] : staticValue).trim();
+              let value = (['controlName', 'desc', 'des'].includes(o) ? info[o] || '' : staticValue).trim();
               if (['controlName', 'desc', 'des'].includes(o)) {
                 onUpdate({
                   [o]: value,
@@ -466,7 +466,7 @@ function Edit(params) {
                 });
               }}
             />
-            <p className="Gray_9e mAll0">
+            <p className="Gray_75 mAll0">
               {_l(
                 '输入选项值（每行一个），第一个作为默认值。可设置选项显示名，使用 选项值=[显示名] 表示，如：0=[填充]；1=[完整显示]',
               )}

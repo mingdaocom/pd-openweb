@@ -627,6 +627,9 @@ body .Hidden {
 .mTop80 {
   margin-top: 80px !important;
 }
+.mTop90 {
+  margin-top: 90px !important;
+}
 
 .mRight0 {
   margin-right: 0px !important;
@@ -1587,7 +1590,9 @@ body .Hidden {
 .Font130 {
   font-size: 130px !important;
 }
-
+.LineHeight0 {
+  line-height: 0;
+}
 .LineHeight15 {
   line-height: 15px !important;
 }
@@ -2921,7 +2926,6 @@ input[type='checkbox']:disabled:checked:after {
   height: 200px;
 }
 
-
 .fileIcon-code {
   background: url('newfileIcons/code.png') no-repeat;
   width: 175px;
@@ -3057,6 +3061,7 @@ html:not(.appHomeMobile) .ant-message {
   font-weight: 500;
   border-radius: 40px;
   padding: 10px 20px 10px 18px;
+  word-break: break-word;
 }
 
 .ant-select-dropdown.withIsEmpty .ant-select-item.isEmpty {
@@ -3116,7 +3121,7 @@ html:not(.appHomeMobile) .ant-message {
 }
 
 .mdAntSelect.ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
-  color: #bfbfbf !important;
+  color: #bdbdbd !important;
 }
 
 .mdAntSelect.ant-select-single.ant-select-show-arrow .ant-select-selection-item {
@@ -3148,7 +3153,18 @@ html:not(.appHomeMobile) .ant-message {
 .mdAntSelect .ant-select-selection-overflow-item {
   margin-top: -1px;
 }
-
+.mdAntSelectOption.ant-select-item {
+  min-height: 36px;
+  line-height: 26px;
+}
+.mdAntSelectOption.ant-select-item:hover {
+  color: #fff;
+  background-color: #2196f3;
+}
+.mdAntSelectOption.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  color: #fff;
+  background-color: #2196f3;
+}
 /* ----> antd Select 样式 end */
 
 .ant-tooltip {
@@ -3169,7 +3185,7 @@ html:not(.appHomeMobile) .ant-message {
 
 .hoverText:hover {
   cursor: pointer;
-  color: #2196f3;
+  color: #2196f3 !important;
 }
 
 .hoverText:hover i {
@@ -3200,3 +3216,8 @@ input::-webkit-contacts-auto-fill-button {
   position: absolute;
   right: 0;
 }
+
+.flex-shrink-0 {
+  flex-shrink: 0;
+}
+

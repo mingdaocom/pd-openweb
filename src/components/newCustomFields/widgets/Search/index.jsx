@@ -9,6 +9,7 @@ import worksheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 const SearchBtn = styled.div`
   display: flex;
@@ -66,6 +67,9 @@ export default class Widgets extends Component {
         }, 100);
       }
     }
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
   }
 
   realTimeSearch = _.debounce(() => this.handleSearch(), 500);
@@ -80,7 +84,6 @@ export default class Widgets extends Component {
       projectId,
       appId,
       type,
-      getControlRef,
     } = this.props;
     const { keywords } = this.state;
 
@@ -95,7 +98,7 @@ export default class Widgets extends Component {
     }
 
     this.setState({ loading: true, open: true });
-    const paramsData = getParamsByConfigs(requestMap, formData, keywords, getControlRef);
+    const paramsData = getParamsByConfigs(requestMap, formData, keywords);
 
     let params = {
       data: !requestMap.length || _.isEmpty(paramsData) ? '' : paramsData,
@@ -176,6 +179,12 @@ export default class Widgets extends Component {
     const curMap = _.find(responseMap, re => re.id === i && !re.pid && !re.subid);
     return curMap ? _.find(formData, c => c.controlId === curMap.cid) : '';
   };
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   renderList = item => {
     const {

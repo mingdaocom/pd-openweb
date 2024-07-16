@@ -9,7 +9,7 @@ import application from 'src/api/application';
 import { getToken } from 'src/util';
 import 'rc-trigger/assets/index.css';
 import './index.less';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 
 const UploadContent = styled.div`
   align-items: flex-end;
@@ -115,7 +115,7 @@ class Upload extends Component {
 
           // 渲染图片列表
           files.forEach(item => {
-            let fileExt = `.${File.GetExt(item.name)}`;
+            let fileExt = `.${RegExpValidator.getExtOfFileName(item.name)}`;
             tokenFiles.push({ bucket: 2, ext: fileExt });
           });
 
@@ -131,7 +131,7 @@ class Upload extends Component {
           });
         },
         BeforeUpload(up, file) {
-          const fileExt = `.${File.GetExt(file.name)}`;
+          const fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
 
           up.settings.multipart_params = { token: file.token };
           up.settings.multipart_params.key = file.key;
@@ -251,14 +251,14 @@ export default class ThirdpartyApp extends Component {
     if (_.isEmpty(appUrl)) {
       alert('请输入应用地址', 3);
       return;
-    } else if (!RegExp.isUrlRequest(appUrl)) {
+    } else if (!RegExpValidator.isUrlRequest(appUrl)) {
       alert('请正确的 url 地址', 3);
       return;
     }
     if (_.isEmpty(callbackUrl)) {
       alert('请输入回调地址', 3);
       return;
-    } else if (!RegExp.isUrlRequest(callbackUrl)) {
+    } else if (!RegExpValidator.isUrlRequest(callbackUrl)) {
       alert('请正确的 url 地址', 3);
       return;
     }

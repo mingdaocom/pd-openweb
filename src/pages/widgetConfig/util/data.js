@@ -127,8 +127,16 @@ export function dealRelateSheetDefaultValue(data) {
     },
   });
 }
-export function dealUserId(data, dataType) {
-  const value = _.get(data, ['advancedSetting', 'defsource']) || '[]';
+
+const use_ids = {
+  26: 'accountId',
+  27: 'departmentId',
+  48: 'organizeId',
+};
+
+export function dealUserId(data, key = 'defsource') {
+  const value = _.get(data, ['advancedSetting', key]) || '[]';
+  let dataType = use_ids[data.type];
   try {
     const settings = value && JSON.parse(value);
     if (_.isEmpty(settings)) return data;
@@ -136,18 +144,22 @@ export function dealUserId(data, dataType) {
       update(setting, {
         $apply: item => {
           const { staticValue } = item;
+          if (item.type && key === 'chooserange') {
+            const chooseId = item.type === 1 ? 26 : item.type === 2 ? 27 : 48;
+            dataType = use_ids[chooseId];
+          }
           if (staticValue && typeof staticValue === 'string') {
             const accountId = safeParse(staticValue || '{}')[dataType];
             return { ...item, staticValue: accountId || staticValue };
           }
-          if (staticValue[dataType]) return { ...item, staticValue: staticValue[dataType] };
+          if (_.get(staticValue, [dataType])) return { ...item, staticValue: staticValue[dataType] };
           return item;
         },
       }),
     );
     return update(data, {
       advancedSetting: {
-        $apply: item => ({ ...item, defsource: JSON.stringify(newValue) }),
+        $apply: item => ({ ...item, [key]: JSON.stringify(newValue) }),
       },
     });
   } catch (error) {
@@ -434,21 +446,13 @@ export const dealControlPos = controls => {
 
 // 自定义事件保存时处理执行动作内默认值
 const dealCusTomEventActions = (actionItems = [], controls = []) => {
-  return actionItems.map(item => {
+  return (actionItems || []).map(item => {
     const currentControl = _.find(controls, c => c.controlId === item.controlId);
     // 默认值处理，成员、部门等取id
     if (currentControl && item.value) {
       // 用户id替换
       if (_.includes([26, 27, 48], currentControl.type)) {
-        const ids = {
-          26: 'accountId',
-          27: 'departmentId',
-          48: 'organizeId',
-        };
-        const dealData = dealUserId(
-          { ...currentControl, advancedSetting: { defsource: item.value } },
-          ids[currentControl.type],
-        );
+        const dealData = dealUserId({ ...currentControl, advancedSetting: { defsource: item.value } });
         return { ...item, value: _.get(dealData, 'advancedSetting.defsource') };
       }
 
@@ -467,6 +471,39 @@ const dealCusTomEventActions = (actionItems = [], controls = []) => {
   });
 };
 
+export const checkCustomEventError = (controls = []) => {
+  let errorMsg = '';
+
+  for (const data of controls) {
+    const customEvent = getAdvanceSetting(data, 'custom_event') || [];
+    if (customEvent.length > 0 && !errorMsg) {
+      const customActionItems = customEvent.map(({ eventActions = [] } = {}) => {
+        return _.reduce(
+          eventActions,
+          (total, cur) => {
+            const actionItems = (cur.actions || [])
+              .filter(a => _.includes(['5', '12'], a.actionType))
+              .map(a => a.actionItems);
+            return total.concat(...actionItems);
+          },
+          [],
+        );
+      });
+
+      if (_.some(_.flatten(customActionItems), a => !_.find(controls, c => c.controlId === a.controlId))) {
+        errorMsg = _l(`%0字段事件配置异常`, data.controlName);
+        break;
+      }
+    }
+  }
+
+  if (errorMsg) {
+    alert(errorMsg, 2);
+    return true;
+  }
+  return false;
+};
+
 export const formatControlsData = (controls = [], fromSub = false) => {
   return controls.map(item => {
     const { type } = item;
@@ -477,6 +514,25 @@ export const formatControlsData = (controls = [], fromSub = false) => {
     // 有一批老数据影响了默认值功能，清空掉
     if (_.get(data, 'default') === '[]') {
       data.default = '';
+    }
+
+    const chooseRange = getAdvanceSetting(data, 'chooserange') || [];
+    if (chooseRange.length) {
+      data = dealUserId(data, 'chooserange');
+    }
+
+    // 限定输入格式
+    const filterRegex = getAdvanceSetting(data, 'filterregex') || [];
+    if (filterRegex.length) {
+      const newFilterRegex = filterRegex.map(f => {
+        if (f.filters) {
+          const dealFilters = handleFilters({ advancedSetting: { filters: JSON.stringify(f.filters) } }, isRelate);
+          const newFilters = _.get(dealFilters, 'advancedSetting.filters');
+          return { ...f, filters: _.isEmpty(newFilters) ? '' : JSON.parse(newFilters) };
+        }
+        return f;
+      });
+      data = handleAdvancedSettingChange(data, { filterregex: JSON.stringify(newFilterRegex) });
     }
 
     // 自定义事件筛选处理
@@ -497,9 +553,10 @@ export const formatControlsData = (controls = [], fromSub = false) => {
                 return { ...f, filterItems: getAdvanceSetting(newFilterItems, 'filterItems') };
               }),
               actions: (e.actions || []).map(a => {
-                const newActionItems = dealCusTomEventActions(a.actionItems, controls);
                 // 只有设置值、创建等动作能配默认值
-                return _.includes(['5', '12'], a.actionType) ? { ...a, actionItems: newActionItems } : a;
+                return _.includes(['5', '12'], a.actionType)
+                  ? { ...a, actionItems: dealCusTomEventActions(a.actionItems, controls) }
+                  : a;
               }),
             };
           }),
@@ -543,17 +600,17 @@ export const formatControlsData = (controls = [], fromSub = false) => {
 
     // 用户id替换
     if (type === 26) {
-      return dealUserId(data, 'accountId');
+      return dealUserId(data);
     }
 
     // 部门id替换
     if (type === 27) {
-      return dealUserId(data, 'departmentId');
+      return dealUserId(data);
     }
 
     // 组织角色id替换
     if (type === 48) {
-      return dealUserId(data, 'organizeId');
+      return dealUserId(data);
     }
 
     // 关联记录、级联、查询记录

@@ -3,14 +3,27 @@ import { Modal } from 'antd-mobile';
 import { MenuItem } from 'ming-ui';
 
 export const WrapHeader = styled.div`
-  .cover {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
+  .ant-drawer-mask {
     background: rgba(0, 0, 0, 0.1);
-    z-index: 999;
+  }
+  .ant-drawer-right .ant-drawer-content-wrapper {
+    height: calc(100% - 50px);
+    top: 51px;
+    position: absolute;
+    right: 0;
+  }
+  &.leftNaviStyle {
+    .ant-drawer-right .ant-drawer-content-wrapper {
+      height: 100%;
+      top: 0;
+    }
+  }
+  &.isMobile {
+    .ant-drawer-right .ant-drawer-content-wrapper {
+      height: 100%;
+      top: 0;
+      min-width: 100% !important;
+    }
   }
   .headerCenter {
     flex: 1;
@@ -107,20 +120,6 @@ export const WrapHeader = styled.div`
   }
 `;
 export const Wrap = styled.div`
-  position: absolute;
-  right: 0;
-  height: calc(100% - 50px);
-  top: 51px;
-  width: 480px;
-  max-width: 80%;
-  background: #fff;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 24%);
-  z-index: 1000;
-  &.leftNaviStyle {
-    height: 100%;
-    top: 0;
-    position: fixed;
-  }
   .infoConBox {
     height: calc(100% - 70px);
     overflow: auto;

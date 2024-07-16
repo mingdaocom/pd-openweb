@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { string, func, bool } from 'prop-types';
 import autoSize from 'ming-ui/decorators/autoSize';
 import ScrollView from 'ming-ui/components/ScrollView';
@@ -11,6 +11,38 @@ import Steps from './Steps';
 import worksheetAjax from 'src/api/worksheet';
 import _ from 'lodash';
 import StepHeader from './StepHeader';
+import { Icon } from 'ming-ui';
+import instance from '../../api/instance';
+import { getTranslateInfo } from 'src/util';
+
+const WorkflowHistory = props => {
+  return (
+    <div className="flexColumn h100">
+      <StepHeader
+        processId={props.data.processId}
+        instanceId={props.instanceId}
+        processName={props.data.processName}
+        isApproval={props.data.isApproval}
+      />
+      <ScrollView className="flex">
+        <ul className="pAll20 pTop0">
+          <Steps
+            projectId={props.projectId}
+            appId={props.data.app.id}
+            controls={props.controls}
+            currentWork={props.currentWork}
+            rowId={props.rowId}
+            currentType={props.currentWorkItem.type}
+            worksheetId={props.worksheetId}
+            works={props.works}
+            status={props.data.status}
+            currents={props.data.currentWorkIds}
+          />
+        </ul>
+      </ScrollView>
+    </div>
+  );
+};
 
 export default class ExecDialog extends Component {
   static propTypes = {
@@ -43,7 +75,8 @@ export default class ExecDialog extends Component {
     worksheetId: '',
     rowId: '',
     viewId: '',
-    loading: true,
+    nodeLoading: true,
+    worksheetLoading: true,
   };
 
   componentDidMount() {
@@ -68,14 +101,17 @@ export default class ExecDialog extends Component {
           onClose();
           return;
         }
-        this.setState({ errorMsg: STATUS_ERROR_MESSAGE[status] });
+        this.setState({ errorMsg: STATUS_ERROR_MESSAGE[status], nodeLoading: false });
       } else {
+        const { app } = rest;
+        app.name = getTranslateInfo(app.id, null, app.id).name || app.name;
         this.setState({
           data: Object.assign({}, rest, { status }),
           currentWork,
           currentWorkItem,
           works,
           projectId: companyId,
+          nodeLoading: false,
         });
 
         if ((currentWorkItem || {}).operationTime) {
@@ -93,13 +129,18 @@ export default class ExecDialog extends Component {
         workId: workId,
       })
       .then(res => {
+        if (!res.worksheetId) {
+          onClose();
+          return;
+        }
+
         worksheetAjax.getSwitchPermit({ worksheetId: res.worksheetId }).then(sheetSwitchPermit => {
           this.setState({
             sheetSwitchPermit,
             viewId: res.viewId,
             worksheetId: res.worksheetId,
             rowId: res.rowId,
-            loading: false,
+            worksheetLoading: false,
           });
         });
       })
@@ -119,6 +160,23 @@ export default class ExecDialog extends Component {
     });
   };
 
+  /**
+   * 拥有者处理
+   */
+  ownerHandle = () => {
+    const { id, workId, onClose } = this.props;
+    const { currentWorkItem } = this.state;
+    const { type } = currentWorkItem;
+
+    instance[type === 4 ? 'forward' : 'transfer']({
+      id,
+      workId,
+      forwardAccountId: 'user-workflow',
+    }).then(() => {
+      onClose();
+    });
+  };
+
   render() {
     const { id, workId, isLand, onClose } = this.props;
     const {
@@ -132,10 +190,14 @@ export default class ExecDialog extends Component {
       worksheetId,
       viewId,
       rowId,
-      loading,
+      nodeLoading,
+      worksheetLoading,
     } = this.state;
-    if (loading) return null;
+
+    if (nodeLoading || worksheetLoading) return null;
+
     const RecordInfoWrapperComp = isLand ? autoSize(RecordInfoWrapper) : RecordInfoWrapper;
+
     return (
       <RecordInfoWrapperComp
         notDialog={isLand}
@@ -144,43 +206,47 @@ export default class ExecDialog extends Component {
         viewId={viewId}
         recordId={rowId}
         worksheetId={worksheetId}
-        header={
-          <Header
+        renderHeader={({ resultCode }) => {
+          return (
+            <Header
+              projectId={projectId}
+              data={data}
+              works={works}
+              currentWorkItem={currentWorkItem}
+              errorMsg={errorMsg}
+              sheetSwitchPermit={sheetSwitchPermit}
+              viewId={viewId}
+              rowId={rowId}
+              worksheetId={worksheetId}
+              noAuth={resultCode === 7}
+              {...this.props}
+            />
+          );
+        }}
+        renderAbnormal={() => {
+          return (
+            <Fragment>
+              <Icon type="info" style={{ color: '#ffa340' }} className="Font48" />
+              <div className="Font17 Bold mTop15 Gray">{_l('当前记录无权限，无法查看')}</div>
+              {!!data.operationTypeList[0].length && (
+                <div className="mTop15 ThemeColor3 ThemeHoverColor2 pointer Font14" onClick={this.ownerHandle}>
+                  {_l('转交给流程拥有者处理')}
+                </div>
+              )}
+            </Fragment>
+          );
+        }}
+        workflow={
+          <WorkflowHistory
             projectId={projectId}
             data={data}
             works={works}
-            currentWorkItem={currentWorkItem}
-            errorMsg={errorMsg}
-            sheetSwitchPermit={sheetSwitchPermit}
-            viewId={viewId}
+            currentWorkItem={currentWorkItem || {}}
+            currentWork={currentWork}
             rowId={rowId}
+            instanceId={id}
             worksheetId={worksheetId}
-            {...this.props}
           />
-        }
-        workflow={
-          <div className="flexColumn h100">
-            <StepHeader
-              processId={data.processId}
-              instanceId={id}
-              processName={data.processName}
-              isApproval={data.isApproval}
-            />
-            <ScrollView className="flex">
-              <ul className="pAll20 pTop0">
-                <Steps
-                  projectId={projectId}
-                  currentWork={currentWork}
-                  rowId={rowId}
-                  currentType={(currentWorkItem || {}).type}
-                  worksheetId={worksheetId}
-                  works={works}
-                  status={data.status}
-                  currents={data.currentWorkIds}
-                />
-              </ul>
-            </ScrollView>
-          </div>
         }
         instanceId={id}
         workId={workId}

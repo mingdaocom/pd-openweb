@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
 import RecordInfo from './RecordInfoWrapper';
 export default class Record extends React.Component {
@@ -13,13 +13,17 @@ export default class Record extends React.Component {
 
 export function openRecordInfo(props) {
   const div = document.createElement('div');
+
   document.body.appendChild(div);
+
+  const root = createRoot(div);
+
   function destory() {
     if (_.isFunction(props.onClose)) {
       props.onClose();
     }
-    ReactDOM.unmountComponentAtNode(div);
+    root.unmount(div);
     document.body.removeChild(div);
   }
-  ReactDOM.render(<RecordInfo visible {...props} hideRecordInfo={destory} />, div);
+  root.render(<RecordInfo visible {...props} hideRecordInfo={destory} />);
 }

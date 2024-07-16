@@ -57,7 +57,7 @@ export default ({
             <div className="selectApiPackageIcon">
               <i className="icon-connect" />
             </div>
-            <div className="mTop25 Font14 Gray_9e">{_l('暂无搜索结果')}</div>
+            <div className="mTop25 Font14 Gray_75">{_l('暂无搜索结果')}</div>
           </div>
         )}
         {data.map(item => {
@@ -76,7 +76,7 @@ export default ({
                 </div>
                 <div className="flex mLeft16 flexColumn">
                   <div className="Font15 ellipsis">{item.name}</div>
-                  <div className="mTop5 Gray_9e ellipsis">{item.explain}</div>
+                  <div className="mTop5 Gray_75 ellipsis">{item.explain}</div>
                 </div>
               </div>
             </div>
@@ -112,7 +112,7 @@ export default ({
                 + {_l('添加新连接')}
               </span>
             )}
-            <i className="icon-search1 selectApiPackageSearch Gray_9e" />
+            <i className="icon-search1 selectApiPackageSearch Gray_75" />
           </div>
         )}
 
@@ -124,7 +124,7 @@ export default ({
               <div className="selectApiPackageIcon">
                 <i className="icon-connect" />
               </div>
-              <div className="mTop25 Font14 Gray_9e">
+              <div className="mTop25 Font14 Gray_75">
                 {_l('暂无 API 连接可用，请先到集成中心创建新的 API 连接与认证')}
               </div>
               {allowAdd && (

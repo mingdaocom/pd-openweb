@@ -712,10 +712,10 @@ export default class Detail extends React.Component {
               className="postBtn"
               size="medium"
               onClick={() => {
-                callDialogSelectUser(projectId, user => {
+                callDialogSelectUser(projectId, users => {
                   TransferController.transferAllOneClick({
                     oldAccountId: this.props.user.accountId,
-                    toAccountId: user.accountId,
+                    toAccountId: users[0].accountId,
                     projectId,
                   })
                     .then(data => {

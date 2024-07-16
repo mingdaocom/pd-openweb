@@ -48,16 +48,6 @@ export default class LoginLog extends Component {
         width: 150,
         ellipsis: true,
         ...item,
-        onCell: () => {
-          return {
-            style: {
-              maxWidth: item.width || 150,
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-              textOverflow: 'ellipsis',
-            },
-          };
-        },
         render: (text, record = {}) => {
           let { log = {}, date } = record;
           const {
@@ -150,7 +140,7 @@ export default class LoginLog extends Component {
     this.setState({ loading: true, pageIndex: params.pageIndex });
     let { pageIndex = 1, pageSize = 50 } = params;
     const { searchValues } = this.state;
-    const { startDate, endDate, loginerInfo = [], logType = '' } = searchValues;
+    const { startDate, endDate, selectUserInfo = [], logType = '' } = searchValues;
     let requestParams = {
       pageIndex,
       pageSize,
@@ -158,7 +148,7 @@ export default class LoginLog extends Component {
       startDateTime: startDate ? startDate : moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
       endDateTime: endDate ? endDate : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
       logType, // ogin=1 logout=2
-      accountIds: loginerInfo.map(item => item.accountId),
+      accountIds: selectUserInfo.map(item => item.accountId),
     };
     actionLogAjax.getActionLogs(requestParams).then(res => {
       const temp = _.get(res, ['data', 'list']) || [];
@@ -174,7 +164,7 @@ export default class LoginLog extends Component {
   // 导出
   exportListData = (param = {}) => {
     this.setState({ disabledExportBtn: true });
-    let { startDate, endDate, loginerInfo = [], logType } = this.state.searchValues;
+    let { startDate, endDate, selectUserInfo = [], logType } = this.state.searchValues;
     const { pageIndex } = this.state;
     const { pageSize = 50 } = param;
     let params = {
@@ -184,7 +174,7 @@ export default class LoginLog extends Component {
       startDateTime: startDate ? startDate : moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
       endDateTime: endDate ? endDate : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
       logType, // ogin=1 logout=2
-      accountIds: loginerInfo.map(item => item.accountId),
+      accountIds: selectUserInfo.map(item => item.accountId),
       columnNames: this.columns.map(it => it.title),
     };
     downloadAjax.exportLoginLog(params).then(res => {
@@ -275,6 +265,7 @@ export default class LoginLog extends Component {
           </div>
           <div className="flexWrap">
             <PageTableCon
+              className="logsTable"
               loading={loading}
               columns={this.columns}
               dataSource={dataSource}

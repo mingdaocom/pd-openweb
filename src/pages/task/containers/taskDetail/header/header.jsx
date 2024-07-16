@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
 import './header.less';
 import { connect } from 'react-redux';
@@ -197,7 +197,9 @@ class Header extends Component {
     this.setState({ showOperator: false });
 
     expireDialogAsync(data.projectID).then(() => {
-      render(
+      const root = createRoot(document.createElement('div'));
+
+      root.render(
         <CopyTask
           name={_l('%0-副本', data.taskName)}
           taskId={taskId}
@@ -205,7 +207,6 @@ class Header extends Component {
           projectId={checkIsProject(data.projectID) ? data.projectID : ''}
           chargeUser={data.charge.accountID}
         />,
-        document.createElement('div'),
       );
     });
   };
@@ -226,13 +227,14 @@ class Header extends Component {
   shareTask = () => {
     this.setState({ showOperator: false });
 
-    render(
+    const root = createRoot(document.createElement('div'));
+
+    root.render(
       <ShareFolderOrTask
         shareUrl={md.global.Config.WebUrl + 'apps/task/task_' + this.props.taskId}
         shareMessage={_l('打开App扫一扫，在手机上快速显示查看任务详情')}
         linkText={_l('复制任务链接')}
       />,
-      document.createElement('div'),
     );
   };
 

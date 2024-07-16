@@ -124,6 +124,7 @@ export default class RelateRecordDropdown extends React.Component {
     }
   }
 
+  inputForIOSKeyboardRef = React.createRef();
   cell = React.createRef();
   list = React.createRef();
 
@@ -460,22 +461,19 @@ export default class RelateRecordDropdown extends React.Component {
               )}
             </div>
           ) : (
-            [
-              <div
-                key={i}
-                className="normalSelectedItem ellipsis"
-                onClick={e => {
-                  if (!allowOpenRecord) {
-                    return;
-                  }
-                  this.setState({ previewRecord: { recordId: record.rowid } });
-                  e.stopPropagation();
-                }}
-              >
-                {getTitleTextFromRelateControl(control, record)}
-              </div>,
-              i !== length - 1 && <span style={{ lineHeight: '34px', marginRight: 2 }}>, </span>,
-            ]
+            <div
+              key={i}
+              className={cx('normalSelectedItem ellipsis multiple', { isEnd: i === length - 1 })}
+              onClick={e => {
+                if (!allowOpenRecord) {
+                  return;
+                }
+                this.setState({ previewRecord: { recordId: record.rowid } });
+                e.stopPropagation();
+              }}
+            >
+              {getTitleTextFromRelateControl(control, record)}
+            </div>
           ),
         )}
         {(this.canSelect || isQuickFilter) && active && (
@@ -508,6 +506,7 @@ export default class RelateRecordDropdown extends React.Component {
   renderPopup({ disabledManualWrite }) {
     const {
       isQuickFilter,
+      getFilterRowsGetType,
       multiple,
       control,
       formData,
@@ -544,6 +543,7 @@ export default class RelateRecordDropdown extends React.Component {
         {listvisible && !disabledManualWrite && (
           <RelateRecordList
             ref={this.list}
+            getFilterRowsGetType={getFilterRowsGetType}
             isQuickFilter={isQuickFilter}
             activeIndex={activeIndex}
             keyWords={keywords}
@@ -695,6 +695,10 @@ export default class RelateRecordDropdown extends React.Component {
           onPopupVisibleChange={visilbe => {
             if (!disabled && visilbe) {
               this.openPopup();
+              // 处理iOS下无法自动激活键盘
+              if (this.inputForIOSKeyboardRef.current) {
+                this.inputForIOSKeyboardRef.current.focus();
+              }
             } else {
               this.setState({ listvisible: false });
             }
@@ -719,6 +723,13 @@ export default class RelateRecordDropdown extends React.Component {
             <div style={selectedStyle} ref={this.cell} />
           )}
         </Trigger>
+        {isQuickFilter && (
+          <input
+            type="text"
+            style={{ width: 0, opacity: 0, height: 0, position: 'absolute', padding: 0, margin: 0 }}
+            ref={this.inputForIOSKeyboardRef}
+          />
+        )}
         {newrecordVisible && !disabledManualWrite && (
           <NewRecord
             showFillNext

@@ -24,6 +24,20 @@ var sh = {
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
    **/
+  delSh: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'sh/delSh';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'shdelSh', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
   checkDatabaseForData: function (args, options) {
     base.ajaxOptions.url = base.server(options) + 'sh/checkDatabaseForData';
     base.ajaxOptions.type = 'GET';

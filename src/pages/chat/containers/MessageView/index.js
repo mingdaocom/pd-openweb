@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import ScrollView from 'ming-ui/components/ScrollView';
@@ -90,7 +89,7 @@ class MessageView extends Component {
     const prevMessage = messages[id];
     const newMessages = this.props.messages[id];
     const topUnread = sessionList.filter(item => item.value == id)[0] || {};
-    const scrollView = findDOMNode(this.scrollView);
+    const scrollView = _.get(this.scrollView, 'nanoScroller');
     const { direction, isDownLoadingMessage } = this.state;
     const $ChatPanel = $(`#ChatPanel-${session.id}`);
     const isBottom = $ChatPanel.data('isBottom') == undefined ? true : $ChatPanel.data('isBottom');
@@ -173,7 +172,7 @@ class MessageView extends Component {
     if (message && message.id) {
       const { gotoMessageId } = this.state;
       const messageEl = $(`#Message-${message.id}`);
-      const scrollView = findDOMNode(this.scrollView);
+      const scrollView = _.get(this.scrollView, 'nanoScroller');
       const { paneHeight, contentScrollTop } = scrollView.nanoscroller;
       if (gotoMessageId) {
         this.setState({ gotoMessageId: '', isDownLoadingMessage: true });
@@ -208,7 +207,7 @@ class MessageView extends Component {
     const type = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
     const messageList = messages[session.id] || [];
     const position = parseInt(values.position);
-    const scrollView = findDOMNode(this.scrollView);
+    const scrollView = _.get(this.scrollView, 'nanoScroller');
     const { maxScrollTop, contentScrollTop, paneHeight } = scrollView ? scrollView.nanoscroller : {};
     const $ChatPanel = $(`#ChatPanel-${session.id}`);
     const isBottom = $ChatPanel.data('isBottom') == undefined ? true : $ChatPanel.data('isBottom');
@@ -319,7 +318,7 @@ class MessageView extends Component {
     const atId = unreadMessage.messageAtlist && unreadMessage.messageAtlist.length ? unreadMessage.messageAtlist[0] : false;
     const id = atId || message.id;
     const messageEl = $(`#Message-${id}`);
-    const scrollView = findDOMNode(this.scrollView);
+    const scrollView = _.get(this.scrollView, 'nanoScroller');
     const top = messageEl.position() ? messageEl.position().top : 0;
     const scrollTop = scrollView.nanoscroller.maxScrollTop - Math.abs(top);
     // 指定的消息在不在可视区

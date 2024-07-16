@@ -86,6 +86,8 @@ export default class TextInput extends Component {
       const newValue =
         _.includes(['search-keyword'], cid) && !staticValue ? `$${cid}$` : this.$tagtextarea.cmObj.getValue();
       this.transferValue(newValue);
+    } else {
+      this.props.onDynamicValueChange(newField);
     }
   };
 

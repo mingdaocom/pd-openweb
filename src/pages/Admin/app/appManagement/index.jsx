@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import './index.less';
 import { Link } from 'react-router-dom';
@@ -22,7 +22,7 @@ import homeAppAjax from 'src/api/homeApp';
 import projectSettingAjaxRequest from 'src/api/projectSetting';
 import { dialogSelectUser, checkIsAppAdmin } from 'ming-ui/functions';
 import Trigger from 'rc-trigger';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import ExportApp from './modules/ExportApp';
 import ImportApp from './modules/ImportApp';
 import SelectApp from './modules/SelectApp';
@@ -40,6 +40,8 @@ import { decryptFunc } from './modules/Dectypt';
 import projectAjax from 'src/api/project';
 import qs from 'query-string';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 export const emitter = new EventEmitter();
 
@@ -67,7 +69,7 @@ const optionData = [
     featureId: VersionProductType.recycle,
   },
   {
-    label: _l('解密'),
+    label: _l('获取文件密码'),
     icon: 'key1',
     action: 'openDecryptUpload',
     hasBeta: false,
@@ -279,7 +281,7 @@ export default class AppManagement extends Component {
     const featureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
     return (
       <div className="flexRow manageList overflowHidden" key={item.appId}>
-        <div className="flex flexRow">
+        <div className="flex flexRow appName">
           <div className={cx('iconWrap mLeft10', { unable: !item.status })} style={{ backgroundColor: item.iconColor }}>
             <SvgIcon url={item.iconUrl} fill="#fff" size={24} />
             {item.createType === 1 && (
@@ -474,8 +476,7 @@ export default class AppManagement extends Component {
    * 应用导入
    */
   handleImport() {
-    const { hasDataBase, requested, dataDBInstances } = this.state;
-    const { projectId } = this.props.match.params;
+    const { hasDataBase } = this.state;
 
     const options = {
       title: this.renderHeader('uploadVisible'),
@@ -486,20 +487,20 @@ export default class AppManagement extends Component {
       overlayClosable: false,
       onCancel: () => this.closeDialog('importSingleAppDialog'),
     };
-    ReactDom.render(
+    const root = createRoot(document.createElement('div'));
+
+    root.render(
       <Dialog {...options}>
         <ImportApp
           closeDialog={params => {
             this.closeDialog('importSingleAppDialog');
-            const currentProject = getCurrentProject(projectId);
-            if (hasDataBase && (currentProject.isSuperAdmin || currentProject.isProjectAppManager)) {
+            if (hasDataBase) {
               this.setState({ importAppParams: params });
               return this.getDBInstances(true);
             }
           }}
         />
       </Dialog>,
-      document.createElement('div'),
     );
   }
 
@@ -541,7 +542,9 @@ export default class AppManagement extends Component {
       overlayClosable: false,
       onCancel: () => this.closeDialog('importTotalAppDialog'),
     };
-    ReactDom.render(
+    const root = createRoot(document.createElement('div'));
+
+    root.render(
       <Dialog {...options}>
         <SelectApp
           handleNext={list => {
@@ -551,7 +554,6 @@ export default class AppManagement extends Component {
           closeDialog={() => this.closeDialog('importTotalAppDialog')}
         />
       </Dialog>,
-      document.createElement('div'),
     );
   }
 
@@ -706,6 +708,7 @@ export default class AppManagement extends Component {
       DBInstancesDialog = false,
     } = this.state;
     const projectId = this.props.match.params.projectId;
+    const { authority = [] } = this.props;
     const { version = {}, licenseType } = getCurrentProject(projectId, true);
     const statusList = [
       { text: _l('全部状态'), value: '' },
@@ -733,8 +736,16 @@ export default class AppManagement extends Component {
                 <ul className="optionPanelTrigger moreOptionPanelTrigger">
                   {optionData.map(item => {
                     const featureType = getFeatureStatus(projectId, item.featureId);
-                    if (_.includes(['handleImport', 'handleExportAll', 'openAppTrash'], item.action) && !featureType)
+
+                    if (_.includes(['handleImport', 'handleExportAll', 'openAppTrash'], item.action) && !featureType) {
                       return;
+                    }
+
+                    //没有[创建应用]权限不显示导入应用
+                    if (item.action === 'handleImport' && !hasPermission(authority, PERMISSION_ENUM.CREATE_APP)) {
+                      return;
+                    }
+
                     return (
                       <li
                         key={item.action}
@@ -768,7 +779,7 @@ export default class AppManagement extends Component {
 
         {maxCount > 0 && (
           <div className="appManagementCount flexRow">
-            <span className="Gray_9e mRight5">{_l('已创建工作表')}</span>
+            <span className="Gray_9e mRight5">{_l('已创建工作表（含聚合表）')}</span>
             <span className="bold">{count}</span>
 
             <span className="Gray_9e mLeft15 mRight5">{_l('剩余')}</span>
@@ -776,24 +787,30 @@ export default class AppManagement extends Component {
               {maxCount - count < 0 ? 0 : maxCount - count}
             </span>
 
-            {/*{licenseType === 1 ? (
-              <Link
-                className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
-                to={`/admin/upgradeservice/${this.props.match.params.projectId}${vertionType ? '/' + vertionType : ''}`}
-              >
-                {_l('升级版本')}
-              </Link>
-            ) : (
-              <a
-                href="javascript:void(0);"
-                className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
-                onClick={() => {
-                  purchaseMethodFunc({ projectId: this.props.match.params.projectId });
-                }}
-              >
-                {_l('购买付费版')}
-              </a>
-            )}*/}
+            {!md.global.Config.IsLocal && (_.isEmpty(version) || version.versionIdV2 === '1') && (
+              <Fragment>
+                {licenseType === 1 ? (
+                  <Link
+                    className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
+                    to={`/admin/upgradeservice/${this.props.match.params.projectId}${
+                      vertionType ? '/' + vertionType : ''
+                    }`}
+                  >
+                    {_l('升级版本')}
+                  </Link>
+                ) : (
+                  <a
+                    href="javascript:void(0);"
+                    className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
+                    onClick={() => {
+                      purchaseMethodFunc({ projectId: this.props.match.params.projectId });
+                    }}
+                  >
+                    {_l('购买付费版')}
+                  </a>
+                )}
+              </Fragment>
+            )}
           </div>
         )}
 
@@ -831,7 +848,7 @@ export default class AppManagement extends Component {
         </div>
 
         <div className="flexRow manageList manageListHeader bold mTop16">
-          <div className="flex mLeft10">{_l('应用名称')}</div>
+          <div className="flex mLeft10 appName">{_l('应用名称')}</div>
           {hasDataBase && <div className="columnWidth dataBase">{_l('所属数据库')}</div>}
           <div className="columnWidth flexRow">
             <div className="pointer ThemeHoverColor3 pRight12" style={{ zIndex: 1 }}>

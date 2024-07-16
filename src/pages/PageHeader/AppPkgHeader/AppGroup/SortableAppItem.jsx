@@ -1,6 +1,6 @@
 import React, { Component, createRef } from 'react';
 import { string, func, number, shape } from 'prop-types';
-import { SortableElement } from 'react-sortable-hoc';
+import { SortableElement } from '@mdfe/react-sortable-hoc';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
@@ -172,7 +172,7 @@ export default class SortableAppItem extends Component {
     const isFocus = appSectionId === focusGroupId || appSectionId === dbClickedAppGroupId;
     const isShowConfigIcon = appSectionId === groupId && !isFocus && canEditApp(permissionType);
     const url = this.getNavigateUrl(appSectionId);
-    const showName = getTranslateInfo(appId, appSectionId).name || name;
+    const showName = getTranslateInfo(appId, null, appSectionId).name || name;
     const showIcon = (_.get(appPkg, 'displayIcon') || '').split('')[0] === '1';
     return (
       <LiCon
@@ -194,7 +194,7 @@ export default class SortableAppItem extends Component {
           </div>
         ) : (
           <MdLink
-            className="sortableItem"
+            className="sortableItem stopPropagation"
             to={url}
             onClick={event => {
               if (this.ids.groupId !== appSectionId) {

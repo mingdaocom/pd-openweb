@@ -138,7 +138,7 @@ export default function HomeSetting(props) {
         <ConfigItem>
           <div className="bold mBottom6">{_l('星标分组')}</div>
           {config.starAppGroup.map((item, i) => (
-            <div className="radioItem" onClick={() => handleUpdate('displayType', item.value)}>
+            <div key={i} className="radioItem" onClick={() => handleUpdate('displayType', item.value)}>
               <Radio {...item} size="small" checked={setting.displayType === item.value} />
             </div>
           ))}

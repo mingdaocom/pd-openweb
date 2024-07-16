@@ -1,9 +1,8 @@
 import React, { Fragment } from 'react';
-import { Checkbox, Icon } from 'ming-ui';
 import { ApprovalProcessSettings } from '../components';
 
 export default props => {
-  const { data, updateSource } = props;
+  const { data } = props;
 
   return (
     <Fragment>
@@ -31,28 +30,9 @@ export default props => {
 
         <div className="Font13 bold mTop20">{_l('发起审批的数据对象')}</div>
         <div className="workflowDetailDesc mTop10 subProcessDesc bold alignItemsCenter flexRow">
-          <i className="icon-worksheet Gray_9e mRight8 Font16" />
+          <i className="icon-worksheet Gray_75 mRight8 Font16" />
           {_l('工作表“%0”', data.appName)}
         </div>
-
-        <div className="Font13 mTop20 bold">{_l('发起人操作')}</div>
-        {[
-          { text: _l('允许发起人撤回'), key: 'allowRevoke' },
-          { text: _l('允许发起人催办'), key: 'allowUrge' },
-        ].map(o => (
-          <div key={o.key} className="mTop15 flexRow alignItemsCenter">
-            <Checkbox
-              className=" flexRow"
-              text={o.text}
-              checked={data.processConfig[o.key]}
-              onClick={checked =>
-                updateSource({
-                  processConfig: Object.assign({}, data.processConfig, { [o.key]: !checked }),
-                })
-              }
-            />
-          </div>
-        ))}
 
         <ApprovalProcessSettings {...props} />
       </div>

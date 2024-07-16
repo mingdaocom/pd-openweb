@@ -5,6 +5,7 @@ import PayHeader from '../payHeader';
 import payAjax from 'src/api/pay';
 import genQrDataurl, { QRErrorCorrectLevel } from 'src/pages/worksheet/common/PrintQrBarCode/genQrDataurl';
 import styled from 'styled-components';
+import { canPurchase } from 'src/components/checkPermission';
 
 const WecharPayWrap = styled.div`
   padding-top: 60px;
@@ -88,8 +89,9 @@ export default class WechatPay extends Component {
   }
   componentDidMount() {
     const { projectId } = _.get(this.props, 'match.params') || {};
-    const { isProjectAdmin } = _.find(md.global.Account.projects || [], it => it.projectId === projectId);
-    if (!isProjectAdmin) return;
+
+    if (!projectId || !canPurchase({ projectId })) return;
+
     this.getQRCode();
   }
   componentWillUnmount() {

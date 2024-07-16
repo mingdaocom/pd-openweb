@@ -2,11 +2,12 @@ import EventEmitter from 'events';
 import JSEncrypt from 'jsencrypt';
 import React from 'react';
 import update from 'immutability-helper';
-import _, { get, upperFirst, isString } from 'lodash';
-import tinycolor from '@ctrl/tinycolor';
-import { Dialog } from 'ming-ui';
+import _, { get } from 'lodash';
+import { TinyColor } from '@ctrl/tinycolor';
+import { Dialog, Support } from 'ming-ui';
+import { navigateTo } from 'src/router/navigateTo';
 import 'src/pages/PageHeader/components/NetState/index.less';
-import { PUBLIC_KEY, APPLICATION_ICON, VersionProductHelpLink } from './enum';
+import { PUBLIC_KEY, VersionProductHelpLink } from './enum';
 import { getPssId } from 'src/util/pssId';
 import qs from 'query-string';
 import qiniuAjax from 'src/api/qiniu';
@@ -14,19 +15,24 @@ import projectAjax from 'src/api/project';
 import { captcha } from 'ming-ui/functions';
 import accountAjax from 'src/api/account';
 import actionLogAjax from 'src/api/actionLog';
+import appManagementApi from 'src/api/appManagement';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { SYS_COLOR, SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
 import { AT_ALL_TEXT } from 'src/components/comment/config';
 import Emotion from 'src/components/emotion/emotion';
 import moment from 'moment';
+import RegExpValidator from 'src/util/expression';
 
 export const emitter = new EventEmitter();
 
-const SPECIAL_DRAK_COLORS = ['ff9300', 'fa8c16', '808080', '4caf50', 'fa8c16', '08c9c9', 'fad714', 'faad14'];
-
 // 判断选项颜色是否为浅色系
-export const isLightColor = (color = '') =>
-  SPECIAL_DRAK_COLORS.find(l => l === tinycolor(color).toHex()) ? false : tinycolor(color).isLight();
+export const isLightColor = (color = '') => {
+  const SPECIAL_DARK_COLORS = ['ff9300', 'fa8c16', '808080', '4caf50', 'fa8c16', '08c9c9', 'fad714', 'faad14'];
 
+  return SPECIAL_DARK_COLORS.find(l => l === new TinyColor(color).toHex()) ? false : new TinyColor(color).isLight();
+};
+
+// 获取当前网络信息
 export const getCurrentProject = (id, isExternalProject) => {
   if (!id) return {};
 
@@ -43,12 +49,14 @@ export const getCurrentProject = (id, isExternalProject) => {
   return info || {};
 };
 
+// 加密
 export const encrypt = text => {
   const encrypt = new JSEncrypt();
   encrypt.setPublicKey(PUBLIC_KEY);
   return encrypt.encrypt(encodeURIComponent(text));
 };
 
+// 获取advancedSetting属性转化为对象
 export const getAdvanceSetting = (data, key) => {
   const setting = get(data, ['advancedSetting']) || {};
   if (!key) return setting;
@@ -68,25 +76,7 @@ export const handleAdvancedSettingChange = (data, obj) => {
   };
 };
 
-/**
- * 导入本目录下所有组件
- * @param {*} r
- */
-export const exportAll = r => {
-  const componentConfig = {};
-  r.keys().forEach(item => {
-    const key = item.match(/\/(\w*)\./)[1];
-    const component = r(item);
-    const capitalKey = upperFirst(key);
-    if (isString(component)) {
-      componentConfig[capitalKey] = component;
-    } else {
-      componentConfig[capitalKey] = component.default || component[key];
-    }
-  });
-  return componentConfig;
-};
-
+// 数值转换
 export const formatNumberFromInput = (value, pointReturnEmpty = true) => {
   value = (value || '')
     .replace('。', '.')
@@ -104,18 +94,6 @@ export const formatNumberFromInput = (value, pointReturnEmpty = true) => {
     value = '';
   }
   return value;
-};
-
-/**
- * 应用图标
- * for chatlist, inbox
- */
-export const applicationIcon = (type, size = 'middle') => {
-  if (APPLICATION_ICON[type] === undefined) {
-    throw new Error('type is not found in DICT');
-  }
-  const className = APPLICATION_ICON[type];
-  return `<span class='${className} circle ${size}' data-date="${new Date().getDate()}"></span>`;
 };
 
 /**
@@ -417,7 +395,6 @@ export const getIconNameByExt = ext => {
     case 'dwg':
     case 'eps':
     case 'exe':
-    case 'html':
     case 'indd':
     case 'iso':
     case 'key':
@@ -458,7 +435,7 @@ export const getClassNameByExt = ext => {
    * 传入的参数没有 "." 时，直接把它用作拓展名
    */
   ext = ext || '';
-  ext = /^\w+$/.test(ext) ? ext.toLowerCase() : File.GetExt(ext).toLowerCase();
+  ext = /^\w+$/.test(ext) ? ext.toLowerCase() : RegExpValidator.getExtOfFileName(ext).toLowerCase();
   return 'fileIcon-' + getIconNameByExt(ext);
 };
 
@@ -594,14 +571,18 @@ export function addSubPathOfRoutes(routes, subPath) {
  * 获取应用界面特性是否可见
  */
 export const getAppFeaturesVisible = () => {
-  const { s, tb, tr, ln, rp } = qs.parse(location.search.substr(1));
+  const { s, tb, tr, ln, rp, td, ss, ac, ch } = qs.parse(location.search.substr(1));
 
   return {
-    s: s !== 'no',
-    tb: tb !== 'no',
-    tr: tr !== 'no',
-    ln: ln !== 'no',
-    rp: rp !== 'no',
+    s: s !== 'no', // 回首页按钮
+    tb: tb !== 'no', // 应用分组
+    tr: tr !== 'no', // 导航右侧内容（应用扩展信息）
+    ln: ln !== 'no', // 左侧导航
+    rp: rp !== 'no', // chart
+    td: td !== 'no', // 待办
+    ss: ss !== 'no', // 超级搜索
+    ac: ac !== 'no', // 账户
+    ch: ch !== 'no', // 消息侧边栏
   };
 };
 
@@ -609,9 +590,19 @@ export const getAppFeaturesVisible = () => {
  * 获取应用界面特性路径
  */
 export const getAppFeaturesPath = () => {
-  const { s, tb, tr, ln, rp } = getAppFeaturesVisible();
+  const { s, tb, tr, ln, rp, td, ss, ac, ch } = getAppFeaturesVisible();
 
-  return [s ? '' : 's=no', tb ? '' : 'tb=no', tr ? '' : 'tr=no', ln ? '' : 'ln=no', rp ? '' : 'rp=no']
+  return [
+    s ? '' : 's=no',
+    tb ? '' : 'tb=no',
+    tr ? '' : 'tr=no',
+    ln ? '' : 'ln=no',
+    rp ? '' : 'rp=no',
+    td ? '' : 'td=no',
+    ss ? '' : 'ss=no',
+    ac ? '' : 'ac=no',
+    ch ? '' : 'ch=no',
+  ]
     .filter(o => o)
     .join('&');
 };
@@ -734,24 +725,8 @@ export const upgradeVersionDialog = options => {
   const isExternal = _.isEmpty(getCurrentProject(options.projectId)); // 是否为外协人员
   const helpLink = VersionProductHelpLink[options.featureId] || options.helpLink; // 帮助链接
   const removeFooter = options.removeFooter;
-
-  if (options.dialogType === 'content') {
+  const descFunc = () => {
     return (
-      <div className="upgradeWrap">
-        <div className="netStateWrap">
-          <div className="imgWrap" />
-          <div className="hint">{hint}</div>
-          {!md.global.Config.IsLocal && !md.global.Account.isPortal && !isExternal && options.explainText && (
-            <div className="explain">{explainText}</div>
-          )}
-        </div>
-      </div>
-    );
-  }
-  Dialog.confirm({
-    className: options.className ? options.className : 'upgradeVersionDialogBtn',
-    title: '',
-    description: (
       <div className="netStateWrap">
         <div className="imgWrap" />
         <div className="hint">{hint}</div>
@@ -759,7 +734,30 @@ export const upgradeVersionDialog = options => {
           <div className="explain">{explainText}</div>
         )}
       </div>
-    ),
+    );
+  };
+  const onOkFunc = () => {
+    !options.projectId
+      ? (location.href = `/price`)
+      : options.isFree
+      ? purchaseMethodFunc({ projectId: options.projectId, select: versionType })
+      : options.onOk
+      ? options.onOk()
+      : navigateTo(`/admin/upgradeservice/${options.projectId}${versionType ? '/' + versionType : ''}`);
+  };
+
+  if (options.dialogType === 'content') {
+    return (
+      <div className="upgradeWrap">
+        {descFunc()}
+      </div>
+    );
+  }
+
+  Dialog.confirm({
+    className: options.className || 'upgradeVersionDialogBtn',
+    title: '',
+    description: descFunc(),
     noFooter: true,
   });
 };
@@ -898,6 +896,10 @@ export function verifyPassword({
   success = () => {},
   fail = () => {},
 }) {
+  const ERROR_CODE = {
+    6: _l('密码不正确'),
+    8: _l('验证码错误'),
+  };
   const cb = function (res) {
     if (res.ret !== 0) {
       return;
@@ -928,14 +930,7 @@ export function verifyPassword({
       } else if (checkNeedAuth && _.includes([6, 9], statusCode)) {
         fail(statusCode === 6 ? 'showPasswordAndNoneVerification' : 'showPassword');
       } else {
-        !ignoreAlert &&
-          alert(
-            {
-              6: _l('密码不正确'),
-              8: _l('验证码错误'),
-            }[statusCode] || _l('操作失败'),
-            2,
-          );
+        !ignoreAlert && alert(ERROR_CODE[statusCode] || _l('操作失败'), 2);
         fail();
       }
     });
@@ -1000,7 +995,7 @@ export const getUnUniqName = (data, name = '', key = 'name') => {
  * @param {Object} params - 额外的参数，用于记录日志的详细信息。
  */
 export const addBehaviorLog = (type, entityId, params = {}) => {
-  if (location.pathname.indexOf('public') > -1) return;
+  if (!get(md, 'global.Account.accountId')) return;
 
   const typeObj = {
     app: 1, // 应用
@@ -1017,11 +1012,7 @@ export const addBehaviorLog = (type, entityId, params = {}) => {
   };
 
   // 调用 actionLogAjax.addLog 方法记录行为日志
-  actionLogAjax.addLog({
-    type: typeObj[type],
-    entityId,
-    params,
-  });
+  actionLogAjax.addLog({ type: typeObj[type], entityId, params });
 };
 
 /**
@@ -1517,16 +1508,46 @@ export const b64toBlob = (b64Data, contentType = '', sliceSize = 512) => {
 };
 
 /**
- * 获取返回数据
+ * 获取翻译数据
  * @param {*} appId 应用id
- * @param {*} 项目id (应用项id、分组id、视图id、...)
+ * @param {*} parentId 父级id (应用项id)
+ * @param {*} id 项目id (应用项id、分组id、视图id、...)
  * @param {*} data 翻译包数据
  * @returns { name、description、hintText、... }
  */
-export const getTranslateInfo = (appId, id, data) => {
+export const getTranslateInfo = (appId, parentId, id, data) => {
   const langData = data || window[`langData-${appId}`] || [];
-  const info = _.find(langData, { correlationId: id });
+  const findCondition = { correlationId: id };
+  if (parentId) {
+    findCondition.parentId = parentId;
+  }
+  const info = _.find(langData, findCondition);
   return info ? info.data || {} : {};
+};
+
+/**
+ * 获取应用的翻译包数据
+ */
+export const getAppLangDetail = appDetail => {
+  const { langInfo } = appDetail;
+  const appId = appDetail.id;
+  return new Promise((reslove, reject) => {
+    if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
+      appManagementApi
+        .getAppLangDetail({
+          projectId: appDetail.projectId,
+          appId,
+          appLangId: langInfo.appLangId,
+        })
+        .then(lang => {
+          window[`langData-${appId}`] = lang.items;
+          window[`langVersion-${appId}`] = langInfo.version;
+          reslove(lang);
+        });
+    } else {
+      reslove();
+    }
+  });
 };
 
 /**

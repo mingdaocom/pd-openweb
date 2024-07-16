@@ -26,7 +26,7 @@ const Tab = styled.div`
   text-align: center;
   cursor: pointer;
   font-weight: bold;
-  max-width: 200px;
+  max-width: 220px;
   display: flex;
   align-items: center;
   &:hover {

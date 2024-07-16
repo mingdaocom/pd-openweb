@@ -15,14 +15,14 @@ const SCALE_LIMIT = {
 
 const ToolBarWrap = styled(FlexCenter)`
   position: absolute;
-  bottom: 32px;
+  bottom: 20px;
   right: 20px;
   background-color: #fff;
   border-radius: 26px;
   height: 44px;
   padding: 0 22px 0 16px;
   z-index: 9;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 1px 6px;
   ${props =>
     props.browserIsMobile &&
     css`
@@ -104,7 +104,7 @@ export default class ToolBar extends Component {
 
   changeDisplayLevel = value => {
     this.props.showLevelData({ layer: value });
-    this.updateStorage({ level: value });
+    this.updateStorage({ level: value, levelUpdateTime: Date.now() });
   };
 
   adjustSize = type => {
@@ -114,9 +114,27 @@ export default class ToolBar extends Component {
     this.updateStorage({ scale: nextScale });
   };
   render() {
-    const { scale, level, onClick, searchData, updateSearchRecord, view } = this.props;
+    const {
+      className,
+      style = {},
+      scale = 100,
+      level,
+      onClick,
+      searchData,
+      updateSearchRecord,
+      view,
+      allowAdjustScale = true,
+      allowExportAsImage = true,
+      customButtons = [],
+    } = this.props;
+    const isMobileSingleView = localStorage.getItem('isMobileSingleView') === 'true';
+
     return (
-      <ToolBarWrap browserIsMobile={browserIsMobile()} className="flexRow valignWrappe">
+      <ToolBarWrap
+        browserIsMobile={browserIsMobile()}
+        className={cx('flexRow valignWrappe toolBarWrap', className)}
+        style={style}
+      >
         <SelectWrap
           suffixIcon={<Icon className="Font12 Gray_9e" icon="arrow-down" />}
           defaultActiveFirstOption={false}
@@ -136,47 +154,50 @@ export default class ToolBar extends Component {
         {/* <div data-tip={_l('回到原点')} className="toolItem toOrigin" onClick={() => onClick('toOrigin')}>
           <Icon className="Font16 Gray_75" icon="Position" />
         </div> */}
-        <div className="toolItem adjustScale">
-          {!browserIsMobile() ? <div className="scale">{`${scale}%`}</div> : null}
-          <Tooltip text={browserIsMobile() ? null : <span>{_l('缩小')}</span>}>
-            <Icon
-              className={cx('Font19 Gray_75 pointer mRight12 mLeft12', {
-                disableAdjustSize: scale <= SCALE_LIMIT.min,
-              })}
-              icon="minus"
-              onClick={() => scale > SCALE_LIMIT.min && this.adjustSize('shrink')}
-            />
-          </Tooltip>
-          <Tooltip text={browserIsMobile() ? null : <span>{_l('放大')}</span>}>
-            <Icon
-              className={cx('Font19 Gray_75 pointer mLeft6', {
-                disableAdjustSize: scale >= SCALE_LIMIT.max,
-              })}
-              icon="add1"
-              onClick={() => scale < SCALE_LIMIT.max && this.adjustSize('enlarge')}
-            />
-          </Tooltip>
-          {browserIsMobile() && (
-            <SearchRecord
-              overlayClassName="mobileSearchRecordDropdown"
-              queryKey={searchData.queryKey}
-              data={searchData.data}
-              onSearch={record => {
-                updateSearchRecord(view, record);
-              }}
-              onClose={() => {
-                updateSearchRecord(view, null);
-              }}
-            >
-              <Icon className="searchIcon Font18 mLeft16" icon="search" />
-            </SearchRecord>
-          )}
-        </div>
-        {!browserIsMobile() && (
+        {allowAdjustScale && (
+          <div className="toolItem adjustScale">
+            {!browserIsMobile() ? <div className="scale">{`${scale}%`}</div> : null}
+            <Tooltip text={browserIsMobile() ? null : <span>{_l('缩小')}</span>}>
+              <Icon
+                className={cx('Font19 Gray_75 pointer mRight12 mLeft12', {
+                  disableAdjustSize: scale <= SCALE_LIMIT.min,
+                })}
+                icon="minus"
+                onClick={() => scale > SCALE_LIMIT.min && this.adjustSize('shrink')}
+              />
+            </Tooltip>
+            <Tooltip text={browserIsMobile() ? null : <span>{_l('放大')}</span>}>
+              <Icon
+                className={cx('Font19 Gray_75 pointer mLeft6', {
+                  disableAdjustSize: scale >= SCALE_LIMIT.max,
+                })}
+                icon="add1"
+                onClick={() => scale < SCALE_LIMIT.max && this.adjustSize('enlarge')}
+              />
+            </Tooltip>
+            {browserIsMobile() && (
+              <SearchRecord
+                overlayClassName={isMobileSingleView ? 'singleViewSearchRecordDropdown' : 'mobileSearchRecordDropdown'}
+                queryKey={searchData.queryKey}
+                data={searchData.data}
+                onSearch={record => {
+                  updateSearchRecord(view, record);
+                }}
+                onClose={() => {
+                  updateSearchRecord(view, null);
+                }}
+              >
+                <Icon className="searchIcon Font18 mLeft16" icon="search" />
+              </SearchRecord>
+            )}
+          </div>
+        )}
+        {allowExportAsImage && !browserIsMobile() && (
           <Tooltip text={<span>{_l('导出为图片')}</span>}>
             <Icon icon="download" className="Gray_75 Font18 pointer mLeft24" onClick={() => onClick('genScreenshot')} />
           </Tooltip>
         )}
+        {customButtons}
       </ToolBarWrap>
     );
   }

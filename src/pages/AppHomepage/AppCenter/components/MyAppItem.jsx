@@ -6,7 +6,6 @@ import { string, func, oneOf, bool } from 'prop-types';
 import { Icon, MdLink, SvgIcon } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import AppOperator from './AppOperator';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import VerifyDel from 'src/pages/AppHomepage/components/VerifyDel';
 import CopyApp from 'src/pages/AppHomepage/components/CopyApp';
 import LineClampTextBox from 'src/pages/AppHomepage/components/LineClampTextBox';
@@ -18,6 +17,8 @@ import { getAppNavigateUrl, transferExternalLinkUrl } from '../utils';
 import ExternalLinkDialog from './ExternalLinkDialog';
 import ManageUserDialog from 'src/pages/Role/AppRoleCon/ManageUserDialog.jsx';
 import { addBehaviorLog } from 'src/util';
+import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
+
 @withClickAway
 export default class MyAppItem extends Component {
   static propTypes = {
@@ -30,7 +31,7 @@ export default class MyAppItem extends Component {
     type: oneOf(['star', 'project', 'personal', 'external', 'expire', 'group']),
     onAppChange: func,
     handleApp: func,
-    permissionType: oneOf([0, 10, 50, 100, 200, 300]),
+    permissionType: oneOf([0, 1, 2, 10, 50, 100, 200, 300]),
     isMarked: bool,
     newAppItemId: string,
     clearNewAppItemId: func,
@@ -72,6 +73,7 @@ export default class MyAppItem extends Component {
         'webMobileDisplay',
         'appDisplay',
         'isNew',
+        'appLang',
       ]) ||
       compareProps(nextState, this.state) ||
       id === this.props.newAppItemId ||
@@ -151,7 +153,6 @@ export default class MyAppItem extends Component {
     const {
       groupId,
       groupType,
-      isAdmin,
       type,
       lightColor,
       iconUrl,
@@ -178,6 +179,9 @@ export default class MyAppItem extends Component {
       webMobileDisplay,
       appDisplay,
       isDashboard,
+      appLang,
+      allowCreate,
+      myPermissions = [],
     } = this.props;
     const isShowSelectIcon = selectIconVisible || newAppItemId === id;
     const offsetLeft = _.get(this, '$myAppItem.current.offsetLeft');
@@ -186,6 +190,7 @@ export default class MyAppItem extends Component {
     const navColor = this.props.navColor || iconColor;
     const black = '#1b2025' === navColor;
     const light = [lightColor, '#ffffff', '#f5f6f7'].includes(navColor);
+    const appName = _.get(_.find(appLang, { key: id }), 'value') || name;
 
     return (
       <div
@@ -214,8 +219,8 @@ export default class MyAppItem extends Component {
             </div>
             {type === 'external' ? (
               <div className="externalAppInfo">
-                <div className="appName overflow_ellipsis" title={name}>
-                  {name}
+                <div className="appName overflow_ellipsis" title={appName}>
+                  {appName}
                 </div>
                 {projectName && (
                   <div className="projectName overflow_ellipsis" title={projectName}>
@@ -224,7 +229,7 @@ export default class MyAppItem extends Component {
                 )}
               </div>
             ) : (
-              <LineClampTextBox className="appExplain" text={name} title={name} />
+              <LineClampTextBox className="appExplain" text={appName} title={appName} />
             )}
           </MdLink>
           <div
@@ -242,7 +247,6 @@ export default class MyAppItem extends Component {
               popupClassName="myAppItemOperatorTriggerWrap"
               popup={
                 <AppOperator
-                  isAdmin={isAdmin}
                   groupType={type}
                   projectId={projectId}
                   disabledCopy={type === 'external' || isExternalApp}
@@ -255,6 +259,8 @@ export default class MyAppItem extends Component {
                   onClick={id => this.switchVisible({ editAppVisible: false }, () => this.handleMoreClick(id))}
                   onClickAway={() => this.switchVisible({ editAppVisible: false })}
                   isDashboard={isDashboard}
+                  allowCreate={allowCreate}
+                  myPermissions={myPermissions}
                 />
               }
               popupAlign={{
@@ -287,6 +293,7 @@ export default class MyAppItem extends Component {
               para={{ appId: id, groupId, groupType }}
               onCopy={appId => onCopy({ type, id, projectId, ...appId })}
               onCancel={() => this.switchVisible({ copyAppVisible: false })}
+              myPermissions={myPermissions}
             />
           )}
           {isShowSelectIcon && (

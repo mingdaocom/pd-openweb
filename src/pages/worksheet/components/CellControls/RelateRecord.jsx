@@ -261,7 +261,6 @@ export default class RelateRecord extends React.Component {
     } = this.props;
     const { addedIds = [], deletedIds = [] } = this.isSubList ? this : {};
     let { records } = this.state;
-    const { isRequestingRelationControls } = this.context || {};
     const { advancedSetting = {} } = cell;
     const isSubList = cell.type === 34;
     const { showtype, allowlink, ddset } = advancedSetting; // 1 卡片 2 列表 3 下拉
@@ -270,9 +269,6 @@ export default class RelateRecord extends React.Component {
     let showCount = recordsLength >= 1000 ? '999+' : recordsLength;
     if (isSubList && recordsLength >= 1000) {
       showCount = 1000;
-    }
-    if (isRequestingRelationControls) {
-      return <div className={className} style={style} onClick={onClick} />;
     }
     if (
       includes(

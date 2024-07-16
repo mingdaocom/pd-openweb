@@ -6,6 +6,7 @@ import { getRelationText } from 'src/pages/widgetConfig/util/index';
 import List from './List';
 import cx from 'classnames';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -19,6 +20,12 @@ export default class Widgets extends Component {
   state = {
     dialogVisible: false,
   };
+
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
 
   /**
    * 删除指定项目
@@ -43,6 +50,12 @@ export default class Widgets extends Component {
     this.props.onChange(JSON.stringify(list));
     this.setState({ dialogVisible: false });
   };
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   render() {
     const { from, disabled, value, enumDefault } = this.props;

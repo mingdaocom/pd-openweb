@@ -8,14 +8,13 @@ import FindPassword from './findPassword';
 import Register from './register';
 import Twofactor from './login/twofactor';
 import Header from './components/Header';
-import { setHistoryObject } from 'src/router/navigateTo';
 import { Wrap } from './style';
 import WrapBg from './components/Bg';
 import Footer from './components/Footer';
 
 function LoginContain(props) {
   useEffect(() => {
-    setHistoryObject(props.history);
+    window.reactRouterHistory = props.history;
   }, []);
 
   return (

@@ -5,6 +5,7 @@ import StyleContent from '../../content/StyleContent';
 import ExplainContent from '../../content/ExplainContent';
 import WidgetIntro from '../WidgetIntro';
 import _ from 'lodash';
+import { getAdvanceSetting } from '../../../util/setting';
 
 const SubControlConfigWrap = styled.div`
   position: absolute;
@@ -52,6 +53,7 @@ export default function SubControlConfig({
   ...rest
 }) {
   const { controlId } = control || {};
+  const queryId = _.get(getAdvanceSetting(control, 'dynamicsrc'), 'id');
   const { controlName, dataSource: subListSheetId } = subListData;
   // 1: 设置，2: 样式， 3: 说明
   const [mode, setMode] = useState(1);
@@ -68,7 +70,7 @@ export default function SubControlConfig({
     mode: mode,
     allControls: controls.filter(c => c.controlId !== controlId),
     globalSheetControls: allControls,
-    queryConfig: _.find(subQueryConfigs || [], i => i.controlId === controlId) || {},
+    queryConfig: _.find(subQueryConfigs || [], i => i.id === queryId) || {},
     updateQueryConfigs: updateSubQueryConfigs,
     queryControls: controls, // 子表allControls被过滤过，用新字段覆盖
   };

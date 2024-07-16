@@ -6,7 +6,7 @@ import moment from 'moment';
 import './index.less';
 
 export default function CustomSelectDate(props) {
-  const { changeDate = () => {}, className } = props;
+  const { changeDate = () => {}, className, placeholder } = props;
   const [openDateSelect, setOpenDateSelect] = useState(false);
   const [dateInfo, setDateInfo] = useState({});
   const $ref = useRef();
@@ -59,13 +59,13 @@ export default function CustomSelectDate(props) {
   }, [props.dateInfo]);
 
   return (
-    <div ref={$ref} className="w100 Relative">
+    <div className="w100 Relative">
       <Select
         suffixIcon={<Icon icon="sidebar_calendar" className="Font16" />}
         dropdownClassName="serchDate"
         dropdownStyle={!openDateSelect ? { display: 'none' } : {}}
         className={className}
-        placeholder={_l('最近30天')}
+        placeholder={placeholder || _l('最近30天')}
         onChange={value => {
           changeDate({ startDate: undefined, endDate: undefined, searchDateStr: undefined });
           setDateInfo({ searchDateStr: undefined, startDate: undefined, endDate: undefined });
@@ -90,24 +90,24 @@ export default function CustomSelectDate(props) {
                 {item.label}
               </div>
             ))}
-
-            <DatePicker.RangePicker
-              min={md.global.Config.IsLocal ? undefined : moment().subtract(6, 'months')}
-              onOk={date => {
-                const searchDateStr =
-                  date && date.length ? `${date[0].format(dateFormat)}~${date[1].format(dateFormat)} ` : undefined;
-                const startDate = (date && date[0] && date[0].format(dateFormat)) || undefined;
-                const endDate = (date && date[1] && date[1].format(dateFormat)) || undefined;
-                setOpenDateSelect(false);
-                changeDate({ startDate, endDate, searchDateStr });
-                setDateInfo({ searchDateStr, startDate, endDate });
-              }}
-              onClear={() => {
-                setDateInfo({ searchDateStr: undefined, startDate: undefined, endDate: undefined });
-              }}
-            >
-              <div className="listItem">{_l('自定义日期')}</div>
-            </DatePicker.RangePicker>
+            <div ref={$ref} className="listItem">
+              <DatePicker.RangePicker
+                offset={{ top: 0, left: -24 }}
+                popupParentNode={() => $ref.current}
+                min={md.global.Config.IsLocal ? undefined : moment().subtract(6, 'months')}
+                onOk={([start, end]) => {
+                  const searchDateStr = `${start.format(dateFormat)}~${end.format(dateFormat)} `;
+                  setOpenDateSelect(false);
+                  changeDate({ startDate: start.format(dateFormat), endDate: end.format(dateFormat), searchDateStr });
+                  setDateInfo({ searchDateStr, startDate: start.format(dateFormat), endDate: end.format(dateFormat) });
+                }}
+                onClear={() => {
+                  setDateInfo({ searchDateStr: undefined, startDate: undefined, endDate: undefined });
+                }}
+              >
+                <li>{_l('自定义日期')}</li>
+              </DatePicker.RangePicker>
+            </div>
           </div>
         )}
       ></Select>

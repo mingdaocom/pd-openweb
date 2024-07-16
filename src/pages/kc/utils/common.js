@@ -17,7 +17,7 @@ import { confirm, getParentId, getLocationType, getPermission, getParentName } f
 import { addLinkFile } from 'ming-ui/functions';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import createShare from 'src/components/createShare/createShare';
-
+import RegExpValidator from 'src/util/expression';
 function saveLastPos(root, folder) {
   if (typeof currentRoot !== 'object' && root !== 1) {
     return;
@@ -197,7 +197,7 @@ export function handleShareNode(item, updateKcNodeItem = () => {}) {
         name: item.name,
         ext: item.ext ? '.' + item.ext : '',
         size: item.size,
-        imgSrc: File.isPicture('.' + item.ext)
+        imgSrc: RegExpValidator.fileIsPicture('.' + item.ext)
           ? item.previewUrl.indexOf('imageView2') > -1
             ? item.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/w/490')
             : `${item.previewUrl}&imageView2/2/w/490`

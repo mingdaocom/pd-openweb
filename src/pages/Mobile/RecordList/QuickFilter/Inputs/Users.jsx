@@ -113,7 +113,7 @@ export default function Users(props) {
           userType={getTabTypeBySelectUser(control)}
           appId={appId || ''}
           selectRangeOptions={
-            !!_.get(control, 'advancedSetting.userrange') ? dealUserRange(control, props.controls) : false
+            !!_.get(control, 'advancedSetting.chooserange') ? dealUserRange(control, props.controls) : false
           }
           onlyOne={!isMultiple}
           advancedSetting={advancedSetting}

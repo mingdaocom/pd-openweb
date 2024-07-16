@@ -19,14 +19,14 @@ export default function AdvancedSettingHandler(Comp) {
             worksheetId,
           })
           .then(data => {
-            const translateInfo = getTranslateInfo(data.appId, worksheetId);
+            const translateInfo = getTranslateInfo(data.appId, null, worksheetId);
             if (data.advancedSetting) {
               data.advancedSetting.title = translateInfo.formTitle || data.advancedSetting.title;
               data.advancedSetting.sub = translateInfo.formSub || data.advancedSetting.sub;
               data.advancedSetting.continue = translateInfo.formContinue || data.advancedSetting.continue;
             }
             data.entityName = translateInfo.recordName || data.entityName;
-            data.template.controls = replaceControlsTranslateInfo(data.appId, data.template.controls);
+            data.template.controls = replaceControlsTranslateInfo(data.appId, worksheetId, data.template.controls);
             setWorksheetInfo(data);
             setLoading(false);
           });

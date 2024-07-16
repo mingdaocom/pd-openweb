@@ -129,6 +129,12 @@ const ScaleBox = styled.div`
       line-height: ${({ isMobile }) => (isMobile ? '12px' : '13px')} !important;
       text-align: center;
       transform: translateX(-50%);
+      .pointCon {
+        display: inline-block;
+        padding: 4px 2px;
+        margin-top: -4px;
+        cursor: pointer;
+      }
     }
   }
   .scaleContent {
@@ -220,6 +226,7 @@ const PortraitScaleBox = styled.div`
 `;
 
 const SelectedOption = styled.span`
+  margin-left: 4px;
   ${({ disabled }) => (disabled ? 'color: rgba(0,0,0,.3);' : '')}
 `;
 export default function Steps(props) {
@@ -251,9 +258,7 @@ export default function Steps(props) {
   }, [value]);
 
   useEffect(() => {
-    if (currentValue >= 0) {
-      setWidth((currentValue / (filterOptions.length - 1)) * 100);
-    }
+    setWidth(currentValue >= 0 ? (currentValue / (filterOptions.length - 1)) * 100 : 0);
   }, [currentValue]);
 
   const currentColor = enumDefault2 === 1 ? _.get(filterOptions[currentValue], 'color') || '#f1f1f1' : '#2196f3';
@@ -376,24 +381,31 @@ export default function Steps(props) {
         <Bar ref={barRef}>
           <Content style={{ width: `${width}%`, backgroundColor: currentColor }} />
           {(!disabled || from === 'recordInfo') && !_.isUndefined(currentValue) && (
-            <Drag
-              className={`${tipDirection ? 'tip-' + tipDirection : 'tip-top'}`}
-              color={currentColor}
-              onClick={() => {
-                // 选项第一个无法选中，点击元素被覆盖
-                if (!value && !disabled) {
-                  const tempVal = (filterOptions[0] || {}).key || '';
-                  if (tempVal) {
-                    setCurrentValue(0);
-                    onChange(tempVal);
+            <Tooltip
+              offset={[0, -2]}
+              disable={!(showTip && !_.isUndefined(currentValue) && _.get(filterOptions[currentValue], 'value'))}
+              text={
+                showTip && !_.isUndefined(currentValue) ? (
+                  <span>{_.get(filterOptions[currentValue], 'value')}</span>
+                ) : undefined
+              }
+            >
+              <Drag
+                className={`${tipDirection ? 'tip-' + tipDirection : 'tip-top'}`}
+                color={currentColor}
+                onClick={() => {
+                  // 选项第一个无法选中，点击元素被覆盖
+                  if (!value && !disabled) {
+                    const tempVal = (filterOptions[0] || {}).key || '';
+                    if (tempVal) {
+                      setCurrentValue(0);
+                      onChange(tempVal);
+                    }
                   }
-                }
-              }}
-              style={{ left: `calc(${width}% - 7px)` }}
-              {...(showTip && !_.isUndefined(currentValue)
-                ? { 'data-tip': _.get(filterOptions[currentValue], 'value') }
-                : {})}
-            />
+                }}
+                style={{ left: `calc(${width}% - 7px)` }}
+              />
+            </Tooltip>
           )}
         </Bar>
         <ScaleBox
@@ -427,12 +439,12 @@ export default function Steps(props) {
                 <div className="pointItem">
                   <Tooltip
                     text={<span>{option.value}</span>}
+                    offset={[0, -2]}
                     popupPlacement={tipDirection || 'top'}
                     disable={from === 'recordInfo' && disabled ? true : !showTip}
                   >
-                    <ScalePoint
-                      key={option.key}
-                      color={index <= currentValue ? currentColor : 'rgba(0, 0, 0, 0.06)'}
+                    <div
+                      className="pointCon"
                       onClick={
                         disabled
                           ? _.noop
@@ -442,7 +454,12 @@ export default function Steps(props) {
                               onChange(option.key);
                             }
                       }
-                    />
+                    >
+                      <ScalePoint
+                        key={option.key}
+                        color={index <= currentValue ? currentColor : 'rgba(0, 0, 0, 0.06)'}
+                      />
+                    </div>
                   </Tooltip>
                 </div>
               );

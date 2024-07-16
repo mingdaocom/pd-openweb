@@ -15,6 +15,6 @@ export default function MdLink(props) {
 
 MdLink.propTypes = {
   to: propTypes.string,
-  children: propTypes.element,
+  children: propTypes.any,
   onClick: propTypes.func,
 };

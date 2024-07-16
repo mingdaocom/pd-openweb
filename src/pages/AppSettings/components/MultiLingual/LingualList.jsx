@@ -7,6 +7,7 @@ import AddLangModal from './AddLangModal';
 import AppSettingHeader from '../AppSettingHeader';
 import EmptyStatus from '../EmptyStatus';
 import appManagementApi from 'src/api/appManagement';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   .header {
@@ -91,7 +92,7 @@ export default function LingualList(props) {
                 <div className="flex pLeft10 bold langName" onClick={() => onChangeLangInfo(data)}>
                   {_.find(langConfig, { code: data.type }).value}
                 </div>
-                <div className="flex">{data.creator.fullname}</div>
+                <div className="flex">{_.get(data, 'creator.fullname')}</div>
                 <div className="flex">{window.createTimeSpan(data.createTime)}</div>
                 <div className="flex">{window.createTimeSpan(data.lastModifyTime)}</div>
                 <div className="operate">

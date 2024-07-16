@@ -10,7 +10,7 @@ import { isRelateMoreList } from 'src/pages/FormSet/components/columnRules/confi
 import { onValidator } from './DataFormat';
 import { controlState } from './utils';
 import { FORM_ERROR_TYPE } from './config';
-import { accDiv, accMul } from 'src/util';
+import { accDiv, accMul, dateConvertToUserZone } from 'src/util';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
 import { filterEmptyChildTableRows } from 'worksheet/util';
@@ -335,6 +335,8 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
           }
           return curI;
         });
+      } else if (control.type === 16 && value) {
+        value = dateConvertToUserZone(value);
       }
     }
 
@@ -1454,21 +1456,22 @@ export const updateDataPermission = ({ attrs = [], it, checkRuleValidator, item 
   let fieldPermission = it.fieldPermission || '111';
   let required = it.required || false;
   let disabled = it.disabled || false;
+  const eventPermissions = it.eventPermissions || '';
 
   //隐藏
-  if (_.includes(attrs, 2)) {
+  if (_.includes(attrs, 2) || eventPermissions[0] === '0') {
     fieldPermission = replaceStr(fieldPermission, 0, '0');
     if (isSubList && _.includes(item.showControls || [], it.controlId)) {
       item.showControls = (item.showControls || []).filter(c => c !== it.controlId);
     }
   } else {
     //显示
-    if (_.includes(attrs, 1)) {
+    if (_.includes(attrs, 1) || eventPermissions[0] === '1') {
       fieldPermission = replaceStr(fieldPermission, 0, '1');
     }
   }
   //只读
-  if (_.includes(attrs, 4)) {
+  if (_.includes(attrs, 4) || eventPermissions[1] === '0') {
     fieldPermission = replaceStr(fieldPermission, 1, '0');
   } else {
     //必填
@@ -1479,7 +1482,7 @@ export const updateDataPermission = ({ attrs = [], it, checkRuleValidator, item 
       item.type !== 34 && checkRuleValidator(it.controlId, FORM_ERROR_TYPE.RULE_REQUIRED, errorText);
     } else {
       //编辑
-      if (_.includes(attrs, 3)) {
+      if (_.includes(attrs, 3) || eventPermissions[1] === '1') {
         fieldPermission = replaceStr(fieldPermission, 1, '1');
         const { errorType, errorText } = onValidator({ item: { ...it, fieldPermission } });
         checkRuleValidator(it.controlId, errorType, errorText);
@@ -1543,8 +1546,6 @@ export const updateRulesData = ({
   updateControlIds = [],
   ignoreHideControl = false,
 }) => {
-  if (!rules.length) return data;
-
   let formatData = data.map(item => {
     return {
       ...item,
@@ -1568,119 +1569,132 @@ export const updateRulesData = ({
     relateRuleType[key][id] ? relateRuleType[key][id].push(type) : (relateRuleType[key][id] = [type]);
   }
 
-  if (rules.length > 0) {
-    const filterRules = getAvailableFilters(rules, formatData, recordId);
+  const filterRules = getAvailableFilters(rules, formatData, recordId);
 
-    if (filterRules && filterRules.length > 0) {
-      filterRules.map(rule => {
-        rule.ruleItems.map(({ type, controls = [] }) => {
-          let { isAvailable } = checkValueAvailable(rule, formatData, recordId);
-          let currentType = type;
-          //显示隐藏无论满足条件与否都要操作
-          if (currentType === 1) {
-            currentType = isAvailable ? 1 : 2;
-          } else if (currentType === 2) {
-            currentType = isAvailable ? 2 : 1;
-          }
-
-          // 条件变更需要移除必填错误
-          if (currentType === 5 && !isAvailable) {
-            removeRequireError(controls, checkRuleValidator);
-          }
-
-          if (!_.includes([1, 2], currentType) && !isAvailable) {
-            return;
-          }
-
-          if (_.includes([7, 8], currentType)) {
-            formatData.map(item => {
-              pushType('parent', item.controlId, currentType);
-            });
-          } else if (!_.includes([6], currentType)) {
-            controls.map(con => {
-              const { controlId = '', childControlIds = [] } = con;
-              if (!childControlIds.length) {
-                pushType('parent', controlId, currentType);
-              } else {
-                childControlIds.map(child => pushType('child', `${controlId}-${child}`, currentType));
-              }
-            });
-          }
-        });
-      });
-
-      formatData.forEach(it => {
-        it.relationControls.forEach(re => {
-          // 子表会出现控件id重复的情况
-          const id = `${it.controlId}-${re.controlId}`;
-          if ((relateRuleType['child'] || {})[id]) {
-            updateDataPermission({
-              attrs: relateRuleType['child'][id],
-              it: re,
-              checkRuleValidator,
-              item: it,
-            });
-          }
-        });
-        if ((relateRuleType['parent'] || {})[it.controlId]) {
-          updateDataPermission({
-            attrs: relateRuleType['parent'][it.controlId],
-            it,
-            checkRuleValidator,
-          });
+  if (filterRules && filterRules.length > 0) {
+    filterRules.map(rule => {
+      rule.ruleItems.map(({ type, controls = [] }) => {
+        let { isAvailable } = checkValueAvailable(rule, formatData, recordId);
+        let currentType = type;
+        //显示隐藏无论满足条件与否都要操作
+        if (currentType === 1) {
+          currentType = isAvailable ? 1 : 2;
+        } else if (currentType === 2) {
+          currentType = isAvailable ? 2 : 1;
         }
-      });
 
-      //走错误提示
-      filterRules.map(rule => {
-        // 前端校验才走
-        if (rule.checkType !== 2) {
-          rule.ruleItems.map(({ type, message, controls = [] }) => {
-            const {
-              filterControlIds = [],
-              availableControlIds = [],
-              isAvailable,
-            } = checkValueAvailable(rule, formatData, recordId, from);
-            if (_.includes([6], type)) {
-              const errorIds = controls.map(i => i.controlId);
-              const curErrorIds = rule.type === 1 && errorIds.length > 0 ? errorIds : filterControlIds;
-              //过滤已经塞进去的错误
-              (rule.type === 1 ? curErrorIds : filterControlIds).map(id =>
-                checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, '', rule),
-              );
-              if (isAvailable) {
-                availableControlIds.map(controlId => {
-                  if (!relateRuleType['errorMsg'][controlId]) {
-                    //错误提示(checkAllUpdate为true全操作，
-                    // 有变更时，ruleType === 1 指定字段直接塞错误
-                    //否则操作变更的字段updateControlIds
+        // 条件变更需要移除必填错误
+        if (currentType === 5 && !isAvailable) {
+          removeRequireError(controls, checkRuleValidator);
+        }
 
-                    const pushError = (id, msg) => {
-                      pushType('errorMsg', id, msg);
-                      if (_.find(formatData, fo => fo.controlId === id)) {
-                        const errorMsg = relateRuleType['errorMsg'][id] || [];
-                        checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, errorMsg[0], rule);
-                      }
-                    };
+        if (!_.includes([1, 2], currentType) && !isAvailable) {
+          return;
+        }
 
-                    if (
-                      checkAllUpdate ||
-                      (updateControlIds.length > 0 && (rule.type === 1 || _.includes(updateControlIds, controlId)))
-                    ) {
-                      if (rule.type === 1 && errorIds.length > 0) {
-                        errorIds.map(e => pushError(e, message));
-                      } else {
-                        pushError(controlId, message);
-                      }
-                    }
-                  }
-                });
-              }
+        if (_.includes([7, 8], currentType)) {
+          formatData.map(item => {
+            pushType('parent', item.controlId, currentType);
+          });
+        } else if (!_.includes([6], currentType)) {
+          controls.map(con => {
+            const { controlId = '', childControlIds = [] } = con;
+            if (!childControlIds.length) {
+              pushType('parent', controlId, currentType);
+            } else {
+              childControlIds.map(child => pushType('child', `${controlId}-${child}`, currentType));
             }
           });
         }
       });
-    }
+    });
+
+    formatData.forEach(it => {
+      it.relationControls.forEach(re => {
+        // 子表会出现控件id重复的情况
+        const id = `${it.controlId}-${re.controlId}`;
+        updateDataPermission({
+          attrs: relateRuleType['child'][id],
+          it: re,
+          checkRuleValidator,
+          item: it,
+        });
+      });
+      updateDataPermission({
+        attrs: relateRuleType['parent'][it.controlId],
+        it,
+        checkRuleValidator,
+      });
+    });
+
+    //走错误提示
+    filterRules.map(rule => {
+      // 前端校验才走
+      if (rule.checkType !== 2) {
+        rule.ruleItems.map(({ type, message, controls = [] }) => {
+          const {
+            filterControlIds = [],
+            availableControlIds = [],
+            isAvailable,
+          } = checkValueAvailable(rule, formatData, recordId, from);
+          if (_.includes([6], type)) {
+            const errorIds = controls.map(i => i.controlId);
+            const curErrorIds = rule.type === 1 && errorIds.length > 0 ? errorIds : filterControlIds;
+            //过滤已经塞进去的错误
+            (rule.type === 1 ? curErrorIds : filterControlIds).map(id =>
+              checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, '', rule),
+            );
+            if (isAvailable) {
+              availableControlIds.map(controlId => {
+                if (!relateRuleType['errorMsg'][controlId]) {
+                  //错误提示(checkAllUpdate为true全操作，
+                  // 有变更时，ruleType === 1 指定字段直接塞错误
+                  //否则操作变更的字段updateControlIds
+
+                  const pushError = (id, msg) => {
+                    pushType('errorMsg', id, msg);
+                    if (_.find(formatData, fo => fo.controlId === id)) {
+                      const errorMsg = relateRuleType['errorMsg'][id] || [];
+                      checkRuleValidator(id, FORM_ERROR_TYPE.RULE_ERROR, errorMsg[0], rule);
+                    }
+                  };
+
+                  if (
+                    checkAllUpdate ||
+                    (updateControlIds.length > 0 && (rule.type === 1 || _.includes(updateControlIds, controlId)))
+                  ) {
+                    if (rule.type === 1 && errorIds.length > 0) {
+                      errorIds.map(e => pushError(e, message));
+                    } else {
+                      pushError(controlId, message);
+                    }
+                  }
+                }
+              });
+            }
+          }
+        });
+      }
+    });
+  } else {
+    //没有业务规则，还是要合并自定义事件
+    formatData.forEach(it => {
+      it.relationControls.forEach(re => {
+        // 子表会出现控件id重复的情况
+        const id = `${it.controlId}-${re.controlId}`;
+        updateDataPermission({
+          attrs: [],
+          it: re,
+          checkRuleValidator,
+          item: it,
+        });
+      });
+      updateDataPermission({
+        attrs: [],
+        it,
+        checkRuleValidator,
+      });
+    });
   }
   return formatData;
 };

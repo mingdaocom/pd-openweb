@@ -2,18 +2,18 @@ import { formatFormulaDate, domFilterHtmlScript, getSelectedOptions, checkIsText
 import { RELATION_TYPE_NAME } from './enum';
 import { accMul, formatStrZero, toFixed, dateConvertToUserZone } from 'src/util';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
-import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
+import { getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
-import _ from 'lodash';
+import _, { includes } from 'lodash';
 import moment from 'moment';
-import { validate } from 'uuid';
+import { UNIT_TO_TEXT } from 'src/pages/widgetConfig/config/setting.js';
 
 export default function renderText(cell, options = {}) {
   try {
     if (!cell) {
       return '';
     }
-    if (cell.controlId === 'rowid' && !validate(cell.value)) {
+    if (cell.controlId === 'rowid' && !/^\w{8}(-\w{4}){3}-\w{12}$/.test(cell.value)) {
       return '';
     }
     let { type, value = '', unit, advancedSetting = {} } = cell;
@@ -111,11 +111,11 @@ export default function renderText(cell, options = {}) {
         if (_.isEmpty(value)) {
           value = '';
         }
-        const showFormat = getShowFormat(cell);
-        value = moment(
-          moment(type === 16 && !options.doNotHandleTimeZone ? dateConvertToUserZone(cell.value) : cell.value),
-          showFormat,
-        ).format(_.includes(['ctime', 'utime', 'dtime'], cell.controlId) ? 'YYYY-MM-DD HH:mm:ss' : showFormat);
+        const showFormat = _.includes(['ctime', 'utime', 'dtime'], cell.controlId)
+          ? 'YYYY-MM-DD HH:mm:ss'
+          : getShowFormat(cell);
+        const dateTime = type === 16 && !options.doNotHandleTimeZone ? dateConvertToUserZone(cell.value) : cell.value;
+        value = getDateToEn(showFormat, dateTime, advancedSetting.showformat);
         break;
       case 46: // TIME 时间
         if (_.isEmpty(value)) {
@@ -129,26 +129,16 @@ export default function renderText(cell, options = {}) {
         }
         if (cell.enumDefault === 2) {
           const showFormat = getShowFormat({ advancedSetting: { ...advancedSetting, showtype: cell.unit || '1' } });
-          const convertedTime = dateConvertToUserZone(
-            moment(cell.value, value.indexOf('-') > -1 ? undefined : showFormat),
-          );
+          const convertedTime = includes(showFormat, ':')
+            ? dateConvertToUserZone(moment(cell.value, value.indexOf('-') > -1 ? undefined : showFormat))
+            : moment(cell.value, value.indexOf('-') > -1 ? undefined : showFormat);
           value = moment(convertedTime).format(showFormat);
         } else {
           if (cell.advancedSetting.autocarry === '1') {
             value = (prefix || '') + formatFormulaDate({ value: cell.value, unit, dot: cell.dot });
           } else {
-            value =
-              (prefix || '') +
-              toFixed(value, cell.dot) +
-              (suffix ||
-                {
-                  1: _l('分钟'),
-                  2: _l('小时'),
-                  3: _l('天'),
-                  4: _l('月'),
-                  5: _l('年'),
-                  6: _l('秒'),
-                }[unit]);
+            const suffixValue = suffix || UNIT_TO_TEXT[unit] || '';
+            value = (prefix || '') + toFixed(value, cell.dot) + (prefix ? '' : suffixValue);
           }
         }
         break;

@@ -1,5 +1,6 @@
 ﻿// root node departmentId
 // root node departmentId
+import RegExpValidator from 'src/util/expression';
 export const COMPANY_DEPARMENTID = '';
 
 export const PAGE_SIZE = 50;
@@ -30,7 +31,7 @@ const checkUser = (input, iti) => {
     return _l('请输入手机或者邮箱');
   }
   if (isNaN(Number(input))) {
-    if (RegExp.isEmail(input)) {
+    if (RegExpValidator.isEmail(input)) {
       return null;
     } else {
       return _l('邮箱填写错误');
@@ -49,13 +50,10 @@ export const checkForm = {
     return $.trim(userName) === '' ? _l('姓名不能为空') : '';
   },
   email: email => {
-    return $.trim(email) === '' ? _l('邮箱不能为空') : !RegExp.isEmail(email) ? _l('邮箱填写错误') : '';
+    return $.trim(email) === '' ? _l('邮箱不能为空') : !RegExpValidator.isEmail(email) ? _l('邮箱填写错误') : '';
   },
   mobile: (input, iti) => {
     return $.trim(input) === '' ? _l('手机号不能为空') : iti && !iti.isValidNumber() ? _l('手机号填写错误') : '';
-  },
-  contactPhone: tel => {
-    return tel && !RegExp.isPhoneNumberWithAreaCode(tel) && !RegExp.isPhoneNumber(tel) ? _l('工作电话格式不正确') : '';
   },
   autonomously: checkUser,
   invite: checkUser,
@@ -63,7 +61,7 @@ export const checkForm = {
     const { passwordRegexTip, passwordRegex } = _.get(md, 'global.SysSettings') || {};
     return !$.trim(password)
       ? _l('密码不能为空')
-      : !RegExp.isPasswordValid(password, passwordRegex)
+      : !RegExpValidator.isPasswordValid(password, passwordRegex)
       ? passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字')
       : '';
   },

@@ -61,6 +61,7 @@ const Con = styled.div`
       'reportData',
       'axisControls',
       'worksheetInfo',
+      'loading',
       'reportSingleCacheLoading',
     ]),
   }),
@@ -73,12 +74,23 @@ export default class ChartSheet extends Component {
       reutrnVisible: false,
     };
   }
+  componentWillReceiveProps(nextProps) {
+    if (this.props.loading && !nextProps.loading) {
+      this.getTableData(nextProps);
+    }
+  }
   get isRequestTableData() {
     const { currentReport } = this.props;
     return ![reportTypes.PivotTable].includes(currentReport.reportType);
   }
   componentDidMount() {
-    const { base, getTableData, tableData } = this.props;
+    const { loading } = this.props;
+    if (!loading) {
+      this.getTableData(this.props);
+    } 
+  }
+  getTableData(props) {
+    const { base, getTableData } = props;
     if (this.isRequestTableData) {
       getTableData();
     }

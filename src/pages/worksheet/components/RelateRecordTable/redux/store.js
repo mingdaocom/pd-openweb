@@ -8,6 +8,7 @@ import { get } from 'lodash';
 export default function generateStore(
   control,
   {
+    mode,
     from,
     isCharge,
     appId,
@@ -17,17 +18,24 @@ export default function generateStore(
     worksheetId,
     formData = [],
     instanceId,
-    pageSize = 20,
+    pageSize,
     workId,
   } = {},
 ) {
+  if (!pageSize) {
+    const defaultPageSize = mode === 'dialog' ? 50 : 20;
+    pageSize = localStorage.getItem('relateRecordTablePageSize')
+      ? Number(localStorage.getItem('relateRecordTablePageSize'))
+      : defaultPageSize;
+  }
+
   const store = createStore(reducer, compose(applyMiddleware(thunk)));
   store.version = v4();
   store.dispatch({
     type: 'UPDATE_BASE',
     value: {
       from,
-      isCharge,
+      isCharge: isCharge || control.isCharge,
       worksheetId,
       control,
       appId,
@@ -47,6 +55,10 @@ export default function generateStore(
   store.cancelChange = () => {
     store.dispatch({ type: 'RESET' });
     store.dispatch(refresh());
+  };
+  store.setEmpty = () => {
+    store.dispatch({ type: 'RESET' });
+    store.dispatch({ type: 'CLEAR_RECORDS' });
   };
   store.init = () => store.dispatch(init());
   store.setEmpty = () => {

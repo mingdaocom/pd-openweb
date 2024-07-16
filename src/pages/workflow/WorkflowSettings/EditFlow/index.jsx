@@ -304,8 +304,9 @@ class EditFlow extends Component {
       Object.keys(workflowDetail.flowNodeMap).forEach(key => {
         if (
           workflowDetail.flowNodeMap[key].typeId === NODE_TYPE.APPROVAL_PROCESS &&
-          workflowDetail.flowNodeMap[key].processNode.id === processId &&
-          workflowDetail.flowNodeMap[key].selectNodeId
+          ((workflowDetail.flowNodeMap[key].processNode.id === processId &&
+            workflowDetail.flowNodeMap[key].selectNodeId) ||
+            workflowDetail.flowNodeMap[key].id === id)
         ) {
           startConfigComplete = true;
         }
@@ -458,7 +459,7 @@ class EditFlow extends Component {
     const startNodeError =
       (flowNodeMap[startEventId] || {}).appId &&
       !(flowNodeMap[startEventId] || {}).appName &&
-      !_.includes([APP_TYPE.PBC, APP_TYPE.PARAMETER], flowNodeMap[startEventId].appType);
+      !_.includes([APP_TYPE.PBC, APP_TYPE.PARAMETER, APP_TYPE.LOOP_PROCESS], flowNodeMap[startEventId].appType);
 
     return (
       <Fragment>
@@ -480,17 +481,20 @@ class EditFlow extends Component {
         </div>
 
         <Detail {...detailProps} />
-        <CreateNodeDialog
-          flowInfo={flowInfo}
-          flowNodeMap={flowNodeMap}
-          isLast={nodeId ? (flowNodeMap[nodeId] || {}).nextId === '99' : false}
-          nodeId={isCopy ? '' : nodeId}
-          selectProcessId={selectProcessId}
-          isApproval={flowInfo.startAppType === APP_TYPE.APPROVAL_START}
-          addFlowNode={this.addFlowNode}
-          selectAddNodeId={this.selectAddNodeId}
-          selectCopy={this.selectCopy}
-        />
+
+        {!flowInfo.parentId && (
+          <CreateNodeDialog
+            flowInfo={flowInfo}
+            flowNodeMap={flowNodeMap}
+            isLast={nodeId ? (flowNodeMap[nodeId] || {}).nextId === '99' : false}
+            nodeId={isCopy ? '' : nodeId}
+            selectProcessId={selectProcessId}
+            isApproval={flowInfo.startAppType === APP_TYPE.APPROVAL_START}
+            addFlowNode={this.addFlowNode}
+            selectAddNodeId={this.selectAddNodeId}
+            selectCopy={this.selectCopy}
+          />
+        )}
 
         <div className={cx('workflowEditBtn', { addTop: startNodeError })}>
           <span data-tip={_l('画布概览')}>
@@ -531,7 +535,7 @@ class EditFlow extends Component {
 
         {startNodeError && (
           <div className="Font15 workflowWarning workflowError">
-            <i className="icon-task-setting_promet mRight10" />
+            <i className="icon-task-setting_promet mRight10 Gray_9e" />
             {_l('触发流程的数据对象已删除。必须重新设置触发方式后，才能配置其他节点')}
           </div>
         )}

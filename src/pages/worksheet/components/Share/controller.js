@@ -19,7 +19,7 @@ const SHARE_SOURCE_TYPE = {
   worksheetApi: 45,
   customPage: 21,
   report: 31,
-}
+};
 
 export async function getUrl(args) {
   const { from } = args;
@@ -41,6 +41,9 @@ export async function getUrl(args) {
       break;
     case 'customPage':
       url = `${location.origin}/embed/page/${args.appId}/${args.sourceId}`;
+      break;
+    case 'report':
+      url = `${location.origin}/embed/chart/${args.appId}/${args.sourceId}?pageId=${args.pageId || ''}`;
       break;
   }
   return url;
@@ -95,7 +98,7 @@ export async function updatePublicShareStatus(args) {
   let res;
   switch (from) {
     case 'recordInfo':
-      await worksheetAjax.updateWorksheetRowShareRange({
+      res = await worksheetAjax.updateWorksheetRowShareRange({
         appId: args.appId,
         worksheetId: args.worksheetId,
         rowId: args.rowId,
@@ -103,15 +106,9 @@ export async function updatePublicShareStatus(args) {
         shareRange: isPublic ? 2 : 1,
         objectType: 2,
       });
-      if (isPublic) {
-        res = await worksheetAjax.getWorksheetShareUrl({
-          appId: args.appId,
-          worksheetId: args.worksheetId,
-          rowId: args.rowId,
-          viewId: args.viewId,
-          objectType: 2,
-        });
-      }
+      res = {
+        shareLink: isPublic ? ' ' : undefined,
+      };
       break;
     case 'newRecord':
       res = await publicWorksheetAjax.updatePublicWorksheetState({
@@ -131,15 +128,10 @@ export async function updatePublicShareStatus(args) {
         shareRange: isPublic ? 2 : 1,
         objectType: 1,
       });
-      if (isPublic) {
-        res = await worksheetAjax.getWorksheetShareUrl({
-          appId: args.appId,
-          worksheetId: args.worksheetId,
-          viewId: args.viewId,
-          objectType: 1,
-        });
-      }
       onUpdate({ shareRange: isPublic ? 2 : 1 });
+      res = {
+        shareLink: isPublic ? ' ' : undefined,
+      };
       break;
     case 'worksheetApi':
     case 'customPage':
@@ -150,7 +142,7 @@ export async function updatePublicShareStatus(args) {
         sourceType: SHARE_SOURCE_TYPE[from],
         status: isPublic ? 1 : 0,
         validTime,
-        password
+        password,
       });
       if (isPublic) {
         res.shareLink = res.appEntityShare.url;

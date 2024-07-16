@@ -120,7 +120,7 @@ export default class Dectypt extends Component {
         width={696}
         title={
           <div className="Font18 Black Normal">
-            <span className="TxtMiddle title">{_l('解密')}</span>
+            <span className="TxtMiddle title">{_l('获取文件密码')}</span>
             <span className="Gray_9e Font13"> {_l('上传应用 .mdy文件，获取导入密码、应用锁密码')}</span>
           </div>
         }

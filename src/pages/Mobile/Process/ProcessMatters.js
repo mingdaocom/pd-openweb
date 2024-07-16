@@ -278,6 +278,7 @@ export default class ProcessMatters extends Component {
     const encryptCard = cards.filter(card => _.get(card.flowNode, 'encrypt'));
     if (_.isEmpty(cards)) {
       alert(_l('请先勾选需要处理的审批'), 2);
+      return;
     }
     if (signatureCard.length || encryptCard.length) {
       if (signatureCard.length) {

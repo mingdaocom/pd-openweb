@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import log from './utils/log';
 import { MarkerConfigurableProps, MarkerAllProps, renderMarkerComponent } from './utils/markerUtils';
 import { getAMapPosition, getAMapPixel, isFun, toCapitalString } from './utils/common';
@@ -97,7 +97,9 @@ class Marker extends React.Component {
         const child = props.children;
         const childType = typeof child;
         if (childType !== 'undefined' && this.contentWrapper) {
-          render(<div>{child}</div>, this.contentWrapper);
+          const root = createRoot(this.contentWrapper);
+
+          root.render(<div>{child}</div>);
         }
       }
     }
@@ -130,7 +132,7 @@ class Marker extends React.Component {
     // if (key === 'position') {
     //   return getAMapPosition(val);
     // }
-     if (key === 'offset') {
+    if (key === 'offset') {
       return getAMapPixel(val);
     }
     return val;

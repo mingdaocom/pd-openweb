@@ -54,6 +54,7 @@ class Alias extends React.Component {
       showAliasDialog: false,
       controls: [],
       alias: '',
+      developerNotes: '',
     };
   }
 
@@ -63,7 +64,7 @@ class Alias extends React.Component {
 
   init = nextProps => {
     const { worksheetInfo = [] } = nextProps;
-    const { template = [], entityName, alias = '' } = worksheetInfo;
+    const { template = [], entityName, alias = '', developerNotes = '' } = worksheetInfo;
     const { controls = [] } = template;
     const attribute = controls.find(it => it.attribute === 1) || [];
     this.setState({
@@ -71,6 +72,7 @@ class Alias extends React.Component {
       id: attribute.controlId,
       controls: controls.filter(it => !ALL_SYS.includes(it.controlId)),
       alias,
+      developerNotes,
       showControlList: false,
       nameFocus: false,
     });
@@ -79,7 +81,16 @@ class Alias extends React.Component {
   render() {
     const { match = {}, onChange } = this.props;
     const { worksheetId } = match.params;
-    const { showControlList, name, nameFocus, id, showAliasDialog, alias = '', worksheetInfo = [] } = this.state;
+    const {
+      showControlList,
+      name,
+      nameFocus,
+      id,
+      showAliasDialog,
+      alias = '',
+      developerNotes = '',
+      worksheetInfo = [],
+    } = this.state;
     const { projectId = '', appId = '' } = worksheetInfo;
     const { controls } = this.state;
     let data = controls.find(it => it.controlId === id) || [];
@@ -264,22 +275,54 @@ class Alias extends React.Component {
               >
                 {_l('设置字段别名')}
               </div>
+              <span className="line"></span>
+              <h5 className="Font17">{_l('开发者备注')}</h5>
+              <p>{_l('设置开发者备注，仅应用管理员、开发者和API中可见')}</p>
+              <h6 className="Font13 mTop24">{_l('开发者备注')}</h6>
+              <input
+                type="text"
+                className="name mTop6"
+                placeholder={_l('请输入')}
+                value={developerNotes}
+                onChange={e => {
+                  this.setState({
+                    developerNotes: e.target.value,
+                  });
+                }}
+                onBlur={e => {
+                  const value = e.target.value.trim();
+                  sheetAjax
+                    .editDeveloperNotes({
+                      worksheetId,
+                      developerNotes: value,
+                    })
+                    .then(res => {
+                      if (res) {
+                        this.setState({
+                          developerNotes: value,
+                        });
+                      } else {
+                        alert(_l('开发者备注修改失败'), 3);
+                      }
+                    });
+                }}
+              />
             </div>
           </div>
-          {showAliasDialog && (
-            <AliasDialog
-              showAliasDialog={showAliasDialog}
-              controls={controls}
-              worksheetId={worksheetId}
-              appId={appId}
-              setFn={data => {
-                this.setState({
-                  ...data,
-                });
-              }}
-            />
-          )}
         </ScrollView>
+        {showAliasDialog && (
+          <AliasDialog
+            showAliasDialog={showAliasDialog}
+            controls={controls}
+            worksheetId={worksheetId}
+            appId={appId}
+            setFn={data => {
+              this.setState({
+                ...data,
+              });
+            }}
+          />
+        )}
       </React.Fragment>
     );
   }

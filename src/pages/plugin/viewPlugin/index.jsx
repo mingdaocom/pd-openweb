@@ -13,6 +13,8 @@ import ViewPluginConfig from './ViewPluginConfig';
 import pluginApi from 'src/api/plugin';
 import ImportPlugin from './ImportPlugin';
 import { getPluginOperateText } from '../util';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const Wrapper = styled.div`
   background: #fff;
@@ -176,7 +178,14 @@ const NoDataWrapper = styled.div`
 `;
 
 export default function ViewPlugin(props) {
-  const { currentProjectId, isAdmin } = props;
+  const { currentProjectId, myPermissions = [] } = props;
+  const hasManagePluginAuth = hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_PLUGINS);
+  const hasDevelopPluginAuth =
+    _.get(
+      _.find(md.global.Account.projects, item => item.projectId === currentProjectId),
+      'allowPlugin',
+    ) || hasPermission(myPermissions, PERMISSION_ENUM.DEVELOP_PLUGIN);
+
   const [fetchState, setFetchState] = useSetState({
     pageIndex: 1,
     loading: true,
@@ -185,7 +194,9 @@ export default function ViewPlugin(props) {
     keyWords: '',
   });
   const [pluginList, setPluginList] = useState([]);
-  const [currentTab, setCurrentTab] = useState(localStorage.getItem('viewPluginTab') || 'myPlugin');
+  const [currentTab, setCurrentTab] = useState(
+    hasDevelopPluginAuth ? localStorage.getItem('viewPluginTab') || 'myPlugin' : 'project',
+  );
   const [pluginConfig, setPluginConfig] = useState({ visible: false });
 
   const onFetch = () => {
@@ -261,7 +272,7 @@ export default function ViewPlugin(props) {
           <Switch
             checkedChildren={_l('开启')}
             unCheckedChildren={_l('关闭')}
-            disabled={!isAdmin}
+            disabled={!hasManagePluginAuth}
             checked={!!item.state}
             onChange={(checked, e) => {
               e.stopPropagation();
@@ -317,7 +328,7 @@ export default function ViewPlugin(props) {
           </div>
         ),
         render: item =>
-          isAdmin || currentTab === 'myPlugin' ? (
+          hasManagePluginAuth || currentTab === 'myPlugin' ? (
             <OperateColumn
               projectId={currentProjectId}
               pluginId={item.id}
@@ -351,28 +362,30 @@ export default function ViewPlugin(props) {
           </div>
         </div>
 
-        <div className="navTab">
-          <ul>
-            {tabList.map((item, index) => {
-              return (
-                <li
-                  key={index}
-                  className={cx({ isCur: item.value === currentTab })}
-                  onClick={() => {
-                    if (currentTab === item.value) {
-                      return;
-                    }
-                    safeLocalStorageSetItem(`viewPluginTab`, item.value);
-                    setCurrentTab(item.value);
-                    setFetchState({ loading: true });
-                  }}
-                >
-                  <a>{item.text}</a>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
+        {hasDevelopPluginAuth && (
+          <div className="navTab">
+            <ul>
+              {tabList.map((item, index) => {
+                return (
+                  <li
+                    key={index}
+                    className={cx({ isCur: item.value === currentTab })}
+                    onClick={() => {
+                      if (currentTab === item.value) {
+                        return;
+                      }
+                      safeLocalStorageSetItem(`viewPluginTab`, item.value);
+                      setCurrentTab(item.value);
+                      setFetchState({ loading: true });
+                    }}
+                  >
+                    <a>{item.text}</a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
 
         <div className="contentWrapper">
           <div className="contentHeader">
@@ -396,7 +409,7 @@ export default function ViewPlugin(props) {
               )}
             </div>
 
-            {!(currentTab === 'project' && !isAdmin) && (
+            {!(currentTab === 'project' && !hasManagePluginAuth) && (
               <div
                 className="headerBtn"
                 onClick={() =>

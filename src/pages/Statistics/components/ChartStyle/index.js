@@ -256,8 +256,9 @@ export default class ChartStyle extends Component {
   }
   renderLabel() {
     const { currentReport } = this.props;
+    const { showLabelPercent } = currentReport.style || {};
     const { showNumber, showPileTotal, hideOverlapText } = currentReport.displaySetup;
-    const switchChecked = showNumber || showPileTotal || hideOverlapText;
+    const switchChecked = showNumber || showPileTotal || showLabelPercent || hideOverlapText;
     return (
       <Collapse.Panel
         key="label"

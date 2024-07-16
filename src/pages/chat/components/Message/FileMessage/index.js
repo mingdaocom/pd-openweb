@@ -4,7 +4,7 @@ import previewAttachments from 'src/components/previewAttachments/previewAttachm
 import Constant from '../../../utils/constant';
 import './index.less';
 import { formatFileSize, getClassNameByExt } from 'src/util';
-
+import RegExpValidator from 'src/util/expression';
 export default class FileMessage extends Component {
   constructor(props) {
     super(props);
@@ -14,7 +14,7 @@ export default class FileMessage extends Component {
       cancelShow: false,
     };
     const { files } = this.props.message.msg;
-    this.iconClassName = getClassNameByExt(File.GetExt((files || {}).name));
+    this.iconClassName = getClassNameByExt(RegExpValidator.getExtOfFileName((files || {}).name));
     this.uploader = null;
   }
   componentDidMount() {
@@ -93,7 +93,7 @@ export default class FileMessage extends Component {
           ) : cancel ? (
             <div className="Message-fileError">{_l('您已取消发送')}</div>
           ) : (
-            <div className="Message-fileSize">{`${isKc ? _l('来自知识中心') : ''} ${size}`}</div>
+            <div className="Message-fileSize ellipsis">{`${isKc ? _l('来自知识中心') : ''} ${size}`}</div>
           )}
         </div>
         {message.isPrepare && !cancel && cancelShow ? (

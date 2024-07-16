@@ -5,8 +5,6 @@ import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/Filt
 import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
 import { getAdvanceSetting } from '../../../util/setting';
 import '../FilterData/filterDialog.less';
-import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
-import styled from 'styled-components';
 
 export default function FilterDialog(props) {
   const {
@@ -25,7 +23,8 @@ export default function FilterDialog(props) {
   return (
     <Dialog
       visible
-      title={_l('筛选数据源')}
+      width={560}
+      title={_l('设置筛选条件')}
       okDisabled={isEmpty(filters)}
       okText={_l('确定')}
       cancelText={_l('取消')}
@@ -37,6 +36,7 @@ export default function FilterDialog(props) {
       <FilterConfig
         canEdit
         feOnly
+        supportGroup={data.enumDefault === 3}
         projectId={globalSheetInfo.projectId}
         appId={globalSheetInfo.appId}
         columns={controls}

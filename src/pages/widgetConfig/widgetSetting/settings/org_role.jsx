@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
 import { RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../styled';
-import Components from '../components';
+import WidgetUserPermission from '../components/WidgetUserPermission';
+import RoleConfig from '../components/WidgetHighSetting/ControlSetting/RoleConfig';
 
 const DISPLAY_OPTIONS = [
   {
@@ -29,7 +30,8 @@ export default function OrgRole(props) {
           onChange={value => onChange({ enumDefault: value })}
         />
       </SettingItem>
-      {from !== 'subList' && <Components.WidgetUserPermission {...props} />}
+      <RoleConfig {...props} />
+      {from !== 'subList' && <WidgetUserPermission {...props} />}
     </Fragment>
   );
 }

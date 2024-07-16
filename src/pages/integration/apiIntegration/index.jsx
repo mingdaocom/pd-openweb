@@ -7,8 +7,10 @@ import bg from 'staticfiles/images/query.png';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
-import loadScript from 'load-script';
 import CustomLibrary from './CustomLibrary';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import loadScript from 'load-script';
 
 const Wrap = styled.div`
   background: #fff;
@@ -72,13 +74,16 @@ const list = [
 
 function APILibraryCon(props) {
   // 是否启用明道云API库，默认开启
-  const { currentProjectId, match = { params: {} } } = props;
-  const allowAPIIntegration = _.get(
-    _.find(md.global.Account.projects, item => item.projectId === currentProjectId),
-    'allowAPIIntegration',
-  );
+  const { currentProjectId, match = { params: {} }, myPermissions } = props;
+
+  const hasAPIIntegrationAuth =
+    _.get(
+      _.find(md.global.Account.projects, item => item.projectId === currentProjectId),
+      'allowAPIIntegration',
+    ) || hasPermission(myPermissions, [PERMISSION_ENUM.CREATE_API_CONNECT, PERMISSION_ENUM.MANAGE_API_CONNECTS]);
+
   const hideIntegrationLibrary =
-    (md.global.Config.IsLocal && md.global.SysSettings.hideIntegrationLibrary) || !allowAPIIntegration;
+    (md.global.Config.IsLocal && md.global.SysSettings.hideIntegrationLibrary) || !hasAPIIntegrationAuth;
 
   const [tab, setTab] = useState(
     hideIntegrationLibrary
@@ -99,6 +104,7 @@ function APILibraryCon(props) {
         buriedUpgradeVersionDialog: () => {
           buriedUpgradeVersionDialog(currentProjectId, VersionProductType.apiIntergration);
         },
+        manageAllConnects: hasPermission(myPermissions, [PERMISSION_ENUM.MANAGE_API_CONNECTS]),
         currentProjectId: currentProjectId,
         getUrl: 'https://api.mingdao.com/integration',
         installUrl: __api_server__.integration || md.global.Config.IntegrationAPIUrl,
@@ -110,7 +116,7 @@ function APILibraryCon(props) {
       if (window.MDAPILibrary) {
         renderLibCon();
       } else {
-        loadScript(`https://alifile.mingdaocloud.com/open/js/apilibrary.js?${+new Date()}`, err => {
+        loadScript(`https://alifile.mingdaocloud.com/open/js/apilibrary_v2.js?${+new Date()}`, err => {
           if (!err && window.MDAPILibrary) {
             renderLibCon();
           }
@@ -133,7 +139,11 @@ function APILibraryCon(props) {
             <h3 className="Bold Font24">{_l('API库')}</h3>
             <p className="Font15">
               {_l('连接第三方 API 并保存鉴权认证，在工作表或工作流中调用')}{' '}
-              <Support type={3} href="https://help.mingdao.com/integration/api#connection-certification" text={_l('使用帮助')} />
+              <Support
+                type={3}
+                href="https://help.mingdao.com/integration/api#connection-certification"
+                text={_l('使用帮助')}
+              />
             </p>
           </div>
         </div>

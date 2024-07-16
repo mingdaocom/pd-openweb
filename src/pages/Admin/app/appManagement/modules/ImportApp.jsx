@@ -8,7 +8,7 @@ import importDisabledPng from '../img/import_disabled.png';
 import cx from 'classnames';
 import './index.less';
 import { formatFileSize } from 'src/util';
-
+import RegExpValidator from 'src/util/expression';
 const ERRORMSG = {
   3: _l('密码错误，验证失败'),
   4: _l('失败次数过多，请于15分钟后尝试'),
@@ -53,7 +53,7 @@ export default class ImportApp extends React.Component {
       },
       init: {
         BeforeUpload: (up, file) => {
-          if (File.GetExt(file.name) != 'mdy') {
+          if (RegExpValidator.getExtOfFileName(file.name) != 'mdy') {
             alert(_l('上传失败，文件类型错误'), 2, 1000);
             return false;
           }

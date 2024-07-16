@@ -4,14 +4,14 @@ import { isEmptyValue } from 'src/components/newCustomFields/tools/filterFn.js';
 import moment from 'moment';
 import { v4 as uuidv4 } from 'uuid';
 
-const getAttachmentData = (control = {}) => {
+export const getAttachmentData = (control = {}) => {
   let fileData;
   if (control.value && _.isArray(JSON.parse(control.value))) {
     fileData = JSON.parse(control.value);
   } else {
     const data = JSON.parse(control.value || '{}');
     const { attachments = [], attachmentData = [], knowledgeAtts = [] } = data;
-    fileData = [...attachments, ...attachmentData, ...knowledgeAtts];
+    fileData = [...attachmentData, ...attachments, ...knowledgeAtts];
   }
   return fileData;
 };
@@ -144,7 +144,7 @@ const getDynamicValue = (item, formData, keywords) => {
   return _.isEmpty(dealValue) ? '' : dealValue;
 };
 
-export const getParamsByConfigs = (requestMap = [], formData = [], keywords = '', getControlRef = () => {}) => {
+export const getParamsByConfigs = (requestMap = [], formData = [], keywords = '') => {
   let params = {};
   requestMap.forEach(item => {
     if (item.pid) return;
@@ -154,10 +154,10 @@ export const getParamsByConfigs = (requestMap = [], formData = [], keywords = ''
       const curControl =
         _.find(formData, i => i.controlId === _.get(safeParse(item.defsource || '[]')[0], 'cid')) || {};
       // 对象数组或子表值
-      const rows =
-        curControl.type === 29
-          ? safeParse(curControl.value || '[]')
-          : _.get(getControlRef(curControl.controlId), ['props', 'rows']) || [];
+      const controlState = curControl.store ? curControl.store.getState() : {};
+      const rows = (
+        curControl.type === 29 ? _.get(controlState, 'records') || [] : _.get(controlState, 'rows') || []
+      ).filter(r => !(r.rowid || '').includes('empty'));
 
       params[item.id] = '';
 
@@ -175,7 +175,7 @@ export const getParamsByConfigs = (requestMap = [], formData = [], keywords = ''
                   if (i.controlId === cid) {
                     return {
                       ...i,
-                      value: curControl.type === 29 ? safeParse(row.sourcevalue || '{}')[cid] : row[cid],
+                      value: _.get(row, [cid]) || '',
                     };
                   }
                   return i;

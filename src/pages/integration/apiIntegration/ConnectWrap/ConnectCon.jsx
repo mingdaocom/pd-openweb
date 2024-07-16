@@ -16,7 +16,9 @@ import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import processAjax from 'src/pages/workflow/api/process';
 import _ from 'lodash';
 import ConnectAvator from '../../components/ConnectAvator';
-import { getIsSuperAdmin } from 'src/pages/integration/util.js';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+
 const Wrap = styled.div`
   .scrollDiv {
     height: 0px;
@@ -183,7 +185,7 @@ function ConnectCon(props) {
       tabList,
       hasGetControl,
       hasGetIntroduce,
-      isSuperAdmin,
+      hasManageAuth,
     },
     setState,
   ] = useSetState({
@@ -204,7 +206,7 @@ function ConnectCon(props) {
     tabList: TABLIST,
     hasGetControl: false,
     hasGetIntroduce: false,
-    isSuperAdmin: props.isSuperAdmin,
+    hasManageAuth: props.hasManageAuth,
   });
   const cache = useRef({
     isFix: false,
@@ -226,18 +228,12 @@ function ConnectCon(props) {
       });
     }
   }, []);
-  useEffect(() => {
-    window.addEventListener('scroll', HandleScroll, true);
-    return () => {
-      window.removeEventListener('scroll', HandleScroll, true);
-    };
-  }, []);
 
   useEffect(() => {
     setState({
-      isConnectOwner: isSuperAdmin || connectData.isOwner,
+      isConnectOwner: hasManageAuth || connectData.isOwner,
     });
-  }, [isSuperAdmin, connectData]);
+  }, [hasManageAuth, connectData]);
 
   useEffect(() => {
     hasGetControl && hasGetIntroduce && initTabLIst();
@@ -286,18 +282,6 @@ function ConnectCon(props) {
     }
   };
 
-  const HandleScroll = e => {
-    e.stopPropagation();
-    if (!WrapRef.current) return;
-    let toFix = $(WrapRef.current).offset().top <= 50;
-    if (toFix !== cache.current.isFix) {
-      setState({
-        isFix: toFix,
-      });
-      cache.current.isFix = toFix;
-    }
-  };
-
   // 获取基本详情
   const getDetailInfo = id => {
     packageVersionAjax
@@ -311,12 +295,10 @@ function ConnectCon(props) {
       .then(
         res => {
           const { apks = [], companyId } = res;
-          const isSuperAdmin = getIsSuperAdmin(companyId);
-          setState({
-            isSuperAdmin,
-          });
+          const hasManageAuth = checkPermission(companyId, PERMISSION_ENUM.MANAGE_API_CONNECTS);
+          setState({ hasManageAuth });
           let newData = { ...connectData, ...res, apks };
-          if (isSuperAdmin || newData.isOwner) {
+          if (hasManageAuth || newData.isOwner) {
             setState({
               connectData: newData,
               isConnectOwner: true,
@@ -375,7 +357,7 @@ function ConnectCon(props) {
         setState({
           connectData: newData,
           isChange: true,
-          isConnectOwner: isSuperAdmin || newData.isOwner,
+          isConnectOwner: hasManageAuth || newData.isOwner,
         });
       });
   };
@@ -445,7 +427,7 @@ function ConnectCon(props) {
         };
         setState({
           connectData: newData,
-          isConnectOwner: isSuperAdmin || newData.isOwner,
+          isConnectOwner: hasManageAuth || newData.isOwner,
         });
       });
   };
@@ -537,6 +519,7 @@ function ConnectCon(props) {
               getApiListFetch(data);
             }}
             apkCount={props.apkCount}
+            hasManageAuth={hasManageAuth}
           />
         );
       case 2:
@@ -544,7 +527,6 @@ function ConnectCon(props) {
           <AuthorizeToApp
             {...nodeInfo}
             isConnectOwner={isConnectOwner}
-            isSuperAdmin={isSuperAdmin}
             processId={connectData.id}
             list={connectData.apks || []}
             hasChange={() =>
@@ -592,7 +574,18 @@ function ConnectCon(props) {
     props.forPage ? (document.title = `${_l('集成中心')}-${connectData.name || _l('未命名连接')}`) : '';
   }
   return (
-    <ScrollView>
+    <ScrollView
+      scrollEvent={() => {
+        if (!WrapRef.current) return;
+        let toFix = $(WrapRef.current).offset().top <= 50;
+        if (toFix !== cache.current.isFix) {
+          setState({
+            isFix: toFix,
+          });
+          cache.current.isFix = toFix;
+        }
+      }}
+    >
       <Wrap>
         <div className={cx('head', { isFix })} ref={headerRef}>
           <div className="flexRow leftCon">
@@ -822,6 +815,7 @@ function ConnectCon(props) {
             renderCon()
           )}
         </div>
+
         {show && (
           <PublishDialog
             onOk={data => {
@@ -830,7 +824,7 @@ function ConnectCon(props) {
             onCancel={() => {
               setState({ show: false });
             }}
-            isSuperAdmin={isSuperAdmin}
+            hasManageAuth={hasManageAuth}
             connectInfo={connectData}
             info={connectData.info}
             status={connectData.status}

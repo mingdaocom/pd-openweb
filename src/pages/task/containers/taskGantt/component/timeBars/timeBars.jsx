@@ -1,16 +1,18 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import config from '../../config/config';
 import './timeBars.less';
 import utils from '../../utils/utils';
 import cx from 'classnames';
 import Tooltip from 'ming-ui/components/Tooltip';
 import { DragSource } from 'react-dnd';
-import { findDOMNode, render } from 'react-dom';
+import { findDOMNode } from 'react-dom';
 import DragPreview from '../dragPreview/dragPreview';
 import { formatTaskTime } from '../../../../utils/utils';
 import _ from 'lodash';
 import moment from 'moment';
+
+let root;
 
 const ganttSource = {
   beginDrag(props, monitor, component) {
@@ -44,7 +46,8 @@ const ganttSource = {
       config.oldStartTime = '';
     }
 
-    render(<DragPreview preview={preview} data={props.data} />, document.getElementById('ganttDragPreviewBox'));
+    root = createRoot(document.getElementById('ganttDragPreviewBox'));
+    root.render(<DragPreview preview={preview} data={props.data} />);
     props.ganttBeginDrag(props.data.taskId);
     return {
       index: props.index,
@@ -77,15 +80,11 @@ const ganttSource = {
       if (diffHours === 0) {
         // 填充开始时间
         if (config.oldStartTime) {
-          $(preview)
-            .find('.dragPreviewStartTime')
-            .html(moment(config.originalStartTime).format('Do HH'));
+          $(preview).find('.dragPreviewStartTime').html(moment(config.originalStartTime).format('Do HH'));
         }
         // 填充结束时间
         if (config.oldEndTime) {
-          $(preview)
-            .find('.dragPreviewEndTime')
-            .html(moment(config.originalEndTime).format('Do HH'));
+          $(preview).find('.dragPreviewEndTime').html(moment(config.originalEndTime).format('Do HH'));
         }
       } else {
         const newTimes = utils.offsetTime(
@@ -95,22 +94,18 @@ const ganttSource = {
           diffHours,
           props.minStartTime,
           props.maxEndTime,
-          props.viewType
+          props.viewType,
         );
         config.newStartTime = newTimes.start;
         config.newEndTime = newTimes.end;
 
         // 填充开始时间
         if (config.newStartTime) {
-          $(preview)
-            .find('.dragPreviewStartTime')
-            .html(moment(config.newStartTime).format('Do HH'));
+          $(preview).find('.dragPreviewStartTime').html(moment(config.newStartTime).format('Do HH'));
         }
         // 填充结束时间
         if (config.newEndTime) {
-          $(preview)
-            .find('.dragPreviewEndTime')
-            .html(moment(config.newEndTime).format('Do HH'));
+          $(preview).find('.dragPreviewEndTime').html(moment(config.newEndTime).format('Do HH'));
         }
       }
 
@@ -148,7 +143,7 @@ const ganttSource = {
     config.isEndDrag = true;
     props.ganttEndDrop();
     clearInterval(config.setInterval);
-    ReactDOM.unmountComponentAtNode($('#ganttDragPreviewBox')[0]);
+    root.root();
     $('body').removeClass('ganttDraging');
   },
 };
@@ -196,7 +191,10 @@ export default class TimeBars extends Component {
    * 无起止时间数据左对齐
    */
   noDateListAlignLeft() {
-    $(this.timeBars).css('padding-left', this.props.data.showHourLong === 0 ? $('.timeBarContainer').scrollLeft() + 20 : 0);
+    $(this.timeBars).css(
+      'padding-left',
+      this.props.data.showHourLong === 0 ? $('.timeBarContainer').scrollLeft() + 20 : 0,
+    );
   }
 
   /**
@@ -223,7 +221,7 @@ export default class TimeBars extends Component {
           diffHours,
           that.props.minStartTime,
           that.props.maxEndTime,
-          that.props.viewType
+          that.props.viewType,
         );
         // 清除滚动
         clearInterval(config.setInterval);
@@ -231,9 +229,7 @@ export default class TimeBars extends Component {
         // 拖拽左侧
         if (direction === config.DRAG_DIRECTION.LEFT) {
           if (moment(start) >= moment(config.originalEndTime)) {
-            start = moment(config.originalEndTime)
-              .add(-1, 'h')
-              .format('YYYY-MM-DD HH:mm');
+            start = moment(config.originalEndTime).add(-1, 'h').format('YYYY-MM-DD HH:mm');
           }
           // 新时间
           config.newStartTime = start;
@@ -245,9 +241,7 @@ export default class TimeBars extends Component {
         // 拖拽右侧
         if (direction === config.DRAG_DIRECTION.RIGHT) {
           if (moment(end) <= moment(config.originalStartTime)) {
-            end = moment(config.originalStartTime)
-              .add(1, 'h')
-              .format('YYYY-MM-DD HH:mm');
+            end = moment(config.originalStartTime).add(1, 'h').format('YYYY-MM-DD HH:mm');
           }
           // 新时间
           config.newEndTime = end;
@@ -265,7 +259,13 @@ export default class TimeBars extends Component {
           // 更新
           that.props.updateTaskStartTimeAndDeadline(config.singleDragTaskId, true, config.newStartTime, '');
           // 数据先恢复到初始状态
-          that.props.updateStartTimeAndEndTime(config.singleDragTaskId, that.props.index, config.oldStartTime, direction, true);
+          that.props.updateStartTimeAndEndTime(
+            config.singleDragTaskId,
+            that.props.index,
+            config.oldStartTime,
+            direction,
+            true,
+          );
         }
 
         // 修改结束时间
@@ -273,7 +273,13 @@ export default class TimeBars extends Component {
           // 更新
           that.props.updateTaskStartTimeAndDeadline(config.singleDragTaskId, false, '', config.newEndTime);
           // 数据先恢复到初始状态
-          that.props.updateStartTimeAndEndTime(config.singleDragTaskId, that.props.index, config.oldEndTime, direction, true);
+          that.props.updateStartTimeAndEndTime(
+            config.singleDragTaskId,
+            that.props.index,
+            config.oldEndTime,
+            direction,
+            true,
+          );
         }
 
         // 单侧拖拽结束
@@ -390,17 +396,18 @@ export default class TimeBars extends Component {
       style.left = 0;
       let endTime = config.timeStamp;
       if (data.status === config.TASKSTATUS.COMPLETED) {
-        endTime = moment(data.completeTime)
-          .add(1, 'h')
-          .format('YYYY-MM-DD HH:mm');
+        endTime = moment(data.completeTime).add(1, 'h').format('YYYY-MM-DD HH:mm');
       }
 
       if (moment(endTime) <= moment(data.showEndTime)) {
-        style.width = this.getTimePosition(data.showEndTime) + (data.taskId !== config.singleDragTaskId ? config.TASK_NAME_SIZE : 0);
+        style.width =
+          this.getTimePosition(data.showEndTime) +
+          (data.taskId !== config.singleDragTaskId ? config.TASK_NAME_SIZE : 0);
       } else {
         // 结束时间的有效日期
         const validEndTime = utils.checkTime(data.showStartTime, endTime, filterWeekend).showEndTime;
-        style.width = this.getTimePosition(validEndTime) + (data.taskId !== config.singleDragTaskId ? config.TASK_NAME_SIZE : 0);
+        style.width =
+          this.getTimePosition(validEndTime) + (data.taskId !== config.singleDragTaskId ? config.TASK_NAME_SIZE : 0);
       }
 
       return style;
@@ -554,9 +561,7 @@ export default class TimeBars extends Component {
     let endTime = config.timeStamp;
 
     if (data.status === config.TASKSTATUS.COMPLETED) {
-      endTime = moment(data.completeTime)
-        .add(1, 'h')
-        .format('YYYY-MM-DD HH:00');
+      endTime = moment(data.completeTime).add(1, 'h').format('YYYY-MM-DD HH:00');
     }
 
     if (moment(endTime) <= moment(data.showEndTime)) {
@@ -580,7 +585,11 @@ export default class TimeBars extends Component {
 
     const hours = Math.ceil((moment(data.completeTime || config.timeStamp) - moment(data.deadline)) / 60 / 60 / 1000);
     if (this.getOverdueHour() * utils.getOneHourWidth(this.props.viewType) >= config.TASK_MESSAGE_SIZE) {
-      return <span className="timeBarMessageP">{hours < 24 ? _l('逾期%0小时', hours) : _l('逾期%0天', Math.floor(hours / 24))}</span>;
+      return (
+        <span className="timeBarMessageP">
+          {hours < 24 ? _l('逾期%0小时', hours) : _l('逾期%0天', Math.floor(hours / 24))}
+        </span>
+      );
     }
   }
 
@@ -590,7 +599,11 @@ export default class TimeBars extends Component {
   showOrHideTask() {
     const { data, index } = this.props;
     config.isEndDrag = true;
-    this.props.showOrHideTask(index, data.taskId, data.arrowStatus === config.ARROW_STATUS.OPEN ? config.ARROW_STATUS.CLOSED : config.ARROW_STATUS.OPEN);
+    this.props.showOrHideTask(
+      index,
+      data.taskId,
+      data.arrowStatus === config.ARROW_STATUS.OPEN ? config.ARROW_STATUS.CLOSED : config.ARROW_STATUS.OPEN,
+    );
   }
 
   /**
@@ -624,7 +637,14 @@ export default class TimeBars extends Component {
       }
     }
 
-    return <div className="Font13" dangerouslySetInnerHTML={{ __html: formatTaskTime(data.status, data.startTime, data.deadline, data.actualStartTime, data.completeTime) }} />;
+    return (
+      <div
+        className="Font13"
+        dangerouslySetInnerHTML={{
+          __html: formatTaskTime(data.status, data.startTime, data.deadline, data.actualStartTime, data.completeTime),
+        }}
+      />
+    );
   }
 
   /**
@@ -681,11 +701,22 @@ export default class TimeBars extends Component {
     const offset = [this.state.offsetX, 1];
 
     return (
-      <Tooltip popupPlacement="top" text={this.tooltip()} themeColor="white" mouseEnterDelay={0.5} offset={offset} overflow={[0, 0]}>
+      <Tooltip
+        popupPlacement="top"
+        text={this.tooltip()}
+        themeColor="white"
+        mouseEnterDelay={0.5}
+        offset={offset}
+        overflow={[0, 0]}
+      >
         <div
-          className={cx('timeBars pointer', { isDragging: data.taskId === dragTaskId }, { noDateList: data.showHourLong === 0 })}
+          className={cx(
+            'timeBars pointer',
+            { isDragging: data.taskId === dragTaskId },
+            { noDateList: data.showHourLong === 0 },
+          )}
           style={this.getTimeBarStyle()}
-          ref={(timeBars) => {
+          ref={timeBars => {
             this.timeBars = timeBars;
           }}
           onMouseOver={evt => this.onMouseOver(evt)}
@@ -693,28 +724,28 @@ export default class TimeBars extends Component {
         >
           {data.singleTime === config.SINGLE_TIME.START || data.singleTime === config.SINGLE_TIME.END ? (
             <span className="timeBarDashed" style={this.timeBarDashedStyle()} />
-          ) : (
-            undefined
-          )}
+          ) : undefined}
 
           {data.arrowStatus !== config.ARROW_STATUS.NULL ? (
             <span className="timeBarArrowBtn" style={this.timeBarArrowBtnStyle()} onClick={() => this.showOrHideTask()}>
-              <i className={cx(data.arrowStatus === config.ARROW_STATUS.OPEN ? 'icon-remove_circle_outline' : 'icon-addapplication')} />
+              <i
+                className={cx(
+                  data.arrowStatus === config.ARROW_STATUS.OPEN ? 'icon-remove_circle_outline' : 'icon-addapplication',
+                )}
+              />
             </span>
-          ) : (
-            undefined
-          )}
+          ) : undefined}
 
-          {data.singleTime === config.SINGLE_TIME.END ? <span className="timeBarArrow timeBarArrowLeft" style={this.timeBarArrowStyle()} /> : undefined}
+          {data.singleTime === config.SINGLE_TIME.END ? (
+            <span className="timeBarArrow timeBarArrowLeft" style={this.timeBarArrowStyle()} />
+          ) : undefined}
 
-          {data.showHourLong === 0 ? (
-            undefined
-          ) : data.status === config.TASKSTATUS.COMPLETED ? (
+          {data.showHourLong === 0 ? undefined : data.status === config.TASKSTATUS.COMPLETED ? (
             <span
               className={cx(
                 'timeBar pointer',
                 { clearLeftBorder: data.singleTime === config.SINGLE_TIME.END },
-                { clearRightBorder: data.singleTime === config.SINGLE_TIME.START }
+                { clearRightBorder: data.singleTime === config.SINGLE_TIME.START },
               )}
               style={timeBarStyle}
             />
@@ -724,61 +755,63 @@ export default class TimeBars extends Component {
                 className={cx(
                   'timeBar',
                   { clearLeftBorder: data.singleTime === config.SINGLE_TIME.END },
-                  { clearRightBorder: data.singleTime === config.SINGLE_TIME.START }
+                  { clearRightBorder: data.singleTime === config.SINGLE_TIME.START },
                 )}
                 style={timeBarStyle}
               >
                 <div>
-                  {timeBarStyle.width < 8 ? (
-                    undefined
-                  ) : (
-                    <i className={cx('timeBarDragLeft', { dragBigRadius: timeBarStyle.width >= 72 })} onMouseDown={evt => this.timeBarDragLeft(evt)} />
+                  {timeBarStyle.width < 8 ? undefined : (
+                    <i
+                      className={cx('timeBarDragLeft', { dragBigRadius: timeBarStyle.width >= 72 })}
+                      onMouseDown={evt => this.timeBarDragLeft(evt)}
+                    />
                   )}
 
-                  <i className={cx('timeBarDragRight', { dragBigRadius: timeBarStyle.width >= 72 })} onMouseDown={evt => this.timeBarDragRight(evt)} />
+                  <i
+                    className={cx('timeBarDragRight', { dragBigRadius: timeBarStyle.width >= 72 })}
+                    onMouseDown={evt => this.timeBarDragRight(evt)}
+                  />
 
                   {data.taskId === config.singleDragTaskId && config.oldStartTime ? (
                     <div className="dragPreviewTipsLeft">{moment(data.showStartTime).format('Do HH')}</div>
-                  ) : (
-                    undefined
-                  )}
+                  ) : undefined}
 
                   {data.taskId === config.singleDragTaskId && config.oldEndTime && !config.isHiddenLastTips ? (
                     <div className="dragPreviewTipsRight">{moment(data.showEndTime).format('Do HH')}</div>
-                  ) : (
-                    undefined
-                  )}
+                  ) : undefined}
                 </div>
-              </span>
+              </span>,
             )
           )}
 
-          {data.singleTime === config.SINGLE_TIME.START ? <span className="timeBarArrow timeBarArrowRight" style={this.timeBarArrowStyle()} /> : undefined}
+          {data.singleTime === config.SINGLE_TIME.START ? (
+            <span className="timeBarArrow timeBarArrowRight" style={this.timeBarArrowStyle()} />
+          ) : undefined}
 
           {data.deadline ? (
             <span
               className={cx(
                 'timeBarOverdue',
                 { Hidden: utils.getOneHourWidth(viewType) * this.getOverdueHour() === 0 },
-                { timeBarOverdueStyle: timeBarStyle.width >= 72 }
+                { timeBarOverdueStyle: timeBarStyle.width >= 72 },
               )}
               style={{ width: utils.getOneHourWidth(viewType) * this.getOverdueHour() }}
             >
               {this.getOverdueMessage()}
             </span>
-          ) : (
-            undefined
-          )}
+          ) : undefined}
 
           {data.taskId !== config.singleDragTaskId ? (
             <span
-              className={cx('overflow_ellipsis', { noDateColor: data.showHourLong === 0 }, { timeBarTaskName: data.status === config.TASKSTATUS.COMPLETED })}
+              className={cx(
+                'overflow_ellipsis',
+                { noDateColor: data.showHourLong === 0 },
+                { timeBarTaskName: data.status === config.TASKSTATUS.COMPLETED },
+              )}
             >
               {data.taskName}
             </span>
-          ) : (
-            undefined
-          )}
+          ) : undefined}
         </div>
       </Tooltip>
     );

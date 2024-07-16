@@ -2,7 +2,7 @@ import homeAppApi from 'src/api/homeApp';
 import appManagementApi from 'src/api/appManagement';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import { Modal, Toast } from 'antd-mobile';
-import { getTranslateInfo } from 'src/util';
+import { getAppLangDetail, getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 
 export const getAppDetail = (appId, cb) => (dispatch, getState) => {
@@ -39,7 +39,7 @@ export const getAppDetail = (appId, cb) => (dispatch, getState) => {
         dispatch({
           type: 'UPDATE_APP_DETAIL',
           data: {
-            appName: getTranslateInfo(appId, appId).name || detail.name,
+            appName: getTranslateInfo(appId, null, appId).name || detail.name,
             detail: detail,
             appSection: detail.sections,
             status: status,
@@ -50,20 +50,9 @@ export const getAppDetail = (appId, cb) => (dispatch, getState) => {
           type: 'MOBILE_FETCH_SUCCESS',
         });
       };
-      if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
-        appManagementApi
-          .getAppLangDetail({
-            appId,
-            appLangId: langInfo.appLangId,
-          })
-          .then(lang => {
-            window[`langData-${appId}`] = lang.items;
-            window[`langVersion-${appId}`] = langInfo.version;
-            run();
-          });
-      } else {
+      getAppLangDetail(detail).then(() => {
         run();
-      }
+      });
       cb && cb(detail);
       dispatch({
         type: 'DEBUG_ROLE_LIST',

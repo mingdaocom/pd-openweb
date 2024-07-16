@@ -4,7 +4,7 @@ import 'src/pages/PageHeader/components/NetState/index.less';
 import { formatFileSize } from 'src/util';
 import _ from 'lodash';
 import { Dialog } from 'ming-ui';
-
+import RegExpValidator from 'src/util/expression';
 export const QiniuUpload = {
   Tokens: {
     upMediaToken: '', // 私信token 公开空间
@@ -102,7 +102,10 @@ export const isValid = files => {
   let count = 0;
   let canSvg = !window.isPublicWorksheet;
   for (let i = 0, length = files.length; i < length; i++) {
-    if (File.isValid('.' + File.GetExt(files[i].name)))
+    if (
+      RegExpValidator.validateFileExt('.' + RegExpValidator.getExtOfFileName(files[i].name)) &&
+      ((RegExpValidator.getExtOfFileName(files[i].name) !== 'svg' && !canSvg) || canSvg)
+    )
       count++;
   }
   return count !== files.length;
@@ -149,7 +152,7 @@ export const formatKcAttachmentData = res => {
         commentID: item.commentID,
         sourceID: item.sourceID,
         allowDown: item.isDownloadable,
-        viewUrl: File.isPicture('.' + item.ext) ? item.viewUrl : null,
+        viewUrl: RegExpValidator.fileIsPicture('.' + item.ext) ? item.viewUrl : null,
         type: item.type,
         twice: item,
       };
@@ -190,7 +193,7 @@ export const formatResponseData = (file, response) => {
   item.key = data.key;
   item.url = file.url;
   item.oldOriginalFileName = item.originalFileName;
-  if (!File.isPicture(item.fileExt)) {
+  if (!RegExpValidator.fileIsPicture(item.fileExt)) {
     item.allowDown = true;
     item.docVersionID = '';
   }
@@ -369,7 +372,7 @@ export const checkFileAvailable = (fileSettingInfo = {}, files = [], tempCount =
       if (filetype && JSON.parse(filetype || '{}').type) {
         const { verifyExt, errorText } = checkFileExt(
           filetype,
-          itemField.name ? File.GetExt(itemField.name) : itemField.fileExt,
+          itemField.name ? RegExpValidator.getExtOfFileName(itemField.name) : itemField.fileExt,
         );
         if (!verifyExt) {
           alert(errorText, 2);

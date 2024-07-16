@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { Flex, ActionSheet, Modal } from 'antd-mobile';
 import { Icon, Button, SvgIcon } from 'ming-ui';
 import ApplicationItem from '../ApplicationItem';
-import { generateRandomPassword, getCurrentProject, addBehaviorLog } from 'src/util';
+import { generateRandomPassword, getCurrentProject } from 'src/util';
 import styled from 'styled-components';
 import cx from 'classnames';
 import './index.less';
@@ -177,6 +177,7 @@ export default class ApplicationList extends Component {
   };
 
   renderGroupDetail = ({ canCreateApp, apps = [], type, name, icon, iconUrl, showExpandIcon }) => {
+    const { myPlatformLang } = this.props;
     let appList = apps.filter(o => o && !o.webMobileDisplay); //排除webMobileDisplay h5未发布
     const distance = ((this.state.width - 12) / 4 - 56) / 2;
     const { dashboardHideGroup = [] } = this.state;
@@ -198,7 +199,7 @@ export default class ApplicationList extends Component {
         ) : _.includes(dashboardHideGroup, type) ? null : (
           <Flex align="center" wrap="wrap" className="appCon">
             {_.map(appList, (item, i) => {
-              return <ApplicationItem data={item} />;
+              return <ApplicationItem data={item} myPlatformLang={myPlatformLang} />;
             })}
             {canCreateApp && (
               <ApplicationItem
@@ -218,7 +219,7 @@ export default class ApplicationList extends Component {
   };
 
   render() {
-    const { myAppData = {}, projectId } = this.props;
+    const { myAppData = {}, projectId, projectGroupsNameLang } = this.props;
     const {
       markedGroup = [],
       projectGroups = [],
@@ -285,7 +286,7 @@ export default class ApplicationList extends Component {
               {this.renderGroupDetail({
                 data: item,
                 type: 'markedGroup',
-                name: item.name,
+                name: _.get(projectGroupsNameLang, `${item.id}.data[0].value`) || item.name,
                 icon: item.icon,
                 iconUrl: item.iconUrl,
                 apps: item.apps,
@@ -306,7 +307,7 @@ export default class ApplicationList extends Component {
                 <Fragment>
                   {this.renderGroupDetail({
                     type: 'groupApps',
-                    name: item.name,
+                    name: _.get(projectGroupsNameLang, `${item.id}.data[0].value`) || item.name,
                     icon: item.icon,
                     iconUrl: item.iconUrl,
                     apps: currentApps,

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Input, Tooltip } from 'antd';
-import Components from '../../../components';
+import AutoIcon from '../../../components/Icon';
 import _ from 'lodash';
 import ClipboardButton from 'react-clipboard.js';
 import worksheetAjax from 'src/api/worksheet';
@@ -9,8 +9,6 @@ import { SettingItem, EditOptionDialog } from '../../../styled';
 import { getDefaultOptions } from '../../../util/setting';
 import DeleteDialog from './DelateDialog';
 import DeleteOptionList from 'src/pages/AppSettings/components/AllOptionList/DeleteOptionList';
-
-const Icon = Components.Icon;
 
 export default function EditOptionList(props) {
   const { onOk, options = [], globalSheetInfo = {}, onCancel, worksheetIds = [], ...rest } = props;
@@ -93,12 +91,12 @@ export default function EditOptionList(props) {
               onSuccess={() => alert(_l('复制成功，请去批量添加选项'))}
               data-tip={_l('复制')}
             >
-              <Icon icon="content-copy" className="Font16 hoverText" />
+              <AutoIcon icon="content-copy" className="Font16 hoverText" />
             </ClipboardButton>
             {deleteOptions.length > 0 && (
               <Tooltip title={_l('已删除选项')} placement="bottom">
                 <span className="mLeft15 hoverText flexCenter pointer" onClick={() => setDeleteVisible(true)}>
-                  <Icon icon="trash" className="Font16" />
+                  <AutoIcon icon="trash" className="Font16" />
                   <span className="mLeft5">{deleteOptions.length}</span>
                 </span>
               </Tooltip>

@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { Collapse, Select, Input } from 'antd';
-import { reportTypes, numberLevel } from 'statistics/Charts/common';
+import { Collapse, Select, Input, Checkbox, Tooltip, Radio } from 'antd';
+import { reportTypes, numberLevel, roundTypes } from 'statistics/Charts/common';
 import { formatNumberFromInput } from 'src/util';
 import _ from 'lodash';
 
@@ -10,6 +10,21 @@ class Unit extends Component {
   constructor(props) {
     super(props);
     this.state = {};
+  }
+  handleChangeYaxis = (key, value, current) => {
+    const { changeAllYaxis, yaxisList, onChangeYaxisList } = this.props;
+    const data = yaxisList.map(item => {
+      if (changeAllYaxis ? true : item.controlId === current.controlId) {
+        return {
+          ...item,
+          [key]: value,
+        }
+      }
+      return item;
+    });
+    onChangeYaxisList({
+      yaxisList: data,
+    }, true);
   }
   handleChangeMagnitude = (value, current) => {
     const { changeAllYaxis, yaxisList, onChangeYaxisList } = this.props;
@@ -33,8 +48,8 @@ class Unit extends Component {
     });
     onChangeYaxisList({
       yaxisList: data,
-    });
-  };
+    }, true);
+  }
   handleChangeYdot = (value, current) => {
     const { changeAllYaxis, yaxisList, onChangeYaxisList } = this.props;
     let count = '';
@@ -56,42 +71,16 @@ class Unit extends Component {
 
     onChangeYaxisList({
       yaxisList: data,
-    });
-  };
-  handleChangeSuffix = (value, current) => {
-    const { changeAllYaxis, yaxisList, onChangeYaxisList } = this.props;
-    const data = yaxisList.map(item => {
-      if (changeAllYaxis ? true : item.controlId === current.controlId) {
-        return {
-          ...item,
-          suffix: value
-        }
-      }
-      return item;
-    });
-    onChangeYaxisList({
-      yaxisList: data,
-    });
-  };
-  handleChangeFixType = (value, current) => {
-    const { changeAllYaxis, yaxisList, onChangeYaxisList } = this.props;
-    const data = yaxisList.map(item => {
-      if (changeAllYaxis ? true : item.controlId === current.controlId) {
-        return {
-          ...item,
-          fixType: value
-        }
-      }
-      return item;
-    });
-    onChangeYaxisList({
-      yaxisList: data,
-    });
-  };
+    }, true);
+  }
   render() {
-    const { data, isPivotTable } = this.props;
-    const { magnitude, ydot, dot, suffix, fixType, controlType } = data;
+    const { data, currentReport = {} } = this.props;
+    const { reportType, pivotTable = {} } = currentReport;
+    const { magnitude, roundType, dotFormat, ydot, dot, suffix, fixType, controlType, showNumber = true, showPercent = 0 } = data;
     const sheetDot = magnitude === 1 && ydot === '';
+    const isPivotTable = reportTypes.PivotTable === reportType;
+    const { lines = [] } = pivotTable;
+    const subTotalSwitchChecked = !lines.slice(1, lines.length).filter(n => n.subTotal).length;
     return (
       <Fragment>
         <div className="mBottom15">
@@ -104,7 +93,7 @@ class Unit extends Component {
               this.handleChangeMagnitude(value, data);
             }}
           >
-            {(isPivotTable ? numberLevel.filter(item => item.value) : numberLevel).map(item => (
+            {numberLevel.map(item => (
               <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
                 {item.text}
               </Select.Option>
@@ -141,6 +130,35 @@ class Unit extends Component {
               </div>
             }
           />
+          <Select
+            className="chartSelect w100 mTop10"
+            value={roundType}
+            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            onChange={value => {
+              this.handleChangeYaxis('roundType', value, data);
+            }}
+          >
+            {roundTypes.map(item => (
+              <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
+                {item.text}
+              </Select.Option>
+            ))}
+          </Select>
+          <div className="flexRow valignWrapper mTop10">
+            <Checkbox
+              className="flexRow"
+              checked={dotFormat === '1'}
+              onChange={() => {
+                const value = dotFormat === '1' ? '0' : '1';
+                this.handleChangeYaxis('dotFormat', value, data);
+              }}
+            >
+              {_l('省略末尾的 0')}
+            </Checkbox>
+            <Tooltip title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')} placement="bottom" arrowPointAtCenter>
+              <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+            </Tooltip>
+          </div>
         </div>
         <div className="mBottom15">
           <div className="mBottom8">{_l('单位')}</div>
@@ -151,7 +169,7 @@ class Unit extends Component {
               value={fixType || 0}
               suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
               onChange={value => {
-                this.handleChangeFixType(value, data);
+                this.handleChangeYaxis('fixType', value, data);
               }}
             >
               <Select.Option className="selectOptionWrapper" key={1} value={1}>{_l('前缀')}</Select.Option>
@@ -163,11 +181,55 @@ class Unit extends Component {
               value={suffix}
               disabled={[0].includes(magnitude)}
               onChange={event => {
-                this.handleChangeSuffix(event.target.value.slice(0, 10), data);
+                this.handleChangeYaxis('suffix', event.target.value.slice(0, 10), data);
               }}
             />
           </div>
         </div>
+        {/*isPivotTable && (
+          <div className="mBottom15">
+            <div className="mBottom8">{_l('数据显示方式')}</div>
+            <div className="flexRow valignWrapper mTop10">
+              <Checkbox
+                className="flexRow"
+                checked={showNumber}
+                disabled={showNumber && showPercent === 0}
+                onChange={e => {
+                  const { checked } = e.target;
+                  this.handleChangeYaxis('showNumber', checked, data);
+                }}
+              >
+                {_l('显示数值')}
+              </Checkbox>
+            </div>
+            <div className="flexRow valignWrapper mTop10">
+              <Checkbox
+                className="flexRow"
+                checked={showPercent !== 0}
+                disabled={showPercent && !showNumber}
+                onChange={() => {
+                  this.handleChangeYaxis('showPercent', showPercent ? 0 : 1, data);
+                }}
+              >
+                {_l('显示百分比')}
+              </Checkbox>
+            </div>
+            {!!showPercent && (
+              <div className="flexRow valignWrapper mTop10">
+                <Radio.Group
+                  value={showPercent}
+                  onChange={e => {
+                    const { value } = e.target;
+                    this.handleChangeYaxis('showPercent', value, data);
+                  }}
+                >
+                  <Radio disabled={subTotalSwitchChecked} value={2}>{_l('按小计')}</Radio>
+                  <Radio value={1}>{_l('按总计')}</Radio>
+                </Radio.Group>
+              </div>
+            )}
+          </div>
+        )*/}
       </Fragment>
     );
   }
@@ -190,16 +252,17 @@ export default function unitPanelGenerator(props) {
               <Fragment>
                 <div className="mBottom12 Bold Gray_75">{item.controlName}</div>
                 <Unit
+                  currentReport={currentReport}
                   data={item}
                   yaxisList={yaxisList}
-                  onChangeYaxisList={data => {
+                  onChangeYaxisList={(data, isRequest = false) => {
                     changeCurrentReport({
                       ...data,
                       displaySetup: {
                         ...currentReport.displaySetup,
                         magnitudeUpdateFlag: Date.now(),
                       },
-                    });
+                    }, isRequest);
                   }}
                 />
               </Fragment>
@@ -215,14 +278,14 @@ export default function unitPanelGenerator(props) {
                 changeAllYaxis={true}
                 data={firstYaxis}
                 yaxisList={yaxisList}
-                onChangeYaxisList={data => {
+                onChangeYaxisList={(data, isRequest = false) => {
                   changeCurrentReport({
                     ...data,
                     displaySetup: {
                       ...currentReport.displaySetup,
                       magnitudeUpdateFlag: Date.now(),
                     },
-                  });
+                  }, isRequest);
                 }}
               />
             </Fragment>
@@ -234,7 +297,7 @@ export default function unitPanelGenerator(props) {
                 changeAllYaxis={true}
                 data={firstRightYaxis}
                 yaxisList={rightYaxisList}
-                onChangeYaxisList={data => {
+                onChangeYaxisList={(data, isRequest = false) => {
                   changeCurrentReport({
                     displaySetup: {
                       ...currentReport.displaySetup,
@@ -244,7 +307,7 @@ export default function unitPanelGenerator(props) {
                       ...currentReport.rightY,
                       ...data,
                     },
-                  });
+                  }, isRequest);
                 }}
               />
             </Fragment>

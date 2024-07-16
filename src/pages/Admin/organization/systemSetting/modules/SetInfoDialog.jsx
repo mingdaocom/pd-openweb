@@ -3,6 +3,7 @@ import Dialog from 'ming-ui/components/Dialog/Dialog';
 import classNames from 'classnames';
 import projectController from 'src/api/project';
 import fixedDataAjax from 'src/api/fixedData.js';
+import OrgNameMultipleLanguages from '../../../components/OrgNameMultipleLanguages';
 import './common.less';
 import _ from 'lodash';
 
@@ -35,7 +36,6 @@ export default class SetInfoDialog extends Component {
       title: '',
       companyDisplayName: this.props.companyDisplayName,
       companyName: this.props.companyName,
-      companyNameEnglish: this.props.companyNameEnglish,
       errors: {},
       industryId: this.props.industryId,
       geographyId: this.props.geographyId,
@@ -81,7 +81,7 @@ export default class SetInfoDialog extends Component {
   }
 
   renderOrgName = () => {
-    const { errors, companyDisplayName, companyName, companyNameEnglish } = this.state;
+    const { errors, companyDisplayName, companyName } = this.state;
     return (
       <div className="org-name-form">
         <div className="formGroup">
@@ -90,14 +90,27 @@ export default class SetInfoDialog extends Component {
             <span className="TxtMiddle Red">*</span>
           </span>
           <div className="formDescribe">{_l('用于网站页头的显示，请尽量简短')}</div>
-          <input
-            type="text"
-            className={classNames('formControl', { error: errors.companyDisplayName && errors.companyDisplayName.msg })}
-            defaultValue={companyDisplayName}
-            onChange={this.handleFieldInput.bind(this, 'companyDisplayName')}
-            onBlur={this.handleFieldBlur.bind(this, 'companyDisplayName')}
-            onFocus={this.clearError.bind(this, 'companyDisplayName')}
-          />
+          <div className="formControl flexRow alignItemsCenter shortName">
+            <input
+              type="text"
+              className={classNames('flex', {
+                error: errors.companyDisplayName && errors.companyDisplayName.msg,
+              })}
+              defaultValue={companyDisplayName}
+              value={companyDisplayName}
+              onChange={this.handleFieldInput.bind(this, 'companyDisplayName')}
+              onBlur={this.handleFieldBlur.bind(this, 'companyDisplayName')}
+              onFocus={this.clearError.bind(this, 'companyDisplayName')}
+            />
+            <OrgNameMultipleLanguages
+              projectId={this.props.projectId}
+              type={0}
+              currentLangName={companyDisplayName}
+              updateName={data =>
+                this.props.updateValue({ companyDisplayName: _.get(data, 'data[0].value'), visibleType: 1 })
+              }
+            />
+          </div>
           <div
             className={classNames('Block Red errorBox', {
               Hidden: errors.companyDisplayName && errors.companyDisplayName.msg,
@@ -128,15 +141,6 @@ export default class SetInfoDialog extends Component {
             {errors.companyName && errors.companyName.msg}
           </div>
         </div>
-        <div className="formGroup">
-          <span className="formLabel">{_l('英文全称')}</span>
-          <input
-            type="text"
-            className="formControl"
-            defaultValue={companyNameEnglish}
-            onChange={this.handleFieldInput.bind(this, 'companyNameEnglish')}
-          />
-        </div>
       </div>
     );
   };
@@ -146,7 +150,7 @@ export default class SetInfoDialog extends Component {
     if (this.state.errors && _.keys(this.state.errors).length) {
       return;
     }
-    const { companyDisplayName, companyNameEnglish, companyName, industryId, geographyId } = this.state;
+    const { companyDisplayName, companyName, industryId, geographyId } = this.state;
     Promise.all([
       fixedDataAjax.checkSensitive({ content: companyDisplayName }),
       fixedDataAjax.checkSensitive({ content: companyName }),
@@ -156,7 +160,6 @@ export default class SetInfoDialog extends Component {
           .setProjectInfo({
             companyName,
             companyDisplayName,
-            companyNameEnglish,
             industryId,
             geographyId,
             projectId: this.props.projectId,
@@ -167,7 +170,6 @@ export default class SetInfoDialog extends Component {
             } else if (data == 1) {
               this.props.updateValue({
                 companyDisplayName,
-                companyNameEnglish,
                 companyName,
                 industryId,
                 geographyId,

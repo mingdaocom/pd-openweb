@@ -17,12 +17,15 @@ export default class extends Component {
     const { action, instance } = this.props;
     const backFlowNodes = (instance || {}).backFlowNodes || [];
     const { isCallBack } = (instance || {}).flowNode || {};
-    const { inputType, opinions } = (instance || {}).opinionTemplate || {};
-    let backFlowNode = '';
+    const { inputType, opinions = [] } = (instance || {}).opinionTemplate || {};
+    let backNodeId = '';
     let content = '';
 
     if (props.action === 'return' && backFlowNodes.length) {
-      backFlowNode = backFlowNodes[0].id;
+      backNodeId = backFlowNodes[0].id;
+    }
+    if (props.action === 'taskRevoke') {
+      backNodeId = _.get(instance, 'allowTaskRevokeBackNodeId') || '';
     }
     if (props.action === 'pass' && _.find(opinions[4], { selected: true })) {
       content = _.find(opinions[4], { selected: true }).value;
@@ -34,7 +37,7 @@ export default class extends Component {
     this.state = {
       backFlowNodesVisible: false,
       backFlowNodes,
-      backFlowNode,
+      backNodeId,
       content,
       edit: false,
       showPassword: false,
@@ -63,7 +66,7 @@ export default class extends Component {
   }
   handleAction = () => {
     const { action, instance } = this.props;
-    const { content, showPassword, selectedUser, entrustList, files, backFlowNode = '' } = this.state;
+    const { content, showPassword, selectedUser, entrustList, files, backNodeId = '' } = this.state;
     const { auth, encrypt } = (instance || {}).flowNode || {};
 
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
@@ -95,10 +98,10 @@ export default class extends Component {
     const submitFun = () => {
       if (this.signature) {
         this.signature.saveSignature(signature => {
-          this.props.onAction({ action, content, forwardAccountId, backNodeId: backFlowNode, signature, files: attachments });
+          this.props.onAction({ action, content, forwardAccountId, backNodeId, signature, files: attachments });
         });
       } else {
-        this.props.onAction({ action, content, forwardAccountId, backNodeId: backFlowNode, signature: undefined, files: attachments });
+        this.props.onAction({ action, content, forwardAccountId, backNodeId, signature: undefined, files: attachments });
       }
       if (this.isNoneVerification) {
         this.setState({ showPassword: false });
@@ -193,7 +196,7 @@ export default class extends Component {
     );
   };
   renderBackFlowNodes() {
-    const { backFlowNode, backFlowNodes } = this.state;
+    const { backNodeId, backFlowNodes } = this.state;
     return (
       <List
         renderHeader={() => (
@@ -229,13 +232,13 @@ export default class extends Component {
               key={item.id}
               onClick={() => {
                 this.setState({
-                  backFlowNode: item.id,
+                  backNodeId: item.id,
                 });
               }}
             >
               <Flex>
                 <span className="Gray flex">{item.name}</span>
-                {backFlowNode === item.id ? <Icon icon="ok" /> : null}
+                {backNodeId === item.id ? <Icon icon="ok" /> : null}
               </Flex>
             </List.Item>
           ))}
@@ -244,13 +247,12 @@ export default class extends Component {
     );
   }
   renderInfo() {
-    const { backFlowNodes, backFlowNode, selectedUser, entrustList } = this.state;
+    const { backFlowNodes, backNodeId, selectedUser, entrustList } = this.state;
     const { action, instance } = this.props;
     const currentAction = ACTION_TO_TEXT[action];
-    const { isCallBack } = (instance || {}).flowNode || {};
 
-    if (isCallBack && _.includes(['return'], action) && backFlowNodes.length) {
-      const node = backFlowNodes.filter(item => item.id === backFlowNode)[0];
+    if (_.includes(['return'], action) && backFlowNodes.length) {
+      const node = backFlowNodes.filter(item => item.id === backNodeId)[0];
       const { name } = node ? node : {};
       return (
         <div className="itemWrap flexRow valignWrapper Gray Font13">
@@ -426,10 +428,11 @@ export default class extends Component {
   }
   renderContent() {
     const { action, instance, projectId } = this.props;
-    const { content, backFlowNode, customApproveContent, files } = this.state;
+    const { content, backNodeId, customApproveContent, files } = this.state;
     const currentAction = ACTION_TO_TEXT[action] || {};
     const { opinionTemplate, flowNode, app = {} } = instance || {};
-    const { inputType } = opinionTemplate;
+    const { inputType } = opinionTemplate || {};
+    const opinionTemplateOpinions = _.get(opinionTemplate, 'opinions') || [];
     const { auth, isCallBack } = flowNode || {};
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
     const overruleContent = _.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 100);
@@ -439,23 +442,24 @@ export default class extends Component {
       (action === 'pass' && _.includes(auth.passTypeList, 101)) ||
       (action === 'overrule' && _.includes(auth.overruleTypeList, 101));
     const isSignature = passSignature || overruleSignature;
-    const isAttachment = _.includes(['pass', 'overrule', 'return', 'after', 'before'], action);
+    const isAttachment = _.includes(['pass', 'overrule', 'return', 'after', 'before', 'taskRevoke', 'revoke'], action);
     let opinions = [];
     if (_.includes(['after', 'pass'], action)) {
-      opinions = opinionTemplate.opinions[4];
+      opinions = opinionTemplateOpinions[4];
     }
     if (_.includes(['overrule', 'return'], action)) {
-      opinions = opinionTemplate.opinions[5];
+      opinions = opinionTemplateOpinions[5];
     }
     const selectTemplateVisible = (_.includes(['pass', 'after', 'overrule', 'return'], action) && inputType === 2) || (!customApproveContent && !_.isEmpty(opinions));
     return (
       <Fragment>
         <div className="flex">
+          <div className="title Gray bold Font15 pTop13">{currentAction.headerText}</div>
           {this.renderVerifyPassword()}
           {!hideContent && (
             <Fragment>
               <div className="flex flexColumn">
-                <div className="title flexRow valignWrapper relative">
+                <div className="title flexRow valignWrapper relative pTop10">
                   {(passContent || overruleContent) && (
                     <div className="Absolute bold" style={{ margin: '1px 0px 0px -8px', color: '#f44336' }}>
                       *
@@ -511,11 +515,13 @@ export default class extends Component {
                   )}
                   {isAttachment && (
                     <UploadFileWrapper
-                      className="selectTemplate flexRow valignWrapper justifyContentCenter mLeft6"
+                      qiniuUploadClassName="w100"
+                      className="selectTemplate flexRow valignWrapper justifyContentCenter"
                       style={{
                         top: selectTemplateVisible ? 0 : 2,
                         minHeight: selectTemplateVisible ? 35 : 40,
                         width: selectTemplateVisible ? 35 : 40,
+                        marginLeft: 6
                       }}
                       projectId={projectId}
                       appId={app.id}

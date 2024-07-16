@@ -7,7 +7,6 @@ import { CardTopWrap } from '../apiIntegration/style';
 import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { TYPELIST } from 'src/pages/integration/config';
-import { formatParameters } from 'src/pages/integration/config';
 import axios from 'axios';
 const Wrap = styled.div`
   p {
@@ -311,6 +310,7 @@ function ConnectAuth(props) {
                 showEdit: false,
               });
             }}
+            customNodeName={_l('鉴权方式')}
             isIntegration
             updateNodeData={data => {
               getInfo();

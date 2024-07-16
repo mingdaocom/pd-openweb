@@ -104,6 +104,7 @@ const createActions = (dispatch, state) => ({
           pageIndex,
           pageSize,
           filterControls,
+          searchText,
           loading: false,
         });
       });
@@ -232,6 +233,7 @@ export default function WorkSheetTrash(props) {
                     args.isAll = true;
                     args.excludeRowIds = hasAuthRowIds;
                     args.filterControls = filterControls;
+                    args.keyWords = searchText;
                   }
                   args.restoreRelation = !!needRestoreRelation.current;
                   worksheetAjax.restoreWorksheetRows(args).then(res => {
@@ -310,6 +312,8 @@ export default function WorkSheetTrash(props) {
                       delete args.rowIds;
                       args.isAll = true;
                       args.excludeRowIds = hasAuthRowIds;
+                      args.filterControls = filterControls;
+                      args.keyWords = searchText;
                     }
                     worksheetAjax.removeWorksheetRows(args).then(() => {
                       if (selectRows.length === selected.length || isAll) {
@@ -343,6 +347,7 @@ export default function WorkSheetTrash(props) {
             viewId={viewId}
             worksheetId={worksheetId}
             controls={controlsForShow}
+            searchText={searchText}
             pageSize={pageSize}
             pageIndex={pageIndex}
             count={count}

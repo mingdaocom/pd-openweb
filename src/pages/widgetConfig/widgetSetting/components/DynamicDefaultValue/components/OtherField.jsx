@@ -28,7 +28,7 @@ export default function OtherField(props) {
     className,
     globalSheetInfo,
     globalSheetControls = [],
-    needFilter = false,
+    needFilter,
     from,
   } = props;
   const { worksheetId } = globalSheetInfo;
@@ -53,6 +53,7 @@ export default function OtherField(props) {
           'userId',
           'phone',
           'email',
+          'language',
           'projectId',
           'appId',
           'groupId',
@@ -103,9 +104,8 @@ export default function OtherField(props) {
   };
   const delField = tag => {
     const { cid, rcid, staticValue } = tag;
-    const index = _.findIndex(
-      dynamicValue,
-      item => item.cid === cid && item.rcid === rcid && item.staticValue === staticValue,
+    const index = _.findIndex(dynamicValue, d =>
+      cid ? d.cid === cid && d.rcid === rcid : d.staticValue === staticValue,
     );
     onDynamicValueChange(update(dynamicValue, { $splice: [[index, 1]] }));
   };
@@ -135,6 +135,7 @@ export default function OtherField(props) {
             'userId',
             'phone',
             'email',
+            'language',
             'projectId',
             'appId',
             'groupId',

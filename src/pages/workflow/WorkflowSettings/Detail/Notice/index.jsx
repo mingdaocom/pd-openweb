@@ -116,7 +116,7 @@ export default class Notice extends Component {
         />
 
         <div className="Font13 bold mTop20">{_l('通知人')}</div>
-        <div className="Font13 Gray_9e mTop10">{_l('将通过系统消息发送')}</div>
+        <div className="Font13 Gray_75 mTop10">{_l('将通过系统消息发送')}</div>
 
         <Member
           companyId={this.props.companyId}

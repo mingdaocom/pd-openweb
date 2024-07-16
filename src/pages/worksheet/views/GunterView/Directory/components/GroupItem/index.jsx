@@ -8,7 +8,6 @@ import { Menu, Dropdown } from 'antd';
 import { Icon } from 'ming-ui';
 import { MenuOverlayWrapper } from 'worksheet/views/GunterView/Directory';
 import * as actions from 'worksheet/redux/actions/gunterview';
-import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
@@ -55,7 +54,15 @@ export default class GroupItem extends Component {
     this.state = {
       createRecordVisible: false,
       defaultFormData: {},
+      NewRecordComponent: null
     };
+  }
+  componentDidMount() {
+    import('worksheet/common/newRecord/NewRecord').then(component => {
+      this.setState({
+        NewRecordComponent: component.default
+      });
+    });
   }
   handleChangeSubVisible = id => {
     this.props.updateGroupSubVisible(id);
@@ -175,9 +182,9 @@ export default class GroupItem extends Component {
   }
   renderNewRecord() {
     const { base, worksheetInfo } = this.props;
-    const { defaultFormData } = this.state;
+    const { defaultFormData, NewRecordComponent } = this.state;
     return (
-      <NewRecord
+      <NewRecordComponent
         visible
         onAdd={record => {
           this.props.addNewRecord(record);

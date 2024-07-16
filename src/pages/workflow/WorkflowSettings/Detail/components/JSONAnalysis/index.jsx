@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import jp from 'jsonpath';
+import { JSONPath } from 'jsonpath-plus';
 import { CONTROLS_NAME } from '../../../enum';
 import _ from 'lodash';
 
@@ -38,7 +38,7 @@ export default ({ list, isIntegration = false, json }) => {
     }
 
     try {
-      let result = jp.query(JSON.parse(json), jsonPath.replace(/\.(\d[^\.]*)/g, `['$1']`));
+      let result = JSONPath({ path: jsonPath.replace(/\.(\d[^\.]*)/g, `['$1']`), json: JSON.parse(json) });
 
       // 文本
       if (type === 2) {
@@ -115,7 +115,7 @@ export default ({ list, isIntegration = false, json }) => {
 
       if (type === 10000008 && !!list.find(o => o.dataSource === controlId)) {
         return result && _.isArray(result) ? (
-          <span className="Gray_9e">{_l('共 %0 组数据，以下仅显示第 1 组参考值', result.length)}</span>
+          <span className="Gray_75">{_l('共 %0 组数据，以下仅显示第 1 组参考值', result.length)}</span>
         ) : (
           ''
         );
@@ -123,7 +123,7 @@ export default ({ list, isIntegration = false, json }) => {
 
       return _.isObject(result) ? JSON.stringify(result) : result;
     } catch (e) {
-      return <span className="Gray_9e">{_l('暂无结果')}</span>;
+      return <span className="Gray_75">{_l('暂无结果')}</span>;
     }
   };
 

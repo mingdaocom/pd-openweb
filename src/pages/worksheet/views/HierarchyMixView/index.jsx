@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useEffect, useState } from 'react';
+import React, { Fragment, useRef, useEffect, useState, useMemo } from 'react';
 import { DndProvider, useDrop } from 'react-dnd-latest';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { bindActionCreators } from 'redux';
@@ -26,6 +26,7 @@ import VertricalTreeNode from '../HierarchyVerticalView/components/VertricalTree
 import DragLayer from '../HierarchyView/components/DragLayer';
 import EmptyHierarchy from '../HierarchyView/EmptyHierarchy';
 import './index.less';
+import { emitter } from 'src/util';
 
 const RecordStructureWrap = styled.div`
   padding-left: 48px;
@@ -91,9 +92,11 @@ function HierarchyMix(props) {
     changeHierarchyChildrenVisible,
     initHierarchyRelateSheetControls,
     recordInfoId,
+    navGroupFilters,
     ...rest
   } = props;
   const IS_MOBILE = browserIsMobile();
+  const uniqId = useMemo(() => uuidv4());
   const { scale: configScale, level: configLevel = '' } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
   const { loading, pageIndex } = hierarchyDataStatus;
   const [{ addRecordDefaultValue, level, scale, createRecordVisible, addRecordPath }, setState] = useSetState({
@@ -172,7 +175,15 @@ function HierarchyMix(props) {
           }
         });
     }
-  }, [viewId, viewControl, viewControls.map(item => item.worksheetId).join(',')]);
+  }, [
+    viewId,
+    viewControl,
+    viewControls.map(item => item.worksheetId).join(','),
+    _.get(view, 'advancedSetting.topshow'),
+    _.get(view, 'advancedSetting.topfilters'),
+    _.get(view, 'advancedSetting.defaultlayer'),
+    JSON.stringify(navGroupFilters),
+  ]);
 
   const genScreenshot = () => {
     const $wrap = document.querySelector('.hierarchyViewMinWrap');
@@ -344,6 +355,7 @@ function HierarchyMix(props) {
           receiveRows: value.map(item => getReceiveControls(item)),
         })
         .then(res => {
+          emitter.emit('ROWS_UPDATE');
           if (res === value.length) {
             if (_.isEmpty(addRecordPath.path)) {
               getTopLevelHierarchyData({ worksheetId, ...idPara });
@@ -364,6 +376,7 @@ function HierarchyMix(props) {
         })
         .then(({ data }) => {
           if (data) {
+            emitter.emit('ROWS_UPDATE');
             if (_.isEmpty(addRecordPath.path)) {
               addTopLevelStateFromTemp(data);
             } else {
@@ -508,6 +521,7 @@ function HierarchyMix(props) {
                     'sheetButtons',
                   ])}
                   {...rest}
+                  uniqId={uniqId}
                   key={hierarchyViewData.length === 1 ? hierarchyViewData[0].pathId.join('-') : 'root'}
                   index={0}
                   data={hierarchyViewState.length === 1 ? hierarchyViewState[0] : hierarchyViewState}
@@ -580,7 +594,14 @@ function HierarchyMix(props) {
 
 const ConnectedHierarchyMixView = connect(
   state => ({
-    ..._.pick(state.sheet, ['worksheetInfo', 'filters', 'controls', 'sheetSwitchPermit', 'sheetButtons']),
+    ..._.pick(state.sheet, [
+      'worksheetInfo',
+      'filters',
+      'controls',
+      'sheetSwitchPermit',
+      'sheetButtons',
+      'navGroupFilters',
+    ]),
     ..._.get(state.sheet, 'hierarchyView'),
     searchData: getSearchData(state.sheet),
   }),

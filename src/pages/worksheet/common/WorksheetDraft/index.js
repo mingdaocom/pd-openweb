@@ -356,7 +356,7 @@ function DraftModal(props) {
             recordId={recordId}
             activeRelateTableControlId={activeRelateTableControlIdOfRecord}
             worksheetId={worksheetId}
-            header={
+            renderHeader={() => (
               <div className="flex flexRow w100 alignItemsCenter">
                 <div className="flex Font17 bold pLeft15">{`${advancedSetting.title || '创建记录'}（${_l(
                   '草稿',
@@ -382,7 +382,7 @@ function DraftModal(props) {
                   {advancedSetting.sub || _l('提交')}
                 </Button>
               </div>
-            }
+            )}
             rowStatus={21}
             loadDraftList={loadRows}
             currentSheetRows={records}

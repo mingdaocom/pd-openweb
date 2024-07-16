@@ -15,11 +15,12 @@ import GroupFilter from './GroupFilter';
 import { VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import DragMask from 'worksheet/common/DragMask';
 import { Skeleton } from 'ming-ui';
-const { sheet, gallery, board, calendar, gunter, detail, customize, map, resource } = VIEW_DISPLAY_TYPE;
+const { sheet, gallery, board, calendar, gunter, detail, customize, map, resource, structure } = VIEW_DISPLAY_TYPE;
 import './style.less';
-import _ from 'lodash';
+import _, { isEqual } from 'lodash';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import { MaxNavW, MinNavW, defaultNavOpenW, defaultNavCloseW } from 'src/pages/worksheet/common/ViewConfig/config.js';
+import { canEditApp, canEditData } from 'worksheet/redux/actions/util.js';
 import { getTranslateInfo } from 'src/util';
 
 const Con = styled.div`
@@ -39,6 +40,9 @@ const ConView = styled.div`
   flex: 1;
   display: flex;
   position: relative;
+  max-height: 100%;
+  min-height: 0;
+  flex-shrink: 0;
 `;
 
 const QuickFilterCon = styled.div`
@@ -82,7 +86,9 @@ function Sheet(props) {
     views,
     activeViewStatus,
     isCharge,
+    authRefreshTime,
     updateGroupFilter,
+    refreshSheet,
     updateFilters,
     config = {},
     appPkg = {},
@@ -96,7 +102,9 @@ function Sheet(props) {
     updateQuickFilter,
     setLoadRequest = () => {},
     abortPrevWorksheetInfoRequest = () => {},
+    controls = [],
   } = props;
+  const isDevAndOps = canEditApp(appPkg.permissionType) || canEditData(appPkg.permissionType);
   const cache = useRef({});
   const [viewConfigVisible, setViewConfigVisible] = useState(false);
   const [viewConfigTab, setViewConfigTab] = useState('');
@@ -115,16 +123,20 @@ function Sheet(props) {
   const navData = (_.get(worksheetInfo, 'template.controls') || []).find(
     o => o.controlId === _.get(view, 'navGroup[0].controlId'),
   );
-  const worksheetName = getTranslateInfo(appId, worksheetId).name || worksheetInfo.name || '';
+  const worksheetName = getTranslateInfo(appId, null, worksheetId).name || worksheetInfo.name || '';
   const hasGroupFilter =
     !_.isEmpty(view.navGroup) &&
     view.navGroup.length > 0 &&
-    _.includes([sheet, gallery, customize, map], String(view.viewType)) &&
+    (_.includes([sheet, gallery, customize, map], String(view.viewType)) ||
+      (String(view.viewType) === structure && view.childType !== 2)) &&
     navData;
   const showQuickFilter =
     !_.isEmpty(view.fastFilters) &&
-    _.includes([sheet, gallery, board, calendar, gunter, detail, customize, resource], String(view.viewType)) &&
+    (_.includes([sheet, gallery, board, calendar, gunter, customize, resource, map], String(view.viewType)) ||
+      (String(view.viewType) === detail && view.childType === 2) ||
+      (String(view.viewType) === structure && view.childType !== 2)) &&
     !chartId;
+  const noRecords = isEqual(filtersGroup, [{}]);
   const needClickToSearch =
     showQuickFilter &&
     !_.includes([sheet], String(view.viewType)) &&
@@ -150,6 +162,8 @@ function Sheet(props) {
     viewId: view.viewId,
     projectId: worksheetInfo.projectId,
     isCharge,
+    isDevAndOps,
+    authRefreshTime,
     openNewRecord,
     viewConfigVisible,
     setViewConfigVisible,
@@ -159,18 +173,21 @@ function Sheet(props) {
     chartId,
     showControlIds,
     showAsSheetView,
+    controls,
+    refreshSheet,
   };
   const navGroupData = (_.get(worksheetInfo, 'template.controls') || []).find(
     o => o.controlId === _.get(view, 'navGroup[0].controlId'),
   );
-  const viewComp =
-    needClickToSearch && _.isEmpty(quickFilter) ? (
-      <EmptyStatus>{_l('执行查询后显示结果')}</EmptyStatus>
-    ) : navGroupToSearch && _.isEmpty(navGroupFilters) ? (
-      <EmptyStatus>{_l('请从左侧选择一个%0查看', navGroupData.controlName)}</EmptyStatus>
-    ) : (
-      <View {...basePara} />
-    );
+  const viewComp = noRecords ? (
+    <EmptyStatus>{_l('没有符合条件的记录')}</EmptyStatus>
+  ) : needClickToSearch && _.isEmpty(quickFilter) ? (
+    <EmptyStatus>{_l('执行查询后显示结果')}</EmptyStatus>
+  ) : navGroupToSearch && _.isEmpty(navGroupFilters) ? (
+    <EmptyStatus>{_l('请从左侧选择一个%0查看', navGroupData.controlName)}</EmptyStatus>
+  ) : (
+    <View {...basePara} noLoadAtDidMount={_.isArray(filtersGroup) && !_.isEmpty(filtersGroup)} />
+  );
   useEffect(() => {
     if (worksheetId) {
       abortPrevWorksheetInfoRequest();
@@ -211,11 +228,13 @@ function Sheet(props) {
       setViewConfigTab('DebugConfig');
     };
     return () => {
+      updateGroupFilter([], view);
       delete window.openViewConfig;
+      window.localStorage.removeItem('getRowDetailIsShowOrder');
     };
   }, []);
   return (
-    <SheetContext.Provider value={{ config, isRequestingRelationControls: worksheetInfo.isRequestingRelationControls }}>
+    <SheetContext.Provider value={{ config }}>
       <Con className="worksheetSheet">
         {type === 'common' && worksheetName && (
           <DocumentTitle
@@ -244,16 +263,10 @@ function Sheet(props) {
             <Con id="worksheetRightContentBox">
               {showQuickFilter && (
                 <QuickFilterCon>
-                  {worksheetInfo.isRequestingRelationControls ? (
-                    <div style={{ height: 52 }}>
-                      <Skeleton direction="row" widths={['140px']} active itemStyle={{ margin: '20px 0' }} />
-                    </div>
-                  ) : (
-                    <QuickFilter
-                      {...basePara}
-                      filters={setSysWorkflowTimeControlFormat(view.fastFilters, worksheetInfo.switches)}
-                    />
-                  )}
+                  <QuickFilter
+                    {...basePara}
+                    filters={setSysWorkflowTimeControlFormat(view.fastFilters, worksheetInfo.switches)}
+                  />
                 </QuickFilterCon>
               )}
               {hasGroupFilter && !chartId ? (
@@ -332,10 +345,12 @@ export default connect(
     activeViewStatus: state.sheet.activeViewStatus,
     quickFilter: state.sheet.quickFilter,
     navGroupFilters: state.sheet.navGroupFilters,
+    controls: state.sheet.controls,
   }),
   dispatch =>
     bindActionCreators(
       _.pick(actions, [
+        'refreshSheet',
         'updateBase',
         'updateFilters',
         'updateQuickFilter',

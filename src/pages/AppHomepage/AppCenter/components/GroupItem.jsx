@@ -3,7 +3,6 @@ import { string, number, bool, func } from 'prop-types';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import { navigateTo } from 'router/navigateTo';
 import { Menu, MenuItem, Icon, Tooltip, MdLink, SvgIcon } from 'ming-ui';
 import { VerticalMiddle, FlexSpacer } from 'worksheet/components/Basics';
 import _ from 'lodash';
@@ -130,7 +129,7 @@ const GroupItemIcon = styled(SvgIcon)`
 
 export default function GroupItem(props) {
   const {
-    isAdmin,
+    hasManageAppAuth,
     isDragging,
     activeGroupId,
     projectId,
@@ -189,7 +188,7 @@ export default function GroupItem(props) {
                 e.preventDefault();
               }}
             >
-              {(groupType === 0 || (groupType === 1 && isAdmin)) && itemType !== 'star' && (
+              {(groupType === 0 || (groupType === 1 && hasManageAppAuth)) && itemType !== 'star' && (
                 <Trigger
                   popupVisible={menuVisible}
                   onPopupVisibleChange={setMenuVisible}
@@ -266,7 +265,6 @@ export default function GroupItem(props) {
 }
 
 GroupItem.propTypes = {
-  isAdmin: bool,
   className: string,
   itemType: string,
   id: string,
@@ -274,7 +272,6 @@ GroupItem.propTypes = {
   icon: string,
   fontIcon: string,
   iconUrl: string,
-  name: string,
   count: number,
   isMarked: bool,
   onClick: func,

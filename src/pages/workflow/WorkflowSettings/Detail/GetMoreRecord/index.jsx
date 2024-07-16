@@ -350,7 +350,7 @@ export default class GetMoreRecord extends Component {
         {data.actionId && isSelect && (
           <Fragment>
             <div className="mTop20 bold">{_l('限制数量')}</div>
-            <div className="Font13 Gray_9e mTop5">{_l('最多获取条数')}</div>
+            <div className="Font13 Gray_75 mTop5">{_l('最多获取条数')}</div>
             <div className="mTop10">
               <SpecificFieldsValue
                 projectId={this.props.companyId}
@@ -489,13 +489,13 @@ export default class GetMoreRecord extends Component {
           value={data.appId}
           renderTitle={
             !data.appId
-              ? () => <span className="Gray_9e">{_l('请选择')}</span>
+              ? () => <span className="Gray_75">{_l('请选择')}</span>
               : data.appId && !selectAppItem
               ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
               : () => (
                   <Fragment>
                     <span>{selectAppItem.name}</span>
-                    {selectAppItem.otherApkName && <span className="Gray_9e">（{selectAppItem.otherApkName}）</span>}
+                    {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
                   </Fragment>
                 )
           }
@@ -559,7 +559,7 @@ export default class GetMoreRecord extends Component {
               value={fieldId}
               renderTitle={
                 !fieldId
-                  ? () => <span className="Gray_9e">{_l('请选择')}</span>
+                  ? () => <span className="Gray_75">{_l('请选择')}</span>
                   : fieldId && !item
                   ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
                   : () => (
@@ -662,7 +662,7 @@ export default class GetMoreRecord extends Component {
               value={fieldId}
               renderTitle={
                 !fieldId
-                  ? () => <span className="Gray_9e">{_l('请选择')}</span>
+                  ? () => <span className="Gray_75">{_l('请选择')}</span>
                   : fieldId && !item
                   ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
                   : () => <span>{item.controlName}</span>
@@ -743,7 +743,7 @@ export default class GetMoreRecord extends Component {
         <div className="actionFieldsSplit mRight0 mTop30" />
 
         <div className="mTop30 bold">{_l('获取后，更新记录')}</div>
-        <div className="mTop5 Gray_9e">{_l('最大更新1000行数据')}</div>
+        <div className="mTop5 Gray_75">{_l('最大更新1000行数据')}</div>
 
         <UpdateFields
           companyId={this.props.companyId}
@@ -772,7 +772,7 @@ export default class GetMoreRecord extends Component {
         <div className="actionFieldsSplit mRight0 mTop30" />
 
         <div className="mTop30 bold">{_l('获取后，删除记录')}</div>
-        <div className="mTop5 Gray_9e">{_l('最大删除1000行数据')}</div>
+        <div className="mTop5 Gray_75">{_l('最大删除1000行数据')}</div>
 
         <div className="mTop15 flexRow">
           <Checkbox
@@ -782,7 +782,7 @@ export default class GetMoreRecord extends Component {
             onClick={checked => this.updateSource({ destroy: !checked })}
           />
         </div>
-        <div className="Gray_9e mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
+        <div className="Gray_75 mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
       </Fragment>
     );
   }

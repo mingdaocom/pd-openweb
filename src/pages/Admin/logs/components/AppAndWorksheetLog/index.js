@@ -4,7 +4,7 @@ import Confirm from 'ming-ui/components/Dialog/Confirm';
 import SearchWrap from '../../../components/SearchWrap';
 import PageTableCon from '../../../components/PageTableCon';
 import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
-import LogDetailDialog from '../LogDetailDialog';
+import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
 import {
   APP_WORKSHEET_LOG_COLUMNS,
   PRIVATE_APP_WORKSHEET_LOG_COLUMNS,
@@ -15,6 +15,7 @@ import {
 import appManagementAjax from 'src/api/appManagement';
 import { navigateTo } from 'src/router/navigateTo';
 import downloadAjax from 'src/api/download';
+import sheetAjax from 'src/api/worksheet';
 import { getFeatureStatus, buriedUpgradeVersionDialog, createLinksForMessage, dateConvertToUserZone } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import unauthorizedPic from 'src/components/UnusualContent/unauthorized.png';
@@ -120,16 +121,6 @@ export default class AppAndWorksheetLog extends Component {
           width: 150,
           ellipsis: true,
           ...item,
-          onCell: () => {
-            return {
-              style: {
-                maxWidth: item.width || 150,
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-                textOverflow: 'ellipsis',
-              },
-            };
-          },
           render: (text, record) => {
             const {
               companyName,
@@ -198,7 +189,7 @@ export default class AppAndWorksheetLog extends Component {
                 );
               case 'worksheetId':
                 return name ? (
-                  <span className="Hand Hover_21" onClick={() => navigateTo(`/app/${appId}/${sectionId}/${id}`)}>
+                  <span className="Hand Hover_21" onClick={() => navigateTo(`/worksheet/${id}`)}>
                     {name}
                   </span>
                 ) : (
@@ -434,7 +425,7 @@ export default class AppAndWorksheetLog extends Component {
     const { logType, searchValues } = this.state;
     const { pageIndex = 1, pageSize = 50 } = params;
     const {
-      loginerInfo = [],
+      selectUserInfo = [],
       appIds = [],
       worksheetIds = [],
       modules = [],
@@ -449,7 +440,7 @@ export default class AppAndWorksheetLog extends Component {
         pageSize,
         projectId,
         queryType: logType ? logType : undefined,
-        operators: loginerInfo.map(it => it.accountId),
+        operators: selectUserInfo.map(it => it.accountId),
         appIds: appId ? [appId] : _.includes(appIds, 'all') ? [] : appIds,
         worksheetIds: _.includes(worksheetIds, 'all') ? [] : worksheetIds,
         modules: _.includes(modules, 'all') ? [] : modules,
@@ -487,7 +478,7 @@ export default class AppAndWorksheetLog extends Component {
     const { logType, searchValues, pageIndex = 1 } = this.state;
     const { pageSize = 50 } = param;
     const {
-      loginerInfo = [],
+      selectUserInfo = [],
       appIds = [],
       worksheetIds = [],
       modules = [],
@@ -501,7 +492,7 @@ export default class AppAndWorksheetLog extends Component {
       pageSize,
       projectId,
       queryType: logType ? logType : undefined,
-      operators: !_.isEmpty(loginerInfo) ? loginerInfo.map(it => it.accountId) : undefined,
+      operators: !_.isEmpty(selectUserInfo) ? selectUserInfo.map(it => it.accountId) : undefined,
       appIds: appId ? [appId] : _.includes(appIds, 'all') || !appIds.length ? undefined : appIds,
       worksheetIds: _.includes(worksheetIds, 'all') || !worksheetIds.length ? undefined : worksheetIds,
       modules: _.includes(modules, 'all') || !modules.length ? undefined : modules,
@@ -532,6 +523,19 @@ export default class AppAndWorksheetLog extends Component {
       });
   };
 
+  // 查看记录记录
+  getControls = record => {
+    sheetAjax
+      .getWorksheetInfo({ getRules: true, getTemplate: true, worksheetId: _.get(record, 'appItem.id') })
+      .then(res => {
+        const controls = (res.template.controls || []).map(it => {
+          return { ...it };
+        });
+
+        this.setState({ controls, showRecordLog: true, currentRowInfo: record });
+      });
+  };
+
   render() {
     const { projectId, appId } = this.props;
     const {
@@ -545,6 +549,7 @@ export default class AppAndWorksheetLog extends Component {
       pageIndex,
       disabledExportBtn,
       isAuthority,
+      controls = [],
     } = this.state;
     const { appIds = [], worksheetIds = [] } = searchValues;
     const glFeatureType = getFeatureStatus(projectId, VersionProductType.glabalLog);
@@ -673,6 +678,7 @@ export default class AppAndWorksheetLog extends Component {
             </div>
             <FlexWrap>
               <PageTableCon
+                className="logsTable"
                 paginationInfo={{ pageIndex, pageSize: PAGE_SIZE }}
                 ref={node => (this.tableWrap = node)}
                 loading={loading}
@@ -686,12 +692,7 @@ export default class AppAndWorksheetLog extends Component {
                   _.get(record, 'appItem.status') === 1 &&
                   record.module === 8 &&
                   _.includes([1, 3], record.operationType) ? (
-                    <span
-                      className="ThemeColor Hand"
-                      onClick={() => {
-                        this.setState({ showRecordLog: true, currentRowInfo: record });
-                      }}
-                    >
+                    <span className="ThemeColor Hand" onClick={() => this.getControls(record)}>
                       {_l('详情')}
                     </span>
                   ) : (
@@ -702,13 +703,14 @@ export default class AppAndWorksheetLog extends Component {
               />
             </FlexWrap>
             {showRecordLog && (
-              <LogDetailDialog
-                visible={showRecordLog}
-                projectId={projectId}
-                currentRowInfo={currentRowInfo}
-                onCancel={() => {
-                  this.setState({ showRecordLog: false, currentRowInfo: {} });
-                }}
+              <WorksheetRecordLogDialog
+                appId={appId || _.get(currentRowInfo, 'application.appId')}
+                worksheetId={_.get(currentRowInfo, 'appItem.id')}
+                rowId={_.get(currentRowInfo, 'rowId')}
+                controls={controls}
+                filterUniqueIds={[currentRowInfo.uniqueId]}
+                visible
+                onClose={() => this.setState({ showRecordLog: false })}
               />
             )}
           </FlexWrap>

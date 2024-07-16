@@ -16,17 +16,19 @@ export default function (confirmCallback, closeCallback) {
     handleClose: closeCallback,
   });
 
-  var $dialog = $('.' + dialogId);
-  $dialog.on('click', '.Button', function (event) {
-    var btnType = $(this).data('type');
-    $('.calendarReInviteDialog').parent().remove();
-    if (btnType === 'save') {
-      // 保存
-      confirmCallback(false, true);
-    } else if (btnType === 'saveAndInvite') {
-      // 保存并私信
-      confirmCallback(true, true);
-    }
-    event.stopPropagation();
-  });
+  setTimeout(() => {
+    var $dialog = $('.' + dialogId);
+    $dialog.on('click', '.Button', function (event) {
+      var btnType = $(this).data('type');
+      $('.calendarReInviteDialog').parent().remove();
+      if (btnType === 'save') {
+        // 保存
+        confirmCallback(false, true);
+      } else if (btnType === 'saveAndInvite') {
+        // 保存并私信
+        confirmCallback(true, true);
+      }
+      event.stopPropagation();
+    });
+  }, 200);
 }

@@ -34,6 +34,14 @@ export const myPlatformData = (state = {}, action) => {
       return state;
   }
 };
+export const myPlatformLang = (state = {}, action) => {
+  switch (action.type) {
+    case 'PLATE_FORM_LANG':
+      return action.data;
+    default:
+      return state;
+  }
+};
 
 export const collectRecords = (state = [], action) => {
   switch (action.type) {
@@ -47,6 +55,15 @@ export const collectRecords = (state = [], action) => {
 export const collectCharts = (state = [], action) => {
   switch (action.type) {
     case 'COLLECT_CHARTS':
+      return action.data;
+    default:
+      return state;
+  }
+};
+
+export const projectGroupsNameLang = (state = {}, action) => {
+  switch (action.type) {
+    case 'PROJECT_GROUPS_NAME_LANG':
       return action.data;
     default:
       return state;

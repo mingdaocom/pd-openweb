@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon, Checkbox, Dialog, Input, ScrollView, Switch, LoadDiv, SvgIcon } from 'ming-ui';
 import { Button } from 'antd';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import Trigger from 'rc-trigger';
 import privateSource from 'src/api/privateSource';
 import appManagement from 'src/api/appManagement';

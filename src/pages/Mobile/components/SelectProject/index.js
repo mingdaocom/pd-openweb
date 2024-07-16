@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import { ActionSheet } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import { getCurrentProject } from 'src/util';
@@ -9,13 +9,18 @@ export default function SelectProject(props) {
   const projectObj = getCurrentProject(
     localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
   );
-  const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
-  const projects = md.global.Account.projects.concat([
-    {
-      companyName: _l('外部协作'),
-      projectId: 'external',
-    },
-  ]);
+
+  const [currentProject, setCurrentProject] = useState(
+    !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') },
+  );
+  const [projects, setProjects] = useState(
+    md.global.Account.projects.concat([
+      {
+        companyName: _l('外部协作'),
+        projectId: 'external',
+      },
+    ]),
+  );
 
   const handleSelectProject = () => {
     ActionSheet.showActionSheetWithOptions(
@@ -45,6 +50,7 @@ export default function SelectProject(props) {
         if (buttonIndex === -1) return;
         const project = projects[buttonIndex];
         safeLocalStorageSetItem('currentProjectId', project.projectId);
+        setCurrentProject(project);
         changeProject();
       },
     );

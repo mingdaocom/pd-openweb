@@ -42,7 +42,7 @@ const RecordItemWrap = styled.div`
     padding: 0 14px;
     font-size: 14px;
     font-weight: bold;
-    word-break: break-all;
+    word-break: break-word;
     white-space: normal;
     &.isGalleryView {
       white-space: nowrap;
@@ -189,6 +189,7 @@ const BaseCard = props => {
     allowCopy,
     allowRecreate,
     isCharge,
+    isDevAndOps,
     sheetSwitchPermit = [],
     editTitle,
     onUpdate = noop,
@@ -475,7 +476,8 @@ const BaseCard = props => {
         <div className="recordOperateWrap" onClick={e => e.stopPropagation()}>
           <RecordOperate
             isCharge={isCharge}
-            shows={['share', 'print', 'copy', 'openinnew', 'recreate', 'fav']}
+            isDevAndOps={isDevAndOps}
+            shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'recreate', 'fav']}
             popupAlign={getPopAlign()}
             allowDelete={allowDelete}
             allowCopy={allowCopy}

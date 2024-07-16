@@ -63,11 +63,11 @@ export default function PublishDialog(props) {
     }
   }, []);
   const desList = [
-    { key: 'name', txt: '连接名称', required: true },
-    { key: 'explain', txt: '说明', required: true },
-    { key: 'company', txt: 'API 服务厂商', required: true },
-    { key: 'docUrl', txt: '官网地址', required: true },
-    { key: 'identity', txt: '连接模板作者' },
+    { key: 'name', txt: _l('连接名称'), required: true },
+    { key: 'explain', txt: _l('说明'), required: true },
+    { key: 'company', txt: _l('API 服务厂商'), required: true },
+    { key: 'docUrl', txt: _l('官网地址'), required: true },
+    { key: 'identity', txt: _l('连接模板作者') },
   ];
   const isDisable = () => {
     return (
@@ -113,7 +113,7 @@ export default function PublishDialog(props) {
       .then(
         res => {
           let newData = res;
-          if (props.isSuperAdmin || newData.isOwner) {
+          if (props.hasManageAuth || newData.isOwner) {
             setState({
               connectInfo: newData,
               info: newData.info || {
@@ -219,10 +219,10 @@ export default function PublishDialog(props) {
                             className=""
                             text={_l('以企业组织身份')}
                             checked={!!info.companyId}
-                            disabled={!props.isSuperAdmin}
+                            disabled={!props.hasManageAuth}
                             onClick={() => {
-                              //只有超级管理员可以选择「以企业组织身份」
-                              if (!props.isSuperAdmin) {
+                              //只有有管理权限的可以选择「以企业组织身份」
+                              if (!props.hasManageAuth) {
                                 return;
                               }
                               setState({

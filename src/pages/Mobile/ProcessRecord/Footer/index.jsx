@@ -247,6 +247,13 @@ export default class Footer extends Component {
       this.request('operation', { opinion: content, forwardAccountId, operationType: 16 }, true);
     }
 
+    /**
+     * 审批人撤回
+     */
+    if (action === 'taskRevoke') {
+      this.request(ACTION_TO_METHOD[action], { opinion: content, backNodeId, files }, true);
+    }
+
     this.setState({ otherActionVisible: false });
   };
   handleOperation = id => {
@@ -328,7 +335,7 @@ export default class Footer extends Component {
   get getHandleBtnConfig() {
     const { instance } = this.props;
     const { operationTypeList, btnMap = {} } = instance;
-    const baseActionList = [3, 4, 5, 9, 17, 18];
+    const baseActionList = [3, 4, 5, 9, 17, 18, 19];
     const actionList = operationTypeList[0].filter(n => baseActionList.includes(n));
     const newOperationTypeList = operationTypeList[1]
       .concat(operationTypeList[0].filter(n => !baseActionList.includes(n)))

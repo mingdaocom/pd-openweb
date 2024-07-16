@@ -65,7 +65,7 @@ export default class DisplayControl extends React.Component {
     return (
       <div className="mTop32">
         <div className="title Font13 bold">{_l('显示字段')}</div>
-        {text && <p className="mTop6 Gray_9e viewSetText">{text}</p>}
+        {text && <p className="mTop6 Gray_75 viewSetText">{text}</p>}
         <div className="settingContent mTop8">
           <SortColumns
             //关联表的设置 可拖拽排序

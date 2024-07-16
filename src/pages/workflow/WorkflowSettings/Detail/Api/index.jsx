@@ -141,7 +141,7 @@ export default class Api extends Component {
         >
           {!data.appId ? (
             <span
-              className="Gray_9e ThemeHoverColor3 pointer alignItemsCenter"
+              className="Gray_75 ThemeHoverColor3 pointer alignItemsCenter"
               style={{ display: 'inline-flex' }}
               onClick={this.selectIntegrationApi}
             >
@@ -154,7 +154,7 @@ export default class Api extends Component {
               <span data-tip={_l('变更API')}>
                 <Icon
                   icon="swap_horiz"
-                  className="Font20 Gray_9e ThemeHoverColor3 pointer"
+                  className="Font20 Gray_75 ThemeHoverColor3 pointer"
                   onClick={this.selectIntegrationApi}
                 />
               </span>
@@ -184,14 +184,14 @@ export default class Api extends Component {
                   />
                 </div>
                 {(data.app.explain || data.app.describe) && (
-                  <div className="Gray_9e ellipsis">{data.app.explain || data.app.describe}</div>
+                  <div className="Gray_75 ellipsis">{data.app.explain || data.app.describe}</div>
                 )}
               </div>
               <div className="flex" />
               <span data-tip={_l('变更API')}>
                 <Icon
                   icon="swap_horiz"
-                  className="Font20 Gray_9e ThemeHoverColor3 pointer"
+                  className="Font20 Gray_75 ThemeHoverColor3 pointer"
                   onClick={this.selectIntegrationApi}
                 />
               </span>

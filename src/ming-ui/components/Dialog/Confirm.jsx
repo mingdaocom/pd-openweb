@@ -1,20 +1,20 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import Dialog from './Dialog';
 import ConfirmButton from './ConfirmButton';
 import '../less/Dialog.less';
 import _ from 'lodash';
 
 export default function confirm(props) {
-  const container = document.createElement('div');
-  document.body.appendChild(container);
+  const div = document.createElement('div');
 
+  document.body.appendChild(div);
+
+  const root = createRoot(div);
   const handleClose = (needExecCancel = true, isOkBtn) => {
     setTimeout(() => {
-      const res = ReactDOM.unmountComponentAtNode(container);
-      if (res && container.parentNode) {
-        container.parentNode.removeChild(container);
-      }
+      root.unmount();
+      document.body.removeChild(div);
       if (needExecCancel && _.isFunction(props.onCancel)) {
         props.onCancel(isOkBtn);
       }
@@ -52,7 +52,8 @@ export default function confirm(props) {
   if (props.onlyClose) {
     dealProps = { ...dealProps, handleClose: () => handleClose(false) };
   }
-  ReactDOM.render(
+
+  root.render(
     <Dialog
       bindEnterTriggerOk={false}
       {...dealProps}
@@ -65,7 +66,6 @@ export default function confirm(props) {
       onCancel={handleClose}
       confirm={props.type || 'confirm'}
     />,
-    container,
   );
 
   return handleClose;

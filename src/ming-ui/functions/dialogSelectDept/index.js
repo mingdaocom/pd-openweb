@@ -2,12 +2,12 @@ import React from 'react';
 import departmentController from 'src/api/department';
 import { DepartmentList } from '../dialogSelectUser/GeneralSelect';
 import NoData from 'ming-ui/functions/dialogSelectUser/GeneralSelect/NoData';
-import { createEditDeptDialog } from 'src/pages/Admin/user/membersDepartments/structure/components/CreateEditDeptDialog';
-import roleController from 'src/api/role';
 import { Dialog, LoadDiv, Radio, Checkbox, FunctionWrap } from 'ming-ui';
 import cx from 'classnames';
 import './style.less';
 import _ from 'lodash';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 class DialogSelectDept extends React.Component {
   constructor(props) {
@@ -16,7 +16,6 @@ class DialogSelectDept extends React.Component {
     this.state = {
       loading: false,
       keywords: '',
-      showCreateBtn: false,
       project:
         ((md.global.Account.projects || []).filter(project => project.projectId === props.projectId).length &&
           md.global.Account.projects.filter(project => project.projectId === props.projectId)[0]) ||
@@ -45,20 +44,6 @@ class DialogSelectDept extends React.Component {
 
   componentWillMount() {
     this.fetchData();
-    // 判断权限显示创建部门弹层
-    if (this.props.showCreateBtn) {
-      roleController
-        .isProjectAdmin({
-          projectId: this.props.projectId,
-        })
-        .then(data => {
-          if (data === true) {
-            this.setState({
-              showCreateBtn: true,
-            });
-          }
-        });
-    }
   }
 
   componentWillUnmount() {
@@ -110,7 +95,7 @@ class DialogSelectDept extends React.Component {
   }
 
   getDepartmentPath(dept) {
-    const pathData = this.getParentId(this.state.list, dept.departmentId);
+    const pathData = this.getParentId(this.state.list, dept.departmentId) || [];
     return pathData
       .filter(item => item.departmentId !== dept.departmentId)
       .map((item, index) => ({
@@ -185,12 +170,16 @@ class DialogSelectDept extends React.Component {
   }
 
   fetchData() {
-    const { isAnalysis, fromAdmin = false, projectId } = this.props;
+    const {
+      isAnalysis,
+      fromAdmin = false,
+      projectId,
+      departrangetype = '0',
+      appointedDepartmentIds,
+      appointedUserIds,
+    } = this.props;
     this.setState({ loading: true });
-    const isAdmin =
-      projectId &&
-      (_.find(md.global.Account.projects, project => project.projectId === projectId) || {}).isSuperAdmin &&
-      fromAdmin;
+    const isAdmin = projectId && checkPermission(projectId, PERMISSION_ENUM.MEMBER_MANAGE) && fromAdmin;
     if (this.promise && _.isFunction(this.promise.abort)) {
       this.promise.abort();
     }
@@ -200,18 +189,29 @@ class DialogSelectDept extends React.Component {
     } else {
       getTree = this.getDepartmentTree.bind(this);
     }
-    let searchParam = isAnalysis ? { keyword: this.state.keywords } : { keywords: this.state.keywords };
+
     let param = {
       projectId: this.props.projectId,
       returnCount: this.props.returnCount,
-      ...searchParam,
+      [isAnalysis && departrangetype === '0' ? 'keyword' : 'keywords']: this.state.keywords,
     };
     let usePageDepartment = !this.state.keywords;
-    param = usePageDepartment
-      ? { ...param, pageIndex: this.state.rootPageIndex, pageSize: this.state.pageSize }
-      : param;
+
+    if (usePageDepartment) {
+      param.pageIndex = this.state.rootPageIndex;
+      param.pageSize = this.state.pageSize;
+    }
+
+    if (departrangetype !== '0') {
+      param.appointedDepartmentIds = appointedDepartmentIds.filter(l => l);
+      param.appointedUserIds = appointedUserIds.filter(l => l);
+      param.rangeTypeId = [10, 20, 30][departrangetype - 1];
+    }
+
     this.promise = departmentController[
-      isAnalysis && isAdmin
+      departrangetype !== '0'
+        ? 'appointedDepartment'
+        : isAnalysis && isAdmin
         ? 'pagedProjectDepartmentTrees'
         : isAnalysis
         ? 'pagedDepartmentTrees'
@@ -221,8 +221,7 @@ class DialogSelectDept extends React.Component {
     ](param)
       .then(data => {
         let showProjectAll = true;
-        if (isAnalysis) {
-          showProjectAll = true;
+        if (isAnalysis || departrangetype !== '0') {
           data = data;
         } else if (!isAdmin) {
           showProjectAll = !data.item1;
@@ -234,6 +233,11 @@ class DialogSelectDept extends React.Component {
           : usePageDepartment && this.state.rootPageIndex <= 1
           ? getTree(data)
           : this.state.list.concat(getTree(data));
+
+        if (departrangetype === '3') {
+          list = list.map(l => ({ ...l, disabled: appointedDepartmentIds.includes(l.departmentId) }));
+        }
+
         let states = !this.state.keywords
           ? {
               allList: list,
@@ -517,33 +521,20 @@ class DialogSelectDept extends React.Component {
     }
   }
 
+  deleteFn(departmentId) {
+    this.setState({
+      selectedDepartment: _.filter(this.state.selectedDepartment, dept => dept.departmentId !== departmentId),
+    });
+  }
+
   renderResult() {
     return this.state.selectedDepartment.map(item => {
-      let avatar = null;
-      let id = null;
-      let name = null;
-      let deleteFn = () => {};
-      avatar = (
-        <div
-          className={cx('GSelect-result-subItem__avatar', {
-            'GSelect-result-subItem__avatar__onlySelf': this.props.checkIncludeChilren && !item.checkIncludeChilren,
-          })}
-        >
-          <i className="icon-department1" />
-        </div>
-      );
-      id = item.departmentId;
-      name = item.departmentName;
-      deleteFn = departmentId => {
-        this.setState({
-          selectedDepartment: _.filter(this.state.selectedDepartment, dept => dept.departmentId !== departmentId),
-        });
-      };
+      const { departmentId, departmentName } = item;
+
       return (
-        <div className="GSelect-result-subItem" key={`subItem-${id}`}>
-          {avatar}
-          <div className="GSelect-result-subItem__name overflow_ellipsis">{name}</div>
-          <div className="GSelect-result-subItem__remove " onClick={() => deleteFn(id)}>
+        <div className="GSelect-result-subItem" key={`subItem-${departmentId}`}>
+          <div className="GSelect-result-subItem__name overflow_ellipsis">{departmentName}</div>
+          <div className="GSelect-result-subItem__remove " onClick={() => this.deleteFn(departmentId)}>
             <span className="icon-close"></span>
           </div>
         </div>
@@ -670,25 +661,6 @@ class DialogSelectDept extends React.Component {
               {this.renderContent()}
             </div>
             <div className="GSelect-result-box">{this.renderResult()}</div>
-            {this.state.showCreateBtn && (
-              <div
-                className="selectDepartmentCreateBtn pointer ThemeColor3"
-                onClick={() => {
-                  createEditDeptDialog({
-                    type: 'create',
-                    projectId: this.props.projectId,
-                    departmentId: '',
-                    callback: dept => {
-                      this.toggle(dept.response);
-                      this.fetchData();
-                    },
-                  });
-                  if (this.dialog && this.dialog.closeDialog) this.dialog.closeDialog();
-                }}
-              >
-                {'+ ' + _l('创建部门')}
-              </div>
-            )}
           </div>
         </div>
       </Dialog>
@@ -703,13 +675,13 @@ export default function (opts) {
     projectId: '',
     selectedDepartment: [],
     unique: true,
-    showCreateBtn: true,
     includeProject: false,
     checkIncludeChilren: false,
     allProject: false,
-    selectFn: function (depts) {
-      // console.log(depts);
-    },
+    departrangetype: '0',
+    appointedDepartmentIds: [],
+    appointedUserIds: [],
+    selectFn: () => {},
   };
 
   const options = _.extend({}, DEFAULTS, opts);
@@ -731,6 +703,9 @@ export default function (opts) {
     checkIncludeChilren: options.checkIncludeChilren,
     isAnalysis: options.isAnalysis,
     fromAdmin: options.fromAdmin,
+    departrangetype: options.departrangetype,
+    appointedDepartmentIds: options.appointedDepartmentIds,
+    appointedUserIds: options.appointedUserIds,
     onClose: options.onClose,
   };
 

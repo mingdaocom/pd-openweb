@@ -116,7 +116,7 @@ export default class Push extends Component {
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
       .then(result => {
         this.setState({ data: result });
-        this.getWorksheetsByAppId();
+        !instanceId && this.getWorksheetsByAppId();
       });
   }
 

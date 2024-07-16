@@ -1,7 +1,6 @@
-﻿import React, { Fragment } from 'react';
+﻿import React from 'react';
 import moment from 'moment';
-import Trigger from 'rc-trigger';
-import { Tooltip, Icon, Dialog, Menu, MenuItem, UserHead, UserName } from 'ming-ui';
+import { Tooltip, Dialog, UserHead, UserName } from 'ming-ui';
 import PageTableCon from '../../../components/PageTableCon';
 import userAjax from 'src/api/user';
 import HandOver from './handOver';
@@ -10,10 +9,9 @@ import SearchInput from './SearchInput';
 import WorkHandoverDialog from '../../../components/WorkHandoverDialog';
 import userController from 'src/api/user';
 import { getCurrentProject } from 'src/util';
-
-const MenuWrap = styled(Menu)`
-  width: 130px !important;
-`;
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import ActionDrop from './ActionDrop';
 
 const TableWrap = styled(PageTableCon)`
   &.resignTableList {
@@ -181,8 +179,6 @@ export default class extends React.Component {
   // 恢复权限
   recovery = (accountId, fullName) => {
     const { projectId } = this.props;
-    const ele = document.querySelector('.actionTrigger');
-    ele.classList.add('rc-trigger-popup-hidden');
 
     Dialog.confirm({
       title: _l('确认框'),
@@ -234,7 +230,7 @@ export default class extends React.Component {
   };
 
   render() {
-    const { projectId } = this.props;
+    const { projectId, authority = [] } = this.props;
     const {
       loading,
       dataSource = [],
@@ -249,9 +245,11 @@ export default class extends React.Component {
       <div className="flexColumn flex minHeight0 h100">
         <Wrap className="flexRow">
           <SearchInput placeholder={_l('搜索成员')} onSearch={val => this.setState({ keywords: val }, this.getData)} />
-          <span className="ThemeColor Hand Font13 Normal" onClick={() => this.setState({ handoverVisible: true })}>
-            {_l('交接协作')}
-          </span>
+          {hasPermission(authority, PERMISSION_ENUM.APP_RESOURCE_SERVICE) && (
+            <span className="ThemeColor Hand Font13 Normal" onClick={() => this.setState({ handoverVisible: true })}>
+              {_l('交接协作')}
+            </span>
+          )}
         </Wrap>
         <div className="flex">
           <TableWrap
@@ -262,37 +260,15 @@ export default class extends React.Component {
               dataIndex: 'action',
               width: 80,
               render: (text, record) => {
-                const { accountId, fullname } = record;
-                const { isSuperAdmin, isProjectAppManager } =
-                  _.find(md.global.Account.projects, v => v.projectId === projectId) || {};
-
-                return (
-                  <div className="actionWrap">
-                    <Trigger
-                      popupClassName="actionTrigger"
-                      action={['click']}
-                      popupAlign={{ points: ['tc', 'bc'], offset: [-120, 30] }}
-                      popup={
-                        <MenuWrap>
-                          <MenuItem onClick={() => this.recovery(accountId, fullname)}>{_l('恢复')}</MenuItem>
-                          {(isSuperAdmin || isProjectAppManager) && (
-                            <MenuItem
-                              onClick={() => {
-                                const ele = document.querySelector('.actionTrigger');
-                                ele.classList.add('rc-trigger-popup-hidden');
-                                this.setState({ showWorkHandover: true, transferor: record });
-                              }}
-                            >
-                              {_l('交接工作')}
-                            </MenuItem>
-                          )}
-                        </MenuWrap>
-                      }
-                    >
-                      <Icon icon="moreop" className="Gray_9e Font16 Hand" />
-                    </Trigger>
-                  </div>
-                );
+                const prop = {
+                  record,
+                  authority,
+                  recovery: this.recovery,
+                  updateData: data => {
+                    this.setState({ ...data });
+                  },
+                };
+                return <ActionDrop {...prop} />;
               },
             })}
             dataSource={dataSource}

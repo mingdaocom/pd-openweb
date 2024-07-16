@@ -2,7 +2,7 @@ import React, { Fragment, useContext, useState, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { ConfigProvider } from 'antd';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
@@ -13,37 +13,39 @@ import SmallCard from './SmallCard';
 import ListCard, { ListCardHeader } from './ListCard';
 import LargeImageCard from './LargeImageCard';
 import './index.less';
-
+import RegExpValidator from 'src/util/expression';
 const showTypes = {
-  '1': 'imageFilesWrap',
-  '2': 'smallFilesWrap',
-  '3': 'listFilesWrap',
-  '4': 'largeImageFilesWrap'
+  1: 'imageFilesWrap',
+  2: 'smallFilesWrap',
+  3: 'listFilesWrap',
+  4: 'largeImageFilesWrap',
 };
 
 const CardComponent = {
-  '1': ImageCard,
-  '2': SmallCard,
-  '3': ListCard,
-  '4': LargeImageCard,
-}
+  1: ImageCard,
+  2: SmallCard,
+  3: ListCard,
+  4: LargeImageCard,
+};
 
 const heights = {
-  '1': 130 + 6, // height + marginBottom
-  '2': 56 + 6,
-  '3': 52
-}
+  1: 130 + 6, // height + marginBottom
+  2: 56 + 6,
+  3: 52,
+};
 
 const isMobile = browserIsMobile();
 
 const sortFiles = files => {
   return files.sort((a, b) => a.index - b.index);
-}
+};
 
 const filterImageAttachments = data => {
   const isMdFile = data.accountId || data.sourceID;
-  return isMdFile ? File.isPicture(data.refId ? data.fileExt : data.ext) : File.isPicture(data.fileExt);
-}
+  return isMdFile
+    ? RegExpValidator.fileIsPicture(data.refId ? data.fileExt : data.ext)
+    : RegExpValidator.fileIsPicture(data.fileExt);
+};
 
 const SortableItem = SortableElement(props => {
   const { showType, allowDownload, data } = props;
@@ -55,7 +57,7 @@ const SortableItem = SortableElement(props => {
   const fileProps = { isMdFile, isKc };
 
   if (isMdFile) {
-    const isPicture = isKc ? !!data.shareUrl : File.isPicture(data.ext);
+    const isPicture = isKc ? !!data.shareUrl : RegExpValidator.fileIsPicture(data.ext);
     Object.assign(fileProps, {
       isPicture,
       browse: isKc ? !!data.shareUrl : true,
@@ -66,34 +68,44 @@ const SortableItem = SortableElement(props => {
         md.global.Account.accountId &&
         !md.global.Account.isPortal &&
         !_.get(window, 'shareState.shareId'),
-      isDownload: isKc ? data.allowDown === 'ok' : data.accountId === md.global.Account.accountId || isPicture || data.allowDown === 'ok',
+      isDownload: isKc
+        ? data.allowDown === 'ok'
+        : data.accountId === md.global.Account.accountId || isPicture || data.allowDown === 'ok',
     });
   } else {
     Object.assign(fileProps, {
       fileClassName: getClassNameByExt(data.fileExt),
-      isPicture: File.isPicture(data.fileExt),
+      isPicture: RegExpValidator.fileIsPicture(data.fileExt),
       fileSize: formatFileSize(data.fileSize),
-      url: data.previewUrl || data.url || ''
-    })
+      url: data.previewUrl || data.url || '',
+    });
   }
 
-  return (
-    <FileComponent {...props} {...fileProps} isMobile={isMobile} />
-  );
+  return <FileComponent {...props} {...fileProps} isMobile={isMobile} />;
 });
 
 const SortableList = SortableContainer(props => {
   const { list, className, smallSize, style, ref, ...otherProps } = props;
   const { showType } = props;
   return (
-    <div style={style} ref={ref} className={cx('overflowHidden', { mTop8: !['3'].includes(showType), hide: !list.length })}>
+    <div
+      style={style}
+      ref={ref}
+      className={cx('overflowHidden', { mTop8: !['3'].includes(showType), hide: !list.length })}
+    >
       <div className={cx(className, 'attachmentFilesWrap', showTypes[showType], { mobile: isMobile, smallSize })}>
         {list.map((data, index) => (
           <SortableItem key={data.fileID} index={index} sortIndex={index} data={data || {}} {...otherProps} />
         ))}
-        {['1', '2'].includes(showType) && (
-          Array.from({ length: 10 }).map((_, index) => <i key={index} className={cx('fileEmpty', showType === '1' ? 'attachmentImageCard' : 'attachmentSmallCard', { mobile: isMobile })} />)
-        )}
+        {['1', '2'].includes(showType) &&
+          Array.from({ length: 10 }).map((_, index) => (
+            <i
+              key={index}
+              className={cx('fileEmpty', showType === '1' ? 'attachmentImageCard' : 'attachmentSmallCard', {
+                mobile: isMobile,
+              })}
+            />
+          ))}
       </div>
     </div>
   );
@@ -150,20 +162,26 @@ const Files = props => {
   const handleDeleteMDFile = data => {
     const files = attachmentData.filter(item => item.fileID !== data.fileID);
     onChangeAttachmentData(files);
-  }
+  };
   // 删除未保存的知识附件
   const handleDeleteKCFile = data => {
     const files = knowledgeAtts.filter(item => item.refId !== data.refId);
     onChangeKnowledgeAtts(files);
-  }
+  };
   // 删除未保存的七牛云附件
   const handleDeleteFile = data => {
     const files = attachments.filter(item => item.fileID !== data.fileID);
     onChangeAttachments(files);
-  }
+    props.onRemoveFile(_.find(attachments, { fileID: data.fileID }));
+  };
   // 重命名未保存的七牛云附件
   const handleResetNameFile = (id, newName) => {
     newName = newName.trim();
+    const error = props.checkValueByFilterRegex(newName);
+    if (error) {
+      alert(error, 2);
+      return;
+    }
     if (_.isEmpty(newName)) {
       alert(_l('名称不能为空'), 2);
       return;
@@ -175,7 +193,7 @@ const Files = props => {
       return item;
     });
     onChangeAttachments(files);
-  }
+  };
 
   // 明道云附件预览
   const handleMDPreview = data => {
@@ -212,19 +230,17 @@ const Files = props => {
         openControlAttachmentInNewTab: !isMobile && controlId && handleOpenControlAttachmentInNewTab,
       },
     );
-  }
+  };
   // 未保存的知识附件预览
   const handleKCPreview = data => {
     const res = knowledgeAtts.filter(item => item.node).map(item => item.node);
-    previewAttachments(
-      {
-        attachments: res,
-        index: _.findIndex(res, { id: data.fileID }),
-        callFrom: 'kc',
-        hideFunctions: ['editFileName', 'share', 'saveToKnowlege'],
-      }
-    );
-  }
+    previewAttachments({
+      attachments: res,
+      index: _.findIndex(res, { id: data.fileID }),
+      callFrom: 'kc',
+      hideFunctions: ['editFileName', 'share', 'saveToKnowlege'],
+    });
+  };
   // 未保存的七牛云附件预览
   const handlePreview = data => {
     const res = attachments.map(item => {
@@ -238,7 +254,7 @@ const Files = props => {
         previewAttachmentType: 'QINIU',
         size: item.fileSize,
         fileid: item.fileID,
-      }
+      };
     });
     previewAttachments({
       attachments: res,
@@ -246,7 +262,7 @@ const Files = props => {
       callFrom: 'chat',
       hideFunctions: ['editFileName', 'share', 'saveToKnowlege'],
     });
-  }
+  };
 
   const handleSortEnd = ({ oldIndex, newIndex }) => {
     if (oldIndex === newIndex) return;
@@ -274,14 +290,14 @@ const Files = props => {
       onChangedAllFiles({
         attachments,
         knowledgeAtts,
-        attachmentData
+        attachmentData,
       });
     } else {
       onSortAttachment(attachmentData);
     }
-  }
+  };
 
-  const handleOpenControlAttachmentInNewTab = (fileId) => {
+  const handleOpenControlAttachmentInNewTab = fileId => {
     if (!recordBaseInfo) {
       return;
     }
@@ -293,13 +309,11 @@ const Files = props => {
         getType: from === 21 ? from : undefined,
       }),
     );
-  }
+  };
 
   return (
     <ConfigProvider autoInsertSpaceInButton={false}>
-      {isListCard && !!sortAllAttachments.length && (
-        <ListCardHeader />
-      )}
+      {isListCard && !!sortAllAttachments.length && <ListCardHeader />}
       <SortableList
         ref={ref}
         axis={isListCard ? 'y' : 'xy'}
@@ -310,7 +324,11 @@ const Files = props => {
         disabled={!allowSort}
         className={className}
         smallSize={smallSize}
-        list={isLargeImageCard && viewMoreVisible && viewMore ? sortAllAttachments.filter(filterImageAttachments).filter((_, index) => index < showLineCount) : sortAllAttachments}
+        list={
+          isLargeImageCard && viewMoreVisible && viewMore
+            ? sortAllAttachments.filter(filterImageAttachments).filter((_, index) => index < showLineCount)
+            : sortAllAttachments
+        }
         worksheetId={recordBaseInfo.worksheetId}
         recordId={recordBaseInfo.recordId}
         onDeleteMDFile={handleDeleteMDFile}
@@ -338,7 +356,10 @@ const Files = props => {
       {viewMoreVisible && (
         <Fragment>
           <div
-            className={cx('attachmentFilesViewMoreWrap pBottom10 flexRow alignItemsCenter', showType === '3' ? 'pTop10' : 'pTop5')}
+            className={cx(
+              'attachmentFilesViewMoreWrap pBottom10 flexRow alignItemsCenter',
+              showType === '3' ? 'pTop10' : 'pTop5',
+            )}
             onClick={() => setViewMore(!viewMore)}
           >
             <span className="ThemeColor pointer">{viewMore ? _l('查看更多') : _l('收起')}</span>
@@ -347,11 +368,11 @@ const Files = props => {
       )}
     </ConfigProvider>
   );
-}
+};
 
 export default Files;
 
 Files.propTypes = {
   from: PropTypes.number,
   className: PropTypes.string,
-}
+};

@@ -60,7 +60,7 @@ export default class CountDown extends Component {
       <React.Fragment>
         <span>{beforeText || ''}</span>
         <span className={`mLeft5 mRight5 ${className || ''}`}>{timeStr}</span>
-        <span>{afterText || ''}</span>;
+        <span>{afterText || ''}</span>
       </React.Fragment>
     );
   }

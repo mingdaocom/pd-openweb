@@ -17,6 +17,7 @@ import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/D
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
 import store from 'redux/configureStore';
 import { updateFilterComponents } from './redux/actions';
+import { getTranslateInfo } from 'src/util';
 import AiContent from './AiContent';
 import LinkageBtn from './LinkageBtn';
 import 'react-grid-layout/css/styles.css';
@@ -222,9 +223,10 @@ export default class CustomPage extends Component {
           const { id, type } = widget;
           const { title, titleVisible } = widget.mobile;
           const componentType = getEnumType(type);
+          const translateInfo = getTranslateInfo(apk.appId, null, componentType === 'analysis' ? widget.value : widget.id);
           return (
             <LayoutContent key={`${id || index}`} className="resizableWrap">
-              {titleVisible && <div className="componentTitle overflow_ellipsis Gray bold">{title}</div>}
+              {titleVisible && <div className="componentTitle overflow_ellipsis Gray bold">{translateInfo.mobileTitle || title}</div>}
               <div className={cx('widgetContent', componentType, { haveTitle: titleVisible })}>
                 <WidgetDisplay
                   pageComponents={pageComponents}

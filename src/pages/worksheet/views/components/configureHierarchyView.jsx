@@ -1,22 +1,30 @@
 import React, { useState, useEffect } from 'react';
-import { string } from 'prop-types';
 import { RadioGroup, Dropdown } from 'ming-ui';
 import styled from 'styled-components';
 import { Button } from 'worksheet/styled';
-import { InfoWrap, SettingItem } from 'src/pages/widgetConfig/styled';
+import { SettingItem } from 'src/pages/widgetConfig/styled';
 import { useSetState } from 'react-use';
 import HierarchyRelateMultiSheet from './hierarchyRelateMultiSheet';
 import _ from 'lodash';
+import StructureType from 'src/pages/worksheet/common/ViewConfig/components/StructureType';
 
 const RELATE_TYPE = [
   { text: _l('本表关联'), value: 1 },
   { text: _l('多表关联'), value: 2 },
 ];
 const VerifyButton = styled(Button)`
-  margin-top: 32px;
+  margin-top: 12px;
 `;
 const HierarchyViewConfigWrap = styled.div`
-  padding: 0 32px 24px;
+  .viewStructureType {
+    .settingContent {
+      .flexRow {
+        justify-content: left !important;
+        gap: 30px !important;
+      }
+    }
+  }
+  padding: 0 30px 24px;
   .relateTypeRadio {
     .Radio:last-child {
       margin-left: 88px;
@@ -120,7 +128,14 @@ export default function HierarchyViewConfig({
           onChange={value => {
             if (value !== relateType) {
               setRelate({ relateType: value });
-              updateView({ childType: value });
+              updateView({
+                childType: value,
+                advancedSetting: {
+                  hierarchyViewType: 0,
+                },
+                editAttrs: ['advancedSetting', 'childType'],
+                editAdKeys: ['hierarchyViewType'],
+              });
             }
           }}
         />
@@ -152,6 +167,9 @@ export default function HierarchyViewConfig({
           </div>
         )}
       </SettingItem>
+      <div className="mTop24 viewStructureType">
+        <StructureType isRelateMultiSheetHierarchyView={isRelateOtherSheet} />
+      </div>
       <VerifyButton onClick={handleClick}>{_l('确认')}</VerifyButton>
     </HierarchyViewConfigWrap>
   );

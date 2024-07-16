@@ -26,6 +26,7 @@ import VertricalTreeNode from './components/VertricalTreeNode';
 import LeftBoundary from '../HierarchyView/components/LeftBoundary';
 import DragLayer from '../HierarchyView/components/DragLayer';
 import EmptyHierarchy from '../HierarchyView/EmptyHierarchy';
+import { emitter } from 'src/util';
 
 const RecordStructureWrap = styled.div`
   padding-left: 48px;
@@ -91,6 +92,7 @@ function HierarchyVertical(props) {
     changeHierarchyChildrenVisible,
     initHierarchyRelateSheetControls,
     recordInfoId,
+    navGroupFilters,
     ...rest
   } = props;
   const IS_MOBILE = browserIsMobile();
@@ -171,7 +173,15 @@ function HierarchyVertical(props) {
           }
         });
     }
-  }, [viewId, viewControl, viewControls.map(item => item.worksheetId).join(',')]);
+  }, [
+    viewId,
+    viewControl,
+    viewControls.map(item => item.worksheetId).join(','),
+    _.get(view, 'advancedSetting.topshow'),
+    _.get(view, 'advancedSetting.topfilters'),
+    _.get(view, 'advancedSetting.defaultlayer'),
+    JSON.stringify(navGroupFilters),
+  ]);
 
   const genScreenshot = () => {
     const $wrap = document.querySelector('.hierarchyViewWrap');
@@ -343,6 +353,7 @@ function HierarchyVertical(props) {
           receiveRows: value.map(item => getReceiveControls(item)),
         })
         .then(res => {
+          emitter.emit('ROWS_UPDATE');
           if (res === value.length) {
             if (_.isEmpty(addRecordPath.path)) {
               getTopLevelHierarchyData({ worksheetId, ...idPara });
@@ -363,6 +374,7 @@ function HierarchyVertical(props) {
         })
         .then(({ data }) => {
           if (data) {
+            emitter.emit('ROWS_UPDATE');
             if (_.isEmpty(addRecordPath.path)) {
               addTopLevelStateFromTemp(data);
             } else {
@@ -577,7 +589,14 @@ function HierarchyVertical(props) {
 
 const ConnectedHierarchyVerticalView = connect(
   state => ({
-    ..._.pick(state.sheet, ['worksheetInfo', 'filters', 'controls', 'sheetSwitchPermit', 'sheetButtons']),
+    ..._.pick(state.sheet, [
+      'worksheetInfo',
+      'filters',
+      'controls',
+      'sheetSwitchPermit',
+      'sheetButtons',
+      'navGroupFilters',
+    ]),
     ..._.get(state.sheet, 'hierarchyView'),
     searchData: getSearchData(state.sheet),
   }),

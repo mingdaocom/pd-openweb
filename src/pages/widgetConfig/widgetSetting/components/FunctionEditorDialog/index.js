@@ -1,11 +1,16 @@
 import React, { useState, useRef } from 'react';
 import { func, bool } from 'prop-types';
+import Loadable from 'react-loadable';
 import { Modal, Dialog } from 'ming-ui';
-import Function from './Func';
+
+const LoadableFunction = Loadable({
+  loader: () => import('./Func'),
+  loading: () => null,
+});
 
 export default function FunctionEditorDialog(props) {
   const { onClose } = props;
-  const editor = useRef();
+  const editor = useRef({});
   const cache = useRef({});
   let width = 960;
   let height = 600;
@@ -40,7 +45,11 @@ export default function FunctionEditorDialog(props) {
       style={{ minWidth: width }}
       bodyStyle={{ padding: 0, position: 'relative', height, flex: 'none' }}
     >
-      <Function {...props} ref={editor} onChange={() => (cache.current.changed = true)} />
+      <LoadableFunction
+        {...props}
+        setRef={(key, value) => (editor.current[key] = value)}
+        onChange={() => (cache.current.changed = true)}
+      />
     </Modal>
   );
 }

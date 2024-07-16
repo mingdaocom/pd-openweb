@@ -88,7 +88,7 @@ export default class Approval extends Component {
             </div>
             <NodeOperate nodeClassName="BGViolet" {...this.props} />
             <div className="workflowContent">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
             </div>
           </div>
           {item.resultTypeId ? <div className="workflowLineBtn" /> : <CreateNode {...this.props} />}

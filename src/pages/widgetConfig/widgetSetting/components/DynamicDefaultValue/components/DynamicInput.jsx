@@ -16,9 +16,10 @@ export default function DynamicInput({
   onTriggerClick,
   data = {},
   onChange,
+  updateQueryConfigs = () => {},
 }) {
   const current = _.find(ICON_TYPES, item => item.key === defaultType) || {};
-  const name = `<span>：${_.get(dynamicData, 'sourceName')}</span>`;
+  const name = `<span>：${_.get(queryConfig, 'sourceName')}</span>`;
   const [sourceName, setSourceName] = useState(name);
 
   useEffect(() => {
@@ -35,10 +36,11 @@ export default function DynamicInput({
     e.stopPropagation();
     if (defaultType === 'dynamicsrc') {
       onChange(handleAdvancedSettingChange(data, { dynamicsrc: '', defaulttype: '' }));
+      updateQueryConfigs(dynamicData);
     } else if (defaultType === 'dynamiccustom') {
       onChange(handleAdvancedSettingChange(data, { defsource: JSON.stringify([]), defaulttype: '' }));
     } else if (defaultType === 'defaultfunc') {
-      onChange(handleAdvancedSettingChange(data, { defaultfunc: '', defaulttype: '' }));
+      onChange(handleAdvancedSettingChange(data, { defaultfunc: '', defaulttype: '', defsource: '' }));
     }
   };
 

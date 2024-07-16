@@ -24,7 +24,7 @@ const IconWrapper = styled.div`
   .iconText {
     margin-left: 8px;
     font-size: 14px;
-    color: #9e9e9e;
+    color: #757575;
   }
 
   &:hover {
@@ -55,7 +55,7 @@ export default function TodoEntrust() {
     <React.Fragment>
       <IconWrapper data-tip={_l('待办委托')} onClick={onEntrustIconClick}>
         <div className="relative">
-          <Icon icon="lift" className="Font22 Gray_9e" />
+          <Icon icon="lift" className="Font22 Gray_75" />
           {entrustCount > 0 && <RedDot />}
         </div>
         <div className="iconText">{_l('委托')}</div>

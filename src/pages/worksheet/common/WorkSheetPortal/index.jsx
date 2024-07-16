@@ -134,7 +134,7 @@ const WorkSheetPortal = props => {
                   />
                 )}
                 <div className="Font16 bold">
-                  {getTranslateInfo(appId, item.workSheetId).name || item.workSheetName}
+                  {getTranslateInfo(appId, null, item.workSheetId).name || item.workSheetName}
                 </div>
                 {renderIcon()}
                 {isCharge && !item.notMore && (

@@ -63,10 +63,29 @@ export default class Text extends Component {
             });
           }
         },
+        onFocus: () => {
+          this.closeDropdown();
+        },
         onChange: selectizevalue => {
+          this.closeDropdown();
           debouncedChange({ values: selectizevalue ? selectizevalue.split(',') : [] });
         },
       })[0].selectize;
+
+      this.selectize.on('type', e => {
+        if (!e) {
+          this.closeDropdown();
+        }
+      });
+    }
+  }
+  // 操作完关闭下拉
+  closeDropdown() {
+    if (this.selectize && this.selectize.isOpen) {
+      this.timer = setTimeout(() => {
+        this.selectize.close();
+        clearTimeout(this.timer);
+      });
     }
   }
   render() {

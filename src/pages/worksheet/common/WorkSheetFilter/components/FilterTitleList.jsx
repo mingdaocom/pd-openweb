@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import { Menu, MenuItem, Icon, Tooltip } from 'ming-ui';
-import { sortableContainer, sortableElement, sortableHandle, arrayMove } from 'react-sortable-hoc';
+import { sortableContainer, sortableElement, sortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { FILTER_TYPE } from '../enum';
 import _ from 'lodash';

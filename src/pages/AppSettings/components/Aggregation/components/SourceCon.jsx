@@ -3,23 +3,27 @@ import { useSetState } from 'react-use';
 import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/SelectWorksheet.jsx';
 import { FilterItemTexts, FilterDialog } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
 import { Icon, SvgIcon } from 'ming-ui';
-import { WrapWorksheet } from './style';
+import { WrapWorksheet, WrapSource, WrapSelectCon } from './style';
 import { getNodeInfo } from '../util';
 import cx from 'classnames';
 import { Tooltip } from 'antd';
 import { DEFAULT_COLORS } from '../config';
+import { formatControls, updateConfig } from '../util';
+import { getTranslateInfo } from 'src/util';
+import _ from 'lodash';
 
 export default function SourceCon(props) {
-  const { projectId, appId, getWorksheets, onChange } = props;
-  const [{ filterVisible, filterVisibleId, hideIds }, setState] = useSetState({
+  const { projectId, appId, getWorksheets, onChange, onChangeByInit = () => {} } = props;
+  const [{ filterVisible, filterVisibleId, hideIds, isChange }, setState] = useSetState({
     filterVisible: false,
     filterVisibleId: '',
     hideIds: [],
+    isChange: false,
   });
 
-  const renderSourceItem = (dataInfo, canChange, filters, index) => {
+  const renderSourceItem = (dataInfo = {}, canChange = false, filters = [], index) => {
     const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
-
+    const groupDt = getNodeInfo(props.flowData, 'GROUP');
     return (
       <Fragment>
         <div className="Dropdown--input Dropdown--border">
@@ -36,7 +40,9 @@ export default function SourceCon(props) {
                 fill={'#9e9e9e'}
                 size={16}
               />
-              <span className="flex mLeft5 Bold">{dataInfo.tableName}</span>
+              <span className="flex mLeft5 Bold WordBreak overflow_ellipsis">
+                {getTranslateInfo(dataInfo.appId, null, dataInfo.workSheetId).name || dataInfo.tableName}
+              </span>
             </React.Fragment>
           )}
           <Tooltip title={_l('筛选')}>
@@ -63,30 +69,50 @@ export default function SourceCon(props) {
             />
           </Tooltip>
           {canChange && (
-            <Tooltip title={_l('更改数据源')}>
-              <div className="ming Icon icon icon-swap_horiz mLeft8 Gray_9e Font16 Hand ThemeHoverColor3" />
+            <Tooltip title={_l('更改数据源')} onClick={() => setState({ isChange: true })}>
+              <div className="ming Icon icon icon-swap_horiz mLeft8 Gray_9e Font16 Hand ThemeHoverColor3 mRight8" />
             </Tooltip>
           )}
-          {dataInfo.workSheetId && (
+          {dataInfo.workSheetId && !canChange && (
             <Tooltip title={_l('删除')}>
               <Icon
                 icon="clear"
                 className="mLeft8 Font16 Hand Gray_9e del ThemeHoverColor3 mRight8"
                 onClick={e => {
                   e.stopPropagation();
+                  const sourceTables = (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).filter(
+                    o => o.workSheetId !== dataInfo.workSheetId,
+                  );
                   onChange(
-                    {
-                      ...sourceDt,
-                      nodeConfig: {
-                        ..._.get(sourceDt, 'nodeConfig'),
-                        config: {
-                          ..._.get(sourceDt, 'nodeConfig.config'),
-                          sourceTables: (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).filter(
-                            o => o.workSheetId !== dataInfo.workSheetId,
-                          ),
-                        },
-                      },
-                    },
+                    [
+                      updateConfig(sourceDt, {
+                        sourceTables,
+                      }),
+                      updateConfig(groupDt, {
+                        groupFields:
+                          sourceTables.length <= 0
+                            ? []
+                            : (_.get(groupDt, 'nodeConfig.config.groupFields') || [])
+                                .map((o = {}) => {
+                                  let fields = (o.fields || []).filter(
+                                    (it = {}) =>
+                                      !!(sourceTables || []).find(a => (it.oid || '').indexOf(a.workSheetId) >= 0),
+                                  );
+                                  return {
+                                    fields: fields,
+                                    resultField:
+                                      fields.length <= 0
+                                        ? {}
+                                        : {
+                                            ...fields[0],
+                                            name: _.get(o, 'resultField.name'),
+                                            alias: _.get(o, 'resultField.alias'),
+                                          },
+                                  };
+                                })
+                                .filter((o = {}) => (o.fields || []).length > 0),
+                      }),
+                    ],
                     {
                       sourceInfos: props.sourceInfos.filter(o => o.worksheetId !== dataInfo.workSheetId),
                     },
@@ -99,148 +125,159 @@ export default function SourceCon(props) {
       </Fragment>
     );
   };
-  const renderSelectWorksheet = (dataInfo = {}, isAdd, dropdownElement, index) => {
+  const renderDropdownElement = () => {
     const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
-    const filters = _.get(dataInfo, 'filterConfig.items') || [];
-    const canChange = (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length === 1 || !dataInfo.workSheetId;
+    const sourceTablesData = _.get(sourceDt, 'nodeConfig.config.sourceTables') || [];
+    const canAdd = sourceTablesData.length < 5 && sourceTablesData.length > 0;
     return (
-      <WrapWorksheet
-        className={cx('mTop12 Relative', {
-          pBottom12: filters.length > 0 && !hideIds.includes(dataInfo.workSheetId),
-          isAdd: isAdd,
-          hoverBoxShadow: !isAdd,
-        })}
-      >
-        {dataInfo.workSheetId && (
-          <div className="colorByWorksheet" style={{ backgroundColor: DEFAULT_COLORS[index] }}></div>
-        )}
-        {canChange ? (
-          <SelectWorksheet
-            dialogClassName={'sheetSelectDialog'}
-            worksheetType={0}
-            projectId={projectId}
-            appId={appId}
-            filterIds={(_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map(o => o.workSheetId)}
-            value={dataInfo.workSheetId} // 选中的工作表 id
-            onChange={(newappId, worksheetId, worksheet) => {
-              // 当前应用或其他应用下的工作表（一个工作表只能选择一次）
-              if (
-                ((_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map(o => o.workSheetId) || []).includes(
-                  worksheetId,
-                )
-              ) {
-                alert(_l('一个聚合表不能添加相同的数据源'), 3);
-                return;
-              }
-              const ids = (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map(o => o.workSheetId);
-              getWorksheets(
-                !dataInfo.workSheetId
-                  ? ids.concat(worksheetId)
-                  : ids.map(o => {
-                      if (o.workSheetId === dataInfo.worksheetId) {
-                        return worksheetId;
-                      } else {
-                        return o;
-                      }
-                    }),
-              );
-              const wsInfo = {
-                // datasourceId: null,
-                dsType: 'MING_DAO_YUN',
-                // dsTypeExt: null,
-                // className: 'table',
-                // iconBgColor: '',
-                icon: worksheet.icon,
-                iconUrl: worksheet.iconUrl,
-                // dbName: '',
-                // schema: '',
-                tableName: worksheet.workSheetName,
-                // flinkTableName: null,
-                appId: newappId,
-                workSheetId: worksheetId,
-                // fields: [],
-                filterConfig: null,
-                // checkedFields: [],
-                // fakePk: null,
-              };
-              onChange({
-                ...sourceDt,
-                nodeConfig: {
-                  ..._.get(sourceDt, 'nodeConfig'),
-                  config: {
-                    ..._.get(sourceDt, 'nodeConfig.config'),
-                    sourceTables: !dataInfo.workSheetId
-                      ? (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).concat(wsInfo)
-                      : (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map(o => {
-                          if (o.workSheetId === dataInfo.workSheetId) {
-                            return wsInfo;
-                          } else {
-                            return o;
-                          }
+      <WrapSelectCon>
+        {(_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map((o, index) => {
+          const filters = _.get(o, 'filterConfig.items') || [];
+          const canChange = (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length === 1 || !o.workSheetId;
+          return (
+            <React.Fragment>
+              <div className="topCon" onClick={e => e.stopPropagation()} />
+              <WrapWorksheet
+                className={cx('Relative hoverBoxShadow', {
+                  pBottom12: filters.length > 0 && !hideIds.includes(o.workSheetId),
+                })}
+                onClick={e => {
+                  if (!canChange) {
+                    e.stopPropagation();
+                  } else {
+                    setState({
+                      isChange: true,
+                    });
+                  }
+                }}
+              >
+                {o.workSheetId && !canChange && (
+                  <div className="colorByWorksheet" style={{ backgroundColor: DEFAULT_COLORS[index] }}></div>
+                )}
+                {renderSourceItem(o, canChange, filters, index)}
+                {filters.length > 0 && !hideIds.includes(o.workSheetId) && (
+                  <FilterItemTexts
+                    className={'filterConByWorksheet mTop0'}
+                    data={{}}
+                    filters={filters}
+                    loading={false}
+                    globalSheetInfo={{
+                      projectId,
+                      appId,
+                    }}
+                    onClear={() => {
+                      let newData = [
+                        updateConfig(sourceDt, {
+                          sourceTables: (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map(a => {
+                            return o.workSheetId === a.workSheetId
+                              ? {
+                                  ...a,
+                                  filterConfig: null,
+                                }
+                              : a;
+                          }),
                         }),
-                  },
-                },
-              });
-            }}
-            dropdownElement={
-              dropdownElement ? (
-                dropdownElement
-              ) : !dataInfo.workSheetId ? (
-                <div className="Dropdown--input Dropdown--border">
-                  <div className="Gray_a">{_l('请选择工作表')}</div>
-                  <div className="ming Icon icon icon-arrow-down-border mLeft8 Gray_9e Font16 Hand mRight12 ThemeHoverColor3" />
-                </div>
-              ) : (
-                renderSourceItem(dataInfo, true, filters, index)
-              )
-            }
-          />
-        ) : (
-          <div className="selectWorksheetCommon ming Dropdown w100">
-            <div class="dropdownWrapper w100">
-              <div class="targetEle">{renderSourceItem(dataInfo, false, filters, index)}</div>
-            </div>
-          </div>
+                      ];
+                      onChange(newData);
+                    }}
+                    controls={(props.sourceInfos.find(it => it.worksheetId === o.workSheetId) || {}).controls || []}
+                    allControls={[]}
+                    editFn={() => setState({ filterVisible: true, filterVisibleId: o.workSheetId })}
+                  />
+                )}
+              </WrapWorksheet>
+            </React.Fragment>
+          );
+        })}
+        {sourceTablesData.length <= 0 && (
+          <React.Fragment>
+            <div className="topCon" onClick={e => e.stopPropagation()} />
+            <WrapWorksheet className="hoverBoxShadow">
+              <div className="Dropdown--input Dropdown--border">
+                <div className="Gray_a">{_l('请选择工作表')}</div>
+                <div className="ming Icon icon icon-arrow-down-border mLeft8 Gray_9e Font16 Hand mRight12 ThemeHoverColor3" />
+              </div>
+            </WrapWorksheet>
+          </React.Fragment>
         )}
+        {canAdd && (
+          <React.Fragment>
+            <div className="topCon" onClick={e => e.stopPropagation()} />
+            <WrapWorksheet className={'Relative isAdd'}>
+              <div
+                className={cx(
+                  'alignItemsCenter Bold flexRowCon',
+                  !canAdd ? 'Gray_bd' : 'Gray_75 ThemeHoverColor3 Hand',
+                )}
+                onClick={() => setState({ isChange: false })}
+              >
+                <Icon icon="add" className="InlineBlock Font16" />
+                <span>{_l('工作表')}</span>
+              </div>
+            </WrapWorksheet>
+          </React.Fragment>
+        )}
+      </WrapSelectCon>
+    );
+  };
+  const onChangeSource = (newappId, worksheetId, worksheet) => {
+    const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
+    // 当前应用或其他应用下的工作表（一个工作表只能选择一次）
+    if (
+      ((_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map(o => o.workSheetId) || []).includes(worksheetId)
+    ) {
+      alert(_l('一个聚合表不能添加相同的数据源'), 3);
+      return;
+    }
+    const ids = (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map(o => o.workSheetId);
+    getWorksheets(
+      !isChange ? ids.concat(worksheetId) : [worksheetId],
+      null,
+      _.get(sourceDt, 'nodeConfig.config.sourceTables') || [],
+    );
 
-        {filters.length > 0 && !hideIds.includes(dataInfo.workSheetId) && (
-          <FilterItemTexts
-            className={'filterConByWorksheet mTop0'}
-            data={{}}
-            filters={filters}
-            loading={false}
-            globalSheetInfo={{
-              projectId,
-              appId,
-            }}
-            onClear={() => {
-              let newData = {
-                ...sourceDt,
-                nodeConfig: {
-                  ..._.get(sourceDt, 'nodeConfig'),
-                  config: {
-                    ..._.get(sourceDt, 'nodeConfig.config'),
-                    sourceTables: (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map(o => {
-                      if (o.workSheetId === dataInfo.workSheetId) {
-                        return {
-                          ...o,
-                          filterConfig: null,
-                        };
-                      } else {
-                        return o;
-                      }
-                    }),
-                  },
-                },
-              };
-              onChange(newData);
-            }}
-            controls={(props.sourceInfos.find(it => it.worksheetId === dataInfo.workSheetId) || {}).controls || []}
-            allControls={[]}
-            editFn={() => setState({ filterVisible: true, filterVisibleId: dataInfo.workSheetId })}
-          />
-        )}
-      </WrapWorksheet>
+    const wsInfo = {
+      dsType: 'MING_DAO_YUN',
+      icon: worksheet.icon || 'table',
+      iconUrl: worksheet.iconUrl || 'https://fp1.mingdaoyun.cn/customIcon/table.svg',
+      tableName: worksheet.workSheetName,
+      appId: newappId,
+      workSheetId: worksheetId,
+      filterConfig: null,
+    };
+    const updateSource = (flowData = props.flowData) => {
+      const sourceDt = getNodeInfo(flowData, 'DATASOURCE');
+      onChange(
+        [
+          updateConfig(sourceDt, {
+            sourceTables: !isChange
+              ? (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).concat(wsInfo)
+              : [wsInfo],
+          }),
+        ],
+        { flowData },
+      );
+    };
+    if (!_.get(props, 'flowData.id')) {
+      onChangeByInit(flowData => updateSource(flowData));
+    } else {
+      updateSource();
+    }
+  };
+  const renderSelectWorksheet = () => {
+    const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
+    const sourceTablesData = _.get(sourceDt, 'nodeConfig.config.sourceTables') || [];
+    return (
+      <SelectWorksheet
+        dialogClassName={'sheetSelectDialog'}
+        worksheetType={0}
+        projectId={projectId}
+        appId={appId}
+        filterIds={sourceTablesData.map(o => o.workSheetId)}
+        value={''} // 选中的工作表 id
+        onChange={onChangeSource}
+        dropdownElement={renderDropdownElement()}
+      />
     );
   };
   const renderFilterDialog = () => {
@@ -253,11 +290,53 @@ export default function SourceCon(props) {
     );
     const filters = _.get(dataInfo, 'filterConfig.items') || [];
     const sourceInfo = props.sourceInfos.find(it => it.worksheetId === filterVisibleId) || {};
-    const relateControls = sourceInfo.controls || [];
+    const relateControls = formatControls(sourceInfo.controls || []).filter(
+      control => !(control.type === 29 && control.enumDefault === 2), //排除关联多条
+    );
+
+    const onChangeWithFilterDialog = ({ filters }) => {
+      let items = filters.map(o => {
+        if (o.isGroup) {
+          return {
+            ...o,
+            groupFilters: o.groupFilters.map(it => {
+              return {
+                ...it,
+                fieldName: (relateControls.find(a => a.id === it.controlId && a.alias === it.name) || {}).name,
+              };
+            }),
+          };
+        } else {
+          return {
+            ...o,
+            fieldName: (relateControls.find(a => a.id === o.controlId && a.alias === o.name) || {}).name,
+          };
+        }
+      });
+      let newData = updateConfig(sourceDt, {
+        sourceTables: (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map(o => {
+          if (o.workSheetId === filterVisibleId) {
+            let param = {};
+            if (items.length > 0) {
+              param.filterConfig = {
+                items,
+              };
+            }
+            return {
+              ...o,
+              ...param,
+            };
+          } else {
+            return o;
+          }
+        }),
+      });
+      onChange([newData]);
+      setState({ filterVisible: false, filterVisibleId: '' });
+    };
 
     return (
       <FilterDialog
-        // allowEmpty
         data={{}}
         overlayClosable={false}
         relationControls={relateControls || []}
@@ -269,73 +348,17 @@ export default function SourceCon(props) {
           projectId,
           appId,
         }}
-        onChange={({ filters }) => {
-          let items = filters.map(o => {
-            if (o.isGroup) {
-              return {
-                ...o,
-                groupFilters: o.groupFilters.map(it => {
-                  return {
-                    ...it,
-                    fieldName: (relateControls.find(a => a.id === it.controlId && a.alias === it.name) || {}).name,
-                  };
-                }),
-              };
-            } else {
-              return {
-                ...o,
-                fieldName: (relateControls.find(a => a.id === o.controlId && a.alias === o.name) || {}).name,
-              };
-            }
-          });
-          let newData = {
-            ...sourceDt,
-            nodeConfig: {
-              ..._.get(sourceDt, 'nodeConfig'),
-              config: {
-                ..._.get(sourceDt, 'nodeConfig.config'),
-                sourceTables: (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map(o => {
-                  if (o.workSheetId === filterVisibleId) {
-                    return {
-                      ...o,
-                      filterConfig: {
-                        items,
-                      },
-                    };
-                  } else {
-                    return o;
-                  }
-                }),
-              },
-            },
-          };
-          onChange(newData);
-          setState({ filterVisible: false, filterVisibleId: '' });
-        }}
+        onChange={onChangeWithFilterDialog}
         onClose={() => setState({ filterVisible: false, filterVisibleId: '' })}
         hideSupport
         supportGroup
       />
     );
   };
-  const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
   return (
-    <React.Fragment>
-      {(_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length > 0
-        ? (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map((o, index) => {
-            return renderSelectWorksheet(o, false, null, index);
-          })
-        : renderSelectWorksheet()}
-      {(_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length > 0 &&
-        renderSelectWorksheet(
-          {},
-          true,
-          <div className="Hand Gray_75 ThemeHoverColor3 alignItemsCenter Bold flexRowCon">
-            <Icon icon="add" className="InlineBlock Font16" />
-            <span>{_l('工作表')}</span>
-          </div>,
-        )}
+    <WrapSource className={cx({ isTopChild: isChange })}>
+      {renderSelectWorksheet()}
       {renderFilterDialog()}
-    </React.Fragment>
+    </WrapSource>
   );
 }

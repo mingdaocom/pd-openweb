@@ -23,7 +23,7 @@ const Popup = styled.div`
 `;
 
 export default function FilterDrop(props) {
-  const { portal, setFilter } = props;
+  const { portal, setFilter, appId } = props;
   const { controls = [], filters = [] } = portal;
   const [show, setShow] = useState(false);
   return (
@@ -59,6 +59,7 @@ export default function FilterDrop(props) {
               onConditionsChange={conditions => {
                 setFilter(conditions);
               }}
+              appId={appId}
             />
           </Popup>
         }

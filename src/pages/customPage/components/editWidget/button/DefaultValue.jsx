@@ -14,7 +14,7 @@ const AddButton = styled.div`
   color: #2196f3;
   border-radius: 3px;
   padding: 8px 7px;
-  width: 108px;
+  width: max-content;
   cursor: pointer;
   border: 1px solid #dcdcdc;
   justify-content: center;

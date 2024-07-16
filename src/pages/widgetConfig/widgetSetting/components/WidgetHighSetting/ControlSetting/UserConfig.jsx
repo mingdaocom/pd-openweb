@@ -1,22 +1,24 @@
 /* eslint-disable no-new */
 import React, { Fragment, useState } from 'react';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
-import { Checkbox } from 'ming-ui';
 import update from 'immutability-helper';
-import Components from '../../../../components';
 import { dialogSelectOrgRole, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
 import { Dropdown, Tooltip } from 'antd';
-import { DropdownContent } from '../../../../styled';
+import { Dropdown as MingDropdown } from 'ming-ui';
+import { DropdownContent, SettingItem } from '../../../../styled';
 import { SelectOtherField, OtherField } from '../../DynamicDefaultValue/components';
 import { DefaultOptionSetting } from '../../DynamicDefaultValue/inputTypes/OptionInput';
 import { FieldInfo } from '../../DynamicDefaultValue/styled';
-import { isEqual } from 'lodash';
+import cx from 'classnames';
+import _ from 'lodash';
 
-const Icon = Components.Icon;
+const USER_RANGE_CONFIG = [
+  { text: _l('用户通讯录'), value: 0 },
+  { text: _l('组织通讯录'), value: 2 },
+  { text: _l('指定人员范围'), value: 1 },
+];
 
 const USER_RANGE = [
-  // { id: 'self', type: 1, value: 'user-self', text: _l('当前用户') },
-  { id: 'userGroup', type: 2, value: 'user-departments', text: _l('当前用户所在部门') },
   { id: 'assignUser', type: 1, value: '', text: _l('指定人员') },
   { id: 'assignGroup', type: 2, value: '', text: _l('指定部门') },
   { id: 'assignOrg', type: 3, value: '', text: _l('指定组织角色') },
@@ -24,19 +26,14 @@ const USER_RANGE = [
 
 export default function UserConfig(props) {
   const { globalSheetInfo, data, onChange } = props;
-  const { noticeItem, enumDefault2, enumDefault } = data;
-  const userRange = getAdvanceSetting(data, 'userrange') || [];
+  const { enumDefault2 = 0, enumDefault } = data;
+  const chooseRange = getAdvanceSetting(data, 'chooserange') || [];
   const userType = getAdvanceSetting(data, 'usertype');
   const [overlayVisible, setVisible] = useState(false);
+
   const handleClick = (item, e) => {
-    const isExist = obj => userRange.some(user => isEqual(user, obj));
     setVisible(false);
-    if (item.value) {
-      const obj = { value: item.value, type: item.type };
-      if (isExist(obj)) return;
-      const nextValue = userRange.concat([obj]);
-      onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }));
-    }
+
     if (item.id === 'assignGroup') {
       dialogSelectDept({
         projectId: globalSheetInfo.projectId,
@@ -45,20 +42,30 @@ export default function UserConfig(props) {
         showCreateBtn: false,
         selectFn: groupArr => {
           const availArr = groupArr
-            .map(item => ({ value: item.departmentId, name: item.departmentName, type: 2 }))
-            .filter(item => !isExist(item));
-          const nextValue = userRange.concat(availArr);
-          onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }));
+            .map(item => ({
+              rcid: '',
+              cid: '',
+              staticValue: JSON.stringify({ departmentId: item.departmentId, departmentName: item.departmentName }),
+              type: 2,
+            }))
+            .filter(item => existIndex(item) === -1);
+          const nextValue = chooseRange.concat(availArr);
+          onChange(handleAdvancedSettingChange(data, { chooserange: JSON.stringify(nextValue) }));
         },
       });
     }
     if (item.id === 'assignUser') {
       const handleUserChange = users => {
         const availUsers = users
-          .map(item => ({ value: item.accountId, avatar: item.avatar, name: item.fullname, type: 1 }))
-          .filter(item => !isExist(item));
-        const nextValue = userRange.concat(availUsers);
-        onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }));
+          .map(item => ({
+            rcid: '',
+            cid: '',
+            staticValue: JSON.stringify({ accountId: item.accountId, avatar: item.avatar, fullname: item.fullname }),
+            type: 1,
+          }))
+          .filter(item => existIndex(item) === -1);
+        const nextValue = chooseRange.concat(availUsers);
+        onChange(handleAdvancedSettingChange(data, { chooserange: JSON.stringify(nextValue) }));
       };
 
       dialogSelectUser({
@@ -81,52 +88,73 @@ export default function UserConfig(props) {
         unique: data.enumDefault === 0,
         onSave: orgArr => {
           const availArr = orgArr
-            .map(item => ({ value: item.organizeId, name: item.organizeName, type: 3 }))
-            .filter(item => !isExist(item));
-          const nextValue = userRange.concat(availArr);
-          onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }));
+            .map(item => ({
+              rcid: '',
+              cid: '',
+              staticValue: JSON.stringify({ organizeId: item.organizeId, organizeName: item.organizeName }),
+              type: 3,
+            }))
+            .filter(item => existIndex(item) === -1);
+          const nextValue = chooseRange.concat(availArr);
+          onChange(handleAdvancedSettingChange(data, { chooserange: JSON.stringify(nextValue) }));
         },
       });
     }
   };
 
   const handleFieldClick = selectData => {
-    const availUsers = selectData.map(item => (item.cid ? { ..._.pick(item, ['cid', 'rcid']), type: 4 } : item));
-    onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(availUsers) }));
+    let newValue = [].concat(chooseRange);
+    const availUsers = selectData.map(item => {
+      if (item.cid) {
+        return { ...item, type: 4 };
+      } else {
+        // 当前用户所在部门、当前用户type异化
+        const tempType = (item.staticValue || '').indexOf('user-self') > -1 ? 1 : 2;
+        return { ...item, type: tempType };
+      }
+    });
+    availUsers.map(item => {
+      if (existIndex(item) === -1) {
+        newValue.push(item);
+      }
+    });
+    newValue = newValue.filter(item => {
+      return item.cid
+        ? _.find(availUsers, a => _.isEqual(_.pick(a, ['rcid', 'cid', 'type']), _.pick(item, ['rcid', 'cid', 'type'])))
+        : true;
+    });
+    onChange(handleAdvancedSettingChange(data, { chooserange: JSON.stringify(newValue) }));
+  };
+
+  const getId = item => {
+    return item.type === 1 ? 'accountId' : item.type === 2 ? 'departmentId' : 'organizeId';
+  };
+
+  const existIndex = item =>
+    chooseRange.findIndex(user => {
+      if (item.cid) {
+        return _.isEqual(_.pick(item, ['rcid', 'cid', 'type']), _.pick(user, ['rcid', 'cid', 'type']));
+      } else {
+        const id = getId(item);
+        return _.get(safeParse(user.staticValue), [id]) === _.get(safeParse(item.staticValue), [id]);
+      }
+    });
+
+  const handleRemove = item => {
+    const index = existIndex(item);
+    if (index > -1) {
+      const nextValue = update(chooseRange, { $splice: [[index, 1]] });
+      onChange(handleAdvancedSettingChange(data, { chooserange: JSON.stringify(nextValue) }));
+    }
   };
 
   const getUserDisplay = item => {
-    const handleRemove = item => {
-      const index = userRange.findIndex(user => isEqual(item, user));
-      if (index > -1) {
-        const nextValue = update(userRange, { $splice: [[index, 1]] });
-        onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }));
-      }
-    };
-
-    let iconContent = null;
-
-    if (item.type === 2) {
-      iconContent = (
-        <div className="departWrap">
-          <i className="icon-department1"></i>
-        </div>
-      );
-    } else if (item.type === 1) {
-      iconContent = <img src={item.avatar} alt="avatar" className="avatar"></img>;
-    } else if (item.type === 3) {
-      iconContent = (
-        <div className="departWrap">
-          <i className="icon-group"></i>
-        </div>
-      );
-    }
+    const userInfo = safeParse(item.staticValue || '{}');
 
     return (
-      <FieldInfo>
-        {iconContent}
+      <FieldInfo hideIcon={true}>
         <div className="name">
-          {item.value === 'user-departments' ? _l('当前用户所在部门') : item.name || item.value}
+          {userInfo.departmentName || userInfo.organizeName || userInfo.fullname || userInfo.name || _l('已删除')}
         </div>
         <div
           className="remove"
@@ -144,99 +172,90 @@ export default function UserConfig(props) {
   return (
     <Fragment>
       {userType !== 2 && (
-        <Fragment>
-          <div className="labelWrap">
-            <Checkbox
-              className="checkboxWrap"
-              onClick={checked => {
-                const nextData = checked
-                  ? handleAdvancedSettingChange({ ...data, enumDefault2: Number(!checked) }, { userrange: '' })
-                  : {
-                      enumDefault2: Number(!checked),
-                    };
-                onChange(nextData);
-              }}
-              checked={enumDefault2 === 1}
-              text={_l('允许选择的人员')}
-              size="small"
-            />
+        <SettingItem>
+          <div className="settingItemTitle">
+            {_l('选择范围')}
             <Tooltip
               placement="bottom"
-              title={_l('使用部门作为范围时，允许选择的人员包含当前部门和所有子部门中的人员')}
+              title={_l(
+                '用户通讯录指当前操作人的通讯录；组织通讯录指当前组织的通讯录。此外，使用部门作为选择范围时，所设置部门及所有子部门中的人员可选；使用组织角色作为选择范围时，所设置角色下的所有人员可选。',
+              )}
             >
-              <Icon icon="help" />
+              <i className="icon-help Gray_9e Font16 Hand mLeft4"></i>
             </Tooltip>
           </div>
-          {enumDefault2 === 1 && (
-            <DefaultOptionSetting className="mTop8 mBottom8">
-              <div className="content">
-                <Dropdown
-                  trigger={['click']}
-                  visible={overlayVisible}
-                  onVisibleChange={setVisible}
-                  overlay={
-                    <DropdownContent>
-                      {USER_RANGE.map(item => (
-                        <div className="item" onClick={e => handleClick(item, e)}>
-                          {item.text}
-                        </div>
-                      ))}
-                    </DropdownContent>
-                  }
-                >
-                  <div className="defaultOptionsWrap">
-                    {userRange.length > 0 ? (
-                      <Fragment>
-                        {userRange.map(item => {
-                          if (item.type === 4) {
-                            return (
-                              <OtherField
-                                {...props}
-                                needFilter={true}
-                                dynamicValue={userRange}
-                                controls={props.allControls || []}
-                                data={{ ...props.data, enumDefault: 1 }}
-                                item={{ cid: item.cid, rcid: item.rcid }}
-                                onDynamicValueChange={nextValue =>
-                                  onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }))
-                                }
-                              />
-                            );
-                          }
-                          return getUserDisplay(item);
-                        })}
-                      </Fragment>
-                    ) : (
-                      <span className="Gray_75 mTop4">{_l('请选择')}</span>
-                    )}
-                  </div>
-                </Dropdown>
-              </div>
-              <SelectOtherField
-                {...props}
-                data={{ ...props.data, enumDefault: 1 }}
-                controls={props.allControls || []}
-                needFilter={true}
-                dynamicValue={userRange}
-                onDynamicValueChange={handleFieldClick}
-                propFiledVisible={true}
-                hideSearchAndFun={true}
-              />
-            </DefaultOptionSetting>
-          )}
-        </Fragment>
+
+          <MingDropdown
+            border
+            className="w100"
+            data={USER_RANGE_CONFIG}
+            value={enumDefault2}
+            onChange={value => {
+              const nextData =
+                value !== 1
+                  ? handleAdvancedSettingChange({ ...data, enumDefault2: value }, { chooserange: '' })
+                  : {
+                      enumDefault2: value,
+                    };
+              onChange(nextData);
+            }}
+          />
+
+          <DefaultOptionSetting className={cx('mTop8', { Hidden: enumDefault2 !== 1 })}>
+            <div className="content">
+              <Dropdown
+                trigger={['click']}
+                visible={overlayVisible}
+                onVisibleChange={setVisible}
+                overlay={
+                  <DropdownContent>
+                    {USER_RANGE.map(item => (
+                      <div className="item" onClick={e => handleClick(item, e)}>
+                        {item.text}
+                      </div>
+                    ))}
+                  </DropdownContent>
+                }
+              >
+                <div className="defaultOptionsWrap">
+                  {chooseRange.length > 0 ? (
+                    <Fragment>
+                      {chooseRange.map(item => {
+                        if (item.type === 4) {
+                          return (
+                            <OtherField
+                              {...props}
+                              dynamicValue={chooseRange}
+                              controls={props.allControls || []}
+                              data={{ ...props.data, enumDefault: 1 }}
+                              item={item}
+                              onDynamicValueChange={nextValue =>
+                                onChange(handleAdvancedSettingChange(data, { chooserange: JSON.stringify(nextValue) }))
+                              }
+                            />
+                          );
+                        }
+                        return getUserDisplay(item);
+                      })}
+                    </Fragment>
+                  ) : (
+                    <span className="Gray_75 mTop4">{_l('请选择')}</span>
+                  )}
+                </div>
+              </Dropdown>
+            </div>
+            <SelectOtherField
+              {...props}
+              data={{ ...props.data, enumDefault: 1 }}
+              controls={props.allControls || []}
+              fromRange={true}
+              dynamicValue={chooseRange}
+              onDynamicValueChange={handleFieldClick}
+              hideSearchAndFun={true}
+            />
+          </DefaultOptionSetting>
+        </SettingItem>
       )}
-      <div className="labelWrap">
-        <Checkbox
-          className="checkboxWrap"
-          onClick={checked => {
-            onChange({ noticeItem: Number(!checked) });
-          }}
-          checked={noticeItem === 1}
-          text={_l('加入时收到通知')}
-          size="small"
-        />
-      </div>
     </Fragment>
   );
 }

@@ -51,7 +51,6 @@ const CustomPageContentWrap = styled.div`
     .nameWrap {
       display: flex;
       align-items: center;
-      cursor: pointer;
       min-width: 0;
       .pageName {
         margin: 0 6px;
@@ -138,7 +137,7 @@ function CustomPageContent(props) {
     ids = {},
   } = props;
   const pageId = id;
-  const appName = getTranslateInfo(appPkg.id, appPkg.id).name || props.appName || apk.appName || '';
+  const appName = getTranslateInfo(appPkg.id, null, appPkg.id).name || props.appName || apk.appName || '';
   const ref = useRef(document.body);
   const [show, toggle] = useToggle(false);
 
@@ -154,7 +153,7 @@ function CustomPageContent(props) {
   const isMobile = browserIsMobile();
   const sheetList = [1, 3].includes(appPkg.currentPcNaviStyle) ? getAppSectionData(groupId) : props.sheetList;
   const currentSheet = findSheet(id, sheetList) || props.currentSheet || {};
-  const pageName = getTranslateInfo(appPkg.id, pageId).name || props.pageName || currentSheet.workSheetName || '';
+  const pageName = getTranslateInfo(appPkg.id, null, pageId).name || props.pageName || currentSheet.workSheetName || '';
   const { urlTemplate, configuration } = currentSheet;
 
   useEffect(() => {
@@ -261,7 +260,7 @@ function CustomPageContent(props) {
   return (
     <Fragment>
       <CustomPageContentWrap className={cx('CustomPageContentWrap flexColumn', className)}>
-        {(appName || pageName) && <DocumentTitle title={`${pageName} - ${appName}`} />}
+        {(appName || pageName) && <DocumentTitle title={`${pageName}${pageName && appName ? ' - ' : ''}${appName}`} />}
         {!loading && (
           <CustomPageHeader {...props} currentSheet={currentSheet} toggle={showFullscreen} resetPage={resetPage} />
         )}

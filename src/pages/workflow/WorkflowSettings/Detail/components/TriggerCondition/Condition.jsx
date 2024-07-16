@@ -38,6 +38,7 @@ export default class TriggerCondition extends Component {
     addConditions: PropTypes.func,
     filterEncryptCondition: PropTypes.bool,
     excludingDepartmentSpecialFilter: PropTypes.bool,
+    allowEmptyIgnore: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -56,6 +57,7 @@ export default class TriggerCondition extends Component {
     addConditions: () => {},
     filterEncryptCondition: false,
     excludingDepartmentSpecialFilter: false,
+    allowEmptyIgnore: true,
   };
 
   constructor(props) {
@@ -126,7 +128,7 @@ export default class TriggerCondition extends Component {
   renderTitle(item) {
     return (
       <Fragment>
-        <span className="Gray_9e mRight5">[{CONTROLS_NAME[item.type]}]</span>
+        <span className="Gray_75 mRight5">[{CONTROLS_NAME[item.type]}]</span>
         <Tooltip title={item.controlName ? null : `ID：${item.controlId}`}>
           <span style={{ color: item.controlName ? '#333' : '#f44336' }}>{item.controlName || _l('字段已删除')}</span>
         </Tooltip>
@@ -146,6 +148,7 @@ export default class TriggerCondition extends Component {
       isLast,
       filterEncryptCondition,
       excludingDepartmentSpecialFilter,
+      allowEmptyIgnore,
     } = this.props;
     let controlNumber;
     let conditionData = [];
@@ -244,7 +247,7 @@ export default class TriggerCondition extends Component {
               />
             )}
 
-          {item.conditionId && checkConditionAllowEmpty(item.filedTypeId, item.conditionId) && (
+          {allowEmptyIgnore && item.conditionId && checkConditionAllowEmpty(item.filedTypeId, item.conditionId) && (
             <Checkbox
               className="mLeft15"
               text={_l('值为空时忽略')}
@@ -304,7 +307,7 @@ export default class TriggerCondition extends Component {
             )}
           </div>
         ) : (
-          <div className="Font13 Gray_9e mTop15">{_l('且')}</div>
+          <div className="Font13 Gray_75 mTop15">{_l('且')}</div>
         )}
 
         {hasAnd && !hasOr && !openNewFilter && (
@@ -347,10 +350,10 @@ export default class TriggerCondition extends Component {
                     actualityValue={item.fromValue}
                   />
                 ) : (
-                  <div className="Gray_9e">{_l('请选择')}</div>
+                  <div className="Gray_75">{_l('请选择')}</div>
                 )}
               </span>
-              <i className="ming Icon icon-default icon icon-arrow-down-border mLeft8 Gray_9e" />
+              <i className="ming Icon icon-default icon icon-arrow-down-border mLeft8 Gray_75" />
             </div>
           </div>
         ) : (
@@ -532,7 +535,7 @@ export default class TriggerCondition extends Component {
               />
             )}
             {this.renderOtherFields(item, i, j)}
-            {controlNumber > 1 && <div className="Font13 mLeft10 Gray_9e LineHeight36">{_l('至')}</div>}
+            {controlNumber > 1 && <div className="Font13 mLeft10 Gray_75 LineHeight36">{_l('至')}</div>}
           </div>
 
           {controlNumber > 1 && (
@@ -666,7 +669,7 @@ export default class TriggerCondition extends Component {
                   border
                   renderTitle={
                     !conditionValues[0] || !conditionValues[0].type
-                      ? () => <span className="Gray_9e">{_l('请选择')}</span>
+                      ? () => <span className="Gray_75">{_l('请选择')}</span>
                       : () => <span>{DATE_LIST.find(o => o.value === conditionValues[0].type).text}</span>
                   }
                   onChange={type =>
@@ -697,7 +700,7 @@ export default class TriggerCondition extends Component {
                   {conditionValues[0] && conditionValues[0].value
                     ? moment(conditionValues[0].value).format(formatString)
                     : ''}
-                  <i className="icon-bellSchedule Font14 Gray_9e" />
+                  <i className="icon-bellSchedule Font14 Gray_75" />
                 </DateTime>
               </div>
             )}
@@ -725,12 +728,12 @@ export default class TriggerCondition extends Component {
                   {conditionValues[0] && conditionValues[0].value
                     ? moment(conditionValues[0].value).format(formatString)
                     : ''}
-                  <i className="icon-bellSchedule Font14 Gray_9e" />
+                  <i className="icon-bellSchedule Font14 Gray_75" />
                 </DateTime>
               </div>
             )}
             {this.renderOtherFields(item, i, j)}
-            {controlNumber > 1 && <div className="Font13 mLeft10 Gray_9e LineHeight36">{_l('至')}</div>}
+            {controlNumber > 1 && <div className="Font13 mLeft10 Gray_75 LineHeight36">{_l('至')}</div>}
           </div>
 
           {controlNumber > 1 && (
@@ -752,7 +755,7 @@ export default class TriggerCondition extends Component {
                     {conditionValues[1] && conditionValues[1].value
                       ? moment(conditionValues[1].value).format(formatString)
                       : ''}
-                    <i className="icon-bellSchedule Font14 Gray_9e" />
+                    <i className="icon-bellSchedule Font14 Gray_75" />
                   </DateTime>
                 </div>
               )}
@@ -932,7 +935,7 @@ export default class TriggerCondition extends Component {
                   showNow={false}
                   bordered={false}
                   allowClear={false}
-                  suffixIcon={<i className="icon-access_time Font14 Gray_9e" />}
+                  suffixIcon={<i className="icon-access_time Font14 Gray_75" />}
                   inputReadOnly
                   placeholder=""
                   format={timeFormat}
@@ -944,7 +947,7 @@ export default class TriggerCondition extends Component {
               </div>
             )}
             {this.renderOtherFields(item, i, j)}
-            {controlNumber > 1 && <div className="Font13 mLeft10 Gray_9e LineHeight36">{_l('至')}</div>}
+            {controlNumber > 1 && <div className="Font13 mLeft10 Gray_75 LineHeight36">{_l('至')}</div>}
           </div>
 
           {controlNumber > 1 && (
@@ -958,7 +961,7 @@ export default class TriggerCondition extends Component {
                     showNow={false}
                     bordered={false}
                     allowClear={false}
-                    suffixIcon={<i className="icon-access_time Font14 Gray_9e" />}
+                    suffixIcon={<i className="icon-access_time Font14 Gray_75" />}
                     inputReadOnly
                     placeholder=""
                     format={timeFormat}

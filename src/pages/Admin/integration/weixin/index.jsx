@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { LoadDiv, Dialog } from 'ming-ui';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import ClipboardButton from 'react-clipboard.js';
 import { Button, Input, Form, Modal } from 'antd';
 import projectAjax from 'src/api/project';
@@ -151,7 +151,9 @@ export default class WeiXin extends Component {
           $('.weixinFuncInfoDialog').parents('.mui-dialog-container').parents('div').remove();
         },
       };
-      ReactDom.render(
+      const root = createRoot(document.createElement('div'));
+
+      root.render(
         <Dialog {...options}>
           <ul>
             {AUTH_OPTIONS.map(item => {
@@ -163,7 +165,6 @@ export default class WeiXin extends Component {
             })}
           </ul>
         </Dialog>,
-        document.createElement('div'),
       );
     } else if (clickKey === 'unbind') {
       Dialog.confirm({

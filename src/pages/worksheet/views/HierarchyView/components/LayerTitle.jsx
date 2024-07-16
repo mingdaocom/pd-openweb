@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { string } from 'prop-types';
 import nzh from 'nzh';
 import { Input } from 'ming-ui';
@@ -6,6 +6,7 @@ import cx from 'classnames';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import update from 'immutability-helper';
+import SheetContext from 'worksheet/common/Sheet/SheetContext';
 import _ from 'lodash';
 
 const ItemTitle = styled.ul`
@@ -49,6 +50,7 @@ export default function LayerTitle({
 }) {
   const [activeIndex, setIndex] = useState(-1);
   const [{ titles }, setNames] = useSetState({ titles: layersName });
+  const context = useContext(SheetContext);
   return (
     <ItemTitle scale={scale} isStraightLine={isStraightLine}>
       {Array.from({ length: layerLength }).map((item, index) => {
@@ -83,7 +85,12 @@ export default function LayerTitle({
               <span
                 className={cx('overflow_ellipsis', value ? 'Gray_75 Bold' : 'Gray_bd Bold')}
                 onClick={() => {
-                  if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) return;
+                  if (
+                    _.get(context, 'config.fromEmbed') ||
+                    _.get(window, 'shareState.isPublicView') ||
+                    _.get(window, 'shareState.isPublicPage')
+                  )
+                    return;
                   setIndex(index);
                 }}
               >

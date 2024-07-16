@@ -28,6 +28,9 @@ export const NODE_TYPE = {
   APPROVAL_PROCESS: 26,
   NOTICE: 27,
   SNAPSHOT: 28,
+  LOOP: 29,
+  RETURN: 30,
+  AIGC: 31,
   SYSTEM: 100,
   FIND_SINGLE_MESSAGE: 1000,
   FIND_MORE_MESSAGE: 1001,
@@ -60,6 +63,8 @@ export const ACTION_ID = {
   SEND_EMAIL_SINGLE_DISPLAY: '201',
   SEND_EMAIL: '202',
   SEND_TEMPLATE_MESSAGE: '203',
+  CONDITION_LOOP: '210',
+  COUNT_LOOP: '211',
   FROM_WORKSHEET: '400',
   FROM_RECORD: '401',
   FROM_ADD: '402',
@@ -86,6 +91,8 @@ export const ACTION_ID = {
   BASIC_AUTH: '521',
   AUTH_CODE: '522',
   CREDENTIALS: '523',
+  AIGC_TEXT: '531',
+  AIGC_OBJECT: '532',
 };
 
 export const APP_TYPE = {
@@ -118,6 +125,8 @@ export const APP_TYPE = {
   API: 42,
   CALENDAR: 43,
   SNAPSHOT: 44,
+  LOOP_PROCESS: 45,
+  AIGC: 46,
   SYSTEM: 100,
   VARIABLE: 101,
   PROCESS: 102,
@@ -532,7 +541,8 @@ export const METHODS_TYPE = [
   { text: 'GET', value: 1 },
   { text: 'POST', value: 2 },
   { text: 'PUT', value: 3 },
-  { text: 'DELETE', value: 4 },
+  { text: 'DELETE', value: 4, disabled: true },
+  { text: 'DELETE', value: 14 },
   { text: 'HEAD', value: 5 },
   { text: 'PATCH', value: 6 },
 ];

@@ -1,8 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { isFunction } from 'lodash';
 
 export default function Abnormal(props) {
-  const { resultCode, entityName, empty } = props;
+  const { resultCode, entityName, empty, renderAbnormal } = props;
+  if (isFunction(renderAbnormal)) {
+    return <div className="abnormalCon flexColumn">{renderAbnormal()}</div>;
+  }
   return (
     <div className="abnormalCon flexColumn">
       <span className="statusIcon Icon icon icon-task-folder-message" />
@@ -25,4 +29,5 @@ Abnormal.propTypes = {
   resultCode: PropTypes.number,
   entityName: PropTypes.string,
   empty: PropTypes.bool,
+  renderAbnormal: PropTypes.func,
 };

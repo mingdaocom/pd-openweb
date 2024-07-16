@@ -135,7 +135,7 @@ export class FeesItem extends Component {
           <div className="feed-creator-avatar">
             <img src={user.userHead} />
           </div>
-          <div className="feed-creator-info">{user.userName}</div>
+          <div className="feed-creator-info flex ellipsis">{user.userName}</div>
         </div>
         <div className="feed-body">
           <div className="feed-content">{item.content}</div>

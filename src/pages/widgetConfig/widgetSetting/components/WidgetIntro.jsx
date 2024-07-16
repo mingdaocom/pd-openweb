@@ -12,12 +12,7 @@ import { Tooltip } from 'antd';
 import NoTitleControlDialog from './NoTitleControlDialog';
 import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
-
-const isLocalTest =
-  location.href.indexOf('localhost') > -1 ||
-  // location.href.indexOf('meihua') > -1 ||
-  location.href.indexOf('sandbox') > -1 ||
-  location.href.indexOf('web.dev') > -1;
+import { v4 as uuidv4 } from 'uuid';
 
 const DISPLAY_OPTIONS = [
   {
@@ -148,6 +143,17 @@ export default function WidgetIntro(props) {
       newData = handleAdvancedSettingChange(newData, { required: '1' });
     }
 
+    // 保存自定义事件
+    if (_.get(advancedSetting, 'custom_event')) {
+      const newCustomEvent = safeParse(_.get(advancedSetting, 'custom_event') || '[]').map(i => {
+        return {
+          ...i,
+          eventId: uuidv4(),
+        };
+      });
+      newData = handleAdvancedSettingChange(newData, { custom_event: JSON.stringify(newCustomEvent) });
+    }
+
     // 清空默认值
     newData = handleAdvancedSettingChange(newData, { dynamicsrc: '', defsource: '', defaultfunc: '', defaulttype: '' });
 
@@ -173,11 +179,9 @@ export default function WidgetIntro(props) {
     }
     // 多选转单选 需要将默认选中设为一个
     if (type === 10) {
-      const defaultChecked = JSON.parse(data.default || '[]');
       onChange({
-        ...handleAdvancedSettingChange(newData, { showtype: '1' }),
+        ...handleAdvancedSettingChange(data, { showtype: '1' }),
         type: 9,
-        default: JSON.stringify(defaultChecked.slice(0, 1)),
       });
       return;
     }
@@ -207,6 +211,9 @@ export default function WidgetIntro(props) {
               allowexport: '1',
             },
           });
+          if (mode === 4) {
+            setMode(1);
+          }
         },
       });
       return;
@@ -259,8 +266,16 @@ export default function WidgetIntro(props) {
         description: _l('将子表字段转为关联记录字段'),
         okText: _l('确定'),
         onOk: () => {
+          const sheetInfo = _.get(window, `subListSheetConfig.${data.controlId}.sheetInfo`);
+          window.subListSheetConfig[data.controlId] = {
+            loading: false,
+            sheetInfo: sheetInfo,
+            views: _.get(sheetInfo, 'views'),
+            controls: _.get(sheetInfo, 'template.controls'),
+          };
           onChange({
             ...handleAdvancedSettingChange(newData, { searchrange: '1', dynamicsrc: '', defaulttype: '' }),
+            ..._.pick(data, ['showControls']),
             type: 29,
           });
         },
@@ -339,17 +354,15 @@ export default function WidgetIntro(props) {
       </div>
 
       <div className="introOptions">
-        {DISPLAY_OPTIONS.filter(i => isLocalTest || i.value !== 4).map(item => {
+        {DISPLAY_OPTIONS.map(item => {
           if (!supportWidgetIntroOptions(data, item.value, from, isRecycle)) return null;
 
           return (
-            <div
-              className={cx('optionIcon', { active: mode === item.value })}
-              data-tip={item.text}
-              onClick={() => setMode(item.value)}
-            >
-              <Icon icon={item.icon} className="Font18" />
-            </div>
+            <Tooltip title={item.text} placement="bottom">
+              <div className={cx('optionIcon', { active: mode === item.value })} onClick={() => setMode(item.value)}>
+                <Icon icon={item.icon} className="Font18" />
+              </div>
+            </Tooltip>
           );
         })}
       </div>

@@ -5,9 +5,9 @@ import cx from 'classnames';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import _ from 'lodash';
-
+import RegExpValidator from 'src/util/expression';
 function getCoverControlData(data) {
-  return _.find(data, file => File.isPicture(file.ext) || file.previewUrl);
+  return _.find(data, file => RegExpValidator.fileIsPicture(file.ext) || file.previewUrl);
 }
 
 const SIZE = {
@@ -137,7 +137,7 @@ export default class RecordItem extends React.PureComponent {
           };
     let coverUrl;
     if (cover) {
-      coverUrl = File.isPicture(cover.ext)
+      coverUrl = RegExpValidator.fileIsPicture(cover.ext)
         ? cover.previewUrl.replace(/imageView2\/1\/w\/\d+\/h\/\d+/, `|imageView2/1/w/${coverSize}/h/${coverSize}`)
         : cover.previewUrl;
     }

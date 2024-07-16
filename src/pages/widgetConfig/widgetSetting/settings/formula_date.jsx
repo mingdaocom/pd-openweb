@@ -1,14 +1,18 @@
 import React, { useRef, useState, Fragment, useEffect } from 'react';
 import { Dropdown, TagTextarea } from 'ming-ui';
 import { Tooltip } from 'antd';
-import formulaComponents from '../components/formula';
-import components from '../components';
+import InputSuffix from '../components/formula/InputSuffix';
+import SwitchType from '../components/formula/SwitchType';
+import ToTodaySetting from '../components/formula/toTodaySetting';
+import DynamicSelectDateControl from '../components/DynamicSelectDateControl';
+import SelectControl from '../components/SelectControl';
+import PreSuffix from '../components/PreSuffix';
+import PointerConfig from '../components/PointerConfig';
 import { SettingItem, ControlTag } from '../../styled';
 import { getAdvanceSetting, getControlByControlId } from '../../util';
 import { getFormulaControls } from '../../util/data';
 import { parseDataSource, handleAdvancedSettingChange } from '../../util/setting';
-const { InputSuffix, SwitchType, ToTodaySetting } = formulaComponents;
-const { DynamicSelectDateControl, SelectControl, PreSuffix } = components;
+
 import _ from 'lodash';
 
 const CALC_TYPE = [
@@ -67,12 +71,26 @@ export default function FormulaDate(props) {
             />
           </SettingItem>
           <InputSuffix data={data} onChange={onChange} />
-          {_.includes(['3', '4', '5'], unit) && autocarry !== '1' && (
+          {autocarry !== '1' && (
             <SettingItem>
               <div className="settingItemTitle">{_l('单位')}</div>
               <PreSuffix data={data} onChange={onChange} />
             </SettingItem>
           )}
+          <PointerConfig
+            data={data}
+            onChange={value => {
+              if (value.advancedSetting) {
+                onChange(value);
+              } else {
+                let newVal = value || {};
+                if (!Number(value.dot)) {
+                  newVal.dotformat = '0';
+                }
+                onChange({ ...handleAdvancedSettingChange(data, newVal), ...value });
+              }
+            }}
+          />
         </Fragment>
       );
     }

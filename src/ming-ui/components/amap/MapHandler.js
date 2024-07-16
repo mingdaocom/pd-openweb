@@ -98,6 +98,8 @@ export default class MapHandler {
     const geolocation = new AMap.Geolocation({
       timeout: 10000, // 超过10秒后停止定位，默认：无穷大
       zoomToAccuracy: true, // 定位成功后调整地图视野范围使定位位置及精度范围视野内可见，默认：false
+      extensions: 'all',
+      needAddress: true, // 包含详细地址信息
     });
     geolocation.getCurrentPosition((status, result) => {
       if (status === 'error' && openCityPos) {
@@ -111,7 +113,7 @@ export default class MapHandler {
   getCurrentCityPos(callback) {
     const citySearch = new AMap.CitySearch();
 
-    citySearch.getLocalCity(function(status, result) {
+    citySearch.getLocalCity(function (status, result) {
       if (status === 'complete' && result.info === 'OK') {
         const rectangle = result.rectangle.split(/[,;]/);
 

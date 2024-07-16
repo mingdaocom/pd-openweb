@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Input } from 'antd';
 import { Dialog } from 'ming-ui';
 import cx from 'classnames';
@@ -60,20 +60,22 @@ class ErrorMsg extends Component {
 }
 
 export default function handleSetMsg(props) {
-  const $container = document.createElement('div');
-  document.body.appendChild($container);
+  const div = document.createElement('div');
+
+  document.body.appendChild(div);
+
+  const root = createRoot(div);
+
   function handleClose() {
-    const timer = setTimeout(() => {
-      const isHaveComponent = ReactDOM.unmountComponentAtNode($container);
-      if (isHaveComponent && $container.parentElement) {
-        $container.parentElement.removeChild($container);
-        clearTimeout(timer);
-        if (_.isFunction(props.onCancel)) {
-          props.onCancel();
-        }
-      }
-    }, 0);
+    root.unmount();
+    document.body.removeChild(div);
+
+    if (_.isFunction(props.onCancel)) {
+      props.onCancel();
+    }
   }
-  ReactDOM.render(<ErrorMsg onClose={handleClose} {...props} />, $container);
+
+  root.render(<ErrorMsg onClose={handleClose} {...props} />);
+
   return handleClose;
 }

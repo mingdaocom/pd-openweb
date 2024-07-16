@@ -1,10 +1,9 @@
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'src/pages/Role/PortalCon/redux/actions';
 import { Icon, Dialog } from 'ming-ui';
-import CSSTransitionGroup from 'react-addons-css-transition-group';
+import { Drawer } from 'antd';
 import styled from 'styled-components';
 import cx from 'classnames';
 import BaseSet from './BaseSet';
@@ -315,17 +314,20 @@ class PortalSetting extends React.Component {
       );
   };
   render() {
-    const { show, closeSet, getControls, appId } = this.props;
+    const { show, closeSet } = this.props;
     const { type, portalSet = {} } = this.state;
     const Component = TYPE_TO_COMP[type];
 
     return (
-      <CSSTransitionGroup
-        component={'div'}
-        transitionName={'roleSettingSlide'}
-        transitionAppearTimeout={500}
-        transitionEnterTimeout={500}
-        transitionLeaveTimeout={500}
+      <Drawer
+        width={640}
+        onClose={() => closeSet()}
+        zIndex={999}
+        mask={true}
+        placement="right"
+        visible={show}
+        maskClosable={true}
+        closable={false}
       >
         {show ? (
           <Wrap className={''}>
@@ -387,8 +389,8 @@ class PortalSetting extends React.Component {
                 }}
                 className={cx('saveBtn Hand', { disable: this.state.name === '' || this.state.saveLoading })}
                 onClick={() => {
-                  if(this.state.name === '' || this.state.saveLoading){
-                    return
+                  if (this.state.name === '' || this.state.saveLoading) {
+                    return;
                   }
                   this.editPortal();
                 }}
@@ -407,10 +409,9 @@ class PortalSetting extends React.Component {
                 {_l('关闭门户')}
               </span>
             </WrapCon>
-            <div className="cover"></div>
           </Wrap>
         ) : null}
-      </CSSTransitionGroup>
+      </Drawer>
     );
   }
 }

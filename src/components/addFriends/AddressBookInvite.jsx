@@ -61,7 +61,7 @@ export default class AddressBookInvite extends Component {
   };
 
   render() {
-    const { projectId } = this.props;
+    const { projectId, showInviteRules } = this.props;
     const { selectUsers, loading, showDialogSettingInviteRules } = this.state;
     return (
       <div className="addFriendsContent">
@@ -87,11 +87,14 @@ export default class AddressBookInvite extends Component {
 
         <div className="footContainer">
           <div className="addBox Gray_9e">
-            <span onClick={() => this.setState({ showDialogSettingInviteRules: true })}>
-              <Icon icon="settings1" />
-              {_l('邀请设置')}
-            </span>
+            {showInviteRules && (
+              <span onClick={() => this.setState({ showDialogSettingInviteRules: true })}>
+                <Icon icon="settings1" />
+                {_l('邀请设置')}
+              </span>
+            )}
           </div>
+
           <Button
             disabled={!selectUsers.length || loading}
             onClick={evt => {

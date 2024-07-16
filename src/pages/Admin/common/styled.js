@@ -208,6 +208,7 @@ export const AccountIdOperation = styled.ul`
   min-width: 120px;
   background-color: #fff;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
+  position: relative;
   input {
     /* display: none; */
   }

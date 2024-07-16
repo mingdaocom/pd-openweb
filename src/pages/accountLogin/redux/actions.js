@@ -6,6 +6,7 @@ import {
   getEmailOrTel,
   getDialCode,
   registerSuc,
+  checkReturnUrl,
 } from 'src/pages/accountLogin/util.js';
 import registerApi from 'src/api/register';
 import accountApi from 'src/api/account';
@@ -16,7 +17,7 @@ import { LoginResult } from 'src/pages/accountLogin/login/config.js';
 import { getDataByFilterXSS } from 'src/pages/accountLogin/util.js';
 import moment from 'moment';
 import { navigateTo } from 'src/router/navigateTo';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 
 let request = getRequest();
 
@@ -102,7 +103,7 @@ const isPasswordRule = str => {
   const { global = {} } = md;
   const { SysSettings = {} } = global;
   const { passwordRegexTip, passwordRegex } = SysSettings;
-  return RegExp.isPasswordValid(str, passwordRegex);
+  return RegExpValidator.isPasswordValid(str, passwordRegex);
 };
 
 // 验证input内容 手机 验证码 密码
@@ -196,12 +197,11 @@ export const isValid = (isForSendCode, keys = []) => {
           }
         }
       }
-    }
-
-    //发送验证码与注册 都需要勾选 使用条款 与 隐私条款
-    if (!hasCheckPrivacy && keys.includes('privacy')) {
-      warnningData.push({ tipDom: '.privacyText', warnningText: _l('请勾选同意后注册'), isError: true });
-      isRight = false;
+      //注册 需要勾选 使用条款 与 隐私条款
+      if (!hasCheckPrivacy && keys.includes('privacy')) {
+        warnningData.push({ tipDom: '.privacyText', warnningText: _l('请勾选同意后注册'), isError: true });
+        isRight = false;
+      }
     }
 
     dispatch(updateWarn(warnningData));
@@ -518,6 +518,7 @@ export const loginCallback = data => {
     const { projectId, loginMode, isNetwork } = data;
     const { accountInfo } = getState();
     const { emailOrTel, fullName, isCheck } = accountInfo;
+    const { loginGotoAppId } = md.global.SysSettings;
 
     //缓存这次登录的账号
     if (loginMode === 1) {
@@ -561,7 +562,10 @@ export const loginCallback = data => {
       setPssId(data.sessionId);
 
       if (request.ReturnUrl) {
+        checkReturnUrl(request.ReturnUrl);
         location.replace(getDataByFilterXSS(request.ReturnUrl));
+      } else if (loginGotoAppId) {
+        window.location.replace(`/app/${loginGotoAppId}`);
       } else {
         window.location.replace('/dashboard');
       }

@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
 import { getRequest, mdAppResponse } from 'src/util';
 import preall from 'src/common/preall';
@@ -26,8 +26,8 @@ class MobileChart extends React.Component {
     super(props);
     this.state = {
       loading: true,
-      filters: []
-    }
+      filters: [],
+    };
   }
   componentDidMount() {
     if (getFilters === 'true') {
@@ -35,12 +35,12 @@ class MobileChart extends React.Component {
         const { value } = data;
         this.setState({
           loading: false,
-          filters: _.isArray(value) && value.length ? value : []
+          filters: _.isArray(value) && value.length ? value : [],
         });
       });
     } else {
       this.setState({
-        loading: false
+        loading: false,
       });
     }
   }
@@ -60,12 +60,7 @@ class MobileChart extends React.Component {
           </Flex>
         ) : (
           <LayoutContent className="mobileAnalysis flexColumn">
-            <ChartContent
-              reportId={reportId}
-              accessToken={access_token}
-              dimensions={dimensions}
-              filters={filters}
-            />
+            <ChartContent reportId={reportId} accessToken={access_token} dimensions={dimensions} filters={filters} />
           </LayoutContent>
         )}
       </Provider>
@@ -74,5 +69,6 @@ class MobileChart extends React.Component {
 }
 
 const Comp = preall(MobileChart, { allowNotLogin: false });
+const root = createRoot(document.getElementById('mobileChart'));
 
-ReactDOM.render(<Comp />, document.querySelector('#mobileChart'));
+root.render(<Comp />);

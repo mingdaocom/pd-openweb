@@ -4,7 +4,7 @@ import { navigateTo } from 'router/navigateTo';
 import styled from 'styled-components';
 import DocumentTitle from 'react-document-title';
 import homeApp from 'src/api/homeApp';
-import { APP_CONFIGS } from 'src/pages/AppSettings/config';
+import { routerConfigs } from 'src/pages/AppSettings/routerConfig.js';
 import appManagementApi from 'src/api/appManagement';
 import { getTranslateInfo } from 'src/util';
 
@@ -44,7 +44,7 @@ export default function AppPkgSimpleHeader(props) {
     settings: _l('应用管理'),
   };
   const text = titleInfo[routerInfo] || '';
-  const currentSettingMenu = (_.find(APP_CONFIGS, v => v.type === navTab) || { text: _l('选项集') }).text;
+  const currentSettingMenu = (_.find(routerConfigs, v => v.type === navTab) || { text: _l('选项集') }).text;
 
   const getAppDetail = () => {
     homeApp.getApp({ appId, getLang: true }).then(appDetail => {
@@ -71,7 +71,7 @@ export default function AppPkgSimpleHeader(props) {
     getAppDetail();
   }, []);
 
-  const name = getTranslateInfo(appId, appId).name || appDetail.name;
+  const name = getTranslateInfo(appId, null, appId).name || appDetail.name;
 
   return (
     <HeaderWrap className="flexRow alignItemsCenter">
@@ -108,6 +108,7 @@ export default function AppPkgSimpleHeader(props) {
       </Tooltip>
 
       <div className="flex nativeTitle Font17 bold mLeft16">{text}</div>
+      <div className="mRight20">{_l('应用ID：%0', appId)}</div>
     </HeaderWrap>
   );
 }

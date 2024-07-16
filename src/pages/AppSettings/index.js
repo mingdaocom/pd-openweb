@@ -1,16 +1,17 @@
 import React, { Component, Fragment } from 'react';
+import Loadable from 'react-loadable';
 import { Icon, LoadDiv, UpgradeIcon, Tooltip } from 'ming-ui';
 import VerifyDel from 'src/pages/AppHomepage/components/VerifyDel';
 import homeAppApi from 'api/homeApp';
-import { APP_CONFIGS } from './config';
+import { routerConfigs } from './routerConfig';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum';
-import appConfigWidgets from './appConfigWidgets';
 import { getAppConfig } from './util';
 import { getFeatureStatus, buriedUpgradeVersionDialog, setFavicon, getTranslateInfo } from 'src/util';
 import cx from 'classnames';
 import './index.less';
 import { navigateTo } from 'src/router/navigateTo';
 import Beta from './components/Beta';
+import { upgradeVersionDialog } from 'src/util';
 
 function UpgradeCom({ projectId, featureId }) {
   return <Fragment>{buriedUpgradeVersionDialog(projectId, featureId, { dialogType: 'content' })}</Fragment>;
@@ -60,14 +61,14 @@ class AppSettings extends Component {
       .then(data => {
         setFavicon(data.iconUrl, data.iconColor);
         const { permissionType, id, isLock, isPassword, projectId } = data;
-        const list = getAppConfig(APP_CONFIGS, permissionType).filter(
+        const list = getAppConfig(routerConfigs, permissionType).filter(
           it => !it.featureId || getFeatureStatus(projectId, it.featureId),
         );
         if (!permissionType || (isLock && isPassword) || _.isEmpty(list)) {
           navigateTo(`/app/${id}`); // 普通角色、加锁应用、无应用管理中特性时跳至应用首页
           return;
         }
-        data.name = getTranslateInfo(id, id).name || data.name;
+        data.name = getTranslateInfo(id, null, id).name || data.name;
         this.setState({ data, loading: false }, this.getConfigList);
       })
       .catch(err => {
@@ -99,7 +100,7 @@ class AppSettings extends Component {
       ],
       permissionType,
     );
-    const configList = getAppConfig(APP_CONFIGS, permissionType)
+    const configList = getAppConfig(routerConfigs, permissionType)
       .filter(it => !it.featureId || getFeatureStatus(projectId, it.featureId))
       .filter(it => {
         if (it.type === 'lock') {
@@ -109,7 +110,7 @@ class AppSettings extends Component {
         return true;
       });
 
-    const type = localStorage.getItem('appManageMenu');
+    const type = _.get(this.props, 'match.params.navTab') || localStorage.getItem('appManageMenu');
     const hasMenu = _.includes(
       configList.map(v => v.type),
       type,
@@ -136,10 +137,17 @@ class AppSettings extends Component {
     const { id: appId, name, permissionType, projectId, fixed } = data;
     const featureId = (_.find(configList, it => it.type === currentConfigType) || {})['featureId'];
     const featureType = featureId && getFeatureStatus(projectId, featureId);
-    const Component =
-      featureType && featureType === '2' && !['variables', 'aggregation'].includes(currentConfigType)
-        ? UpgradeCom
-        : appConfigWidgets[currentConfigType] || appConfigWidgets['options'];
+
+    const currentComp =
+      _.get(
+        _.find(routerConfigs, menu => menu.type === currentConfigType),
+        'component',
+      ) || routerConfigs[0].component;
+
+    const Component = Loadable({
+      loader: currentComp,
+      loading: () => null,
+    });
 
     const componentProps = {
       ...this.props,
@@ -168,7 +176,7 @@ class AppSettings extends Component {
               const { type, icon, text } = item;
               return (
                 <Fragment>
-                  {_.includes(['publish', 'recyclebin'], type) && <div className="line"></div>}
+                  {_.includes(['publish', 'language', 'recyclebin'], type) && <div className="line"></div>}
                   <div
                     key={type}
                     className={cx(`configItem ${type}`, {
@@ -197,12 +205,12 @@ class AppSettings extends Component {
                       <Fragment>
                         <span className="flex">
                           {text}
-                          {['aggregation', 'relationship'].includes(type) && <Beta className="mRight15" />}
+                          {['aggregations', 'timezone'].includes(type) && <Beta className="mRight15" />}
                         </span>
                         {item.featureId &&
                           getFeatureStatus(projectId, item.featureId) === '2' &&
                           _.includes(
-                            ['backup', 'recyclebin', 'variables', 'language', 'upgrade', 'aggregation'],
+                            ['backup', 'recyclebin', 'variables', 'language', 'upgrade', 'aggregations'],
                             type,
                           ) && <UpgradeIcon />}
                       </Fragment>
@@ -226,7 +234,31 @@ class AppSettings extends Component {
           </div>
         </div>
         <div className={cx('manageAppRight flex flexColumn', currentConfigType)}>
-          {loading ? <LoadDiv /> : <Component {...componentProps} />}
+          {loading ? (
+            <LoadDiv />
+          ) : md.global.Config.IsLocal &&
+            !md.global.Config.EnableDataPipeline &&
+            'aggregations' === currentConfigType ? (
+            <div className="flexColumn alignItemsCenter justifyContentCenter h100">
+              {upgradeVersionDialog({
+                hint: md.global.Config.IsPlatformLocal ? (
+                  _l('数据集成服务未部署，暂不可用')
+                ) : (
+                  <span>
+                    {_l('数据集成服务未部署，请参考')}
+                    <a href="https://docs.pd.mingdao.com/faq/integrate/flink" target="_blank">
+                      {_l('帮助')}
+                    </a>
+                  </span>
+                ),
+                dialogType: 'content',
+              })}
+            </div>
+          ) : featureType && featureType === '2' && !['variables', 'aggregations'].includes(currentConfigType) ? (
+            <UpgradeCom projectId={projectId} featureId={featureId} />
+          ) : (
+            <Component {...componentProps} />
+          )}
         </div>
         {delAppConfirmVisible && (
           <VerifyDel

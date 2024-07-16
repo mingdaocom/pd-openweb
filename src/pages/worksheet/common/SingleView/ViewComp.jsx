@@ -25,8 +25,9 @@ const ViewCon = styled.div`
 `;
 
 function ViewComp(props) {
-  const { showHeader, showPageTitle, headerLeft, headerRight } = props;
+  const { forcePageSize, authRefreshTime, showHeader, showPageTitle, headerLeft, headerRight } = props;
   const {
+    config,
     worksheetInfo,
     views,
     viewId,
@@ -44,9 +45,12 @@ function ViewComp(props) {
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
   return (
     <Con className="SingleViewWrap">
-      {showPageTitle && worksheetInfo.name && <DocumentTitle title={`${worksheetInfo.name}${view.name ? ` - ${view.name}` : ''}`} />}
+      {showPageTitle && worksheetInfo.name && (
+        <DocumentTitle title={`${worksheetInfo.name}${view.name ? ` - ${view.name}` : ''}`} />
+      )}
       {showHeader && (
         <Header
+          forcePageSize={forcePageSize}
           maxCount={maxCount}
           worksheetInfo={worksheetInfo}
           view={view}
@@ -62,6 +66,7 @@ function ViewComp(props) {
           updateSearchRecord={updateSearchRecord}
           refreshSheet={refreshSheet}
           openNewRecord={openNewRecord}
+          fromEmbed={config.fromEmbed}
           updateFiltersWithView={value => updateFilters(value, view)}
         />
       )}
@@ -72,7 +77,9 @@ function ViewComp(props) {
           showControlIds={showControlIds}
           showAsSheetView={showAsSheetView}
           filtersGroup={filtersGroup}
+          authRefreshTime={authRefreshTime}
           config={{
+            ...config,
             hideColumnFilter: true,
           }}
         />
@@ -83,6 +90,7 @@ function ViewComp(props) {
 
 export default connect(
   state => ({
+    forcePageSize: state.sheet.base.forcePageSize,
     appId: state.sheet.base.appId,
     worksheetId: state.sheet.base.worksheetId,
     viewId: state.sheet.base.viewId,

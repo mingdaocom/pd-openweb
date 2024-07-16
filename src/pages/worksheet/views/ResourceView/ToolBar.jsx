@@ -9,7 +9,7 @@ const ToolBarWrap = styled.div`
   display: flex;
   align-items: center;
   position: absolute;
-  bottom: ${props => (!props.isM ? 32 : 20)}px;
+  bottom: 20px;
   left: ${props => (!props.isM ? 'auto' : '16px')};
   right: ${props => (!props.isM ? '20px' : 'auto')};
   height: 32px;

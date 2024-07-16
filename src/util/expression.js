@@ -1,43 +1,70 @@
+import { get } from 'lodash';
+const RegExpValidator = {};
+
 // 验证一个字符串是email
-RegExp.isEmail = function(str) {
+RegExpValidator.isEmail = function (str) {
   const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return pattern.test(str);
 };
 
 // 验证一个字符串是网址
-RegExp.isURL = function(str) {
+RegExpValidator.isURL = function (str) {
   const pattern = /^http(s)?:\/\/[A-Za-z0-9\-]+\.[A-Za-z0-9\-]+[\/=\?%\-&_~`@[\]:+!]*([^<>])*$/;
   return pattern.exec(str);
 };
 
-// 验证一个字符串是带区号手机号
-RegExp.isPhoneNumberWithAreaCode = function(str) {
-  const pattern = /^[+]?((\d){3,4}([ ]|[-]))?((\d){3,9})(([ ]|[-])(\d){1,12})?$/;
-  return pattern.exec(str);
-};
-
-// 验证一个字符串是手机号码
-RegExp.isPhoneNumber = function(str) {
-  const pattern = /^(1[3-9]{1})\d{9}$/;
-  return pattern.exec(str);
-};
-
 // 验证密码格式是否符合
-RegExp.isPasswordValid = function(str, passwordRegex) {
+RegExpValidator.isPasswordValid = function (str, passwordRegex) {
   const regex = passwordRegex ? new RegExp(passwordRegex) : /^(?=.*\d)(?=.*[a-zA-Z]).{8,20}$/;
   return regex.test(str);
 };
 
 // 判断是视频格式
-RegExp.isVideo = fileExt => {
+RegExpValidator.isVideo = fileExt => {
   return /.*?\.(mov|mp4|avi|mkv|3gp|3g2|m4v|rm|rmvb|webm)$/.test((fileExt || '').toLowerCase());
 };
 
 // 验证一个字符串是否是链接
-RegExp.isUrlRequest = url => {
+RegExpValidator.isUrlRequest = url => {
   if (/^data:|^chrome-extension:|^(https?:)?\/\/|^[\{\}\[\]#*;,'§\$%&\(=?`´\^°<>]/.test(url)) return true;
   if (/^\//.test(url)) return true;
   return false;
 };
 
-export default RegExp;
+/**
+ * 获取文件拓展名
+ * @param {string} fileName - 文件名
+ * @returns {string} - 文件扩展名
+ */
+RegExpValidator.getExtOfFileName = (fileName = '') => {
+  return get(String(fileName).match(/\.([0-9a-zA-Z]+)$/), '1') || '';
+};
+
+/**
+ * 获取文件名（不包含扩展名）
+ * @param {string} fileName - 文件名
+ * @returns {string} - 文件名（不包含扩展名）
+ */
+RegExpValidator.getNameOfFileName = (fileName = '') => {
+  return String(fileName).replace(/\.[0-9a-zA-Z]+$/, '');
+};
+
+/**
+ * 检查文件扩展名是否有效
+ * @param {string} fileExt - 文件扩展名
+ * @returns {boolean} - 文件扩展名是否有效
+ */
+RegExpValidator.validateFileExt = function (fileExt = '') {
+  return !/^\.(exe|vbs|bat|cmd|com|url)$/.test(String(fileExt).toLowerCase());
+};
+
+/**
+ * 检查文件扩展名是否有效
+ * @param {string} fileExt - 文件扩展名
+ * @returns {boolean} - 文件扩展名是否有效
+ */
+RegExpValidator.fileIsPicture = function (fileExt = '') {
+  return /^\.(jpg|gif|png|jpeg|bmp|webp|heic|heif|svg|tif|tiff)$/.test(String(fileExt).toLowerCase());
+};
+
+export default RegExpValidator;

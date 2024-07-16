@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { getClassNameByExt, formatFileSize, browserIsMobile } from 'src/util';
 import WorksheetRecordLogSelectTags from './WorksheetRecordLogSelectTags';
 import '../WorksheetRecordLogValue.less';
-
+import RegExpValidator from 'src/util/expression';
 function PicturePreview(props) {
   const { url, name, filesize, isPicture } = props;
   return (
@@ -60,7 +60,7 @@ function WorksheetRecordLogThumbnail(props) {
           key={`WorksheetRecordLogThumbnailItem-type-${type === 14 ? item.fileID : item.key}`}
           className={`WorksheetRecordLogThumbnailItem ${bgColor}`}
         >
-          {type === 42 || File.isPicture(item.ext) ? (
+          {type === 42 || RegExpValidator.fileIsPicture(item.ext) ? (
             <span className="itemImgCon">
               <img
                 className="itemImg"
@@ -105,7 +105,7 @@ function WorksheetRecordLogThumbnail(props) {
             )}
             name={type === 14 ? item.originalFilename + item.ext : _l('签名.jpg')}
             filesize={type === 14 ? item.filesize : undefined}
-            isPicture={type === 14 ? File.isPicture(item.ext) : true}
+            isPicture={type === 14 ? RegExpValidator.fileIsPicture(item.ext) : true}
           />
         }
       >
@@ -113,7 +113,7 @@ function WorksheetRecordLogThumbnail(props) {
           key={`WorksheetRecordLogThumbnailItem-type-${type === 14 ? item.fileID : item.key}`}
           className={`WorksheetRecordLogThumbnailItem ${bgColor}`}
         >
-          {type === 42 || File.isPicture(item.ext) ? (
+          {type === 42 || RegExpValidator.fileIsPicture(item.ext) ? (
             <span className="itemImgCon">
               <img
                 className="itemImg"

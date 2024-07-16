@@ -84,13 +84,13 @@ export default class AppImportUpgrade extends Component {
           title={_l('导入升级')}
           addBtnName={_l('导入升级')}
           description={_l('导入单个应用文件，实现对当前应用快速升级，升级中的应用将为不可用状态')}
-          link="https://help.mingdao.com/application/import-export"
+          link="https://help.mingdao.com/application/upgrade"
           handleAdd={this.clickImportUpgrade}
         />
         {!loading && !_.isEmpty(logList) ? (
           <LogsWrap>
             {logList.map(item => {
-              const { fileName, createTime, creater } = item;
+              const { fileName, createTime, creater = {} } = item;
               return (
                 <div className="logsItem">
                   <img className="avatar" src={creater.avatar} />

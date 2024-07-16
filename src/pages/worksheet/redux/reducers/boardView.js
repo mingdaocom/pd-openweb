@@ -267,6 +267,8 @@ export default function boardView(state = INIT_STATE, action) {
       };
     case 'UPDATE_MULTI_SELECT_BOARD':
       return { ...state, boardData: updateMultiSelectBoard(boardData, data) };
+    case 'CLEAR_BOARD_VIEW':
+      return { ...state, ...INIT_STATE, boardViewLoading: true };
     default:
       return state;
   }

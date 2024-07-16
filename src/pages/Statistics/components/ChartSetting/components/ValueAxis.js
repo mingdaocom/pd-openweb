@@ -27,7 +27,7 @@ export default class ValueAxis extends Component {
   renderOverlay() {
     const { valueAxis } = this.props;
     return (
-      <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />}>
+      <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />} subMenuOpenDelay={0.2}>
         {isNumberControl(valueAxis.controlType, false) && (
           <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
             {normTypes.filter(n => n.value !== 5).map(item => (

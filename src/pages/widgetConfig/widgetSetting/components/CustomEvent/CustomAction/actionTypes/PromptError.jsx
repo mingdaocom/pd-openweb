@@ -30,14 +30,20 @@ export default function PromptError(props) {
     return { icon, currentControl };
   };
 
+  const isDisabled = _.isEmpty(actionItems) || actionItems.some(a => _.isEmpty(safeParse(a.value)));
+
+  const filterErrorControls = getErrorControls(allControls);
+  const selectControls = filterErrorControls.filter(i => !_.find(actionItems, a => a.controlId === i.controlId));
+
   return (
     <Dialog
       width={560}
       visible={visible}
-      okDisabled={_.isEmpty(actionItems)}
+      okDisabled={isDisabled}
       className="SearchWorksheetDialog"
       title={_l('提示错误')}
       onCancel={() => setState({ visible: false })}
+      overlayClosable={false}
       onOk={() => {
         handleOk({ ...actionData, actionItems });
         setState({ visible: false });
@@ -103,7 +109,8 @@ export default function PromptError(props) {
         )}
         <AddFields
           handleClick={value => setState({ actionItems: actionItems.concat(value) })}
-          selectControls={getErrorControls(allControls)}
+          selectControls={selectControls}
+          disabled={!selectControls.length}
         />
       </CustomActionWrap>
     </Dialog>

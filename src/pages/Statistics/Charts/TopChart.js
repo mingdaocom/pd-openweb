@@ -5,7 +5,7 @@ import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors }
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import styled from 'styled-components';
 import cx from 'classnames';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import gold_medal from 'statistics/assets/topChart/gold_medal.png';
 import silver_medal from 'statistics/assets/topChart/silver_medal.png';
 import copper_medal from 'statistics/assets/topChart/copper_medal.png';
@@ -220,7 +220,7 @@ export default class extends Component {
       if (linkageMatch.value === data.originalX) {
         return color;
       } else {
-        return tinycolor(color).setAlpha(0.3).toRgbString();
+        return new TinyColor(color).setAlpha(0.3).toRgbString();
       }
     }
     return color;

@@ -173,6 +173,9 @@ export const SelectOtherFieldWrap = styled(FlexCenter)`
   color: #bdbdbd;
   &:hover {
     color: #2196f3;
+    i {
+      color: #2196f3;
+    }
   }
   i {
     font-size: 22px;
@@ -182,11 +185,15 @@ export const SelectOtherFieldWrap = styled(FlexCenter)`
 
 export const FieldInfo = styled(FlexCenter)`
   border-radius: 24px;
-  background-color: #e5e5e5;
+  background-color: rgba(0, 0, 0, 0.08);
   padding-right: 8px;
   font-size: 13px;
   line-height: 24px;
   margin: 5px 6px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  ${props => (props.hideIcon ? 'padding-left: 8px;' : '')}
   .departWrap {
     width: 24px;
     height: 24px;
@@ -194,9 +201,13 @@ export const FieldInfo = styled(FlexCenter)`
     color: #fff;
     border-radius: 12px;
     background-color: #aaa;
+    flex-shrink: 0;
   }
   .name {
     margin: 0 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .avatar {
     width: 24px;
@@ -222,7 +233,7 @@ export const OtherFieldList = styled(FlexCenter)`
   line-height: 32px;
   font-size: 14px;
   word-break: break-all;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   border-radius: 3px 0 0 3px;
   cursor: pointer;
   background: ${props => (props.isHaveUniqueField ? '#f8f8f8' : '#fff')};
@@ -244,7 +255,7 @@ export const OtherFieldList = styled(FlexCenter)`
 `;
 
 export const RelateControl = styled(FlexCenter)`
-  background: #f0f0f0;
+  background: rgba(0, 0, 0, 0.08);
   padding: 0 12px;
   height: 24px;
   border-radius: 12px;
@@ -254,6 +265,27 @@ export const RelateControl = styled(FlexCenter)`
   max-width: 100%;
   span {
     margin: 0 4px;
+  }
+`;
+
+export const OptionControl = styled(FlexCenter)`
+  &.option {
+    display: flex;
+    align-items: center;
+    height: 24px;
+    background: rgba(0, 0, 0, 0.08);
+    margin: 4px 6px 0 0;
+    padding: 0 10px;
+    border-radius: 12px;
+    &.isDeleted {
+      .text,
+      i {
+        color: #9e9e9e;
+      }
+    }
+    .text {
+      margin-right: 4px;
+    }
   }
 `;
 
@@ -309,6 +341,9 @@ export const SearchWorksheetWrap = styled.div`
       margin-right: 0 !important;
       font-weight: 700 !important;
     }
+  }
+  .searchRadio .ming.Radio {
+    line-height: 28px !important;
   }
   .mappingItem {
     display: flex;
@@ -372,7 +407,7 @@ export const SearchWorksheetWrap = styled.div`
     font-weight: bold;
     &:hover {
       color: #1780d3;
-      background: #f5f5f5;
+      background: #fafafa;
       border-radius: 3px;
     }
   }
@@ -517,22 +552,41 @@ export const WorksheetListWrap = styled.div`
     overflow-x: hidden;
     box-shadow: none !important;
     position: relative;
+    border-radius: unset;
   }
   .otherWorksheet {
     width: 100%;
-    line-height: 44px;
-    padding: 6px 16px 0 16px;
+    padding: 6px 0;
     box-sizing: border-box;
-    vertical-align: middle;
-    height: 45px;
     border-top: 1px solid #eaeaea;
     background: #ffffff;
     cursor: pointer;
     position: relative;
     z-index: 11;
-    &:hover {
-      color: #fff !important;
-      background-color: #1e88e5 !important;
+    .otherMenuItem {
+      padding: 0 16px;
+      line-height: 32px;
+      &:hover {
+        color: #fff !important;
+        background-color: #1e88e5 !important;
+      }
+    }
+  }
+`;
+
+export const DynamicTextWrap = styled.div`
+  display: contents;
+  & > div {
+    margin-top: 3px;
+    margin-bottom: 3px;
+  }
+  .dynamicText {
+    line-height: 30px;
+  }
+  .haveCloseIcon {
+    padding: 0 12px;
+    .icon-close {
+      display: none;
     }
   }
 `;

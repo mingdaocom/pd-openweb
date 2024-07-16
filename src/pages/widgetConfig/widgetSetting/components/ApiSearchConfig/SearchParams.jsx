@@ -44,9 +44,7 @@ export default function SearchParams(props) {
   const renderItem = item => {
     const isChild = item.dataSource;
     const mapItem = _.find(requestmap, i => i.id === item.controlId) || {};
-    const filterAllControls = (item.type === 27 ? allControls.filter(i => i.type === 27) : allControls).filter(
-      i => i.controlId !== data.controlId,
-    );
+    const filterAllControls = item.type === 27 ? allControls.filter(i => i.type === 27) : allControls;
     const isSearch = (data.type === 50 && data.enumDefault === 2) || data.type === 43;
     return (
       <div className={cx('childWrap', { isChild })}>
@@ -64,7 +62,7 @@ export default function SearchParams(props) {
         </div>
         <DynamicDefaultValue
           from={data.type === 43 ? 3 : 2} // 为了异化默认值其他字段配置
-          {..._.pick(props, ['globalSheetInfo', 'titleControl'])}
+          {..._.pick(props, ['globalSheetInfo', 'titleControl', 'fromCustomEventApi'])}
           allControls={filterAllControls}
           data={{
             ...handleAdvancedSettingChange(item, {
@@ -74,7 +72,7 @@ export default function SearchParams(props) {
             enumDefault: _.includes([26, 27], item.type) ? 1 : item.enumDefault,
             isSearch,
           }}
-          propFiledVisible={!isSearch}
+          propFiledVisible={_.includes([15, 16, 26], item.type) ? false : !isSearch}
           hideSearchAndFun={true}
           parentControl={getParentControl(item)}
           onChange={newData => {

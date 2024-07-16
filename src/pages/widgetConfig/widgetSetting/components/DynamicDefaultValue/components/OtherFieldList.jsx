@@ -73,7 +73,7 @@ export default ({
               try {
                 const value = getValue(item, type);
 
-                if (_.includes(['user-self'], _.get(value, 'accountId'))) {
+                if (_.includes(['user-self'], _.get(value, 'accountId')) && type !== 'user') {
                   return (
                     <OtherField
                       className="timeField"
@@ -87,16 +87,24 @@ export default ({
                 }
                 if (type === 'user') {
                   const { accountId, fullname, avatar, name } = value;
+
                   return (
                     <FieldInfo key={accountId}>
-                      <img
-                        className="avatar"
-                        src={
-                          _.includes(avatar, 'UserAvatar')
-                            ? avatar
-                            : `${md.global.FileStoreConfig.pictureHost}UserAvatar/${avatar}`
-                        }
-                      />
+                      {accountId === 'user-self' ? (
+                        <div className="departWrap">
+                          <i className="icon-account_circle"></i>
+                        </div>
+                      ) : (
+                        <img
+                          className="avatar"
+                          src={
+                            _.includes(avatar, 'UserAvatar')
+                              ? avatar
+                              : `${md.global.FileStoreConfig.pictureHost}UserAvatar/${avatar}`
+                          }
+                        />
+                      )}
+
                       <div className="name">{fullname || name}</div>
                       <div
                         className="remove"

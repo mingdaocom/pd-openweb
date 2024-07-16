@@ -278,4 +278,13 @@ export const getBarStyleColor = ({ value, controlMinAndMax = {}, rule }) => {
   return barStyle;
 }
 
-
+export const getLineSubTotal = (data, index) => {
+  let count = '';
+  for(let i = index; i < data.length; i++) {
+    if (data[i] && _.isString(data[i]) && data[i].includes('subTotal')) {
+      count = data[i];
+      break;
+    }
+  }
+  return count;
+}

@@ -1,4 +1,4 @@
-﻿import React, { Component, Fragment } from 'react';
+﻿import React, { Component, Fragment, createRef } from 'react';
 import ReactDOM from 'react-dom';
 import cx from 'classnames';
 import './style.less';
@@ -108,6 +108,7 @@ export default class GeneraSelect extends Component {
     });
 
     const href = location.href;
+    this.boxRef = createRef(null);
   }
 
   /** 已经选中的联系人 */
@@ -143,13 +144,14 @@ export default class GeneraSelect extends Component {
     const needUpdate =
       nextProps.commonSettings.projectId !== this.commonSettings.projectId ||
       nextProps.commonSettings.dataRange !== this.commonSettings.dataRange;
-    let state = this.receiveProps(nextProps);
 
-    this.setState(state, () => {
-      if (needUpdate) {
+    if (needUpdate) {
+      let state = this.receiveProps(nextProps);
+
+      this.setState(state, () => {
         this.defaultAction();
-      }
-    });
+      });
+    }
   }
 
   componentWillMount() {
@@ -169,6 +171,8 @@ export default class GeneraSelect extends Component {
       } else if (this.state.chooseType === ChooseType.RESIGNED) {
         page = this.state.haveMore;
       }
+
+      if (this.promiseObj) return;
 
       if (page) {
         this.setState(
@@ -238,7 +242,7 @@ export default class GeneraSelect extends Component {
 
   adjustViewport(direction, flattenResult) {
     const { currentIndex } = this.state;
-    const scrollViewEl = ReactDOM.findDOMNode(this.scrollView);
+    const scrollViewEl = this.boxRef.current.querySelector('.GSelect-container');
     const $scrollViewEl = $(scrollViewEl);
     const current = flattenResult[currentIndex] || {};
     const $currentEl = $(`#GSelect-User-${current.accountId}`);
@@ -471,6 +475,7 @@ export default class GeneraSelect extends Component {
           loading: false,
           isSearch: false,
         });
+        this.promiseObj = '';
       });
     }
   };
@@ -596,6 +601,7 @@ export default class GeneraSelect extends Component {
         loading: false,
         isSearch: false,
       });
+      this.promiseObj = '';
     });
   }
 
@@ -997,6 +1003,7 @@ export default class GeneraSelect extends Component {
             data,
           },
         });
+        this.promiseObj = '';
       });
     }
   }
@@ -1068,6 +1075,7 @@ export default class GeneraSelect extends Component {
           let list = req;
           selectAll(list);
         }
+        this.promiseObj = '';
       });
     } else {
       let list = group.users;
@@ -1204,7 +1212,7 @@ export default class GeneraSelect extends Component {
               onChange={this.toogleUserSelect}
               selectedUsers={this.selectedUsers}
               userSettings={this.userSettings}
-              projectId={this.commonSettings.projectId}
+              projectId={commonSettings.projectId}
               removeSelectedData={data => {
                 let selectedArr = [...this.state.selectedData];
                 this.setState({
@@ -1500,7 +1508,7 @@ export default class GeneraSelect extends Component {
     if (this.state.loading) {
       return <LoadDiv />;
     }
-    if (!this.state.mainData) {
+    if (!this.state.mainData && !this.state.loading) {
       return null;
     }
     if (
@@ -1518,7 +1526,7 @@ export default class GeneraSelect extends Component {
 
   render() {
     return (
-      <div className="GSelect-box">
+      <div className="GSelect-box" ref={this.boxRef}>
         <div className="GSelect-head">{this.renderHead()}</div>
         <ScrollView
           className="GSelect-container"

@@ -3,7 +3,7 @@ import React, { Fragment } from 'react';
 export default ({ dataKey, name, buttonName, onChange }) => {
   return (
     <Fragment>
-      <div className="Font13 Gray_9e mTop10">{buttonName}</div>
+      <div className="Font13 Gray_75 mTop10">{buttonName}</div>
       <div className="flexRow">
         <input
           type="text"

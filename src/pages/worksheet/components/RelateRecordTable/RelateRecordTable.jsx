@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useRef, useContext } from 'react';
+import React, { Fragment, useCallback, useEffect, useRef, useContext, useState } from 'react';
 import { Skeleton } from 'antd';
 import cx from 'classnames';
 import { connect } from 'react-redux';
@@ -12,6 +12,7 @@ import * as actions from './redux/action';
 import { get, isFunction, isUndefined, pick } from 'lodash';
 import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
+import { v4 } from 'uuid';
 
 const TableCon = styled.div`
   &.userSelectNone {
@@ -33,6 +34,7 @@ function RelateRecordTable(props) {
     control,
     records,
     useHeight,
+    onUpdateCell = () => {},
   } = props;
   const { updateWorksheetControls } = props;
   const { updateRecord, deleteRecords, refresh, updateBase, updateTableConfigByControl } = props;
@@ -50,6 +52,7 @@ function RelateRecordTable(props) {
   }
   const tableCache = useRef({});
   const tableConRef = useRef();
+  const [tableId] = useState(v4());
   const { width } = useContext(RecordFormContext) || {};
   const smallMode = width < 500;
   const handleOpenRecordInfo = useCallback(
@@ -71,6 +74,9 @@ function RelateRecordTable(props) {
           updateRecord(newRecord);
         },
         projectId: relateWorksheetInfo.projectId,
+        onClose: () => {
+          window.activeTableId = tableId;
+        },
         onDeleteSuccess: () => {
           if (!control.disabled && allowEdit && controlPermission.editable) {
             deleteRecords([recordId]);
@@ -138,6 +144,7 @@ function RelateRecordTable(props) {
           }}
           cache={tableCache}
           handleOpenRecordInfo={handleOpenRecordInfo}
+          updateWorksheetControls={updateWorksheetControls}
         />
       }
       <TableCon
@@ -148,10 +155,13 @@ function RelateRecordTable(props) {
         ref={tableConRef}
       >
         <TableComp
+          tableId={tableId}
+          control={control}
           useHeight={useHeight}
           handleOpenRecordInfo={handleOpenRecordInfo}
           updateWorksheetControls={updateWorksheetControls}
           cache={tableCache}
+          onUpdateCell={onUpdateCell}
         />
       </TableCon>
       {isSplit && <div style={{ height: 30 }} />}
@@ -174,6 +184,7 @@ RelateRecordTable.propTypes = {
   updateBase: func,
   refresh: func,
   updateTableConfigByControl: func,
+  onUpdateCell: func,
 };
 
 const mapStateToProps = state => ({

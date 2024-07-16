@@ -4,11 +4,11 @@ import { ScrollView, Icon, Input, Textarea, Dialog, LoadDiv, SvgIcon } from 'min
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import selectKnowledge from './SelectKnowledgeBase';
 import assistantApi from '../../../../api/assistant';
 import _ from 'lodash';
 import { formatFileSize } from 'src/util';
+import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 
 const Wrapper = styled.div`
   padding: 0 50px;

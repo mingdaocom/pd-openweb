@@ -12,7 +12,9 @@ import AddRecord from '../../HierarchyView/components/AddRecord';
 import { dealHierarchyData, getRelateDefaultValue } from '../../HierarchyView/util';
 import { ITEM_TYPE } from '../../HierarchyView/config';
 import CountTip from '../../HierarchyView/components/CountTip';
-import Components from '../../components';
+import RecordPortal from '../../components/RecordPortal';
+import EditableCard from '../../components/EditableCard';
+import EditingRecordItem from '../../components/EditingRecordItem';
 
 const OperationWrap = styled(FlexCenter)`
   position: absolute;
@@ -201,7 +203,7 @@ export default function DraggableRecord(props) {
         className={cx('dragDropRecordWrap', { highLight: rowId === searchRecordId })}
         style={STYLE}
       >
-        <Components.EditableCard
+        <EditableCard
           {...pick(props, ['viewParaOfRecord', 'sheetSwitchPermit', 'onUpdate', 'onDelete'])}
           data={{ ...recordData, rowId, rawRow: treeData[rowId], recordColorConfig: getRecordColorConfig(view) }}
           stateData={data}
@@ -221,8 +223,8 @@ export default function DraggableRecord(props) {
         />
       </div>
       {isEditTitle && (
-        <Components.RecordPortal closeEdit={closeEdit}>
-          <Components.EditingRecordItem
+        <RecordPortal closeEdit={closeEdit}>
+          <EditingRecordItem
             data={{ ...recordData, rowId }}
             stateData={data}
             currentView={view}
@@ -233,7 +235,7 @@ export default function DraggableRecord(props) {
             updateTitleData={updateTitleData}
             showNull={true}
           />
-        </Components.RecordPortal>
+        </RecordPortal>
       )}
       <OperationWrap onClick={e => e.stopPropagation()}>
         {normalDisplayedRecord.length > 0 && (

@@ -28,7 +28,7 @@ export default class App extends React.Component {
 
     return (
       <Provider store={store}>
-        <Root handleShowHeader={this.props.handleShowHeader} />
+        <Root handleShowHeader={this.props.handleShowHeader} authority={this.props.authority} />
       </Provider>
     );
   }

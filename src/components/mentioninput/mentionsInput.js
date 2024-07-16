@@ -736,38 +736,49 @@ Modified by Kenneth Auchenberg
         ].concat(recordAtdatas);
         return populateDropdown(query, responseData);
       }
+
+      let data = [];
+      if (!query) {
+        var additionalTerm = null;
+        if (settings.isAtAll) {
+          // @全体任务成员
+          additionalTerm = {
+            id: 'atAll',
+            fullname: AT_ALL_TEXT[settings.sourceType],
+          };
+        }
+        if (settings.isAtAll && settings.sourceType === SOURCE_TYPE.POST) {
+          additionalTerm = {
+            id: 'isCommentAtAll',
+            fullname: AT_ALL_TEXT[settings.sourceType],
+          };
+        }
+
+        if (additionalTerm) {
+          data = [
+            {
+              isAll: true,
+              avatarMiddle: '/staticfiles/images/atAllUser.png',
+              id: additionalTerm.id,
+              fullname: additionalTerm.fullname,
+              type: 'user',
+            },
+          ];
+        }
+        let responseInitData = { accounts: data };
+        if (recordAtdatas.length > 0 && settings.forReacordDiscussion) {
+          responseInitData.accounts = data.concat(recordAtdatas);
+        }
+        settings.forReacordDiscussion && populateDropdown(query, responseInitData);
+      }
+
       promiseObj = userAjax.getUsersByKeywords({
         search: settings.searchType,
         keywords: query,
       });
+
       promiseObj.then(function getUsersByKeywordsCb(responseData) {
         if (!query) {
-          var additionalTerm = null;
-          if (settings.isAtAll) {
-            // @全体任务成员
-            additionalTerm = {
-              id: 'atAll',
-              fullname: AT_ALL_TEXT[settings.sourceType],
-            };
-          }
-          if (settings.isAtAll && settings.sourceType === SOURCE_TYPE.POST) {
-            additionalTerm = {
-              id: 'isCommentAtAll',
-              fullname: AT_ALL_TEXT[settings.sourceType],
-            };
-          }
-          let data = [];
-          if (additionalTerm) {
-            data = [
-              {
-                isAll: true,
-                avatarMiddle: '/staticfiles/images/atAllUser.png',
-                id: additionalTerm.id,
-                fullname: additionalTerm.fullname,
-                type: 'user',
-              },
-            ];
-          }
           if (recordAtdatas.length > 0 && settings.forReacordDiscussion) {
             let ids = recordAtdatas.map(o => o.accountId);
             responseData.accounts = data.concat(recordAtdatas).concat(
@@ -787,6 +798,11 @@ Modified by Kenneth Auchenberg
           } else {
             responseData.accounts = data.concat(responseData.accounts);
           }
+          if (
+            settings.forReacordDiscussion &&
+            !$('.workSheetCommentBox .commentBox .mentions-autocomplete-list').html()
+          )
+            return;
         }
         populateDropdown(query, responseData);
       });

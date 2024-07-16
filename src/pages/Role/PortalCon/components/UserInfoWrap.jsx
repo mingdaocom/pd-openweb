@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import CustomFields from 'src/components/newCustomFields';
-import CSSTransitionGroup from 'react-addons-css-transition-group';
+import { Drawer } from 'antd';
 import cx from 'classnames';
 import Icon from 'ming-ui/components/Icon';
 
@@ -80,7 +80,7 @@ const UserInfoDialogWrap = styled.div`
   }
 `;
 export default function UserInfoWrap(props) {
-  const { setShow, title, onDel, currentData, renderCancel, okText, isPage, disable, width, showClose } = props;
+  const { setShow, title, onDel, currentData, renderCancel, okText, isPage, disable, width, showClose, show } = props;
   const customwidget = useRef(null);
   const [ids, setIds] = useState([]);
   const renderCon = () => {
@@ -165,14 +165,16 @@ export default function UserInfoWrap(props) {
     return renderCon();
   }
   return (
-    <CSSTransitionGroup
-      component={'div'}
-      transitionName={'thumbnailTransition'}
-      transitionAppearTimeout={500}
-      transitionEnterTimeout={500}
-      transitionLeaveTimeout={500}
+    <Drawer
+      width={640}
+      onClose={() => setShow(false)}
+      mask={true}
+      placement="right"
+      visible={show}
+      maskClosable={true}
+      closable={false}
     >
       {renderCon()}
-    </CSSTransitionGroup>
+    </Drawer>
   );
 }

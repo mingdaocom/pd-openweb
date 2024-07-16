@@ -5,6 +5,7 @@ import cx from 'classnames';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -13,10 +14,22 @@ export default class Widgets extends Component {
     onChange: PropTypes.func,
   };
 
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
+
   onChange = checked => {
     const value = checked ? '0' : '1';
     this.props.onChange(value);
   };
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   renderContent = () => {
     const { disabled, value, advancedSetting = {}, hint = '', switchSize } = this.props;

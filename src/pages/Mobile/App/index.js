@@ -196,7 +196,7 @@ class App extends Component {
               }}
             >
               <span className="Font15 Gray LineHeight40">
-                {getTranslateInfo(detail.id, item.workSheetId).name || item.workSheetName}
+                {getTranslateInfo(detail.id, null, item.workSheetId).name || item.workSheetName}
               </span>
             </Item>
           );
@@ -283,7 +283,7 @@ class App extends Component {
                         fill={detail.iconColor}
                         size={detail.gridDisplayMode === 1 && screenWidth <= 600 ? 26 : 30}
                       />
-                      <div className="name">{getTranslateInfo(detail.id, v.workSheetId).name || v.workSheetName}</div>
+                      <div className="name">{getTranslateInfo(detail.id, null, v.workSheetId).name || v.workSheetName}</div>
                     </div>
                   </div>
                 ))}
@@ -297,7 +297,7 @@ class App extends Component {
     const { appDetail } = this.props;
     const { id, appNaviStyle } = appDetail.detail;
     const { expandGroupKeys = [] } = this.state;
-    const name = getTranslateInfo(id, data.appSectionId).name || data.name;
+    const name = getTranslateInfo(id, null, data.appSectionId).name || data.name;
     if (level == 'level1') {
       return (
         <div className="accordionHeaderWrap appSectionHeader">
@@ -610,7 +610,7 @@ class App extends Component {
       return (
         <div className="h100">
           <CustomPage
-            pageTitle={getTranslateInfo(id, data.workSheetId).name || data.workSheetName}
+            pageTitle={getTranslateInfo(id, null, data.workSheetId).name || data.workSheetName}
             now={Date.now()}
             appNaviStyle={appNaviStyle}
             appSection={appSection}
@@ -680,7 +680,7 @@ class App extends Component {
           >
             {sheetList.map((item, index) => (
               <TabBar.Item
-                title={getTranslateInfo(detail.id, item.workSheetId).name || item.workSheetName}
+                title={getTranslateInfo(detail.id, null, item.workSheetId).name || item.workSheetName}
                 key={item.workSheetId}
                 icon={<SvgIcon url={item.iconUrl} fill="#757575" size={20} />}
                 selectedIcon={<SvgIcon url={item.iconUrl} fill={detail.iconColor} size={20} />}

@@ -10,6 +10,8 @@ import ViewKeyDialog from './ViewKey';
 import { getFeatureStatus, buriedUpgradeVersionDialog, upgradeVersionDialog, getCurrentProject } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const headerTitle = {
   index: _l('其他'),
@@ -51,6 +53,12 @@ const DATA_INFO = [
   //   description: _l('启用后，只有组织的应用管理员可以访问集成中心。关闭时，所有人都可以访问'),
   // },
 ];
+const AUTH_MAPPING = {
+  [DATA_INFO[0].key]: PERMISSION_ENUM.LDAP_LOGIN,
+  [DATA_INFO[1].key]: PERMISSION_ENUM.SSO_LOGIN,
+  [DATA_INFO[2].key]: PERMISSION_ENUM.PLATFORM_ACCOUNT_LOGIN,
+  [DATA_INFO[3].key]: PERMISSION_ENUM.OPEN_INTERFACE,
+};
 
 export default class OtherTool extends Component {
   constructor() {
@@ -82,13 +90,18 @@ export default class OtherTool extends Component {
       effectiveCustomName: 'LDAP',
       ssoCustomName: 'SSO',
       enabledMDLogin: false,
+      mustFullname: false,
+      mustDepartment: false,
+      mustJob: false,
+      mustWorkphone: false,
     };
   }
 
   componentDidMount() {
-    this.getSettings();
-    this.getSsoSettings();
-    this.getMDLoginSetting();
+    const { authority } = this.props;
+    hasPermission(authority, PERMISSION_ENUM.LDAP_LOGIN) && this.getSettings();
+    hasPermission(authority, PERMISSION_ENUM.SSO_LOGIN) && this.getSsoSettings();
+    hasPermission(authority, PERMISSION_ENUM.PLATFORM_ACCOUNT_LOGIN) && this.getMDLoginSetting();
   }
 
   getSettings() {
@@ -130,6 +143,10 @@ export default class OtherTool extends Component {
             loading: false,
             effectiveCustomName: data.name || 'LDAP',
             effectiveDefaultCustomName: data.name || 'LDAP',
+            mustFullname: data.mustFullname,
+            mustDepartment: data.mustDepartment,
+            mustJob: data.mustJob,
+            mustWorkphone: data.mustWorkphone,
           });
         }
       });
@@ -282,7 +299,7 @@ export default class OtherTool extends Component {
     this.setState({ DNGroupList: copyDNGroupList });
   };
 
-  renderCompType(key, compType = 'input') {
+  renderCompType(key, compType = 'input', inputDisabled, placeholder) {
     const { searchRange, DNGroupList = [], checkDnGroupEmpty } = this.state;
     switch (compType) {
       case 'select':
@@ -300,8 +317,10 @@ export default class OtherTool extends Component {
       case 'input':
         return (
           <Input
+            placeholder={inputDisabled ? '' : placeholder}
+            disabled={inputDisabled}
             className={`errorInput${key}`}
-            value={this.state[key]}
+            value={inputDisabled ? '' : this.state[key]}
             onChange={e => this.handleUpdateItem(e, key)}
             onFocus={this.clearError.bind(this, key)}
           />
@@ -389,22 +408,34 @@ export default class OtherTool extends Component {
   }
 
   renderFormCommon(list) {
-    const { searchRange } = this.state;
+    const { searchRange, initSyncInfo } = this.state;
+
     return (
       <Fragment>
         {list &&
-          list.map(({ label, key, compType, errorMsg, desc }) => {
+          list.map(({ label, key, compType, errorMsg, desc, showCheckbox, checkedField, placeholder }) => {
             if (key === 'domainPath' && searchRange !== 0) return;
             if (key === 'DNGroup' && searchRange !== 1) return;
             return (
               <div className="formItem" key={key}>
-                <div className="formLabel">
+                <div className={cx('formLabel', { flexRow: showCheckbox })}>
+                  {showCheckbox && (
+                    <Checkbox
+                      checked={this.state[checkedField]}
+                      onClick={checked =>
+                        this.setState({
+                          [checkedField]: !checked,
+                          [key]: checked ? initSyncInfo[key] : this.state[key],
+                        })
+                      }
+                    />
+                  )}
                   <span className={cx('TxtMiddle Red', errorMsg ? '' : 'hidden')}>*</span>
                   {label}
                 </div>
                 <div className="formRight">
                   <div className="formInput">
-                    {this.renderCompType(key, compType)}
+                    {this.renderCompType(key, compType, showCheckbox ? !this.state[checkedField] : false, placeholder)}
                     {desc === 'enableSSL' ? (
                       <Checkbox
                         text={_l('使用安全链接')}
@@ -460,6 +491,10 @@ export default class OtherTool extends Component {
       workphoneAttr,
       domainPath,
       DNGroupList = [],
+      mustFullname,
+      mustDepartment,
+      mustJob,
+      mustWorkphone,
     } = this.state;
     const dnGroupError = DNGroupList.every(it => !!it.dn && !!it.groupName);
     if (!noneError || (searchRange === 1 && dnGroupError)) {
@@ -494,6 +529,10 @@ export default class OtherTool extends Component {
           jobAttr,
           workphoneAttr,
           projectId: Config.projectId,
+          mustFullname,
+          mustDepartment,
+          mustJob,
+          mustWorkphone,
           ...extra,
         })
         .then(data => {
@@ -503,6 +542,12 @@ export default class OtherTool extends Component {
               saveDisabled: false,
               domainPath: searchRange === 0 ? this.state.domainPath : '',
               DNGroupList: searchRange === 1 ? DNGroupList : [{ dn: '', groupName: '' }],
+              initSyncInfo: {
+                fullnameAttr,
+                departmentAttr,
+                jobAttr,
+                workphoneAttr,
+              },
             });
           } else {
             alert(_l('连接失败，请确保系统能够正常访问您的服务器'), 2);
@@ -579,13 +624,14 @@ export default class OtherTool extends Component {
 
   renderIndex() {
     const { licenseType } = getCurrentProject(Config.projectId, true);
+    const { authority } = this.props;
 
     return (
       <Fragment>
         {DATA_INFO.map(item => {
           const { key, featureId, docLink, showSetting, description, showCustomName, label } = item;
           const featureType = getFeatureStatus(Config.projectId, featureId);
-          if (item.featureId && !featureType) return;
+          if ((item.featureId && !featureType) || !hasPermission(authority, AUTH_MAPPING[item.key]) || key== 'sso') return;
 
           return (
             <div className="toolItem">

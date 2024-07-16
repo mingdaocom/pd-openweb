@@ -2,7 +2,7 @@ import React, { createRef, useState, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import { Icon, Input } from 'ming-ui';
-import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle } from '@mdfe/react-sortable-hoc';
 import { PARAM_TYPES } from './config';
 import './index.less';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';

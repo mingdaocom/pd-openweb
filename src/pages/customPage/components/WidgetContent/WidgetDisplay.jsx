@@ -13,12 +13,12 @@ import MobileFilter from 'mobile/CustomPage/FilterContent';
 import MobileView from 'mobile/CustomPage/ViewContent';
 import AiDisplay from './AiDisplay';
 import { reportTypes } from 'statistics/Charts/common';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, getTranslateInfo } from 'src/util';
 
 const WidgetContent = styled.div`
   flex: 1;
   box-sizing: border-box;
-  padding: 15px 16px;
+  padding: 12px;
   background-color: #fff;
   height: 100%;
   &.button {
@@ -67,10 +67,28 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
         />
       );
     }
-    if (componentType === 'richText')
-      return <RichText data={value || ''} className={'mdEditorContent'} disabled={true} backGroundColor={'#fff'} />;
+    if (componentType === 'richText') {
+      const translateInfo = getTranslateInfo(ids.appId, null, widget.id);
+      return (
+        <RichText
+          data={translateInfo.description || value || ''}
+          className={'mdEditorContent'}
+          disabled={true}
+          backGroundColor={'#fff'}
+        />
+      );
+    }
     if (componentType === 'button') {
-      return <ButtonList editable={editable} button={button} ids={ids} layoutType={layoutType} {...rest} />;
+      return (
+        <ButtonList
+          editable={editable}
+          button={button}
+          ids={ids}
+          layoutType={layoutType}
+          widget={widget}
+          {...rest}
+        />
+      );
     }
     if (componentType === 'analysis') {
       return (
@@ -111,7 +129,13 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
             layoutType={layoutType}
             className={cx({ disableSingleView: editable })}
             appId={ids.appId}
-            setting={widget}
+            setting={{
+              ...widget,
+              config: {
+                ...widget.config,
+                refresh: _.get(rest.config, 'refresh')
+              }
+            }}
           />
         )
       );

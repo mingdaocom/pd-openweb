@@ -289,6 +289,7 @@ export default function Item(props) {
                   showEdit: false,
                 });
               }}
+              customNodeName={props.title}
               isIntegration
               updateNodeData={data => {
                 // getCardInfo();

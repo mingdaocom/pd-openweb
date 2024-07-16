@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dialog, Checkbox, Dropdown, Icon } from 'ming-ui';
+import { ScrollView, LoadDiv, Dialog, Checkbox, Dropdown, Icon, Radio } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import {
   DetailHeader,
@@ -157,10 +157,6 @@ export default class ApprovalProcess extends Component {
    */
   renderContent() {
     const { data, showSelectUserDialog, cacheKey, isCorrect } = this.state;
-    const InitiatorAction = [
-      { text: _l('允许发起人撤回'), key: 'allowRevoke' },
-      { text: _l('允许发起人催办'), key: 'allowUrge' },
-    ];
 
     return (
       <Fragment>
@@ -204,23 +200,6 @@ export default class ApprovalProcess extends Component {
               </div>
             )}
 
-            <div className="Font13 mTop20 bold">{_l('发起人操作')}</div>
-            {InitiatorAction.map((item, i) => (
-              <Fragment key={i}>
-                <Checkbox
-                  className="mTop15 flexRow"
-                  text={item.text}
-                  checked={data.processConfig[item.key]}
-                  onClick={checked =>
-                    this.updateSource({
-                      processConfig: Object.assign({}, data.processConfig, { [item.key]: !checked }),
-                    })
-                  }
-                />
-                {item.key === 'allowRevoke' && data.processConfig.allowRevoke && this.renderRevokeNode()}
-              </Fragment>
-            ))}
-
             <ApprovalProcessSettings
               {...this.props}
               cacheKey={cacheKey}
@@ -257,74 +236,6 @@ export default class ApprovalProcess extends Component {
       this.getNodeDetail(this.props, { sId: selectNodeId });
     }
   };
-
-  /**
-   * 渲染撤回节点
-   */
-  renderRevokeNode() {
-    const { data } = this.state;
-    const { revokeFlowNodes, revokeNodeIds } = data.processConfig;
-    const list = revokeFlowNodes.map(item => {
-      return {
-        text: item.name,
-        value: item.id,
-        disabled: _.includes(revokeNodeIds, item.id),
-      };
-    });
-
-    return (
-      <div className="mTop10 mLeft25 flexRow" style={{ alignItems: 'center' }}>
-        <div>{_l('节点')}</div>
-        <Dropdown
-          className="mLeft10 flex flowDropdown flowDropdownMoreSelect"
-          menuStyle={{ width: '100%' }}
-          data={list}
-          value={revokeNodeIds.length || undefined}
-          border
-          openSearch
-          renderTitle={() =>
-            !!revokeNodeIds.length && (
-              <ul className="tagWrap">
-                {revokeNodeIds.map(id => {
-                  const item = _.find(revokeFlowNodes, item => item.id === id);
-
-                  return (
-                    <li key={id} className={cx('tagItem flexRow', { error: !item })}>
-                      <Tooltip title={item ? null : `ID：${id}`}>
-                        <span className="tag">{item ? item.name : _l('节点已删除')}</span>
-                      </Tooltip>
-                      <span
-                        className="delTag"
-                        onClick={e => {
-                          e.stopPropagation();
-                          const ids = [].concat(revokeNodeIds);
-                          _.remove(ids, item => item === id);
-
-                          this.updateSource({
-                            processConfig: Object.assign({}, data.processConfig, { revokeNodeIds: ids }),
-                          });
-                        }}
-                      >
-                        <Icon icon="close" className="pointer" />
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            )
-          }
-          onChange={revokeNodeId =>
-            this.updateSource({
-              processConfig: Object.assign({}, data.processConfig, {
-                revokeNodeIds: revokeNodeIds.concat(revokeNodeId),
-              }),
-            })
-          }
-        />
-        <div className="mLeft10">{_l('通过后不允许撤回')}</div>
-      </div>
-    );
-  }
 
   render() {
     const { data } = this.state;

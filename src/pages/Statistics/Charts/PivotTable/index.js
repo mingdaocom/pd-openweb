@@ -7,16 +7,25 @@ import { Icon } from 'ming-ui';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { browserIsMobile, getClassNameByExt } from 'src/util';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { uniqMerge, mergeTableCell, mergeColumnsCell, mergeLinesCell, getColumnName, renderValue, getControlMinAndMax, getBarStyleColor } from './util';
+import {
+  uniqMerge,
+  mergeTableCell,
+  mergeColumnsCell,
+  mergeLinesCell,
+  getColumnName,
+  renderValue,
+  getControlMinAndMax,
+  getBarStyleColor,
+  getLineSubTotal,
+} from './util';
 import PivotTableContent from './styled';
 import { isLightColor } from 'src/pages/customPage/util';
 import _ from 'lodash';
 const isMobile = browserIsMobile();
 const isPrintPivotTable = location.href.includes('printPivotTable');
-
 import { generate } from '@ant-design/colors';
-import tinycolor from '@ctrl/tinycolor';
-
+import { TinyColor } from '@ctrl/tinycolor';
+import RegExpValidator from 'src/util/expression';
 export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, sourceType, linkageMatch = {} }) => {
   const data = _.clone(pivotTableStyle);
   const { columnBgColor, lineBgColor } = data;
@@ -67,15 +76,15 @@ export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, so
   }
   // if (!_.isEmpty(linkageMatch)) {
   //   const { columnBgColor, lineBgColor } = data;
-  //   const lowAlphaColumnBgColor = tinycolor(columnBgColor).setAlpha(0.3).toRgbString();
-  //   const lowAlphaLineBgColor = tinycolor(lineBgColor).setAlpha(0.3).toRgbString();
+  //   const lowAlphaColumnBgColor = new TinyColor(columnBgColor).setAlpha(0.3).toRgbString();
+  //   const lowAlphaLineBgColor = new TinyColor(lineBgColor).setAlpha(0.3).toRgbString();
   //   data.originalColumnBgColor = columnBgColor;
   //   data.originalLineBgColor = lineBgColor;
   //   data.columnBgColor = lowAlphaColumnBgColor;
   //   data.lineBgColor = lowAlphaLineBgColor;
   // }
   return data;
-}
+};
 
 @errorBoundary
 export default class extends Component {
@@ -89,8 +98,8 @@ export default class extends Component {
       dropdownVisible: false,
       offset: {},
       match: null,
-      linkageMatch: null
-    }
+      linkageMatch: null,
+    };
     this.$ref = createRef(null);
   }
   componentWillReceiveProps(nextProps) {
@@ -111,15 +120,15 @@ export default class extends Component {
       pivotTableLineFreezeIndex,
       mobilePivotTableLineFreeze,
       mobilePivotTableLineFreezeIndex,
-      paginationVisible
+      paginationVisible,
     } = style || {};
     const freeze = isMobile ? mobilePivotTableLineFreeze : pivotTableLineFreeze;
     const freezeIndex = isMobile ? mobilePivotTableLineFreezeIndex : pivotTableLineFreezeIndex;
     const config = {
       pageSize: paginationVisible ? this.state.pageSize : 0,
       freeze,
-      freezeIndex
-    }
+      freezeIndex,
+    };
     return mergeLinesCell(data.x, lines, valueMap, config);
   }
   get scrollTableBody() {
@@ -138,30 +147,31 @@ export default class extends Component {
     const { scrollTableBody } = this;
     const scrollLeft = scrollTableBody ? scrollTableBody.scrollLeft : 0;
     const startClientX = event.clientX;
-    const startDragValue = ((index ? target.parentElement.offsetLeft - 1 : 0) + target.parentElement.clientWidth) - (index ? scrollLeft : 0);
+    const startDragValue =
+      (index ? target.parentElement.offsetLeft - 1 : 0) + target.parentElement.clientWidth - (index ? scrollLeft : 0);
     this.setState({
-      dragValue: startDragValue
+      dragValue: startDragValue,
     });
     document.onmousemove = event => {
       const x = event.clientX - startClientX;
       const width = target.parentElement.clientWidth + x;
       if (width >= 80) {
         this.setState({
-          dragValue: startDragValue + x
+          dragValue: startDragValue + x,
         });
       }
-    }
-    document.onmouseup = (event) => {
+    };
+    document.onmouseup = event => {
       const x = event.clientX - startClientX;
       const width = target.parentElement.clientWidth + x;
       this.setColumnWidth(index, width >= 80 ? width : 80);
       this.setState({
-        dragValue: 0
+        dragValue: 0,
       });
       document.onmousemove = null;
       document.onmouseup = null;
-    }
-  }
+    };
+  };
   getColumnWidthConfig = () => {
     const { settingVisible, reportData } = this.props;
     const { reportId, style } = reportData;
@@ -172,7 +182,7 @@ export default class extends Component {
     } else {
       return pivotTableColumnWidthConfig;
     }
-  }
+  };
   setColumnWidth = (index, width) => {
     const { settingVisible, reportData, onChangeCurrentReport } = this.props;
     const { reportId } = reportData;
@@ -181,23 +191,29 @@ export default class extends Component {
     const data = JSON.parse(sessionStorage.getItem(key)) || {};
     const config = {
       ...data,
-      [index]: width
+      [index]: width,
     };
     if (settingVisible) {
       onChangeCurrentReport({
         style: {
           ...style,
-          pivotTableColumnWidthConfig: config
-        }
+          pivotTableColumnWidthConfig: config,
+        },
       });
-    };
+    }
     sessionStorage.setItem(key, JSON.stringify(config));
-  }
-  getColumnWidth = (index) => {
+  };
+  getColumnWidth = index => {
     const { data, lines, reportId, style } = this.props.reportData;
     const config = this.getColumnWidthConfig();
     const width = config[index];
-    const { pivotTableUnilineShow, pivotTableColumnFreeze, pivotTableLineFreeze, pcWidthModel = 1, mobileWidthModel = 1 } = style || {};
+    const {
+      pivotTableUnilineShow,
+      pivotTableColumnFreeze,
+      pivotTableLineFreeze,
+      pcWidthModel = 1,
+      mobileWidthModel = 1,
+    } = style || {};
     const widthModel = isMobile ? mobileWidthModel : pcWidthModel;
 
     if (widthModel === 3) {
@@ -213,29 +229,34 @@ export default class extends Component {
         return 130;
       } else if (!_.isEmpty(config)) {
         const parent = this.getParentNode();
-        const parentWidth = parent.clientWidth - 2;
+        const parentWidth = parent ? parent.clientWidth - 2 : 0;
         // const configKeys = Object.keys(config);
         // const occupyWidth = configKeys.map(key => config[key]).reduce((count, item) => item + count, 0);
-        const columnCount = (data.data.length + lines.length);
+        const columnCount = data.data.length + lines.length;
         const width = parentWidth / columnCount;
         return width < 80 ? 80 : width;
       } else {
         return pivotTableUnilineShow ? 130 : undefined;
       }
     }
-  }
+  };
   handleClick = ({ event, index, record }) => {
-    const { columns, lines, data, appId, reportId, name, reportType, displaySetup, style, valueMap } = this.props.reportData;
+    const { columns, lines, data, appId, reportId, name, reportType, displaySetup, style, valueMap } =
+      this.props.reportData;
     const param = {};
     const linkageMatch = {
       sheetId: appId,
       reportId,
       reportName: name,
       reportType,
-      filters: []
+      filters: [],
     };
     this.isViewOriginalData = displaySetup.showRowList && this.props.isViewOriginalData && !isPrintPivotTable;
-    this.isLinkageData = this.props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && !isPrintPivotTable && (columns.length || lines.length);
+    this.isLinkageData =
+      this.props.isLinkageData &&
+      !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) &&
+      !isPrintPivotTable &&
+      (columns.length || lines.length);
     data.x.forEach(item => {
       const key = _.findKey(item);
       const control = _.find(lines, { cid: key }) || {};
@@ -251,7 +272,7 @@ export default class extends Component {
         controlName,
         controlValue: controlType === 29 ? _l('关联表') : controlValue || '--',
         type: controlType,
-        control
+        control,
       });
     });
     columns.forEach((item, i) => {
@@ -266,7 +287,7 @@ export default class extends Component {
         controlName: item.controlName,
         controlValue: controlValue || '--',
         type: item.controlType,
-        control: item
+        control: item,
       });
     });
     if (_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length) {
@@ -274,42 +295,45 @@ export default class extends Component {
     }
     const isAll = this.isViewOriginalData && this.isLinkageData;
     const { x, y } = this.getParentNode().getBoundingClientRect();
-    this.setState({
-      dropdownVisible: isAll,
-      offset: {
-        x: event.pageX - x + 20,
-        y: event.pageY - y
+    this.setState(
+      {
+        dropdownVisible: isAll,
+        offset: {
+          x: event.pageX - x + 20,
+          y: event.pageY - y,
+        },
+        match: param,
+        linkageMatch,
       },
-      match: param,
-      linkageMatch
-    }, () => {
-      if (!isAll && this.isViewOriginalData) {
-        this.handleRequestOriginalData();
-      }
-      if (!isAll && this.isLinkageData) {
-        this.handleAutoLinkage();
-      }
-    });
-  }
+      () => {
+        if (!isAll && this.isViewOriginalData) {
+          this.handleRequestOriginalData();
+        }
+        if (!isAll && this.isLinkageData) {
+          this.handleAutoLinkage();
+        }
+      },
+    );
+  };
   handleAutoLinkage = () => {
     const { linkageMatch } = this.state;
     this.props.onUpdateLinkageFiltersGroup(linkageMatch);
     this.setState({ dropdownVisible: false });
-  }
+  };
   handleRequestOriginalData = () => {
     const { isThumbnail } = this.props;
     const { match } = this.state;
     const data = {
       isPersonal: false,
-      match
-    }
+      match,
+    };
     this.setState({ dropdownVisible: false });
     if (isThumbnail) {
       this.props.onOpenChartDialog(data);
     } else {
       this.props.requestOriginalData(data);
     }
-  }
+  };
   handleFilePreview = (res, file) => {
     if (_.get(window.shareState, 'isPublicChart') && ['.docx', '.xlsx'].includes(file.ext)) {
       alert(_l('暂不支持预览'), 3);
@@ -320,9 +344,9 @@ export default class extends Component {
       attachments: res,
       index,
       callFrom: 'player',
-      hideFunctions: ['editFileName']
+      hideFunctions: ['editFileName'],
     });
-  }
+  };
   getColumnsHeader(linesData) {
     let { lines, columns, style, yaxisList } = this.props.reportData;
     const {
@@ -330,7 +354,7 @@ export default class extends Component {
       pivotTableLineFreeze,
       pivotTableLineFreezeIndex,
       mobilePivotTableLineFreeze,
-      mobilePivotTableLineFreezeIndex
+      mobilePivotTableLineFreezeIndex,
     } = style || {};
     const freeze = isMobile ? mobilePivotTableLineFreeze : pivotTableLineFreeze;
     const freezeIndex = isMobile ? mobilePivotTableLineFreezeIndex : pivotTableLineFreezeIndex;
@@ -343,7 +367,7 @@ export default class extends Component {
       columns.pop();
     }
 
-    const get = (column) => {
+    const get = column => {
       return {
         title: () => {
           return (
@@ -355,9 +379,10 @@ export default class extends Component {
         },
         dataIndex: column.cid,
         children: column.children,
-        colSpan: freeze && _.isNumber(freezeIndex) && fIndex <= linesData.length ? fIndex : (linesData.length || undefined)
-      }
-    }
+        colSpan:
+          freeze && _.isNumber(freezeIndex) && fIndex <= linesData.length ? fIndex : linesData.length || undefined,
+      };
+    };
 
     const linesChildren = linesData.map((item, index) => {
       const control = _.find(lines, { controlId: item.key }) || {};
@@ -373,19 +398,21 @@ export default class extends Component {
             return (
               <Fragment>
                 <div className="flexRow valignWrapper">
-                  {
-                    fields.map((item, index) => (
-                      <div
-                        key={item.controlId}
-                        className={cx(item.controlType === 14 ? 'fileContent' : 'otherContent')}
-                        style={{
-                          width: item.controlType === 14 ? (this.getMaxFileLength(data, index) * _.find(relevanceImageSize, { value: item.size }).px) + (diffWidth / fields.length) : null
-                        }}
-                      >
-                        {item.controlName}
-                      </div>
-                    ))
-                  }
+                  {fields.map((item, index) => (
+                    <div
+                      key={item.controlId}
+                      className={cx(item.controlType === 14 ? 'fileContent' : 'otherContent')}
+                      style={{
+                        width:
+                          item.controlType === 14
+                            ? this.getMaxFileLength(data, index) * _.find(relevanceImageSize, { value: item.size }).px +
+                              diffWidth / fields.length
+                            : null,
+                      }}
+                    >
+                      {item.controlName}
+                    </div>
+                  ))}
                 </div>
                 {this.renderDrag(index)}
               </Fragment>
@@ -396,7 +423,7 @@ export default class extends Component {
               {item.name}
               {this.renderDrag(index)}
             </Fragment>
-          )
+          );
         },
         dataIndex: item.key,
         ellipsis: pivotTableUnilineShow,
@@ -405,17 +432,19 @@ export default class extends Component {
         className: 'line-content',
         render: (...args) => {
           return this.renderLineTd(...args, control, diffWidth / fields.length);
-        }
-      }
+        },
+      };
     });
 
-    for(let i = columns.length - 1; i >= 0; i--) {
+    for (let i = columns.length - 1; i >= 0; i--) {
       const column = columns[i];
       const next = columns[i + 1];
       if (next) {
         column.children = [get(next)];
       } else {
-        const defaultChildren = yaxisList.length ? [{ title: null, width: isHideHeaderLastTr ? this.getColumnWidth(0) : undefined,  }] : [];
+        const defaultChildren = yaxisList.length
+          ? [{ title: null, width: isHideHeaderLastTr ? this.getColumnWidth(0) : undefined }]
+          : [];
         column.children = linesChildren.length ? linesChildren : defaultChildren;
       }
     }
@@ -425,42 +454,39 @@ export default class extends Component {
         const data = get(columns[0]);
         const freezeChildren = linesChildren.filter(n => n.fixed);
         const noFreezeChildren = linesChildren.filter(n => !n.fixed);
-        const getFreeze = (data) => {
+        const getFreeze = data => {
           if (data.children.length === linesChildren.length) {
             return {
               ...data,
               colSpan: freezeChildren.length,
-              children: freezeChildren
-            }
+              children: freezeChildren,
+            };
           } else {
             return {
               ...data,
               colSpan: freezeChildren.length,
-              children: [getFreeze(data.children[0])]
+              children: [getFreeze(data.children[0])],
             };
           }
-        }
-        const getNoFreeze = (data) => {
+        };
+        const getNoFreeze = data => {
           if (data.children.length === linesChildren.length) {
             return {
               title: '',
               dataIndex: 'emptyFreeze',
               colSpan: noFreezeChildren.length,
-              children: noFreezeChildren
-            }
+              children: noFreezeChildren,
+            };
           } else {
             return {
               title: '',
               dataIndex: 'emptyFreeze',
               colSpan: noFreezeChildren.length,
-              children: [getNoFreeze(data.children[0])]
+              children: [getNoFreeze(data.children[0])],
             };
           }
-        }
-        return [
-          getFreeze(data),
-          getNoFreeze(data)
-        ];
+        };
+        return [getFreeze(data), getNoFreeze(data)];
       }
       return [get(columns[0])];
     } else {
@@ -482,15 +508,19 @@ export default class extends Component {
       const advancedSetting = control.advancedSetting || {};
       const valueKey = valueMap[id];
       if (_.isObject(data)) {
-        return valueKey ? renderValue(valueKey[data.value], advancedSetting) || defaultEmpty : renderValue(data.value, advancedSetting);
+        return valueKey
+          ? renderValue(valueKey[data.value], advancedSetting) || defaultEmpty
+          : renderValue(data.value, advancedSetting);
       } else {
-        return valueKey ? renderValue(valueKey[data], advancedSetting) || defaultEmpty : renderValue(data, advancedSetting);
+        return valueKey
+          ? renderValue(valueKey[data], advancedSetting) || defaultEmpty
+          : renderValue(data, advancedSetting);
       }
-    }
+    };
 
-    const getYaxisList = (index) => {
+    const getYaxisList = index => {
       const yaxisColumn = yaxisList.map((item, i) => {
-        const { rename, controlName } = item;
+        const { rename, controlName, showNumber = true, showPercent = 0 } = item;
         const name = rename || controlName;
         const dragIndex = index + i + lines.length;
         return {
@@ -506,46 +536,63 @@ export default class extends Component {
           colSpan: 1,
           className: cx('cell-content', displaySetup.showRowList && isViewOriginalData ? 'contentValue' : undefined),
           width: this.getColumnWidth(isHideHeaderLastTr ? dragIndex + 1 : dragIndex),
-          onCell: (record) => {
+          onCell: record => {
             return {
-              onClick: (event) => {
+              onClick: event => {
                 if (record.key === 'sum' || record.isSubTotal) {
                   return;
                 }
                 this.handleClick({ event, index, record });
-              }
+              },
             };
           },
-          render: (value, record) => this.renderBodyTd(value, record, item.controlId, controlMinAndMax)
-        }
+          render: (value, record, recordIndex) => {
+            // const columnData = result[index + i];
+            // const subTotal = !record.isSubTotal && getLineSubTotal(columnData.data, recordIndex);
+            // record.showNumber = (record.key == 'sum' || record.isSubTotal) ? true : showNumber;
+            // record.showPercent = (subTotal || record.key !== 'sum' && !record.isSubTotal) && showPercent;
+            // if (value && subTotal) {
+            //   record.lineSubTotal = Number(valueMap[item.controlId][subTotal]);
+            // }
+            // record.sumCount = columnData.sum;
+            return this.renderBodyTd(value, record, item.controlId, controlMinAndMax);
+          },
+        };
       });
       return yaxisColumn;
-    }
+    };
 
     const getChildren = (columnIndex, startIndex, endIndex) => {
-      const res = _.cloneDeep(result).splice(startIndex, endIndex).map((item, index) => {
-        const data = item.y[columnIndex];
-        const nextIndex = columnIndex + 1;
-        const isObject = _.isObject(data);
-        const colSpan = isObject ? data.length : 1;
-        const id = columns[columnIndex].cid;
-        const title = getTitle(id, data);
-        return {
-          title: title ? () => {
-            return (
-              <Fragment>
-                {title}
-                {this.renderDrag(startIndex + 1)}
-              </Fragment>
-            );
-          } : title,
-          key: id,
-          colSpan,
-          children: nextIndex < columns.length ? getChildren(nextIndex, startIndex + index, colSpan) : getYaxisList(startIndex + index)
-        }
-      });
+      const res = _.cloneDeep(result)
+        .splice(startIndex, endIndex)
+        .map((item, index) => {
+          const data = item.y[columnIndex];
+          const nextIndex = columnIndex + 1;
+          const isObject = _.isObject(data);
+          const colSpan = isObject ? data.length : 1;
+          const id = columns[columnIndex].cid;
+          const title = getTitle(id, data);
+          return {
+            title: title
+              ? () => {
+                  return (
+                    <Fragment>
+                      {title}
+                      {this.renderDrag(startIndex + 1)}
+                    </Fragment>
+                  );
+                }
+              : title,
+            key: id,
+            colSpan,
+            children:
+              nextIndex < columns.length
+                ? getChildren(nextIndex, startIndex + index, colSpan)
+                : getYaxisList(startIndex + index),
+          };
+        });
       return res.filter(item => item.title);
-    }
+    };
 
     if (columns.length) {
       result.forEach((item, index) => {
@@ -560,17 +607,15 @@ export default class extends Component {
               return (
                 <Fragment>
                   {getTitle(id, firstItem)}
-                  {columns.length === 1 && yaxisList.length === 1 && (
-                    this.renderDrag(index + 1)
-                  )}
+                  {columns.length === 1 && yaxisList.length === 1 && this.renderDrag(index + lines.length)}
                 </Fragment>
-              )
+              );
             },
-            width: children.length ? undefined : this.getColumnWidth(index + 1),
+            width: children.length ? undefined : this.getColumnWidth(index + lines.length),
             key: id,
             colSpan,
-            children
-          }
+            children,
+          };
           dataList.push(obj);
         }
       });
@@ -591,7 +636,7 @@ export default class extends Component {
   }
   getColumnTotal(result, controlMinAndMax) {
     const { reportData } = this.props;
-    const { yaxisList, columns, pivotTable } = reportData;
+    const { yaxisList, columns, pivotTable, valueMap } = reportData;
     const { showColumnTotal, columnSummary } = pivotTable || reportData;
 
     if (!(showColumnTotal && columns.length)) return null;
@@ -606,7 +651,9 @@ export default class extends Component {
       title: () => {
         return (
           <Fragment>
-            {sumData.name ? `${columnSummary.rename || _l('列汇总')} (${sumData.name})` : columnSummary.rename || _l('列汇总')}
+            {sumData.name
+              ? `${columnSummary.rename || _l('列汇总')} (${sumData.name})`
+              : columnSummary.rename || _l('列汇总')}
             {yaxisList.length === 1 && this.renderDrag(result.length + 1)}
           </Fragment>
         );
@@ -614,25 +661,32 @@ export default class extends Component {
       children: [],
       width: yaxisList.length === 1 && this.getColumnWidth(result.length + 1),
       rowSpan: columns.length,
-      colSpan: yaxisList.length
-    }
+      colSpan: yaxisList.length,
+    };
 
-    const set = (data) => {
+    const set = data => {
       index = index + 1;
       if (index === columns.length) {
         data.children = childrenYaxisList;
       } else {
-        data.children = [{
-          title: null,
-          rowSpan: 0
-        }];
+        data.children = [
+          {
+            title: null,
+            rowSpan: 0,
+          },
+        ];
         set(data.children[0]);
       }
-    }
+    };
 
     result.forEach((item, index) => {
       if (item.summary_col) {
-        const { rename, controlName } =  _.find(yaxisList, { controlId: item.t_id }) || {};
+        const {
+          rename,
+          controlName,
+          showNumber = true,
+          showPercent = 0,
+        } = _.find(yaxisList, { controlId: item.t_id }) || {};
         const name = rename || controlName;
         const sumData = _.find(columnSummary.controlList, { controlId: item.t_id }) || {};
         childrenYaxisList.push({
@@ -649,13 +703,22 @@ export default class extends Component {
           colSpan: 1,
           width: yaxisList.length === 1 ? this.getColumnWidth(result.length + 1) : this.getColumnWidth(index + 1),
           className: 'cell-content',
-          render: (value, record) => this.renderBodyTd(value, {
-            ...record,
-            key: 'sum',
-            type: record.type || 'columns',
-            sumCount: item.sum,
-            sumData,
-          }, item.t_id, controlMinAndMax)
+          render: (value, record, recordIndex) => {
+            const newRecord = {
+              ...record,
+              key: 'sum',
+              type: record.type || 'columns',
+              sumCount: item.sum,
+              sumData,
+            };
+            // const subTotal = !record.isSubTotal && getLineSubTotal(item.data, recordIndex);
+            // if (subTotal) {
+            //   newRecord.lineSubTotal = Number(valueMap[item.t_id][subTotal]);
+            // }
+            // newRecord.showNumber = (record.isSubTotal && newRecord.type === 'columns') ? true : showNumber;
+            // newRecord.showPercent = (subTotal || newRecord.key === 'sum' && !record.isSubTotal && newRecord.type === 'columns') && showPercent;
+            return this.renderBodyTd(value, newRecord, item.t_id, controlMinAndMax);
+          },
         });
       }
     });
@@ -669,7 +732,12 @@ export default class extends Component {
     const { yaxisList, pivotTable, lines, valueMap, style } = reportData;
     const { lineSummary, columnSummary, showLineTotal } = pivotTable || reportData;
     const tableLentghData = Array.from({ length: linesData[0] ? linesData[0].data.length : 1 });
-    const { mobilePivotTableLineFreeze, pivotTableLineFreeze, mobilePivotTableLineFreezeIndex, pivotTableLineFreezeIndex } = style || {};
+    const {
+      mobilePivotTableLineFreeze,
+      pivotTableLineFreeze,
+      mobilePivotTableLineFreezeIndex,
+      pivotTableLineFreezeIndex,
+    } = style || {};
     const freeze = isMobile ? mobilePivotTableLineFreeze : pivotTableLineFreeze;
     const freezeIndex = isMobile ? mobilePivotTableLineFreezeIndex : pivotTableLineFreezeIndex;
     const fIndex = freezeIndex + 1;
@@ -680,18 +748,22 @@ export default class extends Component {
       if (valueKey) {
         const isSubTotal = _.isString(value) ? value.includes('subTotal') : false;
         const data = valueKey[value];
-        return data && isSubTotal ? Number(data) : (data || value);
+        return data && isSubTotal ? Number(data) : data || value;
       } else {
         return value;
       }
-    }
+    };
 
     const dataSource = tableLentghData.map((__, index) => {
       const obj = { key: index };
       linesData.forEach(item => {
         const value = item.data[index];
         obj[item.key] = value;
-        if (!('isSubTotal' in obj) && subTotalIds.includes(item.key) && (_.isObject(value) ? value.value : value || '').includes('subTotal')) {
+        if (
+          !('isSubTotal' in obj) &&
+          subTotalIds.includes(item.key) &&
+          (_.isObject(value) ? value.value : _.toString(value) || '').includes('subTotal')
+        ) {
           obj.isSubTotal = true;
         }
       });
@@ -699,9 +771,11 @@ export default class extends Component {
         const value = item.data[index];
         const valueKey = valueMap[item.t_id] || null;
         if (_.isArray(value)) {
-          obj[`${item.t_id}-${i}`] = value.map(data => {
-            return valueKey ? valueKey[data] || data : data;
-          }).join(', ');
+          obj[`${item.t_id}-${i}`] = value
+            .map(data => {
+              return valueKey ? valueKey[data] || data : data;
+            })
+            .join(', ');
         } else {
           obj[`${item.t_id}-${i}`] = matchingValue(value, valueKey);
         }
@@ -711,12 +785,12 @@ export default class extends Component {
 
     const summary = {
       key: 'sum',
-      type: 'line'
+      type: 'line',
     };
     const sum = {
       value: lineSummary.rename || _l('行汇总'),
       length: isFreeze ? fIndex : linesData.length,
-      sum: true
+      sum: true,
     };
 
     linesData.forEach((item, index) => {
@@ -726,7 +800,7 @@ export default class extends Component {
         summary[item.key] = {
           value: '',
           length: linesData.length - fIndex,
-          sum: true
+          sum: true,
         };
       } else {
         summary[item.key] = null;
@@ -740,7 +814,7 @@ export default class extends Component {
       if (sumSuffix) {
         summary[`${item.t_id}-${i}`] = {
           value,
-          sumSuffix
+          sumSuffix,
         };
       } else {
         summary[`${item.t_id}-${i}`] = value;
@@ -759,17 +833,25 @@ export default class extends Component {
   getParentNode() {
     const { isThumbnail, reportData } = this.props;
     const { reportId } = reportData;
-    return isThumbnail ? document.querySelector(isMobile ? `.statisticsCard-${reportId}` : `.statisticsCard-${reportId} .content`) : document.querySelector(`.ChartDialog .chart .flex`);
+    return isThumbnail
+      ? document.querySelector(isMobile ? `.statisticsCard-${reportId}` : `.statisticsCard-${reportId} .content`)
+      : document.querySelector(`.ChartDialog .chart .flex`);
   }
   getScrollConfig(dataSource) {
     const { reportData, isHorizontal } = this.props;
     const { style, columns, yaxisList } = reportData;
-    const { pivotTableColumnFreeze, pivotTableLineFreeze, mobilePivotTableColumnFreeze, mobilePivotTableLineFreeze, paginationVisible } = style ? style : {};
+    const {
+      pivotTableColumnFreeze,
+      pivotTableLineFreeze,
+      mobilePivotTableColumnFreeze,
+      mobilePivotTableLineFreeze,
+      paginationVisible,
+    } = style ? style : {};
     const columnFreeze = isMobile ? mobilePivotTableColumnFreeze : pivotTableColumnFreeze;
     const lineFreeze = isMobile ? mobilePivotTableLineFreeze : pivotTableLineFreeze;
     const parent = this.getParentNode();
     const config = {};
-    if (location.href.includes('printPivotTable')) {
+    if (isPrintPivotTable) {
       return config;
     }
     if (lineFreeze) {
@@ -779,7 +861,7 @@ export default class extends Component {
       const lineHeight = 39;
       const columnsLength = (columns.length || 1) + (yaxisList.length === 1 ? 0 : 1);
       const headerHeight = columnsLength * lineHeight;
-      const offsetHeight = isMobile && isHorizontal ? (document.body.clientWidth - 80) : parent.offsetHeight;
+      const offsetHeight = isMobile && isHorizontal ? document.body.clientWidth - 80 : parent.offsetHeight;
       const paginationHeight = paginationVisible && dataSource.length > this.state.pageSize ? 45 : 0;
       if (!lineFreeze) {
         config.x = '100%';
@@ -815,28 +897,33 @@ export default class extends Component {
   }
   renderDrag(index) {
     return (
-      <div onMouseDown={(event) => { this.handleMouseDown(event, index) }} className="drag" />
+      <div
+        onMouseDown={event => {
+          this.handleMouseDown(event, index);
+        }}
+        className="drag"
+      />
     );
   }
   renderFile(file, px, fileIconSize, handleFilePreview) {
     const src = file.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/2/h/${px}`);
-    const isPicture = File.isPicture(file.ext);
+    const isPicture = RegExpValidator.fileIsPicture(file.ext);
     const fileClassName = getClassNameByExt(file.ext);
 
     if (file.fileID) {
       return (
-        <div key={file.fileID} className="imageWrapper" onClick={() => { handleFilePreview(file) }}>
-          {isPicture ? (
-            <img src={src} />
-          ) : (
-            <div className={cx('fileIcon', fileClassName)} style={fileIconSize}></div>
-          )}
+        <div
+          key={file.fileID}
+          className="imageWrapper"
+          onClick={() => {
+            handleFilePreview(file);
+          }}
+        >
+          {isPicture ? <img src={src} /> : <div className={cx('fileIcon', fileClassName)} style={fileIconSize}></div>}
         </div>
       );
     } else {
-      return (
-        <div style={{ width: px }}>{'--'}</div>
-      );
+      return <div style={{ width: px }}>{'--'}</div>;
     }
   }
   renderRelevanceContent(relevanceData, parentControl, index, diffWidth) {
@@ -851,16 +938,14 @@ export default class extends Component {
       const max = this.getMaxFileLength(data, index);
       const handleFilePreview = this.handleFilePreview.bind(this, relevanceData);
       return (
-        <div className="relevanceContent fileContent" style={{ width: (max * px) + diffWidth }} key={control.controlId}>
+        <div className="relevanceContent fileContent" style={{ width: max * px + diffWidth }} key={control.controlId}>
           {relevanceData.length ? (
-            relevanceData.map(file => (
-              this.renderFile(file, px, fileIconSize, handleFilePreview)
-            ))
+            relevanceData.map(file => this.renderFile(file, px, fileIconSize, handleFilePreview))
           ) : (
             <div style={{ width: px + diffWidth }}>{'--'}</div>
           )}
         </div>
-      )
+      );
     }
 
     return (
@@ -868,9 +953,7 @@ export default class extends Component {
         {_.isArray(relevanceData) ? (
           relevanceData.join('、')
         ) : (
-          <span className={cx({ ellipsis: pivotTableUnilineShow })}>
-            {relevanceData || '--'}
-          </span>
+          <span className={cx({ ellipsis: pivotTableUnilineShow })}>{relevanceData || '--'}</span>
         )}
       </div>
     );
@@ -884,9 +967,9 @@ export default class extends Component {
       return {
         children: null,
         props: {
-          rowSpan: 0
-        }
-      }
+          rowSpan: 0,
+        },
+      };
     }
 
     if (_.isObject(data) && 'value' in data) {
@@ -901,25 +984,21 @@ export default class extends Component {
         return {
           children: (
             <div className="flexRow w100">
-              {
-                res.map((item, index) => (
-                  this.renderRelevanceContent(item, control, index, diffWidth)
-                ))
-              }
+              {res.map((item, index) => this.renderRelevanceContent(item, control, index, diffWidth))}
             </div>
           ),
-          props
-        }
+          props,
+        };
       } else if (_.isString(data.value) && data.value.includes('subTotal')) {
         return {
           children: data.subTotalName,
-          props
-        }
+          props,
+        };
       } else {
         return {
           children: data.value,
-          props
-        }
+          props,
+        };
       }
     }
 
@@ -927,11 +1006,7 @@ export default class extends Component {
       const res = data;
       return (
         <div className="flexRow w100">
-          {
-            res.map((item, index) => (
-              this.renderRelevanceContent(item, control, index, diffWidth)
-            ))
-          }
+          {res.map((item, index) => this.renderRelevanceContent(item, control, index, diffWidth))}
         </div>
       );
     }
@@ -940,9 +1015,9 @@ export default class extends Component {
       return {
         children: null,
         props: {
-          rowSpan: 0
-        }
-      }
+          rowSpan: 0,
+        },
+      };
     }
 
     if (_.isString(data) && data.includes('subTotalFreezeEmpty')) {
@@ -953,9 +1028,7 @@ export default class extends Component {
       return data;
     }
 
-    return (
-      <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>{data}</div>
-    );
+    return <div style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>{data}</div>;
   }
   renderBodyTd(value, record, controlId, controlMinAndMax) {
     const { yaxisList, displaySetup } = this.props.reportData;
@@ -964,22 +1037,28 @@ export default class extends Component {
     const barStyle = {};
     const axisStyle = {};
     const emptyShowType = _.get(_.find(yaxisList, { controlId }), 'emptyShowType');
+    const isNumberValue = _.isNumber(value);
+    const originalValue = value;
     let onlyShowBar = false;
     let sumSuffix = '';
+    let percent = '';
 
     if (_.isObject(value)) {
       sumSuffix = value.sumSuffix;
       value = value.value;
     }
 
-    if (_.isNumber(value) || _.isEmpty(value) || emptyShowType === 1) {
+    if (isNumberValue || _.isEmpty(value) || emptyShowType === 1) {
       const colorRule = _.find(colorRules, { controlId: controlId }) || {};
       const textColorRule = colorRule.textColorRule || {};
       const bgColorRule = colorRule.bgColorRule || {};
       const dataBarRule = colorRule.dataBarRule;
       const data = {
-        value, controlMinAndMax, controlId, record
-      }
+        value,
+        controlMinAndMax,
+        controlId,
+        record,
+      };
       if (textColorRule.model) {
         style.color = getStyleColor(Object.assign(data, { rule: textColorRule, emptyShowType }));
       }
@@ -987,16 +1066,18 @@ export default class extends Component {
         style.backgroundColor = getStyleColor(Object.assign(data, { rule: bgColorRule, emptyShowType }));
       }
       if (dataBarRule && record.key !== 'sum') {
-        Object.assign(barStyle, getBarStyleColor({
-          value,
-          controlMinAndMax: controlMinAndMax[controlId],
-          rule: dataBarRule
-        }));
+        Object.assign(
+          barStyle,
+          getBarStyleColor({
+            value,
+            controlMinAndMax: controlMinAndMax[controlId],
+            rule: dataBarRule,
+          }),
+        );
         axisStyle[dataBarRule.direction === 1 ? 'left' : 'right'] = 0;
         axisStyle.borderColor = dataBarRule.axisColor;
         onlyShowBar = dataBarRule.onlyShowBar;
       }
-      // value = formatrChartValue(value, false, yaxisList, controlId, record.key !== 'sum');
       if (record.key === 'sum' && record.type === 'columns') {
         value = value || 0;
         const { sumCount, sumData } = record;
@@ -1009,7 +1090,7 @@ export default class extends Component {
         }
         if (sumData.percent) {
           if (sumData.number) {
-            value = `${value} (${percent})`
+            value = `${value} (${percent})`;
           } else {
             value = percent;
           }
@@ -1021,9 +1102,28 @@ export default class extends Component {
         }
       }
     }
+
+    // if (isNumberValue) {
+    //   if (record.showPercent === 1) {
+    //     const count = record.sumCount || 0;
+    //     percent = count ? `${((originalValue / count) * 100).toFixed(2)}%` : '0%';
+    //   }
+    //   if (record.showPercent === 2) {
+    //     const count = record.lineSubTotal || 0;
+    //     percent = count ? `${((originalValue / count) * 100).toFixed(2)}%` : '0%';
+    //   }
+    //   if ([1, 2].includes(record.showPercent) && record.showNumber) {
+    //     percent = `(${percent})`;
+    //   }
+    // }
+
     return (
       <Fragment>
-        {!onlyShowBar && <div className="cell-value" style={{ color: style.color }}>{value}</div>}
+        {!onlyShowBar && (
+          <div className="cell-value" style={{ color: style.color }}>
+            {value}
+          </div>
+        )}
         {style.backgroundColor && <div className="data-bg" style={{ backgroundColor: style.backgroundColor }}></div>}
         {barStyle.width && <div className="data-bar" style={barStyle}></div>}
         {axisStyle.borderColor && <div className="data-axis" style={axisStyle}></div>}
@@ -1062,7 +1162,7 @@ export default class extends Component {
       pivotTableLineFreeze,
       paginationVisible,
       pcWidthModel = 1,
-      mobileWidthModel = 1
+      mobileWidthModel = 1,
     } = style || {};
     const { result, linesData } = this;
     const controlName = this.getColumnsHeader(linesData);
@@ -1073,12 +1173,12 @@ export default class extends Component {
     const lineFreeze = isMobile ? mobilePivotTableLineFreeze : pivotTableLineFreeze;
     const widthModel = isMobile ? mobileWidthModel : pcWidthModel;
 
-    const tableColumns = [
-      ...controlName,
-      ...controlContent
-    ];
+    const tableColumns = [...controlName, ...controlContent];
 
-    const widthConfig = sessionStorage.getItem(`pivotTableColumnWidthConfig-${reportId}`) || pivotTableColumnWidthConfig || [2, 3].includes(widthModel);
+    const widthConfig =
+      sessionStorage.getItem(`pivotTableColumnWidthConfig-${reportId}`) ||
+      pivotTableColumnWidthConfig ||
+      [2, 3].includes(widthModel);
 
     return (
       <Fragment>
@@ -1087,20 +1187,18 @@ export default class extends Component {
           isMobile={isMobile}
           pivotTableStyle={replaceColor({ pivotTableStyle, customPageConfig, themeColor, sourceType, linkageMatch })}
           isFreeze={columnFreeze || lineFreeze}
-          paginationVisible={paginationVisible && dataSource.length > pageSize}
-          className={
-            cx('flex flexColumn chartWrapper Relative', {
-              contentXAuto: _.isUndefined(scrollConfig.x),
-              contentYAuto: _.isUndefined(scrollConfig.y),
-              contentAutoHeight: scrollConfig.x && _.isUndefined(scrollConfig.y),
-              contentScroll: scrollConfig.y,
-              hideHeaderLastTr: columns.length && yaxisList.length === 1,
-              hideBody: _.isEmpty(lines) && _.isEmpty(yaxisList),
-              hideDrag: widthModel === 3,
-              noSelect: dragValue,
-              safariScroll: scrollConfig.y
-            })
-          }
+          paginationVisible={paginationVisible && !isPrintPivotTable && dataSource.length > pageSize}
+          className={cx('flex flexColumn chartWrapper Relative', {
+            contentXAuto: _.isUndefined(scrollConfig.x),
+            contentYAuto: _.isUndefined(scrollConfig.y),
+            contentAutoHeight: scrollConfig.x && _.isUndefined(scrollConfig.y),
+            contentScroll: scrollConfig.y,
+            hideHeaderLastTr: columns.length && yaxisList.length === 1,
+            hideBody: _.isEmpty(lines) && _.isEmpty(yaxisList),
+            hideDrag: widthModel === 3,
+            noSelect: dragValue,
+            safariScroll: scrollConfig.y,
+          })}
         >
           <Table
             bordered
@@ -1109,17 +1207,21 @@ export default class extends Component {
             rowClassName={(record, index) => {
               return record.key === 'sum' || record.isSubTotal ? 'sum-content' : undefined;
             }}
-            pagination={paginationVisible ? {
-              showTotal: total => _l('共 %0 条', showLineTotal ? total - 1 : total),
-              hideOnSinglePage: true,
-              showSizeChanger: true,
-              pageSize,
-              pageSizeOptions: [20, 25, 30, 50, 100],
-              onShowSizeChange: (current, size) => {
-                this.setState({ pageSize: size });
-              },
-              locale: { items_per_page: _l('条/页') }
-            } : false}
+            pagination={
+              paginationVisible && !isPrintPivotTable
+                ? {
+                    showTotal: total => _l('共 %0 条', showLineTotal ? total - 1 : total),
+                    hideOnSinglePage: true,
+                    showSizeChanger: true,
+                    pageSize,
+                    pageSizeOptions: [20, 25, 30, 50, 100],
+                    onShowSizeChange: (current, size) => {
+                      this.setState({ pageSize: size });
+                    },
+                    locale: { items_per_page: _l('条/页') },
+                  }
+                : false
+            }
             columns={tableColumns}
             dataSource={dataSource}
             scroll={scrollConfig}
@@ -1128,7 +1230,7 @@ export default class extends Component {
         </PivotTableContent>
         <Dropdown
           visible={dropdownVisible}
-          onVisibleChange={(dropdownVisible) => {
+          onVisibleChange={dropdownVisible => {
             this.setState({ dropdownVisible });
           }}
           trigger={['click']}

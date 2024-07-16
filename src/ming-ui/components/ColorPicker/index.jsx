@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { cloneElement, Component } from 'react';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
@@ -83,7 +83,7 @@ const COLOR_BOX = styled.span(
 );
 
 const isSameColor = (propsColor, stateColor) => {
-  return tinycolor(propsColor).toHex8String() === tinycolor(stateColor).toHex8String();
+  return new TinyColor(propsColor).toHex8String() === new TinyColor(stateColor).toHex8String();
 };
 
 const isColorString = value => {
@@ -157,13 +157,13 @@ class ColorPicker extends Component {
     let isHex = value.startsWith('#');
 
     return {
-      color: tinycolor(value),
+      color: new TinyColor(value),
       type: TYPES[isHex ? 0 : 1],
     };
   };
 
   handleChangeColor = value => {
-    this.setColor({ color: tinycolor(value) });
+    this.setColor({ color: new TinyColor(value) });
   };
 
   setColor = (value, themeValue) => {
@@ -189,11 +189,11 @@ class ColorPicker extends Component {
   };
 
   getStringColor = color => {
-    return tinycolor(color).toHex8String();
+    return new TinyColor(color).toHex8String();
   };
 
   getSelectedIconColor = backgroundColor => {
-    return tinycolor(backgroundColor).isDark() ? '#fff' : 'rgba(0,0,0,.45)';
+    return new TinyColor(backgroundColor).isDark() ? '#fff' : 'rgba(0,0,0,.45)';
   };
 
   renderSysColors = (expand, list, isTheme = false) => {
@@ -205,7 +205,7 @@ class ColorPicker extends Component {
             className="commonColorItem"
             style={{ background: colorItem }}
             onClick={() => {
-              this.setColor({ color: tinycolor(colorItem) }, isTheme ? THEME_COLOR_VALUE[index] : undefined);
+              this.setColor({ color: new TinyColor(colorItem) }, isTheme ? THEME_COLOR_VALUE[index] : undefined);
             }}
           >
             <i
@@ -323,7 +323,7 @@ class ColorPicker extends Component {
                           onChange={value => {
                             if (value.length !== 7) return;
 
-                            this.setColor({ color: tinycolor(value) });
+                            this.setColor({ color: new TinyColor(value) });
                           }}
                         />
                       </div>
@@ -342,7 +342,7 @@ class ColorPicker extends Component {
                               if (value === null) return;
 
                               this.setColor({
-                                color: tinycolor({
+                                color: new TinyColor({
                                   ...color.toRgb(),
                                   [key]: value,
                                 }),
@@ -368,7 +368,7 @@ class ColorPicker extends Component {
                       if (value === null) return;
 
                       const _tcolor = color.setAlpha(value);
-                      this.setColor({ color: tinycolor(_tcolor) });
+                      this.setColor({ color: new TinyColor(_tcolor) });
                     }}
                   />
                 </div>

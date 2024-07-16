@@ -167,7 +167,7 @@ export default function HomePage({ match, location: routerLocation }) {
       <div className="useCount">
         <dov>
           {_l('已用')}
-          <span className="Gray mLeft4">{`${percent === 'NaN' ? '-' : percent}%`}</span>
+          <span className="Gray mLeft4">{`${_.isNaN(percent) ? '-' : percent}%`}</span>
         </dov>
         <div className="flex TxtRight">
           <span>{getUsage(key)}</span>
@@ -381,7 +381,7 @@ export default function HomePage({ match, location: routerLocation }) {
                       {key === 'effectiveWorksheetRowCount' && isFree && (
                         <div className="limitUser">{_l('上限 %0 万行', data.limitAllWorksheetRowCount / 10000)}</div>
                       )}
-                      {key === 'effectiveAggregationTableCount' && data.limitAggregationTableCount ? (
+                      {key === 'effectiveAggregationTableCount' && isFree && data.limitAggregationTableCount ? (
                         <div className="limitUser">{_l('上限 %0', data.limitAggregationTableCount)}</div>
                       ) : (
                         ''

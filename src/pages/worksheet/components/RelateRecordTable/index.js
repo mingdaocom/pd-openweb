@@ -19,8 +19,10 @@ const Con = styled.div`
 
 export default function RelateRecordTableIndex(props) {
   const {
+    mode,
     appId,
     control,
+    isCharge,
     allowEdit,
     pageSize,
     worksheetId,
@@ -39,7 +41,17 @@ export default function RelateRecordTableIndex(props) {
     };
     return (
       control.store ||
-      generateStore(control, { recordId, allowEdit, worksheetId, formData, pageSize, sheetSwitchPermit, appId })
+      generateStore(control, {
+        mode,
+        recordId,
+        allowEdit,
+        worksheetId,
+        formData,
+        pageSize,
+        sheetSwitchPermit,
+        isCharge,
+        appId,
+      })
     );
   }, [control.controlId, get(control, 'store.version')]);
   useEffect(() => {

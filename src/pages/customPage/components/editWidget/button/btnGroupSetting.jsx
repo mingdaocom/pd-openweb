@@ -111,7 +111,8 @@ const SettingWrap = styled.div`
         align-items: center;
         justify-content: center;
         box-sizing: border-box;
-        width: 45px;
+        padding: 0 10px;
+        width: max-content;
         height: 30px;
         line-height: 30px;
         color: #9e9e9e;

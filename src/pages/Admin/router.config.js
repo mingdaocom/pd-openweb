@@ -1,50 +1,5 @@
 import { VersionProductType } from 'src/util/enum.js';
 
-export const permissionObj = {
-  // 组织管理('首页'， ‘成员与部门’，'组织角色', ‘汇报关系’, '群组与外协'，’通讯录隔离‘， ’离职交接‘， ’组织信息‘， ’账务‘，’管理员‘，’工具‘， ’其他‘)
-  PROJECT_ADMIN: [
-    'home',
-    'upgradeservice',
-    'waitingpay',
-    'expansionservice',
-    'structure',
-    'roles',
-    'reportrelation',
-    'groups',
-    'portal',
-    'resignlist',
-    'sysinfo',
-    'billinfo',
-    'valueaddservice',
-    'sysroles',
-    'integrationothers',
-    'weixin',
-    'loginlog',
-    'security',
-    'orgothers',
-    'orglog',
-    'platformintegration',
-    'thirdapp',
-    'account',
-    'data',
-    'securityOthers',
-  ],
-  // 有角色（显示管理员菜单）
-  SHOW_MANAGER: ['sysroles'],
-  // 应用管理('应用‘，’工作流‘，‘使用分析’)
-  APK_ADMIN: [
-    'app',
-    'workflows',
-    'analytics',
-    'computing',
-    'variables',
-    'applog',
-    'database',
-    'settings',
-    'tableAggregation',
-  ],
-};
-
 export const menuList = [
   {
     title: '',
@@ -70,6 +25,10 @@ export const menuList = [
           {
             path: '/admin/expansionservice/(.*)/(user|storage|workflow|storage|dataSync|app)+',
             component: () => import('./organization/billCenter/expansionService'),
+          },
+          {
+            path: '/admin/valueaddservice/(.*)',
+            component: () => import('./organization/billCenter/valueAddService'),
           },
         ],
       },
@@ -195,12 +154,12 @@ export const menuList = [
     ],
   },
   {
-    title: _l('应用'),
+    title: _l('应用管理'),
     key: 'apps',
     icon: 'icon-now_widgets',
     subMenuList: [
       {
-        name: _l('应用管理'),
+        name: _l('应用'),
         key: 'app',
         menuPath: '/admin/app/:projectId',
         routes: [
@@ -227,7 +186,8 @@ export const menuList = [
       },
       {
         name: _l('聚合表'),
-        key: 'tableAggregation',
+        key: 'aggregationTable',
+        hasBeta: true,
         featureId: VersionProductType.aggregation,
         routes: [
           {
@@ -235,7 +195,7 @@ export const menuList = [
             component: () => import('./app/aggregationTable'),
           },
           {
-            path: '/admin/exaggregationtable/(.*)',
+            path: '/admin/expansionserviceAggregationtable/(.*)',
             component: () => import('./organization/billCenter/expansionService'),
           },
         ],
@@ -290,6 +250,34 @@ export const menuList = [
           {
             path: '/admin/settings/:projectId',
             component: () => import('./settings'),
+          },
+        ],
+      },
+    ],
+  },
+  {
+    title: _l('商户服务'),
+    key: 'pay',
+    icon: 'icon-merchant',
+    subMenuList: [
+      {
+        name: _l('商户'),
+        key: 'merchant',
+        hasBeta: true,
+        featureId: 40,
+        menuPath: '/admin/merchant/:projectId(.*)',
+        routes: [
+          {
+            path: '/admin/merchant/:projectId',
+            component: () => import('./pay/Merchant'),
+          },
+          {
+            path: '/admin/transaction/:projectId',
+            component: () => import('./pay/Merchant'),
+          },
+          {
+            path: '/admin/withdrawalsrecord/:projectId',
+            component: () => import('./pay/Merchant'),
           },
         ],
       },

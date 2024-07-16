@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { RadioGroup } from 'ming-ui';
-import Components from '../../components';
+import WidgetDropdown from '../../components/Dropdown';
 import { isEmpty } from 'lodash';
 import { Button, SettingItem } from '../../styled';
 import { TEMPLATE_TYPE } from '../../config/ocr';
@@ -38,7 +38,7 @@ function OcrMapType({ data, allControls = [], onChange }) {
     <Fragment>
       <SettingItem className="withSplitLine">
         <div className="settingItemTitle">{_l('将当前模版映射到')}</div>
-        <Components.Dropdown
+        <WidgetDropdown
           value={ocrmaptype}
           data={MAP_DISPLAY}
           onChange={value => {
@@ -55,7 +55,7 @@ function OcrMapType({ data, allControls = [], onChange }) {
       {ocrmaptype === '2' && (
         <SettingItem>
           <div className="settingItemTitle">{_l('选择子表')}</div>
-          <Components.Dropdown
+          <WidgetDropdown
             value={ocrcid}
             data={FILED_LIST}
             onChange={value => {
@@ -101,7 +101,9 @@ export default function OcrDisplay(props) {
         <RadioGroup
           size="middle"
           checkedValue={ocrapitype}
-          data={API_DISPLAY}
+          data={API_DISPLAY.map(item =>
+            item.value === '1' ? { ...item, disabled: md.global.SysSettings.hideIntegration } : item,
+          )}
           onChange={value => {
             let newData = handleAdvancedSettingChange(data, { ocrapitype: value, ocrmaptype: '0', ocrcid: '' });
             if (value === '1' && _.isUndefined(data.hint)) {
@@ -121,7 +123,7 @@ export default function OcrDisplay(props) {
           <ApiSearchConfig {...props} />
           <SettingItem>
             <div className="settingItemTitle">{_l('保存识别原件')}</div>
-            <Components.Dropdown
+            <WidgetDropdown
               placeholder={_l('选择附件字段')}
               value={ocroriginal}
               data={FILED_LIST}
@@ -135,7 +137,7 @@ export default function OcrDisplay(props) {
         <Fragment>
           <SettingItem>
             <div className="settingItemTitle">{_l('识别模板')}</div>
-            <Components.Dropdown
+            <WidgetDropdown
               placeholder={_l('请选择识别模板')}
               value={enumDefault}
               data={TEMPLATE_TYPE}

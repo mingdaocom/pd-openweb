@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import styled from 'styled-components';
-import { Icon, Checkbox, Input } from 'ming-ui';
+import { Icon, Checkbox, Input, Support } from 'ming-ui';
 import { Select } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -436,11 +436,12 @@ export default function FieldMappingList(props) {
                   </div>
                 )}
                 {sourceField.disabled && (
-                  <a href="https://help.mingdao.com/integration/data-integration" target="_blank">
-                    <div data-tip={_l('名称包含特殊字符，无法同步')} className="tip-top">
-                      <Icon icon="help" className="Gray_bd mLeft5" />
-                    </div>
-                  </a>
+                  <Support
+                    type={1}
+                    title={_l('名称包含特殊字符，无法同步')}
+                    className="Gray_bd mLeft5"
+                    href="https://help.mingdao.com/integration/data-integration"
+                  />
                 )}
                 {sourceField.isDelete && (
                   <div data-tip={_l('字段已删除')} className="tip-top">
@@ -511,11 +512,12 @@ export default function FieldMappingList(props) {
                   </div>
                 )}
                 {sourceField.disabled && (
-                  <a href="https://help.mingdao.com/integration/data-integration" target="_blank">
-                    <div data-tip={_l('名称包含特殊字符，无法同步')} className="tip-top">
-                      <Icon icon="help" className="Gray_bd mLeft5" />
-                    </div>
-                  </a>
+                  <Support
+                    type={1}
+                    title={_l('名称包含特殊字符，无法同步')}
+                    className="Gray_bd mLeft5"
+                    href="https://help.mingdao.com/integration/data-integration"
+                  />
                 )}
                 {sourceField.isDelete && (
                   <div data-tip={_l('字段已删除')} className="tip-top">
@@ -523,17 +525,12 @@ export default function FieldMappingList(props) {
                   </div>
                 )}
                 {isNotSupport && (
-                  <div
-                    data-tip={_l('暂不支持同步')}
-                    className="tip-top pointer"
-                    onClick={() =>
-                      window.open(
-                        'https://help.mingdao.com/integration/data-integration#field-sync-rule',
-                      )
-                    }
-                  >
-                    <Icon icon="help" className="Gray_bd mLeft5" />
-                  </div>
+                  <Support
+                    type={1}
+                    title={_l('暂不支持同步')}
+                    className="Gray_bd mLeft5"
+                    href="https://help.mingdao.com/integration/data-integration#field-sync-rule"
+                  />
                 )}
               </div>
             );

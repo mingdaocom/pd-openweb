@@ -68,7 +68,9 @@ export default function SubListStyle(props) {
         </div>
       </SettingItem>
       <SettingItem>
-        <div className="settingItemTitle">{_l('最大高度（%0）', showtype === '1' ? '滚动方式' : '每页行数')}</div>
+        <div className="settingItemTitle">
+          {showtype === '1' ? _l('最大高度（滚动方式）') : _l('最大高度（每页行数）')}
+        </div>
         <div className="flexCenter">
           <AttachmentConfig
             data={handleAdvancedSettingChange(data, { rownum })}
@@ -88,12 +90,12 @@ export default function SubListStyle(props) {
       <div className="labelWrap">
         <Checkbox
           size="small"
-          checked={hidenumber === '1'}
-          text={_l('隐藏序号')}
+          checked={hidenumber !== '1'}
+          text={_l('显示序号')}
           onClick={checked => {
             onChange(
               handleAdvancedSettingChange(data, {
-                hidenumber: checked ? '0' : '1',
+                hidenumber: checked ? '1' : '0',
               }),
             );
           }}

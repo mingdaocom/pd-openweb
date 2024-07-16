@@ -31,7 +31,7 @@ export default {
      return mdyAPI('Transfer', 'GetTransferRecordByType', args, options);
    },
   /**
-  * 执行交接
+  * 执行交接【前端反馈 无调用】
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id
   * @param {string} args.oldAccountId 原账户Id

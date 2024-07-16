@@ -1,18 +1,21 @@
-import { exportAll } from '../../util';
 import WidgetBase from './WidgetBase';
 import WidgetOperate from './WidgetOperate';
 import WidgetStyle from './WidgetStyle';
 import WidgetHighSetting from './WidgetHighSetting';
 import WidgetMobile from './WidgetMobile';
 import WidgetSecurity from './WidgetSecurity';
+import BothWayRelate from './BothWayRelate';
+import WidgetPermission from './WidgetPermission';
 
-const components = exportAll(require.context('./', false, /\.jsx$/));
-export default {
-  ...components,
+const CollapseComponents = {
   WidgetBase,
   WidgetOperate,
   WidgetStyle,
   WidgetHighSetting,
   WidgetMobile,
   WidgetSecurity,
+  BothWayRelate,
+  WidgetPermission,
 };
+
+export default CollapseComponents;

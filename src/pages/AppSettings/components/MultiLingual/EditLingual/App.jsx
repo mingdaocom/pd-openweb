@@ -11,7 +11,7 @@ export default function App(props) {
   const [editAppIntroVisible, setEditAppIntroVisible] = useState(false);
   const data = _.find(translateData, { correlationId: app.id }) || {};
   const translateInfo = data.data || {};
-  const comparisonLangInfo = getTranslateInfo(app.id, app.id, comparisonLangData);
+  const comparisonLangInfo = getTranslateInfo(app.id, null, app.id, comparisonLangData);
 
   const handleSave = info => {
     onEditAppLang({
@@ -29,7 +29,7 @@ export default function App(props) {
   return (
     <Fragment>
       <div className="pAll20">
-        <div className="Font14 bold mBottom20">{getTranslateInfo(app.id, app.id).name || selectNode.name}</div>
+        <div className="Font14 bold mBottom20">{getTranslateInfo(app.id, null, app.id).name || selectNode.name}</div>
         <div className="flexRow alignItemsCenter nodeItem">
           <div className="Font13 mRight20 label">{_l('应用名称')}</div>
           <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.name : selectNode.name} disabled={true} />

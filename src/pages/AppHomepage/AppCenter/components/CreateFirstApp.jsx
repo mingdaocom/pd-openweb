@@ -6,6 +6,8 @@ import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImport
 import { getThemeColors } from 'src/util';
 import bgPng from '../assets/welcome.png';
 import _ from 'lodash';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const FullCon = styled.div`
   flex: 1;
@@ -61,9 +63,9 @@ const FullCon = styled.div`
 `;
 
 export default function CreateFirstApp(props) {
-  const { projectId } = props;
+  const { projectId, myPermissions } = props;
   const project = _.find(md.global.Account.projects, { projectId });
-  const canCreate = !_.get(project, 'cannotCreateApp');
+  const canCreate = !_.get(project, 'cannotCreateApp') || hasPermission(myPermissions, PERMISSION_ENUM.CREATE_APP);
   const INTRO_CONFIG = [
     {
       type: 'create',

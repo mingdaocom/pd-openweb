@@ -46,6 +46,7 @@ export default class AppIntro extends Component {
   render() {
     const {
       description: summary,
+      resume,
       permissionType,
       onCancel,
       changeSetting,
@@ -61,6 +62,7 @@ export default class AppIntro extends Component {
         data={data}
         className="appIntroDescriptionEditor"
         summary={summary}
+        resume={resume}
         isEditing={isEditing}
         permissionType={permissionType}
         changeEditState={isEditing => {
@@ -68,7 +70,7 @@ export default class AppIntro extends Component {
           this.setState({ isEditing });
           changeEditState(isEditing);
         }}
-        onSave={this.handleSave}
+        onSave={this.props.onSave}
         changeSetting={changeSetting}
         onCancel={() => {
           // this.setState({ isEditing: false });

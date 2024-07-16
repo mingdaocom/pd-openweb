@@ -17,7 +17,7 @@ import nzh from 'nzh';
 import './Print.less';
 import { htmlDecodeReg, accAdd, accDiv, accMul } from 'src/util';
 import _ from 'lodash';
-
+import RegExpValidator from 'src/util/expression';
 const nzhCn = nzh.cn;
 const { task } = model;
 
@@ -416,8 +416,6 @@ export default class Print extends Component {
         }
         return null;
       }
-      case 20:
-        return value ? item.value + item.unit : '';
       case 21: {
         if (value) {
           const getTypeName = type => {
@@ -541,8 +539,8 @@ export default class Print extends Component {
     } catch (err) {
       return <span className="mBottom5 InlineBlock" dangerouslySetInnerHTML={{ __html: '&nbsp;' }}></span>;
     }
-    const pictureAttachments = attachments.filter(attachment => File.isPicture(attachment.ext));
-    const otherAttachments = attachments.filter(attachment => !File.isPicture(attachment.ext));
+    const pictureAttachments = attachments.filter(attachment => RegExpValidator.fileIsPicture(attachment.ext));
+    const otherAttachments = attachments.filter(attachment => !RegExpValidator.fileIsPicture(attachment.ext));
     return (
       <div className={cx('recordAttachments', { isMultiple: isRelateMultipleSheet })}>
         {!!pictureAttachments.length && (

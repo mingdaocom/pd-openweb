@@ -57,6 +57,7 @@ var instance = {
    * 获取历史运行列表
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
+   * @param {string} [args.archivedId] archivedId
    * @param {Date} [args.endDate] 结束时间
    * @param {String} [args.instanceId] 主instanceId(根据主历史查子流程历史使用)
    * @param {int} [args.pageIndex] 页数
@@ -127,6 +128,19 @@ var instance = {
     return mdyAPI(controllerName, 'instancepass', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 重新发起
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),opinion:意见(object),signature:签名(ref),workId:workId(string),}*requestWork
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  restart: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/instance/restart';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'instancerestart', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 撤回
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
@@ -164,6 +178,19 @@ var instance = {
     base.ajaxOptions.url = base.server(options) + '/instance/submit';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'instancesubmit', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
+   * 审批人撤回
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {审批动作} {backNodeId:退回节点ID(string),before:加签前后(boolean),data:编辑的控件数据 web端使用(ref),files:附件(string),formData:编辑的控件数据 明道移动端端使用(string),forwardAccountId:转审账号(string),id:id(string),logId:行记录日志id(string),opinion:意见(object),signature:签名(ref),workId:workId(string),}*requestWork
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  taskRevoke: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/instance/taskRevoke';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'instancetaskRevoke', JSON.stringify(args), $.extend(base, options));
   },
   /**
    * 填写动作-填写转给其他人

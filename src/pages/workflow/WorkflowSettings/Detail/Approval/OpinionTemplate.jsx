@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useCallback } from 'react';
 import { Radio, Dialog, Textarea, Checkbox } from 'ming-ui';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import { Tooltip } from 'antd';
 import styled from 'styled-components';
 import _ from 'lodash';
@@ -36,7 +36,7 @@ const Btn = styled.div`
 
 const DragHandle = SortableHandle(() => (
   <Tooltip title={_l('拖拽调整排序')}>
-    <i className="icon-drag Font16 Gray_9e ThemeHoverColor3" style={{ cursor: 'move' }} />
+    <i className="icon-drag Font16 Gray_75 ThemeHoverColor3" style={{ cursor: 'move' }} />
   </Tooltip>
 ));
 
@@ -85,7 +85,7 @@ const SortableItem = SortableElement(({ data, items, sourceKey, item, currentInd
 
       <Tooltip title={_l('删除')}>
         <i
-          className="icon-delete2 Font16 Gray_9e pointer mLeft10"
+          className="icon-delete2 Font16 Gray_75 pointer mLeft10"
           onClick={() => {
             const newSource = _.cloneDeep(items);
             _.remove(newSource, (o, index) => index === currentIndex);

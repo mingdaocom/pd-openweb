@@ -25,7 +25,7 @@ function TagCon(props) {
       {data.length ? (
         data.map((item, index) => (
           <span className="fiterTagItem" key={index}>
-            {renderItem ? renderItem(item) : <span className="text">{item.name}</span>}
+            {renderItem ? renderItem(item) : <span className="text breakAll">{item.name}</span>}
             <span
               className="remove"
               onClick={e => {

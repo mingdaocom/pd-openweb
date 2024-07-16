@@ -3,7 +3,7 @@
   .workConfigControlBox {
     overflow: auto;
     .controlSeparate {
-      width: 100px;
+      width: 50px;
       justify-content: center;
       display: flex;
       padding-top: 9px;
@@ -13,6 +13,7 @@
       .sheetControls {
         background: #fafafa;
         border-radius: 3px;
+        min-width: 0;
         .star {
           color: #F83333;
           font-size: 17px;
@@ -30,6 +31,9 @@
           box-sizing: border-box;
           height: 36px;
           align-items: center;
+          .Dropdown.disabled {
+            background-color: #fafafa;
+          }
           .Dropdown--input {
             padding-left: 5px !important;
           }

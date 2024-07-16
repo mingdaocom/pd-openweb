@@ -2,8 +2,9 @@ import React, { Fragment, useEffect } from 'react';
 import { RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import { handleAdvancedSettingChange } from '../../util/setting';
-import Components from '../components';
+import WidgetUserPermission from '../components/WidgetUserPermission';
 import _ from 'lodash';
+import UserConfig from '../components/WidgetHighSetting/ControlSetting/UserConfig';
 
 const DISPLAY_OPTIONS = [
   {
@@ -44,7 +45,7 @@ export default function UserPicker(props) {
           size="middle"
           checkedValue={enumDefault}
           data={DISPLAY_OPTIONS}
-          onChange={value => onChange({ enumDefault: value })}
+          onChange={value => onChange({ enumDefault: value, unique: false })}
         />
       </SettingItem>
       {fromExcel ? null : (
@@ -72,13 +73,17 @@ export default function UserPicker(props) {
                     data={DISPLAY_TYPE_OPTIONS}
                     onChange={value =>
                       onChange(
-                        handleAdvancedSettingChange(data, {
-                          usertype: value,
-                          dynamicsrc: '',
-                          defaultfunc: '',
-                          defsource: '',
-                          defaulttype: '',
-                        }),
+                        handleAdvancedSettingChange(
+                          { ...data, enumDefault2: 0 },
+                          {
+                            usertype: value,
+                            dynamicsrc: '',
+                            defaultfunc: '',
+                            defsource: '',
+                            defaulttype: '',
+                            chooserange: '',
+                          },
+                        ),
                       )
                     }
                   />
@@ -86,7 +91,8 @@ export default function UserPicker(props) {
               )}
             </Fragment>
           )}
-          {from !== 'subList' && <Components.WidgetUserPermission {...props} />}
+          <UserConfig {...props} />
+          {from !== 'subList' && <WidgetUserPermission {...props} />}
         </Fragment>
       )}
     </Fragment>

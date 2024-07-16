@@ -125,7 +125,7 @@ export default class CreateFlow extends Component {
         <header className="createWorkflowHeader flexRow">
           <div className="backEdit flexRow">
             <div className="backToWorkflowIndex mRight12" onClick={this.props.onBack}>
-              <Icon icon="backspace" className="Font24 Gray_9e ThemeHoverColor3 pointer" />
+              <Icon icon="backspace" className="Font24 Gray_75 ThemeHoverColor3 pointer" />
             </div>
             <input
               ref={this.inputRef}

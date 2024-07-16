@@ -1,13 +1,15 @@
 import React, { Fragment, useEffect } from 'react';
-import { SettingItem, EditInfo } from '../../styled';
-import { Checkbox, Dropdown, LoadDiv } from 'ming-ui';
+import { SettingItem, EditInfo, DisplayMode } from '../../styled';
+import { Checkbox, Icon, LoadDiv } from 'ming-ui';
 import { Input } from 'antd';
 import styled from 'styled-components';
+import AttachmentConfig from '../components/AttachmentConfig';
 import { useSetState } from 'react-use';
 import worksheetAjax from 'src/api/worksheet';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import reportApi from 'statistics/api/report.js';
 import SelectStaticChartFromSheet from '../components/embed/SelectStaticChartFromSheet';
+import SelectViewFromSheet from '../components/embed/SelectViewFromSheet';
 import FilterDialog from '../components/embed/filterDialog';
 import { FilterItemTexts } from '../components/FilterData';
 import { SYSTEM_CONTROL } from '../../config/widget';
@@ -18,12 +20,22 @@ import _ from 'lodash';
 
 const EMBED_TYPES = [
   {
-    value: 1,
-    text: _l('URL'),
+    value: 2,
+    text: _l('统计'),
+    img: 'worksheet_column_chart',
+    headerText: _l('图表'),
   },
   {
-    value: 2,
-    text: _l('统计图表'),
+    value: 3,
+    text: _l('视图'),
+    img: 'view_eye',
+    headerText: _l('视图'),
+  },
+  {
+    value: 1,
+    text: _l('链接'),
+    img: 'link1',
+    headerText: _l('链接'),
   },
 ];
 
@@ -35,12 +47,13 @@ const EmbedSettingWrap = styled.div`
 
 export default function Embed(props) {
   const { data = {}, allControls, globalSheetInfo, onChange } = props;
-  const { dataSource = '', enumDefault, controlId } = data;
-  const { height, allowlink, filters = [] } = getAdvanceSetting(data);
-  const [{ visible, filterVisible, isChartDelete, loading }, setCommonState] = useSetState({
+  const { dataSource, enumDefault, controlId, size } = data;
+  const { height, allowlink, rownum = '10', filters = [] } = getAdvanceSetting(data);
+  const { appid, wsid, reportid, type } = safeParse(dataSource || '{}');
+  const [{ visible, filterVisible, isDelete, loading }, setCommonState] = useSetState({
     visible: false,
     filterVisible: false,
-    isChartDelete: false,
+    isDelete: false,
     loading: false,
   });
   const [{ appId, sheetId, reportId, sheetName, reportName }, setChartInfo] = useSetState({
@@ -50,11 +63,13 @@ export default function Embed(props) {
     sheetName: '',
     reportName: '',
   });
-  const [{ worksheetId, worksheetName, controls }, setWorksheetInfo] = useSetState({
+  const [{ worksheetId, viewType, controls }, setWorksheetInfo] = useSetState({
     worksheetId: '',
-    worksheetName: '',
+    viewType: '',
     controls: [],
   });
+
+  const modeInfo = _.find(EMBED_TYPES, e => e.value === enumDefault) || {};
 
   const handleDynamicValueChange = (value = []) => {
     let formatValue = '';
@@ -70,84 +85,102 @@ export default function Embed(props) {
   };
 
   const handleClear = () => {
-    setCommonState({ visible: false, filterVisible: false, isChartDelete: false, loading: false });
+    setCommonState({ visible: false, filterVisible: false, isDelete: false, loading: false });
     setChartInfo({ appId: '', sheetId: '', reportId: '', sheetName: '', reportName: '' });
     setWorksheetInfo({
       worksheetId: '',
-      worksheetName: '',
+      viewType: '',
       controls: [],
     });
   };
 
-  useEffect(() => {
-    handleClear();
-    if (dataSource && enumDefault === 2) {
-      setCommonState({ loading: true });
-      // type  自定义页面：1，工作表：0
-      const { appid, wsid, reportid, type } = JSON.parse(dataSource || '{}');
-
-      let requestApi;
-      if (type === 1) {
-        requestApi = reportApi.listByPageId({ appId: wsid });
-      } else {
-        requestApi = reportApi.list({
-          appId: wsid,
-          isOwner: false,
-          pageIndex: 1,
-          pageSize: 10000,
-        });
-      }
-
-      requestApi
-        .then(data => {
-          const list = type === 1 ? data : data.reports;
-          const currentReport = _.find(list || [], item => item.id === reportid);
-
-          if (!currentReport) {
-            setCommonState({ isChartDelete: true, loading: false });
-          } else {
-            setChartInfo({
-              appId: appid,
-              sheetId: wsid,
-              reportId: reportid,
-              sheetName: currentReport.pageName || '',
-              reportName: currentReport.name,
-            });
-            setWorksheetInfo({ worksheetId: type === 1 ? currentReport.appId : wsid });
-            setCommonState({ loading: false });
-          }
-        })
-        .catch(() => {
-          setCommonState({ isChartDelete: true, loading: false });
-        });
-    }
-  }, [dataSource]);
-
-  useEffect(() => {
-    if (!worksheetId) return;
+  const getSheetInfo = (id, currentReport) => {
+    if (!id) return;
 
     worksheetAjax
       .getWorksheetInfo({
-        worksheetId: worksheetId,
+        worksheetId: id,
         getTemplate: true,
-        getViews: false,
+        getViews: true,
       })
-      .then(({ template = {}, name }) => {
-        if (!sheetName) setChartInfo({ sheetName: name });
-        setWorksheetInfo({ controls: template.controls || [], worksheetName: name });
-        setCommonState({ isChartDelete: !reportName || !name, loading: false });
-      });
-  }, [worksheetId]);
+      .then(({ template = {}, name, appId, views = [] }) => {
+        if (enumDefault === 3) {
+          const currentView = _.find(views, v => v.viewId === reportid);
+          setChartInfo({
+            appId,
+            sheetId: id,
+            reportId: _.get(currentView, 'viewId'),
+            sheetName: name,
+            reportName: _.get(currentView, 'name'),
+          });
+          setWorksheetInfo({
+            worksheetId: id,
+            controls: template.controls || [],
+            viewType: _.get(currentView, 'viewType') || type,
+          });
+          setCommonState({ isDelete: !currentView, loading: false });
+          return;
+        }
 
-  const renderCom = () => {
+        setChartInfo({
+          appId: appid,
+          sheetId: wsid,
+          reportId: reportid,
+          sheetName: name,
+          reportName: currentReport.name,
+        });
+        setWorksheetInfo({ worksheetId: id, controls: template.controls || [] });
+        setCommonState({ loading: false });
+      })
+      .catch(() => {
+        setCommonState({ isDelete: true, loading: false });
+      });
+  };
+
+  useEffect(() => {
+    handleClear();
+    if (wsid) {
+      setCommonState({ loading: true });
+      if (enumDefault === 3) {
+        getSheetInfo(wsid);
+      } else if (enumDefault === 2) {
+        let requestApi;
+
+        if (type === 1) {
+          requestApi = reportApi.listByPageId({ appId: wsid });
+        } else {
+          requestApi = reportApi.list({
+            appId: wsid,
+            isOwner: false,
+            pageIndex: 1,
+            pageSize: 10000,
+          });
+        }
+
+        requestApi
+          .then(data => {
+            const list = type === 1 ? data : data.reports;
+            const currentReport = _.find(list || [], item => item.id === reportid);
+
+            if (!currentReport) {
+              setCommonState({ isDelete: true, loading: false });
+            } else {
+              const newSheetId = type === 1 ? currentReport.appId : wsid;
+              getSheetInfo(newSheetId, currentReport);
+            }
+          })
+          .catch(() => {
+            setCommonState({ isDelete: true, loading: false });
+          });
+      }
+    }
+  }, [controlId, wsid, reportid, enumDefault]);
+
+  const renderCom = (isDialog = false) => {
+    const isViewDialogRender = isDialog && enumDefault === 3;
     return (
       <span className="flexCenter">
-        {_l('筛选工作表')}
-        {!loading && dataSource && (
-          <span className={cx('Bold mLeft3', { Red: isChartDelete })}>
-            {isChartDelete ? _l('图表已删除') : worksheetName}
-          </span>
-        )}
+        {isViewDialogRender ? _l('在视图过滤的基础上叠加筛选条件') : _l('筛选%0', modeInfo.headerText)}
       </span>
     );
   };
@@ -166,38 +199,47 @@ export default function Embed(props) {
     <EmbedSettingWrap>
       <SettingItem>
         <div className="settingItemTitle">{_l('类型')}</div>
-        <Dropdown
-          border
-          data={EMBED_TYPES}
-          value={enumDefault}
-          onChange={value => {
-            if (value === 1) {
-              handleClear();
-            }
-            onChange({ enumDefault: value, dataSource: enumDefault !== value ? '' : dataSource });
-          }}
-        />
+        <DisplayMode>
+          {EMBED_TYPES.map(({ value, text, img }) => {
+            return (
+              <div
+                className={cx('displayItem', { active: enumDefault === value })}
+                onClick={() => {
+                  handleClear();
+                  onChange({
+                    enumDefault: value,
+                    dataSource: enumDefault !== value ? '' : dataSource,
+                    size: value === 3 ? 12 : size,
+                  });
+                }}
+              >
+                <div className="mBottom4">
+                  <Icon icon={img} />
+                </div>
+                <span className="Gray_9e">{text}</span>
+              </div>
+            );
+          })}
+        </DisplayMode>
       </SettingItem>
-      <SettingItem>
-        {enumDefault === 2 ? (
+      <SettingItem className="mTop10">
+        <div className="settingItemTitle">{modeInfo.headerText}</div>
+        {enumDefault !== 1 ? (
           <Fragment>
             {loading ? (
               <LoadDiv size="small" />
             ) : (
-              <EditInfo
-                onClick={() => setCommonState({ visible: true })}
-                className={cx({ borderError: isChartDelete })}
-              >
+              <EditInfo onClick={() => setCommonState({ visible: true })} className={cx({ borderError: isDelete })}>
                 <div className="overflow_ellipsis">
-                  {isChartDelete ? (
-                    <span className="Red">{_l('图表已删除')}</span>
+                  {isDelete ? (
+                    <span className="Red">{_l('%0已删除', modeInfo.headerText)}</span>
                   ) : sheetName ? (
                     <span className="Gray">{_l('%0 - %1', sheetName, reportName)}</span>
                   ) : (
-                    <span className="Gray_9e">{_l('选择统计图表')}</span>
+                    <span className="Gray_9e">{_l('选择%0', modeInfo.headerText)}</span>
                   )}
                 </div>
-                {!isChartDelete && sheetId && (
+                {!isDelete && sheetId && (
                   <div className="edit">
                     <i className="icon-edit"></i>
                   </div>
@@ -216,49 +258,55 @@ export default function Embed(props) {
           />
         )}
       </SettingItem>
-      <SettingItem>
-        <div className="labelWrap flexCenter mBottom15">
-          <span>{_l('高度')}</span>
-          <Input
-            value={height}
-            style={{ width: 100, margin: '0 10px 0 10px' }}
-            onChange={e => {
-              const value = e.target.value.trim();
-              onChange(handleAdvancedSettingChange(data, { height: value.replace(/[^\d]/g, '') }));
-            }}
-            onBlur={e => {
-              let value = e.target.value.trim();
-              if (value > 1000) {
-                value = 1000;
-              }
-              if (value < 100) {
-                value = 100;
-              }
-              onChange(handleAdvancedSettingChange(data, { height: value }));
-            }}
-          />
-          <span>px</span>
-        </div>
-        {enumDefault !== 2 && (
-          <div className="labelWrap">
-            <Checkbox
-              size="small"
-              checked={allowlink === '1'}
-              text={_l('允许新页面打开链接')}
-              onClick={checked => {
-                onChange(
-                  handleAdvancedSettingChange(data, {
-                    allowlink: checked ? '0' : '1',
-                  }),
-                );
+
+      {viewType !== 0 ? (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('最大高度')}</div>
+          <div className="labelWrap flexCenter">
+            <Input
+              value={height}
+              className="Width90 mRight12"
+              onChange={e => {
+                const value = e.target.value.trim();
+                onChange(handleAdvancedSettingChange(data, { height: value.replace(/[^\d]/g, '') }));
+              }}
+              onBlur={e => {
+                let value = e.target.value.trim();
+                if (value > 1000) {
+                  value = 1000;
+                }
+                if (value < 100) {
+                  value = 100;
+                }
+                onChange(handleAdvancedSettingChange(data, { height: value }));
               }}
             />
+            <span>px</span>
           </div>
-        )}
-      </SettingItem>
-      {enumDefault === 2 && (
+        </SettingItem>
+      ) : (
         <SettingItem>
-          <div className="settingItemTitle">{_l('筛选数据源')}</div>
+          <div className="settingItemTitle">{_l('每页行数')}</div>
+          <div className="flexCenter">
+            <AttachmentConfig
+              data={handleAdvancedSettingChange(data, { rownum })}
+              attr="rownum"
+              maxNum={50}
+              onChange={value => {
+                let tempRowNum = getAdvanceSetting(value, 'rownum');
+                if (tempRowNum > 50) {
+                  tempRowNum = 50;
+                }
+                onChange(handleAdvancedSettingChange(data, { rownum: tempRowNum.toString() }));
+              }}
+            />
+            <span className="mLeft12">{_l('行')}</span>
+          </div>
+        </SettingItem>
+      )}
+      {enumDefault !== 1 ? (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('过滤')}</div>
           <div className="labelWrap">
             <Checkbox
               size="small"
@@ -278,14 +326,38 @@ export default function Embed(props) {
               {renderCom()}
             </Checkbox>
           </div>
+          {!_.isEmpty(filters) && (
+            <FilterItemTexts
+              {...props}
+              loading={loading}
+              controls={controls}
+              allControls={formatControls.concat(SYSTEM_CONTROL)}
+              editFn={() => setCommonState({ filterVisible: true })}
+            />
+          )}
         </SettingItem>
+      ) : (
+        <div className="labelWrap mTop15">
+          <Checkbox
+            size="small"
+            checked={allowlink === '1'}
+            text={_l('允许新页面打开链接')}
+            onClick={checked => {
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  allowlink: checked ? '0' : '1',
+                }),
+              );
+            }}
+          />
+        </div>
       )}
 
       {filterVisible && (
         <FilterDialog
           data={data}
           controls={controls}
-          titleCom={renderCom()}
+          titleCom={renderCom(true)}
           allControls={formatControls}
           globalSheetInfo={globalSheetInfo}
           onOk={conditions => {
@@ -299,17 +371,9 @@ export default function Embed(props) {
           onClose={() => setCommonState({ filterVisible: false })}
         />
       )}
-      {!_.isEmpty(filters) && (
-        <FilterItemTexts
-          {...props}
-          loading={loading}
-          controls={controls}
-          allControls={formatControls.concat(SYSTEM_CONTROL)}
-          editFn={() => setCommonState({ filterVisible: true })}
-        />
-      )}
 
-      {visible && (
+      {/**统计图 */}
+      {visible && enumDefault === 2 && (
         <SelectStaticChartFromSheet
           currentAppId={globalSheetInfo.appId}
           projectId={globalSheetInfo.projectId}
@@ -319,10 +383,37 @@ export default function Embed(props) {
           onOk={ids => {
             setChartInfo(ids);
             onChange({
+              ...(ids.sheetId !== wsid ? handleAdvancedSettingChange(data, { filters: '' }) : {}),
               dataSource: JSON.stringify({
                 appid: ids.appId,
                 wsid: ids.sheetId,
                 reportid: ids.reportId,
+                type: ids.type,
+              }),
+            });
+            setCommonState({ visible: false });
+          }}
+          onCancel={() => setCommonState({ visible: false })}
+        />
+      )}
+
+      {/**视图 */}
+      {visible && enumDefault === 3 && (
+        <SelectViewFromSheet
+          currentAppId={globalSheetInfo.appId}
+          projectId={globalSheetInfo.projectId}
+          appId={appId || globalSheetInfo.appId}
+          sheetId={sheetId}
+          viewId={reportId}
+          onOk={ids => {
+            setChartInfo({ ..._.omit(ids, ['viewId', 'viewName']), reportId: ids.viewId, reportName: ids.viewName });
+            setWorksheetInfo({ viewType: ids.type });
+            onChange({
+              ...(ids.sheetId !== wsid ? handleAdvancedSettingChange(data, { filters: '' }) : {}),
+              dataSource: JSON.stringify({
+                appid: ids.appId,
+                wsid: ids.sheetId,
+                reportid: ids.viewId,
                 type: ids.type,
               }),
             });

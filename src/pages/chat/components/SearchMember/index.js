@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 import './index.less';
 import * as ajax from '../../utils/ajax';
@@ -55,7 +54,7 @@ export default class SearchMember extends Component {
   }
   adjustViewport(direction) {
     const { flattenResult, currentIndex } = this.state;
-    const scrollViewEl = findDOMNode(this.scrollView);
+    const scrollViewEl = this.scrollView.nanoScroller;
     const $scrollViewEl = $(scrollViewEl);
     const current = flattenResult[currentIndex] || {};
     const id = current.accountId ? (current.user ? current.user.userId : current.accountId) : current.groupId;

@@ -1,8 +1,6 @@
 import React from 'react';
-import login from 'src/api/login';
 import global from 'src/api/global';
-import project from 'src/api/project';
-import { redirect } from 'src/router/navigateTo';
+import { redirect, navigateToLogin, navigateTo, navigateToLogout } from 'src/router/navigateTo';
 import { LoadDiv } from 'ming-ui';
 import { getPssId, setPssId } from 'src/util/pssId';
 import _ from 'lodash';
@@ -57,45 +55,12 @@ const clearLocalStorage = () => {
   try {
     Object.keys(localStorage)
       .map(key => ({ key, size: Math.floor(new Blob([localStorage[key]]).size / 1024) }))
-      .filter(
-        item =>
-          (item.size > 200 || item.key.startsWith('_AMap_')) &&
-          !item.key.startsWith('cacheDraft_') &&
-          !item.key.startsWith('cacheFieldData_'),
-      )
+      .filter(item => item.size > 200 || item.key.startsWith('_AMap_'))
       .forEach(item => {
         localStorage.removeItem(item.key);
       });
   } catch (err) {}
 };
-
-function navigateToLogin({ needSecondCheck } = {}) {
-  function handleNavigate() {
-    const host = location.host;
-    const link = `?ReturnUrl=${encodeURIComponent(location.href)}`;
-    let isSubDomain = false;
-
-    if (!_.includes(['meihua.mingdao.com', 'www.mingdao.com'], host)) {
-      isSubDomain = project.checkSubDomain({ host }, { ajaxOptions: { sync: true } });
-    }
-
-    location.href = isSubDomain ? `${window.subPath || ''}/network${link}` : `${window.subPath || ''}/login${link}`;
-    window.isWaiting = true;
-  }
-  if (needSecondCheck) {
-    setTimeout(() => {
-      login.checkLogin().then(isLogin => {
-        if (!isLogin) {
-          handleNavigate();
-        }
-      });
-    }, 2000);
-  } else {
-    handleNavigate();
-  }
-}
-
-window.navigateToLogin = navigateToLogin;
 
 const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   const lang = getCurrentLang();
@@ -150,7 +115,7 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
     (((window.subPath || location.href.indexOf('theportal.cn') > -1) && !md.global.Account.isPortal) ||
       (!window.subPath && location.href.indexOf('theportal.cn') === -1 && md.global.Account.isPortal))
   ) {
-    location.href = `${window.subPath || ''}/logout?ReturnUrl=${encodeURIComponent(location.href)}`;
+    navigateToLogout();
     window.isWaiting = true;
     return;
   }
@@ -158,11 +123,26 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   // 第一次进入
   if (!md.global.Account.langModified) {
     accountSetting.autoEditAccountLangSetting({ langType: getCurrentLangCode(lang) });
+    !md.global.Account.isPortal && navigateTo('app/my');
   } else if (md.global.Account.lang !== lang) {
     setCookie('i18n_langtag', md.global.Account.lang);
     window.location.reload();
     window.isWaiting = true;
     return;
+  }
+
+  // 设置网络多语言
+  if (md.global.ProjectLangs && md.global.ProjectLangs.length) {
+    const projectLangs = md.global.ProjectLangs.filter(o => o.langType === getCurrentLangCode(lang)).map(o => ({
+      projectId: o.projectId,
+      companyName: o.data[0].value || (_.find(v => v.projectId === o.projectId) || {}).companyName,
+    }));
+    const mergedProjects = _.merge(
+      _.keyBy(md.global.Account.projects, 'projectId'),
+      _.keyBy(projectLangs, 'projectId'),
+    );
+
+    md.global.Account.projects = _.values(mergedProjects);
   }
 
   // 加载KF5

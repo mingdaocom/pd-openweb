@@ -29,6 +29,7 @@ export default function IsAppAdmin(props) {
     className,
     desc = undefined,
     ckeckSuccessCb,
+    passCheckManager,
   } = props;
 
   return (
@@ -37,11 +38,17 @@ export default function IsAppAdmin(props) {
         {iconUrl ? <SvgIcon url={iconUrl} fill="#fff" size={16} /> : <Icon icon={defaultIcon} />}
       </div>
       <div
-        className={cx('flex nameBox ellipsis Font14 Hand Hover_21')}
+        className={cx('flex nameBox ellipsis Font14', { 'Hand Hover_21': appName && appName !== _l('已删除') })}
         onClick={() => {
+          if (!appName || appName === _l('已删除')) return;
           if (createType === 1) {
             window.open(transferExternalLinkUrl(urlTemplate, projectId, appId));
           } else {
+            if (passCheckManager) {
+              window.open(`/app/${appId}`);
+              return;
+            }
+
             checkIsAppAdmin({
               appId,
               appName: appName,
@@ -52,7 +59,9 @@ export default function IsAppAdmin(props) {
           }
         }}
       >
-        {appName}
+        <div className="w100 ellipsis" title={appName}>
+          {appName}
+        </div>
         {desc && <div className="desc ellipsis Font12 Gray_bd">{desc}</div>}
       </div>
     </Wrap>

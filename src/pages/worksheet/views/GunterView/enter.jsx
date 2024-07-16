@@ -26,6 +26,7 @@ export default class GunterEnter extends Component {
   render() {
     const {
       isCharge,
+      noLoadAtDidMount,
       view,
       toCustomWidget,
       controls = [],
@@ -104,6 +105,6 @@ export default class GunterEnter extends Component {
       );
     }
 
-    return <Gunter view={view} />;
+    return <Gunter view={view} noLoadAtDidMount={noLoadAtDidMount} />;
   }
 }

@@ -1,19 +1,19 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
-import { arrayMove, SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
+import { arrayMove, SortableContainer, SortableElement, SortableHandle } from '@mdfe/react-sortable-hoc';
 import update from 'immutability-helper';
 import { isEmpty } from 'lodash';
 import { Dropdown } from 'antd';
 import { useSetState } from 'react-use';
 import { Menu, MenuItem } from 'ming-ui';
-import WidgetComponents from '../../components';
+import AutoIcon from '../../components/Icon';
 import { SettingItem, InfoWrap, DropdownPlaceholder } from '../../styled';
 import { getControlByControlId, getIconByType } from '../../util';
 import { getAdvanceSetting, handleAdvancedSettingChange, isAutoNumberSelectableControl } from '../../util/setting';
-import Components from '../components';
-import AutoIdComponent from '../components/autoId';
-
-const Icon = WidgetComponents.Icon;
+import SelectControlWithRelate from '../components/SelectControlWithRelate';
+import StrInput from '../components/autoId/StrInput';
+import AutoNumberConfig from '../components/autoId/AutoNumberConfig';
+import TimeFormatConfig from '../components/autoId/TimeFormatConfig';
 
 const RuleInfo = styled.li`
   display: flex;
@@ -167,7 +167,7 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
     if (!controlName || (!rcid && isEmpty(getControlByControlId(allControls, controlId)))) {
       return (
         <div className="delWrap">
-          <Icon style={{ color: '#f44336' }} icon="delete" type="delete" />
+          <AutoIcon style={{ color: '#f44336' }} icon="delete" type="delete" />
           <span>{_l('字段已删除')}</span>
         </div>
       );
@@ -175,7 +175,7 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
     if (relationControlName) {
       return (
         <div className="relateControlInfo">
-          <Icon icon={getIconByType(controlType)} />
+          <AutoIcon icon={getIconByType(controlType)} />
           <span className="controlName">{controlName}</span>
           <span className="Gray_75">{relationControlName}</span>
         </div>
@@ -183,7 +183,7 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
     }
     return (
       <div className="controlInfo">
-        <Icon icon={getIconByType(controlType)} />
+        <AutoIcon icon={getIconByType(controlType)} />
         <span className="controlName">{controlName}</span>
       </div>
     );
@@ -204,7 +204,7 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
               ? _l('%0位数, %1', rule.length, NUMBER_TYPE_TO_TEXT[repeatType])
               : _l('自然数编号,%0', NUMBER_TYPE_TO_TEXT[repeatType])}
           </div>
-          <Icon icon="edit" type="link" onClick={() => setVisible({ numberConfigVisible: true })} />
+          <AutoIcon icon="edit" type="link" onClick={() => setVisible({ numberConfigVisible: true })} />
         </InfoWrap>
       );
     }
@@ -214,7 +214,7 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
           trigger="click"
           className="mTop0"
           overlay={
-            <Components.SelectControlWithRelate
+            <SelectControlWithRelate
               {...rest}
               allControls={allControls}
               filter={controls => _.filter(controls, isAutoNumberSelectableControl)}
@@ -226,7 +226,7 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
         >
           <DropdownPlaceholder>
             {getControlInfo()}
-            {<Icon icon="expand_more" />}
+            {<AutoIcon icon="expand_more" />}
           </DropdownPlaceholder>
         </Dropdown>
       );
@@ -248,7 +248,7 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
           }
         >
           <DropdownPlaceholder color={format ? '#333' : '#bdbdbd'}>
-            {text || 'YYYYMMDD'} <Icon icon="expand_more" />
+            {text || 'YYYYMMDD'} <AutoIcon icon="expand_more" />
           </DropdownPlaceholder>
         </Dropdown>
       );
@@ -259,13 +259,13 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
       <DragHandle />
       <div className="rule" onMouseDown={() => {}}>
         {type === 2 ? (
-          <AutoIdComponent.StrInput rule={rule} updateRule={updateRule} deleteRule={deleteRule} />
+          <StrInput rule={rule} updateRule={updateRule} deleteRule={deleteRule} />
         ) : (
           <Fragment>
             <div className="header">
               <div className="title">{TYPE_TO_TITLE[type]}</div>
               {type !== 1 && (
-                <Icon className="deleteRuleIcon" type="delete" icon="delete_12" onMouseDown={deleteRule} />
+                <AutoIcon className="deleteRuleIcon" type="delete" icon="delete_12" onMouseDown={deleteRule} />
               )}
             </div>
             {renderRuleItem()}
@@ -273,14 +273,14 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
         )}
       </div>
       {numberConfigVisible && (
-        <AutoIdComponent.AutoNumberConfig
+        <AutoNumberConfig
           rule={rule}
           onClose={() => setVisible({ numberConfigVisible: false })}
           onOk={data => updateRule(data)}
         />
       )}
       {timeFormatVisible && (
-        <AutoIdComponent.TimeFormatConfig
+        <TimeFormatConfig
           rule={rule}
           onClose={() => setVisible({ timeFormatVisible: false })}
           onOk={data => updateRule({ format: data })}

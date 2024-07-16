@@ -4,7 +4,7 @@ import { Input } from 'antd';
 import { SettingItem } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange, parseDataSource } from '../../util/setting';
 import { getIconByType } from '../../util';
-import CommonComponents from '../../components';
+import WidgetDropdown from '../../components/Dropdown';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -83,7 +83,7 @@ export default function BarCode({ data, onChange, allControls }) {
           />
         )}
         {(enumDefault === 1 || (enumDefault === 2 && enumDefault2 === 3)) && (
-          <CommonComponents.Dropdown
+          <WidgetDropdown
             border
             searchable
             data={[{ value: 'rowid', text: _l('记录ID'), icon: 'letter_a' }].concat(filterControls)}

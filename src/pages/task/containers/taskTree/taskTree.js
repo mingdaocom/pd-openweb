@@ -11,7 +11,7 @@ import quickCreateTask from '../../components/quickCreateTask/quickCreateTask';
 import TaskDetail from '../taskDetail/taskDetail';
 import _ from 'lodash';
 import { UserHead } from 'ming-ui';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { updateTaskCharge } from '../../redux/actions';
 import { dialogSelectUser } from 'ming-ui/functions';
 
@@ -288,7 +288,9 @@ class TaskTree extends Component {
     }
     item.data('hasbusinesscard', true);
 
-    ReactDOM.render(
+    const root = createRoot(ele);
+
+    root.render(
       <UserHead
         className="circle"
         user={{

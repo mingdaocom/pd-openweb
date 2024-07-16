@@ -237,7 +237,13 @@ export default function Tools({ appId, pageId, widget, layoutType, handleToolCli
                 <span className="cancel" onClick={() => toggle(false)}>
                   {_l('取消')}
                 </span>
-                <span className="del" onClick={() => handleToolClick('del')}>
+                <span
+                  className="del"
+                  onClick={() => {
+                    handleToolClick('del');
+                    toggle(false);
+                  }}
+                >
                   {_l('删除')}
                 </span>
               </div>

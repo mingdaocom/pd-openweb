@@ -38,6 +38,7 @@ export const errorCode = {
   50004: _l('系统错误')
 }
 
+import RegExpValidator from 'src/util/expression';
 export default class UploadFiles extends Component {
   static contextType = RecordInfoContext;
   static propTypes = {
@@ -321,8 +322,9 @@ export default class UploadFiles extends Component {
             return false;
           }
 
-          const temporaryDataLength = _this.state.temporaryData.filter(attachment => attachment.fileExt !== '.url')
-            .length;
+          const temporaryDataLength = _this.state.temporaryData.filter(
+            attachment => attachment.fileExt !== '.url',
+          ).length;
           const filesLength = files.filter(attachment => attachment.fileExt !== '.url').length;
           const currentFileLength = temporaryDataLength + filesLength;
 
@@ -339,13 +341,12 @@ export default class UploadFiles extends Component {
           }
 
           const tokenFiles = [];
-
+          const addFiles = [];
           // 渲染图片列表
           files.forEach(item => {
-            let { temporaryData } = _this.state;
-            let fileExt = `.${File.GetExt(item.name)}`;
-            let fileName = File.GetName(item.name);
-            let isPic = File.isPicture(fileExt);
+            let fileExt = `.${RegExpValidator.getExtOfFileName(item.name)}`;
+            let fileName = RegExpValidator.getNameOfFileName(item.name);
+            let isPic = RegExpValidator.fileIsPicture(fileExt);
             let id = item.id;
             let base = {
               isPic,
@@ -357,11 +358,12 @@ export default class UploadFiles extends Component {
               id: item.id,
               info: item.getNative(),
             });
-            _this.setState({
-              temporaryData: temporaryData.concat({ id: item.id, progress: 0.1, base }),
-            });
-
             tokenFiles.push({ bucket: isPic ? 4 : 3, ext: fileExt });
+            addFiles.push({ id: item.id, progress: 0.1, base });
+          });
+
+          _this.setState({
+            temporaryData: _this.state.temporaryData.concat(addFiles),
           });
 
           const { appId, worksheetId } = _this.props;
@@ -399,7 +401,7 @@ export default class UploadFiles extends Component {
             _this.removeUploadingFile(file.id);
             return;
           }
-          const fileExt = `.${File.GetExt(file.name)}`;
+          const fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
 
           uploader.settings.multipart_params = {
             token: file.token,
@@ -410,12 +412,7 @@ export default class UploadFiles extends Component {
           uploader.settings.multipart_params['x:filePath'] = (file.key || '').replace(file.fileName, '');
           uploader.settings.multipart_params['x:fileName'] = (file.fileName || '').replace(/\.[^\.]*$/, '');
           uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-            file.name.indexOf('.') > -1
-              ? file.name
-                  .split('.')
-                  .slice(0, -1)
-                  .join('.')
-              : file.name,
+            file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
           );
           uploader.settings.multipart_params['x:fileExt'] = fileExt;
         },
@@ -506,7 +503,7 @@ export default class UploadFiles extends Component {
           fileExt: node.ext ? '.' + node.ext : '',
           fileSize: node.size,
           allowDown: node.isDownloadable,
-          viewUrl: File.isPicture('.' + node.ext) ? node.viewUrl : null,
+          viewUrl: RegExpValidator.fileIsPicture('.' + node.ext) ? node.viewUrl : null,
           node,
         };
       });

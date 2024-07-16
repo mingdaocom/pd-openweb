@@ -1,0 +1,170 @@
+@weChartThemeColor: #28c445;
+@aliThemeColor: #1296db;
+
+#orderPay {
+  width: 100%;
+  height: 100%;
+}
+
+.orderPayWrap {
+  height: 100%;
+  background: #fff;
+  width: 600px;
+  height: 100%;
+  padding: 80px 0 20px;
+  box-sizing: border-box;
+  margin: 0 auto;
+  .amount {
+    font-family: DIN Alternate, DIN Alternate;
+    font-weight: 500;
+    word-break: break-all;
+  }
+  .qrCode {
+    width: 160px;
+    height: 160px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .weChatColor {
+    color: @weChartThemeColor;
+  }
+  .aliColor {
+    color: @aliThemeColor;
+  }
+  .payBtn,
+  .weChatPay,
+  .aliPay {
+    height: 44px;
+    line-height: 44px;
+    border-radius: 25px !important;
+    color: #fff;
+    padding: 0 24px;
+    font-size: 15px;
+  }
+  .weChatPay {
+    background-color: @weChartThemeColor!important;
+  }
+  .aliPay {
+    background-color: @aliThemeColor!important;
+    text-align: center;
+  }
+  .mobilePayErrorIcon {
+    margin: 0 auto;
+  }
+  &.mobileWrap {
+    width: 100%;
+    padding: 80px 24px 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    .orderInfo {
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    .title {
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      text-align: center;
+    }
+    .money {
+      text-align: center;
+    }
+    .payMethod {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      background: #f8f8f8;
+      border-radius: 3px;
+      .am-list-item {
+        background-color: #f8f8f8;
+      }
+      .am-list-thumb {
+        margin-right: 0;
+      }
+      .am-list-line {
+        display: none;
+      }
+    }
+  }
+  .orderInfoItem {
+    margin-bottom: 20px;
+    display: flex;
+    .value {
+      word-break: break-all;
+    }
+  }
+}
+
+.qrCodeWrap {
+  width: 80% !important;
+  border-radius: 10px !important;
+  &.pcQrCodeWrap {
+    width: auto !important;
+  }
+  .mui-dialog-body {
+    padding: 0 24px 16px !important;
+  }
+  .qrCode {
+    margin: 0 auto;
+    width: 250px;
+    height: 250px;
+  }
+}
+
+.payStatusWrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #f8f8f8;
+  .content {
+    width: 500px;
+    margin: 30px auto;
+    padding: 70px 32px 50px;
+    border-radius: 3px;
+    background-color: #fff;
+  }
+  .okIcon {
+    color: #fff;
+    font-size: 30px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 41px;
+    margin-bottom: 12px;
+  }
+  .overTimeIcon {
+    color: #ff9d00;
+    font-size: 70px;
+    margin-bottom: 12px;
+    transform: rotate(180deg);
+  }
+  &.mobileWrap {
+    width: 100%;
+    position: unset;
+    background: #fff;
+    .content {
+      width: 100%;
+      height: 100%;
+      margin: 36px auto 0;
+      background-color: #fff;
+      padding: 0;
+    }
+  }
+}

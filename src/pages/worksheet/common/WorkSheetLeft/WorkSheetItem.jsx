@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon, MdLink, Tooltip, SvgIcon } from 'ming-ui';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import MoreOperation from './MoreOperation';
 import Drag from './Drag';
 import styled from 'styled-components';
@@ -18,7 +18,7 @@ const Wrap = styled.div`
 `;
 
 export function convertColor(colorStr) {
-  return colorStr ? tinycolor(colorStr).setAlpha(0.1) : '#bbdefb';
+  return colorStr ? new TinyColor(colorStr).setAlpha(0.1) : '#bbdefb';
 }
 
 export default class WorkSheetItem extends Component {
@@ -87,7 +87,7 @@ export default class WorkSheetItem extends Component {
       urlTemplate,
       layerIndex,
     } = appItem;
-    const workSheetName = getTranslateInfo(appId, workSheetId).name || appItem.workSheetName;
+    const workSheetName = getTranslateInfo(appId, null, workSheetId).name || appItem.workSheetName;
     const isActive = activeSheetId === workSheetId;
     const { iconColor, currentPcNaviStyle, themeType, displayIcon = '', hideFirstSection } = appPkg;
     const showIcon = currentPcNaviStyle === 3 && hideFirstSection && appItem.firstGroupIndex === 0 ? true : displayIcon.split('')[layerIndex] === '1';
@@ -187,7 +187,7 @@ export default class WorkSheetItem extends Component {
               </div>
             ) : (
               <MdLink
-                className="NoUnderline valignWrapper h100 nameWrap"
+                className="NoUnderline valignWrapper h100 nameWrap stopPropagation"
                 to={url}
                 onClick={() => {
                   if (type == 0) {

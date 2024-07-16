@@ -53,14 +53,14 @@ export default class CC extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
       .then(result => {
-        this.setState({ data: result });
+        this.setState({ data: result }, () => {
+          if (isApproval && !result.selectNodeId) {
+            this.onChange(result.flowNodeList[0].nodeId);
+          }
+        });
 
         if (result.appId) {
           this.getWorksheetInfo(result.appId);
-        }
-
-        if (isApproval && !result.selectNodeId) {
-          this.onChange(result.flowNodeList[0].nodeId);
         }
       });
   }
@@ -151,7 +151,7 @@ export default class CC extends Component {
               className="workflowDetailDesc pTop15 pBottom15 mTop20"
               style={{ background: 'rgba(255, 163, 64, 0.12)' }}
             >
-              <div className="Gray_9e mBottom5">
+              <div className="Gray_75 mBottom5">
                 {_l(
                   '新版发送记录可以选择一个视图，按照所选视图配置的显示字段发送。如果通知人分发了此视图，可以直接按权限编辑记录、执行自定义动作。',
                 )}
@@ -182,7 +182,7 @@ export default class CC extends Component {
         {!data.formProperties.length && (
           <Fragment>
             <div className="Font13 bold mTop20">{_l('视图')}</div>
-            <div className="Font13 Gray_9e mTop5">
+            <div className="Font13 Gray_75 mTop5">
               {_l('按照所选视图配置的显示字段发送，如果通知人被分发了此视图，可以直接按权限编辑记录、执行自定义动作')}
             </div>
             <Dropdown
@@ -195,7 +195,7 @@ export default class CC extends Component {
               value={data.viewId}
               renderTitle={
                 !data.viewId || !views.length
-                  ? () => <span className="Gray_9e">{_l('请选择')}</span>
+                  ? () => <span className="Gray_75">{_l('请选择')}</span>
                   : data.viewId && !selectView
                   ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
                   : () => <span>{selectView.text}</span>
@@ -233,7 +233,7 @@ export default class CC extends Component {
         </div>
 
         <div className="Font13 bold mTop20">{_l('通知内容')}</div>
-        <div className="Font13 Gray_9e mTop5">
+        <div className="Font13 Gray_75 mTop5">
           {_l('可不设，默认显示记录标题。设置后，显示设置的通知内容和记录标题（可选）')}
         </div>
         <CustomTextarea

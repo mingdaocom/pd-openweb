@@ -1,6 +1,6 @@
 ﻿import React, { Component } from 'react';
 import TaskCenter from './containers/taskCenter/taskCenter';
-import store from 'redux/configureStore';
+import { emitter } from 'src/util';
 import UniformRoute from 'src/router/withTitle';
 import { connect } from 'react-redux';
 import _ from 'lodash';
@@ -30,7 +30,7 @@ class TaskEntrypoint extends Component {
   };
   render() {
     const { pathname } = this.props.location;
-    return <UniformRoute title={this.renderPageTitle()} pathname={pathname} emitter={store.emitter} component={TaskCenter} />;
+    return <UniformRoute title={this.renderPageTitle()} pathname={pathname} emitter={emitter} component={TaskCenter} />;
   }
 }
 

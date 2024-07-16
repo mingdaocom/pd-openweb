@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Modal, WingBlank, Button } from 'antd-mobile';
 
 class ModalWrap extends Component {
@@ -27,10 +27,15 @@ class ModalWrap extends Component {
 
 export default function functionModalWrap(props) {
   const div = document.createElement('div');
+
   document.body.appendChild(div);
+
+  const root = createRoot(div);
+
   function destory() {
-    ReactDOM.unmountComponentAtNode(div);
+    root.unmount();
     document.body.removeChild(div);
   }
-  ReactDOM.render(<ModalWrap visible {...props} onClose={destory} />, div);
+
+  root.render(<ModalWrap visible {...props} onClose={destory} />);
 }

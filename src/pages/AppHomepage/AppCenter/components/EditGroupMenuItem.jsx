@@ -4,6 +4,8 @@ import { MenuItem, Icon, Checkbox } from 'ming-ui';
 import styled from 'styled-components';
 import { VerticalMiddle, FlexCenter } from 'worksheet/components/Basics';
 import _ from 'lodash';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const Con = styled(MenuItem)`
   .Item-content {
@@ -54,12 +56,13 @@ const Empty = styled(FlexCenter)`
 function EditPanel(props) {
   const {
     isEmpty,
-    isAdmin,
+    hasManageAppAuth,
     personalGroups = [],
     projectGroups = [],
     selectedGroupIds = [],
     onUpdateAppBelongGroups,
     isDashboard,
+    projectGroupsLang,
   } = props;
   const [selectedIds, setSelectedIds] = useState(selectedGroupIds);
   const [keywords, setKeywords] = useState();
@@ -83,8 +86,11 @@ function EditPanel(props) {
         }}
       >
         <Checkbox checked={checked} />
-        <span className="mLeft2 ellipsis flex" title={group.name}>
-          {group.name}
+        <span
+          className="mLeft2 ellipsis flex"
+          title={_.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name}
+        >
+          {_.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name}
         </span>
       </GroupItem>
     );
@@ -112,7 +118,7 @@ function EditPanel(props) {
             {filteredPersonalGroups.map(renderGroups)}
           </React.Fragment>
         )}
-        {isAdmin && !!filteredProjectGroups.length && (
+        {hasManageAppAuth && !!filteredProjectGroups.length && (
           <React.Fragment>
             <div className="title">{_l('组织')}</div>
             {filteredProjectGroups.map(renderGroups)}
@@ -127,11 +133,13 @@ function EditPanel(props) {
 }
 
 export default function EditGroupMenuItem(props) {
-  const { isAdmin, groups = [] } = props;
+  const { groups = [], projectId, myPermissions = [] } = props;
   const itemRef = useRef();
   const personalGroups = groups.filter(g => g.groupType === 0);
   const projectGroups = groups.filter(g => g.groupType === 1);
-  const isEmpty = !personalGroups.length && (!projectGroups.length || !isAdmin);
+  const hasManageAppAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
+  const isEmpty = !personalGroups.length && (!projectGroups.length || !hasManageAppAuth);
+
   return (
     <Trigger
       action={['hover']}
@@ -140,7 +148,16 @@ export default function EditGroupMenuItem(props) {
         offset: [2, isEmpty ? 0 : -78],
         overflow: { adjustX: true, adjustY: true },
       }}
-      popup={<EditPanel {...props} isEmpty={isEmpty} personalGroups={personalGroups} projectGroups={projectGroups} />}
+      popup={
+        <EditPanel
+          {...props}
+          isEmpty={isEmpty}
+          personalGroups={personalGroups}
+          projectGroups={projectGroups}
+          projectId={projectId}
+          hasManageAppAuth={hasManageAppAuth}
+        />
+      }
       getPopupContainer={() => itemRef.current}
       destroyPopupOnHide
     >

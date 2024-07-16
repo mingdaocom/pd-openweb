@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import * as actions from '../redux/actions';
 import { Icon, SvgIcon } from 'ming-ui';
@@ -52,7 +52,7 @@ class AppGroupList extends Component {
                   )}
                 </div>
                 <div className={cx('groupItemName flex', { currentGroupLast: index === data.length - 1 })}>
-                  {item.name}
+                  {_.get(this.props.projectGroupsNameLang, `${item.id}.data[0].value`) || item.name}
                   {item.appIds && !_.isEmpty(item.appIds) && (
                     <span className="Gray_9e Font17 mLeft10">{item.appIds.length}</span>
                   )}
@@ -94,9 +94,10 @@ class AppGroupList extends Component {
   }
 }
 export default connect(state => {
-  const { isHomeLoading, myAppData } = state.mobile;
+  const { isHomeLoading, myAppData, projectGroupsNameLang } = state.mobile;
   return {
     myAppData,
     isHomeLoading,
+    projectGroupsNameLang,
   };
 })(AppGroupList);

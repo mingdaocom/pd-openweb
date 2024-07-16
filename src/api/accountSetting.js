@@ -36,7 +36,7 @@ export default {
      return mdyAPI('AccountSetting', 'AutoEditAccountLangSetting', args, options);
    },
   /**
-  * 获取签名
+  * 获取用户上次签名
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -47,7 +47,7 @@ export default {
      return mdyAPI('AccountSetting', 'GetSign', args, options);
    },
   /**
-  * 修改签名
+  * 修改用户当前签名
   * @param {Object} args 请求参数
   * @param {string} args.url 签名url
   * @param {Object} options 配置参数

@@ -7,6 +7,7 @@ import autoSize from 'ming-ui/decorators/autoSize';
 const Wrap = styled.div(
   ({ width }) => `
   .tableCon {
+    border-top: 1px solid #f1f1f1;
     overflow: auto;
     width: 100%;
     .itemCon {
@@ -16,11 +17,14 @@ const Wrap = styled.div(
       border: 1px solid rgba(0, 0, 0, 0.09) !important;
       border-left: none !important;
       border-top: none !important;
-      padding: 0 16px;
+      padding: 0 5px;
       box-sizing: border-box;
       height: 35px;
       line-height: 35px;
       overflow: hidden;
+      font-weight: bold;
+      font-size: 13px;
+      color: #757575;
     }
     .tag {
       max-width: 70px;
@@ -33,38 +37,58 @@ const Wrap = styled.div(
       .itemCon {
         background-color: #fafafa !important;
       }
+      .emptyForResize {
+        width: 60px !important;
+        min-width: 60px !important;
+        max-width: 60px !important;
+        border-color: transparent !important;
+        background: #fff !important;
+      }
     }
     .rowCon {
       .itemCon {
         border-top: 1px solid rgba(0, 0, 0, 0.09);
       }
     }
+    .colorCon {
+      top: 8px;
+      width: 2px;
+      height: 18px;
+      position: absolute;
+      left: 0;
+      border-radius: 2px;
+    }
   }
 `,
 );
 
 function Table(props) {
+  // const width = (props.width - 60 - 70) / props.controls.length;
   const width = (props.width - 70) / props.controls.length;
   return (
-    <Wrap className="h100" width={width}>
+    <Wrap className="h100 flex flexColumn alignItemsCenter" width={width}>
       <div className="tableCon flex">
         {props.controls.length > 0 && (
           <div className="tableHeader flexRow">
             <div className="tag flexRow alignItemsCenter itemCon InlineBlock"></div>
             {props.controls.map(control => {
               return (
-                <div className="itemCon flex flexRow alignItemsCenter InlineBlock" width={width}>
+                <div className="itemCon flex flexRow alignItemsCenter Relative" width={width}>
                   {props.showIcon && control.icon && (
-                    <Icon
-                      icon={control.icon}
-                      className="Font16 mRight5"
-                      style={{ color: control.color || '#9e9e9e' }}
-                    />
+                    <React.Fragment>
+                      {control.color && <div className="colorCon" style={{ backgroundColor: control.color }}></div>}
+                      <Icon
+                        icon={control.icon}
+                        className="Font16 mRight5"
+                        style={{ color: control.color || '#9e9e9e' }}
+                      />
+                    </React.Fragment>
                   )}
-                  <span className="ellipsis"> {control.controlName}</span>
+                  <span className="ellipsis flex"> {control.controlName}</span>
                 </div>
               );
             })}
+            {/* <div className="itemCon flex flexRow alignItemsCenter InlineBlock emptyForResize" width={60} /> */}
           </div>
         )}
         {props.loading ? (
@@ -89,6 +113,7 @@ function Table(props) {
                       </div>
                     );
                   })}
+                  {/* <div className="flexRow alignItemsCenter itemCon InlineBlock emptyForResize" width={60} /> */}
                 </div>
               );
             })}

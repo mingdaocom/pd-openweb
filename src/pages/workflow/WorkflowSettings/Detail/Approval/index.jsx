@@ -130,11 +130,13 @@ export default class Approval extends Component {
           });
         }
 
-        this.setState({ data: result }, callback);
+        this.setState({ data: result }, () => {
+          callback();
 
-        if (isApproval && !result.selectNodeId) {
-          this.onChange(result.flowNodeList[0].nodeId);
-        }
+          if (isApproval && !result.selectNodeId) {
+            this.onChange(result.flowNodeList[0].nodeId);
+          }
+        });
       });
   }
 
@@ -440,7 +442,7 @@ export default class Approval extends Component {
           {userType !== '11' && (
             <GraduallyMemberBox className="flex mLeft10" onClick={() => this.setState({ showSelectUserDialog: true })}>
               {!((data.candidateUserMap || {})[userType] || []).concat(data.accounts).length ? (
-                <span className="Gray_9e">{userType === '12' ? _l('选择人员字段') : _l('选择部门字段')}</span>
+                <span className="Gray_75">{userType === '12' ? _l('选择人员字段') : _l('选择部门字段')}</span>
               ) : (
                 <Member
                   companyId={this.props.companyId}
@@ -459,7 +461,7 @@ export default class Approval extends Component {
                 <div className="mLeft5">{_l('部门负责人')}</div>
               )}
               <div className="flex" />
-              <i className="icon-arrow-down-border mLeft8 Gray_9e" />
+              <i className="icon-arrow-down-border mLeft8 Gray_75" />
 
               <SelectUserDropDown
                 appId={this.props.relationType === 2 ? this.props.relationId : ''}
@@ -540,10 +542,10 @@ export default class Approval extends Component {
               }}
             />
             <span
-              className="workflowDetailTipsWidth mLeft5 Gray_9e"
+              className="workflowDetailTipsWidth mLeft5 Gray_75"
               data-tip={_l('如不勾选，则需要触发者所属的所有部门的对应层级的部门负责人一起审批')}
             >
-              <i className="Font14 icon-workflow_help" />
+              <i className="Font14 icon-workflow_help Gray_9e" />
             </span>
           </div>
         )}
@@ -701,7 +703,7 @@ export default class Approval extends Component {
             {data.isCallBack && (
               <div className="flowBackBox Font12 mTop10">
                 <div>
-                  <span className="Gray_9e mRight5">{_l('处理完成后')}</span>
+                  <span className="Gray_75 mRight5">{_l('处理完成后')}</span>
                   {data.callBackType === 0 && _l('重新执行流程')}
                   {data.callBackType === 1
                     ? data.callBackMultipleLevel === 1
@@ -712,7 +714,7 @@ export default class Approval extends Component {
                     : ''}
                 </div>
                 <div className="mTop4">
-                  <span className="Gray_9e mRight5">{_l('允许退回的节点')}</span>
+                  <span className="Gray_75 mRight5">{_l('允许退回的节点')}</span>
                   {data.callBackNodeType === 0 && (
                     <Fragment>
                       {data.callBackNodes.map(o => Object.values(o)).join('、') || _l('无可退回的节点')}
@@ -728,7 +730,7 @@ export default class Approval extends Component {
                 </div>
                 <Icon
                   type="edit"
-                  className="Gray_9e ThemeHoverColor3 Font14 pointer"
+                  className="Gray_75 ThemeHoverColor3 Font14 pointer"
                   onClick={() => this.setState({ showCallbackDialog: true })}
                 />
               </div>
@@ -779,7 +781,7 @@ export default class Approval extends Component {
             {_.includes(data.operationTypeList, 7) && (
               <Fragment>
                 <div className="mLeft25 relative">
-                  <div className="Font13 mTop5 Gray_9e">{_l('加签方式')}</div>
+                  <div className="Font13 mTop5 Gray_75">{_l('加签方式')}</div>
                   <div className="flexRow mTop10">
                     {SIGN_TYPE.map((item, i) => (
                       <div className="mRight40" key={i}>
@@ -966,7 +968,7 @@ export default class Approval extends Component {
                   </div>
                   <Icon
                     type="edit"
-                    className="Gray_9e ThemeHoverColor3 Font14 pointer"
+                    className="Gray_75 ThemeHoverColor3 Font14 pointer"
                     onClick={() => this.setState({ selectMsgKey: item.msgKey })}
                   />
                 </CustomMessageBox>
@@ -1164,7 +1166,7 @@ export default class Approval extends Component {
                         <span data-tip={_l('删除模板')}>
                           <Icon
                             type="delete2"
-                            className="Gray_9e Font14 pointer"
+                            className="Gray_75 Font14 pointer"
                             onClick={() =>
                               this.updateSource({
                                 opinionTemplate: { inputType: data.opinionTemplate.inputType, opinions: {} },
@@ -1175,7 +1177,7 @@ export default class Approval extends Component {
 
                         <Icon
                           type="edit"
-                          className="Gray_9e ThemeHoverColor3 Font14 pointer mLeft20"
+                          className="Gray_75 ThemeHoverColor3 Font14 pointer mLeft20"
                           onClick={() => this.setState({ showApprovalTemplate: true })}
                         />
                       </Fragment>
@@ -1302,8 +1304,8 @@ export default class Approval extends Component {
                       />
                     </div>
                   ) : (
-                    <div className="Gray_9e Font13 flexRow flowDetailTips mTop15">
-                      <i className="icon-task-setting_promet Font16" />
+                    <div className="Gray_75 Font13 flexRow flowDetailTips mTop15">
+                      <i className="icon-task-setting_promet Font16 Gray_9e" />
                       <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
                     </div>
                   )}
@@ -1319,7 +1321,7 @@ export default class Approval extends Component {
                       return (
                         <Fragment key={item.key}>
                           <div className="Font13 bold mTop25">{item.title}</div>
-                          <div className="Font13 Gray_9e mTop10">{item.desc}</div>
+                          <div className="Font13 Gray_75 mTop10">{item.desc}</div>
                           <UpdateFields
                             type={1}
                             companyId={this.props.companyId}
@@ -1347,8 +1349,8 @@ export default class Approval extends Component {
                       );
                     })
                   ) : (
-                    <div className="Gray_9e Font13 flexRow flowDetailTips mTop25">
-                      <i className="icon-task-setting_promet Font16" />
+                    <div className="Gray_75 Font13 flexRow flowDetailTips mTop25">
+                      <i className="icon-task-setting_promet Font16 Gray_9e" />
                       <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置数据更新')}</div>
                     </div>
                   )}

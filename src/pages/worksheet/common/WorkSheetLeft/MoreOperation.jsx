@@ -30,7 +30,7 @@ const CopySheetConfirmDescription = props => {
         .then(data => {
           const controls = _.get(data, 'template.controls') || [];
           setLoading(false);
-          setControls(controls.filter(c => c.type === 29));
+          setControls(controls.filter(c => [29, 34, 35].includes(c.type)));
         });
     } else {
       setLoading(false);

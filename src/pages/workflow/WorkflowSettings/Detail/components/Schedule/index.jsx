@@ -199,15 +199,15 @@ export default ({
   const renderRemindContent = (item, index) => {
     return (
       <div className={index === 0 ? 'mTop8' : 'mTop3'} key={item.id}>
-        <span className="Gray_9e">{_l('在截止时刻')}</span>
+        <span className="Gray_75">{_l('在截止时刻')}</span>
         <span className="mLeft3">{EXECUTE_TIME_TYPE_LIST.find(o => o.value === item.executeTimeType).text}</span>
         {item.unit && item.unit !== EXEC_TIME_TYPE.CURRENT && (
-          <span className="Gray_9e mLeft3">{item.executeTime.fieldValue + TIME_TYPE_NAME[item.unit]}</span>
+          <span className="Gray_75 mLeft3">{item.executeTime.fieldValue + TIME_TYPE_NAME[item.unit]}</span>
         )}
         {item.type === 1 ? (
           <Fragment>
             <span className="mLeft3 mRight2">{_l('提醒')}</span>
-            <span className="Gray_9e">
+            <span className="Gray_75">
               <MembersName accounts={item.accounts} />
               {_.get(item, 'repeat.repeatType') === 6 &&
                 _l(
@@ -218,7 +218,7 @@ export default ({
             </span>
           </Fragment>
         ) : (
-          <span className="mLeft3 Gray_9e">
+          <span className="mLeft3 Gray_75">
             {item.type === 3
               ? _l('自动否决')
               : item.type === 4
@@ -263,7 +263,7 @@ export default ({
     <Fragment>
       {schedule.type && (
         <Box>
-          <Icon icon="edit" className="Gray_9e ThemeHoverColor3 pointer" onClick={() => showDialog(true)} />
+          <Icon icon="edit" className="Gray_75 ThemeHoverColor3 pointer" onClick={() => showDialog(true)} />
           <div className="bold">{_l('截止：到达此节点后的%0', getHeaderText())}</div>
           {schedule.actions.filter(o => o.type === 1).map(renderRemindContent)}
           {schedule.actions.filter(o => _.includes([2, 3, 4], o.type)).map(renderRemindContent)}
@@ -342,7 +342,7 @@ export default ({
                     <div className="flex bold Gray_75">{_l('提醒%0', index + 1)}</div>
                     <Icon
                       type="delete2"
-                      className="Font16 Gray_9e ThemeHoverColor3 mLeft10 pointer"
+                      className="Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer"
                       onClick={() => {
                         const actions = [].concat(data.actions);
 

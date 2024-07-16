@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { Dropdown, Menu } from 'antd';
 import { formatYaxisList, formatrChartValue, formatControlInfo, formatrChartAxisValue, getLegendType, getChartColors, getStyleColor } from './common';
-import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { formatSummaryName, isFormatNumber, formatterTooltipTitle } from 'statistics/common';
 import { Icon } from 'ming-ui';
 import { formatNumberFromInput } from 'src/util';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 
 const formatChartData = (data, splitId) => {
   if (_.isEmpty(data)) {
@@ -279,7 +279,7 @@ export default class extends Component {
           if (linkageMatch.value === data.originalId) {
             return color;
           } else {
-            return tinycolor(color).setAlpha(0.3).toRgbString();
+            return new TinyColor(color).setAlpha(0.3).toRgbString();
           }
         }
         return color;
@@ -346,7 +346,7 @@ export default class extends Component {
         shared: true,
         showMarkers: false,
         showTitle: true,
-        title: 'originalId',
+        title: formatterTooltipTitle(xaxes, 'originalId') || 'originalId',
         fields: [
           _.get(yaxisList[0], 'controlId'),
           _.get(yaxisList[1], 'controlId'),

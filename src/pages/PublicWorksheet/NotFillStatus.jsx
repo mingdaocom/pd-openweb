@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Hr } from 'worksheet/components/Basics';
-import { FILL_TIMES } from 'src/pages/publicWorksheetConfig/enum';
 import { FILL_STATUS } from './enum';
 import { RichText } from 'ming-ui';
 import moment from 'moment';
 import _ from 'lodash';
 import FilledRecord from './FilledRecord';
 import { canSubmitByLimitFrequency } from './utils';
+import { getRequest } from 'src/util';
 
 const Con = styled.div`
   height: 100%;
@@ -48,6 +48,18 @@ const Receipt = styled.div`
   }
 `;
 
+function getIcon(status, worksheetId) {
+  if (!worksheetId) {
+    return { icon: 'icon-closeelement-bg-circle', color: '#f44133' };
+  }
+  switch (status) {
+    case FILL_STATUS.COMPLETED:
+      return { icon: 'icon-plus-interest', color: '#4CAF50' };
+    default:
+      return { icon: 'icon-task-folder-message', color: '#FF6200' };
+  }
+}
+
 function getTip(worksheetId, status) {
   if (!worksheetId) {
     return _l('你访问的表单不存在');
@@ -69,19 +81,19 @@ function getTip(worksheetId, status) {
   }
 }
 
-const Icon = ({ status }) => {
+const StatusIcon = ({ status, worksheetId }) => {
   return (
     <i
-      className={`icon ${status === FILL_STATUS.COMPLETED ? 'icon-plus-interest' : 'icon-task-folder-message'}`}
+      className={`icon ${getIcon(status, worksheetId).icon}`}
       style={{
         fontSize: 80,
-        color: status === FILL_STATUS.COMPLETED ? '#4CAF50' : '#FF6200',
+        color: getIcon(status, worksheetId).color,
       }}
     ></i>
   );
 };
 
-Icon.propTypes = { status: PropTypes.string };
+StatusIcon.propTypes = { status: PropTypes.string };
 
 export default function NotFillStatus(props) {
   const { status, publicWorksheetInfo, onRefill, formData, rules } = props;
@@ -95,25 +107,28 @@ export default function NotFillStatus(props) {
     shareId,
   } = publicWorksheetInfo;
   const canSubmitByLimit = canSubmitByLimitFrequency(shareId, limitWriteFrequencySetting);
+  const request = getRequest();
+
   return (
     <Con className="notFillStatus">
       <div style={{ width: '100%' }}>
-        {worksheetId ? (
-          <Icon status={status} />
-        ) : (
-          <i className="icon icon-closeelement-bg-circle" style={{ fontSize: 80, color: '#f44133' }}></i>
-        )}
+        <StatusIcon status={status} worksheetId={worksheetId} />
+
         {worksheetId && <Tip1 className="mTop10">{name || _l('未命名表单')}</Tip1>}
+
         <Tip2 className="mTop8">{getTip(worksheetId, status)}</Tip2>
+
         {status === FILL_STATUS.NOT_OPEN && (
           <Tip2 className="mTop8">
             {_l('表单将于') + moment(linkSwitchTime.startTime).format('YYYY年MM月DD日 HH:mm') + _l('开放填写')}
           </Tip2>
         )}
+
         {status === FILL_STATUS.COMPLETED &&
+          request.statusExtra !== 'no' &&
           (canSubmitByLimit || !!_.get(abilityExpand, 'allowViewChange.isAllowViewChange')) && (
             <Tip2
-              style={{ color: '#2196F3', margin: '24px 0 32px', fontWeight: 600 }}
+              style={{ color: '#2196F3', margin: '24px 0', fontWeight: 600 }}
               className="flexRow justifyContentCenter alignItemsCenter"
             >
               <FilledRecord

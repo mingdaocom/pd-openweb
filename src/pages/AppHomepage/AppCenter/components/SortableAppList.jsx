@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { arrayOf, shape, string, func } from 'prop-types';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import AddAppItem from './AddAppItem';
 import MyAppItem from './MyAppItem';
-import _, { find, get, isEmpty } from 'lodash';
+import _, { isEmpty } from 'lodash';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
 const SORT_TYPE = {
   star: 1,
@@ -15,15 +15,9 @@ const SORT_TYPE = {
 };
 const SortableItem = SortableElement(props => <MyAppItem {...props} />);
 
-const SortableList = SortableContainer(({ items, type, projectId, createAppFromEmpty, allowCreate, ...props }) => {
+const SortableList = SortableContainer(({ items, type, projectId, createAppFromEmpty, keywords, ...props }) => {
   const renderContent = () => {
-    const canCreate =
-      allowCreate &&
-      !get(
-        find(md.global.Account.projects, item => item.projectId === projectId),
-        'cannotCreateApp',
-      );
-    if (canCreate) {
+    if (props.allowCreate && !keywords) {
       return (
         <AddAppItem
           groupId={props.groupId}
@@ -31,6 +25,7 @@ const SortableList = SortableContainer(({ items, type, projectId, createAppFromE
           type={type}
           projectId={projectId}
           createAppFromEmpty={createAppFromEmpty}
+          myPermissions={props.myPermissions}
         />
       );
     }

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { XmlEntities } from 'html-entities';
+import { htmlDecodeReg } from 'src/util';
 
 /**
  * 链接型动态所带的链接和图片
@@ -18,11 +18,11 @@ class LinkContent extends React.Component {
 
   render() {
     const linkItem = this.props.linkItem;
-    const entities = new XmlEntities();
+
     return (
       <div className="linkContent">
         <a target="_blank" rel="noopener noreferrer" href={linkItem.linkUrl}>
-          {entities.decode(linkItem.linkTitle || _l('链接'))}
+          {htmlDecodeReg(linkItem.linkTitle || _l('链接'))}
         </a>
         {(() => {
           if (linkItem.linkThumb) {

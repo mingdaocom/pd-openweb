@@ -8,6 +8,8 @@ import copy from 'copy-to-clipboard';
 import Trigger from 'rc-trigger';
 import pluginAjax from 'src/api/plugin';
 import PublishVersion from 'src/pages/plugin/viewPlugin/PublishVersion.jsx';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const Wrap = styled.div`
   height: 100%;
@@ -109,6 +111,10 @@ function AcitonCon(props) {
     visible: false,
   });
   const projectInfo = md.global.Account.projects.find(o => o.projectId === projectId) || {};
+  const hasPluginAuth =
+    projectInfo.allowPlugin ||
+    checkPermission(projectId, [PERMISSION_ENUM.DEVELOP_PLUGIN, PERMISSION_ENUM.MANAGE_PLUGINS]);
+
   return (
     <Trigger
       action={['click']}
@@ -120,10 +126,7 @@ function AcitonCon(props) {
         <WrapPopup>
           {actionTypes
             .filter(o =>
-              (projectInfo.isSuperAdmin ||
-                projectInfo.isProjectAppManager ||
-                _.get(view, 'pluginInfo.creator.accountId') === md.global.Account.accountId) &&
-              projectInfo.allowPlugin
+              _.get(view, 'pluginInfo.creator.accountId') === md.global.Account.accountId && hasPluginAuth
                 ? true
                 : o.key !== 'publish',
             )

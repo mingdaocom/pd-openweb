@@ -35,11 +35,12 @@ const EditingCon = styled.div`
 
 const OperateIcon = styled.div`
   display: none;
-  margin: -7px -6px 0 2px;
-  width: 34px;
-  height: 34px;
+  margin-top: -2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  background: #fff;
   text-align: center;
-  line-height: 34px;
   color: #9e9e9e;
   font-size: 16px;
   cursor: pointer;
@@ -64,6 +65,7 @@ export default class NumberSlider extends React.Component {
     onClick: PropTypes.func,
     updateEditingStatus: PropTypes.func,
     popupContainer: PropTypes.func,
+    onFocusCell: PropTypes.func,
   };
   constructor(props) {
     super(props);
@@ -137,12 +139,13 @@ export default class NumberSlider extends React.Component {
 
   @autobind
   handleChange(value) {
-    const { updateCell, updateEditingStatus } = this.props;
+    const { updateCell, updateEditingStatus, onFocusCell = _.noop } = this.props;
     this.setState({ value });
     updateEditingStatus(false);
     updateCell({
       value,
     });
+    onFocusCell();
   }
 
   @autobind
@@ -159,6 +162,7 @@ export default class NumberSlider extends React.Component {
   render() {
     const {
       from,
+      recordId,
       className,
       style,
       cell = {},
@@ -175,13 +179,12 @@ export default class NumberSlider extends React.Component {
     const sliderComp = (
       <Slider
         style={from === FROM.CARD ? { padding: 0 } : {}}
-        readonly={!isediting}
         disabled={!editable}
         value={value}
         showInput={false}
-        showTip={isediting}
         showScale={from !== FROM.CARD}
         showScaleText={isediting || rowHeight > 50}
+        showDrag={editable}
         showAsPercent={numshow === '1'}
         numStyle={from === FROM.CARD ? { color: '#333' } : {}}
         tipDirection={rowIndex === 0 ? 'bottom' : undefined}
@@ -223,7 +226,7 @@ export default class NumberSlider extends React.Component {
         style={style}
         onClick={onClick}
       >
-        <div className="flex">{sliderComp}</div>
+        <div className="flex">{recordId !== 'empty' && !/^empty/.test(recordId) && sliderComp}</div>
         {editable && (
           <OperateIcon className="OperateIcon editIcon">
             <i

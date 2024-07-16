@@ -15,8 +15,10 @@ import _ from 'lodash';
 import GlobalSearch from '../GlobalSearch/index';
 import { withRouter } from 'react-router-dom';
 import appManagementApi from 'src/api/appManagement';
+import privateSysSettingApi from 'src/api/privateSysSetting';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import cx from 'classnames';
+import { hasBackStageAdminAuth } from 'src/components/checkPermission';
 
 const BtnCon = styled.div`
   cursor: pointer;
@@ -91,7 +93,16 @@ export default class CommonUserHandle extends Component {
   state = {
     globalSearchVisible: false,
     userVisible: false,
+    newVersion: null
   };
+
+  componentDidMount() {
+    if (md.global.SysSettings.enablePromptNewVersion && md.global.Account.superAdmin) {
+      privateSysSettingApi.getNewVersionInfo().then(data => {
+        this.setState({ newVersion: data });
+      });
+    }
+  }
 
   handleUserVisibleChange(visible) {
     this.setState({
@@ -107,12 +118,22 @@ export default class CommonUserHandle extends Component {
     });
   }
 
+  handleAddMenuVisible(visible) {
+    this.setState({
+      addMenuVisible: visible,
+    });
+  }
+
   render() {
-    const { globalSearchVisible, userVisible } = this.state;
-    const { type, currentProject } = this.props;
+    const { globalSearchVisible, userVisible, newVersion } = this.state;
+    const { type, currentProject = {} } = this.props;
+    const hasProjectAdminAuth =
+      currentProject.projectId &&
+      currentProject.projectId !== 'external' &&
+      hasBackStageAdminAuth({ projectId: currentProject.projectId });
 
     // 获取url参数
-    const { tr } = getAppFeaturesVisible();
+    const { tr, ss, ac } = getAppFeaturesVisible();
     if (window.isPublicApp || !tr) {
       return null;
     }
@@ -122,11 +143,19 @@ export default class CommonUserHandle extends Component {
         {type === 'native' && (
           <React.Fragment>
             <Tooltip
-              text={<AddMenu />}
+              popupVisible={this.state.addMenuVisible}
+              text={
+                <AddMenu
+                  onClose={() => {
+                    this.setState({ addMenuVisible: false });
+                  }}
+                />
+              }
               action={['click']}
               mouseEnterDelay={0.2}
               themeColor="white"
               tooltipClass="pAll0"
+              onPopupVisibleChange={this.handleAddMenuVisible.bind(this)}
             >
               <div className="addOperationIconWrap mLeft20 mRight15 pointer">
                 <Icon icon="addapplication Font30" />
@@ -136,7 +165,7 @@ export default class CommonUserHandle extends Component {
           </React.Fragment>
         )}
 
-        {type === 'appPkg' && (
+        {ss && type === 'appPkg' && (
           <React.Fragment>
             <div className="appPkgHeaderSearch tip-bottom-left" data-tip={_l('超级搜索(F)')}>
               <Icon icon="search" className="Font20" onClick={this.openGlobalSearch.bind(this)} />
@@ -168,14 +197,22 @@ export default class CommonUserHandle extends Component {
                 <Icon icon="search" />
               </BtnCon>
             )}
-            {type === 'dashboard' && currentProject && currentProject.isProjectAdmin && (
+            {type === 'dashboard' && hasProjectAdminAuth && (
               <MdLink to={`/admin/home/${currentProject.projectId}`}>
                 <AdminEntry data-tip={_l('组织管理')} className="tip-bottom-left">
                   <i className="icon icon-business"></i>
                 </AdminEntry>
               </MdLink>
             )}
-
+            {type === 'dashboard' && newVersion && (
+              <AdminEntry
+                data-tip={_l('发现新版本：%0，点击查看', newVersion)}
+                className="tip-bottom-left"
+                onClick={() => window.open('https://docs-pd.mingdao.com/version')}
+              >
+                <Icon icon="score-up" className="Font20" style={{ color: '#20CA86' }} />
+              </AdminEntry>
+            )}
             {/*<BtnCon
               className={cx(`${type === 'native' ? 'mLeft10' : ''}`, { isDashboard: type === 'dashboard' })}
               data-tip={_l('帮助')}
@@ -186,27 +223,29 @@ export default class CommonUserHandle extends Component {
           </React.Fragment>
         )}
 
-        <Tooltip
-          text={<UserMenu handleUserVisibleChange={this.handleUserVisibleChange.bind(this)} />}
-          mouseEnterDelay={0.2}
-          action={['click']}
-          themeColor="white"
-          tooltipClass="pageHeadUser commonHeaderUser Normal"
-          getPopupContainer={() => this.avatar}
-          offset={[70, 0]}
-          popupVisible={userVisible}
-          onPopupVisibleChange={this.handleUserVisibleChange.bind(this)}
-        >
-          <div
-            ref={avatar => {
-              this.avatar = avatar;
-            }}
+        {ac && (
+          <Tooltip
+            text={<UserMenu handleUserVisibleChange={this.handleUserVisibleChange.bind(this)} />}
+            mouseEnterDelay={0.2}
+            action={['click']}
+            themeColor="white"
+            tooltipClass="pageHeadUser commonHeaderUser Normal"
+            getPopupContainer={() => this.avatar}
+            offset={[70, 0]}
+            popupVisible={userVisible}
+            onPopupVisibleChange={this.handleUserVisibleChange.bind(this)}
           >
-            <span className="tip-bottom-left mLeft16" data-tip={md.global.Account.fullname}>
-              <Avatar src={md.global.Account.avatar} size={30} />
-            </span>
-          </div>
-        </Tooltip>
+            <div
+              ref={avatar => {
+                this.avatar = avatar;
+              }}
+            >
+              <span className="tip-bottom-left mLeft16" data-tip={md.global.Account.fullname}>
+                <Avatar src={md.global.Account.avatar} size={30} />
+              </span>
+            </div>
+          </Tooltip>
+        )}
       </div>
     );
   }
@@ -242,7 +281,6 @@ export class LeftCommonUserHandle extends Component {
       userVisible: visible,
     });
   }
-
   openGlobalSearch() {
     this.setState({ globalSearchVisible: true });
     GlobalSearch({
@@ -257,7 +295,7 @@ export class LeftCommonUserHandle extends Component {
     const { projectId, id, permissionType, isLock, appStatus, fixed, pcDisplay } = data;
     const isUpgrade = appStatus === 4;
     // 获取url参数
-    const { tr } = getAppFeaturesVisible();
+    const { tr, ss, ac } = getAppFeaturesVisible();
     if (window.isPublicApp || !tr) {
       return null;
     }
@@ -293,7 +331,7 @@ export class LeftCommonUserHandle extends Component {
             )}
           </Fragment>
         )}
-        {type === 'appPkg' && (
+        {ss && type === 'appPkg' && (
           <div className="headerColorSwitch tip-top pointer" data-tip={_l('超级搜索(F)')}>
             <Icon icon="search" className="Font20" onClick={this.openGlobalSearch.bind(this)} />
           </div>
@@ -305,27 +343,29 @@ export class LeftCommonUserHandle extends Component {
         >
           <Icon icon="workflow_help" className="Font20" />
         </div> */}
-        <Tooltip
-          text={<UserMenu handleUserVisibleChange={this.handleUserVisibleChange.bind(this)} />}
-          mouseEnterDelay={0.2}
-          action={['click']}
-          themeColor="white"
-          tooltipClass="pageHeadUser"
-          getPopupContainer={() => this.avatar}
-          offset={[0, 0]}
-          popupVisible={userVisible}
-          onPopupVisibleChange={this.handleUserVisibleChange.bind(this)}
-        >
-          <div
-            ref={avatar => {
-              this.avatar = avatar;
-            }}
+        {ac && (
+          <Tooltip
+            text={<UserMenu handleUserVisibleChange={this.handleUserVisibleChange.bind(this)} />}
+            mouseEnterDelay={0.2}
+            action={['click']}
+            themeColor="white"
+            tooltipClass="pageHeadUser"
+            getPopupContainer={() => this.avatar}
+            offset={[0, 0]}
+            popupVisible={userVisible}
+            onPopupVisibleChange={this.handleUserVisibleChange.bind(this)}
           >
-            <span className="tip-top" data-tip={md.global.Account.fullname}>
-              <Avatar src={md.global.Account.avatar.replace(/w\/100\/h\/100/, 'w/90/h/90')} size={30} />
-            </span>
-          </div>
-        </Tooltip>
+            <div
+              ref={avatar => {
+                this.avatar = avatar;
+              }}
+            >
+              <span className="tip-top" data-tip={md.global.Account.fullname}>
+                <Avatar src={md.global.Account.avatar.replace(/w\/100\/h\/100/, 'w/90/h/90')} size={30} />
+              </span>
+            </div>
+          </Tooltip>
+        )}
       </div>
     );
   }

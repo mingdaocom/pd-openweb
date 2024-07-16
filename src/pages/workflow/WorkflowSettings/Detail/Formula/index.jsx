@@ -266,7 +266,7 @@ export default class Formula extends Component {
       <Fragment>
         <div className="Font14 Gray_75 workflowDetailDesc">{_l('对 数值/金额 等字段进行数学运算')}</div>
         <div className="mTop20 bold">{_l('运算')}</div>
-        <div className="mTop15 Gray_9e">
+        <div className="mTop15 Gray_75">
           {_l('英文输入+、-、*、/、( ) 进行运算 或')}
           <span
             className="ThemeColor3 ThemeHoverColor2 pointer addFormula mLeft5"
@@ -276,7 +276,7 @@ export default class Formula extends Component {
           </span>
           。
         </div>
-        <div className="Gray_9e">{_l('如：SUM(1, 2, 3)*3，多个数值请使用英文逗号分隔')}</div>
+        <div className="Gray_75">{_l('如：SUM(1, 2, 3)*3，多个数值请使用英文逗号分隔')}</div>
 
         {this.renderFormulaAndOtherValue()}
         {showFormulaLayer && (
@@ -423,7 +423,7 @@ export default class Formula extends Component {
         <div className="mTop20 bold">{_l('输入日期/时间字段')}</div>
         {this.renderDateControl(data, this.updateSource)}
 
-        <div className="mTop20 Gray_9e">
+        <div className="mTop20 Gray_75">
           {_l('设置参与运算时的日期格式')}
           <span
             className="mLeft5 workflowDetailTipsWidth"
@@ -447,7 +447,7 @@ export default class Formula extends Component {
         />
 
         <div className="mTop20 bold">{_l('运算')}</div>
-        <div className="mTop10 Gray_9e">
+        <div className="mTop10 Gray_75">
           {_l('输入你想要 添加/减去 的时间。如：+8h+1m，+1M-12d, -1d+8h。当使用数值字段运算时，请不要忘记输入单位。')}
           <Tooltip
             title={() => {
@@ -511,7 +511,7 @@ export default class Formula extends Component {
         )}
 
         <div className="mTop20 bold">{_l('格式化')}</div>
-        <div className="mTop10 Gray_9e">{_l('参与计算的日期未设置时间时，格式化方式为：')}</div>
+        <div className="mTop10 Gray_75">{_l('参与计算的日期未设置时间时，格式化方式为：')}</div>
         <Dropdown
           className="flowDropdown mTop10"
           data={[
@@ -552,7 +552,7 @@ export default class Formula extends Component {
       <Fragment>
         <div className="Font14 Gray_75 workflowDetailDesc">{_l('对获取到的多条数据对象进行数据条数的总计')}</div>
         <div className="mTop20 bold">{_l('选择汇总对象')}</div>
-        <div className="mTop10 Gray_9e">{_l('当前流程中的节点对象')}</div>
+        <div className="mTop10 Gray_75">{_l('当前流程中的节点对象')}</div>
 
         <SelectNodeObject
           appList={data.flowNodeList}
@@ -792,13 +792,13 @@ export default class Formula extends Component {
           value={data.appId}
           renderTitle={
             !data.appId
-              ? () => <span className="Gray_9e">{_l('请选择')}</span>
+              ? () => <span className="Gray_75">{_l('请选择')}</span>
               : data.appId && !selectAppItem
               ? () => <span className="errorColor">{_l('工作表无效或已删除')}</span>
               : () => (
                   <Fragment>
                     <span>{selectAppItem.name}</span>
-                    {selectAppItem.otherApkName && <span className="Gray_9e">（{selectAppItem.otherApkName}）</span>}
+                    {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
                   </Fragment>
                 )
           }
@@ -874,7 +874,7 @@ export default class Formula extends Component {
                   return {
                     text: (
                       <Fragment>
-                        <span className="Gray_9e mRight5">[{CONTROLS_NAME[o.type]}]</span>
+                        <span className="Gray_75 mRight5">[{CONTROLS_NAME[o.type]}]</span>
                         <span>{o.controlName}</span>
                       </Fragment>
                     ),

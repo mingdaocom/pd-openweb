@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Icon, Switch, Button, Radio, QiniuUpload, Slider, Dropdown, Dialog } from 'ming-ui';
 import { Drawer, Input } from 'antd';
@@ -8,7 +8,7 @@ import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import BulletinSetting from './BulletinSetting';
 import projectSettingApi from 'src/api/projectSetting';
 import { chartRefreshOptions, themeColors } from './utils';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import { upgradeVersionDialog } from 'src/util';
 
 const SettingDrawer = styled(Drawer)`
@@ -252,6 +252,8 @@ export default function DashboardSetting(props) {
     onSetAdvancedTheme,
     currentTheme,
     advancedThemes,
+    hasProjectSetting,
+    hasBasicSettingAuth,
   } = props;
   const { slogan, bulletinBoards, color, boardSwitch, logoSwitch, logo, logoHeight } = platformSetting;
   const { markedAppDisplay, displayCommonApp, rowCollect, todoDisplay, displayApp, displayChart, sortItems } =
@@ -263,7 +265,7 @@ export default function DashboardSetting(props) {
   const [sortModuleIds, setSortModuleIds] = useState(
     sortItems && sortItems.length ? sortItems.map(item => item.moduleType) : [0, 1, 2, 3],
   );
-  const isAdmin = currentProject.isSuperAdmin || currentProject.isProjectAdmin;
+
   const currentColor = _.isEmpty(currentTheme)
     ? !color || !_.includes(themeColors, color)
       ? '#2196F3'
@@ -300,7 +302,7 @@ export default function DashboardSetting(props) {
         closeIcon={<i className="icon-close Font24" />}
         onClose={onClose}
       >
-        {isAdmin && (
+        {hasProjectSetting && (
           <div className="mBottom32">
             <div className="sectionTitle">{_l('组织设置')}</div>
             <SettingItem>
@@ -323,6 +325,10 @@ export default function DashboardSetting(props) {
                   <div
                     className="logoIconBox"
                     onClick={() => {
+                      if (!hasBasicSettingAuth) {
+                        alert(_l('没有权限，无法上传'), 3);
+                        return;
+                      }
                       currentProject.licenseType === 0 &&
                         upgradeVersionDialog({
                           projectId: currentProject.projectId,
@@ -331,7 +337,7 @@ export default function DashboardSetting(props) {
                         });
                     }}
                   >
-                    {currentProject.licenseType === 0 ? (
+                    {currentProject.licenseType === 0 || !hasBasicSettingAuth ? (
                       <span className="Font15 icon-upload_pictures"></span>
                     ) : (
                       <QiniuUpload
@@ -422,9 +428,10 @@ export default function DashboardSetting(props) {
                 <div className="titleText">{_l('主题色')}</div>
               </div>
               <div className="themeColorWrapper">
-                {themeColors.map(item => {
+                {themeColors.map((item, i) => {
                   return (
                     <div
+                      key={i}
                       className={cx('colorItem', { isActive: currentColor === item })}
                       style={{ backgroundColor: getRgbaByColor(item, '0.12') }}
                       onClick={() => {
@@ -438,8 +445,11 @@ export default function DashboardSetting(props) {
                   );
                 })}
                 {!md.global.Config.IsLocal &&
-                  advancedThemes.map(item => (
-                    <AdvancedThemeItem onClick={() => currentColor !== item.themeKey && onSetAdvancedTheme(item)}>
+                  advancedThemes.map((item, i) => (
+                    <AdvancedThemeItem
+                      key={i}
+                      onClick={() => currentColor !== item.themeKey && onSetAdvancedTheme(item)}
+                    >
                       <img src={item.themeIcon} />
                       {currentColor === item.themeKey && (
                         <div className="themeMask">

@@ -5,6 +5,7 @@ import { autobind } from 'core-decorators';
 import { emitter } from 'worksheet/util';
 import WorkSheetComment from './WorkSheetComment';
 import WorksheetLog from './WorksheetLog';
+import PayLog from './PayLog';
 import WorksheetRocordLog from '../WorksheetRecordLog/WorksheetRocordLog';
 import './DiscussLogFile.less';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
@@ -31,7 +32,7 @@ class DiscussLogFile extends Component {
     this.state = {
       loading: false,
       status: this.getActive(props),
-      doNotLoadAtDidMount: props.isOpenNewAddedRecord,
+      doNotLoadAtDidMount: props.isOpenNewAddedRecord || props.discussCount === 0,
     };
   }
 
@@ -47,6 +48,11 @@ class DiscussLogFile extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.hiddenTabs !== this.props.hiddenTabs) {
       this.getShowTabs(nextProps);
+      if (!this.showTabs.find(o => this.state.status === o.id) && this.state.status) {
+        this.setState({
+          status: this.getActive(nextProps),
+        });
+      }
     }
   }
 
@@ -76,13 +82,13 @@ class DiscussLogFile extends Component {
       { id: -1, name: 'approval', text: _l('审批') },
       { id: 0, name: 'workflow', text: _l('流程') },
       { id: 1, name: 'discuss', text: _l('讨论') },
-      { id: 4, name: 'discussPortal', text: md.global.Account.isPortal ? _l('讨论') : _l('讨论(外部)') },
+      { id: 5, name: 'pay', text: _l('支付') },
       { id: 2, name: 'logs', text: _l('日志') },
     ].filter(tab => !_.find(props.hiddenTabs, tname => tname === tab.name));
   };
 
   render() {
-    const { workflowStatus, configLoading, workflow, approval, forReacordDiscussion } = this.props;
+    const { workflowStatus, configLoading, workflow, approval, forReacordDiscussion, hiddenTabs } = this.props;
     const { status, loading, doNotLoadAtDidMount } = this.state;
     return (
       <div className="discussLogFile flexRow">
@@ -120,7 +126,8 @@ class DiscussLogFile extends Component {
           <div className="body flex">
             {status === -1 && approval}
             {status === 0 && workflow}
-            {(status === 1 || status === 4) && !configLoading && (
+            {status === 5 && !configLoading && <PayLog {...this.props} />}
+            {status === 1 && !configLoading && (
               <div className="talkBox">
                 <WorkSheetComment status={status} {...this.props} doNotLoadAtDidMount={doNotLoadAtDidMount} />
               </div>

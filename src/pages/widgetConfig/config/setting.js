@@ -50,6 +50,15 @@ export const UNIT_TYPE = [
   { text: _l('秒%04024'), value: '6' },
 ];
 
+export const UNIT_TO_TEXT = {
+  1: _l('分%04023'),
+  2: _l('时%04022'),
+  3: _l('天%04021'),
+  4: _l('月%04020'),
+  5: _l('年%04019'),
+  6: _l('秒%04024'),
+};
+
 export const RELATION_OPTIONS = [
   {
     value: 0,

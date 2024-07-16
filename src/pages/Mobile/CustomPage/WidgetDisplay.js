@@ -8,6 +8,7 @@ import ViewContent from './ViewContent';
 import Filter from './FilterContent';
 import Ai from './AiContent';
 import { RichText } from 'ming-ui';
+import { getTranslateInfo } from 'src/util';
 
 const WidgetContent = styled.div`
   flex: 1;
@@ -45,13 +46,24 @@ function WidgetDisplay(props) {
 
   const renderContent = () => {
     if (componentType === 'embedUrl') return <PreviewContent value={value} param={param} config={config} />;
-    if (componentType === 'richText')
-      return <RichText data={value || ''} className={'mdEditorContent'} disabled={true} backGroundColor={'#fff'} />;
+    if (componentType === 'richText') {
+      const translateInfo = getTranslateInfo(ids.appId, null, widget.id);
+      return (
+        <RichText
+          data={translateInfo.description || value || ''}
+          className={'mdEditorContent'}
+          disabled={true}
+          backGroundColor={'#fff'}
+        />
+      );
+    }
     if (componentType === 'button')
       return (
         <ButtonList
           editable={false}
+          widget={widget}
           button={button}
+          ids={ids}
           info={{
             ...ids,
             projectId: apk.projectId,
@@ -69,6 +81,7 @@ function WidgetDisplay(props) {
           name={name}
           pageComponents={pageComponents.filter(p => p.type === 1)}
           pageConfig={pageConfig}
+          appId={apk.appId}
           themeColor={apk.iconColor}
           projectId={apk.projectId}
         />

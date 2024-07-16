@@ -6,6 +6,7 @@ import { FixedTable } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { useSetState } from 'react-use';
 import { useRefStore } from 'worksheet/hooks';
+import useTableWidth from 'worksheet/hooks/useTableWidth';
 import DragMask from 'worksheet/common/DragMask';
 import worksheetApi from 'src/api/worksheet';
 import {
@@ -57,12 +58,15 @@ const StyledFixedTable = styled(FixedTable)`
         background-color: #f5fbff !important;
       }
     }
-    &.grayHover:not(.cellControlErrorStatus):not(.placeholder) {
+    &.grayHover:not(.cellControlErrorStatus):not(.placeholder):not(.treeNode) {
       box-shadow: inset 0 0 0 1px #e0e0e0 !important;
     }
     &.focus:not(.cellControlErrorStatus):not(.control-10.isediting):not(.control-11.isediting) {
       box-shadow: inset 0 0 0 2px #2d7ff9 !important;
       z-index: 2;
+    }
+    &.treeNode {
+      border-right: none !important;
     }
   }
   .row-head {
@@ -98,9 +102,6 @@ const StyledFixedTable = styled(FixedTable)`
   &:not(.classic) {
     .cell.hover:not(.isediting):not(.highlight):not(.highlightFromProps) {
       background-color: rgba(0, 0, 0, 0.04) !important;
-      .editIcon {
-        background-color: transparent !important;
-      }
     }
   }
   &.classic {
@@ -115,16 +116,29 @@ const StyledFixedTable = styled(FixedTable)`
       }
     }
   }
+  &:not(.classic) {
+    .editIcon,
+    .OperateIcon,
+    .addChildBtn {
+      background: #f5f5f5;
+      &:hover {
+        background: #ebebeb;
+      }
+    }
+  }
 `;
 
 function WorksheetTable(props, ref) {
   const {
+    isTreeTableView,
+    treeTableViewData,
     fromModule = WORKSHEETTABLE_FROM_MODULE.APP,
     showControlStyle,
     enableRules = true,
     recordColorConfig,
     showHead = true,
     // 相关 id
+    view,
     appId,
     worksheetId,
     viewId,
@@ -143,15 +157,18 @@ function WorksheetTable(props, ref) {
     height,
     setHeightAsRowCount,
     rowCount,
+    minRowCount,
     rowHeight = 34,
     rowHeightEnum,
     showRowHead = true,
     showSearchEmpty = true,
+    showEmptyForResize = true,
     disablePanVertical,
     defaultScrollLeft,
     sheetViewHighlightRows = {},
     cellErrors = {},
     clearCellError = () => {},
+    expandCellAppendWidth,
     fixedColumnCount = 0,
     renderColumnHead,
     renderFooterCell,
@@ -164,6 +181,8 @@ function WorksheetTable(props, ref) {
     cellUniqueValidate,
     onUpdateRules = () => {},
     tableFooter,
+    actions = {},
+    chatButton,
   } = props;
   const { emptyIcon, emptyText, sheetIsFiltered, allowAdd, noRecordAllowAdd, showNewRecord } = props; // 空状态
   const { keyWords } = props; // 搜索
@@ -223,24 +242,25 @@ function WorksheetTable(props, ref) {
   }, []);
   const visibleColumns = useMemo(
     () =>
-      (showRowHead ? [{ type: 'rowHead', width: rowHeadWidth }] : [])
+      [{ type: 'rowHead', width: showRowHead ? rowHeadWidth : 10, empty: !showRowHead }]
         .concat(columns)
-        .concat({ type: 'emptyForResize', width: 60 })
+        .concat(showEmptyForResize ? { type: 'emptyForResize', width: 60 } : [])
         .filter(c => !_.includes(SHEET_VIEW_HIDDEN_TYPES, c.type)),
     [columns, rowHeadWidth],
   );
-  const tableRowCount = rowCount || data.length;
+  let tableRowCount = rowCount || data.length;
+  if (minRowCount && tableRowCount < minRowCount) {
+    tableRowCount = minRowCount;
+  }
   const subListDataLength = isSubList && data.filter(r => r.rowid).length;
   const cellColumnCount = visibleColumns.filter(c => c.type !== 'emptyForResize').length;
   let tableHeight = height;
-  const getColumnWidth = useCallback(
-    columnWidthFactory({
-      width,
-      visibleColumns,
-      sheetColumnWidths,
-    }),
-    [width, visibleColumns, sheetColumnWidths],
-  );
+  const YIsScroll = tableRowCount * rowHeight > height - 34 - (showSummary ? 28 : 0);
+  const getColumnWidth = useTableWidth({
+    width: width - (YIsScroll ? getScrollBarWidth() : 0),
+    visibleControls: visibleColumns,
+    sheetColumnWidths,
+  });
   const columnHeadHeight = useMemo(() => {
     if (!wrapControlName) {
       return 34;
@@ -252,6 +272,9 @@ function WorksheetTable(props, ref) {
   if (setHeightAsRowCount || !_.isUndefined(rowCount)) {
     const XIsScroll = _.sum(visibleColumns.map((a, i) => getColumnWidth(i, true) || 200)) > width;
     tableHeight = tableRowCount * rowHeight + 34 + (XIsScroll ? getScrollBarWidth() : 0);
+    if (showSummary) {
+      tableHeight += 28;
+    }
     if (isSubList && (_.last(data) || {}).isSubListFooter) {
       tableHeight -= rowHeight - 26;
     }
@@ -291,6 +314,7 @@ function WorksheetTable(props, ref) {
     if (newIndex === -10000) {
       return;
     }
+    window.activeTableId = tableId;
     const focusElement = tableRef.current && tableRef.current.dom.current.querySelector(`.cell-${newIndex}`);
     if (focusElement.classList.contains('emptyRow') && cache.data[Math.floor(newIndex / cellColumnCount)]) {
       onFocusCell(cache.data[Math.floor(newIndex / cellColumnCount)], newIndex);
@@ -405,6 +429,7 @@ function WorksheetTable(props, ref) {
     width,
     rowHeight,
     rowHeadWidth,
+    expandCellAppendWidth,
     fixedColumnCount,
     columns.map(c => c.controlId).join(','),
     JSON.stringify(sheetColumnWidths),
@@ -501,16 +526,22 @@ function WorksheetTable(props, ref) {
         rowHeight={rowHeight}
         defaultScrollLeft={defaultScrollLeft}
         getColumnWidth={getColumnWidth}
-        rowCount={tableRowCount}
+        rowCount={(rowCount || data.length) > 0 ? tableRowCount : rowCount || data.length}
         columnCount={visibleColumns.length}
         leftFixedCount={fixedColumnCount + 1}
         Cell={Cell}
         showHead={showHead}
         showFoot={showSummary}
         tableData={{
+          chatButton,
+          isTreeTableView,
+          treeTableViewData,
           tableId,
           isTrash,
           from,
+          view,
+          readonly,
+          allowAdd,
           allowlink,
           isSubList,
           fromModule,
@@ -604,6 +635,7 @@ function WorksheetTable(props, ref) {
             foot: renderFooterCell,
             rowHead: renderRowHead,
           },
+          actions,
         }}
         // 空状态
         renderEmpty={({ style }) => {

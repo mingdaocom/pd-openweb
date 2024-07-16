@@ -10,7 +10,7 @@ export default function({ controls, selectedIds, placeholder = _l('请选择'), 
     return {
       text: (
         <Fragment>
-          <span className="Gray_9e mRight5">[{CONTROLS_NAME[item.type]}]</span>
+          <span className="Gray_75 mRight5">[{CONTROLS_NAME[item.type]}]</span>
           <span>{item.controlName}</span>
         </Fragment>
       ),

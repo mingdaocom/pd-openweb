@@ -1,10 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Radio, ScrollView, Support, Icon, Tooltip } from 'ming-ui';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { NODE_TYPE, ACTION_ID, APP_TYPE, TRIGGER_ID } from '../../enum';
-import { getFeatureStatus, buriedUpgradeVersionDialog, getCurrentProject } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import SelectApprovalProcess from '../../../components/SelectApprovalProcess';
 import _ from 'lodash';
@@ -12,15 +9,15 @@ import CodeSnippet from '../../../components/CodeSnippet';
 import { Base64 } from 'js-base64';
 import cx from 'classnames';
 import BranchDialog from './BranchDialog';
-
-const ClickAwayable = createDecoratedComponent(withClickAway);
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { Drawer } from 'antd';
 
 export default class CreateNodeDialog extends Component {
   constructor(props) {
     super(props);
 
-    const currentProject = getCurrentProject(props.flowInfo.companyId);
-    const isDisabled = !currentProject.isProjectAdmin && !currentProject.isSuperAdmin;
+    const isDisabled = !checkPermission(props.flowInfo.companyId, PERMISSION_ENUM.MEMBER_MANAGE);
 
     this.state = {
       list: [
@@ -246,6 +243,36 @@ export default class CreateNodeDialog extends Component {
           ],
         },
         {
+          id: 'ai',
+          name: _l('AIGC'),
+          items: [
+            {
+              type: 31,
+              name: _l('AI 生成文本'),
+              appType: 46,
+              actionId: '531',
+              iconColor: '#F15B75',
+              iconName: 'icon-text_ai',
+            },
+            {
+              type: 31,
+              name: _l('AI 生成数据对象'),
+              appType: 46,
+              actionId: '532',
+              iconColor: '#F15B75',
+              iconName: 'icon-text_ai',
+            },
+            // {
+            //   type: 31,
+            //   name: _l('AI 生成图像'),
+            //   appType: 46,
+            //   actionId: '532',
+            //   iconColor: '#F15B75',
+            //   iconName: 'icon-AI_image',
+            // },
+          ],
+        },
+        {
           id: 'artificial',
           name: _l('待办'),
           items: [
@@ -313,6 +340,30 @@ export default class CreateNodeDialog extends Component {
           id: 'component',
           name: _l('构件%03032'),
           items: [
+            {
+              type: 29,
+              featureId: VersionProductType.WFLP,
+              name: _l('循环'),
+              iconColor: '#4C7D9E',
+              iconName: 'icon-arrow_loop',
+              typeText: _l('循环方式'),
+              secondList: [
+                {
+                  type: 29,
+                  name: _l('满足条件时循环'),
+                  appType: 45,
+                  actionId: '210',
+                  describe: _l('一直循环运行一段流程，并在参数达到退出条件后结束'),
+                },
+                {
+                  type: 29,
+                  name: _l('循环指定次数'),
+                  appType: 45,
+                  actionId: '211',
+                  describe: _l('按指定的起始值、结束值和步长值循环固定次数'),
+                },
+              ],
+            },
             {
               type: 16,
               name: _l('子流程%03038'),
@@ -395,6 +446,13 @@ export default class CreateNodeDialog extends Component {
               actionId: '2',
               iconColor: '#4C7D9E',
               iconName: 'icon-global_variable',
+            },
+            {
+              type: 30,
+              name: _l('中止流程'),
+              actionId: '2',
+              iconColor: '#F15B75',
+              iconName: 'icon-rounded_square',
             },
           ],
         },
@@ -721,6 +779,7 @@ export default class CreateNodeDialog extends Component {
       showCodeSnippetDialog: false,
     };
 
+    // 非自定义动作、非工作表事件去除界面推送
     if (
       !_.includes([APP_TYPE.CUSTOM_ACTION, APP_TYPE.PBC, APP_TYPE.SHEET], props.flowInfo.startAppType) ||
       props.flowInfo.child
@@ -730,6 +789,7 @@ export default class CreateNodeDialog extends Component {
       });
     }
 
+    // 外部用户讨论触发去除抄送
     if (
       props.flowInfo.startAppType === APP_TYPE.EXTERNAL_USER &&
       props.flowInfo.startTriggerId === TRIGGER_ID.DISCUSS
@@ -740,25 +800,47 @@ export default class CreateNodeDialog extends Component {
       });
     }
 
-    if (md.global.SysSettings.hideWeixin) {
+    // 非批量自定义动作数据源去除按钮汇总
+    if (
+      props.flowInfo.startAppType !== APP_TYPE.CUSTOM_ACTION ||
+      _.get(props, `flowNodeMap[${props.flowInfo.startNodeId}].actionId`) !== ACTION_ID.BATCH_ACTION
+    ) {
       this.state.list.forEach(o => {
-        _.remove(o.items, item => item.type === NODE_TYPE.TEMPLATE);
+        o.items.forEach(obj => {
+          _.remove(obj.secondList || [], item => item.actionId === ACTION_ID.CUSTOM_ACTION_TOTAL);
+        });
       });
     }
 
-    if (!md.global.SysSettings.enableSmsCustomContent) {
+    // 循环流程去除人工节点
+    if (props.flowInfo.startAppType === APP_TYPE.LOOP_PROCESS) {
       this.state.list.forEach(o => {
-        _.remove(o.items, item => item.type === NODE_TYPE.MESSAGE);
+        _.remove(o.items, item =>
+          _.includes([NODE_TYPE.WRITE, NODE_TYPE.APPROVAL, NODE_TYPE.APPROVAL_PROCESS], item.type),
+        );
       });
     }
 
-    // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、获取页面快照、界面推送、全局变量
+    // 移除任务、日程
+    this.state.list.forEach(o => {
+      _.remove(
+        o.items,
+        o =>
+          (o.appType === APP_TYPE.TASK && md.global.SysSettings.forbidSuites.indexOf('2') > -1) ||
+          (o.appType === APP_TYPE.CALENDAR && md.global.SysSettings.forbidSuites.indexOf('3') > -1) ||
+          (o.type === NODE_TYPE.TEMPLATE && md.global.SysSettings.hideWeixin) ||
+          (o.type === NODE_TYPE.MESSAGE && !md.global.SysSettings.enableSmsCustomContent),
+      );
+    });
+
+    // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、获取页面快照、界面推送、全局变量、循环
     [
       { featureId: VersionProductType.apiIntergrationNode, type: [NODE_TYPE.API_PACKAGE, NODE_TYPE.API] },
       { featureId: VersionProductType.codeBlockNode, type: [NODE_TYPE.CODE] },
       { featureId: VersionProductType.getPrintFileNode, type: [NODE_TYPE.FILE, NODE_TYPE.SNAPSHOT] },
       { featureId: VersionProductType.interfacePush, type: [NODE_TYPE.PUSH] },
       { featureId: VersionProductType.globalVariable, type: [NODE_TYPE.ACTION], appType: APP_TYPE.GLOBAL_VARIABLE },
+      { featureId: VersionProductType.WFLP, type: [NODE_TYPE.LOOP] },
     ].forEach(obj => {
       if (!_.includes(['1', '2'], getFeatureStatus(props.flowInfo.companyId, obj.featureId))) {
         this.state.list.forEach(o => {
@@ -769,28 +851,6 @@ export default class CreateNodeDialog extends Component {
           }
         });
       }
-    });
-
-    // 非批量自定义动作数据源去除按钮汇总
-    if (
-      props.flowInfo.startAppType !== APP_TYPE.CUSTOM_ACTION ||
-      _.get(props, 'flowNodeMap[props.flowInfo.startNodeId].actionId') !== ACTION_ID.BATCH_ACTION
-    ) {
-      this.state.list.forEach(o => {
-        o.items.forEach(obj => {
-          _.remove(obj.secondList || [], item => item.actionId === ACTION_ID.CUSTOM_ACTION_TOTAL);
-        });
-      });
-    }
-
-    // 移除任务、日程
-    this.state.list.forEach(o => {
-      _.remove(
-        o.items,
-        o =>
-          (o.appType === APP_TYPE.TASK && md.global.SysSettings.forbidSuites.indexOf('2') > -1) ||
-          (o.appType === APP_TYPE.CALENDAR && md.global.SysSettings.forbidSuites.indexOf('3') > -1),
-      );
     });
 
     this.cacheList = _.cloneDeep(this.state.list);
@@ -890,7 +950,7 @@ export default class CreateNodeDialog extends Component {
                         className={cx({ disabled: o.disabled })}
                         onClick={() => {
                           if (o.disabled) {
-                            alert(_l('仅组织管理员可以添加'), 3);
+                            alert(_l('拥有成员管理权限才可以添加'), 3);
                             return;
                           }
 
@@ -929,12 +989,7 @@ export default class CreateNodeDialog extends Component {
           <div className="createNodeMessageBox mBottom30 mLeft32 mRight32 mTop16 LineHeight20">
             {_l('在审批过程中添加数据处理节点。处理结果用于分支判断、更新审批中的数据。')}（
             {_l('可在审批步骤节点中配置更新数据')}
-            <Support
-              type={3}
-              text={_l('如何设置？')}
-              href="https://help.mingdao.com/workflow/node-approve#update"
-            />
-            ）
+            <Support type={3} text={_l('如何设置？')} href="https://help.mingdao.com/workflow/node-approve#update" />）
           </div>
         )}
 
@@ -956,14 +1011,14 @@ export default class CreateNodeDialog extends Component {
                 >
                   <Icon
                     icon={foldFeatures[data.id] ? 'arrow-right-tip' : 'arrow-down'}
-                    className="mRight13 Gray_9e Font13"
+                    className="mRight13 Gray_75 Font13"
                   />
                   {data.name}
                 </div>
                 {!foldFeatures[data.id] && (
                   <ul className="nodeList clearfix">
                     {data.items
-                      .filter(data => !(data.type === 25 && md.global.SysSettings.hideIntegration))
+                      .filter(data => !(_.includes([24, 25], data.type) && md.global.SysSettings.hideIntegration))
                       .map((item, j) => {
                         return (
                           <li key={j} onClick={() => this.createNodeClick(item)}>
@@ -1037,13 +1092,21 @@ export default class CreateNodeDialog extends Component {
       this.setState({ selectItem: item, branchDialogModel: 1 });
     } else if (
       (_.includes(
-        [NODE_TYPE.CODE, NODE_TYPE.PUSH, NODE_TYPE.FILE, NODE_TYPE.API_PACKAGE, NODE_TYPE.API, NODE_TYPE.SNAPSHOT],
+        [
+          NODE_TYPE.CODE,
+          NODE_TYPE.PUSH,
+          NODE_TYPE.FILE,
+          NODE_TYPE.API_PACKAGE,
+          NODE_TYPE.API,
+          NODE_TYPE.SNAPSHOT,
+          NODE_TYPE.LOOP,
+        ],
         item.type,
       ) ||
         (item.type === NODE_TYPE.ACTION && item.appType === APP_TYPE.GLOBAL_VARIABLE)) &&
       featureType === '2'
     ) {
-      // 代码块、界面推送、Word打印模板、API连接与认证、调用已集成的API、获取页面快照、更新全局变量
+      // 代码块、界面推送、Word打印模板、API连接与认证、调用已集成的API、获取页面快照、更新全局变量、循环
       buriedUpgradeVersionDialog(flowInfo.companyId, featureId);
     } else if (item.type === NODE_TYPE.APPROVAL_PROCESS && !item.isNew) {
       this.setState({ showApprovalDialog: true });
@@ -1102,109 +1165,94 @@ export default class CreateNodeDialog extends Component {
     const { selectItem, selectSecond, showApprovalDialog, showCodeSnippetDialog, branchDialogModel } = this.state;
 
     return (
-      <ReactCSSTransitionGroup
-        transitionName="createNodeDialogTransition"
-        transitionEnterTimeout={250}
-        transitionLeaveTimeout={250}
-      >
-        {!!nodeId && (
-          <ClickAwayable
-            className="createNodeDialog flexColumn"
-            onClickAwayExceptions={[
-              '.workflowLineBtn .icon-custom_add_circle',
-              '.mui-dialog-container',
-              '.workflowCopyBtn',
-              '.ming.List',
-            ]}
-            onClickAway={() => selectAddNodeId('')}
+      <Drawer placement="right" visible={!!nodeId} closable={false} mask={false} bodyStyle={{ padding: 0 }} width={640}>
+        <div className="createNodeDialog flexColumn h100">
+          <div
+            className="createNodeDialogHeader flexRow"
+            style={{ background: selectItem ? selectItem.iconColor : '#2196f3' }}
           >
-            <div
-              className="createNodeDialogHeader flexRow"
-              style={{ background: selectItem ? selectItem.iconColor : '#2196f3' }}
-            >
-              {selectSecond ? (
-                <div className="flex Font18">
-                  <i
-                    className="icon-backspace Font20 pointer"
-                    onClick={() => this.setState({ selectItem: null, selectSecond: false })}
-                  />
-                  <span className="mLeft10">{selectItem.name}</span>
-                </div>
-              ) : (
-                <Fragment>
-                  <div className="Font18">{_l('选择一个动作')}</div>
-                  <Support
-                    className="createNodeExplain mLeft5"
-                    type={1}
-                    text={_l('了解这些动作')}
-                    href="https://help.mingdao.com/workflow/introduction"
-                  />
-                  <div className="flex" />
-                  {!(
-                    (selectProcessId && flowInfo.id !== selectProcessId) ||
-                    isApproval ||
-                    flowNodeMap[flowInfo.startNodeId].nextId === '99'
-                  ) && (
-                    <div className="copyNodeBtn" onClick={() => selectCopy(flowInfo.id)}>
-                      <i className="icon-copy Font18 mRight5" />
-                      {_l('复制已有节点')}
-                    </div>
-                  )}
-                </Fragment>
-              )}
-
-              <i className="icon-delete Font18 mLeft5" onClick={() => selectAddNodeId('')} />
-            </div>
-            <div className="flex">
-              <ScrollView>{this.renderContent()}</ScrollView>
-            </div>
-
-            {!!branchDialogModel && (
-              <BranchDialog
-                {...this.props}
-                isConditionalBranch={branchDialogModel === 2}
-                onSave={({ isOrdinary, moveType }) => this.createBranchNode({ isOrdinary, moveType })}
-                onClose={() => this.setState({ branchDialogModel: 0 })}
-              />
+            {selectSecond ? (
+              <div className="flex Font18">
+                <i
+                  className="icon-backspace Font20 pointer"
+                  onClick={() => this.setState({ selectItem: null, selectSecond: false })}
+                />
+                <span className="mLeft10">{selectItem.name}</span>
+              </div>
+            ) : (
+              <Fragment>
+                <div className="Font18">{_l('选择一个动作')}</div>
+                <Support
+                  className="createNodeExplain mLeft5"
+                  type={1}
+                  text={_l('了解这些动作')}
+                  href="https://help.mingdao.com/workflow/introduction"
+                />
+                <div className="flex" />
+                {!(
+                  (selectProcessId && flowInfo.id !== selectProcessId) ||
+                  isApproval ||
+                  flowNodeMap[flowInfo.startNodeId].nextId === '99'
+                ) && (
+                  <div className="copyNodeBtn" onClick={() => selectCopy(flowInfo.id)}>
+                    <i className="icon-copy Font18 mRight5" />
+                    {_l('复制已有节点')}
+                  </div>
+                )}
+              </Fragment>
             )}
 
-            {showApprovalDialog && (
-              <SelectApprovalProcess
-                companyId={flowInfo.companyId}
-                appId={flowInfo.relationId}
-                onOk={({ processId }) =>
-                  this.addFlowNode({
-                    appType: APP_TYPE.APPROVAL,
-                    name: _l('未命名审批流程'),
-                    prveId: nodeId,
-                    typeId: NODE_TYPE.APPROVAL_PROCESS,
-                    appId: processId,
-                  })
-                }
-                onCancel={() => this.setState({ showApprovalDialog: false })}
-              />
-            )}
+            <i className="icon-delete Font18 mLeft5" onClick={() => selectAddNodeId('')} />
+          </div>
+          <div className="flex">
+            <ScrollView>{this.renderContent()}</ScrollView>
+          </div>
 
-            {showCodeSnippetDialog && (
-              <CodeSnippet
-                projectId={flowInfo.companyId}
-                type={0}
-                onSave={({ actionId, inputData, code }) => {
-                  this.setState({ showCodeSnippetDialog: false });
-                  this.addFlowNode({
-                    actionId,
-                    name: actionId === ACTION_ID.JAVASCRIPT ? _l('JavaScript') : _l('Python'),
-                    prveId: nodeId,
-                    typeId: NODE_TYPE.CODE,
-                    appId: JSON.stringify({ inputData, code: Base64.encode(code) }),
-                  });
-                }}
-                onClose={() => this.setState({ showCodeSnippetDialog: false })}
-              />
-            )}
-          </ClickAwayable>
-        )}
-      </ReactCSSTransitionGroup>
+          {!!branchDialogModel && (
+            <BranchDialog
+              {...this.props}
+              isConditionalBranch={branchDialogModel === 2}
+              onSave={({ isOrdinary, moveType }) => this.createBranchNode({ isOrdinary, moveType })}
+              onClose={() => this.setState({ branchDialogModel: 0 })}
+            />
+          )}
+
+          {showApprovalDialog && (
+            <SelectApprovalProcess
+              companyId={flowInfo.companyId}
+              appId={flowInfo.relationId}
+              onOk={({ processId }) =>
+                this.addFlowNode({
+                  appType: APP_TYPE.APPROVAL,
+                  name: _l('未命名审批流程'),
+                  prveId: nodeId,
+                  typeId: NODE_TYPE.APPROVAL_PROCESS,
+                  appId: processId,
+                })
+              }
+              onCancel={() => this.setState({ showApprovalDialog: false })}
+            />
+          )}
+
+          {showCodeSnippetDialog && (
+            <CodeSnippet
+              projectId={flowInfo.companyId}
+              type={0}
+              onSave={({ actionId, inputData, code }) => {
+                this.setState({ showCodeSnippetDialog: false });
+                this.addFlowNode({
+                  actionId,
+                  name: actionId === ACTION_ID.JAVASCRIPT ? _l('JavaScript') : _l('Python'),
+                  prveId: nodeId,
+                  typeId: NODE_TYPE.CODE,
+                  appId: JSON.stringify({ inputData, code: Base64.encode(code) }),
+                });
+              }}
+              onClose={() => this.setState({ showCodeSnippetDialog: false })}
+            />
+          )}
+        </div>
+      </Drawer>
     );
   }
 }

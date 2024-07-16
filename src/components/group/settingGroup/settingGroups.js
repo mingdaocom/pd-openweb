@@ -24,8 +24,10 @@ import 'src/components/uploadAttachment/uploadAttachment';
 import addFriends from 'src/components/addFriends';
 import moment from 'moment';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Dropdown, UserHead } from 'ming-ui';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 var tips = {
   MDGroup: _l('个人群组'),
@@ -149,6 +151,10 @@ $.extend(SettingGroup.prototype, {
   cacheData: function (result) {
     var _this = this;
     var options = _this.options;
+    var hasGroupAuth =
+      result.project &&
+      result.project.projectId &&
+      checkPermission(result.project.projectId, PERMISSION_ENUM.GROUP_MANAGE);
     options.isRefresh.info = false;
     result.name = filterXSS(result.name);
     options.isPost = result.isPost;
@@ -156,10 +162,11 @@ $.extend(SettingGroup.prototype, {
     options.isAdmin = result.isAdmin;
     options.isForbidInvite = result.isForbidInvite;
     options.projectId = (result.project && result.project.projectId) || '';
-    options.isProjectAdmin = result.project && result.project.isProjectAdmin;
+    options.hasGroupAuth = hasGroupAuth;
     // cache group data
     options.data = result;
     options.data.createTime = moment(result.createTime).format(_l('YYYY年MM月DD日'));
+    options.data.hasGroupAuth = hasGroupAuth;
 
     // 官方群组
     if (result.isVerified) {
@@ -197,17 +204,20 @@ $.extend(SettingGroup.prototype, {
           _this.cacheData(result);
           // render dialog
           _this.openConfirm();
-          // get DOM
-          _this.getContent();
-          // bind event
-          _this.initEvent();
 
-          if (_this.options.isPost) {
-            _this.initGroupTab();
-          } else {
-            _this.$groupInfo.removeClass('Hidden').html(LoadDiv()).siblings().addClass('Hidden');
-            _this.renderGroupInfo(_this.$groupInfo);
-          }
+          setTimeout(() => {
+            // get DOM
+            _this.getContent();
+            // bind event
+            _this.initEvent();
+
+            if (_this.options.isPost) {
+              _this.initGroupTab();
+            } else {
+              _this.$groupInfo.removeClass('Hidden').html(LoadDiv()).siblings().addClass('Hidden');
+              _this.renderGroupInfo(_this.$groupInfo);
+            }
+          }, 200);
         } else {
           $('.dialogBoxSettingGroup') && $('.dialogBoxSettingGroup').parent().remove();
           alert(tips.stateTip, 3);
@@ -443,7 +453,7 @@ $.extend(SettingGroup.prototype, {
     // setting associated department
     $groupSettings.on('click', '.officialDepSelect', function () {
       var groupDeptMapData = options.deptMapData;
-      if (!options.isProjectAdmin) {
+      if (!options.hasGroupAuth) {
         alert(tips.authTip, 3);
         return false;
       }
@@ -470,7 +480,8 @@ $.extend(SettingGroup.prototype, {
       var accountId = $this.attr('data-accountid');
       var avatar = $this.attr('src');
 
-      ReactDOM.render(
+      const root = createRoot(wrap);
+      root.render(
         <UserHead
           className="userHead"
           user={{
@@ -485,7 +496,7 @@ $.extend(SettingGroup.prototype, {
                 onClick={() => {
                   // 移除讨论组成员
                   _this.removeUser(accountId, 'remove');
-                  $dialog.remove();
+                  $('.convertToPost').remove();
                 }}
               >
                 {tips.remove}
@@ -494,7 +505,6 @@ $.extend(SettingGroup.prototype, {
           }
           size={32}
         />,
-        wrap,
       );
       $this.data('bind', true);
     });
@@ -1027,29 +1037,29 @@ $.extend(SettingGroup.prototype, {
       },
     });
 
-    var $dialog = $('.convertToPost');
-
-    ReactDOM.render(
-      <Dropdown
-        className="w100"
-        menuClass="w100"
-        border
-        data={projects}
-        onChange={value => {
-          projectId = value;
-          expireDialogAsync(projectId)
-            .then(() => {
-              dialogInfoConfig.okDisable = false;
-              $('.convertToPost .ming.Button').eq(1).attr('disabled', false).removeClass('Button--disabled');
-            })
-            .catch(() => {
-              dialogInfoConfig.okDisable = true;
-              $('.convertToPost .ming.Button').eq(1).attr('disabled', true).addClass('Button--disabled');
-            });
-        }}
-      />,
-      $dialog.find('#selectProject')[0],
-    );
+    setTimeout(() => {
+      const root = createRoot($('.convertToPost').find('#selectProject')[0]);
+      root.render(
+        <Dropdown
+          className="w100"
+          menuClass="w100"
+          border
+          data={projects}
+          onChange={value => {
+            projectId = value;
+            expireDialogAsync(projectId)
+              .then(() => {
+                dialogInfoConfig.okDisable = false;
+                $('.convertToPost .ming.Button').eq(1).attr('disabled', false).removeClass('Button--disabled');
+              })
+              .catch(() => {
+                dialogInfoConfig.okDisable = true;
+                $('.convertToPost .ming.Button').eq(1).attr('disabled', true).addClass('Button--disabled');
+              });
+          }}
+        />,
+      );
+    }, 200);
   },
   // update: notice
   updateGroupNotice: function ($switch) {

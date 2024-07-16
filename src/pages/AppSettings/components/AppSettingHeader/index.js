@@ -44,6 +44,7 @@ export default function AppSettingHeader(props) {
     showBeta,
     showSearch,
     placeholder,
+    addIcon,
     addBtnName,
     needUpgrade,
     description,
@@ -68,7 +69,7 @@ export default function AppSettingHeader(props) {
         )}
         {addBtnName && (
           <Button className={cx(`mLeft20 pLeft20 pRight20`, { needUpgrade })} type="primary" radius onClick={handleAdd}>
-            <i className="icon icon-plus Font12 mRight5" />
+            <i className={`icon icon-${addIcon ? addIcon : 'plus'} Font12 mRight5`} />
             {addBtnName}
             {needUpgrade && <UpgradeIcon />}
           </Button>

@@ -225,12 +225,20 @@ export default class extends Component {
             }
           }
         });
+
+        this.resizeObserver = new ResizeObserver(entries => {
+          for (let entry of entries) {
+            this.scene.map.resize();
+          }
+        });
+        this.resizeObserver.observe(this.chartEl);
       },
     );
   }
   componentWillUnmount() {
     this.CountryLayerChart && this.CountryLayerChart.destroy();
     this.scene && this.scene.destroy();
+    this.resizeObserver && this.resizeObserver.unobserve(this.chartEl);
   }
   componentWillReceiveProps(nextProps) {
     const { style = {}, displaySetup = {}, map } = nextProps.reportData;

@@ -83,6 +83,33 @@
   .workflowExecBottomLine {
     bottom: 0;
   }
+  .BGBlue {
+    background: #2196f3;
+  }
+  .BGSkyBlue {
+    background: #00BCD4;
+  }
+  .BGGreen {
+    background: #01ca83;
+  }
+  .BGViolet {
+    background: #7E57C2;
+  }
+  .BGBlueAsh {
+    background: #4c7d9e;
+  }
+  .BGYellow {
+    background: #ffa340;
+  }
+  .BGGray {
+    background: #ddd;
+  }
+  .BGDarkBlue {
+    background: #4158DB;
+  }
+  .BGRed {
+    background: #F15B75;
+  }
   .workflowItem {
     width: 261px;
     background: #fff;
@@ -250,33 +277,6 @@
         color: #333;
       }
     }
-    .BGBlue {
-      background: #2196f3;
-    }
-    .BGSkyBlue {
-      background: #00BCD4;
-    }
-    .BGGreen {
-      background: #01ca83;
-    }
-    .BGViolet {
-      background: #7E57C2;
-    }
-    .BGBlueAsh {
-      background: #4c7d9e;
-    }
-    .BGYellow {
-      background: #ffa340;
-    }
-    .BGGray {
-      background: #ddd;
-    }
-    .BGDarkBlue {
-      background: #4158DB;
-    }
-    .BGRed {
-      background: #F15B75;
-    }
     .workflowContent {
       padding: 8px;
       display: flex;
@@ -348,7 +348,7 @@
       }
     }
     .workflowNodeCopy {
-      color: #9e9e9e;
+      color: #757575;
       cursor: pointer;
       position: absolute;
       top: -14px;
@@ -399,7 +399,7 @@
         margin: 0 7px;
         cursor: pointer;
         color: #fff;
-        background: #9e9e9e;
+        background: #757575;
       }
       .delNodeSureBtn {
         background: #ff3b3b;
@@ -559,31 +559,8 @@
   }
 }
 
-.createNodeDialogTransition-enter {
-  transform: translateX(640px);
-  transition: all 250ms ease-out;
-}
-
-.createNodeDialogTransition-enter.createNodeDialogTransition-enter-active {
-  transform: translateX(0);
-}
-
-.createNodeDialogTransition-leave {
-  transform: translateX(0);
-  transition: all 250ms ease-out;
-}
-
-.createNodeDialogTransition-leave.createNodeDialogTransition-leave-active {
-  transform: translateX(640px);
-}
-
 .createNodeDialog {
-  z-index: 11;
   width: 640px;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
   background: #fff;
   box-shadow: 0 10px 23px 2px rgba(0, 0, 0, 0.2),
     0 3px 6px rgba(0, 0, 0, 0.15);
@@ -645,7 +622,7 @@
       padding: 8px 16px;
       border-width: 5px;
       border-style: solid;
-      border-color: #fff;
+      border-color: rgb(2555, 255, 255);
       cursor: pointer;
       float: left;
       height: 70px;
@@ -740,7 +717,7 @@
     }
     i {
       font-size: 14px;
-      color: #9e9e9e;
+      color: #757575;
       margin-right: 10px;
     }
   }
@@ -838,20 +815,15 @@
   }
 }
 
-.thumbnailTransition-enter {
-  transform: translateX(-300px);
-  transition: all 250ms ease-out;
-}
-
-.thumbnailTransition-enter.thumbnailTransition-enter-active {
-  transform: translateX(0);
-}
-
-.thumbnailTransition-leave {
-  transform: translateX(0);
-  transition: all 250ms ease-out;
-}
-
-.thumbnailTransition-leave.thumbnailTransition-leave-active {
-  transform: translateX(-300px);
+.workflowThumbnail {
+  top: initial;
+  bottom: 0;
+  width: 290px;
+  height: 290px;
+  .ant-drawer-content-wrapper {
+    box-shadow: none !important;
+  }
+  .ant-drawer-content {
+    background: transparent;
+  }
 }

@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './taskNavigation.less';
 import ajaxRequest from 'src/api/taskCenter';
 import {
@@ -113,7 +113,7 @@ function SearchFolder(props) {
         folders: [],
         labels: [],
       });
-      setVisible(false)
+      setVisible(false);
       return;
     }
     setLoading(true);
@@ -346,7 +346,9 @@ class TaskNavigation extends Component {
       if ($ele.data('hasbusinesscard')) return;
 
       $ele.data('hasbusinesscard', true);
-      ReactDOM.render(
+      const root = createRoot(ele);
+
+      root.render(
         <UserHead
           className="circle"
           user={{
@@ -355,7 +357,6 @@ class TaskNavigation extends Component {
           }}
           size={24}
         />,
-        ele,
       );
     });
   }
@@ -555,8 +556,6 @@ class TaskNavigation extends Component {
           $('.folderList .sinSettings').addClass('Hidden');
           $('.folderSettingsList').hide();
           $('#taskNavigator .folderUnfinished.folderIcon').removeClass('Hidden');
-          // 任务详情点击项目 打开项目时tooltip
-          $('.md_tooltip').remove();
 
           const _this = $(this);
           let isNovice = false;

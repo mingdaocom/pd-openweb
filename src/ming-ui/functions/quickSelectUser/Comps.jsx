@@ -225,6 +225,7 @@ export function Search(props) {
               SelectUserSettings.includeUndefinedAndMySelf = parentProps.includeUndefinedAndMySelf;
               SelectUserSettings.includeSystemField = parentProps.includeSystemField;
               SelectUserSettings.prefixAccountIds = parentProps.prefixAccountIds;
+              SelectUserSettings.filterOtherProject = parentProps.filterOtherProject;
 
               if (!SelectUserSettings.callback) {
                 SelectUserSettings.callback = onSelect;

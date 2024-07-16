@@ -10,7 +10,7 @@ import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 import _, { get } from 'lodash';
 import autoSize from 'ming-ui/decorators/autoSize';
-
+import RegExpValidator from 'src/util/expression';
 let whiteListClone = Object.assign({}, whiteList, {
   img: ['src'],
   div: ['lang', 'dir', 'role', 'aria-labelledby'],
@@ -251,8 +251,8 @@ class MyUploadAdapter {
   _sendRequest(resolve, reject) {
     const data = new FormData();
     this.loader.file.then(result => {
-      let fileExt = `.${File.GetExt(result.name)}`;
-      let isPic = File.isPicture(fileExt);
+      let fileExt = `.${RegExpValidator.getExtOfFileName(result.name)}`;
+      let isPic = RegExpValidator.fileIsPicture(fileExt);
       this.url = '';
       getToken([{ bucket: get(this, 'options.bucket') || (isPic ? 4 : 2), ext: fileExt }], 9, this.tokenArgs).then(
         res => {
@@ -268,9 +268,9 @@ class MyUploadAdapter {
               res[0].fileName.indexOf('.') > -1 ? res[0].fileName.split('.').slice(0, -1).join('.') : res[0].fileName,
             ),
           );
-          var fileExt = '.' + File.GetExt(res[0].fileName);
+          var fileExt = '.' + RegExpValidator.getExtOfFileName(res[0].fileName);
           data.append('x:fileExt', fileExt);
-          this.url = res[0].url || (res[0].serverName && res[0].key) ? res[0].serverName + res[0].key : '';
+          this.url = res[0].url || (res[0].serverName && res[0].key ? res[0].serverName + res[0].key : '');
           this.xhr.send(data);
         },
       );
@@ -315,6 +315,7 @@ const RichText = ({
   clickInit = false,
   autoFocus = false,
   width,
+  handleFocus = () => {},
 }) => {
   const [MDEditor, setComponent] = useState(null);
   const editorDiv = useRef();
@@ -559,6 +560,7 @@ const RichText = ({
           setTimeout(() => {
             !showTool && $(editorDiv.current).find('.ck-sticky-panel').show();
           }, 300);
+          handleFocus();
         }}
       />
     );

@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import DocumentTitle from 'react-document-title';
 import qs from 'query-string';
-import { connect, Provider } from 'react-redux';
+import { Provider } from 'react-redux';
 import ConnectChatWindow from 'src/pages/chat/containers/ChatWindow';
 import store from 'redux/configureStore';
 
@@ -27,4 +27,6 @@ export default class ChatWindowEntrypoint extends Component {
   }
 }
 
-ReactDOM.render(<ChatWindowEntrypoint />, document.getElementById('app'));
+const root = createRoot(document.getElementById('app'));
+
+root.render(<ChatWindowEntrypoint />);

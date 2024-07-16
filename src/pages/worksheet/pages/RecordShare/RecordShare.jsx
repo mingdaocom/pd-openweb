@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { RecordInfoModal } from 'src/pages/Mobile/Record';
 import { browserIsMobile } from 'src/util';
+import { LoadDiv } from 'ming-ui';
 const isMobile = browserIsMobile();
 
 const Con = styled.div`
@@ -23,10 +22,25 @@ const RecordCon = styled.div`
 const RecordShare = props => {
   const { data } = props;
   const { appId, worksheetId, rowId, viewId } = data;
+  const [Component, setComponent] = useState(null);
+
+  useEffect(() => {
+    if (isMobile) {
+      import('src/pages/Mobile/Record').then(component => {
+        setComponent(component.RecordInfoModal);
+      });
+    } else {
+      import('worksheet/common/recordInfo/RecordInfoWrapper').then(component => {
+        setComponent(component);
+      });
+    }
+  }, []);
+
+  if (!Component) return <LoadDiv />;
 
   if (isMobile) {
     return (
-      <RecordInfoModal
+      <Component
         visible={true}
         notModal={true}
         appId={appId}
@@ -41,7 +55,7 @@ const RecordShare = props => {
   return (
     <Con>
       <RecordCon style={{ width: window.innerWidth - 84 > 1200 ? window.innerWidth - 84 : window.innerWidth }}>
-        <RecordInfoWrapper
+        <Component.default
           notDialog
           from={2}
           appId={appId}

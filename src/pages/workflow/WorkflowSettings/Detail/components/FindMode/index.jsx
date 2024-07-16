@@ -36,7 +36,7 @@ export default ({ execute, onChange, isFormula = false }) => {
       {TYPE.map(item => (
         <div className="mTop15" key={item.value}>
           <Radio text={item.text} checked={execute === item.value} onClick={() => onChange(item.value)} />
-          {item.desc && <div className="mTop5 mLeft30 Gray_9e">{item.desc}</div>}
+          {item.desc && <div className="mTop5 mLeft30 Gray_75">{item.desc}</div>}
         </div>
       ))}
     </Fragment>

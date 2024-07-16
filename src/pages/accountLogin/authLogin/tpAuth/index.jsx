@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import preall from 'src/common/preall';
 import { useSetState } from 'react-use';
 import { getRequest } from 'src/util';
@@ -152,4 +152,6 @@ function Container(props) {
   );
 }
 
-render(<Container />, document.getElementById('app'));
+const root = createRoot(document.getElementById('app'));
+
+root.render(<Container />);

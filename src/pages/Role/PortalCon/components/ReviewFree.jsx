@@ -118,7 +118,7 @@ const Wrap = styled.div`
     }
   }
 `;
-const list = ['导入Excel数据', '从工作表获取数据'];
+const list = [_l('导入Excel数据'), _l('从工作表获取数据')];
 export default function ReviewFree(props) {
   const { appId, projectId, onCancel, show, data, onChangePortalVersion, canChooseOtherApp } = props;
   const [cellConfigs, setCellConfigs] = useState([]); //免审名单
@@ -165,6 +165,7 @@ export default function ReviewFree(props) {
       .getUserCollect({
         appId,
         getSystem: true,
+        lang: getCurrentLangCode(),
       })
       .then(res => {
         setControls(res);

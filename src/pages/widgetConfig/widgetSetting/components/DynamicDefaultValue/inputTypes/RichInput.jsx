@@ -25,7 +25,7 @@ export default function (props) {
 
   const handleChange = value => {
     setValue(value);
-    onDynamicValueChange([{ cid: '', rcid: '', staticValue: value }]);
+    onDynamicValueChange(value ? [{ cid: '', rcid: '', staticValue: value }] : []);
   };
 
   const onTriggerClick = () => {

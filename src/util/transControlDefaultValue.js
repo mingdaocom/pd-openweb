@@ -1,7 +1,8 @@
 import worksheetAjax from 'src/api/worksheet';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { v4 as uuidv4 } from 'uuid';
-
+import _ from 'lodash';
+import RegExpValidator from 'src/util/expression';
 const SYSTEM_FIELD_IDS = [
   'rowid',
   'ownerid',
@@ -35,7 +36,7 @@ export function formatAttachmentValue(value, isRecreate = false, isRelation = fa
         const fileName = (urlPathNameArr[urlPathNameArr.length - 1] || '').split('.')[0];
         let filePath = (url.pathname || '').slice(1).replace(fileName + item.ext, '');
         const IsLocal = md.global.Config.IsLocal;
-        const host = File.isPicture(item.ext)
+        const host = RegExpValidator.fileIsPicture(item.ext)
           ? md.global.FileStoreConfig.pictureHost
           : md.global.FileStoreConfig.documentHost;
         let searchParams = '';
@@ -74,7 +75,7 @@ export function formatAttachmentValue(value, isRecreate = false, isRelation = fa
 
 export async function fillRowRelationRows(control, rowId, worksheetId, isRecreate = false) {
   let defSource = '';
-  let filledControl = control;
+  let filledControl = _.cloneDeep(control);
   await worksheetAjax
     .getRowRelationRows({
       controlId: control.controlId,

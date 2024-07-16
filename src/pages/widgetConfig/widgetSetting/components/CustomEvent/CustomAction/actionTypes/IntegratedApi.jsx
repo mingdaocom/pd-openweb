@@ -3,10 +3,12 @@ import { useSetState } from 'react-use';
 import { Dialog } from 'ming-ui';
 import { CustomActionWrap } from '../../style';
 import ApiSearchConfig from '../../../ApiSearchConfig';
+import { v4 as uuidv4 } from 'uuid';
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
+import { ROW_ID_CONTROL } from '../../../../../config/widget';
 
 export default function IntegratedApi(props) {
-  const { actionData = {}, data, handleOk, fromCustomFilter } = props;
+  const { actionData = {}, data, handleOk, fromCustomFilter, allControls = [] } = props;
   const [{ advancedSetting, dataSource, filterItems, visible }, setState] = useSetState({
     advancedSetting: actionData.advancedSetting || {},
     filterItems: actionData.filterItems || [],
@@ -48,16 +50,24 @@ export default function IntegratedApi(props) {
       okDisabled={!canSave()}
       className="SearchWorksheetDialog"
       title={_l('调用已集成API')}
+      overlayClosable={false}
       onCancel={() => setState({ visible: false })}
       onOk={() => {
-        handleOk({ ...actionData, advancedSetting, dataSource, ...(fromCustomFilter ? { filterItems } : {}) });
+        handleOk({
+          ...actionData,
+          advancedSetting: { ...advancedSetting, apiEventId: uuidv4() },
+          dataSource,
+          ...(fromCustomFilter ? { filterItems } : {}),
+        });
         setState({ visible: false });
       }}
     >
-      <CustomActionWrap>
+      <CustomActionWrap className="customApiDialog">
         <ApiSearchConfig
           {...props}
           fromCustom={true}
+          allControls={allControls.concat(ROW_ID_CONTROL)}
+          fromCustomEventApi={true}
           setControls={setControls}
           data={{ ...data, type: 49, advancedSetting, dataSource, filterItems }}
           handleFilters={value => setState({ filterItems: value })}

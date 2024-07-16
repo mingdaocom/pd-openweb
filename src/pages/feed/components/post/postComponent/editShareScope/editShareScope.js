@@ -32,13 +32,16 @@ EditShareScope.prototype = {
       dialogClasses: 'editShareScopeConfirm',
       children: <div dangerouslySetInnerHTML={{ __html: ES.tpl.main() }}></div>,
     });
-    ES.$content = $('.editShareScope');
-    ES.$searchInput = ES.$content.find('.search input');
-    ES.$searchResult = ES.$content.find('.searchResult');
-    ES.$selectedNum = ES.$content.find('.btns .save .selectedNum');
-    ES.$saveBtn = ES.$content.find('.btns .save');
-    ES.$cancelBtn = ES.$content.find('.btns .cancel');
-    ES.render();
+
+    setTimeout(() => {
+      ES.$content = $('.editShareScope');
+      ES.$searchInput = ES.$content.find('.search input');
+      ES.$searchResult = ES.$content.find('.searchResult');
+      ES.$selectedNum = ES.$content.find('.btns .save .selectedNum');
+      ES.$saveBtn = ES.$content.find('.btns .save');
+      ES.$cancelBtn = ES.$content.find('.btns .cancel');
+      ES.render();
+    }, 200);
   },
   render: function () {
     var ES = this;

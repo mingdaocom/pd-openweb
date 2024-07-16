@@ -2,10 +2,15 @@ import React, { Fragment, useState, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import PrivateLinkDialog from './components/PrivateLinkDialog';
 import privateLinkApi from 'src/api/privateLink';
+import privateSysSettingApi from 'src/api/privateSysSetting';
+import cx from 'classnames';
 import { Switch, Checkbox, Radio, Icon, LoadDiv } from 'ming-ui';
 import { Button, Divider, Input, Tooltip } from 'antd';
+import { encrypt } from 'src/util';
+import { PUBLIC_KEY } from 'src/util/enum';
 import { updateSysSettings } from '../common';
 import { BrandHomeImage } from '../Platform/Brand';
+import googleIcon from '../images/google.svg';
 import _ from 'lodash';
 
 const Login = props => {
@@ -221,6 +226,169 @@ const Login = props => {
   );
 };
 
+const GoogleSso = prosp => {
+  const [edit, setEdit] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [original, setOriginal] = useState({});
+  const [ssoSettings, setSsoSettings] = useState({});
+
+  useEffect(() => {
+    privateSysSettingApi.getSsoSettings({}).then(data => {
+      const config = data[0];
+      setSsoSettings(config);
+      setOriginal(config);
+      setLoading(false);
+    });
+  }, []);
+
+  const handleSave = () => {
+    if (!(ssoSettings.clientId && ssoSettings.clientSecret && ssoSettings.redirectUri)) {
+      alert(_l('请完善配置信息'), 3);
+      return;
+    }
+    privateSysSettingApi.setSso({
+      clientId: encrypt(ssoSettings.clientId),
+      clientSecret: encrypt(ssoSettings.clientSecret),
+      redirectUri: ssoSettings.redirectUri,
+      tpType: ssoSettings.tpType,
+    }).then(data => {
+      const config = {
+        ...ssoSettings,
+        clientSecret: '************'
+      }
+      setSsoSettings(config);
+      setOriginal(config);
+      setEdit(false);
+    });
+  };
+  const handleChangeSsoSettings = (config) => {
+    setSsoSettings(data => {
+      return {
+        ...data,
+        ...config
+      }
+    });
+  }
+  const handleSetSsoStatus = status => {
+    privateSysSettingApi.setSsoStatus({
+      tpType: ssoSettings.tpType,
+      status
+    }).then(data => {
+      handleChangeSsoSettings({
+        status: status ? 1 : 0
+      });
+    });
+  }
+  const handleReset = () => {
+    handleChangeSsoSettings({
+      clientId: original.clientId,
+      clientSecret: original.clientSecret,
+      redirectUri: original.redirectUri,
+    });
+    setEdit(false);
+  };
+  return (
+    <div className="privateCardWrap flexColumn">
+      <div className="flexRow">
+        <div className="flex Font17 bold mBottom5">
+          {_l('SSO')}
+        </div>
+        <Switch
+          checked={ssoSettings.status === 1}
+          onClick={value => {
+            handleSetSsoStatus(!value);
+          }}
+        />
+      </div>
+      <div className="mBottom15 Gray_9e">{_l('使用预集成的SSO登录方式，开启后在登录页显示登录按钮')}</div>
+      <div className={cx('flexRow valignWrapper', { mBottom20: ssoSettings.status === 1 })}>
+        <img src={googleIcon} width="20px" />
+        <span className="mLeft8">{'Google'}</span>
+      </div>
+      {ssoSettings.status === 1 && (
+        loading ? (
+          <LoadDiv />
+        ) : (
+          edit ? (
+            <Fragment>
+              <div className="flexColumn mBottom20">
+                <div className="mBottom5">{'client id'}</div>
+                <Input
+                  className="flex"
+                  value={ssoSettings.clientId}
+                  onChange={event => {
+                    handleChangeSsoSettings({
+                      clientId: event.target.value.replace(/\s/g, '')
+                    });
+                  }}
+                />
+              </div>
+              <div className="flexColumn mBottom20">
+                <div className="mBottom5">{'client secret'}</div>
+                <Input
+                  className="flex"
+                  type="password"
+                  value={ssoSettings.clientSecret}
+                  onChange={event => {
+                    handleChangeSsoSettings({
+                      clientSecret: event.target.value.replace(/\s/g, '')
+                    });
+                  }}
+                />
+              </div>
+              <div className="flexColumn mBottom20">
+                <div className="mBottom5">{_l('回调地址')}</div>
+                <Input
+                  className="flex"
+                  value={ssoSettings.redirectUri}
+                  onChange={event => {
+                    handleChangeSsoSettings({
+                      redirectUri: event.target.value.replace(/\s/g, '')
+                    });
+                  }}
+                />
+              </div>
+              <div className="flexRow valignWrapper">
+                <Button className="mRight10" type="primary" onClick={handleSave}>{_l('保存')}</Button>
+                <Button onClick={handleReset}>{_l('取消')}</Button>
+              </div>
+            </Fragment>
+          ) : (
+            <Fragment>
+              {ssoSettings.clientId && (
+                <div className="flexRow mBottom20">
+                  <div className="mRight25 Gray_9e">{'client id'}</div>
+                  <div>{ssoSettings.clientId}</div>
+                </div>
+              )}
+              {ssoSettings.clientSecret && (
+                <div className="flexRow mBottom20">
+                  <div className="mRight25 Gray_9e">{'client secret'}</div>
+                  <div>{ssoSettings.clientSecret}</div>
+                </div>
+              )}
+              {ssoSettings.redirectUri && (
+                <div className="flexRow mBottom20">
+                  <div className="mRight25 Gray_9e">{_l('回调地址')}</div>
+                  <div>{ssoSettings.redirectUri}</div>
+                </div>
+              )}
+              <Button
+                ghost
+                type="primary"
+                style={{ width: 'max-content' }}
+                onClick={() => setEdit(true)}
+              >
+                {_l('设置')}
+              </Button>
+            </Fragment>
+          )
+        )
+      )}
+    </div>
+  );
+}
+
 const Sso = prosp => {
   const { SysSettings } = md.global;
   const [edit, setEdit] = useState(false);
@@ -250,7 +418,7 @@ const Sso = prosp => {
     <div className="privateCardWrap flexColumn">
       <div className="flexRow">
         <div className="flex Font17 bold mBottom5">
-          {_l('SSO')}
+          {_l('SSO自主集成')}
         </div>
         <Switch
           checked={enableSso}
@@ -264,7 +432,7 @@ const Sso = prosp => {
           }}
         />
       </div>
-      <div className="mBottom15 Gray_9e">{_l('设置SSO登录页地址，可以在登录页显示按钮')}</div>
+      <div className="mBottom15 Gray_9e">{_l('添加自主集成的SSO登录方式。自主集成的SSO登录账号，在退出登录后会认返回到SSO登录页')}</div>
       {edit ? (
         <Fragment>
           <div className="flexColumn mBottom20">
@@ -336,6 +504,7 @@ export default props => {
   return (
     <Fragment>
       <Login {...props } />
+      <GoogleSso {...props } />
       <Sso {...props } />
     </Fragment>
   );

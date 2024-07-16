@@ -1,5 +1,4 @@
-﻿{{ var openText = _l('开启'); }}
-{{ var closeText = _l('关闭'); }}
+﻿{{ var openText = _l('开启'); }} {{ var closeText = _l('关闭'); }}
 <div class="settingsWrapper flexColumn">
     <div class="clearfix singleSetting mTop15">
         <div class="Left">
@@ -9,10 +8,10 @@
             </span>
         </div>
         <div class="Right">
-            {{? it.isAdmin }}
-                <input class='tgl tgl-light' id='gs1' {{= it.isApproval ? 'checked' : '' }} type='checkbox' data-type="approval"/><label class='tgl-btn joinApproval' for='gs1'></label>
+            {{? it.isAdmin }} <input class='tgl tgl-light' id='gs1' {{= it.isApproval ? 'checked' : '' }}
+            type='checkbox' data-type="approval"/><label class="tgl-btn joinApproval" for="gs1"></label>
             {{??}}
-                <span>{{= it.isApproval ? openText : closeText }}</span>
+            <span>{{= it.isApproval ? openText : closeText }}</span>
             {{?}}
         </div>
     </div>
@@ -20,20 +19,20 @@
     <div class="clearfix singleSetting">
         <div class="Left">{{= _l('在组织通讯录下显示当前群组') }}</div>
         <div class="Right">
-        {{? it.isAdmin }}
-            <input class='tgl tgl-light' id='gs2' {{= !it.isHidden ? 'checked' : '' }} type='checkbox' data-type="addInList"/><label class='tgl-btn inGroupList' for='gs2'></label>
-        {{??}}
+            {{? it.isAdmin }} <input class='tgl tgl-light' id='gs2' {{= !it.isHidden ? 'checked' : '' }} type='checkbox'
+            data-type="addInList"/><label class="tgl-btn inGroupList" for="gs2"></label>
+            {{??}}
             <span>{{= !it.isHidden ? openText : closeText }}</span>
-        {{?}}
+            {{?}}
         </div>
     </div>
     {{?}}
     <div class="clearfix singleSetting">
         <div class="Left">{{= _l('仅允许群主及管理员邀请新成员') }}</div>
         <div class="Right">
-            {{? (it.isAdmin) }}
-            <input class='tgl tgl-light' id='gs5' type='checkbox' data-type="inviteAuth" {{= it.isForbidInvite ? 'checked' : '' }} />
-            <label class='tgl-btn setOnlyAdmin' for='gs5'></label>
+            {{? (it.isAdmin) }} <input class='tgl tgl-light' id='gs5' type='checkbox' data-type="inviteAuth" {{=
+            it.isForbidInvite ? 'checked' : '' }} />
+            <label class="tgl-btn setOnlyAdmin" for="gs5"></label>
             {{??}}
             <span>{{= it.isForbidInvite ? openText : closeText }}</span>
             {{?}}
@@ -54,36 +53,58 @@
     <div class="clearfix singleSetting">
         <div class="Left">{{= _l('设为官方群组') }}</div>
         <div class="associateDepartment Left mLeft10">
-        {{ var hidden = it.isVerified ? '' : 'Hidden'; }}
-        {{ var authClass = it.isAdmin ? ' Hand' : ''; }}
-        {{? it.isVerified }}
-            <span class="ThemeColor3 officialDepSelect {{= authClass }} ">{{= _l('关联部门：') }} {{! it.mapDepartmentName || ''}}</span>
-        {{?? it.isAdmin }}
-            <span class="ThemeColor3 officialDepSelect {{= authClass }} {{= hidden }}">{{= _l('请设置关联部门') }}</span>
-        {{??}}
+            {{ var hidden = it.isVerified ? '' : 'Hidden'; }} {{ var authClass = it.isAdmin ? ' Hand' : ''; }} {{?
+            it.isVerified }}
+            <span class="ThemeColor3 officialDepSelect {{= authClass }} "
+                >{{= _l('关联部门：') }} {{! it.mapDepartmentName || ''}}</span
+            >
+            {{?? it.isAdmin }}
+            <span class="ThemeColor3 officialDepSelect {{= authClass }} {{= hidden }}"
+                >{{= _l('请设置关联部门') }}</span
+            >
+            {{??}}
             <span class="ThemeColor3 {{= hidden }}">{{=_l('未关联部门')}}</span>
-        {{?}}
+            {{?}}
         </div>
         <div class="Right">
-        {{? (it.isAdmin && it.project.isProjectAdmin) }}
-            <input class='tgl tgl-light' {{= it.isVerified ? 'checked' : '' }} id='gs3' type='checkbox' data-type="associate"/><label class='tgl-btn setOfficial' for='gs3'></label>
-        {{??}}
+            {{? (it.isAdmin && it.hasGroupAuth) }} <input class='tgl tgl-light' {{= it.isVerified ? 'checked' : '' }}
+            id='gs3' type='checkbox' data-type="associate"/><label class="tgl-btn setOfficial" for="gs3"></label>
+            {{??}}
             <span>{{= it.isVerified ? openText : closeText }}</span>
-        {{?}}
+            {{?}}
         </div>
     </div>
     {{?}}
     <div class="clearfix singleSetting groupChatNotice">
-        <div class="Left">{{= _l('消息免打扰') }}<span class="tip tip-bottom-right" data-tip="{{= _l('开启后，仅接收到@我及@全体群成员的消息提醒') }}"><i class="icon-knowledge-message Font15"></i></span></div>
+        <div class="Left">
+            {{= _l('消息免打扰') }}<span
+                class="tip tip-bottom-right"
+                data-tip="{{= _l('开启后，仅接收到@我及@全体群成员的消息提醒') }}"
+                ><i class="icon-knowledge-message Font15"></i
+            ></span>
+        </div>
         <div class="Right">
-            <input class='tgl tgl-light' id='gs4' {{= !it.isPushNotice ? 'checked' : '' }} type='checkbox' data-type="silence"/><label class='tgl-btn setNotice' for='gs4'></label>
+            <input class='tgl tgl-light' id='gs4' {{= !it.isPushNotice ? 'checked' : '' }} type='checkbox'
+            data-type="silence"/><label class="tgl-btn setNotice" for="gs4"></label>
         </div>
     </div>
     <div class="groupOperation">
-        <button class="exitGroup flex mLeft25" data-type="exit"><span class="icon-groupExit"></span>&nbsp;{{= _l('退出群组') }}</button>
+        <button class="exitGroup flex mLeft25" data-type="exit">
+            <span class="icon-groupExit"></span>&nbsp;{{= _l('退出群组') }}
+        </button>
         {{? it.isAdmin }}
-        <a class="closeGroup flex tip-top" data-tip="{{= _l('关闭群组后，群组将不能被访问您可以在通讯录群组列表中找到并重新开启这个群组') }}" data-type="close"><span class="icon-delete" ></span>&nbsp;{{= _l('关闭群组') }}</a>
-        <a class="deleteGroup flex tip-top" data-tip="{{= _l('群组解散后，将永久删除该群组。不可恢复')}}" data-type="delete"><span class="icon-task-new-delete"></span>&nbsp;{{= _l('解散群组') }}</a>
+        <a
+            class="closeGroup flex tip-top"
+            data-tip="{{= _l('关闭群组后，群组将不能被访问您可以在通讯录群组列表中找到并重新开启这个群组') }}"
+            data-type="close"
+            ><span class="icon-delete"></span>&nbsp;{{= _l('关闭群组') }}</a
+        >
+        <a
+            class="deleteGroup flex tip-top"
+            data-tip="{{= _l('群组解散后，将永久删除该群组。不可恢复')}}"
+            data-type="delete"
+            ><span class="icon-task-new-delete"></span>&nbsp;{{= _l('解散群组') }}</a
+        >
         {{?}}
     </div>
 </div>

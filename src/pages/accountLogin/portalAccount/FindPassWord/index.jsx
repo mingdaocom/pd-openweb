@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Provider } from 'react-redux';
 import store from 'src/pages/accountLogin/redux/configureStore.js';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
@@ -343,10 +343,10 @@ function ContainerCon(props) {
 }
 
 const WrappedComp = preall(ContainerCon, { allowNotLogin: true });
+const root = createRoot(document.querySelector('#app'));
 
-ReactDOM.render(
+root.render(
   <Provider store={store}>
     <WrappedComp />
   </Provider>,
-  document.querySelector('#app'),
 );

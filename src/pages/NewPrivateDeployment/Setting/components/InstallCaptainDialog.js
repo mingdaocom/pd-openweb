@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Dialog, Input } from 'ming-ui';
 import privateSysSetting from 'src/api/privateSysSetting';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 
 export default class InstallCaptainDialog extends Component {
   constructor(props) {
@@ -13,7 +13,7 @@ export default class InstallCaptainDialog extends Component {
   handleSave = () => {
     const { installCaptainUrl } = this.state;
 
-    if (RegExp.isUrlRequest(installCaptainUrl)) {
+    if (RegExpValidator.isUrlRequest(installCaptainUrl)) {
       privateSysSetting.editSysSettings({
         settings: {
           InstallCaptainUrl: installCaptainUrl

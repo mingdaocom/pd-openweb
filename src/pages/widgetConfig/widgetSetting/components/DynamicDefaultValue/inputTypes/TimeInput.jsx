@@ -61,7 +61,7 @@ export default function (props) {
             onChange={value => handleTimeChange(value)}
             onClear={clearTime}
           >
-            <input readOnly autoFocus value={value} />
+            <input readOnly value={value} />
           </TimePicker>
         </div>
       )}

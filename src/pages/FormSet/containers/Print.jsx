@@ -5,7 +5,6 @@ import Trigger from 'rc-trigger';
 import './print.less';
 import EditPrint from '../components/EditPrint';
 import MoreOption from '../components/MoreOption';
-import CSSTransitionGroup from 'react-addons-css-transition-group';
 import PrintTemDialog from '../components/PrintTemDialog';
 import RangeDrop from 'src/pages/FormSet/components/RangeDrop';
 import { PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/config';
@@ -17,7 +16,7 @@ import _ from 'lodash';
 import sheetAjax from 'src/api/worksheet';
 import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog.jsx';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
 
@@ -727,27 +726,35 @@ class Print extends React.Component {
               </React.Fragment>
             )}
           </div>
-          <CSSTransitionGroup transitionName="EditPrint" transitionEnterTimeout={500} transitionLeaveTimeout={300}>
-            {showEditPrint && (
-              <EditPrint
-                onClickAwayExceptions={[]}
-                downLoadUrl={worksheetInfo.downLoadUrl}
-                onClickAway={() => this.setState({ showEditPrint: false, type: '' })}
-                onClose={() => {
-                  this.setState({ showEditPrint: false, type: '' });
-                }}
-                printData={printData}
-                templateId={templateId}
-                worksheetId={worksheetId}
-                fileType={fileType}
-                updatePrint={this.updatePrint}
-                refreshFn={() => {
-                  this.setState({ showEditPrint: false, type: '' });
-                  this.loadPrint({ worksheetId: worksheetId }); // 获取当前模板
-                }}
-              />
-            )}
-          </CSSTransitionGroup>
+          <Drawer
+            width={480}
+            placement="right"
+            className="Absolute"
+            zIndex={9}
+            onClose={() => this.setState({ showEditPrint: false, type: '' })}
+            visible={showEditPrint}
+            maskClosable={true}
+            closable={false}
+            getContainer={false}
+            mask={false}
+            bodyStyle={{ padding: 0 }}
+          >
+            <EditPrint
+              onClickAwayExceptions={[]}
+              downLoadUrl={worksheetInfo.downLoadUrl}
+              onClickAway={() => this.setState({ showEditPrint: false, type: '' })}
+              onClose={() => this.setState({ showEditPrint: false, type: '' })}
+              printData={printData}
+              templateId={templateId}
+              worksheetId={worksheetId}
+              fileType={fileType}
+              updatePrint={this.updatePrint}
+              refreshFn={() => {
+                this.setState({ showEditPrint: false, type: '' });
+                this.loadPrint({ worksheetId: worksheetId }); // 获取当前模板
+              }}
+            />
+          </Drawer>
           <CreatePrintDrawer
             worksheetProjectId={worksheetInfo.projectId}
             onCloseDrawer={() => {

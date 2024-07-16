@@ -6,21 +6,16 @@ import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
 import favoriteApi from 'src/api/favorite';
 import { copyRow } from 'worksheet/controllers/record';
+import copy from 'copy-to-clipboard';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
-import {
-  handleShare,
-  handleCreateTask,
-  handleOpenInNew,
-  handleCustomWidget,
-  deleteRecord,
-} from 'worksheet/common/recordInfo/crtl';
+import { handleShare, handleOpenInNew, handleCustomWidget, deleteRecord } from 'worksheet/common/recordInfo/crtl';
 import CustomButtons from 'worksheet/common/recordInfo/RecordForm/CustomButtons';
 import PrintList from 'worksheet/common/recordInfo/RecordForm/PrintList';
 import { replaceBtnsTranslateInfo } from 'worksheet/util';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
-import { getCurrentProject } from 'src/util';
+import { getCurrentProject, emitter } from 'src/util';
 
 // TODO 完善菜单关闭交互
 
@@ -123,6 +118,7 @@ export default function RecordOperate(props) {
     from,
     relateRecordControlId,
     isCharge,
+    isDevAndOps,
     projectId,
     appId,
     viewId,
@@ -157,8 +153,8 @@ export default function RecordOperate(props) {
     _.includes(shows, 'recreate') &&
     allowRecreate &&
     (isOpenPermit(permitList.recordRecreateSwitch, sheetSwitchPermit, viewId) || isSubList);
+  const showCopyId = _.includes(shows, 'copyId') && (isCharge || isDevAndOps);
   const showPrint = _.includes(shows, 'print');
-  const showTask = _.includes(shows, 'task') && !md.global.Account.isPortal;
   const showRemoveRelation = _.includes(shows, 'removeRelation');
   const showEditForm = _.includes(shows, 'editform') && isCharge;
   const showOpenInNew = _.includes(shows, 'openinnew');
@@ -321,7 +317,6 @@ export default function RecordOperate(props) {
             !showShare &&
             !showCopy &&
             !(showPrint && isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId)) &&
-            !showTask &&
             !showOpenInNew &&
             !allowDelete &&
             !showEditForm && <Empty>{_l('无可用的操作')}</Empty>}
@@ -433,9 +428,23 @@ export default function RecordOperate(props) {
                 }
                 changePopupVisible(false);
                 onRecreate();
+                emitter.emit('ROWS_UPDATE');
               }}
             >
               {_l('重新创建')}
+            </MenuItemWrap>
+          )}
+          {showCopyId && (
+            <MenuItemWrap
+              className="printItem"
+              icon={<Icon className="Font17 mLeft5" icon="ID" />}
+              onClick={() => {
+                copy(recordId);
+                alert(_l('复制成功'), 1);
+                changePopupVisible(false);
+              }}
+            >
+              {_l('复制ID')}
             </MenuItemWrap>
           )}
           {showPrint && (
@@ -447,27 +456,6 @@ export default function RecordOperate(props) {
               recordId={recordId}
               onItemClick={() => setPopupVisible(false)}
             />
-          )}
-          {showTask && !md.global.SysSettings.forbidSuites.includes('2') && (
-            <MenuItemWrap
-              className="createTaskItem"
-              icon={<Icon icon="task-worksheet" className="Font17 mLeft5" />}
-              onClick={() => {
-                if (window.isPublicApp) {
-                  alert(_l('预览模式下，不能操作'), 3);
-                  return;
-                }
-                handleCreateTask({
-                  appId,
-                  worksheetId,
-                  viewId,
-                  recordId,
-                });
-                changePopupVisible(false);
-              }}
-            >
-              {_l('创建为任务')}
-            </MenuItemWrap>
           )}
           {!window.isPublicApp && showOpenInNew && (
             <MenuItemWrap
@@ -498,6 +486,7 @@ export default function RecordOperate(props) {
                       await deleteRecord({ worksheetId, recordId, deleteType: from });
                       alert(_l('删除成功'));
                       onDeleteSuccess({ appId, worksheetId, viewId, recordId });
+                      emitter.emit('ROWS_UPDATE');
                     } catch (err) {
                       console.log(err);
                       alert(_l('删除失败'), 2);

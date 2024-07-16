@@ -158,12 +158,10 @@ function filterDropDown(controls = [], actionType) {
           .filter(re => _.includes(item.showControls || [], re.controlId))
           .filter(re => !_.includes(SYS_CONTROLS, re.controlId))
           .filter(re => re.type !== 52)
-          .filter(re => !_.includes(filterControls, re.type));
-        // 关联卡片、下拉框在以下情况下不支持配置内部控件
-        const needClear =
-          item.type === 29 &&
-          !_.includes(['2', '5', '6'], _.get(item, 'advancedSetting.showtype')) &&
-          _.includes([3, 4, 5], actionType);
+          .filter(re => !_.includes(filterControls, re.type))
+          .map(re => (re.type === 29 ? { ...re, relationControls: [] } : re));
+        // 关联卡片、下拉框不支持配置内部控件
+        const needClear = item.type === 29 && !_.includes(['2', '5', '6'], _.get(item, 'advancedSetting.showtype'));
         return { ...item, relationControls: needClear ? [] : relationControls };
       } else if (item.type === 52) {
         return { ...item, relationControls: filterDropDown(item.relationControls, actionType) };

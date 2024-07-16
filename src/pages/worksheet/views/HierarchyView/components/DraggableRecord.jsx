@@ -9,7 +9,9 @@ import { dealHierarchyData, getRelateDefaultValue } from '../util';
 import { getRecordColorConfig } from 'worksheet/util';
 import { ITEM_TYPE } from '../config';
 import CountTip from './CountTip';
-import Components from '../../components';
+import EditableCard from '../../components/EditableCard';
+import RecordPortal from '../../components/RecordPortal';
+import EditingRecordItem from '../../components/EditingRecordItem';
 import { noop, pick } from 'lodash';
 import { useDrag, useDrop } from 'react-dnd-latest';
 import { browserIsMobile } from 'src/util';
@@ -192,7 +194,7 @@ export default function DraggableRecord(props) {
         className={cx('dragDropRecordWrap', { highLight: rowId === searchRecordId })}
         style={STYLE}
       >
-        <Components.EditableCard
+        <EditableCard
           {...pick(props, ['viewParaOfRecord', 'sheetSwitchPermit', 'onUpdate', 'onDelete'])}
           data={{ ...recordData, rowId, rawRow: treeData[rowId], recordColorConfig: getRecordColorConfig(view) }}
           stateData={data}
@@ -212,8 +214,8 @@ export default function DraggableRecord(props) {
         />
       </div>
       {isEditTitle && (
-        <Components.RecordPortal closeEdit={closeEdit}>
-          <Components.EditingRecordItem
+        <RecordPortal closeEdit={closeEdit}>
+          <EditingRecordItem
             data={{ ...recordData, rowId }}
             stateData={data}
             currentView={view}
@@ -224,7 +226,7 @@ export default function DraggableRecord(props) {
             updateTitleData={updateTitleData}
             showNull={isMix}
           />
-        </Components.RecordPortal>
+        </RecordPortal>
       )}
       <OperationWrap onClick={e => e.stopPropagation()}>
         {normalDisplayedRecord.length > 0 && (

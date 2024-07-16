@@ -6,6 +6,7 @@ import _ from 'lodash';
 export const fetch = index => {
   return (dispatch, getState) => {
     const { base, filters, galleryview, quickFilter, navGroupFilters } = getState().sheet;
+    const { filterControls } = getState().mobile;
     const { appId, viewId, worksheetId, chartId, maxCount } = base;
     let { galleryIndex, gallery } = galleryview;
     const isMobile = browserIsMobile();
@@ -33,6 +34,11 @@ export const fetch = index => {
       args.pageIndex = 1;
       args.pageSize = maxCount;
     }
+
+    if (window.isMingDaoApp) {
+      args.filterControls = filterControls;
+    }
+
     worksheetAjax.getFilterRows(getFilledRequestParams(args)).then(res => {
       dispatch({
         type: 'CHANGE_GALLERY_VIEW_DATA',

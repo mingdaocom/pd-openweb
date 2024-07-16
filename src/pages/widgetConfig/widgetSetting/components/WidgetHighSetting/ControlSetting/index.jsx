@@ -3,7 +3,6 @@ import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../../util/setting';
 import TelConfig from './TelConfig';
-import UserConfig from './UserConfig';
 import DateConfig from './DateConfig';
 import TimeConfig from './TimeConfig';
 import ScoreConfig from './ScoreConfig';
@@ -22,7 +21,6 @@ const TYPE_TO_COMP = {
   14: AttachmentConfig,
   15: DateConfig,
   16: DateConfig,
-  26: UserConfig,
   28: ScoreConfig,
   29: RelateConfig,
   31: NumberConfig,
@@ -35,8 +33,17 @@ const TYPE_TO_COMP = {
 
 export default function WidgetConfig(props) {
   const { data, onChange } = props;
-  const { type, enumDefault, strDefault } = data;
-  const { showxy, analysislink, uselast, sorttype = 'zh', anylevel, allpath, showdelete } = getAdvanceSetting(data);
+  const { type, enumDefault, strDefault, noticeItem } = data;
+  const {
+    showxy,
+    analysislink,
+    uselast,
+    sorttype = 'zh',
+    anylevel,
+    allpath,
+    showdelete,
+    showcount = '0',
+  } = getAdvanceSetting(data);
 
   // 文本、文本组合
   if (_.includes([2, 30, 32, 33], type)) {
@@ -135,33 +142,70 @@ export default function WidgetConfig(props) {
   if (type === 51) {
     const [isHiddenOtherViewRecord] = (strDefault || '000').split('');
     return (
-      <div className="labelWrap">
-        <Checkbox
-          className="allowSelectRecords"
-          size="small"
-          checked={!!+isHiddenOtherViewRecord}
-          onClick={checked => {
-            onChange({
-              strDefault: updateConfig({
-                config: strDefault,
-                value: +!checked,
-                index: 0,
-              }),
-            });
-          }}
-        >
-          <span style={{ marginRight: '6px' }}>{_l('按用户权限过滤')}</span>
-          <Tooltip
-            popupPlacement="bottom"
-            title={
-              <span>
-                {_l('未勾选时，用户可查看所有查询结果。勾选后，按照用户对数据的权限查看，隐藏无权限的数据或字段')}
-              </span>
+      <Fragment>
+        <div className="labelWrap">
+          <Checkbox
+            className="allowSelectRecords"
+            size="small"
+            checked={!!+isHiddenOtherViewRecord}
+            onClick={checked => {
+              onChange({
+                strDefault: updateConfig({
+                  config: strDefault,
+                  value: +!checked,
+                  index: 0,
+                }),
+              });
+            }}
+          >
+            <span style={{ marginRight: '6px' }}>{_l('按用户权限过滤')}</span>
+            <Tooltip
+              popupPlacement="bottom"
+              title={
+                <span>
+                  {_l('未勾选时，用户可查看所有查询结果。勾选后，按照用户对数据的权限查看，隐藏无权限的数据或字段')}
+                </span>
+              }
+            >
+              <i className="icon icon-help Gray_9e Font16 mLeft5 pointer" />
+            </Tooltip>
+          </Checkbox>
+        </div>
+        {/* <div className="labelWrap">
+          <Checkbox
+            className="allowSelectRecords"
+            size="small"
+            text={_l('显示计数')}
+            checked={showcount !== '1'}
+            onClick={checked =>
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  showcount: checked ? '1' : '0',
+                }),
+              )
             }
           >
-            <i className="icon icon-help Gray_9e Font16 mLeft5 pointer" />
-          </Tooltip>
-        </Checkbox>
+            <Tooltip popupPlacement="bottom" title={<span>{_l('在表单中显示查询记录的数量')}</span>}>
+              <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
+            </Tooltip>
+          </Checkbox>
+        </div> */}
+      </Fragment>
+    );
+  }
+
+  if (type === 26) {
+    return (
+      <div className="labelWrap">
+        <Checkbox
+          className="checkboxWrap"
+          onClick={checked => {
+            onChange({ noticeItem: Number(!checked) });
+          }}
+          checked={noticeItem === 1}
+          text={_l('加入时收到通知')}
+          size="small"
+        />
       </div>
     );
   }

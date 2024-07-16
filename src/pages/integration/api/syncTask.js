@@ -170,11 +170,11 @@ var syncTask = {
    * @param {integer} args.pageNo 页码，从0开始
    * @param {integer} args.pageSize 每页数量
    * @param {string} args.projectId 组织id
-   * @param {string} args.appId 所属应用id(应用下聚合表有对应的appId，组织下可查看应用下指定appId，所有为空)
+   * @param {string} args.appId 所属应用id(应用下聚合表有对应的appId，组织下可查看应用下指定appId，不指定appId为空)
    * @param {string} args.searchBody 搜索内容：任务名称、创建者
    * @param {string} args.status 任务状态(See: 数据同步任务状态)
    * @param {integer} args.taskType 同步任务类型 0-DATA_INTEGRATE 1-AGG_TABLE 2-AGG_PREVIEW :默认DATA_INTEGRATE<br>{@link TaskTypeEnum.DATA_INTEGRATE}<br>{@link TaskTypeEnum.AGG_TABLE}
-   * @param {integer} args.type 0-聚合表类型的同步任务列表在应用下(查询数据源中所有工作表名称)，1-聚合表类型同步任务列表在组织下(查询应用名称和用户头像)
+   * @param {integer} args.type 0-聚合表类型的同步任务列表在应用下(查询数据源中所有工作表名称)，<br>1-聚合表类型同步任务列表在组织下(查询应用名称和用户头像)<br>区分主要是两个地方接口获取的数据有一部分差异，分开减少不想关查询
    * @param {string} args.sourceType 源类型
    * @param {string} args.destType 目的地类型
    * @param {object} args.sort 排序参数(object)

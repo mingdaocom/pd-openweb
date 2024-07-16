@@ -6,6 +6,7 @@ import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 import { updateOptionsOfControls, checkCellIsEmpty, handleRecordError } from 'worksheet/util';
 import _ from 'lodash';
+import { emitter } from 'src/util';
 
 export async function downloadAttachmentById({ fileId, refId, worksheetId = undefined, rowId, controlId }) {
   try {
@@ -250,9 +251,11 @@ export function submitNewRecord(props) {
     .catch(err => {
       onSubmitEnd();
       if (_.isObject(err)) {
-        alert(err.errorMessage || _l('记录添加失败'), 3);
+        if (!err.errorMessage) {
+          alert(_l('记录添加失败'), 2);
+        }
       } else {
-        alert(err || _l('记录添加失败'), 3);
+        alert(err || _l('记录添加失败'), 2);
       }
     });
 }
@@ -273,6 +276,7 @@ export function copyRow({ worksheetId, viewId, rowIds, relateRecordControlId }, 
           alert(_l('复制成功'));
         }
         done(res.data);
+        emitter.emit('ROWS_UPDATE');
       } else if (res && res.resultCode === 7) {
         alert(_l('复制失败，权限不足！'), 3);
       } else if (res && res.resultCode === 9) {

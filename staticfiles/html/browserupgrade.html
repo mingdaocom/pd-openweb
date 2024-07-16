@@ -1,57 +1,64 @@
 <!DOCTYPE html>
-
 <html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+        <meta name="renderer" content="webkit" />
+        <meta name="force-rendering" content="webkit" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <title>升级浏览器</title>
+        <link href="/staticfiles/html/browserupgrade/style.css" rel="stylesheet" />
+        <script>
+            const ua = navigator.userAgent.toLowerCase();
+            if (
+                !(
+                    ua.match(/(msie\s|trident.*rv:)([\w.]+)/) ||
+                    (ua.match(/(chrome)\/([\w.]+)/) && parseInt(ua.match(/(chrome)\/([\w.]+)/)[2]) < 50)
+                )
+            ) {
+                location.href = '/dashboard';
+            }
+        </script>
+        <script src="/staticfiles/staticLanguages.js"></script>
+    </head>
 
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="keywords" content="中台工具,APaaS,hpaPaaS,RAD,数据库应用,快速开发工具" />
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
-    <meta name="renderer" content="webkit" />
-    <title>升级浏览器</title>
-    <meta name="force-rendering" content="webkit" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <link href="/staticfiles/html/browserupgrade/style.css" rel="stylesheet" />
-    <script>
-        const ua = navigator.userAgent.toLowerCase();
-        if (
-            !(ua.match(/(msie\s|trident.*rv:)([\w.]+)/) ||
-            (ua.match(/(chrome)\/([\w.]+)/) && parseInt(ua.match(/(chrome)\/([\w.]+)/)[2]) < 50))
-        ) {
-            location.href = '/dashboard';
-        }
-    </script>
-</head>
-
-<body>
-    <div class="page">
-        <div class="title">
-            <img src="/staticfiles/html/browserupgrade/browserMD.png" alt="升级浏览器" />
-            <h1>您的浏览器太古老了，该升级了~</h1>
-            <p>推荐下载桌面客户端，更好地体验</p>
+    <body>
+        <div class="page">
+            <div class="title">
+                <img src="/staticfiles/html/browserupgrade/browserMD.png" alt="升级浏览器" />
+                <h1 class="transformLang">您的浏览器太古老了，该升级了~</h1>
+            </div>
+            <div class="content">
+                <ul>
+                    <li class="google">
+                        <a href="https://www.google.cn/chrome/" target="_blank" class="hvr-float-shadow"
+                            ><img
+                                src="/staticfiles/html/browserupgrade/browsergoogle.png"
+                                alt="谷歌浏览器"
+                                class="transformLang"
+                        /></a>
+                        <p class="transformLang">谷歌浏览器</p>
+                    </li>
+                    <li class="firefox">
+                        <a href="http://www.firefox.com.cn/" target="_blank" class="hvr-float-shadow"
+                            ><img
+                                src="/staticfiles/html/browserupgrade/browserfirefox.png"
+                                alt="火狐浏览器"
+                                class="transformLang"
+                        /></a>
+                        <p class="transformLang">火狐浏览器</p>
+                    </li>
+                    <li class="edge">
+                        <a href="https://www.microsoft.com/zh-cn/download" target="_blank" class="hvr-float-shadow"
+                            ><img
+                                src="/staticfiles/html/browserupgrade/browserIE.png"
+                                alt="Edge浏览器"
+                                class="transformLang"
+                        /></a>
+                        <p class="transformLang">Edge浏览器</p>
+                    </li>
+                </ul>
+            </div>
         </div>
-        <div class="content">
-            <ul>
-                <li class="google">
-                    <a href="https://www.google.cn/chrome/" target="_blank" class="hvr-float-shadow"><img
-                            src="/staticfiles/html/browserupgrade/browsergoogle.png" alt="谷歌浏览器"></a>
-                    <p>谷歌浏览器</p>
-                </li>
-                <li class="firefox">
-                    <a href="http://www.firefox.com.cn/" target="_blank" class="hvr-float-shadow"><img
-                            src="/staticfiles/html/browserupgrade/browserfirefox.png" alt="火狐浏览器"></a>
-                    <p>火狐浏览器</p>
-                </li>
-                <li class="edge">
-                    <a href="https://www.microsoft.com/zh-cn/download" target="_blank" class="hvr-float-shadow"><img
-                            src="/staticfiles/html/browserupgrade/browserIE.png" alt="Edge浏览器"></a>
-                    <p>Edge 浏览器</p>
-                </li>
-            </ul>
-            <p class="contentTxt">
-                    如果您使用的是<b>360，搜狗，猎豹</b>等双核浏览器，可开启高速浏览模式
-            </p>
-        </div>
-    </div>
-</body>
-
+    </body>
 </html>

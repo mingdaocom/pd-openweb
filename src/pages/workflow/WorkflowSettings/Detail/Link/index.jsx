@@ -178,12 +178,12 @@ export default class Link extends Component {
         <div className="mTop20">
           <span className="bold">{_l('链接名称（仅用于发送邮件时）')}</span>
           <span
-            className="pointer Gray_9e workflowDetailTipsWidth"
+            className="pointer Gray_75 workflowDetailTipsWidth"
             data-tip={_l(
               '通过工作流发送邮件时，链接可以按照设置的链接名称显示。如：在邮件中将链接显示为【点击查看记录】',
             )}
           >
-            <Icon className="Font16" icon="workflow_help" />
+            <Icon className="Font16 Gray_9e" icon="workflow_help" />
           </span>
         </div>
         <div className="mTop10">

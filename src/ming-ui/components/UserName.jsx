@@ -39,6 +39,7 @@ class UserName extends React.Component {
         '2',
         '4',
         'isEmpty',
+        'user-system',
       ].includes(user.accountId);
 
     return (

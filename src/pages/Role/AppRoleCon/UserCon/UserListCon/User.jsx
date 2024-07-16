@@ -375,6 +375,9 @@ function User(props) {
     {
       id: 'operater',
       name: _l('操作人'),
+      render: (text, data, index) => {
+        return <div className="WordBreak ellipsis">{data.operater}</div>;
+      },
     },
     {
       id: 'operateTime',

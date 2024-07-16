@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import accountController from 'src/api/account';
 import { getRequest } from 'src/util';
 import './style.css';
@@ -77,4 +77,6 @@ function Comp(props) {
   );
 }
 
-ReactDOM.render(<Comp />, document.querySelector('#app'));
+const root = createRoot(document.getElementById('app'));
+
+root.render(<Comp />);

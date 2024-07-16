@@ -106,7 +106,7 @@ export default class FieldRecycleBin extends Component {
   };
 
   updateStatus = (item, status) => {
-    const { filterList, activeWidget = {}, isComplete } = this.state;
+    const { filterList, originList, activeWidget = {}, isComplete } = this.state;
     const { globalSheetInfo = {}, allControls } = this.props;
 
     if (status === 'recover' && isExceedMaxControlLimit(allControls)) {
@@ -125,12 +125,12 @@ export default class FieldRecycleBin extends Component {
         status: status === 'delete' ? 999 : 1,
       })
       .then(res => {
-        if (res.data) {
+        if (_.isArray(res.data) ? res.data.length > 0 : res.data) {
           if (status === 'recover') {
             const parentControl = item.sectionId ? _.find(allControls, a => a.controlId === item.sectionId) : '';
             const tempData = [
               {
-                ...item,
+                ..._.head(res.data),
                 attribute: 0,
                 alias: '',
                 sectionId: parentControl ? item.sectionId : '',
@@ -138,6 +138,7 @@ export default class FieldRecycleBin extends Component {
                 ...(item.type === 34 && _.isUndefined(item.relationControls) ? { needUpdate: true } : {}),
               },
             ];
+
             if (parentControl) {
               handleMoveWidgets(tempData, {
                 ...this.props,
@@ -148,7 +149,7 @@ export default class FieldRecycleBin extends Component {
             }
           }
 
-          const newFilterList = filterList.filter(i => i.controlId !== item.controlId);
+          const newFilterList = filterList.filter(i => item.controlId !== i.controlId);
           this.setState({
             filterList: newFilterList,
             activeWidget: item.controlId === activeWidget.controlId ? newFilterList[0] : activeWidget,

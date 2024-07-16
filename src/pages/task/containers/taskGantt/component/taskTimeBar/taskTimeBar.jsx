@@ -3,7 +3,6 @@ import config from '../../config/config';
 import './taskTimeBar.less';
 import TimeBars from '../timeBars/timeBars';
 import { DropTarget } from 'react-dnd';
-import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 
 const ganttTarget = {

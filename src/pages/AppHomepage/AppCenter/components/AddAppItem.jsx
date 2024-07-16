@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { string, func } from 'prop-types';
+import { string, func, array } from 'prop-types';
 import { Icon, Menu, MenuItem, Dialog } from 'ming-ui';
 import DialogImportExcelCreate from 'src/pages/worksheet/components/DialogImportExcelCreate';
 import ImportApp from 'src/pages/Admin/app/appManagement/modules/ImportApp.jsx';
@@ -11,6 +11,8 @@ import _ from 'lodash';
 import ExternalLinkDialog from './ExternalLinkDialog';
 import homeAppAjax from 'src/api/homeApp';
 import SelectDBInstance from './SelectDBInstance';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const ADD_APP_MODE = [
   { id: 'createFromEmpty', icon: 'plus', text: _l('从空白创建%01003'), href: '/app/lib' },
@@ -40,11 +42,12 @@ export default class AddAppItem extends Component {
     createAppFromEmpty: func,
     projectId: string,
     type: string,
-    DBInstances: [],
+    DBInstances: array,
   };
 
   static defaultProps = {
     createAppFromEmpty: _.noop,
+    DBInstances: [],
   };
 
   state = { addTypeVisible: false, externalLinkDialogVisible: false };
@@ -88,8 +91,10 @@ export default class AddAppItem extends Component {
   };
 
   renderImportApp = () => {
-    const { projectId, groupId, groupType } = this.props;
+    const { projectId, groupId, groupType, myPermissions = [] } = this.props;
     const { importAppDialog } = this.state;
+    const hasAppResourceAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
+
     return (
       <Dialog
         title={_l('导入应用')}
@@ -105,7 +110,7 @@ export default class AddAppItem extends Component {
             const currentProject = getCurrentProject(projectId);
             const hasDataBase =
               getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
-            if (hasDataBase && (currentProject.isSuperAdmin || currentProject.isProjectAppManager)) {
+            if (hasDataBase && hasAppResourceAuth) {
               return this.getMyDbInstances({}, 'importApp');
             }
           }}
@@ -182,8 +187,18 @@ export default class AddAppItem extends Component {
   };
 
   render() {
-    const { groupId, projectId, groupType, children, className = '', createAppFromEmpty } = this.props;
+    const {
+      groupId,
+      projectId,
+      groupType,
+      children,
+      className = '',
+      createAppFromEmpty,
+      myPermissions = [],
+    } = this.props;
     const { addTypeVisible, dialogImportExcel, externalLinkDialogVisible } = this.state;
+    const hasAppResourceAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
+
     return (
       <div className={'addAppItemWrap ' + className}>
         {children ? (
@@ -217,16 +232,18 @@ export default class AddAppItem extends Component {
                       }
                       if (id === 'createFromEmpty') {
                         const currentProject = getCurrentProject(projectId);
-                      const hasDataBase = getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
-                        if (hasDataBase && (currentProject.isSuperAdmin || currentProject.isProjectAppManager)) {
+                        const hasDataBase =
+                          getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
+                          !md.global.Config.IsPlatformLocal;
+                        if (hasDataBase && hasAppResourceAuth) {
                           this.getMyDbInstances({ id, href }, 'createFromEmpty');
                           return;
                         }
+                        if (id === 'importExcelCreateApp') {
+                          this.setState({ dialogImportExcel: true });
+                        }
+                        this.handleClick({ id, href });
                       }
-                      if (id === 'importExcelCreateApp') {
-                        this.setState({ dialogImportExcel: true });
-                      }
-                      this.handleClick({ id, href });
                     }}
                   >
                     {text}

@@ -1,49 +1,12 @@
 import React, { Fragment } from 'react';
 import { Dropdown, Icon, Checkbox } from 'ming-ui';
 import { Input } from 'antd';
-import { SettingItem, AnimationWrap } from '../../styled';
+import { SettingItem, AnimationWrap, DisplayMode } from '../../styled';
 import WidgetVerify from '../components/WidgetVerify';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import _ from 'lodash';
-import styled from 'styled-components';
 import cx from 'classnames';
 import { SectionItem } from '../components/SplitLineConfig/style';
-
-const DisplayMode = styled.div`
-  display: flex;
-  padding: 8px 12px;
-  justify-content: space-between;
-  .displayItem {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    div {
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 3px 3px 3px 3px;
-      border: 2px solid transparent;
-    }
-    i {
-      font-size: 32px;
-      color: #9e9e9e;
-    }
-    &.active {
-      div {
-        background: rgba(33, 150, 243, 0.1);
-        border-color: #2196f3;
-      }
-    }
-    &:hover {
-      div {
-        background: rgba(0, 0, 0, 0.05);
-      }
-    }
-  }
-`;
 
 const SORT_TYPE = [
   { value: 1, text: _l('新的在前') },
@@ -84,7 +47,8 @@ const FILE_TYPE = [
   },
 ];
 
-export default function Attachment({ from, data, onChange }) {
+export default function Attachment(props) {
+  const { from, data, onChange } = props;
   const { enumDefault, advancedSetting = {} } = data;
   const { covertype = '0', showtype = '1' } = getAdvanceSetting(data);
   const { type = '', values = [] } = JSON.parse(advancedSetting.filetype || '{}');
@@ -199,7 +163,7 @@ export default function Attachment({ from, data, onChange }) {
         />
       </SettingItem>
       <SettingItem>
-        <WidgetVerify data={data} onChange={onChange} />
+        <WidgetVerify {...props} />
       </SettingItem>
     </Fragment>
   );

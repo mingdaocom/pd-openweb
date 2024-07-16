@@ -6,6 +6,7 @@ import TextScanQRCode from '../../components/TextScanQRCode';
 import { getIsScanQR } from '../../components/ScanQRCode';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { browserIsMobile } from 'src/util';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -25,6 +26,12 @@ export default class Widgets extends Component {
   };
 
   isOnComposition = false;
+
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
 
   componentWillReceiveProps(nextProps, nextState) {
     if (
@@ -48,6 +55,9 @@ export default class Widgets extends Component {
       }
     }
     this.setState({ originValue: e.target.value.trim() });
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.FOCUS);
+    }
   };
 
   onChange = value => {
@@ -106,6 +116,12 @@ export default class Widgets extends Component {
       return hint;
     }
   };
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   render() {
     const {

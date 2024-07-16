@@ -18,6 +18,7 @@ function SingleView(props, ref) {
         viewId,
         worksheetId,
         maxCount,
+        type: 'single'
       }),
     );
   }, []);

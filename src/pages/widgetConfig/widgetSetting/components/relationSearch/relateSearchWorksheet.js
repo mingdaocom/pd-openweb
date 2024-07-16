@@ -13,6 +13,7 @@ import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/Filt
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
 import _ from 'lodash';
 import { BrowserRouter } from 'react-router-dom';
+import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 
 const RELATE_SEARCH_TYPE = [
   { key: 'new', text: _l('新建查询') },
@@ -36,6 +37,16 @@ function FilterRelateSearch(props) {
   } = props;
 
   const isRelate = _.find(relationControls, r => _.includes([29, 34], r.type) && r.dataSource === worksheetId);
+
+  const currentColumns = allControls
+    .map(redefineComplexControl)
+    .filter(i => !isSheetDisplay(i))
+    .concat({
+      controlId: 'current-rowid',
+      controlName: _l('当前记录'),
+      dataSource: worksheetId,
+      type: 29,
+    });
 
   const renderContent = () => {
     return (
@@ -85,14 +96,7 @@ function FilterRelateSearch(props) {
               setFilters(newConditions);
             }}
             showCustom={true}
-            currentColumns={allControls
-              .filter(i => !isSheetDisplay(i))
-              .concat({
-                controlId: 'current-rowid',
-                controlName: _l('当前记录'),
-                dataSource: worksheetId,
-                type: 29,
-              })}
+            currentColumns={currentColumns}
           />
         </div>
       </Fragment>

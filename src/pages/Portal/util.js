@@ -1,6 +1,7 @@
 import { getSuffix } from 'src/pages/accountLogin/portalAccount/util';
 import api from 'src/api/homeApp';
 import { browserIsMobile } from 'src/util';
+import { navigateToLogout } from 'src/router/navigateTo';
 
 export const compatibleWorksheetRoute = (worksheetId, rowId, viewId) => {
   //工作表老路由id补齐
@@ -45,7 +46,7 @@ export function formatPortalHref(props) {
         _.get(props, 'computedMatch.params.viewId'),
       );
     } else {
-      location.href = `${window.subPath || ''}/logout?ReturnUrl=${encodeURIComponent(location.href)}`;
+      navigateToLogout();
     }
   }
   //h5打开外部门户自定义后缀地址访问 地址处理

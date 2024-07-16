@@ -61,7 +61,7 @@ class SelectIcon extends Component {
       loading: false,
       currentKey: 'general',
     };
-    this.colorIndex = navColor ? (this.getNavColorList(iconColor).indexOf(navColor) || 0) : 0;
+    this.colorIndex = navColor ? this.getNavColorList(iconColor).indexOf(navColor) || 0 : 0;
   }
 
   componentDidMount() {
@@ -72,14 +72,14 @@ class SelectIcon extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (!_.isEqual(this.state, nextState)) {
+    if (!_.isEqual(this.state, nextState) || this.props.style !== nextProps.style) {
       return true;
     }
-    if(this.state.icon !== nextProps.icon || this.state.iconColor !== nextProps.iconColor) {
+    if (this.state.icon !== nextProps.icon || this.state.iconColor !== nextProps.iconColor) {
       this.setState({
         icon: nextProps.icon,
         iconColor: nextProps.iconColor,
-      })
+      });
       return true;
     }
     return false;
@@ -118,8 +118,8 @@ class SelectIcon extends Component {
   handleClick = obj => {
     this.setState(obj, () => {
       setTimeout(() => {
-        this.props.onModify(obj)
-      }, 200)
+        this.props.onModify(obj);
+      }, 200);
     });
   };
 
@@ -213,15 +213,7 @@ class SelectIcon extends Component {
     );
   }
   render() {
-    const {
-      projectId,
-      className,
-      style = {},
-      name,
-      hideInput,
-      hideColor,
-      onClearIcon,
-    } = this.props;
+    const { projectId, className, style = {}, name, hideInput, hideColor, onClearIcon } = this.props;
     const colorList = getThemeColors(projectId);
     const { iconColor, navColor } = this.state;
 
@@ -279,7 +271,7 @@ class SelectIcon extends Component {
               <div
                 className="clearBtn pointer Gray_75"
                 onClick={() => {
-                  this.setState({icon: ''})
+                  this.setState({ icon: '' });
                   onClearIcon();
                 }}
               >

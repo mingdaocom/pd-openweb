@@ -180,7 +180,10 @@ export function pageIndex(state = 1, action) {
   }
 }
 
-export function fontSize(state = 13, action) {
+export function fontSize(
+  state = parseInt(window.localStorage.getItem(_.get(md, 'global.Account.accountId') + '_fontsize') || 13, 10),
+  action,
+) {
   switch (action.type) {
     case 'POST_CHANGE_FONT_SIZE':
       return action.fontSize || 13;

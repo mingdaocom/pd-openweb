@@ -1,5 +1,5 @@
 import React, { Fragment, Component } from 'react';
-import { Drawer, Select } from 'antd';
+import { Drawer, Select, DatePicker } from 'antd';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
@@ -9,20 +9,24 @@ import { TABS } from '../index';
 import { getDateScope } from '../config';
 import './index.less';
 import _ from 'lodash';
+import locale from 'antd/es/date-picker/locale/zh_CN';
+import moment from 'moment';
 
-const selectArrowIcon = <Icon icon="expand_more" className="Gray_9e Font20" />;
+const { RangePicker } = DatePicker;
+
+const selectArrowIcon = <Icon icon="expand_more" className="Gray_75 Font20" />;
 
 const operationTypeData = [
   {
-    text: _l('完成填写'),
+    text: _l('已填写'),
     value: '1-3',
   },
   {
-    text: _l('通过申请'),
+    text: _l('已通过'),
     value: '1-4',
   },
   {
-    text: _l('否决申请'),
+    text: _l('已否决'),
     value: '4-4',
     type: 'hr',
   },
@@ -71,6 +75,8 @@ export default class Filter extends Component {
       processId: '',
       dateScopeIndex: 1,
       type: null,
+      startDate: '',
+      endDate: ''
     };
   }
   componentWillReceiveProps(nextProps) {
@@ -102,7 +108,7 @@ export default class Filter extends Component {
   }
   getTodoListFilter = props => {
     const { loading } = this.state;
-    const { param } = props;
+    const { param } = props || this.props;
 
     if (loading) {
       return;
@@ -154,7 +160,7 @@ export default class Filter extends Component {
   };
   handleChange = _.debounce(() => {
     const { stateTab } = this.props;
-    const { type, searchValue, createAccount, apkId, processId, status, dateScopeIndex } = this.state;
+    const { type, searchValue, createAccount, apkId, processId, status, dateScopeIndex, startDate, endDate } = this.state;
     const operationType = this.state.operationType.value;
 
     let newType = null;
@@ -176,11 +182,9 @@ export default class Filter extends Component {
       status: status.value,
       apkId,
       processId,
+      startDate,
+      endDate
     };
-
-    if (stateTab === TABS.COMPLETE) {
-      param.dateScopeIndex = dateScopeIndex;
-    }
 
     this.props.onChange(param);
   }, 500);
@@ -255,8 +259,8 @@ export default class Filter extends Component {
               );
             }}
           />
-          {/*searchValue && <Icon icon="close" className="Gray_9e Font17 pointer" onClick={() => { this.setState({ searchValue: '' }) }} />*/}
-          <Icon icon="search" className="Gray_9e Font17" />
+          {/*searchValue && <Icon icon="close" className="Gray_75 Font17 pointer" onClick={() => { this.setState({ searchValue: '' }) }} />*/}
+          <Icon icon="search" className="Gray_75 Font17" />
         </div>
       </div>
     );
@@ -268,7 +272,7 @@ export default class Filter extends Component {
         <div className="Font12 mBottom10">{_l('发起人')}</div>
         {_.isEmpty(createAccount) ? (
           <div className="personPostBox" ref={owner => (this.owner = owner)}>
-            <Icon icon="task_add-02" className="Gray_9e Font24 Hover_49 Hand" onClick={this.changeUser} />
+            <Icon icon="task_add-02" className="Gray_75 Font24 Hover_49 Hand" onClick={this.changeUser} />
           </div>
         ) : (
           <div className="personPostBox spaceBtween">
@@ -345,24 +349,62 @@ export default class Filter extends Component {
     );
   }
   renderDateScope() {
+    const { archivedItem } = this.props;
     const { dateScopeIndex } = this.state;
+    const { startDate, endDate } = dateScope[dateScopeIndex].value;
     return (
       <div className="mBottom16">
         <div className="Font12 mBottom10">{_l('时间范围')}</div>
-        <Select
-          value={dateScopeIndex}
-          className="w100 selectWrapper"
-          suffixIcon={selectArrowIcon}
-          onChange={dateScopeIndex => {
-            this.setState({ dateScopeIndex }, this.handleChange);
-          }}
-        >
-          {dateScope.map((item, index) => (
-            <Select.Option className="processOptionWrapper" value={index}>
-              {item.text}
-            </Select.Option>
-          ))}
-        </Select>
+        {_.isEmpty(archivedItem) ? (
+          <RangePicker
+            className="dateInput w100"
+            allowClear={false}
+            suffixIcon={null}
+            locale={locale}
+            format="YYYY/MM/DD"
+            disabledDate={current => {
+              if (current) {
+                const end = moment(endDate);
+                return current > end;
+              } else {
+                return false;
+              }
+            }}
+            defaultValue={[moment(startDate), moment(endDate)]}
+            onChange={date => {
+              const [start, end] = date;
+              this.setState({
+                startDate: start.format('YYYY-MM-DD'),
+                endDate: end.format('YYYY-MM-DD'),
+              }, this.handleChange);
+            }}
+          />
+        ) : (
+          <RangePicker
+            className="dateInput w100"
+            allowClear={false}
+            suffixIcon={null}
+            locale={locale}
+            format="YYYY/MM/DD"
+            disabledDate={current => {
+              if (current) {
+                const start = moment(archivedItem.start);
+                const end = moment(archivedItem.end);
+                return current < start || current > end;
+              } else {
+                return false;
+              }
+            }}
+            value={[moment(archivedItem.start), moment(archivedItem.end)]}
+            onChange={date => {
+              const [start, end] = date;
+              this.props.onChangeArchivedItem({
+                startDate: start.format('YYYY-MM-DD'),
+                endDate: end.format('YYYY-MM-DD'),
+              });
+            }}
+          />
+        )}
       </div>
     );
   }
@@ -396,7 +438,7 @@ export default class Filter extends Component {
                       <SvgIcon url={item.app.iconUrl} fill="#fff" size={18} />
                     </div>
                     <div className="flex processAppName ellipsis">{item.app.name}</div>
-                    <div className="Gray_9e">{item.count}</div>
+                    <div className="Gray_75">{item.count}</div>
                   </div>
                 </div>
                 {item.visible && (

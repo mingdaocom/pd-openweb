@@ -156,7 +156,7 @@ function Apply(props) {
       <div className={'applyAction'}>
         <ApplyAction
           roles={roleInfos.filter(o =>
-            appDetail.permissionType === APP_ROLE_TYPE.RUNNER_ROLE ? !sysRoleType.includes(o.roleType) : true,
+            appDetail.permissionType < APP_ROLE_TYPE.ADMIN_ROLE ? !sysRoleType.includes(o.roleType) : true,
           )}
           getPopupContainer={() => {
             return document.body;

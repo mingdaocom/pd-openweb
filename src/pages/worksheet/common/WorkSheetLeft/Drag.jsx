@@ -7,7 +7,7 @@ import { DndProvider, useDrag, useDrop } from 'react-dnd-latest';
 import homeAppApi from 'src/api/homeApp';
 import appManagementApi from 'src/api/appManagement';
 import { getAppSectionData } from 'src/pages/PageHeader/AppPkgHeader/LeftAppGroup';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import cx from 'classnames';
 
 const dndAccept = 'navigationListGroup';
@@ -339,7 +339,7 @@ const Drag = props => {
       style={{
         opacity: isDragging ? 0 : 1,
         [currentPcNaviStyle === 2 && appItem.type !== 2 ? activeFirst ? 'borderLeft' : 'borderRight' : activeFirst ? 'borderTop' : 'borderBottom']: collectProps.isOver && active && !activeGroup ? `1px solid ${dropColor}` : undefined,
-        backgroundColor: collectProps.isOver && activeGroup ? tinycolor(dropColor).setAlpha(0.2) : undefined,
+        backgroundColor: collectProps.isOver && activeGroup ? new TinyColor(dropColor).setAlpha(0.2) : undefined,
         transform: 'translate(0px, 0px)'
       }}
     >

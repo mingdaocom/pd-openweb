@@ -8,6 +8,8 @@ import cx from 'classnames';
 import './style.less';
 import { payDialogFunc } from 'src/components/pay/payDialog';
 import { encrypt, addToken } from 'src/util';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const params = Config.params;
 const orderId = params[3];
@@ -90,13 +92,15 @@ export default class WaitingPay extends Component {
     const { ReCharge, Ultimate, Enterprise } = billCommon.orderRecordType || {};
     if (!currRecordObj) return;
     const { status, recordType, price } = currRecordObj;
+    const hasFinanceAuth = checkPermission(Config.projectId, PERMISSION_ENUM.FINANCE); //是否有财务权限
+
     //如果状态不在待付款状态直接返回首页
     if (status !== billCommon.orderRecordStatus.wating) {
       window.location.href = '/admin/billinfo/' + Config.projectId;
       return false;
     }
     let temp = _payStyleArr.filter(it => {
-      if (it.id === 'balancePay' && _.includes([ReCharge, Ultimate, Enterprise], recordType)) {
+      if (it.id === 'balancePay' && (_.includes([ReCharge, Ultimate, Enterprise], recordType) || !hasFinanceAuth)) {
         //充值、升级没有余额支付
         return false;
       } else if (price === 0 || ([25, 26].includes(recordType) && md.global.Config.IsLocal)) {

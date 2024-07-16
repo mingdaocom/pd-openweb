@@ -31,11 +31,12 @@ const ControlLabel = styled.div`
     const valueHeight = valuesize !== '0' ? (parseInt(valuesize) - 1) * 2 + 40 : 36;
     return `${valueHeight - 12}px !important`;
   }}
-  margin-top: ${({ item }) => {
-    return item.type === 34 ? '20px' : '';
-  }};
-  ${({ item, isMobile }) =>
-    item.type === 34 ? (isMobile ? 'margin-bottom: 6px;' : 'maxWidth: calc(100% - 140px);') : ''}
+  ${({ item, isMobile, showTitle }) =>
+    item.type === 34 && showTitle
+      ? isMobile
+        ? 'margin-bottom: 6px;margin-top:20px;'
+        : 'maxWidth: calc(100% - 140px);margin-top:20px;'
+      : 'min-height: 0px !important;'}
   .controlLabelName {
     ${({ displayRow, isMobile, align_app = '1', align_pc = '1' }) => {
       if (displayRow) {
@@ -72,6 +73,7 @@ export default ({
   item,
   errorItems,
   uniqueErrorItems,
+  customErrorItems = [],
   loadingItems,
   widgetStyle = {},
   disabled,
@@ -204,6 +206,7 @@ export default ({
           item.required &&
           !item.disabled &&
           !isSheetDisplay(item) &&
+          !_.includes([51], item.type) &&
           isEditable && (
             <div className="requiredBtnBox">
               <div className="requiredBtn">*</div>

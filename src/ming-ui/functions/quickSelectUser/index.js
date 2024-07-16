@@ -2,12 +2,10 @@ import React, { Fragment, useRef, useEffect, useState, useCallback } from 'react
 import { useClickAway } from 'react-use';
 import { arrayOf, bool, func, number, shape, string } from 'prop-types';
 import Trigger from 'rc-trigger';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
 import { LoadDiv } from 'ming-ui';
-
 import { Con, Content, UserList, Search, Tabs } from './Comps';
-
 import { getUsers, getAccounts } from './util';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -112,7 +110,7 @@ export function UserSelector(props) {
     onClose();
   }
   useClickAway(conRef, e => {
-    if (e.target.closest('.cellUsers')) {
+    if (e.target.closest('.cellUsers, .userCardSite')) {
       return;
     }
     onClose(true);
@@ -372,13 +370,17 @@ export default function quickSelectUser(target, props = {}) {
   }
   setPosition();
   document.body.appendChild($con);
+
+  const root = createRoot($con);
+
   function destory() {
-    ReactDOM.unmountComponentAtNode($con);
-    if ($con.parentElement) {
+    root.unmount();
+    if ($con && $con.parentNode === document.body) {
       document.body.removeChild($con);
     }
   }
-  ReactDOM.render(
+
+  root.render(
     <BrowserRouter>
       <UserSelector
         {...props}
@@ -394,6 +396,5 @@ export default function quickSelectUser(target, props = {}) {
         }}
       />
     </BrowserRouter>,
-    $con,
   );
 }

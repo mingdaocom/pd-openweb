@@ -19,6 +19,7 @@ import ChangeLang from 'src/components/ChangeLang';
 import Checkbox from 'ming-ui/components/Checkbox';
 import 'src/pages/accountLogin/components/message.less';
 import { navigateTo } from 'src/router/navigateTo';
+import appManagementController from 'src/api/appManagement';
 
 const mapStateToProps = ({ accountInfo, warnningData, stateList, nextAction }) => ({
   registerData: accountInfo,
@@ -33,12 +34,21 @@ const mapDispatchToProps = dispatch => bindActionCreators({ ...actions }, dispat
 export default class Container extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { version: Math.random().toString(), itiType: getAccountTypes() };
+
+    this.state = {
+      version: Math.random().toString(),
+      itiType: getAccountTypes(),
+      loadProjectName: !!props.projectId,
+      projectNameLang: '', // 组织简称多语言翻译
+    };
+
+    !!props.projectId && this.getProjectLang(props.projectId);
   }
 
   componentDidMount() {
     document.addEventListener('keypress', this.handleEnterKey);
   }
+
   componentWillReceiveProps(nextProps) {
     if (
       _.get(nextProps, 'warnningData') !== _.get(this.props, 'warnningData') &&
@@ -53,9 +63,22 @@ export default class Container extends React.Component {
       this.doCaptchaFn(true);
     }
   }
+
   componentWillUmount() {
     document.removeEventListener('keypress', this.handleEnterKey);
   }
+
+  getProjectLang = projectId => {
+    appManagementController.getProjectLang({ projectId }).then(res => {
+      this.setState({
+        loadProjectName: false,
+        projectNameLang: _.get(
+          _.find(res, o => o.langType === getCurrentLangCode()),
+          'data[0].value',
+        ),
+      });
+    });
+  };
 
   handleEnterKey = e => {
     if (e.keyCode === 13 && !hasCaptcha()) {
@@ -154,7 +177,7 @@ export default class Container extends React.Component {
     } = this.props;
     const { inviteInfo = {}, isLink, loginForAdd, focusDiv, hasCheckPrivacy } = registerData;
     const { createUserName = '' } = inviteInfo;
-    const { version, itiType } = this.state;
+    const { version, itiType, loadProjectName, projectNameLang } = this.state;
 
     return (
       <React.Fragment>
@@ -165,13 +188,13 @@ export default class Container extends React.Component {
             <div className="title mTop40">
               {inviteInfo.fromType === InviteFromType.project && createUserName ? (
                 <React.Fragment>
-                  <div className="Font20 Bold">{htmlDecodeReg(titleStr)}</div>
+                  <div className="Font20 Bold">{loadProjectName ? '' : projectNameLang || htmlDecodeReg(titleStr)}</div>
                   <div className="Gray_9e Font14 Bold">{_l('%0邀请您加入组织', createUserName)}</div>
                 </React.Fragment>
               ) : (
                 <React.Fragment>
                   {!createUserName ? _l('您正在加入') : _l('%0邀请您加入', createUserName)}
-                  <div>{htmlDecodeReg(titleStr)}</div>
+                  <div>{loadProjectName ? '' : projectNameLang || htmlDecodeReg(titleStr)}</div>
                 </React.Fragment>
               )}
             </div>
@@ -197,7 +220,7 @@ export default class Container extends React.Component {
               })}
             >
               <span
-                className="flexRow alignItemsCenter Hand"
+                className="flexRow alignItemsCenter Hand privacyTextCon"
                 onClick={() => {
                   if (!hasCheckPrivacy) {
                     let data = _.filter(warnningData, it => it.tipDom !== '.privacyText');

@@ -1,5 +1,6 @@
 ﻿import React from 'react';
-import ReactDom from 'react-dom';
+import { findDOMNode } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { createLinksForMessage } from 'src/util';
 import PropTypes from 'prop-types';
 import qs from 'query-string';
@@ -40,29 +41,33 @@ class PostMessage extends React.Component {
     if (!this._isMounted) {
       return;
     }
-    $(ReactDom.findDOMNode(this))
+    $(findDOMNode(this))
       .find('[data-accountid]')
       .each((i, ele) => {
         const accountId = $(ele).attr('data-accountid');
         $(ele).removeAttr('data-accountid');
-        ReactDom.render(
+
+        const root = createRoot(ele);
+
+        root.render(
           <UserCard sourceId={accountId}>
             <span>{ele.innerHTML}</span>
           </UserCard>,
-          ele,
         );
       });
 
-    $(ReactDom.findDOMNode(this))
+    $(findDOMNode(this))
       .find('[data-groupid]')
       .each((i, ele) => {
         const groupid = $(ele).attr('data-groupid');
         $(ele).removeAttr('data-groupid');
-        ReactDom.render(
+
+        const root = createRoot(ele);
+
+        root.render(
           <UserCard sourceId={groupid} type={2}>
             <span>{ele.innerHTML}</span>
           </UserCard>,
-          ele,
         );
       })
       .end()

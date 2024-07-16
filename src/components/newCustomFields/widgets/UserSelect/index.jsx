@@ -9,6 +9,7 @@ import { browserIsMobile, getCurrentProject } from 'src/util';
 import { dealUserRange } from '../../tools/utils';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -27,6 +28,12 @@ export default class Widgets extends Component {
     showSelectUser: false,
   };
 
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
+
   /**
    * 选择用户
    */
@@ -34,6 +41,7 @@ export default class Widgets extends Component {
     const {
       projectId = '',
       enumDefault,
+      enumDefault2,
       advancedSetting = {},
       worksheetId,
       controlId,
@@ -82,6 +90,7 @@ export default class Widgets extends Component {
         },
         zIndex: 10001,
         isDynamic: enumDefault === 1,
+        filterOtherProject: enumDefault2 === 2,
         SelectUserSettings: {
           unique: enumDefault === 0,
           projectId: projectId,
@@ -121,6 +130,12 @@ export default class Widgets extends Component {
     onChange(JSON.stringify(newValue));
   }
 
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
+
   render() {
     const {
       projectId,
@@ -132,6 +147,7 @@ export default class Widgets extends Component {
       controlId,
       appId,
       dataSource,
+      masterData = {},
     } = this.props;
     const { showSelectUser } = this.state;
     const value = this.getUserValue();
@@ -186,7 +202,7 @@ export default class Widgets extends Component {
             type="user"
             userType={getTabTypeBySelectUser(this.props)}
             appId={appId || ''}
-            selectRangeOptions={dealUserRange(this.props, formData)}
+            selectRangeOptions={dealUserRange(this.props, formData, masterData)}
             onlyOne={enumDefault === 0}
             onClose={() => this.setState({ showSelectUser: false })}
             onSave={this.onSave}

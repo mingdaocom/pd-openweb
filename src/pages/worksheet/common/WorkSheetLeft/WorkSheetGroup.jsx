@@ -12,7 +12,7 @@ export default function WorkSheetGroup(props) {
   const { sheetListVisible, isCharge, activeSheetId, appPkg } = otherProps;
   const { workSheetId, icon, iconUrl, status, layerIndex, items = [] } = appItem;
   const { id, iconColor, viewHideNavi, currentPcNaviStyle, themeType, displayIcon = '', hideFirstSection } = appPkg;
-  const workSheetName = getTranslateInfo(id, workSheetId).name || appItem.workSheetName;
+  const workSheetName = getTranslateInfo(id, null, workSheetId).name || appItem.workSheetName;
   const childrenOpenKey = `${workSheetId}-open`;
   const isOperation = appPkg.permissionType === 2;
   const childrenItems =

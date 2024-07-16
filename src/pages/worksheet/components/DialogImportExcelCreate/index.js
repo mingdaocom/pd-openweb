@@ -23,8 +23,10 @@ import { enumWidgetType } from 'src/pages/widgetConfig/util';
 import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
-import { getFeatureStatus, getCurrentProject } from 'src/util';
+import { getFeatureStatus } from 'src/util';
 import homeAppAjax from 'src/api/homeApp';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 export const wsexcelbatchSocketInit = () => {
   IM.socket.on('wsexcelbatch', ({ sheetCount, id, addCount, appId, appName, errorCount }) => {
@@ -369,11 +371,11 @@ class DialogImportExcelCreate extends Component {
 
   handleCreate = () => {
     const { projectId } = this.props;
-
-    const currentProject = getCurrentProject(projectId);
     const hasDataBase =
       getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
-    if (hasDataBase && (currentProject.isSuperAdmin || currentProject.isProjectAppManager)) {
+    const hasAppResourceAuth = checkPermission(projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
+
+    if (hasDataBase && hasAppResourceAuth) {
       homeAppAjax
         .getMyDbInstances({
           projectId: this.props.projectId,

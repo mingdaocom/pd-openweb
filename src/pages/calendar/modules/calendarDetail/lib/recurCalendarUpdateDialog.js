@@ -7,7 +7,7 @@ import React from 'react';
 export default function recurCalendarUpdate(
   { operatorTitle, recurTitle, recurCalendarUpdateFun },
   { isChildCalendar, isRecurChange, originRecur },
-  { directRun, isEdit, callback } = {}
+  { directRun, isEdit, callback } = {},
 ) {
   var directAll;
   var page = location.href.substr(location.href.lastIndexOf('/'));
@@ -29,21 +29,24 @@ export default function recurCalendarUpdate(
           callback();
         }
         $('.repeatCalendarOperator').parent().remove();
-      }
-    })
-    $('#btnOperatorAlone:not(.disabled)').click(function (event) {
-      // param: isAllCalendar
-      $('.repeatCalendarOperator').parent().remove();
-      recurCalendarUpdateFun(false);
-      event.stopPropagation();
+      },
     });
 
-    $('#btnOperatorAll').click(function (event) {
-      // param: isAllCalendar
-      $('.repeatCalendarOperator').parent().remove();
-      recurCalendarUpdateFun(true);
-      event.stopPropagation();
-    });
+    setTimeout(() => {
+      $('#btnOperatorAlone:not(.disabled)').click(function (event) {
+        // param: isAllCalendar
+        $('.repeatCalendarOperator').parent().remove();
+        recurCalendarUpdateFun(false);
+        event.stopPropagation();
+      });
+
+      $('#btnOperatorAll').click(function (event) {
+        // param: isAllCalendar
+        $('.repeatCalendarOperator').parent().remove();
+        recurCalendarUpdateFun(true);
+        event.stopPropagation();
+      });
+    }, 200);
   } else if (directRun) {
     // fullCalendar 拖拽
     recurCalendarUpdateFun(!isChildCalendar);
@@ -61,7 +64,7 @@ export default function recurCalendarUpdate(
           callback();
         }
         $('.repeatCalendarOperator').parent().remove();
-      }
-    })
+      },
+    });
   }
 }

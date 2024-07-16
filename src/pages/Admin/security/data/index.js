@@ -8,6 +8,7 @@ import WebProxySetting from './WebProxySetting';
 import LimitFileDownloadSetting from './LimitFileDownloadSetting';
 import projectSettingController from 'src/api/projectSetting';
 import dataLimitAjax from 'src/api/dataLimit';
+import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 
 export default class DataCom extends Component {
   constructor(props) {
@@ -132,6 +133,7 @@ export default class DataCom extends Component {
 
     return (
       <div className="orgManagementWrap">
+        <AdminTitle prefix={_l('安全 - 数据')} />
         <div className="orgManagementHeader Font17">{_l('数据')}</div>
         <FeatureListWrap
           projectId={projectId}

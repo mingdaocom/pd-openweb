@@ -29,6 +29,18 @@ const Item = styled.div(
   .searcValueContent{
     ${fullShow ? `flex: 1;width: 0;margin: 0 10px;` : `width:200px;margin: 0 18px 0 10px;`}
     min-height: 34px;
+    input::-webkit-input-placeholder {
+      color: #bdbdbd;
+    }
+    input::-moz-placeholder {
+      color: #bdbdbd;
+    }
+    input::-moz-placeholder {
+      color: #bdbdbd;
+    }
+    input::-ms-input-placeholder {
+      color: #bdbdbd;
+    }
   }
 `,
 );
@@ -49,12 +61,29 @@ const ExpandBtn = styled.div`
     color: #1565c0;
   }
 `;
+
+const Input = styled.input`
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  height: 36px;
+  border-radius: 3px;
+  padding: 0 12px;
+  font-size: 14px;
+  &:hover {
+    border-color: #bbb;
+  }
+  &:focus {
+    border-color: #1e88e5;
+  }
+`;
+
 let resizeObserver = null;
 export default function SearchWrap(props) {
-  const { projectId, searchList = [], onChange = () => {}, searchValues = {}, showExpandBtn } = props;
+  const { wrapClassName, projectId, searchList = [], onChange = () => {}, searchValues = {}, showExpandBtn } = props;
   const { startDate, endDate, searchDateStr } = searchValues;
-  const [fullShow, setFullShow] = useState(false);
+  const [fullShow, setFullShow] = useState(showExpandBtn ? false : true);
   const searchBoxRef = useRef();
+  const inputRef = useRef();
   const [width, setWidth] = useState(searchBoxRef && searchBoxRef.current && searchBoxRef.current.clientWidth);
   let colNum = (width - 63) / 280;
   const showExpand = searchList.length > colNum;
@@ -68,8 +97,9 @@ export default function SearchWrap(props) {
           <SelectUser
             className={`w100 mdAntSelect ${className}`}
             projectId={projectId}
-            userInfo={searchValues.loginerInfo || []}
-            changeData={data => onChange({ loginerInfo: data })}
+            userInfo={searchValues.selectUserInfo || []}
+            changeData={data => onChange({ ...searchValues, selectUserInfo: data })}
+            {...extra}
           />
         );
       case 'selectTime':
@@ -79,20 +109,46 @@ export default function SearchWrap(props) {
             dateFormat={'YYYY-MM-DD HH:mm:ss'}
             dateInfo={{ startDate, endDate, searchDateStr }}
             {...extra}
-            changeDate={({ startDate, endDate, searchDateStr }) => onChange({ startDate, endDate, searchDateStr })}
+            changeDate={({ startDate, endDate, searchDateStr }) =>
+              onChange({ ...searchValues, startDate, endDate, searchDateStr })
+            }
           />
         );
       case 'select':
         return (
-          <Select className={`w100 mdAntSelect ${className}`} {...extra} onChange={value => onChange({ [key]: value })}>
+          <Select
+            className={`w100 mdAntSelect ${className}`}
+            {...extra}
+            onChange={value => onChange({ ...searchValues, [key]: value })}
+          >
             {options.map(it => {
               return (
-                <Select.Option key={it.value} value={it.value}>
+                <Select.Option className="mdAntSelectOption" key={it.value} value={it.value}>
                   {it.label}
                 </Select.Option>
               );
             })}
           </Select>
+        );
+      case 'input':
+        return (
+          <Input
+            {...extra}
+            ref={inputRef}
+            className={`w100 ${className}`}
+            onBlur={e => {
+              const val = _.trim(e.target.value);
+              inputRef.current.value = val ? val : '';
+              onChange({ ...searchValues, [key]: val ? val : '' });
+            }}
+            onKeyDown={e => {
+              if (e.which === 13) {
+                const val = _.trim(e.target.value);
+                inputRef.current.value = val ? val : '';
+                onChange({ ...searchValues, [key]: val ? val : '' });
+              }
+            }}
+          />
         );
       default:
     }
@@ -108,7 +164,7 @@ export default function SearchWrap(props) {
   }, []);
 
   return (
-    <Wrap className="w100 flexRow pTop25" ref={searchBoxRef}>
+    <Wrap className={`w100 flexRow pTop25 ${wrapClassName}`} ref={searchBoxRef}>
       {visibleSearchList.map((item, i) => {
         return (
           <Item
@@ -117,14 +173,23 @@ export default function SearchWrap(props) {
             maxWidth={`${100 / colNum}%`}
             isLastLine={Math.ceil((i + 1) / colNum) === Math.ceil((searchList.length + (showExpand ? 1 : 0)) / colNum)}
           >
-            <div className={cx('label', { pLeft16: i === 0 && !fullShow })}>{item.label}</div>
+            <div className={cx('label Gray_75', { pLeft16: i === 0 && !fullShow })}>{item.label}</div>
             <div className="searcValueContent">{renderSearchCon(item)}</div>
           </Item>
         );
       })}
       {showExpandBtn && (
         <Fragment>
-          <ExpandBtn onClick={() => onChange({})}>{_l('重置')}</ExpandBtn>
+          <ExpandBtn
+            onClick={() => {
+              if (inputRef && inputRef.current) {
+                inputRef.current.value = '';
+              }
+              onChange({});
+            }}
+          >
+            {_l('重置')}
+          </ExpandBtn>
           {showExpand && (
             <ExpandBtn
               onClick={() => {
@@ -154,6 +219,7 @@ export default function SearchWrap(props) {
 }
 
 SearchWrap.propTypes = {
+  wrapClassName: PropTypes.string,
   projectId: PropTypes.string,
   searchList: PropTypes.array,
   onChange: PropTypes.func,

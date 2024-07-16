@@ -120,7 +120,12 @@ export default class OtherAction extends Component {
       backNodeId = _.get(props.data, 'backFlowNodes[0].id') || '';
     }
 
+    if (props.action === 'taskRevoke') {
+      backNodeId = _.get(props.data, 'allowTaskRevokeBackNodeId') || '';
+    }
+
     if (_.includes(['pass', 'overrule', 'return', 'after'], props.action)) {
+      const { opinions = [] } = _.get(props.data, 'opinionTemplate') || {};
       let list = (
         (_.includes(['pass', 'after'], props.action)
           ? _.get(props, 'data.opinionTemplate.opinions[4]')
@@ -302,7 +307,7 @@ export default class OtherAction extends Component {
                 </span>
                 {action === 'addApprove' && (
                   <i
-                    className="icon-close Font14 mLeft5 Gray_9e pointer"
+                    className="icon-close Font14 mLeft5 Gray_75 pointer"
                     onClick={() =>
                       this.setState({ selectedUsers: selectedUsers.filter(o => o.accountId !== user.accountId) })
                     }
@@ -321,7 +326,7 @@ export default class OtherAction extends Component {
                           {_l('%0发起了委托', entrustList[user.accountId].principal.fullName)}
                         </div>
                         <div className="mTop10 flexRow alignItemsCenter">
-                          <div className="Gray_9e Font13">{_l('将委托给')}</div>
+                          <div className="Gray_75 Font13">{_l('将委托给')}</div>
                           <div className="mLeft15">
                             <Member style={{ marginTop: 0 }}>
                               <img src={entrustList[user.accountId].trustee.avatar} />
@@ -332,7 +337,7 @@ export default class OtherAction extends Component {
                           </div>
                         </div>
                         <div className="mTop10 flexRow Font13 alignItemsCenter">
-                          <div className="Gray_9e">{_l('委托截止')}</div>
+                          <div className="Gray_75">{_l('委托截止')}</div>
                           <div className="mLeft15 Gray">{entrustList[user.accountId].endDate}</div>
                         </div>
                       </Fragment>
@@ -350,7 +355,7 @@ export default class OtherAction extends Component {
             (action !== 'addApprove' && !!selectedUsers.length)) && (
             <i
               className={cx(
-                'Font26 Gray_9e ThemeHoverColor3 pointer mTop10 InlineBlock relative',
+                'Font26 Gray_75 ThemeHoverColor3 pointer mTop10 InlineBlock relative',
                 action !== 'addApprove' && !!selectedUsers.length
                   ? 'icon-task-folder-charge'
                   : 'icon-task-add-member-circle',
@@ -463,9 +468,8 @@ export default class OtherAction extends Component {
   renderTemplateList() {
     const { action, data } = this.props;
     const { content } = this.state;
-    const { opinionTemplate } = data;
-    let list =
-      (_.includes(['pass', 'after'], action) ? opinionTemplate.opinions[4] : opinionTemplate.opinions[5]) || [];
+    const { opinions = [] } = data.opinionTemplate || {};
+    let list = (_.includes(['pass', 'after'], action) ? opinions[4] : opinions[5]) || [];
 
     if (!list.length) {
       return null;
@@ -491,8 +495,8 @@ export default class OtherAction extends Component {
 
   render() {
     const { action, onCancel, projectId } = this.props;
-    const { callBackNodeType, opinionTemplate, app } = this.props.data;
-    const { isCallBack, auth, encrypt } = (this.props.data || {}).flowNode || {};
+    const { callBackNodeType, opinionTemplate, app = {} } = this.props.data;
+    const { auth, encrypt } = (this.props.data || {}).flowNode || {};
     const { content, backNodeId, showCode, link, resultCode, showPassword, removeNoneVerification, files } = this.state;
     const backFlowNodes = ((this.props.data || {}).backFlowNodes || []).map(item => {
       return {
@@ -508,7 +512,7 @@ export default class OtherAction extends Component {
       (action === 'pass' && _.includes(auth.passTypeList, 101)) ||
       (action === 'overrule' && _.includes(auth.overruleTypeList, 101));
     const onlySelectTemplate =
-      opinionTemplate.inputType === 2 && _.includes(['pass', 'overrule', 'return', 'after'], action);
+      _.includes(['pass', 'overrule', 'return', 'after'], action) && _.get(opinionTemplate, 'inputType') === 2;
 
     if (showCode) {
       return (
@@ -636,7 +640,7 @@ export default class OtherAction extends Component {
                     onlySelectTemplate ? _l('选择预设的审批意见') : (ACTION_TO_TEXT[action] || {}).placeholder
                   }
                 />
-                {_.includes(['pass', 'overrule', 'return', 'after', 'before'], action) && (
+                {_.includes(['pass', 'overrule', 'return', 'after', 'before', 'taskRevoke', 'revoke'], action) && (
                   <AttachmentBtn
                     className="tip-top"
                     data-tip={_l('添加附件')}
@@ -652,7 +656,7 @@ export default class OtherAction extends Component {
               {_.includes(['pass', 'overrule', 'return', 'after'], action) && this.renderTemplateList()}
             </div>
 
-            {_.includes(['pass', 'overrule', 'return', 'after', 'before'], action) && (
+            {_.includes(['pass', 'overrule', 'return', 'after', 'before', 'taskRevoke', 'revoke'], action) && (
               <div className="mTop10">
                 <div className="customFieldsContainer InlineBlock mLeft0 pointer">
                   <Attachment
@@ -670,7 +674,7 @@ export default class OtherAction extends Component {
           </Fragment>
         )}
 
-        {isCallBack && action === 'return' && !!backFlowNodes.length && (
+        {action === 'return' && !!backFlowNodes.length && (
           <Fragment>
             {_.includes([0, 3], callBackNodeType) ? (
               <Fragment>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import preall from 'src/common/preall';
 import PayHeader from '../payHeader';
 import DocumentTitle from 'react-document-title';
@@ -157,5 +157,6 @@ function PaySuccess(props) {
 }
 
 const Comp = preall(PaySuccess, { allowNotLogin: false });
+const root = createRoot(document.querySelector('#paySuccess'));
 
-ReactDOM.render(<Comp />, document.querySelector('#paySuccess'));
+root.render(<Comp />);

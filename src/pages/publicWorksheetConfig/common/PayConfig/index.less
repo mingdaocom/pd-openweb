@@ -1,0 +1,123 @@
+.payConfigWrap {
+  position: relative;
+  .payConfigCon {
+    height: 100%;
+    padding: 32px 32px 66px;
+    overflow-y: auto;
+  }
+  h1 {
+    margin: 0;
+    line-height: 1em;
+    font-size: 17px;
+    font-weight: bold;
+  }
+  .payConfigContent {
+    width: 800px;
+    margin-top: 28px;
+    @media screen and (max-width: 1400px) {
+      width: 640px;
+    }
+    .enableScene {
+      width: 800px;
+      li {
+        align-items: center;
+        border-left: 1px solid #eaeaea;
+        border-right: 1px solid #eaeaea;
+        display: flex;
+        height: 48px;
+        line-height: 48px;
+        padding: 0 0 0 16px;
+        width: 100%;
+        &:first-child {
+          border-radius: 5px 5px 0 0;
+          border-top: 1px solid #eaeaea;
+        }
+        &:last-child {
+          border-bottom: 1px solid #eaeaea;
+          border-radius: 0 0 5px 5px;
+        }
+        .con {
+          border-bottom: 1px solid #eaeaea;
+          display: block;
+          flex: 1;
+          padding-right: 16px;
+          position: relative;
+        }
+        &.sceneSwitch {
+          color: #bdbdbd;
+          .ming.Switch--disabled {
+            opacity: 0.4;
+          }
+        }
+      }
+    }
+    .title {
+      margin: 35px 0 20px;
+      font-size: 16px;
+      font-weight: 600;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .subTitle {
+      font-weight: 600;
+      font-size: 14px;
+      margin: 20px 0 10px;
+      position: relative;
+      &.required::before {
+        content: '*';
+        position: absolute;
+        left: -10px;
+        top: 3px;
+        color: #f44336;
+      }
+    }
+    .mapSettingBtn {
+      height: 36px;
+      line-height: 36px;
+      text-align: center;
+      border: 1px dashed #e0e0e0;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    .emptyMerchant {
+      height: 36px;
+      line-height: 36px;
+      border-radius: 3px;
+      background: #f7f7f7;
+      border: 1px solid #e0e0e0;
+      color: #2196f3;
+      padding-left: 12px;
+      &:hover {
+        color: #1565c0;
+      }
+    }
+  }
+  .emptyDropdown {
+    .Dropdown--input .value {
+      color: #9e9e9e;
+    }
+  }
+  .payInfo {
+    display: flex;
+    align-items: center;
+    padding-left: 16px;
+    height: 48px;
+    border-radius: 5px;
+    border: 1px solid #eaeaea;
+    margin-bottom: 20px;
+  }
+  .footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    padding: 10px 32px 20px;
+  }
+}
+
+.mapFieldMenuWrap {
+  .itemText {
+    margin-left: 10px;
+  }
+}

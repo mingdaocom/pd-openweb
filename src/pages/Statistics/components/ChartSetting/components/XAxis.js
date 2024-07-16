@@ -3,8 +3,10 @@ import { Icon } from 'ming-ui';
 import { Menu, Dropdown, Tooltip } from 'antd';
 import WithoutFidldItem from './WithoutFidldItem';
 import RenameModal from './RenameModal';
+import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
 import {
   timeFormats,
+  formatTimeFormats,
   timeParticleSizeDropdownData,
   areaParticleSizeDropdownData,
   cascadeParticleSizeDropdownData,
@@ -67,16 +69,20 @@ const getIsEmptyType = (reportType, { isTime, isOption }) => {
   if ([reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart].includes(reportType) && (isTime || isOption)) {
     return true;
   }
-  if (reportTypes.NumberChart === reportType && isOption) {
+  if ([reportTypes.NumberChart, reportTypes.FunnelChart].includes(reportType) && isOption) {
     return true;
   }
+  return false;
 }
 
 export default class XAxis extends Component {
   constructor(props) {
     super(props);
+    const { xaxes } = props.currentReport;
     this.state = {
       dialogVisible: false,
+      showFormat: _.find(timeFormats, { value: xaxes.showFormat }) ? '' : xaxes.showFormat,
+      showFormatDialogVisible: false
     };
   }
   getAreaParticleSizeDropdownData(type) {
@@ -96,6 +102,7 @@ export default class XAxis extends Component {
         xaxes: {
           ...xaxes,
           particleSizeType: value,
+          showFormat: '0'
         },
         sorts: sorts.filter(item => _.findKey(item) !== id)
       },
@@ -146,22 +153,34 @@ export default class XAxis extends Component {
     }
   }
   renderModal() {
-    const { dialogVisible } = this.state;
+    const { dialogVisible, showFormat, showFormatDialogVisible } = this.state;
     const { xaxes } = this.props.currentReport;
     return (
-      <RenameModal
-        dialogVisible={dialogVisible}
-        rename={xaxes.rename || xaxes.controlName}
-        onChangeRename={(rename) => {
-          this.handleChangeXaxes({ rename });
-          this.setState({ dialogVisible: false });
-        }}
-        onHideDialogVisible={() => {
-          this.setState({
-            dialogVisible: false,
-          });
-        }}
-      />
+      <Fragment>
+        <RenameModal
+          dialogVisible={dialogVisible}
+          rename={xaxes.rename || xaxes.controlName}
+          onChangeRename={(rename) => {
+            this.handleChangeXaxes({ rename });
+            this.setState({ dialogVisible: false });
+          }}
+          onHideDialogVisible={() => {
+            this.setState({
+              dialogVisible: false,
+            });
+          }}
+        />
+        {showFormatDialogVisible && (
+          <ShowFormatDialog
+            showformat={showFormat}
+            onClose={() => this.setState({ showFormatDialogVisible: false })}
+            onOk={value => {
+              this.handleChangeXaxes({ showFormat: value });
+              this.setState({ showFormatDialogVisible: false });
+            }}
+          />
+        )}
+      </Fragment>
     );
   }
   renderOverlay(axis) {
@@ -181,7 +200,7 @@ export default class XAxis extends Component {
     }
 
     return (
-      <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />}>
+      <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />} subMenuOpenDelay={0.2}>
         <Menu.Item
           onClick={() => {
             this.setState({ dialogVisible: true });
@@ -230,20 +249,32 @@ export default class XAxis extends Component {
                 </Fragment>
               )}
             </Menu.SubMenu>
-            <Menu.SubMenu popupClassName="chartMenu" title={_l('日期格式')} popupOffset={[0, -15]}>
-              {timeFormats.map(item => (
+            {_.find(timeDataParticle, { value: xaxes.particleSizeType }) && (
+              <Menu.SubMenu popupClassName="chartMenu" title={_l('日期格式')} popupOffset={[0, -15]}>
+                {formatTimeFormats(xaxes.particleSizeType).map(item => (
+                  <Menu.Item
+                    className="valignWrapper"
+                    style={{ width: 200, color: item.value === xaxes.showFormat ? '#1e88e5' : null }}
+                    key={item.value}
+                    onClick={() => {
+                      this.handleChangeXaxes({ showFormat: item.value });
+                    }}
+                  >
+                    <div className="flex">{item.getTime()}</div>
+                  </Menu.Item>
+                ))}
                 <Menu.Item
                   className="valignWrapper"
-                  style={{ width: 200, color: item.value === xaxes.showFormat ? '#1e88e5' : null }}
-                  key={item.value}
+                  style={{ width: 200, color: !_.find(timeFormats, { value: xaxes.showFormat }) ? '#1e88e5' : null }}
+                  key="customShowFormat"
                   onClick={() => {
-                    this.handleChangeXaxes({ showFormat: item.value });
+                    this.setState({ showFormatDialogVisible: true });
                   }}
                 >
-                  <div className="flex">{item.getTime()}</div>
+                  <div className="flex">{_l('自定义')}</div>
                 </Menu.Item>
-              ))}
-            </Menu.SubMenu>
+              </Menu.SubMenu>
+            )}
           </Fragment>
         )}
         {isArea && (

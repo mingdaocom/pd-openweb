@@ -39,11 +39,12 @@ const EditingCon = styled.div`
 
 const OperateIcon = styled.div`
   display: none;
-  margin: -7px -6px 0 2px;
-  width: 34px;
-  height: 34px;
+  margin-top: -2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  background: #fff;
   text-align: center;
-  line-height: 34px;
   color: #9e9e9e;
   font-size: 16px;
   cursor: pointer;
@@ -52,6 +53,7 @@ const OperateIcon = styled.div`
 function OptionsSteps(props, ref) {
   const {
     tableType,
+    recordId,
     className,
     style,
     from,
@@ -112,9 +114,9 @@ function OptionsSteps(props, ref) {
   const sliderComp = (
     <Steps
       tipDirection={rowIndex === 0 ? 'bottom' : undefined}
-      disabled={!editable || !isediting}
+      disabled={!editable}
       showSelected={!isediting && rowHeight < 50}
-      showTip={isediting}
+      showTip={editable}
       showScaleText={isediting || rowHeight > 50}
       value={JSON.parse(value || '[]')[0]}
       data={{ options, enumDefault2 }}
@@ -156,7 +158,7 @@ function OptionsSteps(props, ref) {
       style={style}
       onClick={onClick}
     >
-      <div className="flex">{sliderComp}</div>
+      <div className="flex">{recordId !== 'empty' && !/^empty/.test(recordId) && sliderComp}</div>
       {editable && (
         <OperateIcon className="editIcon OperateIcon">
           <i

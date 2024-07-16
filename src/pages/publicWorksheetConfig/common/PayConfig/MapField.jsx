@@ -1,0 +1,140 @@
+import React, { Component } from 'react';
+import { Dialog, Icon, Dropdown, Tooltip } from 'ming-ui';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import styled from 'styled-components';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util.js';
+import _ from 'lodash';
+import './index.less';
+
+const Row = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  .fieldText {
+    height: 36px;
+    background: #f8f8f8;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    padding: 0 12px;
+    font-weight: 600;
+  }
+`;
+
+export default class MapField extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      mapFields: [
+        { controlId: 'orderNo', controlName: _l('订单编号'), type: 2 },
+        { controlId: 'totalFee', controlName: _l('交易金额'), type: 8 },
+        { controlId: 'payMethod', controlName: _l('支付方式'), type: 2 },
+        { controlId: 'payStatus', controlName: _l('订单状态'), type: 2 },
+        { controlId: 'createOrderTime', controlName: _l('下单时间'), type: 16 },
+        { controlId: 'payTime', controlName: _l('支付时间'), type: 16 },
+        { controlId: 'refundFee', controlName: _l('退款金额'), type: 8 },
+        { controlId: 'settleFee', controlName: _l('结算金额'), type: 8 },
+        { controlId: 'tradeFee', controlName: _l('结算手续费'), type: 8 },
+        { controlId: 'mchId', controlName: _l('商户号'), type: 2 },
+        // { controlId: 'payUser', controlName: _l('付款人'), type: 2 },
+      ],
+    };
+  }
+
+  componentDidMount() {
+    const { fieldMaps } = this.props;
+    const { mapFields = [] } = this.state;
+    this.setState({
+      mapFields: mapFields.map(item =>
+        fieldMaps[item.controlId] ? { ...item, mapFieldControlId: fieldMaps[item.controlId] } : item,
+      ),
+    });
+  }
+
+  onSave = () => {
+    const { mapFields } = this.state;
+    this.props.onOk(mapFields);
+    this.props.onCancel();
+  };
+
+  render() {
+    const { visible, worksheetInfo = {}, onCancel = () => {}, payContentControlId, payAmountControlId } = this.props;
+    const { template } = worksheetInfo;
+    const { mapFields } = this.state;
+    const filterControlIds = mapFields
+      .map(item => item.mapFieldControlId)
+      .filter(v => v)
+      .concat([payContentControlId, payAmountControlId]);
+
+    const columns = (template.controls || [])
+      .filter(({ controlId }) => !_.includes([...NORMAL_SYSTEM_FIELDS_SORT, ...WORKFLOW_SYSTEM_FIELDS_SORT], controlId))
+      .map(({ controlName, controlId, type }) => ({
+        iconName: getIconByType(type),
+        text: controlName,
+        value: controlId,
+        type: _.includes([6, 31, 37], type) ? 8 : type === 9 ? 11 : type,
+      }));
+
+    return (
+      <Dialog
+        width={726}
+        visible={visible}
+        title={_l('建立字段映射')}
+        okText={_l('保存')}
+        onCancel={onCancel}
+        onOk={this.onSave}
+      >
+        {mapFields.map(item => {
+          return (
+            <Row>
+              <div className="fieldText flex">
+                <Icon className="Font16 Gray_9e mRight10" icon={getIconByType(item.type)} />
+                {item.controlName}
+                {item.controlId === 'payStatus' && (
+                  <Tooltip
+                    text={<span>{_l('可映射状态：已支付、待支付、已退款、部分退款、退款中')}</span>}
+                    popupAlign={{
+                      points: ['tl', 'bl'],
+                      offset: [-15, 0],
+                      overflow: { adjustX: true, adjustY: true },
+                    }}
+                  >
+                    <i className="icon icon-info Gray_bd Hover_21 Hand Font14 mLeft8" />
+                  </Tooltip>
+                )}
+              </div>
+              <Icon icon="arrow_forward" className="Font16 ThemeColor mLeft16 mRight16" />
+              <Dropdown
+                className="flex"
+                menuClass="mapFieldMenuWrap"
+                isAppendToBody
+                border
+                cancelAble
+                data={columns.filter(
+                  v =>
+                    v.type === item.type &&
+                    !_.includes(
+                      filterControlIds.filter(t => t !== item.mapFieldControlId),
+                      v.value,
+                    ),
+                )}
+                value={item.mapFieldControlId}
+                onChange={value => {
+                  const copyMapFields = [...mapFields];
+                  const index = _.findIndex(copyMapFields, v => item.controlId === v.controlId);
+                  const currentField = {
+                    ..._.find(copyMapFields, v => item.controlId === v.controlId),
+                    mapFieldControlId: value,
+                  };
+                  copyMapFields[index] = currentField;
+                  this.setState({ mapFields: copyMapFields });
+                }}
+              />
+            </Row>
+          );
+        })}
+      </Dialog>
+    );
+  }
+}

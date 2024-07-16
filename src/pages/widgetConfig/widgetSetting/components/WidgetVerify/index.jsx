@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
@@ -7,11 +7,13 @@ import { getAdvanceSetting, handleAdvancedSettingChange, canAsUniqueWidget } fro
 import InputValue from './InputValue';
 import DateVerify from './DateVerify';
 import TextVerify from './TextVerify';
+import AttachmentVerify from './AttachmentVerify';
 import SubListVerify from './SubListVerify';
 import _ from 'lodash';
 
 const CompConfig = {
   2: TextVerify,
+  14: AttachmentVerify,
   15: DateVerify,
   16: DateVerify,
   34: SubListVerify,

@@ -45,14 +45,14 @@ const SetConfig = styled.div`
   text-align: center;
   border-radius: 3px;
   cursor: pointer;
-  border: ${props => (props.hasSet ? '1px solid #e0e0e0' : '1px dashed #e0e0e0')};
+  border: ${props => (props.hasSet ? '1px solid #ddd' : '1px dashed #ddd')};
   i {
     font-size: 15px;
     color: #4caf50;
     margin-right: 7px;
   }
   &:hover {
-    border-color: rgba(224, 224, 224, 0.8);
+    border-color: #2196f3;
   }
 `;
 
@@ -131,7 +131,7 @@ export default function SearchMapping(props) {
   return (
     <Fragment>
       {isDropdown && (
-        <SettingItem className="withSplitLine">
+        <SettingItem>
           <div className="settingItemTitle">{_l('将返回数据作为下拉框选项')}</div>
           {SELECT_OPTIONS.map((item, index) => {
             const { dropData = [], dropValue = '' } = getMapData(item.type);
@@ -169,7 +169,7 @@ export default function SearchMapping(props) {
         </SettingItem>
       )}
 
-      <SettingItem className="withSplitLine">
+      <SettingItem>
         <div className="settingItemTitle">{_l('将返回数据写入表单字段')}</div>
         <SetConfig hasSet={responsemap.length} onClick={() => setMapVisible(true)}>
           {responsemap.length ? (

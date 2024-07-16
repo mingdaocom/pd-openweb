@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import Constant from './constant';
 import { createLinksForMessage } from 'src/util';
 import RelationControl from 'src/components/relationControl/relationControl';
@@ -8,7 +8,7 @@ import createCalendar from 'src/components/createCalendar/createCalendar';
 import createFeed from 'src/pages/feed/components/createFeed';
 import moment from 'moment';
 
-const _initPost = function(acceptor, options, callback) {
+const _initPost = function (acceptor, options, callback) {
   createFeed({
     defaultPostType: options.defaultType,
     showType: options.showType,
@@ -107,8 +107,9 @@ export const selectTask = acceptor => {
       };
       resolve(message);
     };
+    const root = createRoot(document.createElement('div'));
 
-    ReactDom.render(<RelationControl types={[1]} onSubmit={onSubmit} />, document.createElement('div'));
+    root.render(<RelationControl types={[1]} onSubmit={onSubmit} />);
   });
 };
 
@@ -174,8 +175,9 @@ export const selectSchedule = acceptor => {
       }
       resolve(message);
     };
+    const root = createRoot(document.createElement('div'));
 
-    ReactDom.render(<RelationControl types={[3]} onSubmit={onSubmit} />, document.createElement('div'));
+    root.render(<RelationControl types={[3]} onSubmit={onSubmit} />);
   });
 };
 

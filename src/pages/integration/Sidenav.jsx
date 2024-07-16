@@ -1,9 +1,11 @@
 import React from 'react';
-import { Icon, ScrollView } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { list, dataIntegrationList } from './config';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+
 const Wrap = styled.div`
   width: 241px;
   height: 100%;
@@ -54,8 +56,14 @@ class Sidenav extends React.Component {
     !params.type ? localStorage.removeItem('integrationUrl') : safeLocalStorageSetItem(`integrationUrl`, params.type);
   }
   render() {
-    const { match = { params: {} }, isSuperAdmin } = this.props;
+    const { match = { params: {} }, myPermissions = [], menuAuth = {} } = this.props;
     const { type = '' } = match.params;
+    const hasDataIntegrationAuth = hasPermission(myPermissions, [
+      PERMISSION_ENUM.CREATE_SYNC_TASK,
+      PERMISSION_ENUM.MANAGE_SYNC_TASKS,
+      PERMISSION_ENUM.MANAGE_DATA_SOURCES,
+    ]);
+
     return (
       <Wrap>
         <div className="Gray_75 pTop28 pLeft18">{_l('API 集成')}</div>
@@ -73,13 +81,21 @@ class Sidenav extends React.Component {
             );
           })}
         </ul>
-        {isSuperAdmin && (
+        {hasDataIntegrationAuth && (
           <React.Fragment>
             <div className="Gray_75 pTop28 pLeft18">
               <span>{_l('数据集成')}</span>
             </div>
             <ul className="mTop12">
               {dataIntegrationList.map((o, index) => {
+                if (
+                  (o.type === 'dataConnect' && menuAuth.noCreateTaskMenu) ||
+                  (o.type === 'task' && menuAuth.noSyncTaskMenu) ||
+                  (o.type === 'source' && menuAuth.noSourceMenu)
+                ) {
+                  return null;
+                }
+
                 return (
                   <li key={index} className={cx('Bold', { cur: o.type === type || (!type && o.type === 'connect') })}>
                     <Link className="pLeft18 overflow_ellipsis pRight10" to={`/integration/${o.type}`}>

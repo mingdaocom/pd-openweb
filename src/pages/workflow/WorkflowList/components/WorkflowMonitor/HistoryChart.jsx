@@ -291,11 +291,11 @@ export default class HistoryChart extends PureComponent {
             {showDate && (
               <Fragment>
                 <span className="mRight30 Font12">
-                  <span className="Gray_9e">{_l('累计新增')} </span>
+                  <span className="Gray_75">{_l('累计新增')} </span>
                   <span className="Font14 bold">{formatter(accumulateAdd)}</span>
                 </span>
                 <span className="mRight30 Font12">
-                  <span className="Gray_9e">{_l('累计消费')} </span>
+                  <span className="Gray_75">{_l('累计消费')} </span>
                   <span className="Font14 bold">{formatter(accumulateConsumer)}</span>
                 </span>
               </Fragment>

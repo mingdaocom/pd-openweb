@@ -1,6 +1,6 @@
 var Toolbar = {};
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { htmlEncodeReg } from 'src/util';
 import showCategoryListTpl from './tpl/showCategoryList.html';
 import ClassificationCalendarListAddTpl from './tpl/ClassificationCalendarListAdd.html';
@@ -154,60 +154,63 @@ Toolbar.Event = function () {
         }
       },
     });
-    if (!Toolbar.Comm.settings.categorys.length) {
-      var categorysArray = [];
-      $('.allowDrop').each(function () {
-        if ($(this).find('.iconTickStyle').hasClass('icon-calendar-check')) {
-          categorysArray.push($(this).attr('catid'));
-        }
-      });
-      safeLocalStorageSetItem('categorys', categorysArray);
-      Toolbar.Comm.settings.categorys = categorysArray;
-    }
 
-    // 添加更多
-    $('.classificationCalendarListAdd').click(function () {
-      $('.classificationCalendarList').find('ul').append(Toolbar.Comm.doT.template(ClassificationCalendarListAddTpl));
-      $('.classificationListName:last').focus();
-    });
-
-    // 点击下拉选择颜色
-    $('.classificationCalendarList')
-      .on('click', '.classificationListDropdown', function (event) {
-        if (!$(event.target).closest('.colorBlockList').length) {
-          var $colorBlockMain = $(this).find('.colorBlockMain');
-          $('.colorBlockMain').not($colorBlockMain).hide();
-          if ($(this).find('.colorBlockMain:visible').length) {
-            $colorBlockMain.hide();
-          } else {
-            $colorBlockMain.show();
+    setTimeout(() => {
+      if (!Toolbar.Comm.settings.categorys.length) {
+        var categorysArray = [];
+        $('.allowDrop').each(function () {
+          if ($(this).find('.iconTickStyle').hasClass('icon-calendar-check')) {
+            categorysArray.push($(this).attr('catid'));
           }
-        }
-        event.stopPropagation();
-      })
-      .on('click', '.colorBlockList', function () {
-        // 改变颜色框
-        var $colorBlockMain = $(this).parent();
-        var className = $(this).find('span').attr('class');
-        $colorBlockMain
-          .siblings('.colorBlock')
-          .removeClass()
-          .addClass('colorBlock ' + className);
-        $colorBlockMain.hide();
-        event.stopPropagation();
+        });
+        safeLocalStorageSetItem('categorys', categorysArray);
+        Toolbar.Comm.settings.categorys = categorysArray;
+      }
+
+      // 添加更多
+      $('.classificationCalendarListAdd').click(function () {
+        $('.classificationCalendarList').find('ul').append(Toolbar.Comm.doT.template(ClassificationCalendarListAddTpl));
+        $('.classificationListName:last').focus();
       });
 
-    // 点击删除操作
-    $('.classificationCalendarList').on('click', '.classificationListDel', function () {
-      var _this = $(this);
-      var catId = _this.closest('li').attr('catid');
+      // 点击下拉选择颜色
+      $('.classificationCalendarList')
+        .on('click', '.classificationListDropdown', function (event) {
+          if (!$(event.target).closest('.colorBlockList').length) {
+            var $colorBlockMain = $(this).find('.colorBlockMain');
+            $('.colorBlockMain').not($colorBlockMain).hide();
+            if ($(this).find('.colorBlockMain:visible').length) {
+              $colorBlockMain.hide();
+            } else {
+              $colorBlockMain.show();
+            }
+          }
+          event.stopPropagation();
+        })
+        .on('click', '.colorBlockList', function () {
+          // 改变颜色框
+          var $colorBlockMain = $(this).parent();
+          var className = $(this).find('span').attr('class');
+          $colorBlockMain
+            .siblings('.colorBlock')
+            .removeClass()
+            .addClass('colorBlock ' + className);
+          $colorBlockMain.hide();
+          event.stopPropagation();
+        });
 
-      if (catId) {
-        Toolbar.Method.deleteUserCalCategory(_this, catId);
-      } else {
-        _this.parent().remove();
-      }
-    });
+      // 点击删除操作
+      $('.classificationCalendarList').on('click', '.classificationListDel', function () {
+        var _this = $(this);
+        var catId = _this.closest('li').attr('catid');
+
+        if (catId) {
+          Toolbar.Method.deleteUserCalCategory(_this, catId);
+        } else {
+          _this.parent().remove();
+        }
+      });
+    }, 200);
   });
 
   // 列表点击 选中未选中切换
@@ -461,45 +464,50 @@ Toolbar.Method = {
           noFooter: true,
           children: <div dangerouslySetInnerHTML={{ __html: Toolbar.Comm.doT.template(synchronousTpl)(url) }}></div>,
         });
-        var $iCalAbout = $('#iCalAbout').find('.synchronousSelect');
 
-        // 点击复制地址
-        $('#clipinner')
-          .off()
-          .on('click', function () {
-            copy($('#clipinner').attr('data-clipboard-text'));
-            alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
-          });
+        setTimeout(() => {
+          var $iCalAbout = $('#iCalAbout').find('.synchronousSelect');
 
-        // 点击切换
-        $iCalAbout.click(function () {
-          $('#iCalAbout td').removeClass('ThemeBGColor5 Select');
-          $(this).addClass('Select ThemeBGColor5');
-          var type = $(this).attr('type');
-          var $iCalContent_two = $('#iCalContent_two');
-          if (type == 1) {
-            $iCalContent_two.html(
-              '2.' + _l('"打开Outlook，在工具>账户设置>Internet日历中新建，并粘贴刚才获得的ICAL格式日历地址"'),
-            );
-          } else if (type == 2) {
-            $iCalContent_two.html('2.' + _l('"打开Mac日历，在文件>新建日历订阅，粘贴刚才获得的Internet格式日历地址"'));
-          } else if (type == 3) {
-            $iCalContent_two.html(
-              '2.' + _l('"登录Google Calendar，在其他日历>通过网址添加中，粘贴刚才获得的ICAL格式日历地址"'),
-            );
-          }
-        });
-        // 经过改变背景颜色
-        $iCalAbout.hover(
-          function () {
-            if (!$(this).hasClass('ThemeBGColor5')) {
-              $(this).addClass('iCalAboutHover');
+          // 点击复制地址
+          $('#clipinner')
+            .off()
+            .on('click', function () {
+              copy($('#clipinner').attr('data-clipboard-text'));
+              alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
+            });
+
+          // 点击切换
+          $iCalAbout.click(function () {
+            $('#iCalAbout td').removeClass('ThemeBGColor5 Select');
+            $(this).addClass('Select ThemeBGColor5');
+            var type = $(this).attr('type');
+            var $iCalContent_two = $('#iCalContent_two');
+            if (type == 1) {
+              $iCalContent_two.html(
+                '2.' + _l('"打开Outlook，在工具>账户设置>Internet日历中新建，并粘贴刚才获得的ICAL格式日历地址"'),
+              );
+            } else if (type == 2) {
+              $iCalContent_two.html(
+                '2.' + _l('"打开Mac日历，在文件>新建日历订阅，粘贴刚才获得的Internet格式日历地址"'),
+              );
+            } else if (type == 3) {
+              $iCalContent_two.html(
+                '2.' + _l('"登录Google Calendar，在其他日历>通过网址添加中，粘贴刚才获得的ICAL格式日历地址"'),
+              );
             }
-          },
-          function () {
-            $(this).removeClass('iCalAboutHover');
-          },
-        );
+          });
+          // 经过改变背景颜色
+          $iCalAbout.hover(
+            function () {
+              if (!$(this).hasClass('ThemeBGColor5')) {
+                $(this).addClass('iCalAboutHover');
+              }
+            },
+            function () {
+              $(this).removeClass('iCalAboutHover');
+            },
+          );
+        }, 200);
       } else {
         Toolbar.Comm.errorMessage(source.msg);
       }
@@ -640,7 +648,9 @@ Toolbar.Method = {
                 var status = $this.attr('data-status');
                 var name = $this.attr('data-name');
                 var isCalendar = $this.attr('data-isCalendar');
-                ReactDOM.render(
+                const root = createRoot(ele);
+
+                root.render(
                   <UserCard sourceId={accountId}>
                     <span>
                       <img className="circle userHead" src={avatar} />
@@ -659,7 +669,6 @@ Toolbar.Method = {
                       {isCalendar && <span class="Gray_6 TxtTop calendarName"> {_l('(发起人)')}</span>}
                     </span>
                   </UserCard>,
-                  ele,
                 );
                 $this.data('hasbusinesscard', true);
               }
@@ -790,7 +799,10 @@ Toolbar.Method = {
       const accountId = $(ele).parent().attr('data-id');
       const avatar = $(ele).attr('data-src');
       $(ele).removeClass('noInsert');
-      ReactDOM.render(
+
+      const root = createRoot(ele);
+
+      root.render(
         <UserHead
           user={{
             userHead: avatar,
@@ -798,7 +810,6 @@ Toolbar.Method = {
           }}
           size={24}
         />,
-        ele,
       );
     });
 

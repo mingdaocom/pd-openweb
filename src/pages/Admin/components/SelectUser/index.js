@@ -4,7 +4,7 @@ import { Select } from 'antd';
 import { dialogSelectUser } from 'ming-ui/functions';
 
 export default function SelectUser(props) {
-  const { projectId, changeData = () => {}, className } = props;
+  const { projectId, changeData = () => {}, className, unique = false } = props;
   const [userInfo, setUserInfo] = useState(props.userInfo);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function SelectUser(props) {
         filterFriend: true,
         filterOthers: true,
         filterOtherProject: true,
-        unique: false,
+        unique: unique,
         callback: data => {
           setUserInfo(data);
           changeData(data);

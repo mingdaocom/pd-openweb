@@ -6,7 +6,7 @@ import { withRouter } from 'react-router';
 import UseKey from 'react-use/lib/component/UseKey';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import qs from 'query-string';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import { LoadDiv, WaterMark } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import { WorkSheetLeft, WorkSheetPortal, WorksheetEmpty } from './common';
@@ -63,24 +63,22 @@ const WorkSheetContainer = props => {
       setTimeout(() => {
         setData({ wsType: type, resultCode: 1 });
         setLoading(false);
-      }, 0);
+      }, 200);
     }
   }, [id, params.groupId]);
 
   useEffect(() => {
-    if (!id && params.groupId) {
-      const firstSheetId = getSheetListFirstId(sheetList, isCharge);
-      firstSheetId && navigateTo(`/app/${appId}/${params.groupId}/${firstSheetId}`);
-    }
-  }, [sheetList]);
-
-  useEffect(() => {
     if (!id && !sheetListLoading) {
-      // 没有表id，空分组
-      setData({ wsType: type, resultCode: -20000 });
-      setLoading(false);
+      const firstSheetId = getSheetListFirstId(sheetList, isCharge);
+      if (firstSheetId && params.groupId) {
+        navigateTo(`/app/${appId}/${params.groupId}/${firstSheetId}`);
+      } else {
+        // 没有表id，空分组
+        setData({ wsType: type, resultCode: -20000 });
+        setLoading(false);
+      }
     }
-  }, [id, sheetListLoading]);
+  }, [id, sheetListLoading, sheetList]);
 
   if (id ? loading : sheetListLoading) {
     return <LoadDiv size="big" className="mTop32" />;
@@ -229,7 +227,7 @@ class WorkSheet extends Component {
     if (themeColor) {
       this.removeAppThemeColor();
       const style = document.createElement('style');
-      style.innerHTML = `:root { --app-primary-color: ${themeColor}; --app-primary-hover-color: ${tinycolor(themeColor)
+      style.innerHTML = `:root { --app-primary-color: ${themeColor}; --app-primary-hover-color: ${new TinyColor(themeColor)
         .darken(5)
         .toString()}; }`;
       document.head.appendChild(style);

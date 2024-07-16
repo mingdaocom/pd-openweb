@@ -44,6 +44,7 @@ export default class ValidPassWord extends Component {
                   okText: _l('前往注销'),
                   showCancel: false,
                   onOk: () => {
+                    this.props.closeDialog();
                     navigateTo('/admin/sysinfo/' + projectId);
                   },
                 });

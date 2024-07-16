@@ -1,8 +1,7 @@
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import WorksheetShareHeader from './header';
 import sheetAjax from 'src/api/worksheet';
-import appManagementApi from 'src/api/appManagement';
 import preall from 'src/common/preall';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import LoadDiv from 'ming-ui/components/LoadDiv';
@@ -12,6 +11,7 @@ import PublicQuery from './publicquery';
 import './index.less';
 import { SYS } from 'src/pages/widgetConfig/config/widget.js';
 import { replaceControlsTranslateInfo } from 'worksheet/util';
+import { getAppLangDetail } from 'src/util';
 import _ from 'lodash';
 
 class WorksheetSahre extends React.Component {
@@ -69,16 +69,14 @@ class WorksheetSahre extends React.Component {
         shareAuthor && (window.shareAuthor = shareAuthor);
         localStorage.setItem('currentProjectId', projectId);
 
-        if (langInfo.appLangId) {
-          const lang = await appManagementApi.getAppLangDetail({
-            projectId,
-            appId,
-            appLangId: langInfo.appLangId,
-          });
-          window[`langData-${appId}`] = lang.items;
-        }
+        const lang = await getAppLangDetail({
+          langInfo,
+          projectId,
+          id: appId,
+        });
+
         if (template.controls) {
-          res.worksheet.template.controls = replaceControlsTranslateInfo(appId, template.controls);
+          res.worksheet.template.controls = replaceControlsTranslateInfo(appId, worksheetId, template.controls);
         }
 
         let sheetSwitchPermit = await sheetAjax.getSwitchPermit({ worksheetId: worksheetId });
@@ -162,7 +160,7 @@ class WorksheetSahre extends React.Component {
       let sys = controls.filter(o => SYS.includes(o.controlId));
       const viewSet = data.worksheet.views.find(o => o.viewId === viewId);
       if (controls.length) {
-        controls = replaceControlsTranslateInfo(data.worksheet.appId, controls);
+        controls = replaceControlsTranslateInfo(data.worksheet.appId, worksheetId, controls);
       }
 
       this.setState({
@@ -306,4 +304,6 @@ class WorksheetSahre extends React.Component {
   }
 }
 
-ReactDom.render(<WorksheetSahre />, document.getElementById('app'));
+const root = createRoot(document.getElementById('app'));
+
+root.render(<WorksheetSahre />);

@@ -20,9 +20,11 @@ import {
   getValueStyle,
   getHideTitleStyle,
   formatControlValue,
+  isUnTextWidget,
+  isPublicLink,
 } from './tools/utils';
 import { isRelateRecordTableControl } from 'worksheet/util';
-import { FORM_ERROR_TYPE, FROM, UN_TEXT_TYPE } from './tools/config';
+import { FORM_ERROR_TYPE, FROM } from './tools/config';
 import { updateRulesData, checkAllValueAvailable, replaceStr, getRuleErrorInfo } from './tools/filterFn';
 import DataFormat, { checkRequired } from './tools/DataFormat';
 import { browserIsMobile } from 'src/util';
@@ -35,6 +37,7 @@ import styled from 'styled-components';
 import RefreshBtn from './components/RefreshBtn';
 import { dealCustomEvent } from './tools/customEvent';
 import { getExpandWidgetIds } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/config';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 const CustomFormItemControlWrap = styled.div`
   &.customFormItemControl .customFormReadonly,
@@ -153,6 +156,7 @@ export default class CustomFields extends Component {
       renderData: [],
       errorItems: [],
       uniqueErrorItems: [],
+      customErrorItems: [], // 自定义事件报错
       rules: props.rules || [],
       rulesLoading: !props.disableRules && !props.rules,
       searchConfig: props.searchConfig || [],
@@ -161,6 +165,8 @@ export default class CustomFields extends Component {
       childTableControlIds: [],
       activeTabControlId: '',
     };
+
+    this.abortController = new AbortController();
 
     this.controlRefs = {};
 
@@ -205,6 +211,12 @@ export default class CustomFields extends Component {
     }
   }
 
+  componentWillUnmount() {
+    if (this.abortController) {
+      this.abortController.abort();
+    }
+  }
+
   get workflowParams() {
     const { mobileApprovalRecordInfo = {} } = this.props;
     const { instanceId, workId } = browserIsMobile()
@@ -236,7 +248,7 @@ export default class CustomFields extends Component {
       controlProps = {},
       mobileApprovalRecordInfo = {},
     } = this.props;
-    const { rules = [] } = this.state;
+    const { rules = [], searchConfig = [] } = this.state;
     const { instanceId, workId } = this.workflowParams;
     this.dataFormat = new DataFormat({
       setSubListStore: true,
@@ -256,11 +268,12 @@ export default class CustomFields extends Component {
       instanceId,
       workId,
       verifyAllControls,
+      abortController: this.abortController,
       storeCenter: this.storeCenter,
       embedData: {
         ..._.pick(this.props, ['projectId', 'appId', 'groupId', 'worksheetId', 'recordId', 'viewId']),
       },
-      searchConfig: this.state.searchConfig,
+      searchConfig: searchConfig.filter(i => i.eventType !== 1),
       updateLoadingItems: loadingItems => {
         this.setState({ loadingItems });
       },
@@ -378,7 +391,7 @@ export default class CustomFields extends Component {
     } = this.props;
     const { instanceId, workId } = this.workflowParams;
     const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
-    const { errorItems, uniqueErrorItems, loadingItems } = this.state;
+    const { errorItems, uniqueErrorItems, loadingItems, customErrorItems } = this.state;
     const isMobile = browserIsMobile();
     const formList = [];
     let prevRow = -1;
@@ -386,13 +399,6 @@ export default class CustomFields extends Component {
     let data = [].concat(renderData).filter(item => !item.hidden && controlState(item, from).visible);
     const richTextControlCount = data.filter(c => c.type === 41).length;
     const isPcCreated = !isMobile && !recordId;
-
-    data.sort((a, b) => {
-      if (a.row === b.row) {
-        return a.col - b.col;
-      }
-      return a.row - b.row;
-    });
 
     data.forEach(item => {
       if ((item.row !== prevRow || isMobile || forceFull) && !preIsSection && prevRow > -1) {
@@ -416,12 +422,7 @@ export default class CustomFields extends Component {
       const showRefreshBtn =
         !disabledFunctions.includes('controlRefresh') &&
         from !== FROM.DRAFT &&
-        !_.get(window, 'shareState.isPublicView') &&
-        !_.get(window, 'shareState.isPublicQuery') &&
-        !_.get(window, 'shareState.isPublicPage') &&
-        !_.get(window, 'shareState.isPublicRecord') &&
-        !_.get(window, 'shareState.isPublicForm') &&
-        !_.get(window, 'shareState.isPublicWorkflowRecord') &&
+        !isPublicLink() &&
         recordId &&
         md.global.Account.accountId &&
         ((item.type === 30 && (item.strDefault || '').split('')[0] !== '1') || _.includes([31, 32, 37, 38], item.type));
@@ -453,6 +454,7 @@ export default class CustomFields extends Component {
               item={item}
               errorItems={errorItems}
               uniqueErrorItems={uniqueErrorItems}
+              customErrorItems={customErrorItems}
               loadingItems={loadingItems}
               widgetStyle={{ ...widgetStyle, displayRow, ...hideTitleStyle }}
               disabled={disabled}
@@ -557,14 +559,8 @@ export default class CustomFields extends Component {
    * searchByChange: api查询被动赋值引起的工作表查询，文本类按失焦处理
    */
   handleChange = (value, cid, item, searchByChange = true) => {
-    const { onWidgetChange = () => {}, disabled, from, getChildTableControlIds = () => {} } = this.props;
+    const { onWidgetChange = () => {} } = this.props;
     const { uniqueErrorItems } = this.state;
-
-    if (from === 21 && item.type === 34 && disabled) {
-      this.setState({ childTableControlIds: [...this.state.childTableControlIds, item.controlId] }, () =>
-        getChildTableControlIds(_.uniq(this.state.childTableControlIds)),
-      );
-    }
 
     if (!_.get(value, 'rows')) {
       onWidgetChange();
@@ -581,9 +577,9 @@ export default class CustomFields extends Component {
         },
         searchByChange: searchByChange,
       });
-      this.setState({ renderData: this.getFilterDataByRule() }, () =>
-        this.setErrorItemsByRule(cid, { ...item, value }),
-      );
+      this.setState({ renderData: this.getFilterDataByRule() }, () => {
+        this.setErrorItemsByRule(cid, { ...item, value });
+      });
 
       const ids = this.dataFormat.getUpdateControlIds();
       if (ids.length) {
@@ -597,26 +593,24 @@ export default class CustomFields extends Component {
    * 自定义事件
    */
   triggerCustomEvent(props) {
-    const { systemControlData } = this.props;
-    const { searchConfig = [], errorItems = [] } = this.state;
+    const { systemControlData, handleEventPermission = () => {} } = this.props;
+    const { searchConfig = [], renderData = [] } = this.state;
 
     const customProps = {
       ...props,
       ..._.pick(this.props, ['from', 'recordId', 'projectId', 'worksheetId', 'appId']),
       formData: this.dataFormat.getDataSource().concat(systemControlData || []),
-      searchConfig: searchConfig.filter(s => s.resultType !== 0),
+      renderData,
+      searchConfig: searchConfig.filter(i => i.eventType === 1),
       checkRuleValidator: (controlId, errorType, errorMessage) => {
         this.dataFormat.setErrorControl(controlId, errorType, errorMessage);
       },
       setErrorItems: errorInfo => {
-        const newErrorItems = errorItems.concat(errorInfo);
-        this.setState({ errorItems: newErrorItems });
+        this.setState({ customErrorItems: errorInfo });
       },
-      setRenderData: newData => {
-        this.setState({
-          renderData: newData,
-          errorItems: this.dataFormat.getErrorControls(),
-        });
+      setRenderData: () => {
+        this.updateRenderData();
+        handleEventPermission();
       },
       handleChange: (value, cid, item, searchByChange) => {
         this.handleChange(value, cid, item, searchByChange);
@@ -650,6 +644,7 @@ export default class CustomFields extends Component {
       customWidgets,
       isDraft,
       masterData,
+      loadDraftChildTableData = () => {},
     } = this.props;
     const { renderData } = this.state;
     // 字段描述显示方式
@@ -736,13 +731,17 @@ export default class CustomFields extends Component {
           onChange={(value, cid = controlId, searchByChange) => {
             this.handleChange(value, cid, item, searchByChange);
             // 非文本change校验重复、文本失焦校验
-            if (item.unique && value && _.includes(UN_TEXT_TYPE, type)) {
+            if (item.unique && value && isUnTextWidget(item)) {
               this.checkControlUnique(controlId, type, value);
+            }
+            // 非文本类值改变时触发自定义事件
+            if (isUnTextWidget(item) && item.value !== value) {
+              this.triggerCustomEvent({ ...item, triggerType: ADD_EVENT_ENUM.CHANGE });
             }
           }}
           onBlur={(originValue, newVal) => {
             // 由输入法和onCompositionStart结合引起的组件内部未更新value值的情况，主动抛出新值
-            const newValue = newVal || (`${item.value}` ? `${item.value}`.trim() : '');
+            const newValue = newVal || (`${item.value || ''}` ? `${item.value || ''}`.trim() : '');
             if (item.unique && newValue) {
               this.checkControlUnique(controlId, type, newValue);
             }
@@ -751,8 +750,13 @@ export default class CustomFields extends Component {
                 control: { ...item, value: newValue },
                 searchType: 'onBlur',
               });
+              // 文本类失焦触发自定义事件
+              if (!isUnTextWidget(item)) {
+                this.triggerCustomEvent({ ...item, triggerType: ADD_EVENT_ENUM.CHANGE });
+              }
             }
             this.props.onBlur(controlId);
+            this.triggerCustomEvent({ ...item, triggerType: ADD_EVENT_ENUM.BLUR });
           }}
           openRelateSheet={openRelateSheet}
           registerCell={cell => {
@@ -764,6 +768,8 @@ export default class CustomFields extends Component {
             .getDataSource()
             .concat(systemControlData || [])
             .concat(getMasterFormData() || [])}
+          triggerCustomEvent={triggerType => this.triggerCustomEvent({ ...item, triggerType })}
+          loadDraftChildTableData={loadDraftChildTableData}
         />
         {hintShowAsText && <WidgetsDesc item={item} from={from} />}
       </React.Fragment>
@@ -996,7 +1002,7 @@ export default class CustomFields extends Component {
   submitFormData(options) {
     this.submitBegin = true;
     const { loadingItems, rules } = this.state;
-    const { onSave } = this.props;
+    const { onSave, from } = this.props;
     const { data, updateControlIds, error, ids } = this.getSubmitData(options);
 
     if (!error && _.some(Object.values(loadingItems), i => i)) {
@@ -1034,13 +1040,26 @@ export default class CustomFields extends Component {
             });
           }
         });
-        let totalRuleError = getRuleErrorInfo(rules, badData).reduce((total, its) => {
-          return total.concat(its.errorInfo);
-        }, []);
+        let totalRuleError = getRuleErrorInfo(rules, badData)
+          .reduce((total, its) => {
+            return total.concat(its.errorInfo);
+          }, [])
+          .filter(i => _.find(data, d => d.controlId === i.controlId));
+        const hideControlError = totalRuleError
+          .filter(
+            i =>
+              !controlState(
+                _.find(data, d => d.controlId === i.controlId),
+                from,
+              ).visible,
+          )
+          .map(i => i.errorMessage);
+        // 后端校验隐藏字段报错
+        if (hideControlError.length > 0) {
+          this.errorDialog(hideControlError);
+        }
         // 过滤掉子表报错、ids：不需校验的字段合集
-        totalRuleError = totalRuleError
-          .filter(i => _.find(data, d => d.controlId === i.controlId))
-          .filter(it => _.includes(ids, it.controlId));
+        totalRuleError = totalRuleError.filter(it => _.includes(ids, it.controlId));
         this.setState({
           errorItems: totalRuleError,
         });
@@ -1064,6 +1083,7 @@ export default class CustomFields extends Component {
       activeTabControlId: activeTabControlId || _.get(tabControls[0], 'controlId'),
       setActiveTabControlId: value => this.setActiveTabControlId(value),
       renderForm: value => this.renderForm(value),
+      triggerCustomEvent: value => this.triggerCustomEvent({ ...this.props, ...value }),
     };
 
     if (isMobile) {

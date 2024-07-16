@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import './taskDetail.less';
@@ -32,7 +32,7 @@ import TaskTime from './taskTime/taskTime';
 import TaskControl from './taskControl/taskControl';
 import { navigateTo } from 'src/router/navigateTo';
 import { LoadDiv, Dialog } from 'ming-ui';
-import {getAppFeaturesPath} from 'src/util';
+import { getAppFeaturesPath } from 'src/util';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 const TAB_TYPE = {
@@ -142,9 +142,7 @@ class TaskDetail extends Component {
   init() {
     if (this.props.openType === OPEN_TYPE.slide) {
       $('#tasks').addClass('slideDetail');
-      $('#batchTask')
-        .removeClass('slideLeft')
-        .html(''); // 清空批量操作并隐藏
+      $('#batchTask').removeClass('slideLeft').html(''); // 清空批量操作并隐藏
     }
 
     this.props.dispatch(getTaskDetail(this.state.taskId, this.props.openCallback, this.addPostSuccessCount));
@@ -271,8 +269,9 @@ class TaskDetail extends Component {
 
       return sourceArray;
     };
+    const root = createRoot(document.createElement('div'));
 
-    render(
+    root.render(
       <RelationControl
         ajaxPost={ajaxPost}
         ajaxDataFormat={ajaxDataFormat}
@@ -280,7 +279,6 @@ class TaskDetail extends Component {
         types={[type]}
         onSubmit={item => this.relationOnSubmit(item.sid, item.type)}
       />,
-      document.createElement('div'),
     );
   };
 

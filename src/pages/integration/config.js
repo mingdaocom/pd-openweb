@@ -4,7 +4,8 @@ export const list = [
     type: 'connect',
     txt: _l('API 库'),
     icon: 'connect',
-  }, {
+  },
+  {
     type: 'connectList',
     txt: _l('我的连接'),
     icon: 'workflow_webhook',
@@ -103,17 +104,6 @@ export const formatDate = date => {
   }
 
   return moment(date).format('YYYY-MM-DD HH:mm');
-};
-
-/**
- * 格式化参数
- */
-export const formatParameters = (source, testMap) => {
-  (source.match(/\$[^ \r\n]+?\$/g) || []).forEach(key => {
-    source = source.replace(key, testMap[key] || '');
-  });
-
-  return source;
 };
 
 export const formatStr = str => {

@@ -365,6 +365,7 @@ export default function ConfigForm(props) {
             ref={fieldRef}
             flag={flag}
             from={3}
+            disableRules={true}
             recordId={uuidv4()}
             data={customFormData(
               connectorConfigData[roleType].type,

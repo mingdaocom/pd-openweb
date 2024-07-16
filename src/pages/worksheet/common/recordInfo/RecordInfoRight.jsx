@@ -9,6 +9,7 @@ export default function RecordInfoRight(props) {
     loading,
     workflowStatus,
     className,
+    discussCount,
     recordbase,
     workflow,
     approval,
@@ -18,18 +19,22 @@ export default function RecordInfoRight(props) {
     projectId,
     formFlag,
     formdata,
+    enableOrderVisible,
   } = props;
   const { isSubList, appId, viewId, appSectionId, worksheetId, recordId, recordTitle } = recordbase;
   let hiddenTabs = [];
   const noApproved =
     !isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId) ||
     (md.global.Account.isPortal && !props.approved);
+  if (!enableOrderVisible) {
+    hiddenTabs.push('pay');
+  }
   if (isSubList) {
-    hiddenTabs.push('discuss', 'discussPortal', 'files');
+    hiddenTabs.push('discuss', 'files');
   }
   // 查看讨论和文件权限 默认true
   if (!isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId)) {
-    hiddenTabs.push('discuss', 'discussPortal', 'files');
+    hiddenTabs.push('discuss', 'files');
   }
   // 查看日志权限
   if (!isOpenPermit(permitList.recordLogSwitch, sheetSwitchPermit, viewId)) {
@@ -47,21 +52,7 @@ export default function RecordInfoRight(props) {
     //外部门户 需要判断当前是否开始讨论
     hiddenTabs.push('logs', 'files'); //外部门户不可见日志和文件
     if (!props.allowExAccountDiscuss) {
-      hiddenTabs.push('discuss', 'discussPortal');
-    } else {
-      if (props.exAccountDiscussEnum === 0) {
-        hiddenTabs.push('discussPortal'); //允许外部门户参与讨论，且全部可见 不显示外部门户讨论
-      } else {
-        hiddenTabs.push('discuss'); //允许外部门户参与讨论，且全部可见 不显示内部讨论
-      }
-    }
-  } else {
-    if (props.allowExAccountDiscuss) {
-      if (props.exAccountDiscussEnum === 0) {
-        hiddenTabs.push('discussPortal'); //允许外部门户参与讨论，且全部可见 不单独显示外部门户讨论
-      }
-    } else {
-      hiddenTabs.push('discussPortal'); //不允许外部门户参与讨论，不显示外部门户讨论
+      hiddenTabs.push('discuss');
     }
   }
   if ([...new Set(hiddenTabs)].length >= 6) {
@@ -70,6 +61,7 @@ export default function RecordInfoRight(props) {
   return (
     <div className={`recordInfoInfo ${className || ''}`}>
       <DiscussLogFile
+        discussCount={discussCount}
         configLoading={loading}
         workflowStatus={workflowStatus}
         isOpenNewAddedRecord={isOpenNewAddedRecord}

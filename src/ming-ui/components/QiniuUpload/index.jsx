@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import createUploader from 'src/library/plupload/createUploader';
 import _ from 'lodash';
-
+import RegExpValidator from 'src/util/expression';
 export default class QiniuUpload extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -16,7 +16,6 @@ export default class QiniuUpload extends React.Component {
     onBeforeUpload: PropTypes.func,
     onError: PropTypes.func,
     onUploadComplete: PropTypes.func,
-    onRemoveUploadingFile: PropTypes.func,
   };
 
   componentDidMount() {
@@ -29,7 +28,6 @@ export default class QiniuUpload extends React.Component {
       onBeforeUpload = () => {},
       onError = () => {},
       onUploadComplete = () => {},
-      onRemoveUploadingFile,
       bucket,
       getTokenParam = {},
     } = this.props;
@@ -42,14 +40,11 @@ export default class QiniuUpload extends React.Component {
             browse_button: this.upload,
             bucket,
             getTokenParam,
-            onRemoveUploadingFile,
             init: {
               Init: onInit,
-              FilesAdded: (up, files) => {
-                onAdd(up, files);
-              },
+              FilesAdded: onAdd,
               BeforeUpload: (up, file) => {
-                const fileExt = `.${File.GetExt(file.name)}`;
+                const fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
                 up.settings.multipart_params = { token: file.token };
                 up.settings.multipart_params.key = file.key;
                 up.settings.multipart_params['x:serverName'] = file.serverName;

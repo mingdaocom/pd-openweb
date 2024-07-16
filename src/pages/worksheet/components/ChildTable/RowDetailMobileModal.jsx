@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Modal, Button, WingBlank } from 'antd-mobile';
@@ -23,7 +23,7 @@ export default function RowDetailModal(props) {
   const rowId = data.rowid || '';
   const type = mobileIsEdit ? (rowId.includes('temp') || rowId.includes('default')) ? 'new' : 'edit' : 'edit';
   const disabled = mobileIsEdit ? props.disabled : true;
-  const isFormChanged = _.get(formContent.current || {}, 'state.formChanged');
+  const [isFormChanged, setIsFormChanged] = useState(false);
 
   const content = (
     <div className="rowDetailCon flexColumn" style={{ height: '100%' }}>
@@ -33,13 +33,13 @@ export default function RowDetailModal(props) {
           <div className="pRight10">
             <i
               className={cx('headerBtn icon icon-arrow-up-border mRight8 Font18', {
-                Gray_df: switchDisabled.prev && !isFormChanged,
+                Gray_df: switchDisabled.prev || isFormChanged,
               })}
               onClick={() => !switchDisabled.prev && !isFormChanged && onSwitch({ prev: true })}
             ></i>
             <i
               className={cx('headerBtn icon icon-arrow-down-border Font18', {
-                Gray_df: switchDisabled.next && !isFormChanged,
+                Gray_df: switchDisabled.next || isFormChanged,
               })}
               onClick={() => !switchDisabled.next && !isFormChanged && onSwitch({ next: true })}
             ></i>
@@ -66,7 +66,14 @@ export default function RowDetailModal(props) {
       </div>
       <div className="forCon flex leftAlign">
         {type === 'edit' && <div className="title Font18 Gray flex bold leftAlign ellipsis mBottom10">{title}</div>}
-        <RowDetail isMobile from={5} ref={formContent} {...props} disabled={type === 'new' ? false : disabled} />
+        <RowDetail
+          isMobile
+          from={5}
+          ref={formContent}
+          {...props}
+          disabled={type === 'new' ? false : disabled}
+          changeIsFormChanged={changed => setIsFormChanged(changed)}
+        />
       </div>
       {!(type === 'new' ? false : disabled) && (
         <div className="footer btnsWrapper valignWrapper flexRow">

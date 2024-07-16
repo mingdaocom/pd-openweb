@@ -9,9 +9,11 @@ import { bindActionCreators } from 'redux';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { updateFiltersGroup, updatePageInfo } from 'src/pages/customPage/redux/action.js';
 import { formatFilterValues, formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter';
-import { validate } from 'worksheet/common/Sheet/QuickFilter/Inputs';
+import { validate } from 'worksheet/common/Sheet/QuickFilter/utils';
 import { conditionAdapter } from 'worksheet/common/Sheet/QuickFilter/Conditions';
 import { formatFilters } from './util';
+import { getTranslateInfo } from 'src/util';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
 import store from 'redux/configureStore';
 
 const Wrap = styled.div`
@@ -20,7 +22,7 @@ const Wrap = styled.div`
   }
   .quickFilterWrap {
     padding-top: 0;
-    >div {
+    > div {
       padding: 0;
     }
     .disable {
@@ -28,7 +30,7 @@ const Wrap = styled.div`
       .content {
         pointer-events: none;
       }
-      .content>div {
+      .content > div {
         background-color: #f5f5f5;
       }
     }
@@ -37,56 +39,64 @@ const Wrap = styled.div`
 
 function FiltersGroupPreview(props) {
   const { appId, projectId, widget, className, updateFiltersGroup, updatePageInfo } = props;
-  const { value } = widget;
+  const { id, value } = widget;
   const [loading, setLoading] = useState(true);
   const [filtersGroup, setFiltersGroup] = useState({});
   const filter = filtersGroup;
   const { filters = [] } = filter;
   const isDisable = className.includes('disableFiltersGroup');
+  const translateInfo = getTranslateInfo(appId, null, id);
 
   useEffect(() => {
     if (value) {
-      worksheetApi.getFiltersGroupByIds({
-        appId,
-        filtersGroupIds: [value],
-      }).then(data => {
-        setLoading(false);
-        const filtersGroup = data[0];
-        const result = {
-          ...filtersGroup,
-          filters: filtersGroup.filters.map(f => {
-            const values = formatFilterValues(f.dataType, f.values)
-            return {
-              ...f,
-              values,
-              defaultValues: values
-            }
-          })
-        };
-        setFiltersGroup(widget.filter ? widget.filter : result);
-        const customPage = store.getState().customPage;
-        const { components, filterComponents, loadFilterComponentCount } = customPage;
-        updatePageInfo({
-          filterComponents: filterComponents.map(item => {
-            if (item.value === value) {
-              const editData = _.find(components, { value: value }) || {};
-              const { advancedSetting, filters } = editData.filter || filtersGroup;
+      worksheetApi
+        .getFiltersGroupByIds({
+          appId,
+          filtersGroupIds: [value],
+        })
+        .then(data => {
+          setLoading(false);
+          const filtersGroup = data[0];
+          const result = {
+            ...filtersGroup,
+            filters: filtersGroup.filters.map(f => {
+              const values = formatFilterValues(f.dataType, f.values);
+              f.objectControls.forEach(item => {
+                item.control = replaceControlsTranslateInfo(appId, item.worksheetId, [item.control])[0];
+              });
               return {
-                value,
-                advancedSetting,
-                filters: _.flatten(filters.map(item => item.objectControls)),
+                ...f,
+                name: translateInfo[f.filterId] || f.name,
+                values,
+                defaultValues: values,
+              };
+            }),
+          };
+          setFiltersGroup(widget.filter ? widget.filter : result);
+          const customPage = store.getState().customPage;
+          const { components, filterComponents, loadFilterComponentCount } = customPage;
+          updatePageInfo({
+            filterComponents: filterComponents.map(item => {
+              if (item.value === value) {
+                const editData = _.find(components, { value: value }) || {};
+                const { advancedSetting, filters } = editData.filter || filtersGroup;
+                return {
+                  value,
+                  advancedSetting,
+                  filters: _.flatten(filters.map(item => item.objectControls)),
+                };
+              } else {
+                return item;
               }
-            } else {
-              return item;
-            }
-          }),
-          loadFilterComponentCount: loadFilterComponentCount + 1
+            }),
+            loadFilterComponentCount: loadFilterComponentCount + 1,
+          });
+        })
+        .catch(error => {
+          const customPage = store.getState().customPage;
+          const { loadFilterComponentCount } = customPage;
+          updatePageInfo({ loadFilterComponentCount: loadFilterComponentCount + 1 });
         });
-      }).catch(error => {
-        const customPage = store.getState().customPage;
-        const { loadFilterComponentCount } = customPage;
-        updatePageInfo({ loadFilterComponentCount: loadFilterComponentCount + 1 });
-      });
     } else {
       const customPage = store.getState().customPage;
       const { loadFilterComponentCount } = customPage;
@@ -96,9 +106,9 @@ function FiltersGroupPreview(props) {
     return () => {
       updateFiltersGroup({
         value,
-        filters: []
+        filters: [],
       });
-    }
+    };
   }, [value]);
 
   useEffect(() => {
@@ -122,23 +132,26 @@ function FiltersGroupPreview(props) {
           updateQuickFilter={filters => {
             updateFiltersGroup({
               value,
-              filters
+              filters,
             });
           }}
           resetQuickFilter={() => {
             const filters = filtersGroup.filters.map(f => {
               return {
                 ...f,
-                values: f.defaultValues
-              }
+                values: f.defaultValues,
+              };
             });
             updateFiltersGroup({
               value,
-              filters: filters.map(c => ({ ...c, values: formatFilterValuesToServer(c.dataType, c.values) })).filter(validate).map(conditionAdapter)
+              filters: filters
+                .map(c => ({ ...c, values: formatFilterValuesToServer(c.dataType, c.values) }))
+                .filter(validate)
+                .map(conditionAdapter),
             });
             setFiltersGroup({
               ...filtersGroup,
-              filters
+              filters,
             });
           }}
         />

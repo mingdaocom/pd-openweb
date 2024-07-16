@@ -19,6 +19,7 @@ import sheetAjax from 'src/api/worksheet';
 import { replaceControlsTranslateInfo } from 'worksheet/util';
 import { getTranslateInfo } from 'src/util';
 import { navigateToApp } from 'src/pages/widgetConfig/util/data';
+
 class FormSet extends React.Component {
   constructor(props) {
     super(props);
@@ -54,8 +55,14 @@ class FormSet extends React.Component {
         getSwitchPermit: true,
       })
       .then(data => {
-        data.name = getTranslateInfo(data.appId, worksheetId).name || data.name;
-        data.template.controls = replaceControlsTranslateInfo(data.appId, data.template.controls);
+        data.name = getTranslateInfo(data.appId, null, worksheetId).name || data.name;
+        data.template.controls = replaceControlsTranslateInfo(data.appId, worksheetId, data.template.controls);
+        !_.isUndefined(data.appTimeZone) && (window[`timeZone_${data.appId}`] = data.appTimeZone);
+
+        //清理缓存时间
+        const { worksheetId } = match.params;
+        window.clearLocalDataTime({ requestData: { worksheetId }, clearSpecificKey: 'Worksheet_GetWorksheetInfo' });
+
         //0：非成员 1：表负责人（弃用） 2：管理员 3：成员 4:开发者
         if (![2, 4].includes(data.roleType)) {
           this.setState({
@@ -124,7 +131,13 @@ class FormSet extends React.Component {
           worksheetName={worksheetName}
           showSaveButton={false}
           saveLoading={false}
-          onBack={() => navigateToApp(worksheetId)}
+          onBack={({ redirectfn }) => {
+            if (redirectfn) {
+              redirectfn();
+              return;
+            }
+            navigateToApp(worksheetId);
+          }}
           onClose={() => navigateToApp(worksheetId)}
         />
         {noRight ? (

@@ -20,6 +20,8 @@ import { getPssId } from 'src/util/pssId';
 import organizeAjax from 'src/api/organize.js';
 import { getCurrentProject } from 'src/util';
 import './index.less';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const PAGE_SIZE = 50;
 
@@ -345,8 +347,8 @@ class RoleManage extends Component {
   closeRoleFolderDialog = () => this.setState({ roleFolderDialog: { visible: false, id: undefined } });
 
   handleDelete = item => {
-    const { treeData, expandedKeys } = this.state;
-    const { projectId } = this.props;
+    const { treeData, expandedKeys, searchRes } = this.state;
+    const { projectId, searchValue } = this.props;
     if (!item.isLeaf) {
       organizeAjax
         .removeOrgRoleGroup({
@@ -374,7 +376,24 @@ class RoleManage extends Component {
           this.setState({ popupVisible: false, showDeleteId: '' });
           if (res === 1) {
             alert(_l('删除成功'));
-            this.updateChildren(treeData, [item.orgRoleGroupId], true);
+            const _treeData = treeData.map(l => {
+              return {
+                ...l,
+                children:
+                  l.orgRoleGroupId === item.orgRoleGroupId
+                    ? l.children.filter(l => l.organizeId !== item.organizeId)
+                    : l.children,
+              };
+            });
+            this.setState({
+              searchRes: !!searchValue
+                ? {
+                    ...searchRes,
+                    data: searchRes.data.filter(l => l.organizeId !== item.organizeId),
+                  }
+                : searchRes,
+              treeData: _treeData,
+            });
             this.props.updateIsRequestList(true);
           } else if (res === 24004) {
             alert(_l('角色存在成员，无法删除'), 3);
@@ -396,7 +415,15 @@ class RoleManage extends Component {
 
   handleClick = (item, forceUpdate = false) => {
     const { currentRole } = this.props;
-    if (!item.isLeaf) return;
+    if (!item.isLeaf) {
+      const { expandedKeys } = this.state;
+      const isExpand = expandedKeys.includes(item.key);
+      this.loadData(item);
+      this.setState({
+        expandedKeys: isExpand ? expandedKeys.filter(l => l !== item.key) : expandedKeys.concat(item.key),
+      });
+      return;
+    }
     if (item.organizeId !== currentRole.organizeId || forceUpdate) {
       this.props.updateUserPageIndex(1);
       this.props.updateCurrentRole(item);
@@ -573,7 +600,7 @@ class RoleManage extends Component {
   };
 
   titleRender = l => {
-    const { searchValue, currentRole } = this.props;
+    const { searchValue, currentRole, authority } = this.props;
     const { showDeleteId = '', actionPopupVisible, treeData } = this.state;
     let orgGroup = {};
 
@@ -596,7 +623,7 @@ class RoleManage extends Component {
         <span className={cx('flex ellipsis Font13 nodeName', { mLeft4: l.isLeaf })}>
           {orgGroup.title ? `${orgGroup.title}-${l.title}` : l.title}
         </span>
-        {!isDefault && (
+        {!isDefault && hasPermission(authority, PERMISSION_ENUM.ROLE_MENAGE) && (
           <span className="moreActionButton Hand">
             <Trigger
               popupVisible={l.key === actionPopupVisible}
@@ -660,8 +687,10 @@ class RoleManage extends Component {
   };
 
   render() {
-    const { roleList = [], currentRole = {}, projectId, isImportRole, searchValue } = this.props;
+    const { roleList = [], currentRole = {}, projectId, isImportRole, searchValue, authority } = this.props;
     let { showRoleDialog, filed, roleFolderDialog, treeData, loading, expandedKeys } = this.state;
+    const hasRoleAuth = hasPermission(authority, PERMISSION_ENUM.ROLE_MENAGE);
+
     if (isImportRole) {
       return this.renderImportInfo();
     }
@@ -679,41 +708,23 @@ class RoleManage extends Component {
             updateIsRequestList={this.props.updateIsRequestList}
           />
           <input type="text" style={{ width: 0, height: 0, border: 0 }} />
-          <div className="actBox flexRow">
-            <span className="creatRole Hand mRight12" onClick={() => this.createAndEdit('create')}>
-              <Icon icon="add" className="Font18 Bold TxtMiddle" />
-              {_l('角色')}
-            </span>
-            <span
-              className="creatRole Hand"
-              onClick={() => this.setState({ roleFolderDialog: { visible: true, id: undefined } })}
-            >
-              <Icon icon="add" className="Font18 Bold TxtMiddle" />
-              {_l('角色组')}
-            </span>
-            {/* <Dropdown
-              overlayClassName="createMoreDropDown"
-              trigger={['click']}
-              placement="bottomLeft"
-              overlay={
-                <Menu>
-                  <Menu.Item
-                    key="0"
-                    onClick={() => {
-                      this.props.updateIsImportRole(true);
-                    }}
-                  >
-                    {_l('导入角色')}
-                  </Menu.Item>
-                  <Menu.Item key="1" disabled={_.isEmpty(roleList)} onClick={this.exportJobList}>
-                    {_l('导出角色')}
-                  </Menu.Item>
-                </Menu>
-              }
-            >
-              <Icon icon="moreop" className="Gray_75 Hand Font20 TxtMiddle iconHover" />
-            </Dropdown> */}
-          </div>
+
+          {hasRoleAuth && (
+            <div className="actBox flexRow">
+              <span className="creatRole Hand mRight12" onClick={() => this.createAndEdit('create')}>
+                <Icon icon="add" className="Font18 Bold TxtMiddle" />
+                {_l('角色')}
+              </span>
+              <span
+                className="creatRole Hand"
+                onClick={() => this.setState({ roleFolderDialog: { visible: true, id: undefined } })}
+              >
+                <Icon icon="add" className="Font18 Bold TxtMiddle" />
+                {_l('角色组')}
+              </span>
+            </div>
+          )}
+
           <div className="roleList">
             <ScrollView onScrollEnd={this.onScrollEnd}>
               {loading ? (
@@ -726,7 +737,7 @@ class RoleManage extends Component {
                   expandedKeys={expandedKeys}
                   selectedKeys={currentRole.organizeId ? [currentRole.organizeId] : []}
                   draggable={treeNode => {
-                    if (!treeNode.isLeaf && treeNode.key === 'defaultGroup') return false;
+                    if (!hasRoleAuth || (!treeNode.isLeaf && treeNode.key === 'defaultGroup')) return false;
                     return {
                       icon: <Icon icon="indicator" className="dragIcon Gray_9e" />,
                     };

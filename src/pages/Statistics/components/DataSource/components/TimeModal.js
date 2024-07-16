@@ -1,13 +1,23 @@
 import React, { Component, Fragment } from 'react';
 import { Select, DatePicker, Menu, Divider, Input, Dropdown, Button, Modal, Checkbox, Tooltip } from 'antd';
 import { Icon } from 'ming-ui';
-import { dropdownScopeData, dropdownDayData, pastAndFutureData, isPastAndFuture, rangeDots, timeTypes, unitTypes, getTodayTooltip } from 'statistics/common';
+import {
+  dropdownScopeData,
+  dropdownDayData,
+  pastAndFutureData,
+  isPastAndFuture,
+  rangeDots,
+  timeTypes,
+  unitTypes,
+  getTodayTooltip,
+} from 'statistics/common';
 import cx from 'classnames';
 import 'moment/locale/zh-cn';
 import locale from 'antd/es/date-picker/locale/zh_CN';
 import { formatNumberFromInput } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
+import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
 
 const { RangePicker } = DatePicker;
 
@@ -24,10 +34,17 @@ export default class TimeModal extends Component {
       rangeType: filter.rangeType,
       rangeValue: filter.rangeValue,
       today: filter.today,
-      dynamicFilter: filter.dynamicFilter || { startType: 1, startCount: 1, startUnit: 1, endType: 1, endCount: 1, endUnit: 1 },
+      dynamicFilter: filter.dynamicFilter || {
+        startType: 1,
+        startCount: 1,
+        startUnit: 1,
+        endType: 1,
+        endCount: 1,
+        endUnit: 1,
+      },
       customRangeDay: false,
-      dropdownVisible: false
-    }
+      dropdownVisible: false,
+    };
   }
   handleSave = () => {
     const { controls, onChangeFilter } = this.props;
@@ -39,17 +56,14 @@ export default class TimeModal extends Component {
       rangeType,
       rangeValue,
       today: [8, 15, 18, 19].includes(rangeType) ? today : false,
-      dynamicFilter
+      dynamicFilter,
     });
-  }
+  };
   renderFooter() {
     const { onCancel } = this.props;
     return (
       <div className="mTop20 mBottom10 pRight8">
-        <Button
-          type="link"
-          onClick={onCancel}
-        >
+        <Button type="link" onClick={onCancel}>
           {_l('取消')}
         </Button>
         <Button
@@ -93,6 +107,7 @@ export default class TimeModal extends Component {
     );
   }
   renderScope() {
+    const { appId } = this.props;
     const { today, rangeType, rangeValue } = this.state;
     const pastAndFutureText = {
       18: _l('过去'),
@@ -102,13 +117,19 @@ export default class TimeModal extends Component {
       <Fragment>
         <div className="Font13 mTop20">{_l('范围')}</div>
         <div className="flexRow valignWrapper mTop5">
-          <div className="flex">
+          <div className="flex Relative">
             <Select
               className="chartSelect w100"
-              value={[18, 19].includes(rangeType) ? ([7, 30, 365].includes(Number(rangeValue)) ? `${rangeType}-${rangeValue}` : `${pastAndFutureText[rangeType]}${rangeValue}${_l('天')}`) : rangeType}
+              value={
+                [18, 19].includes(rangeType)
+                  ? [7, 30, 365].includes(Number(rangeValue))
+                    ? `${rangeType}-${rangeValue}`
+                    : `${pastAndFutureText[rangeType]}${rangeValue}${_l('天')}`
+                  : rangeType
+              }
               suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
               onChange={value => {
-                const data = { rangeType: value }
+                const data = { rangeType: value };
                 if (_.isString(value)) {
                   const [rangeType, rangeValue] = value.split('-');
                   data.rangeType = Number(rangeType);
@@ -130,11 +151,19 @@ export default class TimeModal extends Component {
                 </Select.Option>
               ))}
             </Select>
+            <TimeZoneTag appId={appId} position={{ top: 1, bottom: 1 }} displayFixedValue={true} />
           </div>
           {rangeType == 20 && this.renderRangePicker()}
           {[8, 15, 18, 19].includes(rangeType) && (
             <div className="flexRow valignWrapper mLeft10">
-              <Checkbox checked={today} onChange={e => { this.setState({ today: e.target.checked }) }}>{_l('至今天')}</Checkbox>
+              <Checkbox
+                checked={today}
+                onChange={e => {
+                  this.setState({ today: e.target.checked });
+                }}
+              >
+                {_l('至今天')}
+              </Checkbox>
               <Tooltip title={getTodayTooltip({ rangeType, rangeValue })} placement="bottom">
                 <Icon className="Font18 Gray_9e" icon="info" />
               </Tooltip>
@@ -158,11 +187,9 @@ export default class TimeModal extends Component {
           value={rangeValue ? rangeValue.split('-').map(item => moment(item)) : null}
           onChange={date => {
             const [start, end] = date;
-            this.setState(
-              {
-                rangeValue: `${start.format('YYYY/MM/DD')}-${end.format('YYYY/MM/DD')}`,
-              }
-            );
+            this.setState({
+              rangeValue: `${start.format('YYYY/MM/DD')}-${end.format('YYYY/MM/DD')}`,
+            });
           }}
         />
       </div>
@@ -171,14 +198,14 @@ export default class TimeModal extends Component {
   renderDynamicFilter() {
     const { dynamicFilter } = this.state;
     const unitValues = [1, 3, 4];
-    const changeDynamicFilter = (data) => {
+    const changeDynamicFilter = data => {
       this.setState({
         dynamicFilter: {
           ...dynamicFilter,
-          ...data
-        }
+          ...data,
+        },
       });
-    }
+    };
     return (
       <Fragment>
         <div className="flexRow valignWrapper mTop20">
@@ -188,7 +215,10 @@ export default class TimeModal extends Component {
             value={dynamicFilter.startType}
             suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
             onChange={value => {
-              changeDynamicFilter({ startType: value, startUnit: unitValues.includes(value) ? value : dynamicFilter.startUnit });
+              changeDynamicFilter({
+                startType: value,
+                startUnit: unitValues.includes(value) ? value : dynamicFilter.startUnit,
+              });
             }}
           >
             {timeTypes.map(item => (
@@ -202,7 +232,7 @@ export default class TimeModal extends Component {
               <Input
                 className="chartInput flex mLeft10 mRight10"
                 value={dynamicFilter.startCount}
-                onChange={(e) => {
+                onChange={e => {
                   const value = event.target.value;
                   changeDynamicFilter({ startCount: formatNumberFromInput(value).replace('-', '') });
                 }}
@@ -231,7 +261,10 @@ export default class TimeModal extends Component {
             value={dynamicFilter.endType}
             suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
             onChange={value => {
-              changeDynamicFilter({ endType: value, endUnit: unitValues.includes(value) ? value : dynamicFilter.endUnit });
+              changeDynamicFilter({
+                endType: value,
+                endUnit: unitValues.includes(value) ? value : dynamicFilter.endUnit,
+              });
             }}
           >
             {timeTypes.map(item => (
@@ -245,7 +278,7 @@ export default class TimeModal extends Component {
               <Input
                 className="chartInput flex mLeft10 mRight10"
                 value={dynamicFilter.endCount}
-                onChange={(e) => {
+                onChange={e => {
                   const value = event.target.value;
                   changeDynamicFilter({ endCount: formatNumberFromInput(value).replace('-', '') });
                 }}

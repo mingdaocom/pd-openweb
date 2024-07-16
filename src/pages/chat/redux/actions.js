@@ -1631,3 +1631,10 @@ export const setSlience = message => (dispatch, getState) => {
     dispatch(setNewCurrentSession(_current));
   }
 };
+
+export const setSocketState = state => {
+  return {
+    type: 'UPDATE_SOCKET_STATE',
+    result: state,
+  };
+};

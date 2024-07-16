@@ -6,6 +6,7 @@ export const FLOW_STATUS = {
   2: { status: 'completed', text: _l('完成') },
   3: { status: 'suspend', text: _l('中止') },
   4: { status: 'fail', text: _l('失败') },
+  6: { status: 'revoke', text: _l('撤回') },
 };
 export const NODE_STATUS = {
   1: { status: 'pending', text: _l('等待') },
@@ -126,6 +127,7 @@ export const STATUS2COLOR = {
   fail: { color: '#f44336', bgColor: '#fdebe9' },
   suspend: { color: '#ffa340', bgColor: '#fff5eb' },
   completed: { color: '#01ca83', bgColor: '#e5f9f1' },
+  revoke: { color: '#ffa340', bgColor: '#fff5eb' },
 };
 
 /**
@@ -161,6 +163,9 @@ export const NODE_TYPE = {
   26: { type: 'approveProcess', text: _l('审批流程') },
   27: { type: 'notice', text: _l('站内通知') },
   28: { type: 'snapshot', text: _l('获取页面快照') },
+  29: { type: 'loop', text: _l('循环') },
+  30: { type: 'return', text: _l('中止') },
+  31: { type: 'aigc', text: _l('AIGC') },
   1000: { type: 'singleInfo', text: _l('获取单条人员/部门信息') },
   1001: { type: 'moreInfo', text: _l('获取多条人员/部门信息') },
 };
@@ -206,6 +211,7 @@ export const NODE_ICON = {
       21: 'workflow',
       23: 'language',
       25: 'sending',
+      45: 'arrow_loop',
       106: 'replyto',
     },
     text: {
@@ -220,6 +226,7 @@ export const NODE_ICON = {
       21: _l('部门事件触发'),
       23: _l('外部用户事件触发'),
       25: _l('事件推送'),
+      45: _l('循环'),
       106: _l('讨论通知触发'),
     },
     bgColor: {
@@ -234,6 +241,7 @@ export const NODE_ICON = {
       21: '#01ca83',
       23: '#01ca83',
       25: '#4C7D9E',
+      45: '#4C7D9E',
       106: '#2196f3',
     },
   },
@@ -381,6 +389,27 @@ export const NODE_ICON = {
     icon: 'camera_alt',
     text: _l('获取页面快照'),
     bgColor: '#4c7d9e',
+  },
+  loop: {
+    icon: 'arrow_loop',
+    text: _l('循环'),
+    bgColor: '#4c7d9e',
+  },
+  return: {
+    icon: 'rounded_square',
+    text: _l('中止流程'),
+    bgColor: '#F15B75',
+  },
+  aigc: {
+    icon: {
+      531: 'text_ai',
+      532: 'text_ai',
+    },
+    text: {
+      531: _l('AI 生成文本'),
+      532: _l('AI 生成数据对象'),
+    },
+    bgColor: '#F15B75',
   },
   singleInfo: {
     icon: 'person_search',

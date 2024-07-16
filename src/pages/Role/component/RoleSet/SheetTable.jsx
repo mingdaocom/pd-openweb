@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react';
 import classNames from 'classnames';
 import { Icon, Checkbox, Tooltip, SvgIcon } from 'ming-ui';
-import TransitionGroup from 'react-addons-transition-group';
 import ViewGroup from './ViewGroup';
 import RoleSetTool from 'src/pages/Role/component/RoleSet/TooltipSetting';
 import { VIEW_DISPLAY_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
@@ -217,89 +216,81 @@ export default class extends PureComponent {
               )}
             </Wrap>
           </div>
-          {sheet.sheetId && (
-            <TransitionGroup component="div">
-              {this.state.show ? (
-                <ViewGroup className={'viewGroup'} hasViews={!!(sheet.views && sheet.views.length)}>
-                  {_.map(sheet.views, view => {
-                    return (
-                      <div className={'viewSetting'} key={view.viewId}>
-                        <div className={'boxSizing TxtLeft overflow_ellipsis viewSettingItemMax'}>
-                          <div className="mLeft52">
-                            <Icon
-                              className="Gray_bd mRight8 Font14"
-                              icon={_.find(VIEW_TYPE_ICON, { id: VIEW_DISPLAY_TYPE[view.type] }).icon}
-                            />
-                            {view.viewName}
-                          </div>
-                        </div>
-                        <Wrap className="con flexRow">
-                          <div className={'viewSettingItem'} style={{ height: 45 }}>
-                            <Checkbox
-                              checked={view.canRead}
-                              className="InlineBlock"
-                              onClick={checked => {
-                                const payload = checked
-                                  ? {
-                                      canEdit: false,
-                                      canRead: false,
-                                      canRemove: false,
-                                    }
-                                  : {
-                                      canRead: true,
-                                    };
-                                this.toggleViewLevel(
-                                  view.viewId,
-                                  payload,
-                                  (!checked ? readSize + 1 : readSize - 1) <= 0,
-                                );
-                              }}
-                            />
-                          </div>
-                          <div className={'viewSettingItem'} style={{ height: 45 }}>
-                            <Checkbox
-                              checked={view.canEdit}
-                              className="InlineBlock"
-                              onClick={checked => {
-                                const payload = checked
-                                  ? {
-                                      canEdit: false,
-                                      canRead: true,
-                                    }
-                                  : {
-                                      canEdit: true,
-                                      canRead: true,
-                                    };
-                                this.toggleViewLevel(view.viewId, payload);
-                              }}
-                            />
-                          </div>
-                          <div className={'viewSettingItem'} style={{ height: 45 }}>
-                            <Checkbox
-                              checked={view.canRemove}
-                              className="InlineBlock"
-                              onClick={checked => {
-                                const payload = checked
-                                  ? {
-                                      canRemove: false,
-                                      canRead: true,
-                                    }
-                                  : {
-                                      canRemove: true,
-                                      canRead: true,
-                                    };
-                                this.toggleViewLevel(view.viewId, payload);
-                              }}
-                            />
-                          </div>
-                          <div className={'viewSettingItem'} style={{ height: 45 }}></div>
-                        </Wrap>
+          {sheet.sheetId && this.state.show && (
+            <ViewGroup className={'viewGroup'} hasViews={!!(sheet.views && sheet.views.length)}>
+              {_.map(sheet.views, view => {
+                return (
+                  <div className={'viewSetting'} key={view.viewId}>
+                    <div className={'boxSizing TxtLeft overflow_ellipsis viewSettingItemMax'}>
+                      <div className="mLeft52">
+                        <Icon
+                          className="Gray_bd mRight8 Font14"
+                          icon={_.find(VIEW_TYPE_ICON, { id: VIEW_DISPLAY_TYPE[view.type] }).icon}
+                        />
+                        {view.viewName}
                       </div>
-                    );
-                  })}
-                </ViewGroup>
-              ) : null}
-            </TransitionGroup>
+                    </div>
+                    <Wrap className="con flexRow">
+                      <div className={'viewSettingItem'} style={{ height: 45 }}>
+                        <Checkbox
+                          checked={view.canRead}
+                          className="InlineBlock"
+                          onClick={checked => {
+                            const payload = checked
+                              ? {
+                                  canEdit: false,
+                                  canRead: false,
+                                  canRemove: false,
+                                }
+                              : {
+                                  canRead: true,
+                                };
+                            this.toggleViewLevel(view.viewId, payload, (!checked ? readSize + 1 : readSize - 1) <= 0);
+                          }}
+                        />
+                      </div>
+                      <div className={'viewSettingItem'} style={{ height: 45 }}>
+                        <Checkbox
+                          checked={view.canEdit}
+                          className="InlineBlock"
+                          onClick={checked => {
+                            const payload = checked
+                              ? {
+                                  canEdit: false,
+                                  canRead: true,
+                                }
+                              : {
+                                  canEdit: true,
+                                  canRead: true,
+                                };
+                            this.toggleViewLevel(view.viewId, payload);
+                          }}
+                        />
+                      </div>
+                      <div className={'viewSettingItem'} style={{ height: 45 }}>
+                        <Checkbox
+                          checked={view.canRemove}
+                          className="InlineBlock"
+                          onClick={checked => {
+                            const payload = checked
+                              ? {
+                                  canRemove: false,
+                                  canRead: true,
+                                }
+                              : {
+                                  canRemove: true,
+                                  canRead: true,
+                                };
+                            this.toggleViewLevel(view.viewId, payload);
+                          }}
+                        />
+                      </div>
+                      <div className={'viewSettingItem'} style={{ height: 45 }}></div>
+                    </Wrap>
+                  </div>
+                );
+              })}
+            </ViewGroup>
           )}
         </div>
         <div className={classNames('settingGroup', { showSet: showToolTipSetting })}>

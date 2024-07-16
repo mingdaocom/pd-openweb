@@ -13,15 +13,15 @@ import { FILL_STATUS, SYSTEM_FIELD_IDS } from './enum';
 import moment from 'moment';
 import { themes } from 'src/pages/publicWorksheetConfig/enum';
 import globalApi from 'src/api/global';
-import appManagementApi from 'src/api/appManagement';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { v4 as uuidv4 } from 'uuid';
 import { setPssId } from 'src/util/pssId';
 import { formatAttachmentValue } from 'src/util/transControlDefaultValue';
 import preall from 'src/common/preall';
-import { getTranslateInfo } from 'src/util';
+import { getTranslateInfo, getAppLangDetail } from 'src/util';
 import { replaceControlsTranslateInfo } from 'worksheet/util';
 import { isSheetDisplay } from '../widgetConfig/util';
+import localForage from 'localforage';
 
 function getVisibleControls(data) {
   const disabledControlIds = getDisabledControls(
@@ -325,8 +325,9 @@ export async function getFormData(data, status) {
 
   //自动填充未提交缓存内容
   if (cacheDraft) {
-    const cacheData = localStorage.getItem(`cacheDraft_${shareId}`) || '[]';
-    const cacheFormData = JSON.parse(cacheData) || [];
+    const localForageCache = await localForage.getItem(`cacheDraft_${shareId}`);
+    const cacheFormData = localForageCache || [];
+
     if (!!cacheFormData.length) {
       let formData = controls.map(item => {
         const cacheField = cacheFormData.filter(c => c.controlId === item.controlId)[0] || {};
@@ -388,8 +389,9 @@ export async function getFormData(data, status) {
 
   //自动填充本地缓存内容
   if (cacheFieldData.isEnable) {
-    const cacheData = localStorage.getItem(`cacheFieldData_${shareId}`) || '[]';
-    const cacheFormData = JSON.parse(cacheData) || [];
+    const localForageCache = await localForage.getItem(`cacheFieldData_${shareId}`);
+    const cacheFormData = localForageCache || [];
+
     if (!!cacheFormData.length) {
       let formData = controls.map(item => {
         if (_.includes(cacheFieldData.cacheField, item.controlId)) {
@@ -426,16 +428,14 @@ export function getPublicWorksheet(params, cb = info => {}) {
       localStorage.setItem('currentProjectId', data.projectId);
       preall({ type: 'function' }, { allowNotLogin: true, requestParams: { projectId: data.projectId } });
 
-      if (data.langInfo && data.langInfo.appLangId) {
-        const lang = await appManagementApi.getAppLangDetail({
-          projectId: data.projectId,
-          appId: data.appId,
-          appLangId: data.langInfo.appLangId,
-        });
-        window[`langData-${data.appId}`] = lang.items;
-      }
-      data.name = getTranslateInfo(data.appId, data.worksheetId).name || data.name;
-      data.originalControls = replaceControlsTranslateInfo(data.appId, data.originalControls);
+      const lang = await getAppLangDetail({
+        langInfo: data.langInfo,
+        projectId: data.projectId,
+        id: data.appId,
+      });
+
+      data.name = getTranslateInfo(data.appId, null, data.worksheetId).name || data.name;
+      data.originalControls = replaceControlsTranslateInfo(data.appId, data.worksheetId, data.originalControls);
 
       const status = await getStatus(data, params.shareId);
 

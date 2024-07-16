@@ -39,7 +39,7 @@ export function getSheetList(args) {
     if (getAppSectionDetailRequest) {
       try {
         getAppSectionDetailRequest.abort();
-      } catch (err) { }
+      } catch (err) {}
     }
     getAppSectionDetailRequest = homeAppApi.getAppSectionDetail(args);
     getAppSectionDetailRequest.then(data => {
@@ -104,42 +104,44 @@ export function refreshSheetList() {
 
 export function getAllAppSectionDetail(appId, callBack) {
   return function (dispatch, getState) {
-    homeAppApi.getApp({
-      appId,
-      getSection: true
-    }).then(result => {
-      const { permissionType, isLock, sections = [] } = result;
-      const isCharge = canEditApp(permissionType, isLock);
-      const filterSections = isCharge
-        ? sections
-        : sections
-            .map(item => {
+    homeAppApi
+      .getApp({
+        appId,
+        getSection: true,
+      })
+      .then(result => {
+        const { permissionType, isLock, sections = [] } = result;
+        const isCharge = canEditApp(permissionType, isLock);
+        const filterSections = isCharge
+          ? sections
+          : sections
+              .map(item => {
+                return {
+                  ...item,
+                  workSheetInfo: item.workSheetInfo.filter(o => [1, 4].includes(o.status) && !o.navigateHide),
+                };
+              })
+              .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
+        dispatch(updateIsCharge(isCharge));
+        dispatch(updateAppGroup(filterSections));
+        dispatch(updateAppPkgData({ appRoleType: permissionType, isLock }));
+        dispatch(
+          updateALLSheetList(
+            filterSections.map(data => {
               return {
-                ...item,
-                workSheetInfo: item.workSheetInfo.filter(o => [1, 4].includes(o.status) && !o.navigateHide),
+                ...data,
+                workSheetId: data.appSectionId,
+                workSheetName: data.name,
+                type: 2,
+                layerIndex: 0,
+                items: formatLeftSectionDetail(data),
               };
-            })
-            .filter(o => o.workSheetInfo && o.workSheetInfo.length > 0);
-      dispatch(updateIsCharge(isCharge));
-      dispatch(updateAppGroup(filterSections));
-      dispatch(updateAppPkgData({ appRoleType: permissionType, isLock }))
-      dispatch(
-        updateALLSheetList(
-          filterSections.map(data => {
-            return {
-              ...data,
-              workSheetId: data.appSectionId,
-              workSheetName: data.name,
-              type: 2,
-              layerIndex: 0,
-              items: formatLeftSectionDetail(data),
-            };
-          }),
-        ),
-      );
-      dispatch(updateSheetListLoading(false));
-      callBack && callBack();
-    });
+            }),
+          ),
+        );
+        dispatch(updateSheetListLoading(false));
+        callBack && callBack();
+      });
   };
 }
 
@@ -420,7 +422,7 @@ export function sortSheetList(appId, appSectionId, sheetList) {
         appSectionId,
         workSheetIds: sheetList.filter(_.identity).map(item => item.workSheetId),
       })
-      .then(result => { });
+      .then(result => {});
   };
 }
 
@@ -436,7 +438,7 @@ export function updateGuidanceVisible(visible) {
           },
           { silent: true },
         )
-        .then(result => { });
+        .then(result => {});
       dispatch({
         type: 'GUIDANCE_VISIBLE',
         value: visible,
@@ -446,8 +448,8 @@ export function updateGuidanceVisible(visible) {
         .get({
           key,
         })
-        .then(result => {
-          if (!result) {
+        .then(res => {
+          if (!_.get(res, 'data')) {
             dispatch({
               type: 'GUIDANCE_VISIBLE',
               value: true,
@@ -576,7 +578,7 @@ export function createAppItem(args) {
       type: enumType,
       configuration,
       urlTemplate,
-      createType: enumType === 1 ? (urlTemplate ? 1 : 0) : undefined
+      createType: enumType === 1 ? (urlTemplate ? 1 : 0) : undefined,
     };
     const callBack = res => {
       pending = false;
@@ -614,7 +616,7 @@ export function copyCustomPage(para, externalLink) {
           icon: para.icon || '1_0_home',
           iconColor: para.iconColor || '#616161',
           iconUrl: para.iconUrl,
-          ...externalLink
+          ...externalLink,
         };
         if (parentGroupId) {
           item.parentGroupId = parentGroupId;

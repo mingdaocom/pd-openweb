@@ -58,11 +58,17 @@ const WrapCon = styled.div`
       }
       background-color: rgba(244, 67, 54, 0.13);
     }
-    &.return {
+    &.return, &.taskRevoke {
       .icon {
         color: rgba(255, 152, 45, 1);
       }
       background-color: rgba(255, 152, 45, 0.13);
+    }
+    &.reset {
+      .icon {
+        color: #0096ef;
+      }
+      background-color: #e2f2fd;
     }
     &.urgeDisable {
       opacity: 0.6;
@@ -180,7 +186,7 @@ function UpdateUserDialog(props) {
               <div className="mLeft10 flex">{data.fullname}</div>
               <Icon
                 icon="close"
-                className="Gray_9e Font16 pointer"
+                className="Gray_75 Font16 pointer"
                 onClick={() => {
                   setNewAccounts(newAccounts.filter(a => a.accountId !== data.accountId));
                 }}
@@ -270,7 +276,7 @@ function MobileUpdateUserDialog(props) {
         <MobileUpdateUserWrap className="flexColumn h100 leftAlign">
           <div className="header">
             <div className="Font17 Gray bold mBottom6">{_l('调整负责人')}</div>
-            <div className="Font12 Gray_9e">
+            <div className="Font12 Gray_75">
               {_l('移除尚未进行操作的负责人，将其替换为新的成员；您的操作仅对当前流程的本次运行生效')}
             </div>
           </div>
@@ -308,7 +314,7 @@ function MobileUpdateUserDialog(props) {
                     {selectAccountIds.includes(data.workItemAccount.accountId) ? (
                       <Icon className="Font24 ThemeColor" icon="check_circle" />
                     ) : (
-                      <Icon className="Font24 Gray_9e" icon="not_checked" />
+                      <Icon className="Font24 Gray_75" icon="not_checked" />
                     )}
                     <div className="mLeft5 valignWrapper accountWrap">
                       <img src={data.workItemAccount.avatar} />
@@ -378,17 +384,31 @@ function MobileUpdateUserDialog(props) {
   );
 }
 
+export function TaskRevokeAction(props) {
+  const { className, onClick } = props;
+  return (
+    <WrapCon className={cx('flexRow valignWrapper approveBtnWrapper', className, { hoverBtnWrap: !isMobile })}>
+        <div className="btn taskRevoke" onClick={() => { onClick() }}>
+          <Icon icon="rotate" className="Font17 mRight3" />
+          {_l('撤回')}
+        </div>
+    </WrapCon>
+  );
+}
+
 export default function WorkflowAction(props) {
-  const { className, isBranch, hasMore, isCharge, projectId, data } = props;
-  const { onAction, onRevoke, onUrge, onSkip, onUpdateWorkAccounts, onEndInstance, onViewExecDialog } = props;
-  const { workId, allowRevoke, allowUrge, flowNode, workItem } = data;
-  const { type, batch, btnMap, callBackType } = flowNode || {};
+  const { className, isBranch, hasMore, isCharge, projectId, data, currentWorkflow } = props;
+  const { onAction, onRevoke, onUrge, onSkip, onUpdateWorkAccounts, onEndInstance, onViewExecDialog, onReset } = props;
+  const { workId, status, allowRevoke, allowUrge, flowNode, workItem } = data;
+  const { type, batch, btnMap = {}, callBackType } = flowNode || {};
   const allowBatch = type === 4 && batch;
   const allowApproval = allowBatch && workItem;
   const allOverrule = btnMap[5] && batch && workItem;
   const allowCallBack = callBackType !== -1 && !allOverrule && batch && workItem;
+  const { backFlowNodes = [] } = currentWorkflow;
   const [updateUserDialogVisible, setUpdateUserDialogVisible] = useState(false);
   const urgeDisable = window[`urgeDisable-workId-${workId}`] || data.urgeDisable || false;
+  const allowReset = status === 6;
 
   const handleSkip = () => {
     const description =
@@ -433,25 +453,6 @@ export default function WorkflowAction(props) {
     }
   };
 
-  const handleRevoke = () => {
-    if (isMobile) {
-      Modal.alert(_l('确认撤回此条流程 ?'), '', [
-        {
-          text: _l('取消'),
-        },
-        {
-          text: _l('确认'),
-          onPress: () => onRevoke(data),
-        },
-      ]);
-    } else {
-      Dialog.confirm({
-        title: _l('确认撤回此条流程 ?'),
-        onOk: () => onRevoke(data),
-      });
-    }
-  };
-
   const handleUrge = () => {
     if (!urgeDisable) {
       onUrge(data);
@@ -463,7 +464,7 @@ export default function WorkflowAction(props) {
       <Menu style={{ width, borderRadius: 4 }}>
         <MenuItem
           key="urge"
-          icon={<Icon icon="access_alarm" className="Font17 Gray_9e pRight5" />}
+          icon={<Icon icon="access_alarm" className="Font17 Gray_75 pRight5" />}
           className="pLeft15 pRight15"
           style={{ height: 36, opacity: urgeDisable ? 0.6 : 1 }}
           onClick={handleUrge}
@@ -472,7 +473,7 @@ export default function WorkflowAction(props) {
         </MenuItem>
         <MenuItem
           key="skip"
-          icon={<Icon icon="calendar-task" className="Font17 Gray_9e pRight5" />}
+          icon={<Icon icon="calendar-task" className="Font17 Gray_75 pRight5" />}
           className="pLeft15 pRight15"
           style={{ height: 36 }}
           onClick={handleSkip}
@@ -481,13 +482,24 @@ export default function WorkflowAction(props) {
         </MenuItem>
         <MenuItem
           key="user"
-          icon={<Icon icon="ic-adjust-department" className="Font17 Gray_9e pRight5" />}
+          icon={<Icon icon="ic-adjust-department" className="Font17 Gray_75 pRight5" />}
           className="pLeft15 pRight15"
           style={{ height: 36 }}
           onClick={() => setUpdateUserDialogVisible(true)}
         >
           {_l('调整当前节点负责人')}
         </MenuItem>
+        {!!backFlowNodes.length && (
+          <MenuItem
+            key="repeal"
+            icon={<Icon icon="repeal-o" className="Font17 Gray_75 pRight5" />}
+            className="pLeft15 pRight15"
+            style={{ height: 36 }}
+            onClick={() => onAction(data, 'return')}
+          >
+            {_l('退回')}
+          </MenuItem>
+        )}
         <MenuItem
           key="end"
           className="deleteItem"
@@ -507,12 +519,13 @@ export default function WorkflowAction(props) {
       { name: urgeDisable ? _l('已催') : _l('催办'), icon: 'access_alarm', fn: handleUrge },
       { name: _l('跳过当前节点'), icon: 'calendar-task', fn: handleSkip },
       { name: _l('调整当前节点负责人'), icon: 'ic-adjust-department', fn: () => setUpdateUserDialogVisible(true) },
+      backFlowNodes.length ? { name: _l('退回'), icon: 'repeal-o', fn: () => onAction(data, 'return') } : null,
       { name: _l('中止'), icon: 'close', className: 'Red', fn: handleEndInstance },
-    ];
+    ].filter(_ => _);
     ActionSheet.showActionSheetWithOptions({
       options: BUTTONS.map(item => (
         <div className={cx('flexRow valignWrapper w100', item.className)} onClick={item.fn}>
-          <Icon className={cx('mRight10 Font18', item.className || 'Gray_9e')} icon={item.icon} />
+          <Icon className={cx('mRight10 Font18', item.className || 'Gray_75')} icon={item.icon} />
           <span className="Bold">{item.name}</span>
         </div>
       )),
@@ -545,7 +558,7 @@ export default function WorkflowAction(props) {
     );
   };
 
-  if (!(allowApproval || workItem || allowRevoke || allowUrge)) {
+  if (!(allowApproval || workItem || allowRevoke || allowUrge || allowReset)) {
     if (isCharge) {
       const content = (
         <WrapCon
@@ -596,9 +609,15 @@ export default function WorkflowAction(props) {
           <span className="ellipsis">{btnMap[17] || _l('退回')}</span>
         </div>
       )}
-      {workItem && (type === 3 || type === 0) && (
+      {workItem && (type === 3 || type === 0) && !allowReset && (
         <div className="btn handle" onClick={() => onViewExecDialog(data)}>
           <span className="ellipsis">{_l('前往填写')}</span>
+        </div>
+      )}
+      {allowReset && (
+        <div className="btn reset" onClick={() => onReset(data)}>
+          <Icon icon="refresh1" className="Font17 mRight3"/>
+          <span className="ellipsis">{_l('重新发起')}</span>
         </div>
       )}
       {workItem && type === 4 && (
@@ -607,7 +626,7 @@ export default function WorkflowAction(props) {
         </div>
       )}
       {((allowRevoke && allowApproval) || workItem ? false : allowRevoke) && !isBranch && (
-        <div className="btn revoke" onClick={handleRevoke}>
+        <div className="btn revoke" onClick={() => { onRevoke(data) }}>
           {_l('撤回')}
         </div>
       )}
@@ -618,13 +637,14 @@ export default function WorkflowAction(props) {
       )}
       {hasMore &&
         isCharge &&
+        !allowReset &&
         (isMobile ? (
           <div className="btn mobileMore" onClick={handleMobileMoreAction}>
-            <Icon className="Font20 Gray_9e" icon="arrow-up-border" />
+            <Icon className="Font20 Gray_75" icon="arrow-up-border" />
           </div>
         ) : (
           <Dropdown trigger={['click']} placement="topRight" overlay={renderDropdownOverlay({ width: 200 })}>
-            <Icon className="Font20 pointer Gray_9e" icon="task-point-more" />
+            <Icon className="Font20 pointer Gray_75" icon="task-point-more" />
           </Dropdown>
         ))}
       {renderUpdateUserDialog()}

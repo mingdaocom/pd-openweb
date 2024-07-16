@@ -4,7 +4,7 @@ import { useSetState } from 'react-use';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import APICard from '../../components/APICard';
 import APISetting from '../APIWrap';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { LoadDiv, Dialog, Icon } from 'ming-ui';
 import processAjax from 'src/pages/workflow/api/process.js';
@@ -13,6 +13,8 @@ import { VersionProductType } from 'src/util/enum';
 import loadScript from 'load-script';
 import _ from 'lodash';
 import moment from 'moment';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const Wrap = styled.div`
   .noData {
@@ -69,7 +71,7 @@ const SortableList = SortableContainer(({ items, ...rest }) => {
 // 用户可以上下拖动卡片进行排序，拖动释放后自动保存排序；
 // 点击卡片可以侧拉弹出API详情；
 function APIList(props) {
-  let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary.js' + '?' + moment().format('YYYYMMDD');
+  let str = 'https://alifile.mingdaocloud.com/open/js/apilibrary_v2.js' + '?' + moment().format('YYYYMMDD');
   const featureType = getFeatureStatus(props.companyId, VersionProductType.apiIntergration);
   const [{ list, keywords, show, listId, loading, pageIndex, publishing, showType, change, listSearch }, setState] =
     useSetState({
@@ -128,6 +130,7 @@ function APIList(props) {
       buriedUpgradeVersionDialog: () => {
         buriedUpgradeVersionDialog(props.companyId, VersionProductType.apiIntergration);
       },
+      manageAllConnects: checkPermission(props.companyId, PERMISSION_ENUM.MANAGE_API_CONNECTS), //管理所有API连接
       currentProjectId: props.companyId,
       getUrl: __api_server__.integration || md.global.Config.IntegrationAPIUrl,
       installUrl: __api_server__.integration || md.global.Config.IntegrationAPIUrl,

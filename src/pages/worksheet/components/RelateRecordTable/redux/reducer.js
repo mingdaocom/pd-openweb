@@ -21,7 +21,9 @@ function base(state = {}, action) {
 
 const initialTableState = {
   pageIndex: 1,
-  pageSize: 20,
+  pageSize: localStorage.getItem('relateRecordTablePageSize')
+    ? Number(localStorage.getItem('relateRecordTablePageSize'))
+    : 20,
   count: 0,
 };
 
@@ -52,7 +54,12 @@ function tableState(
     case 'RESET':
       return {
         ...initialTableState,
+        sheetColumnWidths: state.sheetColumnWidths,
         ...(action.doNotClearKeywords ? { keywords: state.keywords } : {}),
+      };
+    case 'DELETE_ALL':
+      return {
+        ...initialTableState,
       };
     default:
       return state;
@@ -97,6 +104,11 @@ function changes(state = cloneDeep(initialChanges), action) {
           state.deletedRecordIds.concat(action.recordIds.filter(recordId => !includes(state.addedRecordIds, recordId))),
         ),
       };
+    case 'DELETE_ALL':
+      return {
+        ...state,
+        isDeleteAll: true,
+      };
     case 'RESET':
       return cloneDeep(initialChanges);
     default:
@@ -127,6 +139,7 @@ function records(state = [], action) {
     case 'DELETE_RECORDS':
       return state.filter(record => !includes(action.recordIds, record.rowid));
     case 'CLEAR_RECORDS':
+    case 'DELETE_ALL':
       return [];
     default:
       return state;

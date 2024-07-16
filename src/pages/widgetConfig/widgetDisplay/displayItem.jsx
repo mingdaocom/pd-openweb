@@ -17,7 +17,7 @@ import { insertNewLine, insertToCol, insertToRowEnd, isFullLineDragItem, batchRe
 import { getPathById, isFullLineControl } from '../util/widgets';
 import { getVerifyInfo, handleAdvancedSettingChange } from '../util/setting';
 import { batchCopyWidgets, deleteSection, batchShiftWidgets, handleAddWidgets } from '../util/data';
-import Components from './components';
+import WidgetOperation from './components/WidgetOperation';
 import WidgetDisplay from './widgetDisplay';
 
 const DisplayItemWrap = styled.div`
@@ -485,7 +485,7 @@ export default function DisplayItem(props) {
       }}
     >
       {!(isDragging || isBatchDrag) && (
-        <Components.WidgetOperation
+        <WidgetOperation
           {...pick(props, ['fromType', 'data', 'globalSheetInfo'])}
           parentRef={$ref}
           batchMode={batchActive.length > 0}

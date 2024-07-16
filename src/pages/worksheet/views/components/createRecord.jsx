@@ -41,6 +41,7 @@ export default function CreateRecord(props) {
     handleAddRecord,
     isStraightLine = false,
     view = {},
+    uniqId,
   } = props;
   const { pid, rowId, pathId } = itemData;
   const { advancedSetting } = view;
@@ -58,10 +59,12 @@ export default function CreateRecord(props) {
     const { advancedSetting = {} } = view;
     // 顶级记录没有连线
     if (!pid) return;
-    const $svgWrap = document.getElementById(`svg-${pathId.join('-')}`);
+    const $svgWrap = document.getElementById(uniqId ? `svg-${pathId.join('-')}-${uniqId}` : `svg-${pathId.join('-')}`);
     const $ele = _.get($itemWrap, ['current']);
     if ($ele) {
-      const $parent = document.getElementById(`${data.pathId.join('-')}`);
+      const $parent = document.getElementById(
+        uniqId ? `${data.pathId.join('-')}-${uniqId}` : `${data.pathId.join('-')}`,
+      );
       if ($parent === $ele) return;
       const {
         height = 0,
@@ -82,7 +85,7 @@ export default function CreateRecord(props) {
       if ($svgWrap.childElementCount > 0) {
         $svgWrap.childNodes.forEach(child => $svgWrap.removeChild(child));
       }
-      const draw = SVG(`svg-${pathId.join('-')}`).size('100%', '100%');
+      const draw = SVG(uniqId ? `svg-${pathId.join('-')}-${uniqId}` : `svg-${pathId.join('-')}`).size('100%', '100%');
       if (advancedSetting.hierarchyViewConnectLine === '1' || isStraightLine) {
         draw.polyline([start, straightLineInflection, end]).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
       } else {
@@ -98,14 +101,14 @@ export default function CreateRecord(props) {
 
   const handleClick = type => {
     setOutFocus(true);
-    createTextTitleRecord(type === 'multi' ? getLinesValue(value) : value);
+    createTextTitleRecord(type === 'multi' ? getLinesValue(value) : value.trim());
     setValue('');
     removeHierarchyTempItem({ rowId, path: data.path });
   };
   return (
     <div className="sortableTreeNodeWrap" id={pathId.join('-')} ref={$itemWrap}>
       <div
-        id={`svg-${pathId.join('-')}`}
+        id={uniqId ? `svg-${pathId.join('-')}-${uniqId}` : `svg-${pathId.join('-')}`}
         className={isStraightLine || advancedSetting.hierarchyViewConnectLine === '1' ? 'svgStraightWrap' : 'svgWrap'}
       />
       <Trigger
@@ -130,19 +133,21 @@ export default function CreateRecord(props) {
             autoSize={{ minRows: 1, maxRows: 10 }}
             autoFocus
             onPressEnter={() => {
-              if (value) {
+              const _value = value.trim();
+              if (_value) {
                 setOutFocus(true);
-                createTextTitleRecord(value, true);
+                createTextTitleRecord(_value, true);
                 setValue('');
               } else {
                 removeHierarchyTempItem({ rowId, path: data.path });
               }
             }}
-            onChange={e => setValue(e.target.value.trim())}
+            onChange={e => setValue(e.target.value)}
             value={value}
             onBlur={e => {
-              if (value) {
-                createTextTitleRecord(value);
+              const _value = value.trim();
+              if (_value) {
+                createTextTitleRecord(_value);
                 setValue('');
                 removeHierarchyTempItem({ rowId, path: data.path });
               } else {

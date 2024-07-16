@@ -50,6 +50,7 @@ class DepartmentTree extends React.Component {
       moreIdLoading: '',
       height: 600,
     };
+    this.timer = null;
   }
 
   componentDidMount() {
@@ -90,6 +91,10 @@ class DepartmentTree extends React.Component {
       });
     } else {
       this.setState({ newDepartments: _.cloneDeep(nexrProps.newDepartments) });
+    }
+    if (!_.isEqual(this.props.newDepartments, nexrProps.newDepartments)) {
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => this.getHeight(), 200);
     }
   }
 

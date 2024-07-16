@@ -63,11 +63,12 @@ export default class CascaderSheet extends Component {
   };
   render() {
     // multiple 给开始范围指定项专用
-    const { data, defaultType, multiple = false } = this.props;
+    const { data, defaultType, multiple = false, getType } = this.props;
     const titleControl = _.find(data.relationControls || [], re => re.attribute === 1);
     const { visible } = this.state;
     const cascaderProps = {
       ...data,
+      getType,
       advancedSetting: {
         ...data.advancedSetting,
         filters: '',

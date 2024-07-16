@@ -18,7 +18,7 @@ class WorkflowStepItem extends Component {
   }
   render() {
     const { visible } = this.state;
-    const { instance, worksheetId, recordId } = this.props;
+    const { instance, worksheetId, recordId, controls = [] } = this.props;
     const { works, currentWork, currentWorkItem, processId, status, isApproval } = instance;
     return (
       <Wrap className="stepList">
@@ -36,6 +36,7 @@ class WorkflowStepItem extends Component {
           rowId={recordId}
           currentWork={currentWork}
           currentType={(currentWorkItem || {}).type}
+          controls={controls}
           works={works}
           status={status}
         />

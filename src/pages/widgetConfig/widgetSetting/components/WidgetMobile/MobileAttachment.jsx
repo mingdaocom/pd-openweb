@@ -79,7 +79,7 @@ export default ({ from, data, onChange }) => {
                     onClick={checked =>
                       onChange({ strDefault: updateConfig({ config: strDefault || '00', value: +!checked, index: 1 }) })
                     }
-                    text={'禁止从桌面端输入'}
+                    text={_l('禁止从桌面端输入')}
                   />
                 </div>
                 <div className="labelWrap">

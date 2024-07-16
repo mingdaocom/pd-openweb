@@ -32,10 +32,10 @@ export default class UpdateFields extends Component {
       return (
         <div className="flexRow">
           <div>
-            <span className="Gray_9e mRight5">[{CONTROLS_NAME[item.type]}]</span>
+            <span className="Gray_75 mRight5">[{CONTROLS_NAME[item.type]}]</span>
             <span>{item.controlName}</span>
           </div>
-          <span className="flex ellipsis mLeft10 Gray_9e" style={{ textAlign: 'right' }}>
+          <span className="flex ellipsis mLeft10 Gray_75" style={{ textAlign: 'right' }}>
             {_l('工作表＂%0＂', item.sourceEntityName)}
           </span>
         </div>
@@ -44,7 +44,7 @@ export default class UpdateFields extends Component {
 
     return (
       <Fragment>
-        <span className="Gray_9e mRight5">[{CONTROLS_NAME[item.type]}]</span>
+        <span className="Gray_75 mRight5">[{CONTROLS_NAME[item.type]}]</span>
         <span>{item.controlName}</span>
       </Fragment>
     );
@@ -131,7 +131,7 @@ export default class UpdateFields extends Component {
     }
 
     return (
-      <div className="Gray_9e" style={{ lineHeight: '20px' }}>
+      <div className="Gray_75" style={{ lineHeight: '20px' }}>
         {_l('设为')}
       </div>
     );
@@ -192,7 +192,7 @@ export default class UpdateFields extends Component {
           return (
             <Fragment key={item.fieldId || i}>
               <div className="relative actionItem mTop15">
-                <div className="Gray_9e">{type === 1 ? _l('将字段') : _l('将参数')}</div>
+                <div className="Gray_75">{type === 1 ? _l('将字段') : _l('将参数')}</div>
                 <Dropdown
                   className="flowDropdown mTop5 flowDropdownMinWidth"
                   data={list}
@@ -217,6 +217,9 @@ export default class UpdateFields extends Component {
                       index={i}
                       updateSource={updateSource}
                     />
+                  )}
+                  {item.type === 40 && (
+                    <span className="Gray_75">{`{"x": "121.473667", "y": "31.230525", "title": "Shanghai", "address": ""}`}</span>
                   )}
                 </div>
 

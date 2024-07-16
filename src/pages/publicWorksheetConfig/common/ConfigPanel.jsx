@@ -6,12 +6,14 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { Button, ScrollView, Dialog, Switch, Skeleton } from 'ming-ui';
 import * as actions from '../redux/actions';
-import { Hr, H2, Tip9e, TipBlock } from 'worksheet/components/Basics';
+import { Hr, H2, Tip9e } from 'worksheet/components/Basics';
 import ShareUrl from 'worksheet/components/ShareUrl';
 import ControlList from '../components/ControlList';
 import PublicConfig from './PublicConfig';
 import { VISIBLE_TYPE } from '../enum';
 import { getDisabledControls, renderLimitInfo, isDisplayPromptText } from '../utils';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 
 const BackBtn = styled.span`
@@ -51,6 +53,30 @@ const PublishUrlContainer = styled.div`
   align-items: center;
   .publishUrlSwitch {
     transform: scale(0.8) translate(6px);
+  }
+`;
+
+const PublishSetBtn = styled(Button)`
+  height: 36px !important;
+  padding: 0 !important;
+`;
+
+const PayButton = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 36px;
+  line-height: 36px;
+  margin-left: 10px;
+  border-radius: 3px;
+  color: #2196f3;
+  background: #e3f2ff;
+  font-weight: 700;
+  cursor: pointer;
+  &:hover {
+    color: #1c80d0;
+    background: #d6edff;
   }
 `;
 
@@ -108,6 +134,7 @@ class ConfigPanel extends React.Component {
       refreshShareUrl,
       enabled,
       onSwitchChange,
+      projectId,
     } = this.props;
     const { publicConfigVisible } = this.state;
     const disabledControlIds = getDisabledControls(originalControls, worksheetSettings);
@@ -118,6 +145,8 @@ class ConfigPanel extends React.Component {
       .filter(hid => !_.find(disabledControlIds, did => did === hid))
       .map(hcid => _.find(originalControls, c => c.controlId === hcid))
       .filter(_.identity);
+    const featureType = getFeatureStatus(projectId, VersionProductType.PAY);
+
     return (
       <div className="publicWorksheetConfigPanel">
         <div className="publicConfig flexColumn">
@@ -162,10 +191,26 @@ class ConfigPanel extends React.Component {
                 />
               </ShareUrlContainer>
 
-              <Button fullWidth className="mTop8" onClick={() => this.setState({ publicConfigVisible: true })}>
-                <i className="icon icon-send Font16 mRight10"></i>
-                {_l('发布设置')}
-              </Button>
+              <div className="flexRow mTop8">
+                <PublishSetBtn className="flex" onClick={() => this.setState({ publicConfigVisible: true })}>
+                  <i className="icon icon-send Font16 mRight10"></i>
+                  {_l('发布设置')}
+                </PublishSetBtn>
+                {featureType && (
+                  <PayButton
+                    onClick={() => {
+                      if (featureType === '2') {
+                        buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
+                        return;
+                      }
+                      location.href = `/worksheet/form/edit/${worksheetInfo.worksheetId}/pay`;
+                    }}
+                  >
+                    <i className="icon icon-sp_payment_white Font20 mRight5" />
+                    {_l('支付')}
+                  </PayButton>
+                )}
+              </div>
             </React.Fragment>
           )}
           {publicConfigVisible && <PublicConfig onClose={() => this.setState({ publicConfigVisible: false })} />}

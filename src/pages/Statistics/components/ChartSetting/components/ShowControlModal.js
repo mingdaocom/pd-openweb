@@ -3,20 +3,20 @@ import { ConfigProvider, Modal, Button, Input, Select } from 'antd';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { relevanceImageSize } from 'statistics/common';
 import _ from 'lodash';
 
 const SearchControlWrapper = styled.div`
   padding: 8px 5px;
-  border-bottom: 1px solid #DDDDDDFF;
+  border-bottom: 1px solid #ddddddff;
   input {
     color: #202020;
     border: none;
   }
   .icon-close:hover {
-    color: #2196F3 !important;
+    color: #2196f3 !important;
   }
 `;
 
@@ -30,7 +30,7 @@ const ButtonWrapper = styled.div`
   background-color: #f5f5f5;
   cursor: pointer;
   &:hover {
-    color: #2196F3;
+    color: #2196f3;
     background-color: #f0f0f0;
   }
 `;
@@ -39,7 +39,8 @@ const SelectWrapper = styled(Select)`
   width: 120px;
   margin-right: 10px !important;
   &.ant-select-sm {
-    .ant-select-selector, .ant-select-selection-item {
+    .ant-select-selector,
+    .ant-select-selection-item {
       height: 28px !important;
       line-height: 26px !important;
       box-shadow: none !important;
@@ -50,7 +51,10 @@ const SelectWrapper = styled(Select)`
 const defaultSize = 2;
 
 const SortHandle = SortableHandle(({ selected }) => (
-  <i style={{ visibility: selected ? null : 'hidden' }} className="icon icon-drag Gray_9e Font16 Right ThemeHoverColor3 Hand dragHandle"></i>
+  <i
+    style={{ visibility: selected ? null : 'hidden' }}
+    className="icon icon-drag Gray_9e Font16 Right ThemeHoverColor3 Hand dragHandle"
+  ></i>
 ));
 
 const SortableItem = SortableElement(({ index, selected, column, attribute, handleItemClick, handleChangeSize }) => {
@@ -61,7 +65,7 @@ const SortableItem = SortableElement(({ index, selected, column, attribute, hand
         <Icon
           onClick={() => {
             if (attribute) {
-              return
+              return;
             }
             handleItemClick(column);
           }}
@@ -78,12 +82,14 @@ const SortableItem = SortableElement(({ index, selected, column, attribute, hand
           value={control.size}
           suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
           size="small"
-          onChange={(value) => {
+          onChange={value => {
             handleChangeSize(control.controlId, value);
           }}
         >
           {relevanceImageSize.map(item => (
-            <Select.Option key={item.value} className="selectOptionWrapper" value={item.value}>{item.text}</Select.Option>
+            <Select.Option key={item.value} className="selectOptionWrapper" value={item.value}>
+              {item.text}
+            </Select.Option>
           ))}
         </SelectWrapper>
       )}
@@ -92,24 +98,26 @@ const SortableItem = SortableElement(({ index, selected, column, attribute, hand
   );
 });
 
-const SortableList = SortableContainer(({ filteredColumns, selected, attribute, handleItemClick, handleChangeSize }) => {
-  return (
-    <div className="columnCheckList">
-      {!filteredColumns.length && <div className="emptyTip TxtCenter">{_l('没有搜索结果')}</div>}
-      {filteredColumns.map((column, i) => (
-        <SortableItem
-          key={i}
-          index={i}
-          selected={selected}
-          attribute={attribute.controlId === column.controlId}
-          column={column}
-          handleItemClick={handleItemClick}
-          handleChangeSize={handleChangeSize}
-        />
-      ))}
-    </div>
-  );
-});
+const SortableList = SortableContainer(
+  ({ filteredColumns, selected, attribute, handleItemClick, handleChangeSize }) => {
+    return (
+      <div className="columnCheckList">
+        {!filteredColumns.length && <div className="emptyTip TxtCenter">{_l('没有搜索结果')}</div>}
+        {filteredColumns.map((column, i) => (
+          <SortableItem
+            key={i}
+            index={i}
+            selected={selected}
+            attribute={attribute.controlId === column.controlId}
+            column={column}
+            handleItemClick={handleItemClick}
+            handleChangeSize={handleChangeSize}
+          />
+        ))}
+      </div>
+    );
+  },
+);
 
 export default class ShowControlModal extends Component {
   constructor(props) {
@@ -117,20 +125,25 @@ export default class ShowControlModal extends Component {
     this.state = {
       searchValue: '',
       selected: [],
-      columns: []
-    }
+      columns: [],
+    };
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.dialogVisible && !this.props.dialogVisible) {
-      const columns = nextProps.relationControls.filter(item => {
-        return ![10010, 21, 22, 25, 29, 41, 42, 43, 45, 47, 49, 51, 52].includes(item.type) && !_.find(nextProps.fields, { controlId: item.controlId });
-      }).sort((a, b) => {
-        if (a.row === b.row) {
-          return a.col - b.col;
-        } else {
-          return a.row - b.row;
-        }
-      });
+      const columns = nextProps.relationControls
+        .filter(item => {
+          return (
+            ![10010, 21, 22, 25, 29, 41, 42, 43, 45, 47, 49, 51, 52].includes(item.type) &&
+            !_.find(nextProps.fields, { controlId: item.controlId })
+          );
+        })
+        .sort((a, b) => {
+          if (a.row === b.row) {
+            return a.col - b.col;
+          } else {
+            return a.row - b.row;
+          }
+        });
       const fieldsColumns = nextProps.fields.map(item => {
         return _.find(nextProps.relationControls, { controlId: item.controlId });
       });
@@ -138,12 +151,12 @@ export default class ShowControlModal extends Component {
       const titleField = {
         controlId: titleControl.controlId,
         controlName: titleControl.controlName,
-        controlType: titleControl.controlType
+        controlType: titleControl.controlType,
       };
       const isTitleField = _.find(nextProps.fields, { controlId: titleControl.controlId });
       this.setState({
         columns: fieldsColumns.concat(columns),
-        selected: isTitleField ? nextProps.fields : [titleField].concat(nextProps.fields)
+        selected: isTitleField ? nextProps.fields : [titleField].concat(nextProps.fields),
       });
     }
   }
@@ -158,43 +171,43 @@ export default class ShowControlModal extends Component {
     const only = fields.length === 1 && _.find(fields, { controlId: attribute.controlId });
     this.props.onUpdateXaxisFields(only ? [] : fields);
     this.props.onHideDialogVisible(false);
-  }
+  };
   handleSortEnd = ({ oldIndex, newIndex }) => {
     const { columns } = this.state;
     const newColumns = arrayMove(columns, oldIndex, newIndex);
     this.setState({
-      columns: newColumns
+      columns: newColumns,
     });
-  }
+  };
   handleShowAll = () => {
     const { columns } = this.state;
     this.setState({
       selected: columns.map(item => {
         return {
           controlId: item.controlId,
-          size: defaultSize
-        }
-      })
+          size: defaultSize,
+        };
+      }),
     });
-  }
+  };
   handleHideAll = () => {
     const { relationControls } = this.props;
     const { selected } = this.state;
     const attribute = _.find(relationControls, { attribute: 1 });
     this.setState({ selected: selected.filter(item => item.controlId == attribute.controlId) });
-  }
-  handleItemClick = (column) => {
+  };
+  handleItemClick = column => {
     const { selected } = this.state;
     if (_.find(selected, { controlId: column.controlId })) {
       this.setState({
-        selected: selected.filter(item => item.controlId !== column.controlId)
+        selected: selected.filter(item => item.controlId !== column.controlId),
       });
     } else {
       this.setState({
-        selected: selected.concat({ controlId: column.controlId, size: defaultSize })
+        selected: selected.concat({ controlId: column.controlId, size: defaultSize }),
       });
     }
-  }
+  };
   handleChangeSize = (id, value) => {
     const { selected } = this.state;
     this.setState({
@@ -202,20 +215,29 @@ export default class ShowControlModal extends Component {
         if (item.controlId === id) {
           return {
             ...item,
-            size: value
-          }
+            size: value,
+          };
         } else {
           return item;
         }
-      })
+      }),
     });
-  }
+  };
   renderFooter() {
     return (
       <div className="mTop20 mBottom10 pRight8">
         <ConfigProvider autoInsertSpaceInButton={false}>
-          <Button type="link" onClick={() => { this.props.onHideDialogVisible(false) }}>{_l('取消')}</Button>
-          <Button type="primary" onClick={this.handleSave}>{_l('确认')}</Button>
+          <Button
+            type="link"
+            onClick={() => {
+              this.props.onHideDialogVisible(false);
+            }}
+          >
+            {_l('取消')}
+          </Button>
+          <Button type="primary" onClick={this.handleSave}>
+            {_l('确认')}
+          </Button>
         </ConfigProvider>
       </div>
     );
@@ -223,8 +245,8 @@ export default class ShowControlModal extends Component {
   render() {
     const { dialogVisible, relationControls } = this.props;
     const { searchValue, columns, selected } = this.state;
-    const filteredColumns = columns.filter(
-      column => (column.controlName || '').toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()),
+    const filteredColumns = columns.filter(column =>
+      (column.controlName || '').toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()),
     );
     return (
       <Modal
@@ -234,7 +256,7 @@ export default class ShowControlModal extends Component {
         visible={dialogVisible}
         destroyOnClose={true}
         centered={true}
-        closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e"/>}
+        closeIcon={<Icon icon="close" className="Font20 pointer Gray_9e" />}
         footer={this.renderFooter()}
         onCancel={() => {
           this.props.onHideDialogVisible(false);

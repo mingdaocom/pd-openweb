@@ -1,9 +1,10 @@
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import '../main.css';
 import UploadAssistant from '../common/UploadAssistant';
 
 $('html').addClass('APP-react');
 
-const app = <UploadAssistant />;
-ReactDom.render(app, document.getElementById('container'));
+const root = createRoot(document.getElementById('container'));
+
+root.render(<UploadAssistant />);

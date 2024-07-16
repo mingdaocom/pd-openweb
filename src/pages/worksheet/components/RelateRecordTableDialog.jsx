@@ -79,7 +79,17 @@ const Content = styled.div`
 `;
 
 function Table(props) {
-  const { addRefreshEvents, appId, worksheetId, recordId, allowEdit, formdata, control, onUpdateCount } = props;
+  const {
+    addRefreshEvents,
+    appId,
+    worksheetId,
+    recordId,
+    allowEdit,
+    formdata,
+    control,
+    onUpdateCount,
+    updateWorksheetControls,
+  } = props;
   return (
     <RelateRecordTable
       mode="dialog"
@@ -91,35 +101,9 @@ function Table(props) {
       worksheetId={worksheetId}
       formData={formdata}
       onCountChange={onUpdateCount}
-      pageSize={50}
+      updateWorksheetControls={updateWorksheetControls}
     />
   );
-  // return (
-  //   <RelateRecordTable
-  //     watchHeight
-  //     mode="dialog"
-  //     loading={loading}
-  //     useHeight
-  //     formWidth={500}
-  //     recordbase={{
-  //       appId,
-  //       worksheetId,
-  //       recordId,
-  //       allowEdit,
-  //     }}
-  //     // recordinfo={recordinfo}
-  //     formdata={formdata}
-  //     pageSize={50}
-  //     control={control}
-  //     controls={control.relationControls}
-  //     from={control.isDraft ? 21 : undefined}
-  //     onRelateRecordsChange={records => {}}
-  //     setRelateNumOfControl={onUpdateCount}
-  //     updateLoading={setLoading}
-  //     setLoading={setLoading}
-  //     addRefreshEvents={addRefreshEvents}
-  //   />
-  // );
 }
 
 Table.propTypes = {
@@ -145,6 +129,7 @@ export default function RelateRecordTableDialog(props) {
     onClose,
     reloadTable = () => {},
     onUpdateCount = () => {},
+    updateWorksheetControls = () => {},
   } = props;
   const cache = useRef({});
   const [isFullScreen, setIsFullScreen] = useState(openFrom !== 'cell');
@@ -221,7 +206,7 @@ export default function RelateRecordTableDialog(props) {
         </Header>
         <Content>
           <Table
-            {...{ appId, worksheetId, recordId, allowEdit, formdata, control, onUpdateCount }}
+            {...{ appId, worksheetId, recordId, allowEdit, formdata, control, onUpdateCount, updateWorksheetControls }}
             addRefreshEvents={(name, value) => {
               cache.current[name] = value;
             }}

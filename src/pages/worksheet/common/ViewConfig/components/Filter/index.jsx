@@ -99,7 +99,7 @@ export default function ViewFilter(props) {
     <Wrap className="flexColumn">
       <div className="viewSetTitle">{_l('过滤')}</div>
       <div className="flexRow commonConfigItem">
-        <div className="Gray_9e mTop8 flex">{_l('添加筛选条件，限制出现在此视图中的记录')}</div>
+        <div className="Gray_75 mTop8 flex">{_l('添加筛选条件，限制出现在此视图中的记录')}</div>
         {existingFilters.length ? (
           <Trigger
             popupVisible={shwoMoreMenu}

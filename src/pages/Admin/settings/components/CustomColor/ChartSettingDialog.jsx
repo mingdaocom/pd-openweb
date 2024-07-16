@@ -3,7 +3,7 @@ import { Tooltip, Dialog, Input, ColorPicker, Icon } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 
 const CustomChartContentWrap = styled.div`
   .label {
@@ -221,7 +221,7 @@ export default function ChartSettingDialog(props) {
                 className={cx('colorItem', {
                   selected: selected,
                   disabled: disabled,
-                  isDark: tinycolor(item.color).isDark(),
+                  isDark: new TinyColor(item.color).isDark(),
                 })}
                 onClick={() => {
                   if (disabled) return;

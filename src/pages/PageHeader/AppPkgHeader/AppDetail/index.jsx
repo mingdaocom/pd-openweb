@@ -36,6 +36,7 @@ import { setFavicon, getTranslateInfo } from 'src/util';
 import { pcNavList } from 'src/pages/PageHeader/AppPkgHeader/AppDetail/AppNavStyle';
 import RoleSelect from './RoleSelect';
 import appManagementApi from 'src/api/appManagement';
+import copy from 'copy-to-clipboard';
 
 const mapStateToProps = ({ sheet, sheetList, appPkg: { appStatus } }) => ({ sheet, sheetList, appStatus });
 const mapDispatchToProps = dispatch => ({
@@ -230,6 +231,7 @@ export default class AppInfo extends Component {
       'debugRole',
       'displayIcon',
     ]);
+    window[`timeZone_${appId}`] = data.timeZone; //记录应用时区
     syncAppDetail(appDetail);
     this.checkNavigationStyle(data.currentPcNaviStyle);
     if (data.currentPcNaviStyle === 2) {
@@ -400,7 +402,11 @@ export default class AppInfo extends Component {
             buriedUpgradeVersionDialog(projectId, rest.featureId);
             return;
           }
-
+          if (type === 'copyId') {
+            copy(appId);
+            alert(_l('复制成功'), 1);
+            return;
+          }
           if (type === 'appAnalytics') {
             window.open(`/app/${appId}/analytics/${projectId}`, '__blank');
             return;
@@ -476,6 +482,7 @@ export default class AppInfo extends Component {
       currentPcNaviStyle,
       themeType,
       sourceType,
+      ssoAddress,
     } = data;
     const isUpgrade = _.includes([10, 11], appStatus);
     const isNormalApp = _.includes([1, 5], appStatus);
@@ -510,6 +517,10 @@ export default class AppInfo extends Component {
           <div
             className="homepageIconWrap"
             onClick={() => {
+              if (md.global.Account.isSSO && ssoAddress) {
+                location.href = ssoAddress;
+                return;
+              }
               navigateTo('/dashboard');
             }}
           >
@@ -699,12 +710,18 @@ export default class AppInfo extends Component {
     const isAuthorityApp = canEditApp(permissionType, isLock);
     const hasCharge = canEditApp(permissionType) || canEditData(permissionType);
     const AppGroupComponent = [1, 3].includes(currentPcNaviStyle) ? LeftAppGroup : AppGroup;
-    const showName = getTranslateInfo(appId, appId).name || data.name;
+    const showName = getTranslateInfo(appId, null, appId).name || data.name;
     const canDebug = (debugRole || {}).canDebug || false;
+    // 获取url参数
+    const { s, tb, tr } = getAppFeaturesVisible();
+    // 当导航方式为经典或卡片时URL的隐藏参数全写上后，顶部色块应该隐藏
+    if (_.includes([0, 2], currentPcNaviStyle) && !s && !tb && !tr) return null;
+
     // loading 不展示导航
     if (_.isEmpty(data)) {
       return null;
     }
+
     return (
       <div
         className={cx('appPkgHeaderWrap', themeType)}
@@ -783,7 +800,7 @@ export default class AppInfo extends Component {
           <EditAppIntro
             cacheKey="appIntroDescription"
             data={data}
-            description={isEditing ? description : getTranslateInfo(appId, appId).description || description}
+            description={isEditing ? description : getTranslateInfo(appId, null, appId).description || description}
             permissionType={permissionType}
             isLock={isLock}
             // isEditing={!description && isAuthorityApp}
@@ -846,18 +863,20 @@ export default class AppInfo extends Component {
             />
           )}
         </Motion>
-        {md.global.Account.isPortal ? (
-          <PortalUserSet
-            appId={md.global.Account.appId}
-            name={showName}
-            iconColor={data.iconColor}
-            currentPcNaviStyle={currentPcNaviStyle}
-          />
-        ) : [1, 3].includes(currentPcNaviStyle) ? (
-          <LeftCommonUserHandle type="appPkg" isAuthorityApp={isAuthorityApp} data={data} {...props} />
-        ) : (
-          <CommonUserHandle type="appPkg" {...props} />
-        )}
+        <Fragment>
+          {md.global.Account.isPortal ? (
+            <PortalUserSet
+              appId={md.global.Account.appId}
+              name={showName}
+              iconColor={data.iconColor}
+              currentPcNaviStyle={currentPcNaviStyle}
+            />
+          ) : [1, 3].includes(currentPcNaviStyle) ? (
+            <LeftCommonUserHandle type="appPkg" isAuthorityApp={isAuthorityApp} data={data} {...props} />
+          ) : (
+            <CommonUserHandle type="appPkg" {...props} />
+          )}
+        </Fragment>
         {appAnalyticsVisible && (
           <AppAnalytics
             currentAppInfo={{ appId, name: showName, iconColor, iconUrl }}

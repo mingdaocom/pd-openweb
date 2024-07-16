@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import RecordCard from 'src/components/recordCard';
 import './worksheetListShare.less';
 import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
@@ -10,8 +9,6 @@ import { Tooltip } from 'ming-ui';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
-import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { RecordInfoModal } from 'mobile/Record';
 import { browserIsMobile } from 'src/util';
 import DocumentTitle from 'react-document-title';
 
@@ -23,7 +20,25 @@ class WorksheetListShare extends React.Component {
     super(props);
     this.state = {
       rowId: undefined,
+      RecordCard: null,
+      Components: null,
     };
+  }
+
+  componentDidMount() {
+    import('src/components/recordCard').then(res => {
+      this.setState({ RecordCard: res });
+    });
+
+    if (browserIsMobile()) {
+      import('mobile/Record').then(res => {
+        this.setState({ Components: { default: res.RecordInfoModal } });
+      });
+    } else {
+      import('worksheet/common/recordInfo/RecordInfoWrapper').then(res => {
+        this.setState({ Components: res });
+      });
+    }
   }
 
   getCardControlsForTitle = list => {
@@ -70,7 +85,7 @@ class WorksheetListShare extends React.Component {
       viewName,
       worksheetName,
     } = this.props;
-    const { rowId } = this.state;
+    const { rowId, RecordCard, Components } = this.state;
 
     let Controls = this.getSortAndVisible(viewSet.showControls || [], cardControls);
     Controls = Controls.filter(
@@ -126,29 +141,31 @@ class WorksheetListShare extends React.Component {
             )}
           </div>
           <div className="recordCardList">
-            {rowsList.map((record, i) => {
-              return (
-                <RecordCard
-                  disableDownload={!recordAttachmentSwitch}
-                  key={i}
-                  from={window.innerWidth > 600 ? 2 : 3}
-                  disabled={true}
-                  coverCid={coverCidData.length ? coverCidData[0].controlId : null}
-                  showControls={window.innerWidth > 600 ? showControlsData : showControlsMin}
-                  controls={Controls.filter(o => !['uaid', 'daid'].includes(o.controlId))}
-                  data={record}
-                  shareId={shareId}
-                  selected={false}
-                  onClick={() => this.setState({ rowId: record.rowid })}
-                />
-              );
-            })}
+            {RecordCard &&
+              rowsList.map((record, i) => {
+                return (
+                  <RecordCard.default
+                    disableDownload={!recordAttachmentSwitch}
+                    key={i}
+                    from={window.innerWidth > 600 ? 2 : 3}
+                    disabled={true}
+                    coverCid={coverCidData.length ? coverCidData[0].controlId : null}
+                    showControls={window.innerWidth > 600 ? showControlsData : showControlsMin}
+                    controls={Controls.filter(o => !['uaid', 'daid'].includes(o.controlId))}
+                    data={record}
+                    shareId={shareId}
+                    selected={false}
+                    onClick={() => this.setState({ rowId: record.rowid })}
+                  />
+                );
+              })}
           </div>
         </div>
 
         {rowId &&
+          Components &&
           (browserIsMobile() ? (
-            <RecordInfoModal
+            <Components.default
               className="full"
               visible
               appId={appId}
@@ -159,7 +176,7 @@ class WorksheetListShare extends React.Component {
               editable={false}
             />
           ) : (
-            <RecordInfoWrapper
+            <Components.default
               sheetSwitchPermit={sheetSwitchPermit}
               viewId={viewIdForPermit}
               allowAdd={false}

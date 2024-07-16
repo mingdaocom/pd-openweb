@@ -6,7 +6,7 @@ import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/Filt
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
 
 export default function FilterValue(props) {
-  const { filterData = {}, handleOk, globalSheetInfo = {}, allControls } = props;
+  const { filterData = {}, handleOk, globalSheetInfo = {}, allControls, customTitle } = props;
   const { projectId, appId } = globalSheetInfo;
   const filterControls = allControls.map(redefineComplexControl);
 
@@ -29,8 +29,9 @@ export default function FilterValue(props) {
       visible={visible}
       okDisabled={disabled}
       className="SearchWorksheetDialog filterDialog"
-      title={_l('配置字段值条件')}
+      title={customTitle || _l('配置字段值条件')}
       onCancel={() => setState({ visible: false })}
+      overlayClosable={false}
       onOk={() => {
         handleOk({ ...filterData, filterItems });
         setState({ visible: false });

@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import preall from 'src/common/preall';
 import { Provider } from 'react-redux';
 import store from 'src/redux/configureStore';
 import CustomPageContent from 'src/pages/customPage/pageContent';
 import MobileCustomPage from 'src/pages/Mobile/CustomPage';
 import { LoadDiv } from 'ming-ui';
-import homeApp from 'src/api/homeApp';
+import homeAppApi from 'src/api/homeApp';
 import UnusualContent from 'src/components/UnusualContent';
 import { socketInit } from 'src/socket/mobileSocketInit';
 import { browserIsMobile } from 'src/util';
@@ -28,10 +28,13 @@ export default class EmbedPage extends Component {
   }
   componentDidMount() {
     const { appId } = this;
-    homeApp
+    homeAppApi
       .checkApp({ appId })
       .then(status => {
-        this.setState({ loading: false, status });
+        homeAppApi.getApp({ appId }).then(data => {
+          this.setState({ loading: false, status });
+          window[`timeZone_${this.appId}`] = data.timeZone;
+        });
       })
       .catch(() => {
         location.href = '/login';
@@ -62,5 +65,6 @@ export default class EmbedPage extends Component {
 }
 
 const Comp = preall(EmbedPage);
+const root = createRoot(document.getElementById('app'));
 
-ReactDom.render(<Comp />, document.getElementById('app'));
+root.render(<Comp />);

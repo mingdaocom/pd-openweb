@@ -37,6 +37,9 @@ const Wrapper = styled.div`
       font-size: 28px;
       font-weight: bold;
       font-family: Arial;
+      .icon {
+        color: #4caf50;
+      }
     }
 
     &:hover {
@@ -310,13 +313,14 @@ export default function Process(props) {
             .map((item, index) => {
               return (
                 <div
+                  key={index}
                   className="flexRow alignItemsCenter pointer"
                   onClick={() => {
                     setCurrentTab(item.tab);
                     setFlag(+new Date());
                   }}
                 >
-                  <div key={index} className={cx('tabItem', { isCur: currentTab === item.tab })}>
+                  <div className={cx('tabItem', { isCur: currentTab === item.tab })}>
                     <span className="itemText">{item.text}</span>
                     {!!countData[item.key] && (
                       <div className={item.key !== 'mySponsor' ? 'itemCount' : 'mLeft4 bold Gray_9e'}>
@@ -450,11 +454,13 @@ export default function Process(props) {
           <div className="flex flexRow pLeft20 pRight20">
             {processList
               .filter(item => displayComplete || item.key !== 'finished')
-              .map(item => (
-                <React.Fragment>
+              .map((item, i) => (
+                <React.Fragment key={i}>
                   {item.key === 'finished' && <div className="divider"></div>}
                   <div className="processItem" onClick={() => setMyProcess({ visible: true, activeTab: item.tab })}>
-                    <div className="countText">{countData[item.key] || 0}</div>
+                    <div className="countText">
+                      {item.key !== 'finished' ? countData[item.key] || 0 : <Icon icon="event_available" />}
+                    </div>
                     <div className="Font15 mBottom16">{item.text}</div>
                   </div>
                 </React.Fragment>

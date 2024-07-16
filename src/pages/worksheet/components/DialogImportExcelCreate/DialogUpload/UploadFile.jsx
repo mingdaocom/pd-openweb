@@ -4,7 +4,7 @@ import { Progress } from 'antd';
 import createUploader from 'src/library/plupload/createUploader';
 import { formatFileSize } from 'src/util';
 import styled from 'styled-components';
-
+import RegExpValidator from 'src/util/expression';
 const UploadWrap = styled.div`
   height: 340px;
   border: 1px dashed #e0e0e0;
@@ -58,7 +58,11 @@ export default class UploadFile extends Component {
             file: { name },
             code,
           } = err;
-          if (File.GetExt(name) != 'xlsx' && File.GetExt(name) != 'xls' && File.GetExt(name) != 'csv') {
+          if (
+            RegExpValidator.getExtOfFileName(name) != 'xlsx' &&
+            RegExpValidator.getExtOfFileName(name) != 'xls' &&
+            RegExpValidator.getExtOfFileName(name) != 'csv'
+          ) {
             alert(_l('文件类型错误，仅支持xls、xlsx、csv文件'), 3, 1000);
             return;
           }

@@ -61,7 +61,7 @@ export const getAppConfig = (menus, permissionType) => {
       break;
     case APP_ROLE_TYPE.RUNNER_ROLE: // 运营者
       menus = _.filter(menus, it =>
-        _.includes(['modify', 'editIntro', 'appAnalytics', 'appLogs', 'modifyAppLockPassword'], it.type),
+        _.includes(['modify', 'editIntro', 'copyId', 'appAnalytics', 'appLogs', 'modifyAppLockPassword'], it.type),
       );
       break;
     case APP_ROLE_TYPE.DEVELOPERS_ROLE: // 开发者

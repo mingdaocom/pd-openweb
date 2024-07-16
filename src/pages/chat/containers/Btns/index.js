@@ -406,13 +406,14 @@ class Btns extends Component {
   render() {
     const { visible } = this.props;
     const { searchVisible, menuVisible } = this.state;
+
     return (
       <div
         className={cx('ChatList-btns-wrapper ThemeBGColor9', { visible: !visible })}
         onMouseEnter={this.handleMouseEnter.bind(this)}
         onMouseLeave={this.handleMouseLeave.bind(this)}
       >
-        {this.renderBtns(cx('ChatList-btns ChatList-column-btns', { visible }))}
+        {this.renderBtns(cx('ChatList-btns ChatList-column-btns', { visible, hideChatBtn: !md.global.Config.IsLocal && !this.state.hideAssistant }))}
         {this.renderBtns(cx('ChatList-btns ChatList-row-btns', { visible: !visible }))}
         {searchVisible ? (
           <SearchMember

@@ -5,8 +5,8 @@ import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
-import { validate, TextTypes } from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
-import { conditionAdapter, formatQuickFilter } from 'mobile/RecordList/QuickFilter/Inputs';
+import { validate } from './utils';
+import { conditionAdapter, formatQuickFilter } from 'mobile/RecordList/QuickFilter/utils';
 import './index.less';
 import _ from 'lodash';
 
@@ -43,7 +43,7 @@ class Search extends Component {
     this.state = {
       visible: false,
       filterIndex: 0,
-    }
+    };
   }
   componentWillUnmount() {
     this.props.updateFilters({ keyWords: '', quickFilterKeyWords: '' });
@@ -53,24 +53,27 @@ class Search extends Component {
     this.setState({
       visible: !visible,
     });
-  }
+  };
   handleSearch = () => {
     const { filterIndex } = this.state;
     const { filters, textFilters, updateQuickFilter } = this.props;
     if (textFilters.length) {
       // 快速搜索
-      const quickFilter = [textFilters[filterIndex]].map((filter, i) => ({
-        ...filter,
-        filterType: filter.filterType || 1,
-        spliceType: filter.spliceType || 1,
-        values: filters.quickFilterKeyWords.split(' ')
-      })).filter(validate).map(conditionAdapter);
+      const quickFilter = [textFilters[filterIndex]]
+        .map((filter, i) => ({
+          ...filter,
+          filterType: filter.filterType || 1,
+          spliceType: filter.spliceType || 1,
+          values: filters.quickFilterKeyWords.split(' '),
+        }))
+        .filter(validate)
+        .map(conditionAdapter);
       updateQuickFilter(formatQuickFilter(quickFilter));
     } else {
       // 普通搜索
       this.props.changePageIndex(1);
     }
-  }
+  };
   renderPopup() {
     const { filterIndex } = this.state;
     const { textFilters } = this.props;
@@ -87,7 +90,7 @@ class Search extends Component {
                 onClick={() => {
                   this.setState({
                     filterIndex: index,
-                    visible: false
+                    visible: false,
                   });
                 }}
               >
@@ -101,7 +104,7 @@ class Search extends Component {
   }
   render() {
     const { filterIndex } = this.state;
-    const { updateFilters, updateQuickFilter, filters, sheetView, textFilters } = this.props;
+    const { updateFilters, updateQuickFilter, filters, sheetView, textFilters, viewType } = this.props;
     const searchVlaue = textFilters.length ? filters.quickFilterKeyWords : filters.keyWords;
     return (
       <SearchRowsWrapper className="search flex flexRow valignWrapper">
@@ -119,7 +122,9 @@ class Search extends Component {
             }}
           >
             <div className="flexRow valignWrapper mobileQuickFilterTrigger">
-              <span className="Font14 mLeft5 mRight5 ellipsis">{textFilters[filterIndex] && textFilters[filterIndex].control.controlName}</span>
+              <span className="Font14 mLeft5 mRight5 ellipsis">
+                {textFilters[filterIndex] && textFilters[filterIndex].control.controlName}
+              </span>
               <Icon className="Font12 Gray_75" icon="arrow-down" />
               <div className="cuttingLine"></div>
             </div>
@@ -130,16 +135,16 @@ class Search extends Component {
           <form
             action="#"
             className="flex"
-            onSubmit={(e) => {
+            onSubmit={e => {
               e.preventDefault();
             }}
           >
             <input
               type="search"
               className="pAll0 Border0 w100"
-              placeholder={_l('搜索共%0条', sheetView.count)}
+              placeholder={viewType == 7 ? _l('搜索') : _l('搜索共%0条', sheetView.count)}
               value={searchVlaue}
-              onChange={(e) => {
+              onChange={e => {
                 const { value } = e.target;
                 if (textFilters.length) {
                   updateFilters({ quickFilterKeyWords: value });
@@ -181,11 +186,11 @@ class Search extends Component {
 export default connect(
   state => ({
     filters: state.mobile.filters,
-    sheetView: state.mobile.sheetView
+    sheetView: state.mobile.sheetView,
   }),
   dispatch =>
     bindActionCreators(
       _.pick(actions, ['updateFilters', 'resetSheetView', 'changePageIndex', 'updateQuickFilter']),
       dispatch,
-  ),
+    ),
 )(Search);

@@ -162,7 +162,7 @@ const Message = props => {
         </Fragment>
       )}
       <Divider className="mTop20 mBottom20" />
-      <div className="Font15 bold mBottom8">{_l('自助集成服务')}</div>
+      <div className="Font15 bold mBottom8">{_l('自主集成服务')}</div>
       <div className="Gray_9e">
         {_l('如果需要启用系统内短信服务相关的功能(如: 工作流短信通知节点、手机号邀请用户加入产品使用),需自行申请第三方短信服务商账号,然后自主集成或由官方技术团队定制开发')}
         ，

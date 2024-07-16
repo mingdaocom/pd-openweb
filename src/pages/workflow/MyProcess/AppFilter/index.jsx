@@ -85,11 +85,11 @@ export default class AppFilter extends Component {
               );
             }}
           />
-          <Icon icon="search" className="Gray_9e Font20" />
+          <Icon icon="search" className="Gray_75 Font20" />
         </div>
         {apps.map(item => (
           <div className={cx('appListWrapper', {hide: !item.projectApps.length})} key={item.projectId}>
-            <div className="Gray_9e Font13 pBottom5 projectName">{item.projectName}</div>
+            <div className="Gray_75 Font13 pBottom5 projectName">{item.projectName}</div>
             {this.renderAppList(item.projectApps)}
           </div>
         ))}
@@ -123,7 +123,7 @@ export default class AppFilter extends Component {
                 <div className="flex Gray_c">{_l('请选择')}</div>
               )
             }
-            <Icon icon="expand_more" className="Gray_9e Font20" />
+            <Icon icon="expand_more" className="Gray_75 Font20" />
           </div>
         </div>
       </Trigger>
@@ -144,7 +144,7 @@ export default class AppFilter extends Component {
                 <div className="flex Gray_c">{_l('请选择')}</div>
               )
             }
-            <Icon icon="expand_more" className="Gray_9e Font20" />
+            <Icon icon="expand_more" className="Gray_75 Font20" />
           </div>
         </Dropdown>
       </div>

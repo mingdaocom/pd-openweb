@@ -1,5 +1,5 @@
 ﻿import React, { Fragment, PureComponent } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
 import Avatar from '../baseComponent/avatar';
 import Star from '../baseComponent/star';
@@ -48,7 +48,7 @@ export default class SystemMessage extends PureComponent {
     const that = this;
 
     if (this.msg) {
-      $(this.msg).on('click', 'a', function(evt) {
+      $(this.msg).on('click', 'a', function (evt) {
         const $this = $(this);
         const href = ($(evt.target).attr('href') || '').toLocaleLowerCase();
 
@@ -61,7 +61,7 @@ export default class SystemMessage extends PureComponent {
           TaskCenterController[func]({
             taskID: taskId,
             accountID: opUser,
-          }).then(function(data) {
+          }).then(function (data) {
             if (data.status) {
               alert(_l('操作成功'));
             } else if (data.error) {
@@ -106,15 +106,17 @@ export default class SystemMessage extends PureComponent {
             .then(res => {
               addBehaviorLog('worksheetRecord', res.worksheetId, { rowId: res.rowId }); // 埋点
             });
-          ReactDOM.render(
+
+          const root = createRoot(div);
+
+          root.render(
             <ExecDialog
               id={ids[0]}
               workId={ids[1]}
               onClose={() => {
-                ReactDOM.unmountComponentAtNode(div);
+                root.unmount();
               }}
             />,
-            div,
           );
           return;
         }
@@ -288,19 +290,17 @@ export default class SystemMessage extends PureComponent {
                       >
                         {app.name}
                       </a>
-                      {processId && (
+                      {processId && processInfo && (
                         <Fragment>
                           <span className="mLeft15 fromProcessId">
                             {_l('来自流程')}：
-                            {processInfo ? (
-                              processInfo.deleted ? (
-                                _l('已删除')
-                              ) : (
-                                <a target="_blank" className="Gray_9 Hover_21" href={`/workflowedit/${processInfo.id}`}>
-                                  {processInfo.name}
-                                </a>
-                              )
-                            ) : null}
+                            {processInfo.deleted ? (
+                              _l('已删除')
+                            ) : (
+                              <a target="_blank" className="Gray_9 Hover_21" href={`/workflowedit/${processInfo.id}`}>
+                                {processInfo.name}
+                              </a>
+                            )}
                           </span>
                         </Fragment>
                       )}

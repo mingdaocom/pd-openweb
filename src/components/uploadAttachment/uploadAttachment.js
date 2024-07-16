@@ -12,7 +12,7 @@ import { formatFileSize, getClassNameByExt, htmlEncodeReg, getToken } from 'src/
 import _ from 'lodash';
 import { Dialog } from 'ming-ui';
 import React from 'react';
-var MAX_IMG_VIEW_SIZE = 20971520;
+import RegExpValidator from 'src/util/expression';var MAX_IMG_VIEW_SIZE = 20971520;
 
 export default (function ($) {
   function UploadAttachment(el, param) {
@@ -293,7 +293,7 @@ export default (function ($) {
           fileExt: node.ext ? '.' + node.ext : '',
           fileSize: node.size,
           allowDown: node.isDownloadable,
-          viewUrl: File.isPicture('.' + node.ext) ? node.viewUrl : null,
+          viewUrl: RegExpValidator.fileIsPicture('.' + node.ext) ? node.viewUrl : null,
           type: node.type === 1 ? 1 : undefined,
         });
         html +=
@@ -305,7 +305,7 @@ export default (function ($) {
           node.id +
           "'>";
         html += "<div class='progress'>";
-        if (File.isPicture('.' + node.ext)) {
+        if (RegExpValidator.fileIsPicture('.' + node.ext)) {
           html +=
             "<div class='Left nodeIconContainer nodeImg'><img src='" +
             node.previewUrl +
@@ -389,7 +389,7 @@ export default (function ($) {
             var fileSize = 0;
             var i;
             for (i = 0; i < files.length; i++) {
-              if (File.isValid('.' + File.GetExt(files[i].name))) count++;
+              if (RegExpValidator.validateFileExt('.' + RegExpValidator.getExtOfFileName(files[i].name))) count++;
               fileSize += files[i].size;
             }
             if (count !== files.length) {
@@ -479,7 +479,7 @@ export default (function ($) {
                     for (i = 0; i < files.length; i++) {
                       var file = files[i];
                       // 上传图片
-                      if (File.isPicture('.' + File.GetExt(file.name))) {
+                      if (RegExpValidator.fileIsPicture('.' + RegExpValidator.getExtOfFileName(file.name))) {
                         if (options.onlyOne && _this.findAttachmentList().find('.uploadPicList .picItem').length > 0) {
                           _this
                             .findAttachmentList()
@@ -497,8 +497,8 @@ export default (function ($) {
                           .find('.uploadDocList .clearFloat')
                           .before(_this.createDocProgressBar(file));
                       }
-                      let fileExt = `.${File.GetExt(file.name)}`;
-                      let isPic = File.isPicture(fileExt);
+                      let fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
+                      let isPic = RegExpValidator.fileIsPicture(fileExt);
                       tokenFiles.push({
                         bucket: options.bucketType ? options.bucketType : isPic ? 4 : 3,
                         ext: fileExt,
@@ -508,8 +508,8 @@ export default (function ($) {
                   } else {
                     for (i = 0; i < files.length; i++) {
                       var file = files[i];
-                      let fileExt = `.${File.GetExt(files[i].name)}`;
-                      let isPic = File.isPicture(fileExt);
+                      let fileExt = `.${RegExpValidator.getExtOfFileName(files[i].name)}`;
+                      let isPic = RegExpValidator.fileIsPicture(fileExt);
                       tokenFiles.push({
                         bucket: options.bucketType ? options.bucketType : isPic ? 4 : 3,
                         ext: fileExt,
@@ -565,7 +565,7 @@ export default (function ($) {
           },
           BeforeUpload: function (uploader, file) {
             // 上传文件到七牛
-            var fileExt = '.' + File.GetExt(file.name);
+            var fileExt = '.' + RegExpValidator.getExtOfFileName(file.name);
             // token
             uploader.settings.multipart_params = {
               token: file.token,
@@ -582,7 +582,7 @@ export default (function ($) {
 
             // 隐藏排队中 显示进度条
             var $itemContainer = null;
-            if (File.isPicture(fileExt)) {
+            if (RegExpValidator.fileIsPicture(fileExt)) {
               $itemContainer = $('#picItem_' + file.id);
             } else {
               $itemContainer = $('#docItem_' + file.id);
@@ -660,7 +660,7 @@ export default (function ($) {
           var file = {};
           file.id = attachment.fileID;
           file.name = attachment.originalFileName + attachment.fileExt;
-          if (File.isPicture(attachment.fileExt)) {
+          if (RegExpValidator.fileIsPicture(attachment.fileExt)) {
             _this.findAttachmentList().find('.uploadPicList .clearFloat').before(_this.createPicProgressBar(file));
           } else {
             _this.findAttachmentList().find('.uploadDocList .clearFloat').before(_this.createDocProgressBar(file));
@@ -682,7 +682,7 @@ export default (function ($) {
         var fileExt = obj.fileExt;
         var fileSize = obj.fileSize;
 
-        if (File.isPicture(obj.fileExt)) {
+        if (RegExpValidator.fileIsPicture(obj.fileExt)) {
           if (!obj.isDelete) {
             var fullImgPath = '';
             if (obj.fileSize > MAX_IMG_VIEW_SIZE) {
@@ -914,7 +914,7 @@ export default (function ($) {
     };
     // 文件上传失败
     _this.uploadFailed = function (file) {
-      if (File.isPicture('.' + File.GetExt(file.name))) {
+      if (RegExpValidator.fileIsPicture('.' + RegExpValidator.getExtOfFileName(file.name))) {
         var picViewHtml = `
         <div id="pic_${file.id}" class="TxtCenter">
         <div class="Red" style="line-height:90px;">${_l('图片上传失败')}</div>
@@ -1122,7 +1122,7 @@ export default (function ($) {
         item.fileExt = fileExt;
         item.originalFileName = originalFileName;
 
-        if (!File.isPicture(fileExt)) {
+        if (!RegExpValidator.fileIsPicture(fileExt)) {
           item.allowDown = true;
           item.docVersionID = '';
           item.oldOriginalFileName = originalFileName; // 临时存储文件名 编辑的时候比较
@@ -1135,7 +1135,7 @@ export default (function ($) {
         item.fileExt = data.fileExt;
         item.originalFileName = data.originalFileName;
         item.key = data.key;
-        if (!File.isPicture(item.fileExt)) {
+        if (!RegExpValidator.fileIsPicture(item.fileExt)) {
           item.allowDown = true;
           item.docVersionID = '';
           item.oldOriginalFileName = item.originalFileName; // 临时存储文件名 编辑的时候比较

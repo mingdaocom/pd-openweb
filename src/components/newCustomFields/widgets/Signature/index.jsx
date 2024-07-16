@@ -15,6 +15,7 @@ import accountSettingAjax from 'src/api/accountSetting';
 import { Base64 } from 'js-base64';
 import { CardButton } from 'src/pages/worksheet/components/Basics.jsx';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -117,6 +118,12 @@ export default class Signature extends Component {
     lastInfo: '',
   };
 
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.flag !== this.props.flag && !nextProps.value) {
       this.setState({ isEdit: false, lastInfo: '' });
@@ -146,6 +153,7 @@ export default class Signature extends Component {
   clickEvent = e => {
     this.setState({
       popupVisible: false,
+      isEdit: false,
     });
     if (this.props.onClose) {
       this.props.onClose();
@@ -160,14 +168,14 @@ export default class Signature extends Component {
   };
 
   closePopup = () => {
-    this.setState({ popupVisible: false });
+    this.setState({ popupVisible: false, isEdit: false });
     if (this.props.onClose) {
       this.props.onClose();
     }
   };
 
   initCanvas = () => {
-    const canvas = document.getElementById('signatureCanvas');
+    const canvas = this.signature;
 
     if (!canvas) return;
 
@@ -214,11 +222,7 @@ export default class Signature extends Component {
           .then(() => {
             this.setState({ popupVisible: false });
 
-            if (
-              md.global.Account.isPortal ||
-              window.isPublicWorksheet ||
-              _.get(window, 'shareState.isPublicWorkflowRecord')
-            ) {
+            if (window.isPublicWorksheet || _.get(window, 'shareState.isPublicWorkflowRecord')) {
               this.props.onChange(res[0].url);
             } else {
               accountSettingAjax.editSign({ url: res[0].url }).then(result => {
@@ -293,22 +297,23 @@ export default class Signature extends Component {
     });
   };
 
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
+
   renderFooter() {
     const { advancedSetting: { uselast } = {} } = this.props;
     const { isEdit } = this.state;
 
     return (
       <Footer>
-        {uselast === '1' &&
-          !(
-            md.global.Account.isPortal ||
-            window.isPublicWorksheet ||
-            _.get(window, 'shareState.isPublicWorkflowRecord')
-          ) && (
-            <div className="ThemeColor3 ThemeHoverColor2 pointer lastSignature" onClick={this.useLastSignature}>
-              {_l('使用上次签名')}
-            </div>
-          )}
+        {uselast === '1' && !(window.isPublicWorksheet || _.get(window, 'shareState.isPublicWorkflowRecord')) && (
+          <div className="ThemeColor3 ThemeHoverColor2 pointer lastSignature" onClick={this.useLastSignature}>
+            {_l('使用上次签名')}
+          </div>
+        )}
         {isEdit && (
           <div className="clearSignature" onClick={this.clear}>
             {_l('清除')}
@@ -350,7 +355,11 @@ export default class Signature extends Component {
                 <img src={lastInfo.url} className="w100 h100" />
               </div>
             ) : (
-              <canvas id="signatureCanvas" className="signatureCanvas flex"></canvas>
+              <canvas
+                ref={con => (this.signature = con)}
+                id="signatureCanvas"
+                className="signatureCanvas flex"
+              ></canvas>
             )}
             {this.renderFooter()}
           </div>
@@ -376,7 +385,7 @@ export default class Signature extends Component {
                   <img src={lastInfo.url} className="w100 h100" />
                 </div>
               ) : (
-                <canvas id="signatureCanvas" className="signatureCanvas"></canvas>
+                <canvas id="signatureCanvas" ref={con => (this.signature = con)} className="signatureCanvas"></canvas>
               )}
               {this.renderFooter()}
             </SignaturePopup>

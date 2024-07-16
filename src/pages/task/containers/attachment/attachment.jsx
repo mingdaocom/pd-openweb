@@ -10,7 +10,7 @@ import previewAttachments from 'src/components/previewAttachments/previewAttachm
 import { attachmentSwitch } from '../../redux/actions';
 import TaskDetail from '../taskDetail/taskDetail';
 import { downloadFile, getClassNameByExt } from 'src/util';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 
 const attachmentSettings = {
   dialog:
@@ -313,7 +313,7 @@ class Attachment extends Component {
           <div className="taskThumbnailBox boxSizing boderRadAll_3 animatedFast">
             <div className="taskThumbnailImg">
               {(extClass.indexOf('img') >= 0 && !(item.refId && !item.shareUrl)) ||
-              (RegExp.isVideo(item.ext) && item.previewUrl) ? (
+              (RegExpValidator.isVideo(item.ext) && item.previewUrl) ? (
                 <img src={item.previewUrl} />
               ) : (
                 <span

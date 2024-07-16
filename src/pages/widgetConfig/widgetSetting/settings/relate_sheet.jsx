@@ -20,14 +20,12 @@ import { getSortData } from 'src/pages/worksheet/util';
 import { EditInfo, SettingItem } from '../../styled';
 import { useSheetInfo } from '../../hooks';
 import { getFilterRelateControls } from '../../util';
-import sheetComponents from '../components/relateSheet';
+import ConfigRelate from '../components/relateSheet/ConfigRelate';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import { WHOLE_SIZE } from '../../config/Drag';
 import WidgetVerify from '../components/WidgetVerify';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import RelateDetailInfo from '../components/RelateDetailInfo';
-
-const { ConfigRelate } = sheetComponents;
 
 const FILL_TYPES = [
   {
@@ -283,7 +281,7 @@ export default function RelateSheet(props) {
               onChange(nextData);
               return;
             }
-            onChange({ enumDefault: value, size: WHOLE_SIZE });
+            onChange({ enumDefault: value });
           }}
           size="small"
         />
@@ -316,6 +314,7 @@ export default function RelateSheet(props) {
               nextData = {
                 ...nextData,
                 required: false,
+                size: WHOLE_SIZE,
                 advancedSetting: Object.assign(nextData.advancedSetting, {
                   defsource:
                     newDefsource.length === 0 || (newDefsource.length > 0 && _.get(newDefsource, '0.cid'))

@@ -94,7 +94,7 @@ const ListItem = styled.div`
 `;
 
 export default function AuthorizationList(props) {
-  const { isAdmin, companyId, onClose, onApproveSuccess } = props;
+  const { hasManageAuth, companyId, onClose, onApproveSuccess } = props;
   const [fetchState, setFetchState] = useSetState({ loading: true, pageIndex: 1, noMore: false });
   const [authorizationList, setAuthorizationList] = useState([]);
   const statusObj = {
@@ -115,7 +115,7 @@ export default function AuthorizationList(props) {
       .getAuthorizationList(
         {
           companyId,
-          isOwner: !isAdmin,
+          isOwner: !hasManageAuth,
           pageIndex: fetchState.pageIndex,
           pageSize: 50,
           status: [0, 1, 3],
@@ -216,7 +216,7 @@ export default function AuthorizationList(props) {
     >
       <ListItem className="titleItem">
         {columns
-          .filter(item => isAdmin || !_.includes(['applyUser', 'operate'], item.dataIndex))
+          .filter(item => hasManageAuth || !_.includes(['applyUser', 'operate'], item.dataIndex))
           .map((item, index) => {
             return (
               <div key={index} className={item.dataIndex}>
@@ -234,7 +234,7 @@ export default function AuthorizationList(props) {
             return (
               <ListItem>
                 {columns
-                  .filter(item => isAdmin || !_.includes(['applyUser', 'operate'], item.dataIndex))
+                  .filter(item => hasManageAuth || !_.includes(['applyUser', 'operate'], item.dataIndex))
                   .map((item, j) => {
                     return (
                       <div key={`${i}-${j}`} className={item.dataIndex}>

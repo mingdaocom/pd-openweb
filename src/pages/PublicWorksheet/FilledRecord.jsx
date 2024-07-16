@@ -11,6 +11,8 @@ import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { canSubmitByLimitFrequency } from './utils';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import cx from 'classnames';
+import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
 
 const ModalWrapper = styled(Modal)`
   height: 100%;
@@ -70,6 +72,7 @@ export default function FilledRecord(props) {
   const { isFillPage, publicWorksheetInfo, formData } = props;
   const {
     appId,
+    worksheetId,
     abilityExpand = {},
     writeScope,
     shareId,
@@ -77,9 +80,9 @@ export default function FilledRecord(props) {
     themeBgColor,
   } = publicWorksheetInfo;
   const isMobile = browserIsMobile();
-  const [filledRecord, setFilledRecord] = useState({ list: [], count: 0 });
-  const [listDialogVisible, setListDialogVisible] = useState(false);
   const [recordDetail, setRecordDetail] = useState({ visible: false });
+  const [filledRecord, setFilledRecord] = useSetState({ list: [], count: 0, isPayOrder: false });
+  const [listDialogVisible, setListDialogVisible] = useState(false);
   const [fetchState, setFetchState] = useSetState({
     pageIndex: 1,
     loading: true,
@@ -112,6 +115,7 @@ export default function FilledRecord(props) {
         setFilledRecord({
           list: fetchState.pageIndex > 1 ? filledRecord.list.concat(res.data) : res.data,
           count: res.count,
+          isPayOrder: res.isPayOrder,
         });
         setFetchState({ loading: false, noMore: res.data.length < 50 });
       }
@@ -173,6 +177,33 @@ export default function FilledRecord(props) {
         });
   };
 
+  const onUpdateRecord = (rowId, updateObj) => {
+    const newRecordList = filledRecord.list.map(item => {
+      return item.rowid === rowId ? { ...item, ...updateObj } : item;
+    });
+    setFilledRecord({ list: newRecordList });
+  };
+
+  const getOrderStatus = orderStatus => {
+    if (!filledRecord.isPayOrder && orderStatus === 0) {
+      return _l('订单已失效');
+    }
+    switch (orderStatus) {
+      case 1:
+        return _l('已支付');
+      case 2:
+        return _l('退款中');
+      case 3:
+        return _l('已退款');
+      case 4:
+        return _l('支付超时');
+      case 5:
+        return _l('部分退款');
+      default:
+        return _l('待支付');
+    }
+  };
+
   const renderRecordList = () => {
     return (
       <React.Fragment>
@@ -197,32 +228,72 @@ export default function FilledRecord(props) {
                     ? getTitleTextFromControls(formData, item, undefined, { noMask: true })
                     : _l('未命名')}
                 </div>
-                <div className="recordFooter">
+
+                <div className={cx('recordFooter', { isMobile })}>
                   <div title={item.ctime} className="overflow_ellipsis">
                     <span className="Gray_75">{_l('提交时间')}</span>
                     <span className="mLeft10">{item.ctime}</span>
                   </div>
-                  <div className="flexRow">
-                    {isAllowEdit(item.ctime) && item.allowdelete && (
+
+                  {(!_.isUndefined(item.orderStatus) || filledRecord.isPayOrder) && (
+                    <div className="statusWrapper">
+                      <span className="Gray_75">{_l('订单状态')}</span>
+                      <span
+                        className={cx('mLeft10', {
+                          ThemeColor: [0, undefined].includes(item.orderStatus),
+                          Success: [1, 3].includes(item.orderStatus),
+                          Warning: [2, 5].includes(item.orderStatus),
+                          Red: item.orderStatus === 4 || (!filledRecord.isPayOrder && item.orderStatus === 0), //订单待支付，但关闭了支付
+                        })}
+                      >
+                        {getOrderStatus(item.orderStatus)}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="btnWrapper">
+                    {filledRecord.isPayOrder && [0, undefined].includes(item.orderStatus) && (
                       <div
-                        className="optionIcon"
+                        className="operateBtn"
                         onClick={e => {
                           e.stopPropagation();
-                          onDeleteRecord(item.rowid);
+                          item.orderId && isMobile
+                            ? (location.href = `${md.global.Config.WebUrl}orderpay/${item.orderId}`)
+                            : handlePrePayOrder({
+                                worksheetId,
+                                rowId: item.rowid,
+                                paymentModule: 1,
+                                orderId: item.orderId,
+                                sheetThemeColor: themeBgColor,
+                                onUpdateSuccess: updateObj => {
+                                  onUpdateRecord(item.rowid, updateObj);
+                                },
+                              });
                         }}
                       >
-                        <Icon icon="delete1" className="deleteIcon" />
+                        {_l('支付')}
                       </div>
                     )}
                     {isAllowEdit(item.ctime) && item.allowedit && !isMobile && (
                       <div
-                        className="optionIcon"
+                        className="edit operateBtn"
                         onClick={e => {
                           e.stopPropagation();
                           setRecordDetail({ visible: true, isEdit: true, rowId: item.rowid });
                         }}
                       >
-                        <Icon icon="edit" className="editIcon" />
+                        {_l('编辑')}
+                      </div>
+                    )}
+                    {isAllowEdit(item.ctime) && item.allowdelete && (
+                      <div
+                        className="delete operateBtn"
+                        onClick={e => {
+                          e.stopPropagation();
+                          onDeleteRecord(item.rowid);
+                        }}
+                      >
+                        {_l('删除')}
                       </div>
                     )}
                   </div>
@@ -276,7 +347,7 @@ export default function FilledRecord(props) {
         >
           <div className="recordHeader">
             <Icon icon="arrow_back" className="arrowIcon" onClick={() => setListDialogVisible(false)} />
-            <span className="Font15 Gray_75 bold mLeft10">{_l('已填记录')}</span>
+            <span className="Font15 Gray bold mLeft10">{_l('已填记录')}</span>
           </div>
           {renderRecordList()}
         </ModalWrapper>
@@ -300,12 +371,7 @@ export default function FilledRecord(props) {
           isEdit={recordDetail.isEdit}
           onClose={() => setRecordDetail({ visible: false })}
           publicWorksheetInfo={publicWorksheetInfo}
-          onRefreshList={(recordId, data) => {
-            const newRecordList = filledRecord.list.map(item => {
-              return item.rowid === recordId ? { ...item, ...data } : item;
-            });
-            setFilledRecord({ list: newRecordList, count: filledRecord.count });
-          }}
+          onRefreshList={(recordId, data) => onUpdateRecord(recordId, data)}
         />
       )}
     </React.Fragment>

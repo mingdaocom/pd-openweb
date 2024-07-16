@@ -5,6 +5,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import './index.less';
 import { toEditWidgetPage } from '../../pages/widgetConfig/util';
 import WidgetAiRecommend from 'src/pages/widgetConfig/Header/WidgetAiRecommend';
+import _ from 'lodash';
 
 /**
  * 控件配置地址
@@ -61,15 +62,19 @@ export default class WorksheetConfigHeader extends Component {
         desp: _l('当前表单有尚未保存的修改，是否需要保存表单设计并继续？'),
       });
     } else {
-      if (modulename === 'field') {
-        if (this.editPageUrl) {
-          navigateTo(this.editPageUrl);
-        } else {
-          toEditWidgetPage({ sourceId: worksheetId }, false);
-        }
-      } else {
-        navigateTo(urlSet[modulename] || '');
-      }
+      onBack({
+        redirectfn: () => {
+          if (modulename === 'field') {
+            if (this.editPageUrl) {
+              navigateTo(this.editPageUrl);
+            } else {
+              toEditWidgetPage({ sourceId: worksheetId }, false);
+            }
+          } else {
+            navigateTo(urlSet[modulename] || '');
+          }
+        },
+      });
     }
   }
 
@@ -95,7 +100,7 @@ export default class WorksheetConfigHeader extends Component {
             tabs={[
               { value: 'field', text: _l('编辑字段') },
               { value: 'formSet', text: _l('表单设置') },
-              { value: 'form', text: _l('公开发布') },
+              { value: 'form', text: _l('扩展功能') },
             ]}
             onChange={tab => {
               this.handleRedirect(tab.value);

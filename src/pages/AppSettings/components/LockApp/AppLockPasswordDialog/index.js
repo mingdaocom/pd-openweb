@@ -3,7 +3,7 @@ import functionWrap from 'ming-ui/components/FunctionWrap';
 import { Dialog, Tooltip, Button, VerifyPasswordInput } from 'ming-ui';
 import { Input } from 'antd';
 import ClipboardButton from 'react-clipboard.js';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import appManagementAjax from 'src/api/appManagement';
 import { generateRandomPassword, verifyPassword } from 'src/util';
 import { captcha } from 'ming-ui/functions';
@@ -59,22 +59,17 @@ const IconWrap = styled.div`
   margin-right: 12px;
 `;
 
-const checkPassword = password => {
-  const { passwordRegex } = md.global.SysSettings;
+const checkErrorPassword = password => {
+  const { passwordRegex, passwordRegexTip } = md.global.SysSettings;
   if (!password) {
     alert(_l('请输入密码'), 3);
     return true;
   }
-  if (password.length < 8 || password.length > 20) {
-    alert(_l('请输入8~20个字'), 3);
-    return true;
-  }
-  if (!RegExp.isPasswordValid(password, passwordRegex)) {
-    alert(_l('必须含字母+数字'), 3);
-    return true;
-  }
 
-  return false;
+  if (!RegExpValidator.isPasswordValid(password, passwordRegex)) {
+    alert(passwordRegexTip || _l('密码，至少8-20位，且含字母+数字'), 3);
+    return;
+  }
 };
 
 const RESULT_OBJ = {
@@ -154,7 +149,7 @@ function LockApp(props) {
       // okDisabled={!isAddLock}
       onCancel={onCancel}
       onOk={() => {
-        if (checkPassword(password)) {
+        if (checkErrorPassword(password)) {
           passwordInputRef.current.focus();
           setCanEdit(true);
           return;
@@ -186,7 +181,7 @@ function LockApp(props) {
             onChange={e => setPassword(e.target.value)}
             onBlur={e => {
               if (!e || !e.target.value || !canEdit) return;
-              if (checkPassword(password)) return;
+              if (checkErrorPassword(password)) return;
               clearTimeout(timeout);
               timeout = setTimeout(() => {
                 setCanEdit(false);
@@ -332,7 +327,7 @@ function AppLockPasswordDialog(props) {
   // 修改密码
   const confirmModifyPassword = (originPassword, newPassword) => {
     if (!originPassword) return alert(_l('请输入旧密码'), 3);
-    if (checkPassword(newPassword)) return;
+    if (checkErrorPassword(newPassword)) return;
     if (_.trim(originPassword) === _.trim(newPassword)) {
       return alert(_l('您输入的新密码与旧密码一样'), 3);
     }

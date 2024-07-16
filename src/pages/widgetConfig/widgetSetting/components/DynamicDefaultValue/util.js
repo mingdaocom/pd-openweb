@@ -69,7 +69,7 @@ export const getDateType = data => {
 export const showClear = (data = {}, dynamicValue) => {
   const { staticValue } = dynamicValue[0] || {};
   if (_.includes(CAN_SHOW_CLEAR_FIELD, data.type) && staticValue) return true;
-  if (_.includes([3, 4, 5, 26], data.type)) {
+  if (_.includes([3, 4, 5], data.type)) {
     const transferValue = typeof staticValue === 'string' ? safeParse(staticValue || '{}') : staticValue;
     return _.includes(['user-self'], (transferValue || {}).accountId);
   }
@@ -84,12 +84,12 @@ const isRelateMore = control => control.type === 29 && control.enumDefault === 2
 const isResultAsRelateMore = control => !isSheetDisplay(control);
 
 // 汇总计算为数值的
-const isFormulaResultAsSubtotal = item => {
+export const isFormulaResultAsSubtotal = item => {
   return item.type === 37 && _.includes([0, 6, 8], item.enumDefault2);
 };
 
 // 公式控件计算为数值的
-const isFormulaResultAsNumber = item => {
+export const isFormulaResultAsNumber = item => {
   return item.type === 31 || (item.type === 38 && item.enumDefault === 1);
 };
 // 他表字段值为数值的
@@ -97,17 +97,17 @@ const relateSheetFiledIsNumber = item => {
   return item.type === 30 && _.includes(CAN_AS_NUMBER_DYNAMIC_FIELD, _.get(item, ['sourceControl', 'type']));
 };
 // 公式控件计算为日期时间的
-const isFormulaResultAsDateTime = item => {
+export const isFormulaResultAsDateTime = item => {
   return item.type === 38 && item.enumDefault === 2 && item.unit === '1';
 };
 
 // 公式控件计算为日期的
-const isFormulaResultAsDate = item => {
+export const isFormulaResultAsDate = item => {
   return item.type === 38 && item.enumDefault === 2 && item.unit === '3';
 };
 
 // 公式控件计算为时间的
-const isFormulaResultAsTime = item => {
+export const isFormulaResultAsTime = item => {
   return item.type === 38 && item.enumDefault === 2 && _.includes(['8', '9'], item.unit);
 };
 
@@ -193,7 +193,7 @@ export const filterControls = (data = {}, controls = []) => {
   );
 };
 
-export const getControls = ({ data = {}, controls, isCurrent, needFilter = false }) => {
+export const getControls = ({ data = {}, controls, isCurrent, needFilter }) => {
   const { type, enumDefault, dataSource, advancedSetting: { usertype } = {} } = data;
   const filterFn = FILTER[type];
   //文本字段值可选 关联记录自动编号，不能是当前表单
@@ -215,7 +215,8 @@ export const getControls = ({ data = {}, controls, isCurrent, needFilter = false
 
   if (_.includes([26], type)) {
     // 默认值不支持部门、组织角色，人员选择范围动态值支持
-    controls = needFilter ? controls : _.filter(controls, item => !_.includes([27, 48], item.type));
+    controls =
+      needFilter || _.isUndefined(needFilter) ? _.filter(controls, item => !_.includes([27, 48], item.type)) : controls;
     return _.filter(controls, item => filterFn(item, enumDefault) && isSameUser(item, usertype));
   }
   // 默认值部门可选成员字段、查询配置中不可选成员字段

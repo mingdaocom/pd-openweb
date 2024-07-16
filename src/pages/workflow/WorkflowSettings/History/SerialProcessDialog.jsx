@@ -122,7 +122,7 @@ export default ({ processId, onClose = () => {} }) => {
       {!loading && !list.length && (
         <div className="emptyListWrap">
           <img src={emptyListPng} />
-          <div className="text Gray_9e Font16">{_l('没有串行等待中的流程')}</div>
+          <div className="text Gray_75 Font16">{_l('没有串行等待中的流程')}</div>
         </div>
       )}
 
@@ -146,7 +146,7 @@ export default ({ processId, onClose = () => {} }) => {
               <div className="w40">
                 {index === 0 && (
                   <span data-tip={_l('中止')} onClick={() => removePendingProcess(item.id)}>
-                    <i className="icon-delete Font16 pointer ThemeHoverColor3 Gray_9e" />
+                    <i className="icon-delete Font16 pointer ThemeHoverColor3 Gray_75" />
                   </span>
                 )}
               </div>

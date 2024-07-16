@@ -4,8 +4,10 @@ import { List } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import TabBar from '../components/TabBar';
 import login from 'src/api/login';
+import { navigateToLogin } from 'src/router/navigateTo';
 import { getCurrentProject } from 'src/util';
-// import './index.less';
+import localForage from 'localforage';
+import { removePssId } from 'src/util/pssId';
 
 const { Item } = List;
 
@@ -18,8 +20,10 @@ class MyHome extends Component {
 
     login.loginOut().then(data => {
       if (data) {
-        window.localStorage.removeItem('LoginCheckList');
-        location.href = '/network';
+        localForage.clear();
+        removePssId();
+        window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
+        navigateToLogin({ needReturnUrl: false });
       }
     });
   };

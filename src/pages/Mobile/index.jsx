@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Route, Switch, withRouter, Redirect } from 'react-router-dom';
 import { navigateTo } from 'src/router/navigateTo';
@@ -109,4 +109,6 @@ class Mobile extends Component {
   }
 }
 
-render(<Mobile />, document.getElementById('app'));
+const root = createRoot(document.getElementById('app'));
+
+root.render(<Mobile />);

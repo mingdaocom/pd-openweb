@@ -1,6 +1,7 @@
 import { assign, endsWith, forEach, find, trim } from 'lodash';
 import { getToken } from 'src/util';
 import { Base64 } from 'js-base64';
+import RegExpValidator from 'src/util/expression';
 
 const validateFileName = str => {
   str = trim(str);
@@ -122,8 +123,8 @@ export default option => {
         // validFiles.push(file);
         invalidFiles.push(file);
       }
-      let fileExt = `.${File.GetExt(file.name)}`;
-      let isPic = File.isPicture(fileExt);
+      let fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
+      let isPic = RegExpValidator.fileIsPicture(fileExt);
       tokenFiles.push({ bucket: option.bucket || (isPic ? 4 : 3), ext: fileExt });
     });
 
@@ -142,60 +143,70 @@ export default option => {
       return;
     }
 
-    if (initFunc.FilesAdded) {
-      initFunc.FilesAdded(up, validFiles);
-    }
-
-    let autoStart = up.getOption && up.getOption('auto_start');
-    autoStart = autoStart || (up.settings && up.settings.auto_start);
-    let beforeUploadCheck;
-    if (option.before_upload_check) {
-      beforeUploadCheck = option.before_upload_check(up, validFiles);
-      if (beforeUploadCheck === false) {
-        beforeUploadCheck = Promise.reject();
+    const start = () => {
+      let autoStart = up.getOption && up.getOption('auto_start');
+      autoStart = autoStart || (up.settings && up.settings.auto_start);
+      let beforeUploadCheck;
+      if (option.before_upload_check) {
+        beforeUploadCheck = option.before_upload_check(up, validFiles);
+        if (beforeUploadCheck === false) {
+          beforeUploadCheck = Promise.reject();
+        }
       }
-    }
-    getToken(tokenFiles, option.type, option.getTokenParam).then(res => {
-      const exceedFiles = [];
+      getToken(tokenFiles, option.type, option.getTokenParam).then(res => {
+        const exceedFiles = [];
 
-      files.forEach((item, i) => {
-        if (res[i].size && item.size > res[i].size * 1024 * 1024) {
-          exceedFiles.push(item);
-          up.removeFile(item);
-        } else {
-          item.token = res[i].uptoken;
-          item.key = res[i].key;
-          item.serverName = res[i].serverName;
-          item.fileName = res[i].fileName;
-          item.url = res[i].url;
+        files.forEach((item, i) => {
+          if (res[i].size && item.size > res[i].size * 1024 * 1024) {
+            exceedFiles.push(item);
+            up.removeFile(item);
+          } else {
+            item.token = res[i].uptoken;
+            item.key = res[i].key;
+            item.serverName = res[i].serverName;
+            item.fileName = res[i].fileName;
+            item.url = res[i].url;
+          }
+        });
+
+        if (exceedFiles.length) {
+          if (initFunc.FilesAdded) {
+            initFunc.FilesAdded(up, []);
+          }
+          option.remove_files_callback && option.remove_files_callback(up);
+          alert(_l('%0个文件无法上传：单个文件大小超过%1MB', exceedFiles.length, res[0].size), 2);
+        }
+
+        if (autoStart) {
+          plupload.each(validFiles, file => {
+            Promise.all([beforeUploadCheck])
+              .then(() => up.start())
+              .catch(failResult => {
+                file.status = window.plupload.FAILED;
+                up.trigger('Error', {
+                  file,
+                  code: undefined,
+                  message: failResult || '上传前检查失败',
+                });
+                up.removeFile(file);
+              });
+          });
         }
       });
+      up.refresh();
+    };
 
-      if (exceedFiles.length) {
-        if (initFunc.FilesAdded) {
-          initFunc.FilesAdded(up, []);
-        }
-        option.remove_files_callback && option.remove_files_callback(up);
-        alert(_l('%0个文件无法上传：单个文件大小超过%1MB', exceedFiles.length, res[0].size), 2);
+    if (initFunc.FilesAdded) {
+      if (up.settings.source === 'h5') {
+        // h5 有压缩、添加水印等异步操作，等 FilesAdded 处理完再执行 start
+        initFunc.FilesAdded(up, validFiles, start);
+      } else {
+        initFunc.FilesAdded(up, validFiles);
+        start();
       }
-
-      if (autoStart) {
-        plupload.each(validFiles, file => {
-          Promise.all([beforeUploadCheck])
-            .then(() => up.start())
-            .catch(failResult => {
-              file.status = window.plupload.FAILED;
-              up.trigger('Error', {
-                file,
-                code: undefined,
-                message: failResult || '上传前检查失败',
-              });
-              up.removeFile(file);
-            });
-        });
-      }
-    });
-    up.refresh();
+    } else {
+      start();
+    }
   });
 
   uploader.bind('Retry', function ClearStoredProgress(up, file = {}) {
@@ -217,7 +228,7 @@ export default option => {
       }
     } catch (e) {}
 
-    const fileExt = `.${File.GetExt(file.name)}`;
+    const fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
 
     const token = file.token;
 
@@ -423,8 +434,8 @@ export default option => {
         initFunc.FileUploaded(up, file, info);
       }
     } else {
-      let fileExt = `.${File.GetExt(file.name)}`;
-      let isPic = File.isPicture(fileExt);
+      let fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
+      let isPic = RegExpValidator.fileIsPicture(fileExt);
       getToken([{ bucket: option.bucket || (isPic ? 4 : 3), ext: fileExt }], option.type, option.getTokenParam).then(
         res => {
           $.ajax({
@@ -447,9 +458,9 @@ export default option => {
             }
 
             response.fileExt = fileExt;
-            response.fileName = File.GetName(res[0].fileName);
+            response.fileName = RegExpValidator.getNameOfFileName(res[0].fileName);
             response.filePath = file.key.replace(new RegExp(file.fileName), '');
-            response.originalFileName = encodeURIComponent(File.GetName(file.name));
+            response.originalFileName = encodeURIComponent(RegExpValidator.getNameOfFileName(file.name));
             response.serverName = file.serverName;
             file.url = res[0].url;
 

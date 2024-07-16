@@ -82,7 +82,7 @@ class WorkflowSettings extends Component {
           </div>
           <div className="flowEmptyWrap flex">
             <div className="flowEmptyPic flowEmptyPic-lock" />
-            <div className="Gray_9e Font14 mTop20">{_l('您无权访问或已删除')}</div>
+            <div className="Gray_75 Font14 mTop20">{_l('您无权访问或已删除')}</div>
           </div>
         </div>
       );
@@ -97,7 +97,7 @@ class WorkflowSettings extends Component {
           </div>
           <div className="flowEmptyWrap flex">
             <div className="flowEmptyPic flowEmptyPic-del" />
-            <div className="Gray_9e Font14 mTop20">{_l('工作流已删除')}</div>
+            <div className="Gray_75 Font14 mTop20">{_l('工作流已删除')}</div>
           </div>
         </div>
       );

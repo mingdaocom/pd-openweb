@@ -7,7 +7,8 @@ import { Icon, Dropdown } from 'ming-ui';
 import cx from 'classnames';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import { UN_TEXT_TYPE } from 'src/components/newCustomFields/tools/config.js';
+import RefreshTime from 'src/pages/worksheet/common/ViewConfig/components/RefreshTime.jsx';
+import { isUnTextWidget } from 'src/components/newCustomFields/tools/utils.js';
 const Wrap = styled.div`
   .emptyCon {
     width: 130px;
@@ -15,11 +16,14 @@ const Wrap = styled.div`
     background: #f5f5f5;
     border-radius: 50%;
     text-align: center;
-    margin: 170px auto 0;
+    margin: 100px auto 0;
     i {
       font-size: 70px;
       color: #bdbdbd;
     }
+  }
+  .txt {
+    margin-bottom: 100px;
   }
   .customFormLine {
     display: none !important;
@@ -268,6 +272,16 @@ export default function ParameterSet(params) {
       { pluginId: _.get(view, 'pluginInfo.id'), editAttrs: ['advancedSetting', 'pluginId'] },
     );
   };
+  const renderReshTime = isNull => {
+    const { pluginInfo = {} } = view;
+    const { switchSettings = {} } = pluginInfo;
+    return switchSettings.showRefresh === '1' ? (
+      <React.Fragment>
+        {isNull && <div style={{ borderTop: '1px solid #eaeaea' }}></div>}
+        <RefreshTime {...params} />
+      </React.Fragment>
+    ) : null;
+  };
   const renderCon = () => {
     if (paramSettings.length <= 0) {
       return (
@@ -275,36 +289,40 @@ export default function ParameterSet(params) {
           <div className="emptyCon flexRow alignItemsCenter justifyContentCenter">
             <Icon icon={'configure'} />
           </div>
-          <div className="Gray_9e Font16 TxtCenter mTop30">{_l('暂未添加参数')}</div>
+          <div className="Gray_9e Font16 TxtCenter mTop30 txt">{_l('暂未添加参数')}</div>
+          {renderReshTime(true)}
         </React.Fragment>
       );
     }
     return (
-      <CustomFields
-        disableRules
-        data={paramSettings}
-        isCreate={true}
-        onChange={(data, ids, { controlId }) => {
-          if (!controlId) {
-            return;
-          }
-          setState({
-            paramSettings: data,
-          });
-          const info = data.find(o => o.controlId === controlId);
-          if (info && [...UN_TEXT_TYPE, 200].includes(info.type)) {
-            handleUpdate(data);
-          }
-        }}
-        onBlur={() => {
-          handleUpdate();
-        }}
-        customWidgets={{
-          200: CustomControlDrop,
-        }}
-      />
+      <React.Fragment>
+        <CustomFields
+          className="mBottom20"
+          disableRules
+          data={paramSettings}
+          isCreate={true}
+          onChange={(data, ids, { controlId }) => {
+            if (!controlId) {
+              return;
+            }
+            setState({
+              paramSettings: data,
+            });
+            const info = data.find(o => o.controlId === controlId);
+            if (info && isUnTextWidget(info)) {
+              handleUpdate(data);
+            }
+          }}
+          onBlur={() => {
+            handleUpdate();
+          }}
+          customWidgets={{
+            200: CustomControlDrop,
+          }}
+        />
+        {renderReshTime()}
+      </React.Fragment>
     );
   };
-
   return <Wrap className={'mTop16'}>{renderCon()}</Wrap>;
 }

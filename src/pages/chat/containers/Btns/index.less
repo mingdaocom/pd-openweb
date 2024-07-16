@@ -35,9 +35,12 @@
   }
   .ChatList-column-btns {
     flex-direction: column;
-    .search-btn, .chat-btn {
+    .search-btn {
       display: none;
     }
+  }
+  .hideChatBtn .chat-btn {
+    display: none;
   }
   .ChatList-btn {
     width: 25%;
@@ -57,7 +60,7 @@
     display: flex !important;
   }
   &.visible {
-    height: 85px;
+    height: 125px;
     flex-direction: column;
     .ChatList-btn {
       width: 100%;

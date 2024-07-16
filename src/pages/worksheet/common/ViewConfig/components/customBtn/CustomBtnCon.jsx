@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './CustomBtn.less';
 import { Icon, RadioGroup, Dialog, Tooltip } from 'ming-ui';
 import CustomBtnList from './CustomBtnList.jsx';
-import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle } from '@mdfe/react-sortable-hoc';
 import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
 import _ from 'lodash';

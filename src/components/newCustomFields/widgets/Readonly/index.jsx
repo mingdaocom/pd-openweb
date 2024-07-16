@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { Linkify } from 'ming-ui';
 import { formatStrZero } from 'src/util';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -13,6 +14,18 @@ export default class Widgets extends Component {
     unit: PropTypes.string,
     advancedSetting: PropTypes.object,
   };
+
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   render() {
     const { value, type, dot, unit, advancedSetting } = this.props;

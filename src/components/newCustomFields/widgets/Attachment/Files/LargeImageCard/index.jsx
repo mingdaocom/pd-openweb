@@ -4,7 +4,7 @@ import { Icon, LoadDiv } from 'ming-ui';
 import { Tooltip } from 'antd';
 import { loadImage } from '../utils';
 import './index.less';
-
+import RegExpValidator from 'src/util/expression';
 const LargeImageCard = props => {
   const { isMobile, previewUrl, onPreview } = props;
   const [loading, setLoading] = useState(true);
@@ -32,10 +32,7 @@ const LargeImageCard = props => {
           />
           {!isMobile && (
             <div className="mask">
-              <div
-                className="preview flexRow alignItemsCenter justifyContentCenter"
-                onClick={onPreview}
-              >
+              <div className="preview flexRow alignItemsCenter justifyContentCenter" onClick={onPreview}>
                 <Tooltip title={_l('展开')} placement="bottom">
                   <Icon className="Font17 pointer" icon="worksheet_enlarge" />
                 </Tooltip>
@@ -46,12 +43,14 @@ const LargeImageCard = props => {
       )}
     </div>
   );
-}
+};
 
-export default (props) => {
+export default props => {
   const { data, ...otherProps } = props;
   const { isMdFile, isKc } = props;
-  const isPicture = isMdFile ? File.isPicture(data.fileExt || data.ext) : File.isPicture(data.fileExt);
+  const isPicture = isMdFile
+    ? RegExpValidator.fileIsPicture(data.fileExt || data.ext)
+    : RegExpValidator.fileIsPicture(data.fileExt);
 
   if (!isPicture) {
     return <div />;
@@ -71,7 +70,11 @@ export default (props) => {
     );
   } else {
     const { url, onKCPreview, onPreview } = props;
-    const previewImageUrl = isKc ? data.viewUrl : (url.indexOf('imageView2') > -1 ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0') : url + `${url.includes('?') ? '&' : '?'}imageView2/0`);
+    const previewImageUrl = isKc
+      ? data.viewUrl
+      : url.indexOf('imageView2') > -1
+      ? url.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')
+      : url + `${url.includes('?') ? '&' : '?'}imageView2/0`;
     return (
       <LargeImageCard
         {...otherProps}
@@ -82,4 +85,4 @@ export default (props) => {
       />
     );
   }
-}
+};

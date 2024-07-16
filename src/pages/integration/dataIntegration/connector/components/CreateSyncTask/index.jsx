@@ -129,6 +129,7 @@ export default function CreateSyncTask(props) {
         nodeType: 'SOURCE_TABLE',
         config: {
           datasourceId: source.id,
+          appId: source.type === DATABASE_TYPE.APPLICATION_WORKSHEET ? source.id : undefined,
           dsType: source.type,
           className: source.className,
           iconBgColor: source.iconBgColor,
@@ -141,6 +142,7 @@ export default function CreateSyncTask(props) {
         nodeType: 'DEST_TABLE',
         config: {
           dataDestId: dest.id,
+          appId: dest.type === DATABASE_TYPE.APPLICATION_WORKSHEET ? dest.id : undefined,
           dsType: dest.type,
           className: dest.className,
           iconBgColor: dest.iconBgColor,

@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Dropdown } from 'ming-ui';
 import { SettingItem } from '../../styled';
-import OptionList from '../components/OptionList';
+import SelectOptions from '../components/OptionList/SelectOptions';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import _ from 'lodash';
 
@@ -76,12 +76,7 @@ export default function DropdownCom({ data, onChange, globalSheetInfo, fromPorta
         </SettingItem>
       )}
       {!fromExcel && (
-        <OptionList.SelectOptions
-          data={data}
-          globalSheetInfo={globalSheetInfo}
-          onChange={onChange}
-          fromPortal={fromPortal}
-        />
+        <SelectOptions data={data} globalSheetInfo={globalSheetInfo} onChange={onChange} fromPortal={fromPortal} />
       )}
     </Fragment>
   );

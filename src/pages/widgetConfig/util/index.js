@@ -55,21 +55,6 @@ export const enumObj = obj => {
 export const enumWidgetType = enumObj({ ...WIDGETS_TO_API_TYPE_ENUM });
 
 /**
- * 导入本目录下所有组件
- * @param {*} r
- */
-export const exportAll = r => {
-  const componentConfig = {};
-  r.keys().forEach(item => {
-    const key = item.match(/\/(\w*)\./)[1];
-    const component = r(item);
-    const capitalKey = upperFirst(key);
-    componentConfig[capitalKey] = component.default || component[key];
-  });
-  return componentConfig;
-};
-
-/**
  * 导出当前文件夹与控件对应的组件
  * 命名要保证大写之后与定义的控件类型相同
  * @param {*} r
@@ -559,12 +544,9 @@ export const supportSettingCollapse = (props, key) => {
     case 'base':
       return true;
     case 'option':
-      return _.includes(HAVE_OPTION_WIDGET, type);
+      return _.includes(HAVE_OPTION_WIDGET, type) || (type === 45 && enumDefault === 3);
     case 'style':
-      return (
-        _.includes(HAVE_TABLE_STYLE_WIDGET, type) ||
-        (includes([29], type) && _.includes(['2', '5', '6'], get(data, 'advancedSetting.showtype')))
-      );
+      return _.includes(HAVE_TABLE_STYLE_WIDGET, type) || isSheetDisplay(data);
     case 'highsetting':
       switch (type) {
         case 10:
@@ -608,12 +590,15 @@ export const supportSettingCollapse = (props, key) => {
 // 各控件分别支持哪些配置
 // 设置、样式、说明、事件
 export const supportWidgetIntroOptions = (data = {}, introType, from, isRecycle = false) => {
+  // 回收站不显示样式、说明
+  if (isRecycle && _.includes([2, 3, 4], introType)) return false;
   // 分段、他表、标签页、多条列表没有样式设置
   if ((_.includes([22, 30, 52], data.type) || isSheetDisplay(data)) && introType === 2) return false;
   // 空白子表里面字段不支持说明
   if (from === 'subList' && introType === 3) return false;
-  // 回收站不显示样式、说明
-  if (isRecycle && _.includes([2, 3], introType)) return false;
+  // 子表不支持事件
+  if ((from === 'subList' || data.type === 34) && introType === 4) return false;
+
   return true;
 };
 
@@ -623,5 +608,7 @@ export const filterSysControls = (controls = []) => {
 };
 
 export const getDefaultarea = () => {
-  return JSON.stringify(COMMON_DEFAULT_COUNTRY.find(o => o.iso2 === _.get(md, 'global.Config.DefaultConfig.initialCountry')));
+  return JSON.stringify(
+    COMMON_DEFAULT_COUNTRY.find(o => o.iso2 === _.get(md, 'global.Config.DefaultConfig.initialCountry')),
+  );
 };

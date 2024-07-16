@@ -12,13 +12,14 @@ import {
   getAlienationColor,
   getAuxiliaryLineConfig,
   getControlMinAndMax,
-  getStyleColor
+  getStyleColor,
+  getEmptyChartData
 } from './common';
 import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
-import { formatSummaryName, getIsAlienationColor, isFormatNumber } from 'statistics/common';
+import { formatSummaryName, getIsAlienationColor, isFormatNumber, formatterTooltipTitle } from 'statistics/common';
 import { toFixed } from 'src/util';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 
 export const formatDataCount = (data, isVertical, newYaxisList) => {
@@ -65,7 +66,7 @@ export const formatChartData = (data, yaxisList, splitControlId, xaxesControlId)
             controlId: element.c_id,
             groupName: `${splitControlId ? element.key : (rename || element.key)}-md-${reportTypes.BarChart}-chart-${element.c_id || element.originalKey}`,
             groupKey: element.originalKey,
-            value: target[0].v,
+            value: target[0].v || (emptyShowType ? 0 : null),
             name: name || (!splitControlId && !xaxesControlId ? element.originalKey : undefined),
             originalId: item.originalX || (xaxesControlId ? '' : name || element.originalKey),
           });
@@ -87,7 +88,7 @@ export const formatChartData = (data, yaxisList, splitControlId, xaxesControlId)
           result.push({
             groupName: `${data.key}-md-${reportTypes.BarChart}-chart-${data.originalKey}`,
             groupKey: data.originalKey,
-            value: value.m[yaxis.controlId],
+            value: (value.m && value.m[yaxis.controlId]) || 0,
             name: yaxis.controlName,
             originalId: yaxis.controlName,
           });
@@ -161,7 +162,7 @@ export default class extends Component {
       displaySetup.isPerPile !== oldDisplaySetup.isPerPile ||
       nextProps.isLinkageData !== this.props.isLinkageData
     ) {
-      this.BarChart.destroy();
+      this.BarChart && this.BarChart.destroy();
       this.renderBarChart(nextProps);
     }
   }
@@ -314,7 +315,7 @@ export default class extends Component {
     }
 
     const baseConfig = {
-      data,
+      data: data.length ? data : getEmptyChartData(reportData),
       appendPadding: isVertical ? [25, 0, 5, 0] : [10, 50, 0, 0],
       seriesField: (isOptionsColor || isCustomColor) ? 'originalId' : 'groupName',
       meta: {
@@ -332,11 +333,11 @@ export default class extends Component {
       xField: isVertical ? 'originalId' : 'value',
       yField: isVertical ? 'value' : 'originalId',
       xAxis: isVertical
-        ? this.getxAxis(displaySetup, xaxes.particleSizeType)
+        ? this.getxAxis(displaySetup, xaxes)
         : this.getyAxis(displaySetup, newYaxisList),
       yAxis: isVertical
         ? this.getyAxis(displaySetup, newYaxisList)
-        : this.getxAxis(displaySetup, xaxes.particleSizeType),
+        : this.getxAxis(displaySetup, xaxes),
       animation: true,
       slider: style.showXAxisSlider ? {
         start: 0,
@@ -349,7 +350,8 @@ export default class extends Component {
         const controlIndex = _.findIndex(yaxisList, { controlId });
         let color = colors[controlIndex % colors.length];
         if (isRuleColor) {
-          color = getRuleColor(data.value);
+          const item = _.find(baseConfig.data, { originalId: data.originalId });
+          color = getRuleColor(item.value);
         }
         if (split.controlId) {
           const splitIndex = _.findIndex(map, { originalKey: controlId });
@@ -373,7 +375,7 @@ export default class extends Component {
           if (linkageMatch.value === data.originalId) {
             return color;
           } else {
-            return tinycolor(color).setAlpha(0.3).toRgbString();
+            return new TinyColor(color).setAlpha(0.3).toRgbString();
           }
         }
         return color;
@@ -389,6 +391,7 @@ export default class extends Component {
       tooltip: {
         shared: true,
         showMarkers: false,
+        title: formatterTooltipTitle(xaxes),
         formatter: (item) => {
           const getLabelPercent = value => {
             const { originalId } = item;
@@ -411,7 +414,7 @@ export default class extends Component {
             const name = yaxisList[0].controlName;
             return {
               name,
-              value: `${value} ${getLabelPercent(value)}`
+              value: _.isNumber(value) ? `${value} ${getLabelPercent(value)}` : '--'
             }
           }
           const { value, groupName } = item;
@@ -431,7 +434,7 @@ export default class extends Component {
           }
         }
       },
-      label: showNumber
+      label: showNumber || style.showLabelPercent
         ? {
             position: isPile || isPerPile ? 'middle' : isVertical ? 'top' : 'right',
             layout: [
@@ -448,7 +451,13 @@ export default class extends Component {
                   const result = _.filter(data, { originalId });
                   const count = _.reduce(result, (total, item) => total + item.value, 0);
                   const percent = value && count ? (value / count * 100).toFixed(2) : undefined;
-                  return `${labelValue} ${percent ? `(${percent}%)` : ''}`;
+                  if (showNumber && style.showLabelPercent) {
+                    return `${labelValue} ${percent ? `(${percent}%)` : ''}`;
+                  }
+                  if (style.showLabelPercent && percent) {
+                    return `${percent}%`;
+                  }
+                  return labelValue;
                 }
                 if (displaySetup.showTotal) {
                   return `${labelValue} (${(value / summary.sum * 100).toFixed(2)}%)`;
@@ -523,7 +532,7 @@ export default class extends Component {
       },
     };
   }
-  getxAxis(displaySetup, particleSizeType) {
+  getxAxis(displaySetup, { particleSizeType, showFormat = '0' }) {
     const { fontStyle, xdisplay, ydisplay } = displaySetup;
     return {
       title:
@@ -538,7 +547,7 @@ export default class extends Component {
             autoHide: true,
             autoEllipsis: true,
             formatter: (name, item) => {
-              return particleSizeType === 6 ? _l('%0时', name) : name;
+              return particleSizeType === 6 && showFormat === '0' ? _l('%0时', name) : name;
             },
           }
         : null,

@@ -2,7 +2,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Divider, Button, Tooltip } from 'antd';
-import { Icon, RichText, SvgIcon, UserHead } from 'ming-ui';
+import { Icon, RichText, SvgIcon, UserHead, RadioGroup, Input, ColorPicker } from 'ming-ui';
 import styled from 'styled-components';
 import './index.less';
 import { canEditData, canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
@@ -46,10 +46,15 @@ export default class Editor extends Component {
 
   constructor(props) {
     super(props);
+    const { resume } = props;
+    const resumeInfo = resume ? JSON.parse(resume) : {};
     this.state = {
       showCache: false,
       bindCreateUpload: false,
       clearCacheLoading: false,
+      showType: resume ? 1 : 0,
+      resume: resumeInfo.value || '',
+      resumeColor: resumeInfo.color || '#333333'
     };
   }
 
@@ -155,14 +160,23 @@ export default class Editor extends Component {
    * onSave
    */
   onSave = () => {
+    const { showType, resume, resumeColor } = this.state;
     const { cacheKey, onSave, changeEditState } = this.props;
     const content = localStorage.getItem('mdEditor_' + cacheKey);
-    onSave(content);
+    const resumeInfo = JSON.stringify({
+      value: resume,
+      color: resumeColor
+    });
+    onSave(content, showType ? resumeInfo : '');
+    if (cacheKey === 'sheetIntroDescription' && !content && resume) {
+      this.props.onCancel();
+    }
     changeEditState && changeEditState(false);
     this.clearStorage();
   };
 
   render() {
+    const { showType } = this.state;
     const {
       isEditing,
       auth,
@@ -185,8 +199,9 @@ export default class Editor extends Component {
     } = this.props;
 
     const isAppIntroDescription = cacheKey === 'appIntroDescription';
+    const isSheetIntroDescription = cacheKey === 'sheetIntroDescription';
     const clientHeight = document.body.clientHeight;
-    const distance = isEditing ? 198 : 135;
+    const distance = isEditing ? (isSheetIntroDescription ? 380 : 198) : 135;
     const richTextHeight = isAppIntroDescription && !isEditing ? 0 : clientHeight - distance;
 
     if (!isEditing) {
@@ -286,8 +301,30 @@ export default class Editor extends Component {
       );
     }
 
+    const renderFooter = () => {
+      return (
+        <Fragment>
+          <div
+            className="mdEditorCancel ThemeColor3"
+            onClick={() => {
+              this.clearStorage();
+              changeEditState && changeEditState(false);
+              if (cacheKey === 'customPageEditWidget' || cacheKey === 'appMultilingual') {
+                onCancel();
+              }
+            }}
+          >
+            {_l('取消')}
+          </div>
+          <div className="mdEditorSave ThemeBGColor3 ThemeHoverBGColor2" onClick={this.onSave}>
+            {_l('保存')}
+          </div>
+        </Fragment>
+      );
+    }
+
     return (
-      <Wrap className={cx('mdEditor', className)} richTextHeight={richTextHeight}>
+      <Wrap className={cx('mdEditor', className, { sheetEditor: isSheetIntroDescription })} richTextHeight={richTextHeight}>
         {toorIsBottom && (
           <RichText
             // placeholder={_l('为应用填写使用说明，当用户第一次访问应用时会打开此说明')}
@@ -306,23 +343,72 @@ export default class Editor extends Component {
           {!toorIsBottom && <div className="caption">{title || _l('应用说明')}</div>}
           {this.renderRecovery()}
           <div className="flex" />
-          <div
-            className="mdEditorCancel ThemeColor3"
-            onClick={() => {
-              this.clearStorage();
-              changeEditState && changeEditState(false);
-              if (cacheKey === 'customPageEditWidget' || cacheKey === 'appMultilingual') {
-                onCancel();
-              }
-            }}
-          >
-            {_l('取消')}
-          </div>
-          <div className="mdEditorSave ThemeBGColor3 ThemeHoverBGColor2" onClick={this.onSave}>
-            {_l('保存')}
-          </div>
+          {!isSheetIntroDescription && renderFooter()}
         </div>
-        <div className="flexRow">
+        {isSheetIntroDescription && (
+          <div className="sheetIntroInfo">
+            <div className="mBottom10 bold Font13">{_l('显示方式')}</div>
+            <RadioGroup
+              size="middle"
+              data={[
+                {
+                  text: _l('图标'),
+                  value: 0,
+                },
+                {
+                  text: _l('文字'),
+                  value: 1,
+                }
+              ]}
+              checkedValue={showType}
+              onChange={value => {
+                this.setState({ showType: value });
+              }}
+            />
+            {!!showType && (
+              <div className="mTop10 mBottom10 flexRow alignItemsCenter">
+                <div className="flex mRight20">
+                  <div className="flexRow alignItemsCenter mBottom10 Font13">
+                    <span className="bold mRight3">{_l('摘要')}</span>
+                    <span>（{_l('在标题下方显示文案')}）</span>
+                  </div>
+                  <div className="flex Relative">
+                    <Input
+                      className="w100"
+                      value={this.state.resume}
+                      onChange={value => {
+                        this.setState({ resume: value.slice(0, 80).trim() });
+                      }}
+                    />
+                    <span className="resumeLength Font13 Gray_9e">{`${this.state.resume.length}/80`}</span>
+                  </div>
+                </div>
+                <div>
+                  <div className="bold Font13 mBottom10">{_l('文字颜色')}</div>
+                  <ColorPicker
+                    value={this.state.resumeColor}
+                    sysColor={true}
+                    onChange={value => {
+                      this.setState({ resumeColor: value });
+                    }}
+                  >
+                    <div className="colorWrap flexRow alignItemsCenter pointer">
+                      <span className="Font22 bold" style={{ color: this.state.resumeColor }}>A</span>
+                      <Icon icon="arrow-down-border" />
+                    </div>
+                  </ColorPicker>
+                </div>
+              </div>
+            )}
+            <div className="flexRow alignItemsCenter Font13 mTop20 mBottom10">
+              <span className="bold mRight3">{_l('详细说明')}</span>
+              {showType === 1 && (
+                <span>（{_l('在摘要后显示详情按钮，点击查看。可不填')}）</span>
+              )}
+            </div>
+          </div>
+        )}
+        <div className="flexRow mdEditorContentWrap">
           {renderLeftContent && <div className="leftContent flex">{renderLeftContent()}</div>}
           {!toorIsBottom && (
             <div className="flex flexShrink0">
@@ -340,6 +426,11 @@ export default class Editor extends Component {
             </div>
           )}
         </div>
+        {isSheetIntroDescription && (
+          <div className="flexRow alignItemsCenter sheetIntroDescriptionFooter">
+            {renderFooter()}
+          </div>
+        )}
       </Wrap>
     );
   }

@@ -27,8 +27,8 @@ class InfoTop extends React.PureComponent {
             )}
           </div>
           <div className="Left infoBox">
-            <div className="Height30 pLeft15">
-              <span className="Font16 active Width400 overflow_ellipsis" title={userInfo.fullname}>
+            <div className="Height30 pLeft15 overflow_ellipsis">
+              <span className="Font16 active" title={userInfo.fullname}>
                 {userInfo.fullname}
               </span>
               {isMe && (

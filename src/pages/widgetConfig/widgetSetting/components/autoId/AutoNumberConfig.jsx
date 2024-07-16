@@ -1,13 +1,11 @@
-import React, { useState, Fragment, useEffect } from 'react';
+import React, { useState, Fragment } from 'react';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import { Dialog, Dropdown, Button, RadioGroup, Checkbox } from 'ming-ui';
-import Components from '../../../components';
+import AutoIcon from '../../../components/Icon';
 import { Input, Tooltip } from 'antd';
-import { parseInt, isString } from 'lodash';
+import { parseInt } from 'lodash';
 import { SettingItem } from '../../../styled';
-
-const Icon = Components.Icon;
 
 const NumberConfigWrap = styled.div`
   .settingItem {
@@ -140,13 +138,13 @@ export default function AutoNumberConfig(props) {
                 />
                 <div className="adjustWrap">
                   <div className="addWrap">
-                    <Icon
+                    <AutoIcon
                       icon="arrow-up-border"
                       onClick={() => setData({ length: handleValueChange({ value: data.length + 1 }) || data.length })}
                     />
                   </div>
                   <div className="subWrap">
-                    <Icon
+                    <AutoIcon
                       icon="arrow-down-border"
                       onClick={() => setData({ length: handleValueChange({ value: data.length - 1 }) || data.length })}
                     />
@@ -174,7 +172,7 @@ export default function AutoNumberConfig(props) {
                       trigger={['hover']}
                       title={_l('勾选时，超出位数继续递增； 取消勾选时，超出位数后从0开始编号')}
                     >
-                      <Icon style={{ marginLeft: '6px' }} icon="help" />
+                      <AutoIcon style={{ marginLeft: '6px' }} icon="help" />
                     </Tooltip>
                   </Fragment>
                 </Checkbox>

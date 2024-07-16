@@ -86,7 +86,7 @@ export default class PublicLink extends Component {
   };
 
   render() {
-    const { projectId, fromType, setDetailMode, code, url, tokens } = this.props;
+    const { projectId, fromType, setDetailMode, code, url, showInviteRules } = this.props;
     const { loading, expireHours, showDialogSettingInviteRules } = this.state;
     const isProject = fromType === FROM_TYPE.NORMAL;
     const isFriend = fromType === FROM_TYPE.PERSONAL;
@@ -163,7 +163,7 @@ export default class PublicLink extends Component {
           )}
         </div>
 
-        {isProject && (
+        {isProject && showInviteRules && (
           <div className="footContainer">
             <div className="addBox Gray_9e">
               <span onClick={() => this.setState({ showDialogSettingInviteRules: true })}>

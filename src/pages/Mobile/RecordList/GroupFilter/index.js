@@ -595,7 +595,8 @@ const GroupFilter = props => {
             )}
             <div className="groupDetailCon">
               <Component {...viewProps} />
-              {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
+              {!isMingDaoApp &&
+              isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
               worksheetInfo.allowAdd &&
               !batchOptVisible ? (
                 <AddRecordBtn
@@ -628,7 +629,8 @@ const GroupFilter = props => {
                 />
               ) : null}
             </div>
-            {!_.get(window, 'shareState.shareId') &&
+            {!isMingDaoApp &&
+              !_.get(window, 'shareState.shareId') &&
               (canDelete || showCusTomBtn) &&
               view.viewType === 0 &&
               !batchOptVisible && (

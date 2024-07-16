@@ -123,9 +123,11 @@ export function fetchKcNodes(path, id, cb) {
             type: 'KC_UPDATE_TOTALCOUNT',
             value: data.totalCount,
           });
-          if (typeof cb === 'function') {
-            cb(data);
-          }
+          setTimeout(() => {
+            if (typeof cb === 'function') {
+              cb(data);
+            }
+          }, 100);
         });
     });
   };

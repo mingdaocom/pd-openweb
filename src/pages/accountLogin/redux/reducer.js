@@ -3,7 +3,6 @@ import { combineReducers } from 'redux';
 import { AccountNextActions } from '../config';
 import { getRequest } from 'src/util';
 
-
 const initData = () => {
   let request = getRequest();
   return {
@@ -31,6 +30,8 @@ const initData = () => {
       tpType: parseInt(request.tpType) || 0,
     },
     logo: '',
+    hasGetLogo: false,
+    isDefaultLogo: false,
     state: request.state || '',
   };
 };

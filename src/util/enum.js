@@ -59,9 +59,11 @@ export const VersionProductType = {
   globalBehaviorLog: 32, // 全局行为日志
   globalVariable: 33, // 全局变量
   waterMark: 34, // 附件水印
-  dataBase: 36, //数据库
-  assistant: 37, //AI助手
-  aggregation: 38, //聚合表
+  dataBase: 36, // 数据库
+  assistant: 37, // AI助手
+  aggregation: 38, // 聚合表
+  WFLP: 39, // 工作流循环
+  PAY: 40, // 支付
 };
 
 export const VersionProductHelpLink = {
@@ -91,4 +93,5 @@ export const VersionProductHelpLink = {
   30: 'https://help.mingdao.com/application/exclusive-computing-power',
   31: 'https://help.mingdao.com/application/log',
   33: '',
+  40: 'https://help.mingdao.com/org/payment',
 };

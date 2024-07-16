@@ -59,12 +59,15 @@
         display: none;
       }
     }
+
     &.isSingle {
       .recordHeader {
         .refreshBtn {
           display: none;
         }
       }
+    }
+    &.hideFormHeader {
       .recordInfoForm {
         .recordInfoFormHeader {
           display: none;
@@ -72,6 +75,11 @@
         .recordInfoFormContent {
           padding-top: 12px;
         }
+      }
+    }
+    &.hideToolbar {
+      .recordHeader {
+        display: none;
       }
     }
   }

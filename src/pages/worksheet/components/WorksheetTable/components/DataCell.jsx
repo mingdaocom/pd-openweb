@@ -50,6 +50,7 @@ export default function MDCell(props) {
     onCellFocus,
     checkRulesErrorOfControl,
     registerRef,
+    chatButton,
   } = props;
   const onClick = () => {
     if (control.key === 'number' || !row.rowid || allowlink === '0') return;
@@ -58,6 +59,7 @@ export default function MDCell(props) {
   // console.log('data cell render');
   return (
     <CellControl
+      chatButton={chatButton}
       key={key}
       isTrash={isTrash}
       tableId={tableId}

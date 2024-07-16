@@ -12,6 +12,7 @@ import EmptyStatus from '../EmptyStatus';
 import { getOptions } from '../../../widgetConfig/util/setting';
 import { useSetState } from 'react-use';
 import OperateList from './OperateList';
+import { getTranslateInfo } from 'src/util';
 
 const MAX_HEIGHT = 530;
 const LINE_HEIGHT = 30;
@@ -93,17 +94,18 @@ const ListItem = styled.div`
 `;
 
 const OptionItem = props => {
-  const { name, colorful, handleClick, pos, status, onClick = () => {} } = props;
+  const { appId, collectionId, name, colorful, handleClick, pos, status, onClick = () => {} } = props;
   const options = getOptions({ options: props.options });
   const getPos = () => {
     if (!pos) return {};
     return { transform: `translate(${pos.left}px,${pos.top}px)` };
   };
+  const translateInfo = getTranslateInfo(appId, null, collectionId);
   return (
     <ListItem style={{ ...getPos() }} status={status} onClick={onClick}>
       <div className="title Bold">
         <div className="name ellipsis">
-          {name}
+          {translateInfo.name || name}
           {` ( ${options.length} )`}
         </div>
         <div className="operate">
@@ -187,7 +189,7 @@ export default function AllOptionList(props) {
         setOriginalItems(data);
         setItems(data);
         waterfallList(data);
-        handleSearch(searchValue, data);
+        searchValue && handleSearch(searchValue, data);
       })
       .finally(() => {
         setLoading(false);

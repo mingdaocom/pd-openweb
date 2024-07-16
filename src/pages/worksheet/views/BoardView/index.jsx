@@ -62,6 +62,7 @@ function BoardView(props) {
     saveView,
     sortBoardRecord,
     initBoardViewData,
+    clearBoardView,
     setViewConfigVisible,
     filters,
     addRecord,
@@ -154,7 +155,10 @@ function BoardView(props) {
 
   useEffect(() => {
     const unBindEvent = bindEvent();
-    return () => unBindEvent();
+    return () => {
+      clearBoardView();
+      unBindEvent();
+    };
   }, []);
 
   useEffect(() => {
@@ -174,6 +178,7 @@ function BoardView(props) {
   }, [
     viewId,
     view.viewControl,
+    view.coverCid,
     view.advancedSetting.navshow,
     JSON.stringify(view.advancedSetting.navfilters),
     view.advancedSetting.freezenav,

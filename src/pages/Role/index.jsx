@@ -58,6 +58,12 @@ const TopBar = styled.div`
       color: #9e9e9e !important;
     }
   }
+  .valignWrapper {
+    &.isAbsolute {
+      position: absolute;
+      right: 24px;
+    }
+  }
 `;
 
 const Wrap = styled.div`
@@ -252,6 +258,7 @@ class AppRole extends Component {
           params: { appId, editType },
         },
       } = this.props;
+      window[`timeZone_${appId}`] = appDetail.timeZone;
 
       if (
         editType === 'external' &&
@@ -521,7 +528,9 @@ class AppRole extends Component {
                     </span>
                   }
                 >
-                  <div className="mLeft24 valignWrapper">
+                  <div
+                    className={cx('mLeft24 valignWrapper', { isAbsolute: !(editApp && !isOpenPortal && featureType) })}
+                  >
                     <RoleDebugSwitch
                       checked={roleDebug}
                       size="small"

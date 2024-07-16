@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import favoriteApi from 'src/api/favorite';
 import Chart from 'src/pages/Statistics/Card';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import { CardItem } from '.';
 import './style.less';
 import chartEmptyImg from 'staticfiles/images/chart.png';
@@ -56,7 +56,7 @@ const SortableItem = SortableElement(data => {
       </span>
       <Chart
         report={{ id: chart.reportId }}
-        pageId={chart.rowId}
+        pageId={chart.pageId}
         projectId={projectId}
         appId={chart.appId}
         viewId={chart.viewId}
@@ -137,7 +137,11 @@ export default function CollectionCharts(props) {
             .filter(item => !_.isUndefined(item))}
           axis={'xy'}
           onSortEnd={onSort}
-          onCancelFavorite={id => setChartList(chartList.filter(item => item.favoriteId !== id))}
+          onCancelFavorite={id => {
+            const newChartList = chartList.filter(item => item.favoriteId !== id);
+            setChartList(newChartList);
+            setSortIds(newChartList.map(item => item.favoriteId));
+          }}
         />
       ) : (
         <div className="emptyWrapper">

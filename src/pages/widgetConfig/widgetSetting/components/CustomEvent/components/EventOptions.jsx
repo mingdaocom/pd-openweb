@@ -24,19 +24,32 @@ export default function EventOptions(props) {
   };
 
   /**
+   * 获取且或
+   */
+  const getSpliceType = () => {
+    const { eventActions = [] } = _.find(customEvent, c => c.eventId === eventId) || {};
+    const curSpliceType = _.get(eventActions, [index, 'filters', 0, 'spliceType']);
+    return curSpliceType || SPLICE_TYPE_ENUM.AND;
+  };
+
+  /**
    * 更新数据
    * eventKey: 'filters' | 'actions'
    */
-  const handleOk = (data, isDelete) => {
+  const handleOk = (newValue, isDelete) => {
     const newCustomEvent = customEvent.map(i => {
       if (i.eventId === eventId) {
         return update(i, {
           eventActions: {
             $apply: (item = []) => {
-              const originItem = item[index] || { eventName: _l('满足条件%0', item.length), filters: [], actions: [] };
+              const originItem = item[index] || {
+                eventName: _l('满足条件%0', item.length + 1),
+                filters: [],
+                actions: [],
+              };
               const newItem = update(originItem, {
                 [eventKey]: {
-                  $splice: isDelete ? [[childIndex, 1]] : [[childIndex, 1, data]],
+                  $splice: isDelete ? [[childIndex, 1]] : [[childIndex, 1, newValue]],
                 },
               });
               if (item[index]) {
@@ -93,7 +106,7 @@ export default function EventOptions(props) {
               e.stopPropagation();
               renderCustomFilter({
                 ...props,
-                filterData: { ...getData(), valueType: i.value, spliceType: SPLICE_TYPE_ENUM.AND },
+                filterData: { ...getData(), valueType: i.value, spliceType: getSpliceType() },
                 handleOk,
               });
               setFilterVisible(false);
@@ -130,8 +143,8 @@ export default function EventOptions(props) {
     const ACTION_DISPLAY = getActionDisplay(data);
 
     const actionMenu = (
-      <Menu style={{ width: 286 }}>
-        {ACTION_DISPLAY.map(i => (
+      <Menu style={{ width: 286, position: 'relative' }}>
+        {ACTION_DISPLAY.filter(v => !(v.value === '8' && md.global.SysSettings.hideIntegration)).map(i => (
           <MenuItem
             onClick={e => {
               e.stopPropagation();

@@ -1,23 +1,19 @@
 import React, { Component, Fragment } from 'react';
-import { Dropdown, Icon, Checkbox, Tooltip, RadioGroup } from 'ming-ui';
-import { Text, FlexCenter } from 'worksheet/styled';
+import { Dropdown, Icon, Tooltip } from 'ming-ui';
+import { FlexCenter } from 'worksheet/styled';
 import styled from 'styled-components';
 import { getAdvanceSetting } from 'src/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { filterAndFormatterControls } from 'src/pages/worksheet/views/util';
 import { hierarchyViewCanSelectFields } from 'src/pages/worksheet/views/HierarchyView/util';
 import { ViewSettingWrap } from './util';
-import { Abstract, CoverSetting, DisplayControl, NavSort } from './components';
+import { NavSort } from './components';
 import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
-import {
-  NAVSHOW_TYPE,
-  HIERARCHY_VIEW_TYPE,
-  CONNECT_LINE_TYPE,
-  HIERARCHY_MIX_LEVEL,
-} from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
+import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 import _ from 'lodash';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
-import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import StructureSet from './components/StructureSet';
+
 const DisplayControlOption = styled(FlexCenter)`
   .icon {
     font-size: 16px;
@@ -80,70 +76,16 @@ const Wrap = styled.div`
   }
 `;
 
-const HierarchyViewConfigWrap = styled.div`
-  text-align: center;
-  justify-content: space-between;
-  .hierachyViewCard {
-    width: 120px;
-    height: 70px;
-    border-radius: 6px;
-    color: #9e9e9e;
-    line-height: 70px;
-    background: #f8f8f8;
-    &:hover {
-      box-shadow: rgba(0, 0, 0, 0.1) 0 3px 6px;
-    }
-    & + .activeIcon {
-      display: none;
-    }
-    &.active {
-      background: #f2f9ff;
-      color: #2196f3;
-      & + .activeIcon {
-        display: flex;
-        background-color: #2196f3;
-        border: 2px solid #fff;
-        border-radius: 50%;
-        color: #fff;
-        height: 18px;
-        position: absolute;
-        right: -8px;
-        top: -6px;
-        width: 18px;
-      }
-    }
-  }
-`;
-
-const HierarchyViewConnectLineConfigWrap = styled(RadioGroup)`
-  .ming.Radio:first-child {
-    margin-right: 60px;
-  }
-`;
-
-const DetailRecordTypeRadioGroup = styled(RadioGroup)`
-  .ming.Radio:first-child {
-    margin-right: 128px;
-  }
-  .ming.Radio:last-child {
-    margin-right: 0;
-  }
-`;
-
 export default class CardAppearance extends Component {
   static propTypes = {};
   static defaultProps = {};
   constructor(props) {
     super(props);
-    const { advancedSetting = {}, childType } = props.view;
+    const { advancedSetting = {} } = props.view;
     this.state = {
       relateControls: [],
       emptyname: '',
       showChangeName: false,
-      hierarchyViewType: advancedSetting.hierarchyViewType || '0',
-      hierarchyViewConnectLine: advancedSetting.hierarchyViewConnectLine || '0',
-      minHierarchyLevel: advancedSetting.minHierarchyLevel || '0',
-      detailRecordType: childType || 2,
     };
   }
 
@@ -152,7 +94,6 @@ export default class CardAppearance extends Component {
     const { emptyname = '' } = getAdvanceSetting(view);
     this.setState({
       emptyname,
-      detailRecordType: view.childType || 2,
     });
   }
 
@@ -164,15 +105,13 @@ export default class CardAppearance extends Component {
         emptyname,
       });
     }
-    this.setState({ detailRecordType: view.childType || 2 });
   }
 
   render() {
-    const { showChangeName, hierarchyViewType, hierarchyViewConnectLine, minHierarchyLevel, detailRecordType } =
-      this.state;
+    const { showChangeName } = this.state;
     const { worksheetControls, currentSheetInfo, updateCurrentView, view, appId, columns } = this.props;
     const allCanSelectFieldsInBoardControls = filterAndFormatterControls({
-      controls: worksheetControls,
+      controls: columns,
       formatter: ({ controlName, controlId, type }) => ({
         value: controlId,
         text: controlName,
@@ -189,8 +128,6 @@ export default class CardAppearance extends Component {
     } = getAdvanceSetting(view);
     const isBoardView = String(viewType) === '1';
     const isHierarchyView = String(viewType) === '2';
-    const isGallery = String(viewType) === '3';
-    const isDetailView = String(viewType) === '6';
     const isMultiHierarchyView = isHierarchyView && String(childType) === '2';
     let navfilters = getAdvanceSetting(view).navfilters;
     // const isShowDisplayConfig = () => {
@@ -218,7 +155,7 @@ export default class CardAppearance extends Component {
     };
     return (
       <ViewSettingWrap>
-        {!isMultiHierarchyView && !isGallery && !isDetailView && (
+        {!isMultiHierarchyView && (
           <Fragment>
             <div className="title withSwitchConfig" style={{ marginTop: '0px' }}>
               {isHierarchyView ? _l('关联本表字段') : _l('分组字段')}
@@ -417,304 +354,34 @@ export default class CardAppearance extends Component {
                 </SwitchStyle>
               </WrapBoard>
             )}
-            <div
-              className="line mTop32 mBottom32"
-              style={{
-                borderBottom: '1px solid #EAEAEA',
-              }}
-            />
+            <div className="line mTop32 mBottom32" />
           </Fragment>
         )}
         {isHierarchyView && (
-          <Fragment>
-            <div className="title withSwitchConfig" style={{ marginTop: '0px' }}>
-              {_l('显示样式')}
-            </div>
-            <div className="settingContent">
-              <HierarchyViewConfigWrap className="valignWrapper flex">
-                {HIERARCHY_VIEW_TYPE.map(item => {
-                  return (
-                    <div className="Relative">
-                      <div
-                        className={`hierachyViewCard mBottom8 Font48 ${item.icon} ${
-                          (hierarchyViewType || '0') === item.value ? 'active' : ''
-                        }`}
-                        onClick={() => {
-                          if (hierarchyViewType === item.value) {
-                            return;
-                          }
-                          const hadnleCoverPosition = {};
-                          if (hierarchyViewType === '0' && [0, 1].includes(view.coverType)) {
-                            hadnleCoverPosition.coverposition = '2';
-                          }
-                          hadnleCoverPosition.hierarchyViewType = item.value;
-                          this.setState(
-                            {
-                              hierarchyViewType: item.value,
-                            },
-                            () => {
-                              updateCurrentView({
-                                ...view,
-                                appId,
-                                advancedSetting: {
-                                  ...hadnleCoverPosition,
-                                },
-                                editAttrs: ['advancedSetting'],
-                                editAdKeys: Object.keys(hadnleCoverPosition),
-                              });
-                            },
-                          );
-                        }}
-                      ></div>
-                      <div className="activeIcon">
-                        <span className="icon-done"></span>
-                      </div>
-                      <div>{item.text}</div>
-                    </div>
-                  );
-                })}
-              </HierarchyViewConfigWrap>
-            </div>
-            {hierarchyViewType === '0' && (
-              <div className="title mTop32 mBottom18 valignWrapper">
-                <span className="Font13 bold mRight60">{_l('连接线样式')}</span>
-                <HierarchyViewConnectLineConfigWrap
-                  size="middle"
-                  checkedValue={hierarchyViewConnectLine}
-                  data={CONNECT_LINE_TYPE}
-                  onChange={value => {
-                    if (hierarchyViewConnectLine === value) {
-                      return;
-                    }
-                    this.setState(
-                      {
-                        hierarchyViewConnectLine: value,
-                      },
-                      () => {
-                        updateCurrentView({
-                          ...view,
-                          appId,
-                          advancedSetting: {
-                            ...getAdvanceSetting(view),
-                            hierarchyViewConnectLine: value,
-                          },
-                          editAttrs: ['advancedSetting'],
-                          editAdKeys: ['hierarchyViewConnectLine'],
-                        });
-                      },
-                    );
-                  }}
-                />
-              </div>
-            )}
-            {hierarchyViewType === '2' && (
-              <Fragment>
-                <div className="title title Font13 bold mTop32 mBottom18">{_l('竖向层级数')}</div>
-                <Dropdown
-                  className=""
-                  data={HIERARCHY_MIX_LEVEL}
-                  value={minHierarchyLevel}
-                  style={{ width: '100%' }}
-                  border
-                  onChange={value => {
-                    if (minHierarchyLevel === value) {
-                      return;
-                    }
-                    this.setState(
-                      {
-                        minHierarchyLevel: value,
-                      },
-                      () => {
-                        updateCurrentView({
-                          ...view,
-                          appId,
-                          advancedSetting: {
-                            ...getAdvanceSetting(view),
-                            minHierarchyLevel: value,
-                          },
-                          editAttrs: ['advancedSetting'],
-                        });
-                      },
-                    );
-                  }}
-                  placeholder={_l('2级')}
-                />
-              </Fragment>
-            )}
-            <div
-              className="line mTop32 mBottom32"
-              style={{
-                borderBottom: '1px solid #EAEAEA',
-              }}
-            />
-          </Fragment>
+          <StructureSet
+            updateCurrentView={updateCurrentView}
+            view={view}
+            appId={appId}
+            {..._.pick(this.props, ['worksheetId', 'projectId', 'columns'])}
+          />
         )}
-
-        {isDetailView && (
-          <Fragment>
-            <div className="bold mBottom20">{_l('记录数量')}</div>
-            <div className="flexRow alignItemsCenter">
-              <DetailRecordTypeRadioGroup
-                size="middle"
-                checkedValue={detailRecordType}
-                data={[
-                  { text: _l('多条'), value: 2 },
-                  { text: _l('一条'), value: 1 },
-                ]}
-                onChange={value => {
-                  if (detailRecordType === value) {
-                    return;
-                  }
-                  this.setState(
-                    {
-                      detailRecordType: value,
-                    },
-                    () => {
-                      updateCurrentView({
-                        ...view,
-                        appId,
-                        childType: value,
-                        editAttrs: value === 1 ? ['childType', 'fastFilters'] : ['childType'],
-                        ...(value === 1 ? { fastFilters: [] } : {}),
-                      });
-                    },
-                  );
-                }}
-              />
-              <span className="Gray_9e singleDesc">{_l('（第一条记录）')}</span>
-            </div>
-          </Fragment>
-        )}
-
-        {(!isDetailView || childType === 2) && (
-          <Fragment>
-            <div className="title mBottom24 mTop24 bold">{_l('卡片外观')}</div>
-            {/* abstract：摘要控件ID */}
-            <Abstract
-              {...this.props}
-              advancedSetting={advancedSetting}
-              handleChange={value => {
-                updateCurrentView({
-                  ...view,
-                  appId,
-                  advancedSetting: { abstract: value },
-                  editAttrs: ['advancedSetting'],
-                  editAdKeys: ['abstract'],
-                });
-              }}
-            />
-            {/* 显示字段 */}
-            <DisplayControl
-              {...this.props}
-              handleChange={data => {
-                updateCurrentView({ ...view, appId, ...data }, false);
-              }}
-              handleChangeSort={({ newControlSorts, newShowControls }) => {
-                if (['board', 'gallery'].includes(VIEW_DISPLAY_TYPE[view.viewType])) {
-                  let showcount = _.get(view, 'advancedSetting.showcount');
-                  showcount = !!showcount
-                    ? newShowControls.length <= 0
-                      ? undefined
-                      : Number(showcount) > newShowControls.length
-                      ? newShowControls.length
-                      : showcount
-                    : undefined;
-                  updateCurrentView(
-                    {
-                      ...view,
-                      appId,
-                      controlsSorts: newControlSorts,
-                      displayControls: newShowControls,
-                      advancedSetting: {
-                        showcount,
-                      },
-                      editAttrs: ['advancedSetting', 'controlsSorts', 'displayControls'],
-                      editAdKeys: ['showcount'],
-                    },
-                    false,
-                  );
-                } else {
-                  updateCurrentView(
-                    {
-                      ...view,
-                      appId,
-                      controlsSorts: newControlSorts,
-                      displayControls: newShowControls,
-                      editAttrs: ['controlsSorts', 'displayControls'],
-                    },
-                    false,
-                  );
-                }
-              }}
-              canShowCount={['board', 'gallery'].includes(VIEW_DISPLAY_TYPE[view.viewType])}
-            />
-            {/* 封面图片 */}
-            <CoverSetting
-              {...this.props}
-              advancedSetting={advancedSetting}
-              // 是否显示
-              handleChangeIsCover={value =>
-                updateCurrentView({
-                  ...view,
-                  appId,
-                  coverCid: value === 'notDisplay' ? '' : value,
-                  editAttrs: ['coverCid'],
-                })
-              }
-              // 显示位置
-              handleChangePosition={(value, coverTypeValue) => {
-                updateCurrentView({
-                  ...view,
-                  appId,
-                  coverType: coverTypeValue,
-                  advancedSetting: { coverposition: value },
-                  editAttrs: ['coverType', 'advancedSetting'],
-                  editAdKeys: ['coverposition'],
-                });
-              }}
-              handleChangeCoverWidth={value => {
-                updateCurrentView({
-                  ...view,
-                  appId,
-                  advancedSetting: { cardwidth: value },
-                  editAdKeys: ['cardwidth'],
-                  editAttrs: ['advancedSetting'],
-                });
-              }}
-              // 显示方式
-              handleChangeType={value =>
-                updateCurrentView({ ...view, appId, coverType: value, editAttrs: ['coverType'] }, false)
-              }
-              // 允许点击查看
-              handleChangeOpencover={value => {
-                updateCurrentView({
-                  ...view,
-                  appId,
-                  advancedSetting: { opencover: value },
-                  editAdKeys: ['opencover'],
-                  editAttrs: ['advancedSetting'],
-                });
-              }}
-            />
-            {showChangeName && (
-              <ChangeName
-                onChange={value => {
-                  updateCurrentView({
-                    ...view,
-                    appId,
-                    advancedSetting: { emptyname: value.trim() },
-                    editAttrs: ['advancedSetting'],
-                    editAdKeys: ['emptyname'],
-                  });
-                  this.setState({ showChangeName: false });
-                }}
-                name={advancedSetting.emptyname}
-                onCancel={() => {
-                  this.setState({ showChangeName: false });
-                }}
-              />
-            )}
-          </Fragment>
+        {showChangeName && (
+          <ChangeName
+            onChange={value => {
+              updateCurrentView({
+                ...view,
+                appId,
+                advancedSetting: { emptyname: value.trim() },
+                editAttrs: ['advancedSetting'],
+                editAdKeys: ['emptyname'],
+              });
+              this.setState({ showChangeName: false });
+            }}
+            name={advancedSetting.emptyname}
+            onCancel={() => {
+              this.setState({ showChangeName: false });
+            }}
+          />
         )}
       </ViewSettingWrap>
     );

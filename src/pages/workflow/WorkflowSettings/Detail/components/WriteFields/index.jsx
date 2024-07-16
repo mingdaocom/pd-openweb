@@ -288,7 +288,7 @@ export default class WriteFields extends Component {
                 {item.type === 29 && !!(item.subFormProperties || []).length && (
                   <div
                     data-tip={_l('设置子表操作和列权限')}
-                    className="mLeft5 Gray_9e ThemeHoverColor3 pointer tip-bottom-right"
+                    className="mLeft5 Gray_75 ThemeHoverColor3 pointer tip-bottom-right"
                     style={{ display: 'inline-flex' }}
                     onClick={() =>
                       this.setState({
@@ -388,7 +388,7 @@ export default class WriteFields extends Component {
               this.setState({ showTableControls: false });
             }}
           >
-            <div className="Gray_9e">{_l('未开启时按照子表本身权限，开启后可配置子表的细分操作和列权限')}</div>
+            <div className="Gray_75">{_l('未开启时按照子表本身权限，开启后可配置子表的细分操作和列权限')}</div>
             <Switch
               className="mTop10"
               checked={selectItem.workflow}

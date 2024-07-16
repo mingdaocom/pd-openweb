@@ -41,7 +41,12 @@ export const GROUPFILTER_CONDITION_TYPE = [
 ];
 
 export const canNavGroup = (control, worksheetId) => {
-  if (GROUPFILTER_CONDITION_TYPE.includes(control.type)) {
+  if (
+    GROUPFILTER_CONDITION_TYPE.includes(control.type) ||
+    (control.type === 30 && //支持他表字段 仅存储(9,10,11)
+      [9, 10, 11].includes(control.sourceControlType) &&
+      (control.strDefault || '').split('')[0] !== '1')
+  ) {
     if (control.type === 29) {
       //关联他表 且 单条/多条
       // if (control.enumDefault === 1 && worksheetId !== control.dataSource) {
@@ -100,14 +105,14 @@ export const CASCADER = {
   data: [{ key: 'filterType', types: RELATE_TYPE, txt: '筛选方式', default: 11 }],
 };
 export const getSetDefault = control => {
-  let { controlId = '', type } = control;
+  let { controlId = '', type, sourceControlType } = control;
   let set = {
     controlId,
     dataType: type,
   };
   let data = {};
   [OPTIONS, RELATES, CASCADER].map(o => {
-    if (o.keys.includes(type)) {
+    if (o.keys.includes(type) || o.keys.includes(sourceControlType)) {
       o.data.map(it => {
         data = {
           ...data,
@@ -144,17 +149,22 @@ export const HIERARCHY_VIEW_TYPE = [
   {
     text: _l('横向显示'),
     value: '0',
-    icon: 'icon-horizontal',
+    key: 'horizontal',
   },
   {
     text: _l('竖向显示'),
     value: '1',
-    icon: 'icon-vertically',
+    key: 'vertically',
   },
   {
     text: _l('混合显示'),
     value: '2',
-    icon: 'icon-mix',
+    key: 'mix',
+  },
+  {
+    text: _l('树形表格'),
+    value: '3',
+    key: 'tree',
   },
 ];
 
@@ -166,6 +176,17 @@ export const CONNECT_LINE_TYPE = [
   {
     text: _l('直线'),
     value: '1',
+  },
+];
+
+export const TREE_LINE_TYPE = [
+  {
+    text: _l('箭头'),
+    value: '1',
+  },
+  {
+    text: _l('加号'),
+    value: '2',
   },
 ];
 
@@ -206,4 +227,4 @@ export const HIERARCHY_MIX_LEVEL = [
     text: _l('10级'),
     value: '10',
   },
-]
+];

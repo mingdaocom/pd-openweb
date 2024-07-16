@@ -38,7 +38,7 @@ export default function PopupLinks(props) {
     <Con>
       {items.map((item, i) =>
         item.type === 'title' ? (
-          <Title>{item.title}</Title>
+          <Title key={`title_${i}`}>{item.title}</Title>
         ) : (
           <Item
             key={i}

@@ -18,8 +18,10 @@ const Empty = styled.div`
   background-color: #fff;
 `;
 
-const filterSys = (controls = []) => {
-  return controls.filter(i => !_.includes(SYS_CONTROLS, i.controlId));
+const filterSys = (controls = [], fromCustomEventApi) => {
+  // 自定义事件api查询支持rowid异化
+  const FILTER_SYS_CONTROLS = fromCustomEventApi ? SYS_CONTROLS.filter(i => i !== 'rowid') : SYSTEM_CONTROL;
+  return controls.filter(i => !_.includes(FILTER_SYS_CONTROLS, i.controlId));
 };
 
 @withClickAway
@@ -79,7 +81,7 @@ export default class SelectFields extends Component {
   };
 
   filterFieldList = () => {
-    const { from, globalSheetInfo, controls, data = {}, needFilter } = this.props;
+    const { from, globalSheetInfo, controls, data = {}, needFilter, fromCustomEventApi } = this.props;
     const subListControls = this.omitSelfAndNest(controls) || [];
     const globalSheetControls = this.omitSelfAndNest(this.props.globalSheetControls);
     const { worksheetId } = globalSheetInfo;
@@ -97,7 +99,12 @@ export default class SelectFields extends Component {
 
     // 获取当前表的控件
     const fieldList = {
-      current: getControls({ data, controls: filterSys(subListControls), isCurrent: true, needFilter }),
+      current: getControls({
+        data,
+        controls: filterSys(subListControls, fromCustomEventApi),
+        isCurrent: true,
+        needFilter,
+      }),
       [worksheetId]: getControls({ data, controls: filterSys(globalSheetControls), isCurrent: true, needFilter }),
     };
     // 获取关联表控件下的所有符合条件的字段

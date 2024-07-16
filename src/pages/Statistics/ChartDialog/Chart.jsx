@@ -3,9 +3,10 @@ import cx from 'classnames';
 import { reportTypes } from '../Charts/common';
 import { WithoutData } from '../components/ChartStatus';
 import { Loading, Abnormal } from '../components/ChartStatus';
+import { LoadDiv } from 'ming-ui';
+import { isOptionControl } from 'statistics/common';
 import DragMask from 'worksheet/common/DragMask';
 import styled from 'styled-components';
-import Sheet from './Sheet';
 import charts from '../Charts';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -60,11 +61,17 @@ export default class Chart extends Component {
       dragValue: 0,
       sheetSize: 0,
       dragMaskVisible: false,
+      Component: null
     };
     this.$chartRef = createRef(null);
   }
   componentDidMount() {
     this.changeDragValue(this.props.direction);
+    import('./Sheet').then(component => {
+      this.setState({
+        Component: component.default
+      });
+    });
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.scopeVisible !== this.props.scopeVisible || nextProps.direction !== this.props.direction) {
@@ -89,7 +96,7 @@ export default class Chart extends Component {
     const { projectId, themeColor, customPageConfig, reportData, currentReport, base, direction, getReportSingleCacheId, requestOriginalData, changeCurrentReport } = this.props;
     const { settingVisible, report = {}, sourceType } = base;
     const reportId = report.id;
-    const { reportType, valueMap } = reportData;
+    const { xaxes = {}, reportType, valueMap } = reportData;
     const Chart = charts[reportType];
     const isPublicShareChart = location.href.includes('public/chart');
     const isPublicSharePage = window.shareAuthor || _.get(window, 'shareState.shareId');
@@ -103,6 +110,7 @@ export default class Chart extends Component {
       themeColor,
       customPageConfig
     };
+    const isDisplayEmptyData = [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart, reportTypes.PieChart, reportTypes.BidirectionalBarChart].includes(reportType) && isOptionControl(xaxes.controlType);
 
     if ([reportTypes.PivotTable].includes(reportType)) {
       const { data, columns, ylist, lines } = reportData;
@@ -143,19 +151,15 @@ export default class Chart extends Component {
     }
     if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType)) {
       const { map } = reportData;
-      if (_.isEmpty(map)) {
-        return <WithoutData />
-      } else {
-        return (
-          <Chart
-            {...props}
-            reportData={{
-              ...currentReport,
-              map,
-            }}
-          />
-        );
-      }
+      return (
+        <Chart
+          {...props}
+          reportData={{
+            ...currentReport,
+            map,
+          }}
+        />
+      );
     }
     if (
       [
@@ -171,7 +175,7 @@ export default class Chart extends Component {
       ].includes(reportType)
     ) {
       const { map, contrastMap, summary, rightY = {} } = reportData;
-      return map.length || contrastMap.length ? (
+      return map.length || contrastMap.length || isDisplayEmptyData ? (
         <Chart
           {...props}
           reportData={{
@@ -190,7 +194,7 @@ export default class Chart extends Component {
     }
     if ([reportTypes.PieChart].includes(reportType)) {
       const { map, summary } = reportData;
-      return map.length ? (
+      return map.length || isDisplayEmptyData ? (
         <Chart
           {...props}
           reportData={{
@@ -232,7 +236,7 @@ export default class Chart extends Component {
     const viewId = _.get(currentReport, ['filter', 'viewId']);
     const view = _.find(worksheetInfo.views, { viewId });
     const { direction, scopeVisible } = this.props;
-    const { dragMaskVisible, min, max, sheetSize } = this.state;
+    const { dragMaskVisible, min, max, sheetSize, Component } = this.state;
     const storeDragValue = Number(localStorage.getItem(`${direction}ChartSheetDragValue`) || 0);
     const dragValue = this.state.dragValue - (scopeVisible && storeDragValue && direction === 'horizontal' ? 320 : 0);
     const { sourceType, permissions, report } = base;
@@ -295,18 +299,22 @@ export default class Chart extends Component {
                 }}
               />
             )}
-            <Sheet
-              direction={direction}
-              settingVisible={settingVisible}
-              isSmall={direction === 'horizontal' ? sheetSize < 540 : false}
-              style={{
-                height: direction === 'vertical' ? sheetSize : '100%',
-                width: direction === 'horizontal' ? sheetSize : '100%',
-              }}
-              onClose={() => {
-                onChangeSheetVisible(false);
-              }}
-            />
+            {Component ? (
+              <Component
+                direction={direction}
+                settingVisible={settingVisible}
+                isSmall={direction === 'horizontal' ? sheetSize < 540 : false}
+                style={{
+                  height: direction === 'vertical' ? sheetSize : '100%',
+                  width: direction === 'horizontal' ? sheetSize : '100%',
+                }}
+                onClose={() => {
+                  onChangeSheetVisible(false);
+                }}
+              />
+            ) : (
+              <LoadDiv />
+            )}
             {direction === 'vertical' && (
               <VerticalDrag value={dragValue} onMouseDown={() => this.setState({ dragMaskVisible: true })} />
             )}

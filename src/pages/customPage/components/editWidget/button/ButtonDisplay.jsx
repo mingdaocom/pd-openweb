@@ -4,8 +4,9 @@ import { Button, SvgIcon } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { computeWidth } from '../../../util';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import { ButtonListWrap, GraphWrap } from './styled';
+import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 
 const ButtonDisplayWrap = styled.div`
@@ -51,7 +52,7 @@ const BtnWrap = styled.div`
     font-weight: bold;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.26);
     &:hover {
-      background-color: ${props => tinycolor(props.color).darken(20).toString()};
+      background-color: ${props => new TinyColor(props.color).darken(20).toString()};
     }
     .icon {
       font-size: 20px;
@@ -63,7 +64,7 @@ const BtnWrap = styled.div`
       border: 1px dashed #ddd;
     }
     &.active {
-      border: 1px solid ${props => tinycolor(props.color).darken(20).toString()};
+      border: 1px solid ${props => new TinyColor(props.color).darken(20).toString()};
     }
   }
   &.adjustText {
@@ -72,7 +73,7 @@ const BtnWrap = styled.div`
       color: ${props => props.color};
       box-shadow: none;
       &:hover {
-        background-color: ${tinycolor('#f8f8f8').darken(3).toString()};
+        background-color: ${new TinyColor('#f8f8f8').darken(3).toString()};
       }
     }
     .iconWrap {
@@ -83,6 +84,8 @@ const BtnWrap = styled.div`
 `;
 
 export default function ButtonDisplay({
+  widget = {},
+  appId,
   buttonList = [],
   layoutType = 'web',
   displayMode = 'edit',
@@ -103,9 +106,10 @@ export default function ButtonDisplay({
     if (isFullWidth || isMobile) return { width: `${100 / (isMobile ? mobileCount : count)}%` };
     return {};
   };
+  const translateInfo = getTranslateInfo(appId, null, widget.id);
   return (
     <ButtonDisplayWrap>
-      {explain && <div className="explain">{explain}</div>}
+      {explain && <div className="explain">{translateInfo.description || explain}</div>}
       <ButtonListWrap>
         {newList.map((list, index) => {
           return (
@@ -159,7 +163,7 @@ export default function ButtonDisplay({
                           </div>
                         )}
                         <div className="nameWrap valignWrapper">
-                          <div className="name">{name}</div>
+                          <div className="name">{translateInfo[item.id] || name}</div>
                         </div>
                       </GraphWrap>
                     ) : (
@@ -169,7 +173,7 @@ export default function ButtonDisplay({
                         icon={iconUrl ? null : item.icon}
                       >
                         {iconUrl && <SvgIcon url={iconUrl} fill={style === 3 ? color : '#fff'} size={20} />}
-                        <span className="overflow_ellipsis">{name}</span>
+                        <span className="overflow_ellipsis">{translateInfo[item.id] || name}</span>
                       </Button>
                     )}
                   </BtnWrap>

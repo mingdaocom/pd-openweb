@@ -18,7 +18,7 @@ import {
 import { Select, Tooltip } from 'antd';
 import { conditionTypeListData } from 'src/pages/FormSet/components/columnRules/config';
 import { isCustomOptions } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import _ from 'lodash';
+import _, { includes } from 'lodash';
 import styled from 'styled-components';
 // 为空 不为空  在范围内 不在范围内
 const listType = [
@@ -87,26 +87,25 @@ export default class Condition extends Component {
     super(props);
     this.state = {
       isDynamicsource: this.isCanDynamicsource(props) && this.setIsDynamicsourceFn(), // 是否动态筛选值
-      valueType:
-        this.isCanDynamicsource(props) && this.setIsDynamicsourceFn()
-          ? 0
-          : !!((props.condition || {}).dynamicSource || []).length
-          ? 2
-          : 1,
+      valueType: this.getValueType(props),
     };
   }
 
   componentDidMount() {
     this.state = {
-      isDynamicsource: this.isCanDynamicsource(this.props) && this.setIsDynamicsourceFn(), // 是否动态筛选值
-      valueType:
-        this.isCanDynamicsource(this.props) && this.setIsDynamicsourceFn()
-          ? 0
-          : !!((this.props.condition || {}).dynamicSource || []).length
-          ? 2
-          : 1,
+      isDynamicsource: this.isCanDynamicsource() && this.setIsDynamicsourceFn(), // 是否动态筛选值
+      valueType: this.getValueType(this.props),
     };
   }
+
+  getValueType = props => {
+    const dynamicSource = _.get(props, 'condition.dynamicSource') || [];
+    return this.isCanDynamicsource(props) &&
+      this.setIsDynamicsourceFn() &&
+      !!dynamicSource.filter(item => item.rcid === 'url').length
+      ? 2
+      : 1;
+  };
 
   setIsDynamicsourceFn = () => {
     const { condition = [], from } = this.props;
@@ -119,7 +118,7 @@ export default class Condition extends Component {
       if (isDynamicsource === undefined) {
         // 关联查询、工作表查询等默认值为动态值
         isDynamicsource =
-          _.includes(['relateSheet', 'fastFilter'], from) && _.isUndefined(dynamicSource) && this.getIsDynamicValue()
+          _.includes(['relateSheet', 'fastFilter'], from) && _.isUndefined(dynamicSource) && this.isCanDynamicsource()
             ? true
             : false;
       }
@@ -128,32 +127,43 @@ export default class Condition extends Component {
   };
 
   isCanDynamicsource = data => {
-    const { condition = [], from = '' } = data;
+    const { condition = {}, from = '', control } = data || this.props;
     const { type = '', controlType = '' } = condition;
-    // 附件 检查框 地区 地区 地区 为空 不为空  在范围内 不在范围内没有动态筛选
-    return (
-      _.includes(['rule', 'relateSheet', 'fastFilter'], from) &&
-      !(!_.includes([27], condition.controlType) && _.includes(listType, type)) &&
-      !_.includes(listControlType, controlType)
-    );
-  };
+    // 附件 检查框 地区 地区 地区 没有动态值
+    if (_.includes(listControlType, controlType)) return false;
+    // 自定义选项没有动态值
+    if (isCustomOptions(control)) return false;
 
-  getIsDynamicValue = () => {
-    const { condition, control } = this.props;
-    return (
-      !(!_.includes([27], condition.controlType) && _.includes(listType, condition.type)) &&
-      !_.includes(listControlType, condition.controlType) &&
-      !isCustomOptions(control)
-    );
+    if (_.includes(['rule'], from) && _.includes(listType, type)) return false;
+
+    if (_.includes(['relateSheet', 'fastFilter'], from)) {
+      if (_.includes([27], condition.controlType)) {
+        const filterBetween = listType.filter(
+          i => !_.includes([FILTER_CONDITION_TYPE.BETWEEN, FILTER_CONDITION_TYPE.NBETWEEN], i),
+        );
+        return !_.includes(filterBetween, type);
+      } else {
+        return !_.includes(listType, type);
+      }
+    }
+    return true;
   };
 
   @autobind
   changeConditionType(type) {
-    const { condition, onChange } = this.props;
+    const { condition, onChange, from } = this.props;
     const overrideValue = getConditionOverrideValue(type, condition, this.state.valueType);
+    if (
+      includes([FILTER_CONDITION_TYPE.DATE_BETWEEN, FILTER_CONDITION_TYPE.DATE_NBETWEEN], type) &&
+      condition.maxValue &&
+      condition.minValue
+    ) {
+      overrideValue.minValue = condition.minValue;
+      overrideValue.maxValue = condition.maxValue;
+    }
     onChange(overrideValue);
 
-    if (_.includes(listType, type) && !_.includes([27], condition.controlType)) {
+    if (!this.isCanDynamicsource({ condition: { ...overrideValue, controlType: condition.controlType }, from })) {
       this.setState({ isDynamicsource: false });
     }
   }
@@ -339,7 +349,7 @@ export default class Condition extends Component {
       );
     }
     const isDynamicStyle = _.includes(['relateSheet', 'rule', 'fastFilter'], from); // 动态值选择的特定样式
-    const isDynamicValue = this.getIsDynamicValue();
+    const isDynamicValue = this.isCanDynamicsource();
     return (
       <div
         className={cx('conditionItem', {

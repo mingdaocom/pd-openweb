@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import preall from 'src/common/preall';
 import { LoadDiv, Button, Checkbox, RichText, VerifyPasswordInput } from 'ming-ui';
 import { browserIsMobile, mdAppResponse, verifyPassword } from 'src/util';
@@ -103,20 +103,16 @@ export default class Cancellation extends Component {
     );
   };
   getCountDown = () => {
-    const { second } = this.state;
-    if (second <= 0) {
-      clearInterval(this.timer);
-      this.timer = null;
-    }
     this.timer = setInterval(() => {
-      this.func();
+      const { second } = this.state;
+      if (second <= 0) {
+        clearInterval(this.timer);
+      } else {
+        this.setState({ second: second - 1 });
+      }
     }, 1000);
   };
-  func = () => {
-    const { second } = this.state;
-    if (second <= 1) clearInterval(this.timer);
-    this.setState({ second: second - 1 });
-  };
+
   showProtocol = () => {
     const { second, checkedAgree, summary = '' } = this.state;
     const isMobile = browserIsMobile();
@@ -269,5 +265,6 @@ export default class Cancellation extends Component {
 }
 
 const Comp = preall(Cancellation, { allowNotLogin: true });
+const root = createRoot(document.getElementById('app'));
 
-ReactDom.render(<Comp />, document.getElementById('app'));
+root.render(<Comp />);

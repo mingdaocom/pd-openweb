@@ -8,7 +8,7 @@ import { useSetState } from 'react-use';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper.jsx';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { Icon } from 'ming-ui';
-import { browserIsMobile, addBehaviorLog } from 'src/util';
+import { browserIsMobile, addBehaviorLog, emitter } from 'src/util';
 import { RecordInfoModal } from 'mobile/Record';
 import { handleRecordClick } from 'worksheet/util';
 import { getTops } from '../util';
@@ -329,6 +329,7 @@ export default function RecordBlock(props) {
             view={view}
             hideRecordInfo={() => {
               setState({ recordInfoVisible: false });
+              emitter.emit('ROWS_UPDATE');
             }}
             recordId={props.row.rowid}
             worksheetId={worksheetId}

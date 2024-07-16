@@ -1,10 +1,10 @@
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import qs from 'query-string';
+import { LoadDiv } from 'ming-ui';
 import { formatQuickFilter } from 'worksheet/util';
 import styled from 'styled-components';
 import { get, pick } from 'lodash';
-import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { emitter } from 'worksheet/util';
 import WidgetBridge from './bridge';
 
@@ -57,6 +57,7 @@ export default function WidgetContainer(props) {
   const cache = useRef({});
   const bridge = useRef(new WidgetBridge({ cache: cache }));
   const [reloadFlag, setReloadFlag] = useState(props.flag);
+  const [RecordInfoComponent, setRecordInfoComponent] = useState(null);
   const [side, setSide] = useState();
   cache.current = {
     scriptUrl,
@@ -119,6 +120,9 @@ export default function WidgetContainer(props) {
       },
       () => onLoadScript(true),
     );
+    import('worksheet/common/recordInfo/RecordInfoWrapper').then(component => {
+      setRecordInfoComponent(component);
+    });
     emitter.addListener('POST_MESSAGE_TO_CUSTOM_WIDGET', emitWidgetDataUpdate);
     return () => {
       window.customWidgetViewIsActive = false;
@@ -138,14 +142,18 @@ export default function WidgetContainer(props) {
           <Side dangerouslySetInnerHTML={{ __html: side.html }} />
         ) : (
           <Side>
-            <RecordInfoWrapper
-              notDialog
-              from={2}
-              appId={appId}
-              worksheetId={worksheetId}
-              recordId={side.recordId}
-              hideRecordInfo={() => setSide(undefined)}
-            />
+            {RecordInfoComponent ? (
+              <RecordInfoComponent.default
+                notDialog
+                from={2}
+                appId={appId}
+                worksheetId={worksheetId}
+                recordId={side.recordId}
+                hideRecordInfo={() => setSide(undefined)}
+              />
+            ) : (
+              <LoadDiv />
+            )}
           </Side>
         ))}
     </Con>

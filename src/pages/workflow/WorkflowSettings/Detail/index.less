@@ -25,31 +25,8 @@
 }
 
 .workflowSettings {
-  .workflowDetailTransition-enter {
-    transform: translateX(800px);
-    transition: all 250ms ease-out;
-  }
-
-  .workflowDetailTransition-enter.workflowDetailTransition-enter-active {
-    transform: translateX(0);
-  }
-
-  .workflowDetailTransition-leave {
-    transform: translateX(0);
-    transition: all 250ms ease-out;
-  }
-
-  .workflowDetailTransition-leave.workflowDetailTransition-leave-active {
-    transform: translateX(800px);
-  }
-
   .workflowDetail {
-    z-index: 11;
     width: 800px;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
     background: #fff;
     box-shadow: 0 10px 23px 2px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
     ::-webkit-input-placeholder {
@@ -71,6 +48,9 @@
       }
       .workflowDetailHeader .icon-delete2 {
         display: none;
+      }
+      .tagInputareaIuput {
+        max-height: inherit !important;
       }
     }
     .flexRow {
@@ -300,7 +280,7 @@
           width: 100%;
         }
         .icon-arrow-down-border {
-          color: #9e9e9e;
+          color: #757575;
         }
         .tagWrap {
           display: flex;
@@ -348,7 +328,7 @@
           display: flex;
           align-items: center;
           .value {
-            color: #9e9e9e;
+            color: #757575;
           }
           .ming.Icon {
             margin-left: 5px !important;
@@ -388,7 +368,7 @@
         .ming.List {
           width: 480px !important;
           li:hover {
-            .Gray_9e {
+            .Gray_75 {
               color: #fff !important;
             }
           }
@@ -439,7 +419,7 @@
           width: auto !important;
           .Item-content {
             &:hover {
-              .Gray_9e {
+              .Gray_75 {
                 color: #fff !important;
               }
             }
@@ -551,7 +531,7 @@
         top: 10px;
         cursor: pointer;
         &:not(:hover) {
-          color: #9e9e9e !important;
+          color: #757575 !important;
         }
       }
       .mui-datetime-base,
@@ -658,7 +638,7 @@
         vertical-align: top;
         span {
           &:not(:hover) {
-            color: #9e9e9e !important;
+            color: #757575 !important;
           }
         }
       }
@@ -717,7 +697,7 @@
       color: #bdbdbd;
       cursor: pointer;
       &:hover {
-        color: #9e9e9e;
+        color: #757575;
       }
     }
     .ck {
@@ -758,7 +738,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #9e9e9e;
+        color: #757575;
         position: relative;
         &.circle {
           border-radius: 50%;
@@ -775,7 +755,7 @@
           left: -12px;
           border-radius: 50%;
           background-color: #eaeaea;
-          color: #9e9e9e;
+          color: #757575;
           display: flex;
           justify-content: center;
           align-items: center;
@@ -832,7 +812,7 @@
   }
   .workflowDetailTipsWidth {
     &::after {
-      width: 250px !important;
+      width: 280px !important;
       white-space: normal;
       word-break: break-all;
     }
@@ -856,11 +836,11 @@
     }
     .fnName {
       margin-left: 6px;
-      color: #9e9e9e;
+      color: #757575;
     }
     .fnEmpty {
       padding: 10px;
-      color: #9e9e9e;
+      color: #757575;
     }
   }
   .workflowMessageList {
@@ -1166,7 +1146,7 @@
       top: 10px;
       cursor: pointer;
       &:not(:hover) {
-        color: #9e9e9e !important;
+        color: #757575 !important;
       }
     }
   }
@@ -1221,7 +1201,7 @@
     color: #bdbdbd;
     cursor: pointer;
     &:hover {
-      color: #9e9e9e;
+      color: #757575;
     }
   }
   .workflowCodeMirrorBox,

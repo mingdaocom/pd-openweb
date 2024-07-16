@@ -412,7 +412,7 @@ export default function DebugConfig(params) {
               </div>
             </div>
             <div className="mTop20">{_l('环境参数')}</div>
-            <div className="Gray_9e">{_l('配置插件运行时所需要的参数，采用JSON格式')}</div>
+            <div className="Gray_75">{_l('配置插件运行时所需要的参数，采用JSON格式')}</div>
             <TagTextarea
               className={cx('flex mTop10 viewColdeTagTextarea')}
               defaultValue={configuration}

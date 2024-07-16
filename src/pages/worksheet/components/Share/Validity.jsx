@@ -16,7 +16,7 @@ const validityDateTypes = [
     getValidTime: () => alwaysValue,
   },
   {
-    label: _l('1小时后'),
+    label: _l('1小时'),
     getSubLabel: () => {
       const current = moment();
       const date = current.add(1, 'h');
@@ -26,7 +26,7 @@ const validityDateTypes = [
     value: 1,
   },
   {
-    label: _l('1天后'),
+    label: _l('1天'),
     getSubLabel: () =>
       moment()
         .add(1, 'd')
@@ -35,7 +35,7 @@ const validityDateTypes = [
     value: 2,
   },
   {
-    label: _l('3天后'),
+    label: _l('3天'),
     getSubLabel: () =>
       moment()
         .add(3, 'd')
@@ -44,7 +44,7 @@ const validityDateTypes = [
     value: 3,
   },
   {
-    label: _l('7天后'),
+    label: _l('7天'),
     getSubLabel: () =>
       moment()
         .add(7, 'd')

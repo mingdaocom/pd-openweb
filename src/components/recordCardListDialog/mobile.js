@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import cx from 'classnames';
@@ -10,11 +10,11 @@ import publicWorksheetAjax from 'src/api/publicWorksheet';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
 import RelateScanQRCode from 'src/components/newCustomFields/components/RelateScanQRCode';
 import RecordCard from 'src/components/recordCard';
-import { fieldCanSort } from 'src/pages/worksheet/util';
+import { fieldCanSort, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCode';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import MobileFilter from './MobileFilter';
 import './mobile.less';
 import _ from 'lodash';
@@ -160,28 +160,48 @@ export default class RecordCardListDialog extends Component {
 
     const { scanlink, scancontrol, scancontrolid } = _.get(control, 'advancedSetting') || {};
 
-    if (isScan && ((scanlink !== '1' && RegExp.isURL(keyWords)) || (scancontrol !== '1' && !RegExp.isURL(keyWords)))) {
+    if (
+      isScan &&
+      ((scanlink !== '1' && RegExpValidator.isURL(keyWords)) ||
+        (scancontrol !== '1' && !RegExpValidator.isURL(keyWords)))
+    ) {
       this.setState({ loading: false });
       return;
     }
 
     const scanControl = _.find(_.get(worksheetInfo, 'template.controls') || [], it => it.controlId === scancontrolid);
+    const quickFilters = this.state.quickFilters.map(f =>
+      _.pick(f, [
+        'controlId',
+        'dataType',
+        'spliceType',
+        'filterType',
+        'dateRange',
+        'value',
+        'values',
+        'minValue',
+        'maxValue',
+      ]),
+    );
+    const fastFilters =
+      isScanSearch && scancontrol === '1' && scancontrolid
+        ? [
+            {
+              controlId: scancontrolid,
+              dataType: scanControl.type,
+              spliceType: 1,
+              filterType: 1,
+              dateRange: 0,
+              minValue: '',
+              maxValue: '',
+              value: '',
+              values: [keyWords],
+            },
+          ].concat(quickFilters)
+        : quickFilters;
 
     if (from !== FROM.PUBLIC_ADD && !window.isPublicWorksheet) {
       getFilterRowsPromise = sheetAjax.getFilterRows;
-      const quickFilters = this.state.quickFilters.map(f =>
-        _.pick(f, [
-          'controlId',
-          'dataType',
-          'spliceType',
-          'filterType',
-          'dateRange',
-          'value',
-          'values',
-          'minValue',
-          'maxValue',
-        ]),
-      );
 
       args = {
         worksheetId: relateSheetId,
@@ -196,22 +216,7 @@ export default class RecordCardListDialog extends Component {
         getType: 7,
         sortControls,
         filterControls,
-        fastFilters:
-          isScanSearch && scancontrol === '1' && scancontrolid
-            ? [
-                {
-                  controlId: scancontrolid,
-                  dataType: scanControl.type,
-                  spliceType: 1,
-                  filterType: 1,
-                  dateRange: 0,
-                  minValue: '',
-                  maxValue: '',
-                  value: '',
-                  values: [keyWords],
-                },
-              ].concat(quickFilters)
-            : quickFilters,
+        fastFilters,
       };
     } else {
       getFilterRowsPromise = publicWorksheetAjax.getRelationRows;
@@ -228,6 +233,7 @@ export default class RecordCardListDialog extends Component {
         getType: 7,
         sortControls,
         filterControls,
+        fastFilters,
       };
     }
     if (parentWorksheetId && controlId) {
@@ -254,7 +260,9 @@ export default class RecordCardListDialog extends Component {
                 : list.concat(res.data.filter(record => !_.find(filterRowIds, fid => record.rowid === fid))),
               loading: false,
               loadouted: res.data.length < 20,
-              controls: res.template ? res.template.controls : [],
+              controls: res.template
+                ? replaceControlsTranslateInfo(res.worksheet.appId, null, res.template.controls)
+                : [],
               worksheet: res.worksheet || {},
             },
             () => {
@@ -271,9 +279,6 @@ export default class RecordCardListDialog extends Component {
             error: true,
           });
         }
-      })
-      .catch(() => {
-        alert(_l('获取列表失败'), 3);
       });
   }
   loadNext() {
@@ -459,8 +464,8 @@ export default class RecordCardListDialog extends Component {
                   const { scanlink, scancontrol } = _.get(control, 'advancedSetting') || {};
                   setTimeout(() => {
                     if (
-                      (scanlink !== '1' && RegExp.isURL(keyWords)) ||
-                      (scancontrol !== '1' && !RegExp.isURL(keyWords))
+                      (scanlink !== '1' && RegExpValidator.isURL(keyWords)) ||
+                      (scancontrol !== '1' && !RegExpValidator.isURL(keyWords))
                     ) {
                       this.setState({ pageIndex: 1, list: [] });
                       return;
@@ -684,10 +689,15 @@ export default class RecordCardListDialog extends Component {
 
 export function mobileSelectRecord(props) {
   const div = document.createElement('div');
+
   document.body.appendChild(div);
+
+  const root = createRoot(div);
+
   function destory() {
-    ReactDOM.unmountComponentAtNode(div);
+    root.unmount();
     document.body.removeChild(div);
   }
-  ReactDOM.render(<RecordCardListDialog visible {...props} onClose={destory} />, div);
+
+  root.render(<RecordCardListDialog visible {...props} onClose={destory} />);
 }

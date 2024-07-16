@@ -1,4 +1,4 @@
-import React, { useState, Component, Fragment } from 'react';
+import React, { useState, Component, Fragment, useEffect } from 'react';
 import { Dropdown, Input, AutoComplete } from 'antd';
 import styled from 'styled-components';
 import { Tooltip, Icon } from 'ming-ui';
@@ -64,7 +64,9 @@ const highlightMessageText = (keyword, content) => {
 };
 
 const searchResult = (query, queryKey, data) => {
-  return data
+  const list = data[0] && data[0].rowid ? _.uniqBy(data, 'rowid') : data;
+
+  return list
     .filter(item => {
       const target = item[queryKey].toLowerCase();
       return target ? target.includes(query.toLowerCase()) : false;
@@ -79,7 +81,7 @@ const searchResult = (query, queryKey, data) => {
 };
 
 const SearchRecord = props => {
-  const { queryKey, data, onSearch, onClose, overlayClassName } = props;
+  const { queryKey, data, overlayClassName, viewId = '', onSearch, onClose } = props;
   const [visible, setVisible] = useState(false);
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
@@ -87,6 +89,13 @@ const SearchRecord = props => {
   const [value, setValue] = useState('');
   const activeIndex = activeRecord ? _.findIndex(options, op => op.record.rowid === activeRecord.rowid) : 0;
   const isMobile = browserIsMobile();
+
+  useEffect(() => {
+    onClose();
+    setValue('');
+    setOptions([]);
+    setSearchRecord(null);
+  }, [viewId]);
 
   const handleSearch = value => {
     if (value) {
@@ -126,7 +135,7 @@ const SearchRecord = props => {
               <input
                 autoFocus
                 value={value}
-                onChange={(event) => {
+                onChange={event => {
                   setValue(event.target.value);
                 }}
                 onClick={() => setOpen(true)}
@@ -196,7 +205,6 @@ const SearchRecord = props => {
       overlayClassName={overlayClassName}
       trigger={['click']}
       overlay={renderOverlay()}
-      overlayStyle={{ zIndex: 100 }}
       visible={visible}
       placement="bottomRight"
       onVisibleChange={visible => {

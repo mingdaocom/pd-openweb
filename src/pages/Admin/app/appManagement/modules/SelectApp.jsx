@@ -4,7 +4,7 @@ import Config from '../../../config';
 import Search from 'src/pages/workflow/components/Search';
 import './index.less';
 import { LoadDiv, ScrollView, Checkbox, Tooltip, SvgIcon } from 'ming-ui';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import cx from 'classnames';
 import _ from 'lodash';
 

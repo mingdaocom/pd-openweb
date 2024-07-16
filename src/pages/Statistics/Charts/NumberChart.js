@@ -38,7 +38,7 @@ const Wrap = styled.div`
     }
   }
   .wrap-center {
-    padding: 30px 8px;
+    padding: 20px 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -459,7 +459,7 @@ export default class extends Component {
         <div style={{ opacity: isOpacity ? 0.3 : undefined }} className={cx(`wrap-${textAlign}`, { oneNumber, hover: !oneNumber && displaySetup.showRowList && isViewOriginalData })}>
           {iconVisible && oneNumber && (
             <div className={cx('svgIconWrap valignWrapper justifyContentCenter', shape, `svgIconSize${newFontSize}`)} style={{ backgroundColor: iconColor }}>
-              <SvgIcon url={`${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`} fill="#fff" size={32} />
+              <SvgIcon url={`${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`} fill="#fff" size={32} />
             </div>
           )}
           <NumberChartContent

@@ -9,6 +9,8 @@ import PostFooter from '../post/postFooter';
 import PostCommentInput from './postCommentInput';
 import UploadFiles from 'src/components/UploadFiles';
 import { Dialog, UserHead } from 'ming-ui';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 /**
  * 动态的单条回复
@@ -43,7 +45,8 @@ class PostComment extends React.Component {
     if (this.state.allowOperate || this.state.checkIsProjectAdmin) return;
     const { projectIds } = this.props;
     if (!projectIds || !projectIds.length) return;
-    Promise.all(projectIds.map(projectId => roleController.isProjectAdmin({ projectId }))).then(results => {
+
+    Promise.all(projectIds.map(projectId => checkPermission(projectId, PERMISSION_ENUM.MANAGE_TREND))).then(results => {
       if (!results.some(result => !result)) {
         this.setState({ allowOperate: true });
       }

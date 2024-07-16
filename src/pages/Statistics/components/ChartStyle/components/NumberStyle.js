@@ -268,7 +268,7 @@ const IconSetting = props => {
           }
         >
           <EntranceWrapper className="ruleIcon flexRow valignWrapper pointer mLeft0 mRight10" onClick={() => {}}>
-            <SvgIcon url={`${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`} fill="#9e9e9e" size={22} />
+            <SvgIcon url={`${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`} fill="#9e9e9e" size={22} />
           </EntranceWrapper>
         </Trigger>
         <ColorPicker
@@ -586,6 +586,24 @@ export function numberSummaryPanelGenerator(props) {
               </div>
             ))}
         </div>
+      </div>
+      <div className="mBottom16">
+        <div className="mBottom8">{_l('提示')}</div>
+        <Input
+          value={summary.name}
+          className="chartInput w100"
+          onChange={event => {
+            changeCurrentReport(
+              {
+                summary: {
+                  ...summary,
+                  name: event.target.value,
+                }
+              },
+              false,
+            );
+          }}
+        />
       </div>
     </Collapse.Panel>
   );

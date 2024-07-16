@@ -13,8 +13,9 @@ import bg from 'staticfiles/images/query.png';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
-import loadScript from 'load-script';
-import moment from 'moment';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+
 const Wrap = styled.div`
   .mLeft18 {
     margin-left: 18px;
@@ -115,10 +116,12 @@ function Con(props) {
     setState,
   ] = useSetState({ ...initData, listCount: 0 });
   const featureType = getFeatureStatus(props.currentProjectId, VersionProductType.apiIntergration);
-  const allowAPIIntegration = _.get(
-    _.find(md.global.Account.projects, item => item.projectId === props.currentProjectId),
-    'allowAPIIntegration',
-  );
+  const canCreateAPIConnect =
+    _.get(
+      _.find(md.global.Account.projects, item => item.projectId === props.currentProjectId),
+      'allowAPIIntegration',
+    ) || hasPermission(props.myPermissions, [PERMISSION_ENUM.CREATE_API_CONNECT, PERMISSION_ENUM.MANAGE_API_CONNECTS]);
+  const hasManageAuth = hasPermission(props.myPermissions, PERMISSION_ENUM.MANAGE_API_CONNECTS);
 
   const fetchData = () => {
     if (!props.currentProjectId) {
@@ -218,7 +221,7 @@ function Con(props) {
     if (!(listData.length <= 0 && !keywords))
       return (
         <React.Fragment>
-          <WrapListHeader className={cx('headCon flexRow', { pBottom12: !props.isSuperAdmin })}>
+          <WrapListHeader className={cx('headCon flexRow', { pBottom12: !hasManageAuth })}>
             <div className="flex flexRow">
               <SearchInput
                 className="searchCon"
@@ -230,7 +233,7 @@ function Con(props) {
               1、我的连接即拥有者包含我的连接
               2、仅对组织应用管理员展示
               3、筛选后，「我的连接」后的数量也需变化 */}
-              {props.isSuperAdmin && (
+              {hasManageAuth && (
                 <Dropdown
                   value={searchType}
                   className="dropSearchType mLeft18"
@@ -259,7 +262,7 @@ function Con(props) {
                 />
               )}
             </div>
-            {featureType && allowAPIIntegration && (
+            {featureType && canCreateAPIConnect && (
               <span
                 className="addConnect Bold Hand"
                 onClick={() => {
@@ -276,28 +279,8 @@ function Con(props) {
               </span>
             )}
           </WrapListHeader>
-          {props.isSuperAdmin && (
-            <div className="Font13 Gray_75 mTop24 tips">{_l('组织应用管理员可管理组织下所有API连接')}</div>
-          )}
         </React.Fragment>
       );
-  };
-
-  const renderLibCon = () => {
-    window.MDAPILibrary &&
-      window.MDAPILibrary({
-        DomId: 'containerApiLib',
-        featureType: featureType,
-        installCallBack: id => {
-          setState({ showConnect: true, connectData: { id }, hasChange: hasChange + 1 });
-        },
-        buriedUpgradeVersionDialog: () => {
-          buriedUpgradeVersionDialog(props.currentProjectId, VersionProductType.apiIntergration);
-        },
-        currentProjectId: props.currentProjectId,
-        getUrl: 'https://api.mingdao.com/integration',
-        installUrl: __api_server__.integration || md.global.Config.IntegrationAPIUrl,
-      });
   };
 
   const renderCon = () => {
@@ -341,7 +324,8 @@ function Con(props) {
               listData: list,
             });
           }}
-          allowAPIIntegration={allowAPIIntegration}
+          canCreateAPIConnect={canCreateAPIConnect}
+          hasManageAuth={hasManageAuth}
         />
       </React.Fragment>
     );
@@ -354,7 +338,11 @@ function Con(props) {
             <h3 className="Bold Font24">{_l('我的连接')}</h3>
             <p className="Font15">
               {_l('连接第三方 API 并保存鉴权认证，在工作表或工作流中调用')}
-              <Support type={3} href="https://help.mingdao.com/integration/api#connection-certification" text={_l('使用帮助')} />
+              <Support
+                type={3}
+                href="https://help.mingdao.com/integration/api#connection-certification"
+                text={_l('使用帮助')}
+              />
             </p>
           </div>
         </div>
@@ -366,7 +354,8 @@ function Con(props) {
         {showConnect && (
           <ConnectWrap
             data={connectData}
-            isSuperAdmin={props.isSuperAdmin}
+            myPermissions={props.myPermissions}
+            hasManageAuth={hasManageAuth}
             onClose={isChange => {
               if (isChange) {
                 onFresh();

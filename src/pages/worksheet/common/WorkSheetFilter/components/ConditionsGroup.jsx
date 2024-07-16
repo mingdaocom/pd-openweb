@@ -72,6 +72,7 @@ const Con = styled.div`
       position: relative;
       .conditionValue {
         flex: 1;
+        min-width: 0;
         input {
           font-size: 13px;
         }

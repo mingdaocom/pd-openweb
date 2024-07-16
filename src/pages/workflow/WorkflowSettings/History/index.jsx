@@ -11,12 +11,10 @@ import process from '../../api/process';
 import processVersion from '../../api/processVersion';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { FLOW_STATUS } from './config';
-import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
 import _ from 'lodash';
 import moment from 'moment';
 import Detail from '../Detail';
-import ArchivedList from '../../components/ArchivedList';
+import ArchivedList from 'src/components/ArchivedList';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -47,13 +45,12 @@ class History extends Component {
       historyIndex: 1,
       historyIsMore: true,
       historyList: [],
-      showFilter: false,
-      filters: {},
       accumulation: {},
       requestPending: false,
       batchIds: [],
       selectNodeObj: {},
-      archivedId: '',
+      archivedItem: {},
+      cacheKey: +new Date(),
     };
   }
 
@@ -70,16 +67,20 @@ class History extends Component {
 
   getData = (callback = () => {}) => {
     const processId = this.props.flowInfo.id;
-    const { pageIndex, workId, instanceId, filters, requestPending, archivedId } = this.state;
+    const { pageIndex, workId, instanceId, requestPending, archivedItem } = this.state;
     const { pageSize, filterPara } = this;
-    let para = { pageIndex, processId, pageSize, workId, instanceId, archivedId, ...filterPara };
+    let para = {
+      pageIndex,
+      processId,
+      pageSize,
+      workId,
+      instanceId,
+      archivedId: archivedItem.id,
+      ...filterPara,
+    };
 
-    if (_.isEmpty(filters) && !para.startDate) {
+    if (!para.startDate && !para.archivedId) {
       para.startDate = moment().add(-6, 'M').format('YYYY/MM/DD HH:mm');
-    }
-
-    if (archivedId) {
-      para.startDate = undefined;
     }
 
     if (requestPending) return;
@@ -119,10 +120,6 @@ class History extends Component {
     });
   };
 
-  getMore = () => {
-    this.getData();
-  };
-
   handleRestoreVisible = id => {
     const { flowInfo } = this.props;
 
@@ -156,7 +153,7 @@ class History extends Component {
             {_l('触发了以下子流程')}
           </div>
           <Link
-            className="pointer Gray_9e ThemeHoverColor3 Font16 mLeft20"
+            className="pointer Gray_75 ThemeHoverColor3 Font16 mLeft20"
             to={`/workflowedit/${this.props.flowInfo.id}/2`}
             onClick={() => {
               this.setState({ workId: '', instanceId: '', instanceData: null }, this.handleFilter);
@@ -203,7 +200,7 @@ class History extends Component {
         onClickAwayExceptions={['.restoreWrap', '.mui-dialog-container']}
         onClickAway={() => this.setState({ historyVisible: false })}
       >
-        <div className="flexRow historyReleaseItem Gray_9e noBG">
+        <div className="flexRow historyReleaseItem Gray_75 noBG">
           <div className="w250">{_l('发布时间')}</div>
           <div className="flex">{_l('发布者')}</div>
         </div>
@@ -236,7 +233,7 @@ class History extends Component {
                     className={historyList.length > 1 && i === historyList.length - 1 ? 'tip-top' : ''}
                   >
                     <Icon
-                      className="Font16 Gray_9e ThemeHoverColor3 pointer"
+                      className="Font16 Gray_75 ThemeHoverColor3 pointer"
                       icon="restore2"
                       onClick={e => {
                         e.stopPropagation();
@@ -256,13 +253,6 @@ class History extends Component {
 
   formatData = data => {
     return Object.keys(data).map(key => ({ ...data[key], value: key }));
-  };
-
-  renderTimePlaceholder = () => {
-    const { filters } = this.state;
-    const [startTime, endTime] = (filters.time || []).map(item => item && moment(item).format('YYYY/MM/DD HH:mm'));
-    if (!startTime && !endTime) return <span className="placeholder">{_l('最大跨度180天')}</span>;
-    return `${startTime} ~ ${endTime}`;
   };
 
   /**
@@ -294,16 +284,14 @@ class History extends Component {
       selectActionId,
       hasMoreData,
       historyVisible,
-      showFilter,
-      filters,
       accumulation,
       requestPending,
       batchIds,
       selectNodeObj,
-      archivedId,
+      archivedItem,
+      cacheKey,
     } = this.state;
     const { lastPublishDate, parentId, enabled } = flowInfo;
-    const isMoreHistory = !_.isEmpty(filters) && !showFilter;
     const detailProps = {
       processId: selectNodeObj.processId,
       selectNodeId: selectNodeObj.selectNodeId,
@@ -332,114 +320,83 @@ class History extends Component {
     }
 
     return (
-      <ScrollView className="workflowHistoryWrap flex">
-        <div className="lastPublishInfo">
-          <div className="flex Gray">
-            {!parentId && !lastPublishDate ? (
-              _l('待流程发布后，在此处查看流程的运行历史')
-            ) : isMoreHistory ? (
-              <Fragment>
-                {_l('流程状态：')}
-                <span
-                  className="pointer ThemeHoverColor3"
-                  onClick={() => {
-                    this.setState({ showFilter: true });
-                  }}
-                >
-                  {FLOW_STATUS[filters.status].text}
-                </span>
-                <span className="mLeft15">{_l('筛选时间：')}</span>
-                <span
-                  className="pointer ThemeHoverColor3"
-                  onClick={() => {
-                    this.setState({ showFilter: true });
-                  }}
-                >
-                  {this.renderTimePlaceholder()}
-                </span>
-
-                <span
-                  className="mLeft15 pointer ThemeColor3 ThemeHoverColor2"
-                  onClick={() => {
-                    this.setState({ filters: {} });
-                    this.handleFilter({});
-                  }}
-                >
-                  {_l('清除筛选')}
-                </span>
-              </Fragment>
-            ) : (
-              <Fragment>
-                {_l('默认查看最近半年内的流程运行记录')}
-                <span
-                  className="mLeft10 ThemeColor3 ThemeHoverColor2 pointer"
-                  onClick={() => {
-                    this.setState({ showFilter: true });
-                  }}
-                >
-                  {_l('查看更早')}
-                </span>
-                <ArchivedList
-                  className="mLeft10 ThemeColor3 ThemeHoverColor2"
-                  hideIcon
-                  archivedId={archivedId}
-                  onChange={archivedId => this.setState({ archivedId, pageIndex: 1 }, this.getData)}
-                />
-              </Fragment>
-            )}
-          </div>
-          {parentId ? (
-            <div>
-              {_l('只展示该发布版本的流程历史')}
-              <span
-                className="ThemeColor3 ThemeHoverColor2 mLeft10 pointer"
-                onClick={() => (location.href = `/workflowedit/${parentId}`)}
-              >
-                {_l('打开当前流程')}
-              </span>
-            </div>
-          ) : lastPublishDate ? (
+      <ScrollView className="workflowHistoryWrap flex" style={{ marginTop: _.isEmpty(archivedItem) ? 20 : 13 }}>
+        <div
+          className="lastPublishInfo"
+          style={{
+            height: _.isEmpty(archivedItem) ? 22 : 36,
+            marginBottom: _.isEmpty(archivedItem) ? 20 : 13,
+          }}
+        >
+          {!_.isEmpty(archivedItem) ? (
+            <ArchivedList
+              type={1}
+              archivedItem={archivedItem}
+              onChange={archivedItem => {
+                this.filterPara = {};
+                this.setState({ archivedItem, pageIndex: 1, cacheKey: +new Date() }, this.getData);
+              }}
+            />
+          ) : (
             <Fragment>
-              {enabled && <div>{_l('当前运行中流程发布于: %0', createTimeSpan(lastPublishDate))}</div>}
-              <div
-                className="restoreWrap ThemeHoverColor3 relative"
-                onClick={evt => {
-                  if (evt.target.className.indexOf('restoreWrap') > -1) {
-                    if (historyVisible) {
-                      this.setState({ historyVisible: false });
-                    } else {
-                      this.setState(
-                        { historyVisible: true, historyIndex: 1, historyIsMore: true, historyList: [] },
-                        this.getHistoryList,
-                      );
-                    }
-                  }
-                }}
-              >
-                {_l('历史版本')}
-                {historyVisible && this.renderHistory()}
+              <div className="flex Gray_75">
+                {!parentId && !lastPublishDate ? (
+                  _l('待流程发布后，在此处查看流程的运行历史')
+                ) : parentId ? (
+                  <Fragment>
+                    {_l('只展示该发布版本的流程历史')}
+                    <span
+                      className="ThemeColor3 ThemeHoverColor2 mLeft10 pointer"
+                      onClick={() => (location.href = `/workflowedit/${parentId}`)}
+                    >
+                      {_l('打开当前流程')}
+                    </span>
+                  </Fragment>
+                ) : lastPublishDate ? (
+                  <Fragment>
+                    {enabled && <span>{_l('当前运行中流程发布于: %0', createTimeSpan(lastPublishDate))}</span>}
+                    <span
+                      className="restoreWrap ThemeHoverColor3 relative"
+                      onClick={evt => {
+                        if (evt.target.className.indexOf('restoreWrap') > -1) {
+                          if (historyVisible) {
+                            this.setState({ historyVisible: false });
+                          } else {
+                            this.setState(
+                              { historyVisible: true, historyIndex: 1, historyIsMore: true, historyList: [] },
+                              this.getHistoryList,
+                            );
+                          }
+                        }
+                      }}
+                    >
+                      {_l('历史版本')}
+                      {historyVisible && this.renderHistory()}
+                    </span>
+                  </Fragment>
+                ) : null}
               </div>
+              <ArchivedList
+                type={1}
+                archivedItem={archivedItem}
+                onChange={archivedItem => {
+                  this.filterPara = {};
+                  this.setState({ archivedItem, pageIndex: 1, cacheKey: +new Date() }, this.getData);
+                }}
+              />
             </Fragment>
-          ) : null}
+          )}
         </div>
 
         <div className="workflowHistoryContentWrap">
           {this.renderInstanceContent()}
           <HistoryHeader
+            key={cacheKey}
             processId={flowInfo.id}
             isSerial={_.includes([2, 3], flowInfo.executeType)}
-            filters={
-              isMoreHistory
-                ? {
-                    status: filters.status,
-                    startDate: filters.time[0].format('YYYY/MM/DD HH:mm'),
-                    endDate: filters.time[1].format('YYYY/MM/DD HH:mm'),
-                  }
-                : {}
-            }
-            hideStatusAndDate={isMoreHistory}
             batchIds={batchIds}
             onFilter={this.handleFilter}
+            archivedItem={archivedItem}
             onRefresh={callback => {
               this.setState({ pageIndex: 1, batchIds: [] }, () => {
                 this.getData(callback);
@@ -451,13 +408,12 @@ class History extends Component {
             processId={flowInfo.id}
             data={data}
             accumulation={accumulation}
-            disabled={isMoreHistory}
             updateSource={(item, index) => {
               const newData = [].concat(data);
               newData[index] = item;
               this.setState({ data: newData });
             }}
-            getMore={this.getMore}
+            getMore={() => this.getData()}
             hasMoreData={hasMoreData}
             requestPending={requestPending}
             batchIds={batchIds}
@@ -467,59 +423,6 @@ class History extends Component {
             onUpdateBatchIds={batchIds => this.setState({ batchIds })}
           />
         </div>
-
-        {showFilter && (
-          <Dialog
-            className="workflowHistoryBox"
-            closable={false}
-            visible
-            title={_l('筛选条件')}
-            okDisabled={!filters.status || !filters.time}
-            onCancel={() => {
-              this.setState({ showFilter: false, filters: {} });
-              this.handleFilter({});
-            }}
-            onOk={() => {
-              this.handleFilter({
-                status: filters.status,
-                startDate: filters.time[0].format('YYYY/MM/DD HH:mm'),
-                endDate: filters.time[1].format('YYYY/MM/DD HH:mm'),
-              });
-              this.setState({ showFilter: false });
-            }}
-          >
-            <div>{_l('流程状态')}</div>
-            <Dropdown
-              className="w100 mTop10"
-              isAppendToBody
-              border
-              onChange={status => this.setState({ filters: Object.assign({}, filters, { status }) })}
-              value={filters.status}
-              data={this.formatData(FLOW_STATUS)}
-              placeholder={_l('请选择')}
-            />
-            <div className="mTop20 mBottom10">{_l('时间范围')}</div>
-            <DateRangePicker
-              mode="datetime"
-              timeMode="minute"
-              selectedValue={filters.time || ['', '']}
-              children={
-                <div className="filterTimeRange">
-                  <div>{this.renderTimePlaceholder()}</div>
-                  <Icon icon="bellSchedule" className="Gray_9e Font18" />
-                </div>
-              }
-              onOk={time => {
-                if (time[1] - time[0] > 180 * 24 * 60 * 60 * 1000) {
-                  alert('最大跨度180天');
-                } else {
-                  this.setState({ filters: Object.assign({}, filters, { time }) });
-                }
-              }}
-              onClear={() => this.setState({ filters: Object.assign({}, filters, { time: '' }) })}
-            />
-          </Dialog>
-        )}
       </ScrollView>
     );
   }

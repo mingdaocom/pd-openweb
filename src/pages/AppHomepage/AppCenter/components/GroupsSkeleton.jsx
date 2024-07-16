@@ -18,7 +18,7 @@ const Cell = styled.div`
 export default function GroupsSkeleton(props) {
   const { repeat = 3 } = props;
   return [...new Array(repeat)].map((_, i) => (
-    <Con>
+    <Con key={i}>
       <Row>
         <Cell width={64} />
         <div className="flex"></div>

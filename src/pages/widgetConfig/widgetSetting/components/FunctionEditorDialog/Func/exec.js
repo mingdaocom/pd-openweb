@@ -79,7 +79,7 @@ function formatFunctionResult(control, value) {
   return result;
 }
 
-export default function (control, formData, { update, type } = {}) {
+export default function (control, formData, { update, type, forceSyncRun = false } = {}) {
   const run = functions;
   let expressionData = {};
   try {
@@ -91,15 +91,17 @@ export default function (control, formData, { update, type } = {}) {
     throw new Error('expression is undefined');
   }
   let existDeletedControl, existUndefinedFunction;
-  expression = expression.replace(/([A-Z]+)(?=\()/g, name => {
-    if (run[name]) {
-      return 'run.' + name;
-    } else {
-      // 不执行未定义函数
-      existUndefinedFunction = true;
-      return 'E_R_R_O_R';
-    }
-  });
+  if (fnType !== 'javascript') {
+    expression = expression.replace(/([A-Z]+)(?=\()/g, name => {
+      if (run[name]) {
+        return 'run.' + name;
+      } else {
+        // 不执行未定义函数
+        existUndefinedFunction = true;
+        return 'E_R_R_O_R';
+      }
+    });
+  }
   if (existUndefinedFunction) {
     return {
       error: 'EXIST_UNDEFINED_FUNCTION',
@@ -128,7 +130,7 @@ export default function (control, formData, { update, type } = {}) {
     try {
       let result;
 
-      if (window.isIphone && fnType === 'javascript') {
+      if (window.isIphone && fnType === 'javascript' && !forceSyncRun) {
         // iOS15以下不支持web worker，改为直接运行
         result = eval('function run() { ' + expression + ' } run()');
         update(
@@ -138,7 +140,7 @@ export default function (control, formData, { update, type } = {}) {
         );
         return;
       }
-      if (type === 'lib') {
+      if (type === 'lib' || forceSyncRun) {
         result = eval(fnType === 'javascript' ? 'function run() { ' + expression + ' } run()' : expression);
       } else {
         if (fnType === 'javascript') {

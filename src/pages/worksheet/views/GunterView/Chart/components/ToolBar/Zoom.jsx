@@ -89,7 +89,7 @@ export default class Zoom extends Component {
         </Tooltip>
         <Tooltip disable={this.isMobile} text={<span>{_l('放大')}</span>}>
           <IconWrap
-            className={cx('Font19 Gray_75 pointer mLeft6', { disable: addDisable, hoverColor: !this.isMobile })}
+            className={cx('Font18 Gray_75 pointer mLeft6', { disable: addDisable, hoverColor: !this.isMobile })}
             icon="add1"
             onClick={addDisable ? _.noop : this.handleAdd}
           />

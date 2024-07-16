@@ -84,7 +84,7 @@ const getFilterObject = (components, reports) => {
       }
       // 刚刚复制的图表
       if (c.sourceValue) {
-        const report = _.find(reports, { id: c.sourceValue });
+        const report = _.find(reports, { id: c.sourceValue }) || {};
         data.worksheetId = report.appId;
       }
     }

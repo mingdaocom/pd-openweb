@@ -2,11 +2,9 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { SettingItem } from '../../styled';
 import { SectionItem } from '../components/SplitLineConfig/style';
-import SplitLineConfig from '../components/SplitLineConfig';
-import { THEME_COLOR_OPTIONS, TEXT_COLOR_OPTIONS } from '../components/SplitLineConfig/config';
+import ColorSetting from '../components/SplitLineConfig/ColorSetting';
+import IconSetting from '../components/SplitLineConfig/IconSetting';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-
-const { ColorSetting, IconSetting } = SplitLineConfig;
 
 const FOLD_DISPLAY = [
   { text: _l('展开'), value: 1 },

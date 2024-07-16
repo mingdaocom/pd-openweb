@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import SectionTableNav from './SectionTableNav';
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from '../../../pages/widgetConfig/widgetSetting/components/CustomEvent/config';
 
 const Con = styled.div`
   margin-top: -2px;
@@ -26,27 +27,22 @@ const BottomLine = styled.div`
 
 function TableContainer(props) {
   const {
-    from,
-    disabled,
+    isCharge,
     appId,
+    disabled,
     worksheetId,
     recordId,
-    formWidth,
     isSplit,
-    sideVisible,
     control,
-    sheetSwitchPermit,
-    addRefreshEvents,
-    relateRecordData,
     formdata,
-    recordbase = {},
     setRelateNumOfControl,
-    onRelateRecordsChange,
     updateWorksheetControls,
     onCountChange,
+    onUpdateCell,
   } = props;
   return (
     <RelateRecordTable
+      isCharge={isCharge}
       appId={appId}
       isSplit={isSplit}
       control={control}
@@ -57,37 +53,9 @@ function TableContainer(props) {
       setRelateNumOfControl={setRelateNumOfControl}
       updateWorksheetControls={updateWorksheetControls}
       onCountChange={onCountChange}
+      onUpdateCell={onUpdateCell}
     />
   );
-  // return (
-  //   <RelateRecordTable
-  //     formWidth={formWidth}
-  //     sideVisible={sideVisible}
-  //     isSplit={isSplit}
-  //     recordbase={recordbase}
-  //     formdata={formdata} // 用来给关联查询去筛选动态值
-  //     sheetSwitchPermit={sheetSwitchPermit}
-  //     control={control}
-  //     loading={loading}
-  //     setLoading={setLoading}
-  //     controls={control.relationControls}
-  //     addRefreshEvents={addRefreshEvents}
-  //     from={from}
-  //     relateRecordData={relateRecordData} // 新建记录关联数据
-  //     setRelateNumOfControl={num => {
-  //       if (!recordId) {
-  //         return;
-  //       }
-  //       setRelateNumOfControl(num, control.controlId, control);
-  //     }} // 新建记录 更新计数
-  //     onRelateRecordsChange={records => {
-  //       if (control) {
-  //         onRelateRecordsChange(control, records);
-  //       }
-  //     }}
-  //     updateWorksheetControls={updateWorksheetControls}
-  //   />
-  // );
 }
 
 export default function WidgetSection(props) {
@@ -96,6 +64,7 @@ export default function WidgetSection(props) {
     disabled,
     tabControlProp = {},
     controlProps = {},
+    isCharge,
     appId,
     worksheetId,
     recordId,
@@ -125,9 +94,35 @@ export default function WidgetSection(props) {
   } = tabControlProp;
   const activeControl = _.find(tabControls, i => i.controlId === activeTabControlId) || tabControls[0];
   const [version, setVersion] = useState(Math.random());
+  const $sectionControls = useRef([]);
   if (!activeControl) {
     return null;
   }
+
+  const sectionCustomEvent = () => {
+    let changeControls = [];
+    let triggerType = '';
+    const preControls = _.get($sectionControls, 'current') || [];
+    if (preControls.length > tabControls.length) {
+      // 卸载
+      changeControls = _.differenceBy(preControls, tabControls, 'controlId');
+      triggerType = ADD_EVENT_ENUM.HIDE;
+    } else {
+      // 挂载
+      changeControls = _.differenceBy(tabControls, preControls, 'controlId');
+      triggerType = ADD_EVENT_ENUM.SHOW;
+    }
+    if (_.isFunction(props.triggerCustomEvent) && changeControls.length && triggerType) {
+      changeControls.forEach(itemControl => {
+        props.triggerCustomEvent({ ...itemControl, triggerType });
+      });
+    }
+    $sectionControls.current = tabControls;
+  };
+
+  useEffect(() => {
+    sectionCustomEvent();
+  }, [tabControls.length]);
 
   const renderContent = () => {
     if (activeControl.type === 52) {
@@ -143,6 +138,7 @@ export default function WidgetSection(props) {
       return (
         <TableContainer
           {...{
+            isCharge,
             from,
             disabled,
             appId,
@@ -164,7 +160,13 @@ export default function WidgetSection(props) {
           }}
           onCountChange={(newCount, changed) => {
             updateRelateRecordTableCount(activeControl.controlId, newCount, { changed });
+            if (changed) {
+              props.triggerCustomEvent({ ...activeControl, triggerType: ADD_EVENT_ENUM.CHANGE });
+            }
             setVersion(Math.random());
+          }}
+          onUpdateCell={() => {
+            props.triggerCustomEvent({ ...activeControl, triggerType: ADD_EVENT_ENUM.CHANGE });
           }}
         />
       );

@@ -4,30 +4,44 @@ import Config from './config';
 import AdminCommon from './common/common';
 import { Switch, Route } from 'react-router-dom';
 import Menu from './menu';
-import ApplyComp from './apply';
-import NormalSystemRoles from './organization/roleAuth/normalSystemRoles';
+import ApplyRole from './organization/roleAuth/apply';
+import MyRole from './organization/roleAuth/myRole';
 import Empty from './common/TableEmpty';
-import { menuList, permissionObj } from './router.config.js';
+import { menuList } from './router.config.js';
+import { ROUTE_CONFIG, PERMISSION_ENUM } from './enum';
 import Loadable from 'react-loadable';
 import { navigateTo } from 'router/navigateTo';
 import { getCurrentProject } from 'src/util';
 import './index.less';
 import _ from 'lodash';
+import withoutPermission from 'src/pages/worksheet/assets/withoutPermission.png';
 
 const getComponent = component =>
   Loadable({
     loader: component,
     loading: () => null,
   });
-const AUTHORITY_DICT = Config.AUTHORITY_DICT;
-const detail = {
-  icon: 'icon-task_custom_ic_task_internet',
-  desc: _l('您的账号不是该组织成员'),
+
+const withParams = (Component, params) => {
+  const ParamsComponent = props => <Component {...props} {...params} />;
+  return ParamsComponent;
 };
 
 const CommonEmpty = (
   <div className="commonIndexEmpty">
-    <Empty detail={detail} />
+    <Empty
+      detail={{
+        icon: 'icon-task_custom_ic_task_internet',
+        desc: _l('您的账号不是该组织成员'),
+      }}
+    />
+  </div>
+);
+
+const NoPermission = (
+  <div className="noPermissionWrapper">
+    <img className="img" src={withoutPermission} />
+    <div className="Gray_75 Font17 mTop30">{_l('无权限，请联系管理员')}</div>
   </div>
 );
 
@@ -50,15 +64,10 @@ export default class AdminEntryPoint extends PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    const {
-      match: {
-        params: { projectId },
-      },
-    } = nextProps;
+    const projectId = _.get(nextProps, 'match.params.projectId');
+
     if (projectId !== Config.projectId) {
-      this.setState({
-        isLoading: true,
-      });
+      this.setState({ isLoading: true });
       this.init();
     } else {
       Config.getParams();
@@ -70,14 +79,9 @@ export default class AdminEntryPoint extends PureComponent {
   }
 
   init() {
-    AdminCommon.init().then(
-      authority => {
-        this.setState({ isLoading: false, authority, routeKeys: this.getRouterKeys(authority) });
-      },
-      authority => {
-        this.setState({ isLoading: false, authority: _.isArray(authority) ? authority : [] });
-      },
-    );
+    AdminCommon.getAuthority().then(authority => {
+      this.setState({ isLoading: false, authority, routeKeys: this.getRouterKeys(authority) });
+    });
   }
 
   //获取权限模块
@@ -85,13 +89,16 @@ export default class AdminEntryPoint extends PureComponent {
     if (_.isArray(authority)) {
       let cur = [];
       authority.map(item => {
-        cur = cur.concat(permissionObj[item] || []);
+        cur = cur.concat(ROUTE_CONFIG[item] || []);
       });
-      return cur;
+      return _.uniq(cur).filter(o =>
+        md.global.Config.IsLocal && !md.global.Config.EnableDataPipeline ? o !== 'aggregationTable' : true,
+      );
     }
   }
 
   renderHomeContent(routes) {
+    const { authority } = this.state;
     const childRoutes = _.reduce(
       routes,
       (result, { subMenuList = [] }) => {
@@ -110,7 +117,14 @@ export default class AdminEntryPoint extends PureComponent {
             <div id="mainContainer" className="Relative">
               <Switch>
                 {childRoutes.map(({ path, exact, component }) => {
-                  return <Route key={path} exact={exact} path={path} component={getComponent(component)} />;
+                  return (
+                    <Route
+                      key={path}
+                      exact={exact}
+                      path={path}
+                      component={withParams(getComponent(component), { authority })}
+                    />
+                  );
                 })}
               </Switch>
             </div>
@@ -121,7 +135,7 @@ export default class AdminEntryPoint extends PureComponent {
   }
 
   renderRoutes() {
-    const { routeKeys } = this.state;
+    const { routeKeys, authority = [] } = this.state;
     // 根据权限控制模块展示
     const routesWithAuthority = _.reduce(
       menuList,
@@ -131,18 +145,19 @@ export default class AdminEntryPoint extends PureComponent {
       },
       [],
     );
+
     return (
       <Switch>
-        <Route path="/admin/mycharacter/:projectId" component={NormalSystemRoles} />
-        <Route path="/admin/apply/:projectId/:roleId?" component={ApplyComp} />
+        <Route path="/admin/mycharacter/:projectId" component={() => <MyRole authority={authority} />} />
+        <Route path="/admin/apply/:projectId/:roleId?" component={() => <ApplyRole authority={authority} />} />
         <Route path="/admin/:routeType/:projectId">{this.renderHomeContent(routesWithAuthority)}</Route>
       </Switch>
     );
   }
 
   getCurrentAuth(routeKeys = []) {
-    const currentItem =
-      routeKeys.filter(item => location.href.toLocaleLowerCase().includes(item.toLocaleLowerCase())) || [];
+    const pathNameArr = (location.pathname.toLocaleLowerCase().split('/') || []).filter(item => item);
+    const currentItem = routeKeys.filter(item => pathNameArr.includes(item.toLocaleLowerCase()));
     return !currentItem.length;
   }
 
@@ -154,36 +169,42 @@ export default class AdminEntryPoint extends PureComponent {
       return <LoadDiv className="mTop10" />;
     }
 
+    //没有任何权限
+    if (!authority.length) {
+      return NoPermission;
+    }
+
     //不是组织成员
-    if (authority.indexOf(AUTHORITY_DICT.NOT_MEMBER) > -1) {
+    if (authority.includes(PERMISSION_ENUM.NOT_MEMBER)) {
       return CommonEmpty;
     }
 
-    if (
-      authority.indexOf(AUTHORITY_DICT.HAS_PERMISSIONS) === -1 &&
-      authority.indexOf(AUTHORITY_DICT.SHOW_MANAGER) > -1
-    ) {
-      if (location.href.indexOf('admin/mycharacter') === -1) {
-        navigateTo('/admin/mycharacter/' + Config.projectId);
-      } else {
-        return this.renderRoutes();
-      }
+    //没有权限，可以申请管理员
+    if (authority.includes(PERMISSION_ENUM.SHOW_APPLY) && !location.href.includes('admin/apply')) {
+      navigateTo('/admin/apply/' + Config.projectId);
       return null;
     }
 
-    //  是否有管理员基本权限
-    if (authority.indexOf(AUTHORITY_DICT.HAS_PERMISSIONS) === -1 && location.href.indexOf('admin/apply') === -1) {
-      navigateTo('/admin/apply/' + Config.projectId);
-    } else if (
-      location.href.indexOf('admin/index') > -1 ||
-      (isSuperAdmin && location.href.indexOf('admin/apply') > -1)
-    ) {
-      navigateTo('/admin/home/' + Config.projectId);
-    } else if (this.getCurrentAuth(routeKeys) && !location.href.includes('admin/apply')) {
-      navigateTo('/admin/' + routeKeys[0] + '/' + Config.projectId);
-    } else {
-      return this.renderRoutes();
+    //有权限，但是没有组织后台菜单权限
+    if (authority.includes(PERMISSION_ENUM.SHOW_MY_CHARACTER) && !location.href.includes('admin/mycharacter')) {
+      navigateTo('/admin/mycharacter/' + Config.projectId);
+      return null;
     }
-    return null;
+
+    //超管跳转到首页
+    if ((location.href.includes('admin/index') || location.href.includes('admin/apply')) && isSuperAdmin) {
+      navigateTo('/admin/home/' + Config.projectId);
+      return null;
+    }
+
+    if (
+      this.getCurrentAuth(routeKeys) &&
+      routeKeys.filter(route => !ROUTE_CONFIG[PERMISSION_ENUM.CAN_PURCHASE].includes(route)).length
+    ) {
+      navigateTo('/admin/' + (routeKeys.includes('home') ? 'home' : routeKeys[0]) + '/' + Config.projectId);
+      return null;
+    }
+
+    return this.renderRoutes();
   }
 }

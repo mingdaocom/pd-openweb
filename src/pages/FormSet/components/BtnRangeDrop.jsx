@@ -20,6 +20,10 @@ const Wrap = styled.div`
   .pAll16 {
     padding: 16px;
   }
+  .flexShrink0 {
+    flex-shrink: 0;
+    min-width: 0;
+  }
 `;
 const HeaderRange = styled.div`
   display: block;
@@ -46,7 +50,9 @@ export default function BtnRangeDrop(props) {
   });
   useEffect(() => {
     const viewIds = props.views.map(o => o.viewId);
-    const viewSheetIds = props.views.filter(o => o.viewType === 0).map(o => o.viewId); //仅表视图，支持批量
+    const viewSheetIds = props.views
+      .filter(o => o.viewType === 0 || (o.viewType === 2 && _.get(o, 'advancedSetting.hierarchyViewType') === '3'))
+      .map(o => o.viewId); //仅表视图、树形层级视图，支持批量
     setState({
       viewIds,
       viewSheetIds,
@@ -105,7 +111,8 @@ export default function BtnRangeDrop(props) {
               <div className="flexRow alignItemsCenter Bold">
                 <span className="flex">{_l('视图')}</span>
                 <span
-                  className="flex Hand"
+                  className="flex Hand flexShrink0"
+                  title={_l('记录详情')}
                   onClick={() => {
                     onChange({
                       ...data,
@@ -128,7 +135,7 @@ export default function BtnRangeDrop(props) {
                 </span>
                 {!noBatch ? (
                   <span
-                    className="flex Hand"
+                    className="flex Hand flexShrink0"
                     onClick={() => {
                       onChange({
                         ...data,
@@ -140,6 +147,7 @@ export default function BtnRangeDrop(props) {
                             },
                       });
                     }}
+                    title={_l('批量操作')}
                   >
                     <Checkbox
                       className="viewInput TxtMiddle"
@@ -179,7 +187,9 @@ export default function BtnRangeDrop(props) {
                     >
                       <Checkbox className="viewInput TxtMiddle" size="small" checked={isDt} text={null} />
                     </span>
-                    {it.viewType === 0 && !noBatch ? (
+                    {(it.viewType === 0 ||
+                      (it.viewType === 2 && _.get(it, 'advancedSetting.hierarchyViewType') === '3')) &&
+                    !noBatch ? (
                       <span
                         className="flex Hand"
                         onClick={() => {

@@ -5,12 +5,14 @@ import Trigger from 'rc-trigger';
 import departmentController from 'src/api/department';
 import jobAjax from 'src/api/job';
 import workSiteController from 'src/api/workSite';
-import { getEllipsisDep, checkForm } from '../../constant';
+import { getEllipsisDep } from '../../constant';
 import TextInput from '../TextInput';
 import cx from 'classnames';
 import styled from 'styled-components';
 import _ from 'lodash';
-import { quickSelectRole, dialogSelectDept } from 'ming-ui/functions';
+import { quickSelectRole, quickSelectDept } from 'ming-ui/functions';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const SelectWrap = styled(Select)`
   &:not(.ant-select-customize-input) .ant-select-selector {
@@ -96,19 +98,28 @@ export default class BaseFormInfo extends Component {
   dialogSelectDeptFn = e => {
     const { projectId } = this.props;
     const { departmentInfos } = this.state;
-    const _this = this;
 
-    dialogSelectDept({
+    quickSelectDept(e.target, {
+      offset: {
+        left: -167,
+      },
       projectId,
       unique: false,
       fromAdmin: true,
       selectedDepartment: departmentInfos,
       showCreateBtn: false,
-      selectFn(departments) {
-        _this.getDepartmentFullName(
-          departments.map(it => it.departmentId),
+      selectFn: (departments, isCancel = false) => {
+        if (isCancel) {
+          this.setState({
+            departmentInfos: this.state.departmentInfos.filter(l => l.departmentId !== departments[0].departmentId),
+          });
+          return;
+        }
+        const data = _.uniqBy(this.state.departmentInfos.concat(departments), 'departmentId');
+        this.getDepartmentFullName(
+          data.map(it => it.departmentId),
           'all',
-          departments,
+          data,
         );
       },
     });
@@ -117,7 +128,6 @@ export default class BaseFormInfo extends Component {
   //添加角色
   dialogSelectRoleFn = e => {
     const { projectId } = this.props;
-    const { orgRoles } = this.state;
 
     quickSelectRole(e.target, {
       projectId,
@@ -125,7 +135,8 @@ export default class BaseFormInfo extends Component {
       offset: {
         left: -167,
       },
-      onSave: data => {
+      value: this.state.orgRoles.map(l => ({ organizeId: l.id, organizeName: l.name })),
+      onSave: (data, isCancel = false) => {
         if (!data.length) return;
 
         let roles = data.map(l => {
@@ -135,7 +146,9 @@ export default class BaseFormInfo extends Component {
           };
         });
         this.setState({
-          orgRoles: _.uniqBy(orgRoles.concat(roles), 'id'),
+          orgRoles: isCancel
+            ? this.state.orgRoles.filter(l => l.id !== data[0].organizeId)
+            : _.uniqBy(this.state.orgRoles.concat(roles), 'id'),
         });
       },
     });
@@ -283,7 +296,7 @@ export default class BaseFormInfo extends Component {
   };
 
   render() {
-    const { typeCursor, errors = {}, projectId, hideRole } = this.props;
+    const { typeCursor, projectId, hideRole, authority = [] } = this.props;
     const {
       departmentInfos = [],
       fullDepartmentInfo = {},
@@ -319,7 +332,7 @@ export default class BaseFormInfo extends Component {
         <div className="formGroup">
           <div className="formLabel">{_l('部门')}</div>
           {departmentInfos.map((item, i) => {
-            const fullName = (fullDepartmentInfo[item.departmentId] || '').split('/');
+            const fullName = fullDepartmentInfo[item.departmentId] || '';
             return (
               <span
                 className={cx('itemSpan mAll5', { disabledDepartment: typeCursor === 2 })}
@@ -330,16 +343,7 @@ export default class BaseFormInfo extends Component {
                   <Tooltip
                     tooltipClass="departmentFullNametip"
                     popupPlacement="bottom"
-                    text={
-                      <div>
-                        {fullName.map((n, i) => (
-                          <span>
-                            {n}
-                            {fullName.length - 1 > i && <span className="mLeft8 mRight8">/</span>}
-                          </span>
-                        ))}
-                      </div>
-                    }
+                    text={<div>{fullName}</div>}
                     mouseEnterDelay={0.5}
                   >
                     <span>{item.departmentName}</span>
@@ -434,14 +438,16 @@ export default class BaseFormInfo extends Component {
         <div className="formGroup">
           <div className="formLabel">
             <span>{_l('职位')}</span>
-            <span
-              className="Gray_9e Hover_21 Hand Right"
-              onClick={() => {
-                location.assign(`/admin/sysinfo/${projectId}?level5`);
-              }}
-            >
-              {_l('管理')}
-            </span>
+            {hasPermission(authority, PERMISSION_ENUM.BASIC_SETTING) && (
+              <span
+                className="Gray_9e Hover_21 Hand Right"
+                onClick={() => {
+                  location.assign(`/admin/sysinfo/${projectId}?level5`);
+                }}
+              >
+                {_l('管理')}
+              </span>
+            )}
           </div>
           <SelectWrap
             disabled={typeCursor === 2}
@@ -449,7 +455,6 @@ export default class BaseFormInfo extends Component {
               this.select = select;
             }}
             className={cx('w100 mdAntSelect', { noBorder: typeCursor === 2 })}
-            dropdownClassName="dropJobList"
             showSearch
             allowClear={jobIds.length > 0}
             listHeight={285}
@@ -500,14 +505,16 @@ export default class BaseFormInfo extends Component {
         <div className="formGroup">
           <div className="formLabel">
             <span>{_l('工作地点')}</span>
-            <span
-              className="Gray_9e Hover_21 Hand Right"
-              onClick={() => {
-                location.assign(`/admin/sysinfo/${projectId}?level3`);
-              }}
-            >
-              {_l('管理')}
-            </span>
+            {hasPermission(authority, PERMISSION_ENUM.BASIC_SETTING) && (
+              <span
+                className="Gray_9e Hover_21 Hand Right"
+                onClick={() => {
+                  location.assign(`/admin/sysinfo/${projectId}?level3`);
+                }}
+              >
+                {_l('管理')}
+              </span>
+            )}
           </div>
           <Select
             ref={select => {
@@ -515,7 +522,6 @@ export default class BaseFormInfo extends Component {
             }}
             disabled={typeCursor === 2}
             className={cx('w100 mdAntSelect', { noBorder: typeCursor === 2 })}
-            dropdownClassName="dropJobList"
             showSearch
             allowClear
             listHeight={285}
@@ -573,12 +579,10 @@ export default class BaseFormInfo extends Component {
         />
         <TextInput
           label={_l('工作电话')}
-          field={'contactPhone'}
           value={contactPhone}
           disabled={typeCursor === 2}
           onChange={e => this.changeFormInfo(e, 'contactPhone')}
           maxLength="32"
-          error={errors.contactPhone && !!checkForm['contactPhone'](contactPhone)}
         />
       </Fragment>
     );

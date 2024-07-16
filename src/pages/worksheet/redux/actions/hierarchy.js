@@ -3,9 +3,11 @@ import update from 'immutability-helper';
 import { dealData, getParaIds, getHierarchyViewIds, getItemByRowId } from './util';
 import _, { get, filter, flatten, isEmpty, isFunction } from 'lodash';
 import { getCurrentView } from '../util';
-import { getFilledRequestParams } from 'worksheet/util';
+import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
+import { updateNavGroup } from 'src/pages/worksheet/redux/actions/index.js';
 
 const MULTI_RELATE_MAX_PAGE_SIZE = 500;
+let hierarchyPromiseObj = null;
 
 const getTotalData = (hierarchyViewData = {}, total = 0) => {
   Object.values(hierarchyViewData).map(item => {
@@ -20,56 +22,64 @@ const getTotalData = (hierarchyViewData = {}, total = 0) => {
 };
 
 // 展开多级数据
-export function expandedMultiLevelHierarchyData(args) {
+export function expandedMultiLevelHierarchyData(args, changeFilters) {
   return (dispatch, getState) => {
-    const { sheet } = getState();
+    const { sheet, mobile } = getState();
+    const { quickFilter, navGroupFilters } = sheet;
     const { searchType, ...rest } = sheet.filters || {};
     const { pageSize = 50 } = sheet.hierarchyView.hierarchyDataStatus;
-    sheetAjax
-      .getFilterRows(
-        getFilledRequestParams({
-          ...args,
-          ...rest,
-          ...getParaIds(sheet),
-          pageSize,
-          searchType: searchType || 1,
-        }),
-      )
-      .then(({ data, count, resultCode }) => {
-        if (resultCode === 1) {
-          const treeData = dealData(data);
-          const totalDataOver = getTotalData(data);
-          // 第一次调用少于1000条，加载全量数据
-          const needGetOne =
-            ((totalDataOver < 1000 && pageSize === 50) || (totalDataOver > 1000 && pageSize === 1000)) &&
-            sheet.hierarchyView.hierarchyTopLevelDataCount === 0;
-          dispatch({ type: 'INIT_HIERARCHY_VIEW_DATA', data: treeData });
-          dispatch({
-            type: 'CHANGE_HIERARCHY_DATA_STATUS',
-            data: {
-              loading: needGetOne,
-              pageIndex: 1,
-              ...(needGetOne ? { pageSize: totalDataOver > 1000 ? 50 : 1000 } : {}),
-            },
-          });
-          dispatch({
-            type: 'CHANGE_HIERARCHY_TOP_LEVEL_DATA_COUNT',
-            count: count,
-          });
-          dispatch({
-            type: 'EXPAND_HIERARCHY_VIEW_STATE',
-            data: {
-              treeData,
-              data,
-              level: needGetOne ? (totalDataOver > 1000 ? '1' : '5') : +args.layer,
-            },
-          });
 
-          if (needGetOne) {
-            dispatch(getDefaultHierarchyData());
-          }
+    if (changeFilters && hierarchyPromiseObj && hierarchyPromiseObj.abort) {
+      hierarchyPromiseObj.abort();
+    }
+
+    hierarchyPromiseObj = sheetAjax.getFilterRows(
+      getFilledRequestParams({
+        ...args,
+        ...rest,
+        ...getParaIds(sheet),
+        pageSize,
+        searchType: searchType || 1,
+        fastFilters: formatQuickFilter(quickFilter),
+        navGroupFilters,
+      }),
+    );
+
+    hierarchyPromiseObj.then(({ data, count, resultCode }) => {
+      if (resultCode === 1) {
+        const treeData = dealData(data);
+        const totalDataOver = getTotalData(data);
+        // 第一次调用少于1000条，加载全量数据
+        const needGetOne =
+          ((totalDataOver < 1000 && pageSize === 50) || (totalDataOver > 1000 && pageSize === 1000)) &&
+          sheet.hierarchyView.hierarchyTopLevelDataCount === 0;
+        dispatch({ type: 'INIT_HIERARCHY_VIEW_DATA', data: treeData });
+        dispatch({
+          type: 'CHANGE_HIERARCHY_DATA_STATUS',
+          data: {
+            loading: needGetOne,
+            pageIndex: 1,
+            ...(needGetOne ? { pageSize: totalDataOver > 1000 ? 50 : 1000 } : {}),
+          },
+        });
+        dispatch({
+          type: 'CHANGE_HIERARCHY_TOP_LEVEL_DATA_COUNT',
+          count: count,
+        });
+        dispatch({
+          type: 'EXPAND_HIERARCHY_VIEW_STATE',
+          data: {
+            treeData,
+            data,
+            level: needGetOne ? (totalDataOver > 1000 ? '1' : '5') : +args.layer,
+          },
+        });
+
+        if (needGetOne) {
+          dispatch(getDefaultHierarchyData());
         }
-      });
+      }
+    });
   };
 }
 
@@ -249,6 +259,7 @@ export function deleteHierarchyRecord({ rows, path, pathId, ...rest }) {
           type: 'CHANGE_HIERARCHY_VIEW_DATA',
           data: update(hierarchyViewData, { $unset: [id] }),
         });
+        dispatch(updateNavGroup());
       }
     });
   };
@@ -431,8 +442,9 @@ export function multiRelateGetChildren(para) {
 export function getAssignChildren({ path = [], pathId = [], callback, ...args }, onlyUpdateChildren = false) {
   return function (dispatch, getState) {
     const { sheet } = getState();
-    const { filters, hierarchyView } = sheet;
+    const { filters, quickFilter, navGroupFilters } = sheet;
     const { viewType, childType, viewControls = [] } = getCurrentView(sheet);
+
     const getDefaultPara = () => {
       if (viewType === 2 && childType === 2) {
         const level = path.length;
@@ -449,7 +461,10 @@ export function getAssignChildren({ path = [], pathId = [], callback, ...args },
       ...getParaIds(sheet),
       ...filters,
       ...args,
+      fastFilters: formatQuickFilter(quickFilter),
+      navGroupFilters,
     };
+
     sheetAjax.getFilterRows(getFilledRequestParams(args)).then(({ data, resultCode, count }) => {
       if (resultCode !== 1) {
         return;
@@ -633,7 +648,7 @@ export function initHierarchyRelateSheetControls(payload) {
   return { type: 'INIT_HIERARCHY_RELATE_SHEET_CONTROLS', payload };
 }
 
-export function getDefaultHierarchyData(view) {
+export function getDefaultHierarchyData(view, { changeFilters } = {}) {
   return (dispatch, getState) => {
     const { sheet } = getState();
     const pageSize =
@@ -650,14 +665,17 @@ export function getDefaultHierarchyData(view) {
       data: { loading: true, pageSize: pageSize },
     });
     if (_.includes(['1', '0'], String(childType))) {
-      const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`))
+      const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
       dispatch(
-        expandedMultiLevelHierarchyData({
-          layer: level || (pageSize === 1000 ? '5' : '1'),
-        }),
+        expandedMultiLevelHierarchyData(
+          {
+            layer: level || (pageSize === 1000 ? '5' : '1'),
+          },
+          changeFilters,
+        ),
       );
     } else {
-      const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`))
+      const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
       // 多表关联层级视图获取多级数据 默认加载3级
       dispatch(expandMultiLevelHierarchyDataOfMultiRelate(level || 3));
     }

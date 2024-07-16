@@ -5,6 +5,7 @@ import LingualList from './LingualList';
 import EditLingual from './EditLingual';
 import AddLangModal from './AddLangModal';
 import appManagementApi from 'src/api/appManagement';
+import worksheetApi from 'src/api/worksheet';
 import { navigateTo } from 'src/router/navigateTo';
 import { getRequest } from 'src/util';
 
@@ -40,17 +41,25 @@ export default function MultiLingual(props) {
   const { id, projectId } = data;
   const [loading, setLoading] = useState(true);
   const [langs, setLangs] = useState([]);
+  const [collections, setCollections] = useState([]);
   const [langInfo, setLangInfo] = useState(null);
   const { langId, flag } = getRequest();
 
   const handleGetAppLangs = () => {
     setLoading(true);
-    appManagementApi.getAppLangs({
-      projectId,
-      appId: id,
-    }).then(data => {
-      setLangs(data);
-      setLangInfo(_.find(data, { id: langId }));
+    Promise.all([
+      worksheetApi.getCollectionsByAppId({
+        appId: id,
+        status: 1
+      }),
+      appManagementApi.getAppLangs({
+        projectId,
+        appId: id
+      })
+    ]).then(([collectionsData, appLangsData]) => {
+      setCollections(collectionsData.data);
+      setLangs(appLangsData);
+      setLangInfo(_.find(appLangsData, { id: langId }));
       setLoading(false);
     });
   }
@@ -70,7 +79,10 @@ export default function MultiLingual(props) {
   if (langInfo) {
     return (
       <EditLingual
-        app={data}
+        app={{
+          ...data,
+          collections
+        }}
         langs={langs}
         langInfo={langInfo}
         onBack={() => {

@@ -39,11 +39,6 @@ export default class UploadTemplateSheet extends React.Component {
           controlName: _l('最近修改时间'),
           type: 16,
         },
-        // {
-        //   controlId: 'qrCode',
-        //   controlName: _l('二维码'),
-        //   type: 16,
-        // },
         {
           controlId: 'sharelink',
           controlName: _l('二维码（公开分享链接）'),
@@ -179,9 +174,6 @@ export default class UploadTemplateSheet extends React.Component {
         }),
       });
 
-      // 剪切板功能
-      this.copy();
-
       // 下载功能
       $('.urlForTel').on('click', () => {
         this.downTem();
@@ -218,21 +210,17 @@ export default class UploadTemplateSheet extends React.Component {
     });
   };
 
-  copy = () => {
-    $('body').on('click', 'i.copy', function () {
-      if ($(this).closest('.copySpan').length) {
-        copy($(this).closest('.copySpan').text(), {
-          format: 'text/plain',
-        });
-        alert(_l('复制成功'));
-      }
+  onCopy = text => {
+    copy(text, {
+      format: 'text/plain',
     });
+    alert(_l('复制成功'));
   };
 
-  renderIcon = () => {
+  renderIcon = text => {
     return (
       <span title={_l('复制')}>
-        <Icon icon="content-copy" className="copy" />
+        <Icon icon="content-copy" className="copy" onClick={() => this.onCopy(text)} />
       </span>
     );
   };
@@ -266,6 +254,15 @@ export default class UploadTemplateSheet extends React.Component {
       const data = it.relationControls.find(a => o === a.controlId);
       return data && data.attribute !== 1 && !controlNo.includes(data.type);
     });
+    const isQrCode = qrcodeField.indexOf(it.controlId) > -1;
+    const prefix = isQrCode ? (it.controlId === 'recordid' ? '[barcode]' : '[qrcode]') : '';
+
+    const fieldCode = `#{${prefix}${
+      isQrCode ? it.controlId : it.type === 47 ? this.strQrcodeField(it) : it.controlName
+    }${[29, 51].includes(it.type) ? '[S]' : ''}${this.strForFile(it)}}`;
+    const fieldAlias = `#{${prefix}${it.type === 47 ? this.strQrcodeField(it, true) : it.alias || it.controlId}${
+      [29, 51].includes(it.type) ? '[S]' : ''
+    }${this.strForFile(it)}}`;
 
     return (
       <React.Fragment>
@@ -302,24 +299,14 @@ export default class UploadTemplateSheet extends React.Component {
 
           {/** 点击复制图标 */}
           <span className="copySpan">
-            {`#{${
-              qrcodeField.indexOf(it.controlId) > -1
-                ? `[${it.controlId === 'recordid' ? 'barcode' : 'qrcode'}]${it.controlId}`
-                : it.type === 47
-                ? this.strQrcodeField(it)
-                : it.controlName
-            }${[29, 51].includes(it.type) ? '[S]' : ''}${this.strForFile(it)}}`}
-            {this.renderIcon()}
+            {fieldCode}
+            {this.renderIcon(fieldCode)}
           </span>
 
           {/** 点击复制二维码图标 */}
           <span className="copySpan">
-            {`#{${
-              qrcodeField.indexOf(it.controlId) > -1 ? (it.controlId === 'recordid' ? '[barcode]' : '[qrcode]') : ''
-            }${it.type === 47 ? this.strQrcodeField(it, true) : it.alias || it.controlId}${
-              [29, 51].includes(it.type) ? '[S]' : ''
-            }${this.strForFile(it)}}`}
-            {[qrcodeField].indexOf(it.controlId) < 0 && this.renderIcon()}
+            {fieldAlias}
+            {[qrcodeField].indexOf(it.controlId) < 0 && this.renderIcon(fieldAlias)}
           </span>
         </div>
 
@@ -411,6 +398,10 @@ export default class UploadTemplateSheet extends React.Component {
    * 关联表字段
    */
   renderRelaItem = (it, o, isRela) => {
+    if (o.type === 47 && o.enumDefault2 === 1) {
+      return null;
+    }
+
     let str = `${it.controlName}.${o.controlName}`;
     let strAlias = `${it.alias || it.controlId}.${o.alias || o.controlId}`;
 
@@ -419,20 +410,20 @@ export default class UploadTemplateSheet extends React.Component {
       strAlias = this.strQrcodeField(o, true, it, isRela);
     }
 
-    if (o.type === 47 && o.enumDefault2 === 1) {
-      return null;
-    }
+    const suffix = `${o.type !== 47 && isRela ? '[S]' : ''}${this.strForFile(o)}`;
+    const fieldCode = `#{${str}${suffix}}`;
+    const fieldAlias = `#{${strAlias}${suffix}}`;
 
     return (
       <div className="list">
         <span className="textIndent">{`${o.controlName}`}</span>
         <span className="copySpan">
-          {`#{${str}${o.type !== 47 && isRela ? '[S]' : ''}${this.strForFile(o)}}`}
-          {this.renderIcon()}
+          {fieldCode}
+          {this.renderIcon(fieldCode)}
         </span>
         <span className="copySpan">
-          {`#{${strAlias}${o.type !== 47 && isRela ? '[S]' : ''}${this.strForFile(o)}}`}
-          {this.renderIcon()}
+          {fieldAlias}
+          {this.renderIcon(fieldAlias)}
         </span>
       </div>
     );
@@ -625,39 +616,48 @@ export default class UploadTemplateSheet extends React.Component {
 
     return (
       <div className="listCon">
-        {approvalList.map((item, i) => (
-          <React.Fragment>
-            <p
-              className="mTop20 Bold Font13 pointer"
-              style={{ left: '-1em', position: 'relative' }}
-              onClick={() => {
-                item.expandControls = !item.expandControls;
-                this.setState({ approvalList });
-              }}
-            >
-              <Icon icon={!item.expandControls ? 'arrow-right-tip' : 'arrow-down'} className="copy Font13" />
-              <span>{item.name}</span>
-            </p>
+        {approvalList.map((item, i) => {
+          return (
+            <React.Fragment>
+              <p
+                className="mTop20 Bold Font13 pointer"
+                style={{ left: '-1em', position: 'relative' }}
+                onClick={() => {
+                  item.expandControls = !item.expandControls;
+                  this.setState({ approvalList });
+                }}
+              >
+                <Icon icon={!item.expandControls ? 'arrow-right-tip' : 'arrow-down'} className="copy Font13" />
+                <span>{item.name}</span>
+              </p>
 
-            {item.expandControls && (
-              <React.Fragment>
-                {APPROVAL_SYS.map(l => (
-                  <div className="list">
-                    <span className="textIndent">{`${l.name}`}</span>
-                    <span className="copySpan">
-                      {`#{${_l('[审批]')}${item.name}.${l.name}${l.key === 'signature' ? '$[48*20]$' : ''}}`}
-                      {this.renderIcon()}
-                    </span>
-                    <span className="copySpan">
-                      {`#{${_l('[审批]')}${item.id}.${l.key}}`}
-                      {this.renderIcon()}
-                    </span>
-                  </div>
-                ))}
-              </React.Fragment>
-            )}
-          </React.Fragment>
-        ))}
+              {item.expandControls && (
+                <React.Fragment>
+                  {APPROVAL_SYS.map(l => {
+                    const fieldCode = `#{${_l('[审批]')}${item.name}.${l.name}${
+                      l.key === 'signature' ? '$[48*20]$' : ''
+                    }}`;
+                    const fieldAlias = `#{${_l('[审批]')}${item.id}.${l.key}}`;
+
+                    return (
+                      <div className="list">
+                        <span className="textIndent">{`${l.name}`}</span>
+                        <span className="copySpan">
+                          {fieldCode}
+                          {this.renderIcon(fieldCode)}
+                        </span>
+                        <span className="copySpan">
+                          {fieldAlias}
+                          {this.renderIcon(fieldAlias)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </React.Fragment>
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
     );
   };

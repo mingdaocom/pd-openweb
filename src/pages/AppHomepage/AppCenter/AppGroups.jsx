@@ -20,7 +20,7 @@ const Con = styled.div`
 function AppGroups(props) {
   const activeGroupId = _.get(props, 'match.params.groupId');
   const activeGroupType = _.get(props, 'match.params.groupType');
-  const { currentProject, projectId, dashboardColor } = props;
+  const { currentProject, projectId, dashboardColor, myPermissions = [] } = props;
   const cache = useRef({});
   const [state, dispatch] = useReducer(reducer, initialState);
   const actions = useMemo(() => new CreateActions({ dispatch, state }), [state]);
@@ -38,9 +38,10 @@ function AppGroups(props) {
     aloneApps = [],
     activeGroupApps = [],
     recentApps = [],
+    appLang = [],
     activeGroup,
+    projectGroupsLang = [],
   } = state;
-  const isAdmin = currentProject && (currentProject.isSuperAdmin || currentProject.isProjectAppManager);
   function load(projectIdForLoad) {
     cache.current.projectLoaded = true;
     actions.updateKeywords('');
@@ -63,13 +64,12 @@ function AppGroups(props) {
   }, [projectId]);
 
   if (!(groupsLoading || appsLoading) && noApps && projectId && projectId !== 'external') {
-    return <CreateFirstApp projectId={projectId} />;
+    return <CreateFirstApp projectId={projectId} myPermissions={myPermissions} />;
   }
   return (
     <Con>
       {projectId && projectId !== 'external' && (
         <Groups
-          isAdmin={isAdmin}
           loading={groupsLoading}
           activeGroupId={activeGroupId}
           activeGroup={activeGroupId && activeGroup}
@@ -79,11 +79,12 @@ function AppGroups(props) {
           groups={groups}
           actions={actions}
           dashboardColor={dashboardColor}
+          projectGroupsLang={projectGroupsLang}
+          myPermissions={myPermissions}
         />
       )}
       <AppGrid
         setting={origin.homeSetting}
-        isAdmin={isAdmin}
         loading={groupsLoading || appsLoading}
         keywords={keywords}
         activeGroup={activeGroupId && activeGroup}
@@ -97,8 +98,11 @@ function AppGroups(props) {
         aloneApps={getFilterApps(aloneApps, keywords)}
         activeGroupApps={getFilterApps(activeGroupApps, keywords)}
         recentApps={getFilterApps(recentApps, keywords)}
+        appLang={appLang}
         groups={groups}
         dashboardColor={dashboardColor}
+        projectGroupsLang={projectGroupsLang}
+        myPermissions={myPermissions}
       />
     </Con>
   );

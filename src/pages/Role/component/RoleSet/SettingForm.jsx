@@ -65,7 +65,7 @@ export default class extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.loading && !this.props.loading && !prevProps.roleDetail.roleId && this.input) {
+    if (prevProps.loading && !this.props.loading && !_.get(prevProps, 'roleDetail.roleId') && this.input) {
       this.input.select();
     }
   }
@@ -221,13 +221,7 @@ export default class extends PureComponent {
                     />
                     <span className="mLeft10">{_l('匹配用户权限标签的记录')}</span>
                     <Tooltip
-                      text={
-                        <span>
-                          {_l(
-                            '在本应用【用户-扩展】中管理用户的权限标签',
-                          )}{' '}
-                        </span>
-                      }
+                      text={<span>{_l('在本应用【用户-扩展】中管理用户的权限标签')} </span>}
                       popupPlacement="top"
                     >
                       <Icon icon="workflow_error" className="Font16 Gray_9e mLeft3 TxtMiddle" />

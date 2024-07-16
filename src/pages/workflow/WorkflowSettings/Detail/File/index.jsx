@@ -139,7 +139,7 @@ export default class File extends Component {
           value={data.appId}
           renderTitle={
             !data.appId
-              ? () => <span className="Gray_9e">{_l('请选择')}</span>
+              ? () => <span className="Gray_75">{_l('请选择')}</span>
               : data.appId && !selectAppItem
               ? () => <span className="errorColor">{_l('模板已删除')}</span>
               : () => <span>{selectAppItem.text}</span>
@@ -185,9 +185,9 @@ export default class File extends Component {
             onClick={checked => this.updateSource({ pdf: !checked })}
           />
         </div>
-        {!data.wpsConfig && <div className="mTop5" style={{ color: '#ffa340' }}>{_l('未配置 PDF 转换服务')}</div>}
+        {!data.wpsConfig && <div className="mTop5 Gray_75">{_l('未配置 PDF 转换服务')}</div>}
         {md.global.Config.IsPlatformLocal && data.pdf && (
-          <div className="mTop5 Gray_9e">
+          <div className="mTop5 Gray_75">
             {_l('生成PDF文件是由WPS提供的第三方服务，收费标准为')}
             <span style={{ color: '#ffa340' }}>{_l('每个文件0.15元')}</span>
             {_l('，转换失败的文件将不收取费用。')}

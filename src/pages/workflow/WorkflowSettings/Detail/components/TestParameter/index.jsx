@@ -4,7 +4,7 @@ import { formatResponseData } from 'src/components/UploadFiles/utils';
 import styled from 'styled-components';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
-
+import RegExpValidator from 'src/util/expression';
 const PreviewBox = styled.div`
   padding: 10px;
   background: #f8f8f8;
@@ -23,6 +23,7 @@ export default ({
   testMap = {},
   isRequired = false,
   previewContent = '',
+  isSingleKey = false,
 }) => {
   const [cacheTestMap, setTestMap] = useState(testMap);
   const [isUploadingIndex, setUploadingIndex] = useState('');
@@ -35,6 +36,9 @@ export default ({
   const renderList = (source, isFile) => {
     return source.map((key, index) => {
       const [nodeId, controlId] = parseId(key);
+
+      if (!(formulaMap[nodeId] || {}).name || (!(formulaMap[`${nodeId}-${controlId}`] || {}).name && !isSingleKey))
+        return null;
 
       return (
         <div key={index} className="flexRow alignItemsCenter Height36 mTop10">
@@ -67,12 +71,15 @@ export default ({
       <div className="flexRow alignItemsCenter" style={{ height: 20 }}>
         {cacheTestMap[key] ? (
           <Fragment>
-            <Icon icon="attachment" className="Font16 mRight10 Gray_9e" />
+            <Icon icon="attachment" className="Font16 mRight10 Gray_75" />
             <span className="ellipsis InlineBlock ThemeColor3" style={{ maxWidth: 200 }}>
               {JSON.parse(cacheTestMap[key]).originalFileName || JSON.parse(cacheTestMap[key]).originalFilename}
             </span>
             <span className="ThemeColor3">
-              .{File.GetExt(JSON.parse(cacheTestMap[key]).fileExt || JSON.parse(cacheTestMap[key]).ext)}
+              .
+              {RegExpValidator.getExtOfFileName(
+                JSON.parse(cacheTestMap[key]).fileExt || JSON.parse(cacheTestMap[key]).ext,
+              )}
             </span>
             <span
               className="ThemeColor3 mLeft20 pointer"
@@ -102,7 +109,7 @@ export default ({
               alert(errTip, 2);
             }}
           >
-            <div className="Gray_9e ThemeHoverColor3 pointer flexRow alignItemsCenter" style={{ height: 20 }}>
+            <div className="Gray_75 ThemeHoverColor3 pointer flexRow alignItemsCenter" style={{ height: 20 }}>
               <Icon icon="attachment" className="Font16 mRight10" />
               {isUploadingIndex === index ? _l('上传中...') : _l('添加附件')}
             </div>

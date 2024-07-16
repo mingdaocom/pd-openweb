@@ -1,21 +1,13 @@
-import { Collapse } from 'antd';
+import { Collapse, Tooltip } from 'antd';
 import Trigger from 'rc-trigger';
 import { v4 as uuidv4 } from 'uuid';
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Menu, MenuItem, Icon, LoadDiv, Dropdown } from 'ming-ui';
 import { SettingCollapseWrap } from './styled';
 import { CaretRightOutlined } from '@ant-design/icons';
 import WidgetWarning from '../components/WidgetBase/WidgetWarning';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import {
-  AddEventWrap,
-  IconWrap,
-  EventActionWrap,
-  ActionWrap,
-  SpliceWrap,
-  CustomDynamicContent,
-  CustomFieldList,
-} from '../components/CustomEvent/style';
+import { AddEventWrap, IconWrap, EventActionWrap, ActionWrap, SpliceWrap } from '../components/CustomEvent/style';
 import {
   FILTER_VALUE_TYPE,
   EVENT_DETAIL,
@@ -26,6 +18,11 @@ import {
   FILTER_VALUE_ENUM,
   RESULT_DISPLAY,
   FILTER_SPLICE_TYPE,
+  SPLICE_TYPE_ENUM,
+  ADD_EVENT_DISPLAY,
+  VOICE_FILE_LIST,
+  ADD_EVENT_ENUM,
+  dealEventDisplay,
 } from '../components/CustomEvent/config';
 import { getTextById } from 'src/pages/FormSet/components/columnRules/config.js';
 import _ from 'lodash';
@@ -34,9 +31,8 @@ import EventOptions from '../components/CustomEvent/components/EventOptions';
 import { FilterItemTexts } from '../components/FilterData';
 import update from 'immutability-helper';
 import worksheetAjax from 'src/api/worksheet';
-import { OtherFieldList, OtherField } from '../components/DynamicDefaultValue/components';
-import cx from 'classnames';
 import { getFilterControls } from '../../util/data';
+import DynamicText from '../components/DynamicDefaultValue/components/DynamicText';
 
 const { Panel } = Collapse;
 
@@ -90,16 +86,14 @@ export default function CustomEvent(props) {
   /**
    * 且或切换
    */
-  const handleSplice = ({ eventId, index, childIndex, value }) => {
+  const handleSplice = ({ eventId, index, value }) => {
     const newCustomEvent = customEvent.map(i => {
       if (i.eventId === eventId) {
         return update(i, {
           eventActions: {
             [index]: {
-              filters: {
-                [childIndex]: {
-                  spliceType: { $set: value },
-                },
+              filters: (itemFilter = []) => {
+                return itemFilter.map(item => ({ ...item, spliceType: value }));
               },
             },
           },
@@ -115,18 +109,20 @@ export default function CustomEvent(props) {
    */
   const renderHeader = item => {
     const { eventType, eventActions = [] } = item;
-    const curIndex = eventActions.reduce((total, cur) => {
-      if (!_.isEmpty(_.get(cur, 'filters'))) {
-        total = total + 1;
-      }
-      return total;
-    }, 0);
+    const curIndex = eventActions.length;
+    const cannotSupport = !_.find(EVENT_DISPLAY, a => a.value === eventType);
     return (
       <div className="flexCenter w100">
-        <span className="flex">
+        <span className="flex" style={cannotSupport ? { color: '#9e9e9e', textDecoration: 'line-through' } : {}}>
           {_.get(
-            _.find(EVENT_DISPLAY, a => a.value === eventType),
+            _.find(dealEventDisplay(data, ADD_EVENT_DISPLAY), a => a.value === eventType),
             'text',
+          )}
+
+          {eventType === ADD_EVENT_ENUM.SHOW && (
+            <Tooltip placement="bottom" title={_l('字段在当前页面中可见时触发此事件')}>
+              <i className="icon-help Gray_9e Font16 Hand mLeft8"></i>
+            </Tooltip>
           )}
         </span>
         <EventOptions {...props} eventKey="filters" eventId={item.eventId} index={curIndex} />
@@ -152,53 +148,13 @@ export default function CustomEvent(props) {
     // 用默认值那套配置的呈现
     const renderDynamicValue = (value, controlId) => {
       const dynamicValue = safeParse(value, 'array');
-      if (_.isEmpty(dynamicValue)) return null;
 
       let currentControl = { type: 2 };
       if (controlId) {
-        const curControl = _.find(allControls, a => a.controlId === controlId);
-        if (!curControl) return null;
-        currentControl = curControl;
+        currentControl = _.find(allControls, a => a.controlId === controlId);
       }
 
-      const isText = currentControl.type === 2;
-
-      if (currentControl.type && !_.includes([2, 9, 10, 11], currentControl.type)) {
-        return (
-          <CustomFieldList>
-            <OtherFieldList {...props} controls={allControls} dynamicValue={dynamicValue} data={currentControl} />
-          </CustomFieldList>
-        );
-      }
-
-      return (
-        <CustomDynamicContent>
-          {dynamicValue.map(item => {
-            if (item.cid) {
-              return (
-                <OtherField
-                  className={cx('tagTextField overflow_ellipsis', { mRight: isText })}
-                  item={item}
-                  {...props}
-                  controls={allControls}
-                />
-              );
-            } else if (_.includes([9, 10, 11], currentControl.type)) {
-              const option = _.find(currentControl.options || [], o => o.key === item.staticValue) || {};
-              return (
-                <div className={cx('option pointer overflow_ellipsis mRight6', { isDeleted: _.isEmpty(option) })}>
-                  {currentControl.enumDefault2 === 1 && option.color && (
-                    <div className="colorWrap" style={{ backgroundColor: option.color }}></div>
-                  )}
-                  <div className="text overflow_ellipsis">{option.value || _l('已删除')}</div>
-                </div>
-              );
-            } else {
-              return <span className="mRight6">{item.staticValue}</span>;
-            }
-          })}
-        </CustomDynamicContent>
-      );
+      return <DynamicText {...props} dynamicValue={dynamicValue} data={currentControl} controls={allControls} />;
     };
 
     switch (actionType) {
@@ -215,7 +171,7 @@ export default function CustomEvent(props) {
           <Fragment>
             {actionItems.map(i => {
               return (
-                <div className="textCon">
+                <div className="textCon LineHeight30">
                   <span>{_.get(getTextById(allControls, [i], actionType) || [], '0.name')}</span>
                   <span className="title mLeft10 mRight10">{_l('提示')}</span>
                   {renderDynamicValue(i.value)}
@@ -228,10 +184,16 @@ export default function CustomEvent(props) {
         return (
           <Fragment>
             {actionItems.map(i => {
+              const controlInfo = _.head(getTextById(allControls, [i], 1)) || {};
+              if (controlInfo.isDel) {
+                return <div className="textCon LineHeight30 Red">{_l('字段已删除')}</div>;
+              }
               return (
-                <div className="textCon mTop6">
+                <div className="textCon LineHeight30">
                   <span className="title">{_l('将')}</span>
-                  <span className="mLeft10 mRight10">{_.get(getTextById(allControls, [i], 1) || [], '0.name')}</span>
+                  <span className="Max215 mLeft10 mRight10 overflow_ellipsis" title={_.get(controlInfo, 'name')}>
+                    {_.get(controlInfo, 'name')}
+                  </span>
                   <span className="title mRight10">{_l('值设为')}</span>
                   {i.type === '1' ? _l('函数计算') : renderDynamicValue(i.value, i.controlId)}
                 </div>
@@ -244,7 +206,7 @@ export default function CustomEvent(props) {
         return <div className="textCon">{refreshArr.map(cur => cur.name).join(', ')}</div>;
       case ACTION_VALUE_ENUM.MESSAGE:
         return (
-          <div className="textCon">
+          <div className="textCon LineHeight30">
             <span className="title mRight10">
               [
               {_.get(
@@ -257,11 +219,11 @@ export default function CustomEvent(props) {
           </div>
         );
       case ACTION_VALUE_ENUM.VOICE:
-        const curFile = _.find(
-          safeParse(advancedSetting.voicefiles, 'array'),
-          f => f.filePath === advancedSetting.file,
-        );
-        return <div className="textCon">{_.get(curFile, 'fileName')}</div>;
+        const { fileKey, voicefiles } = advancedSetting;
+        const voiceFiles = VOICE_FILE_LIST.concat(safeParse(voicefiles, 'array'));
+        const curFile = _.find(voiceFiles, v => v.fileKey === fileKey);
+        if (!fileKey || !curFile) return;
+        return <div className="textCon breakAll">{_.get(curFile, 'fileName')}</div>;
       case ACTION_VALUE_ENUM.API:
         const { basicInfo = {} } = getApiInfo(dataSource) || {};
         const { linkName, name } = basicInfo;
@@ -286,7 +248,7 @@ export default function CustomEvent(props) {
         );
       // TODO：这两个暂时用不上、按钮才能配
       case ACTION_VALUE_ENUM.LINK:
-        return <div className="textCon">{renderDynamicValue(message)}</div>;
+        return <div className="textCon LineHeight30">{renderDynamicValue(message)}</div>;
       case ACTION_VALUE_ENUM.CREATE:
         return <div className="textCon">{_l('%0 - %1', advancedSetting.appName, advancedSetting.sheetName)}</div>;
     }
@@ -301,14 +263,31 @@ export default function CustomEvent(props) {
     switch (valueType) {
       case FILTER_VALUE_ENUM.CONTROL_VALUE:
         return (
-          <FilterItemTexts className="customEventFilterValue" {...props} filters={filterItems} controls={allControls} />
+          <FilterItemTexts
+            className="customEventFilterValue"
+            {...props}
+            filters={filterItems}
+            loading={false}
+            controls={allControls}
+          />
         );
       case FILTER_VALUE_ENUM.SEARCH_WORKSHEET:
         const queryId = _.get(safeParse(advancedSetting.dynamicsrc || '{}'), 'id');
-        const { appName, sourceName, resultType = 0 } = _.find(customQueryConfig, q => q.id === queryId) || {};
+        const {
+          appName,
+          sourceName,
+          resultType = 0,
+          templates = [],
+        } = _.find(customQueryConfig, q => q.id === queryId) || {};
+        const isDelete = !_.get(templates, [0, 'controls', 'length']);
         return (
           <Fragment>
-            <div className="textCon title">{_l('%0 - %1', appName, sourceName)}</div>
+            {isDelete ? (
+              <div className="Red">{_l('工作表已删除')}</div>
+            ) : (
+              <div className="textCon title">{_l('%0 - %1', appName, sourceName)}</div>
+            )}
+
             <div className="textCon mTop8">
               <span className="title mRight10">{_l('当')}</span>
               {_.get(
@@ -349,6 +328,23 @@ export default function CustomEvent(props) {
   };
 
   /**
+   * 渲染默认条件
+   */
+  const renderDefaultFilter = showSplice => {
+    return (
+      <Fragment>
+        <ActionWrap>{_l('在详情页新建或打开记录')}</ActionWrap>
+        {showSplice && (
+          <SpliceWrap>
+            <div className="spliceLine"></div>
+            <Dropdown isAppendToBody disabled={true} data={FILTER_SPLICE_TYPE} value={SPLICE_TYPE_ENUM.AND} />
+          </SpliceWrap>
+        )}
+      </Fragment>
+    );
+  };
+
+  /**
    * 渲染配置内容
    * eventData
    */
@@ -359,13 +355,10 @@ export default function CustomEvent(props) {
       <Fragment>
         {eventActions.map((item, index) => {
           const { eventName, filters = [], actions = [] } = item;
-          const { text, color, bgColor } = EVENT_DETAIL[index % EVENT_DETAIL.length];
+          const { color, bgColor } = EVENT_DETAIL[index % EVENT_DETAIL.length];
           const eventActionKey = `${eventId}-${index}`;
           const isClose = _.includes(closeKeys, eventActionKey);
-
-          if (_.isEmpty(filters) && _.isEmpty(actions)) {
-            return <EventOptions {...props} eventKey="actions" eventId={eventId} index={index} />;
-          }
+          const hasFilters = filters.length > 0;
 
           return (
             <EventActionWrap eventColor={color} bgColor={bgColor}>
@@ -374,6 +367,7 @@ export default function CustomEvent(props) {
                 <div
                   className="flex flexRow flexCenter mRight16"
                   onClick={() => {
+                    if (focusKey === eventActionKey) return;
                     const $dom = $(`#${eventActionKey}`);
                     let newCloseKeys = [];
                     if (isClose) {
@@ -389,12 +383,15 @@ export default function CustomEvent(props) {
                   <div className="eventIcon">
                     <Icon icon={isClose ? 'minus' : 'add'} />
                   </div>
-                  <span className="titleEvent">{text}</span>
+                  <span className="titleEvent">{index ? _l('否则如果') : _l('如果')}</span>
                   {focusKey === eventActionKey ? (
                     <input
                       className="customEventInput"
                       value={eventName}
                       autoFocus
+                      onFocus={e => {
+                        e.target && e.target.setSelectionRange(0, eventName.length);
+                      }}
                       onChange={e => {
                         e.stopPropagation();
                         handleEdit({ eventId, index, value: e.target.value });
@@ -406,7 +403,9 @@ export default function CustomEvent(props) {
                       }}
                     />
                   ) : (
-                    <span className="flex overflow_ellipsis">{eventName}</span>
+                    <span className="flex overflow_ellipsis" title={eventName}>
+                      {eventName}
+                    </span>
                   )}
                 </div>
                 <EventOptions
@@ -419,21 +418,12 @@ export default function CustomEvent(props) {
                 <MoreOptions {...props} eventId={eventId} index={index} setFocusKey={setFocusKey} />
               </div>
               <div className="eventContent" id={eventActionKey}>
+                {/**渲染默认条件 */}
+                {renderDefaultFilter(hasFilters)}
                 {/**渲染filters */}
                 {filters.map((itemFilter, filterIndex) => {
                   return (
                     <Fragment>
-                      {filterIndex > 0 && (
-                        <SpliceWrap>
-                          <div className="spliceLine"></div>
-                          <Dropdown
-                            isAppendToBody
-                            data={FILTER_SPLICE_TYPE}
-                            value={_.get(filters[filterIndex - 1], 'spliceType')}
-                            onChange={value => handleSplice({ eventId, index, childIndex: filterIndex - 1, value })}
-                          />
-                        </SpliceWrap>
-                      )}
                       <ActionWrap>
                         <div className="actionHeader">
                           <span className="title">
@@ -453,11 +443,23 @@ export default function CustomEvent(props) {
                         </div>
                         {renderFilterContent(itemFilter)}
                       </ActionWrap>
+                      {filterIndex < filters.length - 1 && (
+                        <SpliceWrap>
+                          <div className="spliceLine"></div>
+                          <Dropdown
+                            isAppendToBody
+                            disabled={filterIndex}
+                            data={FILTER_SPLICE_TYPE}
+                            value={_.get(filters[filterIndex], 'spliceType')}
+                            onChange={value => handleSplice({ eventId, index, value })}
+                          />
+                        </SpliceWrap>
+                      )}
                     </Fragment>
                   );
                 })}
 
-                <span className="actionText">{_l('那么就')}</span>
+                <span className="actionText">{_l('那么')}</span>
                 {/**渲染actions */}
                 {actions.map((itemAction, actionIndex) => {
                   return (
@@ -500,8 +502,8 @@ export default function CustomEvent(props) {
   const renderAddEvent = () => {
     const disabled = !FILTER_EVENT_DISPLAY.length;
     const menu = (
-      <Menu style={{ width: 310 }}>
-        {FILTER_EVENT_DISPLAY.map(item => (
+      <Menu style={{ width: 310, position: 'relative' }}>
+        {dealEventDisplay(data, FILTER_EVENT_DISPLAY).map(item => (
           <MenuItem
             onClick={() => {
               setVisible(false);
@@ -523,9 +525,9 @@ export default function CustomEvent(props) {
     return (
       <Trigger
         popup={menu}
-        disabled={disabled}
         popupVisible={visible}
         onPopupVisibleChange={visible => {
+          if (disabled) return;
           setVisible(visible);
         }}
         action={['click']}
@@ -562,7 +564,7 @@ export default function CustomEvent(props) {
           })}
         </SettingCollapseWrap>
       ) : (
-        <WidgetWarning type="custom_event" />
+        <WidgetWarning fromCustom={true} />
       )}
 
       {renderAddEvent()}

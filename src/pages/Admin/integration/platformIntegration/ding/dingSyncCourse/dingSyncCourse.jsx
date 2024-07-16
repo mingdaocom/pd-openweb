@@ -10,6 +10,7 @@ import html2canvas from 'html2canvas';
 import { navigateTo } from '../../../../../../router/navigateTo';
 import { compareProps } from 'pages/PageHeader/util.js';
 import CreateLinkDialog from './CreateLinkDialog';
+import AppLinkParamsSettings from 'src/pages/AppSettings/components/EditpublishSet/AppLinkParamsSettings';
 import wx1Png from './img/wx/1.png';
 import wx2Png from './img/wx/2.png';
 import wx3Png from './img/wx/3.png';
@@ -272,13 +273,7 @@ export default class DingSyncCourse extends React.Component {
         <img src={wx4Png} alt={_l('进入“网页授权及JS-SDK”，输入可信域名（只需填写该项即可）')} />
         <img src={wx5Png} alt={_l('进入“网页授权及JS-SDK”，输入可信域名（只需填写该项即可）')} />
         <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('2.点击“应用主页”，填写“网页地址”')}</p>
-        <div className="inputList mTop20">
-          <span className="inputTitle">{_l('应用主页：')}</span>
-          <input type="text" className="inputBox" readOnly value={this.state.homeUrlN} />
-          <span className="copyBtn" onClick={() => this.bindClipboard(this.state.homeUrlN)}>
-            {_l('复制')}
-          </span>
-        </div>
+        <AppLinkParamsSettings url={this.state.homeUrlN} defaultHide={['s', 'ch', 'ac']} />
         <p className="Font14 Gray_75 mTop24 LineHeight22">
           <span className="Red mRight2">*</span>
           {_l('如您想个性化部署应用，把某一张表部署为一个应用，可把链接复制到输入框内直接')}

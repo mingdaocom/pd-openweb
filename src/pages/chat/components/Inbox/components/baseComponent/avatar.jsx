@@ -1,8 +1,8 @@
 import React from 'react';
 import { MSGTYPES } from '../../constants';
-import { applicationIcon } from 'src/util';
 import cx from 'classnames';
 import { UserCard } from 'ming-ui';
+import { APPLICATION_ICON } from 'src/util/enum';
 
 const formatUser = function (props) {
   const { accountId, fullname, avatar, inboxType, appId } = props;
@@ -68,8 +68,9 @@ export default class Avatar extends React.Component {
         <span
           className={cx('ThemeColor2 msgIcon', { calendar: applicationType === 'calendar ' })}
           data-date={date || (date = new Date().getDate())}
-          dangerouslySetInnerHTML={{ __html: applicationIcon(applicationType, 'small') }}
-        />
+        >
+          <span class={cx(APPLICATION_ICON[applicationType], 'circle small')}></span>
+        </span>
       );
     } else {
       let param = {};

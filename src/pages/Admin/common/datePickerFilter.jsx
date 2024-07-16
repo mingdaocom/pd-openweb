@@ -6,15 +6,23 @@ import { DatePickerFilterWrap } from './styled';
 import moment from 'moment';
 
 export default function datePickerFilter(props) {
-  const { updateData } = props;
+  const { updateData, dataConfig, ...rest } = props;
   const $ref = useRef(null);
   const formatDate = date => date.format('YYYY-MM-DD');
-  const getDateFilter = id => {
+  const getDateFilter = (id, pastDays) => {
     const today = formatDate(moment());
+    const yesterday = formatDate(moment().subtract(1, 'day'));
     const beginOfCurrentMonth = moment().startOf('M');
     switch (id) {
       case 'today':
         return { startDate: today, endDate: today };
+      case 'yesterday':
+      case 'pastSevenDays':
+      case 'pastThirtyDays':
+        return {
+          startDate: formatDate(moment().subtract(pastDays, 'day')),
+          endDate: id === 'yesterday' ? yesterday : today,
+        };
       case 'currentWeek':
         return { startDate: formatDate(moment().subtract(7, 'd')), endDate: today };
       case 'currentMonth':
@@ -26,27 +34,28 @@ export default function datePickerFilter(props) {
         };
     }
   };
-  const handleClick = id => {
-    const data = getDateFilter(id);
-    updateData(data);
+  const handleClick = (id, pastDays) => {
+    const data = getDateFilter(id, pastDays);
+    updateData({ ...data, dateItem: id });
   };
   return (
     <DatePickerFilterWrap ref={$ref}>
-      {Config.DATE_FILTER.map(({ id, text }) =>
+      {(dataConfig || Config.DATE_FILTER).map(({ id, text, pastDays }) =>
         id === 'custom' ? (
           <DatePicker.RangePicker
             offset={{ left: -533, top: -185 }}
             popupParentNode={() => $ref.current}
             onOk={([start, end]) => {
-              updateData({ startDate: formatDate(start), endDate: formatDate(end) });
+              updateData({ startDate: formatDate(start), endDate: formatDate(end), dateItem: id });
             }}
             onClear={() => updateData({ startDate: '', endDate: '' })}
             onSelect={() => {}}
+            {...rest}
           >
             <li>{text}</li>
           </DatePicker.RangePicker>
         ) : (
-          <li key={id} onClick={() => handleClick(id)}>
+          <li key={id} onClick={() => handleClick(id, pastDays)}>
             {text}
           </li>
         ),

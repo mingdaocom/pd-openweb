@@ -1,4 +1,3 @@
-import { Graph, ER_ROUTER } from '@antv/x6';
 import { WIDGETS_TO_API_TYPE_ENUM, DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
 import _ from 'lodash';
 

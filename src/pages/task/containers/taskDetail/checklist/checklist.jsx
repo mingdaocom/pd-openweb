@@ -1,5 +1,6 @@
 ﻿import React, { Component, Fragment } from 'react';
-import ReactDOM, { findDOMNode, render } from 'react-dom';
+import { findDOMNode } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { DragSource, DropTarget } from 'react-dnd';
 import ChecklistItem from './checklistItem';
 import withClickAway from 'ming-ui/decorators/withClickAway';
@@ -11,26 +12,34 @@ import DragPreview from './common/dragPreview';
 import EmptyItem from './common/emptyItem';
 import copy from 'copy-to-clipboard';
 import _ from 'lodash';
+
 const ClickAwayable = createDecoratedComponent(withClickAway);
+let root;
 
 class ChecklistOperator extends Component {
   componentDidMount() {
     const { isShowOperator } = this.props;
     const clipboardText = this.props.data.name;
-    const items = _.map(this.props.data.items, (item) => {
+    const items = _.map(this.props.data.items, item => {
       return `\n${item.name}`;
     });
 
-    $('.checklistOperator .clipboard').off().on('click', function () {
-      copy(clipboardText + items.join(''));
-      alert(_l('已复制到剪切板'));
-      isShowOperator();
-    });
+    $('.checklistOperator .clipboard')
+      .off()
+      .on('click', function () {
+        copy(clipboardText + items.join(''));
+        alert(_l('已复制到剪切板'));
+        isShowOperator();
+      });
   }
 
   render() {
     return (
-      <ClickAwayable component="ul" className="boxShadow5 boderRadAll_3 checklistOperator" onClickAway={() => this.props.isShowOperator()}>
+      <ClickAwayable
+        component="ul"
+        className="boxShadow5 boderRadAll_3 checklistOperator"
+        onClickAway={() => this.props.isShowOperator()}
+      >
         <li className="ThemeBGColor3" onClick={() => this.props.updateChecklistName()}>
           <i className="icon-new_mail" />
           {_l('重命名')}
@@ -38,7 +47,10 @@ class ChecklistOperator extends Component {
         <li className="ThemeBGColor3 clipboard">
           <i className="icon-task-new-copy Font14" />
           {_l('复制清单')}
-          <span className="mLeft25 tip-bottom-left" data-tip={_l('复制后，在要使用的清单中点击“添加检查项”并粘贴文本，将会自动创建复制的检查项。')}>
+          <span
+            className="mLeft25 tip-bottom-left"
+            data-tip={_l('复制后，在要使用的清单中点击“添加检查项”并粘贴文本，将会自动创建复制的检查项。')}
+          >
             <i className="icon-help" />
           </span>
         </li>
@@ -61,7 +73,9 @@ const checklistSource = {
       x: config.mouseOffset.left - componentRect.left,
       y: config.mouseOffset.top - componentRect.top,
     };
-    render(<DragPreview preview={preview} width={outerWidth} />, $('.taskDetailDragPreviewBox:last')[0]);
+
+    root = createRoot($('.taskDetailDragPreviewBox:last')[0]);
+    root.render(<DragPreview preview={preview} width={outerWidth} />);
     props.checklistBeginDrag(props.data, props.index);
     return {
       index: props.index,
@@ -90,7 +104,7 @@ const checklistSource = {
   endDrag(props, monitor, component) {
     props.checklistDrop();
     clearInterval(config.setInterval);
-    ReactDOM.unmountComponentAtNode($('.taskDetailDragPreviewBox:last')[0]);
+    root.unmount();
   },
 };
 
@@ -179,9 +193,7 @@ export default class Checklist extends Component {
         this.props.noDragIndexUpdate(-1);
         this.props.addItems(this.props.data.checkListId, name);
         if (evt.keyCode === 13) {
-          $(evt.currentTarget)
-            .val('')
-            .focus();
+          $(evt.currentTarget).val('').focus();
         } else {
           this.setState({ checklistAdd: false });
         }
@@ -205,7 +217,7 @@ export default class Checklist extends Component {
     const items = data.items || [];
     const sum = items.length;
     const completedSum = _.filter(items, item => item.status).length;
-    const percent = (Math.floor(completedSum / sum * 100) || 0) + '%';
+    const percent = (Math.floor((completedSum / sum) * 100) || 0) + '%';
     const isHidden = _.includes(this.props.taskFoldStatus, data.checkListId);
 
     if (data === 'blank') {
@@ -242,12 +254,8 @@ export default class Checklist extends Component {
                 onKeyDown={evt => this.checklistNameUpdate(evt)}
                 onBlur={evt => this.checklistNameUpdate(evt)}
               />
-            ) : (
-              undefined
-            )}
-            {this.props.noAuth ? (
-              undefined
-            ) : (
+            ) : undefined}
+            {this.props.noAuth ? undefined : (
               <i
                 className={cx('icon-moreop pointer ThemeColor3', { Hidden: this.state.isEditName })}
                 onMouseDown={evt => this.checkMouseDownIsLeft(evt) && this.setState({ isShowOperator: true })}
@@ -266,9 +274,7 @@ export default class Checklist extends Component {
                   this.props.removeCheckList(data.checkListId);
                 }}
               />
-            ) : (
-              undefined
-            )}
+            ) : undefined}
             <span className="taskDetailFold" data-tip={isHidden ? _l('展开') : _l('收起')}>
               <i
                 className={cx('pointer ThemeColor3', isHidden ? 'icon-arrow-down-border' : 'icon-arrow-up-border')}
@@ -324,25 +330,30 @@ export default class Checklist extends Component {
                 </div>
               )}
 
-              {!this.props.noAuth &&
-                items.length < 100 && (
-                  <span
-                    className={cx('taskChecklistItemAdd ThemeColor3 pointer', { Hidden: this.state.checklistAdd })}
-                    onClick={() => {
-                      this.setState({ checklistAdd: true });
-                      this.props.noDragIndexUpdate(this.props.index);
-                    }}
-                  >
-                    <i className="icon-plus" />
-                    {_l('一个检查项')}
-                  </span>
-                )}
+              {!this.props.noAuth && items.length < 100 && (
+                <span
+                  className={cx('taskChecklistItemAdd ThemeColor3 pointer', { Hidden: this.state.checklistAdd })}
+                  onClick={() => {
+                    this.setState({ checklistAdd: true });
+                    this.props.noDragIndexUpdate(this.props.index);
+                  }}
+                >
+                  <i className="icon-plus" />
+                  {_l('一个检查项')}
+                </span>
+              )}
             </Fragment>
           ) : null}
         </div>
       );
     };
 
-    return <div>{this.props.noDragIndex === this.props.index || this.props.noAuth ? checklist() : connectDragSource(connectDropTarget(checklist()))}</div>;
+    return (
+      <div>
+        {this.props.noDragIndex === this.props.index || this.props.noAuth
+          ? checklist()
+          : connectDragSource(connectDropTarget(checklist()))}
+      </div>
+    );
   }
 }

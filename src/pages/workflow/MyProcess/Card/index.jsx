@@ -26,7 +26,6 @@ export default class Card extends Component {
           ? currentWorkFlowNodes[currentWorkFlowNodes.length - 1].type
           : flowNodeType
       ];
-    const { icon, bg } = TYPE_TO_STYLE[type.id];
 
     let RenderState = null;
     let RenderRightHander = null;
@@ -93,7 +92,7 @@ export default class Card extends Component {
               <div className="Font13">{text}</div>
             </div>
             {instanceLog && instanceLog.cause && instanceStatus !== 5 && (
-              <div className="Font13 mLeft10 Gray_75">
+              <div className="Font13 mLeft10 Gray_75 ellipsis" style={{ maxWidth: 500 }}>
                 {`${instanceLog.cause === 40007 ? '' : _l('节点：')}${
                   FLOW_FAIL_REASON[instanceLog.cause] || instanceLog.causeMsg
                 }`}
@@ -111,7 +110,7 @@ export default class Card extends Component {
           );
         }
       }
-      RenderRightHander = <div className="Gray_9e">{createTimeSpan(type === 0 ? completeDate : operationTime)}</div>;
+      RenderRightHander = <div className="Gray_75">{createTimeSpan(type === 0 ? completeDate : operationTime)}</div>;
     }
 
     return (
@@ -149,7 +148,7 @@ export default class Card extends Component {
           <span className="flex">{item.title || _l('未命名')}</span>
         </div>
         {stateTab === TABS.WAITING_EXAMINE ? (
-          <span className="Gray_9e Font13 mTop8 overflow_ellipsis">{item.workItem.opinion}</span>
+          <span className="Gray_75 Font13 mTop8 overflow_ellipsis">{item.workItem.opinion}</span>
         ) : null}
       </div>
     );
@@ -188,7 +187,7 @@ export default class Card extends Component {
 
     if (!maxEndTimeConsuming) {
       const time = covertTime(maxTimeConsuming);
-      return time ? <span className="Gray_9e mLeft10">{_l('耗时：%0', time)}</span> : null;
+      return time ? <span className="Gray_75 mLeft10">{_l('耗时：%0', time)}</span> : null;
     }
 
     return (

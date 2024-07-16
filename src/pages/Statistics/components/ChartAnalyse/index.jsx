@@ -17,7 +17,7 @@ import _ from 'lodash';
 
 @connect(
   state => ({
-    ..._.pick(state.statistics, ['currentReport', 'worksheetInfo', 'reportData']),
+    ..._.pick(state.statistics, ['currentReport', 'worksheetInfo', 'reportData', 'base']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -66,8 +66,13 @@ export default class ChartAnalyse extends Component {
     );
   }
   renderOriginalData() {
-    const { worksheetInfo, currentReport } = this.props;
+    const { worksheetInfo, currentReport, base } = this.props;
     const { displaySetup, filter, style } = currentReport;
+
+    if (base.appType === 2) {
+      return null;
+    }
+
     return (
       <Collapse.Panel
         key="originalData"
@@ -114,7 +119,7 @@ export default class ChartAnalyse extends Component {
     );
   }
   renderDataContrast() {
-    const { currentReport, reportData } = this.props;
+    const { currentReport, reportData, base } = this.props;
     const { reportType, displaySetup, filter, style } = currentReport;
     const { rangeType } = filter || {};
     const isNumberChart = reportType === reportTypes.NumberChart;
@@ -125,7 +130,7 @@ export default class ChartAnalyse extends Component {
     const switchChecked = displaySetup.contrastType || displaySetup.contrast;
     const { numberChartStyle = defaultNumberChartStyle } = style;
 
-    if (!contrastVisible) {
+    if (!contrastVisible || base.appType === 2) {
       return null;
     }
 

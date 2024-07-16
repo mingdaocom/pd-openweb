@@ -69,14 +69,14 @@ export default ({ companyId, processId, relationId, selectNodeId, data, selectMs
         <div className="circle chat_workflow" />
         <div className="mLeft15 flex">
           <div className="mTop6">
-            <span className="Gray_9e">{_l('工作流')}：</span>
+            <span className="Gray_75">{_l('工作流')}：</span>
             <span>{_l('{记录名称}：{记录标题}，')}</span>
             {!selectMsg.trim() && selectMsgKey === 'passMessage' && _l('已通过%0', data.name)}
             {!selectMsg.trim() && selectMsgKey === 'overruleMessage' && _l('于%0被否决', data.name)}
             {selectMsg.trim() && <span style={{ background: '#FFA340' }}>{getNodeText(selectMsg)}</span>}
             <span className="ThemeColor3 mLeft5">{_l('查看详情')}</span>
           </div>
-          <div className="mTop15 Gray_9e">{moment().format('YYYY-MM-DD HH:mm:ss')}</div>
+          <div className="mTop15 Gray_75">{moment().format('YYYY-MM-DD HH:mm:ss')}</div>
         </div>
       </Preview>
     </Dialog>

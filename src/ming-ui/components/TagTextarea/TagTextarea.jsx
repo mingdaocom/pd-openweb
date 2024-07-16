@@ -1,5 +1,5 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, { useLayoutEffect } from 'react';
+import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import CodeMirror from 'codemirror';
@@ -8,7 +8,15 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/addon/display/placeholder';
 import { MODE } from './enum';
 import './TagTextarea.less';
-import _ from 'lodash';
+import _, { get, includes } from 'lodash';
+
+const TagWrapper = ({ onDidMount = () => {}, tag }) => {
+  useLayoutEffect(() => {
+    onDidMount();
+  });
+
+  return tag;
+};
 
 export default class TagTextarea extends React.Component {
   static propTypes = {
@@ -199,9 +207,14 @@ export default class TagTextarea extends React.Component {
   handleCMChange(cm, obj) {
     const { onChange } = this.props;
     const value = this.cmObj.getValue();
-    if (obj.origin !== 'setValue') {
+    if (!includes(['setValue', '*compose'], obj.origin)) {
       onChange(null, value, obj);
     }
+    setTimeout(() => {
+      if (obj.origin === '*compose' && !get(this, 'cmObj.display.input.composing')) {
+        onChange(null, value, obj);
+      }
+    }, 1);
     this.updateTextareaView();
   }
 
@@ -212,9 +225,8 @@ export default class TagTextarea extends React.Component {
     if (_.isFunction(this.props.renderTag)) {
       const tag = this.props.renderTag(id, options);
       if (React.isValidElement(tag)) {
-        ReactDOM.render(tag, node, () => {
-          cb(node);
-        });
+        const root = createRoot(node);
+        root.render(<TagWrapper onDidMount={() => cb(node)} tag={tag} />);
       } else {
         node.appendChild(tag);
         cb(node);

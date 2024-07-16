@@ -91,7 +91,7 @@ export default class Operates extends Component {
   @autobind
   async loadBtns(rowId, viewId) {
     const { api } = this.context;
-    const buttons = await api.getWorksheetBtns(rowId ? { rowId, ...(viewId ? { viewId } : {}) } : {});
+    const buttons = await api().getWorksheetBtns(rowId ? { rowId, ...(viewId ? { viewId } : {}) } : {});
     this.setState(
       {
         customBtns: buttons,

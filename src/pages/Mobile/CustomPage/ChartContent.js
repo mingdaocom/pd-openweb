@@ -80,6 +80,7 @@ function ChartComponent(props) {
     accessToken,
     filters = [],
     pageComponents,
+    appId,
     projectId,
     themeColor,
     filtersGroup = [],
@@ -126,7 +127,7 @@ function ChartComponent(props) {
         {
           rangeType: data.rangeType,
           filterRangeId: data.filterRangeId,
-          particleSizeType: data.xaxes.particleSizeType || null,
+          particleSizeType: data.particleSizeType || null,
           rangeValue: data.rangeValue,
           sorts: data.sorts,
         },
@@ -194,17 +195,19 @@ function ChartComponent(props) {
           <Icon className="Font20" icon="closeelement-bg-circle" onClick={handleOpenFilterModal} />
         </div>
         <div className="flex scrollView">
-          <ChartFilter
-            data={zoomVisible ? zoomData : data}
-            defaultData={defaultData}
-            onChange={data => {
-              if (zoomVisible) {
-                handleNextReportRequest(zoomData.reportId, data);
-              } else {
-                handleReportRequest(data);
-              }
-            }}
-          />
+          {data.appType === 1 && (
+            <ChartFilter
+              data={zoomVisible ? zoomData : data}
+              defaultData={defaultData}
+              onChange={data => {
+                if (zoomVisible) {
+                  handleNextReportRequest(zoomData.reportId, data);
+                } else {
+                  handleReportRequest(data);
+                }
+              }}
+            />
+          )}
           {![reportTypes.CountryLayer, reportTypes.NumberChart].includes(data.reportType) && (
             <Fragment>
               <ChartSort
@@ -226,6 +229,7 @@ function ChartComponent(props) {
 
   const isMobileChartPage = location.href.includes('mobileChart');
   const chartProps = {
+    appId,
     projectId,
     linkageMatch,
     onUpdateLinkageFiltersGroup,

@@ -5,6 +5,7 @@ import { Icon } from 'ming-ui';
 import { FROM } from '../../tools/config';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -21,6 +22,12 @@ export default class Widgets extends Component {
     isEditing: false,
   };
 
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
+
   componentWillReceiveProps(nextProps, nextState) {
     if (this.text && nextProps.value !== this.text.value) {
       this.text.value = nextProps.value || '';
@@ -29,12 +36,21 @@ export default class Widgets extends Component {
 
   onFocus = e => {
     this.setState({ originValue: e.target.value.trim(), isEditing: true });
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.FOCUS);
+    }
   };
 
   onChange = event => {
     const value = event.target.value;
     this.props.onChange(value);
   };
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   render() {
     const { disabled, hint, value, onBlur, onChange, from } = this.props;

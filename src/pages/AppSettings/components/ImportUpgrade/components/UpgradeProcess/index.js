@@ -4,7 +4,6 @@ import { QiniuUpload, Button, Support, Dialog, antNotification, Icon, SvgIcon, C
 import UpgradeDetail from '../UpgradeDetail';
 import UpgradeItemWrap from '../UpgradeItemWrap';
 import UpgradeStatus from '../UpgradeStatus';
-import Beta from '../../../Beta';
 import { UPGARADE_TYPE_LIST, UPGRADE_ERRORMSG, UPGRADE_DETAIL_TYPE_LIST } from '../../../../config';
 import { getCheckedInfo, getViewIcon } from '../../../../util';
 import { formatFileSize } from 'src/util';
@@ -179,7 +178,7 @@ export default class UpgradeProcess extends Component {
           {_l(
             '导入单个应用文件，实现对当前应用快速升级。请确认私有部署的版本，高版本向低版本导入，可能会导入失败。应用升级需要一段时间，正在升级中的应用将为不可用状态。',
           )}
-          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/import-export" />
+          <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/upgrade" />
         </div>
         <div className="uploadWrap flex">
           {isEncrypt ? (
@@ -533,7 +532,6 @@ export default class UpgradeProcess extends Component {
             <i className="icon-arrow_back Gray_9e Font24 Hand TxtMiddle" onClick={this.clickBack} />
             <span className="Font17 TxtMiddle mLeft12 bold">{_l('导入升级')}</span>
           </div>
-          <Beta />
           <div className="flex flexRow justifyContentCenter">
             <div className="applicationIcon " style={{ backgroundColor: appDetail.iconColor }}>
               <SvgIcon url={appDetail.iconUrl} fill="#fff" size={18} />
@@ -541,7 +539,7 @@ export default class UpgradeProcess extends Component {
             <div className="Font15">{appDetail.name}</div>
           </div>
           <div className="Gray_9d Font14 w110 TxtRight helpIcon">
-            <Support title={_l('帮助')} type={1} href="https://help.mingdao.com/application/import-export" />
+            <Support title={_l('帮助')} type={1} href="https://help.mingdao.com/application/upgrade" />
           </div>
         </div>
         <div className="upgradeProcessContent">

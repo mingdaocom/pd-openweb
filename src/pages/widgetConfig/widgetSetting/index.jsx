@@ -26,7 +26,7 @@ const SettingWrap = styled.div`
   .settingContentWrap {
     width: 100%;
     padding: 0px 20px 60px 20px;
-    overflow-x: hidden;
+    overflow-y: scroll;
   }
   .labelWrap {
     display: flex;
@@ -62,6 +62,7 @@ function WidgetSetting(props) {
     handleDataChange,
     queryConfigs = [],
     globalSheetInfo,
+    isRecycle,
     ...rest
   } = props;
   const { type, controlId } = data;
@@ -69,7 +70,7 @@ function WidgetSetting(props) {
   const info = DEFAULT_CONFIG[ENUM_TYPE] || {};
   const queryId = _.get(getAdvanceSetting(data, 'dynamicsrc'), 'id');
   const queryConfig = _.find(queryConfigs, item => item.id === queryId) || {};
-  const customQueryConfig = queryConfigs.filter(i => i.controlId === controlId);
+  const customQueryConfig = queryConfigs.filter(i => i.eventType === 1);
   const onChange = (obj, callback) => {
     if (isEmpty(obj)) return;
     handleDataChange(controlId, { ...data, ...obj }, callback);
@@ -86,6 +87,7 @@ function WidgetSetting(props) {
     mode,
     queryConfig,
     customQueryConfig,
+    isRecycle,
     onChange: onChange,
   };
 
@@ -103,7 +105,7 @@ function WidgetSetting(props) {
 
   useEffect(() => {
     const tempMode = safeParse(window.localStorage.getItem(`worksheetMode-${globalSheetInfo.worksheetId}`) || '1');
-    const canNotSet = (controlId || '').includes('-') || !supportWidgetIntroOptions(data, tempMode);
+    const canNotSet = isRecycle || (controlId || '').includes('-') || !supportWidgetIntroOptions(data, tempMode);
     setMode(canNotSet ? 1 : tempMode || mode);
   }, [controlId]);
 

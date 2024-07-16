@@ -50,7 +50,6 @@ class MessageCon extends React.Component {
       verifyCodeLoading: false, // 已发送并在60内true
       passwordRegexTip,
       passwordRegex,
-      isUpperCase: false,
       isOpen: false,
       showIti: false,
     };
@@ -373,16 +372,6 @@ class MessageCon extends React.Component {
     }, 1000);
   };
 
-  handleKeyPress = event => {
-    const isCapsLockOn = event.getModifierState('CapsLock');
-    const key = event.key;
-    if (key.length === 1 && key.match(/[a-z]/i)) {
-      this.setState({
-        isUpperCase: isCapsLockOn || key === key.toUpperCase(),
-      });
-    }
-  };
-
   render() {
     const {
       type = 'register',
@@ -396,7 +385,7 @@ class MessageCon extends React.Component {
       setData,
     } = this.props;
     const { emailOrTel = '', verifyCode = '', password = '', fullName = '', onlyRead, focusDiv } = dataList;
-    let { verifyCodeText, verifyCodeLoading, isUpperCase, isOpen, showIti } = this.state;
+    let { verifyCodeText, verifyCodeLoading, isOpen, showIti } = this.state;
     let warnningDiv = _.find(warnningData, it => it.tipDom === '.warnningDiv');
     let autoCompleteData = {
       autoComplete: type !== 'login' ? 'new-password' : 'on',
@@ -440,7 +429,7 @@ class MessageCon extends React.Component {
               <input
                 type="text"
                 className="itiCon"
-                tabindex="-1"
+                tabIndex="-1"
                 ref={mobile => (this.mobile = mobile)}
                 disabled={onlyRead ? 'disabled' : ''}
               />
@@ -541,12 +530,12 @@ class MessageCon extends React.Component {
                   });
                   updateWarn(data);
                 }}
-                autocomplete="off"
+                autoComplete="off"
               />
               <input
                 disabled={verifyCodeLoading}
                 type="button"
-                tabindex="-1"
+                tabIndex="-1"
                 className={cx('btn btnSendVerifyCode Right', {
                   btnDisabled: verifyCodeLoading,
                   btnEnabled: !verifyCodeLoading,
@@ -557,7 +546,7 @@ class MessageCon extends React.Component {
                   this.handleSendVerifyCode(CodeTypeEnum.message);
                 }}
               />
-              <input type="text" tabindex="-1" className="Alpha0 inputHidden" />
+              <input type="text" tabIndex="-1" className="Alpha0 inputHidden" />
               <div
                 className="title"
                 onClick={e => {
@@ -599,11 +588,10 @@ class MessageCon extends React.Component {
                   });
                   updateWarn(data);
                 }}
-                autocomplete={
+                autoComplete={
                   //keys.includes('password') ? 'account-password' :
                   'new-password'
                 } //密码不自动填充
-                onKeyPress={this.handleKeyPress}
               />
               <div
                 className="title"
@@ -613,15 +601,8 @@ class MessageCon extends React.Component {
               >
                 {keys.includes('setPassword') ? _l('新密码%14001') : _l('密码')}
               </div>
-              {isUpperCase && keys.includes('password') && (
-                <span className="isUpperCase">
-                  <Tooltip text={<span>{_l('大写锁定已打开')}</span>} action={['hover']} popupPlacement={'right'}>
-                    <Icon type="up" />
-                  </Tooltip>
-                </span>
-              )}
               {keys.includes('setPassword') && (
-                <span className="isUpperCase Hand" onClick={() => this.setState({ isOpen: !isOpen })}>
+                <span className="passwordTip Hand" onClick={() => this.setState({ isOpen: !isOpen })}>
                   <Icon type={!isOpen ? 'eye_off' : 'eye'} />
                 </span>
               )}

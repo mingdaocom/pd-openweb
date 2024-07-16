@@ -14,6 +14,9 @@ export const formatFiltersGroup = (id, filtersGroup) => {
       'minValue',
       'maxValue',
     ]);
+    if (controlId === 'rowid') {
+      data.filterType = 1;
+    }
     return {
       ...data,
       spliceType: 1,

@@ -4,7 +4,8 @@ import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.
 import appManagementApi from 'src/api/appManagement';
 import styled from 'styled-components';
 import cx from 'classnames';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
+import localForage from 'localforage';
 
 const RoleDebugSelectWrap = styled.div(
   ({ navColor, borderColor }) => `
@@ -74,7 +75,7 @@ export default ({
 
   const getBorderColor = () => {
     if (!iconColor) return 'rgba(255, 255, 255, 0.3)';
-    return tinycolor(iconColor).setAlpha(0.3).toRgbString();
+    return new TinyColor(iconColor).setAlpha(0.3).toRgbString();
   };
 
   const renderRoleDebugSelect = () => {
@@ -118,6 +119,7 @@ export default ({
                 !!roleSelectValue.length && e.stopPropagation();
                 if (!roleSelectValue.length) return;
 
+                localForage.clear();
                 appManagementApi
                   .setDebugRoles({
                     appId,

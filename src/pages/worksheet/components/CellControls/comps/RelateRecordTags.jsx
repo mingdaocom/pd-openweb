@@ -255,6 +255,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       recordId,
       relateSheetId: control.dataSource,
       filterRowIds: records.map(r => r.rowid).concat(needIgnoreRowIds),
+      ignoreRowIds: deletedIds,
       selectedCount: count,
       maxCount: 50,
       formData: _.isFunction(rowFormData) ? rowFormData() : rowFormData,

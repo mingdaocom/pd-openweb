@@ -22,9 +22,9 @@ import AppGroupSkeleton from './components/AppGroupSkeleton';
 import { getCurrentProject, addBehaviorLog } from 'src/util';
 import TextScanQRCode from 'src/components/newCustomFields/components/TextScanQRCode';
 import { loadSDK } from 'src/components/newCustomFields/tools/utils';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import { MODULE_TYPES } from 'src/pages/AppHomepage/Dashboard/utils';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import moment from 'moment';
 
 class AppHome extends React.Component {
@@ -91,8 +91,8 @@ class AppHome extends React.Component {
       .get({
         key: 'workwxFirstEnter',
       })
-      .then(result => {
-        if (!result) {
+      .then(res => {
+        if (!get(res, 'data')) {
           this.setState({ guideStep: 1 });
         }
       });
@@ -206,7 +206,7 @@ class AppHome extends React.Component {
           <TextScanQRCode
             projectId={localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId}
             onChange={value => {
-              if (RegExp.isURL(value)) {
+              if (RegExpValidator.isURL(value)) {
                 if (window.isIphone) {
                   location.href = value;
                 } else {
@@ -227,6 +227,7 @@ class AppHome extends React.Component {
     );
   };
   renderSearchResult = () => {
+    const { myPlatformLang } = this.props;
     const { searchResult = [] } = this.state;
     if (_.isEmpty(searchResult)) {
       return (
@@ -240,7 +241,7 @@ class AppHome extends React.Component {
       <div className="h100" style={{ overflow: 'auto' }}>
         <Flex align="center" wrap="wrap" className="appCon">
           {_.map(searchResult, (item, i) => {
-            return <ApplicationItem data={item} />;
+            return <ApplicationItem data={item} myPlatformLang={myPlatformLang} />;
           })}
         </Flex>
       </div>
@@ -327,7 +328,7 @@ class AppHome extends React.Component {
 
   // 应用收藏
   renderCollectAppList = () => {
-    const { myPlatformData } = this.props;
+    const { myPlatformData, myPlatformLang } = this.props;
     let { markedAppItems = [] } = myPlatformData;
     markedAppItems = markedAppItems.filter(o => o && !o.webMobileDisplay);
     if (_.isEmpty(markedAppItems)) return;
@@ -351,6 +352,7 @@ class AppHome extends React.Component {
                 radius={40}
                 iconSize={26}
                 data={item}
+                myPlatformLang={myPlatformLang}
               />
             );
           })}
@@ -362,7 +364,7 @@ class AppHome extends React.Component {
 
   // 最近使用
   renderRecent = () => {
-    const { myPlatformData } = this.props;
+    const { myPlatformData, myPlatformLang } = this.props;
     const { recentType } = this.state;
     const { recentAppIds = [], recentAppItems, apps } = myPlatformData;
     const recentApps = recentAppIds
@@ -396,6 +398,7 @@ class AppHome extends React.Component {
                   radius={40}
                   iconSize={26}
                   data={item}
+                  myPlatformLang={myPlatformLang}
                 />
               );
             })
@@ -507,7 +510,13 @@ class AppHome extends React.Component {
   };
 
   renderContent = () => {
-    const { isHomeLoading, platformSetting = {}, myPlatformData = {} } = this.props;
+    const {
+      isHomeLoading,
+      platformSetting = {},
+      myPlatformData = {},
+      myPlatformLang,
+      projectGroupsNameLang = [],
+    } = this.props;
     const { homeSetting = {} } = myPlatformData;
     const {
       displayCommonApp,
@@ -571,7 +580,12 @@ class AppHome extends React.Component {
 
         {/* 应用 */}
         {(displayApp || isExternal) && (
-          <ApplicationList myAppData={myPlatformData} projectId={currentProject.projectId} />
+          <ApplicationList
+            myAppData={myPlatformData}
+            myPlatformLang={myPlatformLang}
+            projectId={currentProject.projectId}
+            projectGroupsNameLang={projectGroupsNameLang}
+          />
         )}
       </div>
     );
@@ -602,13 +616,23 @@ class AppHome extends React.Component {
 
 export default connect(
   state => {
-    const { isHomeLoading, collectRecords, platformSetting, myPlatformData, collectCharts } = state.mobile;
+    const {
+      isHomeLoading,
+      collectRecords,
+      platformSetting,
+      myPlatformData,
+      myPlatformLang,
+      collectCharts,
+      projectGroupsNameLang,
+    } = state.mobile;
     return {
       isHomeLoading,
       collectRecords,
       platformSetting,
       myPlatformData,
+      myPlatformLang,
       collectCharts,
+      projectGroupsNameLang,
     };
   },
   dispatch =>

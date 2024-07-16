@@ -48,6 +48,8 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-approval';
       } else if (appType === APP_TYPE.EVENT_PUSH) {
         icon = 'icon-sending';
+      } else if (appType === APP_TYPE.LOOP_PROCESS) {
+        icon = 'icon-arrow_loop';
       } else {
         icon = 'icon-table';
       }
@@ -153,6 +155,19 @@ export const getIcons = (type, appType, actionId) => {
       break;
     case NODE_TYPE.SNAPSHOT:
       icon = 'icon-camera_alt';
+      break;
+    case NODE_TYPE.LOOP:
+      icon = 'icon-arrow_loop';
+      break;
+    case NODE_TYPE.RETURN:
+      icon = 'icon-rounded_square';
+      break;
+    case NODE_TYPE.AIGC:
+      if (_.includes([ACTION_ID.AIGC_TEXT, ACTION_ID.AIGC_OBJECT], actionId)) {
+        icon = 'icon-text_ai';
+      } else {
+        icon = 'icon-AI_image';
+      }
       break;
     case NODE_TYPE.SYSTEM:
       if (appType === APP_TYPE.PROCESS) {
@@ -292,7 +307,6 @@ export const getConditionList = (type, enumDefault) => {
     case 7:
     case 32:
     case 33:
-    case 41:
     case 50:
       list = { ids: ['1', '2', '3', '4', '5', '44', '6', '45', '8', '7'], defaultConditionId: '1' };
       break;
@@ -360,6 +374,7 @@ export const getConditionList = (type, enumDefault) => {
         list = { ids: ['9', '10', '41', '39', '42', '40', '37', '38', '8', '7'], defaultConditionId: '9' };
       }
       break;
+    case 41:
     case 10000007:
     case 10000008:
       list = { ids: ['8', '7'], defaultConditionId: '7' };
@@ -424,34 +439,6 @@ export const getConditionNumber = id => {
   }
 
   return count;
-};
-
-/**
- * 参数名重复验证
- */
-export const parameterNameValidation = ({ list, key, value, uniqueKey, uniqueValue, errors, verifyFormat = false }) => {
-  if (value) {
-    if (verifyFormat && !/^[a-zA-Z]{1}\w*$/.test(value.trim())) {
-      errors[uniqueValue] = 1; // 格式不正确
-    } else if (list.filter((o, i) => o[key] === value.trim() && o[uniqueKey] !== uniqueValue).length > 0) {
-      errors[uniqueValue] = 2; // 重复
-    } else {
-      errors[uniqueValue] = '';
-    }
-  } else {
-    errors[uniqueValue] = '';
-  }
-
-  list.forEach(element => {
-    if (
-      element[uniqueKey] !== uniqueValue &&
-      !_.find(list, o => o[key] === element[key] && o[uniqueKey] !== element[uniqueKey])
-    ) {
-      errors[element.controlId] = '';
-    }
-  });
-
-  return errors;
 };
 
 /**
@@ -604,4 +591,26 @@ export const handleExecReturnValue = item => {
   }
 
   return item.fieldValueDefault;
+};
+
+/**
+ * 格式化测试参数
+ */
+export const formatTestParameters = (source, testMap, isArray) => {
+  if (isArray) {
+    source = _.cloneDeep(source);
+    source.map(item => {
+      (item.value.match(/\$[^ \r\n]+?\$/g) || []).forEach(key => {
+        item.value = item.value.replace(key, testMap[item.type === 14 ? `${key}14` : key] || '');
+      });
+
+      return item;
+    });
+  } else {
+    (source.match(/\$[^ \r\n]+?\$/g) || []).forEach(key => {
+      source = source.replace(key, testMap[key] || '');
+    });
+  }
+
+  return source;
 };

@@ -33,6 +33,7 @@ export const ACTION_LIST = {
   13: { id: 'stash', text: _l('暂存'), icon: 'save1', sort: 0 },
   17: { id: 'return', text: _l('退回'), icon: 'repeal-o', sort: 4 },
   18: { id: 'urge', text: _l('催办'), icon: 'start_time', sort: 9 },
+  19: { id: 'taskRevoke', text: _l('撤回'), icon: 'repeal-o', sort: 10 },
 };
 
 export const OPERATION_LIST = {
@@ -46,6 +47,7 @@ export const MOBILE_OPERATION_LIST = {
   10: { id: 'transfer', text: _l('转交'), icon: 'sp_post_exchange_white' },
   16: { id: 'addApprove', text: _l('添加审批人'), icon: 'group_add1' },
   17: { id: 'return', text: _l('退回'), icon: 'repeal-o' },
+  19: { id: 'taskRevoke', text: _l('撤回'), icon: 'repeal-o' },
 };
 
 export const ACTION_TO_TEXT = {
@@ -81,6 +83,14 @@ export const ACTION_TO_TEXT = {
     headerText: _l('退回审批'),
     placeholder: _l('请输入'),
   },
+  taskRevoke: {
+    headerText: _l('撤回'),
+    placeholder: _l('请输入'),
+  },
+  revoke: {
+    headerText: _l('撤回'),
+    placeholder: _l('请输入'),
+  },
 };
 
 export const STATUS_ERROR_MESSAGE = {
@@ -105,4 +115,5 @@ export const ACTION_TO_METHOD = {
   pass: 'pass',
   overrule: 'overrule',
   return: 'return',
+  taskRevoke: 'taskRevoke',
 };

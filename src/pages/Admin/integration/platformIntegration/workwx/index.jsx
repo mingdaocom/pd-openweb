@@ -5,10 +5,9 @@ import { Switch, Icon, Button, LoadDiv, Checkbox } from 'ming-ui';
 import { Popover, Radio, Input, Select } from 'antd';
 import ClipboardButton from 'react-clipboard.js';
 import Ajax from 'src/api/workWeiXin';
-import Dialog from 'ming-ui/components/Dialog';
 import BuildAppNewRules from './BuildAppNewRules';
 import IntegrationSetPssword from '../../../components/IntegrationSetPssword';
-import SyncDialog from './components/SyncDialog';
+import IntegrationSync from '../components/IntegrationSync';
 import InterfaceLicense from './components/InterfaceLicense';
 import ChartSetting from './components/ChartSetting';
 import { integrationFailed, checkClearIntergrationData } from '../utils';
@@ -54,7 +53,6 @@ export default class Workwx extends React.Component {
       AgentIdFormat: null,
       SecretFormat: null,
       isCloseDing: false,
-      showSyncDiaLog: false,
       data: null,
       show1: false,
       show2: false,
@@ -288,87 +286,11 @@ export default class Workwx extends React.Component {
       </React.Fragment>
     );
   };
-  getCount = type => {
-    const { logDetailItems = [] } = this.state;
-    let itemArr = logDetailItems.filter(item => item.type === type);
-    return (itemArr && !_.isEmpty(itemArr) && itemArr[0].items.length) || 0;
-  };
-
-  renderOverLinitDialog = () => {
-    const { dialogOverlimit, overlinitLength } = this.state;
-    return (
-      <Dialog
-        width="500px"
-        title={_l('同步失败')}
-        visible={dialogOverlimit}
-        showCancel={false}
-        onCancel={() => {
-          this.setState({ dialogOverlimit: false });
-        }}
-        onOk={() => {
-          this.setState({ dialogOverlimit: false });
-        }}
-      >
-        <div>{_l('超出 %0 个企业微信用户需要被同步，请先增购组织用户', overlinitLength)}</div>
-      </Dialog>
-    );
-  };
-
-  checkSyncFn = showSyncDiaLog => {
-    this.setState({ loading: true });
-    Ajax.checkWorkWXToMingByApp({
-      projectId: this.props.projectId,
-    }).then(res => {
-      const { item1, item2, item3 = {} } = res;
-      if (!item1) {
-        alert(_l('同步失败'), 2);
-        this.setState({ loading: false });
-        return;
-      }
-
-      const { logDetailItems = [], mingDaoUserInfos = [] } = item3;
-      let itemArr = logDetailItems.filter(item => item.type === 7);
-      let overlinitLength = (itemArr && !_.isEmpty(itemArr) && itemArr[0].items.length) || 0;
-      if (overlinitLength) {
-        this.setState({ overlinitLength, dialogOverlimit: true, loading: false });
-        return;
-      } else {
-        let temp = mingDaoUserInfos.map((item, index) => {
-          let isSame = false;
-          for (let i = 0; i < mingDaoUserInfos.length; i++) {
-            if (
-              item.wxUserInfo &&
-              mingDaoUserInfos[i].wxUserInfo &&
-              item.wxUserInfo.userId === mingDaoUserInfos[i].wxUserInfo.userId &&
-              index !== i
-            ) {
-              isSame = true;
-              break;
-            }
-          }
-          if (isSame) {
-            return { ...item, wxUserInfo: {} };
-          } else {
-            return item;
-          }
-        });
-        this.setState({
-          mingDaoUserInfos: temp,
-          bindQWUserIds: temp.filter(item => item.wxUserInfo && item.wxUserInfo.userId).map(v => v.wxUserInfo.userId),
-          filterMatchPhoneBindUserIds: temp
-            .filter(item => item.wxUserInfo && item.wxUserInfo.userId && item.wxUserInfo.matchType !== 1)
-            .map(v => v.wxUserInfo.userId),
-          logDetailItems,
-          loading: false,
-          showSyncDiaLog,
-          isBindRelationship: false,
-        });
-      }
-    });
-  };
 
   stepRender = () => {
-    let { intergrationType, loading } = this.state;
+    let { intergrationType, show2, isHasInfo, isCloseDing, canEditInfo } = this.state;
+    const { projectId } = this.props;
+
     return (
       <div className="pBottom100">
         {intergrationType !== 2 && (
@@ -388,11 +310,7 @@ export default class Workwx extends React.Component {
             ) : (
               <React.Fragment>
                 <p className="mTop16 Font14 Gray_75">{_l('从企业微信后台获取对接信息，即可开始集成以及同步通讯录')}</p>
-                <Link
-                  to={`/wxappSyncCourse/${this.props.projectId}`}
-                  target="_blank"
-                  className="mTop16 Font14 howApply"
-                >
+                <Link to={`/wxappSyncCourse/${projectId}`} target="_blank" className="mTop16 Font14 howApply">
                   {_l('如何获取对接信息？')}
                 </Link>
               </React.Fragment>
@@ -401,7 +319,7 @@ export default class Workwx extends React.Component {
         )}
         <div className="stepItem Relative">
           <h3 className="stepTitle Font16 Gray">{intergrationType === 2 ? _l('1.对接信息') : _l('2.对接信息录入')}</h3>
-          {!this.state.show2 && intergrationType !== 2 && (
+          {!show2 && intergrationType !== 2 && (
             <div
               className="showDiv flexRow valignWrapper"
               onClick={() => {
@@ -413,14 +331,14 @@ export default class Workwx extends React.Component {
               <Icon icon="sidebar-more" className="Font13 Gray_75 Right Hand" />
             </div>
           )}
-          {((this.state.isHasInfo && this.state.show2) || intergrationType === 2) && (
+          {((isHasInfo && show2) || intergrationType === 2) && (
             <span className="Font13 Gray_75 Right closeDing">
               <span
                 className="mLeft10 switchBtn tip-bottom-left"
                 data-tip={_l('关闭企业微信集成后，无法再从企业微信处进入应用')}
               >
                 <Switch
-                  checked={!this.state.isCloseDing}
+                  checked={!isCloseDing}
                   onClick={checked => {
                     this.editDingStatus(checked ? 2 : 1);
                   }}
@@ -428,7 +346,7 @@ export default class Workwx extends React.Component {
               </span>
             </span>
           )}
-          {((!this.state.isCloseDing && this.state.show2) || intergrationType === 2) && (
+          {((!isCloseDing && show2) || intergrationType === 2) && (
             <React.Fragment>
               {intergrationType !== 2 && (
                 <p className="mTop16 Font14 Gray_75">
@@ -444,16 +362,8 @@ export default class Workwx extends React.Component {
               </div>
               {intergrationType !== 2 && (
                 <div className="TxtRight mTop30">
-                  {!this.state.canEditInfo ? (
-                    <Button
-                      type="primary"
-                      className="editInfo"
-                      onClick={e => {
-                        this.setState({
-                          canEditInfo: true,
-                        });
-                      }}
-                    >
+                  {!canEditInfo ? (
+                    <Button type="primary" className="editInfo" onClick={e => this.setState({ canEditInfo: true })}>
                       {_l('编辑')}
                     </Button>
                   ) : (
@@ -461,10 +371,7 @@ export default class Workwx extends React.Component {
                       type="primary"
                       className="saveInfo"
                       onClick={() => {
-                        checkClearIntergrationData({
-                          projectId: this.props.projectId,
-                          onSave: this.editInfo,
-                        });
+                        checkClearIntergrationData({ projectId, onSave: this.editInfo });
                       }}
                     >
                       {_l('保存')}
@@ -475,50 +382,12 @@ export default class Workwx extends React.Component {
             </React.Fragment>
           )}
         </div>
-        <div className="stepItem">
-          <h3 className="stepTitle Font16 Gray">{_l('%0数据同步', intergrationType !== 2 ? '3.' : '2.')}</h3>
-          <div className="mTop16 syncBox">
-            <span className="Font14 syncTxt Gray_75">
-              {_l('从企业微信通讯录同步到该系统')}{' '}
-              {md.global.Config.IsPlatformLocal && (
-                <span
-                  className="ThemeColor Hand"
-                  onClick={() => {
-                    this.setState({
-                      showSyncDiaLog: true,
-                      isBindRelationship: true,
-                    });
-                  }}
-                >
-                  {_l('账号绑定关系列表')}
-                </span>
-              )}
-            </span>
-            <Button
-              type="primary"
-              disabled={loading}
-              className={cx('syncBtn', {
-                isNO:
-                  (this.state.canEditInfo && !this.state.isHasInfo) ||
-                  this.state.isCloseDing ||
-                  this.state.showSyncDiaLog,
-              })}
-              onClick={e => {
-                if (
-                  (this.state.canEditInfo && !this.state.isHasInfo) ||
-                  this.state.isCloseDing ||
-                  this.state.showSyncDiaLog
-                ) {
-                  return;
-                } else {
-                  this.checkSyncFn(true);
-                }
-              }}
-            >
-              {loading ? _l('正在计算，请稍等') : _l('同步')}
-            </Button>
-          </div>
-        </div>
+        <IntegrationSync
+          integrationType={3}
+          step={intergrationType !== 2 ? '3.' : '2.'}
+          syncDisabled={(canEditInfo && !isHasInfo) || isCloseDing}
+          projectId={projectId}
+        />
       </div>
     );
   };
@@ -611,19 +480,7 @@ export default class Workwx extends React.Component {
 
   renderTabContent = () => {
     const { projectId } = this.props;
-    const {
-      currentTab,
-      CorpId,
-      status,
-      isPassApply,
-      intergrationType,
-      syncWXLabel,
-      mingDaoUserInfos = [],
-      bindQWUserIds = [],
-      filterMatchPhoneBindUserIds = [],
-      logDetailItems = [],
-      qwQuickAprData = {},
-    } = this.state;
+    const { currentTab, CorpId, status, isPassApply, intergrationType, syncWXLabel, qwQuickAprData = {} } = this.state;
 
     if (currentTab === 'base') {
       return (
@@ -648,11 +505,7 @@ export default class Workwx extends React.Component {
             <div className="flex">
               <h3 className="stepTitle Font16 Gray mBottom24">{_l('企业微信扫码登录')}</h3>
               <Switch
-                disabled={
-                  (this.state.canEditInfo && !this.state.isHasInfo) ||
-                  this.state.isCloseDing ||
-                  this.state.showSyncDiaLog
-                }
+                disabled={(this.state.canEditInfo && !this.state.isHasInfo) || this.state.isCloseDing}
                 checked={this.state.intergrationScanEnabled}
                 onClick={this.handleChangeScanEnabled}
               />
@@ -680,11 +533,7 @@ export default class Workwx extends React.Component {
                 <IntegrationSetPssword
                   password={this.state.password}
                   isSetPassword={this.state.isSetPassword}
-                  disabled={
-                    (this.state.canEditInfo && !this.state.isHasInfo) ||
-                    this.state.isCloseDing ||
-                    this.state.showSyncDiaLog
-                  }
+                  disabled={(this.state.canEditInfo && !this.state.isHasInfo) || this.state.isCloseDing}
                 />
               )}
               <div className="stepItem flexRow valignWrapper">
@@ -831,15 +680,7 @@ export default class Workwx extends React.Component {
     }
   };
   render() {
-    let {
-      intergrationType,
-      mingDaoUserInfos = [],
-      bindQWUserIds = [],
-      filterMatchPhoneBindUserIds = [],
-      logDetailItems = [],
-      currentTab,
-      status,
-    } = this.state;
+    let { intergrationType, currentTab, status } = this.state;
     const { projectId } = this.props;
 
     if (this.state.pageLoading) {
@@ -971,20 +812,6 @@ export default class Workwx extends React.Component {
             <div className="orgManagementContent">{this.renderTabContent()}</div>
           </Fragment>
         )}
-        <SyncDialog
-          getCount={this.getCount}
-          visible={this.state.showSyncDiaLog}
-          isBindRelationship={this.state.isBindRelationship}
-          projectId={projectId}
-          onCancel={() => {
-            this.setState({ showSyncDiaLog: false, isBindRelationship: undefined });
-          }}
-          mingDaoUserInfos={mingDaoUserInfos}
-          bindQWUserIds={bindQWUserIds}
-          filterMatchPhoneBindUserIds={filterMatchPhoneBindUserIds}
-          logDetailItems={logDetailItems}
-        />
-        {this.renderOverLinitDialog()}
       </div>
     );
   }

@@ -1,18 +1,15 @@
 import React, { Component, Fragment } from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import preall from 'src/common/preall';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import appManagementApi from 'src/api/appManagement';
 import './index.less';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
 import _ from 'lodash';
 import DocumentTitle from 'react-document-title';
-import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
-import { RecordInfoModal } from 'mobile/Record';
 import 'mobile/index.less';
-import { browserIsMobile, getTranslateInfo } from 'src/util';
+import { browserIsMobile, getTranslateInfo, getAppLangDetail } from 'src/util';
 
 const Header = ({ data, callback, onSubmit }) => {
   return (
@@ -32,10 +29,21 @@ class WorksheetRowEdit extends Component {
     loading: true,
     isError: false,
     data: {},
+    Components: null,
   };
 
   componentDidMount() {
     this.getLinkDetail();
+
+    if (browserIsMobile()) {
+      import('mobile/Record').then(res => {
+        this.setState({ Components: { default: res.RecordInfoModal } });
+      });
+    } else {
+      import('worksheet/common/recordInfo/RecordInfoWrapper').then(res => {
+        this.setState({ Components: res });
+      });
+    }
   }
 
   /**
@@ -71,14 +79,13 @@ class WorksheetRowEdit extends Component {
             }
 
             const { langInfo, projectId, appId } = data;
-            if (langInfo && langInfo.appLangId && !window[`langData-${appId}`]) {
-              const lang = await appManagementApi.getAppLangDetail({
-                projectId,
-                appId,
-                appLangId: langInfo.appLangId,
-              });
-              window[`langData-${appId}`] = lang.items;
-              data.appName = getTranslateInfo(appId, appId).name || data.appName;
+            const lang = await getAppLangDetail({
+              langInfo,
+              projectId,
+              id: appId,
+            });
+            if (lang) {
+              data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
             }
             getGlobalMeta();
             this.setState({ loading: false, data, isError: false });
@@ -148,13 +155,13 @@ class WorksheetRowEdit extends Component {
   }
 
   render() {
-    const { loading, data, isError } = this.state;
+    const { loading, data, isError, Components } = this.state;
 
     return (
       <Fragment>
         <DocumentTitle title={_.isEmpty(data) ? _l('加载中') : this.getTitle()} />
 
-        {loading ? (
+        {loading || !Components ? (
           <LoadDiv className="mTop20" />
         ) : (
           <div className="worksheetRowEdit h100 flexColumn">
@@ -163,7 +170,7 @@ class WorksheetRowEdit extends Component {
               {data.linkState === 1 && this.renderComplete()}
               {!isError && data.linkState !== 1 ? (
                 browserIsMobile() ? (
-                  <RecordInfoModal
+                  <Components.default
                     className="full"
                     visible
                     appId={data.appId}
@@ -175,7 +182,7 @@ class WorksheetRowEdit extends Component {
                     updateSuccess={() => this.setState({ data: { ...data, linkState: 1 } })}
                   />
                 ) : (
-                  <RecordInfoWrapper
+                  <Components.default
                     notDialog
                     from={2}
                     appId={data.appId}
@@ -184,12 +191,12 @@ class WorksheetRowEdit extends Component {
                     hideEditingBar
                     recordId={data.rowId}
                     allowEmptySubmit
-                    header={
+                    renderHeader={() => (
                       <Header
                         data={data}
                         callback={({ error }) => !error && this.setState({ data: { ...data, linkState: 1 } })}
                       />
-                    }
+                    )}
                   />
                 )
               ) : null}
@@ -201,4 +208,6 @@ class WorksheetRowEdit extends Component {
   }
 }
 
-ReactDom.render(<WorksheetRowEdit />, document.getElementById('app'));
+const root = createRoot(document.getElementById('app'));
+
+root.render(<WorksheetRowEdit />);

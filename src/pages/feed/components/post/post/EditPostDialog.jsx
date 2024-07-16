@@ -1,24 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { edit } from '../../../redux/postActions';
 import { htmlDecodeReg, createLinksForMessage } from 'src/util';
 import UploadFiles from 'src/components/UploadFiles';
 import { Dialog, Textarea, Button } from 'ming-ui';
 import _ from 'lodash';
-
+import RegExpValidator from 'src/util/expression';
 export default class EditPostDialog extends React.Component {
   static show(postItem, dispatch) {
-    const dialogContainer = document.createElement('div');
-    document.body.appendChild(dialogContainer);
+    const div = document.createElement('div');
+
+    document.body.appendChild(div);
+
+    const root = createRoot(div);
     const dispose = () => {
       setTimeout(() => {
-        ReactDOM.unmountComponentAtNode(dialogContainer);
-        dialogContainer.remove();
+        root.unmount();
+        document.body.removeChild(div);
       }, 100);
     };
-    ReactDOM.render(
+    root.render(
       <EditPostDialog postItem={postItem} dispose={() => dispose()} editPost={(...args) => dispatch(edit(...args))} />,
-      dialogContainer,
     );
   }
 
@@ -62,7 +65,7 @@ export default class EditPostDialog extends React.Component {
         originalFilename: attachment.originalFileName || attachment.originalFilename,
       },
     );
-    if (File.isPicture(attachment.fileExt)) {
+    if (RegExpValidator.fileIsPicture(attachment.fileExt)) {
       if (!attachment.refType) {
         attachment.allowDown = true;
       }
@@ -127,9 +130,7 @@ export default class EditPostDialog extends React.Component {
     }
     const { postItem } = this.props;
     const { postID } = postItem;
-    const $textarea = $(ReactDOM.findDOMNode(this.textarea))
-      .parent()
-      .find('textarea');
+    const $textarea = $(ReactDOM.findDOMNode(this.textarea)).parent().find('textarea');
     $textarea.mentionsInput('val', data => {
       const postMsg = data;
       if (!postMsg || !$.trim(postMsg)) {

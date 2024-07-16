@@ -13,7 +13,7 @@ import OtherAction from 'src/pages/workflow/components/ExecDialog/components/Oth
 import MobileOtherAction from 'mobile/ProcessRecord/OtherAction';
 import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
 import { covertTime, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
-import WorkflowAction from './Action';
+import WorkflowAction, { TaskRevokeAction } from './Action';
 import { browserIsMobile, dateConvertToUserZone } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
@@ -21,13 +21,12 @@ import './index.less';
 
 const isMobile = browserIsMobile();
 
-const renderTimeConsuming = data => {
-  const { createDate, completeDate } = data;
+const renderTimeConsuming = (createDate, completeDate) => {
   const timeConsuming = moment(createDate) - moment(completeDate);
   if (timeConsuming) {
     return (
       <div className="flexRow valignWrapper mBottom12">
-        <div className="Font13 Gray_9e label">{_l('整体耗时')}</div>
+        <div className="Font13 Gray_75 label">{_l('整体耗时')}</div>
         <div>{covertTime(timeConsuming)}</div>
       </div>
     );
@@ -37,6 +36,15 @@ const renderTimeConsuming = data => {
 const renderState = data => {
   const { status, completed, flowNode, instanceLog, workItem } = data;
   const { type } = flowNode || {};
+  const allowReset = status === 6;
+
+  if (allowReset) {
+    return (
+      <div className="state bold valignWrapper Font13" style={{ backgroundColor: '#bdbdbd', color: '#fff' }}>
+        {_l('流程撤回')}
+      </div>
+    );
+  }
 
   if (workItem) {
     if (type === 3 || type === 0)
@@ -52,8 +60,8 @@ const renderState = data => {
         </span>
       );
   } else {
-    if (type === 3 || type === 0) return <span className="bold Gray_9e">{_l('填写中...')}</span>;
-    if (type === 4) return <span className="bold Gray_9e">{_l('审批中...')}</span>;
+    if (type === 3 || type === 0) return <span className="bold Gray_75">{_l('填写中...')}</span>;
+    if (type === 4) return <span className="bold Gray_75">{_l('审批中...')}</span>;
   }
 
   if (completed) {
@@ -84,7 +92,7 @@ const renderSurplusTime = data => {
 
   return (
     <div className="flexRow valignWrapper mBottom12">
-      <div className="Font13 Gray_9e label">{_l('剩余时间')}</div>
+      <div className="Font13 Gray_75 label">{_l('剩余时间')}</div>
       <div>
         <span
           className="stepTimeConsuming flexRow"
@@ -119,7 +127,7 @@ function CurrentWorkItems(props) {
   return (
     !!(currentWorkItems || []).length && (
       <div className="flexRow valignWrapper mBottom12">
-        <div className="Font13 Gray_9e label">{type === 4 ? _l('审批人') : _l('填写人')}</div>
+        <div className="Font13 Gray_75 label">{type === 4 ? _l('审批人') : _l('填写人')}</div>
         <div className="flex flexRow valignWrapper flexWrap" ref={wrapRef}>
           {currentWorkItems.map(data => (
             <span className="InlineBlock Relative mRight8">
@@ -161,9 +169,9 @@ function CurrentWorkItems(props) {
 }
 
 function WorkflowCard(props) {
-  const { data, formWidth, appId, projectId } = props;
-  const { onAction, onRevoke, onUrge, onViewFlowStep, onViewExecDialog } = props;
-  const { currents, createDate, completeDate, completed, createAccount, flowNode, workItem, process } = data;
+  const { data, currentWorkflow, formWidth, appId, projectId } = props;
+  const { onAction, onRevoke, onUrge, onViewFlowStep, onViewExecDialog, onReset } = props;
+  const { currents, createDate, completeDate, revokeDate, completed, createAccount, flowNode, workItem, process, status } = data;
   const currentWorkItems = data.currentWorkItems || [];
   const receiveTime = _.get(workItem, 'receiveTime') || _.get(currentWorkItems[0], 'receiveTime');
   const isBranch = !!(currents || []).length;
@@ -172,23 +180,9 @@ function WorkflowCard(props) {
     const { allowRevoke, allowApproval, workItem } = current;
     return isBranch && ((allowRevoke && allowApproval) || workItem ? false : allowRevoke);
   };
+  const allowReset = status === 6;
   const handleRevoke = () => {
-    if (isMobile) {
-      Modal.alert(_l('确认撤回此条流程 ?'), '', [
-        {
-          text: _l('取消'),
-        },
-        {
-          text: _l('确认'),
-          onPress: () => onRevoke(currents[0]),
-        },
-      ]);
-    } else {
-      Dialog.confirm({
-        title: _l('确认撤回此条流程 ?'),
-        onOk: () => onRevoke(currents[0]),
-      });
-    }
+    onRevoke(currents[0])
   };
 
   const renderContent = data => {
@@ -199,29 +193,42 @@ function WorkflowCard(props) {
         className={cx('flexColumn itemWrapper', { mTop18: !isBranch })}
         onClick={isBranch ? () => onViewFlowStep(data) : undefined}
       >
-        {name && (
-          <div className="flexRow valignWrapper mBottom12">
-            <div className="flexRow valignWrapper flex">
-              <div className="Font13 Gray_9e label">{_l('当前节点')}</div>
-              <div className="flowNodeName">{name}</div>
-            </div>
-            {isBranch && renderState(data)}
-          </div>
-        )}
-        <CurrentWorkItems data={data} formWidth={formWidth} appId={appId} projectId={projectId} />
-        {receiveTime && (
-          <div className="flexRow valignWrapper mBottom12">
-            <div className="Font13 Gray_9e label">{_l('处理开始')}</div>
-            <div>{dateConvertToUserZone(receiveTime)}</div>
-          </div>
+        {!allowReset && (
+          <Fragment>
+            {name && (
+              <div className="flexRow valignWrapper mBottom12">
+                <div className="flexRow valignWrapper flex">
+                  <div className="Font13 Gray_75 label">{_l('当前节点')}</div>
+                  <div className="flowNodeName Gray">{name}</div>
+                </div>
+                {isBranch && renderState(data)}
+              </div>
+            )}
+            <CurrentWorkItems data={data} formWidth={formWidth} appId={appId} projectId={projectId} />
+            {receiveTime && (
+              <div className="flexRow valignWrapper mBottom12">
+                <div className="Font13 Gray_75 label">{_l('处理开始')}</div>
+                <div>{dateConvertToUserZone(receiveTime)}</div>
+              </div>
+            )}
+          </Fragment>
         )}
         {completeDate && (
           <div className="flexRow valignWrapper mBottom12">
-            <div className="Font13 Gray_9e label">{_l('完成时间')}</div>
+            <div className="Font13 Gray_75 label">{_l('完成时间')}</div>
             <div>{dateConvertToUserZone(completeDate)}</div>
           </div>
         )}
-        {completed && renderTimeConsuming(data)}
+        {completed && renderTimeConsuming(createDate, completeDate)}
+        {allowReset && (
+          <Fragment>
+            <div className="flexRow valignWrapper mBottom12">
+              <div className="Font13 Gray_75 label">{_l('完成时间')}</div>
+              <div>{dateConvertToUserZone(revokeDate)}</div>
+            </div>
+            {renderTimeConsuming(createDate, revokeDate)}
+          </Fragment>
+        )}
         {renderSurplusTime(data)}
       </div>
     );
@@ -239,7 +246,7 @@ function WorkflowCard(props) {
           />
           <div className="flexColumn flex mLeft10">
             <div className="Font15 bold Gray">{process.name}</div>
-            <div className="Font13 Gray_9e">
+            <div className="Font13 Gray_75">
               {_l(
                 '%0 于 %1 发起',
                 createAccount.accountId === md.global.Account.accountId ? _l('我') : createAccount.fullName,
@@ -277,7 +284,8 @@ function WorkflowCard(props) {
                       projectId={projectId}
                       isBranch={isBranch}
                       data={data}
-                      {...{ onAction, onRevoke, onUrge, onViewExecDialog }}
+                      currentWorkflow={currentWorkflow}
+                      {...{ onAction, onRevoke, onUrge, onReset, onViewExecDialog }}
                     />
                   </div>
                   {index !== currents.length - 1 && <div className="branchWrapLine" />}
@@ -291,7 +299,8 @@ function WorkflowCard(props) {
           projectId={projectId}
           isBranch={isBranch}
           data={data}
-          {...{ onAction, onRevoke, onUrge, onViewExecDialog }}
+          currentWorkflow={currentWorkflow}
+          {...{ onAction, onRevoke, onUrge, onReset, onViewExecDialog }}
         />
       )}
     </div>
@@ -299,13 +308,14 @@ function WorkflowCard(props) {
 }
 
 export default function SheetWorkflow(props) {
-  const { isCharge, projectId, worksheetId, recordId, formWidth, refreshBtnNeedLoading, appId } = props;
+  const { isCharge, projectId, worksheetId, recordId, formWidth, refreshBtnNeedLoading, appId, controls = [] } = props;
   const [loading, setLoading] = useState(true);
   const [list, setList] = useState([]);
   const [currentWorkflow, setCurrentWorkflow] = useState({});
   const [workflowVisible, setWorkflowVisible] = useState(false);
   const [viewWorkflow, setViewWorkflow] = useState(null);
   const [actionVisible, setActionVisible] = useState(false);
+  const [allowTaskRevokeBackNodeId, setAllowTaskRevokeBackNodeId] = useState(null);
 
   const getList = () => {
     return new Promise((resolve, reject) => {
@@ -362,7 +372,7 @@ export default function SheetWorkflow(props) {
   };
 
   const handleAction = ({ action, content, userId, backNodeId, signature, files }) => {
-    if (_.includes(['pass', 'overrule', 'return'], action)) {
+    if (_.includes(['pass', 'overrule', 'return', 'submit', 'revoke'], action)) {
       handleRequest(ACTION_TO_METHOD[action === 'return' ? 'overrule' : action], {
         opinion: content,
         backNodeId,
@@ -380,14 +390,33 @@ export default function SheetWorkflow(props) {
         });
       });
     }
+    if (action === 'taskRevoke') {
+      const { works } = currentWorkflow;
+      const data = _.find(works, { allowTaskRevokeBackNodeId });
+      instance['taskRevoke']({
+        id: data.instanceId,
+        workId: data.workId,
+        opinion: content,
+        backNodeId,
+        files
+      }).then(() => {
+        setActionVisible(false);
+        handleCloseDrawer();
+        getList();
+      })
+    }
   };
 
   const handleRequest = (action, restPara = {}) => {
-    const { id, workId } = currentWorkflow.cardData || {};
+    let { id, workId, revokeWorkId } = currentWorkflow.cardData || {};
+    if (action === 'revoke') {
+      workId = revokeWorkId;
+    }
     return instance[action]({ id, workId, ...restPara });
   };
 
   const handleCloseDrawer = () => {
+    setAllowTaskRevokeBackNodeId(null);
     setWorkflowVisible(false);
     setCurrentWorkflow({});
   };
@@ -401,15 +430,43 @@ export default function SheetWorkflow(props) {
   };
 
   const handleRevoke = data => {
-    handleRequest('revoke', {
+    const { cardData, currentWork } = currentWorkflow;
+    instanceVersion.get2({
       id: data.id,
-      workId: data.revokeWorkId,
-    }).then(result => {
-      if (result) {
-        alert(_l('撤回成功'));
-        setList(list.filter(item => item.id !== data.id));
-        handleCloseDrawer();
-      }
+      workId: data.revokeWorkId
+    }).then(instance => {
+      setCurrentWorkflow({
+        ...instance,
+        opinionTemplate: instance.opinionTemplate || {},
+        value: 'revoke',
+        cardData: {
+          ...cardData,
+          id: data.id,
+          workId: data.workId,
+          revokeWorkId: data.revokeWorkId
+        },
+        currentWork
+      });
+      setActionVisible(true);
+    });
+  };
+
+  const handleTaskRevoke = () => {
+    const { works, cardData, currentWork } = currentWorkflow;
+    const data = _.find(works, { allowTaskRevokeBackNodeId });
+    instanceVersion.get2({
+      id: data.instanceId,
+      workId: data.workId
+    }).then(instance => {
+      setCurrentWorkflow({
+        ...instance,
+        allowTaskRevokeBackNodeId,
+        opinionTemplate: instance.opinionTemplate || {},
+        value: 'taskRevoke',
+        cardData,
+        currentWork
+      });
+      setActionVisible(true);
     });
   };
 
@@ -498,6 +555,19 @@ export default function SheetWorkflow(props) {
     });
   };
 
+  const handleReset = data => {
+    handleRequest('submit', {
+      id: data.id,
+      workId: data.workId,
+    }).then(result => {
+      if (result) {
+        alert(_l('提交成功'));
+        handleCloseDrawer();
+        getList();
+      }
+    });
+  }
+
   const handleEndInstance = data => {
     instanceVersion
       .endInstance({
@@ -544,7 +614,22 @@ export default function SheetWorkflow(props) {
   const renderStepItem = () => {
     const { processId, cardData = {}, processName, works = [], workItem, currentWorkItem, status } = currentWorkflow;
     const { id, workId, flowNode, completed, parentCurrents = [] } = cardData;
-    const currentWork = parentCurrents.length ? _.find(parentCurrents, { workId }) : currentWorkflow.currentWork;
+    const allowTaskRevokeWorks = works.filter((_, index) => index).filter(n => (n.allowTaskRevokeBackNodeId && isCharge));
+    const currentWork = function() {
+      if (allowTaskRevokeBackNodeId) {
+        return _.find(works, { allowTaskRevokeBackNodeId });
+      }
+      if (parentCurrents.length) {
+        return _.find(parentCurrents, { workId });
+      }
+      return currentWorkflow.currentWork;
+    }();
+    const stepsCurrents = function() {
+      if (parentCurrents.length) {
+        return parentCurrents.concat(allowTaskRevokeWorks);
+      }
+      return allowTaskRevokeWorks.length ? allowTaskRevokeWorks.concat(currentWorkflow.currentWork || []) : [];
+    }();
     return (
       <div className="h100 flexColumn">
         <StepHeader
@@ -567,8 +652,17 @@ export default function SheetWorkflow(props) {
             rowId={recordId}
             currentWork={currentWork}
             currentType={_.get(currentWork, 'flowNode.type')}
-            currents={parentCurrents.map(n => n.workId)}
+            currents={stepsCurrents.map(n => n.workId)}
             onChangeCurrentWork={workId => {
+              if (allowTaskRevokeWorks.length) {
+                const work = _.find(works, { workId }) || {};
+                if (work.allowTaskRevokeBackNodeId && work.workId === workId && isCharge) {
+                  setAllowTaskRevokeBackNodeId(work.allowTaskRevokeBackNodeId);
+                } else {
+                  setAllowTaskRevokeBackNodeId(null);
+                }
+                return;
+              }
               const newCardData = _.find(parentCurrents, { workId });
               setCurrentWorkflow({
                 ...currentWorkflow,
@@ -582,27 +676,37 @@ export default function SheetWorkflow(props) {
             status={status}
             appId={appId}
             projectId={projectId}
+            controls={controls}
           />
         </ScrollView>
-        {id && !completed && (
+        {workId && !completed && (
           <div className={cx('workflowStepFooter flexColumn justifyContentCenter', isMobile ? 'pLeft10 pRight10' : '')}>
             <div className="mLeft1 Font13 Gray_75">{_.get(currentWork, 'flowNode.name')}</div>
-            <WorkflowAction
-              className="mBottom2 mTop5"
-              hasMore={true}
-              isCharge={isCharge}
-              isBranch={!!parentCurrents.length}
-              projectId={projectId}
-              data={cardData}
-              onAction={handleQuickAction}
-              onRevoke={handleRevoke}
-              onUrge={handleUrge}
-              onSkip={handleSkip}
-              onEndInstance={handleEndInstance}
-              onUpdateWorkAccounts={handleUpdateWorkAccounts}
-              onViewFlowStep={handleViewFlowStep}
-              onViewExecDialog={handleViewExecDialog}
-            />
+            {allowTaskRevokeBackNodeId ? (
+              <TaskRevokeAction
+                className="mBottom2 mTop5"
+                onClick={handleTaskRevoke}
+              />
+            ) : (
+              <WorkflowAction
+                className="mBottom2 mTop5"
+                hasMore={true}
+                isCharge={isCharge}
+                isBranch={!!parentCurrents.length}
+                projectId={projectId}
+                data={cardData}
+                currentWorkflow={currentWorkflow}
+                onAction={handleQuickAction}
+                onRevoke={handleRevoke}
+                onUrge={handleUrge}
+                onSkip={handleSkip}
+                onReset={handleReset}
+                onEndInstance={handleEndInstance}
+                onUpdateWorkAccounts={handleUpdateWorkAccounts}
+                onViewFlowStep={handleViewFlowStep}
+                onViewExecDialog={handleViewExecDialog}
+              />
+            )}
           </div>
         )}
       </div>
@@ -626,9 +730,11 @@ export default function SheetWorkflow(props) {
                   appId={appId}
                   formWidth={formWidth}
                   data={data}
+                  currentWorkflow={currentWorkflow}
                   onAction={handleQuickAction}
                   onRevoke={handleRevoke}
                   onUrge={handleUrge}
+                  onReset={handleReset}
                   onViewFlowStep={handleViewFlowStep}
                   onViewExecDialog={handleViewExecDialog}
                 />

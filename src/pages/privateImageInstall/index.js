@@ -1,6 +1,5 @@
 import React, { Fragment, Component } from 'react';
-import ReactDOM from 'react-dom';
-import { Icon, Input, Button, Textarea, LoadDiv } from 'ming-ui';
+import { Input, Button, Textarea, LoadDiv } from 'ming-ui';
 import DocumentTitle from 'react-document-title';
 import privateGuide from 'src/api/privateGuide';
 import logo from 'src/pages/emailValidate/logo.png';
@@ -8,7 +7,8 @@ import weixinCode from './images/weixin.png';
 import './index.less';
 import 'src/common/mdcss/Themes/theme.less';
 import { encrypt, getRequest } from 'src/util';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
+import { createRoot } from 'react-dom/client';
 
 class PrivateImageInstall extends Component {
   constructor(props) {
@@ -81,7 +81,7 @@ class PrivateImageInstall extends Component {
     if (_.isEmpty(email)) {
       this.setState({ emailPrompt: _l('请输入邮箱') });
       return;
-    } else if (!RegExp.isEmail(email)) {
+    } else if (!RegExpValidator.isEmail(email)) {
       this.setState({ emailPrompt: _l('请输入正确的邮箱') });
       return;
     } else {
@@ -184,8 +184,8 @@ class PrivateImageInstall extends Component {
       moreQueryParams += '&channel=' + channel;
     }
 
-     // 系统版本
-     if (stepResult.systemVersion) {
+    // 系统版本
+    if (stepResult.systemVersion) {
       moreQueryParams += '&v=' + stepResult.systemVersion;
     }
 
@@ -194,7 +194,9 @@ class PrivateImageInstall extends Component {
       moreQueryParams += '&ltv=' + stepResult.licenseTemplateVersion;
     }
 
-    const url = `<a href="https://www.mingdao.com/register?ReturnUrl=${encodeURIComponent(`/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`)}" target="_blank" class="applyPrivatekey">${_l('立即注册')}</a>`;
+    const url = `<a href="https://www.mingdao.com/register?ReturnUrl=${encodeURIComponent(
+      `/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`,
+    )}" target="_blank" class="applyPrivatekey">${_l('立即注册')}</a>`;
 
     return (
       <div className="body yourprivatekeyBody">
@@ -208,7 +210,9 @@ class PrivateImageInstall extends Component {
           type="ghostgray"
           size="large"
           onClick={() => {
-            window.open(`https://www.mingdao.com/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`);
+            window.open(
+              `https://www.mingdao.com/personal?type=privatekey${moreQueryParams}&serverId=${stepResult.serverId}#apply`,
+            );
           }}
         >
           {_l('申请密钥')}
@@ -356,4 +360,6 @@ class PrivateImageInstall extends Component {
   }
 }
 
-ReactDOM.render(<PrivateImageInstall />, document.getElementById('privateImageInstallWrapper'));
+const root = createRoot(document.getElementById('privateImageInstallWrapper'));
+
+root.render(<PrivateImageInstall />);

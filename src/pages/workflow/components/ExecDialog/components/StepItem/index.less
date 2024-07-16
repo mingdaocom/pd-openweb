@@ -1,6 +1,7 @@
 @activeColor: #2196f3;
 @refuseColor: #f44336;
 @passColor: #4caf50;
+@returnColor: #ffa340;
 
 .workflowStep {
   &.allowSelect {
@@ -80,7 +81,8 @@
         margin-left: 10px;
         font-size: 14px;
         font-weight: bold;
-        &.action-1 {
+        &.action-1,
+        &.action-19 {
           color: @activeColor;
         }
         &.action-5 {
@@ -90,11 +92,14 @@
         &.action-17 {
           color: @passColor;
         }
+        &.action-13 {
+          color: @returnColor;
+        }
       }
 
       .info {
         margin-top: 4px;
-        color: #9e9e9e;
+        color: #757575;
         word-break: break-all;
         padding-right: 12px;
         font-size: 14px;

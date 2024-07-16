@@ -1,274 +1,255 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import RoleController from 'src/api/role';
-import { Dialog, Button } from 'ming-ui';
-import RoleAuthCommon from '../common/common';
-import { navigateTo } from 'src/router/navigateTo';
-
-import UserList from './userList';
-import PermissionsList from './permissionList';
-
-import EditRoleDialog from '../createEditRole';
-import { Input } from 'antd';
+import React, { useState, useRef, useEffect } from 'react';
+import { useSetState } from 'react-use';
+import styled from 'styled-components';
+import cx from 'classnames';
+import { Drawer } from 'antd';
+import { Button, Icon, Input, LoadDiv, Checkbox, ScrollView, Tooltip } from 'ming-ui';
+import RoleUserList from './RoleUserList';
+import PermissionList from '../createEditRole/PermissionList';
+import roleApi from 'src/api/role';
 import { getCurrentProject } from 'src/util';
-import { dialogSelectUser } from 'ming-ui/functions';
-import './style.less';
-import _ from 'lodash';
-const { Search } = Input;
-class RoleDetail extends React.Component {
-  static propTypes = {
-    projectId: PropTypes.string,
-    roleId: PropTypes.string,
-    isApply: PropTypes.bool,
+import { filterMyPermissions } from '../utils';
+
+const DetailDrawer = styled(Drawer)`
+  .ant-drawer-mask {
+    background-color: transparent;
+  }
+  .ant-drawer-header {
+    border: none;
+    padding-bottom: 8px;
+    .ant-drawer-close {
+      display: none;
+    }
+    .nameInput {
+      width: 280px;
+      font-size: 17px;
+      font-weight: bold;
+      border: none;
+      border-radius: 0;
+      border-bottom: 1px solid #eaeaea;
+      border-color: #eaeaea !important;
+      padding: 0;
+    }
+  }
+  .ant-drawer-body {
+    padding: 0px 0px 16px;
+  }
+  .tabList {
+    display: flex;
+    margin: 0 24px;
+    border-bottom: 1px solid #eaeaea;
+    .tabItem {
+      padding: 10px 8px;
+      margin-right: 24px;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      &.isActive {
+        border-color: #2196f3;
+        color: #2196f3;
+        font-weight: bold;
+      }
+    }
+  }
+  .hrPermissionsHeader {
+    padding: 20px 0;
+    border-top: 1px solid #eaeaea;
+    &.noBorder {
+      border: none;
+    }
+  }
+  .Checkbox {
+    span {
+      font-size: 14px !important;
+    }
+  }
+`;
+
+const ROLE_TAB_LIST = [
+  { key: 'member', text: _l('成员') },
+  { key: 'auth', text: _l('权限') },
+];
+
+export default function RoleDetail(props) {
+  const { onClose, projectId, role = {}, onOpenDrawer, onUpdateSuccess, onUpdateRoleName, defaultTab } = props;
+  const [currentTab, setCurrentTab] = useState(defaultTab || 'member');
+  const [roleInfo, setRoleInfo] = useSetState({
+    roleName: role.roleName,
+    allowAddMembers: false,
+    permissions: [],
+    hrPermissions: [],
+  });
+  const [loading, setLoading] = useState(false);
+  const [nameEditing, setNameEditing] = useState(false);
+  const inputRef = useRef();
+  const { isHrVisible, isSuperAdmin } = getCurrentProject(projectId);
+  const isRoleSuperAdmin = role.isSuperAdmin;
+
+  useEffect(() => {
+    role.roleId && currentTab === 'auth' && getPermissions();
+    setRoleInfo({ roleName: role.roleName });
+  }, [role, currentTab]);
+
+  const getPermissions = async () => {
+    setLoading(true);
+    const standardPermission = await roleApi.getRoleStandardPermission({ projectId, roleId: role.roleId });
+    let hrPermission = {};
+
+    isHrVisible && (hrPermission = await roleApi.getRoleHRPermission({ projectId, roleId: role.roleId }));
+    setRoleInfo({
+      allowAddMembers: (standardPermission || {}).allowAddMembers,
+      permissions: filterMyPermissions((standardPermission || {}).permissions),
+      hrPermissions: isHrVisible ? filterMyPermissions((hrPermission || {}).permissions) : [],
+    });
+
+    setLoading(false);
   };
 
-  static defaultProps = {
-    isApply: false,
-  };
-
-  constructor() {
-    super();
-
-    this.state = {
-      tab: '',
-      showEdit: false,
-
-      roleName: '',
-      addAuth: false,
-      userOpAuth: false,
-      editOpAuth: false,
-      deleteOpAuth: false,
-      isSuperAdmin: false,
-      permissionTypes: [],
-      hasMember: undefined,
-      keywords: '',
-    };
-
-    this.getRolePermission = this.getRolePermission.bind(this);
-  }
-
-  componentWillMount() {
-    this.getRolePermission();
-  }
-
-  addMemberHander = e => {
-    const { projectId, roleId } = this.props;
-    e.stopPropagation();
-    dialogSelectUser({
-      sourceId: 0,
-      fromType: 0,
-      fromAdmin: true,
-      SelectUserSettings: {
-        filterAll: true, // 过滤全部
-        filterFriend: true, // 是否过滤好友
-        filterOthers: true,
-        filterOtherProject: true,
-        projectId,
-        inProject: true,
-        callback: users => {
-          const accountIds = _.map(users, user => user.accountId);
-          RoleController.addUserToRole({
-            projectId,
-            roleId,
-            accountIds,
-          }).then(data => {
-            if (data) {
-              alert(_l('操作成功'));
-              if (this.userList && this.userList.getUserList) {
-                this.userList.getUserList();
-              }
+  const title = !nameEditing ? (
+    <div className="flexRow alignItemsCenter">
+      <span className="Font17 bold Block LineHeight36">{roleInfo.roleName}</span>
+      {isSuperAdmin && !isRoleSuperAdmin && (
+        <Icon
+          icon="edit"
+          className="Font16 mLeft5 Gray_9d Hand Hover_21"
+          onClick={() => {
+            setNameEditing(true);
+            setTimeout(() => {
+              inputRef.current && inputRef.current.focus();
+            }, 300);
+          }}
+        />
+      )}
+    </div>
+  ) : (
+    <Input
+      manualRef={inputRef}
+      className="nameInput"
+      value={roleInfo.roleName}
+      maxLength={30}
+      onChange={roleName => setRoleInfo({ roleName })}
+      onBlur={e => {
+        setNameEditing(false);
+        if (!e.target.value.trim()) {
+          setRoleInfo({ roleName: role.roleName });
+        } else {
+          roleApi.editRoleName({ projectId, roleId: role.roleId, roleName: e.target.value.trim() }).then(res => {
+            if (res) {
+              onUpdateRoleName(e.target.value.trim());
             } else {
-              alert(_l('操作失败'), 2);
+              alert(_l('名称修改失败'), 2);
             }
           });
-        },
-      },
-    });
-  };
+        }
+      }}
+    />
+  );
 
-  getRolePermission() {
-    const { projectId, roleId } = this.props;
-
-    return RoleController.getRolePermisson({
-      projectId,
-      roleId,
-    }).then(roleDetail => {
-      RoleAuthCommon.formatRoleAuth(roleDetail);
-      const { roleName, auth, addAuth, isSuperAdmin, permissionTypes } = roleDetail;
-      this.props.setDetailTitle(roleName);
-      this.setState({
-        roleName,
-        addAuth,
-        userOpAuth: auth.add,
-        editOpAuth: auth.edit,
-        deleteOpAuth: auth.delete,
-        isSuperAdmin,
-        permissionTypes,
-      });
-    });
-  }
-
-  render() {
-    const { projectId, roleId, isApply } = this.props;
-    const { hasMember, userOpAuth, editOpAuth, deleteOpAuth, isSuperAdmin, addAuth, permissionTypes, tab, keywords } =
-      this.state;
-    const { isHrVisible } = getCurrentProject(projectId, true);
-
-    return (
-      <div className="roleAuthDetailContainer">
-        <div className="clearfix pBottom20">
-          {isApply ? (
-            <div className="Left">
-              <Button
-                type="ghost"
-                size="small"
-                className="mLeft20"
-                onClick={e => {
-                  RoleController.applyRole({
-                    projectId: projectId,
-                    roleId,
-                  }).then(function (data) {
-                    if (data === 1) {
-                      alert(_l('申请成功'));
-                    } else if (data === -1) {
-                      alert(_l('不允许申请管理员'), 3);
-                    } else if (data === 0) {
-                      alert(_l('申请失败'), 2);
-                    }
-                  });
-                }}
-              >
-                {_l('申请该角色权限')}
-              </Button>
+  return (
+    <DetailDrawer
+      className="roleDetailDrawer"
+      visible={true}
+      mask={false}
+      width={720}
+      title={title}
+      extra={<Icon icon="close" className="Font20 Gray_9e Hand" onClick={onClose} />}
+      onClose={onClose}
+    >
+      <div className="flexColumn h100 overflowHidden">
+        <div className="tabList">
+          {ROLE_TAB_LIST.map((item, index) => (
+            <div
+              key={index}
+              className={cx('tabItem', { isActive: currentTab === item.key })}
+              onClick={() => setCurrentTab(item.key)}
+            >
+              {item.text}
             </div>
-          ) : (
-            <div className="Left">
-              {!md.global.Config.IsLocal && isHrVisible && deleteOpAuth && hasMember === false ? (
-                <Button
-                  type="danger"
-                  size="small"
-                  onClick={() => {
-                    Dialog.confirm({
-                      title: _l('您确定删除该角色？'),
-                      description: '',
-                      onOk: () => {
-                        RoleController.removeRole({
-                          projectId: projectId,
-                          roleId,
-                        }).then(data => {
-                          const { message, deleteSuccess } = data;
-                          if (deleteSuccess) {
-                            alert(_l('操作成功'));
-                          } else {
-                            alert(message || _l('操作失败'), 2);
-                          }
-                          navigateTo('/admin/sysroles/' + projectId);
-                        });
-                      },
-                    });
-                  }}
-                >
-                  {_l('删除')}
-                </Button>
-              ) : null}
-              {!md.global.Config.IsLocal && isHrVisible && editOpAuth ? (
-                <Button
-                  type="ghost"
-                  size="small"
-                  className="mLeft20"
-                  onClick={e => {
-                    e.stopPropagation();
-                    this.setState({ showEdit: true });
-                  }}
-                >
-                  {_l('编辑角色权限')}
-                </Button>
-              ) : null}
-              <Button
-                type="primary"
-                disabled={!userOpAuth}
-                size="small"
-                className="mLeft20"
-                onClick={this.addMemberHander}
-              >
-                {_l('添加成员')}
-              </Button>
-            </div>
-          )}
-          <div className="Right" style={{ width: '192px' }}>
-            <Search allowClear placeholder={_l('搜索')} onSearch={keywords => this.setState({ keywords })} />
-          </div>
+          ))}
         </div>
-        {this.state.showEdit ? (
-          <EditRoleDialog
-            type={EditRoleDialog.TYPES.EDIT}
-            visible
-            roleId={roleId}
+
+        {currentTab === 'member' ? (
+          <RoleUserList
             projectId={projectId}
-            onOk={res => {
-              if (res) {
-                alert(_l('修改成功'));
-                this.setState({
-                  showEdit: false,
-                });
-                // fetch permissions
-                this.getRolePermission();
-              } else {
-                alert(_l('修改失败'), 2);
-              }
-            }}
-            onClose={() => {
-              this.setState({
-                showEdit: false,
-              });
-            }}
-          />
-        ) : null}
-        <div className="tabList clearfix">
-          <span
-            className={classNames('tabItem', { 'menuTab-active': tab === 'users' || tab === '' })}
-            onClick={() => {
-              this.setState({
-                tab: 'users',
-              });
-            }}
-          >
-            {_l('成员列表')}
-          </span>
-          <span
-            className={classNames('tabItem', { 'menuTab-active': tab === 'permissions' })}
-            onClick={() => {
-              this.setState({
-                tab: 'permissions',
-              });
-            }}
-          >
-            {_l('权限详情')}
-          </span>
-          {addAuth && tab === 'permissions' ? (
-            <span className="Right LineHeight30 Gray_9e">{_l('允许角色成员授予他人拥有相同权限（已开启）')}</span>
-          ) : null}
-        </div>
-        {tab !== 'permissions' ? (
-          <UserList
-            userOpAuth={userOpAuth}
-            isSuperAdmin={isSuperAdmin}
-            isApply={isApply}
-            projectId={projectId}
-            roleId={roleId}
-            keywords={keywords}
-            manualDef={el => (this.userList = el)}
-            callback={hasMember => {
-              this.setState({ hasMember });
-            }}
+            roleId={role.roleId}
+            isHrVisible={isHrVisible}
+            allowManageUser={isSuperAdmin || role.allowAssignSamePermission}
+            isRoleSuperAdmin={isRoleSuperAdmin}
+            onUpdateSuccess={onUpdateSuccess}
           />
         ) : (
-          <PermissionsList permissionTypes={permissionTypes} />
+          <React.Fragment>
+            {loading && <LoadDiv className="mTop10" />}
+            {!loading &&
+              (!roleInfo.permissions.length && !roleInfo.hrPermissions.length ? (
+                <div className="flex flexColumn justifyContentCenter TxtCenter">
+                  <div className="Gray_75 mBottom12">{_l('没有任何权限')}</div>
+                  {(isSuperAdmin || role.allowAssignSamePermission) && (
+                    <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={() => onOpenDrawer('editRole')}>
+                      {_l('前往编辑')}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <ScrollView className="flex">
+                  <div className="mLeft24 mRight24">
+                    {isSuperAdmin && !isRoleSuperAdmin && (
+                      <div className="flexRow alignItemsCenter mTop20">
+                        <div className="bold flex Gray_75">{_l('拥有权限')}</div>
+                        <div className="flex" />
+                        <Checkbox
+                          checked={roleInfo.allowAddMembers}
+                          text={_l('允许成员自行加人')}
+                          onClick={() => {
+                            setRoleInfo({ allowAddMembers: !roleInfo.allowAddMembers });
+                            roleApi
+                              .setAllowAssignSamePermission({
+                                projectId,
+                                roleId: role.roleId,
+                                allowAssignSamePermission: !roleInfo.allowAddMembers,
+                              })
+                              .then(res => {
+                                res ? alert(_l('设置成功')) : alert(_l('设置失败'), 2);
+                              });
+                          }}
+                        />
+                        <Tooltip text={_l('勾选后，角色下成员可以添加、移除其他成员')}>
+                          <Icon icon="info_outline" className="Gray_9e Font16 mLeft4 mRight20" />
+                        </Tooltip>
+                        <Button type="ghost" size="small" onClick={() => onOpenDrawer('editRole')}>
+                          {_l('编辑')}
+                        </Button>
+                      </div>
+                    )}
+
+                    {!!roleInfo.permissions.length && (
+                      <div className="mTop20">
+                        <PermissionList projectId={projectId} permissions={roleInfo.permissions} canEdit={false} />
+                      </div>
+                    )}
+
+                    {!!roleInfo.hrPermissions.length && (
+                      <React.Fragment>
+                        <div
+                          className={cx('flexRow alignItemsCenter hrPermissionsHeader', {
+                            noBorder: !roleInfo.permissions.length,
+                          })}
+                        >
+                          <div className="bold Font14 flex">{_l('人事权限')}</div>
+                          {isSuperAdmin && !isRoleSuperAdmin && (
+                            <Button type="ghost" size="small" onClick={() => onOpenDrawer('editHrRole')}>
+                              {_l('编辑')}
+                            </Button>
+                          )}
+                        </div>
+                        <PermissionList permissions={roleInfo.hrPermissions} canEdit={false} />
+                      </React.Fragment>
+                    )}
+                  </div>
+                </ScrollView>
+              ))}
+          </React.Fragment>
         )}
       </div>
-    );
-  }
+    </DetailDrawer>
+  );
 }
-
-export default RoleDetail;

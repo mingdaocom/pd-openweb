@@ -15,7 +15,7 @@ import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
 import { browserIsMobile, getClassNameByExt } from 'src/util';
 import _ from 'lodash';
 import Dialog from 'ming-ui/components/Dialog';
-
+import RegExpValidator from 'src/util/expression';
 var ShareFolder = function (options) {
   var SF = this;
   var DEFAULTS = {
@@ -217,7 +217,7 @@ ShareFolder.prototype = {
             attachmentType: 2,
             isKcFolder: true,
           };
-          var isPicture = File.isPicture('.' + attachment.ext.slice(attachment.ext.indexOf('.') + 1));
+          var isPicture = RegExpValidator.fileIsPicture('.' + attachment.ext.slice(attachment.ext.indexOf('.') + 1));
           params.id = attachment.id;
           params.name = attachment.name;
           params.ext = '.' + attachment.ext;
@@ -342,7 +342,7 @@ ShareFolder.prototype = {
       .map(function (node, index) {
         return fileItemTpl({
           index: index.toString(),
-          isPicture: File.isPicture('.' + node.ext),
+          isPicture: RegExpValidator.fileIsPicture('.' + node.ext),
           className: node.type === 1 ? 'fileIcon-folder' : getClassNameByExt('.' + node.ext),
           node: node,
         });

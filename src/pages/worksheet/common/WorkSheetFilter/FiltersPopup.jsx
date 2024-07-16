@@ -98,7 +98,7 @@ export default function FiltersPopup(props) {
             )[0];
             return $targetTarget;
           }}
-          onClickAwayExceptions={['.ant-cascader-menus', '.ant-tree-select-dropdown', '.selectRoleDialog']}
+          onClickAwayExceptions={['.ant-cascader-menus', '.ant-tree-select-dropdown', '#quickSelectDept', '.selectRoleDialog']}
           onClickAway={() => setPopupVisible(false)}
         >
           <Filters

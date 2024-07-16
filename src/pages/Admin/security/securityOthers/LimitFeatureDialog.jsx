@@ -43,20 +43,26 @@ function LimitFeatureDialog(props) {
   return (
     <DialogWrap visible title={_l('功能限制')} okDisabled={loading} onCancel={onCancel} onOk={onOk}>
       <div className="des">{_l('关闭全员功能，只允许授权的管理员使用')}</div>
-      {limitData.map((item, index) => {
-        return (
-          <div key={index} className="mBottom30 flexRow alignItemsCenter">
-            <Switch
-              size="small"
-              checked={!data[item.value]}
-              onClick={checked => {
-                setData({ [item.value]: checked });
-              }}
-            />
-            <span className="TxtMiddle mLeft12">{item.text}</span>
-          </div>
-        );
-      })}
+      {limitData
+        .filter(
+          v =>
+            !(v.value === 'pluginsOnlyManager' && md.global.SysSettings.hidePlugin) &&
+            !(v.value === 'apiIntgOnlyManager' && md.global.SysSettings.hideIntegration),
+        )
+        .map((item, index) => {
+          return (
+            <div key={index} className="mBottom30 flexRow alignItemsCenter">
+              <Switch
+                size="small"
+                checked={!data[item.value]}
+                onClick={checked => {
+                  setData({ [item.value]: checked });
+                }}
+              />
+              <span className="TxtMiddle mLeft12">{item.text}</span>
+            </div>
+          );
+        })}
     </DialogWrap>
   );
 }

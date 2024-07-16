@@ -7,7 +7,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import _ from 'lodash';
-import { viewTypeConfig, viewTypeGroup, viewTypeCustomList } from '../config';
+import { viewTypeConfig, viewTypeGroup, viewTypeCustomList, baseSetList } from '../config';
 
 const RecordColorSign = styled.div`
   display: inline-block;
@@ -35,7 +35,7 @@ const RecordColorSign = styled.div`
 export default function SideNav(props) {
   const {
     view = {},
-    viewSetting,
+    viewSetting = baseSetList[VIEW_DISPLAY_TYPE[view.viewType]][0],
     columns,
     currentSheetInfo,
     formatColumnsListForControlsWithoutHide,
@@ -133,19 +133,37 @@ export default function SideNav(props) {
       {viewTypeGroup.map((it, i) => {
         let actionList = it.list;
         const isDevCustomView = (_.get(view, 'pluginInfo') || {}).source === 0; //是否可以开发状态的自定义视图
-        if (viewTypeText === 'customize' && isDevCustomView && it.name === 'base') {
-          actionList = viewTypeCustomList;
+
+        if (it.name === 'base') {
+          actionList = baseSetList[viewTypeText];
+          if (viewTypeText === 'customize' && isDevCustomView) {
+            actionList = viewTypeCustomList;
+          }
+          if (viewTypeText === 'structure') {
+            actionList = baseSetList[viewTypeText].filter(o =>
+              _.get(view, 'advancedSetting.hierarchyViewType') === '3'
+                ? o !== 'CardSet'
+                : !['TableSet', 'Show'].includes(o),
+            );
+          }
+          if (viewTypeText === 'detail' && _.get(view, 'childType') === 1) {
+            actionList = baseSetList[viewTypeText].filter(o => o !== 'CardSet');
+          }
         }
 
         return (
-          <div className="viewBtnsLi">
+          <div className="viewBtnsLi" key={`viewTypeGroup_${it.name}`}>
             {actionList.map((o, n) => {
               let item = viewTypeConfig.find(d => d.type === o);
-              //只有表格和画廊、看板视图、日历视图、甘特图、详情视图(多条)有快速筛选
+              //地图、表格和画廊、看板视图、日历视图、甘特图、详情视图(多条)有快速筛选 层级视图关联本表
               let hasFastFilter =
-                ['sheet', 'gallery', 'board', 'calendar', 'gunter', 'resource'].includes(viewTypeText) ||
-                (viewTypeText === 'detail' && view.childType === 2);
-              let hasNavGroup = ['sheet', 'gallery', 'map'].includes(viewTypeText);
+                ['sheet', 'gallery', 'board', 'calendar', 'gunter', 'resource', 'map'].includes(viewTypeText) ||
+                (viewTypeText === 'detail' && view.childType === 2) ||
+                (viewTypeText === 'structure' && view.childType !== 2);
+              //地图 层级本表 画廊  表格 // 看板'board'先不支持 与看板的显示项配置参数重合了
+              let hasNavGroup =
+                ['sheet', 'gallery', 'map'].includes(viewTypeText) ||
+                (viewTypeText === 'structure' && view.childType !== 2);
               if (viewTypeText === 'customize') {
                 //插件视图的快速筛选和筛选列表根据视图配置展示
                 const { pluginInfo = {} } = view;
@@ -157,13 +175,12 @@ export default function SideNav(props) {
                 (!hasFastFilter && ['FastFilter'].includes(item.type)) ||
                 (!hasNavGroup && ['NavGroup'].includes(item.type)) ||
                 (!['sheet', 'gallery'].includes(viewTypeText) && _.includes(['MobileSet'], o)) || //移动端设置=>表 画廊
-                (!['sheet'].includes(viewTypeText) && _.includes(['Show'], o)) || //显示列=> 表 //
                 (item.type === 'RecordColor' && viewTypeText === 'detail' && view.childType === 1)
               ) {
                 return '';
               }
               return (
-                <React.Fragment>
+                <React.Fragment key={`viewBtnsLiItem_${o}_${n}`}>
                   {item.type === 'PluginSettings' && <p className="titileP"> {_l('开发')}</p>}
                   {(_.includes(['MobileSet', 'urlParams'], item.type) ||
                     (hasFastFilter && ['FastFilter'].includes(item.type)) ||
@@ -198,6 +215,8 @@ export default function SideNav(props) {
                         ? getHtml(item.type)
                         : item.type === 'Controls'
                         ? hideLengthStr
+                        : item.type === 'Setting'
+                        ? VIEW_TYPE_ICON.find(o => o.id === VIEW_DISPLAY_TYPE[view.viewType]).txt
                         : item.name}
                     </div>
                   </div>

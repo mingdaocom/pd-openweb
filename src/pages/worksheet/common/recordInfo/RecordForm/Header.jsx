@@ -56,12 +56,14 @@ export default function InfoHeader(props) {
     from,
     isOpenNewAddedRecord,
     customBtnTriggerCb,
+    enableOrderVisible,
+    updateDiscussCount = _.noop,
     // allowExAccountDiscuss = false, //允许外部用户讨论
     // exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     // approved: false, //允许外部用户允许查看审批流转详情
   } = props;
   const { projectId = localStorage.getItem('currentProjectId') } = recordinfo;
-  let { header } = props;
+  let { renderHeader } = props;
   const { isSmall, worksheetId, recordId, notDialog } = recordbase;
   const rowId = useRef(recordId);
   const [discussCount, setDiscussCount] = useState();
@@ -83,7 +85,9 @@ export default function InfoHeader(props) {
   const showFav =
     !window.shareState.shareId && !window.isPublicApp && !md.global.Account.isPortal && !_.isEmpty(project); //&& !_.isEmpty(recordinfo);
   const showSideBar =
-    (!isPublicShare && !md.global.Account.isPortal && (workflowVisible || discussVisible || logVisible)) ||
+    (!isPublicShare &&
+      !md.global.Account.isPortal &&
+      (workflowVisible || discussVisible || logVisible || enableOrderVisible)) ||
     (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible) ||
     (md.global.Account.isPortal && props.approved && workflowVisible) ||
     from === RECORD_INFO_FROM.WORKFLOW;
@@ -106,6 +110,7 @@ export default function InfoHeader(props) {
       })
       .then(data => {
         setDiscussCount(data.data);
+        updateDiscussCount(data.data);
       });
   }
   useEffect(() => {
@@ -125,6 +130,8 @@ export default function InfoHeader(props) {
       emitter.removeListener('RELOAD_RECORD_INFO_DISCUSS', loadDiscussionsCount);
     };
   }, []);
+
+  let header = renderHeader && renderHeader(recordinfo);
 
   if (viewId) {
     header = null;
@@ -152,7 +159,13 @@ export default function InfoHeader(props) {
   // 关闭
   const closeBtn = () => {
     const btn = (
-      <IconBtn className="Hand ThemeHoverColor3 closeBtn" onClick={onCancel}>
+      <IconBtn
+        className="Hand ThemeHoverColor3 closeBtn"
+        onClick={e => {
+          e.stopPropagation();
+          onCancel();
+        }}
+      >
         <i className="icon icon-close" />
       </IconBtn>
     );
@@ -286,7 +299,7 @@ InfoHeader.propTypes = {
   loading: PropTypes.bool,
   iseditting: PropTypes.bool,
   sideVisible: PropTypes.bool,
-  header: PropTypes.element,
+  renderHeader: PropTypes.func,
   recordbase: PropTypes.shape({}),
   recordinfo: PropTypes.shape({}),
   sheetSwitchPermit: PropTypes.arrayOf(PropTypes.shape({})),

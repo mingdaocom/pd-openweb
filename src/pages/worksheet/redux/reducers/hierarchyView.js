@@ -320,6 +320,7 @@ export function hierarchyViewState(state = [], action) {
             ...initState({
               data: [data],
               baseIndex: Math.max(0, currentLength),
+              visible: true,
             }),
           ],
         ],

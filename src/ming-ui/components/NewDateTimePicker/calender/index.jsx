@@ -83,7 +83,6 @@ class Calender extends Component {
    * 生成周数据
    */
   generateWeekList = props => {
-    console.log(moment);
     const WeekDays = [0, 1, 2, 3, 4, 5, 6].map(function (item) {
       return moment().day(item).format('dd');
     });

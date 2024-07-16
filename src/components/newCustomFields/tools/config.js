@@ -149,7 +149,6 @@ export const FORM_ERROR_TYPE_TEXT = {
     if (min && stringSize < +min) return _l('最少输入%0个字', min);
     if (max && stringSize > +max) return _l('最多输入%0个字', max);
   },
-  CUSTOM: ({ advancedSetting }) => JSON.parse(advancedSetting.regex).err,
   DATE_TIME_RANGE: (value, min, max, isTime) => {
     function computerValue(val) {
       const mode = isTime ? 'HH:mm:ss' : 'YYYY-MM-DD HH:mm:ss';
@@ -188,9 +187,6 @@ export const TIME_UNIT = {
   5: 'y',
   6: 's',
 };
-
-//非文本类控件
-export const UN_TEXT_TYPE = [9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 29, 34, 35, 36, 45, 46, 47, 48];
 
 // 系统字段
 export const SYSTEM_ENUM = [

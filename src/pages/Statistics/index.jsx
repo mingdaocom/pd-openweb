@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import ReactDOM, { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Icon, LoadDiv, Button, ScrollView } from 'ming-ui';
@@ -18,7 +18,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
-
+let root;
 const exceptions = [
   '.mui-dialog-container',
   '.GlobalStatisticsPanel',
@@ -42,6 +42,7 @@ const exceptions = [
   '.ant-picker-dropdown',
   '.rc-trigger-popup',
   '#attachemntsPreviewContainer',
+  '#quickSelectDept',
   '.selectRoleDialog',
 ];
 
@@ -101,7 +102,7 @@ export default class Statistics extends Component {
   componentWillUnmount() {
     const el = document.querySelector('.GlobalStatisticsPanel');
     if (!el) return;
-    ReactDOM.unmountComponentAtNode(el);
+    root && root.unmount();
     $(el).remove();
     $(window).off('resize', window.statisticsResize);
   }
@@ -157,16 +158,20 @@ export default class Statistics extends Component {
     const { isFullScreen } = this.props;
     if (isFullScreen) {
       const el = document.querySelector('.GlobalStatisticsPanel');
-      ReactDOM.unmountComponentAtNode(el);
+      root && root.unmount();
       $(el).remove();
       $(window).off('resize', window.statisticsResize);
     } else {
       const div = document.createElement('DIV');
       div.className = 'GlobalStatisticsPanel';
       $('#container').append(div);
-      render(this.renderStatistics(), document.querySelector('.GlobalStatisticsPanel'));
+
+      root = createRoot(document.querySelector('.GlobalStatisticsPanel'));
+      root.render(this.renderStatistics());
+
       window.statisticsResize = _.debounce(() => {
-        render(this.renderStatistics(), document.querySelector('.GlobalStatisticsPanel'));
+        root = createRoot(document.querySelector('.GlobalStatisticsPanel'));
+        root.render(this.renderStatistics());
       }, 200);
       $(window).on('resize', window.statisticsResize);
     }

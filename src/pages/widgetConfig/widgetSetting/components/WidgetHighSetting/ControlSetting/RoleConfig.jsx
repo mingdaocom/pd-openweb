@@ -1,71 +1,82 @@
 /* eslint-disable no-new */
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
+import { Dropdown } from 'ming-ui';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
-import { Checkbox } from 'ming-ui';
 import update from 'immutability-helper';
 import { dialogSelectOrgRole } from 'ming-ui/functions';
-import { Dropdown } from 'antd';
-import { DropdownContent } from '../../../../styled';
 import { SelectOtherField, OtherField } from '../../DynamicDefaultValue/components';
 import { DefaultOptionSetting } from '../../DynamicDefaultValue/inputTypes/OptionInput';
 import { FieldInfo } from '../../DynamicDefaultValue/styled';
-import { isEqual } from 'lodash';
+import { SettingItem } from '../../../../styled';
 import cx from 'classnames';
 
-const USER_RANGE = [
-  { id: 'userOrg', type: 3, value: 'user-role', text: _l('当前用户的组织角色') },
-  { id: 'assignOrg', type: 3, value: '', text: _l('指定组织角色') },
+const ROLE_RANGE = [
+  { value: 0, text: _l('全部') },
+  { value: 1, text: _l('指定组织角色') },
 ];
 
 export default function RoleConfig(props) {
   const { globalSheetInfo, data, onChange } = props;
-  const { enumDefault2 } = data;
-  const userRange = getAdvanceSetting(data, 'userrange') || [];
-  const [overlayVisible, setVisible] = useState(false);
-  const handleClick = (item, e) => {
-    const isExist = obj => userRange.some(user => isEqual(user, obj));
-    setVisible(false);
-    if (item.value) {
-      const obj = { value: item.value, type: item.type };
-      if (isExist(obj)) return;
-      const nextValue = userRange.concat([obj]);
-      onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }));
-    }
-    if (item.id === 'assignOrg') {
-      dialogSelectOrgRole({
-        projectId: globalSheetInfo.projectId,
-        unique: false,
-        onSave: orgArr => {
-          const availArr = orgArr
-            .map(item => ({ value: item.organizeId, name: item.organizeName, type: 3 }))
-            .filter(item => !isExist(item));
-          const nextValue = userRange.concat(availArr);
-          onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }));
-        },
-      });
-    }
+  const { enumDefault2 = 0 } = data;
+  const chooseRange = getAdvanceSetting(data, 'chooserange') || [];
+
+  const handleClick = () => {
+    dialogSelectOrgRole({
+      projectId: globalSheetInfo.projectId,
+      unique: false,
+      onSave: orgArr => {
+        const availArr = orgArr
+          .map(item => ({
+            rcid: '',
+            cid: '',
+            staticValue: JSON.stringify({ organizeId: item.organizeId, organizeName: item.organizeName }),
+            type: 3,
+          }))
+          .filter(item => existIndex(item) === -1);
+        const nextValue = chooseRange.concat(availArr);
+        onChange(handleAdvancedSettingChange(data, { chooserange: JSON.stringify(nextValue) }));
+      },
+    });
   };
 
   const handleFieldClick = selectData => {
-    const availUsers = selectData.map(item => (item.cid ? { ..._.pick(item, ['cid', 'rcid']), type: 4 } : item));
-    onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(availUsers) }));
+    let newValue = [].concat(chooseRange);
+    const availUsers = selectData.map(item => (item.cid ? { ...item, type: 4 } : { ...item, type: 3 }));
+    availUsers.map(item => {
+      if (existIndex(item) === -1) {
+        newValue.push(item);
+      }
+    });
+    newValue = newValue.filter(item => {
+      return item.cid
+        ? _.find(availUsers, a => _.isEqual(_.pick(a, ['rcid', 'cid', 'type']), _.pick(item, ['rcid', 'cid', 'type'])))
+        : true;
+    });
+    onChange(handleAdvancedSettingChange(data, { chooserange: JSON.stringify(newValue) }));
+  };
+
+  const existIndex = item =>
+    chooseRange.findIndex(user => {
+      if (item.cid) {
+        return _.isEqual(_.pick(item, ['rcid', 'cid', 'type']), _.pick(user, ['rcid', 'cid', 'type']));
+      } else {
+        return _.get(safeParse(user.staticValue), 'organizeId') === _.get(safeParse(item.staticValue), 'organizeId');
+      }
+    });
+
+  const handleRemove = item => {
+    const index = existIndex(item);
+    if (index > -1) {
+      const nextValue = update(chooseRange, { $splice: [[index, 1]] });
+      onChange(handleAdvancedSettingChange(data, { chooserange: JSON.stringify(nextValue) }));
+    }
   };
 
   const getUserDisplay = item => {
-    const handleRemove = item => {
-      const index = userRange.findIndex(user => isEqual(item, user));
-      if (index > -1) {
-        const nextValue = update(userRange, { $splice: [[index, 1]] });
-        onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }));
-      }
-    };
-
+    const organizeName = _.get(safeParse(item.staticValue || '{}'), 'organizeName');
     return (
-      <FieldInfo>
-        <div className="departWrap">
-          <i className="icon-group"></i>
-        </div>
-        <div className="name">{item.value === 'user-role' ? _l('当前用户的组织角色') : item.name || item.value}</div>
+      <FieldInfo hideIcon={true}>
+        <div className="name">{organizeName || _l('已删除')}</div>
         <div
           className="remove"
           onClick={e => {
@@ -80,40 +91,46 @@ export default function RoleConfig(props) {
   };
 
   return (
-    <Fragment>
-      <div className="labelWrap">
-        <Checkbox
-          className="checkboxWrap"
-          onClick={checked => {
-            const nextData = checked
-              ? handleAdvancedSettingChange({ ...data, enumDefault2: Number(!checked) }, { userrange: '' })
-              : {
-                  enumDefault2: Number(!checked),
-                };
-            onChange(nextData);
-          }}
-          checked={enumDefault2 === 1}
-          text={_l('允许选择的组织角色')}
-          size="small"
-        />
+    <SettingItem>
+      <div className="settingItemTitle">
+        {_l('选择范围')}
+        {/* <Tooltip placement="bottom" title={_l('设置为成员字段时，取成员所在的所有部门')}>
+            <i className="icon-help Gray_9e Font16 Hand mLeft4"></i>
+          </Tooltip> */}
       </div>
 
-      <DefaultOptionSetting className={cx('mTop8 mBottom8', { Hidden: enumDefault2 !== 1 })}>
-        <div className="content" onClick={e => handleClick(_.last(USER_RANGE), e)}>
+      <Dropdown
+        border
+        className="w100"
+        data={ROLE_RANGE}
+        value={enumDefault2}
+        onChange={value => {
+          const nextData =
+            value !== 1
+              ? handleAdvancedSettingChange({ ...data, enumDefault2: value }, { chooserange: '' })
+              : {
+                  enumDefault2: value,
+                };
+          onChange(nextData);
+        }}
+      />
+
+      <DefaultOptionSetting className={cx('mTop8', { Hidden: enumDefault2 !== 1 })}>
+        <div className="content" onClick={() => handleClick()}>
           <div className="defaultOptionsWrap">
-            {userRange.length > 0 ? (
+            {chooseRange.length > 0 ? (
               <Fragment>
-                {userRange.map(item => {
+                {chooseRange.map(item => {
                   if (item.type === 4) {
                     return (
                       <OtherField
                         {...props}
                         needFilter={true}
-                        dynamicValue={userRange}
+                        dynamicValue={chooseRange}
                         controls={props.allControls || []}
-                        item={{ cid: item.cid, rcid: item.rcid }}
+                        item={item}
                         onDynamicValueChange={nextValue =>
-                          onChange(handleAdvancedSettingChange(data, { userrange: JSON.stringify(nextValue) }))
+                          onChange(handleAdvancedSettingChange(data, { chooserange: JSON.stringify(nextValue) }))
                         }
                       />
                     );
@@ -131,12 +148,11 @@ export default function RoleConfig(props) {
           controls={props.allControls || []}
           needFilter={true}
           dynamicMultiple={true}
-          dynamicValue={userRange}
+          dynamicValue={chooseRange}
           onDynamicValueChange={handleFieldClick}
-          propFiledVisible={true}
           hideSearchAndFun={true}
         />
       </DefaultOptionSetting>
-    </Fragment>
+    </SettingItem>
   );
 }

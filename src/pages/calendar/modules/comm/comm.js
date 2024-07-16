@@ -65,14 +65,17 @@ Comm.inviteCalendar = {
         Comm.confirmOrUnconfirmInviteMe(calendarId, 2, reason, recurTime, '');
       },
     });
-    // 不能参加的理由
-    $('#refuserstd').on('change', 'input:radio', function () {
-      if ($('#radOther')[0].checked) {
-        $('#txtrefuseReason').show();
-      } else {
-        $('#txtrefuseReason').hide();
-      }
-    });
+
+    setTimeout(() => {
+      // 不能参加的理由
+      $('#refuserstd').on('change', 'input:radio', function () {
+        if ($('#radOther')[0].checked) {
+          $('#txtrefuseReason').show();
+        } else {
+          $('#txtrefuseReason').hide();
+        }
+      });
+    }, 200);
   },
 };
 

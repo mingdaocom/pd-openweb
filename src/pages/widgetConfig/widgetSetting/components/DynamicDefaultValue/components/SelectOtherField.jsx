@@ -172,7 +172,8 @@ export default class SelectOtherField extends Component {
     // 有其他字段的控件 ｜ api查询其他字段
     if (
       _.includes(CAN_AS_OTHER_DYNAMIC_FIELD, data.type) ||
-      (_.includes([2, 6], data.type) && DYNAMIC_FROM_MODE.SEARCH_PARAMS === this.props.from && data.isSearch)
+      (_.includes(data.isSearch ? [2, 6] : [15, 16, 26], data.type) &&
+        DYNAMIC_FROM_MODE.SEARCH_PARAMS === this.props.from)
     ) {
       types = (CURRENT_TYPES[data.type] || []).concat(types);
     }
@@ -190,7 +191,13 @@ export default class SelectOtherField extends Component {
     }
     //自定义事件没有查询工作表
     if (this.props.fromCustomEvent) {
-      types = types.filter(item => !_.includes([OTHER_FIELD_TYPE.SEARCH], item.key));
+      types = types.filter(
+        item => !_.includes([OTHER_FIELD_TYPE.SEARCH, OTHER_FIELD_TYPE.DEPT, OTHER_FIELD_TYPE.ROLE], item.key),
+      );
+    }
+    if (this.props.fromRange) {
+      // 成员范围补充当前用户所在部门
+      types.splice(1, 0, _.head(CURRENT_TYPES[27]));
     }
     return types;
   };

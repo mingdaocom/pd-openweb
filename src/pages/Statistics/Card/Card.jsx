@@ -8,13 +8,13 @@ import reportApi from '../api/report';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { Provider } from 'react-redux';
 import { configureStore } from 'src/redux/configureStore';
-import { fillValueMap, chartNav } from '../common';
+import { fillValueMap, chartNav, isOptionControl } from '../common';
 import { reportTypes } from '../Charts/common';
 import { Loading, WithoutData, Abnormal } from '../components/ChartStatus';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import MoreOverlay from './MoreOverlay';
 import charts from '../Charts';
-import { browserIsMobile, getAppFeaturesPath } from 'src/util';
+import { browserIsMobile, getAppFeaturesPath, getTranslateInfo } from 'src/util';
 import { fillUrl } from 'src/router/navigateTo';
 import './Card.less';
 import _ from 'lodash';
@@ -83,19 +83,20 @@ class Card extends Component {
     const {
       needTimingRefresh,
       needRefresh = true,
-      report,
+      report = {},
       filters,
       filtersGroup,
       linkageFiltersGroup,
       pageId,
       sourceType,
     } = props || this.props;
+    const isEmbed = location.href.includes('embed/chart');
     const { isLinkageFilter } = this.state;
     const printFilter =
       location.href.includes('printPivotTable') && JSON.parse(sessionStorage.getItem(`printFilter-${report.id}`));
     this.setState({ loading: true });
     this.abortRequest();
-    const api = sourceType === 3 ? 'getFavoriteData' : refresh ? 'refreshData' : 'getData';
+    const api = sourceType === 3 || isEmbed ? 'getFavoriteData' : refresh ? 'refreshData' : 'getData';
     this.request = reportApi[api]({
       reportId: report.id,
       pageId,
@@ -106,6 +107,7 @@ class Card extends Component {
         : [filters, filtersGroup, isLinkageFilter && linkageFiltersGroup].filter(_ => _),
     });
     this.request.then(result => {
+      result.reportId = report.id;
       this.setState({
         reportData: fillValueMap(result),
         loading: false,
@@ -203,8 +205,16 @@ class Card extends Component {
     );
   }
   renderContent() {
-    const { reportType, map, contrastMap, contrast, data } = this.state.reportData;
-
+    const { xaxes, reportType, map, contrastMap, contrast, data } = this.state.reportData;
+    const isDisplayEmptyData =
+      [
+        reportTypes.BarChart,
+        reportTypes.LineChart,
+        reportTypes.DualAxes,
+        reportTypes.RadarChart,
+        reportTypes.PieChart,
+        reportTypes.BidirectionalBarChart,
+      ].includes(reportType) && isOptionControl(xaxes.controlType);
     if (
       [
         reportTypes.BarChart,
@@ -219,10 +229,13 @@ class Card extends Component {
         reportTypes.TopChart,
       ].includes(reportType)
     ) {
-      return map.length || contrastMap.length ? this.renderChart() : <WithoutData />;
+      return map.length || contrastMap.length || isDisplayEmptyData ? this.renderChart() : <WithoutData />;
     }
-    if ([reportTypes.GaugeChart, reportTypes.ProgressChart, reportTypes.PieChart].includes(reportType)) {
-      return _.isEmpty(map) ? <WithoutData /> : this.renderChart();
+    if ([reportTypes.PieChart].includes(reportType)) {
+      return map.length || isDisplayEmptyData ? this.renderChart() : <WithoutData />;
+    }
+    if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType)) {
+      return this.renderChart();
     }
     if ([reportTypes.NumberChart].includes(reportType)) {
       return this.renderChart();
@@ -273,7 +286,7 @@ class Card extends Component {
       themeColor,
     } = this.props;
     const {
-      report,
+      report = {},
       appId,
       pageId,
       ownerId,
@@ -290,6 +303,7 @@ class Card extends Component {
     } = this.props;
     const permissions = sourceType ? permissionType > 0 : ownerId || isCharge;
     const isSheetView = ![reportTypes.PivotTable].includes(reportData.reportType);
+    const translateInfo = getTranslateInfo(appId, null, report.id);
 
     return (
       <div
@@ -300,16 +314,16 @@ class Card extends Component {
       >
         <div className="header">
           {(sourceType ? false : permissions) && (
-            <span data-tip={_l('拖拽')} className="iconItem dragWrap Gray_9e mRight5">
+            <span data-tip={_l('拖拽')} className="iconItem dragWrap Gray_9e">
               <Icon icon="drag" />
             </span>
           )}
           <div className="flex valignWrapper" style={{ minWidth: 0 }}>
             <div className="pointer ellipsis bold reportName" style={{ maxWidth: '80%' }}>
-              {reportData.name}
+              {translateInfo.name || reportData.name}
             </div>
             {reportData.desc && (
-              <Tooltip title={reportData.desc} placement="bottom">
+              <Tooltip title={translateInfo.description || reportData.desc} placement="bottom">
                 <Icon icon="info" className="Font18 pointer Gray_9e mLeft7 reportDesc" />
               </Tooltip>
             )}

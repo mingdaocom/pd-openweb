@@ -55,7 +55,7 @@ class Tooltip extends Component {
     /**
      * 提示的文字
      */
-    text: PropTypes.element,
+    text: PropTypes.any,
     /**
      * 子节点
      */
@@ -71,7 +71,7 @@ class Tooltip extends Component {
     /**
      * 自定义样式
      */
-    tooltipStyle: PropTypes.string,
+    tooltipStyle: PropTypes.object,
     /**
      * 偏移的值，[x, y]
      */

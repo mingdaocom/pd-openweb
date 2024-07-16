@@ -36,10 +36,14 @@ class PostOperateList extends React.Component {
     handleHide: PropTypes.func,
   };
 
-  state = {
-    index: 0,
-    taskEvent: 0,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      index: 0,
+      taskEvent: 0,
+    };
+    this.componentClickAway = this.componentClickAway.bind(this);
+  }
 
   componentClickAway(e) {
     if (this.props.handleHide) {
@@ -138,12 +142,12 @@ class PostOperateList extends React.Component {
     createCalendar({
       MemberArray: _(postItem.rUserList)
         .filter(a => a)
-        .map(a => ({ accountId: a.aid, avatar: a.avatar, fullname: a.name }))
+        .map(a => ({ accountId: a.aid, avatar: a.userMiddleHead, fullname: a.name }))
         .concat(
           _(postItem.comments)
             .map(c => c.user)
             .filter(a => a)
-            .map(a => ({ accountId: a.accountId, avatar: a.avatar, fullname: a.userName }))
+            .map(a => ({ accountId: a.accountId, avatar: a.userMiddleHead, fullname: a.userName }))
             .value(),
         )
         .concat(
@@ -151,7 +155,7 @@ class PostOperateList extends React.Component {
             .map(c =>
               _(c.rUserList)
                 .filter(a => a)
-                .map(a => ({ accountId: a.aid, avatar: a.avatar, fullname: a.name }))
+                .map(a => ({ accountId: a.aid, avatar: a.userMiddleHead, fullname: a.name }))
                 .value(),
             )
             .flatten()

@@ -26,6 +26,9 @@ import ApiPackage from './ApiPackage';
 import Api from './Api';
 import ApprovalProcess from './ApprovalProcess';
 import Snapshot from './Snapshot';
+import LoopProcess from './LoopProcess';
+import Return from './Return';
+import AIGC from './AIGC';
 
 export default {
   0: Start,
@@ -56,6 +59,9 @@ export default {
   26: ApprovalProcess,
   27: CC,
   28: Snapshot,
+  29: LoopProcess,
+  30: Return,
+  31: AIGC,
   1000: FindSystem,
   1001: FindSystem,
 };

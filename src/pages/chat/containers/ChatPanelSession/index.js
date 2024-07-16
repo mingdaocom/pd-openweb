@@ -340,6 +340,7 @@ class ChatPanelSession extends Component {
     const hideChat = md.global.SysSettings.forbidSuites.includes('6');
     const isContact = this.state.isContact && !hideChat;
     const { id } = session;
+
     return (
       <div>
         <ChatPanelHeader

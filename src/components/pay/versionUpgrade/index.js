@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import preall from 'src/common/preall';
 import { Button, Icon, Tooltip } from 'ming-ui';
 import { Slider } from 'antd';
@@ -555,5 +555,6 @@ export default class VersionUpgrade extends Component {
 }
 
 const WrappedComp = preall(VersionUpgrade, { allowNotLogin: false });
+const root = createRoot(document.querySelector('#app'));
 
-ReactDOM.render(<WrappedComp />, document.querySelector('#app'));
+root.render(<WrappedComp />);

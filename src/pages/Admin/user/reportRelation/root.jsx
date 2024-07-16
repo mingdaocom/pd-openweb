@@ -12,10 +12,6 @@ import cx from 'classnames';
 
 import NodeDialog from './components/NodeDialog';
 class Root extends Component {
-  static defaultProps = {
-    isProjectAdmin: true,
-  };
-
   constructor(props) {
     super(props);
     this.state = {
@@ -65,7 +61,6 @@ class Root extends Component {
   };
 
   render() {
-    const { isProjectAdmin, highLightRootId } = this.props;
     const { auth, authForAll, allowStructureSelfEdit, searchUser, nodeDialogVisible } = this.state;
 
     return (
@@ -88,26 +83,25 @@ class Root extends Component {
                 <i className="icon-info_outline Gray_9e mLeft5" />
               </Tooltip>
             </div>
-            {isProjectAdmin && (
-              <Fragment>
-                <span
-                  data-tip={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中管理下属')}
-                  className="rootBoardHeaderTips"
-                >
-                  <Checkbox checked={allowStructureSelfEdit} onClick={this.changeSubordinate} className="mLeft15">
-                    {_l('允许员工自行管理下属')}
-                  </Checkbox>
-                </span>
-                <span
-                  data-tip={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中查看汇报关系')}
-                  className="rootBoardHeaderTips"
-                >
-                  <Checkbox checked={authForAll} onClick={this.changeReporting} className="mLeft15">
-                    {_l('全员可以查看汇报关系')}
-                  </Checkbox>
-                </span>
-              </Fragment>
-            )}
+
+            <Fragment>
+              <span
+                data-tip={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中管理下属')}
+                className="rootBoardHeaderTips"
+              >
+                <Checkbox checked={allowStructureSelfEdit} onClick={this.changeSubordinate} className="mLeft15">
+                  {_l('允许员工自行管理下属')}
+                </Checkbox>
+              </span>
+              <span
+                data-tip={_l('勾选后允许员工在「个人账户/我的组织/我的汇报关系」中查看汇报关系')}
+                className="rootBoardHeaderTips"
+              >
+                <Checkbox checked={authForAll} onClick={this.changeReporting} className="mLeft15">
+                  {_l('全员可以查看汇报关系')}
+                </Checkbox>
+              </span>
+            </Fragment>
           </div>
         )}
         <div className={cx('mainContent rootBoard box-sizing', { rootBoardBox: auth })}>
@@ -135,7 +129,7 @@ class Root extends Component {
                 this.wrapper = el;
               }}
             >
-              <Node auth={auth} />
+              <Node auth={auth} projectId={Config.projectId} />
             </div>
           </div>
         </div>

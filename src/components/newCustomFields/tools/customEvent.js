@@ -1,67 +1,91 @@
 import React from 'react';
 import sheetAjax from 'src/api/worksheet';
-import { checkValueAvailable, updateDataPermission } from './filterFn';
-import { getDynamicValue } from './DataFormat.js';
+import { checkValueAvailable, replaceStr } from './filterFn';
+import { getDynamicValue, calcDefaultValueFunction } from './DataFormat.js';
 import { getParamsByConfigs } from '../widgets/Search/util.js';
 import { upgradeVersionDialog } from 'src/util';
 import { Dialog } from 'ming-ui';
 import { handleUpdateApi } from '../widgets/Search/util.js';
-import { formatControlToServer } from './utils.js';
+import { formatControlToServer, formatFiltersValue } from './utils.js';
 import { FORM_ERROR_TYPE } from './config.js';
 import {
   FILTER_VALUE_ENUM,
   ACTION_VALUE_ENUM,
   SPLICE_TYPE_ENUM,
+  VOICE_FILE_LIST,
+  ADD_EVENT_ENUM,
 } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import execValueFunction from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/exec';
+import fileAjax from 'src/api/file';
+import _ from 'lodash';
+import { isSheetDisplay } from '../../../pages/widgetConfig/util/index.js';
 
 // 显隐、只读编辑等处理
 const dealDataPermission = props => {
-  const { actionItems = [], actionType, formData = [], checkRuleValidator } = props;
+  const { actionItems = [], actions = [], actionType, formData = [] } = props;
 
-  formData.forEach(item => {
-    // 有锁定
-    if (actionType === ACTION_VALUE_ENUM.READONLY && _.some(actionItems, a => a.isAll)) {
-      item.disabled = true;
-    } else {
+  function setEventPermission(item) {
+    let eventPermissions = item.eventPermissions || '111';
+    switch (actionType) {
+      case ACTION_VALUE_ENUM.READONLY:
+        eventPermissions = replaceStr(eventPermissions, 1, '0');
+        break;
+      case ACTION_VALUE_ENUM.EDIT:
+        eventPermissions = replaceStr(eventPermissions, 1, '1');
+        break;
+      case ACTION_VALUE_ENUM.SHOW:
+        eventPermissions = replaceStr(eventPermissions, 0, '1');
+        break;
+      case ACTION_VALUE_ENUM.HIDE:
+        eventPermissions = replaceStr(eventPermissions, 0, '0');
+        break;
+    }
+    item.eventPermissions = eventPermissions;
+  }
+
+  // 只读所有字段
+  if (actionType === ACTION_VALUE_ENUM.READONLY && _.some(actions, a => a.isAll)) {
+    formData.forEach(item => setEventPermission(item));
+  } else {
+    formData.forEach(item => {
       actionItems.map(i => {
         const { controlId, childControlIds = [] } = i || {};
-        const type = Number(actionType);
         if (controlId === _.get(item, 'controlId')) {
           if (_.isEmpty(childControlIds)) {
-            updateDataPermission({
-              attrs: [type],
-              it: item,
-              checkRuleValidator,
-            });
+            setEventPermission(item);
           } else {
             childControlIds.map(childId => {
               const childControl = _.find(_.get(item, 'relationControls') || [], re => re.controlId === childId);
               if (childControl) {
-                updateDataPermission({
-                  attrs: [type],
-                  it: childControl,
-                  checkRuleValidator,
-                  item,
-                });
+                setEventPermission(childControl);
               }
             });
           }
         }
       });
-    }
-    // item.defaultState = {
-    //   ...row.defaultState,
-    //   ..._.pick(row, ['fieldPermission', 'showControls']),
-    // };
-  });
+    });
+  }
 
   return formData;
 };
 
 // 获取默认值
 const getDynamicData = ({ formData, embedData, masterData }, control) => {
-  return getDynamicValue(formData, control, masterData, embedData);
+  const defaultType = _.get(control, 'advancedSetting.defaulttype');
+  // 函数
+  if (defaultType === '1') {
+    const defaultFunc = _.get(control, 'advancedSetting.defaultfunc');
+    if (_.isEmpty(defaultFunc)) {
+      return isSheetDisplay(control) ? '[]' : '';
+    }
+    return calcDefaultValueFunction({ fnControl: control, formData, forceSyncRun: true });
+  } else {
+    const defSource = _.get(control, 'advancedSetting.defsource');
+    // 没值相当于清空
+    if (_.isEmpty(safeParse(defSource))) {
+      return isSheetDisplay(control) ? '[]' : '';
+    }
+    return getDynamicValue(formData, control, masterData, embedData);
+  }
 };
 
 // 获取查询工作表结果
@@ -91,7 +115,7 @@ const getSearchWorksheetResult = async props => {
     const resultData = await sheetAjax.getFilterRowsByQueryDefault(params);
 
     if (_.get(resultData, 'resultCode') === 1) {
-      const dataCount = (resultData.data || []).length;
+      const dataCount = resultData.count || 0;
       let searchConfigResult = false;
       // 一条
       if (resultType === 1) {
@@ -108,18 +132,24 @@ const getSearchWorksheetResult = async props => {
       return false;
     }
   }
+  return false;
 };
 
 // 创建记录
-const createRecord = props => {
-  const { actionItems = [], advancedSetting = {}, formData = [], projectId } = props;
+const createRecord = async props => {
+  const { actionItems = [], advancedSetting = {}, projectId } = props;
 
   const receiveControls = [];
+
+  const sheetData = await sheetAjax.getWorksheetInfo({ worksheetId: advancedSetting.sheetId, getTemplate: true });
+
+  const controls = _.get(sheetData, 'template.controls') || [];
+
   actionItems.map(item => {
-    const control = _.find(formData, f => f.controlId === item.controlId);
+    const control = _.find(controls, f => f.controlId === item.controlId);
     if (control) {
       const formatControl = formatControlToServer(
-        { ...item, value: getDynamicData(props, { ...control, advancedSetting: { defsource: item.value } }) },
+        { ...control, value: getDynamicData(props, { ...control, advancedSetting: { defsource: item.value } }) },
         { isNewRecord: true },
       );
       receiveControls.push(formatControl);
@@ -134,7 +164,7 @@ const createRecord = props => {
     pushUniqueId: md.global.Config.pushUniqueId,
     receiveControls: receiveControls,
   };
-  sheetAjax.AddWorksheetRow(para).then(res => {
+  sheetAjax.addWorksheetRow(para).then(res => {
     if (res.resultCode === 1) {
       alert(_l('创建成功'));
     }
@@ -143,9 +173,10 @@ const createRecord = props => {
 
 // api查询
 const handleSearchApi = async props => {
-  const { advancedSetting = {}, dataSource, formData, projectId, worksheetId, appId, controlId } = props;
+  const { advancedSetting = {}, dataSource, formData, projectId, worksheetId, appId, controlId, recordId } = props;
   const requestMap = safeParse(advancedSetting.requestmap || '[]');
-  const paramsData = getParamsByConfigs(requestMap, formData);
+  const apiFormData = formData.concat([{ controlId: 'rowid', value: recordId }]);
+  const paramsData = getParamsByConfigs(requestMap, apiFormData);
 
   let params = {
     data: !requestMap.length || _.isEmpty(paramsData) ? '' : paramsData,
@@ -154,6 +185,7 @@ const handleSearchApi = async props => {
     workSheetId: worksheetId,
     apkId: appId,
     apiTemplateId: dataSource,
+    apiEventId: advancedSetting.apiEventId,
   };
 
   if (window.isPublicWorksheet) {
@@ -183,53 +215,50 @@ const handleSearchApi = async props => {
 };
 
 // 判断筛选条件
-const checkFiltersAvailable = props => {
+const checkFiltersAvailable = async props => {
   const { filters = [], recordId, formData } = props;
-  let result = true;
+  let result = [];
 
-  filters.forEach((f, index) => {
+  const currentSpliceType = _.get(filters, [0, 'spliceType']);
+
+  for (const f of filters) {
     const { valueType, filterItems = [], advancedSetting = {}, dataSource } = f;
-
-    const getCheckResult = curResult => {
-      if (!index) {
-        result = curResult;
-        return result;
-      }
-      return f.spliceType === SPLICE_TYPE_ENUM.OR ? result || curResult : result && curResult;
-    };
 
     switch (valueType) {
       // 字段值
       case FILTER_VALUE_ENUM.CONTROL_VALUE:
         const { isAvailable } = checkValueAvailable({ filters: filterItems }, formData, recordId);
-        result = getCheckResult(isAvailable);
-        return;
+        result.push(isAvailable);
+        break;
       // 查询工作表
       case FILTER_VALUE_ENUM.SEARCH_WORKSHEET:
-        const searchConfigResult = getSearchWorksheetResult({ ...props, advancedSetting });
-        result = getCheckResult(searchConfigResult);
-        return;
+        const res = await getSearchWorksheetResult({ ...props, advancedSetting });
+        result.push(res);
+        break;
       // api查询
-      case FILTER_VALUE_ENUM.API:
-        handleSearchApi({ ...props, advancedSetting, dataSource }).then(res => {
-          // apiQueryData转成apiData,为判断提供数据源
-          const apiResult = checkValueAvailable({ filters: filterItems }, formData, recordId);
-          result = getCheckResult(apiResult.isAvailable);
-        });
-        return;
+      // case FILTER_VALUE_ENUM.API:
+      //   // apiRes, 为判断提供数据源;
+      //   const apiRes = await handleSearchApi({ ...props, advancedSetting, dataSource });
+      //   const apiResult = checkValueAvailable({ filters: filterItems }, formData, recordId);
+      //   result.push(apiResult.isAvailable);
+      //   break;
       // 自定义函数
       case FILTER_VALUE_ENUM.CUSTOM_FUN:
-        const funResult = execValueFunction({ ...props, advancedSetting }, formData);
-        result = getCheckResult(funResult);
-        return;
+        const funResult = calcDefaultValueFunction({ fnControl: { ...props, advancedSetting }, formData });
+        result.push(funResult);
+        break;
     }
-  });
+  }
 
-  return result;
+  if (currentSpliceType === SPLICE_TYPE_ENUM.AND) {
+    return _.every(result, r => !!r);
+  }
+
+  return _.some(result, r => !!r);
 };
 
 // 成立则执行一下动作
-const triggerCustomActions = props => {
+const triggerCustomActions = async props => {
   const {
     actions = [],
     formData,
@@ -238,9 +267,10 @@ const triggerCustomActions = props => {
     setRenderData = () => {},
     handleChange = () => {},
     setErrorItems = () => {},
+    triggerType,
   } = props;
 
-  actions.forEach(a => {
+  for (const a of actions) {
     const { actionType, actionItems = [], message = '', advancedSetting = {}, dataSource } = a;
 
     switch (actionType) {
@@ -252,7 +282,7 @@ const triggerCustomActions = props => {
       case ACTION_VALUE_ENUM.READONLY:
         const newRenderData = dealDataPermission({ ...props, actionItems, actionType });
         setRenderData(newRenderData);
-        return;
+        break;
       // 错误提示
       case ACTION_VALUE_ENUM.ERROR:
         const errorInfos = [];
@@ -269,7 +299,7 @@ const triggerCustomActions = props => {
           }
         });
         setErrorItems(errorInfos);
-        return;
+        break;
       // 设置字段值
       case ACTION_VALUE_ENUM.SET_VALUE:
         actionItems.forEach(item => {
@@ -277,40 +307,87 @@ const triggerCustomActions = props => {
           if (control) {
             const value = getDynamicData(props, {
               ...control,
-              advancedSetting: { defsource: item.value },
+              advancedSetting: {
+                // 当前人员需要
+                ..._.omit(control.advancedSetting || {}, ['defaultfunc', 'defsource']),
+                [item.type === '1' ? 'defaultfunc' : 'defsource']: item.value,
+                defaulttype: item.type,
+              },
             });
-            handleChange(value, item.controlId, control, false);
+            // 已有记录关联列表不变更
+            const canNotSet =
+              control.type === 29 && _.includes(['2', '6'], _.get(control, 'advancedSetting.showtype')) && recordId;
+            if (value !== control.value && !props.disabled && !canNotSet) {
+              handleChange(value, item.controlId, control, false);
+            }
           }
         });
-        return;
+        break;
       // 刷新字段值
       case ACTION_VALUE_ENUM.REFRESH_VALUE:
         if (!recordId) return;
-        actionItems.forEach(item => {
+        actionItems.forEach(async item => {
           const control = _.find(formData, f => f.controlId === item.controlId);
           if (control) {
-            sheetAjax.refreshSummary({ worksheetId, rowId: recordId, controlId: item.controlId }).then(res => {
-              handleChange(res, item.controlId, control, false);
+            const refreshResult = await sheetAjax.refreshSummary({
+              worksheetId,
+              rowId: recordId,
+              controlId: item.controlId,
             });
+            handleChange(refreshResult, item.controlId, control, false);
           }
         });
-        return;
+        break;
       // 调用api
       case ACTION_VALUE_ENUM.API:
-        handleSearchApi({ ...props, advancedSetting, dataSource }).then(res => {
-          handleUpdateApi({ ...props, onChange: handleChange }, res, true);
-        });
-        return;
+        const apiRes = await handleSearchApi({ ...props, advancedSetting, dataSource });
+        handleUpdateApi(
+          {
+            ...props,
+            advancedSetting,
+            onChange: (value, cid) => {
+              handleChange(
+                value,
+                cid,
+                _.find(formData, f => f.controlId === cid),
+                false,
+              );
+            },
+          },
+          apiRes,
+          true,
+        );
+        break;
       // 提示消息
       case ACTION_VALUE_ENUM.MESSAGE:
         const messageInfo = getDynamicData(props, {
           type: 2,
           advancedSetting: { defsource: message },
         });
-        alert(messageInfo, Number(advancedSetting.alerttype));
-        return;
+        const splitMessage = String(messageInfo).substr(0, 50);
+        if (splitMessage) {
+          alert(splitMessage, Number(advancedSetting.alerttype));
+        }
+        break;
       // 播放声音
       case ACTION_VALUE_ENUM.VOICE:
+        const { fileKey, voicefiles } = advancedSetting;
+        const voiceFiles = VOICE_FILE_LIST.concat(safeParse(voicefiles, 'array'));
+        const curFile = _.find(voiceFiles, v => v.fileKey === fileKey);
+        if (fileKey && curFile) {
+          let audioSrc = _.get(curFile, 'filePath');
+          // 上传的mp3置换url
+          if (!Number(fileKey)) {
+            audioSrc = await fileAjax.getChatFileUrl({ serverName: curFile.filePath, key: fileKey });
+          }
+          if (!window.customEventAudioPlayer) {
+            const audio = document.createElement('audio');
+            window.customEventAudioPlayer = audio;
+          }
+          window.customEventAudioPlayer.src = audioSrc;
+          window.customEventAudioPlayer.play();
+        }
+        break;
       // 打开链接
       case ACTION_VALUE_ENUM.LINK:
         const linkInfo = getDynamicData(props, {
@@ -341,13 +418,13 @@ const triggerCustomActions = props => {
         } else {
           window.open(linkInfo);
         }
-        return;
+        break;
       // 创建记录
       case ACTION_VALUE_ENUM.CREATE:
         createRecord({ ...props, actionItems, advancedSetting });
-        return;
+        break;
     }
-  });
+  }
 };
 
 /**
@@ -355,16 +432,38 @@ const triggerCustomActions = props => {
  * triggerType: 当前触发执行的事件类型
  */
 export const dealCustomEvent = props => {
-  const { triggerType } = props;
+  const { triggerType, renderData = [] } = props;
   const customEvent = safeParse(_.get(props, 'advancedSetting.custom_event'), 'array');
 
-  customEvent.forEach(item => {
+  // 以下情况不生效
+  if (
+    _.get(window, 'shareState.isPublicRecord') ||
+    _.get(window, 'shareState.isPublicView') ||
+    _.get(window, 'shareState.isPublicPage') ||
+    _.get(window, 'shareState.isPublicQuery') ||
+    _.get(window, 'shareState.isPublicPrint')
+  )
+    return;
+
+  // 避免提交、保存等操作组件卸载事件触发隐藏事件
+  if (
+    triggerType === ADD_EVENT_ENUM.HIDE &&
+    _.get(
+      _.find(renderData, r => r.controlId === props.controlId),
+      'fieldPermission.[0]',
+    ) === '1'
+  ) {
+    return;
+  }
+
+  customEvent.forEach(async item => {
     const { eventType, eventActions = [] } = item;
     if (eventType === triggerType) {
       for (const e of eventActions) {
         const { filters = [], actions = [] } = e;
 
-        if (checkFiltersAvailable({ ...props, filters })) {
+        const filterResult = await checkFiltersAvailable({ ...props, filters });
+        if (_.isEmpty(filters) || filterResult) {
           triggerCustomActions({ ...props, actions });
           return;
         }

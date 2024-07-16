@@ -140,10 +140,13 @@ export default class BuildAppNewRules extends Component {
     };
   }
 
+  componentDidMount() {
+    this.props.status !== 0 && this.geterwima();
+  }
+
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.status, nextProps.status)) {
       this.setState({ step: nextProps.status === 0 ? 2 : 1 });
-      nextProps.status !== 0 && this.geterwima();
     }
   }
 
@@ -151,12 +154,10 @@ export default class BuildAppNewRules extends Component {
   geterwima = () => {
     this.setState({ isLoading: true });
     workWeiXinAjax.getWorkWXAlternativeAppScanCodeUrl({ projectId: this.props.projectId }).then(res => {
-      if (res) {
-        this.setState({
-          url: md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${res}&download=true`,
-          isLoading: false,
-        });
-      }
+      this.setState({
+        url: res ? md.global.Config.AjaxApiUrl + `code/CreateQrCodeImage?url=${res}&download=true` : '',
+        isLoading: false,
+      });
     });
   };
 

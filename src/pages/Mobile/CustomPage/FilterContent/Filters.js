@@ -4,7 +4,9 @@ import { connect } from 'react-redux';
 import * as actions from 'mobile/RecordList/redux/actions';
 import { bindActionCreators } from 'redux';
 import { Icon } from 'ming-ui';
-import FilterInput, { validate, conditionAdapter, formatQuickFilter, NumberTypes, turnControl } from 'mobile/RecordList/QuickFilter/Inputs';
+import FilterInput, { NumberTypes } from 'mobile/RecordList/QuickFilter/Inputs';
+import { conditionAdapter, turnControl, formatQuickFilter, validate } from 'mobile/RecordList/QuickFilter/utils';
+
 import { formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import _ from 'lodash';
@@ -113,7 +115,8 @@ function QuickFilter(props) {
         ...values[key],
         values: formatFilterValuesToServer(_.get(filters[key], 'control.type'), _.get(values[key], 'values')),
       },
-    })).concat(
+    }))
+    .concat(
       filters
         .filter(it => it.dataType === 2)
         .map(v => ({
@@ -177,4 +180,3 @@ function QuickFilter(props) {
 }
 
 export default QuickFilter;
-

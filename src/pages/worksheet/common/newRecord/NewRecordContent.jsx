@@ -27,6 +27,7 @@ import _, { get, isEmpty } from 'lodash';
 import { canEditData } from 'worksheet/redux/actions/util';
 import { emitter, KVGet } from 'worksheet/util';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import { emitter as ViewEmitter } from 'src/util';
 
 const Con = styled.div`
   height: 100%;
@@ -102,6 +103,7 @@ function NewRecordForm(props) {
   const customwidget = useRef();
   const formcon = useRef();
   const [formLoading, setFormLoading] = useState(true);
+  const [isSettingTempData, setIsSettingTempData] = useState(false);
   const [restoreVisible, setRestoreVisible] = useState();
   const [relateRecordData, setRelateRecordData] = useState({});
   const [worksheetInfo, setWorksheetInfo] = useState(_.cloneDeep(props.worksheetInfo || {}));
@@ -323,6 +325,7 @@ function NewRecordForm(props) {
           }
         },
         onSubmitEnd: () => {
+          ViewEmitter.emit('ROWS_UPDATE');
           onSubmitEnd();
           setRequesting(false);
         },
@@ -335,6 +338,7 @@ function NewRecordForm(props) {
   const RecordCon = notDialog ? React.Fragment : ScrollView;
   const recordTitle = title || _l('创建%0', entityName || worksheetInfo.entityName || '');
   const fillTempRecordValue = (tempNewRecord, formData) => {
+    setIsSettingTempData(true);
     const savedData = safeParse(tempNewRecord);
     if (_.isEmpty(savedData)) return;
     const tempRecordCreateTime = savedData.create_at;
@@ -348,6 +352,7 @@ function NewRecordForm(props) {
     setRelateRecordData(parsedData.relateRecordData);
     setRandom(Math.random().toString());
     setRestoreVisible(true);
+    setIsSettingTempData(false);
   };
   const onTempNewRecordCancel = () => {
     setRestoreVisible(false);
@@ -400,7 +405,7 @@ function NewRecordForm(props) {
         updateWorksheetControls,
       }}
     >
-      <Con onClick={e => e.stopPropagation()}>
+      <Con>
         {isMobile ? (
           <MobileRecordRecoverConfirm
             visible={restoreVisible}
@@ -486,7 +491,7 @@ function NewRecordForm(props) {
             <RecordForm
               from={2}
               type="new"
-              loading={formLoading || loading}
+              loading={formLoading || loading || isSettingTempData}
               recordbase={{
                 appId,
                 worksheetId,

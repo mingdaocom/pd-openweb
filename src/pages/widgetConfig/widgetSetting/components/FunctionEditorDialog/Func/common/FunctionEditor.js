@@ -1,5 +1,5 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, { useLayoutEffect } from 'react';
+import { createRoot } from 'react-dom/client';
 import CodeMirror from 'codemirror';
 import useShowHint from '../lib/show-hint';
 import useMatchBrackets from '../lib/matchbrackets';
@@ -7,7 +7,20 @@ import useCloseBrackets from '../lib/closebrackets';
 import setJavascriptMode from '../lib/javascript';
 import { functions } from '../enum';
 import '../lib/show-hint.css';
+import EventEmitter from 'events';
 import _ from 'lodash';
+
+const TagWrapper = ({ onDidMount = () => {}, tag }) => {
+  useLayoutEffect(() => {
+    onDidMount();
+  });
+
+  return tag;
+};
+
+if (!window.emitter) {
+  window.emitter = new EventEmitter();
+}
 
 setJavascriptMode(CodeMirror);
 useCloseBrackets(CodeMirror);
@@ -294,9 +307,8 @@ export default class Function {
       node = document.createElement('span');
       const tag = this.renderTag(id, options);
       if (React.isValidElement(tag)) {
-        ReactDOM.render(tag, node, () => {
-          cb(node);
-        });
+        const root = createRoot(node);
+        root.render(<TagWrapper onDidMount={() => cb(node)} tag={tag} />);
       } else {
         node.appendChild(tag);
         cb(node);

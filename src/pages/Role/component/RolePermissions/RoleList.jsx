@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import { SortableContainer, SortableElement } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement } from '@mdfe/react-sortable-hoc';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import ItemCon from './ItemCon';
 import styled from 'styled-components';

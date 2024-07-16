@@ -5,7 +5,6 @@ import _ from 'lodash';
 import { Icon, Input, LoadDiv, TagTextarea, ScrollView, SvgIcon } from 'ming-ui';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
-import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { pluginConfigType, viewDetailTabList } from '../config';
 import DebugEnv from './DebugEnv';
@@ -19,6 +18,7 @@ import withClickAway from 'ming-ui/decorators/withClickAway';
 import { getPluginOperateText } from '../util';
 import ImportPlugin from './ImportPlugin';
 import moment from 'moment';
+import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 
 const ConfigWrapper = styled.div`
   display: flex;
@@ -188,7 +188,7 @@ const ConfigWrapper = styled.div`
 
 //视图插件详情 侧拉层
 function ViewPluginConfig(props) {
-  const { belongType, configType, pluginId, projectId, onClose, onUpdateSuccess, isAdmin } = props;
+  const { belongType, configType, pluginId, projectId, onClose, onUpdateSuccess, hasManagePluginAuth } = props;
   const [detailData, setDetailData] = useSetState({
     name: '',
     icon: '',
@@ -388,7 +388,7 @@ function ViewPluginConfig(props) {
         )}
       </div>
     );
-    return isAdmin ||
+    return hasManagePluginAuth ||
       md.global.Account.accountId === _.get(detailData, 'creator.accountId') ||
       belongType === 'myPlugin' ? (
       <Trigger
@@ -440,7 +440,7 @@ function ViewPluginConfig(props) {
           )
         : viewDetailTabList[belongType].filter(
             item =>
-              isAdmin ||
+              hasManagePluginAuth ||
               md.global.Account.accountId === _.get(detailData, 'creator.accountId') ||
               item.value === 'publishHistory',
           );
@@ -526,7 +526,9 @@ function ViewPluginConfig(props) {
             currentVersion={detailData.currentVersion}
             onRefreshList={() => fetchList(1)}
             onRefreshDetail={() => fetchDetail()}
-            hasOperateAuth={isAdmin || md.global.Account.accountId === _.get(detailData, 'creator.accountId')}
+            hasOperateAuth={
+              hasManagePluginAuth || md.global.Account.accountId === _.get(detailData, 'creator.accountId')
+            }
             onDelete={id =>
               setDetailList({ publishHistoryList: detailList.publishHistoryList.filter(item => id !== item.id) })
             }
@@ -576,7 +578,7 @@ function ViewPluginConfig(props) {
                 {!editingName ? (
                   <div className="flexRow alignItemsCenter">
                     <span className="Font20 bold Block LineHeight36">{detailData.name || _l('未命名插件')}</span>
-                    {(isAdmin ||
+                    {(hasManagePluginAuth ||
                       md.global.Account.accountId === _.get(detailData, 'creator.accountId') ||
                       belongType === 'myPlugin') && (
                       <Icon
@@ -638,7 +640,7 @@ function ViewPluginConfig(props) {
                   <div className="flex Font24 bold Gray_9e">{_l('未发布版本')}</div>
                 )}
 
-                {(isAdmin ||
+                {(hasManagePluginAuth ||
                   md.global.Account.accountId === _.get(detailData, 'creator.accountId') ||
                   belongType === 'myPlugin') && (
                   <div

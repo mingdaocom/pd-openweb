@@ -7,6 +7,7 @@ import { isFullLineControl, getRowById } from './widgets';
 import { getControlByControlId } from '.';
 import { NO_CONTENT_CONTROL, MAX_CONTROLS_COUNT, NOT_HAVE_WIDTH_CONFIG } from '../config';
 import { SYSTEM_CONTROLS } from 'src/pages/worksheet/constants/enum';
+import moment from 'moment';
 
 export const getAdvanceSetting = (data, key) => {
   const setting = get(data, ['advancedSetting']) || {};
@@ -118,8 +119,11 @@ export const adjustWidthList = (widgets, data) => {
 
 // 是否可以进行宽度调整
 export const canAdjustWidth = (widgets, data = {}) => {
-  const { type, controlId, sourceControl } = data;
+  const { type, controlId, sourceControl, enumDefault } = data;
   if (NOT_HAVE_WIDTH_CONFIG.includes(type)) return false;
+  // 嵌入视图没有宽度设置
+  if (type === 45 && enumDefault === 3) return false;
+
   const { row } = getRowById(widgets, controlId);
   if (!row) return false;
 
@@ -349,7 +353,7 @@ export const getShowFormat = data => {
   const { formatMode, mode } = getDatePickerConfigs(data);
   const { advancedSetting: { showformat = '0' } = {} } = data;
   const showType = _.isNaN(Number(showformat))
-    ? showformat
+    ? showformat.replace(/#EN#$/g, '')
     : _.get(
         _.find(DATE_SHOW_TYPES, i => i.value === showformat),
         'format',
@@ -365,6 +369,20 @@ export const getShowFormat = data => {
     return formatMode;
   }
   return formatMode.replace('YYYY-MM-DD', showType);
+};
+
+// 日期控件自定义格式语言环境处理
+export const getDateToEn = (showformat = '', value, originShowFormat = '') => {
+  const dealFormat = showformat.replace(/#EN#$/g, '');
+  const customLang = showformat.indexOf('EN') > -1;
+  const oldLocale = moment.locale();
+  const isCustom = originShowFormat.indexOf('#EN#') > -1;
+  if (customLang || isCustom) {
+    moment.locale('en');
+  }
+  const result = value ? moment(value).format(dealFormat) : moment().format(dealFormat);
+  moment.locale(oldLocale);
+  return result;
 };
 
 // 计算矩阵选项均分多少份

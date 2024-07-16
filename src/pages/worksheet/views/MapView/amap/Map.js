@@ -96,7 +96,7 @@ class Map extends Component {
     };
     if (typeof window !== 'undefined') {
       this.pluginMap = {};
-      this.loader = new MapLoader().loadJs('https://webapi.amap.com/maps?v=2.0&key=9aedaf173cec6f03d4b9ce7c8a9159c5');
+      this.loader = new MapLoader().loadJs();
     }
   }
 
@@ -370,7 +370,7 @@ class Map extends Component {
   destroyMap() {
     this.map && this.map.destroy && this.map.destroy();
     this.map = null;
-    document.getElementById('mapWrap').remove();
+    document.getElementById('mapWrap') && document.getElementById('mapWrap').remove();
   }
 
   render() {

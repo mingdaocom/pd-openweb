@@ -1,19 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import preall from 'src/common/preall';
 import { Button } from 'ming-ui';
 import mdLogo from './images/mdLogo.png';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import upgradeController from 'src/api/upgrade';
 import { getRequest } from 'src/util';
 import moment from 'moment';
 import './index.less';
 
 const contactInfo = [
-  [
-    { key: 'companyName', text: _l('组织全称') },
-  ],
+  [{ key: 'companyName', text: _l('组织全称') }],
   [
     { key: 'recipientName', text: _l('联系人姓名') },
     { key: 'job', text: _l('职位') },
@@ -92,38 +89,40 @@ class ContractCom extends Component {
         canvas: canvas,
         useCORS: true,
       }).then(canvasData => {
-        let pageData = canvasData.toDataURL('image/jpeg', 1.0);
-        let pdf = new jsPDF('', 'pt', 'a4');
-        let contentWidth = canvasData.width;
-        let contentHeight = canvasData.height;
-        //一页pdf显示html页面生成的canvas高度;
-        let pageHeight = (contentWidth / w) * h;
-        //未生成pdf的html页面高度
-        let leftHeight = contentHeight;
-        //页面偏移
-        let position = 0;
-        //a4纸的尺寸[595.28,841.89]，html页面生成的canvas在pdf中图片的宽高
-        let imgWidth = w;
-        let imgHeight = (w / contentWidth) * contentHeight;
-        //有两个高度需要区分，一个是html页面的实际高度，和生成pdf的页面高度(h)
-        //当内容未超过pdf一页显示的范围，无需分页
-        if (leftHeight < pageHeight) {
-          pdf.addImage(pageData, 'JPEG', 0, 0, imgWidth, imgHeight);
-        } else {
-          while (leftHeight > 0) {
-            pdf.addImage(pageData, 'JPEG', 0, position, imgWidth, imgHeight);
-            leftHeight -= pageHeight;
-            position -= h;
-            //避免添加空白页
-            if (leftHeight > 0) {
-              pdf.addPage();
+        import('jspdf').then(jsPDF => {
+          let pageData = canvasData.toDataURL('image/jpeg', 1.0);
+          let pdf = new jsPDF.default('', 'pt', 'a4');
+          let contentWidth = canvasData.width;
+          let contentHeight = canvasData.height;
+          //一页pdf显示html页面生成的canvas高度;
+          let pageHeight = (contentWidth / w) * h;
+          //未生成pdf的html页面高度
+          let leftHeight = contentHeight;
+          //页面偏移
+          let position = 0;
+          //a4纸的尺寸[595.28,841.89]，html页面生成的canvas在pdf中图片的宽高
+          let imgWidth = w;
+          let imgHeight = (w / contentWidth) * contentHeight;
+          //有两个高度需要区分，一个是html页面的实际高度，和生成pdf的页面高度(h)
+          //当内容未超过pdf一页显示的范围，无需分页
+          if (leftHeight < pageHeight) {
+            pdf.addImage(pageData, 'JPEG', 0, 0, imgWidth, imgHeight);
+          } else {
+            while (leftHeight > 0) {
+              pdf.addImage(pageData, 'JPEG', 0, position, imgWidth, imgHeight);
+              leftHeight -= pageHeight;
+              position -= h;
+              //避免添加空白页
+              if (leftHeight > 0) {
+                pdf.addPage();
+              }
             }
           }
-        }
 
-        pdf.save('salesOrder.pdf');
+          pdf.save('salesOrder.pdf');
 
-        $('.printMt200,.printMt').css({ marginTop: 0 });
+          $('.printMt200,.printMt').css({ marginTop: 0 });
+        });
       });
     } catch (error) {
       $('.printMt200,.printMt').css({ marginTop: 0 });
@@ -399,5 +398,6 @@ class ContractCom extends Component {
 }
 
 const WrappedComp = preall(ContractCom, { allowNotLogin: true });
+const root = createRoot(document.querySelector('#contractWrap'));
 
-ReactDOM.render(<WrappedComp />, document.querySelector('#contractWrap'));
+root.render(<WrappedComp />);

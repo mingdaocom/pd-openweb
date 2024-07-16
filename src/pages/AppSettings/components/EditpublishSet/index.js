@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { Switch } from 'antd';
-import { Textarea, Button, Icon } from 'ming-ui';
+import { Textarea, Button, Icon, Input } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import workWeiXinAjax from 'src/api/workWeiXin';
@@ -9,6 +9,8 @@ import { navigateTo } from 'src/router/navigateTo';
 import { Modal } from 'antd';
 import homeAppAjax from 'src/api/homeApp';
 import AppSettingHeader from '../AppSettingHeader';
+import AppLinkParamsSettings from './AppLinkParamsSettings';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   h3,
@@ -107,8 +109,8 @@ class EditPublishSetDialog extends React.Component {
   }
 
   componentDidMount() {
-    const { fixRemark, fixed } = this.props.data || {};
-    this.setState({ fixed, fixRemark });
+    const { fixRemark, fixed, ssoAddress } = this.props.data || {};
+    this.setState({ fixed, fixRemark, ssoAddress });
   }
 
   getWXProjectSettingInfo() {
@@ -243,11 +245,21 @@ class EditPublishSetDialog extends React.Component {
         }
       });
   };
+  // 编辑sso登录应用首页地址
+  editSSOAddress = ssoAddress => {
+    const { appId, onChangeData = () => {} } = this.props;
+
+    homeAppAjax.editSSOAddress({ appId, ssoAddress: _.trim(ssoAddress) }).then(res => {
+      if (res) {
+        onChangeData({ ssoAddress });
+      }
+    });
+  };
 
   render() {
     const { projectId, appId, data } = this.props;
     const { appDisplay, webMobileDisplay, pcDisplay } = data;
-    const { fixRemark, fixed } = this.state;
+    const { fixRemark, fixed, ssoAddress } = this.state;
 
     return (
       <Wrap>
@@ -296,37 +308,49 @@ class EditPublishSetDialog extends React.Component {
               })}
             </ul>
           </div>
-          {(!md.global.SysSettings.hideWorkWeixin || !md.global.SysSettings.hideDingding) && (
-            <h6 className="Font15 Bold borTopLine">{_l('发布到第三方')}</h6>
-          )}
-          {!md.global.SysSettings.hideWorkWeixin && (
-            <div className="publishAppCourse">
-              {_l('发布到')}
-              <span
-                className="ThemeHoverColor2"
-                onClick={() => {
-                  this.getWXProjectSettingInfo();
-                }}
-              >
-                {_l('企业微信工作台')}
-                <Icon icon="external_collaboration" className="mLeft10 Gray_9e" />
-              </span>
-            </div>
-          )}
-          {!md.global.SysSettings.hideDingding && (
-            <div className="publishAppCourse">
-              {_l('发布到')}
-              <span
-                className="ThemeHoverColor2"
-                onClick={() => {
-                  window.open(`/dingAppCourse/${projectId}/${appId}`);
-                }}
-              >
-                {_l('钉钉工作台')}
-                <Icon icon="external_collaboration" className="mLeft10 Gray_9e" />
-              </span>
-            </div>
-          )}
+          <h6 className="Font15 Bold borTopLine">{_l('发布到第三方')}</h6>
+          <div className="publishAppCourse">
+            {_l('发布到')}
+            <span
+              className="ThemeHoverColor2"
+              onClick={() => {
+                this.getWXProjectSettingInfo();
+              }}
+            >
+              {_l('企业微信工作台')}
+              <Icon icon="external_collaboration" className="mLeft10 Gray_9e" />
+            </span>
+          </div>
+          <div className="publishAppCourse">
+            {_l('发布到')}
+            <span
+              className="ThemeHoverColor2"
+              onClick={() => {
+                window.open(`/dingAppCourse/${projectId}/${appId}`);
+              }}
+            >
+              {_l('钉钉工作台')}
+              <Icon icon="external_collaboration" className="mLeft10 Gray_9e" />
+            </span>
+          </div>
+          <h6 className="Font15 Bold borTopLine">{_l('发布到到其他平台')}</h6>
+          <p className="Gray_75 mTop12 mBottom16">
+            {_l(
+              '将应用链接添加到其他平台，完成SSO开发后可通过其他平台账号免登使用应用。可以通过链接参数隐藏应用内的页面元素。（在私有部署中，可设置账号退出后重新登录的地址）',
+            )}
+          </p>
+          <div className="bold mBottom10">{_l('应用链接')}</div>
+          <AppLinkParamsSettings url={`${md.global.Config.WebUrl}app/${appId}`} defaultHide={['ch', 'ac']} />
+          <div className="bold mBottom10 mTop30">{_l('SSO登录时，应用首页地址')}</div>
+          <div className="Gray_75 mTop8">
+            {_l('设置后，从SSO登录的账号在点击应用上的首页按钮时返回到此地址。未设置时，返回到本平台的工作台。')}
+          </div>
+          <Input
+            className="w100 mTop12"
+            value={ssoAddress}
+            onChange={value => this.setState({ ssoAddress: value })}
+            onBlur={() => this.editSSOAddress(this.state.ssoAddress)}
+          />
           <h6 className="Font15 Bold borTopLine">{_l('应用维护')}</h6>
           <p className="Gray_75 mTop12 mBottom20">
             {_l('应用开启维护状态后，只有管理员和开发者可以访问应用进行更新维护，其他成员无法使用应用')}

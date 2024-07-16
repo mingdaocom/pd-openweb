@@ -89,14 +89,11 @@ class ProjectCard extends Component {
     const listInfo = list.map(item => item[key]);
     return listInfo.join(' ; ');
   }
-  renderStatus({ userStatus, projectStatus, isProjectAdmin, isCreateUser }) {
+  renderStatus({ userStatus }) {
     if (userStatus === common.USER_STATUS.UNAUDITED) {
       return _l('待审核');
     } else {
-      if (projectStatus === common.PROJECT_STATUS_TYPES.FREE) {
-        return null;
-      }
-      return isProjectAdmin ? (isCreateUser ? _l('管理员') + _l('(创建人)') : _l('管理员')) : _l('普通成员');
+      return null;
     }
   }
   renderUserCard() {
@@ -196,18 +193,27 @@ class Enterprise extends Component {
     };
   }
   componentDidMount() {
-    account
-      .getProjectList({
-        pageIndex: 1,
-        pageSize: 500,
-      })
-      .then(result => {
-        this.setState({
-          projectList: result.list,
-          loading: false,
-        });
-      });
+    this.getProjectList();
   }
+
+  getProjectList = async () => {
+    const result = await account.getProjectList({
+      pageIndex: 1,
+      pageSize: 500,
+    });
+
+    const { list = [] } = result;
+
+    const projectList = list.map(item => {
+      return {
+        ...item,
+        companyName: getCurrentProject(item.projectId).companyName || item.companyName,
+      };
+    });
+
+    this.setState({ projectList, loading: false });
+  };
+
   checkCurrentProject = item => {
     safeLocalStorageSetItem('currentProjectId', item.projectId);
     this.setState({ checkedProjectId: item.projectId });

@@ -42,13 +42,20 @@ class View extends Component {
     super(props);
   }
   componentDidMount() {
-    if (this.props.mobileNavGroupFilters.length) {
-      this.props.fetchSheetRows({ navGroupFilters: this.props.mobileNavGroupFilters });
-    } else {
-      this.props.fetchSheetRows();
+    const { view, base } = this.props;
+
+    if (_.includes([0, 6], view.viewType)) {
+      if (this.props.mobileNavGroupFilters.length) {
+        this.props.fetchSheetRows({ navGroupFilters: this.props.mobileNavGroupFilters });
+      } else {
+        this.props.fetchSheetRows();
+      }
     }
     emitter.addListener('MOBILE_RELOAD_SHEETVIVELIST', this.refreshList);
-    workflowPushSoket();
+
+    if (base.type !== 'single') {
+      workflowPushSoket();
+    }
   }
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.mobileNavGroupFilters, nextProps.mobileNavGroupFilters)) {
@@ -80,23 +87,40 @@ class View extends Component {
     }
   };
   renderError() {
-    const { view } = this.props;
     return (
-      <Flex className="withoutRows flex" direction="column" justify="center" align="center">
-        <div className="text" style={{ width: 300, textAlign: 'center' }}>
-          {_l(
-            '抱歉，%0视图暂不支持，您可以通过PC端浏览器，或者移动客户端查看',
-            _.find(VIEW_TYPE_ICON, { id: VIEW_DISPLAY_TYPE[view.viewType] }).text,
-          )}
-        </div>
+      <Flex
+        className="withoutRows flex"
+        direction="column"
+        justify="center"
+        align="center"
+        style={{ backgroundColor: '#f5f5f5' }}
+      >
+        <i className="icon icon-computer" style={{ fontSize: 100 }} />
+        <div className="Font17 mTop12">{_l('移动端暂不支持此视图')}</div>
+        <div className="Font17">{_l('请前往电脑端进行查看')}</div>
       </Flex>
     );
   }
   render() {
-    const { view, viewResultCode, base, isCharge, appNaviStyle, hasDebugRoles, controls, sheetSwitchPermit } =
-      this.props;
+    const {
+      view,
+      viewResultCode,
+      base,
+      isCharge,
+      appNaviStyle,
+      hasDebugRoles,
+      controls,
+      sheetSwitchPermit,
+      worksheetInfo,
+    } = this.props;
+    const { viewType, advancedSetting = {} } = view;
+
+    if (viewType === 2 && advancedSetting.hierarchyViewType === '3') {
+      return this.renderError();
+    }
+
     if (viewResultCode !== 1) {
-      return <State resultCode={viewResultCode} type="view" />;
+      return <State resultCode={viewResultCode} type={worksheetInfo.resultCode !== 1 ? 'sheet' : 'view'} />;
     }
 
     if (_.isEmpty(view)) {

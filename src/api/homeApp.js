@@ -84,6 +84,19 @@ export default {
      return mdyAPI('HomeApp', 'RestoreApp', args, options);
    },
   /**
+  * 编辑应用时区
+  * @param {Object} args 请求参数
+  * @param {string} args.appId
+  * @param {integer} args.timeZone 1 = 跟随设备，其他参考个人设置，一样的code
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editAppTimeZones: function (args, options = {}) {
+     
+     return mdyAPI('HomeApp', 'EditAppTimeZones', args, options);
+   },
+  /**
   * 标星应用或应用项
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
@@ -208,6 +221,19 @@ export default {
    editFix: function (args, options = {}) {
      
      return mdyAPI('HomeApp', 'EditFix', args, options);
+   },
+  /**
+  * 编辑sso登录应用首页地址
+  * @param {Object} args 请求参数
+  * @param {string} args.appId
+  * @param {string} args.ssoAddress
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editSSOAddress: function (args, options = {}) {
+     
+     return mdyAPI('HomeApp', 'EditSSOAddress', args, options);
    },
   /**
   * 获取首页所有应用信息
@@ -657,6 +683,7 @@ export default {
   * 工作台
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织id
+  * @param {boolean} args.noCache 不走缓存
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -664,6 +691,30 @@ export default {
    myPlatform: function (args, options = {}) {
      
      return mdyAPI('HomeApp', 'MyPlatform', args, options);
+   },
+  /**
+  * 获取工作台ids（测试用）
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAppIdsAndItemIdsTest: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return mdyAPI('HomeApp', 'GetAppIdsAndItemIdsTest', args, options);
+   },
+  /**
+  * 工作台多语言
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {boolean} args.noCache 不走缓存
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   myPlatformLang: function (args, options = {}) {
+     
+     return mdyAPI('HomeApp', 'MyPlatformLang', args, options);
    },
   /**
   * 获取应用下应用项
@@ -681,6 +732,7 @@ export default {
   * 获取平台设置
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织id
+  * @param {boolean} args.noCache 不走缓存
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

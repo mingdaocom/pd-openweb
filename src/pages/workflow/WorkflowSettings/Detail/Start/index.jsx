@@ -288,7 +288,7 @@ export default class Start extends Component {
     return (
       <div className="mTop25">
         <div className="Font13 bold">{_l('触发条件')}</div>
-        <div className="Font13 mTop5 Gray_9e">{_l('当记录满足以下条件时进入流程')}</div>
+        <div className="Font13 mTop5 Gray_75">{_l('当记录满足以下条件时进入流程')}</div>
       </div>
     );
   };
@@ -309,7 +309,7 @@ export default class Start extends Component {
           <i className="icon-add Font16" />
           {_l('筛选条件')}
         </span>
-        <div className={cx('mTop10', isNatural ? 'Gray_9e' : 'Gray_bd')}>
+        <div className={cx('mTop10', isNatural ? 'Gray_75' : 'Gray_bd')}>
           {_l('设置筛选条件，仅使满足条件的记录进入流程。')}
         </div>
       </div>

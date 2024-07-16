@@ -1,6 +1,6 @@
 export default {
   /**
-  * 添加
+  * 添加缓存数据
   * @param {Object} args 请求参数
   * @param {string} args.key
   * @param {string} args.value
@@ -14,7 +14,7 @@ export default {
      return mdyAPI('WebCache', 'Add', args, options);
    },
   /**
-  * 单个清理
+  * 清理缓存数据
   * @param {Object} args 请求参数
   * @param {string} args.key
   * @param {Object} options 配置参数
@@ -26,7 +26,7 @@ export default {
      return mdyAPI('WebCache', 'Clear', args, options);
    },
   /**
-  * 批量清理
+  * 批量清理缓存数据
   * @param {Object} args 请求参数
   * @param {array} args.keys
   * @param {Object} options 配置参数
@@ -38,7 +38,7 @@ export default {
      return mdyAPI('WebCache', 'Clears', args, options);
    },
   /**
-  * 获取单体
+  * 获取缓存数据
   * @param {Object} args 请求参数
   * @param {string} args.key
   * @param {Object} options 配置参数
@@ -50,7 +50,7 @@ export default {
      return mdyAPI('WebCache', 'Get', args, options);
    },
   /**
-  * 获取批量
+  * 批量获取缓存数据
   * @param {Object} args 请求参数
   * @param {array} args.keys
   * @param {Object} options 配置参数

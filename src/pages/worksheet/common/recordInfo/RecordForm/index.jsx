@@ -92,6 +92,28 @@ function getTopHeight() {
   }
   return height;
 }
+
+function mergeTabData(tabData = [], eventData = [], dealFrom) {
+  const filterFn = (data = []) => {
+    // 标签页下无可见字段，隐藏标签页
+    return data
+      .filter(tab => {
+        if (tab.type === 52) {
+          const childWidgets = eventData.filter(i => i.sectionId === tab.controlId);
+          return !_.every(childWidgets, c => !(controlState(c, dealFrom).visible && !c.hidden));
+        }
+        return true;
+      })
+      .filter(t => controlState(t, dealFrom).visible && !t.hidden);
+  };
+
+  const tabControls = tabData.map(t => {
+    const cur = _.find(eventData, e => e.controlId === t.controlId);
+    return { ...t, fieldPermission: _.get(cur, 'fieldPermission') };
+  });
+  return filterFn(tabControls);
+}
+
 export default function RecordForm(props) {
   const {
     formWidth,
@@ -125,6 +147,8 @@ export default function RecordForm(props) {
     masterRecordRowId,
     onWidgetChange = () => {},
     widgetStyle = {},
+    renderAbnormal,
+    loadDraftChildTableData = () => {},
   } = props;
   let { formdata = [] } = props;
   formdata.forEach(item => {
@@ -188,14 +212,11 @@ export default function RecordForm(props) {
     )
     .filter(c => !c.hidden);
   const { commonData = [], tabData = [] } = getControlsByTab(getRulesData, widgetStyle, dealFrom);
-  // 标签页下无可见字段，隐藏标签页
-  const tabControls = tabData.filter(tab => {
-    if (tab.type === 52) {
-      const childWidgets = getRulesData.filter(i => i.sectionId === tab.controlId);
-      return !_.every(childWidgets, c => !(controlState(c, dealFrom).visible && !c.hidden));
-    }
-    return true;
-  });
+
+  // 事件导致的显隐，分栏折叠处要控制
+  const [eventData, setEventData] = useState();
+  const tabControls = mergeTabData(tabData, eventData || getRulesData, dealFrom);
+
   const scrollRef = useRef();
   const customwidget = useRef();
   const recordForm = useRef();
@@ -213,12 +234,14 @@ export default function RecordForm(props) {
   const systemControlData = [
     {
       controlId: 'caid',
+      type: 26,
       value: JSON.stringify([
         _.pick(recordId ? recordinfo.createAccount : md.global.Account, ['accountId', 'avatar', 'fullname']),
       ]),
     },
     {
       controlId: 'ownerid',
+      type: 26,
       value: JSON.stringify([
         _.pick(recordId ? recordinfo.ownerAccount : md.global.Account, ['accountId', 'avatar', 'fullname']),
       ]),
@@ -401,6 +424,9 @@ export default function RecordForm(props) {
                       }
                     }}
                     onWidgetChange={onWidgetChange}
+                    handleEventPermission={() => {
+                      setEventData(_.get(customwidget, 'current.state.renderData'));
+                    }}
                     // 关联列表拆进去补充参数
                     tabControlProp={{
                       formdata,
@@ -418,6 +444,7 @@ export default function RecordForm(props) {
                       onRelateRecordsChange,
                       updateWorksheetControls,
                     }}
+                    loadDraftChildTableData={loadDraftChildTableData}
                   />
                 </div>
               </div>
@@ -446,7 +473,12 @@ export default function RecordForm(props) {
           </div>
         )}
         {(abnormal || formdata.length === 0) && (
-          <Abnormal resultCode={recordinfo.resultCode} entityName={recordinfo.entityName} empty={!!formdata.length} />
+          <Abnormal
+            resultCode={recordinfo.resultCode}
+            entityName={recordinfo.entityName}
+            empty={!!formdata.length}
+            renderAbnormal={renderAbnormal && (() => renderAbnormal(recordinfo))}
+          />
         )}
       </div>
     </RecordFormContext.Provider>

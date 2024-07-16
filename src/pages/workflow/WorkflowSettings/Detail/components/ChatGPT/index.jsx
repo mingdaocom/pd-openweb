@@ -89,7 +89,7 @@ const Footer = styled.div`
     justify-content: center;
     background: #fff;
     padding: 0 16px;
-    color: #9e9e9e;
+    color: #757575;
     &:hover {
       border-color: #2196f3;
       color: #2196f3;

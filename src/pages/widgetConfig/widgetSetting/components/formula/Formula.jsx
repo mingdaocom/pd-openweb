@@ -362,7 +362,7 @@ export default class Formula extends React.Component {
                           this.tagtextarea.cmObj.focus();
                           const cursor = this.tagtextarea.cmObj.getCursor();
                           this.tagtextarea.cmObj.replaceRange(`${calItem}`, cursor, undefined, 'insertfn');
-                          this.tagtextarea.cmObj.setCursor({ line: cursor.line, ch: cursor.ch + key.length + 1 });
+                          this.tagtextarea.cmObj.setCursor({ line: cursor.line, ch: cursor.ch + 2 });
                           const newFnmatch = this.tagtextarea.cmObj.getValue();
                           this.setState({ formulaStr: newFnmatch });
                           onChange({ dataSource: this.genFormula(newFnmatch) });
@@ -378,7 +378,7 @@ export default class Formula extends React.Component {
             <div className="formulaBox">
               <TagTextarea
                 autoComma
-                key={calType}
+                key={`${data.controlId}-${calType}`}
                 mode={calType === FORMULA.CUSTOM.type ? 2 : 3}
                 defaultValue={formulaValue}
                 {...(calType === FORMULA.CUSTOM.type ? { height: 108 } : {})}
@@ -423,7 +423,7 @@ export default class Formula extends React.Component {
             className="mTop12"
             size={fromAggregation ? 'default' : 'small'}
             checked={nullzero === '1'}
-            text={_l('参与计算的字段值为空时，视为0')}
+            text={_l('参与计算的字段值为空时，视为 0')}
             onClick={checked => {
               onChange(
                 handleAdvancedSettingChange(data, {

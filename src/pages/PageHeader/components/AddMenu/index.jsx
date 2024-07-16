@@ -7,13 +7,14 @@ import createCalendar from 'src/components/createCalendar/createCalendar';
 import addFriends from 'src/components/addFriends';
 import CreateGroup from 'src/components/group/create/creatGroup';
 
-export default function UserMenu() {
+export default function UserMenu({ onClose = () => {} }) {
   const feedVisible = !md.global.SysSettings.forbidSuites.includes('1');
   const taskVisible = !md.global.SysSettings.forbidSuites.includes('2');
   const calendarVisible = !md.global.SysSettings.forbidSuites.includes('3');
   const knowledgeVisible = !md.global.SysSettings.forbidSuites.includes('4');
+
   return (
-    <div className="commonTopBarMenu Relative Normal">
+    <div className="commonTopBarMenu Relative Normal" onClick={onClose}>
       <ul>
         {feedVisible && (
           <li onClick={() => createFeed()} className="ThemeBGColor3">

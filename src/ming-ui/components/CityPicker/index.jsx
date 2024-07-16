@@ -110,7 +110,7 @@ export default function CityPicker(props) {
   useEffect(() => {
     if (!defaultValue && !isMobile && data.length > 0) {
       setSelect([]);
-      setData(data[0]);
+      setData(_.isArray(data[0]) ? data[0] : [data[0]]);
     }
   }, [defaultValue]);
 
@@ -178,7 +178,9 @@ export default function CityPicker(props) {
           <CascaderSearchSelectWrap>
             {data.map(item => {
               if (!item.path) return;
+
               let diff = diffChars(search, item.path);
+
               return (
                 <li
                   className="valignWrapper"
@@ -204,45 +206,47 @@ export default function CityPicker(props) {
           </CascaderSearchSelectWrap>
         ) : (
           <CascaderSelectWrap className="CascaderSelectWrap flexRow">
-            {data && data.map((list, index) => {
-              if (list.length === 0 || !_.isArray(list)) return null;
-              let levelIndex = index + 1;
+            {data &&
+              data.map((list, index) => {
+                if (list.length === 0 || !_.isArray(list)) return null;
 
-              return (
-                <ul className="CascaderSelectWrap-List">
-                  {list.map(item => {
-                    return (
-                      <li
-                        className={cx('CascaderSelectWrap-List-Item Hand valignWrapper', {
-                          active: select.find(l => l.id === item.id),
-                        })}
-                        key={`CascaderSelectWrap-List-Item-${item.id}`}
-                        onClick={e => {
-                          e.stopPropagation();
-                          handleClick(
-                            {
-                              ...item,
-                              last: level === 2 && particularlyCity.includes(item.id) ? true : item.last,
-                            },
-                            levelIndex,
-                          );
-                        }}
-                      >
-                        <span className="flex ellipsis">{item.name}</span>
-                        {!item.last &&
-                          levelIndex !== level &&
-                          (level === 2 ? !particularlyCity.includes(item.id) : true) &&
-                          (loadingId === item.id ? (
-                            <LoadDiv size="small" />
-                          ) : (
-                            <Icon icon="arrow-right-tip" className="Gray_9e" />
-                          ))}
-                      </li>
-                    );
-                  })}
-                </ul>
-              );
-            })}
+                let levelIndex = index + 1;
+
+                return (
+                  <ul className="CascaderSelectWrap-List">
+                    {list.map(item => {
+                      return (
+                        <li
+                          className={cx('CascaderSelectWrap-List-Item Hand valignWrapper', {
+                            active: select.find(l => l.id === item.id),
+                          })}
+                          key={`CascaderSelectWrap-List-Item-${item.id}`}
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleClick(
+                              {
+                                ...item,
+                                last: level === 2 && particularlyCity.includes(item.id) ? true : item.last,
+                              },
+                              levelIndex,
+                            );
+                          }}
+                        >
+                          <span className="flex ellipsis">{item.name}</span>
+                          {!item.last &&
+                            levelIndex !== level &&
+                            (level === 2 ? !particularlyCity.includes(item.id) : true) &&
+                            (loadingId === item.id ? (
+                              <LoadDiv size="small" />
+                            ) : (
+                              <Icon icon="arrow-right-tip" className="Gray_9e" />
+                            ))}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                );
+              })}
           </CascaderSelectWrap>
         )}
       </div>

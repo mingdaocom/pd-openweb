@@ -62,7 +62,7 @@ export default class GalleryItem extends React.Component {
           }}
           fieldShowCount={fieldShowCount}
           isCharge={isCharge}
-          allowCopy={worksheetInfo.allowAdd}
+          allowCopy={worksheetInfo.allowAdd && data.allowEdit}
           allowRecreate={worksheetInfo.allowAdd}
           sheetSwitchPermit={sheetSwitchPermit}
           editTitle={() => {

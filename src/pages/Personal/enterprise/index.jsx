@@ -7,9 +7,10 @@ import InvitationList from './modules/InvitationList';
 import { validateFunc } from '../components/ValidateInfo';
 import './index.less';
 import ReportRelation from './reportRelation';
-import { getRequest } from 'src/util';
+import { getRequest, getCurrentProject } from 'src/util';
 import registerAjax from 'src/api/register';
 import { upgradeVersionDialog } from 'src/util';
+import _ from 'lodash';
 
 export default class AccountChart extends React.Component {
   constructor(props) {
@@ -39,7 +40,12 @@ export default class AccountChart extends React.Component {
       this.setState({ loading: true });
       Promise.all([this.getList(), this.getUntreatAuthList()]).then(([project, auth]) => {
         this.setState({
-          list: project.list,
+          list: (project.list || []).map(v => {
+            return {
+              ...v,
+              companyName: getCurrentProject(v.projectId).companyName || v.companyName,
+            };
+          }),
           count: project.allCount,
           isEnterprise: project.allCount > 0,
           authCount: auth.count,

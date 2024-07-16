@@ -11,9 +11,10 @@ import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 import { getDynamicValue } from '../../tools/DataFormat';
 import { compareWithTime } from '../../tools/utils';
 import { browserIsMobile, dateConvertToUserZone, dateConvertToServerZone } from 'src/util';
-import { getDatePickerConfigs, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
+import { getDatePickerConfigs, getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import moment from 'moment';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -28,6 +29,7 @@ export default class Widgets extends Component {
     formData: PropTypes.arrayOf(PropTypes.shape({})),
     masterData: PropTypes.object,
     onBlur: PropTypes.func,
+    notConvertZone: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -35,11 +37,16 @@ export default class Widgets extends Component {
   };
 
   state = {
-    isFocus: false,
     originValue: '',
     dateProps: getDatePickerConfigs(this.props),
-    showMobileDatePicker: false,
+    showDatePicker: false,
   };
+
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
 
   componentWillReceiveProps(nextProps) {
     if ((nextProps.advancedSetting || {}).showtype !== (this.props.advancedSetting || {}).showtype) {
@@ -48,15 +55,71 @@ export default class Widgets extends Component {
   }
 
   onChange = value => {
-    const { type } = this.props;
+    const { type, notConvertZone } = this.props;
     const { dateProps = {} } = this.state;
 
     if (value) {
       const date = moment(moment(value).format(dateProps.formatMode));
-      value = type === 15 ? date.format('YYYY-MM-DD') : dateConvertToServerZone(date);
+      value =
+        type === 15
+          ? date.format('YYYY-MM-DD')
+          : notConvertZone
+          ? date.format('YYYY-MM-DD HH:mm:ss')
+          : dateConvertToServerZone(date);
     }
 
     this.props.onChange(value);
+  };
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
+
+  renderIcon = value => {
+    const { disabled, hideIcon, onChange } = this.props;
+    if (!disabled && !hideIcon) {
+      if (browserIsMobile()) {
+        return <Icon icon="arrow-right-border" className="Font16 Gray_bd" />;
+      } else {
+        return (
+          <Fragment>
+            {value && (
+              <Icon
+                icon="cancel"
+                className="Font14 dateClearIcon"
+                onClick={e => {
+                  e.stopPropagation();
+                  onChange('');
+                }}
+              />
+            )}
+            <Icon icon="bellSchedule" className="Font14 Gray_bd bellScheduleIcon" />
+          </Fragment>
+        );
+      }
+    }
+    return null;
+  };
+
+  renderValue = (showformat, value) => {
+    const { disabled, from, type, notConvertZone, advancedSetting, hideIcon } = this.props;
+    const dateTime = type === 15 || notConvertZone ? value : dateConvertToUserZone(value);
+
+    return (
+      <div
+        className={cx('customFormControlBox flexRow flexCenter', { controlDisabled: disabled, dateTimeIcon: value })}
+        onClick={() => {
+          !disabled && this.setState({ showDatePicker: true });
+        }}
+      >
+        <span className={cx('flex ellipsis', { Gray_bd: !value })}>
+          {value ? getDateToEn(showformat, dateTime, advancedSetting.showformat) : _l('请选择日期')}
+        </span>
+        {this.renderIcon(value)}
+      </div>
+    );
   };
 
   render() {
@@ -72,8 +135,10 @@ export default class Widgets extends Component {
       formData,
       masterData,
       onBlur,
+      notConvertZone,
+      hideIcon = false,
     } = this.props;
-    const { originValue, dateProps = {}, isFocus } = this.state;
+    const { originValue, dateProps = {}, showDatePicker } = this.state;
     let { value } = this.props;
     if (/^\d+$/.test(String(value)) && String(value).length < 5) {
       value = '';
@@ -83,9 +148,9 @@ export default class Widgets extends Component {
     const allowtime = advancedSetting.allowtime || '00:00-24:00';
     const timeInterval = parseInt(advancedSetting.timeinterval || '1');
     const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
-    const isLocalFormat = _.includes(['zh-Hans', 'zh-Hant'], lang) && isFocus;
-    const focusFormat = isLocalFormat ? _.get(getDatePickerConfigs(this.props), 'formatMode') : showformat;
-    let showTime;
+
+    const dateTime = value ? (type === 15 || notConvertZone ? value : dateConvertToUserZone(value)) : '';
+
     let minDate;
     let maxDate;
 
@@ -116,31 +181,15 @@ export default class Widgets extends Component {
         dateProps.mode === 'year' || dateProps.mode === 'month' || dateProps.mode === 'date'
           ? dateProps.mode
           : mobileMode;
-      let dateTime = type === 15 ? value : dateConvertToUserZone(value);
 
       return (
         <Fragment>
-          <div
-            className={cx('customFormControlBox customFormButton flexRow', { controlDisabled: disabled })}
-            onClick={() => {
-              !disabled && this.setState({ showMobileDatePicker: true });
-            }}
-          >
-            <span className={cx('flex mRight20 ellipsis', { Gray_bd: !value })}>
-              {value ? moment(type === 15 ? value : dateConvertToUserZone(value)).format(showformat) : _l('请选择日期')}
-            </span>
-            {!disabled && (
-              <Icon
-                icon={_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) ? 'arrow-right-border' : 'bellSchedule'}
-                className="Font16 Gray_bd"
-              />
-            )}
-          </div>
-          {this.state.showMobileDatePicker && (
+          {this.renderValue(showformat, value)}
+          {showDatePicker && (
             <MobileDatePicker
               minuteStep={timeInterval}
               customHeader={controlName}
-              isOpen={this.state.showMobileDatePicker}
+              isOpen={showDatePicker}
               precision={precision}
               value={dateTime}
               min={minDate ? new Date(moment(minDate)) : new Date(1900, 1, 1, 0, 0, 0)}
@@ -148,10 +197,10 @@ export default class Widgets extends Component {
               disabled={disabled}
               onSelect={date => {
                 this.onChange(date);
-                this.setState({ showMobileDatePicker: false });
+                this.setState({ showDatePicker: false });
               }}
               onCancel={() => {
-                this.setState({ showMobileDatePicker: false });
+                this.setState({ showDatePicker: false });
                 this.onChange(null);
               }}
             ></MobileDatePicker>
@@ -160,6 +209,11 @@ export default class Widgets extends Component {
       );
     }
 
+    // 特殊处理，中文环境下聚焦始终以控件基础格式显示
+    const isLocalFormat = _.includes(['zh-Hans', 'zh-Hant'], lang) && showDatePicker;
+    const focusFormat = isLocalFormat ? _.get(getDatePickerConfigs(this.props), 'formatMode') : showformat;
+
+    let showTime;
     const timeArr = allowtime.split('-');
     if (type === 16 && this.props.showTime !== false) {
       showTime = {
@@ -168,123 +222,133 @@ export default class Widgets extends Component {
       };
     }
 
+    const isOpen = showDatePicker || compProps.showDatePicker;
+
     return (
-      <PCDatePicker
-        className={cx('w100 customAntPicker customFormControlBox', { controlDisabled: disabled })}
-        locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
-        disabled={disabled}
-        value={value ? moment(type === 15 ? value : dateConvertToUserZone(value)) : ''}
-        picker={dateProps.mode === 'datetime' ? 'date' : dateProps.mode}
-        showTime={showTime || false}
-        format={focusFormat}
-        placeholder={this.state.isFocus ? showformat : _l('请选择日期')}
-        suffixIcon={
-          !disabled ? (
-            <Icon
-              icon={_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) ? 'arrow-right-border' : 'bellSchedule'}
-              className="Font14 Gray_bd"
-            />
-          ) : null
-        }
-        hideDisabledOptions
-        minuteStep={timeInterval}
-        disabledDate={currentDate => {
-          if (currentDate) {
-            const day = currentDate.day();
-            let isBetween = true;
-
-            if (minDate && isBetween) {
-              isBetween = currentDate.isSameOrAfter(moment(minDate), 'day');
+      <Fragment>
+        {!isOpen ? (
+          this.renderValue(showformat, value)
+        ) : (
+          <PCDatePicker
+            className={cx('w100 customAntPicker customFormControlBox', { controlDisabled: disabled })}
+            locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
+            disabled={disabled}
+            value={value ? moment(dateTime) : ''}
+            picker={dateProps.mode === 'datetime' ? 'date' : dateProps.mode}
+            showTime={showTime || false}
+            format={focusFormat}
+            open={true}
+            placeholder={showformat}
+            autoFocus
+            suffixIcon={
+              !disabled && !hideIcon ? (
+                <Icon
+                  icon={_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) ? 'arrow-right-border' : 'bellSchedule'}
+                  className="Font14 Gray_bd"
+                />
+              ) : null
             }
+            hideDisabledOptions
+            minuteStep={timeInterval}
+            disabledDate={currentDate => {
+              if (currentDate) {
+                const day = currentDate.day();
+                let isBetween = true;
 
-            if (maxDate && isBetween) {
-              isBetween = currentDate.isSameOrBefore(moment(maxDate), 'day');
-            }
-
-            return allowweek.indexOf(day === 0 ? '7' : day) === -1 || !isBetween;
-          }
-        }}
-        disabledTime={current => {
-          return {
-            disabledHours: () => {
-              const start = parseInt(allowtime.split('-')[0]);
-              const end = allowtime.split('-')[1];
-              const result = [];
-
-              for (let i = 0; i < 24; i++) {
-                if (i < start || compareWithTime(`${i}:00`, end, 'isAfter')) {
-                  result.push(i);
+                if (minDate && isBetween) {
+                  isBetween = currentDate.isSameOrAfter(moment(minDate), 'day');
                 }
-              }
 
-              if (current && minDate && moment(current).isSame(moment(minDate), 'day')) {
-                for (let i = 0; i < 24; i++) {
-                  if (minDate.split(' ')[1] && i < moment(minDate).hour()) {
-                    result.push(i);
+                if (maxDate && isBetween) {
+                  isBetween = currentDate.isSameOrBefore(moment(maxDate), 'day');
+                }
+
+                return allowweek.indexOf(day === 0 ? '7' : day) === -1 || !isBetween;
+              }
+            }}
+            disabledTime={current => {
+              return {
+                disabledHours: () => {
+                  const start = parseInt(allowtime.split('-')[0]);
+                  const end = allowtime.split('-')[1];
+                  const result = [];
+
+                  for (let i = 0; i < 24; i++) {
+                    if (i < start || compareWithTime(`${i}:00`, end, 'isAfter')) {
+                      result.push(i);
+                    }
                   }
-                }
-              }
 
-              if (current && maxDate && moment(current).isSame(moment(maxDate), 'day')) {
-                for (let i = 0; i < 24; i++) {
-                  if (maxDate.split(' ')[1] && i > moment(maxDate).hour()) {
-                    result.push(i);
+                  if (current && minDate && moment(current).isSame(moment(minDate), 'day')) {
+                    for (let i = 0; i < 24; i++) {
+                      if (minDate.split(' ')[1] && i < moment(minDate).hour()) {
+                        result.push(i);
+                      }
+                    }
                   }
-                }
-              }
 
-              return result;
-            },
-            disabledMinutes: selectHours => {
-              let start = allowtime.split('-')[0];
-              const end = allowtime.split('-')[1];
-              const result = [];
-
-              for (let i = 0; i < 60; i++) {
-                if (
-                  compareWithTime(`${selectHours}:${i}`, start, 'isBefore') ||
-                  compareWithTime(`${selectHours}:${i}`, end, 'isAfter')
-                ) {
-                  result.push(i);
-                }
-              }
-
-              if (current && minDate && moment(current).isSame(moment(minDate), 'day')) {
-                for (let i = 0; i < 60; i++) {
-                  if (moment(current).hour() === moment(maxDate).hour() && i < moment(minDate).minute()) {
-                    result.push(i);
+                  if (current && maxDate && moment(current).isSame(moment(maxDate), 'day')) {
+                    for (let i = 0; i < 24; i++) {
+                      if (maxDate.split(' ')[1] && i > moment(maxDate).hour()) {
+                        result.push(i);
+                      }
+                    }
                   }
-                }
-              }
 
-              if (current && maxDate && moment(current).isSame(moment(maxDate), 'day')) {
-                for (let i = 0; i < 60; i++) {
-                  if (moment(current).hour() === moment(maxDate).hour() && i > moment(maxDate).minute()) {
-                    result.push(i);
+                  return result;
+                },
+                disabledMinutes: selectHours => {
+                  let start = allowtime.split('-')[0];
+                  const end = allowtime.split('-')[1];
+                  const result = [];
+
+                  for (let i = 0; i < 60; i++) {
+                    if (
+                      compareWithTime(`${selectHours}:${i}`, start, 'isBefore') ||
+                      compareWithTime(`${selectHours}:${i}`, end, 'isAfter')
+                    ) {
+                      result.push(i);
+                    }
                   }
-                }
-              }
 
-              return result;
-            },
-          };
-        }}
-        dropdownClassName={`customAntPicker_${controlId} ${dropdownClassName || ''}`}
-        onOpenChange={open => {
-          if (open && parseInt(timeArr[0]) === 0 && parseInt(timeArr[1]) === 24) {
-            setTimeout(() => {
-              $(`.customAntPicker_${controlId}`).find('.ant-picker-time-panel-column:first').scrollTop(220);
-            }, 200);
-          }
-        }}
-        onFocus={e => this.setState({ isFocus: true, originValue: e.target.value.trim() })}
-        onBlur={() => {
-          this.setState({ isFocus: false });
-          onBlur(originValue);
-        }}
-        onChange={this.onChange}
-        {...compProps}
-      />
+                  if (current && minDate && moment(current).isSame(moment(minDate), 'day')) {
+                    for (let i = 0; i < 60; i++) {
+                      if (moment(current).hour() === moment(maxDate).hour() && i < moment(minDate).minute()) {
+                        result.push(i);
+                      }
+                    }
+                  }
+
+                  if (current && maxDate && moment(current).isSame(moment(maxDate), 'day')) {
+                    for (let i = 0; i < 60; i++) {
+                      if (moment(current).hour() === moment(maxDate).hour() && i > moment(maxDate).minute()) {
+                        result.push(i);
+                      }
+                    }
+                  }
+
+                  return result;
+                },
+              };
+            }}
+            dropdownClassName={`customAntPicker_${controlId} ${dropdownClassName || ''}`}
+            onOpenChange={open => {
+              if (open && parseInt(timeArr[0]) === 0 && parseInt(timeArr[1]) === 24) {
+                setTimeout(() => {
+                  $(`.customAntPicker_${controlId}`).find('.ant-picker-time-panel-column:first').scrollTop(220);
+                }, 200);
+              }
+              this.setState({ showDatePicker: open });
+            }}
+            onFocus={e => this.setState({ originValue: e.target.value.trim() })}
+            onBlur={() => {
+              onBlur(originValue);
+            }}
+            onChange={this.onChange}
+            {...compProps}
+          />
+        )}
+      </Fragment>
     );
   }
 }

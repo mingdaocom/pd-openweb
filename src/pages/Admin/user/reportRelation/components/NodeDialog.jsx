@@ -102,7 +102,7 @@ function NodeDialogWrap(props) {
     }).then(res => {
       setLoading(false);
       setFids(res.map(l => l.accountId));
-      if(res.length === 0) {
+      if (res.length === 0) {
         setData([]);
         return;
       }
@@ -235,7 +235,7 @@ function NodeDialogWrap(props) {
       {data.length === 0 ? (
         renderEmpty()
       ) : (
-        <NodeWrap className='rootBoardBox'>
+        <NodeWrap className="rootBoardBox">
           {data[''] && (
             <ConnectedNode
               {...data['']}
@@ -244,6 +244,7 @@ function NodeDialogWrap(props) {
               pageIndex={1}
               level={0}
               key={'searchNode' + data[''].id}
+              projectId={Config.projectId}
               onChangeData={props => onChangeData(props)}
             />
           )}

@@ -3,7 +3,7 @@ import { NODE_VIEW_TYPE } from '../../../constant/enum';
 import { isOffice } from '../../../utils';
 import { PREVIEW_TYPE } from './enum';
 import { downloadFile } from 'src/util';
-
+import RegExpValidator from 'src/util/expression';
 function canEditFileName(attachment, options) {
   const { hideFunctions } = options;
   return (
@@ -141,7 +141,7 @@ export function getDownloadUrl(attachment, extra) {
     const downloadParams = extra ? extra.downloadParams : undefined;
     if (attachment.previewAttachmentType === PREVIEW_TYPE.PICTURE) {
       const { viewUrl, sourceNode } = attachment;
-      const fileName = File.isPicture(sourceNode.originalFilename)
+      const fileName = RegExpValidator.fileIsPicture(sourceNode.originalFilename)
         ? sourceNode.originalFilename
         : sourceNode.originalFilename + sourceNode.ext;
       const url = urlAddParams(viewUrl, { attname: encodeURIComponent(fileName) });

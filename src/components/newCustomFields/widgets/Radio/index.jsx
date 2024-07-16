@@ -8,6 +8,7 @@ import OtherInput from '../Checkbox/OtherInput';
 import { getCheckAndOther } from '../../tools/utils';
 import _ from 'lodash';
 import autoSize from 'ming-ui/decorators/autoSize';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 class Widgets extends Component {
   static propTypes = {
@@ -18,6 +19,12 @@ class Widgets extends Component {
     enumDefault2: PropTypes.number,
     onChange: PropTypes.func,
   };
+
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
 
   getItemWidth = displayOptions => {
     const { width = '200', direction = '2' } = this.props.advancedSetting || {};
@@ -60,6 +67,12 @@ class Widgets extends Component {
 
     this.props.onChange(JSON.stringify(key ? [key] : []));
   };
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   render() {
     const { disabled, advancedSetting, className, vertical, options, value } = this.props;

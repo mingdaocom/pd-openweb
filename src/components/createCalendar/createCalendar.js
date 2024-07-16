@@ -1,6 +1,6 @@
 import UploadFiles from 'src/components/UploadFiles';
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './css/createCalendar.less';
 import { quickSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/calendar';
@@ -10,13 +10,14 @@ import { htmlEncodeReg, htmlDecodeReg } from 'src/util';
 import doT from 'dot';
 import taskHtml from './tpl/createCalendar.html';
 import 'src/components/mdDatePicker/mdDatePicker';
-import '@mdfe/timepicker';
 import 'src/components/autoTextarea/autoTextarea';
 import '@mdfe/jquery-plupload';
 import createShare from 'src/components/createShare/createShare';
 import moment from 'moment';
 import _ from 'lodash';
-import { Dialog, Dropdown, Tooltip, UserCard } from 'ming-ui';
+import { Dialog, Dropdown, Tooltip, UserCard, DatePicker } from 'ming-ui';
+
+const RangePicker = DatePicker.RangePicker;
 
 var CreateCalendar = function (opts) {
   var _this = this;
@@ -98,15 +99,11 @@ $.extend(CreateCalendar.prototype, {
       noFooter: true,
       onOk: () => {
         _this.send();
-        $('#txtBeginDate, #txtEndDate, #txtOverDate').mdDatePicker('destroy');
       },
-      onCancel: () => {
-        $('#txtBeginDate, #txtEndDate, #txtOverDate').mdDatePicker('destroy');
-      },
+      onCancel: () => {},
       handleClose: () => {
-        // mdDatePicker 移除
-        $('#txtBeginDate, #txtEndDate, #txtOverDate').mdDatePicker('destroy');
         $('.createCalendar_container').parent().remove();
+        $('.PositionContainer-wrapper').remove();
       },
       children: (
         <div
@@ -115,8 +112,11 @@ $.extend(CreateCalendar.prototype, {
         ></div>
       ),
     });
-    _this.eventInit();
-    $('#txtCalendarName').focus();
+
+    setTimeout(() => {
+      _this.eventInit();
+      $('#txtCalendarName').focus();
+    }, 200);
   },
 
   // 事件初始化
@@ -129,6 +129,31 @@ $.extend(CreateCalendar.prototype, {
 
     // 时间事件
     _this.initDateEvent();
+
+    /**
+     * 点击时区,出现时区选择框
+     */
+    $('.timezone').click(function () {
+      if ($('.timezoneWrap').length) {
+        $('.timezoneWrap').show();
+      } else {
+        const root = createRoot(document.getElementById('selectTimezone'));
+        root.render(<SelectTimezone data={timezone} selectTimezone={timezone => (settings.timezone = timezone)} />);
+      }
+      $(this).hide();
+    });
+
+    $('#allDay').click(function () {
+      const checked = $(this).prop('checked');
+      if (checked) {
+        $('.timezone').hide();
+        $('.timezoneWrap').hide();
+      } else {
+        $('.timezone').show();
+      }
+
+      _this.initDateEvent();
+    });
 
     // 初始化成员事件
     _this.initMemberEvent();
@@ -269,179 +294,27 @@ $.extend(CreateCalendar.prototype, {
   // 初始化日期事件
   initDateEvent: function () {
     var settings = this.settings;
-
-    $('#txtBeginDatebox span, #txtEndDatebox span').on('click', function (event) {
-      $(this).siblings('input').click();
-    });
-
-    // 开始日期
-    $('#txtBeginDate').mdDatePicker({
-      dialogStyle: {
-        offsetLeft: -85, // 左偏移量
-        offsetTop: 20, // 上偏移量
+    const rangePickerProps = {
+      offset: {
+        left: 0,
+        top: 5,
       },
-      isShowClear: false,
-      zIndex: 1002,
-      onChange: function (dateText) {
-        $('#txtOverDate').attr('value', moment(dateText).add(1, 'day').format('YYYY-MM-DD'));
-        CreateCalendar.methods.checkDateTimeOption();
-        CreateCalendar.methods.checkAllUserBusy();
-
-        var week = moment($('#txtBeginDate').mdDatePicker('getDate')).day();
-        $('#repeatTypeGroup .repeatTypeGroupBtn').removeClass('today').eq(week).addClass('ThemeBGColor3 today');
-        CreateCalendar.methods.repeatResult();
+      allowClear: false,
+      selectedValue: [moment(settings.Start), moment(settings.End)],
+      timePicker: !$('#allDay').prop('checked'),
+      onOk: selectValue => {
+        settings.Start = selectValue[0].format('YYYY-MM-DD HH:mm');
+        settings.End = selectValue[1].format('YYYY-MM-DD HH:mm');
       },
-    });
+      autoFillEndTime: 1,
+    };
+    const root = createRoot(document.getElementById('calendarDate'));
 
-    // 开始时间
-    $('#txtBeginTimeCreate')
-      .timepicker({
-        timeFormat: 'H:i',
-        'selectOnBlur ': 'true',
-        closeOnWindowScroll: 'true',
-        forceRoundTime: false,
-        step: 15,
-      })
-      .change(function () {
-        CreateCalendar.methods.checkDateTimeOption(1);
-        CreateCalendar.methods.checkAllUserBusy();
-        $('#txtBeginTimeCreate').blur();
-      });
-
-    // 结束日期
-    $('#txtEndDate').mdDatePicker({
-      dialogStyle: {
-        offsetLeft: -85, // 左偏移量
-        offsetTop: 20, // 上偏移量
-      },
-      isShowClear: false,
-      zIndex: 1002,
-      onChange: function (dateText) {
-        CreateCalendar.methods.checkDateTimeOption();
-        CreateCalendar.methods.checkAllUserBusy();
-        $(this).blur();
-      },
-    });
-
-    // 结束时间
-    $('#txtEndTimeCreate')
-      .timepicker({
-        timeFormat: 'H:i',
-        closeOnWindowScroll: 'true',
-        forceRoundTime: false,
-        disableTimeRanges: [['0:00', moment(settings.Start).format('HH:mm')]],
-        minTime: moment(settings.Start).format('HH:mm'),
-        maxTime: '23:45',
-        step: 15,
-        showDuration: true,
-        lang: {
-          decimal: '.',
-          mins: _l('分钟'),
-          hr: _l('小时'),
-          hrs: _l('小时'),
-        },
-      })
-      .change(function () {
-        CreateCalendar.methods.checkDateTimeOption(2);
-        CreateCalendar.methods.checkAllUserBusy();
-        $('#txtEndTimeShow').find('span:first').text($('#txtEndTimeCreate').val());
-        $('#txtEndTimeCreate').blur();
-      });
-
-    // 设置最小时间
-    $('#txtEndDate').mdDatePicker('setMinDate', settings.Start);
-
-    // 点击时间下拉
-    $('#txtBeginDate')
-      .next()
-      .click(function () {
-        $('#txtBeginDate').focus();
-      });
-
-    $('#txtEndDate')
-      .next()
-      .click(function () {
-        $('#txtEndDate').focus();
-      });
-
-    // 时间 赋值
-    var currentDate = new Date();
-    if (settings.Start) {
-      $('#txtBeginDate').mdDatePicker('setDate', moment(settings.Start).format('YYYY-MM-DD'));
-      $("#txtBeginTimeCreate option[text='" + moment(settings.Start).format('HH:mm') + "']").attr('selected', true);
-      $('#txtBeginTimeCreate')
-        .children()
-        .each(function (i, obj) {
-          if ($(obj).text() === moment(settings.Start).format('HH:mm')) {
-            $(obj).attr('selected', true);
-          }
-        });
-      $('#txtBeginTimeCreate').val(moment(settings.Start).format('HH:mm'));
-    }
-    if (settings.End) {
-      $('#txtEndDate').mdDatePicker('setDate', moment(settings.End).format('YYYY-MM-DD'));
-      $("#txtEndTimeCreate option[text='" + moment(settings.End).format('H:mm') + "']").attr('selected', true);
-      $('#txtEndTimeCreate')
-        .children()
-        .each(function (i, obj) {
-          if ($(obj).text() === moment(settings.End).format('H:mm')) {
-            $(obj).attr('selected', true);
-          }
-        });
-      $('#txtEndTimeCreate').val(moment(settings.End).format('HH:mm'));
-    }
-    if (settings.AllDay) {
-      $('#allDay').prop('checked', true).addClass('selected ThemeBorderColor3 ThemeColor3');
-      $('#txtBeginTimeCreate,#txtEndTimeCreate').hide();
-      $('#remindSelectCreate').val('2').siblings().find('.txtBox').attr('title', '小时').html('小时');
-    }
-
-    // 全天
-    $('#allDay').on('click', function () {
-      if ($(this).hasClass('selected')) {
-        $('#txtBeginTimeCreate,#txtEndTimeCreate').show();
-        $('#remindSelectCreate').val('1').siblings().find('.txtBox').attr('title', '分钟').html('分钟');
-        $('#remindTextCreate').val('15');
-      } else {
-        $('#txtBeginTimeCreate,#txtEndTimeCreate').hide();
-        $('#remindSelectCreate').val('2').siblings().find('.txtBox').attr('title', '小时').html('小时');
-        $('#remindTextCreate').val('15');
-      }
-      $('#remindTextLableCreate, #remindTextCreate').show();
-      $('.ui-timepicker-list').hide();
-      $(this).toggleClass('selected');
-    });
-
-    /**
-     * 点击时区,出现时区选择框
-     */
-    $('.timezone').click(function () {
-      if ($('.timezoneWrap').length) {
-        $('.timezoneWrap').show();
-      } else {
-        ReactDom.render(
-          <SelectTimezone data={timezone} selectTimezone={timezone => (settings.timezone = timezone)} />,
-          document.getElementById('selectTimezone'),
-        );
-      }
-      $(this).hide();
-    });
-
-    $('#allDay').click(function () {
-      const checked = $(this).prop('checked');
-      if (checked) {
-        $('.timezone').hide();
-        $('.timezoneWrap').hide();
-      } else {
-        $('.timezone').show();
-      }
-    });
-
-    // 初始化选中今天周几
-    var week = moment($('#txtBeginDate').mdDatePicker('getDate')).day();
-    $('#repeatTypeGroup .repeatTypeGroupBtn').eq(week).addClass('ThemeBGColor3 today');
-    // 初始化设置选中时间
-    $('#txtOverDate').attr('value', moment($('#txtBeginDate')).add(1, 'day').format('YYYY-MM-DD'));
+    root.render(
+      <div className="Relative">
+        <RangePicker {...rangePickerProps}></RangePicker>
+      </div>,
+    );
   },
 
   // 初始化提醒事件
@@ -450,7 +323,8 @@ $.extend(CreateCalendar.prototype, {
 
     $('#remindSelectCreate').val(allDay ? '2' : '1');
 
-    ReactDom.render(
+    const root = createRoot(document.getElementById('remindSelectCreateBox'));
+    root.render(
       <Dropdown
         data={[
           { text: _l('分钟'), value: '1' },
@@ -482,7 +356,6 @@ $.extend(CreateCalendar.prototype, {
           $('#remindSelectCreate').val(value);
         }}
       />,
-      document.getElementById('remindSelectCreateBox'),
     );
 
     $('.telRemindLabel')
@@ -523,8 +396,10 @@ $.extend(CreateCalendar.prototype, {
 
   // 初始化重复事件
   initRepeatEvent: function () {
+    var settings = this.settings;
     // 重复类型
-    ReactDom.render(
+    const root = createRoot($('.repeatDialogConfirm #tab_repeatTypeBox')[0]);
+    root.render(
       <Dropdown
         data={[
           { text: _l('每天'), value: '0' },
@@ -564,7 +439,6 @@ $.extend(CreateCalendar.prototype, {
           CreateCalendar.methods.repeatResult();
         }}
       />,
-      $('.repeatDialogConfirm #tab_repeatTypeBox')[0],
     );
 
     // 重复次数
@@ -607,7 +481,8 @@ $.extend(CreateCalendar.prototype, {
     });
 
     // 结束类型
-    ReactDom.render(
+    const endRoot = createRoot($('.repeatDialogConfirm #tab_repeatTimeBox')[0]);
+    endRoot.render(
       <Dropdown
         data={[
           { text: _l('永不'), value: '0' },
@@ -639,7 +514,6 @@ $.extend(CreateCalendar.prototype, {
           CreateCalendar.methods.repeatResult();
         }}
       />,
-      $('.repeatDialogConfirm #tab_repeatTimeBox')[0],
     );
 
     // 重复结束次数
@@ -693,7 +567,7 @@ $.extend(CreateCalendar.prototype, {
       });
 
     // 设置最小时间
-    $('.repeatDialogConfirm #txtOverDate').mdDatePicker('setMinDate', $('#txtBeginDate').mdDatePicker('getDate'));
+    $('.repeatDialogConfirm #txtOverDate').mdDatePicker('setMinDate', moment(settings.Start).format('YYYY-MM-DD'));
 
     CreateCalendar.methods.repeatResult();
   },
@@ -726,7 +600,9 @@ $.extend(CreateCalendar.prototype, {
       },
     });
 
-    _this.initRepeatEvent();
+    setTimeout(() => {
+      _this.initRepeatEvent();
+    }, 200);
   },
 
   // 初始化成员事件
@@ -823,7 +699,8 @@ $.extend(CreateCalendar.prototype, {
     settings.createCalendarAttachments.attachmentData = settings.defaultAttachmentData;
     settings.createCalendarAttachments.kcAttachmentData = settings.defaultKcAttachmentData;
 
-    ReactDom.render(
+    const root = createRoot(document.getElementById('createCalendarAttachment_updater'));
+    root.render(
       <UploadFiles
         isInitCall={true}
         maxWidth={220}
@@ -839,7 +716,6 @@ $.extend(CreateCalendar.prototype, {
           settings.createCalendarAttachments.kcAttachmentData = res;
         }}
       />,
-      document.getElementById('createCalendarAttachment_updater'),
     );
 
     // 如果有默认文件
@@ -918,7 +794,8 @@ CreateCalendar.methods = {
         const user = users[i];
         $(ele).removeClass('noInsert');
 
-        ReactDom.render(
+        const root = createRoot(ele);
+        root.render(
           <span>
             <UserCard className={`imgMemberMessage_${user.accountId}`} sourceId={user.accountId}>
               <span>
@@ -938,7 +815,6 @@ CreateCalendar.methods = {
               <span className="busyIcon pointer"></span>
             </span>
           </span>,
-          ele,
         );
       });
   },
@@ -1115,23 +991,15 @@ CreateCalendar.methods = {
           } else {
             messages += '、';
           }
-          messages += weekDayArray[weekDay[index]];
+          messages += weekDayArray[weekDay[index]] || '';
         });
       }
     } else if (type === 2) {
       // 每月
-      messages += _l(
-        '每%0月 在第 %1 天',
-        day == 1 ? '' : ' ' + day + ' ',
-        moment($('#txtBeginDate').mdDatePicker('getDate')).date(),
-      );
+      messages += _l('每%0月 在第 %1 天', day == 1 ? '' : ' ' + day + ' ', moment(settings.Start).format('DD'));
     } else if (type === 3) {
       // 每年
-      messages += _l(
-        '每%0年 在 %1',
-        day == 1 ? '' : ' ' + day + ' ',
-        moment($('#txtBeginDate').mdDatePicker('getDate')).format(_l('MM月DD日')),
-      );
+      messages += _l('每%0年 在 %1', day == 1 ? '' : ' ' + day + ' ', moment(settings.Start).format(_l('MM月DD日')));
     }
 
     if (recurType == 1) {
@@ -1219,7 +1087,9 @@ CreateCalendar.methods = {
             $elem.attr('busy', 'busy').addClass('imgMemberBusy');
 
             var calendars = data.calendars;
-            ReactDom.render(
+
+            const root = createRoot($elem.find('.busyIconWrap')[0]);
+            root.render(
               <Tooltip
                 placement="bottom"
                 themeColor="white"
@@ -1282,7 +1152,6 @@ CreateCalendar.methods = {
               >
                 <span className="busyIcon pointer"></span>
               </Tooltip>,
-              $elem.find('.busyIconWrap')[0],
             );
           } else {
             $imgMemberMessage.find('.hoverMemberContainer').hide();
@@ -1294,103 +1163,14 @@ CreateCalendar.methods = {
 
   // 获取日程时间
   getDialogTime: function () {
-    var startDate = $('#txtBeginDate').mdDatePicker('getDate');
-    var endDate = $('#txtEndDate').mdDatePicker('getDate');
-    var startTime = $('#txtBeginTimeCreate').val();
-    var endTime = $('#txtEndTimeCreate').val();
-    var start = '';
-    var end = '';
+    var settings = CreateCalendar.settings;
+    var startDate = settings.Start;
+    var endDate = settings.End;
 
-    if ($('#allDay').hasClass('selected')) {
-      // 全天
-      start = moment(startDate).format('YYYY-MM-DD') + ' 00:00';
-      end = moment(endDate).format('YYYY-MM-DD') + ' 23:59';
-    } else {
-      start = moment(startDate).format('YYYY-MM-DD') + ' ' + startTime;
-      end = moment(endDate).format('YYYY-MM-DD') + ' ' + endTime;
-    }
     return {
-      start: start,
-      end: end,
+      start: $('#allDay').prop('checked') ? moment(startDate).format('YYYY-MM-DD') + ' 00:00' : startDate,
+      end: $('#allDay').prop('checked') ? moment(endDate).format('YYYY-MM-DD') + ' 23:59' : endDate,
     };
-  },
-
-  // type: 1 点击开始时间  2 结束时间  改变日程时间
-  checkDateTimeOption: function (type) {
-    // 点击开始时间
-    var bDate = moment($('#txtBeginDate').val());
-    var eDate = moment($('#txtEndDate').val());
-    $('#txtEndDate').mdDatePicker('setMinDate', bDate.format('YYYY-MM-DD'));
-
-    if (type == 1 && !bDate.isBefore(eDate)) {
-      CreateCalendar.methods.checkDateTimeOptionFun(bDate, eDate);
-    } else if (type == 2) {
-      // 点击结束时间
-      if (bDate.isSame(eDate)) {
-        // 同一天
-        var startTime = moment($('#txtBeginTimeCreate').timepicker('getTime')).format('HH:mm');
-        var endTime = moment($('#txtEndTimeCreate').timepicker('getTime')).format('HH:mm');
-        var startTimeBranch = parseInt(startTime.split(':')[0] * 60, 10) + parseInt(startTime.split(':')[1], 10);
-        var endTimeBranch = parseInt(endTime.split(':')[0] * 60, 10) + parseInt(endTime.split(':')[1], 10);
-        // 结束时间小于开始时间
-        if (endTimeBranch < startTimeBranch) {
-          $('#txtEndDate').val(bDate.add(1, 'day').format('YYYY-MM-DD'));
-          CreateCalendar.methods.txtEndTimeRemoveFun();
-        }
-      }
-    } else {
-      // 点击日期
-      if (!bDate.isBefore(eDate)) {
-        CreateCalendar.methods.checkDateTimeOptionFun(bDate, eDate);
-      } else {
-        CreateCalendar.methods.txtEndTimeRemoveFun();
-      }
-    }
-  },
-
-  // 结束时间移除方法
-  txtEndTimeRemoveFun: function () {
-    $('#txtEndTimeCreate').timepicker('remove');
-    $('#txtEndTimeCreate').timepicker({
-      timeFormat: 'H:i',
-      closeOnWindowScroll: 'true',
-      forceRoundTime: false,
-    });
-  },
-
-  // 检测日期时间
-  checkDateTimeOptionFun: function (bDate, eDate) {
-    var startTime = moment('2016-01-01 ' + $('#txtBeginTimeCreate').val());
-    var endTime = moment('2016-01-01 ' + $('#txtEndTimeCreate').val());
-
-    $('#txtEndTimeCreate').timepicker('remove');
-    $('#txtEndTimeCreate').timepicker({
-      timeFormat: 'H:i',
-      closeOnWindowScroll: 'true',
-      forceRoundTime: false,
-      disableTimeRanges: [['0:00', startTime.format('HH:mm')]],
-      minTime: startTime.format('HH:mm'),
-      maxTime: '23:45',
-      step: 15,
-      showDuration: true,
-      lang: {
-        decimal: '.',
-        mins: _l('分钟'),
-        hr: _l('小时'),
-        hrs: _l('小时'),
-      },
-    });
-
-    if ((bDate.isSame(eDate) || bDate.isAfter(eDate)) && startTime.unix() >= endTime.unix()) {
-      var timeHours = startTime.hours() + 1;
-      startTime.add(1, 'hour');
-      if (timeHours >= 24) {
-        $('#txtEndDate').val(bDate.add(1, 'day').format('YYYY-MM-DD'));
-        CreateCalendar.methods.txtEndTimeRemoveFun();
-      }
-
-      $('#txtEndTimeCreate').timepicker('setTime', startTime.format('HH:mm'));
-    }
   },
 
   // 是否查看创建的日程
@@ -1439,11 +1219,9 @@ CreateCalendar.methods = {
 
     var address = $.trim($('#txtAddress').val());
     var desc = $.trim($('#txtDesc').val());
-    var startDate = $('#txtBeginDate').val();
-    var endDate = $('#txtEndDate').val();
-    var startTime = $('#txtBeginTimeCreate').val();
-    var endTime = $('#txtEndTimeCreate').val();
-    var isAll = $('#allDay').hasClass('selected');
+    var startDate = settings.Start;
+    var endDate = settings.End;
+    var isAll = $('#allDay').prop('checked');
     var isRecur = $('#repeatContent .chekboxIcon').hasClass('checked');
     var categoryID = $('#createCategoryID').attr('data-catid');
     var remindType = $('#remindSelectCreate').val();
@@ -1456,22 +1234,14 @@ CreateCalendar.methods = {
     var untilDate = '';
     var weekDay = 0;
 
-    if (isAll) {
-      startTime = '00:00';
-      endTime = '23:59';
-    }
-
     const { timezone } = settings;
     let timezoneOffset = isAll ? 0 : timezone + moment().utcOffset();
 
-    const start = moment(`${startDate} ${startTime}`).add(timezoneOffset, 'm');
-    const end = moment(`${endDate} ${endTime}`).add(timezoneOffset, 'm');
-
-    if (!moment(end).isAfter(moment(start))) {
-      $('#calendarSubmitBtn').removeAttr('disabled');
-      alert(_l('开始时间不能小于结束时间'), 3);
-      return false;
-    }
+    const start = moment(`${isAll ? moment(startDate).format('YYYY-MM-DD 00:00') : startDate}`).add(
+      timezoneOffset,
+      'm',
+    );
+    const end = moment(`${isAll ? moment(endDate).format('YYYY-MM-DD 00:00') : endDate}`).add(timezoneOffset, 'm');
 
     // 重复日程
     if (isRecur) {

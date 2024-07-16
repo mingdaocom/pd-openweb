@@ -56,7 +56,7 @@ function Search(props) {
       list.map(l => {
         return {
           value: l.worksheetId,
-          label: getTranslateInfo(appId, l.worksheetId).name || l.worksheetName,
+          label: getTranslateInfo(appId, null, l.worksheetId).name || l.worksheetName,
         };
       }),
     );

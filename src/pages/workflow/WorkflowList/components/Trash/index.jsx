@@ -342,7 +342,7 @@ export default function TrashDialog(props) {
         <WrapHeader className="flexRow alignItemsCenter">
           <div className="Font17 flex">
             {_l('回收站')}（ {_l('工作流')}）
-            <span className="Gray_9e Font13 mLeft10">{_l('可恢复60天内删除的工作流')}</span>
+            <span className="Gray_75 Font13 mLeft10">{_l('可恢复60天内删除的工作流')}</span>
           </div>
           <Search
             className="trashSearch"
@@ -359,7 +359,7 @@ export default function TrashDialog(props) {
               <div className="emptyIcon">
                 <i className="icon icon-custom_-page_delete"></i>
               </div>
-              <p className="TxtCenter Gray_9e Font17 mTop10">
+              <p className="TxtCenter Gray_75 Font17 mTop10">
                 {cache.current.keyWords ? _l('没有找到符合条件的结果') : _l('回收站暂无内容')}
               </p>
             </div>

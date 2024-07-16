@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import { func, shape, string, number } from 'prop-types';
 import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
-import { Input } from 'ming-ui';
+import { Input, TimeZoneTag } from 'ming-ui';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -20,7 +20,7 @@ const dealDate = date => {
 };
 
 export default function Time(props) {
-  const { dateRange, minValue, maxValue, onChange = () => {}, control } = props;
+  const { dateRange, minValue, maxValue, appId, onChange = () => {}, control } = props;
   const [startDateVisible, setStartDateVisible] = useState(false);
   const [endDateVisible, setEndDateVisible] = useState(false);
   const unit = String(control.unit);
@@ -45,6 +45,17 @@ export default function Time(props) {
         {!!dateRange && dateRange !== 18 && (
           <div className="selected ellipsis">{_.find(optionDate, { value: dateRange }).text}</div>
         )}
+        <TimeZoneTag
+          appId={appId}
+          position={{
+            position: 'unset',
+            color: '#9e9e9e ',
+            border: 'none',
+            height: 'auto',
+            lineHeight: 'unset',
+            paddingLeft: '6px',
+          }}
+        />
       </div>
       <div className="flexRow">
         <div className="flex">

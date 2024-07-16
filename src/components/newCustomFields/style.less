@@ -526,6 +526,26 @@
         padding: 8px 10px 7px;
       }
 
+      &.dateTimeIcon {
+        .dateClearIcon {
+          display: none;
+          cursor: pointer;
+          color: #bdbdbd;
+          &:hover {
+            color: #777 !important;
+          }
+        }
+        &:hover,
+        &:focus {
+          .dateClearIcon {
+            display: inline-block;
+          }
+          .bellScheduleIcon {
+            display: none;
+          }
+        }
+      }
+
       .worksheetRecordCard {
         margin-bottom: 10px;
 

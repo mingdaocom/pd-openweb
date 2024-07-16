@@ -3,7 +3,7 @@ import uploadNewVersionDailog from './kcUploadNewVersion/kcUploadNewVersion';
 import service from '../api/service';
 import createUploader from 'src/library/plupload/createUploader';
 import { UPLOAD_ERROR } from '../constant/enum';
-
+import RegExpValidator from 'src/util/expression';
 class UploadNewVersion extends React.Component {
   static propTypes() {
     return {
@@ -44,9 +44,9 @@ class UploadNewVersion extends React.Component {
           const item = _this.props.item;
           const file = files[0];
           const targetFileExt = item.ext;
-          const newVersionExt = File.GetExt(file.name);
-          if (File.isPicture('.' + targetFileExt)) {
-            if (!File.isPicture('.' + newVersionExt)) {
+          const newVersionExt = RegExpValidator.getExtOfFileName(file.name);
+          if (RegExpValidator.fileIsPicture('.' + targetFileExt)) {
+            if (!RegExpValidator.fileIsPicture('.' + newVersionExt)) {
               alert(_l('请选择图片文件'), 3);
               up.setOption('auto_start', false);
               return;

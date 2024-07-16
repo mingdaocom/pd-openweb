@@ -42,8 +42,10 @@
     font-size: 13px;
     color: #9e9e9e;
     display: flex;
-    justify-content: space-between;
+    // justify-content: space-between;
     margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
     .icon {
       font-size: 18px;
       color: #757575;
@@ -60,7 +62,8 @@
     }
     .selectUser,
     .selectField,
-    .selectDate {
+    .selectDate,
+    .selectOperate {
       padding: 8px 12px;
       background: #fff;
       display: flex;
@@ -79,9 +82,11 @@
         }
       }
     }
-    .selectUser {
-      margin-right: 8px;
-    }
+    // .selectUser,
+    // .selectOperate,
+    // .selectField {
+    //   margin-right: 8px;
+    // }
     .selectConText {
       margin: 0 4px;
     }
@@ -91,8 +96,12 @@
         color: #2196f3;
       }
     }
-    .left {
-      display: flex;
+    // .left {
+    //   display: flex;
+    // }
+    > span:last-child {
+      background: #fff !important;
+      padding: 0 12px;
     }
   }
   .worksheetRocordLogCard {
@@ -194,7 +203,7 @@
     }
   }
   .timeDataTip[data-tip]::after {
-    transform: translateX(-75%) translateY(8px) !important;
+    left: 0 !important;
   }
 }
 .worksheetRocordLog {

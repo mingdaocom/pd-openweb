@@ -12,7 +12,7 @@ const allowConfigControlTypes = [
   2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 33, 36, 41, 46, 48,
 ];
 const recordObj = {
-  text: '记录ID',
+  text: _l('记录ID'),
   value: 'rowid',
 };
 
@@ -406,7 +406,7 @@ export default class ConfigControl extends Component {
         return this.getWorksheetInfo(
           {
             appId: item.appId,
-            workSheetId: item.workSheetId,
+            worksheetId: item.workSheetId,
             relationWorksheetId: worksheetId,
           },
           true,
@@ -883,7 +883,7 @@ export default class ConfigControl extends Component {
             {!tigger && !isCharge && edited ? null : (
               <Checkbox
                 className="mLeft20"
-                text={_l('导入触发工作流')}
+                text={_l('触发工作流')}
                 disabled={!isCharge && edited}
                 checked={tigger}
                 onClick={checked => this.setState({ tigger: !checked })}
@@ -891,7 +891,11 @@ export default class ConfigControl extends Component {
             )}
 
             {isCharge && (
-              <span className="Hand ThemeColor3 Hover_49 mLeft20" onClick={() => this.saveConfig()}>
+              <span
+                className="Hand ThemeColor3 Hover_49 mLeft20"
+                style={{ height: 18 }}
+                onClick={() => this.saveConfig()}
+              >
                 {_l('保存导入配置')}
               </span>
             )}
@@ -953,7 +957,7 @@ export default class ConfigControl extends Component {
           >
             <i className="icon-workflow_help Gray_9e Font16" />
           </Tooltip>
-          <div className="Gray_9e mLeft5">{_l('匹配字段：')}</div>
+          <div className="Gray_9e mLeft5">{_l('匹配：')}</div>
 
           {/** 匹配字段选择下拉框 */}
           <Dropdown
@@ -1009,7 +1013,7 @@ export default class ConfigControl extends Component {
           >
             <i className="icon-workflow_help Gray_9e Font16" />
           </Tooltip>
-          <div className="Gray_9e mLeft5">{_l('匹配字段：')}</div>
+          <div className="Gray_9e mLeft5">{_l('匹配：')}</div>
 
           {/** 匹配字段选择下拉框 */}
           <Dropdown
@@ -1119,7 +1123,7 @@ export default class ConfigControl extends Component {
 
                                 // 匹配人员、部门字段
                                 const isExternal = type == 26 && advancedSetting && advancedSetting.usertype == '2';
-                                if (_.includes([26, 27], type) && !isExternal) {
+                                if (_.includes([26, 27], type) && !isExternal && !isHiddenConfig) {
                                   const userControl = userControls
                                     .concat(departmentControls)
                                     .find(item => item.text.toLowerCase() == dataItemName);
@@ -1196,8 +1200,12 @@ export default class ConfigControl extends Component {
                               {/** 单选框 */}
                               {[9, 10, 11].includes(controlItem.type) && !isHiddenConfig && (
                                 <Fragment>
-                                  {/** 是否允许新增选项 */}
-                                  <span className="Gray_75 mRight8">{_l('允许新增选项')}</span>
+                                  <Tooltip
+                                    text={_l('勾选后，当匹配不到已有选项时会添加为新的选项。未勾选时，则导入为空')}
+                                  >
+                                    <i className="icon-workflow_help Gray_9e Font16" />
+                                  </Tooltip>
+                                  <span className="Gray_75 mRight8 mLeft5">{_l('添加选项')}</span>
                                   <Checkbox
                                     text=""
                                     checked={
@@ -1218,13 +1226,8 @@ export default class ConfigControl extends Component {
                                 </Fragment>
                               )}
 
-                              {/** 自动编号 */}
-                              {controlItem.type === 33 && (
-                                <span className="Gray_9e">{_l('不建立映射则按照编号规则自动生成')}</span>
-                              )}
-
                               {/** 不支持映射的字段 */}
-                              {notSupport && <span className="Gray_9e">{_l('此字段不支持建立映射')}</span>}
+                              {notSupport && <span className="Gray_9e">{_l('不支持')}</span>}
 
                               {/** 外部成员字段提示 */}
                               {isExternal && <span className="Gray_9e">{_l('外部用户暂只支持通过姓名匹配')}</span>}

@@ -3,6 +3,7 @@ import Clipboard from 'react-clipboard.js';
 import Ajax from 'src/api/workWeiXin';
 import { LoadDiv } from 'ming-ui';
 import { compareProps } from 'pages/PageHeader/util.js';
+import AppLinkParamsSettings from 'src/pages/AppSettings/components/EditpublishSet/AppLinkParamsSettings';
 import scan1 from './img/scan1.png';
 import scan2 from './img/scan2.png';
 import scan3 from './img/scan3.png';
@@ -186,20 +187,7 @@ export default class WorkwxSyncCourse extends React.Component {
           <img src={wxPng4} alt={_l('继续完善对接信息')} />
           <img src={wxPng5} alt={_l('继续完善对接信息')} />
           <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('2.点击“应用主页”，填写“网页地址”')}</p>
-          <div className="inputList mTop20">
-            <span className="inputTitle">{_l('应用主页：')}</span>
-            <input type="text" className="inputBox" readOnly value={homeUrl} />
-            <Clipboard
-              className="copyBtn"
-              component="span"
-              data-clipboard-text={homeUrl}
-              onSuccess={() => {
-                alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
-              }}
-            >
-              {_l('复制')}
-            </Clipboard>
-          </div>
+          <AppLinkParamsSettings url={homeUrl} defaultHide={['s', 'ch', 'ac']} />
           <img src={wxPng6} alt={_l('点击“应用主页”，填写“网页地址”')} />
           <img src={wxPng7} alt={_l('点击“应用主页”，填写“网页地址”')} />
           <h3 className="Font18 Gray mTop40">{_l('5. 如何获取CorpId、AgentId和Secret')}</h3>

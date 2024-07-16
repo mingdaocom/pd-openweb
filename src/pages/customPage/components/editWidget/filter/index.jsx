@@ -90,6 +90,10 @@ export default function Filter(props) {
       alert(_l('请配置筛选对象'), 3);
       return;
     }
+    if (!_.get(filters[0].objectControls[0], 'controlId')) {
+      alert(_l('请为筛选对象添加字段'), 3);
+      return;
+    }
     onEdit({
       filter
     });

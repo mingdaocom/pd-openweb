@@ -68,4 +68,26 @@ export default {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('Pay', 'WeChatQueryOrder', args, options);
    },
+  /**
+  * 支付回调
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   paymentNotify: function (args, options = {}) {
+     
+     return mdyAPI('Pay', 'PaymentNotify', args, options);
+   },
+  /**
+  * 提现回调
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   withDrawNotify: function (args, options = {}) {
+     
+     return mdyAPI('Pay', 'WithDrawNotify', args, options);
+   },
 };

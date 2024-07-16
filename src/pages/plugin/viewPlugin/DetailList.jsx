@@ -257,7 +257,6 @@ export default function DetailList(props) {
     hasOperateAuth,
     onDelete,
     projectId,
-    isAdmin,
     onExportSuccess,
     publishType,
   } = props;

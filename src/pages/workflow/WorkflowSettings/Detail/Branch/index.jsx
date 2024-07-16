@@ -48,7 +48,7 @@ export default class Branch extends Component {
    * 筛选条件头
    */
   triggerConditionHeader() {
-    return <div className="Font13 Gray_9e">{_l('设置筛选条件后，满足条件的数据才能进入该分支')}</div>;
+    return <div className="Font13 Gray_75">{_l('设置筛选条件后，满足条件的数据才能进入该分支')}</div>;
   }
 
   /**

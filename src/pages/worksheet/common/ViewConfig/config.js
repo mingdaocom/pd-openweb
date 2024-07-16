@@ -14,14 +14,28 @@ export const viewTypeConfig = [
   { type: 'DebugConfig', name: _l('开发调试'), icon: 'worksheet_API' },
   { type: 'ParameterSet', name: _l('参数映射'), icon: 'view_eye' },
   { type: 'Submit', name: _l('提交%05036'), icon: 'airplane' },
+  { type: 'CardSet', name: _l('卡片设置'), icon: 'card' },
+  { type: 'TableSet', name: _l('表格设置'), icon: 'table' },
 ];
-export const viewTypeCustomList = ['PluginSettings','DebugConfig', 'ParameterSet', 'Submit'];
+export const viewTypeCustomList = ['PluginSettings', 'DebugConfig', 'ParameterSet', 'Submit'];
 export const viewTypeGroup = [
   { name: 'base', list: ['Setting', 'Show'] },
   { name: 'set', list: ['Filter', 'Sort', 'RecordColor', 'Controls'] },
   { name: 'action', list: ['FastFilter', 'NavGroup', 'ActionSet'] },
   { name: 'other', list: ['MobileSet', 'urlParams'] },
 ];
+export const baseSetList = {
+  sheet: ['Setting', 'Show'],
+  board: ['Setting', 'CardSet'],
+  calendar: ['Setting'],
+  gallery: ['Setting'],
+  structure: ['Setting', 'TableSet', 'Show', 'CardSet'],
+  gunter: ['Setting'],
+  detail: ['Setting', 'CardSet'],
+  resource: ['Setting'],
+  customize: ['Setting'],
+  map: ['Setting', 'CardSet'],
+};
 export const setList = [
   { key: 'showno', txt: _l('显示序号') },
   {

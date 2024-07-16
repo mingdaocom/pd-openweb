@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import DocumentTitle from 'react-document-title';
 import { withRouter } from 'react-router-dom';
 import { LoadDiv, WaterMark } from 'ming-ui';
 import { emitter, getCurrentProject } from 'src/util';
@@ -13,6 +14,7 @@ import RecordFav from '../RecordFav';
 import { getDashboardColor } from '../Dashboard/utils';
 import homeAppAjax from 'src/api/homeApp';
 import { navigateTo } from 'src/router/navigateTo';
+import { getMyPermissions } from 'src/components/checkPermission';
 
 const Con = styled.div`
   display: flex;
@@ -34,9 +36,6 @@ const list = [
   { str: '/favorite', key: 'favorite' },
 ];
 
-let cachePlatformSetting = {};
-let cacheCountData = {};
-
 function AppCenter(props) {
   const projectId = _.get(props, 'match.params.projectId');
   const projects = _.get(md, 'global.Account.projects');
@@ -44,11 +43,24 @@ function AppCenter(props) {
   const [currentProject, setCurrentProject] = useState(
     !_.isEmpty(project) ? project : projects[0] || { companyName: _l('外部协作'), projectId: 'external' },
   );
-  const [countData, setCountData] = useState(cacheCountData);
-  const [platformSetting, setPlatformSetting] = useState(cachePlatformSetting[currentProject.projectId] || {});
+  const [countData, setCountData] = useState({});
+  const [platformSetting, setPlatformSetting] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [myPermissions, setMyPermissions] = useState([]);
   const dashboardColor = getDashboardColor((platformSetting || {}).color);
   const currentTheme = (platformSetting || {}).advancedSetting || {};
+
+  useEffect(() => {
+    emitter.addListener('CHANGE_CURRENT_PROJECT', changeProject);
+    loadPlatformSetting(currentProject.projectId);
+    getTodoCount().then(data => setCountData(data));
+    currentProject.project !== 'external' &&
+      getMyPermissions(currentProject.projectId, false).then(permissionIds => setMyPermissions(permissionIds));
+
+    return () => {
+      emitter.removeListener('CHANGE_CURRENT_PROJECT', changeProject);
+    };
+  }, []);
 
   const getKey = () => {
     let key = 'app';
@@ -64,11 +76,9 @@ function AppCenter(props) {
   function changeProject(project) {
     keyStr === 'app' && navigateTo('/app/my', false, true);
     setCurrentProject(project);
-    if (!cachePlatformSetting[project.projectId]) {
-      loadPlatformSetting(project.projectId);
-    } else {
-      setPlatformSetting(cachePlatformSetting[project.projectId]);
-    }
+    loadPlatformSetting(project.projectId);
+    project.projectId !== 'external' &&
+      getMyPermissions(project.projectId, false).then(permissionIds => setMyPermissions(permissionIds));
   }
 
   const loadPlatformSetting = projectId => {
@@ -77,6 +87,7 @@ function AppCenter(props) {
       setIsLoading(false);
       return;
     }
+
     setIsLoading(true);
     homeAppAjax
       .getHomePlatformSetting({ projectId })
@@ -84,14 +95,13 @@ function AppCenter(props) {
         if (res) {
           setPlatformSetting(res);
           setIsLoading(false);
-          cachePlatformSetting[projectId] = res;
         }
       })
       .catch(() => setIsLoading(false));
   };
 
   const updatePlatformSetting = (updateObj, cb) => {
-    const oldValue = cachePlatformSetting[currentProject.projectId];
+    const oldValue = platformSetting;
     const newSetting = { ...oldValue, ...updateObj };
     setPlatformSetting(newSetting);
 
@@ -100,7 +110,6 @@ function AppCenter(props) {
         .editPlatformSetting(newSetting)
         .then(res => {
           if (res) {
-            cachePlatformSetting[currentProject.projectId] = newSetting;
             cb && cb();
           }
         })
@@ -108,63 +117,54 @@ function AppCenter(props) {
           alert(_l('更新工作台配置失败！'), 2);
           setPlatformSetting(oldValue);
         });
-    } else {
-      cachePlatformSetting[currentProject.projectId] = newSetting;
     }
   };
-
-  useEffect(() => {
-    if (!cachePlatformSetting[currentProject.projectId]) {
-      loadPlatformSetting(currentProject.projectId);
-    } else {
-      setIsLoading(false);
-    }
-
-    if (_.isEmpty(cacheCountData)) {
-      getTodoCount().then(data => {
-        setCountData(data);
-        cacheCountData = data;
-      });
-    }
-    emitter.addListener('CHANGE_CURRENT_PROJECT', changeProject);
-    return () => {
-      emitter.removeListener('CHANGE_CURRENT_PROJECT', changeProject);
-    };
-  }, []);
 
   const renderCon = () => {
     switch (keyStr) {
       case 'lib':
         return (
           <AppLibCon>
+            <DocumentTitle title={_l('应用库')} />
             <AppLib />
           </AppLibCon>
         );
       case 'favorite':
-        return <RecordFav currentProject={currentProject} projectId={currentProject.projectId} />;
+        return (
+          <React.Fragment>
+            <DocumentTitle title={_l('收藏')} />
+            <RecordFav currentProject={currentProject} projectId={currentProject.projectId} />
+          </React.Fragment>
+        );
+
       case 'dashboard':
         return (
-          <Dashboard
-            currentProject={currentProject}
-            projectId={currentProject.projectId}
-            countData={countData}
-            updateCountData={data => {
-              setCountData(data);
-              cacheCountData = data;
-            }}
-            platformSetting={platformSetting}
-            updatePlatformSetting={updatePlatformSetting}
-            dashboardColor={dashboardColor}
-            hasBgImg={keyStr === 'dashboard' && currentTheme.bgImg}
-          />
+          <React.Fragment>
+            <DocumentTitle title={_l('工作台')} />
+            <Dashboard
+              currentProject={currentProject}
+              projectId={currentProject.projectId}
+              countData={countData}
+              updateCountData={data => setCountData(data)}
+              platformSetting={platformSetting}
+              updatePlatformSetting={updatePlatformSetting}
+              dashboardColor={dashboardColor}
+              hasBgImg={keyStr === 'dashboard' && currentTheme.bgImg}
+              myPermissions={myPermissions}
+            />
+          </React.Fragment>
         );
       default:
         return (
-          <AppGroups
-            currentProject={currentProject}
-            projectId={currentProject.projectId}
-            dashboardColor={dashboardColor}
-          />
+          <React.Fragment>
+            <DocumentTitle title={_l('我的应用')} />
+            <AppGroups
+              currentProject={currentProject}
+              projectId={currentProject.projectId}
+              dashboardColor={dashboardColor}
+              myPermissions={myPermissions}
+            />
+          </React.Fragment>
         );
     }
   };
@@ -187,6 +187,7 @@ function AppCenter(props) {
           countData={countData}
           dashboardColor={dashboardColor}
           hasBgImg={keyStr === 'dashboard' && currentTheme.bgImg}
+          myPermissions={myPermissions}
         />
         {renderCon()}
       </Con>

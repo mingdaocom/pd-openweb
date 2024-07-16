@@ -227,12 +227,12 @@ const Group = props => {
               onClick={() => setChildrenVisible(!childrenVisible)}
             />
             <SvgIcon
-              url={`${md.global.FileStoreConfig.pubHost}/customIcon/${data.icon || '8_4_folder'}.svg`}
+              url={`${md.global.FileStoreConfig.pubHost}customIcon/${data.icon || '8_4_folder'}.svg`}
               fill="#9e9e9e"
               className="mRight5"
             />
             <span className="flex name ellipsis" onClick={() => setChildrenVisible(!childrenVisible)}>
-              {getTranslateInfo(app.id, id).name || name}
+              {getTranslateInfo(app.id, null, id).name || name}
             </span>
             <Trigger
               action={['click']}
@@ -299,7 +299,7 @@ const Group = props => {
               style={{ paddingLeft: data.isAppItem ? 20 * layerIndex : 0 }}
             >
               {data.isAppItem ? (
-                <SvgIcon url={`${md.global.FileStoreConfig.pubHost}/customIcon/${data.icon}.svg`} fill="#9e9e9e" />
+                <SvgIcon url={`${md.global.FileStoreConfig.pubHost}customIcon/${data.icon}.svg`} fill="#9e9e9e" />
               ) : (
                 <Fragment>
                   <Icon
@@ -308,7 +308,7 @@ const Group = props => {
                     onClick={() => setChildrenVisible(!childrenVisible)}
                   />
                   <SvgIcon
-                    url={`${md.global.FileStoreConfig.pubHost}/customIcon/${data.icon || '8_4_folder'}.svg`}
+                    url={`${md.global.FileStoreConfig.pubHost}customIcon/${data.icon || '8_4_folder'}.svg`}
                     fill="#9e9e9e"
                   />
                 </Fragment>
@@ -317,7 +317,7 @@ const Group = props => {
                 className="flex name mLeft10 ellipsis"
                 onClick={() => !data.isAppItem && setChildrenVisible(!childrenVisible)}
               >
-                {getTranslateInfo(app.id, id).name || name}
+                {getTranslateInfo(app.id, null, id).name || name}
               </span>
               <Trigger
                 action={['click']}

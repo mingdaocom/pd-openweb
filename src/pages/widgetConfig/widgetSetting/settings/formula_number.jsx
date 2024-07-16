@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect } from 'react';
 import { handleAdvancedSettingChange } from '../../util/setting';
-import formulaComponents from '../components/formula';
-const { Formula, SwitchType } = formulaComponents;
+import Formula from '../components/formula/Formula';
+import SwitchType from '../components/formula/SwitchType';
 
 export default function FormulaNumber(props) {
   const { data, onChange } = props;

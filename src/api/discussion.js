@@ -23,11 +23,12 @@ export default {
   /**
   * 获取指定源讨论
   * @param {Object} args 请求参数
-  * @param {string} args.sourceId 源ID
+  * @param {string} args.sourceId 讨论来源ID
   * @param {} args.sourceType
+  * @param {boolean} args.isFocus 是否只返回与当前用户相关的讨论
+  * @param {boolean} args.containAttachment 是否只返回包含附件的讨论
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
-  * @param {boolean} args.isFocus 是否只取自己相关
   * @param {} args.entityType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -40,11 +41,12 @@ export default {
   /**
   * 获取讨论数量
   * @param {Object} args 请求参数
-  * @param {string} args.sourceId 源ID
+  * @param {string} args.sourceId 讨论来源ID
   * @param {} args.sourceType
+  * @param {boolean} args.isFocus 是否只返回与当前用户相关的讨论
+  * @param {boolean} args.containAttachment 是否只返回包含附件的讨论
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小
-  * @param {boolean} args.isFocus 是否只取自己相关
   * @param {} args.entityType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

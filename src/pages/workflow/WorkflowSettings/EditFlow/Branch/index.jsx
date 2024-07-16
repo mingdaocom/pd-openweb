@@ -26,7 +26,7 @@ export default class Branch extends Component {
     return (
       <div className="flexRow alignItemsCenter">
         <span
-          className="workflowBranchBtnSmall Gray_9e ThemeHoverColor3"
+          className="workflowBranchBtnSmall Gray_75 ThemeHoverColor3"
           data-tip={_l('添加分支')}
           onClick={() => {
             this.props.addFlowNode(processId, { prveId: item.id, name: '', typeId: 2 });
@@ -46,7 +46,7 @@ export default class Branch extends Component {
         />
 
         <span
-          className="workflowBranchBtnSmall Gray_9e ThemeHoverColor3"
+          className="workflowBranchBtnSmall Gray_75 ThemeHoverColor3"
           onClick={this.changeShrink}
           data-tip={_l('收起')}
         >

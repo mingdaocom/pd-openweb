@@ -22,6 +22,7 @@ export default class RecordCollect extends Component {
     this.state = {
       loading: false,
       markedAppItems: [],
+      langItems: []
     };
   }
 
@@ -35,18 +36,24 @@ export default class RecordCollect extends Component {
 
     this.setState({ loading: true });
 
-    homeAppAjax
-      .myPlatform({ projectId, containsLinks: true })
-      .then(({ markedAppItems = [] }) => {
-        this.setState({ markedAppItems: markedAppItems.filter(o => o && !o.webMobileDisplay), loading: false });
-      })
-      .catch(err => {
-        this.setState({ markedAppItems: [], loading: false });
+    Promise.all([
+      homeAppAjax.myPlatform({ projectId, containsLinks: true }),
+      projectId ? homeAppAjax.myPlatformLang({ projectId, noCache: false }) : undefined,
+    ]).then(result => {
+      const [platformRes, langRes = []] = result;
+      const { markedAppItems = [] } = platformRes;
+      this.setState({
+        markedAppItems: markedAppItems.filter(o => o && !o.webMobileDisplay),
+        langItems: langRes,
+        loading: false,
       });
+    }).catch(err => {
+      this.setState({ markedAppItems: [], loading: false });
+    });
   };
 
   render() {
-    const { markedAppItems, loading } = this.state;
+    const { markedAppItems, langItems, loading } = this.state;
 
     return (
       <Wrap>
@@ -56,7 +63,7 @@ export default class RecordCollect extends Component {
           </div>
         ) : (
           markedAppItems.map((item, index) => {
-            return <ApplicationItem direction="horizontal" index={index} radius={40} iconSize={30} data={item} />;
+            return <ApplicationItem direction="horizontal" index={index} radius={40} iconSize={30} data={item} myPlatformLang={langItems} />;
           })
         )}
 

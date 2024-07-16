@@ -53,7 +53,7 @@ export default function CellErrorTip(props) {
 }
 
 CellErrorTip.propTypes = {
-  pos: oneOf('top', 'bottom'),
+  pos: oneOf(['top', 'bottom']),
   error: string,
   updateErrorState: func,
 };

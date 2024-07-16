@@ -1,11 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import TransitionGroup from 'react-addons-transition-group';
 import cx from 'classnames';
 import Textarea from 'ming-ui/components/Textarea';
-import Dropdown from 'ming-ui/components/Dropdown';
 import Icon from 'ming-ui/components/Icon';
-import Input from 'ming-ui/components/Input';
 import Menu from 'ming-ui/components/Menu';
 import MenuItem from 'ming-ui/components/MenuItem';
 import LoadDiv from 'ming-ui/components/LoadDiv';
@@ -54,6 +51,10 @@ export default class CalendarHeader extends Component {
         });
       });
     }
+
+    if (this.props.children) {
+      $('.calendarAction').addClass('action-bar-active');
+    }
   }
 
   handleChangeCategory(item) {
@@ -80,7 +81,10 @@ export default class CalendarHeader extends Component {
   }
 
   render() {
-    const { title, auth: { showEdit } } = this.props;
+    const {
+      title,
+      auth: { showEdit },
+    } = this.props;
     return (
       <div className="calendarTopBar">
         <div className="calendarHeader">
@@ -99,9 +103,7 @@ export default class CalendarHeader extends Component {
           />
           {this.renderOperations()}
         </div>
-        <TransitionGroup component="div" transitionAppear={true}>
-          {this.props.children && this.props.children}
-        </TransitionGroup>
+        {this.props.children}
       </div>
     );
   }
@@ -125,9 +127,7 @@ export default class CalendarHeader extends Component {
             );
           } else if (categories) {
             return categories.map(category => {
-              const catName = $('<div>')
-                .html(category.catName)
-                .text();
+              const catName = $('<div>').html(category.catName).text();
               const colorClassName = getCalendarColor(category.color);
               return (
                 <MenuItem onClick={this.handleChangeCategory(category)} key={category.catID}>
@@ -212,7 +212,9 @@ export default class CalendarHeader extends Component {
             </Menu>
           ) : null}
         </span>
-        {Config.isDetailPage ? null : <span className="mLeft20 icon-close Font20 ThemeHoverColor3 pointer" onClick={Config.closeDialog} />}
+        {Config.isDetailPage ? null : (
+          <span className="mLeft20 icon-close Font20 ThemeHoverColor3 pointer" onClick={Config.closeDialog} />
+        )}
       </div>
     );
   }

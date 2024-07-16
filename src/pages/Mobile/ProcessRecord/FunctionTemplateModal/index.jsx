@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Icon } from 'ming-ui';
 import { Modal, WingBlank, Button } from 'antd-mobile';
 import styled from 'styled-components';
@@ -36,19 +36,19 @@ class ModalWrap extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      searchValue: ''
-    }
+      searchValue: '',
+    };
   }
   renderInput() {
     const { searchValue } = this.state;
     return (
       <div className="searchWrap valignWrapper">
-        <Icon icon="search" className="Gray_9e Font20 pointer"/>
+        <Icon icon="search" className="Gray_9e Font20 pointer" />
         <input
           value={searchValue}
           type="text"
           placeholder={_l('搜索')}
-          onChange={(e) => {
+          onChange={e => {
             this.setState({
               searchValue: e.target.value,
             });
@@ -87,18 +87,20 @@ class ModalWrap extends Component {
                 {_l('清除选择')}
               </div>
             )}
-            {opinions.filter(data => data.value.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase())).map((data, index) => (
-              <div
-                key={index}
-                className="opinionItem Gray"
-                onClick={() => {
-                  onSelect(data.value);
-                  onClose();
-                }}
-              >
-                {data.value}
-              </div>
-            ))}
+            {opinions
+              .filter(data => data.value.toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()))
+              .map((data, index) => (
+                <div
+                  key={index}
+                  className="opinionItem Gray"
+                  onClick={() => {
+                    onSelect(data.value);
+                    onClose();
+                  }}
+                >
+                  {data.value}
+                </div>
+              ))}
           </div>
           {inputType === 1 && (
             <div className="btnsWrapper valignWrapper flexRow">
@@ -122,14 +124,15 @@ class ModalWrap extends Component {
 
 export default function functionTemplateModal(props) {
   const div = document.createElement('div');
+
   document.body.appendChild(div);
+
+  const root = createRoot(div);
+
   function destory() {
-    ReactDOM.unmountComponentAtNode(div);
+    root.unmount();
     document.body.removeChild(div);
   }
-  // function onClose() {
-  //   props.onClose();
-  //   destory();
-  // }
-  ReactDOM.render(<ModalWrap visible {...props} onClose={destory} />, div);
+
+  root.render(<ModalWrap visible {...props} onClose={destory} />);
 }

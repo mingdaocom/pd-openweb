@@ -16,6 +16,7 @@ import ExportSheetButton from 'worksheet/components/ExportSheetButton';
 import Pagination from 'worksheet/components/Pagination';
 import { exportRelateRecordRecords } from 'src/pages/worksheet/common/recordInfo/crtl';
 import RelateRecordBtn from './RelateRecordBtn';
+import { getTranslateInfo } from 'src/util';
 import * as actions from './redux/action';
 import { arrayOf } from 'prop-types';
 
@@ -175,11 +176,14 @@ function Operate(props) {
     handleAddRelation,
     handleRemoveRelation,
     updatePageIndex,
+    updatePageSize,
     refresh,
     search,
     updateTableState,
     handleOpenRecordInfo,
+    updateWorksheetControls,
     deleteOriginalRecords,
+    updateBase,
   } = props;
   const { addedRecords } = changes;
   const {
@@ -216,7 +220,7 @@ function Operate(props) {
               control.recordInfoFrom !== RECORD_INFO_FROM.WORKFLOW,
           }}
           isBatchEditing={isBatchEditing}
-          entityName={relateWorksheetInfo.entityName || control.sourceEntityName || ''}
+          entityName={getTranslateInfo(appId, null, control.dataSource).recordName || relateWorksheetInfo.entityName || control.sourceEntityName || ''}
           addVisible={addVisible}
           selectVisible={selectVisible}
           selectedRowIds={selectedRowIds}
@@ -346,6 +350,10 @@ function Operate(props) {
                 allowEdit,
                 formdata: formData,
                 reloadTable: base.isTab ? refresh : () => {},
+                updateWorksheetControls: updatedControls => {
+                  updateBase({ control: updatedControls[0] });
+                  updateWorksheetControls(updatedControls);
+                },
               })
             }
           >
@@ -369,9 +377,11 @@ function Operate(props) {
                   rowId: recordId,
                   controlId: control.controlId,
                   fileName:
-                    `${((last([...document.querySelectorAll('.recordTitle')]) || {}).innerText || '').slice(0, 200)} ${
-                      control.controlName
-                    }${moment().format('YYYYMMDD HHmmss')}`.trim() + '.xlsx',
+                    `${
+                      mode !== 'dialog'
+                        ? ((last([...document.querySelectorAll('.recordTitle')]) || {}).innerText || '').slice(0, 200)
+                        : ''
+                    } ${control.controlName}${moment().format('YYYYMMDD HHmmss')}`.trim() + '.xlsx',
                   onDownload: cb,
                 });
               }}
@@ -379,6 +389,7 @@ function Operate(props) {
           )}
         {(!!recordId || control.type === 51) && (
           <Pagination
+            allowChangePageSize={base.isTab}
             disabled={tableLoading}
             className="pagination"
             pageIndex={pageIndex}
@@ -387,9 +398,12 @@ function Operate(props) {
               control.type === 51 && !isUndefined(searchMaxCount) && count > searchMaxCount ? searchMaxCount : count
             }
             countForShow={countForShow}
-            allowChangePageSize={false}
             changePageIndex={value => {
               updatePageIndex(value);
+            }}
+            changePageSize={value => {
+              updatePageSize(value);
+              localStorage.setItem('relateRecordTablePageSize', value);
             }}
             onPrev={() => {
               updatePageIndex(pageIndex - 1 < 0 ? 0 : pageIndex - 1);
@@ -423,6 +437,7 @@ Operate.propTypes = {
   search: func,
   updateTableState: func,
   handleOpenRecordInfo: func,
+  updateWorksheetControls: func,
   deleteOriginalRecords: func,
 };
 
@@ -431,7 +446,9 @@ export default connect(
   dispatch => ({
     appendRecords: bindActionCreators(actions.appendRecords, dispatch),
     updatePageIndex: bindActionCreators(actions.updatePageIndex, dispatch),
+    updatePageSize: bindActionCreators(actions.updatePageSize, dispatch),
     refresh: bindActionCreators(actions.refresh, dispatch),
+    updateBase: bindActionCreators(actions.updateBase, dispatch),
     search: bindActionCreators(actions.search, dispatch),
     handleAddRelation: bindActionCreators(actions.handleAddRelation, dispatch),
     handleRemoveRelation: bindActionCreators(actions.handleRemoveRelation, dispatch),

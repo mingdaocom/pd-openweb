@@ -9,7 +9,7 @@ export default props => {
 
   return (
     <div className="mLeft25 relative">
-      <div className="Font13 mTop10 Gray_9e">
+      <div className="Font13 mTop10 Gray_75">
         {title}
         {accounts.length ? _l('以下指定成员') : _l('所有成员')}
       </div>

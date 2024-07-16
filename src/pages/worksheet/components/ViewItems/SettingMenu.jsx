@@ -93,6 +93,26 @@ function SettingMenu(props) {
           });
   };
 
+  const handleChangeViewType = (viewType = 'sheet') => {
+    if (viewType !== VIEW_DISPLAY_TYPE[item.viewType]) {
+      changeViewDisplayType(
+        getDefaultViewSet({
+          ...item,
+          viewControl: 'gunter' === viewType ? '' : item.viewControl, //转换成甘特图，viewControl清空
+          viewControls: [],
+          viewType: VIEW_DISPLAY_TYPE[viewType],
+          filters: item.filters, // formatValuesOfOriginConditions(item.filters),
+          advancedSetting: _.omit(item.advancedSetting || {}, ['navfilters', 'navshow', 'topfilters', 'topshow']), //更换视图类型，把分组清空
+        }),
+      );
+      if (viewType === 'detail') {
+        onOpenView(item);
+      }
+    }
+    setChangeViewDisplayTypeVisible(false);
+    handleClose();
+  };
+
   return (
     <Menu className="viewItemMoreOperate">
       {editName && isCharge && (
@@ -121,34 +141,15 @@ function SettingMenu(props) {
               action={['hover']}
               popupPlacement="bottom"
               popupAlign={{ points: ['tl', 'tr'], offset: [0, -6], overflow: { adjustX: true, adjustY: true } }}
-              popup={() => {
-                return (
-                  <ViewDisplayMenu
-                    style={{
-                      borderRadius: '3px',
-                    }}
-                    onClick={(viewType = 'sheet') => {
-                      if (viewType !== VIEW_DISPLAY_TYPE[item.viewType]) {
-                        changeViewDisplayType(
-                          getDefaultViewSet({
-                            ...item,
-                            viewControl: 'gunter' === viewType ? '' : item.viewControl, //转换成甘特图，viewControl清空
-                            viewControls: [],
-                            viewType: VIEW_DISPLAY_TYPE[viewType],
-                            filters: item.filters, // formatValuesOfOriginConditions(item.filters),
-                            advancedSetting: _.omit(item.advancedSetting || {}, ['navfilters', 'navshow']), //更换视图类型，把分组清空
-                          }),
-                        );
-                        if (viewType === 'detail') {
-                          onOpenView(item);
-                        }
-                      }
-                      setChangeViewDisplayTypeVisible(false);
-                      handleClose();
-                    }}
-                  />
-                );
-              }}
+              popup={
+                <ViewDisplayMenu
+                  style={{
+                    borderRadius: '3px',
+                  }}
+                  viewType={VIEW_DISPLAY_TYPE[item.viewType]}
+                  onClick={handleChangeViewType}
+                />
+              }
             >
               <MenuItem className="changeViewDisplayTypeMenuWrap" icon={<Icon icon="swap_horiz" className="Font18" />}>
                 <span className="text">{_l('更改视图类型%05023')}</span>

@@ -5,6 +5,7 @@ import { Tooltip } from 'antd';
 import reportConfig from '../api/reportConfig';
 import ChartDesc from '../components/ChartDesc';
 import Trigger from 'rc-trigger';
+import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 
 export default class Header extends Component {
@@ -28,8 +29,9 @@ export default class Header extends Component {
     this.props.changeCurrentReport({ name });
   }
   render() {
-    const { report, permissions, currentReport } = this.props;
+    const { appId, report, permissions, currentReport } = this.props;
     const { isEdit, editDescVisible } = this.state;
+    const translateInfo = getTranslateInfo(appId, null, report.id);
     return (
       <Fragment>
       {
@@ -46,7 +48,7 @@ export default class Header extends Component {
         ) : (
           <div className="nameWrapper valignWrapper flex">
             <span className="ellipsis bold Font16">
-              {currentReport.name}
+              {translateInfo.name || currentReport.name}
             </span>
             {permissions && (
               <Icon
@@ -85,7 +87,7 @@ export default class Header extends Component {
                   overflow: { adjustX: true, adjustY: true },
                 }}
               >
-                <Tooltip title={currentReport.desc || _l('编辑图表说明')} placement="bottom">
+                <Tooltip title={translateInfo.description || currentReport.desc || _l('编辑图表说明')} placement="bottom">
                   <Icon
                     icon="info"
                     className={cx('Font18 pointer Gray_9e mLeft7', { hideDesc: !editDescVisible && _.isEmpty(currentReport.desc) })}

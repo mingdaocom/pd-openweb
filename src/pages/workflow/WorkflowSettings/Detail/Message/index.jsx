@@ -22,7 +22,7 @@ const TagBox = styled.div`
   height: 22px;
   background: #f5f5f5;
   border-radius: 2px;
-  color: #9e9e9e;
+  color: #757575;
   display: flex;
   align-items: center;
   white-space: nowrap;
@@ -392,7 +392,7 @@ export default class Message extends Component {
             value={keywords}
             onChange={evt => this.setState({ keywords: evt.currentTarget.value.trim() })}
           />
-          <i className="icon-workflow_find Font20 Gray_9e Absolute mTop8 mLeft10" />
+          <i className="icon-workflow_find Font20 Gray_75 Absolute mTop8 mLeft10" />
         </div>
 
         {templates.length ? (
@@ -421,7 +421,7 @@ export default class Message extends Component {
         ) : (
           <div className="flexColumn mTop40 alignItemsCenter">
             <i className="icon-workflow_sms Gray_c Font64" />
-            <div className="Font15 Gray_9e mTop30">{_l('没有已审核模板、点击创建新模板')}</div>
+            <div className="Font15 Gray_75 mTop30">{_l('没有已审核模板、点击创建新模板')}</div>
           </div>
         )}
       </Fragment>

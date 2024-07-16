@@ -8,7 +8,7 @@ import CustomFields from 'src/components/newCustomFields';
 import { addWorksheetRow } from './action';
 import { checkMobileVerify, controlState } from 'src/components/newCustomFields/tools/utils';
 import './index.less';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import moment from 'moment';
 import { TIME_TYPE } from '../publicWorksheetConfig/enum';
 import { getLimitWriteTimeDisplayText } from '../publicWorksheetConfig/utils';
@@ -18,6 +18,7 @@ import CountDown from '../publicWorksheetConfig/common/CountDown';
 import { getRgbaByColor } from '../widgetConfig/util';
 import { getRequest } from 'src/util';
 import cx from 'classnames';
+import localForage from 'localforage';
 
 const ImgCon = styled.div`
   position: relative;
@@ -173,27 +174,25 @@ export default class FillWorksheet extends React.Component {
             JSON.stringify([...publicWorksheetSubmit, new Date().toISOString()]),
           );
           if (cacheFieldData.isEnable) {
-            safeLocalStorageSetItem(
-              'cacheFieldData_' + publicWorksheetInfo.shareId,
-              JSON.stringify(
-                (data || []).map(item => ({
-                  controlId: item.controlId,
-                  value:
-                    item.type === 34
-                      ? _.get(item, 'value.rows')
-                        ? JSON.stringify(item.value.rows)
-                        : undefined
-                      : item.value,
-                })),
-              ),
-            );
+            const cacheData = (data || []).map(item => ({
+              controlId: item.controlId,
+              value:
+                item.type === 34
+                  ? _.get(item, 'value.rows')
+                    ? JSON.stringify(item.value.rows)
+                    : undefined
+                  : item.value,
+            }));
+            localForage.setItem(`cacheFieldData_${publicWorksheetInfo.shareId}`, cacheData);
           }
-          localStorage.removeItem('cacheDraft_' + publicWorksheetInfo.shareId); //提交成功，清除未提交缓存
+          //提交成功，清除未提交缓存
+          localForage.removeItem(`cacheDraft_${publicWorksheetInfo.shareId}`);
+
           window.onbeforeunload = null;
           this.setState({
             submitLoading: false,
           });
-          onSubmit();
+          onSubmit(res.isPayOrder, res.rowId);
         },
       );
     };
@@ -350,21 +349,19 @@ export default class FillWorksheet extends React.Component {
               showError={showError}
               registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
               onChange={(data, id) => {
-                cacheDraft &&
-                  safeLocalStorageSetItem(
-                    'cacheDraft_' + publicWorksheetInfo.shareId,
-                    JSON.stringify(
-                      (data || []).map(item => ({
-                        controlId: item.controlId,
-                        value:
-                          item.type === 34
-                            ? _.get(item, 'value.rows')
-                              ? JSON.stringify(item.value.rows)
-                              : undefined
-                            : item.value,
-                      })),
-                    ),
-                  );
+                if (cacheDraft) {
+                  const draftData = (data || []).map(item => ({
+                    controlId: item.controlId,
+                    value:
+                      item.type === 34
+                        ? _.get(item, 'value.rows')
+                          ? JSON.stringify(item.value.rows)
+                          : undefined
+                        : item.value,
+                  }));
+                  localForage.setItem(`cacheDraft_${publicWorksheetInfo.shareId}`, draftData);
+                }
+
                 this.setState({
                   formData: data,
                 });

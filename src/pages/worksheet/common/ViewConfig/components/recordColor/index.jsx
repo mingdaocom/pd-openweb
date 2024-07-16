@@ -242,7 +242,7 @@ function RecordColor(params) {
   const selectedControl = _.find(filteredControls, { controlId: colorid });
   return (
     <Con>
-      <div className="Gray_9e mTop20">{_l('使用单选项为记录标记颜色')}</div>
+      <div className="Gray_75 mTop20">{_l('使用单选项为记录标记颜色')}</div>
       {selectedControl ? (
         <div className="hasData">
           <div className="Font3 Bold mTop16 mBottom8 valignWrapper">
@@ -408,7 +408,7 @@ export default function (props) {
           {renderHead('control')}
           {openList.includes('control') && (
             <div className="mTop10">
-              <div className="Gray_9e mTop20">{_l('显示字段配置中的样式')}</div>
+              <div className="Gray_75 mTop20">{_l('显示字段配置中的样式')}</div>
               <SwitchStyle>
                 <Icon
                   icon={_.get(view, 'advancedSetting.controlstyle') === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
@@ -427,23 +427,25 @@ export default function (props) {
                 </div>
               </SwitchStyle>
               <br />
-              <SwitchStyle>
-                <Icon
-                  icon={_.get(view, 'advancedSetting.controlstyleapp') === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
-                  className="Font28 Hand"
-                  onClick={() => {
-                    onChangeControlByKey('controlstyleapp');
-                  }}
-                />
-                <div
-                  className="switchText InlineBlock Normal mLeft12 mTop8 Hand"
-                  onClick={() => {
-                    onChangeControlByKey('controlstyleapp');
-                  }}
-                >
-                  {_l('在移动端显示')}
-                </div>
-              </SwitchStyle>
+              {_.get(view, 'advancedSetting.hierarchyViewType') !== '3' && (
+                <SwitchStyle>
+                  <Icon
+                    icon={_.get(view, 'advancedSetting.controlstyleapp') === '1' ? 'ic_toggle_on' : 'ic_toggle_off'}
+                    className="Font28 Hand"
+                    onClick={() => {
+                      onChangeControlByKey('controlstyleapp');
+                    }}
+                  />
+                  <div
+                    className="switchText InlineBlock Normal mLeft12 mTop8 Hand"
+                    onClick={() => {
+                      onChangeControlByKey('controlstyleapp');
+                    }}
+                  >
+                    {_l('在移动端显示')}
+                  </div>
+                </SwitchStyle>
+              )}
             </div>
           )}
         </React.Fragment>

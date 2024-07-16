@@ -104,12 +104,49 @@ const sheetConfig = [
     title: _l('自定义动作'),
     type: 'customAction',
   },
+  {
+    title: _l('统计图'),
+    type: 'statisticsChart',
+  },
 ];
 
-const getTreeData = (appId, sections, searchValue) => {
+const customPageConfig = [
+  {
+    title: _l('统计图'),
+    type: 'pageStatisticsChart',
+  },
+  {
+    title: _l('按钮'),
+    type: 'pageButton',
+  },
+  {
+    title: _l('筛选器'),
+    type: 'pageFilter',
+  },
+  {
+    title: _l('视图'),
+    type: 'pageView',
+  },
+  {
+    title: _l('富文本'),
+    type: 'pageRichText',
+  },
+];
+
+const getTreeData = (appId, { sections, collections, searchValue }) => {
   const getChildren = (appItem, childSections = []) => {
     if (appItem.type === 0) {
       const res = sheetConfig.map(item => {
+        return {
+          ...item,
+          workSheetId: appItem.workSheetId,
+          key: `${appItem.workSheetId}-${item.type}`,
+        };
+      });
+      return appItem.workSheetName.toLocaleLowerCase().includes(searchValue) ? res : [];
+    }
+    if (appItem.type === 1 && !appItem.urlTemplate) {
+      const res = customPageConfig.map(item => {
         return {
           ...item,
           workSheetId: appItem.workSheetId,
@@ -123,7 +160,7 @@ const getTreeData = (appId, sections, searchValue) => {
       return subChildren
         .map(subAppItem => {
           return {
-            title: getTranslateInfo(appId, subAppItem.workSheetId).name || subAppItem.workSheetName,
+            title: getTranslateInfo(appId, null, subAppItem.workSheetId).name || subAppItem.workSheetName,
             originalTitle: subAppItem.workSheetName,
             key: subAppItem.workSheetId,
             type: subAppItem.type,
@@ -144,7 +181,7 @@ const getTreeData = (appId, sections, searchValue) => {
   const result = sections
     .map(gourup => {
       return {
-        title: getTranslateInfo(appId, gourup.appSectionId).name || gourup.name,
+        title: getTranslateInfo(appId, null, gourup.appSectionId).name || gourup.name,
         originalTitle: gourup.name,
         key: gourup.appSectionId,
         type: 2,
@@ -152,7 +189,7 @@ const getTreeData = (appId, sections, searchValue) => {
         children: gourup.workSheetInfo
           .map(appItem => {
             return {
-              title: getTranslateInfo(appId, appItem.workSheetId).name || appItem.workSheetName,
+              title: getTranslateInfo(appId, null, appItem.workSheetId).name || appItem.workSheetName,
               originalTitle: appItem.workSheetName,
               key: appItem.workSheetId,
               type: appItem.type,
@@ -171,11 +208,27 @@ const getTreeData = (appId, sections, searchValue) => {
       };
     })
     .filter(n => (searchValue ? (n.title.toLocaleLowerCase().includes(searchValue) ? true : n.children.length) : true));
-  if (result.length === 1 && !result[0].title) {
-    return result[0].children;
-  } else {
-    return result;
-  }
+  const appEntrance = [
+    {
+      key: 'appItemEntrance',
+      title: _l('应用项'),
+      selectable: false,
+      children: result.length === 1 && !result[0].title ? result[0].children : result
+    },
+    {
+      key: 'optionsEntrance',
+      title: _l('选项集'),
+      selectable: false,
+      children: collections.map(c => {
+        return {
+          key: c.collectionId,
+          title: getTranslateInfo(appId, null, c.collectionId).name || c.name,
+          type: 'collections'
+        }
+      }).filter(n => (searchValue ? n.title.toLocaleLowerCase().includes(searchValue) : true))
+    }
+  ];
+  return appEntrance;
 };
 
 const getExpandedKeys = treeData => {
@@ -188,11 +241,16 @@ const getExpandedKeys = treeData => {
 };
 
 export default function Nav(props) {
-  const { style, app, translateData, selectedKeys, onSelectedKeys } = props;
-  const { name, iconUrl, sections } = app;
+  const { style, app, translateData } = props;
+  const { expandedKeys, setExpandedKeys } = props;
+  const { selectedKeys, onSelectedKeys } = props;
+  const { name, iconUrl, sections, collections = [] } = app;
   const [searchValue, setSearchValue] = useState('');
-  const [expandedKeys, setExpandedKeys] = useState([]);
-  const treeData = getTreeData(app.id, sections, searchValue.toLocaleLowerCase());
+  const treeData = getTreeData(app.id, {
+    sections,
+    collections,
+    searchValue: searchValue.toLocaleLowerCase()
+  });
 
   useEffect(() => {
     if (searchValue) {
@@ -224,7 +282,7 @@ export default function Nav(props) {
           }}
         >
           <SvgIcon url={iconUrl} fill="#9e9e9e" size={18} />
-          <span className="Font13 mLeft5 ellipsis">{getTranslateInfo(app.id, app.id).name || name}</span>
+          <span className="Font13 mLeft5 ellipsis">{getTranslateInfo(app.id, null, app.id).name || name}</span>
         </div>
         <ScrollView className="flex mTop10">
           <Tree

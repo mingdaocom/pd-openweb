@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import reactDOM from 'react-dom';
 
 export default function widthProvider(GridOutComponent) {
   return class WidthProvider extends Component {
@@ -45,8 +44,8 @@ export default function widthProvider(GridOutComponent) {
 
     onWindowResize = width => {
       if (!this.mounted) return;
-      // eslint-disable-next-line react/no-find-dom-node
-      const node = reactDOM.findDOMNode(this); // Flow casts this to Text | Element
+      const { layoutType } = this.props;
+      const node = layoutType === 'mobile' ? document.querySelector('.customPageContentWrap .layout') : document.querySelector('#componentsWrap .componentsWrap>.layout');
       if (node instanceof HTMLElement) {
         this.setState({ width: typeof width === 'number' ? node.offsetWidth + width : node.offsetWidth });
       }

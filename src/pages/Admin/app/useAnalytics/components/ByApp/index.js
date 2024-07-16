@@ -23,14 +23,13 @@ const ByAppWrap = styled.div`
     display: flex;
     justify-content: space-between;
     .tabsWrap {
-      width: 190px;
       height: 36px;
       line-height: 36px;
       margin-left: 24px;
       background-color: #f5f5f5;
       border-radius: 3px;
       .tabItem {
-        width: 92px;
+        padding: 0 20px;
         height: 32px;
         text-align: center;
         line-height: 32px;

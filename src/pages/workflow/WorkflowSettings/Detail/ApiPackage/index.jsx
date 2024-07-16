@@ -109,7 +109,7 @@ export default class ApiPackage extends Component {
         >
           {!data.appId ? (
             <span
-              className="Gray_9e ThemeHoverColor3 pointer alignItemsCenter"
+              className="Gray_75 ThemeHoverColor3 pointer alignItemsCenter"
               style={{ display: 'inline-flex' }}
               onClick={() => this.setState({ visible: true })}
             >
@@ -122,7 +122,7 @@ export default class ApiPackage extends Component {
               <span data-tip={_l('变更连接与认证')}>
                 <Icon
                   icon="swap_horiz"
-                  className="Font20 Gray_9e ThemeHoverColor3 pointer"
+                  className="Font20 Gray_75 ThemeHoverColor3 pointer"
                   onClick={() => this.setState({ visible: true })}
                 />
               </span>
@@ -144,14 +144,14 @@ export default class ApiPackage extends Component {
                   />
                 </div>
                 {(data.app.explain || data.app.describe) && (
-                  <div className="Gray_9e ellipsis">{data.app.explain || data.app.describe}</div>
+                  <div className="Gray_75 ellipsis">{data.app.explain || data.app.describe}</div>
                 )}
               </div>
               <div className="flex" />
               <span data-tip={_l('变更连接与认证')}>
                 <Icon
                   icon="swap_horiz"
-                  className="Font20 Gray_9e ThemeHoverColor3 pointer"
+                  className="Font20 Gray_75 ThemeHoverColor3 pointer"
                   onClick={() => this.setState({ visible: true })}
                 />
               </span>

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import cx from 'classnames';
 import { Icon, SvgIcon } from 'ming-ui';
-import CSSTransitionGroup from 'react-addons-css-transition-group';
+import { Drawer } from 'antd';
 import styled from 'styled-components';
 import SheetSet from './sheetSet';
 import OptionSet from './optionSet';
@@ -9,16 +9,6 @@ import ControlSet from './controlSet';
 import { getCustomWidgetUri } from 'src/pages/worksheet/constants/common';
 import worksheetApi from 'src/api/worksheet';
 
-const WrapCon = styled.div`
-  .cover {
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 1;
-  }
-`;
 const Wrap = styled.div`
   padding: 24px 40px;
   width: 880px;
@@ -95,72 +85,60 @@ export default class Con extends PureComponent {
     const { iconUrl, sheetName, sheetId } = sheet;
     const { tab = 0 } = this.state;
     return (
-      <CSSTransitionGroup
-        component={'div'}
-        transitionName={'roleSettingSlide'}
-        transitionAppearTimeout={500}
-        transitionEnterTimeout={500}
-        transitionLeaveTimeout={500}
+      <Drawer
+        width={880}
+        onClose={() => onClose()}
+        mask={true}
+        placement="right"
+        visible={showRoleSet}
+        maskClosable={true}
+        closable={false}
       >
-        {showRoleSet ? (
-          <WrapCon>
-            <div
-              className="cover"
-              onClick={() => {
-                onClose();
-              }}
-            ></div>
-            <Wrap className="roleSettingWrap flexColumn">
-              <div className="">
-                <div className="headerCon flexRow">
-                  <div className="flex flexRow alignItemsCenter">
-                    {iconUrl && <SvgIcon url={sheet.iconUrl} fill={'#757575'} size={24} />}
-                    <span className="overflow_ellipsis TxtLeft mLeft5">{sheetName}</span>{' '}
-                    <Icon
-                      className="Font16 pointer mLeft8 Hand"
-                      icon="launch"
-                      onClick={() => {
-                        getCustomWidgetUri({
-                          sourceName: sheetName,
-                          templateId: '',
-                          sourceId: sheetId,
-                          projectId,
-                          appconfig: {
-                            appId,
-                            appSectionId: '',
-                          },
-                        });
-                      }}
-                    />
-                  </div>
-                  <Icon
-                    icon="close"
-                    className="Right LineHeight25 Gray_9 Hand Font22 ThemeHoverColor3"
-                    onClick={onClose}
-                  />
-                </div>
-                <ul className="tabCon TxtLeft">
-                  {tabList.map((o, i) => {
-                    return (
-                      <li
-                        className={cx('Hand Font15 mRight24', { cur: i === tab })}
-                        onClick={() => {
-                          this.setState({
-                            tab: i,
-                          });
-                        }}
-                      >
-                        {o}
-                      </li>
-                    );
-                  })}
-                </ul>
+        <Wrap className="roleSettingWrap flexColumn">
+          <div className="">
+            <div className="headerCon flexRow">
+              <div className="flex flexRow alignItemsCenter">
+                {iconUrl && <SvgIcon url={sheet.iconUrl} fill={'#757575'} size={24} />}
+                <span className="overflow_ellipsis TxtLeft mLeft5">{sheetName}</span>{' '}
+                <Icon
+                  className="Font16 pointer mLeft8 Hand"
+                  icon="launch"
+                  onClick={() => {
+                    getCustomWidgetUri({
+                      sourceName: sheetName,
+                      templateId: '',
+                      sourceId: sheetId,
+                      projectId,
+                      appconfig: {
+                        appId,
+                        appSectionId: '',
+                      },
+                    });
+                  }}
+                />
               </div>
-              <div className="setCon flex">{this.renderContent()}</div>
-            </Wrap>
-          </WrapCon>
-        ) : null}
-      </CSSTransitionGroup>
+              <Icon icon="close" className="Right LineHeight25 Gray_9 Hand Font22 ThemeHoverColor3" onClick={onClose} />
+            </div>
+            <ul className="tabCon TxtLeft">
+              {tabList.map((o, i) => {
+                return (
+                  <li
+                    className={cx('Hand Font15 mRight24', { cur: i === tab })}
+                    onClick={() => {
+                      this.setState({
+                        tab: i,
+                      });
+                    }}
+                  >
+                    {o}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          <div className="setCon flex">{this.renderContent()}</div>
+        </Wrap>
+      </Drawer>
     );
   }
 }

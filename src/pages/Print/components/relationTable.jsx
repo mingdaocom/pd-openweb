@@ -4,7 +4,7 @@ import { Resizable } from 'react-resizable';
 import { DEFAULT_FONT_SIZE } from '../config';
 import _ from 'lodash';
 import STYLE_PRINT from './exportWordPrintTemCssString';
-
+import RegExpValidator from 'src/util/expression';
 let minPictureW = 169;
 let minW = 33;
 const ResizeableTitle = props => {
@@ -180,8 +180,8 @@ export default class TableRelation extends React.Component {
       } catch (err) {
         return;
       }
-      const pictureAttachments = attachments.filter(attachment => File.isPicture(attachment.ext));
-      const otherAttachments = attachments.filter(attachment => !File.isPicture(attachment.ext));
+      const pictureAttachments = attachments.filter(attachment => RegExpValidator.fileIsPicture(attachment.ext));
+      const otherAttachments = attachments.filter(attachment => !RegExpValidator.fileIsPicture(attachment.ext));
       has = pictureAttachments.length > 0 || otherAttachments.length > 0;
     });
     return has;

@@ -10,7 +10,7 @@ import { getSortData } from 'src/pages/worksheet/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 const ConditionsWrap = styled.div`
   .operateBtn {
     cursor: pointer;

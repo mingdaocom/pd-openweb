@@ -3,6 +3,7 @@ import cx from 'classnames';
 import Loadable from 'react-loadable';
 import { navigateTo } from 'src/router/navigateTo';
 import common from './common.js';
+import { routerConfigs } from './routerConfig.js';
 import './index.less';
 import { getRequest } from 'src/util';
 import _ from 'lodash';
@@ -32,8 +33,8 @@ export default class PersonalEntrypoint extends Component {
   render() {
     const menus =
       !md.global.Config.IsLocal || (md.global.Config.IsLocal && md.global.Config.ShowLicense)
-        ? common.MENULEFT
-        : common.MENULEFT.slice(0, -1);
+        ? routerConfigs
+        : routerConfigs.slice(0, -1);
     const type = getRequest().type || 'information';
     const currentComp = _.get(
       _.find(menus, menu => menu.typetag.includes(type)),

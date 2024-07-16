@@ -146,6 +146,7 @@ export default class RelateRecordList extends React.PureComponent {
       searchControl,
       multiple,
       staticRecords,
+      getFilterRowsGetType,
       fastSearchControlArgs,
     } = this.props;
     const _this = this;
@@ -182,7 +183,7 @@ export default class RelateRecordList extends React.PureComponent {
       status: 1,
       keyWords,
       isGetWorksheet: true,
-      getType: 7,
+      getType: getFilterRowsGetType || 7, // 32 是快速筛选专用，只处理记录可见逻辑，不生效字段其它配置。
       filterControls: filterControls || [],
     };
     if (fastSearchControlArgs) {

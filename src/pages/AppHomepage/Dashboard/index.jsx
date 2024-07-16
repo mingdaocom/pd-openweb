@@ -20,6 +20,8 @@ import _ from 'lodash';
 import { getToken } from 'src/util';
 import { Base64 } from 'js-base64';
 import axios from 'axios';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -194,10 +196,10 @@ export default function Dashboard(props) {
     updatePlatformSetting,
     dashboardColor,
     hasBgImg,
+    myPermissions = [],
   } = props;
   const projects = _.get(md, 'global.Account.projects');
   const isExternal = projectId === 'external';
-  const isAdmin = currentProject.isSuperAdmin || currentProject.isProjectAppManager;
   const [state, dispatch] = useReducer(reducer, initialState);
   const actions = useMemo(() => new CreateActions({ dispatch, state }), [state]);
   const [flag, setFlag] = useState(null);
@@ -215,6 +217,8 @@ export default function Dashboard(props) {
     recentApps = [],
     markedApps = [],
     recentAppItems = [],
+    appLang = [],
+    projectGroupsLang,
   } = state;
   const {
     logo,
@@ -228,18 +232,16 @@ export default function Dashboard(props) {
   } = platformSetting;
   const { displayCommonApp, rowCollect, todoDisplay, displayApp, displayChart, sortItems } = origin.homeSetting || {};
 
-  const hasNewTheme =
-    (currentProject.isSuperAdmin || currentProject.isProjectAdmin) &&
-    !md.global.Config.IsLocal &&
-    !!advancedThemes.filter(item => item.isNewTheme).length;
+  const hasNewTheme = !md.global.Config.IsLocal && !!advancedThemes.filter(item => item.isNewTheme).length;
   const newTheme = advancedThemes.filter(item => item.isNewTheme)[0] || {};
+  const hasProjectSetting = hasPermission(myPermissions, PERMISSION_ENUM.DASHBOARD_SETTING);
 
-  const fetchData = () => {
-    !isExternal ? actions.loadDashboardInfo({ projectId }) : actions.loadAppAndGroups({ projectId });
+  const fetchData = ({ noCache } = {}) => {
+    !isExternal ? actions.loadDashboardInfo({ projectId, noCache }) : actions.loadAppAndGroups({ projectId, noCache });
   };
 
   useEffect(() => {
-    fetch('https://filepub.mingdao.com/dashboard/themes.js')
+    fetch('https://filepub.mingdao.com/dashboard/themes_2024_06_06.js')
       .then(res => res.text())
       .then(res => setAdvancedThemes(eval(res)));
   }, []);
@@ -313,15 +315,16 @@ export default function Dashboard(props) {
 
     return (
       <div className="sortableCardsWrap">
-        {sortModuleIds.map(type => {
+        {sortModuleIds.map((type, index) => {
           switch (type) {
             case MODULE_TYPES.APP_COLLECTION:
               return !!markedApps.length ? (
-                <CardItem className="sortItem appCollectCard">
+                <CardItem key={index} className="sortItem appCollectCard">
                   <CollectionApps
                     loading={dashboardLoading}
                     projectId={projectId}
                     apps={apps}
+                    appLang={appLang}
                     markedApps={markedApps}
                     onMarkApp={para => actions.markApp(para)}
                     onMarkApps={para => actions.markApps(para)}
@@ -334,10 +337,11 @@ export default function Dashboard(props) {
               ) : null;
             case MODULE_TYPES.RECENT:
               return displayCommonApp ? (
-                <CardItem className={cx('sortItem recentCard', { halfWidth })}>
+                <CardItem key={index} className={cx('sortItem recentCard', { halfWidth })}>
                   <RecentApps
                     loading={dashboardLoading}
                     projectId={projectId}
+                    appLang={appLang}
                     recentApps={recentApps}
                     recentAppItems={recentAppItems}
                     onMarkApp={para => actions.markApp(para)}
@@ -348,7 +352,7 @@ export default function Dashboard(props) {
               ) : null;
             case MODULE_TYPES.ROW_COLLECTION:
               return rowCollect ? (
-                <CardItem className={cx('sortItem rowCollectCard', { halfWidth })}>
+                <CardItem key={index} className={cx('sortItem rowCollectCard', { halfWidth })}>
                   <div className="cardTitle pointer">
                     <div className="titleText">
                       {advancedSetting.recordFavIcon && <img src={advancedSetting.recordFavIcon} />}
@@ -375,7 +379,7 @@ export default function Dashboard(props) {
               ) : null;
             default:
               return displayChart ? (
-                <CollectionCharts projectId={projectId} flag={flag} currentTheme={advancedSetting} />
+                <CollectionCharts key={index} projectId={projectId} flag={flag} currentTheme={advancedSetting} />
               ) : null;
           }
         })}
@@ -399,14 +403,14 @@ export default function Dashboard(props) {
                 {slogan && <span className={logo ? 'Font17 mLeft16' : 'Font17'}>{slogan}</span>}
               </div>
             ) : (
-              <div className="Font26">
+              <div className="Font26 overflow_ellipsis">
                 <span>{getGreetingText()},</span>
                 <span className="bold mLeft8">{md.global.Account.fullname}</span>
               </div>
             )}
 
             <div className="flexRow">
-              {hasNewTheme && (
+              {hasNewTheme && hasProjectSetting && (
                 <Tooltip
                   title={
                     advancedSetting.themeKey === newTheme.themeKey
@@ -435,7 +439,7 @@ export default function Dashboard(props) {
                 <div
                   className="headerIcon"
                   onClick={() => {
-                    fetchData();
+                    fetchData({ noCache: true });
                     setFlag(+new Date());
                   }}
                 >
@@ -466,6 +470,8 @@ export default function Dashboard(props) {
                   currentTheme={advancedSetting}
                   onSetAdvancedTheme={onSetAdvancedTheme}
                   advancedThemes={advancedThemes}
+                  hasProjectSetting={hasProjectSetting}
+                  hasBasicSettingAuth={hasPermission(myPermissions, PERMISSION_ENUM.BASIC_SETTING)}
                 />
               )}
             </div>
@@ -507,10 +513,10 @@ export default function Dashboard(props) {
           {(displayApp || isExternal) && (
             <CardItem className="flex">
               <AppGrid
+                projectGroupsLang={projectGroupsLang}
                 dashboardColor={dashboardColor}
                 isDashboard={true}
                 setting={origin.homeSetting}
-                isAdmin={isAdmin}
                 loading={dashboardLoading}
                 keywords={keywords}
                 actions={actions}
@@ -524,9 +530,11 @@ export default function Dashboard(props) {
                 myApps={getFilterApps(apps, keywords)}
                 externalApps={getFilterApps(externalApps, keywords)}
                 aloneApps={getFilterApps(aloneApps, keywords)}
+                appLang={appLang}
                 groups={groups}
                 hideExternalTitle={isExternal}
                 currentTheme={advancedSetting}
+                myPermissions={myPermissions}
               />
             </CardItem>
           )}

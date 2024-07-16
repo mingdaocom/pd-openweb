@@ -10,7 +10,7 @@ import accountController from 'src/api/account';
 import { captcha } from 'ming-ui/functions';
 import { Input } from 'antd';
 import './index.less';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import _ from 'lodash';
 
 const checkFuncs = {
@@ -26,7 +26,7 @@ const checkFuncs = {
     const { global = {} } = md;
     const { SysSettings = {} } = global;
     const { passwordRegexTip, passwordRegex } = SysSettings;
-    if (!(pwd && RegExp.isPasswordValid(pwd, passwordRegex))) {
+    if (!(pwd && RegExpValidator.isPasswordValid(pwd, passwordRegex))) {
       return passwordRegexTip || _l('密码，至少8-20位，且含字母+数字');
     }
   },

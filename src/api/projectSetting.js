@@ -181,6 +181,31 @@ export default {
      return mdyAPI('ProjectSetting', 'SetLogo', args, options);
    },
   /**
+  * 去掉 LOGO
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {boolean} args.allowProjectCodeJoin 企业标识
+  * @param {string} args.logoName LOGO
+  * @param {string} args.imageName 二级域名页面背景图片
+  * @param {boolean} args.birthdayNoticeEnabled 生日提醒
+  * @param {boolean} args.isAudit 设置审批
+  * @param {boolean} args.forAll 设置允许全员可见组织结构
+  * @param {boolean} args.isAllowStructureSelfEdit 是否 允许员工自行添加下属
+  * @param {boolean} args.onlyManagerCreateApp 是否 只允许管理员创建应用
+  * @param {boolean} args.enabledWatermark 是否 启用水印
+  * @param {boolean} args.enabledNoneVerification 是否 启用用户密码输入可以设置免密验证
+  * @param {boolean} args.notice 设置允许Score通知
+  * @param {string} args.subDomain 设置二级域名
+  * @param {string} args.domain 删除绑定的域名
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   clearLogo: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'ClearLogo', args, options);
+   },
+  /**
   * 二级域名页面背景图片
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -442,6 +467,7 @@ MD.Enum.ProjectSetting.UserFillCompanyEnabled
 MD.Enum.ProjectSetting.UserFillWorkSiteEnabled
 MD.Enum.ProjectSetting.UserFillJobNumberEnabled
 MD.Enum.ProjectSetting.UserFillDepartmentEnabled
+【前端反馈 无调用】
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {} args.setting
@@ -518,6 +544,10 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   * @param {string} args.workphoneAttr LDAP 用户工作电话
   * @param {integer} args.searchRange 账户搜索范围
   * @param {object} args.dnGroup DN/组
+  * @param {boolean} args.mustFullname 必须同步用户姓名
+  * @param {boolean} args.mustDepartment 必须同步用户部门
+  * @param {boolean} args.mustJob 必须同步用户职位
+  * @param {boolean} args.mustWorkphone 必须同步工作电话
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

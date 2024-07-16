@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import Dialog from './Dialog';
 import ConfirmButton from './ConfirmButton';
 import '../less/Dialog.less';
@@ -56,14 +56,16 @@ export default function promise(props) {
           confirm={props.type || 'confirm'}
         />
       );
-      ReactDOM.render(dialog, container);
+      const root = createRoot(container);
+
+      root.render(dialog);
 
       // 等待用户点击确定 / 取消
       yield;
 
       // 关闭弹框
-      const res = ReactDOM.unmountComponentAtNode(container);
-      if (res && container.parentNode) container.parentNode.removeChild(container);
+      root.unmount();
+      document.body.removeChild(container);
 
       // 判断用户点击确定还是取消
       if (confirm) resolve();

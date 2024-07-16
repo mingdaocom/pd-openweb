@@ -5,17 +5,33 @@ import { Flex, ActivityIndicator, WhiteSpace, ListView, WingBlank } from 'antd-m
 import CustomRecordCard from 'mobile/RecordList/RecordCard';
 import sheetApi from 'src/api/worksheet';
 import { WithoutSearchRows } from '../RecordList/SheetRows';
-import {
-  getDefaultCondition,
-  formatConditionForSave,
-  redefineComplexControl,
-} from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getRequest } from 'src/util';
 import './index.less';
 import _ from 'lodash';
 
 const pageSize = 20;
+
+function getFilterControls(searchId, keyWords) {
+  return searchId && keyWords
+    ? [
+        {
+          spliceType: 1,
+          isGroup: true,
+          groupFilters: [
+            {
+              controlId: searchId,
+              dataType: 2,
+              spliceType: 1,
+              filterType: 2,
+              dynamicSource: [],
+              values: [keyWords],
+            },
+          ],
+        },
+      ]
+    : [];
+}
 
 class Search extends Component {
   constructor(props) {
@@ -43,8 +59,7 @@ class Search extends Component {
         worksheetId: params.worksheetId,
         getTemplate: true,
         getViews: true,
-      })
-      .then();
+      });
 
     const requestFilters = filterId
       ? sheetApi.getWorksheetFilterById({
@@ -57,8 +72,9 @@ class Search extends Component {
       this.setState({
         sheetInfo: sheet,
         filterControls: formatValuesOfOriginConditions(filterData.items || []),
+      }, () => {
+        this.requestFilterRows();
       });
-      this.requestFilterRows();
     });
   }
   requestFilterRows = () => {
@@ -75,15 +91,7 @@ class Search extends Component {
     let searchFilter = null;
 
     if (searchControl) {
-      const data = getDefaultCondition(redefineComplexControl(searchControl));
-      searchFilter = formatConditionForSave(
-        {
-          ...data,
-          type: 2,
-          values: [keyWords],
-        },
-        1,
-      );
+      searchFilter = getFilterControls(searchId, keyWords)
     }
 
     sheetApi

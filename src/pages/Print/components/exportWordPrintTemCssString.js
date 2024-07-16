@@ -66,10 +66,8 @@ export default {
     whiteSpace: 'break-spaces',
   },
   createBy_h6: {
-    fontSize: 18,
     fontWeight: 'bold',
     margin: 0,
-    marginTop: 20,
   },
   sysBox_span: {
     display: 'inline-block',

@@ -1,5 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import { Checkbox, Icon, Dropdown } from 'ming-ui';
+import { Checkbox, Icon, Dropdown, Radio } from 'ming-ui';
 import UpdateFields from '../UpdateFields';
 import ProcessDetails from '../ProcessDetails';
 import OperatorEmpty from '../OperatorEmpty';
@@ -36,6 +36,11 @@ export default props => {
   const { companyId, processId, data, updateSource, cacheKey } = props;
   const [tabIndex, setTabIndex] = useState(1);
   const [selected, setSelected] = useState(!!data.processConfig.requiredIds.length);
+  const InitiatorAction = [
+    { text: _l('允许发起人撤回'), key: 'allowRevoke' },
+    { text: _l('允许审批人撤回'), key: 'allowTaskRevoke' },
+    { text: _l('允许发起人催办'), key: 'allowUrge' },
+  ];
   const INITIATOR_TYPE = [
     { text: _l('自动进入下一个节点'), value: 4 },
     { text: _l('由流程拥有者代理'), value: 2 },
@@ -88,6 +93,113 @@ export default props => {
         disabled: _.includes(data.processConfig.requiredIds, item.id),
       };
     });
+  // 渲染撤回节点
+  const renderRevokeNode = () => {
+    const { revokeFlowNodes, revokeNodeIds } = data.processConfig;
+    const revokeNodes = revokeFlowNodes.map(item => {
+      return {
+        text: item.name,
+        value: item.id,
+        disabled: _.includes(revokeNodeIds, item.id),
+      };
+    });
+    const CALLBACK_TYPES = [
+      { text: _l('重新执行流程'), value: 0 },
+      { text: _l('回到当时撤回节点'), value: 1, desc: _l('撤回节点需没有并行分支') },
+    ];
+
+    return (
+      <Fragment>
+        <div className="mTop10 mLeft25 flexRow" style={{ alignItems: 'center' }}>
+          <div>{_l('节点')}</div>
+          <Dropdown
+            className="mLeft10 flex flowDropdown flowDropdownMoreSelect"
+            menuStyle={{ width: '100%' }}
+            data={revokeNodes}
+            value={revokeNodeIds.length || undefined}
+            border
+            openSearch
+            renderTitle={() =>
+              !!revokeNodeIds.length && (
+                <ul className="tagWrap">
+                  {revokeNodeIds.map(id => {
+                    const item = _.find(revokeFlowNodes, item => item.id === id);
+
+                    return (
+                      <li key={id} className={cx('tagItem flexRow', { error: !item })}>
+                        <Tooltip title={item ? null : `ID：${id}`}>
+                          <span className="tag">{item ? item.name : _l('节点已删除')}</span>
+                        </Tooltip>
+                        <span
+                          className="delTag"
+                          onClick={e => {
+                            e.stopPropagation();
+                            const ids = [].concat(revokeNodeIds);
+                            _.remove(ids, item => item === id);
+
+                            updateSource({
+                              processConfig: Object.assign({}, data.processConfig, { revokeNodeIds: ids }),
+                            });
+                          }}
+                        >
+                          <Icon icon="close" className="pointer" />
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )
+            }
+            onChange={revokeNodeId =>
+              updateSource({
+                processConfig: Object.assign({}, data.processConfig, {
+                  revokeNodeIds: revokeNodeIds.concat(revokeNodeId),
+                }),
+              })
+            }
+          />
+          <div className="mLeft10">{_l('通过后不允许撤回')}</div>
+        </div>
+        <div className="mTop15 mLeft25">
+          <Checkbox
+            className="InlineBlock"
+            text={_l('允许重新发起')}
+            checked={data.processConfig.callBackType !== -1}
+            onClick={checked =>
+              updateSource({
+                processConfig: Object.assign({}, data.processConfig, { callBackType: !checked ? 0 : -1 }),
+              })
+            }
+          />
+          {data.processConfig.callBackType !== -1 && (
+            <div className="mLeft15 flexRow mTop10 alignItemsCenter">
+              {CALLBACK_TYPES.map((item, index) => {
+                return (
+                  <Fragment key={index}>
+                    <Radio
+                      className="mRight40"
+                      text={item.text}
+                      checked={data.processConfig.callBackType === item.value}
+                      onClick={() =>
+                        updateSource({
+                          processConfig: Object.assign({}, data.processConfig, { callBackType: item.value }),
+                        })
+                      }
+                    />
+                    {item.desc && (
+                      <span style={{ height: 16, marginLeft: -35 }} data-tip={item.desc}>
+                        <Icon className="Font16 Gray_9e" icon="info" />
+                      </span>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </Fragment>
+    );
+  };
 
   useEffect(() => {
     setSelected(!!data.processConfig.requiredIds.length);
@@ -95,6 +207,23 @@ export default props => {
 
   return (
     <Fragment>
+      <div className="Font13 mTop20 bold">{_l('发起人操作')}</div>
+      {InitiatorAction.map((item, i) => (
+        <Fragment key={i}>
+          <Checkbox
+            className="mTop15 flexRow"
+            text={item.text}
+            checked={data.processConfig[item.key]}
+            onClick={checked =>
+              updateSource({
+                processConfig: Object.assign({}, data.processConfig, { [item.key]: !checked }),
+              })
+            }
+          />
+          {item.key === 'allowRevoke' && data.processConfig.allowRevoke && renderRevokeNode()}
+        </Fragment>
+      ))}
+
       <div className="Font13 mTop20 bold">
         {_l('发起人为空时')}
         <span
@@ -172,7 +301,7 @@ export default props => {
         <Fragment>
           <div className="Font13 mTop20">
             <span className="bold">{_l('流程拥有者')}</span>
-            <span className="Gray_9e">{_l('（代理审批流程中负责人为空时的发起、审批、填写节点）')}</span>
+            <span className="Gray_75">{_l('（代理审批流程中负责人为空时的发起、审批、填写节点）')}</span>
           </div>
           <div className="flexRow alignItemsCenter">
             <Member companyId={companyId} leastOne accounts={data.processConfig.agents} />
@@ -194,7 +323,7 @@ export default props => {
             </div>
           </div>
 
-          <div className="Font13 mTop20 bold">{_l('自动通过（默认设置）')}</div>
+          <div className="Font13 mTop20 bold">{_l('自动通过')}</div>
           {AutoPass.map((item, i) => (
             <div key={i} className="flexRow mTop15 alignItemsCenter">
               <Checkbox
@@ -308,6 +437,58 @@ export default props => {
               })
             }
           />
+
+          <div className="Font13 mTop20 bold">{_l('其他')}</div>
+          <div className="flexRow mTop15 alignItemsCenter">
+            <Checkbox
+              text={_l('当没有上级负责人时，由本级进行处理')}
+              checked={data.processConfig.defaultCandidateUser}
+              onClick={checked =>
+                updateSource({
+                  processConfig: Object.assign({}, data.processConfig, { defaultCandidateUser: !checked }),
+                })
+              }
+            />
+            <Tooltip
+              overlayStyle={{ maxWidth: 320 }}
+              title={_l(
+                '指在审批流程中当人员设置为直属上级、上级部门负责人时。如果当前人员没有直属上级，则由本人自己处理；如果当前人员、部门没有上级部门，则由本部门负责人处理。未勾选时，则按照为空处理。',
+              )}
+            >
+              <Icon icon="info" className="Gray_9e Font16 TxtTop InlineBlock mTop3 mLeft5" />
+            </Tooltip>
+          </div>
+          <div className="flexRow mTop15 alignItemsCenter">
+            <Checkbox
+              text={_l('验证节点负责人的记录查看权限')}
+              checked={data.processConfig.permissionLevel === 1}
+              onClick={checked =>
+                updateSource({
+                  processConfig: Object.assign({}, data.processConfig, { permissionLevel: !checked ? 1 : 0 }),
+                })
+              }
+            />
+            <Tooltip
+              overlayStyle={{ maxWidth: 320 }}
+              title={
+                <div>
+                  <div>
+                    {_l(
+                      '未勾选时：在审批流程中，不验证审批、填写、抄送人在工作表中的记录权限，只按照流程节点设置的权限进行查看和操作',
+                    )}
+                  </div>
+                  <div>
+                    {_l(
+                      '勾选后：节点负责人必须在工作表中也对记录有查看权限时才能继续操作；无权限时不可见记录内容且不能进行审批、填写',
+                    )}
+                  </div>
+                  <div>{_l('提醒：批量操作不受影响')}</div>
+                </div>
+              }
+            >
+              <Icon icon="info" className="Gray_9e Font16 TxtTop InlineBlock mTop3 mLeft5" />
+            </Tooltip>
+          </div>
         </Fragment>
       )}
 
@@ -316,7 +497,7 @@ export default props => {
           {data.flowNodeMap ? (
             <Fragment>
               <div className="Font13 bold mTop25">{_l('回到发起节点时')}</div>
-              <div className="Font13 Gray_9e mTop10">{_l('当流程退回至此节点时触发更新')}</div>
+              <div className="Font13 Gray_75 mTop10">{_l('当流程退回至此节点时触发更新')}</div>
               <UpdateFields
                 type={1}
                 companyId={props.companyId}
@@ -343,7 +524,7 @@ export default props => {
               <ProcessDetails {...props} />
             </Fragment>
           ) : (
-            <div className="mTop25 Gray_9e">{_l('节点异常，无法配置')}</div>
+            <div className="mTop25 Gray_75">{_l('节点异常，无法配置')}</div>
           )}
         </Fragment>
       )}

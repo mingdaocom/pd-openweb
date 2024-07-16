@@ -2,8 +2,7 @@ import { find, get } from 'lodash';
 import { getAdvanceSetting } from 'src/util';
 import { isOpenPermit } from 'src/pages/FormSet/util';
 import { permitList } from 'src/pages/FormSet/config';
-import renderCellText from 'worksheet/components/CellControls/renderText';
-
+import RegExpValidator from 'src/util/expression';
 export const RENDER_RECORD_NECESSARY_ATTR = [
   'controlId',
   'controlName',
@@ -50,11 +49,8 @@ export const AS_ABSTRACT_CONTROL = [
 ];
 
 // 可以在看板视图中展示的控件: 单选，等级，成员，单条的关联他表
-const SELECTABLE_FIELDS_TYPE_IN_BOARD = [9, 10, 11, 26, 28];
-const RELATION_SHEET_FIELD = [29];
-const filterAllCanSelectInBoardControls = item =>
-  _.includes(SELECTABLE_FIELDS_TYPE_IN_BOARD, item.type) ||
-  (_.includes(RELATION_SHEET_FIELD, item.type) && item.enumDefault === 1);
+const SELECTABLE_FIELDS_TYPE_IN_BOARD = [9, 10, 11, 26, 28, 29];
+const filterAllCanSelectInBoardControls = item => _.includes(SELECTABLE_FIELDS_TYPE_IN_BOARD, item.type);
 const defaultFormatter = ({ controlName, controlId }) => ({ value: controlId, text: controlName });
 export const filterAndFormatterControls = (
   { controls = [], filter = filterAllCanSelectInBoardControls, formatter = defaultFormatter } = {
@@ -80,10 +76,10 @@ export function getRecordAttachments(coverImageStr) {
         coverArr = '';
       }
       if (_.isArray(coverArr) && coverArr.length) {
-        allAttachments = allAttachments.concat(coverArr.filter(file => !!file.previewUrl));
+        allAttachments = allAttachments.concat(coverArr.filter(file => !!file.ext));
         const firstFile = _.head(allAttachments);
         if (firstFile && firstFile.ext) {
-          const isPicture = File.isPicture(firstFile.ext);
+          const isPicture = RegExpValidator.fileIsPicture(firstFile.ext);
           const previewUrl = _.get(firstFile, 'previewUrl');
           if (isPicture) {
             coverImage =
@@ -174,6 +170,7 @@ export const getSearchData = sheet => {
   if (Number(view.viewType) === 2) {
     hierarchyViewState.map(row => {
       const getPathId = (item, pathId = []) => {
+        if (!hierarchyViewData[item.rowId]) return;
         //搜索结果显示三级路径
         const newPathId = pathId.concat(item.rowId);
         const value = (newPathId || [])
@@ -195,20 +192,8 @@ export const getSearchData = sheet => {
     );
   } else if (Number(view.viewType) === 8) {
     const { viewControl } = view;
-    const titleField = controls.find(l => l.controlId === titleControlId);
-    data = viewControl
-      ? mapViewData
-          .filter(l => l[viewControl] && l[titleControlId])
-          .map(l => {
-            return {
-              ...l,
-              [titleControlId]: renderCellText({
-                ...titleField,
-                value: titleControlId ? l[titleControlId] : undefined,
-              }),
-            };
-          })
-      : [];
+
+    data = viewControl ? mapViewData.filter(l => l[viewControl] && l[titleControlId]) : [];
   }
 
   return { queryKey: titleControlId, data };

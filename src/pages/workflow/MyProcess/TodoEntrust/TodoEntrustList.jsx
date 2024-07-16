@@ -38,7 +38,7 @@ const FlexRow = styled.div`
 
 const RowLabelText = styled.div`
   flex: 1;
-  color: #9e9e9e;
+  color: #757575;
   font-size: ${props => (props.isMobile ? '13px' : '14px')};
 `;
 
@@ -224,7 +224,7 @@ function TodoEntrustList(props) {
                       {isShowStartDate(item.startDate) ? (
                         <React.Fragment>
                           {moment(item.startDate).format('YYYY-MM-DD HH:mm')}
-                          <span className="Gray_9e">{` ~ `}</span>
+                          <span className="Gray_75">{` ~ `}</span>
                         </React.Fragment>
                       ) : (
                         ''

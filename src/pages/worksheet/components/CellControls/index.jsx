@@ -16,6 +16,7 @@ import {
   getCopyControlText,
 } from '../../util';
 import { accDiv } from 'src/util';
+import SheetContext from '../../common/Sheet/SheetContext';
 
 import renderText from './renderText';
 import Text from './Text';
@@ -88,12 +89,14 @@ export default class CellControl extends React.Component {
     cellUniqueValidate: () => true,
     registerRef: () => {},
   };
+  static contextType = SheetContext;
 
   constructor(props) {
     super(props);
     this.state = {
       isediting: false,
     };
+    this.id = Math.random().toString().slice(2);
   }
 
   componentDidMount() {
@@ -130,10 +133,11 @@ export default class CellControl extends React.Component {
   }
 
   checkCellFullVisible() {
-    const { style } = this.props;
+    const { style, cellIndex, tableId } = this.props;
     let newLeft;
     let newTop;
-    const cell = ReactDom.findDOMNode(this);
+    const cell = document.querySelector(`.worksheetTableComp.id-${tableId}-id .cell-${cellIndex}`);
+    if (!cell) return;
     const scrollLeft = cell.parentElement.parentElement.scrollLeft;
     const scrollTop = cell.parentElement.parentElement.scrollTop;
     const gridWidth = cell.parentElement.parentElement.clientWidth;
@@ -212,7 +216,10 @@ export default class CellControl extends React.Component {
       row,
     );
     let errorText;
-    if (_.includes([15, 16, 46], cell.type) && errorType && errorType !== 'REQUIRED') {
+    if (
+      (_.includes([15, 16, 46], cell.type) && errorType && errorType !== 'REQUIRED') ||
+      (cell.type === 2 && errorType === 'CUSTOM')
+    ) {
       errorText = onValidator({
         item: { ...cell, value },
         data: _.isFunction(rowFormData) ? rowFormData() : rowFormData,
@@ -337,7 +344,7 @@ export default class CellControl extends React.Component {
           }
         }
         if (
-          _.includes([26, 27, 29, 36, 42], cell.type) ||
+          _.includes([26, 27, 29, 36, 42, 48], cell.type) ||
           (cell.type === 6 && cell.advancedSetting && cell.advancedSetting.showtype === '2')
         ) {
           if (_.isFunction(_.get(this, 'cell.current.handleTableKeyDown'))) {
@@ -452,6 +459,12 @@ export default class CellControl extends React.Component {
 
   @autobind
   clickHandle(...args) {
+    try {
+      const [e] = args;
+      if (!e.target.closest('.cell-id-' + this.id)) return;
+    } catch (err) {
+      console.error(err);
+    }
     const { tableType, clickEnterEditing, cell, cellIndex, cache, onClick, onFocusCell, onMouseDown } = this.props;
     onMouseDown();
     const haveEditingStatus = this.haveEditingStatus(cell);
@@ -526,11 +539,12 @@ export default class CellControl extends React.Component {
       isCharge,
       onClick,
       onFocusCell,
+      chatButton,
     } = this.props;
     const { isediting } = this.state;
     const error = this.error;
     const singleLine = rowHeight === ROW_HEIGHT[0];
-    let className = this.props.className;
+    let className = this.props.className + ' cell-id-' + this.id;
     if (error) {
       className = className + ' cellControlErrorStatus';
     }
@@ -636,6 +650,7 @@ export default class CellControl extends React.Component {
       disableDownload,
       isCharge,
       onFocusCell,
+      fromEmbed: _.get(this.context, 'config.fromEmbed'),
     };
     if (isTextControl) {
       if (cell.type === 41 || cell.type === 32 || cell.type === 10010 || (cell.type === 2 && cell.enumDefault === 1)) {
@@ -672,7 +687,7 @@ export default class CellControl extends React.Component {
     }
     if (cell.type === 26) {
       props.disabled = this.props.disabled;
-      return <User {...props} />;
+      return <User {...props} chatButton={chatButton} />;
     }
     if (cell.type === 21) {
       return <Relation {...props} />;

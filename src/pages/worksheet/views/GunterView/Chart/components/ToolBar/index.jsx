@@ -17,7 +17,7 @@ import _ from 'lodash';
 const ToolBarWrap = styled.div(
   ({ isMobile }) => `
   position: absolute;
-  bottom: ${isMobile ? 20 : 32}px;
+  bottom: 20px;
   left: ${isMobile ? '24px' : 'auto'};
   right:  ${isMobile ? 'auto' : '20px'};
   background-color: #fff;
@@ -25,7 +25,7 @@ const ToolBarWrap = styled.div(
   height: 44px;
   padding: 0 22px 0 16px;
   z-index: 10;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 1px 6px;
   .icon-download:hover {
     color: #2196f3 !important;
   }
@@ -96,13 +96,15 @@ export default class ToolBar extends Component {
   }
   render() {
     const { searchData, isMobile } = this.props;
+    const isMobileSingleView = localStorage.getItem('isMobileSingleView') === 'true';
+
     return (
-      <ToolBarWrap isMobile={isMobile} className="flexRow valignWrapper">
+      <ToolBarWrap isMobile={isMobile} className="flexRow valignWrapper toolBarWrap">
         {this.renderPeriodSelect()}
         <Zoom />
         {isMobile && (
           <SearchRecord
-            overlayClassName="mobileSearchRecordDropdown"
+            overlayClassName={isMobileSingleView ? 'singleViewSearchRecordDropdown' : 'mobileSearchRecordDropdown'}
             queryKey={searchData.queryKey}
             data={searchData.data}
             onSearch={record => {

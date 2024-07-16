@@ -15,7 +15,7 @@ const ModalTitle = styled.div`
 `;
 
 const ModalHintText = styled.div`
-  color: #9e9e9e;
+  color: #757575;
   font-size: 13px;
 `;
 

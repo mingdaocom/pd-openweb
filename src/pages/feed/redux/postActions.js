@@ -2,10 +2,11 @@
 import shallowEqual from 'shallowequal';
 import postAjax from 'src/api/post';
 import groupController from 'src/api/group';
+import { emitter } from 'src/util';
 import postEnum from '../constants/postEnum';
 
 function handleMdAjaxFail(dispatch, actionType, payload = {}) {
-  return (result) => {
+  return result => {
     if (result && result.status === 0) {
       dispatch(Object.assign({ type: actionType + '_ABORTED' }, payload));
     } else {
@@ -48,7 +49,7 @@ function loadPosts(options, pageOptions, currentCount = 0) {
         keywords: pageOptions.keywords,
       },
       options,
-      { lType }
+      { lType },
     );
     options = _.pickBy(options, v => !_.isNull(v));
 
@@ -63,10 +64,10 @@ function loadPosts(options, pageOptions, currentCount = 0) {
     return ajaxObj.then(res => (res.success ? res : Promise.reject(res)));
   }
   return postAjax.getIRepliedList(options).then(
-    (res) => {
+    res => {
       try {
         return {
-          postList: _.map(res.list || [], (item) => {
+          postList: _.map(res.list || [], item => {
             item.isIReply = true;
             return item;
           }),
@@ -76,7 +77,7 @@ function loadPosts(options, pageOptions, currentCount = 0) {
         return Promise.reject(e);
       }
     },
-    e => Promise.reject(e)
+    e => Promise.reject(e),
   );
 }
 
@@ -113,7 +114,7 @@ export function reload(options, showLoading = false) {
         pIndex: 1,
       },
       options,
-      post.postIds.length
+      post.postIds.length,
     ).then(({ postList, more }) => {
       window.scrollTo(0, 0);
       dispatch({
@@ -135,11 +136,11 @@ export function loadMore() {
       options.listType === 'ireply'
         ? { maxCommentId: getMaxCommentId(post.ireplyPostIds, post.ireplyPostsById) }
         : {
-          pIndex: post.pageIndex + 1,
-          lastPostAutoID: getLastPostAutoID(post.postIds, post.postsById),
-        },
+            pIndex: post.pageIndex + 1,
+            lastPostAutoID: getLastPostAutoID(post.postIds, post.postsById),
+          },
       options,
-      post.postIds.lenth
+      post.postIds.lenth,
     ).then(({ postList, more }) => {
       dispatch(
         {
@@ -148,7 +149,7 @@ export function loadMore() {
           postList,
           hasMore: !!more,
         },
-        handleMdAjaxFail(dispatch, 'POST_LOAD_MORE', { options })
+        handleMdAjaxFail(dispatch, 'POST_LOAD_MORE', { options }),
       );
     });
   };
@@ -176,7 +177,7 @@ export function loadTop(projectId) {
       .getTopPosts({
         projectId,
       })
-      .then((postList) => {
+      .then(postList => {
         dispatch({
           type: 'POST_LOAD_TOP_SUCCESS',
           postList,
@@ -209,7 +210,7 @@ const defaultOptions = {
 
 function ensureProjectIdByGroupIdInOptions(options) {
   if (options.groupId && typeof options.projectId === 'undefined') {
-    return groupController.getGroupInfo({ groupId: options.groupId }).then((group) => {
+    return groupController.getGroupInfo({ groupId: options.groupId }).then(group => {
       if (group && md.global.Account.projects.some(p => p.projectId === group.projectId)) {
         options.projectId = group.projectId;
       }
@@ -223,7 +224,7 @@ export function changeListType(inputOptions, showLoading = false) {
   return (dispatch, getState) => {
     const { post } = getState();
     const prevOptions = post.options;
-    ensureProjectIdByGroupIdInOptions(inputOptions).then((options) => {
+    ensureProjectIdByGroupIdInOptions(inputOptions).then(options => {
       options = Object.assign({}, defaultOptions, options);
 
       if (
@@ -238,7 +239,10 @@ export function changeListType(inputOptions, showLoading = false) {
         ].indexOf(options.listType) > -1
       ) {
         dispatch(loadTop(''));
-      } else if (prevOptions.projectId !== options.projectId || (_.isNull(options.projectId) && prevOptions.listType !== options.listType)) {
+      } else if (
+        prevOptions.projectId !== options.projectId ||
+        (_.isNull(options.projectId) && prevOptions.listType !== options.listType)
+      ) {
         dispatch(loadTop(options.projectId));
       }
 
@@ -261,7 +265,12 @@ export function filter(inputOptions) {
   return (dispatch, getState) => {
     const { post } = getState();
     const { listType, groupId, accountId, tagId, catId, projectId } = post.options;
-    const options = Object.assign({}, defaultOptions, { listType, groupId, accountId, tagId, catId, projectId }, inputOptions);
+    const options = Object.assign(
+      {},
+      defaultOptions,
+      { listType, groupId, accountId, tagId, catId, projectId },
+      inputOptions,
+    );
     const keywords = typeof options.keywords === 'undefined' ? null : options.keywords;
     dispatch({ type: 'POST_CHANGE_SEARCH_KEYWORDS', keywords });
     dispatch({ type: 'POST_CHANGE_OPTIONS', options });
@@ -270,19 +279,23 @@ export function filter(inputOptions) {
 }
 
 export function getPostDetail(postId, knowledgeId, projectId) {
-  return (dispatch) => {
+  return dispatch => {
     dispatch({ type: 'POST_GET_POST_DETAIL_START', postId });
     postAjax.getPostDetail({ postId, knowledgeId, projectId }).then(
-      (postItem) => {
+      postItem => {
         if (postItem.success === '1') {
           dispatch({ type: 'POST_GET_POST_DETAIL_SUCCESS', postItem });
         } else {
-          dispatch({ type: 'POST_GET_POST_DETAIL_FAIL', postId, errorMessage: '您的权限不足或此动态已被删除，无法查看' });
+          dispatch({
+            type: 'POST_GET_POST_DETAIL_FAIL',
+            postId,
+            errorMessage: '您的权限不足或此动态已被删除，无法查看',
+          });
         }
       },
       ({ errorMessage }) => {
         dispatch({ type: 'POST_GET_POST_DETAIL_FAIL', postId, errorMessage });
-      }
+      },
     );
   };
 }
@@ -296,17 +309,19 @@ export function addSuccess(postItem, toPostWall = true) {
 }
 
 export function remove(postId) {
-  return (dispatch) => {
+  return dispatch => {
     dispatch({ type: 'POST_REMOVE_START', postId });
-    postAjax.removePost({
-      postID: postId,
-      accountID: md.global.Account.accountId,
-    })
-      .then((data) => {
+    postAjax
+      .removePost({
+        postID: postId,
+        accountID: md.global.Account.accountId,
+      })
+      .then(data => {
         const { success } = data;
         if (success) {
           alert(_l('删除成功'));
           dispatch({ type: 'POST_REMOVE_SUCCESS', postId });
+          emitter.emit('POST_REMOVE_SUCCESS', { postId });
         } else {
           alert((data && data.message) || _l('删除失败'), 2);
         }
@@ -314,24 +329,33 @@ export function remove(postId) {
   };
 }
 
-function updateCommon({ postId, startActionType, startActionArgs, ajaxMethod, failMessage, updateMethod, successMessage, catchMethod }) {
+function updateCommon({
+  postId,
+  startActionType,
+  startActionArgs,
+  ajaxMethod,
+  failMessage,
+  updateMethod,
+  successMessage,
+  catchMethod,
+}) {
   return (dispatch, getState) => {
     dispatch(Object.assign({ type: startActionType }, startActionArgs));
     ajaxMethod(startActionArgs).then(
-      (success) => {
+      success => {
         if (!success) {
           return alert(failMessage, 2);
         }
         const postItem = _.clone(getState().post.postsById[postId]);
         const promise = postItem ? Promise.resolve(updateMethod(postItem)) : postAjax.getPostDetail({ postId });
-        promise.then((postItemResult) => {
+        promise.then(postItemResult => {
           dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: postItemResult });
         });
         if (successMessage) alert(successMessage);
       },
       () => {
         if (catchMethod) catchMethod();
-      }
+      },
     );
   };
 }
@@ -343,7 +367,7 @@ export function addTop({ postId, hours }) {
     startActionArgs: { hours, postId },
     ajaxMethod: postAjax.addTopPost,
     failMessage: _l('置顶失败'),
-    updateMethod: (postItem) => {
+    updateMethod: postItem => {
       postItem.isFeedtop = true;
       return postItem;
     },
@@ -359,7 +383,7 @@ export function removeTop({ postId }) {
     startActionArgs: { postId },
     ajaxMethod: postAjax.removeTopPost,
     failMessage: _l('移除失败'),
-    updateMethod: (postItem) => {
+    updateMethod: postItem => {
       postItem.isFeedtop = false;
       return postItem;
     },
@@ -375,7 +399,7 @@ export function addFavorite({ postId }) {
     startActionArgs: { postId, isFavorite: true },
     ajaxMethod: postAjax.favorite,
     failMessage: _l('添加失败'),
-    updateMethod: (postItem) => {
+    updateMethod: postItem => {
       postItem.isFav = true;
       return postItem;
     },
@@ -391,7 +415,7 @@ export function removeFavorite({ postId }) {
     startActionArgs: { postId, isFavorite: false },
     ajaxMethod: postAjax.favorite,
     failMessage: _l('添加失败'),
-    updateMethod: (postItem) => {
+    updateMethod: postItem => {
       postItem.isFav = false;
       return postItem;
     },
@@ -407,7 +431,7 @@ export function addLike({ postId }) {
     startActionArgs: { postId, isLike: true },
     ajaxMethod: postAjax.like,
     failMessage: _l('添加失败'),
-    updateMethod: (postItem) => {
+    updateMethod: postItem => {
       if (!postItem.liked) postItem.likeCount = postItem.likeCount + 1;
       postItem.liked = true;
       return postItem;
@@ -424,7 +448,7 @@ export function removeLike({ postId }) {
     startActionArgs: { postId, isLike: false },
     ajaxMethod: postAjax.like,
     failMessage: _l('添加失败'),
-    updateMethod: (postItem) => {
+    updateMethod: postItem => {
       if (postItem.liked) postItem.likeCount = postItem.likeCount - 1;
       postItem.liked = false;
       return postItem;
@@ -445,7 +469,7 @@ export function addTagSuccess({ postId, tagId, tagName }) {
     const promise = postItem
       ? Promise.resolve(((postItem.tags = [tag].concat(postItem.tags.filter(t => t.tagId !== tagId))), postItem))
       : postAjax.getPostDetail({ postId });
-    promise.then((postItemResult) => {
+    promise.then(postItemResult => {
       dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: postItemResult });
     });
   };
@@ -454,8 +478,10 @@ export function addTagSuccess({ postId, tagId, tagName }) {
 export function removeTagSuccess({ postId, tagId }) {
   return (dispatch, getState) => {
     const postItem = _.clone(getState().post.postsById[postId]);
-    const promise = postItem ? Promise.resolve(((postItem.tags = postItem.tags.filter(t => t.tagId !== tagId)), postItem)) : postAjax.getPostDetail({ postId });
-    promise.then((postItemResult) => {
+    const promise = postItem
+      ? Promise.resolve(((postItem.tags = postItem.tags.filter(t => t.tagId !== tagId)), postItem))
+      : postAjax.getPostDetail({ postId });
+    promise.then(postItemResult => {
       dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: postItemResult });
     });
   };
@@ -464,8 +490,10 @@ export function removeTagSuccess({ postId, tagId }) {
 export function editVoteEndTimeSuccess({ postId, deadline }) {
   return (dispatch, getState) => {
     const postItem = _.clone(getState().post.postsById[postId]);
-    const promise = postItem ? Promise.resolve(((postItem.Deadline = deadline), postItem)) : postAjax.getPostDetail({ postId });
-    promise.then((postItemResult) => {
+    const promise = postItem
+      ? Promise.resolve(((postItem.Deadline = deadline), postItem))
+      : postAjax.getPostDetail({ postId });
+    promise.then(postItemResult => {
       dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: postItemResult });
     });
   };
@@ -474,8 +502,10 @@ export function editVoteEndTimeSuccess({ postId, deadline }) {
 export function editShareScopeSuccess({ postId, scope }) {
   return (dispatch, getState) => {
     const postItem = _.clone(getState().post.postsById[postId]);
-    const promise = postItem ? Promise.resolve(((postItem.scope = scope), postItem)) : postAjax.getPostDetail({ postId });
-    promise.then((postItemResult) => {
+    const promise = postItem
+      ? Promise.resolve(((postItem.scope = scope), postItem))
+      : postAjax.getPostDetail({ postId });
+    promise.then(postItemResult => {
       dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: postItemResult });
     });
   };
@@ -484,7 +514,7 @@ export function editShareScopeSuccess({ postId, scope }) {
 export function addComment(args, successCallback, failCallback) {
   return (dispatch, getState) => {
     dispatch({ type: 'POST_ADD_COMMENT_START', args });
-    postAjax.addPostComment(args).then((result) => {
+    postAjax.addPostComment(args).then(result => {
       if (result == '-1' || !result.success) {
         failCallback(result);
         return alert(_l('操作失败'), 2);
@@ -495,9 +525,13 @@ export function addComment(args, successCallback, failCallback) {
       const postId = args.postID;
       const postItem = _.clone(getState().post.postsById[postId]);
       const promise = postItem
-        ? Promise.resolve(((postItem.commentCount = postItem.commentCount + 1), (postItem.comments = [result.comment].concat(postItem.comments)), postItem))
+        ? Promise.resolve(
+            ((postItem.commentCount = postItem.commentCount + 1),
+            (postItem.comments = [result.comment].concat(postItem.comments)),
+            postItem),
+          )
         : postAjax.getPostDetail({ postId });
-      promise.then((postItemResult) => {
+      promise.then(postItemResult => {
         dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: postItemResult });
       });
       successCallback(result);
@@ -508,12 +542,13 @@ export function addComment(args, successCallback, failCallback) {
 export function removeComment(postID, commentID) {
   return (dispatch, getState) => {
     dispatch({ type: 'POST_REMOVE_COMMENT_START' });
-    postAjax.removePostComment({
-      postID,
-      commentID,
-      accountID: md.global.Account.accountId,
-    })
-      .then((data) => {
+    postAjax
+      .removePostComment({
+        postID,
+        commentID,
+        accountID: md.global.Account.accountId,
+      })
+      .then(data => {
         const { success } = data;
         if (!success) {
           alert(_l('删除失败'), 2);
@@ -522,12 +557,12 @@ export function removeComment(postID, commentID) {
           const postItem = _.clone(getState().post.postsById[postID]);
           const promise = postItem
             ? Promise.resolve(
-              ((postItem.commentCount = postItem.commentCount - 1),
+                ((postItem.commentCount = postItem.commentCount - 1),
                 (postItem.comments = postItem.comments ? postItem.comments.filter(c => c.commentID !== commentID) : []),
-                postItem)
-            )
+                postItem),
+              )
             : postAjax.getPostDetail({ postId: postID });
-          promise.then((postItemResult) => {
+          promise.then(postItemResult => {
             dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: postItemResult });
           });
         }
@@ -538,11 +573,12 @@ export function removeComment(postID, commentID) {
 export function loadMoreComments(postId) {
   return (dispatch, getState) => {
     dispatch({ type: 'POST_LOAD_MORE_COMMENTS_START' });
-    postAjax.getMorePostComments({
-      postID: postId,
-      accountID: md.global.Account.accountId,
-    })
-      .then((data) => {
+    postAjax
+      .getMorePostComments({
+        postID: postId,
+        accountID: md.global.Account.accountId,
+      })
+      .then(data => {
         if (data == '-1') {
           alert(_l('回复加载失败'), 2);
         } else if (data == 'error') {
@@ -552,7 +588,7 @@ export function loadMoreComments(postId) {
           const promise = postItem
             ? Promise.resolve(((postItem.commentCount = data.length), (postItem.comments = data), postItem))
             : postAjax.getPostDetail({ postId });
-          promise.then((postItemResult) => {
+          promise.then(postItemResult => {
             dispatch({ type: 'POST_UPDATE_SUCCESS', postItem: postItemResult });
           });
         }
@@ -561,11 +597,11 @@ export function loadMoreComments(postId) {
 }
 
 export function edit(args, successCallback, failCallback) {
-  return (dispatch) => {
+  return dispatch => {
     dispatch({ type: 'POST_EDIT_START', args });
     postAjax
       .editPost(args)
-      .then((result) => {
+      .then(result => {
         if (!result.success) {
           failCallback(result);
           return alert('操作失败', 2);
@@ -576,7 +612,7 @@ export function edit(args, successCallback, failCallback) {
           successCallback(result);
         }
       })
-      .catch((result) => {
+      .catch(result => {
         dispatch({ type: 'POST_EDIT_FAIL', args });
         if (failCallback) {
           failCallback(result);

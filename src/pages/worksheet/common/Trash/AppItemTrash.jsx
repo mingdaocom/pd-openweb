@@ -124,13 +124,15 @@ export default function AppItemTrash(props) {
         projectId={projectId}
         className="cellUserHead"
         user={{
-          userHead: appItem.deletePerson.avatar,
-          accountId: appItem.deletePerson.accountId,
+          userHead: _.get(appItem, 'deletePerson.avatar'),
+          accountId: _.get(appItem, 'deletePerson.accountId'),
         }}
         appId={appId}
         size={24}
       />,
-      <span className="mLeft8 ellipsis">{appItem.deletePerson.fullname || appItem.deletePerson.fullName}</span>,
+      <span className="mLeft8 ellipsis">
+        {_.get(appItem, 'deletePerson.fullname') || _.get(appItem, 'deletePerson.fullName')}
+      </span>,
     ],
     <span className="Gray_9e">{moment(appItem.deleteTime).format('YYYY-MM-DD HH:mm:ss')}</span>,
   ]);

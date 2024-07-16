@@ -22,7 +22,7 @@ export default function (props) {
 
   const handleChange = value => {
     setValue(value);
-    onDynamicValueChange([{ cid: '', rcid: '', staticValue: value }]);
+    onDynamicValueChange(value ? [{ cid: '', rcid: '', staticValue: value }] : []);
   };
   const onTriggerClick = () => {
     defaultType && $wrap.current.triggerClick();
@@ -35,7 +35,6 @@ export default function (props) {
         <OtherFieldList {...props} />
       ) : (
         <Input
-          autoFocus
           value={value}
           style={{ width: 'calc(100% - 36px)', borderRadius: '3px 0 0 3px' }}
           onBlur={() => {

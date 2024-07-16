@@ -59,6 +59,7 @@ export default ({
   isLock,
   createType,
   isDashboard,
+  allowCreate,
   ...propsRest
 }) => {
   let list = [...(ROLE_OPERATION[role] || DEFAULT_ROLE_OPERATION)];
@@ -67,7 +68,7 @@ export default ({
     list = update(list, { $splice: [[1, 1]] });
   }
 
-  if ((_.find(md.global.Account.projects, o => o.projectId === projectId) || {}).cannotCreateApp) {
+  if (!allowCreate) {
     _.remove(list, o => o.type === 'copy');
   }
 
@@ -87,7 +88,12 @@ export default ({
     <Menu className="Relative" onClickAway={onClickAway}>
       {list.map(({ type, icon, text, ...rest }) =>
         type === 'setGroup' ? (
-          <EditGroupMenuItem {...propsRest} onUpdateAppBelongGroups={onUpdateAppBelongGroups} icon="___" />
+          <EditGroupMenuItem
+            {...propsRest}
+            projectId={projectId}
+            onUpdateAppBelongGroups={onUpdateAppBelongGroups}
+            icon="___"
+          />
         ) : (
           <MenuItem
             key={type}

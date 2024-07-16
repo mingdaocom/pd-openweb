@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import preall from 'src/common/preall';
 import cx from 'classnames';
 import { Provider } from 'react-redux';
 import store from 'src/redux/configureStore';
 import { SvgIcon, LoadDiv } from 'ming-ui';
 import appManagementApi from 'src/api/appManagement';
-import CustomPageContent from 'src/pages/customPage/pageContent';
-import MobileCustomPage from 'src/pages/Mobile/CustomPage';
 import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
 import DocumentTitle from 'react-document-title';
 import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import styled from 'styled-components';
-import { getRequest, getTranslateInfo, browserIsMobile } from 'src/util';
+import { syncAppDetail, changeAppColor } from 'src/pages/PageHeader/redux/action';
+import { getRequest, getTranslateInfo, getAppLangDetail, browserIsMobile } from 'src/util';
 import _ from 'lodash';
 import './index.less';
 
@@ -35,10 +34,12 @@ const Entry = props => {
   const id = pathname[pathname.length - 1];
   const [loading, setLoading] = useState(true);
   const [share, setShare] = useState({});
+  const [Components, setComponents] = useState(null);
 
   useEffect(() => {
     const clientId = sessionStorage.getItem(id);
     window.clientId = clientId;
+
     getEntityShareById({
       clientId,
       langType: getCurrentLangCode(),
@@ -53,24 +54,33 @@ const Entry = props => {
           requestParams: { projectId },
         },
       );
-      if (langInfo && langInfo.appLangId) {
-        const lang = await appManagementApi.getAppLangDetail({
-          projectId,
-          appId,
-          appLangId: langInfo.appLangId,
-        });
+      const info = await getAppLangDetail({
+        langInfo,
+        id: appId,
+        projectId,
+      });
+      if (info) {
         window.appInfo = { id: appId };
-        window[`langData-${appId}`] = lang.items;
-        data.appName = getTranslateInfo(appId, appId).name || data.appName;
-        data.customerPageName = getTranslateInfo(appId, data.sourceId).name || data.customerPageName;
+        data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
+        data.customerPageName = getTranslateInfo(appId, null, data.sourceId).name || data.customerPageName;
       }
+      store.dispatch(syncAppDetail({
+        name: data.appName,
+        projectId: data.projectId
+      }));
+      store.dispatch(changeAppColor(''));
       setShare(result);
       setLoading(false);
     });
+
     if (hideHeader === 'true') {
       document.body.classList.add('bodyScroll');
       setCookie('i18n_langtag', 'zh-Hans');
     }
+
+    (isMobile ? import('src/pages/Mobile/CustomPage') : import('src/pages/customPage/pageContent')).then(res => {
+      setComponents(res);
+    });
   }, []);
 
   const getEntityShareById = data => {
@@ -83,7 +93,7 @@ const Entry = props => {
     });
   };
 
-  if (loading) {
+  if (loading || !Components) {
     return (
       <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter">
         <LoadDiv />
@@ -124,17 +134,17 @@ const Entry = props => {
     return (
       <Provider store={store}>
         {isMobile ? (
-          <MobileCustomPage
+          <Components.default
             match={{
               params: {
                 worksheetId: share.data.sourceId,
-                appId: share.data.appId
+                appId: share.data.appId,
               },
-              path: ''
+              path: '',
             }}
           />
         ) : (
-          <CustomPageContent
+          <Components.default
             id={share.data.sourceId}
             ids={{ worksheetId: share.data.sourceId }}
             className={cx({ hideHeader: hideHeader === 'true' })}
@@ -167,4 +177,6 @@ const Entry = props => {
   );
 };
 
-ReactDom.render(<Entry />, document.getElementById('app'));
+const root = createRoot(document.getElementById('app'));
+
+root.render(<Entry />);

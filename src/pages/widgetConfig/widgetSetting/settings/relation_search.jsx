@@ -143,8 +143,8 @@ export default function RelationSearch(props) {
 
   const filterControls = getFilterRelateControls(relationControls);
   const titleControl = _.find(filterControls, item => item.attribute === 1);
-  const isSheetDisplay = () => {
-    return showtype === '2';
+  const isSheetDisplay = value => {
+    return _.includes(['2', '5', '6'], value || showtype);
   };
 
   useEffect(() => {

@@ -238,7 +238,7 @@ export default function ApiSearchConfig(props) {
       {/**输入参数 */}
 
       {requestControls.length > 0 && (
-        <SettingItem className="withSplitLine">
+        <SettingItem>
           <div className="settingItemTitle">{_l('输入参数')}</div>
           <SearchParams requestControls={requestControls} {...props} />
         </SettingItem>

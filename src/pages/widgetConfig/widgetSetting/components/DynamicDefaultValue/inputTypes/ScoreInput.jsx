@@ -20,7 +20,7 @@ export default function (props) {
   };
 
   const handleChange = value => {
-    onDynamicValueChange([{ cid: '', rcid: '', staticValue: value ? Math.min(parseFloat(value), maxValue) : '' }]);
+    onDynamicValueChange(value ? [{ cid: '', rcid: '', staticValue: Math.min(parseFloat(value), maxValue) }] : []);
   };
 
   const onTriggerClick = () => {
@@ -39,7 +39,6 @@ export default function (props) {
         />
       ) : (
         <Input
-          autoFocus
           value={staticValue}
           style={{ width: 'calc(100% - 36px)', borderRadius: '3px 0 0 3px' }}
           onChange={e => handleChange(e.target.value)}

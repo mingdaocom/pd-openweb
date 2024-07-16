@@ -4,13 +4,11 @@ import { Checkbox, Dropdown } from 'ming-ui';
 import { Tooltip } from 'antd';
 import { get, isEmpty } from 'lodash';
 import { EditInfo } from '../../../../styled';
-import RelateSheetCom from '../../../components/relateSheet';
+import SearchConfig from '../../../components/relateSheet/SearchConfig';
 import { formatViewToDropdown } from '../../../../util';
 import { SYSTEM_CONTROL } from '../../../../config/widget';
 import { FilterItemTexts, FilterDialog } from '../../../components/FilterData';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from 'src/pages/widgetConfig/util/setting';
-
-const { SearchConfig } = RelateSheetCom;
 
 export default function RelateConfig(props) {
   const { data, onChange, globalSheetInfo = {}, globalSheetControls, allControls } = props;

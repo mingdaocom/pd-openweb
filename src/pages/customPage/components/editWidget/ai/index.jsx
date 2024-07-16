@@ -1,10 +1,10 @@
 import React, { useState, Fragment, useEffect } from 'react';
 import { Icon, Dialog, RadioGroup, LoadDiv, SvgIcon } from 'ming-ui';
-import { Tooltip, Modal } from 'antd';
 import styled from 'styled-components';
 import cx from 'classnames';
 import assistantApi from 'src/api/assistant';
-import { getCurrentProject } from 'src/util';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const Wrap = styled.div`
   height: 520px;
@@ -53,13 +53,6 @@ const Wrap = styled.div`
   }
 `;
 
-const getProjectInfo = () => {
-  const projectInfo = !_.isEmpty(getCurrentProject(localStorage.getItem('currentProjectId')))
-    ? getCurrentProject(localStorage.getItem('currentProjectId'))
-    : _.get(md, 'global.Account.projects.0');
-  return projectInfo || {};
-};
-
 const EmptyState = props => {
   return (
     <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter emptyState">
@@ -67,7 +60,7 @@ const EmptyState = props => {
         <Icon className="Gray_9e Font56" icon="contact_support" />
       </div>
       <div className="mTop10 mBottom20 Gray_75">{_l('AI问答助手可以帮助企业知识组学习')}</div>
-      {props.isProjectAdmin && (
+      {props.hasAssistantAuth && (
         <div className="create pointer" onClick={() => window.open('/plugin/assistant')}>
           {_l('插件中心创建')}
         </div>
@@ -84,7 +77,7 @@ export default function Ai(props) {
   const aiComponent = components.filter(c => [8, 'ai'].includes(c.type));
   const aiComponentIds = aiComponent.map(c => c.value);
   const suspensionAi = aiComponent.filter(n => n.config.showType === 'suspension');
-  const { isProjectAdmin } = getProjectInfo();
+  const hasAssistantAuth = checkPermission(projectId, PERMISSION_ENUM.MANAGE_PLUGINS);
 
   const handleCreateAi = id => {
     if (aiComponentIds.includes(id)) return;
@@ -113,14 +106,7 @@ export default function Ai(props) {
   }, []);
 
   return (
-    <Dialog
-      visible
-      overlayClosable={false}
-      width={640}
-      footer={null}
-      title={_l('AI助手设置')}
-      onCancel={onClose}
-    >
+    <Dialog visible overlayClosable={false} width={640} footer={null} title={_l('AI助手设置')} onCancel={onClose}>
       <Wrap>
         {loading ? (
           <LoadDiv />
@@ -147,7 +133,7 @@ export default function Ai(props) {
                     onChange={value => setShowType(value)}
                   />
                 </div>
-                {isProjectAdmin && (
+                {hasAssistantAuth && (
                   <div className="flexRow alignItemsCenter pointer create">
                     <span className="Gray_75" onClick={() => window.open('/plugin/assistant')}>
                       {_l('插件中心创建')}
@@ -173,11 +159,13 @@ export default function Ai(props) {
                 </div>
                 <div className="flexColumn mLeft10 Font14 flex overflowHidden">
                   <div className="mBottom2">{item.name}</div>
-                  <div className="Gray_9e ellipsis" title={item.description}>{item.description}</div>
+                  <div className="Gray_9e ellipsis" title={item.description}>
+                    {item.description}
+                  </div>
                 </div>
               </div>
             ))}
-            {!list.length && <EmptyState isProjectAdmin={isProjectAdmin} />}
+            {!list.length && <EmptyState hasAssistantAuth={hasAssistantAuth} />}
           </Fragment>
         )}
       </Wrap>

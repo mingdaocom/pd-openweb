@@ -11,6 +11,7 @@ import MobileRecordCardListDialog from 'src/components/recordCardListDialog/mobi
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import * as actions from './redux/actions';
+import RegExpValidator from 'src/util/expression';
 import sheetAjax from 'src/api/worksheet';
 import styled from 'styled-components';
 import _ from 'lodash';
@@ -265,7 +266,10 @@ class RelationAction extends Component {
         }}
         onOpenRecordCardListDialog={keyWords => {
           const { scanlink, scancontrol } = _.get(control, 'advancedSetting') || {};
-          if ((scanlink !== '1' && RegExp.isURL(keyWords)) || (scancontrol !== '1' && !RegExp.isURL(keyWords))) {
+          if (
+            (scanlink !== '1' && RegExpValidator.isURL(keyWords)) ||
+            (scancontrol !== '1' && !RegExpValidator.isURL(keyWords))
+          ) {
             return;
           }
           this.setState({ showRelevanceRecord: true, recordkeyWords: keyWords });

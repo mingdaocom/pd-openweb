@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, { concat, difference, find, findKey, forEach, get, includes, isUndefined, set, uniq } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import {
   SYSTEM_CONTROL,
@@ -13,18 +13,89 @@ import {
   handleRecordError,
 } from 'worksheet/util';
 import { updateNavGroup } from './index';
+import { getRowDetail } from 'worksheet/api';
 import { getFilledRequestParams } from 'worksheet/util';
 import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/filterFn';
 
 const DEFAULT_PAGESIZE = 50;
 
-let fetchRowsAjax;
-let fetchRowsNumAjax;
+function checkIsTreeTableView(state = {}) {
+  const { base, views } = state.sheet;
+  const view = find(views, { viewId: base.viewId });
+  return view && view.viewType === 2 && get(view, 'advancedSetting.hierarchyViewType') === '3';
+}
 
-export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, updateWorksheetControls } = {}) => {
+function treeDataUpdater(
+  { treeMap = {} } = {},
+  {
+    rootRows = [],
+    rows = [],
+    defaultIndex = 1,
+    defaultLevelList = [],
+    defaultparentKeys = [],
+    keyPrefix = '',
+    noSetRootMapKey = false,
+    expandSize,
+    levelLimit,
+  } = {},
+) {
+  let maxLevel = defaultIndex;
+  function parseChildren(row, { index, parentKeys, keyPrefix = '', defaultLevelList = [], notSetKey = false }) {
+    if (levelLimit && index > levelLimit) return;
+    if (index > 50) return;
+    const filteredRows = _.filter(rows, r => r.pid === row.rowid || _.includes(row.childrenids, r.rowid));
+    const key = (notSetKey ? [keyPrefix] : [keyPrefix, row.rowid]).filter(_.identity).join('_');
+    const doNotContinue = expandSize && index + 1 - defaultIndex > expandSize;
+    if (!doNotContinue) {
+      filteredRows.forEach((r, i) => {
+        const newLevelList = defaultLevelList.concat(i + 1);
+        maxLevel = _.max([index + 1, maxLevel]);
+        parseChildren(r, {
+          index: index + 1,
+          parentKeys: parentKeys.concat(key),
+          keyPrefix: key,
+          defaultLevelList: newLevelList,
+        });
+      });
+    }
+    const childrenIds = _.uniq(safeParse(row.childrenids, 'array').concat(filteredRows.map(r => r.rowid)));
+    if (!notSetKey) {
+      treeMap[key] = {
+        index,
+        rowid: row.rowid,
+        childrenIds,
+        key,
+        levelList: defaultLevelList,
+        loaded: doNotContinue ? false : !!filteredRows.length || !row.childrenids,
+        folded: doNotContinue ? true : !filteredRows.length,
+        parentKeys,
+      };
+    }
+  }
+  rootRows.forEach((row, i) => {
+    parseChildren(row, {
+      index: defaultIndex,
+      parentKeys: defaultparentKeys,
+      keyPrefix,
+      defaultLevelList: noSetRootMapKey ? defaultLevelList : defaultLevelList.concat(i + 1),
+      notSetKey: noSetRootMapKey,
+    });
+  });
+  return { treeMap, maxLevel };
+}
+
+export const fetchRows = ({
+  levelCount,
+  isFirst,
+  changeView,
+  noLoading,
+  noClearSelected,
+  updateWorksheetControls,
+} = {}) => {
   return (dispatch, getState) => {
-    const { base, filters, sheetview, quickFilter, navGroupFilters } = getState().sheet;
-    const { appId, viewId, worksheetId, maxCount, chartId, showAsSheetView } = base;
+    const { base, filters, views, sheetview, quickFilter, navGroupFilters } = getState().sheet;
+    const { appId, viewId, worksheetId, forcePageSize, maxCount, chartId, showAsSheetView } = base;
+    const abortController = sheetview.abortController;
     let savedPageSize = parseInt(getLRUWorksheetConfig('WORKSHEET_VIEW_PAGESIZE', viewId), 10);
     if (_.isNaN(savedPageSize)) {
       savedPageSize = undefined;
@@ -34,9 +105,25 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
       pageIndex = 1;
       dispatch(resetView());
     }
+    const isTreeTableView = checkIsTreeTableView(getState()) && !filters.keyWords;
+    if (isTreeTableView && !levelCount) {
+      const { level } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
+      if (level) {
+        levelCount = Number(level);
+      }
+      if (isNaN(levelCount)) {
+        levelCount = 1;
+      }
+      dispatch({
+        type: 'UPDATE_TREE_TABLE_VIEW_ITEM',
+        value: {
+          levelCount,
+        },
+      });
+    }
     const args = {
       worksheetId,
-      pageSize: savedPageSize || DEFAULT_PAGESIZE,
+      pageSize: isTreeTableView ? 1000 : savedPageSize || DEFAULT_PAGESIZE,
       pageIndex,
       status: 1,
       appId,
@@ -50,15 +137,23 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
       isGetWorksheet: updateWorksheetControls,
       ...(showAsSheetView ? { getType: 0 } : {}),
     };
+    if (isTreeTableView) {
+      args.layer = levelCount;
+    }
     if (maxCount) {
       args.pageIndex = 1;
       args.pageSize = maxCount;
+    }
+    if (forcePageSize) {
+      savedPageSize = undefined;
+      args.pageSize = forcePageSize;
+      dispatch({ type: 'WORKSHEET_SHEETVIEW_CHANGE_PAGESIZE', pageSize: forcePageSize, pageIndex: args.pageIndex });
     }
     if (changeView || isFirst) {
       dispatch(setViewLayout(viewId));
     }
     if (savedPageSize && savedPageSize !== DEFAULT_PAGESIZE) {
-      dispatch(changePageSize(savedPageSize, args.pageIndex));
+      dispatch(changePageSize(savedPageSize, args.pageIndex, { refetch: false }));
     }
     dispatch({
       type: 'WORKSHEET_SHEETVIEW_FETCH_ROWS_START',
@@ -68,10 +163,9 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
       },
     });
     dispatch(getWorksheetSheetViewSummary());
-    if (changeView && fetchRowsAjax && _.isFunction(fetchRowsAjax.abort)) {
-      fetchRowsAjax.abort();
-    }
-    fetchRowsAjax = worksheetAjax.getFilterRows(getFilledRequestParams(args));
+    const fetchRowsAjax = worksheetAjax.getFilterRows(getFilledRequestParams(args), {
+      abortController,
+    });
     fetchRowsAjax.then(res => {
       if (updateWorksheetControls && _.get(res, 'template.controls')) {
         try {
@@ -94,6 +188,16 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
         rows: res.data,
         resultCode: res.resultCode,
       });
+      if (isTreeTableView) {
+        const { treeMap, maxLevel } = treeDataUpdater(
+          {},
+          { rootRows: res.data.filter(r => !r.pid), rows: res.data, levelLimit: Number(args.layer) },
+        );
+        dispatch({
+          type: 'UPDATE_TREE_TABLE_VIEW_DATA',
+          value: { maxLevel, treeMap },
+        });
+      }
       if (chartId) {
         dispatch({
           type: 'WORKSHEET_SHEETVIEW_UPDATE_COUNT',
@@ -102,10 +206,7 @@ export const fetchRows = ({ isFirst, changeView, noLoading, noClearSelected, upd
       }
     });
     if (pageIndex === 1 && !chartId) {
-      if (changeView && fetchRowsNumAjax && _.isFunction(fetchRowsNumAjax.abort)) {
-        fetchRowsNumAjax.abort();
-      }
-      fetchRowsNumAjax = worksheetAjax.getFilterRowsTotalNum(getFilledRequestParams(args));
+      const fetchRowsNumAjax = worksheetAjax.getFilterRowsTotalNum(getFilledRequestParams(args), { abortController });
       fetchRowsNumAjax.then(data => {
         if (!data) {
           dispatch({
@@ -265,15 +366,25 @@ export function updateRows(rowIds, value) {
   };
 }
 
-export function refresh({ resetPageIndex, changeFilters, noLoading, noClearSelected, updateWorksheetControls } = {}) {
+export function refresh({
+  resetPageIndex,
+  changeFilters,
+  noLoading,
+  isAutoRefresh,
+  noClearSelected,
+  updateWorksheetControls,
+} = {}) {
   return (dispatch, getState) => {
     const {
+      sheetview,
       filters,
       quickFilter,
       navGroupFilters,
       views,
       base: { chartId, viewId },
     } = getState().sheet;
+    const { allWorksheetIsSelected, sheetSelectedRows = [] } = sheetview.sheetViewConfig;
+    if (isAutoRefresh && (allWorksheetIsSelected || sheetSelectedRows.length)) return;
     const view = _.find(views, { viewId });
     const needClickToSearch = !chartId && _.get(view, 'advancedSetting.clicksearch') === '1';
     //设置了筛选列表，且不显示全部，需手动选择分组后展示数据
@@ -288,6 +399,7 @@ export function refresh({ resetPageIndex, changeFilters, noLoading, noClearSelec
     if ((needClickToSearch && _.isEmpty(quickFilter)) || (navGroupToSearch && _.isEmpty(navGroupFilters))) {
       dispatch(setRowsEmpty());
     } else {
+      dispatch(abortRequest());
       dispatch(fetchRows({ noLoading, noClearSelected, updateWorksheetControls }));
     }
     dispatch({ type: 'WORKSHEET_SHEETVIEW_REFRESH' });
@@ -320,7 +432,7 @@ export const setHighLightOfRows = (rowIds, tableId) => {
         return;
       }
       setTimeout(() => {
-        $(`${tableId ? `.sheetViewTable.id-${tableId}-id` : '.sheetViewTable'} .cell.row-${rowIndex}`).addClass(
+        $(`${tableId ? `.sheetViewTable.id-${tableId}-id` : '.sheetViewTable'} .cell.row-id-${rowId}`).addClass(
           'highlight',
         );
       }, 100);
@@ -344,6 +456,23 @@ export function hideRows(rowIds) {
         type: 'WORKSHEET_SHEETVIEW_HIDE_ROWS',
         rowIds,
       });
+      if (checkIsTreeTableView(getState())) {
+        rowIds.forEach(rowId => {
+          rows.forEach(row => {
+            if (row.pid === rowId || includes(row.childrenids, rowId)) {
+              const changes = {};
+              if (row.pid === rowId) {
+                changes.pid = undefined;
+              }
+              if (includes(row.childrenids, rowId)) {
+                changes.childrenids = JSON.stringify(safeParse(row.childrenids, 'array').filter(id => id !== rowId));
+              }
+              dispatch(updateRows([row.rowid], changes));
+            }
+          });
+        });
+        dispatch(refreshTreeOfTreeTableView());
+      }
     }
     dispatch(updateNavGroup());
   };
@@ -473,11 +602,14 @@ export const updateDefaultScrollLeft = value => ({
 });
 
 // 更新每页数量
-export function changePageSize(pageSize, pageIndex) {
+export function changePageSize(pageSize, pageIndex, { refetch = true } = {}) {
   return function (dispatch, getState) {
     const { base } = getState().sheet;
     saveLRUWorksheetConfig('WORKSHEET_VIEW_PAGESIZE', base.viewId, pageSize);
     dispatch({ type: 'WORKSHEET_SHEETVIEW_CHANGE_PAGESIZE', pageSize, pageIndex });
+    if (refetch) {
+      dispatch(fetchRows());
+    }
   };
 }
 // 分页
@@ -511,7 +643,7 @@ export function setViewLayout(viewId) {
   return (dispatch, getState) => {
     const { views } = getState().sheet;
     const view = _.find(views, { viewId });
-    if (!view || view.viewType !== 0) {
+    if ((!view || view.viewType !== 0) && !checkIsTreeTableView(getState())) {
       return;
     }
     const { advancedSetting } = view;
@@ -639,9 +771,126 @@ export function changeWorksheetSheetViewSummaryType({ controlId, value }) {
   };
 }
 
+/**
+ * 更新树形视图节点
+ * @param {string} recordId
+ * @returns
+ */
+export const updateTreeNodeExpansion =
+  (row = {}, { expandAll, forceUpdate } = {}) =>
+  async (dispatch, getState) => {
+    const { base = {}, sheetview = {}, navGroupFilters } = getState().sheet;
+    const { appId, viewId, worksheetId } = base;
+    const { treeMap, maxLevel } = sheetview.treeTableViewData || {};
+    const { rows = [] } = sheetview.sheetViewData || {};
+    const recordId = row.rowid;
+    const treeMapKey = row.key;
+    let { folded, loaded = false, loading = false } = treeMap[treeMapKey] || {};
+    let needDeleteKeys = {};
+    if (forceUpdate) {
+      loaded = false;
+      folded = true;
+    }
+    if (loaded) {
+      dispatch({
+        type: 'UPDATED_TREE_NODE_EXPANSION',
+        key: treeMapKey,
+        folded: !folded,
+      });
+    } else if (loading) {
+      return;
+    } else {
+      dispatch({
+        type: 'UPDATED_TREE_NODE_EXPANSION',
+        key: treeMapKey,
+        loading: true,
+      });
+      const res = await worksheetAjax.getFilterRows({
+        appId,
+        worksheetId,
+        viewId,
+        searchType: 1,
+        filterControls: [],
+        kanbanKey: recordId,
+        navGroupFilters,
+      });
+      const childRows = res.data;
+      const newRows = rows.filter(r => !find(childRows, { rowid: r.rowid })).concat(childRows);
+      dispatch({
+        type: 'WORKSHEET_SHEETVIEW_APPEND_ROWS',
+        rows: childRows,
+      });
+      if (forceUpdate) {
+        dispatch(
+          updateRows([recordId], {
+            childrenids: JSON.stringify(childRows.map(r => r.rowid)),
+          }),
+        );
+        Object.keys(treeMap).forEach(key => {
+          if (treeMap[key].parentKeys.includes(row.key)) {
+            needDeleteKeys[key] = undefined;
+          }
+        });
+      }
+      const currentTreeNode = treeMap[treeMapKey] || {};
+      const treeDataUpdaterResult = treeDataUpdater(
+        { treeMap: {} },
+        {
+          noSetRootMapKey: true,
+          rootRows: [{ ...row, childrenids: JSON.stringify(childRows.map(r => r.rowid)) }],
+          rows: newRows,
+          defaultIndex: currentTreeNode.index,
+          defaultparentKeys: currentTreeNode.parentKeys,
+          defaultLevelList: currentTreeNode.levelList,
+          keyPrefix: treeMapKey,
+          expandSize: 1,
+        },
+      );
+      dispatch({
+        type: 'UPDATE_TREE_TABLE_VIEW_ITEM',
+        value: {
+          maxLevel: _.max([maxLevel, treeDataUpdaterResult.maxLevel]),
+        },
+      });
+      dispatch({
+        type: 'UPDATE_TREE_TABLE_VIEW_TREE_MAP',
+        value: _.assign(needDeleteKeys, treeDataUpdaterResult.treeMap),
+      });
+      dispatch({
+        type: 'UPDATED_TREE_NODE_EXPANSION',
+        key: treeMapKey,
+        folded: false,
+        loaded: true,
+        loading: false,
+        childrenIds: forceUpdate ? childRows.map(r => r.rowid) : undefined,
+      });
+      if (expandAll) {
+        dispatch({
+          type: 'UPDATE_TREE_TABLE_VIEW_EXPANDED',
+          key: treeMapKey,
+        });
+        childRows.forEach(row => {
+          if (get(row, 'childrenids.length')) {
+            dispatch(
+              updateTreeNodeExpansion(
+                {
+                  ...row,
+                  key: [treeMapKey, row.rowid].filter(_.identity).join('_'),
+                },
+                { expandAll: true },
+              ),
+            );
+          }
+        });
+      }
+    }
+  };
+
 export function addRecord(records, afterRowId) {
   return (dispatch, getState) => {
-    const { sheetview } = getState().sheet;
+    const state = getState();
+    const { sheetview, base = {}, views = [], controls = [] } = state.sheet;
+    const { worksheetId, viewId } = base;
     const { rows, count } = sheetview.sheetViewData;
     if (!_.isArray(records)) {
       records = [records];
@@ -667,6 +916,173 @@ export function addRecord(records, afterRowId) {
         rows: [...records, ...rows],
         count: count + 1,
       });
+    }
+    const view = find(views, { viewId });
+    const viewControl = view.viewControl;
+    function expand() {
+      const childrenControl = find(controls, c => c.sourceControlId === viewControl);
+      dispatch(
+        refreshTreeOfTreeTableView(({ treeMap = {} } = {}) => {
+          const keyOfRow = findKey(treeMap, value => _.get(value, 'rowid') === get(records, '0.rowid'));
+          if (get(records, '0.' + childrenControl.controlId)) {
+            dispatch(updateTreeNodeExpansion(Object.assign(records[0], { key: keyOfRow }), { forceUpdate: true }));
+          }
+        }),
+      );
+    }
+    if (checkIsTreeTableView(getState())) {
+      try {
+        const parentRecordId = get(safeParse(get(records, '0.' + viewControl)), '0.sid');
+        if (parentRecordId && !find(rows, { rowid: parentRecordId })) {
+          getRowDetail({
+            worksheetId,
+            getType: 1,
+            rowId: parentRecordId,
+          }).then(data => {
+            dispatch({
+              type: 'WORKSHEET_SHEETVIEW_UPDATE_ROWS',
+              rows: [safeParse(data.rowData), ...records, ...rows],
+              count: count + 2,
+            });
+            expand();
+          });
+        } else {
+          expand();
+        }
+      } catch (err) {}
+    }
+  };
+}
+
+/**
+ * 修改树形表格展开层级
+ * @param {number} levelCount
+ * @returns
+ */
+export function changeTreeTableViewLevelCount(levelCount) {
+  return dispatch => {
+    dispatch(fetchRows({ levelCount }));
+    dispatch({
+      type: 'UPDATE_TREE_TABLE_VIEW_ITEM',
+      value: {
+        levelCount,
+      },
+    });
+  };
+}
+
+/**
+ * 展开所有节点
+ */
+export function expandAllTreeTableViewNode() {
+  return (dispatch, getState) => {
+    const { sheetview = {} } = getState().sheet;
+    const { rows = [] } = sheetview.sheetViewData || {};
+    const { treeMap } = sheetview.treeTableViewData || {};
+    const needLoadNodes = Object.keys(treeMap)
+      .filter(key => treeMap[key].folded)
+      .map(key => treeMap[key]);
+    needLoadNodes.forEach(needLoadNode => {
+      const row = find(rows, { rowid: needLoadNode.rowid });
+      if (row) {
+        dispatch(updateTreeNodeExpansion({ ...row, key: needLoadNode.key }, { expandAll: true }));
+      }
+    });
+  };
+}
+
+/**
+ * 收起所有节点
+ */
+export function collapseAllTreeTableViewNode() {
+  return (dispatch, getState) => {
+    const { sheetview = {} } = getState().sheet;
+    const { treeMap } = sheetview.treeTableViewData || {};
+    dispatch({
+      type: 'UPDATE_TREE_TABLE_VIEW_ITEM',
+      value: {
+        treeMap: _.mapValues(treeMap, function (value) {
+          return { ...value, folded: true };
+        }),
+      },
+    });
+  };
+}
+
+/**
+ * 重新渲染树
+ */
+export function refreshTreeOfTreeTableView(cb = () => {}) {
+  return (dispatch, getState) => {
+    const { sheetview = {} } = getState().sheet;
+    const oldTreeMap = get(sheetview, 'treeTableViewData.treeMap');
+    const { rows = [] } = sheetview.sheetViewData || {};
+    const { treeMap, maxLevel } = treeDataUpdater({}, { rootRows: rows.filter(r => !r.pid), rows });
+    dispatch({
+      type: 'UPDATE_TREE_TABLE_VIEW_DATA',
+      value: {
+        maxLevel,
+        treeMap: forEach(treeMap, (value, key) => {
+          try {
+            treeMap[key].folded = get(oldTreeMap, key + '.folded');
+          } catch (err) {
+            console.log(err);
+          }
+        }),
+      },
+    });
+    cb({ treeMap });
+  };
+}
+
+export function updateTreeByRowChange({ recordId, changedValue = {} } = {}) {
+  return (dispatch, getState) => {
+    const { base, views, sheetview = {} } = getState().sheet;
+    const { rows = [] } = sheetview.sheetViewData || {};
+    const { treeMap } = sheetview.treeTableViewData || {};
+    const { viewId } = base;
+    const view = find(views, v => v.viewId === viewId) || {};
+    const treeBaseControl = view.viewControl;
+    if (!treeBaseControl) {
+      return;
+    }
+    const row = find(rows, { rowid: recordId });
+    const oldParentRecordId = get(safeParse(get(row, view.viewControl)), '0.sid');
+    const newParentRecordId = get(safeParse(get(changedValue, view.viewControl)), '0.sid');
+    const oldParentRow = find(rows, { rowid: oldParentRecordId });
+    const newParentRow = find(rows, { rowid: newParentRecordId });
+    dispatch(
+      updateRows([recordId], {
+        pid: newParentRecordId,
+      }),
+    );
+    if (oldParentRow) {
+      Object.keys(treeMap)
+        .filter(key => new RegExp(oldParentRecordId + '$').test(key))
+        .forEach(key => {
+          dispatch(updateTreeNodeExpansion({ ...oldParentRow, key }, { forceUpdate: true }));
+        });
+    }
+    if (newParentRow) {
+      Object.keys(treeMap)
+        .filter(key => new RegExp(newParentRecordId + '$').test(key))
+        .forEach(key => {
+          dispatch(updateTreeNodeExpansion({ ...newParentRow, key }, { forceUpdate: true }));
+        });
+    }
+  };
+}
+
+export const initAbortController = () => ({
+  type: 'WORKSHEET_SHEETVIEW_INIT_ABORT_CONTROLLER',
+});
+
+export function abortRequest(cb = () => {}) {
+  return (dispatch, getState) => {
+    const abortController = get(getState(), 'sheet.sheetview.abortController');
+    if (abortController) {
+      abortController.abort();
+      dispatch(initAbortController());
     }
   };
 }

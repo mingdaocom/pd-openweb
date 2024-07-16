@@ -6,8 +6,9 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { addBehaviorLog } from 'src/util';
+import { useClickAway } from 'react-use';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
-import { find, findIndex, get, identity, includes, isEqual, uniq, uniqBy } from 'lodash';
+import { find, findIndex, get, identity, includes, isEmpty, isEqual, uniq, uniqBy } from 'lodash';
 import * as actions from './redux/action';
 import RowHead from './RelateRecordTableRowHead';
 import ColumnHead from './RelateRecordTableColumnHead';
@@ -92,7 +93,9 @@ function getPageRecords({ records = [], pageSize = PAGE_SIZE, pageIndex = 1 } = 
 
 function TableComp(props) {
   const {
+    tableId,
     cache,
+    control,
     base = {},
     tableState = {},
     changes = {},
@@ -108,6 +111,7 @@ function TableComp(props) {
     updateSort,
     handleRemoveRelation,
     handleSaveSheetLayout,
+    onUpdateCell = () => {},
   } = props;
   const { addedRecords = [] } = changes;
   let { records } = props;
@@ -117,13 +121,12 @@ function TableComp(props) {
     from,
     initialCount,
     isCharge,
-    control,
     recordId,
     allowEdit,
     sheetSwitchPermit,
     controlPermission,
     allowRemoveRelation,
-    relateWorksheetInfo,
+    relateWorksheetInfo = {},
     addVisible,
     isHiddenOtherViewRecord,
   } = base;
@@ -176,6 +179,7 @@ function TableComp(props) {
         get(control, 'advancedSetting.showcount') !== '1' &&
         !keywords &&
         (pageIndex === Math.ceil(count / pageSize) || count === 0) &&
+        control.type !== 51 &&
         count < Number(initialCount)
       ) {
         return oldRecords.concat({
@@ -196,8 +200,17 @@ function TableComp(props) {
     },
     [control.controlId],
   );
+  useClickAway({ current: get(worksheetTableRef, 'current.con') }, e => {
+    if (window.activeTableId === tableId && !e.target.closest(`.sheetViewTable.id-${tableId}-id`)) {
+      window.activeTableId = undefined;
+    }
+  });
+  if (isEmpty(columns)) {
+    return <div className="TxtCenter Gray_9e mAll30">{_l('没有可见字段')}</div>;
+  }
   return (
     <WorksheetTable
+      tableId={tableId}
       scrollBarHoverShow
       isRelateRecordList
       disablePanVertical
@@ -253,7 +266,7 @@ function TableComp(props) {
           relateRecordControlPermission={controlPermission}
           allowAdd={addVisible}
           allowDelete={allowDeleteFromSetting}
-          allowEdit={allowEdit && control.type !== 51}
+          allowEdit={allowEdit && control.type !== 51 && !control.disabled}
           pageIndex={pageIndex}
           pageSize={pageSize}
           recordId={recordId}
@@ -365,7 +378,6 @@ function TableComp(props) {
             }}
             hideColumn={controlId => {
               updateTableState({
-                layoutChanged: true,
                 sheetHiddenColumnIds: uniqBy(sheetHiddenColumnIds.concat(controlId)),
               });
             }}
@@ -399,7 +411,10 @@ function TableComp(props) {
           highlightRows: {},
         });
       }}
-      updateCell={updateCell}
+      updateCell={(...args) => {
+        onUpdateCell();
+        updateCell(...args);
+      }}
       onColumnWidthChange={(controlId, value) => {
         updateTableState({
           layoutChanged: true,
@@ -428,6 +443,7 @@ TableComp.propTypes = {
   handleRemoveRelation: func,
   handleSaveSheetLayout: func,
   updateWorksheetControls: func,
+  onUpdateCell: func,
 };
 
 export default connect(

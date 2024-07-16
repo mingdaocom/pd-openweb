@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { RadioGroup, Dialog, Checkbox, Button } from 'ming-ui';
 import './less/DeleteReconfirm.less';
 import _ from 'lodash';
@@ -59,15 +59,16 @@ export default ({
     }
   };
 
+  const root = createRoot(container);
   const closeLayer = () => {
     setTimeout(() => {
-      const isUnmounted = ReactDOM.unmountComponentAtNode(container);
-      isUnmounted && container.parentNode && container.parentNode.removeChild(container);
+      root.unmount();
+      document.body.removeChild(container);
       onCancel && onCancel();
     }, 0);
   };
 
-  ReactDOM.render(
+  root.render(
     <Dialog
       style={style}
       className={className}
@@ -107,6 +108,5 @@ export default ({
         )}
       </div>
     </Dialog>,
-    container,
   );
 };

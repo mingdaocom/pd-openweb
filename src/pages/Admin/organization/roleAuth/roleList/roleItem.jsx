@@ -1,162 +1,178 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { dialogSelectUser } from 'ming-ui/functions';
-import { Dialog, Icon, Menu, MenuItem } from 'ming-ui';
-import RoleController from 'src/api/role';
-import { navigateTo } from 'src/router/navigateTo';
-import cx from 'classnames';
+import React, { useRef, useState, useEffect } from 'react';
 import Trigger from 'rc-trigger';
-import EditRoleDialog from '../createEditRole';
+import cx from 'classnames';
 import _ from 'lodash';
-class RoleItem extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      showEdit: false,
-      hasClick: false,
-    };
-  }
+import { dialogSelectUser } from 'ming-ui/functions';
+import { Dialog, Icon, Menu, MenuItem, Tooltip } from 'ming-ui';
+import roleApi from 'src/api/role';
+import { getCurrentProject } from 'src/util';
 
-  clickHandler = (e, type) => {
+export default function RoleItem(props) {
+  const { role, projectId, isApply, onRefreshRoleList, onOpenDrawer } = props;
+  const [hasApply, setHasApply] = useState(false);
+  const [popupVisibleId, setPopupVisibleId] = useState(null);
+  const [isMembersOverflow, setIsMembersOverflow] = useState(false);
+  const [isAuthOverflow, setIsAuthOverflow] = useState(false);
+  const { isHrVisible, isSuperAdmin } = getCurrentProject(projectId, true);
+  const membersRef = useRef();
+  const authRef = useRef();
+
+  useEffect(() => {
+    setIsMembersOverflow(membersRef.current && membersRef.current.scrollHeight > 40);
+  }, [membersRef.current]);
+
+  useEffect(() => {
+    setIsAuthOverflow(authRef.current && authRef.current.scrollHeight > 40);
+  }, [authRef.current]);
+
+  const onClickHandle = (e, type) => {
     e.stopPropagation();
 
-    const { role, projectId, callback } = this.props;
-
-    if (role.noAuth) return () => {};
-
-    const _this = this;
-    const cb = data => {
-      if (data) {
-        alert(_l('操作成功'));
-        callback();
-      } else {
-        alert(_l('操作失败'), 2);
-      }
-    };
-    if (type === 'addmember') {
-      dialogSelectUser({
-        sourceId: 0,
-        fromType: 0,
-        fromAdmin: true,
-        SelectUserSettings: {
-          filterAll: true, // 过滤全部
-          filterFriend: true, // 是否过滤好友
-          filterOthers: true,
-          filterOtherProject: true,
-          projectId,
-          inProject: true,
-          callback(users) {
-            const accountIds = _.map(users, user => user.accountId);
-            RoleController.addUserToRole({
-              projectId,
-              roleId: role.roleId,
-              accountIds,
-            }).then(cb);
+    switch (type) {
+      case 'addMember':
+        dialogSelectUser({
+          sourceId: 0,
+          fromType: 0,
+          fromAdmin: true,
+          SelectUserSettings: {
+            filterAll: true, // 过滤全部
+            filterFriend: true, // 是否过滤好友
+            filterOthers: true,
+            filterOtherProject: true,
+            projectId,
+            inProject: true,
+            callback: users => {
+              const accountIds = _.map(users, user => user.accountId);
+              roleApi
+                .addUserToRole({
+                  projectId,
+                  roleId: role.roleId,
+                  accountIds,
+                })
+                .then(data => {
+                  if (data) {
+                    alert(_l('操作成功'));
+                    onRefreshRoleList();
+                  } else {
+                    alert(_l('操作失败'), 2);
+                  }
+                });
+            },
           },
-        },
-      });
-    } else if (type === 'delete') {
-      this.setState({ popupVisibleId: undefined });
-      Dialog.confirm({
-        title: _l('您确定删除该角色？'),
-        onOk: () => {
-          RoleController.removeRole({
+        });
+        break;
+      case 'applyRole':
+        roleApi
+          .applyRole({
             projectId,
             roleId: role.roleId,
-          }).then(res => {
-            const { message, deleteSuccess } = res;
-            if (deleteSuccess) {
-              alert(_l('操作成功'));
-            } else {
-              alert(message || _l('操作失败'), 2);
+          })
+          .then(function (data) {
+            if (data === 1) {
+              setHasApply(true);
+              alert(_l('申请成功'));
+            } else if (data === -1) {
+              alert(_l('不允许申请管理员'), 3);
+            } else if (data === 0) {
+              alert(_l('申请失败'), 2);
             }
           });
-        },
-      });
-    } else if (type === 'applyrole' && !this.state.hasClick) {
-      RoleController.applyRole({
-        projectId: projectId,
-        roleId: role.roleId,
-      }).then(function (data) {
-        if (data === 1) {
-          _this.setState({ hasClick: true });
-          alert(_l('申请成功'));
-        } else if (data === -1) {
-          alert(_l('不允许申请管理员'), 3);
-        } else if (data === 0) {
-          alert(_l('申请失败'), 2);
-        }
-      });
+        break;
+      case 'delete':
+        setPopupVisibleId(null);
+        Dialog.confirm({
+          title: <span className="Red">{_l('确定删除角色') + `"${role.roleName}"?`}</span>,
+          description: <span className="Gray">{_l('删除后无法恢复')}</span>,
+          buttonType: 'danger',
+          onOk: () => {
+            roleApi
+              .removeRole({
+                projectId,
+                roleId: role.roleId,
+              })
+              .then(res => {
+                const { message, deleteSuccess } = res;
+                if (deleteSuccess) {
+                  alert(_l('操作成功'));
+                  onRefreshRoleList();
+                } else {
+                  alert(message || _l('操作失败'), 2);
+                }
+              });
+          },
+        });
+        break;
+      case 'editRole':
+        onOpenDrawer(type);
+        setPopupVisibleId(null);
+        break;
+      case 'editHrRole':
+        onOpenDrawer(type);
+        setPopupVisibleId(null);
+        break;
+      default:
+        break;
     }
   };
 
-  render() {
-    const { isHrVisible, role, projectId, isApply, entry, callback } = this.props;
-    const { popupVisibleId } = this.state;
-    const auth = role.auth || {};
-    const isNormal = entry === 'myRole';
-
-    return (
-      <tr
-        className={classNames('roleItem', { disabled: isApply })}
-        onClick={() => {
-          if (!isApply && !isNormal) {
-            navigateTo('/admin/sysroles/' + projectId + '/' + role.roleId);
-          }
-        }}
-      >
-        <td className="roleName">{role.roleName}</td>
-        <td className="roleCount">{role.userCount}</td>
-        <td className="roleAuth">
-          {role.permissionTypes.length ? (
-            _.map(role.permissionTypes, ({ isAdmin, typeName, typeId }) => (
-              <span className="mRight30" key={typeId}>
-                {_l(typeName)}
-                <span className="Gray_9e mLeft5">({isAdmin ? _l('所有权限') : _l('部分权限')})</span>
-              </span>
-            ))
-          ) : (
-            <span className="Gray_9">{_l('暂无权限')}</span>
+  return (
+    <React.Fragment>
+      <div className={cx('roleItem', { disabled: isApply })} onClick={() => !isApply && onOpenDrawer()}>
+        <div className="roleName">
+          {role.roleName}
+          {role.isSuperAdmin && (
+            <Tooltip text={<span>{_l('此角色其他成员不可见')}</span>}>
+              <Icon icon="visibility_off" className="Font15 mLeft4" />
+            </Tooltip>
           )}
-        </td>
+        </div>
+        <div className="roleMembers">
+          <span className="content" ref={membersRef}>
+            {(role.memberNames || []).join('、')}
+          </span>
+          {isMembersOverflow && <span>{_l('等') + role.memberNames.length + _l('人')}</span>}
+        </div>
+        <div className="roleAuth">
+          <span className="content" ref={authRef}>
+            {role.isSuperAdmin ? _l('所有权限') : (role.permissionNames || []).join('、')}
+          </span>
+          {isAuthOverflow && <span>{_l('等') + role.permissionNames.length + _l('项')}</span>}
+        </div>
         {isApply ? (
-          <td className="roleOperation">
-            {role.isJoined || role.noAuth ? null : (
-              <span
-                onClick={e => this.clickHandler(e, 'applyrole')}
-                className={cx(this.state.hasClick ? 'Gray_bd' : 'ThemeColor3 adminHoverColor Hand')}
-              >
-                {_l('申请')}
+          <div className="roleOperation">
+            <span
+              onClick={e => !hasApply && onClickHandle(e, 'applyRole')}
+              className={cx(hasApply ? 'Gray_bd' : 'ThemeColor3 adminHoverColor Hand')}
+            >
+              {_l('申请')}
+            </span>
+          </div>
+        ) : (
+          <div className={cx('roleOperation', { ThemeColor3: role.allowAssignSamePermission || isSuperAdmin })}>
+            {(role.allowAssignSamePermission || isSuperAdmin) && (
+              <span className="adminHoverColor" onClick={e => onClickHandle(e, 'addMember')}>
+                {_l('添加成员')}
               </span>
             )}
-          </td>
-        ) : (
-          <td className={classNames('roleOperation', { ThemeColor3: !role.noAuth })}>
-            <span className="adminHoverColor" onClick={e => this.clickHandler(e, 'addmember')}>
-              {role.noAuth ? '' : _l('添加成员')}
-            </span>
-            {!md.global.Config.IsLocal && isHrVisible && (auth.edit || (auth.delete && role.userCount === 0)) && (
+            {isSuperAdmin && !role.isSuperAdmin && (
               <Trigger
                 popupVisible={role.entityId === popupVisibleId}
-                onPopupVisibleChange={visible => this.setState({ popupVisibleId: visible ? role.entityId : undefined })}
+                onPopupVisibleChange={visible => setPopupVisibleId(visible ? role.entityId : null)}
                 action={['click']}
                 popupAlign={{
-                  offset: [-100, 15],
-                  points: ['tr', 'tl'],
+                  offset: [0, 5],
+                  points: ['tr', 'br'],
                   overflow: { adjustX: true, adjustY: true },
                 }}
                 popup={
-                  <Menu style={{ width: 120 }}>
-                    <MenuItem
-                      onClick={e => {
-                        e.stopPropagation();
-                        this.setState({ showEdit: true, popupVisibleId: undefined });
-                      }}
-                    >
-                      {_l('编辑角色权限')}
+                  <Menu style={{ minWidth: 120, maxWidth: 200, position: 'unset' }}>
+                    <MenuItem onClick={e => onClickHandle(e, 'editRole')}>{_l('编辑权限')}</MenuItem>
+                    {isHrVisible && (
+                      <MenuItem onClick={e => onClickHandle(e, 'editHrRole')}>{_l('编辑人事权限')}</MenuItem>
+                    )}
+                    <MenuItem className="Red" onClick={e => onClickHandle(e, 'delete')}>
+                      {_l('删除')}
                     </MenuItem>
-                    <MenuItem onClick={e => this.clickHandler(e, 'delete')}>{_l('删除')}</MenuItem>
                   </Menu>
                 }
               >
@@ -167,45 +183,9 @@ class RoleItem extends React.Component {
                 />
               </Trigger>
             )}
-            {this.state.showEdit ? (
-              <EditRoleDialog
-                type={EditRoleDialog.TYPES.EDIT}
-                visible
-                roleId={role.roleId}
-                projectId={projectId}
-                onOk={res => {
-                  if (res) {
-                    alert(_l('修改成功'));
-                    callback();
-                    this.setState({
-                      showEdit: false,
-                    });
-                  } else {
-                    alert(_l('修改失败'), 2);
-                  }
-                }}
-                onClose={() => {
-                  this.setState({
-                    showEdit: false,
-                  });
-                }}
-              />
-            ) : null}
-          </td>
+          </div>
         )}
-      </tr>
-    );
-  }
+      </div>
+    </React.Fragment>
+  );
 }
-
-RoleItem.propTypes = {
-  role: PropTypes.shape({
-    isHrVisible: PropTypes.bool,
-    roleId: PropTypes.string,
-    roleName: PropTypes.string,
-    permissionTypes: PropTypes.arrayOf(PropTypes.object),
-    userCount: PropTypes.number,
-  }),
-};
-
-export default RoleItem;

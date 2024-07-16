@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dialog, Support, Icon, Menu, MenuItem, Dropdown, Radio } from 'ming-ui';
+import { ScrollView, LoadDiv, Dialog, Support, Icon, Menu, MenuItem, Radio } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import {
   DetailHeader,
@@ -9,13 +9,14 @@ import {
   FindResult,
   TriggerCondition,
   CustomTextarea,
+  OutputList,
 } from '../components';
 import { FIELD_TYPE_LIST } from '../../enum';
 import styled from 'styled-components';
 import cx from 'classnames';
 import JsonView from 'react-json-view';
 import copy from 'copy-to-clipboard';
-import { v4 as uuidv4, validate } from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 import { checkConditionsIsNull } from '../../utils';
 
@@ -74,44 +75,10 @@ const List = styled.div(
     width: 450px !important;
     .Item-content {
       &:hover {
-        .Gray_9e {
+        .Gray_75 {
           color: #fff !important;
         }
       }
-    }
-  }
-`,
-);
-
-const OutputList = styled.div(
-  ({ isHeader }) => `
-  height: 36px;
-  display: flex;
-  align-items: center;
-  ${isHeader ? 'color: #757575;' : 'margin-bottom: 10px;'}
-  .width150 {
-    width: 150px;
-  }
-  .width120 {
-    width: 120px;
-  }
-  .width100 {
-    width: 100px;
-  }
-  .width50 {
-    width: 50px;
-  }
-  input {
-    width: 100%;
-    height: 36px;
-    line-height: 36px;
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 4px;
-    border-color: #ddd;
-    padding: 0 10px;
-    &:focus {
-      border-color: #2196f3;
     }
   }
 `,
@@ -126,6 +93,7 @@ const getDefaultParameters = () => {
     value: '',
   };
 };
+
 export default class JSONParse extends Component {
   constructor(props) {
     super(props);
@@ -287,17 +255,8 @@ export default class JSONParse extends Component {
             {this.renderJSONResult()}
             <div className="mTop20 bold">{_l('定义输出参数')}</div>
             <div className="mTop10">{this.renderOutputDesc()}</div>
-            {!!data.outputs.length && this.renderOutputList()}
-            <div
-              className="mTop15 InlineBlock pointer ThemeColor3 ThemeHoverColor2"
-              onClick={() =>
-                this.updateSource({
-                  outputs: data.outputs.concat([getDefaultParameters()]),
-                })
-              }
-            >
-              {_l('+ 输出参数')}
-            </div>
+
+            <OutputList outputType={1} data={data} isIntegration={isIntegration} updateSource={this.updateSource} />
 
             <div className="mTop20 bold">{_l('定义错误消息')}</div>
             <div className="Gray_75 mTop10">
@@ -320,7 +279,7 @@ export default class JSONParse extends Component {
 
             {!!data.conditions.length && (
               <Fragment>
-                <div className="mTop10 mLeft30 Gray_9e">{_l('当参数返回值满足以下条件时触发错误')}</div>
+                <div className="mTop10 mLeft30 Gray_75">{_l('当参数返回值满足以下条件时触发错误')}</div>
                 <div className="mLeft30">
                   <TriggerCondition
                     processId={this.props.processId}
@@ -441,8 +400,8 @@ export default class JSONParse extends Component {
     }
 
     return (
-      <Fragment>
-        <List key={item.jsonPath} className={cx('flexRow Font12', { active: selectFiledId === item.jsonPath })}>
+      <Fragment key={item.jsonPath}>
+        <List className={cx('flexRow Font12', { active: selectFiledId === item.jsonPath })}>
           <div
             className={cx('width250 mRight10 flexRow', hasFold ? 'pointer' : 'pLeft24', {
               pLeft24: item.dataSource && hasFold,
@@ -464,7 +423,7 @@ export default class JSONParse extends Component {
               <div className="width24">
                 <Icon
                   type={_.includes(foldIds, item.jsonPath) ? 'arrow-right-tip' : 'arrow-down'}
-                  className="Gray_9e Font14"
+                  className="Gray_75 Font14"
                 />
               </div>
             )}
@@ -479,11 +438,11 @@ export default class JSONParse extends Component {
           </div>
           <div className="width190 mRight10 ellipsis">{item.jsonPath}</div>
           <div className="width150 relative hideOperation">
-            <Icon type="output" className="Gray_9e" />
+            <Icon type="output" className="Gray_75" />
             <span className="mLeft5 ThemeHoverColor3 pointer" onClick={() => this.onGenerationParameters(item)}>
               {_l('生成参数')}
             </span>
-            <Icon type="copy" className="Gray_9e mLeft15" />
+            <Icon type="copy" className="Gray_75 mLeft15" />
             <span
               className="mLeft5 ThemeHoverColor3 pointer"
               onClick={() => {
@@ -511,7 +470,7 @@ export default class JSONParse extends Component {
                   >
                     <div className="flexRow">
                       <div className="flex ellipsis mRight15"> {o.text} </div>
-                      <div className="Gray_9e"> {o.desc} </div>
+                      <div className="Gray_75"> {o.desc} </div>
                     </div>
                   </MenuItem>
                 ))}
@@ -614,216 +573,6 @@ export default class JSONParse extends Component {
           ? parameters
           : data.outputs.concat(parameters),
     });
-  }
-
-  /**
-   * 渲染参数列表
-   */
-  renderOutputList() {
-    const { data } = this.state;
-
-    return (
-      <Fragment>
-        <OutputList isHeader className="mTop5">
-          <div className="width150 mRight10">{_l('参数名')}</div>
-          <div className="width120 mRight10">{_l('类型')}</div>
-          <div className="flex mRight10">JSON Path</div>
-          <div className="width50" />
-        </OutputList>
-
-        {this.renderJSONList(data.outputs.filter(item => !item.dataSource))}
-      </Fragment>
-    );
-  }
-
-  /**
-   * 递归渲染列表
-   */
-  renderJSONList(source) {
-    const { isIntegration } = this.props;
-    const { data } = this.state;
-
-    return source.map(item => {
-      let subItem;
-
-      if (item.dataSource && _.find(data.outputs, o => o.controlId === item.dataSource).type === 10000007) {
-        return null;
-      }
-
-      if (item.type === 10000007) {
-        subItem = _.find(data.outputs, o => o.dataSource === item.controlId) || {};
-      }
-
-      return (
-        <Fragment>
-          <OutputList key={item.controlId}>
-            <div className={cx('width150 mRight10', { pLeft20: item.dataSource })}>
-              <input
-                type="text"
-                value={item.controlName}
-                placeholder={_l('请填写参数名称')}
-                onChange={e => this.updateOutputParameters('controlName', e.target.value, item)}
-                onBlur={e =>
-                  this.updateOutputParameters(
-                    'controlName',
-                    e.target.value.replace(/[^\u4e00-\u9fa5a-zA-Z\d_]/g, ''),
-                    item,
-                    true,
-                  )
-                }
-              />
-            </div>
-            <div className="width120 mRight10">
-              <Dropdown
-                className="flowDropdown"
-                style={{ width: 120 }}
-                data={FIELD_TYPE_LIST.filter(
-                  o =>
-                    !_.includes([14, 10000003], o.value) &&
-                    (!item.dataSource || (item.dataSource && o.value !== 10000008)),
-                )}
-                value={item.type}
-                border
-                disabled={!validate(item.controlId)}
-                onChange={type => {
-                  this.updateOutputParameters('type', type, item);
-                }}
-              />
-            </div>
-            {item.type === 10000007 && (
-              <div className="width100 mRight10">
-                <Dropdown
-                  className="flowDropdown"
-                  style={{ width: 100 }}
-                  data={FIELD_TYPE_LIST.filter(o => _.includes([2, 6, 16, 26, 27], o.value))}
-                  value={subItem.type}
-                  border
-                  disabled={!validate(subItem.controlId)}
-                  onChange={type => {
-                    this.updateOutputParameters('type', type, subItem);
-                    this.updateOutputParameters(
-                      'controlName',
-                      _.find(FIELD_TYPE_LIST, o => o.value === type).en,
-                      subItem,
-                    );
-                  }}
-                />
-              </div>
-            )}
-            <div className="flex mRight10">
-              <input
-                type="text"
-                value={item.jsonPath}
-                placeholder={_l('请填写 JSON Path 值')}
-                onChange={e => this.updateOutputParameters('jsonPath', e.target.value, item)}
-                onBlur={e => this.updateOutputParameters('jsonPath', e.target.value.trim(), item)}
-              />
-            </div>
-            <div className="width50">
-              <Icon
-                type="delete1"
-                className="Font16 mRight10 pointer Gray_9e ThemeHoverColor3"
-                onClick={() => this.removeParameters(item.controlId)}
-              />
-              <Icon
-                type="add"
-                className="Font16 pointer Gray_9e ThemeHoverColor3"
-                onClick={() => this.addParameters(item)}
-              />
-            </div>
-          </OutputList>
-          {isIntegration && (
-            <div className={cx('mBottom10 flexRow alignItemsCenter', { pLeft20: item.dataSource })}>
-              <input
-                type="text"
-                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
-                placeholder={_l('说明')}
-                value={item.desc}
-                onChange={evt => this.updateOutputParameters('desc', evt.target.value, item)}
-                onBlur={evt => this.updateOutputParameters('desc', evt.target.value.trim(), item)}
-              />
-            </div>
-          )}
-
-          {this.renderJSONList(data.outputs.filter(o => o.dataSource === item.controlId))}
-        </Fragment>
-      );
-    });
-  }
-
-  /**
-   * 修改输出参数
-   */
-  updateOutputParameters(action, value, { controlId, type, dataSource }, isBlur) {
-    const { data } = this.state;
-    const { outputs } = data;
-
-    outputs.forEach(item => {
-      if (item.controlId === controlId) {
-        item[action] =
-          isBlur &&
-          action === 'controlName' &&
-          !!outputs
-            .filter(o => o.dataSource === dataSource)
-            .find(o => o.controlName === value && o.controlId !== controlId)
-            ? value +
-              Math.floor(Math.random() * 10000)
-                .toString()
-                .padStart(4, '0')
-            : value;
-      }
-    });
-
-    // 数组调整类型
-    if (action === 'type' && _.includes([10000007, 10000008], type)) {
-      _.remove(outputs, o => o.dataSource === controlId);
-    }
-
-    // 普通数组
-    if (action === 'type' && value === 10000007) {
-      outputs.push(this.generationOrdinaryArrayObject(controlId));
-    }
-
-    this.updateSource({ outputs });
-  }
-
-  /**
-   * 删除参数
-   */
-  removeParameters(controlId) {
-    const { data } = this.state;
-    const { outputs, conditions } = data;
-
-    _.remove(outputs, o => o.controlId === controlId || o.dataSource === controlId);
-
-    conditions.forEach(item => {
-      _.remove(item, o => o.filedId === controlId);
-    });
-
-    this.updateSource({ outputs, conditions: conditions.filter(item => item.length) });
-  }
-
-  /**
-   * 添加参数
-   */
-  addParameters({ type, dataSource, controlId }) {
-    const { data } = this.state;
-    const { outputs } = data;
-    let index = 0;
-
-    outputs.forEach((item, i) => {
-      if (item.controlId === controlId) {
-        index = i;
-      }
-    });
-
-    if (type === 10000008 || dataSource) {
-      outputs.splice(index + 1, 0, Object.assign({}, getDefaultParameters(), { dataSource: dataSource || controlId }));
-    } else {
-      outputs.splice(index + 1, 0, getDefaultParameters());
-    }
-
-    this.updateSource({ outputs });
   }
 
   /**

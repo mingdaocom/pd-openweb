@@ -15,6 +15,8 @@ import moment from 'moment';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
 import { VersionProductType } from 'src/util/enum';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const ListWrap = styled.div`
   flex: 1;
@@ -172,10 +174,11 @@ export default function BackupFiles(props) {
         </Fragment>
       ),
       onOk: () => {
-        const currentProject = getCurrentProject(projectId);
         const hasDataBase =
           getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
-        if (hasDataBase && (currentProject.isSuperAdmin || currentProject.isProjectAppManager)) {
+        const hasAppResourceAuth = checkPermission(projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
+
+        if (hasDataBase && hasAppResourceAuth) {
           HomeApiController.getMyDbInstances({ projectId }).then(res => {
             const list = res.map(l => {
               return {
@@ -304,7 +307,7 @@ export default function BackupFiles(props) {
           <div className="flex">
             <ScrollView onScrollEnd={onScrollEnd}>
               {fileList.map(item => {
-                const { id, operator, operationDateTime, status, containData, usage } = item;
+                const { id, operator = {}, operationDateTime, status, containData, usage } = item;
                 const size = (usage / (1024 * 1024)).toFixed(2) + 'MB';
 
                 // 已过期

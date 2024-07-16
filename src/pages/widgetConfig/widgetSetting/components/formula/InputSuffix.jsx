@@ -1,38 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { Dropdown } from 'ming-ui';
+import React from 'react';
+import { Dropdown, Checkbox } from 'ming-ui';
+import { Tooltip } from 'antd';
 import { SettingItem } from '../../../styled';
 import { UNIT_TYPE } from '../../../config/setting';
-import styled from 'styled-components';
-import { Input } from 'antd';
 import { handleAdvancedSettingChange } from '../../../util/setting';
 import { getAdvanceSetting } from '../../../util';
 import _ from 'lodash';
 
-const SuffixWrap = styled(SettingItem)`
-  .unitDropdown {
-    margin-bottom: 12px;
-  }
-`;
-
 export default function InputSuffix({ data, onChange }) {
-  const { unit, enumDefault, controlId, dot } = data;
+  const { unit, dot } = data;
   const setting = getAdvanceSetting(data) || {};
-  const type = setting.prefix ? 'prefix' : 'suffix';
-  const initSuffix = UNIT_TYPE.find(item => _.includes(['3', '4', '5'], unit) && item.value === unit) || {};
-  useEffect(() => {
-    onChange(
-      handleAdvancedSettingChange(
-        data,
-        _.includes(['3', '4', '5'], unit)
-          ? { [type]: _.isUndefined(setting[type]) ? initSuffix.text : setting[type] || '' }
-          : { prefix: '', suffix: '' },
-      ),
-    );
-  }, [unit, controlId]);
 
   return (
     <SettingItem>
-      <div className="settingItemTitle">{_l('输出格式')}</div>
+      <div className="settingItemTitle" style={{ justifyContent: 'space-between' }}>
+        {_l('输出格式')}
+        {!_.includes(['5'], unit) && (
+          <Checkbox
+            size="small"
+            checked={setting.autocarry === '1'}
+            onClick={checked => {
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  autocarry: checked ? '0' : '1',
+                  ...(!checked ? { prefix: '', suffix: '' } : {}),
+                }),
+              );
+            }}
+          >
+            <span style={{ marginRight: '6px' }}>{_l('自动进位')}</span>
+            <Tooltip
+              popupPlacement="bottom"
+              title={
+                <span>
+                  {_l(
+                    '输出结果超过12月/30天/24时/60分钟/60秒的部分，将分别进位为年/月/天/时/分钟。如50时呈现为2天2时。',
+                  )}
+                </span>
+              }
+            >
+              <i className="icon-help Gray_bd Font16 pointer"></i>
+            </Tooltip>
+          </Checkbox>
+        )}
+      </div>
       <Dropdown
         border
         value={unit}

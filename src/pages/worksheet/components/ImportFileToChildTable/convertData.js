@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, { trim } from 'lodash';
 import { postWithToken } from 'worksheet/util';
 import moment from 'moment';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget.js';
@@ -88,10 +88,10 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.DATE:
               case WIDGETS_TO_API_TYPE_ENUM.DATE_TIME:
-                value = getDateStringValue(item[key], control) || value;
+                value = item[key] ? getDateStringValue(item[key], control) : value;
                 break;
               case WIDGETS_TO_API_TYPE_ENUM.TIME:
-                if (/^\w\w:\w\w(:\w\w)?$/.test(item[key])) {
+                if (/^\w\w:\w\w(:\w\w)?$/.test(trim(item[key]))) {
                   value = item[key];
                 }
                 break;

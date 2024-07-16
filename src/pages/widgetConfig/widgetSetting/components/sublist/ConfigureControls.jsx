@@ -5,7 +5,7 @@ import { Dropdown, Modal } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import cx from 'classnames';
 import { Menu, MenuItem, Dialog, Support } from 'ming-ui';
-import { arrayMove, SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
+import { arrayMove, SortableContainer, SortableElement, SortableHandle } from '@mdfe/react-sortable-hoc';
 import update from 'immutability-helper';
 import { useSetState } from 'react-use';
 import SubControlConfig from './SubControlConfig';
@@ -118,7 +118,7 @@ const SortableItem = SortableElement(({ item, deleteWidget, configureWidget }) =
   return (
     <WidgetInfo>
       <DragHandle />
-      <div className="widgetItem" onMouseDown={configureWidget}>
+      <div className="widgetItem noSelect" onMouseDown={configureWidget}>
         <i className={`icon-${icon} Gray_9e Font_16`}></i>
         <div className="name">{controlName || widgetName}</div>
         <i className="icon-arrow-right-border pointer Gray_9e"></i>
@@ -204,7 +204,11 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                             <Fragment>
                               <div className="intro" style={{ color: '#9e9e9e' }}>
                                 {_l('在表单中显示关联的记录。如：订单关联客户')}
-                                <Support type={3} text={_l('帮助')} href={'https://help.mingdao.com/worksheet/control-relationship'} />
+                                <Support
+                                  type={3}
+                                  text={_l('帮助')}
+                                  href={'https://help.mingdao.com/worksheet/control-relationship'}
+                                />
                               </div>
                               <SelectSheetFromApp
                                 globalSheetInfo={globalSheetInfo}

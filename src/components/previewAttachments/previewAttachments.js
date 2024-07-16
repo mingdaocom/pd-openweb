@@ -1,31 +1,32 @@
 ﻿import React from 'react';
-import ReactDOM from 'react-dom';
-import AttachmentsPreview from 'src/pages/kc/common/AttachmentsPreview';
+import { createRoot } from 'react-dom/client';
 
-var previewAttachments = function(options, extra) {
-  const attachments = (
-    <AttachmentsPreview
-      extra={extra || {}}
-      options={options}
-      onClose={() => {
-        ReactDOM.unmountComponentAtNode($('#attachemntsPreviewContainer')[0]);
-        $('#attachemntsPreviewContainer').remove();
-        if (typeof options.closeCallback === 'function') {
-          options.closeCallback();
-        }
-      }}
-    />
-  );
+var previewAttachments = function (options, extra) {
+  import('src/pages/kc/common/AttachmentsPreview').then(AttachmentsPreview => {
+    AttachmentsPreview = AttachmentsPreview.default;
 
-  const $el = $('#attachemntsPreviewContainer');
-  if ($el.length) {
-    ReactDOM.render(attachments, $el[0]);
-  } else {
-    ReactDOM.render(attachments, $('<div id="attachemntsPreviewContainer"></div>').appendTo('html > body')[0]);
-  }
+    const $el = $('#attachemntsPreviewContainer');
+    const root = createRoot(
+      $el.length ? $el[0] : $('<div id="attachemntsPreviewContainer"></div>').appendTo('html > body')[0],
+    );
 
-  $(document).on('click', '#attachemntsPreviewContainer', function(e) {
-    e.stopPropagation();
+    root.render(
+      <AttachmentsPreview
+        extra={extra || {}}
+        options={options}
+        onClose={() => {
+          root.unmount();
+          $('#attachemntsPreviewContainer').remove();
+          if (typeof options.closeCallback === 'function') {
+            options.closeCallback();
+          }
+        }}
+      />,
+    );
+
+    $(document).on('click', '#attachemntsPreviewContainer', function (e) {
+      e.stopPropagation();
+    });
   });
 };
 

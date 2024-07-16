@@ -7,6 +7,7 @@ import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import cx from 'classnames';
 import { UploadFileWrapper } from 'mobile/Discuss/AttachmentFiles';
 import { getRowGetType } from 'worksheet/util';
+import { checkValueByFilterRegex } from 'src/components/newCustomFields/tools/utils';
 import Files from './Files';
 import FileEditModal from './Files/FileEditModal';
 import attachmentApi from 'src/api/attachment';
@@ -14,7 +15,9 @@ import downloadApi from 'src/api/download';
 import worksheetApi from 'src/api/worksheet';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 import { browserIsMobile } from 'src/util';
+import RegExpValidator from 'src/util/expression';
 import _ from 'lodash';
 import './index.less';
 
@@ -43,7 +46,11 @@ export default class Widgets extends Component {
       fileEditModalVisible: false,
       showType: showtype === '0' ? '1' : showtype,
       filesVisible: true,
+      mobileFiles: [],
+      mobileCameraFiles: [],
+      mobileCamcorderFiles: [],
     };
+    this.mobileFileRef = {};
   }
 
   componentDidMount() {
@@ -52,6 +59,10 @@ export default class Widgets extends Component {
     }
     if (_.get(this.props, 'advancedSetting.showtype') === '3') {
       this.detectionShowType();
+    }
+
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
     }
   }
 
@@ -216,6 +227,11 @@ export default class Widgets extends Component {
       });
   };
 
+  checkValueByFilterRegex = name => {
+    const { advancedSetting, formData, recordId } = this.props;
+    return checkValueByFilterRegex({ advancedSetting }, RegExpValidator.getNameOfFileName(name), formData, recordId);
+  }
+
   /**
    * 编辑明道附件名称
    */
@@ -223,6 +239,12 @@ export default class Widgets extends Component {
   handleAttachmentName = (id, newName, data) => {
     const value = JSON.parse(this.state.value || '[]');
     const isArray = _.isArray(value);
+    const error = this.checkValueByFilterRegex(newName);
+
+    if (error) {
+      alert(error, 2);
+      return;
+    }
 
     const newValue = {
       attachments: isArray ? [] : value.attachments,
@@ -333,6 +355,28 @@ export default class Widgets extends Component {
       });
   };
 
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
+
+  handleMobileChangeFiles = () => {
+    const { mobileFiles, mobileCameraFiles , mobileCamcorderFiles } = this.state;
+    const files = [...mobileFiles, ...mobileCameraFiles, ...mobileCamcorderFiles];
+    this.filesChanged(files, 'attachments');
+  }
+
+  handleCheckMobileFiles = deletedFile => {
+    if (deletedFile) {
+      this.setState({
+        mobileFiles: this.state.mobileFiles.filter(n => n.progress ? n.id !== deletedFile.id : n.fileID !== deletedFile.fileID),
+        mobileCameraFiles: this.state.mobileCameraFiles.filter(n => n.progress ? n.id !== deletedFile.id : n.fileID !== deletedFile.fileID),
+        mobileCamcorderFiles: this.state.mobileCamcorderFiles.filter(n => n.progress ? n.id !== deletedFile.id : n.fileID !== deletedFile.fileID),
+      });
+    }
+  }
+
   renderMobileUploadTrigger = ({
     className,
     originCount,
@@ -342,6 +386,7 @@ export default class Widgets extends Component {
     icon,
     iconClass,
     styles = {},
+    type
   }) => {
     const { from, appId, worksheetId, projectId, enumDefault2, advancedSetting, strDefault = '10', hint } = this.props;
     const { isComplete, uploadStart } = this.state;
@@ -361,17 +406,43 @@ export default class Widgets extends Component {
           advancedSetting={advancedSetting}
           originCount={originCount}
           disabledGallery={strDefault.split('')[0] === '1'}
-          files={attachments || []}
+          files={[]}
           onChange={(files, isComplete = false) => {
             this.setState({
               isComplete,
               uploadStart: isComplete ? false : true,
             });
-            this.filesChanged(files, 'attachments');
+            if (type === 'file') {
+              this.setState({
+                mobileFiles: _.uniqBy(this.state.mobileFiles.filter(n => !('progress' in n)).concat(files), 'fileName')
+              }, () => {
+                this.handleMobileChangeFiles();
+              });
+            }
+            if (type === 'camera') {
+              this.setState({
+                mobileCameraFiles: _.uniqBy(this.state.mobileCameraFiles.filter(n => !('progress' in n)).concat(files), 'fileName')
+              }, () => {
+                this.handleMobileChangeFiles();
+              });
+            }
+            if (type === 'camcorder') {
+              this.setState({
+                mobileCamcorderFiles: _.uniqBy(this.state.mobileCamcorderFiles.filter(n => !('progress' in n)).concat(files), 'fileName')
+              }, () => {
+                this.handleMobileChangeFiles();
+              });
+            }
+            if (isComplete) {
+              this.mobileFileRef[type].setState({
+                files: []
+              });
+            }
           }}
-          ref={mobileFileBox => {
-            this.mobileFileBox = mobileFileBox;
+          ref={mobileFileRef => {
+            this.mobileFileRef[type] = mobileFileRef;
           }}
+          checkValueByFilterRegex={this.checkValueByFilterRegex}
         >
           <Icon className={cx('Gray_9e TxtMiddle', { iconClass })} icon={icon ? icon : 'attachment'} />
           <span className="Gray Font13 mLeft5 addFileName overflow_ellipsis flex">{addFileName}</span>
@@ -399,6 +470,7 @@ export default class Widgets extends Component {
       hint,
       flag,
       canAddKnowledge,
+      formData,
     } = this.props;
     const isOnlyAllowMobile = strDefault.split('')[1] === '1';
     const {
@@ -471,12 +543,16 @@ export default class Widgets extends Component {
       attachments,
       knowledgeAtts,
       attachmentData,
+      checkValueByFilterRegex: this.checkValueByFilterRegex,
       onSortAttachment: this.handleSortAttachment,
       onAttachmentName: this.handleAttachmentName,
       onChangedAllFiles: this.filesChangedAll,
       onChangeAttachments: res => this.filesChanged(res, 'attachments'),
       onChangeKnowledgeAtts: res => this.filesChanged(res, 'knowledgeAtts'),
       onChangeAttachmentData: res => this.filesChanged(res, 'attachmentData'),
+      onRemoveFile: file => {
+        this.handleCheckMobileFiles(file);
+      }
     };
 
     if (isMobile) {
@@ -501,7 +577,7 @@ export default class Widgets extends Component {
         >
           {!mobileDisabled && (
             <div className="flexRow">
-              {showFile && this.renderMobileUploadTrigger({ originCount, strDefault, attachments, styles })}
+              {showFile && this.renderMobileUploadTrigger({ originCount, strDefault, attachments, styles, type: 'file' })}
               {showCamera &&
                 this.renderMobileUploadTrigger({
                   originCount,
@@ -512,6 +588,7 @@ export default class Widgets extends Component {
                   className: cx({ mLeft6: showFile }),
                   icon: 'camera_alt',
                   iconClass: 'Font16',
+                  type: 'camera'
                 })}
               {showCamcorder &&
                 this.renderMobileUploadTrigger({
@@ -523,6 +600,7 @@ export default class Widgets extends Component {
                   className: cx({ mLeft6: showFile || showCamera }),
                   icon: 'video2',
                   iconClass: 'Font18',
+                  type: 'camcorder'
                 })}
             </div>
           )}
@@ -532,14 +610,39 @@ export default class Widgets extends Component {
             isDeleteFile={!mobileDisabled}
             from={from}
             removeUploadingFile={data => {
-              if (this.mobileFileBox) {
-                this.setState({ isComplete: true });
-                this.mobileFileBox.currentFile.removeFile({ id: data.id });
-                this.filesChanged(
-                  attachments.filter(item => item.id !== data.id),
-                  'attachments',
-                );
+              this.setState({ isComplete: true });
+              if (showFile) {
+                const { currentFile, state } = this.mobileFileRef['file'];
+                currentFile && currentFile.removeFile({ id: data.id });
+                if (_.find(state.files, { id: data.id })) {
+                  this.mobileFileRef['file'].setState({
+                    files: state.files.filter(n => n.id !== data.id)
+                  });
+                }
               }
+              if (showCamera) {
+                const { currentFile, state } = this.mobileFileRef['camera'];
+                currentFile && currentFile.removeFile({ id: data.id });
+                if (_.find(state.files, { id: data.id })) {
+                  this.mobileFileRef['camera'].setState({
+                    files: state.files.filter(n => n.id !== data.id)
+                  });
+                }
+              }
+              if (showCamcorder) {
+                const { currentFile, state } = this.mobileFileRef['camcorder'];
+                currentFile && currentFile.removeFile({ id: data.id });
+                if (_.find(state.files, { id: data.id })) {
+                  this.mobileFileRef['camcorder'].setState({
+                    files: state.files.filter(n => n.id !== data.id)
+                  });
+                }
+              }
+              this.handleCheckMobileFiles(_.find(attachments, { id: data.id }));
+              this.filesChanged(
+                attachments.filter(item => item.id !== data.id),
+                'attachments',
+              );
             }}
           />
         </div>
@@ -590,6 +693,7 @@ export default class Widgets extends Component {
               getPopupContainer={this.getPopupContainer}
               onCancel={this.onCancelTemporary}
               onOk={this.onSaveTemporary}
+              checkValueByFilterRegex={this.checkValueByFilterRegex}
             >
               <div className="pointer flexRow Font13 Gray_9e alignItemsCenter" style={{ height: 34 }}>
                 <Icon icon="attachment" className="Font16" />

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { autobind } from 'core-decorators';
 import { Icon, Input, Tooltip } from 'ming-ui';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { getIconByType } from 'src/pages/widgetConfig/util';

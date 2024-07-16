@@ -1,9 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { Input } from 'antd';
-import Components from '../../../components';
+import AutoIcon from '../../../components/Icon';
 import cx from 'classnames';
-
-const Icon = Components.Icon;
 
 export default function StrInput({ rule, deleteRule, updateRule }) {
   const { controlId } = rule;
@@ -23,7 +21,7 @@ export default function StrInput({ rule, deleteRule, updateRule }) {
     <Fragment>
       <div className="header">
         <div className={cx('title ', { errorHint: isError })}>{isError ? _l('固定字符不能为空') : _l('固定字符')}</div>
-        <Icon className="deleteRuleIcon" type="delete" icon="delete_12" onMouseDown={deleteRule} />
+        <AutoIcon className="deleteRuleIcon" type="delete" icon="delete_12" onMouseDown={deleteRule} />
       </div>
       <Input
         value={controlId}

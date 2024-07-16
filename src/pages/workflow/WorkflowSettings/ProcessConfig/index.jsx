@@ -5,7 +5,7 @@ import './index.less';
 import process from '../../api/process';
 import SelectWorkflow from '../../components/SelectWorkflow';
 import { updatePublishState } from '../../redux/actions';
-import ProcessVariables from './components/ProcessVariables';
+import { ProcessVariables } from '../Detail/components';
 import { Member, SelectUserDropDown, SelectNodeObject, CustomTextarea } from '../Detail/components';
 import cx from 'classnames';
 import copy from 'copy-to-clipboard';
@@ -250,7 +250,7 @@ class ProcessConfig extends Component {
 
         <div className="mTop15">
           <span className="bold">{_l('其他通知人')}</span>
-          <span className="Gray_9e">{_l('（当流程错误时，同时通知以下人）')}</span>
+          <span className="Gray_75">{_l('（当流程错误时，同时通知以下人）')}</span>
         </div>
         <Member
           companyId={flowInfo.companyId}
@@ -287,25 +287,29 @@ class ProcessConfig extends Component {
           <div className="Gray_75 mLeft10">{_l('内不发送同类错误通知')}</div>
         </div>
 
-        <div className="processConfigLine" />
-        <div className="bold Font16 mTop28">{_l('运行方式')}</div>
-        <div className="Gray_75 mTop5">{_l('设置流程的运行方式，仅支持新增记录触发，自定义动作触发的流程')}</div>
-        {operationMode.map((item, i) => (
-          <Fragment key={i}>
-            <div className="mTop15">
-              <Radio
-                className="bold"
-                text={item.text}
-                disabled={!data.sequence && item.value !== 1}
-                checked={data.executeType === item.value}
-                onClick={() => this.updateSource({ executeType: item.value })}
-              />
-            </div>
-            <div className={cx('Font12 mTop5 mLeft30', !data.sequence && item.value !== 1 ? 'Gray_9e' : 'Gray_75')}>
-              {item.desc}
-            </div>
+        {flowInfo.startAppType !== APP_TYPE.LOOP_PROCESS && (
+          <Fragment>
+            <div className="processConfigLine" />
+            <div className="bold Font16 mTop28">{_l('运行方式')}</div>
+            <div className="Gray_75 mTop5">{_l('设置流程的运行方式，仅支持新增记录触发，自定义动作触发的流程')}</div>
+            {operationMode.map((item, i) => (
+              <Fragment key={i}>
+                <div className="mTop15">
+                  <Radio
+                    className="bold"
+                    text={item.text}
+                    disabled={!data.sequence && item.value !== 1}
+                    checked={data.executeType === item.value}
+                    onClick={() => this.updateSource({ executeType: item.value })}
+                  />
+                </div>
+                <div className={cx('Font12 mTop5 mLeft30', !data.sequence && item.value !== 1 ? 'Gray_bd' : 'Gray_75')}>
+                  {item.desc}
+                </div>
+              </Fragment>
+            ))}
           </Fragment>
-        ))}
+        )}
 
         <div className="processConfigLine" />
         <div className="bold Font16 mTop28">{_l('数据格式')}</div>
@@ -558,7 +562,7 @@ class ProcessConfig extends Component {
     return (
       <Fragment>
         <div className="bold Font16 mTop28">{_l('平台API能力')}</div>
-        <div className="Gray_9e mTop5">
+        <div className="Gray_75 mTop5">
           {_l('启用后，我们会自动为您的业务流程生成相关的API开发文档，供您向其他第三方外部系统提供平台开放能力')}
           {data.pbcConfig.enable && (
             <a
@@ -584,7 +588,7 @@ class ProcessConfig extends Component {
         {data.pbcConfig.enable && (
           <Fragment>
             <div className="bold Font16 mTop28">{_l('请求地址')}</div>
-            <div className="mTop5 Gray_9e">{_l('我们为您生成了一个用来接收请求的URL，可以在URL后自定义拼接内容')}</div>
+            <div className="mTop5 Gray_75">{_l('我们为您生成了一个用来接收请求的URL，可以在URL后自定义拼接内容')}</div>
             <div className="mTop10 flexRow">
               <input
                 type="text"
@@ -635,7 +639,7 @@ class ProcessConfig extends Component {
             {!!importData.length && (
               <Fragment>
                 <div className="mTop28 Font16 bold">{_l('请求参数')}</div>
-                <div className="mTop5 Gray_9e">
+                <div className="mTop5 Gray_75">
                   {_l(
                     '可以使用 GET/POST 方式发送参数。当使用 POST 时，请求的主体必须是 JSON 格式，而且 HTTP header 的 Content-Type 需要设置为 application/json',
                   )}
@@ -712,7 +716,7 @@ class ProcessConfig extends Component {
               return (
                 <Fragment>
                   <div className="itemText">{text}</div>
-                  <div className="Gray_9e mTop3" style={{ whiteSpace: 'normal', lineHeight: '18px' }}>
+                  <div className="Gray_75 mTop3" style={{ whiteSpace: 'normal', lineHeight: '18px' }}>
                     {desc}
                   </div>
                 </Fragment>
@@ -842,6 +846,10 @@ class ProcessConfig extends Component {
       'licenseType',
     );
 
+    if (flowInfo.startAppType === APP_TYPE.LOOP_PROCESS) {
+      _.remove(settings, item => item.value === 3);
+    }
+
     if (!isPBC || licenseType === 0) {
       _.remove(settings, item => item.value === 4);
     }
@@ -889,7 +897,7 @@ class ProcessConfig extends Component {
               {_l('保存')}
             </span>
             <Support
-              className="pointer Gray_9e mLeft32"
+              className="pointer Gray_75 mLeft32"
               href="https://help.mingdao.com/workflow/configuration"
               type={2}
               text={_l('帮助')}

@@ -121,7 +121,7 @@ function AssistantList(props) {
     if (!number) return null;
 
     for (let i = 0; i < columnSize - number; i++) {
-      blankList.push(<div className="listItem Visibility" />);
+      blankList.push(<div className="listItem Visibility" key={`block_${i}`} />);
     }
 
     return blankList;
@@ -199,7 +199,6 @@ function AssistantList(props) {
               <Switch
                 checkedChildren={_l('开启')}
                 unCheckedChildren={_l('关闭')}
-                //   disabled={!isAdmin}
                 checked={item.status === 2}
                 onChange={(checked, e) => {
                   e.stopPropagation();

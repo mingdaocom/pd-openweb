@@ -10,6 +10,7 @@ import { navigateTo } from 'router/navigateTo';
 import { getRequest } from 'src/util';
 import { dialogSelectUser } from 'ming-ui/functions';
 import _ from 'lodash';
+import { hasBackStageAdminAuth } from 'src/components/checkPermission';
 
 const barList = [
   { label: _l('我的汇报关系'), key: 'report' },
@@ -21,7 +22,7 @@ export default class ReportRelation extends Component {
     super(props);
     this.state = {
       activeBar: 'report',
-      isAdmin: false,
+      hasProjectAdminAuth: false,
       companyName: '',
       allowStructureSelfEdit: false,
       allowStructureForAll: false,
@@ -47,12 +48,14 @@ export default class ReportRelation extends Component {
       }
     });
 
-    Promise.all([this.fetchAdmin(), this.fetchAllow(), this.fetchSubordinates()]).then(
-      ([isAdmin, res, { parent = {}, mySelf = {}, subordinates = [], subTotalCount, isLimited }]) => {
+    Promise.all([this.fetchAllow(), this.fetchSubordinates()]).then(
+      ([res, { parent = {}, mySelf = {}, subordinates = [], subTotalCount, isLimited }]) => {
+        const hasProjectAdminAuth = hasBackStageAdminAuth({ projectId: this.state.projectId });
+
         if (!_.isEmpty(mySelf) && this.state.pageIndex === 1) {
           this.setState({
             companyName,
-            isAdmin,
+            hasProjectAdminAuth,
             allowStructureForAll: res.allowStructureForAll,
             allowStructureSelfEdit: res.allowStructureSelfEdit,
             parents: !_.isEmpty(parent) ? [parent] : [],
@@ -89,13 +92,6 @@ export default class ReportRelation extends Component {
     return structureController.myStructures({
       projectId: this.state.projectId,
       pageIndex,
-    });
-  }
-
-  //admin
-  fetchAdmin() {
-    return roleController.isProjectAdmin({
-      projectId: this.state.projectId,
     });
   }
 
@@ -192,8 +188,7 @@ export default class ReportRelation extends Component {
   }
 
   renderContent() {
-    const { isAdmin, parents, me, children, allowStructureSelfEdit, subTotalCount, loadMoreLoading, isLimited } =
-      this.state;
+    const { parents, me, children, allowStructureSelfEdit, subTotalCount, loadMoreLoading, isLimited } = this.state;
     return (
       <div className="layoutWrapper">
         <div>
@@ -275,7 +270,7 @@ export default class ReportRelation extends Component {
   }
 
   render() {
-    const { allowStructureForAll, isAdmin, activeBar, loading } = this.state;
+    const { allowStructureForAll, hasProjectAdminAuth, activeBar, loading } = this.state;
     if (loading) {
       return <LoadDiv />;
     }
@@ -305,7 +300,7 @@ export default class ReportRelation extends Component {
           </div>
           <div>
             <span
-              className={cx('ThemeColor3 Hand Hover_49', { Hidden: !isAdmin })}
+              className={cx('ThemeColor3 Hand Hover_49', { Hidden: !hasProjectAdminAuth })}
               onClick={() => this.handleGoAdmin()}
             >
               {_l('去管理后台查看')}

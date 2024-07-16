@@ -4,6 +4,7 @@ import cx from 'classnames';
 import homeAppApi from 'src/api/homeApp';
 import worksheetApi from 'src/api/worksheet';
 import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';
+import instanceApi from 'src/pages/workflow/api/instance';
 import RecordInfo from 'mobile/components/RecordInfo/RecordInfo';
 import { Loading, Abnormal } from 'mobile/components/RecordInfo/RecordState';
 import WorkflowStepItem from 'mobile/ProcessRecord/WorkflowStepItem';
@@ -72,6 +73,19 @@ export default class ProcessRecordInfo extends Component {
   handleStash = () => {
     this.processFooter.current.handleClick('stash');
   }
+  ownerHandle = () => {
+    const { instanceId, workId, onClose } = this.props;
+    const { currentWorkItem } = this.state.instance;
+    const { type } = currentWorkItem;
+
+    instanceApi[type === 4 ? 'forward' : 'transfer']({
+      id: instanceId,
+      workId,
+      forwardAccountId: 'user-workflow',
+    }).then(() => {
+      onClose({ id: instanceId, workId });
+    });
+  };
   renderHeader() {
     const { instance } = this.state;
     const { name, type, appType } = instance.flowNode;
@@ -95,13 +109,14 @@ export default class ProcessRecordInfo extends Component {
       </div>
     );
   }
-  renderWorkflow() {
+  renderWorkflow = ({ formData }) => {
     const { workItem, instance } = this.state;
     return (
       <WorkflowStepItem
         instance={instance}
         worksheetId={workItem.worksheetId}
         recordId={workItem.rowId}
+        controls={formData}
       />
     );
   }
@@ -137,6 +152,23 @@ export default class ProcessRecordInfo extends Component {
         instanceId={instanceId}
         onClose={onClose}
         header={this.renderHeader()}
+        renderAbnormal={() => {
+          return (
+            <Abnormal
+              errorMsg={(
+                <div className="flexColumn alignItemsCenter">
+                  <div className="Font17 Bold Gray">{_l('当前记录无权限，无法查看')}</div>
+                  {!!instance.operationTypeList[0].length && (
+                    <div className="mTop15 ThemeColor3 ThemeHoverColor2 pointer Font14" onClick={this.ownerHandle}>
+                      {_l('转交给流程拥有者处理')}
+                    </div>
+                  )}
+                </div>
+              )}
+              onClose={onClose}
+            />
+          );
+        }}
         footer={(
           <Footer
             ref={this.processFooter}
@@ -147,7 +179,7 @@ export default class ProcessRecordInfo extends Component {
             onClose={onClose}
           />
         )}
-        workflow={this.renderWorkflow()}
+        workflow={this.renderWorkflow}
       />
     );
   }

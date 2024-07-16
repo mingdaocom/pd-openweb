@@ -18,9 +18,10 @@ import {
   specialTelVerify,
   compareWithTime,
   getEmbedValue,
-  unTextSearch,
+  isUnTextWidget,
   controlState,
   getArrBySpliceType,
+  checkValueByFilterRegex,
 } from './utils';
 import intlTelInput from '@mdfe/intl-tel-input';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
@@ -30,7 +31,7 @@ import MapHandler from 'ming-ui/components/amap/MapHandler';
 import departmentAjax from 'src/api/department';
 import organizeAjax from 'src/api/organize';
 import { browserIsMobile, getCurrentProject, toFixed, dateConvertToServerZone } from 'src/util';
-import { checkRuleLocked } from './filterFn';
+import { checkRuleLocked, isEmptyValue } from './filterFn';
 import _, { find, get, includes } from 'lodash';
 import { createRequestPool } from 'worksheet/api/standard';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
@@ -248,6 +249,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
             'userId',
             'phone',
             'email',
+            'language',
             'projectId',
             'appId',
             'groupId',
@@ -460,12 +462,12 @@ const parseNewFormula = (data, currentItem = {}) => {
 };
 
 // 函数处理
-function calcDefaultValueFunction({ formData, fnControl }) {
+export function calcDefaultValueFunction({ formData, fnControl, forceSyncRun }) {
   let expression = _.get(safeParse(fnControl.advancedSetting.defaultfunc), 'expression');
   if (!expression) {
     return '';
   }
-  const result = execValueFunction(fnControl, formData);
+  const result = execValueFunction(fnControl, formData, { forceSyncRun });
   if (result.error) {
     console.log(result);
   } else {
@@ -860,15 +862,12 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
 
       // 文本
       if (item.type === 2) {
-        if (item.advancedSetting && item.advancedSetting.regex) {
-          let reg;
-          try {
-            reg = new RegExp(safeParse(item.advancedSetting.regex).regex, 'gm');
-          } catch (error) {
-            console.log(error);
+        if (item.advancedSetting && item.advancedSetting.filterregex) {
+          const error = checkValueByFilterRegex(item, value, data);
+          if (error) {
+            errorType = FORM_ERROR_TYPE.CUSTOM;
+            errorText = error;
           }
-          // 无值或正则配置不对不校验，正则匹配成功不报错
-          errorType = !value || !reg || reg.test(value) ? '' : FORM_ERROR_TYPE.CUSTOM;
         }
         if (!errorType) {
           errorType = getRangeErrorType(item);
@@ -962,6 +961,10 @@ export const onValidator = ({ item, data, masterData, ignoreRequired, verifyAllC
     }
 
     if (isRelateRecordTableControl(item, { ignoreInFormTable: true })) {
+      errorType = '';
+    }
+
+    if (item.type === 51) {
       errorType = '';
     }
 
@@ -1341,7 +1344,7 @@ export default class DataFormat {
                 abortController: this.abortController,
               };
               if (_.get(value, 'action') === 'append') {
-                params.staticRows = value.rows;
+                params.staticRows = value.rows.filter(i => !i.rowid);
                 params.type = 'append';
               } else if (_.get(value, 'action') === 'clearAndSet') {
                 params.staticRows = value.rows;
@@ -1379,7 +1382,7 @@ export default class DataFormat {
             // 表单内关联表格组件被动赋值
             if (
               !this.isMobile &&
-              !this.recordId &&
+              (!this.recordId || String(RELATE_RECORD_SHOW_TYPE.TABLE) === item.advancedSetting.showtype) &&
               item.type === 29 &&
               !item.isSubList &&
               includes(
@@ -1395,10 +1398,18 @@ export default class DataFormat {
                 try {
                   const records = safeParse(value, 'array').filter(r => r.sid || r.sourcevalue);
                   item.store.dispatch({
-                    type: 'UPDATE_RECORDS',
+                    type: 'DELETE_ALL',
+                  });
+                  item.store.dispatch({
+                    type: 'APPEND_RECORDS',
+                    recordId: this.recordId,
                     records: records.map(r => r.row || safeParse(r.sourcevalue)),
                   });
                   value = records.length || '';
+                  item.store.dispatch({
+                    type: 'UPDATE_TABLE_STATE',
+                    value: { count: records.length },
+                  });
                 } catch (err) {
                   value = '';
                 }
@@ -1412,6 +1423,14 @@ export default class DataFormat {
             }
 
             item.value = value;
+
+            // 数值进度区间控制
+            if (item.type === 6 && _.get(item, 'advancedSetting.showtype') === '2' && !isEmptyValue(value)) {
+              const maxCount = parseFloat(_.get(item, 'advancedSetting.max') || 100);
+              const minCount = parseFloat(_.get(item, 'advancedSetting.min') || 0);
+              if (parseFloat(value || 0) < minCount) item.value = minCount;
+              if (parseFloat(value || 0) > maxCount) item.value = maxCount;
+            }
 
             // 等级控件
             if (item.type === 28) {
@@ -1432,9 +1451,12 @@ export default class DataFormat {
 
             // 工作表查询
             const needSearch = this.getFilterConfigs(item, 'onBlur');
-            if (!currentIgnoreSearch && (currentSearchByChange ? unTextSearch(item) : needSearch.length > 0)) {
+            if (!currentIgnoreSearch && (currentSearchByChange ? isUnTextWidget(item) : needSearch.length > 0)) {
               this.updateDataBySearchConfigs({ control: item, searchType: 'onBlur' });
             }
+
+            // 字段被引用，限制输入格式重新校验
+            this.checkFilterRegex(item);
 
             removeUniqueItem(controlId);
             _.remove(this.errorItems, obj => obj.controlId === item.controlId && !obj.errorMessage);
@@ -1821,6 +1843,30 @@ export default class DataFormat {
   }
 
   /**
+   * 更新字段是否被文本输入格式筛选引用
+   */
+  checkFilterRegex(item) {
+    this.data.forEach(i => {
+      if (((i.type === 2 && i.advancedSetting && i.advancedSetting.filterregex) || '').indexOf(item.controlId) > -1) {
+        const error = checkValueByFilterRegex(i, i.value, this.data);
+        if (error) {
+          _.remove(this.errorItems, e => e.controlId === i.controlId && e.errorType === FORM_ERROR_TYPE.CUSTOM);
+          this.errorItems.push({
+            controlId: i.controlId,
+            errorType: FORM_ERROR_TYPE.CUSTOM,
+            errorText: error,
+            showError: true,
+          });
+        } else {
+          this.errorItems = this.errorItems.filter(
+            e => !(e.controlId === i.controlId && e.errorType === FORM_ERROR_TYPE.CUSTOM),
+          );
+        }
+      }
+    });
+  }
+
+  /**
    * 初始化查询接口引起业务规则错误
    */
   isInitSearch(controlId, isInit) {
@@ -2129,6 +2175,13 @@ export default class DataFormat {
           if (!accounts.length) {
             this.updateDataSource({ controlId: item.controlId, value: '[]', isInit });
           } else {
+            if (
+              !md.global.Account.accountId ||
+              window.isPublicWorksheet ||
+              _.isEmpty(getCurrentProject(this.projectId))
+            )
+              return;
+
             this.setLoadingInfo(item.controlId, true);
 
             const INFO_OPTIONS = {

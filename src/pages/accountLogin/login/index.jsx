@@ -6,14 +6,17 @@ import Container from './loginContainer';
 import projectApi from 'src/api/project';
 import { getRequest, browserIsMobile } from 'src/util';
 import { checkLogin } from 'src/util/sso';
-import { LoadDiv } from 'ming-ui';
-import { getDataByFilterXSS, initIntlTelInput, isTel } from 'src/pages/accountLogin/util.js';
+import { LoadDiv, Icon } from 'ming-ui';
+import { getDataByFilterXSS, initIntlTelInput, isTel, checkReturnUrl } from 'src/pages/accountLogin/util.js';
 import DocumentTitle from 'react-document-title';
 import { Wrap } from './style.jsx';
 import { ssoLogin, getWorkWeiXinCorpInfoByApp } from './util';
 import ChangeLang from 'src/components/ChangeLang';
 import { navigateTo } from 'src/router/navigateTo';
 import loginController from 'src/api/login';
+import appManagementController from 'src/api/appManagement';
+import privateSysSetting from 'src/api/privateSysSetting';
+import googleIcon from 'src/pages/NewPrivateDeployment/images/google.svg';
 
 let request = getRequest();
 
@@ -43,6 +46,8 @@ export default class LoginContainer extends React.Component {
       linkInvite: '',
       companyName: '',
       title: _l('登录'),
+      loadProjectName: false,
+      projectNameLang: '', // 组织简称多语言翻译
     };
   }
 
@@ -50,6 +55,7 @@ export default class LoginContainer extends React.Component {
     const { loginCallback = () => {}, setData = () => {}, setLoading = () => {} } = this.props;
     if (checkLogin()) {
       if (request.ReturnUrl) {
+        checkReturnUrl(request.ReturnUrl);
         location.replace(getDataByFilterXSS(request.ReturnUrl));
         return;
       }
@@ -117,13 +123,18 @@ export default class LoginContainer extends React.Component {
         host: location.host,
         projectId: request.projectId || '',
       })
-      .then(res => {
+      .then(async res => {
         if (!res || !res.companyName) {
           location.replace('/privateImageInstall');
           return;
         }
+        let googleSsoSet;
+        if (md.global.Config.IsLocal) {
+          googleSsoSet = await privateSysSetting.getSsonSettingsFroLogin({});
+        }
         this.setState({
           ...res,
+          googleSsoSet,
           //request.loginMode == 1 =>进入默认的平台登陆
           loginMode: request.loginMode == 1 ? 1 : res.openLDAP ? 2 : 1,
           linkInvite: res.projectId ? `/linkInvite?projectId=${res.projectId}` : '',
@@ -134,10 +145,24 @@ export default class LoginContainer extends React.Component {
             res.openLDAP || //开启了LDAP
             res.isOpenSystemLogin || //开启了平台登录
             this.state.hideOther, //  当前环境关闭了其他登录方式，保留默认登录方式托底
+          loadProjectName: !!res.projectId,
         });
-        setData({ homeImage: res.homeImage, logo: res.logo });
-        setLoading(false);
+        setData({ homeImage: res.homeImage, logo: res.logo, isDefaultLogo: res.isDefaultLogo, hasGetLogo: true });
+        md.global.Config.IsLocal && setLoading(false);
+        !!res.projectId && this.getProjectLang(res.projectId);
       });
+  };
+
+  getProjectLang = projectId => {
+    appManagementController.getProjectLang({ projectId }).then(res => {
+      this.setState({
+        loadProjectName: false,
+        projectNameLang: _.get(
+          _.find(res, o => o.langType === getCurrentLangCode()),
+          'data[0].value',
+        ),
+      });
+    });
   };
 
   render() {
@@ -159,9 +184,11 @@ export default class LoginContainer extends React.Component {
       isOpenSystemLogin,
       ssoName,
       ldapName,
+      loadProjectName,
+      projectNameLang,
+      googleSsoSet,
     } = this.state;
     const isMobile = browserIsMobile();
-    const scanLoginEnabled = intergrationScanEnabled && !isMobile;
     const isCanWeixin = !isNetwork && !isMobile;
     const isCanQQ = !isNetwork;
     const canChangeSysOrLDAP = openLDAP && isOpenSystemLogin && isNetwork;
@@ -175,7 +202,7 @@ export default class LoginContainer extends React.Component {
             <React.Fragment>
               <div className="titleHeader">
                 {isNetwork && !_.get(md, 'global.SysSettings.hideBrandName') && (
-                  <p className="Font17 Gray mAll0 mTop8">{companyName}</p>
+                  <p className="Font17 Gray mAll0 mTop8">{loadProjectName ? '' : projectNameLang || companyName}</p>
                 )}
               </div>
               <div
@@ -199,9 +226,13 @@ export default class LoginContainer extends React.Component {
               {!hideOther && (
                 <div className="tpLogin">
                   {/* 开启了ldap或系统登录,并且存在其他登录方式 */}
-                  {useMessage && (canChangeSysOrLDAP || scanLoginEnabled || isOpenSso || isCanWeixin || isCanQQ) && (
-                    <div className="title Font14">{_l('或通过以下方式')}</div>
-                  )}
+                  {useMessage &&
+                    (canChangeSysOrLDAP ||
+                      intergrationScanEnabled ||
+                      isOpenSso ||
+                      isCanWeixin ||
+                      isCanQQ ||
+                      !_.isEmpty(googleSsoSet)) && <div className="title Font14">{_l('或通过以下方式')}</div>}
                   {canChangeSysOrLDAP && (
                     <a
                       onClick={() => {
@@ -216,11 +247,17 @@ export default class LoginContainer extends React.Component {
                       }}
                       className="WordBreak overflow_ellipsis Block pLeft10 pRight10"
                     >
+                      <Icon icon={loginMode === 1 ? 'lock' : 'account_circle'} className="mRight5 Gray_75 Font14" />
                       {loginMode === 1 ? ldapName || 'LDAP登录' : _l('平台账号登录')}
                     </a>
                   )}
-                  {isOpenSso && <a href={isMobile ? ssoAppUrl : ssoWebUrl}>{ssoName || 'SSO登录'}</a>}
-                  {scanLoginEnabled && (
+                  {isOpenSso && (
+                    <a href={isMobile ? ssoAppUrl : ssoWebUrl} className="Block">
+                      <Icon icon={'tab_move'} className="mRight5 Gray_75 Font14" />
+                      {ssoName || 'SSO登录'}
+                    </a>
+                  )}
+                  {intergrationScanEnabled && (
                     <a onClick={() => getWorkWeiXinCorpInfoByApp(projectId, request.ReturnUrl)}>
                       <i className="workWeixinIcon mRight8" /> {_l('企业微信登录')}
                     </a>
@@ -235,6 +272,15 @@ export default class LoginContainer extends React.Component {
                       <i className="personalQQIcon mRight8" /> {_l('QQ登录')}
                     </a>
                   )}
+                  {!_.isEmpty(googleSsoSet) &&
+                    googleSsoSet.map(o => {
+                      return (
+                        <a href={isMobile ? o.h5IndexUrl : o.webIndexUrl} className="w100 flexRow alignItemsCenter">
+                          <img src={googleIcon} width="20px" className="mRight8" />
+                          {_l('Google登录')}
+                        </a>
+                      );
+                    })}
                 </div>
               )}
               {isMiniProgram && (

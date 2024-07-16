@@ -7,6 +7,7 @@ import { DropdownContent, SettingItem } from '../../../../styled';
 import { find, head, includes, isEmpty } from 'lodash';
 import { SelectOtherField, OtherField, DynamicInput } from '../components';
 import { getOptions, handleAdvancedSettingChange } from '../../../../util/setting';
+import { OptionControl } from '../styled';
 
 export const DefaultOptionSetting = styled(SettingItem)`
   .holder {
@@ -28,28 +29,11 @@ export const DefaultOptionSetting = styled(SettingItem)`
     flex-wrap: wrap;
     padding: 0 12px 5px 12px;
     border: 1px solid #ddd;
+    border-radius: 3px;
     min-height: 36px;
     flex: 1;
     margin-right: 36px;
     width: 264px;
-    .option {
-      display: flex;
-      align-items: center;
-      height: 24px;
-      background: #eee;
-      margin: 4px 6px 0 0;
-      padding: 0 10px;
-      border-radius: 12px;
-      &.isDeleted {
-        .text,
-        i {
-          color: #9e9e9e;
-        }
-      }
-      .text {
-        margin-right: 4px;
-      }
-    }
   }
 `;
 
@@ -160,7 +144,7 @@ export default function DefaultOptions(props) {
   };
 
   return (
-    <DefaultOptionSetting className='mTop0'>
+    <DefaultOptionSetting className="mTop0">
       {defaultType ? (
         <DynamicInput {...props} onTriggerClick={onTriggerClick} />
       ) : (
@@ -180,7 +164,7 @@ export default function DefaultOptions(props) {
                     setVisible(false);
                   }}
                 >
-                  {_l('清除默认值')}
+                  {_l('清除')}
                 </div>
                 {options.map(({ key, color, value }) => {
                   const checked = includes(checkedValue, key);
@@ -209,7 +193,7 @@ export default function DefaultOptions(props) {
                 if (staticValue) {
                   const option = find(options, item => item.key === staticValue) || {};
                   return (
-                    <div className={cx('option pointer overflow_ellipsis', { isDeleted: isEmpty(option) })}>
+                    <OptionControl className={cx('option pointer overflow_ellipsis', { isDeleted: isEmpty(option) })}>
                       {colorful && option.color && (
                         <div className="colorWrap" style={{ backgroundColor: option.color }}></div>
                       )}
@@ -221,7 +205,7 @@ export default function DefaultOptions(props) {
                           removeItem({ cid, rcid, staticValue });
                         }}
                       ></i>
-                    </div>
+                    </OptionControl>
                   );
                 }
                 return null;

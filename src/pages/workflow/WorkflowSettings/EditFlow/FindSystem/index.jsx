@@ -93,7 +93,7 @@ export default class FindSystem extends Component {
             </div>
             <NodeOperate nodeClassName="BGBlue" {...this.props} />
             <div className="workflowContent Font13">
-              {isSimple ? <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span> : this.renderContent()}
+              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
             </div>
           </div>
           <CreateNode {...this.props} />

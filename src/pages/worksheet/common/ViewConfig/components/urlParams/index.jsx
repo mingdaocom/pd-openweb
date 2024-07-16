@@ -87,8 +87,9 @@ export default function UrlParams(props) {
     updateCurrentView({
       ...view,
       appId,
-      advancedSetting: updateViewAdvancedSetting(view, { urlparams: JSON.stringify(newParams) }),
+      advancedSetting: { urlparams: JSON.stringify(newParams) },
       editAttrs: ['advancedSetting'],
+      editAdKeys: ['urlparams'],
     });
   };
 
@@ -108,7 +109,7 @@ export default function UrlParams(props) {
 
   return (
     <div>
-      <div className="Gray_9e mTop8">
+      <div className="Gray_75 mTop8">
         <span>{_l('指定参数名，可作为查询字符串附加在')}</span>
 
         <LinkText

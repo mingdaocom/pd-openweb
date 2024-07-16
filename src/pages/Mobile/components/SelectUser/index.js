@@ -181,7 +181,15 @@ export default class SelectUser extends Component {
       isMoreDep,
       onlyJoinDepartmentChecked = false,
       department,
+      searchValue,
     } = this.state;
+    const { projectId, departrangetype = '0' } = this.props;
+
+    if (!onlyJoinDepartmentChecked && departrangetype !== '0') {
+      this.requestSearchDepartment(true);
+      return;
+    }
+
     this.setState({
       departmentUsersLoading: true,
     });
@@ -189,7 +197,7 @@ export default class SelectUser extends Component {
     if (this.request) {
       this.request.abort();
     }
-    const { projectId } = this.props;
+
     this.request = departmentAjax.getMembersAndSubs({
       projectId,
       pageIndex: depPageIndex,
@@ -208,10 +216,11 @@ export default class SelectUser extends Component {
       });
     });
   };
-  requestSearchDepartment = () => {
+  requestSearchDepartment = (ignoreLoading = false) => {
     const { loading, searchValue } = this.state;
+    const { departrangetype = '0', appointedDepartmentIds = [], appointedUserIds = [] } = this.props;
 
-    if (loading) {
+    if (loading && !ignoreLoading) {
       return;
     }
 
@@ -221,18 +230,43 @@ export default class SelectUser extends Component {
 
     const { projectId } = this.props;
 
-    departmentAjax
-      .searchDepartment({
-        keywords: searchValue,
-        projectId,
-      })
-      .then(result => {
-        this.setState({
-          loading: false,
-          departments: result,
-          rootData: result,
+    let param = {
+      keywords: _.trim(searchValue),
+      projectId,
+    };
+
+    if (departrangetype !== '0') {
+      param.appointedDepartmentIds = appointedDepartmentIds;
+      param.rangeTypeId = [10, 20, 30][departrangetype - 1];
+      param.appointedUserIds = appointedUserIds;
+    }
+
+    departmentAjax[departrangetype !== '0' ? 'appointedDepartment' : 'searchDepartment'](param).then(result => {
+      let list =
+        departrangetype === '3'
+          ? result.map(l => ({ ...l, disabled: appointedDepartmentIds.includes(l.departmentId) }))
+          : result;
+
+      const handleSearch = (data, result = []) => {
+        data.forEach(item => {
+          if (item.departmentName.includes(_.trim(searchValue))) {
+            result.push(item);
+          } else if (item.subDepartments) {
+            handleSearch(item.subDepartments, result);
+          }
         });
+
+        return result;
+      };
+
+      list = _.trim(searchValue) ? handleSearch(list, []) : list;
+
+      this.setState({
+        loading: false,
+        departments: list,
+        rootData: list,
       });
+    });
   };
   handleSelectSubDepartment = (department, index) => {
     const { departmentId } = department;
@@ -321,8 +355,15 @@ export default class SelectUser extends Component {
     const { type } = this.props;
     const { selectedUsers } = this.state;
     if (selectedUsers.length) {
+      const selectData = selectedUsers.map(item => ({
+        ...item,
+        departmentPath:
+          item.departmentPath && _.isArray(item.departmentPath)
+            ? item.departmentPath.reverse().map((v, index) => ({ ...v, depth: index + 1 }))
+            : undefined,
+      }));
       this.props.onClose();
-      this.props.onSave(selectedUsers);
+      this.props.onSave(selectData);
     } else {
       Toast.info(type === 'user' ? _l('请选择人员') : _l('请选择部门'));
     }
@@ -644,7 +685,7 @@ export default class SelectUser extends Component {
                                     this.state.selectedUsers.map(item => item.departmentId),
                                   )
                             }
-                            disabled={item.disabledSubDepartment}
+                            disabled={item.disabledSubDepartment || item.disabled}
                           />
                           <div className="groupWrapper">
                             <Icon icon="group" className="Font22 White" />

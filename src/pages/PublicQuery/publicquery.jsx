@@ -1,6 +1,5 @@
 import React from 'react';
 import cx from 'classnames';
-import CustomFields from 'src/components/newCustomFields';
 import styled from 'styled-components';
 import { captcha } from 'ming-ui/functions';
 import DocumentTitle from 'react-document-title';
@@ -81,6 +80,16 @@ class Publicquery extends React.Component {
   constructor(props) {
     super(props);
     props.onRef(this);
+
+    this.state = {
+      Components: null,
+    };
+  }
+
+  componentDidMount() {
+    import('src/components/newCustomFields').then(res => {
+      this.setState({ Components: res });
+    });
   }
 
   renderErr = () => {
@@ -113,6 +122,7 @@ class Publicquery extends React.Component {
 
   render() {
     const { publicqueryRes = {}, querydata = {} } = this.props;
+    const { Components } = this.state;
     const { queryControlIds = [], viewId, worksheet = {}, worksheetId = '', visibleType, title } = publicqueryRes;
     const { projectId = '', template = {} } = worksheet;
     const controls = (template.controls || []).filter(o => queryControlIds.includes(o.controlId));
@@ -124,8 +134,8 @@ class Publicquery extends React.Component {
           <h3>{title || _l('公开查询')}</h3>
           {isErr ? (
             this.renderErr()
-          ) : (
-            <CustomFields
+          ) : !Components ? null : (
+            <Components.default
               disableRules
               recordId="00000"
               ref={customWidget => (this.customWidget = customWidget)}

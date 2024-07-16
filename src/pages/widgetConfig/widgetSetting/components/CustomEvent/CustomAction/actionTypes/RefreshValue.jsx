@@ -7,10 +7,12 @@ import { CustomActionWrap } from '../../style';
 
 export default function RefreshValue(props) {
   const { actionData = {}, handleOk, allControls } = props;
-  const selectControls = allControls.filter(
-    item =>
-      (item.type === 30 && (item.strDefault || '').split('')[0] !== '1') || _.includes([31, 32, 37, 38], item.type),
-  );
+  const selectControls = allControls
+    .filter(
+      item =>
+        (item.type === 30 && (item.strDefault || '').split('')[0] !== '1') || _.includes([31, 32, 37, 38], item.type),
+    )
+    .map(i => ({ ...i, sectionId: '' }));
   const [{ actionItems, visible }, setState] = useSetState({
     actionItems: actionData.actionItems || [],
     visible: true,
@@ -30,6 +32,7 @@ export default function RefreshValue(props) {
       className="SearchWorksheetDialog"
       title={_l('刷新字段值')}
       onCancel={() => setState({ visible: false })}
+      overlayClosable={false}
       onOk={() => {
         handleOk({ ...actionData, actionItems });
         setState({ visible: false });

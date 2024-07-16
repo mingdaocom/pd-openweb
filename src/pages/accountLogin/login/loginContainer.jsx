@@ -36,9 +36,16 @@ export default class Container extends React.Component {
       clickErrInput(_.get(nextProps, 'warnningData'), _.get(nextProps, 'focusDiv'));
     }
     if (_.get(nextProps, 'frequentLogin') !== _.get(this.props, 'frequentLogin') && _.get(nextProps, 'frequentLogin')) {
-      //呼出图形验证
-      this.onBtnForLogin(true);
-      this.props.setData({ frequentLogin: false });
+      this.setState(
+        {
+          loginDisabled: false,
+        },
+        () => {
+          //呼出图形验证
+          this.onBtnForLogin(true);
+          this.props.setData({ frequentLogin: false });
+        },
+      );
     }
   }
   componentWillUmount() {

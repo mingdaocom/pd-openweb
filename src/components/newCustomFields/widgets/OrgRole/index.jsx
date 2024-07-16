@@ -6,6 +6,7 @@ import cx from 'classnames';
 import { browserIsMobile } from 'src/util';
 import { dealUserRange } from '../../tools/utils';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -20,11 +21,17 @@ export default class Widgets extends Component {
     showMobileOrgRole: false,
   };
 
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
+
   /**
    * 选择组织角色
    */
   pickOrgRole = e => {
-    const { projectId, formData, enumDefault } = this.props;
+    const { projectId, formData, enumDefault, value } = this.props;
 
     if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
       alert(_l('您不是该组织成员，无法获取其组织角色列表，请联系组织管理员'), 3);
@@ -35,6 +42,7 @@ export default class Widgets extends Component {
       this.setState({ showMobileOrgRole: true });
     } else {
       const orgRange = dealUserRange(this.props, formData);
+      const roleValue = JSON.parse(value || '[]');
       quickSelectRole(e.target, {
         projectId,
         unique: enumDefault !== 1,
@@ -42,18 +50,29 @@ export default class Widgets extends Component {
           top: 16,
           left: -16,
         },
+        value: roleValue,
         onSave: this.onSave,
         appointedOrganizeIds: _.get(orgRange, 'appointedOrganizeIds'),
       });
     }
   };
 
-  onSave = data => {
-    if (_.isEmpty(data)) return;
-    const filterData = data.map(i => ({ organizeId: i.organizeId, organizeName: i.organizeName }));
+  onSave = (data, isCancel = false) => {
     const { enumDefault, onChange, value } = this.props;
-    const newData =
-      enumDefault === 0 ? filterData : _.uniqBy(JSON.parse(value || '[]').concat(filterData), 'organizeId');
+    const valueArr = JSON.parse(value || '[]');
+    const lastIds = _.sortedUniq(valueArr.map(l => l.organizeId));
+    const newIds = _.sortedUniq(data.map(l => l.organizeId));
+
+    if ((_.isEmpty(data) || _.isEqual(lastIds, newIds)) && !isCancel) return;
+
+    const filterData = data.map(i => ({ organizeId: i.organizeId, organizeName: i.organizeName }));
+    let newData = enumDefault === 0 ? filterData : valueArr;
+
+    if (enumDefault !== 0 || isCancel) {
+      newData = isCancel
+        ? newData.filter(l => l.organizeId !== filterData[0].organizeId)
+        : _.uniqBy(newData.concat(filterData), 'organizeId');
+    }
 
     onChange(JSON.stringify(newData));
   };
@@ -68,6 +87,12 @@ export default class Widgets extends Component {
     onChange(JSON.stringify(newValue));
   }
 
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
+
   render() {
     const { projectId, disabled, enumDefault, formData, masterData = {} } = this.props;
     const value = JSON.parse(this.props.value || '[]');
@@ -78,12 +103,8 @@ export default class Widgets extends Component {
       <div className="customFormControlBox customFormControlUser">
         {value.map((item, index) => {
           return (
-            <div className={cx('customFormControlTags', { selected: browserIsMobile() && !disabled })} key={index}>
-              <div className="departWrap" style={{ backgroundColor: '#FFAD00' }}>
-                <i className="Font16 icon-user" />
-              </div>
-
-              <span className="ellipsis mLeft5" style={{ maxWidth: 200 }}>
+            <div className={cx('customFormControlTags pLeft10', { selected: browserIsMobile() && !disabled })} key={index}>
+              <span className="ellipsis" style={{ maxWidth: 200 }}>
                 {item.organizeName}
               </span>
 

@@ -88,7 +88,6 @@ export function loadWorksheet(worksheetId, setRequest) {
       getTemplate: true,
       getRules: true,
       getSwitchPermit: true,
-      resultType: 2,
     };
 
     worksheetRequest = worksheetAjax.getWorksheetInfo(args);
@@ -97,7 +96,7 @@ export function loadWorksheet(worksheetId, setRequest) {
     }
     worksheetRequest
       .then(async res => {
-        const translateInfo = getTranslateInfo(appId, worksheetId);
+        const translateInfo = getTranslateInfo(appId, null, worksheetId);
         res.entityName = translateInfo.recordName || res.entityName;
         if (res.advancedSetting) {
           res.advancedSetting.title = translateInfo.formTitle || res.advancedSetting.title;
@@ -119,7 +118,7 @@ export function loadWorksheet(worksheetId, setRequest) {
           return;
         }
         if (_.get(res, 'template.controls')) {
-          res.template.controls = replaceControlsTranslateInfo(appId, res.template.controls);
+          res.template.controls = replaceControlsTranslateInfo(appId, worksheetId, res.template.controls);
         }
         if (!res.isWorksheetQuery || queryRes) {
           dispatch({
@@ -131,9 +130,6 @@ export function loadWorksheet(worksheetId, setRequest) {
                     ...res,
                     views: res.views.map(v => ({ ...v, viewType: 0 })),
                   },
-              {
-                isRequestingRelationControls: res.requestAgain,
-              },
             ),
           });
           dispatch(setViewLayout(viewId));
@@ -146,20 +142,6 @@ export function loadWorksheet(worksheetId, setRequest) {
           dispatch({
             type: 'WORKSHEET_PERMISSION_INIT',
             value: res.switches,
-          });
-        }
-        if (res.requestAgain) {
-          worksheetRequest = worksheetAjax.getWorksheetInfo({ ...args, resultType: undefined });
-          worksheetRequest.then(infoRes => {
-            const newControls = replaceControlsTranslateInfo(appId, _.get(infoRes, 'template.controls'));
-            if (_.isEmpty(newControls)) {
-              return;
-            }
-            dispatch(updateWorksheetSomeControls(newControls));
-            dispatch({
-              type: 'WORKSHEET_UPDATE_IS_REQUESTING_RELATION_CONTROLS',
-              value: false,
-            });
           });
         }
       })
@@ -330,13 +312,18 @@ export const updateNavGroup = () => {
 // 刷新视图
 export function refreshSheet(view, options) {
   return dispatch => {
-    if (String(view.viewType) === VIEW_DISPLAY_TYPE.sheet) {
+    if (
+      String(view.viewType) === VIEW_DISPLAY_TYPE.sheet ||
+      (String(view.viewType) === VIEW_DISPLAY_TYPE.structure && get(view, 'advancedSetting.hierarchyViewType') === '3')
+    ) {
       dispatch(sheetViewRefresh(options));
       dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.board) {
       dispatch(initBoardViewData());
+      dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.structure) {
-      dispatch(getDefaultHierarchyData());
+      dispatch(getDefaultHierarchyData(undefined, options));
+      dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.calendar) {
       dispatch(calendarViewRefresh());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gallery) {
@@ -352,6 +339,7 @@ export function refreshSheet(view, options) {
       dispatch(customWidgetViewRefresh());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.map) {
       dispatch(initMapViewData(undefined, true));
+      dispatch(updateNavGroup());
     }
   };
 }
@@ -359,13 +347,18 @@ export function refreshSheet(view, options) {
 // 添加记录
 export function addNewRecord(data, view) {
   return dispatch => {
-    if (String(view.viewType) === VIEW_DISPLAY_TYPE.sheet) {
+    if (
+      String(view.viewType) === VIEW_DISPLAY_TYPE.sheet ||
+      (String(view.viewType) === VIEW_DISPLAY_TYPE.structure && get(view, 'advancedSetting.hierarchyViewType') === '3')
+    ) {
       dispatch(sheetViewAddRecord(data));
       dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.board) {
       dispatch(initBoardViewData());
+      dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.structure) {
       dispatch(getDefaultHierarchyData());
+      dispatch(updateNavGroup());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.calendar) {
       dispatch(calendarViewRefresh());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.gallery) {
@@ -379,6 +372,7 @@ export function addNewRecord(data, view) {
       dispatch(detailViewRefresh());
     } else if (String(view.viewType) === VIEW_DISPLAY_TYPE.map) {
       dispatch(initMapViewData(undefined, true));
+      dispatch(updateNavGroup());
     }
   };
 }
@@ -396,7 +390,16 @@ export function openNewRecord() {
       usenav === '1' && //设置了创建记录时，以选中列表作为默认值
       !_.isEmpty(view.navGroup) &&
       view.navGroup.length > 0 &&
-      _.includes([VIEW_DISPLAY_TYPE.sheet, VIEW_DISPLAY_TYPE.gallery], String(view.viewType));
+      _.includes(
+        [
+          VIEW_DISPLAY_TYPE.sheet,
+          VIEW_DISPLAY_TYPE.gallery,
+          VIEW_DISPLAY_TYPE.map,
+          VIEW_DISPLAY_TYPE.structure,
+          VIEW_DISPLAY_TYPE.board,
+        ],
+        String(view.viewType),
+      );
     function handleAdd(param = {}) {
       addRecord({
         ...param,
@@ -549,7 +552,7 @@ export function updateGroupFilter(navGroupFilters = [], view) {
       type: 'WORKSHEET_UPDATE_GROUP_FILTER',
       navGroupFilters,
     });
-    if (String(view.viewType) === VIEW_DISPLAY_TYPE.map) {
+    if (String(_.get(view, 'viewType')) === VIEW_DISPLAY_TYPE.map) {
       dispatch(mapNavGroupFiltersUpdate(navGroupFilters, view));
     }
   };
@@ -563,13 +566,13 @@ export function getNavGroupCount() {
     const { filters = {}, base = {}, quickFilter = {} } = sheet;
     const { appId, worksheetId, viewId } = base;
     const { filterControls, filtersGroup, keyWords, searchType } = filters;
-    if (getNavGroupRequest && getNavGroupRequest.abort && preWorksheetIds.includes(worksheetId)) {
+    if (getNavGroupRequest && getNavGroupRequest.abort && preWorksheetIds.includes(`${worksheetId}-${viewId}`)) {
       getNavGroupRequest.abort();
     }
     if (!worksheetId && !viewId) {
       return;
     }
-    preWorksheetIds.push(worksheetId);
+    preWorksheetIds.push(`${worksheetId}-${viewId}`);
     getNavGroupRequest = worksheetAjax.getNavGroup(
       getFilledRequestParams({
         appId,
@@ -596,7 +599,7 @@ export function getNavGroupCount() {
     );
 
     getNavGroupRequest.then(data => {
-      preWorksheetIds = (preWorksheetIds || []).filter(o => o !== worksheetId);
+      preWorksheetIds = (preWorksheetIds || []).filter(o => o !== `${worksheetId}-${viewId}`);
       dispatch({
         type: 'WORKSHEET_NAVGROUP_COUNT',
         data,
@@ -715,7 +718,11 @@ export function updateViewShowcount(showcount) {
   return (dispatch, getState) => {
     const { base } = getState().sheet;
     const { viewId } = base;
-    safeLocalStorageSetItem('showcount_' + viewId, showcount);
+    if (!showcount) {
+      window.localStorage.removeItem('showcount_' + viewId);
+    } else {
+      safeLocalStorageSetItem('showcount_' + viewId, showcount);
+    }
     dispatch({
       type: 'VIEW_UPDATE_SHOW_COUNT',
       showcount,

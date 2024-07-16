@@ -5,8 +5,9 @@ import { Flex, ActivityIndicator } from 'antd-mobile';
 import charts from 'statistics/Charts';
 import { WithoutData, Abnormal } from 'statistics/components/ChartStatus';
 import { reportTypes } from 'statistics/Charts/common';
+import { isOptionControl } from 'statistics/common';
 import styled from 'styled-components';
-import { getAppFeaturesPath } from 'src/util';
+import { getAppFeaturesPath, getTranslateInfo } from 'src/util';
 import reportApi from 'statistics/api/report';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import homeAppApi from 'src/api/homeApp';
@@ -64,6 +65,7 @@ function Chart({ data, mobileCount, mobileFontSize, isHorizontal, projectId, the
   }
   const isPublicShare = window.shareAuthor || _.get(window, 'shareState.shareId');
   const isViewOriginalData = filter.viewId && [VIEW_DISPLAY_TYPE.sheet].includes(filter.viewType.toString()) && !isPublicShare;
+  const isDisplayEmptyData = [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes, reportTypes.RadarChart, reportTypes.PieChart, reportTypes.BidirectionalBarChart].includes(data.reportType) && isOptionControl(data.xaxes.controlType);
 
   const ChartComponent = (
     <Charts
@@ -93,13 +95,11 @@ function Chart({ data, mobileCount, mobileFontSize, isHorizontal, projectId, the
     case reportTypes.BidirectionalBarChart:
     case reportTypes.ScatterChart:
     case reportTypes.TopChart:
-    case reportTypes.GaugeChart:
-    case reportTypes.ProgressChart:
-      return isMapEmpty ? WithoutDataComponent : ChartComponent;
+      return isMapEmpty && !isDisplayEmptyData ? WithoutDataComponent : ChartComponent;
       break;
     case reportTypes.DualAxes:
     case reportTypes.LineChart:
-      return isMapEmpty && isContrastMapEmpty ? WithoutDataComponent : ChartComponent;
+      return isMapEmpty && isContrastMapEmpty && !isDisplayEmptyData ? WithoutDataComponent : ChartComponent;
       break;
     case reportTypes.NumberChart:
       return ChartComponent;
@@ -121,10 +121,11 @@ function ChartWrapper(props) {
   const index = _.findIndex(pageComponents, { value: data.reportId });
   const beforeAllow = (pageComponents.length - index) < pageComponents.length;
   const nextAllow = index < pageComponents.length - 1;
+  const translateInfo = getTranslateInfo(props.appId, null, data.reportId);
   return (
     <Fragment>
       <div className={cx('mBottom10 flexRow valignWrapper', { mRight20: isHorizontal })}>
-        <div className="Font17 Gray ellipsis name flex">{data.name}</div>
+        <div className="Font17 Gray ellipsis name flex">{translateInfo.name || data.name}</div>
         {data.status > 0 && (
           <Fragment>
             {isHorizontal && (

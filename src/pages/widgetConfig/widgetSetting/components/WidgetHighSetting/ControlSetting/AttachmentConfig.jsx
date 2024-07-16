@@ -1,9 +1,8 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState } from 'react';
 import { useSetState } from 'react-use';
 import { Checkbox, Dialog, Radio, WaterMark, UpgradeIcon } from 'ming-ui';
-import { Tooltip, Input } from 'antd';
+import { Tooltip } from 'antd';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
-import AttachmentConfig from '../../AttachmentConfig';
 import cx from 'classnames';
 import { SettingItem, AnimationWrap } from 'src/pages/widgetConfig/styled';
 import DynamicDefaultValue from '../../DynamicDefaultValue';
@@ -280,84 +279,14 @@ function WaterMarkDialog(props) {
 
 export default function AttachmentVerify(props) {
   const { data, onChange, globalSheetInfo } = props;
-  const { maxcount, max: originMax, alldownload = '1', showwatermark, filetype } = getAdvanceSetting(data);
-  const [max, setMax] = useState(originMax);
-  const [visible, setVisible] = useState();
+  const { alldownload = '1', showwatermark, filetype } = getAdvanceSetting(data);
   const [markVisible, setMarkVisible] = useState(false);
 
   const supportMark = !_.includes(['2', '3', '4'], safeParse(filetype || '{}').type);
   const featureType = getFeatureStatus(globalSheetInfo.projectId, VersionProductType.waterMark);
 
-  useEffect(() => {
-    setMax(originMax);
-    setVisible(!!originMax);
-  }, [originMax]);
-
   return (
     <Fragment>
-      <div className={cx('labelWrap', { mBottom8: maxcount })}>
-        <Checkbox
-          size="small"
-          checked={!!maxcount}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { maxcount: checked ? '' : 1 }))}
-        >
-          <span>{_l('限制文件数量')}</span>
-        </Checkbox>
-      </div>
-      {maxcount && <AttachmentConfig data={data} onChange={onChange} maxNum={100} attr="maxcount" />}
-
-      <div className="labelWrap">
-        <Checkbox
-          size="small"
-          checked={visible}
-          onClick={checked => {
-            setVisible(!checked);
-            onChange(handleAdvancedSettingChange(data, { max: checked ? '' : 1 }));
-          }}
-        >
-          <span style={{ marginRight: '4px' }}>{_l('限制单个文件大小')}</span>
-          <Tooltip
-            placement="bottom"
-            title={
-              <span>
-                {_l(
-                  '用于限制单个文件的大小，可根据需要的文件类型做限制。如证件照1MB以内。最大不能超过4096MB，最多支持2位小数，例如',
-                )}
-                <br />
-                {'0.01MB。'}
-              </span>
-            }
-          >
-            <i className="icon-help Gray_9e Font16 Hand"></i>
-          </Tooltip>
-        </Checkbox>
-      </div>
-      {visible && (
-        <div className="flexCenter mTop8">
-          <Input
-            style={{ width: '96px', marginRight: '12px' }}
-            value={max}
-            onChange={e => {
-              const value = e.target.value.trim();
-              const newVal = value.replace(/^\D*(\d*(?:\.\d{0,2})?).*$/g, '$1');
-              if (!isNaN(value) && (value === '' || newVal)) {
-                setMax(newVal);
-              }
-            }}
-            onBlur={() => {
-              const value = !max || max < 0.01 ? 1 : max > 4096 ? 4096 : max;
-              setMax(value);
-              onChange(
-                handleAdvancedSettingChange(data, {
-                  max: value,
-                }),
-              );
-            }}
-          />{' '}
-          MB
-        </div>
-      )}
-
       <div className="labelWrap">
         <Checkbox
           size="small"

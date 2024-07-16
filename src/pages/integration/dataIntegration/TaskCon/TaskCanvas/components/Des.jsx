@@ -43,7 +43,7 @@ export default function Des(props) {
         if (items.length > 0) {
           txt = _l('%0个筛选条件', items.length);
         } else {
-          txt = <span className="ThemeColor3">{'设置此节点'}</span>;
+          txt = <span className="ThemeColor3">{_l('设置此节点')}</span>;
         }
         break;
       case 'AGGREGATE':

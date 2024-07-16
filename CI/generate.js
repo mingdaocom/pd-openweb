@@ -77,6 +77,7 @@ function generate() {
           }
           this.globalThis || (this.globalThis = this)
         </script>
+        <script src="/staticfiles/staticLanguages.js"></script>
         </head>`,
       );
       const $ = cheerio.load(html);

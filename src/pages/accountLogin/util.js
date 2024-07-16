@@ -156,3 +156,14 @@ export const getAccountTypes = isLogin => {
   }
   return enableMobilePhoneRegister && enableEmailRegister ? 'emailOrTel' : enableEmailRegister ? 'email' : 'tel';
 };
+//下载的地址，登录后关闭
+export const checkReturnUrl = url => {
+  const returnUrl = decodeURIComponent(url).toLowerCase();
+  ['file/downchatfile', 'file/downdocument', 'download/appfile'].map(o => {
+    if (returnUrl.indexOf(o) >= 0) {
+      setTimeout(() => {
+        window.close();
+      }, 3000);
+    }
+  });
+};

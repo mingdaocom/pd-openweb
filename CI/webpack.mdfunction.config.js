@@ -1,6 +1,8 @@
 const webpack = require('webpack');
 const path = require('path');
-const config = require('./webpack.common.config');
+const webpackConfig = require('./webpack.config');
+
+const config = webpackConfig();
 
 module.exports = {
   resolve: Object.assign({}, config.resolve, {

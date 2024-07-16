@@ -1,7 +1,8 @@
 import React, { Fragment, useEffect } from 'react';
 import { SettingItem } from '../../styled';
 import { handleAdvancedSettingChange } from '../../util/setting';
-import Components from '../components';
+import PreSuffix from '../components/PreSuffix';
+import PointerConfig from '../components/PointerConfig';
 
 export default function Money(props) {
   const { data, onChange } = props;
@@ -15,10 +16,10 @@ export default function Money(props) {
 
   return (
     <Fragment>
-      <Components.PointerConfig {...props} />
+      <PointerConfig {...props} />
       <SettingItem>
         <div className="settingItemTitle">{_l('单位')}</div>
-        <Components.PreSuffix {...props} />
+        <PreSuffix {...props} />
       </SettingItem>
     </Fragment>
   );

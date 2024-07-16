@@ -14,6 +14,7 @@ import { APP_TYPE, METHODS_TYPE } from '../../enum';
 import cx from 'classnames';
 import styled from 'styled-components';
 import _ from 'lodash';
+import { formatTestParameters } from '../../utils';
 
 const Tabs = styled.ul`
   border-bottom: 3px solid #f5f5f5;
@@ -206,7 +207,7 @@ export default class Authentication extends Component {
     return (
       <Fragment>
         <div className="Font16 bold">{_l('Basic Auth 认证')}</div>
-        <div className="mTop5 Gray_9e">{_l('将返回计算后的 Basic Auth 参数供 API 请求参数使用')}</div>
+        <div className="mTop5 Gray_75">{_l('将返回计算后的 Basic Auth 参数供 API 请求参数使用')}</div>
         {data.fields.map((item, i) => {
           const singleObj = _.find(data.controls, obj => obj.controlId === item.fieldId) || {};
 
@@ -260,7 +261,7 @@ export default class Authentication extends Component {
     return (
       <Fragment>
         <div className="Font16 bold">{_l('OAuth 2.0 认证（客户端凭证 client credentials）')}</div>
-        <div className="mTop5 Gray_9e">{_l('将返回获取到的 Access Token 值供 API 请求参数使用')}</div>
+        <div className="mTop5 Gray_75">{_l('将返回获取到的 Access Token 值供 API 请求参数使用')}</div>
 
         <div className="Font13 bold mTop20">{_l('Access Token URL')}</div>
         {data.webHookNodes.map((item, i) => {
@@ -274,8 +275,8 @@ export default class Authentication extends Component {
                 <Dropdown
                   className="flowDropdown mRight10 mTop10"
                   style={{ width: 115 }}
-                  data={METHODS_TYPE}
-                  value={item.method}
+                  data={METHODS_TYPE.filter(o => !o.disabled)}
+                  value={item.method === 4 ? 14 : item.method}
                   border
                   onChange={method => this.updateAjaxParameter({ method: method }, i)}
                 />
@@ -396,12 +397,12 @@ export default class Authentication extends Component {
         })}
 
         <div className="Font13 bold mTop20">{_l('返回参数列表')}</div>
-        <div className="mTop10 Gray_9e">{_l('向 Access Token URL 发送请求并返回参数列表')}</div>
+        <div className="mTop10 Gray_75">{_l('向 Access Token URL 发送请求并返回参数列表')}</div>
 
         {!!(data.controls || []).length && (
           <Fragment>
             <ParameterList controls={data.controls} />
-            <div className="mTop20 Gray_9e">{_l('重新发送请求获取 Acess Token')}</div>
+            <div className="mTop20 Gray_75">{_l('重新发送请求获取 Acess Token')}</div>
           </Fragment>
         )}
 
@@ -410,7 +411,7 @@ export default class Authentication extends Component {
         </div>
 
         <div className="Font13 bold mTop20">{_l('Access Token 过期时间')}</div>
-        <div className="mTop10 Gray_9e">
+        <div className="mTop10 Gray_75">
           {_l('系统将依据这里的时长设置来判断自动刷新 Access Token 的频率，为 0 则不自动刷新')}
         </div>
 
@@ -526,12 +527,12 @@ export default class Authentication extends Component {
           processId,
           nodeId: selectNodeId,
           method,
-          url: this.formatParameters(url, testMap),
-          params: JSON.parse(this.formatParameters(JSON.stringify(params.filter(item => item.name)), testMap)),
-          headers: JSON.parse(this.formatParameters(JSON.stringify(headers.filter(item => item.name)), testMap)),
-          body: this.formatParameters(body, testMap),
+          url: formatTestParameters(url, testMap),
+          params: JSON.parse(formatTestParameters(JSON.stringify(params.filter(item => item.name)), testMap)),
+          headers: JSON.parse(formatTestParameters(JSON.stringify(headers.filter(item => item.name)), testMap)),
+          body: formatTestParameters(body, testMap),
           formControls: JSON.parse(
-            this.formatParameters(JSON.stringify(formControls.filter(item => item.name)), testMap),
+            formatTestParameters(JSON.stringify(formControls.filter(item => item.name)), testMap),
           ),
           contentType,
         },
@@ -551,17 +552,6 @@ export default class Authentication extends Component {
       });
 
     this.setState({ sendRequest: true });
-  };
-
-  /**
-   * 格式化参数
-   */
-  formatParameters = (source, testMap) => {
-    (source.match(/\$[^ \r\n]+?\$/g) || []).forEach(key => {
-      source = source.replace(key, testMap[key] || '');
-    });
-
-    return source;
   };
 
   /**

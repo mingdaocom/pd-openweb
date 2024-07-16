@@ -53,12 +53,14 @@ export default class Item extends Component {
         {...this.props}
         changeViewType={true}
         onChangeHidden={showhiden => {
+          this.setState({ visible: false });
           updateAdvancedSetting({
             ...item,
             advancedSetting: {
-              ...item.advancedSetting,
               showhide: showhiden,
             },
+            editAttrs: ['advancedSetting'],
+            editAdKeys: ['showhide'],
           });
           if (showhiden.search(/hide|hpc/g) > -1) {
             let showList = list.filter(l => {
@@ -72,7 +74,7 @@ export default class Item extends Component {
             if (showList.length === 0) return;
             navigateTo(getNavigateUrl(showList[0]));
           }
-          this.setState({ visible: false });
+
         }}
         handleClose={() => this.setState({ visible: false })}
       />
@@ -143,7 +145,7 @@ export default class Item extends Component {
               }}
             />
           ) : (
-            <span className="ellipsis bold">{getTranslateInfo(appId, item.viewId).name || item.name}</span>
+            <span className="ellipsis bold">{getTranslateInfo(appId, null, item.viewId).name || item.name}</span>
           )}
         </MdLink>
         {isCharge || this.canExport() || this.canShare() ? (

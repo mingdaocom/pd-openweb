@@ -17,6 +17,8 @@ import { navigateTo } from 'src/router/navigateTo';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -347,6 +349,7 @@ function GroupTitle(props) {
     svgIcon,
     isDashboard,
   } = props;
+
   return (
     <GroupTitleCon className={cx({ mBottom8: isFolded })}>
       <GroupTitleContent className={cx({ disabled, isDashboard })} onClick={disabled ? _.noop : onClick}>
@@ -392,24 +395,26 @@ function GroupTitle(props) {
 }
 
 function MarkedGroupTile(props) {
-  const { projectId, markedGroup, actions, keywords, foldedMap, toggleFolded, isDashboard } = props;
+  const { projectId, markedGroup, actions, keywords, foldedMap, toggleFolded, isDashboard, projectGroupsLang } = props;
 
   return (
     <div>
       <GroupTiles>
         {markedGroup.map((group, i) => {
           return group.apps.length || !keywords ? (
-            <GroupTile>
+            <GroupTile key={i}>
               <GroupTitle
                 actions={actions}
                 projectId={projectId}
-                title={group.name}
+                id={group.id}
+                title={_.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name}
                 count={group.apps.length}
                 group={group}
                 isFolded={foldedMap[group.id]}
                 svgIcon={{ icon: group.icon, iconUrl: group.iconUrl }}
                 onClick={() => toggleFolded(group.id)}
                 isDashboard={isDashboard}
+                projectGroupsLang={projectGroupsLang}
               />
               {!foldedMap[group.id] && (
                 <AppList
@@ -435,7 +440,17 @@ MarkedGroupTile.propTypes = {
 };
 
 function MarkedGroupTab(props) {
-  const { projectId, markedGroup, actions, keywords, dashboardColor, foldedMap, toggleFolded, isDashboard } = props;
+  const {
+    projectId,
+    markedGroup,
+    actions,
+    keywords,
+    dashboardColor,
+    foldedMap,
+    toggleFolded,
+    isDashboard,
+    projectGroupsLang,
+  } = props;
   const [activeGroupId, setActiveGroupId] = useState(
     localStorage.getItem(`home_active_star_group_${projectId}_${md.global.Account.accountId}`) ||
       _.get(markedGroup, '0.id'),
@@ -461,6 +476,7 @@ function MarkedGroupTab(props) {
             <GroupTabs>
               {markedGroup.map((group, i) => (
                 <Trigger
+                  key={i}
                   getPopupContainer={() => document.body}
                   popupVisible={popupVisible[group.id]}
                   popupAlign={{
@@ -506,7 +522,7 @@ function MarkedGroupTab(props) {
                         setPopupVisible({ [group.id]: true });
                       }}
                     >
-                      {group.name}
+                      {_.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name}
                     </GroupTab>
                   </ClickAwayable>
                 </Trigger>
@@ -551,8 +567,9 @@ export default function AppGrid(props) {
     isDashboard,
     dashboardColor,
     hideExternalTitle,
-    isAdmin,
     currentTheme,
+    projectGroupsLang = [],
+    myPermissions = [],
     ...rest
   } = props;
   const { actions } = rest;
@@ -576,7 +593,14 @@ export default function AppGrid(props) {
   const moreTabRef = useRef();
 
   const noProjects = !md.global.Account.projects.length;
-  const allowCreate = !keywords && !noProjects;
+  const allowCreate =
+    !noProjects &&
+    !isExternal &&
+    (!_.get(
+      _.find(md.global.Account.projects, item => item.projectId === projectId),
+      'cannotCreateApp',
+    ) ||
+      hasPermission(myPermissions, PERMISSION_ENUM.CREATE_APP));
   const markedGroup = (props.markedGroup || []).map(g => ({
     ...g,
     apps: (g.appIds || []).map(aId => _.find([...myApps, ...markedApps], { id: aId })).filter(_.identity),
@@ -671,8 +695,11 @@ export default function AppGrid(props) {
                   }}
                 >
                   <div className="liContent">
-                    <span title={group.name} className="overflow_ellipsis itemText">
-                      {group.name}
+                    <span
+                      title={_.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name}
+                      className="overflow_ellipsis itemText"
+                    >
+                      {_.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name}
                     </span>
                     {group.id === 'all' ? (
                       <div className="divideLine" />
@@ -708,10 +735,11 @@ export default function AppGrid(props) {
               }}
               popup={
                 <MorePopupContainer activeColor={dashboardColor.activeColor} themeColor={dashboardColor.themeColor}>
-                  {moreGroups.map(group => {
+                  {moreGroups.map((group, i) => {
                     const isActive = group.id === currentGroupTab;
                     return (
                       <div
+                        key={i}
                         className={cx('groupItem', { isActive })}
                         onClick={() => {
                           setCurrentGroupTab(group.id);
@@ -719,8 +747,11 @@ export default function AppGrid(props) {
                           setMorePopupVisible(false);
                         }}
                       >
-                        <span className="overflow_ellipsis" title={group.name}>
-                          {group.name}
+                        <span
+                          className="overflow_ellipsis"
+                          title={_.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name}
+                        >
+                          {_.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name}
                         </span>
                         <Tooltip title={group.isMarked ? _l('取消标星') : _l('标星')} placement="bottom">
                           <div
@@ -849,15 +880,17 @@ export default function AppGrid(props) {
             <AppsCon>
               <GroupTitle
                 disabled
-                title={activeGroup.name}
+                id={activeGroup.id}
+                title={_.get(projectGroupsLang, `${activeGroup.id}.data[0].value`) || activeGroup.name}
                 count={activeGroupApps.length}
                 isFolded={foldedMap[activeGroup.id]}
+                projectId={projectId}
                 onClick={() => toggleFolded(activeGroup.id)}
               />
               {keywords && !activeGroupApps.length && <div className="Font14 Gray_9e mTop24">{_l('无搜索结果')}</div>}
               <AppList
                 {...props}
-                allowCreate={allowCreate && !!activeGroup.id && (activeGroup.groupType !== 1 || isAdmin)}
+                allowCreate={allowCreate && !!activeGroup.id}
                 type="group"
                 groupId={activeGroup.id}
                 groupType={activeGroup.groupType}
@@ -938,14 +971,9 @@ export default function AppGrid(props) {
           />
         )}
         {!isDashboard && <div className="flex" />}
-        {((allowCreate &&
-          !isExternal &&
-          !_.get(
-            _.find(md.global.Account.projects, item => item.projectId === projectId),
-            'cannotCreateApp',
-          )) ||
-          keywords) && (
+        {allowCreate && (
           <AddAppItemBtn
+            myPermissions={myPermissions}
             themeColor={dashboardColor.themeColor}
             projectId={projectId}
             createAppFromEmpty={(...args) => {
@@ -973,7 +1001,6 @@ export default function AppGrid(props) {
 }
 
 AppGrid.propTypes = {
-  isAdmin: bool,
   setting: shape({}),
   activeGroup: shape({}),
   projectId: string,

@@ -246,13 +246,13 @@ export default class HistoryList extends Component {
               <HistoryListItem key={index} index={index} {...item} {...res} />
             ))}
             {!hasMoreData && data.length > 20 && (
-              <div className="noMoreDataText Font16 Gray_9e">{_l('没有更多数据')}</div>
+              <div className="noMoreDataText Font16 Gray_75">{_l('没有更多数据')}</div>
             )}
           </ul>
         ) : (
           <div className="emptyListWrap">
             <div className="imgWrap" />
-            <div className="text Gray_9e Font16">{_l('暂无数据运行记录')}</div>
+            <div className="text Gray_75 Font16">{_l('暂无数据运行记录')}</div>
           </div>
         )}
         {hasMoreData && (

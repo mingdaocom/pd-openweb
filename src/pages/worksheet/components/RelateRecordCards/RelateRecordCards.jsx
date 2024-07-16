@@ -23,9 +23,9 @@ import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCod
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { Icon } from 'ming-ui';
 import { completeControls, replaceControlsTranslateInfo } from 'worksheet/util';
-import { browserIsMobile, addBehaviorLog } from 'src/util';
+import { browserIsMobile, addBehaviorLog, getTranslateInfo } from 'src/util';
 import _ from 'lodash';
-
+import RegExpValidator from 'src/util/expression';
 const MAX_COUNT = 200;
 
 export const Button = styled.div`
@@ -185,7 +185,7 @@ export default class RelateRecordCards extends Component {
   constructor(props) {
     super(props);
     const {
-      control: { relationControls = [], showControls = [] },
+      control: { relationControls = [], showControls = [], worksheetId },
     } = this.props;
     const hasRelateControl = this.hasRelateControl(relationControls, showControls);
     let showLoadMore = true;
@@ -198,7 +198,9 @@ export default class RelateRecordCards extends Component {
     }
     this.state = {
       sheetTemplateLoading: hasRelateControl,
-      controls: hasRelateControl ? [] : replaceControlsTranslateInfo(props.appId, completeControls(relationControls)),
+      controls: hasRelateControl
+        ? []
+        : replaceControlsTranslateInfo(props.appId, worksheetId, completeControls(relationControls)),
       previewRecord: null,
       showNewRecord: false,
       mobileRecordkeyWords: '',
@@ -341,7 +343,7 @@ export default class RelateRecordCards extends Component {
       return;
     }
     try {
-      const coverFile = _.find(JSON.parse(record[coverId]), file => File.isPicture(file.ext));
+      const coverFile = _.find(JSON.parse(record[coverId]), file => RegExpValidator.fileIsPicture(file.ext));
       const { previewUrl = '' } = coverFile;
       return previewUrl.indexOf('imageView2') > -1
         ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/w/200')
@@ -363,7 +365,7 @@ export default class RelateRecordCards extends Component {
       .getWorksheetInfo({ worksheetId: dataSource, getTemplate: true, relationWorksheetId: worksheetId })
       .then(data => {
         this.setState({
-          controls: replaceControlsTranslateInfo((nextProps || this.props).appId, data.template.controls),
+          controls: replaceControlsTranslateInfo((nextProps || this.props).appId, worksheetId, data.template.controls),
           sheetTemplateLoading: false,
         });
       });
@@ -606,6 +608,7 @@ export default class RelateRecordCards extends Component {
   renderRecordsCon() {
     const { width, control, allowOpenRecord } = this.props;
     const {
+      appId,
       viewId,
       from,
       recordId,
@@ -615,11 +618,11 @@ export default class RelateRecordCards extends Component {
       enumDefault,
       coverCid,
       openRelateSheet,
-      sourceEntityName,
       advancedSetting,
       isCharge,
       sheetSwitchPermit,
     } = control;
+    const sourceEntityName = getTranslateInfo(appId, null, dataSource).recordName || control.sourceEntityName;
     const { allowReplaceRecord, isCard } = this;
     const { records, showAll, showLoadMore, isLoadingMore, pageIndex } = this.state;
     const allowlink = (advancedSetting || {}).allowlink;
@@ -749,7 +752,6 @@ export default class RelateRecordCards extends Component {
       showControls = [],
       coverCid,
       formData,
-      sourceEntityName,
       sheetSwitchPermit,
       advancedSetting = {},
       isCharge,
@@ -757,6 +759,7 @@ export default class RelateRecordCards extends Component {
       openRelateSheet,
       showRelateRecordEmpty,
     } = control;
+    const sourceEntityName = getTranslateInfo(appId, null, dataSource).recordName || control.sourceEntityName;
     const { records, previewRecord, showNewRecord, sheetTemplateLoading } = this.state;
     const { onlyRelateByScanCode, disabledManualWrite, addRelationButtonVisible, isCard, allowNewRecord } = this;
     const isMobile = browserIsMobile();

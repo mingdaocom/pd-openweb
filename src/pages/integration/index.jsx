@@ -14,6 +14,9 @@ import { integrationConfig, dataIntegrationList } from 'src/pages/integration/co
 import './svgIcon';
 import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
+import { getMyPermissions } from 'src/components/checkPermission';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const ROUTE_CONFIG_PATH = {
   connectList: '/integration/connectList',
@@ -74,23 +77,21 @@ export default class HubContainer extends React.Component {
     super(props);
 
     const projectInfo = this.getProjectInfo();
-    const { projectId = '', isSuperAdmin = false, isProjectAppManager = false } = projectInfo;
 
     this.state = {
-      showCreateCustomBtn: false,
-      isSuperAdmin: isSuperAdmin || isProjectAppManager,
-      currentProjectId: projectId,
+      currentProjectId: projectInfo.projectId,
     };
   }
 
   componentDidMount() {
     $('html').addClass('integration');
-    emitter.addListener('CHANGE_CURRENT_PROJECT', this.reload);
+    this.loadPermissions();
+    emitter.addListener('CHANGE_CURRENT_PROJECT', this.loadPermissions);
   }
 
   componentWillUnmount() {
     $('html').removeClass('integration');
-    emitter.removeListener('CHANGE_CURRENT_PROJECT', this.reload);
+    emitter.removeListener('CHANGE_CURRENT_PROJECT', this.loadPermissions);
   }
 
   getProjectInfo = () => {
@@ -100,27 +101,37 @@ export default class HubContainer extends React.Component {
     return projectInfo || {};
   };
 
-  reload = () => {
+  loadPermissions = () => {
     const projectInfo = this.getProjectInfo();
-    const { projectId = '', isSuperAdmin = false, isProjectAppManager = false } = projectInfo;
-
-    this.setState({
-      isSuperAdmin: isSuperAdmin || isProjectAppManager,
-      currentProjectId: projectId,
-    });
+    this.setState({ currentProjectId: projectInfo.projectId });
   };
 
   render() {
     const { match = { params: {} } } = this.props;
     const { type = '' } = match.params;
     const info = integrationConfig.find(o => o.type === type) || {};
-    const { isSuperAdmin, currentProjectId } = this.state;
+    const { currentProjectId } = this.state;
+    const myPermissions = getMyPermissions(currentProjectId);
+    const menuAuth = {
+      noCreateTaskMenu: !hasPermission(myPermissions, PERMISSION_ENUM.CREATE_SYNC_TASK),
+      noSyncTaskMenu:
+        !hasPermission(myPermissions, PERMISSION_ENUM.CREATE_SYNC_TASK) &&
+        !hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_SYNC_TASKS),
+      noSourceMenu:
+        !hasPermission(myPermissions, PERMISSION_ENUM.CREATE_SYNC_TASK) &&
+        !hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_DATA_SOURCES),
+    };
     const param = {
       ...this.props,
       currentProjectId,
-      isSuperAdmin,
+      myPermissions,
     };
-    if (!isSuperAdmin) {
+
+    if (
+      (type === 'dataConnect' && menuAuth.noCreateTaskMenu) ||
+      (type === 'task' && menuAuth.noSyncTaskMenu) ||
+      (type === 'source' && menuAuth.noSourceMenu)
+    ) {
       const dataIntegrationTypes = dataIntegrationList.map(o => o.type);
       if (dataIntegrationTypes.includes(type)) {
         navigateTo('/integration');
@@ -131,7 +142,7 @@ export default class HubContainer extends React.Component {
     return (
       <div className="flexRow h100">
         <DocumentTitle title={!info.txt ? _l('集成中心') : `${_l('集成中心')}-${info.txt}`} />
-        <Sidenav {...param} />
+        <Sidenav {...param} menuAuth={menuAuth} />
         <div className="flex">
           <ErrorBoundary>
             <Switch>

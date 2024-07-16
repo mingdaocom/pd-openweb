@@ -25,7 +25,7 @@ export const Abnormal = props => {
         />
       )}
       <Icon icon="task-folder-message" className="Font56 Gray_df" />
-      <p className="mTop10">{errorMsg}</p>
+      <div className="mTop10">{errorMsg}</div>
     </div>
   );
 }

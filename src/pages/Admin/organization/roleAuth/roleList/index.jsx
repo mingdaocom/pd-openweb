@@ -1,16 +1,16 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import roleController from 'src/api/role';
 import projectSettingAjax from 'src/api/projectSetting';
 import PaginationWrap from '../../../components/PaginationWrap';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import RoleItem from './roleItem';
-import RoleAuthCommon from '../common/common';
 import { getCurrentProject } from 'src/util';
 import { Icon } from 'ming-ui';
-
+import roleApi from 'src/api/role';
 import './style.less';
 import _ from 'lodash';
+import RoleDetail from '../roleDetail';
+import CreateEditRole from '../createEditRole';
 
 class RoleList extends React.Component {
   static propTypes = {
@@ -25,11 +25,13 @@ class RoleList extends React.Component {
       pageIndex: 1,
       pageSize: 500,
       totalCount: null,
-      list: null,
+      list: [],
       applyList: [],
+      drawer: { visible: false },
+      hasChanged: false,
     };
 
-    this.fetchRoles = this.fetchRoles.bind(this);
+    this.getMyRoles = this.getMyRoles.bind(this);
   }
 
   componentDidMount() {
@@ -40,111 +42,121 @@ class RoleList extends React.Component {
   }
 
   componentWillMount() {
-    this.fetchRoles();
+    this.getMyRoles();
     this.getCanApplyRoles();
   }
 
-  fetchRoles(isReload) {
+  getMyRoles(isReload) {
     const { projectId, entry } = this.props;
     const { isLoading, pageIndex, pageSize } = this.state;
-    if (isLoading) return false;
-    if (entry === 'apply') return;
+    if (isLoading || entry === 'apply') return;
 
-    this.setState({
-      isLoading: true,
-    });
+    const { isSuperAdmin } = getCurrentProject(projectId);
 
-    this.promise = roleController.getSummaryRole({
+    this.setState({ isLoading: true });
+
+    (isSuperAdmin ? roleApi.pagedRoleList : roleApi.getMyJoinedRoleList)({
       projectId,
       isJoined: true,
       pageIndex: isReload ? 1 : pageIndex,
       pageSize,
-    });
-
-    this.promise
-      .then(({ listSumaryRole: listSummaryRole, allCount } = {}) => {
-        if (listSummaryRole) {
-          this.setState(prevState => {
-            return {
-              pageIndex: isReload ? 1 : pageIndex,
-              isLoading: false,
-              totalCount: allCount,
-              list: _.map(listSummaryRole, role => {
-                RoleAuthCommon.formatRoleAuth(role);
-                return role;
-              }),
-            };
-          });
-        } else {
-          return Promise.reject();
-        }
+    })
+      .then(({ roles, totalCount } = {}) => {
+        this.setState({
+          pageIndex: isReload ? 1 : pageIndex,
+          isLoading: false,
+          totalCount,
+          list: roles || [],
+        });
       })
       .catch(errors => {
-        this.setState({
-          isLoading: false,
-        });
+        this.setState({ isLoading: false });
         alert(errors.errorMessage || _l('获取列表失败'), 2);
       });
   }
 
   getCanApplyRoles = async () => {
-    const { projectId } = this.props;
+    const { projectId, entry } = this.props;
     const { pageSize } = this.state;
     const { isSuperAdmin } = getCurrentProject(projectId);
 
     if (isSuperAdmin) return;
 
-    const allowApplyManage = await projectSettingAjax.getAllowApplyManageRole({ projectId });
+    if (entry !== 'apply') {
+      const allowApplyManage = await projectSettingAjax.getAllowApplyManageRole({ projectId });
 
-    if (!allowApplyManage) return;
+      if (!allowApplyManage) return;
+    }
 
-    const res = await roleController.getSummaryRole({
+    const res = await roleApi.pagedApplyRoleList({
       projectId,
       isJoined: false,
       pageIndex: 1,
       pageSize,
     });
-
-    const { listSumaryRole: listSummaryRole } = res;
-
-    this.setState({
-      applyList: listSummaryRole.filter(r => !r.isJoined),
-    });
+    res && this.setState({ applyList: res.roles });
   };
 
-  renderList() {
-    const { list } = this.state;
-    const { projectId, entry } = this.props;
-    const { isHrVisible } = getCurrentProject(projectId, true);
+  renderList(isApply) {
+    const { list, applyList, drawer, hasChanged } = this.state;
+    const { projectId } = this.props;
 
-    return _.map(list, role => (
-      <RoleItem
-        isHrVisible={isHrVisible}
-        role={role}
-        projectId={projectId}
-        callback={this.fetchRoles}
-        key={role.roleId}
-        entry={entry}
-      />
-    ));
+    const onOpenDrawer = (role, type, closeNeedOpenDetail) => {
+      this.setState({ drawer: { visible: true, role, type, closeNeedOpenDetail } });
+    };
+
+    return (
+      <React.Fragment>
+        {(isApply ? applyList : list).map(role => (
+          <RoleItem
+            key={role.roleId}
+            isApply={isApply}
+            role={role}
+            projectId={projectId}
+            onOpenDrawer={type => onOpenDrawer(role, type)}
+            onRefreshRoleList={this.getMyRoles}
+          />
+        ))}
+
+        {drawer.visible && !drawer.type && (
+          <RoleDetail
+            projectId={projectId}
+            role={drawer.role}
+            onClose={() => {
+              hasChanged && this.getMyRoles();
+              this.setState({ drawer: { visible: false }, hasChanged: false });
+            }}
+            onOpenDrawer={type => onOpenDrawer(drawer.role, type, true)}
+            onUpdateSuccess={() => this.setState({ hasChanged: true })}
+            onUpdateRoleName={roleName => {
+              const newList = list.map(item =>
+                item.roleId === _.get(drawer, 'role.roleId') ? { ...item, roleName } : item,
+              );
+              this.setState({ list: newList, drawer: { ...drawer, role: { ...drawer.role, roleName } } });
+            }}
+            defaultTab={drawer.defaultTab}
+          />
+        )}
+
+        {drawer.visible && drawer.type && (
+          <CreateEditRole
+            projectId={projectId}
+            roleId={_.get(drawer, 'role.roleId')}
+            roleName={_.get(drawer, 'role.roleName')}
+            isEditHr={drawer.type === 'editHrRole'}
+            onClose={() => {
+              this.setState({
+                drawer: drawer.closeNeedOpenDetail
+                  ? { visible: true, role: drawer.role, defaultTab: 'auth' }
+                  : { visible: false },
+              });
+            }}
+            onSaveSuccess={!drawer.closeNeedOpenDetail ? this.getMyRoles : () => this.setState({ hasChanged: true })}
+          />
+        )}
+      </React.Fragment>
+    );
   }
-
-  renderApplyList = () => {
-    const { applyList } = this.state;
-    const { projectId, entry } = this.props;
-    const { isHrVisible } = getCurrentProject(projectId, true);
-
-    return _.map(applyList, role => (
-      <RoleItem
-        isHrVisible={isHrVisible}
-        isApply={true}
-        role={role}
-        projectId={projectId}
-        key={role.roleId}
-        entry={entry}
-      />
-    ));
-  };
 
   render() {
     const { entry } = this.props;
@@ -152,32 +164,24 @@ class RoleList extends React.Component {
 
     return (
       <div className="roleAuthTable">
-        <table className="w100 verticalTop">
-          <thead>
-            <tr className="roleListTitle">
-              <th className="roleName">{_l('角色名称')}</th>
-              <th className="roleCount">{_l('人数')}</th>
-              <th className="roleAuth">{_l('权限')}</th>
-              <th className="roleOperation">{_l('操作')}</th>
-            </tr>
-          </thead>
-        </table>
+        <div className="w100 verticalTop">
+          <div className="roleItem roleListTitle">
+            <div className="roleName">{_l('角色名称')}</div>
+            <div className="roleMembers">{_l('成员')}</div>
+            <div className="roleAuth">{_l('权限')}</div>
+            <div className="roleOperation">{_l('操作')}</div>
+          </div>
+        </div>
         <div className="roleList">
-          <table className="w100">
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan="4">
-                    <LoadDiv />
-                  </td>
-                </tr>
-              ) : (
-                <Fragment>
-                  {this.renderList()}
-                  {_.isEmpty(applyList) ? (
-                    ''
-                  ) : entry === 'apply' ? (
-                    this.renderApplyList()
+          <div className="w100">
+            {isLoading ? (
+              <LoadDiv className="mTop10" />
+            ) : (
+              <Fragment>
+                {this.renderList()}
+                {!!applyList.length &&
+                  (entry === 'apply' ? (
+                    this.renderList(true)
                   ) : (
                     <Fragment>
                       <div
@@ -187,22 +191,21 @@ class RoleList extends React.Component {
                         {_l('申请角色权限')}
                         <Icon className="mLeft6 Font16" icon={showApplyRole ? 'arrow-up' : 'arrow-down'} />
                       </div>
-                      {showApplyRole && this.renderApplyList()}
+                      {showApplyRole && this.renderList(true)}
                     </Fragment>
-                  )}
-                </Fragment>
-              )}
-            </tbody>
-          </table>
+                  ))}
+              </Fragment>
+            )}
+          </div>
         </div>
-        {list && totalCount > pageSize ? (
+        {list && totalCount > pageSize && (
           <PaginationWrap
             total={totalCount}
             pageIndex={pageIndex}
             pageSize={pageSize}
-            onChange={pageIndex => this.setState({ pageIndex }, this.fetchRoles)}
+            onChange={pageIndex => this.setState({ pageIndex }, this.getMyRoles)}
           />
-        ) : null}
+        )}
       </div>
     );
   }

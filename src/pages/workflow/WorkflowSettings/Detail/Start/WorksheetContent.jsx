@@ -69,12 +69,12 @@ export default ({
                   placeholder={_l('选择触发字段')}
                   updateSource={ids => updateSource({ assignFieldIds: ids })}
                 />
-                <div className="Gray_9e mTop5 Font12">
+                <div className="Gray_75 mTop5 Font12">
                   {_l('当以上指定的其中一个字段更新时将触发流程，如未指定则表示任何字段更新时都会触发')}
                 </div>
               </div>
             )}
-            {item.desc && data.triggerId === item.value && <div className="mTop10 mLeft30 Gray_9e">{item.desc}</div>}
+            {item.desc && data.triggerId === item.value && <div className="mTop10 mLeft30 Gray_75">{item.desc}</div>}
           </div>
         ))}
 

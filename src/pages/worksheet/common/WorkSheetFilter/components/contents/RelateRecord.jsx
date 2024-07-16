@@ -101,7 +101,7 @@ export default class RelateRecord extends React.Component {
             records.map((record, index) => (
               <div className="recordItem" key={index}>
                 <i className="icon icon-link-worksheet"></i>
-                <span className="recordname">{record.name}</span>
+                <span className="recordname WordBreak">{record.name}</span>
                 <span
                   className="remove"
                   onClick={e => {

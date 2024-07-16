@@ -28,6 +28,7 @@ export default function DetailHeader({
   selectNodeType,
   isIntegration,
   removeNodeName,
+  customNodeName,
 }) {
   const { name } = data;
   const type = getNodeTypeForSupportHref(data, selectNodeType);
@@ -37,7 +38,7 @@ export default function DetailHeader({
     return (
       <div className="workflowDetailHeader flexRow">
         <span className="icon-backspace Font26 mRight10 Gray ThemeHoverColor3 pointer" onClick={closeDetail} />
-        <div className="flex Font20 Gray bold">{name}</div>
+        <div className="flex Font20 Gray bold">{customNodeName || name}</div>
       </div>
     );
   }

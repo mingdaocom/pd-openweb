@@ -22,7 +22,7 @@ export default function Gourup(props) {
     });
   }
 
-  const name = comparisonLangId ? getTranslateInfo(app.id, selectNode.key, comparisonLangData).name : selectNode.originalTitle;
+  const name = comparisonLangId ? getTranslateInfo(app.id, null, selectNode.key, comparisonLangData).name : selectNode.originalTitle;
 
   return (
     <div className="pAll20">

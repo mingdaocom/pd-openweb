@@ -6,6 +6,7 @@ import { updateBase } from 'worksheet/redux/actions';
 import ViewComp from './ViewComp';
 function SingleView(props, ref) {
   const {
+    config = {},
     showPageTitle,
     showHeader,
     showAsSheetView,
@@ -13,6 +14,8 @@ function SingleView(props, ref) {
     viewId,
     worksheetId,
     maxCount,
+    pageSize,
+    authRefreshTime,
     chartId,
     showControlIds,
     headerLeft,
@@ -28,6 +31,7 @@ function SingleView(props, ref) {
         worksheetId,
         chartId,
         maxCount,
+        forcePageSize: pageSize,
         showAsSheetView,
         type: 'single',
       }),
@@ -40,6 +44,8 @@ function SingleView(props, ref) {
   return (
     <Provider store={store}>
       <ViewComp
+        config={config}
+        authRefreshTime={authRefreshTime}
         showPageTitle={showPageTitle}
         chartId={chartId}
         maxCount={maxCount}
@@ -60,6 +66,7 @@ SingleView.propTypes = {
   showPageTitle: bool,
   showHeader: bool,
   showAsSheetView: bool,
+  config: shape({}),
   headerLeft: element,
   headerRight: element,
   maxCount: number,

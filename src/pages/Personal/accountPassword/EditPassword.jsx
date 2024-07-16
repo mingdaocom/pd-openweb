@@ -3,8 +3,9 @@ import './index.less';
 import { Input } from 'antd';
 import userPassword from 'src/api/account';
 import { encrypt } from 'src/util';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import _ from 'lodash';
+import { navigateToLogout } from 'src/router/navigateTo';
 
 export default class EditPassword extends Component {
   constructor(props) {
@@ -23,7 +24,7 @@ export default class EditPassword extends Component {
   }
 
   isPasswordRule = str => {
-    return RegExp.isPasswordValid(str, this.state.passwordRegex);
+    return RegExpValidator.isPasswordValid(str, this.state.passwordRegex);
   };
 
   handleSubmit() {
@@ -75,7 +76,7 @@ export default class EditPassword extends Component {
             '</div>';
           //  保存成功
           alert(message, 1, 5000, function () {
-            window.location.href = '/logout';
+            navigateToLogout();
           });
         } else if (data === 6) {
           // /*旧密码错误*/

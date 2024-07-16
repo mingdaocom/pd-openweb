@@ -31,6 +31,7 @@ export default function FilterDialog(props) {
     hideSupport,
     showCustom = false,
     filterKey = 'filters',
+    sheetSwitchPermit = [],
   } = props;
 
   const { sourceControlId = '', type = '' } = data;
@@ -40,6 +41,8 @@ export default function FilterDialog(props) {
     allControls,
     item => isSingleRelateSheet(item) && isEqual(item.controlId, data.controlId),
   );
+
+  const currentColumns = allControls.map(redefineComplexControl);
 
   return (
     <Dialog
@@ -87,7 +90,7 @@ export default function FilterDialog(props) {
             isDynamicsource: false,
           };
           if (condition.isDynamicsource === undefined) {
-            if (condition.dynamicSource.length > 0) {
+            if ((_.get(condition, 'dynamicSource') || []).length > 0) {
               return initialDynamicSource;
             } else {
               return initialSource;
@@ -115,10 +118,11 @@ export default function FilterDialog(props) {
           filterColumnClassName="sheetViewFilterColumnOption"
           projectId={globalSheetInfo.projectId}
           appId={globalSheetInfo.appId}
+          sheetSwitchPermit={sheetSwitchPermit}
           columns={relationControls}
           conditions={filters}
           filterDept={type !== 29}
-          currentColumns={allControls}
+          currentColumns={currentColumns}
           showCustom={showCustom}
           from={fromCondition}
           filterResigned={false}

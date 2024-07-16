@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import Dialog from 'ming-ui/components/Dialog';
@@ -15,15 +15,19 @@ export default class EditVoteEndTimeDialog extends React.Component {
     dispose: PropTypes.func,
   };
   static show(postItem, callback) {
-    const dialogContainer = document.createElement('div');
-    document.body.appendChild(dialogContainer);
+    const div = document.createElement('div');
+
+    document.body.appendChild(div);
+
+    const root = createRoot(div);
     const dispose = () => {
       setTimeout(() => {
-        ReactDOM.unmountComponentAtNode(dialogContainer);
-        dialogContainer.remove();
+        root.unmount();
+        document.body.removeChild(div);
       }, 100);
     };
-    ReactDOM.render(<EditVoteEndTimeDialog postItem={postItem} callback={callback} dispose={() => dispose()} />, dialogContainer);
+
+    root.render(<EditVoteEndTimeDialog postItem={postItem} callback={callback} dispose={() => dispose()} />);
   }
   constructor(props) {
     super(props);
@@ -35,7 +39,7 @@ export default class EditVoteEndTimeDialog extends React.Component {
         postId: this.props.postItem.postID,
         deadline: this.state.deadline.format(),
       })
-      .then((result) => {
+      .then(result => {
         if (result) {
           alert(_l('修改成功'));
           if (this.props.callback) {
@@ -64,7 +68,13 @@ export default class EditVoteEndTimeDialog extends React.Component {
       >
         <span className="mRight10">{_l('截止日期')}: </span>
         <div className="InlineBlock">
-          <DatePicker selectedValue={this.state.deadline} timePicker timeMode="hour" allowClear={false} onSelect={deadline => this.setState({ deadline })}>
+          <DatePicker
+            selectedValue={this.state.deadline}
+            timePicker
+            timeMode="hour"
+            allowClear={false}
+            onSelect={deadline => this.setState({ deadline })}
+          >
             <Input size="small" value={this.state.deadline.format('LL') + ' ' + this.state.deadline.format('LT')} />
           </DatePicker>
         </div>

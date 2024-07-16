@@ -19,11 +19,11 @@ export default ({ companyId, processId, relationId, selectNodeId, data, updateSo
     return (
       <div key={item.fieldId} className={cx('relative', { mLeft24: singleObj.dataSource })}>
         <div className="mTop15 ellipsis Font13">
-          <span className="Gray_9e mRight5">[{CONTROLS_NAME[singleObj.type]}]</span>
+          <span className="Gray_75 mRight5">[{CONTROLS_NAME[singleObj.type]}]</span>
           {controlName}
           {singleObj.required && <span className="mLeft5 red">*</span>}
-          {singleObj.type === 29 && <span className="Gray_9e">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
-          {alias && <span className="Gray_9e">（{alias}）</span>}
+          {singleObj.type === 29 && <span className="Gray_75">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
+          {alias && <span className="Gray_75">（{alias}）</span>}
         </div>
         <SingleControlValue
           companyId={companyId}
@@ -45,7 +45,7 @@ export default ({ companyId, processId, relationId, selectNodeId, data, updateSo
           item={item}
           i={i}
         />
-        {singleObj.desc && <div className="mTop5 Gray_9e">{singleObj.desc}</div>}
+        {singleObj.desc && <div className="mTop5 Gray_75">{singleObj.desc}</div>}
       </div>
     );
   });

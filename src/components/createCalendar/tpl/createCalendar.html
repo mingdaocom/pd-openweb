@@ -21,41 +21,7 @@
 </div>
 <div class="createCalendarBox calendarTime Font14">
     <div class="createCalendarLabel">{{= _l('起止时间')}}</div>
-    <span id="txtBeginDatebox">
-        <input
-            readonly="readonly"
-            type="text"
-            id="txtBeginDate"
-            class="ThemeColor3 Font14 pointer"
-        />
-        <span
-            class="icon-arrow-down-border mLeft5 TxtTop font8 bgImageLink pointer ThemeColor3"
-        ></span>
-    </span>
-    <input
-        id="txtBeginTimeCreate"
-        tag="00:00"
-        type="text"
-        class="Font14 pointer txtTimeStyle ThemeColor3"
-    />
-    <span class="dateAlone">{{= _l('至')}}</span>
-    <span id="txtEndDatebox">
-        <input
-            readonly="readonly"
-            type="text"
-            id="txtEndDate"
-            class="Font14 pointer ThemeColor3"
-        />
-        <span
-            class="icon-arrow-down-border mLeft5 TxtTop font8 bgImageLink pointer ThemeColor3"
-        ></span>
-    </span>
-    <input
-        id="txtEndTimeCreate"
-        tag="00:00"
-        type="text"
-        class="Font14 pointer txtTimeStyle ThemeColor3"
-    />
+    <div class="w100" id="calendarDate"></div>
     <span
         class="timezone boderRadAll_3 Font14 ThemeBorderColor3 ThemeColor3 "
         >{{= _l('时区')}}</span

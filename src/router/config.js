@@ -105,7 +105,7 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/PublicWorksheetPreview'),
   },
   publicWorksheetConfig: {
-    path: '/worksheet/form/edit/:worksheetId',
+    path: '/worksheet/form/edit/:worksheetId/:type?',
     component: () => import('src/pages/publicWorksheetConfig'),
   },
   formSet: {
@@ -214,29 +214,13 @@ export const ROUTE_CONFIG = {
     title: _l('正在导出，请稍候...'),
   },
   home: {
-    path: '/dashboard',
+    path: ['/dashboard', '/app/my/(group|all)?/:projectId?/:groupType?/:groupId?', '/favorite', '/app/lib/'],
     component: () => import('src/pages/AppHomepage/AppCenter'),
-    title: _l('工作台'),
-  },
-  my: {
-    path: '/app/my/(group|all)?/:projectId?/:groupType?/:groupId?',
-    component: () => import('src/pages/AppHomepage/AppCenter'),
-    title: _l('我的应用'),
-  },
-  recordFav: {
-    path: '/favorite',
-    component: () => import('src/pages/AppHomepage/AppCenter'),
-    title: _l('收藏'),
   },
   aggregationInfo: {
-    path: '/aggregationTable/:id?/:name?',
+    path: '/aggregation/:id?',
     component: () => import('src/pages/AppSettings/components/Aggregation/components/PreviewData'),
     title: _l('聚合表'),
-  },
-  lib: {
-    path: '/app/lib/',
-    component: () => import('src/pages/AppHomepage/AppCenter'),
-    title: _l('应用库'),
   },
   app: {
     path: '/app/:appId',
@@ -314,7 +298,7 @@ const withoutHeaderPathList = [
   'integrationConnect',
   'role',
   'portaluser',
-  'aggregationTable',
+  'aggregation',
 ];
 const withoutChatPathList = [
   'demo',
@@ -344,8 +328,9 @@ const withoutChatPathList = [
   'integrationApi',
   'portaluser',
   'wechatPay',
+  'orderpay',
   'embed/view',
-  'aggregationTable',
+  'aggregation',
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;
 export const withoutChatUrl = `/(.*)(${withoutChatPathList.join('|')})`;

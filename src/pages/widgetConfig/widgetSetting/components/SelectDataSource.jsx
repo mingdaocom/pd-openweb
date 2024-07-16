@@ -42,16 +42,18 @@ export default function SelectDataSource({ onClose, onOk, editType, appId, works
     if (dataSourceMode === 0) {
       setLoading(true);
       const currentTime = moment();
-      appManagementAjax.addSheet({
-        name: _l('数据源 %0', `${currentTime.format('M-D HH:mm')}`),
-        worksheetId: sourceId,
-        worksheetType: 1,
-        createLayer: true,
-      }).then(data => {
-        const { worksheetId, views, appId } = data;
-        const { viewId } = _.head(views);
-        onOk({ viewId, sheetId: worksheetId, appId });
-      });
+      appManagementAjax
+        .addSheet({
+          name: _l('数据源 %0', `${currentTime.format('M-D HH:mm')}`),
+          worksheetId: sourceId,
+          worksheetType: 1,
+          createLayer: true,
+        })
+        .then(data => {
+          const { worksheetId, views = [], appId } = data;
+          const { viewId } = _.head(views) || {};
+          onOk({ viewId, sheetId: worksheetId, appId });
+        });
     } else {
       onOk(ids);
     }

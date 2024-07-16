@@ -14,7 +14,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import { getIconNameByExt, getClassNameByExt, browserIsMobile, addBehaviorLog } from 'src/util';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
-
+import RegExpValidator from 'src/util/expression';
 const Wrap = styled.div`
   .flexShrink0 {
     flex-shrink: 0;
@@ -466,7 +466,9 @@ export default function GroupCon(props) {
               const { previewUrl, ext } = coverData;
               const isImg =
                 ext &&
-                getIconNameByExt(/^\w+$/.test(ext) ? ext.toLowerCase() : File.GetExt(ext).toLowerCase()) === 'img';
+                getIconNameByExt(
+                  /^\w+$/.test(ext) ? ext.toLowerCase() : RegExpValidator.getExtOfFileName(ext).toLowerCase(),
+                ) === 'img';
               return !!coverCid ? (
                 <div className="flexRow alignItemsCenter flex">
                   {!isImg ? (
@@ -587,57 +589,59 @@ export default function GroupCon(props) {
                   );
                 })}
 
-                {!(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage') || isM) && (
-                  <div
-                    className="add"
-                    onClick={() => {
-                      let value = o.key;
-                      const info = controls.find(o => o.controlId === view.viewControl) || {};
-                      if (info.type === 26) {
-                        const { name = '' } = o;
-                        if (name) {
-                          const user = JSON.parse(name);
-                          value = JSON.stringify(Array.isArray(user) ? user : [user]);
-                        } else {
-                          value = '[]';
+                {worksheetInfo.allowAdd &&
+                  isOpenPermit(permitList.createButtonSwitch, worksheetInfo.switches, viewId) && //功能开关，是否允许创建
+                  !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage') || isM) && (
+                    <div
+                      className="add"
+                      onClick={() => {
+                        let value = o.key;
+                        const info = controls.find(o => o.controlId === view.viewControl) || {};
+                        if (info.type === 26) {
+                          const { name = '' } = o;
+                          if (name) {
+                            const user = JSON.parse(name);
+                            value = JSON.stringify(Array.isArray(user) ? user : [user]);
+                          } else {
+                            value = '[]';
+                          }
                         }
-                      }
-                      if (info.type === 27) {
-                        const { name = '', key } = o;
-                        if (key) {
-                          value = JSON.stringify([{ departmentId: key, departmentName: name }]);
-                        } else {
-                          value = '[]';
+                        if (info.type === 27) {
+                          const { name = '', key } = o;
+                          if (key) {
+                            value = JSON.stringify([{ departmentId: key, departmentName: name }]);
+                          } else {
+                            value = '[]';
+                          }
                         }
-                      }
-                      if (info.type === 48) {
-                        const { name = '', key } = o;
-                        if (key) {
-                          value = JSON.stringify([{ organizeId: key, organizeName: name }]);
-                        } else {
-                          value = '[]';
+                        if (info.type === 48) {
+                          const { name = '', key } = o;
+                          if (key) {
+                            value = JSON.stringify([{ organizeId: key, organizeName: name }]);
+                          } else {
+                            value = '[]';
+                          }
                         }
-                      }
-                      if (info.type === 29) {
-                        value = JSON.stringify([{ sid: o.key, name: o.name }]);
-                      }
-                      if (_.includes([9, 10, 11], info.type)) {
-                        value = JSON.stringify([value]);
-                      }
-                      if (o.key === '-1') {
-                        value = '';
-                      }
-                      addRecordInfo({
-                        [_.get(view, 'viewControl')]: value,
-                      });
-                    }}
-                  >
-                    {o.rows.length > 0 && (
-                      <div className="Gray_9e totalNum w100 TxtCenter TxtMiddle">{o.rows.length}</div>
-                    )}
-                    <Icon className="addCoin Font18 Hand" icon="add_circle" />
-                  </div>
-                )}
+                        if (info.type === 29) {
+                          value = JSON.stringify([{ sid: o.key, name: o.name }]);
+                        }
+                        if (_.includes([9, 10, 11], info.type)) {
+                          value = JSON.stringify([value]);
+                        }
+                        if (o.key === '-1') {
+                          value = '';
+                        }
+                        addRecordInfo({
+                          [_.get(view, 'viewControl')]: value,
+                        });
+                      }}
+                    >
+                      {o.rows.length > 0 && (
+                        <div className="Gray_9e totalNum w100 TxtCenter TxtMiddle">{o.rows.length}</div>
+                      )}
+                      <Icon className="addCoin Font18 Hand" icon="add_circle" />
+                    </div>
+                  )}
               </div>
             );
           })}

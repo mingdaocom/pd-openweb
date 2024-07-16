@@ -7,9 +7,109 @@ import { generateRandomPassword, getClassNameByExt, getToken, formatFileSize } f
 import { checkFileAvailable } from 'src/components/UploadFiles/utils.js';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import moment from 'moment';
+import MapLoader from 'src/ming-ui/components/amap/MapLoader';
+import MapHandler from 'src/ming-ui/components/amap/MapHandler';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
 import _ from 'lodash';
+import RegExpValidator from 'src/util/expression';
+function compressImage(file, quality) {
+  return new Promise((resolve, reject) => {
+    var reader = new FileReader();
+    reader.onload = function (event) {
+      var image = new Image();
+      image.src = event.target.result;
+      image.onload = function () {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        ctx.drawImage(image, 0, 0);
+        try {
+          var compressedDataUrl = canvas.toDataURL(file.type, quality);
+          var byteString = atob(compressedDataUrl.split(',')[1]);
+          var mimeType = compressedDataUrl.split(',')[0].split(':')[1].split(';')[0];
+          var ab = new ArrayBuffer(byteString.length);
+          var ia = new Uint8Array(ab);
+          for (var i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+          }
+          var blob = new Blob([ab], { type: mimeType });
+          var compressedFile = new File([blob], file.name, { type: file.type, lastModified: Date.now() });
+          if (compressedFile.size < file.size) {
+            resolve(compressedFile);
+          } else {
+            resolve(file);
+          }
+        } catch (error) {
+          console.error(error);
+          resolve(file);
+        }
+      };
+    };
+    reader.readAsDataURL(file);
+  });
+}
 
+function addWaterMarker(file, watermark, callback) {
+  const { formattedAddress, position } = currentLocation || {};
+  const textLayouts = [];
+  if (md.global.Account.fullname && watermark.includes('user')) {
+    textLayouts.push(md.global.Account.fullname);
+  }
+  if (watermark.includes('time')) {
+    textLayouts.push(moment().format('YYYY-MM-DD HH:mm:ss'));
+  }
+  if (formattedAddress && watermark.includes('address')) {
+    textLayouts.push(formattedAddress);
+  }
+  if (position && watermark.includes('xy')) {
+    textLayouts.push(`${_l('经度')}：${position.lng}  ${_l('纬度')}：${position.lat}`);
+  }
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement('canvas');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(image, 0, 0);
+
+        const fontSize = Math.min(canvas.width, canvas.height) * 0.03;
+        const lineSpacing = 6;
+
+        // 绘制背景
+        const bgColoryOffset = fontSize * textLayouts.length + lineSpacing * textLayouts.length;
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillRect(0, canvas.height - bgColoryOffset - fontSize, canvas.width, bgColoryOffset + fontSize);
+
+        // 绘制文字
+        ctx.font = `${fontSize}px 'Fira Sans'`;
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        ctx.backgroundColor = '#ccc';
+
+        textLayouts.forEach((text, index) => {
+          const i = textLayouts.length - index;
+          const xOffset = 20;
+          const yOffset = canvas.height - fontSize * i - lineSpacing * i;
+          ctx.fillText(text, xOffset, yOffset + 10);
+        });
+
+        canvas.toBlob(blob => {
+          var compressedFile = new File([blob], file.name, { type: file.type, lastModified: Date.now() });
+          resolve(compressedFile);
+        });
+      };
+      image.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+let currentLocation = null;
 export class UploadFileWrapper extends Component {
   constructor(props) {
     super(props);
@@ -26,17 +126,41 @@ export class UploadFileWrapper extends Component {
       });
     }
   }
+  componentDidMount() {
+    const { advancedSetting = {} } = this.props;
+    const watermark = JSON.parse(advancedSetting.watermark || null) || [];
+    if (!currentLocation && watermark.length) {
+      currentLocation = {};
+      new MapLoader().loadJs().then(() => {
+        this._maphHandler = new MapHandler();
+        this._maphHandler.getCurrentPos((status, result) => {
+          if (status === 'complete') {
+            const { formattedAddress, position } = result;
+            currentLocation = {
+              formattedAddress,
+              position,
+            };
+          }
+        });
+      });
+    }
+  }
+  componentWillUnmount() {
+    if (this._maphHandler) {
+      this._maphHandler.destroyMap();
+      this._maphHandler = null;
+    }
+  }
   getMethod() {
     const self = this;
-    const { advancedSetting = {}, projectId, appId, worksheetId } = self.props;
+    const { advancedSetting = {}, projectId, appId, worksheetId, customUploadType, checkValueByFilterRegex } = self.props;
     const method = {
-      onAdd(uploader, files) {
+      onAdd(uploader, files, nextStart) {
         if (_.isEmpty(files)) {
           self.props.onChange([]);
           return;
         }
         self.uploading = true;
-        const watermark = JSON.parse(advancedSetting.watermark || null) || [];
         const start = () => {
           if (advancedSetting) {
             let isAvailable;
@@ -47,13 +171,43 @@ export class UploadFileWrapper extends Component {
               return;
             }
           }
+
+          // 验证名称
+          if (checkValueByFilterRegex) {
+            const removeFiles = [];
+            const result = files.map(file => {
+              const n = checkValueByFilterRegex(file.name);
+              n && removeFiles.push(file);
+              return n;
+            });
+            const errors = result.filter(n => n);
+            if (errors.length) {
+              errors.forEach(n => {
+                alert(n, 2);
+              });
+              if (errors.length === files.length) {
+                self.onRemoveAll(uploader);
+                return;
+              } else {
+                files.forEach(item => {
+                  if (_.find(removeFiles, { id: item.id })) {
+                    setTimeout(() => {
+                      uploader.removeFile({ id: item.id });
+                    }, 0);
+                  }
+                });
+                files = files.filter(n => !_.find(removeFiles, { id: n.id }));
+              }
+            }
+          }
+
+          const addFiles = [];
           files
             .filter(item => item.name || item.type)
             .forEach(item => {
-              const { files: fileList } = self.state;
-              const fileExt = `.${File.GetExt(item.name)}`;
-              const fileName = File.GetName(item.name);
-              const isPic = File.isPicture(fileExt);
+              const fileExt = `.${RegExpValidator.getExtOfFileName(item.name)}`;
+              const fileName = RegExpValidator.getNameOfFileName(item.name);
+              const isPic = RegExpValidator.fileIsPicture(fileExt);
               const id = item.id;
               const base = {
                 isPic,
@@ -61,14 +215,47 @@ export class UploadFileWrapper extends Component {
                 fileName,
                 id,
               };
-              const newFiles = fileList.concat({ id: item.id, progress: 0, base });
-              self.setState({
-                files: newFiles,
-              });
-              self.props.onChange(newFiles);
+              addFiles.push({ id: item.id, progress: 0, base });
             });
+          const newFiles = self.state.files.concat(addFiles);
+          self.setState({
+            files: newFiles,
+          });
+          self.props.onChange(newFiles);
+          nextStart && nextStart();
         };
-        start();
+        const watermark = _.get(advancedSetting, 'watermark');
+        const isWatermark = customUploadType === 'camara' && watermark;
+        const isWebcompress = _.get(advancedSetting, 'webcompress') !== '0';
+        if (isWatermark || isWebcompress) {
+          Promise.all(
+            files
+              .filter(file => {
+                const ext = RegExpValidator.getExtOfFileName(file.name);
+                return RegExpValidator.fileIsPicture(`.${ext}`);
+              })
+              .map(file => {
+                return new Promise(async (resolve, reject) => {
+                  const nativeFile = file.getNative();
+                  let newFile = nativeFile;
+                  if (isWatermark) {
+                    newFile = await addWaterMarker(newFile, watermark);
+                  }
+                  if (isWebcompress) {
+                    newFile = await compressImage(newFile, 0.3);
+                  }
+                  file.size = newFile.size;
+                  file.setSource({ size: newFile.size });
+                  file.getSource().setSource(newFile);
+                  resolve();
+                });
+              }),
+          ).then(() => {
+            start();
+          });
+        } else {
+          start();
+        }
       },
       onBeforeUpload(uploader, file) {
         self.currentFile = uploader;
@@ -103,7 +290,7 @@ export class UploadFileWrapper extends Component {
         self.setState({
           files: newFiles,
         });
-        self.props.onChange(newFiles, true);
+        self.props.onChange(newFiles, !newFiles.filter(n => 'progress' in n).length);
       },
       onUploadComplete() {
         self.uploading = false;
@@ -151,27 +338,26 @@ export class UploadFileWrapper extends Component {
   }
   render() {
     const { advancedSetting = {}, appId, worksheetId, projectId } = this.props;
-    const { children, className, style } = this.props;
+    const { children, qiniuUploadClassName, className, style } = this.props;
     return (
       <div className="Relative" style={style} ref={el => (this.uploadContainer = el)}>
         <QiniuUpload
+          className={qiniuUploadClassName}
           options={{
             url: md.global.FileStoreConfig.uploadHost,
             file_data_name: 'file',
             multi_selection: true,
             max_file_size: `${1024 * 4}m`,
-            // resize:
-            //   _.get(advancedSetting, 'webcompress') !== '0'
-            //     ? {
-            //         quality: 60,
-            //         preserve_headers: true,
-            //       }
-            //     : undefined,
             autoUpload: false,
+            source: 'h5',
             getTokenParam: {
               appId,
               worksheetId,
               projectId,
+            },
+            error_callback: () => {
+              alert(_l('含有不支持格式的文件'), 3);
+              return;
             },
           }}
           {...this.getMethod()}
@@ -307,7 +493,7 @@ export default class AttachmentList extends Component {
         {attachments.map((item, index) =>
           'progress' in item
             ? this.renderProgress(item)
-            : File.isPicture(item.fileExt || item.ext)
+            : RegExpValidator.fileIsPicture(item.fileExt || item.ext)
             ? this.renderImage(item, index)
             : this.renderFile(item, index),
         )}

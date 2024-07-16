@@ -1,5 +1,5 @@
 import React, { useState, Fragment, useEffect } from 'react';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import { Checkbox, Radio, ColorPicker } from 'ming-ui';
 import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
@@ -360,7 +360,7 @@ export default function SelectOptions(props) {
         checkedValue={checkedValue}
         helperClass="selectOptionSortableList"
       />
-      <HandleOption className='handleOption'>
+      <HandleOption className="handleOption">
         <div className="addOptions" onClick={() => addOption()}>
           <i className="icon-add Font18"></i>
           <span>{_l('添加选项')}</span>

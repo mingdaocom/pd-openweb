@@ -1,6 +1,6 @@
 import React from 'react';
 import './CreateCustomBtn.less';
-import withClickAway from 'ming-ui/decorators/withClickAway';
+import { Drawer } from 'antd';
 import cx from 'classnames';
 import { Icon, Checkbox, Tooltip, RadioGroup } from 'ming-ui';
 import AppointDialog from './components/AppointDialog';
@@ -122,9 +122,6 @@ class CreateCustomBtnCon extends React.Component {
         isBatch,
       },
       () => {
-        if (!props.btnId) {
-          $('.nameInput').focus();
-        }
         this.getRelationControl(relationControl);
         this.formatFilterData();
         this.getProcessByTriggerId();
@@ -650,7 +647,7 @@ class CreateCustomBtnCon extends React.Component {
                       });
                     }}
                   >
-                    {!item ? _l('无') : <Icon icon={item} />}
+                    {<Icon icon={!item ? 'block' : item} />}
                   </li>
                 );
               })}
@@ -717,7 +714,8 @@ class CreateCustomBtnCon extends React.Component {
             });
             const sheetInfo = !relationControl ? currentSheetInfo : relationWorksheetInfo;
             let writeControlsFormat = writeControls.map(o => {
-              let control = _.find(sheetInfo.template.controls, item => item.controlId === o.controlId) || {};
+              let control =
+                _.find(_.get(sheetInfo, 'template.controls') || [], item => item.controlId === o.controlId) || {};
               return {
                 ...o,
                 defsource: _.get(
@@ -955,7 +953,7 @@ class CreateCustomBtnCon extends React.Component {
     );
   }
 }
-@withClickAway
+
 class CreateCustomBtn extends React.Component {
   constructor(props) {
     super(props);
@@ -972,21 +970,35 @@ class CreateCustomBtn extends React.Component {
     );
   };
   render() {
+    const { zIndex, onClose, isClickAway } = this.props;
     return (
-      <div className="createCustomBtnCon">
-        {!this.props.isClickAway && <div className="bgCustomBtnCon"></div>}
-        <div className="flexColumn h100">
-          {this.renderTitle()}
-          <CreateCustomBtnCon
-            {...this.props}
-            onChangeEditStatus={isEdit => {
-              this.setState({
-                isEdit,
-              });
-            }}
-          />
+      <Drawer
+        width={640}
+        className={cx('createCustomBtnConDraw')}
+        onClose={onClose}
+        zIndex={zIndex}
+        mask={true}
+        placement="right"
+        getContainer={false}
+        visible={true}
+        maskClosable={!!isClickAway}
+        closable={false}
+        bodyStyle={{ padding: 0 }}
+      >
+        <div className="createCustomBtnCon">
+          <div className="flexColumn h100">
+            {this.renderTitle()}
+            <CreateCustomBtnCon
+              {...this.props}
+              onChangeEditStatus={isEdit => {
+                this.setState({
+                  isEdit,
+                });
+              }}
+            />
+          </div>
         </div>
-      </div>
+      </Drawer>
     );
   }
 }

@@ -5,6 +5,7 @@ import cx from 'classnames';
 import { FROM } from '../../tools/config';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 const HINT_TEXT = {
   19: _l('省'),
@@ -31,6 +32,12 @@ export default class Widgets extends Component {
     };
   }
 
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
+
   onChange = (data, panelIndex) => {
     const { anylevel } = _.get(this.props, 'advancedSetting') || {};
     const last = _.last(data);
@@ -50,6 +57,12 @@ export default class Widgets extends Component {
   onFetchData = _.debounce(keywords => {
     this.setState({ keywords });
   }, 500);
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   render() {
     const { disabled, type, from, value, onChange, advancedSetting, recordId } = this.props;

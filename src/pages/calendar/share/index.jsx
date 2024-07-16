@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import preall from 'src/common/preall';
 import ajaxRequest from 'src/api/calendar';
 import moment from 'moment';
@@ -64,7 +64,7 @@ class CalendarShare extends Component {
           var data = source.data;
 
           // 过滤发起人
-          data.calendar.members.forEach(function(member, key) {
+          data.calendar.members.forEach(function (member, key) {
             if (member.accountID === data.calendar.createUser) {
               data.calendar.members.splice(key, 1);
               return;
@@ -75,9 +75,7 @@ class CalendarShare extends Component {
           this.settings.data = data.calendar;
           // 过期
           if (data.TimeOut) {
-            $('#calendarMain header')
-              .addClass('overdue')
-              .append('（已过期）');
+            $('#calendarMain header').addClass('overdue').append('（已过期）');
             $('#calendarMain footer').remove();
           }
           $('#title').html(htmlEncodeReg(data.calendar.calendarName));
@@ -242,9 +240,7 @@ class CalendarShare extends Component {
           // 微信
           if (type === 1 && !data.TimeOut) {
             if (isContain) {
-              $('#calendarMain header')
-                .addClass('joinStyle')
-                .append('（已加入）');
+              $('#calendarMain header').addClass('joinStyle').append('（已加入）');
               $('#joinBox').addClass('hide');
             } else {
               $('#leaveBox').addClass('hide');
@@ -287,11 +283,11 @@ class CalendarShare extends Component {
           });
         }
 
-        wx.ready(function() {
+        wx.ready(function () {
           _this.getShareDetail(1);
         });
 
-        wx.error(function(res) {
+        wx.error(function (res) {
           alert(res.errMsg);
         });
       });
@@ -304,7 +300,7 @@ class CalendarShare extends Component {
     // 退出日程
     $('#leaveBtn')
       .off()
-      .on('click', function() {
+      .on('click', function () {
         if (confirm('您确定要退出当前日程吗？')) {
           ajaxRequest
             .removeCalendarWeChatMember({
@@ -338,7 +334,7 @@ class CalendarShare extends Component {
     // 加入日程
     $('#joinBtn')
       .off()
-      .on('click', function() {
+      .on('click', function () {
         ajaxRequest
           .insertCalendarWeChatMember({
             calendarID: settings.calendarID,
@@ -369,14 +365,14 @@ class CalendarShare extends Component {
     // 添加到我的本地日程
     $('#addCalendar')
       .off()
-      .on('click', function(event) {
+      .on('click', function (event) {
         event.preventDefault();
         if (navigator.userAgent.search(/weibo|mqqbrowser|mingdao/i) >= 0) {
           var $addPrompt = $(
             '<div class="promptDiv"><img src="/staticfiles/images/calendar/prompt.png" alt="提示浏览器打开" /></div>',
           );
           $('body').append($addPrompt);
-          $addPrompt.on('click', function() {
+          $addPrompt.on('click', function () {
             $(this).remove();
           });
           return false;
@@ -390,13 +386,13 @@ class CalendarShare extends Component {
     // 微信加入日程按钮提示浏览器打开
     $('#wAddCalendar')
       .off()
-      .on('click', function(event) {
+      .on('click', function (event) {
         event.preventDefault();
         var $addPrompt = $(
           '<div class="promptDiv"><img src="/staticfiles/images/calendar/prompt.png" alt="提示浏览器打开" /></div>',
         );
         $('body').append($addPrompt);
-        $addPrompt.on('click', function() {
+        $addPrompt.on('click', function () {
           $(this).remove();
         });
       });
@@ -413,7 +409,7 @@ class CalendarShare extends Component {
       title: settings.data.calendarName,
       link: settings.link,
       imgUrl: settings.imgUrl,
-      success: function() {
+      success: function () {
         alert('分享成功！');
       },
     });
@@ -428,7 +424,7 @@ class CalendarShare extends Component {
       desc: desc,
       link: settings.link,
       imgUrl: settings.imgUrl,
-      success: function() {
+      success: function () {
         alert('分享成功！');
       },
     });
@@ -610,5 +606,6 @@ class CalendarShare extends Component {
 }
 
 const WrappedComp = preall(CalendarShare, { allowNotLogin: true });
+const root = createRoot(document.getElementById('app'));
 
-render(<WrappedComp />, document.getElementById('app'));
+root.render(<WrappedComp />);

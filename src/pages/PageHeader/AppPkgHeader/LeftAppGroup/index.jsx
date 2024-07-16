@@ -24,9 +24,9 @@ import SinglelLeftGroup from './SinglelLeftGroup';
 import { formatLeftSectionDetail } from 'worksheet/redux/actions/sheetList';
 import { getIds } from '../../util';
 import { findSheet } from 'worksheet/util';
-import { getTranslateInfo } from 'src/util';
+import { getTranslateInfo, getAppFeaturesVisible } from 'src/util';
 import _ from 'lodash';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import styled from 'styled-components';
 import appManagementApi from 'src/api/appManagement';
 import { ICON_ROLE_TYPE } from '../config';
@@ -284,7 +284,7 @@ const AppSectionItem = props => {
                       className="mRight10"
                     />
                   )}
-                  {getTranslateInfo(ids.appId, item.workSheetId).name || item.workSheetName || _l('未命名分组')}
+                  {getTranslateInfo(appPkg.id, null, item.workSheetId).name || item.workSheetName || _l('未命名分组')}
                 </Fragment>
               )}
             </div>
@@ -312,7 +312,7 @@ const AppSectionItem = props => {
           <SinglelLeftGroup
             ref={singleRef}
             projectId={projectId}
-            appId={ids.appId}
+            appId={appPkg.id}
             groupData={item.items}
             groupId={item.workSheetId}
             worksheetId={ids.worksheetId}
@@ -363,6 +363,7 @@ const LeftAppGroup = props => {
   const [loading, setLoading] = useState(true);
   const [unfoldAppSectionId, setUnfoldAppSectionId] = useState(null);
   const ids = getIds(props);
+  const { tr } = getAppFeaturesVisible(); // 当导航方式为分组列表或树形列表时URL的隐藏参数为tr=no后，隐藏选择角色
 
   useEffect(() => {
     window.updateAppGroups = getData;
@@ -461,7 +462,7 @@ const LeftAppGroup = props => {
 
   const getBorderColor = () => {
     if (!appPkg.iconColor) return 'rgba(255, 255, 255, 0.3)';
-    return tinycolor(appPkg.iconColor).setAlpha(0.3).toRgbString();
+    return new TinyColor(appPkg.iconColor).setAlpha(0.3).toRgbString();
   };
 
   const skeletonVisible = appSectionDetail.length === 1 &&
@@ -503,7 +504,7 @@ const LeftAppGroup = props => {
           </Fragment>
         )}
       </div>
-      {(appPkg.debugRole || {}).canDebug && (
+      {(appPkg.debugRole || {}).canDebug && tr && (
         <div className="mBottom2 pLeft12 pRight12 w100">
           <RoleSelectWrap
             className={cx('pLeft16 pRight12 valignWrapper roleSelectCon Hand', { active: roleDebugVisible })}

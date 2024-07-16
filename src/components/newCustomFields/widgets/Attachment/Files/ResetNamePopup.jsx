@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useRef } from 'react';
+import React, { Fragment, useEffect, useState, useRef } from 'react';
 import { Button, Input } from 'antd';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
@@ -21,6 +21,12 @@ export default (props) => {
       ref && ref.current && ref.current.resizableTextArea.textArea.select();
     }, 0);
   }
+
+  useEffect(() => {
+    if (isEdit) {
+      setFileName(originalFileName);
+    }
+  }, [isEdit]);
 
   return (
     <Trigger

@@ -4,7 +4,8 @@ import { connect } from 'react-redux';
 import * as actions from 'mobile/RecordList/redux/actions';
 import { bindActionCreators } from 'redux';
 import { Icon } from 'ming-ui';
-import FilterInput, { validate, conditionAdapter, turnControl, formatQuickFilter, NumberTypes } from './Inputs';
+import FilterInput, { NumberTypes } from './Inputs';
+import { validate, conditionAdapter, turnControl, formatQuickFilter } from './utils';
 import { formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import _ from 'lodash';
@@ -48,7 +49,15 @@ const Con = styled.div`
 `;
 
 export function QuickFilter(props) {
-  const { view, filters, controls, updateQuickFilter, onHideSidebar, mobileNavGroupFilters = [], quickFilter = [] } = props;
+  const {
+    view,
+    filters,
+    controls,
+    updateQuickFilter,
+    onHideSidebar,
+    mobileNavGroupFilters = [],
+    quickFilter = [],
+  } = props;
   const width = document.documentElement.clientWidth - 60;
   const showQueryBtn = view.advancedSetting && view.advancedSetting.enablebtn && view.advancedSetting.enablebtn === '1';
   const store = useRef({});

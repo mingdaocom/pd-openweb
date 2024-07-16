@@ -16,6 +16,7 @@ import { getAdvanceSetting } from 'src/util';
 import cx from 'classnames';
 import FixedPage from 'mobile/App/FixedPage.jsx';
 import alreadyDelete from './State/assets/alreadyDelete.png';
+import { mdAppResponse } from 'src/util';
 import _ from 'lodash';
 
 @withRouter
@@ -29,12 +30,20 @@ class RecordList extends Component {
     };
   }
   componentDidMount() {
-    this.props.changeMobileGroupFilters([]);
-    this.getApp(this.props);
-    if (_.get(this.props, ['filters', 'visible'])) {
-      this.props.updateFilters({
-        visible: false,
+    if (window.isMingDaoApp) {
+      mdAppResponse({ sessionId: 'Filter test session', type: 'getFilters' }).then(data => {
+        const { value = [] } = data;
+        this.props.updateFilterControls(value);
+        this.getApp(this.props);
       });
+    } else {
+      this.props.changeMobileGroupFilters([]);
+      this.getApp(this.props);
+      if (_.get(this.props, ['filters', 'visible'])) {
+        this.props.updateFilters({
+          visible: false,
+        });
+      }
     }
   }
   getApp(props) {
@@ -127,7 +136,8 @@ class RecordList extends Component {
           })}
         >
           <View view={view} key={worksheetInfo.worksheetId} routerParams={params} />
-          {!_.get(window, 'shareState.shareId') &&
+          {!isMingDaoApp &&
+            !_.get(window, 'shareState.shareId') &&
             (canDelete || showCusTomBtn) &&
             view.viewType === 0 &&
             !batchOptVisible &&
@@ -207,6 +217,7 @@ export default connect(
           'updateFilters',
           'changeMobileGroupFilters',
           'changeBatchOptVisible',
+          'updateFilterControls',
         ]),
         addNewRecord,
       },

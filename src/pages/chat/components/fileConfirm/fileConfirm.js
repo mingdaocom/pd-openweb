@@ -5,7 +5,7 @@ import doT from 'dot';
 import moment from 'moment';
 import { Dialog, Button } from 'ming-ui';
 import React from 'react';
-
+import RegExpValidator from 'src/util/expression';
 var FileConfirm = function (file, callback) {
   var FC = this;
   FC.file = file;
@@ -64,37 +64,41 @@ FileConfirm.prototype = {
         </div>
       ),
     });
-    FC.dialogEle = {};
-    FC.$dialog = $('.' + FC.dialogBoxID);
-    FC.dialogEle.$fileIcon = FC.$dialog.find('.fileIcon');
-    FC.dialogEle.$fileSize = FC.$dialog.find('.fileSize');
-    FC.dialogEle.$thumbnailCon = FC.$dialog.find('.thumbnailCon');
-    FC.dialogEle.$thumbnail = FC.$dialog.find('.thumbnail');
-    FC.dialogEle.$fileName = FC.$dialog.find('#fileName');
-    FC.dialogEle.$fileName.val(name);
-    FC.dialogEle.$fileName.focus();
-    $(document).on('keyup.fileConfirm.upload', function (e) {
-      e.stopPropagation();
-      if (e.keyCode === 13) {
-        if (FC.yesFn()) {
-          $(document).off('keyup.fileConfirm.upload');
-          $(`.${FC.dialogBoxID}`).parent().remove();
-          $('.chatMessage-textarea textarea').focus();
-        } else {
-          return false;
+
+    setTimeout(() => {
+      FC.dialogEle = {};
+      FC.$dialog = $('.' + FC.dialogBoxID);
+      FC.dialogEle.$fileIcon = FC.$dialog.find('.fileIcon');
+      FC.dialogEle.$fileSize = FC.$dialog.find('.fileSize');
+      FC.dialogEle.$thumbnailCon = FC.$dialog.find('.thumbnailCon');
+      FC.dialogEle.$thumbnail = FC.$dialog.find('.thumbnail');
+      FC.dialogEle.$fileName = FC.$dialog.find('#fileName');
+      FC.dialogEle.$fileName.val(name);
+      FC.dialogEle.$fileName.focus();
+      $(document).on('keyup.fileConfirm.upload', function (e) {
+        e.stopPropagation();
+        if (e.keyCode === 13) {
+          if (FC.yesFn()) {
+            $(document).off('keyup.fileConfirm.upload');
+            $(`.${FC.dialogBoxID}`).parent().remove();
+            $('.chatMessage-textarea textarea').focus();
+          } else {
+            return false;
+          }
         }
-      }
-    });
-    FC.previewFile();
-    FC.first = true;
+      });
+      FC.previewFile();
+      FC.first = true;
+    }, 200);
   },
   yesFn: function () {
     var FC = this;
-    if (FC.dialogEle.$fileName.val().trim() === '') {
+    var fileName = FC.dialogEle.$fileName.val() || '';
+    if (fileName.trim() === '') {
       alert(_l('名称不能为空'), 3);
       return false;
     }
-    if (!FC.validate(FC.dialogEle.$fileName.val())) {
+    if (!FC.validate(fileName)) {
       return false;
     }
     if (FC.callback && typeof FC.callback.yesFn === 'function' && FC.first) {
@@ -106,7 +110,7 @@ FileConfirm.prototype = {
   },
   previewFile: function () {
     var FC = this;
-    if (File.isPicture('.' + FC.ext) && FileReader) {
+    if (RegExpValidator.fileIsPicture('.' + FC.ext) && FileReader) {
       FC.loadPicture();
     } else {
       FC.loadDocIcon();

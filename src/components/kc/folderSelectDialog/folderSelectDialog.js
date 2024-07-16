@@ -286,178 +286,180 @@ $.extend(FolderSelect.prototype, {
       },
     });
 
-    $folderContent = $('body').find('.folderSelectDialog .folderContent');
-    if (settings.appointRoot && settings.appointRoot.id) {
-      settings.rootType = PICK_TYPE.ROOT;
-      folderSelect.getNodeList(
-        PICK_TYPE.ROOT,
-        {
-          id: settings.appointRoot.id,
-          name: settings.appointRoot.name,
-          projectId: (settings.appointRoot.project && settings.appointRoot.project.projectId) || '',
-        },
-        false,
-        false,
-      );
-    } else if (settings.isFolderNode === SELECT_TYPE.FILE && 1) {
-      var lastPos = localStorage.getItem('last_select_pos_' + md.global.Account.accountId);
-      if (lastPos) {
-        lastPos = JSON.parse(lastPos);
-        settings.rootType = lastPos.rootFolder.id ? PICK_TYPE.ROOT : PICK_TYPE.MYFILE;
-        settings.currentRoot = lastPos.currentRoot;
-        folderSelect.getRootList(function () {
-          folderSelect.getNodeList(lastPos.node.position ? null : settings.rootType, lastPos.node, false, false, {
-            forceRenderNet: true,
-            rootFolder: lastPos.rootFolder,
-          });
-        });
-      } else {
-        folderSelect.getRootList();
-      }
-    } else if (settings.isFolderNode === SELECT_TYPE.FOLDER) {
-      var lastPos = localStorage.getItem('last_select_folder_pos_' + md.global.Account.accountId);
-      var defaultData = lastPos ? JSON.parse(lastPos) : settings.appointFolder;
-      if (defaultData && !_.includes(settings.selectedItems, defaultData.node.id)) {
-        settings.rootType = defaultData.rootFolder.id ? PICK_TYPE.ROOT : PICK_TYPE.MYFILE;
-        folderSelect.getRootList(function () {
-          folderSelect.getNodeList(
-            defaultData.node.position ? null : settings.rootType,
-            defaultData.node,
-            false,
-            false,
-            {
+    setTimeout(() => {
+      $folderContent = $('body').find('.folderSelectDialog .folderContent');
+      if (settings.appointRoot && settings.appointRoot.id) {
+        settings.rootType = PICK_TYPE.ROOT;
+        folderSelect.getNodeList(
+          PICK_TYPE.ROOT,
+          {
+            id: settings.appointRoot.id,
+            name: settings.appointRoot.name,
+            projectId: (settings.appointRoot.project && settings.appointRoot.project.projectId) || '',
+          },
+          false,
+          false,
+        );
+      } else if (settings.isFolderNode === SELECT_TYPE.FILE && 1) {
+        var lastPos = localStorage.getItem('last_select_pos_' + md.global.Account.accountId);
+        if (lastPos) {
+          lastPos = JSON.parse(lastPos);
+          settings.rootType = lastPos.rootFolder.id ? PICK_TYPE.ROOT : PICK_TYPE.MYFILE;
+          settings.currentRoot = lastPos.currentRoot;
+          folderSelect.getRootList(function () {
+            folderSelect.getNodeList(lastPos.node.position ? null : settings.rootType, lastPos.node, false, false, {
               forceRenderNet: true,
-              rootFolder: defaultData.rootFolder,
-            },
-          );
-        });
+              rootFolder: lastPos.rootFolder,
+            });
+          });
+        } else {
+          folderSelect.getRootList();
+        }
+      } else if (settings.isFolderNode === SELECT_TYPE.FOLDER) {
+        var lastPos = localStorage.getItem('last_select_folder_pos_' + md.global.Account.accountId);
+        var defaultData = lastPos ? JSON.parse(lastPos) : settings.appointFolder;
+        if (defaultData && !_.includes(settings.selectedItems, defaultData.node.id)) {
+          settings.rootType = defaultData.rootFolder.id ? PICK_TYPE.ROOT : PICK_TYPE.MYFILE;
+          folderSelect.getRootList(function () {
+            folderSelect.getNodeList(
+              defaultData.node.position ? null : settings.rootType,
+              defaultData.node,
+              false,
+              false,
+              {
+                forceRenderNet: true,
+                rootFolder: defaultData.rootFolder,
+              },
+            );
+          });
+        } else {
+          folderSelect.getRootList();
+        }
       } else {
         folderSelect.getRootList();
       }
-    } else {
-      folderSelect.getRootList();
-    }
 
-    var $nodeVisibleType = $folderContent.find('.nodeVisibleType');
-    //搜索节点事件
-    var $folderSearch = $folderContent.find('.folderUrl .operation .folderSearch'),
-      $searchFolder = $folderSearch.find('.searchFolder'),
-      $positionUrl = $folderContent.find('.folderUrl .positionUrl');
+      var $nodeVisibleType = $folderContent.find('.nodeVisibleType');
+      //搜索节点事件
+      var $folderSearch = $folderContent.find('.folderUrl .operation .folderSearch'),
+        $searchFolder = $folderSearch.find('.searchFolder'),
+        $positionUrl = $folderContent.find('.folderUrl .positionUrl');
 
-    $folderSearch.find('.icon-search').on({
-      click: function (evt) {
-        evt.stopPropagation();
-        var searchName = $.trim($searchFolder.val());
-        if (!searchName && $searchFolder.width() > 160) {
-          $searchFolder.blur();
-          return;
-        }
-        if (searchName && searchName.length && searchName != '请输入文件名称并回车') {
-          settings.keywords = searchName;
-          settings.skip = 0;
-          folderSelect.getNodeList(null, null, true);
-          return;
-        }
-        $searchFolder.val('').css({ width: 180, 'padding-right': '16px' });
-        var prevWidth = 0;
-        $folderContent
-          .find('.folderUrl .positionUrl span.flex')
-          .prevAll()
-          .each(function (i, v) {
-            prevWidth += $(v).width();
-          });
-        $positionUrl.css({ 'margin-left': '-' + eval(prevWidth) + 'px' });
-        setTimeout(function () {
-          $searchFolder.focus();
-        }, 300);
-      },
-    });
-    $searchFolder.on({
-      blur: function () {
-        var searchName = $.trim($(this).val());
-        if (!searchName || searchName == '请输入文件名称并回车') {
-          folderSelect.removeSearch();
-        }
-      },
-      keydown: function (evt) {
-        if (evt.keyCode == 13) {
-          var searchName = $.trim($(this).val());
-          if (searchName && searchName.length) {
+      $folderSearch.find('.icon-search').on({
+        click: function (evt) {
+          evt.stopPropagation();
+          var searchName = $.trim($searchFolder.val());
+          if (!searchName && $searchFolder.width() > 160) {
+            $searchFolder.blur();
+            return;
+          }
+          if (searchName && searchName.length && searchName != '请输入文件名称并回车') {
             settings.keywords = searchName;
             settings.skip = 0;
             folderSelect.getNodeList(null, null, true);
+            return;
           }
-        }
-      },
-    });
-    $folderSearch.on('click', function (evt) {
-      evt.stopPropagation();
-    });
-    $nodeVisibleType
-      .on(
-        {
-          click: function (evt) {
-            evt.stopPropagation();
-            var $this = $(this);
-            var nodeData = $this.parents('.sharePermision').prev().data('node');
-            var visibleId = parseInt($this.attr('visible'));
+          $searchFolder.val('').css({ width: 180, 'padding-right': '16px' });
+          var prevWidth = 0;
+          $folderContent
+            .find('.folderUrl .positionUrl span.flex')
+            .prevAll()
+            .each(function (i, v) {
+              prevWidth += $(v).width();
+            });
+          $positionUrl.css({ 'margin-left': '-' + eval(prevWidth) + 'px' });
+          setTimeout(function () {
+            $searchFolder.focus();
+          }, 300);
+        },
+      });
+      $searchFolder.on({
+        blur: function () {
+          var searchName = $.trim($(this).val());
+          if (!searchName || searchName == '请输入文件名称并回车') {
+            folderSelect.removeSearch();
+          }
+        },
+        keydown: function (evt) {
+          if (evt.keyCode == 13) {
+            var searchName = $.trim($(this).val());
+            if (searchName && searchName.length) {
+              settings.keywords = searchName;
+              settings.skip = 0;
+              folderSelect.getNodeList(null, null, true);
+            }
+          }
+        },
+      });
+      $folderSearch.on('click', function (evt) {
+        evt.stopPropagation();
+      });
+      $nodeVisibleType
+        .on(
+          {
+            click: function (evt) {
+              evt.stopPropagation();
+              var $this = $(this);
+              var nodeData = $this.parents('.sharePermision').prev().data('node');
+              var visibleId = parseInt($this.attr('visible'));
 
-            if (!nodeData.canChangeSharable) {
-              alert(_l('您无权限修改该文件的分享权限'), 3);
-              return false;
-            }
-            if ($this.hasClass('ThemeColor3')) {
-              return false;
-            }
-            ajax
-              .updateNode({ id: nodeData.id, visibleType: visibleId })
-              .then(function (result) {
-                if (!result) {
-                  return Promise.reject();
-                }
-                alert(_l('修改成功'));
-                nodeData.visibleType = visibleId;
-                var $selectedNode = $folderContent
-                  .find('.nodeItem')
-                  .filter('.ThemeBGColor5[nodeType="' + NODE_TYPE.FILE + '"]');
-                $selectedNode
-                  .find('.statusIcon i')
-                  .removeClass()
-                  .addClass(
-                    'Font20 ' +
-                      (visibleId === 1
-                        ? 'icon-task-new-locked'
-                        : visibleId === 4
-                        ? 'icon-global'
-                        : 'icon-group-members'),
-                  );
-                $nodeVisibleType.html(folderSelect.renderNodeVisibleType(nodeData, $this)).fadeIn();
-              })
-              .catch(function () {
-                alert(_l('操作失败, 请稍后重试'), 3);
-              });
+              if (!nodeData.canChangeSharable) {
+                alert(_l('您无权限修改该文件的分享权限'), 3);
+                return false;
+              }
+              if ($this.hasClass('ThemeColor3')) {
+                return false;
+              }
+              ajax
+                .updateNode({ id: nodeData.id, visibleType: visibleId })
+                .then(function (result) {
+                  if (!result) {
+                    return Promise.reject();
+                  }
+                  alert(_l('修改成功'));
+                  nodeData.visibleType = visibleId;
+                  var $selectedNode = $folderContent
+                    .find('.nodeItem')
+                    .filter('.ThemeBGColor5[nodeType="' + NODE_TYPE.FILE + '"]');
+                  $selectedNode
+                    .find('.statusIcon i')
+                    .removeClass()
+                    .addClass(
+                      'Font20 ' +
+                        (visibleId === 1
+                          ? 'icon-task-new-locked'
+                          : visibleId === 4
+                          ? 'icon-global'
+                          : 'icon-group-members'),
+                    );
+                  $nodeVisibleType.html(folderSelect.renderNodeVisibleType(nodeData, $this)).fadeIn();
+                })
+                .catch(function () {
+                  alert(_l('操作失败, 请稍后重试'), 3);
+                });
+            },
           },
-        },
-        '.sharePermision .shareItem',
-      )
-      .end()
-      .on(
-        {
-          click: function (evt) {
-            var $sharePermision = $(this).parent().find('.sharePermision');
-            if ($sharePermision.is(':visible')) {
-              $sharePermision.hide();
-            } else {
-              $sharePermision.show();
-            }
-            evt.stopPropagation();
+          '.sharePermision .shareItem',
+        )
+        .end()
+        .on(
+          {
+            click: function (evt) {
+              var $sharePermision = $(this).parent().find('.sharePermision');
+              if ($sharePermision.is(':visible')) {
+                $sharePermision.hide();
+              } else {
+                $sharePermision.show();
+              }
+              evt.stopPropagation();
+            },
           },
-        },
-        '.updateTypeBtn',
-      );
-    $(window).bind('click.folderSelectDialog_sharePermision', function () {
-      $nodeVisibleType.find('.sharePermision').hide();
-    });
+          '.updateTypeBtn',
+        );
+      $(window).bind('click.folderSelectDialog_sharePermision', function () {
+        $nodeVisibleType.find('.sharePermision').hide();
+      });
+    }, 200);
   },
   //获取全部根目录
   getRootList: function (callback) {

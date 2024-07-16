@@ -7,94 +7,15 @@ import Nav from './Nav';
 import Content from './Content';
 import langConfig from 'src/common/langConfig';
 import appManagementApi from 'src/api/appManagement';
-
-const Wrap = styled.div`
-  .header {
-    height: 57px;
-    padding: 0 20px;
-    border-bottom: 1px solid #DDDDDD;
-    justify-content: space-between;
-    .backHome {
-      margin-top: 1px;
-      border-bottom: 1px solid transparent;
-      &:hover {
-        border-color: currentColor;
-      }
-    }
-    .translateWrap {
-      padding: 3px 5px;
-      border-radius: 3px;
-      &:hover {
-        background-color: #F5F5F5;
-      }
-    }
-  }
-  .content {
-    min-height: 0;
-  }
-  .searchWrap {
-    padding: 10px 0;
-    border-bottom: 1px solid #f5f5f5;
-    margin-right: 15px;
-    input {
-      padding: 3px;
-      border: none;
-      min-width: 0;
-    }
-  }
-  .ant-select-selector {
-    border-radius: 4px !important;
-    box-shadow: none !important;
-  }
-`;
+import './index.less';
 
 const PopoverWrap = styled.div`
   width: 450px;
   padding: 15px;
 `;
 
-const ContentWrap = styled.div`
-  .nodeItem {
-    margin-bottom: 15px;
-    &:last-child {
-      margin-bottom: 0;
-    }
-    .label {
-      width: 120px;
-    }
-  }
-  textarea.ant-input {
-    height: 120px;
-  }
-  .ant-input {
-    border-radius: 3px !important;
-    box-shadow: none !important;
-    &[disabled] {
-      color: #333;
-    }
-  }
-
-  .highlight {
-    border-radius: 3px;
-    animation-name: shining;
-    animation-timing-function: linear;
-    animation-duration: 0.3s;
-    animation-direction: alternate;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards;
-  }
-
-  @keyframes shining {
-    from {
-      background-color: #fff;
-    }
-    to {
-      background-color: #DBEEFD;
-    }
-  }
-`;
-
-const Drag = styled.div(({ left }) => `
+const Drag = styled.div(
+  ({ left }) => `
   position: absolute;
   z-index: 2;
   left: ${left}px;
@@ -110,6 +31,7 @@ const Drag = styled.div(({ left }) => `
 export default function Edit(props) {
   const { app, langs, langInfo, onBack } = props;
   const [selectNode, setSelectNode] = useState({ ...app, type: 'app' });
+  const [expandedKeys, setExpandedKeys] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState(['app']);
   const [loading, setLoading] = useState(true);
   const [translateData, setTranslateData] = useState([]);
@@ -121,25 +43,27 @@ export default function Edit(props) {
   const [dragMaskVisible, setDragMaskVisible] = useState(false);
 
   useEffect(() => {
-    appManagementApi.getAppLangDetail({
-      appId: app.id,
-      appLangId: langInfo.id
-    }).then(data => {
-      window[`langData-${app.id}`] = data.items;
-      setTranslateStatus(data.status);
-      setTranslateData(data.items);
-      setLoading(false);
-    });
+    appManagementApi
+      .getAppLangDetail({
+        appId: app.id,
+        appLangId: langInfo.id,
+      })
+      .then(data => {
+        window[`langData-${app.id}`] = data.items;
+        setTranslateStatus(data.status);
+        setTranslateData(data.items);
+        setLoading(false);
+      });
     const { socket } = window.IM || {};
     const checkStatus = data => {
       setTranslateStatus(data.status === 1);
-    }
+    };
     socket.on('custom', checkStatus);
     return () => {
       delete window[`langData-${app.id}`];
       delete window[`langVersion-${app.id}`];
       socket.off('custom', checkStatus);
-    }
+    };
   }, []);
 
   const handleSelectNav = (selectedKeys, info) => {
@@ -149,48 +73,54 @@ export default function Edit(props) {
     }
     setSelectNode(node);
     setSelectedKeys(selectedKeys);
-  }
+  };
 
   const handleChangeComparisonLangId = id => {
     setComparisonLangId(id);
     if (id) {
-      appManagementApi.getAppLangDetail({
-        projectId: app.projectId,
-        appId: app.id,
-        appLangId: id,
-      }).then(data => {
-        setComparisonLangData(data.items);
-      });
+      appManagementApi
+        .getAppLangDetail({
+          projectId: app.projectId,
+          appId: app.id,
+          appLangId: id,
+        })
+        .then(data => {
+          setComparisonLangData(data.items);
+        });
     } else {
       setComparisonLangData([]);
     }
-  }
+  };
 
   const handleEditAppLang = data => {
-    appManagementApi.editAppLang({
-      projectId: app.projectId,
-      appId: app.id,
-      langId: langInfo.id,
-      ...data
-    }).then(data => {
-      window[`langData-${app.id}`] = data;
-      setTranslateData(data);
-    });
-  }
+    appManagementApi
+      .editAppLang({
+        projectId: app.projectId,
+        appId: app.id,
+        langId: langInfo.id,
+        ...data,
+      })
+      .then(data => {
+        window[`langData-${app.id}`] = data;
+        setTranslateData(data);
+      });
+  };
 
   const handleRunTranslation = () => {
-    appManagementApi.machineTranslation({
-      appId: app.id,
-      comparisonLangId,
-      targetLangId: langInfo.id,
-      fillType
-    }).then(data => {
-      if (data.message) {
-        alert(data.message, 3);
-      }
-      document.querySelector('.translateWrap').click();
-    });
-  }
+    appManagementApi
+      .machineTranslation({
+        appId: app.id,
+        comparisonLangId,
+        targetLangId: langInfo.id,
+        fillType,
+      })
+      .then(data => {
+        if (data.message) {
+          alert(data.message, 3);
+        }
+        document.querySelector('.translateWrap').click();
+      });
+  };
 
   if (loading) {
     return (
@@ -207,8 +137,10 @@ export default function Edit(props) {
     return (
       <div className="header flexRow">
         <div className="flexRow alignItemsCenter Font15">
-          <span className="bold mRight5 pointer ThemeColor backHome" onClick={onBack}>{_l('多语言')}</span>/
-          <span className="bold mLeft5">{_.find(langConfig, { code: langInfo.type }).value}</span>
+          <span className="bold mRight5 pointer ThemeColor backHome" onClick={onBack}>
+            {_l('多语言')}
+          </span>
+          /<span className="bold mLeft5">{_.find(langConfig, { code: langInfo.type }).value}</span>
         </div>
         <div className="flexRow alignItemsCenter">
           {md.global.Config.EnableAI && (
@@ -216,11 +148,13 @@ export default function Edit(props) {
               disabled={true}
               trigger="click"
               placement="bottomLeft"
-              content={(
+              content={
                 <PopoverWrap>
                   <div className="flexRow alignItemsCenter">
                     <Icon className="Font26 ThemeColor mRight5" icon="translate_language" />
-                    <div className="Font17 bold">{_l('将本应用的%0翻译为 %1', original, _.find(langConfig, { code: langInfo.type }).value)}</div>
+                    <div className="Font17 bold">
+                      {_l('将本应用的%0翻译为 %1', original, _.find(langConfig, { code: langInfo.type }).value)}
+                    </div>
                   </div>
                   <div className="mTop40 mBottom40">
                     <div className="mBottom10">{_l('译文填充方式')}</div>
@@ -242,18 +176,16 @@ export default function Edit(props) {
                       }}
                     ></RadioGroup>
                   </div>
-                  <Button
-                    type="primary"
-                    size="small"
-                    radius={true}
-                    onClick={handleRunTranslation}
-                  >
+                  <Button type="primary" size="small" radius={true} onClick={handleRunTranslation}>
                     <span>{_l('执行翻译')}</span>
                   </Button>
                 </PopoverWrap>
-              )}
+              }
             >
-              <div className="flexRow alignItemsCenter mRight20 pointer translateWrap" style={{ pointerEvents: translateStatus ? 'none' : undefined }}>
+              <div
+                className="flexRow alignItemsCenter mRight20 pointer translateWrap"
+                style={{ pointerEvents: translateStatus ? 'none' : undefined }}
+              >
                 <Icon className="Font20 ThemeColor mRight5" icon="translate_language" />
                 <div className="Font13">{translateStatus ? _l('翻译中...') : _l('智能翻译')}</div>
               </div>
@@ -271,19 +203,21 @@ export default function Edit(props) {
             <Select.Option key={''} value={''}>
               {originalText}
             </Select.Option>
-            {langs.filter(data => data.type !== langInfo.type).map(data => (
-              <Select.Option key={data.id} value={data.id}>
-                {_.find(langConfig, { code: data.type }).value}
-              </Select.Option>
-            ))}
+            {langs
+              .filter(data => data.type !== langInfo.type)
+              .map(data => (
+                <Select.Option key={data.id} value={data.id}>
+                  {_.find(langConfig, { code: data.type }).value}
+                </Select.Option>
+              ))}
           </Select>
         </div>
       </div>
     );
-  }
+  };
 
   return (
-    <Wrap className="flexColumn w100 h100">
+    <div className="editLingualWrap flexColumn w100 h100">
       {renderHeader()}
       <div className="content flexRow flex Relative">
         {dragMaskVisible && (
@@ -305,18 +239,24 @@ export default function Edit(props) {
           translateData={translateData}
           selectedKeys={selectedKeys}
           onSelectedKeys={handleSelectNav}
+          expandedKeys={expandedKeys}
+          setExpandedKeys={setExpandedKeys}
         />
-        <ContentWrap className="flex">
+        <div className="flex contentWrap">
           <Content
             app={app}
             comparisonLangId={comparisonLangId}
             translateData={translateData}
             comparisonLangData={comparisonLangData}
             selectNode={selectNode}
+            onSelectedKeys={handleSelectNav}
+            setExpandedKeys={keys => {
+              setExpandedKeys(expandedKeys.concat(keys));
+            }}
             onEditAppLang={handleEditAppLang}
           />
-        </ContentWrap>
+        </div>
       </div>
-    </Wrap>
+    </div>
   );
 }

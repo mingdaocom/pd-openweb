@@ -9,7 +9,7 @@ import { isNumberControl } from 'statistics/common';
 
 export default function pivotTableCountPanelGenerator(props) {
   const { currentReport, onChangeStyle, changeCurrentReport, themeColor, customPageConfig, ...collapseProps } = props;
-  const { style, pivotTable = {} } = currentReport;
+  const { style, pivotTable = {}, yaxisList = [] } = currentReport;
 
   const handleChangeLineSummary = (data, isRequest = true) => {
     changeCurrentReport(
@@ -134,24 +134,31 @@ export default function pivotTableCountPanelGenerator(props) {
               event.stopPropagation();
             }}
             onChange={checked => {
-              changeCurrentReport(
-                {
-                  pivotTable: {
-                    ...currentReport.pivotTable,
-                    lines: lines.map((n, index) => {
-                      if (index) {
-                        return {
-                          ...n,
-                          subTotal: checked
-                        }
-                      } else {
-                        return n;
-                      }
-                    })
-                  },
-                },
-                true,
-              );
+              const param = {
+                pivotTable: {
+                  ...currentReport.pivotTable
+                }
+              };
+              const newLines = lines.map((n, index) => {
+                if (index) {
+                  return {
+                    ...n,
+                    subTotal: checked
+                  }
+                } else {
+                  return n;
+                }
+              });
+              // if (!newLines.filter(n => n.subTotal).length) {
+              //   param.yaxisList = yaxisList.map(n => {
+              //     return {
+              //       ...n,
+              //       showPercent: 0
+              //     }
+              //   });
+              // }
+              param.pivotTable.lines = newLines;
+              changeCurrentReport(param, true);
             }}
           />
         }

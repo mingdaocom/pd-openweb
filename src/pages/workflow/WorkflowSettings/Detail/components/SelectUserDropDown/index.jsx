@@ -66,7 +66,7 @@ export default class SelectUserDropDown extends Component {
       <ul className="flowDetailUserList">
         {(specialType === 3 || specialType === 5) && (
           <div className="explainHeader flexRow">
-            <i className={cx('Gray_9e', specialType === 3 ? 'icon-download_client' : 'icon-mailbox')} />
+            <i className={cx('Gray_75', specialType === 3 ? 'icon-download_client' : 'icon-mailbox')} />
             <input
               type="text"
               className="w100 Gray"

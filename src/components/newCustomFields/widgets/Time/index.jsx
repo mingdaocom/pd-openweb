@@ -12,6 +12,7 @@ import { getDynamicValue } from '../../tools/DataFormat';
 import { browserIsMobile } from 'src/util';
 import moment from 'moment';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -38,6 +39,12 @@ export default class Widgets extends Component {
     showobileDatePicker: false,
   };
 
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
+
   onChange = value => {
     const mode = this.props.unit === '6' ? 'HH:mm:ss' : 'HH:mm';
     if (value) {
@@ -52,6 +59,12 @@ export default class Widgets extends Component {
     const mode = unit === '6' ? 'HH:mm:ss' : 'HH:mm';
     return value ? (moment(value).year() ? moment(value) : moment(value, mode)) : '';
   };
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   render() {
     const {
@@ -247,9 +260,7 @@ export default class Widgets extends Component {
         onOpenChange={open => {
           if (open && parseInt(timeArr[0]) === 0 && parseInt(timeArr[1]) === 24) {
             setTimeout(() => {
-              $(`.customAntPicker_${controlId}`)
-                .find('.ant-picker-time-panel-column:first')
-                .scrollTop(220);
+              $(`.customAntPicker_${controlId}`).find('.ant-picker-time-panel-column:first').scrollTop(220);
             }, 200);
           }
         }}

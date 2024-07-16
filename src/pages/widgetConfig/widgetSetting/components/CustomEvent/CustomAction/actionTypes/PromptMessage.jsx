@@ -23,14 +23,17 @@ export default function PromptMessage(props) {
     });
   }, []);
 
+  const isDisabled = _.isEmpty(safeParse(message));
+
   return (
     <Dialog
       width={480}
       visible={visible}
-      okDisabled={!message}
+      okDisabled={isDisabled}
       className="SearchWorksheetDialog"
       title={_l('提示消息')}
       onCancel={() => setState({ visible: false })}
+      overlayClosable={false}
       onOk={() => {
         handleOk({ ...actionData, advancedSetting, message });
         setState({ visible: false });
@@ -60,6 +63,7 @@ export default function PromptMessage(props) {
             {_l('消息内容')}
             <span className="Red">*</span>
           </div>
+          <div className="Gray_9e mBottom8">{_l('最多显示50个字符')}</div>
           <DynamicDefaultValue
             {...props}
             data={{

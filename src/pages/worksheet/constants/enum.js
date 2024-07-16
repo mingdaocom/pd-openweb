@@ -173,16 +173,16 @@ export const VIEW_DISPLAY_TYPE = enumType({
 });
 
 export const VIEW_TYPE_ICON = [
-  { icon: 'table', color: '#3793FF', text: _l('表格%05017'), id: 'sheet' },
-  { icon: 'kanban', color: '#00BCD4', text: _l('看板%05016'), id: 'board' },
-  { icon: 'event', color: '#00C345', text: _l('日历%05015'), id: 'calendar' },
-  { icon: 'gallery_view', color: '#F5BF00', text: _l('画廊%05014'), id: 'gallery' },
-  { icon: 'reader', color: '#FF9300', text: _l('详情'), id: 'detail' },
-  { icon: 'hierarchy', color: '#FF3D3D', text: _l('层级%05013'), id: 'structure' },
-  { icon: 'location_map', color: '#EB2F96', text: _l('地图'), id: 'map' },
-  { icon: 'gantt', color: '#8A2AEB', text: _l('甘特图%05012'), id: 'gunter' },
-  { icon: 'person_three', color: '#2F4EEB', text: _l('资源'), id: 'resource' },
-  { icon: 'puzzle', color: '#757575', text: _l('插件'), id: 'customize' },
+  { icon: 'table', color: '#3793FF', text: _l('表格%05017'), id: 'sheet', txt: _l('表格视图') },
+  { icon: 'kanban', color: '#00BCD4', text: _l('看板%05016'), id: 'board', txt: _l('看板视图') },
+  { icon: 'event', color: '#00C345', text: _l('日历%05015'), id: 'calendar', txt: _l('日历视图') },
+  { icon: 'gallery_view', color: '#F5BF00', text: _l('画廊%05014'), id: 'gallery', txt: _l('画廊视图') },
+  { icon: 'reader', color: '#FF9300', text: _l('详情'), id: 'detail', txt: _l('详情视图') },
+  { icon: 'hierarchy', color: '#FF3D3D', text: _l('层级%05013'), id: 'structure', txt: _l('层级视图') },
+  { icon: 'location_map', color: '#EB2F96', text: _l('地图'), id: 'map', txt: _l('地图视图') },
+  { icon: 'gantt', color: '#8A2AEB', text: _l('甘特图%05012'), id: 'gunter', txt: _l('甘特视图') },
+  { icon: 'person_three', color: '#2F4EEB', text: _l('资源'), id: 'resource', txt: _l('资源视图') },
+  { icon: 'puzzle', color: '#757575', text: _l('插件'), id: 'customize', txt: _l('插件视图') },
 ];
 
 export const WORKSHEET_VIEW_PAGE_SIZE = {

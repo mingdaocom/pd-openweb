@@ -483,6 +483,7 @@ export const DEFAULT_DATA = {
     size: 6,
     hint: _l('请选择成员'),
     enumDefault: 0,
+    enumDefault2: 0,
     userPermission: 1,
     noticeItem: 0,
   },
@@ -494,6 +495,7 @@ export const DEFAULT_DATA = {
     enumDefault2: 0,
     advancedSetting: {
       showdelete: '1',
+      departrangetype: '0',
     },
   },
   SCORE: {
@@ -614,6 +616,9 @@ export const DEFAULT_DATA = {
   CASCADER: {
     controlName: _l('级联选择%04003'),
     size: 6,
+    advancedSetting: {
+      searchrange: '1',
+    },
   },
   REMARK: {
     size: 12,
@@ -653,6 +658,7 @@ export const DEFAULT_DATA = {
     size: 6,
     enumDefault: 0,
     userPermission: 1,
+    enumDefault2: 0,
   },
   SEARCH_BTN: {
     controlName: _l('API查询'),
@@ -693,6 +699,7 @@ export const WORKFLOW_SYSTEM_CONTROL = [
   { controlId: 'rowid', controlName: _l('记录ID'), type: 2, display: true },
 ];
 export const SYSTEM_PERSON_CONTROL = [{ controlId: 'uaid', controlName: _l('最近修改人'), type: 26, display: true }];
+export const ROW_ID_CONTROL = [{ controlId: 'rowid', type: 2, controlName: _l('记录ID') }];
 export const SYSTEM_DATE_CONTROL = [
   {
     controlId: 'ctime',

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Collapse } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
-import Components from '../components';
+import CollapseComponents from '../components/index';
 import { EXPAND_ITEMS } from '../../config/widget';
 import { SettingCollapseWrap } from './styled';
 import { supportSettingCollapse } from '../../util';
@@ -19,7 +19,7 @@ export default function SettingContent(props) {
     const defaultItems = [];
     EXPAND_ITEMS.map(item => {
       if (supportSettingCollapse(props, item.key)) {
-        const Widget = Components[item.name];
+        const Widget = CollapseComponents[item.name];
         defaultItems.push({
           ...item,
           children: <Widget {...props} />,

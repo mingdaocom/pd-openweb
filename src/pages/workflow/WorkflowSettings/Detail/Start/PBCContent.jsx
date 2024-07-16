@@ -193,7 +193,7 @@ export default ({ data, updateSource, isIntegration }) => {
               >
                 <i
                   className={cx(
-                    'Font16 Gray_9e ThemeHoverColor3 pointer',
+                    'Font16 Gray_75 ThemeHoverColor3 pointer',
                     item.attribute === 0 ? 'icon-title' : 'icon-ic_title ThemeColor3',
                   )}
                   onClick={() => {
@@ -210,7 +210,7 @@ export default ({ data, updateSource, isIntegration }) => {
             )}
 
             <i
-              className="icon-delete2 Font16 Gray_9e ThemeHoverColor3 mLeft10 pointer"
+              className="icon-delete2 Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer"
               onClick={() => {
                 let controls = [].concat(data.controls);
 
@@ -219,7 +219,7 @@ export default ({ data, updateSource, isIntegration }) => {
               }}
             />
             <i
-              className="icon-add Font16 pointer Gray_9e ThemeHoverColor3 mLeft10 pointer"
+              className="icon-add Font16 pointer Gray_75 ThemeHoverColor3 mLeft10 pointer"
               onClick={() => addParameters(item)}
             />
           </div>
@@ -374,7 +374,7 @@ export default ({ data, updateSource, isIntegration }) => {
           <Fragment>
             <div className="Font13 bold mTop30">{_l('在本组织下，正在被以下事件调用')}</div>
             {!data.processList.length && (
-              <div className="Font12 Gray_9e workflowDetailDesc mTop10 subProcessDesc">
+              <div className="Font12 Gray_75 workflowDetailDesc mTop10 subProcessDesc">
                 {_l('未被任何流程或按钮调用')}
               </div>
             )}
@@ -387,7 +387,7 @@ export default ({ data, updateSource, isIntegration }) => {
                     </span>
                   </div>
                   <div className="Font12">
-                    <span className="Gray_9e">{PROCESS_TYPE[item.type].desc}：</span>
+                    <span className="Gray_75">{PROCESS_TYPE[item.type].desc}：</span>
                     <span>{item.flowNodes.map(obj => `${obj.name}`).join('、')}</span>
                   </div>
                 </div>

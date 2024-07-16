@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
 import { getRequest } from 'src/util';
 import { FlowChart } from 'src/pages/workflow/components/FlowChart';
@@ -26,5 +26,6 @@ class MobileFlowChart extends React.Component {
 }
 
 const Comp = preall(MobileFlowChart, { allowNotLogin: false });
+const root = createRoot(document.getElementById('mobileFlowChart'));
 
-ReactDOM.render(<Comp />, document.querySelector('#mobileFlowChart'));
+root.render(<Comp />);

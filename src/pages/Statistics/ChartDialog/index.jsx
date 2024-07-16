@@ -188,12 +188,7 @@ export default class ChartDialog extends Component {
         module: 2,
       })
       .then(result => {
-        this.props.changeCurrentReport({
-          filter: {
-            ...filter,
-            filterId: result.filterId
-          }
-        });
+        currentReport.filter.filterId = result.filterId;
         this.handleSave();
       });
   }
@@ -472,7 +467,8 @@ export default class ChartDialog extends Component {
       appId,
       projectId,
       sourceType,
-      ownerId
+      ownerId,
+      currentReport
     } = this.props;
 
     return (
@@ -495,6 +491,7 @@ export default class ChartDialog extends Component {
                 onChangeSheetId={worksheetId => {
                   const { reportType } = this.props.reportData;
                   this.props.changeSheetId(worksheetId);
+                  this.props.changeBase({ sheetId: worksheetId });
                   this.setState({ worksheetId, reportId: null });
                 }}
               />
@@ -502,7 +499,7 @@ export default class ChartDialog extends Component {
             </DndProvider>
           </div>
         )}
-        {scopeVisible && (
+        {scopeVisible && !_.isEmpty(currentReport) && (
           <div className="ChartDialogSetting flexRow h100">
             <FilterScope id={reportId} projectId={projectId} />
           </div>
@@ -513,7 +510,7 @@ export default class ChartDialog extends Component {
   render() {
     const { nodialog, reportData, detailLoading, className } = this.props;
 
-    const content = detailLoading || _.isEmpty(reportData) ? <Loading /> : this.renderContent();
+    const content = detailLoading ? <Loading /> : this.renderContent();
 
     if (nodialog) {
       return (

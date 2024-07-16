@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import DatePicker from 'ming-ui/components/DatePicker/Calendar';
 import { shape, number, func } from 'prop-types';
 import moment from 'moment';
@@ -34,7 +34,7 @@ export default class DateInput extends Component {
   componentDidMount() {
     const { data } = this.props;
     const defSource = getAdvanceSetting(data, 'defsource');
-    const { staticValue, cid = '' } = defSource[0] || {};
+    const { staticValue, cid = '' } = _.get(defSource, '0') || {};
     if (!cid && staticValue && staticValue !== '2') {
       this.setState({
         defValue: moment(staticValue),
@@ -46,6 +46,10 @@ export default class DateInput extends Component {
     this.setState({ datePickerVisible: true });
   };
   handleAssignTimeChange = (date, formatMode) => {
+    if (_.isNull(date)) {
+      this.clearTime();
+      return;
+    }
     const { data } = this.props;
     const time = moment(date.format(formatMode)).format(data.type === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD');
     this.setState({ defValue: moment(time) });
@@ -69,33 +73,32 @@ export default class DateInput extends Component {
     const dateProps = getDatePickerConfigs(data);
     const formatMode = dateProps.formatMode;
     return (
-      <Fragment>
-        <DynamicValueInputWrap>
-          {defaultType ? (
-            <DynamicInput {...this.props} onTriggerClick={this.onTriggerClick} />
-          ) : (
-            <OtherFieldList {...this.props} onClick={this.handleClick} formatMode={formatMode} />
-          )}
-          <SelectOtherField {...this.props} ref={con => (this.$wrap = con)} />
-        </DynamicValueInputWrap>
+      <DynamicValueInputWrap>
+        {defaultType ? (
+          <DynamicInput {...this.props} onTriggerClick={this.onTriggerClick} />
+        ) : (
+          <OtherFieldList {...this.props} onClick={this.handleClick} formatMode={formatMode} />
+        )}
+        <SelectOtherField {...this.props} ref={con => (this.$wrap = con)} />
+
         {datePickerVisible && (
           <DatePicker
             value={defValue || moment()}
             className="datePicker"
             onClickAwayExceptions={['.TimePicker-panel']}
             onClickAway={() => this.setState({ datePickerVisible: false })}
-            style={{ margin: '0', width: '100%' }}
+            style={{ margin: '0', top: '100%', width: '100%', position: 'absolute', zIndex: '1050' }}
             {..._.pick(dateProps, ['mode', 'showMinute', 'showSecond'])}
             onChange={time => this.handleAssignTimeChange(time, formatMode)}
             onSelect={time => this.handleAssignTimeChange(time, formatMode)}
-            onClear={this.clearTime}
+            onClear={() => this.clearTime()}
             onOk={time => {
               this.handleAssignTimeChange(time, formatMode);
               this.setState({ datePickerVisible: false });
             }}
           />
         )}
-      </Fragment>
+      </DynamicValueInputWrap>
     );
   }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import preall from 'src/common/preall';
 import styled from 'styled-components';
 import { browserIsMobile } from 'src/util';
@@ -145,5 +145,6 @@ class PrivacyOrAgreen extends React.Component {
 }
 
 const Comp = preall(PrivacyOrAgreen, { allowNotLogin: true });
+const root = createRoot(document.getElementById('app'));
 
-ReactDom.render(<Comp />, document.getElementById('app'));
+root.render(<Comp />);

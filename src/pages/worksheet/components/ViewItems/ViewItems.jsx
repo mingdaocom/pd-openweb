@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import { Tooltip, Icon, Dialog, Input } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
@@ -16,7 +16,6 @@ import { withRouter } from 'react-router-dom';
 import HideItem from './HideItem';
 import styled from 'styled-components';
 import { navigateTo } from 'src/router/navigateTo';
-import { formatAdvancedSettingByNavfilters } from 'src/pages/worksheet/common/ViewConfig/util.js';
 
 const EmptyData = styled.div`
   font-size: 12px;
@@ -190,8 +189,6 @@ export default class ViewItems extends Component {
     sheetAjax
       .saveWorksheetView(Object.assign({}, params))
       .then(result => {
-        params.viewId = result.viewId;
-        params.isNewView = true;
         const newViewList = viewList.concat(result);
         this.props.onAddView(newViewList, result);
         this.handleScrollPosition(0);
@@ -234,7 +231,8 @@ export default class ViewItems extends Component {
     this.props.onViewConfigVisible(view);
   };
   handleCopyView = view => {
-    const { viewList, appId } = this.props;
+    const { viewList, appId, worksheetId } = this.props;
+    window.clearLocalDataTime({ requestData: { worksheetId }, clearSpecificKey: 'Worksheet_GetWorksheetInfo' });
     sheetAjax
       .copyWorksheetView({
         appId,
@@ -334,18 +332,11 @@ export default class ViewItems extends Component {
     this.handleAddView(data);
     this.setState({ addMenuVisible: false });
   };
-  updateAdvancedSetting = view => {
-    let advancedSetting = formatAdvancedSettingByNavfilters(
-      view,
-      { ..._.omit(view.advancedSetting, ['navfilters']) },
-      true,
-    );
+  updateAdvancedSetting = data => {
     this.props.updateCurrentView(
       {
         appId: this.props.appId,
-        ...view,
-        advancedSetting,
-        editAttrs: ['advancedSetting'],
+        ...data,
       },
       false,
     );

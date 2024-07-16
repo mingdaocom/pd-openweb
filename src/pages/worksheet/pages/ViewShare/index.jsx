@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { LoadDiv, SvgIcon } from 'ming-ui';
 import preall from 'src/common/preall';
 import sheetApi from 'src/api/worksheet';
-import appManagementApi from 'src/api/appManagement';
 import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
 import ViewSahre from './ViewSahre';
 import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
 import _ from 'lodash';
-import { getTranslateInfo } from 'src/util';
+import { getTranslateInfo, getAppLangDetail } from 'src/util';
+import globalEvents from 'src/router/globalEvents';
 
 const Wrap = styled.div`
   .header {
@@ -72,21 +72,21 @@ const Entry = props => {
           requestParams: { projectId },
         },
       );
-      if (langInfo && langInfo.appLangId) {
-        const lang = await appManagementApi.getAppLangDetail({
-          projectId,
-          appId,
-          appLangId: langInfo.appLangId,
-        });
-        window[`langData-${appId}`] = lang.items;
+      const lang = await getAppLangDetail({
+        langInfo,
+        projectId,
+        id: appId,
+      });
+      if (lang) {
         window.appInfo = { id: appId };
-        data.appName = getTranslateInfo(appId, appId).name || data.appName;
-        data.worksheetName = getTranslateInfo(appId, data.worksheetId).name || data.worksheetName;
-        data.viewName = getTranslateInfo(appId, data.viewId).name || data.viewName;
+        data.appName = getTranslateInfo(appId, null, appId).name || data.appName;
+        data.worksheetName = getTranslateInfo(appId, null, data.worksheetId).name || data.worksheetName;
+        data.viewName = getTranslateInfo(appId, null, data.viewId).name || data.viewName;
       }
       setShare(result);
       setLoading(false);
     });
+    globalEvents();
   }, []);
 
   const getShareInfoByShareId = data => {
@@ -180,4 +180,6 @@ const Entry = props => {
   }
 };
 
-ReactDom.render(<Entry />, document.getElementById('app'));
+const root = createRoot(document.getElementById('app'));
+
+root.render(<Entry />);

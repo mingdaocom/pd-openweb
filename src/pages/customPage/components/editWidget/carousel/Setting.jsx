@@ -151,12 +151,12 @@ function Setting(props) {
         .then(res => {
           const { resultCode, views = [], template } = res;
           if (resultCode === 1) {
-            const controls = replaceControlsTranslateInfo(appId, template.controls);
+            const controls = replaceControlsTranslateInfo(appId, worksheetId, template.controls);
             setDataSource({
               views: views.map(data => {
                 return {
                   ...data,
-                  name: getTranslateInfo(appId, data.viewId).name || data.name
+                  name: getTranslateInfo(appId, null, data.viewId).name || data.name
                 }
               }),
               controls

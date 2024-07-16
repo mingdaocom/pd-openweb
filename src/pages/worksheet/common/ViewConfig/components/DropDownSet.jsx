@@ -80,7 +80,7 @@ export default class DropDownSet extends React.Component {
       <div className={className}>
         <div className="title Font13 bold">{title}</div>
         <div className="settingContent">
-          <p className="mTop6 mBottom8 Gray_9e viewSetText">{txt}</p>
+          <p className="mTop6 mBottom8 Gray_75 viewSetText">{txt}</p>
           <DropDownSetChoose>
             <Select
               className={cx('dropDropDownSet', { isDelete })}

@@ -10,7 +10,7 @@ import { generate } from '@ant-design/colors';
 import store from 'redux/configureStore';
 import * as utils from 'src/util';
 import { SYS_COLOR } from 'src/pages/Admin/settings/config';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import { getDefaultCondition, redefineComplexControl, formatConditionForSave } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
@@ -127,6 +127,8 @@ export const genUrl = (url, para, info) => {
         return mobilePhone;
       case 'email':
         return email;
+      case 'language':
+        return window.getCurrentLang();
       // case 'workId':
       // return 'a';
       case 'ua':
@@ -302,7 +304,7 @@ export const replaceColor = (config, iconColor) => {
   const data = { ...config };
   if (data.pageBgColor === 'iconColor') {
     data.pageBgColor = iconColor;
-    data.darkenPageBgColor = tinycolor(iconColor).darken(6).toRgbString();
+    data.darkenPageBgColor = new TinyColor(iconColor).darken(6).toRgbString();
   }
   if (data.pageBgColor === 'lightColor') {
     data.pageBgColor = lightColor;

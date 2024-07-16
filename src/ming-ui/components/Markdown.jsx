@@ -7,7 +7,7 @@ import 'react-markdown-editor-lite/lib/index.css';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { getToken } from 'src/util';
-
+import RegExpValidator from 'src/util/expression';
 // Register plugins if required
 // MdEditor.use(YOUR_PLUGINS_HERE);
 
@@ -110,8 +110,8 @@ const Markdown = props => {
   const handleImageUpload = file => {
     return new Promise(resolve => {
       const data = new FormData();
-      let fileExt = `.${File.GetExt(file.name)}`;
-      let isPic = File.isPicture(fileExt);
+      let fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
+      let isPic = RegExpValidator.fileIsPicture(fileExt);
       let urlImg = '';
       getToken([{ bucket: bucket || (isPic ? 4 : 2), ext: fileExt }], 9, tokenArgs).then(res => {
         data.append('token', res[0].uptoken);
@@ -126,7 +126,7 @@ const Markdown = props => {
             res[0].fileName.indexOf('.') > -1 ? res[0].fileName.split('.').slice(0, -1).join('.') : res[0].fileName,
           ),
         );
-        data.append('x:fileExt', '.' + File.GetExt(res[0].fileName));
+        data.append('x:fileExt', '.' + RegExpValidator.getExtOfFileName(res[0].fileName));
         urlImg = res[0].url || (res[0].serverName && res[0].key) ? res[0].serverName + res[0].key : '';
         const xhr = new XMLHttpRequest();
         xhr.open('POST', md.global.FileStoreConfig.uploadHost, true);

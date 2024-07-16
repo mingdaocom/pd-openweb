@@ -8,7 +8,7 @@ import cx from 'classnames';
 import { ActionResult, CodeTypeEnum } from 'src/pages/accountLogin/config';
 import externalPortalAjax from 'src/api/externalPortal';
 import { setAutoLoginKey } from 'src/pages/accountLogin/portalAccount/util';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 
 const AccountWrap = styled.div`
   margin-top: 20px;
@@ -110,7 +110,7 @@ export default function TelDialog(props) {
   const { passwordRegex, passwordRegexTip } = SysSettings;
   const codeDiv = useRef();
   const isPasswordRule = str => {
-    return RegExp.isPasswordValid(str, passwordRegex);
+    return RegExpValidator.isPasswordValid(str, passwordRegex);
   };
   const findPwdCallback = res => {
     const { accountResult } = res;

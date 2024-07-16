@@ -28,7 +28,7 @@ export default class RelationFields extends Component {
     return (
       <Fragment>
         <span>{(item || {}).controlName}</span>
-        <span className="Gray_9e mRight5">{_l('（关联表“%0”）', (item || {}).sourceEntityName)}</span>
+        <span className="Gray_75 mRight5">{_l('（关联表“%0”）', (item || {}).sourceEntityName)}</span>
       </Fragment>
     );
   }
@@ -79,7 +79,7 @@ export default class RelationFields extends Component {
         </div>
 
         <div className="Font13 bold mTop20">{_l('选择获取对象')}</div>
-        <div className="Font13 Gray_9e mTop10">{_l('当前流程中的节点对象')}</div>
+        <div className="Font13 Gray_75 mTop10">{_l('当前流程中的节点对象')}</div>
 
         <SelectNodeObject
           appList={data.flowNodeList}
@@ -89,7 +89,7 @@ export default class RelationFields extends Component {
         />
 
         <div className="Font13 bold mTop20">{_l('选择关联类型字段')}</div>
-        <div className="Font13 Gray_9e mTop10">{_l('系统将输出此字段中所关联的第一条记录，供流程中其他节点使用')}</div>
+        <div className="Font13 Gray_75 mTop10">{_l('系统将输出此字段中所关联的第一条记录，供流程中其他节点使用')}</div>
 
         {data.selectNodeId && this.renderRelationContent()}
 

@@ -61,7 +61,7 @@ export default class VerifyDel extends Component {
           </div>
           <div className="hint">
             <span style={{ color: '#333', fontWeight: 'bold' }}>
-              {_l('注意：应用下所有配置与数据将被删除，删除后可在工作台首页回收站恢复。')}
+              {_l('注意：应用下所有配置与数据(包括聚合表)将被删除，删除后可在工作台首页回收站恢复。')}
             </span>
             <div>{_l('请确认所有应用成员都不再需要此应用后，再执行此操作')}</div>
           </div>

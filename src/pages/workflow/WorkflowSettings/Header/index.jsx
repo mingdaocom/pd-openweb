@@ -485,7 +485,7 @@ class Header extends Component {
               {flowInfo.name}
             </div>
             <Tooltip placement="bottomLeft" title={flowInfo.explain || _l('添加流程说明...')}>
-              <div className="Gray_9e ellipsis pointer Font12" onClick={() => this.setState({ visible: true })}>
+              <div className="Gray_75 ellipsis pointer Font12" onClick={() => this.setState({ visible: true })}>
                 {flowInfo.explain || _l('添加流程说明...')}
               </div>
             </Tooltip>

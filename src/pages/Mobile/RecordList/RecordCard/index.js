@@ -15,13 +15,13 @@ import { getRecordColorConfig, getRecordColor, getControlStyles } from 'src/page
 import { isDocument } from 'src/components/UploadFiles/utils';
 import _ from 'lodash';
 import styled from 'styled-components';
-
+import RegExpValidator from 'src/util/expression';
 const Con = styled.div`
   ${({ controlStyles }) => controlStyles || ''}
 `;
 
 function getCoverControlData(data) {
-  return _.find(data, file => File.isPicture(file.ext) || (isDocument(file.ext) && file.previewUrl));
+  return _.find(data, file => RegExpValidator.fileIsPicture(file.ext) || (isDocument(file.ext) && file.previewUrl));
 }
 
 const coverTypes = {
@@ -69,12 +69,12 @@ export default class RecordCard extends Component {
     const { coverError } = this.state;
     const { coverType } = this.props.view;
     const { cover } = this;
-    const size = coverType ? 76 : 120;
+    const imageView2 = coverType === 1 ? `imageView2/2/w/120` : `imageView2/1/w/120/h/120`;
     const url =
       cover && cover.previewUrl
         ? cover.previewUrl.indexOf('imageView2') > -1
-          ? cover.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/w/${size}/h/${size}`)
-          : `${cover.previewUrl}&imageView2/1/w/${size}/h/${size}`
+          ? cover.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, imageView2)
+          : `${cover.previewUrl}&${imageView2}`
         : null;
     if (url && !coverError) {
       const image = new Image();
@@ -159,7 +159,7 @@ export default class RecordCard extends Component {
       <div className={cx('recordCardCover', coverTypes[coverType], `appshowtype${advancedSetting.appshowtype || '0'}`)}>
         {url && !coverError ? (
           coverType ? (
-            <img onClick={this.handleCoverClick} className="img" src={url} role="presentation" />
+            <img onClick={this.handleCoverClick} className={cx('img', { w100: coverType === 1 })} src={url} role="presentation" />
           ) : (
             <div onClick={this.handleCoverClick} className="img cover" style={{ backgroundImage: `url(${url})` }}></div>
           )

@@ -199,7 +199,6 @@ class DialogSelectOrgRole extends Component {
               text={null}
             />
           )}
-          <Icon icon="person_new" className="Gray_9e Font18" />
           <span className="mLeft4 flex overflow_ellipsis">{roleItem.organizeName}</span>
         </div>
       );
@@ -272,9 +271,6 @@ class DialogSelectOrgRole extends Component {
     return selectData.map((item, i) => {
       return (
         <div className="GSelect-result-subItem" key={`subItem-${i}`}>
-          <div className="GSelect-result-subItem__avatar">
-            <i className="icon-person_new Gray_9e" />
-          </div>
           <div className="GSelect-result-subItem__name overflow_ellipsis">{item.organizeName}</div>
           <div class="GSelect-result-subItem__remove" onClick={() => this.onRemove(item)}>
             <span class="icon-close"></span>

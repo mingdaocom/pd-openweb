@@ -33,7 +33,7 @@ function addLinkFile(props) {
       alert(_l('链接名不能为空'), 3);
       return false;
     }
-    if (link === '') {
+    if (!link) {
       alert(_l('链接url不能为空'), 3);
       return false;
     }

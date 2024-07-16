@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useEffect } from 'react';
+import React, { Fragment, useRef, useEffect, useState, useMemo } from 'react';
 import styled from 'styled-components';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
 import _ from 'lodash';
@@ -28,7 +28,7 @@ import { DndProvider, useDrop } from 'react-dnd-latest';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { useSetState } from 'react-use';
 import { updateWorksheetControls } from '../../redux/actions';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, emitter } from 'src/util';
 
 const RecordStructureWrap = styled.div`
   padding-left: 48px;
@@ -92,8 +92,11 @@ function Hierarchy(props) {
     changeHierarchyChildrenVisible,
     initHierarchyRelateSheetControls,
     recordInfoId,
+    navGroupFilters,
     ...rest
   } = props;
+
+  const uniqId = useMemo(() => uuidv4());
   const { scale: configScale, level: configLevel = '' } = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
   const { loading, pageIndex } = hierarchyDataStatus;
   const [{ addRecordDefaultValue, level, scale, createRecordVisible, addRecordPath }, setState] = useSetState({
@@ -152,7 +155,16 @@ function Hierarchy(props) {
           }
         });
     }
-  }, [viewId, viewControl, JSON.stringify(view.moreSort), viewControls.map(item => item.worksheetId).join(',')]);
+  }, [
+    viewId,
+    viewControl,
+    JSON.stringify(view.moreSort),
+    viewControls.map(item => item.worksheetId).join(','),
+    _.get(view, 'advancedSetting.topshow'),
+    _.get(view, 'advancedSetting.topfilters'),
+    _.get(view, 'advancedSetting.defaultlayer'),
+    JSON.stringify(navGroupFilters),
+  ]);
 
   const genScreenshot = () => {
     const $wrap = document.querySelector('.hierarchyViewWrap');
@@ -322,6 +334,7 @@ function Hierarchy(props) {
           receiveRows: value.map(item => getReceiveControls(item)),
         })
         .then(res => {
+          emitter.emit('ROWS_UPDATE');
           if (res === value.length) {
             if (_.isEmpty(addRecordPath.path)) {
               getTopLevelHierarchyData({ worksheetId, ...idPara });
@@ -342,6 +355,7 @@ function Hierarchy(props) {
         })
         .then(({ data }) => {
           if (data) {
+            emitter.emit('ROWS_UPDATE');
             if (_.isEmpty(addRecordPath.path)) {
               addTopLevelStateFromTemp(data);
             } else {
@@ -356,7 +370,6 @@ function Hierarchy(props) {
         });
     }
   };
-
   let pending = false;
   const handleScroll = e => {
     const $wrap = $wrapRef.current;
@@ -491,6 +504,7 @@ function Hierarchy(props) {
                       'sheetButtons',
                     ])}
                     {...rest}
+                    uniqId={uniqId}
                     key={item.pathId.join('-')}
                     index={index}
                     data={item}
@@ -587,7 +601,14 @@ function Hierarchy(props) {
 }
 const ConnectedHierarchyView = connect(
   state => ({
-    ..._.pick(state.sheet, ['worksheetInfo', 'filters', 'controls', 'sheetSwitchPermit', 'sheetButtons']),
+    ..._.pick(state.sheet, [
+      'worksheetInfo',
+      'filters',
+      'controls',
+      'sheetSwitchPermit',
+      'sheetButtons',
+      'navGroupFilters',
+    ]),
     ..._.get(state.sheet, 'hierarchyView'),
     searchData: getSearchData(state.sheet),
   }),

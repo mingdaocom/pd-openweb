@@ -841,6 +841,42 @@ export const BothRelateInfo = styled.div`
   }
 `;
 
+export const DisplayMode = styled.div`
+  display: flex;
+  padding: 8px 12px;
+  justify-content: space-between;
+  .displayItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    div {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 3px 3px 3px 3px;
+      border: 2px solid transparent;
+    }
+    i {
+      font-size: 32px;
+      color: #757575;
+    }
+    &.active {
+      div {
+        background: rgba(33, 150, 243, 0.1);
+        border-color: #2196f3;
+      }
+    }
+    &:hover {
+      div {
+        background: rgba(0, 0, 0, 0.05);
+      }
+    }
+  }
+`;
+
 export const EditOptionDialog = styled(Dialog)`
   .editOptionDialog {
     padding-bottom: 30px !important;

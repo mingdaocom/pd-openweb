@@ -4,7 +4,6 @@ import { Dialog, RadioGroup, Checkbox } from 'ming-ui';
 import { SettingItem } from '../../../../../styled';
 import SelectFields from '../SelectFields';
 import { CustomActionWrap } from '../../style';
-import { getNewDropDownData } from '../../../../../../FormSet/components/columnRules/config';
 
 const DISPLAY_OPTIONS = [
   {
@@ -18,7 +17,7 @@ const DISPLAY_OPTIONS = [
 ];
 
 export default function SetReadOnly(props) {
-  const { actionData = {}, allControls = [], handleOk } = props;
+  const { actionData = {}, handleOk } = props;
   const [{ actionType, actionItems, isAll, visible }, setState] = useSetState({
     actionType: actionData.actionType,
     actionItems: actionData.actionItems || [],
@@ -34,8 +33,6 @@ export default function SetReadOnly(props) {
     });
   }, []);
 
-  const filterControls = getNewDropDownData(allControls, actionType);
-
   return (
     <Dialog
       width={480}
@@ -44,6 +41,7 @@ export default function SetReadOnly(props) {
       title={_l('设置只读/可编辑')}
       onCancel={() => setState({ visible: false })}
       className="SearchWorksheetDialog"
+      overlayClosable={false}
       onOk={() => {
         handleOk({ ...actionData, actionType, actionItems, isAll });
         setState({ visible: false });
@@ -56,13 +54,13 @@ export default function SetReadOnly(props) {
             size="middle"
             checkedValue={actionType}
             data={DISPLAY_OPTIONS}
-            onChange={value => setState({ actionType: value, isAll: value === '4' ? false : isAll })}
+            onChange={value => setState({ actionType: value, isAll: value === '3' ? false : isAll })}
           />
         </SettingItem>
 
         <SelectFields
           {...props}
-          allControls={filterControls}
+          disabled={isAll}
           actionType={actionType}
           actionItems={actionItems}
           onSelectField={value => setState({ actionItems: value })}
@@ -72,7 +70,7 @@ export default function SetReadOnly(props) {
             size="small"
             className="mTop8"
             checked={isAll}
-            onClick={checked => setState({ isAll: !checked })}
+            onClick={checked => setState({ isAll: !checked, actionItems: checked ? actionItems : [] })}
             text={_l('所有字段')}
           />
         )}

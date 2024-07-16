@@ -10,7 +10,7 @@ const FullScreenCon = styled.div`
   height: 100vh;
   top: 0;
   left: 0;
-  z-index: 999;
+  z-index: 1000;
   background: #fff;
 `;
 

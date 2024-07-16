@@ -1,6 +1,7 @@
 import React, { Fragment, useMemo, useRef, useState, useEffect, useCallback } from 'react';
 import { arrayOf, number, shape, string, bool, func } from 'prop-types';
 import styled from 'styled-components';
+import { Tooltip } from 'ming-ui';
 import { browserIsMobile, formatNumberFromInput } from 'src/util';
 import _ from 'lodash';
 
@@ -31,7 +32,7 @@ const Bar = styled.div`
   margin: 7px 0;
   border-radius: 3px;
   background: rgba(0, 0, 0, 0.06);
-  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')}};
+  cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')}};
   &:hover {
     ${({ disabled }) => (disabled ? '' : 'background: rgba(0, 0, 0, 0.1);')}
   }
@@ -207,13 +208,17 @@ export default function Slider(props) {
     showTip = true,
     showInput = true,
     showNumber = true,
+    showDrag = true,
     showAsPercent,
     tipDirection,
     triggerWhenMove = false,
     onChange = _.noop,
     liveUpdate = true,
   } = props;
-  let { min = 0, max = 100, step = 5 } = props;
+  let min = props.min || 0;
+  let max = props.max || 100;
+  let step = props.step || 5;
+
   if (showAsPercent) {
     min = min * 100;
     max = max * 100;
@@ -290,7 +295,9 @@ export default function Slider(props) {
     if (_.isNumber(newValue) && !_.isNaN(newValue)) {
       updateValue(formatByStep(newValue, step, min), true, true);
     }
-    setIsDragging(false);
+    setTimeout(() => {
+      setIsDragging(false);
+    }, 300);
     document.body.style.userSelect = 'inherit';
     document.body.style.overflow = 'auto';
     window.removeEventListener(mouseMoveEventName, handleMouseMove);
@@ -301,7 +308,7 @@ export default function Slider(props) {
     setValueForInput(changedValue);
     if (changedValue.trim() === '') {
       setValue(undefined);
-      update && onChange(undefined);
+      update && onChange('');
     } else {
       const newValue = Number(changedValue);
       if (_.isNumber(newValue) && !_.isNaN(newValue)) {
@@ -311,7 +318,6 @@ export default function Slider(props) {
   };
   useEffect(() => {
     cache.current.conWidth = barRef.current.clientWidth;
-    cache.current.barLeft = barRef.current.getBoundingClientRect().left;
   }, [disabled]);
   useEffect(() => {
     const v = getDefaultValue(showAsPercent ? fixedByStep(props.value * 100, step) : props.value);
@@ -350,7 +356,9 @@ export default function Slider(props) {
             : e => {
                 e.stopPropagation();
                 e.preventDefault();
-                const newPercent = ((e.clientX - cache.current.barLeft) / cache.current.conWidth) * 100;
+                if (isDragging) return;
+                const newPercent =
+                  ((e.clientX - barRef.current.getBoundingClientRect().left) / cache.current.conWidth) * 100;
                 let newValue = min + ((max - min) * newPercent) / 100;
                 updateValue(formatByStep(newValue, step, min), true, true);
               }
@@ -375,42 +383,48 @@ export default function Slider(props) {
                       }
                 }
               >
-                <ScalePoint
-                  key={i}
-                  className={`scale ${tipDirection ? 'tip-' + tipDirection : 'tip-top'}`}
-                  {...(showTip ? { 'data-tip': scale.value } : {})}
-                  value={scale.value}
-                  color={scale.percent < valuePercent ? color : 'rgba(0, 0, 0, 0.06)'}
-                  percent={scale.percent}
-                >
-                  {showScaleText && (
-                    <span style={{ color: valuePercent < scale.percent ? '#9e9e9e' : '#333' }}>{scale.text}</span>
-                  )}
-                </ScalePoint>
+                <Tooltip offset={[0, -2]} disable={!showTip} text={showTip ? <span>{scale.value}</span> : undefined}>
+                  <ScalePoint
+                    key={i}
+                    className={`scale ${tipDirection ? 'tip-' + tipDirection : 'tip-top'}`}
+                    value={scale.value}
+                    color={scale.percent < valuePercent ? color : 'rgba(0, 0, 0, 0.06)'}
+                    percent={scale.percent}
+                  >
+                    {showScaleText && (
+                      <span style={{ color: valuePercent < scale.percent ? '#9e9e9e' : '#333' }}>{scale.text}</span>
+                    )}
+                  </ScalePoint>
+                </Tooltip>
               </ScalePointClick>
             ))}
-        {!disabled && (
-          <Drag
-            className={`${tipDirection ? 'tip-' + tipDirection : 'tip-top'} ${isDragging ? 'hover' : ''}`}
-            ref={dragRef}
-            color={!_.isUndefined(value) ? (disabled ? '#bdbdbd' : color) : '#f1f1f1'}
-            style={{ left: `calc(${valuePercent}% - 7px)`, cursor: disabled ? 'not-allowed' : 'pointer' }}
-            {...(showTip && !_.isUndefined(value) ? { 'data-tip': value + (showAsPercent ? '%' : '') } : {})}
-            {...(disabled
-              ? {}
-              : {
-                  [!isMobile ? 'onMouseDown' : 'onTouchStart']: e => {
-                    document.body.style.userSelect = 'none';
-                    document.body.style.overflow = 'hidden';
-                    cache.current.active = true;
-                    cache.current.clientX = getClientX(e);
-                    cache.current.valuePercent = valuePercent;
-                    setIsDragging(true);
-                    window.addEventListener(mouseMoveEventName, handleMouseMove);
-                    window.addEventListener(mouseUpEventName, handleMouseUp);
-                  },
-                })}
-          />
+        {showDrag && (
+          <Tooltip
+            offset={[0, -2]}
+            disable={!(showTip && !_.isUndefined(value))}
+            text={showTip && !_.isUndefined(value) ? <span>{value + (showAsPercent ? '%' : '')}</span> : undefined}
+          >
+            <Drag
+              className={`${tipDirection ? 'tip-' + tipDirection : 'tip-top'} ${isDragging ? 'hover' : ''}`}
+              ref={dragRef}
+              color={!_.isUndefined(value) ? (disabled ? '#bdbdbd' : color) : '#f1f1f1'}
+              style={{ left: `calc(${valuePercent}% - 7px)`, cursor: disabled ? 'default' : 'pointer' }}
+              {...(disabled
+                ? {}
+                : {
+                    [!isMobile ? 'onMouseDown' : 'onTouchStart']: e => {
+                      document.body.style.userSelect = 'none';
+                      document.body.style.overflow = 'hidden';
+                      cache.current.active = true;
+                      cache.current.clientX = getClientX(e);
+                      cache.current.valuePercent = valuePercent;
+                      setIsDragging(true);
+                      window.addEventListener(mouseMoveEventName, handleMouseMove);
+                      window.addEventListener(mouseUpEventName, handleMouseUp);
+                    },
+                  })}
+            />
+          </Tooltip>
         )}
       </Bar>
       {showInput && !disabled && (

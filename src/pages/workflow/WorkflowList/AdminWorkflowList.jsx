@@ -33,6 +33,7 @@ const typeList = [
   { label: _l('时间'), value: 2 },
   { label: _l('人员事件'), value: 9 },
   { label: _l('Webhook'), value: 6 },
+  { label: _l('循环'), value: 13 },
   { label: _l('子流程'), value: 8 },
   { label: _l('自定义动作'), value: 7 },
   { label: _l('审批流程'), value: 11 },
@@ -158,14 +159,20 @@ export default class AdminWorkflowList extends Component {
    */
   getAppList(projectId) {
     const { appList } = this.state;
+    const { appPageIndex = 1, isMoreApp, loadingApp } = this.state;
+    // 加载更多
+    if (appPageIndex > 1 && ((loadingApp && isMoreApp) || !isMoreApp)) {
+      return;
+    }
+    this.setState({ loadingApp: true });
 
     appManagement
       .getAppsForProject({
         projectId,
         status: '',
         order: 3,
-        pageIndex: 1,
-        pageSize: 100000,
+        pageIndex: appPageIndex,
+        pageSize: 50,
         keyword: '',
       })
       .then(({ apps }) => {
@@ -175,7 +182,12 @@ export default class AdminWorkflowList extends Component {
             value: item.appId,
           };
         });
-        this.setState({ appList: appList.concat(newAppList) });
+        this.setState({
+          appList: appPageIndex === 1 ? [].concat(newAppList) : appList.concat(newAppList),
+          isMoreApp: newAppList.length >= 50,
+          loadingApp: false,
+          appPageIndex: appPageIndex + 1,
+        });
       });
   }
   /**
@@ -289,10 +301,10 @@ export default class AdminWorkflowList extends Component {
             updateSource={list => this.setState({ list })}
           />
         </div>
-        <div className="columnWidth Gray_9e">
+        <div className="columnWidth Gray_75">
           {(START_APP_TYPE[item.child ? 'subprocess' : item.startAppType] || {}).text}
         </div>
-        <div className="columnWidth Gray_9e">{moment(item.createdDate).format('YYYY-MM-DD')}</div>
+        <div className="columnWidth Gray_75">{moment(item.createdDate).format('YYYY-MM-DD')}</div>
         <div className="columnWidth Gray_75 flexRow">
           <UserHead
             projectId={projectId}
@@ -303,7 +315,7 @@ export default class AdminWorkflowList extends Component {
         </div>
         <Link to={`/workflowedit/${item.id}/2`} className="w20 mRight20 TxtCenter">
           <span data-tip={_l('历史')}>
-            <Icon icon="restore2" className="listBtn ThemeHoverColor3 Gray_9e" />
+            <Icon icon="restore2" className="listBtn ThemeHoverColor3 Gray_75" />
           </span>
         </Link>
       </div>
@@ -388,6 +400,7 @@ export default class AdminWorkflowList extends Component {
       autoOrderVisible,
       autoPurchaseWorkflowExtPack,
       activeTab,
+      isMoreApp,
     } = this.state;
     const { limitExecCount, useExecCount, quantity } = useCount;
 
@@ -427,7 +440,7 @@ export default class AdminWorkflowList extends Component {
 
             {activeTab === 'workflowList' && (
               <div
-                className="pointer ThemeHoverColor3 Gray_9e Font13 Normal"
+                className="pointer ThemeHoverColor3 Gray_75 Font13 Normal"
                 onClick={() => this.setState({ msgVisible: true })}
               >
                 <Icon icon="workflow_sms" />
@@ -441,7 +454,7 @@ export default class AdminWorkflowList extends Component {
             <div className="adminWorkflowCount flexRow">
               {useCount ? (
                 <Fragment>
-                  <span className="Gray_9e mRight5">{_l('本月执行数')}</span>
+                  <span className="Gray_75 mRight5">{_l('本月执行数')}</span>
                   <span className="bold mRight5">{`${useExecCount
                     .toString()
                     .replace(/(\d)(?=(\d{3})+$)/g, '$1,')} / ${limitExecCount
@@ -460,7 +473,7 @@ export default class AdminWorkflowList extends Component {
                     </span>
                   )}
 
-                  <span className="Gray_9e mLeft15 mRight5">{_l('剩余')}</span>
+                  <span className="Gray_75 mLeft15 mRight5">{_l('剩余')}</span>
 
                   <span
                     className="bold"
@@ -501,7 +514,7 @@ export default class AdminWorkflowList extends Component {
                     popupPlacement="bottom"
                     text={<span>{_l('本月剩余执行额度到达2%时，自动购买100元/1万次的单月包，从账户余额中扣款')}</span>}
                   >
-                    <span className="Gray_9e Hand">{_l('自动订购')}</span>
+                    <span className="Gray_75 Hand">{_l('自动订购')}</span>
                   </Tooltip>
                 </div>
               )}
@@ -520,8 +533,17 @@ export default class AdminWorkflowList extends Component {
                     .indexOf(inputValue.toLowerCase()) > -1
                 }
                 suffixIcon={<Icon icon="arrow-down-border Font14" />}
-                notFoundContent={<span className="Gray_9e">{_l('无搜索结果')}</span>}
+                notFoundContent={<span className="Gray_75">{_l('无搜索结果')}</span>}
                 onChange={value => this.updateState({ apkId: value })}
+                onPopupScroll={e => {
+                  e.persist();
+                  const { scrollTop, offsetHeight, scrollHeight } = e.target;
+                  if (scrollTop + offsetHeight === scrollHeight) {
+                    if (isMoreApp) {
+                      this.getAppList(params.projectId);
+                    }
+                  }
+                }}
               />
               <Select
                 className="w180 mdAntSelect mLeft15"

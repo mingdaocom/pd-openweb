@@ -93,27 +93,60 @@
       .mdEditorTipColor {
         color: #9e9e9e;
       }
-
-      .mdEditorCancel {
-        font-size: 13px;
-        cursor: pointer;
-
-        &:not(:hover) {
-          color: #9e9e9e !important;
-        }
-      }
-
-      .mdEditorSave {
-        font-size: 13px;
-        cursor: pointer;
-        color: #fff;
-        border-radius: 3px;
-        margin-left: 32px;
-        height: 32px;
-        line-height: 32px;
-        padding: 0 22px;
+    }
+    .mdEditorCancel {
+      font-size: 13px;
+      cursor: pointer;
+      &:not(:hover) {
+        color: #9e9e9e !important;
       }
     }
+    .mdEditorSave {
+      font-size: 13px;
+      cursor: pointer;
+      color: #fff;
+      border-radius: 3px;
+      margin-left: 32px;
+      height: 32px;
+      line-height: 32px;
+      padding: 0 22px;
+    }
+  }
+  .sheetEditor {
+    .Input {
+      border-color: #eaeaea;
+      padding-right: 50px;
+    }
+    .resumeLength {
+      position: absolute;
+      top: 9px;
+      right: 10px;
+    }
+    .colorWrap {
+      height: 36px;
+      border: 1px solid #eaeaea;
+      border-radius: 4px;
+      width: 100px;
+      justify-content: space-around;
+      .icon {
+        color: #cdcdcd;
+      }
+    }
+    .sheetIntroInfo, .mdEditorContentWrap {
+      padding: 0 24px;
+    }
+    .mdEditorContentWrap .editorContent {
+      border: 1px solid #eaeaea;
+      border-radius: 4px;
+      .ck-sticky-panel .ck-toolbar {
+        border: none !important;
+        border-bottom: 1px solid #eaeaea !important;
+      }
+    }
+  }
+  .sheetIntroDescriptionFooter {
+    padding: 20px;
+    justify-content: flex-end;
   }
   .appDescriptionHeader {
     .managersWrap:hover {

@@ -11,30 +11,33 @@ import KnowledgeBase from './knowledgeBase';
 import { navigateTo } from 'src/router/navigateTo';
 import { getFeatureStatus, upgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
+import { getMyPermissions } from 'src/components/checkPermission';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 export default class PluginContainer extends React.Component {
   constructor(props) {
     super(props);
 
     const projectInfo = this.getProjectInfo();
-    const { projectId = '', isSuperAdmin = false, isProjectAppManager = false, companyName } = projectInfo;
+    const { projectId = '', companyName } = projectInfo;
 
     this.state = {
-      showCreateCustomBtn: false,
-      isAdmin: isSuperAdmin || isProjectAppManager,
       currentProjectId: projectId,
       currentProjectName: companyName,
+      myPermissions: [],
     };
   }
 
   componentDidMount() {
     $('html').addClass('plugin');
-    emitter.addListener('CHANGE_CURRENT_PROJECT', this.reload);
+    this.loadPermissions();
+    emitter.addListener('CHANGE_CURRENT_PROJECT', this.loadPermissions);
   }
 
   componentWillUnmount() {
     $('html').removeClass('plugin');
-    emitter.removeListener('CHANGE_CURRENT_PROJECT', this.reload);
+    emitter.removeListener('CHANGE_CURRENT_PROJECT', this.loadPermissions);
   }
 
   getProjectInfo = () => {
@@ -44,34 +47,37 @@ export default class PluginContainer extends React.Component {
     return projectInfo || {};
   };
 
-  reload = () => {
+  loadPermissions = () => {
     const projectInfo = this.getProjectInfo();
-    const { projectId = '', isSuperAdmin = false, isProjectAppManager = false, companyName } = projectInfo;
-
+    const { projectId = '', companyName } = projectInfo;
+    const myPermissions = getMyPermissions(projectId);
     this.setState({
-      isAdmin: isSuperAdmin || isProjectAppManager,
-      currentProjectId: projectId,
+      currentProjectId: projectInfo.projectId,
       currentProjectName: companyName,
+      myPermissions,
     });
   };
 
   render() {
     const { match = { params: {} } } = this.props;
     const { type = '' } = match.params;
-    const { isAdmin, currentProjectId, currentProjectName } = this.state;
+    const { currentProjectId, currentProjectName, myPermissions } = this.state;
     const param = {
       ...this.props,
       currentProjectId,
       currentProjectName,
-      isAdmin,
+      myPermissions,
     };
+    const hasPluginAuth =
+      _.get(
+        _.find(md.global.Account.projects, item => item.projectId === currentProjectId),
+        'allowPlugin',
+      ) || hasPermission(myPermissions, [PERMISSION_ENUM.DEVELOP_PLUGIN, PERMISSION_ENUM.MANAGE_PLUGINS]);
     const featureType = getFeatureStatus(currentProjectId, VersionProductType.assistant);
-    const allowPlugin = _.get(
-      _.find(md.global.Account.projects, item => item.projectId === currentProjectId),
-      'allowPlugin',
-    );
+    const noAssistantAuth =
+      !hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_PLUGINS) || !featureType || featureType === '2';
 
-    if (!allowPlugin) {
+    if (!hasPluginAuth) {
       return upgradeVersionDialog({
         dialogType: 'content',
         removeFooter: true,
@@ -81,7 +87,7 @@ export default class PluginContainer extends React.Component {
       });
     }
 
-    if (!isAdmin || !featureType || featureType === '2') {
+    if (noAssistantAuth) {
       if (['assistant', 'knowledgeBase'].includes(type)) {
         navigateTo('/plugin/view');
         return '';
@@ -91,14 +97,14 @@ export default class PluginContainer extends React.Component {
     return (
       <div className="flexRow h100">
         <DocumentTitle title={_l('插件中心')} />
-        <SideNav {...param} />
+        <SideNav {...param} noAssistantAuth={noAssistantAuth} />
         <div className="flex">
           <ErrorBoundary>
             <Switch>
-              <Route path="/plugin/view" component={() => <ViewPlugin {...param} />} />
+              <Route path="/plugin/view" component={() => <ViewPlugin {...param} myPermissions={myPermissions} />} />
               <Route path="/plugin/assistant" component={() => <Assistant {...param} />} />
               <Route path="/plugin/knowledgeBase" component={() => <KnowledgeBase {...param} />} />
-              <Route path="*" component={() => <ViewPlugin {...param} />} exact />
+              <Route path="*" component={() => <ViewPlugin {...param} myPermissions={myPermissions} />} exact />
             </Switch>
           </ErrorBoundary>
         </div>

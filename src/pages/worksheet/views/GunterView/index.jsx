@@ -44,7 +44,7 @@ export default class Gunter extends Component {
     };
   }
   componentDidMount() {
-    const { view, updateViewConfig } = this.props;
+    const { view, updateViewConfig, noLoadAtDidMount } = this.props;
     const { calendartype } = view.advancedSetting;
 
     updateViewConfig();
@@ -56,7 +56,9 @@ export default class Gunter extends Component {
       this.props.updataPeriodType(
         gunterViewType ? Number(gunterViewType) : calendartype ? Number(calendartype) : PERIOD_TYPE.day,
       );
-      this.props.fetchRows();
+      if (!noLoadAtDidMount) {
+        this.props.fetchRows();
+      }
     }
 
     const viewEl = document.querySelector(`.gunterView-${view.viewId}`);

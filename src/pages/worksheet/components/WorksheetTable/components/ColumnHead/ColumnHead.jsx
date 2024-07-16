@@ -93,7 +93,10 @@ class ColumnHead extends Component {
   }
 
   frozen(index) {
-    const { readonly, viewId, frozenColumn } = this.props;
+    const { isTreeTableView, readonly, viewId, frozenColumn } = this.props;
+    if (isTreeTableView && index > 0) {
+      index = index - 1;
+    }
     frozenColumn(index);
     if (readonly) return;
     saveLRUWorksheetConfig('SHEET_LAYOUT_UPDATE_TIME', viewId, new Date().getTime());
@@ -254,7 +257,7 @@ class ColumnHead extends Component {
                 {_l('显示所有列')}
               </MenuItem>
             )}
-            {columnIndex < 11 && fixedColumnCount !== columnIndex + 1 && (
+            {columnIndex < 11 && !control.hideFrozen && fixedColumnCount !== columnIndex + 1 && (
               <MenuItem
                 onClick={() => {
                   if (window.isPublicApp) {
@@ -269,7 +272,7 @@ class ColumnHead extends Component {
                 {_l('冻结')}
               </MenuItem>
             )}
-            {columnIndex === fixedColumnCount - 1 && (
+            {columnIndex === fixedColumnCount - 1 && !control.hideFrozen && (
               <MenuItem
                 onClick={() => {
                   this.frozen(0);

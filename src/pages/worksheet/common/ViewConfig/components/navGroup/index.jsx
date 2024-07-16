@@ -9,7 +9,6 @@ import bgNavGroups from './img/bgNavGroups.png';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
 import sheetAjax from 'src/api/worksheet';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { updateViewAdvancedSetting } from 'src/pages/worksheet/common/ViewConfig/util';
 import NavShow from './NavShow';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import _ from 'lodash';
@@ -257,7 +256,12 @@ export default function NavGroup(params) {
     setData(navGroup);
     let { controlId } = navGroup;
     const d = worksheetControls.find(item => item.controlId === controlId) || {};
-    setDatas({ ...navGroup, isErr: !d.controlId, controlName: d.controlName, type: d.type });
+    setDatas({
+      ...navGroup,
+      isErr: !d.controlId,
+      controlName: d.controlName,
+      type: d.type === 30 ? d.sourceControlType : d.type,
+    });
     d.type === 29 && d.dataSource && getRelate(d.dataSource);
   }, [view.navGroup]);
   const onDelete = () => {
@@ -271,9 +275,8 @@ export default function NavGroup(params) {
       editAttrs.push('advancedSetting');
       param = {
         ...param,
-        advancedSetting: updateViewAdvancedSetting(view, {
-          ...advancedSetting,
-        }),
+        advancedSetting: advancedSetting,
+        editAdKeys: Object.keys(advancedSetting),
       };
     }
     updateCurrentView(
@@ -325,9 +328,8 @@ export default function NavGroup(params) {
   const updateAdvancedSetting = data => {
     updateCurrentView(
       Object.assign(view, {
-        advancedSetting: updateViewAdvancedSetting(view, {
-          ...data,
-        }),
+        advancedSetting: data,
+        editAdKeys: Object.keys(data),
         editAttrs: ['advancedSetting'],
       }),
     );
@@ -364,7 +366,7 @@ export default function NavGroup(params) {
         if (relateSheetInfo.length <= 0) {
           o.types = [
             {
-              text: <span className="Gray_9e">{_l('关联表中没有本表关联类型的层级视图，请先去添加一个')}</span>,
+              text: <span className="Gray_75">{_l('关联表中没有本表关联类型的层级视图，请先去添加一个')}</span>,
               isTip: true,
             },
           ];
@@ -421,7 +423,7 @@ export default function NavGroup(params) {
       return (
         <React.Fragment>
           {o.txt && <div className="title mTop30 Gray Bold">{o.txt}</div>}
-          {o.des && <div className="des mTop5 Gray_9e">{o.des}</div>}
+          {o.des && <div className="des mTop5 Gray_75">{o.des}</div>}
           <Dropdown
             data={o.types}
             value={value}
@@ -465,7 +467,7 @@ export default function NavGroup(params) {
       {!!_.get(navGroup, ['controlId']) ? (
         <div className="hasData">
           <div className="viewSetTitle">{_l('筛选列表')}</div>
-          <div className="Gray_9e mTop8 mBottom4">
+          <div className="Gray_75 mTop8 mBottom4">
             {_l('将所选字段选项以列表的形式显示在视图左侧，帮助用户快速查看记录，支持选项、关联记录和级联选择字段。')}
           </div>
           <React.Fragment>
@@ -574,7 +576,7 @@ export default function NavGroup(params) {
             <img src={bgNavGroups} alt="" srcset="" />
           </div>
           <h6 className="">{_l('筛选列表')}</h6>
-          <p className="text">
+          <p className="text Gray_75">
             {_l('将所选字段选项以列表的形式显示在视图左侧，帮助用户快速查看记录，支持选项、关联记录和级联选择字段。')}
           </p>
           {renderAdd({

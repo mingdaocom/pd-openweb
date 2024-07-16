@@ -9,11 +9,12 @@ import {
   getMaxValue,
   getMinValue,
   getChartColors,
-  getAuxiliaryLineConfig
+  getAuxiliaryLineConfig,
+  getEmptyChartData
 } from './common';
 import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
-import { formatSummaryName, isFormatNumber, isTimeControl } from 'statistics/common';
+import { formatSummaryName, isFormatNumber, isTimeControl, formatterTooltipTitle } from 'statistics/common';
 import _ from 'lodash';
 import { toFixed } from 'src/util';
 
@@ -102,7 +103,7 @@ export const formatChartData = (data, yaxisList, { isPile, isAccumulate }, split
             controlId: element.c_id,
             groupName: `${splitControlId ? element.key : (rename || element.key)}-md-${reportTypes.LineChart}-chart-${element.c_id || index}`,
             groupKey: element.originalKey,
-            value: current[0].v,
+            value: current[0].v || (emptyShowType ? 0 : null),
             name: item.x,
             originalId: item.originalX || item.x
           });
@@ -308,7 +309,7 @@ export default class extends Component {
     const styleConfig = reportData.style || {};
     const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const { position } = getLegendType(legendType);
-    const { length } = _.isEmpty(map) ? contrastMap[0].value : map[0].value;
+    const { length = 0 } = _.isEmpty(map) ? _.get(contrastMap[0], 'value') || {} : _.get(map[0], 'value') || {};
     const { chartShowLabelIds = ['all'] } = style;
     const isPercentStackedArea = displaySetup.showChartType == 2 && isPerPile;
     const LineValue = isPercentStackedArea ? 0 : (displaySetup.lifecycleValue / length) * (displaySetup.isAccumulate ? length : 1);
@@ -395,7 +396,7 @@ export default class extends Component {
               autoRotate: displaySetup.fontStyle ? true : false,
               autoHide: true,
               formatter: (name, item) => {
-                return xaxes.particleSizeType === 6 ? _l('%0时', name) : name;
+                return xaxes.particleSizeType === 6 && xaxes.showFormat === '0' ? _l('%0时', name) : name;
               },
             }
           : null,
@@ -404,6 +405,7 @@ export default class extends Component {
       tooltip: {
         shared: true,
         showCrosshairs: true,
+        title: formatterTooltipTitle(xaxes),
         formatter: ({ value, groupName }) => {
           const { name, id } = formatControlInfo(groupName);
           const labelValue = formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id);
@@ -470,7 +472,7 @@ export default class extends Component {
       return {
         LineChartComponent: ChartComponent,
         LineChartConfig: Object.assign({}, baseConfig, {
-          data: sortData,
+          data: sortData.length ? sortData : getEmptyChartData(reportData),
           color: colors,
         }),
       };

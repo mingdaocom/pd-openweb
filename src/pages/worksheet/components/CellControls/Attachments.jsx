@@ -12,9 +12,10 @@ import { openControlAttachmentInNewTab, downloadAttachmentById } from 'worksheet
 import { getClassNameByExt, formatFileSize, addBehaviorLog, browserIsMobile } from 'src/util';
 import { bool, func, number, shape, string } from 'prop-types';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
+import { checkValueByFilterRegex } from 'src/components/newCustomFields/tools/utils';
 import _ from 'lodash';
 import { FROM } from './enum';
-
+import RegExpValidator from 'src/util/expression';
 const Con = styled.div`
   &:hover {
     .CutCon {
@@ -112,12 +113,13 @@ const ImageHoverMask = styled.span`
 const OperateIcon = styled.div`
   display: none;
   position: absolute;
-  right: 0;
-  top: 0;
-  width: 34px;
-  height: 34px;
+  right: 4px;
+  top: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  background: #fff;
   text-align: center;
-  line-height: 34px;
   color: #9e9e9e;
   font-size: 16px;
   cursor: pointer;
@@ -447,13 +449,13 @@ function Attachment(props) {
   } = props;
   const { appId, recordId, worksheetId, from } = cellInfo;
   const { attachment } = props;
-  const [isPicture, setIsPicture] = useState(File.isPicture(attachment.ext));
+  const [isPicture, setIsPicture] = useState(RegExpValidator.fileIsPicture(attachment.ext));
   const smallThumbnailUrl = (attachment.previewUrl || '').replace(
     /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
     'imageView2/2/h/' + fileHeight,
   );
   useEffect(() => {
-    setIsPicture(File.isPicture(attachment.ext));
+    setIsPicture(RegExpValidator.fileIsPicture(attachment.ext));
   }, [attachment.ext]);
   return (
     <Trigger
@@ -585,7 +587,7 @@ function cellAttachments(props, sourceRef) {
     : advancedSetting.showfilename;
   const showFileName =
     (from === FROM.COMMON && showFileValue === '1') ||
-    (from === FROM.CARD && attachments.length === 1 && !File.isPicture(attachments[0].ext));
+    (from === FROM.CARD && attachments.length === 1 && !RegExpValidator.fileIsPicture(attachments[0].ext));
   const fileHeight = showFileValue === '1' ? 24 : rowHeight - 10;
   const fileWidth = (fileHeight * 21) / 24;
   useImperativeHandle(sourceRef, () => ({
@@ -722,6 +724,10 @@ function cellAttachments(props, sourceRef) {
         }}
         onOk={() => {
           handleChange();
+        }}
+        checkValueByFilterRegex={name => {
+          const formData = props.rowFormData();
+          return checkValueByFilterRegex({ advancedSetting }, RegExpValidator.getNameOfFileName(name), formData, rest.recordId);
         }}
       >
         <EditingCon ref={ref} style={{ width: style.width, minHeight: style.height }}>

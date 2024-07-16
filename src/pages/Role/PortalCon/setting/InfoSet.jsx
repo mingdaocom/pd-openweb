@@ -6,7 +6,7 @@ import cx from 'classnames';
 import { DEFAULT_DATA, DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
 import { v4 as uuidv4 } from 'uuid';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
-import { SortableContainer, SortableElement, SortableHandle } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle } from '@mdfe/react-sortable-hoc';
 import PortalSettingDialog from 'src/pages/widgetConfig/widgetSetting/components/PortalSettingDialog';
 import _ from 'lodash';
 

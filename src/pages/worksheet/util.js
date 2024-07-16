@@ -6,14 +6,19 @@ import axios from 'axios';
 import { getRequest, isLightColor, toFixed } from 'src/util';
 import { generate } from '@ant-design/colors';
 import { UNIT_TYPE } from '../widgetConfig/config/setting';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import appManagementAjax from 'src/api/appManagement';
 import publicWorksheet from 'src/api/publicWorksheet';
 import webCache from 'src/api/webCache';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
-import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
-import { controlState, getTitleTextFromRelateControl, getValueStyle } from 'src/components/newCustomFields/tools/utils';
+import { FORM_ERROR_TYPE_TEXT, FORM_ERROR_TYPE } from 'src/components/newCustomFields/tools/config';
+import {
+  checkValueByFilterRegex,
+  controlState,
+  getTitleTextFromRelateControl,
+  getValueStyle,
+} from 'src/components/newCustomFields/tools/utils';
 import { checkRuleLocked, updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE, VIEW_DISPLAY_TYPE } from 'worksheet/constants/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
@@ -25,7 +30,7 @@ import {
   RECORD_COLOR_SHOW_TYPE,
   VIEW_CONFIG_RECORD_CLICK_ACTION,
 } from 'worksheet/constants/enum';
-import _, { head } from 'lodash';
+import _, { get, head } from 'lodash';
 import { Base64 } from 'js-base64';
 import { HAVE_VALUE_STYLE_WIDGET } from '../widgetConfig/config';
 
@@ -568,10 +573,13 @@ export function getSubListError({ rows, rules }, controls = [], showControls = [
         }
       });
       errorItems.forEach(errorItem => {
+        const errorControl = _.find(controldata, c => c.controlId === errorItem.controlId);
         result[row.rowid + '-' + errorItem.controlId] =
-          typeof FORM_ERROR_TYPE_TEXT[errorItem.errorType] === 'string'
+          errorItem.errorType === FORM_ERROR_TYPE.CUSTOM
+            ? checkValueByFilterRegex(errorControl, _.get(errorControl, 'value'), controldata)
+            : typeof FORM_ERROR_TYPE_TEXT[errorItem.errorType] === 'string'
             ? FORM_ERROR_TYPE_TEXT[errorItem.errorType]
-            : FORM_ERROR_TYPE_TEXT[errorItem.errorType](_.find(controldata, c => c.controlId === errorItem.controlId));
+            : FORM_ERROR_TYPE_TEXT[errorItem.errorType](errorControl);
       });
     });
     const uniqueControls = controls.filter(
@@ -1000,10 +1008,6 @@ export function getDefaultValueOfControl(control) {
   }
 }
 
-export function runCode(code) {
-  return new vm.Script(code).runInNewContext();
-}
-
 const execWorkerCode = `onmessage = function (e) {
   try {
   const result = new Function(e.data)();
@@ -1094,9 +1098,9 @@ class Runner {
         clearTimeout(timer);
       }
       if (msg.data.type === 'error') {
-        console.error(msg.err);
+        console.error(msg.err || get(msg, 'data.err'));
         afterRun();
-        cb(msg.err);
+        cb(msg.err || get(msg, 'data.err'));
         clearTimeout(timer);
       }
     };
@@ -1135,9 +1139,9 @@ export function validateFnExpression(expression, type = 'mdfunction') {
     if (type === 'mdfunction') {
       expression = expression.replace(/[\r\r\n ]/g, '');
       expression = expression.replace(/([A-Z]+)(?=\()/g, 'test');
-      runCode(`function test() {return '-';}${expression}`);
+      eval(`function test() {return '-';}${expression}`);
     } else if (type === 'javascript') {
-      runCode(`function test() {${expression} }`);
+      eval(`function test() {${expression} }`);
     }
     return true;
   } catch (err) {
@@ -1385,6 +1389,8 @@ export function getRelateRecordCountFromValue(value, propsCount) {
     const parsedData = safeParse(value, 'array');
     if (!_.isUndefined(_.get(parsedData, '0.count'))) {
       savedCount = parsedData[0].count;
+    } else if (value === '') {
+      savedCount = 0;
     } else if (!_.isUndefined(propsCount)) {
       savedCount = propsCount;
     } else {
@@ -1484,7 +1490,7 @@ export function getRecordColor({ controlId, controls, colorItems, row }) {
     activeOption &&
     activeOption.color && {
       color: activeOption.color,
-      lightColor: isLightColor(activeOption.color) ? lightColor : tinycolor(lightColor).setAlpha(0.8).toRgbString(),
+      lightColor: isLightColor(activeOption.color) ? lightColor : new TinyColor(lightColor).setAlpha(0.8).toRgbString(),
     }
   );
 }
@@ -1548,7 +1554,7 @@ export function KVGet(key, { needEncode = true } = {}) {
   if (needEncode) {
     newKey = Base64.encode(key);
   }
-  return webCache.get({ key: newKey }).then(data => (data ? Base64.decode(data) : ''));
+  return webCache.get({ key: newKey }).then(res => (get(res, 'data') ? Base64.decode(get(res, 'data')) : ''));
 }
 
 /**
@@ -1658,15 +1664,51 @@ export function getSubListUniqueError({ control, badData = [] } = {}) {
   }
 }
 
-export const replaceControlsTranslateInfo = (appId, controls = []) => {
+export const replaceControlsTranslateInfo = (appId, worksheetId, controls = []) => {
   if (!window[`langData-${appId}`]) return controls;
   return controls.map(c => {
-    const translateInfo = getTranslateInfo(appId, c.controlId);
+    const translateInfo = getTranslateInfo(appId, worksheetId, c.controlId);
+    const { advancedSetting = {} } = c;
     const data = {
       ...c,
       controlName: translateInfo.name || c.controlName,
       hint: translateInfo.hintText || c.hint,
     };
+    // 选项
+    if ([9, 10, 11].includes(c.type)) {
+      const optionTranslateInfo = c.dataSource ? getTranslateInfo(appId, null, c.dataSource) : translateInfo;
+      data.options = data.options.map(item => {
+        return {
+          ...item,
+          value: optionTranslateInfo[item.key] || item.value,
+        };
+      });
+      data.advancedSetting.otherhint = translateInfo.otherhint || advancedSetting.otherhint;
+    }
+    // 检查项
+    if (c.type === 36 && advancedSetting.itemnames) {
+      const itemnames = JSON.parse(advancedSetting.itemnames);
+      const newItemnames = itemnames.map(item => {
+        return {
+          ...item,
+          value: translateInfo[item.key] || item.value,
+        };
+      });
+      data.advancedSetting.itemnames = JSON.stringify(newItemnames);
+    }
+    // 数值
+    if ([6, 8, 31].includes(c.type) && (advancedSetting.suffix || advancedSetting.prefix)) {
+      if (advancedSetting.suffix) {
+        data.advancedSetting.suffix = translateInfo.suffix || advancedSetting.suffix;
+      }
+      if (advancedSetting.prefix) {
+        data.advancedSetting.prefix = translateInfo.suffix || advancedSetting.prefix;
+      }
+    }
+    // 子表
+    if (c.type === 34) {
+      data.relationControls = replaceControlsTranslateInfo(appId, data.dataSource, data.relationControls);
+    }
     // 填充备注字段内容
     if (c.type === 10010) {
       data.dataSource = translateInfo.remark || c.dataSource;
@@ -1680,7 +1722,7 @@ export const replaceControlsTranslateInfo = (appId, controls = []) => {
 export const replaceBtnsTranslateInfo = (appId, btns = []) => {
   if (!window[`langData-${appId}`]) return btns;
   return btns.map(btn => {
-    const translateInfo = getTranslateInfo(appId, btn.btnId);
+    const translateInfo = getTranslateInfo(appId, null, btn.btnId);
     return {
       ...btn,
       name: translateInfo.name || btn.name,
@@ -1725,7 +1767,18 @@ export function getControlStyles(controls) {
 
 export function needHideViewFilters(view) {
   return (
-    (String(view.viewType) === VIEW_DISPLAY_TYPE.structure && _.includes([0, 1], Number(view.childType))) ||
+    (String(view.viewType) === VIEW_DISPLAY_TYPE.structure &&
+      _.includes([0, 1], Number(view.childType)) &&
+      get(view, 'advancedSetting.hierarchyViewType') !== '3') ||
     String(view.viewType) === VIEW_DISPLAY_TYPE.gunter
   );
+}
+
+export function getTreeExpandCellWidth(index, rowsLength) {
+  rowsLength = rowsLength || 1;
+  let strLength = String(rowsLength).length;
+  if (strLength < 2) {
+    strLength = 2;
+  }
+  return index * (strLength * 14) + 34;
 }

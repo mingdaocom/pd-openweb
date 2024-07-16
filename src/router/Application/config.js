@@ -38,6 +38,11 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
       sensitive: true,
     },
 
+    appAggregationSettings: {
+      path: '/app/:appId/settings/aggregation/:aggTableId',
+      component: () => import('src/pages/AppSettings/components/Aggregation/aggEdit'),
+    },
+
     // 应用管理配置页
     appSettings: {
       path: '/app/:appId/settings/:navTab?',

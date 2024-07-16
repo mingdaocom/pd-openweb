@@ -1,58 +1,63 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+        <meta
+            content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+            id="viewport"
+            name="viewport"
+        />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="renderer" content="webkit" />
+        <meta name="force-rendering" content="webkit" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <title>绑定微信登录</title>
+        <style>
+            body {
+                text-align: center;
+                font-size: 14px;
+                font-family: '微软雅黑';
+                display: none;
+            }
 
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="keywords" content="中台工具,APaaS,hpaPaaS,RAD,数据库应用,快速开发工具">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" id="viewport" name="viewport">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="renderer" content="webkit">
-    <meta name="force-rendering" content="webkit">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <title>绑定微信登录</title>
-    <style>
-        body {
-            text-align: center;
-            font-size: 14px;
-            font-family: '微软雅黑';
-        }
+            #container,
+            iframe {
+                height: 330px;
+            }
 
-        #container,
-        iframe {
-            height: 330px;
-        }
+            .desc {
+                margin-top: 10px;
+            }
 
-        .desc {
-            margin-top: 10px;
-        }
+            .impowerBox .qrcode {
+                margin-top: 0px;
+            }
 
-        .impowerBox .qrcode {
-            margin-top:0px;
-        }
+            .impowerBox .title {
+                display: none;
+            }
 
-        .impowerBox .title {
-            display: none;
-        }
+            .impowerBox .info {
+                display: none;
+            }
+        </style>
+        <script src="/staticfiles/staticLanguages.js"></script>
+    </head>
+    <script language="javascript" src="https://turing.captcha.qcloud.com/TCaptcha.js"></script>
 
-        .impowerBox .info {
-            display: none;
-        }
-    </style>
-</head>
-<script language="javascript" src="https://turing.captcha.qcloud.com/TCaptcha.js"></script>
-
-<body>
-    <div id="container">加载中</div>
-    <div class="desc">绑定后，可直接使用微信扫描二维码登录</div>
-    <script src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
-    <script type="text/javascript">var obj = new WxLogin({
-            id: "container",
-            appid: "wxff66683c987a3b12",
-            scope: "snsapi_login",
-            redirect_uri: "http://tp.mingdao.com/weixin/userAuthorize",
-        });</script>
-</body>
-
+    <body>
+        <div id="container" class="transformLang">加载中...</div>
+        <div class="desc transformLang">绑定后，可直接使用微信扫描二维码登录</div>
+        <script src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
+        <script type="text/javascript">
+            var obj = new WxLogin({
+                id: 'container',
+                appid: 'wxff66683c987a3b12',
+                scope: 'snsapi_login',
+                redirect_uri: 'http://tp.mingdao.com/weixin/userAuthorize',
+            });
+        </script>
+    </body>
 </html>

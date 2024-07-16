@@ -4,7 +4,7 @@ import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 import styled from 'styled-components';
 import upgradeAjax from 'src/api/upgrade';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 
 const formData = [
   { key: 'companyName', label: _l('组织全称'), type: 'input', placeholder: _l('组织名称'), isRequired: true },
@@ -88,11 +88,11 @@ export default function EditContractDialog(props) {
       alert(_l('请确保邮编正确'), 3); // "请确保邮编正确"
       return true;
     }
-    if (!RegExp.isEmail(email)) {
+    if (!RegExpValidator.isEmail(email)) {
       alert(_l('请输入正确的邮箱'), 3); // 请输入正确的邮箱
       return true;
     }
-    if (!RegExp.isPhoneNumber(mobilePhone)) {
+    if (!/^(1[3-9]{1})\d{9}$/.exec(mobilePhone)) {
       alert(_l('手机号码未正确填写'), 3); // '请输入正确的手机号码！'
       return true;
     }

@@ -33,7 +33,7 @@ export default class DeleteNodeObj extends Component {
     return (
       <Fragment>
         <div className="Font13 bold">{_l('选择删除对象')}</div>
-        <div className="Font13 Gray_9e mTop10">{_l('当前流程中的节点对象')}</div>
+        <div className="Font13 Gray_75 mTop10">{_l('当前流程中的节点对象')}</div>
         <SelectNodeObject
           appList={data.flowNodeList}
           selectNodeId={data.selectNodeId}
@@ -49,7 +49,7 @@ export default class DeleteNodeObj extends Component {
             onClick={checked => updateSource({ destroy: !checked })}
           />
         </div>
-        <div className="Gray_9e mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
+        <div className="Gray_75 mTop5 mLeft26">{_l('彻底删除后数据不可恢复，请谨慎操作')}</div>
       </Fragment>
     );
   }

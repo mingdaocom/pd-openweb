@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
-import NumberUtil from 'src/util/number';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 import _ from 'lodash';
 
@@ -48,7 +47,7 @@ export default class Number extends Component {
     if (isEmpty(value) && isEmpty(minValue) && isEmpty(maxValue)) {
       return;
     }
-    if (minValue && maxValue && NumberUtil.parseFloat(maxValue) < NumberUtil.parseFloat(minValue)) {
+    if (minValue && maxValue && parseFloat(maxValue) < parseFloat(minValue)) {
       changes.minValue = maxValue;
       changes.maxValue = minValue;
       this.setState({
@@ -91,6 +90,7 @@ export default class Number extends Component {
                 placeholder={_l('最小值')}
                 onChange={e => this.setValue('minValue', e.target.value)}
                 onBlur={this.handleChange}
+                maxlength={18}
               />
             </div>
             <span className="split">-</span>
@@ -103,6 +103,7 @@ export default class Number extends Component {
                 placeholder={_l('最大值')}
                 onChange={e => this.setValue('maxValue', e.target.value)}
                 onBlur={this.handleChange}
+                maxlength={18}
               />
             </div>
           </div>
@@ -115,6 +116,7 @@ export default class Number extends Component {
             placeholder={_l('请输入数值')}
             onChange={e => this.setValue('value', e.target.value)}
             onBlur={this.handleChange}
+            maxlength={18}
           />
         )}
       </div>

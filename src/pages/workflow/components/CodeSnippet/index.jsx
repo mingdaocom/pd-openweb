@@ -7,7 +7,8 @@ import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import './index.less';
 import flowNodeAjax from '../../api/flowNode';
-import { getCurrentProject } from 'src/util';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const EditDialogBox = styled(Dialog)`
   .codeSnippetEditLabel {
@@ -133,7 +134,7 @@ const DialogBox = styled(Dialog)`
         width: 28px;
         height: 28px;
         border-radius: 4px;
-        color: #9e9e9e;
+        color: #757575;
         margin-right: 4px;
         display: none;
         &:hover {
@@ -179,7 +180,8 @@ export const CodeSnippetEdit = ({
 }) => {
   const [name, setName] = useState(codeName);
   const [position, setPosition] = useState(source);
-  const currentProject = getCurrentProject(projectId);
+  const hasAppResourceAuth = checkPermission(projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
+
   const save = () => {
     flowNodeAjax[id ? 'updateCodeTemplate' : 'createCodeTemplate']({
       id,
@@ -224,7 +226,7 @@ export const CodeSnippetEdit = ({
             {
               text: _l('组织'),
               value: projectId,
-              disabled: !currentProject.isSuperAdmin && !currentProject.isProjectAppManager,
+              disabled: !hasAppResourceAuth,
             },
           ].map(item => {
             return (
@@ -258,7 +260,8 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
   const [editCodeId, setEditCodeId] = useState('');
   const inputName = useRef(null);
   const tagtextarea = useRef(null);
-  const currentProject = getCurrentProject(projectId);
+  const hasAppResourceAuth = checkPermission(projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
+
   const TITLE = {
     0: _l('选择代码片段'),
     1: _l('插入JavaScript代码片段'),
@@ -372,7 +375,7 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
           </ul>
           <div className="flex" />
           <div className="codeSnippetSearch">
-            <i className="icon-search Font16 Gray_9e"></i>
+            <i className="icon-search Font16 Gray_75"></i>
             <input
               type="text"
               placeholder={_l('搜索')}
@@ -381,7 +384,7 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
             />
             {keywords && (
               <i
-                className="icon-cancel Font16 Gray_9e ThemeHoverColor3"
+                className="icon-cancel Font16 Gray_75 ThemeHoverColor3"
                 onClick={() => {
                   setKeywords('');
                   inputName.current.value = '';
@@ -424,8 +427,7 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
                       onClick={() => setSelectId(item.id)}
                     >
                       <div className="ellipsis flex">{item.name}</div>
-                      {(tabIndex === 3 ||
-                        (tabIndex === 2 && (currentProject.isSuperAdmin || currentProject.isProjectAppManager))) && (
+                      {(tabIndex === 3 || (tabIndex === 2 && hasAppResourceAuth)) && (
                         <Trigger
                           popupVisible={popupVisibleId === item.id}
                           onPopupVisibleChange={visible => {

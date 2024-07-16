@@ -11,7 +11,7 @@ const Con = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  z-index: 999;
+  z-index: 1000;
 `;
 
 const Header = styled.div`

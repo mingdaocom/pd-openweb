@@ -42,7 +42,11 @@ export default class DropDownItem extends Component {
         }}
       >
         {dropDownData.map(item => {
-          return <Menu.Item key={item.value}>{item.text}</Menu.Item>;
+          return (
+            <Menu.Item key={item.value} className="ellipsis">
+              {item.text}
+            </Menu.Item>
+          );
         })}
       </Menu>
     );

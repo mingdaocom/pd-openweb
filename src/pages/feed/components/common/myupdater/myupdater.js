@@ -11,7 +11,7 @@ import applicationAjax from 'src/api/application';
 import postAjax from 'src/api/post';
 import { Dialog } from 'ming-ui';
 import React from 'react';
-
+import RegExpValidator from 'src/util/expression';
 var langUploadFiles = _l('上传附件') + '...';
 var langShareLink = _l('分享网站') + '...';
 var langVoteQuestion = _l('请输入投票问题') + '...';
@@ -221,7 +221,7 @@ var MyUpdater = {
             fileExt: node.ext ? '.' + node.ext : '',
             fileSize: node.size,
             allowDown: node.isDownloadable,
-            viewUrl: File.isPicture('.' + node.ext) ? node.viewUrl : null,
+            viewUrl: RegExpValidator.fileIsPicture('.' + node.ext) ? node.viewUrl : null,
           });
           html +=
             "<div class='docItem kcDocItem' data-name='" +
@@ -232,7 +232,7 @@ var MyUpdater = {
             node.id +
             "'>";
           html += "<div class='progress'>";
-          if (File.isPicture('.' + node.ext)) {
+          if (RegExpValidator.fileIsPicture('.' + node.ext)) {
             html +=
               "<div class='Left nodeIconContainer nodeImg'><img src='" +
               node.previewUrl +

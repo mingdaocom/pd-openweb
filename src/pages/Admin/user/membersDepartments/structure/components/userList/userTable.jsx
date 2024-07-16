@@ -301,7 +301,15 @@ class UserTable extends React.Component {
     let { columnsInfo } = this.state;
     let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
     let temp = (!_.isEmpty(columnsInfoData) && columnsInfoData) || columnsInfo;
-    let { usersCurrentPage = [], projectId, chargeUsers = [], searchAccountIds, searchId = [], isSearch } = props;
+    let {
+      usersCurrentPage = [],
+      projectId,
+      chargeUsers = [],
+      searchAccountIds,
+      searchId = [],
+      isSearch,
+      authority = [],
+    } = props;
     if (isSearch && !!searchId[0] && searchAccountIds.length > 0) {
       usersCurrentPage = searchAccountIds.filter(user => user.accountId === searchId[0]);
     }
@@ -313,6 +321,7 @@ class UserTable extends React.Component {
 
       return (
         <UserItem
+          authority={authority}
           isSearch={props.isSearch}
           isChargeUser={isChargeUser}
           user={user}
@@ -374,7 +383,7 @@ class UserTable extends React.Component {
     }
   };
   render() {
-    const { isLoading, projectId, dispatch, typeCursor, pageIndex, departmentId } = this.props;
+    const { isLoading, projectId, dispatch, typeCursor, pageIndex, departmentId, authority = [] } = this.props;
     const { openChangeUserInfoDrawer, editCurrentUser = {} } = this.state;
     if (isLoading) return <LoadDiv />;
 
@@ -399,6 +408,7 @@ class UserTable extends React.Component {
             accountId={editCurrentUser.accountId}
             editCurrentUser={editCurrentUser}
             departmentId={departmentId}
+            openChangeUserInfoDrawer={openChangeUserInfoDrawer}
             clickSave={() => {
               refreshData(departmentId, typeCursor, projectId, pageIndex, dispatch);
               this.setState({ openChangeUserInfoDrawer: false });
@@ -413,6 +423,7 @@ class UserTable extends React.Component {
             fetchApproval={() => dispatch(fetchApproval(projectId))}
             fetchReInvite={(accountIds, callback) => dispatch(fetchReInvite(accountIds, callback))}
             fetchCancelImportUser={(accountIds, callback) => dispatch(fetchCancelImportUser(accountIds, callback))}
+            authority={authority}
           />
         )}
       </div>

@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import cx from 'classnames';
 import { Tooltip, Slider } from 'ming-ui';
 import ViewConfig from 'worksheet/common/ViewConfig';
@@ -25,6 +25,7 @@ import {
   updateSearchRecord,
   updateCurrentViewState,
   updateViewShowcount,
+  clearFilters,
 } from 'worksheet/redux/actions';
 import { changePageSize, changePageIndex } from 'worksheet/redux/actions/sheetview';
 import { addMultiRelateHierarchyControls } from 'worksheet/redux/actions/hierarchy';
@@ -37,6 +38,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { filterHidedControls } from 'worksheet/util';
 import { canEditData } from 'worksheet/redux/actions/util';
 import { APP_ROLE_TYPE, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import renderCellText from 'worksheet/components/CellControls/renderText';
 
 const Con = styled.div`
   display: flex;
@@ -56,6 +58,7 @@ const Con = styled.div`
 
 function ViewControl(props) {
   const {
+    base,
     appId,
     groupId,
     view,
@@ -94,11 +97,13 @@ function ViewControl(props) {
     updateCurrentViewState,
     updateViewShowcount,
     detailView,
+    clearFilters,
   } = props;
   const { worksheetId, projectId } = worksheetInfo;
   const { count, pageCountAbnormal, rowsSummary } = sheetViewData;
   const { pageIndex, pageSize, sortControls } = sheetFetchParams;
   const { allWorksheetIsSelected, sheetSelectedRows, sheetHiddenColumns } = sheetViewConfig;
+  const cache = useRef({});
   const [createCustomBtnVisible, setCreateCustomBtnVisible] = useState();
   const [isListOption, setIsListOption] = useState(false);
   const [showFastFilter, setShowFastFilter] = useState();
@@ -111,7 +116,7 @@ function ViewControl(props) {
     if (['gallery', 'board'].includes(VIEW_DISPLAY_TYPE[props.view.viewType])) {
       const showcount = _.get(props.view, 'advancedSetting.showcount');
       const storageCount = localStorage.getItem('showcount_' + viewId);
-      if (!storageCount) {
+      if (!storageCount || storageCount === 'undefined') {
         updateViewShowcount(showcount);
       } else if (storageCount !== props.fieldShowCount) {
         updateViewShowcount(storageCount);
@@ -121,6 +126,24 @@ function ViewControl(props) {
   useEffect(() => {
     setActiveBtnIdInfo(_.find(sheetButtons, item => item.btnId === activeBtnId));
   }, [activeBtnId, sheetButtons]);
+
+  const handleSearchData = () => {
+    if (!searchData) return;
+
+    const titleField = controls.find(m => m.controlId === searchData.queryKey);
+    const searchRecordData = searchData.data.map(l => {
+      return {
+        ...l,
+        [searchData.queryKey]: renderCellText({
+          ...titleField,
+          value: searchData.queryKey ? l[searchData.queryKey] : undefined,
+        }),
+      };
+    });
+
+    return searchRecordData;
+  };
+
   return (
     <Con>
       <ViewItems
@@ -134,9 +157,10 @@ function ViewControl(props) {
         worksheetId={worksheetId}
         isLock={_.get(appPkg, 'isLock')}
         updateCurrentView={data => {
-          saveView(viewId, _.pick(data, data.editAttrs || []));
+          saveView(viewId, _.pick(data, [...(data.editAttrs || []), 'editAdKeys']));
         }}
         changeViewDisplayType={data => {
+          clearFilters();
           saveView(viewId, data);
         }}
         updateViewList={newViews => {
@@ -242,29 +266,39 @@ function ViewControl(props) {
           return `/app/${appId}/${groupId}/${worksheetId}/${selectedView.viewId}`;
         }}
       />
-      {/**本表层级视图、甘特图 */}
+      {/**本表层级视图、甘特图、地图 */}
       {((Number(view.viewType) === 2 && _.includes([0, 1], Number(view.childType))) ||
-        _.includes([5, 8], Number(view.viewType))) && (
-        <SearchRecord
-          queryKey={searchData.queryKey}
-          data={searchData.data}
-          onSearch={record => {
-            updateSearchRecord(view, record);
-          }}
-          onClose={() => {
-            updateSearchRecord(view, null);
-          }}
-        >
-          <Tooltip popupPlacement="bottom" text={<span>{_l('查找')}</span>}>
-            <i className={cx('icon icon-search Gray_9e Font18 pointer ThemeHoverColor3 mTop2 mRight15')} />
-          </Tooltip>
-        </SearchRecord>
-      )}
+        _.includes([5, 8], Number(view.viewType))) &&
+        get(view, 'advancedSetting.hierarchyViewType') !== '3' && (
+          <SearchRecord
+            viewId={viewId}
+            queryKey={searchData.queryKey}
+            data={handleSearchData()}
+            onSearch={record => {
+              updateSearchRecord(view, record);
+            }}
+            onClose={() => {
+              updateSearchRecord(view, null);
+            }}
+          >
+            <Tooltip popupPlacement="bottom" text={<span>{_l('查找')}</span>}>
+              <i className={cx('icon icon-search Gray_9e Font18 pointer ThemeHoverColor3 mTop2 mRight15')} />
+            </Tooltip>
+          </SearchRecord>
+        )}
       <Tooltip popupPlacement="bottom" text={<span>{_l('刷新视图')}</span>}>
         <i
           className={cx('icon icon-task-later refresh Gray_9e Font18 pointer ThemeHoverColor3 mTop2')}
           onClick={() => {
+            if (cache.current.isRefreshing) {
+              alert(_l('刷新频率过快'), 3);
+              return;
+            }
             refreshSheet(view, { updateWorksheetControls: true, isRefreshBtn: true });
+            cache.current.isRefreshing = true;
+            setTimeout(() => {
+              cache.current.isRefreshing = false;
+            }, 3000);
           }}
         />
       </Tooltip>
@@ -301,6 +335,7 @@ function ViewControl(props) {
 
       {Number(view && view.viewType) === 0 && (
         <Pagination
+          disabled={!!get(base, 'forcePageSize')}
           abnormalMode={pageCountAbnormal}
           className="pagination"
           pageIndex={pageIndex}
@@ -363,6 +398,9 @@ function ViewControl(props) {
             '.CodeMirror-hints',
             '.Tooltip-wrapper',
             '.selectRoleDialog',
+            '.Tooltip',
+            '#quickSelectDept',
+            '.ant-drawer-mask',
           ]}
           onClickAway={() => setViewConfigVisible(false)}
           columns={controls.filter(item => {
@@ -412,36 +450,7 @@ function ViewControl(props) {
       )}
       {createCustomBtnVisible && (
         <CreateCustomBtn
-          onClickAwayExceptions={[
-            '.ChooseWidgetDialogWrap',
-            '.showBtnFilterDialog',
-            '.doubleConfirmDialog',
-            '.appointDialog',
-            '.chooseWidgetDialog',
-            '.rc-trigger-popup',
-            '.fullScreenCurtain',
-            '.errerDialogForAppoint',
-            '.mobileDepartmentPickerDialog',
-            '#dialogBoxSelectUser_container',
-            '.selectUserFromAppDialog',
-            '.selectUserBox',
-            '.dropdownTrigger',
-            '.worksheetFilterColumnOptionList',
-            '.PositionContainer-wrapper',
-            '.mui-dialog-container',
-            '.mdAlertDialog',
-            '.ant-cascader-menus',
-            '.ant-tree-select-dropdown',
-            '.ant-picker-dropdown',
-            '.ant-modal-root',
-            '.ant-tooltip',
-            '.CodeMirror-hints',
-            '.ck',
-            '.ant-picker-dropdown',
-            '.Tooltip',
-            '.selectRoleDialog',
-          ]}
-          onClickAway={() => setCreateCustomBtnVisible(false)}
+          zIndex={12}
           sheetSwitchPermit={sheetSwitchPermit}
           isEdit={customBtnIsEdit}
           onClose={() => setCreateCustomBtnVisible(false)}
@@ -523,6 +532,7 @@ export default connect(
     views: state.sheet.views,
     sheetList: state.sheet.sheetList,
     app: state.sheet.app,
+    base: state.sheet.base,
     worksheetInfo: state.sheet.worksheetInfo,
     filters: state.sheet.filters,
     quickFilter: state.sheet.quickFilter,
@@ -556,6 +566,7 @@ export default connect(
         updateSearchRecord,
         updateCurrentViewState,
         updateViewShowcount,
+        clearFilters,
       },
       dispatch,
     ),

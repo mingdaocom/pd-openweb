@@ -5,7 +5,6 @@ import { Dropdown } from 'antd';
 import cx from 'classnames';
 import {
   filterControlsFromAll,
-  getDefaultSizeByType,
   getIconByType,
   resortControlByColRow,
   filterOnlyShowField,
@@ -237,7 +236,7 @@ export default function SheetField(props) {
                           sourceControlId: item.controlId,
                           sourceControl: item,
                           controlName: item.controlName,
-                          size: getDefaultSizeByType(item.type),
+                          size: data.size,
                         });
                         setInfo({ controlDel: false });
                       }}

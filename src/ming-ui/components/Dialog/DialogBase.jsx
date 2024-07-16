@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import { createPortal } from 'react-dom';
 import cx from 'classnames';
 import '../less/Dialog.less';
 
@@ -346,7 +346,7 @@ class DialogBase extends Component {
       );
     }
 
-    return ReactDOM.createPortal(container, this.target);
+    return createPortal(container, this.target);
   }
 }
 

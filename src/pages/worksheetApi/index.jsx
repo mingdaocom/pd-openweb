@@ -1,5 +1,5 @@
 import React, { Component, Fragment, useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './index.less';
 import ajaxRequest from 'src/api/worksheet';
 import appManagementAjax from 'src/api/appManagement';
@@ -1533,13 +1533,14 @@ class WorksheetApi extends Component {
    * 批量更新行记录详情
    */
   renderUpdateDetails(item, i) {
+    const controls = item.controls.filter(o => o.isSupport).map(o => this.renderMapItem(o));
     return this.renderPostContent(
       item,
       i,
       {
         rowIds: [_l('行记录ID'), _l('行记录ID')],
-        control: item.controls.filter(o => o.isSupport).map(o => this.renderMapItem(o))[0],
         triggerWorkflow: true,
+        controls,
       },
       { successData: appRoleSuccessData2 },
     );
@@ -1630,7 +1631,7 @@ class WorksheetApi extends Component {
         otherOptions[obj.name] = obj.desc;
       }
     });
-    otherOptions['filters'] = new Array(3).fill(1).map((o, i) => {
+    otherOptions.filters = new Array(3).fill(1).map((o, i) => {
       return {
         controlId: `control${i + 1}`,
         dataType: 6,
@@ -1639,6 +1640,7 @@ class WorksheetApi extends Component {
         value: '2',
       };
     });
+    otherOptions.controls = [];
 
     return this.renderPostContent(item, i, otherOptions, { successData: LIST_SUCCESS });
   }
@@ -2021,4 +2023,6 @@ const Entry = () => {
   );
 };
 
-ReactDOM.render(<Entry />, document.getElementById('app'));
+const root = createRoot(document.getElementById('app'));
+
+root.render(<Entry />);

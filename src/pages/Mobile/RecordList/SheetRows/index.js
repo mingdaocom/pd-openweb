@@ -9,6 +9,7 @@ import { WORKSHEET_TABLE_PAGESIZE } from 'src/pages/worksheet/constants/enum';
 import { RecordInfoModal } from 'mobile/Record';
 import withoutRows from './assets/withoutRows.png';
 import { browserIsMobile, addBehaviorLog } from 'src/util';
+import RegExpValidator from 'src/util/expression';
 import './index.less';
 import _ from 'lodash';
 
@@ -81,7 +82,7 @@ class SheetRows extends Component {
             if (clicktype === '2') return;
             if (clicktype === '1') {
               let value = item[clickcid];
-              if (RegExp.isURL(value)) {
+              if (RegExpValidator.isURL(value)) {
                 window.open(value);
               }
               return;

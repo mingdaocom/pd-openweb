@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './css/folderChart.less';
 import { Icon } from 'ming-ui';
 import { connect } from 'react-redux';
@@ -28,7 +28,8 @@ const folderChartSettings = {
   sort: 'desc',
 };
 
-const { render, unmountComponentAtNode } = ReactDom;
+let rootFolderChartTime;
+let rootMaxViewUpdateTime;
 
 class FolderChart extends Component {
   constructor(props) {
@@ -56,7 +57,7 @@ class FolderChart extends Component {
   componentWillUnmount() {
     delete window.feedSelectDate;
     delete window.feedCustomDate;
-    unmountComponentAtNode(document.querySelector('.folderChartTime'));
+    rootFolderChartTime.unmount();
   }
 
   /**
@@ -462,29 +463,32 @@ class FolderChart extends Component {
       width: 860,
       children: <div dangerouslySetInnerHTML={{ __html: content }}></div>,
       handleClose: () => {
-        unmountComponentAtNode(document.querySelector('#maxViewUpdateTime'));
+        rootMaxViewUpdateTime.unmount();
         $('.folderChartMaxView').parent().remove();
       },
     });
-    if (folderChartSettings.type === 4) {
-      const type = $('.folderChartModel[data-id=' + folderChartSettings.chartView + ']').data('type');
-      const source = _.find(folderChartSettings.data, ({ controlId }) => controlId === folderChartSettings.chartView);
 
-      if (type === 9 || type === 10 || type === 11) {
-        $('#maxViewUpdateTime').addClass('Hidden');
-        // 渲染饼图
-        this.folderChartsPie('folderChartsMax', source);
+    setTimeout(() => {
+      if (folderChartSettings.type === 4) {
+        const type = $('.folderChartModel[data-id=' + folderChartSettings.chartView + ']').data('type');
+        const source = _.find(folderChartSettings.data, ({ controlId }) => controlId === folderChartSettings.chartView);
+
+        if (type === 9 || type === 10 || type === 11) {
+          $('#maxViewUpdateTime').addClass('Hidden');
+          // 渲染饼图
+          this.folderChartsPie('folderChartsMax', source);
+        } else {
+          $('#maxViewUpdateTime').removeClass('Hidden');
+          // 渲染柱状图
+          this.folderChartsBar('folderChartsMax', source);
+        }
       } else {
-        $('#maxViewUpdateTime').removeClass('Hidden');
-        // 渲染柱状图
-        this.folderChartsBar('folderChartsMax', source);
+        const date = Math.floor((folderChartSettings.endDate - folderChartSettings.startDate) / 24 / 3600 / 1000);
+        this.renderMaxCustomTime();
+        // 渲染图表
+        this['folderCharts' + folderChartSettings.chartView]('folderChartsMax');
       }
-    } else {
-      const date = Math.floor((folderChartSettings.endDate - folderChartSettings.startDate) / 24 / 3600 / 1000);
-      this.renderMaxCustomTime();
-      // 渲染图表
-      this['folderCharts' + folderChartSettings.chartView]('folderChartsMax');
-    }
+    }, 200);
   }
 
   folderCharts1(id = 'folderCharts1', source = folderChartSettings.data) {
@@ -1208,7 +1212,8 @@ class FolderChart extends Component {
   }
 
   renderCustomTime() {
-    render(
+    rootFolderChartTime = createRoot(document.querySelector('.folderChartTime'));
+    rootFolderChartTime.render(
       <DateFilter
         noClear={true}
         onChange={(startDate, endDate) => {
@@ -1221,12 +1226,12 @@ class FolderChart extends Component {
           <Icon icon="calander" className="Font16 Gray_9" />
         </div>
       </DateFilter>,
-      document.querySelector('.folderChartTime'),
     );
   }
 
   renderMaxCustomTime() {
-    render(
+    rootMaxViewUpdateTime = createRoot(document.querySelector('#maxViewUpdateTime'));
+    rootMaxViewUpdateTime.render(
       <DateFilter
         noClear={true}
         onChange={(startDate, endDate) => {
@@ -1239,7 +1244,6 @@ class FolderChart extends Component {
           <Icon icon="calander" className="Font16 Gray_9" />
         </div>
       </DateFilter>,
-      document.querySelector('#maxViewUpdateTime'),
     );
   }
 

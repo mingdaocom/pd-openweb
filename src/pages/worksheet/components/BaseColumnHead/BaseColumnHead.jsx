@@ -104,7 +104,7 @@ export default class BaseColumnHead extends React.Component {
     }
     emitter.emit('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + tableId, {
       columnIndex,
-      columnWidth,
+      columnWidth: columnWidth - (control.appendWidth || 0),
       defaultLeft,
       maskMinLeft,
       target: tableElement,

@@ -54,11 +54,11 @@ export default class Action extends Component {
           result.fields = this.handleCalendarDefault(result.fields);
         }
 
-        this.setState({ data: result, cacheKey: +new Date() });
-
-        if (isApproval && !result.selectNodeId) {
-          this.SelectNodeObjectChange(result.flowNodeList[0].nodeId);
-        }
+        this.setState({ data: result, cacheKey: +new Date() }, () => {
+          if (isApproval && !result.selectNodeId) {
+            this.SelectNodeObjectChange(result.flowNodeList[0].nodeId);
+          }
+        });
       });
   }
 
@@ -389,8 +389,8 @@ export default class Action extends Component {
                 (data.actionId === ACTION_ID.ADD &&
                   !_.includes([APP_TYPE.EXTERNAL_USER, APP_TYPE.CALENDAR], data.appType) &&
                   ((data.appId && !_.find(data.appList, item => item.id === data.appId)) || !data.appId))) && (
-                <div className="Gray_9e Font13 flexRow flowDetailTips">
-                  <i className="icon-task-setting_promet Font16" />
+                <div className="Gray_75 Font13 flexRow flowDetailTips">
+                  <i className="icon-task-setting_promet Font16 Gray_9e" />
                   <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置可执行的动作')}</div>
                 </div>
               )}
@@ -399,8 +399,8 @@ export default class Action extends Component {
                 data.selectNodeId &&
                 data.selectNodeObj.nodeName &&
                 !data.selectNodeObj.appName && (
-                  <div className="Gray_9e Font13 flexRow flowDetailTips">
-                    <i className="icon-task-setting_promet Font16" />
+                  <div className="Gray_75 Font13 flexRow flowDetailTips">
+                    <i className="icon-task-setting_promet Font16 Gray_9e" />
                     <div
                       className="flex mLeft10"
                       dangerouslySetInnerHTML={{

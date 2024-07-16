@@ -12,8 +12,10 @@ import {
   typeForCon,
   DEFAULT_FONT_SIZE,
   UNPRINTCONTROL,
-  TitleFont,
   DefaultNameWidth,
+  RecordTitleFont,
+  FONT_STYLE,
+  TitleFont,
 } from '../config';
 import { putControlByOrder, replaceHalfWithSizeControls } from 'src/pages/widgetConfig/util';
 import { SYSTOPRINTTXT } from '../config';
@@ -22,7 +24,8 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import _ from 'lodash';
 import moment from 'moment';
 import STYLE_PRINT from './exportWordPrintTemCssString';
-
+import { dateConvertToUserZone } from 'src/util';
+import RegExpValidator from 'src/util/expression';
 export default class Con extends React.Component {
   constructor(props) {
     super(props);
@@ -70,8 +73,7 @@ export default class Con extends React.Component {
           });
         });
     } else {
-      viewId = viewId || undefined;
-      let url = `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId}/row/${
+      let url = `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId || undefined}/row/${
         rowId || rowIdForQr
       }`;
       this.setState({
@@ -103,6 +105,7 @@ export default class Con extends React.Component {
     let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
     const tableList = [];
     let preRelationControls = false;
+    const fontType = FONT_STYLE[printData.font || DEFAULT_FONT_SIZE];
 
     Object.keys(controlData).map(key => {
       const item = controlData[key];
@@ -169,7 +172,7 @@ export default class Con extends React.Component {
                   lineHeight: 1.5,
                   verticalAlign: top,
                   width: '100%',
-                  fontSize: TitleFont[printData.font].fontSize,
+                  fontSize: TitleFont[fontType],
                   fontWeight: 'bold',
                   margin: '24px 0 5px',
                   textAlign: type === 52 ? 'center' : 'left',
@@ -257,7 +260,7 @@ export default class Con extends React.Component {
                               }}
                               width={'100%'}
                               colSpan={12}
-                              className='printTd'
+                              className="printTd"
                             >
                               {item[0].controlName}
                             </td>
@@ -272,7 +275,7 @@ export default class Con extends React.Component {
                             }}
                             width={'100%'}
                             colSpan={12}
-                            className='printTd'
+                            className="printTd"
                           >
                             {getPrintContent({
                               ...item[0],
@@ -309,7 +312,7 @@ export default class Con extends React.Component {
                         }}
                         width={728 - nameWidth}
                         colSpan={11}
-                        className='printTd'
+                        className="printTd"
                       >
                         {getPrintContent({
                           ...item[0],
@@ -404,6 +407,7 @@ export default class Con extends React.Component {
     let relationsList = tableList.relationsData || {};
     let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
     let list = relationsList.data || [];
+    const fontType = FONT_STYLE[printData.font || DEFAULT_FONT_SIZE];
     //空置隐藏则不显示
     if (isHideNull && list.length <= 0) {
       return '';
@@ -474,7 +478,7 @@ export default class Con extends React.Component {
         <p
           style={{
             ..._.assign(STYLE_PRINT.relationsTitle, sign ? STYLE_PRINT.pRelations : {}),
-            ...TitleFont[printData.font],
+            fontSize: TitleFont[fontType],
           }}
           className="relationsTitle"
         >
@@ -644,8 +648,8 @@ export default class Con extends React.Component {
   };
 
   renderApprovalFiles = (files = []) => {
-    const images = files.filter(l => File.isPicture(l.ext));
-    const others = files.filter(l => !File.isPicture(l.ext));
+    const images = files.filter(l => RegExpValidator.fileIsPicture(l.ext));
+    const others = files.filter(l => !RegExpValidator.fileIsPicture(l.ext));
 
     return (
       <React.Fragment>
@@ -689,21 +693,20 @@ export default class Con extends React.Component {
 
   renderWorks = (_works = undefined, _name) => {
     const { printData } = this.props;
-    const { workflow = [], processName, approvePosition } = printData;
+    const { workflow = [], processName, approvePosition, font } = printData;
     const works = _works || workflow;
     const visibleItemLength = works.filter(item => item.checked).length;
     const name = _works ? _name : processName;
 
     const signatures = this.getApprovalSignatures(works.filter(l => l.checked));
     const deep_signatures = _.chunk(signatures, 5);
+    const fontType = FONT_STYLE[printData.font || DEFAULT_FONT_SIZE];
 
     return (
       <div style={{ marginTop: 24 }}>
         {visibleItemLength > 0 && (
           <React.Fragment>
-            <div style={{ fontSize: TitleFont[printData.font].fontSize, fontWeight: 'bold', marginBottom: 12 }}>
-              {name}
-            </div>
+            <div style={{ fontSize: TitleFont[fontType], fontWeight: 'bold', marginBottom: 12 }}>{name}</div>
             <div className="clearfix" style={{ fontSize: printData.font || DEFAULT_FONT_SIZE }}>
               <div>
                 <table
@@ -772,8 +775,9 @@ export default class Con extends React.Component {
                     </tr>
                     {works.map((item, index) => {
                       return item.workItems.map((workItem, workItemIndex) => {
-                        const { workItemLog, signature } = workItem;
+                        const { workItemLog, signature, operationTime, receiveTime } = workItem;
                         if (!item.checked) return null;
+                        const isSysAction = operationTime === receiveTime;
                         return (
                           <tr key={`workflow-tr-${index}-${workItemIndex}`}>
                             {workItemIndex === 0 && (
@@ -799,6 +803,8 @@ export default class Con extends React.Component {
                             >
                               <span style={{ verticalAlign: 'middle' }} className="controlName">
                                 {workItem.workItemAccount.fullName}
+                                {workItem.principal ? _l('(%0委托)', workItem.principal.fullName) : ''}
+                                {workItem.administrator ? _l('(%0操作)', workItem.administrator.fullName) : ''}
                               </span>
                             </td>
                             <td
@@ -840,7 +846,7 @@ export default class Con extends React.Component {
                               {item.flowNode.type !== 5 && (
                                 <React.Fragment>
                                   <span style={{ verticalAlign: 'middle' }} className="controlName">
-                                    {workItem.opinion}
+                                    {isSysAction ? '' : workItem.opinion}
                                   </span>
                                   {workItemLog &&
                                     workItemLog.fields &&
@@ -874,9 +880,7 @@ export default class Con extends React.Component {
             </div>
             {!!signatures.length && approvePosition > 0 && (
               <React.Fragment>
-                <p style={{ marginTop: 20, marginBottom: 10, fontSize: TitleFont[printData.font].fontSize }}>
-                  {_l('签名')}
-                </p>
+                <p style={{ marginTop: 20, marginBottom: 10, fontSize: TitleFont[fontType] }}>{_l('签名')}</p>
                 <table
                   className="approvalSignatureTable"
                   style={{
@@ -1025,7 +1029,7 @@ export default class Con extends React.Component {
           return (
             <span>
               {SYSTOPRINTTXT[it]}
-              {printData[it]}&nbsp;&nbsp;&nbsp;&nbsp;
+              {printData[it]}
             </span>
           );
         })}
@@ -1038,6 +1042,9 @@ export default class Con extends React.Component {
     const { printData, controls, signature } = this.props;
     const { workflow = [], approval = [], attributeName, advanceSettings } = printData;
     const formNameSite = (advanceSettings.find(l => l.key === 'formNameSite') || {}).value || '0';
+    const fontType = FONT_STYLE[printData.font || DEFAULT_FONT_SIZE];
+    const formNameLeft = this.isShow(printData.formName, printData.formNameChecked && formNameSite === '1');
+
     return (
       <div className="flex">
         {loading ? (
@@ -1081,13 +1088,20 @@ export default class Con extends React.Component {
                   </tr>
                 </table>
               )}
-              {this.isShow(printData.formName, printData.formNameChecked && formNameSite === '1') && (
+              {formNameLeft && (
                 <div style={STYLE_PRINT.fromName} className="generalTitle printFormName">
                   {printData.formName}
                 </div>
               )}
               {/* 标题 */}
-              <p style={STYLE_PRINT.createBy_h6} className="generalTitle">
+              <p
+                style={{
+                  ...STYLE_PRINT.createBy_h6,
+                  fontSize: RecordTitleFont[fontType],
+                  marginTop: formNameLeft ? 10 : 20,
+                }}
+                className="generalTitle"
+              >
                 {printData.titleChecked && attributeName}
               </p>
               {this.getNumSys() > 0 && this.renderSysTable()}
@@ -1130,7 +1144,7 @@ export default class Con extends React.Component {
                                   style={{
                                     fontWeight: 'bold',
                                     height: 20,
-                                    fontSize: TitleFont[printData.font].fontSize,
+                                    fontSize: TitleFont[fontType],
                                   }}
                                 >
                                   {_.get(tdList[tdIndex], 'advancedSetting.hidetitle') === '1'
@@ -1172,7 +1186,7 @@ export default class Con extends React.Component {
                   {printData.printTime && (
                     <span>
                       {_l(' 打印时间：')}
-                      {moment().format('YYYY-MM-DD HH:mm:ss')}
+                      {dateConvertToUserZone(new Date())}
                     </span>
                   )}
                 </p>

@@ -5,16 +5,14 @@ import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import styled from 'styled-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
-import RecordOperate from 'worksheet/components/RecordOperate';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import RecordInfo from 'worksheet/views/GunterView/components/RecordInfo';
-import CellControl from 'worksheet/components/CellControls';
 import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import { handleRecordClick } from 'worksheet/util';
+import { canEditApp, canEditData } from 'worksheet/redux/actions/util.js';
 
 export const RecordWrapper = styled.div`
   height: 32px;
@@ -104,7 +102,8 @@ export const RecordWrapper = styled.div`
 
 @connect(
   state => ({
-    ..._.pick(state.sheet, ['base', 'controls', 'sheetSwitchPermit', 'worksheetInfo', 'gunterView']),
+    ..._.pick(state.sheet, ['base', 'controls', 'sheetSwitchPermit', 'worksheetInfo', 'gunterView', 'isCharge']),
+    ..._.pick(state.appPkg, ['permissionType']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -115,8 +114,28 @@ export default class Record extends Component {
       startTimeEdit: false,
       endTimeEdit: false,
       recordInfoVisible: false,
+      RecordInfoComponent: null,
+      RecordOperateComponent: null,
+      CellControlComponent: null
     };
     this.debounceUpdateRecordTime = _.debounce(props.updateRecordTime, 500);
+  }
+  componentDidMount() {
+    import('worksheet/views/GunterView/components/RecordInfo').then(component => {
+      this.setState({
+        RecordInfoComponent: component.default
+      });
+    });
+    import('worksheet/components/RecordOperate').then(component => {
+      this.setState({
+        RecordOperateComponent: component.default
+      });
+    });
+    import('worksheet/components/CellControls').then(component => {
+      this.setState({
+        CellControlComponent: component.default
+      });
+    });
   }
   get canedit() {
     const { row, base, sheetSwitchPermit } = this.props;
@@ -179,7 +198,7 @@ export default class Record extends Component {
     }
   };
   renderStartTime() {
-    const { startTimeEdit } = this.state;
+    const { startTimeEdit, CellControlComponent } = this.state;
     const { base, sheetSwitchPermit, worksheetInfo, row, controls, gunterView, widthConfig } = this.props;
     const { startId, startDisable, displayControls } = gunterView.viewConfig;
     const startControl = _.find(controls, { controlId: startId });
@@ -189,7 +208,7 @@ export default class Record extends Component {
         style={{ width: widthConfig[displayControls.length + 1] }}
       >
         {startTimeEdit ? (
-          <CellControl
+          <CellControlComponent
             viewId={base.viewId}
             worksheetId={base.worksheetId}
             sheetSwitchPermit={sheetSwitchPermit}
@@ -240,7 +259,7 @@ export default class Record extends Component {
     );
   }
   renderEndTime() {
-    const { endTimeEdit } = this.state;
+    const { endTimeEdit, CellControlComponent } = this.state;
     const { base, sheetSwitchPermit, worksheetInfo, row, controls, gunterView, widthConfig } = this.props;
     const { endId, endDisable, displayControls } = gunterView.viewConfig;
     const enndControl = _.find(controls, { controlId: endId });
@@ -250,7 +269,7 @@ export default class Record extends Component {
         style={{ width: widthConfig[displayControls.length + 2] }}
       >
         {endTimeEdit ? (
-          <CellControl
+          <CellControlComponent
             viewId={base.viewId}
             worksheetId={base.worksheetId}
             sheetSwitchPermit={sheetSwitchPermit}
@@ -301,15 +320,22 @@ export default class Record extends Component {
     );
   }
   renderMore() {
-    const { row, base, sheetSwitchPermit, worksheetInfo, groupKey, gunterView } = this.props;
+    const { RecordOperateComponent } = this.state;
+    const { row, base, sheetSwitchPermit, worksheetInfo, groupKey, gunterView, isCharge, permissionType } = this.props;
     const { appId, worksheetId, viewId } = base;
+    const isDevAndOps = canEditApp(permissionType) || canEditData(permissionType);
+
+    if (!RecordOperateComponent) return null;
+
     return (
-      <RecordOperate
+      <RecordOperateComponent
         popupAlign={{
           offset: [0, 10],
           points: ['tl', 'bl'],
         }}
-        shows={['share', 'print', 'copy', 'openinnew', 'fav']}
+        isCharge={isCharge}
+        isDevAndOps={isDevAndOps}
+        shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'fav']}
         allowDelete={row.allowdelete}
         allowCopy={worksheetInfo.allowAdd}
         projectId={worksheetInfo.projectId}
@@ -332,7 +358,7 @@ export default class Record extends Component {
         }}
       >
         <Icon className="Gray_9e Font17 mRight5 pointer" icon="more_horiz" />
-      </RecordOperate>
+      </RecordOperateComponent>
     );
   }
   renderTitle() {
@@ -385,6 +411,7 @@ export default class Record extends Component {
     );
   }
   renderControl(data, index) {
+    const { CellControlComponent } = this.state;
     const { row, widthConfig, base, controls, worksheetInfo } = this.props;
     const cell = Object.assign({}, data, { value: row[data.controlId] });
     const rowFormData = controls.map(c => ({ ...c, value: row[c.controlId] }));
@@ -395,7 +422,7 @@ export default class Record extends Component {
         style={{ width: widthConfig[index] }}
       >
         <div>
-          <CellControl
+          <CellControlComponent
             rowHeight={32}
             cell={cell}
             from={4}
@@ -411,9 +438,12 @@ export default class Record extends Component {
     );
   }
   render() {
-    const { recordInfoVisible } = this.state;
+    const { recordInfoVisible, RecordInfoComponent, CellControlComponent } = this.state;
     const { row, gunterView } = this.props;
     const { displayControls } = gunterView.viewConfig;
+
+    if (!CellControlComponent) return null;
+
     return (
       <RecordWrapper
         className={cx('valignWrapper gunterRecord w100', `gunterRecord-${row.rowid}`)}
@@ -437,7 +467,7 @@ export default class Record extends Component {
         {this.renderEndTime()}
         <div className="dayCountField overflow_ellipsis">{row.diff ? _l('%0天', row.diff) : '--'}</div>
         {recordInfoVisible && (
-          <RecordInfo
+          <RecordInfoComponent
             row={row}
             onClose={() => {
               this.setState({ recordInfoVisible: false });

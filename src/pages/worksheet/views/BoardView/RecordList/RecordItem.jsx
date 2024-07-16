@@ -12,8 +12,10 @@ import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
 import worksheetAjax from 'src/api/worksheet';
 import { CAN_AS_BOARD_OPTION, ITEM_TYPE } from '../config';
-import Components from '../../components';
-import { browserIsMobile, addBehaviorLog } from 'src/util';
+import RecordPortal from '../../components/RecordPortal';
+import EditableCard from '../../components/EditableCard';
+import EditingRecordItem from '../../components/EditingRecordItem';
+import { browserIsMobile, addBehaviorLog, emitter } from 'src/util';
 import { getTargetName } from '../util';
 import { handleRecordClick } from 'worksheet/util';
 
@@ -193,7 +195,7 @@ function SortableRecordItem(props) {
         !isEditTitle && $($ref.current).find('.hoverShowAll').stop().slideUp('300');
       }}
     >
-      <Components.EditableCard
+      <EditableCard
         ref={$ref}
         data={data}
         type="board"
@@ -206,7 +208,7 @@ function SortableRecordItem(props) {
           projectId: worksheetInfo.projectId,
           appId,
         }}
-        allowCopy={worksheetInfo.allowAdd}
+        allowCopy={worksheetInfo.allowAdd && data.allowEdit}
         allowRecreate={worksheetInfo.allowAdd}
         editTitle={() => {
           setState({ isEditTitle: true });
@@ -232,8 +234,8 @@ function SortableRecordItem(props) {
         onAdd={item => onAdd({ ...item, key: keyType })}
       />
       {isEditTitle && (
-        <Components.RecordPortal closeEdit={closeEdit}>
-          <Components.EditingRecordItem
+        <RecordPortal closeEdit={closeEdit}>
+          <EditingRecordItem
             type="board"
             currentView={{
               ...currentView,
@@ -250,7 +252,7 @@ function SortableRecordItem(props) {
             {...rest}
             width={width}
           />
-        </Components.RecordPortal>
+        </RecordPortal>
       )}
       {recordInfoVisible &&
         (isMobile ? (
@@ -279,6 +281,7 @@ function SortableRecordItem(props) {
             worksheetId={isRelationSheetType ? _.get(selectControl, 'dataSource') : worksheetId}
             hideRecordInfo={() => {
               setState({ recordInfoVisible: false });
+              emitter.emit('ROWS_UPDATE');
             }}
             hideRows={() => {
               setState({ recordInfoVisible: false });
@@ -315,7 +318,8 @@ function SortableRecordItem(props) {
                   return;
                 }
               }
-              if (newItem) {
+              // 看板关联多条列表放开，防止记录初始化多条列表count更新引起视图更新
+              if (newItem && newItem.rowid) {
                 updateBoardViewRecord(getPara());
               }
             }}

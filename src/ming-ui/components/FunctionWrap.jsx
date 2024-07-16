@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import _ from 'lodash';
 
 /**
@@ -13,14 +13,19 @@ import _ from 'lodash';
 
 export default function (Comp, props = {}) {
   const div = document.createElement('div');
+
   document.body.appendChild(div);
+
+  const root = createRoot(div);
+
   function destory() {
-    ReactDOM.unmountComponentAtNode(div);
-    if (div.parentElement) {
+    root.unmount();
+    if (div && div.parentNode === document.body) {
       document.body.removeChild(div);
     }
   }
-  ReactDOM.render(
+
+  root.render(
     <Comp
       {...(props.visibleName ? { [props.visibleName]: true } : { visible: true })}
       {...props}
@@ -47,6 +52,5 @@ export default function (Comp, props = {}) {
           }
         : {})}
     />,
-    div,
   );
 }

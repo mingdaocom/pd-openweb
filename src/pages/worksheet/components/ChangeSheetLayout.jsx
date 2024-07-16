@@ -65,7 +65,7 @@ export default function LayoutChangedIcon(props) {
             </div>
             <div className="buttons">
               <Button size="mdnormal" type="ghostgray" onClick={onCancel.bind(this, { closePopup })}>
-                {_l('清除变更')}
+                {_l('取消变更')}
               </Button>
               <Button size="mdnormal" onClick={onSave.bind(this, { closePopup })}>
                 {_l('保存变更')}

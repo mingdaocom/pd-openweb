@@ -14,13 +14,18 @@ export const useSheetInfo = ({ worksheetId, saveIndex = 0, ...rest }) => {
     worksheetAjax
       .getWorksheetInfo({ worksheetId, getTemplate: true, getViews: true, ...rest })
       .then(res => {
-        const { views, template } = res;
+        const { views, template, appTimeZone, appId } = res;
         setData({
           info: res,
           views,
           noAuth: res.resultCode === 1 && ![2, 4].includes(res.roleType),
           controls: _.get(template, 'controls') || [],
         });
+        !_.isUndefined(appTimeZone) && (window[`timeZone_${appId}`] = appTimeZone);
+
+        //清理缓存时间
+        window.clearLocalDataTime({ requestData: { worksheetId }, clearSpecificKey: 'Worksheet_GetWorksheetInfo' });
+        window.clearLocalDataTime({ requestData: { worksheetId }, clearSpecificKey: 'Worksheet_GetQueryBySheetId' });
       })
       .finally(() => {
         setLoading(false);

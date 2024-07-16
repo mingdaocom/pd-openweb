@@ -1,6 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import { sortableContainer } from 'react-sortable-hoc';
+import { sortableContainer } from '@mdfe/react-sortable-hoc';
 import SortableAppItem from './SortableAppItem';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import _ from 'lodash';

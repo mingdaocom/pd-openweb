@@ -126,10 +126,10 @@ function SearchRecord(props) {
   const disable = _.isEmpty(options);
 
   return (
-    <Wrapper className="searchRecordAutoComplete">
+    <Wrapper className="mapSearchRecordAutoComplete">
       <AutoComplete
         autoFocus
-        getPopupContainer={() => document.querySelector('.searchRecordAutoComplete')}
+        getPopupContainer={() => document.querySelector('.mapSearchRecordAutoComplete')}
         value={activeRecord ? activeIndex.toString() : null}
         options={options}
         onSelect={onSelect}

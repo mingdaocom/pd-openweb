@@ -40,7 +40,7 @@ function getMapViewData({ para, dispatch }, sheet) {
 
 export function initMapViewData(view, refreshMap = false) {
   return (dispatch, getState) => {
-    const { sheet } = getState();
+    const { sheet, mobile } = getState();
     const para = getMapViewPara(sheet, view);
 
     if (!para) return;
@@ -63,7 +63,7 @@ export function initMapViewData(view, refreshMap = false) {
 
 export function mapNavGroupFiltersUpdate(navGroupFilters, view) {
   return (dispatch, getState) => {
-    const { sheet } = getState();
+    const { sheet, mobile } = getState();
     const para = getMapViewPara(sheet, view);
     const preNavGroupFilters = _.get(sheet, 'mapView.mapViewState.navGroupFilters') || [];
 

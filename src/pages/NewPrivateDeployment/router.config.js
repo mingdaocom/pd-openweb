@@ -127,6 +127,17 @@ const managementMenus = [
 
 const platformMenus = [
   {
+    title: _l('平台信息'),
+    icon: 'how_to_reg',
+    type: 'authorization',
+    routes: [
+      {
+        path: '/privateDeployment/authorization',
+        component: () => import('./Platform/Authorization'),
+      },
+    ],
+  },
+  {
     title: _l('品牌'),
     icon: 'brand',
     type: 'brand',
@@ -134,17 +145,6 @@ const platformMenus = [
       {
         path: '/privateDeployment/brand',
         component: () => import('./Platform/Brand'),
-      },
-    ],
-  },
-  {
-    title: _l('授权'),
-    icon: 'how_to_reg',
-    type: 'authorization',
-    routes: [
-      {
-        path: '/privateDeployment/authorization',
-        component: () => import('./Platform/Authorization'),
       },
     ],
   },

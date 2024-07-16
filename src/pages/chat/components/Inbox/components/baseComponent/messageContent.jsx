@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import 'src/components/emotion/emotion';
 import PropTypes from 'prop-types';
 import UploadFile from 'src/components/UploadFiles';
@@ -66,11 +66,12 @@ export default class BaseMessageComponent extends React.Component {
         $(ele).attr('bindUserCard', true);
         let accountId = $(ele).attr('data-accountid');
         let groupId = $(ele).attr('data-groupid');
-        ReactDOM.render(
+        const root = createRoot(ele);
+
+        root.render(
           <UserCard sourceId={accountId || groupId} type={groupId ? 2 : 1}>
             <span>{ele.innerHTML}</span>
           </UserCard>,
-          ele,
         );
       });
   }

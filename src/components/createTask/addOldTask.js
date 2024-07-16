@@ -151,7 +151,10 @@ $.extend(AddOldTask.prototype, {
         _this.send();
       },
     });
-    $('#txtOldTaskName').focus();
+
+    setTimeout(() => {
+      $('#txtOldTaskName').focus();
+    }, 200);
   },
   send: function () {
     var settings = this.settings;

@@ -154,7 +154,7 @@ export default class BranchItem extends Component {
               ) : (
                 obj.value
               )}
-              {i !== item.conditionValues.length - 1 && <span className="mLeft5 mRight5 Gray_9e">{text}</span>}
+              {i !== item.conditionValues.length - 1 && <span className="mLeft5 mRight5 Gray_75">{text}</span>}
             </Fragment>
           );
         })}
@@ -263,7 +263,7 @@ export default class BranchItem extends Component {
               <Fragment>
                 {isSimple ? (
                   <div className="workflowName workflowBranchItem">
-                    <span className="pLeft8 pRight8 Gray_9e">{_l('加载中...')}</span>
+                    <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span>
                   </div>
                 ) : (
                   this.renderContent()

@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import ajaxRequest from 'src/api/taskCenter';
 import {
   errorMessage,
@@ -23,9 +23,7 @@ import { Dialog, DeleteReconfirm, Score, Checkbox } from 'ming-ui';
 export const listLoadingContent = pageIndex => {
   if (pageIndex == 1) {
     if ($('#taskList').find('#taskFilterLoading').length === 0) {
-      $('#taskList').append(
-        '<div id="taskFilterLoading"><div class="loadingCenter"> ' + LoadDiv() + ' </div></div>',
-      );
+      $('#taskList').append('<div id="taskFilterLoading"><div class="loadingCenter"> ' + LoadDiv() + ' </div></div>');
     }
   } else {
     if ($('#taskList').find('#taskFilterLoadingBottom').length === 0) {
@@ -1317,7 +1315,9 @@ export const updateStageViewControlsSource = (taskId, controls) => {
         foregroundColor = '#4caf50';
       }
 
-      ReactDom.render(
+      const root = createRoot($li.find('.listStageCustomItemStar')[0]);
+
+      root.render(
         <Score
           type={type === 1 ? 'star' : 'line'}
           score={score}
@@ -1326,7 +1326,6 @@ export const updateStageViewControlsSource = (taskId, controls) => {
           disabled
           count={type === 1 ? 5 : 10}
         />,
-        $li.find('.listStageCustomItemStar')[0],
       );
     }
   }

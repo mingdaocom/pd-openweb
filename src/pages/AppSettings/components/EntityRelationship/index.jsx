@@ -3,8 +3,6 @@ import { Icon, Button, LoadDiv, Tooltip } from 'ming-ui';
 import _ from 'lodash';
 import moment from 'moment';
 import { EditingBar } from 'ming-ui';
-import { Graph, Shape } from '@antv/x6';
-import { DagreLayout } from '@antv/layout';
 import { register } from '@antv/x6-react-shape';
 import { Export } from '@antv/x6-plugin-export';
 import { Scroller } from '@antv/x6-plugin-scroller';
@@ -19,6 +17,9 @@ import { isBothWayRelate, createLabelOption, LINE_HEIGHT, NODE_WIDTH, HIDE_FIELD
 import { stylesheet_er } from './config';
 import { getTranslateInfo } from 'src/util';
 import './index.less';
+
+const loadGraph = () => import('@antv/x6');
+const loadLayout = () => import('@antv/layout');
 
 register({
   shape: 'custom-er-node',
@@ -63,84 +64,90 @@ function EntityRelationship(props) {
   const graphRef = useRef(null);
   const edgeRef = useRef(null);
   const allData = useRef(null);
+  const layoutModuleRef = useRef(null);
 
   useEffect(() => {
-    graphRef.current = new Graph({
-      container: document.getElementById('relationshipWrap'),
-      connecting: {
-        highlight: true,
-        router: {
-          name: 'er',
-          args: {
-            offset: 25,
-            direction: 'H',
+    async function loadComp() {
+      const GraphModule = await loadGraph();
+      layoutModuleRef.current = await loadLayout();
+      graphRef.current = new GraphModule.Graph({
+        container: document.getElementById('relationshipWrap'),
+        connecting: {
+          highlight: true,
+          router: {
+            name: 'er',
+            args: {
+              offset: 25,
+              direction: 'H',
+            },
+          },
+          createEdge() {
+            return new GraphModule.Shape.Edge({
+              attrs: {
+                line: {
+                  stroke: '#A2B1C3',
+                  strokeWidth: 2,
+                },
+              },
+            });
           },
         },
-        createEdge() {
-          return new Shape.Edge({
-            attrs: {
-              line: {
-                stroke: '#A2B1C3',
-                strokeWidth: 2,
-              },
-            },
-          });
+        async: true,
+        frozen: true,
+        autoResize: true,
+        panning: false,
+        translating: { restrict: true },
+        mousewheel: {
+          enabled: true,
+          factor: 1.1,
+          modifiers: ['ctrl', 'meta'],
         },
-      },
-      async: true,
-      frozen: true,
-      autoResize: true,
-      panning: false,
-      translating: { restrict: true },
-      mousewheel: {
-        enabled: true,
-        factor: 1.1,
-        modifiers: ['ctrl', 'meta'],
-      },
-      scaling: {
-        min: 0.01,
-        max: 5,
-      },
-      interacting: () => {
-        return {
-          nodeMovable: true,
-          magnetConnectable: false,
-          edgeMovable: false,
-          edgeLabelMovable: false,
-          arrowheadMovable: false,
-          vertexMovable: false,
-          vertexAddable: false,
-          vertexDeletable: false,
-        };
-      },
-    });
-    graphRef.current.use(new Export());
-    graphRef.current.use(new Scroller({ enabled: true, pannable: true, padding: 80 }));
-    document.addEventListener('keydown', handleKeyDown);
-    getData();
-    graphRef.current.on('edge:click', ({ edge }) => {
-      if (edgeRef.current) {
-        cancelEdgeLight();
-      }
-      if (_.endsWith(edge.id, '-null')) {
-        return;
-      }
-      edgeRef.current = edge.id;
-      edge.updateAttrs({
-        line: {
-          stroke: '#5f95ff',
-          strokeWidth: 2,
+        scaling: {
+          min: 0.01,
+          max: 5,
+        },
+        interacting: () => {
+          return {
+            nodeMovable: true,
+            magnetConnectable: false,
+            edgeMovable: false,
+            edgeLabelMovable: false,
+            arrowheadMovable: false,
+            vertexMovable: false,
+            vertexAddable: false,
+            vertexDeletable: false,
+          };
         },
       });
-      $('.searchCurrent') && $('.searchCurrent').removeClass('searchCurrent');
-    });
-    graphRef.current.on('blank:click', () => {
-      $('.searchCurrent') && $('.searchCurrent').removeClass('searchCurrent');
-      cancelEdgeLight();
-    });
-    graphRef.current.on('scale', ({ sx }) => {
-      setPercent(sx.toFixed(2));
-    });
+      graphRef.current.use(new Export());
+      graphRef.current.use(new Scroller({ enabled: true, pannable: true, padding: 80 }));
+      document.addEventListener('keydown', handleKeyDown);
+      getData();
+      graphRef.current.on('edge:click', ({ edge }) => {
+        if (edgeRef.current) {
+          cancelEdgeLight();
+        }
+        if (_.endsWith(edge.id, '-null')) {
+          return;
+        }
+        edgeRef.current = edge.id;
+        edge.updateAttrs({
+          line: {
+            stroke: '#5f95ff',
+            strokeWidth: 2,
+          },
+        });
+        $('.searchCurrent') && $('.searchCurrent').removeClass('searchCurrent');
+      });
+      graphRef.current.on('blank:click', () => {
+        $('.searchCurrent') && $('.searchCurrent').removeClass('searchCurrent');
+        cancelEdgeLight();
+      });
+      graphRef.current.on('scale', ({ sx }) => {
+        setPercent(sx.toFixed(2));
+      });
+    }
+    loadComp();
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
@@ -367,7 +374,7 @@ function EntityRelationship(props) {
       });
     });
 
-    const dagreLayout = new DagreLayout({
+    const dagreLayout = new layoutModuleRef.current.DagreLayout({
       type: 'dagre',
       rankdir: 'LR',
       align: 'UL',
@@ -553,13 +560,13 @@ function EntityRelationship(props) {
             <div className="valignWrapper">
               {_l(
                 '当前焦点：%0',
-                getTranslateInfo(appId, filterWorksheet.worksheetId).name || filterWorksheet.worksheetName,
+                getTranslateInfo(appId, null, filterWorksheet.worksheetId).name || filterWorksheet.worksheetName,
               )}
               <Tooltip
                 themeColor="white"
                 text={_l(
                   '仅显示%0的关联关系，退出后可显示所有工作表',
-                  getTranslateInfo(appId, filterWorksheet.worksheetId).name || filterWorksheet.worksheetName,
+                  getTranslateInfo(appId, null, filterWorksheet.worksheetId).name || filterWorksheet.worksheetName,
                 )}
               >
                 <Icon icon="workflow_error" className="White Font16 mLeft6" />

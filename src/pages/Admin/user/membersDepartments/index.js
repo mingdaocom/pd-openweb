@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Members from './structure';
 import Resigned from './resignation';
 import DialogSettingInviteRules from './structure/components/dialogSettingInviteRules';
-import Config from '../../config'
+import Config from '../../config';
 import cx from 'classnames';
 
 export default class MembersDepartments extends Component {
@@ -27,7 +27,7 @@ export default class MembersDepartments extends Component {
 
   render() {
     const { currentTab, showDialogSettingInviteRules, showHeader } = this.state;
-    const projectId = Config.projectId
+    const projectId = Config.projectId;
 
     return (
       <div className="orgManagementWrap">
@@ -59,9 +59,13 @@ export default class MembersDepartments extends Component {
         )}
         <div className={cx('orgManagementContent', { pAll0: currentTab === 'member' })}>
           {currentTab === 'member' ? (
-            <Members projectId={projectId} handleShowHeader={visible => this.setState({ showHeader: visible })} />
+            <Members
+              projectId={projectId}
+              handleShowHeader={visible => this.setState({ showHeader: visible })}
+              authority={this.props.authority}
+            />
           ) : (
-            <Resigned projectId={projectId} />
+            <Resigned projectId={projectId} authority={this.props.authority} />
           )}
         </div>
 

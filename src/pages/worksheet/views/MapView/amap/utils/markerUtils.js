@@ -1,6 +1,6 @@
 import { getAMapPosition, getAMapPixel } from './common';
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { isFun } from './common.js';
 
 export const MarkerConfigurableProps = [
@@ -17,7 +17,7 @@ export const MarkerConfigurableProps = [
   'title',
   'clickable',
   'extData',
-  'label'
+  'label',
 ];
 
 export const MarkerAllProps = MarkerConfigurableProps.concat([
@@ -26,7 +26,7 @@ export const MarkerAllProps = MarkerConfigurableProps.concat([
   'raiseOnDrag',
   'cursor',
   'autoRotation',
-  'shape'
+  'shape',
 ]);
 
 export const getPropValue = (key, value) => {
@@ -47,5 +47,8 @@ export const renderMarkerComponent = (component, marker) => {
     const extData = marker.getExtData();
     child = component(extData);
   }
-  render(<div>{child}</div>, marker.getContent());
+
+  const root = createRoot(marker.getContent());
+
+  root.render(<div>{child}</div>);
 };

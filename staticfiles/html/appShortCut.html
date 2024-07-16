@@ -1,524 +1,686 @@
-
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <title id="J_desktopTitle">ShortCutService</title>
-    <meta http-equiv="cache-control" content="no-cache" />
-    <meta content="yes" name="apple-touch-fullscreen" />
-    <meta content="yes" name="apple-mobile-web-app-capable" />
-    <meta content="white" name="apple-mobile-web-app-status-bar-style" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, minimal-ui" />
-    <link id="J_desktopIcon" rel="apple-touch-icon"/>
-  <script>
-    var Base64 = function() {
-    var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-    var _utf8_encode = function (string) {
-      string = string.replace(/\r\n/g,"\n");
-      var utftext = "";
-      for (var n = 0; n < string.length; n++) {
-        var c = string.charCodeAt(n);
-        if (c < 128) {
-          utftext += String.fromCharCode(c);
-        } else if((c > 127) && (c < 2048)) {
-          utftext += String.fromCharCode((c >> 6) | 192);
-          utftext += String.fromCharCode((c & 63) | 128);
-        } else {
-          utftext += String.fromCharCode((c >> 12) | 224);
-          utftext += String.fromCharCode(((c >> 6) & 63) | 128);
-          utftext += String.fromCharCode((c & 63) | 128);
-        }
-      }
-      return utftext;
-    };
-    this.encode = function (input) {
-      var output = "";
-      var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-      var i = 0;
-      input = _utf8_encode(input);
-      while (i < input.length) {
-        chr1 = input.charCodeAt(i++);
-        chr2 = input.charCodeAt(i++);
-        chr3 = input.charCodeAt(i++);
-        enc1 = chr1 >> 2;
-        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-        enc4 = chr3 & 63;
-        if (isNaN(chr2)) {
-          enc3 = enc4 = 64;
-        } else if (isNaN(chr3)) {
-          enc4 = 64;
-        }
-        output = output +
-        _keyStr.charAt(enc1) + _keyStr.charAt(enc2) +
-        _keyStr.charAt(enc3) + _keyStr.charAt(enc4);
-      }
-      return output;
-    };
-  };
-  var getQuery = function(url) {
-    var query = {};
-    var hashParts = url.split('#');
-    var urlParts = hashParts[0].split('?');
-    if (urlParts.length > 1) {
-      // 有query
-      var queryParts = urlParts[1].split('&');
-      for (var i = 0, len = queryParts.length; i < len; i++) {
-        var items = queryParts[i].split('=');
-        query[items[0]] = decodeURIComponent(items[1]);
-      }
-    }
-    return query;
-  };
-  var htmlEncode = function(myStr) {
-    myStr = myStr || '';
-    //myStr = myStr.replace(/&/g, "&amp;");
-    myStr = myStr.replace(/'/g, "&#39;");
-    myStr = myStr.replace(/"/g, "&quot;");
-    myStr = myStr.replace(/</g, "&lt;");
-    myStr = myStr.replace(/>/g, "&gt;");
-    myStr = myStr.replace(/\s/g, '&nbsp;');
-    return myStr;
-  };
+    <head>
+        <meta charset="UTF-8" />
+        <title id="J_desktopTitle">ShortCutService</title>
+        <meta http-equiv="cache-control" content="no-cache" />
+        <meta content="yes" name="apple-touch-fullscreen" />
+        <meta content="yes" name="apple-mobile-web-app-capable" />
+        <meta content="white" name="apple-mobile-web-app-status-bar-style" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0, minimal-ui"
+        />
+        <link id="J_desktopIcon" rel="apple-touch-icon" />
+        <script>
+            var Base64 = function () {
+                var _keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+                var _utf8_encode = function (string) {
+                    string = string.replace(/\r\n/g, '\n');
+                    var utftext = '';
+                    for (var n = 0; n < string.length; n++) {
+                        var c = string.charCodeAt(n);
+                        if (c < 128) {
+                            utftext += String.fromCharCode(c);
+                        } else if (c > 127 && c < 2048) {
+                            utftext += String.fromCharCode((c >> 6) | 192);
+                            utftext += String.fromCharCode((c & 63) | 128);
+                        } else {
+                            utftext += String.fromCharCode((c >> 12) | 224);
+                            utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+                            utftext += String.fromCharCode((c & 63) | 128);
+                        }
+                    }
+                    return utftext;
+                };
+                this.encode = function (input) {
+                    var output = '';
+                    var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+                    var i = 0;
+                    input = _utf8_encode(input);
+                    while (i < input.length) {
+                        chr1 = input.charCodeAt(i++);
+                        chr2 = input.charCodeAt(i++);
+                        chr3 = input.charCodeAt(i++);
+                        enc1 = chr1 >> 2;
+                        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+                        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+                        enc4 = chr3 & 63;
+                        if (isNaN(chr2)) {
+                            enc3 = enc4 = 64;
+                        } else if (isNaN(chr3)) {
+                            enc4 = 64;
+                        }
+                        output =
+                            output +
+                            _keyStr.charAt(enc1) +
+                            _keyStr.charAt(enc2) +
+                            _keyStr.charAt(enc3) +
+                            _keyStr.charAt(enc4);
+                    }
+                    return output;
+                };
+            };
+            var getQuery = function (url) {
+                var query = {};
+                var hashParts = url.split('#');
+                var urlParts = hashParts[0].split('?');
+                if (urlParts.length > 1) {
+                    // 有query
+                    var queryParts = urlParts[1].split('&');
+                    for (var i = 0, len = queryParts.length; i < len; i++) {
+                        var items = queryParts[i].split('=');
+                        query[items[0]] = decodeURIComponent(items[1]);
+                    }
+                }
+                return query;
+            };
+            var htmlEncode = function (myStr) {
+                myStr = myStr || '';
+                //myStr = myStr.replace(/&/g, "&amp;");
+                myStr = myStr.replace(/'/g, '&#39;');
+                myStr = myStr.replace(/"/g, '&quot;');
+                myStr = myStr.replace(/</g, '&lt;');
+                myStr = myStr.replace(/>/g, '&gt;');
+                myStr = myStr.replace(/\s/g, '&nbsp;');
+                return myStr;
+            };
 
-  var iOSversion = function() {
-    if (/iP(hone|od|ad)/.test(navigator.platform)) {
-      var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
-      return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
-    }
-  }
+            var iOSversion = function () {
+                if (/iP(hone|od|ad)/.test(navigator.platform)) {
+                    var v = navigator.appVersion.match(/OS (\d+)_(\d+)_?(\d+)?/);
+                    return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+                }
+            };
 
-  var base64 = new Base64();
-  var query = getQuery(location.href);
-  var { appId, appName, appIcon, scheme, params } = query;
-  var sysVer = iOSversion();
- 
-  appName = htmlEncode(appName);
-  appIcon = htmlEncode(appIcon);
-  
-  if ((appId || scheme) && appName && appIcon) {
-    if (sysVer && sysVer[0] < 14) {
-        // 不处理
-    }
-  } else {
-    alert('参数错误');
-  }
-  </script>
-  <script>
-      window.dispatchEvent(window.requestConfigEvent);
-  </script>
-  <script>
-    window._to = { autoExpo: true };
-    document.documentElement.style.fontSize = document.documentElement.clientWidth * 100 / 375 + 'px';
-    </script>
-    <script>!function(modules){function __webpack_require__(moduleId){if(installedModules[moduleId])return installedModules[moduleId].exports;var module=installedModules[moduleId]={exports:{},id:moduleId,loaded:!1};return modules[moduleId].call(module.exports,module,module.exports,__webpack_require__),module.loaded=!0,module.exports}var installedModules={};return __webpack_require__.m=modules,__webpack_require__.c=installedModules,__webpack_require__.p="",__webpack_require__(0)}([function(module,exports){"use strict";!function(){if(!window.Tracert){for(var Tracert={_isInit:!0,_readyToRun:[],_guid:function(){return"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(c){var r=16*Math.random()|0,v="x"===c?r:3&r|8;return v.toString(16)})},get:function(key){if("pageId"===key){if(window._tracert_loader_cfg=window._tracert_loader_cfg||{},window._tracert_loader_cfg.pageId)return window._tracert_loader_cfg.pageId;var metaa=document.querySelectorAll("meta[name=data-aspm]"),spma=metaa&&metaa[0].getAttribute("content"),spmb=document.body&&document.body.getAttribute("data-aspm"),pageId=spma&&spmb?spma+"."+spmb+"_"+Tracert._guid()+"_"+Date.now():"-_"+Tracert._guid()+"_"+Date.now();return window._tracert_loader_cfg.pageId=pageId,pageId}return this[key]},call:function(){var argsList,args=arguments;try{argsList=[].slice.call(args,0)}catch(ex){var argsLen=args.length;argsList=[];for(var i=0;i<argsLen;i++)argsList.push(args[i])}Tracert.addToRun(function(){Tracert.call.apply(Tracert,argsList)})},addToRun:function(_fn){var fn=_fn;"function"==typeof fn&&(fn._logTimer=new Date-0,Tracert._readyToRun.push(fn))}},fnlist=["config","logPv","info","err","click","expo","pageName","pageState","time","timeEnd","parse","checkExpo","stringify","report","set","before"],i=0;i<fnlist.length;i++){var fn=fnlist[i];!function(fn){Tracert[fn]=function(){var argsList,args=arguments;try{argsList=[].slice.call(args,0)}catch(ex){var argsLen=args.length;argsList=[];for(var i=0;i<argsLen;i++)argsList.push(args[i])}argsList.unshift(fn),Tracert.addToRun(function(){Tracert.call.apply(Tracert,argsList)})}}(fn)}window.Tracert=Tracert}}()}]);</script>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-      }
-      html,body{
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-        background: #F3F2F2;
-        text-align: center;
-        font-family: PingFangSC-Medium;
-      }
-      .backguide {
-        height: 100%;
-        width: 100%;
-      }
-      .backguide .enter {
-        position: absolute;
-        height: 0.44rem;
-        width: 3.43rem;
-        background: #108EE9;
-        border: 0;
-        font-size: 0.18rem;
-        color: white;
-        bottom: 0.52rem;
-        left: 0.16rem;
-        border-radius: 0.02rem;
-      }
-      .backguide .tips {
-        margin-top: 1.29rem;
-        font-size: 0.14rem;
-        line-height: 0.2rem;
-        color: #999999;
-      }
-      .backguide .appname {
-        font-size: 0.18rem;
-        line-height: 0.25rem;
-        color: #333333;
-        margin-top: 0.2rem;
-      }
-      .main {
-        color: #333;
-        text-align: center;
-      }
-      .subject {
-        margin-top: .3rem;
-        font-size: 0.2rem;
-      }
+            var base64 = new Base64();
+            var query = getQuery(location.href);
+            var { appId, appName, appIcon, scheme, params } = query;
+            var sysVer = iOSversion();
 
-      .preview {
-        margin-top:0.36rem;
-        position: relative;
-      }
-      .preview .content {
-        position: relative;
-        margin: 0 0.55rem;
-      }
-      .preview .bg {
-        width: 2.5rem;
-        margin-left: 0.05rem;
-        position: relative;
-      }
-      .preview .icon {
-        position: absolute;
-        display: block;
-        border-radius: 21%;
-      }
-      .preview .title {
-        position: absolute;
-        text-align: center;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .preview .icon.large {
-        width: 1.25rem;
-        height: 1.25rem;
-        left: 1.22rem;
-        top: .42rem
-      }
-      .preview .title.large {
-        width: 1.5rem;
-        left: 1.13rem;
-        top: 1.70rem;
-        font-size: 0.17rem;
-      }
-      .preview .icon.small {
-        width: 0.14rem;
-        height: 0.14rem;
-        left: 0.8rem;
-        top: 1.125rem;
-      }
-      .preview .title.small {
-        width: 0.16rem;
-        left: 0.78rem;
-        top: 1.266rem;
-        font-size: 0.025rem;
-      }
+            appName = htmlEncode(appName);
+            appIcon = htmlEncode(appIcon);
 
-      .guide {
-        width: 100%;
-        position: absolute;
-        left: 0;
-        bottom: .30rem;
-      }
-      .guide .content {
-        position: relative;
-        z-index: 20;
-        width: 3.50rem;
-        padding-top: 0.16rem;
-        padding-bottom: 0.06rem;
-        margin: 0 auto;
-        border-radius: 0.04rem;
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.13);
-        background: #fff;
-        font-size: .14rem;
-      }
-      .guide .tips {
-        position: relative;
-        z-index: 20;
-      }
-      .guide .icon {
-        width: 0.20rem;
-        height: 0.24rem;
-        margin: 0 0.035rem 0.02rem;
-        vertical-align: bottom;
-      }
-      .guide .toolbar {
-        width: 100%;
-        height: auto;
-        margin-top: -0.12rem;
-        position: relative;
-        z-index: 10;
-      }
-      .guide .arrow {
-        width: 0.27rem;
-        height: auto;
-        position: absolute;
-        left: 50%;
-        bottom: -0.26rem;
-        margin-left: -0.135rem;
-        z-index: 10;
-      }
+            if ((appId || scheme) && appName && appIcon) {
+                if (sysVer && sysVer[0] < 14) {
+                    // 不处理
+                }
+            } else {
+                alert('参数错误');
+            }
+        </script>
+        <script>
+            window.dispatchEvent(window.requestConfigEvent);
+        </script>
+        <script>
+            window._to = { autoExpo: true };
+            document.documentElement.style.fontSize = (document.documentElement.clientWidth * 100) / 375 + 'px';
+        </script>
+        <script>
+            !(function (modules) {
+                function __webpack_require__(moduleId) {
+                    if (installedModules[moduleId]) return installedModules[moduleId].exports;
+                    var module = (installedModules[moduleId] = { exports: {}, id: moduleId, loaded: !1 });
+                    return (
+                        modules[moduleId].call(module.exports, module, module.exports, __webpack_require__),
+                        (module.loaded = !0),
+                        module.exports
+                    );
+                }
+                var installedModules = {};
+                return (
+                    (__webpack_require__.m = modules),
+                    (__webpack_require__.c = installedModules),
+                    (__webpack_require__.p = ''),
+                    __webpack_require__(0)
+                );
+            })([
+                function (module, exports) {
+                    'use strict';
+                    !(function () {
+                        if (!window.Tracert) {
+                            for (
+                                var Tracert = {
+                                        _isInit: !0,
+                                        _readyToRun: [],
+                                        _guid: function () {
+                                            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+                                                /[xy]/g,
+                                                function (c) {
+                                                    var r = (16 * Math.random()) | 0,
+                                                        v = 'x' === c ? r : (3 & r) | 8;
+                                                    return v.toString(16);
+                                                },
+                                            );
+                                        },
+                                        get: function (key) {
+                                            if ('pageId' === key) {
+                                                if (
+                                                    ((window._tracert_loader_cfg = window._tracert_loader_cfg || {}),
+                                                    window._tracert_loader_cfg.pageId)
+                                                )
+                                                    return window._tracert_loader_cfg.pageId;
+                                                var metaa = document.querySelectorAll('meta[name=data-aspm]'),
+                                                    spma = metaa && metaa[0].getAttribute('content'),
+                                                    spmb = document.body && document.body.getAttribute('data-aspm'),
+                                                    pageId =
+                                                        spma && spmb
+                                                            ? spma +
+                                                              '.' +
+                                                              spmb +
+                                                              '_' +
+                                                              Tracert._guid() +
+                                                              '_' +
+                                                              Date.now()
+                                                            : '-_' + Tracert._guid() + '_' + Date.now();
+                                                return (window._tracert_loader_cfg.pageId = pageId), pageId;
+                                            }
+                                            return this[key];
+                                        },
+                                        call: function () {
+                                            var argsList,
+                                                args = arguments;
+                                            try {
+                                                argsList = [].slice.call(args, 0);
+                                            } catch (ex) {
+                                                var argsLen = args.length;
+                                                argsList = [];
+                                                for (var i = 0; i < argsLen; i++) argsList.push(args[i]);
+                                            }
+                                            Tracert.addToRun(function () {
+                                                Tracert.call.apply(Tracert, argsList);
+                                            });
+                                        },
+                                        addToRun: function (_fn) {
+                                            var fn = _fn;
+                                            'function' == typeof fn &&
+                                                ((fn._logTimer = new Date() - 0), Tracert._readyToRun.push(fn));
+                                        },
+                                    },
+                                    fnlist = [
+                                        'config',
+                                        'logPv',
+                                        'info',
+                                        'err',
+                                        'click',
+                                        'expo',
+                                        'pageName',
+                                        'pageState',
+                                        'time',
+                                        'timeEnd',
+                                        'parse',
+                                        'checkExpo',
+                                        'stringify',
+                                        'report',
+                                        'set',
+                                        'before',
+                                    ],
+                                    i = 0;
+                                i < fnlist.length;
+                                i++
+                            ) {
+                                var fn = fnlist[i];
+                                !(function (fn) {
+                                    Tracert[fn] = function () {
+                                        var argsList,
+                                            args = arguments;
+                                        try {
+                                            argsList = [].slice.call(args, 0);
+                                        } catch (ex) {
+                                            var argsLen = args.length;
+                                            argsList = [];
+                                            for (var i = 0; i < argsLen; i++) argsList.push(args[i]);
+                                        }
+                                        argsList.unshift(fn),
+                                            Tracert.addToRun(function () {
+                                                Tracert.call.apply(Tracert, argsList);
+                                            });
+                                    };
+                                })(fn);
+                            }
+                            window.Tracert = Tracert;
+                        }
+                    })();
+                },
+            ]);
+        </script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+            html,
+            body {
+                height: 100%;
+                width: 100%;
+                overflow: hidden;
+                background: #f3f2f2;
+                text-align: center;
+                font-family: PingFangSC-Medium;
+            }
+            body {
+                display: none;
+            }
+            .backguide {
+                height: 100%;
+                width: 100%;
+            }
+            .backguide .enter {
+                position: absolute;
+                height: 0.44rem;
+                width: 3.43rem;
+                background: #108ee9;
+                border: 0;
+                font-size: 0.18rem;
+                color: white;
+                bottom: 0.52rem;
+                left: 0.16rem;
+                border-radius: 0.02rem;
+            }
+            .backguide .tips {
+                margin-top: 1.29rem;
+                font-size: 0.14rem;
+                line-height: 0.2rem;
+                color: #999999;
+            }
+            .backguide .appname {
+                font-size: 0.18rem;
+                line-height: 0.25rem;
+                color: #333333;
+                margin-top: 0.2rem;
+            }
+            .main {
+                color: #333;
+                text-align: center;
+            }
+            .subject {
+                margin-top: 0.3rem;
+                font-size: 0.2rem;
+            }
 
-      .guide-v13 {
-        display: none;
-      }
+            .preview {
+                margin-top: 0.36rem;
+                position: relative;
+            }
+            .preview .content {
+                position: relative;
+                margin: 0 0.55rem;
+            }
+            .preview .bg {
+                width: 2.5rem;
+                margin-left: 0.05rem;
+                position: relative;
+            }
+            .preview .icon {
+                position: absolute;
+                display: block;
+                border-radius: 21%;
+            }
+            .preview .title {
+                position: absolute;
+                text-align: center;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .preview .icon.large {
+                width: 1.25rem;
+                height: 1.25rem;
+                left: 1.22rem;
+                top: 0.42rem;
+            }
+            .preview .title.large {
+                width: 1.5rem;
+                left: 1.13rem;
+                top: 1.7rem;
+                font-size: 0.17rem;
+            }
+            .preview .icon.small {
+                width: 0.14rem;
+                height: 0.14rem;
+                left: 0.8rem;
+                top: 1.125rem;
+            }
+            .preview .title.small {
+                width: 0.16rem;
+                left: 0.78rem;
+                top: 1.266rem;
+                font-size: 0.025rem;
+            }
 
-      html.ios-v13, html.ios-v13 body {
-        height: auto;
-        overflow: auto;
-      }
-      .ios-v13 .preview {
-        margin: 0.36rem 0 0.32rem;
-      }
-      .ios-v13 .preview .content{
-        font-size: 0;
-      }
-      .ios-v13 .guide {
-        display: none;
-      }
-      .ios-v13 .guide-v13 {
-        display: block;
-      }
-      .guide-v13 {
-        margin: 0 0.25rem 0 0.275rem;
-        font-size: 0;
-        left: 0;
-      }
-      .guide-v13 .tips {
-        font-size: .16rem;
-        color: #333333;
-        letter-spacing: 0;
-        text-align: left;
-        line-height: .225rem;
-      }
-      .guide-v13 .tips label {
-        color: #1677FF;
-      }
-      .guide-v13 .toolbar {
-        width: 100%;
-        margin: 0.14rem 0 0.235rem;
-      }
-      .guide-v13 .toolbar .action-sheet {
-        margin-bottom: 0;
-      }
-    </style>
+            .guide {
+                width: 100%;
+                position: absolute;
+                left: 0;
+                bottom: 0.3rem;
+            }
+            .guide .content {
+                position: relative;
+                z-index: 20;
+                width: 3.5rem;
+                padding-top: 0.16rem;
+                padding-bottom: 0.06rem;
+                margin: 0 auto;
+                border-radius: 0.04rem;
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.13);
+                background: #fff;
+                font-size: 0.14rem;
+            }
+            .guide .tips {
+                position: relative;
+                z-index: 20;
+            }
+            .guide .icon {
+                width: 0.2rem;
+                height: 0.24rem;
+                margin: 0 0.035rem 0.02rem;
+                vertical-align: bottom;
+            }
+            .guide .toolbar {
+                width: 100%;
+                height: auto;
+                margin-top: -0.12rem;
+                position: relative;
+                z-index: 10;
+            }
+            .guide .arrow {
+                width: 0.27rem;
+                height: auto;
+                position: absolute;
+                left: 50%;
+                bottom: -0.26rem;
+                margin-left: -0.135rem;
+                z-index: 10;
+            }
 
-  </head>
-  <body data-aspm="b15502">
-      
-<div id="B_container" class="backguide" style="display: none;">
-  <div class="tips">你即将进入</div>
-  <div id="B_appname" class="appname">App</div>
-  <button class="enter" onclick="jumpSchema()" data-aspm="c37816.d76317" data-aspm-expo data-aspm-param="appId=${appId}">立即进入</button>
-</div>
-<div class="main" id="J_container" style="display: none;">
-  <div class="subject" data-language="string-0">添加服务到桌面</div>
-  <div class="preview">
-    <div class="content">
-      <img class="bg" src="./staticfiles/images/appShortCut/IMG1.jpeg">
-      <img id="J_iconsmall" class="icon small" src="">
-      <img id="J_iconlarge" class="icon large" src="">
-      <div id="J_appname" class="title large">App</div>
-    </div>
-  </div>
-  <div class="guide">
-    <div class="content">
-      <p class="tips">点击下方工具栏上的<img class="icon" src="./staticfiles/images/appShortCut/IMG2.png"></p>
-      <p class="tips">并选择<img class="icon" src="./staticfiles/images/appShortCut/IMG3.png">“<strong>添加到主屏幕</strong>”</p>
-      <img class="toolbar" src="./staticfiles/images/appShortCut/IMG4.jpeg">
-    </div>
-    <img class="arrow" src="./staticfiles/images/appShortCut/IMG5.png">
-  </div>
-  <div class="guide-v13">
-    <p class="tips"><label data-language="string-1">第一步</label><span data-language="string-2">：点击底部工具</span></p>
-    <img class="toolbar" src="./staticfiles/images/appShortCut/IMG6.png" />
-    <p class="tips"><label data-language="string-3">第二步</label><span data-language="string-4">：在弹出框中点击“添加到主屏幕”</span></p>
-    <img data-language="img-0" class="toolbar action-sheet" src="./staticfiles/images/appShortCut/IMG7.png" />
-  </div>
-</div>
-<script>
-  function jumpSchema() {
-    window.location.href = window.RedirectSchema;
-    var appId = window.RedirectAppId;
-    window.Tracert.click('c37816.d76317', {appId: appId});
-  }
-  function getQueryParams(url) {
-    var query = {};
-    var hashParts = url.split('#');
-    var urlParts = hashParts[0].split('?');
-    if (urlParts.length > 1) {
-      // 有query
-      var queryParts = urlParts[1].split('&');
-      for (var i = 0, len = queryParts.length; i < len; i++) {
-        var items = queryParts[i].split('=');
-        query[items[0]] = decodeURIComponent(items[1]);
-      }
-    }
-    return query;
-  };
-  function getIOSversion() {
-    if (/iP(hone|od|ad)/.test(navigator.platform)) {
-      var v = navigator.appVersion.match(/OS (\d+)_(\d+)_?(\d+)?/);
-      return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
-    }
-  }
+            .guide-v13 {
+                display: none;
+            }
 
-  function matchZHSupport(language) {
-    language = language.toLowerCase();
-    var zhSupportList = [
-      { support: ['zh', 'zh-chs', 'zh-cn', 'zh-sg'], type: 1 },
-      { support: ['zh-cht', 'zh-tw'], type: 2 },
-      { support: ['zh-hk', 'zh-mo'], type: 3 },
-    ];
-    for (var i = 0; i < zhSupportList.length; i++) {
-      var supportInfo = zhSupportList[i];
-      if (supportInfo.support.indexOf(language) > -1) {
-        return supportInfo.type;
-      }
-    }
-  }
-  /**
-   * 1. 简体中文 zh-CHS zh-CN zh-SG zh >> fallback -> zh
-   * 2. 繁体中文 | 繁体中文（台湾）>> fallback -> zh
-   * 3. 繁体中文（澳门）| 繁体中文（香港）>> fallback -> zh
-   * 4. 英文
-   */
-  function getLanguageType() {
-    var languageType;
-    var zhFallback = false;
-    var languageList = [];
-    if (navigator.languages.length) {
-      languageList = navigator.languages;
-    } else if (navigator.language) {
-      languageList.push(navigator.language);
-    }
+            html.ios-v13,
+            html.ios-v13 body {
+                height: auto;
+                overflow: auto;
+            }
+            .ios-v13 .preview {
+                margin: 0.36rem 0 0.32rem;
+            }
+            .ios-v13 .preview .content {
+                font-size: 0;
+            }
+            .ios-v13 .guide {
+                display: none;
+            }
+            .ios-v13 .guide-v13 {
+                display: block;
+            }
+            .guide-v13 {
+                margin: 0 0.25rem 0 0.275rem;
+                font-size: 0;
+                left: 0;
+            }
+            .guide-v13 .tips {
+                font-size: 0.16rem;
+                color: #333333;
+                letter-spacing: 0;
+                text-align: left;
+                line-height: 0.225rem;
+            }
+            .guide-v13 .tips label {
+                color: #1677ff;
+            }
+            .guide-v13 .toolbar {
+                width: 100%;
+                margin: 0.14rem 0 0.235rem;
+            }
+            .guide-v13 .toolbar .action-sheet {
+                margin-bottom: 0;
+            }
+        </style>
+        <script src="/staticfiles/staticLanguages.js"></script>
+    </head>
+    <body data-aspm="b15502">
+        <div id="B_container" class="backguide" style="display: none">
+            <div class="tips transformLang">你即将进入</div>
+            <div id="B_appname" class="appname">App</div>
+            <button
+                class="enter transformLang"
+                onclick="jumpSchema()"
+                data-aspm="c37816.d76317"
+                data-aspm-expo
+                data-aspm-param="appId=${appId}"
+            >
+                立即进入
+            </button>
+        </div>
+        <div class="main" id="J_container" style="display: none">
+            <div class="subject transformLang" data-language="string-0">添加服务到桌面</div>
+            <div class="preview">
+                <div class="content">
+                    <img class="bg" src="./staticfiles/images/appShortCut/IMG1.jpeg" />
+                    <img id="J_iconsmall" class="icon small" src="" />
+                    <img id="J_iconlarge" class="icon large" src="" />
+                    <div id="J_appname" class="title large">App</div>
+                </div>
+            </div>
+            <div class="guide">
+                <div class="content">
+                    <p class="tips">
+                        <span class="transformLang">点击下方工具栏上的</span
+                        ><img class="icon" src="./staticfiles/images/appShortCut/IMG2.png" />
+                    </p>
+                    <p class="tips">
+                        <span class="transformLang">并选择</span
+                        ><img class="icon" src="./staticfiles/images/appShortCut/IMG3.png" />“<strong
+                            class="transformLang"
+                            >添加到主屏幕</strong
+                        >”
+                    </p>
+                    <img class="toolbar" src="./staticfiles/images/appShortCut/IMG4.jpeg" />
+                </div>
+                <img class="arrow" src="./staticfiles/images/appShortCut/IMG5.png" />
+            </div>
+            <div class="guide-v13">
+                <p class="tips">
+                    <label data-language="string-1" class="transformLang">第一步</label
+                    ><span data-language="string-2" class="transformLang">：点击底部工具</span>
+                </p>
+                <img class="toolbar" src="./staticfiles/images/appShortCut/IMG6.png" />
+                <p class="tips">
+                    <label data-language="string-3" class="transformLang">第二步</label
+                    ><span data-language="string-4" class="transformLang">：在弹出框中点击“添加到主屏幕”</span>
+                </p>
+                <img
+                    data-language="img-0"
+                    class="toolbar action-sheet"
+                    src="./staticfiles/images/appShortCut/IMG7.png"
+                />
+            </div>
+        </div>
+        <script>
+            function jumpSchema() {
+                window.location.href = window.RedirectSchema;
+                var appId = window.RedirectAppId;
+                window.Tracert.click('c37816.d76317', { appId: appId });
+            }
+            function getQueryParams(url) {
+                var query = {};
+                var hashParts = url.split('#');
+                var urlParts = hashParts[0].split('?');
+                if (urlParts.length > 1) {
+                    // 有query
+                    var queryParts = urlParts[1].split('&');
+                    for (var i = 0, len = queryParts.length; i < len; i++) {
+                        var items = queryParts[i].split('=');
+                        query[items[0]] = decodeURIComponent(items[1]);
+                    }
+                }
+                return query;
+            }
+            function getIOSversion() {
+                if (/iP(hone|od|ad)/.test(navigator.platform)) {
+                    var v = navigator.appVersion.match(/OS (\d+)_(\d+)_?(\d+)?/);
+                    return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+                }
+            }
 
-    for (var i = 0; i < languageList.length; i++) {
-      var type = matchZHSupport(languageList[i]);
-      // 避免遗漏 'zh' 开头的都 fallback 到简体中文
-      if (/^zh(-\w+)?$/.test(languageList[i])) {
-        zhFallback = true;
-      }
-      if (type) {
-        languageType = type;
-        break;
-      }
-    }
-    // zhSupportList 匹配到了类型
-    if (languageType) return languageType;
-    // zhSupportList 没匹配到上但是有 zh 开头的语言类型
-    if (!languageType && zhFallback) return 1;
-    // 其他语言显示英语
-    return 4;
-  }
+            function matchZHSupport(language) {
+                language = language.toLowerCase();
+                var zhSupportList = [
+                    { support: ['zh', 'zh-chs', 'zh-cn', 'zh-sg'], type: 1 },
+                    { support: ['zh-cht', 'zh-tw'], type: 2 },
+                    { support: ['zh-hk', 'zh-mo'], type: 3 },
+                ];
+                for (var i = 0; i < zhSupportList.length; i++) {
+                    var supportInfo = zhSupportList[i];
+                    if (supportInfo.support.indexOf(language) > -1) {
+                        return supportInfo.type;
+                    }
+                }
+            }
+            /**
+             * 1. 简体中文 zh-CHS zh-CN zh-SG zh >> fallback -> zh
+             * 2. 繁体中文 | 繁体中文（台湾）>> fallback -> zh
+             * 3. 繁体中文（澳门）| 繁体中文（香港）>> fallback -> zh
+             * 4. 英文
+             */
+            function getLanguageType() {
+                var languageType;
+                var zhFallback = false;
+                var languageList = [];
+                if (navigator.languages.length) {
+                    languageList = navigator.languages;
+                } else if (navigator.language) {
+                    languageList.push(navigator.language);
+                }
 
-  function changeLanguage() {
-    var languagesPkg = {
-      "2": {
-        string: [
-          "添加服務到桌面",
-          "第一步",
-          "：點擊底部工具",
-          "第二步",
-          "：在彈出框中點擊“加入主畫面”"
-        ],
-        img: ["./staticfiles/images/appShortCut/IMG8.png"],
-      },
-      "3": {
-        string: [
-          "添加服務到桌面",
-          "第一步",
-          "：點擊底部工具",
-          "第二步",
-          "：在彈出框中點擊“加至主畫面”"
-        ],
-        img: ["./staticfiles/images/appShortCut/IMG9.png"],
-      },
-      "4": {
-        string: [
-          "Add to Home Screen",
-          "Step1",
-          ": Tap the Share icon at the bottom",
-          "Step2",
-          ": Tap Add to Home Screen from the menu",
-        ],
-        img: ["./staticfiles/images/appShortCut/IMG10.png"],
-      },
-    };
-    var languageType = getLanguageType();
-    if (languageType === 1) return;
-    var replaceNodes = document.querySelectorAll('[data-language]');
-    var languagePkg = languagesPkg[languageType];
-    replaceNodes.forEach(function(node) {
-      var data = node.dataset.language || '';
-      data = data.split('-');
-      var type = data[0];
-      var id = data[1];
-      if (type === 'string') {
-        node.innerText = languagePkg[type][id];
-      } else if (type === 'img') {
-        node.src = languagePkg[type][id];
-      }
-    });
-  }
+                for (var i = 0; i < languageList.length; i++) {
+                    var type = matchZHSupport(languageList[i]);
+                    // 避免遗漏 'zh' 开头的都 fallback 到简体中文
+                    if (/^zh(-\w+)?$/.test(languageList[i])) {
+                        zhFallback = true;
+                    }
+                    if (type) {
+                        languageType = type;
+                        break;
+                    }
+                }
+                // zhSupportList 匹配到了类型
+                if (languageType) return languageType;
+                // zhSupportList 没匹配到上但是有 zh 开头的语言类型
+                if (!languageType && zhFallback) return 1;
+                // 其他语言显示英语
+                return 4;
+            }
 
-  var query = getQueryParams(location.href);
-  var { appId = "", appName, appIcon, scheme = "", autoJump = "0", params = "" } = query;
-  window.RedirectAppId = appId;
-  var href = '';
-  var v = getIOSversion();
+            function changeLanguage() {
+                var languagesPkg = {
+                    2: {
+                        string: [
+                            '添加服務到桌面',
+                            '第一步',
+                            '：點擊底部工具',
+                            '第二步',
+                            '：在彈出框中點擊“加入主畫面”',
+                        ],
+                        img: ['./staticfiles/images/appShortCut/IMG8.png'],
+                    },
+                    3: {
+                        string: [
+                            '添加服務到桌面',
+                            '第一步',
+                            '：點擊底部工具',
+                            '第二步',
+                            '：在彈出框中點擊“加至主畫面”',
+                        ],
+                        img: ['./staticfiles/images/appShortCut/IMG9.png'],
+                    },
+                    4: {
+                        string: [
+                            'Add to Home Screen',
+                            'Step1',
+                            ': Tap the Share icon at the bottom',
+                            'Step2',
+                            ': Tap Add to Home Screen from the menu',
+                        ],
+                        img: ['./staticfiles/images/appShortCut/IMG10.png'],
+                    },
+                };
+                var languageType = getLanguageType();
+                if (languageType === 1) return;
+                var replaceNodes = document.querySelectorAll('[data-language]');
+                var languagePkg = languagesPkg[languageType];
+                replaceNodes.forEach(function (node) {
+                    var data = node.dataset.language || '';
+                    data = data.split('-');
+                    var type = data[0];
+                    var id = data[1];
+                    if (type === 'string') {
+                        node.innerText = languagePkg[type][id];
+                    } else if (type === 'img') {
+                        node.src = languagePkg[type][id];
+                    }
+                });
+            }
 
-  if (v && v[0] >= 13) {
-    document.documentElement.className = 'ios-v13';
-    // 只有新版才显示不同语言
-    changeLanguage();
-  }
+            var query = getQueryParams(location.href);
+            var { appId = '', appName, appIcon, scheme = '', autoJump = '0', params = '' } = query;
+            window.RedirectAppId = appId;
+            var href = '';
+            var v = getIOSversion();
 
-  function getRedirectSchema() {
-    var redirectAppUrl = '';
-    var sch = ''
-    if (scheme) {
-      sch = scheme;
-    } else {
-        sch = 'mingdao'
-    }
-    
-    href = sch + '://LGApplicationShortcuts?id=' + appId + '&name=' + appName;
-    
-    window.RedirectSchema = href;
-  }
+            if (v && v[0] >= 13) {
+                document.documentElement.className = 'ios-v13';
+                // 只有新版才显示不同语言
+                changeLanguage();
+            }
 
-  getRedirectSchema();
-  
-  window.addEventListener('requestConfig', function() {
-    getRedirectSchema();
-    if (window.navigator.standalone) {
-      window.location.href = window.RedirectSchema;
-    }
-  });
+            function getRedirectSchema() {
+                var redirectAppUrl = '';
+                var sch = '';
+                if (scheme) {
+                    sch = scheme;
+                } else {
+                    sch = 'mingdao';
+                }
 
-  if (window.navigator.standalone) {
-    if (v[0] >= 13) {
-      document.getElementById('B_container').style.display = 'block';
-      document.getElementById('B_appname').textContent = appName;
-      window.Tracert.call('expoCheck');
-    }
-    setTimeout(function() {
-      window.location.href = window.RedirectSchema;
-    }, 1000);
-  } else {
-    document.getElementById('J_container').style.display = 'block';
-    document.getElementById('J_desktopTitle').textContent = appName;
-    document.getElementById('J_desktopIcon').setAttribute('href', appIcon);
-    document.getElementById('J_iconsmall').setAttribute('src', appIcon);
-    document.getElementById('J_iconlarge').setAttribute('src', appIcon);
-    document.getElementById('J_appname').textContent = appName;
-  }
+                href = sch + '://LGApplicationShortcuts?id=' + appId + '&name=' + appName;
 
-  document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'visible' && autoJump === '1') {
-      jumpSchema();
-    }
-  });
-</script>
+                window.RedirectSchema = href;
+            }
 
-  </body>
+            getRedirectSchema();
+
+            window.addEventListener('requestConfig', function () {
+                getRedirectSchema();
+                if (window.navigator.standalone) {
+                    window.location.href = window.RedirectSchema;
+                }
+            });
+
+            if (window.navigator.standalone) {
+                if (v[0] >= 13) {
+                    document.getElementById('B_container').style.display = 'block';
+                    document.getElementById('B_appname').textContent = appName;
+                    window.Tracert.call('expoCheck');
+                }
+                setTimeout(function () {
+                    window.location.href = window.RedirectSchema;
+                }, 1000);
+            } else {
+                document.getElementById('J_container').style.display = 'block';
+                document.getElementById('J_desktopTitle').textContent = appName;
+                document.getElementById('J_desktopIcon').setAttribute('href', appIcon);
+                document.getElementById('J_iconsmall').setAttribute('src', appIcon);
+                document.getElementById('J_iconlarge').setAttribute('src', appIcon);
+                document.getElementById('J_appname').textContent = appName;
+            }
+
+            document.addEventListener('visibilitychange', function () {
+                if (document.visibilityState === 'visible' && autoJump === '1') {
+                    jumpSchema();
+                }
+            });
+        </script>
+    </body>
 </html>

@@ -1,6 +1,5 @@
 import React, { Fragment, useState } from 'react';
 import { Checkbox } from 'ming-ui';
-import NumberUtil from 'src/util/number';
 import { EditInfo } from '../../../../styled';
 import SliderScaleConfig from '../components/SliderScaleConfig';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
@@ -80,9 +79,9 @@ export default function NumberConfig(props) {
           <SliderScaleConfig
             itemnames={itemnames}
             itemcolor={itemcolor}
-            step={NumberUtil.parseFloat(numinterval)}
-            min={NumberUtil.parseFloat(min)}
-            max={NumberUtil.parseFloat(max)}
+            step={parseFloat(numinterval)}
+            min={parseFloat(min)}
+            max={parseFloat(max)}
             onCancel={() => setNameVisible(false)}
             onChange={value => {
               onChange(handleAdvancedSettingChange(data, { itemnames: JSON.stringify(value) }));

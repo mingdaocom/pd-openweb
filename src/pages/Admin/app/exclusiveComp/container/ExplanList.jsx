@@ -11,7 +11,7 @@ import EXCLUSIVE_BIG from '../images/exclusive_big.png';
 import Status from '../component/Status';
 import EditNameDialog from '../component/EditNameDialog';
 import projectAjax from 'src/api/project';
-import { getFeatureStatus, buriedUpgradeVersionDialog, getCurrentProject } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import { navigateTo } from 'src/router/navigateTo';
 import { COMPUTING_INSTANCE_STATUS } from '../config';
@@ -65,7 +65,6 @@ const EmptyWrap = styled.div`
 
 function ExplanList(props) {
   const { projectId, refresh } = props;
-  const { isSuperAdmin } = getCurrentProject(projectId, true);
   const FEATURE_STATUS = getFeatureStatus(projectId, VersionProductType.exclusiveResource);
   const [operateMenuVisible, setOperateMenuVisible] = useState(-1);
   const [editNameParam, setEditNameParam] = useState({
@@ -130,7 +129,7 @@ function ExplanList(props) {
   };
 
   const goToPurchase = () => {
-    if (!isSuperAdmin || !FEATURE_STATUS) {
+    if (!FEATURE_STATUS) {
       alert(_l('请联系组织超级管理员购买或升级'), 2);
       return;
     }
@@ -305,10 +304,6 @@ function ExplanList(props) {
                             {item.canRenew && !(md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) && (
                               <li
                                 onClick={() => {
-                                  if (!isSuperAdmin) {
-                                    alert(_l('请联系组织超级管理员续费'), 2);
-                                    return;
-                                  }
                                   navigateTo(`/admin/expansionserviceComputing/${projectId}/renewcomputing/${item.id}`);
                                 }}
                               >
@@ -345,9 +340,10 @@ function ExplanList(props) {
         <div className="explanCardContent">
           <div className="explanCardContentItem">
             <p className="label">{_l('规格')}</p>
-            <p className="value">{`${_l('%0并发数', item.specification.concurrency)} | ${
-              item.specification.core
-            }核（vCPU） | ${item.specification.memory / 1024}GiB`}</p>
+            <p className="value">{`${_l('%0并发数', item.specification.concurrency)} | ${_l(
+              '%0核',
+              item.specification.core,
+            )}（vCPU） | ${item.specification.memory / 1024}GiB`}</p>
           </div>
           <div className="explanCardContentItem">
             <p className="label">{_l('到期时间')}</p>

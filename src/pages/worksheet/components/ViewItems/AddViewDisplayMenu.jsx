@@ -1,10 +1,22 @@
 import React, { Component } from 'react';
-import { string } from 'prop-types';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
+import Lottie from 'react-lottie';
+import Trigger from 'rc-trigger';
 import { VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum.js';
 import styled from 'styled-components';
 import pluginAjax from 'src/api/plugin';
 import bg from './img/customview.png';
+import Board from './lottie/board.json';
+import Calendar from './lottie/calendar.json';
+import Detail from './lottie/detail.json';
+import Gunter from './lottie/gantt.json';
+import Map from './lottie/map.json';
+import Resource from './lottie/resources.json';
+import Sheet from './lottie/table.json';
+import Structure from './lottie/structure.json';
+import Gallery from './lottie/gallery.json';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const Wrap = styled.div`
   background-color: #fff;
@@ -23,6 +35,7 @@ const Wrap = styled.div`
       line-height: 36px;
       border-radius: 3px 3px 3px 3px;
       padding: 0 13px;
+      position: relative;
       &:hover {
         background: rgba(0, 0, 0, 0.04);
       }
@@ -41,7 +54,6 @@ const Wrap = styled.div`
     }
     .con {
       flex-wrap: wrap;
-      // justify-content: space-between;
     }
     .valignWrapper {
       min-width: 152px;
@@ -117,7 +129,90 @@ const Wrap = styled.div`
   .customListCon {
     gap: 6px 12px;
   }
+  .guildDescAct {
+    animation-name: fadeInUp;
+    animation-duration: 0.66s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: 1;
+    animation-direction: normal;
+    animation-fill-mode: forwards;
+  }
 `;
+
+const GuildWrap = styled.div`
+  width: 280px;
+  background: #ffffff;
+  box-shadow: 0px 2px 16px 1px rgba(0, 0, 0, 0.16);
+  border-radius: 3px 3px 3px 3px;
+  left: 100%;
+  justify-content: space-between;
+  padding: 20px 20px 16px 20px;
+  box-sizing: border-box;
+  .left {
+    text-align: left;
+    margin-bottom: 16px;
+    .guildTitle {
+      line-height: 14px;
+    }
+  }
+  .rightCon {
+    > div {
+      text-align: center;
+    }
+    svg {
+      width: 98% !important;
+    }
+  }
+`;
+
+const GuildText = {
+  sheet: {
+    title: _l('表格视图'),
+    desc: _l('结构化展示大量数据，编辑更方便'),
+    img: Sheet,
+  },
+  board: {
+    title: _l('看板视图'),
+    desc: _l('以卡片形式展示数据，分配更灵活'),
+    img: Board,
+  },
+  calendar: {
+    title: _l('日历视图'),
+    desc: _l('按所在日期排列数据，日程安排更直观'),
+    img: Calendar,
+  },
+  gallery: {
+    title: _l('画廊视图'),
+    desc: _l('以图片为主要元素查看数据，浏览更高效'),
+    img: Gallery,
+  },
+  detail: {
+    title: _l('详情视图'),
+    desc: _l('聚焦数据详细内容，阅读更方便'),
+    img: Detail,
+  },
+  structure: {
+    title: _l('层级视图'),
+    desc: _l('根据父-子关系展示数据，结构更清晰'),
+    img: Structure,
+  },
+  map: {
+    title: _l('地图视图'),
+    desc: _l('按定位显示数据，区域分布更直观'),
+    img: Map,
+  },
+  gunter: {
+    title: _l('甘特图'),
+    desc: _l('以时间轴展示数据，项目管理更方便'),
+    img: Gunter,
+  },
+  resource: {
+    title: _l('资源视图'),
+    desc: _l('按所属资源展示数据，资源调度更方便'),
+    img: Resource,
+  },
+};
+
 export default class AddViewDisplayMenu extends Component {
   static propTypes = {};
   static defaultProps = {};
@@ -127,6 +222,7 @@ export default class AddViewDisplayMenu extends Component {
       myPlugins: [],
       orgPlugins: [],
       loading: true,
+      guild: '',
     };
   }
   componentDidMount() {
@@ -187,33 +283,73 @@ export default class AddViewDisplayMenu extends Component {
       );
     });
   };
+
   render() {
     const { onClick, canAddCustomView, projectId, ...rest } = this.props;
     const { myPlugins = [], orgPlugins = [], loading } = this.state;
-    const allowPlugin = _.get(
-      _.find(md.global.Account.projects, item => item.projectId === projectId),
-      'allowPlugin',
-    );
+    const hasPluginAuth =
+      _.get(
+        _.find(md.global.Account.projects, item => item.projectId === projectId),
+        'allowPlugin',
+      ) || checkPermission(projectId, [PERMISSION_ENUM.DEVELOP_PLUGIN, PERMISSION_ENUM.MANAGE_PLUGINS]);
 
     return (
       <Wrap className="flexRow">
         <div className="typeMenuWrap" {...rest}>
           <div className="title Bold Font15">{_l('默认视图')}</div>
           {VIEW_TYPE_ICON.filter(o => o.id !== 'customize').map(({ icon, text, id, color, isNew }) => (
-            <div key={id} className="viewTypeItem flexRow Hand" onClick={() => onClick({ id })}>
-              <div className="valignWrapper flex">
-                <Icon style={{ color, fontSize: '20px' }} icon={icon} />
-                <span className="viewName mLeft12 Bold Font14">{text}</span>
-              </div>
-              {isNew && (
-                <div className="newIcon">
-                  <Icon icon="new" className="ThemeColor Font20" />
+            <Trigger
+              popup={
+                <GuildWrap className="guildWrap">
+                  <div className="left">
+                    <div className="guildTitle Font14 Bold">{GuildText[id].title}</div>
+                    <div className="guildDesc mTop8 Gray_75 LineHeight20 Font13">{GuildText[id].desc}</div>
+                  </div>
+                  <div className="rightCon">
+                    <Lottie
+                      options={{
+                        autoplay: true,
+                        loop: false,
+                        animationData: GuildText[id].img,
+                        rendererSettings: {
+                          preserveAspectRatio: 'xMidYMid slice',
+                        },
+                      }}
+                    />
+                  </div>
+                </GuildWrap>
+              }
+              popupTransitionName="Tooltip-move-top"
+              destroyPopupOnHide
+              action={['hover']}
+              mouseEnterDelay={0.3}
+              popupAlign={{
+                points: ['tl', 'tr'],
+                offset: [5, 0],
+                overflow: { adjustX: true, adjustY: true },
+              }}
+            >
+              <div
+                key={id}
+                className="viewTypeItem flexRow Hand"
+                onClick={() => onClick({ id })}
+                onMouseEnter={e => this.setState({ guild: id })}
+                onMouseLeave={e => this.setState({ guild: '' })}
+              >
+                <div className="valignWrapper flex">
+                  <Icon style={{ color, fontSize: '20px' }} icon={icon} />
+                  <span className="viewName mLeft12 Bold Font14">{text}</span>
                 </div>
-              )}
-            </div>
+                {isNew && (
+                  <div className="newIcon">
+                    <Icon icon="new" className="ThemeColor Font20" />
+                  </div>
+                )}
+              </div>
+            </Trigger>
           ))}
         </div>
-        {canAddCustomView && (
+        {canAddCustomView && !md.global.SysSettings.hidePlugin && (
           <div className="customView flex flexColumn">
             <div className="">
               <span className="viewName Font15 Bold">{_l('插件视图')}</span>
@@ -238,7 +374,7 @@ export default class AddViewDisplayMenu extends Component {
                     )}
                   </div>
                 </div>
-                {allowPlugin && (
+                {hasPluginAuth && (
                   <div className="mTop24">
                     <span
                       className="addCustomView Hand"
@@ -255,7 +391,7 @@ export default class AddViewDisplayMenu extends Component {
                       }
                     >
                       <Icon icon={'plus'} />
-                      <span className="viewName mLeft6">{_l('开发插件视图')}</span>
+                      <span className="viewName mLeft6">{_l('开发视图插件')}</span>
                     </span>
                     <span
                       className="mLeft40 Hand addCustomView"
@@ -280,7 +416,7 @@ export default class AddViewDisplayMenu extends Component {
                 </div>
                 <div className="mTop16 minBold Font14 TxtCenter">{_l('通过插件开发，定制自己的视图')}</div>
 
-                {allowPlugin && (
+                {hasPluginAuth && (
                   <div className="flexRow alignItemsCenter">
                     <span
                       className="addCustomView Hand"
@@ -300,7 +436,7 @@ export default class AddViewDisplayMenu extends Component {
                       }
                     >
                       <Icon icon={'plus'} className="Font16" />
-                      <span className="viewName mLeft8 Bold">{_l('开发插件视图')}</span>
+                      <span className="viewName mLeft8 Bold">{_l('开发视图插件')}</span>
                     </span>
                   </div>
                 )}

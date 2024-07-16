@@ -7,6 +7,7 @@ import {
   updateTimeErrorDialog,
   updateTaskErrorDialog,
 } from '../components/updateTimeError/updateTimeError';
+import { emitter } from 'src/util';
 import { updateStageViewControlsSource } from '../utils/taskComm';
 import _ from 'lodash';
 
@@ -19,6 +20,10 @@ export const addTask = data => (dispatch, getState) => {
       type: 'CREATE_TASK_TO_LIST',
       data,
     });
+    emitter.emit('CREATE_TASK_TO_LIST', {
+      type: 'CREATE_TASK_TO_LIST',
+      data,
+    });
   }
 
   // 项目列表
@@ -27,11 +32,19 @@ export const addTask = data => (dispatch, getState) => {
       type: 'CREATE_TASK_TO_TREE',
       data,
     });
+    emitter.emit('CREATE_TASK_TO_TREE', {
+      type: 'CREATE_TASK_TO_TREE',
+      data,
+    });
   }
 
   // 项目看板
   if (taskConfig.folderId && taskConfig.viewType === 2) {
     dispatch({
+      type: 'CREATE_TASK_TO_STAGE',
+      data,
+    });
+    emitter.emit('CREATE_TASK_TO_STAGE', {
       type: 'CREATE_TASK_TO_STAGE',
       data,
     });
@@ -613,6 +626,11 @@ export const updateTaskCharge =
         }
 
         dispatch({
+          type: 'UPDATE_TASK_CHARGE',
+          taskId,
+          data: taskDetail,
+        });
+        emitter.emit('UPDATE_TASK_CHARGE', {
           type: 'UPDATE_TASK_CHARGE',
           taskId,
           data: taskDetail,

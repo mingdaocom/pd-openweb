@@ -1,25 +1,102 @@
 import React, { Fragment, useState } from 'react';
-import { Icon, Switch, Input, Dialog } from 'ming-ui';
+import { useSetState } from 'react-use';
+import { Input, Icon, Switch, Dialog } from 'ming-ui';
 import { Button, Divider } from 'antd';
 import ServerStateDialog from './components/ServerStateDialog';
 import InstallCaptainDialog from './components/InstallCaptainDialog';
 import { updateSysSettings } from '../common';
 
-const Base = (props) => {
+const LoginGotoAppIdConfig = props => {
+  const { SysSettings } = md.global;
+  const [isEdit, setIsEdit] = useState(false);
+  const [loginGotoAppId, setLoginGotoAppId] = useState(SysSettings.loginGotoAppId || '');
+
+  const handleSave = () => {
+    if (loginGotoAppId.length !== 36) {
+      alert(_l('应用ID格式不正确，请重新输入'), 3);
+      return;
+    }
+    updateSysSettings({
+      loginGotoAppId
+    }, () => {
+      md.global.SysSettings.loginGotoAppId = loginGotoAppId;
+      setIsEdit(false);
+    });
+  };
+  const handleReset = () => {
+    setLoginGotoAppId(SysSettings.loginGotoAppId || '');
+    setIsEdit(false);
+  };
+
+  return (
+    <div className="flexRow">
+      <div className="flex flexColumn">
+        <div className="Font14 bold mBottom7">{_l('登录后直接进入应用')}</div>
+        <div className="Gray_9e mBottom15">{_l('支持设置登录后直接进入的应用，应用ID可前往应用管理右上角查看。若未设置，则默认登录后进入工作台')}</div>
+        {isEdit ? (
+          <Fragment>
+            <div className="mBottom15 valignWrapper">
+              <span className="Gray_9e mRight18">{_l('应用ID')}</span>
+              <Input
+                style={{ width: 500 }}
+                value={loginGotoAppId}
+                onChange={value => {
+                  setLoginGotoAppId(value.replace(/\s/g, ''));
+                }}
+              />
+            </div>
+            <div className="flexRow valignWrapper">
+              <Button className="mRight10" type="primary" onClick={handleSave}>{_l('保存')}</Button>
+              <Button onClick={handleReset}>{_l('取消')}</Button>
+            </div>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div className="mBottom15 valignWrapper">
+              <span className="Gray_9e mRight18">{_l('应用ID')}</span>
+              <span>{loginGotoAppId ? loginGotoAppId : _l('未设置')}</span>
+            </div>
+            <div>
+              <Button
+                ghost
+                type="primary"
+                onClick={() => setIsEdit(true)}
+              >
+                {_l('设置')}
+              </Button>
+            </div>
+          </Fragment>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const Base = props => {
   const { IsPlatformLocal, IsCluster } = md.global.Config;
   const { SysSettings } = md.global;
-  const [hideHelpTip, setHideHelpTip] = useState(SysSettings.hideHelpTip);
-  const [hideIntegration, setHideIntegration] = useState(SysSettings.hideIntegration);
-  const [hideIntegrationLibrary, setHideIntegrationLibrary] = useState(SysSettings.hideIntegrationLibrary);
-  const [hideDownloadApp, setHideDownloadApp] = useState(SysSettings.hideDownloadApp);
-  const [downloadAppRedirectUrl, setDownloadAppRedirectUrl] = useState(SysSettings.downloadAppRedirectUrl);
-  const [appDialogVisible, setAppDialogVisible] = useState(false);
-  const [serviceStatusWebhookUrl, setServiceStatusWebhookUrl] = useState(SysSettings.serviceStatusWebhookUrl);
-  const [allowBindAccountNoVerify, setAllowBindAccountNoVerify] = useState(SysSettings.allowBindAccountNoVerify);
-  const [serverStateDialogVisible, setServerStateDialogVisible] = useState(false);
-  const [enableCreateProject, setEnableCreateProject] = useState(SysSettings.enableCreateProject);
-  const [installCaptainUrl, setInstallCaptainUrl] = useState(SysSettings.installCaptainUrl);
-  const [installCaptainDialogVisible, setInstallCaptainDialogVisible] = useState(false);
+  const [sysSettings, setSysSettings] = useSetState({
+    hidePlugin: false,
+    ...SysSettings,
+    appDialogVisible: false,
+    serverStateDialogVisible: false,
+    installCaptainDialogVisible: false,
+  });
+  const {
+    hideHelpTip,
+    hideIntegration,
+    hideIntegrationLibrary,
+    hideDownloadApp,
+    downloadAppRedirectUrl,
+    appDialogVisible,
+    serviceStatusWebhookUrl,
+    allowBindAccountNoVerify,
+    serverStateDialogVisible,
+    enableCreateProject,
+    installCaptainUrl,
+    installCaptainDialogVisible,
+    hidePlugin,
+  } = sysSettings;
 
   const renderHelpTip = () => {
     return (
@@ -31,17 +108,20 @@ const Base = (props) => {
         <Switch
           checked={!hideHelpTip}
           onClick={value => {
-            updateSysSettings({
-              hideHelpTip: value
-            }, () => {
-              setHideHelpTip(value);
-              md.global.SysSettings.hideHelpTip = value;
-            });
+            updateSysSettings(
+              {
+                hideHelpTip: value,
+              },
+              () => {
+                setSysSettings({ hideHelpTip: value });
+                md.global.SysSettings.hideHelpTip = value;
+              },
+            );
           }}
         />
       </div>
     );
-  }
+  };
 
   const renderIntegration = () => {
     return (
@@ -54,12 +134,15 @@ const Base = (props) => {
               <Switch
                 checked={!hideIntegrationLibrary}
                 onClick={value => {
-                  updateSysSettings({
-                    hideIntegrationLibrary: value
-                  }, () => {
-                    setHideIntegrationLibrary(value);
-                    md.global.SysSettings.hideIntegrationLibrary = value;
-                  });
+                  updateSysSettings(
+                    {
+                      hideIntegrationLibrary: value,
+                    },
+                    () => {
+                      setSysSettings({ hideIntegrationLibrary: value });
+                      md.global.SysSettings.hideIntegrationLibrary = value;
+                    },
+                  );
                 }}
               />
               <div className="mLeft8">{_l('显示官方API库')}</div>
@@ -69,20 +152,23 @@ const Base = (props) => {
         <Switch
           checked={!hideIntegration}
           onClick={value => {
-            updateSysSettings({
-              hideIntegration: value,
-              hideIntegrationLibrary: value,
-            }, () => {
-              setHideIntegration(value);
-              setHideIntegrationLibrary(value);
-              md.global.SysSettings.hideIntegration = value;
-              md.global.SysSettings.hideIntegrationLibrary = value;
-            });
+            updateSysSettings(
+              {
+                hideIntegration: value,
+                hideIntegrationLibrary: value,
+              },
+              () => {
+                setSysSettings({ hideIntegration: value });
+                setSysSettings({ hideIntegrationLibrary: value });
+                md.global.SysSettings.hideIntegration = value;
+                md.global.SysSettings.hideIntegrationLibrary = value;
+              },
+            );
           }}
         />
       </div>
     );
-  }
+  };
 
   const renderDownloadApp = () => {
     return (
@@ -102,7 +188,9 @@ const Base = (props) => {
                     ghost
                     disabled={hideDownloadApp}
                     type="primary"
-                    onClick={() => { setAppDialogVisible(true) }}
+                    onClick={() => {
+                      setSysSettings({ appDialogVisible: true });
+                    }}
                   >
                     {_l('设置')}
                   </Button>
@@ -113,12 +201,15 @@ const Base = (props) => {
           <Switch
             checked={!hideDownloadApp}
             onClick={value => {
-              updateSysSettings({
-                hideDownloadApp: value
-              }, () => {
-                setHideDownloadApp(value);
-                md.global.SysSettings.hideDownloadApp = value;
-              });
+              updateSysSettings(
+                {
+                  hideDownloadApp: value,
+                },
+                () => {
+                  setSysSettings({ hideDownloadApp: value });
+                  md.global.SysSettings.hideDownloadApp = value;
+                },
+              );
             }}
           />
         </div>
@@ -127,25 +218,30 @@ const Base = (props) => {
           title={_l('App 下载地址')}
           okText={_l('保存')}
           onOk={() => {
-            updateSysSettings({
-              downloadAppRedirectUrl
-            }, () => {
-              md.global.SysSettings.downloadAppRedirectUrl = downloadAppRedirectUrl;
-            });
-            setAppDialogVisible(false);
+            updateSysSettings(
+              {
+                downloadAppRedirectUrl,
+              },
+              () => {
+                md.global.SysSettings.downloadAppRedirectUrl = downloadAppRedirectUrl;
+              },
+            );
+            setSysSettings({ appDialogVisible: false });
           }}
-          onCancel={() => { setAppDialogVisible(false) }}
+          onCancel={() => {
+            setSysSettings({ appDialogVisible: false });
+          }}
         >
           <Input
             className="w100"
             placeholder={_l('请输入')}
             value={downloadAppRedirectUrl}
-            onChange={value => setDownloadAppRedirectUrl(value)}
+            onChange={value => setSysSettings({ downloadAppRedirectUrl: value })}
           />
         </Dialog>
       </Fragment>
     );
-  }
+  };
 
   const renderServerState = () => {
     return (
@@ -163,7 +259,9 @@ const Base = (props) => {
                 ghost
                 // disabled={hideDownloadApp}
                 type="primary"
-                onClick={() => { setServerStateDialogVisible(true) }}
+                onClick={() => {
+                  setSysSettings({ serverStateDialogVisible: true });
+                }}
               >
                 {_l('设置')}
               </Button>
@@ -172,16 +270,16 @@ const Base = (props) => {
         </div>
         <ServerStateDialog
           visible={serverStateDialogVisible}
-          onChange={(value) => {
-            setServiceStatusWebhookUrl(value);
+          onChange={value => {
+            setSysSettings({ serviceStatusWebhookUrl: value });
           }}
           onCancel={() => {
-            setServerStateDialogVisible(false);
+            setSysSettings({ serverStateDialogVisible: false });
           }}
         />
       </Fragment>
     );
-  }
+  };
 
   const renderAllowBindAccountNoVerify = () => {
     return (
@@ -193,17 +291,45 @@ const Base = (props) => {
         <Switch
           checked={!allowBindAccountNoVerify}
           onClick={value => {
-            updateSysSettings({
-              allowBindAccountNoVerify: value
-            }, () => {
-              setAllowBindAccountNoVerify(value);
-              md.global.SysSettings.allowBindAccountNoVerify = value;
-            });
+            updateSysSettings(
+              {
+                allowBindAccountNoVerify: value,
+              },
+              () => {
+                setSysSettings({ allowBindAccountNoVerify: value });
+                md.global.SysSettings.allowBindAccountNoVerify = value;
+              },
+            );
           }}
         />
       </div>
     );
-  }
+  };
+
+  const renderHidePlugin = () => {
+    return (
+      <div className="flexRow valignWrapper">
+        <div className="flex flexColumn">
+          <div className="Font14 bold mBottom8">{_l('插件')}</div>
+          <div className="Gray_9e">{_l('开启后，开放插件中心入口，且支持在系统内使用插件能力')}</div>
+        </div>
+        <Switch
+          checked={!hidePlugin}
+          onClick={value => {
+            updateSysSettings(
+              {
+                hidePlugin: value,
+              },
+              () => {
+                setSysSettings({ hidePlugin: value });
+                md.global.SysSettings.hidePlugin = value;
+              },
+            );
+          }}
+        />
+      </div>
+    );
+  };
 
   const renderEnableCreateProject = () => {
     return (
@@ -216,17 +342,20 @@ const Base = (props) => {
           checked={enableCreateProject}
           onClick={value => {
             value = !value;
-            updateSysSettings({
-              enableCreateProject: value
-            }, () => {
-              setEnableCreateProject(value);
-              md.global.SysSettings.enableCreateProject = value;
-            });
+            updateSysSettings(
+              {
+                enableCreateProject: value,
+              },
+              () => {
+                setSysSettings({ enableCreateProject: value });
+                md.global.SysSettings.enableCreateProject = value;
+              },
+            );
           }}
         />
       </div>
     );
-  }
+  };
 
   const renderInstallCaptainUrl = () => {
     const url = installCaptainUrl || location.protocol + '//' + location.hostname + ':38881/settings';
@@ -251,7 +380,9 @@ const Base = (props) => {
               <Button
                 ghost
                 type="primary"
-                onClick={() => { setInstallCaptainDialogVisible(true) }}
+                onClick={() => {
+                  setSysSettings({ installCaptainDialogVisible: true });
+                }}
               >
                 {_l('设置')}
               </Button>
@@ -261,9 +392,9 @@ const Base = (props) => {
         <InstallCaptainDialog
           visible={installCaptainDialogVisible}
           onSave={value => {
-            setInstallCaptainUrl(value);
+            setSysSettings({ installCaptainUrl: value });
           }}
-          onCancel={() => setInstallCaptainDialogVisible(false)}
+          onCancel={() => setSysSettings({ installCaptainDialogVisible: false })}
         />
       </Fragment>
     );
@@ -276,12 +407,14 @@ const Base = (props) => {
       <Divider className="mTop20 mBottom20" />
       {renderIntegration()}
       <Divider className="mTop20 mBottom20" />
+      {renderHidePlugin()}
+      <Divider className="mTop20 mBottom20" />
       {IsPlatformLocal && (
         <Fragment>
           {renderEnableCreateProject()}
           <Divider className="mTop20 mBottom20" />
         </Fragment>
-       )}
+      )}
       {!IsPlatformLocal && (
         <Fragment>
           {renderAllowBindAccountNoVerify()}
@@ -297,6 +430,10 @@ const Base = (props) => {
           {renderInstallCaptainUrl()}
         </Fragment>
       )}
+      <Fragment>
+        <Divider className="mTop20 mBottom20" />
+        <LoginGotoAppIdConfig {...props} />
+      </Fragment>
     </div>
   );
 };

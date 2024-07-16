@@ -139,19 +139,6 @@ export default {
      return mdyAPI('WorkWeiXin', 'EditDDProjectTodoMessageEnabled', args, options);
    },
   /**
-  * 钉钉通讯录同步到明道云
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {boolean} args.check 是否只检测
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   syncWorkDDToMing: function (args, options = {}) {
-     
-     return mdyAPI('WorkWeiXin', 'SyncWorkDDToMing', args, options);
-   },
-  /**
   * 编辑应用钉钉消息通知
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -177,6 +164,74 @@ export default {
    getDDSignatureInfo: function (args, options = {}) {
      
      return mdyAPI('WorkWeiXin', 'GetDDSignatureInfo', args, options);
+   },
+  /**
+  * 钉钉通讯录同步到明道云
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {object} args.userMaps 明道用户和微信的手动映射关系
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   syncWorkDDToMing: function (args, options = {}) {
+     
+     return mdyAPI('WorkWeiXin', 'SyncWorkDDToMing', args, options);
+   },
+  /**
+  * 检测钉钉自建应用集成通讯录同步到明道云
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkWorkDDToMing: function (args, options = {}) {
+     
+     return mdyAPI('WorkWeiXin', 'CheckWorkDDToMing', args, options);
+   },
+  /**
+  * 获取钉钉通讯录
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.keywords
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getDDStructureInfo: function (args, options = {}) {
+     
+     return mdyAPI('WorkWeiXin', 'GetDDStructureInfo', args, options);
+   },
+  /**
+  * 获取钉钉和明道云用户绑定关系列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.platformKeyword
+  * @param {string} args.tpKeyword
+  * @param {integer} args.pageIndex
+  * @param {integer} args.pageSize
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getDDUserRelations: function (args, options = {}) {
+     
+     return mdyAPI('WorkWeiXin', 'GetDDUserRelations', args, options);
+   },
+  /**
+  * 解绑钉钉用户和明道云用户关系
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.mdAccountId
+  * @param {string} args.tpUserId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   unbindDDUserRelation: function (args, options = {}) {
+     
+     return mdyAPI('WorkWeiXin', 'UnbindDDUserRelation', args, options);
    },
   /**
   * 获取网络的企业微信自建应用集成设置
@@ -538,7 +593,7 @@ export default {
   * 飞书自建应用集成通讯录同步到明道云
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
-  * @param {boolean} args.check 是否只检测
+  * @param {object} args.userMaps 明道用户和微信的手动映射关系
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -546,6 +601,61 @@ export default {
    syncFeishuToMingByApp: function (args, options = {}) {
      
      return mdyAPI('WorkWeiXin', 'SyncFeishuToMingByApp', args, options);
+   },
+  /**
+  * 检测飞书自建应用集成通讯录同步到明道云
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkFeiShuToMingByApp: function (args, options = {}) {
+     
+     return mdyAPI('WorkWeiXin', 'CheckFeiShuToMingByApp', args, options);
+   },
+  /**
+  * 获取飞书通讯录
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.keywords
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFeiShuStructureInfo: function (args, options = {}) {
+     
+     return mdyAPI('WorkWeiXin', 'GetFeiShuStructureInfo', args, options);
+   },
+  /**
+  * 获取飞书和明道云用户绑定关系列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.platformKeyword
+  * @param {string} args.tpKeyword
+  * @param {integer} args.pageIndex
+  * @param {integer} args.pageSize
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFeiShuUserRelations: function (args, options = {}) {
+     
+     return mdyAPI('WorkWeiXin', 'GetFeiShuUserRelations', args, options);
+   },
+  /**
+  * 解绑飞书用户和明道云用户关系
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.mdAccountId
+  * @param {string} args.tpUserId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   unbindFeiShuUserRelation: function (args, options = {}) {
+     
+     return mdyAPI('WorkWeiXin', 'UnbindFeiShuUserRelation', args, options);
    },
   /**
   * 飞书 自建应用SSO地址信息

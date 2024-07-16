@@ -21,12 +21,15 @@ export default function ChangeName(props) {
         if (deduplication && list.find(item => item.alias === name)) {
           return alert(_l('名称重复，请修改后提交'), 3);
         }
+        if (!value.trim()) {
+          return alert(_l('名称不能为空'), 3);
+        }
         onChange(value.trim());
         onCancel();
       }}
     >
       <EditShowNameCon>
-        <Input className="w100" value={value} onChange={setValue} autoFocus />
+        <Input className="w100" value={value} onChange={setValue} autoFocus maxLength={60} />
       </EditShowNameCon>
     </Dialog>
   );

@@ -12,7 +12,7 @@ import {
 } from '../util';
 import displayTypes from './displayTypes';
 import { CommonDisplay, TitleContentWrap } from '../styled';
-import Components from './components';
+import WidgetStatus from './components/WidgetStatus';
 import { getTitleStyle, getVerifyInfo } from '../util/setting';
 import { TabHeaderItem } from './displayTabs/tabHeader';
 import { TITLE_SIZE_OPTIONS } from '../config/setting';
@@ -79,14 +79,14 @@ export default function WidgetDisplay(props) {
       return (
         <div className="titleContent">
           {controlNameCon}
-          <Components.WidgetStatus data={data} showTitle={showTitle} />
+          <WidgetStatus data={data} showTitle={showTitle} />
         </div>
       );
     }
     return (
       <Fragment>
         {controlNameCon}
-        <Components.WidgetStatus data={data} showTitle={showTitle} />
+        <WidgetStatus data={data} showTitle={showTitle} />
       </Fragment>
     );
   };
@@ -123,7 +123,9 @@ export default function WidgetDisplay(props) {
       readOnly={readOnly}
     >
       <div className={cx('nameAndStatus', { minHeight18: !isSpecialControl && hidetitle === '1' })}>
-        {required && !isSheetDisplay(data) && <div className={cx({ required })}>*</div>}
+        {required && !(_.includes([51], data.type) || isSheetDisplay(data)) && (
+          <div className={cx({ required })}>*</div>
+        )}
         <i className={cx(`typeIcon icon-${getIconByType(type)}`)}></i>
 
         {getTitleContent()}
@@ -135,7 +137,7 @@ export default function WidgetDisplay(props) {
         ) : (
           <CommonDisplay>
             {prefix && <div className="unit prefix">{prefix}</div>}
-            {hint && <div className="hint overflow_ellipsis">{hint}</div>}
+            {hint && <div className="hint overflow_ellipsis">{type === 45 ? _l('编辑状态下不支持查看') : hint}</div>}
             {/* 汇总、时间不需要显示单位 */}
             {!includes([37, 46], type) && !includes([37, 46], sourceControlType) && (suffix || unit) && (
               <div className="unit">{suffix || unit}</div>

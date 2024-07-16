@@ -208,6 +208,7 @@ class StructureContent extends Component {
       isLoading,
       noDepartmentUsers,
       removeUserFromSet = () => {},
+      authority = [],
     } = this.props;
     let { batchEditVisible, batchResetPasswordVisible, openChangeUserInfoDrawer } = this.state;
     return (
@@ -299,7 +300,7 @@ class StructureContent extends Component {
           ) : typeCursor === 3 ? (
             <ApprovalContent projectId={projectId} {...this.props} />
           ) : (
-            <UserTable projectId={projectId} />
+            <UserTable projectId={projectId} authority={authority} />
           )}
           <PaginationWrap total={allCount} pageIndex={pageIndex} pageSize={pageSize || 50} onChange={this.changPage} />
         </div>
@@ -324,6 +325,7 @@ class StructureContent extends Component {
             typeCursor={typeCursor}
             actType={'add'}
             departmentInfos={!departmentId || typeNum !== 0 ? '' : departmentInfos}
+            addUserVisible={openChangeUserInfoDrawer}
             onClose={() => {
               this.setState({ openChangeUserInfoDrawer: false });
             }}
@@ -335,6 +337,7 @@ class StructureContent extends Component {
             fetchApproval={() => this.props.fetchApproval(projectId)}
             fetchReInvite={this.props.fetchReInvite}
             fetchCancelImportUser={this.props.fetchCancelImportUser}
+            authority={authority}
           />
         )}
       </Fragment>

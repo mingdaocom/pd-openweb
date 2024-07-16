@@ -72,7 +72,7 @@ const AppItem = props => {
         <SvgIcon url={iconUrl} fill={iconColor} size={44} />
       </div>
       <div className="nameWrap flexRow alignItemsCenter justifyContentCenter">
-        <span className="Gray">{getTranslateInfo(appId, workSheetId).name || appItem.workSheetName}</span>
+        <span className="Gray">{getTranslateInfo(appId, null, workSheetId).name || appItem.workSheetName}</span>
       </div>
     </Fragment>
   );
@@ -85,7 +85,7 @@ const AppItem = props => {
             {Content}
           </div>
         ) : (
-          <MdLink className="flexColumn h100" to={url}>
+          <MdLink className="flexColumn h100 stopPropagation" to={url}>
             {Content}
           </MdLink>
         )}

@@ -14,7 +14,7 @@ import _ from 'lodash';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 const Box = styled.span`
-  color: ${props => (props.isBranch ? '#9e9e9e' : 'rgba(255, 255, 255, 0.8)')};
+  color: ${props => (props.isBranch ? '#757575' : 'rgba(255, 255, 255, 0.8)')};
   &:hover {
     color: ${props => (props.isBranch ? '#2196f3' : '#fff')};
   }
@@ -314,7 +314,7 @@ export default class NodeOperate extends Component {
         </ul>
         {item.typeId === NODE_TYPE.BRANCH_ITEM && (
           <Fragment>
-            <div className="Gray_9e flowNodeOperateMove">{_l('移动')}</div>
+            <div className="Gray_75 flowNodeOperateMove">{_l('移动')}</div>
             <div className="flowNodeOperateMoveBtn flexRow">
               <div className={cx('pAll3 flexRow', { disabled: branchItemIndex === 0 })}>
                 <Tooltip placement="bottom" title={branchItemIndex === 0 ? '' : _l('移至最左')}>

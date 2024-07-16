@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import preall from 'src/common/preall';
 import MobileContainer from './MobileContainer';
@@ -17,5 +17,6 @@ export default function NativeEMbedCustomWidgetView(props) {
 }
 
 const Comp = preall(NativeEMbedCustomWidgetView, { allowNotLogin: false });
+const root = createRoot(document.getElementById('app'));
 
-ReactDOM.render(<Comp />, document.querySelector('#app'));
+root.render(<Comp />);

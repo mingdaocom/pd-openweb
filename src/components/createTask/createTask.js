@@ -1,6 +1,6 @@
 ﻿import UploadFiles from 'src/components/UploadFiles';
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import createShare from 'src/components/createShare/createShare';
 import Store from 'redux/configureStore';
 import { addTask } from 'src/pages/task/redux/actions';
@@ -128,9 +128,11 @@ $.extend(CreateTask.prototype, {
       noFooter: true,
     });
 
-    this.eventInit();
-    var txt = $('#txtTaskName').val();
-    $('#txtTaskName').val('').focus().val(txt);
+    setTimeout(() => {
+      this.eventInit();
+      var txt = $('#txtTaskName').val();
+      $('#txtTaskName').val('').focus().val(txt);
+    }, 200);
   },
 
   // 事件初始化
@@ -256,7 +258,8 @@ $.extend(CreateTask.prototype, {
         var avatar = user && user.accountId === accountId ? user.avatar : $this.find('.imgWidth').attr('src');
         var ext = {};
         if (type === 2) ext['data-id'] = accountId;
-        ReactDom.render(
+        const root = createRoot(ele);
+        root.render(
           <UserCard sourceId={accountId} disabled={accountId === 'user-undefined'}>
             <span>
               {type === 2 && (
@@ -267,7 +270,6 @@ $.extend(CreateTask.prototype, {
               <img src={avatar} className={`imgWidth ${type === 2 ? 'createTaskMember circle' : ''}`} {...ext} />
             </span>
           </UserCard>,
-          ele,
         );
         $this.data('bind', true);
       });
@@ -671,7 +673,8 @@ $.extend(CreateTask.prototype, {
         defaultEnd = defaultEnd || moment().format('YYYY-MM-DD 18:00');
       }
 
-      ReactDom.render(
+      const root = createRoot($txtLastDate[0]);
+      root.render(
         <DateTimeRange
           selectedValue={[defaultStart, defaultEnd]}
           mode="task"
@@ -700,13 +703,12 @@ $.extend(CreateTask.prototype, {
             delete $txtLastDate.data().start;
             delete $txtLastDate.data().end;
 
-            ReactDom.unmountComponentAtNode($txtLastDate[0]);
+            root.unmount();
             bindDate();
           }}
         >
           <div id="txtLastDateText">{_l('未指定起止时间')}</div>
         </DateTimeRange>,
-        $txtLastDate[0],
       );
     };
 
@@ -725,7 +727,8 @@ $.extend(CreateTask.prototype, {
     });
 
     // 附件
-    ReactDom.render(
+    const root = createRoot(document.getElementById('Attachment_updater_createTask'));
+    root.render(
       <UploadFiles
         canAddLink
         onUploadComplete={res => {
@@ -740,7 +743,6 @@ $.extend(CreateTask.prototype, {
           settings.createTaskAttachments.kcAttachmentData = res;
         }}
       />,
-      document.getElementById('Attachment_updater_createTask'),
     );
   },
 });
@@ -835,7 +837,8 @@ CreateTask.Motheds = {
 
           $('#folderStage').val(array[0].value);
 
-          ReactDom.render(
+          const root = createRoot(document.getElementById('folderStageBox'));
+          root.render(
             <Dropdown
               className="w100"
               data={array}
@@ -846,7 +849,6 @@ CreateTask.Motheds = {
                 $('#folderStage').val(value);
               }}
             />,
-            document.getElementById('folderStageBox'),
           );
         } else {
           return Promise.reject();

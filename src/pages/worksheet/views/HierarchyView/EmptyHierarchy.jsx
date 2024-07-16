@@ -76,10 +76,12 @@ export default function EmptyHierarchy({ allowAdd, onAdd, layersName, updateLaye
         </div>
       )}
 
-      <div onClick={onAdd} className={cx('addWrap', { allowAdd })}>
-        <i className="icon-add"></i>
-        <span>{allowAdd ? _l('添加记录') : _l('暂无记录')}</span>
-      </div>
+      {!(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) && (
+        <div onClick={onAdd} className={cx('addWrap', { allowAdd })}>
+          <i className="icon-add"></i>
+          <span>{allowAdd ? _l('添加记录') : _l('暂无记录')}</span>
+        </div>
+      )}
     </EmptyHierarchyWrap>
   );
 }

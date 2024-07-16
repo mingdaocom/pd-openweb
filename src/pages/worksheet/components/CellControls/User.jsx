@@ -13,10 +13,24 @@ const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _ from 'lodash';
+import ChildTableContext from '../ChildTable/ChildTableContext';
 import CellErrorTip from './comps/CellErrorTip';
+
+function getPopupContainer(popupContainer, rows) {
+  try {
+    if (_.get(rows, 'length') && _.get(rows, 'length') <= 2 && popupContainer().closest('.customFieldsContainer')) {
+      return () =>
+        _.get(rows, 'length') && _.get(rows, 'length') <= 2 && popupContainer().closest('.customFieldsContainer');
+    }
+  } catch (err) {
+    console.log(err);
+  }
+  return popupContainer;
+}
 
 // enumDefault 单选 0 多选 1
 export default class User extends React.Component {
+  static contextType = ChildTableContext;
   static propTypes = {
     className: PropTypes.string,
     singleLine: PropTypes.bool,
@@ -57,7 +71,7 @@ export default class User extends React.Component {
   cell = React.createRef();
 
   renderCellUser(user, index) {
-    const { isediting, projectId, appId, cell, disabled } = this.props;
+    const { isediting, projectId, appId, cell, disabled, chatButton } = this.props;
     const { value } = this.state;
 
     return (
@@ -73,6 +87,7 @@ export default class User extends React.Component {
             size={21}
             appId={cell.dataSource ? undefined : appId}
             disabled={disabled}
+            chatButton={chatButton}
           />
           <span className="userName flex ellipsis">{user.fullname || user.name}</span>
           {isediting && !(cell.required && value.length === 1) && (
@@ -150,7 +165,17 @@ export default class User extends React.Component {
   }
   @autobind
   pickUser(event) {
-    const { isSubList, worksheetId, cell, projectId, updateEditingStatus, appId, rowFormData, onValidate } = this.props;
+    const {
+      isSubList,
+      worksheetId,
+      cell,
+      projectId,
+      updateEditingStatus,
+      appId,
+      rowFormData,
+      onValidate,
+      masterData = () => {},
+    } = this.props;
     const { value } = this.state;
     const target = (this.cell && this.cell.current) || (event || {}).target;
     const tabType = getTabTypeBySelectUser(cell);
@@ -201,7 +226,11 @@ export default class User extends React.Component {
       }
       this.isPicking = false;
     };
-    const selectRangeOptions = dealUserRange(cell, _.isFunction(rowFormData) ? rowFormData() : rowFormData);
+    const selectRangeOptions = dealUserRange(
+      cell,
+      _.isFunction(rowFormData) ? rowFormData() : rowFormData,
+      masterData(),
+    );
     const hasUserRange = Object.values(selectRangeOptions).some(i => !_.isEmpty(i));
     quickSelectUser(target, {
       selectRangeOptions,
@@ -221,6 +250,7 @@ export default class User extends React.Component {
       filterAccountIds,
       zIndex: 10001,
       isDynamic: cell.enumDefault === 1,
+      filterOtherProject: cell.enumDefault2 === 2,
       SelectUserSettings: {
         unique: cell.enumDefault === 0,
         projectId: projectId,
@@ -291,6 +321,7 @@ export default class User extends React.Component {
     } = this.props;
     const { value } = this.state;
     const single = cell.enumDefault === 0;
+    const { rows } = this.context || {};
     const editcontent = (
       <ClickAwayable
         onClickAwayExceptions={['.cellUsers', '.selectUserBox', '#dialogBoxSelectUser']}
@@ -333,8 +364,8 @@ export default class User extends React.Component {
       <Trigger
         action={['click']}
         popup={editcontent}
-        getPopupContainer={popupContainer}
-        popupClassName="filterTrigger"
+        getPopupContainer={single ? getPopupContainer : getPopupContainer(popupContainer, rows)}
+        popupClassName="filterTrigger LineHeight0"
         popupVisible={isediting}
         popupAlign={{
           points: ['tl', 'tl'],

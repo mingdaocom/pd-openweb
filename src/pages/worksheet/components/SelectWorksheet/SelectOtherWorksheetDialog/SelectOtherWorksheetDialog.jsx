@@ -76,7 +76,7 @@ export default class extends Component {
         className={cx('selectWorksheetDialog')}
         visible={visible}
         anim={false}
-        title={title || _l('选择其他应用下的') + worksheetTypeName}
+        title={title || _l('选择其他应用下的%0', worksheetTypeName) }
         description={description}
         footer={null}
         width={480}

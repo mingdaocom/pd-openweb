@@ -27,7 +27,7 @@ import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import { navigateTo } from 'src/router/navigateTo';
 import { addLinkFile } from 'ming-ui/functions';
 import _ from 'lodash';
-
+import RegExpValidator from 'src/util/expression';
 export default class UploadFiles extends Component {
   static contextType = RecordInfoContext;
   static propTypes = {
@@ -246,7 +246,7 @@ export default class UploadFiles extends Component {
           fileExt: node.ext ? '.' + node.ext : '',
           fileSize: node.size,
           allowDown: node.isDownloadable,
-          viewUrl: File.isPicture('.' + node.ext) ? node.viewUrl : null,
+          viewUrl: RegExpValidator.fileIsPicture('.' + node.ext) ? node.viewUrl : null,
           node,
         };
       });
@@ -299,7 +299,7 @@ export default class UploadFiles extends Component {
         }
       },
     );
-  }
+  };
   openLinkDialog(item) {
     const _this = this;
 
@@ -384,7 +384,15 @@ export default class UploadFiles extends Component {
     );
   }
   resetFileName(id, newName) {
+    const { checkValueByFilterRegex } = this.props;
     newName = newName.trim();
+    if (checkValueByFilterRegex) {
+      const error = checkValueByFilterRegex(newName);
+      if (error) {
+        alert(error, 2);
+        return;
+      }
+    }
     if (_.isEmpty(newName)) {
       alert(_l('名称不能为空'), 2);
       return;
@@ -588,9 +596,10 @@ export default class UploadFiles extends Component {
   renderQiniuUpload() {
     const _this = this;
     const { maxTotalSize } = this.state;
-    const { noTotal, dropPasteElement, from, projectId, appId, worksheetId, advancedSetting } = this.props;
+    const { noTotal, dropPasteElement, from, projectId, appId, worksheetId, advancedSetting, checkValueByFilterRegex } = this.props;
     const isPublicWorkflow = _.get(window, 'shareState.isPublicWorkflowRecord');
     const isPublic = from === FROM.PUBLIC_ADD || from === FROM.WORKFLOW || window.isPublicWorksheet || isPublicWorkflow;
+    const { licenseType } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
     const getTokenParam = {
       projectId,
       appId,
@@ -603,6 +612,7 @@ export default class UploadFiles extends Component {
           drop_element: dropPasteElement,
           paste_element: dropPasteElement,
           url: md.global.FileStoreConfig.uploadHost,
+          ext_blacklist: ['exe', 'bat', 'vbs', 'cmd', 'com', 'url'],
           file_data_name: 'file',
           multi_selection: true,
           max_file_size: maxTotalSize + 'm',
@@ -614,7 +624,7 @@ export default class UploadFiles extends Component {
           },
           remove_files_callback: uploader => {
             this.onRemoveAll(uploader);
-          }
+          },
         }}
         onAdd={(uploader, files) => {
           _this.props.onDropPasting();
@@ -689,6 +699,35 @@ export default class UploadFiles extends Component {
             return false;
           }
 
+          // 验证名称
+          if (checkValueByFilterRegex) {
+            const removeFiles = [];
+            const result = files.map(file => {
+              const n = checkValueByFilterRegex(file.name);
+              n && removeFiles.push(file);
+              return n;
+            });
+            const errors = result.filter(n => n);
+            if (errors.length) {
+              errors.forEach(n => {
+                alert(n, 2);
+              });
+              if (errors.length === files.length) {
+                _this.onRemoveAll(uploader);
+                return;
+              } else {
+                files.forEach(item => {
+                  if (_.find(removeFiles, { id: item.id })) {
+                    setTimeout(() => {
+                      uploader.removeFile({ id: item.id });
+                    }, 0);
+                  }
+                });
+                files = files.filter(n => !_.find(removeFiles, { id: n.id }));
+              }
+            }
+          }
+
           const temporaryDataLength = _this.state.temporaryData.filter(
             attachment => attachment.fileExt !== '.url',
           ).length;
@@ -707,12 +746,12 @@ export default class UploadFiles extends Component {
             });
           }
 
+          const addFiles = [];
           // 渲染图片列表
           files.forEach(item => {
-            let { temporaryData } = _this.state;
-            let fileExt = `.${File.GetExt(item.name)}`;
-            let fileName = File.GetName(item.name);
-            let isPic = File.isPicture(fileExt);
+            let fileExt = `.${RegExpValidator.getExtOfFileName(item.name)}`;
+            let fileName = RegExpValidator.getNameOfFileName(item.name);
+            let isPic = RegExpValidator.fileIsPicture(fileExt);
             let id = item.id;
             let base = {
               isPic,
@@ -724,12 +763,15 @@ export default class UploadFiles extends Component {
               id: item.id,
               info: item.getNative(),
             });
-            _this.setState({
-              temporaryData: temporaryData.concat({ id: item.id, progress: 0.1, base }),
-            });
+            addFiles.push({ id: item.id, progress: 0.1, base });
           });
+
+          _this.setState({
+            temporaryData: _this.state.temporaryData.concat(addFiles),
+          });
+
         }}
-        onBeforeUpload={(uploader) => {
+        onBeforeUpload={uploader => {
           _this.currentFile = uploader;
         }}
         onUploadProgress={(uploader, file) => {

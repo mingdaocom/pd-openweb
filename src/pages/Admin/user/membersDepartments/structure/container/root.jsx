@@ -29,7 +29,7 @@ class Root extends React.Component {
   }
 
   render() {
-    const { isShowExport, importExportType } = this.props;
+    const { isShowExport, importExportType, authority = [] } = this.props;
 
     return (
       <Fragment>
@@ -43,7 +43,7 @@ class Root extends React.Component {
                 <TabList />
               </div>
               <div className="structureContent flex">
-                <StructureContent />
+                <StructureContent authority={authority} />
               </div>
             </div>
           )}

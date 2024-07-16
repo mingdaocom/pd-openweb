@@ -9,7 +9,7 @@ import groupController from 'src/api/group';
 import userController from 'src/api/user';
 import { Dialog, Dropdown } from 'ming-ui';
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 var CreateGroup = {};
 var projects = $.extend({}, md.global.Account).projects;
@@ -70,10 +70,12 @@ CreateGroup.createInit = function (settings) {
     noFooter: true,
   });
 
-  CreateGroup.$content = $('.dialogBoxCreateGroup');
-  CreateGroup.checkIsProjectAdmin();
-  CreateGroup.bindHeadAvatar();
-  CreateGroup.bindEvent();
+  setTimeout(() => {
+    CreateGroup.$content = $('.dialogBoxCreateGroup');
+    CreateGroup.checkIsProjectAdmin();
+    CreateGroup.bindHeadAvatar();
+    CreateGroup.bindEvent();
+  }, 200);
 };
 
 CreateGroup.bindEvent = function () {
@@ -94,7 +96,8 @@ CreateGroup.bindEvent = function () {
     });
   });
 
-  ReactDom.render(
+  const root = createRoot(document.getElementById('hiddenCompanysBox'));
+  root.render(
     <Dropdown
       className="w100"
       border
@@ -105,7 +108,6 @@ CreateGroup.bindEvent = function () {
         CreateGroup.checkIsProjectAdmin();
       }}
     />,
-    document.getElementById('hiddenCompanysBox'),
   );
 
   // 群组类型

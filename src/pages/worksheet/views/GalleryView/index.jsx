@@ -7,7 +7,7 @@ import { emitter, handleRecordClick } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
-import { getAdvanceSetting, browserIsMobile, addBehaviorLog } from 'src/util';
+import { getAdvanceSetting, browserIsMobile, addBehaviorLog, emitter as ViewEmitter } from 'src/util';
 import NoRecords from 'src/pages/worksheet/components/WorksheetTable/components/NoRecords';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -139,7 +139,7 @@ export default class RecordGallery extends Component {
   };
 
   scrollLoad = (e, o) => {
-    const { maxCount } = this.props;
+    const { maxCount } = this.props.base;
     if (maxCount) {
       return;
     }
@@ -154,11 +154,11 @@ export default class RecordGallery extends Component {
     $(this.view)
       .find('.galleryItem')
       .css({
-        width: this.getWith(nextProps),
+        width: this.getWidth(nextProps),
       });
   };
 
-  getWith = (props = this.props) => {
+  getWidth = (props = this.props) => {
     let { base = {}, views = [], width } = props;
     const { viewId = '' } = base;
     const view = views.find(o => o.viewId === viewId) || {};
@@ -290,10 +290,17 @@ export default class RecordGallery extends Component {
                   })
                 : '',
             };
+            const getMStyle = () => {
+              const wWidth = window.innerWidth;
+              if (wWidth > 480 && _.get(currentView, 'advancedSetting.rowcolumns') === '2') {
+                return { width: '50%', padding: '5px' };
+              }
+              return { width: '100%', padding: '5px 0px' };
+            };
             return (
               <div
                 className={cx('galleryItem', { mobile: isMobile })}
-                style={isMobile ? { width: '100%', padding: '5px 0px' } : { width: this.getWith() }}
+                style={isMobile ? getMStyle() : { width: this.getWidth() }}
                 onClick={() => {
                   handleRecordClick(currentView, item, () => {
                     if (window.isMingDaoApp) {
@@ -351,6 +358,7 @@ export default class RecordGallery extends Component {
                 from={1}
                 hideRecordInfo={() => {
                   this.setState({ recordInfoVisible: false });
+                  ViewEmitter.emit('ROWS_UPDATE');
                 }}
                 view={currentView}
                 recordId={recordId}

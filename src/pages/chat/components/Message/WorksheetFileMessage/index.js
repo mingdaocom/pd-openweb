@@ -49,7 +49,7 @@ export default class WorksheetFileMessage extends Component {
         </div>
         <div className="Message-fileInfo">
           <div className="Message-fileName">{card.title}</div>
-          <div className="Message-fileSize">{_l('来自%0', this.state.from)}</div>
+          <div className="Message-fileSize ellipsis">{_l('来自%0', this.state.from)}</div>
         </div>
       </div>
     );

@@ -320,7 +320,7 @@ export default function ActionLogs(props) {
             actLogList.map(item => {
               const {
                 id,
-                operator,
+                operator = {},
                 operationType,
                 backupFileName,
                 oldBackupFileName,

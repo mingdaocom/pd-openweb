@@ -6,7 +6,7 @@ import { Dialog, VerifyPasswordInput } from 'ming-ui';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import accountController from 'src/api/account';
 import { captcha } from 'ming-ui/functions';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import { verifyPassword } from 'src/util';
 import styled from 'styled-components';
 
@@ -145,7 +145,7 @@ export default class ValidateInfoCon extends Component {
         this.email.focus();
         return;
       }
-      if (!RegExp.isEmail(email)) {
+      if (!RegExpValidator.isEmail(email)) {
         alert(_l('请输入正确的邮箱'), 3);
         this.email.focus();
         return;
@@ -253,7 +253,8 @@ export default class ValidateInfoCon extends Component {
           let loginName = window.localStorage.getItem('LoginName');
           if (
             loginName &&
-            ((RegExp.isEmail(loginName) && type === 'email') || (!RegExp.isEmail(loginName) && type !== 'email'))
+            ((RegExpValidator.isEmail(loginName) && type === 'email') ||
+              (!RegExpValidator.isEmail(loginName) && type !== 'email'))
           ) {
             safeLocalStorageSetItem('LoginName', type === 'email' ? email : this.iti.getNumber());
           }

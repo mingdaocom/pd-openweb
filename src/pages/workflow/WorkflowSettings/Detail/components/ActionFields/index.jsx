@@ -132,10 +132,10 @@ export default class ActionFields extends Component {
           <div className={cx('conditionWrap', { 'pTop6 pBottom6': condition.length || noData || keywords })}>
             <div className="conditionScrollWrap">
               {!condition.length && keywords && (
-                <div className="conditionDetail flexRow Gray_9e">{_l('无搜索结果')}</div>
+                <div className="conditionDetail flexRow Gray_75">{_l('无搜索结果')}</div>
               )}
               {!condition.length && noData && !keywords && (
-                <div className="conditionDetail flexRow Gray_9e">{noData}</div>
+                <div className="conditionDetail flexRow Gray_75">{noData}</div>
               )}
               {condition.map((item, index) => (
                 <div key={index} className="conditionBox">
@@ -151,24 +151,24 @@ export default class ActionFields extends Component {
                           ? 'workflow_field'
                           : getIcons(item.nodeTypeId, item.appType, item.actionId).replace('icon-', '')
                       }
-                      className="Gray_9e"
+                      className="Gray_75"
                     />
                     <div className="flex mLeft10 ellipsis">{item.isSourceApp ? _l('选择映射字段') : item.text}</div>
                     {_.includes([APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION, APP_TYPE.WORKSHEET_LOG], item.appType) && (
                       <div
-                        className="mLeft15 mRight10 Gray_9e ellipsis"
+                        className="mLeft15 mRight10 Gray_75 ellipsis"
                         style={{ maxWidth: 150 }}
                       >{`${item.appTypeName}“${item.appName}”`}</div>
                     )}
                     <Icon
                       icon={index === activeIndex || keywords ? 'arrow-up-border' : 'arrow-down-border'}
-                      className="mLeft10 Gray_9e"
+                      className="mLeft10 Gray_75"
                     />
                   </div>
                   {
                     <ul className={cx('conditionFieldBox', { show: index === activeIndex || keywords })}>
                       {!item.items.length && (
-                        <li className="flexRow conditionFieldNull Gray_9e">
+                        <li className="flexRow conditionFieldNull Gray_75">
                           <div className="ellipsis">{noItemTips}</div>
                         </li>
                       )}

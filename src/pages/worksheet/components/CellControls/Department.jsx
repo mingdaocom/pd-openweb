@@ -3,15 +3,16 @@ import PropTypes from 'prop-types';
 import { autobind } from 'core-decorators';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import { dialogSelectDept } from 'ming-ui/functions';
+import { quickSelectDept } from 'ming-ui/functions';
 import { Tooltip } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import departmentAjax from 'src/api/department';
 const ClickAwayable = createDecoratedComponent(withClickAway);
 import EditableCellCon from '../EditableCellCon';
-import { dealRenderValue } from 'src/components/newCustomFields/tools/utils';
+import { dealRenderValue, dealUserRange } from 'src/components/newCustomFields/tools/utils';
 import _ from 'lodash';
+import { getCurrentProject } from 'src/util';
 
 // enumDefault 单选 0 多选 1
 export default class Text extends React.Component {
@@ -40,13 +41,17 @@ export default class Text extends React.Component {
       this.setState({ value: safeParse(nextProps.cell.value, 'array') });
     }
     const single = nextProps.cell.enumDefault === 0;
-    if (single && !this.props.isediting && nextProps.isediting) {
+    if (this.cell.current && single && !this.props.isediting && nextProps.isediting) {
       this.handleSelect();
     }
     if (!single && !this.props.isediting && nextProps.isediting && _.isEmpty(this.props.cell.value)) {
-      this.handleSelect();
+      // this.handleSelect();
+      setTimeout(() => {
+        this.handleSelect();
+      }, 200);
     }
   }
+  cell = React.createRef();
   @autobind
   handleTableKeyDown(e) {
     const { updateEditingStatus } = this.props;
@@ -74,17 +79,34 @@ export default class Text extends React.Component {
   }
 
   @autobind
-  selectDepartments(cb) {
-    const { cell, projectId } = this.props;
+  selectDepartments(e, cb) {
+    const { cell, projectId, rowFormData, masterData = () => {} } = this.props;
+    const target = (this.cell && this.cell.current) || (e || {}).target;
+    if (!target) {
+      this.isSelecting = false;
+      return;
+    }
     if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
+      this.isSelecting = false;
       alert(_l('您不是该组织成员，无法获取其部门列表，请联系组织管理员'), 3);
       return;
     }
-    dialogSelectDept({
+    const deptRange = dealUserRange(cell, _.isFunction(rowFormData) ? rowFormData() : rowFormData, masterData());
+
+    quickSelectDept(target, {
       projectId,
       isIncludeRoot: false,
+      offset: {
+        top: 0,
+        left: 0,
+      },
+      selectedDepartment: this.state.value,
       unique: cell.enumDefault === 0,
       showCreateBtn: false,
+      departrangetype: _.get(cell, 'advancedSetting.departrangetype'),
+      data: this.state.value,
+      appointedDepartmentIds: _.get(deptRange, 'appointedDepartmentIds') || [],
+      appointedUserIds: _.get(deptRange, 'appointedAccountIds') || [],
       allPath: _.get(cell, 'advancedSetting.allpath') === '1',
       selectFn: cb,
       onClose: () => (this.isSelecting = false),
@@ -92,12 +114,17 @@ export default class Text extends React.Component {
   }
 
   @autobind
-  handleSelect() {
+  handleSelect(e) {
     const { cell, updateEditingStatus } = this.props;
-    const { value } = this.state;
+
     this.isSelecting = true;
-    this.selectDepartments(data => {
+    this.selectDepartments(e, (data, isCancel = false) => {
+      const { value } = this.state;
       this.isSelecting = false;
+      const lastIds = _.sortedUniq(value.map(l => l.departmentId));
+      const newIds = _.sortedUniq(data.map(l => l.departmentId));
+
+      if ((_.isEmpty(data) || _.isEqual(lastIds, newIds)) && !isCancel) return;
       if (cell.enumDefault === 0) {
         // 单选
         this.setState(
@@ -112,7 +139,9 @@ export default class Text extends React.Component {
       } else {
         let newData = [];
         try {
-          newData = _.uniqBy(value.concat(data), 'departmentId');
+          newData = isCancel
+            ? value.filter(l => l.departmentId !== data[0].departmentId)
+            : _.uniqBy(value.concat(data), 'departmentId');
         } catch (err) {}
         this.setState(
           {
@@ -148,11 +177,8 @@ export default class Text extends React.Component {
     return (
       <span className={cx('cellDepartment', { isDelete: department.isDelete })} style={{ maxWidth: style.width - 20 }}>
         <div className="flexRow">
-          <div className="iconWrap" style={{ backgroundColor: '#2196f3' }}>
-            <i className="Font14 icon-department"></i>
-          </div>
           <div
-            className="departmentName mLeft4 flex ellipsis"
+            className="departmentName flex ellipsis"
             style={
               _.get(cell, 'advancedSetting.allpath') === '1' && !department.isDelete
                 ? { direction: 'rtl', unicodeBidi: 'normal' }
@@ -192,7 +218,7 @@ export default class Text extends React.Component {
     const single = cell.enumDefault === 0;
     const editcontent = (
       <ClickAwayable
-        onClickAwayExceptions={['#dialogSelectDept']}
+        onClickAwayExceptions={['#dialogSelectDept', '#quickSelectDept']}
         onClickAway={() => {
           updateEditingStatus(false);
         }}
@@ -203,10 +229,11 @@ export default class Text extends React.Component {
             width: style.width,
             minHeight: rowHeight,
           }}
+          ref={isediting && !single ? this.cell : () => {}}
         >
           {value.map(department => this.renderDepartmentTag(department, !(cell.required && value.length === 1)))}
           {!single && (
-            <span className="addBtn" onClick={this.handleSelect}>
+            <span className="addUserBtn" onClick={this.handleSelect}>
               <i className="icon icon-add Gray_75 Font14"></i>
             </span>
           )}
@@ -218,7 +245,7 @@ export default class Text extends React.Component {
         action={['click']}
         popup={editcontent}
         getPopupContainer={popupContainer}
-        popupClassName="filterTrigger"
+        popupClassName="filterTrigger LineHeight0"
         popupVisible={isediting}
         popupAlign={{
           points: ['tl', 'tl'],
@@ -229,13 +256,14 @@ export default class Text extends React.Component {
         }}
       >
         <EditableCellCon
+          conRef={single ? this.cell : () => {}}
           hideOutline={!single}
           onClick={onClick}
           className={cx(className, { canedit: editable })}
           style={style}
           iconName="department"
           isediting={isediting}
-          onIconClick={cell.enumDefault === 0 ? this.handleSelect : this.handleMutipleEdit}
+          onIconClick={this.handleMutipleEdit}
         >
           {!!value && (
             <div className={cx('cellDepartments cellControl', { singleLine })}>
@@ -259,7 +287,7 @@ export default class Text extends React.Component {
                               return;
                             }
 
-                            if (allpath === '1') {
+                            if (allpath === '1' || _.isEmpty(getCurrentProject(projectId))) {
                               return resolve(department.departmentName);
                             }
 

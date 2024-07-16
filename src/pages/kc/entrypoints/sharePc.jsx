@@ -1,11 +1,10 @@
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import NodeShare from '../common/NodeShare';
-
 import '../main.css';
 
-const app = <NodeShare />;
-
 export default function () {
-  ReactDom.render(app, document.getElementById('app'));
+  const root = createRoot(document.getElementById('app'));
+
+  root.render(<NodeShare />);
 }

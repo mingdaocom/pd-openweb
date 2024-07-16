@@ -5,8 +5,7 @@ import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
-import { validate, TextTypes } from 'src/pages/worksheet/common/Sheet/QuickFilter/Inputs';
-import { conditionAdapter, formatQuickFilter } from 'mobile/RecordList/QuickFilter/Inputs';
+import { validate, conditionAdapter, formatQuickFilter } from 'mobile/RecordList/QuickFilter/utils';
 import _ from 'lodash';
 
 const SearchRowsWrapper = styled.div`
@@ -46,26 +45,29 @@ class Search extends Component {
       searchVlaue: values[0],
       visible: false,
       filterIndex: 0,
-    }
+    };
   }
   handleVisibleChange = () => {
     const { visible } = this.state;
     this.setState({
       visible: !visible,
     });
-  }
+  };
   handleSearch = () => {
     const { filterIndex, searchVlaue } = this.state;
     const { textFilters, updateQuickFilter } = this.props;
     // 快速搜索
-    const quickFilter = [textFilters[filterIndex]].map((filter, i) => ({
-      ...filter,
-      filterType: filter.filterType || 1,
-      spliceType: filter.spliceType || 1,
-      values: searchVlaue.split(' ')
-    })).filter(validate).map(conditionAdapter);
+    const quickFilter = [textFilters[filterIndex]]
+      .map((filter, i) => ({
+        ...filter,
+        filterType: filter.filterType || 1,
+        spliceType: filter.spliceType || 1,
+        values: searchVlaue.split(' '),
+      }))
+      .filter(validate)
+      .map(conditionAdapter);
     updateQuickFilter(formatQuickFilter(quickFilter));
-  }
+  };
   renderPopup() {
     const { filterIndex } = this.state;
     const { textFilters } = this.props;
@@ -82,7 +84,7 @@ class Search extends Component {
                 onClick={() => {
                   this.setState({
                     filterIndex: index,
-                    visible: false
+                    visible: false,
                   });
                 }}
               >
@@ -114,7 +116,7 @@ class Search extends Component {
           >
             <div className="flexRow valignWrapper mobileQuickFilterTrigger">
               <span className="Font14 mLeft5 mRight5 ellipsis">
-                {textFilters[filterIndex] && textFilters[filterIndex].control.controlName || _l('未命名')}
+                {(textFilters[filterIndex] && textFilters[filterIndex].control.controlName) || _l('未命名')}
               </span>
               <Icon className="Font12 Gray_75" icon="arrow-down" />
               <div className="cuttingLine"></div>
@@ -123,11 +125,7 @@ class Search extends Component {
         )}
         <div className="flexRow valignWrapper flex">
           <Icon icon="h5_search" className="Gray_9e Font17" />
-          <form
-            action="#"
-            className="flex"
-            onSubmit={event => event.preventDefault()}
-          >
+          <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
             <input
               type="search"
               className="pAll0 Border0 w100"
@@ -136,7 +134,7 @@ class Search extends Component {
               onChange={event => {
                 const { value } = event.target;
                 this.setState({
-                  searchVlaue: value
+                  searchVlaue: value,
                 });
               }}
               onKeyDown={event => {
@@ -162,4 +160,3 @@ class Search extends Component {
 }
 
 export default Search;
-

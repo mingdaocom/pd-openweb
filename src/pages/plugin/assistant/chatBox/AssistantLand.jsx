@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import ChatBox from './index';
 import preall from 'src/common/preall';
 
@@ -9,5 +9,6 @@ const AssistantLand = () => {
 };
 
 const WrappedComp = preall(AssistantLand, { allowNotLogin: true });
+const root = createRoot(document.getElementById('app'));
 
-ReactDom.render(<WrappedComp />, document.getElementById('app'));
+root.render(<WrappedComp />);

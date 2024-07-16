@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { func } from 'prop-types';
 import cx from 'classnames';
 import Icon from 'ming-ui/components/Icon';
@@ -112,14 +112,14 @@ export default function (props) {
   const div = document.createElement('div');
   document.body.appendChild(div);
 
+  const root = createRoot(div);
+
   function destory() {
-    ReactDOM.unmountComponentAtNode(div);
-    if (div.parentElement) {
-      document.body.removeChild(div);
-    }
+    root.unmount();
+    document.body.removeChild(div);
   }
 
-  ReactDOM.render(
+  root.render(
     <GlobalSearch
       {...props}
       onClose={() => {
@@ -127,6 +127,5 @@ export default function (props) {
         destory();
       }}
     />,
-    div,
   );
 }

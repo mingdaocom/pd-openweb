@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { findDOMNode } from 'react-dom';
 import cx from 'classnames';
 import ScrollView from 'ming-ui/components/ScrollView';
 import SessionItem from '../../components/SessionItem';
@@ -10,7 +9,7 @@ import * as utils from '../../utils/';
 import * as socket from '../../utils/socket';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Constant from '../../utils/constant';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import Tooltip from 'ming-ui/components/Tooltip';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -44,9 +43,13 @@ class ContextMenu extends Component {
   }
   renderLayer(props) {
     let { children, offset } = props;
-    render(children, this.popup, () => {
+    const root = createRoot(this.popup);
+
+    root.render(children);
+
+    setTimeout(() => {
       this.handleShow(offset);
-    });
+    }, 200);
   }
   render() {
     return <noscript />;
@@ -110,10 +113,9 @@ class SessionList extends Component {
       return;
     }
     const currentChatCount = sessionList.reduce((count, item) => {
-      if(item.count && 'isSilent' in item) {
+      if (item.count && 'isSilent' in item) {
         return item.isSilent ? count : (count += item.count);
-      }
-      else if (item.count && ('isPush' in item ? item.isPush : true)) {
+      } else if (item.count && ('isPush' in item ? item.isPush : true)) {
         return (count += item.count);
       } else {
         return count;
@@ -159,7 +161,7 @@ class SessionList extends Component {
           for (let i = 0; i < sessionList.length; i++) {
             const session = sessionList[i] || {};
             const hasPush = 'isPush' in session ? session.isPush : true;
-            const notSilient = 'isSilent' in session ? (!session.isSilent || [1, 2].includes(session.showBadge) )  : true;
+            const notSilient = 'isSilent' in session ? !session.isSilent || [1, 2].includes(session.showBadge) : true;
             if (session && session.count && hasPush && notSilient) {
               utils.flashTitle();
               continue;
@@ -318,7 +320,7 @@ class SessionList extends Component {
   handleGotoSession() {
     const { chatCount } = this.state;
     const { sessionList } = this.props;
-    const scrollView = findDOMNode(this.scrollView);
+    const scrollView = this.scrollView.nanoScroller;
     if (chatCount) {
       const sessions = sessionList.filter(item => item.count);
       const sessionEls = sessions.map(item => {
@@ -427,43 +429,85 @@ class SessionList extends Component {
   }
   renderClearAllCount() {
     const { chatCount } = this.state;
-    const { visible } = this.props;
+    const { visible, socketState } = this.props;
     if (visible) {
       return (
         <div className="SessionList-clearAll ThemeBGColor9">
-          <div onClick={this.handleGotoSession.bind(this)}>
-            <h3 className="ThemeColor10">{_l('消息')}</h3>
-            <div className={cx('text', { red: chatCount })}>
-              {chatCount ? _l('%0条新消息', chatCount) : _l('暂无新消息')}
-            </div>
-          </div>
-          <div
-            data-tip={_l('忽略全部消息')}
-            className="tip-left clearAll"
-            onClick={this.handleClearAllCount.bind(this, visible)}
-          >
-            <i className="icon-clean_all ThemeColor3"></i>
-          </div>
+          {socketState === 0 && (
+            <Fragment>
+              <div onClick={this.handleGotoSession.bind(this)}>
+                <h3 className="ThemeColor10">{_l('消息')}</h3>
+                <div className={cx('text', { red: chatCount })}>
+                  {chatCount ? _l('%0条新消息', chatCount) : _l('暂无新消息')}
+                </div>
+              </div>
+              <div
+                data-tip={_l('忽略全部消息')}
+                className="tip-left clearAll"
+                onClick={this.handleClearAllCount.bind(this, visible)}
+              >
+                <i className="icon-clean_all ThemeColor3"></i>
+              </div>
+            </Fragment>
+          )}
+          {socketState === 1 && (
+            <Fragment>
+              <div>
+                <h3 className="ThemeColor10">{_l('消息')}</h3>
+                <div className="text red">{_l('网络已断开，正在重新连接')}</div>
+              </div>
+              <div className="clearAll">
+                <LoadDiv size="small" />
+              </div>
+            </Fragment>
+          )}
+          {socketState === 2 && (
+            <Fragment>
+              <div>
+                <h3 className="ThemeColor10">{_l('消息')}</h3>
+                <div className="text red">{_l('网络已断开')}</div>
+              </div>
+              <div data-tip={_l('刷新页面')} className="tip-left clearAll" onClick={() => location.reload()}>
+                <i className="icon-network_disconnection red"></i>
+              </div>
+            </Fragment>
+          )}
         </div>
       );
     } else {
       return (
         <div
           className="SessionList-clearAll ThemeBGColor9"
-          onClick={this.handleClearAllCount.bind(this, visible)}
+          onClick={socketState === 0 ? this.handleClearAllCount.bind(this, visible) : undefined}
           onContextMenu={event => {
-            this.handleContextClearMenu(event);
+            socketState === 0 && this.handleContextClearMenu(event);
           }}
         >
-          <Tooltip
-            popupPlacement="left"
-            text={<span>{chatCount ? _l('%0条未读消息', chatCount) : _l('暂无新消息')}</span>}
-          >
-            <div className="SessionList-bell" style={{ cursor: chatCount ? 'pointer' : 'initial' }}>
-              <i className="icon-hr_message_reminder"></i>
-              {chatCount ? <span>{chatCount >= 99 ? '99+' : chatCount}</span> : undefined}
-            </div>
-          </Tooltip>
+          {socketState === 0 && (
+            <Tooltip
+              popupPlacement="left"
+              text={<span>{chatCount ? _l('%0条未读消息', chatCount) : _l('暂无新消息')}</span>}
+            >
+              <div className="SessionList-bell" style={{ cursor: chatCount ? 'pointer' : 'initial' }}>
+                <i className="icon-hr_message_reminder"></i>
+                {chatCount ? <span>{chatCount >= 99 ? '99+' : chatCount}</span> : undefined}
+              </div>
+            </Tooltip>
+          )}
+          {socketState === 1 && (
+            <Tooltip popupPlacement="left" text={<span>{_l('网络已断开，正在重新连接')}</span>}>
+              <div className="SessionList-bell">
+                <LoadDiv size="small" />
+              </div>
+            </Tooltip>
+          )}
+          {socketState === 2 && (
+            <Tooltip popupPlacement="left" text={<span>{_l('网络已断开，点击刷新页面')}</span>}>
+              <div className="SessionList-bell" onClick={() => location.reload()}>
+                <i className="icon-network_disconnection red Font20"></i>
+              </div>
+            </Tooltip>
+          )}
         </div>
       );
     }
@@ -517,11 +561,12 @@ class SessionList extends Component {
 }
 
 export default connect(state => {
-  const { currentSession, currentSessionList, sessionList, visible } = state.chat;
+  const { currentSession, currentSessionList, sessionList, visible, socketState } = state.chat;
   return {
     currentSession,
     currentSessionList,
     sessionList,
     visible,
+    socketState,
   };
 })(SessionList);

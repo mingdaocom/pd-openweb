@@ -8,6 +8,7 @@ import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util
 import { DATE_OPTIONS, FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import _, { includes } from 'lodash';
 import moment from 'moment';
+import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
 
 function getPicker(type) {
   return {
@@ -29,11 +30,15 @@ const Con = styled.div`
     right: 0px;
     padding-right: 2px;
   }
+  .customFormControlBox,
   .customAntPicker {
     box-shadow: none;
-    border: none;
-
+    border: none !important;
     border-radius: 4px;
+    padding: 4px 11px 4px !important;
+    font-size: 14px !important;
+    background: #fff !important;
+    height: 30px !important;
     .ant-picker-clear {
       display: none;
     }
@@ -128,6 +133,7 @@ export default function DateTime(props) {
     maxValue,
     advancedSetting = {},
     onChange = () => {},
+    appId,
   } = props;
   const filterType = props.filterType || FILTER_CONDITION_TYPE.DATE_BETWEEN;
   let dateOptions = DATE_OPTIONS;
@@ -194,6 +200,7 @@ export default function DateTime(props) {
           <DatePicker
             {...control}
             showTime={!!timeFormat}
+            hideIcon={true}
             value={value && moment(value)}
             dropdownClassName="scrollInTable"
             onChange={date => {
@@ -203,6 +210,7 @@ export default function DateTime(props) {
                 value: moment(date).format(valueFormat === 'YYYY-MM-DD HH' ? undefined : valueFormat),
               });
             }}
+            notConvertZone={true}
           />
         </PickerCon>
       );
@@ -228,6 +236,7 @@ export default function DateTime(props) {
             onVisibleChange={setActive}
           />
         )}
+        <TimeZoneTag appId={appId} />
       </Content>
       {pickerComp && (
         <Icon

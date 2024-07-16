@@ -9,6 +9,7 @@ import noRoleImg from './img/lock.png';
 import AppManagement from 'src/api/appManagement';
 import FixedPage from 'src/pages/Mobile/App/FixedPage';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
+import { getAppLangDetail } from 'src/util';
 
 const STATUS_TO_TEXT = {
   1: { src: noAppListImg, text: _l('请前往Web端创建工作表，开始构建你的应用') },
@@ -130,6 +131,7 @@ const appPermissions = (Component) => {
       }).then(data => {
         const { langInfo, fixAccount, fixRemark, fixed, webMobileDisplay, permissionType } = data;
         const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
+        window[`timeZone_${appId}`] = data.timeZone;
         this.setState({
           fixedData: {
             fixAccount,
@@ -138,18 +140,9 @@ const appPermissions = (Component) => {
             webMobileDisplay
           }
         });
-        if (langInfo && langInfo.appLangId && langInfo.version !== window[`langVersion-${appId}`]) {
-          appManagementApi.getAppLangDetail({
-            appId,
-            appLangId: langInfo.appLangId
-          }).then(lang => {
-            window[`langData-${appId}`] = lang.items;
-            window[`langVersion-${appId}`] = langInfo.version;
-            this.setState({ loading: false });
-          });
-        } else {
+        getAppLangDetail(data).then(() => {
           this.setState({ loading: false });
-        }
+        });
       });
     }
     render() {

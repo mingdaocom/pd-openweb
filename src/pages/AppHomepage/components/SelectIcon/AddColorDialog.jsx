@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import { Icon, Dialog, Button, ColorPicker } from 'ming-ui';
 import styled from 'styled-components';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 
 const WrapCon = styled(Dialog)`
   .footer {
@@ -31,7 +31,7 @@ const WrapCon = styled(Dialog)`
 export default props => {
   const { onSave, onCancel } = props;
   const [color, setColor] = useState(props.color || '#000000');
-  const colorData = tinycolor(color);
+  const colorData = new TinyColor(color);
   const hsv = colorData.toHsv();
   const s = Number((hsv.s * 100).toFixed(2));
   const v = Number((hsv.v * 100).toFixed(2));

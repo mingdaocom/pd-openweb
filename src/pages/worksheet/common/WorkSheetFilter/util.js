@@ -5,7 +5,7 @@ import { checkIsTextControl, getFormData, getSelectedOptions } from 'src/pages/w
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
-import { validate } from 'src/pages/Mobile/RecordList/QuickFilter/Inputs';
+import { validate } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
 import {
   CONTROL_FILTER_WHITELIST,
   FILTER_CONDITION_TYPE,
@@ -309,8 +309,12 @@ export function getConditionOverrideValue(type, condition, valueType) {
         });
       } else {
         return Object.assign({}, base, {
-          dateRange: dateRange || 1,
-          value: _.includes([10, 11], dateRange) ? value : formatDateValue({ type, value }),
+          dateRange: dateRange,
+          value:
+            _.includes([10, 11], dateRange) ||
+            (_.get(condition, 'control.type') === 16 && _.get(condition, 'control.advancedSetting.showtype') === '6')
+              ? value
+              : formatDateValue({ type, value }),
           dateRangeType: dateRangeType || 1,
         });
       }
@@ -383,6 +387,7 @@ export function getFilterTypes(control = {}, conditionType, from) {
     case 21: // 自由连接
     case 36: // 检查框
     case 40: // 定位
+    case 41: // 富文本
     case 42: // 签名
       typeEnums = [FILTER_CONDITION_TYPE.HASVALUE, FILTER_CONDITION_TYPE.ISNULL];
       break;
@@ -638,6 +643,8 @@ export function redefineComplexControl(contorl) {
       ...{
         type: controlType,
         originType: contorl.type,
+        // 他表选项处理
+        ...(_.includes([9, 10, 11], controlType) ? { options: _.get(contorl, 'sourceControl.options') } : {}),
       },
     };
   }
@@ -1172,7 +1179,7 @@ export function formatDateValue({ type, value }) {
   if (type === FILTER_CONDITION_TYPE.DATE_GT) {
     // 晚于
     return moment(value).endOf('day').format('YYYY-MM-DD HH:mm:ss');
-  } else if (type === FILTER_CONDITION_TYPE.DATE_GT) {
+  } else if (type === FILTER_CONDITION_TYPE.DATE_LT) {
     // 早于
     return moment(value).startOf('day').format('YYYY-MM-DD HH:mm:ss');
   } else {

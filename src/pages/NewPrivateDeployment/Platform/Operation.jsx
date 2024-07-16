@@ -2,6 +2,7 @@ import React, { Fragment, useState, useEffect } from 'react';
 import { ConfigProvider, Input, Button } from 'antd';
 import { updateSysSettings } from '../common';
 import privateSysSettingApi from 'src/api/privateSysSetting';
+import RegExpValidator from 'src/util/expression';
 
 const EventSubscription = props => {
   const { SysSettings } = md.global;
@@ -80,7 +81,7 @@ const WorkWXIntegrationUrl = props => {
   const [workWxSelfBuildNoticUrl, setWorkWxSelfBuildNoticUrl] = useState(SysSettings.workWxSelfBuildNoticUrl);
   const handleSave = (event) => {
     const { value } = event.target;
-    if (value && !RegExp.isUrlRequest(value)) {
+    if (value && !RegExpValidator.isUrlRequest(value)) {
       alert(_l('请输入正确的地址'), 2);
       return;
     }

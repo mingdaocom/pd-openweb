@@ -87,7 +87,7 @@ export default class OpenActionContent extends Component {
           value={data.appId}
           renderTitle={
             !data.appId || worksheetInfo === null
-              ? () => <span className="Gray_9e">{_l('请选择')}</span>
+              ? () => <span className="Gray_75">{_l('请选择')}</span>
               : data.appId && _.isEmpty(worksheetInfo)
               ? () => (
                   <span className="errorColor">
@@ -97,7 +97,7 @@ export default class OpenActionContent extends Component {
               : () => (
                   <Fragment>
                     <span>{worksheetInfo.name}</span>
-                    {otherAppName && <span className="Gray_9e">（{otherAppName}）</span>}
+                    {otherAppName && <span className="Gray_75">（{otherAppName}）</span>}
                   </Fragment>
                 )
           }
@@ -141,7 +141,7 @@ export default class OpenActionContent extends Component {
         </div>
 
         {data.pushType !== PUSH_TYPE.VIEW && (
-          <div className="Font13 Gray_9e mTop5">
+          <div className="Font13 Gray_75 mTop5">
             {_l('按照所选视图配置的显示字段发送，如果操作者被分发了此视图，可以直接按权限编辑记录、执行自定义动作')}
           </div>
         )}
@@ -154,7 +154,7 @@ export default class OpenActionContent extends Component {
           value={data.viewId}
           renderTitle={
             !data.viewId
-              ? () => <span className="Gray_9e">{_l('请选择')}</span>
+              ? () => <span className="Gray_75">{_l('请选择')}</span>
               : data.viewId && !selectView
               ? () => <span className="errorColor">{_l('视图无效或已删除')}</span>
               : () => <span>{selectView.text}</span>

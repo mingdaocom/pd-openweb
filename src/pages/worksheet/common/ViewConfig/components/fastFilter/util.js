@@ -102,7 +102,7 @@ export const LIMIT = {
     32, // 文本组合
     33, // 自动编号
   ],
-  txt: '引导文字',
+  txt: _l('引导文字'),
 };
 //多选类型字段 且 允许选择数量为多选 =>支持设置筛选方式  多选 => 人员、部门、组织角色enumDefault：1; 关联字段enumDefault: 2 ;多选字段
 export const MULTI_SELECT_FILTER_TYPE = {
@@ -116,7 +116,7 @@ export const MULTI_SELECT_FILTER_TYPE = {
     27, // 部门
     48, // 组织角色
   ],
-  txt: '筛选方式',
+  txt: _l('筛选方式'),
 };
 //筛选方式
 export const TEXT_FILTER_TYPE = {
@@ -136,7 +136,7 @@ export const TEXT_FILTER_TYPE = {
     // 31, //31数值计算
     // 38, //公式 38日期计算
   ],
-  txt: '筛选方式',
+  txt: _l('筛选方式'),
 };
 // 筛选方式
 export const NUMBER_FILTER_TYPE = {
@@ -149,7 +149,7 @@ export const NUMBER_FILTER_TYPE = {
     8, // 金额
     31, //31数值计算
   ],
-  txt: '筛选方式',
+  txt: _l('筛选方式'),
 };
 // 筛选方式
 export const DATE_FILTER_TYPE = {
@@ -161,7 +161,7 @@ export const DATE_FILTER_TYPE = {
     15, // 日期
     16, //日期时间
   ],
-  txt: '筛选方式',
+  txt: _l('筛选方式'),
 };
 //筛选方式
 export const RELA_FILTER_TYPE = {
@@ -169,7 +169,7 @@ export const RELA_FILTER_TYPE = {
   types: RELA_TYPE,
   default: FILTER_CONDITION_TYPE.BETWEEN,
   keys: [35],
-  txt: '筛选方式',
+  txt: _l('筛选方式'),
 };
 export const GROUP_FILTER_TYPE = {
   key: 'filterType',
@@ -181,7 +181,7 @@ export const GROUP_FILTER_TYPE = {
     23, // 地区 19'省23'省-市'24'省-市-县'
     24, // 地区 19'省23'省-市'24'省-市-县'
   ],
-  txt: '筛选方式',
+  txt: _l('筛选方式'),
 };
 //显示方式
 export const SHOW_RELATE_TYPE = {
@@ -198,7 +198,7 @@ export const SHOW_RELATE_TYPE = {
   keys: [
     29, // 关联表
   ],
-  txt: '显示方式',
+  txt: _l('显示方式'),
 };
 
 //显示项
@@ -213,7 +213,7 @@ export const NAV_SHOW_TYPE = {
     9, // 单选 平铺
     26, //成员
   ],
-  txt: '显示项',
+  txt: _l('显示项'),
 };
 // //显示项 为空设置
 // export const NAVSHOW_NULL_TYPE = {
@@ -243,7 +243,7 @@ export const DATE_GRANULARITY_TYPE = {
     15, // 日期
     16, //日期时间
   ],
-  txt: '颗粒度',
+  txt: _l('颗粒度'),
 };
 export const DATE_TYPE_ALL = _.flattenDeep(DATE_TYPE)
   .map(o => o.value)
@@ -258,7 +258,7 @@ export const DATE_RANGE = {
     15, // 日期
     16, //日期时间
   ],
-  txt: '预设时间',
+  txt: _l('预设时间'),
 };
 //App支持扫码查询
 export const APP_ALLOWSCAN = {
@@ -287,7 +287,7 @@ export const OPTIONS_ALLOWITEM = {
     24, // 地区 19'省23'省-市'24'省-市-县'
     35, //级联选择
   ],
-  txt: '允许选择数量',
+  txt: _l('允许选择数量'),
 };
 //显示方式
 export const DIRECTION_TYPE = {
@@ -300,7 +300,7 @@ export const DIRECTION_TYPE = {
     10, // 多选
     9, // 单选 平铺
   ],
-  txt: '显示方式',
+  txt: _l('显示方式'),
 };
 
 export const FAST_FILTERS_WHITELIST = [

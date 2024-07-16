@@ -6,7 +6,7 @@ import cx from 'classnames';
 import { enumWidgetType } from '../../../../../util';
 import { DEFAULT_CONFIG } from '../../../../../config/widget';
 import DynamicDefaultValue from '../../../DynamicDefaultValue';
-import { HAS_DYNAMIC_DEFAULT_VALUE_CONTROL } from '../../../../../config';
+import { HAS_DYNAMIC_TYPE } from '../../config';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../../util/setting';
 import AddFields from '../AddFields';
 import SelectSheetFromApp from '../../../SelectSheetFromApp';
@@ -27,7 +27,7 @@ export default function CreateRecord(props) {
   const [{ advancedSetting, actionItems, controls, visible }, setState] = useSetState({
     actionItems: actionData.actionItems || [],
     advancedSetting: actionData.advancedSetting || defaultData,
-    controls: allControls,
+    controls: [],
     visible: true,
   });
 
@@ -35,7 +35,7 @@ export default function CreateRecord(props) {
     setState({
       actionItems: actionData.actionItems || [],
       advancedSetting: actionData.advancedSetting || defaultData,
-      controls: allControls,
+      controls: [],
     });
   }, []);
 
@@ -52,12 +52,12 @@ export default function CreateRecord(props) {
   const getDetail = controlId => {
     const currentControl = _.find(controls, s => s.controlId === controlId) || {};
     const enumType = enumWidgetType[currentControl.type];
-    const { icon } = DEFAULT_CONFIG[enumType];
+    const { icon } = DEFAULT_CONFIG[enumType] || {};
     return { icon, currentControl };
   };
 
   const isEmpty = _.isEmpty(actionItems);
-  const selectControls = (controls || []).filter(i => _.includes(HAS_DYNAMIC_DEFAULT_VALUE_CONTROL, i.type));
+  const selectControls = (controls || []).filter(i => _.includes(HAS_DYNAMIC_TYPE, i.type));
 
   return (
     <Dialog
@@ -67,6 +67,7 @@ export default function CreateRecord(props) {
       title={_l('创建新记录')}
       onCancel={() => setState({ visible: false })}
       className="SearchWorksheetDialog"
+      overlayClosable={false}
       onOk={() => {
         handleOk({ ...actionData, actionItems, advancedSetting });
         setState({ visible: false });
@@ -80,7 +81,7 @@ export default function CreateRecord(props) {
           onChange={value => setState({ advancedSetting: { ...advancedSetting, ...value }, actionItems: [] })}
         />
         {!isEmpty && <div className="splitLine"></div>}
-        {!isEmpty && (
+        {!isEmpty && !_.isEmpty(controls) && (
           <div className="setValueContent">
             <div className="setItem">
               <div className="itemFiledTitle Gray_70">{_l('字段')}</div>

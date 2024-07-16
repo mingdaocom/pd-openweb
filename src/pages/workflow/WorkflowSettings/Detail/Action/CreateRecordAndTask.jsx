@@ -94,7 +94,7 @@ export default class CreateRecordAndTask extends Component {
             value={data.appId}
             renderTitle={
               !data.appId
-                ? () => <span className="Gray_9e">{_l('请选择')}</span>
+                ? () => <span className="Gray_75">{_l('请选择')}</span>
                 : data.appId && !selectAppItem
                 ? () => (
                     <span className="errorColor">
@@ -104,7 +104,7 @@ export default class CreateRecordAndTask extends Component {
                 : () => (
                     <Fragment>
                       <span>{selectAppItem.name}</span>
-                      {selectAppItem.otherApkName && <span className="Gray_9e">（{selectAppItem.otherApkName}）</span>}
+                      {selectAppItem.otherApkName && <span className="Gray_75">（{selectAppItem.otherApkName}）</span>}
                     </Fragment>
                   )
             }
@@ -193,7 +193,7 @@ export default class CreateRecordAndTask extends Component {
                     <span className="mLeft5 red">*</span>
                   )}
                   {singleObj.type === 29 && (
-                    <span className="Gray_9e">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>
+                    <span className="Gray_75">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>
                   )}
                 </div>
                 {data.appType === APP_TYPE.SHEET && _.includes([9, 10, 11], item.type) && item.fieldValueId && (
@@ -204,9 +204,12 @@ export default class CreateRecordAndTask extends Component {
                     updateSource={updateSource}
                   />
                 )}
+                {item.type === 40 && (
+                  <span className="Gray_75">{`{"x": "121.473667", "y": "31.230525", "title": "Shanghai", "address": ""}`}</span>
+                )}
               </div>
               {item.fieldId === 'portal_mobile' && (
-                <div className="Gray_9e mTop5">{md.global.Config.IsPlatformLocal ? _l('根据此字段发送邀请短信，短信0.05元/条') : _l('根据此字段发送邀请短信')}</div>
+                <div className="Gray_75 mTop5">{md.global.Config.IsPlatformLocal ? _l('根据此字段发送邀请短信，短信0.05元/条') : _l('根据此字段发送邀请短信')}</div>
               )}
               <SingleControlValue
                 companyId={this.props.companyId}

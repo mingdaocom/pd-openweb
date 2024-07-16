@@ -81,7 +81,7 @@ export default class SelectWorkflow extends Component {
     return (
       <ScrollView>
         {!data.length && (
-          <div className="TxtCenter Gray_9e Font15" style={{ marginTop: 210 }}>
+          <div className="TxtCenter Gray_75 Font15" style={{ marginTop: 210 }}>
             {_l('暂无搜索结果')}
           </div>
         )}
@@ -157,13 +157,13 @@ export default class SelectWorkflow extends Component {
               className="selectWorkflowInput"
               onChange={e => this.setState({ keywords: e.target.value })}
             />
-            <Icon icon="workflow_find" className="selectWorkflowSearch Gray_9e Font16" />
+            <Icon icon="workflow_find" className="selectWorkflowSearch Gray_75 Font16" />
           </div>
           <div className="flex mTop15">
             {data === null ? (
               <LoadDiv />
             ) : !data.length ? (
-              <div className="TxtCenter Gray_9e Font15" style={{ marginTop: 210 }}>
+              <div className="TxtCenter Gray_75 Font15" style={{ marginTop: 210 }}>
                 {_l('暂无其他工作流')}
               </div>
             ) : (

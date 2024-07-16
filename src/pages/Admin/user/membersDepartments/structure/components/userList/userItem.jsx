@@ -14,10 +14,12 @@ import moment from 'moment';
 import { Checkbox, Tooltip, Dialog, Input, Menu, MenuItem, UserHead } from 'ming-ui';
 import './userItem.less';
 import { encrypt } from 'src/util';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import Trigger from 'rc-trigger';
 import userController from 'src/api/user';
 import _ from 'lodash';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 class UserItem extends Component {
   constructor(props) {
@@ -279,7 +281,7 @@ class UserItem extends Component {
     if (_.isEmpty(password)) {
       alert(_l('请输入新密码'), 3);
       return;
-    } else if (!RegExp.isPasswordValid(password, passwordRegex)) {
+    } else if (!RegExpValidator.isPasswordValid(password, passwordRegex)) {
       alert(passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字'), 3);
       return;
     }
@@ -300,7 +302,7 @@ class UserItem extends Component {
   };
 
   renderAction = () => {
-    const { user, isChargeUser, typeCursor, departmentId } = this.props;
+    const { user, isChargeUser, typeCursor, departmentId, authority = [] } = this.props;
 
     return _.includes([0, 1], typeCursor) ? (
       <Menu className="userOptList">
@@ -310,7 +312,9 @@ class UserItem extends Component {
         )}
         {departmentId && !isChargeUser && <MenuItem onClick={this.setAndCancelCharge}>{_l('设为部门负责人')}</MenuItem>}
         {departmentId && isChargeUser && <MenuItem onClick={this.setAndCancelCharge}>{_l('取消部门负责人')}</MenuItem>}
-        <MenuItem onClick={this.handleTransfer}> {_l('交接工作')}</MenuItem>
+        {hasPermission(authority, PERMISSION_ENUM.APP_RESOURCE_SERVICE) && (
+          <MenuItem onClick={this.handleTransfer}> {_l('交接工作')}</MenuItem>
+        )}
         {user.accountId !== md.global.Account.accountId && (
           <MenuItem className="leaveText" onClick={this.handleRemoveUserClick}>
             {_l('离职')}

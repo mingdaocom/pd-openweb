@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Icon, Dialog, Input, LoadDiv } from 'ming-ui';
 import privateLinkApi from 'src/api/privateLink';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import './index.less';
 
 const SortableItem = SortableElement(({ item, ...other }) => {

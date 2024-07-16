@@ -2,9 +2,15 @@ import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Checkbox, Dropdown, Radio, Dialog } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import process from '../../../api/process';
-import { DetailHeader, DetailFooter, SelectNodeObject, UpdateFields } from '../components';
-import { ACTION_ID, NODE_TYPE } from '../../enum';
-import ProcessVariables from '../../ProcessConfig/components/ProcessVariables';
+import {
+  DetailHeader,
+  DetailFooter,
+  SelectNodeObject,
+  UpdateFields,
+  SpecificFieldsValue,
+  ProcessVariables,
+} from '../components';
+import { ACTION_ID, APP_TYPE, NODE_TYPE } from '../../enum';
 import _ from 'lodash';
 
 export default class SubProcess extends Component {
@@ -75,7 +81,7 @@ export default class SubProcess extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, selectNodeId, executeType, subProcessId, nextExecute, fields } = data;
+    const { name, selectNodeId, executeType, subProcessId, nextExecute, fields, executeAll, executeAllCount } = data;
 
     if (!selectNodeId) {
       alert(_l('必须先选择一个对象'), 2);
@@ -97,6 +103,8 @@ export default class SubProcess extends Component {
         subProcessId,
         nextExecute,
         fields,
+        executeAll,
+        executeAllCount,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -118,21 +126,26 @@ export default class SubProcess extends Component {
         desc: _l('多个数据对象将同时执行各自的流程。即便某条子流程运行中止，也不影响其他子流程的执行。'),
       },
       {
-        text: _l('逐条执行'),
+        text: _l('逐条执行，中止时不再触发后续子流程'),
         value: 2,
         desc: _l(
           '多个数据对象将依次执行流程。每条子流程需要等前一条子流程通过后再开始触发；如果某条子流程运行中止，则后续的子流程都不再触发。',
         ),
       },
+      {
+        text: _l('逐条执行，中止时继续下一条'),
+        value: 3,
+        desc: _l('如果某条子流程运行中止，则跳过该条继续执行下一条子流程'),
+      },
     ];
     const clearSubProcess = data.subProcessId
-      ? [{ text: <span className="Gray_9e">{_l('清除选择')}</span>, value: '' }]
+      ? [{ text: <span className="Gray_75">{_l('清除选择')}</span>, value: '' }]
       : [];
 
     return (
       <Fragment>
         <div className="Font13 bold">{_l('选择数据对象')}</div>
-        <div className="Font13 Gray_9e mTop10">{_l('当前流程中的节点对象，作为子流程数据源')}</div>
+        <div className="Font13 Gray_75 mTop10">{_l('当前流程中的节点对象，作为子流程数据源')}</div>
         <SelectNodeObject
           appList={data.flowNodeList}
           selectNodeId={data.selectNodeId}
@@ -141,11 +154,52 @@ export default class SubProcess extends Component {
         />
 
         {_.isObject(data.selectNodeObj) &&
-          (_.includes([NODE_TYPE.GET_MORE_RECORD, NODE_TYPE.FIND_MORE_MESSAGE], data.selectNodeObj.nodeTypeId) ||
+          (_.includes(
+            [NODE_TYPE.GET_MORE_RECORD, NODE_TYPE.FIND_MORE_MESSAGE, NODE_TYPE.PBC],
+            data.selectNodeObj.nodeTypeId,
+          ) ||
             data.selectNodeObj.actionId === ACTION_ID.BATCH_ACTION) && (
             <Fragment>
+              {data.selectNodeObj.appType === APP_TYPE.SHEET &&
+                data.selectNodeObj.actionId === ACTION_ID.FROM_WORKSHEET && (
+                  <Fragment>
+                    <div className="Font13 bold mTop20">{_l('工作表数据对象')}</div>
+                    <div className="mTop15">
+                      <Checkbox
+                        className="InlineFlex TxtTop"
+                        text={_l('获取工作表所有记录')}
+                        checked={data.executeAll}
+                        onClick={checked => this.updateSource({ executeAll: !checked })}
+                      />
+                    </div>
+                    <div style={{ marginLeft: 26 }}>
+                      <div className="Font13 Gray_75">
+                        {_l('勾选后，当子流程数据源为工作表多条数据对象时，所有符合筛选条件的记录都将进入子流程')}
+                      </div>
+                      {data.executeAll && (
+                        <Fragment>
+                          <div className="Font13 mTop10">{_l('获取记录数量上限')}</div>
+                          <div className="mTop10 flexRow alignItemsCenter">
+                            <div style={{ width: 170 }}>
+                              <SpecificFieldsValue
+                                hasOtherField={false}
+                                type="number"
+                                min={10000}
+                                max={1000000}
+                                data={{ fieldValue: data.executeAllCount }}
+                                updateSource={({ fieldValue }) => this.updateSource({ executeAllCount: fieldValue })}
+                              />
+                            </div>
+                            <div className="Gray_75 mLeft10">{_l('行（最大 100 万行）')}</div>
+                          </div>
+                        </Fragment>
+                      )}
+                    </div>
+                  </Fragment>
+                )}
+
               <div className="Font13 bold mTop20">{_l('多条数据执行方式')}</div>
-              <div className="Font13 Gray_9e mTop10">{_l('您选择了多条数据对象，将根据数据的条数执行多条子流程')}</div>
+              <div className="Font13 Gray_75 mTop10">{_l('您选择了多条数据对象，将根据数据的条数执行多条子流程')}</div>
 
               {executeTypes.map((item, i) => {
                 return (
@@ -155,7 +209,7 @@ export default class SubProcess extends Component {
                       checked={data.executeType === item.value}
                       onClick={() => this.updateSource({ executeType: item.value })}
                     />
-                    <div className="mTop10 mLeft30 Gray_9e">{item.desc}</div>
+                    <div className="mTop10 mLeft30 Gray_75">{item.desc}</div>
                   </div>
                 );
               })}
@@ -210,7 +264,7 @@ export default class SubProcess extends Component {
                 onClick={checked => this.updateSource({ nextExecute: !checked })}
               />
             </div>
-            <div className="Font13 Gray_9e" style={{ marginLeft: 26 }}>
+            <div className="Font13 Gray_75" style={{ marginLeft: 26 }}>
               {_l('勾选后，当子流程数据源为单条对象，之后节点可使用子流程中的参数')}
             </div>
 
@@ -225,7 +279,7 @@ export default class SubProcess extends Component {
                 </div>
               )}
             </div>
-            <div className="Font13 Gray_9e mTop10">{_l('向子流程的流程参数传递初始值，供子流程执行时使用')}</div>
+            <div className="Font13 Gray_75 mTop10">{_l('向子流程的流程参数传递初始值，供子流程执行时使用')}</div>
 
             <UpdateFields
               type={2}
@@ -247,7 +301,7 @@ export default class SubProcess extends Component {
             visible
             className="subProcessDialog"
             onCancel={() => this.setState({ subProcessDialog: false })}
-            onOk={this.saveSubPorcessOptions}
+            onOk={this.saveSubProcessOptions}
             title={_l('参数设置')}
           >
             <ProcessVariables
@@ -265,7 +319,7 @@ export default class SubProcess extends Component {
   /**
    * 保存子流程参数
    */
-  saveSubPorcessOptions = () => {
+  saveSubProcessOptions = () => {
     const { data, processVariables, errorItems } = this.state;
 
     if (_.find(errorItems, o => o)) {

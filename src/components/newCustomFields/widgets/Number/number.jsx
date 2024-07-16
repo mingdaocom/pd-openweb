@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import styled from 'styled-components';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 const NumWrap = styled.span`
   ${props => (props.isMaskReadonly ? 'display: inline-block;' : 'flex: 1;')}
@@ -50,6 +51,9 @@ export default class Widgets extends Component {
 
   onFocus = e => {
     this.setState({ originValue: e.target.value.trim() });
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.FOCUS);
+    }
   };
 
   onChange = (event, tempValue) => {
@@ -195,7 +199,7 @@ export default class Widgets extends Component {
             className={cx('customFormControlBox LineHeight36 flexRow flex', { controlDisabled: disabled })}
             onClick={() => !disabled && this.setState({ isEditing: true })}
           >
-            {prefix && (
+            {!value && prefix && (
               <div className="ellipsis Font13 mRight15" style={{ maxWidth: 80 }}>
                 {prefix}
               </div>
@@ -211,6 +215,7 @@ export default class Widgets extends Component {
                 if (disabled && isMask) this.setState({ maskStatus: false });
               }}
             >
+              {value ? prefix : ''}
               {value || hint}
               {value ? suffix : ''}
               {isMask && <Icon icon="eye_off" className={cx('Gray_bd', disabled ? 'mLeft7' : 'maskIcon')} />}

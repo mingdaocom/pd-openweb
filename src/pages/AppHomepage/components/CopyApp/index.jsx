@@ -5,7 +5,9 @@ import { Dialog } from 'ming-ui';
 import homeApp from 'src/api/homeApp';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
 import { VersionProductType } from 'src/util/enum';
-import { getFeatureStatus, getCurrentProject } from 'src/util';
+import { getFeatureStatus } from 'src/util';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const Title = styled.span`
   display: inline-block;
@@ -68,11 +70,13 @@ export default class CopyApp extends Component {
   };
 
   handleCopy = () => {
-    const { projectId } = this.props;
+    const { projectId, myPermissions = [] } = this.props;
 
-    const currentProject = getCurrentProject(projectId);
-    const hasDataBase = getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
-    if (hasDataBase && (currentProject.isSuperAdmin || currentProject.isProjectAppManager)) {
+    const hasDataBase =
+      getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
+    const hasAppResourceAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
+
+    if (hasDataBase && hasAppResourceAuth) {
       homeApp.getMyDbInstances({ projectId }).then(res => {
         const list = res.map(l => {
           return {

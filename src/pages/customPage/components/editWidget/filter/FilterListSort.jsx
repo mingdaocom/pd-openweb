@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { Modal } from 'antd';
 import { Button, Icon } from 'ming-ui';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import styled from 'styled-components';
 
 const SortableBtnIconWrap = styled.div`

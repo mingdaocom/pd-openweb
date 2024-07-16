@@ -41,7 +41,7 @@ export default class Search extends Component {
           placeholder={placeholder}
           onChange={e => this.handleChange(e.target.value)}
         />
-        <Icon icon="workflow_find" className="search Gray_9e Font16" />
+        <Icon icon="workflow_find" className="search Gray_75 Font16" />
         <Icon
           icon="close"
           onClick={() => this.handleChange('')}

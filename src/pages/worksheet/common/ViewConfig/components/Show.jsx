@@ -5,8 +5,10 @@ import { Radio } from 'ming-ui';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
+import { NORMAL_SYSTEM_FIELDS_SORT, WORKFLOW_SYSTEM_FIELDS_SORT } from 'src/pages/worksheet/common/ViewConfig/util';
 import _ from 'lodash';
+import { getAdvanceSetting } from 'src/util';
+
 const Wrap = styled.div`
   height: 100%;
 `;
@@ -28,25 +30,126 @@ const SysSortColumn = styled.div`
 export default class Show extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { height: document.documentElement.clientHeight - 323 };
+    this.state = {
+      height: document.documentElement.clientHeight - 323,
+    };
   }
   componentDidMount() {
+    this.initState(this.props);
     $(window).on('resize', this.getHeight);
+  }
+  componentWillReceiveProps(nextProps) {
+    const { view } = nextProps;
+    if (!_.isEqual(view, this.props.view)) {
+      this.initState(nextProps);
+    }
   }
   componentWillUnmount() {
     $(window).off('resize', this.getHeight);
   }
+  initState = props => {
+    const { view } = props;
+    const { customdisplay = '0' } = getAdvanceSetting(view);
+    const { showControls = [] } = view;
+    this.setState({
+      height: document.documentElement.clientHeight - 323,
+      customShowControls: getAdvanceSetting(view, 'customShowControls') || showControls || [],
+      showControls: view.showControls || [],
+      customdisplay: customdisplay === '1' || showControls.length > 0 ? '1' : '0', // 是否配置自定义显示列
+    });
+  };
   getHeight = () => {
     this.setState({
       height: document.documentElement.clientHeight - 323,
     });
   };
+
+  onChange = type => {
+    const { updateCurrentView, view, columns, appId } = this.props;
+    const { customShowControls, showControls } = this.state;
+    if (type === '0') {
+      updateCurrentView({
+        ...view,
+        appId,
+        editAttrs: ['showControls', 'advancedSetting'],
+        editAdKeys: ['customdisplay', 'customShowControls'],
+        advancedSetting: {
+          customdisplay: '0',
+          customShowControls: JSON.stringify(showControls),
+        },
+        showControls: [],
+      });
+    } else {
+      const filteredColumns = filterHidedControls(columns, view.controls, false)
+        .filter(c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51], c.type))
+        .sort((a, b) => {
+          if (a.row === b.row) {
+            return a.col - b.col;
+          } else {
+            return a.row - b.row;
+          }
+        });
+      updateCurrentView({
+        ...view,
+        appId,
+        editAttrs: ['showControls', 'advancedSetting'],
+        editAdKeys: ['customdisplay'],
+        advancedSetting: {
+          customdisplay: '1',
+        },
+        showControls:
+          (customShowControls || []).length !== 0
+            ? customShowControls
+            : filteredColumns
+                .filter(l => l.controlId.length > 20)
+                .slice(0, 50)
+                .map(c => c.controlId),
+      });
+    }
+  };
+  onChangeColumns = ({ newShowControls, newControlSorts }) => {
+    const { updateCurrentView, appId, view } = this.props;
+    const { customdisplay } = this.state;
+    if (customdisplay === '1') {
+      this.setState(
+        {
+          showControls: newShowControls,
+        },
+        () => {
+          updateCurrentView({
+            ...view,
+            appId,
+            editAttrs: ['advancedSetting', 'showControls'],
+            editAdKeys: ['customShowControls'],
+            showControls: newShowControls,
+            advancedSetting: { customShowControls: JSON.stringify(newShowControls) },
+          });
+        },
+      );
+    } else {
+      updateCurrentView({
+        ...view,
+        appId,
+        editAttrs: ['advancedSetting'],
+        editAdKeys: ['sysids', 'syssort'],
+        showControls: [],
+        advancedSetting: { sysids: JSON.stringify(newShowControls), syssort: JSON.stringify(newControlSorts) },
+      });
+    }
+  };
   render() {
-    const { height } = this.state;
-    const { columns, view, sheetSwitchPermit, info = {} } = this.props;
-    const { showControls = [], customdisplay = '0', sysids, syssort } = info;
+    const { height, customdisplay, showControls = [] } = this.state;
+    const { columns = [], view, sheetSwitchPermit } = this.props;
+    const { controls = [] } = view;
+    //是否显示系统字段
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
-    const filteredColumns = filterHidedControls(columns, view.controls, false).filter(
+    const defaultSysSort = isShowWorkflowSys
+      ? [...WORKFLOW_SYSTEM_FIELDS_SORT, ...NORMAL_SYSTEM_FIELDS_SORT]
+      : NORMAL_SYSTEM_FIELDS_SORT;
+    const syssort = getAdvanceSetting(view, 'syssort') || defaultSysSort.filter(o => !controls.includes(o));
+    const sysids = getAdvanceSetting(view, 'sysids') || [];
+    //'0':表格显示列与表单中的字段保持一致 '1':自定义显示列
+    const filteredColumns = filterHidedControls(columns, controls, false).filter(
       c => !!c.controlName && !_.includes([22, 10010, 43, 45, 49, 51, 52], c.type),
     );
     const showControlsForSortControl = showControls.filter(id =>
@@ -72,7 +175,7 @@ export default class Show extends React.Component {
             text={_l('与表单字段保持一致（显示前50个）')}
             checked={customdisplay === '0'}
             onClick={value => {
-              this.props.onChange('0');
+              this.onChange('0');
             }}
           />
         </div>
@@ -82,7 +185,7 @@ export default class Show extends React.Component {
             text={_l('自定义显示列')}
             checked={customdisplay === '1'}
             onClick={value => {
-              this.props.onChange('1');
+              this.onChange('1');
             }}
           />
         </div>
@@ -96,7 +199,7 @@ export default class Show extends React.Component {
             columns={customizeColumns}
             controlsSorts={showControlsForSortControl}
             onChange={({ newShowControls, newControlSorts }) => {
-              this.props.onChangeColumns({ newShowControls, newControlSorts });
+              this.onChangeColumns({ newShowControls, newControlSorts });
             }}
             isShowColumns={true}
             sortAutoChange={true}
@@ -113,7 +216,7 @@ export default class Show extends React.Component {
               controlsSorts={syssort}
               maxHeight={height}
               onChange={({ newShowControls, newControlSorts }) => {
-                this.props.onChangeColumns({ newShowControls, newControlSorts });
+                this.onChangeColumns({ newShowControls, newControlSorts });
               }}
               sortAutoChange={true}
             />

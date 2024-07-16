@@ -85,6 +85,7 @@ export default function Header(props) {
             className="recordListKeyword"
             placeholder={_l('搜索%0', searchControl.controlName || '')}
             manualRef={inputRef}
+            autoFocus
             onChange={onSearch}
             onKeyDown={onKeyDown}
           />

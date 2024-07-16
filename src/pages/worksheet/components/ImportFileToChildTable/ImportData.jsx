@@ -89,7 +89,7 @@ const PasteHeader = styled.div`
   }
 `;
 
-function splitCsvRows(csvData) {
+function splitCsvRows(csvData, splitter) {
   let rows = [];
   let currentRow = '';
   let inQuotes = false;
@@ -100,6 +100,10 @@ function splitCsvRows(csvData) {
 
     if (char === '"') {
       inQuotes = !inQuotes;
+    }
+
+    if (splitter && char === splitter && inQuotes) {
+      inQuotes = false;
     }
 
     if (newlineRegex.test(char) && !inQuotes) {
@@ -121,7 +125,7 @@ function splitCsvRows(csvData) {
 
 function parseText(text, splitCharType = 1) {
   const splitter = ['\t', ':', '|', ',', ' '][splitCharType - 1];
-  return splitCsvRows(text)
+  return splitCsvRows(text, splitter)
     .map(line =>
       (line || '')
         .split(splitter)

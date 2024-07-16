@@ -28,7 +28,7 @@ export default function MoreMenu(props) {
       from={from}
       hideFav={hideFav}
       showDeleteHr={false}
-      shows={['share', 'share', 'print', 'task', 'copy', 'editform', 'recreate', 'openinnew', 'fav']}
+      shows={['share', 'share', 'print', 'copy', 'copyId', 'editform', 'recreate', 'openinnew', 'fav']}
       isCharge={isCharge}
       allowDelete={allowDelete}
       allowCopy={allowAdd && recordinfo.allowEdit}

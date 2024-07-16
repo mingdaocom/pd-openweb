@@ -75,7 +75,6 @@ function Filters(props, ref) {
     onHideFilterPopup = () => {},
     onChange = () => {},
     filterResigned = true,
-    appPkg,
   } = props;
   const conRef = useRef();
   const cache = useRef({});
@@ -164,7 +163,7 @@ function Filters(props, ref) {
       isNewEditing &&
       !get(cache, 'current.editingFilter') &&
       state.editingFilter &&
-      includes([14, 36], _.get(state, 'editingFilter.conditionsGroups.0.conditions.0.control.type'))
+      includes([14, 34, 36, 40, 41], _.get(state, 'editingFilter.conditionsGroups.0.conditions.0.control.type'))
     ) {
       filterWorksheet(state.editingFilter);
     }

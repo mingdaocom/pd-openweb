@@ -1,5 +1,7 @@
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import PublicWorksheet from './PublicWorksheet';
 
-ReactDom.render(<PublicWorksheet />, document.querySelector('#app'));
+const root = createRoot(document.querySelector('#app'));
+
+root.render(<PublicWorksheet />);

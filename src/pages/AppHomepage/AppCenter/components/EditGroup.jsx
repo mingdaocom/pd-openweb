@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Modal, RadioGroup, SvgIcon } from 'ming-ui';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
+import OrgNameMultipleLanguages from 'src/pages/Admin/components/OrgNameMultipleLanguages.jsx';
+import { string, number, func } from 'prop-types';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
-import { string, number, func, bool } from 'prop-types';
 
 const RadioGroupComp = styled(RadioGroup)`
   .ming.Radio {
@@ -34,14 +35,17 @@ const IconInputCon = styled.div`
 `;
 
 function IconInput(props) {
-  const { projectId, icon, name, setIcon, setName } = props;
+  const { projectId, icon, name, setIcon, setName, groupType, editingGroupId, type, actions, projectGroupsLang } =
+    props;
   const inputRef = useRef();
   const [selectVisible, setSelectVisible] = useState();
+
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
   }, []);
+
   return (
     <IconInputCon>
       <input
@@ -51,6 +55,24 @@ function IconInput(props) {
         placeholder={_l('例：产品管理')}
         onChange={e => setName(e.target.value.slice(0, 32))}
       />
+      {groupType === 1 && type === 'edit' && (
+        <OrgNameMultipleLanguages
+          className="mRight10"
+          type={20}
+          projectId={projectId}
+          correlationId={editingGroupId}
+          currentLangName={name}
+          updateName={(data = {}) => {
+            actions.dispatch({
+              type: 'PROJECT_GROUPS_NAME_LANG',
+              data: {
+                ...projectGroupsLang,
+                [editingGroupId]: { ...data, projectId, correlationId: editingGroupId },
+              },
+            });
+          }}
+        />
+      )}
       <Trigger
         action={['click']}
         popupVisible={selectVisible}
@@ -97,10 +119,12 @@ IconInput.propTypes = {
 };
 
 export default function EditGroup(props) {
-  const { isAdmin, type = 'add', projectId, onChange = () => {}, onCancel = () => {} } = props;
+  const { hasManageAppAuth, type = 'add', projectId, editingGroupId, onChange = () => {}, onCancel = () => {} } = props;
   const [groupType, setGroupType] = useState(props.groupType || 0);
   const [name, setName] = useState(props.name);
   const [icon, setIcon] = useState(props.icon || '8_4_folder');
+  const [langData, setLangData] = useState([]);
+
   return (
     <Modal
       visible
@@ -115,20 +139,32 @@ export default function EditGroup(props) {
           name,
           groupType,
           icon,
+          langData,
         });
       }}
       onCancel={onCancel}
     >
       <div className="Font17 Bold">{type === 'add' ? _l('添加分组') : _l('编辑分组')}</div>
       <div className="Font14 mTop20 mBottom8">{_l('名称')}</div>
-      <IconInput projectId={projectId} icon={icon} setIcon={setIcon} name={name} setName={setName} />
+      <IconInput
+        {...props}
+        projectId={projectId}
+        icon={icon}
+        groupType={Number(groupType)}
+        editingGroupId={editingGroupId}
+        name={name}
+        type={type}
+        setIcon={setIcon}
+        setName={setName}
+        setLangData={setLangData}
+      />
       <div className="Font14 mTop24 mBottom8">{_l('使用范围')}</div>
       <RadioGroupComp
         className="mBottom20"
         // disabled={disabled}
         data={[
           { text: _l('个人'), value: 0 },
-          { text: _l('组织'), value: 1, disabled: !isAdmin },
+          { text: _l('组织'), value: 1, disabled: !hasManageAppAuth },
         ]}
         checkedValue={Number(groupType)}
         onChange={setGroupType}
@@ -139,7 +175,6 @@ export default function EditGroup(props) {
 }
 
 EditGroup.propTypes = {
-  isAdmin: bool,
   projectId: string,
   type: string,
   name: string,

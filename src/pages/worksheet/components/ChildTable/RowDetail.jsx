@@ -51,7 +51,8 @@ export default class RowDetail extends React.Component {
 
   @autobind
   handleChange() {
-    this.setState({ formChanged: true });
+    const { changeIsFormChanged = () => {} } = this.props;
+    changeIsFormChanged(true);
     const { data, isMobile, onSave } = this.props;
     if (!this.customwidget.current || isMobile) {
       return;
@@ -68,7 +69,8 @@ export default class RowDetail extends React.Component {
     if (!this.customwidget.current) {
       return;
     }
-    this.setState({ formChanged: false });
+    const { changeIsFormChanged = () => {} } = this.props;
+    changeIsFormChanged(false);
     const { data, onSave, onClose } = this.props;
     const submitData = this.customwidget.current.getSubmitData();
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();

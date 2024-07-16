@@ -258,11 +258,7 @@ export class FlowChart extends Component {
                   .append('<div class="workflowExecLine" />');
               }
 
-              $branchEl
-                .find('.workflowExecLine')
-                .eq(0)
-                .closest('.flexColumn')
-                .addClass('workflowExecBeforeLine');
+              $branchEl.find('.workflowExecLine').eq(0).closest('.flexColumn').addClass('workflowExecBeforeLine');
             }
           });
       }
@@ -271,7 +267,7 @@ export class FlowChart extends Component {
     $('.workflowExecLine').each((item, el) => {
       const $el = $(el);
 
-      $el.height($el.closest('.executed,.workflowBoxPending').innerHeight());
+      $el.height(_.max([$el.closest('.executed').innerHeight(), $el.closest('.workflowBoxPending').innerHeight()]));
     });
   }
 
@@ -398,7 +394,7 @@ export default memo(({ processId, instanceId, selectNodeId, onClose = () => {} }
       title={
         <div className="flexRow valignWrapper">
           <div className="flex Font17 bold">{_l('流转图')}</div>
-          <Icon className="Gray_9e Font20 pointer" icon="close" onClick={onClose} />
+          <Icon className="Gray_75 Font20 pointer" icon="close" onClick={onClose} />
         </div>
       }
       type="fixed"
@@ -413,7 +409,7 @@ export default memo(({ processId, instanceId, selectNodeId, onClose = () => {} }
 export const MobileFlowChart = memo(({ processId, instanceId, selectNodeId, onClose = () => {} }) => {
   return (
     <MobileModal popup animationType="slide-up" className="flowChartModal h100" onClose={onClose} visible={true}>
-      <Icon className="Gray_9e Font22 pointer mobileClose" icon="closeelement-bg-circle" onClick={onClose} />
+      <Icon className="Gray_75 Font22 pointer mobileClose" icon="closeelement-bg-circle" onClick={onClose} />
       <FlowChart processId={processId} instanceId={instanceId} selectNodeId={selectNodeId} />
     </MobileModal>
   );

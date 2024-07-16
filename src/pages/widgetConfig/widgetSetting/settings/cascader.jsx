@@ -5,10 +5,9 @@ import styled from 'styled-components';
 import worksheetAjax from 'src/api/worksheet';
 import { SettingItem } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
-import components from '../components';
+import SelectDataSource from '../components/SelectDataSource';
+import RelateDetailInfo from '../components/RelateDetailInfo';
 import _ from 'lodash';
-
-const { SelectDataSource, RelateDetailInfo } = components;
 
 export const MENU_STYLE = [
   {

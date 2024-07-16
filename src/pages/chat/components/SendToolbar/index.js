@@ -14,7 +14,7 @@ import _ from 'lodash';
 import '../../lib/mentionInput/js/mentionInput';
 import { setCaretPosition, getToken } from 'src/util';
 import { errorCode } from 'src/components/UploadFiles';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import Emotion from 'src/components/emotion/emotion';
 
 const recurShowFileConfirm = (up, files, i, length, cb) => {
@@ -130,13 +130,13 @@ export default class SendToolbar extends Component {
           const emptyFile = 0;
           const tokenFiles = [];
           for (let j = 0; j < files.length; j++) {
-            if (File.isValid('.' + File.GetExt(files[j].name))) {
+            if (RegExpValidator.validateFileExt('.' + RegExpValidator.getExtOfFileName(files[j].name))) {
               count++;
             } else {
               uploader.removeFile(files[j]);
             }
-            let fileExt = `.${File.GetExt(files[j].name)}`;
-            let isPic = File.isPicture(fileExt);
+            let fileExt = `.${RegExpValidator.getExtOfFileName(files[j].name)}`;
+            let isPic = RegExpValidator.fileIsPicture(fileExt);
             tokenFiles.push({ bucket: 1, ext: fileExt }); //chat 上传都用 bucket: 1
           }
 
@@ -175,19 +175,14 @@ export default class SendToolbar extends Component {
           });
         },
         BeforeUpload(uploader, file) {
-          const fileExt = `.${File.GetExt(file.name)}`;
+          const fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
           uploader.settings.multipart_params = { token: file.token };
           uploader.settings.multipart_params.key = file.key;
           uploader.settings.multipart_params['x:serverName'] = window.config.FilePath; //chat 上传都用 window.config.FilePath
           uploader.settings.multipart_params['x:filePath'] = file.key ? file.key.replace(file.fileName, '') : '';
           uploader.settings.multipart_params['x:fileName'] = (file.fileName || '').replace(/\.[^\.]*$/, '');
           uploader.settings.multipart_params['x:originalFileName'] = encodeURIComponent(
-            file.name.indexOf('.') > -1
-              ? file.name
-                  .split('.')
-                  .slice(0, -1)
-                  .join('.')
-              : file.name,
+            file.name.indexOf('.') > -1 ? file.name.split('.').slice(0, -1).join('.') : file.name,
           );
           uploader.settings.multipart_params['x:fileExt'] = fileExt;
           const cb = window[`chatBeforeUpload${file.id}`];
@@ -201,8 +196,8 @@ export default class SendToolbar extends Component {
         FileUploaded(uploader, file, response) {
           const uploadFile = JSON.parse(response.response);
           const ext = uploadFile.fileExt;
-          const isPicture = File.isPicture(ext);
-          const isVideoFile = RegExp.isVideo(ext);
+          const isPicture = RegExpValidator.fileIsPicture(ext);
+          const isVideoFile = RegExpValidator.isVideo(ext);
           const msg = isPicture ? `[${_l('图片')}]` : isVideoFile ? `[${_l('视频')}]` : `[${_l('文件')}] ${file.name}`;
           const type = isPicture
             ? Constant.MSGTYPE_PIC
@@ -416,9 +411,7 @@ export default class SendToolbar extends Component {
           >
             <i className="icon-chat-at" />
           </div>
-        ) : id === 'file-transfer' ? (
-          undefined
-        ) : (
+        ) : id === 'file-transfer' ? undefined : (
           <div onClick={this.props.onShake.bind(this)} className="icon-btn tip-top" data-tip={_l('抖动ta的屏幕')}>
             <i className="icon-chat-shake" />
           </div>

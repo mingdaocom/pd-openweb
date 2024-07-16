@@ -1,59 +1,12 @@
-import React, { useEffect } from 'react';
-import Components from './inputTypes';
-import SubSheet from './inputTypes/SubSheet';
+import React from 'react';
 import { getControlType, dealIds } from './util';
+import { TYPE_TO_COMP } from './inputTypes';
 import { SettingItem } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
 import { DEFAULT_TYPES } from './config';
 import { Tooltip } from 'ming-ui';
 import _ from 'lodash';
 import cx from 'classnames';
-
-const {
-  TextInput,
-  PhoneInput,
-  DepartmentInput,
-  DateInput,
-  EmailInput,
-  NumberInput,
-  UserInput,
-  OptionInput,
-  RelateSheet,
-  ScoreInput,
-  AreaInput,
-  SwitchInput,
-  TimeInput,
-  RoleInput,
-  RichInput,
-  ArrayInput,
-  ObjectInput,
-  AttachmentInput,
-  CascaderSheet,
-} = Components;
-
-const TYPE_TO_COMP = {
-  text: TextInput,
-  number: NumberInput,
-  phone: PhoneInput,
-  email: EmailInput,
-  cred: EmailInput,
-  department: DepartmentInput,
-  date: DateInput,
-  user: UserInput,
-  relateSheet: RelateSheet,
-  score: ScoreInput,
-  option: OptionInput,
-  area: AreaInput,
-  subList: SubSheet,
-  switch: SwitchInput,
-  time: TimeInput,
-  role: RoleInput,
-  cascader: CascaderSheet,
-  richtext: RichInput,
-  array: ArrayInput,
-  array_object: ObjectInput,
-  attachment: AttachmentInput,
-};
 
 export default function DynamicDefaultValue(props) {
   const { data, allControls, onChange, from, hideTitle } = props;

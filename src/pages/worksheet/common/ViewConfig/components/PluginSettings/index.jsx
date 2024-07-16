@@ -7,7 +7,7 @@ import { PARAM_TYPES, controlTypeList, defaultData } from './config';
 import Trigger from 'rc-trigger';
 import './index.less';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
-import CSSTransitionGroup from 'react-addons-css-transition-group';
+import { Drawer } from 'antd';
 import Edit from './Edit';
 import AddDialog from './AddDialog';
 import SettingList from './SettingList';
@@ -230,6 +230,26 @@ function PluginSettings(params) {
             {
               switchSettings: {
                 ...switchSettings,
+                showRefresh: switchSettings.showRefresh === '1' ? '' : '1',
+              },
+            },
+            true,
+          );
+        }}
+      >
+        <Icon icon={switchSettings.showRefresh === '1' ? 'ic_toggle_on' : 'ic_toggle_off'} className="Font28" />
+        <div className="switchText switchTextP mLeft12 InlineBlock Gray Hand">{_l('自动刷新')}</div>
+        <Tooltip text={<span>{_l('每隔一段时间后自动刷新当前视图')}</span>} popupPlacement="right">
+          <i className="icon-help Gray_9e Font16"></i>
+        </Tooltip>
+      </SwitchStyle>
+      <SwitchStyle
+        className="Hand flexRow alignItemsCenter mTop4"
+        onClick={() => {
+          onChangeView(
+            {
+              switchSettings: {
+                ...switchSettings,
                 showFastFilter: switchSettings.showFastFilter === '1' ? '' : '1',
               },
             },
@@ -258,7 +278,7 @@ function PluginSettings(params) {
         <div className="switchText switchTextP mLeft12 InlineBlock Gray Hand">{_l('筛选列表')}</div>
       </SwitchStyle>
       <div className="title Bold mTop32">{_l('参数设置')}</div>
-      <div className="mTop4 Gray_9e">
+      <div className="mTop4 Gray_75">
         {_l('配置使用本视图时需要的设置项，对应变量可以在插件代码中引用')}
         <span
           className="editHref ThemeColor3 mLeft5 Hand"
@@ -271,9 +291,9 @@ function PluginSettings(params) {
       </div>
       <div className="paramCon">
         <div className="headCon flexRow alignItemsCenter mTop20">
-          <div className="w100 Gray_9e">{_l('类型')}</div>
-          <div className="w130 mLeft12 Gray_9e">{_l('名称')}</div>
-          <div className="w130 mLeft12 Gray_9e">
+          <div className="w100 Gray_75">{_l('类型')}</div>
+          <div className="w130 mLeft12 Gray_75">{_l('名称')}</div>
+          <div className="w130 mLeft12 Gray_75">
             {_l('变量 id ')}
             <span className="Red">*</span>
           </div>
@@ -396,7 +416,17 @@ function PluginSettings(params) {
           )}
         </div>
       </div>
-      <CSSTransitionGroup transitionName="StatisticsPanel" transitionEnterTimeout={500} transitionLeaveTimeout={300}>
+      <Drawer
+        width={400}
+        className="Absolute"
+        onClose={() => setState({ editInfo: null, showEdit: false })}
+        placement="right"
+        visible={showEdit}
+        maskClosable={false}
+        closable={false}
+        getContainer={false}
+        mask={false}
+      >
         {showEdit && (
           <Edit
             controls={worksheetControls.filter(o => controlTypeList.includes(o.type))}
@@ -410,12 +440,11 @@ function PluginSettings(params) {
               '.selectize-dropdown',
               '.selectUserBox',
               '.ant-picker-dropdown',
+              '#quickSelectDept',
               '.selectRoleDialog',
             ]}
             onClickAway={() => setState({ editInfo: null, showEdit: false })}
-            onClose={() => {
-              setState({ editInfo: null, showEdit: false });
-            }}
+            onClose={() => setState({ editInfo: null, showEdit: false })}
             onChange={data => {
               const list = paramSettings.map(o => {
                 if (o.fieldId === data.fieldId) {
@@ -437,7 +466,7 @@ function PluginSettings(params) {
             }}
           />
         )}
-      </CSSTransitionGroup>
+      </Drawer>
       {addVisible && (
         <AddDialog
           onOk={str => {

@@ -9,6 +9,7 @@ import { batchRemoveItems } from '../../util/drag';
 import { batchCopyWidgets, handleMoveWidgets, batchResetWidgets } from '../../util/data';
 import { putControlByOrder, notInsetSectionTab, isSheetDisplay } from '../../util';
 import { find, flatten } from 'lodash';
+import { UN_REQUIRED_WIDGET } from '../../config';
 
 const WidgetBatchWrap = styled.div`
   position: absolute;
@@ -89,8 +90,7 @@ function WidgetBatch(props) {
       return batchActive.some(i => _.includes(unReadOnly, i.type));
     }
     if (mode === 'required') {
-      const unRequired = [31, 38, 33, 25, 32, 43, 47, 45, 49, 30, 21, 37, 22, 51, 52, 10010];
-      return batchActive.some(i => _.includes(unRequired, i.type) || isSheetDisplay(i));
+      return batchActive.some(i => _.includes(UN_REQUIRED_WIDGET, i.type) || isSheetDisplay(i));
     }
     return false;
   };
@@ -186,14 +186,7 @@ function WidgetBatch(props) {
 }
 
 export default function WidgetBatchOption(props) {
-  const {
-    allControls = [],
-    widgets = [],
-    globalSheetInfo = {},
-    batchActive,
-    setBatchActive,
-    setWidgets,
-  } = props;
+  const { allControls = [], widgets = [], globalSheetInfo = {}, batchActive, setBatchActive, setWidgets } = props;
   const { worksheetId } = globalSheetInfo;
 
   const handleOperate = (mode, id) => {

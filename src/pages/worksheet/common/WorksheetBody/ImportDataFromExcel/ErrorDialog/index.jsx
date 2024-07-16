@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Icon, Dialog, ScrollView } from 'ming-ui';
@@ -213,5 +213,7 @@ class ErrorDialog extends Component {
 }
 
 export default ({ fileKey, isBatch }) => {
-  ReactDOM.render(<ErrorDialog fileKey={fileKey} isBatch={isBatch} />, document.createElement('div'));
+  const root = createRoot(document.createElement('div'));
+
+  root.render(<ErrorDialog fileKey={fileKey} isBatch={isBatch} />);
 };

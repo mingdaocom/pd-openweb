@@ -18,6 +18,7 @@ export const fetch = searchArgs => {
       getRows.abort();
     }
     getRowsIds.push(viewId);
+
     getRows = sheetAjax.getFilterRows(
       getFilledRequestParams({
         appId,
@@ -321,12 +322,6 @@ export function getEventList({
     const { appId, worksheetId, viewId } = base;
     const currentView = views.find(o => o.viewId === viewId) || {};
     const { calendarInfo = [] } = calendarData;
-    if (isUp && [`${typeEvent}UpIndex`] === pageIndex) {
-      return;
-    }
-    if ([`${typeEvent}Index`] === pageIndex) {
-      return;
-    }
     if (getFilterRows && getFilterRowsIds.includes(viewId)) {
       getFilterRows.abort();
     }

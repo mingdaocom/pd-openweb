@@ -6,14 +6,16 @@ import {
   getLegendType,
   reportTypes,
   formatYaxisList,
-  getChartColors
+  getChartColors,
+  getEmptyChartData
 } from './common';
 import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
-import { formatSummaryName, isFormatNumber } from 'statistics/common';
+import { formatSummaryName, isFormatNumber, formatterTooltipTitle } from 'statistics/common';
 import _ from 'lodash';
 
 const formatChartData = (data, yaxisList, splitControlId, xaxesControlId, minValue, maxValue) => {
+  if (!data.length) return []
   let result = [];
   const { value } = data[0];
   const formatValue = value => {
@@ -33,7 +35,7 @@ const formatChartData = (data, yaxisList, splitControlId, xaxesControlId, minVal
           result.push({
             groupName: `${splitControlId ? element.key : (rename || element.key)}-md-${reportTypes.RadarChart}-chart-${element.c_id || index}`,
             groupKey: element.originalKey,
-            value: formatValue(value),
+            value: formatValue(value) || (emptyShowType ? 0 : null),
             originalValue: value,
             name: name || (!splitControlId && !xaxesControlId ? element.originalKey : undefined),
             originalId: item.originalX || name || element.originalKey
@@ -231,7 +233,7 @@ export default class extends Component {
     const newYaxisList = formatYaxisList(data, yaxisList);
     const colors = getChartColors(style, themeColor, projectId);
     const baseConfig = {
-      data,
+      data: data.length ? data : getEmptyChartData(reportData),
       appendPadding: [5, 0, 5, 0],
       xField: 'originalId',
       yField: 'value',
@@ -286,7 +288,7 @@ export default class extends Component {
           },
         },
         minLimit: ydisplay.minValue || null,
-        maxLimit: ydisplay.maxValue || null
+        maxLimit: ydisplay.maxValue || (data.length ? null : 5)
       },
       limitInPlot: true,
       area: {},
@@ -295,6 +297,7 @@ export default class extends Component {
         shared: true,
         showCrosshairs: false,
         showMarkers: true,
+        title: formatterTooltipTitle(xaxes),
         formatter: ({ originalId, groupName }) => {
           const { name, id } = formatControlInfo(groupName);
           const { dot } = _.find(yaxisList, { controlId: id }) || {};

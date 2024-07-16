@@ -118,10 +118,10 @@ export default class PublishBtn extends Component {
         {!!showTime && (
           <Fragment>
             {showCreateTime ? (
-              <span className="mLeft10 Font12 Gray_9e">{this.formatDate(item.createdDate)}</span>
+              <span className="mLeft10 Font12 Gray_75">{this.formatDate(item.createdDate)}</span>
             ) : (
               <span
-                className={cx('mLeft10 Font12', item.publishStatus === 1 ? 'ThemeColor3' : 'Gray_9e')}
+                className={cx('mLeft10 Font12', item.publishStatus === 1 ? 'ThemeColor3' : 'Gray_75')}
               >{`${this.formatDate(item.lastModifiedDate)} ${publishStatus2Text[item.publishStatus]}`}</span>
             )}
           </Fragment>

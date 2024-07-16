@@ -38,6 +38,18 @@ export default class Date extends Component {
               locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
               defaultValue={minValue && maxValue ? [moment(minValue, timeFormat), moment(maxValue, timeFormat)] : []}
               popupClassName="filterDateRangeInputPopup"
+              onOpenChange={isOpen => {
+                // 手动修复激活面板定位问题，官方有问题
+                if (isOpen) {
+                  const $arrow = $('.filterDateRangeInputPopup .ant-picker-range-arrow');
+                  if ($arrow) {
+                    const arrowLeft = $arrow.css('left');
+                    $('.filterDateRangeInputPopup .ant-picker-panel-container').css({
+                      marginLeft: parseInt(arrowLeft),
+                    });
+                  }
+                }
+              }}
               onChange={moments => {
                 if (!moments || !_.isArray(moments)) {
                   moments = [];

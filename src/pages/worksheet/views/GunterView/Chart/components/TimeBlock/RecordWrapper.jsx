@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import RecordBlock from './RecordBlock';
-import RecordInfo from 'worksheet/views/GunterView/components/RecordInfo';
 import { addBehaviorLog } from 'src/util';
 import _ from 'lodash';
 import { handleRecordClick } from 'worksheet/util';
@@ -20,7 +19,15 @@ export default class RecordWrapper extends Component {
     super(props);
     this.state = {
       recordInfoVisible: false,
+      RecordInfoComponent: null
     };
+  }
+  componentDidMount() {
+    import('worksheet/views/GunterView/components/RecordInfo').then(component => {
+      this.setState({
+        RecordInfoComponent: component.default
+      });
+    });
   }
   handleClick = () => {
     if (window.isDrag) {
@@ -46,13 +53,13 @@ export default class RecordWrapper extends Component {
     );
   };
   render() {
-    const { recordInfoVisible } = this.state;
+    const { recordInfoVisible, RecordInfoComponent } = this.state;
     const { row, style } = this.props;
     return (
       <Fragment>
         <RecordBlock disable={!row.allowedit} row={row} style={style} onClick={this.handleClick} />
         {recordInfoVisible && (
-          <RecordInfo
+          <RecordInfoComponent
             row={row}
             onClose={() => {
               this.setState({ recordInfoVisible: false });

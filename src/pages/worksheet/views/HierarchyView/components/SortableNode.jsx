@@ -7,7 +7,7 @@ import { RecordInfoModal } from 'mobile/Record';
 import { getPosition } from '../util';
 import SVG from 'svg.js';
 import DraggableRecord from './DraggableRecord';
-import { browserIsMobile, addBehaviorLog } from 'src/util';
+import { browserIsMobile, addBehaviorLog, emitter } from 'src/util';
 import { handleRecordClick } from 'worksheet/util';
 
 const isMobile = browserIsMobile();
@@ -26,6 +26,7 @@ export default class SortableRecordItem extends Component {
   constructor(props) {
     super(props);
     this.$itemWrap = createRef(null);
+    this.$svg = createRef(null);
     this.state = {
       recordInfoVisible: false,
       recordInfoRowId: '',
@@ -66,13 +67,20 @@ export default class SortableRecordItem extends Component {
     const { path = [], rowId } = data;
     const { advancedSetting = {} } = view;
     const $ele = _.get(this.$itemWrap, ['current']);
+
     if ($ele && pid) {
       const getParent = this.getNode(stateTree, path.slice(0, -1));
+
       if (!getParent || _.isEmpty(getParent)) return {};
+
       const childrenCount = (_.get(getParent, 'children') || {}).length;
+
       if (!childrenCount) return {};
-      const $parent = $(`#${view.viewId}`).find(`#${getParent.pathId.join('-')}`)[0];
+
+      const $parent = $(`#${getParent.pathId.join('-')}-${this.props.uniqId}`)[0];
+
       if ($parent === $ele) return {};
+
       const currentIndex =
         _.findIndex(getParent.children, item => item === rowId || item.rowId === rowId || item.rowid === rowId) || 0;
 
@@ -81,6 +89,7 @@ export default class SortableRecordItem extends Component {
        */
 
       const controlPointX = ((childrenCount - currentIndex) / childrenCount) * 60;
+
       return {
         controlPointX,
         ...getPosition($parent, $ele, scale, isStraightLine || advancedSetting.hierarchyViewConnectLine === '1'),
@@ -91,10 +100,10 @@ export default class SortableRecordItem extends Component {
 
   // 绘制连接线
   drawConnector = () => {
-    const { data, view = {}, isStraightLine } = this.props;
+    const { data, view = {}, isStraightLine, uniqId } = this.props;
     const { pathId } = data;
     const { advancedSetting = {} } = view;
-    const $svgWrap = document.getElementById(`svg-${view.viewId}${pathId.join('-')}`);
+    const $svgWrap = document.getElementById(`svg-${view.viewId}${pathId.join('-')}-${uniqId}`);
 
     const position = this.getConnectLinePos(this.props);
 
@@ -108,7 +117,8 @@ export default class SortableRecordItem extends Component {
     if ($svgWrap.childElementCount > 0) {
       $svgWrap.childNodes.forEach(child => $svgWrap.removeChild(child));
     }
-    const draw = SVG(`svg-${view.viewId}${pathId.join('-')}`).size('100%', '100%');
+
+    const draw = SVG(`svg-${view.viewId}${pathId.join('-')}-${uniqId}`).size('100%', '100%');
 
     if (advancedSetting.hierarchyViewConnectLine === '1' || isStraightLine) {
       draw.polyline([start, straightLineInflection, end]).stroke({ width: 2, color: '#d3d3d3' }).fill('none');
@@ -188,27 +198,31 @@ export default class SortableRecordItem extends Component {
       treeData,
       worksheetInfo,
       isStraightLine,
+      uniqId,
     } = this.props;
     const { recordInfoRowId, recordInfoVisible } = this.state;
     const { rowId, path = [], pathId = [] } = data;
     const { rowId: draggingId } = safeParse(localStorage.getItem('draggingHierarchyItem'));
     const recordInfoPara = this.getRecordInfoPara();
     const { advancedSetting = {} } = view;
+
     if (recordInfoPara.worksheetId === worksheetInfo.worksheetId) {
       recordInfoPara.rules = worksheetInfo.rules;
     }
+
     return (
       <Fragment>
         <div
           className={cx('sortableTreeNodeWrap', { isDragging: draggingId === rowId })}
-          id={pathId.join('-')}
+          id={`${pathId.join('-')}-${uniqId}`}
           ref={this.$itemWrap}
         >
           <div
-            id={`svg-${view.viewId}${pathId.join('-')}`}
+            id={`svg-${view.viewId}${pathId.join('-')}-${uniqId}`}
             className={
               isStraightLine || advancedSetting.hierarchyViewConnectLine === '1' ? 'svgStraightWrap' : 'svgWrap'
             }
+            ref={this.$svg}
           />
           <DraggableRecord
             {...this.props}
@@ -251,6 +265,7 @@ export default class SortableRecordItem extends Component {
               currentSheetRows={this.getCurrentSheetRows()}
               hideRecordInfo={() => {
                 this.setState({ recordInfoVisible: false });
+                emitter.emit('ROWS_UPDATE');
               }}
               updateSuccess={(recordIds, value, relateSheet) => {
                 if (!relateSheet.isviewdata) {

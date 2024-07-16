@@ -16,6 +16,8 @@ import 'src/pages/integration/dataIntegration/connector/style.less';
 import PublishSetDialog from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/PublishSetDialog';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import dataSourceApi from 'src/pages/integration/api/datasource.js';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const Wrap = styled.div`
   height: 100%;
@@ -59,11 +61,12 @@ class Task extends Component {
     );
   }
 
-  setProJectInfo = projectId => {
-    const projects = md.global.Account.projects;
-    const projectInfo = projects.find(o => o.projectId === projectId) || {};
-    const { isSuperAdmin = false, isProjectAppManager = false } = projectInfo;
-    if (!isSuperAdmin && !isProjectAppManager) {
+  validatePermission = projectId => {
+    const hasTaskAuth = checkPermission(projectId, [
+      PERMISSION_ENUM.CREATE_SYNC_TASK,
+      PERMISSION_ENUM.MANAGE_SYNC_TASKS,
+    ]);
+    if (!hasTaskAuth) {
       alert(_l('该同步任务无权限查看或已删除'), 3);
       navigateTo('/integration');
       return;
@@ -73,7 +76,7 @@ class Task extends Component {
   // 创建同步任务
   creatSynsTask = () => {
     const projectId = localStorage.getItem('currentProjectId');
-    this.setProJectInfo(projectId);
+    this.validatePermission(projectId);
     TaskFlow.init({
       projectId,
       owner: md.global.Account.accountId,
@@ -123,7 +126,7 @@ class Task extends Component {
           };
         });
       }
-      this.setProJectInfo(flowData.projectId);
+      this.validatePermission(flowData.projectId);
       this.getDatasourcesList(flowData, flowData.projectId, datasources => {
         this.setState({
           flowData: { ...flowData, datasources },

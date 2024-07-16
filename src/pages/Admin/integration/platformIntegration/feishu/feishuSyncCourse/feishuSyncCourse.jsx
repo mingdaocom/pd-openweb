@@ -21,7 +21,7 @@ export default class WorkwxSyncCourse extends React.Component {
     this.state = {
       homeUrl: '',
       loading: true,
-    }
+    };
   }
 
   componentDidMount() {
@@ -34,10 +34,10 @@ export default class WorkwxSyncCourse extends React.Component {
       apkId: match.params.apkId,
     }).then(result => {
       if (result) {
-          this.setState({
-            loading: false,
-            homeUrl: result
-          });
+        this.setState({
+          loading: false,
+          homeUrl: result,
+        });
       } else {
         this.setState({
           loading: false,

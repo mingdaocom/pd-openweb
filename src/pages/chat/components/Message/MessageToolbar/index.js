@@ -12,7 +12,7 @@ import previewAttachments from 'src/components/previewAttachments/previewAttachm
 import Dialog from 'ming-ui/components/Dialog';
 import { downloadFile } from 'src/util';
 import moment from 'moment';
-
+import RegExpValidator from 'src/util/expression';
 const confirm = Dialog.confirm;
 
 const getImageContextIndex = (id, list) => {
@@ -30,7 +30,7 @@ const formatMessage = (id, res) => {
   const index = getImageContextIndex(id, res);
   res = res.map(item => {
     const { files } = item.msg;
-    const isPicture = File.isPicture(`.${File.GetExt(files.name)}`);
+    const isPicture = RegExpValidator.fileIsPicture(`.${RegExpValidator.getExtOfFileName(files.name)}`);
     const bigImg = parseInt(files.size / 1024 / 1024) >= 20;
     return {
       fileid: files.id || '',
@@ -290,8 +290,8 @@ export default class MessageToolbar extends Component {
       const { files } = message.msg;
       attachmentType = 0;
       attachment = {
-        name: File.GetName(files.name),
-        ext: `.${File.GetExt(files.name)}`,
+        name: RegExpValidator.getNameOfFileName(files.name),
+        ext: `.${RegExpValidator.getExtOfFileName(files.name)}`,
         size: files.size,
         path: files.url ? files.url : window.config.FilePath + files.key,
         id: files.id,
@@ -302,7 +302,7 @@ export default class MessageToolbar extends Component {
       const params = {
         attachmentType,
       };
-      const isPicture = File.isPicture(attachment.ext);
+      const isPicture = RegExpValidator.fileIsPicture(attachment.ext);
       if (attachmentType == 2) {
         params.id = attachment.id;
         params.name = attachment.name;

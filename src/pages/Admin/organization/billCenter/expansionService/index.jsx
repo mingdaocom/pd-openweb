@@ -93,6 +93,7 @@ const ADD_ORDER_PRICE = {
   computingMonthly: orderController.addMonthlyComputingInstanceOrder,
   renewcomputing: orderController.addComputingInstanceExtensionOrder,
   aggregationtable: orderController.addAggregationTableOrder,
+  computingPermanent: orderController.addPermanentComputingInstanceOrder,
 };
 
 const WORKFLOW_TYPE_LIST = [
@@ -195,7 +196,7 @@ export default class ExpansionService extends Component {
           {
             addUserCount: 100000,
             addUserStep: 100000,
-            maxUserCount: 1000000,
+            maxUserCount: 5000000,
             balance: res.balance,
             showDataSyncExtPack:
               !_.includes([0, 2], licenseType) && !res.autoPurchaseDataPipelineExtPack && !md.global.Config.IsLocal,
@@ -472,16 +473,11 @@ export default class ExpansionService extends Component {
         ...param,
       }).then(function (data) {
         if (data) {
-          alert(
-            isNotPlatformLocal ? _l('创建成功') : _l('订单已创建成功，正在转到付款页...'),
-            1,
-            500,
-            function () {
-              window.location.href = isNotPlatformLocal
-                ? `/admin/computing/${Config.projectId}`
-                : '/admin/waitingPay/' + Config.projectId + '/' + data.orderId;
-            },
-          );
+          alert(isNotPlatformLocal ? _l('创建成功') : _l('订单已创建成功，正在转到付款页...'), 1, 500, function () {
+            window.location.href = isNotPlatformLocal
+              ? `/admin/computing/${Config.projectId}`
+              : '/admin/waitingPay/' + Config.projectId + '/' + data.orderId;
+          });
         } else {
           _this.setState({ isPay: false });
           alert(_l('操作失败'), 2);
@@ -627,12 +623,16 @@ export default class ExpansionService extends Component {
     switch (expandType) {
       case EXPAND_TYPE.USER:
         return (
-          <span>{_l('单个增量用户包最多只能扩充 %0 人，如需特别定制，请联系电话 400-665-6655', maxUserCount)}</span>
+          <span>
+            {_l('单个增量用户包5人起购，最多只能扩充 %0 人，如有特别需求，请联系我们 400-665-6655', maxUserCount)}
+          </span>
         );
       case EXPAND_TYPE.WORKFLOW:
         return _l('每月执行数免费额度不足时可购买使用，即时生效。');
       case EXPAND_TYPE.DATASYNC:
         return _l('每月同步任务数的算力不足时，可购买使用，立即生效。');
+      case EXPAND_TYPE.AGGREGATIONTABLE:
+        return _l('聚合表扩充5个起购');
       case EXPAND_TYPE.STORAGE:
       case EXPAND_TYPE.PORTALUSER:
       case EXPAND_TYPE.PORTALUPGRADE:
@@ -665,7 +665,7 @@ export default class ExpansionService extends Component {
             >
               <div className="Font15 Gray Bold">{item.name}</div>
               <div className="Gray_9e mTop6">
-                {`${item.cpu}核（vCPU）`} | {`${item.memory / 1024}GiB`}
+                {`${_l('%0核', item.cpu)}（vCPU）`} | {`${item.memory / 1024}GiB`}
               </div>
             </div>
           ))}
@@ -761,7 +761,7 @@ export default class ExpansionService extends Component {
   renderOptionStyle() {
     switch (this.expandType) {
       case EXPAND_TYPE.USER:
-        return this.renderPlusInput({ desc: _l('300 元/人/年*版本剩余时间（5人起购）') });
+        return this.renderPlusInput({ desc: _l('300 元/人/年（版本剩余时间）') });
       case EXPAND_TYPE.WORKFLOW:
         return this.renderWorkFlowContent();
       case EXPAND_TYPE.DATASYNC:
@@ -788,7 +788,7 @@ export default class ExpansionService extends Component {
       case EXPAND_TYPE.RENEWCOMPUTING:
         return this.renderRenewExclusiveContent();
       case EXPAND_TYPE.AGGREGATIONTABLE:
-        return this.renderPlusInput({ desc: _l('100元/个/年*版本剩余时间（5个起购）') });
+        return this.renderPlusInput({ desc: _l('100元/个/年（版本剩余时间）') });
     }
   }
 
@@ -843,7 +843,7 @@ export default class ExpansionService extends Component {
             <div className="mBottom16">
               <span className="mRight40">{_l('规格')}</span>
               <span>
-                {name} {`${data.cpu}核（vCPU） | ${data.memory / 1024}GiB`}
+                {name} {`${_l('%0核', data.cpu)}（vCPU） | ${data.memory / 1024}GiB`}
               </span>
             </div>
             <div className="mBottom16">
@@ -877,8 +877,9 @@ export default class ExpansionService extends Component {
             <div className="mBottom16">
               <span className="mRight40">{_l('规格')}</span>
               <span>
-                {_l('%0并发数', renewexclusiveInfo.concurrency)}{' '}
-                {`${renewexclusiveInfo.core}核（vCPU） | ${renewexclusiveInfo.memory / 1024}GiB`}
+                {`${_l('%0并发数', renewexclusiveInfo.concurrency)} ${_l('%0核', renewexclusiveInfo.core)}（vCPU） | ${
+                  renewexclusiveInfo.memory / 1024
+                }GiB`}
               </span>
             </div>
             <div className="mBottom16">
@@ -1048,11 +1049,11 @@ export default class ExpansionService extends Component {
                       <span className="Font20 color_b Bold">{totalPrince}</span>
                       {![EXPAND_TYPE.COMPUTING, EXPAND_TYPE.RENEWCOMPUTING].includes(expandType) &&
                         (this.isPortalUser ? (
-                        <a
-                          target="blank"
-                          className="mLeft20"
-                          href="https://help.mingdao.com/purchase/external-user-billing"
-                        >
+                          <a
+                            target="blank"
+                            className="mLeft20"
+                            href="https://help.mingdao.com/purchase/external-user-billing"
+                          >
                             {_l('计费方式')}
                           </a>
                         ) : (

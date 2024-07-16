@@ -27,7 +27,7 @@ export default ({ processId, instanceId, processName = '', currentWork, hasBack 
       </Btn>
       <div className="flex" />
       {isApproval && (
-        <div className="flexRow pointer alignItemsCenter Gray_9e ThemeHoverColor3" onClick={() => setVisible(true)}>
+        <div className="flexRow pointer alignItemsCenter Gray_75 ThemeHoverColor3" onClick={() => setVisible(true)}>
           <Icon className="Font16 mRight5" icon="department1" />
           <div className="bold">{_l('流转图')}</div>
         </div>

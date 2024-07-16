@@ -4,7 +4,7 @@ import cx from 'classnames';
 import { Icon, ColorPicker, Button } from 'ming-ui';
 import _ from 'lodash';
 import styled from 'styled-components';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import { SYS_COLOR, SYS_CHART_COLORS } from '../../config';
 import ChartColorSetting from './ChartColorSetting';
 import projectAjax from 'src/api/projectSetting';
@@ -376,7 +376,7 @@ export default class CustomColor extends Component {
 
               if (
                 SYS_COLOR.concat(custom_color).find(
-                  l => tinycolor(l.color).toHex8String() === tinycolor(value).toHex8String(),
+                  l => new TinyColor(l.color).toHex8String() === new TinyColor(value).toHex8String(),
                 )
               ) {
                 alert(_l('颜色已存在'), 3);

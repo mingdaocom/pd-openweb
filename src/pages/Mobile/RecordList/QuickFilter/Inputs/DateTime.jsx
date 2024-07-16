@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import { func, shape, string, number } from 'prop-types';
 import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
-import { Input } from 'ming-ui';
+import { Input, TimeZoneTag } from 'ming-ui';
 import { DATE_OPTIONS, FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import { Option } from './Options';
@@ -22,7 +22,19 @@ const InputCon = styled(Input)`
 const replaceTimeValue = value => value.replace ? value.replace(/[\u4e00-\u9fa5]+/g, '-') : value;
 
 export default function DateTime(props) {
-  const { dateRange, dateRangeType, value, minValue, maxValue, advancedSetting = {}, onChange = () => {}, onRemove = () => {}, control } = props;
+  const {
+    dateRange,
+    dateRangeType,
+    value,
+    minValue,
+    maxValue,
+    advancedSetting = {},
+    onChange = () => {},
+    onRemove = () => {},
+    control,
+    appId,
+  } = props;
+
   const filterType = props.filterType || FILTER_CONDITION_TYPE.DATE_BETWEEN;
   const [moreVisible, setMoreVisible] = useState(false);
   const [startDateVisible, setStartDateVisible] = useState(false);
@@ -73,6 +85,17 @@ export default function DateTime(props) {
         {!!dateRange && dateRange !== 18 && (
           <div className="selected ellipsis">{_.get(_.find(optionDate, { value: dateRange }), 'text')}</div>
         )}
+        <TimeZoneTag
+          appId={appId}
+          position={{
+            position: 'unset',
+            color: '#9e9e9e ',
+            border: 'none',
+            height: 'auto',
+            lineHeight: 'unset',
+            paddingLeft: '6px',
+          }}
+        />
       </div>
       {filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN ? (
         <div className="flexRow">

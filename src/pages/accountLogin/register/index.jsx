@@ -77,6 +77,8 @@ export default class RegisterContainer extends React.Component {
         let inviteInfo = data.inviteInfo;
         setData({
           logo: data.logo,
+          isDefaultLogo: data.isDefaultLogo,
+          hasGetLogo: true,
           inviteInfo,
           isApplyJoin: true,
         });

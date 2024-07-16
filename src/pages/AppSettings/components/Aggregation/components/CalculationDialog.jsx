@@ -6,6 +6,7 @@ import { useSetState } from 'react-use';
 import Formula from 'src/pages/widgetConfig/widgetSetting/components/formula/Formula.jsx';
 import { handleAdvancedSettingChange } from 'src/util/index.js';
 import 'src/pages/Role/PortalCon/components/AddUserByTelDialog.less';
+import { getVerifyInfo } from 'src/pages/widgetConfig/util/setting.js';
 
 const Wrap = styled.div`
   .enumDefaultType {
@@ -45,6 +46,7 @@ const Wrap = styled.div`
   .AggregationFormula {
     .Checkbox {
       display: inline-flex !important;
+      height: 24px !important;
     }
   }
 `;
@@ -67,22 +69,23 @@ export default function CalculationDialog(props) {
       visible={visible}
       anim={false}
       title={_l('计算')}
-      // description={_l('对已添加的聚合字段进行数值运算')}
       width={560}
       onCancel={onHide}
       onOk={() => {
         if (!calculation.controlName) {
           return alert(_l('请设置名称'), 3);
         }
+        const info = getVerifyInfo({ ...calculation, type: 31, enumDefault: 1 }, { controls: allControls });
+        if (!info.isValid) {
+          return alert(info.text, 3);
+        }
         onOk(calculation);
-        onHide();
       }}
     >
       <Wrap className="">
-        <div className="Gray_75" style={{ marginTop: -4 }}>
-          {_l('对已添加的聚合字段进行数值运算')}
+        <div className="Bold mTop10" style={{ marginTop: -4 }}>
+          {_l('名称')}
         </div>
-        <div className="Bold mTop10">{_l('名称')}</div>
         <Input
           value={calculation.controlName}
           className="w100 mTop10 placeholderColor"
@@ -92,6 +95,7 @@ export default function CalculationDialog(props) {
               calculation: { ...calculation, controlName },
             });
           }}
+          maxLength={60}
         />
         <Formula
           data={{
@@ -114,6 +118,11 @@ export default function CalculationDialog(props) {
               calculation: {
                 ...calculation,
                 ...result,
+                advancedSetting: {
+                  ...calculation.advancedSetting,
+                  ...result.advancedSetting,
+                  numshow: _.get(calculation, 'advancedSetting.numshow'),
+                },
               },
             });
           }}
@@ -148,27 +157,6 @@ export default function CalculationDialog(props) {
           />
         </div>
       </Wrap>
-      {/* <div className="btns TxtRight mTop32">
-        <Button
-          type="link"
-          onClick={() => {
-            onHide();
-          }}
-        >
-          {_l('取消')}
-        </Button>
-        <Button
-          onClick={() => {
-            if (!calculation.controlName) {
-              return alert(_l('请设置名称'), 3);
-            }
-            onOk(calculation);
-            onHide();
-          }}
-        >
-          {_l('确定')}
-        </Button>
-      </div> */}
     </Dialog>
   );
 }

@@ -83,6 +83,7 @@ export const CONTROL_FILTER_WHITELIST = {
       21, // 自由连接
       36, // 检查框
       40, // 定位
+      41, // 富文本
       42, // 签名
     ],
   },
@@ -137,6 +138,12 @@ export const CONTROL_FILTER_WHITELIST = {
     value: 10,
     keys: [
       46, // 时间字段
+    ],
+  },
+  RICH_TEXT: {
+    value: 11,
+    keys: [
+      41, // 富文本
     ],
   },
 };

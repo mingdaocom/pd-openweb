@@ -21,7 +21,8 @@ import { browserIsMobile, addBehaviorLog } from 'src/util';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
-
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import RegExpValidator from 'src/util/expression';
 const PAGE_SIZE = 50;
 
 const Con = styled.div`
@@ -107,7 +108,7 @@ function getCoverUrl(coverId, record, controls) {
     return;
   }
   try {
-    const coverFile = _.find(JSON.parse(record[coverId]), file => File.isPicture(file.ext));
+    const coverFile = _.find(JSON.parse(record[coverId]), file => RegExpValidator.fileIsPicture(file.ext));
     const { previewUrl = '' } = coverFile;
     return previewUrl.indexOf('imageView2') > -1
       ? previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/1/w/200/h/140')
@@ -626,7 +627,18 @@ export function RelationSearchDialog(props) {
 export const openRelationSearchDialog = props => functionWrap(RelationSearchDialog, props);
 
 export default function (props) {
-  const { worksheetId, recordId, disabled, formData } = props;
+  const { isCharge, worksheetId, recordId, disabled, formData, updateWorksheetControls } = props;
+
+  useEffect(() => {
+    if (_.isFunction(props.triggerCustomEvent)) {
+      props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+
+      return () => {
+        props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+      };
+    }
+  }, []);
+
   if (props.advancedSetting.showtype === String(RELATION_SEARCH_SHOW_TYPE.EMBED_LIST)) {
     return (
       <RelateRecordTable
@@ -635,7 +647,8 @@ export default function (props) {
         recordId={recordId}
         worksheetId={worksheetId}
         formData={formData}
-        // updateWorksheetControls={updateWorksheetControls}
+        isCharge={isCharge}
+        updateWorksheetControls={updateWorksheetControls}
       />
     );
   } else {

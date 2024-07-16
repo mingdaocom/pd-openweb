@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
-import { Checkbox, Dropdown, Input, Divider, Tooltip, Radio } from 'antd';
+import { Checkbox, Dropdown, Input, Divider, Tooltip, Radio, Select } from 'antd';
 import { enumWidgetType } from 'src/pages/customPage/util';
 import {
   TEXT_FILTER_TYPE,
@@ -110,35 +110,61 @@ export default function FilterSetting(props) {
     if (['dateRangeType'].includes(data.key)) {
       types = _.get(firstControlData, 'advancedSetting.showtype') === '5' ? types.filter(o => o.value === 5) : _.get(firstControlData, 'advancedSetting.showtype') === '4' ? types.filter(o => o.value !== 3) : types;
     }
+    const handleChange = value => {
+      const param = { [data.key]: value };
+      if (data.key === 'filterType') {
+        param.dateRangeType = value !== FILTER_CONDITION_TYPE.DATEENUM ? undefined : getDefaultDateRangeType(firstControlData);
+      }
+      if (data.key === 'dateRangeType') {
+        changeAdvancedSetting({
+          [DATE_RANGE.key]: JSON.stringify(
+            daterange.filter(o =>
+              value == 5 ? DATE_TYPE_Y.includes(o) : value == 4 ? DATE_TYPE_M.includes(o) : true,
+            ),
+          )
+        });
+      }
+      setFilter(param);
+    }
     return (
       <Fragment>
         <div className="Gray Font13 mBottom8 Font13">{data.txt}</div>
-        <RadioWrap className="valignWrapper mBottom12">
-          {types.map((item, index) => (
-            <div
-              key={item.value}
-              className={cx('valignWrapper flex', { active: item.value == (value || data.default) })}
-              onClick={() => {
-                const param = { [data.key]: item.value };
-                if (data.key === 'filterType') {
-                  param.dateRangeType = item.value !== FILTER_CONDITION_TYPE.DATEENUM ? undefined : getDefaultDateRangeType(firstControlData);
-                }
-                if (data.key === 'dateRangeType') {
-                  changeAdvancedSetting({
-                    [DATE_RANGE.key]: JSON.stringify(
-                      daterange.filter(o =>
-                        item.value == 5 ? DATE_TYPE_Y.includes(o) : item.value == 4 ? DATE_TYPE_M.includes(o) : true,
-                      ),
-                    )
-                  });
-                }
-                setFilter(param);
-              }}
-            >
-              {item.text}
-            </div>
-          ))}
-        </RadioWrap>
+        {data.key === 'filterType' ? (
+          <Select
+            className="customPageSelect mBottom12 w100"
+            value={value || data.default}
+            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            onChange={value => {
+              handleChange(value);
+            }}
+          >
+            {types.map(item => (
+              <Select.Option
+                className="selectOptionWrapper"
+                key={item.value}
+                value={item.value}
+              >
+                <div className="valignWrapper h100 w100">
+                  <span className="mLeft5 Font13 ellipsis">{item.text}</span>
+                </div>
+              </Select.Option>
+            ))}
+          </Select>
+        ) : (
+          <RadioWrap className="valignWrapper mBottom12">
+            {types.map(item => (
+              <div
+                key={item.value}
+                className={cx('valignWrapper flex', { active: item.value == (value || data.default) })}
+                onClick={() => {
+                  handleChange(item.value);
+                }}
+              >
+                {item.text}
+              </div>
+            ))}
+          </RadioWrap>
+        )}
       </Fragment>
     );
   };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef, Fragment } from 'react';
 import { Icon, ScrollView, LoadDiv, Tooltip, UserHead } from 'ming-ui';
 import { Divider } from 'antd';
 import { useSetState } from 'react-use';
@@ -13,14 +13,13 @@ import WorksheetRecordLogSelectTags from './component/WorksheetRecordLogSelectTa
 import WorksheetRecordLogThumbnail from './component/WorksheetRecordLogThumbnail';
 import WorksheetRecordLogDiffText from './component/WorksheetRecordLogDiffText';
 import WorksheetRecordLogSubList from './component/WorksheetRecordLogSubList';
-import { quickSelectUser } from 'ming-ui/functions';
 import TriggerSelect from './component/TriggerSelect';
 import DatePickSelect from '../DatePickerSelect';
 import sheetAjax from 'src/api/worksheet';
 import './WorksheetRocordLog.less';
 import { assembleListData, assembleNewLogListData, getShowWfstatusValue, numberControlHandle } from './util';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { browserIsMobile, createLinksForMessage, dateConvertToUserZone } from 'src/util';
+import { browserIsMobile, createLinksForMessage, dateConvertToUserZone, getTranslateInfo } from 'src/util';
 import {
   GET_SYSTEM_USER,
   FILTER_FIELD_BY_ATTR,
@@ -35,6 +34,9 @@ import {
   WORKFLOW_SYSTEM_CONTROL,
 } from 'src/pages/widgetConfig/config/widget';
 import copy from 'copy-to-clipboard';
+import UserPicker from './component/UserPicker';
+import OperatePicker from './component/OperatePicker';
+import ArchivedList from 'src/components/ArchivedList';
 
 const reg = new RegExp('<[^<>]+>', 'g');
 const PAGE_SIZE = 20;
@@ -96,7 +98,7 @@ function renderContent(data, recordInfo, extendParam) {
       const { advancedSetting = {} } = control || {};
 
       if (
-        ([8, 2].includes(requestType) || ['2', '5', '6'].includes(advancedSetting.showtype)) &&
+        ([8, 2].includes(requestType) || ['1', '2', '5', '6'].includes(advancedSetting.showtype)) &&
         !oldValue &&
         [1, 2].includes(editType)
       ) {
@@ -252,7 +254,12 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
   const { operatContent } = prop;
   const isMobile = browserIsMobile();
 
-  let logData = operatContent.logData;
+  let logData = operatContent.logData.map(item => {
+    return {
+      ...item,
+      name: getTranslateInfo(recordInfo.appId, recordInfo.worksheetId, item.id).name || item.name,
+    };
+  });
   let remarkContent = null;
 
   let btnRemarkName = operatContent.extendParams.find(l => _.startsWith(l, 'btnRemarkName:'));
@@ -283,8 +290,8 @@ const WorksheetRocordLogItem = (prop, recordInfo, callback, extendParam) => {
             recordInfo.controls && recordInfo.controls.length ? recordInfo.controls : recordInfo.formdata,
             it => item.id === it.controlId,
           ) || {};
-        let _controlPermissions = (control && control.controlPermissions) || '111';
-        const visible = _controlPermissions[0] === '1';
+        let _controlPermissions = (control && control.controlPermissions) || '000';
+        const visible = _controlPermissions[0] === '1' || item.id.length !== 24;
         let extendText = '';
         let showDelete = true;
 
@@ -457,10 +464,11 @@ const renderTitleText = (data, extendParam) => {
   const { controls } = extendParam;
   let count = data.child[0].operatContent.logData.filter(l => l.oldValue !== '' || l.newValue !== '').length;
   let showTooltips = false;
+
   data.child[0].operatContent.logData.forEach(logData => {
     let control = _.find(controls, it => logData.id === it.controlId) || {};
-    let _controlPermissions = (control && control.controlPermissions) || '111';
-    if (_controlPermissions[0] === '0') {
+    let _controlPermissions = (control && control.controlPermissions) || '000';
+    if (_controlPermissions[0] === '0' && logData.id.length === 24) {
       showTooltips = true;
     }
   });
@@ -496,12 +504,8 @@ const renderTitleText = (data, extendParam) => {
           'triggerWorkflow:0';
         content = (
           <span className="mLeft2">
-            {_l('通过')}
-            <span className="Gray mLeft5 mRight5">
-              {_l('导入Excel文件')}
-              {triggerWorkflow.replace('triggerWorkflow:', '') === '1' ? _l('(触发工作流)') : null}
-            </span>
-            {_l('创建了记录')}
+            {_l('创建了记录（导入）')}
+            {triggerWorkflow.replace('triggerWorkflow:', '') === '1' ? _l('(触发工作流)') : null}
           </span>
         );
         break;
@@ -535,8 +539,7 @@ const renderTitleText = (data, extendParam) => {
 
 function WorksheetRocordLog(props, ref) {
   const { controls, worksheetId, formdata, showFilter = true, filterUniqueIds = undefined, appId, projectId } = props;
-  const selectUserRef = useRef();
-  const [{ loading, showAddCondition, loadouted, sign, showDivider, lastMark }, setMark] = useSetState({
+  const [{ loading, showAddCondition, loadouted, sign, showDivider, lastMark, loadingAll }, setMark] = useSetState({
     loading: false,
     showAddCondition: false,
     loadouted: false,
@@ -547,19 +550,25 @@ function WorksheetRocordLog(props, ref) {
     },
     showDivider: false,
     lastMark: undefined,
+    loadingAll: false,
   });
-  const [{ selectUser, selectField, selectDate, pageIndexs }, setPara] = useSetState({
-    selectUser: undefined,
-    selectField: undefined,
-    selectDate: {
-      visible: false,
-      range: undefined,
-    },
-    pageIndexs: {
-      newLogIndex: 1,
-      oldLogIndex: 0,
-    },
-  });
+  const controlsArray = controls && controls.length ? controls : formdata;
+  const [{ userPickerVisible, selectUsers, selectField, selectDate, pageIndexs, requestType, archivedItem }, setPara] =
+    useSetState({
+      userPickerVisible: false,
+      selectUsers: undefined,
+      selectField: undefined,
+      requestType: 0,
+      selectDate: {
+        visible: false,
+        range: undefined,
+      },
+      pageIndexs: {
+        newLogIndex: 1,
+        oldLogIndex: 0,
+      },
+      archivedItem: {},
+    });
   const [{ discussList, discussData }, setOldData] = useSetState({
     discussList: [],
     discussData: [],
@@ -602,7 +611,7 @@ function WorksheetRocordLog(props, ref) {
 
   useEffect(() => {
     if (
-      ((selectUser || selectField || selectDate.range) && pageIndexs.newLogIndex === 1) ||
+      ((selectUsers || selectField || selectDate.range) && pageIndexs.newLogIndex === 1) ||
       loading ||
       (INIT_SIGN && pageIndexs.newLogIndex === 1)
     ) {
@@ -620,12 +629,13 @@ function WorksheetRocordLog(props, ref) {
   function initLog() {
     INIT_SIGN = true;
     setPara({
-      selectUser: undefined,
+      selectUsers: undefined,
       selectField: undefined,
       selectDate: {
         visible: false,
         range: undefined,
       },
+      requestType: 0,
       pageIndexs: {
         newLogIndex: 1,
         oldLogIndex: 0,
@@ -641,42 +651,48 @@ function WorksheetRocordLog(props, ref) {
       lastMark: undefined,
       loadouted: false,
     });
-    loadNewEdition({ lastMark: undefined });
+    loadNewEdition({
+      lastMark: undefined,
+      opeartorIds: undefined,
+      filedId: undefined,
+      startDateTime: undefined,
+      endDateTime: undefined,
+      requestType: 0,
+    });
   }
 
-  function loadNewEdition(prop) {
-    const { worksheetId, rowId, pageSize = PAGE_SIZE, filterUniqueIds, isGlobaLog } = props;
-    const { pageIndex, filedId, opeartorId, startDateTime, endDateTime } = prop;
-    let _opeartorId = prop.hasOwnProperty('opeartorId') ? opeartorId : selectUser && selectUser[0].accountId;
+  function loadNewEdition(prop = {}) {
+    const { worksheetId, rowId, pageSize = PAGE_SIZE, filterUniqueIds } = props;
+    const { pageIndex, filedId, opeartorIds, startDateTime, endDateTime, archiveId } = prop;
+    let _opeartorIds = prop.hasOwnProperty('opeartorIds')
+      ? opeartorIds
+      : selectUsers && selectUsers.map(item => item.accountId);
     let _filterId = prop.hasOwnProperty('filedId') ? filedId : selectField && selectField.controlId;
     let _startDate = prop.hasOwnProperty('startDateTime')
       ? startDateTime
       : selectDate.range && selectDate.range.value[0];
     let _endDate = prop.hasOwnProperty('endDateTime') ? endDateTime : selectDate.range && selectDate.range.value[1];
     let _lastMark = prop.hasOwnProperty('lastMark') ? prop.lastMark : lastMark;
-    setMark({ loading: true });
+    setMark({ loading: true, loadingAll: !_lastMark });
     let param = {
       worksheetId,
       pageSize,
       objectType: 2,
-      opeartorIds: _opeartorId ? [_opeartorId] : [],
+      opeartorIds: _opeartorIds || [],
       controlIds: _filterId ? [_filterId] : [],
       startDate: _startDate,
       endDate: _endDate,
       lastMark: _lastMark,
       rowId: rowId,
+      requestType: prop.requestType !== undefined ? prop.requestType : requestType || 0,
+      archiveId: prop.hasOwnProperty('archiveId') ? archiveId : archivedItem.id,
     };
-    if (isGlobaLog) {
-      // 全局日志
-      param.filterUniqueIds = filterUniqueIds;
-      param.isGlobaLog = true;
-    }
-    let promise =
-      filterUniqueIds && !isGlobaLog
-        ? sheetAjax.batchGetWorksheetOperationLogs({ ...param, filterUniqueIds: filterUniqueIds })
-        : sheetAjax.getWorksheetOperationLogs(param);
+
+    let promise = filterUniqueIds
+      ? sheetAjax.batchGetWorksheetOperationLogs({ ...param, filterUniqueIds: filterUniqueIds })
+      : sheetAjax.getWorksheetOperationLogs(param);
     promise.then(res => {
-      setMark({ loading: false, lastMark: res.lastMark });
+      setMark({ loading: false, loadingAll: false, lastMark: res.lastMark });
       let data = res.logs;
       setOldData({ newEditionData: pageIndexs.newLogIndex === 1 ? [] : newEditionData.concat(data) });
       if (data.length) {
@@ -689,7 +705,10 @@ function WorksheetRocordLog(props, ref) {
             sign: {
               ...sign,
               newDataEnd: true,
-              showLodOldButton: !data.find(l => l.operatContent.type === 1 || l.operatContent.type === 4),
+              showLodOldButton:
+                !data.find(l => l.operatContent.type === 1 || l.operatContent.type === 4) &&
+                !_opeartorIds &&
+                !_filterId,
             },
           });
         } else {
@@ -732,7 +751,7 @@ function WorksheetRocordLog(props, ref) {
     const { worksheetId, rowId, pageSize = PAGE_SIZE, filterUniqueIds } = props;
 
     if (filterUniqueIds) return;
-    if (loadouted || selectUser || selectField || selectDate.range) return;
+    if (loadouted || selectUsers || selectField || selectDate.range) return;
 
     setMark({ loading: true });
     sheetAjax
@@ -743,7 +762,7 @@ function WorksheetRocordLog(props, ref) {
         pageIndex: pageIndexs.oldLogIndex,
       })
       .then(data => {
-        setMark({ loading: false, loadouted: data.length < PAGE_SIZE });
+        setMark({ loading: false, loadingAll: false, loadouted: data.length < PAGE_SIZE });
         setOldData({ discussData: discussData.concat(data) });
         if (data.length) {
           // 去重
@@ -781,13 +800,14 @@ function WorksheetRocordLog(props, ref) {
     e.stopPropagation();
     setMark({ lastMark: undefined });
     setPara({
-      selectUser: undefined,
+      selectUsers: undefined,
       pageIndexs: {
         ...pageIndexs,
         newLogIndex: 1,
       },
+      requestType: 0,
     });
-    loadNewEdition({ opeartorId: undefined, lastMark: undefined });
+    loadNewEdition({ opeartorIds: undefined, lastMark: undefined, requestType: 0 });
   };
 
   const clearSelectDate = e => {
@@ -807,7 +827,7 @@ function WorksheetRocordLog(props, ref) {
   };
 
   const handleScroll = _.debounce(() => {
-    if ((selectUser || selectField || selectDate.range) && sign.newDataEnd) return;
+    if ((selectUsers || selectField || selectDate.range) && sign.newDataEnd) return;
     if (loading) return;
     if (loadouted && sign.newDataEnd) return;
     if (sign.newDataEnd && sign.oldLogEnd) return;
@@ -828,46 +848,22 @@ function WorksheetRocordLog(props, ref) {
     }
   }, 500);
 
-  const selectUserCallback = value => {
+  const selectUserCallback = users => {
+    let param = {};
+    if (!users || users.length !== 1 || !isUser(users[0])) {
+      param.requestType = 0;
+    }
     setMark({ lastMark: undefined });
     setPara({
-      selectUser: value,
+      ...param,
+      selectUsers: users,
       pageIndexs: {
         ...pageIndexs,
         newLogIndex: 1,
       },
     });
-    loadNewEdition({ opeartorId: value[0].accountId, lastMark: undefined });
+    loadNewEdition({ opeartorIds: users.map(item => item.accountId), lastMark: undefined, ...param });
   };
-
-  function pickUser() {
-    const { worksheetId, projectId = '', appId } = props;
-    const filterIds = ['user-sub', 'user-undefined'];
-    quickSelectUser(selectUserRef.current, {
-      hidePortalCurrentUser: true,
-      selectRangeOptions: false,
-      includeSystemField: true,
-      prefixOnlySystemField: true,
-      rect: selectUserRef.current.getBoundingClientRect(),
-
-      tabType: 3,
-      appId: appId || worksheetInfo.appId,
-      showMoreInvite: false,
-      isTask: false,
-      filterAccountIds: selectUser ? selectUser.map(item => item.accountId).concat(filterIds) : [].concat(filterIds),
-      offset: {
-        top: 2,
-      },
-      zIndex: 10001,
-      SelectUserSettings: {
-        unique: true,
-        projectId: projectId || worksheetId.projectId,
-        filterAccountIds: selectUser ? selectUser.map(item => item.accountId).concat(filterIds) : [].concat(filterIds),
-        callback: selectUserCallback,
-      },
-      selectCb: selectUserCallback,
-    });
-  }
 
   const selectFieldChange = control => {
     setMark({ lastMark: undefined });
@@ -882,10 +878,51 @@ function WorksheetRocordLog(props, ref) {
     loadNewEdition({ filedId: control.controlId, lastMark: undefined });
   };
 
+  const selectRequestTypeChange = value => {
+    setMark({ lastMark: undefined });
+    setPara({
+      requestType: value,
+      pageIndexs: {
+        ...pageIndexs,
+        newLogIndex: 1,
+      },
+    });
+    loadNewEdition({ requestType: value, lastMark: undefined });
+  };
+
+  const selectArchivedItem = item => {
+    setMark({ lastMark: undefined });
+    setPara({
+      archivedItem: item || {},
+      pageIndexs: {
+        ...pageIndexs,
+        newLogIndex: 1,
+      },
+    });
+    setMoreList([]);
+    loadNewEdition(
+      item.id
+        ? {
+            archiveId: item.id,
+            lastMark: undefined,
+            opeartorIds: undefined,
+            filedId: undefined,
+            startDateTime: undefined,
+            endDateTime: undefined,
+            requestType: 0,
+          }
+        : { lastMark: undefined },
+    );
+  };
+
   const handleTimeFormat = () => {
     const timeFormat = isSimplify ? 'whole' : 'simplify';
     setIsSimplify(!isSimplify);
     localStorage.setItem('mdTimeFormat', timeFormat);
+  };
+
+  const isUser = item => {
+    return item.accountId && (item.accountId.length > 35 || ['all-users', 'user-self'].includes(item.accountId));
   };
 
   return (
@@ -893,87 +930,98 @@ function WorksheetRocordLog(props, ref) {
       <div className={cx('logBox', { mobileLogBox: isMobile })}>
         {showFilter && (
           <div className={cx('selectCon', { hideEle: isMobile })}>
-            <div className="left">
-              <span className={cx({ selectLight: selectUser }, 'selectUser')} onClick={pickUser} ref={selectUserRef}>
-                <Icon icon="person" />
-                <span className="selectConText">{selectUser ? selectUser[0].fullname : _l('操作者')}</span>
-                <Icon icon="arrow-down" style={selectUser ? {} : { display: 'inline-block' }} />
-                {selectUser && <Icon onClick={clearSelectUser} icon="cancel1" />}
-              </span>
-              <AddCondition
-                columns={filterOnlyShowField(
-                  _.filter(
-                    controls && controls.length ? controls : formdata,
-                    it =>
-                      !_.includes([33, 47, 30, 22, 10010, 45, 43, 25, 51, 52], it.type) &&
-                      !_.includes(['caid', 'ctime', 'utime', 'daid', 'rowid', 'uaid'], it.controlId),
-                  ),
+            {_.isEmpty(archivedItem) && (
+              <Fragment>
+                <UserPicker
+                  visible={userPickerVisible}
+                  onChangeVisible={visible => {
+                    setPara({ userPickerVisible: visible });
+                  }}
+                  projectId={projectId || worksheetId.projectId}
+                  appId={appId || worksheetInfo.appId}
+                  selectUsers={selectUsers}
+                  selectUserCallback={selectUserCallback}
+                  clearSelectUser={clearSelectUser}
+                />
+                {selectUsers && selectUsers.length === 1 && isUser(selectUsers[0]) && (
+                  <OperatePicker value={requestType} onChange={selectRequestTypeChange} />
                 )}
-                defaultVisible={showAddCondition}
-                onAdd={control => {
-                  selectFieldChange(control);
-                }}
-                comp={() => {
-                  return (
-                    <span className={cx({ selectLight: selectField }, 'selectField')}>
-                      <Icon icon="title" />
-                      <span className="selectConText">{selectField ? selectField.controlName : _l('字段')}</span>
-                      <Icon icon="arrow-down" style={selectField ? {} : { display: 'inline-block' }} />
-                      {selectField && <Icon icon="cancel1" onClick={clearSelectField} />}
-                    </span>
-                  );
-                }}
-                offset={[0, 0]}
-              />
-            </div>
-            <Trigger
-              popupVisible={selectDate.visible}
-              onPopupVisibleChange={visible =>
-                setPara({
-                  selectDate: {
-                    ...selectDate,
-                    visible: visible,
-                  },
-                })
-              }
-              action={['click']}
-              popupAlign={{ points: ['tr', 'br'] }}
-              popup={
-                <DatePickSelect
-                  onChange={data => {
-                    if (!data.value) {
-                      return;
-                    }
+                <AddCondition
+                  columns={filterOnlyShowField(
+                    _.filter(
+                      controlsArray,
+                      it =>
+                        !_.includes([33, 47, 30, 22, 10010, 45, 43, 25, 51, 52], it.type) &&
+                        !_.includes(['caid', 'ctime', 'utime', 'daid', 'rowid', 'uaid'], it.controlId),
+                    ),
+                  )}
+                  defaultVisible={showAddCondition}
+                  onAdd={control => {
+                    selectFieldChange(control);
+                  }}
+                  comp={() => {
+                    return (
+                      <span className={cx({ selectLight: selectField }, 'selectField')}>
+                        <Icon icon="title" />
+                        <span className="selectConText">{selectField ? selectField.controlName : _l('字段')}</span>
+                        <Icon icon="arrow-down" style={selectField ? {} : { display: 'inline-block' }} />
+                        {selectField && <Icon icon="cancel1" onClick={clearSelectField} />}
+                      </span>
+                    );
+                  }}
+                  offset={[0, 5]}
+                />
+                <Trigger
+                  popupVisible={selectDate.visible}
+                  onPopupVisibleChange={visible =>
                     setPara({
                       selectDate: {
-                        visible: false,
-                        range: {
-                          ...data,
-                          value: [data.value[0], data.value[1]],
-                        },
+                        ...selectDate,
+                        visible: visible,
                       },
-                      pageIndexs: {
-                        ...pageIndexs,
-                        newLogIndex: 1,
-                      },
-                    });
-                    setMark({ lastMark: undefined });
-                    loadNewEdition({
-                      startDateTime: moment(data.value[0]).format('YYYY-MM-DD HH:mm:ss'),
-                      endDateTime: moment(data.value[1]).format('YYYY-MM-DD HH:mm:ss'),
-                      lastMark: undefined,
-                    });
-                  }}
-                />
-              }
-            >
-              <span className={`${selectDate.range ? 'selectLight' : ''} selectDate`}>
-                <Icon icon="event" />
-                {selectDate.range && <span className="selectConText">{selectDate.range.label}</span>}
-                {selectDate.range && <Icon icon="arrow-down" />}
-                {selectDate.range && <Icon icon="cancel1" onClick={clearSelectDate} />}
-              </span>
-            </Trigger>
+                    })
+                  }
+                  action={['click']}
+                  popupAlign={{ points: ['tr', 'br'], offset: [0, 5] }}
+                  popup={
+                    <DatePickSelect
+                      onChange={data => {
+                        if (!data.value) {
+                          return;
+                        }
+                        setPara({
+                          selectDate: {
+                            visible: false,
+                            range: {
+                              ...data,
+                              value: [data.value[0], data.value[1]],
+                            },
+                          },
+                          pageIndexs: {
+                            ...pageIndexs,
+                            newLogIndex: 1,
+                          },
+                        });
+                        setMark({ lastMark: undefined });
+                        loadNewEdition({
+                          startDateTime: moment(data.value[0]).format('YYYY-MM-DD HH:mm:ss'),
+                          endDateTime: moment(data.value[1]).format('YYYY-MM-DD HH:mm:ss'),
+                          lastMark: undefined,
+                        });
+                      }}
+                    />
+                  }
+                >
+                  <span className={`${selectDate.range ? 'selectLight' : ''} selectDate`}>
+                    <Icon icon="event" />
+                    {selectDate.range && <span className="selectConText">{selectDate.range.label}</span>}
+                    {selectDate.range && <Icon icon="arrow-down" />}
+                    {selectDate.range && <Icon icon="cancel1" onClick={clearSelectDate} />}
+                  </span>
+                </Trigger>
+              </Fragment>
+            )}
+            <ArchivedList type={2} archivedItem={archivedItem} onChange={selectArchivedItem} />
           </div>
         )}
         {!loading && filterUniqueIds && filterUniqueIds.length > 0 && newEditionList.length === 0 && (
@@ -981,168 +1029,169 @@ function WorksheetRocordLog(props, ref) {
             {_l('无数据或无权限查看')}
           </div>
         )}
-        {newEditionList.length === 0 && (selectUser || selectField || selectDate.range) && (
+        {!loadingAll && newEditionList.length === 0 && (selectUsers || selectField || selectDate.range) && (
           <div className="Gray_c pBottom10 noneContent" style={{ paddingTop: '120px', textAlign: 'center' }}>
             {_l('暂无数据')}
           </div>
         )}
-        {newEditionList.map((item, index) => {
-          const { child } = item;
-          let ua = '';
-          if (child[0].operatContent.extendParams.find(l => _.startsWith(l, 'user_agent:'))) {
-            ua = child[0].operatContent.extendParams
-              .find(l => _.startsWith(l, 'user_agent:'))
-              .replace('user_agent:', '');
-          }
+        {!loadingAll &&
+          newEditionList.map((item, index) => {
+            const { child } = item;
+            let ua = '';
+            if (child[0].operatContent.extendParams.find(l => _.startsWith(l, 'user_agent:'))) {
+              ua = child[0].operatContent.extendParams
+                .find(l => _.startsWith(l, 'user_agent:'))
+                .replace('user_agent:', '');
+            }
 
-          const wholeTime = moment(dateConvertToUserZone(item.time));
-          const showWholeTime = `${_l(
-            '%0年%1月%2日',
-            wholeTime.format('YYYY'),
-            wholeTime.format('MM'),
-            wholeTime.format('DD'),
-          )} ${moment(wholeTime).format('HH:mm:ss')}`;
+            const wholeTime = moment(dateConvertToUserZone(item.time));
+            const showWholeTime = `${_l(
+              '%0年%1月%2日',
+              wholeTime.format('YYYY'),
+              wholeTime.format('MM'),
+              wholeTime.format('DD'),
+            )} ${moment(wholeTime).format('HH:mm:ss')}`;
 
-          return (
-            <div className="worksheetRocordLogCard" key={`worksheetRocordLogCard-${item.time}-${index}`}>
-              <div className={cx('worksheetRocordLogCardTopBox', { mBottom0: item.type === 1 })}>
-                <div className="worksheetRocordLogCardTitle flex">
-                  {isMobile || !showFilter ? (
-                    <span className="selectTriggerChildAvatar">
-                      <UserHead
-                        className="worksheetRocordLogCardTitleAvatar"
-                        size={20}
-                        user={{
-                          accountId: item.accountId,
-                          userHead: item.avatar,
+            return (
+              <div className="worksheetRocordLogCard" key={`worksheetRocordLogCard-${item.time}-${index}`}>
+                <div className={cx('worksheetRocordLogCardTopBox', { mBottom0: item.type === 1 })}>
+                  <div className="worksheetRocordLogCardTitle flex">
+                    {isMobile || !showFilter ? (
+                      <span className="selectTriggerChildAvatar">
+                        <UserHead
+                          className="worksheetRocordLogCardTitleAvatar"
+                          size={20}
+                          user={{
+                            accountId: item.accountId,
+                            userHead: item.avatar,
+                          }}
+                          appId={appId}
+                          projectId={projectId}
+                          headClick={() => {}}
+                        />
+                        {renderTitleName(item)}
+                      </span>
+                    ) : (
+                      <TriggerSelect
+                        text={_l('筛选此用户')}
+                        onSelect={e => {
+                          let userInfo = {
+                            accountId: item.accountId,
+                            avatar: item.avatar,
+                            fullname: item.fullname,
+                          };
+                          if (GET_SYSTEM_USER().hasOwnProperty(item.accountId)) {
+                            userInfo = GET_SYSTEM_USER()[item.accountId];
+                          }
+                          selectUserCallback([userInfo]);
                         }}
-                        appId={appId}
-                        projectId={projectId}
-                        headClick={() => {}}
-                      />
-                      {renderTitleName(item)}
-                    </span>
-                  ) : (
-                    <TriggerSelect
-                      text={_l('筛选此用户')}
-                      onSelect={e => {
-                        let userInfo = {
-                          accountId: item.accountId,
-                          avatar: item.avatar,
-                          fullname: item.fullname,
-                        };
-                        if (GET_SYSTEM_USER().hasOwnProperty(item.accountId)) {
-                          userInfo = GET_SYSTEM_USER()[item.accountId];
+                        childNode={
+                          <span className="selectTriggerChildAvatar">
+                            <UserHead
+                              className="worksheetRocordLogCardTitleAvatar"
+                              size={20}
+                              user={{
+                                accountId: item.accountId,
+                                userHead: item.avatar,
+                              }}
+                              appId={appId}
+                              projectId={projectId}
+                              headClick={() => {}}
+                            />
+                            {renderTitleName(item)}
+                          </span>
                         }
-                        selectUserCallback([userInfo]);
-                      }}
-                      childNode={
-                        <span className="selectTriggerChildAvatar">
-                          <UserHead
-                            className="worksheetRocordLogCardTitleAvatar"
-                            size={20}
-                            user={{
-                              accountId: item.accountId,
-                              userHead: item.avatar,
-                            }}
-                            appId={appId}
-                            projectId={projectId}
-                            headClick={() => {}}
-                          />
-                          {renderTitleName(item)}
-                        </span>
-                      }
-                    />
-                  )}
-                  {renderTitleAvatar(item)}
-                  <span>
-                    <span className="Gray_9e">{renderTitleText(item, { controls: controls || formdata })}</span>
-                  </span>
-                </div>
-                {ua ? (
-                  <Tooltip text={<span>{_l('复制创建时的UA信息')}</span>} popupPlacement="top">
-                    <span
-                      className="icon icon-copy Gray_9e Font18 Hand ThemeHoverColor3"
-                      onClick={() => {
-                        copy(ua);
-                        alert(_l('复制成功'));
-                      }}
-                    />
-                  </Tooltip>
-                ) : (
-                  ''
-                )}
-                <div
-                  className="worksheetRocordLogCardName nowrap Gray_9e mLeft12 Hand Hover_21 timeDataTip"
-                  onClick={handleTimeFormat}
-                  data-tip={isSimplify ? showWholeTime : ''}
-                >
-                  {isSimplify ? createTimeSpan(dateConvertToUserZone(item.time), true) : showWholeTime}
-                </div>
-              </div>
-
-              {item.child.map((childData, index) => {
-                let extendParam = {
-                  selectField: selectField,
-                  moreList: moreList,
-                  setMoreList: setMoreList,
-                  lastMark: lastMark,
-                  showFilter: showFilter,
-                };
-                let showTooltips = false;
-                childData.operatContent.logData.forEach(logData => {
-                  let control = _.find(controls || formdata, it => logData.id === it.controlId) || {};
-                  let _controlPermissions = (control && control.controlPermissions) || '111';
-                  if (_controlPermissions[0] === '0') {
-                    showTooltips = true;
-                  }
-                });
-                let updateControlCount = childData.operatContent.logData.filter(
-                  l => l.oldValue !== '' || l.newValue !== '',
-                ).length;
-
-                const childWholeTime = moment(dateConvertToUserZone(childData.operatContent.createTime));
-                const showChildWholeTime = `${_l(
-                  '%0年%1月%2日',
-                  childWholeTime.format('YYYY'),
-                  childWholeTime.format('MM'),
-                  childWholeTime.format('DD'),
-                )} ${childWholeTime.format('HH:mm:ss')}`;
-
-                return (
-                  <div
-                    key={`worksheetRocordLogCardHrCon-${item.accountName}-${index}`}
-                    className="worksheetRocordLogCardHrCon"
-                  >
-                    {childData.operatContent.createTime !== item.time && (
-                      <div className="worksheetRocordLogCardHrTime">
-                        <span>
-                          {!!updateControlCount && _l('更新了 %0个字段', updateControlCount)}
-                          {!!updateControlCount && showTooltips && (
-                            <Tooltip popupPlacement="right" text={<span>{_l('部分字段无权限不可见')}</span>}>
-                              <Icon icon="info_outline" className="Font14 mLeft5" />
-                            </Tooltip>
-                          )}
-                        </span>
-                        <span
-                          className="Hand Hover_21 timeDataTip"
-                          onClick={handleTimeFormat}
-                          data-tip={isSimplify ? showChildWholeTime : ''}
-                        >
-                          {isSimplify
-                            ? createTimeSpan(dateConvertToUserZone(childData.operatContent.createTime), true)
-                            : showChildWholeTime}
-                        </span>
-                      </div>
+                      />
                     )}
-                    {WorksheetRocordLogItem(childData, props, selectFieldChange, extendParam)}
+                    {renderTitleAvatar(item)}
+                    <span>
+                      <span className="Gray_9e">{renderTitleText(item, { controls: controlsArray })}</span>
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          );
-        })}
-        {!filterUniqueIds && sign.showLodOldButton && discussList.length === 0 && (
+                  {ua ? (
+                    <Tooltip text={<span>{_l('复制创建时的UA信息')}</span>} popupPlacement="top">
+                      <span
+                        className="icon icon-copy Gray_9e Font18 Hand ThemeHoverColor3"
+                        onClick={() => {
+                          copy(ua);
+                          alert(_l('复制成功'));
+                        }}
+                      />
+                    </Tooltip>
+                  ) : (
+                    ''
+                  )}
+                  <div
+                    className="worksheetRocordLogCardName nowrap Gray_9e mLeft12 Hand Hover_21 timeDataTip"
+                    onClick={handleTimeFormat}
+                    data-tip={isSimplify ? showWholeTime : ''}
+                  >
+                    {isSimplify ? createTimeSpan(dateConvertToUserZone(item.time)) : showWholeTime}
+                  </div>
+                </div>
+
+                {item.child.map((childData, index) => {
+                  let extendParam = {
+                    selectField: selectField,
+                    moreList: moreList,
+                    setMoreList: setMoreList,
+                    lastMark: lastMark,
+                    showFilter: showFilter,
+                  };
+                  let showTooltips = false;
+                  childData.operatContent.logData.forEach(logData => {
+                    let control = _.find(controlsArray, it => logData.id === it.controlId) || {};
+                    let _controlPermissions = (control && control.controlPermissions) || '000';
+                    if (_controlPermissions[0] === '0' && logData.id.length === 24) {
+                      showTooltips = true;
+                    }
+                  });
+                  let updateControlCount = childData.operatContent.logData.filter(
+                    l => l.oldValue !== '' || l.newValue !== '',
+                  ).length;
+
+                  const childWholeTime = moment(dateConvertToUserZone(childData.operatContent.createTime));
+                  const showChildWholeTime = `${_l(
+                    '%0年%1月%2日',
+                    childWholeTime.format('YYYY'),
+                    childWholeTime.format('MM'),
+                    childWholeTime.format('DD'),
+                  )} ${childWholeTime.format('HH:mm:ss')}`;
+
+                  return (
+                    <div
+                      key={`worksheetRocordLogCardHrCon-${item.accountName}-${index}`}
+                      className="worksheetRocordLogCardHrCon"
+                    >
+                      {childData.operatContent.createTime !== item.time && (
+                        <div className="worksheetRocordLogCardHrTime">
+                          <span>
+                            {!!updateControlCount && _l('更新了 %0个字段', updateControlCount)}
+                            {!!updateControlCount && showTooltips && (
+                              <Tooltip popupPlacement="right" text={<span>{_l('部分字段无权限不可见')}</span>}>
+                                <Icon icon="info_outline" className="Font14 mLeft5" />
+                              </Tooltip>
+                            )}
+                          </span>
+                          <span
+                            className="Hand Hover_21 timeDataTip"
+                            onClick={handleTimeFormat}
+                            data-tip={isSimplify ? showChildWholeTime : ''}
+                          >
+                            {isSimplify
+                              ? createTimeSpan(dateConvertToUserZone(childData.operatContent.createTime))
+                              : showChildWholeTime}
+                          </span>
+                        </div>
+                      )}
+                      {WorksheetRocordLogItem(childData, props, selectFieldChange, extendParam)}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        {!loadingAll && !filterUniqueIds && sign.showLodOldButton && discussList.length === 0 && (
           <p className="loadOldLog">
             <span
               onClick={() => {
@@ -1160,8 +1209,9 @@ function WorksheetRocordLog(props, ref) {
             </span>
           </p>
         )}
-        {!filterUniqueIds &&
-          !selectUser &&
+        {!loadingAll &&
+          !filterUniqueIds &&
+          !selectUsers &&
           !selectField &&
           !selectDate.range &&
           showDivider &&
@@ -1175,7 +1225,8 @@ function WorksheetRocordLog(props, ref) {
               </Tooltip>
             </Divider>
           )}
-        {!selectUser &&
+        {!loadingAll &&
+          !selectUsers &&
           !selectField &&
           !selectDate.range &&
           discussList.map((item, index) => {
@@ -1203,7 +1254,7 @@ function WorksheetRocordLog(props, ref) {
                     data-tip={isSimplify ? createTimeSpan(dateConvertToUserZone(item.time), true) : ''}
                     onClick={handleTimeFormat}
                   >
-                    {createTimeSpan(dateConvertToUserZone(item.time), true)}
+                    {createTimeSpan(dateConvertToUserZone(item.time))}
                   </div>
                 </div>
                 {item.child.map(childData => {

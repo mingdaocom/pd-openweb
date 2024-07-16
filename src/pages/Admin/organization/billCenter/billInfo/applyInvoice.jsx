@@ -30,6 +30,17 @@ const ApplyInvoiceWrap = styled.ul`
     }
     .name {
       font-weight: 400;
+      position: relative;
+      padding-left: 5px;
+      &::before {
+        position: absolute;
+        content: '*';
+        left: 0;
+        top: 2px;
+        color: red;
+        display: inline-block;
+        vertical-align: middle;
+      }
     }
     input {
       width: 100%;
@@ -56,6 +67,14 @@ export default function InvoiceSetting(props) {
   }, []);
 
   const saveSetting = () => {
+    const formConfig = [...applyInvoiceConfig, ...newInvoiceConfig];
+    const error = formConfig.some(({ key }) => !data[key]);
+    if (error) {
+      const errInfo = _.find(formConfig, ({ key }) => !data[key]) || {};
+      alert(_l('请输入%0', errInfo.text), 2);
+      return;
+    }
+
     const para =
       data.invoiceType === 2
         ? _.pick(data, [

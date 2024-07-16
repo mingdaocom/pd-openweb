@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
 import { getRequest, mdAppResponse } from 'src/util';
 import preall from 'src/common/preall';
@@ -69,5 +69,6 @@ class MobileLog extends React.Component {
 }
 
 const Comp = preall(MobileLog, { allowNotLogin: false });
+const root = createRoot(document.getElementById('mobileLog'));
 
-ReactDOM.render(<Comp />, document.querySelector('#mobileLog'));
+root.render(<Comp />);

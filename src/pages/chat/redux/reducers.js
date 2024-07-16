@@ -180,6 +180,20 @@ const showAddressBook = (state = false, action) => {
   }
 }
 
+/**
+ * socket 状态
+ * @param {*} state (0：正常、1：正在重连、2：重连失败)
+ * @param {*} action
+ */
+const socketState = (state = 0, action) => {
+  switch (action.type) {
+    case 'UPDATE_SOCKET_STATE':
+      return action.result;
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   sessionList,
   visible,
@@ -191,4 +205,5 @@ export default combineReducers({
   isWindow,
   showAddressBook,
   bottomUnreadMessage,
+  socketState
 });

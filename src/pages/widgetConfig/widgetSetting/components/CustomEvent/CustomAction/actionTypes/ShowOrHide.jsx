@@ -4,7 +4,6 @@ import { Dialog, RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../../../../styled';
 import SelectFields from '../SelectFields';
 import { CustomActionWrap } from '../../style';
-import { getNewDropDownData } from '../../../../../../FormSet/components/columnRules/config';
 
 const DISPLAY_OPTIONS = [
   {
@@ -18,7 +17,7 @@ const DISPLAY_OPTIONS = [
 ];
 
 export default function ShowOrHide(props) {
-  const { actionData = {}, allControls, handleOk } = props;
+  const { actionData = {}, handleOk } = props;
   const [{ actionType, actionItems, visible }, setState] = useSetState({
     actionType: actionData.actionType,
     actionItems: actionData.actionItems || [],
@@ -32,8 +31,6 @@ export default function ShowOrHide(props) {
     });
   }, []);
 
-  const filterControls = getNewDropDownData(allControls, actionType);
-
   return (
     <Dialog
       width={480}
@@ -42,6 +39,7 @@ export default function ShowOrHide(props) {
       className="SearchWorksheetDialog"
       title={_l('显示/隐藏')}
       onCancel={() => setState({ visible: false })}
+      overlayClosable={false}
       onOk={() => {
         handleOk({ ...actionData, actionType, actionItems });
         setState({ visible: false });
@@ -60,7 +58,6 @@ export default function ShowOrHide(props) {
 
         <SelectFields
           {...props}
-          allControls={filterControls}
           actionType={actionType}
           actionItems={actionItems}
           onSelectField={value => setState({ actionItems: value })}

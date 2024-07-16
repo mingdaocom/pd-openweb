@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import { Icon, Tooltip, RadioGroup, Input, LoadDiv } from 'ming-ui';
+import { Drawer } from 'antd';
 import importUserController from 'src/api/importUser';
 import userAjax from 'src/api/user';
 import { dialogSelectUser } from 'ming-ui/functions';
 import intlTelInput from '@mdfe/intl-tel-input';
 import '@mdfe/intl-tel-input/build/css/intlTelInput.min.css';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
-import CSSTransitionGroup from 'react-addons-css-transition-group';
 import DrawerFooterOption from '../DrawerFooterOption';
 import { encrypt } from 'src/util';
 import BaseFormInfo from '../BaseFormInfo';
@@ -26,6 +26,7 @@ export default class AddUser extends Component {
       errors: {},
       baseInfo: {},
       inviteType: !md.global.SysSettings.enableSmsCustomContent ? 'email' : 'mobile',
+      addUserVisible: props.addUserVisible,
     };
     this.it = null;
     this.itiInvite = null;
@@ -33,6 +34,11 @@ export default class AddUser extends Component {
   }
   componentDidMount() {
     this.itiFn();
+  }
+  componentWillReceiveProps(nextProps) {
+    if (this.props.addUserVisible !== nextProps.addUserVisible) {
+      this.setState({ addUserVisible: nextProps.addUserVisible });
+    }
   }
   componentWillUnmount() {
     this.iti && this.iti.destroy();
@@ -207,24 +213,22 @@ export default class AddUser extends Component {
       userName: !!checkForm['userName'](userName),
       mobile: inviteType === 'mobile' && !!checkForm['mobile'](mobile, this.iti),
       email: inviteType === 'email' && !!checkForm['email'](email),
-      contactPhone: !!checkForm['contactPhone'](contactPhone),
-      autonomously: this.itiAutonomously && !!checkForm['autonomously'](autonomously, this.itiAutonomously),
+      autonomously: !!checkForm['autonomously'](
+        this.itiAutonomously ? this.itiAutonomously.getNumber() : autonomously,
+        this.itiAutonomously,
+      ),
       autonomouslyPasswrod: inviteType === 'autonomously' && !!checkForm['autonomouslyPasswrod'](autonomouslyPasswrod),
     };
 
     this.setState({ isClickSubmit: true, errors });
     if (isUploading) return false;
     let check = !_.isEmpty(user)
-      ? !!checkForm['contactPhone'](contactPhone)
+      ? false
       : inviteType === 'mobile'
-      ? !!checkForm['userName'](userName) ||
-        !!checkForm['mobile'](mobile, this.iti) ||
-        !!checkForm['contactPhone'](contactPhone)
-      : inviteType === 'email'
-      ? !!checkForm['userName'](userName) || !!checkForm['email'](email) || !!checkForm['contactPhone'](contactPhone)
-      : '';
+      ? !!checkForm['userName'](userName) || !!checkForm['mobile'](mobile, this.iti)
+      : !!checkForm['userName'](userName) || !!checkForm['email'](email);
 
-    if (md.global.Config.IsLocal && !_.isEmpty(user)) {
+    if (md.global.Config.IsLocal && _.isEmpty(user)) {
       check = _.includes(['mobile', 'email'], inviteType)
         ? check
         : inviteType === 'autonomously' &&
@@ -244,7 +248,7 @@ export default class AddUser extends Component {
         jobNumber,
         workSiteId,
         contactPhone,
-        fullname: userName,
+        fullname: !_.isEmpty(user) ? user.fullname : userName,
         account: inviteType === 'mobile' ? mobile : email,
         accountId: !md.global.Config.IsLocal || !_.isEmpty(user) ? user.accountId : '',
       };
@@ -263,51 +267,56 @@ export default class AddUser extends Component {
         isUploading: true,
         departmentInfos: [],
       });
-      importUserController.inviteUser(params).then(data => {
-        if (!data || data.actionResult == RESULTS.FAILED) {
-          alert(_l('邀请失败'), 1);
-        } else if (data.actionResult == RESULTS.OVERINVITELIMITCOUNT) {
-          alert(_l('超过邀请数量限制'), 3);
-        } else {
-          const { failUsers, successUsers, existsUsers, forbidUsers, successCount } = data;
-          if (failUsers && failUsers.length) {
-            const failReason = failUsers[0].failReason;
-            alert(failReason || _l('邀请失败'), 2);
-          } else if (successUsers || successCount) {
-            alert(_l('邀请成功'), 1);
-            if (!isClear) {
-              _this.props.onClose();
+      importUserController
+        .inviteUser(params)
+        .then(data => {
+          if (!data || data.actionResult == RESULTS.FAILED) {
+            alert(_l('邀请失败'), 1);
+          } else if (data.actionResult == RESULTS.OVERINVITELIMITCOUNT) {
+            alert(_l('超过邀请数量限制'), 3);
+          } else {
+            const { failUsers, successUsers, existsUsers, forbidUsers, successCount } = data;
+            if (failUsers && failUsers.length) {
+              const failReason = failUsers[0].failReason;
+              alert(failReason || _l('邀请失败'), 2);
+            } else if (successUsers || successCount) {
+              alert(_l('邀请成功'), 1);
+              if (!isClear) {
+                _this.props.onClose();
+              }
+            } else if (existsUsers) {
+              alert(_l('手机号/邮箱已存在'), 2);
+            } else if (forbidUsers) {
+              alert(_l('账号来源类型受限'), 2);
             }
-          } else if (existsUsers) {
-            alert(_l('手机号/邮箱已存在'), 2);
-          } else if (forbidUsers) {
-            alert(_l('账号来源类型受限'), 2);
           }
-        }
-        setTimeout(() => {
-          this.itiFn();
-        }, 200);
-        this.clearError('mobile');
-        this.clearError('email');
-        this.setState({
-          inviteType: 'mobile',
-          user: {},
-          userName: '',
-          mobile: '',
-          email: '',
-          departmentInfos: [],
-          jobIds: [],
-          workSiteId: '',
-          jobNumber: '',
-          contactPhone: '',
-          errors: {},
-          isUploading: false,
-          autonomously: '',
+          setTimeout(() => {
+            this.itiFn();
+          }, 200);
+          this.clearError('mobile');
+          this.clearError('email');
+          this.setState({
+            inviteType: 'mobile',
+            user: {},
+            userName: '',
+            mobile: '',
+            email: '',
+            departmentInfos: [],
+            jobIds: [],
+            workSiteId: '',
+            jobNumber: '',
+            contactPhone: '',
+            errors: {},
+            isUploading: false,
+            autonomously: '',
+          });
+          if (this.mobile) {
+            this.mobile.value = '';
+          }
+        })
+        .catch(err => {
+          this.setState({ isUploading: false });
         });
-        if (this.mobile) {
-          this.mobile.value = '';
-        }
-      });
     }
   };
 
@@ -510,7 +519,15 @@ export default class AddUser extends Component {
   };
 
   render() {
-    const { onClose = () => {}, actType, typeCursor, editCurrentUser, projectId, departmentId } = this.props;
+    const {
+      actType,
+      typeCursor,
+      editCurrentUser,
+      projectId,
+      departmentId,
+      authority = [],
+      onClose = () => {},
+    } = this.props;
     const {
       isUploading,
       errors,
@@ -518,17 +535,20 @@ export default class AddUser extends Component {
       worksiteList,
       baseInfo,
       openChangeUserInfoDrawer,
-      currentUser = {},
       showMask,
+      addUserVisible,
+      currentUser = {},
     } = this.state;
 
     return (
       <Fragment>
-        <CSSTransitionGroup
-          component={'div'}
-          transitionAppearTimeout={500}
-          transitionEnterTimeout={500}
-          transitionLeaveTimeout={500}
+        <Drawer
+          width={580}
+          placement="right"
+          onClose={onClose}
+          visible={addUserVisible}
+          maskClosable={false}
+          closable={false}
         >
           <div className="addEditUserInfoWrap" key="addEditUserInfo">
             <div className="headerInfo">
@@ -566,6 +586,7 @@ export default class AddUser extends Component {
                     worksiteList={worksiteList}
                     baseInfo={{ ...baseInfo, departmentIds: departmentId ? [departmentId] : [] }}
                     hideRole
+                    authority={authority}
                   />
                 </div>
                 <DrawerFooterOption
@@ -597,7 +618,7 @@ export default class AddUser extends Component {
             )}
             {showMask && <div className="mask"></div>}
           </div>
-        </CSSTransitionGroup>
+        </Drawer>
         {openChangeUserInfoDrawer && (
           <EditUser
             projectId={projectId}
@@ -618,6 +639,8 @@ export default class AddUser extends Component {
             cancelInviteRemove={this.props.cancelInviteRemove}
             fetchInActive={this.props.fetchInActive}
             fetchApproval={this.props.fetchApproval}
+            authority={authority}
+            openChangeUserInfoDrawer={openChangeUserInfoDrawer}
           />
         )}
       </Fragment>

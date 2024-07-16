@@ -6,7 +6,8 @@ import { Button } from 'ming-ui';
 import styled from 'styled-components';
 import { DATE_OPTIONS, FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
-import FilterInput, { validate, TextTypes, NumberTypes } from './Inputs';
+import FilterInput, { TextTypes, NumberTypes } from './Inputs';
+import { validate } from './utils';
 import { formatFilterValuesToServer } from './';
 import _ from 'lodash';
 import { formatQuickFilterValueToControlValue } from 'worksheet/common/WorkSheetFilter/util';
@@ -236,6 +237,7 @@ export default function Conditions(props) {
       if (_.includes(TextTypes.concat(NumberTypes), store.current.activeType)) {
         debounceUpdateQuickFilter.current(formattedFilter, view);
       } else {
+        debounceUpdateQuickFilter.current.cancel();
         updateQuickFilter(formattedFilter, view);
       }
     } else {

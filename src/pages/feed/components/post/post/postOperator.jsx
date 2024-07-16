@@ -5,7 +5,8 @@ import cx from 'classnames';
 import { addFavorite, removeFavorite } from '../../../redux/postActions';
 import { connect } from 'react-redux';
 import PostOperateList from './postOperateList';
-import roleController from 'src/api/role';
+import { checkPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 /**
  * 动态右上角的操作项
@@ -38,12 +39,8 @@ class PostOperator extends React.Component {
     if (!postItem) return;
     const { projectIds } = postItem;
     if (!projectIds || !projectIds.length) return;
-    projectIds.forEach((projectId) => {
-      roleController.isProjectAdmin({ projectId }).then((result) => {
-        if (result) {
-          this.setState({ allowOperate: true });
-        }
-      });
+    projectIds.forEach(projectId => {
+      this.setState({ allowOperate: checkPermission(projectId, PERMISSION_ENUM.MANAGE_TREND) });
     });
 
     this.setState({ checkIsProjectAdmin: true });
@@ -62,7 +59,7 @@ class PostOperator extends React.Component {
     this.getPostAllowOperate();
   };
 
-  hideOperateList = (e) => {
+  hideOperateList = e => {
     if (e && e.target && e.target === ReactDom.findDOMNode(this.toggleBtn)) {
       return;
     }
@@ -75,11 +72,14 @@ class PostOperator extends React.Component {
       dropBtn = (
         <div className="postOperatorListContainer clearfix">
           <span
-            ref={(toggleBtn) => {
+            ref={toggleBtn => {
               this.toggleBtn = toggleBtn;
             }}
             onClick={this.toggleOperateList}
-            className={cx('postOperatorListBtn icon-more_horiz Hand', this.state.showOperateList ? 'Gray_75' : 'Gray_9')}
+            className={cx(
+              'postOperatorListBtn icon-more_horiz Hand',
+              this.state.showOperateList ? 'Gray_75' : 'Gray_9',
+            )}
           />
           {this.state.showOperateList ? (
             <PostOperateList
@@ -88,9 +88,7 @@ class PostOperator extends React.Component {
               postItem={this.props.postItem}
               allowOperate={this.state.allowOperate}
             />
-          ) : (
-            undefined
-          )}
+          ) : undefined}
         </div>
       );
     }

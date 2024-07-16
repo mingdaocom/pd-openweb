@@ -172,7 +172,7 @@ export default {
      return mdyAPI('Department', 'SearchProjectDepartment2', args, options);
    },
   /**
-  * 网络管理 - 查询部门并且没有关键字
+  * 网络管理 - 查询部门并且没有关键字【弃用】
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {string} args.departmentId 部门id
@@ -452,6 +452,24 @@ export default {
    searchDepartment: function (args, options = {}) {
      
      return mdyAPI('Department', 'SearchDepartment', args, options);
+   },
+  /**
+  * 指定 部门查询
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {integer} args.rangeTypeId 指定查询的 取值范围（仅指定部门==10，指定部门和所有下级部门==20，仅 指定部门的 所有下级部门=30）
+  * @param {array} args.appointedDepartmentIds 指定 部门ids（支持 当前用户的部门：user-departments）
+  * @param {array} args.appointedUserIds 指定 用户Ids（支持 当前用户：user-self）
+  * @param {string} args.keywords 关键词
+  * @param {integer} args.pageIndex 页码
+  * @param {integer} args.pageSize 每页条数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   appointedDepartment: function (args, options = {}) {
+     
+     return mdyAPI('Department', 'AppointedDepartment', args, options);
    },
   /**
   * 通过组织code加入组织验证Token 获取部门架构

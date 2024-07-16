@@ -188,7 +188,7 @@ export default class extends Component {
     const isProgressScale = _.isUndefined(style.isProgressScale) ? scaleType === 2 : style.isProgressScale;
     const numberControlId = _.get(yaxisList[0], 'controlId');
     const numberControlName = _.get(yaxisList[0], 'rename') || _.get(yaxisList[0], 'controlName');
-    const data = map[numberControlId];
+    const data = map[numberControlId] || { value: 0, min: 0, max: 0 };
     const { clientHeight } = this.chartEl;
     const colors = getChartColors(style, themeColor, projectId);
     const gaugeColor = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? colors[0] : replaceColor(style.gaugeColor, themeColor) || colors[0];

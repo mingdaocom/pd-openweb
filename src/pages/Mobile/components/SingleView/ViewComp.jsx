@@ -15,6 +15,7 @@ import { openAddRecord } from 'mobile/Record/addRecord';
 import { mdAppResponse } from 'src/util';
 import homeAppAjax from 'src/api/homeApp';
 import _ from 'lodash';
+import cx from 'classnames';
 
 const Con = styled.div`
   width: 100%;
@@ -69,6 +70,7 @@ function ViewComp(props) {
 
   useEffect(() => {
     getAppInfo();
+    safeLocalStorageSetItem('isMobileSingleView', true);
   }, [appId]);
 
   useDeepCompareEffect(() => {
@@ -152,11 +154,20 @@ function ViewComp(props) {
         <ViewCon className="flexRow SingleViewBody">
           <View view={view} />
         </ViewCon>
-        {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
+        {!_.isEmpty(view) &&
+          isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
           allowAdd &&
-          ((view.viewType === 6 && view.childType !== 1) || view.viewType !== 6) && (
+          ((view.viewType === 6 && view.childType !== 1) || view.viewType !== 6) &&
+          ((view.viewType === 2 && _.get(view, 'advancedSetting.hierarchyViewType') !== '3') ||
+            view.viewType !== 2) && (
             <AddBtn>
-              <Button className="valignWrapper flexRow addRecord" style={{ backgroundColor: appColor }} onClick={addRecord}>
+              <Button
+                className={cx('valignWrapper flexRow addRecord', {
+                  'Right mRight16': [2, 5, 7].includes(view.viewType),
+                })}
+                style={{ backgroundColor: appColor }}
+                onClick={addRecord}
+              >
                 <Icon icon="add" className="Font22 mRight5" />
                 {worksheetInfo.entityName}
               </Button>

@@ -1,14 +1,15 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Icon, LoadDiv, Dialog } from 'ming-ui';
-import { Button, Table, Tooltip } from 'antd';
+import { Button, Table, Tooltip, Checkbox } from 'antd';
 import styled from 'styled-components';
 import copy from 'copy-to-clipboard';
 import cx from 'classnames';
 import PrivateKeyDialog from './PrivateKeyDialog';
 import TrialDialog from './TrialDialog';
 import privateGuideApi from 'src/api/privateGuide';
+import privateSysSettingApi from 'src/api/privateSysSetting';
 import Projects from '../Management/PrivateKey/Projects';
-import { LicenseVersions, useClientRect } from '../common';
+import { updateSysSettings, LicenseVersions, useClientRect } from '../common';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -62,6 +63,12 @@ const Wrap = styled.div`
     .label {
       margin-right: 10px;
       white-space: nowrap;
+    }
+    .newVersionWrap {
+      color: #20CA86;
+      padding: 2px 5px;
+      border-radius: 18px;
+      background-color: #f5f5f5;
     }
   }
   .ant-table-thead th {
@@ -415,7 +422,7 @@ const AppreciationServer = props => {
     );
   }
   return (
-    <div className="appreciationServer flexColumn card flex mRight20">
+    <div className="appreciationServer flexColumn card flex">
       <div className="Font15 bold">{_l('增值产品')}</div>
       {loading ? (
         <LoadDiv className="mTop20" />
@@ -540,8 +547,11 @@ const AppreciationServer = props => {
 }
 
 const VersionsInfo = props => {
+  const { SysSettings } = md.global;
   const [loading, setLoading] = useState(true);
   const [serverInfo, setServerInfo] = useState({});
+  const [newVersion, setNewVersion] = useState(null);
+  const [enablePromptNewVersion, setEnablePromptNewVersion] = useState(SysSettings.enablePromptNewVersion);
 
   useEffect(() => {
     privateGuideApi.getServerInfo().then(data => {
@@ -550,9 +560,42 @@ const VersionsInfo = props => {
     });
   }, []);
 
+  const handleChangeEnablePromptNewVersion = checked => {
+    updateSysSettings({
+      enablePromptNewVersion: checked
+    }, () => {
+      setEnablePromptNewVersion(checked);
+      md.global.SysSettings.enablePromptNewVersion = checked;
+    });
+  }
+
+  const getNewVersionInfo = () => {
+    privateSysSettingApi.getNewVersionInfo().then(data => {
+      if (data) {
+        setNewVersion(data);
+        alert(_l('发现新版本'));
+      } else {
+        alert(_l('当前已是最新版'));
+      }
+    });
+  }
+
   return (
-    <div className="versionsInfo flexColumn card">
-      <div className="Font15 bold mBottom20">{_l('版本信息')}</div>
+    <div className="versionsInfo flexColumn card mRight20">
+      <div className="flexRow valignWrapper mBottom20">
+        <div className="Font15 bold flex">{_l('版本信息')}</div>
+        <div className="">
+          <Tooltip title={_l('勾选后，若存在新版本，将会在平台管理员首页的头像旁显示提醒图标')} placement="top">
+            <Checkbox
+              className="mRight15"
+              checked={enablePromptNewVersion}
+              onChange={event => handleChangeEnablePromptNewVersion(event.target.checked)}
+            >
+              {_l('新版本提示')}
+            </Checkbox>
+          </Tooltip>
+        </div>
+      </div>
       {
         loading ? (
           <LoadDiv />
@@ -561,6 +604,16 @@ const VersionsInfo = props => {
             <div className="flexRow valignWrapper mBottom15">
               <div className="Gray_75 Font13 label">{_l('平台版本')}</div>
               <div>{serverInfo.systemVersion}</div>
+              {newVersion && (
+                <Tooltip title={_l('发现新版本：%0，点击查看', newVersion)} placement="top">
+                  <div className="newVersionWrap flexRow valignWrapper mLeft2 mRight2 pointer" onClick={() => window.open('https://docs-pd.mingdao.com/version')}>
+                    <Icon icon="score-up" className="Font15 mRight2" />
+                    <span className="bold">{newVersion}</span>
+                    <Icon icon="task-new-detail" className="font10 Gray_75" />
+                  </div>
+                </Tooltip>
+              )}
+              <div className="ThemeColor pointer mLeft5" onClick={getNewVersionInfo}>{_l('检测')}</div>
             </div>
             <div className="flexRow valignWrapper mBottom15">
               <div className="Gray_75 Font13 label">{_l('密钥版本')}</div>
@@ -685,19 +738,19 @@ const Authorization = props => {
   return (
     <Wrap className="flexColumn h100">
       <div className="flexRow valignWrapper">
-        <AuthorizationInfo
-          loading={loading}
-          platformLicenseInfo={platformLicenseInfo}
-          onUpdatePage={handleUpdatePage}
-        />
-      </div>
-      <div className="flexRow valignWrapper mTop20">
+        <VersionsInfo />
         <AppreciationServer
           loading={loading}
           platformLicenseInfo={platformLicenseInfo}
           setPlatformLicenseInfo={setPlatformLicenseInfo}
         />
-        <VersionsInfo />
+      </div>
+      <div className="flexRow valignWrapper mTop20">
+        <AuthorizationInfo
+          loading={loading}
+          platformLicenseInfo={platformLicenseInfo}
+          onUpdatePage={handleUpdatePage}
+        />
       </div>
       <Log />
     </Wrap>

@@ -234,7 +234,7 @@ export default class ExecutionDetails extends Component {
               </div>
             }
           >
-            <Icon icon="info_outline" className="Gray_9e mLeft6 LineHeight54 " />
+            <Icon icon="info_outline" className="Gray_75 mLeft6 LineHeight54 " />
           </Tooltip>
         )}
         {showHistoryDetail ? name : tableHeaderName}
@@ -307,7 +307,7 @@ export default class ExecutionDetails extends Component {
                   >
                     {name}
                   </div>
-                  <div className="Gray_9e Font12 ellipsis">{app.name}</div>
+                  <div className="Gray_75 Font12 ellipsis">{app.name}</div>
                 </div>
               </div>
               <div className="cloumnItem columnWidth170 textalignR pRight20">{formatter(producer)}</div>
@@ -360,7 +360,7 @@ export default class ExecutionDetails extends Component {
                             });
                         }}
                         icon="history_toggle_off"
-                        className="Gray_9e Hover_21 Hand"
+                        className="Gray_75 Hover_21 Hand"
                       />
                     </Tooltip>
                   ) : (
@@ -399,7 +399,7 @@ export default class ExecutionDetails extends Component {
                   >
                     <span className="Hand Hover_1f">
                       <span style={{ color: waiting ? '#F44336' : '#333' }}>{!waiting ? _l('正常') : _l('暂停')}</span>
-                      <Icon icon="arrow-down" className="Gray_9e mLeft5" />
+                      <Icon icon="arrow-down" className="Gray_75 mLeft5" />
                     </span>
                   </PauseTimeList>
                 </div>

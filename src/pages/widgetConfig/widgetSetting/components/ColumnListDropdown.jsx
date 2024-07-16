@@ -164,7 +164,9 @@ export default class ColumnListDropdown extends React.Component {
                 </MenuItem>
               ))
             ) : (
-              <p className="emptyText">{emptyText || _l('没有可用字段控件，请先在字段配置区进行配置')}</p>
+              <p className="emptyText">
+                {showSearch && keywords ? _l('无数据') : emptyText || _l('没有可用字段控件，请先在字段配置区进行配置')}
+              </p>
             )}
           </Menu>
         </div>

@@ -1,7 +1,7 @@
 ﻿import '@mdfe/nanoscroller';
 import doT from 'dot';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import '../layerMain.css';
 import './createRoot.css';
 import htmlTpl from './tpl/createRoot.html';
@@ -180,65 +180,67 @@ $.extend(RootSettings.prototype, {
         },
       });
 
-      var $createFolderBox = $('.createFolderBox'),
-        $folderMemberBox = $createFolderBox.find('.folderMembers .folderMemberBox'),
-        $updatePermission = $('#updatePermission'),
-        myPermis = root.permission;
-      $createFolderBox.find('.folderName .txtFolderName').val(root.name);
-      _this.nanoScroller();
-      _this.bindInitEvent(root);
+      setTimeout(() => {
+        var $createFolderBox = $('.createFolderBox'),
+          $folderMemberBox = $createFolderBox.find('.folderMembers .folderMemberBox'),
+          $updatePermission = $('#updatePermission'),
+          myPermis = root.permission;
+        $createFolderBox.find('.folderName .txtFolderName').val(root.name);
+        _this.nanoScroller();
+        _this.bindInitEvent(root);
 
-      //创建root时 不允许托付文件夹
-      if (!isEdit) {
-        $folderMemberBox.find('.memberItem .rootTrust').remove();
-      }
-      if (_this.settings.projectId) {
+        //创建root时 不允许托付文件夹
+        if (!isEdit) {
+          $folderMemberBox.find('.memberItem .rootTrust').remove();
+        }
+        if (_this.settings.projectId) {
+          $createFolderBox
+            .find('.attribute .dropBox')
+            .css('border', 0)
+            .end()
+            .find('.attribute .dropBox span.icon')
+            .remove()
+            .end()
+            .find('.attribute .dropBox .seleted')
+            .css({
+              'border-right': 0,
+              width: '316px',
+            });
+        }
+        if (isEdit) {
+          $folderMemberBox.css('margin-bottom', '46px').find('.permissionDesc').css('margin-top', '14px');
+          $createFolderBox
+            .find('.attribute .dropBox')
+            .css('border', 0)
+            .end()
+            .find('.attribute .dropBox span.icon')
+            .remove()
+            .end()
+            .find('.attribute .dropBox .seleted')
+            .css({
+              'border-right': 0,
+              width: '316px',
+            });
+        }
+        $folderMemberBox.find('.permissionDesc').show();
         $createFolderBox
-          .find('.attribute .dropBox')
-          .css('border', 0)
-          .end()
-          .find('.attribute .dropBox span.icon')
-          .remove()
-          .end()
-          .find('.attribute .dropBox .seleted')
-          .css({
-            'border-right': 0,
-            width: '316px',
-          });
-      }
-      if (isEdit) {
-        $folderMemberBox.css('margin-bottom', '46px').find('.permissionDesc').css('margin-top', '14px');
-        $createFolderBox
-          .find('.attribute .dropBox')
-          .css('border', 0)
-          .end()
-          .find('.attribute .dropBox span.icon')
-          .remove()
-          .end()
-          .find('.attribute .dropBox .seleted')
-          .css({
-            'border-right': 0,
-            width: '316px',
-          });
-      }
-      $folderMemberBox.find('.permissionDesc').show();
-      $createFolderBox
-        .find('.txtFolderName')
-        .on('keydown', function (evt) {
-          if (evt.which === 13) {
-            $createFolderBox.find('.footer .yesText').click();
-          }
-        })
-        .select()
-        .focus();
-      if (myPermis === PERMISSION_TYPE.READONLY) {
-        $folderMemberBox.find('.addUser').hide();
-      }
-      $('body').on('click', function () {
-        $updatePermission.fadeOut();
-        $('#checkInviter').fadeOut();
-        $('#folderAttributeList').fadeOut();
-      });
+          .find('.txtFolderName')
+          .on('keydown', function (evt) {
+            if (evt.which === 13) {
+              $createFolderBox.find('.footer .yesText').click();
+            }
+          })
+          .select()
+          .focus();
+        if (myPermis === PERMISSION_TYPE.READONLY) {
+          $folderMemberBox.find('.addUser').hide();
+        }
+        $('body').on('click', function () {
+          $updatePermission.fadeOut();
+          $('#checkInviter').fadeOut();
+          $('#folderAttributeList').fadeOut();
+        });
+      }, 200);
     });
   },
   bindInitEvent: function (root) {
@@ -674,7 +676,8 @@ $.extend(RootSettings.prototype, {
     $('.folderMemberBox ul')
       .find('.imgMemberBox[data-account-id]')
       .each((i, ele) => {
-        ReactDOM.render(
+        const root = createRoot(ele);
+        root.render(
           <UserHead
             user={{
               userHead: $(ele).find('img').attr('src'),
@@ -682,7 +685,6 @@ $.extend(RootSettings.prototype, {
             }}
             size={28}
           />,
-          ele,
         );
       });
 
@@ -834,7 +836,6 @@ $.extend(RootSettings.prototype, {
       });
   },
   addRootMemers: function (users, root, isInvite, callbackInviteResult) {
-    var createRoot = this;
     var uidCount = users.length;
     var user,
       isExistes,
@@ -869,7 +870,7 @@ $.extend(RootSettings.prototype, {
       }
     }
     if ((newMemberIds && newMemberIds.length) || Object.keys(inviteAccount).length) {
-      if (!createRoot.settings.isEdit) {
+      if (!_this.settings.isEdit) {
         var newMembers = canAddUsers.map(function (user) {
           user.accountStatus = isInvite ? ACCOUNT_STATUS.INACTIVE : ACCOUNT_STATUS.NORMAL;
           user.memberStatus =
@@ -886,7 +887,8 @@ $.extend(RootSettings.prototype, {
         $('.folderMemberBox ul')
           .find('.imgMemberBox[data-account-id]:last')
           .each((i, ele) => {
-            ReactDOM.render(
+            const root = createRoot(ele);
+            root.render(
               <UserHead
                 user={{
                   userHead: $(ele).find('img').attr('src'),
@@ -894,7 +896,6 @@ $.extend(RootSettings.prototype, {
                 }}
                 size={28}
               />,
-              ele,
             );
           });
 
@@ -914,7 +915,7 @@ $.extend(RootSettings.prototype, {
       //console.log(inviteAccount);
       kcAjax
         .addRootMembers({
-          id: createRoot.settings.id,
+          id: _this.settings.id,
           memberIds: newMemberIds,
           inviteAccount: inviteAccount,
         })
@@ -956,7 +957,8 @@ $.extend(RootSettings.prototype, {
               $('.folderMemberBox ul')
                 .find('.imgMemberBox[data-account-id]:last')
                 .each((i, ele) => {
-                  ReactDOM.render(
+                  const root = createRoot(ele);
+                  root.render(
                     <UserHead
                       user={{
                         userHead: $(ele).find('img').attr('src'),
@@ -964,13 +966,12 @@ $.extend(RootSettings.prototype, {
                       }}
                       size={28}
                     />,
-                    ele,
                   );
                 });
 
               $('.folderMembers .folderMemberBox ul li.Hidden').slideDown(_this.nanoScroller);
 
-              createRoot.settings.resolve($.extend({}, root, { members: root.members }));
+              _this.settings.resolve($.extend({}, root, { members: root.members }));
             }
           }
 

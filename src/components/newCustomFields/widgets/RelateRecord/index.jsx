@@ -9,6 +9,7 @@ import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import RelateRecordCards from 'worksheet/components/RelateRecordCards';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -45,6 +46,12 @@ export default class Widgets extends Component {
   get isCard() {
     let { showtype = RELATE_RECORD_SHOW_TYPE.LIST } = this.props.advancedSetting; // 1 卡片 2 列表 3 下拉
     return parseInt(showtype, 10) === RELATE_RECORD_SHOW_TYPE.CARD;
+  }
+
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -123,6 +130,12 @@ export default class Widgets extends Component {
     }
   }
 
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
+
   render() {
     const {
       appId,
@@ -147,6 +160,7 @@ export default class Widgets extends Component {
       advancedSetting,
       updateWorksheetControls,
       updateRelateRecordTableCount,
+      triggerCustomEvent,
       onChange,
     } = this.props;
     let { showtype = RELATE_RECORD_SHOW_TYPE.LIST } = advancedSetting; // 1 卡片 2 列表 3 下拉
@@ -182,6 +196,9 @@ export default class Widgets extends Component {
                 }
               }
             }
+          }}
+          onUpdateCell={() => {
+            triggerCustomEvent(ADD_EVENT_ENUM.CHANGE);
           }}
         />
       );

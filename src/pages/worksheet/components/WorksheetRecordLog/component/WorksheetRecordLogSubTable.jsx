@@ -7,6 +7,7 @@ import WorksheetRecordLogThumbnail from './WorksheetRecordLogThumbnail';
 import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { TEXT_FIELD_SHOWTEXT_TYPE, UPDATA_ITEM_CLASSNAME_BY_TYPE } from '../enum';
 import sheetAjax from 'src/api/worksheet';
+import { replaceControlsTranslateInfo } from 'worksheet/util';
 import '../WorksheetRecordLogValue.less';
 
 function MaskCell(props) {
@@ -89,6 +90,7 @@ function WorksheetRecordLogSubTable(props) {
         relationWorksheetId: recordInfo.worksheetId,
       })
       .then(res => {
+        res.template.controls = replaceControlsTranslateInfo(recordInfo.appId, control.dataSource, res.template.controls);
         let _column = showControls.map(key => {
           let _cont = res.template.controls.concat(SYSTEM_CONTROL).find(l => l.controlId === key);
           return {

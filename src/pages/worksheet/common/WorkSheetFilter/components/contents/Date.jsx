@@ -6,6 +6,7 @@ import DatePicker from 'src/components/newCustomFields/widgets/Date';
 import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { FILTER_CONDITION_TYPE, DATE_OPTIONS } from '../../enum';
 import _ from 'lodash';
+import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
 
 function getPicker(type) {
   return {
@@ -14,7 +15,19 @@ function getPicker(type) {
   }[type];
 }
 export default function Date(props) {
-  const { control = {}, disabled, type, value, values, minValue, maxValue, dateRange, onChange, from = '' } = props;
+  const {
+    control = {},
+    disabled,
+    type,
+    value,
+    values,
+    minValue,
+    maxValue,
+    dateRange,
+    onChange,
+    from = '',
+    appId,
+  } = props;
   const [dayNum, setDayNum] = useState(value);
   let dateOptions = DATE_OPTIONS;
   if (
@@ -71,6 +84,7 @@ export default function Date(props) {
               });
             }}
           />
+          <TimeZoneTag appId={appId} />
         </div>
       ) : (
         <div>
@@ -92,6 +106,7 @@ export default function Date(props) {
                   onChange(Object.assign({ dateRange: newDateRange }, changes));
                 }}
               />
+              {dateRange !== 18 && <TimeZoneTag appId={appId} />}
             </div>
           )}
           {(dateRange === 10 || dateRange === 11) && (
@@ -131,7 +146,9 @@ export default function Date(props) {
                 compProps={{
                   placeholder: _l('请选择'),
                 }}
+                notConvertZone={true}
               />
+              <TimeZoneTag appId={appId} />
             </div>
           )}
         </div>

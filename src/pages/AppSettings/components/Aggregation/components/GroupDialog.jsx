@@ -1,19 +1,23 @@
-import React, { Fragment, useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Icon, Button, Dialog } from 'ming-ui';
+import { Icon, Dialog } from 'ming-ui';
 import cx from 'classnames';
 import { useSetState } from 'react-use';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import Trigger from 'rc-trigger';
 import ChooseControls from './ChooseControls';
 import 'src/pages/AppSettings/components/Aggregation/components/style.less';
-import { getNodeInfo } from '../util';
+import { getNodeInfo, getControls, getResultField } from '../util';
+import _ from 'lodash';
+
 const inputW = 240;
+const inputWm = 200;
 const Wrap = styled.div`
   overflow-x: auto;
   max-height: 400px;
 `;
-const WrapItem = styled.div`
+const WrapItem = styled.div(
+  ({ length }) => `
   height: 40px;
   .leftCon,
   .rightCon {
@@ -67,8 +71,8 @@ const WrapItem = styled.div`
     min-width: 40px;
   }
   .Dropdown--input {
-    min-width: ${inputW}px;
-    width: ${inputW}px;
+    min-width: ${length > 2 ? inputWm : inputW}px;
+    width: ${length > 2 ? inputWm : inputW}px;
     height: 35px;
     line-height: 35px;
     background: #ffffff;
@@ -103,7 +107,8 @@ const WrapItem = styled.div`
       padding: 0 12px;
     }
   }
-`;
+`,
+);
 const WrapDrop = styled.div`
   background: #fff;
   box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16);
@@ -134,44 +139,47 @@ export default function GroupDialog(props) {
     // });
     let version = Math.random();
     return (
-      <WrapItem className={cx('flexRow cardItem alignItemsCenter mTop12', `${num}_itemC`)}>
+      <WrapItem className={cx('flexRow cardItem alignItemsCenter mTop12', `${num}_itemC`)} length={sourceInfos.length}>
         <SortHandle />
         <div
           className="flex flexRow alignItemsCenter conByWorksheet titleConByWorksheet"
           style={{
-            width: sourceInfos.length * inputW + (sourceInfos.length - 1) * 40,
-            minWidth: sourceInfos.length * inputW + (sourceInfos.length - 1) * 40,
+            width: sourceInfos.length * (sourceInfos.length > 2 ? inputWm : inputW) + (sourceInfos.length - 1) * 40,
+            minWidth: sourceInfos.length * (sourceInfos.length > 2 ? inputWm : inputW) + (sourceInfos.length - 1) * 40,
           }}
         >
           <React.Fragment>
             {sourceInfos.map((o, i) => {
               const fields = _.get(item, `fields`);
               const data = (fields || []).find((o = {}, n) => !!o.oid && n !== i);
-              const list = (_.get(items, `[${i}].fields`) || []).map(a => (a.oid || '').split('_')[1]);
+              const list = items.map(a => (_.get(a, `fields[${i}].oid`) || '').split('_')[1]);
               let sourceInfo = sourceInfos.find(it => it.worksheetId === o.worksheetId) || {};
               const groupDt = getNodeInfo(flowData, 'GROUP');
               const sourceInfoData = [
                 {
                   ...sourceInfo,
-                  controls: ((sourceInfo || {}).controls || []).filter(
-                    o =>
-                      (!!data
-                        ? !!_.get(data, 'controlSetting.dataSource') && [9, 10, 11].includes(data.mdType) //选项集必须 dataSource一致
-                          ? o.type === data.mdType && o.dataSource === _.get(data, 'controlSetting.dataSource')
-                          : o.type === data.mdType //其他类型必须类型一致
-                        : true) && !list.includes(o.controlId),
+                  controls: getControls(data, (sourceInfo || {}).controls || []).filter(
+                    o => !list.includes(o.controlId) && ![6, 8].includes(o.type), //这期先不支持数值金额
                   ),
                 },
               ];
+              const isDel =
+                !!_.get(item, `fields[${i}].name`) &&
+                !((sourceInfo || {}).controls || []).find(
+                  o => o.controlId === (_.get(item, `fields[${i}].oid`) || '').split('_')[1],
+                );
+              const fieldsName = !_.get(item, `fields[${i}].name`)
+                ? _l('选择字段')
+                : isDel
+                ? _l('已删除')
+                : _.get(item, `fields[${i}].name`);
+              const flowDataNew = _.cloneDeep(flowData);
+              flowDataNew.aggTableNodes[groupDt.nodeId].nodeConfig.config.groupFields = items;
               return (
                 <React.Fragment>
                   <Trigger
                     action={['click']}
-                    // popupVisible={visibleTrigger}
-                    // onPopupVisibleChange={visibleTrigger => {
-                    //   setState({ visibleTrigger });
-                    // }}
-                    key={`${o.worksheetId}_${i}_${o.controlId}`}
+                    key={`${o.worksheetId}_${i}_${o.controlId}_${version}`}
                     getPopupContainer={() => document.body}
                     popupAlign={{ points: ['tl', 'bl'], offset: [0, 0], overflow: { adjustX: true, adjustY: true } }}
                     popup={
@@ -179,17 +187,8 @@ export default function GroupDialog(props) {
                         <ChooseControls
                           title={(o || {}).workSheetName}
                           worksheetId={o.worksheetId}
-                          flowData={{
-                            ...flowData,
-                            [groupDt.nodeId]: {
-                              ...groupDt,
-                              nodeConfig: {
-                                ..._.get(groupDt, 'nodeConfig'),
-                                config: { ..._.get(groupDt, 'nodeConfig.config'), groupFields: items },
-                              },
-                            },
-                          }}
-                          key={version}
+                          flowData={flowDataNew}
+                          key={version + ''}
                           sourceInfos={sourceInfoData}
                           onChange={data => {
                             const { control, childrenControl } = data;
@@ -210,11 +209,7 @@ export default function GroupDialog(props) {
                             newFields[i] = newDt;
                             onUpdate(
                               items.map((it, n) => {
-                                if (n === num) {
-                                  return { ...it, fields: newFields };
-                                } else {
-                                  return it;
-                                }
+                                return n === num ? { ...it, fields: newFields } : it;
                               }),
                             );
                           }}
@@ -230,9 +225,10 @@ export default function GroupDialog(props) {
                       <div
                         className={cx('flex WordBreak overflow_ellipsis', {
                           Gray_bd: !_.get(item, `fields[${i}].name`),
+                          Red: isDel,
                         })}
                       >
-                        {_.get(item, `fields[${i}].name`) || _l('选择字段')}
+                        {fieldsName}
                       </div>
                       {_.get(item, `fields[${i}].name`) && (
                         <Icon
@@ -244,14 +240,9 @@ export default function GroupDialog(props) {
                             newFields[i] = {};
                             onUpdate(
                               items.map((it, n) => {
-                                if (n === num) {
-                                  return { ...it, fields: newFields };
-                                } else {
-                                  return it;
-                                }
+                                return n === num ? { ...it, fields: newFields } : it;
                               }),
                             );
-                            version = Math.random();
                           }}
                         />
                       )}
@@ -294,7 +285,7 @@ export default function GroupDialog(props) {
           });
         }}
       >
-        <WrapItem className="flexRow cardItem cardItemTitle  alignItemsCenter">
+        <WrapItem className="flexRow cardItem cardItemTitle  alignItemsCenter" length={sourceInfos.length}>
           <div className="flex flexRow alignItemsCenter conByWorksheet">
             {sourceInfos.map((it, i) => {
               return (
@@ -337,11 +328,40 @@ export default function GroupDialog(props) {
       } else {
         return {
           ...o,
-          resultField: o.fields[0],
+          resultField: getResultField(o.fields),
         };
       }
     });
-    onOk(newGroupControls);
+    const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
+    const aggregateFields = _.get(aggregateDt, 'nodeConfig.config.aggregateFields') || [];
+    let aliasList = [];
+    aggregateFields.map(o => {
+      aliasList.push(o.alias);
+    });
+    const addUniqueItemWithName = newName => {
+      if (!aliasList.find(o => o === newName)) {
+        return newName;
+      } else {
+        let suffix = 1;
+        let uniqueName = newName + suffix;
+        while (aliasList.some(item => item === uniqueName)) {
+          suffix++;
+          uniqueName = newName + suffix;
+        }
+        return uniqueName;
+      }
+    };
+    onOk(
+      newGroupControls.map(o => {
+        let data = o.resultField;
+        let name = addUniqueItemWithName(data.alias);
+        aliasList.push(name);
+        return {
+          ...o,
+          resultField: { ...data, alias: name, name },
+        };
+      }),
+    );
     onHide();
   };
   return (
@@ -350,25 +370,28 @@ export default function GroupDialog(props) {
       className={cx('groupConPolymerizationDialog')}
       visible={visible}
       anim={false}
+      overlayClosable={false}
       title={_l('设置归组')}
       description={_l('对多表数据源归组，请分别选择工作表中的同类型字段进行归组合并')}
       // footer={null}
       width={
-        sourceInfos.length > 2
-          ? 3 * inputW + 2 * 40 + 24 * 2
-          : sourceInfos.length * inputW + (sourceInfos.length - 1) * 40 + 24 * 2
+        // sourceInfos.length > 2
+        //   ? 3 * inputW + 2 * 40 + 24 * 2
+        // :
+        sourceInfos.length * (sourceInfos.length > 2 ? inputWm : inputW) + (sourceInfos.length - 1) * 40 + 24 * 2
       }
       onCancel={onHide}
       onOk={() => {
         onSave();
       }}
     >
-      <div className="groupConPolymerizationCon">
+      <div className="groupConPolymerizationCon noSelect">
         <SortableList
           items={groupControls}
           sourceInfos={sourceInfos}
           distance={5}
           useDragHandle
+          axis={'y'}
           onSortEnd={({ oldIndex, newIndex }) => {
             if (oldIndex === newIndex) {
               return;
@@ -392,24 +415,6 @@ export default function GroupDialog(props) {
           <Icon icon="add" className="InlineBlock Font16" /> <span>{_l('归组')}</span>
         </WrapAdd>
       </div>
-
-      {/* <div className="btns TxtRight mTop32">
-        <Button
-          type="link"
-          onClick={() => {
-            onHide();
-          }}
-        >
-          {_l('取消')}
-        </Button>
-        <Button
-          onClick={() => {
-            onSave();
-          }}
-        >
-          {_l('确定')}
-        </Button>
-      </div> */}
     </Dialog>
   );
 }

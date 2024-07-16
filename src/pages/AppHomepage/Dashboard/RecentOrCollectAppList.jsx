@@ -12,7 +12,7 @@ import recentEmptyPng from 'staticfiles/images/time.png';
 import _ from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
 import { navigateToAppItem } from 'src/pages/widgetConfig/util/data';
-import { SortableContainer, SortableElement, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import './style.less';
 
 const Wrapper = styled.div`
@@ -119,7 +119,9 @@ const ListItemSkeleton = styled.div`
 `;
 
 const SortableItem = SortableElement(data => {
-  const { item, projectId, onMarkApp } = data;
+  const { item, projectId, appLang, onMarkApp } = data;
+  const appName = _.get(_.find(appLang, { key: item.id }), 'value') || item.name;
+  const itemName = _.get(_.find(appLang, { key: item.itemId }), 'value') || item.itemName;
 
   const onAddBehaviorLog = item => {
     switch (item.type) {
@@ -170,12 +172,12 @@ const SortableItem = SortableElement(data => {
           <AppStatusComp {..._.pick(item, ['isGoodsStatus', 'isNew', 'fixed'])} isRecent={true} />
         </div>
         <div className="textContent">
-          <div className="titleName overflow_ellipsis" title={!!item.type ? item.itemName : item.name}>
-            {!!item.type ? item.itemName : item.name}
+          <div className="titleName overflow_ellipsis" title={!!item.type ? itemName : appName}>
+            {!!item.type ? itemName : appName}
           </div>
           {!!item.type && (
-            <div className="appName overflow_ellipsis" title={item.name}>
-              {item.name}
+            <div className="appName overflow_ellipsis" title={appName}>
+              {appName}
             </div>
           )}
         </div>
@@ -232,7 +234,7 @@ const SortableList = SortableContainer(props => {
           <SortableItem
             item={item}
             {...props}
-            key={`item_${!!item.type ? item.itemId : item.id}`}
+            key={`item_${!!item.type ? item.itemId + index : item.id}`}
             index={index}
             disabled={!draggable}
           />

@@ -4,7 +4,6 @@ import { Icon, Dropdown, Tooltip, Checkbox, Slider } from 'ming-ui';
 import { sortByShowControls, getVisibleControls, isVisible, isRelation } from '../util';
 import {
   fromType,
-  printType,
   typeForCon,
   DEFAULT_FONT_SIZE,
   MIDDLE_FONT_SIZE,
@@ -12,8 +11,8 @@ import {
   UNPRINTCONTROL,
   APPROVAL_POSITION_OPTION,
   DefaultNameWidth,
+  SYSTOPRINT,
 } from '../config';
-
 import './sidenav.less';
 import moment from 'moment';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -34,56 +33,29 @@ class Sidenav extends React.Component {
   }
 
   changeSysFn = (id, checked) => {
+    if (!SYSTOPRINT[id]) return;
     const { systemControl } = this.props;
-    let data = systemControl.filter(control => control.controlId === id);
-    let dataN = [];
-    systemControl.map(it => {
-      if (id !== it.controlId) {
-        dataN.push(it);
-      } else {
-        dataN.push({
-          ...data[0],
-          checked: checked,
-        });
-      }
+
+    let dataN = systemControl.map(it => {
+      return {
+        ...it,
+        checked: id !== it.controlId ? it.checked : checked,
+      };
     });
-    if (id === 'ownerid') {
-      return {
-        ownerAccountChecked: checked,
-        systemControl: dataN,
-      };
-    } else if (id === 'caid') {
-      return {
-        createAccountChecked: checked,
-        systemControl: dataN,
-      };
-    } else if (id === 'ctime') {
-      return {
-        createTimeChecked: checked,
-        systemControl: dataN,
-      };
-    } else if (id === 'utime') {
-      return {
-        updateTimeChecked: checked,
-        systemControl: dataN,
-      };
-    } else if (id === 'uaid') {
-      return {
-        updateAccountChecked: checked,
-        systemControl: dataN,
-      };
-    }
+
+    return {
+      [SYSTOPRINT[id]]: checked,
+      systemControl: dataN,
+    };
   };
 
   getRelationControlsShowPart = it => {
     const { printData = [] } = this.props;
     const { orderNumber = [] } = printData;
-    let orderNumberCheck = (orderNumber.find(o => o.receiveControlId === it.controlId) || []).checked;
     if (it.checked) {
-      let controls = [];
-      if (it.showControls.length > 0) {
-        controls = it.relationControls.filter(o => it.showControls.includes(o.controlId));
-      }
+      let orderNumberCheck = (orderNumber.find(o => o.receiveControlId === it.controlId) || []).checked;
+      let controls =
+        it.showControls.length > 0 ? it.relationControls.filter(o => it.showControls.includes(o.controlId)) : [];
       let list = controls.filter(o => o.checked);
       let isCheckPark = list.length < controls.length;
       return isCheckPark ? !!orderNumberCheck || list.length !== 0 : !orderNumberCheck;
@@ -96,17 +68,24 @@ class Sidenav extends React.Component {
     const { printData = [] } = this.props;
     const { orderNumber = [] } = printData;
     let orderNumberCheck = (orderNumber.find(o => o.receiveControlId === it.controlId) || []).checked;
-    let controls = [];
-    if (it.showControls.length > 0) {
-      controls = it.relationControls.filter(o => it.showControls.includes(o.controlId));
-    }
+    let controls =
+      it.showControls.length > 0 ? it.relationControls.filter(o => it.showControls.includes(o.controlId)) : [];
     let list = controls.filter(o => o.checked);
     return list.length >= controls.length && !!orderNumberCheck;
   };
 
+  handleChecked = it => {
+    const { handChange, printData = [] } = this.props;
+    if (SYSTOPRINT[it.controlId]) {
+      let printDataN = this.changeSysFn(it.controlId, !printData[SYSTOPRINT[it.controlId]]);
+      handChange(printDataN);
+    } else {
+      this.setData(it, 'checked', isRelation(it));
+    }
+  };
+
   renderLi = (list, filterSection = true) => {
-    const { handChange, printData = [], controls = [] } = this.props;
-    const { receiveControls = [] } = printData;
+    const { controls = [] } = this.props;
     const allControls = getVisibleControls(controls);
     let listData = (list || []).filter(o => !UNPRINTCONTROL.includes(o.type));
 
@@ -134,27 +113,7 @@ class Sidenav extends React.Component {
                   clearselected={isClearselected}
                   key={it.controlId}
                   className="mTop12"
-                  onClick={() => {
-                    let printDataN = printData;
-                    if (it.controlId === 'ownerid') {
-                      printDataN = this.changeSysFn('ownerid', !printData.ownerAccountChecked);
-                      handChange(printDataN);
-                    } else if (it.controlId === 'caid') {
-                      printDataN = this.changeSysFn('caid', !printData.createAccountChecked);
-                      handChange(printDataN);
-                    } else if (it.controlId === 'ctime') {
-                      printDataN = this.changeSysFn('ctime', !printData.createTimeChecked);
-                      handChange(printDataN);
-                    } else if (it.controlId === 'utime') {
-                      printDataN = this.changeSysFn('utime', !printData.updateTimeChecked);
-                      handChange(printDataN);
-                    } else if (it.controlId === 'uaid') {
-                      printDataN = this.changeSysFn('uaid', !printData.updateAccountChecked);
-                      handChange(printDataN);
-                    } else {
-                      this.setData(it, 'checked', isRelationControls);
-                    }
-                  }}
+                  onClick={() => this.handleChecked(it)}
                   text={it.controlName || _l('未命名')}
                 />
                 {(isRelationControls || (it.type === 52 && sectionLi.length !== 0)) && (
@@ -162,9 +121,7 @@ class Sidenav extends React.Component {
                     <Icon
                       icon={it.expand ? 'expand_less' : 'expand_more'}
                       className="Font18 moreList Hand TxtCenter TxtBottom"
-                      onClick={() => {
-                        this.setData(it, 'expand');
-                      }}
+                      onClick={() => this.setData(it, 'expand')}
                     />
                     {it.expand && isRelationControls && this.renderLirelation(it)}
                     {it.expand && it.type === 52 && (
@@ -179,9 +136,45 @@ class Sidenav extends React.Component {
     );
   };
 
+  onClickLiRelation = ({ it, controls, orderNumberList, list }) => {
+    const { handChange, printData = [] } = this.props;
+    const { receiveControls = [] } = printData;
+
+    let isChecked = false;
+    const dataOtherRelation = controls.map(controlItem => {
+      if (controlItem.controlId === it.controlId && !it.checked) {
+        isChecked = !it.checked;
+      }
+      if (controlItem.controlId !== it.controlId && controlItem.checked) {
+        isChecked = controlItem.checked;
+      }
+      if (orderNumberList.checked) {
+        isChecked = orderNumberList.checked;
+      }
+      return {
+        ...controlItem,
+        checked: controlItem.controlId === it.controlId ? !it.checked : controlItem.checked,
+      };
+    });
+    const dataOther = receiveControls.map(item => {
+      if (item.controlId === list.controlId) {
+        return {
+          ...list,
+          checked: isChecked,
+          relationControls: dataOtherRelation,
+        };
+      } else {
+        return item;
+      }
+    });
+    handChange({
+      receiveControls: dataOther,
+    });
+  };
+
   renderLirelation = list => {
     const { handChange, printData = [] } = this.props;
-    const { receiveControls = [], orderNumber = [], relations = [] } = printData;
+    const { orderNumber = [] } = printData;
     let controls = [];
     if (list.showControls.length > 0) {
       controls = getVisibleControls(sortByShowControls(list));
@@ -189,17 +182,14 @@ class Sidenav extends React.Component {
       //controls type数据以relations为准
       controls = controls.map(it => {
         let { template = [] } = relationsList;
-        let { controls = [] } = template;
-        if (controls.length > 0) {
-          let data = controls.find(o => o.controlId === it.controlId) || {};
-          let { sourceControlType } = data;
-          return {
-            ...it,
-            sourceControlType,
-          };
-        } else {
-          return it;
-        }
+        const _controls = _.get(template, 'controls') || [];
+        return {
+          ...it,
+          sourceControlType:
+            _controls.length > 0
+              ? _.get(_controls.find(o => o.controlId === it.controlId) || {}, 'sourceControlType')
+              : it.sourceControlType,
+        };
       });
     }
     //关联表富文本不不显示 分割线 ,OCR ,条码不显示
@@ -217,11 +207,10 @@ class Sidenav extends React.Component {
             handChange({
               ...this.setReceiveControls(list, !orderNumberList.checked),
               orderNumber: orderNumber.map(it => {
-                if (it.receiveControlId === list.controlId) {
-                  return { ...it, checked: !it.checked };
-                } else {
-                  return it;
-                }
+                return {
+                  ...it,
+                  checked: it.receiveControlId === list.controlId ? !it.checked : it.checked,
+                };
               }),
             });
           }}
@@ -233,45 +222,7 @@ class Sidenav extends React.Component {
               checked={it.checked}
               key={it.controlId}
               className="mTop12"
-              onClick={() => {
-                let dataOther = [];
-                let dataOtherRelation = [];
-                let datarelation = controls.filter(control => control.controlId === it.controlId);
-                let isChecked = false;
-                controls.map(item => {
-                  if (item.controlId === it.controlId) {
-                    dataOtherRelation.push({
-                      ...datarelation[0],
-                      checked: !it.checked,
-                    });
-                    if (!it.checked) {
-                      isChecked = !it.checked;
-                    }
-                  } else {
-                    dataOtherRelation.push(item);
-                    if (item.checked) {
-                      isChecked = item.checked;
-                    }
-                  }
-                  if (orderNumberList.checked) {
-                    isChecked = orderNumberList.checked;
-                  }
-                });
-                receiveControls.map(item => {
-                  if (item.controlId === list.controlId) {
-                    dataOther.push({
-                      ...list,
-                      checked: isChecked,
-                      relationControls: dataOtherRelation,
-                    });
-                  } else {
-                    dataOther.push(item);
-                  }
-                });
-                handChange({
-                  receiveControls: dataOther,
-                });
-              }}
+              onClick={() => this.onClickLiRelation({ it, controls, orderNumberList, list })}
               text={it.controlName || _l('未命名')}
             />
           );
@@ -295,7 +246,7 @@ class Sidenav extends React.Component {
   }
 
   toggleApprovalCheckItem(index, childIndex = undefined) {
-    const { handChange, printData = [], systemControl } = this.props;
+    const { handChange, printData = [] } = this.props;
     const { approval = [] } = printData;
     const newApproval = approval.map((item, i) => {
       if (childIndex === undefined && i === index) {
@@ -321,7 +272,7 @@ class Sidenav extends React.Component {
   }
 
   renderWorkflow() {
-    const { handChange, printData = [], systemControl } = this.props;
+    const { printData = [] } = this.props;
     const { workflow = [] } = printData;
     if (workflow.length <= 0 || this.state.closeList.includes('workflow')) {
       return '';
@@ -333,9 +284,7 @@ class Sidenav extends React.Component {
             checked={item.checked}
             key={item.flowNode.id}
             className="mTop12"
-            onClick={() => {
-              this.toggleWorkflowCheckItem(item.flowNode.id);
-            }}
+            onClick={() => this.toggleWorkflowCheckItem(item.flowNode.id)}
             text={item.flowNode.name}
           />
         ))}
@@ -345,7 +294,7 @@ class Sidenav extends React.Component {
 
   renderApproval() {
     const { openApprovalList } = this.state;
-    const { printData, handChange } = this.props;
+    const { printData } = this.props;
     const { approval = [] } = printData;
     if (approval.length <= 0 || this.state.closeList.includes('workflow')) {
       return '';
@@ -354,6 +303,7 @@ class Sidenav extends React.Component {
     return (
       <React.Fragment>
         {approval.map((item, index) => {
+          const isOpen = !!openApprovalList.find(l => l === item.processId);
           return (
             <div className="approvalItem">
               <div className="approvalItem1Con">
@@ -361,29 +311,24 @@ class Sidenav extends React.Component {
                   checked={item.checked}
                   key={item.processId}
                   className="approvalItem1ConCheck"
-                  onClick={() => {
-                    this.toggleApprovalCheckItem(index);
-                  }}
+                  onClick={() => this.toggleApprovalCheckItem(index)}
                   text={item.name}
                 />
-                <Icon
-                  icon={openApprovalList.find(l => l === item.processId) ? 'expand_less' : 'expand_more'}
-                  className="Font18 expand Hand TxtCenter Gray_9e"
-                  onClick={() => {
-                    if (item.child.length < 2) return;
-                    if (openApprovalList.find(l => l === item.processId)) {
+                {item.child.length > 1 && (
+                  <Icon
+                    icon={isOpen ? 'expand_less' : 'expand_more'}
+                    className="Font18 expand Hand TxtCenter Gray_9e"
+                    onClick={() =>
                       this.setState({
-                        openApprovalList: openApprovalList.filter(l => l !== item.processId),
-                      });
-                    } else {
-                      this.setState({
-                        openApprovalList: openApprovalList.concat(item.processId),
-                      });
+                        openApprovalList: isOpen
+                          ? openApprovalList.filter(l => l !== item.processId)
+                          : openApprovalList.concat(item.processId),
+                      })
                     }
-                  }}
-                />
+                  />
+                )}
               </div>
-              {item.child.length > 0 && !openApprovalList.find(l => l === item.processId) && (
+              {item.child.length > 0 && !isOpen && (
                 <React.Fragment>
                   {item.child.map((l, i) => (
                     <div className="approvalItem2Con">
@@ -391,9 +336,7 @@ class Sidenav extends React.Component {
                         checked={l.checked}
                         key={l.id}
                         className="approvalItem2ConCheck"
-                        onClick={() => {
-                          this.toggleApprovalCheckItem(index, i);
-                        }}
+                        onClick={() => this.toggleApprovalCheckItem(index, i)}
                         text={`${moment(l.createDate).format('YYYY.MM.DD HH:mm:ss')}发起`}
                       />
                     </div>
@@ -408,9 +351,8 @@ class Sidenav extends React.Component {
   }
 
   setData = (o, key, isRelationControls) => {
-    const { printData = [], handChange, controls } = this.props;
-    const { receiveControls = [], workflow = [], orderNumber = [] } = printData;
-    let data = receiveControls.filter(control => control.controlId === o.controlId);
+    const { printData = [], handChange } = this.props;
+    const { receiveControls = [], orderNumber = [] } = printData;
     let dataOther = [];
     let isCheck;
     let isSection = o.type === 52 && key === 'checked';
@@ -419,13 +361,13 @@ class Sidenav extends React.Component {
       if (item.controlId === o.controlId) {
         if (!isRelationControls) {
           dataOther.push({
-            ...data[0],
+            ...item,
             [key]: !o[key],
           });
         } else {
           isCheck = this.getIsChecked(o);
           dataOther.push({
-            ...data[0],
+            ...item,
             [key]: key === 'checked' ? !isCheck : !o[key],
             relationControls: o.relationControls.map(it => {
               it[key] = key === 'checked' ? !isCheck : !o[key];
@@ -475,29 +417,20 @@ class Sidenav extends React.Component {
 
   setReceiveControls = (o, checked) => {
     const { printData = [] } = this.props;
-    let isChecked = false;
-    if (checked) {
-      isChecked = checked;
-    }
-    let controls = [];
-    if (o.showControls.length > 0) {
-      controls = o.relationControls.filter(it => o.showControls.includes(it.controlId));
-    }
+    const { receiveControls = [] } = printData;
+    let isChecked = checked;
+
+    const controls =
+      o.showControls.length > 0 ? o.relationControls.filter(it => o.showControls.includes(it.controlId)) : [];
     if (controls.map(o => o.checked).includes(true)) {
       isChecked = true;
     }
-    const { receiveControls = [] } = printData;
-    let data = receiveControls.filter(control => control.controlId === o.controlId);
-    let dataOther = [];
-    receiveControls.map(item => {
-      if (item.controlId === o.controlId) {
-        dataOther.push({
-          ...data[0],
-          checked: isChecked,
-        });
-      } else {
-        dataOther.push(item);
-      }
+
+    const dataOther = receiveControls.map(item => {
+      return {
+        ...item,
+        checked: item.controlId === o.controlId ? isChecked : item.checked,
+      };
     });
     let list = {
       ...printData,
@@ -505,6 +438,7 @@ class Sidenav extends React.Component {
     };
     return list;
   };
+
   //全选/取消
   checkAll = isReceiveControls => {
     const { receiveControlsCheckAll, workflowCheckAll } = this.state;
@@ -574,11 +508,11 @@ class Sidenav extends React.Component {
         <Checkbox
           checked={negate ? !printData[key] : printData[key]}
           className="InlineBlock"
-          onClick={() => {
+          onClick={() =>
             handChange({
               [key]: isNumber ? Number(!printData[key]) : !printData[key],
-            });
-          }}
+            })
+          }
           text={text}
         />
         {tip && (
@@ -683,18 +617,10 @@ class Sidenav extends React.Component {
       systemControl,
       controls = [],
       signature = [],
-      saveTem,
       sheetSwitchPermit,
     } = this.props;
-    const { printId, type, from, printType, isDefault, viewId } = params;
-    const {
-      receiveControls = [],
-      workflow = [],
-      shareType = 0,
-      approval = [],
-      approvePosition = 0,
-      advanceSettings,
-    } = printData;
+    const { type, from, viewId } = params;
+    const { workflow = [], shareType = 0, approval = [], approvePosition = 0, advanceSettings } = printData;
     const { receiveControlsCheckAll, workflowCheckAll, closeList = [] } = this.state;
     const formNameSite = (advanceSettings.find(l => l.key === 'formNameSite') || {}).value || '0';
     return (
@@ -711,9 +637,7 @@ class Sidenav extends React.Component {
                       <Icon
                         icon={closeList.includes('setting') ? 'expand_less' : 'expand_more'}
                         className="Font18 expand Hand TxtCenter"
-                        onClick={() => {
-                          this.changeCloseList('setting');
-                        }}
+                        onClick={() => this.changeCloseList('setting')}
                       />
                     </span>
                   </div>
@@ -732,21 +656,14 @@ class Sidenav extends React.Component {
           <div className="plate controlPlate">
             <div className="caption">
               <span className="headline">{_l('选择打印字段')}</span>
-              <span
-                className="Right Hand Gray_9e chooseBtn"
-                onClick={() => {
-                  this.checkAll(true);
-                }}
-              >
+              <span className="Right Hand Gray_9e chooseBtn" onClick={() => this.checkAll(true)}>
                 {!receiveControlsCheckAll ? _l('全选') : _l('取消全选')}
               </span>
               <span className="iconBox">
                 <Icon
                   icon={closeList.includes('control') ? 'expand_less' : 'expand_more'}
                   className="Font18 expand Hand TxtCenter"
-                  onClick={() => {
-                    this.changeCloseList('control');
-                  }}
+                  onClick={() => this.changeCloseList('control')}
                 />
               </span>
             </div>
@@ -790,21 +707,14 @@ class Sidenav extends React.Component {
               <div className="plate">
                 <div className="caption">
                   <span className="headline">{_l('流程节点')}</span>
-                  <span
-                    className="Right Hand Gray_9e chooseBtn"
-                    onClick={() => {
-                      this.checkAll();
-                    }}
-                  >
+                  <span className="Right Hand Gray_9e chooseBtn" onClick={() => this.checkAll()}>
                     {!workflowCheckAll ? _l('全选') : _l('取消全选')}
                   </span>
                   <span className="iconBox">
                     <Icon
                       icon={closeList.includes('workflow') ? 'expand_less' : 'expand_more'}
                       className="Font18 expand Hand TxtCenter"
-                      onClick={() => {
-                        this.changeCloseList('workflow');
-                      }}
+                      onClick={() => this.changeCloseList('workflow')}
                     />
                   </span>
                 </div>
@@ -834,9 +744,7 @@ class Sidenav extends React.Component {
                 <Icon
                   icon={closeList.includes('addition') ? 'expand_less' : 'expand_more'}
                   className="Font18 expand Hand TxtCenter"
-                  onClick={() => {
-                    this.changeCloseList('addition');
-                  }}
+                  onClick={() => this.changeCloseList('addition')}
                 />
               </span>
             </div>
@@ -846,11 +754,11 @@ class Sidenav extends React.Component {
                   <Checkbox
                     checked={printData.formNameChecked}
                     className="flex"
-                    onClick={() => {
+                    onClick={() =>
                       handChange({
                         formNameChecked: !printData.formNameChecked,
-                      });
-                    }}
+                      })
+                    }
                     text={_l('表单标题')}
                   />
                   <span className="Gray_9">{_l('位置')}</span>
@@ -872,11 +780,11 @@ class Sidenav extends React.Component {
                 {printData.formNameChecked && (
                   <textarea
                     className=""
-                    onChange={e => {
+                    onChange={e =>
                       handChange({
                         formName: e.target.value,
-                      });
-                    }}
+                      })
+                    }
                   >
                     {printData.formName}
                   </textarea>

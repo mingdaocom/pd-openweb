@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import homeAppAjax from 'src/api/homeApp';
 import favoriteAjax from 'src/api/favorite';
+import appManagementApi from 'src/api/appManagement'
 
 export const getMyApp = projectId => dispatch => {
   dispatch({
@@ -88,8 +89,13 @@ export const myPlatform = projectId => dispatch => {
   dispatch({
     type: 'MOBILE_FETCHHOMELIST_START',
   });
-  homeAppAjax.myPlatform({ projectId, containsLinks: true }).then(res => {
-    const { markedGroupIds = [], personalGroups = [], projectGroups = [], apps = [] } = res;
+  Promise.all([
+    homeAppAjax.myPlatform({ projectId, containsLinks: true }),
+    projectId ? homeAppAjax.myPlatformLang({ projectId, noCache: false }) : undefined,
+    projectId ? appManagementApi.getProjectLangs({ projectId, type: 20 }) : undefined,
+  ]).then(result => {
+    const [platformRes, langRes = [], projectGroupsLang = []] = result;
+    const { markedGroupIds = [], personalGroups = [], projectGroups = [], apps = [] } = platformRes;
     let markedGroup = markedGroupIds
       .map(id => _.find([...personalGroups, ...projectGroups], { id }))
       .filter(_.identity)
@@ -101,8 +107,19 @@ export const myPlatform = projectId => dispatch => {
       type: 'MOBILE_FETCHHOMELIST_SUCCESS',
     });
     dispatch({
+      type: 'PLATE_FORM_LANG',
+      data: langRes,
+    });
+    dispatch({
       type: 'PLATE_FORM_DATA',
-      data: { ...res, markedGroup },
+      data: { ...platformRes, markedGroup },
+    });
+    dispatch({
+      type: 'PROJECT_GROUPS_NAME_LANG',
+      data: _.keyBy(
+        projectGroupsLang.filter(o => o.langType === getCurrentLangCode()),
+        'correlationId',
+      ),
     });
   });
 };

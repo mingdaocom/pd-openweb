@@ -38,11 +38,13 @@ export default class Text extends React.Component {
       this.setState({ value: safeParse(nextProps.cell.value, 'array') });
     }
     const single = nextProps.cell.enumDefault === 0;
-    if (single && !this.props.isediting && nextProps.isediting) {
+    if (this.cell.current && single && !this.props.isediting && nextProps.isediting) {
       this.handleSelect();
     }
     if (!single && !this.props.isediting && nextProps.isediting && _.isEmpty(this.props.cell.value)) {
-      this.handleSelect();
+      setTimeout(() => {
+        this.handleSelect();
+      }, 200);
     }
   }
   cell = React.createRef();
@@ -76,11 +78,14 @@ export default class Text extends React.Component {
   handleSelect(e) {
     const { projectId, cell, rowFormData, masterData = () => {} } = this.props;
     const target = (this.cell && this.cell.current) || (event || {}).target;
+
     if (!target || this.isSelecting) {
       return;
     }
+
     const single = cell.enumDefault === 0;
     this.isSelecting = true;
+
     if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
       alert(_l('您不是该组织成员，无法获取其组织角色列表，请联系组织管理员'), 3);
       return;
@@ -91,9 +96,10 @@ export default class Text extends React.Component {
       projectId,
       unique: single,
       offset: {
-        top: 10,
+        top: 0,
         left: 0,
       },
+      value: this.state.value,
       onSave: this.onSave,
       appointedOrganizeIds: _.get(orgRange, 'appointedOrganizeIds'),
       onClose: () => {
@@ -103,12 +109,17 @@ export default class Text extends React.Component {
   }
 
   @autobind
-  onSave(data) {
-    if (_.isEmpty(data)) return;
+  onSave(data, isCancel = false) {
+    const { value } = this.state;
+    const lastIds = _.sortedUniq(value.map(l => l.organizeId));
+    const newIds = _.sortedUniq(data.map(l => l.organizeId));
+
+    if ((_.isEmpty(data) || _.isEqual(lastIds, newIds)) && !isCancel) return;
+
     this.isSelecting = false;
     const { cell, updateEditingStatus } = this.props;
-    const { value } = this.state;
     const filterData = data.map(i => ({ organizeId: i.organizeId, organizeName: i.organizeName }));
+
     if (cell.enumDefault === 0) {
       // 单选
       this.setState(
@@ -123,7 +134,9 @@ export default class Text extends React.Component {
     } else {
       let newData = [];
       try {
-        newData = _.uniqBy(value.concat(filterData), 'organizeId');
+        newData = isCancel
+          ? value.filter(l => l.organizeId !== filterData[0].organizeId)
+          : _.uniqBy(value.concat(filterData), 'organizeId');
       } catch (err) {}
       this.setState(
         {
@@ -168,7 +181,7 @@ export default class Text extends React.Component {
     const single = cell.enumDefault === 0;
     const editcontent = (
       <ClickAwayable
-        onClickAwayExceptions={['.dialogSelectOrgRole']}
+        onClickAwayExceptions={['.dialogSelectOrgRole', '.selectRoleDialog']}
         onClickAway={() => {
           updateEditingStatus(false);
         }}
@@ -184,15 +197,12 @@ export default class Text extends React.Component {
           {value.map((organize, index) => (
             <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>
               <div className="flexRow">
-                <div className="iconWrap" style={{ backgroundColor: '#FFAD00' }}>
-                  <i className="Font14 icon-user" />
-                </div>
-                <div className="departmentName mLeft4 flex ellipsis">
+                <div className="departmentName flex ellipsis">
                   {organize.organizeName ? organize.organizeName : _l('该组织角色已删除')}
                 </div>
                 {isediting && !(cell.required && value.length === 1) && (
                   <i
-                    className="Font14 Gray_9e icon-close Hand mLeft4"
+                    className="Font14 Gray_9e icon-close Hand"
                     onClick={() => this.deleteDepartment(organize.organizeId)}
                   />
                 )}
@@ -200,7 +210,7 @@ export default class Text extends React.Component {
             </span>
           ))}
           {!single && (
-            <span className="addBtn" onClick={this.handleSelect}>
+            <span className="addUserBtn" onClick={this.handleSelect}>
               <i className="icon icon-add Gray_75 Font14" />
             </span>
           )}
@@ -213,7 +223,7 @@ export default class Text extends React.Component {
           action={['click']}
           popup={editcontent}
           getPopupContainer={popupContainer}
-          popupClassName="filterTrigger"
+          popupClassName="filterTrigger LineHeight0"
           popupVisible={isediting}
           popupAlign={{
             points: ['tl', 'tl'],
@@ -229,19 +239,16 @@ export default class Text extends React.Component {
             onClick={onClick}
             className={cx(className, { canedit: editable })}
             style={style}
-            iconName="user"
+            iconName="arrow-down-border"
             isediting={isediting}
-            onIconClick={cell.enumDefault === 0 ? this.handleSelect : this.handleMutipleEdit}
+            onIconClick={this.handleMutipleEdit}
           >
             {!!value && (
               <div className={cx('cellDepartments cellControl', { singleLine })}>
                 {value.map((organize, index) => (
                   <span className="cellDepartment" style={{ maxWidth: style.width - 20 }}>
                     <div className="flexRow">
-                      <div className="iconWrap" style={{ backgroundColor: '#FFAD00' }}>
-                        <i className="Font14 icon-user" />
-                      </div>
-                      <div className="departmentName mLeft4 flex ellipsis">
+                      <div className="departmentName flex ellipsis">
                         {organize.organizeName ? organize.organizeName : _l('该组织角色已删除')}
                       </div>
                     </div>

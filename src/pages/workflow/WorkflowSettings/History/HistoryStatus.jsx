@@ -10,6 +10,7 @@ const STATUS2ICON = {
   completed: 'hr_ok',
   filter: 'workflow_suspend',
   overrule: 'workflow_suspend',
+  revoke: 'repeal-o',
 };
 export default ({ statusCode = 1, config = FLOW_STATUS, className, size = 30, color = '#333', textSize = 14 }) => {
   const { status, text } = config[statusCode];

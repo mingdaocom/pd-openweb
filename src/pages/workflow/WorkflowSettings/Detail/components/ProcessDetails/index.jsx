@@ -30,7 +30,7 @@ export default props => {
   return (
     <Fragment>
       <div className="Font13 mTop20 bold">{_l('更新流程操作明细（每个节点完成后）')}</div>
-      <div className="Font13 Gray_9e mTop10">
+      <div className="Font13 Gray_75 mTop10">
         {_l('选择一个子表或关联表，系统将于每个节点完成后，自动同步本流程的各人工节点的操作明细至该表')}
       </div>
       <Dropdown
@@ -39,7 +39,7 @@ export default props => {
         value={fieldId}
         renderTitle={
           !fieldId
-            ? () => <span className="Gray_9e">{_l('请选择')}</span>
+            ? () => <span className="Gray_75">{_l('请选择')}</span>
             : fieldId && !item
             ? () => <span className="errorColor">{_l('字段不存在或已删除')}</span>
             : () => (
@@ -72,8 +72,11 @@ export default props => {
               <div className="ellipsis Font13 flex mRight20">
                 {controlName}
                 {singleObj.required && <span className="mLeft5 red">*</span>}
-                {singleObj.type === 29 && <span className="Gray_9e">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
+                {singleObj.type === 29 && <span className="Gray_75">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
               </div>
+              {singleObj.type === 40 && (
+                <span className="Gray_75">{`{"x": "121.473667", "y": "31.230525", "title": "Shanghai", "address": ""}`}</span>
+              )}
             </div>
             <SingleControlValue
               companyId={props.companyId}

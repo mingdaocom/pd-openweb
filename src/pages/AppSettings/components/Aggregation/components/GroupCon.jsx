@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import { useSetState } from 'react-use';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 import { Tooltip } from 'antd';
@@ -39,12 +39,13 @@ export default function GroupCon(props) {
       showChangeName: false,
     });
     let isDelete = _.get(item, 'resultField.isDelete');
-    _.get(item, 'fields').map(item => {
+    const fields = _.get(item, 'fields') || [];
+    fields.map(item => {
       if (!sourceTables.find(it => item.oid && item.oid.indexOf(it.workSheetId) >= 0)) {
         isDelete = true;
       }
     });
-    if (_.get(item, 'fields').length !== sourceTables.length) {
+    if (fields.length !== sourceTables.length) {
       isDelete = true;
     }
     isDelete && updateErr();
@@ -52,9 +53,6 @@ export default function GroupCon(props) {
       <WrapItem className="flexRow cardItem alignItemsCenter Relative mTop12 hoverBoxShadow">
         <SortHandle />
         <div className="flex flexRow pLeft16 pRight12 alignItemsCenter">
-          {/* {isDelete && _.get(item, 'fields').length <= 1 ? (
-            <span className="Red Bold flex">{_l('字段已删除')}</span>
-          ) : ( */}
           <React.Fragment>
             <Icon
               icon={getIconByType(_.get(item, 'resultField.mdType'))}
@@ -68,7 +66,6 @@ export default function GroupCon(props) {
               {_.get(item, 'resultField.alias')}
             </div>
           </React.Fragment>
-          {/* )} */}
           <Tooltip title={_l('重命名')}>
             <Icon
               icon="rename_input"
@@ -107,7 +104,7 @@ export default function GroupCon(props) {
               }
               onUpdate(
                 items.map(o => {
-                  if (o.oid === item.oid) {
+                  if (_.get(o, 'resultField.id') === _.get(item, 'resultField.id')) {
                     return {
                       ...o,
                       resultField: {
@@ -115,9 +112,8 @@ export default function GroupCon(props) {
                         alias: name,
                       },
                     };
-                  } else {
-                    return o;
                   }
+                  return o;
                 }),
                 false,
               );
@@ -144,6 +140,7 @@ export default function GroupCon(props) {
   return (
     <SortableList
       items={list}
+      axis={'y'}
       flowData={props.flowData}
       distance={5}
       useDragHandle

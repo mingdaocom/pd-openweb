@@ -1,13 +1,13 @@
 import React, { Fragment, useRef, useEffect, useState, useCallback } from 'react';
 import { useClickAway } from 'react-use';
 import { arrayOf, bool, func, number, string } from 'prop-types';
-import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { LoadDiv, ScrollView, Icon } from 'ming-ui';
 import { dialogSelectOrgRole } from 'ming-ui/functions';
 import organizeAjax from 'src/api/organize';
+import { createRoot } from 'react-dom/client';
 
 const RoleSelectWrap = styled.div`
   overflow: hidden;
@@ -32,9 +32,13 @@ const RoleSelectWrap = styled.div`
     height: 36px;
     padding: 0 15px;
     line-height: 36px;
-    .expendIcon.rotate {
+    .expendIcon.expendIconRotate {
       transform: rotate(-90deg);
       transform-origin: center center;
+      transition: none;
+      -webkit-transform: rotate(-90deg);
+      -webkit-transform-origin: center center;
+      -webkit-transition: none;
     }
     &:hover {
       background: #f5f5f5;
@@ -47,6 +51,39 @@ const RoleSelectWrap = styled.div`
     margin-top: 170px;
     text-align: center;
   }
+  .selectCurrent {
+    color: #333333;
+    margin: 4px 0;
+    padding: 0 17px;
+    height: 44px;
+    line-height: 44px;
+    font-size: 13px;
+    &:hover {
+      background: #f5f5f5;
+    }
+    &.current {
+      background: rgba(33, 150, 243, 0.1) !important;
+    }
+    .iconBox {
+      width: 28px;
+      height: 28px;
+      display: inline-block;
+      background: #67ac5c;
+      text-align: center;
+      vertical-align: middle;
+      margin-right: 8px;
+      line-height: 28px;
+      color: #fff;
+      border-radius: 50%;
+    }
+  }
+  .splitLine {
+    margin: 0 6px;
+    width: 100%;
+    height: 1px;
+    background: #eaeaea;
+    margin-bottom: 6px;
+  }
 `;
 
 export function RoleSelect(props) {
@@ -55,6 +92,9 @@ export function RoleSelect(props) {
     unique = false,
     minHeight = 358,
     appointedOrganizeIds = [],
+    value = [],
+    immediate = true,
+    showCurrentOrgRole,
     onSave = () => {},
     onClose = () => {},
   } = props;
@@ -66,8 +106,10 @@ export function RoleSelect(props) {
   const [treeData, setTreeData] = useState([]);
   const [expendTreeNodeKey, setExpendTreeNodeKey] = useState([]);
   const [searchList, setSearchList] = useState([]);
-  const [selectData, setSelectData] = useState([]);
+  const [selectData, setSelectData] = useState(value);
   let promise = null;
+  const isShowRole =
+    !md.global.Account.isPortal && (md.global.Account.projects || []).some(it => it.projectId === projectId);
 
   useClickAway(conRef, e => {
     onSave(selectData);
@@ -186,11 +228,11 @@ export function RoleSelect(props) {
       selected = unique ? [item] : selected.concat(item);
     }
 
-    setSelectData(selected);
+    const uniqueClose = unique && selected.length === 1;
 
-    if (unique && selected.length === 1) {
-      onSave(selected);
-    }
+    setSelectData(selected);
+    (immediate || uniqueClose) && onSave(unique && !checked ? [] : [item], !checked);
+    uniqueClose && onClose(true);
   };
 
   const handleExpend = groupItem => {
@@ -220,6 +262,8 @@ export function RoleSelect(props) {
     setPageIndex(pageIndex + 1);
   };
 
+  const checkedUserSelf = () => !!_.find(selectData, o => o.organizeId === 'user-role');
+
   const renderChildren = groupItem => {
     if (groupItem && !expendTreeNodeKey.includes(groupItem.orgRoleGroupId)) return;
 
@@ -236,13 +280,9 @@ export function RoleSelect(props) {
           })}
           onClick={() => toggle(roleItem, !checked)}
         >
-          <Icon
-            icon="person_new"
-            className={cx('Gray_9e Font18', {
-              mLeft16: !keywords && !onlyOneGroup,
-            })}
-          />
-          <span className="mLeft4 flex overflow_ellipsis">{roleItem.organizeName}</span>
+          <span className={cx('flex overflow_ellipsis', { mLeft16: !keywords && !onlyOneGroup })}>
+            {roleItem.organizeName}
+          </span>
           {checked && <Icon icon="done_2" className="ThemeColor" />}
         </div>
       );
@@ -286,7 +326,7 @@ export function RoleSelect(props) {
               <Icon
                 icon="task_custom_btn_unfold"
                 className={cx('Gray_9e expendIcon Hand', {
-                  rotate: !expendTreeNodeKey.includes(groupItem.orgRoleGroupId),
+                  expendIconRotate: !expendTreeNodeKey.includes(groupItem.orgRoleGroupId),
                 })}
               />
               <span className="bold mLeft4 flex overflow_ellipsis">{groupItem.orgRoleGroupName}</span>
@@ -299,15 +339,37 @@ export function RoleSelect(props) {
   };
 
   return (
-    <RoleSelectWrap ref={conRef} className='selectRoleDialog'>
+    <RoleSelectWrap ref={conRef} className="selectRoleDialog">
       <div className="searchRoleWrap valignWrapper">
         <Icon icon="search" className="searchIcon Gray_9e mRight8 Font18" />
         <input type="text" className="flex" value={keywords} placeholder={_l('搜索')} onChange={handleSearch} />
         {keywords && (
           <Icon icon="closeelement-bg-circle" className="Font16 mLeft4 Gray_9e" onClick={() => setKeywords('')} />
         )}
-        <Icon icon="user" className="Gray_75 Hover_21 mLeft4 Font18" onClick={dialogSelectRole} />
       </div>
+      {isShowRole && showCurrentOrgRole && (
+        <Fragment>
+          <div
+            className={cx('selectCurrent Hand valignWrapper', { current: checkedUserSelf() })}
+            onClick={() =>
+              toggle(
+                {
+                  organizeId: 'user-role',
+                  organizeName: _l('当前用户所在的组织角色'),
+                },
+                !checkedUserSelf(),
+              )
+            }
+          >
+            <span className="iconBox">
+              <Icon icon="person" className="Font18 TxtMiddle" />
+            </span>
+            <span className='flex'>{_l('当前用户所在的组织角色')}</span>
+            {checkedUserSelf() && <Icon icon="done_2" className="ThemeColor" />}
+          </div>
+          <div className="splitLine"></div>
+        </Fragment>
+      )}
       <ScrollView style={{ minHeight }} onScrollEnd={onScrollEnd}>
         {loading ? <LoadDiv /> : renderContent()}
       </ScrollView>
@@ -367,13 +429,15 @@ export default function quickSelectRole(target, props = {}) {
   }
   setPosition();
   document.body.appendChild($con);
+
+  const root = createRoot($con);
+
   function destory() {
-    ReactDOM.unmountComponentAtNode($con);
-    if ($con.parentElement) {
-      document.body.removeChild($con);
-    }
+    root.unmount();
+    document.body.removeChild($con);
   }
-  ReactDOM.render(
+
+  root.render(
     <RoleSelect
       {...props}
       onClose={force => {
@@ -387,6 +451,5 @@ export default function quickSelectRole(target, props = {}) {
         destory();
       }}
     />,
-    $con,
   );
 }

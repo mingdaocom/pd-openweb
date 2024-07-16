@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useSetState } from 'react-use';
 import homeAppAjax from 'src/api/homeApp';
 import worksheetAjax from 'src/api/worksheet';
-import { Icon, LoadDiv, MenuItem, Menu } from 'ming-ui';
-import styled from 'styled-components';
+import { LoadDiv, MenuItem, Menu } from 'ming-ui';
 import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
 import {
   SearchWorksheetWrap,
@@ -29,16 +29,18 @@ export default function ReviewFreeByWorksheetWrap(props) {
   const [allControls, setAllControls] = useState([]);
   const [sheetName, setSheetName] = useState('');
   const [appName, setAppName] = useState('');
-  const [isSheetDelete, setIsSheetDelete] = useState(false);
   const [items, setItems] = useState([]);
   const [originSheetList, setOriginSheetList] = useState([]);
   const [clear, setClear] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const [{ getNameLoading, isSheetDelete }, setState] = useSetState({
+    getNameLoading: true,
+    isSheetDelete: false,
+  });
   useEffect(() => {
     homeAppAjax.getWorksheetsByAppId({ appId, type: 0 }).then(res => {
       res.forEach(sheet => {
-        sheet.workSheetName = getTranslateInfo(appId, sheet.workSheetId).name || sheet.workSheetName
+        sheet.workSheetName = getTranslateInfo(appId, null, sheet.workSheetId).name || sheet.workSheetName;
       });
       setSheetList(res);
       setOriginSheetList(res);
@@ -52,7 +54,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
     setSheetName(sourceName);
     const { controls = [] } = templates;
     setAllControls(controls);
-    setIsSheetDelete(!sourceId);
+    setState({ getNameLoading: false, isSheetDelete: !sourceId });
     setControls(
       controls, //.filter(item => typeList.includes(item.type + ''))
     );
@@ -74,7 +76,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
   const setControlsFn = data => {
     if (!data.workSheetId) return;
     worksheetAjax.getWorksheetInfo({ worksheetId: data.workSheetId, getTemplate: true, appId }).then(res => {
-      res.template.controls = replaceControlsTranslateInfo(appId, res.template.controls);
+      res.template.controls = replaceControlsTranslateInfo(appId, data.workSheetId, res.template.controls);
       let da = { sourceId: data.workSheetId, sourceName: res.name, templates: res.template, appName };
       da = clear ? { ...da, configs: [], items: [] } : da;
       onChange({
@@ -181,7 +183,7 @@ export default function ReviewFreeByWorksheetWrap(props) {
               <div className="overflow_ellipsis">
                 {sheetName ? (
                   <span className={cx(isSheetDelete ? 'Red' : 'Gray')}>
-                    {isSheetDelete ? _l('工作表已删除') : sheetName}
+                    {getNameLoading ? '...' : isSheetDelete ? _l('工作表已删除') : sheetName}
                     {appName && <span>（{appName}）</span>}
                   </span>
                 ) : (

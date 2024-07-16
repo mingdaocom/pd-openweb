@@ -360,6 +360,7 @@ export default function Card(props) {
                   showEdit: false,
                 });
               }}
+              customNodeName={props.title}
               isIntegration
               updateNodeData={data => {
                 getCardInfo();

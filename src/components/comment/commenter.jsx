@@ -410,7 +410,7 @@ class Commenter extends React.Component {
         })}
         onClickAway={() => this.onClickAway()}
         // 知识文件选择层 点击时不收起
-        onClickAwayExceptions={['#folderSelectDialog_container', '#addLinkFileDialog_container']}
+        onClickAwayExceptions={['.folderSelectDialog', '#addLinkFileDialog_container']}
       >
         <textarea
           ref={textarea => {

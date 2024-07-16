@@ -5,8 +5,9 @@ import { Icon, LoadDiv } from 'ming-ui';
 import SelectApiPackage from 'src/pages/workflow/components/SelectApiPackage';
 import Apply from './Apply';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import { getCurrentProject } from 'src/util';
 import AuthorizationList from './AuthorizationList';
+import { hasPermission } from 'src/components/checkPermission';
+import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
 const minWidth = 325;
 
@@ -159,7 +160,7 @@ const RenderBlankBlock = ({ columnSize, number }) => {
 let ajaxRequest = null;
 
 export default function CustomLibrary(props) {
-  const { width, currentProjectId, loadMore, setHasMore } = props;
+  const { width, currentProjectId, loadMore, setHasMore, myPermissions } = props;
   const keywordsRef = useRef(null);
   const [addAPIDialogVisible, setAddAPIDialogVisible] = useState(false);
   const [applyDialog, setApplyDialog] = useSetState({ visible: false });
@@ -170,15 +171,14 @@ export default function CustomLibrary(props) {
   const [keywords, setKeywords] = useState('');
   const [loading, setLoading] = useState(true);
   const columnSize = Math.floor((width - 76) / minWidth);
-  const { isProjectAppManager, isSuperAdmin } = getCurrentProject(currentProjectId);
-  const isAdmin = isProjectAppManager || isSuperAdmin;
+  const hasManageAuth = hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_API_CONNECTS);
 
   useEffect(() => {
     packageVersionAjax
       .getAuthorizationList(
         {
           companyId: currentProjectId,
-          isOwner: !isAdmin,
+          isOwner: !hasManageAuth,
           pageIndex: 1,
           pageSize: 1000,
           status: [1],
@@ -294,7 +294,7 @@ export default function CustomLibrary(props) {
       </div>
 
       <Content className="flexRow">
-        {isAdmin && (
+        {hasManageAuth && (
           <div
             className="listItem null flexColumn alignItemsCenter justifyContentCenter"
             onClick={() => setAddAPIDialogVisible(true)}
@@ -304,7 +304,7 @@ export default function CustomLibrary(props) {
           </div>
         )}
 
-        {!list.length && !isAdmin ? (
+        {!list.length && !hasManageAuth ? (
           <div className="empty">
             <div className="iconCon">
               <Icon icon="connect" className="Font64" />
@@ -325,7 +325,7 @@ export default function CustomLibrary(props) {
                 <span className="mLeft3 mRight3">{item.apiCount}</span>
                 <span className="Gray_75">API</span>
                 <div className="flex" />
-                {isAdmin && (
+                {hasManageAuth && (
                   <div
                     className="listItemRemove"
                     onClick={e => {
@@ -341,10 +341,10 @@ export default function CustomLibrary(props) {
           ))
         )}
 
-        <RenderBlankBlock columnSize={columnSize} number={(list.length + (isAdmin ? 1 : 0)) % columnSize} />
+        <RenderBlankBlock columnSize={columnSize} number={(list.length + (hasManageAuth ? 1 : 0)) % columnSize} />
       </Content>
 
-      {loading && (!isAdmin || pageIndex > 1) && <LoadDiv className="mTop10" />}
+      {loading && (!hasManageAuth || pageIndex > 1) && <LoadDiv className="mTop10" />}
 
       <SelectApiPackage
         companyId={currentProjectId}
@@ -368,7 +368,7 @@ export default function CustomLibrary(props) {
       {authListVisible && (
         <AuthorizationList
           companyId={currentProjectId}
-          isAdmin={isAdmin}
+          hasManageAuth={hasManageAuth}
           onClose={() => setAuthListVisible(false)}
           onApproveSuccess={() => setApplyCount(applyCount - 1)}
         />

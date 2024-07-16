@@ -38,6 +38,7 @@ const SourceBox = ({ item, isActive, onChangeCheckbox }) => {
     >
       <div>
         <Checkbox
+          disabled={item.type === WIDGETS_TO_API_TYPE_ENUM.RICH_TEXT}
           className="mRight10"
           checked={isActive}
           onChange={onChangeCheckbox}

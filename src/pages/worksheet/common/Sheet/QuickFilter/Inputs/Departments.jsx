@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, string } from 'prop-types';
-import { dialogSelectDept } from 'ming-ui/functions';
+import { quickSelectDept } from 'ming-ui/functions';
 import { BaseSelectedItem } from './Styles';
 import _ from 'lodash';
 
@@ -51,24 +51,37 @@ const Empty = styled.span`
 export default function Departments(props) {
   const { values = [], projectId, isMultiple, onChange = () => {} } = props;
   const [active, setActive] = useState();
+  const valueRef = useRef();
+
+  useEffect(() => {
+    valueRef.current = values;
+  }, [values]);
+
   return (
     <Con
       isEmpty={!values.length}
       active={active}
-      onClick={() => {
+      onClick={e => {
         setActive(true);
-        dialogSelectDept({
+        quickSelectDept(e.target, {
           unique: !isMultiple,
           projectId,
           isIncludeRoot: false,
           showCurrentUserDept: true,
+          selectedDepartment: values,
           onClose: () => setActive(false),
-          selectFn: data => {
+          selectFn: (data, isCancel = false) => {
             if (!data.length) {
               return;
             }
             setActive(false);
-            onChange({ values: isMultiple ? _.uniqBy([...values, ...data], 'departmentId') : data });
+            onChange({
+              values: isMultiple
+                ? isCancel
+                  ? valueRef.current.filter(l => l.departmentId !== data[0].departmentId)
+                  : _.uniqBy([...valueRef.current, ...data], 'departmentId')
+                : data,
+            });
           },
         });
       }}
@@ -94,7 +107,7 @@ export default function Departments(props) {
             </BaseSelectedItem>
           ))}
       </DepartmentsCon>
-      <Icon className="icon icon-department downIcon" />
+      <Icon className="icon icon-arrow-down-border downIcon" />
       {!!values.length && (
         <Icon
           className="icon icon-cancel clearIcon"

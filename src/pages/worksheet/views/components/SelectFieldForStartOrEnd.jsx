@@ -115,8 +115,9 @@ export default function SelectFieldForStartOrEnd(props) {
         }
       : { begindate, enddate };
     saveView(viewId, {
-      advancedSetting: updateViewAdvancedSetting(view, { ...objs }),
+      advancedSetting: { ...objs },
       editAttrs: ['advancedSetting'],
+      editAdKeys: Object.keys(objs),
     });
   };
   return (

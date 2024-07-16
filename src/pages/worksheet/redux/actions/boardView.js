@@ -7,6 +7,9 @@ import { includes, noop, isEmpty } from 'lodash';
 import { uniqBy } from 'lodash/array';
 import worksheetAjax from 'src/api/worksheet';
 import { wrapAjax } from './util';
+import { updateNavGroup } from 'src/pages/worksheet/redux/actions/index.js';
+
+let boardPromiseObj = null;
 
 const wrappedGetFilterRows = wrapAjax(worksheetAjax.getFilterRows);
 
@@ -32,6 +35,7 @@ export function delBoardViewRecord(data) {
       if (res.isSuccess) {
         dispatch({ type: 'DEL_BOARD_VIEW_RECORD_COUNT', data });
         dispatch(updateBoardViewRecordCount([data.key, -1]));
+        dispatch(updateNavGroup());
       }
     });
   };
@@ -42,6 +46,7 @@ export function addRecord(data) {
     const { item, key } = data;
     dispatch({ type: 'ADD_BOARD_VIEW_RECORD', data: { item, key } });
     dispatch(updateBoardViewRecordCount([key, 1]));
+    dispatch(updateNavGroup());
   };
 }
 
@@ -105,7 +110,7 @@ const dealBoardViewRecordCount = data => {
 
 export function initBoardViewData(view) {
   return (dispatch, getState) => {
-    const { sheet } = getState();
+    const { sheet, mobile } = getState();
     const para = getBoardViewPara(sheet, view);
     if (!para) return;
     dispatch({
@@ -113,38 +118,45 @@ export function initBoardViewData(view) {
       loading: true,
     });
     dispatch({ type: 'CHANGE_BOARD_VIEW_STATE', payload: { kanbanIndex: 1, hasMoreData: true } });
+
     getBoardViewDataFillPage({ para, dispatch, view: view || getCurrentView(sheet), controls: sheet.controls });
   };
 }
 
 // 拉取看板数据以填满页面
 function getBoardViewDataFillPage({ para, dispatch, view, controls }) {
-  (para.type === 'single' ? worksheetAjax.getFilterRows : wrappedGetFilterRows)(getFilledRequestParams(para)).then(
-    ({ data, resultCode }) => {
-      if (resultCode !== 1) {
-        dispatch({
-          type: 'WORKSHEET_UPDATE_ACTIVE_VIEW_STATUS',
-          resultCode,
-        });
-        dispatch({
-          type: 'CHANGE_BOARD_VIEW_LOADING',
-          loading: false,
-        });
-      }
-      const formatData = sortDataByCustomItems(data, view, controls);
-      dispatch(changeBoardViewData(formatData));
-      dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(data)));
+  if (boardPromiseObj && boardPromiseObj.abort) {
+    boardPromiseObj.abort();
+  }
 
+  boardPromiseObj = (para.type === 'single' ? worksheetAjax.getFilterRows : wrappedGetFilterRows)(
+    getFilledRequestParams(para),
+  );
+
+  boardPromiseObj.then(({ data, resultCode }) => {
+    if (resultCode !== 1) {
+      dispatch({
+        type: 'WORKSHEET_UPDATE_ACTIVE_VIEW_STATUS',
+        resultCode,
+      });
       dispatch({
         type: 'CHANGE_BOARD_VIEW_LOADING',
         loading: false,
       });
-      dispatch({
-        type: 'CHANGE_BOARD_VIEW_STATE',
-        payload: { kanbanIndex: para.kanbanIndex, hasMoreData: !(data.length < 20) },
-      });
-    },
-  );
+    }
+    const formatData = sortDataByCustomItems(data, view, controls);
+    dispatch(changeBoardViewData(formatData));
+    dispatch(initBoardViewRecordCount(dealBoardViewRecordCount(data)));
+
+    dispatch({
+      type: 'CHANGE_BOARD_VIEW_LOADING',
+      loading: false,
+    });
+    dispatch({
+      type: 'CHANGE_BOARD_VIEW_STATE',
+      payload: { kanbanIndex: para.kanbanIndex, hasMoreData: !(data.length < 20) },
+    });
+  });
 }
 
 export function getBoardViewPageData({ alwaysCallback = noop }) {
@@ -246,3 +258,9 @@ export function updateTitleData(data) {
 
 // 更新多选看板
 export const updateMultiSelectBoard = data => ({ type: 'UPDATE_MULTI_SELECT_BOARD', data });
+
+export const clearBoardView = () => {
+  return (dispatch, getState) => {
+    dispatch({ type: 'CLEAR_BOARD_VIEW', data: [] });
+  };
+};

@@ -28,7 +28,7 @@ export default class RelateSheet extends Component {
   };
   getRowId = staticValue => {
     const value = JSON.parse(staticValue || '[]')[0];
-    return _.isObject(value) ? value.rowid : value;
+    return typeof value === 'string' && value.indexOf('rowid') > -1 ? _.get(safeParse(value), 'rowid') : value;
   };
   removeRelateSheet = staticValue => {
     const { dynamicValue = [] } = this.props;
@@ -43,8 +43,9 @@ export default class RelateSheet extends Component {
     defaultType && this.$wrap.triggerClick();
   };
   render() {
-    const { data, onDynamicValueChange, defaultType, dynamicValue = [], titleControl = {} } = this.props;
+    const { data, onDynamicValueChange, defaultType, dynamicValue = [] } = this.props;
     const { recordListVisible } = this.state;
+    const titleControl = _.find(data.relationControls || [], re => re.attribute === 1);
     const multiple = data.enumDefault === 2;
     const filterRowIds = dynamicValue.reduce((total, item) => {
       if (!item.cid) {

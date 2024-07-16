@@ -4,6 +4,7 @@ import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import styled from 'styled-components';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 const IDWrap = styled.div`
   position: absolute;
@@ -29,6 +30,12 @@ export default class Widgets extends Component {
     maskStatus: _.get(this.props, 'advancedSetting.datamask') === '1',
   };
 
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
+
   componentWillReceiveProps(nextProps, nextState) {
     if (this.text && nextProps.value !== this.text.value) {
       this.text.value = this.formatValue(nextProps.value || '');
@@ -37,6 +44,13 @@ export default class Widgets extends Component {
 
   formatValue = val => {
     return (val || '').toUpperCase();
+  };
+
+  handleFocus = event => {
+    this.setState({ originValue: event.target.value.trim() });
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.FOCUS);
+    }
   };
 
   onChange = event => {
@@ -48,6 +62,12 @@ export default class Widgets extends Component {
     const value = this.text ? (this.text.value || '').replace(/ /g, '') : this.props.value || '';
     return this.state.maskStatus && value ? dealMaskValue({ ...this.props, value }) : value;
   };
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   render() {
     const { disabled, hint, value, onBlur, onChange, maskPermissions } = this.props;
@@ -92,7 +112,7 @@ export default class Widgets extends Component {
             defaultValue={defaultValue}
             maxLength={18}
             onChange={this.onChange}
-            onFocus={e => this.setState({ originValue: e.target.value.trim() })}
+            onFocus={this.handleFocus}
             onBlur={event => {
               const newVal = this.formatValue(event.target.value.trim());
               if (newVal !== defaultValue) {

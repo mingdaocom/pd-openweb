@@ -5,10 +5,10 @@ import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
 import { browserIsMobile } from 'src/util';
 import { toFixed } from 'src/util';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 
-const formatChartData = data => {
+const formatChartData = (data = []) => {
   const result = data
     .map(item => {
       return {
@@ -22,7 +22,7 @@ const formatChartData = data => {
   return result;
 };
 
-const formatChartMap = (data, yaxisList) => {
+const formatChartMap = (data = [], yaxisList) => {
   return data.map(data => {
     const control = _.find(yaxisList, { controlId: data.c_id }) || {};
     return {
@@ -87,11 +87,11 @@ export default class extends Component {
   }
   renderPieChart() {
     const { reportData } = this.props;
-    const { displaySetup, style, xaxes } = reportData;
+    const { map, displaySetup, style, xaxes } = reportData;
     if (this.chartEl) {
       this.PieChart = new this.PieComponent(this.chartEl, this.getPieConfig(this.props));
-      this.isViewOriginalData = displaySetup.showRowList && this.props.isViewOriginalData;
-      this.isLinkageData = this.props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && xaxes.controlId;
+      this.isViewOriginalData = displaySetup.showRowList && this.props.isViewOriginalData && map.length;
+      this.isLinkageData = this.props.isLinkageData && !(_.isArray(style.autoLinkageChartObjectIds) && style.autoLinkageChartObjectIds.length === 0) && xaxes.controlId && map.length;
       if (this.isViewOriginalData || this.isLinkageData) {
         this.PieChart.on('element:click', this.handleClick);
       }
@@ -200,7 +200,7 @@ export default class extends Component {
     const { map, displaySetup, yaxisList, summary, xaxes, reportId } = reportData;
     const styleConfig = reportData.style || {};
     const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
-    const data = xaxes.controlId ? formatChartData(map[0].value) : formatChartMap(map, yaxisList);
+    const data = xaxes.controlId ? formatChartData(_.get(map[0], 'value')) : formatChartMap(map, yaxisList);
     const { position } = getLegendType(displaySetup.legendType);
     const isLabelVisible = displaySetup.showDimension || displaySetup.showNumber || displaySetup.showPercent;
     const newYaxisList = formatYaxisList(data, yaxisList);
@@ -224,7 +224,7 @@ export default class extends Component {
     const contentScale = contentSize > 1 ? 1 : contentSize;
 
     const baseConfig = {
-      data,
+      data: data.length ? data : [{ originalId: '', value: 0 }],
       appendPadding: [10, 0, 10, 0],
       radius: 0.7,
       innerRadius: isAnnular ? 0.6 : 0,
@@ -239,6 +239,9 @@ export default class extends Component {
       color: (data) => {
         const index = _.findIndex(baseConfig.data, { originalId: data.originalId });
         let color = colors[index % colors.length];
+        if (!map.length) {
+          return '#f0f0f0';
+        }
         if (isOptionsColor) {
           color = getAlienationColor(xaxes, data);
         }
@@ -246,12 +249,12 @@ export default class extends Component {
           if (linkageMatch.value === data.originalId) {
             return color;
           } else {
-            return tinycolor(color).setAlpha(0.3).toRgbString();
+            return new TinyColor(color).setAlpha(0.3).toRgbString();
           }
         }
         return color;
       },
-      legend: displaySetup.showLegend
+      legend: displaySetup.showLegend && data.length
         ? {
             position,
             flipPage: true,
@@ -259,8 +262,8 @@ export default class extends Component {
             radio: { style: { r: 6 } },
           }
         : false,
-      tooltip: isAnnular
-        ? null
+      tooltip: isAnnular || !data.length
+        ? false
         : {
             shared: true,
             showCrosshairs: false,
@@ -275,7 +278,7 @@ export default class extends Component {
               };
             },
           },
-      statistic: displaySetup.showTotal
+      statistic: displaySetup.showTotal || !data.length
         ? {
             title: {
               offsetY: titleScale > 0.65 ? -10 : titleScale * 5,
@@ -295,12 +298,12 @@ export default class extends Component {
               },
               formatter: datum => {
                 const value = datum ? datum.originalValue : summary.sum;
-                return formatrChartValue(value, false, newYaxisList);
+                return formatrChartValue(value, false, newYaxisList, '', false);
               },
             },
           }
         : false,
-      label: isLabelVisible
+      label: isLabelVisible && data.length
         ? {
             type: 'outer',
             formatter: item => {
@@ -319,7 +322,7 @@ export default class extends Component {
             },
           }
         : false,
-      interactions: this.interactions(isAnnular),
+      interactions: data.length && this.interactions(isAnnular),
     };
     return baseConfig;
   }

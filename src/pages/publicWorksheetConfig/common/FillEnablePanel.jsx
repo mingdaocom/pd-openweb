@@ -25,6 +25,7 @@ function EnablePanel(props) {
     originalControls,
     hidedControlIds,
     hideControl,
+    projectId
   } = props;
   const [formVisible, setFormVisible] = useState(/detail/.test(location.hash));
   const enabled = worksheetInfo.visibleType === VISIBLE_TYPE.PUBLIC;
@@ -104,6 +105,7 @@ function EnablePanel(props) {
           enabled={enabled}
           onSwitchChange={onSwitchChange}
           onHideControl={onHideControl}
+          projectId={projectId}
         />
         <PublicWorksheetConfigForm onHideControl={onHideControl} />
       </div>

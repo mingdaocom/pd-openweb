@@ -47,11 +47,6 @@ export const getReportConfigDetail = (data, callBack) => {
         type: 'CHANGE_STATISTICS_LOADING',
         data: true,
       });
-    } else {
-      dispatch({
-        type: 'CHANGE_STATISTICS_DETAIL_LOADING',
-        data: false,
-      });
     }
 
     if (!permissions) {
@@ -101,7 +96,7 @@ export const getReportConfigDetail = (data, callBack) => {
         data: axisControls.map(item => {
           return {
             ...item,
-            controlName: getTranslateInfo(id, item.controlId).name || item.controlName,
+            controlName: getTranslateInfo(id, null, item.controlId).name || item.controlName,
           };
         }),
       });
@@ -131,13 +126,13 @@ export const getReportData = () => {
       const data = fillValueMap(result);
       const { id } = window.appInfo || {};
       if (data.xaxes && data.xaxes.controlId) {
-        data.xaxes.controlName = getTranslateInfo(id, data.xaxes.controlId).name || data.xaxes.controlName;
+        data.xaxes.controlName = getTranslateInfo(id, null, data.xaxes.controlId).name || data.xaxes.controlName;
       }
       if (data.yaxisList) {
         data.yaxisList = data.yaxisList.map(data => {
           return {
             ...data,
-            controlName: getTranslateInfo(id, data.controlId).name || data.controlName,
+            controlName: getTranslateInfo(id, null, data.controlId).name || data.controlName,
           };
         });
       }
@@ -174,6 +169,10 @@ export const getReportData = () => {
         type: 'CHANGE_STATISTICS_LOADING',
         data: false,
       });
+      dispatch({
+        type: 'CHANGE_STATISTICS_DETAIL_LOADING',
+        data: false,
+      });
     };
     const fail = () => {
       dispatch({
@@ -208,7 +207,8 @@ export const getReportData = () => {
       if (reportRequest) {
         reportRequest.abort();
       }
-      const { filter = {}, sorts, version, particleSizeType } = data;
+      const { filter = {}, sorts, version, reportType } = data;
+      const { particleSizeType } = data.xaxes || {};
       const params = {
         reportId: report.id,
         pageId,
@@ -228,9 +228,11 @@ export const getReportData = () => {
       if (!_.isEmpty(linkageFiltersGroup)) {
         params.filters.push(linkageFiltersGroup);
       }
+      if (reportType !== reportTypes.CountryLayer) {
+        params.particleSizeType = particleSizeType;
+      }
       if (!_.isEmpty(reportData)) {
         Object.assign(params, {
-          particleSizeType,
           filterRangeId: filter.filterRangeId,
           rangeType: filter.rangeType,
           rangeValue: filter.rangeValue,
@@ -297,7 +299,8 @@ export const getTableData = () => {
         });
       });
     } else {
-      const { filter = {}, sorts, version, particleSizeType, country } = data;
+      const { filter = {}, sorts, version, country, reportType } = data;
+      const { particleSizeType } = data.xaxes || {};
       const params = {
         reportId: report.id,
         pageId,
@@ -317,9 +320,11 @@ export const getTableData = () => {
       if (!_.isEmpty(linkageFiltersGroup)) {
         params.filters.push(linkageFiltersGroup);
       }
+      if (reportType !== reportTypes.CountryLayer) {
+        params.particleSizeType = particleSizeType;
+      }
       if (!_.isEmpty(reportData)) {
         Object.assign(params, {
-          particleSizeType,
           filterRangeId: filter.filterRangeId,
           rangeType: filter.rangeType,
           rangeValue: filter.rangeValue,
@@ -443,6 +448,14 @@ export const getWorksheetInfo = worksheetId => {
     const { filter } = currentReport;
     const filterId = _.get(filter, 'filterId');
 
+    if (!worksheetId) {
+      dispatch({
+        type: 'CHANGE_STATISTICS_DETAIL_LOADING',
+        data: false,
+      });
+      dispatch(getReportData());
+      return;
+    }
     if (worksheetInfoRequest) {
       worksheetInfoRequest.abort();
     }
@@ -459,13 +472,10 @@ export const getWorksheetInfo = worksheetId => {
 
     Promise.all([worksheetInfoRequest, worksheetFilterByIdRequest]).then(result => {
       const [worksheetResult, filterResult] = result;
-      dispatch({
-        type: 'CHANGE_STATISTICS_DETAIL_LOADING',
-        data: false,
-      });
       if (_.get(worksheetResult, ['template', 'controls'])) {
         worksheetResult.template.controls = replaceControlsTranslateInfo(
           worksheetResult.appId,
+          worksheetId,
           _.get(worksheetResult, ['template', 'controls']),
         );
       }
@@ -474,11 +484,11 @@ export const getWorksheetInfo = worksheetId => {
         data: {
           worksheetId,
           appId: worksheetResult.appId,
-          name: getTranslateInfo(worksheetResult.appId, worksheetId).name || worksheetResult.name,
+          name: getTranslateInfo(worksheetResult.appId, null, worksheetId).name || worksheetResult.name,
           views: (worksheetResult.views || []).map(item => {
             return {
               ...item,
-              name: getTranslateInfo(worksheetResult.appId, item.viewId).name || item.name,
+              name: getTranslateInfo(worksheetResult.appId, null, item.viewId).name || item.name,
             };
           }),
           switches: worksheetResult.switches,
@@ -503,6 +513,10 @@ export const getWorksheetInfo = worksheetId => {
         });
       }
       dispatch(getReportData());
+      dispatch({
+        type: 'CHANGE_STATISTICS_DETAIL_LOADING',
+        data: false,
+      });
     });
   };
 };
@@ -544,6 +558,14 @@ export const closeCurrentReport = () => {
 export const changeSheetId = activeSheetId => {
   return (dispatch, getState) => {
     const { currentReport, base } = getState().statistics;
+    dispatch({
+      type: 'CHANGE_STATISTICS_DETAIL_LOADING',
+      data: true,
+    });
+    dispatch({
+      type: 'CHANGE_STATISTICS_LOADING',
+      data: true,
+    });
     dispatch({
       type: 'CHANGE_STATISTICS_CURRENT_REPORT',
       data: {},
@@ -682,12 +704,27 @@ export const changeControlCheckbox = (event, item) => {
                 reportType: reportTypes.PivotTable,
               },
               () => {
-                dispatch(addColumns(item));
+                isNumber ? dispatch(addYaxisList(item)) : dispatch(addColumns(item));
               },
             ),
           );
           return;
         }
+      }
+      if ([reportTypes.GaugeChart, reportTypes.ProgressChart].includes(reportType)) {
+        dispatch(
+          getReportConfigDetail(
+            {
+              reportId: base.report.id,
+              appId: base.sheetId,
+              reportType: reportTypes.PivotTable,
+            },
+            () => {
+              isNumber ? dispatch(addYaxisList(item)) : dispatch(addColumns(item));
+            },
+          ),
+        );
+        return;
       }
       if (_.isEmpty(xaxes.controlId) && !isNumber) {
         if (
@@ -869,6 +906,7 @@ export const addXaxes = (control, isRequest = true) => {
         controlType: control.type,
         particleSizeType: isTime || isArea ? 1 : 0,
         emptyType: 0,
+        showFormat: isTime ? '0' : undefined,
         xaxisEmpty: false,
       },
       displaySetup: {
@@ -915,8 +953,12 @@ export const addValueAxis = (key, control, isRequest = true) => {
           controlName: control.controlName,
           controlType: control.type,
           magnitude: isPercent ? 7 : 0,
+          roundType: 2,
+          dotFormat: '1',
           suffix: isPercent ? '%' : '',
           ydot: isPercent ? 0 : 2,
+          showNumber: true,
+          showPercent: 0,
           normType: isNumber ? 1 : 5,
           emptyShowType: 0,
           dot: control.dot,
@@ -942,8 +984,12 @@ export const addTargetValueAxis = (index, control) => {
       controlName: control.controlName,
       controlType: control.type,
       magnitude: isPercent ? 7 : 0,
+      roundType: 2,
+      dotFormat: '1',
       suffix: isPercent ? '%' : '',
       ydot: isPercent ? 0 : 2,
+      showNumber: true,
+      showPercent: 0,
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: control.dot,
@@ -990,14 +1036,19 @@ export const addYaxisList = (data, isRequest = true) => {
     const { advancedSetting = {} } = data;
     const isPercent = advancedSetting.numshow === '1';
     const isNumber = isNumberControl(data.type, false);
+    const defaultMagnitude = reportType === reportTypes.PivotTable ? 1 : 0;
     const axis = {
       controlId: data.controlId,
       controlName: data.controlName,
       controlType: data.type,
-      magnitude: firstYAxis ? firstYAxis.magnitude : isPercent ? 7 : 0,
+      magnitude: firstYAxis ? firstYAxis.magnitude : isPercent ? 7 : defaultMagnitude,
+      roundType: firstYAxis ? firstYAxis.roundType : 2,
+      dotFormat: firstYAxis ? firstYAxis.dotFormat : '1',
       suffix: firstYAxis ? firstYAxis.suffix : isPercent ? '%' : '',
       ydot: firstYAxis ? firstYAxis.ydot : isPercent ? 0 : 2,
       fixType: firstYAxis ? firstYAxis.fixType : 0,
+      showNumber: true,
+      showPercent: 0,
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: data.dot,
@@ -1053,9 +1104,13 @@ export const addIndexYaxisList = (data, index, isRequest = true) => {
       controlName: data.controlName,
       controlType: data.type,
       magnitude: firstYAxis ? firstYAxis.magnitude : isPercent ? 7 : 0,
+      roundType: firstYAxis ? firstYAxis.roundType : 2,
+      dotFormat: firstYAxis ? firstYAxis.dotFormat : '1',
       suffix: firstYAxis ? firstYAxis.suffix : isPercent ? '%' : '',
       ydot: firstYAxis ? firstYAxis.ydot : isPercent ? 0 : 2,
       fixType: firstYAxis ? firstYAxis.fixType : 0,
+      showNumber: true,
+      showPercent: 0,
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: data.dot,
@@ -1211,19 +1266,27 @@ export const addRightYaxisList = (data, isRequest = true) => {
     const { currentReport } = getState().statistics;
     const { rightY } = currentReport;
     const { yaxisList } = rightY;
+    const { advancedSetting = {} } = data;
     const isNumber = isNumberControl(data.type, false);
+    const isPercent = advancedSetting.numshow === '1';
+    const firstYAxis = yaxisList[0];
     const axis = {
       controlId: data.controlId,
       controlName: data.controlName,
       controlType: data.type,
-      magnitude: 0,
-      suffix: '',
-      ydot: 2,
+      magnitude: firstYAxis ? firstYAxis.magnitude : isPercent ? 7 : 0,
+      roundType: firstYAxis ? firstYAxis.roundType : 2,
+      dotFormat: firstYAxis ? firstYAxis.dotFormat : '1',
+      suffix: firstYAxis ? firstYAxis.suffix : isPercent ? '%' : '',
+      ydot: firstYAxis ? firstYAxis.ydot : isPercent ? 0 : 2,
+      fixType: firstYAxis ? firstYAxis.fixType : 0,
+      showNumber: true,
+      showPercent: 0,
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: data.dot,
       rename: '',
-      advancedSetting: data.advancedSetting,
+      advancedSetting,
     };
     const newYaxisList = yaxisList.concat(axis);
     dispatch(changeRightYaxisList({ yaxisList: newYaxisList }, isRequest));

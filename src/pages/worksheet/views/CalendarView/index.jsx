@@ -239,9 +239,10 @@ class RecordCalendar extends Component {
 
   calendarActionOff = () => {
     const { random } = this.state;
-    document
-      .querySelector(`.boxCalendar_${random} .fc-view-harness-active`)
-      .removeEventListener('dblclick', this.dbClickDay);
+    const $el = document.querySelector(`.boxCalendar_${random} .fc-view-harness-active`);
+    if (!!$el) {
+      $el.removeEventListener('dblclick', this.dbClickDay);
+    }
     $(`.boxCalendar_${random} .fc-toolbar-chunk`).off('click');
   };
 
@@ -344,7 +345,7 @@ class RecordCalendar extends Component {
   // 显示农历
   getLunar = item => {
     const { unlunar } = getAdvanceSetting(this.getCurrentView(this.props)); // 默认显示农历
-    if (unlunar === '1') {
+    if (unlunar !== '0') {
       return '';
     }
     let data = LunarCalendar.solarToLunar(item.date.getFullYear(), item.date.getMonth() + 1, item.date.getDate());
@@ -433,16 +434,20 @@ class RecordCalendar extends Component {
   };
 
   selectFn = info => {
-    this.setState({
-      selectTimeInfo: info,
-    });
-    let endDivStr = info.endStr;
-    if (!info.allDay) {
-      endDivStr = moment(info.endStr).format('YYYY-MM-DD');
-    } else {
-      endDivStr = moment(endDivStr).subtract(1, 'day').format('YYYY-MM-DD');
-    }
-    this.showChooseTrigger(endDivStr, info.view.type);
+    this.setState(
+      {
+        selectTimeInfo: info,
+      },
+      () => {
+        let endDivStr = info.endStr;
+        if (!info.allDay) {
+          endDivStr = moment(info.endStr).format('YYYY-MM-DD');
+        } else {
+          endDivStr = moment(endDivStr).subtract(1, 'day').format('YYYY-MM-DD');
+        }
+        this.showChooseTrigger(endDivStr, info.view.type);
+      },
+    );
   };
 
   // 兼容Safari

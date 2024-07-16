@@ -13,7 +13,7 @@ import tagController from 'src/api/tag';
 import _ from 'lodash';
 import moment from 'moment';
 import React, { useState } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import styled from 'styled-components';
 import { LoadDiv as MingUiLoadDiv, Dialog, Checkbox } from 'ming-ui';
 
@@ -234,7 +234,8 @@ BatchTask.initEvent = function () {
     $('.batchFolder .batchFolderContent').removeClass('show');
     $('#batchTask .autoBatchFolder').addClass('show');
     $('#batchTaskFolder').focus();
-    ReactDOM.render(<SearchFolder />, document.querySelector('.barchTaskMain .autoBatchFolder'));
+    const root = createRoot(document.querySelector('.barchTaskMain .autoBatchFolder'));
+    root.render(<SearchFolder />);
   });
 
   // 现在开始
@@ -461,8 +462,8 @@ BatchTask.bindDialog = function () {
       }),
     );
 
-  const targetDom = document.querySelector('.barchTaskMain .autoBatchFolder');
-  targetDom && ReactDOM.render(<SearchFolder />, targetDom);
+  const root = createRoot(document.querySelector('.barchTaskMain .autoBatchFolder'));
+  root && root.render(<SearchFolder />);
 
   // 批量标签绑定事件
   config.selectize = $('#txtCategory').selectize({

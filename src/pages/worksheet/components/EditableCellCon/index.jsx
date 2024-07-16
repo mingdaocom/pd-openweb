@@ -20,6 +20,19 @@ const ReadOnlyTip = styled.div`
   color: #9d9d9d;
 `;
 
+const Con = styled.div`
+  .editIcon {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+    background: #fff;
+    justify-content: center;
+    align-items: center;
+  }
+`;
 function EditableCellCon(props) {
   const {
     className,
@@ -50,7 +63,7 @@ function EditableCellCon(props) {
         points: ['tl', 'bl'],
       }}
     >
-      <div
+      <Con
         className={cx('editableCellCon', className, {
           cellControlEdittingStatus: !hideOutline && isediting,
           cellControlErrorStatus: !hideOutline && error,
@@ -89,7 +102,7 @@ function EditableCellCon(props) {
             {_l('当前字段不可编辑')}
           </ReadOnlyTip>
         )} */}
-      </div>
+      </Con>
     </Trigger>
   );
 }

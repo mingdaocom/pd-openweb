@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { string } from 'prop-types';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
 import styled from 'styled-components';
 import process from 'src/pages/workflow/api/process';
-import { Dialog, ScrollView } from 'ming-ui';
+import { Dialog } from 'ming-ui';
 import _ from 'lodash';
 
 const STATUS_TEXT = {
@@ -153,21 +152,24 @@ class WorkflowHistory extends Component {
 }
 
 export default function workflowHistory(props) {
-  const $container = document.createElement('div');
-  document.body.appendChild($container);
+  const div = document.createElement('div');
+
+  document.body.appendChild(div);
+
+  const root = createRoot(div);
 
   function handleClose() {
     setTimeout(() => {
-      const res = ReactDOM.unmountComponentAtNode($container);
-      if (res && $container.parentNode) {
-        $container.parentNode.removeChild($container);
-      }
+      root.unmount();
+      document.body.removeChild(div);
+
       if (_.isFunction(props.onCancel)) {
         props.onCancel();
       }
     }, 0);
   }
 
-  ReactDOM.render(<WorkflowHistory onCancel={handleClose} onOk={handleClose} {...props} />, $container);
+  root.render(<WorkflowHistory onCancel={handleClose} onOk={handleClose} {...props} />);
+
   return handleClose;
 }

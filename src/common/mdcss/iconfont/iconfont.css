@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1715264726683') format('woff2'),
-       url('iconfont.woff?t=1715264726683') format('woff'),
-       url('iconfont.ttf?t=1715264726683') format('truetype');
+  src: url('iconfont.woff2?t=1721007035742') format('woff2'),
+       url('iconfont.woff?t=1721007035742') format('woff'),
+       url('iconfont.ttf?t=1721007035742') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,42 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-ID:before {
+  content: "\e682";
+}
+
+.icon-event_available:before {
+  content: "\eccc";
+}
+
+.icon-google:before {
+  content: "\e60f";
+}
+
+.icon-merchant:before {
+  content: "\ecca";
+}
+
+.icon-ads_click:before {
+  content: "\ecc9";
+}
+
+.icon-tab_move:before {
+  content: "\eca0";
+}
+
+.icon-arrow-up-border1:before {
+  content: "\eb41";
+}
+
+.icon-arrow-up-border:before {
+  content: "\e82d";
+}
+
+.icon-wait:before {
+  content: "\e64e";
 }
 
 .icon-menu_book:before {
@@ -3603,10 +3639,6 @@
 
 .icon-task_custom_phone:before {
   content: "\eb2c";
-}
-
-.icon-arrow-up-border:before {
-  content: "\e82d";
 }
 
 .icon-sp_class_white:before {

@@ -7,6 +7,7 @@ import { getBarCodeValue } from '../../tools/utils';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import { parseDataSource } from 'src/pages/widgetConfig/util/setting.js';
 import { FROM } from '../../tools/config';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 const QRErrorCorrectLevel = {
   '7%': 1,
@@ -54,6 +55,9 @@ export default class Widgets extends Component {
 
   componentDidMount() {
     this.updateValue(this.props.formData);
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -68,6 +72,9 @@ export default class Widgets extends Component {
 
   componentWillUnmount() {
     this.barId && clearTimeout(this.barId);
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
   }
 
   updateValue = data => {

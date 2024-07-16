@@ -1,12 +1,15 @@
 import { validate } from 'uuid';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { FROM, FORM_ERROR_TYPE, UN_TEXT_TYPE } from './config';
+import {
+  formatValuesOfOriginConditions,
+  redefineComplexControl,
+} from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { FROM, FORM_ERROR_TYPE } from './config';
 import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getStringBytes, accMul, browserIsMobile, formatStrZero } from 'src/util';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { getShowFormat, getDatePickerConfigs, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
-import { filterEmptyChildTableRows, getRelateRecordCountFromValue } from 'worksheet/util';
+import { filterEmptyChildTableRows, getRelateRecordCountFromValue, getNewRecordPageUrl } from 'worksheet/util';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { getSwitchItemNames, isOldSheetList, isTabSheetList, supportDisplayRow } from 'src/pages/widgetConfig/util';
 import _, { countBy, get, includes, isEmpty } from 'lodash';
@@ -16,7 +19,8 @@ import { WFSTATUS_OPTIONS } from 'src/pages/worksheet/components/WorksheetRecord
 import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
 import { HAVE_VALUE_STYLE_WIDGET } from 'src/pages/widgetConfig/config/index.js';
 import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
-import { isEmptyValue } from './filterFn';
+import { isEmptyValue, checkValueAvailable } from './filterFn';
+import { getAttachmentData } from '../widgets/Search/util';
 
 export const convertControl = type => {
   switch (type) {
@@ -323,6 +327,12 @@ export function formatControlToServer(
         } else if (isNewRecord || _.includes(hasDefaultRelateRecordTableControls, control.controlId)) {
           result.value = JSON.stringify(state.records.map(record => ({ sid: record.rowid })));
         } else if (
+          get(state, 'changes.isDeleteAll') &&
+          control.advancedSetting.showtype === String(RELATE_RECORD_SHOW_TYPE.TABLE)
+        ) {
+          result.editType = 0;
+          result.value = JSON.stringify(state.changes.addedRecordIds.map(id => ({ sid: id })));
+        } else if (
           !isEmpty(state.changes) &&
           control.advancedSetting.showtype === String(RELATE_RECORD_SHOW_TYPE.TABLE)
         ) {
@@ -614,7 +624,10 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
         item.value = moment(new Date()).format(formatMode);
         return;
       }
-      const currentControl = _.find(data, da => da.controlId === cid);
+      let currentControl = _.find(data, da => da.controlId === cid);
+      if (currentControl && currentControl.type === 30) {
+        currentControl = redefineComplexControl(currentControl);
+      }
       //排除为空、不为空、在范围，不在范围类型
       if (currentControl && currentControl.value && !_.includes([7, 8, 11, 12, 31, 32], item.filterType)) {
         //普通数值类
@@ -765,6 +778,9 @@ export const getCurrentValue = (item, data, control) => {
               return curValue;
             })
             .join('、');
+        case 14:
+          const fileData = getAttachmentData({ value: data });
+          return fileData.map(f => f.originalFileName || f.originalFilename).join('、');
         case 15:
         case 16:
           const showFormat = getShowFormat(item);
@@ -862,6 +878,8 @@ export const getEmbedValue = (embedData = {}, id) => {
       return md.global.Account.mobilePhone;
     case 'email':
       return md.global.Account.email;
+    case 'language':
+      return window.getCurrentLang();
     case 'ua':
       return window.navigator.userAgent;
     case 'timestamp':
@@ -871,17 +889,27 @@ export const getEmbedValue = (embedData = {}, id) => {
   }
 };
 
+const getCodeUrl = ({ appId, worksheetId, viewId, recordId }) => {
+  if (recordId) {
+    let baseUrl = `${location.origin}${window.subPath || ''}/app/${appId}/${worksheetId}`;
+    if (viewId) {
+      baseUrl += `/${viewId}`;
+    }
+    baseUrl += `/row/${recordId}`;
+    return baseUrl;
+  } else {
+    return getNewRecordPageUrl({ appId, worksheetId, viewId });
+  }
+};
+
 export const getBarCodeValue = ({ data, control, codeInfo }) => {
   const { enumDefault, enumDefault2, dataSource } = control;
-  const { appId, worksheetId, viewId, recordId } = codeInfo;
   if ((enumDefault === 1 || (enumDefault === 2 && enumDefault2 === 3)) && !dataSource) return '';
-  if (dataSource === 'rowid') return recordId;
+  if (dataSource === 'rowid') return codeInfo.recordId;
   if (enumDefault === 2) {
     // 记录内部访问链接
     if (enumDefault2 === 1) {
-      return recordId
-        ? `${location.origin}/app/${appId}/${worksheetId}/${viewId}/row/${recordId}`
-        : `${md.global.Config.WebUrl}app/${appId}/newrecord/${worksheetId}/${viewId}/`;
+      return getCodeUrl(codeInfo);
     }
   }
   const selectControl = _.find(data, i => i.controlId === dataSource);
@@ -925,14 +953,6 @@ export const getCheckAndOther = value => {
   return { checkIds, otherValue };
 };
 
-// 查询文本类失焦校验(文本扫码特殊处理)
-export const unTextSearch = item => {
-  return (
-    _.includes(UN_TEXT_TYPE, item.type) ||
-    (item.type === 2 && browserIsMobile() && (item.strDefault || '10').split('')[1] === '1')
-  );
-};
-
 // 渲染计数
 export const renderCount = item => {
   const { type, enumDefault, value, advancedSetting } = item;
@@ -949,11 +969,12 @@ export const renderCount = item => {
 
   if (type === 29 && advancedSetting.showtype === String(RELATE_RECORD_SHOW_TYPE.TABLE)) {
     const state = item.store.getState();
-    count = state.loading
-      ? item.value
-      : typeof state.tableState.countForShow !== 'undefined'
-      ? state.tableState.countForShow
-      : state.tableState.count;
+    count =
+      state.loading && /^\d+$/.test(item.value)
+        ? item.value
+        : typeof state.tableState.countForShow !== 'undefined'
+        ? state.tableState.countForShow
+        : state.tableState.count;
   }
 
   // 附件
@@ -1006,7 +1027,7 @@ export const halfSwitchSize = (item, from) => {
 
 // 人员控件选择范围处理
 export const dealUserRange = (control = {}, data = [], masterData = {}) => {
-  if (!JSON.parse(_.get(control, 'advancedSetting.userrange') || '[]').length) return false;
+  if (!JSON.parse(_.get(control, 'advancedSetting.chooserange') || '[]').length) return false;
 
   let ranges = {};
 
@@ -1025,7 +1046,7 @@ export const dealUserRange = (control = {}, data = [], masterData = {}) => {
     return curKey;
   }
 
-  JSON.parse(_.get(control, 'advancedSetting.userrange') || '[]').map(item => {
+  JSON.parse(_.get(control, 'advancedSetting.chooserange') || '[]').map(item => {
     if (item.type === 4) {
       if (item.rcid && item.rcid !== masterData.worksheetId) {
         const parentControl = _.find(data, i => i.controlId === item.rcid) || {};
@@ -1052,7 +1073,12 @@ export const dealUserRange = (control = {}, data = [], masterData = {}) => {
       }
     } else {
       const arrKey = getArrKey(item);
-      ranges[arrKey] = _.uniq((ranges[arrKey] || []).concat(item.value));
+      const userInfo = safeParse(item.staticValue || '{}');
+      const chooseId = item.type === 1 ? 26 : item.type === 2 ? 27 : 48;
+      const chooseValue = _.get(userInfo, [FILTER_TYPE[chooseId]]);
+      if (chooseValue) {
+        ranges[arrKey] = _.uniq((ranges[arrKey] || []).concat(chooseValue));
+      }
     }
   });
   return ranges;
@@ -1094,11 +1120,20 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
     return { commonData: controls, tabData: [] };
   }
 
+  function sortList(list = []) {
+    return list.sort((a, b) => {
+      if (a.row === b.row) {
+        return a.col - b.col;
+      }
+      return a.row - b.row;
+    });
+  }
+
   controls
     .filter(c => !_.includes(ALL_SYS, c.controlId))
     .forEach(item => {
       if (item.type === 52) {
-        item.child = controls.filter(i => i.sectionId === item.controlId);
+        item.child = sortList(controls.filter(i => i.sectionId === item.controlId));
         tabData.push(item);
       } else if (isTabSheetList(item)) {
         tabData.push(item);
@@ -1108,10 +1143,6 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
         commonData.push(item);
       }
     });
-
-  function sortList(list = []) {
-    return list.sort((a, b) => a.row - b.row);
-  }
 
   commonData = sortList(commonData);
   tabData = sortList(tabData).concat(sortList(oldRelateList));
@@ -1255,4 +1286,46 @@ export const formatControlValue = (value, type) => {
       .join('');
   }
   return value;
+};
+
+//非文本类控件
+export const isUnTextWidget = (data = {}) => {
+  //200自定义控件
+  const UN_TEXT_TYPE = [9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 34, 35, 36, 40, 42, 45, 46, 47, 48, 200];
+  if (_.includes(UN_TEXT_TYPE, data.type)) return true;
+  if (data.type === 6 && _.includes(['2', '3'], _.get(data, 'advancedSetting.showtype'))) return true;
+  if (data.type === 2 && browserIsMobile() && (data.strDefault || '10').split('')[1] === '1') return true;
+  return false;
+};
+
+export const isPublicLink = () => {
+  return (
+    _.get(window, 'isPublicWorksheet') ||
+    _.get(window, 'shareState.isPublicForm') ||
+    _.get(window, 'shareState.isPublicView') ||
+    _.get(window, 'shareState.isPublicPage') ||
+    _.get(window, 'shareState.isPublicRecord') ||
+    _.get(window, 'shareState.isPublicQuery') ||
+    _.get(window, 'shareState.isPublicFormPreview') ||
+    _.get(window, 'shareState.isPublicWorkflowRecord')
+  );
+};
+
+export const checkValueByFilterRegex = (data = {}, name, formData, recordId) => {
+  const filterRegex = safeParse(_.get(data, 'advancedSetting.filterregex') || '[]');
+  if (filterRegex.length) {
+    for (const f of filterRegex) {
+      const { filters = [], value, err } = f;
+      let reg;
+      try {
+        reg = new RegExp(value, 'gm');
+      } catch (error) {
+        console.log(error);
+      }
+
+      if (_.isEmpty(filters) || _.get(checkValueAvailable({ filters: filters }, formData, recordId), 'isAvailable')) {
+        return !name || !reg || reg.test(name) ? '' : err || _l('请输入有效文本');
+      }
+    }
+  }
 };

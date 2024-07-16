@@ -20,6 +20,7 @@ import {
 import ajaxRequest from 'src/api/taskCenter';
 import _ from 'lodash';
 import moment from 'moment';
+import { LoadDiv } from 'ming-ui';
 
 class TaskGantt extends Component {
   constructor(props) {
@@ -306,7 +307,9 @@ class TaskGantt extends Component {
           </div>
         ) : (
           <div id="taskFilterLoading">
-            <div className="loadingCenter" dangerouslySetInnerHTML={{ __html: LoadDiv() }} />
+            <div className="loadingCenter">
+              <LoadDiv />
+            </div>
           </div>
         )}
       </div>

@@ -8,6 +8,7 @@ import { ActionResult } from 'src/pages/accountLogin/config.js';
 import { setWarnningData, registerSuc, warnningTipFn } from 'src/pages/accountLogin/util.js';
 import { setPssId } from 'src/util/pssId';
 import styled from 'styled-components';
+import RegExpValidator from 'src/util/expression';
 import fixedDataAjax from 'src/api/fixedData.js';
 import _ from 'lodash';
 import CompanyDrop from 'src/pages/accountLogin/components/companyDrop';
@@ -82,7 +83,7 @@ export default class Create extends React.Component {
       this.props.updateState({ lineLoading: true });
       const { registerData, company = {} } = this.props;
       let { TPParams, email = '', emailOrTel = '' } = registerData;
-      email = emailOrTel && RegExp.isEmail(emailOrTel) ? emailOrTel : email;
+      email = emailOrTel && RegExpValidator.isEmail(emailOrTel) ? emailOrTel : email;
       const { companyName, tpCompanyId, code } = company;
       const extraDatas = JSON.stringify(
         this.state.extraList.map(o => {

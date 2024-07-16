@@ -162,7 +162,7 @@ export default class MobileSet extends React.Component {
       <React.Fragment>
         <div className="title Font13 mTop24 bold">{_l('显示检查框')}</div>
         <div className="settingContent">
-          <p className="mTop6 mBottom8 Gray_9e viewSetText">
+          <p className="mTop6 mBottom8 Gray_75 viewSetText">
             {_l('选择一个检查框字段在标题前显示，可快速在卡片标记状态')}
           </p>
           <Dropdown
@@ -216,8 +216,8 @@ export default class MobileSet extends React.Component {
         <div className="viewSetTitle">{_l('移动端显示')}</div>
         <div className="title Font13 mTop24 bold">{_l('每行数量')}</div>
         <div className="settingContent">
-          <p className="mTop6 mBottom8 Gray_9e viewSetText">
-            {_l('为手机竖屏(屏幕宽度小于480pt)设置每行显示的记录数量')}
+          <p className="mTop6 mBottom8 Gray_75 viewSetText">
+            {_l('当封面显示位置在上时，为手机竖屏(屏幕宽度大于480px)设置每行显示的记录数量')}
           </p>
           <RadioGroup
             size="middle"
@@ -258,7 +258,7 @@ export default class MobileSet extends React.Component {
       <React.Fragment>
         <div className="viewSetTitle">{_l('移动端显示')}</div>
         <div className="commonConfigItem">
-          <div className="Gray_9e mTop8 mBottom24">
+          <div className="Gray_75 mTop8 mBottom24">
             {_l('表格视图中的记录在移动端以卡片的形式呈现，为移动端设置记录的显示布局，以便于移动端的数据浏览和操作。')}
           </div>
         </div>

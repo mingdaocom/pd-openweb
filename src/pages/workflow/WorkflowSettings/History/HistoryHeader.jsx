@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { array, func, bool, string } from 'prop-types';
 import { Icon } from 'ming-ui';
-import DateRangePicker from 'ming-ui/components/NewDateTimePicker/date-time-range';
 import Dropdown from '../../components/Dropdown';
 import Search from '../../components/Search';
 import { FLOW_STATUS } from './config';
@@ -9,6 +8,11 @@ import moment from 'moment';
 import cx from 'classnames';
 import SerialProcessDialog from './SerialProcessDialog';
 import instanceVersionAjax from '../../api/instanceVersion';
+import { DatePicker } from 'antd';
+import zh_CN from 'antd/es/date-picker/locale/zh_CN';
+import zh_TW from 'antd/es/date-picker/locale/zh_TW';
+import en_US from 'antd/es/date-picker/locale/en_US';
+import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 
 export default class HistoryHeader extends Component {
   static propTypes = {
@@ -24,6 +28,7 @@ export default class HistoryHeader extends Component {
     onFilter: () => {},
     onRefresh: () => {},
     batchIds: [],
+    archivedItem: {},
   };
 
   state = {
@@ -47,10 +52,6 @@ export default class HistoryHeader extends Component {
 
   formatTime = time => time.map(item => item && moment(item).format('YYYY/MM/DD HH:mm'));
 
-  handleClearFilter = () => {
-    this.setState({ status: 'all', time: ['', ''], searchVal: '' }, this.onFilterParaChanged);
-  };
-
   handlePara = () => {
     const { status, time, searchVal } = this.state;
     const [startDate, endDate] = this.formatTime(time);
@@ -71,26 +72,14 @@ export default class HistoryHeader extends Component {
   };
 
   render() {
-    const { onRefresh, isSerial, processId, batchIds } = this.props;
+    const { onRefresh, isSerial, processId, batchIds, archivedItem } = this.props;
     const { status, time, isRefresh, showDialog } = this.state;
     const stopIdsCount = batchIds.filter(o => o.status === 1).length;
-    const refreshIdsCount = batchIds.filter(o => _.includes([3, 4], o.status) && o.cause !== 7777).length;
+    const refreshIdsCount = batchIds.filter(
+      o => _.includes([3, 4], o.status) && !_.includes([6666, 7777], o.cause),
+    ).length;
     const data = this.formatData(FLOW_STATUS);
     data.unshift({ value: 'all', text: _l('所有状态') });
-
-    if (this.props.hideStatusAndDate) {
-      return (
-        <div className="historyHeader">
-          <div className="filterName">
-            <Search
-              handleChange={searchVal =>
-                this.props.onFilter(Object.assign({}, this.props.filters, { title: searchVal.trim() }))
-              }
-            />
-          </div>
-        </div>
-      );
-    }
 
     return (
       <div className="historyHeader">
@@ -119,7 +108,9 @@ export default class HistoryHeader extends Component {
                 if (refreshIdsCount) {
                   instanceVersionAjax
                     .resetInstanceList({
-                      sources: batchIds.filter(o => _.includes([3, 4], o.status)).map(({ id }) => id),
+                      sources: batchIds
+                        .filter(o => _.includes([3, 4], o.status) && !_.includes([6666, 7777], o.cause))
+                        .map(({ id }) => id),
                     })
                     .then(() => {
                       onRefresh();
@@ -145,26 +136,23 @@ export default class HistoryHeader extends Component {
                 placeholder={_l('所有状态')}
               />
             </div>
-            <DateRangePicker
-              mode="datetime"
-              timeMode="minute"
-              placeholder={_l('筛选时间范围')}
-              min={moment().add(-6, 'M')}
-              selectedValue={time}
-              children={
-                <div className="filterTimeRange">
-                  <div className="timeContent">{this.renderTimePlaceholder()}</div>
-                  <Icon icon="bellSchedule" className="Gray_9e Font18" />
-                </div>
-              }
-              onOk={time => this.handleFilter({ time })}
-              onClear={() => this.handleFilter({ time: ['', ''] })}
-            />
-            {(status !== 'all' || time[0]) && (
-              <div className="clearFilter ThemeColor3" onClick={this.handleClearFilter}>
-                {_l('清除筛选')}
+            <DatePicker.RangePicker
+              locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
+              showTime
+              disabledDate={currentDate => {
+                if (_.isEmpty(archivedItem)) return currentDate > moment();
+
+                return currentDate < moment(archivedItem.start) || currentDate > moment(archivedItem.end).add(1, 'd');
+              }}
+              showToday={false}
+              onChange={time => this.handleFilter({ time: time || ['', ''] })}
+            >
+              <div className="filterTimeRange">
+                <div className="timeContent">{this.renderTimePlaceholder()}</div>
+                <Icon icon="bellSchedule" className="Gray_75 Font18" />
               </div>
-            )}
+            </DatePicker.RangePicker>
+
             {isSerial && (
               <div className="clearFilter ThemeColor3" onClick={() => this.setState({ showDialog: true })}>
                 {_l('查看串行等待中的流程')}
@@ -190,7 +178,7 @@ export default class HistoryHeader extends Component {
           <Icon
             className={cx(
               'Font18 pointer ThemeHoverColor3 Block',
-              isRefresh ? 'historyRefresh ThemeColor3' : 'Gray_9e',
+              isRefresh ? 'historyRefresh ThemeColor3' : 'Gray_75',
             )}
             icon="ic_refresh_black"
           />

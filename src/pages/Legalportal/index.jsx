@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import ReactDOM from 'react-dom';
 import { useSetState } from 'react-use';
 import { RichText, LoadDiv, Markdown, Icon } from 'ming-ui';
 import cx from 'classnames';
@@ -7,6 +6,7 @@ import privateLegalApi from 'src/api/privateLegal';
 import styled from 'styled-components';
 import preall from 'src/common/preall';
 import { getRequest } from 'src/util/index.js';
+import { createRoot } from 'react-dom/client';
 
 const WrapPage = styled.div`
   .headerPage {
@@ -393,4 +393,6 @@ const LegalPortalCon = props => {
 };
 
 const WrappedComp = preall(LegalPortalCon, { allowNotLogin: true });
-ReactDOM.render(<WrappedComp />, document.querySelector('#legalportal'));
+const root = createRoot(document.querySelector('#legalportal'));
+
+root.render(<WrappedComp />);

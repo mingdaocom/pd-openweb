@@ -175,3 +175,9 @@ export const MONTHS = [
   { text: _l('11月'), value: 11 },
   { text: _l('12月'), value: 12 },
 ];
+
+export const NAV_NAME = {
+  publicform: _l('公开表单'),
+  query: _l('公开查询'),
+  pay: _l('支付'),
+};

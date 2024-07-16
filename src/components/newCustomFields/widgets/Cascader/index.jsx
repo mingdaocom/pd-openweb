@@ -12,6 +12,7 @@ import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
 import { checkCellIsEmpty } from 'worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 const getItem = value => {
   return checkCellIsEmpty(value)
@@ -82,6 +83,9 @@ export default class Widgets extends Component {
           }
         }, 30);
       });
+    }
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
     }
   }
 
@@ -176,7 +180,7 @@ export default class Widgets extends Component {
    * 加载数据
    */
   loadData = (rowId = '') => {
-    const { dataSource, controlId, viewId, formData, advancedSetting = {}, worksheetId } = this.props;
+    const { dataSource, controlId, viewId, formData, advancedSetting = {}, worksheetId, getType } = this.props;
     const { options, layersName } = this.state;
     const keywords = this.state.keywords.trim();
     const { topshow = '0' } = advancedSetting;
@@ -203,7 +207,7 @@ export default class Widgets extends Component {
       pageIndex: 1,
       pageSize: 10000,
       isGetWorksheet: true,
-      getType: 10,
+      getType: getType || 10,
       controlId,
       relationWorksheetId: worksheetId,
     });
@@ -399,6 +403,12 @@ export default class Widgets extends Component {
       value,
     });
   };
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
 
   /**
    * 渲染h5头部

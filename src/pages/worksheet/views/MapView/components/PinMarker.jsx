@@ -97,6 +97,14 @@ const PinCardCon = styled.div`
   color: #333;
   display: block;
   overflow: hidden;
+  &.active {
+    .contentWrap {
+      display: block !important;
+    }
+  }
+  .contentWrap {
+    display: none;
+  }
 `;
 
 function getTagColor(tagType, colorControl, record = {}) {
@@ -114,10 +122,11 @@ function getTagColor(tagType, colorControl, record = {}) {
       }
 
       const activeOption = colorControl.options.find(c => c.key === activeKey);
+      const color = colorControl.enumDefault2 === 0 ? '#fff' : activeOption.color;
 
       return {
-        bgColor: activeOption.color,
-        color: new TinyColor(activeOption.color).isLight() ? '#333' : '#fff',
+        bgColor: color,
+        color: new TinyColor(color).isLight() ? '#333' : '#fff',
       };
     } catch (err) {
       return {
@@ -150,9 +159,10 @@ export default function MarkerCard(props) {
     isMobile,
     onChangeRecordId = () => {},
     getData,
+    updateNavGroup,
   } = props;
   const { position, title, summary, cover, record } = marker;
-  const { titleId, tagType, tagcolorid, showControlIds, showControlName } = mapViewConfig;
+  const { titleId, tagType, tagcolorid, showControlIds, showControlName, showtitle } = mapViewConfig;
   const [active, setActive] = useState(false);
 
   useEffect(() => {
@@ -191,7 +201,10 @@ export default function MarkerCard(props) {
       viewId,
       appSectionId: groupId,
       isOpenNewAddedRecord: true,
-      onClose: () => getData(),
+      onClose: () => {
+        getData();
+        updateNavGroup();
+      },
     });
   };
 
@@ -229,7 +242,7 @@ export default function MarkerCard(props) {
             });
           }}
         >
-          {title && (
+          {title && showtitle !== '0' && (
             <span
               className="text"
               style={{

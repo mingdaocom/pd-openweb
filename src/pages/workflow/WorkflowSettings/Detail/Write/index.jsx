@@ -95,11 +95,11 @@ export default class Write extends Component {
           });
         }
 
-        this.setState({ data: result });
-
-        if (isApproval && !result.selectNodeId) {
-          this.onChange(result.flowNodeList[0].nodeId);
-        }
+        this.setState({ data: result }, () => {
+          if (isApproval && !result.selectNodeId) {
+            this.onChange(result.flowNodeList[0].nodeId);
+          }
+        });
       });
   }
 
@@ -405,8 +405,8 @@ export default class Write extends Component {
                   {data.selectNodeId ? (
                     <div className="Font13 mTop15">
                       {data.selectNodeObj.nodeName && !data.selectNodeObj.appName ? (
-                        <div className="Gray_9e Font13 flexRow flowDetailTips">
-                          <i className="icon-task-setting_promet Font16" />
+                        <div className="Gray_75 Font13 flexRow flowDetailTips">
+                          <i className="icon-task-setting_promet Font16 Gray_9e" />
                           <div
                             className="flex mLeft10"
                             dangerouslySetInnerHTML={{
@@ -430,8 +430,8 @@ export default class Write extends Component {
                       )}
                     </div>
                   ) : (
-                    <div className="Gray_9e Font13 flexRow flowDetailTips mTop15">
-                      <i className="icon-task-setting_promet Font16" />
+                    <div className="Gray_75 Font13 flexRow flowDetailTips mTop15">
+                      <i className="icon-task-setting_promet Font16 Gray_9e" />
                       <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
                     </div>
                   )}
@@ -447,7 +447,7 @@ export default class Write extends Component {
                       return (
                         <Fragment key={item.key}>
                           <div className="Font13 bold mTop25">{item.title}</div>
-                          <div className="Font13 Gray_9e mTop10">{item.desc}</div>
+                          <div className="Font13 Gray_75 mTop10">{item.desc}</div>
                           <UpdateFields
                             type={1}
                             companyId={this.props.companyId}
@@ -475,8 +475,8 @@ export default class Write extends Component {
                       );
                     })
                   ) : (
-                    <div className="Gray_9e Font13 flexRow flowDetailTips mTop25">
-                      <i className="icon-task-setting_promet Font16" />
+                    <div className="Gray_75 Font13 flexRow flowDetailTips mTop25">
+                      <i className="icon-task-setting_promet Font16 Gray_9e" />
                       <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置数据更新')}</div>
                     </div>
                   )}

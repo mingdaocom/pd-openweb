@@ -1,15 +1,15 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import components from '../components';
-import NumberUtil from 'src/util/number';
 import { Dropdown, Checkbox } from 'ming-ui';
 import { SettingItem, NumberRange } from '../../styled';
+import PointerConfig from '../components/PointerConfig';
+import WidgetColor from '../components/WidgetColor';
+import NumberDynamicColor from '../components/NumberDynamicColor';
 import WidgetVerify from '../components/WidgetVerify';
 import PreSuffix from '../components/PreSuffix';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
 import _ from 'lodash';
-const { PointerConfig, WidgetColor, NumberDynamicColor } = components;
 
 const NUMBER_TYPES = [
   {
@@ -62,12 +62,16 @@ export default function Number(props) {
       return _.isUndefined(v) || v === '';
     }
     let changes = {};
-    if (isEmpty(min) && isEmpty(max)) {
+    if (isEmpty(min)) {
+      onChange(handleAdvancedSettingChange(data, { min: '0' }));
       return;
     }
-    let minValue = NumberUtil.parseFloat(min) || 0;
-    let maxValue =
-      typeof NumberUtil.parseFloat(max) === 'number' ? NumberUtil.parseFloat(max) : numshow === '1' ? 1 : 100;
+    if (isEmpty(max)) {
+      onChange(handleAdvancedSettingChange(data, { max: '100' }));
+      return;
+    }
+    let minValue = parseFloat(min) || 0;
+    let maxValue = typeof parseFloat(max) === 'number' ? parseFloat(max) : numshow === '1' ? 1 : 100;
     if (maxValue < minValue) {
       changes.minValue = maxValue;
       changes.maxValue = minValue;
@@ -119,8 +123,11 @@ export default function Number(props) {
               }}
               onBlur={() => {
                 let tempValue = numValue || '1';
-                if (numValue && NumberUtil.parseFloat(numValue) > NumberUtil.parseFloat(max)) {
+                if (numValue && parseFloat(numValue) > parseFloat(max)) {
                   tempValue = numinterval;
+                }
+                if (!parseFloat(tempValue)) {
+                  tempValue = '1';
                 }
                 setNumValue(tempValue);
                 const pointIndex = String(tempValue).indexOf('.') + 1;

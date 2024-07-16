@@ -130,14 +130,14 @@ const RedMenuItemWrap = styled(MenuItemWrap)`
   }
 `;
 function Option(props) {
-  const { currentProjectId, data, isSuperAdmin } = props;
+  const { currentProjectId, data, hasManageAuth } = props;
   const { id, type, isOwner, name } = data;
   const [{ popupVisible, showPublish, apiList }, setState] = useSetState({
     popupVisible: false,
     showPublish: false,
     apiList: [],
   });
-  const isConnectOwner = isSuperAdmin || isOwner;
+  const isConnectOwner = hasManageAuth || isOwner;
   if (!isConnectOwner) {
     return '';
   }
@@ -276,7 +276,6 @@ function Option(props) {
       </Trigger>
       {showPublish && (
         <PublishDialog
-          {..._.pick(props, ['isSuperAdmin', 'currentProjectId'])}
           currentProjectId={currentProjectId}
           id={id}
           onOk={data => {
@@ -285,7 +284,7 @@ function Option(props) {
           onCancel={() => {
             setState({ showPublish: false });
           }}
-          isSuperAdmin={props.isSuperAdmin}
+          hasManageAuth={hasManageAuth}
           isGetData
         />
       )}
@@ -398,7 +397,7 @@ function List(props) {
               })}
             </div>
             {props.list.map(item => {
-              const isCharge = item.isOwner || props.isSuperAdmin; //只有超级管理员或拥有者可以查看详情 isOwner拥有者
+              const isCharge = item.isOwner || props.hasManageAuth; //只有超级管理员或拥有者可以查看详情 isOwner拥有者
               if (!isCharge) {
                 return (
                   <div className="conTr Hand">
@@ -428,7 +427,7 @@ function List(props) {
           <p className="Gray_9e mTop20 mBottom0">
             {props.keywords ? _l('无匹配的结果，换一个关键词试试吧') : _l('暂无可用连接，请先创建 API 连接')}
           </p>
-          {!props.keywords && props.featureType && props.allowAPIIntegration && (
+          {!props.keywords && props.featureType && props.canCreateAPIConnect && (
             <span className="addConnect Bold Hand mTop24" onClick={() => props.onCreate()}>
               {_l('创建自定义连接')}
             </span>

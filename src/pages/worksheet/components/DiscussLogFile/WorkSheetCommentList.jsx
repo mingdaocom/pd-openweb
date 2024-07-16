@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
+import { Icon } from 'ming-ui';
 import Commenter from 'src/components/comment/commenter';
 import CommentList from 'src/components/comment/commentList';
 import { emitter } from 'worksheet/util';
 import _ from 'lodash';
+import cx from 'classnames';
+
 export default class WorkSheetCommentList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isOnlyMe: false,
+      isFocus: false,
+      containAttachment: false,
     };
     this.updatePageIndex = this.updatePageIndex.bind(this);
     this.reload = this.reload.bind(this);
@@ -19,6 +23,13 @@ export default class WorkSheetCommentList extends Component {
       listRef(this);
     }
     emitter.addListener('RELOAD_RECORD_INFO_DISCUSS', this.reload);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    //内部和外部讨论切换
+    if (nextProps.entityType !== this.props.entityType) {
+      this.setState({ isFocus: false, containAttachment: false });
+    }
   }
 
   componentWillUnMount() {
@@ -36,13 +47,6 @@ export default class WorkSheetCommentList extends Component {
     }
   }
 
-  handleFocusClick(checked) {
-    // toggle state and get first page topics
-    this.setState({
-      isOnlyMe: !checked,
-    });
-  }
-
   render() {
     const {
       worksheet: { projectId, worksheetId, rowId, appId, appName, appSectionId, viewId, title, doNotLoadAtDidMount },
@@ -54,7 +58,7 @@ export default class WorkSheetCommentList extends Component {
       status,
       entityType,
     } = this.props;
-    const { isOnlyMe } = this.state;
+    const { isFocus, containAttachment } = this.state;
     const id = rowId ? worksheetId + '|' + rowId : worksheetId;
     const props = {
       forReacordDiscussion,
@@ -89,22 +93,33 @@ export default class WorkSheetCommentList extends Component {
     };
 
     return (
-      <div className="pBottom10 pTop10 WorkSheetCommentList">
-        {/* <CheckBox*/}
-        {/* className="mBottom8 pTop5 mTop5"*/}
-        {/* checked={isOnlyMe}*/}
-        {/* onClick={checked => {*/}
-        {/* this.handleFocusClick.bind(this)(checked);*/}
-        {/* }}*/}
-        {/* >*/}
-        {/* <span className="Gray_9">{_l('只显示与我相关')}</span>*/}
-        {/* </CheckBox>*/}
+      <div className="WorkSheetCommentList">
+        {(!!discussions.length || isFocus || containAttachment) && (
+          <div className="flexRow alignItemsCenter mBottom8">
+            <div
+              className={cx('commentFilterBtn', { isActive: isFocus })}
+              onClick={() => this.setState({ isFocus: !isFocus })}
+            >
+              {isFocus && <Icon icon="done" className="mRight5 Font14" />}
+              <span>{_l('与我有关')}</span>
+            </div>
+            <div
+              className={cx('commentFilterBtn mLeft8', { isActive: containAttachment })}
+              onClick={() => this.setState({ containAttachment: !containAttachment })}
+            >
+              {containAttachment && <Icon icon="done" className="mRight5 Font14" />}
+              <span>{_l('含附件')}</span>
+            </div>
+          </div>
+        )}
+
         <CommentList
           doNotLoadAtDidMount={doNotLoadAtDidMount}
           status={status}
           sourceId={id}
           sourceType={rowId ? Commenter.TYPES.WORKSHEETROW : Commenter.TYPES.WORKSHEET}
-          isFocus={isOnlyMe}
+          isFocus={isFocus}
+          containAttachment={containAttachment}
           commentList={discussions}
           updateCommentList={data => {
             change({ discussions: data });

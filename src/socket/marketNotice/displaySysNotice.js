@@ -9,7 +9,8 @@ export default function sysNotice(data) {
       if (data.createTime && moment(data.createTime).toDate() < moment(md.global.Account.createTime).toDate()) return;
       const { title, desc, link, linkText, noticeId } = data;
       mdNotification.success({
-        key: 'systemNotice',
+        key: noticeId,
+        removeReadType: true,
         title: title,
         description: desc,
         duration: null,
@@ -20,25 +21,14 @@ export default function sysNotice(data) {
                 onClick: () => window.open(link),
               },
             ]
-          : [],
-        onClose: function () {
-          $.ajax({
-            dataType: 'jsonp',
-            url: `${md.global.Config.MdNoticeServer}/notice/read`,
-            data: {
-              accountId: md.global.Account.accountId,
-              noticeId,
-            },
-            jsonp: 'jsoncallback',
-            success: function (data) {},
-          });
-        },
+          : []
       });
     } else if (data.type === 2) {
       if (data.createTime && moment(data.createTime).toDate() < moment(md.global.Account.createTime).toDate()) return;
       const { noticeId } = data;
       mdNotification.success({
-        key: 'systemNotice',
+        key: noticeId,
+        removeReadType: true,
         title: _l('检测到系统更新 🚀'),
         description: _l('为了不影响您的正常使用，建议刷新页面'),
         duration: null,
@@ -47,19 +37,7 @@ export default function sysNotice(data) {
             text: _l('立即刷新'),
             onClick: () => location.reload(),
           },
-        ],
-        onClose: function () {
-          $.ajax({
-            dataType: 'jsonp',
-            url: `${md.global.Config.MdNoticeServer}/notice/read`,
-            data: {
-              accountId: md.global.Account.accountId,
-              noticeId,
-            },
-            jsonp: 'jsoncallback',
-            success: function (data) {},
-          });
-        },
+        ]
       });
     } else {
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {

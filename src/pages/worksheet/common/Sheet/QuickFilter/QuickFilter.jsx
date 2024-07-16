@@ -10,6 +10,13 @@ const Con = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;
+  .conditionItem .content {
+    &:hover {
+      .timeZoneTag {
+        display: none;
+      }
+    }
+  }
 `;
 
 const Empty = styled.div`

@@ -63,9 +63,12 @@ ToMobileDialog.prototype = {
       ),
       noFooter: true,
     });
-    TMD.$dialog = $('.sendToMobile');
-    TMD.$QRCode = TMD.$dialog.find('.urlQrCode');
-    this.renderQR();
+
+    setTimeout(() => {
+      TMD.$dialog = $('.sendToMobile');
+      TMD.$QRCode = TMD.$dialog.find('.urlQrCode');
+      this.renderQR();
+    }, 200);
   },
   renderQR() {
     var TMD = this;

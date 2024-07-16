@@ -94,7 +94,7 @@ export default function CustomAction(props) {
   const renderBtnContent = btn => {
     const data = _.find(translateData, { correlationId: btn.btnId }) || {};
     const translateInfo = data.data || {};
-    const comparisonLangInfo = getTranslateInfo(app.id, btn.btnId, comparisonLangData);
+    const comparisonLangInfo = getTranslateInfo(app.id, null, btn.btnId, comparisonLangData);
     const name = comparisonLangId ? comparisonLangInfo.name : btn.name;
     const desc = comparisonLangId ? comparisonLangInfo.description : btn.desc;
 

@@ -6,6 +6,7 @@ import { Icon, Checkbox, Button } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import { ICON_ROLE_TYPE } from '../config';
+import localForage from 'localforage';
 
 const OkButtonWrap = styled.div`
   width: 105px;
@@ -113,6 +114,7 @@ function RoleSelect(props) {
   }, [visible]);
 
   const setDebugRoles = ids => {
+    localForage.clear();
     appManagementApi
       .setDebugRoles({
         appId: id,
@@ -189,7 +191,9 @@ function RoleSelect(props) {
           .filter(l => !search || l.name.toLowerCase().includes(search.toLowerCase()))
           .map((item, index) => (
             <React.Fragment>
-              {[0, 3].includes(index) && <p className='Font12 pLeft12 mBottom4 mTop10 Gray_9e'>{index===0 ? _l('系统') : _l('自定义')}</p>}
+              {[0, 3].includes(index) && (
+                <p className="Font12 pLeft12 mBottom4 mTop10 Gray_9e">{index === 0 ? _l('系统') : _l('自定义')}</p>
+              )}
               <li
                 className={cx('item Hand valignWrapper', {
                   active: type === 0 && value.includes(item.roleId),

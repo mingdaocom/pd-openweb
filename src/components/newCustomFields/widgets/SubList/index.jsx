@@ -5,6 +5,7 @@ import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import autobind from 'core-decorators/lib/autobind';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class SubList extends React.Component {
   static contextType = RecordInfoContext;
@@ -26,6 +27,12 @@ export default class SubList extends React.Component {
     this.debounceChange = _.debounce(this.props.onChange, 500);
   }
 
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
+
   @autobind
   handleChange({ rows, originRows = [], lastAction = {} }, mode) {
     if (mode === 'childTableDialog') {
@@ -36,7 +43,7 @@ export default class SubList extends React.Component {
         rows,
       });
     }
-    const { value, recordId, from } = this.props;
+    const { value, recordId, from, controlId, loadDraftChildTableData = () => {} } = this.props;
     const onChange =
       lastAction.type === 'UPDATE_ROW' && lastAction.asyncUpdate ? this.debounceChange : this.props.onChange;
     const isAdd = !recordId;
@@ -89,13 +96,15 @@ export default class SubList extends React.Component {
         });
       }
     }
+
     if (from === 21 && lastAction.type === 'INIT_ROWS') {
-      onChange({
-        deleted: [],
-        updated: (rows || []).map(r => r.rowid),
-        rows: rows || [],
-        isDefault: true,
-      });
+      loadDraftChildTableData(controlId);
+    }
+  }
+
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
     }
   }
 

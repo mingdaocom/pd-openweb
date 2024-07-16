@@ -1,59 +1,152 @@
 export default {
   /**
-  * 判断是否具有组织超级管理员权限
+  * 【角色列表】获取 我可可申请的 角色列表
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   isSuperAdmin: function (args, options = {}) {
-     
-     return mdyAPI('Role', 'IsSuperAdmin', args, options);
-   },
-  /**
-  * 判断是否具有组织账户管理员权限
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   isProjectAdmin: function (args, options = {}) {
-     
-     return mdyAPI('Role', 'IsProjectAdmin', args, options);
-   },
-  /**
-  * 获取角色列表用于管理员首页展示列表
-超级管理员忽略这个IsJoined参数返回所有角色列表；其余用户则根据这个值获取用户加入或者没有加入的角色列表
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {boolean} args.isJoined 是否加入网络
   * @param {integer} args.pageIndex 页数
   * @param {integer} args.pageSize 每页数目
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getSummaryRole: function (args, options = {}) {
+   pagedApplyRoleList: function (args, options = {}) {
      
-     return mdyAPI('Role', 'GetSummaryRole', args, options);
+     return mdyAPI('Role', 'PagedApplyRoleList', args, options);
    },
   /**
-  * 获取用户拥有的权限
+  * 【角色列表】获取 我已加入的 角色列表
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {integer} args.pageIndex 页数
+  * @param {integer} args.pageSize 每页数目
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getUserPermissions: function (args, options = {}) {
+   getMyJoinedRoleList: function (args, options = {}) {
      
-     return mdyAPI('Role', 'GetUserPermissions', args, options);
+     return mdyAPI('Role', 'GetMyJoinedRoleList', args, options);
    },
   /**
-  * 获取角色包含的权限
-只有用户角色内才可以获取（超管除外）
+  * 【角色列表，仅 超级管理员 会调】获取 所有角色的 角色列表（包含 标识  是否是我加入的角色）
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {integer} args.pageIndex 页数
+  * @param {integer} args.pageSize 每页数目
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   pagedRoleList: function (args, options = {}) {
+     
+     return mdyAPI('Role', 'PagedRoleList', args, options);
+   },
+  /**
+  * 获取 角色标准权限集（可用于 新建角色）
+【只限 角色成员 或 超管】
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.roleId 角色Id（可空【新建角色使用】）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getRoleStandardPermission: function (args, options = {}) {
+     
+     return mdyAPI('Role', 'GetRoleStandardPermission', args, options);
+   },
+  /**
+  * 获取 角色 人事权限集（可用于 新建角色）
+【只限 角色成员 或 超管，有人事模块的组织】
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.roleId 角色Id（可空【新建角色使用】）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getRoleHRPermission: function (args, options = {}) {
+     
+     return mdyAPI('Role', 'GetRoleHRPermission', args, options);
+   },
+  /**
+  * 创建/编辑 角色所拥有的权限
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.roleId 角色id
+  * @param {string} args.roleName 角色名
+  * @param {boolean} args.allowAssignSamePermission 是否 允许权限分配
+  * @param {array} args.permissionIds 权限id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addRole: function (args, options = {}) {
+     
+     return mdyAPI('Role', 'AddRole', args, options);
+   },
+  /**
+  * 创建/编辑 角色所拥有的权限
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.roleId 角色id
+  * @param {string} args.roleName 角色名
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editRoleName: function (args, options = {}) {
+     
+     return mdyAPI('Role', 'EditRoleName', args, options);
+   },
+  /**
+  * 创建/编辑 角色所拥有的权限
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.roleId 角色id
+  * @param {string} args.roleName 角色名
+  * @param {boolean} args.allowAssignSamePermission 是否 允许权限分配
+  * @param {array} args.permissionIds 权限id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editRole: function (args, options = {}) {
+     
+     return mdyAPI('Role', 'EditRole', args, options);
+   },
+  /**
+  * 创建/编辑 角色所拥有的 HR权限
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.roleId 角色id
+  * @param {string} args.roleName 角色名
+  * @param {boolean} args.allowAssignSamePermission 是否 允许权限分配
+  * @param {array} args.permissionIds 权限id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editRoleHR: function (args, options = {}) {
+     
+     return mdyAPI('Role', 'EditRoleHR', args, options);
+   },
+  /**
+  * 设置 角色的 【允许分配权限】
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.roleId 角色id
+  * @param {boolean} args.allowAssignSamePermission 是否 允许权限分配
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setAllowAssignSamePermission: function (args, options = {}) {
+     
+     return mdyAPI('Role', 'SetAllowAssignSamePermission', args, options);
+   },
+  /**
+  * 删除角色
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {string} args.roleId 角色id
@@ -61,24 +154,30 @@ export default {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getRolePermisson: function (args, options = {}) {
+   removeRole: function (args, options = {}) {
      
-     return mdyAPI('Role', 'GetRolePermisson', args, options);
+     return mdyAPI('Role', 'RemoveRole', args, options);
    },
   /**
-  * 获取 用户在组织下的权限信息（查库，限网络后台使用）
+  * 分页 查询 角色成员
+【只限 角色成员 或 超管】
   * @param {Object} args 请求参数
+  * @param {string} args.keywords 搜索关键词
   * @param {string} args.projectId 网络id
+  * @param {string} args.roleId 角色id
+  * @param {integer} args.pageIndex 页数
+  * @param {integer} args.pageSize 每页数目
+  * @param {boolean} args.isHRRole
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   getProjectPermissionsByUser: function (args, options = {}) {
+   pagedRoleMembers: function (args, options = {}) {
      
-     return mdyAPI('Role', 'GetProjectPermissionsByUser', args, options);
+     return mdyAPI('Role', 'PagedRoleMembers', args, options);
    },
   /**
-  * 将组织员工添加到角色下
+  * 将组织员工 添加到角色下
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {string} args.roleId 角色id
@@ -105,51 +204,6 @@ export default {
    removeUserFromRole: function (args, options = {}) {
      
      return mdyAPI('Role', 'RemoveUserFromRole', args, options);
-   },
-  /**
-  * 获取角色下成员
-支持分页
-  * @param {Object} args 请求参数
-  * @param {string} args.keywords 搜索关键词
-  * @param {string} args.projectId 网络id
-  * @param {string} args.roleId 角色id
-  * @param {integer} args.pageIndex 页数
-  * @param {integer} args.pageSize 每页数目
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getPageUserIds: function (args, options = {}) {
-     
-     return mdyAPI('Role', 'GetPageUserIds', args, options);
-   },
-  /**
-  * 创建/编辑角色所拥有的权限
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.roleName 角色名
-  * @param {array} args.permissionIds 权限id
-  * @param {string} args.roleId 角色id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editRole: function (args, options = {}) {
-     
-     return mdyAPI('Role', 'EditRole', args, options);
-   },
-  /**
-  * 删除角色
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.roleId 角色id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   removeRole: function (args, options = {}) {
-     
-     return mdyAPI('Role', 'RemoveRole', args, options);
    },
   /**
   * 申请角色权限
@@ -231,5 +285,53 @@ export default {
    getPageLogs: function (args, options = {}) {
      
      return mdyAPI('Role', 'GetPageLogs', args, options);
+   },
+  /**
+  * 判断是否具有组织超级管理员权限
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   isSuperAdmin: function (args, options = {}) {
+     
+     return mdyAPI('Role', 'IsSuperAdmin', args, options);
+   },
+  /**
+  * 判断是否具有组织账户管理员权限
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   isProjectAdmin: function (args, options = {}) {
+     
+     return mdyAPI('Role', 'IsProjectAdmin', args, options);
+   },
+  /**
+  * 获取 用户在组织下的权限信息（查库，限网络后台使用）
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getProjectPermissionsByUser: function (args, options = {}) {
+     
+     return mdyAPI('Role', 'GetProjectPermissionsByUser', args, options);
+   },
+  /**
+  * 获取 用户在 组织下的权限
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMyPermissions: function (args, options = {}) {
+     
+     return mdyAPI('Role', 'GetMyPermissions', args, options);
    },
 };

@@ -18,17 +18,20 @@ import * as actions from 'statistics/redux/actions';
 import './index.less';
 import _ from 'lodash';
 
-const authList = [{
-  value: 0,
-  name: _l('所有记录'),
-}, {
-  value: 1,
-  name: _l('有查看权限的记录')
-}];
+const authList = [
+  {
+    value: 0,
+    name: _l('所有记录'),
+  },
+  {
+    value: 1,
+    name: _l('有查看权限的记录'),
+  },
+];
 
 @connect(
   state => ({
-    ..._.pick(state.statistics, ['currentReport', 'axisControls', 'worksheetInfo', 'base'])
+    ..._.pick(state.statistics, ['currentReport', 'axisControls', 'worksheetInfo', 'base']),
   }),
   dispatch => bindActionCreators(actions, dispatch),
 )
@@ -42,7 +45,7 @@ export default class DataSource extends Component {
       calculateControlModalVisible: false,
       currentAxisControls: this.formatAxisControls(props.axisControls),
       editCalculateControl: null,
-    }
+    };
   }
   componentWillReceiveProps(nextProps) {
     const newViewId = _.get(nextProps, ['currentReport', 'filter', 'viewId']);
@@ -89,12 +92,14 @@ export default class DataSource extends Component {
         return true;
       });
     }
-  }
+  };
   handleSearch = () => {
     const { axisControls } = this.props;
     const { searchValue } = this.state;
     if (searchValue) {
-      const result = axisControls.filter(item => (item.controlName || '').toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()));
+      const result = axisControls.filter(item =>
+        (item.controlName || '').toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()),
+      );
       this.setState({
         currentAxisControls: this.formatAxisControls(result),
       });
@@ -104,10 +109,10 @@ export default class DataSource extends Component {
         currentAxisControls: this.formatAxisControls(axisControls),
       });
     }
-  }
+  };
   handleChangeCheckbox = (event, item) => {
     this.props.changeControlCheckbox(event, item);
-  }
+  };
   renderHeader() {
     const { dataIsUnfold, onChangeDataIsUnfold } = this.props;
     if (dataIsUnfold) {
@@ -141,71 +146,84 @@ export default class DataSource extends Component {
               this.setState({ sheetModalVisible: true });
             }}
           >
-            <span className="flex Font13 Bold">
+            <span className="flex Font13 Bold WordBreak">
               {worksheetInfo.name}
-              {appType === 1 && (
-                view ? `(${view.name})` : filter.viewId ? <span className="removeViewId">({_l('视图已被删除')})</span> : `(${_l('所有记录')})`
-              )}
-              {appType === 2 && (
-                `(${_l('聚合表')})`
-              )}
+              {appType === 1 &&
+                (view ? (
+                  `(${view.name})`
+                ) : filter.viewId ? (
+                  <span className="removeViewId">({_l('视图已被删除')})</span>
+                ) : (
+                  `(${_l('所有记录')})`
+                ))}
+              {appType === 2 && `(${_l('聚合表')})`}
             </span>
             <Icon className="Gray_9e Font18" icon="swap_horiz" />
           </div>
         </div>
-        <SheetModal
-          appType={appType}
-          sourceType={sourceType}
-          dialogVisible={sheetModalVisible}
-          ownerId={ownerId}
-          appId={appId}
-          projectId={projectId}
-          viewId={filter.viewId || null}
-          worksheetInfo={worksheetInfo}
-          onChange={(worksheetId, viewId, appType) => {
-            this.props.changeBase({ appType });
-            if (worksheetId === worksheetInfo.worksheetId) {
-              this.props.changeCurrentReport(
-                {
-                  filter: {
-                    ...filter,
-                    viewId,
+        {sheetModalVisible && (
+          <SheetModal
+            appType={appType}
+            sourceType={sourceType}
+            dialogVisible={sheetModalVisible}
+            ownerId={ownerId}
+            appId={worksheetInfo.appId || appId}
+            projectId={projectId}
+            viewId={filter.viewId || null}
+            worksheetInfo={worksheetInfo}
+            onChange={(worksheetId, viewId, appType) => {
+              this.props.changeBase({ appType });
+              if (worksheetId === worksheetInfo.worksheetId) {
+                this.props.changeCurrentReport(
+                  {
+                    filter: {
+                      ...filter,
+                      viewId,
+                    },
                   },
-                },
-                true,
-              );
-            } else {
-              this.props.onChangeSheetId(worksheetId);
-            }
-            this.setState({ sheetModalVisible: false });
-          }}
-          onChangeDialogVisible={visible => {
-            this.setState({ sheetModalVisible: visible });
-          }}
-        />
+                  true,
+                );
+              } else {
+                this.props.onChangeSheetId(worksheetId);
+              }
+              this.setState({ sheetModalVisible: false });
+            }}
+            onChangeDialogVisible={visible => {
+              this.setState({ sheetModalVisible: visible });
+            }}
+          />
+        )}
       </Fragment>
     );
   }
   renderTime() {
-    const { worksheetInfo, currentReport, axisControls } = this.props;
+    const { worksheetInfo, currentReport, axisControls, appId } = this.props;
     const { filter = {}, displaySetup } = currentReport;
     const { timeModalVisible } = this.state;
     return (
       <div className="mTop15 horizontalPaddingWrapper">
         <div className="Bold Font13 Gray mBottom10">{_l('时间')}</div>
-        <div className="timeWrapper flexRow valignWrapper pointer" onClick={() => { this.setState({ timeModalVisible: true }) }}>
+        <div
+          className="timeWrapper flexRow valignWrapper pointer"
+          onClick={() => {
+            this.setState({ timeModalVisible: true });
+          }}
+        >
           <div className={cx('flex Font13 Bold', [20, 21].includes(filter.rangeType) ? 'flexColumn' : 'flexRow')}>
             <span className="nowrap">{filter.filterRangeName}</span>
-            <span className={cx({ mLeft5: ![20, 21].includes(filter.rangeType) })}>({formatrChartTimeText(filter)})</span>
+            <span className={cx({ mLeft5: ![20, 21].includes(filter.rangeType) })}>
+              ({formatrChartTimeText(filter)})
+            </span>
           </div>
           <Icon className="Gray_9e Font14" icon="arrow-down-border" />
         </div>
         <TimeModal
+          appId={appId}
           filter={filter}
           controls={axisControls.filter(item => isTimeControl(item.type))}
           visible={timeModalVisible}
           onCancel={() => {
-            this.setState({ timeModalVisible: false })
+            this.setState({ timeModalVisible: false });
           }}
           onChangeFilter={data => {
             this.props.changeCurrentReport(
@@ -239,7 +257,7 @@ export default class DataSource extends Component {
           ))}
         </Menu>
       );
-    }
+    };
     return (
       <div className="mTop15 horizontalPaddingWrapper">
         <div className="Bold Font13 Gray mBottom10">{_l('权限')}</div>
@@ -268,7 +286,15 @@ export default class DataSource extends Component {
             event.which === 13 && this.handleSearch();
           }}
         />
-        {searchValue && <Icon className="Font18 pointer" icon="close" onClick={() => { this.setState({ searchValue: '' }, this.handleSearch); }} />}
+        {searchValue && (
+          <Icon
+            className="Font18 pointer"
+            icon="close"
+            onClick={() => {
+              this.setState({ searchValue: '' }, this.handleSearch);
+            }}
+          />
+        )}
       </div>
     );
   }
@@ -281,7 +307,7 @@ export default class DataSource extends Component {
           onClick={event => {
             event.stopPropagation();
             this.setState({
-              calculateControlModalVisible: true
+              calculateControlModalVisible: true,
             });
           }}
         />
@@ -294,7 +320,7 @@ export default class DataSource extends Component {
     const { formulas = [] } = currentReport;
     return (
       <Collapse.Panel
-        className={cx({hide: _.isEmpty(formulas)})}
+        className={cx({ hide: _.isEmpty(formulas) })}
         key="calculateControl"
         header={
           <Fragment>
@@ -305,29 +331,27 @@ export default class DataSource extends Component {
       >
         <div>
           <div className="chartCollapse">
-            {
-              formulas.map(item => (
-                <CalculateControlItem
-                  key={item.controlId}
-                  item={item}
-                  isActive={alreadySelectControlId.includes(item.controlId)}
-                  onChangeCheckbox={(event) => {
-                    this.handleChangeCheckbox(event, item);
-                  }}
-                  onOpenEdit={() => {
-                    this.setState({
-                      calculateControlModalVisible: true,
-                      editCalculateControl: item
-                    });
-                  }}
-                  onDelete={(id) => {
-                    changeCurrentReport({
-                      formulas: formulas.filter(item => item.controlId !== id)
-                    });
-                  }}
-                />
-              ))
-            }
+            {formulas.map(item => (
+              <CalculateControlItem
+                key={item.controlId}
+                item={item}
+                isActive={alreadySelectControlId.includes(item.controlId)}
+                onChangeCheckbox={event => {
+                  this.handleChangeCheckbox(event, item);
+                }}
+                onOpenEdit={() => {
+                  this.setState({
+                    calculateControlModalVisible: true,
+                    editCalculateControl: item,
+                  });
+                }}
+                onDelete={id => {
+                  changeCurrentReport({
+                    formulas: formulas.filter(item => item.controlId !== id),
+                  });
+                }}
+              />
+            ))}
           </div>
           <CalculateControlModal
             editCalculateControl={editCalculateControl}
@@ -338,7 +362,7 @@ export default class DataSource extends Component {
             onChangeDialogVisible={visible => {
               this.setState({
                 calculateControlModalVisible: visible,
-                editCalculateControl: null
+                editCalculateControl: null,
               });
             }}
           />
@@ -348,10 +372,7 @@ export default class DataSource extends Component {
   }
   renderExpandIcon(panelProps) {
     return (
-      <Icon
-        className={cx('Font18 Gray_9e', { 'icon-arrow-active': panelProps.isActive })}
-        icon="arrow-down-border"
-      />
+      <Icon className={cx('Font18 Gray_9e', { 'icon-arrow-active': panelProps.isActive })} icon="arrow-down-border" />
     );
   }
   renderControls() {
@@ -373,7 +394,7 @@ export default class DataSource extends Component {
                   key={item.controlId}
                   item={item}
                   isActive={alreadySelectControlId.includes(item.controlId)}
-                  onChangeCheckbox={(event) => {
+                  onChangeCheckbox={event => {
                     this.handleChangeCheckbox(event, item);
                   }}
                 />
@@ -401,7 +422,8 @@ export default class DataSource extends Component {
     );
   }
   render() {
-    const { dataIsUnfold, ownerId } = this.props;
+    const { dataIsUnfold, ownerId, base } = this.props;
+    const { appType } = base;
     return (
       <div className={cx('chartDataSource flexColumn', { small: !dataIsUnfold })}>
         {dataIsUnfold ? (
@@ -409,8 +431,8 @@ export default class DataSource extends Component {
             {this.renderHeader()}
             <ScrollView className="flex scrollWrapper">
               {this.renderSheet()}
-              {this.renderTime()}
-              {!ownerId && this.renderPermission()}
+              {appType !== 2 && this.renderTime()}
+              {!ownerId && appType !== 2 && this.renderPermission()}
               {this.renderField()}
             </ScrollView>
           </Fragment>

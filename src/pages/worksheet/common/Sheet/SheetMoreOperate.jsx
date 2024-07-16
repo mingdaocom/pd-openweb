@@ -5,6 +5,7 @@ import Trigger from 'rc-trigger';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import { setSheetName, openWorkSheetTrash, openResetAutoNumber } from 'worksheet/common';
 import { toEditWidgetPage } from 'src/pages/widgetConfig/util/index';
+import copy from 'copy-to-clipboard';
 import { navigateTo } from 'src/router/navigateTo';
 import { importDataFromExcel } from '../WorksheetBody/ImportDataFromExcel';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -149,6 +150,16 @@ export default function SheetMoreOperate(props) {
                     <span className="text">{_l('设置记录名称%02032')}</span>
                   </MenuItem>
                 )}
+                <MenuItem
+                  icon={<Icon icon="ID" className="Font18" />}
+                  onClick={() => {
+                    copy(worksheetId);
+                    alert(_l('复制成功'), 1);
+                    setMenuVisible(false);
+                  }}
+                >
+                  <span className="text">{_l('复制ID')}</span>
+                </MenuItem>
                 {!_.isEmpty(autoNumberControls) && (
                   <MenuItem
                     icon={<Icon icon="auto_number" />}

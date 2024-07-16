@@ -375,6 +375,60 @@ export default {
      return mdyAPI('AppManagement', 'GetAppStructureForER', args, options);
    },
   /**
+  * 获取组织语言
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {array} args.correlationIds 业务模块id（不需要筛选业务，不传就行）
+  * @param {integer} args.type 业务模块，0 = 组织名称，20 = 应用分组（不需要筛选业务，不传就行）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getProjectLangs: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetProjectLangs', args, options);
+   },
+  /**
+  * 批量获取业务类型组织语言
+  * @param {Object} args 请求参数
+  * @param {array} args.projectIds
+  * @param {integer} args.type 业务模块，0 = 组织名称，20 = 应用分组
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getsByProjectIds: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetsByProjectIds', args, options);
+   },
+  /**
+  * 编辑组织语言
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.correlationId 业务模块id
+  * @param {integer} args.type 业务模块，0 = 组织名称，20 = 应用分组
+  * @param {array} args.data 翻译数据
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editProjectLangs: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'EditProjectLangs', args, options);
+   },
+  /**
+  * 获取组织名称多语言(只能获取名称)
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getProjectLang: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetProjectLang', args, options);
+   },
+  /**
   * 添加角色
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
@@ -1069,6 +1123,7 @@ export default {
   * @param {integer} args.type 类型
   * @param {string} args.urlTemplate 链接
   * @param {object} args.configuration 链接配置
+  * @param {string} args.resume 摘要
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

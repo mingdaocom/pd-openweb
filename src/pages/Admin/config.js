@@ -64,15 +64,6 @@ Config.abortRequest = function (request) {
   }
 };
 
-Config.AUTHORITY_DICT = {
-  PROJECT_ADMIN: 'PROJECT_ADMIN',
-  APK_ADMIN: 'APK_ADMIN',
-  HAS_PERMISSIONS: 'HAS_PERMISSIONS',
-  NOT_MEMBER: 'NOT_MEMBER', //不是成员
-  OLD_VERSION: 'OLD_VERSION', //版本过期
-  SHOW_MANAGER: 'SHOW_MANAGER', // 显示管理员菜单
-};
-
 Config.DATE_FILTER = [
   { id: 'today', text: _l('今天') },
   { id: 'currentWeek', text: _l('最近七天') },

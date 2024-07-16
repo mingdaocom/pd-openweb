@@ -77,6 +77,7 @@ var process = {
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
    * @param {string} [args.processId] 发布版流程ID
+   * @param {string} [args.relationId] relationId
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -237,7 +238,7 @@ var process = {
    * 保存流程全局配置
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {保存流程配置} {agents:代理人(array),allowRevoke:允许触发者撤回(boolean),allowUrge:允许触发者催办(boolean),dateShowType:日期数据格式1:yyyy-MM-dd HH:mm 6：yyyy-MM-dd HH:mm:ss(integer),debugEvents:调试事件 0开启调试(array),defaultAgent:null(string),defaultErrorCandidateUsers:null(string),errorInterval:错误通知间隔时间(integer),errorNotifiers:错误消息通知人(array),executeType:运行方式: 1 并行，2：顺序，3：串行(integer),initiatorMaps:审批人为空处理(object),isSaveVariables:是否只保存流程参数(boolean),pbcConfig:PBC高级设置(ref),processId:流程ID(string),processIds:编辑版的流程id(array),processVariables:流程参数(array),required:验证必填字段(boolean),requiredIds:必须审批的节点(array),responseContentType:返回的contentType(integer),revokeNodeIds:通过指定的节点不允许撤回(array),sendTaskPass:触发者不发送通知(boolean),startEventPass:工作流触发者自动通过(boolean),triggerType:触发其他工作流 0 ：允许触发，1：只能触发指定工作流 2：不允许触发(integer),triggerView:触发者查看(boolean),userTaskNullMaps:审批人为空处理(object),userTaskNullPass:审批人为空自动通过(boolean),userTaskPass:审批人自动通过(boolean),value:返回的配置(string),}*saveProcessConfigRequest
+   * @param {保存流程配置} {agents:代理人(array),allowRevoke:允许触发者撤回(boolean),allowTaskRevoke:允许审批人撤回(boolean),allowUrge:允许触发者催办(boolean),callBackType:允许触发者撤回后重新发起 -1: 无配置 0:重新执行  1:直接返回审批节点(integer),dateShowType:日期数据格式1:yyyy-MM-dd HH:mm 6：yyyy-MM-dd HH:mm:ss(integer),debugEvents:调试事件 0开启调试(array),defaultAgent:null(string),defaultErrorCandidateUsers:null(string),errorInterval:错误通知间隔时间(integer),errorNotifiers:错误消息通知人(array),executeType:运行方式: 1 并行，2：顺序，3：串行(integer),initiatorMaps:审批人为空处理(object),isSaveVariables:是否只保存流程参数(boolean),pbcConfig:PBC高级设置(ref),processId:流程ID(string),processIds:编辑版的流程id(array),processVariables:流程参数(array),required:验证必填字段(boolean),requiredIds:必须审批的节点(array),responseContentType:返回的contentType(integer),revokeNodeIds:通过指定的节点不允许撤回(array),sendTaskPass:触发者不发送通知(boolean),startEventPass:工作流触发者自动通过(boolean),triggerType:触发其他工作流 0 ：允许触发，1：只能触发指定工作流 2：不允许触发(integer),triggerView:触发者查看(boolean),userTaskNullMaps:审批人为空处理(object),userTaskNullPass:审批人为空自动通过(boolean),userTaskPass:审批人自动通过(boolean),value:返回的配置(string),}*saveProcessConfigRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

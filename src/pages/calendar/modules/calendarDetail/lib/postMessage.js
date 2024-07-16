@@ -90,39 +90,41 @@ export default function ({ createUser, members, address, description, allDay, st
     ),
   });
 
-  const $dialog = $('.postMessageDialog');
-  $('#postContent', $dialog).autoTextarea({
-    maxHeight: 250,
-    minHeight: 100,
-  });
+  setTimeout(() => {
+    const $dialog = $('.postMessageDialog');
+    $('#postContent', $dialog).autoTextarea({
+      maxHeight: 250,
+      minHeight: 100,
+    });
 
-  // 勾选
-  $('.postMessageList', $dialog).on('click', 'li', function () {
-    var $postCheck = $(this).find('.postCheck');
-    if (!$postCheck.hasClass('markCompletedSmall')) {
-      $postCheck.removeClass('markUnCompleteSmall').addClass('markCompletedSmall');
-    } else {
-      $postCheck.removeClass('markCompletedSmall ').addClass('markUnCompleteSmall');
-    }
-  });
+    // 勾选
+    $('.postMessageList', $dialog).on('click', 'li', function () {
+      var $postCheck = $(this).find('.postCheck');
+      if (!$postCheck.hasClass('markCompletedSmall')) {
+        $postCheck.removeClass('markUnCompleteSmall').addClass('markCompletedSmall');
+      } else {
+        $postCheck.removeClass('markCompletedSmall ').addClass('markUnCompleteSmall');
+      }
+    });
 
-  // 全选
-  $('#postAllCheck', $dialog).on('click', function () {
-    if (!$(this).hasClass('markCompletedSmall')) {
-      $(this).removeClass('markUnCompleteSmall').addClass('markCompletedSmall');
-      $('.postMessageList .postCheck').removeClass('markUnCompleteSmall').addClass('markCompletedSmall');
-    } else {
-      $(this).removeClass('markCompletedSmall ').addClass('markUnCompleteSmall');
-      $('.postMessageList .postCheck').removeClass('markCompletedSmall ').addClass('markUnCompleteSmall');
-    }
-  });
+    // 全选
+    $('#postAllCheck', $dialog).on('click', function () {
+      if (!$(this).hasClass('markCompletedSmall')) {
+        $(this).removeClass('markUnCompleteSmall').addClass('markCompletedSmall');
+        $('.postMessageList .postCheck').removeClass('markUnCompleteSmall').addClass('markCompletedSmall');
+      } else {
+        $(this).removeClass('markCompletedSmall ').addClass('markUnCompleteSmall');
+        $('.postMessageList .postCheck').removeClass('markCompletedSmall ').addClass('markUnCompleteSmall');
+      }
+    });
 
-  // 选择发送类型
-  $('#btnprivate,#btnEmail').on('click', function () {
-    var className = ['', 'postContentPrivate', 'postContentEmail'];
-    var type = $(this).attr('type');
-    $(this).addClass('ThemeColor3').siblings().removeClass('ThemeColor3');
+    // 选择发送类型
+    $('#btnprivate,#btnEmail').on('click', function () {
+      var className = ['', 'postContentPrivate', 'postContentEmail'];
+      var type = $(this).attr('type');
+      $(this).addClass('ThemeColor3').siblings().removeClass('ThemeColor3');
 
-    $('#btnSendType').attr('type', type).removeClass().addClass(className[type]);
-  });
+      $('#btnSendType').attr('type', type).removeClass().addClass(className[type]);
+    });
+  }, 200);
 }

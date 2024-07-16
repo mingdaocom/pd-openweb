@@ -273,6 +273,7 @@ export const getFields = async ({
   let { dsType, workSheetId, tableName, dbName, schema, datasourceId, dataDestId } =
     _.get(node, ['nodeConfig', 'config']) || {};
   if (dsType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
+    if (!workSheetId) return;
     const res = await worksheetApi.getWorksheetInfo({ worksheetId: workSheetId, getTemplate: true });
     const resFields = isGetDest
       ? _.get(res, 'template.controls') || []

@@ -29,7 +29,7 @@ export default props => {
     }
 
     return (
-      <div className="Gray_9e" style={{ lineHeight: '20px' }}>
+      <div className="Gray_75" style={{ lineHeight: '20px' }}>
         {_l('设为')}
       </div>
     );
@@ -45,7 +45,7 @@ export default props => {
   return (
     <Fragment>
       <div className="Font13 bold">{_l('更新变量')}</div>
-      <div className="mTop20 Gray_9e">{_l('将变量')}</div>
+      <div className="mTop20 Gray_75">{_l('将变量')}</div>
 
       {!data.fields.length && (
         <div

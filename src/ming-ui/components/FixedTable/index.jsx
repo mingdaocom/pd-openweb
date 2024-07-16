@@ -1,4 +1,12 @@
-import React, { useEffect, useRef, useMemo, useImperativeHandle, forwardRef, useCallback } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useMemo,
+  useImperativeHandle,
+  forwardRef,
+  useCallback,
+} from 'react';
 import { bool, func, number } from 'prop-types';
 import styled from 'styled-components';
 import _, { get, includes } from 'lodash';
@@ -89,7 +97,7 @@ function FixedTable(props, ref) {
   window.cache = cache;
   const tableSize = useMemo(
     () => ({
-      width: sum([...new Array(columnCount)].map((a, i) => getColumnWidth(i, true) || 200)),
+      width: sum([...new Array(columnCount)].map((a, i) => getColumnWidth(i) || 200)),
       height: rowHeight * rowCount - (hasSubListFooter ? 8 : 0),
     }),
     [rowHeight, columnCount, rowCount, sheetColumnWidths],
@@ -161,7 +169,7 @@ function FixedTable(props, ref) {
       <Grid
         {...Object.assign(t, {
           width: YIsScroll ? width - barWidth : width,
-          height: XIsScroll ? height + barWidth * (setHeightAsRowCount ? 1 : -1) : height,
+          height: XIsScroll ? height + barWidth * -1 : height,
           columnHeadHeight,
           rowCount,
           columnCount,
@@ -204,7 +212,7 @@ function FixedTable(props, ref) {
         }}
       />
     ),
-    [tableSize.height, bottomFixedCount],
+    [tableSize.height, XIsScroll, bottomFixedCount],
   );
   const horizontalScroll = useMemo(
     () => (
@@ -230,7 +238,7 @@ function FixedTable(props, ref) {
         }}
       />
     ),
-    [tableSize.width, leftFixedCount],
+    [tableSize.width, YIsScroll, leftFixedCount],
   );
   function handleMouseWheel(e) {
     if (e.target.closest('.scrollInTable')) {
@@ -306,7 +314,7 @@ function FixedTable(props, ref) {
       setScrollX(cache, get(cache, 'scrollX.scrollLeft'));
     }
   }, [loading]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     cache.didMount = true;
     document.body.style.overscrollBehaviorX = 'none';
     conRef.current.addEventListener('wheel', handleMouseWheel);
@@ -398,7 +406,6 @@ FixedTable.propTypes = {
   rowCount: number.isRequired,
   rowHeight: number.isRequired,
   getColumnWidth: func.isRequired,
-  renderCell: func.isRequired,
   disablePanVertical: bool,
 };
 

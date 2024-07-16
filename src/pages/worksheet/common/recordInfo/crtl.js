@@ -7,7 +7,6 @@ import { formatControlToServer, getTitleTextFromControls } from 'src/components/
 import { openShareDialog } from 'src/pages/worksheet/components/Share';
 import { getAppFeaturesPath } from 'src/util';
 import { replacePorTalUrl } from 'src/pages/accountLogin/portalAccount/util';
-import createTask from 'src/components/createTask/createTask';
 import _ from 'lodash';
 import { handleRecordError, postWithToken, replaceBtnsTranslateInfo } from 'worksheet/util';
 import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/filterFn';
@@ -394,26 +393,6 @@ export async function handleShare({ isCharge, appId, worksheetId, viewId, record
     });
   } catch (err) {
     alert(_l('分享失败'), 2);
-    console.log(err);
-  }
-}
-
-export async function handleCreateTask({ appId, worksheetId, viewId, recordId }) {
-  try {
-    const row = await getRowDetail({ appId, worksheetId, viewId, rowId: recordId });
-    let recordTitle = getTitleTextFromControls(row.formData, undefined, undefined, { noMask: true });
-    const source = appId + '|' + worksheetId + '|' + viewId + '|' + recordId;
-    createTask({
-      TaskName: recordTitle || _l('未命名'),
-      MemberArray: _.isEmpty(row.ownerAccount)
-        ? []
-        : [row.ownerAccount].filter(item => item.accountId.indexOf('a#') === -1),
-      worksheetAndRowId: source,
-      isFromPost: true,
-      ProjectID: row.projectId,
-    });
-  } catch (err) {
-    alert(_l('创建任务失败'), 2);
     console.log(err);
   }
 }

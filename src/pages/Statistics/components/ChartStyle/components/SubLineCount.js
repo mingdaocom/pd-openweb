@@ -7,6 +7,7 @@ export default class SubLineCount extends Component {
   }
   render() {
     const { currentReport, onChangeCurrentReport } = this.props;
+    const { yaxisList = [] } = currentReport;
     const { lines } = currentReport.pivotTable;
     return (
       <div className="mBottom16">
@@ -16,20 +17,30 @@ export default class SubLineCount extends Component {
               className="mBottom10"
               checked={data.subTotal}
               onChange={(event) => {
-                onChangeCurrentReport({
+                const param = {
                   pivotTable: {
-                    ...currentReport.pivotTable,
-                    lines: lines.map(item => {
-                      if (item.controlId === data.controlId) {
-                        return {
-                          ...item,
-                          subTotal: event.target.checked
-                        }
-                      }
-                      return item;
-                    })
+                    ...currentReport.pivotTable
                   }
-                }, true);
+                };
+                const newLines = lines.map(item => {
+                  if (item.controlId === data.controlId) {
+                    return {
+                      ...item,
+                      subTotal: event.target.checked
+                    }
+                  }
+                  return item;
+                });
+                // if (!newLines.filter(n => n.subTotal).length) {
+                //   param.yaxisList = yaxisList.map(n => {
+                //     return {
+                //       ...n,
+                //       showPercent: 0
+                //     }
+                //   });
+                // }
+                param.pivotTable.lines = newLines;
+                onChangeCurrentReport(param, true);
               }}
             >
               {data.controlName}

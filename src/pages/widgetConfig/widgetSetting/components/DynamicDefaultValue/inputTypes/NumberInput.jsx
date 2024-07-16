@@ -11,6 +11,9 @@ export default function NumberInput(props) {
   const [value, setValue] = useState('');
   const [isDynamic, setDynamic] = useState(false);
   const $wrap = createRef(null);
+  const isStep = _.get(data, 'type') === 6 && _.get(data, 'advancedSetting.showtype') === '2';
+  const maxValue = _.get(data, 'advancedSetting.max');
+  const minValue = _.get(data, 'advancedSetting.min');
 
   const setDynamicValue = newValue => {
     onDynamicValueChange(newValue || []);
@@ -19,7 +22,7 @@ export default function NumberInput(props) {
   const handleChange = value => {
     const parsedValue = formatNumberFromInput(value);
     setValue(parsedValue);
-    onDynamicValueChange([{ cid: '', rcid: '', staticValue: parsedValue }]);
+    onDynamicValueChange(value ? [{ cid: '', rcid: '', staticValue: parsedValue }] : []);
   };
 
   useEffect(() => {
@@ -73,7 +76,12 @@ export default function NumberInput(props) {
           placeholder={_l('请输入数值')}
           onBlur={() => {
             if (value) {
-              const dealValue = value === '-' ? '' : parseFloat(value);
+              let dealValue = value === '-' ? '' : parseFloat(value);
+              if (isStep && (dealValue === 0 || dealValue)) {
+                if (dealValue > parseFloat(maxValue)) dealValue = maxValue;
+                if (dealValue < parseFloat(minValue)) dealValue = minValue;
+                handleChange(String(dealValue));
+              }
               setValue(dealValue);
               if (dealValue === '') {
                 onDynamicValueChange([]);

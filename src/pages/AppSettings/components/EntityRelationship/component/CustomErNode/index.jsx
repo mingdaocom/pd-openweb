@@ -66,7 +66,7 @@ export default function CustomErNode(props) {
     >
       <div className="nodeTitle valignWrapper">
         <span className="Font14 Bold overflow_ellipsis">
-          {getTranslateInfo(appId, item.worksheetId).name || item.worksheetName}
+          {getTranslateInfo(appId, null, item.worksheetId).name || item.worksheetName}
         </span>
         {(!!item.start || !!item.end) && (
           <span
@@ -86,7 +86,7 @@ export default function CustomErNode(props) {
       </div>
       <div className="splitLint"></div>
       {controls.map(control => {
-        const controlName = getTranslateInfo(appId, control.controlId).name || control.controlName;
+        const controlName = getTranslateInfo(appId, null, control.controlId).name || control.controlName;
         return (
           <div
             className="nodeControlItem valignWrapper"

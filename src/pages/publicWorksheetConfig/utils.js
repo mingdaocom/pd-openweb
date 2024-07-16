@@ -136,7 +136,7 @@ export function renderLimitInfo(worksheetSettings) {
               className="bold Gray mLeft5 mRight5"
               endTime={linkSwitchTime.endTime}
               beforeText={_l('链接将于')}
-              afterText={_l('后结束收集')}
+              afterText={_l('后结束收集') + ';'}
               arriveText={_l('链接已结束收集') + ';'}
             />
           ) : (

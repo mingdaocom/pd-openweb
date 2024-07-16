@@ -1,17 +1,17 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import 'src/pages/accountLogin/components/message.less';
 import cx from 'classnames';
 import registerAjax from 'src/api/register';
 import preall from 'src/common/preall';
 import { warnningTipFn, setWarnningData } from './util';
 import { encrypt, getRequest } from 'src/util';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import { Wrap } from './style';
 import { navigateTo } from 'src/router/navigateTo';
 import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
 import Footer from './components/Footer';
+import { createRoot } from 'react-dom/client';
 
 let request = getRequest();
 
@@ -89,7 +89,7 @@ class ResetPassword extends React.Component {
   };
 
   isPasswordRule = str => {
-    return RegExp.isPasswordValid(str, this.state.passwordRegex);
+    return RegExpValidator.isPasswordValid(str, this.state.passwordRegex);
   };
 
   // 验证密码
@@ -273,7 +273,7 @@ class ResetPassword extends React.Component {
     const { loading } = this.state;
     const { SysSettings } = md.global;
     return (
-      <Wrap className='flexColumn'>
+      <Wrap className="flexColumn">
         <DocumentTitle title={_l('修改密码')} />
         {!loading && (
           <div className="loginBox flex">
@@ -295,4 +295,6 @@ class ResetPassword extends React.Component {
 }
 
 const WrappedComp = md.global.Config.IsLocal ? preall(ResetPassword, { allowNotLogin: true }) : ResetPassword;
-ReactDOM.render(<WrappedComp />, document.querySelector('#app'));
+const root = createRoot(document.getElementById('app'));
+
+root.render(<WrappedComp />);

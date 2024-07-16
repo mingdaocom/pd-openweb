@@ -26,7 +26,7 @@ export default class LoopContent extends Component {
         {data.repeatType === DATE_TYPE.CUSTOM && this.renderFrequencyContent()}
 
         <div className="workflowDetailDesc pTop15 pBottom15 mTop20" style={{ background: 'rgba(255, 163, 64, 0.12)' }}>
-          <div className="Gray_9e mBottom5">
+          <div className="Gray_75 mBottom5">
             {_l('新版定时触发器可以综合小时、天/星期、月三个维度来设置定时任务。')}
             <span style={{ color: '#ffa340' }}>{_l('注意：切换为新方式并保存配置后，将无法恢复到旧的配置方式')}</span>
           </div>
@@ -759,6 +759,15 @@ export default class LoopContent extends Component {
     }
   }
 
+  /**
+   * 时区时间
+   */
+  getTimeZoneText = () => {
+    const timeZone = md.global.Config.DefaultTimeZone;
+
+    return `UTC${timeZone > 0 ? '+' : '-'}${timeZone / 60}`;
+  };
+
   render() {
     const { data, updateSource } = this.props;
     const { isOldCustom } = this.state;
@@ -781,7 +790,8 @@ export default class LoopContent extends Component {
           <div className="Font16 mTop10">{_l('定时')}</div>
         </div>
         <div className="workflowDetailBox mTop20">
-          <div className="Font13 bold">{_l('开始执行时间')}</div>
+          <div className="Font13">{_l('本节点中配置的所有时间数值均基于 %0 执行。', this.getTimeZoneText())}</div>
+          <div className="Font13 bold mTop20">{_l('开始执行时间')}</div>
           <div className="actionControlBox ThemeBorderColor3 mTop10 Relative">
             <DateTime
               selectedValue={data.executeTime ? moment(data.executeTime) : ''}
@@ -802,11 +812,11 @@ export default class LoopContent extends Component {
             >
               {data.executeTime ? moment(data.executeTime).format('YYYY-MM-DD HH:mm') : _l('请选择')}
             </DateTime>
-            <i className="icon-hr_time Absolute Font16 Gray_9e" style={{ right: 10, top: 10 }} />
+            <i className="icon-hr_time Absolute Font16 Gray_75" style={{ right: 10, top: 10 }} />
           </div>
 
           <div className="Font13 bold mTop20">{_l('结束执行时间')}</div>
-          <div className="Font13 Gray_9e mTop5">{_l('当到达此时间点后，流程将会被自动关闭')}</div>
+          <div className="Font13 Gray_75 mTop5">{_l('当到达此时间点后，流程将会被自动关闭')}</div>
           <div className="actionControlBox ThemeBorderColor3 mTop10 Relative">
             <DateTime
               selectedValue={data.executeEndTime ? moment(data.executeEndTime) : ''}
@@ -817,7 +827,7 @@ export default class LoopContent extends Component {
             >
               {data.executeEndTime ? moment(data.executeEndTime).format('YYYY-MM-DD HH:mm') : _l('请选择')}
             </DateTime>
-            <i className="icon-hr_time Absolute Font16 Gray_9e" style={{ right: 10, top: 10 }} />
+            <i className="icon-hr_time Absolute Font16 Gray_75" style={{ right: 10, top: 10 }} />
           </div>
 
           {data.executeTime && (

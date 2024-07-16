@@ -50,7 +50,7 @@ const CarouselWrapper = styled(Carousel)`
     bottom: 0;
     width: 100%;
     max-height: 100%;
-    padding: ${({ isMobile }) => (isMobile ? '10px 70px 10px 16px' : '24px 180px 16px 16px')};
+    padding: ${({ isMobile }) => (isMobile ? '10px 70px 10px 16px' : '24px 160px 16px 16px')};
     background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(9, 5, 5, 0.03) 16%, rgba(0, 0, 0, 0.28) 100%);
     .titleText {
       color: #fff;
@@ -88,9 +88,10 @@ export default function BulletinBoard(props) {
     <CarouselWrapper autoplay={true} isMobile={browserIsMobile()}>
       {bulletinBoards
         .concat(!bulletinBoards.length ? [{ url: md.global.FileStoreConfig.pictureHost + coverUrls[0] }] : [])
-        .map(item => {
+        .map((item, i) => {
           return (
             <div
+              key={i}
               className="Relative"
               style={{ height: `${height}px` }}
               onClick={item.link ? () => window.open(item.link) : _.noop}

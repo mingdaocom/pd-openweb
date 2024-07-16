@@ -146,17 +146,20 @@ function VertricalTreeNode(props) {
   const renderChild = () => {
     let flag = isRoot && Object.keys(stateTree).length > 1;
     let childrenData = flag ? props.stateTree : children;
-
-    if ((!visible || _.isEmpty(childrenData)) && !isRoot) return null;
+    if ((!visible || _.isEmpty(childrenData)) && nodeItem) return null;
 
     return (
       <VerticalTreeChildNode isFirst={isRoot}>
         {childrenData.map((item, index) => {
           if (!item) return null;
+
           const itemData = treeData[typeof item === 'string' ? item : item.rowId];
+
           if (!itemData) return null;
+
           let condition =
             advancedSetting.hierarchyViewType === '2' && depth >= (advancedSetting.minHierarchyLevel || '2') - 1;
+
           if (itemData.type === 'textTitle') {
             return condition ? (
               <div className={`mixTreeNode ${isNarrow ? 'coverpositionTop' : 'coverpositionAlign'}`}>

@@ -156,10 +156,13 @@ export const HomePageWrap = styled.div`
       height: 100%;
       li {
         flex: 1;
-        text-align: center;
         height: 100%;
         padding-top: 20px;
         margin-right: 10px;
+        padding-left: 15px;
+        @media screen and (max-width: 1367px) {
+          padding-left: 10px;
+        }
         &:last-child {
           margin-right: 0;
         }
@@ -229,7 +232,7 @@ export const HomePageWrap = styled.div`
     width: calc(100% - 48px);
     .inviteUserBox {
       width: 25%;
-      display: flex;
+      display: block;
       justify-content: center;
       .inviteUser {
         position: unset;

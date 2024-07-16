@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Dialog, Icon, Button, Input, QiniuUpload, LoadDiv } from 'ming-ui';
 import { Input as AntdInput } from 'antd';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import _ from 'lodash';
 import cx from 'classnames';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import { coverUrls } from './utils';
 
 const BulletinDialog = styled(Dialog)`
@@ -322,7 +322,7 @@ export default function BulletinSetting(props) {
   };
 
   const onSave = () => {
-    if (!!bulletins.filter(item => item.link.trim() && !RegExp.isURL(item.link.trim())).length) {
+    if (!!bulletins.filter(item => item.link.trim() && !RegExpValidator.isURL(item.link.trim())).length) {
       alert(_l('链接格式不正确'), 3);
       return;
     }

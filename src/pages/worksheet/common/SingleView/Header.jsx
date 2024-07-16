@@ -11,7 +11,9 @@ import styled from 'styled-components';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { browserIsMobile } from 'src/util';
-import _ from 'lodash';
+import _, { get } from 'lodash';
+import { isPublicLink } from '../../../../components/newCustomFields/tools/utils';
+import renderCellText from 'worksheet/components/CellControls/renderText';
 
 const Con = styled.div`
   display: flex;
@@ -23,12 +25,26 @@ const Flex = styled.div`
   flex: 1;
 `;
 
+const EmbedAddRecord = styled.div`
+  cursor: pointer;
+  i {
+    color: #757575;
+  }
+  &:hover {
+    color: #2196f3;
+    i {
+      color: #2196f3;
+    }
+  }
+`;
+
 const isMobile = browserIsMobile();
 
 export default function Header(props) {
   const { headerLeft, headerRight } = props;
   const {
     maxCount,
+    forcePageSize,
     worksheetInfo,
     view,
     searchData,
@@ -36,19 +52,32 @@ export default function Header(props) {
     showAsSheetView,
     sheetFetchParams,
     sheetSwitchPermit,
+    fromEmbed = false,
   } = props;
-  const {
-    changePageSize,
-    changePageIndex,
-    updateFiltersWithView,
-    updateSearchRecord,
-    refreshSheet,
-    openNewRecord
-  } = props;
+  const { changePageSize, changePageIndex, updateFiltersWithView, updateSearchRecord, refreshSheet, openNewRecord } =
+    props;
   const { count } = sheetViewData;
   const { pageIndex, pageSize } = sheetFetchParams;
   const { entityName, allowAdd } = worksheetInfo;
   const viewType = String(view.viewType);
+
+  const handleSearchData = () => {
+    if (!searchData) return;
+
+    const controls = _.get(worksheetInfo, 'template.controls') || [];
+    const titleField = controls.find(m => m.controlId === searchData.queryKey);
+    const searchRecordData = searchData.data.map(l => {
+      return {
+        ...l,
+        [searchData.queryKey]: renderCellText({
+          ...titleField,
+          value: searchData.queryKey ? l[searchData.queryKey] : undefined,
+        }),
+      };
+    });
+
+    return searchRecordData;
+  };
 
   if (isMobile) {
     return (
@@ -73,12 +102,25 @@ export default function Header(props) {
 
   return (
     <Con className={cx('SingleViewHeader', { Border0: !_.isEmpty(view.fastFilters) })}>
+      {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
+        allowAdd &&
+        fromEmbed &&
+        !_.isEmpty(view) &&
+        !isPublicLink() && (
+          <EmbedAddRecord className="addRecord flexCenter Block" onClick={openNewRecord}>
+            <Icon icon="plus" className="Font14 mRight2" />
+            <span className="Bold Font14">{_l('添加%0', entityName)}</span>
+          </EmbedAddRecord>
+        )}
       {headerLeft}
+
       <Flex />
-      {[VIEW_DISPLAY_TYPE.structure, VIEW_DISPLAY_TYPE.gunter].includes(viewType) && !showAsSheetView ? (
+      {[VIEW_DISPLAY_TYPE.structure, VIEW_DISPLAY_TYPE.gunter, VIEW_DISPLAY_TYPE.map].includes(viewType) &&
+      get(view, 'advancedSetting.hierarchyViewType') !== '3' &&
+      !showAsSheetView ? (
         <SearchRecord
           queryKey={searchData.queryKey}
-          data={searchData.data}
+          data={handleSearchData()}
           onSearch={record => {
             updateSearchRecord(view, record);
           }}
@@ -112,9 +154,10 @@ export default function Header(props) {
       </Tooltip>
       {(showAsSheetView || viewType === VIEW_DISPLAY_TYPE.sheet) && (
         <Pagination
+          allowChangePageSize={!forcePageSize}
           className="pagination"
           pageIndex={pageIndex}
-          pageSize={pageSize}
+          pageSize={forcePageSize || pageSize}
           allCount={count}
           maxCount={maxCount}
           changePageSize={changePageSize}
@@ -127,7 +170,7 @@ export default function Header(props) {
           }}
         />
       )}
-      {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd && (
+      {isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd && !fromEmbed && (
         <Button
           type="primary"
           shape="round"

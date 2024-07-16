@@ -70,8 +70,8 @@ export const TYPE_TO_STYLE = {
   },
   default: {
     icon: 'workflow',
-    bg: '#9E9E9E',
-    shallowBg: '#9E9E9E33',
+    bg: '#757575',
+    shallowBg: '#75757533',
   },
   delayed: {
     icon: 'workflow_delayed',
@@ -98,23 +98,23 @@ export const TYPE_TO_STYLE = {
 export const FLOW_NODE_TYPE_STATUS = {
   3: {
     0: { text: _l('待填写'), color: '#757575' },
-    1: { text: _l('完成填写'), color: '#757575' },
+    1: { text: _l('已填写'), color: '#757575' },
     2: { text: _l('已转交'), color: '#757575' },
     3: { text: _l('已转交'), color: '#757575' },
     5: { text: _l('无需填写'), color: '#757575' },
-    22: { text: _l('完成填写'), color: '#757575' },
+    22: { text: _l('已填写'), color: '#757575' },
   },
   4: {
     0: { text: _l('待审批'), color: '#757575' },
-    1: { text: _l('通过申请'), color: '#4CAF50', shallowBg: '#4CAF5026' },
+    1: { text: _l('已通过'), color: '#4CAF50', shallowBg: '#4CAF5026' },
     2: { text: _l('已加签'), color: '#757575' },
     3: { text: _l('已转审'), color: '#757575' },
-    4: { text: _l('否决申请'), color: '#F44336', shallowBg: '#F4433626' },
+    4: { text: _l('已否决'), color: '#F44336', shallowBg: '#F4433626' },
     5: { text: _l('无需审批'), color: '#757575' },
     8: { text: _l('已转审'), color: '#757575' },
     16: { text: _l('已加签'), color: '#757575' },
     17: { text: _l('已加签'), color: '#757575' },
-    22: { text: _l('否决申请'), color: '#F44336', shallowBg: '#F4433626' },
+    22: { text: _l('已否决'), color: '#F44336', shallowBg: '#F4433626' },
   },
   5: {
     0: { text: _l('待查看'), color: '#2196F3', shallowBg: '#2196F326' },

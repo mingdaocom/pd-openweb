@@ -174,7 +174,7 @@ export default class Snapshot extends Component {
                   style={{ height: 18 }}
                   data-tip={_l('快照不能获取已配置按权限访问的图表')}
                 >
-                  <Icon className="Font16 Gray_bd" icon="info" />
+                  <Icon className="Font16 Gray_9e" icon="info" />
                 </span>
               )}
             </div>
@@ -204,7 +204,7 @@ export default class Snapshot extends Component {
                     : `${data.appDetails.appName}-${data.appDetails.reportName}(${data.appDetails.apkName})`}
                 </span>
               ) : (
-                <span className="Gray_9e">{_l('请选择')}</span>
+                <span className="Gray_75">{_l('请选择')}</span>
               )}
             </div>
           </Fragment>
@@ -305,7 +305,7 @@ export default class Snapshot extends Component {
 
     return (
       <Fragment>
-        <span className={cx('Font16 Gray_9e', TYPES[actionId].icon)} />
+        <span className={cx('Font16 Gray_75', TYPES[actionId].icon)} />
         <span className="Font14 mLeft10">{TYPES[actionId].text}</span>
       </Fragment>
     );

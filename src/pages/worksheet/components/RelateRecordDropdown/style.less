@@ -37,6 +37,20 @@
       &.active {
         padding-right: 30px !important;
       }
+      &.multiple {
+        position: relative;
+        padding-right: 8px;
+        &:not(.isEnd)::after {
+          position: absolute;
+          right: 0;
+          content: ',';
+        }
+        &:hover::after {
+          position: absolute;
+          content: '⬈';
+          top: -4px;
+        }
+      }
     }
     .activeSelectedItem {
       position: relative;
@@ -89,9 +103,9 @@
       .normalSelectedItem,
       .activeSelectedItem {
         cursor: pointer;
-        color: #2196f3;
+        color: #003980;
         &:hover {
-          color: #1565c0;
+          color: #2196f3;
         }
       }
     }

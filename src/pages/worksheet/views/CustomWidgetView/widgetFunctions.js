@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { isEmpty, reject } from 'lodash';
-import { getPssId } from 'src/util/pssId';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openAddRecord as mobileAddRecord } from 'mobile/Record/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
@@ -15,43 +14,15 @@ import selectLocation from './selectLocation';
 import { browserIsMobile, addBehaviorLog, mdAppResponse } from 'src/util';
 import { getFilledRequestParams, emitter } from '../../util';
 
-function mdPost(controller, action, data) {
-  let pssId = getPssId();
-  const headers = {
-    authorization: pssId ? `md_pss_id ${pssId}` : '',
-  };
-  if (window.access_token) {
-    // 工作流&统计服务
-    headers.access_token = window.access_token;
-    // 主站服务
-    headers.Authorization = `access_token ${window.access_token}`;
-  }
-  const clientId = window.clientId || sessionStorage.getItem('clientId');
-  if (window.needSetClientId({ clientId, controllerName: controller })) {
-    headers.clientId = clientId;
-  }
-  return axios
-    .post(`${window.__api_server__.main.replace(/\/$/, '')}/${controller}/${action}`, data, {
-      headers,
-    })
-    .then(res => {
-      if (res.data.state) {
-        return res.data.data;
-      } else {
-        throw new Error(res.data.exception);
-      }
-    });
-}
-
 export const api = {
-  getFilterRowsTotalNum: data => mdPost('Worksheet', 'GetFilterRowsTotalNum', getFilledRequestParams(data)),
-  getFilterRows: data => mdPost('Worksheet', 'GetFilterRows', getFilledRequestParams(data)),
-  getRowRelationRows: data => mdPost('Worksheet', 'GetRowRelationRows', data),
-  getRowDetail: data => mdPost('Worksheet', 'GetRowDetail', data),
-  addWorksheetRow: data => mdPost('Worksheet', 'AddWorksheetRow', data),
-  deleteWorksheetRow: data => mdPost('Worksheet', 'DeleteWorksheetRows', data),
-  updateWorksheetRow: data => mdPost('Worksheet', 'UpdateWorksheetRow', data),
-  getWorksheetInfo: data => mdPost('Worksheet', 'GetWorksheetInfo', data),
+  getFilterRowsTotalNum: data => window.mdyAPI('Worksheet', 'GetFilterRowsTotalNum', getFilledRequestParams(data)),
+  getFilterRows: data => window.mdyAPI('Worksheet', 'GetFilterRows', getFilledRequestParams(data)),
+  getRowRelationRows: data => window.mdyAPI('Worksheet', 'GetRowRelationRows', data),
+  getRowDetail: data => window.mdyAPI('Worksheet', 'GetRowDetail', data),
+  addWorksheetRow: data => window.mdyAPI('Worksheet', 'AddWorksheetRow', data),
+  deleteWorksheetRow: data => window.mdyAPI('Worksheet', 'DeleteWorksheetRows', data),
+  updateWorksheetRow: data => window.mdyAPI('Worksheet', 'UpdateWorksheetRow', data),
+  getWorksheetInfo: data => window.mdyAPI('Worksheet', 'GetWorksheetInfo', data),
 };
 
 const isMobile = browserIsMobile();

@@ -10,7 +10,7 @@ import ScrollView from 'ming-ui/components/ScrollView';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import RecordCard from 'src/components/recordCard';
-import { checkIsTextControl, fieldCanSort } from 'src/pages/worksheet/util';
+import { checkIsTextControl, fieldCanSort, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
@@ -291,7 +291,9 @@ export default class RecordCardListDialog extends Component {
             list: filteredList,
             loading: false,
             loadouted: res.data.length < pageSize,
-            controls: res.template ? res.template.controls : [],
+            controls: res.template
+              ? replaceControlsTranslateInfo(res.worksheet.appId, null, res.template.controls)
+              : [],
             worksheet: res.worksheet || {},
           },
           () => {
@@ -484,12 +486,6 @@ export default class RecordCardListDialog extends Component {
         <div
           className="recordCardListCon flexColumn"
           style={{ height: window.innerHeight > 1000 ? 1000 - 138 : window.innerHeight - 138 }}
-          ref={this.conRef}
-          onClick={() => {
-            if (this.conRef.current && this.conRef.current.querySelector('.recordListKeyword')) {
-              this.conRef.current.querySelector('.recordListKeyword').focus();
-            }
-          }}
         >
           {!error && (
             <Header

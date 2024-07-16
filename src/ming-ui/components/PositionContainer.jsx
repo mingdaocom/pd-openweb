@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ReactDom from 'react-dom';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import './less/PositionContainer.less';
 import _ from 'lodash';
 
@@ -78,9 +78,15 @@ class PositionContainer extends Component {
   }
   renderLayer(props) {
     let { children, visible } = props;
-    render(children, this.popup, () => {
-      visible && this.show();
-    });
+    const root = createRoot(this.popup);
+
+    root.render(children);
+
+    setTimeout(() => {
+      if (visible) {
+        this.show();
+      }
+    }, 200);
   }
   getHasParent(el, className) {
     let result = false;
@@ -120,7 +126,6 @@ class PositionContainer extends Component {
     );
 
     if (
-      props.visible &&
       target &&
       this.getHasParent(target, 'PositionContainer-wrapper') &&
       _.every(_.flatten(exceptions), item => target !== item && !$(target).closest($(item)).length)

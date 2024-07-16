@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { updateSheetListLoading } from 'src/pages/worksheet/redux/actions/sheetList';
 import './index.less';
-import { getAppFeaturesVisible, browserIsMobile } from 'src/util';
+import { browserIsMobile } from 'src/util';
 import { getAppId } from 'src/pages/accountLogin/portalAccount/util';
 
 @connect(
@@ -83,10 +83,6 @@ export default class AppPkgHeader extends Component {
 
   render() {
     const { ...props } = this.props;
-    // 获取url参数
-    const { s, tb, tr } = getAppFeaturesVisible();
-
-    if (!s && !tb && !tr) return null;
 
     return <AppDetail {...props} />;
   }

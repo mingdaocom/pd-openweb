@@ -14,8 +14,8 @@ class WidgetsDesc extends React.Component {
   }
 
   componentDidMount() {
-    if (this.formcon && this.formcon.clientHeight <= 48) {
-      ReactDOM.findDOMNode(this.formconMoreDesc).setAttribute('style', 'display:none');
+    if (this.formcon && this.formcon.clientHeight <= 48 && this.formconMoreDesc) {
+      this.formconMoreDesc.style.display = 'none';
     }
   }
 
@@ -35,30 +35,28 @@ class WidgetsDesc extends React.Component {
 
     if (hintShowAsText) {
       return (
-        <Linkify properties={{ target: '_blank' }}>
-          <p className="descBox pAll0 mAll0 mBottom0 mTop6 Font12 Gray_9e w100 WordBreak">
-            <span className="descTxt" ref={formcon => (this.formconBox = formcon)}>
-              <span ref={formcon => (this.formcon = formcon)} className="descText">
-                {item.desc}
-              </span>
-              <span
-                ref={formcon => (this.formconMoreDesc = formcon)}
-                className="moreDesc Hand Font12"
-                onClick={() => {
-                  if (!isShow) {
-                    ReactDOM.findDOMNode(this.formconBox).setAttribute('style', 'max-height:100%');
-                  } else {
-                    ReactDOM.findDOMNode(this.formconBox).setAttribute('style', 'max-height:48px');
-                  }
-
-                  this.setState({ isShow: !isShow });
-                }}
-              >
-                {isShow ? _l('收起') : _l('更多')}
-              </span>
+        <p className="descBox pAll0 mAll0 mBottom0 mTop6 Font12 Gray_75 w100 WordBreak">
+          <span className="descTxt" ref={formcon => (this.formconBox = formcon)}>
+            <span ref={formcon => (this.formcon = formcon)} className="descText">
+              <Linkify properties={{ target: '_blank' }}>{item.desc}</Linkify>
             </span>
-          </p>
-        </Linkify>
+            <span
+              ref={formcon => (this.formconMoreDesc = formcon)}
+              className="moreDesc Hand Font12"
+              onClick={() => {
+                if (!isShow) {
+                  if (this.formconBox) this.formconBox.style.maxHeight = '100%';
+                } else {
+                  if (this.formconBox) this.formconBox.style.maxHeight = '48px';
+                }
+
+                this.setState({ isShow: !isShow });
+              }}
+            >
+              {isShow ? _l('收起') : _l('更多')}
+            </span>
+          </span>
+        </p>
       );
     }
 

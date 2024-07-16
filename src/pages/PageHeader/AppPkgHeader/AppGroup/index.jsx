@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { oneOf, func } from 'prop-types';
-import { arrayMove } from 'react-sortable-hoc';
+import { arrayMove } from '@mdfe/react-sortable-hoc';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import { Icon, VCenterIconText } from 'ming-ui';
@@ -393,7 +393,7 @@ export default class extends Component {
     };
 
     // 获取url参数
-    const { tb, tr } = getAppFeaturesVisible();
+    const { tb, tr, td } = getAppFeaturesVisible();
     return (
       <Fragment>
         {otherAllShow ? (
@@ -471,7 +471,7 @@ export default class extends Component {
               <div className={cx('leftPointer appItemPointer', { disable: disabledPointer === 'left' })} />
               <div className={cx('rightPointer appItemPointer', { disable: disabledPointer === 'right' })} />
             </div>
-            {otherAllShow && !md.global.Account.isPortal && !window.isPublicApp && appPkg.appStatus !== 4 && (
+            {td && otherAllShow && !md.global.Account.isPortal && !window.isPublicApp && appPkg.appStatus !== 4 && (
               <div className="appExtensionWrap">
                 <MyProcessEntry type="appPkg" renderContent={renderContent} />
               </div>

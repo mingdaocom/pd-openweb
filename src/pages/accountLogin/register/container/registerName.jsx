@@ -7,7 +7,7 @@ import { getRequest } from 'src/util';
 import { setWarnningData, warnningTipFn, registerSuc } from 'src/pages/accountLogin/util.js';
 import fixedDataAjax from 'src/api/fixedData.js';
 import _ from 'lodash';
-import RegExp from 'src/util/expression';
+import RegExpValidator from 'src/util/expression';
 import styled from 'styled-components';
 
 let request = getRequest();
@@ -37,7 +37,7 @@ export default class RegisterName extends React.Component {
 
       const { registerData = {}, nextAction, setStep = () => {} } = this.props;
       let { isLink, loginForAdd, fullName = '', email = '', emailOrTel = '' } = registerData;
-      email = emailOrTel && RegExp.isEmail(emailOrTel) ? emailOrTel : email;
+      email = emailOrTel && RegExpValidator.isEmail(emailOrTel) ? emailOrTel : email;
 
       if (location.href.indexOf('join') >= 0 && nextAction == AccountNextActions.userCardInfo && !loginForAdd) {
         this.props.setData({
@@ -108,14 +108,14 @@ export default class RegisterName extends React.Component {
       });
     }
 
-    if (!(emailOrTel && RegExp.isEmail(emailOrTel))) {
-      // 邮箱
-      if (!email) {
-        warnningData.push({ tipDom: '.email', warnningText: _l('请填写邮箱') });
-        isRight = false;
-      }
+    if (!(emailOrTel && RegExpValidator.isEmail(emailOrTel))) {
+      // // 邮箱
+      // if (!email) {
+      //   warnningData.push({ tipDom: '.email', warnningText: _l('请填写邮箱') });
+      //   isRight = false;
+      // }
 
-      if (!RegExp.isEmail(email)) {
+      if (!RegExpValidator.isEmail(email) && !!email) {
         warnningData.push({ tipDom: '.email', warnningText: _l('邮箱格式错误') });
         isRight = false;
       }
@@ -134,7 +134,7 @@ export default class RegisterName extends React.Component {
     const { registerData = {}, setData = () => {}, setStep = () => {} } = this.props;
     const { warnningData = [], focusDiv, createAccountLoading } = this.state;
     let { fullName = '', onlyReadName, email, emailOrTel } = registerData;
-    email = emailOrTel && RegExp.isEmail(emailOrTel) ? emailOrTel : email;
+    email = emailOrTel && RegExpValidator.isEmail(emailOrTel) ? emailOrTel : email;
 
     return (
       <Wrap>
@@ -170,7 +170,7 @@ export default class RegisterName extends React.Component {
             {warnningTipFn(warnningData, ['.fullName'], focusDiv)}
           </div>
 
-          {!(emailOrTel && RegExp.isEmail(emailOrTel)) && (
+          {!(emailOrTel && RegExpValidator.isEmail(emailOrTel)) && (
             <div
               className={cx('mesDiv', {
                 ...setWarnningData(warnningData, ['.email'], focusDiv, email),
@@ -178,11 +178,11 @@ export default class RegisterName extends React.Component {
             >
               <input
                 type="text"
-                className={cx('email', { onlyRead: emailOrTel && RegExp.isEmail(emailOrTel) })}
+                className={cx('email', { onlyRead: emailOrTel && RegExpValidator.isEmail(emailOrTel) })}
                 maxLength={'60'}
                 autoComplete="off"
                 ref={email => (this.email = email)}
-                readOnly={emailOrTel && RegExp.isEmail(emailOrTel)}
+                readOnly={emailOrTel && RegExpValidator.isEmail(emailOrTel)}
                 onBlur={this.inputOnBlur}
                 onFocus={() => this.inputOnFocus('.email')}
                 onChange={e => {
@@ -192,7 +192,7 @@ export default class RegisterName extends React.Component {
                 value={email}
               />
               <div className="title" onClick={e => this.inputOnFocus('.email')}>
-                {_l('邮箱')}
+                {_l('邮箱(选填)')}
               </div>
               {warnningTipFn(warnningData, ['.email'], focusDiv)}
             </div>

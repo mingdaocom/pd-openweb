@@ -13,6 +13,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import cx from 'classnames';
 import DragMask from 'worksheet/common/DragMask';
+import { getAdvanceSetting } from 'src/util';
 
 const LeftListWrapper = styled.div(
   ({ width }) => `
@@ -90,10 +91,12 @@ function DetailView(props) {
     quickFilter,
     clearData,
     controls,
+    updateWorksheetControls,
   } = props;
   const { detailViewRows = [], detailViewLoading, detailPageIndex, detailKeyWords, noMoreRows } = detailView;
   const currentView = views.find(o => o.viewId === viewId) || {};
   const coverCid = currentView.coverCid || _.get(worksheetInfo, ['advancedSetting', 'coverid']);
+  const { showtoolbar, showtitle } = getAdvanceSetting(currentView);
   const inputRef = useRef();
 
   const [currentRecord, setCurrentRecord] = useState({});
@@ -103,7 +106,7 @@ function DetailView(props) {
     isOpenGroup ? window.localStorage.getItem(`detailGroupWidth_${viewId}`) || (coverCid ? 335 : 240) : 32,
   );
   const [flag, setFlag] = useState(+new Date());
-  const isLoading = (detailViewLoading && detailPageIndex === 1) || worksheetInfo.isRequestingRelationControls;
+  const isLoading = detailViewLoading && detailPageIndex === 1;
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -305,7 +308,11 @@ function DetailView(props) {
         </div>
       )}
       <div
-        className={cx('rightRecord', { isSingle: currentView.childType === 1 })}
+        className={cx('rightRecord', {
+          isSingle: currentView.childType === 1,
+          hideToolbar: showtoolbar === '0',
+          hideFormHeader: showtitle === '0',
+        })}
         style={{ width: `calc(100% - ${groupFilterWidth}px)` }}
       >
         {isLoading && <LoadDiv className="mTop10" />}
@@ -347,6 +354,7 @@ function DetailView(props) {
                 }, 100);
               }}
               isCharge={isCharge}
+              updateWorksheetControls={updateWorksheetControls}
               customBtnTriggerCb={() => {
                 setTimeout(() => {
                   fetchRows(1, detailKeyWords);

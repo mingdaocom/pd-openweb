@@ -7,7 +7,7 @@ import doT from 'dot';
 import kcAjax from 'src/api/kc';
 import { Dialog, Button } from 'ming-ui';
 import React from 'react';
-
+import RegExpValidator from 'src/util/expression';
 var UploadNewVersion = function (item, file, callback) {
   var NV = this;
   NV.item = item;
@@ -40,33 +40,35 @@ UploadNewVersion.prototype = {
       children: <div dangerouslySetInnerHTML={{ __html: html }}></div>,
       footer: (
         <div className="Dialog-footer-btns">
-        <Button type="link" onClick={() => $(`.${NV.dialogBoxID}`).parent().remove()}>
-          {_l('取消')}
-        </Button>
-        <Button
-          type="primary"
-          onClick={() => {
-            let sign = NV.addAsNewVersion();
-            if (sign === false) return;
-            $(`.${NV.dialogBoxID}`).parent().remove();
-          }}
-        >
-          {_l('确认')}
-        </Button>
-      </div>
+          <Button type="link" onClick={() => $(`.${NV.dialogBoxID}`).parent().remove()}>
+            {_l('取消')}
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              let sign = NV.addAsNewVersion();
+              if (sign === false) return;
+              $(`.${NV.dialogBoxID}`).parent().remove();
+            }}
+          >
+            {_l('确认')}
+          </Button>
+        </div>
       ),
     });
 
-    NV.$dialog = $('.' + NV.dialogBoxID);
-    NV.$fileIcon = NV.$dialog.find('.fileIcon');
-    NV.$fileSize = NV.$dialog.find('.fileSize');
-    NV.$thumbnail = NV.$dialog.find('.thumbnail');
-    NV.$process = NV.$dialog.find('.process');
-    NV.$processContent = NV.$dialog.find('.processContent');
-    NV.$processPercent = NV.$dialog.find('.processPercent');
-    NV.$newVersionFileName = NV.$dialog.find('#newVersionFileName');
-    NV.$newVersionFileDetail = NV.$dialog.find('#newVersionFileDetail');
-    NV.$newVersionFileName.val(NV.name);
+    setTimeout(() => {
+      NV.$dialog = $('.' + NV.dialogBoxID);
+      NV.$fileIcon = NV.$dialog.find('.fileIcon');
+      NV.$fileSize = NV.$dialog.find('.fileSize');
+      NV.$thumbnail = NV.$dialog.find('.thumbnail');
+      NV.$process = NV.$dialog.find('.process');
+      NV.$processContent = NV.$dialog.find('.processContent');
+      NV.$processPercent = NV.$dialog.find('.processPercent');
+      NV.$newVersionFileName = NV.$dialog.find('#newVersionFileName');
+      NV.$newVersionFileDetail = NV.$dialog.find('#newVersionFileDetail');
+      NV.$newVersionFileName.val(NV.name);
+    }, 200);
   },
   uploaded: function (qiniuInfo) {
     let server = getUrlByBucketName(qiniuInfo.bucket);
@@ -112,7 +114,7 @@ UploadNewVersion.prototype = {
   hideProcess: function () {
     var NV = this;
     NV.$process.hide();
-    if (File.isPicture('.' + NV.ext) && FileReader) {
+    if (RegExpValidator.fileIsPicture('.' + NV.ext) && FileReader) {
       NV.loadPicture();
     } else {
       NV.loadDocIcon();

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import cx from 'classnames';
 import { Icon, UpgradeIcon } from 'ming-ui';
-import CSSTransitionGroup from 'react-addons-css-transition-group';
+import { Drawer } from 'antd';
 import { CreateCustomBtn } from 'worksheet/common';
 import styled from 'styled-components';
 import './print.less';
@@ -19,10 +19,6 @@ const Con = styled.div`
   width: 100%;
   height: 100%;
   background: #fff;
-  position: relative !important;
-  .createCustomBtnCon {
-    z-index: 1;
-  }
   .topBox {
     position: relative;
     background: none !important;
@@ -42,7 +38,6 @@ const Con = styled.div`
       color: #7d7d7d !important;
     }
     span {
-      // z-index: 1;
       position: relative;
       color: #333 !important;
     }
@@ -218,8 +213,8 @@ function CustomBtnFormSet(props) {
 
   return (
     <React.Fragment>
-      <Con className="printBox Relative">
-        <div className="printBoxList">
+      <Con className="printBox Relative flexColumn">
+        <div className="printBoxList flex">
           <div className="flexColumn h100">
             <div className="topBoxText flexRow alignItemsCenter">
               <div className="textCon flex">
@@ -263,79 +258,39 @@ function CustomBtnFormSet(props) {
             {renderBtns(btnList)}
           </div>
         </div>
-        <CSSTransitionGroup
-          transitionName="ViewConfigCreateCustomBtn"
-          transitionEnterTimeout={500}
-          transitionLeaveTimeout={300}
-        >
-          {showCreateCustomBtn && (
-            <CreateCustomBtn
-              isClickAway={true}
-              from="formset"
-              onClickAwayExceptions={[
-                '.ant-modal-root',
-                '.ChooseWidgetDialogWrap',
-                '.showBtnFilterDialog',
-                '.doubleConfirmDialog',
-                '.appointDialog',
-                '.chooseWidgetDialog',
-                '.rc-trigger-popup',
-                '.fullScreenCurtain',
-                '.errerDialogForAppoint',
-                '.mobileDepartmentPickerDialog',
-                '#dialogBoxSelectUser_container',
-                '.selectUserFromAppDialog',
-                '.selectUserBox',
-                '.dropdownTrigger',
-                '.worksheetFilterColumnOptionList',
-                '.PositionContainer-wrapper',
-                '.mui-dialog-container',
-                '.mdAlertDialog',
-                '.ant-cascader-menus',
-                '.ant-tree-select-dropdown',
-                '.ant-tooltip',
-                '.CodeMirror-hints',
-                '.ck',
-                '.ant-picker-dropdown',
-                '.Tooltip',
-                '.selectRoleDialog',
-                '.dialogSelectOrgRole',
-                '#quickSelectDept',
-              ]}
-              onClickAway={() =>
-                setState({
-                  showCreateCustomBtn: false,
-                })
-              }
-              isEdit={isEdit}
-              onClose={() => {
-                setState({
-                  showCreateCustomBtn: false,
-                });
-              }}
-              columns={worksheetControls
-                .filter(item => {
-                  return item.viewDisplay || !('viewDisplay' in item);
-                })
-                .map(control => redefineComplexControl(control))}
-              btnId={btnId}
-              btnList={btnList}
-              btnDataInfo={btnId ? _.find(btnList, item => item.btnId === btnId) : []}
-              projectId={worksheetInfo.projectId}
-              worksheetControls={worksheetControls}
-              currentSheetInfo={{ ...worksheetInfo, template: { controls: worksheetControls } }}
-              viewId={''}
-              appId={worksheetInfo.appId}
-              worksheetId={worksheetId}
-              sheetSwitchPermit={worksheetInfo.switches}
-              workflowId={''}
-              refreshFn={(worksheetId, appId, viewId, rowId) => {
-                getSheetBtns();
-              }}
-              updateCustomButtons={updateCustomButtons}
-            />
-          )}
-        </CSSTransitionGroup>
+        {showCreateCustomBtn && (
+          <CreateCustomBtn
+            isClickAway={true}
+            zIndex={9}
+            from="formset"
+            isEdit={isEdit}
+            onClose={() => {
+              setState({
+                showCreateCustomBtn: false,
+              });
+            }}
+            columns={worksheetControls
+              .filter(item => {
+                return item.viewDisplay || !('viewDisplay' in item);
+              })
+              .map(control => redefineComplexControl(control))}
+            btnId={btnId}
+            btnList={btnList}
+            btnDataInfo={btnId ? _.find(btnList, item => item.btnId === btnId) : []}
+            projectId={worksheetInfo.projectId}
+            worksheetControls={worksheetControls}
+            currentSheetInfo={{ ...worksheetInfo, template: { controls: worksheetControls } }}
+            viewId={''}
+            appId={worksheetInfo.appId}
+            worksheetId={worksheetId}
+            sheetSwitchPermit={worksheetInfo.switches}
+            workflowId={''}
+            refreshFn={(worksheetId, appId, viewId, rowId) => {
+              getSheetBtns();
+            }}
+            updateCustomButtons={updateCustomButtons}
+          />
+        )}
       </Con>
       {showTrash && (
         <TrashDialog

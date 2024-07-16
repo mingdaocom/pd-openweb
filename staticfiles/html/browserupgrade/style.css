@@ -17,6 +17,7 @@ body {
   padding: 0px;
   background-attachment: fixed;
   -webkit-text-size-adjust: none;
+  display: none;
 }
 img {
   border: 0px;

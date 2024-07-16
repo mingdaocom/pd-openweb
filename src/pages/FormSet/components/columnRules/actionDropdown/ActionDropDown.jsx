@@ -225,22 +225,69 @@ export default class DropDownItem extends Component {
     );
   }
 
-  renderContent(dropData, parentControl, deepIndex = 0) {
+  renderList(dropData, parentControl, deepIndex = 0) {
     const { extendId } = this.state;
+
     return dropData.map(item => {
       return (
         <Fragment>
           {this.renderItem(item, parentControl, deepIndex)}
-          {item.relationControls && item.relationControls.length > 0 && _.includes(extendId, item.controlId)
-            ? this.renderContent(item.relationControls, item, deepIndex + 1)
+          {!_.isEmpty(_.get(item, 'relationControls')) && _.includes(extendId, item.controlId)
+            ? this.renderList(item.relationControls, item, deepIndex + 1)
             : null}
         </Fragment>
       );
     });
   }
 
+  getAllControls(dropDownData = [], newValue = [], parentItem) {
+    dropDownData.forEach(item => {
+      if (!parentItem || (parentItem && parentItem.type === 52)) {
+        newValue.push({
+          controlId: item.controlId,
+          childControlIds: [],
+        });
+      }
+      if (item.relationControls && item.relationControls.length > 0) {
+        if (_.includes([29, 34], item.type)) {
+          newValue.push({
+            controlId: item.controlId,
+            childControlIds: item.relationControls.map(re => re.controlId),
+          });
+        }
+
+        this.getAllControls(item.relationControls, newValue, item);
+      }
+    });
+    return newValue;
+  }
+
+  renderContent(dropDownData) {
+    return (
+      <Fragment>
+        {!this.state.keyword && (
+          <div className="quickOperate">
+            <button
+              className="ThemeHoverColor3"
+              onClick={() => {
+                const newValue = this.getAllControls(dropDownData);
+                this.props.onChange('controls', newValue);
+              }}
+            >
+              {_l('全选')}
+            </button>
+            <button className="ThemeHoverColor3" onClick={() => this.props.onChange('controls', [])}>
+              {_l('清空')}
+            </button>
+          </div>
+        )}
+        {this.renderList(dropDownData)}
+      </Fragment>
+    );
+  }
+
   render() {
-    const { values = [], actionError, activeTab = 0 } = this.props;
+    const { values = [], actionError, activeTab = 0, disabled } = this.props;
     const { keyword, visible, dropDownData } = this.state;
     const menu = (
       <div className="ruleDropDownItemCon">
@@ -275,6 +322,7 @@ export default class DropDownItem extends Component {
       <Trigger
         popupVisible={visible}
         onPopupVisibleChange={visible => {
+          if (disabled) return;
           this.setState({ visible });
         }}
         action={['click']}
@@ -283,7 +331,10 @@ export default class DropDownItem extends Component {
         popup={menu}
         getPopupContainer={() => this.box}
       >
-        <div className={cx('fixedRuleDropdownSelected', { errorBorder: actionError })} ref={con => (this.box = con)}>
+        <div
+          className={cx('fixedRuleDropdownSelected', { errorBorder: actionError, disabled })}
+          ref={con => (this.box = con)}
+        >
           <span className="dropDownLabel">
             {!_.isEmpty(values) ? (
               this.getTextByValue()

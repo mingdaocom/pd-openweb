@@ -72,11 +72,6 @@ export const chartNav = [
     icon: 'stats_word_cloud_chart',
   },
   {
-    name: _l('透视表'),
-    type: reportTypes.PivotTable,
-    icon: 'table',
-  },
-  {
     name: _l('数值图'),
     type: reportTypes.NumberChart,
     icon: 'stats_numerical_chart',
@@ -100,6 +95,11 @@ export const chartNav = [
     name: _l('行政区划'),
     type: reportTypes.CountryLayer,
     icon: 'map',
+  },
+  {
+    name: _l('透视表'),
+    type: reportTypes.PivotTable,
+    icon: 'table',
   }
 ];
 
@@ -272,16 +272,29 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
     }
   } else {
     result.name = _l('未命名图表');
-    result.filter = {
-      filterRangeId: 'ctime',
-      filterRangeName: _l('创建时间'),
-      rangeType: defaultDropdownScopeData,
-      rangeValue: 365,
-      today: true
-    };
+    if (data.appType === 2) {
+      result.filter = {
+        filterRangeId: null,
+        filterRangeName: null,
+        rangeType: 0,
+        rangeValue: null,
+        today: true
+      };
+    } else {
+      result.filter = {
+        filterRangeId: 'ctime',
+        filterRangeName: _l('创建时间'),
+        rangeType: defaultDropdownScopeData,
+        rangeValue: 365,
+        today: true
+      };
+    }
     if (isConfigAll && result.summary) {
       result.summary.all = false;
     }
+  }
+  if (data.appType === 2) {
+    result.displaySetup.showRowList = false;
   }
 
   if (summary && _.isEmpty(summary.name)) {
@@ -321,11 +334,11 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
       }
     });;
 
-    if (reportTypes.ScatterChart === currentReport.reportType) {
+    if (reportTypes.ScatterChart === currentReport.reportType || reportTypes.NumberChart === reportType) {
       currentReport.split = {};
       result.split = {};
     }
-    if (reportTypes.GaugeChart === currentReport.reportType) {
+    if (reportTypes.GaugeChart === currentReport.reportType || reportTypes.ProgressChart === reportType) {
       result.config = {
         min: null,
         max: null,
@@ -363,6 +376,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
     if (reportTypes.PivotTable === reportType) {
       result.pivotTable.lines = currentReport.xaxes.controlId ? [currentReport.xaxes] : [];
       result.pivotTable.columns = currentReport.split.controlId ? [currentReport.split] : [];
+      result.split = {};
     }
     if (reportTypes.CountryLayer === reportType) {
       const areaAxisControls = axisControls.filter(item => isAreaControl(item.type));
@@ -1411,22 +1425,64 @@ const fillTranslate = result => {
     return result;
   }
   if (result.xaxes && result.xaxes.controlId) {
-    result.xaxes.controlName = getTranslateInfo(appId, result.xaxes.controlId).name || result.xaxes.controlName;
+    result.xaxes.controlName = getTranslateInfo(appId, result.appId, result.xaxes.controlId).name || result.xaxes.controlName;
+    if (result.map && result.map.length) {
+      result.map.forEach(item => {
+        item.key = getTranslateInfo(appId, result.appId, item.c_id).name || item.key;
+      });
+    }
+    if (result.contrastMap && result.contrastMap.length) {
+      result.contrastMap.forEach(item => {
+        item.key = getTranslateInfo(appId, result.appId, item.c_id).name || item.key;
+      });
+    }
   }
   if (result.yaxisList && result.yaxisList.length) {
     result.yaxisList.forEach(item => {
-      item.controlName = getTranslateInfo(appId, item.controlId).name || item.controlName;
+      item.controlName = getTranslateInfo(appId, result.appId, item.controlId).name || item.controlName;
+    });
+  }
+  if (result.rightY && _.get(result.rightY, 'yaxisList.length')) {
+    result.rightY.yaxisList.forEach(item => {
+      item.controlName = getTranslateInfo(appId, result.appId, item.controlId).name || item.controlName;
     });
   }
   if (result.lines && result.lines.length) {
     result.lines.forEach(item => {
-      item.controlName = getTranslateInfo(appId, item.controlId).name || item.controlName;
+      if (item.fields) {
+        item.fields = item.fields.map(f => {
+          return {
+            ...f,
+            controlName: getTranslateInfo(appId, result.appId, f.controlId).name || f.controlName
+          }
+        });
+      }
+      item.controlName = getTranslateInfo(appId, result.appId, item.controlId).name || item.controlName;
     });
   }
   if (result.columns && result.columns.length) {
     result.columns.forEach(item => {
-      item.controlName = getTranslateInfo(appId, item.controlId).name || item.controlName;
+      item.controlName = getTranslateInfo(appId, result.appId, item.controlId).name || item.controlName;
     });
+  }
+  if (result.name) {
+    result.name = getTranslateInfo(appId, result.appId, result.reportId).name || result.name;
+  }
+  if (result.desc) {
+    result.desc = getTranslateInfo(appId, result.appId, result.reportId).description || result.desc;
+  }
+  if (result.valueMap) {
+    for(let controlId in result.valueMap) {
+      const valueMapTranslateInfo = getTranslateInfo(appId, result.appId, controlId);
+      if (!_.isEmpty(valueMapTranslateInfo)) {
+        const map = result.valueMap[controlId];
+        for(let key in map) {
+          if (map[key] && valueMapTranslateInfo[key]) {
+            map[key] = valueMapTranslateInfo[key];
+          }
+        }
+      }
+    }
   }
   return result;
 }
@@ -1595,12 +1651,63 @@ export const dropdownDayData = [
  * 时间的数据格式
  */
 export const timeFormats = [
-  { value: 0, getTime: () => moment().format('YYYY-MM-DD') },
-  { value: 4, getTime: () => moment().format('YYYY/MM/DD') },
-  { value: 1, getTime: () => `${moment().format('YYYY年M月D日')} (${_l('中国')})` },
-  { value: 2, getTime: () => `${moment().format('M/D/YYYY')} (US)` },
-  { value: 3, getTime: () => `${moment().format('D/M/YYYY')} (EU)` }
+  { value: '0', getTime: () => moment().format('YYYY-MM-DD') },
+  { value: '4', getTime: () => moment().format('YYYY/MM/DD') },
+  { value: '1', getTime: () => `${moment().format('YYYY年M月D日')} (${_l('中国')})` },
+  { value: '2', getTime: () => `${moment().format('M/D/YYYY')} (US)` },
+  { value: '3', getTime: () => `${moment().format('D/M/YYYY')} (EU)` }
 ];
+
+export const formatTimeFormats = particleSizeType => {
+  // 年
+  if (particleSizeType === 5) {
+    return [
+      { value: '0', getTime: () => moment().format('YYYY') }
+    ]
+  }
+  // 季
+  if (particleSizeType === 4) {
+    return [
+      { value: '0', getTime: () => moment().format('YYYY[Q]Q') }
+    ]
+  }
+  // 月
+  if (particleSizeType === 3) {
+    return [
+      { value: '0', getTime: () => moment().format('YYYY-MM') },
+      { value: '4', getTime: () => moment().format('YYYY/MM') },
+      { value: '1', getTime: () => `${moment().format('YYYY年M月')} (${_l('中国')})` },
+      { value: '2', getTime: () => `${moment().format('M/YYYY')} (US)` },
+      { value: '3', getTime: () => `${moment().format('M/YYYY')} (EU)` }
+    ]
+  }
+  // 周
+  if (particleSizeType === 2) {
+    return [
+      { value: '0', getTime: () => moment().format('YYYY[W]WW') }
+    ]
+  }
+  // 时
+  if (particleSizeType === 6) {
+    return [
+      { value: '0', getTime: () => moment().format('HH') + _l('时') },
+      { value: '1', getTime: () => moment().format('HH') },
+    ]
+  }
+  // 分
+  if (particleSizeType === 7) {
+    return [
+      { value: '0', getTime: () => moment().format('HH:mm') },
+    ]
+  }
+  // 秒
+  if (particleSizeType === 13) {
+    return [
+      { value: '0', getTime: () => moment().format('HH:mm:ss') },
+    ]
+  }
+  return timeFormats;
+}
 
 
 /**
@@ -1941,4 +2048,15 @@ export const getGradientColors = (startColor, endColor, step) => {
   return gradientColorArr;
 }
 
+export const formatterTooltipTitle = (xaxes, key) => {
+  if (isTimeControl(xaxes.controlType) && xaxes.particleSizeType === 2) {
+    return (title, data) => {
+      const [year, week] = (key ? data[key] : title).split('W');
+      const start = moment().year(year).week(week).startOf('week').format('YYYY-MM-DD');
+      const end = moment().year(year).week(week).endOf('week').format('YYYY-MM-DD');
+      return `${start} - ${end}`;
+    }
+  }
+  return undefined;
+}
 

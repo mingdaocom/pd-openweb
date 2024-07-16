@@ -13,6 +13,8 @@ import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'mobile/RelationRow/redux/actions';
+import PayLog from 'src/pages/worksheet/components/DiscussLogFile/PayLog.jsx';
+import worksheetSettingAjax from 'src/api/worksheetSetting';
 import _ from 'lodash';
 
 @connect(
@@ -24,6 +26,7 @@ export default class RecordForm extends Component {
     super(props);
     this.state = {
       approveCount: 0,
+      enableOrderVisible: false,
     };
     this.isLoadApprove =
       props.getDataType !== 21 &&
@@ -34,6 +37,16 @@ export default class RecordForm extends Component {
   componentDidMount() {
     if (this.isLoadApprove) {
       this.getApproveTodoList();
+      const { recordInfo, recordBase } = this.props;
+      worksheetSettingAjax
+        .getRowDetailIsShowOrder({
+          appId: recordBase.appId,
+          projectId: recordInfo.projectId,
+          worksheetId: recordBase.worksheetId,
+        })
+        .then(data => {
+          this.setState({ enableOrderVisible: data });
+        });
     }
   }
   componentWillReceiveProps(nextProps) {
@@ -97,37 +110,63 @@ export default class RecordForm extends Component {
       fixedTabsEl && fixedTabsEl.classList.add('top43');
     }
   };
+
   renderApprove = () => {
-    const { isEditRecord, externalPortalConfig, recordInfo, recordBase, workflow } = this.props;
-    const { approveCount } = this.state;
+    const { isEditRecord, externalPortalConfig, recordInfo, recordBase, workflow, formData } = this.props;
+    const { approveCount, enableOrderVisible } = this.state;
     const allowApprove =
       this.isLoadApprove &&
       isOpenPermit(permitList.approveDetailsSwitch, recordInfo.switchPermit, recordBase.viewId) &&
       (md.global.Account.isPortal ? externalPortalConfig.approved : true);
-    if (workflow) {
-      return [];
-    }
-    if (allowApprove && !isEditRecord) {
-      return [
+
+    const getList = () => {
+      if (workflow) {
+        return [];
+      }
+      if (allowApprove && !isEditRecord) {
+        return [
+          {
+            controlName: _l('审批') + (approveCount ? `(${approveCount})` : ''),
+            controlId: 'approve',
+            showTabLine: true,
+            tabContentNode: (
+              <div className="flexColumn h100" style={{ backgroundColor: '#f8f8f8' }}>
+                <SheetWorkflow
+                  isCharge={recordInfo.roleType === 2}
+                  projectId={recordInfo.projectId}
+                  worksheetId={recordBase.worksheetId}
+                  recordId={recordBase.recordId}
+                  controls={formData}
+                />
+              </div>
+            ),
+          },
+        ];
+      } else {
+        return [];
+      }
+    };
+    let list = getList();
+    if (enableOrderVisible) {
+      list = [
+        ...list,
         {
-          controlName: _l('审批') + (approveCount ? `(${approveCount})` : ''),
-          controlId: 'approve',
-          showTabLine: true,
+          controlName: _l('支付'),
+          controlId: 'pay',
           tabContentNode: (
             <div className="flexColumn h100" style={{ backgroundColor: '#f8f8f8' }}>
-              <SheetWorkflow
-                isCharge={recordInfo.roleType === 2}
+              <PayLog
                 projectId={recordInfo.projectId}
                 worksheetId={recordBase.worksheetId}
-                recordId={recordBase.recordId}
+                rowId={recordBase.recordId}
+                appId={recordBase.appId}
               />
             </div>
           ),
         },
       ];
-    } else {
-      return [];
     }
+    return list;
   };
   renderHeader({ formCoverVisible } = {}) {
     const {
@@ -162,10 +201,11 @@ export default class RecordForm extends Component {
       <div
         className="sheetName flex bold"
         onClick={() => {
-          if (location.pathname.indexOf('public') > -1) return;
-          window.mobileNavigateTo && window.mobileNavigateTo(
-            `/mobile/recordList/${recordBase.appId}/${recordInfo.groupId}/${recordBase.worksheetId}`,
-          );
+          if (location.pathname.indexOf('public') > -1 || window.isPublicApp || md.global.Account.isPortal) return;
+          window.mobileNavigateTo &&
+            window.mobileNavigateTo(
+              `/mobile/recordList/${recordBase.appId}/${recordInfo.groupId}/${recordBase.worksheetId}`,
+            );
           onClose && onClose();
         }}
       >
@@ -241,7 +281,7 @@ export default class RecordForm extends Component {
       registerCell,
       controlProps,
       changeMobileTab,
-      getChildTableControlIds,
+      loadDraftChildTableData,
       workflow,
       currentTab,
     } = this.props;
@@ -273,7 +313,7 @@ export default class RecordForm extends Component {
           groupId={recordBase.groupId}
           rules={recordInfo.rules}
           controlProps={controlProps}
-          getChildTableControlIds={getChildTableControlIds}
+          loadDraftChildTableData={loadDraftChildTableData}
           registerCell={registerCell}
           isWorksheetQuery={recordInfo.isWorksheetQuery}
           recordCreateTime={recordInfo.createTime}
@@ -329,8 +369,8 @@ export default class RecordForm extends Component {
               <div className="title">{recordTitle}</div>
             </div>
           )}
-          <div className="flexColumn flex">{this.renderCustomFields()}</div>
-          {_.includes([29, 51], currentTab.type) ? null : workflow}
+          <div className="flex">{this.renderCustomFields()}</div>
+          {!_.includes([29, 51], currentTab.type) && workflow && workflow({ formData })}
         </div>
       </Fragment>
     );

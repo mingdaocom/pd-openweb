@@ -24,9 +24,9 @@ import { getClassNameByExt } from 'src/util';
 import toMobileDailog from './toMobile';
 import _ from 'lodash';
 import React from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { Dropdown, Dialog } from 'ming-ui';
-
+import RegExpValidator from 'src/util/expression';
 // 目的地选择列表组件
 var SelectSendTo = function (options, callback) {
   this.options = options;
@@ -234,7 +234,7 @@ ShareAttachment.prototype = {
     var options = SA.options;
     var html = mainTpl({
       showChangeDownload: !(
-        File.isPicture(SA.options.ext) ||
+        RegExpValidator.fileIsPicture(SA.options.ext) ||
         SA.options.attachmentType === ATTACHMENT_TYPE.KC ||
         SA.options.attachmentType === ATTACHMENT_TYPE.WORKSHEET ||
         SA.options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW
@@ -254,34 +254,37 @@ ShareAttachment.prototype = {
       children: <div dangerouslySetInnerHTML={{ __html: html }}></div>,
       noFooter: true,
     });
-    SA.$dialog = $('.' + dialogBoxID);
-    SA.dialogEle = {};
-    SA.dialogEle.$fileName = SA.$dialog.find('#fileName');
-    SA.dialogEle.$fileNameText = SA.$dialog.find('.fileNameText');
-    SA.dialogEle.$canDownloadSwitch = SA.$dialog.find('#canDownload');
-    if (
-      options.attachmentType === ATTACHMENT_TYPE.KC ||
-      options.attachmentType === ATTACHMENT_TYPE.WORKSHEET ||
-      options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW
-    ) {
-      SA.dialogEle.$fileName.hide();
-      SA.dialogEle.$fileNameText.text(SA.file.name).removeClass('hide');
-    } else {
-      SA.dialogEle.$fileName.val(SA.file.name);
-    }
-    if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEET) {
-      SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheet');
-    }
-    if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
-      SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheetRow');
-    }
-    SA.bindEvent();
-    SA.previewFile();
-    if (options.attachmentType === ATTACHMENT_TYPE.KC && options.node) {
-      SA.initModules();
-    } else {
-      SA.fetchBaseData(SA.initModules.bind(SA));
-    }
+
+    setTimeout(() => {
+      SA.$dialog = $('.' + dialogBoxID);
+      SA.dialogEle = {};
+      SA.dialogEle.$fileName = SA.$dialog.find('#fileName');
+      SA.dialogEle.$fileNameText = SA.$dialog.find('.fileNameText');
+      SA.dialogEle.$canDownloadSwitch = SA.$dialog.find('#canDownload');
+      if (
+        options.attachmentType === ATTACHMENT_TYPE.KC ||
+        options.attachmentType === ATTACHMENT_TYPE.WORKSHEET ||
+        options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW
+      ) {
+        SA.dialogEle.$fileName.hide();
+        SA.dialogEle.$fileNameText.text(SA.file.name).removeClass('hide');
+      } else {
+        SA.dialogEle.$fileName.val(SA.file.name);
+      }
+      if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEET) {
+        SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheet');
+      }
+      if (options.attachmentType === ATTACHMENT_TYPE.WORKSHEETROW) {
+        SA.$dialog.find('.shareAttachmentDialogContainer').addClass('isWorksheetRow');
+      }
+      SA.bindEvent();
+      SA.previewFile();
+      if (options.attachmentType === ATTACHMENT_TYPE.KC && options.node) {
+        SA.initModules();
+      } else {
+        SA.fetchBaseData(SA.initModules.bind(SA));
+      }
+    }, 200);
   },
   bindEvent: function () {
     var SA = this;
@@ -472,7 +475,9 @@ ShareAttachment.prototype = {
       ];
     }
 
-    ReactDom.render(
+    const root = createRoot(document.getElementById('sendToTargetBox'));
+
+    root.render(
       <Dropdown
         className="sendToTargetDropdown w100"
         data={dataArr}
@@ -483,7 +488,6 @@ ShareAttachment.prototype = {
           SA.activeSendToOther(parseInt(value, 10));
         }}
       />,
-      document.getElementById('sendToTargetBox'),
     );
   },
   initSelectTargetList: function () {
@@ -585,7 +589,9 @@ ShareAttachment.prototype = {
       ];
     }
 
-    ReactDom.render(
+    const root = createRoot(document.getElementById('selectSharePermissionBox'));
+
+    root.render(
       <Dropdown
         className="selectSharePermissionDropdown w100"
         data={permissionList}
@@ -642,8 +648,8 @@ ShareAttachment.prototype = {
           });
         }}
       />,
-      document.getElementById('selectSharePermissionBox'),
     );
+
     if (!SA.options.node.canChangeSharable) {
       SA.$dialog
         .find('.selectSharePermission')
@@ -1092,7 +1098,7 @@ ShareAttachment.prototype = {
               fileExt: '.' + node.ext,
               fileSize: node.size,
               originalFileName: node.name,
-              viewUrl: File.isPicture('.' + node.ext) ? node.viewUrl : null,
+              viewUrl: RegExpValidator.fileIsPicture('.' + node.ext) ? node.viewUrl : null,
               type: node.type === 1 ? 1 : undefined,
             },
           ]);
@@ -1172,8 +1178,8 @@ ShareAttachment.prototype = {
     return {
       serverName: `${url.origin}/`,
       key,
-      fileName: File.GetName(fullName),
-      fileExt: `.${File.GetExt(fullName)}`,
+      fileName: RegExpValidator.getNameOfFileName(fullName),
+      fileExt: `.${RegExpValidator.getExtOfFileName(fullName)}`,
       fileSize: SA.options.node.size,
       filePath: key.replace(fullName, ''),
     };
@@ -1197,7 +1203,7 @@ ShareAttachment.prototype = {
     SA.dialogEle.$fileSize = SA.$dialog.find('.fileSize');
     SA.dialogEle.$thumbnailCon = SA.$dialog.find('.thumbnailCon');
     SA.dialogEle.$thumbnail = SA.$dialog.find('.thumbnail');
-    if (File.isPicture('.' + SA.file.ext) && SA.file.imgSrc) {
+    if (RegExpValidator.fileIsPicture('.' + SA.file.ext) && SA.file.imgSrc) {
       SA.loadPicture();
     } else {
       SA.loadDocIcon();

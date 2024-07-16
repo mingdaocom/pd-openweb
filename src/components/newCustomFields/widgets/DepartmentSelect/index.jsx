@@ -1,14 +1,16 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { dialogSelectDept } from 'ming-ui/functions';
+import { quickSelectDept } from 'ming-ui/functions';
 import cx from 'classnames';
 import { Tooltip } from 'ming-ui';
 import SelectUser from 'mobile/components/SelectUser';
 import departmentAjax from 'src/api/department';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { browserIsMobile } from 'src/util';
-import { dealRenderValue } from '../../tools/utils';
+import { dealRenderValue, dealUserRange } from '../../tools/utils';
 import _ from 'lodash';
+import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { getCurrentProject } from 'src/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -23,11 +25,17 @@ export default class Widgets extends Component {
     showSelectDepartment: false,
   };
 
+  componentDidMount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.SHOW);
+    }
+  }
+
   /**
    * 选择部门
    */
-  pickDepartment = () => {
-    const { projectId, enumDefault, advancedSetting = {} } = this.props;
+  pickDepartment = e => {
+    const { projectId, enumDefault, advancedSetting = {}, formData, enumDefault2, value } = this.props;
     const that = this;
 
     if (!_.find(md.global.Account.projects, item => item.projectId === projectId)) {
@@ -37,20 +45,37 @@ export default class Widgets extends Component {
     if (browserIsMobile()) {
       this.setState({ showSelectDepartment: true });
     } else {
-      dialogSelectDept({
+      const deptRange = dealUserRange(this.props, formData);
+
+      quickSelectDept(e.target, {
         projectId,
         isIncludeRoot: false,
         unique: enumDefault === 0,
         showCreateBtn: false,
         allPath: advancedSetting.allpath === '1',
+        departrangetype: advancedSetting.departrangetype,
+        appointedDepartmentIds: _.get(deptRange, 'appointedDepartmentIds') || [],
+        appointedUserIds: _.get(deptRange, 'appointedAccountIds') || [],
+        selectedDepartment: JSON.parse(value || '[]'),
         selectFn: that.onSave,
       });
     }
   };
 
-  onSave = data => {
+  onSave = (data, isCancel = false) => {
     const { enumDefault, onChange, value } = this.props;
-    const newData = enumDefault === 0 ? data : _.uniqBy(JSON.parse(value || '[]').concat(data), 'departmentId');
+    const valueArr = JSON.parse(value || '[]');
+    const lastIds = _.sortedUniq(valueArr.map(l => l.departmentId));
+    const newIds = _.sortedUniq(data.map(l => l.departmentId));
+
+    if ((data.length === 0 || _.isEqual(lastIds, newIds)) && !isCancel) return;
+
+    const newData =
+      enumDefault === 0
+        ? data
+        : isCancel
+        ? valueArr.filter(l => l.departmentId !== data[0].departmentId)
+        : _.uniqBy(valueArr.concat(data), 'departmentId');
 
     onChange(JSON.stringify(newData));
   };
@@ -67,11 +92,18 @@ export default class Widgets extends Component {
     onChange(JSON.stringify(newValue));
   }
 
+  componentWillUnmount() {
+    if (_.isFunction(this.props.triggerCustomEvent)) {
+      this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
+    }
+  }
+
   render() {
-    const { projectId, disabled, enumDefault, appId, advancedSetting = {}, recordId } = this.props;
+    const { projectId, disabled, enumDefault, appId, advancedSetting = {}, formData, masterData = {} } = this.props;
     const { allpath } = advancedSetting;
     const value = dealRenderValue(this.props.value, advancedSetting);
     const { showSelectDepartment } = this.state;
+    const deptRange = dealUserRange(this.props, formData, masterData);
 
     return (
       <div className="customFormControlBox customFormControlUser">
@@ -94,7 +126,7 @@ export default class Widgets extends Component {
                           return;
                         }
 
-                        if (allpath === '1') {
+                        if (allpath === '1' || _.isEmpty(getCurrentProject(projectId))) {
                           return resolve(item.departmentName);
                         }
 
@@ -111,18 +143,14 @@ export default class Widgets extends Component {
               }
             >
               <div
-                className={cx('customFormControlTags', {
+                className={cx('customFormControlTags pLeft10', {
                   selected: browserIsMobile() && !disabled,
                   isDelete: item.isDelete,
                 })}
                 key={index}
               >
-                <div className="departWrap" style={{ backgroundColor: '#2196f3' }}>
-                  <i className="Font16 icon-department" />
-                </div>
-
                 <span
-                  className="ellipsis mLeft5"
+                  className="ellipsis"
                   style={{
                     maxWidth: 200,
                     ...(allpath === '1' && !item.isDelete ? { direction: 'rtl', unicodeBidi: 'normal' } : {}),
@@ -162,8 +190,11 @@ export default class Widgets extends Component {
             onSave={this.onSave}
             appId={appId}
             userType={getTabTypeBySelectUser(this.props)}
-            selectRangeOptions={!!advancedSetting.userrange}
+            selectRangeOptions={!!advancedSetting.chooserange}
+            departrangetype={advancedSetting.departrangetype}
+            appointedDepartmentIds={_.get(deptRange, 'appointedDepartmentIds') || []}
             allPath={advancedSetting.allpath === '1'}
+            appointedUserIds={_.get(deptRange, 'appointedAccountIds') || []}
           />
         )}
       </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Icon, UserHead } from 'ming-ui';
 import styled from 'styled-components';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
+import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import DropCon from './DropCon';
 import Option from './Options';
 import cx from 'classnames';

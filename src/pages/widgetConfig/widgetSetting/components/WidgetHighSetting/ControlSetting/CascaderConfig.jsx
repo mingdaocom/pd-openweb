@@ -171,7 +171,6 @@ export default function CascaderConfig(props) {
             className="mTop10"
             hideTitle={true}
             multiple={true}
-            needFilter={true}
             hideSearchAndFun={true}
             propFiledVisible={true}
             onChange={newData => {

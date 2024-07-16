@@ -27,7 +27,7 @@ const QuadrantName = props => {
       className="chartInput flex"
       placeholder={data.name}
       onChange={event => {
-        setName(event.target.value.slice(0, 20));
+        setName(event.target.value.slice(0, 30));
       }}
       onBlur={() => {
         onChangeQuadrant({

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, string } from 'prop-types';
 import { quickSelectRole } from 'ming-ui/functions';
@@ -51,6 +51,12 @@ const Empty = styled.span`
 export default function Departments(props) {
   const { values = [], projectId, isMultiple, onChange = () => {} } = props;
   const [active, setActive] = useState();
+  const valueRef = useRef();
+
+  useEffect(() => {
+    valueRef.current = values;
+  }, [values]);
+
   return (
     <Con
       isEmpty={!values.length}
@@ -62,12 +68,20 @@ export default function Departments(props) {
           showCurrentOrgRole: true,
           showCompanyName: true,
           unique: !isMultiple,
-          onSave: data => {
+          value: values,
+          onSave: (data, isCancel = false) => {
             if (!data.length) {
               return;
             }
+
             setActive(false);
-            onChange({ values: isMultiple ? _.uniqBy([...values, ...data], 'organizeId') : data });
+            onChange({
+              values: isMultiple
+                ? isCancel
+                  ? valueRef.current.filter(l => l.organizeId !== data[0].organizeId)
+                  : _.uniqBy([...valueRef.current, ...data], 'organizeId')
+                : data,
+            });
           },
         });
       }}
@@ -93,7 +107,7 @@ export default function Departments(props) {
             </BaseSelectedItem>
           ))}
       </DepartmentsCon>
-      <Icon className="icon icon-group downIcon" />
+      <Icon className="icon icon-arrow-down-border downIcon" />
       {!!values.length && (
         <Icon
           className="icon icon-cancel clearIcon"

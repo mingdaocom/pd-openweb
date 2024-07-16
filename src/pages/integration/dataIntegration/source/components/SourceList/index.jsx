@@ -267,7 +267,7 @@ export default function SourceList(props) {
       onlyCreated: false,
     };
     dataSourceApi.getTypes(getTypeParams).then(res => {
-      if (res) {
+      if (res && _.isArray(res)) {
         const list = res
           .filter(item => item.type !== DATABASE_TYPE.APPLICATION_WORKSHEET)
           .map(item => {
@@ -295,7 +295,7 @@ export default function SourceList(props) {
 
     ajaxPromise = dataSourceApi.list(params);
     ajaxPromise.then(result => {
-      if (result) {
+      if (result && result.content && _.isArray(result.content)) {
         const list = result.content.map(item => {
           return {
             ...item,

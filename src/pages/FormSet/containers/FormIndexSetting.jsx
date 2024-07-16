@@ -1,5 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import CSSTransitionGroup from 'react-addons-css-transition-group';
+import { Drawer } from 'antd';
 import Trigger from 'rc-trigger';
 import MoreOption from '../components/MoreOption';
 import worksheetAjax from 'src/api/worksheet';
@@ -512,10 +512,17 @@ function FormIndexSetting(props) {
             </div>
           )}
         </div>
-        <CSSTransitionGroup
-          transitionName="ViewConfigCreateCustomBtn"
-          transitionEnterTimeout={500}
-          transitionLeaveTimeout={300}
+        <Drawer
+          width={497}
+          className="Absolute"
+          zIndex={9}
+          placement="right"
+          onClose={() => setShowCreateIndex(false)}
+          visible={showCreateIndex}
+          maskClosable={false}
+          getContainer={false}
+          mask={false}
+          closable={false}
         >
           {showCreateIndex && (
             <CreateIndex
@@ -533,7 +540,7 @@ function FormIndexSetting(props) {
               getFieldObjById={getFieldObjById}
             />
           )}
-        </CSSTransitionGroup>
+        </Drawer>
       </Con>
     </Fragment>
   );

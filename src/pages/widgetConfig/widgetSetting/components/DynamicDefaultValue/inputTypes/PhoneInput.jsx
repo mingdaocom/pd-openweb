@@ -24,7 +24,7 @@ export default function (props) {
     const formatValue = value.replace(/[^\d]/g, '');
     const parseValue = formatValue ? parseFloat(value) : '';
     setValue(parseValue);
-    onDynamicValueChange([{ cid: '', rcid: '', staticValue: parseValue }]);
+    onDynamicValueChange(parseValue ? [{ cid: '', rcid: '', staticValue: parseValue }] : []);
   };
 
   const onTriggerClick = () => {
@@ -39,7 +39,6 @@ export default function (props) {
         <OtherFieldList {...props} />
       ) : (
         <Input
-          autoFocus
           value={value}
           style={{ width: 'calc(100% - 36px)', borderRadius: '3px 0 0 3px' }}
           onChange={e => handleChange(e.target.value)}

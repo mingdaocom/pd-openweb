@@ -53,6 +53,7 @@ export default class SideBar extends React.Component {
         const props = {
           key: index,
           name: item.name,
+          projectId: item.projectId,
           isOpen: this.getOpenState(item.list, projectId, type),
         };
         return (

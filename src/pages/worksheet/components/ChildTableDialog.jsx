@@ -274,7 +274,7 @@ export default function ChildTableDialog(props) {
           {changed && (
             <Fragment>
               <div className="flex"></div>
-              <Button loading={isSaving} className="mRight35" onClick={() => handleSave()}>
+              <Button loading={isSaving} className="mRight35 flex-shrink-0" onClick={() => handleSave()}>
                 {_l('保存')}
               </Button>
             </Fragment>

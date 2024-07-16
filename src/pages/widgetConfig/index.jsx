@@ -11,7 +11,13 @@ import { useSheetInfo } from './hooks';
 import Header from './Header';
 import Content from './content';
 import { getCurrentRowSize, getPathById } from './util/widgets';
-import { formatControlsData, getMsgByCode, scrollToVisibleRange, getChildWidgetsBySection } from './util/data';
+import {
+  formatControlsData,
+  checkCustomEventError,
+  getMsgByCode,
+  scrollToVisibleRange,
+  getChildWidgetsBySection,
+} from './util/data';
 import {
   getUrlPara,
   genWidgetsByControls,
@@ -22,7 +28,8 @@ import {
   fixedBottomWidgets,
 } from './util';
 import { resetDisplay } from './util/drag';
-import Components from './widgetSetting/components';
+import NoTitleControlDialog from './widgetSetting/components/NoTitleControlDialog';
+import VerifyModifyDialog from './widgetSetting/components/VerifyModifyDialog';
 import { verifyModifyDialog } from './widgetSetting/components/VerifyModifyDialog';
 import './index.less';
 import { WHOLE_SIZE } from './config/Drag';
@@ -253,6 +260,8 @@ export default function Container(props) {
       return;
     }
 
+    if (checkCustomEventError(saveControls)) return;
+
     let activeWidgetPath = getPathById(widgets, (activeWidget || {}).controlId);
 
     setLoading({ saveLoading: true });
@@ -269,6 +278,11 @@ export default function Container(props) {
 
         // 子表重新拉缓存数据，保存后，relationControls不处理，防止一些隐藏问题
         window.subListSheetConfig = {};
+        // 清除不走缓存
+        window.clearLocalDataTime({
+          requestData: { worksheetId: sourceId },
+          clearSpecificKey: 'Worksheet_GetQueryBySheetId',
+        });
 
         const nextWidgets = genWidgetsByControls(controls);
         const flattenControls = flatten(nextWidgets);
@@ -286,14 +300,9 @@ export default function Container(props) {
 
         setActiveWidget(nextActiveWidget);
         setBatchActive([]);
-        //初始isWorksheetQuery为false, 新控件保存时手动判断是否要拉取配置
-        const newQueryConfigs = (controls || []).reduce((total, cur) => {
-          if (cur.advancedSetting && cur.advancedSetting.dynamicsrc) {
-            total = total.concat([JSON.parse(cur.advancedSetting.dynamicsrc || '{}')]);
-          }
-          return total;
-        }, []);
-        const needGetQuery = newQueryConfigs.length;
+
+        //有配置查询，保存后拉取配置
+        const needGetQuery = queryConfigs.length > 0;
         getQueryConfigs(needGetQuery);
       })
       .finally(() => {
@@ -340,7 +349,12 @@ export default function Container(props) {
 
   const updateQueryConfigs = (value = {}) => {
     const index = findIndex(queryConfigs, item => item.id === value.id);
-    const newQueryConfigs = index > -1 ? queryConfigs.splice(index, 1) : queryConfigs.concat([value]);
+    const newQueryConfigs =
+      index > -1
+        ? queryConfigs.map(item => {
+            return item.id === value.id ? value : item;
+          })
+        : queryConfigs.concat([value]);
     setQueryConfigs(newQueryConfigs);
   };
 
@@ -449,11 +463,9 @@ export default function Container(props) {
             onSave={handleSave}
           />
           <Content {...widgetProps} onRef={$contentRef} />
-          {status.noTitleControl && (
-            <Components.NoTitleControlDialog onClose={() => setStatus({ noTitleControl: false })} />
-          )}
+          {status.noTitleControl && <NoTitleControlDialog onClose={() => setStatus({ noTitleControl: false })} />}
           {status.modify && (
-            <Components.VerifyModifyDialog
+            <VerifyModifyDialog
               onOk={() => {
                 handleSave();
                 cancelSubmit($switchArgs.current);

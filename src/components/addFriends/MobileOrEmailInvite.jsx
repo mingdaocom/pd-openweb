@@ -221,7 +221,7 @@ export default class MobileOrEmailInvite extends Component {
   };
 
   render() {
-    const { projectId, fromType, setDetailMode } = this.props;
+    const { projectId, fromType, setDetailMode, showInviteRules } = this.props;
     const { selectType, list, loading, keywords, searchData, showDialogSettingInviteRules } = this.state;
     const hasValue = list.some(i => i.phone && !i.isErr);
 
@@ -305,8 +305,8 @@ export default class MobileOrEmailInvite extends Component {
 
         <div className="footContainer">
           <div className="flexRow flexCenter">
-            {fromType !== FROM_TYPE.GROUPS && (
-              <div className="addBox Gray_9e">
+            {fromType !== FROM_TYPE.GROUPS && showInviteRules && (
+              <div className="addBox Gray_9e mRight16">
                 <span onClick={() => this.setState({ showDialogSettingInviteRules: true })}>
                   <Icon icon="settings1" />
                   {_l('邀请设置')}
@@ -314,7 +314,7 @@ export default class MobileOrEmailInvite extends Component {
               </div>
             )}
             {fromType !== FROM_TYPE.GROUPS && (
-              <div className="addBox Gray_9e mLeft16">
+              <div className="addBox Gray_9e">
                 <span onClick={() => window.open(`${location.origin}/admin/structure/${projectId}/importusers`)}>
                   <Icon icon="add_software" />
                   {_l('批量导入')}

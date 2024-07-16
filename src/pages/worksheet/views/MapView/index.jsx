@@ -88,6 +88,7 @@ function MapView(props) {
 
   const init = () => {
     if (!viewId || !view.viewControl) return;
+    const { showtitle } = mapViewConfig;
     setMapViewConfig({
       positionId: view.viewControl,
       loadNum: 1000,
@@ -96,8 +97,9 @@ function MapView(props) {
       coverId: _.get(view, 'coverCid'),
       tagcolorid: _.get(view, 'advancedSetting.tagcolorid'),
       tagType: _.get(view, 'advancedSetting.tagType'),
+      showtitle: _.get(view, 'advancedSetting.showtitle'),
     });
-    initMapViewData();
+    initMapViewData(undefined, showtitle !== _.get(view, 'advancedSetting.showtitle'));
   };
 
   const handleSelectField = obj => {
@@ -168,6 +170,7 @@ function MapView(props) {
                     'sheetSwitchPermit',
                     'viewId',
                     'groupId',
+                    'updateNavGroup',
                   ])}
                   key={`PinMark-${marker.record.rowid}`}
                   isCurrent={_.get(mapViewState, 'searchData.rowid') === marker.record.rowid}

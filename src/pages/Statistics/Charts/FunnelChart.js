@@ -4,7 +4,7 @@ import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
 import { toFixed } from 'src/util';
-import tinycolor from '@ctrl/tinycolor';
+import { TinyColor } from '@ctrl/tinycolor';
 import _ from 'lodash';
 
 const mergeDataTime = (data, contrastData) => {
@@ -105,8 +105,9 @@ const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { controlId
     const name = item.x;
     cloneData.forEach(element => {
       const target = element.value.filter(n => n.x === name);
-      if (target.length && target[0].v) {
-        const { rename } = _.find(yaxisList, { controlId: target[0].originalX }) || {};
+      const { rename, emptyShowType } = _.find(yaxisList, { controlId: element.c_id }) || yaxisList[0];
+      const hideEmptyValue = !emptyShowType && !target[0].v;
+      if (target.length && !hideEmptyValue) {
         result.push({
           id: target[0].originalX,
           groupName: element.key,
@@ -352,7 +353,7 @@ export default class extends Component {
           if (linkageMatch.value === id) {
             return color;
           } else {
-            return tinycolor(color).setAlpha(0.3).toRgbString();
+            return new TinyColor(color).setAlpha(0.3).toRgbString();
           }
         }
         return color;
@@ -373,7 +374,11 @@ export default class extends Component {
               if (displaySetup.isAccumulate) {
                 percentage = data[PERCENT_FIELD] * 100
               } else {
-                percentage = (data[CONVERSATION_FIELD][1] / data[CONVERSATION_FIELD][0]) * 100;
+                if (data[CONVERSATION_FIELD][0] === 0) {
+                  percentage = 0;
+                } else {
+                  percentage = (data[CONVERSATION_FIELD][1] / data[CONVERSATION_FIELD][0]) * 100;
+                }
               }
               return _l('转化率%0', `${toFixed(percentage, 2)}%`);
             },

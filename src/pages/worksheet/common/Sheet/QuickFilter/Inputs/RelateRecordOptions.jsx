@@ -25,6 +25,7 @@ export default function RelateRecordOptions(props) {
     control,
     multiple,
     onChange,
+    advancedSetting,
   } = props;
   const [records, setRecords] = useState(staticRecords || []);
   const [loading, setLoading] = useState(true);
@@ -46,7 +47,7 @@ export default function RelateRecordOptions(props) {
       pageIndex: 1,
       status: 1,
       isGetWorksheet: true,
-      getType: 7,
+      getType: 32,
     };
     if (parentWorksheetId && control && _.get(parentWorksheetId, 'length') === 24) {
       args.relationWorksheetId = parentWorksheetId;
@@ -65,7 +66,7 @@ export default function RelateRecordOptions(props) {
     } else {
       setRecords(staticRecords || []);
     }
-  }, [JSON.stringify(staticRecords)]);
+  }, [JSON.stringify(staticRecords), advancedSetting]);
   return (
     <Con>
       {prefixRecords

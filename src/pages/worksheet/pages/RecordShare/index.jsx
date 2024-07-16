@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import ReactDom from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { LoadDiv } from 'ming-ui';
 import preall from 'src/common/preall';
 import sheetApi from 'src/api/worksheet';
-import appManagementApi from 'src/api/appManagement';
 import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
+import { getAppLangDetail } from 'src/util';
 import RecordShare from './RecordShare';
 import _ from 'lodash';
 
@@ -44,15 +44,12 @@ const Entry = props => {
           requestParams: { projectId },
         },
       );
-      if (langInfo && langInfo.appLangId) {
-        const lang = await appManagementApi.getAppLangDetail({
-          projectId,
-          appId,
-          appLangId: langInfo.appLangId,
-        });
-        window[`langData-${data.appId}`] = lang.items;
-        window.appInfo = { id: appId };
-      }
+      const lang = await getAppLangDetail({
+        langInfo,
+        projectId,
+        id: appId,
+      });
+      window.appInfo = { id: appId };
       setShare(result);
       setLoading(false);
     });
@@ -112,4 +109,6 @@ const Entry = props => {
   return share.resultCode === 1 ? <RecordShare data={share.data} /> : <ShareState code={share.resultCode} />;
 };
 
-ReactDom.render(<Entry />, document.getElementById('app'));
+const root = createRoot(document.getElementById('app'));
+
+root.render(<Entry />);

@@ -5,7 +5,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { Button, MenuItem, Icon, Tooltip, Dialog, VerifyPasswordConfirm } from 'ming-ui';
 import { mdNotification } from 'ming-ui/functions';
-import { verifyPassword } from 'src/util';
+import { verifyPassword,emitter } from 'src/util';
 import IconText from 'worksheet/components/IconText';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import FillRecordControls from '../FillRecordControls';
@@ -293,6 +293,7 @@ export default class CustomButtons extends React.Component {
     }
     worksheetAjax.updateWorksheetRow(args).then(res => {
       if (res && res.data) {
+        emitter.emit('ROWS_UPDATE');
         this.setStateFn({
           fillRecordControlsVisible: false,
         });
