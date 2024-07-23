@@ -438,6 +438,7 @@ function GroupFilter(props) {
                 value: item.rowid,
                 txt: renderTxt(item, control, viewId),
                 isLeaf: !item.childrenids,
+                text: item[control.controlId],
               };
             }),
             rowId,
@@ -489,7 +490,7 @@ function GroupFilter(props) {
             style={{ paddingLeft: (!level ? 0 : 18 * level) + 6 }}
             onClick={() => {
               updateFilter(d.value);
-              setNavName(nStr);
+              setNavName(keywords && type === 35 ? d.text : nStr);
             }}
           >
             <div className={cx('gListDiv', { hasCount: showCount })}>

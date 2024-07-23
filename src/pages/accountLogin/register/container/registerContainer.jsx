@@ -61,6 +61,7 @@ export default class Container extends React.Component {
       _.get(nextProps, 'isFrequentLoginError')
     ) {
       this.doCaptchaFn(true);
+      this.props.updateIsFrequentLoginError(false);
     }
   }
 
@@ -97,7 +98,7 @@ export default class Container extends React.Component {
       registerAction(Object.assign({}, res, { captchaType: md.global.getCaptchaType() }));
     };
 
-    if (createAccountLoading) {
+    if (createAccountLoading && !isFrequentLoginError) {
       return;
     }
 

@@ -307,7 +307,6 @@ class EditBox extends React.Component {
             text={
               <span>
                 {_l('保存数据到服务器时再次校验')}
-                <Icon icon="beta1" className="mRight6 mLeft6" style={{ background: '#fff', color: '#43BD36' }} />
                 <Tooltip
                   placement="bottom"
                   title={
@@ -324,7 +323,7 @@ class EditBox extends React.Component {
                     </span>
                   }
                 >
-                  <i className="icon-help Gray_9e Font16 Hand"></i>
+                  <i className="icon-help Gray_9e Font16 Hand mLeft6"></i>
                 </Tooltip>
               </span>
             }

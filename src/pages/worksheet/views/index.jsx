@@ -165,7 +165,8 @@ function View(props) {
       cache.current.refreshTimer = setInterval(() => {
         if (
           document.querySelector('.workSheetNewRecord.mdModal') ||
-          document.querySelector('.workSheetRecordInfo.mdModal')
+          document.querySelector('.workSheetRecordInfo.mdModal') ||
+          document.querySelector('.fillRecordControls.mdModal')
         ) {
           return;
         }

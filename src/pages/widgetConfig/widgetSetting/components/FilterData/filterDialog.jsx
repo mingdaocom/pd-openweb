@@ -20,7 +20,7 @@ export default function FilterDialog(props) {
     data = {},
     onChange,
     onClose,
-    allControls, //动态字段值显示的Controls
+    allControls = [], //动态字段值显示的Controls
     title,
     fromCondition, //筛选作用的控件
     relationControls, //关联表的Controls

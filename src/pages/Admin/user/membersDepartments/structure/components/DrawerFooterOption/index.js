@@ -6,6 +6,7 @@ export default function DrawerFooterOption(props) {
     actType,
     typeCursor,
     isUploading,
+    agreeLoading,
     editCurrentUser = {},
     handleSubmit = () => {},
     saveFn = () => {},
@@ -90,8 +91,8 @@ export default function DrawerFooterOption(props) {
       {typeCursor === 3 && (
         <div className="btnGroups flexRow">
           <div className="flex">
-            <span className="btnBootstrap addBtn" onClick={props.agreeJoin}>
-              {_l('批准加入')}
+            <span className={cx('btnBootstrap addBtn', { disabledBtn: agreeLoading })} onClick={props.agreeJoin}>
+              {agreeLoading ? _l('处理中...') : _l('批准加入')}
             </span>
             <span
               className="Hand cancelBtn mLeft8"

@@ -21,7 +21,7 @@ import {
 import { getPathById, isHaveGap } from './widgets';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { ControlTag } from '../styled';
-import { Tooltip, Dialog } from 'ming-ui';
+import { Tooltip, Dialog, Support } from 'ming-ui';
 import { v4 as uuidv4 } from 'uuid';
 import { ALL_SYS } from '../config/widget';
 import homeAppApi from 'src/api/homeApp';
@@ -66,7 +66,23 @@ export const getMsgByCode = ({ code, data, controls }) => {
     default:
       break;
   }
-  alert(errorText, 2);
+  if (code === 16) {
+    alert({
+      msg: (
+        <span>
+          {errorText}
+          <Support
+            type={3}
+            href="https://help.mingdao.com/worksheet/field-property/#syestem-field-alias"
+            text={<span className="Font14 Bold">{_l('查看')}</span>}
+          />
+        </span>
+      ),
+      type: 2,
+    });
+  } else {
+    alert(errorText, 2);
+  }
   return errorText;
 };
 

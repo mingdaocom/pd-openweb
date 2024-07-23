@@ -444,7 +444,7 @@ export default class WebHook extends Component {
               this.updateSource({ settings: Object.assign({}, data.settings, { useProxy: !checked }) })
             }
           />
-          <Tooltip text={<span>{_l('需要管理员在「组织后台-集成-其他」中配置}')}</span>}>
+          <Tooltip text={<span>{_l('需要管理员在「组织管理-安全-数据」中配置}')}</span>}>
             <Icon icon="info_outline" className="Gray_75 mTop3 mLeft10 mRight20" />
           </Tooltip>
           <Checkbox

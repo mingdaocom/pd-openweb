@@ -64,8 +64,9 @@ class FillRecordControls extends React.Component {
     super(props);
     const { projectId } = props;
     this.hasDefaultRelateRecordTableControls = [];
-    const controls = update(props.formData, {
-      $apply: formData => {
+    const controls = update(
+      props.formData.concat((props.masterFormData || []).map(c => ({ ...c, fromMaster: true }))),
+      {$apply: formData => {
         const formDataForDataFormat = formData.map(c => {
           const newControl = { ...c };
           const writeControl = _.find(props.writeControls, wc => newControl.controlId === wc.controlId);

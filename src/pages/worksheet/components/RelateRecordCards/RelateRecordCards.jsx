@@ -263,6 +263,11 @@ export default class RelateRecordCards extends Component {
         );
       } else {
         this.setState({ records: nextProps.records, count: nextProps.count, addedIds: [], deletedIds: [] });
+        if (_.get(this, 'props.control.isSubList')) {
+          if (nextProps.records.length < nextProps.count) {
+            this.loadMoreRecords(1, nextProps);
+          }
+        }
       }
     }
     if (!_.isEqual(nextProps.records, this.props.records)) {

@@ -35,7 +35,7 @@ export default function WidgetWidth({ data, widgets, handleClick }) {
   const availableWidth = adjustWidthList(widgets, data);
   return (
     <SettingItem>
-      <div className="settingItemTitle">{_l('宽度')}</div>
+      <div className="settingItemTitle">{_l('宽度（占比）')}</div>
       <AnimationWrap>
         {WIDTH_SETTING_LIST.map(({ text, value }) => {
           const disabled = !availableWidth.includes(value);

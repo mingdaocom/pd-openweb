@@ -79,11 +79,11 @@ export default ({ dynamicValue = [], data = {}, ...rest }) => {
                 const dateProps = getDatePickerConfigs(data);
                 text = type === 'date' ? moment(value).format(dateProps.formatMode) : value;
               }
-              return <span className="dynamicText">{text}</span>;
+              return <span className="dynamicText breakAll">{text}</span>;
             }
             if (type === 'switch') {
               const text = _.get(_.find(getTypeList(data), ct => ct.id === item.staticValue) || {}, 'text');
-              return <span className="dynamicText">{text}</span>;
+              return <span className="dynamicText breakAll">{text}</span>;
             }
             if (_.includes(['cascader', 'relateSheet'], type)) {
               let name;
@@ -117,12 +117,12 @@ export default ({ dynamicValue = [], data = {}, ...rest }) => {
               );
             }
             if (type === 'area') {
-              return <span className="dynamicText">{_.get(value, 'name')}</span>;
+              return <span className="dynamicText breakAll">{_.get(value, 'name')}</span>;
             }
             if (type === 'richtext') {
               return <div className="w100 mTop0 mBottom0" dangerouslySetInnerHTML={{ __html: filterXSS(value) }}></div>;
             }
-            return <span className="dynamicText">{value}</span>;
+            return <span className="dynamicText breakAll">{value}</span>;
           } catch (error) {
             console.log(error);
             return null;

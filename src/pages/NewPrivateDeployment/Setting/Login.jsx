@@ -387,7 +387,7 @@ const GoogleSso = prosp => {
       )}
     </div>
   );
-}
+};
 
 const Sso = prosp => {
   const { SysSettings } = md.global;
@@ -498,7 +498,73 @@ const Sso = prosp => {
 
     </div>
   );
-}
+};
+
+const LoginGotoAppId = props => {
+  const { SysSettings } = md.global;
+  const [isEdit, setIsEdit] = useState(false);
+  const [loginGotoAppId, setLoginGotoAppId] = useState(SysSettings.loginGotoAppId || '');
+
+  const handleSave = () => {
+    if (loginGotoAppId && loginGotoAppId.length !== 36) {
+      alert(_l('应用ID格式不正确，请重新输入'), 3);
+      return;
+    }
+    updateSysSettings({
+      loginGotoAppId
+    }, () => {
+      md.global.SysSettings.loginGotoAppId = loginGotoAppId;
+      setIsEdit(false);
+    });
+  };
+  const handleReset = () => {
+    setLoginGotoAppId(SysSettings.loginGotoAppId || '');
+    setIsEdit(false);
+  };
+
+  return (
+    <div className="privateCardWrap flexRow">
+      <div className="flex flexColumn">
+        <div className="Font14 bold mBottom7">{_l('登录后直接进入应用')}</div>
+        <div className="Gray_9e mBottom15">{_l('支持设置登录后直接进入的应用，应用ID可前往应用管理右上角查看。若未设置，则默认登录后进入工作台')}</div>
+        {isEdit ? (
+          <Fragment>
+            <div className="mBottom15 valignWrapper">
+              <span className="Gray_9e mRight18">{_l('应用ID')}</span>
+              <Input
+                style={{ width: 500 }}
+                value={loginGotoAppId}
+                onChange={event => {
+                  setLoginGotoAppId(event.target.value.replace(/\s/g, ''));
+                }}
+              />
+            </div>
+            <div className="flexRow valignWrapper">
+              <Button className="mRight10" type="primary" onClick={handleSave}>{_l('保存')}</Button>
+              <Button onClick={handleReset}>{_l('取消')}</Button>
+            </div>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div className="mBottom15 valignWrapper">
+              <span className="Gray_9e mRight18">{_l('应用ID')}</span>
+              <span>{loginGotoAppId ? loginGotoAppId : _l('未设置')}</span>
+            </div>
+            <div>
+              <Button
+                ghost
+                type="primary"
+                onClick={() => setIsEdit(true)}
+              >
+                {_l('设置')}
+              </Button>
+            </div>
+          </Fragment>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default props => {
   return (
@@ -506,6 +572,7 @@ export default props => {
       <Login {...props } />
       <GoogleSso {...props } />
       <Sso {...props } />
+      <LoginGotoAppId {...props } />
     </Fragment>
   );
 };

@@ -111,7 +111,7 @@ const columns = [
     width: 150
   },
   {
-    title: _l('内部用户配额'),
+    title: _l('组织用户配额'),
     dataIndex: 'internalUserNum',
     key: 'internalUserNum',
     render: (_, data) => data.internalUserNum.toLocaleString()
@@ -190,7 +190,7 @@ const AuthorizationInfo = props => {
               <div className="Font13 Gray_bd">{platformLicenseInfo.upgradeExpirationDate ? _l('%0到期', moment(platformLicenseInfo.upgradeExpirationDate).format('YYYY年MM月DD日')) : '-'}</div>
             </div>
             <div className="flexColumn valignWrapper flex">
-              <div className="Font14 Gray_9e mBottom5 pBottom2">{_l('内部用户配额')}</div>
+              <div className="Font14 Gray_9e mBottom5 pBottom2">{_l('组织用户配额')}</div>
               <div className="Font17 mBottom5 bold">{_l('%0 人', (platformLicenseInfo.internalUserNum || 0).toLocaleString())}</div>
               <div className="Font13 Gray_bd">{_l('已使用 %0 人', (platformLicenseInfo.internalUsedUserNum || 0).toLocaleString())}</div>
             </div>

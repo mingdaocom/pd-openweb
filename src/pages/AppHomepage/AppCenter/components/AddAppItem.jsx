@@ -239,11 +239,11 @@ export default class AddAppItem extends Component {
                           this.getMyDbInstances({ id, href }, 'createFromEmpty');
                           return;
                         }
-                        if (id === 'importExcelCreateApp') {
-                          this.setState({ dialogImportExcel: true });
-                        }
-                        this.handleClick({ id, href });
                       }
+                      if (id === 'importExcelCreateApp') {
+                        this.setState({ dialogImportExcel: true });
+                      }
+                      this.handleClick({ id, href });
                     }}
                   >
                     {text}

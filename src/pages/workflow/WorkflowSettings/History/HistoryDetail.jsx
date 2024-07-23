@@ -425,7 +425,7 @@ export default class HistoryDetail extends Component {
                           title={name}
                           className="pointer ThemeHoverColor3"
                           onClick={() =>
-                            (flowNode.type !== 1 || (!resultTypeId && flowNode.flowIds[0])) &&
+                            (!_.includes([1, 30], flowNode.type) || (!resultTypeId && flowNode.flowIds[0])) &&
                             openNodeDetail({
                               processId: processInfo.id,
                               selectNodeId: flowNode.type === 1 ? flowNode.flowIds[0] : flowNode.id,

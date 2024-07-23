@@ -52,7 +52,17 @@ export default function Location({ data, onChange }) {
   return (
     <Fragment>
       <SettingItem>
-        <div className="settingItemTitle">{_l('输入方式')}</div>
+        <div className="settingItemTitle">
+          {_l('输入方式')}
+          {md.global.Config.IsLocal && (
+            <Tooltip
+              popupPlacement={'bottom'}
+              text={<span>{_l('由于高德定位组件限制，必须使用https协议以获得准确的定位信息')}</span>}
+            >
+              <i className="icon-help Gray_9e Font16 pointer mLeft6"></i>
+            </Tooltip>
+          )}
+        </div>
         <RadioGroup
           size="middle"
           vertical={true}

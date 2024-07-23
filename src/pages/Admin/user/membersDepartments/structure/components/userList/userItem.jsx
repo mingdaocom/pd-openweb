@@ -329,9 +329,9 @@ class UserItem extends Component {
     ) : _.includes([2, 3], user.status) ? (
       <Menu className="userOptList">
         <MenuItem onClick={this.handleApprovalClick}>
-          {user.status == 2 ? _l('重新审批') : user.status == 3 ? _l('审批') : ''}
+          {user.status == 2 ? _l('重新审批') : user.status == 3 ? _l('批准加入') : ''}
         </MenuItem>
-        {user.status == 3 && <MenuItem onClick={this.handleRefuseClick}>{_l('拒绝')}</MenuItem>}
+        {user.status == 3 && <MenuItem onClick={this.handleRefuseClick}>{_l('拒绝加入')}</MenuItem>}
       </Menu>
     ) : (
       <Fragment></Fragment>

@@ -91,6 +91,8 @@ const Wrap = styled.div`
   }
 `;
 
+//不支持配置的jdbcId类型
+const disableList = [-8, -4, -2, 0, 70, 1111, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009, 2011, 2012];
 export default class CellEdit extends Component {
   constructor(props) {
     super(props);
@@ -177,7 +179,7 @@ export default class CellEdit extends Component {
     const isDestMDType =
       _.get(list.find(o => o.nodeType === 'DEST_TABLE') || {}, 'nodeConfig.config.dsType') ===
       DATABASE_TYPE.APPLICATION_WORKSHEET;
-    let data =
+    let data = (
       (await getFields({
         node,
         projectId: currentProjectId,
@@ -185,14 +187,17 @@ export default class CellEdit extends Component {
         isSourceAppType: true,
         isDestAppType: isDestMDType,
         destType: _.get(list.find(o => o.nodeType === 'DEST_TABLE') || {}, 'nodeConfig.config.dsType'),
-      })) || [];
+      })) || []
+    ).filter(o => !disableList.includes(o.jdbcTypeId));
     this.setState({
       fieldsBysource: data,
     });
-    let fieldsData = (_.get(node, 'nodeConfig.fields') || []).map(o => {
-      let field = data.find(it => it.id === o.id);
-      return { ...o, ..._.omit(field || {}, ['alias', 'isCheck', 'isPk', 'isFakePk']), isErr: !field };
-    });
+    let fieldsData = (_.get(node, 'nodeConfig.fields') || [])
+      .map(o => {
+        let field = data.find(it => it.id === o.id);
+        return { ...o, ..._.omit(field || {}, ['alias', 'isCheck', 'isPk', 'isFakePk']), isErr: !field };
+      })
+      .filter(o => !disableList.includes(o.jdbcTypeId));
     let otherData = data
       .filter(o => !fieldsData.find(a => a.id === o.id))
       .map(o => {

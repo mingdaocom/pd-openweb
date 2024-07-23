@@ -45,9 +45,10 @@ function LimitFeatureDialog(props) {
       <div className="des">{_l('关闭全员功能，只允许授权的管理员使用')}</div>
       {limitData
         .filter(
-          v =>
-            !(v.value === 'pluginsOnlyManager' && md.global.SysSettings.hidePlugin) &&
-            !(v.value === 'apiIntgOnlyManager' && md.global.SysSettings.hideIntegration),
+          item =>
+            !(item.value === 'onlyManagerCreateApp' && md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) &&
+            !(item.value === 'pluginsOnlyManager' && md.global.SysSettings.hidePlugin) &&
+            !(item.value === 'apiIntgOnlyManager' && md.global.SysSettings.hideIntegration),
         )
         .map((item, index) => {
           return (

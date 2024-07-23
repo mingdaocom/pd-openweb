@@ -895,17 +895,20 @@ export default class CustomFields extends Component {
    * 获取提交数据
    */
   getSubmitData({ silent, ignoreAlert, verifyAllControls } = {}) {
-    const { from, recordId, ignoreHideControl } = this.props;
+    const { from, recordId, ignoreHideControl, systemControlData } = this.props;
     const { errorItems, uniqueErrorItems, rules = [], activeRelateRecordControlId } = this.state;
     const updateControlIds = this.dataFormat.getUpdateControlIds();
     const data = this.dataFormat.getDataSource();
-    const list = updateRulesData({
+    // 校验需要系统字段，提交不需要，防止数据被变更
+    const ruleList = updateRulesData({
       rules,
-      data,
+      data: data.concat(systemControlData || []),
       recordId,
       checkAllUpdate: true,
       ignoreHideControl,
     });
+    // 过滤系统字段
+    const list = ruleList.filter(i => !_.find(systemControlData, s => s.controlId === i.controlId));
     // 保存时必走，防止无字段变更判断错误
     const errors =
       updateControlIds.length || !recordId || this.submitBegin || verifyAllControls

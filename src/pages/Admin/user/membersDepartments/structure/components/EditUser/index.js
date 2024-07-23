@@ -23,6 +23,7 @@ export default class EditUser extends Component {
       departmentIds: [],
       errors: {},
       baseInfo: {},
+      agreeLoading: false,
     };
     this.it = null;
   }
@@ -137,6 +138,9 @@ export default class EditUser extends Component {
       contactPhone,
       orgRoles = [],
     } = this.baseFormInfo.state;
+    if (this.state.agreeLoading) return;
+
+    this.setState({ agreeLoading: true });
 
     userController
       .agreeUserJoin({
@@ -149,23 +153,23 @@ export default class EditUser extends Component {
         contactPhone,
         orgRoleIds: orgRoles.map(l => l.id),
       })
-      .then(
-        result => {
-          if (result === 1) {
-            alert(_l('批准成功'));
-            onClose();
-            this.props.fetchApproval();
-            this.props.clickSave();
-          } else if (result === 4) {
+      .then(result => {
+        if (result === 1) {
+          alert(_l('批准成功'));
+          onClose();
+          this.props.fetchApproval();
+          this.props.clickSave();
+        } else if (result === 4) {
             alert(_l('当前用户数已超出人数限制'), 3);
-          } else {
-            alert(_l('操作失败'), 2);
-          }
-        },
-        () => {
+        } else {
           alert(_l('操作失败'), 2);
-        },
-      );
+        }
+        this.setState({ agreeLoading: false });
+      })
+      .catch(() => {
+        alert(_l('操作失败'), 2);
+        this.setState({ agreeLoading: false });
+      });
   };
   saveFn = () => {
     const { projectId, accountId } = this.props;
@@ -369,7 +373,8 @@ export default class EditUser extends Component {
       authority = [],
       onClose = () => {},
     } = this.props;
-    const { isUploading, errors, jobList, worksiteList, baseInfo, showWorkHandover, userName } = this.state;
+    const { isUploading, errors, jobList, worksiteList, baseInfo, showWorkHandover, userName, agreeLoading } =
+      this.state;
 
     return (
       <Drawer
@@ -419,6 +424,7 @@ export default class EditUser extends Component {
                 />
               </div>
               <DrawerFooterOption
+                agreeLoading={agreeLoading}
                 typeCursor={typeCursor}
                 actType={actType}
                 isUploading={isUploading}

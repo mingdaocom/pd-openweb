@@ -83,6 +83,9 @@ export const HomePageWrap = styled.div`
       .count {
         font-size: 28px;
       }
+      .verticalTxtBottom {
+        vertical-align: text-bottom;
+      }
       .name {
         color: #757575;
         margin-top: 4px;

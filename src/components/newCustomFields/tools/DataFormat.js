@@ -1057,7 +1057,7 @@ export default class DataFormat {
     this.instanceId = instanceId;
     this.workId = workId;
     this.masterRecordRowId = masterRecordRowId;
-    this.data = _.cloneDeep(data);
+    this.data = _.cloneDeep(data).map(c => ({ ...c, store: undefined }));
     this.masterData = masterData;
     this.embedData = embedData;
     this.loadingInfo = {};

@@ -350,7 +350,10 @@ const BaseCard = props => {
     const isShowAbstract = abstract && !!(data.formData || []).filter(item => item.controlId === abstract).length;
     if (isEmptyCell({ value: abstractValue }) && !isGalleryView && !showNull) return null;
     return isShowAbstract ? (
-      <div className={cx('abstractWrap', { galleryViewAbstract: isGalleryView || isVerticalHierarchy })}>
+      <div
+        className={cx('abstractWrap', { galleryViewAbstract: isGalleryView || isVerticalHierarchy })}
+        title={abstractValue}
+      >
         {abstractValue || <div className="emptyHolder"></div>}
       </div>
     ) : null;

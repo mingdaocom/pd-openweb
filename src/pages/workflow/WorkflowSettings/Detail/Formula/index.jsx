@@ -237,7 +237,7 @@ export default class Formula extends Component {
       const { fnmatch } = this.state;
       let newFnmatch = '';
       if (obj.origin === '+input') {
-        if (!/[0-9|\+|\-|\*|\/|\(|\),]/.test(obj.text[0])) {
+        if (!/[0-9|\+|\-|\*|\/|\(|\),|\[|\]]/.test(obj.text[0])) {
           newFnmatch = fnmatch + obj.text[0];
         }
       }

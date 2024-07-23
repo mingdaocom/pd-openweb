@@ -134,7 +134,7 @@ export default class InitBindAccountDialog extends Component {
                 } else if (data === 8) {
                   alert(_l('验证码错误'), 3);
                 }
-                if (data === 9) {
+                if (data === 12) {
                   alert(_l('此手机号已被其它帐号绑定'), 2);
                   _this.mobile.focus();
                 } else {

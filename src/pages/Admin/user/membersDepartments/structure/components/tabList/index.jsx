@@ -133,9 +133,7 @@ class TabList extends React.Component {
               <Icon className="Font16 Gray_9e listName mRight10" icon="check_circle" />
               <span>
                 {_l('未激活')}
-                {inActiveNumber > 0 && typeCursor !== 2 && (
-                  <span className="numTag">{inActiveNumber > 99 ? '99+' : inActiveNumber}</span>
-                )}
+                {inActiveNumber > 0 && <span className="numTag">{inActiveNumber > 99 ? '99+' : inActiveNumber}</span>}
               </span>
             </li>
             <li
@@ -147,9 +145,7 @@ class TabList extends React.Component {
               <Icon className="Font16 Gray_9e listName mRight10" icon="access_time_filled" />
               <span>
                 {_l('待审核')}
-                {approveNumber > 0 && typeCursor !== 3 && (
-                  <span className="numTag">{approveNumber > 99 ? '99+' : approveNumber}</span>
-                )}
+                {approveNumber > 0 && <span className="numTag">{approveNumber > 99 ? '99+' : approveNumber}</span>}
               </span>
             </li>
           </ul>

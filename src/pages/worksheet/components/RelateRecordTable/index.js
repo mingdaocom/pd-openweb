@@ -90,7 +90,7 @@ export default function RelateRecordTableIndex(props) {
     if (control.type !== 51) return;
     store.dispatch({
       type: 'UPDATE_BASE',
-      value: { formData },
+      value: { formData, recordId },
     });
     if (!store.getState().loading && control.type === 51) {
       store.dispatch(updateFilter());

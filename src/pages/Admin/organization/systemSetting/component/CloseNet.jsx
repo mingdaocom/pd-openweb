@@ -58,6 +58,7 @@ export default class CloseNet extends Component {
           step: firstItem.type === 1 ? 3 : 1,
           postDate: firstItem.createTime,
           isLoading: false,
+          createUserName: _.get(firstItem, 'createUser.fullname'),
         });
       },
     );
@@ -201,6 +202,7 @@ export default class CloseNet extends Component {
       postDate,
       logoffs,
       isLoading,
+      createUserName,
     } = this.state;
     return (
       <div className="orgManagementWrap">
@@ -295,7 +297,7 @@ export default class CloseNet extends Component {
                 <div className="mTop32 ">
                   <div className="rowDetail">
                     <div className="rowLabel">{_l('申请人')}</div>
-                    <span>{md.global.Account.fullname}</span>
+                    <span>{createUserName || md.global.Account.fullname}</span>
                   </div>
                   <div className="mTop12 rowDetail">
                     <div className="rowLabel">{_l('申请时间')}</div>

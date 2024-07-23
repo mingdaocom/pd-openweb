@@ -30,7 +30,7 @@ export const updateCreateLoading = data => {
 };
 
 export const updateIsFrequentLoginError = data => {
-  return { type: 'UPDATE_ISFREQUENTLOGINERROR', data };
+  return { type: 'UPDATE_ISFREQUENT', data };
 };
 
 export const setData = data => {

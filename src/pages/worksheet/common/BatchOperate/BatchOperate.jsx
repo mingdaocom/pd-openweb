@@ -400,7 +400,7 @@ class BatchOperate extends React.Component {
     return (
       <DropMotion
         duration={200}
-        style={{ marginLeft: -24, marginRight: -24, position: 'absolute', width: '100%', top: 0, zIndex: 2 }}
+        style={{ position: 'absolute', width: '100%', top: 0, left: 0, right: 0, zIndex: 2 }}
         visible={!!selectedLength && rows.length && !loading && !_.isEmpty(permission)}
       >
         <div className={cx('batchOperateCon', { single: type === 'single' })}>

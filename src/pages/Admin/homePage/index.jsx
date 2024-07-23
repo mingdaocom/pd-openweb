@@ -138,11 +138,31 @@ export default function HomePage({ match, location: routerLocation }) {
       alert(_l('单应用版暂不支持线上续费，请联系顾问进行续费'), 3);
     }
   };
+
+  // 处理中文环境下行记录总数
+  const getWorksheetRowCount = value => {
+    // 大于100w
+    if (value > 1000000) {
+      return (
+        <div className="count">
+          <Tooltip text={formatValue(value)}>
+            <span>{(value / 10000).toFixed(0)}</span>
+          </Tooltip>
+          <span className="Gray_75 Font17 mLeft4 verticalTxtBottom">
+            {_l('万')}
+            {value % 10000 > 0 ? '+' : ''}
+          </span>
+        </div>
+      );
+    }
+    return <div className="count">{formatValue(value)}</div>;
+  };
   const { currentLicense = {}, nextLicense = {} } = data;
   const { endDate, expireDays, version = {} } = currentLicense;
   const { version: nextVersion, startDate: nextStartDate, endDate: nextEndDate } = nextLicense;
   const versionIdV2 = parseInt(version.versionIdV2);
 
+  const isTeam = data.licenseType === 1 && versionIdV2 === 1;
   const getValue = value => (_.isUndefined(value) || _.isNaN(value) ? '-' : value);
 
   const getCountText = (key, limit, numUnit) => {
@@ -374,8 +394,12 @@ export default function HomePage({ match, location: routerLocation }) {
                           </Tooltip>
                         )}
                       </div>
-                      <div className="count">{formatValue(getValue(data[key] || 0))}</div>
-                      {key === 'effectiveWorksheetCount' && isFree && (
+                      <div className="count">
+                        {key === 'effectiveWorksheetRowCount' && _.includes([0, 3], getCurrentLangCode()) && data[key]
+                          ? getWorksheetRowCount(data[key])
+                          : formatValue(getValue(data[key] || 0))}
+                      </div>
+                      {key === 'effectiveWorksheetCount' && (isFree || isTeam) && (
                         <div className="limitUser">{_l('上限 %0 个', data.limitWorksheetCount)}</div>
                       )}
                       {key === 'effectiveWorksheetRowCount' && isFree && (

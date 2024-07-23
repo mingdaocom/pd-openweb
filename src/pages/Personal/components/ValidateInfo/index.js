@@ -193,7 +193,7 @@ export default class ValidateInfoCon extends Component {
               alert(_l('发送失败，新%0与现有%1一致', accountTypeDesc, accountTypeDesc), 2);
             } else if (data === 8) {
               alert(_l('验证码错误'), 3);
-            } else if (data === 9) {
+            } else if (data === 12) {
               alert(_l('此%0已被其它帐号绑定', accountTypeDesc), 2);
             } else {
               alert(_l('验证码发送失败'), 2);

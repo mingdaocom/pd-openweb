@@ -520,6 +520,8 @@ const generateLocalizationParams = (requestData = {}) => {
         'Worksheet_SaveWorksheetView',
         'Worksheet_DeleteWorksheetView',
         'Worksheet_SaveWorksheetControls',
+        'AppManagement_EditWorkSheetInfoForApp',
+        'Worksheet_SortWorksheetViews',
       ],
     },
     Worksheet_GetQueryBySheetId: {
@@ -574,7 +576,7 @@ window.clearLocalDataTime = ({ controllerName, actionName, requestData = {}, cle
     ...requestData,
     appLangId: requestData.langId,
     type: 20,
-    worksheetId: requestData.worksheetId || requestData.sourceId,
+    worksheetId: requestData.worksheetId || requestData.workSheetId || requestData.sourceId,
   });
   let localKey;
 

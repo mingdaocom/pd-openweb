@@ -304,6 +304,7 @@ class RecordAction extends Component {
             appId: relationControl.appId,
             rowId: this.fillRecordId,
             viewId: relationControl.viewId,
+            masterFormData: rowInfo.receiveControls,
           };
         } catch (err) {
           Modal.alert(

@@ -116,7 +116,7 @@ function MessageComp(props) {
         </div>
       );
     }
-    return <i className={`${type} icon-${getIconName(type)}`}></i>;
+    return <i className={`Font24 ${type} icon-${getIconName(type)}`}></i>;
   };
 
   const getBatchNoticeDescription = ({ finished, total, failed, executeType }) => {
