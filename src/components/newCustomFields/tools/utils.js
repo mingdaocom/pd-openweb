@@ -155,7 +155,7 @@ export const convertControl = type => {
 
 const Reg = {
   // 座机号码
-  telPhoneNumber: /^[+]?((\d){3,4}([ ]|[-]))?((\d){3,9})(([ ]|[-])(\d){1,12})?$/,
+  telPhoneNumber: /^[+]?([\d\s()\-]+)$/,
   // 邮箱地址
   emailAddress: /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)*\.[\w-]+$/i,
   // 身份证号码

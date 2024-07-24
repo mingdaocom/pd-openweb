@@ -73,17 +73,6 @@ const SmallCard = props => {
       >
         {_l('分享')}
       </MenuItem>
-      <MenuItem
-        key="saveKcCloud"
-        icon={<Icon icon="knowledge-cloud" className="Font17 pRight5" />}
-        onClick={e => {
-          e.stopPropagation();
-          handleSaveKcCloud(data, isDownload);
-          setDropdownVisible(false);
-        }}
-      >
-        {_l('保存到知识')}
-      </MenuItem>
     </Menu>
   );
 

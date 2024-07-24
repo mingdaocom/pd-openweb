@@ -336,7 +336,7 @@ class PrivateImageInstall extends Component {
           type="primary"
           size="large"
           onClick={() => {
-            location.href = '/app';
+            location.href = '/dashboard';
           }}
         >
           {_l('完成')}

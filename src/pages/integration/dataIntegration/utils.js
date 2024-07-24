@@ -188,10 +188,8 @@ export const getMatchedFieldsOptions = (types, sourceField, destFields, isSource
   const matchedMdTypeIds = _.uniq(types[sourceField.id] || []).map(type => type.mdType);
 
   const matchedFieldsOptions = isDestAppType
-    ? destFields.filter(
-        o => (isSourceAppType ? !!o.isPk === !!sourceField.isPk : true) && _.includes(matchedMdTypeIds, o.mdType),
-      )
-    : destFields.filter(o => !!o.isPk === !!sourceField.isPk && _.includes(matchedTypeIds, o.jdbcTypeId));
+    ? destFields.filter(o => _.includes(matchedMdTypeIds, o.mdType))
+    : destFields.filter(o => _.includes(matchedTypeIds, o.jdbcTypeId));
   return matchedFieldsOptions;
 };
 
@@ -227,6 +225,7 @@ export const getDefaultData = (
             ? {
                 ...item.destField,
                 isCheck: true,
+                isPk: sameNameFields[0].isPk,
                 isNotNull: sameNameFields[0].isNotNull,
                 id: sameNameFields[0].id,
                 oid: sameNameFields[0].oid,

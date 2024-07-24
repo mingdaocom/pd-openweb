@@ -876,6 +876,7 @@ export default class UploadFiles extends Component {
                 <span>{_l('本地')}</span>
               </div>
               {canAddKnowledge &&
+                !md.global.SysSettings.forbidSuites.includes('4') &&
                 md.global.Account.accountId &&
                 md.global.Account.accountId.length === 36 &&
                 from !== FROM.DRAFT &&

@@ -358,10 +358,21 @@ export default class CellEdit extends Component {
     //目的地表
     const fieldsMapping = _.get(node, ['nodeConfig', 'config', 'fieldsMapping']) || [];
     if (nodeType === 'DEST_TABLE') {
-      if (fieldsMapping.filter(o => !!_.get(o, 'sourceField.isPk')).length <= 0) {
-        //未设置主键
+      if (
+        _.get(node, 'nodeConfig.config.dsType') !== DATABASE_TYPE.APPLICATION_WORKSHEET &&
+        fieldsMapping.filter(o => _.get(o, 'destField.isPk') && _.get(o, 'destField.isCheck')).length <= 0
+      ) {
         disable = true;
-        txt = _l('未设置主键');
+        txt = _l('目的地主键未设置相关映射');
+      }
+      if (
+        fieldsMapping.filter(
+          o => _.get(o, 'sourceField.isPk') && _.get(o, 'destField.id') && _.get(o, 'destField.isCheck'),
+        ).length <= 0
+      ) {
+        //主键未设置相关映射 源字段为主键，且未设置映射
+        disable = true;
+        txt = _l('主键未设置相关映射');
       }
       if (fieldsMapping.filter(o => _.get(o, 'destField.isCheck')).length <= 0) {
         disable = true;
@@ -404,17 +415,6 @@ export default class CellEdit extends Component {
           }
         }
       } else {
-        if (fieldsMapping.filter(o => !!_.get(o, 'sourceField.isPk')).length > 0) {
-          //主键未设置相关映射
-          if (
-            fieldsMapping.filter(
-              o => !!_.get(o, 'sourceField.isPk') && !!_.get(o, 'destField.isCheck') && !!_.get(o, 'destField.id'),
-            ).length < fieldsMapping.filter(o => !!_.get(o, 'sourceField.isPk')).length
-          ) {
-            disable = true;
-            txt = _l('主键未设置相关映射');
-          }
-        }
         const preNode = list.filter(o => o.pathIds.length > 0 && o.pathIds[0].toDt.nodeId === node.nodeId)[0];
         let fields = (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isCheck);
         const hsMorePkData = hsMorePkControl(preNode, list);

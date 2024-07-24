@@ -85,7 +85,6 @@ const ImportWrap = styled.div`
         }
         .downloadBtn {
           display: inline-block;
-          width: 81px;
           height: 32px;
           font-size: 16px;
           font-weight: 600;
@@ -297,6 +296,14 @@ const SuccessInfo = styled.div`
   }
 `;
 
+// 导入部门模版
+const dptTemplatePaths = {
+  0: '/staticfiles/template/部门导入模板.xlsx',
+  1: '/staticfiles/template/Department Import Template.xlsx',
+  2: '/staticfiles/template/部門インポートテンプレート.xlsx',
+  3: '/staticfiles/template/部門導入模板.xlsx',
+};
+
 class ImportDepAndPosition extends Component {
   constructor(props) {
     super(props);
@@ -320,27 +327,17 @@ class ImportDepAndPosition extends Component {
     }
   }
   renderImport = () => {
-    const { importExportType } = this.props;
     let { fileName, importFileLoading } = this.state;
+
     return (
       <div className="uploadStep">
         <div className="serialTitle mTop32">{_l('1.下载导入模版')}</div>
         <div className="importUploadModule">
           <div className="importUploadText">
             <span className="Font20 mRight10 mBottom2 icon-task_custom_excel_01 color_gr TxtMiddle" />
-            <span className="Font17">
-              {importExportType === 'importDepartment' ? _l('导入部门模板') : _l('导入职位模板')}
-            </span>
+            <span className="Font17">{_l('导入部门模板')}</span>
           </div>
-          <a
-            className="Font16 downloadBtn"
-            href={
-              importExportType === 'importDepartment'
-                ? '/staticfiles/template/departmentImport.xlsx'
-                : '/staticfiles/template/positionImport.xlsx'
-            }
-            target="_blank"
-          >
+          <a className="Font16 downloadBtn" href={dptTemplatePaths[getCurrentLangCode()]} target="_blank">
             {_l('立即下载')}
           </a>
         </div>

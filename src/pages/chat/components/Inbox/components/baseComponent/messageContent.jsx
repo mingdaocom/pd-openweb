@@ -110,7 +110,7 @@ export default class BaseMessageComponent extends React.Component {
     if (showBtn) {
       return expanded ? (
         <span className="LineHeight25 WordBreak">
-          <span dangerouslySetInnerHTML={{ __html: message }} />
+          <span dangerouslySetInnerHTML={{ __html: xss(message) }} />
           <a
             href="javascript:void(0);"
             onClick={() => {
@@ -122,7 +122,7 @@ export default class BaseMessageComponent extends React.Component {
         </span>
       ) : (
         <span className="LineHeight25 WordBreak">
-          <span dangerouslySetInnerHTML={{ __html: partMsg }} />
+          <span dangerouslySetInnerHTML={{ __html: xss(partMsg) }} />
           <a
             href="javascript:void(0);"
             onClick={() => {
@@ -135,7 +135,7 @@ export default class BaseMessageComponent extends React.Component {
       );
     } else {
       if (message) {
-        return <span className="LineHeight25 WordBreak" dangerouslySetInnerHTML={{ __html: message }} />;
+        return <span className="LineHeight25 WordBreak" dangerouslySetInnerHTML={{ __html: xss(message) }} />;
       } else {
         return <span className="LineHeight25 Gray_c">{_l('该评论已被删除')}</span>;
       }

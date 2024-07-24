@@ -93,7 +93,7 @@ const Selected = styled.div`
 function pickOptions(options, navfilters) {
   try {
     const pickIds = JSON.parse(navfilters);
-    return options.filter(o => _.includes(pickIds, o.key));
+    return pickIds.map(pickId => _.find(options, { key: pickId })).filter(_.identity);
   } catch (err) {
     return options;
   }

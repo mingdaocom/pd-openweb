@@ -305,7 +305,7 @@ const triggerCustomActions = async props => {
         actionItems.forEach(item => {
           const control = _.find(formData, f => f.controlId === item.controlId);
           if (control) {
-            const value = getDynamicData(props, {
+            let value = getDynamicData(props, {
               ...control,
               advancedSetting: {
                 // 当前人员需要
@@ -318,6 +318,19 @@ const triggerCustomActions = async props => {
             const canNotSet =
               control.type === 29 && _.includes(['2', '6'], _.get(control, 'advancedSetting.showtype')) && recordId;
             if (value !== control.value && !props.disabled && !canNotSet) {
+              if (control.type === 29) {
+                try {
+                  const records = safeParse(value);
+                  value = JSON.stringify(
+                    records.map(record => ({
+                      ...record,
+                      count: records.length,
+                    })),
+                  );
+                } catch (err) {
+                  console.log(err);
+                }
+              }
               handleChange(value, item.controlId, control, false);
             }
           }

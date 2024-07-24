@@ -144,41 +144,34 @@ export default function DestEdit(props) {
           return { ...o, sourceField: { ...o.sourceField, name: o.sourceField.alias } };
         })}
         setFieldsMapping={mapping => {
-          const data = mapping
-            .map(o => {
-              if (!_.get(node, ['nodeConfig', 'config', 'createTable'])) {
-                return {
-                  ...o,
-                  destField: {
-                    ...o.destField,
-                    isCheck: !!_.get(o, 'destField.id'),
-                  },
-                };
-              } else {
-                //兼容新建表时，源字段新增，目的地无数据的情况
-                return {
-                  sourceField: {
-                    ...o.sourceField,
-                    isCheck: _.get(o, 'sourceField.isCheck') || _.get(o, 'destField.isCheck'),
-                  },
-                  destField: !o.destField
-                    ? o.destField
-                    : {
-                        ...o.sourceField,
-                        ...o.destField,
-                        dataType: _.get(o, 'destField.dataType'),
-                        oid: null,
-                        id: null,
-                      },
-                };
-              }
-            })
-            .map(o => {
+          const data = mapping.map(o => {
+            if (!_.get(node, ['nodeConfig', 'config', 'createTable'])) {
               return {
                 ...o,
-                destField: !o.destField ? o.destField : { ...o.destField, isPk: !!o.sourceField.isPk },
+                destField: {
+                  ...o.destField,
+                  isCheck: !!_.get(o, 'destField.id'),
+                },
               };
-            });
+            } else {
+              //兼容新建表时，源字段新增，目的地无数据的情况
+              return {
+                sourceField: {
+                  ...o.sourceField,
+                  isCheck: _.get(o, 'sourceField.isCheck') || _.get(o, 'destField.isCheck'),
+                },
+                destField: !o.destField
+                  ? o.destField
+                  : {
+                      ...o.sourceField,
+                      ...o.destField,
+                      dataType: _.get(o, 'destField.dataType'),
+                      oid: null,
+                      id: null,
+                    },
+              };
+            }
+          });
           onChangeInfo({
             node: {
               ...node,

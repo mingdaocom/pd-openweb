@@ -95,7 +95,7 @@ class Commenter extends React.Component {
 
   componentDidMount() {
     const { textarea, faceBtn, selectGroup } = this;
-    const { textareaMaxHeight, textareaMinHeight } = this.props;
+    const { textareaMaxHeight, textareaMinHeight, projectId } = this.props;
     const comp = this;
 
     // 文本框
@@ -132,6 +132,7 @@ class Commenter extends React.Component {
             isAtAll: true,
             sourceType,
             forReacordDiscussion: this.props.forReacordDiscussion,
+            projectId,
           },
           this.props.mentionsOptions,
         ),

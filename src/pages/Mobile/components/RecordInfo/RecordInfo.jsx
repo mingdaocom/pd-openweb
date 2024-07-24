@@ -681,7 +681,7 @@ export default class RecordInfo extends Component {
 
     return (
       <Wrap {...(useWaterMark ? { projectId: recordInfo.projectId } : {})}>
-        <div className={cx('mobileSheetRowRecord flexColumn h100', `mobileSheetRowRecord-${recordId}`)}>
+        <div className={cx('recordInfoForm mobileSheetRowRecord flexColumn h100', `mobileSheetRowRecord-${recordId}`)}>
           {submitLoading && (
             <div className="loadingMask">
               <LoadDiv />

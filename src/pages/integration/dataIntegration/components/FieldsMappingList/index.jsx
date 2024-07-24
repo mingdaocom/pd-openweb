@@ -300,11 +300,7 @@ export default function FieldMappingList(props) {
     const isNotSupport = isNotSupportField(sourceField, matchedTypes);
 
     const filterOptions = destData.isDbType
-      ? (destData.destFields || []).filter(
-          o =>
-            (isExistJoinPk ? !!o.isPk === !!sourceField.isUniquePk : !!o.isPk === !!sourceField.isPk) &&
-            _.includes(matchedTypeIds, o.jdbcTypeId),
-        )
+      ? (destData.destFields || []).filter(o => _.includes(matchedTypeIds, o.jdbcTypeId))
       : (destData.destFields || []).filter(o => _.includes(matchedMdTypeIds, o.mdType));
 
     const options = filterOptions
@@ -370,6 +366,7 @@ export default function FieldMappingList(props) {
                   destField: {
                     ...destField,
                     id: value,
+                    isPk: option.isPk,
                     name: option.name,
                     alias: option.alias,
                     dataType: option.dataType,
@@ -394,8 +391,8 @@ export default function FieldMappingList(props) {
                     jdbcTypeId: null,
                     precision: null,
                     scale: null,
-                    isCheck: destField.isPk,
-                    isNotNull: destField.isPk,
+                    isCheck: false,
+                    isNotNull:false,
                     mdType: null,
                     controlSetting: null,
                     oid: null,

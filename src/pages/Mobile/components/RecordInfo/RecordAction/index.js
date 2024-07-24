@@ -53,7 +53,6 @@ class RecordAction extends Component {
   }
   componentWillUnmount() {
     if (!window.IM) return;
-    IM.socket.off('workflow_push');
     IM.socket.off('workflow');
   }
 

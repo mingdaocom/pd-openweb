@@ -1114,11 +1114,15 @@ class RecordCalendar extends Component {
                     rowId,
                   });
                 } else {
-                  this.setState({
-                    selectTimeInfo: info,
-                    changeData: eventData.find(o => o.rowid === rowId) || {},
-                  });
-                  this.showChooseTrigger(info.dateStr, info.view.type);
+                  this.setState(
+                    {
+                      selectTimeInfo: info,
+                      changeData: eventData.find(o => o.rowid === rowId) || {},
+                    },
+                    () => {
+                      this.showChooseTrigger(info.dateStr, info.view.type);
+                    },
+                  );
                 }
               }}
               eventMouseEnter={item => {
@@ -1214,8 +1218,8 @@ class RecordCalendar extends Component {
               this.setState({
                 rows: [],
                 showPrevNext: false,
+                recordInfoVisible: false,
               });
-              this.setState({ recordInfoVisible: false });
             }}
             hideRows={() => {
               this.getEventsFn();

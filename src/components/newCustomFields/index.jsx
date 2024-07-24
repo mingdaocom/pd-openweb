@@ -985,7 +985,7 @@ export default class CustomFields extends Component {
     if (hasError) {
       if (!ignoreAlert && !silent) alert(_l('请正确填写记录'), 3);
       error = true;
-    } else if ($(this.con.current, '.workSheetRecordInfo').find('.fileUpdateLoading').length) {
+    } else if ($('.recordInfoForm').find('.fileUpdateLoading').length) {
       alert(_l('附件正在上传，请稍后'), 3);
       error = true;
     } else if (hasRuleError) {

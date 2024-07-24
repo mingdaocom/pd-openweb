@@ -863,6 +863,7 @@ export default class UploadFiles extends Component {
             <div className="UploadFiles-entrys">
               {this.renderQiniuUpload()}
               {canAddKnowledge &&
+                !md.global.SysSettings.forbidSuites.includes('4') &&
                 md.global.Account.accountId &&
                 md.global.Account.accountId.length === 36 &&
                 from !== FROM.DRAFT &&

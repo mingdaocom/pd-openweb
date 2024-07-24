@@ -371,7 +371,7 @@ export default class extends Component {
   };
   requestDrillDownTriggerData = code => {
     const { path } = this.state;
-    const { base, reportData } = this.props;
+    const { base, reportData, filtersGroup } = this.props;
     const { country, reportId } = reportData;
     const id = reportId || base.report.id;
     const particleSizeType = path.length ? path.length + 1 : country.particleSizeType + 1;
@@ -392,6 +392,7 @@ export default class extends Component {
         version,
         filterCode: code,
         particleSizeType,
+        filters: filtersGroup ? [filtersGroup] : undefined
       })
       .then(result => {
         result = fillValueMap(result);

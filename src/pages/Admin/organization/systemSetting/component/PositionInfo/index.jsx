@@ -17,6 +17,14 @@ import './index.less';
 import _ from 'lodash';
 import moment from 'moment';
 
+// 导入职位模版
+const positionTemplatePaths = {
+  0: '/staticfiles/template/职位导入模板.xlsx',
+  1: '/staticfiles/template/Position Import Template.xlsx',
+  2: '/staticfiles/template/ポジションインポートテンプレート.xlsx',
+  3: '/staticfiles/template/職位導入模板.xlsx',
+};
+
 class PositionInfo extends Component {
   constructor(props) {
     super(props);
@@ -105,7 +113,7 @@ class PositionInfo extends Component {
           clickBackList={() => {
             this.props.updateIsImportRole(false);
           }}
-          downLoadUrl={'/staticfiles/template/positionImport.xlsx'}
+          downLoadUrl={positionTemplatePaths[getCurrentLangCode()]}
           updateList={() => {
             this.props.updatePositionPageInfo({ pageIndex: 1, isMore: false });
             this.props.getPositionList();

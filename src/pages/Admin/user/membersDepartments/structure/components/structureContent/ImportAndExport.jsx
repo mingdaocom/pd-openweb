@@ -26,6 +26,13 @@ const ImportBtn = styled.div`
   width: 193px;
   cursor: ${props => (props.notAllowed ? 'not-allowed' : 'pointer')};
 `;
+
+const userTemplatePaths = {
+  0: md.global.Config.IsPlatformLocal ? '/staticfiles/template/成员导入模板.xlsx' : '/staticfiles/template/成员导入模板_v2.xlsx',
+  1: md.global.Config.IsPlatformLocal ? '/staticfiles/template/User Import Template.xlsx' : '/staticfiles/template/User Import Template_v2.xlsx',
+  2: md.global.Config.IsPlatformLocal ? '/staticfiles/template/メンバーインポートテンプレート.xlsx' : '/staticfiles/template/メンバーインポートテンプレート_v2.xlsx',
+  3: md.global.Config.IsPlatformLocal ? '/staticfiles/template/成員導入模板.xlsx' : '/staticfiles/template/成員導入模板_v2.xlsx',
+};
 class ImportAndExport extends Component {
   constructor(props) {
     super(props);
@@ -185,6 +192,7 @@ class ImportAndExport extends Component {
   };
   renderImport = () => {
     let { fileName } = this.state;
+
     return (
       <div className="uploadStep">
         <div className="serialTitle">{_l('1.下载导入模版')}</div>
@@ -193,15 +201,7 @@ class ImportAndExport extends Component {
             <span className="Font20 mRight10 mBottom2 icon-task_custom_excel_01 color_gr TxtMiddle" />
             <span className="Font17">{_l('导入模板')}</span>
           </div>
-          <a
-            className="Font16 downloadBtn"
-            href={
-              !md.global.Config.IsLocal || md.global.Config.IsPlatformLocal
-                ? '/staticfiles/template/memberImport.xlsx'
-                : '/staticfiles/template/user.xlsx'
-            }
-            target="_blank"
-          >
+          <a className="Font16 downloadBtn" href={userTemplatePaths[getCurrentLangCode()]} target="_blank">
             {_l('下载')}
           </a>
         </div>
@@ -216,7 +216,7 @@ class ImportAndExport extends Component {
       <div className="exportInfo">
         <div className="templateInfo">
           <div>
-            <span className="Font20 mRight10 mBottom2 icon-task_custom_excel_01 color_gr TxtMiddle" />
+            <span className="Font20 mRight10 mBottom2 icon-supervisor_account ThemeColor TxtMiddle" />
             {_l('成员列表')}
           </div>
           <div className="exportBtn " onClick={this.exportFile}>

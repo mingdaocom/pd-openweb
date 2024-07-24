@@ -148,6 +148,13 @@ const ImportError = styled.div`
     }
   }
 `;
+
+const userTemplatePaths = {
+  0: '/staticfiles/template/导入用户.xlsx',
+  1: '/staticfiles/template/import user.xlsx',
+  2: '/staticfiles/template/ユーザーをインポートする.xlsx',
+  3: '/staticfiles/template/導入用戶.xlsx',
+};
 export default class ImportResulFailtDetail extends Component {
   constructor(props) {
     super(props);
@@ -288,7 +295,7 @@ export default class ImportResulFailtDetail extends Component {
             <div className="errorTxt">{_l('导入错误')}</div>
             <div className="errorDes">
               {_l('请')}
-              <a className="Font16 ThemeColor3 Hover_49" href="/staticfiles/template/importuser.xlsx" target="_blank">
+              <a className="Font16 ThemeColor3 Hover_49" href={userTemplatePaths[getCurrentLangCode()]} target="_blank">
                 {_l('下载模板')}
               </a>
               {_l('，按格式修改后重新导入')}

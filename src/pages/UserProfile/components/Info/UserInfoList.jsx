@@ -88,10 +88,6 @@ function InfoList(porps) {
               <span className="Gray_6 TxtMaxW overflow_ellipsis">{sex(userInfo)}</span>
             </li>
             <li>
-              <span className="Gray_8 Left">QQ：</span>&nbsp;
-              <span className="Gray_6 TxtMaxW overflow_ellipsis">{userInfo.imqq ? userInfo.imqq : _l('未填写')}</span>
-            </li>
-            <li>
               <span className="Gray_8 Left">LinkeIn：</span>&nbsp;
               <span className="Gray_6 TxtMaxW overflow_ellipsis">
                 {userInfo.snsLinkedin ? userInfo.snsLinkedin : _l('未填写')}
@@ -112,10 +108,6 @@ function InfoList(porps) {
               <span className="Gray_6 TxtMaxW overflow_ellipsis InlineBlock">
                 {userInfo.snsSina ? userInfo.snsSina : _l('未填写')}
               </span>
-            </li>
-            <li>
-              <span className="Gray_8 Left">{_l('腾讯微博：')}</span>&nbsp;
-              <span className="Gray_6 TxtMaxW overflow_ellipsis">{userInfo.snsQQ ? userInfo.snsQQ : _l('未填写')}</span>
             </li>
           </ul>
         </div>

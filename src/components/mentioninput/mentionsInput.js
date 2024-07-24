@@ -775,6 +775,7 @@ Modified by Kenneth Auchenberg
       promiseObj = userAjax.getUsersByKeywords({
         search: settings.searchType,
         keywords: query,
+        currentProjectId: settings.projectId,
       });
 
       promiseObj.then(function getUsersByKeywordsCb(responseData) {

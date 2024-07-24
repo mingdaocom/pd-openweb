@@ -90,11 +90,7 @@ class UserBoardDialog extends Component {
         onOk={this.exportUser}
       >
         <div className="userBoard pTop5 pBottom5">
-          <div className="Font14 mBottom8">
-            {_l('用户列表： 已选择')}
-            <span class="count ThemeColor3">{selected.length}</span>
-            {_l('个用户')}
-          </div>
+          <div className="Font14 mBottom8">{_l('用户列表： 已选择 %0 个用户', selected.length)}</div>
           <div className="tableBox">
             <table className="w100 usersTable" cellspacing="0">
               <thead>

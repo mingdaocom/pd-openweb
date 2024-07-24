@@ -6,10 +6,10 @@ export const COMPANY_DEPARMENTID = '';
 export const PAGE_SIZE = 50;
 
 export const IMPORT_EXPORT_SHOWLIST = {
-  importDepartment: '导入部门',
-  exportDepartment: '导出部门',
-  importPosition: '导入职位',
-  exportPosition: '导出职位',
+  importDepartment: _l('导入部门'),
+  exportDepartment: _l('导出部门'),
+  importPosition: _l('导入职位'),
+  exportPosition: _l('导出职位'),
 };
 
 export const RESULTS = {

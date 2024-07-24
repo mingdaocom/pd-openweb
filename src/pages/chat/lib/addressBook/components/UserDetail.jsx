@@ -197,7 +197,7 @@ export default class UserDetail extends React.Component {
 
   renderDetailCard() {
     const {
-      data: { birthdate, gender, imqq, snsLinkedin, snsQQ, snsSina, weiXin },
+      data: { birthdate, gender, snsLinkedin, snsSina, weiXin },
       isShowDetail,
     } = this.state;
     const placeHolder = <span className="Gray_bd">{_l('未填写')}</span>;
@@ -213,10 +213,6 @@ export default class UserDetail extends React.Component {
           {gender === 1 ? _l('男') : _l('女')}
         </div>
         <div className="detail-info-row half">
-          <span className="Gray_75">QQ：</span>
-          {imqq || placeHolder}
-        </div>
-        <div className="detail-info-row half">
           <span className="Gray_75">{_l('微信')}：</span>
           {weiXin || placeHolder}
         </div>
@@ -227,10 +223,6 @@ export default class UserDetail extends React.Component {
         <div className="detail-info-row">
           <span className="Gray_75">{_l('新浪微博')}：</span>
           {snsSina || placeHolder}
-        </div>
-        <div className="detail-info-row">
-          <span className="Gray_75">{_l('腾讯微博')}：</span>
-          {snsQQ || placeHolder}
         </div>
       </div>
     );

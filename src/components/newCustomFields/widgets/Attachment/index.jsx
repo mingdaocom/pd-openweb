@@ -575,7 +575,7 @@ export default class Widgets extends Component {
           className={cx('customFormFileBox customFormAttachmentBox', { controlDisabled: mobileDisabled })}
           style={{ height: 'auto' }}
         >
-          {!mobileDisabled && (
+          {!mobileDisabled ? (
             <div className="flexRow">
               {showFile && this.renderMobileUploadTrigger({ originCount, strDefault, attachments, styles, type: 'file' })}
               {showCamera &&
@@ -603,6 +603,8 @@ export default class Widgets extends Component {
                   type: 'camcorder'
                 })}
             </div>
+          ) : (
+            <div className="customFormNull" />
           )}
           <Files
             {...filesProps}
@@ -711,7 +713,7 @@ export default class Widgets extends Component {
               </div>
             </UploadFilesTrigger>
           ) : (
-            <div className="flex" />
+            <div className="customFormNull" />
           )}
           <div className="valignWrapper">
             {showType === '4' && (

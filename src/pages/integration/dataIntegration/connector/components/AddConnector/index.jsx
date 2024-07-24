@@ -233,12 +233,12 @@ export default function AddConnector(props) {
     // }
 
     //主键是否勾选
-    let isPkCheck = true;
+    let isSourcePkCheckAndMap = true;
+    let isDestPkCheck = true;
     //是否有勾选
     let hasCheck = true;
     //字段信息是否填写完整
     let isComplete_new = true;
-    let isComplete_exist = true;
     //新建表名称是否已存在
     let isExistTableName = false;
     //目的地是库，是否存在相同新建表名称
@@ -252,20 +252,18 @@ export default function AddConnector(props) {
 
     submitData.forEach(item => {
       const isCreateTable = _.get(item, ['destNode', 'config', 'createTable']);
-      if (item.destNode.fields.filter(item => item.isPk).length === 0 && !(isSourceAppType && isDestAppType)) {
-        isPkCheck = false;
-        return;
-      }
+
       if (item.destNode.fields.length === 0) {
         hasCheck = false;
         return;
       }
-      if (isCreateTable && isDestAppType && item.destNode.fields.filter(field => field.isTitle).length === 0) {
-        isSetTitle = false;
-        return;
-      }
-      item.destNode.fields.forEach(field => {
-        if (isCreateTable) {
+
+      if (isCreateTable) {
+        if (isDestAppType && item.destNode.fields.filter(field => field.isTitle).length === 0) {
+          isSetTitle = false;
+          return;
+        }
+        item.destNode.fields.forEach(field => {
           switch (true) {
             case isSourceAppType && isDestAppType:
               if (!field.name.trim()) {
@@ -283,12 +281,21 @@ export default function AddConnector(props) {
               }
               break;
           }
-        } else {
-          if (field.isPk && !field.id) {
-            isComplete_exist = false;
-          }
+        });
+      } else {
+        if (
+          (item.destNode.config.fieldsMapping || []).filter(
+            map => map.sourceField.isPk && map.sourceField.isCheck && map.destField && map.destField.id,
+          ).length === 0
+        ) {
+          isSourcePkCheckAndMap = false;
+          return;
         }
-      });
+        if (item.destNode.fields.filter(item => item.isPk && item.id).length === 0 && !isDestAppType) {
+          isDestPkCheck = false;
+          return;
+        }
+      }
 
       const tableName = _.get(item, ['destNode', 'config', 'tableName']);
       const tableList = item.tableList || [];
@@ -316,8 +323,13 @@ export default function AddConnector(props) {
       hasRepeatNewTable = true;
     }
 
-    if (!isPkCheck) {
+    if (!isSourcePkCheckAndMap) {
       alert(_l('有同步任务未选择主键字段'), 2);
+      return false;
+    }
+
+    if (!isDestPkCheck) {
+      alert(_l('目的地主键未设置相关映射'), 2);
       return false;
     }
 
@@ -328,11 +340,6 @@ export default function AddConnector(props) {
 
     if (!isComplete_new) {
       alert(_l('已勾选的字段信息未填写完整'), 2);
-      return false;
-    }
-
-    if (!isComplete_exist) {
-      alert(_l('请填写主键同步字段'), 2);
       return false;
     }
 

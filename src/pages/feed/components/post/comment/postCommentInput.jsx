@@ -211,6 +211,7 @@ class PostCommentInput extends React.Component {
         showCategory: true,
         sourceType: SOURCE_TYPE.POST,
         isAtAll: true,
+        projectId: postItem.projectIds[0],
       })
       .val(isToComment ? '' : LET_ME_REPLY);
 

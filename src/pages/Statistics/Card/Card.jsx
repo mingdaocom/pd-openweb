@@ -174,7 +174,7 @@ class Card extends Component {
       themeColor,
       customPageConfig = {},
     } = this.props;
-    const { pageEditable = false, linkageMatch = {}, onUpdateLinkageFiltersGroup = _.noop } = this.props;
+    const { pageEditable = false, linkageMatch = {}, onUpdateLinkageFiltersGroup = _.noop, filtersGroup } = this.props;
     const { id } = report;
     const { loading, reportData } = this.state;
     const { reportType } = reportData;
@@ -194,6 +194,7 @@ class Card extends Component {
           layoutType={layoutType}
           sourceType={sourceType}
           customPageConfig={customPageConfig}
+          filtersGroup={filtersGroup}
           themeColor={themeColor}
           reportData={{
             ...reportData,
