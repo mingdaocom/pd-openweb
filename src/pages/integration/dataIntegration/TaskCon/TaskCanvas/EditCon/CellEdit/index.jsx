@@ -344,7 +344,7 @@ export default class CellEdit extends Component {
   render() {
     const { onClose, onSave, list, flowData = {} } = this.props;
     const { srcIsDb } = flowData;
-    const { node = {}, loading, sheetName, isEr } = this.state;
+    const { node = {}, loading, sheetName, isEr, fileList } = this.state;
     const { nodeType = '', nodeConfig } = node;
     const { fields = [] } = nodeConfig;
     let disable = false;
@@ -358,9 +358,10 @@ export default class CellEdit extends Component {
     //目的地表
     const fieldsMapping = _.get(node, ['nodeConfig', 'config', 'fieldsMapping']) || [];
     if (nodeType === 'DEST_TABLE') {
+      const mapDestPk = fieldsMapping.filter(o => _.get(o, 'destField.isPk') && _.get(o, 'destField.isCheck'));
       if (
         _.get(node, 'nodeConfig.config.dsType') !== DATABASE_TYPE.APPLICATION_WORKSHEET &&
-        fieldsMapping.filter(o => _.get(o, 'destField.isPk') && _.get(o, 'destField.isCheck')).length <= 0
+        (mapDestPk.length <= 0 || fileList.filter(o => o.isPk).length > mapDestPk.length)
       ) {
         disable = true;
         txt = _l('目的地主键未设置相关映射');

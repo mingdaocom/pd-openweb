@@ -11,24 +11,6 @@ class MobileGalleryView extends Component {
   constructor(props) {
     super(props);
   }
-  componentDidMount() {
-    let { view } = this.props;
-    let hasGroupFilter = !_.isEmpty(view.navGroup) && view.navGroup.length > 0; // 是否存在分组列表
-    if (!hasGroupFilter) {
-      this.getFetch(this.props);
-    }
-  }
-  getFetch = nextProps => {
-    const { base, views } = nextProps;
-    const { viewId } = base;
-    const currentView = views.find(o => o.viewId === viewId) || {};
-    const { clicksearch } = getAdvanceSetting(currentView);
-    if (clicksearch === '1') {
-      this.props.changeIndex(0);
-    } else {
-      this.props.fetch(1);
-    }
-  };
 
   render() {
     const { view, worksheetInfo, quickFilter, updateFilters, appDetail = {} } = this.props;

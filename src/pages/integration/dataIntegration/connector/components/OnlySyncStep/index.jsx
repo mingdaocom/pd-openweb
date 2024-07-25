@@ -245,6 +245,7 @@ export default function OnlySyncStep(props) {
             (_.get(destFields, [db, table, 'fields']) || []).filter(
               item => item.id === _.get(sheetData, [db, table, 'fieldForIdentifyDuplicate']),
             )[0] || {};
+
           const extraSettingData =
             isDestAppType && _.get(sheetData, [db, table, 'sheetCreateType']) === CREATE_TYPE.SELECT_EXIST
               ? {
@@ -307,6 +308,7 @@ export default function OnlySyncStep(props) {
                 }
               : undefined,
             tableList: _.get(optionList, [currentTab.db, currentTab.table, 'sheetOptionList']) || [],
+            destPkCount: (_.get(destFields, [db, table, 'fields']) || []).filter(item => item.isPk).length,
           };
           submitData.push(data);
         }

@@ -5,7 +5,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { Button, MenuItem, Icon, Tooltip, Dialog, VerifyPasswordConfirm } from 'ming-ui';
 import { mdNotification } from 'ming-ui/functions';
-import { verifyPassword,emitter } from 'src/util';
+import { verifyPassword, emitter } from 'src/util';
 import IconText from 'worksheet/components/IconText';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import FillRecordControls from '../FillRecordControls';
@@ -617,6 +617,7 @@ export default class CustomButtons extends React.Component {
               size="small"
               type="ghost"
               disabled={btnDisable[button.btnId] || button.disabled}
+              title={button.name}
               style={{
                 ...getButtonColor(button.color),
                 maxWidth: '100%',
@@ -648,6 +649,7 @@ export default class CustomButtons extends React.Component {
     } else if (type === 'iconText') {
       buttonComponents = buttons.map((button, i) => (
         <IconText
+          title={button.name}
           disabled={btnDisable[button.btnId] || button.disabled}
           icon={button.icon || 'custom_actions'}
           iconColor={!button.icon ? '#bdbdbd' : button.color === 'transparent' ? '#333' : button.color}
@@ -664,6 +666,7 @@ export default class CustomButtons extends React.Component {
     } else {
       buttonComponents = buttons.map((button, i) => (
         <MenuItemWrap
+          title={button.name}
           key={i}
           icon={
             button.icon ? (

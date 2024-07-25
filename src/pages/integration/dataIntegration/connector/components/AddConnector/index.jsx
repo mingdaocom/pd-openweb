@@ -291,7 +291,10 @@ export default function AddConnector(props) {
           isSourcePkCheckAndMap = false;
           return;
         }
-        if (item.destNode.fields.filter(item => item.isPk && item.id).length === 0 && !isDestAppType) {
+
+        const checkPkCount = item.destNode.fields.filter(item => item.isPk && item.id).length;
+
+        if ((checkPkCount === 0 || checkPkCount < item.destPkCount) && !isDestAppType) {
           isDestPkCheck = false;
           return;
         }
@@ -389,7 +392,7 @@ export default function AddConnector(props) {
           setNextOrSaveDisabled(true);
           setResDialog({ visible: true, type: 'loading' });
           //创建同步任务
-          const submitParams = submitData.map(item => _.omit(item, 'tableList'));
+          const submitParams = submitData.map(item => _.omit(item, ['tableList', 'destPkCount']));
           taskFlowApi
             .createSyncTasks(submitParams)
             .then(res => {
