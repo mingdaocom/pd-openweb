@@ -215,7 +215,7 @@ class TableView extends React.Component {
   activeShift(e) {
     if (e.keyCode === 16) {
       this.shiftActive = true;
-      document.body.classList.add('noSelect');
+      document.querySelector('#worksheetRightContentBox').classList.add('noSelect');
     }
   }
 
@@ -223,14 +223,14 @@ class TableView extends React.Component {
   deActiveShift(e) {
     if (e.keyCode === 16) {
       this.shiftActive = false;
-      document.body.classList.remove('noSelect');
-      // console.log({ shiftActive: this.shiftActive });
+      document.querySelector('#worksheetRightContentBox').classList.remove('noSelect');
     }
   }
 
   @autobind
   handleWindowBlur() {
     this.shiftActive = false;
+    document.querySelector('#worksheetRightContentBox').classList.remove('noSelect');
   }
 
   @autobind

@@ -1074,7 +1074,24 @@ export default class DataFormat {
     this.isMobile = browserIsMobile();
 
     this.requestPool = requestPool || createRequestPool({ abortController });
+    this.debounceMap = new Map();
+    this.debounceByKey = (fn, wait) => {
+      const { debounceMap } = this;
+      return function (key, ...args) {
+        if (!debounceMap.has(key)) {
+          debounceMap.set(
+            key,
+            _.debounce((resolve, ...args) => resolve(fn(...args)), wait),
+          );
+        }
+        const debouncedFn = debounceMap.get(key);
 
+        return new Promise(resolve => {
+          debouncedFn(resolve, ...args);
+        });
+      };
+    };
+    this.debounceGetFilterRowsData = this.debounceByKey(this.getFilterRowsData, 100);
     const departmentIds = [];
     const locationIds = [];
     const organizeIds = [];
@@ -2381,7 +2398,8 @@ export default class DataFormat {
         ) {
           //关联记录、或同源级联直接查询赋值
           if (_.includes([29], controlType) || (controlType === 35 && currentControl.dataSource === sourceId)) {
-            this.getFilterRowsData(
+            this.debounceGetFilterRowsData(
+              id,
               items,
               {
                 worksheetId: sourceId,
@@ -2425,7 +2443,8 @@ export default class DataFormat {
                 : currentControl.controlId === cid;
             });
             if (canMapConfigs.length > 0) {
-              this.getFilterRowsData(
+              this.debounceGetFilterRowsData(
+                id,
                 items,
                 {
                   worksheetId: sourceId,

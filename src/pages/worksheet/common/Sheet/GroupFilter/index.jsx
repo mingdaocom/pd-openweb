@@ -137,6 +137,8 @@ const Con = styled.div(
   }
 `,
 );
+let getNavGroupRequest = null;
+let preWorksheetIds = [];
 function GroupFilter(props) {
   const {
     views = [],
@@ -211,11 +213,11 @@ function GroupFilter(props) {
     }
   }, [navGroupCounts]);
   const handleSearch = useCallback(
-    _.throttle(value => {
+    _.debounce(value => {
       let keyWords = value.trim();
       setKeywords(keyWords);
       updateFilter('');
-    }, 300),
+    }, 500),
     [],
   );
   useEffect(() => {
@@ -394,58 +396,67 @@ function GroupFilter(props) {
       param.controlId = _.get(soucre, 'controlId');
       param.relationWorksheetId = view.worksheetId;
     }
-    sheetAjax
-      .getFilterRows(
-        getFilledRequestParams({
-          worksheetId,
-          viewId,
-          keyWords: keywords,
-          pageIndex: 1,
-          pageSize: 10000,
-          isGetWorksheet: true,
-          kanbanKey: rowId,
-          ...param,
-        }),
-      )
-      .then(result => {
-        if (result.resultCode === 4) {
-          //视图删除的情况下，显示成未选中视图的状态
-          fetchData({ worksheetId, viewId: '', rowId, cb });
-        } else if (result.resultCode === 7) {
-          dataUpdate({
-            filterData: navGroupData,
-            data: [],
-            rowId,
-            cb,
-          });
-        } else {
-          let { data = [] } = result;
-          let newDate = data;
-          if (soucre.type !== 35 && navfilters.length > 0 && navshow === '2') {
-            newDate = [];
-            const ids = navfilters.map(value => safeParse(value).id);
-            ids.map(it => {
-              newDate = newDate.concat(data.find(o => o.rowid === it));
-            });
-          }
-          newDate = newDate.filter(o => !!o);
-          const controls = _.get(result, ['template', 'controls']) || [];
-          const control = controls.find(item => item.attribute === 1);
-          dataUpdate({
-            filterData: navGroupData,
-            data: newDate.map((item = {}) => {
-              return {
-                value: item.rowid,
-                txt: renderTxt(item, control, viewId),
-                isLeaf: !item.childrenids,
-                text: item[control.controlId],
-              };
-            }),
-            rowId,
-            cb,
+    if (
+      getNavGroupRequest &&
+      getNavGroupRequest.abort &&
+      preWorksheetIds.includes(`${base.worksheetId}-${base.viewId}`)
+    ) {
+      getNavGroupRequest.abort();
+    }
+    preWorksheetIds.push(`${base.worksheetId}-${base.viewId}`);
+    getNavGroupRequest = sheetAjax.getFilterRows(
+      getFilledRequestParams({
+        worksheetId,
+        viewId,
+        keyWords: keywords,
+        pageIndex: 1,
+        pageSize: 10000,
+        isGetWorksheet: true,
+        kanbanKey: rowId,
+        ...param,
+      }),
+    );
+    getNavGroupRequest.then(result => {
+      getNavGroupRequest = null;
+      preWorksheetIds = (preWorksheetIds || []).filter(o => o !== `${base.worksheetId}-${base.viewId}`);
+      if (result.resultCode === 4) {
+        //视图删除的情况下，显示成未选中视图的状态
+        fetchData({ worksheetId, viewId: '', rowId, cb });
+      } else if (result.resultCode === 7) {
+        dataUpdate({
+          filterData: navGroupData,
+          data: [],
+          rowId,
+          cb,
+        });
+      } else {
+        let { data = [] } = result;
+        let newDate = data;
+        if (soucre.type !== 35 && navfilters.length > 0 && navshow === '2') {
+          newDate = [];
+          const ids = navfilters.map(value => safeParse(value).id);
+          ids.map(it => {
+            newDate = newDate.concat(data.find(o => o.rowid === it));
           });
         }
-      });
+        newDate = newDate.filter(o => !!o);
+        const controls = _.get(result, ['template', 'controls']) || [];
+        const control = controls.find(item => item.attribute === 1);
+        dataUpdate({
+          filterData: navGroupData,
+          data: newDate.map((item = {}) => {
+            return {
+              value: item.rowid,
+              txt: renderTxt(item, control, viewId),
+              isLeaf: !item.childrenids,
+              text: item[control.controlId],
+            };
+          }),
+          rowId,
+          cb,
+        });
+      }
+    });
   };
 
   const loadData = obj => {

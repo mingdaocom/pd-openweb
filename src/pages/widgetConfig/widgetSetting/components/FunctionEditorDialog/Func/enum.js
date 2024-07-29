@@ -247,7 +247,7 @@ export const functions = {
     if (!_.isNumber(precision) || _.isNaN(precision)) {
       throw new Error(_l('参数不是数字'));
     }
-    return _.round(number, precision);
+    return _.round(_.round(number, precision + 1), precision);
   },
   // 按指定倍数向上舍入
   CEILING: function (number, significance) {

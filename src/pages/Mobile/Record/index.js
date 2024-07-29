@@ -28,6 +28,11 @@ const ModalWrap = styled(Modal)`
 const RecordInfoPage = props => {
   const { params } = props.match;
   const { appId, worksheetId, viewId, rowId } = params;
+
+  useEffect(() => {
+    workflowPushSoket();
+  }, []);
+
   return (
     <RecordInfo
       appId={appId}
@@ -59,12 +64,6 @@ export const RecordInfoModal = forwardRef((props, ref) => {
   } = props;
   const { className, visible, onClose } = props;
   const store = useMemo(configureStore, []);
-
-  useEffect(() => {
-    if (notModal) {
-      workflowPushSoket();
-    }
-  }, []);
 
   if (!visible) return null;
 

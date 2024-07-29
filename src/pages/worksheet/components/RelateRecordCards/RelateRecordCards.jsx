@@ -848,7 +848,7 @@ export default class RelateRecordCards extends Component {
                     visible
                     appId={appId}
                     worksheetId={dataSource}
-                    viewId={viewId}
+                    viewId={advancedSetting.openview || control.viewId}
                     rowId={previewRecord && previewRecord.recordId}
                     onClose={() => {
                       this.setState({ previewRecord: undefined });

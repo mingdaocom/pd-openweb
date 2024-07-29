@@ -326,7 +326,7 @@ export default class HistoryDetail extends Component {
       }
     }
 
-    return level;
+    return level > 9 ? 9 : level;
   }
 
   render() {

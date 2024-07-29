@@ -12,6 +12,7 @@ import { getCurrentProject } from 'src/util';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import ActionDrop from './ActionDrop';
+import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 
 const TableWrap = styled(PageTableCon)`
   &.resignTableList {

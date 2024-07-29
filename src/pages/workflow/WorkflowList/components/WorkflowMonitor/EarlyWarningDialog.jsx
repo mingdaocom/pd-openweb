@@ -48,10 +48,10 @@ class EarlyWarningDialog extends Component {
     const { projectId } = this.props;
     const { notifiers } = this.state;
     dialogSelectUser({
+      fromAdmin: true,
       SelectUserSettings: {
         filterAccountIds: notifiers.map(it => it.accountId),
         projectId,
-        filterOtherProject: true,
         unique: false,
         callback: users => {
           this.setState({ notifiers: notifiers.concat(users) });

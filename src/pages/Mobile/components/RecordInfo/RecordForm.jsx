@@ -291,7 +291,7 @@ export default class RecordForm extends Component {
 
     return (
       <div
-        className={cx('flex customFieldsWrapper', {
+        className={cx('flex customFieldsWrapper h100', {
           edit: isEditRecord,
           overflowHidden: !isEditRecord && _.includes([29, 51], currentTab.type) && !window.isDingTalk,
         })}

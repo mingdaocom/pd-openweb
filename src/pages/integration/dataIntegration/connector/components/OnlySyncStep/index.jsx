@@ -226,11 +226,11 @@ export default function OnlySyncStep(props) {
               return isDestAppType
                 ? {
                     sourceField: isSourceAppType
-                      ? _.pick(item.sourceField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid'])
+                      ? _.pick(item.sourceField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid', 'isPk'])
                       : item.sourceField,
                     destField: item.destField.isCheck
                       ? isSourceAppType
-                        ? _.pick(item.destField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid'])
+                        ? _.pick(item.destField, ['id', 'isTitle', 'jdbcTypeId', 'isCheck', 'oid', 'isPk'])
                         : _.pick(item.destField, ['id', 'isTitle', 'jdbcTypeId', 'isPk', 'isNotNull', 'isCheck', 'oid'])
                       : null,
                   }

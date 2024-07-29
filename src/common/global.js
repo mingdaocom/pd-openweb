@@ -705,7 +705,7 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
         }
       })
       .catch(error => {
-        if (get(error, 'response.status') === 401 && !/^localhost:/.test(location.host)) {
+        if (get(error, 'response.status') === 401 && !/^localhost:/.test(location.host) && !window.isPublicApp) {
           import('src/router/navigateTo').then(({ navigateToLogin }) => {
             navigateToLogin({ needSecondCheck: true });
           });

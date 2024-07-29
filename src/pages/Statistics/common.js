@@ -1439,12 +1439,12 @@ const fillTranslate = result => {
   }
   if (result.yaxisList && result.yaxisList.length) {
     result.yaxisList.forEach(item => {
-      item.controlName = getTranslateInfo(appId, result.appId, item.controlId).name || item.controlName;
+      item.controlName = getTranslateInfo(appId, item.dataSource || result.appId, item.controlId).name || item.controlName;
     });
   }
   if (result.rightY && _.get(result.rightY, 'yaxisList.length')) {
     result.rightY.yaxisList.forEach(item => {
-      item.controlName = getTranslateInfo(appId, result.appId, item.controlId).name || item.controlName;
+      item.controlName = getTranslateInfo(appId, item.dataSource || result.appId, item.controlId).name || item.controlName;
     });
   }
   if (result.lines && result.lines.length) {
@@ -1453,7 +1453,7 @@ const fillTranslate = result => {
         item.fields = item.fields.map(f => {
           return {
             ...f,
-            controlName: getTranslateInfo(appId, result.appId, f.controlId).name || f.controlName
+            controlName: getTranslateInfo(appId, item.dataSource || result.appId, f.controlId).name || f.controlName
           }
         });
       }
