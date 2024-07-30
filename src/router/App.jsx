@@ -165,7 +165,7 @@ export default class App extends Component {
                 </span>
               </Trigger>
               <span className="Gray_9e">{_l('咨询并延长技术支持或查看 ')}</span>
-              <a href="https://docs.pd.mingdao.com/roadmap.html" target="_blank">
+              <a href="https://docs-pd.mingdao.com/version" target="_blank">
                 {_l('其他可升级的版本')}
               </a>
             </Fragment>

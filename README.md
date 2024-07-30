@@ -10,11 +10,11 @@
 
 **注意：** 使用的源代码版本需要与部署的 HAP 版本保持一致，否则接口可能出现不兼容的情况；另外一旦选择二次开发，HAP 私有版升级后，需要同步合并匹配的源代码版本来实现整体升级。
 
-👉 [快速上手](https://docs.pd.mingdao.com/sd/web/start)
+👉 [快速上手](https://docs-pd.mingdao.com/sd/web/start)
 
 # 文档
 
-您可以在 HAP 私有部署文档中心找到 [Openweb](https://docs.pd.mingdao.com/sd/web/) 相关文档。
+您可以在 HAP 私有部署文档中心找到 [Openweb](https://docs-pd.mingdao.com/sd/web/) 相关文档。
 
 # 联系我们
 

@@ -169,7 +169,7 @@ const Message = props => {
         <a
           className="pointer"
           target="_blank"
-          href="https://docs.pd.mingdao.com/faq/sms"
+          href="https://docs-pd.mingdao.com/faq/sms"
         >
           {_l('查看说明')}
         </a>

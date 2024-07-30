@@ -54,7 +54,7 @@ const getRoutes = param => {
                 ) : (
                   <span>
                     {_l('数据集成服务未部署，请参考')}
-                    <a href="https://docs.pd.mingdao.com/faq/integrate/flink" target="_blank">
+                    <a href="https://docs-pd.mingdao.com/faq/integrate/flink" target="_blank">
                       {_l('帮助')}
                     </a>
                   </span>
