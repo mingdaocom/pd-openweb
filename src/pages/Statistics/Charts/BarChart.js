@@ -393,6 +393,8 @@ export default class extends Component {
         showMarkers: false,
         title: formatterTooltipTitle(xaxes),
         formatter: (item) => {
+          const { value, groupName } = item;
+          const { name, id } = formatControlInfo(groupName);
           const getLabelPercent = value => {
             const { originalId } = item;
             if (style.showLabelPercent) {
@@ -403,7 +405,8 @@ export default class extends Component {
                 return percent ? `(${percent}%)` : '';
               }
               if (displaySetup.showTotal) {
-                return `(${(value / summary.sum * 100).toFixed(2)}%)`;
+                const count = summary.all ? summary.sum : _.get(_.find(summary.controlList, { controlId: id }), 'sum');
+                return count ? `(${(value / count * 100).toFixed(2)}%)` : '';
               }
               return '';
             }
@@ -417,8 +420,6 @@ export default class extends Component {
               value: _.isNumber(value) ? `${value} ${getLabelPercent(value)}` : '--'
             }
           }
-          const { value, groupName } = item;
-          const { name, id } = formatControlInfo(groupName);
           const labelValue = `${formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id)} ${getLabelPercent(value)}`;
           if (isPerPile) {
             return {
@@ -460,7 +461,9 @@ export default class extends Component {
                   return labelValue;
                 }
                 if (displaySetup.showTotal) {
-                  return `${labelValue} (${(value / summary.sum * 100).toFixed(2)}%)`;
+                  const count = summary.all ? summary.sum : _.get(_.find(summary.controlList, { controlId }), 'sum');
+                  const percent = count ? (value / count * 100).toFixed(2) : undefined;
+                  return `${labelValue} ${percent ? `(${percent}%)` : ''}`;
                 }
                 return labelValue;
               } else {

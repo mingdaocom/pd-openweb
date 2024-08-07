@@ -137,15 +137,7 @@ export default class CommentListItem extends React.Component {
         />
         <div className="talkDiscussion">
           <div className="singleTop">
-            <UserName
-              className="userName pointer ThemeColor3 userMessage"
-              user={{
-                userName: createAccount.fullname,
-                accountId: createAccount.accountId,
-                isDelete: true,
-              }}
-              projectId={comment.projectId}
-            />
+            <span className="userName Gray userMessage">{createAccount.fullname}</span>
             {replyId ? (
               <span>
                 <span className="pLeft5">{_l('回复')}</span>

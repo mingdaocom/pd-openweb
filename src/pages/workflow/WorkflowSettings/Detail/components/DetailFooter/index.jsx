@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { any, func } from 'prop-types';
 import cx from 'classnames';
 import flowNode from '../../../../api/flowNode';
@@ -59,6 +59,10 @@ export default function DetailFooter({
       });
     }
   };
+
+  useEffect(() => {
+    setSource(null);
+  }, [selectNodeId]);
 
   // 执行数据
   if (_.includes(debugEvents, 0) && instanceId) {

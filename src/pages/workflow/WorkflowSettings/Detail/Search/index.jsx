@@ -66,7 +66,13 @@ export default class Search extends Component {
       .then(result => {
         result.fields = _.filter(
           result.fields,
-          o => !_.includes([31, 32].concat(result.actionId === ACTION_ID.RECORD_UPDATE ? [] : [33]), o.type),
+          o =>
+            !_.includes(
+              [31, 32].concat(
+                _.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE], result.actionId) ? [] : [33],
+              ),
+              o.type,
+            ),
         );
 
         if (obj.appId && result.findFields.length) {

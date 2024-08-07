@@ -522,6 +522,7 @@ const generateLocalizationParams = (requestData = {}) => {
         'Worksheet_SaveWorksheetControls',
         'AppManagement_EditWorkSheetInfoForApp',
         'Worksheet_SortWorksheetViews',
+        'Worksheet_EditWorksheetControls',
       ],
     },
     Worksheet_GetQueryBySheetId: {

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { NavLink, withRouter } from 'react-router-dom';
-import { Tooltip, UpgradeIcon } from 'ming-ui';
+import { withRouter } from 'react-router-dom';
+import { Tooltip, UpgradeIcon, MdLink } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import { navigateTo } from 'src/router/navigateTo';
 import { getFeatureStatus } from 'src/util';
@@ -117,11 +117,14 @@ export default class AdminLeftMenu extends Component {
 
     return (
       <li key={key} className={cx('item', { active: isActive() && subListVisible })}>
-        <NavLink
+        <MdLink
           to={path}
-          className={isHome ? 'pLeft12' : 'pLeft40'}
-          activeClassName={cx('activeItem bold', { activeExtend: isExtend })}
-          isActive={isActive}
+          className={cx('stopPropagation', {
+            pLeft12: isHome,
+            pLeft40: !isHome,
+            'activeItem bold': isActive(),
+            activeExtend: isActive() && isExtend,
+          })}
           onClick={() => this.setState({ subListVisible: false, menuGroupKey: null })}
         >
           {icon && <i className={cx('Font20 Gray mRight10 homeIcon', icon)} />}
@@ -136,7 +139,7 @@ export default class AdminLeftMenu extends Component {
               )}
             </div>
           )}
-        </NavLink>
+        </MdLink>
       </li>
     );
   };

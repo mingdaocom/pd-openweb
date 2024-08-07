@@ -202,7 +202,18 @@ class ChildTable extends React.Component {
         (nextControl.relationControls || []).map(a => a.required),
       )
     ) {
-      this.setState({ controls: this.getControls(nextProps) });
+      this.setState(
+        {
+          controls: this.getControls(nextProps),
+        },
+        () => {
+          if (!_.isEqual(nextControl.showControls, control.showControls)) {
+            this.setState({
+              sheetColumnWidths: this.getSheetColumnWidths(nextProps.control),
+            });
+          }
+        },
+      );
     }
     // 重新渲染子表来适应新宽度
     if (

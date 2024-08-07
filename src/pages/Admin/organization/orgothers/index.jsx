@@ -21,13 +21,13 @@ const indexConfig = [
     click: 'toggleComp',
     desc: _l('用户排行、动态更新、文档、图片等统计信息'),
   },
-  {
-    label: _l('数据导出'),
-    clickValue: _l('导出'),
-    key: 'exportVisible',
-    click: 'handleChangeVisible',
-    desc: _l('可以导出用户、群组、任务列表'),
-  },
+  // {
+  //   label: _l('数据导出'),
+  //   clickValue: _l('导出'),
+  //   key: 'exportVisible',
+  //   click: 'handleChangeVisible',
+  //   desc: _l('可以导出用户、群组、任务列表'),
+  // },
 ];
 
 export default class Orgothers extends Component {

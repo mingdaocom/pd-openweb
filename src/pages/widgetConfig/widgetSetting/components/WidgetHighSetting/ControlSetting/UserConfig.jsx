@@ -227,6 +227,7 @@ export default function UserConfig(props) {
                               {...props}
                               dynamicValue={chooseRange}
                               controls={props.allControls || []}
+                              needFilter={false}
                               data={{ ...props.data, enumDefault: 1 }}
                               item={item}
                               onDynamicValueChange={nextValue =>
@@ -249,6 +250,7 @@ export default function UserConfig(props) {
               data={{ ...props.data, enumDefault: 1 }}
               controls={props.allControls || []}
               fromRange={true}
+              needFilter={false}
               dynamicValue={chooseRange}
               onDynamicValueChange={handleFieldClick}
               hideSearchAndFun={true}

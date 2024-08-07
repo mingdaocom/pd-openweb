@@ -51,6 +51,7 @@ export default class BaseColumnHead extends React.Component {
   @autobind
   handleMouseDown(e) {
     const { control, columnIndex, updateSheetColumnWidths } = this.props;
+    e.preventDefault();
 
     function getColumnTextMaxWidth() {
       const texts = [...document.querySelectorAll('.col-' + columnIndex)].slice(1).map(a => a.innerText);

@@ -11,7 +11,12 @@ import CommentArea from './commentArea';
 import { SOURCE_TYPE } from '../../constants';
 import { addBehaviorLog, cutStringWithHtml, dateConvertToUserZone } from 'src/util';
 import xss from 'xss';
+import { whiteList } from 'xss/lib/default';
 import { UserCard } from 'ming-ui';
+
+const xssOptions = {
+  whiteList: Object.assign({}, whiteList, { img: ['src', 'alt', 'title', 'width', 'height', 'class'] })
+};
 
 export default class BaseMessageComponent extends React.Component {
   static propTypes = {
@@ -110,7 +115,7 @@ export default class BaseMessageComponent extends React.Component {
     if (showBtn) {
       return expanded ? (
         <span className="LineHeight25 WordBreak">
-          <span dangerouslySetInnerHTML={{ __html: xss(message) }} />
+          <span dangerouslySetInnerHTML={{ __html: xss(message, xssOptions) }} />
           <a
             href="javascript:void(0);"
             onClick={() => {
@@ -122,7 +127,7 @@ export default class BaseMessageComponent extends React.Component {
         </span>
       ) : (
         <span className="LineHeight25 WordBreak">
-          <span dangerouslySetInnerHTML={{ __html: xss(partMsg) }} />
+          <span dangerouslySetInnerHTML={{ __html: xss(partMsg, xssOptions) }} />
           <a
             href="javascript:void(0);"
             onClick={() => {
@@ -135,7 +140,7 @@ export default class BaseMessageComponent extends React.Component {
       );
     } else {
       if (message) {
-        return <span className="LineHeight25 WordBreak" dangerouslySetInnerHTML={{ __html: xss(message) }} />;
+        return <span className="LineHeight25 WordBreak" dangerouslySetInnerHTML={{ __html: xss(message, xssOptions) }} />;
       } else {
         return <span className="LineHeight25 Gray_c">{_l('该评论已被删除')}</span>;
       }

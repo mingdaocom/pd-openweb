@@ -2,14 +2,13 @@ import React, { Component } from 'react';
 import { Dropdown, Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
 import cx from 'classnames';
-import Datasource from 'src/pages/integration/api/datasource';
+import DataSourceApi from 'src/pages/integration/api/datasource';
 import { WrapL } from './style';
 import AddSourceOrDest from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/components/AddSourceOrDest';
 import homeAppAjax from 'src/api/homeApp.js';
 import appManagementAjax from 'src/api/appManagement.js';
 import _ from 'lodash';
 import { DATABASE_TYPE, isValidName } from 'src/pages/integration/dataIntegration/constant.js';
-import { schemaTypes } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
 import SheetGroupSelect from 'src/pages/integration/dataIntegration/connector/components/OnlySyncStep/SheetGroupSelect.jsx';
 import SelectTables from 'src/pages/integration/dataIntegration/components/SelectTables/index.jsx';
 import styled from 'styled-components';
@@ -50,6 +49,8 @@ const initData = {
   worksheetInfo: {},
   childSections: [],
 };
+
+let schemaTypes = [];
 export default class SourceDest extends Component {
   constructor(props) {
     super(props);
@@ -96,6 +97,14 @@ export default class SourceDest extends Component {
 
   initData = async (nextProps, isNext) => {
     const { currentProjectId: projectId, flowId, node = {} } = nextProps || this.props;
+    if (schemaTypes.length <= 0) {
+      const schemaTypesData = await DataSourceApi.getTypes({
+        onlyCreated: false,
+        onlyRelatedTask: false,
+        projectId,
+      });
+      schemaTypes = schemaTypesData.filter(o => o.hasSchema).map(o => o.className);
+    }
     const isKafka = _.get(node, 'nodeConfig.config.dsType') === 'KAFKA';
     if (isKafka) {
       return;
@@ -223,7 +232,7 @@ export default class SourceDest extends Component {
         });
         return;
       }
-      Datasource.getDatabases({
+      DataSourceApi.getDatabases({
         projectId,
         datasourceId,
       }).then(res => {
@@ -245,7 +254,7 @@ export default class SourceDest extends Component {
       });
       return;
     }
-    Datasource.getSchemas({
+    DataSourceApi.getSchemas({
       projectId,
       datasourceId,
       dbName,

@@ -138,7 +138,7 @@ export const UNION_TYPE_LIST = [
     Er: 'UNION',
     img: 'unionImg',
     tipImg: 'UNION',
-    h: 237
+    h: 237,
   },
   {
     type: 'UNION_ALL',
@@ -147,7 +147,7 @@ export const UNION_TYPE_LIST = [
     Er: 'UNION ALL',
     img: 'unionAllImg',
     tipImg: 'UNIONALL',
-    h: 237
+    h: 237,
   },
   {
     type: 'INTERSECT',
@@ -156,7 +156,7 @@ export const UNION_TYPE_LIST = [
     Er: 'INTERSECT',
     img: 'intersectImg',
     tipImg: 'INTERSECT',
-    h: 294
+    h: 294,
   },
   {
     type: 'INTERSECT_ALL',
@@ -165,7 +165,7 @@ export const UNION_TYPE_LIST = [
     Er: 'INTERSECT ALL',
     img: 'intersectAllImg',
     tipImg: 'INTERSECTALL',
-    h: 280
+    h: 280,
   },
   {
     type: 'EXCEPT',
@@ -174,7 +174,7 @@ export const UNION_TYPE_LIST = [
     Er: 'EXCEPT',
     img: 'exceptImg',
     tipImg: 'EXCEPT',
-    h: 272
+    h: 272,
   },
   {
     type: 'EXCEPT_ALL',
@@ -183,7 +183,7 @@ export const UNION_TYPE_LIST = [
     Er: 'EXCEPT ALL',
     img: 'exceptAllImg',
     tipImg: 'EXCEPTALL',
-    h: 270
+    h: 270,
   },
 ];
 
@@ -193,157 +193,6 @@ export const TASK_STATUS_TXT = {
   STOP: _l('停止'),
   ERROR: _l('异常'),
 };
-
-export const schemaTypes = [
-  {
-    id: 1,
-    type: 'MING_DAO_YUN',
-    name: '工作表',
-    isCommon: true,
-    className: 'table',
-    iconBgColor: '#E8F4FE',
-    fromType: 'LOCAL',
-    roleType: 'ALL',
-    hasSchema: false,
-    weight: 2147483647,
-  },
-  {
-    id: 2,
-    type: 'MYSQL',
-    name: 'MySQL',
-    isCommon: true,
-    className: 'mysql',
-    iconBgColor: '#ECF4F9',
-    fromType: 'LOCAL',
-    roleType: 'ALL',
-    hasSchema: false,
-    weight: 2147483646,
-  },
-  {
-    id: 3,
-    type: 'SQL_SERVER',
-    name: 'SQL Server',
-    isCommon: true,
-    className: 'sqlserver',
-    iconBgColor: '#FBECEC',
-    fromType: 'LOCAL',
-    roleType: 'SOURCE',
-    hasSchema: true,
-    weight: 2147483645,
-  },
-  {
-    id: 5,
-    type: 'POSTGRESQL',
-    name: 'PostgreSQL',
-    isCommon: true,
-    className: 'postgres',
-    iconBgColor: '#E9EFF4',
-    fromType: 'LOCAL',
-    roleType: 'ALL',
-    hasSchema: true,
-    weight: 2147483643,
-  },
-  {
-    id: 7,
-    type: 'MARIADB',
-    name: 'MariaDB',
-    isCommon: true,
-    className: 'mariadb',
-    iconBgColor: '#F7F3F0',
-    fromType: 'LOCAL',
-    roleType: 'ALL',
-    hasSchema: false,
-    weight: 2147483641,
-  },
-  {
-    id: 8,
-    type: 'DB2',
-    name: 'IBM db2',
-    isCommon: false,
-    className: 'db2',
-    iconBgColor: '#EEEEEE',
-    fromType: 'LOCAL',
-    roleType: 'SOURCE',
-    hasSchema: true,
-    weight: 2147483640,
-  },
-  {
-    id: 102,
-    type: 'ALIYUN_MYSQL',
-    name: '阿里云 MySQL',
-    isCommon: false,
-    className: 'aliyun_mysql',
-    iconBgColor: '#FFF0E8',
-    fromType: 'CLOUD',
-    roleType: 'ALL',
-    hasSchema: false,
-    weight: 2147483638,
-  },
-  {
-    id: 104,
-    type: 'ALIYUN_SQLSERVER',
-    name: '阿里云 SQL Server',
-    isCommon: false,
-    className: 'aliyun_sqlserver',
-    iconBgColor: '#FFF0E8',
-    fromType: 'CLOUD',
-    roleType: 'SOURCE',
-    hasSchema: true,
-    weight: 2147483637,
-  },
-  {
-    id: 100,
-    type: 'ALIYUN_MARIADB',
-    name: '阿里云 MariaDB',
-    isCommon: false,
-    className: 'aliyun_mariadb',
-    iconBgColor: '#FFF0E8',
-    fromType: 'CLOUD',
-    roleType: 'ALL',
-    hasSchema: false,
-    weight: 2147483634,
-  },
-  {
-    id: 107,
-    type: 'TENCENT_MYSQL',
-    name: '腾讯云 MySQL',
-    isCommon: false,
-    className: 'tencent_mysql',
-    iconBgColor: '#E6F6FE',
-    fromType: 'CLOUD',
-    roleType: 'ALL',
-    hasSchema: false,
-    weight: 2147483633,
-  },
-  {
-    id: 109,
-    type: 'TENCENT_SQLSERVER',
-    name: '腾讯云 SQL Server',
-    isCommon: false,
-    className: 'tencent_sqlserver',
-    iconBgColor: '#E6F6FE',
-    fromType: 'CLOUD',
-    roleType: 'SOURCE',
-    hasSchema: true,
-    weight: 2147483632,
-  },
-  {
-    id: 105,
-    type: 'TENCENT_MARIADB',
-    name: '腾讯云 MariaDB',
-    isCommon: false,
-    className: 'tencent_mariadb',
-    iconBgColor: '#E6F6FE',
-    fromType: 'CLOUD',
-    roleType: 'ALL',
-    hasSchema: false,
-    weight: 2147483629,
-  },
-]
-  .filter(o => o.hasSchema)
-  .map(o => {
-    return o.className;
-  });
 
 export const mdUniquePkData = {
   id: 'unique_pk_mdy0000',

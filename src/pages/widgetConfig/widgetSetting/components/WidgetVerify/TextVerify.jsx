@@ -133,7 +133,7 @@ const AddVerify = styled.div`
 `;
 
 const SortableItem = SortableElement(props => {
-  const { itemData = {}, sortIndex, setIndex, onDelete, changeFilters } = props;
+  const { itemData = {}, sortIndex, setIndex, onDelete, changeFilters, fromPortal } = props;
   const filters = itemData.filters || [];
   const name = itemData.name || _l('未命名');
   const isFilterActive = filters.length > 0;
@@ -167,7 +167,7 @@ const SortableItem = SortableElement(props => {
 
         <Icon
           icon="worksheet_filter"
-          className={cx('filterIcon', { active: isFilterActive })}
+          className={cx('filterIcon', { active: isFilterActive, Hidden: fromPortal })}
           onClick={e => {
             e.stopPropagation();
             if (isFilterActive) {
@@ -246,7 +246,7 @@ export default function TextVerify(props) {
     return (
       <SortableList
         filterRegex={filterRegex}
-        {..._.pick(props, ['globalSheetInfo', 'allControls'])}
+        {..._.pick(props, ['globalSheetInfo', 'allControls', 'fromPortal'])}
         distance={10}
         axis="y"
         helperClass="filterRegexSortableList"

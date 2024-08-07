@@ -179,16 +179,19 @@ export default class CellEdit extends Component {
     const isDestMDType =
       _.get(list.find(o => o.nodeType === 'DEST_TABLE') || {}, 'nodeConfig.config.dsType') ===
       DATABASE_TYPE.APPLICATION_WORKSHEET;
-    let data = (
-      (await getFields({
-        node,
-        projectId: currentProjectId,
-        isGetDest: false,
-        isSourceAppType: true,
-        isDestAppType: isDestMDType,
-        destType: _.get(list.find(o => o.nodeType === 'DEST_TABLE') || {}, 'nodeConfig.config.dsType'),
-      })) || []
-    ).filter(o => !disableList.includes(o.jdbcTypeId));
+    let data = [];
+    try {
+      data =
+        (await getFields({
+          node,
+          projectId: currentProjectId,
+          isGetDest: false,
+          isSourceAppType: true,
+          isDestAppType: isDestMDType,
+          destType: _.get(list.find(o => o.nodeType === 'DEST_TABLE') || {}, 'nodeConfig.config.dsType'),
+        })) || [];
+    } catch (error) {}
+    data = data.filter(o => !disableList.includes(o.jdbcTypeId));
     this.setState({
       fieldsBysource: data,
     });

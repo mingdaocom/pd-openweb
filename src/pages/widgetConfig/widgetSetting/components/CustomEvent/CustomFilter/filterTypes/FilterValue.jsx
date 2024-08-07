@@ -6,7 +6,7 @@ import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/Filt
 import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/config';
 
 export default function FilterValue(props) {
-  const { filterData = {}, handleOk, globalSheetInfo = {}, allControls, customTitle } = props;
+  const { filterData = {}, handleOk, globalSheetInfo = {}, allControls = [], customTitle } = props;
   const { projectId, appId } = globalSheetInfo;
   const filterControls = allControls.map(redefineComplexControl);
 

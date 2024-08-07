@@ -371,6 +371,24 @@ var staticLanguages = {
     'zh-Hans': '没有权限，无法下载此附件',
     'zh-Hant': '沒有權限，無法下載此附件',
   },
+  法律门户: {
+    en: 'Legal portal',
+    ja: '法務ポータル',
+    'zh-Hans': '法律门户',
+    'zh-Hant': '法律門戶',
+  },
+  重置密码: {
+    en: 'reset password',
+    ja: 'パスワードをリセット',
+    'zh-Hans': '重置密码',
+    'zh-Hant': '重置密碼',
+  },
+  'HAP 私有部署版': {
+    en: 'HAP Private',
+    ja: 'HAPプライベート配備版',
+    'zh-Hans': 'HAP 私有部署版',
+    'zh-Hant': 'HAP 私有部署版',
+  },
 };
 
 var cookieMatch = document.cookie.match(new RegExp('(^| )i18n_langtag=([^;]*)(;|$)'));
@@ -406,7 +424,7 @@ var transformFunc = function (elements) {
     var element = elements[i];
 
     // 替换文本内容中的 [[[]]] 部分
-    element.innerHTML = staticLanguages[element.innerHTML][lang];
+    element.innerHTML = staticLanguages[element.getAttribute('content') || element.innerHTML][lang];
   }
 };
 

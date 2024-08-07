@@ -22,14 +22,19 @@ const ImportLoadingWrap = styled.div`
   background: rgba(255, 255, 255, 0.5);
 `;
 
-const getWorksheetList = (list = [], total = []) => {
-  list.map(item => {
-    total = total.concat((item.workSheetInfo || []).filter(i => i.type === 0));
-    if (item.childSections && item.childSections.length > 0) {
-      total = total.concat(getWorksheetList(item.childSections, total));
-    }
-  });
-  return total;
+const getWorksheetList = (list = []) => {
+  const filterFn = ({ workSheetInfo = [] } = {}) => workSheetInfo.filter(i => i.type === 0);
+  return _.reduce(
+    list,
+    (total, item) => {
+      total.push(...filterFn(item));
+      if (item.childSections && item.childSections.length > 0) {
+        item.childSections.forEach(i => total.push(...filterFn(i)));
+      }
+      return total;
+    },
+    [],
+  );
 };
 
 const { Option } = Select;

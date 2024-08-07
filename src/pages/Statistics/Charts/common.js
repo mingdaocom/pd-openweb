@@ -175,6 +175,12 @@ export const getAuxiliaryLineConfig = (auxiliaryLines = [], data, { yaxisList, c
         const maxKey = maxKeys[maxKeys.length - 1] || {};
         const minIndex = _.findIndex(data, { name: minKey.name });
         const maxIndex = _.findIndex(data, { name: maxKey.name });
+        if (minIndex === maxIndex) {
+          return {
+            start: ['start', min],
+            end: ['end', max],
+          }
+        }
         return {
           start: ['start', minIndex < maxIndex ? min : max],
           end: ['end', minIndex < maxIndex ? max : min],

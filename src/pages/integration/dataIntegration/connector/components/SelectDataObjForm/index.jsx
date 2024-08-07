@@ -107,7 +107,7 @@ export default function SelectDataObjForm(props) {
         tableName: addTable.value,
       };
       datasourceApi.getTableFields(params).then(res => {
-        if (res) {
+        if (res && _.isArray(res)) {
           const arr = res.filter(item => item.isPk);
           switch (true) {
             case arr.length === 1 || (_.includes(sqlServerTypes, source.type) && arr.length > 1):

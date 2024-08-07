@@ -44,6 +44,7 @@ export default class Start extends Component {
         20: _l('人员信息'),
         21: _l('部门信息'),
         42: _l('API数组'),
+        46: _l('AIGC'),
         405: _l('人工节点'),
       };
       return (
