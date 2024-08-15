@@ -55,7 +55,8 @@ const ViewWrap = styled.div`
   &.hideAddRecord .addBoardRecord,
   &.hideAddRecord .addRecordItemWrapper,
   &.hideSearchRecord .icon-search,
-  &.hideSearchRecord .searchWrapper {
+  &.hideSearchRecord .searchWrapper, 
+  &.hideSearchRecord .mapSearchRecordAutoComplete {
     display: none !important;
   }
   &.disableSingleView {

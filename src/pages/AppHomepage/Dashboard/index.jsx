@@ -241,9 +241,10 @@ export default function Dashboard(props) {
   };
 
   useEffect(() => {
-    fetch('https://filepub.mingdao.com/dashboard/themes_2024_06_06.js')
-      .then(res => res.text())
-      .then(res => setAdvancedThemes(eval(res)));
+    !md.global.Config.IsLocal &&
+      fetch('https://filepub.mingdao.com/dashboard/themes_2024_06_06.js')
+        .then(res => res.text())
+        .then(res => setAdvancedThemes(eval(res)));
   }, []);
 
   useEffect(fetchData, [projectId]);

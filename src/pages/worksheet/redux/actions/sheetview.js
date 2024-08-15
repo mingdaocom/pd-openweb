@@ -646,7 +646,7 @@ export function setViewLayout(viewId) {
     if ((!view || view.viewType !== 0) && !checkIsTreeTableView(getState())) {
       return;
     }
-    const { advancedSetting } = view;
+    const { advancedSetting = {} } = view || {};
     let sheetColumnWidths = {};
     const localLayoutUpdateTime = getLRUWorksheetConfig('SHEET_LAYOUT_UPDATE_TIME', viewId);
     const pageSize = parseInt(getLRUWorksheetConfig('WORKSHEET_VIEW_PAGESIZE', viewId), 10);

@@ -228,7 +228,6 @@ export default class EditUser extends Component {
 
       const params = {
         accountId,
-        companyName,
         departmentIds: departmentInfos.map(it => it.departmentId),
         email,
         fullname: userName,
@@ -243,7 +242,6 @@ export default class EditUser extends Component {
 
       this.setState({ isUploading: true });
       Promise.all([
-        fixedDataAjax.checkSensitive({ content: companyName }),
         fixedDataAjax.checkSensitive({ content: jobNumber }),
       ]).then(results => {
         if (!results.find(result => result)) {
@@ -329,18 +327,6 @@ export default class EditUser extends Component {
             />
           ) : (
             ''
-          )}
-          {(typeCursor === 0 || typeCursor === 1) && (
-            <TextInput
-              label={_l('组织')}
-              field={'companyName'}
-              value={companyName}
-              placeholder={_l('组织名称')}
-              onChange={e => this.changeFormInfo(e, 'companyName')}
-              onFocus={() => {
-                this.clearError('companyName');
-              }}
-            />
           )}
         </Fragment>
       );

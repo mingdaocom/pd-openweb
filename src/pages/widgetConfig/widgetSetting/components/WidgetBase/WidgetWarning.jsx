@@ -18,7 +18,7 @@ const WarningWrap = styled.div`
 
 const DEFAULT_TEXT = {
   text: _l(
-    '当工作表记录超过10w行时，为保证工作表性能，修改配置后将不再刷新历史数据。如果仍需更新历史数据，请手动进行刷新。',
+    '当工作表记录超过10万行时，为保证工作表性能，修改配置后将不再刷新历史数据。如果仍需更新历史数据，请手动进行刷新。',
   ),
   href: 'https://help.mingdao.com/worksheet/batch-refresh',
 };

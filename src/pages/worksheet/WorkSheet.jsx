@@ -227,7 +227,9 @@ class WorkSheet extends Component {
     if (themeColor) {
       this.removeAppThemeColor();
       const style = document.createElement('style');
-      style.innerHTML = `:root { --app-primary-color: ${themeColor}; --app-primary-hover-color: ${new TinyColor(themeColor)
+      style.innerHTML = `:root { --app-primary-color: ${themeColor}; --app-primary-hover-color: ${new TinyColor(
+        themeColor,
+      )
         .darken(5)
         .toString()}; }`;
       document.head.appendChild(style);
@@ -303,7 +305,10 @@ class WorkSheet extends Component {
         <UseKey
           filter={e => _.includes(['e', 'E'], e.key)}
           fn={e => {
-            if (document.querySelector('.mdModalWrap')) {
+            if (
+              document.querySelector('.mdModalWrap') ||
+              _.includes(['input', 'textarea'], (_.get(e, 'target.tagName') || '').toLowerCase())
+            ) {
               return;
             }
             if ((window.isMacOs ? e.metaKey : e.shiftKey) && e.keyCode === 69) {

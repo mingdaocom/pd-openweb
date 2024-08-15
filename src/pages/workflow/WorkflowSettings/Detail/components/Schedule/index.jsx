@@ -244,7 +244,7 @@ export default ({
   }, [schedule]);
 
   useEffect(() => {
-    if (!schedule.type) {
+    if (!schedule.type && schedule.enable) {
       changeData(
         Object.assign({}, data, {
           type: 1,

@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Pagination, Table, ConfigProvider } from 'antd';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as actions from '../../redux/actions';
+
 const Wrap = styled.div`
   .userImgBox {
     img {
@@ -113,7 +111,7 @@ const Wrap = styled.div`
 
 function PorTalTable(props) {
   const [pageSize, setPageSize] = useState(props.pageSize || 10);
-  const { onOk, type, clickRow, portal, noShowCheck, scrolly } = props;
+  const { type, clickRow, noShowCheck } = props;
   const [listCell, setList] = useState([]);
   const [columnsCell, setColumns] = useState([]);
 
@@ -157,7 +155,7 @@ function PorTalTable(props) {
             };
           })}
           sticky
-          loading={portal.loading}
+          loading={props.loading}
           dataSource={listCell}
           bordered
           size="small"
@@ -166,7 +164,6 @@ function PorTalTable(props) {
           pagination={false}
           scroll={{
             x: props.width - 1,
-            //  y: listCell.length <= 0 ? false : scrolly || 'calc(100vh - 550px)'
           }}
           showSorterTooltip={false}
           onChange={(pagination, filters, sorter) => {
@@ -185,21 +182,17 @@ function PorTalTable(props) {
                     }),
                     data.rowid,
                   );
-              }, // 点击行
-              // onDoubleClick: event => {},
-              // onContextMenu: event => {},
-              // onMouseEnter: event => {}, // 鼠标移入行
-              // onMouseLeave: event => {},
+              },
             };
           }}
         />
       </ConfigProvider>
       {type !== 2 && //角色不分页
-        props.portal.count > pageSize && (
+        props.total > pageSize && (
           <Pagination
             showSizeChanger={false}
             pageSize={pageSize}
-            total={props.portal.count}
+            total={props.total}
             current={props.pageIndex}
             onChange={data => {
               props.changePage(data);
@@ -209,9 +202,4 @@ function PorTalTable(props) {
     </Wrap>
   );
 }
-const mapStateToProps = state => ({
-  portal: state.portal,
-});
-const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
-
-export default connect(mapStateToProps, mapDispatchToProps)(PorTalTable);
+export default PorTalTable;

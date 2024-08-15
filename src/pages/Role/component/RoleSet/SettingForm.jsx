@@ -274,9 +274,9 @@ export default class extends PureComponent {
                 <div className="actionListCon">
                   {this.state.actionList.map(o => {
                     return (
-                      <div className="Width120 mTop20 InlineBlock flexRow alignItemsCenter">
+                      <div className="mRight30 mTop20 InlineBlock flexRow alignItemsCenter">
                         <Checkbox
-                          className={'subCheckbox InlineBlock TxtMiddle'}
+                          className={'subCheckbox TxtMiddle'}
                           disabled={o.key === 'generalAdd' && PERMISSION_WAYS.OnlyViewAllRecord === permissionWay} //对所有记录只有查看权限 同时 操作权限 不可新增
                           checked={
                             o.key === 'generalAdd' && PERMISSION_WAYS.OnlyViewAllRecord === permissionWay
@@ -293,19 +293,21 @@ export default class extends PureComponent {
                           }}
                         >
                           {o.txt}
+                          {o.tips && (
+                            <Tooltip
+                              text={
+                                <span>
+                                  {this.props.isForPortal && o.key === 'generalDiscussion'
+                                    ? _l('包含记录讨论')
+                                    : o.tips}
+                                </span>
+                              }
+                              popupPlacement="top"
+                            >
+                              <i className="icon-info_outline Font16 Gray_9e mLeft3 TxtMiddle" />
+                            </Tooltip>
+                          )}
                         </Checkbox>
-                        {o.tips && (
-                          <Tooltip
-                            text={
-                              <span>
-                                {this.props.isForPortal && o.key === 'generalDiscussion' ? _l('包含记录讨论') : o.tips}{' '}
-                              </span>
-                            }
-                            popupPlacement="top"
-                          >
-                            <i className="icon-info_outline Font16 Gray_9e mLeft3 TxtMiddle" />
-                          </Tooltip>
-                        )}
                       </div>
                     );
                   })}

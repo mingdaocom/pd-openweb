@@ -294,7 +294,7 @@ function BtnSetting(props) {
         appId,
       });
       sheetRequest.then(res => {
-        const { views = [], template } = res;
+        const { views = [], template = {} } = res;
         const controls = replaceControlsTranslateInfo(appId, value, template.controls);
         setDataSource({
           views: views.map(({ viewId, name, viewType }) => ({ text: getTranslateInfo(appId, null, viewId).name || name, value: viewId, type: viewType })),

@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import * as actions from '../redux/actions';
-import moment from 'moment';
-import { Icon, Radio, MdAntDateRangePicker, Dropdown } from 'ming-ui';
+import { Icon, MdAntDateRangePicker } from 'ming-ui';
 import PorTalTable from 'src/pages/Role/PortalCon/tabCon/portalComponent/PortalTable';
-import cx from 'classnames';
 import autoSize from 'ming-ui/decorators/autoSize';
 const AutoSizePorTalTable = autoSize(PorTalTable);
 import externalPortalAjax from 'src/api/externalPortal';
@@ -66,11 +62,13 @@ const Wrap = styled.div`
 let ajaxFn = null;
 function LoginInfo(props) {
   const { appId } = props;
-  const [pageIndex, setPageIndex] = useState(1);
+  const [info, setState] = useSetState({
+    pageIndex: 1,
+    searchValue: '',
+    startDate: '',
+    endDate: '',
+  });
   const [loading, setloading] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
-  const [startDate, setLastTimeStart] = useState('');
-  const [endDate, setLastTimeTimeEnd] = useState('');
   const [list, setList] = useState([]);
   const [count, setCount] = useState(0);
   const [columns, setColumns] = useState([
@@ -81,7 +79,6 @@ function LoginInfo(props) {
       render: (control, data = {}) => {
         return (
           <div className="userImgBox">
-            {/* <img src={data.log.avatar} alt="" width={26} srcset="" /> */}
             <span className="name mLeft5">{data.log.fullname}</span>
           </div>
         );
@@ -128,12 +125,14 @@ function LoginInfo(props) {
       },
     },
   ]);
-  const getList = () => {
+  const getList = (dataInfo = {}) => {
     if (loading) {
       return;
     }
     setloading(true);
     ajaxFn && ajaxFn.abort();
+    let data = { ...info, ...dataInfo };
+    const { searchValue, startDate, endDate, pageIndex } = data;
     ajaxFn = externalPortalAjax.getUserActionLogs({
       appId,
       fullnameOrMobilePhone: searchValue, //用户名或手机号
@@ -142,18 +141,17 @@ function LoginInfo(props) {
       pageIndex,
       pageSize,
     });
-    _.debounce(() => {
-      ajaxFn.then(res => {
-        setloading(false);
-        const { data = {} } = res;
-        setList(data.list || []);
-        setCount(data.totalCount || 0);
-      });
-    }, 500)();
+    ajaxFn.then(res => {
+      setloading(false);
+      const { data = {} } = res;
+      setList(data.list || []);
+      setCount(data.totalCount || 0);
+      setState({ ...dataInfo });
+    });
   };
   useEffect(() => {
     getList();
-  }, [searchValue, startDate, endDate, pageIndex]);
+  }, []);
   return (
     <Wrap>
       <div className="topAct">
@@ -165,21 +163,29 @@ function LoginInfo(props) {
             className="cursorText"
             placeholder={_l('搜索用户名称、手机号、邮箱')}
             onChange={event => {
-              const searchValue = _.trim(event.target.value);
-              if (!searchValue) {
-                setSearchValue('');
-              } else {
-                setSearchValue(searchValue);
+              setState({
+                searchValue: _.trim(event.target.value),
+              });
+            }}
+            onKeyDown={event => {
+              if (event.which === 13) {
+                getList({
+                  searchValue: _.trim(event.target.value),
+                  pageIndex: 1,
+                });
               }
             }}
-            value={searchValue}
+            value={info.searchValue}
           />
-          {searchValue && (
+          {info.searchValue && (
             <Icon
               icon="cancel"
               className="Font18 Hand Gray_9e"
               onClick={() => {
-                setSearchValue('');
+                getList({
+                  searchValue: '',
+                  pageIndex: 1,
+                });
               }}
             />
           )}
@@ -190,11 +196,11 @@ function LoginInfo(props) {
           showTime={{ format: 'HH:mm' }}
           format="YYYY-MM-DD HH:mm"
           onChange={(moments, dateString) => {
-            setLastTimeStart(!moments || !moments[0] ? '' : moments[0].format('YYYY-MM-DD HH:mm'));
-            setLastTimeTimeEnd(!moments || !moments[1] ? '' : moments[1].format('YYYY-MM-DD HH:mm'));
-          }}
-          onOk={moments => {
-            setLastTimeStart(!moments || !moments[0] ? '' : moments[0].format('YYYY-MM-DD HH:mm'));
+            getList({
+              startDate: !moments || !moments[0] ? '' : moments[0].format('YYYY-MM-DD HH:mm'),
+              endDate: !moments || !moments[1] ? '' : moments[1].format('YYYY-MM-DD HH:mm'),
+              pageIndex: 1,
+            });
           }}
         />
       </div>
@@ -204,19 +210,16 @@ function LoginInfo(props) {
           noShowCheck
           list={list}
           pageSize={pageSize}
-          pageIndex={pageIndex}
+          loading={loading}
+          pageIndex={info.pageIndex}
           total={count}
           changePage={pageIndex => {
-            setPageIndex(pageIndex);
+            getList({ pageIndex });
           }}
         />
       </div>
     </Wrap>
   );
 }
-const mapStateToProps = state => ({
-  portal: state.portal,
-});
-const mapDispatchToProps = dispatch => bindActionCreators(actions, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginInfo);
+export default LoginInfo;

@@ -9,6 +9,7 @@ import Back from '../components/Back';
 import ProcessRecordInfo from 'mobile/ProcessRecord';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
+import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import Card from './Card';
 import './index.less';
 import _ from 'lodash';
@@ -44,6 +45,7 @@ export default class ProcessInform extends Component {
   componentDidMount() {
     this.getTodoList();
     this.getTodoCount();
+    workflowPushSoket();
   }
   getTodoList() {
     const param = {};

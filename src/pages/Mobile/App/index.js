@@ -402,6 +402,12 @@ class App extends Component {
   renderSection(data, level) {
     const { appDetail } = this.props;
     const { appNaviStyle } = appDetail.detail;
+    const { viewHideNavi } = this.state;
+    const { workSheetInfo = [] } = data;
+
+    // 导航设置不可查看隐藏项时，一级分组下工作表全被隐藏时不显示一级分组内容
+    const sheets = _.filter(workSheetInfo, v => _.includes([1, 3], v.status) && !v.navigateHide);
+    if (!viewHideNavi && _.isEmpty(sheets)) return null;
 
     return (
       <Accordion.Panel header={this.renderHeader(data, level)} key={data.appSectionId}>

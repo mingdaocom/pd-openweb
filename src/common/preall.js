@@ -123,7 +123,7 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   // 第一次进入
   if (!md.global.Account.langModified) {
     accountSetting.autoEditAccountLangSetting({ langType: getCurrentLangCode(lang) });
-    !md.global.Account.isPortal && navigateTo('app/my');
+    !md.global.Account.isPortal && navigateTo('/app/my');
   } else if (md.global.Account.lang !== lang) {
     setCookie('i18n_langtag', md.global.Account.lang);
     window.location.reload();

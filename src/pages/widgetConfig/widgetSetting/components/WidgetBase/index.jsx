@@ -18,7 +18,7 @@ import WidgetWidth from './WidgetWidth';
 
 // 高级设置
 export default function WidgetBase(props) {
-  const { data, widgets = [], setWidgets, setActiveWidget, ...rest } = props;
+  const { data = {}, widgets = [], setWidgets, setActiveWidget, ...rest } = props;
   const { type, options = [], controlId } = data;
   const ENUM_TYPE = enumWidgetType[type];
   const Components = Settings[ENUM_TYPE];
@@ -35,7 +35,7 @@ export default function WidgetBase(props) {
       {/**字段名称 */}
       <WidgetName {...props} />
       {/* rest.type 已指定类型的情况下不可更改 */}
-      {!NO_CUSTOM_SETTING_CONTROL.includes(type) && !rest.type && <Components {...props} />}
+      {!NO_CUSTOM_SETTING_CONTROL.includes(type) && !rest.type && Components && <Components {...props} />}
       {/* 快速创建字段暂时隐藏更多内容 */}
       {!rest.quickAddControl && (
         <Fragment>
