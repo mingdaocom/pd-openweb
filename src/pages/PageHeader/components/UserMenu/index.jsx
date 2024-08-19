@@ -25,7 +25,7 @@ export default function UserMenu(props) {
         localForage.clear();
         removePssId();
         window.localStorage.removeItem('LoginCheckList'); // accountId 和 encryptPassword 清理掉
-        navigateToLogin({ needReturnUrl: false });
+        navigateToLogin({ needReturnUrl: false, redirectUrl: _.isObject(data) ? data.redirectUrl : undefined });
       }
     });
   };

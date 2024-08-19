@@ -250,36 +250,43 @@ export default class RecordCardListDialog extends Component {
     this.setState({ loading: true });
     this.abortSearch();
     this.searchAjax = getFilterRowsPromise(args);
-    this.searchAjax
-      .then(res => {
-        if (res.resultCode === 1) {
-          this.setState(
-            {
-              list: getDataType
-                ? list.concat(res.data.filter(rec => !_.includes(relationRowIds, rec.rowid)))
-                : list.concat(res.data.filter(record => !_.find(filterRowIds, fid => record.rowid === fid))),
-              loading: false,
-              loadouted: res.data.length < 20,
-              controls: res.template
-                ? replaceControlsTranslateInfo(res.worksheet.appId, null, res.template.controls)
-                : [],
-              worksheet: res.worksheet || {},
-            },
-            () => {
-              if (this.props.keyWords && res.data.length === 1) {
-                this.setState({
-                  selectedRecords: [res.data[0]],
-                });
-              }
-            },
-          );
-        } else {
-          this.setState({
+    this.searchAjax.then(res => {
+      if (res.resultCode === 1) {
+        let filteredList = _.uniqBy(
+          list.concat(res.data.filter(record => !_.find(filterRowIds, fid => record.rowid === fid))),
+          'rowid',
+        );
+
+        this.setState(
+          {
+            list: getDataType
+              ? list.concat(res.data.filter(rec => !_.includes(relationRowIds, rec.rowid)))
+              : filteredList,
             loading: false,
-            error: true,
-          });
-        }
-      });
+            loadouted: res.data.length < 20,
+            controls: res.template
+              ? replaceControlsTranslateInfo(res.worksheet.appId, null, res.template.controls)
+              : [],
+            worksheet: res.worksheet || {},
+          },
+          () => {
+            if (this.props.keyWords && res.data.length === 1) {
+              this.setState({
+                selectedRecords: [res.data[0]],
+              });
+            }
+            if (!this.state.loadouted && filteredList.length < 8) {
+              this.loadNext();
+            }
+          },
+        );
+      } else {
+        this.setState({
+          loading: false,
+          error: true,
+        });
+      }
+    });
   }
   loadNext() {
     this.setState(

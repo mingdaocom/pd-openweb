@@ -17,11 +17,11 @@ export default function RowDetailModal(props) {
     onClose,
     onDelete,
     onSwitch,
-    allowDelete
+    allowDelete,
   } = props;
   const formContent = useRef(null);
   const rowId = data.rowid || '';
-  const type = mobileIsEdit ? (rowId.includes('temp') || rowId.includes('default')) ? 'new' : 'edit' : 'edit';
+  const type = mobileIsEdit ? (rowId.includes('temp') || rowId.includes('default') ? 'new' : 'edit') : 'edit';
   const disabled = mobileIsEdit ? props.disabled : true;
   const [isFormChanged, setIsFormChanged] = useState(false);
 
@@ -62,7 +62,14 @@ export default function RowDetailModal(props) {
             }}
           ></i>
         )}
-        <i className="headerBtn icon icon-close Gray_9e Font20" onClick={onClose}></i>
+        <i
+          className="headerBtn icon icon-close Gray_9e Font20"
+          onClick={() => {
+            const hasError = formContent.current.handleSave();
+            if (!_.isUndefined(hasError) && !hasError) return;
+            onClose();
+          }}
+        ></i>
       </div>
       <div className="forCon flex leftAlign">
         {type === 'edit' && <div className="title Font18 Gray flex bold leftAlign ellipsis mBottom10">{title}</div>}

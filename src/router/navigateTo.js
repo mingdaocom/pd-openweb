@@ -1,4 +1,4 @@
-﻿import login from 'src/api/login';
+import login from 'src/api/login';
 import { getAppFeaturesPath, browserIsMobile } from 'src/util';
 import { getSuffix } from 'src/pages/accountLogin/portalAccount/util';
 import _ from 'lodash';
@@ -75,7 +75,10 @@ export function navigateTo(url, isReplace = false, noRedirect = false) {
 }
 
 /** 获取登录地址  */
-const getLoginUrl = () => {
+const getLoginUrl = (redirectUrl) => {
+
+  if (redirectUrl) return redirectUrl;
+
   if (_.get(md, 'global.Account.isSSO') && _.get(md, 'global.SysSettings.enableSso')) {
     return browserIsMobile() ? _.get(md, 'global.SysSettings.ssoAppUrl') : _.get(md, 'global.SysSettings.ssoWebUrl');
   }
@@ -84,7 +87,7 @@ const getLoginUrl = () => {
 };
 
 /** 跳转到 登录页 */
-export function navigateToLogin({ needSecondCheck, needReturnUrl = true } = {}) {
+export function navigateToLogin({ needSecondCheck, needReturnUrl = true, redirectUrl } = {}) {
   function handleNavigate() {
     const host = location.host;
     const link = needReturnUrl ? `?ReturnUrl=${encodeURIComponent(location.href)}` : ``;
@@ -94,8 +97,9 @@ export function navigateToLogin({ needSecondCheck, needReturnUrl = true } = {}) 
     //  isSubDomain = project.checkSubDomain({ host }, { ajaxOptions: { sync: true } });
     //}
 
-    location.href = getLoginUrl()
-      ? getLoginUrl()
+    let loginUrl = getLoginUrl(redirectUrl);
+    location.href = loginUrl
+      ? loginUrl
       : isSubDomain
       ? `${window.subPath || ''}/network${link}`
       : `${window.subPath || ''}/login${link}`;
