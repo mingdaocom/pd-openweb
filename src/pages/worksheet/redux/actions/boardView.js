@@ -9,7 +9,8 @@ import worksheetAjax from 'src/api/worksheet';
 import { wrapAjax } from './util';
 import { updateNavGroup } from 'src/pages/worksheet/redux/actions/index.js';
 
-let boardPromiseObj = null;
+let boardPromiseObj;
+let boardPromiseViewIds = [];
 
 const wrappedGetFilterRows = wrapAjax(worksheetAjax.getFilterRows);
 
@@ -125,15 +126,18 @@ export function initBoardViewData(view) {
 
 // 拉取看板数据以填满页面
 function getBoardViewDataFillPage({ para, dispatch, view, controls }) {
-  if (boardPromiseObj && boardPromiseObj.abort) {
+  if (boardPromiseObj && boardPromiseObj.abort && _.includes(boardPromiseViewIds, view.viewId)) {
     boardPromiseObj.abort();
   }
+
+  boardPromiseViewIds.push(view.viewId);
 
   boardPromiseObj = (para.type === 'single' ? worksheetAjax.getFilterRows : wrappedGetFilterRows)(
     getFilledRequestParams(para),
   );
 
   boardPromiseObj.then(({ data, resultCode }) => {
+    boardPromiseViewIds = boardPromiseViewIds.filter(o => o !== view.viewId);
     if (resultCode !== 1) {
       dispatch({
         type: 'WORKSHEET_UPDATE_ACTIVE_VIEW_STATUS',

@@ -76,7 +76,7 @@ export function ShowFormatDialog(props) {
       // 包含时间配置
       if (/[H|h|m|s|S|Z]/.test(value)) return 1;
       const tempValue = moment().format(value.replace(/#EN#$/g, ''));
-      if (new Date(moment(tempValue, value.replace(/#EN#$/g, '')).valueOf()).toString() === 'Invalid Date') return 2;
+      if (value === tempValue) return 2;
       return 0;
     }
     return 0;

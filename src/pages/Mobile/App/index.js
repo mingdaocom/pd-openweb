@@ -177,8 +177,7 @@ class App extends Component {
     const isCharge = canEditApp(detail.permissionType, detail.isLock);
 
     return workSheetInfo
-      .filter(item => (viewHideNavi ? true : ![2, 4].includes(item.status)))
-      .filter(it => (isCharge ? true : [1, 3].includes(it.status) && !it.navigateHide))
+      .filter(item => (viewHideNavi && isCharge ? true : [1, 3].includes(item.status) && !item.navigateHide))
       .map(item => {
         if (item.type !== 2) {
           return (
@@ -260,8 +259,7 @@ class App extends Component {
             {this.renderHeader(v, 'level2')}
             <Flex className="sudokuWrapper" wrap="wrap">
               {v.workSheetInfo
-                .filter(v => (viewHideNavi ? true : ![2, 4].includes(v.status)))
-                .filter(it => (isCharge ? true : [1, 3].includes(it.status) && !it.navigateHide))
+                .filter(item => (viewHideNavi && isCharge ? true : [1, 3].includes(item.status) && !item.navigateHide))
                 .map(v => (
                   <div
                     key={v.workSheetId}
@@ -658,11 +656,14 @@ class App extends Component {
       return this.renderContent();
     }
 
-    const { selectedTab, isHideTabBar, appMoreActionVisible } = this.state;
+    const { selectedTab, viewHideNavi } = this.state;
 
     const sheetList = this.getWorksheetList(appSection)
-      .filter(v => v.type !== 2)
-      .filter(item => (isAuthorityApp ? true : [1, 3].includes(item.status) && !item.navigateHide)) //左侧列表状态为1 且 角色权限没有设置隐藏
+      .filter(
+        item =>
+          item.type !== 2 &&
+          (viewHideNavi && isAuthorityApp ? true : [1, 3].includes(item.status) && !item.navigateHide),
+      )
       .slice(0, 4);
 
     const data = _.find(sheetList, { workSheetId: selectedTab });

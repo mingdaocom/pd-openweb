@@ -7,7 +7,8 @@ import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
 import { updateNavGroup } from 'src/pages/worksheet/redux/actions/index.js';
 
 const MULTI_RELATE_MAX_PAGE_SIZE = 500;
-let hierarchyPromiseObj = null;
+let hierarchyPromiseObj;
+let hierarchyPromiseViewIds = [];
 
 const getTotalData = (hierarchyViewData = {}, total = 0) => {
   Object.values(hierarchyViewData).map(item => {
@@ -27,17 +28,25 @@ export function expandedMultiLevelHierarchyData(args, changeFilters) {
     const { sheet, mobile } = getState();
     const { quickFilter, navGroupFilters } = sheet;
     const { searchType, ...rest } = sheet.filters || {};
+    const params = getParaIds(sheet);
     const { pageSize = 50 } = sheet.hierarchyView.hierarchyDataStatus;
 
-    if (changeFilters && hierarchyPromiseObj && hierarchyPromiseObj.abort) {
+    if (
+      changeFilters &&
+      hierarchyPromiseObj &&
+      hierarchyPromiseObj.abort &&
+      _.includes(hierarchyPromiseViewIds, params.viewId)
+    ) {
       hierarchyPromiseObj.abort();
     }
+
+    hierarchyPromiseViewIds.push(params.viewId);
 
     hierarchyPromiseObj = sheetAjax.getFilterRows(
       getFilledRequestParams({
         ...args,
         ...rest,
-        ...getParaIds(sheet),
+        ...params,
         pageSize,
         searchType: searchType || 1,
         fastFilters: formatQuickFilter(quickFilter),
@@ -46,6 +55,7 @@ export function expandedMultiLevelHierarchyData(args, changeFilters) {
     );
 
     hierarchyPromiseObj.then(({ data, count, resultCode }) => {
+      hierarchyPromiseViewIds = hierarchyPromiseViewIds.filter(o => o !== params.viewId);
       if (resultCode === 1) {
         const treeData = dealData(data);
         const totalDataOver = getTotalData(data);

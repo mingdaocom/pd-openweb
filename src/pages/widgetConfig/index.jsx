@@ -100,15 +100,16 @@ export default function Container(props) {
     // 以下为布局更新情况
     if (_.includes([29, 51], data.type)) {
       const preData = widgets[row][col];
-      // 1、标签页内关联记录切换成标签页表格
-      const relateToTabList = data.sectionId && !fixedBottomWidgets(preData) && fixedBottomWidgets(data);
+      // 1、关联记录切换成标签页表格
+      const relateToTabList = !fixedBottomWidgets(preData) && fixedBottomWidgets(data);
       // 2、关联记录标签页表格切换成其他形态
       const tabListToRelate = fixedBottomWidgets(preData) && !fixedBottomWidgets(data);
 
       if (relateToTabList || tabListToRelate) {
         let targetIndex = getBoundRowByTab(widgets);
         let newData = { ...data, size: 12 };
-        if (relateToTabList) {
+        // 标签页内
+        if (relateToTabList && data.sectionId) {
           const childrenList = getChildWidgetsBySection(genControlsByWidgets(widgets), newData.sectionId);
           targetIndex = _.head(getPathById(widgets, newData.sectionId)) + childrenList.length + 1;
           newData.sectionId = '';
@@ -264,6 +265,20 @@ export default function Container(props) {
 
     let activeWidgetPath = getPathById(widgets, (activeWidget || {}).controlId);
 
+    // 清除不走缓存
+    window.clearLocalDataTime({
+      requestData: { worksheetId: sourceId },
+      clearSpecificKey: 'Worksheet_GetQueryBySheetId',
+    });
+
+    if (activeWidget && activeWidget.type === 34) {
+      // 清除不走缓存
+      window.clearLocalDataTime({
+        requestData: { worksheetId: activeWidget.dataSource },
+        clearSpecificKey: 'Worksheet_GetWorksheetInfo',
+      });
+    }
+
     setLoading({ saveLoading: true });
     worksheetAjax
       .saveWorksheetControls({
@@ -278,11 +293,6 @@ export default function Container(props) {
 
         // 子表重新拉缓存数据，保存后，relationControls不处理，防止一些隐藏问题
         window.subListSheetConfig = {};
-        // 清除不走缓存
-        window.clearLocalDataTime({
-          requestData: { worksheetId: sourceId },
-          clearSpecificKey: 'Worksheet_GetQueryBySheetId',
-        });
 
         const nextWidgets = genWidgetsByControls(controls);
         const flattenControls = flatten(nextWidgets);

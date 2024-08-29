@@ -233,6 +233,12 @@ window.md = {
         onlyCountries: [],
       },
     },
+    PriceConfig: {
+      SmsPrice: window._l ? _l('0.05元') : '0.05元',
+      EmailPrice: window._l ? _l('0.03元') : '0.03元',
+      PdfPrice: window._l ? _l('0.15元') : '0.15元',
+      DataPipelinePrice: window._l ? _l('0.01元') : '0.01元',
+    },
     getCaptchaType: () => {
       return window.localStorage.getItem('captchaType')
         ? parseInt(window.localStorage.getItem('captchaType'))

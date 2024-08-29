@@ -16,7 +16,7 @@ import cx from 'classnames';
 import _ from 'lodash';
 import transactionEmptyImg from '../../images/withdrawals.png';
 import moment from 'moment';
-import { buriedUpgradeVersionDialog } from 'src/util';
+import { buriedUpgradeVersionDialog, formatNumberThousand } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import { navigateTo } from 'src/router/navigateTo';
 
@@ -691,7 +691,7 @@ export default class TransactionDetails extends Component {
                     ThemeColor: _.includes(['totalAmount', 'dateRangeTotalAmount', 'realAmount'], id),
                   })}
                 >
-                  {!_.isUndefined(this.state[id]) ? this.state[id].toLocaleString() : '-'}
+                  {!_.isUndefined(this.state[id]) ? formatNumberThousand(this.state[id]) : '-'}
                 </span>
               </div>
             );

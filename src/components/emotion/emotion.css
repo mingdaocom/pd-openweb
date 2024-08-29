@@ -38,7 +38,7 @@
   background: #fff;
   box-shadow: 0 4px 23px 5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
   border: solid 1px #c7c7c7;
-  z-index: 10;
+  z-index: 99999;
   height: 240px;
 }
 .mdEmotion .mdEmotionWrapper {

@@ -13,7 +13,7 @@ import _ from 'lodash';
 import StepHeader from './StepHeader';
 import { Icon } from 'ming-ui';
 import instance from '../../api/instance';
-import { getTranslateInfo } from 'src/util';
+import { getTranslateInfo ,addBehaviorLog} from 'src/util';
 
 const WorkflowHistory = props => {
   return (
@@ -142,6 +142,7 @@ export default class ExecDialog extends Component {
             rowId: res.rowId,
             worksheetLoading: false,
           });
+          addBehaviorLog('worksheetRecord', res.worksheetId, { rowId: res.rowId }); // 埋点
         });
       })
       .catch(res => {

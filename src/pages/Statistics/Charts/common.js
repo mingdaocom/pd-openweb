@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { getProjectColor, toFixed, formatStrZero } from 'src/util';
+import { getProjectColor, toFixed, formatStrZero, formatNumberThousand } from 'src/util';
 import moment from 'moment';
 
 /**
@@ -446,9 +446,8 @@ export const formatControlValueDot = (value, data) => {
   }
   const formatThousandth = (value = '') => {
     value = value.toString();
-    const reg = value.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
-    return value.replace(reg, '$1,'); 
-  }
+    return formatNumberThousand(value);
+  };
   const { format } = _.find(numberLevel, { value: magnitude || 0 });
   if (magnitude === 0) {
     // 自动

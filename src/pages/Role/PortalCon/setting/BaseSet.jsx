@@ -365,9 +365,8 @@ export default function BaseSet(props) {
                   <br />
                 </span>
               )}
-            {md.global.Config.IsPlatformLocal
-              ? _l('验证码每条0.05元，自动从企业账户余额扣费。为保证业务不受影响，请保持企业账户余额充足。')
-              : ''}
+              
+            {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && _l('验证码每条%0，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.SmsPrice'))}
           </p>
         </div>
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('允许访问的用户')}</h6>

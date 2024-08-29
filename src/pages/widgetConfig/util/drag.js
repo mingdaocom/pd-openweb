@@ -1,7 +1,7 @@
 import update from 'immutability-helper';
 import { filter, head, isEmpty, includes, flatten, findIndex, isArray } from 'lodash';
 import { DRAG_ITEMS, WHOLE_SIZE } from '../config/Drag';
-import { enumWidgetType, getDefaultSizeByData } from '.';
+import { enumWidgetType, getDefaultSizeByData, genWidgetRowAndCol } from '.';
 import { isFullLineControl } from './widgets';
 
 const removeEmptyRow = widgets => {
@@ -68,11 +68,12 @@ export const insertNewLine = ({ widgets, srcPath, srcItem, targetIndex }) => {
 // 列表类型切换时，重新布局
 export const resetDisplay = ({ widgets, srcPath, srcItem, targetIndex }) => {
   const removedSrcItem = removeSrcItem(widgets, srcPath);
-  return removeEmptyRow(
+  const newWidgets = removeEmptyRow(
     update(removedSrcItem, {
       $splice: [[targetIndex, 0, [srcItem]]],
     }),
   );
+  return genWidgetRowAndCol(newWidgets);
 };
 
 // 在当前行最后插入元素

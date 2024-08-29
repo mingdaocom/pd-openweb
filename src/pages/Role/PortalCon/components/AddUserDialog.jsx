@@ -7,6 +7,7 @@ import { Icon, Dialog, Checkbox, LoadDiv } from 'ming-ui';
 import 'src/components/uploadAttachment/uploadAttachment';
 import externalPortalAjax from 'src/api/externalPortal';
 import { getPssId } from 'src/util/pssId';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   .listCon {
@@ -68,35 +69,39 @@ function AddUserDialog(props) {
 
   const update = () => {
     setLoading(true);
-    externalPortalAjax.editIsSendMsgs({
-      appId,
-      isSendMsgs,
-    }).then(res => {
-      changeIsSendMsgs(isSendMsgs);
-      externalPortalAjax.importExAccounts({
-        fileUrl: fileUrl,
+    externalPortalAjax
+      .editIsSendMsgs({
         appId,
-      }).then(
-        res => {
-          const { existedData = [], success } = res;
-          setAddUserDialog(false);
-          if (success) {
-            getUserList();
-          }
-          if (existedData.length > 0) {
-            return alert(_l('有%0个用户不能重复邀请', existedData.length), 3);
-          } else if (success) {
-            return alert(_l('邀请成功'));
-          } else if (!success) {
-            return alert(_l('邀请失败，请稍后再试'), 3);
-          }
-          setLoading(false);
-        },
-        () => {
-          setLoading(false);
-        },
-      );
-    });
+        isSendMsgs,
+      })
+      .then(res => {
+        changeIsSendMsgs(isSendMsgs);
+        externalPortalAjax
+          .importExAccounts({
+            fileUrl: fileUrl,
+            appId,
+          })
+          .then(
+            res => {
+              const { existedData = [], success } = res;
+              setAddUserDialog(false);
+              if (success) {
+                getUserList();
+              }
+              if (existedData.length > 0) {
+                return alert(_l('有%0个用户不能重复邀请', existedData.length), 3);
+              } else if (success) {
+                return alert(_l('邀请成功'));
+              } else if (!success) {
+                return alert(_l('邀请失败，请稍后再试'), 3);
+              }
+              setLoading(false);
+            },
+            () => {
+              setLoading(false);
+            },
+          );
+      });
   };
   const downLoadByUrl = url => {
     let xhr = new XMLHttpRequest();
@@ -168,7 +173,12 @@ function AddUserDialog(props) {
             </div>
             <Checkbox
               className="TxtCenter InlineBlock Hand mTop10 Gray_75"
-              text={md.global.Config.IsPlatformLocal ? _l('邀请用户并发送短信/邮箱（短信0.05元/条、邮箱0.03/封，自动从企业账户扣费）') : _l('邀请用户并发送短信/邮箱')}
+              text={
+                <span>
+                  {_l('邀请用户并发送短信/邮箱')}
+                  {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && _l('（短信%0/条、邮箱%1/封，自动从企业账户扣除。）', _.get(md, 'global.PriceConfig.SmsPrice'), _.get(md, 'global.PriceConfig.EmailPrice'))}
+                </span>
+              }
               checked={isSendMsgs}
               onClick={checked => {
                 setIsSend(!isSendMsgs);

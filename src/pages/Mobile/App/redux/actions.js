@@ -41,7 +41,7 @@ export const getAppDetail = (appId, cb) => (dispatch, getState) => {
           data: {
             appName: getTranslateInfo(appId, null, appId).name || detail.name,
             detail: detail,
-            appSection: detail.sections,
+            appSection: (detail.sections || []).map(v => ({ ...v, name: v.name || _l('未命名分组') })),
             status: status,
             processCount: processData ? processData.count : 0,
           },

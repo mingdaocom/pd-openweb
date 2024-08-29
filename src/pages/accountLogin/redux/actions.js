@@ -607,6 +607,7 @@ export const loginCallback = data => {
       // 注销
       if (data.accountResult === LoginResult.cancellation) {
         location.href = '/cancellation';
+        return
       }
 
       dispatch(setLoading(false));

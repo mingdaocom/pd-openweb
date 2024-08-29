@@ -67,11 +67,8 @@ export default class CreateRecordAndTask extends Component {
       <Fragment>
         {data.appType === APP_TYPE.EXTERNAL_USER && (
           <div className="Font14 Gray_75 workflowDetailDesc mBottom20">
-            {md.global.Config.IsPlatformLocal ? _l(
-              '向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。短信0.05元/条，自动从企业账务中心扣费。',
-            ) : _l(
-              '向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。',
-            )}
+            {_l('向指定手机号发送短信邀请用户注册外部门户，并在外部门户下自动创建一条对应的用户数据（成员状态为“未激活”）。')}
+            {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && _l('短信%0/条，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.SmsPrice'))}
           </div>
         )}
 
@@ -208,8 +205,8 @@ export default class CreateRecordAndTask extends Component {
                   <span className="Gray_75">{`{"x": "121.473667", "y": "31.230525", "title": "Shanghai", "address": ""}`}</span>
                 )}
               </div>
-              {item.fieldId === 'portal_mobile' && (
-                <div className="Gray_75 mTop5">{md.global.Config.IsPlatformLocal ? _l('根据此字段发送邀请短信，短信0.05元/条') : _l('根据此字段发送邀请短信')}</div>
+              {item.fieldId === 'portal_mobile' && (!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
+                <div className="Gray_75 mTop5">{_l('根据此字段发送邀请短信，短信%0/条', _.get(md, 'global.PriceConfig.SmsPrice'))}</div>
               )}
               <SingleControlValue
                 companyId={this.props.companyId}

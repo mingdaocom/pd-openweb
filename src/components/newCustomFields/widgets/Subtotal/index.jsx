@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { Tooltip, Support } from 'ming-ui';
 import styled from 'styled-components';
-import { browserIsMobile, formatStrZero } from 'src/util';
+import { browserIsMobile, formatStrZero, formatNumberThousand } from 'src/util';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting';
 import moment from 'moment';
 import _ from 'lodash';
@@ -108,10 +108,7 @@ export default class Widgets extends Component {
       }
 
       if (advancedSetting.thousandth !== '1') {
-        content = content.replace(
-          content.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g,
-          '$1,',
-        );
+        content = formatNumberThousand(content);
       }
       content = content + (unit ? ` ${unit}` : '');
     }

@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { Link } from 'react-router-dom';
-import { Switch, Icon, Button, LoadDiv, Checkbox } from 'ming-ui';
+import { Switch, Icon, Button, LoadDiv, Checkbox, Support } from 'ming-ui';
 import { Popover, Radio, Input, Select } from 'antd';
 import ClipboardButton from 'react-clipboard.js';
 import Ajax from 'src/api/workWeiXin';
@@ -521,13 +521,7 @@ export default class Workwx extends React.Component {
                   {_l('如何实现企业微信扫码登录？')}
                 </Link>
               ) : (
-                <a
-                  target="_blank"
-                  href="https://help.mingdao.com/wecom/ways-login-HAP#scan-code-login"
-                  className="helpEntry"
-                >
-                  {_l('如何实现企业微信扫码登录？')}
-                </a>
+                <Support className="mTop16 Font14" text={_l('如何实现企业微信扫码登录？')} type={3} href="https://help.mingdao.com/wecom/ways-login-HAP#scan-code-login" />
               )}
               {md.global.Config.IsLocal && (
                 <IntegrationSetPssword

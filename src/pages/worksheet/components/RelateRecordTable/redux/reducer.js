@@ -106,7 +106,7 @@ function changes(state = cloneDeep(initialChanges), action) {
       };
     case 'DELETE_ALL':
       return {
-        ...state,
+        ...initialChanges,
         isDeleteAll: true,
       };
     case 'RESET':

@@ -8,6 +8,7 @@ import OcrMap from '../components/OcrMap';
 import ApiSearchConfig from '../components/ApiSearchConfig';
 import { ALL_SYS } from '../../config/widget';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import _ from 'lodash';
 
 const API_DISPLAY = [
   {
@@ -112,8 +113,10 @@ export default function OcrDisplay(props) {
             onChange(newData);
           }}
         />
-        {ocrapitype !== '1' && md.global.Config.IsPlatformLocal && (
-          <div className="mTop10 Gray_9e">{_l('使用系统集成的识别服务。0.1元/次，从企业账务中心直接扣费')}</div>
+        {ocrapitype !== '1' && (!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
+          <div className="mTop10 Gray_9e">
+            {_l('使用系统集成的识别服务，单次识别收费为%0/次，批量处理按照%0/附件数量计费，费用将直接从企业账务中心扣除。', _.get(md, 'global.PriceConfig.DataPipelinePrice'))}
+          </div>
         )}
       </SettingItem>
 

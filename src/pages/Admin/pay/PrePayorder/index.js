@@ -8,6 +8,7 @@ import cx from 'classnames';
 import { getOrderStatusInfo } from '../Merchant/config';
 import { formatDate } from '../util';
 import PayErrorIcon from '../components/PayErrorIcon';
+import { formatNumberThousand } from 'src/util';
 
 const DialogWrap = styled(Dialog)`
   text-align: center !important;
@@ -328,7 +329,7 @@ export default class PrePayOrder extends Component {
               <div className="flex pLeft25 amountWrap">
                 <div className="Font15 bold">
                   {_l('应付金额：')}
-                  <span className="amount Font40 ThemeColor">¥{amount <= 0 ? 0 : (amount || 0).toLocaleString()}</span>
+                  <span className="amount Font40 ThemeColor">¥{amount <= 0 ? 0 : formatNumberThousand(amount)}</span>
                 </div>
                 {expireTime === 0 ? (
                   <div className="Font15">
@@ -451,7 +452,7 @@ export default class PrePayOrder extends Component {
           <div className="preOrderWrap">
             <div className={cx('bold Font24', { mBottom16: isMobile })}>{_l('表单已提交，您还需支付')}</div>
             <div className="ThemeColor bold mBottom10 mTop10">
-              <span className="Font50 amount">¥ {amount <= 0 ? 0 : (amount || 0).toLocaleString()}</span>
+              <span className="Font50 amount">¥ {amount <= 0 ? 0 : formatNumberThousand(amount)}</span>
             </div>
             <div className={cx('mBottom24 ellipsis', isMobile ? 'Font17' : 'Font15')}>
               {_l('支付内容：%0', description)}

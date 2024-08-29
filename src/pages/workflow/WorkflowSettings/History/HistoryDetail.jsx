@@ -437,7 +437,10 @@ export default class HistoryDetail extends Component {
                           {flowNode.type !== 1
                             ? name
                             : resultTypeId
-                            ? resultTypeText[_.find(flowNode.flows, o => o.id === flowNode.flowIds[0]).resultTypeId]
+                            ? resultTypeText[
+                                (_.find(flowNode.flows, o => o.id === flowNode.flowIds[0]) || {}).resultTypeId ||
+                                  resultTypeId
+                              ]
                             : (_.find(flowNode.flows, o => flowNode.type === 1 && o.id === flowNode.flowIds[0]) || {})
                                 .name || _l('分支')}
                           {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}

@@ -1585,3 +1585,10 @@ export const dateConvertToServerZone = date => {
     .add(serverZone - userZone, 'm')
     .format('YYYY-MM-DD HH:mm:ss');
 };
+
+// 数值千分位显示
+export const formatNumberThousand = value => {
+  const content = (value || _.isNumber(value) ? value : '').toString();
+  const reg = content.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
+  return content.replace(reg, '$1,');
+};

@@ -4,7 +4,7 @@ import preall from 'src/common/preall';
 import DocumentTitle from 'react-document-title';
 import { LoadDiv, Button, Dialog, Qr } from 'ming-ui';
 import paymentAjax from 'src/api/payment';
-import { browserIsMobile, getRequest } from 'src/util';
+import { browserIsMobile, getRequest, formatNumberThousand } from 'src/util';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
@@ -235,7 +235,7 @@ export default class OrderPay extends Component {
             <Fragment>
               <div className="orderInfoItem">
                 <span>{_l('支付金额：')}</span>
-                <span>{_l('%0元', amount <= 0 ? 0 : (amount || 0).toLocaleString())}</span>
+                <span>{_l('%0元', amount <= 0 ? 0 : formatNumberThousand(amount))}</span>
               </div>
               <div className="orderInfoItem">
                 <span>{_l('支付内容：')}</span>
@@ -369,7 +369,7 @@ export default class OrderPay extends Component {
               )}
               <div className="ThemeColor mBottom24 TxtCenter">
                 <span className={cx('amount', isMobile ? 'Font50' : 'Font40')}>
-                  ¥ {amount <= 0 ? 0 : (amount || 0).toLocaleString()}
+                  ¥ {amount <= 0 ? 0 : formatNumberThousand(amount)}
                 </span>
               </div>
               <div className="flexRow mBottom20 Font15">

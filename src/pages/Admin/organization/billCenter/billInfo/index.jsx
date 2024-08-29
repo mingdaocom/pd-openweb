@@ -29,6 +29,7 @@ import PaginationWrap from '../../../components/PaginationWrap';
 import Common from '../common';
 import img from 'staticfiles/images/billinfo_system.png';
 import _ from 'lodash';
+import { formatNumberThousand } from 'src/util';
 
 export default function BillInfo({ match }) {
   const { 0: projectId } = _.get(match, 'params');
@@ -123,7 +124,6 @@ export default function BillInfo({ match }) {
       location.href = `/admin/valueaddservice/${projectId}`;
     }
   };
-  const getValue = value => (loading ? '-' : value);
   const renderRows = () => {
     const start = list.length ? pageSize * (pageIndex - 1) : 0;
     return _l('第 %0 - %1 条,共 %2 条', start + 1, start + list.length, allCount || 0);
@@ -158,7 +158,7 @@ export default function BillInfo({ match }) {
                 <div className={cx('type overflow_ellipsis item', { rechargeType: displayRecordType === 'recharge' })}>
                   {orderTypeText[orderRecordType[recordType]] + (recordTypeTitle ? '（' + recordTypeTitle + '）' : '')}
                 </div>
-                <div className={cx('amount item', { isPositive: price > 0 })}>{price}</div>
+                <div className={cx('amount item', { isPositive: price > 0 })}>{formatNumberThousand(price)}</div>
                 {isRechargeType ? (
                   <Fragment>
                     <div className="createPerson overflow_ellipsis item">
@@ -275,7 +275,7 @@ export default function BillInfo({ match }) {
             <i className="icon-sp_account_balance_wallet_white Font24" />
             <span>{_l('账户余额')}</span>
             <span className="moneySymbol Gray_75">(￥)</span>
-            <span className="balance Font24">{getValue((balance || 0).toLocaleString())}</span>
+            <span className="balance Font24">{loading ? '-' : formatNumberThousand(balance)}</span>
           </div>
         </div>
         <div className="listHeader">

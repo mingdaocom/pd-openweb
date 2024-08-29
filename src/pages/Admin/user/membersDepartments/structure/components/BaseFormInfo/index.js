@@ -460,7 +460,7 @@ export default class BaseFormInfo extends Component {
             listHeight={285}
             optionLabelProp="label"
             value={jobIds}
-            placeholder="请选择"
+            placeholder={_l('请选择')}
             suffixIcon={<Icon icon="arrow-down-border Font14" />}
             filterOption={() => true}
             notFoundContent={<span className="Gray_99">{_l('可直接输入创建新的职位')}</span>}
@@ -527,7 +527,7 @@ export default class BaseFormInfo extends Component {
             listHeight={285}
             optionLabelProp="label"
             value={workSiteId || undefined}
-            placeholder="请选择"
+            placeholder={_l('请选择')}
             suffixIcon={<Icon icon="arrow-down-border Font14" />}
             filterOption={() => true}
             notFoundContent={<span className="Gray_99">{_l('可直接输入创建新的工作地点')}</span>}

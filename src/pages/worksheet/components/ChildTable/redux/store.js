@@ -7,7 +7,7 @@ import { get } from 'lodash';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { isEmpty } from 'lodash';
-import { resetRows, setRowsFromStaticRows } from './actions';
+import { resetRows, clearRows, setRowsFromStaticRows } from './actions';
 import { getSubListError, getSubListUniqueError, parseAdvancedSetting } from 'worksheet/util';
 import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
 
@@ -131,6 +131,13 @@ export default function generateStore(
   };
   store.resetRows = () => {
     store.dispatch(resetRows());
+  };
+  store.setEmpty = () => {
+    store.dispatch(clearRows());
+    store.dispatch({
+      type: 'UPDATE_CELL_ERRORS',
+      value: {},
+    });
   };
   store.cancelChange = () => {
     store.dispatch(resetRows());

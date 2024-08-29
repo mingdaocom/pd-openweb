@@ -353,7 +353,7 @@ export default function Conditions(props) {
       ))}
       {(showQueryBtn || showExpand) && !!visibleItems.length && (
         <Operate
-          className={cx('buttons', operateIsNewLine ? 'operateIsNewLine' : '')}
+          className={cx('buttons flexCenter', operateIsNewLine ? 'operateIsNewLine' : '')}
           isConfigMode={isConfigMode}
           isFilterComp={isFilterComp}
         >

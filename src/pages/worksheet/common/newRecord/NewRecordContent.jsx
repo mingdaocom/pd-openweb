@@ -49,9 +49,9 @@ function focusInput(formcon) {
   if (!formcon) {
     return;
   }
-  const $firstText = formcon.querySelector(
-    '.customFieldsContainer .customFormItem:first-child .customFormTextareaBox input.smallInput',
-  );
+  const $firstText = formcon
+    .querySelector('.customFieldsContainer')
+    .querySelector('.customFormItem:first-child .customFormTextareaBox input.smallInput');
   if ($firstText) {
     $firstText.click();
   }

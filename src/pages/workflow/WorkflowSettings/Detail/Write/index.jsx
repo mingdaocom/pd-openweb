@@ -374,7 +374,12 @@ export default class Write extends Component {
                   <EmailApproval
                     {...this.props}
                     title={_l('启用邮件通知')}
-                    desc={md.global.Config.IsPlatformLocal ? _l('启用后，待办消息同时会以邮件的形式发送给相关负责人；邮件0.03元/封，自动从账务中心扣费') : _l('启用后，待办消息同时会以邮件的形式发送给相关负责人')}
+                    desc={
+                      <span>
+                        {_l('启用后，待办消息同时会以邮件的形式发送给相关负责人。')}
+                        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && _l('邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
+                      </span>
+                    }
                     flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
                     updateSource={obj => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj)}
                   />

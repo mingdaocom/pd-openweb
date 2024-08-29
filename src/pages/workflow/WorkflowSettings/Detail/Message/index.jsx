@@ -164,20 +164,17 @@ export default class Message extends Component {
 
     return (
       <Fragment>
-        {md.global.Config.IsPlatformLocal && (
-          <div className="Gray_75 workflowDetailDesc">
+        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && <div className="Gray_75 workflowDetailDesc">
             <span className="TxtMiddle">
-              {_l(
-                '短信0.05元/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。暂不支持海外手机号。',
-              )}
+            {_l('短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。', _.get(md, 'global.PriceConfig.SmsPrice'))}
+            {!_.get(md, 'global.Config.IsLocal') && _l('目前仅支持中国大陆手机号。')}
             </span>
             <Support
               type={3}
               href="https://help.mingdao.com/workflow/sms-failure"
               text={<span className="ThemeColor3 ThemeHoverColor2">{_l('收不到短信？')}</span>}
             />
-          </div>
-        )}
+        </div>}
         <div className="mTop20 bold">{_l('发送给')}</div>
 
         <Member
@@ -501,13 +498,13 @@ export default class Message extends Component {
         <div className="Font18 bold mTop20">{isSelectNewTpl ? _l('修改模板内容') : _l('创建新模板')}</div>
         <div className="bold mTop20">{_l('短信签名')}</div>
         <div className="Gray_75 mTop10">
-          {_l('请谨慎填写您的组织简称、网站名、品牌名，2-8个汉字。如签名不符合规范，将会被运营商拦截。')}
+          {_l('请谨慎填写您的组织简称、网站名、品牌名，2-12个汉字。如签名不符合规范，将会被运营商拦截。')}
         </div>
 
         <div className="mTop10 relative flexRow" style={{ width: 150 }}>
           <input
             type="text"
-            maxLength={8}
+            maxLength={12}
             placeholder={_l('请输入签名')}
             className="ThemeBorderColor3 actionControlBox flex pLeft10 pRight10 pTop0 pBottom0"
             value={sign}

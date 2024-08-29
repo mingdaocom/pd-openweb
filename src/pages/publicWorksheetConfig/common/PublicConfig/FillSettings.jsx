@@ -44,15 +44,15 @@ export default function FillSettings(props) {
           <div className="Gray_9e Font12 mBottom20">
             <div>{_l('自定义签名仅支持国内号码')}</div>
             <div className="mTop8 ">
-              {_l('请谨慎填写您的组织简称、网站名、品牌名，2-8个汉字。如签名不符合规范，将会被运营商拦截')}
+              {_l('请谨慎填写您的组织简称、网站名、品牌名，2-12个汉字。如签名不符合规范，将会被运营商拦截')}
             </div>
           </div>
-          <input maxLength={8} className="ming Input w100" defaultValue={smsSignature} ref={inputRef} />
+          <input maxLength={12} className="ming Input w100" defaultValue={smsSignature} ref={inputRef} />
         </Fragment>
       ),
       onOk: () => {
-        if (!/^[a-zA-z\u4e00-\u9fa5]{2,8}$/.test(inputRef.current.value)) {
-          alert(_l('签名需要控制在2-8个中英文字符'), 2);
+        if (!/^[a-zA-z\u4e00-\u9fa5]{2,12}$/.test(inputRef.current.value)) {
+          alert(_l('签名需要控制在2-12个中英文字符'), 2);
           return false;
         } else {
           setState({ smsSignature: inputRef.current.value || smsSignature });
@@ -78,7 +78,7 @@ export default function FillSettings(props) {
                 checked={smsVerification}
                 onClick={checked => setState({ smsVerification: !checked })}
                 name={_l('手机号短信验证')}
-                tip={md.global.Config.IsPlatformLocal ? _l('对填写的手机号字段进行短信验证，以确保为本人有效手机号。验证码短信0.05元每条，从账户余额扣费，余额不足时无法获取验证码。') : _l('对填写的手机号字段进行短信验证，以确保为本人有效手机号。')}
+                tip={_l('对填写的手机号字段进行短信验证，以确保为本人有效手机号。') + ((!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) ? _l('验证码短信%0每条，自动从企业账户扣除，余额不足时无法获取验证码。', _.get(md, 'global.PriceConfig.SmsPrice')): '')}
               />
             </div>
             {smsVerification && (

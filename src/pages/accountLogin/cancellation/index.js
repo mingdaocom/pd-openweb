@@ -59,7 +59,7 @@ export default class Cancellation extends Component {
           this.setState(
             {
               step: 3,
-              createTime: res.createTime,
+              createTime: (res || {}).createTime,
               createStateTime,
               overdueDiff: moment(createStateTime).add(5, 'm').diff(moment(), 's'),
               loading: false,

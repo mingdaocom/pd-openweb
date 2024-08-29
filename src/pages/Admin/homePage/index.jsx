@@ -6,7 +6,7 @@ import processVersionAjax from 'src/pages/workflow/api/processVersion';
 import { Modal, Button, Progress } from 'antd';
 import { QUICK_ENTRY_CONFIG, USER_COUNT, ITEM_COUNT, UPLOAD_COUNT, formatFileSize, formatValue } from './config';
 import moment from 'moment';
-import { getCurrentProject, getFeatureStatus } from 'src/util';
+import { getCurrentProject, getFeatureStatus, formatNumberThousand } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
 import InstallDialog from './installDialog';
 import { Support, Tooltip, Icon } from 'ming-ui';
@@ -326,7 +326,7 @@ export default function HomePage({ match, location: routerLocation }) {
                 <div className="accountInfo">
                   <i className="icon-sp_account_balance_wallet_white" />
                   <span>{_l('当前账户余额 (￥)')}</span>
-                  <span className="balance">{getValue(data.balance || 0).toLocaleString()}</span>
+                  <span className="balance">{formatNumberThousand(data.balance)}</span>
                 </div>
               )}
               {/* {!isFree && !isTrial && (

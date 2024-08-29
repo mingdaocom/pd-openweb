@@ -2,7 +2,7 @@
 import cx from 'classnames';
 import postAjax from 'src/api/taskCenter';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import { htmlDecodeReg } from 'src/util';
+import { htmlDecodeReg, formatNumberThousand } from 'src/util';
 import './printTask.less';
 import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
@@ -113,8 +113,7 @@ export default class PrintTask extends Component {
     }
     // 数字 金额
     if (item.type === 6 || item.type === 8) {
-      const reg = item.value.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
-      return item.value.replace(reg, '$1,');
+      return formatNumberThousand(item.value);
     }
 
     return item.value;

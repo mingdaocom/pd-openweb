@@ -1,6 +1,6 @@
 import { formatFormulaDate, domFilterHtmlScript, getSelectedOptions, checkIsTextControl } from '../../util';
 import { RELATION_TYPE_NAME } from './enum';
-import { accMul, formatStrZero, toFixed, dateConvertToUserZone } from 'src/util';
+import { accMul, formatStrZero, toFixed, dateConvertToUserZone, formatNumberThousand } from 'src/util';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { getDateToEn, getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
@@ -91,10 +91,7 @@ export default function renderText(cell, options = {}) {
               ? cell.enumDefault !== 1
               : thousandth !== '1'
           ) {
-            value = (value || '').replace(
-              value.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g,
-              '$1,',
-            );
+            value = formatNumberThousand(value);
           }
         }
         // 兼容百分比进度没有百分比符号

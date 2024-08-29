@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { toFixed } from 'src/util';
+import { toFixed, formatNumberThousand } from 'src/util';
 import { SUMMARY_TYPE, checkCellIsEmpty, controlIsNumber, getSummaryNameByType } from 'worksheet/util';
 import { arrayOf, bool, number, shape, string } from 'prop-types';
 
@@ -62,8 +62,7 @@ export default function SummaryContent({
     if (!_.isUndefined(summaryDataValue)) {
       if (_.includes([3, 4, 5, 6], summaryType)) {
         summaryDataValue = toFixed(summaryDataValue * (isPercent ? 100 : 1), control.dot);
-        const reg = summaryDataValue.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
-        summaryDataValue = summaryDataValue.replace(reg, '$1,');
+        summaryDataValue =formatNumberThousand(summaryDataValue);
       }
       if (isPercent) {
         summaryDataValue = summaryDataValue + '%';

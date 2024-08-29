@@ -117,30 +117,32 @@ function AddUserByTelDialog(props) {
       setLoading(false);
       return alert(type === 0 ? _l('请填写正确的手机号或姓名') : _l('请填写正确的邮箱或姓名'), 3);
     }
-    externalPortalAjax.addExAccounts({
-      isSendMsgs,
-      appId,
-      addExAccountInfos: data,
-    }).then(
-      res => {
-        const { existedData = [], success } = res;
-        setAddUserByTelDialog(false);
-        if (success) {
-          getUserList();
-        }
-        if (existedData.length > 0) {
-          return alert(_l('有%0个用户不能重复邀请', existedData.length), 3);
-        } else if (success) {
-          return alert(_l('邀请成功'));
-        } else if (!success) {
-          return alert(_l('邀请失败，请稍后再试'), 3);
-        }
-        setLoading(false);
-      },
-      () => {
-        setLoading(false);
-      },
-    );
+    externalPortalAjax
+      .addExAccounts({
+        isSendMsgs,
+        appId,
+        addExAccountInfos: data,
+      })
+      .then(
+        res => {
+          const { existedData = [], success } = res;
+          setAddUserByTelDialog(false);
+          if (success) {
+            getUserList();
+          }
+          if (existedData.length > 0) {
+            return alert(_l('有%0个用户不能重复邀请', existedData.length), 3);
+          } else if (success) {
+            return alert(_l('邀请成功'));
+          } else if (!success) {
+            return alert(_l('邀请失败，请稍后再试'), 3);
+          }
+          setLoading(false);
+        },
+        () => {
+          setLoading(false);
+        },
+      );
   };
   const addNew = () => {
     setList(list.concat({ phone: '', name: '', roleId: list[list.length - 1].roleId || roleId }));
@@ -175,13 +177,11 @@ function AddUserByTelDialog(props) {
             />
           );
         })}
-        {md.global.Config.IsPlatformLocal && (
-          <p className="mTop16">
-            {_l(
-              '短信0.05元/条、邮件0.03/封，自动从企业账户扣费，请保持企业账户余额充足，目前短信邀请外部用户仅支持大陆手机号',
-            )}
-          </p>
-        )}
+        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && <p className="mTop16">
+          {_l('短信%0/条，', _.get(md, 'global.PriceConfig.SmsPrice'))}
+          {_l('邮件%0/封，将自动从企业账户扣除，请确保账户余额充足。', _.get(md, 'global.PriceConfig.EmailPrice'))}
+          {!_.get(md, 'global.Config.IsLocal') && _l('目前仅支持中国大陆手机号。')}
+        </p>}
         <div className="list">
           {list.map((o, i) => {
             return (

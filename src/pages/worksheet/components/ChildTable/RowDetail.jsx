@@ -174,7 +174,7 @@ export default class RowDetail extends React.Component {
               }))
               .filter(c => !_.includes([34].concat(_.get(window, 'shareState.isPublicForm') ? [48] : []), c.type))}
             getMasterFormData={getMasterFormData}
-            flag={flag}
+            flag={isMobile ? Date.now() : flag}
             projectId={projectId}
             appId={appId}
             checkCellUnique={(...args) => handleUniqueValidate(...args, data.rowid)}

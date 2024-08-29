@@ -11,32 +11,40 @@ import { USER_LIST, SYSTEM_LIST } from 'src/pages/widgetConfig/widgetSetting/com
 
 const Wrapper = styled.div`
   margin-top: 8px;
-  .publishTip {
-    margin-left: 68px;
-    color: #9e9e9e;
-  }
-`;
+  display: table;
+  width: 100%;
 
-const FormItem = styled.div`
-  display: flex;
-  position: relative;
-  .labelText {
-    width: 52px;
-    line-height: 36px;
-    margin-right: 16px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-  .ming.Input {
-    font-size: 13px;
-  }
-  .requiredStar {
-    position: absolute;
-    left: -8px;
-    top: 10px;
-    color: #f00;
-    font-weight: bold;
+  .formItem {
+    display: table-row;
+    &:last-child {
+      .cell {
+        padding-bottom: 0 !important;
+      }
+    }
+
+    .cell {
+      display: table-cell;
+      padding-bottom: 24px;
+    }
+    .labelText {
+      position: relative;
+      line-height: 36px;
+      padding-right: 16px;
+      padding-left: 8px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      .requiredStar {
+        position: absolute;
+        left: 0;
+        top: 2px;
+        color: #f00;
+        font-weight: bold;
+      }
+    }
+    .ming.Input {
+      font-size: 13px;
+    }
   }
 `;
 
@@ -188,86 +196,98 @@ export default function ExternalLinkDialog(props) {
       onCancel={onCancel}
     >
       <Wrapper>
-        <FormItem className="mBottom24">
-          <span className="requiredStar">*</span>
-          <span className="labelText">{_l('应用名称')}</span>
-          <Input
-            manualRef={inputRef}
-            className="flex"
-            placeholder={_l('请输入')}
-            value={appInfo.name}
-            onChange={name => setAppInfo({ name })}
-          />
-        </FormItem>
-        <FormItem className="mBottom24">
-          <span className="requiredStar">*</span>
-          <span className="labelText">{_l('链接')}</span>
-          <CustomTagTextarea
-            className="flex"
-            placeholder={_l('输入完整链接，以http://或https://开头')}
-            renderTag={tag => {
-              const tagName = _.get(
-                _.find(USER_LIST.concat(SYSTEM_LIST), i => i.id === tag),
-                'text',
-              );
-              return <TagWrapper className="overflow_ellipsis">{tagName}</TagWrapper>;
-            }}
-            ref={tagTextAreaRef}
-            onChange={(err, value) => setAppInfo({ urlTemplate: value.trim() })}
-          />
-          <Trigger
-            action={['click']}
-            popupVisible={popupVisible}
-            onPopupVisibleChange={visible => setPopupVisible(visible)}
-            popupAlign={{
-              points: ['tr', 'br'],
-              offset: [0, 5],
-              overflow: { adjustX: true, adjustY: true },
-            }}
-            popup={
-              <PopupWrapper>
-                {LINK_PARA_FIELDS.map(({ type, title, fields }, index) => {
-                  return (
-                    <Fragment key={type}>
-                      <div className="title">{title}</div>
-                      {fields.map(({ text, value }) => (
-                        <div
-                          key={value}
-                          className="itemText"
-                          onClick={() => tagTextAreaRef && tagTextAreaRef.current.insertColumnTag(value)}
-                        >
-                          {text}
-                        </div>
-                      ))}
-                      {index === 0 && <div className="divider" />}
-                    </Fragment>
-                  );
-                })}
-              </PopupWrapper>
-            }
-          >
-            <Tooltip text={_l('使用动态参数')} popupPlacement="bottom">
-              <LinkIcon>
-                <Icon icon="workflow_other" />
-              </LinkIcon>
-            </Tooltip>
-          </Trigger>
-        </FormItem>
-        <FormItem>
-          <span className="labelText">{_l('发布到')}</span>
-          <div className="flexRow alignItemsCenter">
-            {PUBLISH_CONFIG_OPTIONS.map((item, index) => (
-              <Checkbox
-                key={index}
-                className="pRight24"
-                checked={!appInfo[item.key]}
-                onClick={() => setAppInfo({ [item.key]: !appInfo[item.key] })}
-                text={item.text}
-              />
-            ))}
+        <div className="formItem">
+          <div className="labelText cell">
+            <span className="requiredStar">*</span>
+            <span>{_l('应用名称')}</span>
           </div>
-        </FormItem>
-        <div className="publishTip">{_l('设置用户在哪些设备环境下可见此应用，管理员在PC端始终可见')}</div>
+          <div className="cell w100">
+            <Input
+              manualRef={inputRef}
+              className="w100"
+              placeholder={_l('请输入')}
+              value={appInfo.name}
+              onChange={name => setAppInfo({ name })}
+            />
+          </div>
+        </div>
+        <div className="formItem">
+          <div className="labelText cell">
+            <span className="requiredStar">*</span>
+            <span>{_l('链接')}</span>
+          </div>
+          <div className="cell">
+            <div className="flexRow">
+              <CustomTagTextarea
+                className="flex"
+                placeholder={_l('输入完整链接，以http://或https://开头')}
+                renderTag={tag => {
+                  const tagName = _.get(
+                    _.find(USER_LIST.concat(SYSTEM_LIST), i => i.id === tag),
+                    'text',
+                  );
+                  return <TagWrapper className="overflow_ellipsis">{tagName}</TagWrapper>;
+                }}
+                ref={tagTextAreaRef}
+                onChange={(err, value) => setAppInfo({ urlTemplate: value.trim() })}
+              />
+              <Trigger
+                action={['click']}
+                popupVisible={popupVisible}
+                onPopupVisibleChange={visible => setPopupVisible(visible)}
+                popupAlign={{
+                  points: ['tr', 'br'],
+                  offset: [0, 5],
+                  overflow: { adjustX: true, adjustY: true },
+                }}
+                popup={
+                  <PopupWrapper>
+                    {LINK_PARA_FIELDS.map(({ type, title, fields }, index) => {
+                      return (
+                        <Fragment key={type}>
+                          <div className="title">{title}</div>
+                          {fields.map(({ text, value }) => (
+                            <div
+                              key={value}
+                              className="itemText"
+                              onClick={() => tagTextAreaRef && tagTextAreaRef.current.insertColumnTag(value)}
+                            >
+                              {text}
+                            </div>
+                          ))}
+                          {index === 0 && <div className="divider" />}
+                        </Fragment>
+                      );
+                    })}
+                  </PopupWrapper>
+                }
+              >
+                <Tooltip text={_l('使用动态参数')} popupPlacement="bottom">
+                  <LinkIcon>
+                    <Icon icon="workflow_other" />
+                  </LinkIcon>
+                </Tooltip>
+              </Trigger>
+            </div>
+          </div>
+        </div>
+        <div className="formItem">
+          <div className="labelText cell">{_l('发布到')}</div>
+          <div className="cell">
+            <div className="flexRow alignItemsCenter">
+              {PUBLISH_CONFIG_OPTIONS.map((item, index) => (
+                <Checkbox
+                  key={index}
+                  className="pRight24"
+                  checked={!appInfo[item.key]}
+                  onClick={() => setAppInfo({ [item.key]: !appInfo[item.key] })}
+                  text={item.text}
+                />
+              ))}
+            </div>
+            <div className="Gray_9e  mTop8">{_l('设置用户在哪些设备环境下可见此应用，管理员在PC端始终可见')}</div>
+          </div>
+        </div>
       </Wrapper>
     </Dialog>
   );

@@ -431,16 +431,13 @@ export default class AdminWorkflowList extends Component {
             ))}
           </div>
           <div className="pre">
-            <div
-              className={cx('refresh Hand Font20 Normal', { mRight24: activeTab === 'workflowList' })}
-              onClick={this.refresh}
-            >
+            <div className="refresh Hand Font20 Normal" onClick={this.refresh}>
               <Icon icon="task-later" />
             </div>
 
-            {activeTab === 'workflowList' && (
+            {md.global.SysSettings.enableSmsCustomContent && activeTab === 'workflowList' && (
               <div
-                className="pointer ThemeHoverColor3 Gray_75 Font13 Normal"
+                className="pointer ThemeHoverColor3 Gray_75 Font13 Normal mLeft24"
                 onClick={() => this.setState({ msgVisible: true })}
               >
                 <Icon icon="workflow_sms" />

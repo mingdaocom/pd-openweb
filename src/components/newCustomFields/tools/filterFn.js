@@ -318,7 +318,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
       ) {
         const val = currentControl.value ? safeParse(currentControl.value) : currentControl.value;
         compareValues = typeof val === 'object' ? val : [currentControl.value];
-      } else if (_.includes([24, 25, 26, 27, 28, 51, 52], filterType) && _.includes([29], dataType)) {
+      } else if (_.includes([24, 25, 26, 27, 28, 51, 52], filterType) && _.includes([29, 35], dataType)) {
         const val = currentControl.value ? safeParse(currentControl.value) : currentControl.value;
         compareValues = typeof val === 'object' ? val : [currentControl.value];
       } else {

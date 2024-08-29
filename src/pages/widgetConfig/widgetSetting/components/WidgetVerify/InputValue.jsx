@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Checkbox, Input } from 'ming-ui';
 import _ from 'lodash';
+import { formatNumberThousand } from 'src/util';
 
 export default function InputValue({ type, value, className, onChange, onBlur, placeholder }) {
   const [isEditing, setEditing] = useState(false);
@@ -32,8 +33,7 @@ export default function InputValue({ type, value, className, onChange, onBlur, p
     } else {
       formatNumber = String(parseFloat(value));
     }
-    const reg = formatNumber.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
-    const dealValue = formatNumber.replace(reg, '$1,');
+    const dealValue = formatNumberThousand(formatNumber);
     return dealValue;
   };
   return isEditing ? (

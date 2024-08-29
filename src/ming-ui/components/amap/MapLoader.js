@@ -3,22 +3,24 @@
 import global from 'src/api/global';
 
 const getMapData = () => {
+  let mapInfo;
   const mapData = window.localStorage.getItem('MapData');
-  if (!mapData) {
+  // 私有实时调接口
+  if (!mapData || md.global.Config.IsLocal) {
     const data = global.getSystemConfiguration({}, { ajaxOptions: { sync: true } });
     safeLocalStorageSetItem('MapData', JSON.stringify(data.amap));
-    return data.amap;
+    mapInfo = data.amap;
+  } else {
+    mapInfo = safeParse(mapData);
   }
-  return safeParse(mapData);
+  window._AMapSecurityConfig = {
+    securityJsCode: _.get(mapInfo, 'secret'),
+  };
+
+  return mapInfo;
 };
 
 export default class MapLoader {
-  constructor() {
-    const { secret } = getMapData() || {};
-    window._AMapSecurityConfig = {
-      securityJsCode: secret,
-    };
-  }
   loadJs() {
     return new Promise((resolve, reject) => {
       // 获取地图数据

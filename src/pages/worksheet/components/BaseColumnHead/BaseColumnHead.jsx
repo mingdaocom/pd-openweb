@@ -136,9 +136,9 @@ export default class BaseColumnHead extends React.Component {
     const { isAsc, changeSort } = this.props;
     let newSortType;
     if (_.isUndefined(isAsc)) {
-      newSortType = true;
-    } else if (isAsc === true) {
       newSortType = false;
+    } else if (isAsc === false) {
+      newSortType = true;
     }
     changeSort(newSortType);
   }

@@ -7,6 +7,7 @@ import { Icon } from 'ming-ui';
 import MailSettingsDialog from 'src/pages/Role/PortalCon/components/MailSettingsDialog';
 import SMSSettingsDialog from 'src/pages/Role/PortalCon/components/SMSSettingsDialog';
 import { getCurrentProject } from 'src/util';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   .warnTxt {
@@ -108,22 +109,18 @@ export default function TextMessage(props) {
         )}
         <h6 className="Font16 Gray Bold mBottom0">{_l('短信通知')}</h6>
         <div className="mTop6 Gray_9e">
-          { md.global.Config.IsPlatformLocal ? _l(
-            '注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义；针对相应的短信会进行收费收费标准：短信0.05元/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。',
-          ) : _l(
-            '注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义。',
-          )}
+          {_l('注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义。')}
+          {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && _l('短信收费标准：短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。', _.get(md, 'global.PriceConfig.SmsPrice'))}
         </div>
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('签名')}</h6>
         <div className="mTop6 Gray_9e">
-          {_l(
-            '请谨慎填写您的组织简称、网站名、品牌名，2-8个汉字。如签名不符合规范，将会被运营商拦截。此签名适用于外部门户的短信场景:外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝)',
-          )}
+          {_l('请谨慎填写您的组织简称、网站名、品牌名，2-12个汉字。如签名不符合规范，将会被运营商拦截。此签名适用于外部门户的短信场景：外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝)')}
         </div>
         <input
           type="text"
           className="sign mTop6"
           placeholder={_l('请输入签名')}
+          maxLength={12}
           value={sign}
           onFocus={() => {
             preSign = sign;
@@ -141,16 +138,6 @@ export default function TextMessage(props) {
             }
             if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(e.target.value)) {
               return alert(_l('只支持中英文'), 3);
-            }
-            if (getStringBytes(e.target.value) > 16) {
-              setSign(getStrBytesLength(e.target.value));
-              onChangePortalSet({
-                portalSetModel: {
-                  ...portalSetModel,
-                  smsSignature: getStrBytesLength(e.target.value),
-                },
-              });
-              return alert(_l('最多只能16个字节'), 3);
             }
           }}
           onChange={e => {
@@ -177,11 +164,8 @@ export default function TextMessage(props) {
         <div className="line mTop24"></div>
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('邮件通知')}</h6>
         <div className="mTop6 Gray_9e">
-          {md.global.Config.IsPlatformLocal ? _l(
-            '注册开启审核后，审核结果(通过、拒绝)会邮件告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对邮件内容自定义；针对相应的邮件会进行收费收费标准：邮件0.03元/封，自动从企业账务中心扣费。',
-          ) : _l(
-            '注册开启审核后，审核结果(通过、拒绝)会邮件告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对邮件内容自定义。',
-          )}
+          {_l('注册开启审核后，审核结果(通过、拒绝)会邮件告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对邮件内容自定义。')}
+          {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && _l('针对相应的邮件会进行收费收费标准：邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
         </div>
 
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('发件人名称')}</h6>

@@ -30,6 +30,17 @@ export const resetRows = () => {
   };
 };
 
+export const clearRows = () => {
+  return (dispatch, getState) => {
+    const { base = {} } = getState();
+    dispatch(initRows([]));
+    if (base.reset && !base.loaded) {
+      dispatch({ type: 'RESET' });
+    }
+    return Promise.resolve();
+  };
+};
+
 export const updateCellErrors = errors => {
   return {
     type: 'UPDATE_CELL_ERRORS',

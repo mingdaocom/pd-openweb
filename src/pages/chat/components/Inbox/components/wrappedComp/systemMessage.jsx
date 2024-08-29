@@ -13,7 +13,6 @@ import { navigateTo } from 'src/router/navigateTo';
 import xss from 'xss';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import TaskCenterController from 'src/api/taskCenter';
-import worksheetAjax from 'src/api/worksheet';
 import { addBehaviorLog, dateConvertToUserZone } from 'src/util';
 import { SvgIcon } from 'ming-ui';
 import { MSGTYPES } from '../../constants';
@@ -98,14 +97,6 @@ export default class SystemMessage extends PureComponent {
           evt.stopPropagation();
           const ids = href.slice(href.indexOf('workflowinstance') + 17).split('/');
           const div = document.createElement('div');
-          worksheetAjax
-            .getWorkItem({
-              instanceId: ids[0],
-              workId: ids[1],
-            })
-            .then(res => {
-              addBehaviorLog('worksheetRecord', res.worksheetId, { rowId: res.rowId }); // 埋点
-            });
 
           const root = createRoot(div);
 

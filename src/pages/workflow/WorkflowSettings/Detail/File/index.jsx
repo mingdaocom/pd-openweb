@@ -186,11 +186,9 @@ export default class File extends Component {
           />
         </div>
         {!data.wpsConfig && <div className="mTop5 Gray_75">{_l('未配置 PDF 转换服务')}</div>}
-        {md.global.Config.IsPlatformLocal && data.pdf && (
+        {(!md.global.Config.IsLocal || md.global.Config.IsPlatformLocal) && data.pdf && (
           <div className="mTop5 Gray_75">
-            {_l('生成PDF文件是由WPS提供的第三方服务，收费标准为')}
-            <span style={{ color: '#ffa340' }}>{_l('每个文件0.15元')}</span>
-            {_l('，转换失败的文件将不收取费用。')}
+            {_l('生成PDF文件是由WPS提供的第三方服务，收费标准为%0/次，转换失败的文件将不收取费用。', _.get(md, 'global.PriceConfig.PdfPrice'))}
           </div>
         )}
       </Fragment>

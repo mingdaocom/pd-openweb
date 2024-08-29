@@ -5,6 +5,7 @@ import { Linkify } from 'ming-ui';
 import { formatStrZero } from 'src/util';
 import _ from 'lodash';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { formatNumberThousand } from 'src/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -47,10 +48,7 @@ export default class Widgets extends Component {
       }
 
       if (advancedSetting.thousandth !== '1') {
-        content = content.replace(
-          content.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g,
-          '$1,',
-        );
+        content = formatNumberThousand(content);
       }
 
       content = (prefix ? `${prefix} ` : '') + content + (suffix ? ` ${suffix}` : '');

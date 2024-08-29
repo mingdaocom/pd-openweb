@@ -1432,6 +1432,9 @@ export default class DataFormat {
                 }
               } else if (value === 'deleteRowIds: all') {
                 item.store.dispatch({
+                  type: 'DELETE_ALL',
+                });
+                item.store.dispatch({
                   type: 'UPDATE_RECORDS',
                   records: [],
                 });

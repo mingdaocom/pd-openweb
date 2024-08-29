@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { Link } from 'react-router-dom';
-import { Switch, Icon, Button, LoadDiv, Radio } from 'ming-ui';
+import { Switch, Icon, Button, LoadDiv, Radio, Support } from 'ming-ui';
 import Ajax from 'src/api/workWeiXin';
 import IntegrationSetPssword from '../../../components/IntegrationSetPssword';
 import IntegrationSync from '../components/IntegrationSync';
@@ -464,15 +464,8 @@ export default class Ding extends React.Component {
                     </span>
                     <span className="Block Gray">
                       <span className="Bold">{_l('注意：')}</span>
-                      <span
-                        dangerouslySetInnerHTML={{
-                          __html: _l(
-                            '此功能需要在钉钉中开启添加待办任务接口权限。%0如何开启？%1',
-                            '<a href="https://help.mingdao.com/dingtalk/integration-guide#pending" target="_blank">',
-                            '</a>',
-                          ),
-                        }}
-                      ></span>
+                      <span>此功能需要在钉钉中开启添加待办任务接口权限。</span>
+                      <Support text={_l('如何开启？')} type={3} href="https://help.mingdao.com/dingtalk/integration-guide#pending" />
                     </span>
                   </div>
                 </div>

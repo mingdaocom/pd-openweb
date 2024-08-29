@@ -28,6 +28,8 @@ export default function WidgetBase(props) {
     setActiveWidget({ ...data, size: value });
   };
 
+  if (_.isEmpty(data)) return null;
+
   return (
     <Fragment>
       {/**提示文案 */}

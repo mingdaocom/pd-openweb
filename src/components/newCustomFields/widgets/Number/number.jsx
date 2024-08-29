@@ -1,7 +1,16 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { accMul, accDiv, accAdd, accSub, toFixed, formatStrZero, browserIsMobile } from 'src/util';
+import {
+  accMul,
+  accDiv,
+  accAdd,
+  accSub,
+  toFixed,
+  formatStrZero,
+  browserIsMobile,
+  formatNumberThousand,
+} from 'src/util';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
@@ -185,8 +194,7 @@ export default class Widgets extends Component {
       } else {
         // 数值兼容老的千分位配置enumDefault
         if (type !== 6 || _.isUndefined(thousandth) ? enumDefault !== 1 : thousandth !== '1') {
-          const reg = value.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
-          value = value.replace(reg, '$1,');
+          value = formatNumberThousand(value);
         }
       }
 

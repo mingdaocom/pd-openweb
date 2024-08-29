@@ -11,7 +11,6 @@ import _ from 'lodash';
 
 const SetInitialPassword = styled.div`
   padding: 20px 0;
-  margin: 0 25px;
   border-bottom: 1px solid #eaeaea;
   .syncBox {
     max-width: 637px;

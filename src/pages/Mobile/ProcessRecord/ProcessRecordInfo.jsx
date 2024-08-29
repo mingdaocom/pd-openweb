@@ -10,9 +10,8 @@ import { Loading, Abnormal } from 'mobile/components/RecordInfo/RecordState';
 import WorkflowStepItem from 'mobile/ProcessRecord/WorkflowStepItem';
 import FixedPage from 'src/pages/Mobile/App/FixedPage';
 import Footer from './Footer';
-import {
-  ACTION_TYPES,
-} from 'src/pages/workflow/components/ExecDialog/config';
+import { ACTION_TYPES } from 'src/pages/workflow/components/ExecDialog/config';
+import { addBehaviorLog } from 'src/util';
 
 export default class ProcessRecordInfo extends Component {
   constructor(props) {
@@ -48,6 +47,7 @@ export default class ProcessRecordInfo extends Component {
         homeAppApi.getApp({
           appId: _.get(instance, 'app.id')
         }).then(data => {
+          addBehaviorLog('worksheetRecord', workItem.worksheetId, { rowId: workItem.rowId });
           this.setState({
             loading: false,
             appInfo: data,

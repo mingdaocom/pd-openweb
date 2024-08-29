@@ -341,7 +341,7 @@ export default function Subtotal(props) {
               <FilterItemTexts
                 {...props}
                 loading={loading}
-                controls={availableControls}
+                controls={filterColumns}
                 editFn={() => setVisible(true)}
               />
             )}

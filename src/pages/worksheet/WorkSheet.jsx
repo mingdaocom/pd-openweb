@@ -18,7 +18,7 @@ import homeAppApi from 'src/api/homeApp';
 import UnNormal from 'worksheet/views/components/UnNormal';
 import { getSheetListFirstId, findSheet, moveSheetCache } from './util';
 import './worksheet.less';
-import _ from 'lodash';
+import _, { get, includes } from 'lodash';
 
 let request = null;
 
