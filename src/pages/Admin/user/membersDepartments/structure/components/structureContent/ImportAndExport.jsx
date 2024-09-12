@@ -10,7 +10,7 @@ import { captcha, dialogSelectDept } from 'ming-ui/functions';
 import UploadFile from './UploadFile';
 import ImportResulFailtDetail from './ImportResulFailtDetail';
 import { getCurrentProject } from 'src/util';
-import { getPssId } from 'src/util/pssId';
+import { downloadFile } from '../../../../../util';
 import styled from 'styled-components';
 import _ from 'lodash';
 import moment from 'moment';
@@ -94,30 +94,20 @@ class ImportAndExport extends Component {
   };
 
   exportUsers = (projectId, departmentIds = []) => {
+    const url = `${md.global.Config.AjaxApiUrl}download/exportProjectUserList`;
     let projectName = getCurrentProject(projectId, true).companyName;
-    fetch(`${md.global.Config.AjaxApiUrl}download/exportProjectUserList`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        Authorization: `md_pss_id ${getPssId()}`,
-      },
-      body: JSON.stringify({
+    let date = moment().format('YYYYMMDDHHmmss');
+    const fileName = `${projectName}_${date}` + '.xlsx';
+
+    downloadFile({
+      url,
+      params: {
         userStatus: '1',
         projectId,
         departmentIds: departmentIds.join(','),
-      }),
-    })
-      .then(response => response.blob())
-      .then(blob => {
-        let date = moment().format('YYYYMMDDHHmmss');
-        const fileName = `${projectName}_${date}` + '.xlsx';
-        const link = document.createElement('a');
-
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-      });
+      },
+      exportFileName: fileName,
+    });
   };
 
   changeShowList = flag => {

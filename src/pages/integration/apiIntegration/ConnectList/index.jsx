@@ -176,16 +176,13 @@ function Con(props) {
     });
   };
 
-  const handleSearch = useCallback(
-    _.throttle(v => {
-      setState({
-        keywords: v,
-        pageIndex: 1,
-        noMore: false,
-      });
-    }, 500),
-    [],
-  );
+  const handleSearch = _.debounce(v => {
+    setState({
+      keywords: v,
+      pageIndex: 1,
+      noMore: false,
+    });
+  }, 500);
 
   const onScrollEnd = () => {
     if (loading || noMore) {
@@ -218,12 +215,11 @@ function Con(props) {
   }, [hasChange]);
 
   const listConRender = () => {
-    if (!(listData.length <= 0 && !keywords))
-      return (
-        <React.Fragment>
-          <WrapListHeader className={cx('headCon flexRow', { pBottom12: !hasManageAuth })}>
-            <div className="flex flexRow">
-              <SearchInput
+    return (
+      <React.Fragment>
+        <WrapListHeader className={cx('headCon flexRow', { pBottom12: !hasManageAuth })}>
+          <div className="flex flexRow">
+          <SearchInput
                 className="searchCon"
                 placeholder={_l('搜索连接')}
                 value={keywords}
@@ -233,54 +229,54 @@ function Con(props) {
               1、我的连接即拥有者包含我的连接
               2、仅对组织应用管理员展示
               3、筛选后，「我的连接」后的数量也需变化 */}
-              {hasManageAuth && (
-                <Dropdown
-                  value={searchType}
-                  className="dropSearchType mLeft18"
-                  onChange={value => {
-                    if (searchType === value) {
-                      return;
-                    }
-                    setState({
-                      searchType: value,
-                      pageIndex: 1,
-                      hasChange: hasChange + 1,
-                    });
-                  }}
-                  border
-                  isAppendToBody
-                  data={[
-                    {
-                      text: _l('所有连接'),
-                      value: 0,
-                    },
-                    {
-                      text: _l('我的连接'),
-                      value: 1,
-                    },
-                  ]}
-                />
-              )}
-            </div>
-            {featureType && canCreateAPIConnect && (
-              <span
-                className="addConnect Bold Hand"
-                onClick={() => {
-                  const projectId = props.currentProjectId;
-                  if (featureType === '2') {
-                    buriedUpgradeVersionDialog(projectId, VersionProductType.apiIntergration);
-                  } else {
-                    setState({ showConnect: true, connectData: null });
+            {hasManageAuth && (
+              <Dropdown
+                value={searchType}
+                className="dropSearchType mLeft18"
+                onChange={value => {
+                  if (searchType === value) {
+                    return;
                   }
+                  setState({
+                    searchType: value,
+                    pageIndex: 1,
+                    hasChange: hasChange + 1,
+                  });
                 }}
-              >
-                <i className="icon-add" />
-                {_l('自定义连接')}
-              </span>
+                border
+                isAppendToBody
+                data={[
+                  {
+                    text: _l('所有连接'),
+                    value: 0,
+                  },
+                  {
+                    text: _l('我的连接'),
+                    value: 1,
+                  },
+                ]}
+              />
             )}
-          </WrapListHeader>
-        </React.Fragment>
-      );
+          </div>
+          {featureType && canCreateAPIConnect && (
+            <span
+              className="addConnect Bold Hand"
+              onClick={() => {
+                const projectId = props.currentProjectId;
+                if (featureType === '2') {
+                  buriedUpgradeVersionDialog(projectId, VersionProductType.apiIntergration);
+                } else {
+                  setState({ showConnect: true, connectData: null });
+                }
+              }}
+            >
+              <i className="icon-add" />
+              {_l('自定义连接')}
+            </span>
+          )}
+        </WrapListHeader>
+      </React.Fragment>
+    );
   };
 
   const renderCon = () => {

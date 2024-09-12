@@ -364,16 +364,12 @@ export default class CellEdit extends Component {
       const mapDestPk = fieldsMapping.filter(o => _.get(o, 'destField.isPk') && _.get(o, 'destField.isCheck'));
       if (
         _.get(node, 'nodeConfig.config.dsType') !== DATABASE_TYPE.APPLICATION_WORKSHEET &&
-        (mapDestPk.length <= 0 || fileList.filter(o => o.isPk).length > mapDestPk.length)
+        (mapDestPk.length <= 0 || (fileList || []).filter(o => o.isPk).length > mapDestPk.length)
       ) {
         disable = true;
         txt = _l('目的地主键未设置相关映射');
       }
-      if (
-        fieldsMapping.filter(
-          o => _.get(o, 'sourceField.isPk') && _.get(o, 'destField.id') && _.get(o, 'destField.isCheck'),
-        ).length <= 0
-      ) {
+      if (fieldsMapping.filter(o => _.get(o, 'sourceField.isPk') && _.get(o, 'destField.isCheck')).length <= 0) {
         //主键未设置相关映射 源字段为主键，且未设置映射
         disable = true;
         txt = _l('主键未设置相关映射');

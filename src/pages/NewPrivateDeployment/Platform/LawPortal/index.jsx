@@ -8,13 +8,19 @@ import { Icon, LoadDiv, Switch, Dialog } from 'ming-ui';
 import { Button } from 'antd';
 import './index.less';
 
+export const translateNames = {
+  '服务协议': _l('服务协议'),
+  '隐私政策': _l('隐私政策'),
+  'Cookie政策': _l('Cookie政策'),
+};
+
 const LegalItem = ({ item, ...other }) => {
   const { onEditLegal, onRemoveLegal, onEditLegalStatus } = other;
   return (
     <div className="flexRow alignItemsCenter legalItem" key={item.legalId}>
       <div className="flexRow alignItemsCenter">
         <Icon className={cx('Font15 Gray_9e pointer', { Visibility: item.preset })} icon="drag" />
-        <div>{item.name}</div>
+        <div>{translateNames[item.name] || item.name}</div>
       </div>
       <div>{`/${item.key}`}</div>
       <div>

@@ -7,8 +7,8 @@ import PaginationWrap from '../../../../components/PaginationWrap';
 import './style.less';
 import Empty from '../../../../common/TableEmpty';
 import { getCurrentProject } from 'src/util';
-import { getPssId } from 'src/util/pssId';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import { downloadFile } from '../../../../util';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -102,32 +102,19 @@ export default class ResignList extends React.Component {
       alert(_l('请选择用户导出'), 3);
       return;
     }
+    const url = `${md.global.Config.AjaxApiUrl}download/exportProjectUserList`;
+    let date = moment().format('YYYYMMDDHHmmss');
+    const fileName = `${date}` + '.xlsx';
 
-    var url = `${md.global.Config.AjaxApiUrl}download/exportProjectUserList`;
-
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        Authorization: `md_pss_id ${getPssId()}`,
-      },
-      body: JSON.stringify({
+    downloadFile({
+      url,
+      params: {
         userStatus: '4',
         projectId,
         accountIds: accountIds.join(','),
-      }),
-    })
-      .then(response => response.blob())
-      .then(blob => {
-        let date = moment().format('YYYYMMDDHHmmss');
-        const fileName = `${date}` + '.xlsx';
-        const link = document.createElement('a');
-
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-      });
+      },
+      exportFileName: fileName,
+    });
   };
 
   recovery(accountId, fullName) {

@@ -63,18 +63,19 @@ class PrintForm extends React.Component {
     };
   }
   componentWillMount = () => {
-    this.getApp(() => {
-      this.getParamFn();
-    });
+    this.getApp(() => this.getParamFn());
+    window.addEventListener('keydown', this.handleKeyDown);
   };
   componentDidMount() {
     $('html').addClass('printPage');
   }
   componentWillUnmount() {
     $('html').removeClass('printPage');
+    window.removeEventListener('keydown', this.handleKeyDown);
     const { match = {} } = this.props;
     let { params } = match;
     const { key } = params;
+
     if (key) {
       webCacheAjax.clear({
         key: `${key}`,
@@ -182,6 +183,12 @@ class PrintForm extends React.Component {
         }
       },
     );
+  };
+
+  handleKeyDown = evt => {
+    if (evt.key === 'Escape') {
+      this.setState({ showPdf: false, showHeader: true });
+    }
   };
 
   getDownLoadUrl = async downLoadUrl => {
@@ -728,7 +735,11 @@ class PrintForm extends React.Component {
             </React.Fragment>
           ) : (
             <React.Fragment>
-              {ajaxUrlStr === 'error' ? <div className='icon-error_outline Red Font64'></div> : <div className="exportPng"></div>}
+              {ajaxUrlStr === 'error' ? (
+                <div className="icon-error_outline Red Font64"></div>
+              ) : (
+                <div className="exportPng" key="printExportPng"></div>
+              )}
               <p className="dec">{ajaxUrlStr === 'error' ? _l('导出失败') : _l('导出成功！')}</p>
 
               {ajaxUrlStr !== 'error' && (
@@ -778,6 +789,36 @@ class PrintForm extends React.Component {
               <LoadDiv size="small" className="mRight10 InlineBlock" />
               {_l('正在生成...')}
             </p>
+          </div>
+          <div className="previewHeader flexRow">
+            <div className="flexRow fileName">
+              {printData.name}.{fileTypeNum === 5 ? 'xlsx' : 'docx'}
+            </div>
+            <div className="flexRow btns">
+              {allowDown && (
+                <div
+                  class="download relative Hand btn"
+                  onClick={() => {
+                    this.handleBehaviorLog();
+                    this.downFn();
+                  }}
+                >
+                  <span class="normal" data-tip="下载">
+                    <i class="ming Icon icon-default icon icon-download valignWrapper"></i>
+                  </span>
+                </div>
+              )}
+              <div class="update Hand btn" onClick={() => $('.iframeDiv').attr('src', $('.iframeDiv').attr('src'))}>
+                <span class="normal" data-tip="刷新">
+                  <i class="icon-task-update1"></i>
+                </span>
+              </div>
+              <div className="close Hand btn" onClick={() => this.setState({ showPdf: false, showHeader: true })}>
+                <span className="normal" data-tip={_l('关闭')}>
+                  <i className="icon-delete" />
+                </span>
+              </div>
+            </div>
           </div>
           <iframe
             className="iframeDiv"

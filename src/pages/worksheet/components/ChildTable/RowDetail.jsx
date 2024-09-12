@@ -126,6 +126,7 @@ export default class RowDetail extends React.Component {
       isWorkflow,
       from,
       masterData,
+      rules,
     } = this.props;
     const { flag } = this.state;
     const formdata = _.isEmpty(data)
@@ -174,13 +175,14 @@ export default class RowDetail extends React.Component {
               }))
               .filter(c => !_.includes([34].concat(_.get(window, 'shareState.isPublicForm') ? [48] : []), c.type))}
             getMasterFormData={getMasterFormData}
-            flag={isMobile ? Date.now() : flag}
+            flag={flag}
             projectId={projectId}
             appId={appId}
             checkCellUnique={(...args) => handleUniqueValidate(...args, data.rowid)}
             onChange={this.handleChange}
             onRulesLoad={onRulesLoad}
             ignoreSection
+            rules={rules}
           />
         </div>
       </RecordInfoContext.Provider>

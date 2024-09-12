@@ -833,6 +833,14 @@ export default class CreateNodeDialog extends Component {
       );
     });
 
+    // 移除邀请外部门户
+    this.state.list.forEach(v => {
+      _.remove(
+        v.items,
+        o => v.id === 'external' && o.actionId === ACTION_ID.ADD && !md.global.SysSettings.enableSmsCustomContent,
+      );
+    });
+
     // 埋点授权过滤： API集成工作流节点、代码块节点、获取打印文件节点、获取页面快照、界面推送、全局变量、循环
     [
       { featureId: VersionProductType.apiIntergrationNode, type: [NODE_TYPE.API_PACKAGE, NODE_TYPE.API] },

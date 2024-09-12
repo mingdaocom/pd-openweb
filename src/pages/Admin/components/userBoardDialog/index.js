@@ -2,10 +2,10 @@ import React, { Component } from 'react';
 import { Dialog, VerifyPasswordConfirm, Checkbox, UserHead } from 'ming-ui';
 import userController from 'src/api/user';
 import functionWrap from 'ming-ui/components/FunctionWrap';
-import { getPssId } from 'src/util/pssId';
 import moment from 'moment';
 import './index.less';
 import { getCurrentProject } from 'src/util';
+import { downloadFile } from '../../util';
 
 class UserBoardDialog extends Component {
   constructor(props) {
@@ -44,29 +44,18 @@ class UserBoardDialog extends Component {
       onOk: () => {
         var url = `${md.global.Config.AjaxApiUrl}download/exportProjectUserList`;
         let projectName = getCurrentProject(projectId, true).companyName || '';
-        fetch(url, {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            Authorization: `md_pss_id ${getPssId()}`,
-          },
-          body: JSON.stringify({
+        let date = moment().format('YYYYMMDDHHmmss');
+        const fileName = `${projectName}_${_l('人员')}_${date}` + '.xlsx';
+
+        downloadFile({
+          url,
+          params: {
             userStatus: '1',
             projectId,
             accountIds: selected.join(','),
-          }),
-        })
-          .then(response => response.blob())
-          .then(blob => {
-            let date = moment().format('YYYYMMDDHHmmss');
-            const fileName = `${projectName}_${_l('人员')}_${date}` + '.xlsx';
-            const link = document.createElement('a');
-
-            link.href = window.URL.createObjectURL(blob);
-            link.download = fileName;
-            link.click();
-            window.URL.revokeObjectURL(link.href);
-          });
+          },
+          exportFileName: fileName,
+        });
       },
     });
   };

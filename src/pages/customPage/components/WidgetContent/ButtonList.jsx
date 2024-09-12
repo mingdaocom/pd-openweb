@@ -62,6 +62,7 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
   });
   const { visible, value: worksheetId, viewId, appId, name, writeControls = [], sheetSwitchPermit = [] } = createRecordInfo;
   const isMobile = browserIsMobile();
+  const isIPad = navigator.userAgent.toLowerCase().includes('ipad');
   const scanQRCodeRef = useRef();
   const [currentScanBtn, setCurrentScanBtn] = useState();
   const [previewRecord, setPreviewRecord] = useState({});
@@ -205,7 +206,7 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
             handleScanQRCodeResult(value, item);
           }
         });
-      } else if (isMobile) {
+      } else if (isMobile || isIPad) {
         setCurrentScanBtn(item);
         scanQRCodeRef.current.handleScanCode();
       } else {
@@ -401,7 +402,7 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
         onClick={handleClick}
         {...button}
       />
-      {includeScanQRCode && isMobile && (
+      {includeScanQRCode && (isMobile || isIPad) && (
         <ScanQRCode ref={scanQRCodeRef} projectId={projectId} onScanQRCodeResult={handleScanQRCodeResult} />
       )}
       {visible && (

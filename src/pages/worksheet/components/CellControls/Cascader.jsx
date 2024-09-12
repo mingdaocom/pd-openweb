@@ -93,7 +93,10 @@ export default class Cascader extends React.Component {
         onIconClick={() => updateEditingStatus(true)}
       >
         {!isediting && (
-          <div className="cellread linelimit">
+          <div
+            className="cellread linelimit"
+            title={checkCellIsEmpty(value) ? '' : renderText({ ...cell, value }) || _l('未命名')}
+          >
             {checkCellIsEmpty(value) ? '' : renderText({ ...cell, value }) || _l('未命名')}
           </div>
         )}

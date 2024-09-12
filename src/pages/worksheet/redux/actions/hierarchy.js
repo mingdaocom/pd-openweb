@@ -564,6 +564,13 @@ export function updateHierarchyData({ recordId, value, path, pathId, relateSheet
     const { hierarchyViewData } = hierarchyView;
     const { viewControl, childType } = getCurrentView(sheet);
     const updateKeys = Object.keys(value);
+    // 父记录更新有值，手动刷新，否则作为顶级处理
+    const hasValue = value[viewControl] && !_.isEmpty(safeParse(value[viewControl] || '[]'));
+    if (_.includes(updateKeys, viewControl) && hasValue) {
+      dispatch(getDefaultHierarchyData());
+      return;
+    }
+
     // 如果更新了父记录 则重新拉取父记录的子记录
     if (_.includes(updateKeys, viewControl)) {
       const args = {

@@ -1432,11 +1432,22 @@ class ChildTable extends React.Component {
                               tempSheetColumnWidths: {},
                               sheetColumnWidths: this.getSheetColumnWidths(newControl),
                             });
-                            if (_.isFunction(_.get(this, 'context.updateWorksheetControls'))) {
-                              _.get(
-                                this,
-                                'context.updateWorksheetControls',
-                              )(res.data.controls.filter(c => c.controlId === control.controlId));
+                            try {
+                              if (_.isFunction(_.get(this, 'context.updateWorksheetControls'))) {
+                                const updateFn = _.get(this, 'context.updateWorksheetControls');
+                                let newResponseControl = res.data.controls.filter(
+                                  c => c.controlId === control.controlId,
+                                )[0];
+                                if (newResponseControl) {
+                                  newResponseControl = {
+                                    ...newResponseControl,
+                                    relationControls: control.relationControls,
+                                  };
+                                  updateFn([newResponseControl]);
+                                }
+                              }
+                            } catch (err) {
+                              console.log(err);
                             }
                           }
                         });
@@ -1564,6 +1575,7 @@ class ChildTable extends React.Component {
               onSave={this.handleRowDetailSave}
               onDelete={deleteRow}
               onClose={() => this.setState({ recordVisible: false })}
+              rules={rules}
             />
           )}
         </div>

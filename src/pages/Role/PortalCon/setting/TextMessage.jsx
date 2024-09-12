@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
@@ -8,6 +8,7 @@ import MailSettingsDialog from 'src/pages/Role/PortalCon/components/MailSettings
 import SMSSettingsDialog from 'src/pages/Role/PortalCon/components/SMSSettingsDialog';
 import { getCurrentProject } from 'src/util';
 import _ from 'lodash';
+import cx from 'classnames';
 
 const Wrap = styled.div`
   .warnTxt {
@@ -107,65 +108,85 @@ export default function TextMessage(props) {
             )}
           </div>
         )}
-        <h6 className="Font16 Gray Bold mBottom0">{_l('短信通知')}</h6>
+        {md.global.SysSettings.enableSmsCustomContent && (
+          <Fragment>
+            <h6 className="Font16 Gray Bold mBottom0">{_l('短信通知')}</h6>
+            <div className="mTop6 Gray_9e">
+              {_l(
+                '注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义。',
+              )}
+              {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
+                _l(
+                  '短信收费标准：短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。',
+                  _.get(md, 'global.PriceConfig.SmsPrice'),
+                )}
+            </div>
+            <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('签名')}</h6>
+            <div className="mTop6 Gray_9e">
+              {_l(
+                '请谨慎填写您的组织简称、网站名、品牌名，2-12个汉字。如签名不符合规范，将会被运营商拦截。此签名适用于外部门户的短信场景：外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝)',
+              )}
+            </div>
+            <input
+              type="text"
+              className="sign mTop6"
+              placeholder={_l('请输入签名')}
+              maxLength={12}
+              value={sign}
+              onFocus={() => {
+                preSign = sign;
+              }}
+              onBlur={e => {
+                if (!e.target.value.trim()) {
+                  setSign(preSign);
+                  onChangePortalSet({
+                    portalSetModel: {
+                      ...portalSetModel,
+                      smsSignature: preSign,
+                    },
+                  });
+                  return alert(_l('请输入签名'), 3);
+                }
+                if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(e.target.value)) {
+                  return alert(_l('只支持中英文'), 3);
+                }
+              }}
+              onChange={e => {
+                setSign(e.target.value.trim());
+                onChangePortalSet({
+                  portalSetModel: {
+                    ...portalSetModel,
+                    smsSignature: getStrBytesLength(e.target.value.trim()),
+                  },
+                });
+              }}
+            />
+            <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('内容')}</h6>
+            <div
+              className="sysBtn flexRow alignItemsCenter"
+              onClick={() => {
+                setState({
+                  showTelDialog: true,
+                });
+              }}
+            >
+              <Icon icon="textsms1" className="Font18 mRight6" /> {_l('短信设置')}
+            </div>
+            <div className="line mTop24"></div>
+          </Fragment>
+        )}
+        <h6 className={cx('Font16 Gray Bold mBottom0', { mTop24: md.global.SysSettings.enableSmsCustomContent })}>
+          {_l('邮件通知')}
+        </h6>
         <div className="mTop6 Gray_9e">
-          {_l('注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义。')}
-          {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && _l('短信收费标准：短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。', _.get(md, 'global.PriceConfig.SmsPrice'))}
-        </div>
-        <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('签名')}</h6>
-        <div className="mTop6 Gray_9e">
-          {_l('请谨慎填写您的组织简称、网站名、品牌名，2-12个汉字。如签名不符合规范，将会被运营商拦截。此签名适用于外部门户的短信场景：外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝)')}
-        </div>
-        <input
-          type="text"
-          className="sign mTop6"
-          placeholder={_l('请输入签名')}
-          maxLength={12}
-          value={sign}
-          onFocus={() => {
-            preSign = sign;
-          }}
-          onBlur={e => {
-            if (!e.target.value.trim()) {
-              setSign(preSign);
-              onChangePortalSet({
-                portalSetModel: {
-                  ...portalSetModel,
-                  smsSignature: preSign,
-                },
-              });
-              return alert(_l('请输入签名'), 3);
-            }
-            if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(e.target.value)) {
-              return alert(_l('只支持中英文'), 3);
-            }
-          }}
-          onChange={e => {
-            setSign(e.target.value.trim());
-            onChangePortalSet({
-              portalSetModel: {
-                ...portalSetModel,
-                smsSignature: getStrBytesLength(e.target.value.trim()),
-              },
-            });
-          }}
-        />
-        <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('内容')}</h6>
-        <div
-          className="sysBtn flexRow alignItemsCenter"
-          onClick={() => {
-            setState({
-              showTelDialog: true,
-            });
-          }}
-        >
-          <Icon icon="textsms1" className="Font18 mRight6" /> {_l('短信设置')}
-        </div>
-        <div className="line mTop24"></div>
-        <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('邮件通知')}</h6>
-        <div className="mTop6 Gray_9e">
-          {_l('注册开启审核后，审核结果(通过、拒绝)会邮件告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对邮件内容自定义。')}
-          {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && _l('针对相应的邮件会进行收费收费标准：邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
+          {_l(
+            '注册开启审核后，审核结果(通过、拒绝)会邮件告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对邮件内容自定义。',
+          )}
+          {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
+            _l(
+              '针对相应的邮件会进行收费收费标准：邮件%0/封，将自动从企业账户扣除。',
+              _.get(md, 'global.PriceConfig.EmailPrice'),
+            )}
         </div>
 
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('发件人名称')}</h6>

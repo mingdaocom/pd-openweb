@@ -277,8 +277,11 @@ export default function DisplayItem(props) {
         }
 
         // 判断拖拽的方向 垂直方向优先
-        if (clientX - left < width / 2) nextLocation = 'left';
-        if (clientX - left > width / 2) nextLocation = 'right';
+        // 左右高亮只有非整行控件能出现
+        if (!isFullLineControl(item.data)) {
+          if (clientX - left < width / 2) nextLocation = 'left';
+          if (clientX - left > width / 2) nextLocation = 'right';
+        }
         if (clientY - top < DRAG_DISTANCE.VERTICAL) nextLocation = 'top';
         if (clientY - bottom > DRAG_DISTANCE.VERTICAL) nextLocation = 'bottom';
         if (location !== nextLocation) {

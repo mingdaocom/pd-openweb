@@ -140,18 +140,20 @@ export default class Container extends React.Component {
         />
         {loginDisabled && <div className="loadingLine"></div>}
         <div className="mTop16 clearfix Font14">
-          <div className="Left">
-            <a
-              target="_blank"
-              className="findPassword"
-              onClick={() => {
-                clearInfoByUrl();
-                navigateTo('/findPassword');
-              }}
-            >
-              {_l('忘记密码？')}
-            </a>
-          </div>
+          {loginMode !== 2 && (
+            <div className="Left">
+              <a
+                target="_blank"
+                className="findPassword"
+                onClick={() => {
+                  clearInfoByUrl();
+                  navigateTo('/findPassword');
+                }}
+              >
+                {_l('忘记密码？')}
+              </a>
+            </div>
+          )}
           <div
             className="cbRememberPasswordDiv Right Hand flexRow alignItemsCenter"
             onClick={() => {

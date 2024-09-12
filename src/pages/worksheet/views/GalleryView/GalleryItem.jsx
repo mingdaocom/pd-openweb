@@ -19,9 +19,15 @@ export default class GalleryItem extends React.Component {
     const { data, onUpdateFn, base, views } = this.props;
     const { viewId } = base;
     const view = views.find(o => o.viewId === viewId) || {};
-    const newControl = control.controlId
-      ? control
-      : { ...(fields.find(o => o.controlId === Object.keys(control)[0]) || {}), value: Object.values(control)[0] };
+    let newControl = control;
+    if (!control.controlId && control.data) {
+      const { fields = [] } = data;
+      const controlId = Object.keys(control.data)[0];
+      newControl = {
+        ...(fields.find(o => o.controlId === controlId) || {}),
+        value: _.get(control, `data[${controlId}]`),
+      };
+    }
     worksheetAjax
       .updateWorksheetRow({
         rowId: data.rowId,

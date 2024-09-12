@@ -552,7 +552,7 @@ export default class RelateRecordCards extends Component {
     }
     if (enumDefault2 !== 10 && enumDefault2 !== 11) {
       this.handleSelectRecord(this.handleAdd);
-    } else {
+    } else if (this.allowNewRecord) {
       this.setState({ showNewRecord: true });
     }
   };
@@ -827,10 +827,12 @@ export default class RelateRecordCards extends Component {
               {addRelationButtonVisible && (
                 <Fragment>
                   {isCard ? (
-                    <Button className="relateRecordBtn" onClick={this.handleClick}>
-                      <i className="icon icon-plus mRight5 Font16"></i>
-                      {sourceEntityName || ''}
-                    </Button>
+                    ((enumDefault2 !== 10 && enumDefault2 !== 11) || allowNewRecord) && (
+                      <Button className="relateRecordBtn" onClick={this.handleClick}>
+                        <i className="icon icon-plus mRight5 Font16"></i>
+                        {sourceEntityName || ''}
+                      </Button>
+                    )
                   ) : !records.length ? (
                     <span className="Gray_bd">{renderHint()}</span>
                   ) : null}

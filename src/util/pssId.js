@@ -24,11 +24,9 @@ export const setPssId = (id, verification = false) => {
  * @returns {string} md_pss_id
  */
 export const getPssId = () => {
-  let storagePssId;
-  if (window.top !== window.self || md.global.Config.HttpOnly) {
-    storagePssId = window.localStorage.getItem('md_pss_id');
-  }
+  const storagePssId = window.localStorage.getItem('md_pss_id');
   const cookiePssId = window.getCookie('md_pss_id');
+
   return cookiePssId || storagePssId;
 };
 

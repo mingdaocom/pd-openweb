@@ -232,7 +232,7 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
       );
     }
     if (type === 4) {
-      const text = !['YYYYMMDD', 'YYYYMM', 'MMDD', 'YYYY'].includes(format) ? `自定义: ${format}` : format;
+      const text = !['YYYYMMDD', 'YYYYMM', 'MMDD', 'YYYY'].includes(format) ? _l('自定义') + '：' + format : format;
       return (
         <Dropdown
           trigger="click"

@@ -5,8 +5,8 @@ import { updateCursor } from '../../actions/current';
 import EventEmitter from 'events';
 import { Icon, Tooltip } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
-import { getPssId } from 'src/util/pssId';
 import { getCurrentProject } from 'src/util';
+import { downloadFile } from '../../../../../util';
 import styled from 'styled-components';
 
 const Wrap = styled.div`
@@ -73,29 +73,19 @@ class CreateBtn extends Component {
   // 导出部门列表
   exportDepartmentList = () => {
     const { projectId } = this.props;
+    const url = `${md.global.Config.AjaxApiUrl}download/exportProjectDepartmentList`;
     let projectName = getCurrentProject(projectId, true).companyName;
-    fetch(`${md.global.Config.AjaxApiUrl}download/exportProjectDepartmentList`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        Authorization: `md_pss_id ${getPssId()}`,
-      },
-      body: JSON.stringify({
+    let date = moment().format('YYYYMMDDHHmmss');
+    const fileName = `${projectName}_${_l('部门')}_${date}` + '.xlsx';
+
+    downloadFile({
+      url,
+      params: {
         userStatus: '1',
         projectId,
-      }),
-    })
-      .then(response => response.blob())
-      .then(blob => {
-        let date = moment().format('YYYYMMDDHHmmss');
-        const fileName = `${projectName}_${_l('部门')}_${date}` + '.xlsx';
-        const link = document.createElement('a');
-
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-      });
+      },
+      exportFileName: fileName,
+    });
   };
 
   render() {

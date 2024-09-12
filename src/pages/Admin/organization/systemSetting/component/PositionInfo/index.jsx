@@ -9,8 +9,8 @@ import ImportDeptAndRole from 'src/pages/Admin/components/ImportDeptAndRole';
 import EmptyStatus from './components/EmptyStatus';
 import * as actions from '../../../../redux/position/action';
 import jobAjax from 'src/api/job';
-import { getPssId } from 'src/util/pssId';
 import Config from '../../../../config';
+import { downloadFile } from '../../../../util';
 import { getCurrentProject } from 'src/util';
 import cx from 'classnames';
 import './index.less';
@@ -42,28 +42,19 @@ class PositionInfo extends Component {
   // 导出职位列表
   exportJobList = () => {
     const { projectId } = this.props;
+    const url = `${md.global.Config.AjaxApiUrl}download/exportProjectJobList`;
     let projectName = getCurrentProject(projectId, true).companyName || '';
-    fetch(`${md.global.Config.AjaxApiUrl}download/exportProjectJobList`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        Authorization: `md_pss_id ${getPssId()}`,
-      },
-      body: JSON.stringify({
+    let date = moment().format('YYYYMMDDHHmmss');
+    const fileName = `${projectName}_${_l('职位')}_${date}` + '.xlsx';
+
+    downloadFile({
+      url,
+      params: {
         userStatus: '1',
         projectId,
-      }),
-    })
-      .then(response => response.blob())
-      .then(blob => {
-        let date = moment().format('YYYYMMDDHHmmss');
-        const fileName = `${projectName}_${_l('职位')}_${date}` + '.xlsx';
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-      });
+      },
+      exportFileName: fileName,
+    });
   };
   onScrollEnd = () => {
     const { positionPageInfo = {}, isLoading, searchValue } = this.props;

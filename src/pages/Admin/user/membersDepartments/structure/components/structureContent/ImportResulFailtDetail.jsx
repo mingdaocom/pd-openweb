@@ -3,8 +3,7 @@ import { Table } from 'antd';
 import { Icon } from 'ming-ui';
 import styled from 'styled-components';
 import alertImg from '../../assets/alert.png';
-import { addToken } from 'src/util';
-import { getPssId } from 'src/util/pssId';
+import { downloadFile } from '../../../../../util';
 import moment from 'moment';
 
 const FailInfoCon = styled.div`
@@ -233,25 +232,15 @@ export default class ImportResulFailtDetail extends Component {
       projectId,
       dowloadId,
     };
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        Authorization: `md_pss_id ${getPssId()}`,
-      },
-      body: JSON.stringify(args),
-    })
-      .then(res => res.blob())
-      .then(blob => {
-        let name = currentTab === 'import' ? _l('导入新成员失败列表') : _l('导入修改用户信息失败列表');
-        const date = moment().format('YYYYMMDDhhmmss');
-        const fileName = `${name}-${date}` + '.xlsx';
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-      });
+    let name = currentTab === 'import' ? _l('导入新成员失败列表') : _l('导入修改用户信息失败列表');
+    const date = moment().format('YYYYMMDDhhmmss');
+    const fileName = `${name}-${date}` + '.xlsx';
+
+    downloadFile({
+      url,
+      params: args,
+      exportFileName: fileName,
+    });
   };
   render() {
     const { resultDetail = {}, currentTab, importError } = this.props;

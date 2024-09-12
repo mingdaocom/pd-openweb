@@ -529,6 +529,7 @@ const generateLocalizationParams = (requestData = {}) => {
         'AppManagement_EditWorkSheetInfoForApp',
         'Worksheet_SortWorksheetViews',
         'Worksheet_EditWorksheetControls',
+        'Worksheet_UpdateEntityName',
       ],
     },
     Worksheet_GetQueryBySheetId: {
@@ -676,7 +677,7 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
           version = versionData.version;
 
           if (version === localSource.version) {
-            insertLocalData({ key, moduleType, sourceId, version, data: localSource.data }); // 更新时间
+            insertLocalData({ key, moduleType, sourceId, version, data: _.cloneDeep(localSource.data) }); // 更新时间
             resolve(localSource.data);
             return;
           }
@@ -707,7 +708,8 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
         } else {
           const { data } = interfaceDataDecryption(responseData);
 
-          !_.get(window, 'shareState.shareId') && insertLocalData({ key, moduleType, sourceId, version, data });
+          !_.get(window, 'shareState.shareId') &&
+            insertLocalData({ key, moduleType, sourceId, version, data: _.cloneDeep(data) });
           resolve(data);
         }
       })

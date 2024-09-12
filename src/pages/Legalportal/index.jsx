@@ -241,7 +241,7 @@ const LegalPortalCon = props => {
         contentDiv = document.querySelector('.html-wrap');
       }
       let headingContents = [];
-      const headings = contentDiv.querySelectorAll('h1, h2, h3, h4, h5');
+      const headings = contentDiv.querySelectorAll('h1, h2');
       headings.forEach(function (heading, index) {
         const id = `heading-${index}`;
         heading.id = id;

@@ -1,6 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Dialog, Markdown, Input, Radio, RichText, LoadDiv } from 'ming-ui';
 import privateLegalApi from 'src/api/privateLegal';
+import { translateNames } from './index';
 
 const AddLegalDialog = props => {
   const { onCancel } = props;
@@ -81,7 +82,7 @@ const AddLegalDialog = props => {
           <div className="flexRow">
             <div className="flexRow alignItemsCenter flex mRight20">
               <div className="mRight10">{_l('名称')}</div>
-              <Input className="flex" value={legal.name} onChange={value => onChange({ name: value })} />
+              <Input className="flex" value={translateNames[legal.name] || legal.name} onChange={value => onChange({ name: value })} />
             </div>
             <div className="flexRow alignItemsCenter flex">
               <div className="mRight10">{_l('访问路径')}</div>

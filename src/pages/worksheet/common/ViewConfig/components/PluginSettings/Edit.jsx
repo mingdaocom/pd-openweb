@@ -296,7 +296,7 @@ function Edit(params) {
               }
             }}
             onBlur={e => {
-              let value = (['controlName', 'desc', 'des'].includes(o) ? info[o] || '' : staticValue).trim();
+              let value = ((['controlName', 'desc', 'des'].includes(o) ? info[o] : staticValue) || '').trim();
               if (['controlName', 'desc', 'des'].includes(o)) {
                 onUpdate({
                   [o]: value,

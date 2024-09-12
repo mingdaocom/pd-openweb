@@ -16,9 +16,7 @@ import RoleManageContent from './components/RoleManageContent';
 import ImportDeptAndRole from '../../components/ImportDeptAndRole';
 import EmptyStatus from './components/EmptyStatus';
 import * as actions from '../../redux/roleManage/action';
-import { getPssId } from 'src/util/pssId';
 import organizeAjax from 'src/api/organize.js';
-import { getCurrentProject } from 'src/util';
 import './index.less';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
@@ -278,33 +276,6 @@ class RoleManage extends Component {
           resolve();
         });
     });
-  };
-
-  // 导出角色列表
-  exportJobList = () => {
-    const { projectId } = this.props;
-    let projectName = getCurrentProject(projectId, true).companyName || '';
-    fetch(`${md.global.Config.AjaxApiUrl}download/exportProjectJobList`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        Authorization: `md_pss_id ${getPssId()}`,
-      },
-      body: JSON.stringify({
-        userStatus: '1',
-        projectId,
-      }),
-    })
-      .then(response => response.blob())
-      .then(blob => {
-        let date = moment().format('YYYYMMDDHHmmss');
-        const fileName = `${projectName}_${_l('职位')}_${date}` + '.xlsx';
-        const link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        window.URL.revokeObjectURL(link.href);
-      });
   };
 
   onScrollEnd = () => {

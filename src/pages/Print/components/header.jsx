@@ -120,10 +120,49 @@ class Header extends React.Component {
     });
   };
 
+  handlePrint = () => {
+    const { params } = this.props;
+    const { printId, worksheetId, rowId } = params;
+
+    addBehaviorLog('printRecord', worksheetId, { printId, rowId }); // 埋点
+
+    if (window.isSafari) {
+      const printContentHtml = document.querySelector('.printContent').outerHTML;
+      const printFrame = document.createElement('iframe');
+      printFrame.name = 'printFrame';
+      printFrame.style.cssText = 'position: absolute; top: -1000000px; width: 100%; height: 100%;';
+      document.body.appendChild(printFrame);
+      const frameDoc = printFrame.contentWindow || printFrame.contentDocument.document || printFrame.contentDocument;
+      frameDoc.document.open();
+      frameDoc.document.write(`<html><head></head><body>${printContentHtml}</body></html>`);
+      frameDoc.document.close();
+
+      if (!window.onafterprint) {
+        const mediaQueryCallback = function (mql) {
+          if (!mql.matches && printFrame) {
+            document.body.removeChild(printFrame);
+          }
+        };
+        const mediaQueryList = window.frames[printFrame.name].matchMedia('print');
+        mediaQueryList.addListener(mediaQueryCallback);
+        window.frames[printFrame.name].focus();
+        window.frames[printFrame.name].onfocus = function () {
+          return mediaQueryCallback(mediaQueryList);
+        };
+      }
+
+      window.frames[printFrame.name].print();
+      return false;
+    }
+
+    window.print();
+    return false;
+  };
+
   render() {
     const { params, printData, handChange, saveTem, saveFn, downFn, showPdf, isHaveCharge } = this.props;
-    const { printId, type, from, printType, isDefault, worksheetId, rowId, fileTypeNum } = params;
-    const { isEdit, exportLoading, href } = this.state;
+    const { type, from, isDefault, fileTypeNum } = params;
+    const { isEdit, exportLoading } = this.state;
     const allowDown = isHaveCharge || !printData.allowDownloadPermission;
 
     return (
@@ -247,14 +286,7 @@ class Header extends React.Component {
                 )}
                 {isDefault ? (
                   <React.Fragment>
-                    <div
-                      className="printButton Hand InlineBlock bold mLeft20"
-                      onClick={() => {
-                        addBehaviorLog('printRecord', worksheetId, { printId, rowId }); // 埋点
-                        window.print();
-                        return false;
-                      }}
-                    >
+                    <div className="printButton Hand InlineBlock bold mLeft20" onClick={this.handlePrint}>
                       <i className="icon-print Font15 mRight10"></i>
                       {_l('打印')}
                     </div>

@@ -29,7 +29,8 @@ export default class Header extends Component {
     this.props.changeCurrentReport({ name });
   }
   render() {
-    const { appId, report, permissions, currentReport } = this.props;
+    const { appId, report, permissions, currentReport, reportData } = this.props;
+    const { displaySetup = {} } = reportData;
     const { isEdit, editDescVisible } = this.state;
     const translateInfo = getTranslateInfo(appId, null, report.id);
     return (
@@ -47,9 +48,11 @@ export default class Header extends Component {
           />
         ) : (
           <div className="nameWrapper valignWrapper flex">
-            <span className="ellipsis bold Font16">
-              {translateInfo.name || currentReport.name}
-            </span>
+            {(window.shareState.shareId ? displaySetup.showTitle : true) && (
+              <span className="ellipsis bold Font16">
+                {translateInfo.name || currentReport.name}
+              </span>
+            )}
             {permissions && (
               <Icon
                 icon="workflow_write"

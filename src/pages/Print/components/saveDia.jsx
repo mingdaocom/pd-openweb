@@ -1,12 +1,11 @@
 import React from 'react';
-import { Dialog, Icon, Radio } from 'ming-ui';
-import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
-import './saveDia.less';
-import withClickAway from 'ming-ui/decorators/withClickAway';
-import { fromType, printType, typeForCon } from '../config';
-import RangeDrop from 'src/pages/FormSet/components/RangeDrop';
 import _ from 'lodash';
+import { Dialog, Icon } from 'ming-ui';
+import sheetAjax from 'src/api/worksheet';
+import RangeDrop from 'src/pages/FormSet/components/RangeDrop';
+import { typeForCon } from '../config';
+import './saveDia.less';
 
 export default class SaveDia extends React.Component {
   constructor(props) {
@@ -16,7 +15,6 @@ export default class SaveDia extends React.Component {
       printData: printData,
       showList: false,
       views: [],
-      // allView: false,
     };
   }
   componentDidMount() {
@@ -54,10 +52,7 @@ export default class SaveDia extends React.Component {
         cancelText={_l('取消')}
         className={cx('saveDiaCon', this.props.className)}
         width="480px"
-        onCancel={() => {
-          // this.props.setValue();
-          this.props.onCancel();
-        }}
+        onCancel={this.props.onCancel}
         onOk={() => {
           if (!_.trim(printData.name)) {
             alert(_l('请输入模板名称'), 3);

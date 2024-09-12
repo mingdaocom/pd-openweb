@@ -95,14 +95,14 @@ const Wrap = styled.div`
     }
   }
 `;
-const TYPELIST = [_l('手机邀请'), _l('邮箱邀请')];
+const TYPELIST = !md.global.SysSettings.enableSmsCustomContent ? [_l('邮箱邀请')] : [_l('手机邀请'), _l('邮箱邀请')];
 function AddUserByTelDialog(props) {
   const { appId, show, setAddUserByTelDialog, getUserList, roleList, registerMode = {} } = props;
   const roleId = props.roleId || roleList.find(o => o.isDefault).roleId;
   const [loading, setLoading] = useState(false); //
   const [list, setList] = useState([{ phone: '', name: '', roleId: roleId }]);
   const [isSendMsgs, setIsSend] = useState(true); //
-  const [type, setType] = useState(registerMode.phone ? 0 : 1); //
+  const [type, setType] = useState(registerMode.phone && md.global.SysSettings.enableSmsCustomContent ? 0 : 1); //
   const update = () => {
     if (loading) {
       return;
@@ -163,6 +163,7 @@ function AddUserByTelDialog(props) {
     >
       <Wrap>
         {TYPELIST.map((o, i) => {
+          const index = md.global.SysSettings.enableSmsCustomContent ? i : i + 1;
           if (!registerMode.phone || !registerMode.email) {
             return '';
           }
@@ -170,18 +171,22 @@ function AddUserByTelDialog(props) {
             <Radio
               className=""
               text={o}
-              checked={type === i}
+              checked={type === index}
               onClick={() => {
-                setType(i);
+                setType(index);
               }}
             />
           );
         })}
-        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && <p className="mTop16">
-          {_l('短信%0/条，', _.get(md, 'global.PriceConfig.SmsPrice'))}
-          {_l('邮件%0/封，将自动从企业账户扣除，请确保账户余额充足。', _.get(md, 'global.PriceConfig.EmailPrice'))}
-          {!_.get(md, 'global.Config.IsLocal') && _l('目前仅支持中国大陆手机号。')}
-        </p>}
+        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal') || true) && (
+          <p className="mTop16">
+            {type === 1
+              ? _l('邮件%0/封，', _.get(md, 'global.PriceConfig.EmailPrice'))
+              : _l('短信%0/条，', _.get(md, 'global.PriceConfig.SmsPrice'))}
+            {_l('将自动从企业账户扣除，请确保账户余额充足。')}
+            {!_.get(md, 'global.Config.IsLocal') && _l('目前仅支持中国大陆手机号。')}
+          </p>
+        )}
         <div className="list">
           {list.map((o, i) => {
             return (
