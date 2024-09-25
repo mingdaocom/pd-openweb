@@ -1574,6 +1574,7 @@ export default class RecordInfo extends Component {
                       formWidth={formWidth}
                       appId={appId}
                       controls={recordinfo.formData}
+                      reloadRecord={() => this.handleRefresh({ doNotResetPageIndex: true, reloadDiscuss: false })}
                     />
                   }
                   sheetSwitchPermit={sheetSwitchPermit}

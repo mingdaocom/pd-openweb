@@ -308,7 +308,7 @@ function WorkflowCard(props) {
 }
 
 export default function SheetWorkflow(props) {
-  const { isCharge, projectId, worksheetId, recordId, formWidth, refreshBtnNeedLoading, appId, controls = [] } = props;
+  const { isCharge, projectId, worksheetId, recordId, formWidth, refreshBtnNeedLoading, appId, controls = [], reloadRecord } = props;
   const [loading, setLoading] = useState(true);
   const [list, setList] = useState([]);
   const [currentWorkflow, setCurrentWorkflow] = useState({});
@@ -782,6 +782,7 @@ export default function SheetWorkflow(props) {
             workId={viewWorkflow.workId}
             onClose={() => {
               setViewWorkflow(null);
+              reloadRecord();
             }}
             onSave={() => {
               handleCloseDrawer();
