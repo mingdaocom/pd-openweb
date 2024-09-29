@@ -298,6 +298,7 @@ function EntityRelationship(props) {
         .forEach((l, controlIndex) => {
           const targetWorksheetIndex = _.findIndex(sortData, m => m.worksheetId === l.dataSource);
           const isBothRelate = targetWorksheetIndex < 0 ? false : isBothWayRelate(l, sortData[targetWorksheetIndex]);
+
           if (targetWorksheetIndex < 0 || (isBothRelate && dataIndex > targetWorksheetIndex)) return;
 
           edges.push({

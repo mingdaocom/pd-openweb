@@ -105,7 +105,7 @@ export default class CreateFlow extends Component {
         explain: '',
       })
       .then(res => {
-        appManagement.addWorkflow({ projectId: res.companyId });
+        appManagement.addWorkflow({ projectId: res.companyId, name: flowName || this.props.flowName });
         navigateTo(`/workflowedit/${res.id}`);
       })
       .finally(() => {

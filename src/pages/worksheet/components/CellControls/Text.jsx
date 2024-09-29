@@ -506,7 +506,7 @@ export default class Text extends React.Component {
           className={cx(className, 'workSheetTextCell', {
             canedit: editable && canedit,
             masked: this.masked && !isCard,
-            empty: !value,
+            empty: value === '' || value === null || value === undefined,
             maskHoverTheme: this.masked && isCard && !forceShowFullValue,
             focusInput: cell.type === 2 && editable && canedit,
           })}

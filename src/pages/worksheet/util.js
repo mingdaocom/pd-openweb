@@ -1610,7 +1610,26 @@ export const getFilledRequestParams = params => {
   return { ...params, requestParams };
 };
 
+function hexWithAlphaMixWhiteToHex(hex) {
+  try {
+    let [r, g, b, a] = hex
+      .replace('#', '')
+      .match(/../g)
+      .map(a => parseInt(a, 16));
+    a = a / 255;
+    const finalR = Math.round(r * a + 255 * (1 - a));
+    const finalG = Math.round(g * a + 255 * (1 - a));
+    const finalB = Math.round(b * a + 255 * (1 - a));
+    return `#${((1 << 24) + (finalR << 16) + (finalG << 8) + finalB).toString(16).slice(1).toUpperCase()}`;
+  } catch (err) {
+    return hex;
+  }
+}
+
 export const getButtonColor = mainColor => {
+  if (mainColor !== 'transparent' && '#4CAF50'.length === 9 && mainColor.slice(-2) !== 'ff') {
+    mainColor = hexWithAlphaMixWhiteToHex(mainColor);
+  }
   let borderColor = mainColor;
   let fontColor = !isLightColor(mainColor) ? '#fff' : '#333';
   if (mainColor === 'transparent') {

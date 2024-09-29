@@ -37,6 +37,7 @@ export default function WidgetDisplay(props) {
     titlesize = '0',
     titlestyle = '0000',
     titlecolor = '#757575',
+    showtype,
   } = getAdvanceSetting(data);
   const titleSize = TITLE_SIZE_OPTIONS[titlesize];
   const titleStyle = getTitleStyle(titlestyle);
@@ -132,7 +133,7 @@ export default function WidgetDisplay(props) {
         {getTitleContent()}
       </div>
 
-      <div className="flex overflow_ellipsis">
+      <div className={cx('flex', { overflow_ellipsis: !(type === 11 && showtype === '2') })}>
         {includes(NEED_SPECIAL_DISPLAY_CONTROLS, type) ? (
           <Component data={data} controls={actualControls} displayRow={displayRow} fromType={fromType} isTab={isTab} />
         ) : (

@@ -84,7 +84,7 @@ const middlewareList = [
       res.end();
     } else if (req.url && req.url.startsWith('/api/')) {
       // 代理接口请求到 api 服务器
-      req.url = req.url.replace('/api/', '/');
+      req.url = req.url.replace('/api/', '/wwwapi/');
       apiProxyMiddleware(req, res, next);
     } else if (req.url && req.url.startsWith('/workflow_api/')) {
       // 代理接口请求到 工作流 api 服务器

@@ -425,7 +425,20 @@ function NewRecordForm(props) {
   return (
     <RecordInfoContext.Provider
       value={{
-        updateWorksheetControls,
+        updateWorksheetControls: newControls => {
+          newControls.forEach(control => {
+            try {
+              if (control.type === 34) {
+                customwidget.current.dataFormat.data.filter(
+                  item => item.controlId === control.controlId,
+                )[0].advancedSetting.widths = control.advancedSetting.widths;
+              }
+            } catch (err) {
+              console.error(err);
+            }
+          });
+          updateWorksheetControls(newControls);
+        },
       }}
     >
       <Con>

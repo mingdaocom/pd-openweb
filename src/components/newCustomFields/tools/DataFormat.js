@@ -784,7 +784,7 @@ export const checkRequired = item => {
 
   if (
     item.required &&
-    ((item.type !== 6 ? !item.value : isNaN(parseFloat(item.value))) ||
+    ((item.type !== 6 && item.type !== 8 ? !item.value : isNaN(parseFloat(item.value))) ||
       (_.isString(item.value) && !item.value.trim()) ||
       (_.includes([9, 10, 11], item.type) && !safeParse(item.value).length) ||
       (item.type === 14 &&

@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Input } from 'antd';
 import AutoIcon from '../../../components/Icon';
 import cx from 'classnames';
@@ -6,6 +6,7 @@ import cx from 'classnames';
 export default function StrInput({ rule, deleteRule, updateRule }) {
   const { controlId } = rule;
   const [status, setStatus] = useState('');
+  const [tempValue, setValue] = useState(controlId);
   const getStyle = () => {
     if (status === 'error') {
       return {
@@ -16,6 +17,10 @@ export default function StrInput({ rule, deleteRule, updateRule }) {
     return {};
   };
 
+  useEffect(() => {
+    setValue(controlId);
+  }, []);
+
   const isError = status === 'error';
   return (
     <Fragment>
@@ -24,22 +29,22 @@ export default function StrInput({ rule, deleteRule, updateRule }) {
         <AutoIcon className="deleteRuleIcon" type="delete" icon="delete_12" onMouseDown={deleteRule} />
       </div>
       <Input
-        value={controlId}
+        value={tempValue}
         style={getStyle()}
         onBlur={e => {
-          const value = e.target.value;
+          const value = (e.target.value || '').substring(0, 64);
           if (!value) {
             setStatus('error');
           }
+          setValue(value);
+          updateRule({ controlId: value });
         }}
         onChange={e => {
           const value = e.target.value;
           if (value) {
             setStatus('');
           }
-          if (value.length < 64) {
-            updateRule({ controlId: e.target.value });
-          }
+          setValue(value);
         }}
       />
     </Fragment>

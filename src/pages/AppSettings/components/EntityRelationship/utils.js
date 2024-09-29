@@ -12,7 +12,7 @@ export function isBothWayRelate(control, sourceWorksheet) {
     !control.dataSource ||
     !control.sourceControlId ||
     !sourceControls.find(l => l.controlId === control.sourceControlId) ||
-    control.type !== 29
+    ![29, 34].includes(control.type)
   ) {
     return false;
   }

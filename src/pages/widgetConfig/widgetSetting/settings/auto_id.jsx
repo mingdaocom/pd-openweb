@@ -19,9 +19,9 @@ const RuleInfo = styled.li`
   align-items: center;
   justify-content: space-between;
   margin-top: 6px;
-  .dragIcon {
+  & > span {
     align-self: flex-end;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .delWrap {
@@ -153,7 +153,7 @@ const TIME_MODE = [
 
 const DEFAULT_PARA = { 4: { format: 'YYYYMMDD', type: 4 } };
 
-function SortableItem({ index, rule, allControls, deleteRule, updateRule, ...rest }) {
+function SortableItem({ index, rule, allControls, deleteRule, updateRule, renderDragHandle, ...rest }) {
   const [{ numberConfigVisible, timeFormatVisible }, setVisible] = useSetState({
     numberConfigVisible: false,
     timeFormatVisible: false,
@@ -253,7 +253,7 @@ function SortableItem({ index, rule, allControls, deleteRule, updateRule, ...res
   };
   return (
     <RuleInfo>
-      <i className="icon-drag Gray_75 dragIcon ThemeHoverColor3 pointer"></i>
+      {renderDragHandle()}
       <div className="rule" onMouseDown={() => {}}>
         {type === 2 ? (
           <StrInput rule={rule} updateRule={updateRule} deleteRule={deleteRule} />
@@ -307,11 +307,17 @@ function SortableRules({ rules, deleteRule, updateRule, addRule, onSortEnd, from
         <SortableList
           items={getSortItems(rules, true)}
           itemKey="key"
+          useDragHandle
           onSortEnd={onSortEnd}
-          renderItem={({ item, index }) => (
+          renderItem={({ item, index, DragHandle }) => (
             <SortableItem
               index={index}
               rule={item}
+              renderDragHandle={() => (
+                <DragHandle>
+                  <i className="icon-drag Gray_75 ThemeHoverColor3 pointer"></i>
+                </DragHandle>
+              )}
               updateRule={obj => updateRule(index, obj)}
               deleteRule={() => deleteRule(index)}
               {...rest}

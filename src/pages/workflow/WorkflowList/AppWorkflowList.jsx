@@ -795,7 +795,7 @@ class AppWorkflowList extends Component {
         name: _l('未命名业务流程'),
       })
       .then(res => {
-        appManagementAjax.addWorkflow({ projectId: res.companyId });
+        appManagementAjax.addWorkflow({ projectId: res.companyId, name: _l('未命名业务流程') });
         navigateTo(`/workflowedit/${res.id}`);
       })
       .finally(() => {

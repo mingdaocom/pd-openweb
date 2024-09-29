@@ -76,8 +76,11 @@ function formatFunctionResult(control, value) {
       result = result
         ? dayjs(result).year() && dayjs(result).isValid()
           ? dayjs(result).format(formatMode)
-          : dayjs(value, formatMode).format('HH:mm:ss')
+          : dayjs(result, dayjs(result).second() ? 'HH:mm:ss' : 'HH:mm').format(formatMode)
         : undefined;
+      if (result === 'Invalid date') {
+        result = undefined;
+      }
       break;
   }
   return result;

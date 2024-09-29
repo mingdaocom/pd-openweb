@@ -258,7 +258,7 @@ const GoogleSso = prosp => {
 
   useEffect(() => {
     privateSysSettingApi.getSsoSettings({}).then(data => {
-      const config = data[0];
+      const config = data[0] || {};
       setSsoSettings(config);
       setOriginal(config);
       setLoading(false);

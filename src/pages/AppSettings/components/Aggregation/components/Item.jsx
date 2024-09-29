@@ -359,7 +359,7 @@ export default function ItemCard(props) {
           appId={appId}
           projectId={projectId}
         />
-        <span className="mLeft8">{item.creatorName}</span>
+        <span className="mLeft8 WordBreak overflow_ellipsis">{item.creatorName}</span>
       </div>
       <div
         className={cx(

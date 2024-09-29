@@ -621,7 +621,7 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet, fileStyle 
 };
 
 export const isVisible = control => {
-  const { fieldPermission = '111' } = control;
+  const fieldPermission = control.fieldPermission || '111';
 
   return fieldPermission[0] === '1';
 };

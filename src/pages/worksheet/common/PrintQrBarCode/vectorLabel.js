@@ -425,7 +425,7 @@ export default class Label {
             textFontSize = newFontSize;
           }
         }
-        const normalTextHeight = (fontSize * 1.5 * linesNum) / (get(_this, 'options.fontSize') || 1);
+        const normalTextHeight = mmToPt((_this.fontSize * _this.unitSize) / (get(_this, 'options.fontSize') || 1));
         const textHeight = textFontSize * 1.5 * linesNum;
         _this.drawRect(left, textTop, width, normalTextHeight);
         doc
@@ -485,17 +485,17 @@ export default class Label {
     if (!qrValue) return;
     const { codeFaultTolerance, layout } = this.options;
     const { left, top, width, height } = this.getQrCodePosition();
-    this.doc
-      .fillColor('#FFFFFF')
-      .rect(
-        mmToPt(left - this.paddingX * this.unitSize),
-        mmToPt(top - this.paddingY * this.unitSize),
-        layout === QR_LAYOUT.LANDSCAPE
-          ? mmToPt(width + this.paddingX * this.unitSize)
-          : mmToPt(width + this.paddingX * 2 * this.unitSize),
-        mmToPt(height + this.paddingY * 2 * this.unitSize),
-      )
-      .fill();
+    // this.doc
+    //   .fillColor('#FFFFFF')
+    //   .rect(
+    //     mmToPt(left - this.paddingX * this.unitSize),
+    //     mmToPt(top - this.paddingY * this.unitSize),
+    //     layout === QR_LAYOUT.LANDSCAPE
+    //       ? mmToPt(width + this.paddingX * this.unitSize)
+    //       : mmToPt(width + this.paddingX * 2 * this.unitSize),
+    //     mmToPt(height + this.paddingY * 2 * this.unitSize),
+    //   )
+    //   .fill();
     renderQr({
       value: qrValue,
       width: mmToPt(width),

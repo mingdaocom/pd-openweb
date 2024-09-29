@@ -1224,7 +1224,20 @@ export default class RecordInfo extends Component {
         <RecordInfoContext.Provider
           value={{
             api: this.getRecordApi,
-            updateWorksheetControls,
+            updateWorksheetControls: newControls => {
+              newControls.forEach(control => {
+                try {
+                  if (control.type === 34) {
+                    this.recordform.current.dataFormat.data.filter(
+                      item => item.controlId === control.controlId,
+                    )[0].advancedSetting.widths = control.advancedSetting.widths;
+                  }
+                } catch (err) {
+                  console.error(err);
+                }
+              });
+              updateWorksheetControls(newControls);
+            },
             recordBaseInfo: recordbase,
           }}
         >

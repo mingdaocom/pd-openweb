@@ -28,7 +28,6 @@ export default function CustomErNode(props) {
     const newControls = getVisibleControls(newAllControls)
       .filter((l, i) => !HIDE_FIELDS.includes(l.type))
       .map(l => _.pick(l, ['controlId', 'controlName', 'dataSource', 'enumDefault', 'sourceControlId', 'type']));
-
     const lastData = _.get(node, 'store.data.data');
     const index = _.findIndex(list, l => l.worksheetId === item.worksheetId);
     lastData.list[index].controls = newControls;
