@@ -144,7 +144,12 @@ export default function RecordOperate(props) {
     onRecreate = () => {},
     hideFav,
   } = props;
-  const showShare = _.includes(shows, 'share') && !md.global.Account.isPortal;
+  const showDel = (isOpenPermit(permitList.recordDelete, sheetSwitchPermit, viewId) || isSubList) && allowDelete;
+  const showShare =
+    _.includes(shows, 'share') &&
+    (isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) ||
+      isOpenPermit(permitList.embeddedLink, sheetSwitchPermit, viewId)) &&
+    !md.global.Account.isPortal;
   const showCopy =
     _.includes(shows, 'copy') &&
     allowCopy &&
@@ -318,7 +323,7 @@ export default function RecordOperate(props) {
             !showCopy &&
             !(showPrint && isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId)) &&
             !showOpenInNew &&
-            !allowDelete &&
+            !showDel &&
             !showEditForm && <Empty>{_l('无可用的操作')}</Empty>}
           {customButtonLoading && (!defaultCustomButtons || !!defaultCustomButtons.length) && (
             <Loading>
@@ -347,7 +352,7 @@ export default function RecordOperate(props) {
                 <Icon
                   className="Font17 mLeft5"
                   icon={!isFavorite ? 'star_outline' : 'star'}
-                  style={{ color: isFavorite ? '#ffc402' : '#9e9e9e' }}
+                  style={{ color: isFavorite ? '#ffc402' : '' }}
                 />
               }
               onClick={() => {
@@ -375,6 +380,7 @@ export default function RecordOperate(props) {
                   hidePublicShare: !(
                     isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) && !md.global.Account.isPortal
                   ),
+                  privateShare: isOpenPermit(permitList.embeddedLink, sheetSwitchPermit, viewId),
                 });
                 changePopupVisible(false);
               }}
@@ -468,7 +474,7 @@ export default function RecordOperate(props) {
               {_l('新页面打开%02001')}
             </MenuItemWrap>
           )}
-          {allowDelete && from !== RECORD_INFO_FROM.WORKFLOW && (
+          {showDel && from !== RECORD_INFO_FROM.WORKFLOW && (
             <DeleteItemWrap
               className="deleteItem"
               icon={<Icon icon="task-new-delete" className="Font17 mLeft5" />}

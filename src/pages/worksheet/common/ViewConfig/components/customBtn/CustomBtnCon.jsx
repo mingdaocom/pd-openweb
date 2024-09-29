@@ -1,112 +1,96 @@
 import React, { Component } from 'react';
 import './CustomBtn.less';
-import { Icon, RadioGroup, Dialog, Tooltip } from 'ming-ui';
+import { Icon, RadioGroup, Dialog, Tooltip, SvgIcon, SortableList } from 'ming-ui';
 import CustomBtnList from './CustomBtnList.jsx';
-import { SortableContainer, SortableElement, SortableHandle } from '@mdfe/react-sortable-hoc';
 import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
 import _ from 'lodash';
 
 const confirm = Dialog.confirm;
 
-const SortHandle = SortableHandle(() => <Icon className="mRight10 Font16 mLeft7 Hand" icon="drag" />);
-
-const Item = SortableElement(
-  ({
-    name,
-    icon,
-    color,
-    btnId,
-    appId,
-    editBtn,
-    clickType,
-    writeType,
-    writeObject,
-    deleteBtn,
-    isAllView,
-    handleCopy,
-    isListOption,
-  }) => {
-    const disable = (writeObject === 2 || writeType === 2) && clickType === 3 && isListOption; //批量的按钮，不支持填写关联
-    return (
-      <div className="customBtn alignItemsCenter">
-        <SortHandle />
-        <span
-          className="Hand con overflow_ellipsis alignItemsCenter"
-          onClick={() => {
-            editBtn(btnId);
-          }}
-        >
-          <span className="Font13 WordBreak Gray Bold flexRow alignItemsCenter">
-            {disable ? (
-              <Tooltip
-                placement="bottom"
-                text={<div style={{ width: 300 }}>{_l('批量操作的按钮不支持关联形态表单填写')}</div>}
-              >
-                <Icon icon={'error1'} style={{ color: 'red' }} className={cx('mRight12 Font18')} />
-              </Tooltip>
-            ) : (
-              <Icon
-                icon={icon || 'custom_actions'}
-                style={{ color: color }}
-                className={cx(
-                  'mRight12 Font18',
-                  !icon ? 'Gray_bd' : !color ? 'ThemeColor3' : color === 'transparent' ? 'Gray' : '',
-                )}
-              />
-            )}
-            <span className={cx('flex overflow_ellipsis', { Gray_9e: disable })}>{name || ''}</span>
-          </span>
-          <Icon
-            className="Font16 Hand copyIcon"
-            icon="copy"
-            onClick={e => {
-              e.stopPropagation();
-              return confirm({
-                title: <span className="WordBreak Block">{_l('复制自定义动作“%0”', name)}</span>,
-                description: _l('将复制目标自定义动作的所有节点和配置'),
-                onOk: () => {
-                  handleCopy(btnId);
-                },
-              });
-            }}
-          />
-          <Icon className="Font16 Hand editIcon mLeft15" icon="new_mail" />
+const Item = ({
+  name = '',
+  icon = '',
+  color = '',
+  btnId = '',
+  appId,
+  editBtn,
+  clickType,
+  writeType,
+  writeObject,
+  deleteBtn,
+  isAllView,
+  handleCopy,
+  isListOption,
+  iconUrl,
+  DragHandle,
+}) => {
+  const disable = (writeObject === 2 || writeType === 2) && clickType === 3 && isListOption; //批量的按钮，不支持填写关联
+  return (
+    <React.Fragment>
+      <DragHandle className="alignItemsCenter flexRow">
+        <Icon className="mRight10 Font16 mLeft7 Hand" icon="drag" />
+      </DragHandle>
+      <span
+        className="Hand con overflow_ellipsis alignItemsCenter"
+        onClick={() => {
+          editBtn(btnId);
+        }}
+      >
+        <span className="Font13 WordBreak Gray Bold flexRow alignItemsCenter">
+          {disable ? (
+            <Tooltip
+              placement="bottom"
+              text={<span>{_l('批量操作的按钮不支持关联形态表单填写')}</span>}
+            >
+              <Icon icon={'error1'} style={{ color: 'red' }} className={cx('mRight12 Font18')} />
+            </Tooltip>
+          ) : !!iconUrl && !!icon && icon.endsWith('_svg') ? (
+            <SvgIcon
+              className="mRight12"
+              addClassName='TxtMiddle'
+              url={iconUrl}
+              fill={!icon ? '#bdbdbd' : !color ? '#2196f3' : color === 'transparent' ? '#333' : color}
+              size={18}
+            />
+          ) : (
+            <Icon
+              icon={icon || 'custom_actions'}
+              style={{ color: color }}
+              className={cx(
+                'mRight12 Font18',
+                !icon ? 'Gray_bd' : !color ? 'ThemeColor3' : color === 'transparent' ? 'Gray' : '',
+              )}
+            />
+          )}
+          <span className={cx('flex overflow_ellipsis', { Gray_9e: disable })}>{name || ''}</span>
         </span>
         <Icon
-          className="Font16 Hand mLeft15 mRight15"
-          icon="delete2"
-          onClick={() => {
-            deleteBtn(btnId, isAllView);
+          className="Font16 Hand copyIcon"
+          icon="copy"
+          onClick={e => {
+            e.stopPropagation();
+            return confirm({
+              title: <span className="WordBreak Block">{_l('复制自定义动作“%0”', name)}</span>,
+              description: _l('将复制目标自定义动作的所有节点和配置'),
+              onOk: () => {
+                handleCopy(btnId);
+              },
+            });
           }}
         />
-      </div>
-    );
-  },
-);
-
-const SortableList = SortableContainer(({ items, editBtn, deleteBtn, handleCopy, isListOption }) => {
-  return (
-    <div className="">
-      {_.map(items, (item, index) => {
-        return (
-          <Item
-            {...item}
-            isListOption={isListOption}
-            name={item.name}
-            icon={item.icon}
-            color={item.color}
-            key={'item_' + index}
-            index={index}
-            editBtn={editBtn.bind(item)}
-            deleteBtn={deleteBtn.bind(item)}
-            handleCopy={handleCopy.bind(item)}
-          />
-        );
-      })}
-    </div>
+        <Icon className="Font16 Hand editIcon mLeft15" icon="new_mail" />
+      </span>
+      <Icon
+        className="Font16 Hand mLeft15 mRight15"
+        icon="delete2"
+        onClick={() => {
+          deleteBtn(btnId, isAllView);
+        }}
+      />
+    </React.Fragment>
   );
-});
+};
 
 const deleteStr = isAllView => {
   let list = [
@@ -200,16 +184,6 @@ class CustomBtnCon extends Component {
         this.props.onFresh();
       },
     );
-  };
-
-  handleSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-
-    const list = this.state.btnData.slice();
-    const currentItem = list.splice(oldIndex, 1)[0];
-
-    list.splice(newIndex, 0, currentItem);
-    this.handleMoveApp(list);
   };
 
   editBtn = btnId => {
@@ -306,18 +280,29 @@ class CustomBtnCon extends Component {
     return (
       <React.Fragment>
         <div className="customBtnBox mTop13">
-          {btnData && (
-            <SortableList
-              items={btnData}
-              isListOption={this.props.isListOption}
-              useDragHandle
-              onSortEnd={this.handleSortEnd}
-              helperClass={'customBtnSortableList'}
-              editBtn={this.editBtn}
-              deleteBtn={this.deleteBtn}
-              handleCopy={this.handleCopy}
-            />
-          )}
+          <div>
+            {btnData && (
+              <SortableList
+                items={btnData}
+                itemKey="btnId"
+                useDragHandle
+                onSortEnd={list => this.handleMoveApp(list)}
+                helperClass={'customBtnSortableList'}
+                itemClassName="customBtn alignItemsCenter"
+                renderItem={options => (
+                  <Item
+                    {...options}
+                    {...options.item}
+                    editBtn={this.editBtn}
+                    deleteBtn={this.deleteBtn}
+                    handleCopy={this.handleCopy}
+                    isListOption={this.props.isListOption}
+                    key={'item_' + options.index}
+                  />
+                )}
+              />
+            )}
+          </div>
           <div
             className="addBtn Hand mTop20 Relative"
             onClick={() => {
@@ -339,7 +324,7 @@ class CustomBtnCon extends Component {
             }}
           >
             <i className="icon icon-add Font18 mRight5 TxtMiddle InlineBlock"></i>
-            <span className="Bold TxtMiddle InlineBlock">{_l('自定义动作')}</span>
+            <span className="Bold TxtMiddle InlineBlock">{_l('自定义按钮')}</span>
             {this.state.showBtn && (
               <CustomBtnList
                 btnList={btnList}

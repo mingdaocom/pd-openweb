@@ -1,5 +1,5 @@
 import React, { useState, Fragment } from 'react';
-import { Drawer } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import styled from 'styled-components';
 import cx from 'classnames';
 
@@ -26,7 +26,7 @@ const SearchCom = styled.div`
   }
 `;
 
-const DrawerWrap = styled(Drawer)`
+const DrawerWrap = styled(Popup)`
   &.filterStepListWrapper {
     z-index: 100;
     position: fixed;
@@ -105,38 +105,36 @@ export default function SearchWrap(props) {
         <DrawerWrap
           className="filterStepListWrapper"
           position="right"
-          sidebar={
-            <AppContent>
-              <div className="header flexRow alignItemsCenter mBottom10 pRight16">
-                <div className="Font17 bold flex">{_l('按应用')}</div>
-                <div className="closeIcon" onClick={() => setDrawerVisible(false)}>
-                  <i className="icon icon-close Gray_9e" />
-                </div>
-              </div>
-              <div className="appList pRight16">
-                {[{ appId: 'all', appName: _l('全部') }].concat(apps).map(item => {
-                  return (
-                    <div
-                      key={item.appId}
-                      className="Font14 appItem"
-                      onClick={() => {
-                        setSelectAppId(item.appId);
-                        handleSearchList({ appId: item.appId });
-                        setDrawerVisible(false);
-                      }}
-                    >
-                      <div className="flex ellipsis">{item.appName}</div>
-                      {selectAppId === item.appId && <i className="icon icon-done ThemeColor Font18" />}
-                    </div>
-                  );
-                })}
-              </div>
-            </AppContent>
-          }
-          open={drawerVisible}
-          onOpenChange={() => setDrawerVisible(!drawerVisible)}
+          visible={drawerVisible}
+          onMaskClick={() => setDrawerVisible(!drawerVisible)}
+          onClose={() => setDrawerVisible(!drawerVisible)}
         >
-          <Fragment />
+          <AppContent>
+            <div className="header flexRow alignItemsCenter mBottom10 pRight16">
+              <div className="Font17 bold flex">{_l('按应用')}</div>
+              <div className="closeIcon" onClick={() => setDrawerVisible(false)}>
+                <i className="icon icon-close Gray_9e" />
+              </div>
+            </div>
+            <div className="appList pRight16">
+              {[{ appId: 'all', appName: _l('全部') }].concat(apps).map(item => {
+                return (
+                  <div
+                    key={item.appId}
+                    className="Font14 appItem"
+                    onClick={() => {
+                      setSelectAppId(item.appId);
+                      handleSearchList({ appId: item.appId });
+                      setDrawerVisible(false);
+                    }}
+                  >
+                    <div className="flex ellipsis">{item.appName}</div>
+                    {selectAppId === item.appId && <i className="icon icon-done ThemeColor Font18" />}
+                  </div>
+                );
+              })}
+            </div>
+          </AppContent>
         </DrawerWrap>
       ) : (
         ''

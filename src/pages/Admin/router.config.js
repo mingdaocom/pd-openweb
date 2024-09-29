@@ -94,7 +94,7 @@ export const menuList = [
             component: () => import('./user/portal'),
           },
           {
-            path: '/admin/expansionservice/(.*)/(portaluser|portalupgrade)+',
+            path: '/admin/expansionservice/(.*)/(portalexpand|portalupgrade)+',
             component: () => import('./organization/billCenter/expansionService'),
           },
         ],
@@ -214,7 +214,8 @@ export const menuList = [
       },
       {
         name: _l('专属资源'),
-        featureIds: [30, 36],
+        featureIds: [VersionProductType.exclusiveResource, VersionProductType.dataBase],
+        platformHiddenIds: [VersionProductType.dataBase],
         key: 'computing',
         hasBeta: false,
         routes: [
@@ -263,7 +264,6 @@ export const menuList = [
       {
         name: _l('商户'),
         key: 'merchant',
-        hasBeta: true,
         featureId: 40,
         menuPath: '/admin/merchant/:projectId(.*)',
         routes: [
@@ -273,6 +273,10 @@ export const menuList = [
           },
           {
             path: '/admin/transaction/:projectId',
+            component: () => import('./pay/Merchant'),
+          },
+          {
+            path: '/admin/refund/:projectId',
             component: () => import('./pay/Merchant'),
           },
           {

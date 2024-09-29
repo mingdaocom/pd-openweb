@@ -1,14 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import sheetAjax from 'src/api/worksheet';
-import { Icon, Input, ScrollView, LoadDiv, Button } from 'ming-ui';
+import { Icon, Input, ScrollView, LoadDiv } from 'ming-ui';
 import { Breadcrumb } from 'antd';
-import { Drawer } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { RecordInfoModal } from 'mobile/Record';
 import { openAddRecord } from 'mobile/Record/addRecord';
-import { isOpenPermit } from 'src/pages/FormSet/util';
-import { permitList } from 'src/pages/FormSet/config';
 import SheetView from '../View/SheetView';
 import GalleryView from '../View/GalleryView';
 import MobileMapView from '../View/MapView';
@@ -17,6 +15,8 @@ import { getAdvanceSetting } from 'src/util';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
+import { sortDataByCustomNavs } from 'src/pages/worksheet/common/Sheet/GroupFilter/util';
+import { getViewActionInfo } from 'src/pages/Mobile/RecordList/util';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
@@ -68,10 +68,17 @@ const GroupFilter = props => {
     controls,
     sheetSwitchPermit,
   };
-  const canDelete = isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId);
-  const showCusTomBtn = isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId);
   const { advancedSetting = {} } = view;
-  const { showallitem, allitemname, shownullitem, nullitemname } = advancedSetting;
+  const { showallitem, allitemname, shownullitem, nullitemname, usenav } = advancedSetting;
+  const { canAddRecord, showBatchBtn, recordActionWrapBottom } = getViewActionInfo({
+    view,
+    viewId: base.viewId,
+    worksheetInfo,
+    sheetSwitchPermit,
+    batchOptVisible,
+    isGroupFilter: true,
+  });
+
   useEffect(() => {
     let height = breadNavBar.current ? breadNavBar.current.clientHeight : 0;
     setBreadMavHeight(height);
@@ -179,9 +186,13 @@ const GroupFilter = props => {
       let filterControls = navfilters.map(handleCondition);
       param = { ...param, filterControls };
     }
-    if (soucre.type === 29 && !!_.get(soucre, 'advancedSetting.searchcontrol') && keywords) {
-      param.controlId = _.get(soucre, 'controlId');
+    if (soucre.type === 29) {
+      if (!!_.get(soucre, 'advancedSetting.searchcontrol') && keywords) {
+        param.controlId = _.get(soucre, 'controlId');
+      }
+
       param.relationWorksheetId = view.worksheetId;
+      param.sortControls = safeParse(_.get(view, 'advancedSetting.navsorts'), 'array'); //视图id
     }
     ajaxFn = sheetAjax.getFilterRows({
       worksheetId,
@@ -436,7 +447,8 @@ const GroupFilter = props => {
       );
     }
 
-    let tempData = renderData;
+    let tempData = sortDataByCustomNavs(renderData, view, controls);
+
     if (!keywords && !currentNodeId) {
       if ((soucre.type === 29 && !!navGroup.viewId) || [35].includes(soucre.type)) {
         //关联记录以层级视图时|| 级联没有显示项
@@ -569,6 +581,7 @@ const GroupFilter = props => {
       <RecordInfoModal
         className="full"
         visible={!!previewRecordId}
+        enablePayment={worksheetInfo.enablePayment}
         appId={base.appId}
         worksheetId={base.worksheetId}
         viewId={base.viewId}
@@ -577,37 +590,50 @@ const GroupFilter = props => {
           setPreviewRecordId(undefined);
         }}
       />
-      <Drawer
-        className={cx('groupFilterDrawer')}
-        position="right"
-        sidebar={
-          <div className="groupDetailBox">
-            {!batchOptVisible && (
-              <div
-                className="groupTitle"
-                onClick={() => {
-                  setDrawerVisible(false);
-                }}
-              >
-                <Icon icon="arrow-left-border" className="mRight2 Gray_75 TxtMiddle mBottom3" />
-                <span className="Font15">{currentGroup.txt}</span>
-              </div>
-            )}
-            <div className="groupDetailCon">
-              <Component {...viewProps} />
-              {!isMingDaoApp &&
-              isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
-              worksheetInfo.allowAdd &&
-              !batchOptVisible ? (
+      <Popup className={cx('groupFilterDrawer')} position="right" visible={drawerVisible} onClose={handleOpenDrawer}>
+        <div className="groupDetailBox">
+          {!batchOptVisible && (
+            <div
+              className="groupTitle"
+              onClick={() => {
+                setDrawerVisible(false);
+              }}
+            >
+              <Icon icon="arrow-left-border" className="mRight2 Gray_75 TxtMiddle mBottom3" />
+              <span className="Font15">{currentGroup.txt}</span>
+            </div>
+          )}
+          <div className="groupDetailCon flexColumn overflowHidden">
+            <Component {...viewProps} changeActionSheetModalIndex={true} />
+
+            <div
+              className="recordActionWrap"
+              style={{
+                position: 'fixed',
+                right: 20,
+                bottom: recordActionWrapBottom,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              {showBatchBtn && (
+                <BatchOperationBtn className="Static mTop10" onClick={() => props.changeBatchOptVisible(true)} />
+              )}
+
+              {canAddRecord && (
                 <AddRecordBtn
                   entityName={worksheetInfo.entityName}
                   backgroundColor={appColor}
+                  className="Static mTop10"
                   onClick={() => {
                     let defaultFormData = getDefaultValueInCreate();
-                    let param = {
-                      defaultFormData,
-                      defaultFormDataEditable: true,
-                    };
+                    let param =
+                      usenav === '1'
+                        ? {
+                            defaultFormData,
+                            defaultFormDataEditable: true,
+                          }
+                        : {};
                     openAddRecord({
                       ...param,
                       className: 'full',
@@ -627,25 +653,11 @@ const GroupFilter = props => {
                     });
                   }}
                 />
-              ) : null}
-            </div>
-            {!isMingDaoApp &&
-              !_.get(window, 'shareState.shareId') &&
-              (canDelete || showCusTomBtn) &&
-              view.viewType === 0 &&
-              !batchOptVisible && (
-                <BatchOperationBtn
-                  style={{ bottom: appNaviStyle === 2 && view.viewType === 0 ? '70px' : '20px' }}
-                  onClick={() => props.changeBatchOptVisible(true)}
-                />
               )}
+            </div>
           </div>
-        }
-        open={drawerVisible}
-        onOpenChange={handleOpenDrawer}
-      >
-        <React.Fragment />
-      </Drawer>
+        </div>
+      </Popup>
     </div>
   );
 };

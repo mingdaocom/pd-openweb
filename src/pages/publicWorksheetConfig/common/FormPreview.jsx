@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget.js';
 import PublicFormDisplay from '../../widgetConfig/widgetDisplay/publicFormDisplay';
 import { isOldSheetList } from 'src/pages/widgetConfig/util';

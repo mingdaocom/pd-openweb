@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
 import { browserIsMobile } from 'src/util';
-import { Flex, WhiteSpace } from 'antd-mobile';
 import withoutRows from './assets/withoutRows.png';
 
 const ViewEmptyWrap = styled.div`
@@ -62,11 +60,10 @@ export default function ViewEmpty({ filters = {}, viewFilter = [] }) {
   if (isMobile) {
     return (
       <MobileViewEmpty>
-        <Flex className="withoutRows" direction="column" justify="center" align="center">
+        <div className="withoutRows flexColumn alignItemsCenter justifyContentCenter">
           <img className="img" src={withoutRows} />
-          <WhiteSpace size="md" />
-          <div className="text">{_l('此视图下暂无记录')}</div>
-        </Flex>
+          <div className="text mTop10">{_l('此视图下暂无记录')}</div>
+        </div>
       </MobileViewEmpty>
     );
   }

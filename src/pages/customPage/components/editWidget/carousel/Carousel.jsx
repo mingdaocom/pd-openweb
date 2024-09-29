@@ -305,12 +305,17 @@ export default function CarouselPreview(props) {
     // 打开图片
     if (action === 3) {
       if (imageControl.type === 14) {
+        const hideFunctions = ['editFileName', 'saveToKnowlege', 'share'];
+        const allowDownload = imageControl.advancedSetting.allowdownload || '1';
+        if (allowDownload === '0') {
+          hideFunctions.push('download');
+        }
         previewAttachments({
           index: currentIndex,
           attachments: imageData,
           callFrom: 'player',
           showThumbnail: true,
-          hideFunctions: ['editFileName', 'saveToKnowlege', 'share'],
+          hideFunctions,
         });
       }
       if (imageControl.type === 47) {

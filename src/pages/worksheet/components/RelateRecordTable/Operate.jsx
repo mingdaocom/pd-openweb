@@ -3,7 +3,7 @@ import { bool, func, shape, string } from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Motion, spring } from 'react-motion';
-import { Input } from 'ming-ui';
+import { Input, Dialog } from 'ming-ui';
 import { get, last, find, isUndefined } from 'lodash';
 import cx from 'classnames';
 import styled from 'styled-components';
@@ -12,6 +12,7 @@ import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { selectRecord } from 'src/components/recordCardListDialog';
 import { openRelateRelateRecordTable } from 'worksheet/components/RelateRecordTableDialog';
+import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import ExportSheetButton from 'worksheet/components/ExportSheetButton';
 import Pagination from 'worksheet/components/Pagination';
 import { exportRelateRecordRecords } from 'src/pages/worksheet/common/recordInfo/crtl';
@@ -19,6 +20,7 @@ import RelateRecordBtn from './RelateRecordBtn';
 import { getTranslateInfo } from 'src/util';
 import * as actions from './redux/action';
 import { arrayOf } from 'prop-types';
+import { initialChanges } from './redux/reducer';
 
 const Con = styled.div`
   display: flex;
@@ -169,6 +171,7 @@ function Operate(props) {
     className,
     base = {},
     tableState = {},
+    recordTitle,
     formData,
     changes = {},
     records,
@@ -202,8 +205,17 @@ function Operate(props) {
     allowDeleteFromSetting,
     allowExportFromSetting,
   } = base;
-  const { tableLoading, keywords, pageIndex, pageSize, count, isBatchEditing, selectedRowIds, countForShow } =
-    tableState;
+  const {
+    tableLoading,
+    keywords,
+    pageIndex,
+    pageSize,
+    count,
+    isBatchEditing,
+    selectedRowIds,
+    countForShow,
+    filterControls = [],
+  } = tableState;
   const allowBatchEdit = base.allowBatchEdit && !!records.length;
   return (
     <Con className={className} style={style} smallMode={smallMode}>
@@ -220,7 +232,12 @@ function Operate(props) {
               control.recordInfoFrom !== RECORD_INFO_FROM.WORKFLOW,
           }}
           isBatchEditing={isBatchEditing}
-          entityName={getTranslateInfo(appId, null, control.dataSource).recordName || relateWorksheetInfo.entityName || control.sourceEntityName || ''}
+          entityName={
+            getTranslateInfo(appId, null, control.dataSource).recordName ||
+            relateWorksheetInfo.entityName ||
+            control.sourceEntityName ||
+            ''
+          }
           addVisible={addVisible}
           selectVisible={selectVisible}
           selectedRowIds={selectedRowIds}
@@ -254,7 +271,7 @@ function Operate(props) {
             selectRecord({
               canSelectAll: true,
               multiple: true,
-              control,
+              control: { ...control, recordId: recordId },
               allowNewRecord: false,
               viewId: control.viewId,
               parentWorksheetId: worksheetId,
@@ -300,8 +317,24 @@ function Operate(props) {
                   alert(_l('没有有权限删除的记录'), 3);
                   return;
                 }
-                deleteOriginalRecords({
-                  recordIds: allowDeleteRowIds,
+                Dialog.confirm({
+                  onlyClose: true,
+                  title: (
+                    <span className="Bold" style={{ color: '#f44336' }}>
+                      {_l('注意：此操作将删除原始记录')}
+                    </span>
+                  ),
+                  description: _l('如果只需要取消与当前记录的关联关系，仍保留原始记录。可以选择仅取消关联关系'),
+                  buttonType: 'danger',
+                  cancelType: 'ghostgray',
+                  okText: _l('删除记录'),
+                  cancelText: _l('仅取消关联关系'),
+                  onOk: () => {
+                    deleteOriginalRecords({
+                      recordIds: allowDeleteRowIds,
+                    });
+                  },
+                  onCancel: () => handleRemoveRelation(selectedRowIds),
                 });
                 break;
               case 'exportRecords':
@@ -321,20 +354,23 @@ function Operate(props) {
       )}
       <div className="flex"></div>
       <div className={cx('operateButtons flexRow alignItemsCenter', { isInForm: base.isInForm && mode !== 'dialog' })}>
-        {isBatchEditing && !!recordId && from !== 21 && !!recordId && (
-          <span
-            className="mRight6"
-            data-tip={_l('刷新')}
-            style={{ height: 28 }}
-            onClick={() => {
-              refresh();
-            }}
-          >
-            <IconBtn className="Hand ThemeHoverColor3">
-              <i className="icon icon-task-later" />
-            </IconBtn>
-          </span>
-        )}
+        {!isBatchEditing &&
+          from !== 21 &&
+          !!recordId &&
+          (base.isTab || _.isEqual(changes, initialChanges) || _.isEmpty(changes)) && (
+            <span
+              className="mRight6"
+              data-tip={_l('刷新')}
+              style={{ height: 28 }}
+              onClick={() => {
+                refresh();
+              }}
+            >
+              <IconBtn className="Hand ThemeHoverColor3">
+                <i className="icon icon-task-later" />
+              </IconBtn>
+            </span>
+          )}
         {!!recordId && <AnimatedInput className="mRight6" keywords={keywords} control={control} onSearch={search} />}
         {mode === 'recordForm' && !!recordId && from !== RECORD_INFO_FROM.DRAFT && (
           <span
@@ -362,8 +398,7 @@ function Operate(props) {
             </IconBtn>
           </span>
         )}
-        {control.type !== 51 &&
-          from !== RECORD_INFO_FROM.DRAFT &&
+        {from !== RECORD_INFO_FROM.DRAFT &&
           allowExportFromSetting &&
           !!recordId &&
           !get(window, 'shareState.shareId') && (
@@ -372,16 +407,18 @@ function Operate(props) {
                 height: 28,
               }}
               exportSheet={cb => {
-                exportRelateRecordRecords({
+                if (!records.length) {
+                  cb();
+                  alert(_l('数据为空，暂不支持导出！'), 3);
+                  return;
+                }
+                return exportRelateRecordRecords({
                   worksheetId,
                   rowId: recordId,
                   controlId: control.controlId,
+                  filterControls: control.type === 51 ? filterControls : [],
                   fileName:
-                    `${
-                      mode !== 'dialog'
-                        ? ((last([...document.querySelectorAll('.recordTitle')]) || {}).innerText || '').slice(0, 200)
-                        : ''
-                    } ${control.controlName}${moment().format('YYYYMMDD HHmmss')}`.trim() + '.xlsx',
+                    `${recordTitle}_${control.controlName}_${moment().format('YYYYMMDDHHmmss')}`.trim() + '.xlsx',
                   onDownload: cb,
                 });
               }}

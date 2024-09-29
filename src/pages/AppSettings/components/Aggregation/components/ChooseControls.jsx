@@ -4,7 +4,8 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { getCanSelectControls, formatControls } from '../util';
+import { getCanSelectControls, formatControls, isIn, canAgg, canChooseForParent } from '../util';
+import { isFormulaResultAsSubtotal } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 
 const Wrap = styled.div`
   width: 240px;
@@ -44,12 +45,16 @@ const Wrap = styled.div`
   }
   .itemControl {
     padding: 10px 16px;
+    line-height: 16px;
     &:hover {
       background: #f5f5f5;
     }
     &.hs {
       background: #f5f5f5;
       color: #2196f3;
+    }
+    &.disable {
+      cursor: not-allowed;
     }
   }
 `;
@@ -72,8 +77,19 @@ function ChooseControl(props) {
     }, 300);
   }, []);
   const renderDrop = () => {
-    const controlsByKey = formatControls(props.controls).filter(
-      o => (o.controlName || '').toLowerCase().indexOf((keywords || '').toLowerCase()) >= 0,
+    let controlsByKey = formatControls(props.controls, props.worksheetId).filter(
+      o =>
+        (o.controlName || '').toLowerCase().indexOf((keywords || '').toLowerCase()) >= 0 &&
+        (parentName ? ![29, 34, 35].includes(o.type) : !parentName), //下集不可选 关联记录、级连选择、子表
+    );
+
+    controlsByKey = controlsByKey.filter(it =>
+      !props.forAggregation
+        ? ![31, 37, 6, 8].includes(it.type)
+        : !(
+            (it.type === 38 && it.enumDefault === 2) || //聚合不支持公式日期加减
+            (it.type === 37 && !isFormulaResultAsSubtotal(it))
+          ),
     );
     return (
       <React.Fragment>
@@ -96,13 +112,27 @@ function ChooseControl(props) {
             <div className="Gray_9e mTop40 pTop8 TxtCenter pBottom20">{_l('暂无相关字段')}</div>
           ) : (
             controlsByKey.map(o => {
-              const disable = (props.list || []).includes(o.controlId);
+              const isFull =
+                o.isFull || ([29, 34, 35].includes(o.type) && !canChooseForParent(props.flowData, o.dataSource));
+              const disable = o.disableChoose || isFull;
               const hs = controlId === o.controlId;
               return (
                 <div
-                  className={cx('itemControl flexRow alignItemsCenter', { hs })}
+                  className={cx('itemControl flexRow alignItemsCenter', {
+                    hs,
+                    disable: disable && ![29, 34, 35].includes(o.type),
+                    Hand: !disable,
+                  })}
                   onClick={event => {
+                    if (isFull) {
+                      return alert(_l('数据源已达上限'), 3);
+                    }
                     if (disable) {
+                      return;
+                    }
+                    if ([29, 34, 35].includes(o.type) && !parentName) {
+                      //关联记录、级连选择、子表 (一级)只支持选下集
+                      showNext(o.controlId);
                       return;
                     }
                     onChange(o);
@@ -111,17 +141,25 @@ function ChooseControl(props) {
                   <div className={cx('flex flexRow alignItemsCenter', disable ? 'disable' : 'Hand')}>
                     <Icon
                       icon={o.controlId === 'rowscount' ? 'calculate' : getIconByType(o.type)}
-                      className={cx('Font16', hs ? 'ThemeColor3' : 'Gray_9e')}
+                      className={cx('Font16', hs ? 'ThemeColor3' : disable ? 'Gray_bd' : 'Hand Gray_9e')}
                     />
-                    <div className={cx('flex mLeft8 WordBreak overflow_ellipsis', hs ? 'ThemeColor3' : 'Gray')}>
+                    <div
+                      className={cx(
+                        'flex mLeft8 WordBreak overflow_ellipsis',
+                        hs ? 'ThemeColor3' : disable ? 'Gray_bd' : 'Gray',
+                      )}
+                    >
                       {o.controlName}
                     </div>
                   </div>
                   {(o.relationControls || []).length > 0 && !parentName && showNext && (
                     <Icon
                       icon={'arrow-right-tip'}
-                      className="Gray_9e Hand mLeft10"
+                      className={cx('mLeft10', disable ? 'Gray_bd' : 'Hand Gray_9e')}
                       onClick={e => {
+                        if (disable) {
+                          return;
+                        }
                         e.stopPropagation();
                         showNext(o.controlId);
                       }}
@@ -164,30 +202,48 @@ export default function ChooseControls(props) {
         onChange={info => {
           props.onChange({ control: info });
         }}
+        key={'choose_control'}
         controlId={controlId}
-        // showNext={controlId => {
-        //   setState({
-        //     controlId,
-        //   });
-        // }}
+        showNext={controlId => {
+          setState({
+            controlId,
+          });
+        }}
       />
-      {/* {controlId && (
+      {controlId && (
         <React.Fragment>
           <div className="lineLeft"></div>
           <ChooseControl
             {...props}
+            key={'child_choose_control_' + controlId}
             onChange={info => {
               //子集信息
               props.onChange({ control: controls.find(o => o.controlId === controlId) || {}, childrenControl: info });
             }}
-            controls={((controls.find(o => o.controlId === controlId) || {}).relationControls || []).filter(
-              o => !_.includes(getConfigControls(props.flowData), `${props.worksheetId}_${o.controlId}`),
-            )}
+            controls={((controls.find(o => o.controlId === controlId) || {}).relationControls || []).map(oo => {
+              const parent = controls.find(o => o.controlId === controlId) || {};
+              const isFull =
+                [29, 34, 35].includes(parent.type) && !canChooseForParent(props.flowData, parent.dataSource);
+              if (
+                isIn(
+                  props.flowData,
+                  oo,
+                  controls.find(o => o.controlId === controlId) || {},
+                  props.worksheetId,
+                  props.forAggregation,
+                ) ||
+                (props.forAggregation &&
+                  !canAgg(oo, controls.find(o => o.controlId === controlId) || {}, props.flowData))
+              ) {
+                return { ...oo, disableChoose: true, isFull };
+              }
+              return { ...oo, disableChoose: false, isFull };
+            })}
             parentName={_l('关联')}
             title={(controls.find(o => o.controlId === controlId) || {}).controlName}
           />
         </React.Fragment>
-      )} */}
+      )}
     </WrapCon>
   );
 }

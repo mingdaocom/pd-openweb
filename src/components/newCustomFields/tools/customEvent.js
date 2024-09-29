@@ -24,7 +24,8 @@ const dealDataPermission = props => {
   const { actionItems = [], actions = [], actionType, formData = [] } = props;
 
   function setEventPermission(item) {
-    let eventPermissions = item.eventPermissions || '111';
+    // eventPermissions给默认值111，计算会覆盖字段原始只读(x用来区分是否由事件导致变更过)
+    let eventPermissions = item.eventPermissions || 'xxx';
     switch (actionType) {
       case ACTION_VALUE_ENUM.READONLY:
         eventPermissions = replaceStr(eventPermissions, 1, '0');
@@ -39,7 +40,9 @@ const dealDataPermission = props => {
         eventPermissions = replaceStr(eventPermissions, 0, '0');
         break;
     }
-    item.eventPermissions = eventPermissions;
+    item.eventPermissions = eventPermissions.replace(/x/g, (a, b) => {
+      return (item.fieldPermission || '111')[b];
+    });
   }
 
   // 只读所有字段
@@ -80,8 +83,9 @@ const getDynamicData = ({ formData, embedData, masterData }, control) => {
     return calcDefaultValueFunction({ fnControl: control, formData, forceSyncRun: true });
   } else {
     const defSource = _.get(control, 'advancedSetting.defsource');
-    // 没值相当于清空
-    if (_.isEmpty(safeParse(defSource))) {
+    const parsed = safeParse(defSource, 'array');
+    // 没值或配置清空相当于清空
+    if (_.isEmpty(parsed) || _.get(parsed, '0.cid') === 'empty') {
       return isSheetDisplay(control) ? '[]' : '';
     }
     return getDynamicValue(formData, control, masterData, embedData);
@@ -186,6 +190,7 @@ const handleSearchApi = async props => {
     apkId: appId,
     apiTemplateId: dataSource,
     apiEventId: advancedSetting.apiEventId,
+    authId: advancedSetting.authaccount,
   };
 
   if (window.isPublicWorksheet) {

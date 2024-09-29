@@ -73,9 +73,7 @@ export default function EnablePanel(props) {
             url={queryInfo.url}
             customBtns={[{ tip: _l('打开'), icon: 'launch', onClick: () => window.open(queryInfo.url) }]}
           />
-          <Button size="mdbig" onClick={() => setConfigVisible(true)}>
-            {_l('设置查询链接')}
-          </Button>
+          <Button onClick={() => setConfigVisible(true)}>{_l('查询设置')}</Button>
         </React.Fragment>
       )}
       {configVisible && (

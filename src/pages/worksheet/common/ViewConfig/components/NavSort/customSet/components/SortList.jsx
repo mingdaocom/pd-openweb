@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Icon, UserHead } from 'ming-ui';
+import { Icon, UserHead, SortableList } from 'ming-ui';
 import styled from 'styled-components';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import DropCon from './DropCon';
 import Option from './Options';
 import cx from 'classnames';
@@ -17,13 +16,10 @@ const Wrap = styled.div``;
 export default function (props) {
   const { setting, onChange, projectId, maxCount } = props;
 
-  const SortHandle = SortableHandle(() => (
-    <Icon className="mRight10 Font16 Gray_9e ThemeHoverColor3 Hand dragHandle" icon="drag" />
-  ));
-
-  const Item = SortableElement(props => {
+  const Item = props => {
     const $ref = useRef(null);
-    const { onAdd, onDelete, items, item, onUpdate, num, projectId, appId } = props;
+    const { onAdd, onDelete, item, onUpdate, projectId, appId, DragHandle } = props;
+    const { num, info } = item;
     const addUser = (isMultiple = true, tabType, cb) => {
       quickSelectUser($ref.current, {
         showMoreInvite: false,
@@ -38,6 +34,7 @@ export default function (props) {
         },
         zIndex: 10001,
         filterAccountIds: [md.global.Account.accountId, 'user-self'],
+        selectedAccountIds: setting.map(l => l.accountId),
         SelectUserSettings: {
           projectId,
           unique: !isMultiple,
@@ -51,12 +48,11 @@ export default function (props) {
         },
       });
     };
-    if (item === 'add') {
+    if (info === 'add') {
       return (
         <DropCon
           {...props}
-          currentList={items}
-          onDelete={onDelete}
+          currentList={setting}
           onChange={item => {
             onUpdate(item);
           }}
@@ -66,28 +62,30 @@ export default function (props) {
     return (
       <div className="flexRow customsortItem alignItemsCenter" ref={$ref}>
         <span className={cx('con flexRow flex alignItemsCenter pLeft6 pRight6')}>
-          <SortHandle />
+          <DragHandle className="alignItemsCenter flexRow">
+            <Icon className="mRight10 Font16 Gray_9e ThemeHoverColor3 Hand dragHandle" icon="drag" />
+          </DragHandle>
           {isSameType([9, 10, 11], props.controlInfo) && (
             <span className="flex WordBreak overflow_ellipsis">
-              <Option controlInfo={props.controlInfo} item={item} />
+              <Option controlInfo={props.controlInfo} item={info} />
             </span>
           )}
-          {isSameType([28], props.controlInfo) && <span className="flex">{_l('%0 级', parseInt(item, 10))}</span>}
+          {isSameType([28], props.controlInfo) && <span className="flex">{_l('%0 级', parseInt(info, 10))}</span>}
           {[29].includes(props.controlInfo.type) && (
-            <span className="overflow_ellipsis Font13 WordBreak flex">{(item || {}).name || _l('未命名')}</span>
+            <span className="overflow_ellipsis Font13 WordBreak flex">{(info || {}).name || _l('未命名')}</span>
           )}
           {isSameType([26], props.controlInfo) && (
             <span className="flexRow flex">
               <UserHead
                 user={{
-                  userHead: item.avatar,
-                  accountId: item.accountId,
+                  userHead: info.avatar,
+                  accountId: info.accountId,
                 }}
                 projectId={projectId}
                 size={28}
               />
               <span className="overflow_ellipsis Font13 WordBreak flex mLeft10">
-                {(item || {}).fullname || _l('未命名')}
+                {(info || {}).fullname || _l('未命名')}
               </span>
             </span>
           )}
@@ -95,7 +93,7 @@ export default function (props) {
             className="Font16 Hand delete mLeft15 deleteLine"
             icon="delete2"
             onClick={() => {
-              onDelete(item);
+              onDelete(info);
             }}
           />
         </span>
@@ -120,70 +118,73 @@ export default function (props) {
         />
       </div>
     );
-  });
-  const SortableList = SortableContainer(props => {
-    const { items } = props;
-    return (
-      <div className="sortCustom mTop6">
-        {_.map(items, (item, index) => {
-          return <Item item={item} {...props} key={'item_' + index} index={index} num={index} />;
-        })}
-      </div>
-    );
-  });
+  };
 
   return (
     <Wrap>
-      <SortableList
-        {...props}
-        items={setting}
-        useDragHandle
-        onSortEnd={({ oldIndex, newIndex }) => onChange(arrayMove(setting, oldIndex, newIndex))}
-        helperClass={'sortCustomFile'}
-        onAdd={index => {
-          setting.splice(index + 1, 0, 'add');
-          onChange(setting);
-        }}
-        onDelete={data =>
-          onChange(
-            setting.filter(o =>
-              isSameType([9, 10, 11, 28], props.controlInfo)
-                ? o !== data
-                : isSameType([26], props.controlInfo)
-                ? o.accountId !== data.accountId
-                : o.rowid !== data.rowid,
-            ),
-          )
-        }
-        onUpdate={(data, index) => {
-          if (!data) {
-            onChange(setting.filter(o => o !== 'add'));
-          } else if (isArray(data)) {
-            const ids = setting.map(oo => oo.accountId);
-            setting.splice(index + 1, 0, ...data.filter(ii => !ids.includes(ii.accountId)));
-            onChange(maxCount ? setting.slice(0, maxCount) : setting);
-          } else {
-            let list = setting.map(o => {
-              if (o === 'add') {
-                if ([29].includes(props.controlInfo.type)) {
-                  const control = ((props.controlInfo || {}).relationControls || []).find(it => it.attribute === 1);
-                  return {
-                    rowid: data.rowid,
-                    name: renderCellText({ ...control, value: data[control.controlId] }) || _l('未命名'),
-                  };
+      <div className="sortCustom mTop6">
+        <SortableList
+          {...props}
+          items={setting.map((o, i) => {
+            return { info: o.info ? o.info : o, num: i };
+          })}
+          useDragHandle
+          itemKey="num"
+          onSortEnd={setting => onChange(setting.map(o => o.info))}
+          helperClass={'sortCustomFile'}
+          renderItem={options => (
+            <Item
+              {...props}
+              {...options}
+              onAdd={index => {
+                setting.splice(index + 1, 0, 'add');
+                onChange(setting);
+              }}
+              onUpdate={(data, index) => {
+                if (!data) {
+                  onChange(setting.filter(o => o !== 'add'));
+                } else if (isArray(data)) {
+                  const ids = setting.map(oo => oo.accountId);
+                  setting.splice(index + 1, 0, ...data.filter(ii => !ids.includes(ii.accountId)));
+                  onChange(maxCount ? setting.slice(0, maxCount) : setting);
+                } else {
+                  let list = setting.map(o => {
+                    if (o === 'add') {
+                      if ([29].includes(props.controlInfo.type)) {
+                        const control = ((props.controlInfo || {}).relationControls || []).find(
+                          it => it.attribute === 1,
+                        );
+                        return {
+                          rowid: data.rowid,
+                          name: renderCellText({ ...control, value: data[control.controlId] }) || _l('未命名'),
+                        };
+                      }
+                      if (isSameType([9, 10, 11], props.controlInfo)) {
+                        return (props.controlInfo.options.find(ii => ii.key === data.key) || {}).key;
+                      }
+                      return data;
+                    } else {
+                      return o;
+                    }
+                  });
+                  onChange(maxCount ? list.slice(0, maxCount) : list);
                 }
-                if (isSameType([9, 10, 11], props.controlInfo)) {
-                  return (props.controlInfo.options.find(ii => ii.key === data.key) || {}).key;
-                }
-                return data;
-              } else {
-                return o;
+              }}
+              onDelete={data =>
+                onChange(
+                  setting.filter(o =>
+                    isSameType([9, 10, 11, 28], props.controlInfo)
+                      ? o !== data
+                      : isSameType([26], props.controlInfo)
+                      ? o.accountId !== data.accountId
+                      : o.rowid !== data.rowid,
+                  ),
+                )
               }
-            });
-            onChange(maxCount ? list.slice(0, maxCount) : list);
-          }
-        }}
-      />
+            />
+          )}
+        />
+      </div>
     </Wrap>
   );
 }

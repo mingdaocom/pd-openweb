@@ -11,6 +11,7 @@ import MongoDBGuide from './MongoDB';
 import MariaDBGuide from './MariaDB';
 import DB2Guide from './DB2';
 import KafkaGuide from './Kafka';
+import SapHaNa from './SapHaNa';
 
 const TabList = styled.div`
   box-sizing: border-box;
@@ -85,6 +86,8 @@ export default function ConfigGuide(props) {
         return <DB2Guide type={currentTab} />;
       case DATABASE_TYPE.KAFKA:
         return <KafkaGuide type={currentTab} />;
+      case DATABASE_TYPE.SAP_HANA:
+        return <SapHaNa type={currentTab} />;
       default:
         <div />;
     }

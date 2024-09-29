@@ -1,5 +1,5 @@
 import React, { useEffect, useState, Fragment } from 'react';
-import { Flex, ActivityIndicator } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import { connect } from 'react-redux';
 import { View } from 'src/pages/customPage/components/editWidget/view/Preview';
 import { formatFiltersGroup } from 'src/pages/customPage/components/editWidget/filter/util';
@@ -37,9 +37,9 @@ function ViewContent(props) {
 
   if (!_.get(window, 'shareState.shareId') && filterComponents.length && loadFilterComponentCount < filterComponents.length) {
     return (
-      <Flex justify="center" align="center" className="h100 w100">
-        <ActivityIndicator size="large" />
-      </Flex>
+      <div className="flexRow justifyContentCenter alignItemsCenter w100 h100">
+        <SpinLoading color='primary' />
+      </div>
     );
   }
 
@@ -51,17 +51,17 @@ function ViewContent(props) {
 
   if (isClickSearch && !filtersGroup.length) {
     return (
-      <Flex justify="center" align="center" className="h100 w100">
+      <div className="flexRow justifyContentCenter alignItemsCenter w100 h100">
         <span className="Font15 bold Gray_9e">{_l('执行查询后显示结果')}</span>
-      </Flex>
+      </div>
     );
   }
 
   if (!visible) {
     return (
-      <Flex justify="center" align="center" className="h100 w100">
-        <ActivityIndicator size="large" />
-      </Flex>
+      <div className="flexRow justifyContentCenter alignItemsCenter w100 h100">
+        <SpinLoading color='primary' />
+      </div>
     );
   }
 

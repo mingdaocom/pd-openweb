@@ -51,9 +51,16 @@ export default class ThirdPartyApp extends Component {
       </div>
     ) : (
       <Fragment>
-        {topData.length > 0 && <ThirdAppGroup onSetTopClick={this.handleSetTopClick} data={{ type: 'top', apps: topData }} />}
-        {personalData.length > 0 && <ThirdAppGroup onSetTopClick={this.handleSetTopClick} data={{ type: 'account', apps: personalData }} />}
-        {projectData && projectData.map(project => <ThirdAppGroup key={project.projectId} onSetTopClick={this.handleSetTopClick} data={project} />)}
+        {topData.length > 0 && (
+          <ThirdAppGroup onSetTopClick={this.handleSetTopClick} data={{ type: 'top', apps: topData }} />
+        )}
+        {personalData.apps.length > 0 && (
+          <ThirdAppGroup onSetTopClick={this.handleSetTopClick} data={{ type: 'account', apps: personalData.apps }} />
+        )}
+        {projectData &&
+          projectData.map(project => (
+            <ThirdAppGroup key={project.projectId} onSetTopClick={this.handleSetTopClick} data={project} />
+          ))}
       </Fragment>
     );
   };

@@ -6,6 +6,7 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import { FROM_TYPE } from '../constant/enum';
 import * as Actions from '../actions/action';
 import attachmentAjax from 'src/api/attachment';
+import filterXSS from 'xss';
 import { cutStringWithHtml, htmlEncodeReg, createLinksForMessage } from 'src/util';
 import moment from 'moment';
 
@@ -113,7 +114,7 @@ class attachmentInfo extends React.Component {
     if (this.state.postDetails) {
       const postDetailsEle = document.createElement('div');
       postDetails = this.state.postDetails;
-      postDetailsEle.innerHTML = postDetails;
+      postDetailsEle.innerHTML = filterXSS(postDetails);
       postDetails = postDetailsEle.innerHTML;
     } else {
       this.loadPreviewMsg();
@@ -156,7 +157,7 @@ class attachmentInfo extends React.Component {
           </div>
           <div className="attOperateTime">{moment(new Date(createTime)).format('YYYY-MM-DD HH:mm:ss')}</div>
           <div className="attPostInfo">
-            {postDetails ? <div dangerouslySetInnerHTML={{ __html: postDetails }} /> : <LoadDiv />}
+            {postDetails ? <div dangerouslySetInnerHTML={{ __html: filterXSS(postDetails) }} /> : <LoadDiv />}
           </div>
           <div className="viewDetails">
             {this.state.showDetailLink && (

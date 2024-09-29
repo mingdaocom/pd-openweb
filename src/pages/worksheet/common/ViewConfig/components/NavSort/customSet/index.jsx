@@ -36,7 +36,7 @@ const Wrap = styled.div`
     padding: 6px 16px;
     background: #f8f8f8;
     border-radius: 3px;
-    width: 100px;
+    min-width: 100px;
     &:hover {
       background: #f5f5f5;
     }
@@ -80,7 +80,7 @@ export default function (props) {
     }
     if (isSameType([26], controlInfo)) {
       return data.map(o => {
-        let da = safeParse(o);
+        let da = safeParse(o) || {};
         return { ...da, accountId: da.id, fullname: da.name };
       });
     }
@@ -156,6 +156,7 @@ export default function (props) {
       },
       zIndex: 10001,
       filterAccountIds: [md.global.Account.accountId, 'user-self'],
+      selectedAccountIds: setting.map(l => l.accountId),
       SelectUserSettings: {
         projectId,
         unique: !isMultiple,

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
-import Lottie from 'react-lottie';
 import Trigger from 'rc-trigger';
 import { VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum.js';
 import styled from 'styled-components';
@@ -223,13 +222,20 @@ export default class AddViewDisplayMenu extends Component {
       orgPlugins: [],
       loading: true,
       guild: '',
+      LottieComponent: null,
     };
   }
+
   componentDidMount() {
     const { canAddCustomView } = this.props;
+
     if (canAddCustomView) {
       this.getCustomList();
     }
+
+    import('react-lottie').then(component => {
+      this.setState({ LottieComponent: component.default });
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -286,7 +292,7 @@ export default class AddViewDisplayMenu extends Component {
 
   render() {
     const { onClick, canAddCustomView, projectId, ...rest } = this.props;
-    const { myPlugins = [], orgPlugins = [], loading } = this.state;
+    const { myPlugins = [], orgPlugins = [], loading, LottieComponent } = this.state;
     const hasPluginAuth =
       _.get(
         _.find(md.global.Account.projects, item => item.projectId === projectId),
@@ -306,16 +312,18 @@ export default class AddViewDisplayMenu extends Component {
                     <div className="guildDesc mTop8 Gray_75 LineHeight20 Font13">{GuildText[id].desc}</div>
                   </div>
                   <div className="rightCon">
-                    <Lottie
-                      options={{
-                        autoplay: true,
-                        loop: false,
-                        animationData: GuildText[id].img,
-                        rendererSettings: {
-                          preserveAspectRatio: 'xMidYMid slice',
-                        },
-                      }}
-                    />
+                    {LottieComponent && (
+                      <LottieComponent
+                        options={{
+                          autoplay: true,
+                          loop: false,
+                          animationData: GuildText[id].img,
+                          rendererSettings: {
+                            preserveAspectRatio: 'xMidYMid slice',
+                          },
+                        }}
+                      />
+                    )}
                   </div>
                 </GuildWrap>
               }

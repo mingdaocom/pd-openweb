@@ -113,6 +113,17 @@ class Card extends Component {
         loading: false,
       });
       this.props.onLoad(result);
+    }).catch(error => {
+      if (!window.shareState.id) return;
+      const result = {
+        reportId: report.id,
+        status: 0
+      }
+      this.setState({
+        reportData: result,
+        loading: false,
+      });
+      this.props.onLoad(result);
     });
     needTimingRefresh && needRefresh && this.initInterval();
   };
@@ -287,6 +298,7 @@ class Card extends Component {
       themeColor,
     } = this.props;
     const {
+      DragHandle,
       report = {},
       appId,
       pageId,
@@ -311,13 +323,19 @@ class Card extends Component {
         className={cx(`statisticsCard statisticsCard-${report.id} statisticsCard-${reportData.reportType}`, className, {
           hideChartHeader: !showTitle,
           hideNumberChartName: !showTitle,
+          cardHover: !showTitle,
+          headerHover: showTitle
         })}
       >
         <div className="header">
-          {(sourceType ? false : permissions) && (
-            <span data-tip={_l('拖拽')} className="iconItem dragWrap Gray_9e">
-              <Icon icon="drag" />
-            </span>
+          {(sourceType ? false : permissions) && DragHandle && (
+            <DragHandle>
+              <Tooltip title={_l('拖拽')} placement="bottom">
+                <span className="iconItem dragWrap Gray_9e">
+                  <Icon icon="drag" />
+                </span>
+              </Tooltip>
+            </DragHandle>
           )}
           <div className="flex valignWrapper" style={{ minWidth: 0 }}>
             <div className="pointer ellipsis bold reportName" style={{ maxWidth: '80%' }}>
@@ -366,75 +384,61 @@ class Card extends Component {
                   </div>
                 }
               >
-                <span
-                  className={cx('mLeft7 pTop5 filterCriteriaIcon', { 'tip-bottom-right': !showTitle })}
-                  data-tip={_l('作用于图表的条件')}
-                >
-                  <Icon icon="filter_criteria" className="Font18 pointer Gray_9e" />
-                </span>
+                <Tooltip title={_l('作用于图表的条件')} placement="bottom">
+                  <span
+                    className={cx('mLeft7 pTop5 filterCriteriaIcon', { 'tip-bottom-right': !showTitle })}
+                  >
+                    <Icon icon="filter_criteria" className="Font18 pointer Gray_9e" />
+                  </span>
+                </Tooltip>
               </Popover>
             )}
-            {/*sourceType && !_.isEmpty(initiateChartInfo) && (
-              <span className="mLeft7 pTop5" data-tip={_l('取消联动筛选')}>
-                <Icon
-                  icon="link_Dismiss flex"
-                  className={cx('Font18 pointer', isLinkageFilter ? 'Gray_9e' : 'ThemeColor')}
-                  onClick={() => {
-                    this.setState(
-                      {
-                        isLinkageFilter: !isLinkageFilter,
-                      },
-                      () => {
-                        this.getData();
-                      },
-                    );
-                  }}
-                />
-              </span>
-            )*/}
           </div>
           <div className="operateIconWrap valignWrapper Relative">
             {needEnlarge && !this.isPublicShare && (sourceType ? reportData.status > 0 : true) && (
-              <span
-                className="iconItem Gray_9e"
-                data-tip={_l('筛选')}
-                onClick={() => {
-                  this.setState({
-                    dialogVisible: true,
-                    sheetVisible: false,
-                    settingVisible: false,
-                    scopeVisible: true,
-                    activeData: undefined,
-                  });
-                }}
-              >
-                <Icon className="Font20" icon="filter" />
-              </span>
+              <Tooltip title={_l('筛选')} placement="bottom">
+                <span
+                  className="iconItem Gray_9e"
+                  onClick={() => {
+                    this.setState({
+                      dialogVisible: true,
+                      sheetVisible: false,
+                      settingVisible: false,
+                      scopeVisible: true,
+                      activeData: undefined,
+                    });
+                  }}
+                >
+                  <Icon className="Font20" icon="filter" />
+                </span>
+              </Tooltip>
             )}
             {needRefresh && reportData.status > 0 && (
-              <span
-                onClick={() => this.getData(this.props, true)}
-                data-tip={_l('刷新')}
-                className="iconItem Gray_9e freshDataIconWrap"
-              >
-                <Icon className="Font20" icon="refresh1" />
-              </span>
+              <Tooltip title={_l('刷新')} placement="bottom">
+                <span
+                  onClick={() => this.getData(this.props, true)}
+                  className="iconItem Gray_9e freshDataIconWrap"
+                >
+                  <Icon className="Font20" icon="refresh1" />
+                </span>
+              </Tooltip>
             )}
             {needEnlarge && reportData.status > 0 && (
-              <span
-                className="iconItem Gray_9e"
-                data-tip={_l('放大')}
-                onClick={() => {
-                  this.handleOperateClick({
-                    settingVisible: false,
-                    activeData: undefined,
-                  });
-                }}
-              >
-                <Icon icon="task-new-fullscreen" />
-              </span>
+              <Tooltip title={_l('放大')} placement="bottom">
+                <span
+                  className="iconItem Gray_9e"
+                  onClick={() => {
+                    this.handleOperateClick({
+                      settingVisible: false,
+                      activeData: undefined,
+                    });
+                  }}
+                >
+                  <Icon icon="task-new-fullscreen" />
+                </span>
+              </Tooltip>
             )}
-            {needEnlarge && !this.isPublicShare && (sourceType === 3 ? true : reportData.status > 0) && (
+            {needEnlarge && !this.isPublicShare && (
               <MoreOverlay
                 className="iconItem Gray_9e Font20"
                 projectId={projectId}
@@ -466,6 +470,7 @@ class Card extends Component {
                 ownerId={ownerId}
                 appId={appId}
                 worksheetId={reportData.appId}
+                customPageConfig={customPageConfig}
                 onOpenSetting={
                   (sourceType === 1 ? isCharge : permissions)
                     ? () => {

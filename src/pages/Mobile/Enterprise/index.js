@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Flex, ActivityIndicator } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import { Icon, Radio } from 'ming-ui';
 import Back from '../components/Back';
 import account from 'src/api/account';
@@ -166,9 +166,9 @@ class ProjectCard extends Component {
         </div>
         {visible &&
           (loading ? (
-            <Flex className="mTop10" justify="center" align="center">
-              <ActivityIndicator size="small" />
-            </Flex>
+            <div className="flexRow justifyContentCenter alignItemsCenter mTop10">
+              <SpinLoading color='primary' />
+            </div>
           ) : (
             this.renderUserCard()
           ))}
@@ -260,9 +260,9 @@ class Enterprise extends Component {
     return (
       <div className="h100" style={{ background: '#f5f5f5', paddingTop: 10, overflowY: 'auto' }}>
         {loading ? (
-          <Flex justify="center" align="center" className="h100">
-            <ActivityIndicator size="large" />
-          </Flex>
+          <div className="flexRow justifyContentCenter alignItemsCenter h100">
+            <SpinLoading color='primary' />
+          </div>
         ) : currentProject && !_.isEmpty(projectList) ? (
           <Fragment>
             {projectList.map((item, index) => (

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { CityPicker } from 'ming-ui';
 import { quickSelectRole, quickSelectDept } from 'ming-ui/functions';
@@ -98,8 +97,7 @@ export default class Options extends Component {
     this.setState({ keywords: value });
   }, 500);
 
-  @autobind
-  addItem(item, { clearSelected } = {}) {
+  addItem = (item, { clearSelected } = {}) => {
     this.setState(
       {
         selectedOptions: clearSelected
@@ -115,9 +113,9 @@ export default class Options extends Component {
         });
       },
     );
-  }
-  @autobind
-  updateItem(id, item) {
+  };
+
+  updateItem = (id, item) => {
     const newOptions = this.state.selectedOptions.map(option =>
       option.id === id ? _.assign({}, option, item) : option,
     );
@@ -132,9 +130,9 @@ export default class Options extends Component {
         });
       },
     );
-  }
-  @autobind
-  clearTemp() {
+  };
+
+  clearTemp = () => {
     const newOptions = this.state.selectedOptions.map(option => _.omit(option, ['temp']));
     this.setState(
       {
@@ -147,9 +145,9 @@ export default class Options extends Component {
         });
       },
     );
-  }
-  @autobind
-  removeItem(item) {
+  };
+
+  removeItem = item => {
     this.setState(
       {
         selectedOptions: this.state.selectedOptions.filter(seletedOption => item.id !== seletedOption.id),
@@ -161,9 +159,9 @@ export default class Options extends Component {
         });
       },
     );
-  }
-  @autobind
-  renderSelect(TagComp) {
+  };
+
+  renderSelect = TagComp => {
     const { type, disabled, folded, control, projectId, onChange, from } = this.props;
     const { selectedOptions, search, keywords } = this.state;
     if (disabled) {
@@ -340,7 +338,7 @@ export default class Options extends Component {
         </div>
       );
     }
-  }
+  };
   render() {
     return (
       <div className="worksheetFilterOptionsCondition" ref={con => (this.con = con)}>

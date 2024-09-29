@@ -30,7 +30,6 @@ class SearchBox extends Component {
           showResult: true,
         },
         () => {
-          dispatch({ type: 'SHOW_SEACH_RESULT' });
           this.ajaxObj = dispatch(fetchSearchResult(value));
         },
       );

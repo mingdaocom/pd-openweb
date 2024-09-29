@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Dialog, ScrollView, Icon } from 'ming-ui';
-import { Modal } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import MapLoader from './MapLoader';
 import MapHandler from './MapHandler';
 import '../less/MDMap.less';
@@ -177,7 +177,8 @@ export default class MDMap extends Component {
 
   handleChange = () => {
     const { distance } = this.props;
-    const { lat, lng } = this._maphHandler.map && this._maphHandler.map.getCenter();
+    const centerInfo = this._maphHandler && this._maphHandler.map && this._maphHandler.map.getCenter();
+    const { lat, lng } = centerInfo || {};
 
     const keywords = _.get(this.searchRef, 'value') || '';
 
@@ -373,8 +374,8 @@ export default class MDMap extends Component {
 
     if (isMobile) {
       return (
-        <Modal popup animationType="slide-up" className="MDMap" style={{ height: '90%' }} visible>
-          <div className="flexColumn leftAlign h100 relative">
+        <Popup className="MDMap mobileModal minFull topRadius" visible>
+          <div className="flexColumn h100 relative">
             {this.renderOperatorIcon()}
             <div className="Relative">
               <div className="mBottom5" style={{ height: 250 }} ref={container => (this._mapContainer = container)} />
@@ -383,7 +384,7 @@ export default class MDMap extends Component {
             {this.renderSearch()}
             {this.renderSearchList()}
           </div>
-        </Modal>
+        </Popup>
       );
     }
 

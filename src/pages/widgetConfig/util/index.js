@@ -21,6 +21,7 @@ import {
   HAVE_HIGH_SETTING_WIDGET,
   HAVE_MOBILE_WIDGET,
   HAVE_MASK_WIDGET,
+  NO_DES_WIDGET,
 } from '../config';
 import { RELATION_OPTIONS, DEFAULT_TEXT } from '../config/setting';
 import { compose } from 'redux';
@@ -228,7 +229,7 @@ export const resortControlByColRow = (controls = []) => {
 export const canSetAsTitle = data => {
   let { type } = data;
   if (type === 30) {
-    if (data.sourceControl && data.sourceControl.type) {
+    if (data.sourceControl && data.sourceControl.type && (data.strDefault || '')[0] !== '1') {
       type = data.sourceControl.type;
     } else {
       return false;
@@ -251,7 +252,7 @@ export const setDefaultTitle = controls => {
 };
 
 export const genControlsByWidgets = widgets => {
-  return setDefaultTitle(flatten(genWidgetRowAndCol(widgets)));
+  return flatten(genWidgetRowAndCol(widgets));
 };
 
 // 将所有控件用给定数据重置
@@ -453,6 +454,10 @@ export const notExplainDisplay = (data = {}) => {
   );
 };
 
+export const notWidgetDes = (data = {}) => {
+  return fixedBottomWidgets(data) || _.includes(NO_DES_WIDGET, data.type);
+};
+
 // 需要固定在底部的控件
 export const fixedBottomWidgets = data => {
   return data.type === 52 || (_.includes([29, 51], data.type) && get(data, 'advancedSetting.showtype') === '6');
@@ -532,6 +537,7 @@ export const supportSettingCollapse = (props, key) => {
     advancedSetting = {},
     strDefault = '',
     enumDefault,
+    enumDefault2,
     globalSheetInfo = {},
   } = data;
 
@@ -556,11 +562,15 @@ export const supportSettingCollapse = (props, key) => {
           return !(dataSource && _.includes(['1', '2'], advancedSetting.showtype));
         case 30:
           return strDefault.split('')[0] === '0';
+        case 34:
+          return !advancedSetting.layercontrolid;
         case 37:
           const parsedDataSource = parseDataSource(dataSource);
           const { relationControls = [] } = getControlByControlId(allControls, parsedDataSource);
           const selectedControl = getControlByControlId(relationControls, sourceControlId);
           return isShowUnitConfig(data, selectedControl);
+        case 53:
+          return _.includes([2, 6, 15, 16], enumDefault2);
         default:
           return _.includes(HAVE_HIGH_SETTING_WIDGET, type);
       }
@@ -611,4 +621,11 @@ export const getDefaultarea = () => {
   return JSON.stringify(
     COMMON_DEFAULT_COUNTRY.find(o => o.iso2 === _.get(md, 'global.Config.DefaultConfig.initialCountry')),
   );
+};
+
+// 拖拽补key,完成去key
+export const getSortItems = (items = [], addKey) => {
+  return items.map((i, index) => {
+    return addKey ? { ...i, key: `item_${index}` } : { ..._.omit(i, ['key']) };
+  });
 };

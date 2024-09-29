@@ -105,12 +105,12 @@ export default function OptionColumn({ projectId, record, taskList, setTaskList,
         }
 
         syncTaskApi.deleteTask({ projectId, taskId: record.id }).then(res => {
-          if (res) {
+          if (res && !res.errorMsg && !res.errorMsgList) {
             alert(_l('同步任务删除成功'));
             setTaskList(taskList.filter(item => item.id !== record.id));
             onRefreshComponents(+new Date());
           } else {
-            alert(_l('同步任务删除失败'), 2);
+            alert(res.errorMsg || (res.errorMsgList || [])[0] || _l('同步任务删除失败'), 2);
           }
         });
       },

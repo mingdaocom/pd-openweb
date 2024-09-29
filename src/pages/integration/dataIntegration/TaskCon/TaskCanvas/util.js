@@ -9,7 +9,18 @@ import {
   RELATED_RECORD_FIELDS,
   DATABASE_TYPE,
 } from 'src/pages/integration/dataIntegration/constant.js';
-import { NODE_TYPE_LIST } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
+import {
+  NODE_TYPE_LIST,
+  OPERATION_TYPE_DATA,
+  TIME_DATA_PARTICLE,
+  DATE_TIME_DATA_PARTICLE,
+  ONLY_TIME_DATA_PARTICLE,
+  TIME_GATHER_PARTICLE,
+  text_jdbcTypeIds,
+  num_jdbcTypeIds,
+  time_jdbcTypeIds,
+  ALL_OPERATION_TYPE_DATA,
+} from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
 
 export const formatTaskNodeData = (dataList = [], firstId) => {
   // const firstId = "source1";
@@ -296,6 +307,9 @@ export const getFields = async ({
       return ress;
     }
   } else {
+    if (!tableName) {
+      return;
+    }
     const params = {
       projectId,
       datasourceId: datasourceId || dataDestId,
@@ -367,13 +381,10 @@ export const formatFieldsByType = list => {
 };
 
 export const hsMorePkControl = (preNode, list) => {
-  //多源且多主键的情况 或者单个源，且不存在后端拼接的主键的情况下
+  //多源且多主键的情况
   const pks = (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isPk);
   const sourceNodes = list.filter(o => ['SOURCE_TABLE'].includes(o.nodeType));
-  return (
-    (pks.length > 1 && sourceNodes.length > 1) ||
-    (sourceNodes.length === 1 && pks.length > 1 && !pks.map(o => o.fid).includes('composite_primary_key'))
-  );
+  return pks.length > 1 && sourceNodes.length > 1;
 };
 
 export const getUnionFeids = (defaultFields = [], list, node) => {
@@ -461,5 +472,54 @@ export const getNodeName = (flowData, nodeData) => {
         ? _l('应用工作表')
         : sourceName || nodeData.name
       : nodeData.name) || defaultInfo.name
+  );
+};
+
+export const isTimeTypes = data => {
+  return [91, 93, 2013, 92, 2014].includes(data.jdbcTypeId);
+};
+export const getDefaultAggregate = jdbcTypeId => {
+  if (92 === jdbcTypeId) return 'HOUR_FOR_TIME';
+  if (2013 === jdbcTypeId) return 'CUR_HOUR';
+  return 'TODAY';
+};
+//时间字段的归组方式
+export const getTimeGroupDropData = jdbcTypeId => {
+  if ([92].includes(jdbcTypeId)) {
+    // 时间：时、分
+    // 集合：时
+    return [...ONLY_TIME_DATA_PARTICLE, ...TIME_GATHER_PARTICLE].filter(o =>
+      ['TIME', 'HOUR_FOR_TIME', 'HOUR'].includes(o.value),
+    );
+  }
+  if ([2013].includes(jdbcTypeId)) {
+    // 时间：时、分
+    // 集合：时
+    return [...TIME_DATA_PARTICLE, ...TIME_GATHER_PARTICLE].filter(o =>
+      ['CUR_HOUR', 'CUR_MINUTE', 'HOUR'].includes(o.value),
+    );
+  }
+  if ([91, 93, 2014].includes(jdbcTypeId)) {
+    return [...DATE_TIME_DATA_PARTICLE, ...TIME_GATHER_PARTICLE];
+  }
+};
+
+//获取当前字段的集合配置
+export const getAggData = data => {
+  return ALL_OPERATION_TYPE_DATA.find(a => a.value === data.aggFuncType) || {};
+};
+
+//获取当前字段可配置的集合配置
+export const getAggregateData = (jdbcTypeId, isRowsCount) => {
+  return OPERATION_TYPE_DATA.filter(it =>
+    isRowsCount
+      ? it.value === 'COUNT'
+      : text_jdbcTypeIds.includes(jdbcTypeId)
+      ? ['MAX', 'MIN'].includes(it.value) //文本类型=>最大值|最小值
+      : time_jdbcTypeIds.includes(jdbcTypeId)
+      ? ['COUNT', 'DISTINCT_COUNT'].includes(it.value)
+      : num_jdbcTypeIds.includes(jdbcTypeId)
+      ? ['SUM', 'MAX', 'MIN', 'AVG', 'COUNT', 'DISTINCT_COUNT'].includes(it.value) //数值类型=>求和|平均值|最大值|最小值,计数，去重计数
+      : !['COUNT', 'DISTINCT_COUNT'].includes(it.value),
   );
 };

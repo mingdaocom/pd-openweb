@@ -34,6 +34,7 @@ export default function SelectTables(props) {
     createText,
     onAdd,
     isAppType,
+    needCheckPgSql = false,
   } = props;
   const [fetchState, setFetchState] = useSetState({
     pageNo: 0,
@@ -105,12 +106,22 @@ export default function SelectTables(props) {
           const tableOptionList = res.content.map(item => {
             const isValidTable = isValidName(item);
             const isSameTable = isSameDbObj && sourceTables.includes(item);
+            const pgSqlValid = !needCheckPgSql || !/[\u4E00-\u9FFF\u3400-\u4DFF]+/.test(item);
+
             return {
               label:
-                isSameTable || !isValidTable ? (
+                isSameTable || !isValidTable || !pgSqlValid ? (
                   <div className="flexRow alignItemsCenter">
                     <span className="Gray_9e">{item}</span>
-                    <Tooltip text={isSameTable ? _l('不可选与数据源相同的表') : _l('名称包含特殊字符，无法同步')}>
+                    <Tooltip
+                      text={
+                        isSameTable
+                          ? _l('不可选与数据源相同的表')
+                          : !pgSqlValid
+                          ? _l('名称包含中文，无法同步')
+                          : _l('名称包含特殊字符，无法同步')
+                      }
+                    >
                       <Icon icon="info1" className="Gray_bd mLeft24 pointer" />
                     </Tooltip>
                   </div>
@@ -118,7 +129,7 @@ export default function SelectTables(props) {
                   item
                 ),
               value: item,
-              disabled: !isValidTable || (isMultiple ? addedTableIds.indexOf(item) !== -1 : isSameTable),
+              disabled: !isValidTable || (isMultiple ? addedTableIds.indexOf(item) !== -1 : isSameTable) || !pgSqlValid,
             };
           });
           if (fetchState.tableName) {

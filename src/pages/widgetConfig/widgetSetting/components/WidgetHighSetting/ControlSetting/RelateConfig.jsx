@@ -13,7 +13,7 @@ import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from 'sr
 export default function RelateConfig(props) {
   const { data, onChange, globalSheetInfo = {}, globalSheetControls, allControls } = props;
   const { enumDefault, strDefault, dataSource, viewId, controlId } = data;
-  let { showtype = String(enumDefault), searchcontrol = '', showcount = '0' } = getAdvanceSetting(data);
+  let { showtype = String(enumDefault), searchcontrol = '', showcount = '0', layercontrolid } = getAdvanceSetting(data);
   const searchfilters = getAdvanceSetting(data, 'searchfilters');
   const resultfilters = getAdvanceSetting(data, 'resultfilters');
   const [isHiddenOtherViewRecord] = strDefault.split('');
@@ -247,25 +247,27 @@ export default function RelateConfig(props) {
               </div>
             </div>
           )}
-          <div className="labelWrap">
-            <Checkbox
-              className="allowSelectRecords"
-              size="small"
-              text={_l('显示计数')}
-              checked={showcount !== '1'}
-              onClick={checked =>
-                onChange(
-                  handleAdvancedSettingChange(data, {
-                    showcount: checked ? '1' : '0',
-                  }),
-                )
-              }
-            >
-              <Tooltip popupPlacement="bottom" title={<span>{_l('在表单中显示关联记录的数量')}</span>}>
-                <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
-              </Tooltip>
-            </Checkbox>
-          </div>
+          {!layercontrolid && (
+            <div className="labelWrap">
+              <Checkbox
+                className="allowSelectRecords"
+                size="small"
+                text={_l('显示计数')}
+                checked={showcount !== '1'}
+                onClick={checked =>
+                  onChange(
+                    handleAdvancedSettingChange(data, {
+                      showcount: checked ? '1' : '0',
+                    }),
+                  )
+                }
+              >
+                <Tooltip popupPlacement="bottom" title={<span>{_l('在表单中显示关联记录的数量')}</span>}>
+                  <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
+                </Tooltip>
+              </Checkbox>
+            </div>
+          )}
         </Fragment>
       )}
     </Fragment>

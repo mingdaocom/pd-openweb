@@ -58,6 +58,12 @@ export default class Widgets extends Component {
     maskStatus: _.get(this.props, 'advancedSetting.datamask') === '1',
   };
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.flag !== this.props.flag) {
+      this.setState({ maskStatus: _.get(nextProps, 'advancedSetting.datamask') === '1' });
+    }
+  }
+
   onFocus = e => {
     this.setState({ originValue: e.target.value.trim() });
     if (_.isFunction(this.props.triggerCustomEvent)) {
@@ -104,7 +110,7 @@ export default class Widgets extends Component {
     if (value === '-') {
       value = '';
     } else if (value) {
-      value = toFixed(parseFloat(value), advancedSetting.numshow === '1' ? dot + 2 : dot);
+      value = toFixed(value, advancedSetting.numshow === '1' ? dot + 2 : dot);
     }
 
     onChange(value);
@@ -186,7 +192,7 @@ export default class Widgets extends Component {
     const isMobile = browserIsMobile();
 
     if (!isEditing || (isMobile && disabled)) {
-      value = value || value === 0 ? this.getAutoValue(toFixed(parseFloat(value), dot)) : '';
+      value = value || value === 0 ? this.getAutoValue(toFixed(value, dot)) : '';
 
       // 数值、金额字段掩码时，不显示千分位
       if (maskStatus && value) {

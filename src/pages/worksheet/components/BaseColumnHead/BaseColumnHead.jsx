@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { autobind } from 'core-decorators';
 import { Tooltip } from 'ming-ui';
 import { emitter } from 'worksheet/util';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
@@ -48,8 +47,7 @@ export default class BaseColumnHead extends React.Component {
     }
   }
 
-  @autobind
-  handleMouseDown(e) {
+  handleMouseDown = e => {
     const { control, columnIndex, updateSheetColumnWidths } = this.props;
     e.preventDefault();
 
@@ -88,7 +86,7 @@ export default class BaseColumnHead extends React.Component {
         }, 200);
       }
     }
-  }
+  };
 
   resizeColumn({ clientX }) {
     const { isLast, columnIndex, control, style, updateSheetColumnWidths } = this.props;
@@ -131,8 +129,7 @@ export default class BaseColumnHead extends React.Component {
     }
   }
 
-  @autobind
-  handleChangeSort() {
+  handleChangeSort = () => {
     const { isAsc, changeSort } = this.props;
     let newSortType;
     if (_.isUndefined(isAsc)) {
@@ -141,7 +138,7 @@ export default class BaseColumnHead extends React.Component {
       newSortType = true;
     }
     changeSort(newSortType);
-  }
+  };
 
   render() {
     const {
@@ -215,13 +212,15 @@ export default class BaseColumnHead extends React.Component {
       <Trigger
         action={['click']}
         popup={
-          renderPopup
-            ? renderPopup({
-                closeMenu: () => {
-                  this.setState({ listVisible: false });
-                },
-              })
-            : 'hello world'
+          renderPopup ? (
+            renderPopup({
+              closeMenu: () => {
+                this.setState({ listVisible: false });
+              },
+            })
+          ) : (
+            <span>hello world</span>
+          )
         }
         getPopupContainer={getPopupContainer || (() => document.body)}
         popupClassName="filterTrigger"

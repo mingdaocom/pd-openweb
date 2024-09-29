@@ -14,6 +14,10 @@ export const SettingItem = styled.div`
       box-shadow: none;
     }
   }
+  .savedContent {
+    display: flex;
+    flex-direction: column;
+  }
   .checkboxWrap {
     display: flex;
     align-items: center;
@@ -26,6 +30,12 @@ export const SettingItem = styled.div`
     background-color: #fff;
     &.disabled {
       background-color: #f5f5f5;
+    }
+    &.error {
+      .Dropdown--border {
+        border-color: #f44336;
+      }
+      background-color: rgba(244, 67, 154, 0.1);
     }
   }
   .ming.Radio {
@@ -843,35 +853,47 @@ export const BothRelateInfo = styled.div`
 
 export const DisplayMode = styled.div`
   display: flex;
-  padding: 8px 12px;
+  padding: 8px 0;
   justify-content: space-between;
   .displayItem {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    cursor: pointer;
+    margin-right: 12px;
+    &:last-child {
+      margin-right: 0;
+    }
+    .text {
+      color: #757575;
+    }
     div {
-      width: 44px;
+      width: 100%;
       height: 44px;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 3px 3px 3px 3px;
-      border: 2px solid transparent;
+      border: 1px solid #eaeaea;
+      i {
+        color: #757575;
+      }
     }
-    i {
-      font-size: 32px;
-      color: #757575;
-    }
+
     &.active {
       div {
-        background: rgba(33, 150, 243, 0.1);
-        border-color: #2196f3;
+        border: 2px solid #2196f3 !important;
+      }
+      .text,
+      i {
+        color: #2196f3 !important;
       }
     }
     &:hover {
       div {
-        background: rgba(0, 0, 0, 0.05);
+        border-color: #ccc;
       }
     }
   }
@@ -879,7 +901,18 @@ export const DisplayMode = styled.div`
 
 export const EditOptionDialog = styled(Dialog)`
   .editOptionDialog {
-    padding-bottom: 30px !important;
+    display: flex;
+    flex-direction: column;
+    padding: 0 0 36px !important;
+    min-height: 0;
+  }
+  .optionsWrap {
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 0 24px;
+    box-sizing: border-box;
   }
   .handleOption {
     position: absolute;

@@ -9,6 +9,7 @@ let isChangeing = false;
 import { bindActionCreators } from 'redux';
 import * as Actions from 'src/pages/worksheet/redux/actions/calendarview';
 import _ from 'lodash';
+import { dateConvertToUserZone } from 'src/util';
 @connect(
   state => ({
     ...state.sheet,
@@ -123,7 +124,7 @@ class External extends Component {
                   <div className={cx('timeStr', {})}>
                     {timeStr} <span className="pLeft3">{moment(it.date).format('dddd')}</span>
                   </div>
-                  {this.renderEventData(it.res)}
+                  {this.renderEventData(it.res, true)}
                 </div>
               );
             })}
@@ -135,7 +136,7 @@ class External extends Component {
     }
   };
 
-  renderEventData = (eventData = []) => {
+  renderEventData = (eventData = [], isNot) => {
     return (
       <React.Fragment>
         {eventData.map(it => {
@@ -166,7 +167,7 @@ class External extends Component {
                 if (o.start)
                   return (
                     <div className="Gray_9e Font13 mTop2">
-                      {o.start}
+                      {isNot ? o.start : dateConvertToUserZone(o.start)}
                       <span className="mLeft10">{o.info.mark}</span>
                     </div>
                   );

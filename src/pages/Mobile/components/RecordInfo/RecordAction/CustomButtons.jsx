@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Icon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
 import { hexToRgba } from 'src/util';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -19,7 +19,11 @@ const BtnCon = styled.div`
   text-overflow: ellipsis;
   white-space: nowrap;
   .opcIcon {
-    color: rgba(0, 0, 0, 0.3) !important;
+    color: rgba(117, 117, 117, 0.5) !important;
+  }
+  &.disabled {
+    background-color: rgba(0, 0, 0, 0.03);
+    color: #757575;
   }
 `;
 
@@ -38,19 +42,35 @@ export default class CustomButtons extends Component {
       .map(btn => {
         return (
           <BtnCon
-            className={cx(`${classNames}`, { disabled: btnDisable[btn.btnId] || btn.disabled })}
+            className={cx(`LineHeight36 ${classNames}`, { disabled: btnDisable[btn.btnId] || btn.disabled })}
             btn={btn}
             onClick={() => {
               if (btnDisable[btn.btnId] || btn.disabled) return;
               handleClick(btn);
             }}
           >
-            <Icon
-              icon={btn.icon || 'custom_actions'}
-              className={cx('mRight6 Font15', {
-                opcIcon: (!btn.icon && (!btn.color || btn.color === 'transparent')) || btn.disabled,
-              })}
-            />
+            {!!btn.iconUrl && !!btn.icon && btn.icon.endsWith('_svg') ? (
+              <SvgIcon
+                className="InlineBlock icon mRight6"
+                addClassName="TxtMiddle"
+                url={btn.iconUrl}
+                fill={
+                  btnDisable[btn.btnId] || btn.disabled
+                    ? 'rgba(117, 117, 117, 0.5)'
+                    : btn.color && btn.color !== 'transparent'
+                    ? btn.color
+                    : '#333'
+                }
+                size={15}
+              />
+            ) : (
+              <Icon
+                icon={btn.icon || 'custom_actions'}
+                className={cx('mRight6 Font15', {
+                  opcIcon: (!btn.icon && (!btn.color || btn.color === 'transparent')) || btn.disabled,
+                })}
+              />
+            )}
             <span className={cx('breakAll overflow_ellipsis Font13', { Gray_bd: btn.disabled })}>{btn.name}</span>
           </BtnCon>
         );

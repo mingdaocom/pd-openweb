@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
@@ -153,7 +152,7 @@ export default class Text extends React.Component {
   get controlCanMask() {
     const { cell } = this.props;
     return (
-      ((cell.type === 2 && cell.enumDefault === 2) || _.includes([6, 8, 3, 5, 7], cell.type)) &&
+      ((cell.type === 2 && cell.enumDefault === 2) || _.includes([6, 8, 3, 4, 5, 7], cell.type)) &&
       _.get(cell, 'advancedSetting.datamask') === '1'
     );
   }
@@ -177,8 +176,7 @@ export default class Text extends React.Component {
   con = React.createRef();
   input = React.createRef();
 
-  @autobind
-  focus(time) {
+  focus = time => {
     setTimeout(() => {
       if (this.input && this.input.current) {
         const valueLength = (this.input.current.value || '').length;
@@ -186,17 +184,15 @@ export default class Text extends React.Component {
         this.input.current.setSelectionRange(valueLength, valueLength);
       }
     }, time || 100);
-  }
+  };
 
-  @autobind
-  handleEdit(e) {
+  handleEdit = e => {
     const { updateEditingStatus, cell } = this.props;
     e.stopPropagation();
     updateEditingStatus(true, this.focus);
-  }
+  };
 
-  @autobind
-  handleBlur(target) {
+  handleBlur = target => {
     this.hadBlur = true;
     const { isSubList, cell, error, updateCell, updateEditingStatus } = this.props;
     this.tempKey = [];
@@ -235,9 +231,9 @@ export default class Text extends React.Component {
       value,
     });
     updateEditingStatus(false);
-  }
-  @autobind
-  handleChange(value) {
+  };
+
+  handleChange = value => {
     const { cell, onValidate } = this.props;
     if (cell.type === 6 || cell.type === 8) {
       value = formatNumberFromInput(String(value), false);
@@ -248,10 +244,9 @@ export default class Text extends React.Component {
         value,
       });
     });
-  }
+  };
 
-  @autobind
-  handleTableKeyDown(e) {
+  handleTableKeyDown = e => {
     const { cell, updateEditingStatus } = this.props;
     const setKeyboardValue = value => {
       updateEditingStatus(true, () => {
@@ -330,7 +325,7 @@ export default class Text extends React.Component {
         })();
         break;
     }
-  }
+  };
 
   handleKeydown(e) {
     const { tableId, cell, updateEditingStatus } = this.props;
@@ -368,8 +363,7 @@ export default class Text extends React.Component {
     }
   }
 
-  @autobind
-  handleUnMask(e) {
+  handleUnMask = e => {
     if (!this.masked || window.shareState.shareId) {
       return;
     }
@@ -378,7 +372,7 @@ export default class Text extends React.Component {
       e.preventDefault();
     }
     this.setState({ forceShowFullValue: true });
-  }
+  };
   render() {
     const {
       className,

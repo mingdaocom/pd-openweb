@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { Dropdown, Icon, Input } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
@@ -8,7 +7,6 @@ import { VerticalMiddle } from 'worksheet/components/Basics';
 import renderConditionValue from './contents';
 import { getConditionOverrideValue, getFilterTypes } from '../util';
 import {
-  FILTER_RELATION_TYPE,
   CONTROL_FILTER_WHITELIST,
   FILTER_CONDITION_TYPE,
   API_ENUM_TO_TYPE,
@@ -149,8 +147,7 @@ export default class Condition extends Component {
     return true;
   };
 
-  @autobind
-  changeConditionType(type) {
+  changeConditionType = type => {
     const { condition, onChange, from } = this.props;
     const overrideValue = getConditionOverrideValue(type, condition, this.state.valueType);
     if (
@@ -166,10 +163,9 @@ export default class Condition extends Component {
     if (!this.isCanDynamicsource({ condition: { ...overrideValue, controlType: condition.controlType }, from })) {
       this.setState({ isDynamicsource: false });
     }
-  }
+  };
 
-  @autobind
-  renderControl() {
+  renderControl = () => {
     const {
       conditionError,
       conditionGroupType,
@@ -189,6 +185,7 @@ export default class Condition extends Component {
       globalSheetControls,
       urlParams = [],
       showCustom,
+      widgetControlData,
     } = this.props;
     const { dynamicSource = [] } = condition;
     const showParamsTypes = [
@@ -250,6 +247,7 @@ export default class Condition extends Component {
               sourceControlId,
               from,
               showCustom: showCustom,
+              widgetControlData: widgetControlData,
               filterResigned: filterResigned,
               conditionType: condition.controlType,
               isDynamicsource: this.state.isDynamicsource,
@@ -298,7 +296,7 @@ export default class Condition extends Component {
         )}
       </div>
     );
-  }
+  };
 
   render() {
     const {

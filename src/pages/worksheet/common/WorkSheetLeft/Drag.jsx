@@ -257,7 +257,8 @@ const Drag = props => {
               }).then(data => {});
             }
             if (targetData.layerIndex === 2) {
-              const workSheetIds = _.find(res, { workSheetId: targetDataParentId }).items.map(data => data.workSheetId);
+              const data = _.find(res, { workSheetId: targetDataParentId }) || { items: [] };
+              const workSheetIds = data.items.map(data => data.workSheetId);
               homeAppApi.updateSectionChildSort({
                 appId: appPkg.id,
                 appSectionId: targetDataParentId,

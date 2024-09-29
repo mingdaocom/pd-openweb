@@ -91,7 +91,7 @@ function DetailView(props) {
     quickFilter,
     clearData,
     controls,
-    updateWorksheetControls,
+    updateWorksheetSomeControls,
   } = props;
   const { detailViewRows = [], detailViewLoading, detailPageIndex, detailKeyWords, noMoreRows } = detailView;
   const currentView = views.find(o => o.viewId === viewId) || {};
@@ -325,6 +325,7 @@ function DetailView(props) {
           currentRecord.rowid &&
           !!detailViewRows.filter(item => item.rowid === currentRecord.rowid).length && (
             <RecordInfoWrapper
+              enablePayment={worksheetInfo.enablePayment}
               notDialog
               flag={flag}
               controls={controls}
@@ -354,7 +355,7 @@ function DetailView(props) {
                 }, 100);
               }}
               isCharge={isCharge}
-              updateWorksheetControls={updateWorksheetControls}
+              updateWorksheetControls={updateWorksheetSomeControls}
               customBtnTriggerCb={() => {
                 setTimeout(() => {
                   fetchRows(1, detailKeyWords);

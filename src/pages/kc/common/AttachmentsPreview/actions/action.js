@@ -11,6 +11,7 @@ import { NODE_VISIBLE_TYPE, PICK_TYPE } from '../../../constant/enum';
 import kcService from '../../../api/service';
 import { EXT_TYPE_DIC, PREVIEW_TYPE, LOADED_STATUS } from '../constant/enum';
 import { splitFileName } from '../constant/util';
+import { defaultWpsPreview } from '../../../utils';
 import ACTION_TYPES from '../constant/actionTypes';
 import * as ajax from '../ajax';
 import _ from 'lodash';
@@ -312,6 +313,12 @@ export function init(options, extra) {
           attachment,
           index,
         });
+        if (!md.global.Config.IsLocal && defaultWpsPreview(attachment.ext)) {
+          dispatch({
+            type: 'CHANGE_PREVIEW_SERVICE',
+            previewService: 'wps',
+          });
+        }
       })
       .catch(err => {
         dispatch({

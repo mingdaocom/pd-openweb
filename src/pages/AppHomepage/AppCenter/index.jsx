@@ -74,7 +74,7 @@ function AppCenter(props) {
   const keyStr = getKey();
 
   function changeProject(project) {
-    keyStr === 'app' && navigateTo('/app/my', false, true);
+    getKey() === 'app' && navigateTo('/app/my', false, true);
     setCurrentProject(project);
     loadPlatformSetting(project.projectId);
     project.projectId !== 'external' &&

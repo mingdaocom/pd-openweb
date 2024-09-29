@@ -6,6 +6,7 @@ import { Switch, Dialog } from 'ming-ui';
 import projectSettingAjax from 'src/api/projectSetting';
 import monitorAjax from 'src/pages/integration/api/monitor';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
 
 let ajaxPromise = {};
 
@@ -104,12 +105,12 @@ export default ({ projectId }) => {
           {!md.global.Config.IsLocal && (
             <Fragment>
               {licenseType === 1 ? (
-                <Link
-                  className="ThemeColor3 ThemeHoverColor2 mLeft10 NoUnderline"
-                  to={`/admin/expansionservice/${projectId}/dataSync`}
-                >
-                  <span className="Bold">{_l('购买升级包')}</span>
-                </Link>
+                <PurchaseExpandPack
+                  className="mLeft10 ThemeHoverColor2"
+                  text={_l('购买升级包')}
+                  type="dataSync"
+                  projectId={projectId}
+                />
               ) : (
                 <span
                   className="ThemeColor3 ThemeHoverColor2 mLeft10 NoUnderline"

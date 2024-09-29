@@ -1,11 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { Link } from 'react-router-dom';
 import { Icon, LoadDiv, Switch, ScrollView, UserHead } from 'ming-ui';
 import { Select, Tooltip } from 'antd';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import TableEmpty from 'src/pages/Admin/common/TableEmpty';
 import Search from 'src/pages/workflow/components/Search';
 import PaginationWrap from '../../components/PaginationWrap';
+import PurchaseExpandPack from '../../components/PurchaseExpandPack';
 import appManagementAjax from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
 import syncTaskApi from 'src/pages/integration/api/syncTask.js';
@@ -219,12 +219,15 @@ export default class AggregationTable extends Component {
                 </span>
                 <span className="Gray_9e mLeft15 mRight5">{_l('剩余')}</span>
                 <span className="bold">{_l('%0个', limitAggregationTableCount - effectiveAggregationTableCount)}</span>
-                  <Link
-                    className={cx('ThemeColor3 ThemeHoverColor2  NoUnderline mLeft5')}
-                    to={`/admin/expansionserviceAggregationtable/${projectId}/aggregationtable`}
-                  >
-                    {_l('扩充')}
-                  </Link>
+                {!md.global.Config.IsLocal && (
+                  <PurchaseExpandPack
+                    className="ThemeHoverColor2 mLeft5"
+                    text={_l('扩充')}
+                    type="aggregationtable"
+                    routePath="expansionserviceAggregationtable"
+                    projectId={projectId}
+                  />
+                )}
               </Fragment>
             )}
           </div>}

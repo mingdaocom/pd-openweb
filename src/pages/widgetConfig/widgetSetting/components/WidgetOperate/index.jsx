@@ -3,11 +3,16 @@ import RelateOperate from './RelateOperate';
 import SubListOperate from './SubListOperate';
 import RelateSearchOperate from './RelateSearchOperate';
 import EmbedOperate from './EmbedOperate';
+import AttachmentOperate from './AttachmentOperate';
 
 // 高级设置
 export default function WidgetOperate(props) {
   const { data } = props;
   const { type } = data;
+
+  if (type === 14) {
+    return <AttachmentOperate {...props} />;
+  }
 
   if (type === 29) {
     return <RelateOperate {...props} />;

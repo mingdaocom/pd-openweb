@@ -151,7 +151,7 @@ export default class SelectUserDropDown extends Component {
       title: _l('选择人员'),
       showMoreInvite: false,
       SelectUserSettings: {
-        filterAccountIds: accounts.map(item => item.roleId),
+        selectedAccountIds: accounts.map(item => item.roleId),
         projectId: companyId,
         dataRange: 2,
         unique,

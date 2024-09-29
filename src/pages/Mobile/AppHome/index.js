@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
 import { bindActionCreators } from 'redux';
-import { Flex, ActionSheet, Modal } from 'antd-mobile';
 import { Icon, WaterMark, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import { connect } from 'react-redux';
@@ -60,7 +59,6 @@ class AppHome extends React.Component {
   }
   componentWillUnmount() {
     $('html').removeClass('appHomeMobile');
-    ActionSheet.close();
     // 异步延迟执行，确保 popstate 优先执行
     setTimeout(() => {
       window.removeEventListener('popstate', this.closePage);
@@ -109,50 +107,6 @@ class AppHome extends React.Component {
         },
       )
       .then(result => {});
-  };
-
-  showActionSheet = () => {
-    const { hideTemplateLibrary } = md.global.SysSettings;
-    const BUTTONS = [
-      hideTemplateLibrary ? null : { name: _l('从模板库添加'), icon: 'application_library', iconClass: 'Font18' },
-      { name: _l('自定义创建'), icon: 'add1', iconClass: 'Font18' },
-    ].filter(item => item);
-    ActionSheet.showActionSheetWithOptions(
-      {
-        options: BUTTONS.map(item => (
-          <Fragment>
-            <Icon className={cx('mRight10 Gray_9e', item.iconClass)} icon={item.icon} />
-            <span className="Bold">{item.name}</span>
-          </Fragment>
-        )),
-        message: (
-          <div className="flexRow header">
-            <span className="Font13">{_l('添加应用')}</span>
-            <div
-              className="closeIcon"
-              onClick={() => {
-                ActionSheet.close();
-              }}
-            >
-              <Icon icon="close" />
-            </div>
-          </div>
-        ),
-      },
-      buttonIndex => {
-        if (buttonIndex === -1) return;
-        if (hideTemplateLibrary) {
-          buttonIndex = buttonIndex + 1;
-        }
-        if (buttonIndex === 0) {
-          window.mobileNavigateTo(`/mobile/appBox`);
-        }
-        if (buttonIndex === 1) {
-          const title = window.isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
-          Modal.alert(title, null, [{ text: _l('我知道了'), onPress: () => {} }]);
-        }
-      },
-    );
   };
   filterSearchResult = (apps = [], keyWords) => {
     return apps.filter(
@@ -239,11 +193,11 @@ class AppHome extends React.Component {
     }
     return (
       <div className="h100" style={{ overflow: 'auto' }}>
-        <Flex align="center" wrap="wrap" className="appCon">
+        <div className="appCon flexRow alignItemsCenter">
           {_.map(searchResult, (item, i) => {
             return <ApplicationItem data={item} myPlatformLang={myPlatformLang} />;
           })}
-        </Flex>
+        </div>
       </div>
     );
   };
@@ -447,7 +401,7 @@ class AppHome extends React.Component {
                     <Icon icon={appIcon} className="Font18" />
                   )}
                 </div>
-                <div className="flex Font15 ellipsis">{title}</div>
+                <div className="flex Font14 ellipsis">{title}</div>
               </div>
             );
           })}

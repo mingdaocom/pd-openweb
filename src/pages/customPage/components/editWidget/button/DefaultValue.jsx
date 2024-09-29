@@ -27,6 +27,9 @@ const SortColumnsWrap = styled.div`
   width: 300px;
   box-shadow: 0 4px 20px #00000021, 0 2px 6px #0000001a;
   border-radius: 3px;
+  .searchBar {
+    padding: 0 10px;
+  }
   .sortColumnWrap {
     margin-top: 2px !important;
     padding: 6px 0;
@@ -132,6 +135,23 @@ function DefaultValue(props) {
 
     if (_.isEmpty(control)) return null;
 
+    const getDefsource = item => {
+      if (!item.defsource) return item.defsource;
+      if ([9, 10, 11].includes(control.type)) {
+        const defsource = safeParse(item.defsource, 'array');
+        const list = safeParse(_.get(defsource, `[0].staticValue`));
+        if (!list || !_.isArray(list)) {
+          return JSON.stringify([{ ...defsource[0], staticValue: '' }]);
+        }
+        return JSON.stringify(
+          list.map(o => {
+            return { ...defsource[0], staticValue: o };
+          }),
+        );
+      }
+      return item.defsource;
+    };
+
     const advancedSetting = {
       ..._.omit(control.advancedSetting, ['dynamicsrc', 'defaultfunc']),
       defaulttype: ''
@@ -152,7 +172,7 @@ function DefaultValue(props) {
                 ...control,
                 advancedSetting: {
                   ...advancedSetting,
-                  defsource: data.defsource
+                  defsource: getDefsource(data)
                 }
               }}
               writeObject={1}
@@ -166,8 +186,14 @@ function DefaultValue(props) {
               onChange={(data, isOptions) => {
                 const { advancedSetting = {} } = data;
                 let { defsource } = advancedSetting;
-                if (isOptions) {
-                  defsource = data;
+                if ([9, 10, 11].includes(data.type)) {
+                  const dataDefsource = safeParse(defsource, 'array');
+                  defsource = JSON.stringify([
+                    {
+                      ...dataDefsource[0],
+                      staticValue: JSON.stringify(dataDefsource.map(o => o.staticValue)),
+                    },
+                  ]);
                 }
                 const newCells = temporaryWriteControls.map(c => {
                   if (c.controlId === control.controlId) {

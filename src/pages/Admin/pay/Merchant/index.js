@@ -1,20 +1,29 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
-import { Button } from 'ming-ui';
+import { Button, UpgradeIcon } from 'ming-ui';
 import cx from 'classnames';
 import { TABS } from './config';
 import { navigateTo } from 'src/router/navigateTo';
 import MerchantCom from './components/MerchantCom';
 import TransactionDetails from './components/TransactionDetails';
+import RefundOrder from './components/RefundOrder';
 import { getRequest, getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import Config from '../../config';
 import _ from 'lodash';
+import styled from 'styled-components';
+
+const CreateButton = styled(Button)`
+  &.createDisabled {
+    background: #eee !important;
+  }
+`;
 
 const Comp = {
   merchant: MerchantCom,
   transaction: TransactionDetails,
+  refund: RefundOrder,
 };
 
 export default class Merchant extends Component {
@@ -38,7 +47,7 @@ export default class Merchant extends Component {
     const { currentTab, showHeader, showCreateMerchant, disabledExportBtn } = this.state;
     const { iscreate } = getRequest();
     const featureType = getFeatureStatus(Config.projectId, VersionProductType.PAY);
-    const showOrderDetail = localStorage.getItem(`${Config.projectId}-showOrderDetail`) === 'true';
+    const hasMerchant = localStorage.getItem(`${Config.projectId}-hasMerchant`) === 'true';
 
     return (
       <div className="orgManagementWrap">
@@ -46,7 +55,7 @@ export default class Merchant extends Component {
         {showHeader ? (
           <div className="orgManagementHeader">
             <div className="tabBox">
-              {TABS.filter(v => (showOrderDetail ? true : v.key !== 'transaction')).map(item => (
+              {TABS.filter(v => (hasMerchant ? true : !_.includes(['transaction', 'refund'], v.key))).map(item => (
                 <span
                   key={item.key}
                   className={cx('tabItem Hand', { active: currentTab === item.key })}
@@ -57,19 +66,22 @@ export default class Merchant extends Component {
               ))}
             </div>
             {showCreateMerchant && (
-              <Button
-                className="pLeft15 pRight15"
+              <CreateButton
+                className={cx('pLeft15 pRight15', { 'Gray createDisabled': featureType === '2' })}
                 type="primary"
+                radius={featureType === '2'}
                 onClick={() => {
                   if (this.com && this.com.changeCreateMerchant) {
                     this.com.changeCreateMerchant('createMerchantVisible', true);
                   }
                 }}
               >
-                {_l('创建商户')}
-              </Button>
+                {featureType === '2' && <i className="icon icon-add Font17 TxtMiddle mRight4" />}
+                <span className="TxtMiddle"> {_l('创建商户')}</span>
+                {featureType === '2' && <UpgradeIcon />}
+              </CreateButton>
             )}
-            {currentTab === 'transaction' && (
+            {_.includes(['transaction', 'refund'], currentTab) && (
               <Button
                 type="primary"
                 className="export mLeft24"
@@ -97,7 +109,7 @@ export default class Merchant extends Component {
             orgManagementWrap: !showHeader,
           })}
         >
-          {TABS.filter(v => (showOrderDetail ? true : v.key !== 'transaction')).map(item => {
+          {TABS.filter(v => (hasMerchant ? true : !_.includes(['transaction', 'refund'], v.key))).map(item => {
             const Component = Comp[item.key];
             return (
               <Route

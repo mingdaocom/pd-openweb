@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import CellControl from 'src/pages/worksheet/components/CellControls';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
@@ -42,8 +41,8 @@ export default class RecordCard extends Component {
   state = {
     forceShowFullValue: null,
   };
-  @autobind
-  handleCoverClick(e) {
+
+  handleCoverClick = e => {
     const { from = 1, disableDownload } = this.props;
     const { cover } = this;
     const isMobile = from === FROMS.MOBILE;
@@ -55,7 +54,7 @@ export default class RecordCard extends Component {
       ext: (cover.previewUrl.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
     });
     e.stopPropagation();
-  }
+  };
   get cover() {
     const { coverCid, data } = this.props;
     if (!coverCid) {

@@ -156,6 +156,18 @@ export default {
      return mdyAPI('ProjectSetting', 'GetOnlyManagerSettings', args, options);
    },
   /**
+  * 获取组织余额告警提醒设置
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getBalanceLimitNoticeSettings: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'GetBalanceLimitNoticeSettings', args, options);
+   },
+  /**
   * LOGO
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -514,6 +526,21 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
      return mdyAPI('ProjectSetting', 'SetPrivacys', args, options);
    },
   /**
+  * 设置余额告警提醒
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {boolean} args.noticeEnabled 是否开启余额告警提醒
+  * @param {integer} args.balanceLimit 提醒余额
+  * @param {array} args.accountIds 提醒用户列表
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setBalanceLimitNotice: function (args, options = {}) {
+     
+     return mdyAPI('ProjectSetting', 'SetBalanceLimitNotice', args, options);
+   },
+  /**
   * 获取LDAP信息
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
@@ -548,6 +575,7 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
   * @param {boolean} args.mustDepartment 必须同步用户部门
   * @param {boolean} args.mustJob 必须同步用户职位
   * @param {boolean} args.mustWorkphone 必须同步工作电话
+  * @param {boolean} args.createIfNotExists 无匹配账户时新建
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

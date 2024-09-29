@@ -22,7 +22,7 @@ const Footer = styled.div`
 
 export default props => {
   const { visible, onCancel } = props;
-  const { from, pcDisabled, filesProps } = props;
+  const { from, isDeleteFile, filesProps } = props;
   const [flag, setFlag] = useState('');
   // const [attachments, onChangeAttachments] = useState(filesProps.attachments);
   // const [knowledgeAtts, onChangeKnowledgeAtts] = useState(filesProps.knowledgeAtts);
@@ -76,7 +76,7 @@ export default props => {
       <Files
         {...filesProps}
         showType={'1'}
-        isDeleteFile={!pcDisabled}
+        isDeleteFile={isDeleteFile}
         from={from}
         flag={flag}
         // attachments={attachments}

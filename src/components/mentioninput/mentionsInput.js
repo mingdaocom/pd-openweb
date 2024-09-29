@@ -500,10 +500,12 @@ Modified by Kenneth Auchenberg
         elmAutocompleteList.css({
           bottom: height + 5,
           maxHeight: topGap - 130,
+          minHeight: settings.minHeight
         });
       } else {
         elmAutocompleteList.css({
           maxHeight: bottomGap - 15,
+          minHeight: settings.minHeight
         });
       }
       elmAutocompleteList.show();

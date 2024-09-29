@@ -249,6 +249,7 @@ export function submitNewRecord(props) {
       setRequesting(false);
     })
     .catch(err => {
+      console.error(err);
       onSubmitEnd();
       if (_.isObject(err)) {
         if (!err.errorMessage) {
@@ -304,6 +305,8 @@ export async function openControlAttachmentInNewTab({
   viewId,
   worksheetId,
   getType,
+  openAsPopup,
+  popupArgs = {},
 }) {
   if (!controlId || !fileId || !recordId || !worksheetId) {
     console.error('参数不全');
@@ -319,6 +322,23 @@ export async function openControlAttachmentInNewTab({
     getType,
   });
   if (shareId) {
-    window.open(`${window.subPath ? window.subPath : ''}/recordfile/${shareId}/${getType || ''}`);
+    const url = `${window.subPath ? window.subPath : ''}/rowfile/${shareId}/${getType || ''}`;
+    if (!openAsPopup) {
+      window.open(url);
+    } else {
+      const screenWidth = window.screen.width;
+      const screenHeight = window.screen.height;
+      const screenLeft = window.screen.availLeft;
+      let popupWidth = 1280;
+      let popupHeight = 800;
+      if (popupHeight > screenHeight) {
+        popupHeight = screenHeight;
+      }
+      if (popupWidth > screenWidth * 0.8) {
+        popupWidth = screenWidth * 0.8;
+      }
+      const windowFeatures = `left=${screenLeft + screenWidth - 1280},top=0,width=${popupWidth},height=${popupHeight}`;
+      window.open(url, '', windowFeatures);
+    }
   }
 }

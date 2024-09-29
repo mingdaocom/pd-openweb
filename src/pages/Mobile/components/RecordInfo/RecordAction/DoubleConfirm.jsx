@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import { Input } from 'antd';
 import { Button, Textarea, Icon, Checkbox, VerifyPasswordInput } from 'ming-ui';
 
@@ -8,17 +8,8 @@ import { verifyPassword } from 'src/util';
 import styled from 'styled-components';
 import cx from 'classnames';
 
-const ConfirmDialogWrap = styled(Modal)`
-  .am-modal-content {
-    border-top-right-radius: 15px;
-    border-top-left-radius: 15px;
-    padding: 0;
-    padding-top: 10px;
-  }
-  .am-modal-body {
-    text-align: left;
-    overflow: auto;
-    max-height: calc(100vh - 30px);
+const ConfirmDialogWrap = styled(Popup)`
+  .adm-popup-body {
     padding: 10px 20px 10px;
   }
   .remarkButton {
@@ -94,11 +85,8 @@ const SectionName = styled.div`
   }
 `;
 
-const RemarkModeModal = styled(Modal)`
-  height: 100%;
-  border-top-right-radius: 0;
-  border-top-left-radius: 0;
-  .am-modal-body {
+const RemarkModeModal = styled(Popup)`
+  .adm-popup-body {
     padding: 10px;
   }
   .searchWrap {
@@ -167,7 +155,7 @@ function RemarkMode(props) {
   const [listData, setListData] = useState(list);
 
   return (
-    <RemarkModeModal className="full" popup animationType="slide-up" onClose={onClose} visible={visible}>
+    <RemarkModeModal className="mobileModal full" onClose={onClose} visible={visible}>
       <div className="h100 flexColumn">
         <div className="searchWrap flexRow valignWrapper">
           <Icon icon="h5_search" className="Gray_9e Font17" />
@@ -283,7 +271,7 @@ function DoubleConfirm(props) {
   const isFreeInput = remarktype !== '1';
 
   return (
-    <ConfirmDialogWrap popup animationType="slide-up" className={className} onClose={onClose} visible={visible}>
+    <ConfirmDialogWrap className={cx('mobileModal topRadius', className)} onClose={onClose} visible={visible}>
       <div className={cx('Gray Font17 mBottom12 bold', { mBottom24: !description && !enableRemark && !verifyPwd })}>
         {enableConfirm ? title : _l('安全验证')}
       </div>

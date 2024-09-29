@@ -35,6 +35,7 @@ export default function AdvancedSettingHandler(Comp) {
     const advancedSettingData = worksheetInfo.advancedSetting || {};
     const advancedSetting = advancedSettingData
       ? {
+          ...advancedSettingData,
           title: advancedSettingData.title,
           submitBtnText: advancedSettingData.sub,
           submitEndAction: Number(advancedSettingData.subafter || 1), // 1-关闭弹层 2-继续创建下一条 3-打开刚刚创建的记录

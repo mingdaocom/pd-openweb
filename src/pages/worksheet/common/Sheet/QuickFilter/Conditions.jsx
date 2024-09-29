@@ -127,6 +127,9 @@ function turnControl(control) {
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE) {
     control.type = control.enumDefault === 2 ? 15 : 6;
   }
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_FUNC) {
+    control.type = control.enumDefault2;
+  }
   return control;
 }
 

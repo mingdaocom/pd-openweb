@@ -46,7 +46,11 @@ function notify(title, message, isError, extra) {
     title: title,
     message: message.slice(0, 100),
   });
-  notifier.notify(options);
+  try {
+    notifier.notify(options);
+  } catch (err) {
+    // console.error(err);
+  }
   if (isError) {
     $.util.log($.util.colors.red(message.slice(0, 1000)));
   }

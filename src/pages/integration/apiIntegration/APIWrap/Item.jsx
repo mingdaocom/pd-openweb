@@ -75,7 +75,23 @@ const Wrap = styled.div`
     line-height: 51px;
   }
 `;
+const WrapBtn = styled.div`
+  .btnCon {
+    padding: 11px 50px;
+    background: #2196f3;
+    color: #fff;
+    line-height: 1em;
+    border-radius: 30px;
+    &.disabled {
+      opacity: 0.5;
+    }
+    &:hover {
+      background: #1764c0;
+    }
+  }
+`;
 export default function Item(props) {
+  const { onCancel = () => {} } = props;
   const [{ info, loading, showEdit, node, showMenu, showCodeSnippetDialog }, setState] = useSetState({
     info: props.info,
     node: props.nodeInfo ? props.nodeInfo : {},
@@ -176,14 +192,24 @@ export default function Item(props) {
               );
             })}
           </div>
-          <div
-            className={cx('btn Bold')}
-            onClick={e => {
-              addNode(actionId);
-            }}
-          >
-            {_l('保存并继续')}
-          </div>
+          <WrapBtn className="TxtCenter mTop40">
+            <span
+              className="Hand Gray_75 Bold ThemeHoverColor3"
+              onClick={() => {
+                onCancel();
+              }}
+            >
+              {_l('取消')}
+            </span>
+            <span
+              className={cx('btnCon Hand Bold mLeft20')}
+              onClick={e => {
+                addNode(actionId);
+              }}
+            >
+              {_l('保存并继续')}
+            </span>
+          </WrapBtn>
         </div>
       );
     } else {

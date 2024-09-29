@@ -343,9 +343,6 @@ export default class Link extends Component {
           <Fragment>
             <div className="Font13 bold mTop25">{_l('设置字段')}</div>
             <WriteFields
-              processId={this.props.processId}
-              nodeId={this.props.selectNodeId}
-              selectNodeId={data.selectNodeId}
               selectNodeType={selectNodeType}
               data={data.formProperties}
               addNotAllowView={data.addNotAllowView}

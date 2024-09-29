@@ -324,6 +324,19 @@ var packageVersion = {
     return mdyAPI(controllerName, 'v1packageupdateInstallCount', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 公开的修改显示类型
+   * @param {Object} args 请求参数
+   * @param {string} [args.access_token] 令牌
+   * @param {修改API管理} {id:id(string),status:0已删除 1正常 2审核中 3已发布(integer),}*request
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  updateShowType: function(args, options) {
+    base.ajaxOptions.url = base.server(options) + '/v1/package/updateShowType';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'v1packageupdateShowType', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 公开的修改状态
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌

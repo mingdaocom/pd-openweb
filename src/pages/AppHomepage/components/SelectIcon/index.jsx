@@ -5,7 +5,6 @@ import { Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import AddColorDialog from './AddColorDialog';
-import { COLORS, COLORS_TEST } from './config';
 import './index.less';
 import { generate } from '@ant-design/colors';
 import _ from 'lodash';
@@ -29,7 +28,6 @@ class SelectIcon extends Component {
     index: number,
     // 选颜色的标题
     pickColorTitle: string,
-    // colorList: arrayOf(string),
     onChange: func,
     onModify: func,
     onClose: func,
@@ -41,7 +39,6 @@ class SelectIcon extends Component {
     index: 0,
     pickColorTitle: _l('默认图标'),
     icon: 'custom_style',
-    // colorList: COLORS,
     onChange: _.noop,
     onModify: _.noop,
     onClose: _.noop,

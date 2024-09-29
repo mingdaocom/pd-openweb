@@ -27,7 +27,7 @@ export default class ApiPackage extends Component {
     }
 
     return (
-      <div className="pLeft8 pRight8 flexRow" style={{ alignItems: 'center' }}>
+      <div className="pLeft8 pRight8 flexRow alignItemsCenter">
         <div className="ellipsis">{item.appName}</div>
         <i
           className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2"

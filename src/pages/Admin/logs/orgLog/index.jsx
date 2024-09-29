@@ -1,46 +1,157 @@
 import React from 'react';
-import RoleController from 'src/api/role';
-import LoadDiv from 'ming-ui/components/LoadDiv';
-import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
-import Config from '../../config';
-import { dateConvertToUserZone } from 'src/util';
+import actionLogAjax from 'src/api/actionLog';
+import downloadAjax from 'src/api/download';
+import roleController from 'src/api/role';
+import { Tooltip, Button, Icon, UserHead, UserName } from 'ming-ui';
+import SearchWrap from '../../components/SearchWrap';
+import PageTableCon from '../../components/PageTableCon';
+import AdminTitle from 'src/pages/Admin/common/AdminTitle';
+import HistoryLogs from './HistoryLogs';
+import { createLinksForMessage, dateConvertToUserZone } from 'src/util';
+import { ORG_MANAGE_LOG_COLUMNS, PRIVATE_APP_WORKSHEET_LOG_COLUMNS, OPERATE_TYPE, ORG_LOG_OPERATOR } from '../enum';
 import './style.less';
 import _ from 'lodash';
-import cx from 'classnames';
+import styled from 'styled-components';
+import filterXss from 'xss';
+import moment from 'moment';
+
+const FlexWrap = styled.div`
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 32px;
+`;
 
 export default class orgLog extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+    const columns = md.global.Config.IsLocal
+      ? ORG_MANAGE_LOG_COLUMNS.concat(PRIVATE_APP_WORKSHEET_LOG_COLUMNS)
+      : ORG_MANAGE_LOG_COLUMNS;
     this.state = {
       isLoading: false,
-      list: null,
+      list: [],
       pageIndex: 1,
       pageSize: 20,
       totalCount: null,
+      historyLogInfo: {},
     };
-    Config.setPageTitle(_l('组织管理'));
+    this.columns = columns.map(item => {
+      return {
+        width: 150,
+        ellipsis: true,
+        ...item,
+        render: (text, record) => {
+          const {
+            operator = {},
+            operateTargetType,
+            operateType,
+            operationDatetime,
+            opeartContent,
+            extrasAccounts = [],
+          } = record;
+          const { accountId, avatar, fullname } = operator;
+          const { projectId } = _.get(this.props, 'match.params') || '';
+
+          switch (item.dataIndex) {
+            case 'accountId':
+              const isNormalUser = accountId && accountId.length === 36;
+
+              return (
+                <div className="flexRow">
+                  <UserHead
+                    className="circle mRight8"
+                    user={{
+                      userHead: avatar,
+                      accountId: accountId,
+                    }}
+                    size={24}
+                    projectId={projectId}
+                  />
+                  {isNormalUser ? (
+                    <UserName
+                      className="Gray Font13 pRight10 pTop3 flex ellipsis"
+                      user={{
+                        userName: fullname,
+                        accountId: accountId,
+                      }}
+                    />
+                  ) : (
+                    <div>{fullname}</div>
+                  )}
+                </div>
+              );
+            case 'operateTargetType':
+              return <span>{(ORG_LOG_OPERATOR.find(v => v.value === operateTargetType) || {}).label}</span>;
+            case 'operateType':
+              return <span>{(OPERATE_TYPE.find(v => v.value === operateType) || {}).label}</span>;
+            case 'operationTime':
+              return <span>{dateConvertToUserZone(operationDatetime)}</span>;
+            case 'operationContent':
+              const isUser = opeartContent.indexOf('[aid]') > -1;
+              const message = isUser
+                ? createLinksForMessage({
+                    message: opeartContent,
+                    rUserList: extrasAccounts,
+                  })
+                : '';
+              const txt = (isUser ? message : opeartContent).replace(/\<a.*?\>/, '').replace(/\<\/a\>/, '');
+              return opeartContent ? (
+                <Tooltip text={<spam>{txt}</spam>} popupPlacement="bottom">
+                  <span>
+                    {isUser ? (
+                      <span dangerouslySetInnerHTML={{ __html: filterXss(message) }}></span>
+                    ) : (
+                      <span dangerouslySetInnerHTML={{ __html: filterXss(opeartContent) }}></span>
+                    )}
+                  </span>
+                </Tooltip>
+              ) : (
+                '-'
+              );
+            default:
+              return <span>{text}</span>;
+          }
+        },
+      };
+    });
   }
 
   componentWillMount() {
     this.fetchLogs();
+    this.fetchHistoryLogs();
   }
 
-  fetchLogs() {
+  fetchLogs = (params = {}) => {
     const { projectId } = _.get(this.props, 'match.params') || '';
-    const { pageIndex, pageSize } = this.state;
-    this.setState({
-      isLoading: true,
-    });
-    RoleController.getPageLogs({
-      projectId,
-      pageIndex,
-      pageSize,
-    })
-      .then(({ allCount, list } = {}) => {
+    const { pageIndex = 1, pageSize = 50 } = params;
+    const { searchValues = {} } = this.state;
+    const { orgLogOutDate = {}, selectUserInfo = [], operateTargetType, operateType } = searchValues;
+    const { startDate, endDate } = orgLogOutDate;
+
+    this.setState({ isLoading: true });
+
+    actionLogAjax
+      .getOrgLogs({
+        projectId,
+        pageIndex,
+        pageSize,
+        startDateTime: startDate
+          ? startDate
+          : moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+        endDateTime: endDate ? endDate : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
+        operateTargetType,
+        operateType,
+        accountIds: selectUserInfo.map(item => item.accountId),
+      })
+      .then(({ data } = {}) => {
+        const { totalCount, list } = data || {};
         this.setState({
           isLoading: false,
-          allCount: allCount || 0,
+          totalCount: totalCount || 0,
           list: list,
+          pageIndex,
+          disabledExportBtn: _.isEmpty(list),
         });
       })
       .catch(() => {
@@ -48,49 +159,192 @@ export default class orgLog extends React.Component {
           isLoading: false,
         });
       });
-  }
+  };
 
-  renderLogs() {
-    const { list } = this.state;
-    if (list && list.length) {
-      return (
-        <div className="orgManagementContent roleLogListContent">
-          {_.map(list, (log, index) => {
-            return (
-              <div className={cx('logItem Font13 clearfix ThemeColor3', { mTop0: index === 0 })} key={index}>
-                <span className="Gray" dangerouslySetInnerHTML={{ __html: log.msg }} />{' '}
-                <span className="mLeft24 Gray_9e">{dateConvertToUserZone(log.createTime)}</span>
-              </div>
-            );
-          })}
-        </div>
-      );
-    } else {
-      return (
-        <div className="TxtCenter listEmpty">
-          <div>
-            <span className="icon-knowledge-log icon" />
-          </div>
-          <div className="mTop20">{_l('暂无日志')}</div>
-        </div>
-      );
-    }
-  }
+  // 导出
+  exportListData = (param = {}) => {
+    this.setState({ disabledExportBtn: true });
+    let { orgLogOutDate = {}, selectUserInfo = [], operateTargetType, operateType } = this.state.searchValues || {};
+    const { startDate, endDate } = orgLogOutDate;
+    const { pageIndex } = this.state;
+    const { pageSize = 50 } = param;
+    const params = {
+      projectId: _.get(this.props, 'match.params.projectId'),
+      pageIndex,
+      pageSize,
+      startDateTime: startDate ? startDate : moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+      endDateTime: endDate ? endDate : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
+      operateTargetType,
+      operateType,
+      accountIds: selectUserInfo.map(item => item.accountId),
+      columnNames: this.columns.map(it => it.title),
+      fileName: _l('组织管理日志'),
+    };
+
+    downloadAjax.exportOrgOperateLogs(params).then(res => {
+      this.setState({ disabledExportBtn: false });
+      if (!res) {
+        Confirm({
+          title: _l('数据导出超过100,000行，本次仅导出前100,000行记录'),
+          okText: _l('导出'),
+          onOk: () => {
+            downloadAjax.exportOrgOperateLogs({ ...params, confirmExport: true });
+          },
+        });
+      }
+    });
+  };
+
+  // 历史日志
+  fetchHistoryLogs = ({ pageIndex = 1, pageSize = 20 } = {}) => {
+    const { projectId } = _.get(this.props, 'match.params') || '';
+
+    this.setState({ historyLogInfo: { isLoading: true } });
+
+    roleController
+      .getPageLogs({ projectId, pageIndex, pageSize })
+      .then(({ allCount, list } = {}) => {
+        this.setState({
+          historyLogInfo: {
+            isLoading: false,
+            allCount: allCount,
+            list: list,
+          },
+        });
+      })
+      .catch(() => {
+        this.setState({ historyLogInfo: { isLoading: false } });
+      });
+  };
 
   render() {
-    const { isLoading, allCount, list, pageSize, pageIndex } = this.state;
+    const {
+      isLoading,
+      searchValues = {},
+      pageIndex,
+      disabledExportBtn,
+      list,
+      totalCount,
+      showHistoryLogs,
+      historyLogInfo = {},
+    } = this.state;
+    const { operateTargetType, operateType } = searchValues;
+    const { projectId } = _.get(this.props, 'match.params') || '';
+
+    if (showHistoryLogs) {
+      return (
+        <HistoryLogs
+          projectId={projectId}
+          onClose={() => this.setState({ showHistoryLogs: false })}
+          historyLogInfo={historyLogInfo}
+          fetchHistoryLogs={this.fetchHistoryLogs}
+        />
+      );
+    }
+
     return (
       <div className="orgManagementWrap roleAuthLogTable">
-        <div className="orgManagementHeader Font17">{_l('组织管理')}</div>
-        {isLoading ? <LoadDiv /> : this.renderLogs()}
-        {!isLoading && list && allCount > pageSize ? (
-          <PaginationWrap
-            total={allCount}
-            pageIndex={pageIndex}
-            pageSize={pageSize}
-            onChange={pageIndex => this.setState({ pageIndex }, this.fetchLogs)}
+        <AdminTitle prefix={_l('组织管理')} />
+        <div className="orgManagementHeader Font17">
+          <div className="flex">{_l('组织管理')}</div>
+          <div>
+            <span className="Font13 Normal mRight26">{_l('保留最近6个月的日志')}</span>
+            {historyLogInfo.allCount ? (
+              <Tooltip text={<span>{_l('历史日志')}</span>}>
+                <i
+                  className="icon icon-draft-box Gray_9 hoverText mRight26"
+                  onClick={() => this.setState({ showHistoryLogs: true })}
+                />
+              </Tooltip>
+            ) : (
+              ''
+            )}
+            <i
+              className="icon-task-later Gray_9 hoverText mRight26 Font17"
+              onClick={() => this.setState({ searchValues: {}, pageIndex: 1 }, this.fetchLogs)}
+            />
+            <Tooltip
+              text={<span>{_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}</span>}
+              popupPlacement="bottom"
+            >
+              <Button
+                type="primary"
+                className="exportBtn pLeft15 pRight15"
+                disabled={disabledExportBtn}
+                onClick={() => {
+                  if (disabledExportBtn) return;
+                  this.exportListData();
+                }}
+              >
+                {_l('导出')}
+              </Button>
+            </Tooltip>
+          </div>
+        </div>
+        <div ref={ele => (this.seatchWrap = ele)} className="mLeft32 mRight32">
+          <SearchWrap
+            showExpandBtn={true}
+            projectId={projectId}
+            searchValues={searchValues}
+            searchList={[
+              {
+                type: 'selectUser',
+                key: 'selectUserInfo',
+                label: _l('操作人'),
+                suffixIcon: <Icon icon="person" className="Font16" />,
+              },
+              {
+                type: 'select',
+                key: 'operateTargetType',
+                label: _l('操作对象'),
+                placeholder: _l('全部'),
+                allowClear: true,
+                value: operateTargetType,
+                options: ORG_LOG_OPERATOR,
+              },
+              {
+                type: 'select',
+                key: 'operateType',
+                label: _l('操作类型'),
+                placeholder: _l('全部'),
+                allowClear: true,
+                value: operateType,
+                options: OPERATE_TYPE,
+              },
+              {
+                type: 'selectTime',
+                key: 'orgLogOutDate',
+                label: _l('操作时间'),
+                placeholder: _l('最近30天'),
+                dateFormat: 'YYYY-MM-DD HH:mm:ss',
+                suffixIcon: <Icon icon="person" className="Font16" />,
+              },
+            ]}
+            onChange={searchValues => {
+              this.setState(
+                {
+                  searchValues: _.isEmpty(searchValues)
+                    ? searchValues
+                    : { ...this.state.searchValues, ...searchValues },
+                  pageIndex: 1,
+                },
+                this.fetchLogs,
+              );
+            }}
           />
-        ) : null}
+        </div>
+        <FlexWrap>
+          <PageTableCon
+            className="logsTable"
+            paginationInfo={{ pageIndex, pageSize: 50 }}
+            ref={node => (this.tableWrap = node)}
+            loading={isLoading}
+            columns={this.columns}
+            dataSource={list}
+            count={totalCount}
+            getDataSource={this.fetchLogs}
+          />
+        </FlexWrap>
       </div>
     );
   }

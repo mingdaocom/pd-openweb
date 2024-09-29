@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import sheetAjax from 'src/api/worksheet';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
-import { Toast } from 'antd-mobile';
 import ScanQRCode from './ScanQRCode';
 import _ from 'lodash';
 
@@ -33,7 +32,7 @@ export default class Widgets extends Component {
       if (row) {
         this.props.onChange(row);
       } else {
-        Toast.catch(_l('无法关联，此记录不在可关联的范围内'));
+        alert(_l('无法关联，此记录不在可关联的范围内'), 3);
       }
     });
   };
@@ -50,7 +49,7 @@ export default class Widgets extends Component {
           if (currentWorksheetId === result.worksheetId) {
             this.getRowById(result);
           } else {
-            Toast.catch(_l('无法关联，此记录不在可关联的范围内'));
+            alert(_l('无法关联，此记录不在可关联的范围内'), 3);
           }
         });
       return;
@@ -71,7 +70,7 @@ export default class Widgets extends Component {
               rowId,
             });
           } else {
-            Toast.catch(_l('无法关联，此记录不在可关联的范围内'));
+            alert(_l('无法关联，此记录不在可关联的范围内'), 3);
           }
         } else {
           this.props.onOpenRecordCardListDialog(content);

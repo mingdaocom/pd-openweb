@@ -3,7 +3,7 @@ import { useSetState } from 'react-use';
 import { Dialog, Icon } from 'ming-ui';
 import { CustomActionWrap } from '../../style';
 import cx from 'classnames';
-import { enumWidgetType, isSheetDisplay } from '../../../../../util';
+import { enumWidgetType } from '../../../../../util';
 import { DEFAULT_CONFIG } from '../../../../../config/widget';
 import DynamicDefaultValue from '../../../DynamicDefaultValue';
 import { HAS_DYNAMIC_TYPE } from '../../config';
@@ -44,6 +44,10 @@ export default function SetValue(props) {
       className="SearchWorksheetDialog"
       overlayClosable={false}
       onOk={() => {
+        if (actionItems.some(a => _.isEmpty(safeParse(a.value, 'array')))) {
+          alert(_l('请设置字段值'), 3);
+          return;
+        }
         handleOk({ ...actionData, actionItems });
         setState({ visible: false });
       }}
@@ -69,7 +73,7 @@ export default function SetValue(props) {
                   {isDelete ? (
                     <input className="itemValue itemValueTitle errorBorder" disabled />
                   ) : (
-                    <div className={cx('itemValue itemValueTitle', { sheetDynamic: isSheetDisplay(currentControl) })}>
+                    <div className="itemValue itemValueTitle">
                       <DynamicDefaultValue
                         {...props}
                         data={handleAdvancedSettingChange(currentControl, {
@@ -79,6 +83,7 @@ export default function SetValue(props) {
                         hideTitle={true}
                         fromCustomEvent={true}
                         needFilter={true}
+                        showEmpty={true}
                         onChange={newData => {
                           const { defsource, defaulttype, defaultfunc } = getAdvanceSetting(newData);
                           const tempValue = {

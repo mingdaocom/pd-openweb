@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, Radio, Input, Space, Select, Tag } from 'antd';
+import { Checkbox, Radio, Input, Space, Select, Tag, Tooltip } from 'antd';
 import { Icon, ColorPicker } from 'ming-ui';
 import cx from 'classnames';
-import { reportTypes } from 'statistics/Charts/common';
+import { reportTypes, roundTypes } from 'statistics/Charts/common';
 import RuleColor from './Color/RuleColor';
 
 export default class Label extends Component {
@@ -14,7 +14,104 @@ export default class Label extends Component {
   }
   render() {
     const { currentReport, onChangeDisplayValue, onUpdateDisplaySetup, onChangeStyle } = this.props;
-    const { reportType, yaxisList, displaySetup, summary, rightY, style } = currentReport;
+    const { reportType, yaxisList, displaySetup, summary, rightY, style, split } = currentReport;
+    const { percent } = displaySetup;
+
+    const labelPercent = (
+      <Fragment>
+        <div className="flexRow valignWrapper">
+          <Checkbox
+            className="mLeft0 mBottom16"
+            checked={percent.enable}
+            onChange={event => {
+              onChangeDisplayValue('percent', {
+                ...percent,
+                enable: event.target.checked
+              });
+            }}
+          >
+            {_l('显示百分比')}
+          </Checkbox>
+        </div>
+        {percent.enable && (
+          <div className="mBottom15 mLeft25">
+            <div className="mBottom8">{_l('保留小数')}</div>
+            <Input
+              className="chartInput"
+              value={percent.dot}
+              onChange={event => {
+                const count = Number(event.target.value.replace(/-/g, ''));
+                onChangeDisplayValue('percent', {
+                  ...percent,
+                  dot: count >= 9 ? 9 : count
+                });
+              }}
+              suffix={
+                <div className="flexColumn">
+                  <Icon
+                    icon="expand_less"
+                    className="Gray_9e Font20 pointer mBottom2"
+                    onClick={() => {
+                      let newYdot = Number(percent.dot);
+                      onChangeDisplayValue('percent', {
+                        ...percent,
+                        dot: newYdot >= 9 ? 9 : newYdot + 1
+                      });
+                    }}
+                  />
+                  <Icon
+                    icon="expand_more"
+                    className="Gray_9e Font20 pointer mTop2"
+                    onClick={() => {
+                      let newYdot = Number(percent.dot);
+                      onChangeDisplayValue('percent', {
+                        ...percent,
+                        dot: newYdot ? newYdot - 1 : 0
+                      });
+                    }}
+                  />
+                </div>
+              }
+            />
+            <Select
+              className="chartSelect w100 mTop10"
+              value={percent.roundType}
+              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              onChange={value => {
+                onChangeDisplayValue('percent', {
+                  ...percent,
+                  roundType: value
+                });
+              }}
+            >
+              {roundTypes.map(item => (
+                <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
+                  {item.text}
+                </Select.Option>
+              ))}
+            </Select>
+            <div className="flexRow valignWrapper mTop10">
+              <Checkbox
+                className="flexRow"
+                checked={percent.dotFormat === '1'}
+                onChange={() => {
+                  const value = percent.dotFormat === '1' ? '0' : '1';
+                  onChangeDisplayValue('percent', {
+                    ...percent,
+                    dotFormat: value
+                  });
+                }}
+              >
+                {_l('省略末尾的 0')}
+              </Checkbox>
+              <Tooltip title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')} placement="bottom" arrowPointAtCenter>
+                <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+              </Tooltip>
+            </div>
+          </div>
+        )}
+      </Fragment>
+    );
 
     if (reportType === reportTypes.PieChart) {
       return (
@@ -41,17 +138,7 @@ export default class Label extends Component {
               {_l('显示数值')}
             </Checkbox>
           </div>
-          <div className="flexRow valignWrapper">
-            <Checkbox
-              className="mLeft0 mBottom16"
-              checked={displaySetup.showPercent}
-              onChange={() => {
-                onChangeDisplayValue('showPercent', !displaySetup.showPercent);
-              }}
-            >
-              {_l('显示百分比')}
-            </Checkbox>
-          </div>
+          {labelPercent}
         </Fragment>
       );
     }
@@ -87,17 +174,7 @@ export default class Label extends Component {
                 {_l('显示数值')}
               </Checkbox>
             </div>
-            <div className="flexRow valignWrapper mBottom13">
-              <Checkbox
-                className="mLeft0"
-                checked={displaySetup.showPercent}
-                onChange={() => {
-                  onChangeDisplayValue('showPercent', !displaySetup.showPercent);
-                }}
-              >
-                {_l('显示百分比')}
-              </Checkbox>
-            </div>
+            {labelPercent}
             <div className="flexRow valignWrapper mBottom13">
               <Checkbox
                 checked={isApplyGaugeColor}
@@ -272,7 +349,10 @@ export default class Label extends Component {
 
     const getShowLabelPercent = () => {
       if ([reportTypes.BarChart].includes(reportType)) {
-        return yaxisList.length > 1 ? true : displaySetup.showTotal;
+        if (yaxisList.length > 1) {
+          return true;
+        }
+        return displaySetup.showTotal;
       }
       if ([reportTypes.BidirectionalBarChart].includes(reportType)) {
         return summary.showTotal || _.get(rightY, 'summary.showTotal');
@@ -287,21 +367,19 @@ export default class Label extends Component {
         <div className={cx('flexRow valignWrapper', showMultiple ? 'mBottom10' : 'mBottom16')}>
           <Checkbox
             className="flexRow mLeft0"
-            checked={displaySetup.showDimension || displaySetup.showNumber || displaySetup.showPercent}
+            checked={displaySetup.showDimension || displaySetup.showNumber}
             onChange={() => {
-              if (displaySetup.showDimension || displaySetup.showNumber || displaySetup.showPercent) {
+              if (displaySetup.showDimension || displaySetup.showNumber) {
                 onUpdateDisplaySetup({
                   ...displaySetup,
                   showDimension: false,
                   showNumber: false,
-                  showPercent: false,
                 });
               } else {
                 onUpdateDisplaySetup({
                   ...displaySetup,
                   showDimension: true,
                   showNumber: true,
-                  showPercent: true,
                 });
               }
             }}
@@ -354,19 +432,7 @@ export default class Label extends Component {
             ))}
           </Select>
         )}
-        {getShowLabelPercent() && (
-          <div className="flexRow valignWrapper">
-            <Checkbox
-              className="mLeft0 mBottom16"
-              checked={style.showLabelPercent}
-              onChange={() => {
-                onChangeStyle({ showLabelPercent: !style.showLabelPercent });
-              }}
-            >
-              {_l('显示百分比')}
-            </Checkbox>
-          </div>
-        )}
+        {getShowLabelPercent() && labelPercent}
         {[reportTypes.BarChart, reportTypes.DualAxes].includes(reportType) && displaySetup.isPile && (
           <div className="flexRow valignWrapper">
             <Checkbox

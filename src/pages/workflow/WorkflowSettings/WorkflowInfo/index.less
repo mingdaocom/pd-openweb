@@ -1,0 +1,23 @@
+.workflowInfo {
+  input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 8px 10px;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 4px;
+    line-height: 18px;
+    &:not(:focus) {
+      border-color: #bdbdbd !important;
+    }
+  }
+  .icon-delete {
+    width: 18px;
+    display: inline-block;
+    cursor: pointer;
+    transition: all 250ms ease-out;
+    &:hover {
+      transform: rotate(90deg);
+    }
+  }
+}

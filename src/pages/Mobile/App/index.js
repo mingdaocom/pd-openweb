@@ -1,6 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
-import { List, Flex, ActionSheet, Modal, ActivityIndicator, Accordion, Switch, TabBar } from 'antd-mobile';
+import { Dialog, SpinLoading, Collapse, TabBar, Space, List } from 'antd-mobile';
 import { Icon, WaterMark, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import * as actions from './redux/actions';
@@ -23,7 +23,7 @@ import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
 import MoreAction from './MoreAction';
 import _ from 'lodash';
 import { addBehaviorLog, getTranslateInfo } from 'src/util';
-const Item = List.Item;
+
 let modal = null;
 
 class App extends Component {
@@ -95,7 +95,6 @@ class App extends Component {
     } else {
       modal = null;
     }
-    ActionSheet.close();
     this.setState({ appMoreActionVisible: false });
   }
 
@@ -181,11 +180,11 @@ class App extends Component {
       .map(item => {
         if (item.type !== 2) {
           return (
-            <Item
-              className={cx({ pLeft40: level === 'level2' })}
-              multipleLine
+            <List.Item
+              className={cx('appItem alignItemsCenter', level === 'level2' ? 'pLeft40' : 'pLeft20')}
               key={item.workSheetId}
-              thumb={<SvgIcon url={item.iconUrl} fill={detail.iconColor} size={22} />}
+              arrow={false}
+              prefix={<SvgIcon url={item.iconUrl} fill={detail.iconColor} size={22} />}
               extra={item.status === 2 ? <Icon icon="public-folder-hidden" /> : null}
               onClick={e => {
                 if (_.includes(e.target.classList, 'icon-public-folder-hidden')) {
@@ -194,10 +193,10 @@ class App extends Component {
                 this.handleOpenSheet(data, item);
               }}
             >
-              <span className="Font15 Gray LineHeight40">
+              <div className="Font15 Gray ellipsis">
                 {getTranslateInfo(detail.id, null, item.workSheetId).name || item.workSheetName}
-              </span>
-            </Item>
+              </div>
+            </List.Item>
           );
         }
         const groupItem = _.assign(item, _.find(childSections, v => v.appSectionId === item.workSheetId) || {});
@@ -207,7 +206,9 @@ class App extends Component {
           {};
 
         return (
-          <Accordion
+          <Collapse
+            arrow={null}
+            className="level2Collapse"
             activeKey={this.state.level2ExpandKeys}
             onChange={key => {
               safeLocalStorageSetItem(
@@ -222,10 +223,10 @@ class App extends Component {
               this.setState({ level2ExpandKeys: key });
             }}
           >
-            <Accordion.Panel header={this.renderHeader(groupItem, 'level2')} key={groupItem.appSectionId}>
+            <Collapse.Panel title={this.renderHeader(groupItem, 'level2')} key={groupItem.appSectionId}>
               {this.renderList(groupItem, 'level2')}
-            </Accordion.Panel>
-          </Accordion>
+            </Collapse.Panel>
+          </Collapse>
         );
       });
   }
@@ -257,7 +258,7 @@ class App extends Component {
         return (
           <Fragment key={v.workSheetId}>
             {this.renderHeader(v, 'level2')}
-            <Flex className="sudokuWrapper" wrap="wrap">
+            <div className="sudokuWrapper flexRow alignItemsCenter">
               {v.workSheetInfo
                 .filter(item => (viewHideNavi && isCharge ? true : [1, 3].includes(item.status) && !item.navigateHide))
                 .map(v => (
@@ -281,11 +282,11 @@ class App extends Component {
                         fill={detail.iconColor}
                         size={detail.gridDisplayMode === 1 && screenWidth <= 600 ? 26 : 30}
                       />
-                      <div className="name">{getTranslateInfo(detail.id, null, v.workSheetId).name || v.workSheetName}</div>
+                      <div className="name Gray">{getTranslateInfo(detail.id, null, v.workSheetId).name || v.workSheetName}</div>
                     </div>
                   </div>
                 ))}
-            </Flex>
+            </div>
           </Fragment>
         );
       });
@@ -294,12 +295,12 @@ class App extends Component {
   renderHeader(data, level) {
     const { appDetail } = this.props;
     const { id, appNaviStyle } = appDetail.detail;
-    const { expandGroupKeys = [] } = this.state;
+    const { expandGroupKeys = [], level2ExpandKeys = [] } = this.state;
     const name = getTranslateInfo(id, null, data.appSectionId).name || data.name;
     if (level == 'level1') {
       return (
         <div className="accordionHeaderWrap appSectionHeader">
-          <div className="Bold flex ellipsis">{name}</div>
+          <div className="Bold flex ellipsis Gray">{name}</div>
           {_.includes(expandGroupKeys, data.appSectionId) ? (
             <Icon icon="minus" className="appSectionIcon" />
           ) : (
@@ -315,9 +316,9 @@ class App extends Component {
       <div className="accordionHeaderWrap">
         <div className="flexRow mLeft5">
           <SvgIcon url={data.iconUrl} fill={data.iconColor} size={22} className="mRight12" />
-          <div className="flex ellipsis Font15 Bold">{name}</div>
+          <div className="flex ellipsis Font15 Bold Gray">{name}</div>
         </div>
-        <Icon icon="expand_more" className="Gray_75" />
+        <Icon icon="expand_more" className={cx('Gray_75', { open: _.includes(level2ExpandKeys, data.appSectionId) })} />
       </div>
     );
   }
@@ -408,31 +409,29 @@ class App extends Component {
     if (!viewHideNavi && _.isEmpty(sheets)) return null;
 
     return (
-      <Accordion.Panel header={this.renderHeader(data, level)} key={data.appSectionId}>
+      <Collapse.Panel title={this.renderHeader(data, level)} key={data.appSectionId}>
         {[0, 2].includes(appNaviStyle) && this.renderList(data, level)}
         {appNaviStyle === 1 && <div className="sudokuSectionWrap">{this.renderSudoku(data, level)}</div>}
-      </Accordion.Panel>
+      </Collapse.Panel>
     );
   }
 
   renderModal = () => {
     return (
-      <Modal
+      <Dialog
         visible={!this.props.isQuitSuccess}
-        transparent
-        maskClosable={false}
         title={_l('无法退出通过部门加入的应用')}
-        footer={[
+        content={_l('您所在的部门被加入了此应用，只能由应用管理员进行操作')}
+        actions={[
           {
+            key: 'ok',
             text: _l('确认'),
-            onPress: () => {
+            onClick: () => {
               this.props.dispatch({ type: 'MOBILE_QUIT_FAILED_CLOSE' });
             },
           },
         ]}
-      >
-        <div style={{ overflow: 'scroll' }}>{_l('您所在的部门被加入了此应用，只能由应用管理员进行操作')}</div>
-      </Modal>
+      />
     );
   };
 
@@ -495,7 +494,7 @@ class App extends Component {
         : {
             defaultActiveKey: appExpandGroupInfo.expandGroupKeys
               ? appExpandGroupInfo.expandGroupKeys
-              : appNaviDisplayType === 1 && (appSection.length > 1 || appSection[0].name)
+              : appNaviDisplayType === 1 && (appSection.length > 1 || _.get(appSection, '[0].name'))
               ? []
               : appSection.map(item => item.appSectionId),
           };
@@ -536,8 +535,9 @@ class App extends Component {
                   <AppPermissionsInfo appStatus={1} appId={params.appId} />
                 ) : (
                   <Fragment>
-                    <Accordion
-                      className={cx({ emptyAppSection: isEmptyAppSection })}
+                    <Collapse
+                      arrow={null}
+                      className={cx('levelCollapse', { emptyAppSection: isEmptyAppSection })}
                       onChange={key => {
                         if (appNaviDisplayType === 2) {
                           key = key.filter(v => !_.includes(expandGroupKeys, v));
@@ -556,7 +556,7 @@ class App extends Component {
                       {...accordionExtraParam}
                     >
                       {appSection.map(item => this.renderSection(item, 'level1'))}
-                    </Accordion>
+                    </Collapse>
                   </Fragment>
                 )}
               </div>
@@ -575,25 +575,23 @@ class App extends Component {
             />
           )}
           {!this.props.isQuitSuccess && this.renderModal()}
-          {appMoreActionVisible && (
-            <MoreAction
-              visible={appMoreActionVisible}
-              detail={detail}
-              viewHideNavi={viewHideNavi}
-              onClose={() => this.setState({ appMoreActionVisible: false })}
-              dealMarked={isMarked => {
-                this.props.dispatch(actions.updateAppMark(params.appId, detail.projectId, isMarked));
-                this.setState({ appMoreActionVisible: false });
-              }}
-              dealViewHideNavi={val => {
-                this.props.dispatch(
-                  actions.editAppInfo(val, () => {
-                    this.setState({ viewHideNavi: val });
-                  }),
-                );
-              }}
-            />
-          )}
+          <MoreAction
+            visible={appMoreActionVisible}
+            detail={detail}
+            viewHideNavi={viewHideNavi}
+            onClose={() => this.setState({ appMoreActionVisible: false })}
+            dealMarked={isMarked => {
+              this.props.dispatch(actions.updateAppMark(params.appId, detail.projectId, isMarked));
+              this.setState({ appMoreActionVisible: false });
+            }}
+            dealViewHideNavi={val => {
+              this.props.dispatch(
+                actions.editAppInfo(val, () => {
+                  this.setState({ viewHideNavi: val });
+                }),
+              );
+            }}
+          />
           {<DebugInfo appId={detail.id} debugRoles={debugRoles} />}
         </Fragment>
       );
@@ -679,36 +677,32 @@ class App extends Component {
         </div>
         {sheetList.length > 0 && !batchOptVisible && (
           <TabBar
-            unselectedTintColor="#949494"
-            tintColor={detail.iconColor}
-            barTintColor="white"
+            style={{ '--adm-color-primary': detail.iconColor }}
             hidden={isHideNav}
-            noRenderContent={true}
+            activeKey={selectedTab}
+            onChange={key => {
+              if (key === 'more') {
+                const { params } = this.props.match;
+                this.navigateTo(`/mobile/app/${params.appId}`);
+                sessionStorage.setItem('detectionUrl', 1);
+              } else {
+                const item = _.find(sheetList, { workSheetId: key });
+                addBehaviorLog(item.type == 0 ? 'worksheet' : 'customPage', item.workSheetId); // 埋点
+                this.handleSwitchSheet(item, data);
+              }
+            }}
           >
             {sheetList.map((item, index) => (
               <TabBar.Item
                 title={getTranslateInfo(detail.id, null, item.workSheetId).name || item.workSheetName}
                 key={item.workSheetId}
-                icon={<SvgIcon url={item.iconUrl} fill="#757575" size={20} />}
-                selectedIcon={<SvgIcon url={item.iconUrl} fill={detail.iconColor} size={20} />}
-                selected={selectedTab === item.workSheetId}
-                onPress={() => {
-                  addBehaviorLog(item.type == 0 ? 'worksheet' : 'customPage', item.workSheetId); // 埋点
-                  this.handleSwitchSheet(item, data);
-                }}
+                icon={<SvgIcon url={item.iconUrl} fill={selectedTab === item.workSheetId ? detail.iconColor : '#757575'} size={20} />}
               />
             ))}
             <TabBar.Item
               title={_l('更多')}
               key="more"
               icon={<Icon className="Font20" icon="menu" />}
-              selectedIcon={<Icon className="Font20" icon="menu" />}
-              selected={selectedTab === 'more'}
-              onPress={() => {
-                const { params } = this.props.match;
-                this.navigateTo(`/mobile/app/${params.appId}`);
-                sessionStorage.setItem('detectionUrl', 1);
-              }}
             />
           </TabBar>
         )}
@@ -722,9 +716,9 @@ class App extends Component {
 
     if (isAppLoading) {
       return (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
+        <div className="flexRow justifyContentCenter alignItemsCenter h100">
+          <SpinLoading color='primary' />
+        </div>
       );
     }
 

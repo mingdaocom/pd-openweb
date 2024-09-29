@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
-import { Flex, ActivityIndicator } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import charts from 'statistics/Charts';
 import { WithoutData, Abnormal } from 'statistics/components/ChartStatus';
 import { reportTypes } from 'statistics/Charts/common';
@@ -153,9 +153,9 @@ function ChartWrapper(props) {
       </div>
       <Content className={cx('flexColumn overflowHidden', `statisticsCard-${data.reportId}`)}>
         {loading ? (
-          <Flex justify="center" align="center" className="h100">
-            <ActivityIndicator size="large" />
-          </Flex>
+          <div className="flexRow justifyContentCenter alignItemsCenter h100">
+            <SpinLoading color='primary' />
+          </div>
         ) : (
           <Chart
             {...chartProps}

@@ -5,7 +5,7 @@ import { Tooltip } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import cx from 'classnames';
-import { UploadFileWrapper } from 'mobile/Discuss/AttachmentFiles';
+import { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
 import { getRowGetType } from 'worksheet/util';
 import { checkValueByFilterRegex } from 'src/components/newCustomFields/tools/utils';
 import Files from './Files';
@@ -46,6 +46,8 @@ export default class Widgets extends Component {
       fileEditModalVisible: false,
       showType: showtype === '0' ? '1' : showtype,
       filesVisible: true,
+      mingdaoAppUploading: 0,
+      mingdaoAppError: 0,
       mobileFiles: [],
       mobileCameraFiles: [],
       mobileCamcorderFiles: [],
@@ -71,7 +73,11 @@ export default class Widgets extends Component {
       if (this.checkFileNeedLoad(nextProps.value)) {
         this.loadAttachments(nextProps);
       } else {
-        this.setState({ value: nextProps.value });
+        const initMobileFiles =
+          !nextProps.value || !this.props.value
+            ? { mobileFiles: [], mobileCamcorderFiles: [], mobileCameraFiles: [] }
+            : {};
+        this.setState({ value: nextProps.value, ...initMobileFiles });
       }
     }
     if (_.get(nextProps, 'advancedSetting.showtype') === '3' && nextProps.formWidth !== this.props.formWidth) {
@@ -361,6 +367,45 @@ export default class Widgets extends Component {
     }
   }
 
+  mingDaoAppChooseImage = () => {
+    const { mingdaoAppError } = this.state;
+    const { projectId, appId, worksheetId, controlId, formData } = this.props;
+    const control = _.find(formData, { controlId }) || {};
+    if (mingdaoAppError) {
+      window.MDJS.showUploadingImage({
+        sessionId: this.sessionId
+      });
+      return;
+    }
+    window.MDJS.chooseImage({
+      sessionId: this.sessionId,
+      knowledge: false,
+      worksheetId,
+      appId,
+      projectId,
+      control,
+      checkValueByFilterRegex: this.checkValueByFilterRegex,
+      success: (res) => {
+        // 传入的sessionId 为空时, 由App随机生成, 每个sessionId 对应App中一个文件管理器
+        this.sessionId = res.sessionId;
+        const { error, uploading, completed } = res;
+        // 上传中数量
+        this.setState({ mingdaoAppUploading: uploading });
+        // 出错数量
+        this.setState({ mingdaoAppError: error });
+        // 有成功上传的文件就会返回
+        if (completed) {
+          this.setState({
+            mobileFiles: _.uniqBy(this.state.mobileFiles.concat(completed), 'fileName')
+          }, () => {
+            this.handleMobileChangeFiles();
+          });
+        }
+      },
+      cancel: function (res) {}
+    });
+  }
+
   handleMobileChangeFiles = () => {
     const { mobileFiles, mobileCameraFiles , mobileCamcorderFiles } = this.state;
     const files = [...mobileFiles, ...mobileCameraFiles, ...mobileCamcorderFiles];
@@ -389,8 +434,30 @@ export default class Widgets extends Component {
     type
   }) => {
     const { from, appId, worksheetId, projectId, enumDefault2, advancedSetting, strDefault = '10', hint } = this.props;
-    const { isComplete, uploadStart } = this.state;
+    const { isComplete, uploadStart, mingdaoAppUploading, mingdaoAppError } = this.state;
     const addFileName = customHint ? customHint : hint || _l('添加附件');
+
+    const Content = (
+      <Fragment>
+        <Icon className={cx('Gray_9e TxtMiddle', { iconClass })} icon={icon ? icon : 'attachment'} />
+        <span className="Gray Font13 mLeft5 addFileName overflow_ellipsis flex">{addFileName}</span>
+        {!!mingdaoAppUploading && (
+          <span className="mLeft5 ThemeColor3 fileUpdateLoading Font13">{_l('%0个附件正在上传', mingdaoAppUploading)}</span>
+        )}
+        {!!mingdaoAppError && (
+          <span className="mLeft5 Red fileUpdateLoading Font13">{_l('%0个附件上传失败', mingdaoAppError)}</span>
+        )}
+        {isComplete === false && uploadStart && <span className="mLeft5 ThemeColor3 fileUpdateLoading"></span>}
+      </Fragment>
+    );
+
+    if (window.isMingDaoApp) {
+      return (
+        <div className={cx('triggerTraget mobile', className)} style={{ height: 34, ...styles }} onClick={this.mingDaoAppChooseImage}>
+          {Content}
+        </div>
+      );
+    }
 
     return (
       <div className={cx('triggerTraget mobile', className)} style={{ height: 34, ...styles }}>
@@ -444,9 +511,7 @@ export default class Widgets extends Component {
           }}
           checkValueByFilterRegex={this.checkValueByFilterRegex}
         >
-          <Icon className={cx('Gray_9e TxtMiddle', { iconClass })} icon={icon ? icon : 'attachment'} />
-          <span className="Gray Font13 mLeft5 addFileName overflow_ellipsis flex">{addFileName}</span>
-          {isComplete === false && uploadStart && <span className="mLeft5 ThemeColor3 fileUpdateLoading"></span>}
+          {Content}
         </UploadFileWrapper>
       </div>
     );
@@ -461,6 +526,7 @@ export default class Widgets extends Component {
       sheetSwitchPermit = [],
       strDefault = '10',
       controlId,
+      otherSheetControlType,
       projectId,
       viewIdForPermit = '',
       enumDefault2,
@@ -485,8 +551,11 @@ export default class Widgets extends Component {
       fileEditModalVisible,
     } = this.state;
     const enumDefault = this.props.enumDefault || 3;
-    const pcDisabled = disabled || isOnlyAllowMobile;
-    const mobileDisabled = disabled;
+    const allowUpload = (advancedSetting.allowupload || '1') === '1';
+    const allowDelete = (advancedSetting.allowdelete || '1') === '1';
+    const allowDownload = (advancedSetting.allowdownload || '1') === '1';
+    const pcDisabled = !allowUpload || disabled || isOnlyAllowMobile;
+    const mobileDisabled = !allowUpload || disabled;
     const addFileName = hint || _l('添加附件');
 
     if (!value && isOnlyAllowMobile && !isMobile) {
@@ -525,7 +594,7 @@ export default class Widgets extends Component {
 
     const coverType = advancedSetting.covertype || '0';
     const allAownload =
-      advancedSetting.alldownload !== '0' && recordAttachmentSwitch && !_.get(window, 'shareState.shareId');
+      advancedSetting.alldownload !== '0' && recordAttachmentSwitch && !_.get(window, 'shareState.shareId') && recordId;
 
     const filesProps = {
       recordBaseInfo: {
@@ -536,10 +605,13 @@ export default class Widgets extends Component {
       showType,
       coverType,
       controlId,
+      controlType: otherSheetControlType,
       viewMore: !!recordId,
-      allowDownload: !!_.get(window, 'shareState.shareId') || recordAttachmentSwitch,
-      allowSort: enumDefault === 3 && (isMobile ? false : !pcDisabled),
+      allowDownload: allowDownload && (!!_.get(window, 'shareState.shareId') || recordAttachmentSwitch),
+      allowShare: allowDownload && !_.get(window, 'shareState.shareId') && !md.global.Account.isPortal,
+      allowSort: showType === '4' ? false : enumDefault === 3 && (isMobile ? false : !pcDisabled),
       allowEditName: isMobile ? false : !pcDisabled && !_.get(window, 'shareState.shareId'),
+      advancedSetting,
       attachments,
       knowledgeAtts,
       attachmentData,
@@ -577,39 +649,47 @@ export default class Widgets extends Component {
         >
           {!mobileDisabled ? (
             <div className="flexRow">
-              {showFile && this.renderMobileUploadTrigger({ originCount, strDefault, attachments, styles, type: 'file' })}
-              {showCamera &&
-                this.renderMobileUploadTrigger({
-                  originCount,
-                  strDefault,
-                  attachments,
-                  customHint: _l('拍照'),
-                  customUploadType: 'camara',
-                  className: cx({ mLeft6: showFile }),
-                  icon: 'camera_alt',
-                  iconClass: 'Font16',
-                  type: 'camera'
-                })}
-              {showCamcorder &&
-                this.renderMobileUploadTrigger({
-                  originCount,
-                  strDefault,
-                  attachments,
-                  customHint: _l('拍摄'),
-                  customUploadType: 'camcorder',
-                  className: cx({ mLeft6: showFile || showCamera }),
-                  icon: 'video2',
-                  iconClass: 'Font18',
-                  type: 'camcorder'
-                })}
+              {window.isMingDaoApp ? (
+                <Fragment>
+                  {this.renderMobileUploadTrigger({ originCount, strDefault, attachments, styles, type: 'file' })}
+                </Fragment>
+              ) : (
+                <Fragment>
+                  {showFile && this.renderMobileUploadTrigger({ originCount, strDefault, attachments, styles, type: 'file' })}
+                  {showCamera &&
+                    this.renderMobileUploadTrigger({
+                      originCount,
+                      strDefault,
+                      attachments,
+                      customHint: _l('拍照'),
+                      customUploadType: 'camara',
+                      className: cx({ mLeft6: showFile }),
+                      icon: 'camera_alt',
+                      iconClass: 'Font16',
+                      type: 'camera'
+                    })}
+                  {showCamcorder &&
+                    this.renderMobileUploadTrigger({
+                      originCount,
+                      strDefault,
+                      attachments,
+                      customHint: _l('拍摄'),
+                      customUploadType: 'camcorder',
+                      className: cx({ mLeft6: showFile || showCamera }),
+                      icon: 'video2',
+                      iconClass: 'Font18',
+                      type: 'camcorder'
+                    })}
+                </Fragment>
+              )}
             </div>
           ) : (
-            <div className="customFormNull" />
+            !attachmentData.length && <div className="customFormNull" />
           )}
           <Files
             {...filesProps}
             showType={['3'].includes(showType) ? '2' : !disabled && showType === '4' ? '1' : showType}
-            isDeleteFile={!mobileDisabled}
+            isDeleteFile={allowDelete && !disabled}
             from={from}
             removeUploadingFile={data => {
               this.setState({ isComplete: true });
@@ -713,7 +793,7 @@ export default class Widgets extends Component {
               </div>
             </UploadFilesTrigger>
           ) : (
-            <div className="customFormNull" />
+            (attachmentData.length || attachments.length) ? <div className="flex" /> : <div className="customFormNull" />
           )}
           <div className="valignWrapper">
             {showType === '4' && (
@@ -730,6 +810,7 @@ export default class Widgets extends Component {
                   onCancel={() => this.setState({ fileEditModalVisible: false })}
                   filesProps={filesProps}
                   pcDisabled={pcDisabled}
+                  isDeleteFile={allowDelete && !(disabled || isOnlyAllowMobile)}
                   from={from}
                 />
               </Fragment>
@@ -743,7 +824,7 @@ export default class Widgets extends Component {
             )}
           </div>
         </div>
-        {filesVisible && <Files {...filesProps} isDeleteFile={!pcDisabled} from={from} />}
+        {filesVisible && <Files {...filesProps} isDeleteFile={allowDelete && !(disabled || isOnlyAllowMobile)} from={from} />}
       </div>
     );
   }

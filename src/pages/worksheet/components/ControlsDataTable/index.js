@@ -20,6 +20,23 @@ const ColumnHead = styled.div`
     left: 0;
     border-radius: 2px;
   }
+  &.wrapControlName {
+    align-items: flex-start;
+    & > span {
+      line-height: 1.3em;
+      text-overflow: unset;
+      overflow: visible;
+      white-space: unset;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      vertical-align: top;
+      margin-top: 8px;
+    }
+  }
 `;
 
 const RowHead = styled.div`
@@ -41,6 +58,7 @@ export default function ControlsDataTable(props) {
     sortByControl,
     showEmptyForResize = true,
     canSort,
+    wrapControlName,
   } = props;
   const [{ isAsc, controlId, datatype }, setState] = useSetState({
     isAsc: undefined,
@@ -77,6 +95,7 @@ export default function ControlsDataTable(props) {
   return (
     <WorksheetTable
       watchHeight
+      wrapControlName={wrapControlName}
       loading={loading}
       lineNumberBegin={lineNumberBegin}
       columns={controls}
@@ -91,6 +110,7 @@ export default function ControlsDataTable(props) {
           style={style}
           className={cx(className + ' columnHead flexRow alignItemsCenter', {
             'Hand ThemeHoverColor3': !!control.controlId && canSort,
+            wrapControlName: wrapControlName,
           })}
           onClick={() => {
             if (!control.controlId || !canSort) {

@@ -5,14 +5,6 @@ export default function () {
   const buttonRef = useRef();
   return (
     <div style={{ margin: 100 }}>
-      {/* <UserSelector
-        projectId={md.global.Account.projects[0].projectId}
-        includeSystemField
-        includeUndefinedAndMySelf
-        tabType={2}
-        onSelect={console.log}
-        selectCb={console.log}
-      /> */}
       <br />
       <button
         ref={buttonRef}

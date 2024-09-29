@@ -20,7 +20,10 @@ const PageNum = styled.span`
   margin: 0 8px;
   border-radius: 3px;
   cursor: pointer;
-  &:hover {
+  &.abnormalMode {
+    cursor: default;
+  }
+  &:not(.abnormalMode):hover {
     background: #f0f0f0;
   }
 `;
@@ -254,7 +257,7 @@ export default class Pagination extends React.Component {
       <Con className={className} ref={this.conRef}>
         <Trigger
           action={['click']}
-          popupVisible={!disabled && popupVisible}
+          popupVisible={!(disabled || abnormalMode) && popupVisible}
           onPopupVisibleChange={value => this.setState({ popupVisible: value })}
           destroyPopupOnHide
           popupAlign={{
@@ -263,7 +266,7 @@ export default class Pagination extends React.Component {
           popup={this.renderPopup()}
           getPopupContainer={() => this.conRef.current || document.body}
         >
-          <PageNum>
+          <PageNum className={cx({ abnormalMode })}>
             {abnormalMode
               ? _l('第%0页', pageIndex)
               : _l(

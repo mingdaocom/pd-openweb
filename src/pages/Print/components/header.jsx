@@ -168,7 +168,7 @@ class Header extends React.Component {
     return (
       <div className={cx('headerBox Gray', { flexCenter: type === typeForCon.PREVIEW })}>
         <React.Fragment>
-          {from === fromType.FORMSET && (
+          {from === fromType.FORM_SET && (
             <Icon
               icon="knowledge-return"
               className="mRight12 Font16"
@@ -183,7 +183,7 @@ class Header extends React.Component {
           {from === fromType.PRINT && type === typeForCon.NEW && (
             <span className="Font17 Bold flex">{_l('系统打印')}</span>
           )}
-          {from === fromType.FORMSET ? (
+          {from === fromType.FORM_SET ? (
             // 字段编辑=》打印模板
             <React.Fragment>
               {type === typeForCon.NEW && <span className="Font17 Bold">{_l('新建模板')}</span>}
@@ -292,7 +292,8 @@ class Header extends React.Component {
                     </div>
                   </React.Fragment>
                 ) : (
-                  showPdf && (
+                  showPdf &&
+                  allowDown && (
                     <div
                       className="saveForDocx Hand InlineBlock Gray_75"
                       onClick={() => {

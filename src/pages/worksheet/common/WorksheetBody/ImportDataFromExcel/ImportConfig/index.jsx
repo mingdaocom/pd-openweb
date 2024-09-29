@@ -40,7 +40,11 @@ export default class ImportConfig extends Component {
       if (rowItem.rowNumber < 10) {
         let validCells = rowItem.cells;
         if (_.findIndex(rowItem.cells, item => !item.value) > -1) {
-          validCells = _.slice(rowItem.cells, 0, _.findIndex(rowItem.cells, item => !item.value));
+          validCells = _.slice(
+            rowItem.cells,
+            0,
+            _.findIndex(rowItem.cells, item => !item.value),
+          );
         }
         if (rowItem.cells[0].value && validCells.length > maxValidColumn) {
           maxValidColumn = validCells.length;
@@ -68,7 +72,10 @@ export default class ImportConfig extends Component {
       selectRow.cells = _.slice(
         selectRow.cells,
         0,
-        _.findIndex(this.props.fileList[defaultSelectImportSheetIndex].rows[maxColumnNumber].cells, item => !item.value),
+        _.findIndex(
+          this.props.fileList[defaultSelectImportSheetIndex].rows[maxColumnNumber].cells,
+          item => !item.value,
+        ),
       ).filter(item => item.value);
     }
     this.state = {
@@ -91,7 +98,11 @@ export default class ImportConfig extends Component {
       if (rowItem.rowNumber < 10) {
         let validCells = rowItem.cells;
         if (_.findIndex(rowItem.cells, item => !item.value) > -1) {
-          validCells = _.slice(rowItem.cells, 0, _.findIndex(rowItem.cells, item => !item.value));
+          validCells = _.slice(
+            rowItem.cells,
+            0,
+            _.findIndex(rowItem.cells, item => !item.value),
+          );
         }
         if (rowItem.cells[0].value && validCells.length > maxValidColumn) {
           maxValidColumn = validCells.length;
@@ -126,7 +137,11 @@ export default class ImportConfig extends Component {
               const rowItem = selectSheet.rows[item - 1];
               let selectCells = Object.assign({}, rowItem).cells;
               if (_.findIndex(rowItem.cells, item => !item.value) > -1) {
-                selectCells = _.slice(rowItem.cells, 0, _.findIndex(rowItem.cells, item => !item.value));
+                selectCells = _.slice(
+                  rowItem.cells,
+                  0,
+                  _.findIndex(rowItem.cells, item => !item.value),
+                );
               }
               const selectRow = {
                 ...rowItem,
@@ -145,7 +160,11 @@ export default class ImportConfig extends Component {
   selectLine(rowItem, rowIndex) {
     let selectCells = Object.assign({}, rowItem).cells;
     if (_.findIndex(rowItem.cells, item => !item.value) > -1) {
-      selectCells = _.slice(rowItem.cells, 0, _.findIndex(rowItem.cells, item => !item.value));
+      selectCells = _.slice(
+        rowItem.cells,
+        0,
+        _.findIndex(rowItem.cells, item => !item.value),
+      );
     }
     const selectRow = {
       ...rowItem,
@@ -272,9 +291,9 @@ export default class ImportConfig extends Component {
                                 onMouseLeave={() => this.setState({ hoverIndex: titleLine })}
                               >
                                 <td className="index pointer">
-                                  {titleLine === rowIndex + 1 && <i className="excelTitleImg" />}
+                                  {titleLine === rowIndex + 1 && <span className="excelTitleImg">{_l('表头')}</span>}
                                   {titleLine !== rowIndex + 1 && hoverIndex === rowIndex + 1 && (
-                                    <i className="excelTitleHoverImg" />
+                                    <span className="excelTitleHoverImg">{_l('表头')}</span>
                                   )}
                                   {titleLine !== rowIndex + 1 && hoverIndex !== rowIndex + 1 && (
                                     <span>{rowIndex + 1}</span>

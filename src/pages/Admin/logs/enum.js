@@ -20,13 +20,15 @@ export const TAB_LIST = [
 export const MODULE_LIST = [
   { value: 1, label: _l('应用') },
   { value: 2, label: _l('工作表') },
-  { value: 7, label: _l('自定义页面') },
-  { value: 3, label: _l('工作流') },
-  { value: 4, label: _l('用户') },
-  // { value: 5, label: _l('统计图表') },
-  // { value: 6, label: _l('外部门户') },
   { value: 8, label: _l('工作表记录') },
   { value: 9, label: _l('附件') },
+  { value: 7, label: _l('自定义页面') },
+  { value: 3, label: _l('工作流') },
+  { value: 11, label: _l('聚合表') },
+  { value: 4, label: _l('用户') },
+
+  // { value: 5, label: _l('统计图表') },
+  // { value: 6, label: _l('外部门户') },
 ];
 
 export const OPERATE_LIST = [
@@ -44,6 +46,9 @@ export const OPERATE_LIST = [
   { value: 11, label: _l('自定义动作') },
   { value: 12, label: _l('附件下载') },
   { value: 16, label: _l('升级') },
+  { value: 18, label: _l('开启') },
+  { value: 19, label: _l('关闭') },
+  { value: 20, label: _l('发布') },
   // { value: 13, label: _l('附件预览') },
 ];
 
@@ -53,6 +58,7 @@ export const LOGIN_LOG_COLUMNS = [
     dataIndex: 'accountId',
     fixed: 'left',
     disabled: true,
+    width: 220,
   },
   {
     title: _l('登录/登出时间'),
@@ -66,6 +72,10 @@ export const LOGIN_LOG_COLUMNS = [
   {
     title: _l('登录类型'),
     dataIndex: 'loginType',
+  },
+  {
+    title: _l('失败原因'),
+    dataIndex: 'failReason',
   },
   {
     title: 'IP',
@@ -154,6 +164,34 @@ export const APP_WORKSHEET_LOG_COLUMNS = [
   // },
 ];
 
+export const ORG_MANAGE_LOG_COLUMNS = [
+  {
+    title: _l('操作人'),
+    dataIndex: 'accountId',
+    width: 100,
+  },
+  {
+    title: _l('操作对象'),
+    dataIndex: 'operateTargetType',
+    width: 80,
+  },
+  {
+    title: _l('操作类型'),
+    dataIndex: 'operateType',
+    width: 80,
+  },
+  {
+    title: _l('操作内容'),
+    dataIndex: 'operationContent',
+    width: 240,
+  },
+  {
+    title: _l('操作时间'),
+    dataIndex: 'operationTime',
+    width: 100,
+  },
+];
+
 export const PRIVATE_APP_WORKSHEET_LOG_COLUMNS = [
   {
     title: 'IP',
@@ -199,4 +237,47 @@ export const PRIVATE_APP_WORKSHEET_LOG_COLUMNS = [
   //   title: _l('IMEI'),
   //   dataIndex: 'imei',
   // },
+];
+
+export const LOGIN_FAIL_REASON = [
+  { value: 3, label: _l('密码错误') },
+  { value: 4, label: _l('验证码输入错误') },
+  { value: 5, label: _l('登录过于频繁，需要图形验证码确认') },
+  { value: 7, label: _l('账号不存在') },
+  { value: 8, label: _l('账号来源类型受限') },
+  { value: 9, label: _l('账号被禁止锁定') },
+  { value: 10, label: _l('账号需要两步验证登录') },
+  { value: 11, label: _l('验证码过期或者失效') },
+  { value: 12, label: _l('频繁登录账号被锁定') },
+  { value: 13, label: _l('账号首次登录需要重置密码') },
+  { value: 14, label: _l('账号密码已过期') },
+  { value: 15, label: _l('账号已经申请注销') },
+  { value: 0, label: _l('其他') },
+];
+// 组织管理日志-操作类型
+export const OPERATE_TYPE = [
+  { value: 1, label: _l('添加人员') },
+  { value: 2, label: _l('移除人员') },
+  { value: 3, label: _l('新建') },
+  { value: 4, label: _l('删除') },
+  { value: 5, label: _l('修改') },
+  // { value: 6, label: _l('查看') },
+  // { value: 7, label: _l('导出') },
+  // { value: 8, label: _l('下载') },
+  // { value: 9, label: _l('开启') },
+  // { value: 10, label: _l('关闭') },
+  // { value: 11, label: _l('注销') },
+  // { value: 12, label: _l('交接') },
+  // { value: 13, label: _l('提现') },
+  // { value: 14, label: _l('撤回') },
+  // { value: 15, label: _l('暂停') },
+  // { value: 16, label: _l('退款') },
+];
+// 组织管理日志-操作对象
+export const ORG_LOG_OPERATOR = [
+  { value: 1, label: _l('管理员') },
+  { value: 2, label: _l('成员') },
+  { value: 5, label: _l('工作台') },
+  // { value: 3, label: _l('部门') },
+  // { value: 4, label: _l('组织角色') },
 ];

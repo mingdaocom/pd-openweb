@@ -1,11 +1,9 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import { Dialog, LoadDiv } from 'ming-ui';
+import { Dialog } from 'ming-ui';
 import { Checkbox } from 'antd';
-import styled from 'styled-components';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config';
-import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import worksheetApi from 'src/api/worksheet';
 
 export default function FilterData(props) {

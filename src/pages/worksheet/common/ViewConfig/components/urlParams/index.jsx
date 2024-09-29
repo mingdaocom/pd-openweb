@@ -122,6 +122,7 @@ export default function UrlParams(props) {
               hidePublicShare: !(
                 isOpenPermit(permitList.viewShareSwitch, sheetSwitchPermit, view.viewId) && !md.global.Account.isPortal
               ),
+              privateShare: isOpenPermit(permitList.internalAccessLink, sheetSwitchPermit, view.viewId),
               params: {
                 appId,
                 worksheetId,

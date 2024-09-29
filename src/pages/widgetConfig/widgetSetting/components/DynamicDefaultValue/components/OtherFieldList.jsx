@@ -201,8 +201,12 @@ export default ({
                         name = item.fullname || item.name;
                       } else {
                         const record = safeParse(item);
-                        const titleControlItem = record[titleControl.controlId];
-                        name = renderCellText({ ...titleControl, value: titleControlItem }) || _l('未命名');
+                        if (type === 'cascader' && _.get(data, 'advancedSetting.allpath') === '1') {
+                          name = safeParse(record.path || '[]').join(' / ');
+                        } else {
+                          const titleControlItem = record[titleControl.controlId];
+                          name = renderCellText({ ...titleControl, value: titleControlItem }) || _l('未命名');
+                        }
                         // 处理关联表默认记录的标题字段是人员字段情况
                         // if (/\[\{['"]accountId["']:\s*['"].*['"].*\}\]/.test(titleControlItem)) {
                         //   const firstUser = _.head(JSON.parse(titleControlItem));

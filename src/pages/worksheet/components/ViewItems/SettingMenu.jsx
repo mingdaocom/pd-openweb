@@ -46,7 +46,12 @@ function SettingMenu(props) {
     if (isDelCustomize()) {
       return false;
     }
-    return !md.global.Account.isPortal;
+
+    return (
+      !md.global.Account.isPortal &&
+      (isOpenPermit(permitList.viewShareSwitch, sheetSwitchPermit, item.viewId) ||
+        isOpenPermit(permitList.internalAccessLink, sheetSwitchPermit, item.viewId))
+    );
   };
 
   const canExport = () => {

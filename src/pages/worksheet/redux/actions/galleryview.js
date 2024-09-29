@@ -3,6 +3,8 @@ import { getNavGroupCount } from './index';
 import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
+let getGalleryRequest = null;
+let preWorksheetIds = [];
 export const fetch = index => {
   return (dispatch, getState) => {
     const { base, filters, galleryview, quickFilter, navGroupFilters } = getState().sheet;
@@ -38,8 +40,18 @@ export const fetch = index => {
     if (window.isMingDaoApp) {
       args.filterControls = filterControls;
     }
-
-    worksheetAjax.getFilterRows(getFilledRequestParams(args)).then(res => {
+    if (
+      getGalleryRequest &&
+      getGalleryRequest.abort &&
+      preWorksheetIds.includes(`${base.worksheetId}-${base.viewId}`)
+    ) {
+      getGalleryRequest.abort();
+    }
+    preWorksheetIds.push(`${base.worksheetId}-${base.viewId}`);
+    getGalleryRequest = worksheetAjax.getFilterRows(getFilledRequestParams(args));
+    getGalleryRequest.then(res => {
+      getGalleryRequest = null;
+      preWorksheetIds = (preWorksheetIds || []).filter(o => o !== `${base.worksheetId}-${base.viewId}`);
       dispatch({
         type: 'CHANGE_GALLERY_VIEW_DATA',
         list: index > 1 ? gallery.concat(res.data) : res.data,

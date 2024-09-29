@@ -141,7 +141,7 @@ export default function BaseInfo(props) {
               'switches',
             ]),
             columns,
-            viewControl,
+            navGroupId: viewControl,
           }}
         />
       )}

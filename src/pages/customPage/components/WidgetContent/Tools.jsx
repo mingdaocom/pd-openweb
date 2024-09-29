@@ -38,9 +38,9 @@ const TOOLS_BY_LAYOUT_TYPE = {
 };
 
 const ToolsWrap = styled.ul`
-  position: fixed;
+  position: absolute;
   z-index: 1;
-  top: ${props => (props.titleVisible ? '40px' : '0')};
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -181,7 +181,14 @@ export default function Tools({ appId, pageId, widget, layoutType, handleToolCli
     if (isSwitchButton(type)) {
       const value = widgetType === 'button' ? _.get(widget, ['button', 'mobileCount']) : _.get(widget, ['config', 'mobileCount']);
       const { direction } = _.get(widget, ['button', 'config']) || {};
-      if (direction === 1 || widgetType === 'analysis') {
+      if (widgetType === 'analysis') {
+        if (value === 1) return _l('一行两个');
+        if (value === 2) return _l('一行三个');
+        if (value === 3) return _l('一行四个');
+        if (value === 4) return _l('一行五个');
+        if (value === 5) return _l('一行六个');
+        if (value === 6) return _l('一行一个');
+      } else if (direction === 1) {
         if (value === 1) return _l('一行两个');
         if (value === 2) return _l('一行三个');
         if (value === 3) return _l('一行四个');
@@ -198,7 +205,14 @@ export default function Tools({ appId, pageId, widget, layoutType, handleToolCli
       const value = widgetType === 'button' ? _.get(widget, ['button', 'mobileCount']) : _.get(widget, ['config', 'mobileCount']);
       if (next) {
         const { direction } = _.get(widget, ['button', 'config']) || {};
-        if (direction === 1 || widgetType === 'analysis') {
+        if (widgetType === 'analysis') {
+          if (value === 1) return 'looks_two';
+          if (value === 2) return 'looks_three';
+          if (value === 3) return 'looks_four';
+          if (value === 4) return 'looks_five';
+          if (value === 5) return 'looks_six';
+          if (value === 6) return 'looks_one';
+        } else if (direction === 1) {
           if (value === 1) return 'looks_two';
           if (value === 2) return 'looks_three';
           if (value === 3) return 'looks_four';

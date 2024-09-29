@@ -6,7 +6,7 @@ import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import _ from 'lodash';
 
 export default function NumberInput(props) {
-  const { dynamicValue, data, clearOldDefault, onDynamicValueChange, defaultType } = props;
+  const { dynamicValue, data, clearOldDefault, onDynamicValueChange, defaultType, totalWidth, from } = props;
   const { cid = '' } = dynamicValue[0] || {};
   const [value, setValue] = useState('');
   const [isDynamic, setDynamic] = useState(false);
@@ -72,7 +72,12 @@ export default function NumberInput(props) {
       ) : (
         <Input
           value={value}
-          style={{ width: 'calc(100% - 36px)', borderRadius: '3px 0 0 3px' }}
+          style={{
+            width: totalWidth ? '100%' : 'calc(100% - 36px)',
+            borderRadius: '3px 0 0 3px',
+            lineHeight: '20px',
+            minHeight: '36px',
+          }}
           placeholder={_l('请输入数值')}
           onBlur={() => {
             if (value) {

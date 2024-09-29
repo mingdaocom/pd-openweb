@@ -9,6 +9,11 @@ export const TABS = [
     label: _l('订单明细'),
     path: '/admin/transaction/:projectId',
   },
+  {
+    key: 'refund',
+    label: _l('退款订单'),
+    path: '/admin/refund/:projectId',
+  },
 ];
 
 export const STEPS = [
@@ -44,7 +49,7 @@ export const STATUS = {
 export const ORDER_STATUS = [
   { label: _l('待支付'), value: 0 },
   { label: _l('已支付'), value: 1 },
-  { label: _l('退款中'), value: 2 },
+  { label: _l('已申请退款'), value: 2 },
   { label: _l('已退款'), value: 3 },
   { label: _l('支付超时'), value: 4 },
   { label: _l('部分退款'), value: 5 },
@@ -61,6 +66,15 @@ export const PAY_STATUS = [
   { label: _l('支付中'), value: 6 },
   { label: _l('支付超时'), value: 7 },
   { label: _l('部分退款'), value: 8 },
+];
+
+export const REFUND_STATUS = [
+  { label: _l('待处理'), value: 3 },
+  { label: _l('已退款'), value: 2 },
+  { label: _l('已拒绝'), value: 4 },
+  { label: _l('已取消'), value: 5 },
+  { label: _l('退款失败'), value: 1 },
+  // 0 退款中 1 退款失败 2 已退款 3 待处理 4 已拒绝 5 已取消 6 同意退款
 ];
 
 export const PAY_METHOD = [
@@ -83,12 +97,20 @@ export const INCOME_INFO = [
   { id: 'realAmount', text: _l('实际收入') },
 ];
 
+export const BALANCE_INFO = [{ id: 'banlance', text: _l('账户余额') }];
+
 export const DATE_CONFIG = [
   { id: 'today', text: _l('今天') },
   { id: 'yesterday', text: _l('昨天'), pastDays: 1 },
   { id: 'pastSevenDays', text: _l('过去七天'), pastDays: 7 },
   { id: 'pastThirtyDays', text: _l('过去30天'), pastDays: 30 },
   { id: 'custom', text: _l('自定义日期') },
+];
+
+export const ORDER_SOURCE = [
+  { label: _l('公开表单'), value: 1 },
+  { label: _l('组织内'), value: 2 },
+  { label: _l('外部门户'), value: 3 },
 ];
 
 export const getOrderStatusInfo = (orderStatus, msg = '') => {

@@ -390,6 +390,50 @@ export const formatYaxisList = (map, yaxisList, id) => {
   return newYaxisList;
 }
 
+export const formatNumberValue = (value, config) => {
+  const { dot, roundType, dotFormat } = config;
+  const ignoreZero = dotFormat === '1';
+  const isNegative = value < 0;
+  const absValue = Math.abs(value);
+  
+  if (roundType === 0) {
+    // 向下取整
+    value = String(toFixed(Math.floor(absValue * Math.pow(10, dot)) / Math.pow(10, dot), dot) * (isNegative ? -1 : 1));
+  } else if (roundType === 1) {
+    // 向上取整
+    value = String((Math.ceil(absValue * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
+  } else {
+    // 四舍入五
+    value = String((Math.round(absValue * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
+  }
+
+  // 确保结果具有固定的小数位数
+  const parts = value.split('.');
+  let integerPart = parts[0];
+  let decimalPart = parts[1] || '';
+
+  // 处理小数点前的零
+  if (integerPart === '') {
+    integerPart = '0';
+  }
+
+  // 补充缺失的小数位数
+  if (dot > decimalPart.length) {
+    decimalPart += '0'.repeat(dot - decimalPart.length);
+  } else if (dot < decimalPart.length) {
+    decimalPart = decimalPart.substring(0, dot);
+  }
+
+  // 拼接整数部分和小数部分
+  value = integerPart + (dot > 0 ? '.' + decimalPart : '');
+
+  // 移除尾随的零
+  if (ignoreZero && dot > 0) {
+    value = value.replace(/(?:\.0+|(\.\d+?)0+)$/, "$1");
+  }
+  return value;
+}
+
 /**
  * 为字段值添加数量级单位
  */
@@ -399,50 +443,10 @@ export const formatControlValueDot = (value, data) => {
   }
 
   const { magnitude, roundType = 2, dotFormat = '1', suffix, dot, controlId, fixType, advancedSetting } = data;
-  // const sheetDotformat = _.get(advancedSetting, 'dotformat') || '0';
-  const ignoreZero = dotFormat === '1';
   const isRecordCount = controlId === 'record_count';
   const ydot = Number(data.ydot);
   const formatValue = (value, dot) => {
-    const isNegative = value < 0;
-    const absValue = Math.abs(value);
-    
-    if (roundType === 0) {
-      // 向下取整
-      value = String(toFixed(Math.floor(absValue * Math.pow(10, dot)) / Math.pow(10, dot), dot) * (isNegative ? -1 : 1));
-    } else if (roundType === 1) {
-      // 向上取整
-      value = String((Math.ceil(absValue * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
-    } else {
-      // 四舍入五
-      value = String((Math.round(absValue * Math.pow(10, dot)) / Math.pow(10, dot)) * (isNegative ? -1 : 1));
-    }
-
-    // 确保结果具有固定的小数位数
-    const parts = value.split('.');
-    let integerPart = parts[0];
-    let decimalPart = parts[1] || '';
-
-    // 处理小数点前的零
-    if (integerPart === '') {
-      integerPart = '0';
-    }
-
-    // 补充缺失的小数位数
-    if (dot > decimalPart.length) {
-      decimalPart += '0'.repeat(dot - decimalPart.length);
-    } else if (dot < decimalPart.length) {
-      decimalPart = decimalPart.substring(0, dot);
-    }
-
-    // 拼接整数部分和小数部分
-    value = integerPart + (dot > 0 ? '.' + decimalPart : '');
-
-    // 移除尾随的零
-    if (ignoreZero && dot > 0) {
-      value = value.replace(/(?:\.0+|(\.\d+?)0+)$/, "$1");
-    }
-    return value;
+    return formatNumberValue(value, { dot, roundType, dotFormat });
   }
   const formatThousandth = (value = '') => {
     value = value.toString();

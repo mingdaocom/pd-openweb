@@ -2,9 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ChildTable from 'worksheet/components/ChildTable';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
-import autobind from 'core-decorators/lib/autobind';
 import { browserIsMobile } from 'src/util';
-import _ from 'lodash';
+import _, { find } from 'lodash';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 export default class SubList extends React.Component {
@@ -33,8 +32,7 @@ export default class SubList extends React.Component {
     }
   }
 
-  @autobind
-  handleChange({ rows, originRows = [], lastAction = {} }, mode) {
+  handleChange = ({ rows, originRows = [], lastAction = {} }, mode) => {
     if (mode === 'childTableDialog') {
       if (!this.childTable.current) return;
 
@@ -57,11 +55,20 @@ export default class SubList extends React.Component {
           'UPDATE_CELL_ERRORS',
           'FORCE_SET_OUT_ROWS',
           'RESET',
+          'RESET_TREE',
+          'UPDATE_TREE_TABLE_VIEW_DATA',
+          'UPDATED_TREE_NODE_EXPANSION',
+          'UPDATE_TREE_TABLE_VIEW_ITEM',
+          'UPDATE_TREE_TABLE_VIEW_TREE_MAP',
+          'WORKSHEET_SHEETVIEW_APPEND_ROWS',
         ],
         lastAction.type,
       ) &&
       !/^@/.test(lastAction.type)
     ) {
+      if (lastAction.type === 'ADD_ROWS' && find(lastAction.rows, row => row.isAddByTree)) {
+        return;
+      }
       if (isAdd) {
         onChange({
           isAdd: true,
@@ -84,8 +91,14 @@ export default class SubList extends React.Component {
           deleted = _.uniqBy(deleted.concat(lastAction.rowid)).filter(id => !/^(temp|default)/.test(id));
         } else if (lastAction.type === 'DELETE_ROWS') {
           deleted = _.uniqBy(deleted.concat(lastAction.rowIds)).filter(id => !/^(temp|default)/.test(id));
-        } else if (lastAction.type === 'ADD_ROW' || lastAction.type === 'UPDATE_ROW') {
-          updated = _.uniqBy(updated.concat(lastAction.rowid));
+        } else if (lastAction.type === 'ADD_ROW' || (lastAction.type === 'UPDATE_ROW' && !lastAction.noRealUpdate)) {
+          updated = _.uniqBy(
+            updated.concat(
+              lastAction.type === 'UPDATE_ROW'
+                ? _.get(lastAction, 'value.rowid') || lastAction.rowid
+                : lastAction.rowid,
+            ),
+          );
         } else if (lastAction.type === 'ADD_ROWS') {
           updated = _.uniqBy(updated.concat(lastAction.rows.map(r => r.rowid)));
         }
@@ -100,7 +113,7 @@ export default class SubList extends React.Component {
     if (from === 21 && lastAction.type === 'INIT_ROWS') {
       loadDraftChildTableData(controlId);
     }
-  }
+  };
 
   componentWillUnmount() {
     if (_.isFunction(this.props.triggerCustomEvent)) {

@@ -3,7 +3,7 @@ import { Checkbox } from 'ming-ui';
 import { Tooltip } from 'antd';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../../../util/setting';
 import TelConfig from './TelConfig';
-import DateConfig from './DateConfig';
+import DateConfig, { ShowFormat } from './DateConfig';
 import TimeConfig from './TimeConfig';
 import ScoreConfig from './ScoreConfig';
 import DropConfig from './DropConfig';
@@ -13,6 +13,7 @@ import FormulaDateConfig from './FormulaDateConfig';
 import RelateConfig from './RelateConfig';
 import CascaderConfig from './CascaderConfig';
 import RoleConfig from './RoleConfig';
+import SubListConfig from './SubListConfig';
 import _ from 'lodash';
 
 const TYPE_TO_COMP = {
@@ -24,6 +25,7 @@ const TYPE_TO_COMP = {
   28: ScoreConfig,
   29: RelateConfig,
   31: NumberConfig,
+  34: SubListConfig,
   35: CascaderConfig,
   37: NumberConfig,
   38: FormulaDateConfig,
@@ -33,7 +35,7 @@ const TYPE_TO_COMP = {
 
 export default function WidgetConfig(props) {
   const { data, onChange } = props;
-  const { type, enumDefault, strDefault, noticeItem } = data;
+  const { type, enumDefault, enumDefault2, strDefault, noticeItem } = data;
   const {
     showxy,
     analysislink,
@@ -46,10 +48,10 @@ export default function WidgetConfig(props) {
   } = getAdvanceSetting(data);
 
   // 文本、文本组合
-  if (_.includes([2, 30, 32, 33], type)) {
+  if (_.includes([2, 30, 32, 33], type) || (type === 53 && enumDefault2 === 2)) {
     return (
       <Fragment>
-        {_.includes([2, 32], type) && (
+        {_.includes([2, 32, 53], type) && (
           <div className="labelWrap">
             <Checkbox
               size="small"
@@ -237,6 +239,12 @@ export default function WidgetConfig(props) {
         </div>
       </Fragment>
     );
+  }
+
+  if (type === 53) {
+    if (enumDefault2 === 6) return <NumberConfig {...props} />;
+    if (_.includes([15, 16], enumDefault2)) return <ShowFormat {...props} />;
+    return null;
   }
 
   const Comp = TYPE_TO_COMP[type];

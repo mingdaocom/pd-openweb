@@ -120,6 +120,7 @@ export default class EditMemberDialog extends Component {
 
   handleAdd() {
     const _this = this;
+
     dialogSelectUser({
       fromAdmin: true,
       SelectUserSettings: {
@@ -129,7 +130,7 @@ export default class EditMemberDialog extends Component {
         filterAll: true, // 过滤全部
         filterFriend: true, // 是否过滤好友
         filterOthers: true, // 是否过滤其他协作关系
-        filterAccountIds: _this.state.members, // 过滤指定的用户
+        selectedAccountIds: _this.state.members, // 已选择的用户
         filterOtherProject: true, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
         dataRange: 0, // reference to dataRangeTypes 和 projectId 配合使用
         callback: data => {

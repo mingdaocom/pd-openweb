@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 import { list, dataIntegrationList } from './config';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { VersionProductType } from 'src/util/enum';
+import { getFeatureStatus } from 'src/util';
 
 const Wrap = styled.div`
   width: 241px;
@@ -56,7 +58,7 @@ class Sidenav extends React.Component {
     !params.type ? localStorage.removeItem('integrationUrl') : safeLocalStorageSetItem(`integrationUrl`, params.type);
   }
   render() {
-    const { match = { params: {} }, myPermissions = [], menuAuth = {} } = this.props;
+    const { match = { params: {} }, myPermissions = [], menuAuth = {}, currentProjectId } = this.props;
     const { type = '' } = match.params;
     const hasDataIntegrationAuth = hasPermission(myPermissions, [
       PERMISSION_ENUM.CREATE_SYNC_TASK,
@@ -74,8 +76,12 @@ class Sidenav extends React.Component {
                 key={index}
                 className={cx('Bold Font14', { cur: o.type === type || (!type && o.type === 'connect') })}
               >
-                <Link className="pLeft18 overflow_ellipsis pRight10" to={`/integration/${o.type}`}>
-                  <i className={`icon-${o.icon} mRight8 Font24 TxtMiddle`} /> {o.txt}
+                <Link
+                  className="pLeft18 overflow_ellipsis pRight10"
+                  to={`/integration/${o.type}`}
+                  onClick={e => e.preventDefault()}
+                >
+                  <i className={`icon-${o.icon} mRight8 Font20 TxtMiddle`} /> {o.txt}
                 </Link>
               </li>
             );
@@ -91,15 +97,20 @@ class Sidenav extends React.Component {
                 if (
                   (o.type === 'dataConnect' && menuAuth.noCreateTaskMenu) ||
                   (o.type === 'task' && menuAuth.noSyncTaskMenu) ||
-                  (o.type === 'source' && menuAuth.noSourceMenu)
+                  (o.type === 'source' && menuAuth.noSourceMenu) ||
+                  (o.type === 'dataMirror' && !getFeatureStatus(currentProjectId, VersionProductType.dataMirror))
                 ) {
                   return null;
                 }
 
                 return (
                   <li key={index} className={cx('Bold', { cur: o.type === type || (!type && o.type === 'connect') })}>
-                    <Link className="pLeft18 overflow_ellipsis pRight10" to={`/integration/${o.type}`}>
-                      <i className={`icon-${o.icon} mRight8 Font24 TxtMiddle`} /> {o.txt}
+                    <Link
+                      className="pLeft18 overflow_ellipsis pRight10"
+                      to={`/integration/${o.type}`}
+                      onClick={e => e.preventDefault()}
+                    >
+                      <i className={`icon-${o.icon} mRight8 Font20 TxtMiddle`} /> {o.txt}
                     </Link>
                   </li>
                 );

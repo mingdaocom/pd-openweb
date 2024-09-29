@@ -13,6 +13,9 @@ export function getType(control) {
   if (type === WIDGETS_TO_API_TYPE_ENUM.SEARCH) {
     type = WIDGETS_TO_API_TYPE_ENUM.TEXT;
   }
+  if (type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_FUNC) {
+    type = control.enumDefault2;
+  }
   return type;
 }
 

@@ -315,10 +315,9 @@ BatchTask.initEvent = function () {
       },
       zIndex: 10001,
       showMoreInvite: false,
-
-      filterAccountIds: existsIds,
+      selectedAccountIds: existsIds,
       SelectUserSettings: {
-        filterAccountIds: existsIds,
+        selectedAccountIds: existsIds,
         projectId: checkIsProject(projectId) ? projectId : '',
         callback,
       },

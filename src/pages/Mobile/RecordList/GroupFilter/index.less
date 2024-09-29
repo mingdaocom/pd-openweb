@@ -114,25 +114,12 @@
       }
     }
   }
-  .groupFilterDrawer {
-    -webkit-overflow-scrolling: touch;
-    position: inherit;
-    > .am-drawer-sidebar {
-      width: 100%;
-      z-index: 100;
-      background-color: #fff;
-      overflow: hidden;
-      -webkit-overflow-scrolling: touch;
-      transition: transform 0.1s ease-out, -webkit-transform 0.1s ease-out;
-    }
-    .am-drawer-overlay,
-    .am-drawer-content {
-      position: inherit;
-    }
-    &.am-drawer-open {
-      z-index: 100;
-      position: fixed;
-    }
+}
+
+.groupFilterDrawer {
+  -webkit-overflow-scrolling: touch;
+  .adm-popup-body-position-right {
+    left: 0;
   }
   .groupDetailBox {
     width: 100%;
@@ -151,4 +138,16 @@
       background-color: #f2f2f2;
     }
   }
+}
+
+.recordActionWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: fixed;
+  right: 20px;
+  bottom: 20;
+  z-index: 100;
+  padding-bottom: calc(~'constant(safe-area-inset-bottom) - 20px');
+  padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px');
 }

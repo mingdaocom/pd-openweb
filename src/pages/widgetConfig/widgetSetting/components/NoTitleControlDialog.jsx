@@ -1,19 +1,28 @@
 import React, { Fragment } from 'react';
-import { Dialog, Support } from 'ming-ui';
+import { Dialog, Support, Button } from 'ming-ui';
 import styled from 'styled-components';
 import img from '../../image/setAsTitle.png';
 
 const NoTitleControlWrap = styled.div`
   .closeText {
-    text-align: right;
-    color: #2196f3;
-    cursor: pointer;
+    display: flex;
+    margin: auto 0 auto auto;
   }
-  img {
-    display: block;
+  .imgContent {
     width: 80%;
     text-align: center;
     margin: 24px auto;
+    position: relative;
+    img {
+      display: block;
+      width: 100%;
+    }
+    .imgText {
+      position: absolute;
+      top: 8px;
+      right: 125px;
+      color: #3e6483;
+    }
   }
 `;
 
@@ -21,7 +30,7 @@ export default function NoTitleControlDialog({ onClose }) {
   return (
     <Dialog
       visible
-      title={<span style={{ color: '#000' }}>{_l('没有支持设为标题的字段')}</span>}
+      title={<span style={{ color: '#000' }}>{_l('标题字段已删除，请重新设置')}</span>}
       footer={null}
       onCancel={onClose}
     >
@@ -29,19 +38,18 @@ export default function NoTitleControlDialog({ onClose }) {
         <Fragment>
           <span style={{ color: '#757575' }}>
             {_l(
-              '请添加一个支持设为标题的字段。标题字段可以帮助快速识别记录，在视图、记录详情页、关联记录等功能中均会使用到。如：联系人表中，可以使用联系人姓名作为标题字段。',
+              '标题字段可以快速识别一条记录。用于记录详情、关联记录、和消息通知等功能场景中。在字段上点击下方图标进行设置。',
             )}
           </span>
-          <Support
-            type={3}
-            href="https://help.mingdao.com/worksheet/title-field"
-            text={_l('哪些字段可以设为标题？')}
-          />
+          <Support type={3} href="https://help.mingdao.com/worksheet/title-field" text={_l('帮助')} />
         </Fragment>
-        <img src={img} alt={_l('如何设置标题控件')} />
-        <div className="closeText" onClick={onClose}>
-          {_l('我知道了')}
+        <div className="imgContent">
+          <span className="imgText">{_l('点击设为标题字段')}</span>
+          <img src={img} alt={_l('如何设置标题控件')} />
         </div>
+        <Button type="primary" onClick={onClose} className="closeText">
+          {_l('前往设置')}
+        </Button>
       </NoTitleControlWrap>
     </Dialog>
   );

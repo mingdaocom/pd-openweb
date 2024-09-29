@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { string, func, bool } from 'prop-types';
 import cx from 'classnames';
 import { Icon, LoadDiv } from 'ming-ui';
-import HistoryStatus from './HistoryStatus';
-import NodeIcon from './NodeIcon';
+import HistoryStatus from './components/HistoryStatus';
+import NodeIcon from './components/NodeIcon';
 import api from '../../api/instance';
 import {
   FLOW_STATUS,
@@ -63,11 +63,12 @@ export default class HistoryDetail extends Component {
     gateways.forEach(item => {
       const flowId = item.flowNode.flowIds[0];
       const id = item.flowNode.id;
-      const currentIndex = _.findIndex(works, o => o.flowNode.id === id);
+      const currentIndex = _.findIndex(works, o => _.includes(o.flowNode.flowIds, flowId));
       const index = _.findIndex(works, o => _.includes([flowId, id], o.flowNode.prveId));
 
-      if (currentIndex !== index) {
-        works.filter(o => o.flowNode.id !== id).splice(index - (currentIndex < index ? 1 : 0), 0, item);
+      if (currentIndex !== index && index !== -1) {
+        works = works.filter((o, i) => i !== currentIndex);
+        works.splice(index - (currentIndex < index ? 1 : 0), 0, item);
       }
     });
 
@@ -221,6 +222,8 @@ export default class HistoryDetail extends Component {
   };
 
   renderSubProcess(item) {
+    const { isPlugin } = this.props;
+
     if (!item.flowNode.subProcessId) return null;
 
     return (
@@ -230,7 +233,9 @@ export default class HistoryDetail extends Component {
           className="ThemeColor3 ThemeHoverColor2 pointer"
           onClick={() =>
             window.open(
-              `/workflowedit/${item.flowNode.subProcessId}/2/subprocessHistory/${item.workId}_${item.instanceId}`,
+              `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${item.flowNode.subProcessId}/2/subprocessHistory/${
+                item.workId
+              }_${item.instanceId}`,
             )
           }
         >
@@ -330,7 +335,7 @@ export default class HistoryDetail extends Component {
   }
 
   render() {
-    const { onClick, id, openNodeDetail } = this.props;
+    const { onClick, id, openNodeDetail, isPlugin } = this.props;
     const { data, isRetry, processInfo } = this.state;
 
     if (_.isEmpty(data)) return <LoadDiv />;
@@ -379,15 +384,18 @@ export default class HistoryDetail extends Component {
             </div>
           </div>
           <div className="logWrap">
-            <div className="logTitle Font16 Gray_75 flexRow" style={{ alignItems: 'center' }}>
+            <div className="logTitle Font16 Gray_75 flexRow alignItemsCenter">
               <div className="flex">{_l('日志')}</div>
-              {!_.isEmpty(processInfo) && (
+              {_.includes(data.debugEvents, -1) && <div className="Font13 Normal">{_l('编辑版测试')} </div>}
+              {!_.isEmpty(processInfo) && !_.includes(data.debugEvents, -1) && (
                 <div className="Font13 Normal">
                   {_l('版本：%0', moment(processInfo.lastPublishDate).format('YYYY-MM-DD HH:mm'))}
                   <span
                     className="mLeft5 ThemeColor3 ThemeHoverColor2 pointer"
                     onClick={() => {
-                      location.href = `/workflowedit/${processInfo.id}/1/execHistory/${id}`;
+                      location.href = `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${
+                        processInfo.id
+                      }/1/execHistory/${id}`;
                     }}
                   >
                     {_l('详情')}
@@ -419,7 +427,14 @@ export default class HistoryDetail extends Component {
 
                     <div className="originNode">
                       <div style={{ marginLeft: this.indentLevel(flowNode.prveId) * 20 }}></div>
-                      <NodeIcon type={type} appType={appType} actionId={flowNode.actionId} />
+                      <NodeIcon
+                        type={type}
+                        appType={appType}
+                        actionId={flowNode.actionId}
+                        isPlugin={isPlugin}
+                        isFirst={index === 0}
+                        isLast={index === works.length - 1}
+                      />
                       <div className="nodeName Font15 overflow_ellipsis flexColumn">
                         <div
                           title={name}
@@ -430,7 +445,7 @@ export default class HistoryDetail extends Component {
                               processId: processInfo.id,
                               selectNodeId: flowNode.type === 1 ? flowNode.flowIds[0] : flowNode.id,
                               selectNodeType: flowNode.type === 1 ? 2 : flowNode.type,
-                              debugEvents: processInfo.debugEvents,
+                              debugEvents: data.debugEvents,
                             })
                           }
                         >

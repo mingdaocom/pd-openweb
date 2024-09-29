@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { Checkbox, UserHead } from 'ming-ui';
+import { Checkbox, UserHead, Tooltip } from 'ming-ui';
 import departmentAjax from 'src/api/department.js';
-import { Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -12,21 +11,36 @@ export default class User extends Component {
     this.handleClick = this.handleClick.bind(this);
     this.promise = null;
   }
+
   handleClick() {
+    if (this.props.disabled) return;
+
     this.props.onChange(this.props.user);
   }
+
   getFullDepartment = departmentId => {
     let { projectId } = this.props;
+
     if (this.promise) {
       this.promise.abort();
     }
+
     this.promise = departmentAjax.getDepartmentFullNameById({ departmentId, projectId });
     this.promise.then(res => {
       this.setState({ currentFullDepartment: res, departmentId });
     });
   };
+
   render() {
-    let { projectId, user, checked, includeMySelf, includeUndefinedAndMySelf, currentId } = this.props;
+    let {
+      projectId,
+      user,
+      checked,
+      includeMySelf,
+      includeUndefinedAndMySelf,
+      currentId,
+      disabled = false,
+    } = this.props;
     const shouldShowInfo = !(
       (includeMySelf || includeUndefinedAndMySelf) &&
       user.accountId === md.global.Account.accountId
@@ -42,7 +56,11 @@ export default class User extends Component {
         onClick={this.handleClick}
         id={`GSelect-User-${user.accountId}`}
       >
-        <Checkbox className="GSelect-User--checkbox" checked={checked} />
+        <Tooltip text={_l('已加入')} disable={!disabled || !checked}>
+          <span>
+            <Checkbox className="GSelect-User--checkbox" checked={checked} disabled={disabled} />
+          </span>
+        </Tooltip>
         <div className="GSelect-User__avatar">
           <UserHead
             className="circle"
@@ -66,7 +84,7 @@ export default class User extends Component {
           <div className="GSelect-User__companyName">
             {projectId ? (
               <Fragment>
-                <Tooltip title={currentFullDepartment} mouseEnterDelay={0.8}>
+                <Tooltip text={currentFullDepartment} mouseEnterDelay={0.8}>
                   <span
                     onMouseEnter={() => {
                       this.timer = setTimeout(() => this.getFullDepartment(departmentId), 500);

@@ -127,6 +127,8 @@ const OPERATION_DATA_LIST = {
   3: _l('删除了备份'),
   4: _l('重命名了备份'),
   5: _l('下载了备份'),
+  7: _l('从文件还原了数据'),
+  8: _l('从文件还原了应用'),
 };
 
 const PAGESIZE = 10;
@@ -195,12 +197,12 @@ export default function ActionLogs(props) {
       includeSystemField: true,
       prefixOnlySystemField: true,
       rect: selectUserRef.current.getBoundingClientRect(),
-
       tabType: 3,
       appId: appId,
       showMoreInvite: false,
       isTask: false,
-      filterAccountIds: selectUser ? selectUser.map(item => item.accountId).concat(filterIds) : [].concat(filterIds),
+      filterAccountIds: filterIds,
+      selectedAccountIds: (selectUser || []).map(item => item.accountId),
       offset: {
         top: 2,
       },
@@ -208,7 +210,8 @@ export default function ActionLogs(props) {
       SelectUserSettings: {
         unique: true,
         projectId: projectId,
-        filterAccountIds: selectUser ? selectUser.map(item => item.accountId).concat(filterIds) : [].concat(filterIds),
+        filterAccountIds: filterIds,
+        selectedAccountIds: (selectUser || []).map(item => item.accountId),
         callback: selectUserCallback,
       },
       selectCb: selectUserCallback,

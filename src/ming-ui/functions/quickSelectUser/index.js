@@ -17,6 +17,7 @@ export function UserSelector(props) {
     includeSystemField = false, // 是否显示系统字段
     prefixOnlySystemField = false,
     filterAccountIds = [], // 过滤的账户
+    selectedAccountIds = [], // 已选择的用户
     prefixAccountIds = [], // 指定置顶的用户id
     prefixAccounts = [], // 指定置顶的用户对象
     isHidAddUser = false, // 隐藏选择通讯录入口
@@ -49,7 +50,7 @@ export function UserSelector(props) {
   const isStatic =
     !_.isEmpty(staticAccounts) && !(staticAccounts.length === 1 && _.get(staticAccounts, '0.accountId') === 'isEmpty');
   const baseArgs = {
-    filterAccountIds: filterAccountIds.filter(_.identity),
+    filterAccountIds: filterAccountIds.concat(selectedAccountIds).filter(_.identity),
     prefixAccountIds,
     selectRangeOptions,
     projectId: projectId || _.get(props, 'SelectUserSettings.projectId'),
@@ -85,7 +86,7 @@ export function UserSelector(props) {
       includeUndefinedAndMySelf,
       includeSystemField,
       prefixOnlySystemField,
-      filterAccountIds: filterAccountIds.filter(_.identity),
+      filterAccountIds: filterAccountIds.concat(selectedAccountIds).filter(_.identity),
       prefixAccountIds,
       prefixAccounts,
     });
@@ -275,6 +276,7 @@ UserSelector.propTypes = {
   filterAccountIds: arrayOf(string), // 过滤的账户
   prefixAccountIds: arrayOf(string), // 指定置顶的用户
   prefixAccounts: arrayOf(string), // 指定置顶的用户
+  selectedAccountIds: arrayOf(string), // 弹层已选择的用户
   selectRangeOptions: shape({
     appointedAccountIds: arrayOf(number),
     appointedDepartmentIds: arrayOf(number),

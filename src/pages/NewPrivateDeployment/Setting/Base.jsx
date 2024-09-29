@@ -24,7 +24,6 @@ const Base = props => {
     downloadAppRedirectUrl,
     appDialogVisible,
     serviceStatusWebhookUrl,
-    allowBindAccountNoVerify,
     serverStateDialogVisible,
     enableCreateProject,
     installCaptainUrl,
@@ -215,36 +214,11 @@ const Base = props => {
     );
   };
 
-  const renderAllowBindAccountNoVerify = () => {
-    return (
-      <div className="flexRow valignWrapper">
-        <div className="flex flexColumn">
-          <div className="Font14 bold mBottom8">{_l('邮箱和手机号验证')}</div>
-          <div className="Gray_9e">{_l('开启后绑定邮箱或手机号时，需要验证合法性')}</div>
-        </div>
-        <Switch
-          checked={!allowBindAccountNoVerify}
-          onClick={value => {
-            updateSysSettings(
-              {
-                allowBindAccountNoVerify: value,
-              },
-              () => {
-                setSysSettings({ allowBindAccountNoVerify: value });
-                md.global.SysSettings.allowBindAccountNoVerify = value;
-              },
-            );
-          }}
-        />
-      </div>
-    );
-  };
-
   const renderHidePlugin = () => {
     return (
       <div className="flexRow valignWrapper">
         <div className="flex flexColumn">
-          <div className="Font14 bold mBottom8">{_l('插件')}</div>
+          <div className="Font14 bold mBottom8">{_l('插件中心')}</div>
           <div className="Gray_9e">{_l('开启后，开放插件中心入口，且支持在系统内使用插件能力')}</div>
         </div>
         <Switch
@@ -346,12 +320,6 @@ const Base = props => {
       {IsPlatformLocal && (
         <Fragment>
           {renderEnableCreateProject()}
-          <Divider className="mTop20 mBottom20" />
-        </Fragment>
-      )}
-      {!IsPlatformLocal && (
-        <Fragment>
-          {renderAllowBindAccountNoVerify()}
           <Divider className="mTop20 mBottom20" />
         </Fragment>
       )}

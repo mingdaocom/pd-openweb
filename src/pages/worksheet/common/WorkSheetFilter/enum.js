@@ -73,6 +73,7 @@ export const CONTROL_FILTER_WHITELIST = {
       8, // 金额
       25, // 大写金额
       31, // 公式
+      53, // 函数公式
       37, // 汇总
     ],
   },
@@ -192,6 +193,7 @@ export const API_ENUM_TO_TYPE = {
   TIME: 46, // 时间
   BARCODE: 47, // 条码
   ORG_ROLE: 48, // 组织角色
+  API_SEARCH: 50, // API查询
   RELATESEARCH: 51, // 查询记录
   SECTION: 52, // 标签页
 };

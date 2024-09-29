@@ -34,54 +34,60 @@ export const RestoreContent = props => {
     rowTotal,
     validLimit,
     currentValid,
+    isFileRestore,
+    fileType,
     handleRestore = () => {},
     onCancel = () => {},
   } = props;
   const [{ appItemChecked, dataChecked, backupCurrentVersion }, setData] = useSetState({
     appItemChecked: true,
-    dataChecked: false,
-    backupCurrentVersion: false,
+    dataChecked: fileType === 1 ? true : false,
+    backupCurrentVersion: true,
   });
+
+  const checkRestoreData = restoreData.filter(v =>
+    fileType === 1 ? v.type === 'data' : containData ? true : v.type === 'appItem',
+  );
 
   return (
     <RestoreContentWrap>
       <div className="flexRow mBottom50">
-        {restoreData
-          .filter(v => (containData ? true : v.type === 'appItem'))
-          .map((item, index) => (
-            <div key={index} className={cx({ mLeft80: item.type === 'data' })}>
-              <div className="flexRow alignItemsCenter">
-                <Checkbox
-                  disabled={item.type === 'appItem'}
-                  checked={item.type === 'appItem' ? appItemChecked : dataChecked}
-                  text={item.txt}
-                  onClick={checked => setData({ [`${item.type}Checked`]: !checked })}
-                />
-                {item.type === 'data' && <Beta />}
-              </div>
-              <div className="Font12 Gray_9e pLeft24">
-                {item.type === 'appItem' && appItemTotal
-                  ? _l('共有 %0 个应用项', appItemTotal)
-                  : item.type === 'data'
-                  ? _l('共有 %0 行记录', rowTotal)
-                  : ''}
-              </div>
+        {checkRestoreData.map((item, index) => (
+          <div key={index} className={cx({ mLeft80: checkRestoreData.length > 1 && item.type === 'data' })}>
+            <div className="flexRow alignItemsCenter">
+              <Checkbox
+                disabled={item.type === 'appItem' || (fileType === 1 && item.type === 'data')}
+                checked={item.type === 'appItem' ? appItemChecked : dataChecked}
+                text={item.txt}
+                onClick={checked => setData({ [`${item.type}Checked`]: !checked })}
+              />
             </div>
-          ))}
+            <div className="Font12 Gray_9e pLeft24">
+              {item.type === 'appItem' && appItemTotal
+                ? _l('共有 %0 个应用项', appItemTotal)
+                : item.type === 'data'
+                ? _l('共有 %0 行记录', rowTotal)
+                : ''}
+            </div>
+          </div>
+        ))}
       </div>
-      <p>
-        - {_l(
-          '在 %0 之后所有配置相关的更改都将丢失，建议勾选左下角还原前备份当前版本',
-          moment(operationDateTime).format('YYYY-MM-DD'),
-        )}
-      </p>
-      {containData && dataChecked && (
+      {fileType !== 1 && (
+        <p>
+          -{' '}
+          {_l(
+            '在 %0 之后所有配置相关的更改都将丢失，建议勾选左下角还原前备份当前版本',
+            moment(operationDateTime).format('YYYY-MM-DD'),
+          )}
+        </p>
+      )}
+      {(containData || (isFileRestore && fileType === 1)) && dataChecked && (
         <Fragment>
           <p>- {_l('还原操作将增量覆盖数据且不可逆，请在操作前进行备份以确保数据安全')}</p>
+          <p>- {_l('还原后，不会自动清理与缺失记录相关的关联关系，显示为已删除状态')}</p>
         </Fragment>
       )}
-
-      <div className="flexRow alignItemsCenter mTop24">
+      <div className="mTop24 mBottom10">
         <Checkbox
           text={_l('还原前备份当前版本') + (dataChecked ? _l('(同时备份数据)') : '')}
           checked={backupCurrentVersion}
@@ -93,7 +99,10 @@ export const RestoreContent = props => {
             setData({ backupCurrentVersion: !checked });
           }}
         />
-        <div className="flex TxtRight">
+      </div>
+      <div className="flexRow alignItemsCenter">
+        <div className="flex"></div>
+        <div className="TxtRight">
           <Button type="link" onClick={onCancel}>
             {_l('取消')}
           </Button>

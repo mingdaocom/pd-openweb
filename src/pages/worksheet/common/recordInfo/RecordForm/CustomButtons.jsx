@@ -1,9 +1,8 @@
-import React, { Fragment, useRef } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Button, MenuItem, Icon, Tooltip, Dialog, VerifyPasswordConfirm } from 'ming-ui';
+import { Button, MenuItem, Icon, Tooltip, Dialog, VerifyPasswordConfirm, SvgIcon } from 'ming-ui';
 import { mdNotification } from 'ming-ui/functions';
 import { verifyPassword, emitter } from 'src/util';
 import IconText from 'worksheet/components/IconText';
@@ -70,8 +69,7 @@ export default class CustomButtons extends React.Component {
 
   state = {};
 
-  @autobind
-  triggerCustomBtn(btn) {
+  triggerCustomBtn = btn => {
     const { worksheetId, recordId, handleUpdateWorksheetRow, projectId } = this.props;
     this.remark = undefined;
     if (window.isPublicApp) {
@@ -202,10 +200,9 @@ export default class CustomButtons extends React.Component {
     } else {
       handleTrigger();
     }
-  }
+  };
 
-  @autobind
-  triggerImmediately(btnId, btn) {
+  triggerImmediately = (btnId, btn) => {
     const { worksheetId, recordId, loadBtns, onButtonClick } = this.props;
     onButtonClick(btnId);
     processAjax
@@ -226,10 +223,9 @@ export default class CustomButtons extends React.Component {
           loadBtns();
         }
       });
-  }
+  };
 
-  @autobind
-  handleAddRecordCallback(recordItem) {
+  handleAddRecordCallback = recordItem => {
     const { reloadRecord, loadBtns, triggerCallback } = this.props;
     const { activeBtn = {} } = this;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
@@ -242,10 +238,9 @@ export default class CustomButtons extends React.Component {
       reloadRecord();
     }
     triggerCallback();
-  }
+  };
 
-  @autobind
-  fillRecordControls(newControls, targetOptions, customwidget, cb = () => {}) {
+  fillRecordControls = (newControls, targetOptions, customwidget, cb = () => {}) => {
     const {
       worksheetId,
       recordId,
@@ -326,7 +321,7 @@ export default class CustomButtons extends React.Component {
         }
       }
     });
-  }
+  };
 
   overrideValue(controls, data) {
     return controls.map(control => {
@@ -514,14 +509,13 @@ export default class CustomButtons extends React.Component {
     });
   }
 
-  @autobind
-  setStateFn(args) {
+  setStateFn = args => {
     const { setCustomButtonActive } = this.props;
     if (typeof args.fillRecordControlsVisible !== 'undefined' || typeof args.newRecordVisible !== 'undefined') {
       setCustomButtonActive(args.fillRecordControlsVisible || args.newRecordVisible);
     }
     this.setState(args);
-  }
+  };
 
   renderDialogs() {
     const { isCharge, worksheetId, viewId, appId, recordId, projectId, isBatchOperate, triggerCallback } = this.props;
@@ -632,7 +626,25 @@ export default class CustomButtons extends React.Component {
               }}
             >
               <div className="content ellipsis">
-                {button.icon && <i className={`icon icon-${button.icon}`} />}
+                {!!button.iconUrl && !!button.icon && button.icon.endsWith('_svg') ? (
+                  <SvgIcon
+                    className="InlineBlock icon LineHeight30"
+                    addClassName="TxtMiddle"
+                    url={button.iconUrl}
+                    fill={
+                      !button.color || button.color === 'transparent' || btnDisable[button.btnId] || button.disabled
+                        ? '#bdbdbd'
+                        : '#fff'
+                    }
+                    size={18}
+                  />
+                ) : (
+                  <i
+                    className={cx(`icon icon-${button.icon || 'custom_actions'}`, {
+                      Gray_bd: !button.icon && (!button.color || button.color === 'transparent'),
+                    })}
+                  />
+                )}
                 <span className="breakAll overflow_ellipsis">{button.name}</span>
               </div>
             </Button>
@@ -648,20 +660,29 @@ export default class CustomButtons extends React.Component {
       });
     } else if (type === 'iconText') {
       buttonComponents = buttons.map((button, i) => (
-        <IconText
-          title={button.name}
-          disabled={btnDisable[button.btnId] || button.disabled}
-          icon={button.icon || 'custom_actions'}
-          iconColor={!button.icon ? '#bdbdbd' : button.color === 'transparent' ? '#333' : button.color}
-          text={button.name}
-          onClick={evt => {
-            if (btnDisable[button.btnId] || button.disabled) {
-              return;
-            }
-            onHideMoreBtn(evt);
-            this.triggerCustomBtn(button);
-          }}
-        />
+        <Tooltip
+          popupPlacement="bottom"
+          tooltipStyle={{ maxWidth: 350 }}
+          text={button.desc && <span>{button.desc}</span>}
+        >
+          <span>
+            <IconText
+              title={button.name}
+              disabled={btnDisable[button.btnId] || button.disabled}
+              icon={button.icon || 'custom_actions'}
+              iconUrl={button.iconUrl}
+              iconColor={!button.icon ? '#bdbdbd' : button.color === 'transparent' ? '#333' : button.color}
+              text={button.name}
+              onClick={evt => {
+                if (btnDisable[button.btnId] || button.disabled) {
+                  return;
+                }
+                onHideMoreBtn(evt);
+                this.triggerCustomBtn(button);
+              }}
+            />
+          </span>
+        </Tooltip>
       ));
     } else {
       buttonComponents = buttons.map((button, i) => (
@@ -670,11 +691,21 @@ export default class CustomButtons extends React.Component {
           key={i}
           icon={
             button.icon ? (
-              <Icon
-                style={{ color: button.color === 'transparent' ? '#333' : button.color }}
-                icon={button.icon || 'custom_actions'}
-                className="Font17 mLeft5"
-              />
+              !!button.iconUrl && button.icon.endsWith('_svg') ? (
+                <SvgIcon
+                  className="InlineBlock TxtTop mLeft5 Icon"
+                  addClassName="TxtMiddle"
+                  url={button.iconUrl}
+                  fill={!button.color || button.color === 'transparent' ? '#bdbdbd' : button.color}
+                  size={16}
+                />
+              ) : (
+                <Icon
+                  style={{ color: button.color === 'transparent' ? '#333' : button.color }}
+                  icon={button.icon || 'custom_actions'}
+                  className="Font17 mLeft5"
+                />
+              )
             ) : (
               <Icon icon="custom_actions" className="Font17 mLeft5 Gray_bd" />
             )

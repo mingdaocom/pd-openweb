@@ -14,7 +14,7 @@ export default function WorksheetDraftOperate(props) {
     >
       <div className="draftOperateCon">
         <span className="Font16 mRight24">{_l('已选择%0条草稿', selected.length)}</span>
-        <div className="del InlineBlock" onClick={() => deleteSelete(selected)}>
+        <div className="del InlineBlock Hand" onClick={() => deleteSelete(selected)}>
           <Icon icon="delete2" className="mRight6" />
           {_l('删除')}
         </div>

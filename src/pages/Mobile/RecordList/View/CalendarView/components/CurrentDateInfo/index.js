@@ -2,7 +2,7 @@ import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { ScrollView, Icon } from 'ming-ui';
-import { Modal } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import * as actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { RecordInfoModal } from 'mobile/Record';
 import { addBehaviorLog } from 'src/util';
@@ -46,7 +46,14 @@ class CurrentDateInfo extends Component {
   };
   render() {
     let { searchValue, isSearch, searchResultData, previewRecordId } = this.state;
-    let { base = {}, mobileCurrentCalendatData = [], mobileCurrentDate, visible, controls = [] } = this.props;
+    let {
+      base = {},
+      mobileCurrentCalendatData = [],
+      mobileCurrentDate,
+      visible,
+      controls = [],
+      worksheetInfo = {},
+    } = this.props;
     let listData =
       isSearch && searchResultData.length
         ? searchResultData
@@ -55,20 +62,17 @@ class CurrentDateInfo extends Component {
         : [];
     return (
       <Fragment>
-        <Modal
-          popup
-          className="currentDateInfoModal"
+        <Popup
+          className="currentDateInfoModal mobileModal minFull topRadius"
           visible={visible}
+          closeOnMaskClick={true}
           onClose={this.close}
-          animationType="slide-up"
-          title={
-            <div>
+        >
+          <div className="modalContentBox flexColumn">
+            <div className="header">
               {mobileCurrentDate}
               <Icon icon="close" className="closeIcon" onClick={this.close} />
             </div>
-          }
-        >
-          <div className="modalContentBox flexColumn">
             {listData.length ? (
               <div className="searchWrapper">
                 <Icon icon="search" className="searchIcon Font20" />
@@ -162,17 +166,18 @@ class CurrentDateInfo extends Component {
               </div>
             ) : null}
           </div>
-        </Modal>
+        </Popup>
         <RecordInfoModal
           className="full"
           visible={!!previewRecordId}
+          enablePayment={worksheetInfo.enablePayment}
           appId={base.appId}
           worksheetId={base.worksheetId}
           viewId={base.viewId}
           rowId={previewRecordId}
           onClose={() => {
             this.setState({
-              previewRecordId: undefined
+              previewRecordId: undefined,
             });
           }}
         />
@@ -187,6 +192,7 @@ export default connect(
     mobileCurrentDate: state.sheet.calendarview.mobileCurrentDate,
     base: state.sheet.base,
     controls: state.sheet.controls,
+    worksheetInfo: state.mobile.worksheetInfo,
   }),
   dispatch => bindActionCreators(_.pick(actions, ['mobileIsShowMoreClick', 'changeMobileCurrentData']), dispatch),
 )(CurrentDateInfo);

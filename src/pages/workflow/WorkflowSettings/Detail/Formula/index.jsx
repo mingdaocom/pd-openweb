@@ -418,7 +418,7 @@ export default class Formula extends Component {
     return (
       <Fragment>
         <div className="Font14 Gray_75 workflowDetailDesc">
-          {_l('对 日期/时间 添加/减去年、月、天、小时、分进行计算')}
+          {_l('对 日期/时间 添加/减去 年、月、天、小时、分进行计算')}
         </div>
         <div className="mTop20 bold">{_l('输入日期/时间字段')}</div>
         {this.renderDateControl(data, this.updateSource)}
@@ -830,6 +830,7 @@ export default class Formula extends Component {
                 data={data.filters}
                 updateSource={data => this.updateSource({ filters: data })}
                 filterEncryptCondition
+                filterRelationCondition
               />
             ) : (
               <div className="addActionBtn mTop15">
@@ -922,6 +923,15 @@ export default class Formula extends Component {
               />
             )}
           </div>
+        </div>
+
+        <div className="mTop20 flexRow">
+          <Checkbox
+            className="InlineFlex"
+            text={_l('汇总结果为空时，视为0')}
+            checked={data.nullZero}
+            onClick={checked => this.updateSource({ nullZero: !checked })}
+          />
         </div>
       </Fragment>
     );

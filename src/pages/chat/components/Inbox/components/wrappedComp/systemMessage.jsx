@@ -14,7 +14,7 @@ import xss from 'xss';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import TaskCenterController from 'src/api/taskCenter';
 import { addBehaviorLog, dateConvertToUserZone } from 'src/util';
-import { SvgIcon } from 'ming-ui';
+import { SvgIcon, Icon, Tooltip } from 'ming-ui';
 import { MSGTYPES } from '../../constants';
 import processAjax from 'src/pages/workflow/api/process';
 import Emotion from 'src/components/emotion/emotion';
@@ -29,6 +29,12 @@ const Dot = styled.span`
   vertical-align: middle;
   border-radius: 50%;
   margin-top: -2px;
+`;
+
+const Done = styled.span`
+  color: #4caf50;
+  display: inline-flex;
+  align-items: center;
 `;
 
 /**
@@ -186,7 +192,7 @@ export default class SystemMessage extends PureComponent {
   };
 
   render() {
-    const { Message = {}, createTime, inboxType, app = null, processId = null } = this.props;
+    const { Message = {}, createTime, inboxType, app = null, processId = null, status, readTime } = this.props;
     const { showAddressBook, processInfo } = this.state;
     const { typeName, isFavorite, inboxId } = formatInboxItem(this.props);
     const parse = Emotion.parse;
@@ -215,7 +221,15 @@ export default class SystemMessage extends PureComponent {
       content = content.replace(/\/portaluser.*?>/g, `/role/external/pending" >`);
     }
 
-    const hasApp = [MSGTYPES.WorkSheetMessage, MSGTYPES.WorkFlowMessage].includes(inboxType) && app;
+    const hasApp =
+      [
+        MSGTYPES.WorkSheetMessage,
+        MSGTYPES.WorkFlowMessage,
+        MSGTYPES.WorkFlowTaskMessage,
+        MSGTYPES.WorkFlowUserTaskMessage,
+        MSGTYPES.WorkFlowSendTaskMessage,
+      ].includes(inboxType) && app;
+    const done = [MSGTYPES.WorkFlowTaskMessage, MSGTYPES.WorkFlowUserTaskMessage].includes(inboxType) && !!status;
 
     return (
       <div className="messageItem">
@@ -264,7 +278,16 @@ export default class SystemMessage extends PureComponent {
                 }}
               />
             </div>
-            <div className="Gray_9 mTop10">
+            <div className="Gray_9 mTop8">
+              {done && (
+                <Tooltip text={`${createTimeSpan(dateConvertToUserZone(readTime))} ${_l('完成')}`}>
+                  <Done className='Hover_21 Hand'>
+                    <Icon icon="done" className="mRight6" />
+                    <span className="text">{_l('已处理')}</span>
+                    <span className="mRight12 mLeft12 Gray_bd">|</span>
+                  </Done>
+                </Tooltip>
+              )}
               {createTimeSpan(dateConvertToUserZone(createTime))}
               {hasApp && (
                 <Fragment>

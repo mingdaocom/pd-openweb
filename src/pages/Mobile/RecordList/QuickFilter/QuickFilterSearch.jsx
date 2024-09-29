@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Drawer } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import Search from './Search';
 import QuickFilter from './';
@@ -11,23 +11,23 @@ const SearchWrapper = styled.div`
   .filterStepListWrapper {
     -webkit-overflow-scrolling: touch;
     position: inherit;
-    .am-drawer-sidebar {
-      z-index: 100;
-      border-radius: 14px 0 0 14px;
-      background-color: #fff;
-      overflow: hidden;
-      -webkit-overflow-scrolling: touch;
-    }
-    .am-drawer-overlay,
-    .am-drawer-content {
-      position: inherit;
-    }
-    &.am-drawer-open {
-      z-index: 100;
-      position: fixed;
-    }
-    &.bottom50 {
-      bottom: 50px;
+  }
+  &.fixedMobileQuickFilter {
+    position: fixed;
+    bottom: 20px;
+    left: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding: 0 !important;
+    background-color: #fff;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.16);
+    z-index: 2;
+    display: flex !important;
+    > div {
+      margin: 0;
+      width: 100%;
+      height: 100%;
     }
   }
 `;
@@ -55,11 +55,13 @@ export default function QuickFilterSearch(props) {
     view,
     worksheetInfo,
     sheetControls,
+    className,
+    showSearch = true,
     updateFilters = () => {},
   } = props;
-  
+
   const handleOpenDrawer = () => {
-    updateFilters({ visible: !filters.visible });
+    updateFilters({ visible: !filters.visible }, view);
   };
 
   const renderSidebar = view => {
@@ -84,25 +86,28 @@ export default function QuickFilterSearch(props) {
   };
 
   return (
-    <SearchWrapper className="searchWrapper flexRow valignWrapper pLeft12 pRight12 pTop15 pBottom5">
-      <Search textFilters={[]} viewType={view.viewType} />
+    <SearchWrapper className={`searchWrapper flexRow valignWrapper pLeft12 pRight12 pTop15 pBottom5 ${className}`}>
+      {showSearch && <Search textFilters={[]} viewType={view.viewType} />}
       {!_.isEmpty(excludeTextFilter) && (
         <FilterWrapper>
           <Icon icon="filter" className={cx('Font20 Gray_9e', { active: isFilter })} onClick={handleOpenDrawer} />
         </FilterWrapper>
       )}
-      <Drawer
+      <Popup
         className={cx('filterStepListWrapper', {
           open: filters.visible,
-          bottom50: detail.appNaviStyle === 2 && location.href.includes('mobile/app'),
         })}
+        bodyStyle={{
+          borderRadius: '14px 0 0 14px',
+          overflow: 'hidden'
+        }}
         position="right"
-        sidebar={_.isEmpty(view) ? null : renderSidebar(view)}
-        open={filters.visible}
-        onOpenChange={handleOpenDrawer}
+        visible={filters.visible}
+        onMaskClick={handleOpenDrawer}
+        onClose={handleOpenDrawer}
       >
-        <Fragment />
-      </Drawer>
+        {_.isEmpty(view) ? null : renderSidebar(view)}
+      </Popup>
     </SearchWrapper>
   );
 }

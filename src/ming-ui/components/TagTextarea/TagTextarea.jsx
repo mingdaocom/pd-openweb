@@ -1,7 +1,6 @@
 import React, { useLayoutEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import CodeMirror from 'codemirror';
 import cx from 'classnames';
 import 'codemirror/lib/codemirror.css';
@@ -153,8 +152,7 @@ export default class TagTextarea extends React.Component {
     this.props.getRef(undefined);
   }
 
-  @autobind
-  updateTextareaView() {
+  updateTextareaView = () => {
     const { mode, operatorsSetMargin } = this.props;
     const value = this.cmObj.getValue();
     if (this.markers) {
@@ -165,12 +163,11 @@ export default class TagTextarea extends React.Component {
     if (mode === MODE.FORMULA || mode === MODE.DATE || operatorsSetMargin) {
       this.markOperators(this.markers, value);
     }
-  }
+  };
 
-  @autobind
-  setValue(value) {
+  setValue = value => {
     this.cmObj.setValue(value || '');
-  }
+  };
 
   markColumns(markers, value) {
     const poss = getRePosFromStr(value);
@@ -203,8 +200,7 @@ export default class TagTextarea extends React.Component {
     });
   }
 
-  @autobind
-  handleCMChange(cm, obj) {
+  handleCMChange = (cm, obj) => {
     const { onChange } = this.props;
     const value = this.cmObj.getValue();
     if (!includes(['setValue', '*compose'], obj.origin)) {
@@ -216,10 +212,9 @@ export default class TagTextarea extends React.Component {
       }
     }, 1);
     this.updateTextareaView();
-  }
+  };
 
-  @autobind
-  renderColumnTag(id, options, cb) {
+  renderColumnTag = (id, options, cb) => {
     const node = document.createElement('div');
     node.classList.add('columnTagCon');
     if (_.isFunction(this.props.renderTag)) {
@@ -236,10 +231,9 @@ export default class TagTextarea extends React.Component {
     node.append(id);
     cb(node);
     return;
-  }
+  };
 
-  @autobind
-  insertColumnTag(id) {
+  insertColumnTag = id => {
     const { mode, autoComma } = this.props;
     const position = this.cmObj.getCursor();
     const editorValue = this.cmObj.getValue();
@@ -254,14 +248,11 @@ export default class TagTextarea extends React.Component {
     if (this.cmcon) {
       this.cmcon.scrollTop = this.cmcon.scrollHeight - this.cmcon.clientHeight;
     }
-  }
+  };
 
-  @autobind
-  handleBlur() {
-    this.setState({
-      active: false,
-    });
-  }
+  handleBlur = () => {
+    this.setState({ active: false });
+  };
 
   render() {
     const { className, maxHeight, rightIcon, onAddClick } = this.props;

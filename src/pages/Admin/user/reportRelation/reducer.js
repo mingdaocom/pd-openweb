@@ -1,36 +1,17 @@
-import { Schema, arrayOf, normalize } from 'normalizr';
 import * as ACTIONS from './actions';
 import _ from 'lodash';
-
-const userSchema = new Schema('users', {
-  idAttribute: 'accountId',
-  defaults: {
-    collapsed: true, // 折叠状态
-    pageIndex: 1,
-    moreLoading: false,
-  },
-});
-
-userSchema.define({
-  subordinates: arrayOf(userSchema),
-});
-
-export function parse(originData) {
-  if (originData) {
-    return normalize(originData, arrayOf(userSchema));
-  }
-  return {};
-}
 
 const updateSingleEntity = (user, action) => {
   const { type, payload } = action;
   let subordinates;
+
   switch (type) {
     case ACTIONS.SUBORDINATES_REQUEST:
       return { ...user };
     case ACTIONS.UPDATE_ENTITY_CHILDS:
       const { source, id, moreLoading, pageIndex, totalCount } = payload;
-      const result = parse(source).result;
+      const result = source.map(({ accountId }) => accountId);
+
       return {
         ...user,
         subordinates: _.uniqBy((user.subordinates || []).concat(result)),
@@ -65,9 +46,12 @@ const updateSingleEntity = (user, action) => {
 };
 
 const updateEntities = payload => {
-  const { source } = payload;
-  const parsed = parse(source);
-  return parsed.entities.users;
+  const { source = [] } = payload;
+
+  return _.keyBy(
+    source.map(l => ({ ...l, collapsed: l.collapsed === undefined || l.collapsed })),
+    v => v.accountId,
+  );
 };
 
 const initialState = {
@@ -86,6 +70,7 @@ export default (state = initialState, action) => {
   const highLightId = state.highLightId;
   const highLightRootId = state.highLightRootId;
   let id, user;
+
   switch (type) {
     case ACTIONS.ADD_STRUCTURES:
       return {
@@ -98,7 +83,6 @@ export default (state = initialState, action) => {
         },
         highLightId,
       };
-      break;
     case ACTIONS.REMOVE_STRUCTURE:
       id = payload.id;
       const _users = { ...users };
@@ -174,4 +158,3 @@ export default (state = initialState, action) => {
       return state;
   }
 };
-

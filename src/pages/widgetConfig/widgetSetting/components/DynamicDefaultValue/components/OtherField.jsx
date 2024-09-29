@@ -14,6 +14,8 @@ import {
   CUR_OCR_URL_TYPES,
   WATER_MASK_TYPES,
   DYNAMIC_FROM_MODE,
+  CUR_EMPTY_TYPES,
+  CUSTOM_PHP_TYPES,
 } from '../config';
 import _ from 'lodash';
 import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
@@ -45,7 +47,14 @@ export default function OtherField(props) {
     if (fieldId === 'search-keyword') return CUR_SEARCH_TYPES[0].text;
     if (fieldId === 'ocr-file') return CUR_OCR_TYPES[0].text;
     if (fieldId === 'ocr-file-url') return CUR_OCR_URL_TYPES[0].text;
+    if (fieldId === 'empty') return CUR_EMPTY_TYPES[0].text;
     if (fieldId === 'current-time') return WATER_MASK_TYPES[1].text;
+    if (_.includes(['codeResult', 'triggerTime', 'triggerUser', 'triggerDepartment', 'triggerOrg'], fieldId)) {
+      return _.get(
+        _.find(_.flatten(Object.values(CUSTOM_PHP_TYPES)), i => i.id === fieldId),
+        'text',
+      );
+    }
     if (from === DYNAMIC_FROM_MODE.WATER_MASK && fieldId === 'user-self') return WATER_MASK_TYPES[0].text;
     if (
       _.includes(
@@ -123,6 +132,7 @@ export default function OtherField(props) {
             'ocr-file',
             'ocr-file-url',
             'current-time',
+            'empty',
             ...SYS_CONTROLS,
           ],
           cid,

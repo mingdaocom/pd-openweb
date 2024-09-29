@@ -34,6 +34,7 @@ import Search from './Search';
 import RelationSearch from './RelationSearch';
 import Section from './Section';
 import SplitLine from './SplitLine';
+import FormulaFunc from './FormulaFunc';
 
 export default {
   RADIO: Radio,
@@ -72,4 +73,5 @@ export default {
   RelationSearch: RelationSearch,
   Section: Section,
   SplitLine: SplitLine,
+  FormulaFunc: FormulaFunc,
 };

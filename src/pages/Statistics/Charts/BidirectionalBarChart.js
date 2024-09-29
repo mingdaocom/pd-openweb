@@ -9,7 +9,8 @@ import {
   getMinValue,
   getChartColors,
   getAuxiliaryLineConfig,
-  getEmptyChartData
+  getEmptyChartData,
+  formatNumberValue
 } from './common';
 import { Icon } from 'ming-ui';
 import { formatChartData as formatBarChartData, formatDataCount } from './BarChart';
@@ -80,8 +81,8 @@ export default class extends Component {
       !_.isEqual(displaySetup.xdisplay, oldDisplaySetup.xdisplay) ||
       !_.isEqual(displaySetup.ydisplay, oldDisplaySetup.ydisplay) ||
       !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
+      !_.isEqual(displaySetup.percent, oldDisplaySetup.percent) ||
       !_.isEqual(rightYDisplay, oldRightYDisplay) ||
-      style.showLabelPercent !== oldStyle.showLabelPercent ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
       nextProps.themeColor !== this.props.themeColor ||
@@ -117,7 +118,8 @@ export default class extends Component {
     const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch } = props;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const { map, contrastMap, displaySetup, yaxisList, summary, rightY, yreportType, xaxes, split, sorts } = reportData;
-    const { xdisplay, ydisplay, showPileTotal, isPile, legendType, auxiliaryLines, showLegend, showChartType } = displaySetup;
+    const { xdisplay, ydisplay, showPileTotal, isPile, legendType, auxiliaryLines, showLegend, showChartType, percent } = displaySetup;
+    const showPercent = percent.enable;
     const styleConfig = reportData.style || {};
     const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const rightYDisplay = rightY.display.ydisplay;
@@ -175,16 +177,18 @@ export default class extends Component {
           if (data['series-field-key'] === control.controlId) {
             const value = data[control.controlId] || 0;
             const labelValue = formatrChartValue(value, false, yaxisList);
-            if (style.showLabelPercent && summary.showTotal && summary.sum) {
-              return `${labelValue} (${(value / summary.sum * 100).toFixed(2)}%)`;
+            if (showPercent && summary.showTotal && summary.sum) {
+              const percentValue = formatNumberValue(value / summary.sum * 100, percent);
+              return `${labelValue} (${percentValue}%)`;
             }
             return labelValue;
           }
           if (data['series-field-key'] === contrastControl.controlId) {
             const value = data[contrastControl.controlId] || 0;
             const labelValue = formatrChartValue(value, false, rightY.yaxisList);
-            if (style.showLabelPercent && _.get(rightY, 'summary.showTotal') && _.get(rightY, 'summary.sum')) {
-              return `${labelValue} (${(value / _.get(rightY, 'summary.sum') * 100).toFixed(2)}%)`;
+            if (showPercent && _.get(rightY, 'summary.showTotal') && _.get(rightY, 'summary.sum')) {
+              const percentValue = formatNumberValue(value / _.get(rightY, 'summary.sum') * 100, percent);
+              return `${labelValue} (${percentValue}%)`;
             }
             return labelValue;
           }
@@ -263,7 +267,7 @@ export default class extends Component {
           if (data['series-field-key'] === control.controlId) {
             const value = data[control.controlId] || 0;
             const labelValue = formatrChartValue(value, false, yaxisList);
-            if (style.showLabelPercent && summary.showTotal && summary.sum) {
+            if (showPercent && summary.showTotal && summary.sum) {
               const item = _.find(mergeData, { originalId: data.originalId });
               return {
                 name: item.name || item.originalId,
@@ -278,7 +282,7 @@ export default class extends Component {
           if (data['series-field-key'] === contrastControl.controlId) {
             const value = data[contrastControl.controlId] || 0;
             const labelValue = formatrChartValue(value, false, rightY.yaxisList);
-            if (style.showLabelPercent && _.get(rightY, 'summary.showTotal') && _.get(rightY, 'summary.sum')) {
+            if (showPercent && _.get(rightY, 'summary.showTotal') && _.get(rightY, 'summary.sum')) {
               const item = _.find(mergeData, { originalId: data.originalId });
               return {
                 name: item.name || item.originalId,

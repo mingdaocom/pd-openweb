@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, QiniuUpload, Button, FunctionWrap, VerifyPasswordConfirm } from 'ming-ui';
+import { Dialog, QiniuUpload, Button, FunctionWrap, VerifyPasswordConfirm, Support } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { RestoreContent } from './RestoreAppDialog';
@@ -7,6 +7,7 @@ import appManagementAjax from 'src/api/appManagement';
 import { formatFileSize } from 'src/util';
 import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disabled.png';
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
+import { navigateTo } from 'src/router/navigateTo';
 
 const Wrap = styled.div`
   height: 340px;
@@ -21,6 +22,15 @@ const Wrap = styled.div`
     height: 59px;
     margin-bottom: 15px;
   }
+  .errTip {
+    color: #f51744;
+  }
+`;
+
+const SupportWrap = styled(Support)`
+  .customStyle {
+    color: #9e9e9e !important;
+  }
 `;
 
 class BackupFromFilesCom extends Component {
@@ -34,16 +44,68 @@ class BackupFromFilesCom extends Component {
       appItemChecked: false,
       dataChecked: false,
     };
+    this.timer = null;
+  }
+
+  componentWillUnmount() {
+    this.timer && clearTimeout(this.timer);
   }
 
   checkFile = () => {
     const { appId } = this.props;
-    const { file } = this.state;
+    const { file, url } = this.state;
     appManagementAjax
-      .checkRestoreFile({ appId, fileUrl: file.url })
-      .then(({ state, appItemCount, time }) => {
-        state = 1;
-        this.setState({ checkLoading: false, checkSuccess: state === 1, appItemCount, time, analyzeLoading: false });
+      .checkRestoreFile({ appId, fileUrl: url, fileName: file.name })
+      .then(({ state, appItemCount, time, fileType, id, rowCount, containData }) => {
+        if (fileType === 1) {
+          this.getTarTaskInfo(id);
+        } else {
+          // mdy文件
+          this.setState({
+            checkLoading: false,
+            checkSuccess: state === 1,
+            time,
+            analyzeLoading: false,
+            fileType,
+            appItemCount,
+            rowCount,
+            containData,
+            errTip: _.includes([2, 4], state) ? _l('文件校验失败，非同源或不明来源文件') : '',
+          });
+        }
+      })
+      .catch(err => {
+        this.setState({ checkLoading: false, checkSuccess: false, analyzeLoading: false });
+      });
+  };
+
+  // 获取tar文件上传状态
+  getTarTaskInfo = id => {
+    const { appId } = this.props;
+
+    appManagementAjax
+      .getTarTaskInfo({ id, appId })
+      .then(({ state, appItemCount, time, rowCount, fileType }) => {
+        clearTimeout(this.timer);
+
+        if (!_.includes([1, 2, 4], state)) {
+          this.timer = setTimeout(() => {
+            this.getTarTaskInfo(id);
+          }, 1000);
+          return;
+        }
+
+        this.setState({
+          checkLoading: false,
+          checkSuccess: state === 1,
+          appItemCount,
+          time,
+          analyzeLoading: false,
+          rowCount,
+          fileType,
+          errTip: _.includes([2, 4], state) ? _l('文件校验失败，非同源或不明来源文件') : '',
+          taskId: id,
+        });
       })
       .catch(err => {
         this.setState({ checkLoading: false, checkSuccess: false, analyzeLoading: false });
@@ -57,8 +119,9 @@ class BackupFromFilesCom extends Component {
         className="upgradeAppUpload mTop24"
         options={{
           filters: {
-            mime_types: [{ extensions: 'mdy' }],
+            mime_types: [{ extensions: 'mdy,mdyd' }],
           },
+          type: 21,
         }}
         onAdd={(up, files) => {
           this.setState({ isEncrypt: false, errTip: '' });
@@ -97,39 +160,65 @@ class BackupFromFilesCom extends Component {
   // 还原
   handleRestore = data => {
     this.props.onCancel();
-    const { backupCurrentVersion } = data;
+    const { backupCurrentVersion, containData } = data;
     const { projectId, appId } = this.props;
-    const { file = {} } = this.state;
+    const { file = {}, taskId, fileType, url } = this.state;
     VerifyPasswordConfirm.confirm({
       onOk: () => {
-        let params = {
-          projectId,
-          appId,
-          autoEndMaintain: false,
-          backupCurrentVersion,
-          isRestoreNew: false,
-          containData: false,
-          fileUrl: file.url,
-          fileName: file.name,
-        };
-
-        appManagementAjax.restore(params).then(res => {
-          if (res) {
-            props.getBackupCount();
-          }
-        });
+        if (fileType === 1) {
+          appManagementAjax
+            .restoreData({ id: taskId, projectId, appId, fileUrl: url, fileName: file.name, backupCurrentVersion })
+            .then(res => {
+              if (res.data) {
+                navigateTo(`/app/${appId}`);
+              }
+            });
+        } else {
+          appManagementAjax
+            .restore({
+              projectId,
+              appId,
+              autoEndMaintain: false,
+              backupCurrentVersion,
+              isRestoreNew: false,
+              containData,
+              fileUrl: url,
+              fileName: file.name,
+            })
+            .then(res => {
+              if (res) {
+                navigateTo(`/app/${appId}`);
+              }
+            });
+        }
       },
     });
   };
 
   render() {
     const { onCancel = () => {}, appName, validLimit, currentValid } = this.props;
-    const { file, checkLoading, analyzeLoading, errTip, checkSuccess, appItemCount, time } = this.state;
+    const {
+      file,
+      checkLoading,
+      analyzeLoading,
+      errTip,
+      checkSuccess,
+      appItemCount,
+      time,
+      fileType,
+      rowCount,
+      containData,
+    } = this.state;
 
     return (
       <Dialog
         visible
-        title={!checkLoading && checkSuccess ? _l('还原备份 "%0"', file.name) : _l('从文件还原')}
+        title={
+          <Fragment>
+            <span className="TxtMiddle">{_l('从文件还原')}</span>
+            <SupportWrap className="customStyle" type={1} href="https://help.mingdao.com/application/backup-restore/" />
+          </Fragment>
+        }
         footer={null}
         width={600}
         onCancel={onCancel}
@@ -138,13 +227,15 @@ class BackupFromFilesCom extends Component {
           <RestoreContent
             validLimit={validLimit}
             currentValid={currentValid}
-            containData={false}
+            containData={containData}
             time={time}
             isFileRestore={true}
             appName={appName}
             appItemTotal={appItemCount}
+            rowTotal={rowCount}
             handleRestore={this.handleRestore}
             onCancel={onCancel}
+            fileType={fileType}
           />
         ) : (
           <Wrap>
@@ -161,7 +252,7 @@ class BackupFromFilesCom extends Component {
                 )}
               </Fragment>
             ) : (
-              <div className="Gray_bd">{_l('请选择.mdy格式的应用文件')}</div>
+              <div className="Gray_bd">{_l('请选择 *.mdy 或 *.mdyd 格式的备份文件')}</div>
             )}
             {analyzeLoading && (
               <div className="flexRow mTop16">
@@ -174,7 +265,7 @@ class BackupFromFilesCom extends Component {
             {_.isEmpty(file)
               ? this.renderUploadBtn(
                   <Button type="primary" radius className={cx({ Visibility: analyzeLoading })}>
-                    {_l('上传文件')}
+                    {_l('上传文件 ')}
                   </Button>,
                 )
               : this.renderUploadBtn(

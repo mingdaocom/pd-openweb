@@ -24,6 +24,9 @@ export default function InboxMessage(_props) {
     case MSGTYPES.DossierMessage:
     case MSGTYPES.WorkSheetMessage:
     case MSGTYPES.WorkFlowMessage:
+    case MSGTYPES.WorkFlowTaskMessage:
+    case MSGTYPES.WorkFlowUserTaskMessage:
+    case MSGTYPES.WorkFlowSendTaskMessage:
       return <SystemMessage {...props} />;
     // 各种动态 回复我的 或者 回复我的回复
     case MSGTYPES.PostReply:
@@ -58,4 +61,4 @@ export default function InboxMessage(_props) {
       return null;
       break;
   }
-};
+}

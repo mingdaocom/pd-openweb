@@ -158,7 +158,10 @@ class Subtask extends Component {
     this.state = {
       addSubTask: props.addSubTask,
       accountId: isMe ? 'user-undefined' : md.global.Account.accountId,
-      avatar: isMe ? md.global.SystemAccounts.undefined.avatar : md.global.Account.avatar,
+      avatar: isMe
+        ? md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+          '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90'
+        : md.global.Account.avatar,
       value: '',
     };
   }
@@ -173,7 +176,10 @@ class Subtask extends Component {
       const isMe = nextProps.taskDetails[nextProps.taskId].data.charge.accountID === md.global.Account.accountId;
       this.setState({
         accountId: isMe ? 'user-undefined' : md.global.Account.accountId,
-        avatar: isMe ? md.global.SystemAccounts.undefined.avatar : md.global.Account.avatar,
+        avatar: isMe
+          ? md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+            '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90'
+          : md.global.Account.avatar,
       });
     }
   }
@@ -292,12 +298,11 @@ class Subtask extends Component {
       sourceId: data.taskID,
       projectId: data.projectID,
       fromType: 2,
-      filterAccountIds: [accountId],
-
+      selectedAccountIds: [accountId],
       showMoreInvite: false,
       includeUndefinedAndMySelf: true,
       SelectUserSettings: {
-        filterAccountIds: [accountId],
+        selectedAccountIds: [accountId],
         projectId: checkIsProject(data.projectID) ? data.projectID : '',
         callback,
       },
@@ -378,7 +383,7 @@ class Subtask extends Component {
       fromType: 2,
       SelectUserSettings: {
         includeUndefinedAndMySelf: true,
-        filterAccountIds: [accountId],
+        selectedAccountIds: [accountId],
         projectId: checkIsProject(projectId) ? projectId : '',
         unique: true,
         callback: users => {

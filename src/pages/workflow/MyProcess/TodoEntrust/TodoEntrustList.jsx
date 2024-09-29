@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import './index.less';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Icon, Dialog, UserHead, UserName } from 'ming-ui';
-import { Modal } from 'antd-mobile';
+import { Dialog as MobileDialog } from 'antd-mobile';
 import styled from 'styled-components';
 import moment from 'moment';
 import delegationApi from '../../api/delegation';
@@ -99,17 +99,14 @@ function TodoEntrustList(props) {
   const onFinishEntrust = (e, item) => {
     e.stopPropagation();
     if (isMobile) {
-      Modal.alert(_l('是否结束委托?'), '', [
-        { text: _l('取消'), style: 'default', onPress: () => {} },
-        {
-          text: _l('确定'),
-          style: { color: 'red' },
-          onPress: () => {
-            finishDelegation(item);
-            onClose();
-          },
-        },
-      ]);
+      MobileDialog.confirm({
+        content: _l('是否结束委托 ?'),
+        confirmText: <span className="Red">{_l('确定')}</span>,
+        onConfirm: () => {
+          finishDelegation(item);
+          onClose();
+        }
+      });
       return;
     }
 

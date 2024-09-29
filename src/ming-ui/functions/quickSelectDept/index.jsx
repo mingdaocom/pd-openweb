@@ -98,6 +98,7 @@ export function DeptSelect(props) {
     selectFn = () => {},
   } = props;
 
+  const inputRef = useRef();
   const conRef = useRef();
   const [
     {
@@ -139,6 +140,12 @@ export function DeptSelect(props) {
     onSelect();
     onClose(true);
   });
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   useEffect(() => {
     search();
@@ -621,7 +628,7 @@ export function DeptSelect(props) {
     <DeptSelectWrap id="quickSelectDept" ref={conRef}>
       <div className="searchRoleWrap valignWrapper">
         <Icon icon="search" className="searchIcon Gray_9e mRight8 Font18" />
-        <input type="text" className="flex" value={keywords} placeholder={_l('搜索')} onChange={handleSearch} />
+        <input type="text" className="flex" ref={inputRef} value={keywords} placeholder={_l('搜索')} onChange={handleSearch} />
         {keywords && (
           <Icon
             icon="closeelement-bg-circle"

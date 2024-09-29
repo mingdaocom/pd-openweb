@@ -57,7 +57,6 @@ function AddUserDialog(props) {
           const attachment = attachments[0];
           setFileUrl(attachment.serverName + attachment.key);
           setFileName(attachment.originalFileName + attachment.fileExt);
-          // update(attachment.serverName + attachment.key);
           setLoading(false);
         }
       },
@@ -113,7 +112,7 @@ function AddUserDialog(props) {
       if (xhr.status == 200) {
         try {
           let blob = xhr.response;
-          let filename = '外部用户导入模板.xlsx';
+          let filename = `${_l('外部用户导入模板')}.xlsx`;
           let a = document.createElement('a');
           let url = URL.createObjectURL(blob);
           a.href = url;

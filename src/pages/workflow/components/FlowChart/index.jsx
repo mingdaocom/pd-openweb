@@ -1,7 +1,7 @@
 import React, { Component, Fragment, memo } from 'react';
 import { string } from 'prop-types';
 import { LoadDiv, Icon, Modal } from 'ming-ui';
-import { Modal as MobileModal } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import styled from 'styled-components';
 import flowNode from '../../api/flowNode';
 import { getSameLevelIds } from '../../WorkflowSettings/utils';
@@ -408,9 +408,9 @@ export default memo(({ processId, instanceId, selectNodeId, onClose = () => {} }
 
 export const MobileFlowChart = memo(({ processId, instanceId, selectNodeId, onClose = () => {} }) => {
   return (
-    <MobileModal popup animationType="slide-up" className="flowChartModal h100" onClose={onClose} visible={true}>
+    <Popup className="flowChartModal mobileModal full" onClose={onClose} visible={true}>
       <Icon className="Gray_75 Font22 pointer mobileClose" icon="closeelement-bg-circle" onClick={onClose} />
       <FlowChart processId={processId} instanceId={instanceId} selectNodeId={selectNodeId} />
-    </MobileModal>
+    </Popup>
   );
 });

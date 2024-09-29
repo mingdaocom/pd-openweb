@@ -1,6 +1,5 @@
 ﻿import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
@@ -77,8 +76,8 @@ export default class WorkSheetFilter extends Component {
   componentWillUnmount() {
     emitter.removeListener('FILTER_ADD_FROM_COLUMNHEAD', this.handleWorksheetHeadAddFilter);
   }
-  @autobind
-  handleShowFilter(cb = () => {}) {
+
+  handleShowFilter = (cb = () => {}) => {
     const { loaded } = this.state;
     const { onlyUseEditing, worksheetId } = this.props;
     this.setState(
@@ -93,9 +92,9 @@ export default class WorkSheetFilter extends Component {
         }
       },
     );
-  }
-  @autobind
-  loadWorksheetFilter(worksheetId, cb = () => {}) {
+  };
+
+  loadWorksheetFilter = (worksheetId, cb = () => {}) => {
     if (!worksheetId) {
       return;
     }
@@ -122,9 +121,9 @@ export default class WorkSheetFilter extends Component {
       .catch(err => {
         alert(_l('获取筛选列表失败'), 2);
       });
-  }
-  @autobind
-  deleteFilter(filter) {
+  };
+
+  deleteFilter = filter => {
     const { appId } = this.props;
     const { activeFilter } = this.state;
     sheetAjax
@@ -140,9 +139,9 @@ export default class WorkSheetFilter extends Component {
           this.clearFilter();
         }
       });
-  }
-  @autobind
-  copyFilter(filter) {
+  };
+
+  copyFilter = filter => {
     const { isCharge } = this.props;
     const { filters } = this.state;
     const newFilter = Object.assign({}, filter, {
@@ -170,9 +169,9 @@ export default class WorkSheetFilter extends Component {
         },
       );
     });
-  }
-  @autobind
-  addFilter(defaultConditions = [], filterImmediately = false) {
+  };
+
+  addFilter = (defaultConditions = [], filterImmediately = false) => {
     const newFilter = {
       id: `${new Date().getTime().toString(16)}-${Math.random().toString(16).slice(2)}`,
       name: _l('自定义筛选'),
@@ -194,9 +193,9 @@ export default class WorkSheetFilter extends Component {
         }
       },
     );
-  }
-  @autobind
-  handleWorksheetHeadAddFilter(control) {
+  };
+
+  handleWorksheetHeadAddFilter = control => {
     const { columns } = this.props;
     const { activeFilter, editingFilter, searchType } = this.state;
     const { filterExpandedId } = this.state;
@@ -238,9 +237,9 @@ export default class WorkSheetFilter extends Component {
       }
       this.setState(newState);
     });
-  }
-  @autobind
-  updateFilterName(filter, name, callback = () => {}) {
+  };
+
+  updateFilterName = (filter, name, callback = () => {}) => {
     const { filters, editingFilter } = this.state;
     const oldFiltr = _.find(filters, f => f.id === filter.id);
     const newFilter = Object.assign({}, oldFiltr, { name });
@@ -257,9 +256,9 @@ export default class WorkSheetFilter extends Component {
       alert(_l('已成功重命名！'));
       callback();
     });
-  }
-  @autobind
-  updateFilter(filter, value, callback = () => {}) {
+  };
+
+  updateFilter = (filter, value, callback = () => {}) => {
     const newFilter = Object.assign({}, filter, value);
     this.setState(
       {
@@ -271,22 +270,22 @@ export default class WorkSheetFilter extends Component {
       return;
     }
     this.filterWorksheet(newFilter);
-  }
-  @autobind
-  updateFilterType(filter, type) {
+  };
+
+  updateFilterType = (filter, type) => {
     const newFilter = Object.assign({}, filter, { type });
     this.saveFilterFn(newFilter, () => {
       this.setState({
         filters: this.state.filters.map(f => (f.id === newFilter.id ? newFilter : f)),
       });
     });
-  }
-  @autobind
-  saveNewFilter() {
+  };
+
+  saveNewFilter = () => {
     this.setState({ showSaveWorksheetFilter: true });
-  }
-  @autobind
-  saveNewFilterFn({ filterName, filterType }) {
+  };
+
+  saveNewFilterFn = ({ filterName, filterType }) => {
     const { editingFilter } = this.state;
     let newFilter = Object.assign({}, editingFilter, {
       name: filterName,
@@ -305,16 +304,16 @@ export default class WorkSheetFilter extends Component {
         });
       },
     );
-  }
-  @autobind
-  saveFilter(filter) {
+  };
+
+  saveFilter = filter => {
     this.saveFilterFn(filter, () => {
       this.setState({
         editingFilter: null,
         filters: this.state.filters.map(f => (f.id === filter.id ? filter : f)),
       });
     });
-  }
+  };
   saveFilterFn(filter, cb) {
     const { worksheetId, appId } = this.props;
     const conditions = (filter.conditions || []).filter(condition => checkConditionAvailable(condition));
@@ -335,17 +334,17 @@ export default class WorkSheetFilter extends Component {
         alert(_l('保存成功！'));
       });
   }
-  @autobind
-  filterSaveAs(filter) {
+
+  filterSaveAs = filter => {
     this.setState({
       saveAsFilter: filter,
       showSaveWorksheetFilter: true,
       saveDialogFilterName: filter.name,
       saveDialogFilterType: filter.type,
     });
-  }
-  @autobind
-  filterSaveAsFn({ filterName, filterType }) {
+  };
+
+  filterSaveAsFn = ({ filterName, filterType }) => {
     const { saveAsFilter, filters } = this.state;
     const newFilter = Object.assign({}, saveAsFilter, {
       id: null,
@@ -373,9 +372,9 @@ export default class WorkSheetFilter extends Component {
         },
       );
     });
-  }
-  @autobind
-  addCondition(filter, condition, callback) {
+  };
+
+  addCondition = (filter, condition, callback) => {
     const newFilter = Object.assign({}, filter, {
       conditions: filter.conditions.concat(condition),
     });
@@ -396,9 +395,9 @@ export default class WorkSheetFilter extends Component {
         }
       },
     );
-  }
-  @autobind
-  updateCondition(filter, index, value) {
+  };
+
+  updateCondition = (filter, index, value) => {
     const newConditions = filter.conditions.map((c, i) => (index === i ? Object.assign({}, c, value) : c));
     const newFilter = Object.assign({}, filter, {
       conditions: newConditions,
@@ -413,9 +412,9 @@ export default class WorkSheetFilter extends Component {
         newFilter.type === FILTER_TYPE.TEMP && !availableConditions.length ? { activeFilter: null } : {},
       ),
     );
-  }
-  @autobind
-  deleteCondition(filter, index) {
+  };
+
+  deleteCondition = (filter, index) => {
     const newFilter = Object.assign({}, filter, {
       conditions: filter.conditions.filter((c, i) => i !== index),
     });
@@ -423,9 +422,9 @@ export default class WorkSheetFilter extends Component {
     this.setState({
       editingFilter: newFilter,
     });
-  }
-  @autobind
-  filterWorksheet(filter) {
+  };
+
+  filterWorksheet = filter => {
     const { onChange } = this.props;
     const { editingFilter } = this.state;
     const newState = {
@@ -445,9 +444,9 @@ export default class WorkSheetFilter extends Component {
         filterControls: availableConditions.map(condition => formatConditionForSave(condition, filter.relationType)),
       });
     });
-  }
-  @autobind
-  clearFilter(needLoadData = true) {
+  };
+
+  clearFilter = (needLoadData = true) => {
     const { onChange } = this.props;
     this.setState({
       activeFilter: null,
@@ -461,9 +460,9 @@ export default class WorkSheetFilter extends Component {
         filterControls: [],
       });
     }
-  }
-  @autobind
-  filterBySearchType(e) {
+  };
+
+  filterBySearchType = e => {
     e.stopPropagation();
     const { onChange } = this.props;
     this.setState(
@@ -481,7 +480,7 @@ export default class WorkSheetFilter extends Component {
         });
       },
     );
-  }
+  };
   renderFilterItem(filter, index) {
     const { onlyUseEditing, projectId, isCharge, appId } = this.props;
     const { showCustomAddCondition } = this.state;
@@ -555,8 +554,8 @@ export default class WorkSheetFilter extends Component {
       />
     );
   }
-  @autobind
-  renderFilterHead() {
+
+  renderFilterHead = () => {
     const { chartId, clearChartId } = this.props;
     const { editingFilter } = this.state;
     let { activeFilter } = this.state;
@@ -600,7 +599,7 @@ export default class WorkSheetFilter extends Component {
         )}
       </span>
     );
-  }
+  };
   render() {
     const { onlyUseEditing, isCharge, zIndex } = this.props;
     const { showFilter, showSaveWorksheetFilter, filters, editingFilter, saveAsFilter } = this.state;
@@ -623,7 +622,7 @@ export default class WorkSheetFilter extends Component {
               '.worksheetFilterOperateList',
               '.ant-picker-dropdown',
               '.CityPicker',
-              '.CityPicker-wrapper'
+              '.CityPicker-wrapper',
             ].join(','),
           )[0];
           return $targetTarget;

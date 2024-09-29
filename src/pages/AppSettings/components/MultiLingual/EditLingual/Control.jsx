@@ -113,6 +113,10 @@ export const ControlContent = props => {
                       type: 'collections'
                     }
                   });
+                  setTimeout(() => {
+                    const el = document.querySelector('.navScroll');
+                    el.nanoscroller.scrollBottom(0);
+                  }, 0);
                 }}
               >
                 {_l('前往编辑')}

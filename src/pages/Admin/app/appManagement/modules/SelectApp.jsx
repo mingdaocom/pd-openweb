@@ -3,8 +3,7 @@ import ajaxRequest from 'src/api/appManagement';
 import Config from '../../../config';
 import Search from 'src/pages/workflow/components/Search';
 import './index.less';
-import { LoadDiv, ScrollView, Checkbox, Tooltip, SvgIcon } from 'ming-ui';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
+import { LoadDiv, ScrollView, Checkbox, Tooltip, SvgIcon, SortableList } from 'ming-ui';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -115,43 +114,32 @@ export default class SelectApp extends React.Component {
         </div>
       );
     }
-    const SortableItem = SortableElement(({ value }) => {
+
+    const renderSortableItem = ({ item }) => {
       return (
-        <div>
-          <div className="selectAppSortableItem pLeft6 Hand">
-            <span className="icon-drag_indicator grabIcon Gray_9e"></span>
-            <div className="mRight10 svgBox mLeft5" style={{ backgroundColor: value.iconColor }}>
-              <SvgIcon url={value.iconUrl} fill="#fff" size={14} />
-            </div>
-            <span className="overflow_ellipsis WordBreak">{value.appName}</span>
-            <div className="marginLeftAuto">
-              <span className="Gray_9e">{value.sheetCount}</span>
-              <span
-                className="Hover_49 icon-clear mLeft32 Gray_9e"
-                onClick={() => _this.updateSelectList(true, value)}
-              ></span>
-            </div>
+        <div className="selectAppSortableItem pLeft6 Hand">
+          <span className="icon-drag_indicator grabIcon Gray_9e"></span>
+          <div className="mRight10 svgBox mLeft5" style={{ backgroundColor: item.iconColor }}>
+            <SvgIcon url={item.iconUrl} fill="#fff" size={14} />
+          </div>
+          <span className="overflow_ellipsis WordBreak">{item.appName}</span>
+          <div className="marginLeftAuto">
+            <span className="Gray_9e">{item.sheetCount}</span>
+            <span
+              className="Hover_49 icon-clear mLeft32 Gray_9e"
+              onClick={() => _this.updateSelectList(true, item)}
+            ></span>
           </div>
         </div>
       );
-    });
-
-    const SortableList = SortableContainer(({ list }) => {
-      return (
-        <div className="selectBox scrollBox">
-          {list.map((item, index) => (
-            <SortableItem value={item} key={`item-${index}`} index={index} />
-          ))}
-        </div>
-      );
-    });
+    };
 
     return (
       <SortableList
-        list={selectList}
-        distance={5}
-        helperClass="selectAppSortableList"
-        onSortEnd={({ oldIndex, newIndex }) => this.setState({ selectList: arrayMove(selectList, oldIndex, newIndex) })}
+        items={selectList}
+        itemKey="appId"
+        renderItem={item => renderSortableItem(item)}
+        onSortEnd={newItems => this.setState({ selectList: newItems })}
       />
     );
   }

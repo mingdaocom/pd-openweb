@@ -20,8 +20,6 @@ import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 import { checkConditionsIsNull } from '../../utils';
 
-const FIELD_TYPE = FIELD_TYPE_LIST.concat([{ text: _l('对象'), value: 10000006, en: 'object' }]);
-
 const List = styled.div(
   ({ isHeader }) => `
   border-bottom: 1px solid #e7e7e7;
@@ -218,7 +216,7 @@ export default class JSONParse extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { isIntegration, selectNodeType } = this.props;
+    const { isIntegration, isPlugin, selectNodeType } = this.props;
     const { data } = this.state;
     const ERROR_TYPES = [
       { text: _l('不定义错误消息'), value: 0 },
@@ -286,6 +284,7 @@ export default class JSONParse extends Component {
                     relationId={this.props.relationId}
                     selectNodeId={this.props.selectNodeId}
                     isIntegration={isIntegration}
+                    isPlugin={isPlugin}
                     controls={data.outputs.filter(item => !item.dataSource)}
                     data={data.conditions}
                     updateSource={data => this.updateSource({ conditions: data })}
@@ -299,6 +298,7 @@ export default class JSONParse extends Component {
                   relationId={this.props.relationId}
                   selectNodeId={this.props.selectNodeId}
                   isIntegration={isIntegration}
+                  isPlugin={isPlugin}
                   type={2}
                   height={0}
                   content={data.errorMessage}
@@ -429,7 +429,7 @@ export default class JSONParse extends Component {
             )}
             {item.controlName}
           </div>
-          <div className="width100 mRight10">{FIELD_TYPE.find(o => o.value === item.type).en}</div>
+          <div className="width100 mRight10">{FIELD_TYPE_LIST.find(o => o.value === item.type).en}</div>
           <div
             className={cx('flex mRight10 ellipsis', { 'pointer ThemeHoverColor3': hasFold })}
             onClick={() => hasFold && this.previewJSON(JSON.parse(item.value))}

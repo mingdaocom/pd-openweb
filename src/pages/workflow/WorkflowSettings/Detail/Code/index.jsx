@@ -376,6 +376,7 @@ export default class Code extends Component {
                 relationId={this.props.relationId}
                 selectNodeId={this.props.selectNodeId}
                 isIntegration={this.props.isIntegration}
+                isPlugin={this.props.isPlugin}
                 source={data.inputDatas}
                 sourceKey="inputDatas"
                 flowNodeList={data.flowNodeList}

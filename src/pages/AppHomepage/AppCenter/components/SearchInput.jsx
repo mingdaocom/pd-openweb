@@ -50,6 +50,11 @@ export default function SearchInput(props) {
       inputRef.current.focus();
     }
   }, [isFocus]);
+
+  useEffect(() => {
+    !value && inputRef.current && (inputRef.current.value = '');
+  }, [value]);
+
   if (clickShowInput && !isFocus) {
     return (
       <FocusBtn onClick={() => setIsFocus(true)}>

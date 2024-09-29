@@ -4,11 +4,10 @@ import {
   formatRecordTime,
   formatRecordPoint,
   calculateTop,
-  // calculateTotalHeight,
 } from 'src/pages/worksheet/views/ResourceView/util.js';
 import { sortGrouping, fillRecordTimeBlockColor } from 'src/pages/worksheet/views/GunterView/util.js';
 import { formatQuickFilter, getFilledRequestParams } from 'worksheet/util';
-import { getRequest } from 'src/util';
+import { getRequest, dateConvertToServerZone, dateConvertToUserZone } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
 import dayjs from 'dayjs';
@@ -46,25 +45,27 @@ export const fetchRows = (refresh = true) => {
       .map(item => dayjs(item, 'HH:mm').format('HH:mm'));
     let beginTime;
     let endTime;
-    if (type === 'Month') {
-      beginTime = moment((gridTimes[0] || {}).date).format('YYYY-MM-DD HH:mm');
+    if (['Month', 'Week'].includes(type)) {
+      beginTime = moment((gridTimes[0] || {}).date).format('YYYY-MM-DD 00:00:00');
       endTime = moment((gridTimes[gridTimes.length - 1] || {}).date).format('YYYY-MM-DD 23:59:59');
+    } else if (['Year'].includes(type)) {
+      beginTime = moment((gridTimes[0] || {}).date).format('YYYY-MM-DD 00:00:00');
+      endTime = moment((gridTimes[gridTimes.length - 1] || {}).date)
+        .endOf('month')
+        .format('YYYY-MM-DD HH:mm:ss');
     } else {
       beginTime = `${moment((gridTimes[0] || {}).date).format('YYYY-MM-DD')} ${
         !!times[0] && times.length > 1 ? times[0] : '00:00'
       }`;
-      endTime =
-        type === 'Week'
-          ? `${moment(moment((gridTimes[gridTimes.length - 1] || {}).date)).format('YYYY-MM-DD HH:59')}`
-          : `${moment(moment((gridTimes[gridTimes.length - 1] || {}).date)).format('YYYY-MM-DD HH:59')}`;
+      endTime = `${moment(moment((gridTimes[gridTimes.length - 1] || {}).date)).format('YYYY-MM-DD HH:59')}`;
     }
 
     refresh && dispatch({ type: 'CHANGE_RESOURCE_LOADINNG', data: true });
     sheetAjax
       .getFilterRows(
         getFilledRequestParams({
-          beginTime,
-          endTime,
+          beginTime: dateConvertToUserZone(beginTime),
+          endTime: dateConvertToUserZone(endTime),
           appId: base.appId,
           viewId: base.viewId,
           worksheetId: base.worksheetId,
@@ -111,25 +112,21 @@ export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
       .map(item => dayjs(item, 'HH:mm').format('HH:mm'));
     let beginTime;
     let endTime;
-    if (type === 'Month') {
+    if (['Month', 'Year', 'Week'].includes(type)) {
       beginTime = moment((gridTimes[0] || {}).date).format('YYYY-MM-DD HH:mm');
       endTime = moment((gridTimes[gridTimes.length - 1] || {}).date).format('YYYY-MM-DD 23:59:59');
     } else {
       beginTime = `${moment((gridTimes[0] || {}).date).format('YYYY-MM-DD')} ${
         !!times[0] && times.length > 1 ? times[0] : '00:00'
       }`;
-      endTime =
-        type === 'Week'
-          ? `${moment(moment((gridTimes[gridTimes.length - 1] || {}).date)).format('YYYY-MM-DD HH:59')}`
-          : `${moment(moment((gridTimes[gridTimes.length - 1] || {}).date)).format('YYYY-MM-DD HH:59')}`;
+      endTime = `${moment(moment((gridTimes[gridTimes.length - 1] || {}).date)).format('YYYY-MM-DD HH:59')}`;
     }
 
-    // refresh && dispatch({ type: 'CHANGE_RESOURCE_LOADINNG', data: true });
     sheetAjax
       .getFilterRows(
         getFilledRequestParams({
-          beginTime,
-          endTime,
+          beginTime: dateConvertToServerZone(beginTime),
+          endTime: dateConvertToServerZone(endTime),
           appId: base.appId,
           viewId: base.viewId,
           worksheetId: base.worksheetId,
@@ -144,7 +141,6 @@ export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
         }),
       )
       .then(({ data, count, resultCode }) => {
-        console.log(data);
         let rowsData = [];
         resourceData.map(o => {
           if (o.key === kanbanKey) {
@@ -194,8 +190,10 @@ const formatByGroup = (info, view, controls, gridTimes, currentTime) => {
     info
       .filter(o => o.key !== '-1')
       .map(item => {
-        const rows = formatRows(item, view, controls, gridTimes, true, currentTime);
-
+        const rows =
+          _.get(view, 'advancedSetting.begindate') && _.get(view, 'advancedSetting.enddate') //未配置开始和结束时间，不显示时间块
+            ? formatRows(item, view, controls, gridTimes, true, currentTime)
+            : [];
         const { data, totalHeight } = calculateTop(rows, view, gridTimes * oneWidth);
         return {
           ...item,
@@ -250,9 +248,15 @@ export const getTimeList = cb => {
       listN = list.list;
     } else if (type === 'Week') {
       list.list.map(o => listN.push(...o.times));
+    } else if (type === 'Year') {
+      list.list.map(o => {
+        (o.times || []).map(it => {
+          listN.push(it, { ...it, date: moment(it.date).add(15, 'd').format('YYYY-MM-DD HH:mm') });
+        });
+      });
     } else {
       list.list.map(o => {
-        o.times.map(it => {
+        (o.times || []).map(it => {
           listN.push(it, { ...it, date: moment(it.date).add(30, 'm').format('YYYY-MM-DD HH:mm') });
         });
       });
@@ -300,7 +304,7 @@ export const updateRecordTime = (row, start, end, key, newKey) => {
         controlName: startControl.controlName,
         dot: startControl.dot,
         type: startControl.type,
-        value: startControl.type === 15 ? moment(start).format('YYYY-MM-DD') : start,
+        value: dateConvertToServerZone(startControl.type === 15 ? moment(start).format('YYYY-MM-DD') : start),
       });
     }
 
@@ -310,23 +314,30 @@ export const updateRecordTime = (row, start, end, key, newKey) => {
         controlName: endControl.controlName,
         dot: endControl.dot,
         type: endControl.type,
-        value: endControl.type === 15 ? moment(end).format('YYYY-MM-DD') : end,
+        value: dateConvertToServerZone(endControl.type === 15 ? moment(end).format('YYYY-MM-DD') : end),
       });
     }
-    if (!!newKey) {
-      const viewControlData = controls.find(o => o.controlId === view.viewControl) || {};
+    const viewControlData = controls.find(o => o.controlId === view.viewControl) || {};
+    if (!!newKey && (viewControlData.fieldPermission || '111')[1] === '1') {
       const newData = resourceData.find(o => o.key === newKey);
       newOldControl.push({
         controlId: view.viewControl,
         controlName: viewControlData.controlName,
         dot: viewControlData.dot,
         type: viewControlData.type,
-        value:
-          viewControlData.type === 29
-            ? JSON.stringify([{ name: newData.name, sid: newData.key }])
-            : viewControlData.type === 26
-            ? `[${newData.name}]`
-            : newData.data,
+        value: [9, 10, 11].includes(viewControlData.type)
+          ? JSON.stringify([newKey])
+          : viewControlData.type === 29
+          ? JSON.stringify([{ name: newData.name, sid: newData.key }])
+          : viewControlData.type === 26 && viewControlData.controlId === 'ownerid'
+          ? newKey
+          : viewControlData.type === 26
+          ? `[${newData.name}]`
+          : 27 === viewControlData.type
+          ? JSON.stringify([{ departmentId: newKey, departmentName: newData.name }])
+          : 48 === viewControlData.type
+          ? JSON.stringify([{ organizeId: newKey, organizeName: newData.name }])
+          : newData.data,
       });
     }
 
@@ -417,7 +428,6 @@ export const updateRecordTime = (row, start, end, key, newKey) => {
 
 export const updateByKey = (key, rowsData, key1, rowsData1) => {
   return (dispatch, getState) => {
-    console.log(key, rowsData, key1, rowsData1);
     const { base, controls, resourceview, views } = getState().sheet;
     const view = base.viewId ? _.find(views, { viewId: base.viewId }) : views[0];
     const { keywords = '', resourceData, gridTimes, currentTime } = resourceview;

@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { arrayOf, shape, string, func } from 'prop-types';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
+import { SortableList } from 'ming-ui';
 import AddAppItem from './AddAppItem';
 import MyAppItem from './MyAppItem';
 import _, { isEmpty } from 'lodash';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util.js';
+
 const SORT_TYPE = {
   star: 1,
   project: 2,
@@ -12,37 +13,8 @@ const SORT_TYPE = {
   external: 4,
   expire: 4,
   group: 6,
+  owned: 8,
 };
-const SortableItem = SortableElement(props => <MyAppItem {...props} />);
-
-const SortableList = SortableContainer(({ items, type, projectId, createAppFromEmpty, keywords, ...props }) => {
-  const renderContent = () => {
-    if (props.allowCreate && !keywords) {
-      return (
-        <AddAppItem
-          groupId={props.groupId}
-          groupType={props.groupType}
-          type={type}
-          projectId={projectId}
-          createAppFromEmpty={createAppFromEmpty}
-          myPermissions={props.myPermissions}
-        />
-      );
-    }
-    if (isEmpty(items)) return <span />;
-    return null;
-  };
-  return (
-    <div className="sortableAppItemList myAppGroupDetail">
-      {items
-        .filter(o => !o.pcDisplay || canEditApp(o.permissionType)) // 排除pc端未发布的
-        .map((value, index) => (
-          <SortableItem key={value.id || index} index={index} type={type} {...value} {...props} />
-        ))}
-      {renderContent()}
-    </div>
-  );
-});
 
 export default class SortableComponent extends Component {
   static propTypes = {
@@ -67,6 +39,7 @@ export default class SortableComponent extends Component {
     super(props);
     this.state = {
       sortedIds: props.items.map(item => item.id),
+      canDrag: true,
     };
   }
 
@@ -76,36 +49,67 @@ export default class SortableComponent extends Component {
     }
   }
 
-  onSortEnd = ({ oldIndex, newIndex }) => {
-    const { type, projectId, groupId, items } = this.props;
-    const { sortedIds } = this.state;
-    const sortedAppIds = arrayMove(sortedIds, oldIndex, newIndex);
+  onSortEnd = newItems => {
+    const { type, projectId, groupId } = this.props;
+    const sortedAppIds = newItems.map(item => item.id);
     this.setState({ sortedIds: sortedAppIds });
 
-    // 顺序不变则不发请求
-    const appIds = items.map(({ id }) => id);
-    if (String(appIds) !== String(sortedAppIds)) {
-      this.props.onAppSorted({ appIds: sortedAppIds, projectId, sortType: SORT_TYPE[type], groupId });
-    }
+    this.props.onAppSorted({ appIds: sortedAppIds, projectId, sortType: SORT_TYPE[type], groupId });
   };
 
   render() {
-    const { items } = this.props;
-    const { sortedIds } = this.state;
+    const {
+      items,
+      allowCreate,
+      keywords,
+      groupId,
+      groupType,
+      type,
+      projectId,
+      createAppFromEmpty,
+      myPermissions = [],
+    } = this.props;
+    const { sortedIds, canDrag } = this.state;
+
+    const renderContent = () => {
+      if (allowCreate && !keywords) {
+        return (
+          <AddAppItem
+            groupId={groupId}
+            groupType={groupType}
+            type={type}
+            projectId={projectId}
+            createAppFromEmpty={createAppFromEmpty}
+            myPermissions={myPermissions}
+          />
+        );
+      }
+      if (isEmpty(items)) return <span />;
+      return null;
+    };
+
     return (
-      <SortableList
-        {..._.omit(this.props, 'items')}
-        axis={'xy'}
-        hideSortableGhost
-        transitionDuration={0}
-        helperClass="sortableItemHelperClass"
-        distance={3}
-        items={sortedIds
-          .map(id => _.find(items, { id }))
-          .concat(items.filter(item => !_.includes(sortedIds, item.id)))
-          .filter(_.identity)}
-        onSortEnd={this.onSortEnd}
-      />
+      <div className="sortableAppItemList myAppGroupDetail">
+        <SortableList
+          items={sortedIds
+            .map(id => _.find(items, { id }))
+            .concat(items.filter(item => !_.includes(sortedIds, item.id)))
+            .filter(o => o && (!o.pcDisplay || canEditApp(o.permissionType)))}
+          renderItem={({ item }) => (
+            <MyAppItem
+              {...item}
+              {...this.props}
+              canDrag={canDrag}
+              onChangeCanDrag={value => this.setState({ canDrag: value })}
+            />
+          )}
+          itemKey="id"
+          helperClass="sortableItemHelperClass"
+          onSortEnd={this.onSortEnd}
+          canDrag={canDrag}
+        />
+        {renderContent()}
+      </div>
     );
   }
 }

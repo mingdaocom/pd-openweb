@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import MobilePhoneEdit from 'src/components/newCustomFields/widgets/MobilePhone';
@@ -62,28 +61,25 @@ export default class MobilePhone extends React.Component {
   con = React.createRef();
   input = React.createRef();
 
-  @autobind
-  handleExit() {
+  handleExit = () => {
     const { cell, updateEditingStatus } = this.props;
     updateEditingStatus(false);
     this.setState({
       value: cell.value,
       tempValue: cell.value,
     });
-  }
+  };
 
-  @autobind
-  handleEdit(e) {
+  handleEdit = e => {
     const { updateEditingStatus } = this.props;
     e.stopPropagation();
     updateEditingStatus(true);
     if (this.listened) {
       return;
     }
-  }
+  };
 
-  @autobind
-  handleBlur(target) {
+  handleBlur = target => {
     const { error, updateCell, updateEditingStatus } = this.props;
     const { tempValue, value } = this.state;
     if (error) {
@@ -102,7 +98,7 @@ export default class MobilePhone extends React.Component {
     });
     updateEditingStatus(false);
     this.lastBlurTime = null;
-  }
+  };
 
   get masked() {
     const { cell, isCharge } = this.props;
@@ -117,17 +113,15 @@ export default class MobilePhone extends React.Component {
     }, time || 100);
   }
 
-  @autobind
-  async handleChange(value) {
+  handleChange = async value => {
     const { cell, onValidate } = this.props;
     onValidate(value);
     this.setState({
       tempValue: value,
     });
-  }
+  };
 
-  @autobind
-  handleTableKeyDown(e) {
+  handleTableKeyDown = e => {
     const { cell, updateEditingStatus } = this.props;
     const setKeyboardValue = value => {
       updateEditingStatus(true, () => {
@@ -169,10 +163,9 @@ export default class MobilePhone extends React.Component {
         })();
         break;
     }
-  }
+  };
 
-  @autobind
-  handleKeydown(e) {
+  handleKeydown = e => {
     const { tableId, cell, updateEditingStatus } = this.props;
     if (e.keyCode === 27) {
       updateEditingStatus(false);
@@ -193,16 +186,15 @@ export default class MobilePhone extends React.Component {
         100,
       );
     }
-  }
+  };
 
-  @autobind
-  handleUnMask(e) {
+  handleUnMask = e => {
     if (!this.masked) {
       return;
     }
     e.stopPropagation();
     this.setState({ forceShowFullValue: true });
-  }
+  };
 
   render() {
     const {

@@ -137,7 +137,7 @@ function QuickFilter(props) {
         <Icon className="Gray_9e close" icon="close" onClick={onCloseDrawer} />
       </div>
       <div className="flex body">
-        {filters.map((item, i) => (
+        {items.map((item, i) => (
           <FilterInput
             key={item.controlId}
             {...item}

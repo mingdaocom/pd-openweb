@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import styled from 'styled-components';
 import { QiniuUpload } from 'ming-ui';
 
@@ -62,22 +61,20 @@ export default class Logo extends React.Component {
     };
   }
 
-  @autobind
-  handleUploaded(up, file) {
+  handleUploaded = (up, file) => {
     const { onChange } = this.props;
     this.setState({
       isUploading: false,
     });
     up.disableBrowse(false);
     onChange(file.url);
-  }
+  };
 
-  @autobind
-  handleRemove(e) {
+  handleRemove = e => {
     const { onChange } = this.props;
     this.setState({ logourl: '' });
     onChange('');
-  }
+  };
 
   render() {
     const { url } = this.props;

@@ -13,9 +13,10 @@ import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'mobile/RelationRow/redux/actions';
-import PayLog from 'src/pages/worksheet/components/DiscussLogFile/PayLog.jsx';
-import worksheetSettingAjax from 'src/api/worksheetSetting';
+import PayLog from 'src/pages/worksheet/components/DiscussLogFile/PayLog';
+import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
 import _ from 'lodash';
+import { formatNumberThousand } from 'src/util';
 
 @connect(
   state => ({ ..._.pick(state.mobile, ['relationRow', 'loadParams']) }),
@@ -26,7 +27,6 @@ export default class RecordForm extends Component {
     super(props);
     this.state = {
       approveCount: 0,
-      enableOrderVisible: false,
     };
     this.isLoadApprove =
       props.getDataType !== 21 &&
@@ -38,16 +38,12 @@ export default class RecordForm extends Component {
     if (this.isLoadApprove) {
       this.getApproveTodoList();
       const { recordInfo, recordBase } = this.props;
-      worksheetSettingAjax
-        .getRowDetailIsShowOrder({
-          appId: recordBase.appId,
-          projectId: recordInfo.projectId,
-          worksheetId: recordBase.worksheetId,
-        })
-        .then(data => {
-          this.setState({ enableOrderVisible: data });
-        });
     }
+
+    // 兼容ios返回关闭确认支付弹层
+    window.addEventListener('pagehide', () => {
+      $('.mobilePayOrderDialog').parent().parent().remove();
+    });
   }
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.currentTab, nextProps.currentTab)) {
@@ -112,8 +108,8 @@ export default class RecordForm extends Component {
   };
 
   renderApprove = () => {
-    const { isEditRecord, externalPortalConfig, recordInfo, recordBase, workflow, formData } = this.props;
-    const { approveCount, enableOrderVisible } = this.state;
+    const { isEditRecord, externalPortalConfig, recordInfo, recordBase, workflow, formData, payConfig } = this.props;
+    const { approveCount } = this.state;
     const allowApprove =
       this.isLoadApprove &&
       isOpenPermit(permitList.approveDetailsSwitch, recordInfo.switchPermit, recordBase.viewId) &&
@@ -147,7 +143,7 @@ export default class RecordForm extends Component {
       }
     };
     let list = getList();
-    if (enableOrderVisible) {
+    if (payConfig.rowDetailIsShowOrder) {
       list = [
         ...list,
         {
@@ -160,6 +156,7 @@ export default class RecordForm extends Component {
                 worksheetId={recordBase.worksheetId}
                 rowId={recordBase.recordId}
                 appId={recordBase.appId}
+                viewId={recordBase.viewId}
               />
             </div>
           ),
@@ -341,10 +338,40 @@ export default class RecordForm extends Component {
       </div>
     );
   }
+
+  // 支付
+  handlePay = () => {
+    const { recordBase, payConfig = {} } = this.props;
+    const { worksheetId, recordId } = recordBase;
+
+    if (payConfig.orderId) {
+      location.href = `${md.global.Config.WebUrl}orderpay/${payConfig.orderId}`;
+    } else {
+      handlePrePayOrder({
+        worksheetId,
+        rowId: recordId,
+        paymentModule: md.global.Account.isPortal ? 3 : 2,
+        orderId: payConfig.orderId,
+        onUpdateSuccess: updateObj => {},
+      });
+    }
+  };
+
   render() {
-    const { isModal, isEditRecord, recordInfo, recordBase, formData, workflow, currentTab } = this.props;
+    const {
+      isModal,
+      isEditRecord,
+      recordInfo,
+      recordBase,
+      formData,
+      workflow,
+      currentTab,
+      payConfig = {},
+    } = this.props;
     const { entityName, rules } = recordInfo;
     const recordTitle = getTitleTextFromControls(formData);
+    const { isShowPay, payDescription, payAmount } = payConfig;
+
     return (
       <Fragment>
         {this.renderHeader()}
@@ -367,6 +394,13 @@ export default class RecordForm extends Component {
           {!isEditRecord && (
             <div className={cx('header', { pTop10: !isModal })}>
               <div className="title">{recordTitle}</div>
+            </div>
+          )}
+          {!isEditRecord && isShowPay && (
+            <div className="payWrap flexRow alignItemsCenter Bold" onClick={this.handlePay}>
+              <div className="flex ellipsis mRight10 Font15">{payDescription}</div>
+              <div className="Font15 mRight10">¥ {formatNumberThousand(payAmount)}</div>
+              <div className="payBtn Font15">{_l('付款')}</div>
             </div>
           )}
           <div className="flex">{this.renderCustomFields()}</div>

@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Icon } from 'ming-ui';
 import PropTypes from 'prop-types';
 import CellControl from 'worksheet/components/CellControls';
+import CustomFields from 'src/components/newCustomFields';
 import styled from 'styled-components';
-import { Modal } from 'antd-mobile';
+import { ActionSheet, Button } from 'antd-mobile';
 import cx from 'classnames';
 import _ from 'lodash';
-
-const alert = Modal.alert;
 
 const MobileTableContent = styled.div`
   .mobileTableHeader {
@@ -45,6 +44,48 @@ const MobileTableContent = styled.div`
   }
 `;
 
+const FlattenContent = styled.div`
+  .rowHeader {
+    height: 36px;
+    line-height: 40px;
+    background-color: #f7f7f7;
+    padding-left: 10px;
+    border-radius: 3px;
+    &.expandHeader {
+      background-color: rgba(33, 150, 243, 0.1);
+    }
+    .delete,
+    .edit {
+      width: 38px;
+      text-align: center;
+    }
+    .delete {
+      color: #f44336;
+    }
+    .edit {
+      color: #2196f3;
+    }
+  }
+  .mobileChildTableFlatForm {
+    &.customFieldsContainer {
+      padding: 0 !important;
+    }
+    &.packUp {
+      .customFormItem {
+        padding: 0 12px !important;
+      }
+      .customFormLine {
+        height: 0px;
+      }
+    }
+  }
+  .showAll {
+    color: #2196f3;
+    padding: 10px 0;
+    justify-content: center;
+  }
+`;
+
 export default function MobileTable(props) {
   const {
     onOpen,
@@ -58,13 +99,138 @@ export default function MobileTable(props) {
     onDelete,
     showNumber,
     masterData,
+    h5showtype,
+    h5abstractids = [],
+    appId,
+    worksheetId,
   } = props;
+
   const defaultMaxLength = 10;
   const [maxShowLength, setMaxShowLength] = useState(defaultMaxLength);
-  const showRows = isEdit ? rows : rows.slice(0, maxShowLength);
-  const showControls = controls.slice(0, 3);
-  const isShowAll = maxShowLength === rows.length;
+  const [expandRowIndex, setExpandRowIndex] = useState();
 
+  const showRows = isEdit ? rows : rows.slice(0, maxShowLength);
+  const showControls =
+    _.isEmpty(h5abstractids) || _.isEmpty(controls.filter(v => _.includes(h5abstractids, v.controlId)))
+      ? controls.slice(0, 3)
+      : controls.filter(v => _.includes(h5abstractids, v.controlId));
+
+  const isShowAll = maxShowLength === rows.length;
+  let deleteConformAction = null;
+
+  // 删除记录
+  const deleteRecord = rowid => {
+    deleteConformAction = ActionSheet.show({
+      popupClassName: 'md-adm-actionSheet',
+      actions: [],
+      extra: (
+        <div className="flexColumn w100">
+          <div className="bold Gray Font17 pTop10">{_l('确定删除此记录 ?')}</div>
+          <div className="valignWrapper flexRow confirm mTop24">
+            <Button
+              className="flex mRight6 bold Gray_75 flex ellipsis Font13"
+              onClick={() => deleteConformAction.close()}
+            >
+              {_l('取消')}
+            </Button>
+            <Button
+              className="flex mLeft6 bold flex ellipsis Font13"
+              color="danger"
+              onClick={() => {
+                deleteConformAction.close();
+                onDelete(rowid);
+              }}
+            >
+              {_l('确定')}
+            </Button>
+          </div>
+        </div>
+      ),
+    });
+  };
+
+  // 展示全部
+  const showAll = () => {
+    return (
+      !isEdit &&
+      rows.length > defaultMaxLength && (
+        <div
+          className="flexRow valignWrapper showAll"
+          onClick={() => {
+            setMaxShowLength(isShowAll ? defaultMaxLength : rows.length);
+          }}
+        >
+          <span>{isShowAll ? _l('收起') : _l('查看全部')}</span>
+          <Icon className="mLeft5" icon={isShowAll ? 'arrow-up' : 'arrow-down'} />
+        </div>
+      )
+    );
+  };
+
+  // 记录为空
+  const showEmpty = () =>
+    !isEdit && _.isEmpty(rows) && <div className="Gray_9e mTop15 mLeft15 bold">{_l('暂无记录')}</div>;
+
+  // 平铺
+  if (h5showtype === '2') {
+    return (
+      <FlattenContent>
+        {showRows.map((item, index) => {
+          const { rowid } = item;
+          const isExpand = expandRowIndex === index;
+
+          return (
+            <div key={rowid}>
+              <div
+                className={cx('rowHeader flexRow LineHeight40 pRight6 alignItemsCenter', { expandHeader: isExpand })}
+              >
+                <i
+                  className={`icon ${
+                    expandRowIndex === index ? 'icon-unfold_less' : 'icon-unfold_more'
+                  } LineHeight40 mRight10 Font17`}
+                  onClick={() => setExpandRowIndex(!isExpand ? index : undefined)}
+                />
+                <div className="flex bold Font15" onClick={() => setExpandRowIndex(!isExpand ? index : undefined)}>
+                  {showNumber ? index + 1 : ''}
+                </div>
+                {!disabled && (
+                  <Fragment>
+                    {allowcancel && (
+                      <div className="delete pTop3" onClick={() => deleteRecord(rowid)}>
+                        <i className="icon icon-task-new-delete Red Font18" />
+                      </div>
+                    )}
+                    <div className="edit pTop3" onClick={() => onOpen(index)}>
+                      <i className="icon icon-edit Font18" />
+                    </div>
+                  </Fragment>
+                )}
+              </div>
+              <CustomFields
+                className={cx('mobileChildTableFlatForm', { packUp: !isExpand })}
+                flag={Date.now()}
+                recordId={rowid}
+                data={(expandRowIndex === index ? controls : showControls).map(c => ({
+                  ...c,
+                  value: item[c.controlId],
+                }))}
+                widgetStyle={{ titlelayout_app: '2', titlewidth_app: '80' }}
+                disabled={true}
+                disableRules={true}
+                appId={appId}
+                worksheetId={worksheetId}
+                sheetSwitchPermit={sheetSwitchPermit}
+              />
+            </div>
+          );
+        })}
+        {showEmpty()}
+        {showAll()}
+      </FlattenContent>
+    );
+  }
+
+  // 列表
   return (
     <MobileTableContent>
       <div className="mobileTableHeader flexRow valignWrapper">
@@ -81,21 +247,13 @@ export default function MobileTable(props) {
       {showRows.map((row, i) => (
         <div className="flexRow valignWrapper Font12" key={i}>
           <div className="mobileTableItem tableIndex">
-            {isEdit && !disabled && allowcancel ? (
-              <i
-                className="icon icon-task-new-delete Font16 Gray_9e"
-                onClick={() => {
-                  alert(_l('确定删除此记录 ?'), '', [
-                    { text: _l('取消') },
-                    {
-                      text: <span className="Red">{_l('确定')}</span>,
-                      onPress: () => {
-                        onDelete(row.rowid);
-                      },
-                    },
-                  ]);
-                }}
-              ></i>
+            {isEdit && !disabled && allowcancel && showNumber ? (
+              <div className="action" onClick={() => deleteRecord(row.rowid)}>
+                <i className="icon icon-task-new-delete Font16 Red mRight10" style={{ marginLeft: -20 }}></i>
+                <span>{i + 1}</span>
+              </div>
+            ) : isEdit && !disabled && allowcancel ? (
+              <i className="icon icon-task-new-delete Font16 Red" onClick={() => deleteRecord(row.rowid)}></i>
             ) : showNumber ? (
               i + 1
             ) : (
@@ -128,18 +286,8 @@ export default function MobileTable(props) {
           </div>
         </div>
       ))}
-      {!isEdit && _.isEmpty(rows) && <div className="Gray_9e mTop15 mLeft15 bold">{_l('暂无记录')}</div>}
-      {!isEdit && rows.length > defaultMaxLength && (
-        <div
-          className="flexRow valignWrapper showAll"
-          onClick={() => {
-            setMaxShowLength(isShowAll ? defaultMaxLength : rows.length);
-          }}
-        >
-          <span>{isShowAll ? _l('收起') : _l('查看全部')}</span>
-          <Icon className="mLeft5" icon={isShowAll ? 'arrow-up' : 'arrow-down'} />
-        </div>
-      )}
+      {showEmpty()}
+      {showAll()}
     </MobileTableContent>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Modal } from 'antd-mobile';
+import { Popup, Dialog as MobileDialog } from 'antd-mobile';
 import { Dialog, ScrollView, Icon, LoadDiv } from 'ming-ui';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
@@ -14,9 +14,8 @@ import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/u
 import cx from 'classnames';
 import { handlePrePayOrder } from '../Admin/pay/PrePayorder';
 
-const ModalWrapper = styled(Modal)`
-  height: 100%;
-  .am-modal-body {
+const ModalWrapper = styled(Popup)`
+  .adm-popup-body {
     display: flex;
     flex-direction: column;
     background: #f8f8f8;
@@ -157,18 +156,11 @@ export default function FilledRecord(props) {
 
   const onDeleteRecord = rowId => {
     isMobile
-      ? Modal.alert(_l('确认删除该填写记录吗?'), '', [
-          {
-            text: _l('取消'),
-            style: { color: '#2196F3' },
-            onPress: () => {},
-          },
-          {
-            text: _l('删除'),
-            style: { color: 'red' },
-            onPress: () => onDeleteRow(rowId),
-          },
-        ])
+      ? MobileDialog.confirm({
+        content: _l('确认删除该填写记录吗?'),
+        confirmText: <span className="Red">{_l('删除')}</span>,
+        onConfirm: () => onDeleteRow(rowId)
+      })
       : Dialog.confirm({
           title: _l('删除记录'),
           buttonType: 'danger',
@@ -264,7 +256,6 @@ export default function FilledRecord(props) {
                                 rowId: item.rowid,
                                 paymentModule: 1,
                                 orderId: item.orderId,
-                                sheetThemeColor: themeBgColor,
                                 onUpdateSuccess: updateObj => {
                                   onUpdateRecord(item.rowid, updateObj);
                                 },
@@ -340,9 +331,8 @@ export default function FilledRecord(props) {
       )}
       {isMobile ? (
         <ModalWrapper
-          popup
           visible={listDialogVisible}
-          className="filledRecordDialog"
+          className="filledRecordDialog mobileModal full"
           onClose={() => setListDialogVisible(false)}
         >
           <div className="recordHeader">

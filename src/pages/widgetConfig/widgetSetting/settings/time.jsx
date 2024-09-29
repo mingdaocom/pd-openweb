@@ -1,28 +1,19 @@
 import React, { Fragment } from 'react';
 import { RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../styled';
-
-const DISPLAY_OPTIONS = [
-  {
-    text: _l('时:分'),
-    value: '1',
-  },
-  {
-    text: _l('时:分:秒'),
-    value: '6',
-  },
-];
+import { TIME_DISPLAY_TYPE } from '../../config/setting';
 
 export default function Text(props) {
-  const { data, onChange } = props;
+  const { data = {}, onChange } = props;
+  const { unit } = data;
   return (
     <Fragment>
       <SettingItem>
         <div className="settingItemTitle">{_l('类型')}</div>
         <RadioGroup
           size="middle"
-          checkedValue={data.unit}
-          data={DISPLAY_OPTIONS}
+          checkedValue={unit}
+          data={TIME_DISPLAY_TYPE}
           onChange={value => onChange({ unit: value })}
         />
       </SettingItem>

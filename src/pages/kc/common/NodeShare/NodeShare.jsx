@@ -74,7 +74,7 @@ class NodeShare extends React.Component {
             callFrom: this.state.node.isKc ? 'kc' : 'player',
             fromType: 6,
             index: 0,
-            hideFunctions: allowDownload ? [] : ['download', 'share', 'saveToKnowlege'],
+            hideFunctions: allowDownload ? ['saveToKnowlege'] : ['download', 'share', 'saveToKnowlege'],
           }}
         />
       );

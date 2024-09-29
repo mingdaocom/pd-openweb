@@ -269,6 +269,7 @@ function SortableRecordItem(props) {
           />
         ) : (
           <RecordInfoWrapper
+            enablePayment={worksheetInfo.enablePayment}
             showPrevNext
             allowAdd={worksheetInfo.allowAdd}
             sheetSwitchPermit={sheetSwitchPermit}

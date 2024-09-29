@@ -119,6 +119,7 @@ const InputGroup = styled.div`
     flex: 1;
     overflow: hidden;
     width: auto;
+    min-width: 0px;
   }
 `;
 

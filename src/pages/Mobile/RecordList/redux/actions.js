@@ -144,14 +144,14 @@ export const fetchSheetRows =
       filterControls = [],
     } = getState().mobile;
 
-    const { appId, worksheetId, viewId, groupId, maxCount } = base;
+    const { appId, worksheetId, viewId, groupId, maxCount, type } = base;
     let { views = [] } = worksheetInfo;
     views = views.filter(
       v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
     );
     const defaultViewId = _.get(views[0], 'viewId');
     const showCurrentView = _.some(views, v => v.viewId === viewId);
-    const isMobileSingleView = localStorage.getItem('isMobileSingleView') === 'true';
+    const isMobileSingleView = type === 'single';
     if (!showCurrentView && !isMobileSingleView) {
       updateBase({ viewId: defaultViewId });
       safeLocalStorageSetItem(`mobileViewSheet-${worksheetId}`, defaultViewId);
@@ -278,9 +278,9 @@ export const updateQuickFilter =
     }
   };
 
-export const updateFilters = filters => (dispatch, getState) => {
+export const updateFilters = (filters, view) => (dispatch, getState) => {
   const { base = {}, worksheetInfo = {} } = getState().mobile;
-  const view = _.find(worksheetInfo.views || [], item => base.viewId === item.viewId) || {};
+  view = view || _.find(worksheetInfo.views || [], item => base.viewId === item.viewId) || {};
 
   dispatch({
     type: 'MOBILE_UPDATE_FILTERS',

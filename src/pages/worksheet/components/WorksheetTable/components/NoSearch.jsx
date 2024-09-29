@@ -16,8 +16,9 @@ const Con = styled.div`
 `;
 
 export default function NoSearch(props) {
+  const { columnHeadHeight = 34 } = props;
   return (
-    <Con>
+    <Con style={{ top: columnHeadHeight }}>
       <div className="ThemeColor3">
         {_l('没有搜索到"')}
         <span class="green">{props.keyWords}</span>
@@ -29,4 +30,5 @@ export default function NoSearch(props) {
 
 NoSearch.propTypes = {
   keyWords: PropTypes.string,
+  columnHeadHeight: PropTypes.number,
 };

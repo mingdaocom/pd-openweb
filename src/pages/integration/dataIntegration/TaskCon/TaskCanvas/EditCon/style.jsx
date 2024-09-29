@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components';
 
 export const WrapL = styled.div`
   .itemOpName {
-    max-width: 100px;
+    // max-width: 100px;
     vertical-align: middle;
     line-height: 14px;
   }

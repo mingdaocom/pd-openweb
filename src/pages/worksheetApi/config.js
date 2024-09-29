@@ -67,6 +67,76 @@ export const appInfoParameters = [
   },
 ];
 
+export const appRoleSuccessData2 = {
+  data: true,
+  error_code: 1,
+  success: true,
+};
+
+// 获取列表成功返回
+export const LIST_SUCCESS = {
+  data: {
+    rows: [
+      {
+        rowid: _l('记录id'),
+        ctime: _l('创建时间'),
+        caid: {
+          accountId: _l('创建人账号Id'),
+          fullname: _l('创建者名称'),
+          avatar: _l('头像地址'),
+          status: 1,
+        },
+        uaid: {
+          accountId: _l('编辑者账号id'),
+          fullname: _l('编辑者名称'),
+          avatar: _l('头像地址'),
+          status: 1,
+        },
+        ownerid: {
+          accountId: _l('拥有者账号Id'),
+          fullname: _l('拥有者名称'),
+          avatar: _l('头像地址'),
+          status: 1,
+        },
+        utime: _l('编辑时间'),
+        [_l('控件id/别名')]: _l('控件值'),
+      },
+    ],
+    total: _l('总条数'),
+  },
+  success: true,
+  error_code: 1,
+};
+
+export const NUMBER_SUCCESS_DATA = {
+  data: _l('总数量'),
+  success: true,
+  error_code: 1,
+};
+
+export const ADD_ROW_SUCCESS = {
+  data: _l('rowId'),
+  success: true,
+  error_code: 1,
+};
+
+// 获取关联记录成功返回实例
+export const DATA_RELATIONS_SUCCESS_DATA = {
+  data: {
+    rows: [
+      {
+        rowid: _l('关联记录id'),
+        ctime: _l('创建时间'),
+        utime: _l('更新时间'),
+        [_l('关联记录控件id/别名')]: _l('控件值'),
+      },
+    ],
+    total: _l('总条数'),
+  },
+  success: true,
+  error_code: 1,
+};
+
 export const MENU_LIST = [
   {
     id: 'Table',
@@ -147,6 +217,14 @@ export const MENU_LIST = [
         desc: _l('指定控件（ID或别名）'),
       },
     ]),
+    requestData: {
+      viewId: _l('视图ID,可为空'),
+      pageSize: 50,
+      pageIndex: 1,
+      listType: 0,
+      controls: [],
+    },
+    successData: LIST_SUCCESS,
   },
   {
     id: 'AddRow',
@@ -166,6 +244,10 @@ export const MENU_LIST = [
         desc: _l('是否触发工作流(默认: true)'),
       },
     ]),
+    requestData: {
+      triggerWorkflow: true,
+    },
+    successData: ADD_ROW_SUCCESS,
   },
   {
     id: 'AddRows',
@@ -185,6 +267,10 @@ export const MENU_LIST = [
         desc: _l('是否触发工作流(默认: true)'),
       },
     ]),
+    requestData: {
+      triggerWorkflow: true,
+    },
+    successData: NUMBER_SUCCESS_DATA,
   },
   {
     id: 'GetDetail',
@@ -204,6 +290,7 @@ export const MENU_LIST = [
         desc: _l('是否获取系统字段，默认false'),
       },
     ]),
+    successData: LIST_SUCCESS,
   },
   {
     id: 'GetDetailPost',
@@ -223,6 +310,7 @@ export const MENU_LIST = [
         desc: _l('是否获取系统字段，默认false'),
       },
     ]),
+    successData: LIST_SUCCESS,
   },
   {
     id: 'UpdateDetail',
@@ -248,6 +336,10 @@ export const MENU_LIST = [
         desc: _l('是否触发工作流(默认: true)'),
       },
     ]),
+    requestData: {
+      triggerWorkflow: true,
+    },
+    successData: appRoleSuccessData2,
   },
   {
     id: 'UpdateDetails',
@@ -279,6 +371,11 @@ export const MENU_LIST = [
         desc: _l('多个控件数据（新字段），可用于多个字段更新'),
       },
     ]),
+    requestData: {
+      rowIds: [_l('行记录ID'), _l('行记录ID')],
+      triggerWorkflow: true,
+    },
+    successData: appRoleSuccessData2,
   },
   {
     id: 'Del',
@@ -298,6 +395,11 @@ export const MENU_LIST = [
         desc: _l('是否触发工作流(默认: true)'),
       },
     ]),
+    requestData: {
+      rowId: _l('行记录ID，多个用逗号(,)隔开'),
+      triggerWorkflow: true,
+    },
+    successData: appRoleSuccessData2,
   },
   {
     id: 'Relation',
@@ -335,6 +437,10 @@ export const MENU_LIST = [
         desc: _l('是否获取系统字段，默认false'),
       },
     ]),
+    requestData: {
+      pageSize: _l('行数'),
+      pageIndex: _l('页码'),
+    },
     successData: DATA_RELATIONS_SUCCESS_DATA,
   },
   {
@@ -367,6 +473,17 @@ export const MENU_LIST = [
         desc: _l('为空表示不需要密码'),
       },
     ]),
+    requestData: {
+      rowId: _l('行记录ID'),
+      visibleFields: [_l('可见字段ID')],
+      validTime: _l('有效时间'),
+      password: _l('密码'),
+    },
+    successData: {
+      data: _l('链接地址'),
+      success: true,
+      error_code: 1,
+    },
   },
   {
     id: 'TotalNum',
@@ -393,6 +510,119 @@ export const MENU_LIST = [
         desc: _l('关键词'),
       },
     ]),
+    requestData: {
+      viewId: _l('视图ID'),
+      keywords: _l('关键词'),
+      filters: [
+        {
+          controlId: 'string',
+          dataType: 1,
+          spliceType: 0,
+          filterType: 0,
+          dateRange: 0,
+          dateRangeType: 0,
+          value: 'string',
+          values: ['string'],
+          minValue: 'string',
+          maxValue: 'string',
+          isAsc: true,
+          dynamicSource: [
+            {
+              rcid: 'string',
+              cid: 'string',
+              staticValue: 'string',
+              isAsync: true,
+            },
+          ],
+          advancedSetting: {
+            additionalProp1: 'string',
+            additionalProp2: 'string',
+            additionalProp3: 'string',
+          },
+        },
+      ],
+    },
+    successData: NUMBER_SUCCESS_DATA,
+  },
+  {
+    id: 'getWorksheetOperationLogs',
+    title: _l('获取行记录日志 POST'),
+    apiName: 'worksheet/getWorksheetOperationLogs',
+    data: sameParameters.concat([
+      {
+        name: 'rowId',
+        required: _l('是'),
+        type: 'string',
+        desc: _l('行记录ID'),
+      },
+      {
+        name: 'opeartorId',
+        required: _l('否'),
+        type: 'string',
+        desc: _l('按操作者ID筛选'),
+      },
+      {
+        name: 'controlId',
+        required: _l('否'),
+        type: 'string',
+        desc: _l('按控件ID筛选'),
+      },
+      {
+        name: 'pageSize',
+        required: _l('否'),
+        type: 'number',
+        desc: _l('行数'),
+      },
+      {
+        name: 'lastMark',
+        required: _l('否'),
+        type: 'string',
+        desc: _l('上一次更新的时间'),
+      },
+    ]),
+    requestData: {
+      opeartorId: _l('操作者ID'),
+      controlId: _l('控件ID'),
+      pageSize: '20',
+    },
+    successData: {
+      logs: [
+        {
+          opeartorInfo: {
+            accountId: _l('操作者ID'),
+            fullname: _l('名称'),
+            avatar: _l('头像地址'),
+            isPortal: false,
+            status: 1,
+          },
+          operatContent: {
+            worksheetId: _l('工作表ID'),
+            objectId: _l('操作对象ID'),
+            uniqueId: _l('操作唯一标识'),
+            objectType: _l('日志对象类型 1:工作表 2:行记录 3:视图 4:按钮 5:业务规则 99:其他'),
+            type: 2,
+            requestType: _l('日志操作类型 1:手动 2:工作流 3:按钮'),
+            createTime: _l('操作创建的时间戳'),
+            logData: [
+              {
+                id: _l('操作项ID'),
+                name: _l('操作项名称'),
+                editType: 1,
+                type: 26,
+                oldValue: _l('操作前的值'),
+                oldText: _l('操作后的描述'),
+                newValue: _l('操作后的值'),
+                newText: _l('操作后的描述'),
+                isDeleted: false,
+              },
+            ],
+            extendParams: ['string'],
+          },
+        },
+      ],
+      lastMark: _l('最后一次更新的时间'),
+      flag: false,
+    },
   },
 ];
 
@@ -612,12 +842,6 @@ export const appRoleErrorData = {
   error_msg: _l('具体错误信息'),
   error_code: 10101,
   success: false,
-};
-
-export const appRoleSuccessData2 = {
-  data: true,
-  error_code: 1,
-  success: true,
 };
 
 /**
@@ -1717,12 +1941,6 @@ export const ADD_WORKSHEET_SUCCESS = {
   error_code: 1,
 };
 
-export const ADD_ROW_SUCCESS = {
-  data: _l('rowId'),
-  success: true,
-  error_code: 1,
-};
-
 // 获取工作表结构信息成功返回
 export const WORKSHEETINFO_SUCCESS_DATA = {
   data: {
@@ -1777,67 +1995,9 @@ export const WORKSHEETINFO_SUCCESS_DATA = {
   },
 };
 
-// 获取列表成功返回
-export const LIST_SUCCESS = {
-  data: {
-    rows: [
-      {
-        rowid: _l('记录id'),
-        ctime: _l('创建时间'),
-        caid: {
-          accountId: _l('创建人账号Id'),
-          fullname: _l('创建者名称'),
-          avatar: _l('头像地址'),
-          status: 1,
-        },
-        uaid: {
-          accountId: _l('编辑者账号id'),
-          fullname: _l('编辑者名称'),
-          avatar: _l('头像地址'),
-          status: 1,
-        },
-        ownerid: {
-          accountId: _l('拥有者账号Id'),
-          fullname: _l('拥有者名称'),
-          avatar: _l('头像地址'),
-          status: 1,
-        },
-        utime: _l('编辑时间'),
-        [_l('控件id/别名')]: _l('控件值'),
-      },
-    ],
-    total: _l('总条数'),
-  },
-  success: true,
-  error_code: 1,
-};
-
 //
 export const BATCH_ADD_WORKSHEET_SUCCESS = {
   data: [_l('工作表ID')],
-  success: true,
-  error_code: 1,
-};
-
-// 获取关联记录成功返回实例
-export const DATA_RELATIONS_SUCCESS_DATA = {
-  data: {
-    rows: [
-      {
-        rowid: _l('关联记录id'),
-        ctime: _l('创建时间'),
-        utime: _l('更新时间'),
-        [_l('关联记录控件id/别名')]: _l('控件值'),
-      },
-    ],
-    total: _l('总条数'),
-  },
-  success: true,
-  error_code: 1,
-};
-
-export const NUMBER_SUCCESS_DATA = {
-  data: _l('总数量'),
   success: true,
   error_code: 1,
 };

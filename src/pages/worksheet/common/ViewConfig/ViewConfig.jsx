@@ -49,7 +49,10 @@ import {
 export default class ViewConfigCon extends Component {
   constructor(props) {
     super(props);
-    this.state = { view: props.view, viewSetting: baseSetList[VIEW_DISPLAY_TYPE[props.view.viewType]][0] };
+    this.state = {
+      view: props.view,
+      viewSetting: baseSetList[VIEW_DISPLAY_TYPE[_.get(props, 'view.viewType') || 0]][0],
+    };
   }
 
   componentDidMount() {

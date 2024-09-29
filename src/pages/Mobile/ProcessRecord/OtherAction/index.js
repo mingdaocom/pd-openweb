@@ -1,13 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { List, Flex, Modal, TextareaItem, ActionSheet } from 'antd-mobile';
+import { Popup, ActionSheet, TextArea } from 'antd-mobile';
 import { Icon, Signature, VerifyPasswordInput } from 'ming-ui';
 import { ACTION_TO_TEXT } from 'src/pages/workflow/components/ExecDialog/config';
 import { verifyPassword } from 'src/util';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import functionTemplateModal from '../FunctionTemplateModal';
 import SelectUser from 'mobile/components/SelectUser';
-import AttachmentFiles, { UploadFileWrapper } from 'mobile/Discuss/AttachmentFiles';
+import AttachmentFiles, { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
 import './index.less';
 import _ from 'lodash';
 
@@ -62,7 +62,7 @@ export default class extends Component {
     }
   }
   componentWillUnmount() {
-    ActionSheet.close();
+    this.actionHandler && this.actionHandler.close()
   }
   handleAction = () => {
     const { action, instance } = this.props;
@@ -165,70 +165,69 @@ export default class extends Component {
   handleOpenEntrust = (e, data) => {
     e.stopPropagation();
     if (_.isEmpty(data)) return;
-    ActionSheet.showActionSheetWithOptions(
-      {
-        options: [
+    this.actionHandler = ActionSheet.show({
+      actions: [{
+        key: 1,
+        text: (
           <div className="flexRow alignItemsCenter">
             <div className="Gray_75 mRight10 Font13">{_l('将委托给')}</div>
             <img className="mLeft10 boderRadAll_50 selectedUser" style={{ width: 30 }} src={data.trustee.avatar} />
             <div className="mLeft10 Font15 ellipsis">{data.trustee.fullName}</div>
-          </div>,
+          </div>
+        )
+      }, {
+        key: 1,
+        text: (
           <div className="flexRow alignItemsCenter">
             <div className="Gray_75 mRight10 Font13">{_l('委托截止')}</div>
             <div className="mLeft10 Font15">{data.endDate}</div>
-          </div>,
-        ],
-        message: (
-          <div className="flexRow header">
-            <span className="Font13">{_l('%0发起了委托', data.principal.fullName)}</span>
-            <div
-              className="closeIcon"
-              onClick={() => {
-                ActionSheet.close();
-              }}
-            >
-              <Icon icon="close" />
-            </div>
           </div>
-        ),
-      },
-      buttonIndex => {},
-    );
+        )
+      }],
+      extra: (
+        <div className="flexRow header">
+          <span className="Font13">{_l('%0发起了委托', data.principal.fullName)}</span>
+          <div className="closeIcon" onClick={() => this.actionHandler.close()}>
+            <Icon icon="close" />
+          </div>
+        </div>
+      ),
+      onAction: (action) => {
+        this.actionHandler.close();
+      }
+    });
   };
   renderBackFlowNodes() {
     const { backNodeId, backFlowNodes } = this.state;
     return (
-      <List
-        renderHeader={() => (
-          <Flex className="backFlowNodesHeader">
-            <Flex.Item
-              className="left"
-              onClick={() => {
-                this.setState({
-                  backFlowNodesVisible: false,
-                });
-              }}
-            >
-              <span>{_l('取消')}</span>
-            </Flex.Item>
-            <Flex.Item className="Font17 Gray">{_l('选择退回节点')}</Flex.Item>
-            <Flex.Item
-              className={cx('right')}
-              onClick={() => {
-                this.setState({
-                  backFlowNodesVisible: false,
-                });
-              }}
-            >
-              {_l('确认')}
-            </Flex.Item>
-          </Flex>
-        )}
-        className="popup-list"
-      >
-        <div className="backFlowNodesList">
+      <div className="flexColumn">
+        <div className="backFlowNodesHeader flexRow alignItemsCenter pAll10">
+          <div
+            className="left"
+            onClick={() => {
+              this.setState({
+                backFlowNodesVisible: false,
+              });
+            }}
+          >
+            <span>{_l('取消')}</span>
+          </div>
+          <div className="flex Font17 Gray TxtCenter">{_l('选择退回节点')}</div>
+          <div
+            className="right"
+            onClick={() => {
+              this.setState({
+                backFlowNodesVisible: false,
+              });
+            }}
+          >
+            {_l('确认')}
+          </div>
+        </div>
+        <div className="backFlowNodesList pTop10" style={{ borderTop: '1px solid #e9e9e9' }}>
           {backFlowNodes.map(item => (
-            <List.Item
+            <div
+              className="flexRow alignItemsCenter flex pAll10"
               key={item.id}
               onClick={() => {
                 this.setState({
@@ -236,14 +235,12 @@ export default class extends Component {
                 });
               }}
             >
-              <Flex>
-                <span className="Gray flex">{item.name}</span>
-                {backNodeId === item.id ? <Icon icon="ok" /> : null}
-              </Flex>
-            </List.Item>
+              <span className="Gray flex">{item.name}</span>
+              {backNodeId === item.id ? <Icon icon="ok" /> : null}
+            </div>
           ))}
         </div>
-      </List>
+      </div>
     );
   }
   renderInfo() {
@@ -373,13 +370,13 @@ export default class extends Component {
           </div>
           <div className="Font13 bold flex Gray">{_l('签名')}</div>
         </div>
-        <Flex className="am-textarea-item">
+        <div className="flexRow am-textarea-item">
           <Signature
             ref={signature => {
               this.signature = signature;
             }}
           />
-        </Flex>
+        </div>
       </Fragment>
     );
   }
@@ -410,7 +407,7 @@ export default class extends Component {
     const { showPassword, removeNoneVerification } = this.state;
     if (_.includes(['pass', 'overrule', 'return'], action) && encrypt && showPassword) {
       return (
-        <Flex className="am-textarea-item pTop20 pBottom0">
+        <div className="flexRow am-textarea-item pTop20 pBottom0">
           <div className="flex verifyPasswordInputWrap">
             <VerifyPasswordInput
               showSubTitle={false}
@@ -422,7 +419,7 @@ export default class extends Component {
               }}
             />
           </div>
-        </Flex>
+        </div>
       );
     }
   }
@@ -488,10 +485,11 @@ export default class extends Component {
                       <Icon icon="arrow-right-border" />
                     </div>
                   ) : (
-                    <TextareaItem
-                      className="flex pAll0"
+                    <TextArea
+                      className="flex"
                       placeholder={currentAction.placeholder}
-                      autoHeight={true}
+                      rows={1}
+                      autoSize={{ minRows: 1, maxRows: 12 }}
                       value={content}
                       onChange={content => {
                         this.setState({
@@ -518,7 +516,7 @@ export default class extends Component {
                       qiniuUploadClassName="w100"
                       className="selectTemplate flexRow valignWrapper justifyContentCenter"
                       style={{
-                        top: selectTemplateVisible ? 0 : 2,
+                        top: 0,
                         minHeight: selectTemplateVisible ? 35 : 40,
                         width: selectTemplateVisible ? 35 : 40,
                         marginLeft: 6
@@ -545,11 +543,11 @@ export default class extends Component {
           {this.renderSelectUser()}
         </div>
         <div className="flexRow actionBtnWrapper">
-          <div className="flex actionBtn" onClick={this.props.onHide}>
+          <div className="flex actionBtn bold Gray_75" onClick={this.props.onHide}>
             {_l('取消')}
           </div>
           <div
-            className="flex actionBtn ok"
+            className="flex actionBtn bold ok"
             onClick={() => {
               this.handleAction();
             }}
@@ -564,20 +562,19 @@ export default class extends Component {
     const { backFlowNodesVisible, edit } = this.state;
     const { visible, onHide } = this.props;
     return (
-      <Modal
-        popup
+      <Popup
         visible={visible}
-        className="otherActionModal"
+        className="otherActionModal mobileModal"
         onClose={() => {
           if (edit) return;
           onHide();
         }}
-        animationType="slide-up"
+        closeOnMaskClick={true}
       >
         <div className="otherActionWrapper flexColumn leftAlign" style={{ height: edit ? 300 : 'auto' }}>
           {backFlowNodesVisible ? this.renderBackFlowNodes() : this.renderContent()}
         </div>
-      </Modal>
+      </Popup>
     );
   }
 }

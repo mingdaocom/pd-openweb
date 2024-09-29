@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Flex, ActionSheet, Modal } from 'antd-mobile';
+import { Dialog, ActionSheet } from 'antd-mobile';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import AppStatus from 'src/pages/AppHomepage/AppCenter/components/AppStatus';
 import homeAppAjax from 'src/api/homeApp';
@@ -21,6 +21,9 @@ class AppList extends Component {
   }
   componentDidMount() {
     this.getAppListInfo();
+  }
+  componentWillUnmount() {
+    this.actionSheetHandler && this.actionSheetHandler.close();
   }
   getAppListInfo = () => {
     const { params = {} } = this.props.match;
@@ -63,42 +66,50 @@ class AppList extends Component {
   }
   showActionSheet = () => {
     const BUTTONS = [
-      { name: _l('从模板库添加'), icon: 'application_library', iconClass: 'Font18' },
-      { name: _l('自定义创建'), icon: 'add1', iconClass: 'Font18' },
-    ];
-    ActionSheet.showActionSheetWithOptions(
       {
-        options: BUTTONS.map(item => (
+        key: 'application',
+        text: (
           <Fragment>
-            <Icon className={cx('mRight10 Gray_9e', item.iconClass)} icon={item.icon} />
-            <span className="Bold">{item.name}</span>
+            <Icon className={cx('mRight10 Gray_9e Font18')} icon="application_library" />
+            <span className="Bold">{_l('从模板库添加')}</span>
           </Fragment>
-        )),
-        message: (
-          <div className="flexRow header">
-            <span className="Font13">{_l('添加应用')}</span>
-            <div
-              className="closeIcon"
-              onClick={() => {
-                ActionSheet.close();
-              }}
-            >
-              <Icon icon="close" />
-            </div>
-          </div>
         ),
       },
-      buttonIndex => {
-        if (buttonIndex === -1) return;
-        if (buttonIndex === 0) {
+      {
+        key: 'add',
+        text: (
+          <Fragment>
+            <Icon className={cx('mRight10 Gray_9e Font18')} icon="add1" />
+            <span className="Bold">{_l('自定义创建')}</span>
+          </Fragment>
+        )
+      },
+    ];
+    this.actionSheetHandler = ActionSheet.show({
+      actions: BUTTONS,
+      extra: (
+        <div className="flexRow header">
+          <span className="Font13">{_l('添加应用')}</span>
+          <div className="closeIcon" onClick={() => this.actionSheetHandler.close()}>
+            <Icon icon="close" />
+          </div>
+        </div>
+      ),
+      onAction: (action, index) => {
+        if (action.key === 'application') {
           window.mobileNavigateTo(`/mobile/appBox`);
         }
-        if (buttonIndex === 1) {
+        if (action.key === 'add') {
           const title = window.isWxWork ? _l('创建自定义应用请前往企业微信PC桌面端') : _l('创建自定义应用请前往PC端');
-          Modal.alert(title, null, [{ text: _l('我知道了'), onPress: () => {} }]);
+          Dialog.alert({
+            content: title,
+            confirmText: _l('我知道了'),
+            onAction: () => {}
+          });
         }
-      },
-    );
+        this.actionSheetHandler.close();
+      }
+    });
   };
   render() {
     let { currentGroupList, loading, groupInfo = {} } = this.state;
@@ -113,7 +124,7 @@ class AppList extends Component {
     return (
       <div className="appList">
         <DocumentTitle title={groupInfo.name} />
-        <Flex align="center" wrap="wrap" className="appCon">
+        <div className="appCon flexRow alignItemsCenter">
           {_.map(currentGroupList || [], (item, i) => {
             return this.renderItem(item);
           })}
@@ -125,7 +136,7 @@ class AppList extends Component {
               name: _l('添加应用'),
               onClick: this.showActionSheet,
             })}
-        </Flex>
+        </div>
         <Back
           onClick={() => {
             window.mobileNavigateTo('/mobile/appGroupList');

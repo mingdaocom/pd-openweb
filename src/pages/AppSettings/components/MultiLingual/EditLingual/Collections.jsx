@@ -1,5 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import { Input } from 'antd';
+import { ScrollView } from 'ming-ui';
 import EditInput from './EditInput';
 import { LANG_DATA_TYPE } from '../config';
 import { getTranslateInfo } from 'src/util';
@@ -39,23 +40,25 @@ export default function Collections(props) {
   }
 
   return (
-    <div className="pAll20">
-      <div className="Font14 bold mBottom20">{getTranslateInfo(app.id, null, selectNode.key).name || selectNode.title}</div>
-      <div className="flexRow alignItemsCenter nodeItem">
-        <div className="Font13 mRight20 label">{_l('选项集名称')}</div>
-        <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.name : name} disabled={true} />
-        <EditInput
-          className="flex"
-          value={translateInfo.name}
-          onChange={value => handleSave({ name: value })}
-        />
-      </div>
-      <div className="flexRow nodeItem">
-        <div className="Font13 mRight20 label">{_l('选项')}</div>
-        <div className="flex">
-          {options.filter(n => !n.isDeleted).map(renderOption)}
+    <ScrollView className="flex">
+      <div className="pAll20">
+        <div className="Font14 bold mBottom20">{getTranslateInfo(app.id, null, selectNode.key).name || selectNode.title}</div>
+        <div className="flexRow alignItemsCenter nodeItem">
+          <div className="Font13 mRight20 label">{_l('选项集名称')}</div>
+          <Input className="flex mRight20" value={comparisonLangId ? comparisonLangInfo.name : name} disabled={true} />
+          <EditInput
+            className="flex"
+            value={translateInfo.name}
+            onChange={value => handleSave({ name: value })}
+          />
+        </div>
+        <div className="flexRow nodeItem">
+          <div className="Font13 mRight20 label">{_l('选项')}</div>
+          <div className="flex">
+            {options.filter(n => !n.isDeleted).map(renderOption)}
+          </div>
         </div>
       </div>
-    </div>
+    </ScrollView>
   );
 }

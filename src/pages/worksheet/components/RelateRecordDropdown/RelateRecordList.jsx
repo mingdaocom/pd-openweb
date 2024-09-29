@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import { LoadDiv, ScrollView } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
@@ -8,7 +7,7 @@ import ChildTableContext from '../ChildTable/ChildTableContext';
 import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import ReacordItem from './RecordItem';
-import _, { times } from 'lodash';
+import _ from 'lodash';
 
 export default class RelateRecordList extends React.PureComponent {
   static contextType = ChildTableContext;
@@ -76,8 +75,7 @@ export default class RelateRecordList extends React.PureComponent {
     }
   }
 
-  @autobind
-  handleEnter() {
+  handleEnter = () => {
     const { onItemClick, onNewRecord } = this.props;
     const { activeId, records } = this.state;
     if (activeId === 'newRecord') {
@@ -88,7 +86,7 @@ export default class RelateRecordList extends React.PureComponent {
     if (newActiveRecord) {
       onItemClick(newActiveRecord);
     }
-  }
+  };
 
   handleUpdateScroll(newIndex) {
     let itemHeight = 34;
@@ -105,8 +103,7 @@ export default class RelateRecordList extends React.PureComponent {
     }
   }
 
-  @autobind
-  updateActiveId(offset) {
+  updateActiveId = offset => {
     const { activeId, records } = this.state;
     let currentIndex;
     if (!activeId) {
@@ -129,7 +126,7 @@ export default class RelateRecordList extends React.PureComponent {
     this.setState({
       activeId: newActiveId,
     });
-  }
+  };
 
   loadRecord() {
     const {
@@ -259,8 +256,7 @@ export default class RelateRecordList extends React.PureComponent {
     });
   }
 
-  @autobind
-  handleSearch(value) {
+  handleSearch = value => {
     const { staticRecords } = this.props;
     if (!_.isEmpty(staticRecords)) {
       this.setState({
@@ -276,7 +272,7 @@ export default class RelateRecordList extends React.PureComponent {
       },
       this.loadRecord,
     );
-  }
+  };
 
   loadNext() {
     this.setState(

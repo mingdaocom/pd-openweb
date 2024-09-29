@@ -361,6 +361,7 @@ export const FASTFILTER_CONDITION_TYPE = [
   46, //时间
   48, // 组织角色
   50, // API 查询
+  53, // 函数公式
 ];
 //处理这些变更时，需要格式化处理fastFilter里的navfilters
 export const ADVANCEDSETTING_KEYS = [

@@ -27,7 +27,7 @@ import { isEmpty } from 'lodash';
 import { DndProvider, useDrop } from 'react-dnd-latest';
 import { HTML5Backend } from 'react-dnd-html5-backend-latest';
 import { useSetState } from 'react-use';
-import { updateWorksheetControls } from '../../redux/actions';
+import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
 import { browserIsMobile, emitter } from 'src/util';
 
 const RecordStructureWrap = styled.div`
@@ -84,6 +84,7 @@ function Hierarchy(props) {
     getTopLevelHierarchyData,
     saveView,
     updateWorksheetControls,
+    updateWorksheetInfo,
     expandedMultiLevelHierarchyData,
     expandMultiLevelHierarchyDataOfMultiRelate,
     getDefaultHierarchyData,
@@ -93,6 +94,8 @@ function Hierarchy(props) {
     initHierarchyRelateSheetControls,
     recordInfoId,
     navGroupFilters,
+    mobileViewType,
+    refreshSheet,
     ...rest
   } = props;
 
@@ -213,6 +216,7 @@ function Hierarchy(props) {
         .then(res => {
           const allControls = _.get(res, 'template.controls') || [];
           updateWorksheetControls(allControls);
+          updateWorksheetInfo(res);
         });
     });
   };
@@ -455,6 +459,7 @@ function Hierarchy(props) {
           updateView={updateView}
           handleSelect={handleSelectField}
           toCustomWidget={toCustomWidget}
+          refreshSheet={() => refreshSheet(view)}
         />
       );
     }
@@ -580,6 +585,7 @@ function Hierarchy(props) {
           searchData={props.searchData}
           updateSearchRecord={props.updateSearchRecord}
           view={view}
+          mobileViewType={mobileViewType}
         />
       )}
       {renderContent()}
@@ -611,8 +617,10 @@ const ConnectedHierarchyView = connect(
     ]),
     ..._.get(state.sheet, 'hierarchyView'),
     searchData: getSearchData(state.sheet),
+    mobileViewType: _.get(state.mobile, ['base', 'type']),
   }),
-  dispatch => bindActionCreators({ ...hierarchyActions, ...viewActions, updateWorksheetControls }, dispatch),
+  dispatch =>
+    bindActionCreators({ ...hierarchyActions, ...viewActions, updateWorksheetControls, updateWorksheetInfo }, dispatch),
 )(Hierarchy);
 
 export default function HierarchyView(props) {

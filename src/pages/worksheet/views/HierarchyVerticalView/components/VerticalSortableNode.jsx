@@ -186,6 +186,7 @@ export default class VerticalSortableRecordItem extends Component {
               appId={appId}
               worksheetId={recordInfoPara.worksheetId}
               viewId={recordInfoPara.viewId}
+              enablePayment={worksheetInfo.enablePayment}
               rowId={recordInfoRowId}
               onClose={() => {
                 this.setState({ recordInfoVisible: false });
@@ -193,6 +194,7 @@ export default class VerticalSortableRecordItem extends Component {
             />
           ) : (
             <RecordInfoWrapper
+              enablePayment={worksheetInfo.enablePayment}
               showPrevNext
               sheetSwitchPermit={sheetSwitchPermit}
               allowAdd={view.allowAdd}

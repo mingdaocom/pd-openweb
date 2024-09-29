@@ -23,7 +23,7 @@ import {
   refreshSheet,
   refreshWorksheetControls,
   clearChartId,
-  loadDraftDataCount,
+  // loadDraftDataCount,
 } from 'worksheet/redux/actions';
 import { updateSheetList, deleteSheet, updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import SheetMoreOperate from './SheetMoreOperate';
@@ -593,7 +593,7 @@ export default connect(
         deleteSheet,
         refreshWorksheetControls,
         clearChartId,
-        loadDraftDataCount,
+        // loadDraftDataCount,
       },
       dispatch,
     ),

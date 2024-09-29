@@ -26,7 +26,7 @@ const SettingWrap = styled.div`
   .settingContentWrap {
     width: 100%;
     padding: 0px 20px 60px 20px;
-    overflow-y: scroll;
+    overflow-x: hidden;
   }
   .labelWrap {
     display: flex;

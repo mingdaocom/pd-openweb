@@ -13,12 +13,20 @@ const Btn = styled.div`
   }
 `;
 
-export default ({ processId, instanceId, processName = '', currentWork, hasBack = false, onClose = () => {}, isApproval }) => {
+export default ({
+  processId,
+  instanceId,
+  processName = '',
+  currentWork,
+  hasBack = false,
+  onClose = () => {},
+  isApproval,
+}) => {
   const [visible, setVisible] = useState(false);
   const isMobile = browserIsMobile();
   const Modal = isMobile ? MobileFlowChart : FlowChart;
   return (
-    <div className={cx('flexRow mTop20 mRight20 mBottom5', isMobile ? 'pLeft10' : 'pLeft25')}>
+    <div className={cx('flexRow mTop16 mRight20 mBottom5', isMobile ? 'pLeft10' : 'pLeft16')}>
       <Btn className={cx('flexRow alignItemsCenter mRight15 ellipsis', { pointer: hasBack })} onClick={onClose}>
         {hasBack && (
           <Icon className={cx('Font20 Gray_bd', isMobile ? 'mRight5' : 'mRight10')} icon="arrow-left-border" />
@@ -33,7 +41,14 @@ export default ({ processId, instanceId, processName = '', currentWork, hasBack 
         </div>
       )}
 
-      {visible && <Modal processId={processId} instanceId={instanceId} selectNodeId={_.get(currentWork, 'flowNode.id')} onClose={() => setVisible(false)} />}
+      {visible && (
+        <Modal
+          processId={processId}
+          instanceId={instanceId}
+          selectNodeId={_.get(currentWork, 'flowNode.id')}
+          onClose={() => setVisible(false)}
+        />
+      )}
     </div>
   );
 };

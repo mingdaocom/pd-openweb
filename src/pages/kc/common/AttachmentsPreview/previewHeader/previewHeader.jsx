@@ -13,7 +13,7 @@ import {
   changePreviewService,
 } from '../actions/action';
 import UploadNewVersion from '../../../components/UploadNewVersion';
-import { validateFileName, isWpsPreview } from '../../../utils';
+import { validateFileName, isWpsPreview, defaultWpsPreview } from '../../../utils';
 import * as previewUtil from '../constant/util';
 import { PREVIEW_TYPE, LOADED_STATUS } from '../constant/enum';
 import EditableBlock from '../editableBlock';
@@ -192,7 +192,75 @@ class PreviewHeader extends React.Component {
             </div>
           )}
         </div>
-        <div className="flexRow flex justifyContentCenter"></div>
+        <div className="flexRow flex justifyContentCenter">
+          {!md.global.Config.IsLocal && (isWpsPreview(ext) || defaultWpsPreview(ext)) ? (
+            <Fragment>
+              {!isWps ? (
+                <div
+                  className={cx('setWPSPreview', {})}
+                  onClick={() => {
+                    this.props.changePreviewService('wps');
+                  }}
+                >
+                  <span className="bold">{_l('预览失败？使用WPS预览')}</span>
+                </div>
+              ) : (
+                <Trigger
+                  popupVisible={this.state.showSavePreviewService}
+                  onPopupVisibleChange={visible => {
+                    this.setState({
+                      showSavePreviewService: visible,
+                    });
+                  }}
+                  action={['click']}
+                  popupAlign={{
+                    points: ['tl', 'bl'],
+                    offset: [76, 0],
+                    overflow: { adjustX: true, adjustY: true },
+                  }}
+                  popup={
+                    <Menu style={{ width: 237 }}>
+                      {/* <MenuItem
+                        disabled={this.state.isPreferred}
+                        onClick={() => {
+                          this.setState({
+                            isPreferred: true,
+                            showSavePreviewService: false,
+                          });
+                        }}
+                      >
+                        {_l('设为首选项')}
+                      </MenuItem> */}
+                      <MenuItem
+                        onClick={() => {
+                          this.setState({
+                            isPreferred: false,
+                            showSavePreviewService: false,
+                          });
+                          this.props.changePreviewService('original');
+                        }}
+                      >
+                        {_l('使用默认方式预览')}
+                      </MenuItem>
+                    </Menu>
+                  }
+                >
+                  <div
+                    className="setWPSPreview useingWPS"
+                    onClick={() => {
+                      this.setState({ showSavePreviewService: true, wpsPreviewUrl: 'https://www.mingdao.com/' });
+                    }}
+                  >
+                    <span className="bold">{_l('正在使用WPS服务预览')}</span>
+                    <i className="icon icon-arrow-down White mLeft5"></i>
+                  </div>
+                </Trigger>
+              )}
+            </Fragment>
+          ) : (
+            ''
+          )}
+        </div>
         <div className="flexRow btns">
           {showKcVersionPanel && attachment.sourceNode.canEdit && (
             <div className="historyPanel">

@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
-import { autobind } from 'core-decorators';
 import PropTypes from 'prop-types';
 import RecordInfoContext from '../RecordInfoContext';
-import CustomButtons from './CustomButtons';
-import MoreMenu from './MoreMenu';
-import { emitter } from 'worksheet/util';
+import CustomButtonsAutoWidth from './CustomButtonsAutoWidth';
 import _ from 'lodash';
 
 // TODO 更新记录
@@ -56,10 +53,6 @@ export default class Operates extends Component {
       }, 500);
       this.loadBtns();
     });
-    if (typeof ResizeObserver !== 'undefined') {
-      this.resizeOb = new ResizeObserver(this.setButtonShowNum);
-      this.resizeOb.observe(this.customButtonsCon.current);
-    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -69,12 +62,6 @@ export default class Operates extends Component {
     ) {
       this.loadBtns(nextProps.recordbase.recordId, nextProps.recordbase.viewId);
       this.setState({ btnDisable: {} });
-    }
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.sideVisible !== this.props.sideVisible) {
-      this.setButtonShowNum();
     }
   }
 
@@ -88,76 +75,32 @@ export default class Operates extends Component {
 
   customButtonsCon = React.createRef();
 
-  @autobind
-  async loadBtns(rowId, viewId) {
+  loadBtns = async (rowId, viewId) => {
     const { api } = this.context;
     const buttons = await api().getWorksheetBtns(rowId ? { rowId, ...(viewId ? { viewId } : {}) } : {});
-    this.setState(
-      {
-        customBtns: buttons,
-      },
-      this.setButtonShowNum,
-    );
-  }
-
-  @autobind
-  setButtonShowNum() {
-    if (!this.customButtonsCon.current) {
-      return;
-    }
-    const { customBtns } = this.state;
-    let buttonShowNum = 3;
-    const containerWidth = this.customButtonsCon.current.clientWidth - 20;
-    const buttonWidths = customBtns.map(btn => getButtonWidth(btn) + 6);
-    const sumWidth = _.sum(buttonWidths);
-    if (sumWidth < containerWidth) {
-      buttonShowNum = customBtns.length;
-    } else {
-      let i = 0;
-      while (i < buttonWidths.length) {
-        if (_.sum(buttonWidths.slice(0, i + 1)) <= containerWidth) {
-          buttonShowNum = i + 1;
-          i = i + 1;
-        } else {
-          break;
-        }
-      }
-    }
     this.setState({
-      buttonShowNum,
+      customBtns: buttons,
     });
-  }
+  };
 
-  @autobind
-  disableCustomButton(btnId) {
+  disableCustomButton = btnId => {
     this.setState({
       btnDisable: { ...this.state.btnDisable, [btnId]: true },
     });
-  }
+  };
 
   render() {
-    const {
-      isCharge,
-      iseditting,
-      recordbase,
-      recordinfo,
-      sheetSwitchPermit,
-      reloadRecord,
-      hideRecordInfo,
-      onUpdate,
-      onDelete,
-      handleAddSheetRow,
-      hideFav,
-      customBtnTriggerCb,
-    } = this.props;
+    const { isCharge, iseditting, recordbase, recordinfo, reloadRecord, hideRecordInfo, onUpdate, customBtnTriggerCb } =
+      this.props;
     const { customBtns, buttonShowNum, btnDisable } = this.state;
     const { viewId, worksheetId, recordId, appId } = recordbase;
     const { projectId } = recordinfo;
     return (
       <React.Fragment>
-        <div className="flex" style={{ lineHeight: 1 }} ref={this.customButtonsCon}>
+        <div className="flex" style={{ lineHeight: 1, overflowX: 'hidden' }} ref={this.customButtonsCon}>
           <div className="customButtons">
-            <CustomButtons
+            <CustomButtonsAutoWidth
+              type="button"
               isCharge={isCharge}
               iseditting={iseditting}
               viewId={viewId}
@@ -165,7 +108,7 @@ export default class Operates extends Component {
               worksheetId={worksheetId}
               recordId={recordId}
               projectId={projectId}
-              buttons={customBtns.slice(0, buttonShowNum)}
+              buttons={customBtns}
               btnDisable={btnDisable}
               reloadRecord={reloadRecord}
               loadBtns={this.loadBtns}
@@ -177,19 +120,6 @@ export default class Operates extends Component {
             />
           </div>
         </div>
-        <MoreMenu
-          hideFav={hideFav}
-          recordbase={recordbase}
-          recordinfo={recordinfo}
-          sheetSwitchPermit={sheetSwitchPermit}
-          buttons={customBtns.slice(buttonShowNum)}
-          btnDisable={btnDisable}
-          reloadRecord={reloadRecord}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-          handleAddSheetRow={handleAddSheetRow}
-          hideRecordInfo={hideRecordInfo}
-        />
       </React.Fragment>
     );
   }

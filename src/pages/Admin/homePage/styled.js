@@ -202,8 +202,7 @@ export const HomePageWrap = styled.div`
   }
 
   .purchaseUser,
-  .recharge,
-  .inviteUser {
+  .recharge {
     position: absolute;
     right: 24px;
     bottom: 16px;
@@ -219,33 +218,23 @@ export const HomePageWrap = styled.div`
     border-radius: 24px;
     cursor: pointer;
   }
-  .inviteUser {
-    left: 65px;
-    right: unset;
-    background-color: rgb(76, 175, 80, 0.1);
-    color: #4caf50;
-  }
-  .inviteUser:hover {
-    background-color: #c8e6c9;
-  }
 
   .inviteUserWrap {
     position: absolute;
     bottom: 16px;
     width: calc(100% - 48px);
-    .inviteUserBox {
-      width: 25%;
-      display: block;
-      justify-content: center;
-      .inviteUser {
-        position: unset;
-        background-color: rgb(76, 175, 80, 0.1);
-        color: #4caf50;
-        margin: 0 auto;
-        display: inline-block;
-        white-space: nowrap;
-      }
-      .inviteUser:hover {
+    .inviteUser {
+      padding: 0 24px;
+      line-height: 32px;
+      border-radius: 24px;
+      position: unset;
+      background-color: rgb(76, 175, 80, 0.1);
+      color: #4caf50;
+      margin: 0 auto;
+      display: inline-block;
+      white-space: nowrap;
+      font-weight: 600;
+      &:hover {
         background-color: #c8e6c9;
       }
     }

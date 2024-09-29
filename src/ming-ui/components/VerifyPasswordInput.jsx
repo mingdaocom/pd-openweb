@@ -50,6 +50,7 @@ export default function VerifyPasswordInput(props) {
   const email = md.global.Account.email.replace(/(.{3}).*(@.*)/, '$1***$2');
   const [isNoneVerification, setIsNoneVerification] = useState(false);
   const passWordRef = useRef(null);
+  const isMobile = browserIsMobile();
 
   const settingBtns = () => {
     return (
@@ -82,16 +83,16 @@ export default function VerifyPasswordInput(props) {
 
   return (
     <div className={className}>
-      {showSubTitle && <div className="Font17 bold mBottom10 verifyPasswordTitle">{_l('安全验证')}</div>}
+      {showSubTitle && <div className="Font17 bold mBottom16 verifyPasswordTitle">{_l('安全验证')}</div>}
 
-      <div className="Font13 Gray label">{_l('账号')}</div>
+      <div className={`Font13 Gray label ${isMobile ? 'bold' : ''}`}>{_l('账号')}</div>
       <User className="mTop10 flexRow alignItemsCenter">
         {showAccountEmail && email ? email : mobilePhone ? mobilePhone : email}
       </User>
 
       <div className="Font13 mTop20 mBottom10 relative flexRow alignItemsCenter">
         {isRequired && <RequiredBox className="Absolute">*</RequiredBox>}
-        <span className="flex Gray label">{_l('密码')}</span>
+        <span className={`flex Font13 Gray label ${isMobile ? 'bold' : ''}`}>{_l('密码')}</span>
         <Tooltip
           action="hover"
           tooltipStyle={{ maxWidth: 360 }}

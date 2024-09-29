@@ -799,7 +799,7 @@ $.extend(SettingGroup.prototype, {
     _this.$container.find('.groupNameTotal .groupName').text(group.name).attr('title', group.name);
     group.isGroup = this.options.isPost;
 
-    var tpl = doT.template(groupInfoHtml)(group);
+    var tpl = doT.template(groupInfoHtml)({ ...group, about: filterXSS(group.about) });
     $box.html(tpl);
     _this.renderUserCard();
   },

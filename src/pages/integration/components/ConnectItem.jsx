@@ -1,62 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styled from 'styled-components';
-import { Icon } from 'ming-ui';
+import { Icon, Tooltip } from 'ming-ui';
 import { useSetState } from 'react-use';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import { WrapBtn } from 'src/pages/integration/apiIntegration/style.js';
 import Item from 'src/pages/integration/apiIntegration/APIWrap/Item.jsx';
+import { Wrap } from './style';
 
-const Wrap = styled.div`
-  p {
-    margin: 0;
-  }
-  .Bold400 {
-    font-weight: 400;
-  }
-  .Green_right {
-    color: #4caf50;
-  }
-  .iconCon {
-    width: 44px;
-    height: 44px;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    position: relative;
-    text-align: center;
-    line-height: 50px;
-  }
-  width: 880px;
-  margin: 0 auto;
-  background: #ffffff;
-  // border: 1px solid #dddddd;
-  border-radius: 10px;
-  .con {
-    padding: 20px 24px;
-    .title {
-      width: 130px;
-      padding-right: 20px;
-    }
-  }
-  .workflowSettings {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    z-index: 100;
-  }
-  .line {
-    padding: 10px 0;
-    border-bottom: 1px solid #f2f2f2;
-  }
-  .btn {
-    &.disable {
-      background: #f5f5f5;
-      color: #bdbdbd;
-      border: 1px solid #bdbdbd;
-    }
-  }
-`;
 function AddNode(props) {
   const featureType = getFeatureStatus(localStorage.getItem('currentProjectId'), VersionProductType.codeBlockNode);
   if (!props.canEdit || !featureType) {
@@ -76,6 +26,12 @@ function AddNode(props) {
       >
         <Icon icon="worksheet_API" className="Font17" />
         <span className="mLeft3">{_l('插入代码')}</span>
+        <Tooltip
+          popupPlacement="bottom"
+          text={<span>{_l('可对前面节点输出的数据做处理，以供后面节点使用，如加密、解密等')}</span>}
+        >
+          <Icon icon="info_outline" className="Gray_bd Font16 mLeft5" />
+        </Tooltip>
       </WrapBtn>
     </React.Fragment>
   );
@@ -111,6 +67,11 @@ function ConnectItem(props) {
         nodeInfo={props.node}
         hasChange={() => {
           props.onChange();
+        }}
+        onCancel={() => {
+          setState({
+            newPreId: props.node.typeId,
+          });
         }}
         maxW="auto"
         isNew={!props.node.id}

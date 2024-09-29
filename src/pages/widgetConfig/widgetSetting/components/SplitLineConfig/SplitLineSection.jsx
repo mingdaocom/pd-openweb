@@ -50,7 +50,8 @@ export default function SplitLineSection(props) {
           const timer = setTimeout(() => {
             const listItem =
               fromType === 'display'
-                ? ($($ref.current).parents().find(`.customFormItem#formItem-${tempIds[i]}`) || [])[0]
+                ? ($($ref.current).closest('.customFieldsContainer').find(`.customFormItem#formItem-${tempIds[i]}`) ||
+                    [])[0]
                 : document.getElementById(`widget-${tempIds[i]}`);
             if (listItem) {
               if (currentVisible) {

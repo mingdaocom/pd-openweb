@@ -32,7 +32,7 @@
       height: 36px;
       padding: 11px 8px;
       line-height: 14px;
-      background: #F7F7F7;
+      background: #f7f7f7;
       outline: none;
       border-radius: 4px;
       font-size: 14px;
@@ -52,7 +52,7 @@
       height: 32px;
       border-radius: 4px;
       margin-right: 11px;
-      border: 1px solid #E5E5E5;
+      border: 1px solid #e5e5e5;
     }
   }
   .colorsWrap {
@@ -93,26 +93,24 @@
     height: 258px;
   }
   .systemIcon,
-  .customIcon {
+  .customIcon,
+  .commonIcon {
     .title {
       padding-left: 16px;
       margin: 6px 0;
     }
     .iconType {
-      margin-bottom: 0;
-      margin-top: 22px;
+      margin-bottom: 2px;
+      margin-top: 2px;
       color: #bdbdbd;
       font-size: 12px;
     }
-  }
-  .systemIcon .title.withColorList {
-    margin-top: 0;
   }
   .iconsWrap {
     flex-wrap: wrap;
     display: flex;
     align-items: center;
-    gap: 3px;
+    gap: 0 3px;
     li {
       width: 36px;
       height: 36px;
@@ -131,6 +129,18 @@
         margin-top: 6px;
       }
     }
+  }
+  .commonIcon {
+    .iconType {
+      margin-top: 0 !important;
+    }
+    .iconsWrap {
+      height: 36px;
+      overflow: hidden;
+    }
+  }
+  .systemIcon .title.withColorList {
+    margin-top: 0;
   }
   .clearBtn {
     position: absolute;
@@ -161,13 +171,14 @@
       left: -24px;
       transform: rotate(180deg);
     }
-    .nextButton, .preButton {
+    .nextButton,
+    .preButton {
       width: 24px;
       height: 24px;
       border-radius: 50%;
       text-align: center;
       &:hover {
-        background: #F5F5F5;
+        background: #f5f5f5;
       }
       i {
         vertical-align: text-top;
@@ -197,9 +208,9 @@
           color: #757575;
         }
         &:hover {
-          background-color: #E3F3FF;
+          background-color: #e3f3ff;
           a {
-            color: #2196F3;
+            color: #2196f3;
           }
         }
       }
@@ -219,22 +230,21 @@
         color: #666;
         cursor: pointer;
         &:hover {
-          background: #F5F5F5;
+          background: #f5f5f5;
         }
       }
       li.current {
-        color: #2196F3 !important;
-        background: #E3F3FF !important;
+        color: #2196f3 !important;
+        background: #e3f3ff !important;
         font-weight: bold;
       }
-
     }
   }
   .noColorColumn {
-    >div:first-child {
+    > div:first-child {
       display: none !important;
     }
-    >div:nth-child(2) {
+    > div:nth-child(2) {
       width: '100%' !important;
       .ant-tabs-tab {
         margin-left: 0;
@@ -260,7 +270,7 @@
       display: inline-block;
       &.active {
         font-weight: 600;
-        border-bottom: 3px solid #2196F3;
+        border-bottom: 3px solid #2196f3;
       }
       &:hover {
         cursor: pointer;
@@ -269,7 +279,7 @@
     }
     .switchCon {
       .ming.Switch--on.hasText .dot {
-        left: calc(~'100% - 20px');
+        left: calc(~'100% - 22px');
       }
       .ming.Switch--off .txt {
         margin-right: 12px;

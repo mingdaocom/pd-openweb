@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import styled, { css } from 'styled-components';
 import cx from 'classnames';
 import { Icon, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
+import { ActionSheet } from 'antd-mobile';
 import { FlexCenter } from 'worksheet/styled';
 import { browserIsMobile } from 'src/util';
 import SearchRecord from 'src/pages/worksheet/views/components/SearchRecord';
@@ -24,13 +25,19 @@ const ToolBarWrap = styled(FlexCenter)`
   z-index: 9;
   box-shadow: rgba(0, 0, 0, 0.24) 0px 1px 6px;
   ${props =>
-    props.browserIsMobile &&
+    props.isMobile &&
     css`
       left: 0;
       bottom: 20px;
       margin-left: 16px;
-      padding: 0 22px 0 10px;
+      padding: 0 18px;
       right: auto;
+      height: 40px;
+      .line {
+        height: 20px;
+        margin: 10px 0 10px 10px;
+        border: 1px solid #e0e0e0;
+      }
     `};
   .adjustScale {
     display: flex;
@@ -96,6 +103,10 @@ const DISPLAY_HIERARCHY = [
   { value: 5, name: _l('5级') },
 ];
 export default class ToolBar extends Component {
+  componentWillUnmount() {
+    this.actionSheetHandler && this.actionSheetHandler.close();
+  }
+
   updateStorage = data => {
     const { viewId } = this.props.currentView;
     const config = safeParse(localStorage.getItem(`hierarchyConfig-${viewId}`));
@@ -113,6 +124,29 @@ export default class ToolBar extends Component {
     onClick('adjustScale', { scale: nextScale });
     this.updateStorage({ scale: nextScale });
   };
+
+  changeMobileDisplayLevel = () => {
+    this.actionSheetHandler = ActionSheet.show({
+      actions: DISPLAY_HIERARCHY.map(item => ({
+        key: item.value,
+        text: item.name,
+      })),
+      extra: (
+        <div className="flexRow header">
+          <span className="Font13 ">{_l('展开级数')}</span>
+          <div className="closeIcon" onClick={() => this.actionSheetHandler.close()}>
+            <Icon icon="close" />
+          </div>
+        </div>
+      ),
+      onAction: (action, index) => {
+        const value = (_.find(DISPLAY_HIERARCHY, (v, i) => i === index) || []).value;
+        this.changeDisplayLevel(value);
+        this.actionSheetHandler.close();
+      },
+    });
+  };
+
   render() {
     const {
       className,
@@ -126,38 +160,44 @@ export default class ToolBar extends Component {
       allowAdjustScale = true,
       allowExportAsImage = true,
       customButtons = [],
+      mobileViewType,
     } = this.props;
-    const isMobileSingleView = localStorage.getItem('isMobileSingleView') === 'true';
+    const isMobileSingleView = mobileViewType === 'single';
+    const isMobile = browserIsMobile();
 
     return (
-      <ToolBarWrap
-        browserIsMobile={browserIsMobile()}
-        className={cx('flexRow valignWrappe toolBarWrap', className)}
-        style={style}
-      >
-        <SelectWrap
-          suffixIcon={<Icon className="Font12 Gray_9e" icon="arrow-down" />}
-          defaultActiveFirstOption={false}
-          defaultOpen={false}
-          dropdownClassName="gunterToolBarSelectWrapper"
-          value={level || _l('展开')}
-          bordered={false}
-          virtual={false}
-          onChange={this.changeDisplayLevel}
-        >
-          {DISPLAY_HIERARCHY.map(item => (
-            <Select.Option key={item.value} value={item.value} className="gunterToolBarSelectOptionWrapper">
-              {item.name}
-            </Select.Option>
-          ))}
-        </SelectWrap>
+      <ToolBarWrap isMobile={isMobile} className={cx('flexRow valignWrappe toolBarWrap', className)} style={style}>
+        {isMobile ? (
+          <div onClick={this.changeMobileDisplayLevel}>
+            {(_.find(DISPLAY_HIERARCHY, v => v.value === level) || {}).name || _l('展开')}
+            <Icon className="Font12 Gray_9e mLeft6" icon="arrow-down" />
+          </div>
+        ) : (
+          <SelectWrap
+            suffixIcon={<Icon className="Font12 Gray_9e" icon="arrow-down" />}
+            defaultActiveFirstOption={false}
+            defaultOpen={false}
+            dropdownClassName="gunterToolBarSelectWrapper"
+            value={level || _l('展开')}
+            bordered={false}
+            virtual={false}
+            onChange={this.changeDisplayLevel}
+          >
+            {DISPLAY_HIERARCHY.map(item => (
+              <Select.Option key={item.value} value={item.value} className="gunterToolBarSelectOptionWrapper">
+                {item.name}
+              </Select.Option>
+            ))}
+          </SelectWrap>
+        )}
+        {isMobile && <div className="line"></div>}
         {/* <div data-tip={_l('回到原点')} className="toolItem toOrigin" onClick={() => onClick('toOrigin')}>
           <Icon className="Font16 Gray_75" icon="Position" />
         </div> */}
         {allowAdjustScale && (
           <div className="toolItem adjustScale">
-            {!browserIsMobile() ? <div className="scale">{`${scale}%`}</div> : null}
-            <Tooltip text={browserIsMobile() ? null : <span>{_l('缩小')}</span>}>
+            {!isMobile ? <div className="scale">{`${scale}%`}</div> : null}
+            <Tooltip text={isMobile ? null : <span>{_l('缩小')}</span>}>
               <Icon
                 className={cx('Font19 Gray_75 pointer mRight12 mLeft12', {
                   disableAdjustSize: scale <= SCALE_LIMIT.min,
@@ -166,7 +206,7 @@ export default class ToolBar extends Component {
                 onClick={() => scale > SCALE_LIMIT.min && this.adjustSize('shrink')}
               />
             </Tooltip>
-            <Tooltip text={browserIsMobile() ? null : <span>{_l('放大')}</span>}>
+            <Tooltip text={isMobile ? null : <span>{_l('放大')}</span>}>
               <Icon
                 className={cx('Font19 Gray_75 pointer mLeft6', {
                   disableAdjustSize: scale >= SCALE_LIMIT.max,
@@ -175,24 +215,29 @@ export default class ToolBar extends Component {
                 onClick={() => scale < SCALE_LIMIT.max && this.adjustSize('enlarge')}
               />
             </Tooltip>
-            {browserIsMobile() && (
-              <SearchRecord
-                overlayClassName={isMobileSingleView ? 'singleViewSearchRecordDropdown' : 'mobileSearchRecordDropdown'}
-                queryKey={searchData.queryKey}
-                data={searchData.data}
-                onSearch={record => {
-                  updateSearchRecord(view, record);
-                }}
-                onClose={() => {
-                  updateSearchRecord(view, null);
-                }}
-              >
-                <Icon className="searchIcon Font18 mLeft16" icon="search" />
-              </SearchRecord>
+            {isMobile && (
+              <Fragment>
+                <div className="line"></div>
+                <SearchRecord
+                  overlayClassName={
+                    isMobileSingleView ? 'singleViewSearchRecordDropdown' : 'mobileSearchRecordDropdown'
+                  }
+                  queryKey={searchData.queryKey}
+                  data={searchData.data}
+                  onSearch={record => {
+                    updateSearchRecord(view, record);
+                  }}
+                  onClose={() => {
+                    updateSearchRecord(view, null);
+                  }}
+                >
+                  <Icon className="searchIcon Font18 mLeft16" icon="search" />
+                </SearchRecord>
+              </Fragment>
             )}
           </div>
         )}
-        {allowExportAsImage && !browserIsMobile() && (
+        {allowExportAsImage && !isMobile && (
           <Tooltip text={<span>{_l('导出为图片')}</span>}>
             <Icon icon="download" className="Gray_75 Font18 pointer mLeft24" onClick={() => onClick('genScreenshot')} />
           </Tooltip>

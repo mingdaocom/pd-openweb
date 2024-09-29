@@ -153,6 +153,9 @@ export default function Set(props) {
                   onChange={() => {
                     setNewId('');
                   }}
+                  onCancel={() => {
+                    setNewId('');
+                  }}
                   canEdit={canEdit}
                 />
               )}

@@ -188,8 +188,8 @@ export const getMatchedFieldsOptions = (types, sourceField, destFields, isSource
   const matchedMdTypeIds = _.uniq(types[sourceField.id] || []).map(type => type.mdType);
 
   const matchedFieldsOptions = isDestAppType
-    ? destFields.filter(o => _.includes(matchedMdTypeIds, o.mdType))
-    : destFields.filter(o => _.includes(matchedTypeIds, o.jdbcTypeId));
+    ? (destFields || []).filter(o => _.includes(matchedMdTypeIds, o.mdType))
+    : (destFields || []).filter(o => _.includes(matchedTypeIds, o.jdbcTypeId));
   return matchedFieldsOptions;
 };
 
@@ -275,17 +275,21 @@ export const getDefaultData = (
 
     return {
       sourceField: { ...item.sourceField, disabled: !isValidField },
-      destField: {
-        ...item.destField,
-        dataType: (initOption || itemOptions[0]).typeName.toLowerCase(),
-        jdbcTypeId: (initOption || itemOptions[0]).dataType,
-        precision: (initOption || itemOptions[0]).maxLength,
-        scale: (initOption || itemOptions[0]).defaultScale,
-        //工作表
-        mdType,
-        controlSetting: isDestAppType ? _.pick(settingData, ['advancedSetting', 'enumDefault', 'type', 'dot']) : null,
-        isTitle,
-      },
+      destField: !isSetDefaultFields
+        ? {
+            ...item.destField,
+            dataType: (initOption || itemOptions[0]).typeName.toLowerCase(),
+            jdbcTypeId: (initOption || itemOptions[0]).dataType,
+            precision: (initOption || itemOptions[0]).maxLength,
+            scale: (initOption || itemOptions[0]).defaultScale,
+            //工作表
+            mdType,
+            controlSetting: isDestAppType
+              ? _.pick(settingData, ['advancedSetting', 'enumDefault', 'type', 'dot'])
+              : null,
+            isTitle,
+          }
+        : item.destField,
     };
   });
 

@@ -6,7 +6,7 @@ import { SYSTEM_FIELD_TO_TEXT } from 'src/pages/widgetConfig/widgetSetting/compo
 import { SYSTEM_CONTROL } from '../../config/widget';
 import { isSheetDisplay } from '../../util';
 
-export default function RelateSheet({ data = {} }) {
+export default function RelateSheet({ data = {}, isTab }) {
   const { enumDefault, hint = '', relationControls = [] } = data;
   const { showtype = String(enumDefault) } = getAdvanceSetting(data);
 
@@ -50,7 +50,7 @@ export default function RelateSheet({ data = {} }) {
     }
     if (isSheetDisplay(data)) {
       return (
-        <EditModelWrap isTab={true}>
+        <EditModelWrap isTab={isTab}>
           {showControls.length > 0 ? (
             <div className="tableWrap" onMouseDown={e => e.stopPropagation()} onMouseMove={e => e.stopPropagation()}>
               <table style={{ width: `${width}px` }}>

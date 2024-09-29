@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
+import { Icon, SortableList } from 'ming-ui';
 import { Menu, Dropdown, Tooltip } from 'antd';
 import WithoutFidldItem from './WithoutFidldItem';
 import RenameModal from './RenameModal';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import { isNumberControl, normTypes, emptyShowTypes } from 'statistics/common';
 import { reportTypes } from 'statistics/Charts/common';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
@@ -28,15 +27,17 @@ const SortableItemContent = styled.div`
   }
 `;
 
-const renderOverlay = props => {
-  const { item, onNormType, onEmptyShowType, onChangeControlId, onChangeCurrentReport, currentReport, sortIndex } =
+const renderOverlay = (props) => {
+  const { item, onNormType, onEmptyShowType, onChangeControlId, onChangeCurrentReport, allControls, currentReport } =
     props;
   const { reportType, sorts, xaxes, yaxisList } = currentReport;
   const { controlId, controlType, normType } = item;
+  const control = _.find(allControls, { controlId }) || {};
   const isNumberChart = reportTypes.NumberChart === reportType;
   const oneNumber = xaxes.controlId && yaxisList.length === 1;
   const hideVisible = isNumberChart ? oneNumber : true;
   const emptyShowType = isNumberChart && !oneNumber && item.emptyShowType === 0 ? 1 : item.emptyShowType;
+  const { enumDefault } = control;
   return (
     <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />} subMenuOpenDelay={0.2}>
       <Menu.Item
@@ -49,7 +50,6 @@ const renderOverlay = props => {
       {isNumberControl(controlType, false) && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
           {normTypes
-            .filter(n => n.value !== 5)
             .map(item => (
               <Menu.Item
                 style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
@@ -65,7 +65,7 @@ const renderOverlay = props => {
       )}
       {!isNumberControl(controlType) && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-          {[
+          {(enumDefault === 1 ? normTypes : [
             {
               text: _l('计数'),
               value: 5,
@@ -74,7 +74,7 @@ const renderOverlay = props => {
               text: _l('去重计数'),
               value: 6,
             },
-          ].map(item => (
+          ]).map(item => (
             <Menu.Item
               style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
               key={item.value}
@@ -127,8 +127,8 @@ const renderOverlay = props => {
   );
 };
 
-const SortableItem = SortableElement(props => {
-  const { item, sortIndex, onClear, axisControls, allControls } = props;
+const renderSortableItem = props => {
+  const { DragHandle, item, onClear, axisControls, allControls } = props;
   const tip = item.rename && item.rename !== item.controlName ? item.controlName : null;
   const isNumber = isNumberControl(item.controlType, false);
   const axis = _.find(axisControls, { controlId: item.controlId });
@@ -136,7 +136,9 @@ const SortableItem = SortableElement(props => {
   const normType = _.find(normTypes, { value: item.normType }) || {};
   return (
     <SortableItemContent>
-      <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag_indicator" />
+      <DragHandle>
+        <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag_indicator" />
+      </DragHandle>
       <div className="flexRow valignWrapper fidldItem" key={item.controlId}>
         {axis ? (
           <Tooltip title={tip}>
@@ -165,17 +167,7 @@ const SortableItem = SortableElement(props => {
       </div>
     </SortableItemContent>
   );
-});
-
-const SortableList = SortableContainer(({ list, ...otherProps }) => {
-  return (
-    <div>
-      {list.map((item, index) => (
-        <SortableItem key={index} sortIndex={index} index={index} item={item} {...otherProps} />
-      ))}
-    </div>
-  );
-});
+};
 
 export default class YAxis extends Component {
   constructor(props) {
@@ -265,17 +257,14 @@ export default class YAxis extends Component {
       yaxisList: newYaxisList,
     });
   };
-  handleSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
+  handleSortEnd = list => {
     const { currentReport, yaxisList, onChangeCurrentReport } = this.props;
     const { reportType, config } = currentReport;
-    const newYaxisList = arrayMove(yaxisList, oldIndex, newIndex);
     const data = { yaxisList: newYaxisList };
     if (reportType === reportTypes.ProgressChart) {
-      const targetList = config.targetList || [];
       data.config = {
         ...config,
-        targetList: arrayMove(targetList, oldIndex, newIndex),
+        targetList: list,
       };
     }
     onChangeCurrentReport(data);
@@ -323,22 +312,24 @@ export default class YAxis extends Component {
   render() {
     const { name, currentReport, axisControls, allControls, yaxisList } = this.props;
     const { reportType } = currentReport;
+    const otherProps = {
+      allControls,
+      axisControls,
+      currentReport,
+      onClear: this.props.onRemoveAxis,
+      onNormType: this.handleNormType,
+      onEmptyShowType: this.handleEmptyShowType,
+      onChangeControlId: this.handleChangeControlId,
+      onChangeCurrentReport: this.props.onChangeCurrentReport,
+    }
     return (
       <div className="fieldWrapper mBottom20">
         <div className="Bold mBottom12">{name}</div>
         <SortableList
-          axis="xy"
-          helperClass="sortableNumberField"
-          list={yaxisList}
-          allControls={allControls}
-          axisControls={axisControls}
-          currentReport={currentReport}
-          shouldCancelStart={({ target }) => !target.classList.contains('icon-drag_indicator')}
-          onClear={this.props.onRemoveAxis}
-          onNormType={this.handleNormType}
-          onEmptyShowType={this.handleEmptyShowType}
-          onChangeControlId={this.handleChangeControlId}
-          onChangeCurrentReport={this.props.onChangeCurrentReport}
+          useDragHandle
+          items={yaxisList}
+          itemKey="controlId"
+          renderItem={(options) => renderSortableItem({ ...options, ...otherProps })}
           onSortEnd={this.handleSortEnd}
         />
         {this.renderWithoutFidldItem()}

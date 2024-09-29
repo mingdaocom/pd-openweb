@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import { Icon, Dropdown, Dialog, FunctionWrap } from 'ming-ui';
 import GeneralSelect from './GeneralSelect';
 import { browserIsMobile } from 'src/util';
@@ -170,6 +169,7 @@ class DialogSelectUser extends Component {
       prefixAccountIds: settings.prefixAccountIds,
       showTabs: settings.showTabs,
       extraTabs: settings.extraTabs,
+      selectedAccountIds: settings.selectedAccountIds,
       callback: (users, departments, group) => {
         settings.callback && settings.callback(users, departments, group);
         this.props.onCancel();
@@ -245,6 +245,7 @@ export default function dialogSelectUser(opts) {
       filterOtherProject: false, // 当对于 true,projectId不能为空，指定只加载某个网络的数据
       dataRange: 0, // reference to dataRangeTypes 和 projectId 配合使用
       unique: false, // 是否只可以选一个
+      selectedAccountIds: [], // 已选择的用户
       callback: function (data) {},
     },
   };

@@ -436,7 +436,7 @@ export default class CommentArea extends React.Component {
       autoFocus: this.state.commenterIsFocus,
       onSubmit: this.addCommentCallback,
     };
-    return <Commenter {...props} />;
+    return <Commenter {...props} mentionsOptions={{ minHeight: 300 }} />;
   }
 
   renderComments() {

@@ -19,11 +19,20 @@ import ScrollBar from './ScrollBar';
 
 const Con = styled.div`
   position: relative;
-  border: 1px solid #f1f1f1;
+  border-top: 1px solid #f1f1f1;
   > div {
     box-sizing: border-box;
   }
   overscroll-behavior-x: none;
+`;
+
+const TableBorder = styled.div`
+  border-left: 1px solid #f1f1f1;
+  width: 0px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
 `;
 
 function sum(array = []) {
@@ -100,7 +109,7 @@ function FixedTable(props, ref) {
       width: sum([...new Array(columnCount)].map((a, i) => getColumnWidth(i) || 200)),
       height: rowHeight * rowCount - (hasSubListFooter ? 8 : 0),
     }),
-    [rowHeight, columnCount, rowCount, sheetColumnWidths],
+    [rowHeight, columnCount, rowCount, sheetColumnWidths, width],
   );
   const XIsScroll = useMemo(
     () => tableSize.width > width,
@@ -314,6 +323,7 @@ function FixedTable(props, ref) {
       setScrollX(cache, get(cache, 'scrollX.scrollLeft'));
     }
   }, [loading]);
+  useEffect(forceUpdate, [tableSize.width]);
   useLayoutEffect(() => {
     cache.didMount = true;
     document.body.style.overscrollBehaviorX = 'none';
@@ -346,6 +356,18 @@ function FixedTable(props, ref) {
   }, []);
   return (
     <Con ref={conRef} className={className} style={{ width, height: hasFooter ? withFooterHeight : height }}>
+      <TableBorder
+        style={{
+          left: 0,
+          bottom: XIsScroll ? barWidth : 0,
+        }}
+      />
+      <TableBorder
+        style={{
+          right: 0,
+          bottom: XIsScroll ? barWidth : 0,
+        }}
+      />
       {/* 表格 */}
       {tables}
       {tableFooter && tableFooter.comp && (

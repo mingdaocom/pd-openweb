@@ -103,10 +103,10 @@ export default function AppLinkParamsSettings(props) {
             </LinkParamSettings>
           }
         >
-          <div className="linkParams">{_l('链接参数')}</div>
+          <div className="linkParams Hand">{_l('链接参数')}</div>
         </Trigger>
         <div
-          className="copy"
+          className="copy Hand"
           onClick={() => {
             copy(appLinkUrl);
             alert(_l('复制成功'));

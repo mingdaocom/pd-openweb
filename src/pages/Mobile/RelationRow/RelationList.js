@@ -4,7 +4,7 @@ import cx from 'classnames';
 import * as actions from './redux/actions';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
-import { Flex, ActivityIndicator, WhiteSpace, WingBlank } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import RecordCard from 'src/components/recordCard';
 import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
@@ -103,9 +103,9 @@ class RelationList extends Component {
 
     if (loading && pageIndex === 1) {
       return (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
+        <div className="flexRow justifyContentCenter alignItemsCenter h100">
+          <SpinLoading color='primary' />
+        </div>
       );
     }
 
@@ -118,15 +118,16 @@ class RelationList extends Component {
       <div className={cx('sheetRelationRow flex', { editRowWrapper: isEdit })}>
         {relationRows.length ? (
           <Fragment>
-            <WhiteSpace className="mTop1" />
+            <div style={{ height: 10 }} />
             {relationRows.map(item => this.renderRow(item))}
-            {isMore && <Flex justify="center">{loading ? <ActivityIndicator animating /> : null}</Flex>}
-            <WhiteSpace />
+            {isMore && <div className="flexRow alignItemsCenter justifyContentCenter">{loading ? <SpinLoading color='primary' /> : null}</div>}
+            <div style={{ height: 10 }} />
             <RecordInfoModal
               className="full"
               visible={!!previewRecordId}
               appId={worksheet.appId}
               worksheetId={worksheet.worksheetId}
+              enablePayment={worksheet.enablePayment}
               viewId={_.get(control, 'advancedSetting.openview') || control.viewId}
               rowId={previewRecordId}
               isSubList={_.get(permissionInfo, 'isSubList')}

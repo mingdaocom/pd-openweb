@@ -226,7 +226,7 @@ class ColorPicker extends Component {
   };
 
   render() {
-    const { children, className, sysColor, themeColor, fromWidget, popupAlign = {} } = this.props;
+    const { children, className, sysColor, themeColor, fromWidget, popupAlign = {}, defaultColors } = this.props;
     const { color, visible, type, defaultExpand, recentExpand, recentColors, themeExpand } = this.state;
     const themeColors = [themeColor, generate(themeColor)[0]];
 
@@ -290,7 +290,7 @@ class ColorPicker extends Component {
                     ></span>
                     <span className="mLeft4">{_l('常用')}</span>
                   </div>
-                  {this.renderSysColors(defaultExpand, fromWidget ? DEFAULT_COLORS2 : DEFAULT_COLORS)}
+                  {this.renderSysColors(defaultExpand, fromWidget ? DEFAULT_COLORS2 : defaultColors || DEFAULT_COLORS)}
                   <div className="title" onClick={() => this.setState({ recentExpand: !recentExpand })}>
                     <span
                       className={cx('icon-expand_more Font20 Gray_9e expandIcon', { rotate90: !recentExpand })}

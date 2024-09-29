@@ -20,6 +20,7 @@ import Group from '../Group';
 import DisplayControl from '../DisplayControl';
 import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { ShowChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
+import NavSet from 'src/pages/worksheet/common/ViewConfig/components/NavSet.jsx';
 
 const GunterTypeChoose = styled.div`
   ul > li {
@@ -171,6 +172,13 @@ export default function GunterSet(props) {
         }}
       />
       <Group {...props} />
+      {view.viewControl && (
+        <NavSet
+          {...props}
+          navGroupId={view.viewControl}
+          viewControlData={worksheetControls.find(o => o.controlId === _.get(view, 'viewControl')) || {}}
+        />
+      )}
       <div className="title Font13 bold mTop32">{_l('默认视图')}</div>
       <GunterTypeChoose>
         <ul className="calendartypeChoose">

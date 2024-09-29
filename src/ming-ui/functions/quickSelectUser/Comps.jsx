@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, Fragment } from 'react';
 import styled from 'styled-components';
-import { Tooltip, UserHead } from 'ming-ui';
+import { Tooltip, UserHead, Icon } from 'ming-ui';
 import { dialogSelectUser } from 'ming-ui/functions';
 import _ from 'lodash';
+import cx from 'classnames';
 
 export const Con = styled.div`
   overflow: hidden;
@@ -109,11 +110,11 @@ export const SearchUsers = styled.div`
 `;
 
 export function UserItem(props) {
-  const { className, notShowCurrentUserName, user = {}, type, onClick, appId, projectId } = props;
+  const { className, notShowCurrentUserName, user = {}, type, onClick, appId, projectId, select = false } = props;
   const { accountId, phone, fullname, job, department } = user;
 
   return (
-    <UserItemCon className={'flexRow userItem ' + className} onClick={onClick}>
+    <UserItemCon className={cx('flexRow userItem ', { select }, className)} onClick={onClick}>
       <UserHead
         className="userHead"
         user={{
@@ -142,6 +143,7 @@ export function UserItem(props) {
               ))}
         </div>
       </div>
+      {select && <Icon icon="done" className="Font12 Gray_9e" />}
     </UserItemCon>
   );
 }
@@ -161,20 +163,27 @@ export function UserList(props) {
     appId,
     projectId,
   } = props;
+
   const [isShowMore, setIsShowMore] = useState(false);
+  const [select, setSelect] = useState([]);
+
   return (
     <UserListCon>
       {!!list.length &&
         (showMore && !isShowMore ? list.slice(0, limitNum) : list).map((user, i) => (
           <UserItem
             notShowCurrentUserName
-            className={activeIndex === i ? 'focused' : ''}
+            className={cx({ focused: activeIndex === i })}
+            select={select.includes(user.accountId)}
             user={user}
             type={type}
             key={i}
             appId={appId}
             projectId={projectId}
-            onClick={() => onSelect(user)}
+            onClick={() => {
+              onSelect(user);
+              setSelect(select.concat(user.accountId));
+            }}
           />
         ))}
       {!loading && !list.length && (
@@ -226,6 +235,7 @@ export function Search(props) {
               SelectUserSettings.includeSystemField = parentProps.includeSystemField;
               SelectUserSettings.prefixAccountIds = parentProps.prefixAccountIds;
               SelectUserSettings.filterOtherProject = parentProps.filterOtherProject;
+              SelectUserSettings.selectedAccountIds = parentProps.selectedAccountIds;
 
               if (!SelectUserSettings.callback) {
                 SelectUserSettings.callback = onSelect;

@@ -22,6 +22,7 @@ export default class SelectOtherFields extends Component {
     selectNodeId: PropTypes.string,
     sourceAppId: PropTypes.string,
     isIntegration: PropTypes.bool,
+    isPlugin: PropTypes.bool,
     conditionId: PropTypes.string,
     dataSource: PropTypes.string,
     handleFieldClick: PropTypes.func,
@@ -41,6 +42,7 @@ export default class SelectOtherFields extends Component {
     sourceAppId: '',
     sourceNodeId: '',
     isIntegration: false,
+    isPlugin: false,
     showClear: false,
     showCurrent: false,
     disabledInterface: false,
@@ -132,10 +134,10 @@ export default class SelectOtherFields extends Component {
    * 头部
    */
   header() {
-    const { projectId, relationId, item, handleFieldClick, closeLayer, isIntegration } = this.props;
+    const { projectId, relationId, item, handleFieldClick, closeLayer, isIntegration, isPlugin } = this.props;
     let filterTypes = [];
 
-    if (!_.includes([1, 2, 3, 4, 5, 6, 7, 8, 33, 41], item.type) || isIntegration) return null;
+    if (!_.includes([1, 2, 3, 4, 5, 6, 7, 8, 33, 41], item.type) || isIntegration || isPlugin) return null;
 
     if (_.includes([6, 8], item.type)) {
       filterTypes = [6];

@@ -2,12 +2,16 @@ import React, { useEffect, useState, Fragment } from 'react';
 import ChatBox from 'src/pages/plugin/assistant/chatBox';
 import styled from 'styled-components';
 import assistantApi from 'src/api/assistant';
-import { Modal } from 'antd-mobile';
+import { CenterPopup } from 'antd-mobile';
 import { Icon, SvgIcon, FunctionWrap } from 'ming-ui';
 
-const ModalWrap = styled(Modal)`
-  .am-modal-content {
-    border-radius: 12px;
+const ModalWrap = styled(CenterPopup)`
+  .adm-center-popup-wrap {
+    min-width: 90vw;
+    max-width: 90vw;
+  }
+  .adm-center-popup-body {
+    height: 90vh;
   }
 `;
 
@@ -15,8 +19,8 @@ const SuspensionAi = styled.div`
   position: fixed;
   right: 20px;
   bottom: 80px;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background-color: #fff;
 `;
@@ -27,9 +31,6 @@ const openAssistantChat = props =>
       const [visible, setVisible] = useState(true);
       return (
         <ModalWrap
-          popup
-          transitionName="noTransition"
-          style={{ height: '100%', padding: '12px' }}
           onClose={() => setVisible(false)}
           visible={visible}
         >
@@ -77,7 +78,7 @@ function AiContent(props) {
             openAssistantChat({ assistantId: suspensionAi.id, name: suspensionAi.name });
           }}
         >
-          <SvgIcon size={36} url={iconUrl} fill="#fff" />
+          <SvgIcon size={26} url={iconUrl} fill="#fff" />
         </SuspensionAi>
       ) : (
         <SuspensionAi

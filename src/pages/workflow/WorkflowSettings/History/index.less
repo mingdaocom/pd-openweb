@@ -18,11 +18,6 @@
     margin: 0 auto 20px;
     color: #757575;
     font-size: 14px;
-    .restoreWrap {
-      margin-left: 15px;
-      border-bottom: 1px dashed #757575;
-      cursor: pointer;
-    }
   }
   .workflowHistoryContentWrap {
     max-width: 1400px;
@@ -128,7 +123,7 @@
         width: 130px;
         height: 130px;
         border-radius: 50%;
-        background: url('./emptyList.png') no-repeat center center;
+        background: url('./images/emptyList.png') no-repeat center center;
         background-size: cover;
       }
       .text {
@@ -243,7 +238,7 @@
         &.suspend,
         &.overrule,
         &.filter,
-        &.revoke  {
+        &.revoke {
           background-color: @suspendColor;
           .icon {
             margin-right: 4px;
@@ -410,55 +405,6 @@
   }
 }
 
-.historyBox {
-  width: 480px;
-  background: #fff;
-  border-radius: 3px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  padding: 12px 0;
-  min-height: 140px;
-  max-height: 500px;
-  position: absolute;
-  z-index: 1;
-  margin-top: 5px;
-  left: 0;
-  .historyReleaseItem {
-    height: 40px;
-    align-items: center;
-    padding: 0 29px 0 12px;
-    margin: 0 12px;
-    color: #333;
-    &:hover {
-      .icon-restore2 {
-        visibility: visible;
-      }
-    }
-    &:not(.noBG):hover {
-      background: #f2f2f2;
-      .w250 {
-        color: #2196f3;
-      }
-    }
-    .icon-restore2 {
-      visibility: hidden;
-    }
-    .w250 {
-      width: 250px;
-    }
-    .flexRow {
-      align-items: center;
-    }
-    .historyReleaseItemActive {
-      font-size: 12px;
-      color: #2196f3;
-      padding: 4px 8px;
-      margin-left: 10px;
-      border-radius: 9px;
-      background: rgba(33, 150, 243, 0.12);
-    }
-  }
-}
-
 .workflowRetryLoading {
   height: 3px;
   width: 10px;
@@ -483,22 +429,5 @@
   to {
     width: 0;
     left: 100%;
-  }
-}
-
-.workflowHistoryBox {
-  .filterTimeRange {
-    width: 100%;
-    height: 36px;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 10px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    .placeholder {
-      color: #bdbdbd;
-    }
   }
 }

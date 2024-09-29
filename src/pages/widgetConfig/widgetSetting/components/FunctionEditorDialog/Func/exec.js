@@ -32,7 +32,7 @@ function replaceControlIdToValue(expression, formData, inString) {
 }
 
 function formatFunctionResult(control, value) {
-  const controlType = control.type;
+  const controlType = _.get(control, 'type') === 53 ? _.get(control, 'enumDefault2') : control.type;
   let result = value;
   switch (controlType) {
     case WIDGETS_TO_API_TYPE_ENUM.TEXT:
@@ -73,7 +73,11 @@ function formatFunctionResult(control, value) {
       break;
     case WIDGETS_TO_API_TYPE_ENUM.TIME:
       const formatMode = _.includes(['6', '9'], control.unit) ? 'HH:mm:ss' : 'HH:mm';
-      result = result && dayjs(result).isValid() ? dayjs(result).format(formatMode) : undefined;
+      result = result
+        ? dayjs(result).year() && dayjs(result).isValid()
+          ? dayjs(result).format(formatMode)
+          : dayjs(value, formatMode).format('HH:mm:ss')
+        : undefined;
       break;
   }
   return result;

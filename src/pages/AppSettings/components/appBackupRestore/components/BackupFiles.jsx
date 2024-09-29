@@ -202,7 +202,8 @@ export default function BackupFiles(props) {
       },
     });
   };
-  // 下载备份
+
+  // 下载备份（应用）
   const downloadBackup = item => {
     window.open(
       downloadFile(
@@ -210,6 +211,19 @@ export default function BackupFiles(props) {
       ),
     );
   };
+
+  // 下载备份（数据）
+  const downloadData = item => {
+    const { dataStatus, id } = item;
+    if (dataStatus !== 1) return;
+
+    window.open(
+      downloadFile(
+        `${md.global.Config.AjaxApiUrl}Download/DownloadBackupDataFile?id=${id}&projectId=${projectId}&appId=${appId}`,
+      ),
+    );
+  };
+
   // 删除备份
   const deleteBackup = item => {
     Dialog.confirm({
@@ -307,8 +321,21 @@ export default function BackupFiles(props) {
           <div className="flex">
             <ScrollView onScrollEnd={onScrollEnd}>
               {fileList.map(item => {
-                const { id, operator = {}, operationDateTime, status, containData, usage } = item;
-                const size = (usage / (1024 * 1024)).toFixed(2) + 'MB';
+                const {
+                  id,
+                  operator = {},
+                  operationDateTime,
+                  status,
+                  containData,
+                  usage,
+                  operationType,
+                  dataStatus,
+                } = item;
+
+                const size =
+                  usage / Math.pow(1024, 2) >= 1024
+                    ? (usage / Math.pow(1024, 3)).toFixed(2) + 'GB'
+                    : (usage / Math.pow(1024, 2)).toFixed(2) + 'MB';
 
                 // 已过期
                 const expired =
@@ -336,7 +363,7 @@ export default function BackupFiles(props) {
                     <div className="backupType">{containData ? _l('应用、数据') : _l('应用')}</div>
                     <div className="backupTime">{moment(operationDateTime).format('YYYY-MM-DD HH:mm:ss')}</div>
                     <div className="size">{containData ? size : '-'}</div>
-                    <div className="operator">{operator.fullname}</div>
+                    <div className="operator ellipsis">{operator.fullname}</div>
                     <div
                       className={cx('status', {
                         ThemeColor: _.includes([1, 2], status),
@@ -402,7 +429,29 @@ export default function BackupFiles(props) {
                               overlay={
                                 <Menu>
                                   <MenuItem onClick={() => downloadBackup(item)}>{_l('下载应用')}</MenuItem>
-                                  <MenuItem disabled={true}>{_l('下载数据')}</MenuItem>
+                                  {containData && dataStatus === 1 ? (
+                                    <MenuItem onClick={() => downloadData(item)}>
+                                      <span> {_l('下载数据')}</span>
+                                    </MenuItem>
+                                  ) : (
+                                    <Tooltip
+                                      text={
+                                        !containData ? (
+                                          ''
+                                        ) : dataStatus === 0 ? (
+                                          <span>{_l('不支持下载老数据')}</span>
+                                        ) : dataStatus === 2 ? (
+                                          <span>{_l('数据大于1GB，无法下载')}</span>
+                                        ) : (
+                                          ''
+                                        )
+                                      }
+                                    >
+                                      <MenuItem disabled={true}>
+                                        <span> {_l('下载数据')}</span>
+                                      </MenuItem>
+                                    </Tooltip>
+                                  )}
                                 </Menu>
                               }
                             >
@@ -424,7 +473,7 @@ export default function BackupFiles(props) {
                                       <span>{_l('还原为新应用')}</span>
                                     </MenuItem>
                                   )}
-                                <MenuItem onClick={() => deleteBackup(item)}>
+                                <MenuItem className="delete" onClick={() => deleteBackup(item)}>
                                   <span>{_l('删除')}</span>
                                 </MenuItem>
                               </Menu>

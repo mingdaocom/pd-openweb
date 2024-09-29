@@ -245,16 +245,16 @@ export default class LoginContainer extends React.Component {
                         });
                         this.props.updateWarn([]);
                       }}
-                      className="WordBreak overflow_ellipsis Block pLeft10 pRight10"
+                      className="WordBreak overflow_ellipsis pLeft10 pRight10 flexRow alignItemsCenter"
                     >
-                      <Icon icon={loginMode === 1 ? 'lock' : 'account_circle'} className="mRight5 Gray_75 Font14" />
-                      {loginMode === 1 ? ldapName || 'LDAP登录' : _l('平台账号登录')}
+                      <Icon icon={loginMode === 1 ? 'lock' : 'account_circle'} className="mRight5 Gray_75 Font20" />
+                      <span className="">{loginMode === 1 ? ldapName || _l('LDAP登录') : _l('平台账号登录')}</span>
                     </a>
                   )}
                   {isOpenSso && (
-                    <a href={isMobile ? ssoAppUrl : ssoWebUrl} className="Block">
-                      <Icon icon={'tab_move'} className="mRight5 Gray_75 Font14" />
-                      {ssoName || 'SSO登录'}
+                    <a href={isMobile ? ssoAppUrl : ssoWebUrl} className="flexRow alignItemsCenter">
+                      <Icon icon={'tab_move'} className="mRight5 Gray_75 Font20" />
+                      <span className="">{ssoName || _l('SSO登录')}</span>
                     </a>
                   )}
                   {intergrationScanEnabled && (

@@ -4,7 +4,7 @@ import SideNav from './SideNav';
 import { Route, Switch } from 'react-router-dom';
 import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { emitter, getCurrentProject } from 'src/util';
-import ViewPlugin from './viewPlugin';
+import PluginComponent from './pluginComponent';
 import _ from 'lodash';
 import Assistant from './assistant';
 import KnowledgeBase from './knowledgeBase';
@@ -14,6 +14,7 @@ import { VersionProductType } from 'src/util/enum';
 import { getMyPermissions } from 'src/components/checkPermission';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { PLUGIN_TYPE } from './config';
 
 export default class PluginContainer extends React.Component {
   constructor(props) {
@@ -101,10 +102,19 @@ export default class PluginContainer extends React.Component {
         <div className="flex">
           <ErrorBoundary>
             <Switch>
-              <Route path="/plugin/view" component={() => <ViewPlugin {...param} myPermissions={myPermissions} />} />
+              <Route
+                path="/plugin/view"
+                component={() => <PluginComponent {...param} myPermissions={myPermissions} />}
+              />
+              <Route
+                path="/plugin/node"
+                component={() => (
+                  <PluginComponent {...param} myPermissions={myPermissions} pluginType={PLUGIN_TYPE.WORKFLOW} />
+                )}
+              />
               <Route path="/plugin/assistant" component={() => <Assistant {...param} />} />
               <Route path="/plugin/knowledgeBase" component={() => <KnowledgeBase {...param} />} />
-              <Route path="*" component={() => <ViewPlugin {...param} myPermissions={myPermissions} />} exact />
+              <Route path="*" component={() => <PluginComponent {...param} myPermissions={myPermissions} />} exact />
             </Switch>
           </ErrorBoundary>
         </div>

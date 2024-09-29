@@ -313,7 +313,11 @@ function getTextHeight(text = '', width, style = '') {
 export function getTableHeadHeight(columns) {
   const textHeight = Math.max(
     ...columns.map(c =>
-      getTextHeight(c.controlName, c.width, 'font-size: 13px;line-height: 1.3em;word-break: break-all;'),
+      getTextHeight(
+        c.controlName + (c.required ? '*' : ''),
+        c.width - 10,
+        'font-size: 13px;line-height: 1.3em;word-break: break-all;',
+      ),
     ),
   );
   if (textHeight < 18) {

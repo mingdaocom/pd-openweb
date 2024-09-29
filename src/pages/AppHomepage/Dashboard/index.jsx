@@ -26,8 +26,14 @@ import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 const Wrapper = styled.div`
   flex: 1;
 
+  .dashboardScroll {
+    .nano-content {
+      overflow-x: scroll !important;
+    }
+  }
   .dashboardContent {
     padding: 0 36px;
+    min-width: 1020px;
     max-width: 1600px;
     margin: 0 auto;
     box-sizing: content-box;
@@ -242,7 +248,7 @@ export default function Dashboard(props) {
 
   useEffect(() => {
     !md.global.Config.IsLocal &&
-      fetch('https://filepub.mingdao.com/dashboard/themes_2024_06_06.js')
+      fetch('https://filepub.mingdao.com/dashboard/themes_2024_09_03.js')
         .then(res => res.text())
         .then(res => setAdvancedThemes(eval(res)));
   }, []);
@@ -390,7 +396,7 @@ export default function Dashboard(props) {
 
   return (
     <Wrapper style={{ backgroundColor: hasBgImg ? 'unset' : dashboardColor.bgColor }} logoHeight={logoHeight || 40}>
-      <ScrollView className="flex">
+      <ScrollView className="flex dashboardScroll">
         <div className="dashboardContent">
           <div className="dashboardHeader">
             {logoSwitch && (logo || slogan) ? (
@@ -411,7 +417,7 @@ export default function Dashboard(props) {
             )}
 
             <div className="flexRow">
-              {hasNewTheme && hasProjectSetting && (
+              {hasNewTheme && hasProjectSetting && !isExternal && (
                 <Tooltip
                   title={
                     advancedSetting.themeKey === newTheme.themeKey

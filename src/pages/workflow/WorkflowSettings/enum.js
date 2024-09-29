@@ -31,6 +31,7 @@ export const NODE_TYPE = {
   LOOP: 29,
   RETURN: 30,
   AIGC: 31,
+  PLUGIN: 32,
   SYSTEM: 100,
   FIND_SINGLE_MESSAGE: 1000,
   FIND_MORE_MESSAGE: 1001,
@@ -50,6 +51,7 @@ export const ACTION_ID = {
   EDIT: '2',
   DELETE: '3',
   CREATE_FILE: '4',
+  CREATE_RECORD: '5',
   RELATION: '20',
   NUMBER_FORMULA: '100',
   DATE_FORMULA: '101',
@@ -79,6 +81,7 @@ export const ACTION_ID = {
   BATCH_ACTION: '411',
   BATCH_UPDATE: '412',
   BATCH_DELETE: '413',
+  FROM_PLUGIN_ARRAY: '414',
   RECORD_LINK_FIND: '420',
   RECORD_UPDATE: '421',
   RECORD_DELETE: '422',
@@ -91,6 +94,7 @@ export const ACTION_ID = {
   BASIC_AUTH: '521',
   AUTH_CODE: '522',
   CREDENTIALS: '523',
+  REFRESH_CREDENTIALS: '524',
   AIGC_TEXT: '531',
   AIGC_OBJECT: '532',
 };
@@ -120,6 +124,7 @@ export const APP_TYPE = {
   NO_AUTH: 30,
   BASIC_AUTH: 31,
   OAUTH2: 32,
+  CODE_AUTH: 33,
   PARAMETER: 40,
   API_PACKAGE: 41,
   API: 42,
@@ -127,11 +132,27 @@ export const APP_TYPE = {
   SNAPSHOT: 44,
   LOOP_PROCESS: 45,
   AIGC: 46,
+  PLUGIN: 47,
   SYSTEM: 100,
   VARIABLE: 101,
   PROCESS: 102,
   WORKSHEET_LOG: 103,
   GLOBAL_VARIABLE: 104,
+};
+
+export const APP_TYPE_TEXT = {
+  7: _l('发送 API 请求'),
+  12: _l('代码块'),
+  17: _l('业务流程数组'),
+  18: _l('JSON 解析'),
+  20: _l('人员信息'),
+  21: _l('部门信息'),
+  23: _l('外部用户'),
+  42: _l('API数组'),
+  45: _l('循环'),
+  46: _l('AIGC'),
+  47: _l('插件'),
+  405: _l('人工节点'),
 };
 
 export const OPERATION_TYPE = {
@@ -207,6 +228,7 @@ export const CONTROLS_NAME = {
   50: _l('API查询'),
   51: _l('查询记录'),
   52: _l('标签页'),
+  53: _l('函数'),
   10000001: _l('人员'),
   10000002: _l('人员'),
   10000003: _l('数组'),
@@ -360,6 +382,8 @@ export const SUPPORT_HREF = {
   '0-6': 'https://help.mingdao.com/workflow/trigger-by-date-field',
   // webhook触发
   '0-7': 'https://help.mingdao.com/workflow/trigger-by-webhook',
+  // 循环
+  '0-45': 'https://help.mingdao.com/workflow/node-loop',
   // 分支
   1: 'https://help.mingdao.com/workflow/node-branch',
   // 填写节点
@@ -418,6 +442,16 @@ export const SUPPORT_HREF = {
   25: 'https://help.mingdao.com/workflow/node-call-integrated-api',
   // 发起审批
   26: 'https://help.mingdao.com/workflow/node-initiate-approval-flow',
+  // 通知
+  27: 'https://help.mingdao.com/workflow/node-cc-send-internal-notification',
+  // 快照
+  28: 'https://help.mingdao.com/workflow/node-get-snapshot',
+  // 循环
+  29: 'https://help.mingdao.com/workflow/node-loop',
+  // AIGC 文本
+  '31-531': 'https://help.mingdao.com/workflow/node-AI-text-generation',
+  // AIGC 对象
+  '31-532': 'https://help.mingdao.com/workflow/node-AI-generates-data-objects',
   // 获取单条系统信息
   1000: 'https://help.mingdao.com/workflow/node-get-single-data-from-user',
   // 获取多条系统信息
@@ -528,13 +562,17 @@ export const FIELD_TYPE_LIST = [
   { text: _l('文本'), value: 2, en: 'string' },
   { text: _l('数值'), value: 6, en: 'number' },
   { text: _l('日期时间'), value: 16, en: 'date' },
+  { text: _l('单选'), value: 9, en: 'radio' },
+  { text: _l('检查项'), value: 36, en: 'checkbox' },
+  { text: _l('数组'), value: 10000003, en: 'array' },
+  { text: _l('对象'), value: 10000006, en: 'object' },
+  { text: _l('普通数组'), value: 10000007, en: 'array' },
+  { text: _l('对象数组'), value: 10000008, en: 'array[object]' },
   { text: _l('人员'), value: 26, en: 'member' },
   { text: _l('部门'), value: 27, en: 'department' },
   { text: _l('组织角色'), value: 48, en: 'orgRole' },
   { text: _l('附件'), value: 14, en: 'attachment' },
-  { text: _l('数组'), value: 10000003, en: 'array' },
-  { text: _l('普通数组'), value: 10000007, en: 'array' },
-  { text: _l('对象数组'), value: 10000008, en: 'array[object]' },
+  { text: _l('分组标题'), value: 22, en: 'group' },
 ];
 
 export const METHODS_TYPE = [

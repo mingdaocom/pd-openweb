@@ -1,4 +1,6 @@
-import _, { assign, get, isUndefined, pickBy } from 'lodash';
+import _ from 'lodash';
+
+export { treeTableViewData } from 'worksheet/common/TreeTableHelper/index.js';
 
 // 表视图表格属性
 
@@ -142,68 +144,6 @@ export function sheetViewData(state = initialSheetViewData, action) {
     case 'WORKSHEET_INIT':
     case 'WORKSHEET_SHEETVIEW_CLEAR':
       return initialSheetViewData;
-    default:
-      return state;
-  }
-}
-
-const initialTreeViewParams = {
-  maxLevel: 0,
-  treeMap: {},
-  sortedIds: [],
-  expandedAllKeys: {},
-};
-
-// 树形表格相关参数
-export function treeTableViewData(state = initialTreeViewParams, action) {
-  switch (action.type) {
-    case 'UPDATE_TREE_TABLE_VIEW_DATA':
-      return {
-        ...state,
-        ...action.value,
-      };
-    case 'UPDATED_TREE_NODE_EXPANSION':
-      return {
-        ...state,
-        treeMap: {
-          ...state.treeMap,
-          [action.key]: {
-            ...state.treeMap[action.key],
-            ...(isUndefined(action.folded) ? {} : { folded: action.folded }),
-            ...(isUndefined(action.childrenIds) ? {} : { childrenIds: action.childrenIds }),
-            ...(isUndefined(action.loaded) ? {} : { loaded: action.loaded }),
-            ...(isUndefined(action.loading) ? {} : { loading: action.loading }),
-          },
-        },
-      };
-    case 'UPDATE_TREE_TABLE_VIEW_ITEM':
-      return {
-        ...state,
-        ...action.value,
-      };
-    case 'UPDATE_TREE_TABLE_VIEW_EXPANDED':
-      return {
-        ...state,
-        expandedAllKeys: {
-          ...state.expandedAllKeys,
-          [action.key]: true,
-        },
-      };
-    case 'UPDATE_TREE_TABLE_VIEW_TREE_MAP':
-      return {
-        ...state,
-        treeMap: pickBy(
-          {
-            ...state.treeMap,
-            ...action.value,
-          },
-          value => !isUndefined(value),
-        ),
-      };
-    // 切换视图或表时 重置数据
-    case 'WORKSHEET_INIT':
-    case 'WORKSHEET_SHEETVIEW_CLEAR':
-      return initialTreeViewParams;
     default:
       return state;
   }

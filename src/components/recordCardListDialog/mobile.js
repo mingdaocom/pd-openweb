@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { Icon, ScrollView, LoadDiv } from 'ming-ui';
-import { Modal, WingBlank, Button } from 'antd-mobile';
+import { Popup, Button } from 'antd-mobile';
 import sheetAjax from 'src/api/worksheet';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
@@ -297,8 +296,8 @@ export default class RecordCardListDialog extends Component {
       this.loadRecorcd,
     );
   }
-  @autobind
-  handleSearch(value, isScanSearch) {
+
+  handleSearch = (value, isScanSearch) => {
     this.setState(
       {
         keyWords: value,
@@ -316,9 +315,9 @@ export default class RecordCardListDialog extends Component {
         this.lazyLoadRecorcd();
       },
     );
-  }
-  @autobind
-  handleFilter(filters) {
+  };
+
+  handleFilter = filters => {
     this.setState(
       {
         quickFilters: filters,
@@ -328,9 +327,9 @@ export default class RecordCardListDialog extends Component {
       },
       this.loadRecorcd,
     );
-  }
-  @autobind
-  handleSelect(record, selected) {
+  };
+
+  handleSelect = (record, selected) => {
     const { multiple, onOk, onClose, maxCount, selectedCount } = this.props;
     const { selectedRecords } = this.state;
 
@@ -347,16 +346,16 @@ export default class RecordCardListDialog extends Component {
       onOk([record]);
       onClose();
     }
-  }
-  @autobind
-  handleConfirm() {
+  };
+
+  handleConfirm = () => {
     const { onOk, onClose } = this.props;
     const { selectedRecords, list } = this.state;
     onOk(selectedRecords);
     onClose();
-  }
-  @autobind
-  handleSort(control, isAsc) {
+  };
+
+  handleSort = (control, isAsc) => {
     let newIsAsc;
     if (_.isUndefined(isAsc)) {
       newIsAsc = true;
@@ -382,7 +381,7 @@ export default class RecordCardListDialog extends Component {
       },
       this.loadRecorcd,
     );
-  }
+  };
   canSort(control) {
     const itemType = control.sourceControlType || control.type;
     return fieldCanSort(itemType);
@@ -568,7 +567,7 @@ export default class RecordCardListDialog extends Component {
         }}
       >
         {allowNewRecord && !disabledManualWrite ? (
-          <WingBlank size="md">
+          <div className="mLeft8 mRight8">
             <div
               className="worksheetRecordCard allowNewRecordBtn valignWrapper flexRow"
               onClick={() => {
@@ -578,45 +577,47 @@ export default class RecordCardListDialog extends Component {
               <Icon icon="add" className="Font24" />
               <span className="bold">{_l('新建%0', entityName)}</span>
             </div>
-          </WingBlank>
+          </div>
         ) : null}
-        <NewRecord
-          hideFillNext
-          appId={appId}
-          viewId={viewId}
-          worksheetId={relateSheetId}
-          projectId={worksheet.projectId}
-          addType={2}
-          entityName={worksheet.entityName}
-          filterRelateSheetIds={[relateSheetId]}
-          filterRelatesheetControlIds={filterRelatesheetControlIds}
-          defaultRelatedSheet={{
-            worksheetId: parentWorksheetId,
-            relateSheetControlId: controlId,
-            value: defaultRelatedSheetValue,
-          }}
-          visible={showNewRecord}
-          showDraftsEntry={true}
-          sheetSwitchPermit={control && control.sheetSwitchPermit}
-          hideNewRecord={() => {
-            this.setState({ showNewRecord: false });
-          }}
-          onAdd={row => {
-            if (multiple) {
-              this.setState(
-                {
-                  list: [row, ...list],
-                },
-                () => {
-                  this.handleSelect(row, true);
-                },
-              );
-            } else {
-              onOk([row]);
-              onClose();
-            }
-          }}
-        />
+        {showNewRecord && (
+          <NewRecord
+            hideFillNext
+            appId={appId}
+            viewId={viewId}
+            worksheetId={relateSheetId}
+            projectId={worksheet.projectId}
+            addType={2}
+            entityName={worksheet.entityName}
+            filterRelateSheetIds={[relateSheetId]}
+            filterRelatesheetControlIds={filterRelatesheetControlIds}
+            defaultRelatedSheet={{
+              worksheetId: parentWorksheetId,
+              relateSheetControlId: controlId,
+              value: defaultRelatedSheetValue,
+            }}
+            visible={showNewRecord}
+            showDraftsEntry={true}
+            sheetSwitchPermit={control && control.sheetSwitchPermit}
+            hideNewRecord={() => {
+              this.setState({ showNewRecord: false });
+            }}
+            onAdd={row => {
+              if (multiple) {
+                this.setState(
+                  {
+                    list: [row, ...list],
+                  },
+                  () => {
+                    this.handleSelect(row, true);
+                  },
+                );
+              } else {
+                onOk([row]);
+                onClose();
+              }
+            }}
+          />
+        )}
         {list.length
           ? list.map((record, i) => {
               if (!_.isEmpty(staticRecords)) {
@@ -631,7 +632,7 @@ export default class RecordCardListDialog extends Component {
               }
               const selected = !!_.find(selectedRecords, r => r.rowid === record.rowid);
               return (
-                <WingBlank key={i} size="md">
+                <div key={i} className="mLeft8 mRight8">
                   <RecordCard
                     from={3}
                     coverCid={coverCid}
@@ -641,7 +642,7 @@ export default class RecordCardListDialog extends Component {
                     selected={selected}
                     onClick={() => this.handleSelect(record, !selected)}
                   />
-                </WingBlank>
+                </div>
               );
             })
           : !loading && (
@@ -670,26 +671,27 @@ export default class RecordCardListDialog extends Component {
     const { visible, onClose, multiple, disabledManualWrite } = this.props;
     const { value, worksheet, selectedRecords } = this.state;
     return (
-      <Modal popup visible={visible} onClose={onClose} animationType="slide-up" className="h100">
-        <div className="flexColumn leftAlign mobileRecordCardListDialog h100">
+      <Popup visible={visible} onClose={onClose} className="mobileModal full">
+        <div className="flexColumn mobileRecordCardListDialog h100">
           {!disabledManualWrite && this.renderSearchWrapper()}
           {this.renderContent()}
           <div className="btnsWrapper valignWrapper flexRow">
-            <WingBlank className="flex" size="sm">
-              <Button className="Gray_75 bold" onClick={onClose}>
-                {_l('取消')}
-              </Button>
-            </WingBlank>
+            <Button className="flex mLeft6 mRight6 Gray_75 bold Font13" onClick={onClose}>
+              {_l('取消')}
+            </Button>
             {multiple && (
-              <WingBlank className="flex" size="sm">
-                <Button className="bold" type="primary" disabled={!selectedRecords.length} onClick={this.handleConfirm}>
-                  {multiple && selectedRecords.length ? _l('确定(%0)', selectedRecords.length) : _l('确定')}
-                </Button>
-              </WingBlank>
+              <Button
+                className="flex mLeft6 mRight6 bold Font13"
+                color="primary"
+                disabled={!selectedRecords.length}
+                onClick={this.handleConfirm}
+              >
+                {multiple && selectedRecords.length ? _l('确定(%0)', selectedRecords.length) : _l('确定')}
+              </Button>
             )}
           </div>
         </div>
-      </Modal>
+      </Popup>
     );
   }
 }

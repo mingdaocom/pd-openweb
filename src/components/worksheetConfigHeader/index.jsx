@@ -47,9 +47,13 @@ export default class WorksheetConfigHeader extends Component {
   handleRedirect(modulename) {
     // TODO: 跳转逻辑待细化
     const { worksheetId, onBack } = this.props;
+    const sheetConfigNavInfo = localStorage.getItem('sheetConfigNavInfo')
+      ? JSON.parse(localStorage.getItem('sheetConfigNavInfo'))
+      : {};
+    const { extensionNav, settingNav } = sheetConfigNavInfo[worksheetId] || {};
     const urlSet = {
-      form: `/worksheet/form/edit/${worksheetId}`,
-      formSet: `/worksheet/formSet/edit/${worksheetId}`,
+      form: `/worksheet/form/edit/${worksheetId}${extensionNav ? '/' + extensionNav : ''}`,
+      formSet: `/worksheet/formSet/edit/${worksheetId}${settingNav ? '/' + settingNav : ''}`,
     };
     if (modulename === this.currentModuleName) {
       return;
@@ -88,7 +92,6 @@ export default class WorksheetConfigHeader extends Component {
           </span>
           <div className="editDetailWrap">
             <div onClick={onBack} className="flexCenter">
-              <span className="bold pointer">{_l('正在编辑表单：')}</span>
               <span className="overflow_ellipsis pointer InlineBlock" style={{ maxWidth: '360px' }}>
                 {worksheetName}
               </span>
@@ -98,8 +101,8 @@ export default class WorksheetConfigHeader extends Component {
             className="tabs"
             active={this.currentModuleName}
             tabs={[
-              { value: 'field', text: _l('编辑字段') },
-              { value: 'formSet', text: _l('表单设置') },
+              { value: 'field', text: _l('编辑表单') },
+              { value: 'formSet', text: _l('更多设置') },
               { value: 'form', text: _l('扩展功能') },
             ]}
             onChange={tab => {

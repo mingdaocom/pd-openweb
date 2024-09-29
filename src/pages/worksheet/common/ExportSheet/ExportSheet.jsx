@@ -90,6 +90,7 @@ export default class ExportSheet extends Component {
 
       columnSearchWord: '', // 字段实时搜索
       speed: false, // 加速导出
+      isNumber: false, // 导出数值类型
     };
   }
 
@@ -147,6 +148,7 @@ export default class ExportSheet extends Component {
         columnsSelected,
         exportExtIds,
         exportRelationalSheet,
+        isNumber: res.isNumber || false,
       });
     });
   }
@@ -304,7 +306,7 @@ export default class ExportSheet extends Component {
         filtersGroup = [],
         sortControls,
       } = this.props;
-      const { columnsSelected, isStatistics, exportShowColumns, exportExtIds, type, speed } = this.state;
+      const { columnsSelected, isStatistics, exportShowColumns, exportExtIds, type, speed, isNumber } = this.state;
 
       // 获取Token 功能模块 token枚举，3 = 导出excel，4 = 导入excel生成表，5= word打印
       const token = await appManagement.getToken({ worksheetId, viewId, tokenType: 3 });
@@ -370,6 +372,8 @@ export default class ExportSheet extends Component {
             return { extIds, controlId };
           })
           .filter(item => item.extIds.length),
+        isNumber,
+        sortRelationCids: speed ? [] : exportControlsId,
       });
 
       if (allWorksheetIsSelected) {
@@ -448,7 +452,7 @@ export default class ExportSheet extends Component {
           worksheetId,
           exportView: { viewId },
         } = this.props;
-        const { columnsSelected, exportShowColumns, exportExtIds, type, showTabs, isStatistics, initEdited } =
+        const { columnsSelected, exportShowColumns, exportExtIds, type, showTabs, isStatistics, initEdited, isNumber } =
           this.state;
         const controlIds = [];
         _.forEach(columnsSelected, (value, key) => {
@@ -486,6 +490,7 @@ export default class ExportSheet extends Component {
           edited: initEdited,
           worksheetId,
           viewId,
+          isNumber,
         };
 
         worksheetAjax.saveExportConfig(args).then(res => {
@@ -511,6 +516,7 @@ export default class ExportSheet extends Component {
       loading,
       edited,
       speed,
+      isNumber,
     } = this.state;
 
     if (
@@ -772,23 +778,8 @@ export default class ExportSheet extends Component {
               />
             )}
 
-            {/** 在其他sheet导出关联表 */}
             <Checkbox
-              text={
-                <span>
-                  {_l('在其他sheet导出关联表')}
-                  <Tooltip
-                    overlayStyle={{ maxWidth: 350 }}
-                    title={
-                      <div>
-                        {_l('关联记录超过1000行时，可能影响数据准确性。建议在“主记录-关联表-导出Excel”导出数据。')}
-                      </div>
-                    }
-                  >
-                    <i className="icon-info mLeft5 Font16 Gray_9e"></i>
-                  </Tooltip>
-                </span>
-              }
+              text={_l('在其他sheet导出关联数据')}
               checked={exportRelationalSheet && type !== 1}
               disabled={type === 1 || edited}
               size="small"
@@ -800,18 +791,20 @@ export default class ExportSheet extends Component {
               }}
             />
 
-            {/** 在其他sheet导出关联表 */}
             {exportRelationalSheet &&
               exportMoreRecord.map(column => (
-                <Checkbox
-                  style={{ left: '20px' }}
-                  key={column.controlId}
-                  size="small"
-                  disabled={type === 1 || edited}
-                  text={column.controlName || ''}
-                  checked={!!columnsSelected[column.controlId] && type !== 1}
-                  onClick={() => this.chooseColumnId(column)}
-                />
+                <div className="flexRow">
+                  <div className="flex mLeft25">
+                    <Checkbox
+                      key={column.controlId}
+                      size="small"
+                      disabled={type === 1 || edited}
+                      text={column.controlName || ''}
+                      checked={!!columnsSelected[column.controlId] && type !== 1}
+                      onClick={() => this.chooseColumnId(column)}
+                    />
+                  </div>
+                </div>
               ))}
 
             <Checkbox
@@ -822,10 +815,11 @@ export default class ExportSheet extends Component {
                     overlayStyle={{ maxWidth: 350 }}
                     title={
                       <Fragment>
-                        <div>{_l('导出以下字段时走冗余值，可能会导出为旧数据')}</div>
-                        <div>{_l('· 关联表：显示方式为卡片、下拉框')}</div>
-                        <div>{_l('· 级联选择：高级设置中勾选“选择结果显示层级路径”')}</div>
-                        <div>{_l('· 他表字段：类型为存储数据')}</div>
+                        <div>{_l('导出以下字段时，将使用冗余值，可能会导出旧数据：')}</div>
+                        <div>{_l('关联表：显示方式为卡片或下拉框')}</div>
+                        <div>{_l('级联选择：高级设置中勾选“选择结果显示层级路径”')}</div>
+                        <div>{_l('他表字段：类型为存储数据')}</div>
+                        <div>{_l('关联记录：忽略排序设置，使用添加时的顺序')}</div>
                       </Fragment>
                     }
                   >
@@ -849,6 +843,33 @@ export default class ExportSheet extends Component {
               disabled={edited}
               onChange={type => this.setState({ type })}
             />
+
+            {type === 0 && (
+              <div className="mTop10">
+                <Checkbox
+                  size="small"
+                  text={
+                    <span>
+                      {_l('导出为Excel数值类型')}
+                      <Tooltip
+                        overlayStyle={{ maxWidth: 350 }}
+                        title={
+                          <div>
+                            <div>{_l('以下类型有效')}</div>
+                            <div>{_l('数值、金额、公式（输出类型为数值）')}</div>
+                          </div>
+                        }
+                      >
+                        <i className="icon-info mLeft5 Font16 Gray_9e"></i>
+                      </Tooltip>
+                    </span>
+                  }
+                  checked={isNumber}
+                  disabled={edited}
+                  onClick={() => this.setState({ isNumber: !isNumber })}
+                />
+              </div>
+            )}
           </Fragment>
         )}
       </Dialog>

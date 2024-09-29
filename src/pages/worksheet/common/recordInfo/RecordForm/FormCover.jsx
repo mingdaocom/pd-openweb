@@ -247,13 +247,20 @@ export default function FormCover(props) {
       fileId: _.get(imageData, `[${currentIndex}].fileID`),
       rowId: recordId,
     });
+    const control = _.find(formData, i => i.controlId === coverid) || {};
+    const { advancedSetting } = control;
+    const allowDownload = advancedSetting.allowdownload || '1';
+    const hideFunctions = ['editFileName', 'saveToKnowlege', 'share'];
+    if (allowDownload === '0') {
+      hideFunctions.push('download');
+    }
     // 打开图片
     previewAttachments({
       index: currentIndex,
       attachments: imageData,
       callFrom: 'player',
       showThumbnail: true,
-      hideFunctions: ['editFileName', 'saveToKnowlege', 'share'],
+      hideFunctions,
     });
   };
 

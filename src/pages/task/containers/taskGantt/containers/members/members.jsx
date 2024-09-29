@@ -32,7 +32,7 @@ class Members extends Component {
    * @param {object} evt
    */
   addMembers(evt) {
-    const filterAccountIds = this.props.accountTasksKV.map(item => item.account.accountId);
+    const selectedAccountIds = this.props.accountTasksKV.map(item => item.account.accountId);
 
     dialogSelectUser({
       sourceId: config.folderId,
@@ -41,7 +41,8 @@ class Members extends Component {
       fromType: 6,
       SelectUserSettings: {
         includeUndefinedAndMySelf: true,
-        filterAccountIds,
+        filterAccountIds: ['user-undefined'],
+        selectedAccountIds,
         projectId: config.projectId,
         callback: users => {
           this.props.dispatch(addMembers(users));

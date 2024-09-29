@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import { UserHead } from 'ming-ui';
@@ -103,8 +102,8 @@ export default class User extends React.Component {
       </div>
     );
   }
-  @autobind
-  handleExitEditing({ exit = true } = {}) {
+
+  handleExitEditing = ({ exit = true } = {}) => {
     const { updateEditingStatus, cell } = this.props;
     const { isError } = this.state;
     if (isError) {
@@ -114,9 +113,9 @@ export default class User extends React.Component {
     if (exit) {
       updateEditingStatus(false);
     }
-  }
-  @autobind
-  handleTableKeyDown(e) {
+  };
+
+  handleTableKeyDown = e => {
     const { editable, updateEditingStatus } = this.props;
     if (!editable) {
       return;
@@ -144,9 +143,9 @@ export default class User extends React.Component {
         }
         break;
     }
-  }
-  @autobind
-  handleChange(forceUpdate) {
+  };
+
+  handleChange = forceUpdate => {
     const { isSubList, cell, updateCell, updateEditingStatus } = this.props;
     const { value } = this.state;
     if (isSubList && !forceUpdate) {
@@ -162,9 +161,9 @@ export default class User extends React.Component {
     updateCell({
       value: JSON.stringify(value),
     });
-  }
-  @autobind
-  pickUser(event) {
+  };
+
+  pickUser = event => {
     const {
       isSubList,
       worksheetId,
@@ -191,7 +190,7 @@ export default class User extends React.Component {
       alert(_l('您不是该组织成员，无法获取其成员列表，请联系组织管理员'), 3);
       return;
     }
-    const filterAccountIds = value.map(item => item.accountId);
+    const selectedAccountIds = value.map(item => item.accountId);
     const callback = (data, forceUpdate) => {
       if (cell.enumDefault === 0) {
         // 单选
@@ -238,7 +237,7 @@ export default class User extends React.Component {
       appId,
       showMoreInvite: false,
       prefixAccounts:
-        !_.includes(filterAccountIds, md.global.Account.accountId) && !hasUserRange
+        !_.includes(selectedAccountIds, md.global.Account.accountId) && !hasUserRange
           ? [
               {
                 accountId: md.global.Account.accountId,
@@ -247,14 +246,14 @@ export default class User extends React.Component {
               },
             ]
           : [],
-      filterAccountIds,
+      selectedAccountIds,
       zIndex: 10001,
       isDynamic: cell.enumDefault === 1,
       filterOtherProject: cell.enumDefault2 === 2,
       SelectUserSettings: {
         unique: cell.enumDefault === 0,
         projectId: projectId,
-        filterAccountIds,
+        selectedAccountIds,
         callback: selected => callback(selected, true),
       },
       selectCb: callback,
@@ -265,23 +264,20 @@ export default class User extends React.Component {
         }
       },
     });
-  }
+  };
 
-  @autobind
-  handleMutipleEdit() {
+  handleMutipleEdit = () => {
     const { updateEditingStatus } = this.props;
     updateEditingStatus(true);
-  }
+  };
 
-  @autobind
-  handleSingleEdit(event) {
+  handleSingleEdit = event => {
     const { updateEditingStatus } = this.props;
     updateEditingStatus(true);
     this.pickUser(event);
-  }
+  };
 
-  @autobind
-  deleteUser(accountId) {
+  deleteUser = accountId => {
     const { value } = this.state;
     this.setState(
       {
@@ -289,10 +285,9 @@ export default class User extends React.Component {
       },
       () => this.handleChange(true),
     );
-  }
+  };
 
-  @autobind
-  deleteLastUser() {
+  deleteLastUser = () => {
     const { value } = this.state;
     if (value.length) {
       this.setState(
@@ -302,7 +297,7 @@ export default class User extends React.Component {
         this.handleChange,
       );
     }
-  }
+  };
 
   render() {
     const {

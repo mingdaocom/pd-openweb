@@ -68,12 +68,7 @@ export const AddNode = styled(Circle)`
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
   cursor: pointer;
   margin-left: 4px;
-  opacity: 0;
   z-index: 1;
-  &:hover,
-  &.visible {
-    opacity: 1;
-  }
   .icon {
     font-size: 18px;
     color: #9e9e9e;
@@ -459,7 +454,7 @@ class TaskNode extends Component {
             }}
             zIndex={1000}
           >
-            <AddNode size={24} className={cx('addNode', { visible })}>
+            <AddNode size={24} className="addNode">
               <i className="icon icon-add" />
             </AddNode>
           </Trigger>

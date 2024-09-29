@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect, Fragment } from 'react';
 import { createPortal } from 'react-dom';
 import styled from 'styled-components';
-import { Dropdown, Modal } from 'antd';
+import { Dropdown } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import cx from 'classnames';
-import { Menu, MenuItem, Dialog, Support } from 'ming-ui';
-import { arrayMove, SortableContainer, SortableElement, SortableHandle } from '@mdfe/react-sortable-hoc';
+import { Menu, MenuItem, Dialog, Support, SortableList } from 'ming-ui';
 import update from 'immutability-helper';
 import { useSetState } from 'react-use';
 import SubControlConfig from './SubControlConfig';
@@ -46,23 +45,8 @@ const AllWidgetsWrap = styled.div`
     }
   }
 `;
-const EmptyControl = styled.div`
-  display: flex;
-  background-color: #f5f5f5;
-  line-height: 36px;
-  color: #2196f3;
-  &:hover {
-    color: #1565c0;
-  }
-  align-items: center;
-  padding-left: 12px;
-  cursor: pointer;
-  span {
-    margin-left: 6px;
-  }
-`;
 
-const WidgetInfo = styled.li`
+const WidgetInfo = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -95,64 +79,67 @@ const WidgetInfo = styled.li`
   }
 `;
 const ControlsWrap = styled.div`
-  margin-top: 12px;
-  cursor: pointer;
+  margin-top: 8px;
+  display: flex;
+  line-height: 36px;
   color: #2196f3;
-  padding-left: 20px;
+  position: relative;
   &:hover {
     color: #1565c0;
   }
+  align-items: center;
+  padding-left: 12px;
+  cursor: pointer;
   span {
     margin-left: 6px;
+  }
+  &.isBg {
+    background-color: #f5f5f5;
   }
   &.disabled {
     color: #bdbdbd !important;
     cursor: not-allowed;
   }
 `;
-const DragHandle = SortableHandle(() => <i className="icon-drag Gray_9e ThemeHoverColor3 pointer"></i>);
 
-const SortableItem = SortableElement(({ item, deleteWidget, configureWidget }) => {
+const ConfigureWrap = styled.div`
+  max-height: 440px;
+  overflow-x: hidden;
+  margin-right: -8px;
+  padding-right: 8px;
+`;
+
+const SortableItem = ({ item, deleteWidget, configureWidget, DragHandle }) => {
   const { controlName, widgetName, type } = item;
   const { icon } = getWidgetInfo(type);
   return (
     <WidgetInfo>
-      <DragHandle />
-      <div className="widgetItem noSelect" onMouseDown={configureWidget}>
+      <DragHandle>
+        <i className="icon-drag Gray_9e ThemeHoverColor3 pointer"></i>
+      </DragHandle>
+      <div className="widgetItem noSelect overflow_ellipsis" onMouseDown={configureWidget}>
         <i className={`icon-${icon} Gray_9e Font_16`}></i>
-        <div className="name">{controlName || widgetName}</div>
+        <div className="name overflow_ellipsis" title={controlName || widgetName}>
+          {controlName || widgetName}
+        </div>
         <i className="icon-arrow-right-border pointer Gray_9e"></i>
       </div>
       <i className="del icon-delete_12 pointer Font16" onMouseDown={deleteWidget}></i>
     </WidgetInfo>
   );
-});
-const SortableWidgets = SortableContainer(({ controls, deleteWidget, configureWidget, ...rest }) => {
-  return (
-    <ul>
-      {controls.map((control, index) => (
-        <SortableItem
-          key={`${control.type}-${index}`}
-          index={index}
-          item={control}
-          deleteWidget={() => deleteWidget(index)}
-          configureWidget={() => configureWidget(index)}
-          {...rest}
-        />
-      ))}
-    </ul>
-  );
-});
+};
 
 export default function ConfigureControl({ data, globalSheetInfo, controls, onChange, ...rest }) {
   const { appId } = globalSheetInfo;
   const $ref = useRef(null);
+  const $wrap = useRef(null);
   const [activeWidgetIndex, setWidgetIndex] = useState(-1);
   const [visible, setValue] = useState(false);
   const [{ selectCascadeDataSourceVisible }, setVisible] = useSetState({ selectCascadeDataSourceVisible: false });
   let dataSource = '';
   let controlName = '';
   const disabledAdd = _.get(controls, 'length') >= 100;
+  const count = controls.length;
 
   useEffect(() => {
     setWidgetIndex(-1);
@@ -161,6 +148,13 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
   const addControl = control => {
     const nextControls = controls.concat(control);
     onChange({ relationControls: nextControls, showControls: nextControls.map(({ controlId }) => controlId) });
+    // 滚动条拖底
+    if (count >= 10 && $wrap && $wrap.current) {
+      const wrapTimer = setTimeout(() => {
+        $wrap.current.scrollTop = (count + 1) * 44 - 440;
+        clearTimeout(wrapTimer);
+      }, 50);
+    }
   };
 
   const SelectWidgetMenu = (
@@ -168,6 +162,7 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
       <Menu>
         {_.keys(WIDGET_GROUP_TYPE).map(groupType => {
           const { title, widgets } = WIDGET_GROUP_TYPE[groupType];
+          if (groupType === 'SPECIAL') return null;
           return (
             <Fragment key={groupType}>
               <div className="title">{title}</div>
@@ -181,8 +176,8 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                   type,
                   controlId: uuidv4(),
                 };
-                // 子表表单不允许再添加子表、文本识别、嵌入、查询记录、备注
-                if (_.includes([34, 43, 45, 47, 49, 51, 52, 10010], type)) return null;
+                // 子表表单不允许再添加分段、子表、文本识别、嵌入、查询记录、备注
+                if (_.includes([22, 34, 43, 45, 47, 49, 51, 52, 10010], type)) return null;
                 return (
                   <MenuItem
                     key={type}
@@ -190,7 +185,7 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                     icon={<i style={{ verticalAlign: 'text-top' }} className={`icon-${icon} icon pointer Font16`}></i>}
                     onClick={() => {
                       if (disabledAdd) {
-                        alert(_l('最多添加50个字段'), 3);
+                        alert(_l('最多添加100个字段'), 3);
                         return;
                       }
                       if (type === 35) {
@@ -300,23 +295,14 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
           }}
         />
       )}
-      {_.isEmpty(controls) ? (
-        <Dropdown trigger={['click']} overlay={SelectWidgetMenu}>
-          <EmptyControl>
-            <i className="icon-plus Font16" />
-            <span>{_l('添加字段')}</span>
-          </EmptyControl>
-        </Dropdown>
-      ) : (
-        <Fragment>
-          <SortableWidgets
-            distance={5}
+
+      {count > 0 && (
+        <ConfigureWrap ref={$wrap}>
+          <SortableList
             useDragHandle
-            controls={controls}
-            deleteWidget={handleDeleteWidget}
-            configureWidget={setWidgetIndex}
-            onSortEnd={({ oldIndex, newIndex }) => {
-              const nextControls = arrayMove(controls, oldIndex, newIndex);
+            items={controls}
+            itemKey="controlId"
+            onSortEnd={nextControls => {
               onChange({
                 ...handleAdvancedSettingChange(data, {
                   controlssorts: JSON.stringify(nextControls.map(item => item.controlId)),
@@ -325,38 +311,44 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                 showControls: nextControls.map(({ controlId }) => controlId),
               });
             }}
-          />
-          <Dropdown
-            trigger={['click']}
-            visible={visible}
-            overlay={SelectWidgetMenu}
-            onVisibleChange={value => setValue(value)}
-            getPopupContainer={() => $ref.current}
-          >
-            <ControlsWrap className={cx({ disabled: disabledAdd })}>
-              <div className="addControl" ref={$ref}>
-                <i className="icon-plus Font16" />
-                <span>{_l('添加字段')}</span>
-              </div>
-            </ControlsWrap>
-          </Dropdown>
-          {activeWidgetIndex > -1 &&
-            createPortal(
-              <SubControlConfig
-                controls={controls}
-                control={controls[activeWidgetIndex]}
-                subListData={data}
-                backTop={() => {
-                  setWidgetIndex(-1);
-                }}
-                changeWidgetData={handleControlDataChange}
-                globalSheetInfo={globalSheetInfo}
-                {...rest}
-              />,
-              document.getElementById('widgetConfigSettingWrap'),
+            renderItem={({ item, index, DragHandle }) => (
+              <SortableItem
+                item={item}
+                DragHandle={DragHandle}
+                deleteWidget={() => handleDeleteWidget(index)}
+                configureWidget={() => setWidgetIndex(index)}
+              />
             )}
-        </Fragment>
+          />
+        </ConfigureWrap>
       )}
+      <Dropdown
+        trigger={['click']}
+        visible={visible}
+        overlay={SelectWidgetMenu}
+        onVisibleChange={value => setValue(value)}
+        getPopupContainer={() => $ref.current}
+      >
+        <ControlsWrap className={cx({ disabled: disabledAdd, isBg: !count })} ref={$ref}>
+          <i className="icon-plus Font16" />
+          <span>{_l('添加字段')}</span>
+        </ControlsWrap>
+      </Dropdown>
+      {activeWidgetIndex > -1 &&
+        createPortal(
+          <SubControlConfig
+            controls={controls}
+            control={controls[activeWidgetIndex]}
+            subListData={data}
+            backTop={() => {
+              setWidgetIndex(-1);
+            }}
+            changeWidgetData={handleControlDataChange}
+            globalSheetInfo={globalSheetInfo}
+            {...rest}
+          />,
+          document.getElementById('widgetConfigSettingWrap'),
+        )}
     </Fragment>
   );
 }

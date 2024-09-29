@@ -133,19 +133,20 @@ export default function ManageBackupFiles(props) {
             >
               <Icon icon="refresh1" className="Font18" />
             </div>
+
+            <div
+              className="act mRight16"
+              onClick={() => {
+                backupFromFiles({ appId, projectId, validLimit, getBackupCount });
+              }}
+            >
+              <Icon icon="upload_file" className="mRight5" />
+              <span> {_l('从文件还原')}</span>
+            </div>
             <div className="act" onClick={() => setShowLog(true)}>
               <Icon icon="wysiwyg" className="mRight5" />
               <span>{_l('日志')}</span>
             </div>
-            {/* <div
-          className="act"
-          onClick={() => {
-            backupFromFiles({ appId, projectId, validLimit, getBackupCount });
-          }}
-        >
-          <Icon icon="upload_file" className="mRight5" />
-          <span> {_l('从文件还原')}</span>
-        </div> */}
           </ActionWrap>
         }
         handleAdd={() => setCreateBackUpVisible(true)}

@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { createPortal } from 'react-dom';
 import React, { Component, Fragment } from 'react';
-import { Modal } from 'antd-mobile';
+import { Dialog as MobileDialog } from 'antd-mobile';
 import { LoadDiv, Dialog } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
 import sheetAjax from 'src/api/worksheet';
@@ -424,8 +424,10 @@ export default class CustomFields extends Component {
         from !== FROM.DRAFT &&
         !isPublicLink() &&
         recordId &&
+        !recordId.includes('default') &&
         md.global.Account.accountId &&
-        ((item.type === 30 && (item.strDefault || '').split('')[0] !== '1') || _.includes([31, 32, 37, 38], item.type));
+        ((item.type === 30 && (item.strDefault || '').split('')[0] !== '1') ||
+          _.includes([31, 32, 37, 38, 53], item.type));
 
       formList.push(
         <div
@@ -500,13 +502,7 @@ export default class CustomFields extends Component {
     const { controlId, type } = item;
     const { smsVerificationFiled, smsVerification } = this.props;
 
-    if (
-      window.isPublicWorksheet &&
-      smsVerification &&
-      type === 3 &&
-      smsVerificationFiled === controlId &&
-      controlState(item, 4).editable
-    ) {
+    if (window.isPublicWorksheet && smsVerification && type === 3 && smsVerificationFiled === controlId && item.value) {
       return (
         <WidgetsVerifyCode
           {...item}
@@ -661,6 +657,7 @@ export default class CustomFields extends Component {
         item.sourceControlType === 3 && item.sourceControl.enumDefault === 1
           ? (item.value || '').replace(/\+86/, '')
           : item.value;
+      item.otherSheetControlType = item.type;
       item.type = item.sourceControlType === 3 ? 2 : item.sourceControlType;
       item.enumDefault = item.sourceControlType === 3 ? 2 : item.enumDefault;
       item.disabled = true;
@@ -686,7 +683,7 @@ export default class CustomFields extends Component {
     if (
       !_.includes([22, 52, 34], item.type) &&
       !(item.type === 29 && isRelateRecordTableControl(item)) &&
-      (item.disabled || _.includes([25, 31, 32, 33, 37, 38], item.type) || !isEditable) &&
+      (item.disabled || _.includes([25, 31, 32, 33, 37, 38, 53], item.type) || !isEditable) &&
       ((!item.value && item.value !== 0 && !_.includes([28, 47, 51], item.type)) ||
         (item.type === 29 &&
           (safeParse(item.value).length <= 0 ||
@@ -854,15 +851,16 @@ export default class CustomFields extends Component {
   errorDialog(errors) {
     const isMobile = browserIsMobile();
     if (isMobile) {
-      Modal.alert(
-        _l('错误提示'),
-        <div>
-          {errors.map(item => (
-            <div className="Gray_75 mBottom6 WordBreak">{item}</div>
-          ))}
-        </div>,
-        [{ text: _l('取消'), onPress: _.noop }],
-      );
+      MobileDialog.alert({
+        content: (
+          <div>
+            {errors.map(item => (
+              <div className="Gray_75 mBottom6 WordBreak">{item}</div>
+            ))}
+          </div>
+        ),
+        confirmText: _l('取消'),
+      });
     } else {
       Dialog.confirm({
         className: 'ruleErrorMsgDialog',
@@ -895,7 +893,7 @@ export default class CustomFields extends Component {
    * 获取提交数据
    */
   getSubmitData({ silent, ignoreAlert, verifyAllControls } = {}) {
-    const { from, recordId, ignoreHideControl, systemControlData } = this.props;
+    const { from, recordId, ignoreHideControl, systemControlData, tabControlProp = {} } = this.props;
     const { errorItems, uniqueErrorItems, rules = [], activeRelateRecordControlId } = this.state;
     const updateControlIds = this.dataFormat.getUpdateControlIds();
     const data = this.dataFormat.getDataSource();
@@ -976,7 +974,11 @@ export default class CustomFields extends Component {
         .map(t => _.find(data, d => d.controlId === t.sectionId))
         .sort((a, b) => a.row - b.row);
       if (!!tabErrorControls.length && !_.find(tabErrorControls, t => t.controlId === activeRelateRecordControlId)) {
-        this.setActiveTabControlId(_.get(tabErrorControls, '0.controlId'));
+        const tempId = _.get(tabErrorControls, '0.controlId');
+        this.setActiveTabControlId(tempId);
+        if (_.isFunction(tabControlProp.handleSectionClick)) {
+          tabControlProp.handleSectionClick(tempId);
+        }
       }
     }
 
@@ -1111,7 +1113,7 @@ export default class CustomFields extends Component {
 
   render() {
     const isMobile = browserIsMobile();
-    const { from, disabled, widgetStyle = {}, ignoreSection, tabControlProp = {} } = this.props;
+    const { from, disabled, widgetStyle = {}, ignoreSection, tabControlProp = {}, className } = this.props;
     const { otherTabs = [] } = tabControlProp;
     const { rulesLoading, renderData } = this.state;
     let { commonData, tabData } = getControlsByTab(renderData, widgetStyle, from, ignoreSection, otherTabs);
@@ -1132,6 +1134,7 @@ export default class CustomFields extends Component {
             wxContainer: isMobile && _.includes([FROM.H5_ADD, FROM.H5_EDIT, FROM.RECORDINFO], from) && !disabled,
             pTop0: isMobile && _.includes([FROM.H5_ADD, FROM.H5_EDIT, FROM.RECORDINFO], from),
             pBottom20: isMobile && !_.isEmpty(commonData),
+            [`${className}`]: className,
           })}
           ref={this.con}
         >

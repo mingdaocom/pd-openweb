@@ -1,13 +1,11 @@
 import React from 'react';
 import { Icon } from 'ming-ui';
-import { Flex, ActivityIndicator } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 
 export const Loading = props => {
   return (
-    <div className="flexColumn h100">
-      <Flex justify="center" align="center" className="h100">
-        <ActivityIndicator size="large" />
-      </Flex>
+    <div className="flexRow justifyContentCenter alignItemsCenter h100">
+      <SpinLoading color='primary' />
     </div>
   );
 }

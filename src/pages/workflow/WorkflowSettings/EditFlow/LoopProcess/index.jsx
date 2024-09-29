@@ -15,7 +15,7 @@ export default class LoopProcess extends Component {
     const { item } = this.props;
 
     return (
-      <div className="pLeft8 pRight8 flexRow" style={{ alignItems: 'center' }}>
+      <div className="pLeft8 pRight8 flexRow alignItemsCenter">
         <div className="ellipsis">
           {item.subProcessId ? (
             <Fragment>
@@ -28,7 +28,7 @@ export default class LoopProcess extends Component {
             _l('设置此节点')
           )}
         </div>
-        {item.subProcessId && (
+        {item.subProcessId && item.subProcessName && (
           <i
             className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2"
             onMouseDown={this.openSubProcess}

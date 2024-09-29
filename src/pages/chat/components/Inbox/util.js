@@ -1,6 +1,6 @@
 import { MSGTYPES, APPID, SOURCE_TYPE } from './constants';
 import { browserIsMobile } from 'src/util';
-import { replacePorTalUrl } from 'src/pages/accountLogin/portalAccount/util'
+import { replacePorTalUrl } from 'src/pages/accountLogin/portalAccount/util';
 import moment from 'moment';
 export const formatInboxItem = function (inboxItem) {
   const createUser = inboxItem.CreateUser || {};
@@ -24,6 +24,11 @@ export const formatInboxItem = function (inboxItem) {
     case MSGTYPES.KCMessage:
     case MSGTYPES.ApprovalMessage:
     case MSGTYPES.WorkSheetMessage:
+    // 工作流消息
+    case MSGTYPES.WorkFlowMessage:
+    case MSGTYPES.WorkFlowTaskMessage:
+    case MSGTYPES.WorkFlowUserTaskMessage:
+    case MSGTYPES.WorkFlowSendTaskMessage:
       typeName = '';
       break;
     case MSGTYPES.AttendanceMessage:
@@ -113,9 +118,6 @@ export const formatInboxItem = function (inboxItem) {
       break;
     case MSGTYPES.WorkSheetRowComment:
       typeName = _l('发表了%0讨论', discussion.entityName);
-      break;
-    case MSGTYPES.WorkFlowMessage:
-      typeName = '';
       break;
 
     default:
@@ -243,7 +245,7 @@ export const buildSourceLink = function (type, _sourceId, _extendsId) {
         } else {
           linkUrl = !browserIsMobile()
             ? replacePorTalUrl(`/app/${appId}/${sourceId}/${viewId}/row/${childId}?share`)
-            : `/mobile/record/${appId}/${sourceId}/${viewId}/${childId}?share`;//h5跳到记录详情
+            : `/mobile/record/${appId}/${sourceId}/${viewId}/${childId}?share`; //h5跳到记录详情
         }
       } else {
         linkUrl = ' /worksheet/' + sourceId + '/row/' + childId + '?share';

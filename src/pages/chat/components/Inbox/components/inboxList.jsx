@@ -31,18 +31,22 @@ export default class InboxList extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    // receive new props means needing reload
-    this.setState(
-      {
-        pageIndex: 1,
-        isLoading: true,
-        list: [],
-        hasMoreData: true,
-      },
-      () => {
-        this.fetchInboxList();
-      }
-    );
+    if (
+      !_.isEqual(_.omit(nextProps, 'count'), _.omit(this.props, 'count')) ||
+      nextProps.count && nextProps.count !== this.props.count
+    ) {
+      this.setState(
+        {
+          pageIndex: 1,
+          isLoading: true,
+          list: [],
+          hasMoreData: true,
+        },
+        () => {
+          this.fetchInboxList();
+        }
+      );
+    }
   }
 
   fetchInboxList() {

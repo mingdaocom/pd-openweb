@@ -3,7 +3,32 @@ import moment from 'moment';
 import dayjs from 'dayjs';
 import { types, timeWidth, timeWidthHalf, lineBottomHeight, lineHeight, minHeightObj } from './config';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
+import { dateConvertToUserZone } from 'src/util';
 
+//获取年的时间数组
+export const getTimesByYear = dateData => {
+  const month = [];
+  for (let i = 0; i < 12; i++) {
+    month.push({
+      time: i + 1,
+      timeStr: i + 1,
+      date: `${moment(dateData).format('YYYY')}/${i + 1}/01 00:00`,
+    });
+  }
+  return month;
+};
+//获取某年的日历数组
+export const getViewTimesByYear = (view, date = moment()) => {
+  return {
+    list: [
+      {
+        date: !date ? moment() : moment(date),
+        times: getTimesByYear(!date ? moment() : moment(date)),
+      },
+    ],
+    title: `${moment(!date ? moment() : moment(date)).format('YYYY')}`,
+  };
+};
 //获取某个月的日历数组
 export const getViewTimesByMonth = (view, time) => {
   const month = time ? moment(time).month() + 1 : moment().month() + 1;
@@ -19,7 +44,9 @@ export const getViewTimesByMonth = (view, time) => {
   );
   return {
     list,
-    title: `${moment(list[0].date).format('YYYY/MM/D')} - ${moment(list[list.length - 1].date).format('D')}`,
+    title: `${moment((list[0] || {}).date).format('YYYY/MM/D')} - ${moment((list[list.length - 1] || {}).date).format(
+      'D',
+    )}`,
   };
 };
 
@@ -39,7 +66,20 @@ export const getViewTimesByWeek = (view, date = moment()) => {
         date: dateT,
         dateStr: moment(dateT).format('D'),
         dayOfWeek: moment(dateT).day() === 0 ? 7 : moment(dateT).day(),
-        times: getViewTimes(view, dateT),
+        times: [
+          {
+            time: 0,
+            amOrPm: 'am',
+            // timeStr: hN,
+            date: moment(moment(moment(dateT).format('YYYY/MM/D 00:00:00'))).format('YYYY/MM/D HH:mm'),
+          },
+          {
+            time: 12,
+            amOrPm: 'pm',
+            // timeStr: hN,
+            date: moment(moment(moment(dateT).format('YYYY/MM/D 12:00:00'))).format('YYYY/MM/D HH:mm'),
+          },
+        ],
       });
     }
     return dates;
@@ -50,25 +90,44 @@ export const getViewTimesByWeek = (view, date = moment()) => {
   );
   return {
     list,
-    title: `${moment(list[0].date).format('YYYY/MM/D')} - ${moment(list[list.length - 1].date).format('D')}`,
+    title: `${moment((list[0] || {}).date).format('YYYY/MM/D')} - ${moment((list[list.length - 1] || {}).date).format(
+      'D',
+    )}`,
   };
 };
 
+function isTimeInRange(timeToCheck, timeRangesStr) {
+  if (!timeRangesStr) {
+    return true;
+  }
+  // 解析时间段字符串为时间段对象数组
+  const ranges = timeRangesStr.split('|').map(rangeStr => {
+    const [start, end] = rangeStr.split('-').map(time => {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours * 60 + minutes; // 转换为分钟以便比较
+    });
+    return { start, end };
+  });
+  // 将时间字符串转换为分钟
+  const [hours, minutes] = timeToCheck.split(':').map(Number);
+  const timeToCheckInMinutes = hours * 60 + minutes;
+  // 检查时间是否在任何一个时间段内
+  for (let range of ranges) {
+    if (timeToCheckInMinutes >= range.start && timeToCheckInMinutes < range.end) {
+      return true; // 时间在范围内
+    }
+  }
+  return false; // 时间不在任何范围内
+}
+
 //获取天的时间数组
 export const getViewTimes = (view, dateData) => {
-  const times = (_.get(view, 'advancedSetting.showtime') || '').split('-').map(item => dayjs(item, 'HH:mm'));
+  const showtime = _.get(view, 'advancedSetting.showtime') ? getRuleTimes(view) : '';
   const isHour24 = _.get(view, 'advancedSetting.hour24') === '1';
   const hours = [];
   for (let i = 0; i < 24; i++) {
     let data = dayjs().set('hour', i).set('minute', 0);
-    const start = times[0];
-    const end = times[1];
-    if (
-      dayjs(data).isBetween(start, end, null, '[]')
-      // ||
-      // dayjs(data).format('HH:mm') === dayjs(start).format('HH:mm') ||
-      // dayjs(data).format('HH:mm') === dayjs(end).format('HH:mm')
-    ) {
+    if (!showtime || isTimeInRange(dayjs(data, 'HH:mm').format('HH:mm'), showtime)) {
       const hN = dayjs(data).format('H');
       hours.push({
         time: dayjs(data).format(isHour24 ? 'H' : 'h'),
@@ -94,10 +153,12 @@ export const getViewTimesByDay = (view, date = moment()) => {
   };
 };
 
-export const getViewTimesList = (view, time) => {
+export const getViewTimesList = (view = {}, time) => {
   const type =
     localStorage.getItem(`${view.viewId}_resource_type`) || types[_.get(view, 'advancedSetting.calendarType') || 0];
   switch (type) {
+    case 'Year':
+      return getViewTimesByYear(view, time);
     case 'Month':
       return getViewTimesByMonth(view, time);
     case 'Week':
@@ -114,8 +175,8 @@ export const getViewTimesList = (view, time) => {
 export const formatRecordTime = (row, view, controls) => {
   const { advancedSetting } = view;
   const { begindate, enddate } = advancedSetting;
-  let startTime = row[begindate];
-  let endTime = row[enddate];
+  let startTime = dateConvertToUserZone(moment(row[begindate]));
+  let endTime = dateConvertToUserZone(moment(row[enddate]));
   return {
     ...row,
     startTime,
@@ -146,15 +207,20 @@ export const formatRecordPoint = (row, view, list = [], controls, currentTime) =
           ) {
             const time1 = moment(list[i].date);
             const time2 = moment(list[i + 1].date);
-            // 计算时间差（分钟）
-            const diffInMinutes = time2.diff(time1, type !== 'Month' ? 'minutes' : 'days');
+            // 计算时间差（分钟）//只有日视图支持设置工作时间
+            const diffInMinutes = time2.diff(time1, 'minutes');
             //开始时间在两个时间格子之间，且被隐藏，则从下个格子开始
-            const isNextStart = !isEnd && diffInMinutes > (type !== 'Month' ? (type === 'Week' ? 60 : 30) : 1);
+            const isNextStart = !isEnd && type === 'Day' && diffInMinutes > 30;
             n = isEnd || isNextStart ? i + 1 : i;
           }
         } else {
           if (
-            moment(time).isBetween(moment(list[i].date), moment(list[i].date).add(type === 'Day' ? 30 : 1, key))
+            moment(time).isBetween(
+              moment(list[i].date),
+              type === 'Year'
+                ? moment(list[i].date).endOf('month')
+                : moment(list[i].date).add(type === 'Day' ? 30 : type === 'Week' ? 12 : 1, key),
+            )
             //在当前和下个开始时间之间
           ) {
             n = isEnd ? i + 1 : i;
@@ -170,66 +236,66 @@ export const formatRecordPoint = (row, view, list = [], controls, currentTime) =
   const isDateStart = (controls.find(o => o.controlId === _.get(view, 'advancedSetting.begindate')) || {}).type === 15;
   const isDateEnd = (controls.find(o => o.controlId === _.get(view, 'advancedSetting.enddate')) || {}).type === 15;
   // 日期字段 格式化开始时间为 00:00:00
-  if (isDateStart || type === 'Month') {
+  if (isDateStart || ['Month', 'Year'].includes(type)) {
     startTime = moment(startTime).format('YYYY-MM-DD 00:00:00');
   } else {
-    if (type === 'Month') {
+    if (['Month', 'Year'].includes(type)) {
       startTime = moment(startTime).format('YYYY-MM-DD 00:00:00');
     }
   }
-  if (isDateEnd || type === 'Month') {
+  if (isDateEnd || ['Month', 'Year'].includes(type)) {
     endTime = moment(moment(endTime).format('YYYY-MM-DD 23:59'));
   }
-
+  const endDate = (_.last(list) || {}).date;
   const timeEnd =
     type === 'Month'
-      ? moment(list[list.length - 1].date).add(1, 'd').subtract(1, 'seconds')
+      ? moment(endDate).add(1, 'd').subtract(1, 'seconds')
       : type === 'Week'
-        ? moment(list[list.length - 1].date)
-          .add(1, 'h')
-          .subtract(1, 'seconds')
-        : moment(list[list.length - 1].date)
-          .add(30, 'minutes')
-          .subtract(1, 'seconds');
+      ? moment(endDate).add(12, 'h').subtract(1, 'seconds')
+      : type === 'Year'
+      ? moment(endDate).endOf('month')
+      : moment(endDate).add(30, 'minutes').subtract(1, 'seconds');
   let start;
   let end;
   //结束时间早于画布开始时间 或 开始时间晚于画布结束时间
-  if (moment(list[0].date).isAfter(moment(endTime)) || moment(timeEnd).isBefore(moment(startTime))) {
+  if (moment((list[0] || {}).date).isAfter(moment(endTime)) || moment(timeEnd).isBefore(moment(startTime))) {
     start = 0;
     end = 0;
   } else {
     //开始时间 是否早于画布开始时间
-    const before = moment(list[0].date).isAfter(moment(startTime));
+    const before = moment((list[0] || {}).date).isAfter(moment(startTime));
     //结束时间 是否晚于画布结束时间
-    const after = moment(timeEnd).isBefore(moment(endTime), type === 'Month' ? 'day' : 'second');
+    const after = moment(timeEnd).isBefore(moment(endTime), type !== 'Day' ? 'day' : 'second');
     start = !before ? getTimeConfig(startTime) : 0;
     end = !after ? getTimeConfig(endTime, true) : list.length;
   }
-  const W = type !== 'Day' ? timeWidth : timeWidthHalf;
+  const W = type === 'Day' ? timeWidthHalf : type === 'Week' ? 2 * timeWidth : timeWidth;
   left = Math.floor((start > 0 ? start : 0) * W);
   const right = Math.floor((end > 0 ? end : 0) * W);
   width = right - left;
   let text = renderTitle(row, controls);
-  if (!isDateStart && type === 'Month') {
+  if (!isDateStart && ['Year', 'Month'].includes(type)) {
     const isHour24 = _.get(view, 'advancedSetting.hour24') === '1';
-    const startT = moment(row.startTime).format(isHour24 ? 'H:mm' : 'h:mm');
+    let startT = moment(row.startTime).format(isHour24 ? 'H:mm' : 'h:mm');
+    if (type === 'Year') {
+      startT = moment(row.startTime).format(isHour24 ? 'MM-DD H:mm' : 'MM-DD h:mm');
+    }
     const h = moment(row.startTime).format('H');
     //日期时间，呈现开始时间
-    text = `${startT}${h > 12 ? 'p' : 'a'} ${text}`;
+    text = `${startT}${isHour24 ? '' : h >= 12 ? 'p' : 'a'} ${text}`;
   }
-  function countChineseCharacters(str) {
-    var count = 0;
-    for (var i = 0; i < str.length; i++) {
-      var charCode = str.charCodeAt(i);
-      if (charCode >= 0x4e00 && charCode <= 0x9fff) {
-        count++;
-      }
-    }
-    return count;
+  function getTextWidthUsingDom(text, font) {
+    const span = document.createElement('span');
+    span.style.visibility = 'hidden';
+    span.style.position = 'absolute';
+    span.style.font = font;
+    span.textContent = text;
+    document.body.appendChild(span);
+    const width = span.offsetWidth;
+    document.body.removeChild(span);
+    return width;
   }
-  const cL = countChineseCharacters(text);
-  const eL = text.length - cL > 0 ? text.length - cL : 0;
-  const r = Math.ceil((cL * 12 + eL * 8) / (width - (8 + 2)));
+  const r = Math.ceil(getTextWidthUsingDom(text, 13) / width);
   const height = Math.floor(r * lineHeight + (8 + 2));
   const maxHeight = lineHeight * 5 + 8;
   const minHeight = minHeightObj[Number(_.get(view, 'rowHeight') || '0')];
@@ -238,6 +304,11 @@ export const formatRecordPoint = (row, view, list = [], controls, currentTime) =
     timeData = [
       (currentTime ? moment(currentTime) : moment()).startOf('month'),
       (currentTime ? moment(currentTime) : moment()).endOf('month'),
+    ];
+  } else if (type === 'Year') {
+    timeData = [
+      (currentTime ? moment(currentTime) : moment()).startOf('year'),
+      (currentTime ? moment(currentTime) : moment()).endOf('year'),
     ];
   } else if (type === 'Week') {
     function getWeekDates(date, firstDayOfWeek) {
@@ -411,4 +482,54 @@ export const getTops = list => {
     }
     return { key: o.key, top, bottom: top + o.height + lineBottomHeight + 1, name: o.name };
   });
+};
+
+export const getRuleTimes = view => {
+  function parseTimeRanges(str) {
+    // 解析字符串为时间段（分钟表示）数组
+    return str.split('|').map(range => {
+      const [start, end] = range
+        .split('-')
+        .map(time => parseInt(time.split(':')[0]) * 60 + parseInt(time.split(':')[1]));
+      return { start, end };
+    });
+  }
+  function mergeTimeRanges(ranges) {
+    ranges.sort((a, b) => a.start - b.start);
+    let merged = [];
+    let current = null;
+    for (let range of ranges) {
+      if (!current || range.start <= current.end) {
+        // 如果当前没有时间段或新时间段与当前时间段重叠，更新当前时间段
+        if (!current) current = { ...range };
+        current.end = Math.max(current.end, range.end);
+      } else {
+        // 如果不重叠，添加当前时间段到结果中，并开始新时间段
+        merged.push({ ...current });
+        current = { ...range };
+      }
+    }
+    // 添加最后一个时间段（如果存在）
+    if (current) merged.push({ ...current });
+    return merged;
+  }
+  function formatMergedRanges(merged) {
+    // 格式化合并后的时间段数组为字符串
+    return merged
+      .map(range => {
+        const start = `${Math.floor(range.start / 60)
+          .toString()
+          .padStart(2, '0')}:${(range.start % 60).toString().padStart(2, '0')}`;
+        const end = `${Math.floor(range.end / 60)
+          .toString()
+          .padStart(2, '0')}:${(range.end % 60).toString().padStart(2, '0')}`;
+        return `${start}-${end}`;
+      })
+      .join('|');
+  }
+  const timeRangesStr = _.get(view, 'advancedSetting.showtime');
+  const ranges = parseTimeRanges(timeRangesStr);
+  const merged = mergeTimeRanges(ranges);
+  const resultStr = formatMergedRanges(merged);
+  return resultStr;
 };

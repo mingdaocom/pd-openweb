@@ -201,7 +201,7 @@ export const stateInit = function () {
 };
 
 export const sync = function () {
-  // 清除单个会话 其他页面接收到推送
+  // 清除单个会话 其他页面接收到推送
   IM.socket.on('session removed', message => {
     this.props.dispatch(actions.sessionRemoved(message));
   });

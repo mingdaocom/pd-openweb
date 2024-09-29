@@ -7,7 +7,9 @@ import { relateDy } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import _ from 'lodash';
-import { DEFAULT_COLUMNS } from '../../enum';
+import { DEFAULT_COLUMNS, FILTER_CONDITION_TYPE, API_ENUM_TO_TYPE } from '../../enum';
+import { ROW_ID_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { isSheetDisplay } from '../../../../../widgetConfig/util';
 
 @withClickAway
 export default class RelateBox extends Component {
@@ -47,17 +49,58 @@ export default class RelateBox extends Component {
     );
   };
 
+  // 符合动态值的本表字段异化，关联记录筛选用
+  filterDynamicControls = isGlobal => {
+    const {
+      conditionType,
+      columns,
+      globalSheetControls,
+      control,
+      defaultValue,
+      widgetControlData = {},
+      from,
+    } = this.props;
+    const dynamicControls = isGlobal ? globalSheetControls : columns;
+    let avaControls = relateDy(conditionType, dynamicControls, control, defaultValue);
+    const { globalSheetId, dataSource, controlId } = widgetControlData;
+
+    if (isGlobal && _.isUndefined(globalSheetControls)) return avaControls;
+    // 记录id能反选到关联本表的关联记录
+    if (
+      control.controlId === 'rowid' &&
+      from === 'relateSheet' &&
+      _.includes([FILTER_CONDITION_TYPE.EQ, FILTER_CONDITION_TYPE.NE], defaultValue)
+    ) {
+      avaControls = avaControls.concat(
+        _.filter(
+          dynamicControls,
+          items =>
+            _.includes([29, 51], items.type) &&
+            !isSheetDisplay(items) &&
+            items.dataSource === dataSource &&
+            items.controlId !== controlId,
+        ),
+      );
+    }
+    // 关联记录字段关联本表，支持rowid
+    if (
+      from === 'relateSheet' &&
+      conditionType === API_ENUM_TO_TYPE.RELATESHEET &&
+      globalSheetId &&
+      control.dataSource === globalSheetId
+    ) {
+      avaControls = avaControls.concat(ROW_ID_CONTROL);
+    }
+    return avaControls;
+  };
+
   render() {
     const {
-      relateSheetList = [],
-      columns,
       showUl,
       onChangeFn,
       keywords,
       setKeys,
-      conditionType,
       control,
-      defaultValue,
       sourceControlId = '',
       globalSheetControls = [], // globalSheetControls 主记录Controls
       from,
@@ -69,12 +112,12 @@ export default class RelateBox extends Component {
       ? customColums
       : _.filter(listColumn, o => o.controlName.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0);
     //符合动态筛选值规则的本表控件
-    let listColumn = relateDy(conditionType, columns, control, defaultValue);
+    let listColumn = this.filterDynamicControls();
     let columnsData = !keywords
       ? listColumn
       : _.filter(listColumn, o => o.controlName.toLocaleLowerCase().indexOf(keywords.toLocaleLowerCase()) >= 0);
     //符合动态筛选值规则主表控件
-    let listglobalSheetColumn = relateDy(conditionType, globalSheetControls, control, defaultValue);
+    let listglobalSheetColumn = this.filterDynamicControls(true);
     let globalSheetControlsData = !keywords
       ? listglobalSheetColumn
       : _.filter(

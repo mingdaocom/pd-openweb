@@ -1,5 +1,5 @@
 import React, { Fragment, Component } from 'react';
-import { Drawer, Select, DatePicker } from 'antd';
+import { Select, DatePicker } from 'antd';
 import { Icon, LoadDiv, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
@@ -73,7 +73,6 @@ export default class Filter extends Component {
       status: {},
       apkId: '',
       processId: '',
-      dateScopeIndex: 1,
       type: null,
       startDate: '',
       endDate: ''
@@ -102,7 +101,16 @@ export default class Filter extends Component {
         (nextProps.visible !== this.props.visible && nextProps.visible) ||
         (nextProps.visible && nextProps.param.type !== this.props.param.type)
       ) {
-        this.getTodoListFilter(nextProps);
+        this.setState({
+          createAccount: {},
+          searchValue: '',
+          processId: '',
+          apkId: '',
+          startDate: '',
+          endDate: ''
+        }, () => {
+          this.getTodoListFilter(nextProps);
+        });
       }
     }
   }
@@ -134,7 +142,7 @@ export default class Filter extends Component {
   };
   getResetVisible = () => {
     const { stateTab } = this.props;
-    const { type, searchValue, createAccount, apkId, processId, operationType, status, dateScopeIndex } = this.state;
+    const { type, searchValue, createAccount, apkId, processId, operationType, status, startDate, endDate } = this.state;
 
     if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL, TABS.WAITING_EXAMINE].includes(stateTab)) {
       return searchValue || !_.isEmpty(createAccount) || apkId || processId;
@@ -144,13 +152,13 @@ export default class Filter extends Component {
     }
     if (stateTab === TABS.COMPLETE) {
       if (type === -1) {
-        return searchValue || !_.isEmpty(operationType) || !_.isEmpty(createAccount) || apkId || dateScopeIndex !== 1;
+        return searchValue || !_.isEmpty(operationType) || !_.isEmpty(createAccount) || apkId || (startDate && endDate);
       }
       if (type === 5) {
-        return searchValue || !_.isEmpty(createAccount) || apkId || dateScopeIndex !== 1;
+        return searchValue || !_.isEmpty(createAccount) || apkId || (startDate && endDate);
       }
       if (type === 0) {
-        return searchValue || !_.isEmpty(status) || apkId || dateScopeIndex !== 1;
+        return searchValue || !_.isEmpty(status) || apkId || (startDate && endDate);
       }
     }
     return false;
@@ -160,7 +168,7 @@ export default class Filter extends Component {
   };
   handleChange = _.debounce(() => {
     const { stateTab } = this.props;
-    const { type, searchValue, createAccount, apkId, processId, status, dateScopeIndex, startDate, endDate } = this.state;
+    const { type, searchValue, createAccount, apkId, processId, status, startDate, endDate } = this.state;
     const operationType = this.state.operationType.value;
 
     let newType = null;
@@ -197,7 +205,8 @@ export default class Filter extends Component {
         processId: '',
         operationType: {},
         status: {},
-        dateScopeIndex: 1,
+        startDate: '',
+        endDate: ''
       },
       this.handleChange,
     );
@@ -350,27 +359,25 @@ export default class Filter extends Component {
   }
   renderDateScope() {
     const { archivedItem } = this.props;
-    const { dateScopeIndex } = this.state;
-    const { startDate, endDate } = dateScope[dateScopeIndex].value;
+    const { startDate, endDate } = this.state;
     return (
       <div className="mBottom16">
         <div className="Font12 mBottom10">{_l('时间范围')}</div>
         {_.isEmpty(archivedItem) ? (
           <RangePicker
             className="dateInput w100"
-            allowClear={false}
             suffixIcon={null}
             locale={locale}
             format="YYYY/MM/DD"
             disabledDate={current => {
               if (current) {
-                const end = moment(endDate);
+                const end = moment(moment().format('YYYY-MM-DD'));
                 return current > end;
               } else {
                 return false;
               }
             }}
-            defaultValue={[moment(startDate), moment(endDate)]}
+            value={[startDate ? moment(startDate) : null, endDate ? moment(endDate) : null]}
             onChange={date => {
               const [start, end] = date;
               this.setState({
@@ -382,7 +389,6 @@ export default class Filter extends Component {
         ) : (
           <RangePicker
             className="dateInput w100"
-            allowClear={false}
             suffixIcon={null}
             locale={locale}
             format="YYYY/MM/DD"
@@ -484,8 +490,8 @@ export default class Filter extends Component {
           <Icon className="Gray_9d Font20 pointer" icon="close" onClick={this.handleClose} />
         </div>
         <div className="flex filterContent">
-          {stateTab == TABS.COMPLETE && this.renderDateScope()}
           {this.renderSearchName()}
+          {stateTab == TABS.COMPLETE && this.renderDateScope()}
           {[TABS.WAITING_APPROVE, TABS.WAITING_FILL, TABS.WAITING_EXAMINE].includes(stateTab) && this.renderAccount()}
           {stateTab == TABS.COMPLETE && (
             <Fragment>
@@ -494,10 +500,11 @@ export default class Filter extends Component {
               {type === 0 && this.renderStatus()}
               <AppFilter
                 apkId={this.state.apkId}
-                onChange={apkId => {
+                onChange={(apkId, processId) => {
                   this.setState(
                     {
                       apkId,
+                      processId,
                     },
                     this.handleChange,
                   );

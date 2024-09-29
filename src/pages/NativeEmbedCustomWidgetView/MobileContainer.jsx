@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import CustomWidgetView from 'src/pages/worksheet/views/CustomWidgetView';
 import * as actions from 'src/pages/worksheet/redux/actions';
-import { Flex, ActivityIndicator } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import _ from 'lodash';
 
 const data = getRequest();
@@ -24,9 +24,9 @@ export default class MobileContainer extends Component {
 
     if (loading) {
       return (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
+        <div className="flexRow justifyContentCenter alignItemsCenter h100">
+          <SpinLoading color='primary' />
+        </div>
       );
     }
 

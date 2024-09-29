@@ -39,25 +39,20 @@ export default function WeChatSettings(props) {
     deviceControlId,
     systemControlId,
     titleFolded,
+    boundControlIds,
   } = data;
   const [addControl, setAddControl] = useState({ visible: false });
 
   const getDropdownOptions = (key, hasClear) => {
+    const needFilterIds = Object.values(weChatSetting.fieldMaps || {})
+      .concat([extendSourceId, ipControlId, browserControlId, deviceControlId, systemControlId])
+      .concat(boundControlIds);
+
     const controls = originalControls
       .filter(
         item =>
-          ((key !== WECHAT_FIELD_KEY.HEAD_IMG_URL && _.includes([2, 41], item.type)) ||
-            (key === WECHAT_FIELD_KEY.HEAD_IMG_URL && item.type === 14)) &&
-          !_.find(
-            Object.values(weChatSetting.fieldMaps || {}).concat([
-              extendSourceId,
-              ipControlId,
-              browserControlId,
-              deviceControlId,
-              systemControlId,
-            ]),
-            id => item.controlId === id,
-          ),
+          (key === WECHAT_FIELD_KEY.HEAD_IMG_URL ? item.type === 14 : _.includes([2, 41], item.type)) &&
+          !_.find(needFilterIds, id => item.controlId === id),
       )
       .map(item => {
         return {

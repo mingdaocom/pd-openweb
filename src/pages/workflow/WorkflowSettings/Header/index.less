@@ -10,7 +10,7 @@
     height: 55px;
     align-items: center;
     background: #fff;
-    z-index: 1;
+    z-index: 2;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 1px 2px;
     &.workflowReleaseHeader {
       background: #313131;
@@ -67,6 +67,17 @@
         background: rgba(255, 255, 255, 0.1);
       }
     }
+    .workflowSettingsHeaderUpdateBtn {
+      width: 54px;
+      height: 22px;
+      background: #333;
+      border-radius: 11px;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 9px;
+    }
   }
   .flowEmptyWrap {
     max-height: 440px;
@@ -90,8 +101,8 @@
     }
   }
   .workflowAction {
+    padding: 0 22px;
     margin-right: 16px;
-    width: 98px;
     height: 38px;
     line-height: 38px;
     border-radius: 3px;

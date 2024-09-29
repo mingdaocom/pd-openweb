@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Fragment } from 'react';
-import { Modal, Button, WingBlank } from 'antd-mobile';
+import { Popup, Button } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import delegationApi from 'src/pages/workflow/api/delegation';
 import SelectUser from 'mobile/components/SelectUser';
@@ -8,16 +8,7 @@ import moment from 'moment';
 import styled from 'styled-components';
 import cx from 'classnames';
 
-const ModalWrap = styled(Modal)`
-  height: 95%;
-  overflow: hidden;
-  border-top-right-radius: 15px;
-  border-top-left-radius: 15px;
-  &.full {
-    height: 100%;
-    border-top-right-radius: 0;
-    border-top-left-radius: 0;
-  }
+const ModalWrap = styled(Popup)`
   .description {
     font-size: 13px;
     color: #9e9e9e;
@@ -82,28 +73,10 @@ const ModalWrap = styled(Modal)`
   }
   .actionButtons {
     padding: 7px 0;
-    .am-button {
-      height: 36px;
-      line-height: 36px;
-      border-radius: 18px;
-      border: 1px solid #ddd;
-    }
-    .am-button-primary {
-      border: 1px solid #2196f3;
-      background-color: #2196f3;
-      &.am-button-disabled {
-        opacity: 0.9;
-      }
-    }
-    .am-button-active::before,
-    .am-button::before {
-      border: none;
-    }
   }
   &.projectListWrap {
     height: 280px;
-    .am-modal-body {
-      text-align: left;
+    .adm-popup-body {
       padding: 16px 16px 0;
     }
     .header {
@@ -207,9 +180,7 @@ export default function DelegationConfigModal(props) {
 
   return (
     <ModalWrap
-      popup
-      animationType="slide-up"
-      className="mobileDelegationCardList full"
+      className="mobileDelegationCardList mobileModal full"
       onClose={onCancel}
       visible={configVisible}
     >
@@ -342,16 +313,12 @@ export default function DelegationConfigModal(props) {
           </div>
         </div>
         <div className="actionButtons flexRow">
-          <WingBlank className="flex" size="sm">
-            <Button className="Font13 bold Gray_75 btn" onClick={onCancel}>
-              {_l('取消')}
-            </Button>
-          </WingBlank>
-          <WingBlank className="flex" size="sm">
-            <Button className="Font13 bold btn" type="primary" disabled={disabled} onClick={onSubmit}>
-              {_l('确定')}
-            </Button>
-          </WingBlank>
+          <Button className="flex mLeft6 mRight6 Font13 bold Gray_75 btn" onClick={onCancel}>
+            {_l('取消')}
+          </Button>
+          <Button className="flex mLeft6 mRight6 Font13 bold btn" color="primary" disabled={disabled} onClick={onSubmit}>
+            {_l('确定')}
+          </Button>
         </div>
       </div>
       {selectUserVisible && (
@@ -371,11 +338,9 @@ export default function DelegationConfigModal(props) {
       )}
       {projectListVisible && (
         <ModalWrap
-          popup
-          animationType="slide-up"
           visible={projectListVisible}
           style={{ height: 280 }}
-          className="projectListWrap"
+          className="projectListWrap mobileModal topRadius"
           onClose={() => setProjectListVisible(false)}
         >
           <div className="flexRow header">

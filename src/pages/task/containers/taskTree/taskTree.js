@@ -240,7 +240,7 @@ class TaskTree extends Component {
       fromType: 2,
       SelectUserSettings: {
         includeUndefinedAndMySelf: true,
-        filterAccountIds: [accountId],
+        selectedAccountIds: [accountId],
         projectId: checkIsProject(projectId) ? projectId : '',
         unique: true,
         callback: users => {

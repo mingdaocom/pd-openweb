@@ -733,7 +733,7 @@ export default class Detail extends React.Component {
                 });
               }}
             >
-              {_l('一键交接协作')}
+              {_l('一键交接')}
             </Button>
           </div>
         </div>

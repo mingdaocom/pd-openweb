@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import Hammer from 'hammerjs';
 import { v4 as uuidv4 } from 'uuid';
-import { autobind } from 'core-decorators';
 import { emitter } from 'worksheet/util';
 import DragMask from 'worksheet/common/DragMask';
 import Skeleton from '../Skeleton';
@@ -198,8 +197,7 @@ export default class MDTable extends React.Component {
   }
 
   // hammer event
-  @autobind
-  handlePanMove(e) {
+  handlePanMove = e => {
     if (window.disableTableScroll) {
       return;
     }
@@ -213,21 +211,19 @@ export default class MDTable extends React.Component {
     } else {
       this.touchScroll({ left: this.leftForHammer });
     }
-  }
+  };
 
   // hammer event
-  @autobind
-  handlePanEnd(e) {
+  handlePanEnd = () => {
     this.lastPandeltaX = 0;
     this.lastPandeltaY = 0;
-  }
+  };
 
   handleStopPop(event) {
     event.stopPropagation();
   }
 
-  @autobind
-  handleMouseWheel(event) {
+  handleMouseWheel = event => {
     let { deltaX, deltaY } = event;
     let isScrollVer = Math.abs(deltaY) > Math.abs(deltaX);
 
@@ -257,19 +253,17 @@ export default class MDTable extends React.Component {
       this.scrollhor.scrollLeft = newLeft;
       this.leftForHammer = newLeft;
     }
-  }
+  };
 
-  @autobind
-  handleCellLeave() {
+  handleCellLeave = () => {
     const { onCellLeave = () => {} } = this.props;
     if (this.mdtable) {
       $(this.mdtable).find('.cell').removeClass('hover');
       onCellLeave();
     }
-  }
+  };
 
-  @autobind
-  handleCellEnter(e) {
+  handleCellEnter = e => {
     const { onCellEnter = () => {} } = this.props;
     const $target = $(e.originalEvent.target).closest('.cell');
     const classMatch = $target.attr('class').match(/.*(row-[0-9]+) .*/);
@@ -280,10 +274,9 @@ export default class MDTable extends React.Component {
         .addClass('hover');
       onCellEnter($target[0]);
     }
-  }
+  };
 
-  @autobind
-  updateTableLayout(props) {
+  updateTableLayout = props => {
     props = props || this.props;
     this.scrollWidth = this.getSumSize(props.columnCount, props.getCellWidth);
     this.scrollHeight = this.getSumSize(props.rowCount - props.fixedRowCount, props.rowHeight);
@@ -306,7 +299,7 @@ export default class MDTable extends React.Component {
     if (this.bottomrightgrid.current) {
       this.bottomrightgrid.current.resetAfterIndices({ columnIndex: 0, rowIndex: 0 });
     }
-  }
+  };
 
   getSumSize(index, size) {
     let width = 0;
@@ -320,18 +313,16 @@ export default class MDTable extends React.Component {
     return width;
   }
 
-  @autobind
-  touchScroll({ left, top }) {
+  touchScroll = ({ left, top }) => {
     if (_.isNumber(top) && this.scrollver) {
       this.scrollver.scrollTop = top;
     }
     if (_.isNumber(left) && this.scrollhor) {
       this.scrollhor.scrollLeft = left;
     }
-  }
+  };
 
-  @autobind
-  setScroll({ left, top }) {
+  setScroll = ({ left, top }) => {
     const newPos = {};
     if (_.isNumber(left)) {
       newPos.left = left;
@@ -348,10 +339,9 @@ export default class MDTable extends React.Component {
         this.scrollver.scrollTop = top;
       }
     }
-  }
+  };
 
-  @autobind
-  scrollTo({ top, left }) {
+  scrollTo = ({ top, left }) => {
     if (_.isNumber(left)) {
       this.scrollLeft = left;
       emitter.emit('MDTABLE_SCROLL');
@@ -384,10 +374,9 @@ export default class MDTable extends React.Component {
         });
       }
     }
-  }
+  };
 
-  @autobind
-  renderTable({ hide, className, top, left, ref, isColumnFixed, isRowFixed, renderFooter, virtualdom }, index) {
+  renderTable = ({ hide, className, top, left, ref, isColumnFixed, isRowFixed, renderFooter, virtualdom }, index) => {
     const {
       disableFrozen,
       responseHeight,
@@ -463,10 +452,9 @@ export default class MDTable extends React.Component {
         )}
       </VariableSizeGrid>
     );
-  }
+  };
 
-  @autobind
-  showColumnWidthChangeMask({ columnWidth, defaultLeft, maskMinLeft, callback }) {
+  showColumnWidthChangeMask = ({ columnWidth, defaultLeft, maskMinLeft, callback }) => {
     this.setState({
       columnWidthChangeMaskVisible: true,
       maskLeft: defaultLeft,
@@ -480,7 +468,7 @@ export default class MDTable extends React.Component {
         callback(newWidth);
       },
     });
-  }
+  };
 
   render() {
     //

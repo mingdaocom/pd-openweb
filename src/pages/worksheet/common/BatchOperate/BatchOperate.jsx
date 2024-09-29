@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { mdNotification } from 'ming-ui/functions';
 import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
@@ -19,7 +18,7 @@ import DropMotion from 'worksheet/components/Animations/DropMotion';
 import PrintList from './PrintList';
 import ExportList from './ExportList';
 import SubButton from './SubButton';
-import Buttons from './Buttons';
+import Buttons from 'src/pages/worksheet/common/recordInfo/RecordForm/CustomButtonsAutoWidth';
 import './BatchOperate.less';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -36,6 +35,21 @@ const CancelTextContent = styled.div`
     margin-right: 8px;
     font-size: 16px;
     color: #f44336;
+  }
+`;
+
+const ButtonsCon = styled.div`
+  position: relative;
+  margin-left: 12px;
+  padding-left: 12px;
+  &:before {
+    content: ' ';
+    position: absolute;
+    top: 8px;
+    left: 0px;
+    width: 1px;
+    height: 13px;
+    background-color: #ddd;
   }
 `;
 class BatchOperate extends React.Component {
@@ -184,8 +198,7 @@ class BatchOperate extends React.Component {
       });
   }
 
-  @autobind
-  handleTriggerCustomBtn(btn) {
+  handleTriggerCustomBtn = btn => {
     const { allWorksheetIsSelected, selectedLength } = this.props;
     if (btn.clickType === CUSTOM_BUTTOM_CLICK_TYPE.IMMEDIATELY) {
       // 立即执行
@@ -202,10 +215,9 @@ class BatchOperate extends React.Component {
         },
       });
     }
-  }
+  };
 
-  @autobind
-  handleUpdateWorksheetRow(args, callback = () => {}) {
+  handleUpdateWorksheetRow = (args, callback = () => {}) => {
     const {
       appId,
       worksheetId,
@@ -284,10 +296,9 @@ class BatchOperate extends React.Component {
       }
       getWorksheetSheetViewSummary();
     });
-  }
+  };
 
-  @autobind
-  handlePrintQrCode({ printType = 1 } = {}) {
+  handlePrintQrCode = ({ printType = 1 } = {}) => {
     const { isCharge } = this.props;
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
@@ -316,7 +327,7 @@ class BatchOperate extends React.Component {
       selectedRows,
       ...this.getFilterArgs(),
     });
-  }
+  };
 
   findLastId(ids) {
     const { rows } = this.props;
@@ -658,8 +669,8 @@ class BatchOperate extends React.Component {
               />
             )}
 
-            <div className="flex">
-              {showCusTomBtn && (
+            {showCusTomBtn ? (
+              <ButtonsCon className="flex">
                 <Buttons
                   isCharge={isCharge}
                   count={selectedLength}
@@ -674,8 +685,10 @@ class BatchOperate extends React.Component {
                   handleTriggerCustomBtn={this.handleTriggerCustomBtn}
                   handleUpdateWorksheetRow={this.handleUpdateWorksheetRow}
                 />
-              )}
-            </div>
+              </ButtonsCon>
+            ) : (
+              <div className="flex" />
+            )}
             <Tooltip popupPlacement="bottom" text={<span>{_l('刷新视图')}</span>}>
               <i
                 className={cx(

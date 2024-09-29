@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Icon, LoadDiv, Button, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, Button, ScrollView, SortableList } from 'ming-ui';
 import { Tooltip } from 'antd';
 import Card from './Card';
 import ChartDialog from './ChartDialog';
@@ -33,6 +32,7 @@ const exceptions = [
   '.ant-tooltip',
   '.ant-cascader-menus',
   '.ant-tree-select-dropdown',
+  '.Tooltip-wrapper',
   '.CityPickerPanelTrigger',
   '.ant-modal-mask',
   '.ant-modal-wrap',
@@ -46,31 +46,13 @@ const exceptions = [
   '.selectRoleDialog',
 ];
 
-const SortableItem = SortableElement(({ item, ...other }) => {
+const renderSortableItem = ({ item, DragHandle, otherProps }) => {
   return (
     <div className="StatisticsPanel-wrapper">
-      <Card report={item} {...other} />
+      <Card DragHandle={DragHandle} report={item} {...otherProps} />
     </div>
   );
-});
-
-const SortableList = SortableContainer(({ list, width, ...other }) => {
-  const emptys = Array.from({ length: 6 });
-  return (
-    <div className="StatisticsPanel-cards" style={{ width }}>
-      {list.map((item, index) => (
-        <SortableItem key={item.id} index={index} item={item} {...other} />
-      ))}
-      {width
-        ? emptys.map((item, index) => (
-            <div key={index} className="StatisticsPanel-wrapper statisticsCard-empty">
-              <div className="statisticsCard" />
-            </div>
-          ))
-        : null}
-    </div>
-  );
-});
+};
 
 export default class Statistics extends Component {
   constructor(props) {
@@ -179,11 +161,9 @@ export default class Statistics extends Component {
   renderStatistics() {
     return <Statistics {...this.props} isFullScreen={true} onClose={_.noop} />;
   }
-  handleSortEnd({ oldIndex, newIndex }) {
-    if (oldIndex === newIndex) return;
+  handleSortEnd = newReports => {
     const { worksheetId } = this.props;
     const { reports, ownerId } = this.state;
-    const newReports = arrayMove(reports, oldIndex, newIndex);
     this.setState({
       reports: newReports,
     });
@@ -210,9 +190,6 @@ export default class Statistics extends Component {
     if (isRequest) {
       this.handleSwitchView();
     }
-  }
-  shouldCancelStart({ target }) {
-    return !target.classList.contains('icon-drag');
   }
   renderHeader() {
     const { ownerId, showSelf, showPublic } = this.state;
@@ -266,21 +243,30 @@ export default class Statistics extends Component {
   renderContent() {
     const { isFullScreen, ...other } = this.props;
     const { reports, chartWidth, ownerId, pageLoading } = this.state;
-    const sortableListProps = {
+    const otherProps = {
       ...other,
-      axis: 'xy',
       ownerId,
-      list: reports,
-      helperClass: 'sortableCard',
-      shouldCancelStart: this.shouldCancelStart,
-      onSortEnd: this.handleSortEnd.bind(this),
-      width: isFullScreen ? chartWidth : '',
       onRemove: this.handleDelete.bind(this),
     };
+    const width = isFullScreen ? chartWidth : '';
     return (
       <ScrollView className="flex" onScrollEnd={this.handleScrollEnd.bind(this)}>
         <div className="StatisticsPanel-content">
-          <SortableList {...sortableListProps} />
+          <div className="StatisticsPanel-cards" style={{ width }}>
+            <SortableList
+              useDragHandle
+              dragPreviewImage
+              itemKey="id"
+              items={reports}
+              renderItem={(options) => renderSortableItem({ ...options, otherProps })}
+              onSortEnd={this.handleSortEnd}
+            />
+          {width && Array.from({ length: 6 }).map((item, index) => (
+            <div key={index} className="StatisticsPanel-wrapper statisticsCard-empty">
+              <div className="statisticsCard" />
+            </div>
+          ))}
+          </div>
           {pageLoading ? <LoadDiv /> : null}
         </div>
       </ScrollView>

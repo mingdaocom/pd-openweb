@@ -1,9 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Icon, Checkbox, Dialog, Input, ScrollView, Switch, LoadDiv, SvgIcon } from 'ming-ui';
+import { Icon, Dialog, Input, ScrollView, Switch, LoadDiv, SvgIcon, SortableList } from 'ming-ui';
 import { Button } from 'antd';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
-import Trigger from 'rc-trigger';
 import privateSource from 'src/api/privateSource';
 import appManagement from 'src/api/appManagement';
 import './index.less';
@@ -11,36 +9,51 @@ import _ from 'lodash';
 
 const COLORS = ['#e91e63', '#ff9800', '#4caf50', '#00bcd4', '#2196f3', '#9c27b0', '#3f51b5', '#455a64'];
 
-const SortableItem = SortableElement(({ item, ...other }) => {
-  const { onChangeStatus, onEdit, onDelete } = other;
+function SortableItem(props) {
+  const { item, onChangeStatus, onEdit, onDelete, DragHandle } = props;
+
   return (
     <div className="flexRow sourcesItem" key={item.id}>
       <div className="valignWrapper">
-        <Icon className="Font17 Gray_9e pointer" icon="drag" />
-        <Switch className="mLeft10" checked={item.status === 1} onClick={value => { onChangeStatus(item.id, value) }}/>
+        <DragHandle>
+          <Icon className="Font17 Gray_9e pointer" icon="drag" />
+        </DragHandle>
+        <Switch
+          className="mLeft10"
+          checked={item.status === 1}
+          onClick={value => {
+            onChangeStatus(item.id, value);
+          }}
+        />
       </div>
       <div>
-        <SvgIcon size="22" fill={item.color} url={item.iconUrl}/>
+        <SvgIcon size="22" fill={item.color} url={item.iconUrl} />
       </div>
-      <div>{(item.eventParams && item.eventParams.name == 'tpapp') ? _l('第三方应用') : item.name}</div>
+      <div>{item.eventParams && item.eventParams.name == 'tpapp' ? _l('第三方应用') : item.name}</div>
       <div className="url ellipsis">{item.linkParams ? item.linkParams.url : '-'}</div>
       <div>
-        <span className={item.predefined ? 'Gray_9e' : 'edit pointer'} onClick={() => { onEdit(item.id) }}>{_l('编辑')}</span>
-        {!item.predefined && <span className="edit pointer mLeft20" onClick={() => { onDelete(item.id) }}>{_l('删除')}</span>}
+        <span
+          className={item.predefined ? 'Gray_9e' : 'edit pointer'}
+          onClick={() => {
+            onEdit(item.id);
+          }}
+        >
+          {_l('编辑')}
+        </span>
+        {!item.predefined && (
+          <span
+            className="edit pointer mLeft20"
+            onClick={() => {
+              onDelete(item.id);
+            }}
+          >
+            {_l('删除')}
+          </span>
+        )}
       </div>
     </div>
   );
-});
-
-const SortableList = SortableContainer(({ sourcesList, ...other }) => {
-  return (
-    <div>
-      {sourcesList.map((item, index) => (
-        <SortableItem key={item.id} index={index} item={item} {...other} />
-      ))}
-    </div>
-  );
-});
+}
 
 export default class SourceListSettings extends Component {
   constructor(props) {
@@ -55,18 +68,20 @@ export default class SourceListSettings extends Component {
   }
   componentDidMount() {
     this.getSources();
-    appManagement.getIcon({
-      iconType: true,
-      isLine: false,
-    }).then(({ general }) => {
-      this.setState({
-        systemIcon: general,
-        creatreItem: {
-          color: COLORS[0],
-          icon: general[0].fileName
-        }
+    appManagement
+      .getIcon({
+        iconType: true,
+        isLine: false,
+      })
+      .then(({ general }) => {
+        this.setState({
+          systemIcon: general,
+          creatreItem: {
+            color: COLORS[0],
+            icon: general[0].fileName,
+          },
+        });
       });
-    });
   }
   getSources() {
     this.setState({ listLoading: true });
@@ -77,41 +92,41 @@ export default class SourceListSettings extends Component {
       });
     });
   }
-  handleSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-    const { sourcesList } = this.state;
-    const newSourcesList = arrayMove(sourcesList, oldIndex, newIndex);
+  handleSortEnd = newItems => {
     const result = {};
-    this.setState({
-      sourcesList: newSourcesList,
-    });
-    newSourcesList.forEach((item, index) => {
+
+    this.setState({ sourcesList: newItems });
+    newItems.forEach((item, index) => {
       result[item.id] = index;
     });
-    privateSource.editSourceSort({
-      sortMap: result,
-    }).then(result => {});
-  }
+    privateSource
+      .editSourceSort({
+        sortMap: result,
+      })
+      .then(result => {});
+  };
   handleChangeStatus = (id, value) => {
     const { sourcesList } = this.state;
     const status = value ? 2 : 1;
-    privateSource.editSourceStatus({
-      id,
-      status,
-    }).then(result => {
-      if (result) {
-        this.setState({
-          sourcesList: sourcesList.map(item => {
-            if (item.id === id) {
-              item.status = status;
-            }
-            return item;
-          })
-        });
-      }
-    });
-  }
-  handleEdit = (id) => {
+    privateSource
+      .editSourceStatus({
+        id,
+        status,
+      })
+      .then(result => {
+        if (result) {
+          this.setState({
+            sourcesList: sourcesList.map(item => {
+              if (item.id === id) {
+                item.status = status;
+              }
+              return item;
+            }),
+          });
+        }
+      });
+  };
+  handleEdit = id => {
     const { sourcesList } = this.state;
     const sources = _.find(sourcesList, { id });
     this.setState({
@@ -122,28 +137,30 @@ export default class SourceListSettings extends Component {
         color: sources.color,
         icon: sources.icon,
         url: sources.linkParams.url,
-      }
+      },
     });
-  }
-  handleDelete = (id) => {
+  };
+  handleDelete = id => {
     const { sourcesList } = this.state;
     Dialog.confirm({
       title: _l('您确定要删除 ?'),
       description: _l('删除后无法恢复'),
       onOk: () => {
-        privateSource.removeSource({
-          id,
-        }).then(result => {
-          if (result) {
-            alert(_l('删除成功'));
-            this.setState({
-              sourcesList: sourcesList.filter(item => item.id !== id)
-            });
-          }
-        });
-      }
+        privateSource
+          .removeSource({
+            id,
+          })
+          .then(result => {
+            if (result) {
+              alert(_l('删除成功'));
+              this.setState({
+                sourcesList: sourcesList.filter(item => item.id !== id),
+              });
+            }
+          });
+      },
     });
-  }
+  };
   handleSave = () => {
     const { creatreItem, systemIcon } = this.state;
 
@@ -162,45 +179,49 @@ export default class SourceListSettings extends Component {
       icon: creatreItem.icon,
       linkParams: {
         url: creatreItem.url,
-      }
-    }
+      },
+    };
 
     if (creatreItem.id) {
-      privateSource.editSource({
-        id: creatreItem.id,
-        ...base,
-      }).then(result => {
-        if (result) {
-          this.setState({
-            creatreItem: {},
-            dialogVisible: false,
-            sourcesList: this.state.sourcesList.map(item => {
-              if (item.id === creatreItem.id) {
-                return {
-                  ...item,
-                  ...base,
-                  iconUrl: _.find(systemIcon, { fileName: base.icon }).iconUrl
+      privateSource
+        .editSource({
+          id: creatreItem.id,
+          ...base,
+        })
+        .then(result => {
+          if (result) {
+            this.setState({
+              creatreItem: {},
+              dialogVisible: false,
+              sourcesList: this.state.sourcesList.map(item => {
+                if (item.id === creatreItem.id) {
+                  return {
+                    ...item,
+                    ...base,
+                    iconUrl: _.find(systemIcon, { fileName: base.icon }).iconUrl,
+                  };
                 }
-              }
-              return item;
-            })
-          });
-        }
-      });
+                return item;
+              }),
+            });
+          }
+        });
     } else {
-      privateSource.addSource({
-        ...base,
-      }).then(result => {
-        if (result) {
-          this.setState({ dialogVisible: false, creatreItem: {} });
-          this.getSources();
-        }
-      });
+      privateSource
+        .addSource({
+          ...base,
+        })
+        .then(result => {
+          if (result) {
+            this.setState({ dialogVisible: false, creatreItem: {} });
+            this.getSources();
+          }
+        });
     }
-  }
+  };
   shouldCancelStart = ({ target }) => {
     return !target.classList.contains('icon-drag');
-  }
+  };
   renderDialog() {
     const { dialogVisible, creatreItem, systemIcon } = this.state;
     return (
@@ -235,36 +256,32 @@ export default class SourceListSettings extends Component {
         </div>
         <div className="mBottom10 mTop15 Font14">{_l('设计图标')}</div>
         <div className="flexRow valignWrapper">
-          {
-            COLORS.map((item, index) => (
-              <div
-                key={index}
-                style={{ backgroundColor: item }}
-                className={cx('sourcesColor flexRow valignWrapper', { active: item == creatreItem.color })}
-                onClick={() => {
-                  this.setState({ creatreItem: Object.assign({}, creatreItem, { color: item }) });
-                }}
-              >
-                {item == creatreItem.color && <Icon className="Font17 White" icon="done" />}
-              </div>
-            ))
-          }
+          {COLORS.map((item, index) => (
+            <div
+              key={index}
+              style={{ backgroundColor: item }}
+              className={cx('sourcesColor flexRow valignWrapper', { active: item == creatreItem.color })}
+              onClick={() => {
+                this.setState({ creatreItem: Object.assign({}, creatreItem, { color: item }) });
+              }}
+            >
+              {item == creatreItem.color && <Icon className="Font17 White" icon="done" />}
+            </div>
+          ))}
         </div>
         <div className="flexRow valignWrapper mTop15 sourcesIconWrapper">
-          {
-            systemIcon.map((item, index) => (
-              <div
-                key={index}
-                style={{ backgroundColor: creatreItem.icon == item.fileName ? creatreItem.color : null }}
-                className={cx('sourcesIcon flexRow valignWrapper pointer')}
-                onClick={() => {
-                  this.setState({ creatreItem: Object.assign({}, creatreItem, { icon: item.fileName }) });
-                }}
-              >
-                <SvgIcon url={item.iconUrl} fill={creatreItem.icon == item.fileName ? '#fff' : '#9e9e9e'} />
-              </div>
-            ))
-          }
+          {systemIcon.map((item, index) => (
+            <div
+              key={index}
+              style={{ backgroundColor: creatreItem.icon == item.fileName ? creatreItem.color : null }}
+              className={cx('sourcesIcon flexRow valignWrapper pointer')}
+              onClick={() => {
+                this.setState({ creatreItem: Object.assign({}, creatreItem, { icon: item.fileName }) });
+              }}
+            >
+              <SvgIcon url={item.iconUrl} fill={creatreItem.icon == item.fileName ? '#fff' : '#9e9e9e'} />
+            </div>
+          ))}
         </div>
       </Dialog>
     );
@@ -275,7 +292,12 @@ export default class SourceListSettings extends Component {
       <Fragment>
         <div className="sourceListContent flex flexColumn h100">
           <div>
-            <Button type="primary" onClick={() => { this.setState({ dialogVisible: true }) }}>
+            <Button
+              type="primary"
+              onClick={() => {
+                this.setState({ dialogVisible: true });
+              }}
+            >
               <Icon icon="add" />
               {_l('添加资源')}
             </Button>
@@ -289,17 +311,24 @@ export default class SourceListSettings extends Component {
           </div>
           <ScrollView className="flex">
             {listLoading ? (
-              <div className="mTop5"><LoadDiv size="small" /></div>
+              <div className="mTop5">
+                <LoadDiv size="small" />
+              </div>
             ) : (
               <SortableList
-                axis="xy"
+                useDragHandle
                 helperClass="sourcesSortableCard"
-                sourcesList={sourcesList}
+                items={sourcesList}
+                itemKey="id"
                 onSortEnd={this.handleSortEnd}
-                onChangeStatus={this.handleChangeStatus}
-                onEdit={this.handleEdit}
-                onDelete={this.handleDelete}
-                shouldCancelStart={this.shouldCancelStart}
+                renderItem={options => (
+                  <SortableItem
+                    {...options}
+                    onChangeStatus={this.handleChangeStatus}
+                    onEdit={this.handleEdit}
+                    onDelete={this.handleDelete}
+                  />
+                )}
               />
             )}
           </ScrollView>

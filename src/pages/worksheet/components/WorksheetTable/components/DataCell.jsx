@@ -12,6 +12,7 @@ export default function MDCell(props) {
     rowIndex,
     cellIndex,
     row,
+    getRow = () => undefined,
     control,
     fixedColumnCount,
     getPopupContainer,
@@ -118,7 +119,7 @@ export default function MDCell(props) {
       scrollTo={scrollTo}
       tableScrollTop={tableScrollTop}
       updateCell={(cell, options) => {
-        updateCell({ cell, control, row }, options);
+        updateCell({ cell, control, row: getRow() || row }, options);
       }}
       onClick={onClick}
       onFocusCell={onFocusCell}

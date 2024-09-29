@@ -1,10 +1,11 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Checkbox, Icon, Avatar } from 'ming-ui';
 import { quickSelectUser } from 'ming-ui/functions';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import _ from 'lodash';
+import { isUser } from '../util';
 
 const UserPickerWrapper = styled.div`
   width: 220px;
@@ -49,8 +50,20 @@ const SYSTEM_FIELDS = [
 ];
 
 export default function UserPicker(props) {
-  const { visible, onChangeVisible, projectId, appId, selectUsers = [], selectUserCallback, clearSelectUser } = props;
+  const { projectId, appId, selectUsers = [], changeSelect } = props;
   const selectUserRef = useRef();
+
+  const [visible, setVisible] = useState(false);
+
+  const selectUserCallback = users => {
+    let param = { selectUsers: users };
+
+    if (!users || users.length !== 1 || !isUser(users[0])) {
+      param.requestType = 0;
+    }
+
+    changeSelect(undefined, param, { opeartorIds: users.map(item => item.accountId) });
+  };
 
   const pickUser = () => {
     const filterIds = ['user-sub', 'user-undefined'];
@@ -64,7 +77,8 @@ export default function UserPicker(props) {
       appId,
       showMoreInvite: false,
       isTask: false,
-      filterAccountIds: selectUsers.map(item => item.accountId).concat(filterIds),
+      filterAccountIds: filterIds,
+      selectedAccountIds: selectUsers.map(item => item.accountId),
       offset: {
         top: 2,
       },
@@ -72,60 +86,68 @@ export default function UserPicker(props) {
       SelectUserSettings: {
         unique: true,
         projectId,
-        filterAccountIds: selectUsers.map(item => item.accountId).concat(filterIds),
+        filterAccountIds: filterIds,
+        selectedAccountIds: selectUsers.map(item => item.accountId),
         callback: selectUserCallback,
       },
       selectCb: selectUserCallback,
     });
   };
 
+  const clearSelectUser = e => changeSelect(e, { selectUsers: undefined }, { opeartorIds: undefined, requestType: 0 });
+
+  const renderPopup = () => {
+    return (
+      <UserPickerWrapper>
+        <div className="bold pLeft20 pRight20 mBottom8">{_l('类型')}</div>
+        {SYSTEM_FIELDS.map(item => {
+          const checked = selectUsers.map(user => user.accountId).includes(item.accountId);
+
+          return (
+            <div
+              className="userItem"
+              key={`UserPicker-Item-${item.accountId}`}
+              onClick={() => {
+                const systemIds = SYSTEM_FIELDS.map(sys => sys.accountId);
+                const users = selectUsers.filter(user => !!systemIds.includes(user.accountId));
+                selectUserCallback(
+                  checked ? users.filter(user => user.accountId !== item.accountId) : users.concat(item),
+                );
+              }}
+            >
+              <Checkbox text={item.fullname} checked={checked} />
+            </div>
+          );
+        })}
+        <div className="divider" />
+        <div
+          className="userItem"
+          onClick={() => selectUserCallback([{ accountId: 'user-self', fullname: _l('我自己') }])}
+        >
+          <Avatar src={_.get(md, 'global.Account.avatar')} size={28} />
+          <span className="mLeft12">{_l('我自己')}</span>
+        </div>
+        <div className="userItem" onClick={pickUser}>
+          <div className="userIcon">
+            <Icon icon="person" className="Font16" />
+          </div>
+          <span className="mLeft12">{_l('指定用户')}</span>
+        </div>
+      </UserPickerWrapper>
+    );
+  };
+
   return (
     <Trigger
       popupVisible={visible}
-      onPopupVisibleChange={onChangeVisible}
+      onPopupVisibleChange={value => setVisible(value)}
       action={['click']}
       popupAlign={{ points: ['tl', 'bl'], offset: [0, 5] }}
-      popup={
-        <UserPickerWrapper>
-          <div className="bold pLeft20 pRight20 mBottom8">{_l('类型')}</div>
-          {SYSTEM_FIELDS.map(item => {
-            const checked = selectUsers.map(user => user.accountId).includes(item.accountId);
-            return (
-              <div
-                className="userItem"
-                key={`UserPicker-Item-${item.accountId}`}
-                onClick={() => {
-                  const systemIds = SYSTEM_FIELDS.map(sys => sys.accountId);
-                  const users = selectUsers.filter(user => !!systemIds.includes(user.accountId));
-                  selectUserCallback(
-                    checked ? users.filter(user => user.accountId !== item.accountId) : users.concat(item),
-                  );
-                }}
-              >
-                <Checkbox text={item.fullname} checked={checked} />
-              </div>
-            );
-          })}
-          <div className="divider" />
-          <div
-            className="userItem"
-            onClick={() => selectUserCallback([{ accountId: 'user-self', fullname: _l('我自己') }])}
-          >
-            <Avatar src={_.get(md, 'global.Account.avatar')} size={28} />
-            <span className="mLeft12">{_l('我自己')}</span>
-          </div>
-          <div className="userItem" onClick={pickUser}>
-            <div className="userIcon">
-              <Icon icon="person" className="Font16" />
-            </div>
-            <span className="mLeft12">{_l('指定用户')}</span>
-          </div>
-        </UserPickerWrapper>
-      }
+      popup={renderPopup()}
     >
       <span className={cx({ selectLight: !!selectUsers.length }, 'selectUser')} ref={selectUserRef}>
         <Icon icon="person" />
-        <span className="selectConText">
+        <span className="selectConText breakAll">
           {selectUsers.length > 1
             ? selectUsers.length + _l('项')
             : selectUsers.length === 1

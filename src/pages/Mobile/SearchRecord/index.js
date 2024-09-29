@@ -1,7 +1,5 @@
 import React, { Fragment, Component } from 'react';
-import { connect } from 'react-redux';
-import { Icon } from 'ming-ui';
-import { Flex, ActivityIndicator, WhiteSpace, ListView, WingBlank } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import CustomRecordCard from 'mobile/RecordList/RecordCard';
 import sheetApi from 'src/api/worksheet';
 import { WithoutSearchRows } from '../RecordList/SheetRows';
@@ -36,14 +34,10 @@ function getFilterControls(searchId, keyWords) {
 class Search extends Component {
   constructor(props) {
     super(props);
-    const dataSource = new ListView.DataSource({
-      rowHasChanged: (row1, row2) => row1 !== row2,
-    });
     this.state = {
       sheetInfo: {},
       rows: [],
       filterControls: [],
-      dataSource,
       isMore: true,
       loading: true,
       pageIndex: 1,
@@ -79,7 +73,7 @@ class Search extends Component {
   }
   requestFilterRows = () => {
     const { params } = this.props.match;
-    const { loading, isMore, pageIndex, filterControls, sheetInfo } = this.state;
+    const { pageIndex, filterControls, sheetInfo } = this.state;
     const controls = _.get(sheetInfo, ['template', 'controls']) || [];
     const { keyWords, searchId } = getRequest();
 
@@ -122,13 +116,14 @@ class Search extends Component {
           isMore: data.length === pageSize,
           pageIndex: pageIndex + 1,
           loading: false,
-          dataSource: this.state.dataSource.cloneWithRows(newRows),
         });
       });
   };
-  handleEndReached = () => {
+  handleEndReached = (event) => {
+    const { target } = event;
     const { loading, isMore } = this.state;
-    if (!loading && isMore) {
+    const isEnd = target.scrollHeight - target.scrollTop <= target.clientHeight;
+    if (isEnd && !loading && isMore) {
       this.requestFilterRows();
     }
   };
@@ -147,62 +142,52 @@ class Search extends Component {
     });
 
     return (
-      <WingBlank size="md" key={item.rowid}>
-        <CustomRecordCard
-          key={item.rowid}
-          data={item}
-          view={view}
-          controls={worksheetControls}
-          allowAdd={sheetInfo.allowAdd}
-          onClick={() => {
-            const url = `/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${item.rowid}`;
-            if (window.isMingDaoApp) {
-              location.href = url;
-            } else {
-              window.mobileNavigateTo(url);
-            }
-          }}
-        />
-      </WingBlank>
+      <CustomRecordCard
+        className="mLeft8 mRight8"
+        key={item.rowid}
+        data={item}
+        view={view}
+        controls={worksheetControls}
+        allowAdd={sheetInfo.allowAdd}
+        onClick={() => {
+          const url = `/mobile/record/${params.appId}/${params.worksheetId}/${params.viewId}/${item.rowid}`;
+          if (window.isMingDaoApp) {
+            location.href = url;
+          } else {
+            window.mobileNavigateTo(url);
+          }
+        }}
+      />
     );
   };
   render() {
-    const { loading, isMore, rows, dataSource } = this.state;
+    const { loading, isMore, rows } = this.state;
     return (
       <div className="searchRecordWrapper flexColumn h100">
-        <div className="flex">
-          {loading && _.isEmpty(rows) ? (
-            <Flex justify="center" align="center" className="h100">
-              <ActivityIndicator size="large" />
-            </Flex>
-          ) : (
-            <Fragment>
-              {rows.length ? (
-                <ListView
-                  className="searchSheetRowsWrapper h100"
-                  dataSource={dataSource}
-                  renderHeader={() => <Fragment />}
-                  renderFooter={() =>
-                    isMore ? (
-                      <Flex justify="center">{loading ? <ActivityIndicator animating /> : null}</Flex>
-                    ) : (
-                      <Fragment />
-                    )
-                  }
-                  pageSize={10}
-                  scrollRenderAheadDistance={500}
-                  onEndReached={this.handleEndReached}
-                  onEndReachedThreshold={10}
-                  renderRow={this.renderRow}
-                />
-              ) : (
-                <div className="h100">
-                  <WithoutSearchRows text={_l('没有搜索结果')} />
+        {loading && _.isEmpty(rows) ? (
+          <div className="flexRow justifyContentCenter alignItemsCenter h100">
+            <SpinLoading color='primary' />
+          </div>
+        ) : (
+          <Fragment>
+            {rows.length ? (
+              <Fragment>
+                <div className="searchSheetRowsWrapper h100 pTop10" onScroll={this.handleEndReached}>
+                  {rows.map(row => (
+                    this.renderRow(row)
+                  ))}
                 </div>
-              )}
-            </Fragment>
-          )}
-        </div>
+                {isMore && (
+                  <div className="flexRow alignItemsCenter justifyContentCenter">{loading ? <SpinLoading color='primary' /> : null}</div>
+                )}
+              </Fragment>
+            ) : (
+              <div className="h100">
+                <WithoutSearchRows text={_l('没有搜索结果')} />
+              </div>
+            )}
+          </Fragment>
+        )}
       </div>
     );
   }

@@ -39,6 +39,9 @@ export default class Widgets extends Component {
     if (this.text && nextProps.value !== this.text.value) {
       this.text.value = nextProps.value || '';
     }
+    if (nextProps.flag !== this.props.flag) {
+      this.setState({ maskStatus: _.get(nextProps, 'advancedSetting.datamask') === '1' });
+    }
   }
 
   handleFocus = event => {
@@ -54,8 +57,9 @@ export default class Widgets extends Component {
   };
 
   getShowValue = () => {
+    const { hint } = this.props;
     const value = this.text ? (this.text.value || '').replace(/ /g, '') : this.props.value || '';
-    return this.state.maskStatus && value ? dealMaskValue({ ...this.props, value }) : value;
+    return this.state.maskStatus && value ? dealMaskValue({ ...this.props, value }) : value || hint;
   };
 
   componentWillUnmount() {

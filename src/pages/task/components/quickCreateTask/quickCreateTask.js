@@ -83,7 +83,7 @@ class QuickCreateTask {
                     fromType: 2,
                     SelectUserSettings: {
                       includeUndefinedAndMySelf: true,
-                      filterAccountIds: [accountId],
+                      selectedAccountIds: [accountId],
                       projectId: checkIsProject(_this.settings.projectId) ? _this.settings.projectId : '',
                       unique: true,
                       callback: users => {
@@ -217,10 +217,10 @@ class QuickCreateTask {
         showMoreInvite: false,
 
         fromType: 2,
-        filterAccountIds: [$this.attr('data-id')],
+        selectedAccountIds: [$this.attr('data-id')],
         includeUndefinedAndMySelf: true,
         SelectUserSettings: {
-          filterAccountIds: [$this.attr('data-id')],
+          selectedAccountIds: [$this.attr('data-id')],
           projectId: checkIsProject(_this.settings.projectId) ? _this.settings.projectId : '',
           unique: true,
           callback,

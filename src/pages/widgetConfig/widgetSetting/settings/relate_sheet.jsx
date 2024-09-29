@@ -324,11 +324,12 @@ export default function RelateSheet(props) {
                   titlesize: '',
                   titlestyle: '',
                   titlecolor: '',
+                  ...(value !== '5' ? { layercontrolid: '' } : {}),
                 }),
               };
             } else {
               nextData = {
-                ...handleAdvancedSettingChange(nextData, { sorts: '', resultfilters: '' }),
+                ...handleAdvancedSettingChange(nextData, { sorts: '', resultfilters: '', layercontrolid: '' }),
                 strDefault: updateConfig({
                   config: strDefault,
                   value: 0,

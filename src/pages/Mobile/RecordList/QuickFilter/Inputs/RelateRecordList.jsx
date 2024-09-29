@@ -2,7 +2,7 @@ import React, { Fragment, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon, ScrollView } from 'ming-ui';
-import { Flex, ActivityIndicator } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import worksheetAjax from 'src/api/worksheet';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { arrayOf, bool, func, shape } from 'prop-types';
@@ -67,9 +67,9 @@ export default function RelateRecordList(props) {
   return (
     <Con className="h100">
       {loading && pageIndex === 1 ? (
-        <Flex className="loadingWrapper" justify="center" align="center">
-          <ActivityIndicator size="large" />
-        </Flex>
+        <div className="flexRow justifyContentCenter alignItemsCenter loadingWrapper">
+          <SpinLoading color='primary' />
+        </div>
       ) : (
         <ScrollView onScrollEnd={handleEndReached}>
           {records.map(record => {
@@ -92,7 +92,7 @@ export default function RelateRecordList(props) {
               </Item>
             )
           })}
-          {isMore ? <Flex justify="center">{loading ? <ActivityIndicator animating /> : null}</Flex> : <Fragment />}
+          {isMore ? <div className="flexRow alignItemsCenter justifyContentCenter">{loading ? <SpinLoading color='primary' /> : null}</div> : <Fragment />}
         </ScrollView>
       )}
     </Con>

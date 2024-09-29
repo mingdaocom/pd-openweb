@@ -117,10 +117,13 @@ const parseStaticValue = (item, staticValue) => {
   // 关联表、级联
   if (_.includes([29, 35], item.type)) {
     const titleControl = _.find(_.get(item, 'relationControls'), i => i.attribute === 1);
+    const isCascaderAllPath = item.type === 35 && _.get(item, 'advancedSetting.allpath') === '1';
     staticValue = safeParse(staticValue)[0];
     const name =
       safeParse(staticValue).name ||
-      (titleControl
+      (isCascaderAllPath
+        ? safeParse(_.get(safeParse(staticValue), 'path') || '[]').join(' / ')
+        : titleControl
         ? renderCellText({ ...titleControl, value: safeParse(staticValue)[titleControl.controlId] }) || _l('未命名')
         : undefined);
     return JSON.stringify([
@@ -430,12 +433,9 @@ const parseNewFormula = (data, currentItem = {}) => {
       column.value = '0';
     }
 
-    return parseFloat(
-      _.find([6, 8, 28, 31, 37], c => c === column.type || c === column.sourceControlType)
-        ? column.value
-        : formatColumnToText(column, true, true),
-      10,
-    );
+    return _.find([6, 8, 28, 31, 37], c => c === column.type || c === column.sourceControlType)
+      ? column.value
+      : formatColumnToText(column, true, true);
   });
   const parser = new Parser();
   parser.setFunction('MOD', function (params) {
@@ -1101,7 +1101,13 @@ export default class DataFormat {
     // store 挂载
     this.data.forEach(item => {
       if (item.hidden) return;
-      if (item.type === 34 && setSubListStore && !item.store) {
+      if (item.type === 53 && item.dataSource) {
+        item.advancedSetting = { ...item.advancedSetting, defaultfunc: item.dataSource, defaulttype: '1' };
+      }
+      if (item.storeFromDefault) {
+        item.store = item.storeFromDefault;
+        delete item.storeFromDefault;
+      } else if (item.type === 34 && setSubListStore && !item.store) {
         item.store = this.getControlStore(item);
       } else if (
         !this.isMobile &&
@@ -1154,8 +1160,9 @@ export default class DataFormat {
           }
         } else if (item.advancedSetting && item.advancedSetting.defsource && item.type !== 30) {
           const value = getDynamicValue(this.data, item, this.masterData);
-
-          if (value) {
+          if (this.isMobile && item.type === 29 && _.isString(value) && _.isEmpty(JSON.parse(value))) {
+            this.updateDataSource({ controlId: item.controlId, value: null, isInit });
+          } else if (value) {
             this.updateDataSource({ controlId: item.controlId, value, isInit });
           }
         } else if (
@@ -1251,6 +1258,11 @@ export default class DataFormat {
         if (item.enumDefault === 1 && item.dataSource) {
           item.value = parseValueIframe(this.data, item, this.masterData, this.embedData);
         }
+      }
+
+      // h5禁用自由链接
+      if (item.type === 21 && this.isMobile) {
+        item.disabled = true;
       }
 
       const { errorType, errorText } = onValidator({ item, data, masterData, ignoreRequired, verifyAllControls });
@@ -1365,6 +1377,11 @@ export default class DataFormat {
                 params.type = 'append';
               } else if (_.get(value, 'action') === 'clearAndSet') {
                 params.staticRows = value.rows;
+                if (_.isEmpty(value.rows)) {
+                  item.store.dispatch({
+                    type: 'DELETE_ALL',
+                  });
+                }
               } else if (typeof value === 'string' && !_.isEmpty(safeParse(value))) {
                 const parsedRows = safeParse(value);
                 params.staticRows = parsedRows;
@@ -2070,16 +2087,65 @@ export default class DataFormat {
    * 获取当前位置
    */
   getCurrentLocation(ids) {
+    // 处理定位回来慢但是用户已经选择了位置
+    ids = ids.filter(controlId => !this.data.find(o => o.controlId === controlId).value);
+
     if (!ids.length) return;
+
+    if (window.isMingDaoApp) {
+      window.MDJS.getLocation({
+        success: res => {
+          const { cLongitude, cLatitude, longitude, latitude, address, title } = res;
+          ids.forEach(controlId => {
+            let value = null;
+            const control = _.find(this.data, { controlId });
+            if ((typeof control.strDefault === 'string' ? control.strDefault : '00')[0] === '1') {
+              value = JSON.stringify({
+                x: longitude,
+                y: latitude,
+                coordinate: 'wgs84',
+                address,
+                title,
+              });
+            } else {
+              value = JSON.stringify({
+                x: cLongitude,
+                y: cLatitude,
+                coordinate: 'gcj02',
+                address,
+                title,
+              });
+            }
+            this.updateDataSource({
+              controlId,
+              value,
+              isInit: true,
+            });
+          });
+          this.onAsyncChange({
+            controlIds: ids,
+            value: JSON.stringify({
+              x: longitude,
+              y: latitude,
+              coordinate: 'wgs84',
+              address,
+              title,
+            }),
+          });
+        },
+        cancel: res => {
+          const { errMsg } = res;
+          if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
+            window.nativeAlert(JSON.stringify(res));
+          }
+        },
+      });
+      return;
+    }
 
     new MapLoader().loadJs().then(() => {
       new MapHandler().getCurrentPos((status, res) => {
         if (status === 'complete') {
-          // 处理定位回来慢但是用户已经选择了位置
-          ids = ids.filter(controlId => !this.data.find(o => o.controlId === controlId).value);
-
-          if (!ids.length) return;
-
           ids.forEach(controlId => {
             this.updateDataSource({
               controlId,
@@ -2092,7 +2158,6 @@ export default class DataFormat {
               isInit: true,
             });
           });
-
           this.onAsyncChange({
             controlIds: ids,
             value: JSON.stringify({
@@ -2431,6 +2496,10 @@ export default class DataFormat {
                     name: getCurrentValue(titleControl, nameValue, { type: 2 }),
                   };
                 });
+                if (_.isEmpty(newValue) && _.includes([29], controlType) && this.isMobile) {
+                  updateData(newValue);
+                  return;
+                }
                 if (_.isEmpty(newValue) && _.includes([29], controlType)) {
                   updateData('deleteRowIds: all');
                 } else {

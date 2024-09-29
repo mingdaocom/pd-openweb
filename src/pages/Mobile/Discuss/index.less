@@ -1,50 +1,5 @@
 
 .discussTabs {
-  .am-tabs-tab-bar-wrap {
-    position: relative;
-    &::after {
-      content: '';
-      position: absolute;
-      background-color: #ddd;
-      display: block;
-      z-index: 1;
-      top: auto;
-      right: auto;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 1px;
-      transform-origin: 50% 100%;
-      transform: scaleY(0.5);
-    }
-  }
-  .am-tabs-default-bar-tab {
-    border-bottom: none !important;
-    width: 60px !important;
-    &:after {
-      content: none !important;
-    }
-  }
-  .am-tabs-default-bar-tab-active {
-    &:before {
-      content: '';
-      width: 100%;
-      height: 4px;
-      background-color: #108ee9;
-      width: 16px;
-      margin-left: 36%;
-      position: absolute;
-      left: 0;
-      bottom: 3px;
-      border-radius: 4px;
-    }
-  }
-  .am-tabs-default-bar-underline {
-    display: none;
-  }
-  .am-list-body::before {
-    content: none !important;
-  }
   .participation {
     height: 50px;
     padding: 0 20px;
@@ -91,11 +46,11 @@
 }
 
 .sheetDiscussList {
-  .am-list-item {
+  overflow-y: auto;
+  .adm-list-item-content {
     align-items: flex-start;
-    height: auto !important;
   }
-  .am-list-thumb {
+  .adm-list-item-content-prefix {
     margin-top: 15px;
     img {
       width: 36px;
@@ -103,7 +58,10 @@
       border-radius: 50%;
     }
   }
-  .am-list-brief {
+  .adm-list-item-content-main {
+    padding: 16px 0;
+  }
+  .content {
     white-space: normal !important;
   }
   .attsImages, .attsFiles {
@@ -129,9 +87,6 @@
 
 .sheetAttachments {
   height: 100%;
-  .am-list-body {
-    height: 100%;
-  }
   .attachmentFiles {
      padding: 10px 10px 0;
      overflow-y: auto;

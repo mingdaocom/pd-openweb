@@ -29,9 +29,13 @@ function WithdrawReimburseDialog(props) {
     desc,
     min,
     max,
+    viewId,
+    refundSourceType,
+    cancelPasswordVerify,
     orderInfo = {},
     onCancel = () => {},
     updateList = () => {},
+    updateStatus = () => {},
   } = props;
   const { merchantNo, orderId, merchantOrderId, taxAmount, description } = orderInfo;
   const [amount, setAmount] = useState();
@@ -40,6 +44,7 @@ function WithdrawReimburseDialog(props) {
 
   const onOk = () => {
     if (type === 'reimburse') {
+      updateStatus(true);
       // 退款
       paymentAjax
         .applyRefund({
@@ -50,14 +55,19 @@ function WithdrawReimburseDialog(props) {
           amount: +amount,
           taxFee: taxAmount,
           description,
+          refundSourceType,
+          viewId,
         })
         .then(res => {
           if (res) {
             updateList();
-            alert(_l('退款成功'));
+            alert(refundSourceType === 1 ? _l('操作成功') : _l('退款成功'));
           } else {
-            alert(_l('退款失败'), 2);
+            alert(refundSourceType === 1 ? _l('操作失败') : _l('退款失败'), 2);
           }
+        })
+        .catch(() => {
+          updateStatus(false);
         });
     } else {
       // 提现
@@ -105,6 +115,12 @@ function WithdrawReimburseDialog(props) {
           return;
         }
         onCancel();
+
+        if (cancelPasswordVerify) {
+          onOk();
+          return;
+        }
+
         VerifyPasswordConfirm.confirm({
           allowNoVerify: false,
           isRequired: true,

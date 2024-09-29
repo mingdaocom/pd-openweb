@@ -177,11 +177,11 @@ export default class SheetModal extends Component {
       });
   }
   handleSave = () => {
-    const { viewId, newWorksheetId, appType } = this.state;
+    const { viewId, newWorksheetId, appType, activeKey } = this.state;
     if (viewId || viewId === null) {
       this.props.onChange(newWorksheetId, viewId, appType);
     } else {
-      alert(_l('请选择一个工作表和视图'), 3);
+      alert(activeKey === 'workSheet' ? _l('请选择一个工作表和视图') : _l('请选择一个聚合表'), 3);
     }
   };
   renderWorkSheetItem(sheet) {
@@ -282,7 +282,7 @@ export default class SheetModal extends Component {
                   } else {
                     !aggregationSheets.length && this.getAggregationSheetList(appId);
                   }
-                  this.setState({ activeKey: key });
+                  this.setState({ activeKey: key, searchValue: '' });
                 }}
                 centered={true}
               >

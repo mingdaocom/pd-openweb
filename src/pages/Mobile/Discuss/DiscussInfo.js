@@ -1,7 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon, LoadDiv } from 'ming-ui';
-import { Tabs, Flex } from 'antd-mobile';
+import { Tabs } from 'antd-mobile';
 import * as actions from './redux/actions';
 import DiscussList from './DiscussList';
 import Logs from './Logs';
@@ -134,16 +134,18 @@ class Discuss extends Component {
           </div>
         )}
         <Tabs
-          tabs={newTabs}
-          page={_.findIndex(newTabs, { type: pageType })}
-          onTabClick={(data) => {
+          className="md-adm-tabs flexUnset"
+          activeLineMode="fixed"
+          activeKey={pageType.toString()}
+          onChange={type => {
             this.setState({
-              pageType: data.type
+              pageType: Number(type)
             });
           }}
-          tabBarInactiveTextColor="#9e9e9e"
-          renderTabBar={props => <Tabs.DefaultTabBar {...props} />}
         >
+          {newTabs.map((tab, index) => (
+            <Tabs.Tab title={<span className="bold">{tab.title}</span>} key={tab.type} />
+          ))}
         </Tabs>
         {recordDiscussSwitch && pageType === 1 && (
           <div style={style}>
@@ -171,8 +173,8 @@ class Discuss extends Component {
           </div>
         )}
         {recordDiscussSwitch && (
-          <Flex
-            className="participation"
+          <div
+            className="flexRow alignItemsCenter participation"
             onClick={() => {
               if (window.isPublicApp) {
                 alert(_l('预览模式下，不能操作'), 3);
@@ -182,7 +184,7 @@ class Discuss extends Component {
             }}
           >
             <div className="text">{_l('参与讨论...')}</div>
-          </Flex>
+          </div>
         )}
         {!isModal && (
           <Back

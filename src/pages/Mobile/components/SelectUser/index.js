@@ -1,15 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon, ScrollView, LoadDiv, Switch } from 'ming-ui';
-import { Modal, Button, WingBlank, List, Checkbox, Toast } from 'antd-mobile';
+import { Popup, Button, Checkbox, List } from 'antd-mobile';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import userAjax from 'src/api/user';
 import departmentAjax from 'src/api/department';
 import externalPortalAjax from 'src/api/externalPortal';
 import './index.less';
 import _ from 'lodash';
-
-const { CheckboxItem } = Checkbox;
 
 const isChecked = (id, ids) => {
   let result = false;
@@ -365,7 +363,7 @@ export default class SelectUser extends Component {
       this.props.onClose();
       this.props.onSave(selectData);
     } else {
-      Toast.info(type === 'user' ? _l('请选择人员') : _l('请选择部门'));
+      alert(type === 'user' ? _l('请选择人员') : _l('请选择部门'), 3);
     }
   };
   handleSearch = () => {
@@ -478,7 +476,7 @@ export default class SelectUser extends Component {
       return (
         <List
           className="departmentWrapper flex flexColumn leftAlign"
-          renderHeader={() =>
+          header={(
             type === 'user' ? (
               <div className="Font15">
                 <span
@@ -554,7 +552,7 @@ export default class SelectUser extends Component {
                 ))}
               </Fragment>
             )
-          }
+          )}
         >
           {loading ? (
             <div className="pTop30 pBottom30">
@@ -570,9 +568,7 @@ export default class SelectUser extends Component {
                 {departmentUsers.map((item, index) =>
                   item.isDep ? (
                     <List.Item
-                      multipleLine
-                      arrow="horizontal"
-                      thumb={
+                      prefix={
                         <div className="groupWrapper">
                           <Icon icon="group" className="Font22 White" />
                         </div>
@@ -590,38 +586,40 @@ export default class SelectUser extends Component {
                       {item.departmentName}
                     </List.Item>
                   ) : (
-                    <CheckboxItem
-                      key={item.accountId}
-                      checked={isChecked(
-                        item.accountId,
-                        this.state.selectedUsers.map(item => item.accountId),
-                      )}
-                      onChange={() => {
-                        const { selectedUsers } = this.state;
-                        const { onlyOne } = this.props;
-                        const isSelected = selectedUsers.filter(user => user.accountId === item.accountId).length;
-                        if (onlyOne) {
-                          this.setState({
-                            selectedUsers: isSelected ? [] : [item],
-                          });
-                          return;
-                        }
-                        if (isSelected) {
-                          this.setState({
-                            selectedUsers: selectedUsers.filter(user => user.accountId != item.accountId),
-                          });
-                        } else {
-                          this.setState({
-                            selectedUsers: selectedUsers.concat(item),
-                          });
-                        }
-                      }}
-                    >
-                      <Fragment>
-                        <img src={item.avatar} className="avatar" />
-                        {item.fullname}
-                      </Fragment>
-                    </CheckboxItem>
+                    <div className="flexRow w100 alignItemsCenter pTop10 pBottom10 pLeft15 pRight15">
+                      <Checkbox
+                        key={item.accountId}
+                        checked={isChecked(
+                          item.accountId,
+                          this.state.selectedUsers.map(item => item.accountId),
+                        )}
+                        onClick={() => {
+                          const { selectedUsers } = this.state;
+                          const { onlyOne } = this.props;
+                          const isSelected = selectedUsers.filter(user => user.accountId === item.accountId).length;
+                          if (onlyOne) {
+                            this.setState({
+                              selectedUsers: isSelected ? [] : [item],
+                            });
+                            return;
+                          }
+                          if (isSelected) {
+                            this.setState({
+                              selectedUsers: selectedUsers.filter(user => user.accountId != item.accountId),
+                            });
+                          } else {
+                            this.setState({
+                              selectedUsers: selectedUsers.concat(item),
+                            });
+                          }
+                        }}
+                      >
+                        <Fragment>
+                          <img src={item.avatar} className="avatar" />
+                          {item.fullname}
+                        </Fragment>
+                      </Checkbox>
+                    </div>
                   ),
                 )}
                 {_.isEmpty(departmentUsers) ? <div className="pTop30 pBottom30 TxtCenter">{_l('暂无人员')}</div> : null}
@@ -637,10 +635,9 @@ export default class SelectUser extends Component {
                 <Fragment key={item.departmentId}>
                   {type === 'department' ? (
                     <List.Item
-                      multipleLine
                       className="departmentItem"
-                      arrow={item.haveSubDepartment ? 'horizontal' : ''}
-                      thumb={
+                      arrow={item.haveSubDepartment}
+                      prefix={
                         <div
                           className="flexRow valignWrapper"
                           onClick={event => {
@@ -677,6 +674,7 @@ export default class SelectUser extends Component {
                           }}
                         >
                           <Checkbox
+                            className="mRight10"
                             checked={
                               item.disabledSubDepartment
                                 ? true
@@ -696,8 +694,8 @@ export default class SelectUser extends Component {
                         const { selectedUsers } = this.state;
                         if (
                           item.haveSubDepartment &&
-                          (event.target.classList.contains('am-list-content') ||
-                            event.target.classList.contains('am-list-arrow'))
+                          (event.target.classList.contains('adm-list-item-content-main') ||
+                            event.target.classList.contains('adm-list-item-content-arrow'))
                         ) {
                           this.handleSelectSubDepartment(item);
                         }
@@ -707,9 +705,7 @@ export default class SelectUser extends Component {
                     </List.Item>
                   ) : (
                     <List.Item
-                      multipleLine
-                      arrow="horizontal"
-                      thumb={
+                      prefix={
                         <div className="groupWrapper">
                           <Icon icon="group" className="Font22 White" />
                         </div>
@@ -740,14 +736,14 @@ export default class SelectUser extends Component {
       <Fragment>
         <List>
           <List.Item
-            arrow="horizontal"
+            prefix={<Icon icon="department" className="TxtMiddle Font18 Gray_9e" />}
             onClick={() => {
               this.requestContactProjectDepartments();
               this.setState({ departmentVisible: true });
             }}
           >
             <div className="Font15 Gray mTop5 mBottom5">
-              <Icon icon="department" className="TxtMiddle Font18 Gray_9e mRight15" /> {_l('按部门选择')}
+               {_l('按部门选择')}
             </div>
           </List.Item>
         </List>
@@ -793,7 +789,7 @@ export default class SelectUser extends Component {
       <div className="flex">
         <ScrollView onScrollEnd={this.requestContactUserList}>
           {!isStatic && !selectRangeOptions && (userType === 1 || userType === 3) && this.renderDepartment()}
-          <List className="leftAlign" renderHeader={isStatic ? null : () => 'A-Z'}>
+          <List header={isStatic ? null : 'A-Z'}>
             {loading && pageIndex === 1 ? (
               <div className="pTop30 pBottom30">
                 <LoadDiv size="middle" />
@@ -804,24 +800,24 @@ export default class SelectUser extends Component {
                   let { departmentName } = _.get(item, 'departmentInfo') || {};
                   let { job } = item;
                   return (
-                    <CheckboxItem
-                      key={item.accountId}
-                      checked={isChecked(
-                        item.accountId,
-                        this.state.selectedUsers.map(item => item.accountId),
-                      )}
-                      onChange={() => this.selectedAccount(item)}
-                    >
-                      <div className="flexRow w100 alignItemsCenter">
-                        <div className="userInfo">
-                          <img src={item.avatar} className="avatar" />
-                          {item.fullname}
-                        </div>
-                        <span className="Gray_9e mLeft16 Font12 flex ellipsis">
-                          {departmentName && job ? `${departmentName} / ${job}` : departmentName || job}
-                        </span>
+                    <div className="flexRow w100 alignItemsCenter pTop10 pBottom10 pLeft15 pRight15" onClick={() => this.selectedAccount(item)}>
+                      <Checkbox
+                        key={item.accountId}
+                        checked={isChecked(
+                          item.accountId,
+                          this.state.selectedUsers.map(item => item.accountId),
+                        )}
+                        onClick={() => this.selectedAccount(item)}
+                      >
+                      </Checkbox>
+                      <div className="userInfo mLeft10 Gray">
+                        <img src={item.avatar} className="avatar" />
+                        {item.fullname}
                       </div>
-                    </CheckboxItem>
+                      <span className="Gray_9e mLeft16 Font12 flex ellipsis">
+                        {departmentName && job ? `${departmentName} / ${job}` : departmentName || job}
+                      </span>
+                    </div>
                   );
                 })}
                 {loading ? (
@@ -852,23 +848,19 @@ export default class SelectUser extends Component {
   render() {
     const { visible, onClose } = this.props;
     return (
-      <Modal popup visible={visible} onClose={onClose} animationType="slide-up" className="h100">
+      <Popup visible={visible} onClose={onClose} className="mobileModal full">
         <div className="selectUserModal flexColumn h100">
           {this.renderContent()}
-          <div className="btnsWrapper flexRow">
-            <WingBlank className="flex" size="sm">
-              <Button className="Gray_75 bold Font14" onClick={onClose}>
-                {_l('取消')}
-              </Button>
-            </WingBlank>
-            <WingBlank className="flex" size="sm">
-              <Button className="bold Font14" onClick={this.handleSave} type="primary">
-                {_l('确定')}
-              </Button>
-            </WingBlank>
+          <div className="flexRow WhiteBG pAll10">
+            <Button className="flex mLeft6 mRight6 Gray_75 bold Font14" onClick={onClose}>
+              {_l('取消')}
+            </Button>
+            <Button className="flex mLeft6 mRight6 bold Font14" onClick={this.handleSave} color="primary">
+              {_l('确定')}
+            </Button>
           </div>
         </div>
-      </Modal>
+      </Popup>
     );
   }
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import './CreateCustomBtn.less';
 import { Drawer } from 'antd';
 import cx from 'classnames';
-import { Icon, Checkbox, Tooltip, RadioGroup } from 'ming-ui';
+import { Icon, Checkbox, Tooltip, RadioGroup, ColorPicker, SvgIcon } from 'ming-ui';
 import AppointDialog from './components/AppointDialog';
 import ShowBtnFilterDialog from './components/ShowBtnFilterDialog';
 import sheetAjax from 'src/api/worksheet';
@@ -18,6 +18,7 @@ import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { formatControlsData } from 'src/pages/widgetConfig/util/data';
 import _ from 'lodash';
 import Trigger from 'rc-trigger';
+import IconTabs from 'src/pages/AppHomepage/components/SelectIcon/IconTabs';
 
 @errorBoundary
 class CreateCustomBtnCon extends React.Component {
@@ -40,6 +41,7 @@ class CreateCustomBtnCon extends React.Component {
       verifyPwd: false, //校验密码
       advancedSetting: {}, //高级配置
       cloneInfo: {}, //缓存上次保存的数据，用来显示
+      showCustomIcon: false,
     };
   }
   ajaxRequest = null;
@@ -111,8 +113,9 @@ class CreateCustomBtnCon extends React.Component {
         widgetList: (props.worksheetControls || []).filter(item => !SYS.includes(item.controlId)), //排除系统字段
         isEdit: props.isEdit,
         btnId: props.btnId,
-        color: isEdit ? btnDataInfo.color || COLORS[1] : COLORS[0], //老数据未设置颜色还是走2196f3 新创建的，默认透明色
+        color: isEdit ? btnDataInfo.color || COLORS[2] : COLORS[0], //老数据未设置颜色还是走2196f3 新创建的，默认透明色
         icon: btnDataInfo.icon || ICONS[0],
+        iconUrl: btnDataInfo.iconUrl || '',
         desc,
         isAllView: isAllView ? isAllView : !props.btnId && props.from === 'formset' ? 1 : 0,
         cloneInfo: {
@@ -379,7 +382,7 @@ class CreateCustomBtnCon extends React.Component {
                 ) : (
                   <React.Fragment>
                     <span className="mRight10">{_l('在关联记录')}</span>
-                    <span className="Bold mRight10">
+                    <span className="Bold mRight10 WordBreak">
                       “
                       {widgetList.filter(item => relationControl === item.controlId).length > 0 ? (
                         widgetList.filter(item => relationControl === item.controlId)[0].controlName
@@ -402,7 +405,7 @@ class CreateCustomBtnCon extends React.Component {
                   <React.Fragment>
                     <span className="mRight10">{_l('新建')}</span>
                     {dataControls.length > 0 && addRelationControlId !== '' && (
-                      <span className="Bold">
+                      <span className="Bold WordBreak">
                         {_.find(dataControls, item => item.controlId === addRelationControlId)
                           ? _.find(dataControls, item => item.controlId === addRelationControlId).controlName
                           : ''}
@@ -421,7 +424,7 @@ class CreateCustomBtnCon extends React.Component {
                     const controlName = writeControlsData && writeControlsData.controlName;
                     return (
                       <React.Fragment>
-                        <span className="Bold">
+                        <span className="Bold WordBreak">
                           {controlName || (writeControlsData.type === 22 ? _l('分割线') : _l('备注'))}
                         </span>
                         {writeControls.length > i + 1 ? '、' : ''}
@@ -578,37 +581,29 @@ class CreateCustomBtnCon extends React.Component {
 
   renderColors = () => {
     const { color = 'transparent' } = this.state;
+    const isColorTransparent = color => {
+      return color.length === 9 && color.slice(-2) === '00';
+    };
+
     return (
       <div className="mTop32 customBtnColorBox">
         <h5 className="Gray Bold">{_l('颜色')}</h5>
-        <Trigger
-          action={['click']}
-          popupAlign={{
-            points: ['tr', 'br'],
+        <ColorPicker
+          isPopupBody
+          value={color}
+          sysColor
+          defaultColors={COLORS}
+          onChange={value => {
+            this.setState({
+              color: isColorTransparent(value) ? 'transparent' : value,
+            });
           }}
-          popup={
-            <ul className="buttonTrigger">
-              {COLORS.map(item => {
-                return (
-                  <li
-                    className={cx('buttonSetLi colorLi Hand', { current: color === item })}
-                    style={{ backgroundColor: item, borderColor: item === 'transparent' ? '#E0E0E0' : item }}
-                    onClick={() => {
-                      this.setState({
-                        color: item,
-                      });
-                    }}
-                  >
-                    {color === item && <Icon icon="ok" className={cx('check', { Gray: color === 'transparent' })} />}
-                  </li>
-                );
-              })}
-            </ul>
-          }
         >
           <div className="conBox flexRow alignItemsCenter Hand mTop10">
             <div
-              className={cx('colorCon flex TxtCenter TxtMiddle Font18', { Gray: color === 'transparent' })}
+              className={cx('colorCon flex TxtCenter TxtMiddle Font18', {
+                Gray: color === 'transparent' || isColorTransparent(color),
+              })}
               style={{ backgroundColor: color }}
             >
               A
@@ -617,13 +612,13 @@ class CreateCustomBtnCon extends React.Component {
               <Icon type="expand_more" className="Gray_9d Font18 mLeft8 " />
             </div>
           </div>
-        </Trigger>
+        </ColorPicker>
       </div>
     );
   };
 
   renderIcons = () => {
-    const { icon, color = 'transparent' } = this.state;
+    const { icon, color = 'transparent', iconUrl = '', showCustomIcon } = this.state;
     return (
       <div className="mTop32 customBtnIconBox">
         <h5 className="Gray Bold">{_l('图标')}</h5>
@@ -631,35 +626,68 @@ class CreateCustomBtnCon extends React.Component {
           action={['click']}
           popupAlign={{
             points: ['tl', 'bl'],
+            offset: [0, 3],
           }}
+          onPopupVisibleChange={visible => !visible && this.setState({ showCustomIcon: false })}
           popup={
-            <ul className="buttonTrigger">
-              {ICONS.map(item => {
-                return (
-                  <li
-                    className={cx('buttonSetLi iconLi Hand', {
-                      current: item === icon && !!item,
-                      Font20: !item,
-                    })}
-                    onClick={() => {
+            <React.Fragment>
+              {showCustomIcon ? (
+                <div className="selectIconWrap" style={{ width: '350px' }}>
+                  <IconTabs
+                    projectId={this.props.projectId}
+                    icon={icon.replace(/_svg$/, '')}
+                    iconColor={'#2196f3'}
+                    handleClick={({ icon, iconUrl }) => {
                       this.setState({
-                        icon: item,
+                        icon: `${icon}_svg`,
+                        iconUrl,
                       });
                     }}
-                  >
-                    {<Icon icon={!item ? 'block' : item} />}
-                  </li>
-                );
-              })}
-            </ul>
+                  />
+                </div>
+              ) : (
+                <ul className="buttonTrigger">
+                  {ICONS.map(item => {
+                    return (
+                      <li
+                        className={cx('buttonSetLi iconLi Hand', {
+                          current: item === icon && !!item,
+                          Font20: !item,
+                        })}
+                        onClick={() => {
+                          this.setState({
+                            icon: item,
+                            iconUrl: '',
+                          });
+                        }}
+                      >
+                        {<Icon icon={!item ? 'block' : item} />}
+                      </li>
+                    );
+                  })}
+                  <div className="flexRow justifyContentRight mTop4">
+                    <span
+                      className="moreIcon Hand flexRow alignItemsCenter"
+                      onClick={() => this.setState({ showCustomIcon: true })}
+                    >
+                      {_l('更多图标')} <Icon icon={'navigate_next'} className="Font18" />
+                    </span>
+                  </div>
+                </ul>
+              )}
+            </React.Fragment>
           }
         >
           <div className="conBox flexRow alignItemsCenter Hand mTop10">
             <div className="flex flexRow alignItemsCenter mLeft5">
-              <Icon
-                type={icon ? icon : 'block'}
-                className={cx('Font18', { Gray_d: !icon, Gray_9d: !!icon, Font20: !icon })}
-              />
+              {!!iconUrl && !!icon && icon.endsWith('_svg') ? (
+                <SvgIcon url={iconUrl} fill={'#9E9E9E'} size={18} />
+              ) : (
+                <Icon
+                  type={icon ? icon : 'block'}
+                  className={cx('Font18', { Gray_d: !icon, Gray_9d: !!icon, Font20: !icon })}
+                />
+              )}
             </div>
             <div className="op">
               <Icon type="expand_more" className="Gray_9d Font18 mLeft8" />
@@ -744,6 +772,7 @@ class CreateCustomBtnCon extends React.Component {
                 'isAllView',
                 'color',
                 'icon',
+                'iconUrl',
                 'writeControls', //填写控件 type - 1：只读 2：填写 3：必填
                 'addRelationControlId', //新建关联记录ID
                 'relationControl', //关联记录ID
@@ -758,26 +787,46 @@ class CreateCustomBtnCon extends React.Component {
                 'isBatch', //是否多条数据源
               ]),
             };
-            sheetAjax.saveWorksheetBtn({ ...params, writeControls: writeControlsFormat }).then(data => {
-              this.setState({
-                saveLoading: false,
-                cloneInfo: { advancedSetting: this.state.advancedSetting, doubleConfirm: this.state.doubleConfirm },
-              });
-              params = {
-                ...params,
-                filters: this.state.filters,
-                btnId: data,
-                addRelationControl: this.state.addRelationControlId,
-              };
-              // 创建按钮(创建时，除“填写指定内容+不执行”外，直接进入编辑流）
-              if (!btnId && !(this.state.workflowType === 2 && this.state.clickType === 3)) {
-                this.setState(
-                  {
-                    btnId: data,
-                    isEdit: true,
-                  },
-                  () => {
-                    this.props.onChangeEditStatus(true);
+            sheetAjax
+              .saveWorksheetBtn({ ..._.omit(params, ['iconUrl']), writeControls: writeControlsFormat })
+              .then(data => {
+                this.setState({
+                  saveLoading: false,
+                  cloneInfo: { advancedSetting: this.state.advancedSetting, doubleConfirm: this.state.doubleConfirm },
+                });
+                params = {
+                  ...params,
+                  filters: this.state.filters,
+                  btnId: data,
+                  addRelationControl: this.state.addRelationControlId,
+                };
+                // 创建按钮(创建时，除“填写指定内容+不执行”外，直接进入编辑流）
+                if (!btnId && !(this.state.workflowType === 2 && this.state.clickType === 3)) {
+                  this.setState(
+                    {
+                      btnId: data,
+                      isEdit: true,
+                    },
+                    () => {
+                      this.props.onChangeEditStatus(true);
+                      this.getProcessByTriggerId(workflowId => {
+                        params = { ...params, workflowId };
+                        this.props.updateCustomButtons(params, !btnId);
+                        this.setState({
+                          showWorkflowDialog: true,
+                        });
+                      });
+                    },
+                  );
+                } else {
+                  if (!btnId) {
+                    params = { ...params, btnId: data };
+                  }
+                  if (
+                    (this.state.workflowType === 1 || this.state.clickType === 1) &&
+                    this.state.isEdit &&
+                    !this.state.flowName //编辑 且 需要创建工作流
+                  ) {
                     this.getProcessByTriggerId(workflowId => {
                       params = { ...params, workflowId };
                       this.props.updateCustomButtons(params, !btnId);
@@ -785,30 +834,12 @@ class CreateCustomBtnCon extends React.Component {
                         showWorkflowDialog: true,
                       });
                     });
-                  },
-                );
-              } else {
-                if (!btnId) {
-                  params = { ...params, btnId: data };
-                }
-                if (
-                  (this.state.workflowType === 1 || this.state.clickType === 1) &&
-                  this.state.isEdit &&
-                  !this.state.flowName //编辑 且 需要创建工作流
-                ) {
-                  this.getProcessByTriggerId(workflowId => {
-                    params = { ...params, workflowId };
+                  } else {
                     this.props.updateCustomButtons(params, !btnId);
-                    this.setState({
-                      showWorkflowDialog: true,
-                    });
-                  });
-                } else {
-                  this.props.updateCustomButtons(params, !btnId);
-                  this.props.onClose();
+                    this.props.onClose();
+                  }
                 }
-              }
-            });
+              });
           }}
         >
           {this.state.saveLoading

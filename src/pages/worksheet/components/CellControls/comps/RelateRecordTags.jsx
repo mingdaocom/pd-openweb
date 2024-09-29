@@ -300,11 +300,15 @@ export default forwardRef(function RelateRecordTags(props, ref) {
           const text = getTitleTextFromRelateControl(control, record);
           return (
             <Tag
-              className={cx('ellipsis', { isediting, allowOpenRecord: allowOpenRecord && record.rowid, allowRemove })}
+              className={cx('ellipsis', {
+                isediting,
+                allowOpenRecord: allowOpenRecord && record.rowid && !/^temp/.test(record.rowid),
+                allowRemove,
+              })}
               key={i}
               title={text}
               onClick={e => {
-                if (!record.rowid) {
+                if (!record.rowid || /^temp/.test(record.rowid)) {
                   return;
                 }
                 e.stopPropagation();

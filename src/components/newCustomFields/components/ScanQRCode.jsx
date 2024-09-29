@@ -1,9 +1,8 @@
 import React, { Fragment, Component } from 'react';
 import PropTypes from 'prop-types';
-import { Toast } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
-import { Modal } from 'antd-mobile';
+import { Popup, Dialog } from 'antd-mobile';
 import { browserIsMobile } from 'src/util';
 import { bindWeiXin, bindWxWork, bindFeishu, handleTriggerEvent } from '../tools/authentication';
 import styled from 'styled-components';
@@ -113,7 +112,7 @@ export default class Widgets extends Component {
       },
       error: res => {
         if (!res.errMsg.includes('cancel')) {
-          Toast.catch(res.errMsg);
+          alert(res.errMsg, 3);
         }
       },
     });
@@ -132,8 +131,36 @@ export default class Widgets extends Component {
       },
     });
   };
+  getScanType = () => {
+    const { scantype = '0' } = this.props;
+    if (scantype === '0') {
+      return ['barCode', 'qrCode'];
+    }
+    if (scantype === '1') {
+      return ['barCode'];
+    }
+    if (scantype === '2') {
+      return ['qrCode'];
+    }
+  }
   handleScanCode = () => {
-    const { projectId } = this.props;
+    const { projectId, control } = this.props;
+
+    if (window.isMingDaoApp) {
+      window.MDJS.scanQRCode({
+        control,
+        success: (res) => {
+          this.props.onScanQRCodeResult(res.resultStr);
+        },
+        cancel: function (res) {
+          const { errMsg } = res;
+          if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
+            window.nativeAlert(JSON.stringify(res));
+          }
+        }
+      });
+      return;
+    }
 
     if (isWx) {
       handleTriggerEvent(this.handleWxScanQRCode, bindWeiXin(), errType => {
@@ -178,7 +205,7 @@ export default class Widgets extends Component {
           this.props.onScanQRCodeResult(content);
         })
         .catch(error => {
-          Toast.catch(_l('扫码异常'));
+          alert(_l('扫码异常'), 3);
         });
       return;
     }
@@ -190,7 +217,7 @@ export default class Widgets extends Component {
           this.props.onScanQRCodeResult(data.text);
         },
         onFail: () => {
-          Toast.catch(_l('扫码异常'));
+          alert(_l('扫码异常'), 3);
         },
       });
       return;
@@ -200,7 +227,10 @@ export default class Widgets extends Component {
   };
   handleScanQRCode = () => {
     if (location.protocol === 'http:' && location.hostname !== 'localhost') {
-      Modal.alert(_l('浏览器平台仅https环境支持调用摄像头api'), '', [{ text: _l('确定') }]);
+      Dialog.alert({
+        content: _l('浏览器平台仅https环境支持调用摄像头api'),
+        confirmText: _l('确定'),
+      });
       return;
     }
     this.setState(
@@ -383,7 +413,7 @@ export default class Widgets extends Component {
         <div className={className} onClick={this.handleScanCode}>
           {children}
         </div>
-        <Modal popup visible={visible} onClose={this.handleClose} animationType="slide-up" className="h100">
+        <Popup visible={visible} onClose={this.handleClose} className="mobileModal full">
           <div className="valignWrapper h100" style={{ backgroundColor: isError ? '#fff' : '#000' }}>
             <div className="flexColumn w100">
               {isError ? (
@@ -425,7 +455,7 @@ export default class Widgets extends Component {
               )}
             </div>
           </div>
-        </Modal>
+        </Popup>
       </Fragment>
     );
   }

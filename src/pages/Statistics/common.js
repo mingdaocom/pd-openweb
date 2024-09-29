@@ -147,6 +147,9 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
   if (_.isEmpty(result.split)) {
     result.split = {};
   }
+  if (_.isEmpty(result.style)) {
+    result.style = {};
+  }
 
   const isConfigAll = [reportTypes.BarChart, reportTypes.LineChart, reportTypes.DualAxes].includes(result.reportType);
 
@@ -1846,8 +1849,12 @@ export const normTypes = [
     value: 4,
   },
   {
-    text: _l('计算'),
-    value: 5
+    text: _l('计数'),
+    value: 5,
+  },
+  {
+    text: _l('去重计数'),
+    value: 6,
   }
 ];
 

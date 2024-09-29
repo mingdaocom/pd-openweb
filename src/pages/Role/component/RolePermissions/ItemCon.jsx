@@ -4,20 +4,19 @@ import _ from 'lodash';
 import { Icon, Tooltip } from 'ming-ui';
 import DropOption from 'src/pages/Role/PortalCon/components/DropOption';
 import { sysRoleType, ICON_ROLE_TYPE } from 'src/pages/Role/config.js';
-import { SortableHandle } from '@mdfe/react-sortable-hoc';
-
-const SortHandle = SortableHandle(() => <Icon className="Font12 mLeft3 Hand" icon="drag_indicator" />);
 
 export default class Con extends React.Component {
   render() {
-    const { item, dataList, onAction, roleId, onChoose, isForPortal } = this.props;
+    const { item, dataList, onAction, roleId, onChoose, isForPortal, DragHandle } = this.props;
     return (
       <li
         className={cx('flexRow alignItemsCenter navLiRole', { cur: roleId === item.roleId })}
         onClick={() => onChoose(item.roleId)}
       >
         {!sysRoleType.includes(item.roleType) || !item.roleId ? (
-          <SortHandle />
+          <DragHandle className="alignItemsCenter flexRow">
+            <Icon className="Font12 mLeft3 Hand" icon="drag_indicator" />
+          </DragHandle>
         ) : (
           <span className="InlineBlock mLeft5" style={{ width: 10 }}></span>
         )}

@@ -24,6 +24,7 @@ export { default as ProcessDetails } from './ProcessDetails';
 export { default as ProcessParameters } from './ProcessParameters';
 export { default as ProcessVariables } from './ProcessVariables';
 export { default as Schedule } from './Schedule';
+export { default as SelectAuthAccount } from './SelectAuthAccount';
 export { default as SelectFields } from './SelectFields';
 export { default as SelectNodeObject } from './SelectNodeObject';
 export { default as SelectOtherFields } from './SelectOtherFields';

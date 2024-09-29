@@ -22,13 +22,13 @@ export default class CalendarComments extends Component {
       },
       function () {
         $bottomLine.css('left', $tab.find('li.active').index() * 90 + 25);
-      }
+      },
     );
   }
 
   render() {
     const { listRef, ...others } = this.props;
-    const { id, recurTime, } = this.props.calendar;
+    const { id, recurTime } = this.props.calendar;
     const sourceId = recurTime ? `${id}|${recurTime}` : id;
     const sourceType = FileList.TYPES.CALENDAR;
     const fileListProps = {
@@ -40,7 +40,11 @@ export default class CalendarComments extends Component {
       <div className="calendarComments">
         {this.renderTabList()}
         <div className="commentsContainer">
-          {this.state.activeTab === 'topic' ? <CalendarCommentList {...others} ref={this.listRef} /> : <FileList {...fileListProps} />}
+          {this.state.activeTab === 'topic' ? (
+            <CalendarCommentList {...others} ref={this.listRef} />
+          ) : (
+            <FileList {...fileListProps} />
+          )}
         </div>
       </div>
     );
@@ -56,14 +60,17 @@ export default class CalendarComments extends Component {
     });
   }
 
-  listRef = (ref) => {
+  listRef = ref => {
     this.props.listRef(ref);
     this.commentList = ref;
-  }
+  };
 
   renderTabList() {
     const { activeTab } = this.state;
-    const listData = [{ id: 'topic', value: _l('评论') }, { id: 'file', value: _l('文件') }];
+    const listData = [
+      { id: 'topic', value: _l('讨论') },
+      { id: 'file', value: _l('文件') },
+    ];
     return (
       <ul
         className="calendarTabList clearfix"
@@ -72,7 +79,11 @@ export default class CalendarComments extends Component {
         }}
       >
         {listData.map(item => (
-          <li key={item.id} onClick={this.handleTabClick.bind(this, item)} className={cx('calendarTab', { 'ThemeColor3 active': item.id === activeTab })}>
+          <li
+            key={item.id}
+            onClick={this.handleTabClick.bind(this, item)}
+            className={cx('calendarTab', { 'ThemeColor3 active': item.id === activeTab })}
+          >
             {item.value}
           </li>
         ))}

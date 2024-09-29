@@ -6,7 +6,8 @@ import DataCell from './DataCell';
 import cx from 'classnames';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { ROW_HEIGHT } from 'worksheet/constants/enum';
-import { checkCellIsEmpty, controlIsNumber, getRecordColor, getTreeExpandCellWidth } from 'worksheet/util';
+import { checkCellIsEmpty, controlIsNumber, getRecordColor } from 'worksheet/util';
+import { getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import styled from 'styled-components';
 
@@ -17,7 +18,7 @@ const CellCon = styled.div`
   &.hover .hoverShow {
     visibility: visible;
   }
-  &.editable:hover .editIcon {
+  &.editable:hover .canedit .editIcon {
     display: inline-flex;
   }
 `;
@@ -194,6 +195,8 @@ function Cell(props) {
     sheetSwitchPermit,
     sheetViewHighlightRows,
     registerRef,
+    expandCellAppendWidth,
+    treeLayerControlId,
     // functions
     updateSheetColumnWidths,
     renderFunctions,
@@ -251,7 +254,7 @@ function Cell(props) {
         control.fieldPermission &&
         (control.fieldPermission[1] === '0' || control.fieldPermission[0] === '0'),
       fixedRow: rowIndex === 0,
-      lastFixedColumn: columnIndex === fixedColumnCount,
+      lastFixedColumn: columnIndex === fixedColumnCount && fixedColumnCount !== 0,
       alignRight: controlIsNumber(control),
       // focus: !_.isUndefined(cache.focusIndex) && cellIndex === cache.focusIndex,
       highlight: needHightLight,
@@ -350,7 +353,7 @@ function Cell(props) {
     });
   }
   const error = cellErrors[`${row.rowid}-${control.controlId}`];
-  const cellEditable = !readonly && row && row.allowedit && controlState(control).editable;
+  const cellEditable = !readonly && row && row.allowedit && controlState(control).editable && lineEditable;
   const newCellStyle = { ...cellStyle };
   let cellWidth;
   const treeNodeData = get(treeTableViewData, `treeMap.${row.key}`);
@@ -396,6 +399,7 @@ function Cell(props) {
           .map(c => ({ ...c, value: (cellCache.current.row || {})[c.controlId] }))
           .concat(masterFormData().filter(c => c.controlId.length === 24))
       }
+      getRow={() => cellCache.current.row || {}}
       clearCellError={clearCellError}
       getPopupContainer={getPopupContainer}
       enterEditing={() => enterEditing(cellIndex)}
@@ -409,9 +413,10 @@ function Cell(props) {
     />
   );
   if (control.isTreeExpandCell && treeNodeData) {
-    const { viewControl } = view;
-    const addChildControl = find(controls, c => c.sourceControlId === viewControl);
-    const treeStyle = get(view, 'advancedSetting.treestyle');
+    const targetControlId = treeLayerControlId || _.get(view, 'viewControl');
+    const addParentControl = find(controls, c => c.controlId === targetControlId);
+    const addChildControl = find(controls, c => c.sourceControlId === targetControlId);
+    const treeStyle = get(view, 'advancedSetting.treestyle') || '1';
     const expandShowAsPlus = treeStyle === '2';
     return (
       <CellCon
@@ -438,16 +443,21 @@ function Cell(props) {
           }}
         >
           <div className="flex"></div>
-          {!treeNodeData.loading && (treeNodeData.childrenIds || []).length > 0 && (
+          {!treeNodeData.loading && !treeNodeData.hideExpand && (treeNodeData.childrenIds || []).length > 0 && (
             <Tooltip
               mouseEnterDelay={0.8}
-              text={!get(treeTableViewData, 'expandedAllKeys.' + row.key) && _l('Shift + 点击展开所有下级')}
+              text={
+                !isSubList && !get(treeTableViewData, 'expandedAllKeys.' + row.key) && _l('Shift + 点击展开所有下级')
+              }
               popupPlacement="bottom"
             >
               <TreeExpandIcon
                 onClick={e => {
                   if (isFunction(actions.updateTreeNodeExpansion)) {
-                    actions.updateTreeNodeExpansion(row, { expandAll: e.shiftKey, forceUpdate: e.shiftKey });
+                    actions.updateTreeNodeExpansion(row, {
+                      expandAll: !isSubList && e.shiftKey,
+                      forceUpdate: !isSubList && e.shiftKey,
+                    });
                   }
                   delete window[`sheetTableHighlightRow${tableId}`];
                 }}
@@ -468,46 +478,51 @@ function Cell(props) {
           <span className="Gray_9e">{(treeNodeData.levelList || []).join('.')}</span>
         </TreeExpandCell>
         {cell}
-        {addChildControl && allowAdd && cellEditable && controlState(addChildControl).editable && (
-          <Tooltip mouseEnterDelay={0.6} text={_l('添加子记录')} popupPlacement="bottom">
-            <AddChildBtn
-              className={cx('addChildBtn hoverShow ThemeHoverColor3', tableType)}
-              style={{ right: tableType === 'classic' || !(lineEditable && cellEditable) ? 8 : 36 }}
-              onClick={() => {
-                import('worksheet/common/newRecord/addRecord').then(addRecord => {
-                  addRecord.default({
-                    worksheetId: addChildControl.dataSource,
-                    masterRecord: {
-                      rowId: row.rowid,
-                      controlId: addChildControl.controlId,
-                      worksheetId,
-                    },
-                    defaultRelatedSheet: {
-                      worksheetId,
-                      relateSheetControlId: addChildControl.controlId,
-                      value: {
-                        sid: row.rowid,
-                        sourcevalue: JSON.stringify(row),
-                        type: 8,
-                      },
-                    },
-                    directAdd: true,
-                    showFillNext: true,
-                    onAdd: record => {
-                      if (record) {
-                        if (isFunction(actions.updateTreeNodeExpansion)) {
-                          actions.updateTreeNodeExpansion(row, { forceUpdate: true });
-                        }
-                      }
-                    },
-                  });
-                });
-              }}
-            >
-              <i className="icon icon-add" />
-            </AddChildBtn>
-          </Tooltip>
-        )}
+        {addParentControl &&
+          allowAdd &&
+          cellEditable &&
+          controlState(addParentControl).editable &&
+          find(columns, c => c.controlId === addParentControl.controlId) && (
+            <Tooltip mouseEnterDelay={0.6} text={_l('添加子记录')} popupPlacement="bottom">
+              <AddChildBtn
+                className={cx('addChildBtn hoverShow ThemeHoverColor3', tableType)}
+                style={{ right: tableType === 'classic' || !(lineEditable && cellEditable) ? 8 : 36 }}
+                onClick={() => {
+                  if (_.isFunction(actions.handleAddNewRecord)) {
+                    actions.handleAddNewRecord(row, { addParentControl, addChildControl });
+                  } else {
+                    import('worksheet/common/newRecord/addRecord').then(addRecord => {
+                      addRecord.default({
+                        worksheetId,
+                        defaultRelatedSheet: {
+                          worksheetId,
+                          relateSheetControlId: addParentControl.sourceControlId,
+                          value: {
+                            sid: row.rowid,
+                            sourcevalue: JSON.stringify(row),
+                            type: 8,
+                          },
+                        },
+                        directAdd: true,
+                        showFillNext: true,
+                        onAdd: actions.onTreeAddRecord
+                          ? record => actions.onTreeAddRecord(row, record)
+                          : record => {
+                              if (record) {
+                                if (isFunction(actions.updateTreeNodeExpansion)) {
+                                  actions.updateTreeNodeExpansion(row, { forceUpdate: true });
+                                }
+                              }
+                            },
+                      });
+                    });
+                  }
+                }}
+              >
+                <i className="icon icon-add" />
+              </AddChildBtn>
+            </Tooltip>
+          )}
       </CellCon>
     );
   }

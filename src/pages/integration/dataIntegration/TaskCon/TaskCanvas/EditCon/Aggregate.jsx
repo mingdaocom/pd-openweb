@@ -3,8 +3,15 @@ import { WrapL } from './style';
 import { useSetState } from 'react-use';
 import DropOption from 'src/pages/integration/components/DropOption';
 import DropChoose from 'src/pages/integration/components/DropChoose';
-import { OPERATION_TYPE_DATA, text_jdbcTypeIds, num_jdbcTypeIds } from '../config';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
+import {
+  getAggData,
+  getAggregateData,
+  isTimeTypes,
+  getTimeGroupDropData,
+  getDefaultAggregate,
+} from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
+
 export default function Aggregate(props) {
   const { onUpdate } = props;
   const [{ groupFields, info, showChangeName, aggregateFields, preFields, key, item, popupVisible }, setState] =
@@ -47,20 +54,10 @@ export default function Aggregate(props) {
       },
     });
   };
-  const getAggregateData = (jdbcTypeId, isRowsCount) => {
-    return OPERATION_TYPE_DATA.filter(it =>
-      isRowsCount
-        ? it.value === 'COUNT'
-        : text_jdbcTypeIds.includes(jdbcTypeId)
-        ? ['MAX', 'MIN'].includes(it.value) //文本类型=>最大值|最小值
-        : num_jdbcTypeIds.includes(jdbcTypeId)
-        ? ['SUM', 'MAX', 'MIN', 'AVG'].includes(it.value) //数值类型=>求和|平均值|最大值|最小值
-        : !['COUNT', 'DISTINCT_COUNT'].includes(it.value),
-    );
-  };
-  const getAggregate = info => {
+
+  const getAggregate = (info, data) => {
     let { id, alias } = info;
-    let num = aggregateFields.filter(item => item.id === id && item.aggFuncType === info.aggFuncType).length;
+    let num = data.filter(item => item.id === id && item.aggFuncType === info.aggFuncType).length;
     return { ...info, alias: num > 0 ? `${alias}_${num}` : alias };
   };
   return (
@@ -81,17 +78,48 @@ export default function Aggregate(props) {
                   <span className="Gray itemOpName overflow_ellipsis WordBreak InlineBlock" title={o.alias || o.name}>
                     {o.alias || o.name}
                   </span>
-                  <i
-                    className="icon icon-edit mLeft8 InlineBlock Hand"
-                    onClick={() => {
-                      setState({
-                        info: o,
-                        key: 'groupFields',
-                        showChangeName: true,
-                        item,
-                      });
-                    }}
-                  />
+                  {!isTimeTypes(o) ? (
+                    <i
+                      className="icon icon-edit mLeft8 InlineBlock Hand"
+                      onClick={() => {
+                        setState({
+                          info: o,
+                          key: 'groupFields',
+                          showChangeName: true,
+                          item,
+                        });
+                      }}
+                    />
+                  ) : (
+                    <DropOption
+                      list={getTimeGroupDropData(o.jdbcTypeId)}
+                      popupVisible={!o.aggFuncType || (popupVisible && item + 1 === groupFields.length)}
+                      value={o.aggFuncType}
+                      handleOpenChangeName={() => {
+                        setState({
+                          info: o,
+                          key: 'groupFields',
+                          showChangeName: true,
+                          item,
+                        });
+                      }}
+                      forGroup
+                      handleChangeType={aggFuncType => {
+                        setData({
+                          groupFields: groupFields.map((a, i) => {
+                            if (a.id === o.id && i === item) {
+                              return getAggregate(
+                                { ...a, alias: `${o.name}_${getAggData({ aggFuncType }).text}`, aggFuncType },
+                                groupFields,
+                              );
+                            } else {
+                              return a;
+                            }
+                          }),
+                        });
+                      }}
+                    />
+                  )}
                 </React.Fragment>
               )}
               <i
@@ -106,14 +134,27 @@ export default function Aggregate(props) {
         <DropChoose
           list={preFields.filter(o => !groupFields.find(it => it.id === o.id))}
           onChange={info => {
-            setData({ groupFields: groupFields.concat({ ...info, groupBy: true }) });
+            const aggFuncType = isTimeTypes(info) ? getDefaultAggregate(info.jdbcTypeId) : null;
+            setData({
+              groupFields: groupFields.concat(
+                getAggregate(
+                  {
+                    ...info,
+                    alias: aggFuncType ? `${info.name}_${getAggData({ aggFuncType }).text}` : info.name,
+                    aggFuncType,
+                    groupBy: true,
+                  },
+                  groupFields,
+                ),
+              ),
+            });
           }}
         />
       </div>
       <div className="title mTop16">{_l('汇总统计字段')}</div>
       <div className="groupCon">
         {aggregateFields.map((o, item) => {
-          let str = (OPERATION_TYPE_DATA.find(a => a.value === o.aggFuncType) || {}).text;
+          let str = getAggData(o).text;
           return (
             <span className="itemOp mTop12">
               {!preFields.find(it => it.id === o.id) && !o.isRowsCount ? (
@@ -142,7 +183,10 @@ export default function Aggregate(props) {
                       setData({
                         aggregateFields: aggregateFields.map((a, i) => {
                           if (a.id === o.id && i === item) {
-                            return getAggregate({ ...a, alias: `${o.name}_${aggFuncType}`, aggFuncType });
+                            return getAggregate(
+                              { ...a, alias: `${o.name}_${aggFuncType}`, aggFuncType },
+                              aggregateFields,
+                            );
                           } else {
                             return a;
                           }
@@ -182,12 +226,15 @@ export default function Aggregate(props) {
             } else {
               setData({
                 aggregateFields: aggregateFields.concat(
-                  getAggregate({
-                    ...info,
-                    alias: `${info.name}_${list[0].value}`,
-                    isRowsCount: false,
-                    aggFuncType: list[0].value,
-                  }),
+                  getAggregate(
+                    {
+                      ...info,
+                      alias: `${info.name}_${list[0].value}`,
+                      isRowsCount: false,
+                      aggFuncType: list[0].value,
+                    },
+                    aggregateFields,
+                  ),
                 ),
               });
             }

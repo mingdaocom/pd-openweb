@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import styled from 'styled-components';
 
 const Mask = styled.div`
@@ -72,16 +71,18 @@ export default class DragMast extends React.Component {
     document.body.removeEventListener('mouseup', this.handleChange);
   }
 
-  @autobind
-  handleChange() {
+  handleChange = () => {
     const { onChange } = this.props;
     onChange(this.value);
-  }
+  };
 
   render() {
-    const { direction } = this.props;
+    const { direction, style = {} } = this.props;
     return (
-      <Mask style={{ cursor: direction === 'horizontal' ? 'ew-resize' : 'ns-resize' }} ref={mask => (this.mask = mask)}>
+      <Mask
+        style={Object.assign({ cursor: direction === 'horizontal' ? 'ew-resize' : 'ns-resize' }, style)}
+        ref={mask => (this.mask = mask)}
+      >
         {direction === 'horizontal' && <DragH ref={drag => (this.drag = drag)} style={{ left: this.value }} />}
         {direction === 'vertical' && <DragV ref={drag => (this.drag = drag)} style={{ top: this.value }} />}
       </Mask>

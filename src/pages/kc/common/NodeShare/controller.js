@@ -21,17 +21,17 @@ function getParams() {
       type: 'kc_share',
       id: location.pathname.match(/.*\/apps\/kcshare\/(\w+)/)[1],
     };
-  } else if (/.*\/recordfile\/(\w+)\/(\d+)/.test(location.pathname.replace(/^\/portal/, ''))) {
+  } else if (/.*\/(recordfile|rowfile)\/(\w+)\/(\d+)/.test(location.pathname.replace(/^\/portal/, ''))) {
     // 草稿箱内文件详情添加getType
     return {
       type: 'record_share',
-      id: location.pathname.match(/.*\/recordfile\/(\w+)\/(\d+)/)[1],
-      getType: location.pathname.match(/.*\/recordfile\/(\w+)\/(\d+)/)[2],
+      id: location.pathname.match(/.*\/(recordfile|rowfile)\/(\w+)\/(\d+)/)[2],
+      getType: location.pathname.match(/.*\/(recordfile|rowfile)\/(\w+)\/(\d+)/)[3],
     };
-  } else if (/\/recordfile\/\w+/.test(location.pathname.replace(/^\/portal/, ''))) {
+  } else if (/\/(recordfile|rowfile)\/\w+/.test(location.pathname.replace(/^\/portal/, ''))) {
     return {
       type: 'record_share',
-      id: location.pathname.match(/.*\/recordfile\/(\w+)/)[1],
+      id: location.pathname.match(/.*\/(recordfile|rowfile)\/(\w+)/)[2],
     };
   } else if (query.id) {
     return {
@@ -71,6 +71,8 @@ export function getAttachment() {
         })
         .then(res => {
           if (res.resultCode === 1) {
+            const { control = {} } = res;
+            const { allowdownload = '1' } = control.advancedSetting;
             const recordAttachmentSwitch = isOpenPermit(
               permitList.recordAttachmentSwitch,
               res.switchPermits,
@@ -78,7 +80,7 @@ export function getAttachment() {
             );
             return {
               node: res.attachmentDetail,
-              allowDownload: recordAttachmentSwitch,
+              allowDownload: recordAttachmentSwitch && allowdownload === '1',
             };
           } else {
             return;

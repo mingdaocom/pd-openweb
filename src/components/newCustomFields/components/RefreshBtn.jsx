@@ -16,7 +16,9 @@ export default ({ worksheetId, recordId, item, onChange = () => {} }) => {
         setRefresh(true);
 
         sheetAjax.refreshSummary({ worksheetId, rowId: recordId, controlId: item.controlId }).then(data => {
-          onChange(data, item.controlId, item);
+          if (item.value !== data) {
+            onChange(data, item.controlId, item);
+          }
           setRefresh(false);
         });
       }}

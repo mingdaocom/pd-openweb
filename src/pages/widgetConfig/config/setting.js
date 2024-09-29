@@ -186,3 +186,56 @@ export const TITLE_SIZE_OPTIONS = {
   3: '20px',
   4: '24px',
 };
+
+export const CALC_TYPE = [
+  {
+    text: _l('日期间的时长'),
+    value: 1,
+  },
+  {
+    text: _l('为日期加减时间'),
+    value: 2,
+  },
+  { text: _l('距离此刻的时长'), value: 3 },
+];
+
+export const OUTPUT_FORMULA_DATE = [
+  { text: _l('日期+时间'), value: '1' },
+  { text: _l('日期'), value: '3' },
+  { text: _l('时分'), value: '8' },
+  { text: _l('时分秒'), value: '9' },
+];
+
+export const TIME_DISPLAY_TYPE = [
+  {
+    text: _l('时:分'),
+    value: '1',
+  },
+  {
+    text: _l('时:分:秒'),
+    value: '6',
+  },
+];
+
+export const OUTPUT_FORMULA_FUNC = [
+  {
+    text: _l('文本'),
+    value: 2,
+  },
+  {
+    text: _l('数值'),
+    value: 6,
+  },
+  {
+    text: _l('日期'),
+    value: 15,
+  },
+  {
+    text: _l('日期时间'),
+    value: 16,
+  },
+  {
+    text: _l('时间'),
+    value: 46,
+  },
+];

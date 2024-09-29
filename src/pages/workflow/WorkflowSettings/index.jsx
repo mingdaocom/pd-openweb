@@ -6,6 +6,7 @@ import Header from './Header';
 import EditFlow from './EditFlow';
 import History from './History';
 import ProcessConfig from './ProcessConfig';
+import WorkflowInfo from './WorkflowInfo';
 import processVersion from '../api/processVersion';
 import { getFlowInfo, getProcessById, clearSource } from '../redux/actions';
 import _ from 'lodash';
@@ -16,6 +17,7 @@ class WorkflowSettings extends Component {
     this.state = {
       tabIndex: 1,
       noAuth: false,
+      infoVisible: false,
     };
   }
 
@@ -59,13 +61,21 @@ class WorkflowSettings extends Component {
   };
 
   render() {
-    const { tabIndex, noAuth } = this.state;
+    const { tabIndex, noAuth, infoVisible } = this.state;
     const { flowInfo, onBack, match } = this.props;
     const { operator, operatorId } = match.params;
+    const isPlugin = location.href.indexOf('workflowplugin') > -1;
 
     const INDEX2COMPONENT = {
-      1: <EditFlow instanceId={operator === 'execHistory' && operatorId ? operatorId : ''} />,
-      2: <History />,
+      1: (
+        <EditFlow
+          instanceId={operator === 'execHistory' && operatorId ? operatorId : ''}
+          isPlugin={isPlugin}
+          infoVisible={infoVisible}
+          changeFlowInfo={visible => this.setState({ infoVisible: visible })}
+        />
+      ),
+      2: <History isPlugin={isPlugin} />,
       3: <ProcessConfig />,
     };
 
@@ -105,9 +115,22 @@ class WorkflowSettings extends Component {
 
     return (
       <div className="workflowSettings flexColumn h100">
-        <DocumentTitle title={`${_l('工作流编辑')} - ${flowInfo.name}`} />
-        <Header tabIndex={tabIndex} switchTabs={tabIndex => this.setState({ tabIndex })} onBack={onBack} />
+        <DocumentTitle title={`${flowInfo.name} - ${isPlugin ? _l('工作流插件') : _l('工作流')}`} />
+        <Header
+          tabIndex={tabIndex}
+          switchTabs={tabIndex => this.setState({ tabIndex, infoVisible: false })}
+          onBack={onBack}
+          isPlugin={isPlugin}
+          openFlowInfo={() => this.setState({ infoVisible: true })}
+        />
         {INDEX2COMPONENT[tabIndex]}
+        {!flowInfo.parentId && (
+          <WorkflowInfo
+            visible={infoVisible}
+            isPlugin={isPlugin}
+            onClose={() => this.setState({ infoVisible: false })}
+          />
+        )}
       </div>
     );
   }

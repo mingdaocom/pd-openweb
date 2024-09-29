@@ -90,20 +90,20 @@ const RoleSelectWrap = styled.div`
 `;
 
 function RoleSelect(props) {
-  const { id, posX, handleClose, data = [], visible, appId } = props;
+  const { id, posX, handleClose, roleSelectValue = [], visible, appId } = props;
 
-  const [roleList, setRoleList] = useState(data);
+  const [roleList, setRoleList] = useState([]);
   const [search, setSearch] = useState(undefined);
   const [value, setValue] = useState([]);
   const [type, setType] = useState(0); // 0 单选 1 多选
 
   useEffect(() => {
-    let _value = data.filter(l => l.seleted).map(l => l.roleId);
-    // setRoleList(data);
+    const _value = roleSelectValue.map(l => l.roleId);
+    const _type = localStorage.getItem('mingRoleDebugType');
+
     setValue(_value);
-    let _type = localStorage.getItem('mingRoleDebugType');
     setType(_type ? Number(_type) : _value.length > 1 ? 1 : 0);
-  }, [data]);
+  }, []);
 
   useEffect(() => {
     if (!visible) return;

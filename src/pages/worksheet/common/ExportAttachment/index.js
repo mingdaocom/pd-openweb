@@ -54,9 +54,13 @@ class ExportAttachment extends Component {
   checkControlVisible(item) {
     if (!item) return false;
 
+    const { advancedSetting } = item;
+    const alldownload = advancedSetting.alldownload || '1';
+    const allowdownload = advancedSetting.allowdownload || '1';
+    const isDownload = alldownload === '1' || allowdownload === '1';
     const controlPermissions = item.controlPermissions || '111';
     const fieldPermission = item.fieldPermission || '111';
-    return fieldPermission[0] === '1' && controlPermissions[0] === '1';
+    return fieldPermission[0] === '1' && controlPermissions[0] === '1' && isDownload;
   }
 
   handleExport = () => {
@@ -115,7 +119,7 @@ class ExportAttachment extends Component {
     const { hyphen, hyphenValue, nameMethodValues = [], selectControlIds = [], generateFolder } = this.state;
 
     const exampleArr = nameMethodList.filter(it => _.includes(nameMethodValues, it.value));
-    const visibleAttachmentControls = attachmentControls.filter(item => isCharge || this.checkControlVisible(item));
+    const visibleAttachmentControls = attachmentControls.filter(item => this.checkControlVisible(item));
 
     return (
       <Dialog

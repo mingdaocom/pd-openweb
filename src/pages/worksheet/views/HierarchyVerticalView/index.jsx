@@ -16,7 +16,7 @@ import { ITEM_TYPE, SCROLL_CONFIG } from '../HierarchyView/config';
 import * as hierarchyActions from 'worksheet/redux/actions/hierarchy';
 import * as viewActions from 'worksheet/redux/actions/index';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
-import { updateWorksheetControls } from '../../redux/actions';
+import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
 import worksheetAjax from 'src/api/worksheet';
 import { browserIsMobile } from 'src/util';
 import ToolBar from '../HierarchyView/ToolBar';
@@ -84,6 +84,7 @@ function HierarchyVertical(props) {
     getTopLevelHierarchyData,
     saveView,
     updateWorksheetControls,
+    updateWorksheetInfo,
     expandedMultiLevelHierarchyData,
     expandMultiLevelHierarchyDataOfMultiRelate,
     getDefaultHierarchyData,
@@ -230,6 +231,7 @@ function HierarchyVertical(props) {
         .then(res => {
           const allControls = _.get(res, 'template.controls') || [];
           updateWorksheetControls(allControls);
+          updateWorksheetInfo(res);
         });
     });
   };
@@ -600,7 +602,8 @@ const ConnectedHierarchyVerticalView = connect(
     ..._.get(state.sheet, 'hierarchyView'),
     searchData: getSearchData(state.sheet),
   }),
-  dispatch => bindActionCreators({ ...hierarchyActions, ...viewActions, updateWorksheetControls }, dispatch),
+  dispatch =>
+    bindActionCreators({ ...hierarchyActions, ...viewActions, updateWorksheetControls, updateWorksheetInfo }, dispatch),
 )(HierarchyVertical);
 
 export default function HierarchyVerticalView(props) {

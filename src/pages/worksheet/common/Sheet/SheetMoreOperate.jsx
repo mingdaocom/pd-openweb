@@ -12,6 +12,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import { canEditData, isHaveCharge, canEditApp } from 'src/pages/worksheet/redux/actions/util';
+import { saveSelectExtensionNavType } from 'src/pages/publicWorksheetConfig/utils';
 
 export default function SheetMoreOperate(props) {
   const {
@@ -37,6 +38,16 @@ export default function SheetMoreOperate(props) {
   if (!canEdit && !canImportSwitch && !canSheetTrash && !canDelete) {
     return null;
   }
+
+  const clickSettingSheet = () => {
+    const sheetConfigNavInfo = localStorage.getItem('sheetConfigNavInfo')
+      ? JSON.parse(localStorage.getItem('sheetConfigNavInfo'))
+      : {};
+    const { settingNav = 'submitForm' } = sheetConfigNavInfo[worksheetId] || {};
+
+    navigateTo(`/worksheet/formSet/edit/${worksheetId}${settingNav ? '/' + settingNav : ''}`);
+  };
+
   return (
     <span className="moreOperate mLeft6 pointer" onClick={() => setMenuVisible(true)}>
       <Icon className="Gray_9d Font20" icon="more_horiz" />
@@ -61,49 +72,54 @@ export default function SheetMoreOperate(props) {
                   <Trigger
                     getPopupContainer={() => document.querySelector('.moreOperate .settingSheet .Item-content')}
                     action={['hover']}
-                    popupAlign={{ points: ['tl', 'tr'], offset: [0, -20] }}
+                    popupAlign={{ points: ['tl', 'tr'], offset: [0, -41] }}
                     popup={
                       <Menu className="subMenu">
-                        <MenuItem
-                          onClick={() => {
-                            navigateTo(`/worksheet/formSet/edit/${worksheetId}/display`);
-                          }}
-                        >
-                          <span className="text">{_l('业务规则%02028')}</span>
-                        </MenuItem>
-                        <MenuItem
-                          onClick={() => {
-                            navigateTo(`/worksheet/formSet/edit/${worksheetId}/functionalSwitch`);
-                          }}
-                        >
-                          <span className="text">{_l('功能开关%02027')}</span>
-                        </MenuItem>
-                        <MenuItem
-                          onClick={() => {
-                            navigateTo(`/worksheet/formSet/edit/${worksheetId}/customBtn`);
-                          }}
-                        >
-                          <span className="text">{_l('自定义动作%02026')}</span>
-                        </MenuItem>
-                        <MenuItem
-                          onClick={() => {
-                            navigateTo(`/worksheet/formSet/edit/${worksheetId}/printTemplate`);
-                          }}
-                        >
-                          <span className="text">{_l('打印模板%02025')}</span>
-                        </MenuItem>
+                        {[
+                          { type: 'submitForm', text: _l('提交表单') },
+                          { type: 'alias', text: _l('数据名称') },
+                          { type: 'functionalSwitch', text: _l('功能开关%02027') },
+                          { type: 'display', text: _l('业务规则%02028') },
+                          { type: 'customBtn', text: _l('自定义动作%02026') },
+                          { type: 'printTemplate', text: _l('打印模板%02025') },
+                          { type: 'indexSetting', text: _l('检索加速') },
+                        ].map(({ type, text }) => (
+                          <Fragment>
+                            {type === 'customBtn' && <hr className="splitLine" />}
+                            <MenuItem
+                              key={type}
+                              onClick={() => {
+                                saveSelectExtensionNavType(worksheetId, 'settingNav', type);
+                                navigateTo(`/worksheet/formSet/edit/${worksheetId}/${type}`);
+                              }}
+                            >
+                              <span className="text">{text}</span>
+                            </MenuItem>
+                          </Fragment>
+                        ))}
                         <hr className="splitLine" />
-                        <MenuItem
-                          onClick={() => {
-                            navigateTo(`/worksheet/form/edit/${worksheetId}`);
-                          }}
-                        >
-                          <span className="text">{_l('公开发布%02024')}</span>
-                        </MenuItem>
+                        {[
+                          { type: 'publicform', text: _l('公开发布%02024') },
+                          { type: 'pay', text: _l('支付') },
+                        ].map(({ type, text }) => (
+                          <MenuItem
+                            key={type}
+                            onClick={() => {
+                              saveSelectExtensionNavType(worksheetId, 'extensionNav', type);
+                              navigateTo(`/worksheet/form/edit/${worksheetId}/${type}`);
+                            }}
+                          >
+                            <span className="text">{text}</span>
+                          </MenuItem>
+                        ))}
                       </Menu>
                     }
                   >
-                    <MenuItem className="settingSheet" icon={<Icon icon="table" className="Font18 pLeft3" />}>
+                    <MenuItem
+                      className="settingSheet"
+                      icon={<Icon icon="table" className="Font18 pLeft3" />}
+                      onClick={clickSettingSheet}
+                    >
                       <span className="text">{_l('设置工作表%02035')}</span>
                       <Icon className="Font15" icon="arrow-right-tip" />
                     </MenuItem>

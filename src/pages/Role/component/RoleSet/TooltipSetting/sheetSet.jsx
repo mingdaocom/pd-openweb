@@ -65,20 +65,24 @@ function TipsRender(props) {
   if (![20, 30].includes(props.value) || props.disable) {
     return '';
   }
-
+  const str = userFileds
+    .filter(o => (type === 'look' ? true : o.userPermission === 2)) //查看=>显示全部；操作=>拥有的
+    .map(o => o.name)
+    .join(', ');
   return (
     <React.Fragment>
       <WrapTip className="tipCon">
         <div className="tipConArrow" />
         <div className="tipContent">
-          {_l('%0表中', sheetName)}
-          <span className="Bold mLeft3 mRight3 Inline">
-            {userFileds
-              .filter(o => (type === 'look' ? true : o.userPermission === 2)) //查看=>显示全部；操作=>拥有的
-              .map(o => o.name)
-              .join(', ')}
-          </span>
-          {_l('字段包含当前用户的记录')}
+          <span
+            dangerouslySetInnerHTML={{
+              __html: _l(
+                '%0表中%1字段包含当前用户的记录',
+                sheetName,
+                `<span class="Bold mLeft3 mRight3 Inline">${str}</span>`,
+              ),
+            }}
+          />
           {type !== 'look' && (
             <Tooltip
               text={

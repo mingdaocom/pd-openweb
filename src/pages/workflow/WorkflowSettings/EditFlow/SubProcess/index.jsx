@@ -27,7 +27,7 @@ export default class SubProcess extends Component {
     }
 
     return (
-      <div className="pLeft8 pRight8 flexRow" style={{ alignItems: 'center' }}>
+      <div className="pLeft8 pRight8 flexRow alignItemsCenter">
         <div className="ellipsis">
           {item.subProcessName ? (
             <Fragment>

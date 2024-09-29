@@ -367,7 +367,7 @@ export default class SourceDest extends Component {
           : !idsMD.includes(it.value),
       )
       .map(o => {
-        if (dsType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
+        if (dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET) {
           return o;
         } else {
           return {
@@ -700,6 +700,13 @@ export default class SourceDest extends Component {
                     }}
                     isSameDbObj={this.getAllSource().dBs.includes(`${dsType}-${dbName}-${schema || 'schema'}`)}
                     sourceTables={this.getAllSource().sourceTables}
+                    needCheckPgSql={
+                      [
+                        DATABASE_TYPE.POSTGRESQL,
+                        DATABASE_TYPE.ALIYUN_POSTGRES,
+                        DATABASE_TYPE.TENCENT_POSTGRES,
+                      ].includes(dsType) && node.nodeType === 'SOURCE_TABLE'
+                    }
                   />
                 </Wrap>
               ) : (

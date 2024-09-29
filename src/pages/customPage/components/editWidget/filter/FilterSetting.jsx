@@ -141,6 +141,7 @@ export default function FilterSetting(props) {
             {types.map(item => (
               <Select.Option
                 className="selectOptionWrapper"
+                disabled={firstControlData.encryId ? item.value !== FILTER_CONDITION_TYPE.EQ : false}
                 key={item.value}
                 value={item.value}
               >
@@ -164,6 +165,12 @@ export default function FilterSetting(props) {
               </div>
             ))}
           </RadioWrap>
+        )}
+        {data.key === 'filterType' && firstControlData.encryId && (
+          <div className="Gray_75 mBottom12">
+            {_l('当前字段已加密，只支持按照')}
+            {(types.find(o => o.value === FILTER_CONDITION_TYPE.EQ) || {}).text}
+          </div>
         )}
       </Fragment>
     );

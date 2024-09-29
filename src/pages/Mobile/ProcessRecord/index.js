@@ -1,6 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import ProcessRecordInfo from './ProcessRecordInfo';
-import { ModalWrap } from '../baseStyled';
+import { Popup } from 'antd-mobile';
+import cx from 'classnames';
 
 export default props => {
   const { isModal, match } = props;
@@ -9,10 +10,8 @@ export default props => {
   if (isModal) {
     const { instanceId, workId } = props;
     return (
-      <ModalWrap
-        popup
-        animationType="slide-up"
-        className={className}
+      <Popup
+        className={cx('mobileModal full', className)}
         onClose={onClose}
         visible={visible}
       >
@@ -24,7 +23,7 @@ export default props => {
             onClose={onClose}
           />
         )}
-      </ModalWrap>
+      </Popup>
     );
   } else {
     const { instanceId, workId } = match.params;

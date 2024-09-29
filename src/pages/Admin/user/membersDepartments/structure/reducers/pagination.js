@@ -1,7 +1,18 @@
-﻿import { ALL_USER_REQUEST, ALL_USER_SUCCESS, ALL_USER_FAILURE, USER_REQUEST, USER_SUCCESS, USER_FAILURE, APPROVAL_USER_REQUEST, APPROVAL_USER_SUCCESS, APPROVAL_USER_FAILURE, INACTIVE_USER_REQUEST, INACTIVE_USER_SUCCESS, INACTIVE_USER_FAILURE } from '../actions/entities';
+﻿import {
+  ALL_USER_REQUEST,
+  ALL_USER_SUCCESS,
+  ALL_USER_FAILURE,
+  USER_REQUEST,
+  USER_SUCCESS,
+  USER_FAILURE,
+  APPROVAL_USER_REQUEST,
+  APPROVAL_USER_SUCCESS,
+  APPROVAL_USER_FAILURE,
+  INACTIVE_USER_REQUEST,
+  INACTIVE_USER_SUCCESS,
+  INACTIVE_USER_FAILURE,
+} from '../actions/entities';
 import { CUSTOM_LIST } from '../actions/search';
-
-import { parse, Schemas } from '../middleware/api';
 import { PAGE_SIZE } from '../constant';
 
 const mergeUserList = (action, type) => {
@@ -24,9 +35,9 @@ const mergeUserList = (action, type) => {
     userList = list;
     allCountNum = allCount;
   }
-  const ids = parse(userList, Schemas.USER_ARRAY).result;
+
   return {
-    ids,
+    ids: userList.map(v => v.accountId),
     pageIndex,
     allCount: allCountNum,
   };
@@ -39,9 +50,9 @@ const updatePagination = (
     pageSize: PAGE_SIZE,
     ids: [],
     allCount: undefined,
-    searchId: []
+    searchId: [],
   },
-  action
+  action,
 ) => {
   const { type } = action;
   const [requestType, successType, failureType] = [USER_REQUEST, USER_SUCCESS, USER_FAILURE];

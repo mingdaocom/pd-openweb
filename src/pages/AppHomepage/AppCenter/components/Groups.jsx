@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { string, bool, arrayOf, shape } from 'prop-types';
 import styled from 'styled-components';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
-import { Dialog, ScrollView, UpgradeIcon } from 'ming-ui';
+import { Dialog, ScrollView, UpgradeIcon, SortableList } from 'ming-ui';
 import cx from 'classnames';
 import { VerticalMiddle, FlexCenter } from 'worksheet/components/Basics';
 import { navigateTo } from 'router/navigateTo';
@@ -47,6 +46,9 @@ const Con = styled.div`
 const PaddingCon = styled.div`
   width: 238px;
   padding: 0px 38px;
+  .groupItem {
+    padding: 0 14px;
+  }
 `;
 
 const GroupsCon = styled.div`
@@ -67,85 +69,6 @@ function getSortType(type) {
   return { star: 1, project: 2, personal: 3 }[type];
 }
 
-const SortableGroupItem = SortableElement(props => <GroupItem {...props} />);
-
-const SortableGroupList = SortableContainer(
-  ({
-    hasManageAppAuth,
-    projectId,
-    activeGroupId,
-    groups,
-    item,
-    isDragging,
-    setIsEditingGroupId,
-    actions,
-    dashboardColor,
-    projectGroupsLang = {},
-  }) => {
-    return (
-      <div>
-        {!!item.groups.length &&
-          item.groups.map((group, j) => {
-            return (
-              <SortableGroupItem
-                hasManageAppAuth={hasManageAppAuth}
-                key={group.id}
-                index={j}
-                itemType={item.type}
-                {...{
-                  dashboardColor,
-                  isDragging,
-                  projectId,
-                  activeGroupId,
-                  id: group.id,
-                  groupType: group.groupType,
-                  icon: group.icon,
-                  iconUrl: group.iconUrl,
-                  name: _.get(projectGroupsLang, `${group.id}.data[0].value`) || group.name,
-                  count: group.count,
-                  isMarked: group.isMarked,
-                  onEdit: setIsEditingGroupId,
-                  onDelete: (deleteId, groupType) => {
-                    Dialog.confirm({
-                      title: _l('删除分组"%0"', group.name),
-                      description: _l('仅删除分组，分组下的应用不会被删除'),
-                      buttonType: 'danger',
-                      onOk: () => {
-                        actions.deleteGroup({
-                          id: deleteId,
-                          groupType,
-                          projectId,
-                          cb: err => {
-                            if (!err) {
-                              if (activeGroupId === deleteId) {
-                                navigateTo('/app/my', false, true);
-                                actions.loadAppAndGroups({ projectId, noGroupsLoading: true });
-                              }
-                              alert(_l('删除分组成功'));
-                            } else {
-                              alert(_l('删除分组失败'), 3);
-                            }
-                          },
-                        });
-                      },
-                    });
-                  },
-                  onMark: markedId => {
-                    actions.markGroup({
-                      id: markedId,
-                      isMarked: !group.isMarked,
-                      groupType: group.groupType,
-                      projectId,
-                    });
-                  },
-                }}
-              />
-            );
-          })}
-      </div>
-    );
-  },
-);
 export default function Groups(props) {
   const {
     loading,
@@ -160,7 +83,6 @@ export default function Groups(props) {
     projectGroupsLang = [],
     myPermissions = [],
   } = props;
-  const [isDragging, setIsDragging] = useState();
   const [sorts, setSorts] = useState({});
   const [isFolded, setIsFolded] = useState(localStorage.getItem('homeGroupsIsFolded') === '1');
   const [editingGroupId, setIsEditingGroupId] = useState();
@@ -172,12 +94,56 @@ export default function Groups(props) {
     { name: _l('星标'), type: 'star', groups: markedGroup },
     { name: _l('个人'), type: 'personal', groups: groups.filter(g => g.groupType === 0) },
     { name: _l('组织'), type: 'project', groups: groups.filter(g => g.groupType === 1) },
-  ].map(item => ({
-    ...item,
-    groups: _.sortBy(item.groups, g => (sorts[item.type] || []).indexOf(g.id)),
+  ].map(listItem => ({
+    ...listItem,
+    groups: _.sortBy(listItem.groups, g => (sorts[listItem.type] || []).indexOf(g.id)),
   }));
   const featureType = getFeatureStatus(projectId, VersionProductType.recycle);
   const hasManageAppAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
+  const isAllActive = location.pathname === '/app/my';
+
+  const staticGroupList = [
+    {
+      key: 'all',
+      fontIcon: 'grid_view',
+      name: _l('全部'),
+      to: '/app/my',
+      active: isAllActive,
+      className: 'mTop10',
+      onClick: () => {
+        actions.loadAppAndGroups({ projectId, noGroupsLoading: true });
+        navigateTo('/app/my');
+      },
+    },
+    {
+      key: 'myApps',
+      fontIcon: 'person1',
+      name: _l('我拥有的'),
+      to: '/app/my/owned',
+      active: !isAllActive && !activeGroupId,
+      onClick: () => {
+        actions.loadOwnedApps({ projectId });
+        navigateTo('/app/my/owned');
+      },
+    },
+    {
+      key: 'recycle',
+      fontIcon: 'knowledge-recycle',
+      name: (
+        <span>
+          {_l('回收站')}
+          {isFree && <UpgradeIcon />}
+        </span>
+      ),
+      onClick: () => {
+        if (featureType === '2') {
+          buriedUpgradeVersionDialog(projectId, VersionProductType.recycle);
+        } else {
+          setTrashVisible(true);
+        }
+      },
+    },
+  ];
 
   const expandBtn = (
     <BaseBtnCon
@@ -200,6 +166,60 @@ export default function Groups(props) {
       </Con>
     );
   }
+
+  const renderItem = ({ item, listItem, dragging }) => {
+    const { id, name, isMarked, groupType } = item;
+
+    const onDelete = (deleteId, groupType) => {
+      Dialog.confirm({
+        title: _l('删除分组"%0"', name),
+        description: _l('仅删除分组，分组下的应用不会被删除'),
+        buttonType: 'danger',
+        onOk: () => {
+          actions.deleteGroup({
+            id: deleteId,
+            groupType,
+            projectId,
+            cb: err => {
+              if (!err) {
+                if (activeGroupId === deleteId) {
+                  navigateTo('/app/my', false, true);
+                  actions.loadAppAndGroups({ projectId, noGroupsLoading: true });
+                }
+                alert(_l('删除分组成功'));
+              } else {
+                alert(_l('删除分组失败'), 3);
+              }
+            },
+          });
+        },
+      });
+    };
+
+    const onMark = markedId => {
+      actions.markGroup({
+        id: markedId,
+        isMarked: !isMarked,
+        groupType,
+        projectId,
+      });
+    };
+
+    return (
+      <GroupItem
+        {...props}
+        {...item}
+        className="groupItemWrap"
+        name={_.get(projectGroupsLang, `${id}.data[0].value`) || name}
+        hasManageAppAuth={hasManageAppAuth}
+        itemType={listItem.type}
+        isDragging={dragging}
+        onEdit={setIsEditingGroupId}
+        onDelete={onDelete}
+        onMark={onMark}
+      />
+    );
+  };
 
   return (
     <Con className={cx({ isFolded })}>
@@ -234,40 +254,13 @@ export default function Groups(props) {
               <span className="title">{_l('应用')}</span>
               {expandBtn}
             </VerticalMiddle>
-            <GroupItem
-              dashboardColor={dashboardColor}
-              itemType="static"
-              className="mTop10"
-              fontIcon="grid_view"
-              // fontIcon="home_page"
-              to="/app/my"
-              active={!activeGroupId}
-              name={_l('我的应用')}
-              onClick={() => {
-                actions.loadAppAndGroups({ projectId, noGroupsLoading: true });
-                navigateTo('/app/my');
-              }}
-            />
-            {featureType && (
-              <GroupItem
-                dashboardColor={dashboardColor}
-                itemType="static"
-                fontIcon="knowledge-recycle"
-                name={
-                  <span>
-                    {_l('回收站')}
-                    {isFree && <UpgradeIcon />}
-                  </span>
-                }
-                onClick={() => {
-                  if (featureType === '2') {
-                    buriedUpgradeVersionDialog(projectId, VersionProductType.recycle);
-                  } else {
-                    setTrashVisible(true);
-                  }
-                }}
-              />
+
+            {staticGroupList.map((group, index) =>
+              group.key === 'recycle' && !featureType ? null : (
+                <GroupItem key={index} dashboardColor={dashboardColor} itemType="static" {..._.omit(group, 'key')} />
+              ),
             )}
+
             <VerticalMiddle className="header mTop20">
               <span className="Font15">{_l('分组')}</span>
               <BaseBtnCon className="mRight5" onClick={() => setAddGroupVisible(true)}>
@@ -279,41 +272,26 @@ export default function Groups(props) {
             <ScrollView>
               <PaddingCon className="pBottom25">
                 {list
-                  .filter(item => item.groups && item.groups.length)
-                  .map((item, i) => (
+                  .filter(listItem => listItem.groups && listItem.groups.length)
+                  .map((listItem, i) => (
                     <div key={i} className="mTop20">
-                      <div className="title Gray_9e Font12 mBottom6">{item.name}</div>
-                      {item.groups && !!item.groups.length && (
-                        <SortableGroupList
-                          {...{
-                            actions,
-                            projectId,
-                            activeGroupId,
-                            groups,
-                            item,
-                            isDragging,
-                            setIsEditingGroupId,
-                            dashboardColor,
-                          }}
-                          hasManageAppAuth={hasManageAppAuth}
-                          projectGroupsLang={projectGroupsLang}
-                          axis={'y'}
-                          hideSortableGhost
-                          helperClass="draggingItem"
-                          transitionDuration={0}
-                          distance={3}
-                          onSortStart={() => setIsDragging(true)}
-                          onSortEnd={({ oldIndex, newIndex }) => {
-                            setIsDragging(false);
-                            const sortedGroups = arrayMove(item.groups, oldIndex, newIndex);
-                            setSorts(oldSorts => ({ ...oldSorts, [item.type]: sortedGroups.map(g => g.id) }));
+                      <div className="title Gray_9e Font12 mBottom6">{listItem.name}</div>
+                      {listItem.groups && !!listItem.groups.length && (
+                        <SortableList
+                          items={listItem.groups}
+                          itemKey="id"
+                          itemClassName="groupItem"
+                          helperClass="groupItemHelperClass"
+                          renderItem={itemProps => renderItem({ ...itemProps, listItem })}
+                          onSortEnd={newItems => {
+                            setSorts(oldSorts => ({ ...oldSorts, [listItem.type]: newItems.map(g => g.id) }));
                             homeAppAjax.editGroupSort({
                               projectId,
-                              ids: sortedGroups.map(g => g.id),
-                              sortType: getSortType(item.type),
+                              ids: newItems.map(g => g.id),
+                              sortType: getSortType(listItem.type),
                             });
-                            if (item.type !== 'personal') {
-                              actions.updateGroupSorts(sortedGroups, item.type);
+                            if (listItem.type !== 'personal') {
+                              actions.updateGroupSorts(newItems, listItem.type);
                             }
                           }}
                         />

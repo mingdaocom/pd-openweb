@@ -8,8 +8,10 @@ export default {
   * @param {string} args.startDateTime 开始时间
   * @param {string} args.endDateTime 结束时间
   * @param {} args.logType
+  * @param {} args.accountResult
   * @param {array} args.accountIds 用户ID
   * @param {array} args.columnNames 列名称
+  * @param {string} args.fileName 导出文件名
   * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -18,6 +20,28 @@ export default {
    getActionLogs: function (args, options = {}) {
      
      return mdyAPI('ActionLog', 'GetActionLogs', args, options);
+   },
+  /**
+  * 获取组织管理日志列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {integer} args.pageIndex 当前页码
+  * @param {integer} args.pageSize 页面尺寸
+  * @param {string} args.startDateTime 开始时间
+  * @param {string} args.endDateTime 结束时间
+  * @param {} args.operateTargetType
+  * @param {} args.operateType
+  * @param {array} args.accountIds 用户ID
+  * @param {string} args.fileName 文件名
+  * @param {array} args.columnNames 列名称
+  * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getOrgLogs: function (args, options = {}) {
+     
+     return mdyAPI('ActionLog', 'GetOrgLogs', args, options);
    },
   /**
   * 获取登录设备列表

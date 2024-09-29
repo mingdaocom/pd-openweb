@@ -484,6 +484,7 @@ export const getWorksheetInfo = worksheetId => {
         data: {
           worksheetId,
           appId: worksheetResult.appId,
+          projectId: worksheetResult.projectId,
           name: getTranslateInfo(worksheetResult.appId, null, worksheetId).name || worksheetResult.name,
           views: (worksheetResult.views || []).map(item => {
             return {
@@ -668,23 +669,24 @@ export const changeControlCheckbox = (event, item) => {
         return;
       }
       if (reportType === reportTypes.NumberChart && yaxisList.length) {
-        dispatch(
-          getReportConfigDetail(
-            {
-              reportId: base.report.id,
-              appId: base.sheetId,
-              reportType: reportTypes.BarChart,
-            },
-            () => {
-              if (isNumber) {
-                dispatch(addYaxisList(item));
-              } else {
+        if (isNumber) {
+          dispatch(addYaxisList(item));
+          return;
+        } else {
+          dispatch(
+            getReportConfigDetail(
+              {
+                reportId: base.report.id,
+                appId: base.sheetId,
+                reportType: reportTypes.BarChart,
+              },
+              () => {
                 dispatch(addXaxes(item));
-              }
-            },
-          ),
-        );
-        return;
+              },
+            ),
+          );
+          return;
+        }
       }
       if (
         [reportTypes.PieChart, reportTypes.FunnelChart, reportTypes.WordCloudChart, reportTypes.CountryLayer].includes(
@@ -958,7 +960,13 @@ export const addValueAxis = (key, control, isRequest = true) => {
           suffix: isPercent ? '%' : '',
           ydot: isPercent ? 0 : 2,
           showNumber: true,
-          showPercent: 0,
+          percent: {
+            enable: false,
+            type: 2,
+            dot: "2",
+            dotFormat: "1",
+            roundType: 2
+          },
           normType: isNumber ? 1 : 5,
           emptyShowType: 0,
           dot: control.dot,
@@ -989,7 +997,13 @@ export const addTargetValueAxis = (index, control) => {
       suffix: isPercent ? '%' : '',
       ydot: isPercent ? 0 : 2,
       showNumber: true,
-      showPercent: 0,
+      percent: {
+        enable: false,
+        type: 2,
+        dot: "2",
+        dotFormat: "1",
+        roundType: 2
+      },
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: control.dot,
@@ -1048,7 +1062,13 @@ export const addYaxisList = (data, isRequest = true) => {
       ydot: firstYAxis ? firstYAxis.ydot : isPercent ? 0 : 2,
       fixType: firstYAxis ? firstYAxis.fixType : 0,
       showNumber: true,
-      showPercent: 0,
+      percent: {
+        enable: false,
+        type: 2,
+        dot: "2",
+        dotFormat: "1",
+        roundType: 2
+      },
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: data.dot,
@@ -1110,7 +1130,13 @@ export const addIndexYaxisList = (data, index, isRequest = true) => {
       ydot: firstYAxis ? firstYAxis.ydot : isPercent ? 0 : 2,
       fixType: firstYAxis ? firstYAxis.fixType : 0,
       showNumber: true,
-      showPercent: 0,
+      percent: {
+        enable: false,
+        type: 2,
+        dot: "2",
+        dotFormat: "1",
+        roundType: 2
+      },
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: data.dot,
@@ -1281,7 +1307,13 @@ export const addRightYaxisList = (data, isRequest = true) => {
       ydot: firstYAxis ? firstYAxis.ydot : isPercent ? 0 : 2,
       fixType: firstYAxis ? firstYAxis.fixType : 0,
       showNumber: true,
-      showPercent: 0,
+      percent: {
+        enable: false,
+        type: 2,
+        dot: "2",
+        dotFormat: "1",
+        roundType: 2
+      },
       normType: isNumber ? 1 : 5,
       emptyShowType: 0,
       dot: data.dot,

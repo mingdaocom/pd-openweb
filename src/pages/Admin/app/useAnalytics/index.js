@@ -38,7 +38,6 @@ export default class UseAnalytics extends Component {
         </div>
       );
     }
-    let deadLine = moment().subtract(1, 'days').format(_l('YYYY年MM月DD日'));
 
     return (
       <div className="useAnalyticsContainer orgManagementWrap">
@@ -56,7 +55,7 @@ export default class UseAnalytics extends Component {
             ))}
           </div>
           <div className="extraInfo">
-            {_l('截止到%0的最新数据', deadLine)}
+            {_l('截止到今天0点的最新数据')}
             <Tooltip
               tooltipClass="analyticsTooltip"
               popupPlacement="bottom"

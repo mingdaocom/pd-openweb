@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
@@ -140,8 +139,7 @@ class KcMain extends Component {
     $(document).off('.' + this.jqns);
   }
 
-  @autobind
-  handleRegisterNodeItemEvent() {
+  handleRegisterNodeItemEvent = () => {
     const _this = this;
     const { selectItem, selectSingleItem, updateNodeItem, baseUrl } = this.props;
     registerNodeItemEvent(this.kcApp, {
@@ -160,31 +158,27 @@ class KcMain extends Component {
       },
       getLatestData: this.getEventLatestData,
     });
-  }
+  };
 
-  @autobind
-  getEventLatestData() {
+  getEventLatestData = () => {
     return Object.assign({}, this.props, {
       dragSelectEle: this.dragSelect,
       previewFile: this.state.previewFile,
     });
-  }
+  };
 
-  @autobind
-  showDetail() {
+  showDetail = () => {
     this.setState({
       isShowDetail: true,
     });
-  }
+  };
 
-  @autobind
-  togglePinDetail() {
+  togglePinDetail = () => {
     const { isPinDetail } = this.state;
     this.setState({ isPinDetail: !isPinDetail });
-  }
+  };
 
-  @autobind
-  toggleDetailAndTogglePin() {
+  toggleDetailAndTogglePin = () => {
     let { isPinDetail, isShowDetail } = this.state;
     if (isPinDetail === isShowDetail) {
       isPinDetail = isShowDetail = !isShowDetail;
@@ -192,38 +186,34 @@ class KcMain extends Component {
       isPinDetail = isShowDetail = true;
     }
     this.setState({ isShowDetail, isPinDetail });
-  }
+  };
 
-  @autobind
-  changeKcView() {
+  changeKcView = () => {
     const { isList } = this.state;
     this.setState({
       isList: !isList,
     });
-  }
+  };
 
-  @autobind
-  handleAddNewFolder(visible) {
+  handleAddNewFolder = visible => {
     this.setState({
       newFolderVisible: visible,
     });
-  }
+  };
 
-  @autobind
-  handlePreview(item) {
+  handlePreview = item => {
     const { list } = this.props;
     const index = list.filter(item => item && item.type !== 1).findIndex(i => i.id === item.id);
     this.setState({
       isPreviewFile: true,
       previewIndex: index,
     });
-  }
+  };
 
-  @autobind
-  hasMultipleSelectedItems() {
+  hasMultipleSelectedItems = () => {
     const { selectAll, selectedItems, list } = this.props;
     return selectedItems.size > 1 || (selectAll && list.size > 1);
-  }
+  };
   render() {
     const {
       path,

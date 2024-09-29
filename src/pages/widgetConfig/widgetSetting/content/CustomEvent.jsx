@@ -203,7 +203,7 @@ export default function CustomEvent(props) {
         );
       case ACTION_VALUE_ENUM.REFRESH_VALUE:
         const refreshArr = getTextById(allControls, actionItems, 1) || [];
-        return <div className="textCon">{refreshArr.map(cur => cur.name).join(', ')}</div>;
+        return <div className="textCon breakAll">{refreshArr.map(cur => cur.name).join(', ')}</div>;
       case ACTION_VALUE_ENUM.MESSAGE:
         return (
           <div className="textCon LineHeight30">
@@ -564,7 +564,7 @@ export default function CustomEvent(props) {
           })}
         </SettingCollapseWrap>
       ) : (
-        <WidgetWarning fromCustom={true} />
+        <WidgetWarning type="event" />
       )}
 
       {renderAddEvent()}

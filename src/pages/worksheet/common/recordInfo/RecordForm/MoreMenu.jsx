@@ -8,7 +8,6 @@ import addRecord from 'worksheet/common/newRecord/addRecord';
 import { handleRowData } from 'src/util/transControlDefaultValue';
 export default function MoreMenu(props) {
   const {
-    buttons,
     recordbase,
     btnDisable,
     recordinfo,
@@ -42,7 +41,7 @@ export default function MoreMenu(props) {
       instanceId={instanceId}
       formdata={formData}
       btnDisable={btnDisable}
-      defaultCustomButtons={buttons}
+      defaultCustomButtons={[]}
       sheetSwitchPermit={sheetSwitchPermit}
       onDelete={onDelete}
       onButtonClick={onButtonClick}
@@ -81,7 +80,6 @@ export default function MoreMenu(props) {
 }
 
 MoreMenu.propTypes = {
-  buttons: PropTypes.arrayOf(PropTypes.shape({})),
   recordbase: PropTypes.shape({}),
   btnDisable: PropTypes.shape({}),
   recordinfo: PropTypes.shape({}),

@@ -55,7 +55,7 @@ class Widgets extends Component {
           {
             'pLeft12 pRight12': enumDefault2 === 1,
             horizonArrangementItem: checktype == '2' && (direction === '0' || direction === '2') && browserIsMobile(),
-            showRadioTxtAll: browserIsMobile(),
+            'showRadioTxtAll Gray': browserIsMobile(),
           },
         )}
         style={{

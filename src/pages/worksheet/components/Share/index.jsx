@@ -45,13 +45,19 @@ export default function Share(props) {
     getCopyContent,
     canEditForm,
     hidePublicShare,
+    privateShare,
   } = props;
   const [url, setUrl] = useState();
   const [urlVisible, setUrlVisible] = useState(false);
   const [isPublic, setIsPublic] = useState(props.isPublic);
   const [publicUrl, setPublicUrl] = useState(isPublic && props.publicUrl);
   const [shareData, setShareData] = useState({});
-  const privateVisible = from === 'report' ? params.privateVisible : !_.includes(['worksheetApi'], from);
+  const privateVisible =
+    from === 'report'
+      ? params.privateVisible
+      : ['view', 'recordInfo', 'newRecord'].includes(from)
+      ? privateShare
+      : !_.includes(['worksheetApi'], from);
   const isEmbed = _.includes(['view', 'customPage'], from);
   const privateTitle = isEmbed ? _l('嵌入链接') : _l('内部成员访问');
   let disabledTip;

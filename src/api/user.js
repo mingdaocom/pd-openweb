@@ -142,7 +142,10 @@ export default {
 用于任何实体 AT 快速搜索
   * @param {Object} args 请求参数
   * @param {integer} args.search 搜索类型
+1：为用户搜索；2为群组搜索
   * @param {string} args.keywords 关键词
+  * @param {string} args.currentProjectId 当前组织（可不传）
+主数据所属组织，比如行记录
   * @param {integer} args.pageSize 页大小
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

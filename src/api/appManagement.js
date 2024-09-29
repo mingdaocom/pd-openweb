@@ -1,5 +1,62 @@
 export default {
   /**
+  * 还原数据
+  * @param {Object} args 请求参数
+  * @param {string} args.id 任务id
+  * @param {string} args.projectId 组织id
+  * @param {string} args.appId 应用id
+  * @param {string} args.fileUrl 文件链接
+  * @param {string} args.fileName 文件名称
+  * @param {boolean} args.backupCurrentVersion 备份当前版本
+  * @param {string} args.dbInstanceId 数据库实例id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   restoreData: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'RestoreData', args, options);
+   },
+  /**
+  * 备份应用
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {boolean} args.containData 是否备份数据
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   backup: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'Backup', args, options);
+   },
+  /**
+  * 校验还原文件
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.fileUrl 文件url
+  * @param {string} args.fileName 文件名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkRestoreFile: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'CheckRestoreFile', args, options);
+   },
+  /**
+  * 获取tar文件上传状态
+  * @param {Object} args 请求参数
+  * @param {string} args.id 任务id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getTarTaskInfo: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetTarTaskInfo', args, options);
+   },
+  /**
   * 使用情况统计分析
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织id
@@ -261,7 +318,7 @@ export default {
      return mdyAPI('AppManagement', 'GetUpgradeLogs', args, options);
    },
   /**
-  * 获取mdy密码
+  * 获取mdy文件相关密码
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织id
   * @param {string} args.url 文件url不带token
@@ -927,6 +984,34 @@ export default {
    refresh: function (args, options = {}) {
      
      return mdyAPI('AppManagement', 'Refresh', args, options);
+   },
+  /**
+  * 获取以用户方式加入的应用
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.userId 交接用户id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getUserIdApps: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetUserIdApps', args, options);
+   },
+  /**
+  * 交接应用角色
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.removeUserId 要移除的 用户Id
+  * @param {string} args.addUserId &gt;新添加的用户Id（可空，空时 = 仅移除）
+  * @param {array} args.roles
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   replaceRoleMemberForApps: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'ReplaceRoleMemberForApps', args, options);
    },
   /**
   * 获取网络下应用
@@ -1658,31 +1743,5 @@ export default {
    restore: function (args, options = {}) {
      
      return mdyAPI('AppManagement', 'Restore', args, options);
-   },
-  /**
-  * 备份应用
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用Id
-  * @param {boolean} args.containData 是否备份数据
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   backup: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'Backup', args, options);
-   },
-  /**
-  * 校验还原文件
-  * @param {Object} args 请求参数
-  * @param {string} args.appId
-  * @param {string} args.fileUrl
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   checkRestoreFile: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'CheckRestoreFile', args, options);
    },
 };

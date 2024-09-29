@@ -697,7 +697,7 @@ function Edit(params) {
                       : null,
                   ].filter(it => !!it && _.get(it, 'controlId') !== activeFastFilterId),
                   columns: worksheetControls,
-                  viewControl: controlId,
+                  navGroupId: controlId,
                 }}
               />
             );

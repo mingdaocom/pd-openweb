@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import { autobind } from 'core-decorators';
 import { emitter, getSummaryInfo } from 'worksheet/util';
 import { Menu, MenuItem } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
@@ -40,14 +39,13 @@ export default class extends React.Component {
     }
   }
 
-  @autobind
-  handleChange(value) {
+  handleChange = value => {
     const { control, changeWorksheetSheetViewSummaryType } = this.props;
     this.setState({
       menuVisible: false,
     });
     changeWorksheetSheetViewSummaryType({ controlId: control.controlId, value });
-  }
+  };
 
   renderMenu() {
     const { control } = this.props;
@@ -75,10 +73,9 @@ export default class extends React.Component {
     );
   }
 
-  @autobind
-  hideMenu() {
+  hideMenu = () => {
     this.setState({ menuVisible: false });
-  }
+  };
 
   render() {
     const { style, control, summaryType, summaryValue, rowHeadOnlyNum, rows, selectedIds, allWorksheetIsSelected } =

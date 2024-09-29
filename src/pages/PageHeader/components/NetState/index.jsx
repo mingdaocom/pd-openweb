@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import cx from 'classnames';
 import { string, func, number, oneOf } from 'prop-types';
 import { Dialog } from 'ming-ui';
-import { Modal } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import projectApi from 'src/api/project';
 import { navigateTo } from 'src/router/navigateTo';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
@@ -68,7 +68,7 @@ class NetState extends Component {
       // 体验版跳转
       if (_.includes(['experience', 'overdue'], versionType)) {
         purchaseMethodFunc({ projectId });
-      } else if (_.includes(['app', 'workflow', 'storage', 'portaluser'], serviceType)) {
+      } else if (_.includes(['app', 'workflow', 'storage', 'portalexpand'], serviceType)) {
         navigateTo(`/admin/expansionservice/${projectId}/${serviceType}`);
       } else if (_.includes(['ocr', 'portalupgrade'], serviceType)) {
         navigateTo(`/admin/valueaddservice/${projectId}`);
@@ -180,9 +180,9 @@ class NetState extends Component {
     const isMobile = browserIsMobile();
     if (isMobile) {
       return (
-        <Modal popup visible={visible} onClose={this.onCancel} animationType="slide-up">
+        <Popup visible={visible} onClose={this.onCancel} className="mobileModal full">
           {this.renderContent()}
-        </Modal>
+        </Popup>
       );
     } else {
       return (

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { Dropdown, TagTextarea, Button } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
@@ -59,8 +58,7 @@ export default class DateCalc extends Component {
     }
   }
 
-  @autobind
-  handleCalTypeChange(type) {
+  handleCalTypeChange = type => {
     const { onDataChange } = this.props;
     const newValue = {
       enumDefault: type,
@@ -71,10 +69,9 @@ export default class DateCalc extends Component {
     this.setState({
       formulaStr: '',
     });
-  }
+  };
 
-  @autobind
-  saveFormula() {
+  saveFormula = () => {
     const { onDataChange, onFormulaEditStatusChange } = this.props;
     const sourceControlId = this.props.widget.data.sourceControlId;
     const { formulaStr } = this.state;
@@ -93,10 +90,9 @@ export default class DateCalc extends Component {
     this.setState({
       changed: false,
     });
-  }
+  };
 
-  @autobind
-  cancelEdit() {
+  cancelEdit = () => {
     const { widget, onFormulaEditStatusChange } = this.props;
     this.tagtextarea.setValue(widget.data.dataSource);
     onFormulaEditStatusChange(false);
@@ -104,7 +100,7 @@ export default class DateCalc extends Component {
       changed: false,
       dataSource: widget.data.dataSource,
     });
-  }
+  };
 
   render() {
     const { widget, editWidgets, worksheetData, onDataChange, onFormulaEditStatusChange } = this.props;

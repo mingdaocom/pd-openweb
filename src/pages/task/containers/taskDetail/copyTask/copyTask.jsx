@@ -35,7 +35,7 @@ export default class CopyTask extends Component {
         fromType: 2,
         SelectUserSettings: {
           includeUndefinedAndMySelf: true,
-          filterAccountIds: [that.state.accountId],
+          selectedAccountIds: [that.state.accountId],
           projectId: that.props.projectId,
           unique: true,
           callback: users => {

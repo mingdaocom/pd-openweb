@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { Modal } from 'antd-mobile';
+import { Dialog } from 'antd-mobile';
 import { ScrollView, EditingBar } from 'ming-ui';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
@@ -28,13 +28,31 @@ import { canEditData } from 'worksheet/redux/actions/util';
 import { emitter, KVGet } from 'worksheet/util';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { emitter as ViewEmitter } from 'src/util';
+import cx from 'classnames';
 
 const Con = styled.div`
   height: 100%;
   margin: 0 -24px;
-  .newRecordTitle,
-  .customFieldsCon {
+  .newRecordTitle {
     padding: 0 24px;
+    flex-shrink: 0;
+  }
+  .customFieldsCon {
+    display: flex;
+    .recordInfoForm {
+      flex: 1;
+      min-width: 0;
+      padding: 0 24px;
+    }
+  }
+  .fixedLeftOrRight {
+    .nano-content {
+      display: flex;
+      flex-direction: column;
+      .customFieldsCon {
+        flex: 1;
+      }
+    }
   }
 `;
 const EditingBarCon = styled.div`
@@ -95,18 +113,21 @@ function NewRecordForm(props) {
     openRecord,
     loadDraftDataCount = () => {},
     addNewRecord = () => {},
+    onWidgetChange = () => {},
     hidePublicShare,
+    privateShare,
   } = props;
   const cache = useRef({});
   const cellObjs = useRef({});
   const isSubmitting = useRef(false);
   const customwidget = useRef();
   const formcon = useRef();
+  const propsWorksheetInfo = useMemo(() => _.cloneDeep(props.worksheetInfo || {}), []);
   const [formLoading, setFormLoading] = useState(true);
   const [isSettingTempData, setIsSettingTempData] = useState(false);
   const [restoreVisible, setRestoreVisible] = useState();
   const [relateRecordData, setRelateRecordData] = useState({});
-  const [worksheetInfo, setWorksheetInfo] = useState(_.cloneDeep(props.worksheetInfo || {}));
+  const [worksheetInfo, setWorksheetInfo] = useState(propsWorksheetInfo);
   const [originFormdata, setOriginFormdata] = useState([]);
   const [formdata, setFormdata] = useState([]);
   const { projectId, publicShareUrl, visibleType } = worksheetInfo;
@@ -154,9 +175,11 @@ function NewRecordForm(props) {
           setRestoreVisible(false);
           if (isOverLimit) {
             if (isMobile) {
-              Modal.alert(_l('您的草稿箱已满，无法保存'), _l('草稿箱中的数量已达到10条'), [
-                { text: _l('我知道了'), onPress: () => {} },
-              ]);
+              Dialog.alert({
+                title: _l('您的草稿箱已满，无法保存'),
+                content: _l('草稿箱中的数量已达到10条'),
+                confirmText: _l('我知道了'),
+              });
               return;
             }
             Confirm({
@@ -450,7 +473,11 @@ function NewRecordForm(props) {
             />
           </EditingBarCon>
         )}
-        <RecordCon>
+        <RecordCon
+          className={cx({
+            fixedLeftOrRight: _.includes(['3', '4'], _.get(worksheetInfo.advancedSetting, 'tabposition')),
+          })}
+        >
           {!window.isPublicApp && shareVisible && (
             <Share
               title={_l('新建记录链接')}
@@ -459,6 +486,7 @@ function NewRecordForm(props) {
               isPublic={visibleType === 2}
               publicUrl={publicShareUrl}
               hidePublicShare={hidePublicShare}
+              privateShare={privateShare}
               isCharge={isCharge || canEditData(appPkgData.appRoleType)} //运营者具体分享权限
               params={{
                 appId,
@@ -530,14 +558,6 @@ function NewRecordForm(props) {
               worksheetId={worksheetId}
               showError={errorVisible}
               onChange={(data, ids, { noSaveTemp, isAsyncChange } = {}) => {
-                // let needHideRestore = restoreVisible && !noSaveTemp && !isAsyncChange;
-                // try {
-                //   needHideRestore =
-                //     needHideRestore && !(ids.length === 1 && _.find(formdata, { controlId: ids[0] }).type === 34);
-                // } catch (err) {}
-                // if (needHideRestore) {
-                //   setRestoreVisible(false);
-                // }
                 if (isSubmitting.current || maskLoading) {
                   return;
                 }
@@ -593,6 +613,7 @@ function NewRecordForm(props) {
               }}
               projectId={projectId || props.projectId}
               onWidgetChange={() => {
+                onWidgetChange();
                 cache.current.formUserChanged = true;
               }}
             />

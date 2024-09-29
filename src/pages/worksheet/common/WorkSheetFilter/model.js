@@ -1,5 +1,4 @@
 import update from 'immutability-helper';
-import { autobind } from 'core-decorators';
 import worksheetAjax from 'src/api/worksheet';
 import {
   formatOriginFilterGroupValue,
@@ -57,17 +56,17 @@ class Actions {
       value,
     });
   }
-  @autobind
-  setActiveFilter(filter) {
+
+  setActiveFilter = filter => {
     this.dispatch({
       type: 'UPDATE',
       value: {
         activeFilter: filter,
       },
     });
-  }
-  @autobind
-  loadFilters(worksheetId, cb = () => {}) {
+  };
+
+  loadFilters = (worksheetId, cb = () => {}) => {
     worksheetAjax.getWorksheetFilters({ worksheetId }).then(data => {
       let filters = data.map(formatOriginFilterGroupValue);
       if (md.global.Account.isPortal) {
@@ -82,9 +81,9 @@ class Actions {
         },
       });
     });
-  }
-  @autobind
-  addFilter({ defaultCondition } = {}) {
+  };
+
+  addFilter = ({ defaultCondition } = {}) => {
     const newFilter = {
       id: `new-${new Date().getTime().toString(16)}-${Math.random().toString(16).slice(2)}`,
       isGroup: true,
@@ -105,9 +104,9 @@ class Actions {
         editingFilter: newFilter,
       },
     });
-  }
-  @autobind
-  editFilter(filter) {
+  };
+
+  editFilter = filter => {
     this.dispatch({
       type: 'UPDATE',
       value: {
@@ -115,49 +114,49 @@ class Actions {
         needSave: false,
       },
     });
-  }
-  @autobind
-  changeEditingFilter(value = {}) {
+  };
+
+  changeEditingFilter = (value = {}) => {
     this.dispatch({
       type: 'CHANGE_EDITING_FILTER',
       value,
     });
-  }
-  @autobind
-  addCondition(control, groupIndex = 0, from) {
+  };
+
+  addCondition = (control, groupIndex = 0, from) => {
     const condition = getDefaultCondition(control, from);
     this.dispatch({
       type: 'ADD_CONDITION',
       condition: condition,
       groupIndex,
     });
-  }
-  @autobind
-  updateCondition(value, groupIndex = 0, conditionIndex) {
+  };
+
+  updateCondition = (value, groupIndex = 0, conditionIndex) => {
     this.dispatch({
       type: 'UPDATE_CONDITION',
       conditionIndex,
       groupIndex,
       value,
     });
-  }
-  @autobind
-  deleteCondition(conditionIndex, groupIndex = 0) {
+  };
+
+  deleteCondition = (conditionIndex, groupIndex = 0) => {
     this.dispatch({
       type: 'DELETE_CONDITION',
       conditionIndex,
       groupIndex,
     });
-  }
-  @autobind
-  deleteConditionsGroup(groupIndex = 0) {
+  };
+
+  deleteConditionsGroup = (groupIndex = 0) => {
     this.dispatch({
       type: 'DELETE_CONDITIONS_GROUP',
       groupIndex,
     });
-  }
-  @autobind
-  addGroup(spliceType) {
+  };
+
+  addGroup = spliceType => {
     this.dispatch({
       type: 'ADD_GROUP',
       group: {
@@ -166,24 +165,24 @@ class Actions {
         conditions: [],
       },
     });
-  }
-  @autobind
-  deleteGroup(groupIndex) {
+  };
+
+  deleteGroup = groupIndex => {
     this.dispatch({
       type: 'DELETE_GROUP',
       groupIndex,
     });
-  }
-  @autobind
-  updateConditionsGroup(value = {}, groupIndex = 0) {
+  };
+
+  updateConditionsGroup = (value = {}, groupIndex = 0) => {
     this.dispatch({
       type: 'UPDATE_CONDITIONS_GROUP',
       groupIndex,
       value,
     });
-  }
-  @autobind
-  copyFilter({ appId, worksheetId, filter, isCharge } = {}) {
+  };
+
+  copyFilter = ({ appId, worksheetId, filter, isCharge } = {}) => {
     const newFilter = {
       ...filter,
       id: undefined,
@@ -195,9 +194,9 @@ class Actions {
       worksheetId,
       filter: newFilter,
     });
-  }
-  @autobind
-  toggleFilterType({ appId, worksheetId, filter } = {}) {
+  };
+
+  toggleFilterType = ({ appId, worksheetId, filter } = {}) => {
     const newFilter = {
       ...filter,
       type: filter.type === FILTER_TYPE.PUBLIC ? FILTER_TYPE.PERSONAL : FILTER_TYPE.PUBLIC,
@@ -207,9 +206,9 @@ class Actions {
       worksheetId,
       filter: newFilter,
     });
-  }
-  @autobind
-  saveFilter({ appId, worksheetId, filter }, cb = () => {}) {
+  };
+
+  saveFilter = ({ appId, worksheetId, filter }, cb = () => {}) => {
     const isNew = !filter.id || filter.id.startsWith('new');
     const items = formatForSave(filter);
     worksheetAjax
@@ -243,9 +242,9 @@ class Actions {
         });
         alert(_l('保存成功！'));
       });
-  }
-  @autobind
-  deleteFilter({ appId, filter }, cb = () => {}) {
+  };
+
+  deleteFilter = ({ appId, filter }, cb = () => {}) => {
     worksheetAjax
       .deleteWorksheetFilter({
         appId,
@@ -268,9 +267,9 @@ class Actions {
           alert(_l('删除失败'), 3);
         }
       });
-  }
-  @autobind
-  sortFilters(appId, worksheetId, sortedIds) {
+  };
+
+  sortFilters = (appId, worksheetId, sortedIds) => {
     worksheetAjax.sortWorksheetFilters({
       appId,
       worksheetId,
@@ -280,7 +279,7 @@ class Actions {
       type: 'SORT_FILTERS',
       ids: sortedIds,
     });
-  }
+  };
 }
 
 export function createActions(dispatch) {

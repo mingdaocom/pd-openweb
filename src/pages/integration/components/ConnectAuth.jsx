@@ -310,6 +310,7 @@ function ConnectAuth(props) {
                 showEdit: false,
               });
             }}
+            hasAuth={props.hasAuth}
             customNodeName={_l('鉴权方式')}
             isIntegration
             updateNodeData={data => {

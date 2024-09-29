@@ -15,6 +15,7 @@ import { NAV_NAME } from './enum';
 import { navigateTo } from 'src/router/navigateTo';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
+import { saveSelectExtensionNavType } from './utils';
 import './index.less';
 import _ from 'lodash';
 
@@ -29,17 +30,13 @@ export default function PublicWorksheetConfig(props) {
     worksheetAjax.getWorksheetInfo({ worksheetId, getTemplate: true, getViews: true }).then(setworksheetInfo);
   }, []);
   const isloading = _.isEmpty(worksheetInfo);
-  const hasCharge = [2, 4].includes(roleType); //0：非成员 1：表负责人（弃用） 2：管理员 3：成员 4:开发者
+  const hasCharge = [2, 4, 6].includes(roleType); //0：非成员 1：表负责人（弃用） 2：管理员 3：成员 4:开发者 6:开发者+运营者
   const payConfigRef = createRef();
   const featureType = getFeatureStatus(projectId, VersionProductType.PAY);
 
   // 检查支付配置信息是否保存
   const checkPayConfig = () => {
-    if (payConfigRef && payConfigRef.current && payConfigRef.current.comparePayConfigData()) {
-      return true;
-    } else {
-      return false;
-    }
+    return payConfigRef && payConfigRef.current && payConfigRef.current.comparePayConfigData();
   };
 
   const handleChangeTab = url => {
@@ -64,6 +61,11 @@ export default function PublicWorksheetConfig(props) {
       default:
         return <FillEnablePanel worksheetId={worksheetId} setHederVisible={setHederVisible} projectId={projectId} />;
     }
+  };
+
+  const handleClickNav = type => {
+    saveSelectExtensionNavType(worksheetId, 'extensionNav', type);
+    handleChangeTab(`/worksheet/form/edit/${worksheetId}/${type}`);
   };
 
   return (
@@ -111,38 +113,34 @@ export default function PublicWorksheetConfig(props) {
         <div className="flex extensionWrap">
           <DocumentTitle title={_l('扩展功能 - %0 - %1', NAV_NAME[type || 'publicform'], name || '')} />
           <ScrollView className="sideNavBox">
-            <div className="title">{_l('基础设置')}</div>
+            <div className="title">{_l('公开发布')}</div>
             <CardNav
               currentNav={type || 'publicform'}
               navList={[
                 {
                   icon: 'visibility',
                   title: _l('公开表单'),
-                  description: _l('对外公开收集数据'),
                   url: `/worksheet/form/edit/${worksheetId}/publicform`,
-                  onClick: () => handleChangeTab(`/worksheet/form/edit/${worksheetId}/publicform`),
+                  onClick: () => handleClickNav('publicform'),
                 },
                 {
                   icon: 'search',
                   title: _l('公开查询'),
-                  description: _l('对外公开查询数据的链接'),
                   url: `/worksheet/form/edit/${worksheetId}/query`,
-                  onClick: () => handleChangeTab(`/worksheet/form/edit/${worksheetId}/query`),
+                  onClick: () => handleClickNav('query'),
                 },
               ]}
             />
             {/* 应用管理员、开发者支 */}
             {featureType && _.includes([2, 4], roleType) && (
               <Fragment>
-                <div className="title">{_l('高级设置')}</div>
+                <div className="title">{_l('支付')}</div>
                 <CardNav
                   currentNav={type}
                   navList={[
                     {
                       icon: 'sp_payment_white',
                       title: _l('支付'),
-                      description: _l('支付设置及订单字段映射'),
-                      showBeta: true,
                       showUpgradeIcon: featureType === '2',
                       url: `/worksheet/form/edit/${worksheetId}/pay`,
                       onClick: () => {
@@ -150,7 +148,7 @@ export default function PublicWorksheetConfig(props) {
                           buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
                           return;
                         }
-                        handleChangeTab(`/worksheet/form/edit/${worksheetId}/pay`);
+                        handleClickNav('pay');
                       },
                     },
                   ]}

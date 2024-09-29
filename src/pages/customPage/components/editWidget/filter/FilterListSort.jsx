@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import { Modal } from 'antd';
-import { Button, Icon } from 'ming-ui';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
+import { Button, Icon, SortableList } from 'ming-ui';
 import styled from 'styled-components';
 
 const SortableBtnIconWrap = styled.div`
@@ -12,7 +11,6 @@ const SortableBtnIconWrap = styled.div`
   cursor: pointer;
 `;
 const SortableBtnListWrap = styled.ul`
-  /* box-shadow: 0 0 2px rgba(0, 0, 0, 0.25); */
   background-color: #fff;
   padding: 6px 24px;
   min-height: 205px;
@@ -23,18 +21,12 @@ const SortableBtnListWrap = styled.ul`
     align-items: center;
     min-width: 180px;
     line-height: 36px;
-
-    cursor: row-resize;
     background-color: #fff;
     color: #333;
     .btnIcon {
       margin: 0 7px;
     }
     transition: padding 0.25s;
-    &:hover {
-      padding-left: 12px;
-      background-color: #f5f5f5;
-    }
   }
 `;
 const ModalContentWrap = styled.div`
@@ -48,20 +40,14 @@ const ModalContentWrap = styled.div`
   }
 `;
 
-const SortableBtn = SortableElement(({ item }) => (
+const renderSortableBtn = ({ item, DragHandle }) => (
   <li className="overflow_ellipsis">
-    <i className="icon-drag Gray_bd Font18"></i>
+    <DragHandle>
+      <i className="icon-drag Gray_bd Font18"></i>
+    </DragHandle>
     <span className="mLeft10">{item.name || _l('未命名')}</span>
   </li>
-));
-
-const SortableBtnList = SortableContainer(({ list }) => (
-  <SortableBtnListWrap>
-    {list.map((item, index) => (
-      <SortableBtn item={item} index={index} key={index} />
-    ))}
-  </SortableBtnListWrap>
-));
+);
 
 export default function FilterListSort({ filters, onSortEnd }) {
   const [visible, setVisible] = useState(false);
@@ -85,13 +71,15 @@ export default function FilterListSort({ filters, onSortEnd }) {
         footer={null}
       >
         <ModalContentWrap>
-          <SortableBtnList
-            helperClass="customPageBtnSortHelper"
-            list={filters}
-            onSortEnd={({ newIndex, oldIndex }) => {
-              onSortEnd(arrayMove(filters, oldIndex, newIndex));
-            }}
-          />
+          <SortableBtnListWrap>
+            <SortableList
+              useDragHandle
+              items={filters}
+              itemKey="filterId"
+              renderItem={(options) => renderSortableBtn({ ...options })}
+              onSortEnd={newItems => onSortEnd(newItems)}
+            />
+          </SortableBtnListWrap>
           <Button onClick={() => setVisible(false)}>{_l('完成')}</Button>
         </ModalContentWrap>
       </Modal>

@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
@@ -103,23 +102,20 @@ class AppearanceConfig extends React.Component {
     };
   }
 
-  @autobind
-  changeCover(url) {
+  changeCover = url => {
     const { updateWorksheetInfo } = this.props;
     updateWorksheetInfo({ coverUrl: url });
-  }
+  };
 
-  @autobind
-  handleUploaded(up, file) {
+  handleUploaded = (up, file) => {
     this.setState({
       isUploading: false,
     });
     this.changeCover(file.url);
     up.disableBrowse(false);
-  }
+  };
 
-  @autobind
-  renderCustomColor(iconColor) {
+  renderCustomColor = iconColor => {
     const { addColorDialogVisible, customColors } = this.state;
     const { updateWorksheetInfo } = this.props;
     return (
@@ -158,7 +154,7 @@ class AppearanceConfig extends React.Component {
         )}
       </React.Fragment>
     );
-  }
+  };
 
   render() {
     const { open, worksheetInfo, onClose, updateWorksheetInfo, theme } = this.props;

@@ -13,7 +13,7 @@ import _ from 'lodash';
 import StepHeader from './StepHeader';
 import { Icon } from 'ming-ui';
 import instance from '../../api/instance';
-import { getTranslateInfo ,addBehaviorLog} from 'src/util';
+import { getTranslateInfo, addBehaviorLog } from 'src/util';
 
 const WorkflowHistory = props => {
   return (
@@ -25,7 +25,7 @@ const WorkflowHistory = props => {
         isApproval={props.data.isApproval}
       />
       <ScrollView className="flex">
-        <ul className="pAll20 pTop0">
+        <ul className="pAll16 pTop0">
           <Steps
             projectId={props.projectId}
             appId={props.data.app.id}
@@ -207,6 +207,7 @@ export default class ExecDialog extends Component {
         viewId={viewId}
         recordId={rowId}
         worksheetId={worksheetId}
+        recordTitle={data.title}
         renderHeader={({ resultCode }) => {
           return (
             <Header

@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { Radio, ScrollView, Support, Icon, Tooltip } from 'ming-ui';
+import { Radio, ScrollView, Support, Icon, Tooltip, SvgIcon } from 'ming-ui';
 import { NODE_TYPE, ACTION_ID, APP_TYPE, TRIGGER_ID } from '../../enum';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
-import SelectApprovalProcess from '../../../components/SelectApprovalProcess';
+import SelectProcess from '../../../components/SelectProcess';
 import _ from 'lodash';
 import CodeSnippet from '../../../components/CodeSnippet';
 import { Base64 } from 'js-base64';
@@ -12,6 +12,8 @@ import BranchDialog from './BranchDialog';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import { Drawer } from 'antd';
+import pluginBG from 'src/pages/worksheet/components/ViewItems/img/customview.png';
+import pluginAPI from '../../../api/Plugin';
 
 export default class CreateNodeDialog extends Component {
   constructor(props) {
@@ -193,7 +195,7 @@ export default class CreateNodeDialog extends Component {
                   type: 9,
                   name: _l('为日期加减时间'),
                   actionId: '101',
-                  describe: _l('对 日期/时间 添加/减去年、月、天、小时、分进行计算'),
+                  describe: _l('对 日期/时间 添加/减去 年、月、天、小时、分进行计算'),
                 },
                 {
                   type: 9,
@@ -354,6 +356,7 @@ export default class CreateNodeDialog extends Component {
                   appType: 45,
                   actionId: '210',
                   describe: _l('一直循环运行一段流程，并在参数达到退出条件后结束'),
+                  isNew: true,
                 },
                 {
                   type: 29,
@@ -361,6 +364,13 @@ export default class CreateNodeDialog extends Component {
                   appType: 45,
                   actionId: '211',
                   describe: _l('按指定的起始值、结束值和步长值循环固定次数'),
+                  isNew: true,
+                },
+                {
+                  type: 29,
+                  name: _l('使用已有循环流程'),
+                  appType: 45,
+                  describe: _l('复用已经配置好的循环流程'),
                 },
               ],
             },
@@ -775,8 +785,12 @@ export default class CreateNodeDialog extends Component {
       selectSecond: false,
       branchDialogModel: 0,
       foldFeatures: safeParse(localStorage.getItem(`workflowFoldFeatures-${md.global.Account.accountId}`)) || {},
-      showApprovalDialog: false,
+      showProcessDialog: false,
       showCodeSnippetDialog: false,
+      selectItemType: '',
+      keywords: '',
+      tab: 1,
+      pluginList: {},
     };
 
     // 非自定义动作、非工作表事件去除界面推送
@@ -861,6 +875,22 @@ export default class CreateNodeDialog extends Component {
       }
     });
 
+    // 插件支持 分支、代码块、发送API请求、JSON解析
+    if (props.isPlugin) {
+      this.state.list.forEach(o => {
+        _.remove(
+          o.items,
+          item => !_.includes([NODE_TYPE.BRANCH, NODE_TYPE.WEBHOOK, NODE_TYPE.CODE, NODE_TYPE.JSON_PARSE], item.type),
+        );
+
+        o.items.forEach(item => {
+          if (item.type === NODE_TYPE.WEBHOOK) {
+            _.remove(item.secondList, obj => obj.appType !== APP_TYPE.WEBHOOK);
+          }
+        });
+      });
+    }
+
     this.cacheList = _.cloneDeep(this.state.list);
   }
 
@@ -868,12 +898,14 @@ export default class CreateNodeDialog extends Component {
   cacheList = [];
 
   componentWillReceiveProps(nextProps, nextState) {
+    const featureType = getFeatureStatus(nextProps.flowInfo.companyId, VersionProductType.flowPlugin);
+
     if (nextProps.nodeId && nextProps.nodeId !== this.props.nodeId) {
       this.setState({
         selectItem: null,
         selectSecond: false,
         branchDialogModel: 0,
-        showApprovalDialog: false,
+        showProcessDialog: false,
       });
     }
 
@@ -902,6 +934,7 @@ export default class CreateNodeDialog extends Component {
                   NODE_TYPE.NOTICE,
                   NODE_TYPE.FIND_SINGLE_MESSAGE,
                   NODE_TYPE.FIND_MORE_MESSAGE,
+                  NODE_TYPE.AIGC,
                 ],
                 item.type,
               ) ||
@@ -919,28 +952,53 @@ export default class CreateNodeDialog extends Component {
     if (!nextProps.selectProcessId) {
       this.setState({ list: _.cloneDeep(this.cacheList) });
     }
+
+    if (!!nextProps.nodeId && !nextProps.isPlugin && featureType) {
+      this.getPluginList();
+    }
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevProps.nodeId && this.props.nodeId) {
+      setTimeout(() => {
+        this.keywordsInput && this.keywordsInput.focus();
+      }, 300);
+    }
+  }
+
+  /**
+   * 获取插件列表
+   */
+  getPluginList = () => {
+    const { flowInfo } = this.props;
+
+    pluginAPI
+      .getAll({ projectId: flowInfo.companyId, pageIndex: 1, pageSize: 10000, state: 1 }, { isPlugin: true })
+      .then(res => {
+        this.setState({ pluginList: res });
+      });
+  };
 
   /**
    * 内容
    */
   renderContent() {
     const { flowInfo, selectProcessId, isApproval } = this.props;
-    const { list, selectItem, selectSecond, foldFeatures } = this.state;
+    const { selectItem, selectSecond, foldFeatures, keywords, tab } = this.state;
 
     // 渲染二级数据
     if (selectSecond) {
       return (
-        <div className="pTop20 pBottom15 pLeft20 pRight15">
-          {selectItem.typeText && <div className="bold pLeft10 Font14">{selectItem.typeText}</div>}
+        <div className="pTop20 pBottom15 pLeft20 pRight20">
+          {selectItem.typeText && <div className="bold pLeft12 Font14">{selectItem.typeText}</div>}
           {selectItem.type === NODE_TYPE.CODE && !md.global.SysSettings.hideHelpTip && (
-            <div className="Gray_75 mTop10 pLeft10 InlineFlex">
+            <div className="Gray_75 mTop6 pLeft12 InlineFlex">
               {_l('查看当前代码脚本的')}
               <Support
                 type={3}
                 text={_l('运行版本')}
                 className="ThemeColor3 ThemeHoverColor2"
-                href="workflow/node-code-block#runtime-environment"
+                href="https://help.mingdao.com/workflow/node-code-block#runtime-environment"
               />
             </div>
           )}
@@ -948,8 +1006,8 @@ export default class CreateNodeDialog extends Component {
           {selectItem.isGroupList ? (
             (selectItem.secondList || []).map((item, i) => (
               <Fragment key={i}>
-                <div className="bold pLeft10 Font14">{item.typeText}</div>
-                {item.describe && <div className="Gray_75 pLeft10 mTop5">{item.describe}</div>}
+                <div className="bold pLeft12 Font14">{item.typeText}</div>
+                {item.describe && <div className="Gray_75 pLeft12 mTop5">{item.describe}</div>}
                 <ul className="secondNodeList mBottom25">
                   {(item.source || []).map((o, j) => {
                     return (
@@ -991,6 +1049,8 @@ export default class CreateNodeDialog extends Component {
       );
     }
 
+    const list = this.formatData();
+
     return (
       <Fragment>
         {((selectProcessId && flowInfo.id !== selectProcessId) || isApproval) && (
@@ -1001,61 +1061,156 @@ export default class CreateNodeDialog extends Component {
           </div>
         )}
 
-        <div className="pBottom15 pLeft10 pRight10">
-          {list.map((data, i) => {
+        <div className={cx('pBottom15 pLeft10 pRight10', { h100: !list.length })}>
+          {list.map(data => {
             return (
-              <div className="mTop15 nodeListContainer" key={i}>
-                <div
-                  className="Font16 bold pTop5 pBottom5 pointer"
-                  onClick={() => {
-                    const newFold = Object.assign({}, foldFeatures, { [data.id]: !foldFeatures[data.id] });
+              <div className="mTop15 nodeListContainer" key={data.id}>
+                {(data.id !== 'plugin' || keywords.trim()) && (
+                  <div
+                    className="Font16 bold pTop5 pBottom5 pointer"
+                    onClick={() => {
+                      if (keywords.trim()) return;
 
-                    this.setState({ foldFeatures: newFold });
-                    safeLocalStorageSetItem(
-                      `workflowFoldFeatures-${md.global.Account.accountId}`,
-                      JSON.stringify(newFold),
-                    );
-                  }}
-                >
-                  <Icon
-                    icon={foldFeatures[data.id] ? 'arrow-right-tip' : 'arrow-down'}
-                    className="mRight13 Gray_75 Font13"
-                  />
-                  {data.name}
-                </div>
-                {!foldFeatures[data.id] && (
-                  <ul className="nodeList clearfix">
-                    {data.items
-                      .filter(data => !(_.includes([24, 25], data.type) && md.global.SysSettings.hideIntegration))
-                      .map((item, j) => {
-                        return (
-                          <li key={j} onClick={() => this.createNodeClick(item)}>
-                            <span className="nodeListIcon" style={{ backgroundColor: item.iconColor }}>
-                              <i className={item.iconName} />
-                            </span>
-                            <div className="Font14">{item.name}</div>
-                            {item.type === NODE_TYPE.APPROVAL && (
-                              <Tooltip
-                                popupPlacement="bottom"
-                                text={_l(
-                                  '使用「发起审批流程」节点可提供更完整的审批能力，旧「审批」节点即将被下线。流程中已添加的审批节点不受影响，仍可以继续使用。',
-                                )}
-                              >
-                                <div className="Font12 nodeListOverdue">{_l('旧%03089')}</div>
-                              </Tooltip>
-                            )}
-                          </li>
-                        );
-                      })}
-                  </ul>
+                      const newFold = Object.assign({}, foldFeatures, { [data.id]: !foldFeatures[data.id] });
+
+                      this.setState({ foldFeatures: newFold });
+                      safeLocalStorageSetItem(
+                        `workflowFoldFeatures-${md.global.Account.accountId}`,
+                        JSON.stringify(newFold),
+                      );
+                    }}
+                  >
+                    <span className="nodeListIconBG mRight10 Gray_75 Font14">
+                      <Icon icon={!!keywords.trim() || !foldFeatures[data.id] ? 'arrow-down' : 'arrow-right-tip'} />
+                    </span>
+                    {data.name}
+                  </div>
                 )}
+
+                {(!foldFeatures[data.id] || !!keywords.trim()) && this.renderItems(data)}
               </div>
             );
           })}
+
+          {!list.length && (
+            <div className="createNodeSearchEmpty">
+              {keywords.trim() ? (
+                _l('无搜索结果')
+              ) : (
+                <Fragment>
+                  <div className="flex TxtCenter flexColumn alignItemsCenter justifyContentCenter">
+                    <img src={pluginBG} width={200} />
+                    <div className="mTop15 bold Font17">{_l('自定义节点')}</div>
+                    <div className="mTop10 Font13">
+                      {_l('将代码处理步骤封装为工作流节点，可以在组织内使用或上架到应用市场')}
+                    </div>
+                  </div>
+                  {this.renderPluginBtn()}
+                </Fragment>
+              )}
+            </div>
+          )}
         </div>
       </Fragment>
     );
   }
+
+  /**
+   * 渲染节点
+   * @returns
+   */
+  renderItems = (data, id) => {
+    return (
+      <ul className={cx('clearfix', { nodeList: !id })} key={id}>
+        {id === 'plugin' && (
+          <div className="Gray_75 mLeft17 mTop8 bold">
+            {data.items[0].isMyCreate ? _l('我开发的') : _l('组织发布的')}
+          </div>
+        )}
+
+        {data.items.map((item, i) => {
+          if (_.isArray(item)) {
+            return this.renderItems({ items: item }, data.id);
+          }
+
+          return (
+            <li key={i} onClick={() => this.createNodeClick(item)}>
+              <span className="nodeListIcon" style={{ backgroundColor: item.iconColor }}>
+                {item.iconUrl ? <SvgIcon url={item.iconUrl} fill="#fff" size={22} /> : <i className={item.iconName} />}
+              </span>
+              <div className="Font14">{item.name}</div>
+              {item.type === NODE_TYPE.APPROVAL && (
+                <Tooltip
+                  popupPlacement="bottom"
+                  text={_l(
+                    '使用「发起审批流程」节点可提供更完整的审批能力，旧「审批」节点即将被下线。流程中已添加的审批节点不受影响，仍可以继续使用。',
+                  )}
+                >
+                  <div className="Font12 nodeListOverdue">{_l('旧%03089')}</div>
+                </Tooltip>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
+
+  /**
+   * 渲染去插件中心添加按钮
+   */
+  renderPluginBtn = () => {
+    return (
+      <div
+        className="createNodeFooterBtn ThemeHoverColor3 ThemeHoverBorderColor3 pointer mTop20"
+        onClick={() => window.open('/plugin/node')}
+      >
+        <span className="Font14 bold">{_l('去插件中心添加')}</span>
+        <i className="mLeft5 icon-task-new-detail Font12" />
+      </div>
+    );
+  };
+
+  /**
+   * 格式化数据
+   */
+  formatData = () => {
+    const { list, keywords, tab, pluginList } = this.state;
+    let system = _.cloneDeep(list);
+    let plugin = { id: 'plugin', name: _l('插件'), items: [] };
+    const getList = data => {
+      return data
+        .filter(o => o.name.toLowerCase().indexOf(keywords.trim().toLocaleLowerCase()) > -1)
+        .map(o => {
+          return {
+            appType: 47,
+            type: 32,
+            name: o.name,
+            appId: `${o.id}_${o.source}`,
+            iconColor: o.iconColor || '#2196f3',
+            iconUrl: o.iconUrl,
+            iconName: 'icon-workflow',
+            isMyCreate: o.source === 0,
+          };
+        });
+    };
+
+    system = _.cloneDeep(system)
+      .map(o => {
+        o.items = o.items.filter(item => item.name.toLowerCase().indexOf(keywords.trim().toLowerCase()) > -1);
+
+        return o;
+      })
+      .filter(o => !!o.items.length);
+
+    plugin.items = [getList(pluginList.orgPlugins || []), getList(pluginList.myPlugins || [])].filter(o => !!o.length);
+
+    if (keywords.trim()) {
+      return system.concat(plugin.items.length ? plugin : []);
+    }
+
+    return tab === 1 ? system : plugin.items.length ? [plugin] : [];
+  };
 
   /**
    * 判断是否是条件分支
@@ -1116,8 +1271,8 @@ export default class CreateNodeDialog extends Component {
     ) {
       // 代码块、界面推送、Word打印模板、API连接与认证、调用已集成的API、获取页面快照、更新全局变量、循环
       buriedUpgradeVersionDialog(flowInfo.companyId, featureId);
-    } else if (item.type === NODE_TYPE.APPROVAL_PROCESS && !item.isNew) {
-      this.setState({ showApprovalDialog: true });
+    } else if (_.includes([NODE_TYPE.APPROVAL_PROCESS, NODE_TYPE.LOOP], item.type) && !item.isNew) {
+      this.setState({ showProcessDialog: true, selectItemType: item.type });
     } else if (item.type === NODE_TYPE.CODE && item.isCustom) {
       this.setState({ showCodeSnippetDialog: true });
     } else {
@@ -1127,6 +1282,7 @@ export default class CreateNodeDialog extends Component {
         name: item.type === NODE_TYPE.APPROVAL_PROCESS ? _l('未命名审批流程') : item.name,
         prveId: nodeId,
         typeId: item.type,
+        appId: item.appId,
       });
     }
   }
@@ -1169,8 +1325,24 @@ export default class CreateNodeDialog extends Component {
   };
 
   render() {
-    const { nodeId, selectAddNodeId, flowInfo, selectProcessId, isApproval, selectCopy, flowNodeMap } = this.props;
-    const { selectItem, selectSecond, showApprovalDialog, showCodeSnippetDialog, branchDialogModel } = this.state;
+    const { nodeId, selectAddNodeId, flowInfo, selectProcessId, isApproval, selectCopy, flowNodeMap, isPlugin } =
+      this.props;
+    const {
+      selectItem,
+      selectSecond,
+      showProcessDialog,
+      showCodeSnippetDialog,
+      branchDialogModel,
+      selectItemType,
+      keywords,
+      tab,
+    } = this.state;
+    const isApprovalProcess = selectItemType === NODE_TYPE.APPROVAL_PROCESS;
+    const TABS = [
+      { text: _l('系统'), value: 1 },
+      { text: _l('插件'), value: 2 },
+    ];
+    const featureType = getFeatureStatus(flowInfo.companyId, VersionProductType.flowPlugin);
 
     return (
       <Drawer placement="right" visible={!!nodeId} closable={false} mask={false} bodyStyle={{ padding: 0 }} width={640}>
@@ -1212,9 +1384,42 @@ export default class CreateNodeDialog extends Component {
 
             <i className="icon-delete Font18 mLeft5" onClick={() => selectAddNodeId('')} />
           </div>
+
+          {!selectSecond && !isPlugin && (
+            <Fragment>
+              <div className="createNodeSearch">
+                <input
+                  type="text"
+                  ref={keywordsInput => (this.keywordsInput = keywordsInput)}
+                  placeholder={_l('搜索')}
+                  value={keywords}
+                  onChange={e => this.setState({ keywords: e.target.value })}
+                />
+                <Icon icon="search" className="Font18 Gray_9e" />
+              </div>
+              {!keywords.trim() && featureType && (
+                <ul className="createNodeTabs flexRow Font14">
+                  {TABS.map(item => (
+                    <li
+                      key={item.value}
+                      className={cx('ThemeHoverBorderColor3', { 'ThemeColor3 ThemeBorderColor3': item.value === tab })}
+                      onClick={() => this.setState({ tab: item.value })}
+                    >
+                      {item.text}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Fragment>
+          )}
+
           <div className="flex">
-            <ScrollView>{this.renderContent()}</ScrollView>
+            <ScrollView>{!!nodeId && this.renderContent()}</ScrollView>
           </div>
+
+          {tab === 2 && !keywords.trim() && !!this.formatData().length && (
+            <div className="mLeft24 mRight24 mBottom15">{this.renderPluginBtn()}</div>
+          )}
 
           {!!branchDialogModel && (
             <BranchDialog
@@ -1225,20 +1430,27 @@ export default class CreateNodeDialog extends Component {
             />
           )}
 
-          {showApprovalDialog && (
-            <SelectApprovalProcess
+          {showProcessDialog && (
+            <SelectProcess
               companyId={flowInfo.companyId}
               appId={flowInfo.relationId}
-              onOk={({ processId }) =>
+              processListType={isApprovalProcess ? 11 : 13}
+              filterProcessId={flowInfo.id}
+              onOk={({ processId, triggerId }) =>
                 this.addFlowNode({
-                  appType: APP_TYPE.APPROVAL,
-                  name: _l('未命名审批流程'),
+                  appType: isApprovalProcess ? APP_TYPE.APPROVAL : APP_TYPE.LOOP_PROCESS,
+                  name: isApprovalProcess
+                    ? _l('未命名审批流程')
+                    : triggerId === ACTION_ID.CONDITION_LOOP
+                    ? _l('满足条件时循环')
+                    : _l('循环指定次数'),
                   prveId: nodeId,
-                  typeId: NODE_TYPE.APPROVAL_PROCESS,
+                  typeId: isApprovalProcess ? NODE_TYPE.APPROVAL_PROCESS : NODE_TYPE.LOOP,
                   appId: processId,
+                  actionId: isApprovalProcess ? undefined : triggerId,
                 })
               }
-              onCancel={() => this.setState({ showApprovalDialog: false })}
+              onCancel={() => this.setState({ showProcessDialog: false })}
             />
           )}
 
@@ -1249,6 +1461,7 @@ export default class CreateNodeDialog extends Component {
               onSave={({ actionId, inputData, code }) => {
                 this.setState({ showCodeSnippetDialog: false });
                 this.addFlowNode({
+                  appType: APP_TYPE.CODE,
                   actionId,
                   name: actionId === ACTION_ID.JAVASCRIPT ? _l('JavaScript') : _l('Python'),
                   prveId: nodeId,

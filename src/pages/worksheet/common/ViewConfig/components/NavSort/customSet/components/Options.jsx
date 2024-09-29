@@ -16,7 +16,7 @@ export default function (props) {
   }
   return (
     <Wrap style={style} className="Font13">
-      {data.value}
+      {data.isDeleted ? _l('已删除') : data.value}
     </Wrap>
   );
 }

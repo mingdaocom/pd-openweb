@@ -56,22 +56,6 @@
     background-color: #fff;
     padding: 0 10px;
     box-sizing: border-box;
-  
-    .flexRow {
-      justify-content: flex-end;
-    }
-    .am-button {
-      height: 36px;
-      line-height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-    }
-    .am-button, .am-button::before, .am-button-active::before {
-      font-size: 14px;
-      border-radius: 50px;
-    }
   }
 }
 
@@ -99,5 +83,19 @@
   }
   &.bottom50 {
     bottom: 50px;
+  }
+}
+
+.mobileModal {
+  &.full .adm-popup-body-position-bottom {
+    height: 100%;
+  }
+  &.minFull .adm-popup-body-position-bottom {
+    height: 95%;
+  }
+  &.topRadius .adm-popup-body-position-bottom {
+    border-top-right-radius: 15px;
+    border-top-left-radius: 15px;
+    overflow: hidden;
   }
 }

@@ -10,7 +10,7 @@ const proxy = require('proxy-middleware');
 const gutil = require('gulp-util');
 const utils = require('./utils');
 const { apiServer } = require('./publishConfig');
-var apiProxyMiddleware = proxy(apiServer);
+const apiProxyMiddleware = proxy(apiServer);
 
 const statusData = {};
 
@@ -84,7 +84,7 @@ const middlewareList = [
       res.end();
     } else if (req.url && req.url.startsWith('/api/')) {
       // 代理接口请求到 api 服务器
-      req.url = req.url.replace('/api/', '/wwwapi/');
+      req.url = req.url.replace('/api/', '/');
       apiProxyMiddleware(req, res, next);
     } else if (req.url && req.url.startsWith('/workflow_api/')) {
       // 代理接口请求到 工作流 api 服务器
@@ -101,6 +101,10 @@ const middlewareList = [
     } else if (req.url && req.url.startsWith('/data_pipeline_api/')) {
       // 代理接口请求到 数据库集成 api 服务器
       req.url = req.url.replace('/data_pipeline_api/', '/datapipeline/');
+      apiProxyMiddleware(req, res, next);
+    } else if (req.url && req.url.startsWith('/workflow_plugin_api/')) {
+      // 代理接口请求到 工作流插件 api 服务器
+      req.url = req.url.replace('/workflow_plugin_api/', '/workflowplugin/');
       apiProxyMiddleware(req, res, next);
     } else if (req.url && req.url.startsWith('/dist/')) {
       // 访问静态文件

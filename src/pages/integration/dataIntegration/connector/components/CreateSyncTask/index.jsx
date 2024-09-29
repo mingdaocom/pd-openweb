@@ -63,6 +63,7 @@ const SyncTaskWrapper = styled.div`
   .titleItem {
     display: inline-flex;
     height: 24px;
+    align-items: center;
     .iconWrapper {
       display: inline-flex;
       justify-content: center;

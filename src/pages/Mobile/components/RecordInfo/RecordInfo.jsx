@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Icon, WaterMark, LoadDiv } from 'ming-ui';
-import { Modal } from 'antd-mobile';
+import { ActionSheet, Button } from 'antd-mobile';
 import cx from 'classnames';
 import RecordForm from './RecordForm';
 import RecordFooter from './RecordFooter';
@@ -11,6 +11,7 @@ import RelationAction from 'mobile/RelationRow/RelationAction';
 import ChatCount from 'mobile/components/ChatCount';
 import worksheetApi from 'src/api/worksheet';
 import externalPortalApi from 'src/api/externalPortal';
+import paymentAjax from 'src/api/payment';
 import {
   KVGet,
   getRowGetType,
@@ -31,6 +32,7 @@ import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'mobile/RelationRow/redux/actions';
 import './RecordInfo.less';
+import _ from 'lodash';
 
 const imgAndVideoReg = /(swf|avi|flv|mpg|rm|mov|wav|asf|3gp|mkv|rmvb|mp4|gif|png|jpg|jpeg|webp|svg|psd|bmp|tif|tiff)/i;
 
@@ -59,10 +61,12 @@ export default class RecordInfo extends Component {
       childTableControlIds: [],
       restoreVisible: false,
       canSubmitDraft: false,
+      payConfig: {}, // 支付相关
     };
     this.submitType = '';
     this.refreshEvents = {};
     this.cellObjs = {};
+    this.confirmHandler = null;
   }
   get isPublicShare() {
     return (
@@ -87,23 +91,31 @@ export default class RecordInfo extends Component {
   }
   componentDidUpdate(prevProps) {
     const { relationRow } = this.props;
-    const { currentTab } = this.state;
+    const { currentTab, tempFormData = [] } = this.state;
     if (
       this.customwidget &&
       this.customwidget.current &&
       currentTab.type === 29 &&
       !_.isEqual(relationRow, prevProps.relationRow)
     ) {
-      this.customwidget.current.dataFormat.updateDataSource({
-        controlId: currentTab.controlId,
-        value: !_.isNaN(relationRow.count) ? relationRow.count : currentTab.value,
-      });
+      this.customwidget.current.handleChange(
+        !_.isNaN(relationRow.count) ? relationRow.count : currentTab.value,
+        currentTab.controlId,
+        currentTab,
+      );
     }
   }
 
-  componentWillUnmount() {
-    localStorage.removeItem('isMobileSingleView');
-  }
+  // 获取支付信息
+  getPayConfig = (projectId, worksheetId, appId, rowId, viewId) => {
+    return paymentAjax.checkPayOrderForRowDetail({
+      projectId,
+      worksheetId,
+      appId,
+      rowId,
+      viewId,
+    });
+  };
 
   loadRecord = async () => {
     const {
@@ -117,6 +129,7 @@ export default class RecordInfo extends Component {
       workId,
       isWorksheetQuery,
       needUpdateControlIds,
+      enablePayment,
     } = this.props;
     const { recordId, tempFormData } = this.state;
     try {
@@ -134,6 +147,16 @@ export default class RecordInfo extends Component {
 
       const switchPermit = await worksheetApi.getSwitchPermit({ appId, worksheetId });
       data.worksheetName = getTranslateInfo(appId, null, worksheetId).name || data.worksheetName;
+
+      // 支付配置（草稿箱、对外公开分享\公开表单无支付）
+      let payConfig =
+        from === 21 ||
+        this.isPublicShare ||
+        _.get(window, 'shareState.isPublicForm') ||
+        _.get(window, 'shareState.isPublicWorkflowRecord') ||
+        (!_.isUndefined(enablePayment) && !enablePayment)
+          ? {}
+          : await this.getPayConfig(data.projectId, worksheetId, appId, recordId, viewId);
 
       // 设置隐藏字段的 hidden 属性
       data.formData = replaceControlsTranslateInfo(appId, worksheetId, data.formData)
@@ -194,6 +217,7 @@ export default class RecordInfo extends Component {
         childTableControlIds: !_.isEmpty(childTableControlIds) ? childTableControlIds : undefined,
         loading: false,
         refreshBtnNeedLoading: false,
+        payConfig,
       });
     } catch (err) {
       console.error(err);
@@ -374,16 +398,35 @@ export default class RecordInfo extends Component {
     this.setState({ submitLoading: true });
     this.customwidget.current.submitFormData({ ignoreAlert, silent });
   };
-  handleCancelSave = () => {
-    const { recordBase } = this.state;
-    removeTempRecordValueFromLocal('recordInfo', recordBase.viewId + '-' + recordBase.recordId);
-    this.setState({
-      formChanged: false,
-      isEditRecord: false,
-      random: Date.now(),
+
+  // 保存记录后终止子表内请求
+  abortChildTable = () => {
+    Object.keys(this.cellObjs).forEach(key => {
+      if (_.get(this, `cellObjs.${key}.cell.updateAbortController`)) {
+        this.cellObjs[key].cell.updateAbortController();
+      }
     });
   };
+
+  handleCancelSave = () => {
+    const { recordBase } = this.state;
+
+    this.confirmHandler && this.confirmHandler.close();
+    removeTempRecordValueFromLocal('recordInfo', recordBase.viewId + '-' + recordBase.recordId);
+    this.setState(
+      {
+        formChanged: false,
+        isEditRecord: false,
+        random: Date.now(),
+      },
+      () => {
+        this.customwidget.current.dataFormat.callStore('cancelChange');
+        this.abortChildTable();
+      },
+    );
+  };
   handleTriggerSave = () => {
+    this.confirmHandler && this.confirmHandler.close();
     this.setState({
       formChanged: false,
       submitLoading: true,
@@ -452,6 +495,7 @@ export default class RecordInfo extends Component {
         });
     } else {
       const { from, instanceId, workId, updateSuccess, workflow } = this.props;
+      this.abortChildTable();
       updateRecord(
         {
           appId: recordBase.appId,
@@ -510,7 +554,7 @@ export default class RecordInfo extends Component {
       });
   };
   renderRecordBtns() {
-    const { getDataType } = this.props;
+    const { getDataType, worksheetInfo = {} } = this.props;
     const { formChanged, isEditRecord, recordInfo, recordBase } = this.state;
     return (
       <RecordFooter
@@ -541,19 +585,67 @@ export default class RecordInfo extends Component {
             alert(_l('预览模式下，不能操作'), 3);
             return;
           }
-          this.saveDraftData({ draftType: 'submit' });
+          const doubleConfirm = safeParse(_.get(worksheetInfo, 'advancedSetting.doubleconfirm'));
+          if (_.get(worksheetInfo, 'advancedSetting.enableconfirm') === '1') {
+            // 提交二次确认
+            let actionHandler = ActionSheet.show({
+              actions: [],
+              extra: (
+                <div className="flexColumn w100">
+                  <div className="Font17 Gray bold pTop10 mBottom10 TxtLeft breakAll">{doubleConfirm.confirmMsg}</div>
+                  <div className="Gray_9e breakAll">{doubleConfirm.confirmContent}</div>
+                  <div className="valignWrapper flexRow confirm mTop15">
+                    <Button
+                      className="flex mLeft6 mRight6 Font13 bold Gray_75 flex ellipsis"
+                      onClick={() => {
+                        actionHandler.close();
+                      }}
+                    >
+                      {doubleConfirm.cancelName}
+                    </Button>
+                    <Button
+                      className="flex mLeft6 mRight6 Font13 bold flex ellipsis"
+                      color="primary"
+                      onClick={() => {
+                        this.saveDraftData({ draftType: 'submit' });
+                        actionHandler.close();
+                      }}
+                    >
+                      {doubleConfirm.sureName}
+                    </Button>
+                  </div>
+                </div>
+              ),
+            });
+          } else {
+            this.saveDraftData({ draftType: 'submit' });
+          }
         }}
         onCancelSave={() => {
           if (this.state.formChanged) {
-            Modal.alert(_l('是否保存修改的记录 ?'), '', [
-              { text: _l('放弃'), style: 'default', onPress: this.handleCancelSave },
-              {
-                text: _l('保存'),
-                style: {},
-                onPress: () =>
-                  getDataType === 21 ? this.saveDraftData({ draftType: 'draft' }) : this.handleTriggerSave(),
-              },
-            ]);
+            this.confirmHandler = ActionSheet.show({
+              popupClassName: 'md-adm-actionSheet',
+              actions: [],
+              extra: (
+                <div className="flexColumn w100">
+                  <div className="bold Gray Font17 pTop10">{_l('是否保存修改的记录 ?')}</div>
+                  <div className="valignWrapper flexRow confirm mTop24">
+                    <Button className="flex mRight6 bold Gray_75 flex ellipsis Font13" onClick={this.handleCancelSave}>
+                      {_l('放弃')}
+                    </Button>
+                    <Button
+                      className="flex mLeft6 bold flex ellipsis Font13"
+                      color="primary"
+                      onClick={() =>
+                        getDataType === 21 ? this.saveDraftData({ draftType: 'draft' }) : this.handleTriggerSave()
+                      }
+                    >
+                      {_l('保存')}
+                    </Button>
+                  </div>
+                </div>
+              ),
+            });
           } else {
             this.handleCancelSave();
           }
@@ -620,7 +712,7 @@ export default class RecordInfo extends Component {
         <div
           className="extraAction"
           style={{
-            bottom: currentTab.id == 'approve' ? 13 : undefined,
+            bottom: _.includes(['approve', 'pay'], currentTab.id) ? 13 : undefined,
             ...chartEntryStyle,
           }}
         >
@@ -644,7 +736,18 @@ export default class RecordInfo extends Component {
     }
   }
   render() {
-    const { recordId, isModal, getDataType, onClose, renderAbnormal, header, workflow, relationRow, view } = this.props;
+    const {
+      recordId,
+      isModal,
+      getDataType,
+      onClose,
+      renderAbnormal,
+      header,
+      workflow,
+      relationRow,
+      view,
+      worksheetInfo,
+    } = this.props;
     const {
       random,
       isEditRecord,
@@ -659,6 +762,7 @@ export default class RecordInfo extends Component {
       tempFormData,
       currentTab,
       externalPortalConfig,
+      payConfig,
     } = this.state;
 
     if (loading || isSettingTempData) {
@@ -722,6 +826,8 @@ export default class RecordInfo extends Component {
             currentTab={currentTab}
             header={header}
             workflow={workflow}
+            payConfig={payConfig}
+            worksheetInfo={worksheetInfo}
             onChange={this.handleFormChange}
             onSave={this.handleSave}
             onClose={onClose}

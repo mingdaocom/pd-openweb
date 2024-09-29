@@ -247,6 +247,7 @@ export default class SortableRecordItem extends Component {
               visible
               appId={appId}
               worksheetId={recordInfoPara.worksheetId}
+              enablePayment={worksheetInfo.enablePayment}
               viewId={recordInfoPara.viewId}
               rowId={recordInfoRowId}
               onClose={() => {
@@ -255,6 +256,7 @@ export default class SortableRecordItem extends Component {
             />
           ) : (
             <RecordInfoWrapper
+              enablePayment={worksheetInfo.enablePayment}
               showPrevNext
               sheetSwitchPermit={sheetSwitchPermit}
               allowAdd={view.allowAdd}

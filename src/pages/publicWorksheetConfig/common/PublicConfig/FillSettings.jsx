@@ -51,12 +51,15 @@ export default function FillSettings(props) {
         </Fragment>
       ),
       onOk: () => {
-        if (!/^[a-zA-z\u4e00-\u9fa5]{2,12}$/.test(inputRef.current.value)) {
-          alert(_l('签名需要控制在2-12个中英文字符'), 2);
-          return false;
-        } else {
-          setState({ smsSignature: inputRef.current.value || smsSignature });
-        }
+        return new Promise((resolve, reject) => {
+          if (!/^[a-zA-z\u4e00-\u9fa5]{2,12}$/.test(inputRef.current.value)) {
+            alert(_l('签名需要控制在2-12个中英文字符'), 2);
+            reject(false);
+          } else {
+            setState({ smsSignature: inputRef.current.value || smsSignature });
+            resolve();
+          }
+        });
       },
     });
   };
@@ -78,7 +81,15 @@ export default function FillSettings(props) {
                 checked={smsVerification}
                 onClick={checked => setState({ smsVerification: !checked })}
                 name={_l('手机号短信验证')}
-                tip={_l('对填写的手机号字段进行短信验证，以确保为本人有效手机号。') + ((!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) ? _l('验证码短信%0每条，自动从企业账户扣除，余额不足时无法获取验证码。', _.get(md, 'global.PriceConfig.SmsPrice')): '')}
+                tip={
+                  _l('对填写的手机号字段进行短信验证，以确保为本人有效手机号。') +
+                  (!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')
+                    ? _l(
+                        '验证码短信%0每条，自动从企业账户扣除，余额不足时无法获取验证码。',
+                        _.get(md, 'global.PriceConfig.SmsPrice'),
+                      )
+                    : '')
+                }
               />
             </div>
             {smsVerification && (
@@ -126,7 +137,7 @@ export default function FillSettings(props) {
             <CommonSwitch
               checked={cacheFieldData.isEnable}
               onClick={checked => setState({ cacheFieldData: { isEnable: !checked, cacheField: [] } })}
-              name={_l('缓存本地填写数据, 下次自动填充')}
+              name={_l('上次提交的数据，下次自动填充')}
               tip={_l('打开后，可以获取到填写者之前已提交的内容（具体到字段），填写者可只填写剩余字段。')}
             />
             {cacheFieldData.isEnable && (

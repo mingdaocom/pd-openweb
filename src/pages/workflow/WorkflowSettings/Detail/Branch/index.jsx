@@ -97,7 +97,11 @@ export default class Branch extends Component {
           <div className="flexRow" style={{ height: 24 }}>
             <span className="ellipsis">{name || _l('分支')}</span>
             <span className="mLeft10">
-              <Support type={1} className="workflowDialogSupport" href="https://help.mingdao.com/worksheet/field-filter" />
+              <Support
+                type={1}
+                className="workflowDialogSupport"
+                href="https://help.mingdao.com/worksheet/field-filter"
+              />
             </span>
             <span className="flex" />
           </div>
@@ -116,6 +120,7 @@ export default class Branch extends Component {
           data={data}
           updateSource={this.updateSource}
           projectId={this.props.companyId}
+          isPlugin={this.props.isPlugin}
         />
         {!data.length && (
           <div

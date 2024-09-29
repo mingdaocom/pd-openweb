@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import CustomFields from 'src/components/newCustomFields';
 import _ from 'lodash';
@@ -49,10 +48,7 @@ export default class RowDetail extends React.Component {
   formcon = React.createRef();
   customwidget = React.createRef();
 
-  @autobind
-  handleChange() {
-    const { changeIsFormChanged = () => {} } = this.props;
-    changeIsFormChanged(true);
+  handleChange = () => {
     const { data, isMobile, onSave } = this.props;
     if (!this.customwidget.current || isMobile) {
       return;
@@ -62,16 +58,13 @@ export default class RowDetail extends React.Component {
     const formdata = submitData.fullData;
     const row = [{}, ...formdata].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
     onSave({ ...data, ...row, empty: false }, updateControlIds);
-  }
+  };
 
-  @autobind
-  handleSave(nextContinue) {
+  handleSave = (nextContinue, isSwitchSave) => {
     if (!this.customwidget.current) {
       return;
     }
-    const { changeIsFormChanged = () => {} } = this.props;
-    changeIsFormChanged(false);
-    const { data, onSave, onClose } = this.props;
+    const { data, onSave, onClose, openNextRecord } = this.props;
     const submitData = this.customwidget.current.getSubmitData();
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
     const formdata = submitData.fullData;
@@ -81,7 +74,9 @@ export default class RowDetail extends React.Component {
     } else {
       const row = [{}, ...formdata].reduce((a = {}, b = {}) => Object.assign(a, { [b.controlId]: b.value }));
       onSave({ ...data, ...row, empty: false }, updateControlIds);
-      if (nextContinue) {
+      if (isSwitchSave) {
+        return;
+      } else if (nextContinue) {
         this.setState({ flag: Math.random() }, () => {
           if (this.formcon.current) {
             const $firstText = this.formcon.current.querySelector(
@@ -92,21 +87,22 @@ export default class RowDetail extends React.Component {
             }
           }
         });
+        onClose();
+        openNextRecord();
       } else {
         onClose();
       }
     }
-  }
+  };
 
-  @autobind
-  handleClose() {
+  handleClose = () => {
     const { onClose } = this.props;
     if ($(this.formcon.current).find('.Progress--circle').length > 0) {
       alert(_l('附件正在上传，请稍后'), 3);
       return;
     }
     onClose();
-  }
+  };
 
   render() {
     const {
@@ -126,6 +122,7 @@ export default class RowDetail extends React.Component {
       isWorkflow,
       from,
       masterData,
+      widgetStyle = {},
       rules,
     } = this.props;
     const { flag } = this.state;
@@ -160,7 +157,7 @@ export default class RowDetail extends React.Component {
             searchConfig={searchConfig}
             sheetSwitchPermit={sheetSwitchPermit}
             columnNumber={1}
-            from={isMobile && isWorkflow ? 3 : recordId ? 3 : 2}
+            from={from === 21 ? 21 : isMobile && isWorkflow ? 3 : recordId ? 3 : 2}
             isDraft={from === 21}
             isCreate={false}
             recordId={recordId}
@@ -182,6 +179,7 @@ export default class RowDetail extends React.Component {
             onChange={this.handleChange}
             onRulesLoad={onRulesLoad}
             ignoreSection
+            widgetStyle={widgetStyle}
             rules={rules}
           />
         </div>

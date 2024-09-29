@@ -130,7 +130,7 @@ class ImportAndExport extends Component {
   };
   importFile = () => {
     this.setState({ importFileLoading: true });
-    let { currentTab } = this.state;
+    let { currentTab, fileName } = this.state;
     const _this = this;
     const callback = rsp => {
       // 开始导入
@@ -140,6 +140,7 @@ class ImportAndExport extends Component {
         ticket: rsp.ticket,
         randstr: rsp.randstr,
         captchaType: md.global.getCaptchaType(),
+        originalFileName: fileName,
       };
       let promiseRequest =
         currentTab === 'import' ? importUser.importUserList(requestData) : importUser.importEditUserList(requestData);
@@ -177,7 +178,7 @@ class ImportAndExport extends Component {
     if (md.global.getCaptchaType() === 1) {
       new captcha(callback);
     } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
+      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback, { needFeedBack: false }).show();
     }
   };
   renderImport = () => {

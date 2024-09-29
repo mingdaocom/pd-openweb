@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import _ from 'lodash';
 import SelectControls from './SelectControls';
+import { ROW_ID_CONTROL } from 'src/pages/widgetConfig/config/widget';
 
 export default class AddCondition extends Component {
   static propTypes = {
@@ -51,14 +52,13 @@ export default class AddCondition extends Component {
       conditionCount,
       filterColumnClassName,
       popupContainer,
+      widgetControlData = {},
     } = this.props;
     const { columnListVisible } = this.state;
-    // 汇总不支持日期控件
-    // if (from === 'subTotal') {
-    //   columns = columns.filter(
-    //     item => !(_.includes([15, 16], item.type) || (item.type === 38 && item.enumDefault === 2)),
-    //   );
-    // }
+    // 关联记录支持rowId
+    if (from === 'relateSheet' && _.includes([29, 51], widgetControlData.type)) {
+      columns = columns.concat(ROW_ID_CONTROL);
+    }
     if (md.global.Account.isPortal) {
       columns = columns.filter(item => !_.includes(['ownerid', 'caid', 'uaid'], item.controlId));
     }

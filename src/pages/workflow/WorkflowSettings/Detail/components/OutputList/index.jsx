@@ -118,7 +118,7 @@ export default class OutputList extends Component {
                 style={{ width: 120 }}
                 data={FIELD_TYPE_LIST.filter(
                   o =>
-                    !_.includes([14, 10000003], o.value) &&
+                    _.includes([2, 6, 16, 26, 27, 48, 10000007, 10000008], o.value) &&
                     (!item.dataSource || (item.dataSource && o.value !== 10000008)) &&
                     (outputType === OUTPUT_TYPE.JSON_PARSE || !_.includes([16, 26, 27, 48], o.value)),
                 )}

@@ -196,7 +196,7 @@ class Message extends Component {
           ) : undefined}
           <div className="Message-body">
             {!isDuplicated ? (
-              <div className="Message-title">
+              <div className="Message-title ellipsis">
                 <div
                   onClick={this.handleAddAtUser.bind(this, isMine || !session.isGroup)}
                   className={cx('Message-from-name', { ThemeColor3: isMine })}

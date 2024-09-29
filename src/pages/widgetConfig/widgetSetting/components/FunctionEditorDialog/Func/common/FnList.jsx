@@ -56,8 +56,16 @@ const Con = styled.div`
     padding: 0px !important;
   }
 `;
+
+// 控件不支持的函数计算类型
+const fnFilterByControl = (fnName, control) => {
+  // 公式函数不支持当前时间
+  if (fnName === 'DATENOW' && _.get(control, 'type') === 53) return false;
+  return true;
+};
+
 export default function FnList(props) {
-  const { keywords, insertFn } = props;
+  const { keywords, insertFn, control } = props;
   const functionNames = Object.keys(functionDetails);
   let types = Object.keys(functionTypes);
   if (keywords) {
@@ -75,6 +83,7 @@ export default function FnList(props) {
     type,
     functions: functionNames.filter(
       fnName =>
+        fnFilterByControl(fnName, control) &&
         functionDetails[fnName].type === type &&
         (!keywords || SearchFn(keywords, fnName) || SearchFn(keywords, functionDetails[fnName].name)),
     ),

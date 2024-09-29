@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Menu, MenuItem, Checkbox, RadioGroup, Dialog, Dropdown, Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
-import { arrayMove } from '@mdfe/react-sortable-hoc';
 import styled from 'styled-components';
 import update from 'immutability-helper';
 import SelectControl from '../SelectControl';
@@ -204,8 +203,8 @@ export default function ApiSearchConfig(props) {
               onAdd={item => {
                 setState({ searchfilters: searchfilters.concat(item) });
               }}
-              onSortEnd={({ oldIndex, newIndex }) => {
-                setState({ searchfilters: arrayMove(searchfilters, oldIndex, newIndex) });
+              onSortEnd={newItems => {
+                setState({ searchfilters: newItems });
               }}
             />
           </SettingItem>

@@ -5,7 +5,7 @@ import cx from 'classnames';
 import { Modal, Icon, ScrollView, LoadDiv } from 'ming-ui';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import _ from 'lodash';
-import { SOURCE_FROM_TYPE, CREATE_TYPE, ROLE_TYPE } from '../../constant';
+import { SOURCE_FROM_TYPE, CREATE_TYPE, ROLE_TYPE, dataMirrorDestTypes } from '../../constant';
 import dataSourceApi from '../../../api/datasource';
 import { formatDate } from '../../../config';
 
@@ -16,6 +16,7 @@ const ExistSourceWrapper = styled.div`
 
   .headerWrapper {
     height: 50px;
+    min-height: 50px;
     width: 100%;
     box-sizing: border-box;
     border-bottom: 1px solid #eaeaea;
@@ -98,7 +99,6 @@ const LeftListWrapper = styled.div`
 const RightListWrapper = styled.div`
   flex: 1;
   padding: 12px;
-  min-height: 570px;
   box-sizing: border-box;
 
   .listItem {
@@ -156,7 +156,7 @@ const NoDataWrapper = styled.div`
 
 let listAjaxPromise = null;
 export default function ExistSourceModal(props) {
-  const { connectorConfigData = {}, roleType, setConnectorConfigData, onClose } = props;
+  const { connectorConfigData = {}, roleType, setConnectorConfigData, onClose, from = '' } = props;
   const [searchKeyWords, setSearchKeyWords] = useState('');
   const [currentTab, setCurrentTab] = useState(SOURCE_FROM_TYPE.ALL);
   const [dsTypeList, setDsTypeList] = useState([]);
@@ -171,7 +171,10 @@ export default function ExistSourceModal(props) {
     };
     dataSourceApi.getTypes(fetchTypeParams).then(res => {
       if (res) {
-        const filterRes = res.filter(item => _.includes([ROLE_TYPE.ALL, roleType.toUpperCase()], item.roleType));
+        let filterRes = res.filter(item => _.includes([ROLE_TYPE.ALL, roleType.toUpperCase()], item.roleType));
+        if (from === 'dataMirror') {
+          filterRes = filterRes.filter(item => dataMirrorDestTypes.includes(item.type));
+        }
         const dataList = [
           {
             key: SOURCE_FROM_TYPE.LOCAL,
@@ -210,7 +213,7 @@ export default function ExistSourceModal(props) {
       setLoadingState({ pageNo: 0 });
       onFetchSourceList();
     }
-  }, [currentTab, searchKeyWords]);
+  }, [currentTab, searchKeyWords, dsTypeList]);
 
   useEffect(() => {
     if (loadingState.pageNo !== 0) {
@@ -226,6 +229,7 @@ export default function ExistSourceModal(props) {
       pageNo: loadingState.pageNo,
       pageSize: 20,
       searchBody: searchKeyWords,
+      dsTypes: from === 'dataMirror' && currentTab === 'ALL' ? ['MYSQL', 'POSTGRESQL'] : undefined,
       dsType: currentTab === 'ALL' ? null : currentTab.type,
       roleType: roleType.toUpperCase(),
     };
@@ -237,7 +241,11 @@ export default function ExistSourceModal(props) {
       listAjaxPromise = null;
       if (res) {
         const list = res.content
-          .filter(item => item.id !== (connectorConfigData[roleType] || {}).id)
+          .filter(
+            item =>
+              item.id !== (connectorConfigData[roleType] || {}).id &&
+              !(from === 'dataMirror' && !dataMirrorDestTypes.includes(item.dsTypeInfo.type)),
+          )
           .map(item => {
             return {
               ...item,
@@ -245,7 +253,7 @@ export default function ExistSourceModal(props) {
             };
           });
         setDataSourceList(loadingState.pageNo > 0 ? dataSourceList.concat(list) : list);
-        setLoadingState({ loading: false, noMore: res.content.length < 10 });
+        setLoadingState({ loading: false, noMore: res.content.length < 20 });
       }
     });
   };

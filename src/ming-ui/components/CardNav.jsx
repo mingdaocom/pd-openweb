@@ -75,7 +75,7 @@ export default function CardNav(props) {
               {showBeta && <Beta className="verticalTxtBottom" />}
               {showUpgradeIcon && <UpgradeIcon className="verticalTxtBottom" />}
             </div>
-            <p className="mTop5 Font12">{description}</p>
+            {description && <p className="mTop5 Font12">{description}</p>}
           </li>
         );
       })}

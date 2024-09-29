@@ -53,6 +53,8 @@ const dateMenu = [{
   name: _l('清除')
 }];
 
+let lastSelectId = null;
+
 const DateFilter = (props) => {
   const { noClear, onChange, popupContainer } = props;
   const [visible, setVisible] = useState(false);
@@ -64,6 +66,9 @@ const DateFilter = (props) => {
     if (selectId !== 'custom') {
       setVisible(false);
     }
+    if (lastSelectId === selectId) {
+      return;
+    }
     if (selectId === 'clear') {
       onChange(null, null);
     }
@@ -71,6 +76,7 @@ const DateFilter = (props) => {
       const result = getDate();
       onChange(...result);
     }
+    lastSelectId = selectId;
   }, [selectId]);
 
   const menu = (

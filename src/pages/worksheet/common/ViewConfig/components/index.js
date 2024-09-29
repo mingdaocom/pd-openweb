@@ -28,3 +28,4 @@ export { default as StructureSet } from './StructureSet';
 export { default as CardDisplay } from './CardDisplay';
 export { default as DetailSet } from './DetailSet';
 export { default as RefreshTime } from './RefreshTime';
+export { default as NavSet } from './NavSet';

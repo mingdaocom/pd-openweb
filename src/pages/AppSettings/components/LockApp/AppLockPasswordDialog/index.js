@@ -124,7 +124,7 @@ const graphicVertify = (callback = () => {}) => {
   if (md.global.getCaptchaType() === 1) {
     new captcha(cb);
   } else {
-    new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();
+    new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb, { needFeedBack: false }).show();
   }
 };
 

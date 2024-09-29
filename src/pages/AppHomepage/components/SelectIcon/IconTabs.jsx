@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useLayoutEffect, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import { ScrollView, Switch, LoadDiv, SvgIcon } from 'ming-ui';
 import ajaxRequest from 'src/api/appManagement';
@@ -57,24 +57,23 @@ const SYSTEM_TYLE = [
   },
 ];
 
-const scrollCurrentIcon = () => {
-  let currentEle = document.querySelector('.iconsScrollViewWrap .isCurrentIcon');
-  let scrollCon = document.querySelector('.iconsScrollViewWrap .nano-content');
-  if (!currentEle || !scrollCon) return;
-
-  let _scrollTop = currentEle.offsetTop;
-  scrollCon.scrollTop = _scrollTop;
-};
+const isCustomIcon = icon => !icon.startsWith('sys_');
 
 function IconTabs(props) {
   const { iconColor, hideCustom, icon, projectId, handleClick } = props;
+  const commonData = safeParse(localStorage.getItem('md_common_icons'), 'array');
+  const commonSetting = safeParse(localStorage.getItem('md_common_icon_setting'));
 
   const [loading, setLoading] = useState(true);
   const [typePage, setTypePage] = useState(0);
   const [setting, setSetting] = useState({
-    isLine: icon.startsWith('sys_') ? icon.endsWith('_line') : false,
+    isLine: !_.isUndefined(commonSetting.isLine)
+      ? commonSetting.isLine
+      : icon.startsWith('sys_')
+      ? icon.endsWith('_line')
+      : false,
     currentKey: 'general',
-    tab: !icon.startsWith('sys_') && icon.length > 29 ? 1 : 0, // 0图标 1自定义
+    tab: hideCustom ? 0 : !_.isUndefined(commonSetting.tab) ? commonSetting.tab : isCustomIcon(icon) ? 1 : 0, // 0图标 1自定义
     firstLoad: true,
     changeScrollTop: '0',
   });
@@ -83,30 +82,47 @@ function IconTabs(props) {
     systemIcon: {},
     customIcon: [],
   });
+  const currentIcon = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (!currentIcon.current) return;
+
+      safeLocalStorageSetItem(
+        'md_common_icons',
+        JSON.stringify(
+          _.uniqBy([currentIcon.current].concat(commonData), l =>
+            isCustomIcon(l.icon) ? l.icon : l.icon.replace('_line', ''),
+          ).splice(0, 11),
+        ),
+      );
+    };
+  }, []);
 
   useEffect(() => {
     getIcon();
+    safeLocalStorageSetItem('md_common_icon_setting', JSON.stringify({ ..._.pick(setting, ['isLine', 'tab']) }));
   }, [setting.isLine, setting.tab]);
 
   useEffect(() => {
     if (loading) return;
+
     if (!setting.firstLoad) {
       setting.tab === 0 &&
         (document.querySelector('.iconsScrollViewWrap .nano-content').scrollTop = setting.changeScrollTop);
       return;
     }
+
     setSetting({
       ...setting,
       firstLoad: false,
     });
-    scrollCurrentIcon();
   }, [loading]);
 
   const getIcon = () => {
     const { systemIconLine, systemIcon, customIcon } = data;
     const { isLine, tab } = setting;
 
-    let currentIconTab = !icon.startsWith('sys_') && icon.length > 29 ? 1 : 0;
     if (
       (tab === 1 && customIcon.length > 0) ||
       (tab === 0 && isLine && Object.keys(systemIconLine).length > 0) ||
@@ -177,6 +193,84 @@ function IconTabs(props) {
     document.querySelector('.iconsScrollViewWrap .nano-content').scrollTop = scrollTop;
   };
 
+  const onClickIcon = param => {
+    currentIcon.current = param;
+    handleClick(param);
+  };
+
+  const handleSwitch = value => {
+    const scrollElem = document.querySelector('.iconsScrollViewWrap .nano-content');
+
+    let param = {
+      ...setting,
+      isLine: !value,
+      changeScrollTop: scrollElem ? scrollElem.scrollTop : setting.scrollTop,
+    };
+    setSetting(param);
+
+    if (isCustomIcon(icon)) return;
+
+    const iconName = getIconName(icon, !value);
+    onClickIcon({
+      icon: iconName,
+      iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/${iconName}.svg`,
+      closeTrigger: false,
+    });
+  };
+
+  const getIconName = (l, isLine) => {
+    const isCustom = isCustomIcon(l);
+    const name = isCustom || l.startsWith('sys_') ? l : 'sys_' + l;
+
+    if (isCustom || (isLine && l.endsWith('_line'))) return name;
+
+    if (isLine) return name + '_line';
+
+    return name.replace('_line', '');
+  };
+
+  const renderCommonIcon = () => {
+    if (!commonData.length) return;
+
+    return (
+      <div className="commonIcon">
+        <p className="iconType">{_l('最近使用')}</p>
+        <ul className="iconsWrap">
+          {commonData.map(l => {
+            const isCustom = isCustomIcon(l.icon);
+            const iconItem = getIconName(l.icon, setting.isLine);
+            const isCurrent = iconItem === icon;
+
+            return (
+              <li
+                key={`common-icons-${l.icon}`}
+                className={cx({ isCurrentIcon: isCurrent })}
+                style={{ backgroundColor: isCurrent ? iconColor : '#fff' }}
+                onClick={() => {
+                  onClickIcon({
+                    icon: iconItem,
+                    iconUrl: isCustom ? l.iconUrl : l.iconUrl.replace(l.icon, iconItem),
+                  });
+                }}
+              >
+                {isCustom ? (
+                  <SvgIcon url={l.iconUrl} fill={isCurrent ? '#fff' : '#9e9e9e'} />
+                ) : (
+                  <span
+                    className={iconItem}
+                    style={{
+                      color: isCurrent ? '#fff' : '#9e9e9e',
+                    }}
+                  ></span>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
+  };
+
   const renderSystemIcon = () => {
     const { isLine, currentKey } = setting;
 
@@ -189,11 +283,12 @@ function IconTabs(props) {
     return (
       <React.Fragment>
         <ScrollView className="iconsScrollViewWrap" scrollEvent={onScroll} disableParentScroll>
+          {renderCommonIcon()}
           <div className="systemIcon">
             {SYSTEM_TYLE.map((item, index) => {
               return (
                 <React.Fragment key={`systemIconType-${item.key}`}>
-                  {index !== 0 && (
+                  {(index !== 0 || !!commonData.length) && (
                     <p id={item.key} className="iconType">
                       {item.label}
                     </p>
@@ -202,13 +297,14 @@ function IconTabs(props) {
                     {listData[item.key].map(({ fileName, iconUrl }) => {
                       let isCurrent = icon.startsWith('sys_')
                         ? icon === fileName
-                        : fileName.replace('sys_', '').replace('_line', '') === icon;
+                        : fileName.replace('sys_', '') === icon;
+
                       return (
                         <li
                           key={fileName}
                           className={cx({ isCurrentIcon: isCurrent })}
                           style={{ backgroundColor: isCurrent ? iconColor : '#fff' }}
-                          onClick={() => handleClick({ icon: fileName, iconUrl })}
+                          onClick={() => onClickIcon({ icon: fileName, iconUrl })}
                         >
                           <span
                             className={fileName}
@@ -275,8 +371,9 @@ function IconTabs(props) {
 
     return (
       <ScrollView className="iconsScrollViewWrap">
+        {renderCommonIcon()}
         <div className="customIcon">
-          {/* <div className="title">{_l('自定义图标')}</div> */}
+          {!!commonData.length && !!data.customIcon.length && <p className="iconType">{_l('自定义图标')}</p>}
           <ul className="iconsWrap">
             {data.customIcon.map(({ iconUrl, fileName }) => {
               let isCurrent = icon === fileName;
@@ -285,7 +382,7 @@ function IconTabs(props) {
                   key={fileName}
                   className={cx({ isCurrentIcon: isCurrent })}
                   style={{ backgroundColor: isCurrent ? iconColor : '#fff' }}
-                  onClick={() => handleClick({ icon: fileName, iconUrl })}
+                  onClick={() => onClickIcon({ icon: fileName, iconUrl })}
                 >
                   <SvgIcon url={iconUrl} fill={isCurrent ? '#fff' : '#9e9e9e'} />
                 </li>
@@ -322,27 +419,7 @@ function IconTabs(props) {
             <Switch
               primaryColor="#2196f3"
               checked={setting.isLine}
-              onClick={value => {
-                const scrollElem = document.querySelector('.iconsScrollViewWrap .nano-content');
-                let param = {
-                  ...setting,
-                  isLine: !value,
-                  changeScrollTop: scrollElem ? scrollElem.scrollTop : setting.scrollTop,
-                };
-                setSetting(param);
-
-                if (!icon.startsWith('sys_')) return;
-
-                let _endWiths = value ? '' : '_line';
-                let iconName = icon.replace(/(_line)|(_fill)$/, '') + _endWiths;
-
-                if (!icon.startsWith('sys_')) iconName = 'sys_' + iconName;
-                handleClick({
-                  icon: iconName,
-                  iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/${iconName}.svg`,
-                  closeTrigger: false,
-                });
-              }}
+              onClick={handleSwitch}
               text={setting.isLine ? _l('线框') : _l('填充')}
             />
           </div>

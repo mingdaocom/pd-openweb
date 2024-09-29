@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import AddCondition from '../components/AddCondition';
@@ -11,7 +10,6 @@ import {
   getDefaultCondition,
   checkConditionAvailable,
   formatOriginFilterValue,
-  compareControlType,
   redefineComplexControl,
 } from '../util';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
@@ -54,8 +52,7 @@ export default class SingleFilter extends Component {
       });
     }
   }
-  @autobind
-  addCondition(control) {
+  addCondition = control => {
     if (!control) {
       alert(_l('字段不存在'), 3);
       return;
@@ -70,7 +67,7 @@ export default class SingleFilter extends Component {
     if (_.includes(noCheckConditionAvailable, from) || checkConditionAvailable(newCondition)) {
       this.handleConditionsChange(newConditions);
     }
-  }
+  };
   updateCondition(index, value) {
     const { from = '' } = this.props;
     const { conditions } = this.state;

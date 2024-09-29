@@ -35,8 +35,10 @@ const DATE_TIME_DISPLAY_OPTION = [
 
 export default function Text(props) {
   const { data, onChange } = props;
+  const { type, enumDefault2 } = data;
   const { showtype } = getAdvanceSetting(data);
-  const types = data.type === 15 ? DATE_DISPLAY_OPTION : DATE_TIME_DISPLAY_OPTION;
+  const isFormulateDate = type === 53 && enumDefault2 === 15;
+  const types = data.type === 15 || isFormulateDate ? DATE_DISPLAY_OPTION : DATE_TIME_DISPLAY_OPTION;
 
   useEffect(() => {
     // 年、年-月类型隐藏星期、时段、分钟间隔
@@ -47,19 +49,20 @@ export default function Text(props) {
 
   return (
     <Fragment>
+      {type !== 53 && (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('类型')}</div>
+          <RadioGroup
+            size="middle"
+            checkedValue={data.type}
+            data={DISPLAY_OPTIONS}
+            onChange={value =>
+              onChange({ ...handleAdvancedSettingChange(data, { showtype: value === 15 ? '3' : '1' }), type: value })
+            }
+          />
+        </SettingItem>
+      )}
       <SettingItem>
-        <div className="settingItemTitle">{_l('类型')}</div>
-        <RadioGroup
-          size="middle"
-          checkedValue={data.type}
-          data={DISPLAY_OPTIONS}
-          onChange={value =>
-            onChange({ ...handleAdvancedSettingChange(data, { showtype: value === 15 ? '3' : '1' }), type: value })
-          }
-        />
-      </SettingItem>
-      <SettingItem>
-        <div className="settingItemTitle">{_l('类型')}</div>
         <Dropdown
           border
           data={types}

@@ -12,6 +12,7 @@ import _ from 'lodash';
 export default function FormHeader(props) {
   const {
     isLock,
+    hideFormHeader,
     recordbase,
     recordinfo,
     view = {},
@@ -61,8 +62,8 @@ export default function FormHeader(props) {
 
   return (
     <div className={cx('recordInfoFormHeader Gray_9e', { isSmall })}>
-      {!isPublicShare && (
-        <div className="worksheetNameCon" style={{ marginTop: 16 }}>
+      {!isPublicShare && !hideFormHeader && (
+        <div className="worksheetNameCon mTop12">
           {!(window.isPublicApp || md.global.Account.isPortal) ? (
             <a className="worksheetName Gray_9e InlineBlock" target="_blank" href={`/worksheet/${worksheetId}`}>
               {getTranslateInfo(appId, null, worksheetId).name || worksheetName}

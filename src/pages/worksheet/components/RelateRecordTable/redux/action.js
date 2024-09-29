@@ -25,6 +25,70 @@ import { updateRecordControl, updateRelateRecords, deleteRecord } from 'src/page
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { handleRowData } from 'src/util/transControlDefaultValue';
 import { parseNumber } from 'src/util';
+import { treeDataUpdater, handleUpdateTreeNodeExpansion } from 'worksheet/common/TreeTableHelper';
+
+export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, getNewRows, updateRows } = {}) {
+  return (dispatch, getState) => {
+    const { base = {}, records = [], changes = {}, treeTableViewData } = getState();
+    const { control, recordId } = base;
+    const { addedRecords = [] } = changes;
+    const allRecords = recordId ? records.concat(addedRecords) : records;
+    const { treeMap, maxLevel } = treeTableViewData;
+    let controlIdForGetRelationRows;
+    try {
+      controlIdForGetRelationRows = control.relationControls.filter(
+        c => c.sourceControlId === control.advancedSetting.layercontrolid,
+      )[0].controlId;
+    } catch (err) {
+      console.log(err);
+    }
+
+    const getNewRowsFn =
+      getNewRows ||
+      (() =>
+        worksheetAjax
+          .getRowRelationRows({
+            worksheetId: control.dataSource,
+            rowId: row.rowid,
+            controlId: controlIdForGetRelationRows,
+            pageIndex: 1,
+            pageSize: 50,
+          })
+          .then(res => {
+            const newRows = res.data.map(r => ({ ...r, pid: row.rowid }));
+            dispatch(appendRecords(newRows));
+            return newRows;
+          }));
+    dispatch(
+      handleUpdateTreeNodeExpansion(row, {
+        expandAll,
+        forceUpdate,
+        treeMap,
+        maxLevel,
+        rows: allRecords,
+        getNewRows: getNewRowsFn,
+        updateRows,
+      }),
+    );
+  };
+}
+
+export const updateTreeTableViewData = () => (dispatch, getState) => {
+  const { base, changes = {}, records } = getState();
+  const { addedRecords = [] } = changes;
+  if (!base.isTreeTableView) {
+    return;
+  }
+  const allRecords = base.recordId ? records.concat(addedRecords) : records;
+  const { treeMap, maxLevel } = treeDataUpdater(
+    {},
+    { rootRows: allRecords.filter(r => !r.pid), rows: allRecords, levelLimit: 10 },
+  );
+  dispatch({
+    type: 'UPDATE_TREE_TABLE_VIEW_DATA',
+    value: { maxLevel, treeMap },
+  });
+};
 
 function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksheet } = {}) {
   return async (dispatch, getState) => {
@@ -32,7 +96,7 @@ function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksheet } =
     const { base = {}, tableState = {}, changes = {} } = state;
     const { addedRecords = [], deletedRecordIds = [] } = changes;
     const { filterControls } = tableState;
-    const { from, worksheetId, control, recordId, allowEdit } = base;
+    const { from, worksheetId, control, recordId, allowEdit, isTreeTableView } = base;
     pageIndex = pageIndex || tableState.pageIndex;
     pageSize = pageSize || tableState.pageSize;
     keywords = !isUndefined(keywords) ? keywords : tableState.keywords;
@@ -54,10 +118,12 @@ function loadRecords({ pageIndex, pageSize, keywords, getRules, getWorksheet } =
       isAsc: (tableState.sortControl || {}).isAsc,
       getType: from === RECORD_INFO_FROM.DRAFT ? from : undefined,
     });
+    const records = !base.isTab && recordId ? res.data.filter(r => !includes(deletedRecordIds, r.rowid)) : res.data;
     dispatch({
       type: 'UPDATE_RECORDS',
-      records: !base.isTab && recordId ? res.data.filter(r => !includes(deletedRecordIds, r.rowid)) : res.data,
+      records,
     });
+    dispatch(updateTreeTableViewData());
     dispatch({
       type: 'UPDATE_TABLE_STATE',
       value: { tableLoading: false, pageIndex, pageSize, keywords },
@@ -160,7 +226,7 @@ export function init() {
     const state = getState();
     if (state.initialized) return;
     const { base = {}, tableState } = state;
-    const { from, mode, worksheetId, control, recordId, allowEdit } = base;
+    const { from, mode, worksheetId, control, recordId, allowEdit, isTreeTableView } = base;
     const { pageSize } = tableState;
     const isNewRecord = !recordId;
     let relateWorksheetInfo;
@@ -202,6 +268,16 @@ export function init() {
           type: 'UPDATE_RECORDS',
           records: res.data,
         });
+        if (!!isTreeTableView) {
+          const { treeMap, maxLevel } = treeDataUpdater(
+            {},
+            { rootRows: res.data.filter(r => typeof r.pid !== 'undefined' && !r.pid), rows: res.data, levelLimit: 5 },
+          );
+          dispatch({
+            type: 'UPDATE_TREE_TABLE_VIEW_DATA',
+            value: { maxLevel, treeMap },
+          });
+        }
         dispatch({
           type: 'UPDATE_TABLE_STATE',
           value: { count: res.count },
@@ -225,7 +301,7 @@ export function init() {
     );
     dispatch({
       type: 'UPDATE_CONTROLS',
-      controls: replaceControlsTranslateInfo(base.appId, relateWorksheetInfo.worksheetId, controls),
+      controls: replaceControlsTranslateInfo(base.appId, get(relateWorksheetInfo, 'worksheetId'), controls),
     });
     if (control.type === 51) {
       dispatch(updateFilter());
@@ -298,6 +374,13 @@ export function updateRecord(newRecord) {
     newRecord,
   };
 }
+export function updateRecordByRecordId(recordId, changes = {}) {
+  return {
+    type: 'UPDATE_RECORD_BY_RECORD_ID',
+    recordId,
+    changes,
+  };
+}
 
 export function appendRecords(records = [], { afterRecordId } = {}) {
   return (dispatch, getState) => {
@@ -310,6 +393,7 @@ export function appendRecords(records = [], { afterRecordId } = {}) {
       saveSync: base.saveSync,
       afterRecordId,
     });
+    dispatch(updateTreeTableViewData());
   };
 }
 
@@ -334,7 +418,7 @@ export function updateCell({ cell, row }, options = {}) {
     function handleUpdateCell(cells) {
       updateRecordControl({
         appId: relateWorksheetInfo.appId,
-        worksheetId: relateWorksheetInfo.worksheetId,
+        worksheetId: get(relateWorksheetInfo, 'worksheetId'),
         recordId: row.rowid,
         cells,
         cell,
@@ -461,9 +545,10 @@ export function handleRecreateRecord(record, { openRecord = () => {} } = {}) {
     const state = getState();
     const { base = {}, controls } = state;
     const { worksheetId, control, recordId, relateWorksheetInfo, formData } = base;
+    const pid = record.pid;
     handleRowData({
       rowId: record.rowid,
-      worksheetId: relateWorksheetInfo.worksheetId,
+      worksheetId: get(relateWorksheetInfo, 'worksheetId'),
       columns: controls,
     }).then(res => {
       const { defaultData, defcontrols } = res;
@@ -486,7 +571,7 @@ export function handleRecreateRecord(record, { openRecord = () => {} } = {}) {
         writeControls: defcontrols,
         onAdd: record => {
           if (record) {
-            dispatch(appendRecords([record]));
+            dispatch(appendRecords([_.assign(record, { pid })]));
           }
         },
         openRecord,
@@ -571,6 +656,7 @@ export function handleRemoveRelation(recordIds) {
         isBatchEditing: false,
       },
     });
+    dispatch(updateTreeTableViewData());
   };
 }
 
@@ -621,7 +707,7 @@ export function deleteOriginalRecords({ recordIds = [] } = {}) {
       return;
     }
     deleteRecord({
-      worksheetId: relateWorksheetInfo.worksheetId,
+      worksheetId: get(relateWorksheetInfo, 'worksheetId'),
       recordIds: allowDeleteRowIds,
     })
       .then(res => {

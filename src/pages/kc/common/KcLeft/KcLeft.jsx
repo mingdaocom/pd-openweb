@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Immutable from 'immutable';
 import moment from 'moment';
-import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
@@ -126,14 +125,12 @@ class KcLeft extends Component {
     this._isMounted = false;
   }
 
-  @autobind
-  getType() {
+  getType = () => {
     const { path } = this.props;
     return getRootByPath(path).type;
-  }
+  };
 
-  @autobind
-  checkRootIsActive(id) {
+  checkRootIsActive = id => {
     const { path } = this.props;
     if (!path) {
       return false;
@@ -141,10 +138,9 @@ class KcLeft extends Component {
     const math = path.match(/[a-z0-9]{24}/);
     const rootId = math && math[0];
     return id === rootId;
-  }
+  };
 
-  @autobind
-  fetchRootsByProjectId(projectId, openProject) {
+  fetchRootsByProjectId = (projectId, openProject) => {
     if (!this.state.loadingProjects.includes(projectId)) {
       const loadingProjects = this.state.loadingProjects.add(projectId);
       let foldedProjects = this.state.foldedProjects;
@@ -181,15 +177,13 @@ class KcLeft extends Component {
         this.updateSearchName,
       );
     });
-  }
+  };
 
-  @autobind
-  handleSelectFile() {
+  handleSelectFile = () => {
     this.setState({ selectOptions: !this.state.selectOptions });
-  }
+  };
 
-  @autobind
-  filterRoots(filterType) {
+  filterRoots = filterType => {
     if (filterType === this.state.filterType && filterType !== ROOT_FILTER_TYPE.ALL) {
       return;
     }
@@ -202,21 +196,19 @@ class KcLeft extends Component {
         this.setState({ filterType, loading: false });
       }
     });
-  }
+  };
 
   /** 回车搜索 */
-  @autobind
-  searchNodes(evt) {
+  searchNodes = evt => {
     const { baseUrl, path } = this.props;
     if (evt.keyCode === 13) {
       navigateTo(encodeURI(`${baseUrl}/${path}?q=${evt.target.value}`));
       evt.preventDefault();
       evt.stopPropagation();
     }
-  }
+  };
   /** 获取搜索框 placeholder 文案*/
-  @autobind
-  updateSearchName() {
+  updateSearchName = () => {
     const { currentFolder, currentRoot } = this.props;
     const rootType = this.getType();
     let directoryName = '';
@@ -239,9 +231,9 @@ class KcLeft extends Component {
         ? _l('在“%0”中搜索', directoryName.length < 10 ? directoryName : directoryName.substr(0, 9) + '..')
         : '在知识中心中搜索',
     });
-  }
-  @autobind
-  handleAddNewRoot() {
+  };
+
+  handleAddNewRoot = () => {
     addNewRoot(root => {
       if (this._isMounted) {
         this.setState({
@@ -252,10 +244,9 @@ class KcLeft extends Component {
         navigateTo('/apps/kc/' + root.id);
       }
     });
-  }
+  };
 
-  @autobind
-  handleEditRoot(rootId) {
+  handleEditRoot = rootId => {
     this.setState({ settingsOption: null, folderSetting: null });
     editRoot(
       rootId,
@@ -283,10 +274,9 @@ class KcLeft extends Component {
         }
       },
     );
-  }
+  };
 
-  @autobind
-  handleRemoveRoot(item, isCreator, isPermanent) {
+  handleRemoveRoot = (item, isCreator, isPermanent) => {
     this.setState({ settingsOption: null });
     removeRoot(item, isCreator, isPermanent, rootId => {
       const roots = this.state.roots;
@@ -298,10 +288,9 @@ class KcLeft extends Component {
       );
       navigateTo('/apps/kc/my');
     });
-  }
+  };
 
-  @autobind
-  handleStarRoot(rootItem) {
+  handleStarRoot = rootItem => {
     this.setState({ settingsOption: null });
     service.updateRootStar(rootItem.id, !rootItem.isStared).then(result => {
       if (result) {
@@ -315,10 +304,9 @@ class KcLeft extends Component {
         this.performUpdateItem(rootItem);
       }
     });
-  }
+  };
 
-  @autobind
-  handleRootSettings(rootItem, event) {
+  handleRootSettings = (rootItem, event) => {
     let creator = false;
     const $target = $(event.target);
     if (rootItem) {
@@ -348,11 +336,10 @@ class KcLeft extends Component {
       },
     );
     event.stopPropagation();
-  }
+  };
 
   /** 对 rootList 的修改应用到页面上 */
-  @autobind
-  performUpdateItem(root) {
+  performUpdateItem = root => {
     const roots = this.state.roots;
     this.setState({
       roots: roots.update(
@@ -360,11 +347,10 @@ class KcLeft extends Component {
         () => _.clone(root),
       ),
     });
-  }
+  };
 
   /* 流量详情*/
-  @autobind
-  usageDialog(usage) {
+  usageDialog = usage => {
     const percent = (usage.used / usage.total) * 100;
 
     Dialog.confirm({
@@ -398,20 +384,18 @@ class KcLeft extends Component {
       ),
       noFooter: true,
     });
-  }
+  };
 
-  @autobind
-  toggleFoldProject(projectId) {
+  toggleFoldProject = projectId => {
     if (this.state.foldedProjects.includes(projectId)) {
       this.fetchRootsByProjectId(projectId, true);
     } else {
       const foldedProjects = this.state.foldedProjects.add(projectId);
       this.setState({ foldedProjects });
     }
-  }
+  };
 
-  @autobind
-  renderProjectRoots(projectId, index, filterRoots) {
+  renderProjectRoots = (projectId, index, filterRoots) => {
     projectId = projectId || '';
     const { projectRootKeywords = {} } = this.state;
     const isFolded = this.state.foldedProjects.includes(projectId);
@@ -596,7 +580,7 @@ class KcLeft extends Component {
         {rootListComp}
       </div>
     );
-  }
+  };
 
   render() {
     const { usage } = this.props;

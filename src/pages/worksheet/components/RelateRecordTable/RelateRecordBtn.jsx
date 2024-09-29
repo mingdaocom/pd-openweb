@@ -96,7 +96,7 @@ export default function RelateRecordBtn(props) {
   const isShareState = !!get(window, 'shareState.shareId');
   const [menuVisible, setMenuVisible] = useState();
   const conRef = useRef();
-  const btnText = addVisible ? _l('新建%0', entityName) : _l('选择%0', entityName);
+  const btnText = addVisible ? entityName : _l('选择%0', entityName);
   const iconName = addVisible ? 'icon-plus' : 'icon-link_record';
   const btnClick = addVisible ? onNew : onSelect;
   const noSelected = isEmpty(selectedRowIds);

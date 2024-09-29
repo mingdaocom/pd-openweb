@@ -493,6 +493,11 @@
       width: 100%;
       outline: none;
       -webkit-appearance: none;
+      transform: rotateZ(360deg);
+
+      &.signature {
+        transform: unset !important;
+      }
 
       &:not(.controlDisabled):hover {
         border-color: #f2f2f2;
@@ -509,8 +514,8 @@
       }
 
       &.controlDisabled {
-        background: transparent;
-        border-color: transparent;
+        background: transparent !important;
+        border-color: transparent !important;
         padding-left: 0;
         padding-right: 0;
         .Dropdown--input {
@@ -1204,8 +1209,7 @@
   padding-right: 1px;
 }
 
-.customDatePicker,
-.antModalRadius .am-modal-content {
+.customDatePicker {
   border-radius: 10px 10px 0 0;
 }
 

@@ -3,7 +3,7 @@ import { getRequest } from 'src/util';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'src/pages/worksheet/redux/actions';
-import { Flex, ActivityIndicator } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import ViewErrorPage from 'mobile/RecordList/View/components/ViewErrorPage';
 import Gunter from './index.jsx';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
@@ -28,9 +28,9 @@ export default class MobileGunter extends Component {
 
     if (loading) {
       return (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
+        <div className="flexRow justifyContentCenter alignItemsCenter h100">
+          <SpinLoading color='primary' />
+        </div>
       );
     }
 

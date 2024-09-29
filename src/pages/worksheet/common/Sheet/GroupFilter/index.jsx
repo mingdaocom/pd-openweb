@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Icon, ScrollView, LoadDiv } from 'ming-ui';
@@ -15,135 +14,16 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import { getFilledRequestParams } from 'worksheet/util';
 import { emitter } from 'src/util';
+import { sortDataByCustomNavs } from './util';
+import { Con } from './style';
 
-const Con = styled.div(
-  ({ width }) => `
-  width: ${width}px;
-  transition: width 0.2s;
-  position:relative;
-  z-index: 3;
-  .searchBar {
-    width: ${width}px;
-    padding: 0 12px;
-    height: 34px;
-    .icon {
-      line-height: 35px;
-      font-size: 20px;
-      color: #bdbdbd;
-      &.icon-close {
-        cursor: pointer;
-      }
-      &.icon-search{
-        &:hover{
-          color:#bdbdbd;
-        }
-      }
-      &:hover{
-        color: #2196f3;
-      }
-    }
-    input {
-      width: 100%;
-      height: 36px;
-      border: none;
-      padding-left: 6px;
-      font-size: 13px;
-    }
-  }
-  .groupWrap {
-    width: 100%;
-    .gList {
-      width:auto;
-      font-weight: 400;
-      padding:0px 6px;
-      line-height: 32px;
-      .count {
-        padding-left: 10px;
-        font-size: 13px;
-        color: #9e9e9e;
-        line-height: 32px;
-      }
-      &.current {
-        .gListDiv{
-          background: #e3f3ff;
-          &:hover{
-            background: #e3f3ff;
-          }
-        }
-      }
-      .gListDiv{
-        border-radius: 3px;
-        padding-left: 6px;
-        position:relative;
-        height: 32px;
-        &:hover{
-          background: rgba(0,0,0,0.04);
-        }
-        .count{
-          position: absolute;
-          right: 6px;
-        }
-      }
-      .option {
-        left: -3px;
-        top: 1px;
-        height: 30px;
-        width: 3px;
-        border-radius: 3px 0 0 3px;
-        position: absolute;
-      }
-      .optionTxt {
-        width: 100%;
-      }
-      &.hasCount{
-        .optionTxt {
-          max-width: calc(100% - 40px);
-        }
-      }
-    }
-    &.isTree{
-      overflow: auto;
-      .canScroll {
-        width: auto;
-        height: auto;
-        display: inline-block;
-        min-width: 100%;
-      }
-      .gList {
-        white-space: nowrap;
-      }
-      .count{
-        position: initial!important;
-      }
-      .arrow{
-        display: inline-block;
-        width: 22px;
-      }
-      .iconArrow{
-        width: 18px;
-        height: 18px;
-        display: inline-block;
-        line-height: 18px;
-        color: #9e9e9e;
-        text-align: center;
-        border-radius: 4px;
-        &:hover{
-            background: rgba(0,0,0,0.06);
-            color: #757575;
-          }
-        }
-      }
-    }
-  }
-`,
-);
 let getNavGroupRequest = null;
 let preWorksheetIds = [];
+
 function GroupFilter(props) {
   const {
     views = [],
     width,
-    worksheetInfo,
     isOpenGroup,
     base,
     controls,
@@ -193,6 +73,8 @@ function GroupFilter(props) {
     navGroup.isAsc,
     isOpenGroup,
     getAdvanceSetting(view).navfilters,
+    getAdvanceSetting(view).navsorts,
+    getAdvanceSetting(view).customnavs,
     getAdvanceSetting(view).navshow,
     getAdvanceSetting(view).showallitem,
     getAdvanceSetting(view).allitemname,
@@ -392,9 +274,12 @@ function GroupFilter(props) {
       let filterControls = navfilters.map(o => handleCondition(o));
       param = { ...param, filterControls };
     }
-    if (soucre.type === 29 && !!_.get(soucre, 'advancedSetting.searchcontrol') && keywords) {
-      param.controlId = _.get(soucre, 'controlId');
-      param.relationWorksheetId = view.worksheetId;
+    if (soucre.type === 29) {
+      //关联表作为
+      param.sortControls = safeParse(_.get(view, 'advancedSetting.navsorts'), 'array');
+      if (!!_.get(soucre, 'advancedSetting.searchcontrol') && keywords) {
+        param.controlId = _.get(soucre, 'controlId');
+      }
     }
     if (
       getNavGroupRequest &&
@@ -564,6 +449,7 @@ function GroupFilter(props) {
     }
     let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
     let navData = navGroupData;
+    navData = sortDataByCustomNavs(navData, view, controls);
     if (!keywords) {
       if ((soucre.type === 29 && !!navGroup.viewId) || [35].includes(soucre.type)) {
         //关联记录以层级视图时|| 级联没有显示项

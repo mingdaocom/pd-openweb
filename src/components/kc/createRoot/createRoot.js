@@ -262,7 +262,6 @@ $.extend(RootSettings.prototype, {
           ? root.project && root.project.projectId
           : $createFolderBox.find('.attribute .dropBox .seleted').data('projectId');
         quickSelectUser($this[0], {
-          //title: _l('请选择同事'),
           sourceId: isEdit ? rootId : '',
           fromType: 'KC',
           showMoreInvite: true,
@@ -273,7 +272,7 @@ $.extend(RootSettings.prototype, {
           },
           SelectUserSettings: {
             projectId: selectProjectId || '',
-            filterAccountIds: root.members
+            selectedAccountIds: root.members
               .filter(function (m) {
                 return m.accountId;
               })

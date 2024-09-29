@@ -890,9 +890,7 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
     // 如果当前激活控件所在行没有空位则另起下一行，否则放到当前行后面
     if (isHaveGap(newWidgets[currentRowIndex], item)) {
       // 表单为空，直接添加
-      newWidgets = _.isEmpty(newWidgets)
-        ? update(newWidgets, { $push: [data] })
-        : update(newWidgets, { [currentRowIndex]: { $push: [item] } });
+      newWidgets = update(newWidgets, { [_.isEmpty(newWidgets) ? 0 : currentRowIndex]: { $push: [item] } });
     } else {
       newWidgets = update(newWidgets, {
         $splice: [[currentRowIndex + 1, 0, [item]]],
@@ -983,6 +981,11 @@ export const dealCopyWidgetId = (data = {}) => {
       sheetInfo: newWidget,
     };
     return newWidget;
+  }
+  if (data.type === 34 && window.subListSheetConfig[data.controlId]) {
+    window.subListSheetConfig[newData.controlId] = {
+      ...window.subListSheetConfig[data.controlId],
+    };
   }
   return newData;
 };

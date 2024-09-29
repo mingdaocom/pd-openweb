@@ -57,7 +57,6 @@ const Wrap = styled.div`
     }
   }
   .headTop {
-    // height: 164px;
     background: #ffffff;
     border-bottom: 1px solid #ebebeb;
     padding: 24px 24px 0 40px;
@@ -76,7 +75,6 @@ const Wrap = styled.div`
       height: 56px;
       z-index: 1;
       .tabBox {
-        // text-align: center;
         li {
           padding: 10px 11px !important;
         }
@@ -820,5 +818,4 @@ function APISetting(props) {
   );
 }
 
-// export default withClickAway(APISetting);
 export default APISetting;

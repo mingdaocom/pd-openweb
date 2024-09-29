@@ -7,7 +7,7 @@ import cx from 'classnames';
 import copy from 'copy-to-clipboard';
 import Trigger from 'rc-trigger';
 import pluginAjax from 'src/api/plugin';
-import PublishVersion from 'src/pages/plugin/viewPlugin/PublishVersion.jsx';
+import PublishVersion from 'src/pages/plugin/pluginComponent/PublishVersion.jsx';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 

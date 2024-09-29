@@ -88,7 +88,7 @@ export default class PortalMg extends Component {
       >
         {currentSession.iconType ? (
           <Wrap
-            className={cx('ChatPanel ChatPanel-inbox', { flexColumn: md.global.Account.isPortal && browserIsMobile() })}
+            className={cx('ChatPanel ChatPanel-inbox ChatPanel-active', { flexColumn: md.global.Account.isPortal && browserIsMobile() })}
           >
             {md.global.Account.isPortal && browserIsMobile() ? (
               <React.Fragment>

@@ -353,7 +353,7 @@ function AuthorizeToApp(props) {
       title: _l('选择人员'),
       showMoreInvite: false,
       SelectUserSettings: {
-        filterAccountIds: info.errorNotifiers.map(item => item.roleId),
+        selectedAccountIds: info.errorNotifiers.map(item => item.roleId),
         projectId: projectId,
         dataRange: 2,
         unique: false,

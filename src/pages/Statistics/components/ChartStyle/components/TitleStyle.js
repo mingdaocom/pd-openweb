@@ -57,6 +57,8 @@ export const defaultPivotTableStyle = {
 
 const TitleStyle = props => {
   const { name, type, style, pivotTable = {}, onChangeStyle, themeColor, customPageConfig = {} } = props;
+  const { currentReport = {}, changeCurrentReport } = props;
+  const { displaySetup = {} } = currentReport;
   const pivotTableStyle = replaceColor({
     pivotTableStyle: style.pivotTableStyle || defaultPivotTableStyle,
     customPageConfig: {},
@@ -170,6 +172,22 @@ const TitleStyle = props => {
                 </div>
               </div>
             </ColorPicker>
+          </div>
+          <div className="flexRow valignWrapper mTop16">
+            <Checkbox
+              className="mLeft0"
+              checked={displaySetup.mergeCell}
+              onChange={(e) => {
+                changeCurrentReport({
+                  displaySetup: {
+                    ...displaySetup,
+                    mergeCell: e.target.checked
+                  }
+                });
+              }}
+            >
+              {_l('合并单元格')}
+            </Checkbox>
           </div>
         </Fragment>
       ) : (

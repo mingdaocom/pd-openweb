@@ -1,10 +1,13 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useMemo } from 'react';
 import { Dialog, Input, QiniuUpload, Icon } from 'ming-ui';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
 import styled from 'styled-components';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 import RegExpValidator from 'src/util/expression';
+import { ACTION_ID } from '../../../enum';
+import SelectAuthAccount from '../SelectAuthAccount';
+
 const PreviewBox = styled.div`
   padding: 10px;
   background: #f8f8f8;
@@ -24,29 +27,54 @@ export default ({
   isRequired = false,
   previewContent = '',
   isSingleKey = false,
+  authId = '',
+  connectId = '',
+  hasAuth = false,
 }) => {
   const [cacheTestMap, setTestMap] = useState(testMap);
   const [isUploadingIndex, setUploadingIndex] = useState('');
+  const [auth2Id, setAuth2Id] = useState(authId);
   const parseId = key => {
     return key
       .replace(/\$/g, '')
       .split(/([a-zA-Z0-9#]{24,32})-/)
       .filter(item => item);
   };
+  const getFilterTestMap = useMemo(() => {
+    const accountMap = {};
+    const source = testArray.filter(key => {
+      const [nodeId] = parseId(key);
+
+      if (hasAuth && (formulaMap[nodeId] || {}).actionId === ACTION_ID.CREDENTIALS) {
+        accountMap[key] = key;
+
+        return false;
+      }
+
+      return true;
+    });
+
+    setTestMap(Object.assign({}, cacheTestMap, accountMap));
+    return source;
+  }, []);
   const renderList = (source, isFile) => {
     return source.map((key, index) => {
       const [nodeId, controlId] = parseId(key);
 
-      if (!(formulaMap[nodeId] || {}).name || (!(formulaMap[`${nodeId}-${controlId}`] || {}).name && !isSingleKey))
+      if (
+        !(formulaMap[nodeId] || {}).name ||
+        (!(formulaMap[`${nodeId}-${controlId}`] || {}).name && !isSingleKey) ||
+        (hasAuth && (formulaMap[nodeId] || {}).actionId === ACTION_ID.CREDENTIALS)
+      )
         return null;
 
       return (
         <div key={index} className="flexRow alignItemsCenter Height36 mTop10">
           <div
             className="Width190 mRight10 ellipsis bold"
-            title={`${formulaMap[nodeId].name}${controlId ? `.${formulaMap[`${nodeId}-${controlId}`].name}` : ''}`}
+            title={`${formulaMap[nodeId].name}${controlId ? `_${formulaMap[`${nodeId}-${controlId}`].name}` : ''}`}
           >
-            {`${formulaMap[nodeId].name}${controlId ? `.${formulaMap[`${nodeId}-${controlId}`].name}` : ''}`}
+            {`${formulaMap[nodeId].name}${controlId ? `_${formulaMap[`${nodeId}-${controlId}`].name}` : ''}`}
           </div>
           {!isFile ? (
             <Input
@@ -139,7 +167,10 @@ export default ({
     <Dialog
       visible
       width={720}
+      className="workflowDialogBox"
+      style={{ overflow: 'initial' }}
       overlayClosable={false}
+      type="scroll"
       title={title}
       description={description}
       onCancel={onClose}
@@ -149,21 +180,38 @@ export default ({
             Object.keys(cacheTestMap).length !== testArray.length ||
             Object.values(cacheTestMap).filter(item => !item.trim()).length
           ) {
-            alert(_l('参数值不允许为空'), 3);
+            alert(_l('参数值不允许为空'), 2);
             return;
           }
 
           onOk(cacheTestMap);
         } else {
-          onOk(cacheTestMap);
+          if (hasAuth && !auth2Id) {
+            alert(_l('必须选择一个账户'), 2);
+            return;
+          }
+
+          onOk(cacheTestMap, auth2Id);
         }
       }}
     >
-      <div className="flexRow alignItemsCenter Height36 Gray_75">
-        <div className="Width190 mRight10 ellipsis">{_l('参数名称')}</div>
-        <div className="flex">{_l('参数值')}</div>
-      </div>
-      {renderList(testArray)}
+      {hasAuth && getFilterTestMap.length !== testArray.length && (
+        <SelectAuthAccount
+          className="mBottom20"
+          authId={auth2Id}
+          connectId={connectId}
+          onChange={auth2Id => setAuth2Id(auth2Id)}
+        />
+      )}
+
+      {getFilterTestMap.length + fileArray.length > 0 && (
+        <div className="flexRow alignItemsCenter Height36 Gray_75">
+          <div className="Width190 mRight10 ellipsis">{_l('参数名称')}</div>
+          <div className="flex">{_l('参数值')}</div>
+        </div>
+      )}
+
+      {renderList(getFilterTestMap)}
       {renderList(fileArray, true)}
 
       {previewContent && (

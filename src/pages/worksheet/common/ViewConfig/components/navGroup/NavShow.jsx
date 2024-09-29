@@ -146,11 +146,11 @@ export default function NavShow(props) {
     setState({
       filters: navfilters,
     });
-    const { columns = [], viewControl, relateControls } = filterInfo;
+    const { columns = [], navGroupId, relateControls } = filterInfo;
     if (relateControls) {
       setState({ relateControls });
     }
-    setState({ data: columns.find(o => o.controlId === viewControl) || {} });
+    setState({ data: columns.find(o => o.controlId === navGroupId) || {} });
     if (!isOpenPermit(permitList.sysControlSwitch, _.get(filterInfo, 'globalSheetInfo.switches') || [])) {
       setState({
         showSysWorkflow: false,
@@ -210,11 +210,11 @@ export default function NavShow(props) {
       {params.txt && <div className="title mTop30 Gray Bold">{params.txt}</div>}
       <Dropdown
         data={
-          filterInfo.viewControl === 'wfstatus' && !showSysWorkflow
+          filterInfo.navGroupId === 'wfstatus' && !showSysWorkflow
             ? params.types.filter(o => o.value === '0')
             : params.types
         }
-        value={filterInfo.viewControl === 'wfstatus' && !showSysWorkflow ? '0' : value || '0'}
+        value={filterInfo.navGroupId === 'wfstatus' && !showSysWorkflow ? '0' : value || '0'}
         className="flex settingContent mBottom0"
         onChange={value => {
           onFormatChange({

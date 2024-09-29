@@ -69,6 +69,11 @@
       border-color: #2196F3 !important;
     }
   }
+  .inputWrapper, .dateInput {
+    input::placeholder {
+      color: #bdbdbd;
+    }
+  }
   .inputWrapper {
     input {
       flex: 1;
@@ -76,9 +81,6 @@
       padding: 5px 45px 5px 10px;
       border: 1px solid #ddd;
       border-radius: 4px;
-      &::placeholder {
-        color: #ccc;
-      }
       &:focus {
         border-color: #2196F3;
       }
@@ -119,6 +121,9 @@
     &.ant-select-single.ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
       opacity: 1;
       font-size: 13px;
+    }
+    &.ant-select-single.ant-select-open .ant-select-selection-item {
+      color: inherit;
     }
   }
   .dateInput {
@@ -198,10 +203,14 @@
 
 .processOptionWrapper {
   padding: 7px 12px 7px 20px;
+
   &.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
     font-weight: unset;
     color: #fff;
     background-color: #2196F3;
+    .icon {
+      color: #fff !important;
+    }
   }
 }
 

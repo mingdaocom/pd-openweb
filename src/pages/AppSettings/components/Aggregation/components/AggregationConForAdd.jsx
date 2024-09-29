@@ -5,17 +5,16 @@ import Trigger from 'rc-trigger';
 import { Icon } from 'ming-ui';
 import ChooseControlsForAggregation from './ChooseControlsForAggregation';
 import CalculationDialog from './CalculationDialog';
-import { getNodeInfo, getAggFuncTypes, getRuleAlias, updateConfig } from '../util';
+import { getNodeInfo, getAggFuncTypes, getRuleAlias, updateConfig, isDelStatus, formatAggConfig } from '../util';
 import { getTranslateInfo } from 'src/util';
-import { isFormulaResultAsTime } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util.js';
-import { CAN_AS_TIME_DYNAMIC_FIELD } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 
 export default function AddAggregation(props) {
   const { onUpdate } = props;
-  const [{ showCalculation, flowData, sourceInfos }, setState] = useSetState({
+  const [{ showCalculation, flowData, sourceInfos, showList }, setState] = useSetState({
     showCalculation: false,
     flowData: props.flowData,
     sourceInfos: props.sourceInfos,
+    showList: false,
   });
 
   useEffect(() => {
@@ -61,6 +60,7 @@ export default function AddAggregation(props) {
     const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
     const { hs, aggFuncType, aggFuncName } = getAggFuncTypes(
       _.get(aggregateDt, 'nodeConfig.config.aggregateFields') || [],
+      !!childrenControl ? control : null,
       controlData,
       worksheetId,
     );
@@ -68,7 +68,7 @@ export default function AddAggregation(props) {
       alert(_l('不能重复添加相同计算方式的相同字段'), 3);
       return;
     }
-    const dot = ['COUNT', 'DISTINCT_COUNT'].includes(aggFuncType) ? undefined : 2;
+    const name = !!childrenControl ? `${control.controlName}-${controlData.controlName}` : controlData.controlName;
     let newDt =
       control.controlId === 'rowscount'
         ? {
@@ -79,30 +79,33 @@ export default function AddAggregation(props) {
             oid: `${worksheetId}_rowscount`,
             dot: 0,
           }
-        : {
-            aggFuncType,
-            alias: getRuleAlias(`${controlData.controlName}-${aggFuncName}`, flowData),
-            controlSetting: {
-              ...controlData,
-              dot,
-              advancedSetting: { ...controlData.advancedSetting, showtype: '0', dot }, //聚合字段showtype：0
-              unit:
-                isFormulaResultAsTime(controlData) || _.includes(CAN_AS_TIME_DYNAMIC_FIELD, controlData.type)
-                  ? ''
-                  : controlData.unit, //时间类默认把unit都去掉
+        : formatAggConfig(
+            {
+              aggFuncType,
+              alias: getRuleAlias(`${name}-${aggFuncName}`, flowData),
+              controlSetting: controlData,
+              isChildField: !!childrenControl, //可选，是否为子表字段(工作表关联字段关联表下的字段)-默认false
+              parentFieldInfo: !!childrenControl
+                ? {
+                    controlSetting: control,
+                    oid: `${worksheetId}_${control.controlId}`,
+                  }
+                : {}, //可选，父字段，子表字段的上级字段，isChildField为true的时候必须有
+              isNotNull: true,
+              isTitle: controlData.attribute === 1, //是否是标题，只有是工作表字段才有值
+              mdType: controlData.type,
+              name: name,
+              oid: `${!!childrenControl ? control.dataSource : worksheetId}_${controlData.controlId}`, //工作表:oid记录为 worksheetId_controllId,这里前端需要这种层级关系，后端获取的时候只需controllerId
+              precision: 0,
+              scale: 0,
+              isCalculateField: false,
             },
-            isChildField: !!childrenControl, //可选，是否为子表字段(工作表关联字段关联表下的字段)-默认false
-            parentFieldInfo: !!childrenControl ? control : {}, //可选，父字段，子表字段的上级字段，isChildField为true的时候必须有
-            isNotNull: true,
-            isTitle: controlData.attribute === 1, //是否是标题，只有是工作表字段才有值
-            mdType: controlData.type,
-            name: controlData.controlName,
-            oid: `${worksheetId}_${controlData.controlId}`, //工作表:oid记录为 worksheetId_controllId,这里前端需要这种层级关系，后端获取的时候只需controllerId
-            precision: 0,
-            scale: 0,
-            isCalculateField: false,
-          };
+            true,
+          );
     updateAggregateDt(newDt);
+    setState({
+      showList: false,
+    });
   };
 
   const onOk = control => {
@@ -135,11 +138,7 @@ export default function AddAggregation(props) {
         return false;
       } else {
         let isDelete = _.get(item, 'isDelete');
-        if (
-          !(_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).find(
-            it => item.oid && item.oid.indexOf(it.workSheetId) >= 0,
-          )
-        ) {
+        if (isDelStatus(item, sourceInfos)) {
           isDelete = true;
         }
         return !isDelete;
@@ -166,6 +165,8 @@ export default function AddAggregation(props) {
           getPopupContainer={() => document.body}
           key={`ChooseControlsForAggregation_${(_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).length}`}
           popupAlign={{ points: ['tl', 'bl'], offset: [0, 4], overflow: { adjustX: true, adjustY: true } }}
+          popupVisible={showList}
+          onPopupVisibleChange={showList => setState({ showList })}
           popup={
             (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length > 0 ? (
               <ChooseControlsForAggregation

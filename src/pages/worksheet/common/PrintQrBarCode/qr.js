@@ -218,6 +218,7 @@ export class QrLabel {
       y: (paddingY + fontSize * topTextNum) * this.unitSize,
       width: this.width - paddingX * 2 * this.unitSize - (codeSize + 2) * this.unitSize,
       fontSize: fontSize * this.unitSize,
+      firstIsBold: topTextNum === 0,
     });
     const qrDataUrl = genQrDataURL({ value: url, correctLevel });
     if (qrDataUrl) {

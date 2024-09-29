@@ -1,11 +1,8 @@
 import React from 'react';
-import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import { RELATE_RECORD_SHOW_TYPE, ROW_HEIGHT } from 'worksheet/constants/enum';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { Validator, getRangeErrorType } from 'src/components/newCustomFields/tools/utils';
-import { FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
+import { FORM_ERROR_TYPE_TEXT } from 'src/components/newCustomFields/tools/config';
 import DataFormat, { onValidator } from 'src/components/newCustomFields/tools/DataFormat';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import {
@@ -17,8 +14,6 @@ import {
 } from '../../util';
 import { accDiv } from 'src/util';
 import SheetContext from '../../common/Sheet/SheetContext';
-
-import renderText from './renderText';
 import Text from './Text';
 import Area from './Area';
 import Location from './Location';
@@ -174,10 +169,9 @@ export default class CellControl extends React.Component {
       cell.type === 33 ||
       cell.type === 21 ||
       cell.type === 28 ||
-      cell.type === 31 ||
       cell.type === 34 ||
       cell.type === 36 ||
-      cell.type === 38 ||
+      cell.type === 53 ||
       cell.type === 47 ||
       (cell.type === 29 && parseInt(cell.advancedSetting.showtype, 10) === RELATE_RECORD_SHOW_TYPE.LIST)
     );
@@ -204,8 +198,7 @@ export default class CellControl extends React.Component {
     }
   }
 
-  @autobind
-  onValidate(value, returnObject = false) {
+  onValidate = (value, returnObject = false) => {
     const { projectId, cell, row, checkRulesErrorOfControl, rowFormData, clearCellError } = this.props;
     // 百分比值处理
     if (_.includes([6], cell.type) && cell.advancedSetting && cell.advancedSetting.numshow === '1' && value) {
@@ -258,9 +251,9 @@ export default class CellControl extends React.Component {
       };
     }
     return !errorType;
-  }
-  @autobind
-  handleCopy(cell) {
+  };
+
+  handleCopy = cell => {
     const { tableId } = this.props;
     handleCopyControlText(cell, tableId);
     if (!_.includes([2, 3, 4, 7, 5, 6, 8], cell.type)) {
@@ -273,9 +266,9 @@ export default class CellControl extends React.Component {
         tableId,
       });
     }
-  }
-  @autobind
-  handlePaste(cell) {
+  };
+
+  handlePaste = cell => {
     if (!window.tempCopyForSheetView || !this.editable) {
       return;
     }
@@ -300,9 +293,9 @@ export default class CellControl extends React.Component {
         });
       }
     }
-  }
-  @autobind
-  handleTableKeyDown(e, cache) {
+  };
+
+  handleTableKeyDown = (e, cache) => {
     const { tableType, cell, onClick } = this.props;
     const { isediting } = this.state;
     const haveEditingStatus = this.haveEditingStatus(cell);
@@ -358,10 +351,9 @@ export default class CellControl extends React.Component {
         }
         break;
     }
-  }
+  };
 
-  @autobind
-  async handleUpdateCell(newCell = {}, options = {}) {
+  handleUpdateCell = async (newCell = {}, options = {}) => {
     const { cell, row, updateCell } = this.props;
     if (window.isPublicApp) {
       alert(_l('预览模式下，不能操作'), 3);
@@ -384,10 +376,9 @@ export default class CellControl extends React.Component {
     this.setState({
       error: null,
     });
-  }
+  };
 
-  @autobind
-  handleUpdateEditing(isediting, cb = () => {}) {
+  handleUpdateEditing = (isediting, cb = () => {}) => {
     if (isediting && !this.editable) {
       return;
     }
@@ -455,10 +446,9 @@ export default class CellControl extends React.Component {
       return;
     }
     run();
-  }
+  };
 
-  @autobind
-  clickHandle(...args) {
+  clickHandle = (...args) => {
     try {
       const [e] = args;
       if (!e.target.closest('.cell-id-' + this.id)) return;
@@ -501,7 +491,7 @@ export default class CellControl extends React.Component {
         }
       }, 260);
     }
-  }
+  };
 
   render() {
     const {

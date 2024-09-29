@@ -215,8 +215,10 @@ export default {
   * @param {string} args.startDateTime 开始时间
   * @param {string} args.endDateTime 结束时间
   * @param {} args.logType
+  * @param {} args.accountResult
   * @param {array} args.accountIds 用户ID
   * @param {array} args.columnNames 列名称
+  * @param {string} args.fileName 导出文件名
   * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -253,6 +255,28 @@ export default {
      return mdyAPI('Download', 'ExportGlobalLogs', args, options);
    },
   /**
+  * 导出组织管理全局日志
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {integer} args.pageIndex 当前页码
+  * @param {integer} args.pageSize 页面尺寸
+  * @param {string} args.startDateTime 开始时间
+  * @param {string} args.endDateTime 结束时间
+  * @param {} args.operateTargetType
+  * @param {} args.operateType
+  * @param {array} args.accountIds 用户ID
+  * @param {string} args.fileName 文件名
+  * @param {array} args.columnNames 列名称
+  * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   exportOrgOperateLogs: function (args, options = {}) {
+     
+     return mdyAPI('Download', 'ExportOrgOperateLogs', args, options);
+   },
+  /**
   * 批量下载行记录附件
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
@@ -287,6 +311,17 @@ export default {
      return mdyAPI('Download', 'DownloadBackupFile', args, options);
    },
   /**
+  * 下载数据备份文件
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   downloadBackupDataFile: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return mdyAPI('Download', 'DownloadBackupDataFile', args, options);
+   },
+  /**
   * 下载应用库模板文件
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
@@ -307,5 +342,32 @@ export default {
    plugin: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('Download', 'Plugin', args, options);
+   },
+  /**
+  * 导出记录操作日志
+  * @param {Object} args 请求参数
+  * @param {integer} args.pageSize 分页大小
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.objectType 日志对象类型 1:工作表 2:行记录 3:视图 4:按钮 5:业务规则 99:其他
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.rowId 记录id
+  * @param {array} args.filterUniqueIds 根据唯一码筛选
+  * @param {array} args.controlIds 筛选控件或属性ID
+  * @param {array} args.opeartorIds 筛选操作人
+  * @param {string} args.startDate 开始时间
+  * @param {string} args.endDate 结束时间
+  * @param {string} args.lastMark 最后标记时间
+  * @param {boolean} args.isGlobaLog 是否为全局日志获取记录日志
+  * @param {integer} args.requestType 日志操作类型 1：手动 2：工作流 3：按钮
+  * @param {string} args.archiveId 归档ID
+  * @param {integer} args.fileType 文件类型
+1为Excel；2为PDF
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   exportWorksheetOperationLogs: function (args, options = {}) {
+     
+     return mdyAPI('Download', 'ExportWorksheetOperationLogs', args, options);
    },
 };

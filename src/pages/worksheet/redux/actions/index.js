@@ -401,7 +401,10 @@ export function openNewRecord() {
         String(view.viewType),
       );
     function handleAdd(param = {}) {
-      addRecord({
+      const publicShare =
+        isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) && !md.global.Account.isPortal;
+      const privateShare = isOpenPermit(permitList.embeddedLink, sheetSwitchPermit, viewId);
+      return addRecord({
         ...param,
         showFillNext: true,
         appId,
@@ -412,11 +415,10 @@ export function openNewRecord() {
         projectId: worksheetInfo.projectId,
         needCache: true,
         addType: 1,
-        showShare: true,
+        showShare: publicShare || privateShare,
         sheetSwitchPermit,
-        hidePublicShare: !(
-          isOpenPermit(permitList.recordShareSwitch, sheetSwitchPermit, viewId) && !md.global.Account.isPortal
-        ),
+        hidePublicShare: !publicShare,
+        privateShare: privateShare,
         isCharge: isCharge,
         appPkgData: appPkgData,
         entityName: worksheetInfo.entityName,
@@ -431,9 +433,9 @@ export function openNewRecord() {
         updateWorksheetControls: controls => {
           dispatch(updateWorksheetSomeControls(controls));
         },
-        loadDraftDataCount: () => {
-          dispatch(loadDraftDataCount({ appId, worksheetId }));
-        },
+        // loadDraftDataCount: () => {
+        //   dispatch(loadDraftDataCount({ appId, worksheetId }));
+        // },
         addNewRecord: (data, view) => {
           dispatch(addNewRecord(data, view));
         },
@@ -682,25 +684,25 @@ export function initMobileGunter({ appId, worksheetId, viewId, access_token }) {
 }
 
 // 获取草稿箱数据
-export const loadDraftDataCount =
-  ({ appId, worksheetId }) =>
-  (dispatch, getState) => {
-    if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
-      return;
-    }
-    worksheetAjax
-      .getFilterRowsTotalNum({
-        appId,
-        worksheetId,
-        getType: 21,
-      })
-      .then(res => {
-        dispatch({
-          type: 'UPDATE_DRAFT_DATA_COUNT',
-          data: Number(res) || 0,
-        });
-      });
-  };
+// export const loadDraftDataCount =
+//   ({ appId, worksheetId }) =>
+//   (dispatch, getState) => {
+//     if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
+//       return;
+//     }
+//     worksheetAjax
+//       .getFilterRowsTotalNum({
+//         appId,
+//         worksheetId,
+//         getType: 21,
+//       })
+//       .then(res => {
+//         dispatch({
+//           type: 'UPDATE_DRAFT_DATA_COUNT',
+//           data: Number(res) || 0,
+//         });
+//       });
+//   };
 
 export function updateCurrentViewState(updates) {
   return (dispatch, getState) => {

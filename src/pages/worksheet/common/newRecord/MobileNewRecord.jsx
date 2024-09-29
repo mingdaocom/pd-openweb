@@ -2,23 +2,15 @@ import React, { Fragment, useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { Flex, Modal, WingBlank, Button, ActionSheet } from 'antd-mobile';
+import { Popup, ActionSheet, Button } from 'antd-mobile';
 import { ScrollView, LoadDiv } from 'ming-ui';
 import { removeTempRecordValueFromLocal } from 'worksheet/util';
 import NewRecordContent from './NewRecordContent';
 import AdvancedSettingHandler from './AdvancedSettingHandler';
 import MobileDraft from 'src/pages/Mobile/MobileDraft';
+import _ from 'lodash';
 
-const ModalWrap = styled(Modal)`
-  height: 95%;
-  overflow: hidden;
-  border-top-right-radius: 15px;
-  border-top-left-radius: 15px;
-  &.full {
-    height: 100%;
-    border-top-right-radius: 0;
-    border-top-left-radius: 0;
-  }
+const ModalWrap = styled(Popup)`
   .mobileContainer {
     padding-top: 25px;
   }
@@ -35,25 +27,6 @@ const BtnsWrap = styled.div`
     padding: 0;
     position: relative;
     bottom: -10px;
-  }
-  .flexRow {
-    justify-content: flex-end;
-  }
-  .am-wingblank {
-    overflow: hidden;
-  }
-  .am-button {
-    height: 36px;
-    line-height: 36px;
-    padding: 0 10px;
-  }
-  .am-button-primary:hover {
-    color: #fff;
-  }
-  .am-button,
-  .am-button::before,
-  .am-button-active::before {
-    border-radius: 50px !important;
   }
 `;
 
@@ -75,22 +48,16 @@ const LoadingMask = styled.div`
 export function MobileRecordRecoverConfirm(props) {
   const { title, cancelText, updateText, visible, onCancel, onUpdate } = props;
   return (
-    <ModalWrap popup animationType="slide-up" onClose={onUpdate} visible={visible} style={{ height: 130 }}>
+    <ModalWrap onClose={onUpdate} visible={visible} className="mobileModal topRadius">
       <div className="flexColumn h100">
-        <Flex align="center" className="Font17 Gray bold pLeft15 pRight15 mTop24 mBottom32">
-          {title}
-        </Flex>
+        <div className="flexRow alignItemsCenter Font17 Gray bold pLeft15 pRight15 mTop24 mBottom32">{title}</div>
         <BtnsWrap className="footerBox valignWrapper flexRow" style={{ border: 'none' }}>
-          <WingBlank className="flex" size="sm">
-            <Button className="Font13 bold Gray_75" onClick={onCancel}>
-              {cancelText}
-            </Button>
-          </WingBlank>
-          <WingBlank className="flex" size="sm">
-            <Button className="Font13 bold" type="primary" onClick={onUpdate}>
-              {updateText}
-            </Button>
-          </WingBlank>
+          <Button className="flex mLeft6 mRight6 Font13 bold Gray_75" onClick={onCancel}>
+            {cancelText}
+          </Button>
+          <Button className="flex mLeft6 mRight6 Font13 bold" color="primary" onClick={onUpdate}>
+            {updateText}
+          </Button>
         </BtnsWrap>
       </div>
     </ModalWrap>
@@ -107,12 +74,14 @@ function NewRecord(props) {
     showDraftsEntry,
     sheetSwitchPermit,
     customButtonConfirm,
+
     ...rest
   } = props;
   const { appId, viewId, worksheetInfo } = rest;
   const newRecordContent = useRef(null);
   const [loading, setLoading] = useState();
   const [autoFill, setAutoFill] = useState(null);
+  const doubleConfirm = safeParse(_.get(worksheetInfo, 'advancedSetting.doubleconfirm'));
 
   useEffect(() => {
     const cancel = () => {
@@ -130,43 +99,127 @@ function NewRecord(props) {
     };
   }, []);
 
-  const showActionSheetWithOptions = (retain, noretain) => {
-    ActionSheet.showActionSheetWithOptions({
-      options: [],
-      message: (
-        <Fragment>
-          <div className="Font17 Gray bold pTop10 mBottom32 TxtLeft">{_l('继续创建时，是否保留本次提交内容 ?')}</div>
+  const showActionSheetWithOptions = (isRetainFunc = () => {}) => {
+    let actionHandler = ActionSheet.show({
+      actions: [],
+      extra: (
+        <div className="flexColumn w100">
+          <div className="Font17 Gray bold pTop10 mBottom16 TxtLeft">{_l('继续创建时，是否保留本次提交内容 ?')}</div>
           <BtnsWrap className="valignWrapper flexRow confirm">
-            <WingBlank className="flex" size="sm">
-              <Button
-                className="Font13 bold Gray_75"
-                onClick={() => {
-                  setAutoFill(false);
-                  noretain();
-                  ActionSheet.close();
-                }}
-              >
-                {_l('不保留')}
-              </Button>
-            </WingBlank>
-            <WingBlank className="flex" size="sm">
-              <Button
-                className="Font13 bold"
-                type="primary"
-                onClick={() => {
-                  setAutoFill(true);
-                  retain();
-                  ActionSheet.close();
-                }}
-              >
-                {_l('保留')}
-              </Button>
-            </WingBlank>
+            <Button
+              className="flex mLeft6 mRight6 Font13 bold Gray_75"
+              onClick={() => {
+                setAutoFill(false);
+                isRetainFunc(false);
+                actionHandler.close();
+              }}
+            >
+              {_l('不保留')}
+            </Button>
+            <Button
+              className="flex mLeft6 mRight6 Font13 bold"
+              color="primary"
+              onClick={() => {
+                setAutoFill(true);
+                isRetainFunc(true);
+                actionHandler.close();
+              }}
+            >
+              {_l('保留')}
+            </Button>
           </BtnsWrap>
-        </Fragment>
+        </div>
+      ),
+      onAction: (action, index) => {
+        actionHandler.close();
+      },
+    });
+  };
+
+  const doubleConfirmSubmit = (isContinue, endAction, isAutoFill) => {
+    let actionHandler = ActionSheet.show({
+      actions: [],
+      extra: (
+        <div className="flexColumn w100">
+          <div className="Font17 Gray bold pTop10 mBottom16 TxtLeft breakAll">{doubleConfirm.confirmMsg}</div>
+          <div className="Gray_9e breakAll">{doubleConfirm.confirmContent}</div>
+          <BtnsWrap className="valignWrapper flexRow confirm">
+            <Button
+              className="flex mLeft6 mRight6 Font13 bold Gray_75 ellipsis"
+              onClick={() => {
+                actionHandler.close();
+              }}
+            >
+              {doubleConfirm.cancelName}
+            </Button>
+            <Button
+              className="flex mLeft6 mRight6 Font13 bold ellipsis"
+              color="primary"
+              onClick={() => {
+                newRecordContent.current.newRecord({
+                  isContinue,
+                  autoFill: isAutoFill,
+                  actionType: endAction,
+                });
+                actionHandler.close();
+              }}
+            >
+              {doubleConfirm.sureName}
+            </Button>
+          </BtnsWrap>
+        </div>
       ),
     });
   };
+
+  const handleAdd = async isContinue => {
+    if (window.isPublicApp) {
+      alert(_l('预览模式下，不能操作'), 3);
+      return;
+    }
+    if (!isContinue && customButtonConfirm) {
+      try {
+        await customButtonConfirm();
+      } catch (err) {
+        return;
+      }
+    }
+
+    const endAction = isContinue ? advancedSetting.continueEndAction : advancedSetting.submitEndAction;
+
+    // 继续创建时是否保留本次提交的内容
+    const isRetainFunc = isAutoFill => {
+      if (_.get(worksheetInfo, 'advancedSetting.enableconfirm') === '1') {
+        // 开启提交二次确认配置
+        doubleConfirmSubmit(isContinue, endAction, isAutoFill);
+        return;
+      }
+      newRecordContent.current.newRecord({
+        isContinue,
+        autoFill: isAutoFill,
+        actionType: endAction,
+      });
+    };
+
+    if (advancedSetting.autoFillVisible && endAction === 2 && _.isNull(autoFill)) {
+      if (isContinue && advancedSetting.autoreserve === '1') {
+        setAutoFill(true);
+        isRetainFunc(true);
+        return;
+      }
+      showActionSheetWithOptions(isRetainFunc);
+    } else if (_.get(worksheetInfo, 'advancedSetting.enableconfirm') === '1') {
+      // 开启提交二次确认配置
+      doubleConfirmSubmit(isContinue, endAction, autoFill);
+    } else {
+      newRecordContent.current.newRecord({
+        isContinue,
+        autoFill,
+        actionType: endAction,
+      });
+    }
+  };
+
   const header = (
     <div className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8">
       <div className="title Font18 Gray flex bold leftAlign ellipsis">
@@ -210,7 +263,7 @@ function NewRecord(props) {
   const footer = (
     <BtnsWrap className="footerBox valignWrapper flexRow">
       {advancedSetting.closedrafts !== '1' && (
-        <WingBlank className="flexColumn TxtCenter" size="sm">
+        <div className="flexColumn TxtCenter mLeft6 mRight6">
           <div
             onClick={() => {
               if (window.isPublicApp) {
@@ -226,92 +279,16 @@ function NewRecord(props) {
             <i className="icon-drafts_approval Font20 Gray_9e "></i>
             <div className="Font12 bold Gray_9e">{_l('存草稿')}</div>
           </div>
-        </WingBlank>
+        </div>
       )}
       {advancedSetting.continueBtnVisible && (
-        <WingBlank className="flex" size="sm">
-          <Button
-            className="Font13 bold Gray_75"
-            onClick={() => {
-              if (window.isPublicApp) {
-                alert(_l('预览模式下，不能操作'), 3);
-                return;
-              }
-              if (advancedSetting.autoFillVisible && advancedSetting.continueEndAction === 2 && _.isNull(autoFill)) {
-                const retain = () => {
-                  newRecordContent.current.newRecord({
-                    isContinue: true,
-                    autoFill: true,
-                    actionType: advancedSetting.continueEndAction,
-                  });
-                };
-                const noretain = () => {
-                  newRecordContent.current.newRecord({
-                    isContinue: true,
-                    autoFill: false,
-                    actionType: advancedSetting.continueEndAction,
-                  });
-                };
-                if (advancedSetting.autoreserve === '1') {
-                  setAutoFill(true);
-                  retain();
-                  return;
-                }
-                showActionSheetWithOptions(retain, noretain);
-              } else {
-                newRecordContent.current.newRecord({
-                  isContinue: true,
-                  autoFill,
-                  actionType: advancedSetting.continueEndAction,
-                });
-              }
-            }}
-          >
-            {advancedSetting.continueBtnText || _l('提交并继续创建')}
-          </Button>
-        </WingBlank>
-      )}
-      <WingBlank className="flex" size="sm">
-        <Button
-          className="Font13 bold"
-          type="primary"
-          onClick={async () => {
-            if (window.isPublicApp) {
-              alert(_l('预览模式下，不能操作'), 3);
-              return;
-            }
-            if (customButtonConfirm) {
-              try {
-                await customButtonConfirm();
-              } catch (err) {
-                return;
-              }
-            }
-            if (advancedSetting.autoFillVisible && advancedSetting.submitEndAction === 2 && _.isNull(autoFill)) {
-              const retain = () => {
-                newRecordContent.current.newRecord({
-                  autoFill: true,
-                  actionType: advancedSetting.submitEndAction,
-                });
-              };
-              const noretain = () => {
-                newRecordContent.current.newRecord({
-                  autoFill: true,
-                  actionType: advancedSetting.submitEndAction,
-                });
-              };
-              showActionSheetWithOptions(retain, noretain);
-            } else {
-              newRecordContent.current.newRecord({
-                autoFill,
-                actionType: advancedSetting.submitEndAction,
-              });
-            }
-          }}
-        >
-          {advancedSetting.submitBtnText || _l('提交')}
+        <Button className="flex mLeft6 mRight6 Font13 bold Gray_75" onClick={() => handleAdd(true)}>
+          {advancedSetting.continueBtnText || _l('提交并继续创建')}
         </Button>
-      </WingBlank>
+      )}
+      <Button className="flex mLeft6 mRight6 Font13 bold" color="primary" onClick={() => handleAdd(false)}>
+        {advancedSetting.submitBtnText || _l('提交')}
+      </Button>
     </BtnsWrap>
   );
   const contentWrap = (
@@ -336,9 +313,7 @@ function NewRecord(props) {
   } else {
     return (
       <ModalWrap
-        popup
-        animationType="slide-up"
-        className={cx('MobileNewRecordModal', className)}
+        className={cx('MobileNewRecordModal mobileModal full', className)}
         onClose={hideNewRecord}
         visible={visible}
       >

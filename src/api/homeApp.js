@@ -149,7 +149,7 @@ export default {
   /**
   * 更新首页应用排序
   * @param {Object} args 请求参数
-  * @param {integer} args.sortType 排序类型 1= 全部组织星标应用排序，2 = 网络，3= 个人，4= 外部协作，5= 过期网络，6 = 首页应用分组下应用排序，7 = 当前组织星标应用排序
+  * @param {integer} args.sortType 排序类型 1= 全部组织星标应用排序，2 = 网络，3= 个人，4= 外部协作，5= 过期网络，6 = 首页应用分组下应用排序，7 = 当前组织星标应用排序， 8 = 我拥有的应用排序
   * @param {array} args.appIds 应用id
   * @param {string} args.projectId 网络id
   * @param {string} args.groupId 首页分组id
@@ -252,6 +252,7 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
   * @param {} args.type
+  * @param {boolean} args.getAlias 是否获取工作表别名(默认不获取)
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -740,6 +741,19 @@ export default {
    getHomePlatformSetting: function (args, options = {}) {
      
      return mdyAPI('HomeApp', 'GetHomePlatformSetting', args, options);
+   },
+  /**
+  * 我拥有的应用
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {boolean} args.noCache 不走缓存
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getOwnedApp: function (args, options = {}) {
+     
+     return mdyAPI('HomeApp', 'GetOwnedApp', args, options);
    },
   /**
   * 获取可用的专属数据库列表

@@ -4,9 +4,8 @@ import { useSetState } from 'react-use';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import APICard from '../../components/APICard';
 import APISetting from '../APIWrap';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
-import { LoadDiv, Dialog, Icon } from 'ming-ui';
+import { LoadDiv, Dialog, Icon, SortableList } from 'ming-ui';
 import processAjax from 'src/pages/workflow/api/process.js';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
@@ -49,17 +48,6 @@ const Wrap = styled.div`
     }
   }
 `;
-
-const SortableItem = SortableElement(props => <APICard {...props} />);
-const SortableList = SortableContainer(({ items, ...rest }) => {
-  return (
-    <div className="">
-      {_.map(items, (item, index) => {
-        return <SortableItem {...rest} item={item} key={'item_' + index} sortIndex={index} index={index} />;
-      })}
-    </div>
-  );
-});
 
 //api 管理 列表
 // 可以搜索和添加新的API；
@@ -275,10 +263,9 @@ function APIList(props) {
     );
   };
   //拖拽排序
-  const handleSortEnd = ({ oldIndex, newIndex }) => {
+  const handleSortEnd = listNew => {
     // 安装的连接 api 不能排序
-    if (oldIndex === newIndex || props.connectType === 2) return;
-    let listNew = arrayMove(list, oldIndex, newIndex);
+    if (props.connectType === 2) return;
     setState({
       list: listNew,
       listSearch: listNew,
@@ -344,24 +331,31 @@ function APIList(props) {
             ) : (
               <SortableList
                 items={keywords ? listSearch : list}
-                isConnectOwner={props.isConnectOwner}
-                canEdit={props.type === 1 && props.isConnectOwner}
-                distance={5}
+                itemKey="id"
+                renderItem={options => (
+                  <APICard
+                    {...options}
+                    item={options.item}
+                    sortIndex={options.index}
+                    isConnectOwner={props.isConnectOwner}
+                    canEdit={props.type === 1 && props.isConnectOwner}
+                    onOpenInfo={item => {
+                      setState({ show: true, listId: item.id });
+                    }}
+                    switchEnabled={item => {
+                      switchEnabled(item);
+                    }}
+                    onCopyProcess={item => {
+                      onCopyProcess(item);
+                    }}
+                    onDel={item => {
+                      onDel(item);
+                    }}
+                    onOpenLog={item => setState({ show: true, listId: item.id, showType: 2 })}
+                  />
+                )}
                 onSortEnd={handleSortEnd}
-                helperClass={'cardWrap'}
-                onOpenInfo={item => {
-                  setState({ show: true, listId: item.id });
-                }}
-                switchEnabled={item => {
-                  switchEnabled(item);
-                }}
-                onCopyProcess={item => {
-                  onCopyProcess(item);
-                }}
-                onDel={item => {
-                  onDel(item);
-                }}
-                onOpenLog={item => setState({ show: true, listId: item.id, showType: 2 })}
+                helperClass={'boderRadAll_5'}
               />
             )}
             {loading && pageIndex !== 1 && <LoadDiv />}

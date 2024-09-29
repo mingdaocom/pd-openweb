@@ -49,6 +49,10 @@ export default function renderText(cell, options = {}) {
     if (cell.controlId === 'wfftime') {
       return formatFormulaDate({ value: cell.value, unit: '1' }).replace(/^-/, _l('已超时'));
     }
+    // 公式函数
+    if (type === 53) {
+      type = cell.enumDefault2;
+    }
 
     switch (type) {
       // 纯文本
@@ -118,7 +122,9 @@ export default function renderText(cell, options = {}) {
         if (_.isEmpty(value)) {
           value = '';
         }
-        value = moment(cell.value, 'HH:mm:ss').format(cell.unit === '6' || cell.unit === '9' ? 'HH:mm:ss' : 'HH:mm');
+        const mode = cell.unit === '6' || cell.unit === '9' ? 'HH:mm:ss' : 'HH:mm';
+        const tempValue = moment(value).year() ? moment(value).format(mode) : cell.value;
+        value = moment(tempValue, 'HH:mm:ss').format(mode);
         break;
       case 38: // 日期公式
         if (_.isEmpty(value)) {
@@ -318,7 +324,7 @@ export default function renderText(cell, options = {}) {
     // 走掩码 单行文本、数值、金额、手机、邮箱、证件
     if (
       !options.noMask &&
-      ((type === 2 && cell.enumDefault === 2) || _.includes([3, 5, 7], type)) &&
+      ((type === 2 && cell.enumDefault === 2) || _.includes([3, 4, 5, 7], type)) &&
       _.get(cell, 'advancedSetting.datamask') === '1'
     ) {
       return dealMaskValue({ ...cell, value }) || value;

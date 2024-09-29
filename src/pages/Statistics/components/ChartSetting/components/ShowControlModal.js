@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { ConfigProvider, Modal, Button, Input, Select } from 'antd';
-import { Icon } from 'ming-ui';
+import { Icon, SortableList } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { relevanceImageSize } from 'statistics/common';
 import _ from 'lodash';
@@ -50,27 +49,23 @@ const SelectWrapper = styled(Select)`
 
 const defaultSize = 2;
 
-const SortHandle = SortableHandle(({ selected }) => (
-  <i
-    style={{ visibility: selected ? null : 'hidden' }}
-    className="icon icon-drag Gray_9e Font16 Right ThemeHoverColor3 Hand dragHandle"
-  ></i>
-));
-
-const SortableItem = SortableElement(({ index, selected, column, attribute, handleItemClick, handleChangeSize }) => {
+const renderSortableItem = ({ DragHandle, item, otherProps }) => {
+  const { selected, attribute, handleItemClick, handleChangeSize } = otherProps;
+  const isAttribute = attribute.controlId === item.controlId;
+  const column = item;
   const control = _.find(selected, { controlId: column.controlId });
   return (
     <div className="showControlsColumnCheckItem flexRow Hand">
       <div className="flex overflow_ellipsis">
         <Icon
           onClick={() => {
-            if (attribute) {
+            if (isAttribute) {
               return;
             }
             handleItemClick(column);
           }}
           icon={control ? 'ic_toggle_on' : 'ic_toggle_off'}
-          style={{ cursor: attribute ? 'auto' : null }}
+          style={{ cursor: isAttribute ? 'auto' : null }}
           className="switchIcon Font22 mRight12"
         />
         <i className={cx('icon Gray_9e mRight6 Font16', 'icon-' + getIconByType(column.type))}></i>
@@ -93,31 +88,16 @@ const SortableItem = SortableElement(({ index, selected, column, attribute, hand
           ))}
         </SelectWrapper>
       )}
-      {<SortHandle selected={control} />}
+      <DragHandle>
+        <Icon
+          icon="drag"
+          style={{ visibility: control ? null : 'hidden' }}
+          className="Gray_9e Font16 Right ThemeHoverColor3 Hand dragHandle"
+        />
+      </DragHandle>
     </div>
   );
-});
-
-const SortableList = SortableContainer(
-  ({ filteredColumns, selected, attribute, handleItemClick, handleChangeSize }) => {
-    return (
-      <div className="columnCheckList">
-        {!filteredColumns.length && <div className="emptyTip TxtCenter">{_l('没有搜索结果')}</div>}
-        {filteredColumns.map((column, i) => (
-          <SortableItem
-            key={i}
-            index={i}
-            selected={selected}
-            attribute={attribute.controlId === column.controlId}
-            column={column}
-            handleItemClick={handleItemClick}
-            handleChangeSize={handleChangeSize}
-          />
-        ))}
-      </div>
-    );
-  },
-);
+};
 
 export default class ShowControlModal extends Component {
   constructor(props) {
@@ -133,7 +113,7 @@ export default class ShowControlModal extends Component {
       const columns = nextProps.relationControls
         .filter(item => {
           return (
-            ![10010, 21, 22, 25, 29, 41, 42, 43, 45, 47, 49, 51, 52].includes(item.type) &&
+            ![10010, 21, 22, 25, 29, 30, 41, 42, 43, 45, 47, 49, 51, 52, 53].includes(item.type) &&
             !_.find(nextProps.fields, { controlId: item.controlId })
           );
         })
@@ -172,9 +152,7 @@ export default class ShowControlModal extends Component {
     this.props.onUpdateXaxisFields(only ? [] : fields);
     this.props.onHideDialogVisible(false);
   };
-  handleSortEnd = ({ oldIndex, newIndex }) => {
-    const { columns } = this.state;
-    const newColumns = arrayMove(columns, oldIndex, newIndex);
+  handleSortEnd = newColumns => {
     this.setState({
       columns: newColumns,
     });
@@ -248,6 +226,12 @@ export default class ShowControlModal extends Component {
     const filteredColumns = columns.filter(column =>
       (column.controlName || '').toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()),
     );
+    const otherProps = {
+      attribute: _.find(relationControls, { attribute: 1 }),
+      selected,
+      handleItemClick: this.handleItemClick,
+      handleChangeSize: this.handleChangeSize,
+    };
     return (
       <Modal
         title={_l('显示字段')}
@@ -281,18 +265,17 @@ export default class ShowControlModal extends Component {
           {!_.isEmpty(selected) && <div className="Gray_75">{_l('显示%0列', selected.length)}</div>}
         </div>
         <div className="sortableList flex" style={{ overflow: 'auto', height: 360 }}>
-          <SortableList
-            useDragHandle
-            axis="y"
-            lockAxis={'y'}
-            helperClass="active"
-            filteredColumns={filteredColumns}
-            attribute={_.find(relationControls, { attribute: 1 })}
-            selected={selected}
-            onSortEnd={this.handleSortEnd}
-            handleItemClick={this.handleItemClick}
-            handleChangeSize={this.handleChangeSize}
-          />
+          <div className="columnCheckList">
+            {!filteredColumns.length && <div className="emptyTip TxtCenter">{_l('没有搜索结果')}</div>}
+            <SortableList
+              useDragHandle
+              dragPreviewImage
+              items={filteredColumns}
+              itemKey="controlId"
+              renderItem={(options) => renderSortableItem({ ...options, otherProps })}
+              onSortEnd={this.handleSortEnd}
+            />
+          </div>
         </div>
       </Modal>
     );

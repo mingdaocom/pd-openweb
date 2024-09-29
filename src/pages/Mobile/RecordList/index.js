@@ -1,9 +1,9 @@
 import React, { Fragment, Component } from 'react';
 import DocumentTitle from 'react-document-title';
-import { Tabs, Flex, ActivityIndicator } from 'antd-mobile';
+import { Tabs, SpinLoading } from 'antd-mobile';
 import { withRouter } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { Icon, Button, WaterMark } from 'ming-ui';
+import { WaterMark } from 'ming-ui';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
 import { addNewRecord } from 'src/pages/worksheet/redux/actions';
@@ -13,15 +13,14 @@ import State from './State';
 import View from './View';
 import { RecordInfoModal } from 'mobile/Record';
 import './index.less';
-import { isOpenPermit } from 'src/pages/FormSet/util.js';
-import { permitList } from 'src/pages/FormSet/config.js';
-import { getAdvanceSetting, mdAppResponse } from 'src/util';
+import { mdAppResponse, getRequest } from 'src/util';
 import cx from 'classnames';
 import FixedPage from 'mobile/App/FixedPage.jsx';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import alreadyDelete from './State/assets/alreadyDelete.png';
 import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
 import { updateHierarchyConfigLevel } from 'src/pages/worksheet/views';
+import { getViewActionInfo } from './util';
 import _ from 'lodash';
 
 @withRouter
@@ -29,10 +28,12 @@ import _ from 'lodash';
 class RecordList extends Component {
   constructor(props) {
     super(props);
+    const { hideAddRecord } = getRequest();
     this.state = {
       previewRecordId: undefined,
       tempViewIdForRecordInfo: undefined,
     };
+    this.hideAddRecord = hideAddRecord;
   }
   componentDidMount() {
     if (window.isMingDaoApp) {
@@ -107,16 +108,33 @@ class RecordList extends Component {
       );
     }
   };
+
+  handleBack = () => {
+    const { match, history } = this.props;
+    const { params } = match;
+    const { hash } = history.location;
+    const isHideTabBar = hash.includes('hideTabBar') || !!sessionStorage.getItem('hideTabBar');
+
+    if (!isHideTabBar && location.href.includes('mobile/app')) {
+      let currentGroupInfo =
+        localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
+      if (_.isEmpty(currentGroupInfo)) {
+        window.mobileNavigateTo('/mobile/dashboard');
+      } else {
+        window.mobileNavigateTo(`/mobile/groupAppList/${currentGroupInfo.id}/${currentGroupInfo.groupType}`);
+      }
+      localStorage.removeItem('currentNavWorksheetId');
+    } else {
+      window.mobileNavigateTo(`/mobile/app/${params.appId}`);
+    }
+  };
+
   renderContent() {
     const {
       base,
       worksheetInfo,
       sheetSwitchPermit,
-      workSheetLoading,
       match,
-      currentSheetRows,
-      filters,
-      worksheetControls,
       calendarview,
       batchOptVisible,
       appColor,
@@ -128,41 +146,15 @@ class RecordList extends Component {
     const { detail } = appDetail;
     const { appNaviStyle, debugRole } = detail;
 
-    const { name, advancedSetting = {} } = worksheetInfo;
+    const { name } = worksheetInfo;
     let views = worksheetInfo.views.filter(
       v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
     );
     const view = _.find(views, { viewId }) || views[0];
     const { params } = match;
-    const viewIndex = _.findIndex(views, { viewId }) > -1 ? _.findIndex(views, { viewId }) : 0;
-
-    const { calendarData = {} } = calendarview;
-    let { begindate = '', enddate = '', calendarcids = '[]' } = getAdvanceSetting(view);
-    const { calendarInfo = [] } = calendarData;
-    const { viewControl, viewControls } = view;
-
-    try {
-      calendarcids = JSON.parse(calendarcids);
-    } catch (error) {
-      calendarcids = [];
-    }
-    if (calendarcids.length <= 0) {
-      calendarcids = [{ begin: begindate, end: enddate }]; //兼容老数据
-    }
-    const isDelete =
-      calendarcids[0].begin &&
-      calendarInfo.length > 0 &&
-      (!calendarInfo[0].startData || !calendarInfo[0].startData.controlId);
-    const isHaveSelectControl = _.includes([1, 2, 4, 5, 7], view.viewType)
-      ? viewControl === 'create' ||
-        (viewControl && _.find(worksheetControls, item => item.controlId === viewControl)) ||
-        !_.isEmpty(viewControls) ||
-        !(!calendarcids[0].begin || isDelete)
-      : true;
     const { hash } = history.location;
     const isHideTabBar = hash.includes('hideTabBar') || !!sessionStorage.getItem('hideTabBar');
-    const canDelete = isOpenPermit(permitList.delete, sheetSwitchPermit, view.viewId);
-    const showCusTomBtn = isOpenPermit(permitList.execute, sheetSwitchPermit, view.viewId);
+
     if (_.isEmpty(views)) {
       return (
         <div className="flexColumn h100 justifyContentCenter alignItemsCenter Font16 Gray_9e">
@@ -172,18 +164,18 @@ class RecordList extends Component {
       );
     }
     const hasDebugRoles = (debugRole || {}).canDebug && !_.isEmpty(debugRoles);
-    const bottom20 = hasDebugRoles ? '60px' : '20px';
-    const bottom70 = hasDebugRoles ? '110px' : '70px';
-    const bottom78 = hasDebugRoles ? '118px' : '78px';
-    const bottom130 = hasDebugRoles ? '170px' : '130px';
 
-    const styles =
-      view.viewType === 6 && view.childType === 1
-        ? {
-            paddingBottom: 'calc(constant(safe-area-inset-bottom) - 20px)',
-            paddingBottom: 'calc(env(safe-area-inset-bottom) - 20px)',
-          }
-        : {};
+    const { canAddRecord, showBatchBtn, showBackBtn, recordActionWrapBottom } = getViewActionInfo({
+      view,
+      viewId: base.viewId,
+      worksheetInfo,
+      calendarview,
+      sheetSwitchPermit,
+      batchOptVisible,
+      appDetail: detail,
+      isHideTabBar,
+      hasDebugRoles,
+    });
 
     return (
       <Fragment>
@@ -196,10 +188,11 @@ class RecordList extends Component {
           {!batchOptVisible && (
             <div className={cx('viewTabs z-depth-1', { isPortal: md.global.Account.isPortal })}>
               <Tabs
-                tabBarInactiveTextColor="#757575"
-                tabs={views}
-                page={viewIndex === -1 ? 999 : viewIndex}
-                onTabClick={view => {
+                className="md-adm-tabs flexUnset"
+                activeLineMode="fixed"
+                activeKey={viewId}
+                onChange={viewId => {
+                  const view = _.find(views, { viewId });
                   this.setCache({ viewId: view.viewId, worksheetId: params.worksheetId });
                   this.handleChangeView(view);
                   this.props.changeMobileGroupFilters([]);
@@ -208,8 +201,11 @@ class RecordList extends Component {
                     updateHierarchyConfigLevel(view);
                   }
                 }}
-                renderTab={tab => <span className="tabName ellipsis bold">{tab.name}</span>}
-              ></Tabs>
+              >
+                {views.map(tab => (
+                  <Tabs.Tab title={<span className="tabName ellipsis bold">{tab.name}</span>} key={tab.viewId} />
+                ))}
+              </Tabs>
             </div>
           )}
           <View
@@ -219,112 +215,67 @@ class RecordList extends Component {
             appNaviStyle={appNaviStyle}
             hasDebugRoles={hasDebugRoles}
           />
-          {!batchOptVisible &&
-            !(appNaviStyle === 2 && location.href.includes('mobile/app') && md.global.Account.isPortal) && (
+          <div
+            className="recordActionWrap"
+            style={{
+              position: 'fixed',
+              right: 20,
+              bottom: recordActionWrapBottom,
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            {!batchOptVisible && showBackBtn && (
               <Back
                 icon={appNaviStyle === 2 && location.href.includes('mobile/app') ? 'home' : 'back'}
-                style={
-                  !isHideTabBar && appNaviStyle === 2 && location.href.includes('mobile/app')
-                    ? {
-                        bottom:
-                          view.childType === 1 && view.viewType === 6
-                            ? 140
-                            : _.includes([1, 3, 4, 6, 21, 8], view.viewType) ||
-                              (!_.isEmpty(view.navGroup) && view.navGroup.length)
-                            ? bottom70
-                            : bottom130,
-                        ...styles,
-                      }
-                    : {
-                        bottom:
-                          view.childType === 1 && view.viewType === 6
-                            ? 100
-                            : [1, 3, 4, 6, 21, 8].includes(view.viewType) ||
-                              (!_.isEmpty(view.navGroup) && view.navGroup.length && _.includes([0], view.viewType)) ||
-                              !(canDelete || showCusTomBtn)
-                            ? bottom20
-                            : bottom78,
-                        ...styles,
-                      }
-                }
+                className="back Static"
+                style={{ position: 'unset!important', marginTop: 10 }}
+                onClick={this.handleBack}
+              />
+            )}
+            {showBatchBtn && (
+              <BatchOperationBtn className="Static mTop10" onClick={() => this.props.changeBatchOptVisible(true)} />
+            )}
+            {canAddRecord ? (
+              <AddRecordBtn
+                entityName={worksheetInfo.entityName}
+                backgroundColor={appColor}
+                className="Static mTop10"
                 onClick={() => {
-                  if (!isHideTabBar && location.href.includes('mobile/app')) {
-                    let currentGroupInfo =
-                      localStorage.getItem('currentGroupInfo') && JSON.parse(localStorage.getItem('currentGroupInfo'));
-                    if (_.isEmpty(currentGroupInfo)) {
-                      window.mobileNavigateTo('/mobile/dashboard');
-                    } else {
-                      window.mobileNavigateTo(
-                        `/mobile/groupAppList/${currentGroupInfo.id}/${currentGroupInfo.groupType}`,
-                      );
-                    }
-                    localStorage.removeItem('currentNavWorksheetId');
-                  } else {
-                    window.mobileNavigateTo(`/mobile/app/${params.appId}`);
-                  }
-                }}
-              />
-            )}
-          {!isMingDaoApp &&
-            (canDelete || showCusTomBtn) &&
-            view.viewType === 0 &&
-            !batchOptVisible &&
-            _.isEmpty(view.navGroup) && (
-              <BatchOperationBtn
-                style={{
-                  bottom: appNaviStyle === 2 && location.href.includes('mobile/app') ? bottom70 : bottom20,
-                }}
-                onClick={() => this.props.changeBatchOptVisible(true)}
-              />
-            )}
-          {!isMingDaoApp &&
-          isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
-          worksheetInfo.allowAdd &&
-          isHaveSelectControl &&
-          !batchOptVisible &&
-          ((view.viewType === 6 && view.childType !== 1) || view.viewType !== 6) &&
-          ((view.viewType === 2 && view.advancedSetting.hierarchyViewType !== '3') || view.viewType !== 2) ? (
-            <AddRecordBtn
-              entityName={worksheetInfo.entityName}
-              backgroundColor={appColor}
-              warpStyle={{ bottom: !isHideTabBar && appNaviStyle === 2 ? bottom70 : bottom20 }}
-              btnClassName={cx({
-                Right: ([2, 5, 7].includes(view.viewType) && currentSheetRows.length) || [2].includes(view.viewType),
-                mRight16: ([2, 5, 7].includes(view.viewType) && currentSheetRows.length) || [2].includes(view.viewType),
-              })}
-              onClick={() => {
-                openAddRecord({
-                  className: 'full',
-                  worksheetInfo,
-                  appId: params.appId,
-                  worksheetId: worksheetInfo.worksheetId,
-                  viewId: view.viewId,
-                  addType: 2,
-                  entityName: worksheetInfo.entityName,
-                  openRecord: this.sheetViewOpenRecord,
-                  onAdd: data => {
-                    if (_.isEmpty(data)) {
-                      return;
-                    }
+                  openAddRecord({
+                    className: 'full',
+                    worksheetInfo,
+                    appId: params.appId,
+                    worksheetId: worksheetInfo.worksheetId,
+                    viewId: view.viewId,
+                    addType: 2,
+                    entityName: worksheetInfo.entityName,
+                    openRecord: this.sheetViewOpenRecord,
+                    onAdd: data => {
+                      if (_.isEmpty(data)) {
+                        return;
+                      }
 
-                    if (view.viewType) {
-                      this.props.addNewRecord(data, view);
-                    } else {
-                      this.props.unshiftSheetRow(data);
-                    }
-                  },
-                  showDraftsEntry: true,
-                  sheetSwitchPermit,
-                });
-              }}
-            />
-          ) : null}
+                      if (view.viewType) {
+                        this.props.addNewRecord(data, view);
+                      } else {
+                        this.props.unshiftSheetRow(data);
+                      }
+                    },
+                    showDraftsEntry: true,
+                    sheetSwitchPermit,
+                  });
+                }}
+              />
+            ) : null}
+          </div>
         </div>
         <RecordInfoModal
           className="full"
           visible={!!this.state.previewRecordId}
           appId={params.appId}
           worksheetId={worksheetInfo.worksheetId}
+          enablePayment={worksheetInfo.enablePayment}
           viewId={this.state.tempViewIdForRecordInfo}
           rowId={this.state.previewRecordId}
           onClose={() => {
@@ -338,8 +289,7 @@ class RecordList extends Component {
     );
   }
   render() {
-    const { base, worksheetInfo, workSheetLoading, appDetail = {} } = this.props;
-    const { viewId } = base;
+    const { worksheetInfo, workSheetLoading, appDetail = {} } = this.props;
     const { detail = {}, appName } = appDetail;
     const { webMobileDisplay } = detail;
 
@@ -355,9 +305,9 @@ class RecordList extends Component {
     }
     if (workSheetLoading) {
       return (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
+        <div className="flexRow justifyContentCenter alignItemsCenter h100">
+          <SpinLoading color="primary" />
+        </div>
       );
     }
 

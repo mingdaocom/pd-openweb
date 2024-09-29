@@ -113,7 +113,7 @@ export default class TimeSelect extends Component {
                 onBlur={evt => this.checkNumberControl(evt, true)}
               />
               {dateNoTime ? (
-                <div className="mLeft15 flex">{_l('天')}</div>
+                <div className="mLeft15 flex">{TIME_TYPE_NAME[data.unit] || _l('天')}</div>
               ) : (
                 <Dropdown
                   className="flowDropdown flex mLeft15"

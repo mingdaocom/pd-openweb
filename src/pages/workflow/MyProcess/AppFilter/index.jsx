@@ -1,13 +1,14 @@
 import React, { Fragment, Component } from 'react';
 import Icon from 'ming-ui/components/Icon';
-import { Dropdown } from 'antd';
-import Trigger from 'rc-trigger';
+import { Dropdown, Select } from 'antd';
 import api from 'api/homeApp';
 import cx from 'classnames';
 import 'rc-trigger/assets/index.css';
 import './index.less';
 import { SvgIcon } from 'ming-ui';
 import _ from 'lodash';
+import { TYPES, FLOW_TYPE } from '../../WorkflowList/utils';
+import processVersionApi from '../../api/processVersion';
 
 export default class AppFilter extends Component {
   constructor(props) {
@@ -17,6 +18,9 @@ export default class AppFilter extends Component {
       app: {},
       menuVisible: false,
       searchValue: '',
+      processList: [],
+      processType: undefined,
+      processId: undefined
     };
   }
   componentDidMount() {
@@ -27,13 +31,36 @@ export default class AppFilter extends Component {
       });
     });
   }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.apkId !== this.props.apkId && _.isEmpty(nextProps.apkId)) {
+      this.setState({
+        processList: [],
+        processType: undefined,
+        processId: undefined
+      });
+    }
+  }
+  getWorkFlowList() {
+    const { app, processType } = this.state;
+    processVersionApi.list({
+      relationId: app.id,
+      processListType: processType
+    }).then(data => {
+      this.setState({
+        processList: _.flatten(data.map(n => n.processList))
+      });
+    });
+  }
   handleSelection = app => {
     this.setState({
       app,
       menuVisible: false,
+      processId: undefined,
+      processList: []
+    }, () => {
+      this.props.onChange(app.id, this.state.processId);
     });
-    this.props.onChange(app.id);
-  };
+  }
   handleSearch = () => {
     const { dataSource, searchValue } = this.state;
     const apps = _.cloneDeep(dataSource);
@@ -45,7 +72,7 @@ export default class AppFilter extends Component {
     this.setState({
       apps: apps.filter(item => item.projectApps.length),
     });
-  };
+  }
   renderAppList(apps) {
     const { app } = this.state;
     return (
@@ -68,8 +95,10 @@ export default class AppFilter extends Component {
   }
   renderProjectList() {
     const { apps, searchValue } = this.state;
+    const selectAppTriggerEl = document.querySelector('.selectAppTrigger');
+    const height = selectAppTriggerEl ? document.body.clientHeight - selectAppTriggerEl.offsetTop - selectAppTriggerEl.clientHeight : undefined;
     return (
-      <div className="appFilterWrapper">
+      <div className="appFilterWrapper" style={{ maxHeight: height }}>
         <div className="searchWrapper valignWrapper">
           <input
             autoFocus
@@ -97,36 +126,51 @@ export default class AppFilter extends Component {
       </div>
     );
   }
-  render2() {
-    const { app } = this.state;
-    const { apkId } = this.props;
+  renderWorkflowList() {
+    const { app, processType, processId, processList } = this.state;
     return (
-      <Trigger
-        popupVisible={this.state.menuVisible}
-        onPopupVisibleChange={menuVisible => {
-          this.setState({ menuVisible });
-        }}
-        action={['click']}
-        popupAlign={{
-          points: ['tl', 'bl'],
-          offset: [0, 10],
-        }}
-        popup={this.renderProjectList()}
-      >
-        <div>
-          <div className="Font12 mBottom10">{_l('应用')}</div>
-          <div className="itemWrapper valignWrapper pointer">
-            {
-              apkId ? (
-                <div className="flex">{app.name}</div>
-              ) : (
-                <div className="flex Gray_c">{_l('请选择')}</div>
-              )
-            }
-            <Icon icon="expand_more" className="Gray_75 Font20" />
-          </div>
-        </div>
-      </Trigger>
+      <div className="mTop16">
+        <Select
+          value={processType}
+          placeholder={_l('请选择流程类型')}
+          className="w100 selectWrapper selectProcessTypeWrapper"
+          suffixIcon={<Icon icon="expand_more" className="Gray_75 Font20" />}
+          onChange={value => {
+            this.setState({
+              processType: value,
+              processId: undefined
+            }, () => {
+              this.getWorkFlowList();
+            });
+          }}
+        >
+          {TYPES.map(item => (
+            <Select.Option className="processOptionWrapper" value={item.value}>
+              <div className="flexRow valignWrapper">
+                <i className={`icon ${item.icon} Gray_9e Font18 mRight5`} />
+                {item.text}
+              </div>
+            </Select.Option>
+          ))}
+        </Select>
+        <Select
+          value={processId}
+          placeholder={_l('请选择流程')}
+          notFoundContent={<div className="valignWrapper">{_l('暂无数据')}</div>}
+          className="w100 selectWrapper mTop16"
+          suffixIcon={<Icon icon="expand_more" className="Gray_75 Font20" />}
+          onChange={value => {
+            this.setState({ processId: value });
+            this.props.onChange(app.id, value);
+          }}
+        >
+          {processList.map((item) => (
+            <Select.Option className="processOptionWrapper" value={item.id}>
+              {item.name}
+            </Select.Option>
+          ))}
+        </Select>
+      </div>
     );
   }
   render() {
@@ -136,9 +180,9 @@ export default class AppFilter extends Component {
       <div>
         <div className="Font12 mBottom10">{_l('应用')}</div>
         <Dropdown overlay={this.renderProjectList()} trigger={['click']} visible={menuVisible} onVisibleChange={menuVisible => { this.setState({ menuVisible }) }}>
-          <div className={cx('itemWrapper valignWrapper pointer', { active: menuVisible })}>
+          <div className={cx('itemWrapper valignWrapper pointer selectAppTrigger', { active: menuVisible })}>
             {
-              apkId ? (
+              apkId && app.id ? (
                 <div className="flex ellipsis">{app.name}</div>
               ) : (
                 <div className="flex Gray_c">{_l('请选择')}</div>
@@ -147,6 +191,7 @@ export default class AppFilter extends Component {
             <Icon icon="expand_more" className="Gray_75 Font20" />
           </div>
         </Dropdown>
+        {app.id && this.renderWorkflowList()}
       </div>
     );
   }

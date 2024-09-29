@@ -8,6 +8,7 @@
   VIDEO: 6,
   NEW_PAGE: 7,
   TXT: 8,
+  WPS: 9,
 };
 
 const FROM_TYPE = {

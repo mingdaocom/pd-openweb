@@ -87,7 +87,13 @@ export default class RecordCard extends Component {
     return url;
   }
   previewAttachment(attachments, index) {
-    const { data, view } = this.props;
+    const { data, view, controls } = this.props;
+    const coverCidControl = _.find(controls, { controlId: view.coverCid }) || {};
+    const hideFunctions = ['editFileName'];
+    const { allowdownload = '1' } = coverCidControl.advancedSetting;
+    if (allowdownload === '0') {
+      hideFunctions.push('download');
+    }
     previewAttachments({
       index: index || 0,
       attachments: attachments.map(attachment => {
@@ -103,7 +109,7 @@ export default class RecordCard extends Component {
         });
       }),
       showThumbnail: true,
-      hideFunctions: ['editFileName'],
+      hideFunctions,
       disableNoPeimission: true,
       recordId: data.rowid,
       controlId: view.coverCid,
@@ -159,7 +165,12 @@ export default class RecordCard extends Component {
       <div className={cx('recordCardCover', coverTypes[coverType], `appshowtype${advancedSetting.appshowtype || '0'}`)}>
         {url && !coverError ? (
           coverType ? (
-            <img onClick={this.handleCoverClick} className={cx('img', { w100: coverType === 1 })} src={url} role="presentation" />
+            <img
+              onClick={this.handleCoverClick}
+              className={cx('img', { w100: coverType === 1 })}
+              src={url}
+              role="presentation"
+            />
           ) : (
             <div onClick={this.handleCoverClick} className="img cover" style={{ backgroundImage: `url(${url})` }}></div>
           )
@@ -267,7 +278,7 @@ export default class RecordCard extends Component {
           ></div>
         )}
         <div className={cx('flexRow valignWrapper mBottom5', `control-val-${titleControl.controlId}`)}>
-          {advancedSetting.checkradioid && (
+          {advancedSetting.checkradioid && !_.includes(view.controls || [], advancedSetting.checkradioid) && (
             <Checkbox
               className="mRight5"
               disabled={!allowAdd}
@@ -303,9 +314,9 @@ export default class RecordCard extends Component {
     }
   };
   render() {
-    const { view, data, onClick, batchOptVisible, controls } = this.props;
+    const { className, view, data, onClick, batchOptVisible, batchOptCheckedData, controls } = this.props;
     const { advancedSetting, coverCid } = view;
-    let batchOptChecked = batchOptVisible && data.check;
+    let batchOptChecked = batchOptVisible && batchOptCheckedData.includes(data.rowid);
     const showControlStyle = _.get(view, 'advancedSetting.controlstyleapp') === '1';
 
     const controlStyles =
@@ -319,7 +330,7 @@ export default class RecordCard extends Component {
     return (
       <Con
         controlStyles={controlStyles}
-        className={cx('mobileWorksheetRecordCard', {
+        className={cx('mobileWorksheetRecordCard', className, {
           coverRight: [undefined, '0'].includes(advancedSetting.coverposition),
           converTop: ['2'].includes(advancedSetting.coverposition),
           batchOptStyle: batchOptChecked,

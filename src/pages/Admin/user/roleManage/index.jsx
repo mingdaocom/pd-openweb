@@ -682,12 +682,12 @@ class RoleManage extends Component {
 
           {hasRoleAuth && (
             <div className="actBox flexRow">
-              <span className="creatRole Hand mRight12" onClick={() => this.createAndEdit('create')}>
+              <span className="creatRole Hand mRight12 ellipsis" onClick={() => this.createAndEdit('create')}>
                 <Icon icon="add" className="Font18 Bold TxtMiddle" />
                 {_l('角色')}
               </span>
               <span
-                className="creatRole Hand"
+                className="creatRole Hand ellipsis"
                 onClick={() => this.setState({ roleFolderDialog: { visible: true, id: undefined } })}
               >
                 <Icon icon="add" className="Font18 Bold TxtMiddle" />

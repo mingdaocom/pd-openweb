@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Icon, LoadDiv } from 'ming-ui';
+import { Icon, LoadDiv, SortableList } from 'ming-ui';
 import favoriteApi from 'src/api/favorite';
 import Chart from 'src/pages/Statistics/Card';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import { CardItem } from '.';
 import './style.less';
 import chartEmptyImg from 'staticfiles/images/chart.png';
@@ -46,53 +45,9 @@ const ChartListWrapper = styled.div`
   }
 `;
 
-const SortableItem = SortableElement(data => {
-  const { chart, projectId, reportAutoRefreshTimer, onCancelFavorite } = data;
-
-  return (
-    <div className="chartItem">
-      <span data-tip={_l('拖拽')} className="dragWrap">
-        <Icon icon="drag" className="Font14" />
-      </span>
-      <Chart
-        report={{ id: chart.reportId }}
-        pageId={chart.pageId}
-        projectId={projectId}
-        appId={chart.appId}
-        viewId={chart.viewId}
-        sourceType={3}
-        customPageConfig={{ refresh: reportAutoRefreshTimer }}
-        onCancelFavorite={() => onCancelFavorite(chart.favoriteId)}
-      />
-    </div>
-  );
-});
-
-const SortableList = SortableContainer(props => {
-  const { chartList, projectId, reportAutoRefreshTimer, onCancelFavorite } = props;
-
-  return (
-    <ChartListWrapper>
-      {chartList.map((chart, index) => {
-        return (
-          <SortableItem
-            key={`item_${chart.reportId}`}
-            index={index}
-            chart={chart}
-            projectId={projectId}
-            reportAutoRefreshTimer={reportAutoRefreshTimer}
-            onCancelFavorite={onCancelFavorite}
-          />
-        );
-      })}
-    </ChartListWrapper>
-  );
-});
-
 export default function CollectionCharts(props) {
   const { projectId, reportAutoRefreshTimer, flag, currentTheme } = props;
   const [chartList, setChartList] = useState([]);
-  const [sortIds, setSortIds] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -100,17 +55,40 @@ export default function CollectionCharts(props) {
     favoriteApi.getAllFavorites({ projectId, type: 2, isRefresh: 1 }).then(res => {
       if (res) {
         setChartList(res);
-        setSortIds(res.map(item => item.favoriteId));
         setLoading(false);
       }
     });
   }, [projectId, flag]);
 
-  const onSort = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-    const newSortIds = arrayMove(sortIds, oldIndex, newIndex);
-    setSortIds(newSortIds);
+  const onSort = newItems => {
+    setChartList(newItems);
+    const newSortIds = newItems.map(item => item.favoriteId);
     favoriteApi.updateReportSort({ projectId, reportIds: newSortIds });
+  };
+
+  const renderItem = ({ item, DragHandle }) => {
+    return (
+      <React.Fragment>
+        <DragHandle>
+          <span data-tip={_l('拖拽')} className="dragWrap">
+            <Icon icon="drag" className="Font14" />
+          </span>
+        </DragHandle>
+        <Chart
+          report={{ id: item.reportId }}
+          pageId={item.pageId}
+          projectId={projectId}
+          appId={item.appId}
+          viewId={item.viewId}
+          sourceType={3}
+          customPageConfig={{ refresh: reportAutoRefreshTimer }}
+          onCancelFavorite={() => {
+            const newChartList = chartList.filter(chart => chart.favoriteId !== item.favoriteId);
+            setChartList(newChartList);
+          }}
+        />
+      </React.Fragment>
+    );
   };
 
   return (
@@ -124,25 +102,17 @@ export default function CollectionCharts(props) {
       {loading ? (
         <LoadDiv className="mTop10" />
       ) : chartList.length ? (
-        <SortableList
-          distance={3}
-          helperClass="chartSortItemHelper"
-          shouldCancelStart={({ target }) => {
-            return !target.classList.contains('icon-drag');
-          }}
-          projectId={projectId}
-          reportAutoRefreshTimer={reportAutoRefreshTimer}
-          chartList={sortIds
-            .map(id => _.find(chartList, chart => chart.favoriteId === id))
-            .filter(item => !_.isUndefined(item))}
-          axis={'xy'}
-          onSortEnd={onSort}
-          onCancelFavorite={id => {
-            const newChartList = chartList.filter(item => item.favoriteId !== id);
-            setChartList(newChartList);
-            setSortIds(newChartList.map(item => item.favoriteId));
-          }}
-        />
+        <ChartListWrapper>
+          <SortableList
+            useDragHandle
+            items={chartList}
+            itemClassName="chartItem"
+            renderItem={renderItem}
+            itemKey="favoriteId"
+            helperClass="chartSortItemHelper"
+            onSortEnd={onSort}
+          />
+        </ChartListWrapper>
       ) : (
         <div className="emptyWrapper">
           <img src={chartEmptyImg} />

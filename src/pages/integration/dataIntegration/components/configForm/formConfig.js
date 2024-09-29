@@ -5,6 +5,38 @@ import _ from 'lodash';
 export const customFormData = (databaseType, dbRoleType, isCreateConnector, formData = {}, allFieldDisabled) => {
   const pg_sql = [DATABASE_TYPE.POSTGRESQL, DATABASE_TYPE.ALIYUN_POSTGRES, DATABASE_TYPE.TENCENT_POSTGRES];
 
+  const getPostHintText = () => {
+    switch (databaseType) {
+      case DATABASE_TYPE.MYSQL:
+      case DATABASE_TYPE.ALIYUN_MYSQL:
+      case DATABASE_TYPE.TENCENT_MYSQL:
+      case DATABASE_TYPE.MARIADB:
+      case DATABASE_TYPE.ALIYUN_MARIADB:
+      case DATABASE_TYPE.TENCENT_MARIADB:
+        return '3306';
+      case DATABASE_TYPE.SQL_SERVER:
+      case DATABASE_TYPE.ALIYUN_SQLSERVER:
+      case DATABASE_TYPE.TENCENT_SQLSERVER:
+        return '1433';
+      case DATABASE_TYPE.POSTGRESQL:
+      case DATABASE_TYPE.ALIYUN_POSTGRES:
+      case DATABASE_TYPE.TENCENT_POSTGRES:
+        return '5432';
+      case DATABASE_TYPE.DB2:
+        return '50000';
+      case DATABASE_TYPE.ORACLE:
+        return '1521';
+      case DATABASE_TYPE.MONGO_DB:
+      case DATABASE_TYPE.ALIYUN_MONGODB:
+      case DATABASE_TYPE.TENCENT_MONGODB:
+        return '27017';
+      case DATABASE_TYPE.SAP_HANA:
+        return '30015';
+      default:
+        return '';
+    }
+  };
+
   const commonNameRoleTypeFields = [
     {
       controlId: 'name',
@@ -71,6 +103,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
       col: 0,
       required: true,
       size: 6,
+      hint: _l('例如：10.0.0.1'),
       value: _.get(formData, 'address') || '',
     },
     {
@@ -81,6 +114,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
       col: 1,
       required: true,
       size: 6,
+      hint: getPostHintText(),
       value: _.get(formData, 'post') || '',
     },
     {
@@ -91,6 +125,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
       col: 0,
       required: databaseType !== DATABASE_TYPE.ORACLE,
       size: 6,
+
       value: _.get(formData, 'user') || '',
     },
     {
@@ -120,6 +155,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
       col: 0,
       required: false,
       size: 12,
+      hint: _l('例如：key1=value1&key2=value2'),
       value: _.get(formData, 'connectOptions') || '',
     },
     {
@@ -130,6 +166,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
       col: 0,
       required: false,
       size: 12,
+      hint: _l('例如：key1=value1&key2=value2'),
       value: _.get(formData, 'cdcParams') || '',
     },
   ];
@@ -228,6 +265,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
       col: 0,
       required: true,
       size: 6,
+      hint: _l('例如：10.0.0.1'),
       value: _.get(formData, 'address') || '',
     },
     {
@@ -238,6 +276,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
       col: 1,
       required: true,
       size: 6,
+      hint: getPostHintText(),
       value: _.get(formData, 'post') || '',
     },
     {
@@ -444,6 +483,8 @@ export const getCardDescription = databaseType => {
       return _l('系统将实时同步数据到所选工作表');
     case DATABASE_TYPE.KAFKA:
       return _l('系统将实时同步Kafka的所有数据');
+    case DATABASE_TYPE.SAP_HANA:
+      return _l('此类型数据库仅支持定时同步');
     default:
       return _l('');
   }

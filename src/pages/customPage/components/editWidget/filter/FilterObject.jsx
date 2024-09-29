@@ -94,7 +94,7 @@ const getFilterObject = (components, reports) => {
       data.name = c.name;
       data.worksheetId = c.worksheetId;
     }
-    if ([enumWidgetType.view, 'view'].includes(c.type) && !_.get(c, 'config.isPluginView')) {
+    if ([enumWidgetType.view, 'view'].includes(c.type)) {
       data.type = 2;
       data.name = c.config.name;
       data.worksheetId = c.value;

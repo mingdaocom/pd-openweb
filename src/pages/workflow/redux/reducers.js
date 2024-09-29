@@ -9,6 +9,8 @@ const flowInfo = (state = {}, action) => {
         name: action.data.name,
         groupId: action.data.groupId,
         explain: action.data.explain,
+        iconColor: action.data.iconColor,
+        iconName: action.data.iconName,
       });
     case 'UPDATE_PUBLIC_STATE':
       return Object.assign({}, state, action.obj);

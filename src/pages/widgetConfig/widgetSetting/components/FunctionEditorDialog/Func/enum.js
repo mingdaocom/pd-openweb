@@ -247,7 +247,8 @@ export const functions = {
     if (!_.isNumber(precision) || _.isNaN(precision)) {
       throw new Error(_l('参数不是数字'));
     }
-    return _.round(_.round(number, precision + 1), precision);
+    const factor = Math.pow(10, precision);
+    return Math.round(number * factor) / factor;
   },
   // 按指定倍数向上舍入
   CEILING: function (number, significance) {
@@ -1272,5 +1273,8 @@ export function checkTypeSupportForFunction(control) {
   } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.RELATE_SHEET) {
     // 关联记录 29
     return !isSheetDisplay(control);
+  } else if (control.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD) {
+    // 他表存储 30
+    return (_.get(control, 'strDefault') || '10')[0] !== '1';
   }
 }

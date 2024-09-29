@@ -2,8 +2,7 @@ import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
-import { Menu, MenuItem, Icon, Tooltip } from 'ming-ui';
-import { sortableContainer, sortableElement, sortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
+import { Menu, MenuItem, Icon, Tooltip, SortableList } from 'ming-ui';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { FILTER_TYPE } from '../enum';
 import _ from 'lodash';
@@ -92,8 +91,6 @@ const FilterTitleItemCon = styled(VerticalMiddle)`
   }
 `;
 
-const DragHandle = sortableHandle(() => <i className="icon icon-drag dragger hoverShow ThemeHoverColor3"></i>);
-
 function FilterTitleItem(props) {
   const {
     error,
@@ -101,6 +98,7 @@ function FilterTitleItem(props) {
     className,
     active,
     filter,
+    DragHandle,
     onEditFilter,
     onCopy,
     onDelete,
@@ -120,7 +118,9 @@ function FilterTitleItem(props) {
       }}
     >
       <VerticalMiddle className="content">
-        <DragHandle />
+        <DragHandle>
+          <i className="icon icon-drag dragger hoverShow ThemeHoverColor3"></i>
+        </DragHandle>
         <i className="icon icon-worksheet_filter filterIcon"></i>
         <span title={name} className="Font14 mLeft10 ellipsis">
           {name}
@@ -209,12 +209,6 @@ function FilterTitleItem(props) {
   );
 }
 
-const SortableFilterTitleItem = sortableElement(props => <FilterTitleItem {...props} />);
-
-const SortableContainer = sortableContainer(({ children }) => {
-  return <div>{children}</div>;
-});
-
 function filterHasError(filter, controls) {
   if (filter.conditionsGroups) {
     return _.some(filter.conditionsGroups.map(gf => filterHasError(gf, controls)));
@@ -237,42 +231,40 @@ export default function FilterTitleList(props) {
     triggerFilter = () => {},
     onHideFilterPopup = () => {},
   } = props;
-  const [isDragging, setIsDragging] = useState(false);
   return (
     <Con>
       <div className="title">{title}</div>
-      <SortableContainer
+      <SortableList
         useDragHandle
-        filters={filters}
-        axis={'y'}
-        // hideSortableGhost
+        items={filters}
+        itemKey="id"
         helperClass="draggingItem"
-        transitionDuration={0}
-        distance={3}
-        onSortStart={() => setIsDragging(true)}
-        onSortEnd={({ oldIndex, newIndex }) => {
-          setIsDragging(false);
-          onSortEnd(arrayMove(filters, oldIndex, newIndex).map(f => f.id));
+        onSortEnd={newItems => {
+          onSortEnd(newItems.map(f => f.id));
         }}
-      >
-        {filters.map((filter, i) => (
-          <SortableFilterTitleItem
-            error={filterHasError(filter, controls)}
-            active={activeFilter.id === filter.id}
-            isCharge={isCharge}
-            className={cx({ isDragging })}
-            key={filter.id}
-            index={i}
-            filter={filter}
-            onEditFilter={onEditFilter}
-            onCopy={onCopy}
-            onDelete={onDelete}
-            onToggleFilterType={onToggleFilterType}
-            triggerFilter={triggerFilter}
-            onHideFilterPopup={onHideFilterPopup}
-          />
-        ))}
-      </SortableContainer>
+        renderItem={options => {
+          const { item, index, dragging, isLayer } = options;
+          const filter = item;
+          return (
+            <FilterTitleItem
+              {...options}
+              error={filterHasError(filter, controls)}
+              active={activeFilter.id === filter.id}
+              isCharge={isCharge}
+              className={cx({ isDragging: dragging, draggingItem: isLayer })}
+              key={filter.id}
+              index={index}
+              filter={filter}
+              onEditFilter={onEditFilter}
+              onCopy={onCopy}
+              onDelete={onDelete}
+              onToggleFilterType={onToggleFilterType}
+              triggerFilter={triggerFilter}
+              onHideFilterPopup={onHideFilterPopup}
+            />
+          );
+        }}
+      />
     </Con>
   );
 }

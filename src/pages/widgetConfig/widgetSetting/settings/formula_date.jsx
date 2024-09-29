@@ -12,20 +12,9 @@ import { SettingItem, ControlTag } from '../../styled';
 import { getAdvanceSetting, getControlByControlId } from '../../util';
 import { getFormulaControls } from '../../util/data';
 import { parseDataSource, handleAdvancedSettingChange } from '../../util/setting';
+import { CALC_TYPE, OUTPUT_FORMULA_DATE } from '../../config/setting';
 
 import _ from 'lodash';
-
-const CALC_TYPE = [
-  {
-    text: _l('时长'),
-    value: 1,
-  },
-  {
-    text: _l('为日期加减时间'),
-    value: 2,
-  },
-  { text: _l('距离此刻的时长'), value: 3 },
-];
 
 const FORMAT_TYPE = [
   { text: _l('开始日期 00:00，结束日期 24:00'), value: '1' },
@@ -34,7 +23,8 @@ const FORMAT_TYPE = [
 
 export default function FormulaDate(props) {
   const { allControls, data, onChange, ...rest } = props;
-  const { strDefault, enumDefault, unit } = data;
+  const { strDefault, enumDefault, unit, controlId } = data;
+  const isSaved = controlId && !controlId.includes('-');
   const { autocarry = '0' } = getAdvanceSetting(data);
   const sourceControlId = parseDataSource(data.sourceControlId);
   const dataSource = parseDataSource(data.dataSource);
@@ -70,13 +60,6 @@ export default function FormulaDate(props) {
               onChange={value => onChange({ strDefault: value })}
             />
           </SettingItem>
-          <InputSuffix data={data} onChange={onChange} />
-          {autocarry !== '1' && (
-            <SettingItem>
-              <div className="settingItemTitle">{_l('单位')}</div>
-              <PreSuffix data={data} onChange={onChange} />
-            </SettingItem>
-          )}
           <PointerConfig
             data={data}
             onChange={value => {
@@ -91,10 +74,23 @@ export default function FormulaDate(props) {
               }
             }}
           />
+          <InputSuffix data={data} onChange={onChange} />
+          {autocarry !== '1' && (
+            <SettingItem>
+              <div className="settingItemTitle">{_l('显示单位')}</div>
+              <PreSuffix data={data} onChange={onChange} />
+            </SettingItem>
+          )}
         </Fragment>
       );
     }
     if (enumDefault === 2) {
+      const isDateFn = val => _.includes(['1', '3'], val);
+      const saveData = isSaved
+        ? isDateFn(unit)
+          ? _.filter(OUTPUT_FORMULA_DATE, o => isDateFn(o.value))
+          : _.filter(OUTPUT_FORMULA_DATE, o => !isDateFn(o.value))
+        : OUTPUT_FORMULA_DATE;
       return (
         <Fragment>
           <SettingItem>
@@ -166,12 +162,7 @@ export default function FormulaDate(props) {
             <Dropdown
               border
               value={unit || '3'}
-              data={[
-                { text: _l('日期+时间'), value: '1' },
-                { text: _l('日期'), value: '3' },
-                { text: _l('时分'), value: '8' },
-                { text: _l('时分秒'), value: '9' },
-              ]}
+              data={saveData}
               onChange={value => onChange({ unit: value })}
             />
           </SettingItem>
@@ -194,27 +185,28 @@ export default function FormulaDate(props) {
   return (
     <Fragment>
       <SwitchType {...props} />
-      <SettingItem>
-        <div className="settingItemTitle">{_l('计算方式')}</div>
-        <Dropdown
-          border
-          value={enumDefault}
-          data={CALC_TYPE}
-          onChange={value => {
-            if (value === enumDefault) return;
-            if (value === 3) {
-              onChange({ enumDefault: value, dataSource: '', sourceControlId: '', unit: '3' });
-              return;
-            }
-            onChange({
-              enumDefault: value,
-              dataSource: '',
-              sourceControlId: '',
-              unit: value === 2 && !_.includes(['1', '3', '8', '9'], unit) ? '3' : unit,
-            });
-          }}
-        />
-      </SettingItem>
+      {!isSaved && (
+        <SettingItem>
+          <Dropdown
+            border
+            value={enumDefault}
+            data={CALC_TYPE}
+            onChange={value => {
+              if (value === enumDefault) return;
+              if (value === 3) {
+                onChange({ enumDefault: value, dataSource: '', sourceControlId: '', unit: '3' });
+                return;
+              }
+              onChange({
+                enumDefault: value,
+                dataSource: '',
+                sourceControlId: '',
+                unit: value === 2 && !_.includes(['1', '3', '8', '9'], unit) ? '3' : unit,
+              });
+            }}
+          />
+        </SettingItem>
+      )}
       {getCalcDetail()}
     </Fragment>
   );

@@ -218,7 +218,7 @@ export default class Record extends Component {
             isediting={true}
             clearCellError={() => {}}
             cellUniqueValidate={() => {}}
-            cell={{ ...startControl, value: row.startTime }}
+            cell={{ ...startControl, value: row.startTime, notConvertZone: true }}
             row={row}
             rowFormData={() => controls}
             rowIndex={1}
@@ -279,7 +279,7 @@ export default class Record extends Component {
             isediting={true}
             clearCellError={() => {}}
             cellUniqueValidate={() => {}}
-            cell={{ ...enndControl, value: row.endTime }}
+            cell={{ ...enndControl, value: row.endTime, notConvertZone: true }}
             row={row}
             rowFormData={() => controls}
             rowIndex={1}

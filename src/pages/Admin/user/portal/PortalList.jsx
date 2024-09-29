@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import './index.less';
-import { Link } from 'react-router-dom';
 import { LoadDiv, DatePicker, Icon, ScrollView, Dialog, Checkbox, Button, Dropdown, UserHead } from 'ming-ui';
 import cx from 'classnames';
 import Search from 'src/pages/workflow/components/Search';
 import PaginationWrap from '../../components/PaginationWrap';
+import PurchaseExpandPack from '../../components/PurchaseExpandPack';
 import ajaxRequest from 'src/api/externalPortal';
 import projectAjax from 'src/api/project';
 import _ from 'lodash';
@@ -299,25 +299,24 @@ export default class PortalList extends Component {
 
           {allowUpgradeExternalPortal && showOption && (
             <span className="mLeft20">
-              {/* <span className="Gray_9e mRight5">{_l('%0天后到期', expireDays)}</span> */}
-              <Link
-                className="ThemeColor3 ThemeHoverColor2  NoUnderline"
-                to={`/admin/expansionservice/${this.props.projectId}/portalupgrade`}
-              >
-                {_l('续费')}
-              </Link>
+              <PurchaseExpandPack
+                className="ThemeHoverColor2"
+                text={_l('续费')}
+                type="portalupgrade"
+                projectId={this.props.projectId}
+              />
               <span className="Gray_9e mLeft5 mRight5">{_l('或')}</span>
             </span>
           )}
 
-          {/* {showOption && (
-            <Link
-              className={cx('ThemeColor3 ThemeHoverColor2  NoUnderline', { mLeft20: !allowUpgradeExternalPortal })}
-              to={`/admin/expansionservice/${this.props.projectId}/portaluser`}
-            >
-              {_l('扩充')}
-            </Link>
-          )} */}
+          {showOption && (
+            <PurchaseExpandPack
+              className={cx('ThemeHoverColor2', { mLeft20: !allowUpgradeExternalPortal })}
+              text={_l('扩充')}
+              type="portalexpand"
+              projectId={this.props.projectId}
+            />
+          )}
         </div>
 
         {selectedColumnIds.length > 0 ? (

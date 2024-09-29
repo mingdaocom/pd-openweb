@@ -1,5 +1,4 @@
 ﻿import React from 'react';
-import { autobind } from 'core-decorators';
 import createTask from 'src/components/createTask/createTask';
 import createCalendar from 'src/components/createCalendar/createCalendar';
 import PropTypes from 'prop-types';
@@ -19,15 +18,13 @@ class FastCreateTaskSchedule extends React.Component {
     style: PropTypes.any,
   };
 
-  @autobind
-  componentClickAway() {
+  componentClickAway = () => {
     if (this.props.handFastCreate) {
       this.props.handFastCreate();
     }
-  }
+  };
 
-  @autobind
-  toggleCreateNewCalender() {
+  toggleCreateNewCalender = () => {
     const selectText = _.clone(this.props.selectText);
     createCalendar({
       Message: selectText,
@@ -37,8 +34,7 @@ class FastCreateTaskSchedule extends React.Component {
     }
   }
 
-  @autobind
-  toggleCreateNewTask() {
+  toggleCreateNewTask = () => {
     const selectText = _.clone(this.props.selectText);
 
     createTask({

@@ -6,19 +6,19 @@ import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/W
  * 将连续的单元格合并
  */
 export const uniqMerge = (data, config) => {
-  const { pageSize, defaultEmpty } = config;
+  const { pageSize, defaultEmpty, mergeCell = true } = config;
   data = data.map((item, index) => item || defaultEmpty);
   for(let i = data.length - 1; i >= 0; i--) {
     let current = data[i];
     let last = data[i - 1];
-    if (current == last && (pageSize ? i % pageSize : true)) {
+    if (mergeCell && current == last && (pageSize ? i % pageSize : true)) {
       data[i] = null;
       data[i - 1] = {
         value: last,
         length: 2,
       }
     }
-    if (_.isObject(current) && current.value === last && (pageSize ? i % pageSize : true)) {
+    if (_.isObject(current) && mergeCell && current.value === last && (pageSize ? i % pageSize : true)) {
       data[i - 1] = {
         value: last,
         length: current.length + 1,
@@ -32,7 +32,7 @@ export const uniqMerge = (data, config) => {
 /**
  * 多维度单元格合并
  */
-export const mergeTableCell = (list, pageSize) => {
+export const mergeTableCell = (list, pageSize, mergeCell) => {
   list.map((item, index) => {
     const last = list[index - 1];
     const defaultEmpty = item.xaxisEmptyType ? '--' : ' ';
@@ -43,7 +43,7 @@ export const mergeTableCell = (list, pageSize) => {
             return item.data[i];
           }
           let end = i + n.length;
-          return uniqMerge(item.data.slice(i, end), { pageSize, defaultEmpty });
+          return uniqMerge(item.data.slice(i, end), { pageSize, defaultEmpty, mergeCell });
         } else if (_.isString(n)) {
           return item.data[i] || defaultEmpty;
         } else {
@@ -52,7 +52,7 @@ export const mergeTableCell = (list, pageSize) => {
       });
       item.data = _.flatten(data.filter(item => item));
     } else {
-      item.data = uniqMerge(item.data, { pageSize, defaultEmpty });
+      item.data = uniqMerge(item.data, { pageSize, defaultEmpty, mergeCell });
     }
     return item;
   });
@@ -104,9 +104,10 @@ const getTotalCount = (data, index) => {
  * 合并行
  */
 export const mergeLinesCell = (data, lines, valueMap, config) => {
-  const { pageSize, freeze, freezeIndex } = config;
+  const { pageSize, freeze, freezeIndex, mergeCell = true } = config;
   const fIndex = freezeIndex + 1;
   const isFreeze = freeze && _.isNumber(freezeIndex);
+
   const result = mergeTableCell(data.map((item, index) => {
     const key = Object.keys(item)[0];
     const res = item[key].map((value, valueIndex) => {
@@ -159,7 +160,7 @@ export const mergeLinesCell = (data, lines, valueMap, config) => {
       name,
       data: res,
     }
-  }), pageSize);
+  }), pageSize, mergeCell);
 
   const parse = (value) => {
     let result = value;

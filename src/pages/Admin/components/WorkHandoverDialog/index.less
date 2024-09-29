@@ -26,14 +26,20 @@
       }
     }
   }
+  .description {
+    background: #f6fafe;
+    border-radius: 3px;
+    padding: 8px 16px;
+    margin: 16px 20px 10px;
+  }
   .apps {
     width: 260px;
     border-right: 1px solid #eaeaea;
-    padding: 16px 20px;
+    padding: 10px 20px;
     overflow: auto;
   }
   .handoverList {
-    padding: 16px 20px;
+    padding: 10px 20px;
     overflow: auto;
     .checkItem {
       &:hover {
@@ -63,11 +69,31 @@
       }
     }
   }
+  .role {
+    height: 36px;
+  }
   .footer {
     height: 60px;
     text-align: right;
     padding: 12px 24px;
     box-shadow: 0px -2px 6px 1px rgba(0, 0, 0, 0.06);
     border-radius: 0px 0px 6px 6px;
+    .removeAppMember {
+      height: 36px;
+      line-height: 36px;
+      border-radius: 3px;
+      color: #2196f3;
+      border: 1px solid #2196f3;
+      padding: 0 32px;
+      background-color: #fff;
+      &:hover {
+        color: #1565c0;
+        border: 1px solid #1565c0;
+        background-color: #fff;
+      }
+    }
+  }
+  .flex2 {
+    flex: 2;
   }
 }

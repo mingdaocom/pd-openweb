@@ -34,7 +34,7 @@ export default function ToTodaySetting({ data, onChange, ...rest }) {
         />
       </SettingItem>
       <SettingItem>
-        <div className="settingItemTitle">{_l('选择日期')}</div>
+        <div className="settingItemTitle">{_l('目标日期')}</div>
         <DynamicSelectDateControl
           {...rest}
           disableTimeControl={true}
@@ -42,13 +42,6 @@ export default function ToTodaySetting({ data, onChange, ...rest }) {
           onChange={value => onChange({ sourceControlId: value })}
         />
       </SettingItem>
-      <InputSuffix data={data} onChange={onChange} />
-      {autocarry !== '1' && (
-        <SettingItem>
-          <div className="settingItemTitle">{_l('单位')}</div>
-          <PreSuffix data={data} onChange={onChange} />
-        </SettingItem>
-      )}
       <PointerConfig
         data={data}
         onChange={value => {
@@ -63,6 +56,13 @@ export default function ToTodaySetting({ data, onChange, ...rest }) {
           }
         }}
       />
+      <InputSuffix data={data} onChange={onChange} />
+      {autocarry !== '1' && (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('显示单位')}</div>
+          <PreSuffix data={data} onChange={onChange} />
+        </SettingItem>
+      )}
     </Fragment>
   );
 }

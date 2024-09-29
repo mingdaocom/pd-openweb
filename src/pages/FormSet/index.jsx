@@ -9,7 +9,7 @@ import Alias from './containers/Alias';
 import FunctionalSwitch from './containers/FunctionalSwitch';
 import CustomBtnFormSet from './containers/CustomBtnFormSet';
 import FormIndexSetting from './containers/FormIndexSetting';
-import SubmitFormSetting from './containers/SubmitFormSetting';
+import SubmitFormSetting from './containers/SubmitFormSetting/index';
 import './index.less';
 import ErrorState from 'src/components/errorPage/errorState';
 import { MODULE_TYPE_TO_NAME } from './config';
@@ -63,8 +63,8 @@ class FormSet extends React.Component {
         const { worksheetId } = match.params;
         window.clearLocalDataTime({ requestData: { worksheetId }, clearSpecificKey: 'Worksheet_GetWorksheetInfo' });
 
-        //0：非成员 1：表负责人（弃用） 2：管理员 3：成员 4:开发者
-        if (![2, 4].includes(data.roleType)) {
+        //0：非成员 1：表负责人（弃用） 2：管理员 3：成员 4:开发者 6:开发者+运营者
+        if (![2, 4, 6].includes(data.roleType)) {
           this.setState({
             noRight: true,
             loading: false,

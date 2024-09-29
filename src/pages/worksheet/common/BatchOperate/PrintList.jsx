@@ -122,7 +122,6 @@ export default function PrintList(props) {
             : data
                 .filter(d => d.type >= 2 && !d.disabled)
                 .sort((a, b) => {
-                  console.log(_.findKey(PRINT_TYPE, l => l === a.type));
                   return (
                     PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === a.type)] -
                     PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === b.type)]

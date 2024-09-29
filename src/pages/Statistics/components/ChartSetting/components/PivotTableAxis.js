@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import styled from 'styled-components';
-import { Icon } from 'ming-ui';
+import { Icon, SortableList } from 'ming-ui';
 import { Menu, Dropdown, Tooltip } from 'antd';
 import RenameModal from './RenameModal';
 import ShowControlModal from './ShowControlModal';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { ShowFormatDialog } from 'src/pages/widgetConfig/widgetSetting/components/WidgetHighSetting/ControlSetting/DateConfig';
 import WithoutFidldItem from './WithoutFidldItem';
@@ -55,6 +54,7 @@ const openShowFormatDialog = props => {
 
 const renderOverlay = ({
   axis,
+  control,
   type,
   normType,
   showFormat,
@@ -156,7 +156,6 @@ const renderOverlay = ({
       {isNumber && verifyNumber && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
           {normTypes
-            .filter(n => n.value !== 5)
             .map(item => (
               <Menu.Item
                 style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
@@ -172,7 +171,7 @@ const renderOverlay = ({
       )}
       {!isNumberControl(axis.type) && verifyNumber && (
         <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-          {textNormTypes.map(item => (
+          {(control.enumDefault === 1 ? normTypes : textNormTypes).map(item => (
             <Menu.Item
               className="valignWrapper"
               style={{ width: 120, color: item.value === normType ? '#1e88e5' : null }}
@@ -319,8 +318,9 @@ const renderOverlay = ({
   );
 };
 
-const SortableItem = SortableElement(props => {
+const renderSortableItem = props => {
   const {
+    DragHandle,
     type,
     item,
     axisControls,
@@ -339,6 +339,7 @@ const SortableItem = SortableElement(props => {
   const isArea = isAreaControl(axis.type);
   const overlayProps = {
     axis,
+    control,
     type,
     normType: item.normType,
     particleSizeType: item.particleSizeType,
@@ -356,14 +357,16 @@ const SortableItem = SortableElement(props => {
   const tip = item.rename && item.rename !== axis.controlName ? axis.controlName : null;
   return (
     <SortableItemContent className="mBottom12">
-      <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag_indicator" />
+      <DragHandle>
+        <Icon className="sortableDrag Font20 pointer Gray_bd ThemeHoverColor3" icon="drag_indicator" />
+      </DragHandle>
       <div className="flexRow valignWrapper fidldItem mBottom0" key={item.controlId}>
         {axis.controlId ? (
           <Tooltip title={tip}>
             <span className="Gray flex ellipsis">
               {verifyNumber &&
                 ![10000000, 10000001].includes(axis.type) &&
-                `${_.find(normTypes.concat(textNormTypes), { value: item.normType }).text}: `}
+                `${_.get(_.find(normTypes.concat(textNormTypes), { value: item.normType }), 'text')}: `}
               {item.rename || axis.controlName}
               {!verifyNumber && (
                 <Fragment>
@@ -393,17 +396,7 @@ const SortableItem = SortableElement(props => {
       </div>
     </SortableItemContent>
   );
-});
-
-const SortableList = SortableContainer(({ list, ...otherProps }) => {
-  return (
-    <div>
-      {list.map((item, index) => (
-        <SortableItem key={index} sortIndex={index} index={index} item={item} {...otherProps} />
-      ))}
-    </div>
-  );
-});
+};
 
 @connect(state => ({
   ..._.pick(state.statistics, ['worksheetInfo']),
@@ -418,9 +411,10 @@ export default class PivotTableAxis extends Component {
     };
   }
   handleVerification = (data, isAlert = false) => {
-    const { list, verifyNumber } = this.props;
+    const { type, list, axisList, verifyNumber } = this.props;
+    const isAxis = ['lines', 'columns'].includes(type);
 
-    if (!isTimeControl(data.type) && _.find(list, { controlId: data.controlId })) {
+    if (!isTimeControl(data.type) && _.find(isAxis ? axisList : list, { controlId: data.controlId })) {
       isAlert && alert(_l('不允许添加重复字段'), 2);
       return false;
     }
@@ -433,7 +427,6 @@ export default class PivotTableAxis extends Component {
     return true;
   };
   handleAddControl = data => {
-    const { list, verifyNumber, disableParticleSizeTypes } = this.props;
 
     if (!this.handleVerification(data, true)) {
       return;
@@ -499,9 +492,7 @@ export default class PivotTableAxis extends Component {
     });
     this.props.onUpdateList(newList);
   };
-  handleSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-    const newList = arrayMove(_.cloneDeep(this.props.list), oldIndex, newIndex);
+  handleSortEnd = newList => {
     this.props.onUpdateList(newList);
   };
   renderModal() {
@@ -537,24 +528,26 @@ export default class PivotTableAxis extends Component {
   }
   render() {
     const { type, name, list, axisControls, allControls, disableParticleSizeTypes, verifyNumber } = this.props;
+    const otherProps = {
+      type,
+      axisControls,
+      allControls,
+      verifyNumber,
+      disableParticleSizeTypes,
+      onClear: this.props.onRemove,
+      onChangeData: this.handleChangeData,
+      onUpdateParticleSizeType: this.handleUpdateParticleSizeType,
+      onSelectReNameId: this.handleSelectReNameId,
+      onShowControl: this.handleShowControl,
+    }
     return (
       <div className="fieldWrapper mBottom20">
         <div className="Bold mBottom12">{name}</div>
         <SortableList
-          axis="xy"
-          helperClass="sortableNumberField"
-          type={type}
-          list={list}
-          axisControls={axisControls}
-          allControls={allControls}
-          verifyNumber={verifyNumber}
-          disableParticleSizeTypes={disableParticleSizeTypes}
-          onClear={this.props.onRemove}
-          onChangeData={this.handleChangeData}
-          onUpdateParticleSizeType={this.handleUpdateParticleSizeType}
-          onSelectReNameId={this.handleSelectReNameId}
-          onShowControl={this.handleShowControl}
-          shouldCancelStart={({ target }) => !target.classList.contains('icon-drag_indicator')}
+          useDragHandle
+          items={list}
+          itemKey="controlId"
+          renderItem={(options) => renderSortableItem({ ...options, ...otherProps })}
           onSortEnd={this.handleSortEnd}
         />
         {<WithoutFidldItem onVerification={this.handleVerification} onAddControl={this.handleAddControl} />}

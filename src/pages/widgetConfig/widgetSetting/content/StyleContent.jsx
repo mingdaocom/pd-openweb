@@ -10,6 +10,7 @@ import { SettingCollapseWrap } from './styled';
 import { notExplainDisplay } from '../../util';
 import { HAVE_VALUE_STYLE_WIDGET } from '../../config';
 import { SectionItem } from '../components/SplitLineConfig/style';
+import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
 
 const { Panel } = Collapse;
 
@@ -56,7 +57,8 @@ const DISPLAY_SIZE = Array.from({ length: 5 }).map((item, index) => ({
 }));
 
 const DefaultStyle = ({ data, onChange }) => {
-  const { advancedSetting = {}, type } = data;
+  const { advancedSetting = {}, type, enumDefault } = data;
+  const { minheight = '90', maxheight } = advancedSetting;
 
   const DISPLAY_OPTIONS = getStyleOptions(data);
 
@@ -130,6 +132,59 @@ const DefaultStyle = ({ data, onChange }) => {
           </SettingItem>
         );
       })}
+      {((type === 2 && enumDefault === 1) || type === 41) && (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('文本框高度（px）')}</div>
+          <SectionItem>
+            <div className="label Gray_75">{_l('最小')}</div>
+            <InputValue
+              value={minheight}
+              className="w100"
+              type={2}
+              placeholder={_l('最小')}
+              onChange={value => {
+                onChange(handleAdvancedSettingChange(data, { minheight: value }));
+              }}
+              onBlur={value => {
+                let tempMinValue = value;
+                if (type === 2 && tempMinValue < 36) {
+                  tempMinValue = 36;
+                }
+                if (type === 41 && tempMinValue < 90) {
+                  tempMinValue = 90;
+                }
+                const max = type === 2 ? maxheight || 400 : maxheight;
+                if (max && tempMinValue > Number(max)) {
+                  tempMinValue = max;
+                }
+                onChange(handleAdvancedSettingChange(data, { minheight: tempMinValue.toString() }));
+              }}
+            />
+          </SectionItem>
+          <SectionItem>
+            <div className="label Gray_75">{_l('最大')}</div>
+            <InputValue
+              value={maxheight}
+              className="w100"
+              type={2}
+              placeholder={_l('自适应')}
+              onChange={value => {
+                onChange(handleAdvancedSettingChange(data, { maxheight: value }));
+              }}
+              onBlur={value => {
+                let tempMaxValue = value;
+                if (type === 2 && tempMaxValue > 400) {
+                  tempMaxValue = 400;
+                }
+                if (minheight && tempMaxValue && tempMaxValue < Number(minheight)) {
+                  tempMaxValue = minheight;
+                }
+                onChange(handleAdvancedSettingChange(data, { maxheight: tempMaxValue.toString() }));
+              }}
+            />
+          </SectionItem>
+        </SettingItem>
+      )}
     </Fragment>
   );
 };

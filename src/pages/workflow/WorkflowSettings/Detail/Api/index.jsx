@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Icon, Tooltip, SvgIcon } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, ProcessParameters } from '../components';
+import { DetailHeader, DetailFooter, ProcessParameters, SelectAuthAccount } from '../components';
 import cx from 'classnames';
 import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
@@ -61,7 +61,7 @@ export default class Api extends Component {
             });
         }
 
-        this.setState({ data: !appId ? result : { ...result, name: data.name } });
+        this.setState({ data: !appId ? result : { ...result, name: data.name, authId: '' } });
       });
   }
 
@@ -78,7 +78,7 @@ export default class Api extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, appId, fields } = data;
+    const { name, appId, fields, hasAuth, authId } = data;
     const subProcessVariables = _.cloneDeep(data.subProcessVariables);
     let hasError = 0;
 
@@ -107,6 +107,11 @@ export default class Api extends Component {
       return;
     }
 
+    if (hasAuth && !authId) {
+      alert(_l('必须选择一个账户'), 2);
+      return;
+    }
+
     flowNode
       .saveNode({
         processId: this.props.processId,
@@ -115,6 +120,7 @@ export default class Api extends Component {
         name: name.trim(),
         appId,
         fields,
+        authId,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -198,6 +204,16 @@ export default class Api extends Component {
             </Fragment>
           )}
         </div>
+
+        {data.hasAuth && (
+          <SelectAuthAccount
+            required
+            className="mTop20"
+            authId={data.authId}
+            apiId={data.appId}
+            onChange={authId => this.updateSource({ authId })}
+          />
+        )}
 
         {data.appId && !!data.fields.length && (
           <Fragment>

@@ -61,7 +61,7 @@ const StyledFixedTable = styled(FixedTable)`
     &.grayHover:not(.cellControlErrorStatus):not(.placeholder):not(.treeNode) {
       box-shadow: inset 0 0 0 1px #e0e0e0 !important;
     }
-    &.focus:not(.cellControlErrorStatus):not(.control-10.isediting):not(.control-11.isediting) {
+    &.focus:not(.control-10.isediting):not(.control-11.isediting) {
       box-shadow: inset 0 0 0 2px #2d7ff9 !important;
       z-index: 2;
     }
@@ -169,6 +169,7 @@ function WorksheetTable(props, ref) {
     cellErrors = {},
     clearCellError = () => {},
     expandCellAppendWidth,
+    treeLayerControlId,
     fixedColumnCount = 0,
     renderColumnHead,
     renderFooterCell,
@@ -183,6 +184,7 @@ function WorksheetTable(props, ref) {
     tableFooter,
     actions = {},
     chatButton,
+    onColumnHeadHeightUpdate = () => {},
   } = props;
   const { emptyIcon, emptyText, sheetIsFiltered, allowAdd, noRecordAllowAdd, showNewRecord } = props; // 空状态
   const { keyWords } = props; // 搜索
@@ -235,6 +237,7 @@ function WorksheetTable(props, ref) {
     [],
   );
   const [rulePermissions, updateRulePermissions] = useState(defaultRulePermissions);
+  const [xIsScroll, setXIsScroll] = useState(false);
   const tableRef = useRef();
   window.tableRef = tableRef;
   const handleUpdateRulePermissions = useCallback(newRulePermissions => {
@@ -260,18 +263,23 @@ function WorksheetTable(props, ref) {
     width: width - (YIsScroll ? getScrollBarWidth() : 0),
     visibleControls: visibleColumns,
     sheetColumnWidths,
+    xIsScroll,
   });
   const columnHeadHeight = useMemo(() => {
     if (!wrapControlName) {
       return 34;
     }
     const headHeight = getTableHeadHeight(visibleColumns.map((c, i) => ({ ...c, width: getColumnWidth(i) })));
+    onColumnHeadHeightUpdate(headHeight + 16);
     return headHeight + 16;
   }, [visibleColumns]);
   // 按照传入记录数计算宽度
   if (setHeightAsRowCount || !_.isUndefined(rowCount)) {
     const XIsScroll = _.sum(visibleColumns.map((a, i) => getColumnWidth(i, true) || 200)) > width;
-    tableHeight = tableRowCount * rowHeight + 34 + (XIsScroll ? getScrollBarWidth() : 0);
+    if (xIsScroll !== XIsScroll) {
+      setXIsScroll(XIsScroll);
+    }
+    tableHeight = tableRowCount * rowHeight + columnHeadHeight + (XIsScroll ? getScrollBarWidth() : 0);
     if (showSummary) {
       tableHeight += 28;
     }
@@ -308,7 +316,9 @@ function WorksheetTable(props, ref) {
       ele.classList.remove('rowHadFocus');
       const input = ele.querySelector('input');
       if (input) {
-        ele.removeChild(input);
+        try {
+          ele.removeChild(input);
+        } catch (err) {}
       }
     });
     if (newIndex === -10000) {
@@ -316,9 +326,6 @@ function WorksheetTable(props, ref) {
     }
     window.activeTableId = tableId;
     const focusElement = tableRef.current && tableRef.current.dom.current.querySelector(`.cell-${newIndex}`);
-    if (focusElement.classList.contains('emptyRow') && cache.data[Math.floor(newIndex / cellColumnCount)]) {
-      onFocusCell(cache.data[Math.floor(newIndex / cellColumnCount)], newIndex);
-    }
     const focusRowHeadElement = tableRef.current.dom.current.querySelector(
       `.cell-${newIndex - (newIndex % cellColumnCount)}`,
     );
@@ -536,6 +543,8 @@ function WorksheetTable(props, ref) {
           chatButton,
           isTreeTableView,
           treeTableViewData,
+          expandCellAppendWidth,
+          treeLayerControlId,
           tableId,
           isTrash,
           from,
@@ -655,7 +664,9 @@ function WorksheetTable(props, ref) {
         }}
         tableFooter={tableFooter}
       />
-      {!data.length && showSearchEmpty && keyWords && <NoSearch keyWords={keyWords} />}
+      {!data.length && showSearchEmpty && keyWords && (
+        <NoSearch keyWords={keyWords} columnHeadHeight={columnHeadHeight} />
+      )}
     </React.Fragment>
   );
 }

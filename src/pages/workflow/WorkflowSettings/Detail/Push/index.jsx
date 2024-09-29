@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, Dropdown, LoadDiv, Radio } from 'ming-ui';
+import { ScrollView, Dropdown, LoadDiv, Radio, Checkbox } from 'ming-ui';
 import cx from 'classnames';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, CustomTextarea, SpecificFieldsValue } from '../components';
-import { PUSH_TYPE, PUSH_LIST, APP_TYPE } from '../../enum';
+import { DetailHeader, DetailFooter, CustomTextarea, SpecificFieldsValue, SingleControlValue } from '../components';
+import { PUSH_TYPE, PUSH_LIST, APP_TYPE, ACTION_ID } from '../../enum';
 import homeApp from 'src/api/homeApp';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -109,14 +109,15 @@ export default class Push extends Component {
   /**
    * 获取节点详情
    */
-  getNodeDetail(props) {
+  getNodeDetail(props, { appId, actionId } = {}) {
     const { processId, selectNodeId, selectNodeType, instanceId } = props;
+    const { currentAppList } = this.state;
 
     flowNode
-      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId, appId, actionId })
       .then(result => {
         this.setState({ data: result });
-        !instanceId && this.getWorksheetsByAppId();
+        !instanceId && !currentAppList.length && this.getWorksheetsByAppId();
       });
   }
 
@@ -176,8 +177,21 @@ export default class Push extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { name, promptType, pushType, openMode, selectNodeId, viewId, content, appId, duration, title, buttons } =
-      data;
+    const {
+      name,
+      promptType,
+      pushType,
+      openMode,
+      selectNodeId,
+      viewId,
+      content,
+      appId,
+      duration,
+      title,
+      buttons,
+      actionId,
+      fields,
+    } = data;
 
     let hasError = false;
 
@@ -211,6 +225,8 @@ export default class Push extends Component {
         duration,
         title,
         buttons,
+        actionId,
+        fields: actionId === ACTION_ID.CREATE_RECORD ? fields : [],
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -410,6 +426,50 @@ export default class Push extends Component {
           updateSource={this.updateSource}
           updateRootSource={this.updateSource}
         />
+
+        {data.pushType === PUSH_TYPE.CREATE && (
+          <Fragment>
+            {/* <div className="mTop15">
+              <Checkbox
+                text={_l('创建草稿记录')}
+                checked={data.actionId === ACTION_ID.CREATE_RECORD}
+                onClick={checked => {
+                  if (!checked) {
+                    this.getNodeDetail(this.props, { appId: data.appId, actionId: ACTION_ID.CREATE_RECORD });
+                  } else {
+                    this.updateSource({ actionId: '' });
+                  }
+                }}
+              />
+            </div> */}
+
+            {data.actionId === ACTION_ID.CREATE_RECORD &&
+              data.fields.map((item, i) => {
+                const singleObj = _.find(data.controls, obj => obj.controlId === item.fieldId) || {};
+
+                return (
+                  <div key={item.fieldId} className="relative">
+                    <div className="flexRow alignItemsCenter mTop15">
+                      <div className="ellipsis Font13 flex mRight20">{singleObj.controlName}</div>
+                    </div>
+                    <SingleControlValue
+                      companyId={this.props.companyId}
+                      relationId={this.props.relationId}
+                      processId={this.props.processId}
+                      selectNodeId={this.props.selectNodeId}
+                      sourceNodeId={data.selectNodeId}
+                      controls={data.controls}
+                      formulaMap={data.formulaMap}
+                      fields={data.fields}
+                      updateSource={this.updateSource}
+                      item={item}
+                      i={i}
+                    />
+                  </div>
+                );
+              })}
+          </Fragment>
+        )}
       </Fragment>
     );
   }
@@ -567,7 +627,7 @@ export default class Push extends Component {
    */
   switchWorksheet = (appId, index) => {
     if (index === undefined) {
-      this.updateSource({ appId, viewId: '' });
+      this.updateSource({ appId, viewId: '', actionId: '' });
     } else {
       this.updateButtonSource({ appId, viewId: '' }, index);
     }

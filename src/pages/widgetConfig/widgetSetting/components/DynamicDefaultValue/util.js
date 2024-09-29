@@ -81,38 +81,62 @@ const isSingleRelate = control => control.type === 29 && control.enumDefault ===
 const isRelateMore = control => control.type === 29 && control.enumDefault === 2;
 
 //关联多条卡片、下拉框
-const isResultAsRelateMore = control => !isSheetDisplay(control);
+const isResultAsRelateMore = control => control.type === 29 && !isSheetDisplay(control);
 
 // 汇总计算为数值的
-export const isFormulaResultAsSubtotal = item => {
+export const isFormulaResultAsSubtotal = (item = {}) => {
   return item.type === 37 && _.includes([0, 6, 8], item.enumDefault2);
 };
 
+// 汇总计算为日期时间的
+export const isFormulaResultAsSubtotalDateTime = (item = {}) => {
+  return item.type === 37 && _.includes([15, 16], item.enumDefault2);
+};
+
+// 汇总计算为时间的
+export const isFormulaResultAsSubtotalTime = (item = {}) => {
+  return item.type === 37 && _.includes([46], item.enumDefault2);
+};
+
+// 公式控件计算为文本的
+export const isFormulaResultAsText = (item = {}) => {
+  return item.type === 53 && item.enumDefault2 === 2;
+};
+
 // 公式控件计算为数值的
-export const isFormulaResultAsNumber = item => {
-  return item.type === 31 || (item.type === 38 && item.enumDefault === 1);
+export const isFormulaResultAsNumber = (item = {}) => {
+  return (
+    item.type === 31 || (item.type === 38 && item.enumDefault === 1) || (item.type === 53 && item.enumDefault2 === 6)
+  );
 };
 // 他表字段值为数值的
-const relateSheetFiledIsNumber = item => {
+const relateSheetFiledIsNumber = (item = {}) => {
   return item.type === 30 && _.includes(CAN_AS_NUMBER_DYNAMIC_FIELD, _.get(item, ['sourceControl', 'type']));
 };
 // 公式控件计算为日期时间的
-export const isFormulaResultAsDateTime = item => {
-  return item.type === 38 && item.enumDefault === 2 && item.unit === '1';
+export const isFormulaResultAsDateTime = (item = {}) => {
+  return (
+    (item.type === 38 && item.enumDefault === 2 && item.unit === '1') || (item.type === 53 && item.enumDefault2 === 16)
+  );
 };
 
 // 公式控件计算为日期的
-export const isFormulaResultAsDate = item => {
-  return item.type === 38 && item.enumDefault === 2 && item.unit === '3';
+export const isFormulaResultAsDate = (item = {}) => {
+  return (
+    (item.type === 38 && item.enumDefault === 2 && item.unit === '3') || (item.type === 53 && item.enumDefault2 === 15)
+  );
 };
 
 // 公式控件计算为时间的
-export const isFormulaResultAsTime = item => {
-  return item.type === 38 && item.enumDefault === 2 && _.includes(['8', '9'], item.unit);
+export const isFormulaResultAsTime = (item = {}) => {
+  return (
+    (item.type === 38 && item.enumDefault === 2 && _.includes(['8', '9'], item.unit)) ||
+    (item.type === 53 && item.enumDefault2 === 46)
+  );
 };
 
 // 赋分值的选项
-export const isEnableScoreOption = item => {
+export const isEnableScoreOption = (item = {}) => {
   return _.includes([9, 10, 11], item.type) && item.enumDefault === 1;
 };
 
@@ -131,7 +155,7 @@ const isSameUser = (item = {}, usertype) => {
 // 根据类型筛选 可用的动态默认值类型
 export const FILTER = {
   // 文本
-  2: item => _.includes(CAN_AS_TEXT_DYNAMIC_FIELD, item.type) || isSingleRelate(item),
+  2: item => _.includes(CAN_AS_TEXT_DYNAMIC_FIELD, item.type) || isSingleRelate(item) || isFormulaResultAsText(item),
   3: item => _.includes([3], item.type),
   4: item => _.includes([4], item.type),
   5: item => _.includes(CAN_AS_EMAIL_DYNAMIC_FIELD, item.type),

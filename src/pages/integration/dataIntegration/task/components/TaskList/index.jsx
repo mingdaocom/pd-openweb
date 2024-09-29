@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState, useCallback } from 'react';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Icon, LoadDiv, ScrollView } from 'ming-ui';
+import { Icon, LoadDiv, ScrollView, Checkbox } from 'ming-ui';
 import { Switch } from 'antd';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -14,41 +14,51 @@ import { Link } from 'react-router-dom';
 import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import dataSourceApi from '../../../../api/datasource';
 import ToolTip from 'ming-ui/components/Tooltip';
+import DropMotion from 'src/pages/worksheet/components/Animations/DropMotion';
 
 const TaskListBox = styled.div`
-  .headTr {
-    display: flex;
-    align-items: center;
-    margin: 0;
-    padding: 8px 0;
-    border-bottom: 1px solid #e0e0e0;
+  .itemWrapper {
+    padding-left: 22px;
+    position: relative;
 
-    .sortIcon {
-      color: #bfbfbf;
-      height: 8px;
+    &.isHeader {
+      .rowItem {
+        padding: 8px 0;
+        .sortIcon {
+          color: #bfbfbf;
+          height: 8px;
 
-      &.selected {
-        color: #2196f3;
+          &.selected {
+            color: #2196f3;
+          }
+        }
+      }
+    }
+
+    &:not(.isHeader) {
+      &:hover {
+        background: rgba(247, 247, 247, 1);
+        .checkbox {
+          .taskItemCheckbox {
+            display: block;
+          }
+        }
+        .titleText {
+          color: #2196f3 !important;
+        }
+        .optionIcon {
+          background: rgba(247, 247, 247, 1);
+        }
       }
     }
   }
 
-  .dataItem {
+  .rowItem {
     display: flex;
     align-items: center;
     margin: 0;
     padding: 12px 0;
     border-bottom: 1px solid #e0e0e0;
-
-    &:hover {
-      background: rgba(247, 247, 247, 1);
-      .titleText {
-        color: #2196f3 !important;
-      }
-      .optionIcon {
-        background: rgba(247, 247, 247, 1);
-      }
-    }
 
     .titleColumn {
       min-width: 124px;
@@ -79,6 +89,16 @@ const TaskListBox = styled.div`
     }
   }
 
+  .checkbox {
+    position: absolute;
+    left: 6px;
+    .taskItemCheckbox {
+      display: none;
+      &.isShow {
+        display: block;
+      }
+    }
+  }
   .optionIcon {
     display: inline-flex;
     justify-content: center;
@@ -110,6 +130,7 @@ const TaskListBox = styled.div`
   .taskName {
     flex: 6;
     width: 0;
+    padding-left: 6px;
   }
   .createUser {
     flex: 3;
@@ -271,8 +292,29 @@ const FilterItem = styled.div`
   }
 `;
 
+const SelectedWrapper = styled.div`
+  height: 71px;
+  display: flex;
+  align-items: center;
+  background: #fff;
+
+  .operateBtn {
+    height: 36px;
+    line-height: 36px;
+    padding: 0 12px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+    &:hover {
+      border-color: #2196f3;
+      color: #2196f3;
+    }
+  }
+`;
+
 let ajaxPromise;
 let statusAjaxPromise;
+let batchAjaxPromise;
 let sortFlag = 0;
 
 export default function TaskList({ projectId, onRefreshComponents }) {
@@ -292,6 +334,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
   const [showFilter, setShowFilter] = useState(false);
   const [sourceTypeTabList, setSourceTypeTabList] = useState([]);
   const [switchLoading, setSwitchLoading] = useState({});
+  const [selectedTasks, setSelectedTasks] = useState([]);
 
   const FILTER_TYPES = [
     { title: _l('任务状态'), data: TASK_STATUS_TAB_LIST, key: 'taskStatus', hasExpand: false },
@@ -381,12 +424,60 @@ export default function TaskList({ projectId, onRefreshComponents }) {
           setTaskList && setTaskList(newTaskList);
           onRefreshComponents(+new Date());
         } else {
-          alert(checked ? res.errorMsg : _l('停止同步任务失败'), 2);
+          alert(
+            res.errorMsg || (res.errorMsgList || [])[0] || (checked ? _l('开启同步任务失败') : _l('停止同步任务失败')),
+            2,
+          );
         }
       })
       .catch(() => {
         statusAjaxPromise = null;
         setSwitchLoading({ [record.id]: false });
+      });
+  };
+
+  const batchStartEndTasks = isStart => {
+    if (batchAjaxPromise) return;
+
+    const taskIds = selectedTasks
+      .filter(task =>
+        isStart ? task.taskStatus !== TASK_STATUS_TYPE.RUNNING : task.taskStatus === TASK_STATUS_TYPE.RUNNING,
+      )
+      .map(task => task.id);
+
+    if (!taskIds.length) {
+      alert(isStart ? _l('任务都已开启') : _l('任务都已关闭'), 3);
+      return;
+    }
+
+    setSwitchLoading({ ...taskIds.map(taskId => ({ [taskId]: true })) });
+    batchAjaxPromise = syncTaskApi[isStart ? 'batchStartTask' : 'batchStopTask']({ projectId, taskIds });
+    batchAjaxPromise
+      .then(res => {
+        batchAjaxPromise = null;
+        setSwitchLoading({ ...taskIds.map(taskId => ({ [taskId]: false })) });
+        if (isStart ? res.isSucceeded : res) {
+          alert(isStart ? _l('启动同步任务成功') : _l('停止同步任务成功'));
+
+          const newTaskList = taskList.map(item => {
+            return taskIds.includes(item.id)
+              ? { ...item, taskStatus: isStart ? TASK_STATUS_TYPE.RUNNING : TASK_STATUS_TYPE.STOP }
+              : item;
+          });
+
+          setTaskList && setTaskList(newTaskList);
+          setSelectedTasks(newTaskList.filter(task => selectedTasks.map(t => t.id).includes(task.id)));
+          onRefreshComponents(+new Date());
+        } else {
+          alert(
+            res.errorMsg || (res.errorMsgList || [])[0] || (isStart ? _l('开启同步任务失败') : _l('停止同步任务失败')),
+            2,
+          );
+        }
+      })
+      .catch(() => {
+        batchAjaxPromise = null;
+        setSwitchLoading({ ...taskIds.map(taskId => ({ [taskId]: false })) });
       });
   };
 
@@ -397,6 +488,40 @@ export default function TaskList({ projectId, onRefreshComponents }) {
   };
 
   const columns = [
+    {
+      dataIndex: 'checkbox',
+      renderTitle: () => {
+        const checkableCount = taskList.filter(task => !task.errorInfo).length;
+        const checked = checkableCount === selectedTasks.length;
+        return !!selectedTasks.length ? (
+          <Checkbox
+            size="small"
+            className={cx('taskItemCheckbox', { isShow: !!selectedTasks.length })}
+            checked={checked}
+            clearselected={!checked && !!selectedTasks.length}
+            onClick={() => {
+              setSelectedTasks(checked ? [] : taskList.filter(task => !task.errorInfo));
+            }}
+          />
+        ) : null;
+      },
+      render: item => {
+        const checked = !!selectedTasks.filter(task => task.id === item.id).length;
+        return (
+          <Checkbox
+            size="small"
+            className={cx('taskItemCheckbox', { isShow: checked })}
+            checked={checked}
+            disabled={!!item.errorInfo}
+            onClick={() => {
+              setSelectedTasks(
+                checked ? selectedTasks.filter(task => task.id !== item.id) : selectedTasks.concat(item),
+              );
+            }}
+          />
+        );
+      },
+    },
     {
       dataIndex: 'taskName',
       title: _l('任务'),
@@ -710,49 +835,72 @@ export default function TaskList({ projectId, onRefreshComponents }) {
             })}
           </div>
         )}
+
+        <DropMotion
+          duration={200}
+          animateOffset={24}
+          style={{ position: 'absolute', width: '100%', top: 0, left: 0, zIndex: 2 }}
+          visible={!!selectedTasks.length}
+        >
+          <SelectedWrapper>
+            <div className="Font15 bold mRight40">{_l('已选择') + selectedTasks.length + _l('条记录')}</div>
+            <div className="operateBtn mRight16" onClick={() => batchStartEndTasks(true)}>
+              {_l('启动任务')}
+            </div>
+            <div className="operateBtn" onClick={() => batchStartEndTasks(false)}>
+              {_l('停止任务')}
+            </div>
+          </SelectedWrapper>
+        </DropMotion>
       </div>
 
-      <TaskListBox>
-        <div className="headTr mTop8">
-          {columns.map((item, index) => {
-            return (
-              <div key={index} className={`${item.dataIndex}`}>
-                {item.renderTitle ? item.renderTitle() : item.title}
-              </div>
-            );
-          })}
-        </div>
-      </TaskListBox>
-      <ScrollView className="flex" onScrollEnd={onScrollEnd}>
-        {taskList && taskList.length > 0 ? (
-          <TaskListBox>
-            {taskList.map((sourceItem, index) => {
-              return (
-                <div key={index} className="dataItem">
-                  {columns.map((item, i) => {
-                    return (
-                      <div key={i} className={`${item.dataIndex}`}>
-                        {item.render ? item.render(sourceItem) : sourceItem[item.dataIndex]}
-                      </div>
-                    );
-                  })}
-                </div>
-              );
-            })}
-          </TaskListBox>
-        ) : !fetchState.loading ? (
-          <NoDataWrapper>
-            <span className="iconCon InlineBlock TxtCenter ">
-              <i className="icon-synchronization Font64 TxtMiddle" />
-            </span>
-            <p className="Gray_9e mTop20 mBottom0">
-              {fetchState.searchKeyWords ? _l('无搜索结果，换一个关键词试试吧') : _l('暂无数据')}
-            </p>
-          </NoDataWrapper>
-        ) : null}
+      <div className="flexColumn h100 leftMove22">
+        <TaskListBox>
+          <div className={cx('itemWrapper mTop8', { isHeader: true })}>
+            <div className="rowItem">
+              {columns.map((item, index) => {
+                return (
+                  <div key={index} className={`${item.dataIndex}`}>
+                    {item.renderTitle ? item.renderTitle() : item.title}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </TaskListBox>
+        <ScrollView className="flex" onScrollEnd={onScrollEnd}>
+          {taskList && taskList.length > 0 ? (
+            <TaskListBox>
+              {taskList.map((sourceItem, index) => {
+                return (
+                  <div className="itemWrapper">
+                    <div key={index} className="rowItem">
+                      {columns.map((item, i) => {
+                        return (
+                          <div key={i} className={`${item.dataIndex}`}>
+                            {item.render ? item.render(sourceItem) : sourceItem[item.dataIndex]}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </TaskListBox>
+          ) : !fetchState.loading ? (
+            <NoDataWrapper>
+              <span className="iconCon InlineBlock TxtCenter ">
+                <i className="icon-synchronization Font64 TxtMiddle" />
+              </span>
+              <p className="Gray_9e mTop20 mBottom0">
+                {fetchState.searchKeyWords ? _l('无搜索结果，换一个关键词试试吧') : _l('暂无数据')}
+              </p>
+            </NoDataWrapper>
+          ) : null}
 
-        {fetchState.loading && <LoadDiv className="mTop10" />}
-      </ScrollView>
+          {fetchState.loading && <LoadDiv className="mTop10" />}
+        </ScrollView>
+      </div>
     </Fragment>
   );
 }

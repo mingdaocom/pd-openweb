@@ -85,7 +85,7 @@ export default class WidgetsVerifyCode extends Component {
       if (md.global.getCaptchaType() === 1) {
         new captcha(cb, onCancel);
       } else {
-        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();
+        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb, { needFeedBack: false }).show();
       }
     };
 

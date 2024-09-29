@@ -1,19 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Dialog } from 'ming-ui';
+import { Modal } from 'ming-ui';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal as MobileRecordInfoModal } from 'mobile/Record';
-
-const RecordDetailDialog = styled(Dialog)`
-  .mui-dialog-header {
-    display: none;
-  }
-  .mui-dialog-body {
-    padding: 0 !important;
-  }
-`;
 
 const RecordCon = styled.div`
   display: flex;
@@ -64,7 +55,7 @@ export default function RecordDetail(props) {
       updateSuccess={(recordIds, data) => onRefreshList(recordIds[0], data)}
     />
   ) : (
-    <RecordDetailDialog visible type="fixed" width={1100} showFooter={false} onCancel={onClose}>
+    <Modal visible type="fixed" bodyStyle={{ padding: '0' }} width={1100} onCancel={onClose}>
       <RecordCon>
         <div className="recordDetailHeader">{isEdit ? _l('修改记录') : _l('查看记录')}</div>
         <RecordInfoWrapper
@@ -77,6 +68,6 @@ export default function RecordDetail(props) {
           updateSuccess={(recordIds, data) => onRefreshList(recordIds[0], data)}
         />
       </RecordCon>
-    </RecordDetailDialog>
+    </Modal>
   );
 }

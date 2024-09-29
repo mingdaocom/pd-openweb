@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import { CustomScore } from 'ming-ui';
 import { FROM } from './enum';
 import cx from 'classnames';
@@ -37,8 +36,7 @@ export default class Level extends React.Component {
     }
   }
 
-  @autobind
-  handleTableKeyDown(e) {
+  handleTableKeyDown = e => {
     const { cell, updateCell } = this.props;
     const { max } = cell.advancedSetting || {};
     const minNumber = 0;
@@ -69,9 +67,9 @@ export default class Level extends React.Component {
         }
         break;
     }
-  }
-  @autobind
-  handleChange(value) {
+  };
+
+  handleChange = value => {
     const { cell, updateCell } = this.props;
     if (cell.required && !value) {
       alert(_l('%0为必填字段', cell.controlName), 3);
@@ -81,7 +79,7 @@ export default class Level extends React.Component {
     updateCell({
       value,
     });
-  }
+  };
 
   render() {
     const { from, recordId, className, style, cell, editable, isediting, onClick } = this.props;

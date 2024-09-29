@@ -19,6 +19,7 @@ rewrite (?i)^/apps/kcshare/ /kcshare.html break;
 rewrite (?i)^/apps/kcsharelocal /kcshare.html break;
 rewrite (?i)^/apps/kcsharefolder/ /kcsharefolder.html break;
 rewrite (?i)^/recordfile /kcshare.html break;
+rewrite (?i)^/rowfile /kcshare.html break;
 rewrite (?i)^/mobileChart /mobileChart.html break;
 rewrite (?i)^/mobileLog /mobileLog.html break;
 rewrite (?i)^/mobileGunter /mobileGunter.html break;
@@ -113,6 +114,7 @@ rewrite (?i)^/integrationApi /index.html break;
 rewrite (?i)^/favorite /index.html break;
 rewrite (?i)^/dashboard /index.html break;
 rewrite (?i)^/aggregation /index.html break;
+rewrite (?i)^/dataMirrorPreview /index.html break;
 
 # 购买入口
 rewrite (?i)^/orderpay /orderPay.html break;

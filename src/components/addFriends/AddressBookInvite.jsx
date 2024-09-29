@@ -20,12 +20,14 @@ export default class AddressBookInvite extends Component {
   handleInviteMember = () => {
     const { selectUsers } = this.state;
     const _this = this;
-    const filterAccountIds = [md.global.Account.accountId].concat(selectUsers.map(i => i.accountId));
+    const selectedAccountIds = selectUsers.map(i => i.accountId);
+
     dialogSelectUser({
       zIndex: 11,
       fromType: _this.props.fromType,
       SelectUserSettings: {
-        filterAccountIds: filterAccountIds,
+        filterAccountIds: [md.global.Account.accountId],
+        selectedAccountIds: selectedAccountIds,
         callback: users => {
           _this.setState({ selectUsers: selectUsers.concat(users) });
         },

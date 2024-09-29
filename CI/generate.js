@@ -60,6 +60,7 @@ function generate() {
         apiMap.report = '/report_api';
         apiMap.integration = '/integration_api';
         apiMap.datapipeline = '/data_pipeline_api';
+        apiMap.workflowPlugin = '/workflow_plugin_api';
       }
       html = ejs.compile(html)({
         apiServer: JSON.stringify(apiMap),

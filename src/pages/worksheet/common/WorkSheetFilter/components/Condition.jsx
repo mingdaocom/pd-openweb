@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { Dropdown, Icon, Input } from 'ming-ui';
 import renderConditionValue from './contents';
@@ -97,8 +96,7 @@ export default class Condition extends Component {
     );
   };
 
-  @autobind
-  changeConditionType(type) {
+  changeConditionType = type => {
     const { condition, onChange } = this.props;
     const overrideValue = getConditionOverrideValue(type, condition);
     onChange(overrideValue);
@@ -106,7 +104,7 @@ export default class Condition extends Component {
     if (_.includes(listType, type) && !_.includes([27], condition.controlType)) {
       this.setState({ isDynamicsource: false });
     }
-  }
+  };
 
   renderOption = () => {
     const {

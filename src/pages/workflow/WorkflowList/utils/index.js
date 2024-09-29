@@ -290,7 +290,11 @@ export const getActionTypeContent = (type, item, disable) => {
 
   // 循环流程
   if (type === FLOW_TYPE.LOOP) {
-    return _l('循环触发');
+    return item.triggerId === ACTION_ID.CONDITION_LOOP
+      ? _l('满足条件时循环')
+      : item.triggerId === ACTION_ID.COUNT_LOOP
+      ? _l('循环指定次数')
+      : _l('循环触发');
   }
 
   return (item.appNames || []).join('、');

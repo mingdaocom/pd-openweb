@@ -171,12 +171,14 @@ export default class MoreOverlay extends Component {
       isCharge,
       permissionType,
       projectId,
+      customPageConfig = {},
       onSheetView,
       onOpenSetting,
       onRemove
     } = this.props;
     const { favorite } = this.state;
     const isSheetView = ![reportTypes.PivotTable].includes(reportType);
+    const { chartShare = true, chartExportExcel = true } = customPageConfig;
     const isEmbedPage = location.href.includes('embed/page');
     const isEmbedChart = location.href.includes('embed/chart');
     const isFavorite =
@@ -233,7 +235,7 @@ export default class MoreOverlay extends Component {
             </div>
           </Menu.Item>
         )}
-        {!md.global.Account.isPortal && !(isEmbedPage || isEmbedChart) && reportStatus > 0 && sourceType !== 3 && (
+        {!md.global.Account.isPortal && !(isEmbedPage || isEmbedChart) && reportStatus > 0 && sourceType !== 3 && chartShare && (
           <Menu.Item
             className="pLeft10"
             onClick={() => {
@@ -247,7 +249,7 @@ export default class MoreOverlay extends Component {
             </div>
           </Menu.Item>
         )}
-        {!window.isPublicApp && reportStatus > 0 && (
+        {!window.isPublicApp && reportStatus > 0 && chartExportExcel && (
           <Menu.SubMenu
             popupClassName="chartMenu"
             title={_l('导出Excel%06002')}
@@ -340,19 +342,32 @@ export default class MoreOverlay extends Component {
   }
   render() {
     const { shareVisible, showPageMove, dropdownVisible } = this.state;
-    const { appId, worksheetId, pageId, report, className, permissions, isCharge, isLock, sheetVisible, permissionType, sourceType } =
+    const { appId, worksheetId, pageId, report, className, permissions, isCharge, isLock, reportType, permissionType, sourceType, customPageConfig, onSheetView } =
       this.props;
+    const { chartExportExcel = true } = customPageConfig;
+    const moreVisible = function() {
+      if (md.global.Account.isPortal) {
+        if (reportType === reportTypes.PivotTable) {
+          return chartExportExcel;
+        } else {
+          return chartExportExcel || onSheetView;
+        }
+      }
+      return true;
+    }();
     return (
       <Fragment>
-        <Dropdown
-          trigger={['click']}
-          placement="bottomRight"
-          visible={dropdownVisible}
-          onVisibleChange={this.handleUpdateDropdownVisible}
-          overlay={this.renderOverlay()}
-        >
-          <Icon className={className} icon="more_horiz" />
-        </Dropdown>
+        {moreVisible && (
+          <Dropdown
+            trigger={['click']}
+            placement="bottomRight"
+            visible={dropdownVisible}
+            onVisibleChange={this.handleUpdateDropdownVisible}
+            overlay={this.renderOverlay()}
+          >
+            <Icon className={className} icon="more_horiz" />
+          </Dropdown>
+        )}
         {shareVisible && (
           <Share
             title={_l('分享统计图: %0', report.name)}

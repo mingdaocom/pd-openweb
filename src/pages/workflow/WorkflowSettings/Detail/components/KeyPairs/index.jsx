@@ -44,6 +44,7 @@ export default ({
   relationId = '',
   selectNodeId = '',
   isIntegration = false,
+  isPlugin = false,
   appId = '',
   source = [],
   sourceKey = '',
@@ -123,6 +124,7 @@ export default ({
         selectNodeId={selectNodeId}
         sourceAppId={appId}
         isIntegration={isIntegration}
+        isPlugin={isPlugin}
         handleFieldClick={obj => {
           const newFormulaMap = _.cloneDeep(formulaMap);
           newFormulaMap[obj.nodeId] = {
@@ -171,11 +173,13 @@ export default ({
           <MenuItem
             key={item.nodeId}
             onClick={() => {
-              updateKeyValues({ key: 'value', value: '', i, nodeId: item.nodeId });
-              onHideMenu();
+              if (item.appId && item.appName) {
+                updateKeyValues({ key: 'value', value: '', i, nodeId: item.nodeId });
+                onHideMenu();
+              }
             }}
           >
-            <div className="flexRow" style={{ alignItems: 'center' }}>
+            <div className="flexRow alignItemsCenter">
               <span className={cx('Font16 Gray_75', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
               <span className={cx('Font14 mLeft5 ellipsis flex', { Gray_75: !item.appId })}>{item.nodeName}</span>
               {item.appId && item.appName ? (
@@ -273,6 +277,7 @@ export default ({
                   selectNodeId={selectNodeId}
                   sourceAppId={appId}
                   isIntegration={isIntegration}
+                  isPlugin={isPlugin}
                   type={2}
                   height={0}
                   content={item.value}

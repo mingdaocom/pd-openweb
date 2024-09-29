@@ -494,10 +494,9 @@ $.extend(CreateTask.prototype, {
         quickSelectUser(_this[0], {
           sourceId: settings.FolderID,
           projectId: settings.ProjectID,
-
           showMoreInvite: false,
           isTask: true,
-          filterAccountIds: [oldUid],
+          selectedAccountIds: [oldUid],
           offset: {
             top: 16,
             left: 0,
@@ -505,7 +504,7 @@ $.extend(CreateTask.prototype, {
           zIndex: 10001,
           includeUndefinedAndMySelf: true,
           SelectUserSettings: {
-            filterAccountIds: [oldUid],
+            selectedAccountIds: [oldUid],
             unique: true,
             projectId: CreateTask.Motheds.checkIsProject(settings.ProjectID) ? settings.ProjectID : '',
             callback: function (users) {
@@ -632,13 +631,13 @@ $.extend(CreateTask.prototype, {
           sourceId: '',
           projectId: settings.ProjectID,
           zIndex: 20000,
-          filterAccountIds: existsIds,
+          selectedAccountIds: existsIds,
           offset: {
             top: 27,
             left: 0,
           },
           SelectUserSettings: {
-            filterAccountIds: existsIds,
+            selectedAccountIds: existsIds,
             projectId: CreateTask.Motheds.checkIsProject(settings.ProjectID) ? settings.ProjectID : '',
             callback: function (users) {
               updateMemberFun(users);

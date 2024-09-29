@@ -5,7 +5,7 @@ import * as actions from './redux/actions';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { Modal, Flex, ActivityIndicator } from 'antd-mobile';
+import { Popup, SpinLoading } from 'antd-mobile';
 import report from 'statistics/api/report';
 import Chart from '../components/Chart';
 import ChartFilter from '../components/Chart/Filter';
@@ -43,12 +43,6 @@ const ModalContent = styled.div`
   }
 `;
 
-const HorizontalModal = styled(Modal)`
-  .am-modal-body {
-    overflow: hidden;
-  }
-`;
-
 const HorizontalChartContent = styled.div`
   position: relative;
   display: flex;
@@ -75,6 +69,7 @@ function ChartComponent(props) {
   const { linkageFiltersGroup = [], linkageMatch = {}, onUpdateLinkageFiltersGroup = _.noop } = props;
   const {
     widget,
+    pageId,
     reportId,
     name,
     accessToken,
@@ -113,6 +108,7 @@ function ChartComponent(props) {
 
   const handleReportRequest = param => {
     let requestParam = {
+      pageId,
       reportId,
       version,
       filters: [
@@ -135,6 +131,9 @@ function ChartComponent(props) {
       );
     }
     setLoading(true);
+    if (request.current && request.current.abort) {
+      request.current.abort();
+    }
     request.current = report.getData(requestParam);
     request.current.then(data => {
       data.reportId = reportId;
@@ -244,13 +243,12 @@ function ChartComponent(props) {
   return (
     <Fragment>
       <Chart data={data} mobileCount={mobileCount} onOpenFilterModal={handleOpenFilterModal} {...chartProps} />
-      <Modal
-        popup
+      <Popup
         style={{ height: isMobileChartPage ? '80%' : null }}
         visible={filterVisible}
         onClose={handleOpenFilterModal}
+        onMaskClick={handleOpenFilterModal}
         className={cx('mobileNewRecordDialog', { horizontalChartDialog: zoomVisible })}
-        animationType="slide-up"
       >
         {zoomVisible ? (
           <HorizontalChartContent
@@ -262,14 +260,12 @@ function ChartComponent(props) {
         ) : (
           <ModalContent className="leftAlign flexColumn h100">{DialogContent()}</ModalContent>
         )}
-      </Modal>
-      <HorizontalModal
-        popup
+      </Popup>
+      <Popup
         visible={zoomVisible}
         onClose={handleOpenZoomModal}
         className="h100"
-        transitionName="null"
-        maskTransitionName="null"
+        position="left"
       >
         <HorizontalChartContent
           className="leftAlign pAll20"
@@ -293,7 +289,7 @@ function ChartComponent(props) {
             />
           )}
         </HorizontalChartContent>
-      </HorizontalModal>
+      </Popup>
     </Fragment>
   );
 }
@@ -342,9 +338,9 @@ function ChartContent(props) {
     loadFilterComponentCount < filterComponents.length
   ) {
     return (
-      <Flex justify="center" align="center" className="h100 w100">
-        <ActivityIndicator size="large" />
-      </Flex>
+      <div className="flexRow justifyContentCenter alignItemsCenter w100 h100">
+        <SpinLoading color='primary' />
+      </div>
     );
   }
 
@@ -358,17 +354,17 @@ function ChartContent(props) {
 
   if (isClickSearch && !filtersGroup.length) {
     return (
-      <Flex justify="center" align="center" className="h100 w100">
+      <div className="flexRow justifyContentCenter alignItemsCenter w100 h100">
         <span className="Font15 bold Gray_9e">{_l('执行查询后显示结果')}</span>
-      </Flex>
+      </div>
     );
   }
 
   if (!visible) {
     return (
-      <Flex justify="center" align="center" className="h100 w100">
-        <ActivityIndicator size="large" />
-      </Flex>
+      <div className="flexRow justifyContentCenter alignItemsCenter w100 h100">
+        <SpinLoading color='primary' />
+      </div>
     );
   }
 

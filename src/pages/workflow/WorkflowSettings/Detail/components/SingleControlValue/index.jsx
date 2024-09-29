@@ -1,18 +1,30 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { MultipleDropdown, Dropdown, TagTextarea, Icon, QiniuUpload, CityPicker, Input } from 'ming-ui';
+import {
+  MultipleDropdown,
+  Dropdown,
+  TagTextarea,
+  Icon,
+  QiniuUpload,
+  CityPicker,
+  Input,
+  Checkbox,
+  Switch,
+  Radio,
+} from 'ming-ui';
 import { DateTime, DateTimeRange } from 'ming-ui/components/NewDateTimePicker';
 import Tag from '../Tag';
 import SelectOtherFields from '../SelectOtherFields';
 import { getIcons, handleGlobalVariableName, handleExecReturnValue } from '../../../utils';
 import { previewQiniuUrl } from 'src/components/previewAttachments';
 import { TimePicker } from 'antd';
-import { FORMAT_TEXT } from '../../../enum';
+import { FORMAT_TEXT, NODE_TYPE } from '../../../enum';
 import { formatResponseData } from 'src/components/UploadFiles/utils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import { dialogSelectOrgRole, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
 import moment from 'moment';
 import RegExpValidator from 'src/util/expression';
+
 export default class SingleControlValue extends Component {
   constructor(props) {
     super(props);
@@ -74,9 +86,12 @@ export default class SingleControlValue extends Component {
    * 渲染选中的单个值
    */
   renderSelectFieldsValue(item, i) {
+    const { hideOtherField } = this.props;
+
     return (
       <div
-        className={cx('actionControlBox flex ThemeBorderColor3 clearBorderRadius ellipsis actionCustomBox', {
+        className={cx('actionControlBox flex ThemeBorderColor3 ellipsis actionCustomBox', {
+          clearBorderRadius: !hideOtherField,
           actionCustomBoxError: !item.nodeName || !item.fieldValueName,
         })}
       >
@@ -107,8 +122,14 @@ export default class SingleControlValue extends Component {
    * 渲染清空
    */
   renderClear(item, i) {
+    const { hideOtherField } = this.props;
+
     return (
-      <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius ellipsis actionCustomBox">
+      <div
+        className={cx('actionControlBox flex ThemeBorderColor3 ellipsis actionCustomBox', {
+          clearBorderRadius: !hideOtherField,
+        })}
+      >
         <span className="flexRow pTop3">
           <div className="flowDetailTagBox">
             <div
@@ -144,6 +165,10 @@ export default class SingleControlValue extends Component {
    * 更多节点的值
    */
   renderOtherFields(item, i, customCallback) {
+    const { hideOtherField } = this.props;
+
+    if (hideOtherField) return null;
+
     return (
       <SelectOtherFields
         showClear={this.props.showClear}
@@ -158,6 +183,7 @@ export default class SingleControlValue extends Component {
         sourceAppId={this.props.sourceAppId}
         sourceNodeId={this.props.sourceNodeId}
         isIntegration={this.props.isIntegration}
+        isPlugin={this.props.isPlugin}
         filterType={this.props.filterType}
         dataSource={
           item.type === 29 ? (_.find(this.props.controls, obj => obj.controlId === item.fieldId) || {}).dataSource : ''
@@ -190,7 +216,7 @@ export default class SingleControlValue extends Component {
       showMoreInvite: false,
       SelectUserSettings: {
         unique,
-        filterAccountIds: JSON.parse(item.fieldValue).map(obj => obj.accountId),
+        selectedAccountIds: JSON.parse(item.fieldValue || '[]').map(obj => obj.accountId),
         projectId: this.props.companyId,
         dataRange: 2,
         callback: users => {
@@ -205,7 +231,7 @@ export default class SingleControlValue extends Component {
             {
               fieldValue: unique
                 ? JSON.stringify(accounts)
-                : JSON.stringify(JSON.parse(item.fieldValue).concat(accounts)),
+                : JSON.stringify(JSON.parse(item.fieldValue || '[]').concat(accounts)),
             },
             i,
           );
@@ -225,7 +251,7 @@ export default class SingleControlValue extends Component {
       showCreateBtn: false,
       selectFn: departments => {
         if (!unique) {
-          const oldIds = JSON.parse(item.fieldValue).map(item => item.departmentId);
+          const oldIds = JSON.parse(item.fieldValue || '[]').map(item => item.departmentId);
           _.remove(departments, item => _.includes(oldIds, item.departmentId));
         }
 
@@ -240,7 +266,7 @@ export default class SingleControlValue extends Component {
           {
             fieldValue: unique
               ? JSON.stringify(departments)
-              : JSON.stringify(JSON.parse(item.fieldValue).concat(departments)),
+              : JSON.stringify(JSON.parse(item.fieldValue || '[]').concat(departments)),
           },
           i,
         );
@@ -398,7 +424,7 @@ export default class SingleControlValue extends Component {
   }, 500);
 
   render() {
-    const { controls, item, i } = this.props;
+    const { controls, item, i, hideOtherField, selectNodeType, moreNodesMenuStyle } = this.props;
     const { isUploading, search, keywords } = this.state;
     const formulaMap = _.cloneDeep(this.props.formulaMap);
     let list = [];
@@ -429,7 +455,9 @@ export default class SingleControlValue extends Component {
           ) : (
             <input
               type="text"
-              className="flex ThemeBorderColor3 actionControlBox clearBorderRadius pTop0 pBottom0 pLeft10 pRight10"
+              className={cx('flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
+                clearBorderRadius: !hideOtherField,
+              })}
               placeholder={_l('请输入...')}
               defaultValue={item.fieldValue || ''}
               onChange={evt => this.updateSingleControlValue({ fieldValue: evt.currentTarget.value }, i)}
@@ -493,7 +521,9 @@ export default class SingleControlValue extends Component {
           ) : (
             <input
               type="text"
-              className="flex ThemeBorderColor3 actionControlBox clearBorderRadius pTop0 pBottom0 pLeft10 pRight10"
+              className={cx('flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
+                clearBorderRadius: !hideOtherField,
+              })}
               placeholder={item.type === 3 ? _l('填写手机号') : _l('填写座机号')}
               defaultValue={item.fieldValue || ''}
               onKeyUp={evt => this.checkPhoneNumberControl(evt)}
@@ -534,7 +564,8 @@ export default class SingleControlValue extends Component {
             <input
               type="text"
               className={cx(
-                'flex ThemeBorderColor3 actionControlBox clearBorderRadius pTop0 pBottom0 pLeft10 pRight10',
+                'flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10',
+                { clearBorderRadius: !hideOtherField },
                 { errorBorder: isError },
               )}
               placeholder={placeholder}
@@ -556,7 +587,9 @@ export default class SingleControlValue extends Component {
           ) : (
             <input
               type="text"
-              className="flex ThemeBorderColor3 actionControlBox clearBorderRadius pTop0 pBottom0 pLeft10 pRight10"
+              className={cx('flex ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10', {
+                clearBorderRadius: !hideOtherField,
+              })}
               placeholder={item.type === 6 ? _l('填写数字') : _l('填写金额')}
               defaultValue={item.fieldValue || ''}
               maxLength={16}
@@ -568,6 +601,58 @@ export default class SingleControlValue extends Component {
           {this.renderOtherFields(item, i)}
         </div>
       );
+    }
+
+    // 插件节点 单选项 || 检查项
+    if (selectNodeType === NODE_TYPE.PLUGIN) {
+      const currentControl = _.find(controls, obj => obj.controlId === item.fieldId);
+      const { showtype, direction } = _.get(currentControl, 'advancedSetting') || {};
+
+      // 选项平铺
+      if (item.type === 9 && showtype === '1') {
+        return (
+          <div className={cx('mTop8', direction === '1' ? 'flexColumn' : 'flexRow')} style={{ marginBottom: -5 }}>
+            {currentControl.options.map(o => (
+              <Radio
+                key={o.key}
+                className="mRight60 mBottom5"
+                checked={o.key === item.fieldValue}
+                text={o.value}
+                onClick={() => this.updateSingleControlValue({ fieldValue: o.key }, i)}
+              />
+            ))}
+          </div>
+        );
+      }
+
+      if (item.type === 36) {
+        // 开关
+        if (showtype === '1') {
+          return (
+            <div className="mTop8 flexRow alignItemsCenter">
+              <Switch
+                className="mRight10"
+                checked={item.fieldValue === '1'}
+                size="small"
+                onClick={() => this.updateSingleControlValue({ fieldValue: item.fieldValue === '1' ? '0' : '1' }, i)}
+              />
+              {currentControl.hint}
+            </div>
+          );
+        }
+
+        // 检查项
+        return (
+          <div className="mTop8 flexRow">
+            <Checkbox
+              className="InlineBlock"
+              text={currentControl.hint}
+              checked={item.fieldValue === '1'}
+              onClick={() => this.updateSingleControlValue({ fieldValue: item.fieldValue === '1' ? '0' : '1' }, i)}
+            />
+          </div>
+        );
+      }
     }
 
     // 单选项 || 下拉框 || 检查项 || 外部门户角色
@@ -599,7 +684,7 @@ export default class SingleControlValue extends Component {
                 {
                   actionCustomBoxError: item.fieldValue && !_.find(list, obj => obj.value === item.fieldValue),
                 },
-                { clearBorderRadius: !disabledOtherFields },
+                { clearBorderRadius: !disabledOtherFields && !hideOtherField },
               )}
               data={list}
               value={item.fieldValue || undefined}
@@ -634,7 +719,8 @@ export default class SingleControlValue extends Component {
           ) : (
             <MultipleDropdown
               className={cx(
-                'flowDropdown flex clearBorderRadius',
+                'flowDropdown flex',
+                { clearBorderRadius: !hideOtherField },
                 { actionCustomBoxError: item.fieldValue && item.fieldValue.split(',').length !== label.length },
                 { flowDropdownNull: !item.fieldValue },
               )}
@@ -688,7 +774,11 @@ export default class SingleControlValue extends Component {
                 }}
               />
 
-              <div className="actionControlBox flex clearBorderRadius pLeft10 pRight10 actionControlUsers">
+              <div
+                className={cx('actionControlBox flex pLeft10 pRight10 actionControlUsers', {
+                  clearBorderRadius: !hideOtherField,
+                })}
+              >
                 {JSON.parse(item.fieldValue || '[]').map((o, fileIndex) => {
                   const ext = RegExpValidator.getExtOfFileName(o.fileExt || o.ext);
                   return (
@@ -738,7 +828,7 @@ export default class SingleControlValue extends Component {
               </div>
             </Fragment>
           ) : (
-            <div className="actionControlBox flex clearBorderRadius" />
+            <div className={cx('actionControlBox flex', { clearBorderRadius: !hideOtherField })} />
           )}
           {this.renderOtherFields(item, i)}
         </div>
@@ -760,7 +850,11 @@ export default class SingleControlValue extends Component {
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius actionControlBoxClear">
+            <div
+              className={cx('actionControlBox flex ThemeBorderColor3 actionControlBoxClear', {
+                clearBorderRadius: !hideOtherField,
+              })}
+            >
               <DateTime
                 selectedValue={item.fieldValue ? moment(item.fieldValue) : null}
                 timePicker={item.type === 16}
@@ -800,7 +894,7 @@ export default class SingleControlValue extends Component {
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius">
+            <div className={cx('actionControlBox flex ThemeBorderColor3', { clearBorderRadius: !hideOtherField })}>
               <DateTimeRange
                 selectedValue={rangeValue.length ? [moment(rangeValue[0]), moment(rangeValue[1])] : null}
                 timePicker={item.type === 18}
@@ -837,7 +931,11 @@ export default class SingleControlValue extends Component {
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius actionControlBoxClear">
+            <div
+              className={cx('actionControlBox flex ThemeBorderColor3 actionControlBoxClear', {
+                clearBorderRadius: !hideOtherField,
+              })}
+            >
               <CityPicker
                 search={keywords}
                 level={level}
@@ -902,48 +1000,87 @@ export default class SingleControlValue extends Component {
           placeholder: _l('选择组织角色'),
         },
       };
+      const relationControls = (_.find(controls, o => o.controlId === item.fieldId) || {}).flowNodeAppDtos || [];
+      const relationControlsList = [
+        relationControls.map(o => {
+          return {
+            text: this.renderRelationField(o),
+            value: o.nodeId,
+          };
+        }),
+      ];
+
+      if (item.nodeId) {
+        relationControlsList[0].unshift({
+          text: _l('清除选择'),
+          value: '',
+        });
+      }
 
       return (
         <div className="mTop8 flexRow relative">
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <div
-              className="actionControlBox flex ThemeBorderColor3 clearBorderRadius actionControlUsers"
-              onClick={evt => {
-                if (item.type === 26) {
-                  this.selectUser(evt, item, i, unique);
-                } else if (item.type === 27) {
-                  this.selectDepartment(item, i, unique);
-                } else {
-                  this.selectRole(item, i, unique);
-                }
-              }}
-            >
-              <ul className="pLeft6 tagWrap">
-                {!JSON.parse(item.fieldValue || '[]').length && (
-                  <span className="Gray_bd LineHeight34 mLeft4">{TYPES[item.type].placeholder}</span>
-                )}
-                {JSON.parse(item.fieldValue || '[]').map((list, index) => {
-                  return (
-                    <li key={index} className="tagItem flexRow">
-                      <span className="tag bold" title={list[TYPES[item.type].name]}>
-                        {list[TYPES[item.type].name]}
-                      </span>
-                      <span
-                        className="delTag"
-                        onClick={e => {
-                          e.stopPropagation();
-                          this.deleteTags(list[TYPES[item.type].id], i);
-                        }}
-                      >
-                        <Icon icon="close" className="pointer" />
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
+            <Fragment>
+              {!item.nodeId && (
+                <div
+                  className={cx('actionControlBox flex ThemeBorderColor3 actionControlUsers', {
+                    clearBorderRadius: !hideOtherField,
+                  })}
+                  onClick={evt => {
+                    if (item.type === 26) {
+                      this.selectUser(evt, item, i, unique);
+                    } else if (item.type === 27) {
+                      this.selectDepartment(item, i, unique);
+                    } else {
+                      this.selectRole(item, i, unique);
+                    }
+                  }}
+                >
+                  <ul className="pLeft6 tagWrap">
+                    {!JSON.parse(item.fieldValue || '[]').length && (
+                      <span className="Gray_bd LineHeight34 mLeft4">{TYPES[item.type].placeholder}</span>
+                    )}
+                    {JSON.parse(item.fieldValue || '[]').map((list, index) => {
+                      return (
+                        <li key={index} className="tagItem flexRow">
+                          <span className="tag bold" title={list[TYPES[item.type].name]}>
+                            {list[TYPES[item.type].name]}
+                          </span>
+                          <span
+                            className="delTag"
+                            onClick={e => {
+                              e.stopPropagation();
+                              this.deleteTags(list[TYPES[item.type].id], i);
+                            }}
+                          >
+                            <Icon icon="close" className="pointer" />
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {!JSON.parse(item.fieldValue || '[]').length && !hideOtherField && (
+                <Dropdown
+                  className={item.nodeId ? 'flowDropdown flex clearBorderRadius' : 'flowDropdownOnlyIcon'}
+                  menuClass={cx({ flowDropdownOnlyIconMenu: !item.nodeId })}
+                  menuStyle={moreNodesMenuStyle}
+                  data={relationControlsList}
+                  value={item.nodeId || undefined}
+                  border={!!item.nodeId}
+                  isAppendToBody
+                  placeholder={_l('选择多条节点对象')}
+                  renderTitle={() =>
+                    this.renderRelationField(_.find(relationControls, o => o.nodeId === item.nodeId) || item)
+                  }
+                  onChange={nodeId => this.updateSingleControlValue({ nodeId }, i)}
+                />
+              )}
+            </Fragment>
           )}
           {this.renderOtherFields(item, i)}
         </div>
@@ -974,7 +1111,7 @@ export default class SingleControlValue extends Component {
             this.renderSelectFieldsValue(item, i)
           ) : (
             <Dropdown
-              className="flowDropdown flex clearBorderRadius"
+              className={cx('flowDropdown flex', { clearBorderRadius: !hideOtherField })}
               data={list}
               value={item.fieldValue || undefined}
               border
@@ -1012,12 +1149,12 @@ export default class SingleControlValue extends Component {
             this.renderSelectFieldsValue(item, i)
           ) : (
             <Dropdown
-              className="flowDropdown flex clearBorderRadius"
+              className={cx('flowDropdown flex', { clearBorderRadius: !hideOtherField })}
               data={relationControlsList}
               value={item.nodeId || undefined}
               border
               isAppendToBody
-              placeholder={_l('选择流程中对应此工作表的节点对象')}
+              placeholder={_l('选择节点对象')}
               renderTitle={() =>
                 this.renderRelationField(_.find(relationControls, o => o.nodeId === item.nodeId) || item)
               }
@@ -1038,7 +1175,7 @@ export default class SingleControlValue extends Component {
           {item.fieldValueId ? (
             this.renderSelectFieldsValue(item, i)
           ) : (
-            <div className="actionControlBox flex ThemeBorderColor3 clearBorderRadius">
+            <div className={cx('actionControlBox flex ThemeBorderColor3', { clearBorderRadius: !hideOtherField })}>
               <TimePicker
                 className="triggerConditionTime"
                 showNow={false}
@@ -1063,7 +1200,7 @@ export default class SingleControlValue extends Component {
         {item.fieldValueId ? (
           this.renderSelectFieldsValue(item, i)
         ) : (
-          <div className="actionControlBox flex clearBorderRadius" />
+          <div className={cx('actionControlBox flex', { clearBorderRadius: !hideOtherField })} />
         )}
         {this.renderOtherFields(item, i)}
       </div>

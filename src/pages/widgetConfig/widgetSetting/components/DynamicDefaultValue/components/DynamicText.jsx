@@ -92,8 +92,12 @@ export default ({ dynamicValue = [], data = {}, ...rest }) => {
               } else {
                 const titleControl = _.find(data.relationControls || [], re => re.attribute === 1);
                 const record = safeParse(_.head(value));
-                const titleControlItem = record[titleControl.controlId];
-                name = renderCellText({ ...titleControl, value: titleControlItem }) || _l('未命名');
+                if (type === 'cascader' && _.get(data, 'advancedSetting.allpath') === '1') {
+                  name = safeParse(record.path || '[]').join(' / ');
+                } else {
+                  const titleControlItem = record[titleControl.controlId];
+                  name = renderCellText({ ...titleControl, value: titleControlItem }) || _l('未命名');
+                }
               }
 
               return (

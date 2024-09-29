@@ -75,7 +75,17 @@ export default class Search extends Component {
             ),
         );
 
-        if (obj.appId && result.findFields.length) {
+        if (obj.appId || result.appId) {
+          if (result.actionId === ACTION_ID.RECORD_UPDATE) {
+            result.controls = result.controls.map(o => {
+              if (o.controlId === 'rowid') {
+                o.dataSource = obj.appId || result.appId;
+              }
+
+              return o;
+            });
+          }
+
           result.findFields = [];
         }
 

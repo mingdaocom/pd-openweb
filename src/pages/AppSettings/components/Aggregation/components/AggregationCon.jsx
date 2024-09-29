@@ -1,10 +1,9 @@
 import React, { Fragment, useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Icon, Menu, MenuItem, Checkbox } from 'ming-ui';
+import { Icon, MenuItem, Checkbox, SortableList } from 'ming-ui';
 import cx from 'classnames';
 import { Tooltip } from 'antd';
 import { useSetState } from 'react-use';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
 import Trigger from 'rc-trigger';
@@ -15,40 +14,10 @@ import _ from 'lodash';
 import { handleAdvancedSettingChange } from 'src/util/index.js';
 import { getDefaultOperationDatas, extractBetweenDollars } from 'src/pages/AppSettings/components/Aggregation/util.js';
 import { DEFAULT_COLORS } from '../config';
-import { getNodeInfo, getRuleAlias } from '../util';
+import { getRuleAlias, getAllSourceList, isDelStatus, formatAggConfig, getSourceIndex } from '../util';
 import { getTranslateInfo } from 'src/util';
+import { WrapS } from './style';
 
-const WrapS = styled(Menu)`
-  // &.rowsCountItem {
-  //   height: 40px;
-  // }
-  // height: 120px;
-  .ming.MenuItem .Item-content:not(.disabled):hover {
-    background: #f5f5f5 !important;
-    color: initial !important;
-    .icon {
-      color: #9e9e9e !important;
-    }
-    .Red {
-      color: red !important;
-    }
-  }
-  .ming.Item.ThemeColor3 .Item-content:not(.disabled):hover {
-    color: #1e88e5 !important;
-  }
-  .Red.ming.MenuItem .Item-content:not(.disabled):hover {
-    color: red !important;
-  }
-  .ming.Item .Item-content {
-    padding: 0 8px 0 16px;
-    & > span {
-      display: flex;
-      .Icon {
-        position: initial;
-      }
-    }
-  }
-`;
 const WrapItem = styled.div`
   height: 36px;
   background: #ffffff;
@@ -58,8 +27,8 @@ const WrapItem = styled.div`
   .dragIcon {
     opacity: 0;
     position: absolute;
+    top: 12px;
     left: -16px;
-    font-size: 14px;
   }
   &:hover {
     .dragIcon {
@@ -242,29 +211,24 @@ function FormatWrap(props) {
     >
       <MenuItem className="flexRow alignItemsCenter">
         <span className="text flex Font14">{_l('数据格式')}</span>
-        <Icon className="Font15 Gray_9e Font14" icon="arrow-right-tip" />
+        <Icon className="Font15 Gray_9e Font13" icon="arrow-right-tip" />
       </MenuItem>
     </Trigger>
   );
 }
 export default function AggregationCon(props) {
-  const { list, onChange, updateErr } = props;
+  const { list, onChange, updateErr, sourceInfos } = props;
 
-  const SortHandle = SortableHandle(() => <Icon className="Gray_bd Hand dragIcon ThemeHoverColor3" icon="drag" />);
-
-  const Item = SortableElement(props => {
-    const { item, onUpdate, items, num, sourceTables, flowData } = props;
+  const Item = props => {
+    const { item, onUpdate, items, sourceTables, flowData, DragHandle } = props;
+    const { num } = item;
     const [{ showChangeName, showCalculation, popupVisible }, setState] = useSetState({
       showChangeName: false,
       showCalculation: false,
       popupVisible: false,
     });
-    let index = -1;
-    (sourceTables || []).find((it, i) => {
-      if (item.oid && item.oid.indexOf(it.workSheetId) >= 0) {
-        index = i;
-      }
-    });
+
+    const index = getSourceIndex(flowData, item);
     const color = item.isCalculateField ? '#9e9e9e' : DEFAULT_COLORS[index];
     let isDelete = _.get(item, 'isDelete');
     if (item.isCalculateField) {
@@ -273,10 +237,8 @@ export default function AggregationCon(props) {
       if (ids.filter(o => !!calculateFields.find(it => it.id === o)).length < ids.length) {
         isDelete = true;
       }
-    } else {
-      if (!sourceTables.find(it => item.oid && item.oid.indexOf(it.workSheetId) >= 0)) {
-        isDelete = true;
-      }
+    } else if (isDelStatus(item, sourceInfos, 'AGGREGATE')) {
+      isDelete = true;
     }
     isDelete && updateErr();
 
@@ -284,8 +246,10 @@ export default function AggregationCon(props) {
 
     return (
       <WrapItem className="flexRow cardItem alignItemsCenter Relative mTop12 hoverBoxShadow">
-        <SortHandle />
-        {!item.isCalculateField && index >= 0 && (sourceTables || []).length > 1 && (
+        <DragHandle className="alignItemsCenter flexRow">
+          <Icon className="Font14 Hand Gray_9e Hover_21 dragIcon" icon="drag" />
+        </DragHandle>
+        {(getAllSourceList(flowData) || []).length > 1 && !item.isCalculateField && (
           <div className="colorByWorksheet" style={{ backgroundColor: color }}></div>
         )}
         <div className="flex flexRow pLeft16 pRight12 alignItemsCenter Relative">
@@ -312,17 +276,25 @@ export default function AggregationCon(props) {
           {!item.isCalculateField && (
             <Tooltip
               placement="bottom"
-              color={'#fff'}
               title={
-                <span className="Gray">{`${
-                  getTranslateInfo(getInfo.appId, null, getInfo.workSheetId).name || getInfo.tableName || _l('未命名')
-                }-${
-                  item.oid.indexOf('rowscount') >= 0
-                    ? _l('记录数量')
-                    : !_.get(item, 'controlSetting')
-                    ? _.get(item, 'alias')
-                    : _.get(item, 'controlSetting.controlName')
-                }`}</span>
+                <span className="">
+                  {_.get(item, 'parentFieldInfo.controlSetting.controlName') && (
+                    <span className="Gray_bd pRight5">{_l('关联')}</span>
+                  )}
+                  {`${
+                    _.get(item, 'parentFieldInfo.controlSetting.controlName')
+                      ? _.get(item, 'parentFieldInfo.controlSetting.controlName') + '>'
+                      : (getTranslateInfo(getInfo.appId, null, getInfo.workSheetId).name ||
+                          getInfo.tableName ||
+                          _l('未命名')) + '-'
+                  }${
+                    item.oid.indexOf('rowscount') >= 0
+                      ? _l('记录数量')
+                      : !_.get(item, 'controlSetting')
+                      ? _.get(item, 'alias')
+                      : _.get(item, 'controlSetting.controlName') || _l('未命名')
+                  }`}
+                </span>
               }
             >
               <Icon icon="info_outline" className="Hand Gray_9e ThemeHoverColor3 Font16" />
@@ -380,11 +352,11 @@ export default function AggregationCon(props) {
                                     onUpdate(
                                       items.map((it, i) => {
                                         return i === num
-                                          ? {
+                                          ? formatAggConfig({
                                               ...it,
                                               aggFuncType: o.value,
                                               alias: getRuleAlias(`${it.name}-${o.text}`, flowData),
-                                            }
+                                            })
                                           : it;
                                       }),
                                     );
@@ -409,10 +381,10 @@ export default function AggregationCon(props) {
                           }}
                         >
                           <span className="text flex Font14">{_l('聚合方式')}</span>
-                          <Icon className="Font15 Gray_9e Font14" icon="arrow-right-tip" />
+                          <Icon className="Font15 Gray_9e Font13" icon="arrow-right-tip" />
                         </MenuItem>
                       </Trigger>
-                      <FormatWrap {...props} />
+                      <FormatWrap {...props} num={num} />
                     </React.Fragment>
                   )}
                 </WrapS>
@@ -466,12 +438,7 @@ export default function AggregationCon(props) {
                   return false;
                 } else {
                   let isDelete = _.get(item, 'isDelete');
-                  const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
-                  if (
-                    !(_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).find(
-                      it => item.oid && item.oid.indexOf(it.workSheetId) >= 0,
-                    )
-                  ) {
+                  if (isDelStatus(item, sourceInfos)) {
                     isDelete = true;
                   }
                   return !isDelete;
@@ -532,37 +499,38 @@ export default function AggregationCon(props) {
         )}
       </WrapItem>
     );
-  });
-  const SortableList = SortableContainer(props => {
-    const { items } = props;
-    return (
-      <div className="mTop8">
-        {_.map(items, (item, index) => {
-          return <Item item={item} {...props} key={'item_' + index} index={index} num={index} />;
-        })}
-      </div>
-    );
-  });
+  };
 
   return (
     <React.Fragment>
       <SortableList
-        items={list}
-        axis={'y'}
-        flowData={props.flowData}
-        sourceTables={props.sourceTables}
-        distance={5}
         useDragHandle
-        onSortEnd={({ oldIndex, newIndex }) => {
-          if (oldIndex === newIndex) {
-            return;
-          }
-          onChange(arrayMove(list, oldIndex, newIndex), false);
+        canDrag
+        items={list.map((o, i) => {
+          return { ...o, num: i };
+        })}
+        itemKey="num"
+        onSortEnd={(newItems = [], newIndex) => {
+          onChange(
+            newItems.map(o => _.omit(o, 'num')),
+            false,
+          );
         }}
-        helperClass={'groupConPolymerization'}
-        onUpdate={(list, isChange) => {
-          onChange(list, isChange);
-        }}
+        itemClassName="boderRadAll_4"
+        renderItem={options => (
+          <Item
+            {...props}
+            {...options}
+            onUpdate={(list, isChange) => {
+              onChange(
+                list.map(o => _.omit(o, 'num')),
+                isChange,
+              );
+            }}
+            sourceTables={props.sourceTables}
+            flowData={props.flowData}
+          />
+        )}
       />
     </React.Fragment>
   );

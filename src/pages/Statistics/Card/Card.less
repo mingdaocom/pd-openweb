@@ -9,6 +9,7 @@
   margin-bottom: 30px;
   transition: box-shadow 0.2s;
   position: relative;
+  overflow: hidden;
 
   .header {
     color: #333;
@@ -138,10 +139,15 @@
     font-weight: 500 !important;
   }
 
-  &:hover,
-  &.active,
-  &.edit {
+  &.cardHover:hover,
+  &.active {
     .header .operateIconWrap, .header .dragWrap {
+      display: flex;
+    }
+  }
+
+  &.headerHover .header:hover {
+    .operateIconWrap, .dragWrap {
       display: flex;
     }
   }
@@ -157,16 +163,6 @@
 .statisticsCard-1, .statisticsCard-2, .statisticsCard-7 {
   .content {
     overflow: initial;
-  }
-}
-
-.sortableCard {
-  z-index: 9999;
-  .operateIconWrap, .dragWrap {
-    display: flex !important;
-  }
-  .statisticsCard {
-    .statisticsCard;
   }
 }
 

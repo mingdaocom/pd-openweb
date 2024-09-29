@@ -153,7 +153,7 @@ export default class Widgets extends Component {
   // api查询
   handleSearch = (up, file) => {
     const {
-      advancedSetting: { requestmap } = {},
+      advancedSetting: { requestmap, authaccount } = {},
       dataSource,
       formData,
       worksheetId,
@@ -183,6 +183,7 @@ export default class Widgets extends Component {
       controlId,
       apkId: appId,
       apiTemplateId: dataSource,
+      authId: authaccount,
     };
 
     if (window.isPublicWorksheet) {

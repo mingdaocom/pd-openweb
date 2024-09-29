@@ -40,6 +40,9 @@ export default class Widgets extends Component {
     if (this.text && nextProps.value !== this.text.value) {
       this.text.value = this.formatValue(nextProps.value || '');
     }
+    if (nextProps.flag !== this.props.flag) {
+      this.setState({ maskStatus: _.get(nextProps, 'advancedSetting.datamask') === '1' });
+    }
   }
 
   formatValue = val => {

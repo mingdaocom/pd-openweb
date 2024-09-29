@@ -136,9 +136,15 @@ function QuickFilter(props) {
         operateIsNewLine={operateIsNewLine}
         firstIsFullLine={firstIsFullLine}
         view={view}
-        controls={controls.filter(c =>
-          _.includes(FASTFILTER_CONDITION_TYPE, c.type === 30 ? c.sourceControlType : c.type),
-        )}
+        controls={controls.filter(c => {
+          let tempType = c.type;
+          if (c.type === 30) {
+            tempType = c.sourceControlType;
+          } else if (c.type === 53) {
+            tempType = c.enumDefault2;
+          }
+          return _.includes(FASTFILTER_CONDITION_TYPE, tempType);
+        })}
         hideStartIndex={visibleFilters.length}
         filters={filters}
         navGroupFilters={navGroupFilters}

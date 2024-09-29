@@ -14,12 +14,14 @@ import {
   OTHER_FIELD_TYPE,
   CAN_AS_OTHER_DYNAMIC_FIELD,
   CURRENT_TYPES,
+  CUSTOM_PHP_TYPES,
   CAN_AS_FX_DYNAMIC_FIELD,
   CAN_NOT_AS_FIELD_DYNAMIC_FIELD,
   DYNAMIC_FROM_MODE,
   CUR_OCR_TYPES,
   CUR_OCR_URL_TYPES,
   WATER_MASK_TYPES,
+  CUR_EMPTY_TYPES,
 } from '../config';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -144,6 +146,12 @@ export default class SelectOtherField extends Component {
       case OTHER_FIELD_TYPE.OCR:
       case OTHER_FIELD_TYPE.KEYWORD:
       case OTHER_FIELD_TYPE.WATER_MASK:
+      case OTHER_FIELD_TYPE.EMPTY:
+      case OTHER_FIELD_TYPE.CODE_RESULT:
+      case OTHER_FIELD_TYPE.TRIGGER_TIME:
+      case OTHER_FIELD_TYPE.TRIGGER_DEPARTMENT:
+      case OTHER_FIELD_TYPE.TRIGGER_ORG:
+      case OTHER_FIELD_TYPE.TRIGGER_USER:
         onDynamicValueChange([{ rcid: '', cid: `${data.id}`, staticValue: '' }]);
         this.setState({ isDynamic: false });
         break;
@@ -153,11 +161,18 @@ export default class SelectOtherField extends Component {
   getCurrentField = data => {
     // 自定义默认值
     if (this.props.from === DYNAMIC_FROM_MODE.CREATE_CUSTOM) {
-      return this.props.writeObject === 1
-        ? CURRENT_TYPES[data.type] || []
-        : (CURRENT_TYPES[data.type] || []).concat([
-            { icon: 'icon-workflow_other', text: _l('当前记录的字段值'), key: 1 },
-          ]);
+      let customTypes =
+        this.props.writeObject === 1
+          ? CURRENT_TYPES[data.type] || []
+          : (CURRENT_TYPES[data.type] || []).concat([
+              { icon: 'icon-workflow_other', text: _l('当前记录的字段值'), key: 1 },
+            ]);
+      customTypes = this.props.showEmpty ? CUR_EMPTY_TYPES.concat(customTypes) : customTypes;
+      return customTypes.filter(c => !_.includes(['keyword'], c.key));
+    }
+    // 自定义页面---封装业务流程
+    if (this.props.from === DYNAMIC_FROM_MODE.CUSTOM_PHP) {
+      return data.type === 2 ? _.flatten(Object.values(CUSTOM_PHP_TYPES)) : CUSTOM_PHP_TYPES[data.type];
     }
 
     let types = OTHER_FIELD_LIST;
@@ -199,6 +214,10 @@ export default class SelectOtherField extends Component {
       // 成员范围补充当前用户所在部门
       types.splice(1, 0, _.head(CURRENT_TYPES[27]));
     }
+    // 包含清空操作
+    if (this.props.showEmpty) {
+      types = CUR_EMPTY_TYPES.concat(types);
+    }
     return types;
   };
 
@@ -213,10 +232,12 @@ export default class SelectOtherField extends Component {
       onChange,
       popupContainer,
       propFiledVisible,
+      showEmpty,
+      from,
     } = this.props;
     const filterTypes = this.getCurrentField(data);
-    //子表、列表特殊处理
-    const isSubList = _.includes([34], data.type) || isSheetDisplay(data);
+    //子表、列表默认显示查询工作表icon，如包含清空操作时，显示动态值icon操作
+    const isSubList = (_.includes([34], data.type) || isSheetDisplay(data)) && !showEmpty;
     return (
       <Fragment>
         <div ref={this.$wrap} className="selectOtherFieldContainer">
@@ -242,7 +263,7 @@ export default class SelectOtherField extends Component {
                     return (
                       <MenuItem className="overflow_ellipsis" onClick={() => this.handleAction(item)}>
                         <MenuStyle>
-                          <i className={`${item.icon} Font20 mRight15`}></i>
+                          {from !== DYNAMIC_FROM_MODE.CUSTOM_PHP && <i className={`${item.icon} Font20 mRight15`}></i>}
                           {item.text}
                         </MenuStyle>
                       </MenuItem>

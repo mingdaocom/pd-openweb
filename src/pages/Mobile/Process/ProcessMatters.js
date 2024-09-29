@@ -1,7 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
 import qs from 'query-string';
-import { Tabs, Flex, Checkbox, Modal } from 'antd-mobile';
+import { Popup, Tabs, Checkbox } from 'antd-mobile';
 import { Icon, LoadDiv, ScrollView, Signature, VerifyPasswordInput } from 'ming-ui';
 import Back from '../components/Back';
 import styled from 'styled-components';
@@ -17,11 +17,7 @@ import 'src/pages/worksheet/common/newRecord/NewRecord.less';
 import 'mobile/ProcessRecord/OtherAction/index.less';
 import _ from 'lodash';
 
-const ModalWrap = styled(Modal)`
-  height: 95%;
-  overflow: hidden;
-  border-top-right-radius: 15px;
-  border-top-left-radius: 15px;
+const ModalWrap = styled(Popup)`
   .content {
     background-color: #f3f3f3;
   }
@@ -330,13 +326,12 @@ export default class ProcessMatters extends Component {
     const signatureApproveCards = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
     return (
-      <Modal
-        popup
+      <Popup
         visible={true}
+        className="mobileModal topRadius"
         onClose={() => {
           this.setState({ approveType: null, encryptType: null });
         }}
-        animationType="slide-up"
       >
         <div className="otherActionWrapper flexColumn">
           <div className="flex pAll10">
@@ -412,7 +407,7 @@ export default class ProcessMatters extends Component {
             </div>
           </div>
         </div>
-      </Modal>
+      </Popup>
     );
   }
   renderRejectDialog() {
@@ -421,12 +416,11 @@ export default class ProcessMatters extends Component {
     const noRejectCards = approveCards.filter(c => !_.get(c, 'flowNode.btnMap')[5]);
     return (
       <ModalWrap
-        popup
         visible={true}
+        className="mobileModal full topRadius"
         onClose={() => {
           this.setState({ rejectVisible: false });
         }}
-        animationType="slide-up"
       >
         <div className="flexColumn h100 content">
           <div className="flex flexColumn" style={{ overflowY: 'auto' }}>
@@ -599,8 +593,7 @@ export default class ProcessMatters extends Component {
                 });
               }}
               onApproveDone={this.handleApproveDone}
-              onChangeApproveCards={e => {
-                const { checked } = e.target;
+              onChangeApproveCards={checked => {
                 if (checked) {
                   this.setState({
                     approveCards: approveCards.concat(item),
@@ -644,16 +637,20 @@ export default class ProcessMatters extends Component {
         <div className="flex flexColumn">
           <div className="processTabs mBottom10 z-depth-1">
             <Tabs
-              tabBarInactiveTextColor="#9e9e9e"
-              tabs={currentTabs}
-              page={topTab ? _.findIndex(currentTabs, { id: topTab.id }) : -1}
-              onTabClick={this.handleChangeTopTab}
-              renderTab={tab => (
-                <span>
-                  {tab.name} {this.renderCount(tab)}
-                </span>
-              )}
-            />
+              className="md-adm-tabs"
+              activeLineMode="fixed"
+              activeKey={_.get(topTab, 'id')}
+              onChange={(id) => {
+                this.handleChangeTopTab(_.find(currentTabs, { id }));
+              }}
+            >
+              {currentTabs.map(tab => (
+                <Tabs.Tab
+                  title={<span>{tab.name} {this.renderCount(tab)}</span>}
+                  key={tab.id}
+                />
+              ))}
+            </Tabs>
             {batchApproval && (
               <div className="batchApprovalHeader valignWrapper Font16">
                 <div className="bold">
@@ -675,9 +672,8 @@ export default class ProcessMatters extends Component {
               <div className="valignWrapper">
                 <Checkbox
                   checked={allowApproveList.length && allowApproveList.length === approveCards.length}
-                  className={cx({ checkboxDisabled: !allowApproveList.length })}
-                  onChange={e => {
-                    const { checked } = e.target;
+                  disabled={!allowApproveList.length}
+                  onChange={checked => {
                     if (checked) {
                       if (allowApproveList.length) {
                         alert(_l('全选%0条可批量审批的记录', allowApproveList.length), 1);
@@ -728,17 +724,25 @@ export default class ProcessMatters extends Component {
           {this.renderContent()}
           <div className="processTabs bottomProcessTabs">
             <Tabs
-              tabBarInactiveTextColor="#9e9e9e"
-              tabs={tabs}
-              page={bottomTab ? _.findIndex(tabs, { id: bottomTab.id }) : -1}
-              onTabClick={this.handleChangeCompleteTab}
-              renderTab={tab => (
-                <div className="flexColumn valignWrapper">
-                  <Icon className={tab.className} icon={tab.icon} />
-                  <span className="Font12 mTop2">{tab.name}</span>
-                </div>
-              )}
-            />
+              className="md-adm-tabs"
+              activeLineMode="fixed"
+              activeKey={_.get(bottomTab, 'id')}
+              onChange={(id) => {
+                this.handleChangeCompleteTab(_.find(tabs, { id }));
+              }}
+            >
+              {tabs.map(tab => (
+                <Tabs.Tab
+                  title={(
+                    <div className="flexColumn valignWrapper">
+                      <Icon className={tab.className} icon={tab.icon} />
+                      <span className="Font12 mTop2">{tab.name}</span>
+                    </div>
+                  )}
+                  key={tab.id}
+                />
+              ))}
+            </Tabs>
           </div>
         </div>
         {!batchApproval && (
@@ -753,16 +757,14 @@ export default class ProcessMatters extends Component {
           <ProcessDelegation topTab={topTab} className={cx({ bottom120: !list.length })} />
         )}
         {topTab && topTab.id === 'waitingApproval' && !batchApproval && !!list.length && (
-          <Flex
-            justify="center"
-            align="center"
-            className="card processBatchOperation"
+          <div
+            className="card processBatchOperation flexRow alignItemsCenter justifyContentCenter"
             onClick={() => {
               this.setState({ batchApproval: true });
             }}
           >
             <Icon className="Font20 Gray_9e" icon="task-complete" />
-          </Flex>
+          </div>
         )}
         <ProcessRecordInfo
           isModal

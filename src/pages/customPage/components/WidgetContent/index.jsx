@@ -36,13 +36,6 @@ const LayoutContent = styled.div`
     border-radius: 6px;
     overflow: auto;
     // box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    &.numberChartCardHover {
-      cursor: pointer;
-      transition: box-shadow 0.2s;
-      &:hover {
-        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.16);
-      }
-    }
     &.richText {
       .editorNull {
         border: none;
@@ -239,7 +232,7 @@ function WidgetContent(props) {
             config: update(widget.config, {
               mobileCount: {
                 $apply: (item = 1) => {
-                  return item === 4 ? 1 : (item + 1);
+                  return item === 6 ? 1 : (item + 1);
                 }
               }
             })

@@ -383,6 +383,7 @@ export default {
   * @param {number} args.taxFee 手续费
   * @param {string} args.description 提现描述
   * @param {string} args.projectId 组织id
+  * @param {} args.refundSourceType
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -390,5 +391,93 @@ export default {
    applyRefund: function (args, options = {}) {
      
      return mdyAPI('Payment', 'ApplyRefund', args, options);
+   },
+  /**
+  * 获取退款列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织ID
+  * @param {string} args.refundOrderId 退款单号
+  * @param {string} args.orderId 订单号
+  * @param {string} args.merchantOrderId 交易订单号
+  * @param {string} args.merchantNo 交易商户号
+  * @param {} args.sourceType
+  * @param {} args.sourceInfo
+  * @param {string} args.description 描述信息
+  * @param {} args.status
+  * @param {} args.payOrderType
+  * @param {string} args.accountId 退款账户
+  * @param {string} args.startCreateTime 创建时间起始
+  * @param {string} args.endCreateTime 创建时间结束
+  * @param {string} args.startRefundTime 退款时间起始
+  * @param {string} args.endRefundTime 退款时间结束
+  * @param {string} args.operatorAccountId 操作用户
+  * @param {} args.pageFilter
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getRefundOrderList: function (args, options = {}) {
+     
+     return mdyAPI('Payment', 'GetRefundOrderList', args, options);
+   },
+  /**
+  * 修改退款单状态
+  * @param {Object} args 请求参数
+  * @param {string} args.refundOrderId 退款单号
+  * @param {} args.status
+  * @param {string} args.projectId
+  * @param {string} args.appId
+  * @param {} args.refundSourceType
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editRefundOrderStatus: function (args, options = {}) {
+     
+     return mdyAPI('Payment', 'EditRefundOrderStatus', args, options);
+   },
+  /**
+  * 表内检查记录是否支持付款
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.rowId 行记录Id
+  * @param {string} args.appId AppId
+  * @param {string} args.projectId
+  * @param {string} args.viewId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkPayOrderForRowDetail: function (args, options = {}) {
+     
+     return mdyAPI('Payment', 'CheckPayOrderForRowDetail', args, options);
+   },
+  /**
+  * 导出退款单数
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织ID
+  * @param {string} args.refundOrderId 退款单号
+  * @param {string} args.orderId 订单号
+  * @param {string} args.merchantOrderId 交易订单号
+  * @param {string} args.merchantNo 交易商户号
+  * @param {} args.sourceType
+  * @param {} args.sourceInfo
+  * @param {string} args.description 描述信息
+  * @param {} args.status
+  * @param {} args.payOrderType
+  * @param {string} args.accountId 退款账户
+  * @param {string} args.startCreateTime 创建时间起始
+  * @param {string} args.endCreateTime 创建时间结束
+  * @param {string} args.startRefundTime 退款时间起始
+  * @param {string} args.endRefundTime 退款时间结束
+  * @param {string} args.operatorAccountId 操作用户
+  * @param {} args.pageFilter
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   exportRefundOrder: function (args, options = {}) {
+     
+     return mdyAPI('Payment', 'ExportRefundOrder', args, options);
    },
 };

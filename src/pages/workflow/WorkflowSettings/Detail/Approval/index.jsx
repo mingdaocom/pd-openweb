@@ -15,6 +15,7 @@ import {
   EmailApproval,
   UpdateFields,
   OperatorEmpty,
+  CustomTextarea,
 } from '../components';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -198,6 +199,7 @@ export default class Approval extends Component {
       candidateUserMap,
       addNotAllowView,
       signOperationType,
+      explain,
     } = data;
 
     if (!selectNodeId) {
@@ -257,6 +259,7 @@ export default class Approval extends Component {
         candidateUserMap,
         addNotAllowView,
         signOperationType,
+        explain,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -668,7 +671,7 @@ export default class Approval extends Component {
 
     return (
       <Fragment>
-        <div className="Font13 bold mTop25">{_l('审批人操作')}</div>
+        <div className="Font13 bold mTop20">{_l('审批人操作')}</div>
 
         <Checkbox
           className="mTop15 flexRow"
@@ -1255,6 +1258,20 @@ export default class Approval extends Component {
                     }
                   />
 
+                  <div className="Font13 bold mTop25">{_l('审批说明')}</div>
+                  <CustomTextarea
+                    projectId={this.props.companyId}
+                    processId={this.props.processId}
+                    relationId={this.props.relationId}
+                    selectNodeId={this.props.selectNodeId}
+                    type={2}
+                    height={0}
+                    content={data.explain}
+                    formulaMap={data.formulaMap}
+                    onChange={(err, value, obj) => this.updateSource({ explain: value })}
+                    updateSource={this.updateSource}
+                  />
+
                   <div className="Font13 bold mTop25">{_l('按钮名称')}</div>
                   <ButtonName
                     dataKey="passBtnName"
@@ -1284,7 +1301,7 @@ export default class Approval extends Component {
 
               {tabIndex === 2 && (
                 <Fragment>
-                  <div className="Gray_75 mTop15">
+                  <div className="Gray_75 mTop20">
                     {_l(
                       '设置审批时可以查看、编辑、必填的字段。设为摘要的字段可以在流程待办列表和邮件通知中直接显示，使审批人无需打开详情即可快速完成审批。',
                     )}
@@ -1299,9 +1316,6 @@ export default class Approval extends Component {
                   {data.selectNodeId ? (
                     <div className="Font13 mTop15">
                       <WriteFields
-                        processId={this.props.processId}
-                        nodeId={this.props.selectNodeId}
-                        selectNodeId={data.selectNodeId}
                         data={data.formProperties}
                         addNotAllowView={data.addNotAllowView}
                         updateSource={this.updateSource}
@@ -1320,12 +1334,12 @@ export default class Approval extends Component {
               {tabIndex === 3 && (
                 <Fragment>
                   {data.selectNodeId ? (
-                    SOURCE_HANDLE_LIST.map(item => {
+                    SOURCE_HANDLE_LIST.map((item, index) => {
                       const sourceData = data.flowNodeMap[item.key] || {};
 
                       return (
                         <Fragment key={item.key}>
-                          <div className="Font13 bold mTop25">{item.title}</div>
+                          <div className={cx('Font13 bold', index === 0 ? 'mTop20' : 'mTop25')}>{item.title}</div>
                           <div className="Font13 Gray_75 mTop10">{item.desc}</div>
                           <UpdateFields
                             type={1}

@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Icon, Switch, Button, Radio, QiniuUpload, Slider, Dropdown, Dialog } from 'ming-ui';
+import { Icon, Switch, Button, Radio, QiniuUpload, Slider, Dialog, SortableList } from 'ming-ui';
 import { Drawer, Input } from 'antd';
 import _ from 'lodash';
 import cx from 'classnames';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import BulletinSetting from './BulletinSetting';
 import projectSettingApi from 'src/api/projectSetting';
-import { chartRefreshOptions, themeColors } from './utils';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
+import { themeColors } from './utils';
 import { upgradeVersionDialog } from 'src/util';
 
 const SettingDrawer = styled(Drawer)`
@@ -184,7 +183,6 @@ const SortItem = styled.div`
   border: 1px solid #ccc;
   border-radius: 3px;
   padding: 0 12px;
-  margin-bottom: 16px;
   cursor: pointer;
   &:hover {
     border-color: #2196f3;
@@ -216,30 +214,6 @@ const AdvancedThemeItem = styled.div`
     }
   }
 `;
-
-const SortableItem = SortableElement(data => {
-  const { moduleType } = data;
-  const modulesText = { 0: _l('应用收藏'), 1: _l('最近使用'), 2: _l('记录收藏'), 3: _l('图表收藏') };
-
-  return (
-    <SortItem>
-      <Icon className="mRight8 Font14 Gray_9e" icon="drag" />
-      <span>{modulesText[moduleType]}</span>
-    </SortItem>
-  );
-});
-
-const SortableList = SortableContainer(props => {
-  const { sortIds } = props;
-
-  return (
-    <div className="flexColumn mTop16">
-      {sortIds.map((moduleType, index) => {
-        return <SortableItem moduleType={moduleType} key={`item_${moduleType}`} index={index} />;
-      })}
-    </div>
-  );
-});
 
 export default function DashboardSetting(props) {
   const {
@@ -282,12 +256,28 @@ export default function DashboardSetting(props) {
     { value: 1, text: _l('列表') },
   ];
 
+  const modules = [
+    { value: 0, text: _l('应用收藏') },
+    { value: 1, text: _l('最近使用') },
+    { value: 2, text: _l('记录收藏') },
+    { value: 3, text: _l('图表收藏') },
+  ];
+
   const updateLogo = logoName => {
     projectSettingApi.setLogo({ logoName, projectId: currentProject.projectId }).then(res => {
       if (res) {
         updatePlatformSetting({ logo: logoName, editingKey: 'logo' });
       }
     });
+  };
+
+  const renderItem = ({ item }) => {
+    return (
+      <SortItem>
+        <Icon className="mRight8 Font14 Gray_9e" icon="drag" />
+        <span>{item.text}</span>
+      </SortItem>
+    );
   };
 
   return (
@@ -556,14 +546,18 @@ export default function DashboardSetting(props) {
             setSortVisible(false);
           }}
         >
-          <SortableList
-            sortIds={sortModuleIds}
-            onSortEnd={({ oldIndex, newIndex }) => {
-              if (oldIndex === newIndex) return;
-              const newSortIds = arrayMove(sortModuleIds, oldIndex, newIndex);
-              setSortModuleIds(newSortIds);
-            }}
-          />
+          <div className="flexColumn mTop16">
+            <SortableList
+              items={sortModuleIds.map(id => modules.filter(m => m.value === id)[0])}
+              itemKey="value"
+              renderItem={renderItem}
+              itemClassName="mBottom16"
+              onSortEnd={newItems => {
+                const newSortIds = newItems.map(item => item.value);
+                setSortModuleIds(newSortIds);
+              }}
+            />
+          </div>
         </Dialog>
       )}
     </React.Fragment>

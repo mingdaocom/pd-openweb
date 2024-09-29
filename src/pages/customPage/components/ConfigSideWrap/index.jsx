@@ -190,6 +190,8 @@ export const defaultConfig = {
   refresh: 0,
   headerVisible: true,
   shareVisible: true,
+  chartShare: true,
+  chartExportExcel: true,
   downloadVisible: true,
   fullScreenVisible: true,
   customColors: []
@@ -584,7 +586,7 @@ export default (props) => {
               </div>
               {config.headerVisible && (
                 <div className="flexRow alignItemsCenter">
-                  <div className="mRight15">{_l('操作')}</div>
+                  <div className="mRight15">{_l('页面操作')}</div>
                   <Checkbox
                     className="flexRow alignItemsCenter"
                     checked={config.shareVisible}
@@ -623,6 +625,33 @@ export default (props) => {
             </div>
           </div>
         )}
+        <div className="flexRow mTop15 mBottom20">
+          <div className="Gray_75 Font13 label">{_l('图表操作')}</div>
+          <div className="flex">
+            <Checkbox
+              className="flexRow alignItemsCenter"
+              checked={_.isUndefined(config.chartShare) ? true : config.chartShare}
+              onChange={(event) => {
+                handleChangeConfig({
+                  chartShare: event.target.checked
+                });
+              }}
+            >
+              {_l('分享')}
+            </Checkbox>
+            <Checkbox
+              className="flexRow alignItemsCenter"
+              checked={_.isUndefined(config.chartExportExcel) ? true : config.chartExportExcel}
+              onChange={(event) => {
+                handleChangeConfig({
+                  chartExportExcel: event.target.checked
+                });
+              }}
+            >
+              {_l('导出Excel')}
+            </Checkbox>
+          </div>
+        </div>
         <div className="flexRow mTop15 mBottom20">
           <div className="Gray_75 Font13 label">{_l('联动筛选')}</div>
           <div className="flex">

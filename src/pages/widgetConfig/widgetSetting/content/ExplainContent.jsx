@@ -9,7 +9,7 @@ import { SettingItem, AnimationWrap } from '../../styled';
 import cx from 'classnames';
 import { SettingCollapseWrap } from './styled';
 import { handleAdvancedSettingChange } from '../../util/setting';
-import { notExplainDisplay } from '../../util';
+import { notExplainDisplay, notWidgetDes } from '../../util';
 import { SectionItem } from '../components/SplitLineConfig/style';
 
 const { Panel } = Collapse;
@@ -128,7 +128,7 @@ const DevelopContent = ({ data, allControls, onChange }) => {
 };
 
 const getItems = props => {
-  const { data: { type } = {} } = props;
+  const { data } = props;
   const defaultData = [
     {
       key: 'develop',
@@ -138,7 +138,7 @@ const getItems = props => {
   ];
 
   // 分段、备注不支持用户设置
-  if (!_.includes([22, 10010], type)) {
+  if (!notWidgetDes(data)) {
     defaultData.unshift({
       key: 'user',
       label: _l('用户'),

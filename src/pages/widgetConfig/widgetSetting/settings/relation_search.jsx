@@ -109,7 +109,7 @@ export default function RelationSearch(props) {
     coverCid,
     sourceControlId,
   } = data;
-  let { showtype = String(enumDefault), covertype = '0', maxcount } = getAdvanceSetting(data);
+  let { showtype = String(enumDefault), covertype = '0', maxcount, allowexport } = getAdvanceSetting(data);
   const resultFilters = getAdvanceSetting(data, 'resultfilters');
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
 
@@ -347,6 +347,7 @@ export default function RelationSearch(props) {
                 showtype: value,
                 maxcount: value === '3' && (parseInt(maxcount) || parseInt(maxcount) === 0) > 50 ? '50' : maxcount,
                 ...(value === '2' ? { titlesize: '', titlestyle: '', titlecolor: '', hidetitle: '0' } : {}),
+                allowexport: isSheetDisplay(value) ? allowexport : '0',
               }),
               size: value === '2' ? WHOLE_SIZE : data.size,
             });

@@ -77,7 +77,7 @@ function activeViewStatus(state = 1, action) {
 function fieldShowCount(state = 0, action) {
   switch (action.type) {
     case 'VIEW_UPDATE_SHOW_COUNT':
-      return action.showcount || state;
+      return action.showcount || 0;
     default:
       return state;
   }

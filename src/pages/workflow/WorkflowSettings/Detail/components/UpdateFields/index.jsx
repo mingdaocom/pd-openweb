@@ -218,6 +218,7 @@ export default class UpdateFields extends Component {
                       updateSource={updateSource}
                     />
                   )}
+                  {item.type === 36 && <span className="Gray_75">{_l('是-(1,true), 否-(0,false), 其余值忽略')}</span>}
                   {item.type === 40 && (
                     <span className="Gray_75">{`{"x": "121.473667", "y": "31.230525", "title": "Shanghai", "address": ""}`}</span>
                   )}
@@ -239,6 +240,7 @@ export default class UpdateFields extends Component {
                   filterType={filterType}
                   item={item}
                   i={i}
+                  moreNodesMenuStyle={{ marginLeft: -556, width: 701 }}
                 />
                 <i className="icon-delete2 Font16 ThemeColor3 actionItemDel" onClick={() => this.delFields(i)} />
               </div>

@@ -17,28 +17,6 @@ const ApprovalProcessBox = styled.div`
   &.foldCurrentNode {
     margin-bottom: -20px;
   }
-  .addProcessNode {
-    margin: 14px 0 48px;
-    padding: 0 !important;
-    width: auto !important;
-    cursor: pointer;
-    justify-content: center;
-    &:hover {
-      .icon-custom_add_circle {
-        color: #2196f3 !important;
-      }
-    }
-    &:not(:hover) {
-      span {
-        color: #757575;
-      }
-    }
-    .icon-custom_add_circle {
-      width: auto !important;
-      display: flex !important;
-      align-items: center;
-    }
-  }
   .processNodeStartLine {
     position: relative;
     width: 100%;

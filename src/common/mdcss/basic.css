@@ -24,8 +24,8 @@ body {
 }
 
 body#ja {
-  font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN',
-    'Hiragino Sans', Meiryo, sans-serif !important;
+  font-family: 'Helvetica Neue', 'Helvetica, Arial', 'Hiragino Kaku Gothic Pro', 'Meiryo, Yu Gothic',
+    'MS Gothic, PingFang SC', 'Microsoft YaHei', 'WenQuanYi Micro Hei', sans-serif !important;
 }
 
 html {
@@ -184,6 +184,11 @@ textarea {
 .Fixed {
   position: fixed !important;
 }
+
+.Static {
+  position: static !important;
+}
+
 
 .placeholderColor::-webkit-input-placeholder {
   /* WebKit browsers */
@@ -620,6 +625,10 @@ body .Hidden {
   margin-top: 45px !important;
 }
 
+.mTop46 {
+  margin-top: 46px !important;
+}
+
 .mTop50 {
   margin-top: 50px !important;
 }
@@ -675,6 +684,10 @@ body .Hidden {
   margin-right: 13px !important;
 }
 
+.mRight14 {
+  margin-right: 14px !important;
+}
+
 .mRight15 {
   margin-right: 15px !important;
 }
@@ -697,6 +710,10 @@ body .Hidden {
 
 .mRight25 {
   margin-right: 25px !important;
+}
+
+.mRight26 {
+  margin-right: 26px !important;
 }
 
 .mRight30 {
@@ -859,12 +876,20 @@ body .Hidden {
   margin-left: 12px !important;
 }
 
+.mLeft14 {
+  margin-left: 14px !important;
+}
+
 .mLeft15 {
   margin-left: 15px !important;
 }
 
 .mLeft16 {
   margin-left: 16px !important;
+}
+
+.mLeft17 {
+  margin-left: 17px !important;
 }
 
 .mLeft20 {
@@ -919,6 +944,10 @@ body .Hidden {
   margin-left: 100px !important;
 }
 
+.mLeft150 {
+  margin-left: 150px !important;
+}
+
 .pAll0 {
   padding: 0px !important;
 }
@@ -941,6 +970,10 @@ body .Hidden {
 
 .pAll15 {
   padding: 15px !important;
+}
+
+.pAll16 {
+  padding: 16px !important;
 }
 
 .pAll20 {
@@ -1031,6 +1064,10 @@ body .Hidden {
   padding-top: 45px !important;
 }
 
+.pTop50 {
+  padding-top: 50px !important;
+}
+
 .pTop100 {
   padding-top: 100px !important;
 }
@@ -1085,6 +1122,10 @@ body .Hidden {
 
 .pRight30 {
   padding-right: 30px !important;
+}
+
+.pRight36 {
+  padding-right: 36px !important;
 }
 
 .pRight40 {
@@ -1593,6 +1634,9 @@ body .Hidden {
 .LineHeight0 {
   line-height: 0;
 }
+.LineHeight1em {
+  line-height: 1em;
+}
 .LineHeight15 {
   line-height: 15px !important;
 }
@@ -1651,6 +1695,10 @@ body .Hidden {
 
 .LineHeight40 {
   line-height: 40px !important;
+}
+
+.LineHeight44 {
+  line-height: 44px !important;
 }
 
 .LineHeight50 {
@@ -2243,6 +2291,10 @@ body>object {
   align-items: center;
   justify-content: center;
   height: 100%;
+}
+
+.preWrap {
+  white-space: pre-wrap;
 }
 
 .pre .MdLoader-path {
@@ -3221,3 +3273,12 @@ input::-webkit-contacts-auto-fill-button {
   flex-shrink: 0;
 }
 
+.hr-line:not(:last-child):not(:first-child) {
+  border-top: 1px solid #f3f3f3;
+  margin: 4px 0;
+}
+
+.ant-modal .ant-modal-content,
+.ant-modal .ant-modal-body {
+  font-size: 13px;
+}

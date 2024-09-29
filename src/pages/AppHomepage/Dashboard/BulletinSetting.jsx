@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, Icon, Button, Input, QiniuUpload, LoadDiv } from 'ming-ui';
+import { Dialog, Icon, Button, Input, QiniuUpload, LoadDiv, SortableList, Tooltip } from 'ming-ui';
 import { Input as AntdInput } from 'antd';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import _ from 'lodash';
 import cx from 'classnames';
 import RegExpValidator from 'src/util/expression';
 import { coverUrls } from './utils';
+import suggestImg from './image/suggest.png';
+import './style.less';
 
 const BulletinDialog = styled(Dialog)`
   .mui-dialog-header {
@@ -179,50 +180,6 @@ const TitleInput = styled(AntdInput)`
   }
 `;
 
-const SortHandle = SortableHandle(() => <Icon className="mRight10 Font16 Hand Gray_9e" icon="drag" />);
-
-const SortableItem = SortableElement(data => {
-  const { title, url, currentIndex, activeIndex, onSwitchItem, bulletins, onDelete } = data;
-  return (
-    <ItemWrapper>
-      <div
-        className={cx('bulletinItem', { isActive: currentIndex === activeIndex })}
-        onClick={() => onSwitchItem(currentIndex)}
-      >
-        <SortHandle />
-        <div className="picWrapper" style={{ background: `url(${url}) no-repeat center` }}></div>
-        {title && (
-          <div className="mLeft16 Font14 overflow_ellipsis" title={title}>
-            {title}
-          </div>
-        )}
-        <div className="flex"></div>
-        {bulletins.length > 1 && (
-          <Icon
-            icon="delete1"
-            className="delIcon"
-            onClick={e => {
-              e.stopPropagation();
-              onDelete(currentIndex);
-            }}
-          />
-        )}
-      </div>
-    </ItemWrapper>
-  );
-});
-
-const SortableList = SortableContainer(props => {
-  const { bulletins } = props;
-  return (
-    <div className="flexColumn">
-      {bulletins.map((item, index) => {
-        return <SortableItem {...item} {...props} key={'item_' + index} index={index} currentIndex={index} />;
-      })}
-    </div>
-  );
-});
-
 export default function BulletinSetting(props) {
   const { bulletinBoards = [], onClose, updatePlatformSetting } = props;
   const [bulletins, setBulletins] = useState(
@@ -241,6 +198,7 @@ export default function BulletinSetting(props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [uploadLoading, setUploadLoading] = useState(false);
   const [editStatus, setEditStatus] = useState({ editing: false, saved: false });
+  const [flag, setFlag] = useState(+new Date());
 
   const onChangeData = obj => {
     setActiveIndex(activeIndex => {
@@ -295,18 +253,6 @@ export default function BulletinSetting(props) {
     }
   };
 
-  const onSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-    if (editStatus.editing) {
-      alert(_l('请先保存正在编辑的内容'), 3);
-      return;
-    }
-    const newBulletins = arrayMove(bulletins, oldIndex, newIndex);
-    setBulletins(newBulletins);
-    setActiveIndex(newIndex);
-    updatePlatformSetting({ bulletinBoards: newBulletins });
-  };
-
   const onAdd = () => {
     const picKey = coverUrls[_.random(0, 7)];
     const newBulletins = bulletins.concat({
@@ -335,6 +281,38 @@ export default function BulletinSetting(props) {
     );
   };
 
+  const renderItem = ({ item, index, dragging }) => {
+    const { title, url } = item;
+
+    return (
+      <ItemWrapper>
+        <div
+          className={cx('bulletinItem', { isActive: index === activeIndex && !dragging })}
+          onClick={() => onSwitchItem(index)}
+        >
+          <Icon className="mRight10 Font16 Hand Gray_9e dragIcon" icon="drag" />
+          <div className="picWrapper" style={{ background: `url(${url}) no-repeat center` }}></div>
+          {title && (
+            <div className="mLeft16 Font14 overflow_ellipsis" title={title}>
+              {title}
+            </div>
+          )}
+          <div className="flex"></div>
+          {bulletins.length > 1 && (
+            <Icon
+              icon="delete1"
+              className="delIcon"
+              onClick={e => {
+                e.stopPropagation();
+                onDelete(index);
+              }}
+            />
+          )}
+        </div>
+      </ItemWrapper>
+    );
+  };
+
   return (
     <BulletinDialog visible={true} width={1000} type="fixed" showFooter={false} onCancel={onClose}>
       <div className="leftWrapper">
@@ -344,12 +322,21 @@ export default function BulletinSetting(props) {
         </div>
         <div className="listContent">
           <SortableList
-            distance={3}
-            bulletins={bulletins}
-            activeIndex={activeIndex}
-            onSwitchItem={onSwitchItem}
-            onDelete={onDelete}
-            onSortEnd={onSortEnd}
+            flag={flag}
+            items={bulletins}
+            renderItem={renderItem}
+            itemKey="id"
+            helperClass="bulletinHelperClass"
+            onSortEnd={(newItems, newIndex) => {
+              if (editStatus.editing) {
+                alert(_l('请先保存正在编辑的内容'), 3);
+                setFlag(+new Date());
+                return;
+              }
+              setActiveIndex(newIndex);
+              setBulletins(newItems);
+              updatePlatformSetting({ bulletinBoards: newItems });
+            }}
           />
           {bulletins.length < 10 && (
             <Button
@@ -365,7 +352,32 @@ export default function BulletinSetting(props) {
       </div>
       <div className="rightWrapper">
         <div className="bold mBottom8">{_l('图片')}</div>
-        <div className="Gray_9e mBottom15">{_l('支持 jpg、jpeg、png、gif格式，2MB以内')}</div>
+        <div className="Gray_9e mBottom15">
+          <span>
+            {_l('支持 jpg、jpeg、png、gif格式，2MB以内')} <span></span>
+          </span>
+          <Tooltip
+            themeColor="white"
+            tooltipClass="suggestWrapper"
+            popupPlacement="bottom"
+            popupAlign={{
+              overflow: { adjustX: true, adjustY: true },
+            }}
+            text={
+              <React.Fragment>
+                <div className="title">{_l('设计建议')}</div>
+                <div className="description">
+                  {_l(
+                    '建议尺寸为 1600x480px，支持 jpg、jpeg、png、gif，2MB以内。图片在浏览器窗口尺寸变化时可能会被裁切，建议将重要信息放在中间安全区域内',
+                  )}
+                </div>
+                <img src={suggestImg} />
+              </React.Fragment>
+            }
+          >
+            <span className="ThemeColor3 mLeft4 pointer bold">{_l('设计建议')}</span>
+          </Tooltip>
+        </div>
         <div
           className="image"
           style={{

@@ -99,6 +99,11 @@ export default function WidgetSection(props) {
     return null;
   }
 
+  // 上下布局时只有一个标签页时隐藏，左右布局直接隐藏
+  const hideTab =
+    (_.get(widgetStyle, 'hidetab') === '1' && tabControls.length === 1 && _.get(_.head(tabControls), 'type') === 52) ||
+    _.includes(['3', '4'], _.get(widgetStyle, 'tabposition'));
+
   const sectionCustomEvent = () => {
     let changeControls = [];
     let triggerType = '';
@@ -178,34 +183,39 @@ export default function WidgetSection(props) {
       className={cx('relateRecordBlock', { flexColumn: isSplit, mTop0: isSplit || !hasCommon })}
       style={isSplit ? { height: '100%' } : {}}
     >
-      <div
-        style={{
-          position: 'relative',
-          marginBottom: '8px',
-          ...(isSplit && { borderTop: '3px solid #ddd', padding: '0 24px' }),
-        }}
-      >
-        {isSplit && <Drag onMouseDown={beginDrag} />}
-        <SectionTableNav
-          version={version}
-          style={isSplit ? {} : { borderBottom: '3px solid #ddd' }}
-          formWidth={formWidth}
-          sideVisible={controlProps.sideVisible}
-          showSplitIcon={showSplitIcon}
-          widgetStyle={widgetStyle}
-          isSplit={isSplit}
-          setSplit={setSplit}
-          activeControlId={activeControl.controlId}
-          controls={tabControls}
-          onClick={controlId => {
-            setActiveTabControlId(controlId);
-            if (_.isFunction(scrollToTable)) {
-              scrollToTable();
-            }
+      {hideTab ? null : (
+        <div
+          id="widgetSectionTabBar"
+          style={{
+            position: 'relative',
+            marginBottom: '8px',
+            marginLeft: '-24px',
+            paddingLeft: '24px',
+            ...(isSplit && { borderTop: '3px solid #ddd', padding: '0 24px' }),
           }}
-        />
-        {isSplit && <BottomLine />}
-      </div>
+        >
+          {isSplit && <Drag onMouseDown={beginDrag} />}
+          <SectionTableNav
+            version={version}
+            style={isSplit ? {} : { borderBottom: '3px solid #ddd' }}
+            formWidth={formWidth}
+            sideVisible={controlProps.sideVisible}
+            showSplitIcon={showSplitIcon}
+            widgetStyle={widgetStyle}
+            isSplit={isSplit}
+            setSplit={setSplit}
+            activeControlId={activeControl.controlId}
+            controls={tabControls}
+            onClick={controlId => {
+              setActiveTabControlId(controlId);
+              if (_.isFunction(scrollToTable)) {
+                scrollToTable();
+              }
+            }}
+          />
+          {isSplit && <BottomLine />}
+        </div>
+      )}
       {renderContent()}
     </Con>
   );

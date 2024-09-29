@@ -178,11 +178,15 @@ export default function ConditionsGroup(props) {
     filterError = [],
     isRules,
     showCustom,
+    widgetControlData,
   } = props;
   return (
     <Con className={cx({ isSingleFilter })}>
       {conditions.map((condition, i) => {
-        const control = _.find(controls, column => condition.controlId === column.controlId);
+        let control = _.find(controls, column => condition.controlId === column.controlId);
+        if (!_.isUndefined(control)) {
+          control = { ...control };
+        }
         const conditionGroupKey = getTypeKey((control || {}).type);
         const conditionGroupType = control ? CONTROL_FILTER_WHITELIST[conditionGroupKey].value : '';
         const isSheetFieldError = isOtherShowFeild(control);
@@ -225,6 +229,7 @@ export default function ConditionsGroup(props) {
               worksheetId={worksheetId}
               key={condition.keyStr}
               showCustom={showCustom}
+              widgetControlData={widgetControlData}
               index={i}
               condition={condition}
               conditionGroupType={conditionGroupType}
@@ -244,7 +249,12 @@ export default function ConditionsGroup(props) {
         <ConditionCon isSingleFilter={isSingleFilter}>
           <ConditionHeader />
           <div className="flex">
-            <AddCondition columns={filterAddConditionControls(controls)} onAdd={onAdd} from={from}>
+            <AddCondition
+              columns={filterAddConditionControls(controls)}
+              onAdd={onAdd}
+              from={from}
+              widgetControlData={_.get(conditionProps, 'widgetControlData')}
+            >
               <AddButton
                 className="mRight30 ThemeHoverColor3"
                 icon="add"

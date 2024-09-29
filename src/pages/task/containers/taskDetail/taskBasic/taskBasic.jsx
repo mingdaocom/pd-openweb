@@ -298,12 +298,11 @@ class TaskBasic extends Component {
       sourceId: taskId,
       projectId: data.projectID,
       fromType: 2,
-      filterAccountIds: [data.charge.accountID],
-
+      selectedAccountIds: [data.charge.accountID],
       showMoreInvite: false,
       includeUndefinedAndMySelf: true,
       SelectUserSettings: {
-        filterAccountIds: [data.charge.accountID],
+        selectedAccountIds: [data.charge.accountID],
         projectId: checkIsProject(data.projectID) ? data.projectID : '',
         callback,
       },
@@ -329,7 +328,7 @@ class TaskBasic extends Component {
             fromType: 2,
             SelectUserSettings: {
               includeUndefinedAndMySelf: true,
-              filterAccountIds: [data.charge.accountID],
+              selectedAccountIds: [data.charge.accountID],
               projectId: checkIsProject(data.projectID) ? data.projectID : '',
               unique: true,
               callback: users => {
@@ -539,16 +538,16 @@ class TaskBasic extends Component {
       this.props.dispatch(addTaskMember(taskId, userIdArr, specialAccounts, callbackInviteResult));
     };
 
-    existsIds = existsIds.concat([data.charge.accountID, 'user-undefined']);
-
     quickSelectUser(evt.target, {
       sourceId: taskId,
       projectId: data.projectID,
       fromType: 2,
-      filterAccountIds: existsIds,
+      filterAccountIds: [data.charge.accountID, 'user-undefined'],
+      selectedAccountIds: existsIds,
       includeUndefinedAndMySelf: true,
       SelectUserSettings: {
-        filterAccountIds: existsIds,
+        filterAccountIds: [data.charge.accountID, 'user-undefined'],
+        selectedAccountIds: existsIds,
         projectId: checkIsProject(data.projectID) ? data.projectID : '',
         callback,
       },

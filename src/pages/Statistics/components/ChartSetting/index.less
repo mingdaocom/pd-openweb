@@ -56,41 +56,14 @@
     color: #757575;
     font-weight: inherit !important;
   }
-  .SingleFilterWrapper {
+  .filterWrapper {
+    height: 32px;
     border: 1px dashed #BDBDBDFF;
-    padding: 10px;
+    padding: 0 12px;
     background-color: #fff;
     border-radius: 4px;
-    .exist {
-      margin-bottom: 15px;
-    }
-    .worksheetFilterDateCondition .includeToday {
-      margin-left: 4px;
-    }
-    .workSheetFilter .conditionItem .conditionItemHeader .columnName {
-      max-width: 78px;
-    }
-  }
-  .addFilterCondition {
-    display: none;
-  }
-}
-
-.sortableNumberField {
-  z-index: 9999;
-  .sortableDrag {
-    position: absolute;
-    top: 7px;
-    left: -18px;
-    opacity: 1;
-  }
-  .fidldItem {
-    height: 32px;
-    padding: 0 12px;
-    border-radius: 16px;
-    margin-bottom: 12px;
-    border: 1px solid #DDDDDDFF;
-    background-color: #EAEAEAFF;
+    line-height: normal;
+    cursor: pointer;
   }
 }
 
@@ -137,8 +110,3 @@
   }
 }
 
-.showControlsColumnCheckItem {
-  &.active {
-    z-index: 1000;
-  }
-}

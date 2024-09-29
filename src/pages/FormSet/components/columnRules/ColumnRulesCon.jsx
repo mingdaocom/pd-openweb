@@ -1,13 +1,12 @@
 import React, { Fragment } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { Icon, Support, Button, ScrollView } from 'ming-ui';
+import { Icon, Support, Button, ScrollView, SortableList } from 'ming-ui';
 import { Drawer } from 'antd';
 import * as actions from './redux/actions/columnRules';
 import * as columnRules from './redux/actions/columnRules';
 import EditBox from './EditBox';
 import RuleItem from './RuleItem';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import { hasRuleChanged } from './config';
 import cx from 'classnames';
 import _ from 'lodash';
@@ -22,29 +21,6 @@ const TABS_DISPLAY = [
     value: 1,
   },
 ];
-
-const SortableItem = SortableElement(({ value }) => {
-  return (
-    <div>
-      <div className="ruleDrabItemContainer">
-        <div className={cx('grabIcon')}>
-          <Icon icon="drag" className="TxtMiddle Font14"></Icon>
-        </div>
-        <RuleItem ruleData={value} />
-      </div>
-    </div>
-  );
-});
-
-const SortableList = SortableContainer(({ list }) => {
-  return (
-    <div className="flex flexColumn">
-      {list.map((item, index) => (
-        <SortableItem value={item} key={index} index={index} sortIndex={index} />
-      ))}
-    </div>
-  );
-});
 class ColumnRulesCon extends React.Component {
   constructor(props) {
     super(props);
@@ -72,12 +48,18 @@ class ColumnRulesCon extends React.Component {
     return (
       <ScrollView className="rulesCon">
         <SortableList
-          list={renderData}
-          distance={5}
+          items={renderData}
+          itemKey="ruleId"
           helperClass="columnRuleSortableList"
-          onSortEnd={({ oldIndex, newIndex }) => {
-            grabControlRules(arrayMove(renderData, oldIndex, newIndex));
-          }}
+          onSortEnd={newItems => grabControlRules(newItems)}
+          renderItem={({ item }) => (
+            <div className="ruleDrabItemContainer">
+              <div className={cx('grabIcon')}>
+                <Icon icon="drag" className="TxtMiddle Font14"></Icon>
+              </div>
+              <RuleItem ruleData={item} />
+            </div>
+          )}
         />
       </ScrollView>
     );

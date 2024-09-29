@@ -13,8 +13,6 @@ const initData = () => {
     fullName: '', // 姓名
     regcode: '', // 企业码
     isCheck: false,
-    encrypeAccount: '',
-    encrypePassword: '',
     inviteInfo: [],
     confirmation: request.confirmation || '',
     isLink: !!request.confirmation || location.href.indexOf('linkInvite') >= 0 || location.href.indexOf('join') >= 0,

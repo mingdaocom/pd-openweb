@@ -1,19 +1,17 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Support } from 'ming-ui';
-import { HAS_WARNING_CONTROL } from '../../../config';
+import { HAS_WARNING_CONTROL } from 'src/pages/widgetConfig/config';
 
 const WarningWrap = styled.div`
   font-size: 12px;
   padding: 10px;
   line-height: 21px;
-  margin: 12px 0;
-  background: #f7f7f7;
   border-radius: 2px;
-  border: 1px solid #eaeaea;
-  .Font13 {
-    font-size: 12px !important;
-  }
+  ${props =>
+    props.isBg
+      ? 'margin-top: 10px;background: #FFFCD5;'
+      : 'margin: 12px 0;background: #f7f7f7;border: 1px solid #eaeaea;'}
 `;
 
 const DEFAULT_TEXT = {
@@ -23,19 +21,27 @@ const DEFAULT_TEXT = {
   href: 'https://help.mingdao.com/worksheet/batch-refresh',
 };
 
-const CUSTOM_EVENT_TEXT = {
-  text: _l(
-    '控件事件是指在应用内表单详情页中的字段控件上有交互事件发生时，如果表单内的数据满足条件，则可以根据配置执行不同动作，如显示消息、调用集成API等。',
-  ),
-  href: 'https://help.mingdao.com/worksheet/event',
+const OTHER_TEXT = {
+  event: {
+    text: _l(
+      '控件事件是指在应用内表单详情页中的字段控件上有交互事件发生时，如果表单内的数据满足条件，则可以根据配置执行不同动作，如显示消息、调用集成API等。',
+    ),
+    href: 'https://help.mingdao.com/worksheet/event',
+  },
+  widgetStyle: {
+    text: _l(
+      '这是一个兼容保留的历史配置，现在此字段类型已不再支持此设置。如果你不需要此功能可以取消勾选，避免性能浪费。',
+    ),
+  },
 };
 
-export default function WidgetWarning({ fromCustom = false }) {
-  const detail = fromCustom ? CUSTOM_EVENT_TEXT : DEFAULT_TEXT;
+export default function WidgetWarning({ type }) {
+  const detail = _.includes(HAS_WARNING_CONTROL, type) ? DEFAULT_TEXT : OTHER_TEXT[type];
+  const isBg = _.includes(['widgetStyle'], type);
   return (
-    <WarningWrap>
+    <WarningWrap isBg={isBg}>
       {detail.text}
-      <Support type={3} href={detail.href} text={_l('了解更多')} style={{ fontSize: '12px' }} />
+      {detail.href && <Support type={3} href={detail.href} text={<span className="Font12">{_l('了解更多')}</span>} />}
     </WarningWrap>
   );
 }

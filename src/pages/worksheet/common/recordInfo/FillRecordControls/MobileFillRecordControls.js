@@ -1,5 +1,5 @@
 import React from 'react';
-import { WingBlank, Button } from 'antd-mobile';
+import { Button } from 'antd-mobile';
 import styled from 'styled-components';
 import update from 'immutability-helper';
 import CustomFields from 'src/components/newCustomFields';
@@ -27,23 +27,8 @@ const Con = styled.div`
     padding: 7px 10px;
     border-top: 1px solid #f5f5f5;
     background-color: #fff;
-    a {
-      text-decoration: none;
-    }
     .edit {
       color: #2196f3;
-    }
-    .am-button {
-      height: 36px;
-      line-height: 36px;
-    }
-    .am-button-primary:hover {
-      color: #fff;
-    }
-    .am-button,
-    .am-button::before,
-    .am-button-active::before {
-      border-radius: 50px;
     }
   }
 `;
@@ -246,21 +231,17 @@ class FillRecordControls extends React.Component {
           </div>
         </div>
         <div className="btnsWrapper flexRow">
-          <WingBlank className="flex" size="sm">
-            <Button className="Font15 bold Gray_75" onClick={hideDialog}>
-              <span>{_l('取消')}</span>
-            </Button>
-          </WingBlank>
-          <WingBlank className="flex" size="sm">
-            <Button
-              disabled={submitLoading || isSubmitting}
-              className="Font15 bold"
-              type="primary"
-              onClick={this.handleSave}
-            >
-              {_l('确定')}
-            </Button>
-          </WingBlank>
+          <Button className="flex mLeft6 mRight6 Font15 bold Gray_75" onClick={hideDialog}>
+            <span>{_l('取消')}</span>
+          </Button>
+          <Button
+            disabled={submitLoading || isSubmitting}
+            className="flex mLeft6 mRight6 Font15 bold"
+            color="primary"
+            onClick={this.handleSave}
+          >
+            {_l('确定')}
+          </Button>
         </div>
       </Con>
     );

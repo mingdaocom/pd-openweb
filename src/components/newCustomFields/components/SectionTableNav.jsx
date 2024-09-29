@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, Fragment } from 'react';
 import { Motion, spring } from 'react-motion';
 import { Icon, Tooltip, SvgIcon } from 'ming-ui';
 import PropTypes from 'prop-types';
@@ -60,7 +60,6 @@ const Tab = styled.div`
 const Num = styled.div`
   display: inline-block;
   color: #9e9e9e;
-  margin-left: 4px;
   white-space: pre;
 `;
 
@@ -82,22 +81,80 @@ const SplitBtn = styled.div`
 const IconCon = styled.span`
   line-height: 18px;
   display: inline-block;
-  margin-right: 6px;
+  ${props => (props.isFixedRight ? 'margin-left: 10px;' : ' margin-right: 10px;')}
 `;
 
+export function renderTabs(props) {
+  const { widgetStyle = {}, controls = [], activeControlId, onClick, showTip = false } = props;
+
+  function renderIcon(control) {
+    let iconUrl = control.iconUrl;
+    const showIcon = _.get(widgetStyle, 'showicon') || '1';
+    const isFixedActive = _.includes(['3', '4'], widgetStyle.tabposition) && activeControlId === control.controlId;
+    const isFixedRight = widgetStyle.tabposition === '4';
+
+    if (showIcon !== '1') return null;
+
+    if (_.includes([51, 52], control.type)) {
+      const icon = _.get(control, 'advancedSetting.icon');
+      if (!icon) {
+        const defaultIcon = control.type === 51 ? 'Worksheet_query' : 'tab';
+        return (
+          <IconCon isFixedRight={isFixedRight}>
+            <Icon icon={defaultIcon} className="Font14" style={{ color: '#6e6e6e' }} />
+          </IconCon>
+        );
+      }
+      iconUrl = safeParse(icon).iconUrl;
+    }
+
+    return (
+      iconUrl && (
+        <IconCon isFixedRight={isFixedRight}>
+          <SvgIcon url={iconUrl} fill={isFixedActive ? '#2196f3' : '#6e6e6e'} size={18} />
+        </IconCon>
+      )
+    );
+  }
+
+  return (
+    <Fragment>
+      {controls.map((control, i) => {
+        let showNum =
+          _.get(control, 'advancedSetting.showcount') !== '1' &&
+          control.type !== 51 &&
+          _.isNumber(Number(control.value)) &&
+          !_.isNaN(Number(control.value)) &&
+          Number(control.value) !== 0;
+        let num = control.value || 0;
+        if (control.type === 29 && control.store && !control.store.getState().loading) {
+          num = control.store.getState().tableState.count;
+        }
+        return (
+          <Tooltip popupPlacement="right" text={control.controlName} disable={!showTip}>
+            <Tab
+              key={i}
+              title={control.controlName}
+              className={cx('ellipsis sectionTabItem', activeControlId === control.controlId ? 'active' : '')}
+              onClick={() => {
+                if (activeControlId !== control.controlId) {
+                  onClick(control.controlId, control);
+                }
+              }}
+            >
+              {renderIcon(control, widgetStyle)}
+              <span className="ellipsis">{control.controlName}</span>
+              {showNum && !!num && <Num> ( {num} ) </Num>}
+            </Tab>
+          </Tooltip>
+        );
+      })}
+    </Fragment>
+  );
+}
+
 export default function SectionTableNav(props) {
-  const {
-    style = {},
-    sideVisible,
-    formWidth,
-    showSplitIcon,
-    controls,
-    isSplit,
-    setSplit,
-    activeControlId,
-    onClick,
-    widgetStyle,
-  } = props;
+  const { style = {}, sideVisible, formWidth, showSplitIcon, isSplit, setSplit } = props;
   const tabConRef = useRef();
   const [clientWidth = 0, setClientWidth] = useState();
   const [scrollWidth = 0, setScrollWidth] = useState();
@@ -132,68 +189,13 @@ export default function SectionTableNav(props) {
     setScrollLeft(0);
   }, [sideVisible, formWidth]);
 
-  function renderIcon(control) {
-    let iconUrl = control.iconUrl;
-    const showIcon = _.get(widgetStyle, 'showicon') || '1';
-
-    if (showIcon !== '1') return null;
-
-    if (_.includes([51, 52], control.type)) {
-      const icon = _.get(control, 'advancedSetting.icon');
-      if (!icon) {
-        const defaultIcon = control.type === 51 ? 'Worksheet_query' : 'tab';
-        return (
-          <IconCon>
-            <Icon icon={defaultIcon} className="Font14" style={{ color: '#6e6e6e' }} />
-          </IconCon>
-        );
-      }
-      iconUrl = safeParse(icon).iconUrl;
-    }
-
-    return (
-      iconUrl && (
-        <IconCon>
-          <SvgIcon url={iconUrl} fill={'#6e6e6e'} size={18} />
-        </IconCon>
-      )
-    );
-  }
-
   return (
     <Con style={style}>
       <TabCon ref={tabConRef}>
         <Motion defaultStyle={{ scrollLeft }} style={{ scrollLeft: spring(-1 * scrollLeft) }}>
           {value => <span style={{ marginLeft: value.scrollLeft }}></span>}
         </Motion>
-        {controls.map((control, i) => {
-          let showNum =
-            _.get(control, 'advancedSetting.showcount') !== '1' &&
-            control.type !== 51 &&
-            _.isNumber(Number(control.value)) &&
-            !_.isNaN(Number(control.value)) &&
-            Number(control.value) !== 0;
-          let num = control.value || 0;
-          if (control.type === 29 && control.store && !control.store.getState().loading) {
-            num = control.store.getState().tableState.count;
-          }
-          return (
-            <Tab
-              key={i}
-              title={control.controlName}
-              className={cx('ellipsis', activeControlId === control.controlId ? 'active' : '')}
-              onClick={() => {
-                if (activeControlId !== control.controlId) {
-                  onClick(control.controlId, control);
-                }
-              }}
-            >
-              {renderIcon(control)}
-              <span className="ellipsis">{control.controlName}</span>
-              {showNum && !!num && <Num> ( {num} ) </Num>}
-            </Tab>
-          );
-        })}
+        {renderTabs(props)}
       </TabCon>
       {scrollBtnVisible && (
         <ScrollBtn>

@@ -185,11 +185,11 @@ export default function VarLog(props) {
       includeSystemField: true,
       prefixOnlySystemField: true,
       rect: selectUserRef.current.getBoundingClientRect(),
-
       tabType: 1,
       showMoreInvite: false,
       isTask: false,
-      filterAccountIds: selectUser ? selectUser.map(item => item.accountId).concat(filterIds) : [].concat(filterIds),
+      filterAccountIds: filterIds,
+      selectedAccountIds: (selectUser || []).map(item => item.accountId),
       offset: {
         top: 2,
       },
@@ -197,7 +197,8 @@ export default function VarLog(props) {
       SelectUserSettings: {
         unique: true,
         projectId,
-        filterAccountIds: selectUser ? selectUser.map(item => item.accountId).concat(filterIds) : [].concat(filterIds),
+        filterAccountIds: filterIds,
+        selectedAccountIds: (selectUser || []).map(item => item.accountId),
         callback: selectUserCallback,
       },
       selectCb: selectUserCallback,

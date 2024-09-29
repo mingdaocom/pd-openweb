@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { autobind } from 'core-decorators';
 import styled from 'styled-components';
 import sheetAjax from 'src/api/worksheet';
 import autoSize from 'ming-ui/decorators/autoSize';
@@ -148,8 +147,7 @@ export function getCardWidth({ width, isMobile, enumDefault, records }) {
   return { cardWidth, colNum };
 }
 
-@autoSize
-export default class RelateRecordCards extends Component {
+class RelateRecordCards extends Component {
   static contextType = ChildTableContext;
   static propTypes = {
     editable: PropTypes.bool,
@@ -372,12 +370,12 @@ export default class RelateRecordCards extends Component {
         this.setState({
           controls: replaceControlsTranslateInfo((nextProps || this.props).appId, worksheetId, data.template.controls),
           sheetTemplateLoading: false,
+          enablePayment: data.enablePayment,
         });
       });
   }
 
-  @autobind
-  loadMoreRecords(pageIndex = 2, nextProps) {
+  loadMoreRecords = (pageIndex = 2, nextProps) => {
     const { from, controlId, recordId, worksheetId, advancedSetting } = (nextProps || this.props).control;
     this.setState({
       isLoadingMore: true,
@@ -409,7 +407,7 @@ export default class RelateRecordCards extends Component {
           return newState;
         });
       });
-  }
+  };
 
   handleChange(searchByChange) {
     const { recordId, onChange } = this.props;
@@ -426,8 +424,7 @@ export default class RelateRecordCards extends Component {
     }
   }
 
-  @autobind
-  handleDelete(deletedRecord) {
+  handleDelete = deletedRecord => {
     const { count, records, addedIds, deletedIds } = this.state;
     this.setState(
       {
@@ -440,10 +437,9 @@ export default class RelateRecordCards extends Component {
       },
       this.handleChange,
     );
-  }
+  };
 
-  @autobind
-  deleteAllRecord(cb) {
+  deleteAllRecord = cb => {
     const { records, addedIds, deletedIds } = this.state;
     const recordIds = records.map(r => r.rowid);
     const changes = {
@@ -457,10 +453,9 @@ export default class RelateRecordCards extends Component {
     } else {
       this.setState(changes, this.handleChange);
     }
-  }
+  };
 
-  @autobind
-  clearAndAdd(newRecords) {
+  clearAndAdd = newRecords => {
     this.deleteAllRecord(changes => {
       const { count, addedIds = [] } = changes;
       this.setState(
@@ -474,10 +469,9 @@ export default class RelateRecordCards extends Component {
         () => this.handleChange(false),
       );
     });
-  }
+  };
 
-  @autobind
-  handleAdd(newAdded) {
+  handleAdd = newAdded => {
     const { multiple } = this.props;
     const { count, records, addedIds = [] } = this.state;
     newAdded = newAdded.map(r => ({ ...r, isNewAdd: true })).slice(0, MAX_COUNT - count);
@@ -490,10 +484,9 @@ export default class RelateRecordCards extends Component {
       },
       this.handleChange,
     );
-  }
+  };
 
-  @autobind
-  handleReplaceRecord(oldRecord) {
+  handleReplaceRecord = oldRecord => {
     const { addedIds = [], deletedIds = [] } = this.state;
     this.handleSelectRecord(newAdded => {
       this.setState(
@@ -505,7 +498,7 @@ export default class RelateRecordCards extends Component {
         this.handleChange,
       );
     });
-  }
+  };
 
   getDefaultRelateSheetValue() {
     try {
@@ -669,7 +662,11 @@ export default class RelateRecordCards extends Component {
                 parentControl={control}
                 sourceEntityName={sourceEntityName}
                 onClick={
-                  !allowOpenRecord || (control.isSubList && _.get(window, 'shareState.shareId')) || allowlink === '0'
+                  !allowOpenRecord ||
+                  (control.isSubList && _.get(window, 'shareState.shareId')) ||
+                  allowlink === '0' ||
+                  !record.rowid ||
+                  /^temp/.test(record.rowid)
                     ? () => {}
                     : () => {
                         addBehaviorLog('worksheetRecord', dataSource, { rowId: record.rowid }); // 埋点
@@ -765,7 +762,7 @@ export default class RelateRecordCards extends Component {
       showRelateRecordEmpty,
     } = control;
     const sourceEntityName = getTranslateInfo(appId, null, dataSource).recordName || control.sourceEntityName;
-    const { records, previewRecord, showNewRecord, sheetTemplateLoading } = this.state;
+    const { records, previewRecord, showNewRecord, sheetTemplateLoading, enablePayment } = this.state;
     const { onlyRelateByScanCode, disabledManualWrite, addRelationButtonVisible, isCard, allowNewRecord } = this;
     const isMobile = browserIsMobile();
     const isScanQR = getIsScanQR();
@@ -878,6 +875,7 @@ export default class RelateRecordCards extends Component {
                     relationWorksheetId={worksheetId}
                     currentSheetRows={records}
                     showPrevNext
+                    enablePayment={enablePayment}
                   />
                 ))}
               {showNewRecord && (
@@ -981,3 +979,5 @@ export default class RelateRecordCards extends Component {
     );
   }
 }
+
+export default autoSize(RelateRecordCards, { onlyWidth: true });

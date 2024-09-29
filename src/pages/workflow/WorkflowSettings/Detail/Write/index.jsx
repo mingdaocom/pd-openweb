@@ -15,6 +15,7 @@ import {
   EmailApproval,
   UpdateFields,
   OperatorEmpty,
+  CustomTextarea,
 } from '../components';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -147,6 +148,7 @@ export default class Write extends Component {
       flowNodeMap,
       userTaskNullMap,
       addNotAllowView,
+      explain,
     } = data;
 
     if (!selectNodeId) {
@@ -180,6 +182,7 @@ export default class Write extends Component {
         flowNodeMap: clearFlowNodeMapParameter(flowNodeMap),
         userTaskNullMap,
         addNotAllowView,
+        explain,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -303,7 +306,7 @@ export default class Write extends Component {
 
               {tabIndex === 1 && (
                 <Fragment>
-                  <div className="Font13 mTop25 bold">{_l('填写人操作')}</div>
+                  <div className="Font13 mTop20 bold">{_l('填写人操作')}</div>
                   <Checkbox
                     className="mTop15 flexRow"
                     text={_l('暂存')}
@@ -362,6 +365,20 @@ export default class Write extends Component {
                     onClick={checked => this.updateSource({ encrypt: !checked })}
                   />
 
+                  <div className="Font13 bold mTop25">{_l('填写说明')}</div>
+                  <CustomTextarea
+                    projectId={this.props.companyId}
+                    processId={this.props.processId}
+                    relationId={this.props.relationId}
+                    selectNodeId={this.props.selectNodeId}
+                    type={2}
+                    height={0}
+                    content={data.explain}
+                    formulaMap={data.formulaMap}
+                    onChange={(err, value, obj) => this.updateSource({ explain: value })}
+                    updateSource={this.updateSource}
+                  />
+
                   <div className="Font13 bold mTop25">{_l('按钮名称')}</div>
                   <ButtonName
                     dataKey="submitBtnName"
@@ -397,7 +414,7 @@ export default class Write extends Component {
 
               {tabIndex === 2 && (
                 <Fragment>
-                  <div className="Gray_75 mTop15">
+                  <div className="Gray_75 mTop20">
                     {_l('设置填写时可以查看、编辑、必填的字段。设为摘要的字段可以在流程待办列表中直接显示。')}
                     <Support
                       type={3}
@@ -424,9 +441,6 @@ export default class Write extends Component {
                         </div>
                       ) : (
                         <WriteFields
-                          processId={this.props.processId}
-                          nodeId={this.props.selectNodeId}
-                          selectNodeId={data.selectNodeId}
                           data={data.formProperties}
                           addNotAllowView={data.addNotAllowView}
                           updateSource={this.updateSource}
@@ -446,12 +460,12 @@ export default class Write extends Component {
               {tabIndex === 3 && (
                 <Fragment>
                   {data.selectNodeId ? (
-                    SOURCE_HANDLE_LIST.map(item => {
+                    SOURCE_HANDLE_LIST.map((item, index) => {
                       const sourceData = data.flowNodeMap[item.key] || {};
 
                       return (
                         <Fragment key={item.key}>
-                          <div className="Font13 bold mTop25">{item.title}</div>
+                          <div className={cx('Font13 bold', index === 0 ? 'mTop20' : 'mTop25')}>{item.title}</div>
                           <div className="Font13 Gray_75 mTop10">{item.desc}</div>
                           <UpdateFields
                             type={1}

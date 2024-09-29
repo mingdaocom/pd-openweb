@@ -12,7 +12,7 @@ export default class CustomDefaultValue extends Component {
     const defaultValue = (dynamicValue[0] || {}).staticValue;
     const rows = defaultValue ? JSON.parse(defaultValue) : [];
     const rowData = rows.map(item => {
-      const tempRowId = `temp-${uuidv4()}`;
+      const tempRowId = item.rowid ? item.rowid : `temp-${uuidv4()}`;
       return { ...item, rowid: tempRowId, allowedit: true, addTime: new Date().getTime() };
     });
     this.state = {
@@ -33,7 +33,7 @@ export default class CustomDefaultValue extends Component {
         visible={true}
         className="CustomDefaultValueDialog"
         title={<span className="Bold">{_l('自定义默认值')}</span>}
-        width={800}
+        width={1000}
         onCancel={onClose}
         onOk={() => {
           if (filterRows && filterRows.length > 0) {
@@ -72,7 +72,9 @@ export default class CustomDefaultValue extends Component {
             onChange={({ rows = [] }) => {
               const filterRows = rows.map(row => {
                 let itemValue = {};
-                (data.showControls || []).map(controlId => (itemValue[controlId] = row[controlId] || ''));
+                (data.showControls || [])
+                  .concat(['pid', 'rowid', 'childrenids'])
+                  .map(controlId => (itemValue[controlId] = row[controlId] || ''));
                 return itemValue;
               });
               this.setState({ filterRows });

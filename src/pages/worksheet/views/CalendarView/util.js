@@ -2,7 +2,7 @@ import renderCellText from 'src/pages/worksheet/components/CellControls/renderTe
 import { getAdvanceSetting } from 'src/util';
 import moment from 'moment';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { isLightColor } from 'src/util';
+import { isLightColor, dateConvertToUserZone } from 'src/util';
 import { OPTION_COLORS_LIST, OPTION_COLORS_LIST_HOVER } from 'src/pages/widgetConfig/config';
 import _ from 'lodash';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -123,18 +123,23 @@ export const setDataFormat = pram => {
   }
   let list = [];
   calendarInfo.map(o => {
+    const dataInfo = {
+      ...data,
+      [o.begin]: data[o.begin] ? dateConvertToUserZone(moment(data[o.begin])) : data[o.begin],
+      [o.end]: data[o.end] ? dateConvertToUserZone(moment(data[o.end])) : data[o.end],
+    };
     let editable = controlState(o.startData).editable;
-    if (!!data[o.begin]) {
-      let start = getStart(data, o);
-      let allDay = getAllDay(data, o);
+    if (!!dataInfo[o.begin]) {
+      let start = getStart(dataInfo, o);
+      let allDay = getAllDay(dataInfo, o);
       // allDay = allDay || o.startData.type === 15; //开始时间为日期字段，均处理成全天事件
-      let end = getEnd(data, o);
+      let end = getEnd(dataInfo, o);
       list.push({
         ...o,
         info: o,
-        keyIds: `${data.rowid}-${o.begin}`,
+        keyIds: `${dataInfo.rowid}-${o.begin}`,
         extendedProps: {
-          ...data,
+          ...dataInfo,
           editable,
           recordColor,
           stringColor,
@@ -142,7 +147,7 @@ export const setDataFormat = pram => {
         title:
           renderCellText({
             ...titleControls,
-            value: data[titleControls.controlId],
+            value: dataInfo[titleControls.controlId],
           }) || _l('未命名'),
         start,
         end,
@@ -189,11 +194,20 @@ export const setDataFormatByRowId = pram => {
     };
   }
   let timeList = [];
+  let dataInfo = {
+    ...data,
+    [calendarInfo.begin]: data[calendarInfo.begin]
+      ? dateConvertToUserZone(moment(data[calendarInfo.begin]))
+      : data[calendarInfo.begin],
+    [calendarInfo.end]: data[calendarInfo.end]
+      ? dateConvertToUserZone(moment(data[calendarInfo.end]))
+      : data[calendarInfo.end],
+  };
   calendarInfo.map(o => {
-    let start = getStart(data, o);
-    let allDay = getAllDay(data, o);
+    let start = getStart(dataInfo, o);
+    let allDay = getAllDay(dataInfo, o);
     // allDay = allDay || o.startData.type === 15; //开始时间为日期字段，均处理成全天事件 //开始日期不包含时间  仅跨天日程需要包含背景色
-    let end = getEnd(data, o);
+    let end = getEnd(dataInfo, o);
     timeList.push({
       info: o,
       start,
@@ -205,14 +219,14 @@ export const setDataFormatByRowId = pram => {
   return [
     {
       extendedProps: {
-        ...data,
+        ...dataInfo,
         stringColor,
         recordColor,
       },
       title:
         renderCellText({
           ...titleControls,
-          value: data[titleControls.controlId],
+          value: dataInfo[titleControls.controlId],
         }) || _l('未命名'),
 
       timeList,

@@ -74,6 +74,14 @@ const Con = styled.span`
     .rowIndex {
       display: none;
     }
+    &.oneColumn {
+      display: flex;
+      justify-content: center;
+      .moreOperate {
+        margin-left: 0px;
+        margin-right: 0px;
+      }
+    }
   }
   &.showCheckbox {
     .rowIndex {
@@ -94,7 +102,8 @@ const Con = styled.span`
 export default function RowHead(props) {
   const {
     row = {},
-    isNew,
+    allowOpenRecord,
+    allowCopy,
     changeSheetLayoutVisible,
     disabled,
     allowAdd,
@@ -141,8 +150,7 @@ export default function RowHead(props) {
       <div className={className} style={style}>
         {changeSheetLayoutVisible && (
           <ChangeSheetLayout
-            title={_l('你变更了表格列宽，是否保存？')}
-            description={_l('保存当前表格的列宽配置，并应用给所有用户')}
+            description={_l('保存当前表格的列宽、列冻结配置，并应用给所有用户')}
             onSave={saveSheetLayout}
             onCancel={resetSheetLayout}
           />
@@ -156,10 +164,11 @@ export default function RowHead(props) {
   return (
     <Con
       className={cx(className, {
-        disabled: disabled || (isSavedData && !allowAdd && !allowCancel),
+        disabled: disabled || (isSavedData && (!allowAdd || !allowCopy) && !allowCancel),
         showNumber,
         showCheckbox,
         isNew: !isSavedData,
+        oneColumn: style.width < 50,
       })}
       style={style}
     >
@@ -184,7 +193,7 @@ export default function RowHead(props) {
           }}
           isSubList
           defaultCustomButtons={[]}
-          allowCopy
+          allowCopy={allowCopy}
           shows={['copy']}
           allowDelete
           showTask={false}
@@ -193,15 +202,17 @@ export default function RowHead(props) {
           onCopy={onCopy}
         />
       )}
-      {!disabled && isSavedData && allowAdd && !allowCancel && (
+      {!disabled && isSavedData && allowAdd && !allowCancel && allowCopy && (
         <i className="operateBtn icon icon-copy hand ThemeHoverColor3" onClick={onCopy}></i>
       )}
       {!disabled && isSavedData && allowCancel && !allowAdd && (
         <i className="operateBtn delete icon icon-task-new-delete hand" onClick={onDelete}></i>
       )}
-      <span className="open" onClick={() => onOpen(rowIndex)}>
-        <i className="icon icon-worksheet_enlarge ThemeHoverColor3"></i>
-      </span>
+      {allowOpenRecord && (
+        <span className="open" onClick={() => onOpen(rowIndex)}>
+          <i className="icon icon-worksheet_enlarge ThemeHoverColor3"></i>
+        </span>
+      )}
     </Con>
   );
 }

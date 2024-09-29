@@ -1,200 +1,11 @@
-import React, { Component, Fragment } from 'react';
-import { autobind } from 'core-decorators';
+import React, { Component } from 'react';
 import { Icon, Input, Tooltip } from 'ming-ui';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { getIconByType } from 'src/pages/widgetConfig/util';
 import { getControlsSorts, sortControlByIds } from 'worksheet/util';
+import SortableColumn from './SortableColumn';
 import './ChangeColumn.less';
 import _ from 'lodash';
-
-const renderSortCon = ({ column, dragable, search, onClearSearch }) => (
-  <div
-    className={cx('flex dragCon', { HandImportant: !dragable })}
-    onClick={() => {
-      if (dragable || !search) return;
-      onClearSearch();
-    }}
-  >
-    <i className={cx('icon focusColor Gray_9e mRight6 Font16', 'icon-' + getIconByType(column.type))}></i>
-    <span className="flex overflow_ellipsis focusColor">
-      {column.controlName || (column.type === 22 ? _l('分段') : _l('备注'))}
-    </span>
-    <Tooltip popupPlacement="bottom" text={dragable ? null : _l('前往')}>
-      <i
-        className={cx('icon Gray_9e Font16 Right ThemeHoverColor3 dragHandle', {
-          'icon-drag': dragable,
-          'icon-backspace searchIcon': search && !dragable,
-        })}
-      ></i>
-    </Tooltip>
-  </div>
-);
-
-const SortHandle = SortableHandle(renderSortCon);
-
-const SortableItem = SortableElement(
-  ({
-    index,
-    selected,
-    column,
-    handleItemClick,
-    focusControlId,
-    dragable,
-    search,
-    onClearSearch,
-    tabColumns = undefined,
-    retractTabControlIds = [],
-    setRetractTabControlIds,
-  }) => {
-    const isRetract = retractTabControlIds.includes(column.controlId);
-
-    return (
-      <div className={cx('showControlsColumnDrageble noSelect', { tabColumn: column.type === 52 })}>
-        <div
-          className={cx('showControlsColumnCheckItem flexRow', {
-            focusColumnItem: focusControlId === column.controlId,
-          })}
-          key={index}
-        >
-          <Icon
-            icon={selected.indexOf(column.controlId) > -1 ? 'ic_toggle_on' : 'ic_toggle_off'}
-            className="switchIcon Font30 mRight8 Hand"
-            onClick={() => handleItemClick(column, !dragable && !search)}
-          />
-          {dragable ? (
-            <SortHandle
-              search={search}
-              column={column}
-              dragable={dragable}
-              onClearSearch={() => onClearSearch(column.controlId)}
-            />
-          ) : (
-            renderSortCon({ column, search, dragable, onClearSearch: () => onClearSearch(column.controlId) })
-          )}
-          {tabColumns && tabColumns.length !== 0 && !search && (
-            <Icon
-              onClick={() => setRetractTabControlIds(column.controlId, isRetract)}
-              className="Font22 Gray_9e expendIcon"
-              icon={isRetract ? 'expand_more' : 'expand_less'}
-            />
-          )}
-        </div>
-        {!dragable && tabColumns && !isRetract && !search && (
-          <div className="subColumns">
-            {tabColumns.map((item, i) => (
-              <SortableItem
-                index={index + i + 1}
-                selected={selected}
-                column={item}
-                dragable={dragable}
-                search={search}
-                focusControlId={focusControlId}
-                handleItemClick={handleItemClick}
-                onClearSearch={onClearSearch}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  },
-);
-
-const SortableList = SortableContainer(
-  ({
-    filteredColumns,
-    selected,
-    handleItemClick,
-    maxHeight = '',
-    isShowColumns,
-    focusControlId,
-    dragable = false,
-    search = false,
-    onClearSearch,
-    sortAutoChange = false,
-    showTabs = false,
-    retractTabControlIds = [],
-    setRetractTabControlIds,
-  }) => {
-    let filteredShowColumns = filteredColumns.filter(l => selected.indexOf(l.controlId) > -1);
-    let filteredHideColumns = filteredColumns.filter(l => selected.indexOf(l.controlId) < 0);
-
-    return (
-      <div className="columnCheckList" style={{ overflow: 'auto', maxHeight }}>
-        {!filteredColumns.length && <div className="emptyTip TxtCenter">{_l('没有搜索结果')}</div>}
-        {!sortAutoChange ? (
-          <Fragment>
-            {filteredColumns.map((column, i) =>
-              showTabs && column.sectionId && !search ? null : (
-                <SortableItem
-                  index={i}
-                  selected={selected}
-                  column={column}
-                  dragable={dragable}
-                  search={search}
-                  focusControlId={focusControlId}
-                  handleItemClick={handleItemClick}
-                  onClearSearch={onClearSearch}
-                  tabColumns={
-                    column.type === 52 ? filteredColumns.filter(l => l.sectionId === column.controlId) : undefined
-                  }
-                  retractTabControlIds={retractTabControlIds}
-                  setRetractTabControlIds={setRetractTabControlIds}
-                />
-              ),
-            )}
-          </Fragment>
-        ) : (
-          <Fragment>
-            {isShowColumns && (dragable || filteredShowColumns.length !== 0) && (
-              <div className="Gray_75 Font13 bold mBottom14 mTop12 pLeft9 columnCheckListTitle showColumnCheckListTitle">{`${_l(
-                '显示',
-              )} ${filteredShowColumns.length}`}</div>
-            )}
-            {isShowColumns && filteredShowColumns.length === 0 && dragable && (
-              <div className="pLeft9 dragListEmptyTip showDrafListEmptyCon">{_l('开启或拖拽到这里')}</div>
-            )}
-            {filteredShowColumns.map((column, i) => (
-              <SortableItem
-                index={i}
-                selected={selected}
-                column={column}
-                handleItemClick={handleItemClick}
-                focusControlId={focusControlId}
-                dragable={dragable}
-                search={search}
-                onClearSearch={onClearSearch}
-                showTabs={showTabs}
-              />
-            ))}
-            {isShowColumns && (dragable || filteredHideColumns.length !== 0) && (
-              <div className="Gray_75 Font13 bold mBottom14 mTop12 pLeft9 columnCheckListTitle hideColumnCheckListTitle">{`${_l(
-                '隐藏',
-              )} ${filteredHideColumns.length}`}</div>
-            )}
-            {isShowColumns && filteredHideColumns.length === 0 && dragable && (
-              <div className="pLeft9 dragListEmptyTip hideDrafListEmptyCon">{_l('关闭或拖拽到这里')}</div>
-            )}
-            {filteredHideColumns.map((column, i) => (
-              <SortableItem
-                index={filteredShowColumns.length + i}
-                selected={selected}
-                column={column}
-                handleItemClick={handleItemClick}
-                focusControlId={focusControlId}
-                dragable={dragable}
-                search={search}
-                onClearSearch={onClearSearch}
-              />
-            ))}
-          </Fragment>
-        )}
-      </div>
-    );
-  },
-);
 
 export default class ChangeColumn extends Component {
   static propTypes = {
@@ -254,8 +65,7 @@ export default class ChangeColumn extends Component {
     });
   }
 
-  @autobind
-  handleItemClick(column, hideFocus) {
+  handleItemClick = (column, hideFocus) => {
     const { noempty, min1msg, maxSelectedNum, selected, columns } = this.props;
 
     if (selected.indexOf(column.controlId) > -1) {
@@ -302,56 +112,37 @@ export default class ChangeColumn extends Component {
         ),
       });
     }
+
     this.setState({
       focusControlId: hideFocus ? undefined : column.controlId,
     });
-  }
+  };
 
-  @autobind
-  handleSortEnd({ oldIndex, newIndex }, e) {
-    const { controlsSorts } = this.state;
+  handleSortEnd = (newItems, newIndex) => {
     const { selected, sortAutoChange } = this.props;
-    let param = {};
+    const param = {};
+    let newList = newItems;
+
     if (sortAutoChange) {
-      $('.columnCheckList').removeClass('viewContentGrabbing');
-      let oldControlId = controlsSorts[oldIndex];
-      let newControlId = controlsSorts[newIndex];
+      const hideTabIndex = _.findIndex(newList, l => l.controlId === 'hideListCount');
+      const newIsShow = newIndex < hideTabIndex + 1;
+      const oldIsShow = selected.includes(newList[newIndex].controlId);
 
-      if (selected.indexOf(oldControlId) > -1 && selected.indexOf(newControlId) < 0) {
-        // 显示到隐藏
-        param.selected = selected.filter(controlId => controlId !== oldControlId);
-      } else if (selected.indexOf(newControlId) > -1 && selected.indexOf(oldControlId) < 0) {
-        // 隐藏到显示
-        param.selected = selected.concat(oldControlId);
-      } else if ($('.showDrafListEmptyCon').get(0)) {
-        const { top: showTop } = $('.showColumnCheckListTitle').offset();
-        const { top: hideTop } = $('.hideColumnCheckListTitle').offset();
-
-        if (e.clientY < hideTop && e.clientY > showTop + 20) param.selected = selected.concat(oldControlId);
-      } else if ($('.hideDrafListEmptyCon').get(0)) {
-        const { top: hideTop } = $('.hideColumnCheckListTitle').offset();
-
-        if (e.clientY > hideTop + 20) param.selected = selected.filter(controlId => controlId !== oldControlId);
+      if (newIsShow !== oldIsShow) {
+        param.selected = oldIsShow
+          ? selected.filter(controlId => controlId !== newList[newIndex].controlId)
+          : selected.concat(newList[newIndex].controlId);
       }
+
+      newList = newList.filter(l => !['showListCount', 'hideListCount'].includes(l.controlId));
     }
-    const newControlSorts = arrayMove(controlsSorts, oldIndex, newIndex);
+
+    this.setState({ focusControlId: newItems[newIndex].controlId });
     this.handleChange({
       ...param,
-      controlsSorts: newControlSorts,
+      controlsSorts: newList.map(l => l.controlId),
     });
-  }
-
-  @autobind
-  handleSortStart({ index }) {
-    if (!this.props.isShowColumns) return;
-    const { controlsSorts, search } = this.state;
-    $('.columnCheckList').addClass('viewContentGrabbing');
-    if (search) return;
-    let controlId = controlsSorts[index];
-    this.setState({
-      focusControlId: controlId,
-    });
-  }
+  };
 
   setRetractTabControlIds = (value, type) => {
     const { retractTabControlIds } = this.state;
@@ -361,14 +152,24 @@ export default class ChangeColumn extends Component {
     });
   };
 
+  handleClearSearch = controlId => {
+    this.setState({ search: '', focusControlId: controlId }, () => {
+      let focusElem = document.querySelector('.columnCheckList .focusColumnItem');
+
+      if (!focusElem) return;
+
+      setTimeout(() => {
+        let top = focusElem.offsetTop - document.querySelector('.columnCheckList').offsetTop;
+        $('.columnCheckList').scrollTop(top - 40);
+      }, 0);
+    });
+  };
+
   render() {
     const {
       placeholder,
-      noShowCount,
       layout,
-      showColumnLength,
       advance,
-      min1msg,
       maxSelectedNum,
       dragable,
       selected,
@@ -376,7 +177,6 @@ export default class ChangeColumn extends Component {
       maxHeight,
       isShowColumns = false,
       sortAutoChange = false,
-      showTabs,
       showOperate,
     } = this.props;
     const { search, controlsSorts, focusControlId, retractTabControlIds } = this.state;
@@ -463,35 +263,20 @@ export default class ChangeColumn extends Component {
           </div>
         )}
         <div className="sortableList flex" style={{ maxHeight }}>
-          <SortableList
-            useDragHandle
-            axis="y"
-            lockAxis={'y'}
-            helperClass="active"
-            filteredColumns={filteredColumns}
+          <SortableColumn
+            canDrag={dragable && !search}
+            items={filteredColumns}
+            focusControlId={focusControlId}
             selected={selected}
-            min1msg={min1msg}
-            maxSelectedNum={maxSelectedNum}
-            onSortEnd={this.handleSortEnd}
-            handleItemClick={this.handleItemClick}
             maxHeight={maxHeight}
             isShowColumns={isShowColumns}
-            focusControlId={focusControlId}
-            onSortStart={this.handleSortStart}
-            dragable={dragable && !search}
             search={search}
-            onClearSearch={controlId => {
-              this.setState({ search: '', focusControlId: controlId }, () => {
-                let focusElem = document.querySelector('.columnCheckList .focusColumnItem');
-                if (!focusElem) return;
-                let top = focusElem.offsetTop - document.querySelector('.columnCheckList').offsetTop;
-                $('.columnCheckList').scrollTop(top - 40);
-              });
-            }}
             sortAutoChange={sortAutoChange}
-            showTabs={showTabs}
             retractTabControlIds={retractTabControlIds}
             setRetractTabControlIds={this.setRetractTabControlIds}
+            handleSortEnd={this.handleSortEnd}
+            handleItemClick={this.handleItemClick}
+            onClearSearch={this.handleClearSearch}
           />
         </div>
         {layout === 1 && advance && !search && showOperate && quickOperate}

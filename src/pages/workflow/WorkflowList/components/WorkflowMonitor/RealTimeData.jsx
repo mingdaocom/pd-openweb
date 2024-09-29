@@ -40,15 +40,35 @@ export default class RealTimeData extends PureComponent {
     flowMonitor.getWarning({ companyId: projectId }).then(res => {
       this.setState({
         warningValue: res.value,
-        accountIds: (res.accountIds || []).map(it => ({ ...it, fullname: it.fullName })),
+        notifiers: (res.accountIds || []).map(it => ({ ...it, fullname: it.fullName })),
       });
     });
   };
 
+  setWarningValue = (value, notifiers, closeDialog = () => {}) => {
+    const { projectId } = this.props;
+
+    flowMonitor
+      .updateWarning({
+        accountIds: notifiers.map(it => it.accountId),
+        companyId: projectId,
+        value,
+      })
+      .then(res => {
+        if (res) {
+          alert(_l('操作成功'));
+          closeDialog();
+          this.setState({ warningValue: value, notifiers });
+        } else {
+          alert(_l('操作失败'), 2);
+        }
+      });
+  };
+
   renderJustifyInfo = ({ type, name }) => {
     const { projectId } = this.props;
-    let { realTimeData = {}, warningValue, accountIds = [] } = this.state;
-    let isWarning = accountIds.length;
+    let { realTimeData = {}, warningValue, notifiers = [] } = this.state;
+    let isWarning = notifiers.length;
     return (
       <div className="infoBox flex" key={type}>
         <div className="description">{name}</div>
@@ -60,13 +80,13 @@ export default class RealTimeData extends PureComponent {
               className="ThemeColor Hand"
               onClick={() => {
                 settingEarlyWarning({
+                  type: 'workflow',
                   projectId,
                   warningValue,
                   isWarning,
-                  accountIds,
-                  onOk: (warningValue, accountIds) => {
-                    this.setState({ warningValue, accountIds });
-                  },
+                  notifiers,
+                  onOk: this.setWarningValue,
+                  closeWarning: this.setWarningValue,
                 });
               }}
             >

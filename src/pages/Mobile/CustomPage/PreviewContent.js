@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Flex, ActivityIndicator, Button } from 'antd-mobile';
+import { Button, SpinLoading } from 'antd-mobile';
 import PreviewWraper from 'src/pages/customPage/components/previewContent';
 import cx from 'classnames';
 import share from 'src/api/share';
@@ -72,16 +72,15 @@ function KcShareFolderPreviewContent(props) {
   return (
     <PreviewContentWrapper>
       {loading ? (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
+        <div className="flexRow justifyContentCenter alignItemsCenter h100">
+          <SpinLoading color='primary' />
+        </div>
       ) : node ? (
         <div className="flexColumn valignWrapper fileWrapper h100">
           <span className="fileIcon fileIcon-folder"></span>
           <span className="name">{node.name}</span>
           <Button
-            type="primary"
-            inline
+            color="primary"
             size="small"
             onClick={() => {
               window.open(value);
@@ -120,16 +119,15 @@ function KcShareNodePreviewContent(props) {
   return (
     <PreviewContentWrapper>
       {loading ? (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
+        <div className="flexRow justifyContentCenter alignItemsCenter h100">
+          <SpinLoading color='primary' />
+        </div>
       ) : node ? (
         <div className="flexColumn valignWrapper fileWrapper h100">
           <span className={cx('fileIcon', `fileIcon-${getIconNameByExt(node.ext)}`)}></span>
           <span className="name">{`${node.name}.${node.ext}`}</span>
           <Button
-            type="primary"
-            inline
+            color="primary"
             size="small"
             onClick={() => {
               window.open(isUrl ? node.originLinkUrl : value);

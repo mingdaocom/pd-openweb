@@ -6,7 +6,7 @@ import cx from 'classnames';
 import { NODE_TYPE } from '../../../enum';
 import { Tooltip } from 'antd';
 
-const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38, 45, 47, 51];
+const READ_TYPE = [20, 22, 25, 30, 31, 32, 33, 34, 37, 38, 45, 47, 51, 53];
 
 const Box = styled.ul`
   > li {
@@ -40,22 +40,38 @@ const Line = styled.div`
   }
 `;
 
+const SearchBox = styled.div`
+  position: relative;
+  input {
+    box-sizing: border-box;
+    height: 36px;
+    padding: 0px 28px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    width: 300px;
+  }
+  .icon {
+    position: absolute;
+    top: 11px;
+    left: 8px;
+  }
+`;
+
 export default class WriteFields extends Component {
   static defaultProps = {
-    processId: '',
-    nodeId: '',
-    selectNodeId: '',
     data: [],
     hideTypes: [],
     readonlyControlTypes: [],
     updateSource: () => {},
     showCard: false,
+    addNotAllowView: false,
   };
 
   state = {
     showTableControls: false,
     selectItem: {},
     foldIds: [],
+    keywords: '',
   };
 
   /**
@@ -253,15 +269,18 @@ export default class WriteFields extends Component {
    * 渲染字段
    */
   renderField(data, showCard, isChildTable, isSubData) {
-    const { hideTypes } = this.props;
-    const { foldIds } = this.state;
+    const { hideTypes, selectNodeType } = this.props;
+    const { foldIds, keywords } = this.state;
 
     return data
+      .filter(
+        item => (item.name || '').toLocaleLowerCase().indexOf(keywords.trim().toLocaleLowerCase()) > -1 || isChildTable,
+      )
       .filter(item => !item.sectionId || !!isSubData)
       .map((item, i) => {
         return (
-          <Fragment>
-            <li className={cx('flexRow', { mLeft30: isSubData })} key={i}>
+          <Fragment key={i}>
+            <li className={cx('flexRow', { mLeft30: isSubData })}>
               <div
                 className={cx('flex flexRow alignItemsCenter', { 'ThemeHoverColor3 pointer': item.type === 52 })}
                 onClick={() => {
@@ -285,7 +304,7 @@ export default class WriteFields extends Component {
                 <div className="ellipsis" title={item.name || (item.type === 22 ? _l('分段') : _l('备注'))}>
                   {item.name || (item.type === 22 ? _l('分段') : _l('备注'))}
                 </div>
-                {item.type === 29 && !!(item.subFormProperties || []).length && (
+                {item.type === 29 && !!(item.subFormProperties || []).length && selectNodeType !== NODE_TYPE.CC && (
                   <div
                     data-tip={_l('设置子表操作和列权限')}
                     className="mLeft5 Gray_75 ThemeHoverColor3 pointer tip-bottom-right"
@@ -352,18 +371,24 @@ export default class WriteFields extends Component {
 
     return (
       <Fragment>
-        <div className="flexRow">
+        <div className="flexRow alignItemsCenter">
+          <SearchBox>
+            <input type="text" placeholder={_l('搜索')} onChange={e => this.setState({ keywords: e.target.value })} />
+            <Icon type="workflow_find" className="Gray_75 Font16" />
+          </SearchBox>
           <div className="flex" />
-          <Tooltip title={_l('勾选时，当工作表中新增字段时，新字段将自动设为允许查看')}>
-            <div>
-              <Checkbox
-                className="InlineBlock Font12 TxtMiddle"
-                text={_l('新增字段默认可查看')}
-                checked={!addNotAllowView}
-                onClick={checked => updateSource({ addNotAllowView: checked })}
-              />
-            </div>
-          </Tooltip>
+          {!_.includes(hideTypes, 1) && (
+            <Tooltip title={_l('勾选时，当工作表中新增字段时，新字段将自动设为允许查看')}>
+              <div>
+                <Checkbox
+                  className="InlineBlock Font12 TxtMiddle"
+                  text={_l('新增字段默认可查看')}
+                  checked={!addNotAllowView}
+                  onClick={checked => updateSource({ addNotAllowView: checked })}
+                />
+              </div>
+            </Tooltip>
+          )}
         </div>
 
         {this.renderContent({ data, showCard })}

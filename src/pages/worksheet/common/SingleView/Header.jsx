@@ -148,7 +148,7 @@ export default function Header(props) {
           icon="task-later"
           className="Gray_9e Font20 pointer mLeft2 mRight2"
           onClick={() => {
-            refreshSheet(view);
+            refreshSheet(view, { isRefreshBtn: true });
           }}
         />
       </Tooltip>

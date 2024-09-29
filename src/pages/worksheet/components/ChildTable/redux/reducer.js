@@ -2,6 +2,8 @@ import _ from 'lodash';
 import { combineReducers } from 'redux';
 import { browserIsMobile } from 'src/util';
 
+import { treeTableViewData, handleTreeNodeRow } from 'worksheet/common/TreeTableHelper/index.js';
+
 function baseLoading(state = true, action) {
   switch (action.type) {
     case 'UPDATE_BASE_LOADING':
@@ -38,6 +40,18 @@ function base(state = {}, action) {
         loaded: false,
         reset: false,
       };
+    default:
+      return state;
+  }
+}
+
+function changes(state = {}, action) {
+  switch (action.type) {
+    case 'DELETE_ALL':
+      return { ...state, isDeleteAll: true };
+    case 'RESET_CHANGES':
+    case 'RESET':
+      return {};
     default:
       return state;
   }
@@ -113,10 +127,12 @@ function rows(state = [], action) {
       newState = state.map(row => (row.rowid === action.rowid ? { ...row, ...action.value } : row));
       break;
     case 'DELETE_ROW':
-      newState = newState.filter(row => row.rowid !== action.rowid);
+      newState = newState.filter(row => row.rowid !== action.rowid).map(row => handleTreeNodeRow(row, action.rowid));
       break;
     case 'DELETE_ROWS':
-      newState = newState.filter(row => !_.includes(action.rowIds, row.rowid));
+      newState = newState
+        .filter(row => !_.includes(action.rowIds, row.rowid))
+        .map(row => handleTreeNodeRow(row, action.rowIds));
       break;
     case 'UPDATE_STATE':
       newState = action.state;
@@ -128,7 +144,9 @@ export default combineReducers({
   cellErrors,
   baseLoading,
   base,
+  treeTableViewData,
   originRows,
   lastAction,
   rows,
+  changes,
 });

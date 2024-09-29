@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { Checkbox, Tooltip, LoadDiv } from 'ming-ui';
-import cx from 'classnames';
 import lookPng from './img/e.png';
 import { sheetActionList, recordActionList } from 'src/pages/Role/config.js';
 import worksheetAjax from 'src/api/worksheet';
+import _ from 'lodash';
+import { getFeatureStatus } from 'src/util';
+import { VersionProductType } from 'src/util/enum.js';
 
 const Wrap = styled.div`
   text-align: left;
@@ -29,7 +31,7 @@ const Wrap = styled.div`
 `;
 
 export default function Set(props) {
-  const { changeSheetOptionInfo } = props;
+  const { changeSheetOptionInfo, projectId } = props;
   const [sheet, setState] = useState(props.sheet);
   const [loading, setLoading] = useState(true);
   const [componentData, setComponentData] = useState({});
@@ -167,9 +169,37 @@ export default function Set(props) {
       </React.Fragment>
     );
   };
+  const rednerPay = () => {
+    return (
+      <React.Fragment>
+        <div className="">
+          <span className="Bold">{_l('支付')}</span>
+        </div>
+        <div className="">
+          <div className="subCheckbox mTop20 InlineBlock flexRow alignItemsCenter">
+            <Checkbox
+              className={'InlineBlock TxtMiddle'}
+              checked={_.get(sheet, 'payment.enable')}
+              size="small"
+              onClick={checked => {
+                changeSheetOptionInfo({
+                  payment: {
+                    enable: !_.get(sheet, 'payment.enable'),
+                  },
+                });
+              }}
+            >
+              {_l('付款')}
+            </Checkbox>
+          </div>
+        </div>
+      </React.Fragment>
+    );
+  };
   if (loading) {
     return <LoadDiv className="mTop80" />;
   }
+  const featureType = getFeatureStatus(projectId, VersionProductType.PAY);
   return (
     <Wrap className="TxtLeft">
       <div className="mTop30 Font16 title LineHeight26">
@@ -200,8 +230,8 @@ export default function Set(props) {
             componentData.printTempletes,
             sheet.unablePrintTemplates,
             'unablePrintTemplates',
-            true,
           )}
+        {featureType && rednerPay()}
       </div>
     </Wrap>
   );

@@ -211,7 +211,8 @@ function Option(props) {
         popup={
           <MenuWrap>
             {!md.global.Config.IsLocal && //私有部署没有上架
-              type !== 2 && ( //安装的连接 不能上架
+              type !== 2 && //安装的连接 不能上架
+              !data.hasAuth && ( //授权码鉴权类型连接不允许上架
                 <MenuItemWrap
                   icon={<Icon icon="publish" className="Font17 mLeft5" />}
                   onClick={e => {

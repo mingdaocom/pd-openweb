@@ -217,17 +217,21 @@ export default class UploadFiles extends Component {
     }
   }
 
-  handleOpenControlAttachmentInNewTab(fileID) {
+  handleOpenControlAttachmentInNewTab(fileID, options = {}) {
     const { controlId } = this.props;
     const recordBaseInfo = _.get(this, 'context.recordBaseInfo');
     if (!recordBaseInfo) {
       return;
     }
     openControlAttachmentInNewTab(
-      _.assign(_.pick(recordBaseInfo, ['appId', 'recordId', 'viewId', 'worksheetId']), {
-        controlId,
-        fileId: fileID,
-      }),
+      _.assign(
+        _.pick(recordBaseInfo, ['appId', 'recordId', 'viewId', 'worksheetId']),
+        {
+          controlId,
+          fileId: fileID,
+        },
+        options,
+      ),
     );
   }
 

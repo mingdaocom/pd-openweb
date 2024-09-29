@@ -20,7 +20,6 @@ const AppLogWrap = styled.div`
   .export {
     padding: 0 15px;
     min-width: 0;
-    width: 74px !important;
   }
 `;
 
@@ -38,7 +37,7 @@ export default class AppLog extends Component {
     const { appId, projectId } = _.get(this.props, 'match.params') || '';
 
     return (
-      <AppLogWrap className="orgManagementWrap" style={{ height: appId ? 'calc(100% - 32px)' : '100%' }}>
+      <AppLogWrap className="orgManagementWrap h100">
         {!appId && <AdminTitle prefix={_l('日志 - 应用')} />}
 
         <AppAndWorksheetLog projectId={appId ? projectId : Config.projectId} appId={appId} />

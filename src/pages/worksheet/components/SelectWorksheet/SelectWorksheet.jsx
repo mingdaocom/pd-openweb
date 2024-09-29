@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import styled from 'styled-components';
 import { Input, ScrollView } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
@@ -197,8 +196,7 @@ export default class SelectWroksheet extends React.Component {
     }
   }
 
-  @autobind
-  handleSelect(worksheet) {
+  handleSelect = worksheet => {
     const { appId, currentWorksheetId } = this.props;
     this.props.onChange(appId, worksheet.workSheetId, worksheet);
     if (worksheet.workSheetId === currentWorksheetId) {
@@ -210,10 +208,9 @@ export default class SelectWroksheet extends React.Component {
         id: worksheet.workSheetId,
       },
     });
-  }
+  };
 
-  @autobind
-  handleSelectOtherChange(newappId, worksheetId, worksheet) {
+  handleSelectOtherChange = (newappId, worksheetId, worksheet) => {
     const { currentWorksheetId } = this.props;
     this.props.onChange(newappId, worksheetId, worksheet);
     if (worksheet.workSheetId === currentWorksheetId) {
@@ -225,7 +222,7 @@ export default class SelectWroksheet extends React.Component {
         id: worksheet.workSheetId,
       },
     });
-  }
+  };
 
   render() {
     const {

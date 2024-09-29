@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Checkbox, Input } from 'ming-ui';
+import React, { useState } from 'react';
+import { Input } from 'ming-ui';
 import _ from 'lodash';
 import { formatNumberThousand } from 'src/util';
 
@@ -53,6 +53,7 @@ export default function InputValue({ type, value, className, onChange, onBlur, p
     />
   ) : (
     <Input
+      style={{ borderColor: '#ddd' }}
       className={className}
       value={displayValue(value)}
       onFocus={() => setEditing(true)}

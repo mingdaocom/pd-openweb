@@ -20,10 +20,10 @@ const FILL_TYPE = [
 ];
 
 const DISPLAY_TYPE = [
-  { value: '1', text: _l('缩略图'), img: 'thumbnail', subText: _l('以缩略图预览图片和文档内容') },
-  { value: '2', text: _l('卡片'), img: 'card', subText: _l('紧凑式文件展示') },
-  { value: '3', text: _l('列表'), img: 'list1', subText: _l('以列表显示附件详细信息') },
-  { value: '4', text: _l('平铺'), img: 'tiling', subText: _l('大图平铺显示，只支持图片类型') },
+  { value: '1', text: _l('缩略图'), img: 'file-thumb' },
+  { value: '2', text: _l('卡片'), img: 'file-card' },
+  { value: '3', text: _l('列表'), img: 'file-list' },
+  { value: '4', text: _l('海报'), img: 'file-post' },
 ];
 
 const FILE_TYPE = [
@@ -85,9 +85,9 @@ export default function Attachment(props) {
                 }}
               >
                 <div className="mBottom4">
-                  <Icon icon={item.img} />
+                  <Icon icon={item.img} className="Font20" />
                 </div>
-                <span className="Gray_9e">{item.text}</span>
+                <span className="text">{item.text}</span>
               </div>
             );
           })}

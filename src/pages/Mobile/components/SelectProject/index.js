@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { ActionSheet } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import { getCurrentProject } from 'src/util';
@@ -6,6 +6,7 @@ import './index.less';
 
 export default function SelectProject(props) {
   const { changeProject = () => {} } = props;
+  let actionSheetHandler = null;
   const projectObj = getCurrentProject(
     localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
   );
@@ -22,38 +23,43 @@ export default function SelectProject(props) {
     ]),
   );
 
+  useEffect(() => {
+    return () => {
+      actionSheetHandler && actionSheetHandler.close();
+    }
+  }, []);
+
   const handleSelectProject = () => {
-    ActionSheet.showActionSheetWithOptions(
-      {
-        className: 'selectProjectWrap',
-        options: projects.map(item => (
-          <Fragment key={item.projectId}>
-            <span className="flex Bold ellipsis">{item.companyName}</span>
-            {item.projectId === currentProject.projectId && <Icon className="ThemeColor Font20" icon="done" />}
-          </Fragment>
-        )),
-        message: (
-          <div className="flexRow header">
-            <span className="Font13">{_l('切换网络')}</span>
-            <div
-              className="closeIcon"
-              onClick={() => {
-                ActionSheet.close();
-              }}
-            >
-              <Icon icon="close" />
-            </div>
+    actionSheetHandler = ActionSheet.show({
+      popupClassName: 'selectProjectWrap',
+      actions: projects.map(item => {
+        return {
+          project: item,
+          key: item.projectId,
+          text: (
+            <Fragment key={item.projectId}>
+              <span className="flex Bold ellipsis">{item.companyName}</span>
+              {item.projectId === currentProject.projectId && <Icon className="ThemeColor Font20" icon="done" />}
+            </Fragment>
+          )
+        }
+      }),
+      extra: (
+        <div className="flexRow header">
+          <span className="Font13">{_l('切换网络')}</span>
+          <div className="closeIcon" onClick={() => actionSheetHandler.close()}>
+            <Icon icon="close" />
           </div>
-        ),
-      },
-      buttonIndex => {
-        if (buttonIndex === -1) return;
-        const project = projects[buttonIndex];
+        </div>
+      ),
+      onAction: (action) => {
+        const { project } = action;
         safeLocalStorageSetItem('currentProjectId', project.projectId);
         setCurrentProject(project);
         changeProject();
-      },
-    );
+        actionSheetHandler.close();
+      }
+    });
   };
 
   return (

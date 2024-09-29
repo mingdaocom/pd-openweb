@@ -169,6 +169,11 @@ export default function SelectDataObjForm(props) {
         isMultiple={true}
         disabled={hasSchema ? !dataObj.db || !dataObj.schema : !dataObj.db}
         addedTableIds={getAddedTables()}
+        needCheckPgSql={[
+          DATABASE_TYPE.POSTGRESQL,
+          DATABASE_TYPE.ALIYUN_POSTGRES,
+          DATABASE_TYPE.TENCENT_POSTGRES,
+        ].includes(source.type)}
       />
     </Wrapper>
   );

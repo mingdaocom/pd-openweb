@@ -63,10 +63,8 @@ export default props => {
     nodeClassName,
     IconClassName,
     IconElement,
-    allowEditName = true,
     allowMoreOperator = true,
     info,
-    deleteNodeDescription,
     nodeTriggerFunc = () => {},
     IconTriggerFunc = () => {},
     operatorTriggerFunc = () => {},
@@ -78,7 +76,7 @@ export default props => {
     {
       text: _l('修改名称'),
       icon: 'edit',
-      events: () => allowEditName && nodeNameEdit(),
+      events: () => nodeNameEdit(),
     },
     {
       text: _l('删除'),
@@ -87,7 +85,6 @@ export default props => {
         Dialog.confirm({
           className: 'deleteApprovalProcessDialog',
           title: <span style={{ color: '#f44336' }}>{_l('删除“%0”', item.name)}</span>,
-          description: deleteNodeDescription,
           onOk: () => {
             deleteNode(processId, item.id);
           },
@@ -98,8 +95,6 @@ export default props => {
   ];
   // 节点名称编辑
   const nodeNameEdit = () => {
-    if (!allowEditName) return;
-
     setEditName(true);
     setTimeout(() => {
       nodeNameRef && nodeNameRef.current.focus();

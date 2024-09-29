@@ -93,7 +93,7 @@ export const ROUTE_CONFIG = {
   ],
   [PERMISSION_ENUM.USER_ANALYTICS]: ['analytics'],
   [PERMISSION_ENUM.GENERAL_SETTING]: ['settings'],
-  [PERMISSION_ENUM.MERCHANT_SERVICE]: ['merchant', 'transaction', 'withdrawalsrecord'],
+  [PERMISSION_ENUM.MERCHANT_SERVICE]: ['merchant', 'transaction','refund', 'withdrawalsrecord'],
   [PERMISSION_ENUM.APP_LOG]: ['applog'],
   [PERMISSION_ENUM.LOGIN_LOG]: ['loginlog'],
   [PERMISSION_ENUM.PROJECT_MANAGE_LOG]: ['orglog'],

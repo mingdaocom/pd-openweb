@@ -100,7 +100,6 @@ export default class AdminLeftMenu extends Component {
     const path =
       route.path && route.path.indexOf(':projectId') === -1 ? toPath({ 0: projectId }) : toPath({ projectId });
     const isHome = key === 'home';
-    if (_.includes(['analytics', 'applog', 'computing', 'aggregationTable'], key) && !featureType) return;
 
     const platIntegrationUpgrade = _.every(
       [

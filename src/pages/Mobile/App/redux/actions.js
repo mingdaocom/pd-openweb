@@ -1,7 +1,7 @@
 import homeAppApi from 'src/api/homeApp';
 import appManagementApi from 'src/api/appManagement';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
-import { Modal, Toast } from 'antd-mobile';
+import { Dialog } from 'antd-mobile';
 import { getAppLangDetail, getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 
@@ -92,12 +92,11 @@ export const addAppApply =
           type: 'MOBILE_ACTION_END',
         });
         if (data) {
-          Modal.alert(_l('申请已提交'), '', [
-            {
-              text: _l('确定'),
-              onPress: () => {},
-            },
-          ]);
+          Dialog.alert({
+            content: _l('申请已提交'),
+            confirmText: _l('确定'),
+            onAction: () => {}
+          });
         }
       });
   };

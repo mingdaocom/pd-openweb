@@ -29,6 +29,7 @@ import Notice from './Notice';
 import Snapshot from './Snapshot';
 import LoopProcess from './LoopProcess';
 import AIGC from './AIGC';
+import Plugin from './Plugin';
 
 export default {
   0: Start,
@@ -61,6 +62,7 @@ export default {
   28: Snapshot,
   29: LoopProcess,
   31: AIGC,
+  32: Plugin,
   1000: FindSystem,
   1001: FindSystem,
 };

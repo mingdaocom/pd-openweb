@@ -1,4 +1,16 @@
-export const COLORS = ['transparent', '#2196F3', '#9C27B0', '#3F51B5', '#E91E63', '#FF9800', '#4CAF50', '#00BCD4'];
+export const COLORS = [
+  'transparent',
+  '#60292A',
+  '#2196F3',
+  '#00BCD4',
+  '#4CAF50',
+  '#FAD714',
+  '#FF9800',
+  '#F52222',
+  '#EB2F96',
+  '#7500EA',
+  '#3F51B5',
+];
 export const ICONS = [
   '',
   'clear_1',
@@ -28,6 +40,18 @@ export const ICONS = [
   'emoji_emotions_25',
   'emoji_objects_26',
   'help_center',
+  'add_circle',
+  'add',
+  'search',
+  'home',
+  'event',
+  'assignment',
+  'settings',
+  'public',
+  'copy',
+  'link',
+  'launch',
+  'play_arrow',
 ];
 //以下字段支持设置静态默认值
 export const DEF_TYPES = [
@@ -77,4 +101,5 @@ export const noWriteTypes = [
   47, //条码
   51, //查询记录
   52, //分段
+  53, //函数公式
 ];

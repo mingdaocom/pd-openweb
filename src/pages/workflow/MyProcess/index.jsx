@@ -44,8 +44,7 @@ export const getStateParam = tab => {
   if (tab === TABS.COMPLETE) {
     param = {
       type: -1,
-      complete: true,
-      ...dateScope[1].value,
+      complete: true
     };
   }
   return param;
@@ -59,17 +58,6 @@ class Filter extends Component {
       // 不是筛选项
       delete filter.type;
       delete filter.resultType;
-      // 时间范围
-      if (_.isNumber(filter.dateScopeIndex)) {
-        if (filter.dateScopeIndex === 0) {
-          // 数值0不能被判断到，转成字符
-          filter.dateScopeIndex = filter.dateScopeIndex.toString();
-        }
-        if (filter.dateScopeIndex === 1) {
-          // 默认三个月不是筛选项
-          delete filter.dateScopeIndex;
-        }
-      }
     } else {
       return 0;
     }
@@ -249,7 +237,7 @@ export default class MyProcess extends Component {
       this.request.abort();
     }
 
-    const { pageIndex, pageSize, list, stateTab, filter } = this.state;
+    const { pageIndex, pageSize, list, stateTab, filter, archivedItem } = this.state;
     const param = {
       pageSize,
       pageIndex,
@@ -259,9 +247,8 @@ export default class MyProcess extends Component {
 
     this.setState({ param });
 
-    if (filter && _.isNumber(filter.dateScopeIndex)) {
-      Object.assign(param, dateScope[filter.dateScopeIndex].value);
-      delete param.dateScopeIndex;
+    if (archivedItem && archivedItem.id) {
+      param.archivedId = archivedItem.id;
     }
     if (filter && filter.resultType) {
       const resultType = param.resultType;
@@ -714,7 +701,6 @@ export default class MyProcess extends Component {
     }
     if (stateTab === TABS.COMPLETE) {
       const { filter, archivedItem } = this.state;
-      const dateScopeIndex = filter ? (_.isNumber(filter.dateScopeIndex) ? filter.dateScopeIndex : 1) : 1;
       const renderArchivedList = () => {
         return (
           <ArchivedList
@@ -772,7 +758,6 @@ export default class MyProcess extends Component {
                 );
               }}
             />
-            {/*<div className="flex Font13 Gray_75 TxtRight">{_l('显示%0的记录', dateScope[dateScopeIndex].text)}</div>*/}
             {_.isEmpty(archivedItem) && (
               <div className="flex TxtRight">
                 {renderArchivedList()}

@@ -70,6 +70,8 @@ export default function pivotTableCountPanelGenerator(props) {
           themeColor={themeColor}
           customPageConfig={customPageConfig}
           onChangeStyle={onChangeStyle}
+          currentReport={currentReport}
+          changeCurrentReport={changeCurrentReport}
         />
       </Collapse.Panel>
     );
@@ -149,14 +151,14 @@ export default function pivotTableCountPanelGenerator(props) {
                   return n;
                 }
               });
-              // if (!newLines.filter(n => n.subTotal).length) {
-              //   param.yaxisList = yaxisList.map(n => {
-              //     return {
-              //       ...n,
-              //       showPercent: 0
-              //     }
-              //   });
-              // }
+              if (!newLines.filter(n => n.subTotal).length) {
+                param.yaxisList = yaxisList.map(n => {
+                  return {
+                    ...n,
+                    showPercent: 0
+                  }
+                });
+              }
               param.pivotTable.lines = newLines;
               changeCurrentReport(param, true);
             }}

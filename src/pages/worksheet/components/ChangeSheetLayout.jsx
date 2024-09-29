@@ -61,14 +61,14 @@ export default function LayoutChangedIcon(props) {
           <PopupCon>
             <div className="title">{title || _l('你变更了表格样式，是否保存？')}</div>
             <div className="description">
-              {description || _l('保存表格当前的列宽、列冻结、列隐藏配置，并应用给所有用户')}
+              {description || _l('保存当前表格的列宽、列冻结、列隐藏配置，并应用给所有用户')}
             </div>
             <div className="buttons">
               <Button size="mdnormal" type="ghostgray" onClick={onCancel.bind(this, { closePopup })}>
-                {_l('取消变更')}
+                {_l('取消')}
               </Button>
               <Button size="mdnormal" onClick={onSave.bind(this, { closePopup })}>
-                {_l('保存变更')}
+                {_l('保存')}
               </Button>
             </div>
           </PopupCon>

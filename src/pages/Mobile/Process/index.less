@@ -1,41 +1,12 @@
 
 .processTabs {
-  .am-tabs-default-bar-tab {
-    border-bottom: none !important;
-    span {
-      font-size: 14px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    &:after {
-      content: none !important;
-    }
-  }
-  .am-tabs-default-bar-tab-active {
-    &:before {
-      content: '';
-      height: 4px;
-      background-color: #108ee9;
-      width: 16px;
-      margin-left: -8px;
-      position: absolute;
-      left: 50%;
-      bottom: 3px;
-      border-radius: 4px;
-    }
-  }
-  .am-tabs-default-bar-underline {
-    display: none;
-  }
+  color: #9e9e9e;
+  background-color: #fff;
 }
 
 .bottomProcessTabs {
-  .am-tabs-default-bar-tab span {
-    line-height: normal;
-  }
-  .am-tabs-default-bar-tab-active:before {
-    content: none;
+  .adm-tabs-tab-line {
+    display: none;
   }
 }
 
@@ -143,26 +114,11 @@
         background-color: #F44336;
       }
     }
-    .am-checkbox-inner:after {
-      top: 2px;
-      right: 7px;
-    }
-    .checkboxDisabled .am-checkbox {
-      background: #00000026;
-      border-radius: 50%;
-      opacity: 0.3;
-      input[type='checkbox']:disabled:after {
-        border-color: #bbbbbb !important;
-      }
-      .am-checkbox-inner {
-        border-color: #9e9e9e;
-      }
-    }
   }
   .processBatchOperation {
     display: flex;
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     background-color: #fff;
     position: fixed;

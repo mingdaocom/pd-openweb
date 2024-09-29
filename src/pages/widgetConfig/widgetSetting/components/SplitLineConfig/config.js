@@ -1,4 +1,5 @@
 import { controlState } from 'src/components/newCustomFields/tools/utils.js';
+import { fixedBottomWidgets } from 'src/pages/widgetConfig/util';
 
 export const THEME_COLOR_OPTIONS = [
   '#9A060C',
@@ -55,7 +56,7 @@ export const getExpandWidgetIds = (controls = [], data = {}, from) => {
   for (let item of widgets) {
     if (searchStatus) {
       if (
-        _.get(item, 'type') === 52 ||
+        fixedBottomWidgets(item) ||
         (_.get(item, 'type') === 22 &&
           (from ? controlState(item, from).visible && !item.hidden : true) &&
           sectionId === (item.sectionId || ''))

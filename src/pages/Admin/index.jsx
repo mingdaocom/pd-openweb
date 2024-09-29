@@ -11,7 +11,7 @@ import { menuList } from './router.config.js';
 import { ROUTE_CONFIG, PERMISSION_ENUM } from './enum';
 import Loadable from 'react-loadable';
 import { navigateTo } from 'router/navigateTo';
-import { getCurrentProject } from 'src/util';
+import { getCurrentProject, getFeatureStatus } from 'src/util';
 import './index.less';
 import _ from 'lodash';
 import withoutPermission from 'src/pages/worksheet/assets/withoutPermission.png';
@@ -86,14 +86,49 @@ export default class AdminEntryPoint extends PureComponent {
 
   //获取权限模块
   getRouterKeys(authority) {
+    const projectId = _.get(this.props, 'match.params.projectId');
+
     if (_.isArray(authority)) {
-      let cur = [];
+      let keys = [];
       authority.map(item => {
-        cur = cur.concat(ROUTE_CONFIG[item] || []);
+        keys = keys.concat(ROUTE_CONFIG[item] || []);
       });
-      return _.uniq(cur).filter(o =>
-        md.global.Config.IsLocal && !md.global.Config.EnableDataPipeline ? o !== 'aggregationTable' : true,
-      );
+
+      const subMenuArray = _.flatten(menuList.map(item => item.subMenuList));
+
+      const result = _.uniq(keys).filter(key => {
+        if (md.global.Config.IsLocal) {
+          if (key === 'aggregationTable' && !md.global.Config.EnableDataPipeline) return;
+          if (key === 'billinfo' && !md.global.Config.IsPlatformLocal) return;
+          if (key === 'weixin' && md.global.SysSettings.hideWeixin) return;
+          if (
+            key === 'platformintegration' &&
+            md.global.SysSettings.hideWorkWeixin &&
+            md.global.SysSettings.hideDingding &&
+            md.global.SysSettings.hideFeishu &&
+            md.global.SysSettings.hideWelink
+          )
+            return;
+        }
+
+        const itemMenu = subMenuArray.filter(sub => sub.key === key)[0] || {};
+        let featureType = getFeatureStatus(projectId, itemMenu.featureId);
+
+        if (itemMenu.featureIds) {
+          itemMenu.featureIds
+            .filter(l => !md.global.Config.IsPlatformLocal || !itemMenu.platformHiddenIds.includes(l))
+            .forEach((l, i) => {
+              let itemFeatureType = getFeatureStatus(projectId, l);
+              if (itemFeatureType) {
+                featureType = featureType ? Math.min(itemFeatureType, featureType).toString() : itemFeatureType;
+              }
+            });
+        }
+
+        return !(_.includes(['analytics', 'applog', 'computing', 'aggregationTable'], key) && !featureType);
+      });
+
+      return result;
     }
   }
 

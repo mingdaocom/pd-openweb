@@ -1,24 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
-import {
-  WingBlank,
-  WhiteSpace,
-  Card,
-  List,
-  Flex,
-  ActionSheet,
-  Modal,
-  ActivityIndicator,
-  Button,
-  Switch,
-} from 'antd-mobile';
+import { Dialog, Button, List, SpinLoading } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
 
-let modal = null;
 class ChangeRole extends React.Component {
   constructor(props) {
     super(props);
@@ -41,11 +29,6 @@ class ChangeRole extends React.Component {
   componentWillUnmount() {
     this.props.dispatch({ type: 'MOBILE_ROLE_MOVE_FETCH_START' });
     $('html').removeClass('changeRoleCon');
-    if (modal) {
-      modal.close();
-    } else {
-      modal = null;
-    }
   }
 
   render() {
@@ -62,9 +45,9 @@ class ChangeRole extends React.Component {
     }
     if (isRoleListLoading) {
       return (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
+        <div className="flexRow justifyContentCenter alignItemsCenter h100">
+          <SpinLoading color='primary' />
+        </div>
       );
     }
 
@@ -78,6 +61,7 @@ class ChangeRole extends React.Component {
               return (
                 <List.Item
                   key={item.roleId}
+                  arrow={false}
                   extra={this.state.checkId === item.roleId ? <Icon icon="ok" className="Font28 isCheck" /> : ''}
                   onClick={() => {
                     if (params.roleId === item.roleId) return;
@@ -93,13 +77,16 @@ class ChangeRole extends React.Component {
               );
             })}
         </List>
-        <WingBlank size="md">
+        <div className="mLeft8 mRight8 mTop20">
           <Button
-            type="primary"
-            className="mTop20"
+            size="middle"
+            color="primary"
+            className="w100"
             onClick={() => {
               if (!this.state.checkId) {
-                modal = Modal.alert('', _l('请选择要更换的角色'), [{ text: _l('确定'), onPress: () => {} }]);
+                Dialog.alert({
+                  content: _l('请选择要更换的角色'),
+                });
               } else {
                 this.props.dispatch(
                   actions.removeUserToRole({
@@ -129,7 +116,7 @@ class ChangeRole extends React.Component {
           >
             {_l('确定')}
           </Button>
-        </WingBlank>
+        </div>
       </React.Fragment>
     );
   }

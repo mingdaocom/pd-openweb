@@ -1,6 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import { SortableContainer, SortableElement } from '@mdfe/react-sortable-hoc';
+import { SortableList } from 'ming-ui';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import ItemCon from './ItemCon';
 import styled from 'styled-components';
@@ -12,26 +12,10 @@ const Wrap = styled.p`
   margin: 10px 0 4px 0;
 `;
 
-const Item = SortableElement(data => <ItemCon {...data} />);
-const SortableList = SortableContainer(props => {
-  return (
-    <div>
-      {_.map(props.items, (item, index) => {
-        return <Item {...props} item={item} index={index} />;
-      })}
-    </div>
-  );
-});
-
 export default class Con extends React.Component {
-  handleSortEnd = ({ oldIndex, newIndex }) => {
+  handleSortEnd = list => {
     const { handleMoveApp, roleList, isForPortal } = this.props;
     const sysList = roleList.filter(o => sysRoleType.includes(o.roleType));
-    const otherList = roleList.filter(o => !sysRoleType.includes(o.roleType));
-    if (oldIndex === newIndex) return;
-    const list = otherList.slice();
-    const currentItem = list.splice(oldIndex, 1)[0];
-    list.splice(newIndex, 0, currentItem);
     const newList = isForPortal ? list : [...sysList, ...list];
     this.props.onChange({ roleList: newList });
     handleMoveApp && handleMoveApp(newList);
@@ -72,23 +56,28 @@ export default class Con extends React.Component {
         {List && (
           <SortableList
             items={List}
-            isForPortal={isForPortal}
-            roleId={roleId}
             useDragHandle
+            itemKey="roleId"
             onSortEnd={this.handleSortEnd}
-            helperClass={''}
-            onChoose={roleId => {
-              this.props.onSelect(roleId);
-              this.props.handleChangePage(() => {
-                this.props.onChange({
-                  roleId,
-                });
-              });
-            }}
-            dataList={dataList}
-            onAction={(o, data) => {
-              this.props.onAction(o, data);
-            }}
+            renderItem={options => (
+              <ItemCon
+                {...options}
+                onChoose={roleId => {
+                  this.props.onSelect(roleId);
+                  this.props.handleChangePage(() => {
+                    this.props.onChange({
+                      roleId,
+                    });
+                  });
+                }}
+                dataList={dataList}
+                onAction={(o, data) => {
+                  this.props.onAction(o, data);
+                }}
+                isForPortal={isForPortal}
+                roleId={roleId}
+              />
+            )}
           />
         )}
       </ul>

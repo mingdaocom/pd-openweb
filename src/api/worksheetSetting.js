@@ -13,6 +13,9 @@ export default {
   * @param {object} args.fieldMaps 关联的工作表映射字段
   * @param {integer} args.expireTime 订单过期时长
   * @param {boolean} args.enableOrderVisible 是否启用订单可见
+  * @param {string} args.orderVisibleViewId 订单可见视图id
+  * @param {} args.worksheetPaymentSetting
+  * @param {boolean} args.isRefundAllowed 是否启用退款
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

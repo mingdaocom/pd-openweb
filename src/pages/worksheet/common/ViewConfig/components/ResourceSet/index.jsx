@@ -5,17 +5,10 @@ import { useSetState } from 'react-use';
 import BaseInfo from './BaseInfo';
 import _ from 'lodash';
 import { TimeDropdownChoose, ShowChoose } from 'src/pages/worksheet/common/ViewConfig/style.jsx';
-import { Select, TimePicker } from 'antd';
+import { Select } from 'antd';
 import cx from 'classnames';
-import localeZhCn from 'antd/es/date-picker/locale/zh_CN';
-import localeJaJp from 'antd/es/date-picker/locale/ja_JP';
-import localeZhTw from 'antd/es/date-picker/locale/zh_TW';
-import localeEn from 'antd/es/date-picker/locale/en_US';
-import dayjs from 'dayjs';
 import { weekObj, resourceTypes } from 'src/pages/worksheet/views/ResourceView/config.js';
-
-const locales = { 'zh-Hans': localeZhCn, 'zh-Hant': localeZhTw, en: localeEn, ja: localeJaJp };
-const locale = locales[md.global.Account.lang];
+import EditTimes from './EditTimes';
 
 const Wrap = styled.div`
   .ming.Dropdown.isDelete .Dropdown--input .value,
@@ -26,14 +19,26 @@ const Wrap = styled.div`
   .dropdownTrigger .Dropdown--border {
     border-color: red;
   }
-  .rangePicker {
+  .showtimeCon {
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    color: #757575;
+    padding: 6px 12px;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    cursor: pointer;
+    &:hover {
+      background: #f5f5f5;
+    }
   }
 `;
 export default function ResourceSet(props) {
   const { appId, view, updateCurrentView } = props;
   const { rowHeight = 0 } = view;
-  const [{ timeControls }, setState] = useSetState({
+  const [{ timeControls, show }, setState] = useSetState({
     timeControls: [],
+    show: false,
   });
 
   useEffect(() => {
@@ -82,6 +87,7 @@ export default function ResourceSet(props) {
           <div className="Bold">{_l('开始')}</div>
           <Dropdown
             className="mTop8"
+            isAppendToBody
             style={{ width: '100%' }}
             data={timeControls.filter(o => o.value !== _.get(props, 'view.advancedSetting.enddate'))}
             value={_.get(props, 'view.advancedSetting.begindate')}
@@ -104,6 +110,7 @@ export default function ResourceSet(props) {
           <div className="Bold">{_l('结束')}</div>
           <Dropdown
             className="mTop8"
+            isAppendToBody
             style={{ width: '100%' }}
             data={timeControls.filter(o => o.value !== _.get(props, 'view.advancedSetting.begindate'))}
             value={_.get(props, 'view.advancedSetting.enddate')}
@@ -148,11 +155,7 @@ export default function ResourceSet(props) {
       <div className="commonConfigItem Font13 bold mTop24">{_l('默认视图')}</div>
       <div className="commonConfigItem mTop6">
         <CheckBlock
-          data={[
-            { text: _l('月'), value: '0' },
-            { text: _l('周'), value: '1' },
-            { text: _l('日'), value: '2' },
-          ]}
+          data={resourceTypes}
           value={
             !_.get(props, 'view.advancedSetting.calendarType') ? '0' : _.get(props, 'view.advancedSetting.calendarType')
           }
@@ -161,7 +164,7 @@ export default function ResourceSet(props) {
               ? '0'
               : _.get(props, 'view.advancedSetting.calendarType');
             if (calendarType !== value) {
-              safeLocalStorageSetItem(`${view.viewId}_resource_type`, resourceTypes[value].value);
+              safeLocalStorageSetItem(`${view.viewId}_resource_type`, resourceTypes.find(o => o.value === value).key);
               updateCurrentView({
                 ...view,
                 appId,
@@ -262,6 +265,9 @@ export default function ResourceSet(props) {
         checked={!!_.get(props, 'view.advancedSetting.showtime')}
         className="mTop16"
         onClick={e => {
+          if (!_.get(props, 'view.advancedSetting.showtime')) {
+            return setState({ show: true });
+          }
           updateCurrentView({
             ...view,
             appId,
@@ -274,35 +280,16 @@ export default function ResourceSet(props) {
         text={_l('只显示工作时间')}
       />
       {!!_.get(props, 'view.advancedSetting.showtime') && (
-        <TimePicker.RangePicker
-          className="mTop8 rangePicker w100 borderAll3"
-          format="HH:mm"
-          value={
-            !!_.get(props, 'view.advancedSetting.showtime')
-              ? _.get(props, 'view.advancedSetting.showtime')
-                  .split('-')
-                  .map(item => dayjs(item, 'HH:mm'))
-              : []
-          }
-          hourStep={1}
-          minuteStep={60}
-          onChange={(data, timeString) => {
-            if (data && data[0] && data[1] && dayjs(data[1]).diff(dayjs(data[0])) <= 0) {
-              alert(_l('结束时间不能早于或等于开始时间'), 3);
-              return;
-            }
-            updateCurrentView({
-              ...view,
-              appId,
-              advancedSetting: { showtime: `${timeString[0]}-${timeString[1]}` },
-              editAdKeys: ['showtime'],
-              editAttrs: ['advancedSetting'],
-            });
-          }}
-          locale={locale}
-          showNow={true}
-          allowClear={false}
-        />
+        <div className="showtimeCon mTop10" onClick={() => setState({ show: true })}>
+          <div className="flex LineHeight22">
+            {(_.get(props, 'view.advancedSetting.showtime') || '').split('|').map(o => {
+              return <div className="Gray ">{o}</div>;
+            })}
+          </div>
+          <div class="edit LineHeight22">
+            <i class="icon-edit Gray_9e ThemeHoverColor3 Font16 Hand"></i>
+          </div>
+        </div>
       )}
       <Checkbox
         checked={_.get(props, 'view.advancedSetting.hour24') === '1'}
@@ -318,6 +305,21 @@ export default function ResourceSet(props) {
         }}
         text={_l('24小时制')}
       />
+      {show && (
+        <EditTimes
+          showtime={_.get(props, 'view.advancedSetting.showtime') || ''}
+          onClose={() => setState({ show: false })}
+          onChange={showtime => {
+            updateCurrentView({
+              ...view,
+              appId,
+              advancedSetting: { showtime: showtime },
+              editAdKeys: ['showtime'],
+              editAttrs: ['advancedSetting'],
+            });
+          }}
+        />
+      )}
     </Wrap>
   );
 }

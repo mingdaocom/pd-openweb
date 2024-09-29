@@ -53,6 +53,7 @@ export default function ListItemLayer() {
   });
 
   if ([DRAG_ITEMS.DISPLAY_ITEM, DRAG_ITEMS.DISPLAY_TAB].includes(itemType)) return null;
+  if ((itemType || '').includes('dragType')) return null;
 
   if (item) {
     $init.current = { initialClientOffset, item };

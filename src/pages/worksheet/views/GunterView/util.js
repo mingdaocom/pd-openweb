@@ -3,6 +3,7 @@ import { PERIODS, PERIOD_TYPE } from './config';
 import { browserIsMobile } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
+import { sortDataByCustomItems } from 'src/pages/worksheet/redux/actions/util.js';
 
 /**
  * 修改当前视图配置
@@ -592,10 +593,10 @@ export const getRecordIndex = (id, grouping, withoutArrangementVisible) => {
 /**
  * 排序分组
  */
-export const sortGrouping = (grouping) => {
+export const sortGrouping = (grouping, view = {}, controls = []) => {
   const empty = grouping.filter(item => item.key == '-1');
   const sortGrouping = grouping.filter(item => item.key !== '-1').sort((a, b) => a.sort - b.sort);
-  return sortGrouping.concat(empty);
+  return sortDataByCustomItems(sortGrouping.concat(empty), view, controls, false);
 }
 
 /**

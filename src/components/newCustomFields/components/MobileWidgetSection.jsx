@@ -11,7 +11,13 @@ import cx from 'classnames';
 import _ from 'lodash';
 
 const TabCon = styled.div`
-  height: 44px;
+  .md-adm-tabs {
+    background-color: #fff;
+    border-bottom: 1px solid #f5f5f5;
+    .adm-tabs-header {
+      border: none !important;
+    }
+  }
   &.fixedTabs {
     z-index: 999;
     &.top {
@@ -24,51 +30,27 @@ const TabCon = styled.div`
   &.addStyle {
     margin: 0 -20px 8px;
   }
-  .am-tabs-tab-bar-wrap {
-    display: block !important;
-    border-bottom: 1px solid #f5f5f5;
+  .adm-tabs-tab {
+    display: flex;
   }
-  .am-tabs-default-bar-tab {
-    font-size: 14px;
-    font-weight: 500;
-    width: auto !important;
-    border-bottom: none !important;
-    padding: 0 12px !important;
-    position: relative;
-    .tabName {
-      max-width: 100px;
-      position: relative;
-      color: #757575;
-    }
-    &:after {
-      content: none !important;
-    }
-    &:first-child {
-      margin-left: 8px;
-    }
+  .adm-tabs-tab .tabName {
+    color: #757575;
+    max-width: 100px;
+    display: block;
   }
-  .am-tabs-default-bar-tab-active .tabName {
+  .adm-tabs-tab {
+    color: #757575;
+  }
+  .adm-tabs-tab-active .tabName,
+  .adm-tabs-tab-active .count {
     color: #108ee9;
-    &:before {
-      content: '';
-      height: 3px;
-      background-color: #108ee9;
-      width: 80%;
-      position: absolute;
-      bottom: 0;
-      transform: translateX(-50%);
-      left: 50%;
-    }
   }
-  .am-tabs-default-bar-tab::before,
-  .am-tabs-default-bar-underline {
-    display: none !important;
-  }
+
   .tabLine {
     height: 12px;
     width: 1px;
-    left: 2px;
-    top: 18px;
+    left: -12px;
+    top: 15px;
     position: absolute;
     background-color: #ddd;
   }
@@ -150,7 +132,8 @@ export default function MobileWidgetSection(props) {
     if (!value || (_.isString(value) && value.startsWith('deleteRowIds'))) return '';
     if (_.isNumber(value)) return value;
 
-    const data = JSON.parse(value);
+    const data = _.isArray(value) ? value : value ? JSON.parse(value) : [];
+
     if (_.isArray(data) && data.length) return data.length;
   };
 
@@ -159,38 +142,38 @@ export default function MobileWidgetSection(props) {
 
     return (
       <Tabs
-        tabBarPosition="bottom"
-        tabBarInactiveTextColor="#7575758d"
-        prerenderingSiblingsNumber={0}
-        destroyInactiveTab={true}
-        animated={false}
-        swipeable={false}
-        page={activeTabControlId ? _.findIndex(tabs, { controlId: activeTabControlId }) : 0}
-        tabs={tabs}
-        activeTab={activeTabControlId}
-        renderTab={tab => {
-          const count = getCount(tab);
-          return (
-            <Fragment>
-              {tab.showTabLine && <i className="tabLine" />}
-              <span className="tabName ellipsis mRight2">
-                <TabIcon control={tab} widgetStyle={widgetStyle} activeTabControlId={activeTabControlId} />
-                {tab.controlName}
-              </span>
-              {_.get(tab, 'advancedSetting.showcount') !== '1' && tab.type === 29 && tab.value && count ? (
-                <span>{`(${count})`}</span>
-              ) : (
-                ''
-              )}
-            </Fragment>
-          );
-        }}
+        className="md-adm-tabs flexUnset"
+        activeLineMode="fixed"
+        activeKey={activeTabControlId}
         onChange={tab => {
           setNewFlag(Date.now());
-          setActiveTabControlId(tab.controlId);
-          changeMobileTab(tab);
+          setActiveTabControlId(tab);
+          changeMobileTab(_.find(tabs, t => t.controlId === tab));
         }}
-      ></Tabs>
+      >
+        {tabs.map(tab => {
+          const count = getCount(tab);
+          return (
+            <Tabs.Tab
+              key={tab.controlId}
+              title={
+                <Fragment>
+                  {tab.showTabLine && <i className="tabLine" />}
+                  <span className="tabName ellipsis bold">
+                    <TabIcon control={tab} widgetStyle={widgetStyle} activeTabControlId={activeTabControlId} />
+                    {tab.controlName}
+                  </span>
+                  {_.get(tab, 'advancedSetting.showcount') !== '1' && tab.type === 29 && tab.value && count ? (
+                    <span className="count">{`(${count})`}</span>
+                  ) : (
+                    ''
+                  )}
+                </Fragment>
+              }
+            />
+          );
+        })}
+      </Tabs>
     );
   };
 

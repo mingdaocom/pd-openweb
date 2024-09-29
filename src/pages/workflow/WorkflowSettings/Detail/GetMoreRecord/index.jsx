@@ -189,6 +189,7 @@ export default class GetMoreRecord extends Component {
       .getStartEventDeploy({
         appId,
         appType: data.appType,
+        nodeId: this.props.selectNodeId,
       })
       .then(result => {
         this.updateSource({ controls: result.controls });
@@ -204,6 +205,7 @@ export default class GetMoreRecord extends Component {
     flowNode
       .getStartEventDeploy({
         processId,
+        nodeId: this.props.selectNodeId,
         appType,
         selectNodeId,
         controlId,
@@ -325,6 +327,7 @@ export default class GetMoreRecord extends Component {
               ACTION_ID.FROM_PBC_INPUT_ARRAY,
               ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
               ACTION_ID.FROM_JSON_PARSE_ARRAY,
+              ACTION_ID.FROM_PLUGIN_ARRAY,
             ],
             data.actionId,
           )) &&
@@ -342,6 +345,7 @@ export default class GetMoreRecord extends Component {
             ACTION_ID.FROM_PBC_INPUT_ARRAY,
             ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
             ACTION_ID.FROM_JSON_PARSE_ARRAY,
+            ACTION_ID.FROM_PLUGIN_ARRAY,
           ],
           data.actionId,
         ) && this.renderArray()}
@@ -390,6 +394,7 @@ export default class GetMoreRecord extends Component {
       { text: _l('业务流程输入数组'), value: ACTION_ID.FROM_PBC_INPUT_ARRAY },
       { text: _l('业务流程输出数组'), value: ACTION_ID.FROM_PBC_OUTPUT_ARRAY },
       { text: _l('JSON解析数组'), value: ACTION_ID.FROM_JSON_PARSE_ARRAY },
+      { text: _l('插件数组'), value: ACTION_ID.FROM_PLUGIN_ARRAY },
     ];
 
     if (flowInfo.startAppType !== APP_TYPE.PBC || flowInfo.child) {
@@ -633,6 +638,7 @@ export default class GetMoreRecord extends Component {
       [ACTION_ID.FROM_PBC_INPUT_ARRAY]: _l('选择业务流程节点'),
       [ACTION_ID.FROM_PBC_OUTPUT_ARRAY]: _l('选择业务流程节点'),
       [ACTION_ID.FROM_JSON_PARSE_ARRAY]: _l('选择JSON解析节点'),
+      [ACTION_ID.FROM_PLUGIN_ARRAY]: _l('选择插件节点'),
     };
 
     return (
@@ -820,6 +826,7 @@ export default class GetMoreRecord extends Component {
                 ACTION_ID.FROM_PBC_INPUT_ARRAY,
                 ACTION_ID.FROM_PBC_OUTPUT_ARRAY,
                 ACTION_ID.FROM_JSON_PARSE_ARRAY,
+                ACTION_ID.FROM_PLUGIN_ARRAY,
               ],
               data.actionId,
             ) &&

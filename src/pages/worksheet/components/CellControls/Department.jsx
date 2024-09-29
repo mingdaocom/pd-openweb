@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import { quickSelectDept } from 'ming-ui/functions';
@@ -52,8 +51,8 @@ export default class Text extends React.Component {
     }
   }
   cell = React.createRef();
-  @autobind
-  handleTableKeyDown(e) {
+
+  handleTableKeyDown = e => {
     const { updateEditingStatus } = this.props;
     switch (e.key) {
       case 'Escape':
@@ -67,19 +66,17 @@ export default class Text extends React.Component {
       default:
         break;
     }
-  }
+  };
 
-  @autobind
-  handleChange() {
+  handleChange = () => {
     const { updateCell } = this.props;
     const { value } = this.state;
     updateCell({
       value: JSON.stringify(value),
     });
-  }
+  };
 
-  @autobind
-  selectDepartments(e, cb) {
+  selectDepartments = (e, cb) => {
     const { cell, projectId, rowFormData, masterData = () => {} } = this.props;
     const target = (this.cell && this.cell.current) || (e || {}).target;
     if (!target) {
@@ -111,10 +108,9 @@ export default class Text extends React.Component {
       selectFn: cb,
       onClose: () => (this.isSelecting = false),
     });
-  }
+  };
 
-  @autobind
-  handleSelect(e) {
+  handleSelect = e => {
     const { cell, updateEditingStatus } = this.props;
 
     this.isSelecting = true;
@@ -151,16 +147,14 @@ export default class Text extends React.Component {
         );
       }
     });
-  }
+  };
 
-  @autobind
-  handleMutipleEdit() {
+  handleMutipleEdit = () => {
     const { updateEditingStatus } = this.props;
     updateEditingStatus(true);
-  }
+  };
 
-  @autobind
-  deleteDepartment(departmentId) {
+  deleteDepartment = departmentId => {
     const { value } = this.state;
     this.setState(
       {
@@ -170,7 +164,7 @@ export default class Text extends React.Component {
       },
       this.handleChange,
     );
-  }
+  };
 
   renderDepartmentTag(department, allowDelete) {
     const { style, isediting, cell = {} } = this.props;

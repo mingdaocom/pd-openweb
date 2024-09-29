@@ -25,7 +25,7 @@ function EnablePanel(props) {
     originalControls,
     hidedControlIds,
     hideControl,
-    projectId
+    projectId,
   } = props;
   const [formVisible, setFormVisible] = useState(/detail/.test(location.hash));
   const enabled = worksheetInfo.visibleType === VISIBLE_TYPE.PUBLIC;
@@ -141,9 +141,7 @@ function EnablePanel(props) {
               },
             ]}
           />
-          <Button size="mdbig" onClick={() => updateFormVisible(true)}>
-            {_l('设置表单')}
-          </Button>
+          <Button onClick={() => updateFormVisible(true)}>{_l('表单设置')}</Button>
         </React.Fragment>
       )}
     </div>

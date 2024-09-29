@@ -179,6 +179,7 @@ export default class ChartSetting extends Component {
           axisControls={axisControls}
           allControls={worksheetInfo.columns}
           list={lines}
+          axisList={[...lines, ...columns]}
           disableParticleSizeTypes={disableParticleSizeTypes}
           onUpdateList={(lines, id) => {
             changeCurrentReport(
@@ -201,6 +202,7 @@ export default class ChartSetting extends Component {
           axisControls={axisControls}
           allControls={worksheetInfo.columns}
           list={columns}
+          axisList={[...lines, ...columns]}
           disableParticleSizeTypes={disableParticleSizeTypes}
           onUpdateList={(columns, id) => {
             changeCurrentReport(
@@ -510,7 +512,7 @@ export default class ChartSetting extends Component {
   }
   render() {
     const { currentReport, axisControls, projectId, worksheetInfo, filterItem } = this.props;
-    const { reportType, displaySetup } = currentReport;
+    const { reportType, displaySetup, filter } = currentReport;
     const { x, y } = getAxisText(reportType, displaySetup ? displaySetup.showChartType : null);
     const isPivotTable = reportType === reportTypes.PivotTable;
     return (
@@ -524,6 +526,7 @@ export default class ChartSetting extends Component {
         {reportType === reportTypes.FunnelChart && this.renderAccumulate()}
         <Filter
           filterResigned={false}
+          filter={filter}
           projectId={projectId}
           filterItem={filterItem}
           axisControls={axisControls}

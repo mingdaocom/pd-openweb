@@ -21,6 +21,8 @@ class CalendarShare extends Component {
     };
   }
 
+  requesting = false;
+
   componentDidMount() {
     this.init();
   }
@@ -335,6 +337,10 @@ class CalendarShare extends Component {
     $('#joinBtn')
       .off()
       .on('click', function () {
+        if (this.requesting) return;
+
+        this.requesting = true;
+
         ajaxRequest
           .insertCalendarWeChatMember({
             calendarID: settings.calendarID,
@@ -342,6 +348,8 @@ class CalendarShare extends Component {
             token: settings.token,
           })
           .then(source => {
+            this.requesting = false;
+
             if (source.code === 1) {
               $('#joinBox').addClass('hide');
               $('#leaveBox').removeClass('hide');

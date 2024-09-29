@@ -80,87 +80,90 @@ export default function Users(props) {
   const conRef = useRef();
   const tabType = getTabTypeBySelectUser(props.control);
   let staticAccounts = [];
+
   if (navshow === '2') {
     staticAccounts = safeParse(navfilters)
       .map(safeParse)
       .map(u => ({
-        accountId: u.id,
-        fullname: u.name,
-        avatar: u.avatar,
+        accountId: (u || {}).id,
+        fullname: (u || {}).name,
+        avatar: (u || {}).avatar,
       }));
   }
+
+  const handleClick = () => {
+    const selectIds = values.map(l => l.accountId);
+
+    setActive(true);
+    if (from === 'NavShow') {
+      dialogSelectUser({
+        title: '添加成员',
+        sourceId: 0,
+        fromType: 0,
+        showMoreInvite: false,
+        SelectUserSettings: {
+          includeUndefinedAndMySelf: true,
+          filterResigned: false,
+          // includeSystemField: true,
+          showMoreInvite: false,
+          projectId,
+          unique: !isMultiple,
+          selectedAccountIds: selectIds,
+          callback(users) {
+            onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
+            setActive(false);
+          },
+        },
+      });
+    } else {
+      quickSelectUser(conRef.current, {
+        showMoreInvite: false,
+        isTask: false,
+        tabType,
+        appId,
+        includeUndefinedAndMySelf: true,
+        includeSystemField: true,
+        offset: {
+          top: 4,
+          left: -1,
+        },
+        zIndex: 10001,
+        filterAccountIds: [md.global.Account.accountId],
+        selectedAccountIds: selectIds,
+        staticAccounts: (shownullitem === '1'
+          ? [
+              {
+                avatar:
+                  md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+                  '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
+                fullname: nullitemname || _l('为空'),
+                accountId: 'isEmpty',
+              },
+            ]
+          : []
+        ).concat(staticAccounts),
+        SelectUserSettings: {
+          projectId,
+          unique: !isMultiple,
+          filterResigned: false,
+          callback(users) {
+            onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
+            setActive(false);
+          },
+        },
+        selectCb(users) {
+          onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
+          setActive(false);
+        },
+        onClose: () => {
+          setActive(false);
+        },
+      });
+    }
+  };
+
   return (
-    <Con
-      className={props.className}
-      isEmpty={!values.length}
-      active={active}
-      onClick={() => {
-        setActive(true);
-        if (from === 'NavShow') {
-          dialogSelectUser({
-            title: '添加成员',
-            sourceId: 0,
-            fromType: 0,
-            showMoreInvite: false,
-            SelectUserSettings: {
-              includeUndefinedAndMySelf: true,
-              filterResigned: false,
-              // includeSystemField: true,
-              showMoreInvite: false,
-              projectId,
-              unique: !isMultiple,
-              callback(users) {
-                onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
-                setActive(false);
-              },
-            },
-          });
-        } else {
-          quickSelectUser(conRef.current, {
-            showMoreInvite: false,
-            isTask: false,
-            tabType,
-            appId,
-            includeUndefinedAndMySelf: true,
-            includeSystemField: true,
-            offset: {
-              top: 4,
-              left: -1,
-            },
-            zIndex: 10001,
-            filterAccountIds: [md.global.Account.accountId],
-            staticAccounts: (shownullitem === '1'
-              ? [
-                  {
-                    avatar:
-                      md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
-                      '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
-                    fullname: nullitemname || _l('为空'),
-                    accountId: 'isEmpty',
-                  },
-                ]
-              : []
-            ).concat(staticAccounts),
-            SelectUserSettings: {
-              projectId,
-              unique: !isMultiple,
-              filterResigned: false,
-              callback(users) {
-                onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
-                setActive(false);
-              },
-            },
-            selectCb(users) {
-              onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
-              setActive(false);
-            },
-            onClose: () => {
-              setActive(false);
-            },
-          });
-        }
-      }}
-    >
+    <Con className={props.className} isEmpty={!values.length} active={active} onClick={handleClick}>
       <UsersCon ref={conRef}>
         {!values.length && <Empty>{_l('请选择')}</Empty>}
         {!isMultiple && !!values.length ? (

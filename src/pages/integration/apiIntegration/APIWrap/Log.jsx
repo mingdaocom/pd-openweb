@@ -203,7 +203,7 @@ export default function Log(props) {
       title: _l('选择人员'),
       showMoreInvite: false,
       SelectUserSettings: {
-        filterAccountIds: !user.accountId ? [] : [user.accountId],
+        selectedAccountIds: !user.accountId ? [] : [user.accountId],
         projectId: localStorage.getItem('currentProjectId'),
         dataRange: 2,
         unique: true,

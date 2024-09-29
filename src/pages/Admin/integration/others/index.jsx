@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Switch, LoadDiv, Tooltip, Support, UpgradeIcon, VerifyPasswordConfirm, Checkbox } from 'ming-ui';
-import { Input, Select, Button } from 'antd';
+import { Icon, Switch, LoadDiv, Tooltip, Support, UpgradeIcon, VerifyPasswordConfirm, Checkbox, Button } from 'ming-ui';
+import { Input, Select } from 'antd';
 import cx from 'classnames';
 import './index.less';
 import { formListTop, formListBottom } from './form.config.js';
@@ -94,6 +94,7 @@ export default class OtherTool extends Component {
       mustDepartment: false,
       mustJob: false,
       mustWorkphone: false,
+      noMatchCreate: false, // 无匹配用户时新建
     };
   }
 
@@ -147,6 +148,8 @@ export default class OtherTool extends Component {
             mustDepartment: data.mustDepartment,
             mustJob: data.mustJob,
             mustWorkphone: data.mustWorkphone,
+            createIfNotExists: data.createIfNotExists,
+            initLdapData: { ...data, DNGroupList: _.isEmpty(DNGroupList) ? [{ dn: '', groupName: '' }] : DNGroupList },
           });
         }
       });
@@ -219,7 +222,8 @@ export default class OtherTool extends Component {
   }
 
   toggleComp(level) {
-    this.setState({ level, isSaveWebProxy: false });
+    const { initLdapData = {}, initSsoData = {} } = this.state;
+    this.setState({ level, isSaveWebProxy: false, ...initLdapData, ...initSsoData });
   }
 
   handleUpdateItem(e, key) {
@@ -245,13 +249,15 @@ export default class OtherTool extends Component {
   };
 
   selectTypeComp = key => {
+    const { errorInfo = {} } = this.state;
+
     return (
       <Select
-        className={`errorInput${key}`}
+        className={cx({ errorInput: !!errorInfo[key] })}
         value={this.state[key] + ''}
         placeholder={_l('请选择用户目录类型')}
         onChange={this.handleUpdateItemSelect.bind(this)}
-        onFocus={this.clearError.bind(this, key)}
+        onFocus={() => this.clearError(key)}
       >
         <Select.Option value="1">Microsoft Active Directory</Select.Option>
         <Select.Option value="2">Novell eDirectory Server</Select.Option>
@@ -264,34 +270,32 @@ export default class OtherTool extends Component {
 
   handleCheck() {
     const { DNGroupList = [], searchRange } = this.state;
-    let isChecked = false;
     const list = formListTop.concat(formListBottom);
-    list &&
-      list.map(({ key, errorMsg }) => {
-        if (errorMsg) {
-          if (!this.state[key]) {
-            isChecked = false;
-            $(`.errorInput${key}`).addClass('errorInput');
-            $(`#errorMsg${key}`).text(errorMsg);
-          } else {
-            if (key === 'port' && isNaN(this.state.port)) {
-              isChecked = false;
-              $(`.errorInputport`).addClass('errorInput');
-              $('#errorMsgport').text(_l('端口号必须为数字'));
-            } else {
-              isChecked = true;
-            }
-          }
-        }
-      });
     const dnGroupError = searchRange === 0 || (searchRange === 1 && DNGroupList.every(it => !!it.dn && !!it.groupName));
-    return isChecked && dnGroupError;
+    const errorInfo = {};
+    list.forEach(({ key, errorMsg }) => {
+      if (errorMsg) {
+        if (!this.state[key]) {
+          errorInfo[key] = errorMsg;
+        }
+        if (key === 'port' && isNaN(this.state.port)) {
+          errorInfo[key] = _l('端口号必须为数字');
+        }
+      }
+    });
+    if (!dnGroupError) {
+      errorInfo.dnGroup = true;
+    }
+
+    this.setState({ errorInfo });
+
+    return _.isEmpty(errorInfo);
   }
 
-  clearError(key) {
-    $(`.errorInput${key}`).removeClass('errorInput');
-    $(`#errorMsg${key}`).text('');
-  }
+  clearError = key => {
+    const { errorInfo = {} } = this.state;
+    this.setState({ errorInfo: { ...errorInfo, [key]: '' } });
+  };
 
   addDNGroup = () => {
     const copyDNGroupList = [...this.state.DNGroupList];
@@ -300,18 +304,18 @@ export default class OtherTool extends Component {
   };
 
   renderCompType(key, compType = 'input', inputDisabled, placeholder) {
-    const { searchRange, DNGroupList = [], checkDnGroupEmpty } = this.state;
+    const { searchRange, DNGroupList = [], errorInfo = {} } = this.state;
     switch (compType) {
       case 'select':
         return this.selectTypeComp(key);
       case 'password':
         return (
           <Input.Password
-            className={`passwordInput errorInput${key}`}
+            className={cx('passwordInput', { errorInput: !!errorInfo[key] })}
             autocomplete="new-password"
             value={this.state[key]}
             onChange={e => this.handleUpdateItem(e, key)}
-            onFocus={this.clearError.bind(this, key)}
+            onFocus={() => this.clearError(key)}
           />
         );
       case 'input':
@@ -319,10 +323,10 @@ export default class OtherTool extends Component {
           <Input
             placeholder={inputDisabled ? '' : placeholder}
             disabled={inputDisabled}
-            className={`errorInput${key}`}
+            className={cx({ errorInput: !!errorInfo[key] })}
             value={inputDisabled ? '' : this.state[key]}
             onChange={e => this.handleUpdateItem(e, key)}
-            onFocus={this.clearError.bind(this, key)}
+            onFocus={() => this.clearError(key)}
           />
         );
       case 'tab':
@@ -336,7 +340,10 @@ export default class OtherTool extends Component {
                 key={it.key}
                 className={cx('flex', { active: searchRange === it.key })}
                 onClick={() => {
-                  this.setState({ searchRange: it.key });
+                  this.setState({
+                    searchRange: it.key,
+                    errorInfo: { ...errorInfo, dnGroup: it.key === 0 ? false : errorInfo.dnGroup },
+                  });
                 }}
               >
                 {it.tab}
@@ -362,10 +369,13 @@ export default class OtherTool extends Component {
                       onChange={e => {
                         const copyDNGroupList = [...DNGroupList];
                         copyDNGroupList[i].dn = e.target.value;
-                        this.setState({ DNGroupList: copyDNGroupList });
+                        this.setState({
+                          DNGroupList: copyDNGroupList,
+                          errorInfo: { ...errorInfo, dnGroup: !copyDNGroupList.every(it => !!it.dn && !!it.groupName) },
+                        });
                       }}
                     />
-                    {checkDnGroupEmpty && !it.groupName && searchRange === 1 && (
+                    {errorInfo.dnGroup && !it.groupName && searchRange === 1 && (
                       <div className={cx('TxtMiddle Red')}>{_l('请输入DN')}</div>
                     )}
                   </div>
@@ -376,10 +386,13 @@ export default class OtherTool extends Component {
                       onChange={e => {
                         const copyDNGroupList = [...DNGroupList];
                         copyDNGroupList[i].groupName = e.target.value;
-                        this.setState({ DNGroupList: copyDNGroupList, checkDnGroupEmpty: false });
+                        this.setState({
+                          DNGroupList: copyDNGroupList,
+                          errorInfo: { ...errorInfo, dnGroup: !copyDNGroupList.every(it => !!it.dn && !!it.groupName) },
+                        });
                       }}
                     />
-                    {checkDnGroupEmpty && !it.groupName && searchRange === 1 && (
+                    {errorInfo.dnGroup && !it.groupName && searchRange === 1 && (
                       <div className={cx('TxtMiddle Red')}>{_l('请输入组名')}</div>
                     )}
                   </div>
@@ -391,7 +404,10 @@ export default class OtherTool extends Component {
                       onClick={() => {
                         const copyDNGroupList = [...DNGroupList];
                         copyDNGroupList.splice(i, 1);
-                        this.setState({ DNGroupList: copyDNGroupList, checkDnGroupEmpty: false });
+                        this.setState({
+                          DNGroupList: copyDNGroupList,
+                          errorInfo: { ...errorInfo, dnGroup: !copyDNGroupList.every(it => !!it.dn && !!it.groupName) },
+                        });
                       }}
                     />
                   )}
@@ -408,7 +424,7 @@ export default class OtherTool extends Component {
   }
 
   renderFormCommon(list) {
-    const { searchRange, initSyncInfo } = this.state;
+    const { searchRange, initSyncInfo, errorInfo = {} } = this.state;
 
     return (
       <Fragment>
@@ -419,9 +435,10 @@ export default class OtherTool extends Component {
             return (
               <div className="formItem" key={key}>
                 <div className={cx('formLabel', { flexRow: showCheckbox })}>
-                  {showCheckbox && (
+                  {showCheckbox ? (
                     <Checkbox
                       checked={this.state[checkedField]}
+                      text={label}
                       onClick={checked =>
                         this.setState({
                           [checkedField]: !checked,
@@ -429,9 +446,12 @@ export default class OtherTool extends Component {
                         })
                       }
                     />
+                  ) : (
+                    <Fragment>
+                      <span className={cx('TxtMiddle Red', errorMsg ? '' : 'hidden')}>*</span>
+                      {label}
+                    </Fragment>
                   )}
-                  <span className={cx('TxtMiddle Red', errorMsg ? '' : 'hidden')}>*</span>
-                  {label}
                 </div>
                 <div className="formRight">
                   <div className="formInput">
@@ -447,7 +467,7 @@ export default class OtherTool extends Component {
                       <span className="formItemDesc">{desc}</span>
                     )}
                   </div>
-                  <div className="errorMsg" id={'errorMsg' + key} />
+                  {errorMsg && errorInfo[key] && <div className="errorMsg">{errorInfo[key]}</div>}
                 </div>
               </div>
             );
@@ -457,16 +477,33 @@ export default class OtherTool extends Component {
   }
 
   renderLdap() {
+    const { createIfNotExists } = this.state;
+
     return (
       <div className="formBox">
-        <div className="formModuleTitle">{_l('服务器设置（带*为必填项）')}</div>
+        <div className="formModuleTitle mTop0">{_l('服务器设置（带*为必填项）')}</div>
         {this.renderFormCommon(formListTop)}
         <div className="splitLine"></div>
-        <div className="formModuleTitle">{_l('用户 schema')}</div>
+        <div className="formModuleTitle mBottom15">{_l('账号映射')}</div>
+        <div className="Gray_9e mBottom15">{_l('用户使用LDAP登录时，将通过以下字段匹配系统账号')}</div>
         {this.renderFormCommon(formListBottom.slice(0, 2))}
-        <div className="formModuleTitle">{_l('同步信息')}</div>
+        <div style={{ marginLeft: 150 }}>
+          <Checkbox
+            text={_l('当无法通过以上字段匹配到系统账号时，新建一个账号')}
+            checked={createIfNotExists}
+            onClick={checked => this.setState({ createIfNotExists: !checked })}
+          />
+        </div>
+        <div className="formModuleTitle mBottom15">{_l('同步信息')}</div>
+        <div className="Gray_9e mBottom15">{_l('勾选后，在用户使用LDAP登录时，将同步以下账号信息')}</div>
         {this.renderFormCommon(formListBottom.slice(2))}
-        <Button type="primary" onClick={() => this.handleSubmit()} disabled={this.state.saveDisabled}>
+
+        <Button
+          type="primary"
+          className="mBottom45 mTop45 mLeft150"
+          onClick={() => this.handleSubmit()}
+          disabled={this.state.saveDisabled}
+        >
           {this.state.saveDisabled ? _l('保存中') : _l('保存')}
         </Button>
       </div>
@@ -495,13 +532,10 @@ export default class OtherTool extends Component {
       mustDepartment,
       mustJob,
       mustWorkphone,
+      createIfNotExists,
+      initLdapData = {},
     } = this.state;
-    const dnGroupError = DNGroupList.every(it => !!it.dn && !!it.groupName);
-    if (!noneError || (searchRange === 1 && dnGroupError)) {
-      this.setState({ checkDnGroupEmpty: true });
-    } else {
-      this.setState({ checkDnGroupEmpty: false });
-    }
+
     if (noneError) {
       this.setState({ saveDisabled: true });
       let dnGroup = {};
@@ -513,6 +547,7 @@ export default class OtherTool extends Component {
               dnGroup: {},
             }
           : { dnGroup, domainPath: '' };
+
       projectSettingController
         .updateProjectLdapSetting({
           ldapType: parseInt(type),
@@ -533,6 +568,7 @@ export default class OtherTool extends Component {
           mustDepartment,
           mustJob,
           mustWorkphone,
+          createIfNotExists,
           ...extra,
         })
         .then(data => {
@@ -547,6 +583,29 @@ export default class OtherTool extends Component {
                 departmentAttr,
                 jobAttr,
                 workphoneAttr,
+              },
+              initLdapData: {
+                ...initLdapData,
+                type,
+                port,
+                enableSSL,
+                serverIP,
+                user,
+                password,
+                searchRange,
+                searchFilter,
+                emailAttr,
+                fullnameAttr,
+                departmentAttr,
+                jobAttr,
+                workphoneAttr,
+                domainPath,
+                DNGroupList,
+                mustFullname,
+                mustDepartment,
+                mustJob,
+                mustWorkphone,
+                createIfNotExists,
               },
             });
           } else {

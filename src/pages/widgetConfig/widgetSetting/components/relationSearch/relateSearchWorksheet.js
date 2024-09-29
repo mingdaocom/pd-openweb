@@ -34,6 +34,8 @@ function FilterRelateSearch(props) {
     relationControls = [],
     resultFilters,
     setFilters,
+    data,
+    globalSheetInfo = {},
   } = props;
 
   const isRelate = _.find(relationControls, r => _.includes([29, 34], r.type) && r.dataSource === worksheetId);
@@ -83,6 +85,7 @@ function FilterRelateSearch(props) {
             filterResigned={false}
             sourceControlId={sourceControlId}
             conditions={resultFilters}
+            widgetControlData={{ ...data, globalSheetId: globalSheetInfo.worksheetId }}
             onConditionsChange={(conditions = []) => {
               const newConditions = conditions.some(item => item.groupFilters)
                 ? conditions
@@ -326,6 +329,8 @@ export function RelateSearchWorksheet(props) {
         worksheetId,
         relationControls,
         resultFilters,
+        data,
+        globalSheetInfo,
         setFilters: value => setInfo({ resultFilters: value }),
       };
       return <FilterRelateSearch {...opts} />;

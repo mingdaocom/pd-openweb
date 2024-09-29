@@ -118,6 +118,10 @@ const Wrap = styled.div`
       background-color: #EAEAEA;
     }
   }
+  .ant-col-5 {
+    flex: 0 0 20%;
+    max-width: 20%;
+  }
 `;
 
 const NumberChartContent = styled.div`
@@ -293,14 +297,12 @@ export default class extends Component {
         el.classList.add('hideNumberChartName');
         el.classList.add('hideChartHeader');
         filterCriteriaIcon && filterCriteriaIcon.classList.add('tip-bottom-right');
-        parentElement.classList.add('numberChartCardHover');
       }
     } else {
       if (parentElement && displaySetup.showTitle) {
         el.classList.remove('hideNumberChartName');
         el.classList.remove('hideChartHeader');
         filterCriteriaIcon && filterCriteriaIcon.classList.remove('tip-bottom-right');
-        parentElement.classList.remove('numberChartCardHover');
       }
     }
   }
@@ -388,7 +390,7 @@ export default class extends Component {
     });
   }
   renderContrast(value, contrastValue, name, isContrastValue) {
-    const { filter, displaySetup = {}, style } = this.props.reportData;
+    const { filter, displaySetup = {}, style, yaxisList } = this.props.reportData;
     const { rangeType, rangeValue } = filter;
     const percentage = ((value - contrastValue) / contrastValue) * 100;
     const positiveNumber = percentage >= 0;
@@ -414,8 +416,16 @@ export default class extends Component {
               <div className={`tip-top ${positiveNumber ? (contrastColor ? 'Red' : 'DepGreen') : (contrastColor ? 'DepGreen' : 'Red')}`}>
                 <div className="valignWrapper">
                   {isEquality ? null : <Icon className="mRight3" icon={`${positiveNumber ? 'worksheet_rise' : 'worksheet_fall'}`} />}
-                  {contrastValueShowPercent && <span className={cx('bold mRight5', { Gray_75: isEquality })}>{`${Math.abs(toFixed(percentage, contrastValueDot))}%`}</span>}
-                  {contrastValueShowNumber && <span className={cx('bold', { Gray_75: isEquality })}>{contrastValueShowPercent ? `(${toFixed(value - contrastValue, contrastValueDot)})` : toFixed(value - contrastValue, contrastValueDot)}</span>}
+                  {contrastValueShowPercent && (
+                    <span className={cx('bold mRight5', { Gray_75: isEquality })}>
+                      {`${toFixed(Math.abs(percentage), contrastValueDot)}%`}
+                    </span>
+                  )}
+                  {contrastValueShowNumber && (
+                    <span className={cx('bold', { Gray_75: isEquality })}>
+                      {contrastValueShowPercent ? `(${formatrChartValue(value - contrastValue, false, yaxisList)})` : formatrChartValue(value - contrastValue, false, yaxisList)}
+                    </span>
+                  )}
                 </div>
               </div>
             </Tooltip>
@@ -448,10 +458,10 @@ export default class extends Component {
     const oneNumber = !xaxes.controlId && yaxisList.length === 1;
     const rule = _.get(displaySetup.colorRules[0], 'dataBarRule') || {};
     const color = !_.isEmpty(rule) ? getStyleColor({
-      value,
+      value: rule.controlId ? (_.get(_.find(minorList, { controlId: rule.controlId }), 'value') || value) : value,
       controlMinAndMax,
       rule,
-      controlId: yaxisList[0].controlId
+      controlId: rule.controlId || yaxisList[0].controlId
     }) : fontColor;
     const isOpacity = !_.isEmpty(linkageMatch) && isLinkageMatch ? linkageMatch.value !== data.originalId : false;
     return (

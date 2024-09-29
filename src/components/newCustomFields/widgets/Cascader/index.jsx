@@ -5,7 +5,7 @@ import renderCellText from 'src/pages/worksheet/components/CellControls/renderTe
 import { LoadDiv, Icon, Radio } from 'ming-ui';
 import cx from 'classnames';
 import { Cascader, TreeSelect } from 'antd';
-import { Modal, List } from 'antd-mobile';
+import { Popup, List } from 'antd-mobile';
 import { FROM } from '../../tools/config';
 import nzh from 'nzh';
 import { browserIsMobile } from 'src/util';
@@ -516,6 +516,7 @@ export default class Widgets extends Component {
           {h5Options.map(item => (
             <List.Item
               key={item.value}
+              arrowIcon={false}
               onClick={() => {
                 if (item.isLeaf) {
                   this.setState({ visible: false, operatePath: [], selectedId: item.value });
@@ -548,6 +549,7 @@ export default class Widgets extends Component {
           {h5Options.map(item => (
             <List.Item
               key={item.value}
+              arrowIcon={false}
               onClick={() => {
                 if (operatePath.length >= minLayer) return;
 
@@ -606,7 +608,7 @@ export default class Widgets extends Component {
     return (
       <List>
         {h5Options.map(item => (
-          <List.Item key={item.value}>
+          <List.Item key={item.value} arrowIcon={false}>
             <div className="flexRow">
               <Radio
                 className="flex cascaderRadio flexRow"
@@ -694,16 +696,15 @@ export default class Widgets extends Component {
           </button>
 
           {visible && (
-            <Modal
-              className="antModalRadius"
-              popup
+            <Popup
+              className="mobileModal topRadius"
               visible={true}
+              closeOnMaskClick={true}
               onClose={() => this.setState({ visible: false, operatePath: [], selectItem: {} })}
-              animationType="slide-up"
             >
               {this.renderH5Header()}
               <div style={{ height: 280, overflowY: 'auto' }}>{this.renderH5Content()}</div>
-            </Modal>
+            </Popup>
           )}
         </Fragment>
       );

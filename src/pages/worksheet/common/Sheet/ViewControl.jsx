@@ -26,6 +26,7 @@ import {
   updateCurrentViewState,
   updateViewShowcount,
   clearFilters,
+  updateGroupFilter,
 } from 'worksheet/redux/actions';
 import { changePageSize, changePageIndex } from 'worksheet/redux/actions/sheetview';
 import { addMultiRelateHierarchyControls } from 'worksheet/redux/actions/hierarchy';
@@ -98,6 +99,7 @@ function ViewControl(props) {
     updateViewShowcount,
     detailView,
     clearFilters,
+    updateGroupFilter,
   } = props;
   const { worksheetId, projectId } = worksheetInfo;
   const { count, pageCountAbnormal, rowsSummary } = sheetViewData;
@@ -161,6 +163,7 @@ function ViewControl(props) {
         }}
         changeViewDisplayType={data => {
           clearFilters();
+          updateGroupFilter([], view);
           saveView(viewId, data);
         }}
         updateViewList={newViews => {
@@ -186,6 +189,7 @@ function ViewControl(props) {
             hidePublicShare: !(
               isOpenPermit(permitList.viewShareSwitch, sheetSwitchPermit, viewId) && !md.global.Account.isPortal
             ),
+            privateShare: isOpenPermit(permitList.internalAccessLink, sheetSwitchPermit, viewId),
             params: {
               appId,
               worksheetId,
@@ -567,6 +571,7 @@ export default connect(
         updateCurrentViewState,
         updateViewShowcount,
         clearFilters,
+        updateGroupFilter,
       },
       dispatch,
     ),

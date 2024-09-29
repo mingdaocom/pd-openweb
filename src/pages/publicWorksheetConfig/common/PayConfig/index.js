@@ -1,8 +1,11 @@
 import React, { Component, Fragment } from 'react';
-import { Support, Icon, Dropdown, Switch, LoadDiv, Button } from 'ming-ui';
+import { Support, Icon, Dropdown, Switch, LoadDiv, Button, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
-import MapField from './MapField';
+import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import MapField from './components/MapField';
+import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/components/ShowBtnFilterDialog';
+import FilterViewRange from './components/FilterViewRange';
 import worksheetSettingAjax from 'src/api/worksheetSetting';
 import paymentAjax from 'src/api/payment';
 import worksheetAjax from 'src/api/worksheet';
@@ -18,18 +21,18 @@ const filterDeleteFields = (fieldMaps, controls) => {
   fieldMaps = !_.isEmpty(fieldMaps)
     ? fieldMaps
     : {
-        mchId: '',
         orderNo: '',
-        transactionNo: '',
+        totalFee: '',
+        payMethod: '',
+        payStatus: '',
+        createOrderTime: '',
+        payTime: '',
         refundFee: '',
         settleFee: '',
-        totalFee: '',
         tradeFee: '',
-        payUser: '',
-        payTime: '',
-        payStatus: '',
-        payMethod: '',
-        createOrderTime: '',
+        mchId: '',
+        sourceType: '',
+        payAccount: '',
       };
   const newFieldMaps = _.clone(fieldMaps);
   _.forEach(Object.keys(newFieldMaps), item => {
@@ -72,8 +75,19 @@ export default class PayConfig extends Component {
       fieldMaps: {},
       expireTime: 10,
       loading: true,
+      isRefundAllowed: false, //是否启用退款
       scenes: {},
       enableOrderVisible: false,
+      internalUser: {
+        isEnable: true,
+        viewIds: [],
+        filter: [],
+      },
+      externalUser: {
+        isEnable: false,
+        viewIds: [],
+        filter: [],
+      },
     };
   }
 
@@ -92,36 +106,81 @@ export default class PayConfig extends Component {
         worksheetId,
       }),
       paymentAjax.getMerchantsForDropdownList({ projectId, appId }),
-      worksheetAjax.getWorksheetControls({ getRelationSearch: true, worksheetId }),
-    ]).then(([settings = {}, merchantList = [], controlInfo = {}]) => {
-      const controls = _.get(controlInfo, 'data.controls') || [];
+      worksheetAjax.getWorksheetInfo({ getRelationSearch: true, worksheetId, getViews: true, resultType: 2 }),
+    ]).then(([settings = {}, merchantList = [], worksheetInfo = {}]) => {
+      const {
+        orderVisibleViewId,
+        worksheetPaymentSetting = {},
+        isEnabledExternalPortal,
+        isEnabledPublicForm,
+        boundControlIds = [],
+      } = settings;
+      const { internalUser = {}, externalUser = {} } = worksheetPaymentSetting;
+      const controls = _.get(worksheetInfo, 'template.controls') || [];
       const list = merchantList
         .filter(v => v.status === 3)
         .map(({ shortName, merchantNo }) => ({
           text: shortName || merchantNo,
           value: merchantNo,
         }));
-
+      const initSettings = {
+        ..._.pick(settings, [
+          'projectId',
+          'worksheetId',
+          'mchid',
+          'scenes',
+          'payContentControlId',
+          'payAmountControlId',
+          'mapWorksheetId',
+          'expireTime',
+          'enableOrderVisible',
+          'orderVisibleViewId',
+          'isRefundAllowed',
+        ]),
+        fieldMaps: filterDeleteFields(settings.fieldMaps, controls),
+        internalUser: {
+          isEnable: _.isUndefined(internalUser.isEnable) ? true : internalUser.isEnable,
+          viewIds: internalUser.viewId ? JSON.parse(internalUser.viewId) : [],
+          filter: internalUser.filter ? JSON.parse(internalUser.filter) : [],
+        },
+        externalUser: {
+          isEnable:
+            _.isUndefined(externalUser.isEnable) && isEnabledExternalPortal ? true : externalUser.isEnable || false,
+          viewIds: externalUser.viewId ? JSON.parse(externalUser.viewId) : [],
+          filter: externalUser.filter ? JSON.parse(externalUser.filter) : [],
+        },
+      };
       this.setState({
-        ...settings,
+        ...initSettings,
         loading: false,
         merchantList: list,
-        initSettings: {
-          ...settings,
-          fieldMaps: filterDeleteFields(settings.fieldMaps, controls),
-        },
-        mchid: settings.mchid ? settings.mchid : !_.isEmpty(list) ? list[0].value : '',
-        fieldMaps: filterDeleteFields(settings.fieldMaps, controls),
+        initSettings,
         initExpireTime: settings.expireTime,
         controls,
+        worksheetInfo,
+        orderVisibleViewIds: orderVisibleViewId ? JSON.parse(orderVisibleViewId) : [],
+        isEnabledExternalPortal,
+        isEnabledPublicForm,
+        boundControlIds,
       });
     });
   };
 
-  formatFilterData = () => {
-    const { filters, controls } = this.state;
+  changeViewRange = ({ type, viewIds = [] }) => {
+    if (type === 'recordDetail') {
+      this.setState({ orderVisibleViewIds: viewIds });
+    } else {
+      this.setState({ [type]: { ...this.state[type], viewIds } });
+    }
+  };
+
+  changeScenes = (checked, key) => {
+    const { scenes = {}, merchantList = [], mchid, initSettings = {} } = this.state;
+    const { publicWorkSheet, workSheet } = scenes;
+
     this.setState({
-      filterItemTexts: filterData(controls, filters),
+      scenes: { ...scenes, [key]: !checked },
+      mchid: mchid ? mchid : !checked && !_.isEmpty(merchantList) ? merchantList[0].value : initSettings.mchid,
     });
   };
 
@@ -139,6 +198,10 @@ export default class PayConfig extends Component {
       enableOrderVisible,
       controls,
       merchantList = [],
+      isRefundAllowed,
+      orderVisibleViewIds = [],
+      internalUser = {},
+      externalUser = {},
     } = this.state;
 
     if (scenes.publicWorkSheet) {
@@ -155,7 +218,6 @@ export default class PayConfig extends Component {
         return;
       }
     }
-    window.localStorage.removeItem('getRowDetailIsShowOrder');
     worksheetSettingAjax
       .savPaymentSetting({
         projectId,
@@ -169,6 +231,20 @@ export default class PayConfig extends Component {
         fieldMaps: filterDeleteFields(fieldMaps, controls),
         expireTime,
         enableOrderVisible,
+        isRefundAllowed,
+        orderVisibleViewId: JSON.stringify(orderVisibleViewIds),
+        worksheetPaymentSetting: {
+          internalUser: {
+            isEnable: internalUser.isEnable,
+            viewId: JSON.stringify(internalUser.viewIds),
+            filter: JSON.stringify(internalUser.filter),
+          },
+          externalUser: {
+            isEnable: externalUser.isEnable,
+            viewId: JSON.stringify(externalUser.viewIds),
+            filter: JSON.stringify(externalUser.filter),
+          },
+        },
       })
       .then(res => {
         if (res) {
@@ -184,6 +260,10 @@ export default class PayConfig extends Component {
               fieldMaps: filterDeleteFields(fieldMaps, controls),
               expireTime,
               enableOrderVisible,
+              isRefundAllowed,
+              orderVisibleViewId: JSON.stringify(orderVisibleViewIds),
+              internalUser,
+              externalUser,
             },
           });
         } else {
@@ -193,41 +273,169 @@ export default class PayConfig extends Component {
   };
 
   comparePayConfigData = () => {
-    const { worksheetInfo = {} } = this.props;
     const {
       initSettings = {},
-      mchid,
-      scenes = {},
-      payAmountControlId,
-      payContentControlId,
-      fieldMaps,
-      expireTime,
-      controls,
-    } = this.state;
-    const currentSettings = {
-      ...initSettings,
+      projectId,
+      worksheetId,
       mchid,
       scenes,
       payContentControlId,
       payAmountControlId,
-      fieldMaps: filterDeleteFields(fieldMaps, controls),
+      mapWorksheetId,
+      fieldMaps,
       expireTime,
-    };
+      enableOrderVisible,
+      internalUser,
+      externalUser,
+      isRefundAllowed,
+      orderVisibleViewIds = [],
+    } = this.state;
+    const { publicWorkSheet, workSheet } = scenes;
 
-    // 初始化
-    if (!_.get(initSettings, 'scenes.publicWorkSheet')) {
-      return _.get(currentSettings, 'scenes.publicWorkSheet');
-    }
+    const currentSettings =
+      !publicWorkSheet && !workSheet && !initSettings.publicWorkSheet && !initSettings.workSheet && !initSettings.mchid
+        ? initSettings
+        : {
+            projectId,
+            worksheetId,
+            mchid,
+            scenes,
+            payContentControlId,
+            payAmountControlId,
+            mapWorksheetId,
+            fieldMaps,
+            expireTime,
+            enableOrderVisible,
+            orderVisibleViewId: JSON.stringify(orderVisibleViewIds),
+            internalUser,
+            externalUser,
+            isRefundAllowed,
+          };
 
-    if (!_.isEmpty(initSettings) && !_.isEqual(currentSettings, initSettings) && !!currentSettings.mchid) {
-      return true;
-    }
-    return false;
+    return !_.isEqual(currentSettings, initSettings);
+  };
+
+  // 支付按钮设置（工作表记录）
+  renderWorksheetSetting = () => {
+    const { worksheetInfo } = this.props;
+    const { projectId, appId, switches = [] } = worksheetInfo;
+    const { showFilterDialog, filterType, controls = [], isEnabledExternalPortal } = this.state;
+
+    return (
+      <Fragment>
+        <div className="title">{_l('支付按钮设置（工作表记录）')}</div>
+        {[
+          { key: 'internalUser', text: _l('应用内成员可用') },
+          { key: 'externalUser', text: _l('外部门户用户可用') },
+        ].map(item => {
+          const { key, text } = item;
+          const { isEnable, viewIds, filter = [] } = this.state[key] || {};
+          const hasFilters = !_.isEmpty(filter);
+
+          return (
+            <Fragment>
+              <div className="flexRow" key={key}>
+                {key === 'externalUser' && !isEnabledExternalPortal && !isEnable ? (
+                  <Tooltip text={_l('请先开启外部门户功能')} popupPlacement="bottom">
+                    <span>
+                      <Switch
+                        size="small"
+                        className="mTop2 mRight8"
+                        checked={isEnable}
+                        disabled={true}
+                        onClick={checked => this.setState({ [key]: { ...this.state[key], isEnable: !checked } })}
+                      />
+                    </span>
+                  </Tooltip>
+                ) : (
+                  <Switch
+                    size="small"
+                    className="mTop2 mRight8"
+                    checked={isEnable}
+                    onClick={checked => this.setState({ [key]: { ...this.state[key], isEnable: !checked } })}
+                  />
+                )}
+
+                <div className="flex">
+                  <div
+                    className={cx('Font14 bold', {
+                      mBottom20: key === 'internalUser' || (key === 'externalUser' && isEnable),
+                    })}
+                  >
+                    {text}
+                  </div>
+                  {isEnable && (
+                    <Fragment>
+                      <div className="mBottom10 bold Font14">{_l('使用范围')}</div>
+                      <FilterViewRange
+                        className="filterView"
+                        type={key}
+                        worksheetInfo={worksheetInfo}
+                        viewIds={viewIds}
+                        changeViewRange={this.changeViewRange}
+                      />
+
+                      <div className="mTop20 mBottom10 bold Font14">{_l('按钮显示条件')}</div>
+                      <div className="flexRow mBottom10">
+                        <div className="Gray_75">
+                          {_l('当支付内容、支付金额字段不为空时') + (hasFilters ? _l('，且满足以下条件：') : '')}
+                        </div>
+                        <div className="flex"></div>
+                        {hasFilters && (
+                          <div
+                            className="ThemeColor"
+                            onClick={() => this.setState({ [key]: { ...this.state[key], filter: [] } })}
+                          >
+                            {_l('清除条件')}
+                          </div>
+                        )}
+                      </div>
+                      {hasFilters ? (
+                        <FilterItemTexts
+                          filterItemTexts={filterData(controls, filter)}
+                          loading={false}
+                          editFn={() => this.setState({ showFilterDialog: true, filterType: key })}
+                        />
+                      ) : (
+                        <div
+                          className={cx('Hand filterTxt ', { mBottom30: key === 'internalUser' })}
+                          onClick={() => this.setState({ showFilterDialog: true, filterType: key })}
+                        >
+                          <i className="icon icon-plus" />
+                          {_l('筛选条件')}
+                        </div>
+                      )}
+                    </Fragment>
+                  )}
+                </div>
+              </div>
+              {showFilterDialog && filterType === key && (
+                <ShowBtnFilterDialog
+                  sheetSwitchPermit={switches}
+                  projectId={projectId}
+                  appId={appId}
+                  columns={controls}
+                  filters={filter}
+                  isShowBtnFilterDialog={showFilterDialog}
+                  showType={1}
+                  setValue={value =>
+                    this.setState({
+                      [key]: { ...this.state[key], filter: value.filters },
+                      showFilterDialog: value.isShowBtnFilterDialog,
+                    })
+                  }
+                />
+              )}
+            </Fragment>
+          );
+        })}
+      </Fragment>
+    );
   };
 
   render() {
     const { worksheetInfo = {} } = this.props;
-    const { template = {}, projectId } = worksheetInfo;
+    const { projectId } = worksheetInfo;
     const {
       mchid,
       scenes = {},
@@ -242,7 +450,11 @@ export default class PayConfig extends Component {
       dropdownVisible,
       enableOrderVisible,
       initExpireTime,
+      isRefundAllowed,
       controls = [],
+      orderVisibleViewIds = [],
+      isEnabledPublicForm,
+      boundControlIds,
     } = this.state;
 
     const isEmptyField = Object.keys(fieldMaps).every(v => !fieldMaps[v]);
@@ -273,28 +485,51 @@ export default class PayConfig extends Component {
             <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/org/payment" />
           </div>
           <div className="payConfigContent">
+            {/* <div className="Font16 bold mBottom16">{_l('支付场景')}</div> */}
             <ul className="enableScene">
               {[
-                { key: 'publicWorkSheet', text: _l('公开表单') },
-                { key: 'workSheet', text: _l('工作表(即将上线)') },
-                { key: 'externalPortal', text: _l('外部门户(即将上线)') },
+                {
+                  key: 'publicWorkSheet',
+                  title: _l('公开表单'),
+                  text: _l('在公开表单提交后支付，常用于活动报名等场景'),
+                },
+                {
+                  key: 'workSheet',
+                  title: _l('工作表记录'),
+                  text: _l('在工作表记录中显示支付按钮，可以在用户使用外部门户时支付，或组织内完成支付'),
+                },
               ].map(item => {
                 return (
-                  <li className={cx({ sceneSwitch: _.includes(['workSheet', 'externalPortal'], item.key) })}>
-                    <Switch
-                      disabled={_.includes(['workSheet', 'externalPortal'], item.key)}
-                      className="mRight18"
-                      checked={item.key === 'publicWorkSheet' ? scenes[item.key] : false}
-                      onClick={checked => {
-                        this.setState({ scenes: { ...scenes, [item.key]: !checked } });
-                      }}
-                    />
-                    <span className="con">{item.text}</span>
+                  <li className="flexColumn">
+                    <div className="Font15 bold mBottom10">{item.title}</div>
+                    <div className="Gray_9e flex mBottom15">{item.text}</div>
+                    {item.key === 'publicWorkSheet' && !isEnabledPublicForm && !scenes.publicWorkSheet ? (
+                      <div>
+                        <Tooltip text={_l('请先开启公开表单功能')} popupPlacement="bottom">
+                          <span>
+                            <Switch
+                              size="small"
+                              className="mRight18"
+                              checked={scenes[item.key]}
+                              disabled={true}
+                              onClick={checked => this.changeScenes(checked, item.key)}
+                            />
+                          </span>
+                        </Tooltip>
+                      </div>
+                    ) : (
+                      <Switch
+                        size="small"
+                        className="mRight18"
+                        checked={scenes[item.key]}
+                        onClick={checked => this.changeScenes(checked, item.key)}
+                      />
+                    )}
                   </li>
                 );
               })}
             </ul>
-            {scenes.publicWorkSheet ? (
+            {scenes.publicWorkSheet || scenes.workSheet ? (
               <Fragment>
                 <div className="title">{_l('支付设置')}</div>
                 <div className="subTitle">{_l('选择商户')}</div>
@@ -326,7 +561,7 @@ export default class PayConfig extends Component {
                   border
                   placeholder={_l('选择文本字段')}
                   value={payContentControlId}
-                  data={getMapControls(controls, fieldMapIds, 'content')}
+                  data={getMapControls(controls, fieldMapIds.concat(boundControlIds), 'content')}
                   onChange={value => this.setState({ payContentControlId: value })}
                 />
                 <div className="subTitle required">{_l('支付金额')}</div>
@@ -343,7 +578,7 @@ export default class PayConfig extends Component {
                   border
                   placeholder={_l('选择金额、数值、公式、汇总字段')}
                   value={payAmountControlId}
-                  data={getMapControls(controls, fieldMapIds, 'amount')}
+                  data={getMapControls(controls, fieldMapIds.concat(boundControlIds), 'amount')}
                   onChange={value => this.setState({ payAmountControlId: value })}
                 />
                 <div className="subTitle flexRow">
@@ -353,10 +588,10 @@ export default class PayConfig extends Component {
                     checked={expireTime}
                     onClick={checked => this.setState({ expireTime: checked ? 0 : initExpireTime || 15 })}
                   />
-                  {_l('设置交易超时')}
+                  {_l('设置交易有效期')}
                 </div>
                 <div className={cx('Gray_9e', { mBottom16: expireTime })}>
-                  {_l('开启后用户需要在系统设置的时间内完成交易，逾期平台将关闭交易')}
+                  {_l('开启后用户需要在系统设置的时间内完成交易，逾期平台将关闭交易，同时该记录将不再支持用户支付')}
                 </div>
                 {expireTime ? (
                   <Select
@@ -365,6 +600,7 @@ export default class PayConfig extends Component {
                     placeholder={_l('选择或填写时间')}
                     value={expireTime}
                     searchValue={searchValue}
+                    suffixIcon={<i className="icon icon-arrow-down-border Gray_9e" />}
                     options={options}
                     onChange={value => {
                       this.setState({ expireTime: value, searchValue: undefined });
@@ -379,7 +615,40 @@ export default class PayConfig extends Component {
                 ) : (
                   ''
                 )}
+                {scenes.workSheet && this.renderWorksheetSetting()}
                 <div className="title">{_l('其他')}</div>
+                {scenes.workSheet && (
+                  <Fragment>
+                    <div className="flexRow alignItemsCenter">
+                      <Switch
+                        className="mRight8"
+                        size="small"
+                        checked={isRefundAllowed}
+                        onClick={checked => this.setState({ isRefundAllowed: !checked })}
+                      />
+                      <span className="bold Font14">{_l('允许退款')}</span>
+                    </div>
+                    <div className="Gray_9e mTop10 mBottom30">
+                      {_l('开通后完成交易7天内的订单支持申请退款，目前仅付款人可申请退款')}
+                    </div>
+                  </Fragment>
+                )}
+                <div className="flexRow alignItemsCenter mBottom10">
+                  <Switch
+                    className="mRight8"
+                    size="small"
+                    checked={enableOrderVisible}
+                    onClick={checked => this.setState({ enableOrderVisible: !checked })}
+                  />
+                  <span className="bold Font14">{_l('在记录详情侧边栏显示支付订单信息')}</span>
+                </div>
+                <FilterViewRange
+                  className="filterView"
+                  type="recordDetail"
+                  worksheetInfo={worksheetInfo}
+                  viewIds={orderVisibleViewIds}
+                  changeViewRange={this.changeViewRange}
+                />
                 <div className="subTitle">{_l('字段映射')}</div>
                 <div className="Gray_9e mBottom16">{_l('将订单明细映射到当前记录')}</div>
                 <div className="mapSettingBtn Hand" onClick={() => this.setState({ showMapFieldsDialog: true })}>
@@ -391,16 +660,6 @@ export default class PayConfig extends Component {
                       {_l('已设置')}
                     </Fragment>
                   )}
-                </div>
-
-                <div className="subTitle">{_l('支付信息')}</div>
-                <div className="payInfo">
-                  <Switch
-                    size="small"
-                    checked={enableOrderVisible}
-                    onClick={checked => this.setState({ enableOrderVisible: !checked })}
-                  />
-                  <span className="mLeft16">{_l('记录详情侧边栏显示支付订单信息')}</span>
                 </div>
               </Fragment>
             ) : (
@@ -416,11 +675,12 @@ export default class PayConfig extends Component {
             payAmountControlId={payAmountControlId}
             worksheetInfo={worksheetInfo}
             fieldMaps={fieldMaps}
+            boundControlIds={boundControlIds}
             onCancel={() => this.setState({ showMapFieldsDialog: false })}
             onOk={data => {
-              let fieldMaps = { payUser: '' };
+              let fieldMaps = {};
               data.forEach(item => {
-                fieldMaps[item.controlId] = item.mapFieldControlId;
+                fieldMaps[item.controlId] = item.mapFieldControlId || '';
               });
               this.setState({ fieldMaps });
             }}

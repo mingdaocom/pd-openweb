@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { WORKSHEETTABLE_FROM_MODULE } from 'worksheet/constants/enum';
 import EditableCellCon from '../EditableCellCon';
@@ -54,8 +53,7 @@ export default class Date extends React.Component {
   con = React.createRef();
   editIcon = React.createRef();
 
-  @autobind
-  handleTableKeyDown(e) {
+  handleTableKeyDown = e => {
     const { isediting, updateEditingStatus } = this.props;
     switch (e.key) {
       case 'Tab':
@@ -90,10 +88,9 @@ export default class Date extends React.Component {
           e.preventDefault();
         })();
     }
-  }
+  };
 
-  @autobind
-  handleChange(array, panelIndex) {
+  handleChange = (array, panelIndex) => {
     const { tableFromModule, cell, updateCell, updateEditingStatus } = this.props;
     let level = this.getAreaLevel(cell.type);
     const last = _.last(array);
@@ -121,10 +118,9 @@ export default class Date extends React.Component {
       tempValue: newValue,
     });
     updateEditingStatus(false);
-  }
+  };
 
-  @autobind
-  handleExit() {
+  handleExit = () => {
     const { tableFromModule, updateCell, updateEditingStatus } = this.props;
     const { value, tempValue } = this.state;
 
@@ -141,7 +137,7 @@ export default class Date extends React.Component {
       keywords: '',
     });
     updateEditingStatus(false);
-  }
+  };
 
   getAreaLevel(type) {
     if (type === 19) {
@@ -260,6 +256,7 @@ export default class Date extends React.Component {
                     value: '',
                     tempValue: '',
                     search: '',
+                    keywords: '',
                   });
                 }}
               />

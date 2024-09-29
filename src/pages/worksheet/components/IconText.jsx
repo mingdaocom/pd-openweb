@@ -1,5 +1,6 @@
 import React from 'react';
 import { string, func, bool, shape, element } from 'prop-types';
+import { SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
 
@@ -19,6 +20,9 @@ const Con = styled.div`
     cursor: not-allowed !important;
     opacity: 0.5;
   }
+  .svgIcon {
+    margin-right: 4px;
+  }
 `;
 
 const Icon = styled.span`
@@ -34,10 +38,15 @@ const Text = styled.span`
 `;
 
 export default function IconText(props) {
-  const { disabled, className, icon, text, iconColor, style, onClick, textCmp } = props;
+  const { disabled, className, icon, text, iconColor, style, onClick, textCmp, iconUrl } = props;
   return (
     <Con className={cx(className, { disabled })} style={style} onClick={onClick}>
-      {icon && <Icon className={cx('icon icon-' + icon)} style={iconColor ? { color: iconColor } : {}} />}
+      {icon &&
+        (!!iconUrl && icon.endsWith('_svg') ? (
+          <SvgIcon className="svgIcon InlineBlock" addClassName="TxtMiddle" url={iconUrl} fill={iconColor} size={18} />
+        ) : (
+          <Icon className={cx('icon icon-' + icon)} style={iconColor ? { color: iconColor } : {}} />
+        ))}
       <Text className={cx('text')}>{textCmp ? textCmp() : text}</Text>
     </Con>
   );

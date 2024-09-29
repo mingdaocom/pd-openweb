@@ -33,7 +33,7 @@ export default function WidgetBase(props) {
   return (
     <Fragment>
       {/**提示文案 */}
-      {HAS_WARNING_CONTROL.includes(type) && <WidgetWarning {...props} />}
+      {HAS_WARNING_CONTROL.includes(type) && <WidgetWarning type={type} />}
       {/**字段名称 */}
       <WidgetName {...props} />
       {/* rest.type 已指定类型的情况下不可更改 */}

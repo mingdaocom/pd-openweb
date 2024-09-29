@@ -132,7 +132,7 @@ export function ShowFormat(props) {
 
   return (
     <SettingItem>
-      <div className="settingItemTitle">{_l('显示格式%04027')}</div>
+      <div className="settingItemTitle">{_l('显示格式化')}</div>
       {isCustom ? (
         <EditInfo className="pointer" onClick={() => setVisible(true)}>
           <div className="overflow_ellipsis Gray">{_l('自定义格式')}</div>

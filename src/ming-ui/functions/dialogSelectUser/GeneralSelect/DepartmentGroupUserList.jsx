@@ -1,11 +1,8 @@
 /**
  * 选择成员（按部门或群组）
  */
-/**
- * 选择成员（按部门或群组）
- */
 import React, { Component } from 'react';
-import { Checkbox } from 'ming-ui';
+import { Checkbox, Tooltip } from 'ming-ui';
 import User from './User';
 import cx from 'classnames';
 import NoData from './NoData';
@@ -15,20 +12,35 @@ import _ from 'lodash';
 
 export default class DepartmentGroupUserList extends Component {
   getChecked(user) {
-    return !!this.props.selectedUsers.filter(item => item.accountId === user.accountId).length;
+    return (
+      !!this.props.selectedUsers.filter(item => item.accountId === user.accountId).length || this.getIncluded(user)
+    );
   }
+
+  getIncluded(user) {
+    return _.includes(this.props.selectedAccountIds || [], user.accountId);
+  }
+
   render() {
     let { list = [] } = this.props.data;
-    let { selectedUsers = [] } = this.props;
-    let { ID, NAME, COUNT } = this.props.getKeys(this.props.tabType);
+    let { selectedUsers = [], selectedAccountIds = [], tabType } = this.props;
+    let { ID, NAME, COUNT } = this.props.getKeys(tabType);
+
     if (list.length) {
       return (
         <div>
           {list.map(department => {
             const checked =
-              selectedUsers.length && (department.users || []).length
-                ? _.every(department.users || [], u => _.find(selectedUsers, s => s.accountId === u.accountId))
+              (selectedUsers.length || selectedAccountIds.length) && (department.users || []).length
+                ? _.every(department.users || [], u =>
+                    _.includes(selectedUsers.map(l => l.accountId).concat(selectedAccountIds), u.accountId),
+                  )
                 : false;
+            const isAllSelectedAccountIds =
+              checked &&
+              !(department.users || []).filter(l => !selectedAccountIds.includes(l.accountId)).length &&
+              !!department[COUNT];
+
             return (
               <div key={department[ID]}>
                 <div className="GSelect-treeItem">
@@ -40,12 +52,20 @@ export default class DepartmentGroupUserList extends Component {
                       )}
                     />
                   </div>
-                  <Checkbox
-                    className="GSelect-treeItem--checkbox"
-                    disabled={this.props.unique}
-                    checked={checked}
-                    onClick={() => this.props.allSelectUserItem(department[ID], checked)}
-                  />
+                  <Tooltip
+                    text={tabType === 'department' ? _l('部门下所有人已加入') : _l('群组下所有人已加入')}
+                    disable={!isAllSelectedAccountIds}
+                  >
+                    <span>
+                      <Checkbox
+                        className="GSelect-treeItem--checkbox"
+                        disabled={this.props.unique || isAllSelectedAccountIds}
+                        checked={checked}
+                        onClick={() => this.props.allSelectUserItem(department[ID], checked)}
+                      />
+                    </span>
+                  </Tooltip>
+
                   <div className="flex flexRow pointer" onClick={() => this.props.toggleUserItem(department[ID])}>
                     <div className="GSelect-treeItem-name overflow_ellipsis">{department[NAME]}</div>
                     <div className="GSelect-treeItem-number">{`（${department[COUNT]}人）`}</div>
@@ -69,6 +89,7 @@ export default class DepartmentGroupUserList extends Component {
                           projectId={this.props.projectId}
                           onChange={this.props.onChange}
                           key={user.accountId}
+                          disabled={this.getIncluded(user)}
                         />
                       );
                     })}
@@ -80,6 +101,7 @@ export default class DepartmentGroupUserList extends Component {
         </div>
       );
     }
+
     return <NoData>{this.props.keywords ? _l('无搜索结果') : _l('暂无成员')}</NoData>;
   }
 }

@@ -9,9 +9,20 @@ import moment from 'moment';
 import './index.less';
 
 const ListCard = props => {
-  const { data, isMobile, isDeleteFile, allowDownload, allowSort, allowEditName, worksheetId, recordId } = props;
+  const {
+    data,
+    isMobile,
+    isDeleteFile,
+    allowShare,
+    allowDownload,
+    isMore,
+    allowSort,
+    allowEditName,
+    recordId,
+    DragHandle,
+  } = props;
   const { onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
-  const { isKc, browse, fileClassName, fileSize, isMore, isDownload } = props;
+  const { isKc, browse, fileClassName, fileSize, isDownload } = props;
   const previewUrl = data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/2/w/200/h/140`);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
@@ -29,8 +40,8 @@ const ListCard = props => {
   }, []);
 
   const renderDropdownOverlay = (
-    <Menu style={{ width: 140 }} className="Relative">
-      {onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
+    <Menu style={{ width: 150 }} className="Relative">
+      {recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
         <MenuItem
           key="newPage"
           icon={<Icon icon="launch" className="Font17 pRight5" />}
@@ -43,17 +54,33 @@ const ListCard = props => {
           {_l('新页面打开')}
         </MenuItem>
       )}
-      <MenuItem
-        key="share"
-        icon={<Icon icon="share" className="Font17 pRight5" />}
-        onClick={e => {
-          e.stopPropagation();
-          handleShare(data, isDownload);
-          setDropdownVisible(false);
-        }}
-      >
-        {_l('分享')}
-      </MenuItem>
+      {recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
+        <MenuItem
+          key="newPage"
+          icon={<Icon icon="floating-layer" className="Font17 pRight5" />}
+          onClick={e => {
+            e.stopPropagation();
+            onOpenControlAttachmentInNewTab(data.fileID, { openAsPopup: true });
+            setDropdownVisible(false);
+          }}
+        >
+          {_l('浮窗打开')}
+        </MenuItem>
+      )}
+      {allowShare && <div className="hr-line" />}
+      {allowShare && (
+        <MenuItem
+          key="share"
+          icon={<Icon icon="share" className="Font17 pRight5" />}
+          onClick={e => {
+            e.stopPropagation();
+            handleShare(data, isDownload);
+            setDropdownVisible(false);
+          }}
+        >
+          {_l('分享')}
+        </MenuItem>
+      )}
     </Menu>
   );
 
@@ -68,7 +95,11 @@ const ListCard = props => {
         hover: dropdownVisible || isEdit,
       })}
     >
-      {allowSort && <Icon className="fileDrag Gray_9e" icon="drag" />}
+      {allowSort && (
+        <DragHandle>
+          <Icon className="fileDrag Gray_9e" icon="drag" />
+        </DragHandle>
+      )}
       <div
         className={cx('fileImageWrap pointer h100 flexRow alignItemsCenter justifyContentCenter', {
           mLeft0: !allowSort,
@@ -90,7 +121,7 @@ const ListCard = props => {
       </div>
       <div className="fileSize">{fileSize}</div>
       <div className="fileCreateTime">{createTimeSpan(moment(data.createTime).format('YYYY-MM-DD HH:mm:ss'))}</div>
-      <div className="fileCreateUserName">{data.createUserName}</div>
+      <div className="fileCreateUserName ellipsis">{data.createUserName}</div>
       {!isMobile && (
         <div className={cx('operateBtns', { deleteConfirmWrap: deleteConfirmVisible })}>
           <div className="flexRow alignItemsCenter">
@@ -204,7 +235,7 @@ const NotSaveListCard = props => {
       </div>
       <div className="fileSize">{fileSize}</div>
       <div className="fileCreateTime">{_l('刚刚')}</div>
-      <div className="fileCreateUserName">{md.global.Account.fullname}</div>
+      <div className="fileCreateUserName ellipsis">{md.global.Account.fullname}</div>
       {!isMobile && (
         <div className="operateBtns flexRow alignItemsCenter">
           {!isKc && (
@@ -247,7 +278,7 @@ export const ListCardHeader = props => {
       <div className="fileName flex flexRow alignItemsCenter"></div>
       <div className="fileSize">{_l('大小')}</div>
       <div className="fileCreateTime">{_l('上传时间')}</div>
-      <div className="fileCreateUserName">{_l('上传者')}</div>
+      <div className="fileCreateUserName ellipsis">{_l('上传者')}</div>
     </div>
   );
 };

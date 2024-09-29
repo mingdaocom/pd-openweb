@@ -15,6 +15,7 @@ export const initialState = {
   markedApps: [],
   markedGroup: [],
   recentApps: [],
+  ownedApps: [],
   //工作台状态
   dashboardLoading: true,
   platformSettingLoading: true,
@@ -24,7 +25,7 @@ export const initialState = {
 };
 
 function updateAppOfState(state, appId, update = data => data) {
-  ['apps', 'markedApps', 'externalApps', 'aloneApps', 'activeGroupApps', 'recentApps'].forEach(key => {
+  ['apps', 'markedApps', 'externalApps', 'aloneApps', 'activeGroupApps', 'recentApps', 'ownedApps'].forEach(key => {
     if (state[key]) {
       state[key] = state[key].map(app => (app.id === appId ? update(app) : app));
     }
@@ -32,13 +33,20 @@ function updateAppOfState(state, appId, update = data => data) {
   return state;
 }
 function deleteAppOfState(state, appId) {
-  ['apps', 'markedApps', 'externalApps', 'aloneApps', 'activeGroupApps', 'recentApps', 'recentAppItems'].forEach(
-    key => {
-      if (state[key]) {
-        state[key] = state[key].filter(app => app.id !== appId);
-      }
-    },
-  );
+  [
+    'apps',
+    'markedApps',
+    'externalApps',
+    'aloneApps',
+    'activeGroupApps',
+    'recentApps',
+    'recentAppItems',
+    'ownedApps',
+  ].forEach(key => {
+    if (state[key]) {
+      state[key] = state[key].filter(app => app.id !== appId);
+    }
+  });
   ['groups', 'markedGroup'].forEach(key => {
     if (state[key]) {
       state[key].forEach(group => {
@@ -166,6 +174,7 @@ export function reducer(state, action = {}) {
         activeGroupApps: getUpdatedMarkedApps(state.activeGroupApps || []),
         externalApps: getUpdatedMarkedApps(state.externalApps || []),
         aloneApps: getUpdatedMarkedApps(state.aloneApps || []),
+        ownedApps: getUpdatedMarkedApps(state.ownedApps || []),
       };
     case 'COPY_APP':
       newApp = _.find(state.apps, { id: action.appId });
@@ -178,6 +187,7 @@ export function reducer(state, action = {}) {
         ...(state.activeGroup && action.groupId === state.activeGroup.id
           ? { activeGroupApps: state.activeGroupApps.concat(newApp) }
           : {}),
+        ...(location.pathname.includes('/app/my/owned') ? { ownedApps: state.ownedApps.concat(newApp) } : {}),
         apps: state.apps.concat(newApp),
       });
     case 'ADD_APP':
@@ -186,6 +196,7 @@ export function reducer(state, action = {}) {
         ...(state.activeGroup && action.groupId === state.activeGroup.id
           ? { activeGroupApps: state.activeGroupApps.concat(action.app) }
           : {}),
+        ...(location.pathname.includes('/app/my/owned') ? { ownedApps: state.ownedApps.concat(action.app) } : {}),
         apps: state.apps.concat(action.app),
       });
     case 'UPDATE_GROUP_OF_APP':
@@ -252,6 +263,10 @@ export function reducer(state, action = {}) {
       return { ...state, ...action.values };
     case 'RESET_STATE':
       return action.value;
+    case 'UPDATE_GROUPS':
+      return { ...state, groups: action.value };
+    case 'UPDATE_OWNED_APPS':
+      return { ...state, ownedApps: action.value };
     default:
       console.error('no action type!');
       return { ...state };
@@ -408,7 +423,7 @@ export class CreateActions {
       handleDashboardOrAppResponse(this.dispatch, data, true);
     });
   }
-  loadAppAndGroups({ projectId, activeGroupType, activeGroupId, noGroupsLoading, noCache }) {
+  loadAppAndGroups({ projectId, activeGroupType, activeGroupId, noGroupsLoading, noCache, isOwnedApp = false }) {
     if (!activeGroupId) {
       localStorage.removeItem(`latest_group_${md.global.Account.accountId}`);
     }
@@ -450,13 +465,31 @@ export class CreateActions {
           apps: [],
           activeGroup: undefined,
         });
-        this.dispatch({
-          type: 'UPDATE_APPS_LOADING',
-          value: false,
-        });
+        isOwnedApp
+          ? this.loadOwnedApps({ projectId })
+          : this.dispatch({
+              type: 'UPDATE_APPS_LOADING',
+              value: false,
+            });
       } else {
         this.loadGroup({ activeGroupId, activeGroupType, projectId });
       }
+    });
+  }
+  loadOwnedApps({ projectId }) {
+    this.dispatch({
+      type: 'UPDATE_APPS_LOADING',
+      value: true,
+    });
+    homeAppAjax.getOwnedApp({ projectId, containsLinks: true }).then(data => {
+      this.dispatch({
+        type: 'UPDATE_OWNED_APPS',
+        value: data,
+      });
+      this.dispatch({
+        type: 'UPDATE_APPS_LOADING',
+        value: false,
+      });
     });
   }
   loadGroup({ activeGroupId, activeGroupType, projectId }) {

@@ -1,6 +1,6 @@
 import React, { Component, Fragment, createRef } from 'react';
 import cx from 'classnames';
-import { formatrChartValue, getStyleColor } from '../common';
+import { formatrChartValue, getStyleColor, formatNumberValue } from '../common';
 import { isFormatNumber, relevanceImageSize } from 'statistics/common';
 import { Table, Dropdown, Menu } from 'antd';
 import { Icon } from 'ming-ui';
@@ -8,8 +8,6 @@ import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import { browserIsMobile, getClassNameByExt } from 'src/util';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import {
-  uniqMerge,
-  mergeTableCell,
   mergeColumnsCell,
   mergeLinesCell,
   getColumnName,
@@ -24,7 +22,6 @@ import _ from 'lodash';
 const isMobile = browserIsMobile();
 const isPrintPivotTable = location.href.includes('printPivotTable');
 import { generate } from '@ant-design/colors';
-import { TinyColor } from '@ctrl/tinycolor';
 import RegExpValidator from 'src/util/expression';
 export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, sourceType, linkageMatch = {} }) => {
   const data = _.clone(pivotTableStyle);
@@ -114,7 +111,7 @@ export default class extends Component {
     return mergeColumnsCell(data.data, columns, yaxisList);
   }
   get linesData() {
-    const { data, lines, valueMap, style } = this.props.reportData;
+    const { data, lines, valueMap, style, displaySetup } = this.props.reportData;
     const {
       pivotTableLineFreeze,
       pivotTableLineFreezeIndex,
@@ -128,6 +125,7 @@ export default class extends Component {
       pageSize: paginationVisible ? this.state.pageSize : 0,
       freeze,
       freezeIndex,
+      mergeCell: displaySetup.mergeCell
     };
     return mergeLinesCell(data.x, lines, valueMap, config);
   }
@@ -334,17 +332,19 @@ export default class extends Component {
       this.props.requestOriginalData(data);
     }
   };
-  handleFilePreview = (res, file) => {
+  handleFilePreview = (control, res, file) => {
     if (_.get(window.shareState, 'isPublicChart') && ['.docx', '.xlsx'].includes(file.ext)) {
       alert(_l('暂不支持预览'), 3);
       return;
     }
     const index = _.findIndex(res, { fileID: file.fileID });
+    const allowDownload = (_.get(control, 'advancedSetting.allowdownload') || '1') === '1';
+    const hideFunctions = ['editFileName', 'saveToKnowlege'].concat(allowDownload ? [] : ['download', 'share']);
     previewAttachments({
       attachments: res,
       index,
       callFrom: 'player',
-      hideFunctions: ['editFileName'],
+      hideFunctions,
     });
   };
   getColumnsHeader(linesData) {
@@ -406,7 +406,7 @@ export default class extends Component {
                         width:
                           item.controlType === 14
                             ? this.getMaxFileLength(data, index) * _.find(relevanceImageSize, { value: item.size }).px +
-                              diffWidth / fields.length
+                            diffWidth / fields.length
                             : null,
                       }}
                     >
@@ -495,7 +495,7 @@ export default class extends Component {
   }
   getColumnsContent(result) {
     const { reportData, isViewOriginalData } = this.props;
-    const { columns, lines, valueMap, yaxisList, pivotTable, data, displaySetup } = reportData;
+    const { columns, lines, valueMap, yvalueMap, yaxisList, pivotTable, data, displaySetup } = reportData;
     const { columnSummary = {}, showColumnTotal } = pivotTable || reportData;
     const dataList = [];
     const controlMinAndMax = getControlMinAndMax(yaxisList, result);
@@ -520,7 +520,7 @@ export default class extends Component {
 
     const getYaxisList = index => {
       const yaxisColumn = yaxisList.map((item, i) => {
-        const { rename, controlName, showNumber = true, showPercent = 0 } = item;
+        const { rename, controlName, showNumber = true, percent = {} } = item;
         const name = rename || controlName;
         const dragIndex = index + i + lines.length;
         return {
@@ -547,14 +547,14 @@ export default class extends Component {
             };
           },
           render: (value, record, recordIndex) => {
-            // const columnData = result[index + i];
-            // const subTotal = !record.isSubTotal && getLineSubTotal(columnData.data, recordIndex);
-            // record.showNumber = (record.key == 'sum' || record.isSubTotal) ? true : showNumber;
-            // record.showPercent = (subTotal || record.key !== 'sum' && !record.isSubTotal) && showPercent;
-            // if (value && subTotal) {
-            //   record.lineSubTotal = Number(valueMap[item.controlId][subTotal]);
-            // }
-            // record.sumCount = columnData.sum;
+            const columnData = result[index + i] || {};
+            const subTotal = !record.isSubTotal && getLineSubTotal(columnData.data, recordIndex);
+            record.showNumber = (record.key == 'sum' || record.isSubTotal) ? true : showNumber;
+            record.showPercent = (subTotal || record.key !== 'sum' && !record.isSubTotal) && percent.enable && percent.type;
+            if (value && subTotal) {
+              record.lineSubTotal = Number((yvalueMap[item.controlId])[subTotal]);
+            }
+            record.sumCount = columnData.sum;
             return this.renderBodyTd(value, record, item.controlId, controlMinAndMax);
           },
         };
@@ -575,13 +575,13 @@ export default class extends Component {
           return {
             title: title
               ? () => {
-                  return (
-                    <Fragment>
-                      {title}
-                      {this.renderDrag(startIndex + 1)}
-                    </Fragment>
-                  );
-                }
+                return (
+                  <Fragment>
+                    {title}
+                    {this.renderDrag(startIndex + 1)}
+                  </Fragment>
+                );
+              }
               : title,
             key: id,
             colSpan,
@@ -685,7 +685,7 @@ export default class extends Component {
           rename,
           controlName,
           showNumber = true,
-          showPercent = 0,
+          percent = {},
         } = _.find(yaxisList, { controlId: item.t_id }) || {};
         const name = rename || controlName;
         const sumData = _.find(columnSummary.controlList, { controlId: item.t_id }) || {};
@@ -711,12 +711,12 @@ export default class extends Component {
               sumCount: item.sum,
               sumData,
             };
-            // const subTotal = !record.isSubTotal && getLineSubTotal(item.data, recordIndex);
-            // if (subTotal) {
-            //   newRecord.lineSubTotal = Number(valueMap[item.t_id][subTotal]);
-            // }
-            // newRecord.showNumber = (record.isSubTotal && newRecord.type === 'columns') ? true : showNumber;
-            // newRecord.showPercent = (subTotal || newRecord.key === 'sum' && !record.isSubTotal && newRecord.type === 'columns') && showPercent;
+            const subTotal = !record.isSubTotal && getLineSubTotal(item.data, recordIndex);
+            if (subTotal && valueMap[item.t_id]) {
+              newRecord.lineSubTotal = Number(valueMap[item.t_id][subTotal]);
+            }
+            newRecord.showNumber = (record.isSubTotal && newRecord.type === 'columns') ? true : showNumber;
+            newRecord.showPercent = (subTotal || newRecord.key === 'sum' && !record.isSubTotal && newRecord.type === 'columns') && percent.enable && percent.type;
             return this.renderBodyTd(value, newRecord, item.t_id, controlMinAndMax);
           },
         });
@@ -729,8 +729,8 @@ export default class extends Component {
   }
   getDataSource(result, linesData) {
     const { reportData } = this.props;
-    const { yaxisList, pivotTable, lines, valueMap, style } = reportData;
-    const { lineSummary, columnSummary, showLineTotal } = pivotTable || reportData;
+    const { pivotTable, lines, yvalueMap, style } = reportData;
+    const { lineSummary, showLineTotal } = pivotTable || reportData;
     const tableLentghData = Array.from({ length: linesData[0] ? linesData[0].data.length : 1 });
     const {
       mobilePivotTableLineFreeze,
@@ -762,14 +762,14 @@ export default class extends Component {
         if (
           !('isSubTotal' in obj) &&
           subTotalIds.includes(item.key) &&
-          (_.isObject(value) ? value.value : _.toString(value) || '').includes('subTotal')
+          (_.isObject(value) ? value.value || '' : _.toString(value) || '').includes('subTotal')
         ) {
           obj.isSubTotal = true;
         }
       });
       result.forEach((item, i) => {
         const value = item.data[index];
-        const valueKey = valueMap[item.t_id] || null;
+        const valueKey = yvalueMap[item.t_id] || null;
         if (_.isArray(value)) {
           obj[`${item.t_id}-${i}`] = value
             .map(data => {
@@ -936,7 +936,7 @@ export default class extends Component {
       const { px, fileIconSize } = _.find(relevanceImageSize, { value: control.size || 2 });
       const { data } = _.find(this.linesData, { key: parentControl.controlId });
       const max = this.getMaxFileLength(data, index);
-      const handleFilePreview = this.handleFilePreview.bind(this, relevanceData);
+      const handleFilePreview = this.handleFilePreview.bind(this, control, relevanceData);
       return (
         <div className="relevanceContent fileContent" style={{ width: max * px + diffWidth }} key={control.controlId}>
           {relevanceData.length ? (
@@ -1036,7 +1036,7 @@ export default class extends Component {
     const style = {};
     const barStyle = {};
     const axisStyle = {};
-    const emptyShowType = _.get(_.find(yaxisList, { controlId }), 'emptyShowType');
+    const { emptyShowType, percent: percentConfig } = _.find(yaxisList, { controlId }) || {};
     const isNumberValue = _.isNumber(value);
     const originalValue = value;
     let onlyShowBar = false;
@@ -1103,25 +1103,28 @@ export default class extends Component {
       }
     }
 
-    // if (isNumberValue) {
-    //   if (record.showPercent === 1) {
-    //     const count = record.sumCount || 0;
-    //     percent = count ? `${((originalValue / count) * 100).toFixed(2)}%` : '0%';
-    //   }
-    //   if (record.showPercent === 2) {
-    //     const count = record.lineSubTotal || 0;
-    //     percent = count ? `${((originalValue / count) * 100).toFixed(2)}%` : '0%';
-    //   }
-    //   if ([1, 2].includes(record.showPercent) && record.showNumber) {
-    //     percent = `(${percent})`;
-    //   }
-    // }
+    if (isNumberValue) {
+      if (record.showPercent === 1) {
+        const count = record.lineSubTotal || 0;
+        const percentValue = formatNumberValue((originalValue / count) * 100, percentConfig);
+        percent = count ? `${percentValue}%` : '0%';
+      }
+      if (record.showPercent === 2) {
+        const count = record.sumCount || 0;
+        const percentValue = formatNumberValue((originalValue / count) * 100, percentConfig);
+        percent = count ? `${percentValue}%` : '0%';
+      }
+      if ([1, 2].includes(record.showPercent) && record.showNumber) {
+        percent = `(${percent})`;
+      }
+    }
 
     return (
       <Fragment>
         {!onlyShowBar && (
           <div className="cell-value" style={{ color: style.color }}>
-            {value}
+            {isNumberValue ? record.showNumber && value : value}
+            {percent}
           </div>
         )}
         {style.backgroundColor && <div className="data-bg" style={{ backgroundColor: style.backgroundColor }}></div>}
@@ -1210,16 +1213,16 @@ export default class extends Component {
             pagination={
               paginationVisible && !isPrintPivotTable
                 ? {
-                    showTotal: total => _l('共 %0 条', showLineTotal ? total - 1 : total),
-                    hideOnSinglePage: true,
-                    showSizeChanger: true,
-                    pageSize,
-                    pageSizeOptions: [20, 25, 30, 50, 100],
-                    onShowSizeChange: (current, size) => {
-                      this.setState({ pageSize: size });
-                    },
-                    locale: { items_per_page: _l('条/页') },
-                  }
+                  showTotal: total => _l('共 %0 条', showLineTotal ? total - 1 : total),
+                  hideOnSinglePage: true,
+                  showSizeChanger: true,
+                  pageSize,
+                  pageSizeOptions: [20, 25, 30, 50, 100],
+                  onShowSizeChange: (current, size) => {
+                    this.setState({ pageSize: size });
+                  },
+                  locale: { items_per_page: _l('条/页') },
+                }
                 : false
             }
             columns={tableColumns}

@@ -186,7 +186,7 @@ class TaskStage extends Component {
                     fromType: 2,
                     SelectUserSettings: {
                       includeUndefinedAndMySelf: true,
-                      filterAccountIds: [accountId],
+                      selectedAccountIds: [accountId],
                       projectId: checkIsProject(projectId) ? projectId : '',
                       unique: true,
                       callback: users => {
@@ -612,12 +612,11 @@ class TaskStage extends Component {
       quickSelectUser(_this[0], {
         sourceId: that.props.taskConfig.folderId,
         showMoreInvite: false,
-
         fromType: 2,
-        filterAccountIds: [_this.attr('data-id')],
+        selectedAccountIds: [_this.attr('data-id')],
         includeUndefinedAndMySelf: true,
         SelectUserSettings: {
-          filterAccountIds: [_this.attr('data-id')],
+          selectedAccountIds: [_this.attr('data-id')],
           projectId: checkIsProject(that.props.taskConfig.projectId) ? that.props.taskConfig.projectId : '',
           unique: true,
           callback,
@@ -1576,12 +1575,11 @@ class TaskStage extends Component {
     quickSelectUser($el[0], {
       sourceId: this.props.taskConfig.folderId,
       showMoreInvite: false,
-
       fromType: 2,
-      filterAccountIds: [chargeId],
+      selectedAccountIds: [chargeId],
       includeUndefinedAndMySelf: true,
       SelectUserSettings: {
-        filterAccountIds: [chargeId],
+        selectedAccountIds: [chargeId],
         projectId: checkIsProject(this.props.taskConfig.projectId) ? this.props.taskConfig.projectId : '',
         unique: true,
         callback,

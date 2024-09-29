@@ -7,6 +7,7 @@ export default {
   * @param {} args.captchaType
   * @param {string} args.projectId 网络id
   * @param {string} args.fileName 文件名
+  * @param {string} args.originalFileName 原始文件名
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -23,6 +24,7 @@ export default {
   * @param {} args.captchaType
   * @param {string} args.projectId 网络id
   * @param {string} args.fileName 文件名
+  * @param {string} args.originalFileName 原始文件名
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

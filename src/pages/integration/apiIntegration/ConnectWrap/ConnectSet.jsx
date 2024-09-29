@@ -3,10 +3,13 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import { useSetState } from 'react-use';
 import ConnectParam from '../../components/ConnectParam';
+import AuthParam from '../../components/AuthParam';
 import ConnectAuth from '../../components/ConnectAuth';
 import ConnectItem from '../../components/ConnectItem';
 import { LoadDiv, Icon } from 'ming-ui';
 import EditIntro from 'src/pages/integration/components/EditDes';
+import { getNodeList } from './util';
+
 const Wrap = styled.div`
   .descContainer {
     width: 880px;
@@ -137,26 +140,19 @@ const Wrap = styled.div`
 //连接设置
 function ConnectSet(props) {
   const { updateIntroduce } = props;
-  const [{ data1, data2, dataCode, loading }, setState] = useSetState({
+  const [{ data1, flowDts, dataCode, loading }, setState] = useSetState({
     data1: {},
-    data2: {},
+    flowDts: [],
     dataCode: {},
     loading: true,
   });
   useEffect(() => {
-    let l = [];
-    const getList = startEventId => {
-      let data = props.flowNodeMap[startEventId];
-      l.push(data);
-      if (!!props.flowNodeMap[data.nextId]) {
-        getList(data.nextId);
-      }
-    };
-    getList(props.startEventId);
+    const nodeList = getNodeList(props);
+    const flowDts = nodeList.filter(o => o.typeId === 22);
     setState({
-      data1: l.find(o => o.typeId === 0),
-      data2: l.find(o => o.typeId === 22),
-      dataCode: l.find(o => o.typeId === 14) || {},
+      data1: nodeList.find(o => o.typeId === 0),
+      flowDts: flowDts,
+      dataCode: nodeList.find(o => o.typeId === 14) || {},
       loading: false,
     });
   }, [props.flowNodeMap]);
@@ -164,22 +160,14 @@ function ConnectSet(props) {
   if (loading) {
     return <LoadDiv />;
   }
-  return (
-    <Wrap className="flexColumn">
-      <ConnectParam
-        {...props}
-        id={props.id}
-        node={data1}
-        connectType={props.connectType}
-        onChange={v => {
-          setState({ data1: { ...data1, ...v } });
-          props.hasChange();
-        }}
-        canEdit={props.isConnectOwner}
-      />
-      {data2.appType !== 30 && props.connectType === 1 && (
+  const renderFlowDts = (data, notAuthCode, index) => {
+    if (data.appType === 30 || props.connectType !== 1) {
+      return null;
+    }
+    if (notAuthCode) {
+      return (
         <React.Fragment>
-          {data2.appType === 32 && (
+          {data.appType === 32 && (
             <React.Fragment>
               <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
               <ConnectItem
@@ -201,16 +189,50 @@ function ConnectSet(props) {
           <ConnectAuth
             {...props}
             id={props.id}
-            node={data2}
+            node={data}
             connectType={props.connectType}
             onChange={v => {
-              setState({ data2: { ...data2, ...v } });
+              setState({ flowDts: flowDts.map(o => (o.id === data.id ? { ...data, ...v } : o)) });
               props.hasChange();
             }}
             canEdit={props.isConnectOwner}
           />
         </React.Fragment>
-      )}
+      );
+    }
+    return (
+      <React.Fragment>
+        <Icon icon={'arrow'} className="Font24 TxtCenter InlineBlock" style={{ color: '#ddd' }} />
+        <AuthParam
+          {...props}
+          id={props.id}
+          node={data}
+          href={'https://help.mingdao.com/integration/api#enter-parameters'}
+          index={index}
+          connectType={props.connectType}
+          onChange={v => {
+            setState({ flowDts: flowDts.map(o => (o.id === data.id ? { ...data, ...v } : o)) });
+            props.hasChange();
+          }}
+          canEdit={props.isConnectOwner}
+        />
+      </React.Fragment>
+    );
+  };
+  return (
+    <Wrap className="flexColumn">
+      <ConnectParam
+        {...props}
+        id={props.id}
+        node={data1}
+        connectType={props.connectType}
+        onChange={v => {
+          setState({ data1: { ...data1, ...v } });
+          props.hasChange();
+        }}
+        canEdit={props.isConnectOwner}
+      />
+      {props.hasAuth ? flowDts.map((o, i) => renderFlowDts(o, false, i)) : renderFlowDts(flowDts[0], true)}
       {((!props.introduce && props.connectType === 1 && props.isConnectOwner) || !!props.introduce) && (
         <div className="descContainer">
           <EditIntro

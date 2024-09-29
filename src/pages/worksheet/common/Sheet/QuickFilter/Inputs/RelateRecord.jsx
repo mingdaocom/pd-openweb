@@ -1,7 +1,9 @@
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
+import { useMeasure } from 'react-use';
 import styled from 'styled-components';
 import { arrayOf, func, shape, string } from 'prop-types';
-import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
+import cx from 'classnames';
+import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown/RelateRecordDropdownCopy';
 import RelateRecordOptions from './RelateRecordOptions';
 import _ from 'lodash';
@@ -20,6 +22,12 @@ const Con = styled.div`
   &:hover {
     .RelateRecordDropdown-selected:not(.active) {
       border-color: #ccc;
+    }
+  }
+  &.isMultiple:not(.active) {
+    height: auto !important;
+    .RelateRecordDropdown-selected {
+      height: auto !important;
     }
   }
 `;
@@ -44,6 +52,37 @@ const Dropdown = styled(RelateRecordDropdown)`
     }
     .activeSelectedItem {
       margin-top: 0px !important;
+    }
+  }
+`;
+
+const SelectedTags = styled.div`
+  .item {
+    position: relative;
+    display: inline-block;
+    max-width: calc(100% - 30px);
+    margin: 0 0 5px 6px;
+    line-height: 24px;
+    padding: 0 24px 0 10px;
+    background-color: rgba(0, 100, 240, 0.08);
+    color: #333;
+    border-radius: 3px;
+    .name {
+      max-width: 100%;
+    }
+    .icon-close {
+      cursor: pointer;
+      position: absolute;
+      right: 4px;
+      top: 4px;
+      color: #9d9d9d;
+      font-size: 16px;
+      &:hover {
+        color: #757575;
+      }
+    }
+    &.active.allowRemove {
+      padding-right: 24px !important;
     }
   }
 `;
@@ -79,9 +118,8 @@ export default function RelateRecord(props) {
   if (advancedSetting.clicksearch && navshow !== '2') {
     control.advancedSetting.clicksearch = advancedSetting.clicksearch;
   }
-  const conRef = useRef();
+  const [conRef, { width }] = useMeasure();
   const [active, setActive] = useState();
-  const [width, setWidth] = useState();
   const isMultiple = String(allowitem) === '2';
   const prefixRecords =
     shownullitem === '1'
@@ -105,12 +143,28 @@ export default function RelateRecord(props) {
       </span>
     );
   } else if (isMultiple) {
-    renderSelected = (selected = []) => {
+    renderSelected = (selected = [], { handleDelete = () => {} } = {}) => {
       let text;
       if ((selected[0] || {}).rowid === 'isEmpty') {
         text = nullitemname || _l('为空');
       } else {
         text = !selected.length || _l('选中 %0 个', selected.length);
+        return (
+          <SelectedTags>
+            {selected.map((record, i) => (
+              <div className="item" key={i} style={i === 0 ? { marginTop: 6 } : {}}>
+                <span className="name InlineBlock ellipsis">{getTitleTextFromRelateControl(control, record)}</span>
+                <i
+                  className="icon icon-close"
+                  onClick={e => {
+                    e.stopPropagation();
+                    handleDelete(record);
+                  }}
+                ></i>
+              </div>
+            ))}
+          </SelectedTags>
+        );
       }
       return (
         <span className="normalSelectedItem" style={{ fontSize: 13 }}>
@@ -119,11 +173,6 @@ export default function RelateRecord(props) {
       );
     };
   }
-  useLayoutEffect(() => {
-    if (conRef.current) {
-      setWidth(conRef.current.clientWidth);
-    }
-  }, []);
   if (String(direction) === '1') {
     return (
       <RelateRecordOptions
@@ -145,7 +194,7 @@ export default function RelateRecord(props) {
   // searchtype 0 模糊[default] 1精确
   // clicksearch 1 搜索后限制 0[default]
   return (
-    <Con ref={conRef}>
+    <Con ref={conRef} className={cx({ isMultiple: true, active })}>
       <Dropdown
         popupClassName={values.length < 2 ? 'small' : ''}
         getFilterRowsGetType={32}

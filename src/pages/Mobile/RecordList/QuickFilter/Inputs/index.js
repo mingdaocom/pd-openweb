@@ -37,6 +37,7 @@ mapToComp(TextTypes, Text);
 export const NumberTypes = [
   WIDGETS_TO_API_TYPE_ENUM.NUMBER, // 数值
   WIDGETS_TO_API_TYPE_ENUM.MONEY, // 金额
+  WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER, // 公式
 ];
 mapToComp(NumberTypes, Number);
 

@@ -8,7 +8,7 @@ import { refreshWorksheetControls } from 'worksheet/redux/actions';
 import { Icon, Button } from 'ming-ui';
 import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import SheetRows, { WithoutRows } from '../../SheetRows';
-import { Modal, Flex, ActivityIndicator } from 'antd-mobile';
+import { SpinLoading, Dialog } from 'antd-mobile';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import worksheetAjax from 'src/api/worksheet';
@@ -107,9 +107,9 @@ class SheetView extends Component {
 
     if (sheetRowLoading && sheetView.pageIndex === 1) {
       return (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
+        <div className="flexRow justifyContentCenter alignItemsCenter h100">
+          <SpinLoading color='primary' />
+        </div>
       );
     }
 
@@ -236,32 +236,20 @@ class SheetView extends Component {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
-    Modal.alert(
-      <div className="Font16" style={{ fontWeight: 700, textAlign: 'center' }}>
-        {_l('确认删除记录?')}
-      </div>,
-      <div className="Font13" style={{ color: '#333' }}>
-        {_l('%0天内可在 回收站 内找回已删除%1，无编辑权限的数据无法删除。', md.global.SysSettings.worksheetRowRecycleDays, worksheetInfo.entityName)}
-      </div>,
-      [
-        {
-          text: _l('取消'),
-          style: {
-            color: '#2196F3',
-            fontWeight: 700,
-            borderTop: '1px solid #dedede',
-            borderRight: '1px solid #dedede',
-            fontSize: '16px',
-          },
-          onPress: () => {},
-        },
-        {
-          text: _l('删除'),
-          style: { color: '#F44336', fontWeight: 700, borderTop: '1px solid #dedede', fontSize: '16px' },
-          onPress: this.comfirmDelete,
-        },
-      ],
-    );
+    Dialog.confirm({
+      title: (
+        <div className="Font16" style={{ fontWeight: 700, textAlign: 'center' }}>
+          {_l('确认删除记录?')}
+        </div>
+      ),
+      content: (
+        <div className="Font13" style={{ color: '#333' }}>
+          {_l('60天内可在 回收站 内找回已删除%0，无编辑权限的数据无法删除。', worksheetInfo.entityName)}
+        </div>
+      ),
+      confirmText: <span className="Red">{_l('删除')}</span>,
+      onConfirm: this.comfirmDelete
+    });
   };
   triggerCustomBtn = (btn, isAll) => {
     const { worksheetId, viewId, batchOptCheckedData, filters, quickFilter, navGroupFilters } = this.props;
@@ -398,6 +386,7 @@ class SheetView extends Component {
       appId,
       worksheetId,
       viewId,
+      changeActionSheetModalIndex,
     } = this.props;
     const { detail } = appDetail;
     let { customBtns = [], showButtons, customButtonLoading } = this.state;
@@ -469,6 +458,7 @@ class SheetView extends Component {
           </BatchOptBtn>
         )}
         <RecordAction
+          changeActionSheetModalIndex={changeActionSheetModalIndex}
           loading={customButtonLoading}
           recordActionVisible={showButtons}
           appId={appId}

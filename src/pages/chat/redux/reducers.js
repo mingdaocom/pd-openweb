@@ -52,7 +52,7 @@ const currentSession = (state = {}, action) => {
 };
 
 /**
- * 当前聊过天的会话信息
+ * 当前聊过天的会话信息
  * @param {*} state
  * @param {*} action
  */
@@ -63,6 +63,25 @@ const currentSessionList = (state = [], action) => {
     case 'REMOVE_CURRENT_SESSION':
       return state.filter(item => item.id !== action.id);
     case 'UPDATE_CURRENT_SESSION':
+      return Object.assign([], action.result);
+    default:
+      return state;
+  }
+};
+
+
+/**
+ * 当前 inbox 的会话信息
+ * @param {*} state
+ * @param {*} action
+ */
+const currentInboxList = (state = [], action) => {
+  switch (action.type) {
+    case 'ADD_INBOX_SESSION':
+      return Object.assign([], state.concat(action.result));
+    case 'REMOVE_INBOX_SESSION':
+      return state.filter(item => item.id !== action.id);
+    case 'UPDATE_INBOX_SESSION':
       return Object.assign([], action.result);
     default:
       return state;
@@ -199,6 +218,7 @@ export default combineReducers({
   visible,
   currentSession,
   currentSessionList,
+  currentInboxList,
   messages,
   referMessage,
   gotoMessage,

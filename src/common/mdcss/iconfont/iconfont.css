@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1721007035742') format('woff2'),
-       url('iconfont.woff?t=1721007035742') format('woff'),
-       url('iconfont.ttf?t=1721007035742') format('truetype');
+  src: url('iconfont.woff2?t=1725428507731') format('woff2'),
+       url('iconfont.woff?t=1725428507731') format('woff'),
+       url('iconfont.ttf?t=1725428507731') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,82 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-Reposition-01:before {
+  content: "\e65b";
+}
+
+.icon-data_merging:before {
+  content: "\ecda";
+}
+
+.icon-a-multiple_table_links:before {
+  content: "\ecdb";
+}
+
+.icon-trash-loop:before {
+  content: "\e697";
+}
+
+.icon-vertical:before {
+  content: "\ecd4";
+}
+
+.icon-top:before {
+  content: "\ecd5";
+}
+
+.icon-horizontal1:before {
+  content: "\ecd6";
+}
+
+.icon-left1:before {
+  content: "\ecd7";
+}
+
+.icon-bottom1:before {
+  content: "\ecd8";
+}
+
+.icon-align-right:before {
+  content: "\ecd9";
+}
+
+.icon-floating-layer:before {
+  content: "\e64f";
+}
+
+.icon-file-thumb:before {
+  content: "\ecd0";
+}
+
+.icon-file-list:before {
+  content: "\ecd1";
+}
+
+.icon-file-post:before {
+  content: "\ecd2";
+}
+
+.icon-file-card:before {
+  content: "\ecd3";
+}
+
+.icon-looks_six:before {
+  content: "\eccb";
+}
+
+.icon-looks_five:before {
+  content: "\eccf";
+}
+
+.icon-test_workflow:before {
+  content: "\ecce";
+}
+
+.icon-data_mirroring:before {
+  content: "\eccd";
 }
 
 .icon-ID:before {

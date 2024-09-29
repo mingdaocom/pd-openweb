@@ -59,7 +59,7 @@ const Content = styled.div`
 `;
 
 export default function SelectFnControl(props) {
-  const { type = 'mdfunction', controls, controlGroups, insertTagToEditor, insertFn } = props;
+  const { type = 'mdfunction', controls, controlGroups, insertTagToEditor, insertFn, control } = props;
   const [keywords, setKeywords] = useState('');
   const [activeTab, setActiveTab] = useState(type === 'mdfunction' ? 'fn' : 'control');
   useEffect(() => {
@@ -97,7 +97,7 @@ export default function SelectFnControl(props) {
         <input type="text" value={keywords} placeholder={_l('搜索')} onChange={e => setKeywords(e.target.value)} />
       </Search>
       <Content>
-        {activeTab === 'fn' && <FnList keywords={keywords} insertFn={insertFn} />}
+        {activeTab === 'fn' && <FnList keywords={keywords} insertFn={insertFn} control={control} />}
         {activeTab === 'control' && (
           <ControlList
             keywords={keywords}

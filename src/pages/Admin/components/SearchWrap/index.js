@@ -1,4 +1,5 @@
 import React, { Fragment, useState, useRef, useEffect } from 'react';
+import { useSetState } from 'react-use';
 import PropTypes from 'prop-types';
 import { Select } from 'antd';
 import { Motion, spring } from 'react-motion';
@@ -6,6 +7,7 @@ import SelectUser from '../SelectUser';
 import CustomSelectDate from '../CustomSelectDate';
 import styled from 'styled-components';
 import cx from 'classnames';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   flex-wrap: wrap;
@@ -79,12 +81,21 @@ const Input = styled.input`
 
 let resizeObserver = null;
 export default function SearchWrap(props) {
-  const { wrapClassName, projectId, searchList = [], onChange = () => {}, searchValues = {}, showExpandBtn } = props;
-  const { startDate, endDate, searchDateStr } = searchValues;
-  const [fullShow, setFullShow] = useState(showExpandBtn ? false : true);
+  const {
+    wrapClassName,
+    projectId,
+    searchList = [],
+    onChange = () => {},
+    searchValues = {},
+    showExpandBtn,
+    hideReset,
+  } = props;
+  const [fullShow, setFullShow] = useState(
+    showExpandBtn ? false : !_.isUndefined(props.fullShow) ? props.fullShow : true,
+  );
   const searchBoxRef = useRef();
-  const inputRef = useRef();
   const [width, setWidth] = useState(searchBoxRef && searchBoxRef.current && searchBoxRef.current.clientWidth);
+  const [values, setValues] = useSetState(searchValues);
   let colNum = (width - 63) / 280;
   const showExpand = searchList.length > colNum;
   const visibleSearchList = fullShow ? searchList : searchList.slice(0, colNum);
@@ -97,8 +108,8 @@ export default function SearchWrap(props) {
           <SelectUser
             className={`w100 mdAntSelect ${className}`}
             projectId={projectId}
-            userInfo={searchValues.selectUserInfo || []}
-            changeData={data => onChange({ ...searchValues, selectUserInfo: data })}
+            userInfo={searchValues[key] || []}
+            changeData={data => onChange({ ...searchValues, [key]: data })}
             {...extra}
           />
         );
@@ -107,10 +118,10 @@ export default function SearchWrap(props) {
           <CustomSelectDate
             className={`w100 mdAntSelect ${className}`}
             dateFormat={'YYYY-MM-DD HH:mm:ss'}
-            dateInfo={{ startDate, endDate, searchDateStr }}
+            dateInfo={searchValues[key] || {}}
             {...extra}
             changeDate={({ startDate, endDate, searchDateStr }) =>
-              onChange({ ...searchValues, startDate, endDate, searchDateStr })
+              onChange({ ...searchValues, [key]: { startDate, endDate, searchDateStr } })
             }
           />
         );
@@ -134,18 +145,22 @@ export default function SearchWrap(props) {
         return (
           <Input
             {...extra}
-            ref={inputRef}
+            value={values[key]}
             className={`w100 ${className}`}
+            onChange={e => setValues({ [key]: e.target.value })}
             onBlur={e => {
               const val = _.trim(e.target.value);
-              inputRef.current.value = val ? val : '';
+              if (!val && !searchValues[key]) {
+                setValues({ [key]: '' });
+                return;
+              }
               onChange({ ...searchValues, [key]: val ? val : '' });
             }}
             onKeyDown={e => {
               if (e.which === 13) {
                 const val = _.trim(e.target.value);
-                inputRef.current.value = val ? val : '';
-                onChange({ ...searchValues, [key]: val ? val : '' });
+                if (!val && !searchValues[key]) return;
+                onChange({ ...searchValues, [key]: val ? val : '' }, true);
               }
             }}
           />
@@ -180,16 +195,23 @@ export default function SearchWrap(props) {
       })}
       {showExpandBtn && (
         <Fragment>
-          <ExpandBtn
-            onClick={() => {
-              if (inputRef && inputRef.current) {
-                inputRef.current.value = '';
-              }
-              onChange({});
-            }}
-          >
-            {_l('重置')}
-          </ExpandBtn>
+          {!hideReset && (
+            <ExpandBtn
+              onClick={() => {
+                const inputValues = {};
+                searchList
+                  .filter(v => v.type === 'input')
+                  .forEach(({ key }) => {
+                    inputValues[key] = '';
+                  });
+
+                setValues(inputValues);
+                onChange({});
+              }}
+            >
+              {_l('重置')}
+            </ExpandBtn>
+          )}
           {showExpand && (
             <ExpandBtn
               onClick={() => {

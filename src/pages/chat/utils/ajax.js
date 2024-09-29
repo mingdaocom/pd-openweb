@@ -15,9 +15,10 @@ import { getPssId } from 'src/util/pssId';
 export const chatSessionList = (param) => {
   return $.ajax({
     url: _.get(window, 'config.HTTP_SERVER') + '/chat_list',
-    data: $.extend(param, {
-      pss_id: getPssId(),
-    }),
+    data: param,
+    headers: {
+      pssid: getPssId(),
+    },
     dataType: 'jsonp',
     jsonp: 'cb',
   });
@@ -57,7 +58,6 @@ export const getMessage = (conf) => {
   param.page = conf.page || 1;
   // param.num = (conf.num ? conf.num : ) || chatConfig.MSG_LENGTH_MORE;
   param.num = conf.num ? conf.num + chatConfig.MSG_LENGTH_MORE : chatConfig.MSG_LENGTH_MORE;
-  param.pss_id = getPssId();
   param.keyword = conf.keyword || '';
   param.direction = conf.direction || '';
   if (conf.type === Constant.SESSIONTYPE_GROUP) {
@@ -65,6 +65,9 @@ export const getMessage = (conf) => {
     return $.ajax({
       url: _.get(window, 'config.HTTP_SERVER') + '/group_messages',
       data: param,
+      headers: {
+        pssid: getPssId(),
+      },
       type: 'get',
       dataType: 'jsonp',
       jsonp: 'cb',
@@ -75,6 +78,9 @@ export const getMessage = (conf) => {
     return $.ajax({
       url: _.get(window, 'config.HTTP_SERVER') + '/messages',
       data: param,
+      headers: {
+        pssid: getPssId(),
+      },
       type: 'get',
       dataType: 'jsonp',
       jsonp: 'cb',
@@ -97,12 +103,14 @@ export const getMessageById = (conf) => {
     param.accountId = conf.id || '';
     url = '/messages_byid';
   }
-  param.pss_id = getPssId();
   param.msgid = conf.msgid || '';
   param.size = conf.size || 21;
   return $.ajax({
     url: _.get(window, 'config.HTTP_SERVER') + url,
     data: param,
+    headers: {
+      pssid: getPssId(),
+    },
     type: 'get',
     dataType: 'jsonp',
     jsonp: 'cb',
@@ -123,7 +131,6 @@ export const getImageContext = (conf) => {
     param.accountid = conf.id || 0;
     url = '/user_files_byid';
   }
-  param.pss_id = getPssId();
   param.msgid = conf.msgid || '';
   param.size = conf.size || 20;
   param.type = conf.type || 0; // 0：表示全部上下文图片消息；1：表示上文图片消息；2：表示下文图片消息
@@ -131,6 +138,9 @@ export const getImageContext = (conf) => {
   return $.ajax({
     url: _.get(window, 'config.HTTP_SERVER') + url,
     data: param,
+    headers: {
+      pssid: getPssId(),
+    },
     type: 'get',
     dataType: 'jsonp',
     jsonp: 'cb',

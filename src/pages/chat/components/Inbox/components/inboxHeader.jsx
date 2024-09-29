@@ -9,8 +9,8 @@ import cx from 'classnames';
 import _ from 'lodash';
 import Config from 'src/pages/chat/utils/config';
 import * as actions from '../../../redux/actions';
+import * as socket from 'src/pages/chat/utils/socket';
 import { connect } from 'react-redux';
-// const ClickAwayable = createDecoratedComponent(withClickAway);
 
 class InboxHeader extends React.Component {
   static propTypes = {
@@ -44,14 +44,19 @@ class InboxHeader extends React.Component {
       return <span>{parsedData[0].text}</span>;
     } else {
       return (
-        <Dropdown
-          value={type}
-          data={parsedData}
-          onChange={data => {
-            this.handleClick(false);
-            changeType(data);
-          }}
-        />
+        <span>
+          {_.find(parsedData, l => l.value === type).text}
+          <Dropdown
+            value={type}
+            data={parsedData}
+            menuStyle={{ left: '0 !important', transform: 'translateX(-50%)' }}
+            renderTitle={() => ''}
+            onChange={data => {
+              this.handleClick(false);
+              changeType(data);
+            }}
+          />
+        </span>
       );
     }
   }
@@ -81,8 +86,7 @@ class InboxHeader extends React.Component {
     );
     setTimeout(() => {
       this.handleTriggerChange(false);
-    }, 500)
-
+    }, 500);
   }
 
   handleUpdatePushNotice() {
@@ -99,9 +103,24 @@ class InboxHeader extends React.Component {
     this.handleTriggerChange(false);
   }
 
+  handleClearUnread = () => {
+    const { currentSession, sessionList } = this.props;
+    const item = _.find(sessionList, { value: currentSession.value }) || {};
+    if (item.count || item.weak_count) {
+      socket.Contact.clearUnread(Object.assign({}, item)).then(result => {
+        this.props.dispatch(
+          actions.updateSessionList({
+            id: item.value,
+            clearCount: item.count,
+          }),
+        );
+      });
+    }
+  }
+
   renderMenu = () => {
     const { currentSession } = this.props;
-    const { top_info,  type, isPush, isSilent } = currentSession;
+    const { top_info, type, isPush, isSilent } = currentSession;
     const isTop = top_info ? top_info.isTop : false;
     const isPushNotice = 'isPush' in currentSession || 'isSilent' in currentSession;
     const isPushNoticeValue = type === 2 ? isPush : !isSilent;
@@ -148,7 +167,7 @@ class InboxHeader extends React.Component {
     const clsNameFunc = flag =>
       cx('inboxItem Hand', {
         'ThemeColor3 ThemeBorderColor3': flag,
-        'ThemeHoverBorderColor3 ThemeHoverColor3': !flag,
+        ThemeHoverColor3: !flag,
       });
     const fullname = user ? user.fullname : '';
     const { isSilent } = currentSession;
@@ -156,7 +175,7 @@ class InboxHeader extends React.Component {
     return (
       <div className="inboxHeader">
         <div className="inboxType Absolute">
-          {isSilent && <i className='icon-notifications_off Gray_9e mRight10'></i>}
+          {isSilent && <i className="icon-notifications_off Gray_9e mRight10"></i>}
           {title}
           {this.renderSetting()}
         </div>
@@ -176,46 +195,61 @@ class InboxHeader extends React.Component {
         >
           {_l('星标')}
         </span>
-        {!md.global.Account.isPortal && (
-          <antd.Dropdown
-            overlay={this.renderOverlay()}
-            trigger={['click']}
-            placement="bottomRight"
-            overlayClassName="inboxFilterDropdown"
-          >
-            <div className={cx('filterWrapper flexRow valignWrapper', { transparent: _.isEmpty(filter) })}>
-              {filter ? (
-                <Fragment>
-                  <Icon className="Font20" icon="filter" />
-                  <span>
-                    {fullname}
-                    {fullname && timeName ? ', ' : ''}
-                    {timeName}
-                  </span>
-                  <Icon
-                    icon="close"
-                    className="Font15 mBottom2"
-                    onClick={event => {
-                      event.stopPropagation();
-                      this.props.changeInboxFilter(null);
-                    }}
-                  />
-                </Fragment>
-              ) : (
-                <Icon className="Font20 Gray_9e pointer" icon="filter" />
-              )}
-            </div>
-          </antd.Dropdown>
-        )}
+        <div className="btnWrapper flexRow alignItemsCenter">
+          <Icon
+            className="Font20 Gray_9e pointer ThemeHoverColor3 mRight15 refreshBtn"
+            icon="task-later"
+            onClick={() => {
+              if (filter) {
+                this.props.changeInboxFilter(null);
+              } else {
+                this.props.changeUpdateNow();
+              }
+              this.handleClearUnread();
+            }}
+          />
+          {!md.global.Account.isPortal && (
+            <antd.Dropdown
+              overlay={this.renderOverlay()}
+              trigger={['click']}
+              placement="bottomRight"
+              overlayClassName="inboxFilterDropdown"
+            >
+              <div className={cx('filterWrapper flexRow valignWrapper', { transparent: _.isEmpty(filter) })}>
+                {filter ? (
+                  <Fragment>
+                    <Icon className="Font20" icon="filter" />
+                    <span>
+                      {fullname}
+                      {fullname && timeName ? ', ' : ''}
+                      {timeName}
+                    </span>
+                    <Icon
+                      icon="close"
+                      className="Font15 mBottom2"
+                      onClick={event => {
+                        event.stopPropagation();
+                        this.props.changeInboxFilter(null);
+                      }}
+                    />
+                  </Fragment>
+                ) : (
+                  <Icon className="Font20 Gray_9e pointer" icon="filter" />
+                )}
+              </div>
+            </antd.Dropdown>
+          )}
+        </div>
       </div>
     );
   }
 }
 
 export default connect(state => {
-  const { currentSession } = state.chat;
+  const { currentSession, sessionList } = state.chat;
 
   return {
     currentSession,
+    sessionList
   };
 })(InboxHeader);

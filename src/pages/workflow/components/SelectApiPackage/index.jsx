@@ -34,7 +34,7 @@ export default ({
       )
       .then(res => {
         setKeywords(keyword);
-        setData(index === 1 ? res : data.concat(res));
+        setData(index === 1 ? res.filter(o => !o.hasAuth) : data.concat(res.filter(o => !o.hasAuth)));
         setIndex(index);
         setMore(res.length === 20);
       });

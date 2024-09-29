@@ -110,7 +110,7 @@ export default function QueryConfigDialog(props) {
         <Desp>{_l('对所选视图下数据进行查询')}</Desp>
         <Dropdown
           value={viewId}
-          data={worksheet.views.map(view => ({
+          data={(worksheet.views || []).map(view => ({
             text: view.name,
             value: view.viewId,
           }))}

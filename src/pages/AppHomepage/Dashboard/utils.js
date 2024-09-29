@@ -55,7 +55,7 @@ export const getDashboardColor = color => {
   }
 
   return {
-    bgColor: color !== '#2196F3' ? generate(color)[0] : '#f7f8fc',
+    bgColor: color !== '#2196F3' ? (color === '#d4b106' ? '#f9f7d7' : generate(color)[0]) : '#f7f8fc',
     themeColor: color,
     activeColor: getRgbaByColor(color, '0.1'),
     hoverColor: getRgbaByColor(color, '0.16'),

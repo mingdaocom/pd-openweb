@@ -7,7 +7,7 @@ import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
 import _ from 'lodash';
-import { TYPE_DATA, OPERATION_TYPE_DATA } from '../config';
+import { TYPE_DATA, ALL_OPERATION_TYPE_DATA } from '../config';
 
 const PopupWrap = styled.ul`
   background: #ffffff;
@@ -182,7 +182,7 @@ export default function Join(props) {
         {dataType && <span className="Gray_75 pRight5">[{dataType}]</span>}
         {alias}
         {aggFuncType && (
-          <span className="Gray_9e">({OPERATION_TYPE_DATA.find(o => o.value === aggFuncType).text})</span>
+          <span className="Gray_9e">({ALL_OPERATION_TYPE_DATA.find(o => o.value === aggFuncType).text})</span>
         )}
       </div>
     );
@@ -192,7 +192,7 @@ export default function Join(props) {
       <div className="">
         {a.alias}
         {a.aggFuncType && (
-          <span className="aggFuncType"> ({OPERATION_TYPE_DATA.find(o => o.value === a.aggFuncType).text})</span>
+          <span className="aggFuncType"> ({ALL_OPERATION_TYPE_DATA.find(o => o.value === a.aggFuncType).text})</span>
         )}
       </div>
     );

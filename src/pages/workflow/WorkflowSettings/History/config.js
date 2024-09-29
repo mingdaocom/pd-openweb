@@ -65,9 +65,9 @@ export const FLOW_FAIL_REASON = {
   20018: _l('节点对象为空'),
   20019: _l('延时节点执行错误'),
   20020: _l('catch无数据'),
-  20021: _l('子流程未开启或已删除'),
-  20022: _l('子流程存在执行失败的流程实例'),
-  20023: _l('子流程来源数据为空'),
+  20021: _l('流程未开启或已删除'),
+  20022: _l('流程存在执行失败的流程实例'),
+  20023: _l('流程来源数据为空'),
   20024: _l('json格式不正确'),
   20025: _l('url校验失败'),
   20026: _l('是一个延时反馈'),
@@ -166,6 +166,7 @@ export const NODE_TYPE = {
   29: { type: 'loop', text: _l('循环') },
   30: { type: 'return', text: _l('中止') },
   31: { type: 'aigc', text: _l('AIGC') },
+  32: { type: 'plugin', text: _l('插件') },
   1000: { type: 'singleInfo', text: _l('获取单条人员/部门信息') },
   1001: { type: 'moreInfo', text: _l('获取多条人员/部门信息') },
 };
@@ -410,6 +411,11 @@ export const NODE_ICON = {
       532: _l('AI 生成数据对象'),
     },
     bgColor: '#F15B75',
+  },
+  plugin: {
+    icon: 'workflow',
+    text: _l('插件'),
+    bgColor: '#2196f3',
   },
   singleInfo: {
     icon: 'person_search',

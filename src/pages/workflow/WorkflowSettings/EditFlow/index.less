@@ -35,7 +35,7 @@
     position: relative;
     &::before,
     ~ .workflowLineBtn::before {
-      content: "";
+      content: '';
       position: absolute;
       top: 0;
       left: 0;
@@ -87,13 +87,13 @@
     background: #2196f3;
   }
   .BGSkyBlue {
-    background: #00BCD4;
+    background: #00bcd4;
   }
   .BGGreen {
     background: #01ca83;
   }
   .BGViolet {
-    background: #7E57C2;
+    background: #7e57c2;
   }
   .BGBlueAsh {
     background: #4c7d9e;
@@ -105,10 +105,10 @@
     background: #ddd;
   }
   .BGDarkBlue {
-    background: #4158DB;
+    background: #4158db;
   }
   .BGRed {
-    background: #F15B75;
+    background: #f15b75;
   }
   .workflowItem {
     width: 261px;
@@ -126,8 +126,7 @@
       }
     }
     &.active {
-      box-shadow: 0 2px 6px rgba(33, 150, 243, 0.4),
-        0 6px 24px rgba(33, 150, 243, 0.4);
+      box-shadow: 0 2px 6px rgba(33, 150, 243, 0.4), 0 6px 24px rgba(33, 150, 243, 0.4);
       .workflowStartNull {
         background: #fff !important;
         border-color: #ddd !important;
@@ -135,12 +134,10 @@
       }
     }
     &.errorShadow {
-      box-shadow: 0 0 1px 1px rgba(244, 67, 54, 1),
-        0 1px 4px rgba(0, 0, 0, 0.16);
+      box-shadow: 0 0 1px 1px rgba(244, 67, 54, 1), 0 1px 4px rgba(0, 0, 0, 0.16);
     }
     &.errorShadow.active {
-      box-shadow: 0 0 1px 1px rgba(244, 67, 54, 1),
-        0 2px 6px rgba(244, 67, 54, 0.4), 0 6px 24px rgba(33, 150, 243, 0.4);
+      box-shadow: 0 0 1px 1px rgba(244, 67, 54, 1), 0 2px 6px rgba(244, 67, 54, 0.4), 0 6px 24px rgba(33, 150, 243, 0.4);
     }
     &.workflowItemDisabled {
       .workflowName,
@@ -171,6 +168,14 @@
         color: #fff;
         line-height: 36px;
         box-sizing: initial;
+        &.workflowAvatarSvg {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          > div {
+            height: 22px;
+          }
+        }
       }
     }
     .workflowName {
@@ -213,7 +218,7 @@
           padding: 8px 0;
           color: #757575;
           &::before {
-            content: "";
+            content: '';
             position: absolute;
             top: 50%;
             left: 0;
@@ -324,7 +329,8 @@
         box-sizing: border-box;
         font-size: 13px;
       }
-      .icon-workflow_info {
+      .icon-workflow_info,
+      .icon-workflow_error {
         vertical-align: top;
         display: inline-block;
         margin-top: 1px;
@@ -447,7 +453,7 @@
       justify-content: center;
       align-items: center;
       border-radius: 6px;
-      box-shadow: 0 4px 26px rgb(33, 150, 243, .4);
+      box-shadow: 0 4px 26px rgb(33, 150, 243, 0.4);
       background: #fff;
       margin: 20px 0;
       position: relative;
@@ -467,7 +473,7 @@
       color: #757575 !important;
 
       &:hover {
-        background: #F5F5F5 !important;
+        background: #f5f5f5 !important;
       }
     }
   }
@@ -483,7 +489,7 @@
   display: flex;
   align-items: center;
   justify-content: left;
-  background: rgba(245, 245, 249, .9);
+  background: rgba(245, 245, 249, 0.9);
   &.mobile {
     top: 0;
     justify-content: center;
@@ -503,7 +509,7 @@
     border-radius: 3px;
     margin-right: 8px;
     &:not(.disabled):hover {
-      background: #EAECED;
+      background: #eaeced;
     }
     &.ThemeColor3 {
       background: #fff !important;
@@ -562,8 +568,7 @@
 .createNodeDialog {
   width: 640px;
   background: #fff;
-  box-shadow: 0 10px 23px 2px rgba(0, 0, 0, 0.2),
-    0 3px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 23px 2px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
   .createNodeDialogHeader {
     height: 55px;
     padding: 0 24px;
@@ -612,20 +617,20 @@
     padding: 16px;
   }
   .nodeList {
-    margin: 0 21px;
+    margin: 0 9px;
     li {
       width: 50%;
       box-sizing: border-box;
-      border-radius: 3px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
-      padding: 8px 16px;
-      border-width: 5px;
+      padding: 6px 12px;
+      border-width: 1px 5px;
       border-style: solid;
       border-color: rgb(2555, 255, 255);
       cursor: pointer;
       float: left;
-      height: 70px;
+      height: 56px;
       &:hover {
         background: #f8f8f8;
       }
@@ -667,10 +672,10 @@
     margin-top: 10px;
     li {
       padding: 12px;
-      border-radius: 2px;
+      border-radius: 8px;
       cursor: pointer;
       &:hover {
-        background: #f5f5f5;
+        background: #f8f8f8;
       }
       &:not(.disabled) {
         .Radio-box {
@@ -686,6 +691,66 @@
       }
     }
   }
+  .createNodeSearch {
+    height: 36px;
+    position: relative;
+    margin: 20px 20px 0;
+    input {
+      padding: 8px 32px;
+      height: 36px;
+      background: #f5f5f5;
+      border-radius: 18px;
+      border: none;
+      width: 100%;
+    }
+    .icon {
+      position: absolute;
+      top: 9px;
+      left: 9px;
+    }
+  }
+  .createNodeTabs {
+    margin: 10px 20px 0;
+    li {
+      padding: 12px 15px;
+      border-bottom: 3px solid transparent;
+      margin-right: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  }
+  .createNodeSearchEmpty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 16px;
+    color: #757575;
+    margin: 0 14px;
+  }
+  .createNodeFooterBtn {
+    height: 40px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: center;
+  }
+  .nodeListContainer {
+    > div {
+      &:hover {
+        .nodeListIconBG {
+          background: #f8f8f8;
+        }
+      }
+    }
+    .nodeListIconBG {
+      border-radius: 3px;
+      padding: 1px;
+    }
+  }
 }
 
 #workflowNodeNotes {
@@ -697,7 +762,7 @@
 .flowNodeOperateList {
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, .16);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
   padding: 5px 0;
   li {
     height: 36px;

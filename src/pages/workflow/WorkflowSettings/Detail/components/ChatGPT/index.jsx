@@ -65,6 +65,11 @@ const Footer = styled.div`
     align-items: center;
     justify-content: center;
     font-size: 20px;
+    &.active {
+      .icon-airplane {
+        color: #2196f3;
+      }
+    }
     &:hover {
       background: #f5f5f5;
       .icon-airplane {
@@ -448,7 +453,7 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
             }}
           />
           <div
-            className="sendBtn"
+            className={cx('sendBtn', { active: keywords.trim() })}
             onClick={() => {
               if (!keywords.trim() || controller) {
                 return;

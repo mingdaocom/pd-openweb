@@ -140,7 +140,7 @@ export default function BtnList({
                   const defaultIcon = btnType === 2 ? `custom_actions` : null;
                   const icon = _.get(config, 'icon') || defaultIcon;
                   const iconUrl = icon
-                    ? `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`
+                    ? `${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`
                     : _.get(config, 'iconUrl');
                   const actualIndex = i * count + index;
                   return (

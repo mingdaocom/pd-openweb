@@ -83,8 +83,14 @@ export default class TextInput extends Component {
       const { cid = '', rcid = '', staticValue } = newField[0];
       const id = rcid ? `${cid}~${rcid}` : `${cid}`;
       this.$tagtextarea.insertColumnTag(id);
-      const newValue =
-        _.includes(['search-keyword'], cid) && !staticValue ? `$${cid}$` : this.$tagtextarea.cmObj.getValue();
+      let newValue = this.$tagtextarea.cmObj.getValue();
+      // 文本能多选，以下情况不能同时配置
+      if (_.includes(['search-keyword', 'empty'], cid) && !staticValue) {
+        newValue = `$${cid}$`;
+      } else {
+        newValue = newValue.replace(/\$empty\$|\$search-keyword\$/g, '')
+      }
+
       this.transferValue(newValue);
     } else {
       this.props.onDynamicValueChange(newField);

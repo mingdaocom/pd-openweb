@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { LoadDiv, Icon, Radio } from 'ming-ui';
-import { Modal, List } from 'antd-mobile';
+import { Popup, List } from 'antd-mobile';
 import '../less/MobileCityPicker.less';
 import _ from 'lodash';
 
@@ -144,53 +144,49 @@ export default class MobileCityPicker extends Component {
           )}
         </span>
 
-        <Modal
-          className="mobileCityPicker"
-          popup
+        <Popup
+          className="mobileCityPicker mobileModal topRadius"
           visible={visible}
-          title={
-            <Fragment>
-              <div className="flexRow">
-                <div
-                  className="flex ThemeColor3 pLeft16 TxtLeft"
-                  onClick={() => {
-                    if (select.length === 0) {
-                      onClear();
-                      this.setState({ visible: false, indexLevel: 1 });
-                    } else {
-                      this.setState({ indexLevel: select.length > 2 ? 2 : 1 });
-                      select.length > 2 ? handleClick(select[0], 1) : onClear(false);
-                    }
-                  }}
-                >
-                  {!!select.length ? _l('返回') : _l('清除')}
-                </div>
-                <div>{indexLevel ? LEVEL_TEXT[indexLevel - 1] : _l('选择地区')}</div>
-                {showConfirmBtn ? (
-                  <div
-                    className="flex ThemeColor3 pRight16 TxtRight"
-                    onClick={() => {
-                      select.length && callback(select, indexLevel);
-                      this.setState({ visible: false, indexLevel: 1 });
-                      onClear(false);
-                      select.length && this.props.onClose && this.props.onClose();
-                    }}
-                  >
-                    {_l('确定')}
-                  </div>
-                ) : (
-                  <div className="flex pLeft16"></div>
-                )}
-              </div>
-              {this.renderSearch()}
-            </Fragment>
-          }
           onClose={() => {
             onClose();
             this.setState({ visible: false, indexLevel: 1 });
           }}
-          animationType="slide-up"
         >
+          <div className="header">
+            <div className="flexRow">
+              <div
+                className="flex ThemeColor3 pLeft16 TxtLeft"
+                onClick={() => {
+                  if (select.length === 0) {
+                    onClear();
+                    this.setState({ visible: false, indexLevel: 1 });
+                  } else {
+                    this.setState({ indexLevel: select.length > 2 ? 2 : 1 });
+                    select.length > 2 ? handleClick(select[0], 1) : onClear(false);
+                  }
+                }}
+              >
+                {!!select.length ? _l('返回') : _l('清除')}
+              </div>
+              <div>{indexLevel ? LEVEL_TEXT[indexLevel - 1] : _l('选择地区')}</div>
+              {showConfirmBtn ? (
+                <div
+                  className="flex ThemeColor3 pRight16 TxtRight"
+                  onClick={() => {
+                    select.length && callback(select, indexLevel);
+                    this.setState({ visible: false, indexLevel: 1 });
+                    onClear(false);
+                    select.length && this.props.onClose && this.props.onClose();
+                  }}
+                >
+                  {_l('确定')}
+                </div>
+              ) : (
+                <div className="flex pLeft16"></div>
+              )}
+            </div>
+            {this.renderSearch()}
+          </div>
           <div style={{ height: 250, overflowY: 'auto' }}>
             {loading ? (
               <LoadDiv />
@@ -199,7 +195,7 @@ export default class MobileCityPicker extends Component {
                 {data.length > 0 &&
                   listData.map(item => {
                     return (
-                      <List.Item key={item.id} onClick={() => this.onNext({...item, last: level === 2 && particularlyCity.includes(item.id) ? true : item.last})}>
+                      <List.Item key={item.id} arrowIcon={false} onClick={() => this.onNext({...item, last: level === 2 && particularlyCity.includes(item.id) ? true : item.last})}>
                         <div
                           className="mobileCityPickerListItem valignWrapper"
                           style={{
@@ -224,7 +220,7 @@ export default class MobileCityPicker extends Component {
               </List>
             )}
           </div>
-        </Modal>
+        </Popup>
       </Fragment>
     );
   }

@@ -237,7 +237,7 @@ window.md = {
       SmsPrice: window._l ? _l('0.05元') : '0.05元',
       EmailPrice: window._l ? _l('0.03元') : '0.03元',
       PdfPrice: window._l ? _l('0.15元') : '0.15元',
-      DataPipelinePrice: window._l ? _l('0.01元') : '0.01元',
+      DataPipelinePrice: window._l ? _l('0.1元') : '0.1元',
     },
     getCaptchaType: () => {
       return window.localStorage.getItem('captchaType')
@@ -512,7 +512,7 @@ const generateLocalizationParams = (requestData = {}) => {
     AppManagement_GetAppLangDetail: {
       moduleType: 1,
       sourceId: `${requestData.appId}_${requestData.appLangId}`,
-      clearInterface: ['AppManagement_EditAppLang'],
+      clearInterface: ['AppManagement_EditAppLang', 'AppManagement_MachineTranslation'],
     },
     HomeApp_GetHomePlatformSetting: {
       moduleType: 2,
@@ -529,6 +529,7 @@ const generateLocalizationParams = (requestData = {}) => {
         'AppManagement_EditWorkSheetInfoForApp',
         'Worksheet_SortWorksheetViews',
         'Worksheet_EditWorksheetControls',
+        'WorksheetSetting_SavPaymentSetting',
         'Worksheet_UpdateEntityName',
       ],
     },
@@ -566,6 +567,8 @@ const getLocalizationKey = (controllerName, actionName, requestData = {}) => {
 const insertLocalData = ({ key, moduleType, sourceId, version, data }) => {
   if (!key || !sourceId) return;
 
+  if (key === 'Worksheet_GetWorksheetInfo' && !_.get(data, 'views.length')) return;
+
   if (version) {
     localForage.setItem(`${key}_${sourceId}`, { version, data, time: moment().format('YYYY-MM-DD HH:mm:ss') });
   } else {
@@ -582,7 +585,7 @@ window.clearLocalDataTime = ({ controllerName, actionName, requestData = {}, cle
   const key = `${controllerName}_${actionName}`;
   const CACHE_PARAMS = generateLocalizationParams({
     ...requestData,
-    appLangId: requestData.langId,
+    appLangId: requestData.langId || requestData.targetLangId,
     type: 20,
     worksheetId: requestData.worksheetId || requestData.workSheetId || requestData.sourceId,
   });
@@ -597,7 +600,7 @@ window.clearLocalDataTime = ({ controllerName, actionName, requestData = {}, cle
   if (!localKey) return;
 
   localForage.getItem(localKey).then(localSource => {
-    localForage.setItem(localKey, { version: localSource.version, data: localSource.data, time: null });
+    localSource && localForage.setItem(localKey, { version: localSource.version, data: localSource.data, time: null });
   });
 };
 
@@ -671,7 +674,7 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
       const localSource = await localForage.getItem(`${key}_${sourceId}`);
 
       if (localSource && !localStorage.getItem('IS_DEV_MODE')) {
-        if (!localSource.time || moment().diff(moment(localSource.time), 'm') > 1) {
+        if (!localSource.time || moment().diff(moment(localSource.time), 's') > 30) {
           const versionData = await versionApi.getVersion({ moduleType, sourceId: sourceId.split('_')[0] });
 
           version = versionData.version;

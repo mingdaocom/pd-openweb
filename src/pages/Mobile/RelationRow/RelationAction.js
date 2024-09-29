@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { Icon } from 'ming-ui';
-import { Flex, ActivityIndicator, WhiteSpace, ListView, WingBlank, Button, Modal } from 'antd-mobile';
+import { Dialog, Button } from 'antd-mobile';
 import RelateScanQRCode from 'src/components/newCustomFields/components/RelateScanQRCode';
 import DocumentTitle from 'react-document-title';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
@@ -13,31 +13,7 @@ import { controlState } from 'src/components/newCustomFields/tools/utils';
 import * as actions from './redux/actions';
 import RegExpValidator from 'src/util/expression';
 import sheetAjax from 'src/api/worksheet';
-import styled from 'styled-components';
 import _ from 'lodash';
-
-const BtnsWrapper = styled(Flex)`
-  background-color: #fff;
-  a {
-    text-decoration: none;
-  }
-  .am-button {
-    height: 36px;
-    line-height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 7px 0;
-    &,
-    &::before,
-    &-active::before {
-      color: #fff;
-      font-size: 14px;
-      border-radius: 50px !important;
-      padding: 0 5px 0 10px;
-    }
-  }
-`;
 
 class RelationAction extends Component {
   constructor(props) {
@@ -275,7 +251,7 @@ class RelationAction extends Component {
           this.setState({ showRelevanceRecord: true, recordkeyWords: keyWords });
         }}
       >
-        <Button type="primary">
+        <Button className="flex mLeft6 mRight6 Font13" color="primary">
           <Fragment>
             <Icon icon="qr_code_19" className="Font20" />
             {_l('扫码关联')}
@@ -290,41 +266,32 @@ class RelationAction extends Component {
     const { isRelevance, isSubList } = permissionInfo;
     return (
       <Fragment>
-        <WingBlank size="sm" className="flex">
+        <Button
+          className="flex mLeft6 mRight6 edit Gray_75 bold Font13"
+          onClick={() => {
+            this.handleSetEdit(false);
+          }}
+        >
+          {_l('取消')}
+        </Button>
+        {(isRelevance || !!selectedRecordIds.length) && (
           <Button
-            className="edit Gray_75 bold"
+            className="flex mLeft6 mRight6 bold Font13"
+            color="primary"
+            disabled={!selectedRecordIds.length}
             onClick={() => {
-              this.handleSetEdit(false);
+              Dialog.confirm({
+                content: isSubList ? _l('确认删除吗？') : _l('确认取消选中的关联关系吗？'),
+                onConfirm: this.removeRelationRows
+              });
             }}
           >
-            {_l('取消')}
+            {selectedRecordIds.length
+              ? isSubList
+                ? _l('确认删除(%0)', selectedRecordIds.length)
+                : _l('取消关联(%0)', selectedRecordIds.length)
+              : _l('取消关联')}
           </Button>
-        </WingBlank>
-        {(isRelevance || !!selectedRecordIds.length) && (
-          <WingBlank size="sm" className="flex">
-            <Button
-              className="bold"
-              type="primary"
-              disabled={!selectedRecordIds.length}
-              onClick={() => {
-                Modal.alert(isSubList ? _l('确认删除吗？') : _l('确认取消选中的关联关系吗？'), '', [
-                  { text: _l('取消'), onPress: () => {} },
-                  {
-                    text: _l('确认'),
-                    onPress: () => {
-                      this.removeRelationRows();
-                    },
-                  },
-                ]);
-              }}
-            >
-              {selectedRecordIds.length
-                ? isSubList
-                  ? _l('确认删除(%0)', selectedRecordIds.length)
-                  : _l('取消关联(%0)', selectedRecordIds.length)
-                : _l('取消关联')}
-            </Button>
-          </WingBlank>
         )}
       </Fragment>
     );
@@ -350,52 +317,44 @@ class RelationAction extends Component {
     return (
       <Fragment>
         {control.type !== 51 && allowRemoveRelation && hasEdit && !rulesLocked && (
-          <WingBlank size="sm" className="flex">
-            <Button
-              disabled={!relationRows.length}
-              className="edit Gray_75 bold"
-              onClick={() => {
-                this.handleSetEdit(true);
-              }}
-            >
-              {_l('批量操作')}
-            </Button>
-          </WingBlank>
+          <Button
+            disabled={!relationRows.length}
+            className="flex mLeft6 mRight6 edit Gray_75 bold Font13"
+            onClick={() => {
+              this.handleSetEdit(true);
+            }}
+          >
+            {_l('批量操作')}
+          </Button>
         )}
         {allowNewRecord && !rulesLocked && (
           <Fragment>
             {onlyRelateByScanCode && (
-              <WingBlank size="sm" className="flex">
-                {this.renderRelateScanQRCodeBtn()}
-              </WingBlank>
+              this.renderRelateScanQRCodeBtn()
             )}
             {!disabledManualWrite && (
-              <WingBlank size="sm" className="flex">
-                <Button
-                  type="primary"
-                  className="bold"
-                  onClick={() => {
-                    if (control.type === 51) {
-                      this.setState({ showCreateRecord: true });
-                      return;
-                    }
-                    if (isRelevance) {
-                      this.handleSetShowRelevanceRecord(true);
-                      return;
-                    }
-                    if (isCreate) {
-                      this.setState({ showCreateRecord: true });
-                      return;
-                    }
-                  }}
-                >
-                  <Fragment>
-                    <Icon icon="add" className="Font20" />
-                    {isRelevance ? _l('添加') : _l('新建')}
-                    {entityName}
-                  </Fragment>
-                </Button>
-              </WingBlank>
+              <Button
+                color="primary"
+                className="flex mLeft6 mRight6 bold Font13"
+                onClick={() => {
+                  if (control.type === 51) {
+                    this.setState({ showCreateRecord: true });
+                    return;
+                  }
+                  if (isRelevance) {
+                    this.handleSetShowRelevanceRecord(true);
+                    return;
+                  }
+                  if (isCreate) {
+                    this.setState({ showCreateRecord: true });
+                    return;
+                  }
+                }}
+              >
+                <Icon icon="add" className="Font20 TxtBottom" />
+                {isRelevance ? _l('添加') : _l('新建')}
+                {entityName}
+              </Button>
             )}
           </Fragment>
         )}
@@ -425,11 +384,11 @@ class RelationAction extends Component {
     }
 
     return (
-      <BtnsWrapper justify="center" align="center">
+      <div className="flexRow alignItemsCenter justifyContentCenter WhiteBG pAll10">
         {title && <DocumentTitle title={title} />}
         {isEdit ? this.renderEdit() : this.renderContent()}
         {this.renderDialog()}
-      </BtnsWrapper>
+      </div>
     );
   }
 }

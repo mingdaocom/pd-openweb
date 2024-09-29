@@ -1,9 +1,15 @@
 import React from 'react';
 import withClickAway from 'ming-ui/decorators/withClickAway';
-import { Icon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
 
+const Wrap = styled.li`
+  .svgIconForBtn {
+    display: inline-flex;
+  }
+`;
 @withClickAway
 class CustomBtnList extends React.Component {
   render() {
@@ -26,25 +32,35 @@ class CustomBtnList extends React.Component {
               <ul className="btnListUl">
                 <li className="Gray_9e">{_l('选择已有按钮')}</li>
                 {_.map(data, (item, i) => {
-                  const { color, icon, name } = item;
+                  const { color, icon, name, iconUrl } = item;
                   return (
-                    <li
-                      className="Gray overflow_ellipsis WordBreak btnList"
+                    <Wrap
+                      className="Gray overflow_ellipsis WordBreak btnList flexRow alignItemsCenter"
                       key={`${i}-btnList`}
                       onClick={() => {
                         this.props.setList(item);
                       }}
                     >
-                      <Icon
-                        icon={icon || 'custom_actions'}
-                        style={{ color: color }}
-                        className={cx(
-                          'mRight12 Font18',
-                          !icon ? 'Gray_bd' : !color ? 'ThemeColor3' : color === 'transparent' ? 'Gray' : '',
-                        )}
-                      />
+                      {!!iconUrl && !!icon && icon.endsWith('_svg') ? (
+                        <SvgIcon
+                          className="mRight12 svgIconForBtn"
+                          addClassName='TxtMiddle'
+                          url={iconUrl}
+                          fill={!color ? '#2196f3' : color === 'transparent' ? '#333' : color}
+                          size={18}
+                        />
+                      ) : (
+                        <Icon
+                          icon={icon || 'custom_actions'}
+                          style={{ color: color }}
+                          className={cx(
+                            'mRight12 Font18',
+                            !icon ? 'Gray_bd' : !color ? 'ThemeColor3' : color === 'transparent' ? 'Gray' : '',
+                          )}
+                        />
+                      )}
                       {name}
-                    </li>
+                    </Wrap>
                   );
                 })}
               </ul>

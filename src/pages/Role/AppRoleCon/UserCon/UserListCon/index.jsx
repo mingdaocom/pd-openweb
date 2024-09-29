@@ -134,7 +134,7 @@ export default class UserListCon extends React.Component {
       overlayClosable: false,
       SelectUserSettings: {
         projectId: _.isEmpty(getCurrentProject(projectId)) ? '' : projectId,
-        filterAccountIds: accountIds,
+        selectedAccountIds: accountIds,
         callback: users => {
           this.addRoleMembers(roleId, { users });
         },

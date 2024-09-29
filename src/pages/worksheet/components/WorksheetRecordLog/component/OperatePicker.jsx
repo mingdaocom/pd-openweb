@@ -78,7 +78,6 @@ function OperatePicker(props) {
           {OPTIONS.map(l => {
             return (
               <div className="optionItem" onClick={() => onSelect(l)}>
-                {/* <Checkbox text={l.label} checked={l.value === value} /> */}
                 {l.label}
               </div>
             );

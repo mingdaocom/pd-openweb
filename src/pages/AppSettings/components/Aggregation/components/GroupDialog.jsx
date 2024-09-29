@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { Icon, Dialog } from 'ming-ui';
+import { Icon, Dialog, SortableList } from 'ming-ui';
+import { Tooltip } from 'antd';
 import cx from 'classnames';
 import { useSetState } from 'react-use';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
 import Trigger from 'rc-trigger';
 import ChooseControls from './ChooseControls';
 import 'src/pages/AppSettings/components/Aggregation/components/style.less';
-import { getNodeInfo, getControls, getResultField } from '../util';
+import { getNodeInfo, getControls, getResultField, isDelStatus } from '../util';
 import _ from 'lodash';
 
 const inputW = 240;
@@ -19,6 +19,10 @@ const Wrap = styled.div`
 const WrapItem = styled.div(
   ({ length }) => `
   height: 40px;
+  &>span{
+      display: inline-block;
+      height: 40px;
+  }
   .leftCon,
   .rightCon {
     height: 36px;
@@ -126,21 +130,20 @@ export default function GroupDialog(props) {
     groupControls: props.groupControls.length <= 0 ? [{}] : props.groupControls,
   });
 
-  const SortHandle = SortableHandle(() => (
-    <div className="leftCon flexRow alignItemsCenter justifyContentCenter">
-      <Icon className="Gray_bd Hand dragIcon ThemeHoverColor3" icon="drag" />
-    </div>
-  ));
-
-  const Item = SortableElement(props => {
-    const { item, onUpdate, items, sourceInfos, num } = props;
+  const Item = props => {
+    const { item, onUpdate, items, sourceInfos, DragHandle } = props;
     // const [{ visibleTrigger }, setState] = useSetState({
     //   visibleTrigger: false,
     // });
+    const { num } = item;
     let version = Math.random();
     return (
       <WrapItem className={cx('flexRow cardItem alignItemsCenter mTop12', `${num}_itemC`)} length={sourceInfos.length}>
-        <SortHandle />
+        <DragHandle>
+          <div className="leftCon flexRow alignItemsCenter justifyContentCenter">
+            <Icon className="Gray_bd Hand dragIcon ThemeHoverColor3" icon="drag" />
+          </div>
+        </DragHandle>
         <div
           className="flex flexRow alignItemsCenter conByWorksheet titleConByWorksheet"
           style={{
@@ -153,21 +156,29 @@ export default function GroupDialog(props) {
               const fields = _.get(item, `fields`);
               const data = (fields || []).find((o = {}, n) => !!o.oid && n !== i);
               const list = items.map(a => (_.get(a, `fields[${i}].oid`) || '').split('_')[1]);
-              let sourceInfo = sourceInfos.find(it => it.worksheetId === o.worksheetId) || {};
+              let sourceInfo = o;
               const groupDt = getNodeInfo(flowData, 'GROUP');
               const sourceInfoData = [
                 {
                   ...sourceInfo,
-                  controls: getControls(data, (sourceInfo || {}).controls || []).filter(
-                    o => !list.includes(o.controlId) && ![6, 8].includes(o.type), //这期先不支持数值金额
-                  ),
+                  controls: getControls(data, (sourceInfo || {}).controls || [])
+                    .filter(
+                      o => !list.includes(o.controlId) && ![6, 8].includes(o.type), //这期先不支持数值金额
+                    )
+                    .map(o => {
+                      return {
+                        ...o,
+                        relationControls: getControls(data, o.relationControls || []).filter(
+                          o => !list.includes(o.controlId) && ![6, 8].includes(o.type), //这期先不支持数值金额
+                        ),
+                      };
+                    }),
                 },
               ];
-              const isDel =
-                !!_.get(item, `fields[${i}].name`) &&
-                !((sourceInfo || {}).controls || []).find(
-                  o => o.controlId === (_.get(item, `fields[${i}].oid`) || '').split('_')[1],
-                );
+              let isDel = !_.get(item, `fields[${i}].name`);
+              if (!isDel) {
+                isDel = isDelStatus(_.get(item, `fields[${i}]`), [sourceInfo]);
+              }
               const fieldsName = !_.get(item, `fields[${i}].name`)
                 ? _l('选择字段')
                 : isDel
@@ -192,16 +203,25 @@ export default function GroupDialog(props) {
                           sourceInfos={sourceInfoData}
                           onChange={data => {
                             const { control, childrenControl } = data;
+                            const dataControl = !!childrenControl ? childrenControl : control;
+                            const name = !!childrenControl
+                              ? `${control.controlName}-${dataControl.controlName}`
+                              : dataControl.controlName;
                             let newDt = {
-                              alias: control.controlName,
-                              controlSetting: !!childrenControl ? childrenControl : control,
+                              alias: name,
+                              controlSetting: dataControl,
                               isChildField: !!childrenControl, //可选，是否为子表字段(工作表关联字段关联表下的字段)-默认false
-                              parentFieldInfo: !!childrenControl ? control : {}, //可选，父字段，子表字段的上级字段，isChildField为true的时候必须有
+                              parentFieldInfo: !!childrenControl
+                                ? {
+                                    controlSetting: control,
+                                    oid: `${o.worksheetId}_${control.controlId}`,
+                                  }
+                                : {}, //可选，父字段，子表字段的上级字段，isChildField为true的时候必须有
                               isNotNull: true,
-                              isTitle: control.attribute === 1, //是否是标题，只有是工作表字段才有值
-                              mdType: control.type,
-                              name: control.controlName,
-                              oid: `${o.worksheetId}_${control.controlId}`, //工作表:oid记录为 worksheetId_controllId,这里前端需要这种层级关系，后端获取的时候只需controllerId
+                              isTitle: dataControl.attribute === 1, //是否是标题，只有是工作表字段才有值
+                              mdType: dataControl.type,
+                              name: name,
+                              oid: `${!!childrenControl ? control.dataSource : o.worksheetId}_${dataControl.controlId}`, //工作表:oid记录为 worksheetId_controllId,这里前端需要这种层级关系，后端获取的时候只需controllerId
                               precision: 0,
                               scale: 0,
                             };
@@ -230,6 +250,26 @@ export default function GroupDialog(props) {
                       >
                         {fieldsName}
                       </div>
+                      {_.get(item, `fields[${i}].parentFieldInfo.controlSetting.controlName`) && (
+                        <Tooltip
+                          placement="bottomLeft"
+                          offset={[-20, 0]}
+                          title={
+                            <span className="">
+                              {_.get(item, `fields[${i}].parentFieldInfo.controlSetting.controlName`) && (
+                                <span className="Gray_bd pRight5">{_l('关联')}</span>
+                              )}
+                              {`${_.get(item, `fields[${i}].parentFieldInfo.controlSetting.controlName`) + '>'}${
+                                !_.get(item, `fields[${i}]controlSetting`)
+                                  ? _.get(item, `fields[${i}]alias`)
+                                  : _.get(item, `fields[${i}]controlSetting.controlName`) || _l('未命名')
+                              }`}
+                            </span>
+                          }
+                        >
+                          <Icon icon="info_outline" className="Hand Gray_9e ThemeHoverColor3 Font16 pRight20" />
+                        </Tooltip>
+                      )}
                       {_.get(item, `fields[${i}].name`) && (
                         <Icon
                           icon="cancel1"
@@ -270,41 +310,7 @@ export default function GroupDialog(props) {
         </div>
       </WrapItem>
     );
-  });
-  const SortableList = SortableContainer(props => {
-    const { items, sourceInfos } = props;
-
-    return (
-      <Wrap
-        className="tbodyContainer"
-        ref={tbodyContainer}
-        onScroll={() => {
-          const top = tbodyContainer.current && tbodyContainer.current.scrollTop;
-          $(`.leftCon,.rightCon`).css({
-            transform: `translate(0,${-top}px)`,
-          });
-        }}
-      >
-        <WrapItem className="flexRow cardItem cardItemTitle  alignItemsCenter" length={sourceInfos.length}>
-          <div className="flex flexRow alignItemsCenter conByWorksheet">
-            {sourceInfos.map((it, i) => {
-              return (
-                <React.Fragment>
-                  <div className="Dropdown--input TxtCenter WordBreak overflow_ellipsis">{it.workSheetName}</div>
-                  {i < sourceInfos.length - 1 && <div className="joinCon"></div>}
-                </React.Fragment>
-              );
-            })}
-          </div>
-        </WrapItem>
-        {_.map(items, (item, index) => {
-          return (
-            <Item item={item} sourceInfos={sourceInfos} {...props} key={'item_' + index} index={index} num={index} />
-          );
-        })}
-      </Wrap>
-    );
-  });
+  };
   const onSave = () => {
     //字段名称显示第一个工作表，第一个字段的名称。
     let isErr = false;
@@ -328,7 +334,7 @@ export default function GroupDialog(props) {
       } else {
         return {
           ...o,
-          resultField: getResultField(o.fields),
+          resultField: getResultField(o.fields, flowData),
         };
       }
     });
@@ -386,25 +392,53 @@ export default function GroupDialog(props) {
       }}
     >
       <div className="groupConPolymerizationCon noSelect">
-        <SortableList
-          items={groupControls}
-          sourceInfos={sourceInfos}
-          distance={5}
-          useDragHandle
-          axis={'y'}
-          onSortEnd={({ oldIndex, newIndex }) => {
-            if (oldIndex === newIndex) {
-              return;
-            }
-            setState({
-              groupControls: arrayMove(groupControls, oldIndex, newIndex),
+        <Wrap
+          className="tbodyContainer"
+          ref={tbodyContainer}
+          onScroll={() => {
+            const top = tbodyContainer.current && tbodyContainer.current.scrollTop;
+            $(`.leftCon,.rightCon`).css({
+              transform: `translate(0,${-top}px)`,
             });
           }}
-          helperClass={'groupConPolymerization'}
-          onUpdate={groupControls => {
-            setState({ groupControls });
-          }}
-        />
+        >
+          <WrapItem className="flexRow cardItem cardItemTitle  alignItemsCenter" length={sourceInfos.length}>
+            <div className="flex flexRow alignItemsCenter conByWorksheet">
+              {sourceInfos.map((it, i) => {
+                return (
+                  <React.Fragment>
+                    <div className="Dropdown--input TxtCenter WordBreak overflow_ellipsis">{it.workSheetName}</div>
+                    {i < sourceInfos.length - 1 && <div className="joinCon"></div>}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+          </WrapItem>
+          <SortableList
+            useDragHandle
+            canDrag
+            items={groupControls.map((o, i) => {
+              return { ...o, num: i };
+            })}
+            itemKey="num"
+            onSortEnd={(newItems = [], newIndex) => {
+              setState({
+                groupControls: newItems,
+              });
+            }}
+            renderItem={options => (
+              <Item
+                {...options}
+                items={groupControls}
+                sourceInfos={sourceInfos}
+                {...props}
+                onUpdate={groupControls => {
+                  setState({ groupControls });
+                }}
+              />
+            )}
+          />
+        </Wrap>
 
         <WrapAdd
           className="Hand mTop12 addItem Bold ThemeHoverColor3 flexRow alignItemsCenter"

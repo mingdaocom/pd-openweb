@@ -4,11 +4,11 @@ import SelectWorksheet from 'src/pages/worksheet/components/SelectWorksheet/Sele
 import { FilterItemTexts, FilterDialog } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
 import { Icon, SvgIcon } from 'ming-ui';
 import { WrapWorksheet, WrapSource, WrapSelectCon } from './style';
-import { getNodeInfo } from '../util';
+import { getNodeInfo, getAllSourceList } from '../util';
 import cx from 'classnames';
 import { Tooltip } from 'antd';
 import { DEFAULT_COLORS } from '../config';
-import { formatControls, updateConfig } from '../util';
+import { filterForFilterDialog, updateConfig } from '../util';
 import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 
@@ -22,6 +22,20 @@ export default function SourceCon(props) {
   });
 
   const renderSourceItem = (dataInfo = {}, canChange = false, filters = [], index) => {
+    if (dataInfo.isRelative) {
+      return (
+        <div className="Dropdown--input Dropdown--border" onClick={e => e.stopPropagation()}>
+          {dataInfo.isDelete ? (
+            <span className="Red Bold">{_l('字段已删除')}</span>
+          ) : (
+            <React.Fragment>
+              <Icon type="link_record" className="Font16 Gray_9e" />
+              <span className="flex mLeft5 Bold WordBreak overflow_ellipsis">{dataInfo.controlName}</span>
+            </React.Fragment>
+          )}
+        </div>
+      );
+    }
     const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
     const groupDt = getNodeInfo(props.flowData, 'GROUP');
     return (
@@ -128,18 +142,20 @@ export default function SourceCon(props) {
   const renderDropdownElement = () => {
     const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
     const sourceTablesData = _.get(sourceDt, 'nodeConfig.config.sourceTables') || [];
-    const canAdd = sourceTablesData.length < 5 && sourceTablesData.length > 0;
+    const sourceDtList = getAllSourceList(props.flowData, props.sourceInfos);
+    const canAdd = sourceDtList.length < 5 && sourceDtList.length > 0;
     return (
       <WrapSelectCon>
-        {(_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).map((o, index) => {
+        {sourceDtList.map((o, index) => {
           const filters = _.get(o, 'filterConfig.items') || [];
-          const canChange = (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length === 1 || !o.workSheetId;
+          const canChange = (sourceTablesData.length === 1 || !o.workSheetId) && !o.isRelative;
           return (
             <React.Fragment>
               <div className="topCon" onClick={e => e.stopPropagation()} />
               <WrapWorksheet
                 className={cx('Relative hoverBoxShadow', {
                   pBottom12: filters.length > 0 && !hideIds.includes(o.workSheetId),
+                  isRelative: o.isRelative,
                 })}
                 onClick={e => {
                   if (!canChange) {
@@ -151,11 +167,11 @@ export default function SourceCon(props) {
                   }
                 }}
               >
-                {o.workSheetId && !canChange && (
+                {sourceDtList.length > 1 && (
                   <div className="colorByWorksheet" style={{ backgroundColor: DEFAULT_COLORS[index] }}></div>
                 )}
                 {renderSourceItem(o, canChange, filters, index)}
-                {filters.length > 0 && !hideIds.includes(o.workSheetId) && (
+                {!o.isRelative && filters.length > 0 && !hideIds.includes(o.workSheetId) && (
                   <FilterItemTexts
                     className={'filterConByWorksheet mTop0'}
                     data={{}}
@@ -290,7 +306,7 @@ export default function SourceCon(props) {
     );
     const filters = _.get(dataInfo, 'filterConfig.items') || [];
     const sourceInfo = props.sourceInfos.find(it => it.worksheetId === filterVisibleId) || {};
-    const relateControls = formatControls(sourceInfo.controls || []).filter(
+    const relateControls = filterForFilterDialog(sourceInfo.controls || []).filter(
       control => !(control.type === 29 && control.enumDefault === 2), //排除关联多条
     );
 

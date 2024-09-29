@@ -67,7 +67,7 @@ class Commenter extends React.Component {
   };
 
   static defaultProps = {
-    placeholder: _l('发表评论（按Ctrl+Enter快速发布）'),
+    placeholder: _l('发送讨论（按Ctrl+Enter快速发布）'),
     canAddLink: true,
     textareaMaxHeight: 180,
     textareaMinHeight: 50,

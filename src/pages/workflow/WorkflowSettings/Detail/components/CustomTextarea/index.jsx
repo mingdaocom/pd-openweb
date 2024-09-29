@@ -15,6 +15,7 @@ export default class CustomTextarea extends Component {
     selectNodeId: PropTypes.string,
     sourceAppId: PropTypes.string,
     isIntegration: PropTypes.bool,
+    isPlugin: PropTypes.bool,
     type: PropTypes.number,
     height: PropTypes.number,
     content: PropTypes.string,
@@ -25,6 +26,7 @@ export default class CustomTextarea extends Component {
     updateSource: PropTypes.func,
     operatorsSetMargin: PropTypes.bool,
     className: PropTypes.string,
+    showCurrent: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -33,7 +35,9 @@ export default class CustomTextarea extends Component {
     operatorsSetMargin: false,
     sourceAppId: '',
     isIntegration: false,
+    isPlugin: false,
     className: '',
+    showCurrent: false,
   };
 
   state = {
@@ -61,6 +65,7 @@ export default class CustomTextarea extends Component {
       selectNodeId,
       sourceAppId,
       isIntegration,
+      isPlugin,
       type,
       height,
       content,
@@ -70,6 +75,8 @@ export default class CustomTextarea extends Component {
       updateSource,
       operatorsSetMargin,
       className,
+      onBlur = () => {},
+      showCurrent,
     } = this.props;
     const { fieldsVisible } = this.state;
 
@@ -102,6 +109,7 @@ export default class CustomTextarea extends Component {
               />
             );
           }}
+          onBlur={onBlur}
           onChange={onChange}
         />
         <SelectOtherFields
@@ -113,6 +121,8 @@ export default class CustomTextarea extends Component {
           selectNodeId={selectNodeId}
           sourceAppId={sourceAppId}
           isIntegration={isIntegration}
+          isPlugin={isPlugin}
+          showCurrent={showCurrent}
           handleFieldClick={obj => {
             const newFormulaMap = _.cloneDeep(formulaMap);
             newFormulaMap[obj.nodeId] = {

@@ -296,7 +296,7 @@ class DialogSelectDept extends React.Component {
         let moreData = this.state.departmentMoreIds.find(o => o.departmentId === department.departmentId);
         let pageIndex = moreData ? moreData.pageIndex + 1 : 1;
         param =
-          location.href.indexOf('admin') > -1
+          location.href.indexOf('admin') > -1 || this.props.isAnalysis
             ? {
                 ...param,
                 pageIndex,

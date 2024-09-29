@@ -68,7 +68,7 @@ const LocationWrap = styled.div`
 const { IsLocal } = md.global.Config;
 const isWx = window.isWeiXin && !IsLocal && !window.isWxWork;
 const isMobile = browserIsMobile();
-const isApp = (window.isWxWork || isWx || window.isWeLink || window.isDingTalk || window.isFeiShu) && isMobile;
+const isApp = (window.isWxWork || isWx || window.isWeLink || window.isDingTalk || window.isFeiShu || window.isMingDaoApp) && isMobile;
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -94,6 +94,11 @@ export default class Widgets extends Component {
   handleAuthentication = () => {
     const { strDefault, projectId } = this.props;
     const geolocation = (typeof strDefault === 'string' ? strDefault : '00')[0] === '1';
+
+    if (window.isMingDaoApp) {
+      this.handleMDAppLocation();
+      return;
+    }
 
     if (isWx) {
       if (!geolocation) {
@@ -136,10 +141,14 @@ export default class Widgets extends Component {
       return;
     }
   };
+  
 
   handleDingSelectLocation = () => {
     const { onChange } = this.props;
-    Toast.loading(_l('正在获取取经纬度，请稍后'));
+    Toast.show({
+      icon: 'loading',
+      content: _l('正在获取取经纬度，请稍后')
+    });
     window.dd.device.geolocation.get({
       targetAccuracy: 200,
       coordinate: 1,
@@ -148,18 +157,21 @@ export default class Widgets extends Component {
       onSuccess: result => {
         const { longitude, latitude } = result;
         onChange(JSON.stringify({ x: longitude, y: latitude }));
-        Toast.hide();
+        Toast.clear();
       },
       onFail: err => {
         window.nativeAlert(JSON.stringify(err));
-        Toast.hide();
+        Toast.clear();
       },
     });
   };
 
   handleWeLinkSelectLocation = () => {
     const { onChange } = this.props;
-    Toast.loading(_l('正在获取取经纬度，请稍后'));
+    Toast.show({
+      icon: 'loading',
+      content: _l('正在获取取经纬度，请稍后')
+    });
     window.HWH5.getLocation({
       type: 0,
       mode: 'gps',
@@ -167,11 +179,11 @@ export default class Widgets extends Component {
       .then(result => {
         const { longitude, latitude } = result;
         onChange(JSON.stringify({ x: longitude, y: latitude }));
-        Toast.hide();
+        Toast.clear();
       })
       .catch(err => {
         window.nativeAlert(JSON.stringify(err));
-        Toast.hide();
+        Toast.clear();
       });
   };
 
@@ -180,7 +192,10 @@ export default class Widgets extends Component {
 
     if ((typeof strDefault === 'string' ? strDefault : '00')[0] === '1') {
       // 获取经纬度
-      Toast.loading(_l('正在获取取经纬度，请稍后'));
+      Toast.show({
+        icon: 'loading',
+        content: _l('正在获取取经纬度，请稍后')
+      });
       window.tt.getLocation({
         type: 'gcj02',
         timeout: 5,
@@ -189,14 +204,14 @@ export default class Widgets extends Component {
         success(res) {
           const { longitude, latitude } = res;
           onChange(JSON.stringify({ x: longitude, y: latitude }));
-          Toast.hide();
+          Toast.clear();
         },
         fail(res) {
           const { errMsg } = res;
           if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
             window.nativeAlert(JSON.stringify(res));
           }
-          Toast.hide();
+          Toast.clear();
         },
       });
     } else {
@@ -217,26 +232,82 @@ export default class Widgets extends Component {
     }
   };
 
+  handleMDAppLocation = () => {
+    const { controlId, formData, onChange, strDefault } = this.props;
+    const control = _.find(formData, { controlId }) || {};
+
+    if ((typeof strDefault === 'string' ? strDefault : '00')[0] === '1') {
+      Toast.show({
+        icon: 'loading',
+        content: _l('正在获取取经纬度，请稍后')
+      });
+      window.MDJS.getLocation({
+        success: (res) => {
+          const { longitude, latitude, address, title } = res;
+          onChange(JSON.stringify({ x: longitude, y: latitude, address, title, coordinate: 'wgs84' }));
+          Toast.clear();
+        },
+        cancel: (res) => {
+          const { errMsg } = res;
+          if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
+            window.nativeAlert(JSON.stringify(res));
+          }
+          Toast.clear();
+        }
+      });
+    } else {
+      window.MDJS.chooseLocation({
+        control,
+        success: (res) => {
+          const { longitude, latitude, coordinate, address, title } = res;
+          onChange(JSON.stringify({ x: longitude, y: latitude, address, title, coordinate }));
+        },
+        cancel: (res) => {
+          const { errMsg } = res;
+          if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
+            window.nativeAlert(JSON.stringify(res));
+          }
+        }
+      });
+    }
+  }
+
+  handleMDAppOpenLocation = (location) => {
+    window.MDJS.openLocation({
+      type: location.coordinate,
+      longitude: location.x,
+      latitude: location.y,
+      name: location.title,
+      address: location.address,
+    });
+  }
+
   handleWxSelectLocation = () => {
     const { onChange } = this.props;
-    Toast.loading(_l('正在获取取经纬度，请稍后'));
+    Toast.show({
+      icon: 'loading',
+      content: _l('正在获取取经纬度，请稍后')
+    });
     window.wx.getLocation({
       type: 'wgs84',
       success(res) {
         const { longitude, latitude, address, name } = res;
         onChange(JSON.stringify({ x: longitude, y: latitude, address, title: name, coordinate: 'WGS84' }));
-        Toast.hide();
+        Toast.clear();
       },
       error(res) {
         window.nativeAlert(JSON.stringify(res));
-        Toast.hide();
+        Toast.clear();
       },
     });
   };
 
   handleH5Location = () => {
     const { onChange } = this.props;
-    Toast.loading(_l('正在获取取经纬度，请稍后'));
+    Toast.show({
+      icon: 'loading',
+      content: _l('正在获取取经纬度，请稍后')
+    });
     new MapLoader().loadJs().then(() => {
       new MapHandler().getCurrentPos((status, res) => {
         if (status === 'complete') {
@@ -248,7 +319,7 @@ export default class Widgets extends Component {
               title: (res.addressComponent || {}).building || '',
             }),
           );
-          Toast.hide();
+          Toast.clear();
         }
       });
     });
@@ -263,7 +334,7 @@ export default class Widgets extends Component {
   render() {
     const { disabled, value, enumDefault, enumDefault2, advancedSetting, onChange, from, strDefault } = this.props;
     const { visible } = this.state;
-    const onlyCanAppUse = (typeof strDefault === 'string' ? strDefault : '00')[0] === '1' && !isApp;
+    const onlyCanAppUse = (typeof strDefault === 'string' ? strDefault : '00')[0] === '1';
     let location = null;
 
     if (value) {
@@ -282,7 +353,16 @@ export default class Widgets extends Component {
     if (onlyCanAppUse && !value) {
       if (isMobile) {
         return (
-          <div className="customFormControlBox customFormButton TxtCenter" onClick={() => this.handleH5Location()}>
+          <div
+            className="customFormControlBox customFormButton TxtCenter"
+            onClick={() => {
+              if (isApp) {
+                this.handleAuthentication();
+              } else {
+                this.handleH5Location();
+              }
+            }}
+          >
             <span className="Bold Font13 LineHeight34">{_l('点击获取当前位置经纬度')}</span>
           </div>
         );
@@ -324,7 +404,9 @@ export default class Widgets extends Component {
           <LocationWrap
             isMobile={isMobile}
             onClick={() => {
-              if (!isMobile || disabled) {
+              if (window.isMingDaoApp) {
+                this.handleMDAppOpenLocation(location);
+              } else if (!isMobile || disabled) {
                 window.open(`https://uri.amap.com/marker?position=${location.x},${location.y}`);
               } else {
                 if (isApp) {

@@ -110,6 +110,10 @@ export default function WidgetIntro(props) {
           ),
           okText: _l('确定'),
           onOk: () => {
+            window.clearLocalDataTime({
+              requestData: { worksheetId: dataSource },
+              clearSpecificKey: 'Worksheet_GetWorksheetInfo',
+            });
             appManagementAjax
               .changeSheet({
                 sourceWorksheetId: globalSheetInfo.worksheetId,
@@ -124,7 +128,7 @@ export default function WidgetIntro(props) {
                   onChange({ data, needUpdate: true });
                   alert(_l('转换成功'));
                 } else {
-                  alert(_l('转换失败'));
+                  alert(_l('转换失败'), 2);
                 }
               });
           },

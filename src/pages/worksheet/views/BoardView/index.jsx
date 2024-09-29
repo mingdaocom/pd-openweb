@@ -238,7 +238,7 @@ function BoardView(props) {
   };
 
   const renderContent = () => {
-    const { boardViewLoading, boardData } = boardView;
+    const { boardViewLoading = true, boardData } = boardView;
     const { sheetSwitchPermit } = props;
     const { viewControl } = view;
     const viewData = dealBoardViewData({ view, controls, data: boardData });

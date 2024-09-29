@@ -15,6 +15,7 @@ import DateContent from './DateContent';
 import PBCContent from './PBCContent';
 import DiscussContent from './DiscussContent';
 import ApprovalProcess from './ApprovalProcess';
+import LoopProcessContent from './LoopProcessContent';
 import _ from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
@@ -46,7 +47,7 @@ export default class Start extends Component {
   }
 
   /**
-   * 获取动作详情
+   * 获取节点详情
    */
   getNodeDetail = ({ appId = undefined, fields = undefined } = {}) => {
     const { processId, selectNodeId, selectNodeType, flowInfo, isIntegration, instanceId } = this.props;
@@ -58,7 +59,19 @@ export default class Start extends Component {
       )
       .then(result => {
         if (result.appType === APP_TYPE.PBC && !flowInfo.child && !result.controls.length) {
-          result.controls = [{ controlId: uuidv4(), controlName: '', type: 2, alias: '', required: false, desc: '' }];
+          result.controls = [
+            {
+              controlId: uuidv4(),
+              controlName: '',
+              type: 2,
+              alias: '',
+              required: false,
+              desc: '',
+              workflowDefaultValue: '',
+              attribute: 0,
+              options: [{ key: '', value: '' }],
+            },
+          ];
         }
 
         if (result.appType === APP_TYPE.APPROVAL_START && fields) {
@@ -89,7 +102,7 @@ export default class Start extends Component {
    * 保存
    */
   onSave = ({ close = true, isUpdate = undefined } = {}) => {
-    const { flowInfo } = this.props;
+    const { flowInfo, isPlugin } = this.props;
     const { data, saveRequest } = this.state;
     // 处理按时间触发时间日期
     const isDateField =
@@ -124,6 +137,8 @@ export default class Start extends Component {
       hooksBody,
       fields,
       flowNodeMap,
+      addNotAllowView,
+      formProperties,
     } = data;
     let { time } = data;
     time = isDateField ? '' : time;
@@ -157,12 +172,12 @@ export default class Start extends Component {
         return;
       }
 
-      if (_.includes([APP_TYPE.PBC, APP_TYPE.PARAMETER], appType)) {
+      if (_.includes([APP_TYPE.PBC, APP_TYPE.PARAMETER, APP_TYPE.LOOP_PROCESS], appType)) {
         let arrError = 0;
         let objArrError = 0;
 
         if (controls.filter(item => !item.controlName).length) {
-          alert(_l('名称不能为空'), 2);
+          alert(appType === APP_TYPE.LOOP_PROCESS ? _l('参数名称不能为空') : _l('字段名不能为空'), 2);
           return;
         }
 
@@ -197,6 +212,18 @@ export default class Start extends Component {
           alert(_l('对象数组下，子节点的别名为必填'), 2);
           return;
         }
+
+        if (controls.filter(item => item.type === 9 && !!item.options.filter(o => !o.key || !o.value).length).length) {
+          alert(_l('单选的选项名和选项值不能为空'), 2);
+          return;
+        }
+
+        // 更新选项的sort
+        controls.forEach(item => {
+          if (item.type === 9) {
+            item.options = item.options.map((o, index) => Object.assign({}, o, { index }));
+          }
+        });
       }
 
       if (appType === APP_TYPE.LOOP && executeEndTime && moment(executeTime) >= moment(executeEndTime)) {
@@ -206,10 +233,17 @@ export default class Start extends Component {
 
       if (
         appType === APP_TYPE.APPROVAL_START &&
-        ((processConfig.initiatorMaps[5] && !(processConfig.initiatorMaps[5] || []).length) ||
-          (processConfig.userTaskNullMaps[5] && !(processConfig.userTaskNullMaps[5] || []).length))
+        ((processConfig.initiatorMaps && processConfig.initiatorMaps[5] && !processConfig.initiatorMaps[5].length) ||
+          (processConfig.userTaskNullMaps &&
+            processConfig.userTaskNullMaps[5] &&
+            !processConfig.userTaskNullMaps[5].length))
       ) {
         alert(_l('必须指定代理人'), 2);
+        return;
+      }
+
+      if (appType === APP_TYPE.PBC && !data.controls.length && isPlugin) {
+        alert(_l('输入参数不允许为空'), 2);
         return;
       }
     }
@@ -249,6 +283,8 @@ export default class Start extends Component {
           hooksBody,
           fields,
           flowNodeMap: clearFlowNodeMapParameter(flowNodeMap),
+          addNotAllowView,
+          formProperties,
         },
         { isIntegration: this.props.isIntegration },
       )
@@ -429,6 +465,9 @@ export default class Start extends Component {
                     updateSource={this.updateSource}
                   />
                 )}
+                {data.appType === APP_TYPE.LOOP_PROCESS && (
+                  <LoopProcessContent {...this.props} data={data} updateSource={this.updateSource} />
+                )}
               </Fragment>
             )}
           </ScrollView>
@@ -449,6 +488,7 @@ export default class Start extends Component {
                 APP_TYPE.PBC,
                 APP_TYPE.PARAMETER,
                 APP_TYPE.APPROVAL_START,
+                APP_TYPE.LOOP_PROCESS,
               ],
               data.appType,
             )

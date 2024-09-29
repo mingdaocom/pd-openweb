@@ -14,6 +14,17 @@ import selectLocation from './selectLocation';
 import { browserIsMobile, addBehaviorLog, mdAppResponse } from 'src/util';
 import { getFilledRequestParams, emitter } from '../../util';
 
+import worksheetAjax from 'src/api/worksheet';
+import appManagementAjax from 'src/api/appManagement';
+import homeAppAjax from 'src/api/homeApp';
+import actionLogAjax from 'src/api/actionLog';
+import instanceAjax from 'src/pages/workflow/api/instance';
+import instanceVersionAjax from 'src/pages/workflow/api/instanceVersion';
+import processAjax from 'src/pages/workflow/api/process';
+import processVersionAjax from 'src/pages/workflow/api/processVersion';
+import delegationAjax from 'src/pages/workflow/api/delegation';
+import qiniuAjax from 'src/api/qiniu';
+
 export const api = {
   getFilterRowsTotalNum: data => window.mdyAPI('Worksheet', 'GetFilterRowsTotalNum', getFilledRequestParams(data)),
   getFilterRows: data => window.mdyAPI('Worksheet', 'GetFilterRows', getFilledRequestParams(data)),
@@ -24,6 +35,57 @@ export const api = {
   updateWorksheetRow: data => window.mdyAPI('Worksheet', 'UpdateWorksheetRow', data),
   getWorksheetInfo: data => window.mdyAPI('Worksheet', 'GetWorksheetInfo', data),
 };
+
+function getMainWebApi() {
+  const mainWebApi = {};
+  [
+    {
+      controller: 'worksheet',
+      ajax: worksheetAjax,
+    },
+    {
+      controller: 'appManagement',
+      ajax: appManagementAjax,
+    },
+    {
+      controller: 'homeApp',
+      ajax: homeAppAjax,
+    },
+    {
+      controller: 'actionLog',
+      ajax: actionLogAjax,
+    },
+    {
+      controller: 'instance',
+      ajax: instanceAjax,
+    },
+    {
+      controller: 'instanceVersion',
+      ajax: instanceVersionAjax,
+    },
+    {
+      controller: 'process',
+      ajax: processAjax,
+    },
+    {
+      controller: 'processVersion',
+      ajax: processVersionAjax,
+    },
+    {
+      controller: 'delegation',
+      ajax: delegationAjax,
+    },
+    {
+      controller: 'qiniu',
+      ajax: qiniuAjax,
+    },
+  ].forEach(item => {
+    mainWebApi[item.controller] = item.ajax;
+  });
+  return mainWebApi;
+}
+
+export const mainWebApi = getMainWebApi();
 
 const isMobile = browserIsMobile();
 

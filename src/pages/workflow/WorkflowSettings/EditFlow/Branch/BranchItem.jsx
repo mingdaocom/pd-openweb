@@ -48,7 +48,7 @@ export default class BranchItem extends Component {
           pBottom10: !_.includes([1, 2, 3, 4], item.resultTypeId) && disabled,
         })}
       >
-        <div className="flexRow mBottom4" style={{ alignItems: 'center' }}>
+        <div className="flexRow mBottom4 alignItemsCenter">
           <NodeOperate
             {...this.props}
             updateBranchSort={(processId, nodeId, flowIds) => {
@@ -206,18 +206,8 @@ export default class BranchItem extends Component {
   }
 
   render() {
-    const {
-      processId,
-      data,
-      item,
-      disabled,
-      renderNode,
-      clearBorderType,
-      openDetail,
-      isCopy,
-      isApproval,
-      isSimple,
-    } = this.props;
+    const { processId, data, item, disabled, renderNode, clearBorderType, openDetail, isCopy, isApproval, isSimple } =
+      this.props;
     const { isMove } = this.state;
     const resultTypeText = {
       1: _l('通过'),

@@ -36,7 +36,7 @@ export default class Api extends Component {
     }
 
     return (
-      <div className="pLeft8 pRight8 flexRow" style={{ alignItems: 'center' }}>
+      <div className="pLeft8 pRight8 flexRow alignItemsCenter">
         <div className="ellipsis">
           <span className="Gray_75">{_l('调用API')}：</span>
           {item.appName}

@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate, MembersName, SimplifyNode } from '../components';
+import { CreateNode, NodeOperate, MembersName, WhiteNode } from '../components';
 import {
   TRIGGER_ID,
   APP_TYPE,
@@ -9,11 +9,12 @@ import {
   TIME_TYPE_NAME,
   CUSTOM_ACTION_TEXT,
   NODE_TYPE,
+  ACTION_ID,
+  APP_TYPE_TEXT,
 } from '../../enum';
 import { getIcons, getStartNodeColor } from '../../utils';
 import _ from 'lodash';
 import moment from 'moment';
-import { Icon } from 'ming-ui';
 import styled from 'styled-components';
 
 const Box = styled.div`
@@ -36,22 +37,11 @@ export default class Start extends Component {
 
     // 子流程
     if (child && !isNestedProcess) {
-      const types = {
-        7: _l('发送 API 请求'),
-        12: _l('代码块'),
-        17: _l('业务流程数组'),
-        18: _l('JSON 解析'),
-        20: _l('人员信息'),
-        21: _l('部门信息'),
-        42: _l('API数组'),
-        46: _l('AIGC'),
-        405: _l('人工节点'),
-      };
       return (
         <Fragment>
           <div className="workflowContentInfo ellipsis workflowContentBG">
             <span className="Gray_75">{_l('数据源：')}</span>
-            {item.appType === APP_TYPE.SHEET ? _l('工作表“%0”', item.appName) : types[item.appType]}
+            {item.appType === APP_TYPE.SHEET ? _l('工作表“%0”', item.appName) : APP_TYPE_TEXT[item.appType]}
           </div>
           <div className="pLeft8 pRight8 mTop9 Gray_75 pBottom5">
             {(item.assignFieldNames || []).length ? (
@@ -295,6 +285,21 @@ export default class Start extends Component {
         </Fragment>
       );
     }
+
+    // 循环流程
+    if (item.appType === APP_TYPE.LOOP_PROCESS) {
+      return (
+        <div className="pLeft8 pRight8 pBottom5 pTop5">
+          <span className="Gray_75">
+            {item.triggerId
+              ? item.triggerId === ACTION_ID.CONDITION_LOOP
+                ? _l('满足条件时循环')
+                : _l('循环指定次数')
+              : _l('循环触发')}
+          </span>
+        </div>
+      );
+    }
   }
 
   openDocument = evt => {
@@ -304,71 +309,65 @@ export default class Start extends Component {
     window.open(`/worksheetapi/${relationId}`);
   };
 
-  renderCommonStart() {
-    const { processId, item, selectNodeId, openDetail, isCopy, child, isSimple, isNestedProcess } = this.props;
-
-    return (
-      <div
-        className={cx(
-          'workflowItem',
-          { workflowItemDisabled: isCopy },
-          {
-            errorShadow:
-              (item.appId && !item.appName && item.appType !== APP_TYPE.PBC) ||
-              (_.includes([APP_TYPE.DATE, APP_TYPE.PBC], item.appType) && item.isException),
-          },
-          { active: _.includes([item.id, item.triggerNodeId], selectNodeId) },
-        )}
-        onMouseDown={() => {
-          if (isNestedProcess) {
-            openDetail(item.triggerId, item.triggerNodeId, NODE_TYPE.APPROVAL_PROCESS);
-          } else {
-            openDetail(processId, item.id, item.typeId);
-          }
-        }}
-      >
-        <div className="workflowAvatars flexRow">
-          <i
-            className={cx(
-              'workflowAvatar',
-              child && !isNestedProcess ? 'BGBlueAsh' : getStartNodeColor(item.appType, item.triggerId),
-              child && !isNestedProcess ? 'icon-subprocess' : getIcons(item.typeId, item.appType, item.triggerId),
-            )}
-          />
-        </div>
-        <NodeOperate
-          nodeClassName={child && !isNestedProcess ? 'BGBlueAsh' : getStartNodeColor(item.appType, item.triggerId)}
-          {...this.props}
-        />
-        <div className="workflowContent">
-          {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
-        </div>
-      </div>
-    );
-  }
-
-  renderLoopStart() {
-    return (
-      <Box className="center">
-        <SimplifyNode
-          {...this.props}
-          item={{ ...this.props.item, name: _l('本次循环开始') }}
-          IconClassName="BGBlueAsh"
-          IconElement={<Icon type="arrow_loop" />}
-          allowEditName={false}
-          allowMoreOperator={false}
-        />
-      </Box>
-    );
-  }
-
   render() {
-    const { item } = this.props;
+    const { processId, item, selectNodeId, openDetail, isCopy, child, isSimple, isNestedProcess, isPlugin } =
+      this.props;
+
+    if (isPlugin) {
+      return (
+        <WhiteNode
+          nodeId={item.id}
+          nodeName={_l('输入参数')}
+          nodeDesc={_l('设置输入参数')}
+          isComplete={item.appId}
+          isCopy={isCopy}
+          hasError={item.appId && item.isException}
+          isActive={_.includes([item.id, item.triggerNodeId], selectNodeId)}
+          onClick={() => openDetail(processId, item.id, item.typeId)}
+        />
+      );
+    }
 
     return (
       <div className="flexColumn">
         <section className="workflowBox" data-id={item.id}>
-          {item.appType === APP_TYPE.LOOP_PROCESS ? this.renderLoopStart() : this.renderCommonStart()}
+          <div
+            className={cx(
+              'workflowItem',
+              { workflowItemDisabled: isCopy },
+              {
+                errorShadow:
+                  (item.appId && !item.appName && !_.includes([APP_TYPE.PBC, APP_TYPE.LOOP_PROCESS], item.appType)) ||
+                  (_.includes([APP_TYPE.DATE, APP_TYPE.PBC, APP_TYPE.LOOP_PROCESS], item.appType) && item.isException),
+              },
+              { active: _.includes([item.id, item.triggerNodeId], selectNodeId) },
+            )}
+            onMouseDown={() => {
+              if (isNestedProcess) {
+                openDetail(item.triggerId, item.triggerNodeId, NODE_TYPE.APPROVAL_PROCESS);
+              } else {
+                openDetail(processId, item.id, item.typeId);
+              }
+            }}
+          >
+            <div className="workflowAvatars flexRow">
+              <i
+                className={cx(
+                  'workflowAvatar',
+                  child && !isNestedProcess ? 'BGBlueAsh' : getStartNodeColor(item.appType, item.triggerId),
+                  child && !isNestedProcess ? 'icon-subprocess' : getIcons(item.typeId, item.appType, item.triggerId),
+                )}
+              />
+            </div>
+            <NodeOperate
+              nodeClassName={child && !isNestedProcess ? 'BGBlueAsh' : getStartNodeColor(item.appType, item.triggerId)}
+              {...this.props}
+            />
+            <div className="workflowContent">
+              {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
+            </div>
+          </div>
+
           <CreateNode {...this.props} />
         </section>
       </div>

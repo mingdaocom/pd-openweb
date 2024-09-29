@@ -1,5 +1,5 @@
 import React, { useEffect, useState, Fragment } from 'react';
-import { Flex, ActivityIndicator } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import { Drawer } from 'antd';
 import { Icon } from 'ming-ui';
 import styled from 'styled-components';
@@ -135,9 +135,9 @@ function FilterContent(props) {
 
   if (loading) {
     return (
-      <Flex justify="center" align="center" className="h100">
-        <ActivityIndicator size="large" />
-      </Flex>
+      <div className="flexRow justifyContentCenter alignItemsCenter h100">
+        <SpinLoading color='primary' />
+      </div>
     );
   }
 

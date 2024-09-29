@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react';
 import { oneOf, func } from 'prop-types';
-import { arrayMove } from '@mdfe/react-sortable-hoc';
 import { connect } from 'react-redux';
 import cx from 'classnames';
 import { Icon, VCenterIconText } from 'ming-ui';
@@ -137,12 +136,10 @@ export default class extends Component {
     this.setState(obj, cb);
   };
 
-  onSortEnd = ({ oldIndex, newIndex }) => {
-    const { data } = this.state;
-    if (oldIndex === newIndex) return;
+  onSortEnd = newList => {
     this.setState(
       {
-        data: arrayMove(data, oldIndex, newIndex),
+        data: newList,
       },
       () => {
         this.props.updateAppGroup(this.state.data);
@@ -431,11 +428,6 @@ export default class extends Component {
                     <SortableAppList
                       items={renderedData}
                       onSortEnd={this.onSortEnd}
-                      axis={'x'}
-                      lockAxis={'x'}
-                      distance={5}
-                      transitionDuration={0}
-                      helperClass="appGroupSortHelperClass"
                       focusGroupId={focusGroupId}
                       isAppItemOverflow={isAppItemOverflow}
                       onScroll={throttledEnsurePointerStatus}

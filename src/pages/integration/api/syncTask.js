@@ -53,6 +53,22 @@ var syncTask = {
   },
 
   /**
+   * 批量停止同步任务
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {array} args.taskIds 任务id列表
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  batchStopTask: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'syncTask/batchStopTask';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'syncTaskbatchStopTask', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
    * 
    *
    * @param {Object} args 请求参数
@@ -65,6 +81,22 @@ var syncTask = {
     base.ajaxOptions.url = base.server(options) + 'syncTask/findByName';
     base.ajaxOptions.type = 'GET';
     return mdyAPI(controllerName, 'syncTaskfindByName', args, $.extend(base, options));
+  },
+
+  /**
+   * 批量启动同步任务
+   *
+   * @param {Object} args 请求参数
+   * @param {string} args.projectId 组织id
+   * @param {array} args.taskIds 任务id列表
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  batchStartTask: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'syncTask/batchStartTask';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'syncTaskbatchStartTask', JSON.stringify(args), $.extend(base, options));
   },
 
   /**

@@ -64,6 +64,8 @@ export const VersionProductType = {
   aggregation: 38, // 聚合表
   WFLP: 39, // 工作流循环
   PAY: 40, // 支付
+  dataMirror: 41, // 数据镜像
+  flowPlugin: 42, // 工作表插件
 };
 
 export const VersionProductHelpLink = {

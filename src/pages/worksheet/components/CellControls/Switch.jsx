@@ -5,7 +5,6 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { Checkbox, Switch as SwitchComponent, RadioGroup, Tooltip } from 'ming-ui';
-import { autobind } from 'core-decorators';
 import { FROM } from './enum';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
 import { browserIsMobile } from 'src/util';
@@ -34,8 +33,7 @@ export default class Switch extends React.Component {
     }
   }
 
-  @autobind
-  handleTableKeyDown(e) {
+  handleTableKeyDown = e => {
     switch (e.key) {
       case 'Enter':
         this.handleChange(!!this.state.value);
@@ -43,10 +41,9 @@ export default class Switch extends React.Component {
       default:
         break;
     }
-  }
+  };
 
-  @autobind
-  handleChange(checked) {
+  handleChange = checked => {
     const { cell, updateCell } = this.props;
     if (cell.required && checked) {
       alert(_l('%0为必填字段', cell.controlName), 3);
@@ -62,7 +59,7 @@ export default class Switch extends React.Component {
         });
       },
     );
-  }
+  };
 
   renderContent() {
     const { value } = this.state;

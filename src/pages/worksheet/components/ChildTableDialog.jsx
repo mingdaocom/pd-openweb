@@ -252,7 +252,7 @@ export default function ChildTableDialog(props) {
               className={cx('ThemeHoverColor3', { mRight10: changed })}
               data-tip={_l('关闭(Esc)')}
               onClick={() => {
-                if (!changed) {
+                if (!changed || openFrom !== 'cell') {
                   onClose();
                   return;
                 }
@@ -271,7 +271,7 @@ export default function ChildTableDialog(props) {
               <i className="icon icon-close"></i>
             </IconBtn>
           </div>
-          {changed && (
+          {openFrom === 'cell' && changed && (
             <Fragment>
               <div className="flex"></div>
               <Button loading={isSaving} className="mRight35 flex-shrink-0" onClick={() => handleSave()}>
@@ -282,6 +282,7 @@ export default function ChildTableDialog(props) {
         </Header>
         <Content>
           <ChildTable
+            valueChanged={props.valueChanged === true ? props.valueChanged : changed}
             needResetControls={needUpdateControls}
             registerCell={comp => {
               cache.current.comp = comp;
@@ -325,6 +326,9 @@ export default function ChildTableDialog(props) {
                 if (!_.includes(['DELETE_ROW', 'DELETE_ROWS', 'ADD_ROW', 'UPDATE_ROW', 'ADD_ROWS'], lastAction.type)) {
                   return;
                 }
+                if (lastAction.type === 'ADD_ROWS' && find(lastAction.rows, row => row.isAddByTree)) {
+                  return;
+                }
                 setValue(oldValue => {
                   let { deleted = [], updated = [] } = oldValue;
                   if (lastAction.type === 'DELETE_ROW') {
@@ -341,6 +345,7 @@ export default function ChildTableDialog(props) {
                 });
                 setChanged(true);
               } else if (get(changedValues, 'lastAction.type') !== 'FORCE_SET_OUT_ROWS') {
+                setChanged(true);
                 onChange(changedValues, 'childTableDialog');
               }
             }}

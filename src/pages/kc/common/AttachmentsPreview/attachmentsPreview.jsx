@@ -21,7 +21,7 @@ import AttachmentInfo from './attachmentInfo';
 import PreviewHeader from './previewHeader/previewHeader';
 import AttachmentsLoading from './attachmentsLoading';
 import { formatFileSize, getClassNameByExt, addToken } from 'src/util';
-import { isWpsPreview } from '../../utils';
+import { isWpsPreview, defaultWpsPreview } from '../../utils';
 import './attachmentsPreview.less';
 import { getPssId } from 'src/util/pssId';
 import _ from 'lodash';
@@ -243,7 +243,7 @@ class AttachmentsPreview extends React.Component {
       previewType = PREVIEW_TYPE.VIDEO;
     }
 
-    if (previewService === 'wps' && ext === 'wps') {
+    if (previewService === 'wps' && previewType === PREVIEW_TYPE.WPS) {
       previewType = PREVIEW_TYPE.IFRAME;
     }
 
@@ -368,7 +368,7 @@ class AttachmentsPreview extends React.Component {
                       viewUrl = previewUtil.urlAddParams(viewUrl, { shareFolderId: extra.shareFolderId });
                     }
 
-                    if (previewService === 'wps' && isWpsPreview(ext)) {
+                    if (previewService === 'wps' && (isWpsPreview(ext) || defaultWpsPreview(ext))) {
                       viewUrl = `${md.global.Config.WpsUrl}/view?url=${encodeURIComponent(
                         currentAttachment.viewUrl,
                       )}&attname=${encodeURIComponent(

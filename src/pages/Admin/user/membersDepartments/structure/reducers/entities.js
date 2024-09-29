@@ -1,7 +1,6 @@
 ﻿import * as ENTITIES_ACTIONS from '../actions/entities';
 import { SEARCH_SUCCESS } from '../actions/search';
-import { merge } from 'lodash';
-import { parse, Schemas } from '../middleware/api';
+import _, { merge } from 'lodash';
 import { getParentsId, filterDeleteTreeData, updateTreeData } from '../modules/util';
 
 const ACTIONS = {
@@ -35,9 +34,7 @@ const mergeDepartmentUsers = (department, payload) => {
     };
   } else {
     const { list } = payload;
-    const chargeUsers = _.filter(list, user => user.isDepartmentChargeUser);
     return _.assign({}, department, {
-      chargeUsers: chargeUsers,
       users: list,
     });
   }
@@ -126,7 +123,7 @@ const mergeDepartments = (state, action) => {
         break;
     }
   }
-  const { entities } = parse(originData, Schemas.DEPARTMENT_ARRAY);
+
   switch (type) {
     case ACTIONS.USER_SUCCESS:
     case ACTIONS.APPROVAL_USER_SUCCESS:
@@ -134,39 +131,12 @@ const mergeDepartments = (state, action) => {
     case ACTIONS.INACTIVE_USER_SUCCESS:
       return {
         ...state,
-        ...entities,
-        users: (_.isArray(originData) && !_.isEmpty(originData) && originData[0].users) || [],
-        departments: { ...state.departments, ...entities.departments },
+        users: _.get(originData, '[0].users') || _.get(originData, 'listUser.list') || [],
+        departments: { ...state.departments },
       };
     default:
-      return { ...state, ...entities };
+      return state;
   }
-};
-
-const setDataFn = (data, departmentId = '') => {
-  let list = data;
-  const loop = (list, key, callback) => {
-    list.forEach((item, index, arr) => {
-      if (item.departmentId === key) {
-        return callback(item, index, arr);
-      }
-      if (item.subDepartments) {
-        return loop(item.subDepartments, key, callback);
-      }
-    });
-  };
-
-  let dragObj; //当前item
-  let ar; //删除之外的list
-  loop(list, departmentId, (item, index, arr) => {
-    ar = arr.splice(index, 1);
-    dragObj = item;
-  });
-  return {
-    dragObj,
-    ar,
-    list,
-  };
 };
 
 const deleteDepartment = (state, action) => {
@@ -193,36 +163,25 @@ const editDepartment = (state, action) => {
   return { ...state, newDepartments, expandedKeys };
 };
 
-const mergeSearchUser = (state, action) => {
-  const {
-    response: { users },
-  } = action;
-  if (!users) return state;
-  return merge({}, state, parse(users, Schemas.USER_ARRAY).entities);
-};
-
 const mergeSearchDepartments = (state, action) => {
   const { curDepartmentId, departmentId, response, collapseAll } = action;
   const root = state.departments[departmentId];
   if (!response) return state;
-  const resultArray = [];
-  {
-    const runner = (originData, department = root) => {
-      if (!_.isArray(originData)) return;
-      _.map(originData, dept => {
-        dept.parentDepartment = department;
-        resultArray.push(dept);
-        if (dept.subDepartments) {
-          runner(dept.subDepartments, dept);
-        }
-      });
-    };
-    runner(response);
-  }
-  const { entities } = parse(resultArray, Schemas.DEPARTMENT_ARRAY);
+  const resultObj = {};
+  const runner = (originData, department = root) => {
+    if (!_.isArray(originData)) return;
+    _.map(originData, dept => {
+      resultObj[dept.departmentId] = { ...dept, parentDepartment: department };
+      if (dept.subDepartments) {
+        runner(dept.subDepartments, dept);
+      }
+    });
+  };
+  runner(response);
+
   if (collapseAll) {
     // handle collapsed state
-    let departments = _.forEach(entities.departments, dept => {
+    let departments = _.forEach(resultObj, dept => {
       return {
         ...dept,
         collapsed: true,
@@ -242,11 +201,11 @@ const mergeSearchDepartments = (state, action) => {
     });
   } else {
     // handle collapsed state
-    let departments = entities.departments;
+    let departments = resultObj;
     const runner = id => {
       if (!id || !departments[id]) return;
       if (departments[id].parentDepartment !== undefined) {
-        const parentId = departments[id].parentDepartment;
+        const parentId = _.get(departments, `[${id}].parentDepartment.departmentId`);
         departments[parentId].collapsed = false;
         runner(parentId);
       }
@@ -319,16 +278,34 @@ const entities = (state = initialState, action) => {
   //   return mergeSearchDepartments(state, action);
   // }
   if (type === ACTIONS.DEPARTMENT_UPDATE) {
+    const getDepartments = (departmentArr = []) => {
+      let departments = {};
+      const func = data => {
+        departments = merge(departments, _.keyBy(data, 'departmentId'));
+        console.log(departments, 'departments');
+        data.forEach(item => {
+          if (item.subDepartments && !_.isEmpty(item.subDepartments)) {
+            func(item.subDepartments);
+          }
+        });
+      };
+
+      func(departmentArr);
+
+      return departments;
+    };
+
     if (department) {
-      let { entities } = parse(department, Schemas.DEPARTMENT_ARRAY);
       return {
-        ...merge({}, state, entities),
+        ...state,
+        departments: getDepartments(action.newDepartments),
         newDepartments: action.newDepartments,
       };
     }
     return {
       ...state,
       newDepartments: action.newDepartments,
+      departments: getDepartments(action.newDepartments),
     };
   }
   if (type === ACTIONS.EXPANDED_KEYS_UPDATE) {
@@ -372,10 +349,12 @@ const entities = (state = initialState, action) => {
       };
       return da.concat(daf);
     };
+    const newDepartments = !isAdd || !departmentId ? response : onLoadData();
     return {
       ...mergeDepartments(state, action),
       getDepartmentIds,
-      newDepartments: !isAdd || !departmentId ? response : onLoadData(),
+      newDepartments,
+      departments: _.keyBy(newDepartments, 'departmentId'),
     };
   }
   return mergeDepartments(state, action);

@@ -1,13 +1,13 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
-import { Carousel, Toast } from 'antd-mobile';
+import { Swiper } from 'antd-mobile';
 import AddDialog from './AddDialog';
-import './index.less';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { pick, isEqual, map } from 'lodash';
 import { Linkify, SvgIcon } from 'ming-ui';
 import axios from 'axios';
 import { browserIsMobile } from 'src/util';
+import './index.less';
 
 const url = !md.global.Account.accountId ? '/library' : '/app/lib';
 
@@ -74,7 +74,7 @@ class AppDetails extends React.Component {
       if (projects.length) {
         this.addDialogEl.installApp(projects[0].projectId, this.props.libraryId);
       } else {
-        Toast.info(_l('您没有可安装模板的组织'), 3);
+        alert(_l('您没有可安装模板的组织'), 3);
       }
     } else {
       this.setState({ showDialog: true });
@@ -124,26 +124,9 @@ class AppDetails extends React.Component {
             <p className="Font16 Gray detailsText">
               <Linkify properties={{ target: '_blank' }}>{description}</Linkify>
             </p>
-            <Carousel
-              className="mBottom50"
-              frameOverflow="visible"
-              cellSpacing={10}
-              slideWidth={0.8}
-              afterChange={index => this.setState({ slideIndex: index })}
-              dotStyle={{
-                width: 24,
-                height: 8,
-                borderRadius: 24,
-                backgroundColor: '#EAEAEA',
-              }}
-              dotActiveStyle={{
-                width: 40,
-                borderRadius: 24,
-                backgroundColor: '#2196F3',
-              }}
-            >
+            <Swiper className="mBottom50">
               {(mobilePictures.length ? mobilePictures : pictures).map((item, index) => (
-                <div
+                <Swiper.Item
                   key={index}
                   style={{
                     display: 'block',
@@ -157,9 +140,9 @@ class AppDetails extends React.Component {
                       window.dispatchEvent(new Event('resize'));
                     }}
                   />
-                </div>
+                </Swiper.Item>
               ))}
-            </Carousel>
+            </Swiper>
           </div>
           <AddDialog
             getRef={ref => (this.addDialogEl = ref)}

@@ -6,14 +6,14 @@ import ChooseWidget from './ChooseWidget';
 import styled from 'styled-components';
 import Input from '../components/Inputs';
 import { DEF_TYPES, DEF_R_TYPES } from 'src/pages/worksheet/common/CreateCustomBtn/config.js';
-import _ from 'lodash';
+import _, { isArray } from 'lodash';
 import {
   formatControlsBySectionId,
   getSectionId,
   getRealData,
   canNotForCustomWrite,
+  isOnlyRead,
 } from 'src/pages/worksheet/common/CreateCustomBtn/utils.js';
-import { noWriteTypes } from '../config';
 import { isRelateRecordTableControl } from 'worksheet/util';
 
 const Wrap = styled.div`
@@ -57,37 +57,8 @@ const Wrap = styled.div`
       & > div {
         margin-top: 0;
       }
-      &.notOther {
-        & > div {
-          & > div {
-            & > div:nth-child(1) {
-              width: calc(100%) !important;
-              border-radius: 4px !important;
-            }
-          }
-        }
-        .tagInputarea .tagInputareaIuput,
-        .CityPicker-input-container input {
-          border-radius: 4px !important;
-        }
-        .ant-input {
-          width: calc(100%) !important;
-          border-radius: 4px !important;
-          &:hover {
-            border-color: #ccc !important;
-          }
-        }
-        .ant-input:focus,
-        .ant-input-focused {
-          border-color: #2196f3 !important;
-          box-shadow: none !important;
-        }
-        .selectOtherFieldContainer {
-          display: none;
-          & > div {
-            display: none;
-          }
-        }
+      .defaultOptionsWrap {
+        width: 215px;
       }
     }
   }
@@ -100,12 +71,12 @@ class AppointDialog extends React.Component {
     addRelationControlId: this.props.addRelationControlId || '',
     writeControls: this.props.writeControls || [],
     writeControlsClone: this.props.writeControls || [],
-    showChooseWidgetDialog: false,
     widgetList: this.props.widgetList || [],
     clickType: this.props.clickType,
     showErrerDialog: false,
     errerDialogTitle: '',
     errerDialogTxt: '',
+    showChooseWidgetDialog: false,
   };
 
   componentDidMount() {
@@ -113,12 +84,8 @@ class AppointDialog extends React.Component {
     $(document).find('.iconErr').click();
   }
 
-  isOnlyRead = type => {
-    return noWriteTypes.indexOf(type) >= 0;
-  };
-
   getControlEffect = it => {
-    return this.isOnlyRead(it.type) ? 1 : it.required ? 3 : 2;
+    return isOnlyRead(it.type) ? 1 : it.required ? 3 : 2;
   };
 
   handDel = item => {
@@ -174,29 +141,47 @@ class AppointDialog extends React.Component {
       //子表 defaulttype: '0'
       advancedSetting = { ...advancedSetting, defaulttype: '0' };
     }
+    const getDefsource = item => {
+      if (!item.defsource) return item.defsource;
+      if ([9, 10, 11].includes(data.type)) {
+        const defsource = safeParse(item.defsource, 'array');
+        const list = safeParse(_.get(defsource, `[0].staticValue`));
+        if (!list || !isArray(list)) {
+          return JSON.stringify([{ ...defsource[0], staticValue: '' }]);
+        }
+        return JSON.stringify(
+          list.map(o => {
+            return { ...defsource[0], staticValue: o };
+          }),
+        );
+      }
+      return item.defsource;
+    };
     //填写本标
     return (
-      <div
-        className={cx('inputDef', {
-          notOther: (writeObject === 1 && !DEF_R_TYPES.includes(data.type)) || data.type === 34, ////日期 成员（常规）有动态默认值 填写时间 填写人 //子表不需要支持查询工作表
-        })}
-      >
+      <div className={'inputDef Relative'}>
         <Input
           item={item}
           data={{
             ...data,
             advancedSetting: {
               ...advancedSetting,
-              defsource: item.defsource,
+              defsource: getDefsource(item),
             },
           }}
           writeObject={writeObject}
           allControls={_.get(SheetInfo, ['template', 'controls']) || []}
-          onChange={(d, isOptions) => {
+          onChange={d => {
             const { advancedSetting = {} } = d;
             let { defsource } = advancedSetting;
-            if (isOptions) {
-              defsource = d;
+            if ([9, 10, 11].includes(d.type)) {
+              const dataDefsource = safeParse(defsource, 'array');
+              defsource = JSON.stringify([
+                {
+                  ...dataDefsource[0],
+                  staticValue: JSON.stringify(dataDefsource.map(o => o.staticValue)),
+                },
+              ]);
             }
             const newCopyCells = writeControls;
             newCopyCells[index].defsource = defsource;
@@ -276,37 +261,38 @@ class AppointDialog extends React.Component {
                       </Tooltip>
                     )}
                   </span>
-
-                  <Dropdown
-                    border
-                    isAppendToBody
-                    className="actionListBox "
-                    value={item.type}
-                    key={item.controlId + '_Dropdown_'}
-                    // 1：只读 2：填写 3：必填
-                    data={[_l('只读'), _l('填写'), _l('必填')].map((o, i) => {
-                      return {
-                        text: o,
-                        value: i + 1,
-                        disabled:
-                          (this.isOnlyRead(type) && i > 0) ||
-                          canNotForWrite ||
-                          (([49, 21, 43].includes(type) || isRelateRecordTableControl(writeControlsData)) && i > 1), //api查询,自由连接,文本识别 屏蔽必填
-                      };
-                    })}
-                    onChange={newValue => {
-                      //OCR 只读 编辑
-                      if (this.isOnlyRead(type) || ([43].includes(type) && [3].includes(newValue))) {
-                        return;
-                      }
-                      const newCopyCells = writeControls;
-                      newCopyCells[index].type = newValue;
-                      this.setState({
-                        writeControls: newCopyCells,
-                        writeControlsClone: newCopyCells,
-                      });
-                    }}
-                  />
+                  {!isOnlyRead(type) && (
+                    <Dropdown
+                      border
+                      isAppendToBody
+                      className="actionListBox "
+                      value={item.type}
+                      key={item.controlId + '_Dropdown_'}
+                      // 1：只读 2：填写 3：必填
+                      data={[_l('只读'), _l('填写'), _l('必填')].map((o, i) => {
+                        return {
+                          text: o,
+                          value: i + 1,
+                          disabled:
+                            (isOnlyRead(type) && i > 0) ||
+                            canNotForWrite ||
+                            (([49, 21, 43].includes(type) || isRelateRecordTableControl(writeControlsData)) && i > 1), //api查询,自由连接,文本识别 屏蔽必填
+                        };
+                      })}
+                      onChange={newValue => {
+                        //OCR 只读 编辑
+                        if (isOnlyRead(type) || ([43].includes(type) && [3].includes(newValue))) {
+                          return;
+                        }
+                        const newCopyCells = writeControls;
+                        newCopyCells[index].type = newValue;
+                        this.setState({
+                          writeControls: newCopyCells,
+                          writeControlsClone: newCopyCells,
+                        });
+                      }}
+                    />
+                  )}
                   <span className={cx('Width250 InlineBlock valueDef', {})}>
                     {this.renderDefCom(item, index, writeControls, writeControlsData)}
                   </span>
@@ -342,6 +328,7 @@ class AppointDialog extends React.Component {
       setValue,
       updateRelationControl,
     } = this.props;
+    const { showChooseWidgetDialog } = this.state;
     const dataCon = this.state.writeObject === 1 ? this.state.widgetList : relationControls;
     return (
       <React.Fragment>
@@ -508,19 +495,19 @@ class AppointDialog extends React.Component {
               <ChooseWidget
                 {...this.props}
                 {...this.state}
-                isOnlyRead={this.isOnlyRead}
-                hideFn={() => {
+                onClose={() =>
                   this.setState({
                     showChooseWidgetDialog: false,
-                  });
-                }}
-                SwitchFn={writeControls => {
+                  })
+                }
+                onChange={writeControls =>
                   this.setState({
                     writeControls,
-                  });
-                }}
+                  })
+                }
               />
             )}
+
             {this.state.writeType === 2 && (
               <div className="contectBox">
                 <span className="titleLeft Font13 Gray">{_l('关联字段')}</span>

@@ -71,6 +71,9 @@ export default class PublicWorksheet extends React.Component {
         },
       );
     }
+    if (window.isMingDaoApp) {
+      import('mobile/components/MDJSSDK/md_js_1.0.js');
+    }
   }
 
   render() {
@@ -167,9 +170,7 @@ export default class PublicWorksheet extends React.Component {
                   status={status}
                   onSubmit={(isPayOrder, rowId) => {
                     this.setState({ status: FILL_STATUS.COMPLETED });
-                    isPayOrder &&
-                      rowId &&
-                      handlePrePayOrder({ worksheetId, rowId, paymentModule: 1, sheetThemeColor: themeBgColor });
+                    isPayOrder && rowId && handlePrePayOrder({ worksheetId, rowId, paymentModule: 1 });
                   }}
                 />
               ))}

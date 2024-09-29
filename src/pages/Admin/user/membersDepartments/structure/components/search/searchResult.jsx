@@ -4,6 +4,7 @@ import { formatSearchDeptData } from '../../modules/util';
 import { LoadDiv } from 'ming-ui';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import _ from 'lodash';
+import filterXSS from 'xss';
 
 @withClickAway
 class Result extends React.Component {
@@ -12,7 +13,7 @@ class Result extends React.Component {
     const result = formatSearchDeptData(departments, keywords);
     const list = _.map(result, (department, index) => (
       <div
-        dangerouslySetInnerHTML={{ __html: department.departmentName }}
+        dangerouslySetInnerHTML={{ __html: filterXSS(department.departmentName) }}
         key={`${index}_${department.id}`}
         className="deptItem"
         onClick={() => {

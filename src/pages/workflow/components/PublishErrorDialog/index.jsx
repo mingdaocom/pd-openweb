@@ -17,13 +17,13 @@ const warnTypes = {
 
 const FATAL_ERROR = [99, 100];
 
-export default ({ onOk, onCancel, info }) => {
+export default ({ onOk, onCancel, info, isPlugin }) => {
   const { processWarnings, name } = info;
   return (
     <Dialog
       className="publishErrorDialog"
       visible
-      title={_l('工作流 “%0” 发布失败！', name)}
+      title={isPlugin ? _l('插件 “%0” 存在错误！', name) : _l('工作流 “%0” 存在错误！', name)}
       buttonType="danger"
       onCancel={onCancel}
       onOk={onOk}

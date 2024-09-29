@@ -59,6 +59,9 @@ const ViewWrap = styled.div`
   &.hideSearchRecord .mapSearchRecordAutoComplete {
     display: none !important;
   }
+  &.hideSearchRecord .fixedMobileQuickFilter {
+    display: flex !important;
+  }
   &.disableSingleView {
     .SingleViewHeader,
     .SingleViewBody .searchWrapper,

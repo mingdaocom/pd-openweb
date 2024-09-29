@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import * as actions from 'mobile/RecordList/redux/actions';
 import * as worksheetActions from 'src/pages/worksheet/redux/actions';
 import { bindActionCreators } from 'redux';
-import { Flex } from 'antd-mobile';
 import SheetView from './SheetView';
 import HierarchyView from './HierarchyView';
 import BoardView from './BoardView';
@@ -16,6 +15,8 @@ import CustomWidgetView from './CustomWidgetView';
 import ResourceView from './ResourceView';
 import MobileMapView from './MapView';
 import State from '../State';
+import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
+import { WithoutRows } from '../SheetRows';
 import worksheetAjax from 'src/api/worksheet';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import { VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
@@ -88,17 +89,14 @@ class View extends Component {
   };
   renderError() {
     return (
-      <Flex
-        className="withoutRows flex"
-        direction="column"
-        justify="center"
-        align="center"
+      <div
+        className="withoutRows flex flexColumn alignItemsCenter justifyContentCenter"
         style={{ backgroundColor: '#f5f5f5' }}
       >
         <i className="icon icon-computer" style={{ fontSize: 100 }} />
         <div className="Font17 mTop12">{_l('移动端暂不支持此视图')}</div>
         <div className="Font17">{_l('请前往电脑端进行查看')}</div>
-      </Flex>
+      </div>
     );
   }
   render() {
@@ -112,8 +110,11 @@ class View extends Component {
       controls,
       sheetSwitchPermit,
       worksheetInfo,
+      filters,
+      updateFilters = () => {},
     } = this.props;
-    const { viewType, advancedSetting = {} } = view;
+
+    const { viewType, advancedSetting = {}, fastFilters = [] } = view;
 
     if (viewType === 2 && advancedSetting.hierarchyViewType === '3') {
       return this.renderError();
@@ -145,6 +146,18 @@ class View extends Component {
       !location.search.includes('chartId') &&
       _.includes([sheet, gallery, map], String(view.viewType)); // 是否存在分组列表
 
+    const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
+    const viewFilters = view.fastFilters
+      .map(filter => ({
+        ...filter,
+        control: _.find(sheetControls, c => c.controlId === filter.controlId),
+      }))
+      .filter(c => c.control);
+
+    const quickFilter = String(viewType) === customize ? this.props.pcQuickFilter : this.props.quickFilter;
+    const isFilter = quickFilter.length;
+    const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
+
     if (hasGroupFilter) {
       return (
         <div className="overflowHidden flex Relative mobileView">
@@ -156,9 +169,35 @@ class View extends Component {
         </div>
       );
     }
+
     return (
       <div className="overflowHidden flex mobileView flexColumn Relative">
-        <Component {...viewProps} />
+        {(_.includes([gallery, resource], String(viewType)) ||
+          (String(viewType) === detail && view.childType !== 1) ||
+          (String(viewType) === customize && !_.isEmpty(fastFilters))) && (
+          <QuickFilterSearch
+            className={String(viewType) === customize ? 'fixedMobileQuickFilter' : ''}
+            showSearch={String(viewType) === customize ? false : true}
+            excludeTextFilter={viewFilters}
+            isFilter={isFilter}
+            filters={filters}
+            detail={detail}
+            view={view}
+            worksheetInfo={worksheetInfo}
+            sheetControls={sheetControls}
+            updateFilters={updateFilters}
+          />
+        )}
+        {_.includes(
+          [gallery, resource, customize],
+          String(viewType) || (String(viewType) === detail && view.childType !== 1),
+        ) &&
+        needClickToSearch &&
+        _.isEmpty(quickFilter) ? (
+          <WithoutRows text={_l('执行查询后显示结果')} />
+        ) : (
+          <Component {...viewProps} />
+        )}
       </div>
     );
   }
@@ -175,11 +214,14 @@ export default connect(
       'batchOptVisible',
       'appColor',
       'currentSheetRows',
+      'filters',
     ]),
     controls: state.sheet.controls,
     views: state.sheet.views,
     ...state.sheet,
     sheetSwitchPermit: state.mobile.sheetSwitchPermit,
+    quickFilter: state.mobile.quickFilter,
+    pcQuickFilter: state.sheet.quickFilter,
   }),
   dispatch =>
     bindActionCreators(
@@ -196,6 +238,7 @@ export default connect(
           'unshiftSheetRow',
           'changeMobileSheetRows',
           'updateGroupFilter',
+          'updateFilters',
         ]),
       },
       dispatch,

@@ -70,6 +70,8 @@ export default function SubListSetting(props) {
   const sorts = _.isArray(getAdvanceSetting(data, 'sorts')) ? getAdvanceSetting(data, 'sorts') : [];
   const uniqueControls = getAdvanceSetting(data, 'uniquecontrols') || [];
 
+  const filterSysRelate = relationControls.filter(i => !_.includes(ALL_SYS, i.controlId));
+
   // 支持配置不允许重复
   const supportControls = relationControls.filter(i => canAsUniqueWidget(i) && !_.includes(ALL_SYS, i.controlId));
   // 支持配置不允许重复并且已被设为可见的字段
@@ -249,7 +251,12 @@ export default function SubListSetting(props) {
     if (subListMode === 'new') {
       return (
         <Fragment>
-          <div className="settingItemTitle">{_l('字段')}</div>
+          <div className="settingItemTitle">
+            {_l('字段')}
+            <span className="mLeft12 Font12 Gray_9e" data-tip={_l('最多添加100个字段')}>
+              {_l('%0/100', filterSysRelate.length)}
+            </span>
+          </div>
           {dataSource ? (
             <ConfigureControls
               {...props}
@@ -308,13 +315,13 @@ export default function SubListSetting(props) {
       if (!textControls.length) {
         return <span className="Gray_9e">{_l('未设置')}</span>;
       } else {
-        return <span>{textArr}</span>;
+        return <span className="breakAll">{textArr}</span>;
       }
     }
 
     return (
       <div className="Dropdown--input Dropdown--border Hand">
-        <span>{textArr}</span>
+        <span className="breakAll">{textArr}</span>
         <div className="ming Icon icon icon-arrow-down-border mLeft8 Gray_9e" />
       </div>
     );
@@ -328,6 +335,7 @@ export default function SubListSetting(props) {
         columns={recordUniqControls}
         children={renderUniqText()}
         showOperate={false}
+        dragable={false}
         onChange={({ newShowControls }) => {
           onChange(handleAdvancedSettingChange(data, { uniquecontrols: JSON.stringify(newShowControls) }));
         }}

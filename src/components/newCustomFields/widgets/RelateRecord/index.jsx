@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import { formatRecordToRelateRecord, getRelateRecordCountFromValue } from 'worksheet/util';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
@@ -104,8 +103,7 @@ export default class Widgets extends Component {
     return data;
   }
 
-  @autobind
-  handleChange(args, type) {
+  handleChange = (args, type) => {
     const { relationControls, onChange } = this.props;
     if (type === 'array') {
       onChange(JSON.stringify(formatRecordToRelateRecord(relationControls, args)));
@@ -128,7 +126,7 @@ export default class Widgets extends Component {
         onChange(`deleteRowIds: ${deletedIds.join(',')}`);
       }
     }
-  }
+  };
 
   componentWillUnmount() {
     if (_.isFunction(this.props.triggerCustomEvent)) {

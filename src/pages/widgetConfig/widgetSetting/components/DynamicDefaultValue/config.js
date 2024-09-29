@@ -89,7 +89,7 @@ export const SYSTEM_FIELD_TO_TEXT = {
 
 // 控件规则匹配规则 未保存的控件正则 匹配uuid 已保存的控件正则 形如 $5e047c2ab2bfdd0001e9b8f9$
 export const FIELD_REG_EXP =
-  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid)?))?\$/g;
+  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg)?))?\$/g;
 
 export const TIME_TYPES = [
   {
@@ -148,6 +148,15 @@ export const CUR_OCR_URL_TYPES = [
     key: 'ocr',
     id: 'ocr-file-url',
     text: _l('识别文件(url)'),
+  },
+];
+
+export const CUR_EMPTY_TYPES = [
+  {
+    icon: 'icon-clean_all',
+    key: 'empty',
+    id: 'empty',
+    text: _l('清空'),
   },
 ];
 
@@ -216,6 +225,12 @@ export const OTHER_FIELD_TYPE = {
   KEYWORD: 'keyword',
   OCR: 'ocr',
   WATER_MASK: 'waterMask',
+  EMPTY: 'empty',
+  CODE_RESULT: 'codeResult',
+  TRIGGER_TIME: 'triggerTime',
+  TRIGGER_USER: 'triggerUser',
+  TRIGGER_DEPARTMENT: 'triggerDepartment',
+  TRIGGER_ORG: 'triggerOrg',
 };
 
 export const CURRENT_TYPES = {
@@ -229,6 +244,14 @@ export const CURRENT_TYPES = {
   48: [{ icon: 'icon-group', key: 'role', id: 'user-role', text: _l('当前用户的组织角色') }],
   2: CUR_SEARCH_TYPES,
   6: CUR_SEARCH_TYPES,
+};
+
+export const CUSTOM_PHP_TYPES = {
+  2: [{ key: 'codeResult', id: 'codeResult', text: _l('扫码结果') }],
+  16: [{ key: 'triggerTime', id: 'triggerTime', text: _l('触发时间') }],
+  26: [{ key: 'triggerUser', id: 'triggerUser', text: _l('触发者') }],
+  27: [{ key: 'triggerDepartment', id: 'triggerDepartment', text: _l('触发者所在的部门') }],
+  48: [{ key: 'triggerOrg', id: 'triggerOrg', text: _l('触发者所在的角色') }],
 };
 
 export const DEFAULT_TYPES = {
@@ -307,4 +330,5 @@ export const DYNAMIC_FROM_MODE = {
   SEARCH_PARAMS: 2, // 查询输入参数
   OCR_PARAMS: 3, // OCR集成参数
   WATER_MASK: 4, // 附件水印
+  CUSTOM_PHP: 5, // 自定义页面---封装业务流程
 };

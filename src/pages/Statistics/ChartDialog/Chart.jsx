@@ -96,7 +96,7 @@ export default class Chart extends Component {
     const { projectId, themeColor, customPageConfig, reportData, currentReport, base, direction, getReportSingleCacheId, requestOriginalData, changeCurrentReport } = this.props;
     const { settingVisible, report = {}, sourceType } = base;
     const reportId = report.id;
-    const { xaxes = {}, reportType, valueMap } = reportData;
+    const { xaxes = {}, reportType, valueMap, yvalueMap } = reportData;
     const Chart = charts[reportType];
     const isPublicShareChart = location.href.includes('public/chart');
     const isPublicSharePage = window.shareAuthor || _.get(window, 'shareState.shareId');
@@ -129,6 +129,7 @@ export default class Chart extends Component {
             ylist,
             lines: currentReport.pivotTable ? _.merge(lines, currentReport.pivotTable.lines) : lines,
             valueMap,
+            yvalueMap
           }}
         />
       );
@@ -257,11 +258,13 @@ export default class Chart extends Component {
           ) : reportData.status > 0 ? (
             <Fragment>
               {this.renderChart()}
-              <div className="flexRow mTop10 Gray_9e Font13 userInfo">
-                <span className="mRight25">{_l('创建人')}: {createdBy.fullName}</span>
-                <span className="mRight25">{_l('最后修改人')}: {lastModifiedBy.fullName}</span>
-                {idVisible && report.id && <span>{_l('图表ID')}: {report.id}</span>}
-              </div>
+              {idVisible && !_.get(window, 'shareState.shareId') && (
+                <div className="flexRow mTop10 Gray_9e Font13 userInfo">
+                  <span className="mRight25">{_l('创建人')}: {createdBy.fullName}</span>
+                  <span className="mRight25">{_l('最后修改人')}: {lastModifiedBy.fullName}</span>
+                  {report.id && <span>{_l('图表ID')}: {report.id}</span>}
+                </div>
+              )}
             </Fragment>
           ) : (
             <Abnormal isEdit={settingVisible ? !(viewId && _.isEmpty(view)) : false} status={reportData.status} />

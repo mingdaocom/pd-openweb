@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { Icon } from 'ming-ui';
 import { sideNavList } from './config';
+import { getFeatureStatus } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 
 const Wrap = styled.div`
   width: 241px;
@@ -21,7 +23,6 @@ const Wrap = styled.div`
     height: 44px;
     border-radius: 0px 22px 22px 0px;
     padding-left: 18px;
-    margin-bottom: 8px;
     &:last-child {
       margin-bottom: 0;
     }
@@ -57,6 +58,10 @@ const Wrap = styled.div`
       color: #fdb432;
       margin-left: 6px;
       font-size: 16px;
+    }
+    .betaIcon {
+      color: rgb(76, 175, 80) !important;
+      margin-left: 4px;
     }
 
     &.isDisabled {
@@ -94,8 +99,9 @@ class SideNav extends React.Component {
     !params.type ? localStorage.removeItem('pluginUrl') : safeLocalStorageSetItem(`pluginUrl`, params.type);
   }
   render() {
-    const { match = { params: {} }, noAssistantAuth } = this.props;
+    const { match = { params: {} }, noAssistantAuth, currentProjectId } = this.props;
     const { type = '' } = match.params;
+    const featureType = getFeatureStatus(currentProjectId, VersionProductType.flowPlugin);
 
     return (
       <Wrap>
@@ -106,23 +112,30 @@ class SideNav extends React.Component {
               <React.Fragment key={index}>
                 {group.title && <div className="Gray_9e mTop28 pLeft18">{group.title}</div>}
                 <ul className={index === 0 ? 'mTop16' : 'mTop12'}>
-                  {group.list.map((item, index) => {
-                    return (
-                      <li
-                        key={index}
-                        className={cx({
-                          isCurrent: item.type === type || (!type && item.type === 'view'),
-                          isDisabled: item.disabled,
-                        })}
-                      >
-                        <Link className="overflow_ellipsis pRight10" to={`/plugin/${item.type}`}>
-                          <Icon icon={item.icon} />
-                          <span>{item.text}</span>
-                          {item.type === 'assistant' && <div className="freeTag">{_l('限免')}</div>}
-                        </Link>
-                      </li>
-                    );
-                  })}
+                  {group.list
+                    .filter(o => o.type !== 'node' || featureType)
+                    .map((item, index) => {
+                      return (
+                        <li
+                          key={index}
+                          className={cx({
+                            isCurrent: item.type === type || (!type && item.type === 'view'),
+                            isDisabled: item.disabled,
+                          })}
+                        >
+                          <Link
+                            className="overflow_ellipsis pRight10"
+                            to={`/plugin/${item.type}`}
+                            onClick={e => e.preventDefault()}
+                          >
+                            <Icon icon={item.icon} />
+                            <span>{item.text}</span>
+                            {item.type === 'assistant' && <div className="freeTag">{_l('限免')}</div>}
+                            {item.type === 'node' && <Icon icon="beta1" className="betaIcon" />}
+                          </Link>
+                        </li>
+                      );
+                    })}
                 </ul>
               </React.Fragment>
             );

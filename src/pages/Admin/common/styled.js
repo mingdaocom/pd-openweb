@@ -19,10 +19,34 @@ export const BillInfoWrap = styled.div`
     display: flex;
     align-items: center;
     i,
-    .recharge,
     .balance {
       color: #2196f3;
       margin: 0 8px;
+    }
+    .recharge,
+    .warningBtn {
+      display: inline-block;
+      height: 24px;
+      line-height: 24px;
+      background-color: #2196f3;
+      color: #fff;
+      font-size: 12px;
+      padding: 0 16px;
+      border-radius: 3px;
+      &:hover {
+        background-color: #1565c0;
+      }
+    }
+    .warningBtn {
+      background-color: #fff;
+      border: 1px solid #2196f3;
+      line-height: 22px;
+      color: #2196f3;
+      &:hover {
+        background-color: #fff;
+        border: 1px solid #1565c0;
+        color: #1565c0;
+      }
     }
     .moneySymbol {
       margin-left: 4px;

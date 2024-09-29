@@ -161,7 +161,7 @@ export default class DataRestrictionDialog extends Component {
           <span>{_l('条')}</span>
         </div>
         <div className="mBottom20">
-          <div className="mBottom5 Font14">{_l('附件上传上限（单次）')}</div>
+          <div className="mBottom5 Font14">{_l('单附件上传大小上限（最大4096）')}</div>
           <Input
             className="Width120 mRight10"
             value={fileUploadLimitSize}

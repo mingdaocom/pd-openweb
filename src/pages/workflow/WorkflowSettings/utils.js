@@ -169,6 +169,9 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-AI_image';
       }
       break;
+    case NODE_TYPE.PLUGIN:
+      icon = 'icon-workflow';
+      break;
     case NODE_TYPE.SYSTEM:
       if (appType === APP_TYPE.PROCESS) {
         icon = 'icon-parameter';
@@ -213,6 +216,7 @@ export const getStartNodeColor = (appType, triggerId) => {
     case APP_TYPE.CUSTOM_ACTION:
     case APP_TYPE.PBC:
     case APP_TYPE.EVENT_PUSH:
+    case APP_TYPE.LOOP_PROCESS:
       return 'BGBlueAsh';
     case APP_TYPE.USER:
     case APP_TYPE.DEPARTMENT:
@@ -585,9 +589,11 @@ export const handleExecReturnValue = item => {
   const parseMap = MAP[item.type];
 
   if (parseMap) {
-    return safeParse(item.fieldValueDefault)
-      .map(obj => parseMap.map(key => obj[key]).join(''))
-      .join(',');
+    const value = safeParse(item.fieldValueDefault);
+
+    if (_.isArray(value)) {
+      return value.map(obj => parseMap.map(key => obj[key]).join('')).join(',');
+    }
   }
 
   return item.fieldValueDefault;

@@ -20,6 +20,7 @@ const Con = styled.div`
 function AppGroups(props) {
   const activeGroupId = _.get(props, 'match.params.groupId');
   const activeGroupType = _.get(props, 'match.params.groupType');
+  const isOwnedApp = location.pathname.includes('/app/my/owned');
   const { currentProject, projectId, dashboardColor, myPermissions = [] } = props;
   const cache = useRef({});
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -41,21 +42,26 @@ function AppGroups(props) {
     appLang = [],
     activeGroup,
     projectGroupsLang = [],
+    ownedApps = [],
   } = state;
+
   function load(projectIdForLoad) {
     cache.current.projectLoaded = true;
     actions.updateKeywords('');
     actions.loadAppAndGroups({
       projectId: projectIdForLoad,
-      ...(location.pathname !== '/app/my' ? { activeGroupId, activeGroupType } : {}),
+      ...(activeGroupId ? { activeGroupId, activeGroupType } : {}),
+      isOwnedApp,
     });
   }
+
   useEffect(() => {
+    actions.updateKeywords('');
     if (cache.current.projectLoaded && activeGroupId) {
-      actions.updateKeywords('');
       actions.loadGroup({ activeGroupId, activeGroupType, projectId });
     }
-  }, [activeGroupId]);
+  }, [activeGroupId, isOwnedApp]);
+
   useEffect(() => {
     if (cache.current.projectLoaded && location.pathname !== '/app/my') {
       navigateTo('/app/my', false, true);
@@ -66,6 +72,7 @@ function AppGroups(props) {
   if (!(groupsLoading || appsLoading) && noApps && projectId && projectId !== 'external') {
     return <CreateFirstApp projectId={projectId} myPermissions={myPermissions} />;
   }
+
   return (
     <Con>
       {projectId && projectId !== 'external' && (
@@ -98,15 +105,18 @@ function AppGroups(props) {
         aloneApps={getFilterApps(aloneApps, keywords)}
         activeGroupApps={getFilterApps(activeGroupApps, keywords)}
         recentApps={getFilterApps(recentApps, keywords)}
+        ownedApps={getFilterApps(ownedApps, keywords)}
         appLang={appLang}
         groups={groups}
         dashboardColor={dashboardColor}
         projectGroupsLang={projectGroupsLang}
         myPermissions={myPermissions}
+        isOwnedApp={isOwnedApp}
       />
     </Con>
   );
 }
+
 AppGroups.propTypes = {
   projectId: string,
   currentProject: shape({}),

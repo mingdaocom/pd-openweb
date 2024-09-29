@@ -94,7 +94,7 @@ export function getItemByRowId(rowId = null, data = []) {
   }
 }
 
-export function sortDataByCustomItems(data, view = {}, controls = []) {
+export function sortDataByCustomItems(data, view = {}, controls = [], firstNotSpecified = true) {
   let customItems = safeParse(_.get(view, 'advancedSetting.customitems'), 'array');
   if (_.get(view, 'advancedSetting.navshow') === '2') {
     customItems = safeParse(_.get(view, 'advancedSetting.navfilters'), 'array');
@@ -111,8 +111,14 @@ export function sortDataByCustomItems(data, view = {}, controls = []) {
     });
     const keyByOrder = new Map(sortIds.map((t, i) => [t, i]));
     const sortOriginData = _.sortBy(data, 'sort');
+    let sortData = _.sortBy(sortOriginData, o => (o.key === '-1' ? -999 : keyByOrder.get(o.key)));
     // 未指定固定第一项
-    const sortData = _.sortBy(sortOriginData, o => (o.key === '-1' ? -999 : keyByOrder.get(o.key)));
+    if (!firstNotSpecified) {
+      const [specialItems, regularItems] = _.partition(sortData, item => item.key === '-1');
+      if (specialItems.length > 0) {
+        sortData = [...regularItems, ...specialItems];
+      }
+    }
     return sortData.map((item, idx) => ({ ...item, sort: idx + 1 }));
   }
   return data;

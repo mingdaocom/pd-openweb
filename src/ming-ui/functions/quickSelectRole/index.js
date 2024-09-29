@@ -98,6 +98,7 @@ export function RoleSelect(props) {
     onSave = () => {},
     onClose = () => {},
   } = props;
+  const inputRef = useRef();
   const conRef = useRef();
   const [keywords, setKeywords] = useState(undefined);
   const [loading, setLoading] = useState(true);
@@ -117,6 +118,10 @@ export function RoleSelect(props) {
   });
 
   useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+
     organizeAjax
       .getOrgRoleGroupsByProjectId({
         projectId,
@@ -342,7 +347,7 @@ export function RoleSelect(props) {
     <RoleSelectWrap ref={conRef} className="selectRoleDialog">
       <div className="searchRoleWrap valignWrapper">
         <Icon icon="search" className="searchIcon Gray_9e mRight8 Font18" />
-        <input type="text" className="flex" value={keywords} placeholder={_l('搜索')} onChange={handleSearch} />
+        <input type="text" className="flex" ref={inputRef} value={keywords} placeholder={_l('搜索')} onChange={handleSearch} />
         {keywords && (
           <Icon icon="closeelement-bg-circle" className="Font16 mLeft4 Gray_9e" onClick={() => setKeywords('')} />
         )}
@@ -364,7 +369,7 @@ export function RoleSelect(props) {
             <span className="iconBox">
               <Icon icon="person" className="Font18 TxtMiddle" />
             </span>
-            <span className='flex'>{_l('当前用户所在的组织角色')}</span>
+            <span className="flex">{_l('当前用户所在的组织角色')}</span>
             {checkedUserSelf() && <Icon icon="done_2" className="ThemeColor" />}
           </div>
           <div className="splitLine"></div>

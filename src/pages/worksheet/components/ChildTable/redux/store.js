@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
-import { isNumber, isNaN, isFunction, includes } from 'lodash';
+import { isNumber, isNaN, isFunction, includes, find } from 'lodash';
 import sheetAjax from 'src/api/worksheet';
 import reducer from './reducer';
 import { get } from 'lodash';
@@ -8,7 +8,12 @@ import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { isEmpty } from 'lodash';
 import { resetRows, clearRows, setRowsFromStaticRows } from './actions';
-import { getSubListError, getSubListUniqueError, parseAdvancedSetting } from 'worksheet/util';
+import {
+  getSubListError,
+  getSubListUniqueError,
+  parseAdvancedSetting,
+  isRelateRecordTableControl,
+} from 'worksheet/util';
 import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
 
 function loadWorksheetInfo(worksheetId, { controlId, relationWorksheetId, recordId, instanceId, workId } = {}) {
@@ -65,7 +70,7 @@ export default function generateStore(
   async function init() {
     if (store.initialized) return;
     store.initialized = true;
-    let { max } = parseAdvancedSetting(control.advancedSetting);
+    let { max, treeLayerControlId } = parseAdvancedSetting(control.advancedSetting);
     if (!controls) {
       worksheetInfo = await loadWorksheetInfo(worksheetId, {
         relationWorksheetId,
@@ -91,6 +96,7 @@ export default function generateStore(
     if (isWorkflow && isFunction(control.updateRelationControls)) {
       control.updateRelationControls(control.dataSource, controls);
     }
+    const treeLayerControl = find(controls, { controlId: treeLayerControlId });
     store.dispatch({
       type: 'UPDATE_BASE',
       value: {
@@ -104,6 +110,11 @@ export default function generateStore(
         workId,
         worksheetInfo,
         initRowIsCreate,
+        isTreeTableView:
+          treeLayerControl &&
+          treeLayerControl.type === 29 &&
+          !isRelateRecordTableControl(treeLayerControl) &&
+          !!treeLayerControlId,
       },
     });
     store.dispatch({ type: 'UPDATE_BASE_LOADING', value: false });

@@ -3,7 +3,7 @@ import MobileNewRecord from 'worksheet/common/newRecord/MobileNewRecord';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import homeAppApi from 'src/api/homeApp';
 import { Button } from 'ming-ui';
-import { Flex, ActivityIndicator } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import worksheetApi from 'src/api/worksheet';
 import styled from 'styled-components';
 import successPng from 'src/pages/NewRecord/success.png';
@@ -60,9 +60,9 @@ export default class AddRecord extends Component {
     return (
       <div className="h100" style={{ backgroundColor: '#fff' }}>
         {loading ? (
-          <Flex justify="center" align="center" className="h100">
-            <ActivityIndicator size="large" />
-          </Flex>
+          <div className="flexRow justifyContentCenter alignItemsCenter h100">
+            <SpinLoading color='primary' />
+          </div>
         ) : (
           <div className="h100 pTop20">
             {status !== STATUS.NORMAL && (

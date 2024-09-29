@@ -108,7 +108,7 @@ const getDynamicValue = (item, formData, keywords) => {
     // 静态值
     if (source.staticValue) {
       // 文本 | 数值
-      if (_.includes([2, 6], item.type)) {
+      if (_.includes([2, 6, 9, 36], item.type)) {
         return source.staticValue;
       }
       // 日期时间
@@ -130,13 +130,18 @@ const getDynamicValue = (item, formData, keywords) => {
         return safeParse(source.staticValue).departmentId;
       }
 
+      // 组织角色
+      if (item.type === 48) {
+        return safeParse(source.staticValue).organizeId;
+      }
+
       //普通数组
       if (item.type === 10000007) {
         return (source.staticValue || '').replace('，', ',').split(',');
       }
     }
   });
-  if (_.includes([2, 6, 16], item.type)) {
+  if (_.includes([2, 6, 9, 16, 36], item.type)) {
     return tempValues.join('');
   }
 

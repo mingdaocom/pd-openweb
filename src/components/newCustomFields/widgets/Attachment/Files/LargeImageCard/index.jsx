@@ -8,9 +8,13 @@ import RegExpValidator from 'src/util/expression';
 const LargeImageCard = props => {
   const { isMobile, previewUrl, onPreview } = props;
   const [loading, setLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     loadImage(previewUrl).then(img => {
+      setLoading(false);
+    }).catch(() => {
+      setIsError(true);
       setLoading(false);
     });
   }, []);
@@ -21,15 +25,22 @@ const LargeImageCard = props => {
         <LoadDiv />
       ) : (
         <Fragment>
-          <img
-            className="w100"
-            src={previewUrl}
-            onClick={() => {
-              if (isMobile) {
-                onPreview();
-              }
-            }}
-          />
+          {isError ? (
+            <div className="flexRow alignItemsCenter pAll10">
+              <div style={{ width: 21, height: 24 }} className="fileIcon fileIcon-img" />
+              <div className="mLeft10 Gray_75">{_l('图片过大，加载失败')}</div>
+            </div>
+          ) : (
+            <img
+              className="w100"
+              src={previewUrl}
+              onClick={() => {
+                if (isMobile) {
+                  onPreview();
+                }
+              }}
+            />
+          )}
           {!isMobile && (
             <div className="mask">
               <div className="preview flexRow alignItemsCenter justifyContentCenter" onClick={onPreview}>

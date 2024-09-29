@@ -25,6 +25,7 @@ import {
 } from '../../../utils';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import SelectTables from '../../../components/SelectTables';
+import TimingSetting from '../../../components/TimingSetting';
 
 const OnlySyncWrapper = styled.div`
   padding: 16px 24px;
@@ -36,6 +37,7 @@ const OnlySyncWrapper = styled.div`
     justify-content: center;
     transform: rotate(-90deg);
     width: 64px;
+    min-width: 64px;
     height: 56px;
     color: #2196f3;
   }
@@ -71,6 +73,11 @@ const OnlySyncWrapper = styled.div`
         color: #1565c0;
       }
     }
+  }
+  .timingSettingWrapper {
+    margin-bottom: 16px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid #bdbdbd;
   }
 `;
 
@@ -110,6 +117,7 @@ export default function OnlySyncStep(props) {
 
   const isSourceAppType = source.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
   const isDestAppType = dest.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
+  const hasTimingSetting = source.type === DATABASE_TYPE.SAP_HANA;
   const destHasSchema = dest.hasSchema;
 
   const onChangeStateData = (state, setState, options) => {
@@ -741,6 +749,15 @@ export default function OnlySyncStep(props) {
     );
   };
 
+  const renderTimingSetting = () => {
+    return (
+      <div className="timingSettingWrapper">
+        <div className="Font14 bold mBottom16">{_l('定时设置')}</div>
+        <TimingSetting showInDrawer={false} />
+      </div>
+    );
+  };
+
   const hasMultiplePks = !!(_.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || []).filter(
     item => item.fid === 'composite_primary_key',
   ).length;
@@ -778,6 +795,7 @@ export default function OnlySyncStep(props) {
 
         <div className="flex flexColumn">
           <div className="titleItem mTop16">
+            {hasTimingSetting && <div className="bold mRight24">{_l('同步到')}</div>}
             <div className="iconWrapper">
               <svg className="icon svg-icon" aria-hidden="true">
                 <use xlinkHref={`#icon${_.get(dest, 'className')}`} />
@@ -787,6 +805,8 @@ export default function OnlySyncStep(props) {
           </div>
           {currentTab.table ? (
             <div className="mTop16 flex flexColumn">
+              {hasTimingSetting && renderTimingSetting()}
+
               {!isDestAppType && (
                 <div className="dbItem">
                   <div className="itemInput">

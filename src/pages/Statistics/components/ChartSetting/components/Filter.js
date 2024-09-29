@@ -1,55 +1,24 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
-import { useDrop } from 'react-dnd-latest';
-import SingleFilter from 'src/pages/worksheet/common/WorkSheetFilter/common/SingleFilter';
-import {
-  formatValuesOfOriginConditions,
-  redefineComplexControl,
-  getDefaultCondition,
-} from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { Dialog } from 'ming-ui';
+import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
+import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import { filterData } from 'src/pages/FormSet/components/columnRules/config';
 import { isTimeControl } from 'statistics/common';
-import worksheetAjax from 'src/api/worksheet';
+import worksheetApi from 'src/api/worksheet';
+import { formatValuesOfOriginConditions } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _ from 'lodash';
 import moment from 'moment';
-
-const Remind = props => {
-  const [collectProps, drop] = useDrop({
-    accept: 'ChartDnd',
-    drop(item) {
-      props.onAddControl(item.data);
-      return undefined;
-    },
-    collect: monitor => ({
-      isOver: monitor.isOver(),
-      canDrop: monitor.canDrop(),
-    }),
-  });
-  const opacity = collectProps.isOver ? 0.8 : 1;
-  return (
-    <div ref={drop} style={{ opacity }} role="Dustbin" className="Gray_bd centerAlign Font13 pTop10 pBottom10">
-      {_l('从左侧拖拽添加字段')}
-    </div>
-  );
-};
 
 export default class Filter extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      oldConditions: props.filterItem
-    };
-  }
-  componentDidMount() {}
-  handleAddControl = data => {
-    if (data.type === 10000000) {
-      alert(_l('记录数量不能作为筛选条件'), 2);
-      return;
+      oldConditions: props.filterItem,
+      newConditions: undefined,
+      visible: false
     }
-    const { columns } = this.props.worksheetInfo;
-    const item = _.find(columns, { controlId: data.controlId });
-    this.singleFilter.addCondition(_.find(columns, { controlId: data.controlId }));
-  };
+  }
   saveFilter = (conditions = []) => {
     const { oldConditions } = this.state;
     if (_.isEqual(oldConditions, conditions)) {
@@ -69,39 +38,76 @@ export default class Filter extends Component {
       }
     });
     const { projectId, worksheetInfo } = this.props;
-    worksheetAjax
+    worksheetApi
       .getWorksheetFilterById({
         filterId: '',
         projectId,
         worksheetId: worksheetInfo.worksheetId,
-        items: conditions,
+        items: formatValuesOfOriginConditions(conditions),
       })
       .then(result => {
         const { items } = result;
-        this.props.onChangeFilterItem(items, conditions);
+        this.props.onChangeFilterItem(items, formatValuesOfOriginConditions(conditions));
       });
   };
   render() {
-    const { currentReport, projectId, axisControls, worksheetInfo, filterItem, filterResigned = true } = this.props;
+    const { filter, projectId, axisControls, worksheetInfo, filterItem, filterResigned = true } = this.props;
+    const { visible } = this.state;
+    const filterItemTexts = filterData(worksheetInfo.columns, filterItem);
     return (
       <div className="mBottom20">
         <div className="Bold mBottom12 Font13">{_l('筛选')}</div>
-        <div className="SingleFilterWrapper">
-          <SingleFilter
-            ref={singleFilter => {
-              this.singleFilter = singleFilter;
+        {filterItem.length ? (
+          <FilterItemTexts
+            className="WhiteBG"
+            loading={false}
+            filterItemTexts={filterItemTexts}
+            onClear={() => {
+              this.setState({
+                newConditions: []
+              });
+              this.saveFilter([]);
             }}
-            filterColumnClassName="sheetStatisticsFilterColumnOption"
-            canEdit={true}
-            appId={worksheetInfo.appId}
-            filterResigned={filterResigned}
-            projectId={projectId}
-            columns={worksheetInfo.columns}
-            conditions={filterItem}
-            onConditionsChange={this.saveFilter}
+            editFn={() => this.setState({ visible: true })}
           />
-          <Remind onAddControl={this.handleAddControl} />
-        </div>
+        ) : (
+          <div className="filterWrapper flexRow alignItemsCenter Gray_bd Font13 Hover_21" onClick={() => this.setState({ visible: true })}>
+            {_l('添加筛选字段')}
+          </div>
+        )}
+        <Dialog
+          visible={visible}
+          title={_l('筛选')}
+          okText={_l('确定')}
+          cancelText={_l('取消')}
+          onCancel={() => this.setState({ visible: false })}
+          onOk={() => {
+            this.setState({ visible: false });
+            if (_.isUndefined(this.state.newConditions)) {
+              return;
+            }
+            this.saveFilter(this.state.newConditions);
+          }}
+        >
+          <FilterConfig
+            canEdit
+            feOnly
+            showSystemControls
+            supportGroup
+            projectId={projectId}
+            appId={worksheetInfo.appId}
+            viewId={filter.viewId}
+            columns={worksheetInfo.columns}
+            sheetSwitchPermit={worksheetInfo.switches}
+            conditions={filterItem}
+            filterResigned={false}
+            onConditionsChange={conditions => {
+              this.setState({
+                newConditions: conditions.filter(n => n.isGroup ? n.groupFilters.length : true)
+              });
+            }}
+          />
+        </Dialog>
       </div>
     );
   }

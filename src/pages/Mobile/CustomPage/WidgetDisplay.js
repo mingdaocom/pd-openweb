@@ -78,6 +78,7 @@ function WidgetDisplay(props) {
         <StateChartContent
           widget={widget}
           reportId={value}
+          pageId={ids.worksheetId}
           name={name}
           pageComponents={pageComponents.filter(p => p.type === 1)}
           pageConfig={pageConfig}

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { LoadDiv, Dialog, Icon, ScrollView, Tooltip, DeleteReconfirm, UserHead } from 'ming-ui';
+import { LoadDiv, Dialog, Icon, ScrollView, Tooltip, DeleteReconfirm, UserHead, SvgIcon } from 'ming-ui';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import sheetAjax from 'src/api/worksheet';
@@ -181,11 +181,19 @@ export default function TrashDialog(props) {
         }
       });
   };
-  const renderTxt = it => {
+  const renderTxt = (it, isTxt) => {
     const list = safeParse(_.get(it, 'advancedSetting.listviews'), 'array');
     const dt = safeParse(_.get(it, 'advancedSetting.detailviews'), 'array');
     const data = _.uniq([...list, ...dt]);
     if (data.length > 0) {
+      if (isTxt) {
+        return data
+          .map(item => {
+            let view = views.find(o => o.viewId === item) || {};
+            return view.name || _l('该视图已删除');
+          })
+          .join(',');
+      }
       return (
         <span className="">
           {data
@@ -213,10 +221,20 @@ export default function TrashDialog(props) {
                 backgroundColor: !data.color ? '#9e9e9e' : data.color,
               }}
             >
-              <Icon
-                icon={data.icon || 'custom_actions'}
-                className={cx('iconTitle Font16 White', { Gray: data.color === 'transparent' })}
-              />
+              {!!data.iconUrl && data.icon.endsWith('_svg') ? (
+                <SvgIcon
+                  className="InlineBlock TxtTop Icon iconTitle"
+                  addClassName="TxtMiddle"
+                  url={data.iconUrl}
+                  fill={data.color === 'transparent' ? '#333' : '#fff'}
+                  size={16}
+                />
+              ) : (
+                <Icon
+                  icon={data.icon || 'custom_actions'}
+                  className={cx('iconTitle Font16 White', { Gray: data.color === 'transparent' })}
+                />
+              )}
             </div>
             <div className="flex name Font14 mLeft10 mRight24 WordBreak overflow_ellipsis" title={data.name}>
               {data.name}
@@ -241,7 +259,7 @@ export default function TrashDialog(props) {
               <span
                 className="viewText Gray_9e WordBreak overflow_ellipsis"
                 style={{ WebkitBoxOrient: 'vertical' }}
-                title={renderTxt(it)}
+                title={renderTxt(it, true)}
               >
                 {renderTxt(it)}
               </span>

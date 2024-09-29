@@ -69,7 +69,7 @@ export default class Switch extends Component {
       <div className={cx('workflowStatusWrap', className)}>
         {isNew ? (
           <div className="publishFlowWrap" onClick={() => !disabled && this.handleClick('publish')}>
-            <div className="publishFlow">{pending ? _l('发布中...') : _l('发布流程%03088')}</div>
+            <div className="publishFlow">{pending ? _l('发布中...') : _l('发布')}</div>
           </div>
         ) : (
           <Fragment>

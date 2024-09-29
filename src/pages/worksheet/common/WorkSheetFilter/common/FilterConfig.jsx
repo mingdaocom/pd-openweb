@@ -40,6 +40,7 @@ export default function SingleFilter(props) {
     filterError,
     urlParams,
     showCustom,
+    widgetControlData,
   } = props;
   let { columns } = props;
   const filterWhiteKeys = _.flatten(
@@ -110,6 +111,7 @@ export default function SingleFilter(props) {
           currentColumns,
           relateSheetList,
           globalSheetControls,
+          widgetControlData,
           urlParams,
         }}
       />

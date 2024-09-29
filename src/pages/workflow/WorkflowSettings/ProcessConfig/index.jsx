@@ -275,7 +275,7 @@ class ProcessConfig extends Component {
             onClose={() => this.setState({ showSelectUserDialog: false })}
           />
         </div>
-        <div className="mTop20 flexRow" style={{ alignItems: 'center' }}>
+        <div className="mTop20 flexRow alignItemsCenter">
           <Dropdown
             style={{ width: 100 }}
             menuStyle={{ width: '100%' }}
@@ -476,7 +476,7 @@ class ProcessConfig extends Component {
             onClick={checked => this.updateSource({ allowRevoke: !checked })}
           />
           {data.allowRevoke && (
-            <div className="mTop10 mLeft25 flexRow" style={{ alignItems: 'center' }}>
+            <div className="mTop10 mLeft25 flexRow alignItemsCenter">
               <div>{_l('节点')}</div>
               <Dropdown
                 className="mLeft10"
@@ -731,6 +731,8 @@ class ProcessConfig extends Component {
                 pbcConfig: Object.assign({}, data.pbcConfig, { outType }),
                 responseContentType: _.includes([1, 2, 4], outType) ? 2 : 3,
                 value: '',
+                endContentType: outType === 4 ? 2 : 3,
+                endValue: '',
               });
             }}
           />
@@ -792,11 +794,35 @@ class ProcessConfig extends Component {
             </div>
           </Fragment>
         )}
+
+        {_.includes([4, 5], data.pbcConfig.outType) && (
+          <Fragment>
+            <div className="mTop28 Font16 bold">{_l('流程中止时响应')}</div>
+            {this.renderContentType('endContentType')}
+            <div className="workflowDialogBox">
+              <div className="flowDetailTrigger">
+                <CustomTextarea
+                  className="minH100"
+                  projectId={flowInfo.companyId}
+                  processId={flowInfo.id}
+                  relationId={flowInfo.relationId}
+                  selectNodeId={data.pbcConfig.outType === 3 ? flowInfo.startNodeId : data.pcbOutId}
+                  sourceAppId={data.pbcConfig.outType === 3 ? flowInfo.startAppId : ''}
+                  type={2}
+                  content={data.endValue}
+                  formulaMap={data.formulaMap}
+                  onChange={(err, value, obj) => this.updateSource({ endValue: value })}
+                  updateSource={this.updateSource}
+                />
+              </div>
+            </div>
+          </Fragment>
+        )}
       </Fragment>
     );
   }
 
-  renderContentType() {
+  renderContentType(key = 'responseContentType') {
     const { data } = this.state;
     const CONTENT_TYPE = [
       { text: _l('纯文本') + '（text/plain）', value: 3 },
@@ -811,8 +837,12 @@ class ProcessConfig extends Component {
             key={item.value}
             className="flex"
             text={item.text}
-            checked={data.responseContentType === item.value}
-            onClick={() => this.updateSource({ responseContentType: item.value, value: '' })}
+            checked={data[key] === item.value}
+            onClick={() =>
+              this.updateSource(
+                key === 'responseContentType' ? { [key]: item.value, value: '' } : { [key]: item.value, endValue: '' },
+              )
+            }
           />
         ))}
       </div>
@@ -881,9 +911,9 @@ class ProcessConfig extends Component {
             </li>
           ))}
         </ul>
-        <div className="processConfig flexColumn flex">
+        <div className={cx('processConfig flexColumn flex', { workflowConfigRelease: !!flowInfo.parentId })}>
           <ScrollView className="flex">
-            <div className="pLeft40 pRight40">
+            <div className="pLeft40 pRight40 processConfigContent">
               {tab === 1 && this.renderProcessContent()}
               {tab === 2 && this.renderArtificialContent()}
               {tab === 3 && this.renderParameterContent()}
@@ -892,17 +922,19 @@ class ProcessConfig extends Component {
             </div>
           </ScrollView>
 
-          <div className="pLeft40 pRight40 mTop20 flexRow alignItemsCenter">
-            <span className="processConfigSave ThemeBGColor3 ThemeHoverBGColor2 pointer" onClick={this.onSave}>
-              {_l('保存')}
-            </span>
-            <Support
-              className="pointer Gray_75 mLeft32"
-              href="https://help.mingdao.com/workflow/configuration"
-              type={2}
-              text={_l('帮助')}
-            />
-          </div>
+          {!flowInfo.parentId && (
+            <div className="pLeft40 pRight40 mTop20 flexRow alignItemsCenter">
+              <span className="processConfigSave ThemeBGColor3 ThemeHoverBGColor2 pointer" onClick={this.onSave}>
+                {_l('保存')}
+              </span>
+              <Support
+                className="pointer Gray_75 mLeft32"
+                href="https://help.mingdao.com/workflow/configuration"
+                type={2}
+                text={_l('帮助')}
+              />
+            </div>
+          )}
         </div>
       </div>
     );

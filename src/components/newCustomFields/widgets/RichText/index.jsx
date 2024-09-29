@@ -53,10 +53,23 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { disabled, value, type, flag, richTextControlCount = 0, widgetStyle = {}, triggerCustomEvent } = this.props;
+    const {
+      disabled,
+      value,
+      type,
+      flag,
+      richTextControlCount = 0,
+      widgetStyle = {},
+      triggerCustomEvent,
+      advancedSetting = {},
+    } = this.props;
     const { projectId, appId, worksheetId } = this.props;
     const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
-    const displayRow = browserIsMobile() ? titlelayout_app === '2' : titlelayout_pc === '2';
+    const { minheight, maxheight } = advancedSetting;
+    const isMobile = browserIsMobile();
+    const displayRow = isMobile ? titlelayout_app === '2' : titlelayout_pc === '2';
+    const minHeight = isMobile ? 90 : Number(minheight || '90');
+    const maxHeight = isMobile ? 500 : maxheight ? Number(maxheight) : undefined;
     return (
       <RichText
         projectId={projectId}
@@ -68,7 +81,7 @@ export default class Widgets extends Component {
         data={value || ''}
         isRemark={type === 10010}
         className={cx({
-          richTextForM: browserIsMobile(),
+          richTextForM: isMobile,
           richTextDisabledControl: disabled,
         })}
         disabled={disabled}
@@ -76,7 +89,8 @@ export default class Widgets extends Component {
         onSave={() => {
           this.handleBlur();
         }}
-        maxHeight={browserIsMobile() ? 500 : undefined}
+        minHeight={minHeight}
+        maxHeight={maxHeight}
         autoSize={{ height: displayRow ? 'auto' : '100%' }}
         handleFocus={() => triggerCustomEvent(ADD_EVENT_ENUM.FOCUS)}
       />

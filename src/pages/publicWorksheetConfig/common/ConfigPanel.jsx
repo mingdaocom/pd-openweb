@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
@@ -101,16 +100,7 @@ class ConfigPanel extends React.Component {
     };
   }
 
-  @autobind
-  changeWOrksheetVisibleType(checked) {
-    const { updateWorksheetVisibleType, worksheetInfo } = this.props;
-    updateWorksheetVisibleType(
-      worksheetInfo.visibleType === VISIBLE_TYPE.CLOSE ? VISIBLE_TYPE.PUBLIC : VISIBLE_TYPE.CLOSE,
-    );
-  }
-
-  @autobind
-  resetControls() {
+  resetControls = () => {
     const { resetControls } = this.props;
     Dialog.confirm({
       title: _l('重置公开表单字段'),
@@ -118,7 +108,7 @@ class ConfigPanel extends React.Component {
       okText: _l('重置字段'),
       onOk: resetControls,
     });
-  }
+  };
 
   render() {
     const {

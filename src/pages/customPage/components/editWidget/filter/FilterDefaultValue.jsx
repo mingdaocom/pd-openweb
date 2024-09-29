@@ -1,9 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
-import { Select, Divider } from 'antd';
 import { connect } from 'react-redux';
-import Inputs, { OptionsTypes } from 'worksheet/common/Sheet/QuickFilter/Inputs/index';
+import Inputs from 'worksheet/common/Sheet/QuickFilter/Inputs/index';
 import _ from 'lodash';
 
 function FilterDefaultValue(props) {

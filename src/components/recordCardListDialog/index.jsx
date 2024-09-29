@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
-import { Dialog, Input, Button, Checkbox } from 'ming-ui';
+import { Dialog, Button, Checkbox } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import ScrollView from 'ming-ui/components/ScrollView';
@@ -13,7 +11,6 @@ import RecordCard from 'src/components/recordCard';
 import { checkIsTextControl, fieldCanSort, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import Header from './Header';
 import './recordCardListDialog.less';
 import _ from 'lodash';
@@ -129,8 +126,8 @@ export default class RecordCardListDialog extends Component {
       this.loadRecord();
     }
   }
-  @autobind
-  handleInputKeyDown(e) {
+
+  handleInputKeyDown = e => {
     const { singleConfirm, multiple, onOk, onClose } = this.props;
     const { focusIndex, list, selectedRecords } = this.state;
     e.stopPropagation();
@@ -160,7 +157,7 @@ export default class RecordCardListDialog extends Component {
         }
       }
     }
-  }
+  };
   updateFocusIndex(isNext) {
     const { focusIndex = 0, list } = this.state;
     if (!list.length) {
@@ -218,7 +215,7 @@ export default class RecordCardListDialog extends Component {
       if (worksheetInfo) {
         control.relationControls = worksheetInfo.template.controls;
       }
-      filterControls = getFilter({ control, formData });
+      filterControls = getFilter({ control: { ...control, recordId }, formData });
     }
     // 存在不符合条件值的条件
     if (filterControls === false) {
@@ -320,8 +317,8 @@ export default class RecordCardListDialog extends Component {
       this.loadRecord,
     );
   }
-  @autobind
-  handleSearch(value) {
+
+  handleSearch = value => {
     this.setState(
       {
         keyWords: value,
@@ -331,9 +328,9 @@ export default class RecordCardListDialog extends Component {
       },
       this.loadRecord,
     );
-  }
-  @autobind
-  handleFilter(filters) {
+  };
+
+  handleFilter = filters => {
     this.setState(
       {
         quickFilters: filters,
@@ -343,9 +340,9 @@ export default class RecordCardListDialog extends Component {
       },
       this.loadRecord,
     );
-  }
-  @autobind
-  handleSelect(record, selected) {
+  };
+
+  handleSelect = (record, selected) => {
     const { maxCount, selectedCount, multiple, onOk, onClose, singleConfirm } = this.props;
     const { selectedRecords } = this.state;
     if (multiple) {
@@ -364,16 +361,16 @@ export default class RecordCardListDialog extends Component {
       onOk([record]);
       onClose();
     }
-  }
-  @autobind
-  handleConfirm() {
+  };
+
+  handleConfirm = () => {
     const { onOk, onClose } = this.props;
     const { selectedRecords } = this.state;
     onOk(selectedRecords);
     onClose();
-  }
-  @autobind
-  handleSort(control, isAsc) {
+  };
+
+  handleSort = (control, isAsc) => {
     let newIsAsc;
     if (_.isUndefined(isAsc)) {
       newIsAsc = true;
@@ -399,7 +396,7 @@ export default class RecordCardListDialog extends Component {
       },
       this.loadRecord,
     );
-  }
+  };
   canSort(control) {
     const itemType = control.sourceControlType || control.type;
     return fieldCanSort(itemType);

@@ -17,7 +17,7 @@ const EXPAND_TYPE = {
   USER: 'user',
   WORKFLOW: 'workflow',
   STORAGE: 'storage',
-  PORTALUSER: 'portaluser',
+  PORTALUSER: 'portalexpand',
   PORTALUPGRADE: 'portalupgrade',
   DATASYNC: 'dataSync',
   COMPUTING: 'computing',
@@ -29,7 +29,7 @@ const PAGE_TITLE = {
   user: _l('用户自助购买用户包'),
   workflow: _l('用户自助购买工作流'),
   storage: _l('用户自助购买应用附件上传量'),
-  portaluser: _l('用户自助购买外部门户用户包'),
+  portalexpand: _l('用户自助购买外部门户用户包'),
   portalupgrade: _l('用户自助购买外部门户用户包'),
   dataSync: _l('用户自助购买数据同步算力升级包'),
   computing: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建专属算力') : _l('购买专属算力'),
@@ -42,7 +42,7 @@ const HeaderTitle = {
   user: _l('扩充成员数量'),
   workflow: _l('购买工作流执行数升级包'),
   storage: _l('购买应用附件上传量扩充包'),
-  portaluser: _l('购买外部用户人数'),
+  portalexpand: _l('购买外部用户人数'),
   portalupgrade: _l('购买外部用户人数'),
   dataSync: _l('购买数据同步算力升级包'),
   computing: md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal ? _l('创建专属算力') : _l('购买专属算力'),
@@ -55,7 +55,7 @@ const HeaderSubTitle = {
   user: _l('扩充成员数量'),
   workflow: _l('选择升级包'),
   storage: _l('选择类型'),
-  portaluser: _l('选择增补人数'),
+  portalexpand: _l('选择增补人数'),
   portalupgrade: _l('选择购买人数和方式'),
   dataSync: _l('选择类型'),
   computing: _l('选择规格'),
@@ -70,7 +70,7 @@ const GET_ORDER_PRICE = {
   dataSync: orderController.getDataPipelineOrderPrice,
   workflowMonthly: orderController.getMonthlyWorkflowOrderPrice,
   storage: orderController.getApkStorageOrderPrice,
-  portaluser: orderController.getExternalUserOrderPrice,
+  portalexpand: orderController.getExternalUserOrderPrice,
   portalupgrade: orderController.getExternalUserExtensionOrderPrice,
   dataSyncMonthly: orderController.getMonthlyDataPipelineOrderPrice,
   computing: orderController.getComputingInstanceOrderPrice,
@@ -86,7 +86,7 @@ const ADD_ORDER_PRICE = {
   dataSync: orderController.addDataPipelineOrder,
   workflowMonthly: orderController.addMonthlyWorkflowOrder,
   storage: orderController.addApkStorageOrder,
-  portaluser: orderController.addExternalUserOrder,
+  portalexpand: orderController.addExternalUserOrder,
   portalupgrade: orderController.addExternalUserExtensionOrder,
   dataSyncMonthly: orderController.addMonthlyDataPipelineOrder,
   computing: orderController.addComputingInstanceOrder,
@@ -663,7 +663,9 @@ export default class ExpansionService extends Component {
                 );
               }}
             >
-              <div className="Font15 Gray Bold">{item.name}</div>
+              <div className="Font15 Gray Bold">
+                {_.get(md, 'global.Config.IsLocal') ? _l('%0并发数', item.partion) : item.name}
+              </div>
               <div className="Gray_9e mTop6">
                 {`${_l('%0核', item.cpu)}（vCPU）`} | {`${item.memory / 1024}GiB`}
               </div>

@@ -10,7 +10,7 @@ import {
   TestParameter,
   ParameterList,
 } from '../components';
-import { APP_TYPE, METHODS_TYPE } from '../../enum';
+import { ACTION_ID, APP_TYPE, METHODS_TYPE } from '../../enum';
 import cx from 'classnames';
 import styled from 'styled-components';
 import _ from 'lodash';
@@ -239,6 +239,7 @@ export default class Authentication extends Component {
    * 渲染oauth2内容
    */
   renderOAuth2Content() {
+    const { isIntegration, hasAuth } = this.props;
     const { data, showParameterList, tab, showTestDialog, testArray } = this.state;
     const TABS = {
       1: {
@@ -260,10 +261,25 @@ export default class Authentication extends Component {
 
     return (
       <Fragment>
-        <div className="Font16 bold">{_l('OAuth 2.0 认证（客户端凭证 client credentials）')}</div>
-        <div className="mTop5 Gray_75">{_l('将返回获取到的 Access Token 值供 API 请求参数使用')}</div>
+        {_.includes([ACTION_ID.CREDENTIALS, ACTION_ID.REFRESH_CREDENTIALS], data.actionId) ? (
+          <Fragment>
+            <div className="Font16 bold">{_l('OAuth 2.0 认证（授权码）')}</div>
+            <div className="mTop5 Gray_75">
+              {data.actionId === ACTION_ID.CREDENTIALS
+                ? _l('根据 code 获取access_token')
+                : _l('根据 Refresh token 刷新 Access Token')}
+            </div>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div className="Font16 bold">{_l('OAuth 2.0 认证（客户端凭证 client credentials）')}</div>
+            <div className="mTop5 Gray_75">{_l('将返回获取到的 Access Token 值供 API 请求参数使用')}</div>
+          </Fragment>
+        )}
 
-        <div className="Font13 bold mTop20">{_l('Access Token URL')}</div>
+        <div className="Font13 bold mTop20">
+          {data.actionId === ACTION_ID.REFRESH_CREDENTIALS ? _l('Refresh Token URL') : _l('Access Token URL')}
+        </div>
         {data.webHookNodes.map((item, i) => {
           if (_.includes([1, 4, 5], item.method)) {
             delete TABS['3'];
@@ -396,13 +412,22 @@ export default class Authentication extends Component {
           );
         })}
 
-        <div className="Font13 bold mTop20">{_l('返回参数列表')}</div>
-        <div className="mTop10 Gray_75">{_l('向 Access Token URL 发送请求并返回参数列表')}</div>
+        {data.actionId === ACTION_ID.CREDENTIALS ? (
+          <Fragment>
+            <div className="Font13 bold mTop20">{_l('返回 Access Token 值')}</div>
+            <div className="mTop10 Gray_75">{_l('向 Access Token URL 发送请求并接收返回值')}</div>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <div className="Font13 bold mTop20">{_l('返回参数列表')}</div>
+            <div className="mTop10 Gray_75">{_l('向 Access Token URL 发送请求并返回参数列表')}</div>
+          </Fragment>
+        )}
 
         {!!(data.controls || []).length && (
           <Fragment>
             <ParameterList controls={data.controls} />
-            <div className="mTop20 Gray_75">{_l('重新发送请求获取 Acess Token')}</div>
+            <div className="mTop20 Gray_75">{_l('重新发送请求获取 Access Token')}</div>
           </Fragment>
         )}
 
@@ -410,26 +435,31 @@ export default class Authentication extends Component {
           {_l('获取 Access Token')}
         </div>
 
-        <div className="Font13 bold mTop20">{_l('Access Token 过期时间')}</div>
-        <div className="mTop10 Gray_75">
-          {_l('系统将依据这里的时长设置来判断自动刷新 Access Token 的频率，为 0 则不自动刷新')}
-        </div>
-
-        <div className="mTop15 flexRow alignItemsCenter">
-          <input
-            type="text"
-            className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
-            style={{ width: 115 }}
-            ref={refreshTime => {
-              this.refreshTime = refreshTime;
-            }}
-            defaultValue={data.expireAfterSeconds}
-            onKeyUp={evt => this.checkNumberControl(evt)}
-            onPaste={evt => this.checkNumberControl(evt)}
-            onBlur={evt => this.checkNumberControl(evt, true)}
-          />
-          <div className="flex mLeft10">{_l('秒')}</div>
-        </div>
+        {(!hasAuth || (hasAuth && data.actionId !== ACTION_ID.CREDENTIALS)) && (
+          <Fragment>
+            <div className="Font13 bold mTop20">
+              {data.actionId === ACTION_ID.REFRESH_CREDENTIALS ? _l('自动刷新频率') : _l('Access Token 过期时间')}
+            </div>
+            <div className="mTop10 Gray_75">
+              {_l('系统将依据这里的时长设置来判断自动刷新 Access Token 的频率，为 0 则不自动刷新')}
+            </div>
+            <div className="mTop15 flexRow alignItemsCenter">
+              <input
+                type="text"
+                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
+                style={{ width: 115 }}
+                ref={refreshTime => {
+                  this.refreshTime = refreshTime;
+                }}
+                defaultValue={data.expireAfterSeconds}
+                onKeyUp={evt => this.checkNumberControl(evt)}
+                onPaste={evt => this.checkNumberControl(evt)}
+                onBlur={evt => this.checkNumberControl(evt, true)}
+              />
+              <div className="flex mLeft10">{_l('秒')}</div>
+            </div>
+          </Fragment>
+        )}
 
         {showTestDialog && (
           <TestParameter

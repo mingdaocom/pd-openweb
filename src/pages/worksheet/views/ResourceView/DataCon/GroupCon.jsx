@@ -339,7 +339,7 @@ export default function GroupCon(props) {
           },
           {
             openControlAttachmentInNewTab: recordAttachmentSwitch
-              ? fileId => {
+              ? (fileId, options = {}) => {
                   openControlAttachmentInNewTab({
                     controlId: coverCid,
                     fileId,
@@ -347,6 +347,7 @@ export default function GroupCon(props) {
                     recordId: rowId,
                     viewId,
                     worksheetId,
+                    ...options,
                   });
                 }
               : undefined,
@@ -369,8 +370,8 @@ export default function GroupCon(props) {
         <div
           className={cx('head w100 flexRow alignItemsCenter titleCon Bold Font13 Gray_75 TxtMiddle')}
           style={{
-            height: type === 'Week' ? 48 + 1 : type === 'Day' ? 28 + 2 : 28,
-            lineHeight: `${type === 'Week' ? 48 : 28}px`,
+            height: type === 'Day' ? 28 + 2 : 28,
+            lineHeight: `28px`,
           }}
           onScroll={headScroll}
           ref={headContainer}
@@ -590,6 +591,7 @@ export default function GroupCon(props) {
                 })}
 
                 {worksheetInfo.allowAdd &&
+                  ((controls.find(o => o.controlId === view.viewControl) || {}).fieldPermission || '111')[1] === '1' &&
                   isOpenPermit(permitList.createButtonSwitch, worksheetInfo.switches, viewId) && //功能开关，是否允许创建
                   !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage') || isM) && (
                     <div

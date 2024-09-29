@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Select } from 'antd';
-import { Modal } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import { LoadDiv, Icon, Radio } from 'ming-ui';
 import './index.less';
 import _ from 'lodash';
@@ -64,14 +64,12 @@ export default class MobileSearch extends Component {
           }}
           notFoundContent={null}
         />
-
-        <Modal
-          popup
+        <Popup
           visible={visible}
-          animationType="slide-up"
-          className="searchListModals"
-          title={
-            <div className="flexRow">
+          className="searchListModals mobileModal minFull topRadius"
+        >
+          <Fragment>
+            <div className="flexRow header">
               <div
                 className="ThemeColor3 TxtLeft pRight16 Font15"
                 onClick={() => {
@@ -83,7 +81,7 @@ export default class MobileSearch extends Component {
               >
                 {_l('取消')}
               </div>
-              <div className="flex ellipsis">{controlName}</div>
+              <div className="flex ellipsis TxtCenter">{controlName}</div>
               <div
                 className="ThemeColor3 pLeft16 TxtRight Font15"
                 onClick={() => {
@@ -97,93 +95,88 @@ export default class MobileSearch extends Component {
                 {_l('移除')}
               </div>
             </div>
-          }
-        >
-          {
-            <Fragment>
-              {enumDefault === 2 && clicksearch === '0' ? (
-                <div className="searchBox GrayBGF8 selectSearchBox">
-                  <input
-                    ref={node => (this.searchInput = node)}
-                    type="text"
-                    className="cursorText flex Gray"
-                    placeholder={hint || _l('请选择')}
-                  />
-                  <div
-                    className="searchBtn"
-                    onClick={() => {
-                      if (this.searchInput.value.length < parseInt(min)) return;
-                      this.props.handleSearch(this.searchInput.value);
-                    }}
-                  >
-                    <Icon icon="search" className="Font18 Gray_75" />
-                  </div>
+            {enumDefault === 2 && clicksearch === '0' ? (
+              <div className="searchBox GrayBGF8 selectSearchBox">
+                <input
+                  ref={node => (this.searchInput = node)}
+                  type="text"
+                  className="cursorText flex Gray"
+                  placeholder={hint || _l('请选择')}
+                />
+                <div
+                  className="searchBtn"
+                  onClick={() => {
+                    if (this.searchInput.value.length < parseInt(min)) return;
+                    this.props.handleSearch(this.searchInput.value);
+                  }}
+                >
+                  <Icon icon="search" className="Font18 Gray_75" />
                 </div>
-              ) : (
-                <div className="searchBox GrayBGF8">
-                  <Icon icon="search" className="searchIcon Font20 Gray_75" />
-                  <input
-                    type="text"
-                    className="cursorText Gray"
-                    placeholder={hint || _l('请选择')}
-                    ref={node => (this.searchInput = node)}
-                    onChange={e => {
-                      const value = this.searchInput.value.trim();
-                      if (!value) {
-                        this.props.clearData();
-                        return;
-                      }
-                      if (this.isOnComposition) return;
-                      this.searchRealTime(value);
-                    }}
-                    onCompositionStart={() => (this.isOnComposition = true)}
-                    onCompositionEnd={event => {
-                      const value = this.searchInput.value.trim();
-                      if (event.type === 'compositionend') {
-                        this.isOnComposition = false;
-                      }
-                      this.searchRealTime(value);
-                    }}
-                  />
-                </div>
-              )}
-              {loading ? (
-                <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter">
-                  <LoadDiv />
-                </div>
-              ) : _.get(this.searchInput || {}, 'value') && enumDefault === 1 && _.isEmpty(mobileSearchResult) ? (
-                <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter">
-                  <Icon icon="h5_search" className="Font50" />
-                  <div className="Gray_bd Font17 Bold mTop40">{_l('没有搜索结果')}</div>
-                </div>
-              ) : (
-                <div className="flex searchResult">
-                  {mobileOptionData.map((item, i) => {
-                    const labelNode = this.props.renderList(item);
-                    return (
-                      <div
-                        key={i}
-                        className="flexRow searchItem alignItemsCenter"
-                        onClick={() => {
-                          this.setState({ visible: false, currentChecked: item[itemtitle] });
-                          this.props.onChange(item[itemtitle]);
-                          this.props.handleSelect({
-                            key: String(item.index),
-                            value: item[itemtitle],
-                            label: item[itemtitle],
-                          });
-                        }}
-                      >
-                        <Radio checked={item[itemtitle] === currentChecked} />
-                        <div className="flex TxtLeft overflowHidden itemContent"> {labelNode}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </Fragment>
-          }
-        </Modal>
+              </div>
+            ) : (
+              <div className="searchBox GrayBGF8">
+                <Icon icon="search" className="searchIcon Font20 Gray_75" />
+                <input
+                  type="text"
+                  className="cursorText Gray"
+                  placeholder={hint || _l('请选择')}
+                  ref={node => (this.searchInput = node)}
+                  onChange={e => {
+                    const value = this.searchInput.value.trim();
+                    if (!value) {
+                      this.props.clearData();
+                      return;
+                    }
+                    if (this.isOnComposition) return;
+                    this.searchRealTime(value);
+                  }}
+                  onCompositionStart={() => (this.isOnComposition = true)}
+                  onCompositionEnd={event => {
+                    const value = this.searchInput.value.trim();
+                    if (event.type === 'compositionend') {
+                      this.isOnComposition = false;
+                    }
+                    this.searchRealTime(value);
+                  }}
+                />
+              </div>
+            )}
+            {loading ? (
+              <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter">
+                <LoadDiv />
+              </div>
+            ) : _.get(this.searchInput || {}, 'value') && enumDefault === 1 && _.isEmpty(mobileSearchResult) ? (
+              <div className="w100 h100 flexColumn alignItemsCenter justifyContentCenter">
+                <Icon icon="h5_search" className="Font50" />
+                <div className="Gray_bd Font17 Bold mTop40">{_l('没有搜索结果')}</div>
+              </div>
+            ) : (
+              <div className="flex searchResult">
+                {mobileOptionData.map((item, i) => {
+                  const labelNode = this.props.renderList(item);
+                  return (
+                    <div
+                      key={i}
+                      className="flexRow searchItem alignItemsCenter"
+                      onClick={() => {
+                        this.setState({ visible: false, currentChecked: item[itemtitle] });
+                        this.props.onChange(item[itemtitle]);
+                        this.props.handleSelect({
+                          key: String(item.index),
+                          value: item[itemtitle],
+                          label: item[itemtitle],
+                        });
+                      }}
+                    >
+                      <Radio checked={item[itemtitle] === currentChecked} />
+                      <div className="flex TxtLeft overflowHidden itemContent"> {labelNode}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Fragment>
+        </Popup>
       </Fragment>
     );
   }

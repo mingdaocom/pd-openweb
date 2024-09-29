@@ -39,7 +39,12 @@ class DialogFooter extends Component {
       return defaultFooter;
     }
     if (footer) {
-      return <div className="mui-dialog-footer">{footer}</div>;
+      return (
+        <div className="mui-dialog-footer flexRow">
+          {footerLeftElement && footerLeftElement()}
+          <div className="flex">{footer}</div>
+        </div>
+      );
     }
     return footer;
   }

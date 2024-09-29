@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { CreateNode, NodeOperate } from '../components';
+import { CreateNode, NodeOperate, WhiteNode } from '../components';
 import { ACTION_ID } from '../../enum';
 
 export default class PBC extends Component {
@@ -33,7 +33,7 @@ export default class PBC extends Component {
     }
 
     return (
-      <div className="pLeft8 pRight8 flexRow" style={{ alignItems: 'center' }}>
+      <div className="pLeft8 pRight8 flexRow alignItemsCenter">
         <div className="ellipsis">
           <span className="Gray_75">{_l('调用封装业务流程：')}</span>
           {item.appName}
@@ -52,8 +52,23 @@ export default class PBC extends Component {
   };
 
   render() {
-    const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
+    const { processId, item, disabled, selectNodeId, openDetail, isSimple, isCopy, isPlugin } = this.props;
     const isPBCExport = item.actionId === ACTION_ID.PBC_OUT;
+
+    if (isPlugin) {
+      return (
+        <WhiteNode
+          nodeId={item.id}
+          nodeName={_l('输出参数')}
+          nodeDesc={_l('设置输出参数')}
+          isComplete={item.appId}
+          isCopy={isCopy}
+          hasError={item.appId && item.isException}
+          isActive={selectNodeId === item.id}
+          onClick={() => openDetail(processId, item.id, item.typeId)}
+        />
+      );
+    }
 
     return (
       <div className="flexColumn">
@@ -61,7 +76,7 @@ export default class PBC extends Component {
           <div
             className={cx(
               'workflowItem',
-              { workflowItemDisabled: disabled },
+              { workflowItemDisabled: disabled || (isCopy && isPBCExport) },
               { errorShadow: item.appId && item.isException },
               { active: selectNodeId === item.id },
             )}

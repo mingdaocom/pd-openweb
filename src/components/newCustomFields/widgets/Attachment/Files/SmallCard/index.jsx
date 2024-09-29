@@ -8,8 +8,8 @@ import Trigger from 'rc-trigger';
 import './index.less';
 
 const SmallCard = props => {
-  const { data, isMobile, isDeleteFile, allowEditName, worksheetId, recordId } = props;
-  const { allowDownload, onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
+  const { data, isMobile, isDeleteFile, allowEditName, recordId } = props;
+  const { allowShare, allowDownload, onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
   const { isKc, browse, fileClassName, fileSize, isMore, isDownload } = props;
   const previewUrl = data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/w/200/h/140`);
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -18,6 +18,7 @@ const SmallCard = props => {
   const [isPicture, setIsPicture] = useState(props.isPicture);
   const [fileSizeVisible, setFileSizeVisible] = useState(true);
   const ref = useRef(null);
+  const allowReset = allowEditName && !isKc;
 
   useEffect(() => {
     if (isPicture) {
@@ -35,8 +36,8 @@ const SmallCard = props => {
   }, [data.originalFilename]);
 
   const renderDropdownOverlay = (
-    <Menu style={{ width: 140 }} className="Relative">
-      {onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
+    <Menu style={{ width: 150 }} className="Relative">
+      {recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
         <MenuItem
           key="newPage"
           icon={<Icon icon="launch" className="Font17 pRight5" />}
@@ -49,7 +50,21 @@ const SmallCard = props => {
           {_l('新页面打开')}
         </MenuItem>
       )}
-      {allowEditName && !isKc && (
+      {recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
+        <MenuItem
+          key="newPage"
+          icon={<Icon icon="floating-layer" className="Font17 pRight5" />}
+          onClick={e => {
+            e.stopPropagation();
+            onOpenControlAttachmentInNewTab(data.fileID, { openAsPopup: true });
+            setDropdownVisible(false);
+          }}
+        >
+          {_l('浮窗打开')}
+        </MenuItem>
+      )}
+      {(allowReset || allowShare) && <div className="hr-line" />}
+      {allowReset && (
         <MenuItem
           key="new_mail"
           icon={<Icon icon="new_mail" className="Font17 pRight5" />}
@@ -62,17 +77,19 @@ const SmallCard = props => {
           {_l('重命名')}
         </MenuItem>
       )}
-      <MenuItem
-        key="share"
-        icon={<Icon icon="share" className="Font17 pRight5" />}
-        onClick={e => {
-          e.stopPropagation();
-          handleShare(data, isDownload);
-          setDropdownVisible(false);
-        }}
-      >
-        {_l('分享')}
-      </MenuItem>
+      {allowShare && (
+        <MenuItem
+          key="share"
+          icon={<Icon icon="share" className="Font17 pRight5" />}
+          onClick={e => {
+            e.stopPropagation();
+            handleShare(data, isDownload);
+            setDropdownVisible(false);
+          }}
+        >
+          {_l('分享')}
+        </MenuItem>
+      )}
     </Menu>
   );
 

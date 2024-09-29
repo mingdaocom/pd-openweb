@@ -9,7 +9,7 @@ import cx from 'classnames';
 import SelectField from '../components/SelectField';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getAdvanceSetting, browserIsMobile, addBehaviorLog } from 'src/util';
+import { getAdvanceSetting, browserIsMobile, addBehaviorLog, dateConvertToServerZone } from 'src/util';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import moment from 'moment';
@@ -382,7 +382,7 @@ class RecordCalendar extends Component {
         controlId: startData.controlId,
         controlName: startData.controlName,
         type: startData.type,
-        value: startTime,
+        value: dateConvertToServerZone(startTime),
       },
     ];
     if (endData && calendar.end) {
@@ -392,7 +392,9 @@ class RecordCalendar extends Component {
         controlId: endData.controlId,
         controlName: endData.controlName,
         type: endData.type,
-        value: moment(moment(calendar.end).valueOf() + l).format(_.get(info, ['data', 'endFormat'])),
+        value: dateConvertToServerZone(
+          moment(moment(calendar.end).valueOf() + l).format(_.get(info, ['data', 'endFormat'])),
+        ),
       });
     }
     this.updateData(control, rowId, data => {
@@ -534,11 +536,11 @@ class RecordCalendar extends Component {
         : '';
       let data = selectTimeInfo.startStr
         ? {
-            [o.begin]: startT,
-            [o.end]: endT,
+            [o.begin]: dateConvertToServerZone(startT),
+            [o.end]: dateConvertToServerZone(endT),
           }
         : {
-            [o.begin]: startT,
+            [o.begin]: dateConvertToServerZone(startT),
           };
       this.addRecordInfo(data);
       this.setState({
@@ -989,7 +991,7 @@ class RecordCalendar extends Component {
                     controlId: startData.controlId,
                     controlName: startData.controlName,
                     type: startData.type,
-                    value: moment(info.event.start).format(startData.startFormat),
+                    value: dateConvertToServerZone(moment(info.event.start).format(startData.startFormat)),
                   },
                 ];
                 //周/天 非全天 视图 全天拖拽到非全天时间
@@ -1008,7 +1010,7 @@ class RecordCalendar extends Component {
                     controlId: endData.controlId,
                     controlName: endData.controlName,
                     type: endData.type,
-                    value: end,
+                    value: dateConvertToServerZone(end),
                   });
                 }
                 this.updateData(control, info.event.extendedProps.rowid, data => {
@@ -1028,7 +1030,7 @@ class RecordCalendar extends Component {
                       controlId: endData.controlId,
                       controlName: endData.controlName,
                       type: endData.type,
-                      value: this.changeEndStr(info.event.end, info.event.allDay),
+                      value: dateConvertToServerZone(this.changeEndStr(info.event.end, info.event.allDay)),
                     },
                   ],
                   info.event.extendedProps.rowid,
@@ -1180,6 +1182,7 @@ class RecordCalendar extends Component {
         {/* 表单信息 */}
         {recordInfoVisible && (
           <RecordInfoWrapper
+            enablePayment={worksheetInfo.enablePayment}
             showPrevNext={showPrevNext}
             projectId={worksheetInfo.projectId}
             currentSheetRows={rows}

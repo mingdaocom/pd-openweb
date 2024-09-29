@@ -19,6 +19,7 @@ import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import { checkIsAppAdmin } from 'ming-ui/functions';
 import Config from 'src/pages/Admin/config';
+import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -479,13 +480,14 @@ export default class AdminWorkflowList extends Component {
                     {(overage || 0).toFixed(2)}%
                   </span>
 
-                  {/* licenseType === 1 ? (
-                    <Link
-                      className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
-                      to={`/admin/expansionserviceWorkflow/${params.projectId}/workflow`}
-                    >
-                      {_l('购买升级包')}
-                    </Link>
+                  {licenseType === 1 ? (
+                    <PurchaseExpandPack
+                      className="mLeft20 ThemeHoverColor2"
+                      text={_l('购买升级包')}
+                      type="workflow"
+                      routePath="expansionserviceWorkflow"
+                      projectId={params.projectId}
+                    />
                   ) : (
                     <a
                       href="javascript:void(0);"
@@ -496,7 +498,7 @@ export default class AdminWorkflowList extends Component {
                     >
                       {_l('购买付费版')}
                     </a>
-                  ) */}
+                  )}
                 </Fragment>
               ) : (
                 _l('加载中...')

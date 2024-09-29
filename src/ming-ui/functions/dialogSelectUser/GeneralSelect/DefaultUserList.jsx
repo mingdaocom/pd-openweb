@@ -11,14 +11,22 @@ import _ from 'lodash';
 
 export default class DefaultUserList extends Component {
   getChecked(user) {
-    return !!this.props.selectedUsers.filter(item => item.accountId === user.accountId).length;
+    return (
+      !!this.props.selectedUsers.filter(item => item.accountId === user.accountId).length || this.getIncluded(user)
+    );
   }
+
+  getIncluded(user) {
+    return _.includes(this.props.selectedAccountIds || [], user.accountId);
+  }
+
   render() {
     let data = this.props.data;
     const otherOptions = {
       includeMySelf: this.props.includeMySelf || false,
       includeUndefinedAndMySelf: this.props.includeUndefinedAndMySelf || false,
     };
+
     if (
       (data.oftenUsers && data.oftenUsers.list && data.oftenUsers.list.length) ||
       (data.users && data.users.list.length)
@@ -43,6 +51,7 @@ export default class DefaultUserList extends Component {
                   checked={this.getChecked(user)}
                   key={'oftenUser' + user.accountId}
                   currentId={isOften ? currentId : ''}
+                  disabled={this.getIncluded(user)}
                 />
               ))}
             </div>
@@ -59,6 +68,7 @@ export default class DefaultUserList extends Component {
                   checked={this.getChecked(user)}
                   key={'user' + user.accountId}
                   currentId={isOften ? '' : currentId}
+                  disabled={this.getIncluded(user)}
                 />
               ))}
             </div>
@@ -66,6 +76,7 @@ export default class DefaultUserList extends Component {
         </div>
       );
     }
+
     return <NoData>{this.props.keywords ? _l('无搜索结果') : _l('暂无成员')}</NoData>;
   }
 }

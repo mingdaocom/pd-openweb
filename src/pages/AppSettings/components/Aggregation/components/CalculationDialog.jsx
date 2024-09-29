@@ -96,6 +96,7 @@ export default function CalculationDialog(props) {
             });
           }}
           maxLength={60}
+          autoFocus
         />
         <Formula
           data={{

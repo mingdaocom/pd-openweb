@@ -151,7 +151,8 @@ const COVER_IMAGE_POSITION = {
 export default function CardCoverImage(props) {
   const { data, stateData = {}, sheetSwitchPermit = [], currentView, viewId = '' } = props;
   const { allAttachments = [], coverData = {}, formData, rowId } = data;
-  const { type, controlId } = coverData;
+  const { type, controlId, advancedSetting = {} } = coverData;
+  const allowDownload = advancedSetting.allowdownload || '1';
   const { previewUrl, ext } = head(allAttachments) || {};
   const { viewType, appId, worksheetId } = currentView;
   const isGalleryView = String(viewType) === '3';
@@ -176,10 +177,10 @@ export default function CardCoverImage(props) {
     const recordAttachmentSwitch = !viewId
       ? true
       : isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
-    let hideFunctions = ['editFileName'];
-    if (!recordAttachmentSwitch) {
+    let hideFunctions = ['editFileName', 'saveToKnowlege'];
+    if (!recordAttachmentSwitch || allowDownload === '0') {
       /* 是否不可下载 且 不可保存到知识和分享 */
-      hideFunctions.push('download', 'share', 'saveToKnowlege');
+      hideFunctions.push('download', 'share');
     }
 
     addBehaviorLog('previewFile', worksheetId, {
@@ -202,7 +203,7 @@ export default function CardCoverImage(props) {
       },
       {
         openControlAttachmentInNewTab: recordAttachmentSwitch
-          ? fileId => {
+          ? (fileId, options = {}) => {
               openControlAttachmentInNewTab({
                 controlId,
                 fileId,
@@ -210,6 +211,7 @@ export default function CardCoverImage(props) {
                 recordId: rowId,
                 viewId,
                 worksheetId,
+                ...options,
               });
             }
           : undefined,

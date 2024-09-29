@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom';
 import { min, assign } from 'lodash';
 import cx from 'classnames';
 import LoadDiv from 'ming-ui/components/LoadDiv';
-import { autobind } from 'core-decorators';
 import { Motion, spring } from 'react-motion';
 import './imageViewer.css';
 
@@ -106,8 +105,7 @@ class ImageViewer extends React.Component {
     this._isMounted = false;
   }
 
-  @autobind
-  onWheel(evt) {
+  onWheel = evt => {
     if (this.state.ctrlIsdDown) {
       this.updateScale(evt.deltaY < 0);
       evt.preventDefault();
@@ -120,7 +118,7 @@ class ImageViewer extends React.Component {
       evt.stopPropagation();
       return;
     }
-  }
+  };
 
   loadImage(src, cb) {
     const img = new Image();
@@ -158,8 +156,7 @@ class ImageViewer extends React.Component {
     });
   }
 
-  @autobind
-  mouseMove(evt) {
+  mouseMove = evt => {
     if (this.props.fullscreen) {
       evt.preventDefault();
       return;
@@ -172,7 +169,7 @@ class ImageViewer extends React.Component {
       this.move(deltaX, deltaY);
       evt.preventDefault();
     }
-  }
+  };
 
   move(deltaX, deltaY) {
     let { left, top } = this.state;
@@ -232,8 +229,7 @@ class ImageViewer extends React.Component {
     );
   }
 
-  @autobind
-  initDrag(evt) {
+  initDrag = evt => {
     evt.preventDefault();
     evt.stopPropagation();
     if (!this.outViewerArea()) {
@@ -249,10 +245,9 @@ class ImageViewer extends React.Component {
         y: getClientY(evt),
       },
     });
-  }
+  };
 
-  @autobind
-  stopDrag(evt) {
+  stopDrag = evt => {
     if (
       this.state.mouseDownPos &&
       getClientX(evt) === this.state.mouseDownPos.x &&
@@ -264,7 +259,7 @@ class ImageViewer extends React.Component {
       dragStart: null,
       mouseDownPos: null,
     });
-  }
+  };
 
   /* 缩小*/
   smallit() {
@@ -298,26 +293,23 @@ class ImageViewer extends React.Component {
     });
   }
 
-  @autobind
-  ctrlDown(evt) {
+  ctrlDown = evt => {
     if (evt.keyCode === 90) {
       this.setState({
         ctrlIsdDown: true,
       });
     }
-  }
+  };
 
-  @autobind
-  ctrlUp(evt) {
+  ctrlUp = evt => {
     if (evt.keyCode === 90) {
       this.setState({
         ctrlIsdDown: false,
       });
     }
-  }
+  };
 
-  @autobind
-  onConClose(evt) {
+  onConClose = evt => {
     // 当预览层在修改name时点击预览区域图片外区域不关闭弹层  --这样写太恶心了
     if (this.props.onClose) {
       if (document.activeElement == $('.previewHeader .editableBlock input')[0]) {
@@ -325,7 +317,7 @@ class ImageViewer extends React.Component {
       }
       this.props.onClose();
     }
-  }
+  };
 
   onImgClose(evt) {
     evt.stopPropagation();

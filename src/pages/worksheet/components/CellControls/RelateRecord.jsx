@@ -16,7 +16,6 @@ import EditableCellCon from '../EditableCellCon';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown';
 import { openChildTable } from '../ChildTableDialog';
 import { openRelateRelateRecordTable } from '../RelateRecordTableDialog';
-import autobind from 'core-decorators/lib/autobind';
 import _, { includes } from 'lodash';
 import { browserIsMobile } from 'src/util';
 
@@ -95,8 +94,7 @@ export default class RelateRecord extends React.Component {
     }
   }
 
-  @autobind
-  handleTableKeyDown(e) {
+  handleTableKeyDown = e => {
     const { tableId, count = 0, recordId, cell, isediting, updateCell, updateEditingStatus } = this.props;
     const { records } = this.state;
     const canAdd = cell.enumDefault === 2 ? count < 50 : records.length === 0;
@@ -132,7 +130,7 @@ export default class RelateRecord extends React.Component {
           e.preventDefault();
         })();
     }
-  }
+  };
 
   getReordsLength(value) {
     let length = 0;
@@ -172,8 +170,7 @@ export default class RelateRecord extends React.Component {
     }
   }
 
-  @autobind
-  handleVisibleChange(visible) {
+  handleVisibleChange = visible => {
     const { cell, updateEditingStatus, updateCell, onValidate } = this.props;
     if (!visible && this.changed) {
       const newValue = JSON.stringify(
@@ -195,10 +192,9 @@ export default class RelateRecord extends React.Component {
       this.changed = false;
     }
     updateEditingStatus(visible);
-  }
+  };
 
-  @autobind
-  handleRelateRecordTagChange({ changed, addedIds, deletedIds, records = [], count } = {}) {
+  handleRelateRecordTagChange = ({ changed, addedIds, deletedIds, records = [], count } = {}) => {
     const { cell, updateEditingStatus, updateCell, onValidate } = this.props;
     if (!changed) {
       updateEditingStatus(false);
@@ -232,7 +228,7 @@ export default class RelateRecord extends React.Component {
       });
     }
     updateEditingStatus(false);
-  }
+  };
 
   render() {
     const {
@@ -269,6 +265,9 @@ export default class RelateRecord extends React.Component {
     let showCount = recordsLength >= 1000 ? '999+' : recordsLength;
     if (isSubList && recordsLength >= 1000) {
       showCount = 1000;
+    }
+    if (advancedSetting.showcount === '1') {
+      showCount = _l('查看');
     }
     if (
       includes(

@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Menu } from 'ming-ui';
 
 export const Wrap = styled.div`
   .setCon {
@@ -83,6 +84,9 @@ export const WrapWorksheet = styled.div`
   .flexRowCon {
     display: flex !important;
     min-width: 0;
+  }
+  &.isRelative {
+    background: #f5f5f5;
   }
   background: #ffffff;
   border-radius: 4px;
@@ -350,5 +354,40 @@ export const TextAbsoluteCenter = styled.div`
     text-align: center;
     line-height: 130px;
     font-size: 80px;
+  }
+`;
+
+export const WrapS = styled(Menu)`
+  // &.rowsCountItem {
+  //   height: 40px;
+  // }
+  // height: 120px;
+  .ming.MenuItem .Item-content:not(.disabled):hover {
+    background: #f5f5f5 !important;
+    color: initial !important;
+    .icon {
+      color: #9e9e9e !important;
+    }
+    .Red {
+      color: red !important;
+    }
+  }
+  .ming.Item.ThemeColor3 .Item-content:not(.disabled):hover {
+    color: #1e88e5 !important;
+  }
+  .Red.ming.MenuItem .Item-content:not(.disabled):hover {
+    color: red !important;
+  }
+  .ming.Item .Item-content {
+    padding: 0 8px 0 16px;
+    & > span {
+      display: flex;
+      .Icon {
+        position: initial;
+      }
+    }
+  }
+  .gray_75 {
+    color: #757575;
   }
 `;

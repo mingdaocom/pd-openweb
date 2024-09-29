@@ -85,6 +85,21 @@ function ChartFilter(props) {
     const endDateValue = maxValue ? moment(maxValue).toDate() : null;
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
+    const [startVisible, setStartVisible] = useState(false);
+    const [endVisible, setEndVisible] = useState(null);
+
+    const labelRenderer = (type, data) => {
+      switch (type) {
+        case 'year':
+          return data + '年';
+        case 'month':
+          return data + '月';
+        case 'day':
+          return data + '日';
+        default:
+          return data
+      }
+    }
 
     useEffect(() => {
       const start = moment(startDate || startDateValue).format('YYYY/MM/DD');
@@ -96,42 +111,46 @@ function ChartFilter(props) {
       <div className="flexRow mBottom16">
         <div className="flex">
           <DatePicker
-            mode="date"
-            minDate={startDateValue}
-            maxDate={endDateValue}
+            min={startDateValue}
+            max={endDateValue}
             title={_l('开始时间')}
             value={startDate || startDateValue}
-            onChange={date => {
+            onConfirm={date => {
               setStartDate(date);
             }}
-          >
-            <InputCon
-              readOnly
-              className="centerAlign"
-              placeholder={_l('开始')}
-              value={moment(startDate || minValue).format('YYYY-MM-DD') || ''}
-            />
-          </DatePicker>
+            visible={startVisible}
+            onClose={() => setStartVisible(false)}
+            renderLabel={labelRenderer}
+          />
+          <InputCon
+            readOnly
+            className="centerAlign"
+            placeholder={_l('开始')}
+            value={moment(startDate || minValue).format('YYYY-MM-DD') || ''}
+            onClick={() => setStartVisible(true)}
+          />
         </div>
         <div className="flexRow valignWrapper mLeft7 mRight7">-</div>
         <div className="flex">
           <DatePicker
-            mode="date"
-            minDate={startDateValue}
-            maxDate={endDateValue}
+            min={startDateValue}
+            max={endDateValue}
             title={_l('结束时间')}
             value={endDate || endDateValue}
-            onChange={date => {
+            onConfirm={date => {
               setEndDate(date);
             }}
-          >
-            <InputCon
-              readOnly
-              className="centerAlign"
-              placeholder={_l('结束')}
-              value={moment(endDate || maxValue).format('YYYY-MM-DD') || ''}
-            />
-          </DatePicker>
+            visible={endVisible}
+            onClose={() => setEndVisible(false)}
+            renderLabel={labelRenderer}
+          />
+          <InputCon
+            readOnly
+            className="centerAlign"
+            placeholder={_l('结束')}
+            value={moment(endDate || maxValue).format('YYYY-MM-DD') || ''}
+            onClick={() => setEndVisible(true)}
+          />
         </div>
       </div>
     );

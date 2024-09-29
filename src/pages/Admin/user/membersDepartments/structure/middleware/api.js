@@ -1,5 +1,4 @@
-﻿import { Schema, arrayOf, normalize } from 'normalizr';
-// ajax controllers
+﻿// ajax controllers
 import departmentController from 'src/api/department';
 import importUserController from 'src/api/importUser';
 import userController from 'src/api/user';
@@ -40,50 +39,8 @@ const getApiByRequestType = (type, { departmentId, isGetAll }) => {
   return dict[type];
 };
 
-// define user schema
-// fields: [accountId, avatar, contactPhone, createTime, email, isPrivateEmail, mobilePhone, isPrivateMobile, job, roleType]
-const userSchema = new Schema('users', {
-  idAttribute: 'accountId',
-});
-
-// define departments schema
-// fields: [departmentId, departmentName, userCount, haveSubDepartment]
-const departmentSchema = new Schema('departments', {
-  idAttribute: 'departmentId',
-  defaults: {
-    haveSubDepartment: false, // 是否有子部门
-
-    collapsed: true, // 折叠状态
-    isLoading: false, // 加载状态
-    isExpired: false, // 过期状态
-  },
-  assignEntity(output, key, value, input) {
-    delete output.users;
-  },
-});
-
-departmentSchema.define({
-  parentDepartment: departmentSchema,
-  users: arrayOf(userSchema),
-  chargeUsers: arrayOf(userSchema),
-});
-
-export const Schemas = {
-  DEPARTMENT: departmentSchema,
-  DEPARTMENT_ARRAY: arrayOf(departmentSchema),
-  USER: userSchema,
-  USER_ARRAY: arrayOf(userSchema),
-};
-
 // special symbol for interpreted by this redux middleware
 export const CALL_API = Symbol('CALL_API');
-
-export const parse = (response, schema) => {
-  if (response && schema) {
-    return normalize(response, schema);
-  }
-  return {};
-};
 
 // define and export middleware
 export default store => next => action => {

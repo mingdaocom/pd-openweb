@@ -53,7 +53,8 @@ function RelateRecordTable(props) {
   const tableCache = useRef({});
   const tableConRef = useRef();
   const [tableId] = useState(v4());
-  const { width } = useContext(RecordFormContext) || {};
+  const { width, recordbase = {} } = useContext(RecordFormContext) || {};
+  const { recordTitle } = recordbase;
   const smallMode = width < 500;
   const handleOpenRecordInfo = useCallback(
     args => {
@@ -138,6 +139,7 @@ function RelateRecordTable(props) {
           mode={mode}
           formData={formData}
           smallMode={smallMode}
+          recordTitle={recordTitle}
           className={cx('mBottom10', { mTop10: !isSplit && isTab })}
           style={{
             ...(isSplit && { padding: '10px 24px' }),

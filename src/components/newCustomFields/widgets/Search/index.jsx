@@ -76,7 +76,7 @@ export default class Widgets extends Component {
 
   handleSearch = () => {
     const {
-      advancedSetting: { requestmap, itemsource, itemtitle } = {},
+      advancedSetting: { requestmap, itemsource, itemtitle, authaccount } = {},
       dataSource,
       formData,
       worksheetId,
@@ -107,6 +107,7 @@ export default class Widgets extends Component {
       controlId,
       apkId: appId,
       apiTemplateId: dataSource,
+      authId: authaccount,
     };
 
     if (window.isPublicWorksheet) {
@@ -388,6 +389,7 @@ export default class Widgets extends Component {
             // keywords判断是为了直接点击删除
             if (_.get(option, 'label') || !keywords.length) {
               this.props.onChange(_.get(option, 'label'));
+              this.search && this.search.blur();
             }
           }}
           onFocus={() => this.setState({ open: true })}

@@ -101,7 +101,7 @@ export default function WidgetVerify(props) {
             text={type === 36 ? SWITCH_TYPE_TO_TEXT[showtype || '0'] : _l('必填')}
           />
         </div>
-        {/**写入时强制校验 */}
+        {/**写入时强制校验必填 */}
         {required && from !== 'portal' && !_.includes([34], type) && (
           <div className="labelWrap">
             <Checkbox
@@ -110,7 +110,7 @@ export default function WidgetVerify(props) {
               onClick={checked => onChange(handleAdvancedSettingChange(data, { required: checked ? '0' : '1' }))}
             >
               <span>
-                {_l('写入时强制校验')}
+                {_l('写入时强制校验必填')}
                 <Tooltip
                   placement={'bottom'}
                   title={_l(

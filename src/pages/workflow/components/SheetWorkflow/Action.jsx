@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { Icon, Dialog, UserHead } from 'ming-ui';
 import { Dropdown, Menu, Checkbox } from 'antd';
-import { ActionSheet, Modal, Button, WingBlank } from 'antd-mobile';
+import { Popup, ActionSheet, Button, Dialog as MobileDialog } from 'antd-mobile';
 import SelectUser from 'mobile/components/SelectUser';
 import cx from 'classnames';
 import styled from 'styled-components';
@@ -114,7 +114,7 @@ function UpdateUserDialog(props) {
       overlayClosable: false,
       SelectUserSettings: {
         projectId,
-        filterAccountIds: currentWorkItems.map(data => data.workItemAccount.accountId),
+        selectedAccountIds: currentWorkItems.map(data => data.workItemAccount.accountId),
         callback: users => {
           setNewAccounts(users);
         },
@@ -245,18 +245,6 @@ const MobileUpdateUserWrap = styled.div`
   .btnsWrapper {
     padding: 7px 10px;
     background-color: #fff;
-    a {
-      text-decoration: none;
-    }
-    .am-button {
-      height: 36px;
-      line-height: 36px;
-    }
-    .am-button,
-    .am-button::before,
-    .am-button-active::before {
-      border-radius: 50px;
-    }
   }
 `;
 
@@ -272,7 +260,7 @@ function MobileUpdateUserDialog(props) {
 
   return (
     <Fragment>
-      <Modal popup transitionName="noTransition" className="h100" onClose={onCancel} visible={visible}>
+      <Popup className="mobileModal full" onClose={onCancel} visible={visible}>
         <MobileUpdateUserWrap className="flexColumn h100 leftAlign">
           <div className="header">
             <div className="Font17 Gray bold mBottom6">{_l('调整负责人')}</div>
@@ -347,26 +335,22 @@ function MobileUpdateUserDialog(props) {
             </div>
           </div>
           <div className="btnsWrapper flexRow">
-            <WingBlank className="flex" size="sm">
-              <Button className="Font13 bold Gray_75" onClick={onCancel}>
-                {_l('取消')}
-              </Button>
-            </WingBlank>
-            <WingBlank className="flex" size="sm">
-              <Button
-                className="Font13 bold"
-                type="primary"
-                onClick={() => {
-                  const ids = selectAccountIds.concat(newAccounts.map(data => data.accountId));
-                  onOK(ids);
-                }}
-              >
-                {_l('确定')}
-              </Button>
-            </WingBlank>
+            <Button className="flex mLeft6 mRight6 Font13 bold Gray_75" onClick={onCancel}>
+              {_l('取消')}
+            </Button>
+            <Button
+              className="flex mLeft6 mRight6 Font13 bold"
+              color="primary"
+              onClick={() => {
+                const ids = selectAccountIds.concat(newAccounts.map(data => data.accountId));
+                onOK(ids);
+              }}
+            >
+              {_l('确定')}
+            </Button>
           </div>
         </MobileUpdateUserWrap>
-      </Modal>
+      </Popup>
       {selectUserVisible && (
         <SelectUser
           projectId={projectId}
@@ -414,15 +398,11 @@ export default function WorkflowAction(props) {
     const description =
       type === 4 ? _l('当前节点未进行操作的成员将设为通过') : _l('当前节点未进行操作的成员将设为提交');
     if (isMobile) {
-      Modal.alert(_l('确认跳过当前节点 ?'), description, [
-        {
-          text: _l('取消'),
-        },
-        {
-          text: _l('确认'),
-          onPress: () => onSkip(data),
-        },
-      ]);
+      MobileDialog.confirm({
+        title: _l('确认跳过当前节点 ?'),
+        content: description,
+        onConfirm: () => onSkip(data)
+      });
     } else {
       Dialog.confirm({
         title: _l('确认跳过当前节点 ?'),
@@ -434,17 +414,11 @@ export default function WorkflowAction(props) {
 
   const handleEndInstance = () => {
     if (isMobile) {
-      Modal.alert(_l('确认中止此条流程 ?'), '', [
-        {
-          text: _l('取消'),
-          style: { color: '#2196F3' },
-        },
-        {
-          text: _l('确认'),
-          style: { color: 'red' },
-          onPress: () => onEndInstance(data),
-        },
-      ]);
+      MobileDialog.confirm({
+        title: _l('确认中止此条流程 ?'),
+        confirmText: <span className="Red">{_l('确认')}</span>,
+        onConfirm: () => onEndInstance(data)
+      });
     } else {
       Dialog.confirm({
         title: _l('确认中止此条流程 ?'),
@@ -515,6 +489,7 @@ export default function WorkflowAction(props) {
   };
 
   const handleMobileMoreAction = () => {
+    let actionHandler = null;
     const BUTTONS = [
       { name: urgeDisable ? _l('已催') : _l('催办'), icon: 'access_alarm', fn: handleUrge },
       { name: _l('跳过当前节点'), icon: 'calendar-task', fn: handleSkip },
@@ -522,21 +497,29 @@ export default function WorkflowAction(props) {
       backFlowNodes.length ? { name: _l('退回'), icon: 'repeal-o', fn: () => onAction(data, 'return') } : null,
       { name: _l('中止'), icon: 'close', className: 'Red', fn: handleEndInstance },
     ].filter(_ => _);
-    ActionSheet.showActionSheetWithOptions({
-      options: BUTTONS.map(item => (
-        <div className={cx('flexRow valignWrapper w100', item.className)} onClick={item.fn}>
-          <Icon className={cx('mRight10 Font18', item.className || 'Gray_75')} icon={item.icon} />
-          <span className="Bold">{item.name}</span>
-        </div>
-      )),
-      message: (
+    actionHandler = ActionSheet.show({
+      actions: BUTTONS.map(item => {
+        return {
+          key: item.icon,
+          text: (
+            <div className={cx('flexRow valignWrapper w100', item.className)} onClick={item.fn}>
+              <Icon className={cx('mRight10 Font18', item.className || 'Gray_75')} icon={item.icon} />
+              <span className="Bold">{item.name}</span>
+            </div>
+          )
+        }
+      }),
+      extra: (
         <div className="flexRow header">
           <span className="Font13">{_l('操作')}</span>
-          <div className="closeIcon" onClick={() => ActionSheet.close()}>
+          <div className="closeIcon" onClick={() => actionHandler.close()}>
             <Icon icon="close" />
           </div>
         </div>
       ),
+      onAction: (action, index) => {
+        actionHandler.close();
+      }
     });
   };
 

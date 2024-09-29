@@ -1,21 +1,27 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
-import { Support, Dialog } from 'ming-ui';
+import { Support, SvgIcon } from 'ming-ui';
 import NodeNameInput from '../NodeNameInput';
-import { SUPPORT_HREF } from '../../../enum';
+import { APP_TYPE, NODE_TYPE, SUPPORT_HREF } from '../../../enum';
 import _ from 'lodash';
 
 // 获取当前打开节点的详细类型
 const getNodeTypeForSupportHref = ({ actionId, appType }, selectNodeType) => {
-  if (_.includes([6, 7], selectNodeType)) {
+  if (selectNodeType === NODE_TYPE.FIRST) {
+    return `${String(selectNodeType)}-${String(appType)}`;
+  }
+
+  if (_.includes([NODE_TYPE.ACTION, NODE_TYPE.SEARCH], selectNodeType)) {
     if (actionId === '1' || appType === 102) {
       return `${String(selectNodeType)}-${actionId}-${String(appType)}`;
     }
     return `${String(selectNodeType)}-${actionId}`;
   }
-  if (selectNodeType === 0) {
-    return `${String(selectNodeType)}-${String(appType)}`;
+
+  if (selectNodeType === NODE_TYPE.AIGC) {
+    return `${String(selectNodeType)}-${String(actionId)}`;
   }
+
   return String(selectNodeType);
 };
 
@@ -29,10 +35,12 @@ export default function DetailHeader({
   isIntegration,
   removeNodeName,
   customNodeName,
+  isPlugin,
 }) {
-  const { name } = data;
+  const { name, appType, app = {} } = data;
   const type = getNodeTypeForSupportHref(data, selectNodeType);
   const href = SUPPORT_HREF[type];
+  let disabled = false;
 
   if (isIntegration) {
     return (
@@ -43,14 +51,29 @@ export default function DetailHeader({
     );
   }
 
+  // 插件 输入 输出异化
+  if (isPlugin && _.includes([NODE_TYPE.FIRST, NODE_TYPE.PBC], selectNodeType)) {
+    bg = 'BGBlue';
+    customNodeName = selectNodeType === NODE_TYPE.FIRST ? _l('输入参数') : _l('输出参数');
+    disabled = true;
+  }
+
   return (
-    <div className={cx('workflowDetailHeader flexRow', bg)}>
+    <div
+      className={cx('workflowDetailHeader flexRow', bg)}
+      style={appType === APP_TYPE.PLUGIN ? { background: app.iconColor || '#2196f3' } : {}}
+    >
       {removeNodeName ? (
         <div className="flex" />
       ) : (
         <Fragment>
-          <i className={cx('Font24', icon)} />
-          <NodeNameInput name={name} updateSource={updateSource} />
+          {appType === APP_TYPE.PLUGIN && app.iconName ? (
+            <SvgIcon url={app.iconName} fill="#fff" size={24} />
+          ) : (
+            <i className={cx('Font24', icon)} />
+          )}
+
+          <NodeNameInput name={customNodeName || name} disabled={disabled} updateSource={updateSource} />
         </Fragment>
       )}
       {href && <Support href={href} type={1} className="workflowDetailHeaderSupport mLeft10" />}

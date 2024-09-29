@@ -260,7 +260,7 @@ function Disposition(props) {
       title: _l('选择人员'),
       showMoreInvite: false,
       SelectUserSettings: {
-        filterAccountIds: !_.get(flowData, 'ownerList') ? [] : _.get(flowData, 'ownerList'),
+        selectedAccountIds: !_.get(flowData, 'ownerList') ? [] : _.get(flowData, 'ownerList'),
         projectId: props.currentProjectId,
         filterOtherProject: true, //目前只能选当前网络下的成员
         dataRange: 2,

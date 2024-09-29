@@ -18,6 +18,7 @@ export const DATABASE_TYPE = {
   TENCENT_MONGODB: 'TENCENT_MONGODB',
   KAFKA: 'KAFKA',
   DB2: 'DB2',
+  SAP_HANA: 'SAP_HANA',
 };
 
 export const SOURCE_FROM_TYPE = {
@@ -36,6 +37,7 @@ export const ROLE_TYPE = {
 
 export const DETAIL_TYPE = {
   SETTING: 'setting',
+  TIMING_SETTING: 'timingSetting',
   USE_DETAIL: 'useDetail',
 };
 
@@ -87,6 +89,7 @@ export const TASK_STATUS_TAB_LIST = [
 
 export const SOURCE_DETAIL_TAB_LIST = [
   { key: DETAIL_TYPE.SETTING, text: _l('数据源设置') },
+  // { key: DETAIL_TYPE.TIMING_SETTING, text: _l('定时设置') },
   { key: DETAIL_TYPE.USE_DETAIL, text: _l('使用详情') },
 ];
 
@@ -173,4 +176,13 @@ export const DEPT_FIELDS = [
 export const RELATED_RECORD_FIELDS = [
   { id: 'rId', name: 'ID' },
   { id: 'rTitle', name: '标题' },
+];
+
+export const dataMirrorDestTypes = [
+  'MYSQL',
+  'POSTGRESQL',
+  'ALIYUN_MYSQL',
+  'ALIYUN_POSTGRES',
+  'TENCENT_MYSQL',
+  'TENCENT_POSTGRES',
 ];

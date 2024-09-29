@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Modal, WingBlank, Button } from 'antd-mobile';
+import { Popup, Button } from 'antd-mobile';
 
 class ModalWrap extends Component {
   constructor(props) {
@@ -9,18 +9,18 @@ class ModalWrap extends Component {
   render() {
     const { visible, onClose } = this.props;
     return (
-      <Modal popup visible={visible} onClose={onClose} animationType="slide-up" className="h100">
+      <Popup visible={visible} onClose={onClose} className="mobileModal full">
         <div className="flexColumn h100">
           <div className="flex">content</div>
           <div className="btnsWrapper valignWrapper flexRow">
-            <WingBlank className="flex" size="sm">
+            <div className="flex mLeft6 mRight6">
               <Button className="Font12 Gray_75 bold" onClick={onClose}>
                 {_l('自由输入')}
               </Button>
-            </WingBlank>
+            </div>
           </div>
         </div>
-      </Modal>
+      </Popup>
     );
   }
 }

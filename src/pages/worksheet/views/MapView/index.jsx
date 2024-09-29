@@ -198,6 +198,7 @@ function MapView(props) {
           visible={!!recordInfoRowId}
           appId={appId}
           worksheetId={worksheetInfo.worksheetId}
+          enablePayment={worksheetInfo.enablePayment}
           viewId={viewId}
           rowId={recordInfoRowId}
           onClose={() => setRecordInfoRowId(null)}

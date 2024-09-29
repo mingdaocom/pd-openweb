@@ -4,39 +4,11 @@
   background-color: #f2f2f3;
 }
 
-.am-tabs-default-bar-underline {
-  border-width: 2px;
-  border-radius: 24px;
-}
-
 .viewTabs {
+  --active-line-height: 3px;
+  color: #757575;
   &.isPortal {
     margin-top: -10px;
-  }
-  .am-tabs-default-bar-tab {
-    width: auto !important;
-    border-bottom: none !important;
-    padding: 0 12px !important;
-    max-width: 150px;
-    &:after {
-      content: none !important;
-    }
-  }
-  .am-tabs-default-bar-tab-active .tabName {
-    position: relative;
-    &:before {
-      content: '';
-      height: 3px;
-      background-color: currentColor;
-      width: 80%;
-      position: absolute;
-      bottom: 0px;
-      transform: translateX(-50%);
-      left: 50%;
-    }
-  }
-  .am-tabs-default-bar-underline {
-    display: none;
   }
 }
 .addRecordBtn {
@@ -78,6 +50,14 @@
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
 }
 
-.portalWrapHeight {
-  // height: calc(~'100% - 70px') !important;
+.recordActionWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: fixed;
+  right: 20px;
+  bottom: 20;
+  z-index: 100;
+  padding-bottom: calc(~'constant(safe-area-inset-bottom) - 20px');
+  padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px');
 }

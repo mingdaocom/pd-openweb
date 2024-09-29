@@ -43,8 +43,6 @@ function getViewStatus({ view, scriptUrl }) {
     _.get(view, 'pluginInfo.source') === PLUGIN_INFO_SOURCE.DEVELOPMENT
   ) {
     return CUSTOM_WIDGET_VIEW_STATUS.DEVELOPING;
-  } else if (_.get(view, 'pluginInfo.state') === PLUGIN_INFO_STATE.DISABLED) {
-    return CUSTOM_WIDGET_VIEW_STATUS.NOT_PUBLISH;
   } else if (_.get(view, 'pluginInfo.state') === PLUGIN_INFO_STATE.DELETED || _.isUndefined(view.pluginInfo)) {
     return CUSTOM_WIDGET_VIEW_STATUS.DELETED;
   } else if (_.get(view, 'pluginInfo.state') === PLUGIN_INFO_STATE.EXPIRED) {
@@ -70,7 +68,8 @@ function CustomWidgetView(props) {
     navGroupFilters,
     refresh,
   } = props;
-  const { isPublished = false, currentScriptUrl } = view;
+
+  const { isPublished = false, currentScriptUrl, fastFilters } = view;
   const debugUrl = localStorage.getItem('customViewDebugUrl_' + viewId);
   const codeUrl = _.get(view, 'pluginInfo.codeUrl');
   const scriptUrl = isPublished ? currentScriptUrl : debugUrl || codeUrl;
@@ -145,7 +144,15 @@ CustomWidgetView.propTypes = {
 };
 
 export default connect(
-  state =>
-    _.pick(state.sheet, ['customWidgetView', 'controls', 'worksheetInfo', 'filters', 'navGroupFilters', 'quickFilter']),
-  dispatch => bindActionCreators({ ...actions }, dispatch),
+  state => ({
+    ..._.pick(state.sheet, [
+      'customWidgetView',
+      'controls',
+      'worksheetInfo',
+      'filters',
+      'navGroupFilters',
+      'quickFilter',
+    ]),
+  }),
+  dispatch => bindActionCreators(actions, dispatch),
 )(CustomWidgetView);

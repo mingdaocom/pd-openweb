@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Icon, Dialog, Tooltip } from 'ming-ui';
+import { Icon, Dialog, Tooltip, SvgIcon } from 'ming-ui';
 import MoreOption from '../components/MoreOption';
 import BtnRangeDrop from 'src/pages/FormSet/components/BtnRangeDrop';
 import Trigger from 'rc-trigger';
@@ -90,22 +90,33 @@ export default function BtnTd(props) {
     }
     return _l('未分配视图');
   };
+  const color = !it.color
+    ? '#2196f3'
+    : it.color === 'transparent' && !it.icon
+    ? '#9e9e9e'
+    : it.color === 'transparent'
+    ? '#333'
+    : it.color;
   return (
     <div className="printTemplatesList-tr printBtnsList-tr">
       <div className="name flex mRight20 valignWrapper overflowHidden">
-        <Icon
-          icon={it.icon || 'custom_actions'}
-          style={{
-            color: !it.color
-              ? '#2196f3'
-              : it.color === 'transparent' && !it.icon
-              ? '#9e9e9e'
-              : it.color === 'transparent'
-              ? '#333'
-              : it.color,
-          }}
-          className="iconTitle Font24 mRight13"
-        />
+        {!!it.iconUrl && it.icon.endsWith('_svg') ? (
+          <SvgIcon
+            className="InlineBlock TxtTop mRight13 Icon iconTitle"
+            addClassName="TxtMiddle"
+            url={it.iconUrl}
+            fill={color}
+            size={24}
+          />
+        ) : (
+          <Icon
+            icon={it.icon || 'custom_actions'}
+            style={{
+              color: color,
+            }}
+            className="iconTitle Font24 mRight13"
+          />
+        )}
         {isRename ? (
           <input
             type="text"

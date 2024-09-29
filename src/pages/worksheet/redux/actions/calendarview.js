@@ -1,6 +1,6 @@
 import sheetAjax from 'src/api/worksheet';
 import { formatQuickFilter } from 'worksheet/util';
-import { getAdvanceSetting, browserIsMobile } from 'src/util';
+import { getAdvanceSetting, browserIsMobile, dateConvertToUserZone } from 'src/util';
 import { setDataFormat, getShowExternalData } from 'src/pages/worksheet/views/CalendarView/util';
 import { getCalendarViewType } from 'src/pages/worksheet/views/CalendarView/util';
 import { isTimeStyle, getTimeControls, getCalendartypeData } from 'src/pages/worksheet/views/CalendarView/util';
@@ -18,7 +18,12 @@ export const fetch = searchArgs => {
       getRows.abort();
     }
     getRowsIds.push(viewId);
-
+    if (searchArgs.beginTime) {
+      searchArgs.beginTime = dateConvertToUserZone(searchArgs.beginTime);
+    }
+    if (searchArgs.endTime) {
+      searchArgs.endTime = dateConvertToUserZone(searchArgs.endTime);
+    }
     getRows = sheetAjax.getFilterRows(
       getFilledRequestParams({
         appId,

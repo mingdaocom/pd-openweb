@@ -67,7 +67,7 @@ export default function Score({ data, onChange }) {
       </SettingItem>
       <SettingItem>
         <div className="settingItemTitle">{_l('颜色')}</div>
-        <div className="labelWrap">
+        <div className="labelWrap flexRow">
           <Dropdown
             border
             isAppendToBody

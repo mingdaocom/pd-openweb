@@ -49,7 +49,7 @@ export default class DateInput extends Component {
     const { data, dynamicValue, globalSheetInfo = {} } = this.props;
     const tabType = getTabTypeBySelectUser(data);
     const unique = data.enumDefault === 0;
-    const filterAccountIds = dynamicValue
+    const selectedAccountIds = dynamicValue
       .filter(
         item =>
           item.staticValue &&
@@ -74,7 +74,7 @@ export default class DateInput extends Component {
         isTask: false,
         tabType,
         appId: globalSheetInfo.appId,
-        filterAccountIds,
+        selectedAccountIds,
         minHeight: 400,
         offset: {
           top: 16,
@@ -84,7 +84,7 @@ export default class DateInput extends Component {
         SelectUserSettings: {
           unique,
           projectId: globalSheetInfo.projectId,
-          filterAccountIds,
+          selectedAccountIds,
           callback: users => {
             const usersId = this.formatUsersId(users);
             this.props.onDynamicValueChange(unique ? usersId : getUsers(usersId));
@@ -104,6 +104,7 @@ export default class DateInput extends Component {
       SelectUserSettings: {
         unique,
         projectId: globalSheetInfo.projectId,
+        selectedAccountIds,
         callback: users => {
           const usersId = this.formatUsersId(users);
           this.props.onDynamicValueChange(unique ? usersId : getUsers(usersId));

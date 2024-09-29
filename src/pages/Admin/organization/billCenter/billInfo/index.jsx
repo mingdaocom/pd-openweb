@@ -4,6 +4,7 @@ import { LoadDiv, Dropdown, ScrollView, UserHead } from 'ming-ui';
 import orderAjax from 'src/api/order';
 import copy from 'copy-to-clipboard';
 import projectAjax from 'src/api/project';
+import projectSettingAjax from 'src/api/projectSetting';
 import applicationAjax from 'src/api/application';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
@@ -26,6 +27,7 @@ import InvoiceSetting from './invoiceSetting';
 import ApplyInvoice from './applyInvoice';
 import DatePickerFilter from 'src/pages/Admin/common/datePickerFilter';
 import PaginationWrap from '../../../components/PaginationWrap';
+import { settingEarlyWarning } from 'src/pages/workflow/WorkflowList/components/WorkflowMonitor/EarlyWarningDialog';
 import Common from '../common';
 import img from 'staticfiles/images/billinfo_system.png';
 import _ from 'lodash';
@@ -44,6 +46,8 @@ export default function BillInfo({ match }) {
       applyOrderId: '',
     });
   const [loading, setLoading] = useState(false);
+  const [balanceLimitNoticeInfo, setBalanceLimitNoticeInfo] = useState({});
+  const { balanceLimit, noticeAccounts = [], noticeEnabled } = balanceLimitNoticeInfo;
   const [displayRecordType, setType] = useState('paid');
   const { balance, list = [], allCount, invoiceType } = data;
   const { pageIndex, status, pageSize, startDate, endDate } = paras;
@@ -99,6 +103,7 @@ export default function BillInfo({ match }) {
   };
   useEffect(() => {
     document.title = _l('组织管理 - 账务 - %0', companyName);
+    getBalanceLimitNoticeSettings();
   }, []);
 
   useEffect(() => {
@@ -124,9 +129,61 @@ export default function BillInfo({ match }) {
       location.href = `/admin/valueaddservice/${projectId}`;
     }
   };
-  const renderRows = () => {
-    const start = list.length ? pageSize * (pageIndex - 1) : 0;
-    return _l('第 %0 - %1 条,共 %2 条', start + 1, start + list.length, allCount || 0);
+  const renderPay = ({ status, payAccountInfo = {}, orderId, recordType }) => {
+    const { accountId, avatar, fullname } = payAccountInfo;
+    if (status === 1) {
+      return (
+        <div
+          className="goToPay"
+          onClick={() =>
+            (location.href = _.includes([5, 6], recordType)
+              ? `/admin/appBillDetail/${projectId}/2/${orderId}`
+              : `/admin/waitingpay/${projectId}/${orderId}`)
+          }
+        >
+          {_l('立即支付')}
+        </div>
+      );
+    }
+    if (_.includes([3, 4, 5], status)) return null;
+    return accountId ? (
+      <Fragment>
+        <UserHead className="billOwner" size={24} user={{ accountId, userHead: avatar }} projectId={projectId} />
+        <span>{fullname}</span>
+      </Fragment>
+    ) : (
+      <Fragment>
+        <img src={img} alt={_l('系统')} />
+        <span>{_l('系统')}</span>
+      </Fragment>
+    );
+  };
+
+  // 获取组织余额警告提醒
+  const getBalanceLimitNoticeSettings = () => {
+    projectSettingAjax.getBalanceLimitNoticeSettings({ projectId }).then(res => {
+      setBalanceLimitNoticeInfo(res);
+    });
+  };
+
+  // 设置余额警告提醒
+  const setBalanceLimitNotice = ({ noticeEnabled, balanceLimit, notifiers, closeDialog = () => {} }) => {
+    projectSettingAjax
+      .setBalanceLimitNotice({ projectId, noticeEnabled, balanceLimit, accountIds: notifiers.map(v => v.accountId) })
+      .then(res => {
+        if (res) {
+          alert(_l('操作成功'));
+          closeDialog();
+          setBalanceLimitNoticeInfo({
+            ...balanceLimitNoticeInfo,
+            noticeEnabled,
+            balanceLimit,
+            noticeAccounts: notifiers,
+          });
+        } else {
+          alert(_l('操作失败'), 2);
+        }
+      });
   };
 
   const renderRecordList = () => {
@@ -271,12 +328,52 @@ export default function BillInfo({ match }) {
       </div>
       <div className="orgManagementContent flexColumn">
         <div className="accountInfo">
-          <div className="balanceWrap">
-            <i className="icon-sp_account_balance_wallet_white Font24" />
-            <span>{_l('账户余额')}</span>
-            <span className="moneySymbol Gray_75">(￥)</span>
-            <span className="balance Font24">{loading ? '-' : formatNumberThousand(balance)}</span>
-          </div>
+          <i className="icon-sp_account_balance_wallet_white Font24" />
+          <span>{_l('账户余额')}</span>
+          <span className="moneySymbol Gray_75">(￥)</span>
+          <span className="balance Font24">{loading ? '-' : formatNumberThousand(balance)}</span>
+          {isPaid && (
+            <span className="recharge pointer bold" onClick={() => handleClick('recharge')}>
+              {_l('充值')}
+            </span>
+          )}
+          {!_.isEmpty(balanceLimitNoticeInfo) && (
+            <Fragment>
+              <span
+                className="warningBtn pointer bold mLeft16"
+                onClick={() => {
+                  settingEarlyWarning({
+                    type: 'balance',
+                    projectId,
+                    warningValue: balanceLimit,
+                    isWarning: noticeEnabled,
+                    notifiers: noticeAccounts,
+                    onOk: (warningValue, notifiers, closeDialog) => {
+                      setBalanceLimitNotice({
+                        noticeEnabled: true,
+                        balanceLimit: warningValue,
+                        notifiers,
+                        closeDialog,
+                      });
+                    },
+                    closeWarning: (warningValue, notifiers, closeDialog) => {
+                      setBalanceLimitNotice({
+                        noticeEnabled: false,
+                        balanceLimit: warningValue,
+                        notifiers,
+                        closeDialog,
+                      });
+                    },
+                  });
+                }}
+              >
+                {_l('余额预警')}
+              </span>
+              {noticeEnabled && (
+                <span className="mLeft10 Font12 Gray_9e">{_l('预警（%0）', balanceLimitNoticeInfo.balanceLimit)}</span>
+              )}
+            </Fragment>
+          )}
         </div>
         <div className="listHeader">
           <ul className="recordType">

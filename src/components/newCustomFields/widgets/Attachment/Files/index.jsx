@@ -1,11 +1,12 @@
 import React, { Fragment, useContext, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { SortableList } from 'ming-ui';
 import cx from 'classnames';
 import { ConfigProvider } from 'antd';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { formatFileSize, getClassNameByExt } from 'src/util';
 import { browserIsMobile, addBehaviorLog } from 'src/util';
 import ImageCard from './ImageCard';
@@ -14,11 +15,19 @@ import ListCard, { ListCardHeader } from './ListCard';
 import LargeImageCard from './LargeImageCard';
 import './index.less';
 import RegExpValidator from 'src/util/expression';
+
 const showTypes = {
   1: 'imageFilesWrap',
   2: 'smallFilesWrap',
   3: 'listFilesWrap',
   4: 'largeImageFilesWrap',
+};
+
+const showCardTypes = {
+  1: 'attachmentImageCard',
+  2: 'attachmentSmallCard',
+  3: 'attachmentListCard',
+  4: 'attachmentLargeImageCard',
 };
 
 const CardComponent = {
@@ -47,8 +56,9 @@ const filterImageAttachments = data => {
     : RegExpValidator.fileIsPicture(data.fileExt);
 };
 
-const SortableItem = SortableElement(props => {
-  const { showType, allowDownload, data } = props;
+const renderSortableItem = props => {
+  const { recordId, showType, allowShare, allowDownload, allowEditName, onOpenControlAttachmentInNewTab, item } = props;
+  const data = item;
   const { accountId, sourceID } = data;
   const isMdFile = accountId || sourceID;
   const isKc = !!data.refId;
@@ -64,9 +74,8 @@ const SortableItem = SortableElement(props => {
       fileClassName: getClassNameByExt(data.attachmentType === 5 ? false : data.ext),
       fileSize: formatFileSize(data.filesize),
       isMore:
-        allowDownload &&
+        (allowShare || allowDownload || (allowEditName && !isKc) || (recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState))) &&
         md.global.Account.accountId &&
-        !md.global.Account.isPortal &&
         !_.get(window, 'shareState.shareId'),
       isDownload: isKc
         ? data.allowDown === 'ok'
@@ -81,11 +90,11 @@ const SortableItem = SortableElement(props => {
     });
   }
 
-  return <FileComponent {...props} {...fileProps} isMobile={isMobile} />;
-});
+  return <FileComponent {...props} data={data} {...fileProps} isMobile={isMobile} />;
+};
 
-const SortableList = SortableContainer(props => {
-  const { list, className, smallSize, style, ref, ...otherProps } = props;
+const SortableListWrap = props => {
+  const { list, className, smallSize, style, ref, isListCard, canDrag, ...otherProps } = props;
   const { showType } = props;
   return (
     <div
@@ -94,14 +103,21 @@ const SortableList = SortableContainer(props => {
       className={cx('overflowHidden', { mTop8: !['3'].includes(showType), hide: !list.length })}
     >
       <div className={cx(className, 'attachmentFilesWrap', showTypes[showType], { mobile: isMobile, smallSize })}>
-        {list.map((data, index) => (
-          <SortableItem key={data.fileID} index={index} sortIndex={index} data={data || {}} {...otherProps} />
-        ))}
+        <SortableList
+          dragPreviewImage
+          canDrag={canDrag}
+          useDragHandle={isListCard}
+          itemKey="fileID"
+          itemClassName={showCardTypes[showType]}
+          items={list}
+          renderItem={options => renderSortableItem({ ...options, ...otherProps })}
+          onSortEnd={otherProps.onSortEnd}
+        />
         {['1', '2'].includes(showType) &&
           Array.from({ length: 10 }).map((_, index) => (
             <i
               key={index}
-              className={cx('fileEmpty', showType === '1' ? 'attachmentImageCard' : 'attachmentSmallCard', {
+              className={cx('fileEmpty', showCardTypes[showType], {
                 mobile: isMobile,
               })}
             />
@@ -109,10 +125,10 @@ const SortableList = SortableContainer(props => {
       </div>
     </div>
   );
-});
+};
 
 const Files = props => {
-  const { className, controlId, onChangedAllFiles, onSortAttachment, onAttachmentName, flag, ...otherProps } = props;
+  const { className, controlId, controlType, onChangedAllFiles, onSortAttachment, onAttachmentName, flag, ...otherProps } = props;
   const { attachmentData, onChangeAttachmentData } = props;
   const { knowledgeAtts, onChangeKnowledgeAtts } = props;
   const { attachments, onChangeAttachments, from } = props;
@@ -128,6 +144,7 @@ const Files = props => {
   const isListCard = ['3'].includes(showType);
   const isLargeImageCard = ['4'].includes(showType);
   const showLineCount = isListCard ? 10 : 5;
+  const isOtherSheet = controlType === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD;
 
   useEffect(() => {
     const allAttachments = attachments.concat(knowledgeAtts).concat(attachmentData);
@@ -197,9 +214,22 @@ const Files = props => {
 
   // 明道云附件预览
   const handleMDPreview = data => {
-    const { allowDownload = false } = props;
-    const hideFunctions = ['editFileName'].concat(allowDownload ? [] : ['download', 'share', 'saveToKnowlege']);
+    const { allowShare, allowDownload = false, advancedSetting } = props;
+    const hideFunctions = ['editFileName', 'saveToKnowlege'].concat(allowDownload ? [] : ['download']).concat(allowShare ? [] : ['share']);
     addBehaviorLog('previewFile', recordBaseInfo.worksheetId, { fileId: data.fileID, rowId: recordBaseInfo.recordId });
+    if (window.isMingDaoApp) {
+      window.MDJS.previewImage({
+        nameEditing: props.allowEditName, // 默认true, 是否允许修改文件名
+        deletion: props.allowEditName, // 默认true, 是否允许删除文件
+        sharing: props.allowEditName, // 默认true, 是否允许对外分享, 第三方应用打开
+        download: props.allowDownload, // 默认true, 是否允许下载, file.allowdown 对单个文件仍有效
+        index: _.findIndex(attachmentData, { fileID: data.fileID }), // 当前文件序列, 默认为0, 显示files中第一个
+        files: attachmentData, // 全部文件列表, H5端直接传给App即可, App做各类型数据兼容
+        filterRegex: _.get(advancedSetting, 'filterRegex'), // 给到生效中的文件名正则, 修改文件名时需要符合正则要求
+        checkValueByFilterRegex: props.checkValueByFilterRegex,
+      });
+      return;
+    }
     previewAttachments(
       {
         attachments: attachmentData,
@@ -227,13 +257,22 @@ const Files = props => {
             }
           }
         },
-        openControlAttachmentInNewTab: !isMobile && controlId && handleOpenControlAttachmentInNewTab,
+        openControlAttachmentInNewTab: !isMobile && controlId && !isOtherSheet && handleOpenControlAttachmentInNewTab,
       },
     );
   };
   // 未保存的知识附件预览
   const handleKCPreview = data => {
     const res = knowledgeAtts.filter(item => item.node).map(item => item.node);
+    if (window.isMingDaoApp) {
+      window.MDJS.previewImage({
+        index: _.findIndex(res, { id: data.fileID }),
+        files: res,
+        filterRegex: _.get(advancedSetting, 'filterRegex'),
+        checkValueByFilterRegex: props.checkValueByFilterRegex,
+      });
+      return;
+    }
     previewAttachments({
       attachments: res,
       index: _.findIndex(res, { id: data.fileID }),
@@ -264,9 +303,7 @@ const Files = props => {
     });
   };
 
-  const handleSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-    const files = arrayMove(sortAllAttachments, oldIndex, newIndex);
+  const handleSortEnd = files => {
     const attachments = [];
     const knowledgeAtts = [];
     const attachmentData = [];
@@ -297,31 +334,32 @@ const Files = props => {
     }
   };
 
-  const handleOpenControlAttachmentInNewTab = fileId => {
+  const handleOpenControlAttachmentInNewTab = (fileId, options = {}) => {
     if (!recordBaseInfo) {
       return;
     }
     addBehaviorLog('previewFile', recordBaseInfo.worksheetId, { fileId, rowId: recordBaseInfo.recordId });
     openControlAttachmentInNewTab(
-      _.assign(_.pick(recordBaseInfo, ['appId', 'recordId', 'viewId', 'worksheetId']), {
-        controlId,
-        fileId,
-        getType: from === 21 ? from : undefined,
-      }),
+      _.assign(
+        _.pick(recordBaseInfo, ['appId', 'recordId', 'viewId', 'worksheetId']),
+        {
+          controlId,
+          fileId,
+          getType: from === 21 ? from : undefined,
+        },
+        options,
+      ),
     );
   };
 
   return (
     <ConfigProvider autoInsertSpaceInButton={false}>
       {isListCard && !!sortAllAttachments.length && <ListCardHeader />}
-      <SortableList
+      <SortableListWrap
         ref={ref}
-        axis={isListCard ? 'y' : 'xy'}
-        shouldCancelStart={isListCard ? ({ target }) => !target.classList.contains('fileDrag') : undefined}
-        helperClass="sortableSortFile"
+        isListCard={isListCard}
         style={viewMore && !isLargeImageCard ? { maxHeight: heights[showType] * showLineCount } : undefined}
-        distance={5}
-        disabled={!allowSort}
+        canDrag={allowSort}
         className={className}
         smallSize={smallSize}
         list={
@@ -349,7 +387,7 @@ const Files = props => {
         onMDPreview={handleMDPreview}
         onKCPreview={handleKCPreview}
         onPreview={handlePreview}
-        onOpenControlAttachmentInNewTab={controlId && handleOpenControlAttachmentInNewTab}
+        onOpenControlAttachmentInNewTab={controlId && !isOtherSheet && handleOpenControlAttachmentInNewTab}
         onSortEnd={handleSortEnd}
         {...otherProps}
       />

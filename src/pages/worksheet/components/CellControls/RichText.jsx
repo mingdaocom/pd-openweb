@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { Dialog, RichText } from 'ming-ui';
 import EditableCellCon from '../EditableCellCon';
 import { regexFilterHtmlScript } from 'worksheet/util';
 import renderText from './renderText';
+
 export default class Text extends React.Component {
   static propTypes = {
     className: PropTypes.string,
@@ -32,8 +32,7 @@ export default class Text extends React.Component {
     }
   }
 
-  @autobind
-  handleTableKeyDown(e) {
+  handleTableKeyDown = e => {
     const { updateEditingStatus } = this.props;
     switch (e.key) {
       case 'Escape':
@@ -43,10 +42,9 @@ export default class Text extends React.Component {
       default:
         break;
     }
-  }
+  };
 
-  @autobind
-  handleChange() {
+  handleChange = () => {
     const { cell, updateCell } = this.props;
     if ((cell.value || '') === this.state.value) {
       return;
@@ -58,7 +56,7 @@ export default class Text extends React.Component {
     updateCell({
       value: this.state.value,
     });
-  }
+  };
 
   renderEditDialog() {
     const { cell, updateEditingStatus } = this.props;

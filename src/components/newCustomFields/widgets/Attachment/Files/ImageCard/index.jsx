@@ -20,7 +20,7 @@ const renderFileImage = (url, coverType, imgClassName = 'w100') => {
 
 // 渲染明道云附件
 const ImageCard = props => {
-  const { data, isMobile, isDeleteFile, coverType, allowEditName, allowDownload, worksheetId, recordId } = props;
+  const { data, isMobile, isDeleteFile, coverType, allowEditName, allowShare, allowDownload, recordId } = props;
   const { onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
   const { isKc, browse, fileClassName, fileSize, isMore, isDownload } = props;
   const fullShow = coverType === '1';
@@ -34,6 +34,7 @@ const ImageCard = props => {
   const [imgClassName, setImgClassName] = useState('w100');
   const ref = useRef(null);
   const [isPicture, setIsPicture] = useState(props.isPicture);
+  const allowReset = allowEditName && !isKc;
 
   useEffect(() => {
     if (isPicture) {
@@ -49,8 +50,8 @@ const ImageCard = props => {
   }, []);
 
   const renderDropdownOverlay = (
-    <Menu style={{ width: 140 }} className="Relative">
-      {onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
+    <Menu style={{ width: 150 }} className="Relative" onClick={e => e.stopPropagation()}>
+      {recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
         <MenuItem
           key="newPage"
           icon={<Icon icon="launch" className="Font17 pRight5" />}
@@ -63,7 +64,21 @@ const ImageCard = props => {
           {_l('新页面打开')}
         </MenuItem>
       )}
-      {allowEditName && !isKc && (
+      {recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
+        <MenuItem
+          key="newPage"
+          icon={<Icon icon="floating-layer" className="Font17 pRight5" />}
+          onClick={e => {
+            e.stopPropagation();
+            onOpenControlAttachmentInNewTab(data.fileID, { openAsPopup: true });
+            setDropdownVisible(false);
+          }}
+        >
+          {_l('浮窗打开')}
+        </MenuItem>
+      )}
+      {(allowReset || allowShare) && <div className="hr-line" />}
+      {allowReset && (
         <MenuItem
           key="editName"
           icon={<Icon icon="new_mail" className="Font17 pRight5" />}
@@ -76,17 +91,19 @@ const ImageCard = props => {
           {_l('重命名')}
         </MenuItem>
       )}
-      <MenuItem
-        key="share"
-        icon={<Icon icon="share" className="Font17 pRight5" />}
-        onClick={e => {
-          e.stopPropagation();
-          handleShare(data, isDownload);
-          setDropdownVisible(false);
-        }}
-      >
-        {_l('分享')}
-      </MenuItem>
+      {allowShare && (
+        <MenuItem
+          key="share"
+          icon={<Icon icon="share" className="Font17 pRight5" />}
+          onClick={e => {
+            e.stopPropagation();
+            handleShare(data, isDownload);
+            setDropdownVisible(false);
+          }}
+        >
+          {_l('分享')}
+        </MenuItem>
+      )}
     </Menu>
   );
 
@@ -237,8 +254,8 @@ const ImageCard = props => {
                   popupVisible={dropdownVisible}
                   onPopupVisibleChange={dropdownVisible => setDropdownVisible(dropdownVisible)}
                   popupAlign={{
-                    points: ['tr', 'br'],
-                    offset: [5, 5],
+                    points: ['tl', 'bl'],
+                    offset: [0, 5],
                     overflow: { adjustX: true, adjustY: true },
                   }}
                 >

@@ -1,11 +1,55 @@
 import { v4 as uuidv4 } from 'uuid';
-import { handleSortRows, postWithToken, download } from 'worksheet/util';
+import { handleSortRows, postWithToken, download, filterEmptyChildTableRows } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
-import _, { get, includes, pick } from 'lodash';
+import _, { get, includes, isString, pick } from 'lodash';
+import { treeDataUpdater, handleUpdateTreeNodeExpansion } from 'worksheet/common/TreeTableHelper';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { createRequestPool } from 'worksheet/api/standard';
 
 const PAGE_SIZE = 200;
+
+export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, getNewRows, updateRows } = {}) {
+  return (dispatch, getState) => {
+    const { base = {}, rows = [], treeTableViewData } = getState();
+    const { control } = base;
+    const { treeMap, maxLevel } = treeTableViewData;
+    let controlIdForGetRelationRows;
+    try {
+      controlIdForGetRelationRows = control.relationControls.filter(
+        c => c.sourceControlId === control.advancedSetting.layercontrolid,
+      )[0].controlId;
+    } catch (err) {
+      console.log(err);
+    }
+    const getNewRowsFn =
+      getNewRows ||
+      (() =>
+        worksheetAjax
+          .getRowRelationRows({
+            worksheetId: control.dataSource,
+            rowId: row.rowid,
+            controlId: controlIdForGetRelationRows,
+            pageIndex: 1,
+            pageSize: 50,
+          })
+          .then(res => {
+            const newRows = res.data.map(r => ({ ...r, pid: row.rowid, isAddByTree: true }));
+            dispatch(addRows(newRows));
+            return newRows;
+          }));
+    dispatch(
+      handleUpdateTreeNodeExpansion(row, {
+        expandAll,
+        forceUpdate,
+        treeMap,
+        maxLevel,
+        rows,
+        getNewRows: getNewRowsFn,
+        updateRows,
+      }),
+    );
+  };
+}
 
 export function updateBase(changes = {}) {
   return (dispatch, getState) => {
@@ -19,13 +63,28 @@ export function updateBase(changes = {}) {
 
 export const initRows = rows => ({ type: 'INIT_ROWS', rows });
 
+export const updateTreeTableViewData = () => (dispatch, getState) => {
+  const { base, rows } = getState();
+  if (!base.isTreeTableView) {
+    return;
+  }
+  const { treeMap, maxLevel } = treeDataUpdater({}, { rootRows: rows.filter(r => !r.pid), rows: rows, levelLimit: 10 });
+  dispatch({
+    type: 'UPDATE_TREE_TABLE_VIEW_DATA',
+    value: { maxLevel, treeMap },
+  });
+};
+
 export const resetRows = () => {
   return (dispatch, getState) => {
     const { base = {} } = getState();
     dispatch(initRows(getState().originRows));
     if (base.reset && !base.loaded) {
       dispatch({ type: 'RESET' });
+    } else {
+      dispatch({ type: 'RESET_TREE' });
     }
+    dispatch(updateTreeTableViewData());
     return Promise.resolve();
   };
 };
@@ -56,19 +115,33 @@ export const clearAndSetRows = rows => {
 
 export const setOriginRows = rows => ({ type: 'LOAD_ROWS', rows });
 
-export const addRow = (row, insertRowId) => ({ type: 'ADD_ROW', row, rowid: row.rowid, insertRowId });
+export const addRow = (row, insertRowId) => (dispatch, getState) => {
+  dispatch({ type: 'ADD_ROW', row, rowid: row.rowid, insertRowId });
+  dispatch(updateTreeTableViewData());
+};
 
-export const deleteRow = rowid => ({ type: 'DELETE_ROW', rowid });
-export const deleteRows = rowIds => ({ type: 'DELETE_ROWS', rowIds });
+export const deleteRow = rowid => (dispatch, getState) => {
+  const { cellErrors = {} } = getState();
+  dispatch({ type: 'UPDATE_CELL_ERRORS', value: _.omitBy(cellErrors, (value, key) => key.includes(rowid)) });
+  dispatch({ type: 'DELETE_ROW', rowid });
+  dispatch(updateTreeTableViewData());
+};
 
-export const updateRow = ({ rowid, value }, { asyncUpdate } = {}) => {
+export const deleteRows = rowIds => dispatch => {
+  dispatch({ type: 'DELETE_ROWS', rowIds });
+  dispatch(updateTreeTableViewData());
+};
+
+export const updateRow = ({ rowid, value }, { asyncUpdate, noRealUpdate } = {}) => {
   return dispatch => {
     dispatch({
       type: 'UPDATE_ROW',
       asyncUpdate,
       rowid,
+      noRealUpdate,
       value: { ...value, empty: false },
     });
+    dispatch(updateTreeTableViewData());
     return Promise.resolve();
   };
 };
@@ -98,6 +171,7 @@ export const loadRows = ({
   pageIndex = 1,
   getWorksheet,
   from,
+  isTreeTableView,
   callback = () => {},
 }) => {
   return (dispatch, getState) => {
@@ -115,6 +189,16 @@ export const loadRows = ({
         const { res, rows } = batchRes;
         dispatch({ type: 'LOAD_ROWS', rows });
         dispatch(initRows(rows));
+        if (isTreeTableView) {
+          const { treeMap, maxLevel } = treeDataUpdater(
+            {},
+            { rootRows: rows.filter(r => typeof r.pid !== 'undefined' && !r.pid), rows: rows, levelLimit: 5 },
+          );
+          dispatch({
+            type: 'UPDATE_TREE_TABLE_VIEW_DATA',
+            value: { maxLevel, treeMap },
+          });
+        }
         callback(res);
       })
       .catch(err => {
@@ -123,7 +207,12 @@ export const loadRows = ({
   };
 };
 
-export const addRows = (rows, options = {}) => ({ type: 'ADD_ROWS', rows, ...options });
+export const addRows =
+  (rows, options = {}) =>
+  dispatch => {
+    dispatch({ type: 'ADD_ROWS', rows, ...options });
+    dispatch(updateTreeTableViewData());
+  };
 
 export const sortRows = ({ control, isAsc }) => {
   return (dispatch, getState) => {
@@ -132,7 +221,14 @@ export const sortRows = ({ control, isAsc }) => {
   };
 };
 
-export const exportSheet = ({ worksheetId, rowId, controlId, fileName, onDownload = () => {} } = {}) => {
+export const exportSheet = ({
+  worksheetId,
+  rowId,
+  controlId,
+  fileName,
+  filterControls = [],
+  onDownload = () => {},
+} = {}) => {
   return async () => {
     try {
       const res = await postWithToken(
@@ -142,6 +238,7 @@ export const exportSheet = ({ worksheetId, rowId, controlId, fileName, onDownloa
           worksheetId,
           rowId,
           controlId,
+          filterControls,
           pageIndex: 1,
           pageSize: 10000,
         },
@@ -152,6 +249,7 @@ export const exportSheet = ({ worksheetId, rowId, controlId, fileName, onDownloa
       onDownload();
       download(res.data, fileName);
     } catch (err) {
+      onDownload(err);
       alert(_l('导出失败！请稍候重试'), 2);
     }
   };
@@ -251,7 +349,18 @@ export function setRowsFromStaticRows({
       maxConcurrentRequests: 6,
     });
     const rows = (!max ? staticRows : staticRows.slice(0, max)).map(staticRow => {
-      const tempRowId = !isDefaultValue ? `temp-${uuidv4()}` : `default-${uuidv4()}`;
+      const tempRowId = !isDefaultValue
+        ? `temp-${uuidv4()}`
+        : includes(staticRow.rowid, 'temp-')
+        ? staticRow.rowid.replace('temp-', 'default-')
+        : /^default-/.test(staticRow.rowid)
+        ? staticRow.rowid
+        : `default-${uuidv4()}`;
+      Object.keys(staticRow).forEach(key => {
+        if (isString(staticRow[key]) && includes(staticRow[key], '"sid":"temp-')) {
+          staticRow[key] = staticRow[key].replace('"sid":"temp-', `\"sid\":\"default-`);
+        }
+      });
       const createRowArgs = {
         requestPool,
         recordId,
@@ -283,14 +392,26 @@ export function setRowsFromStaticRows({
         },
       };
       const rowData = new RowData(createRowArgs);
-      return rowData.getRow();
+      return _.assign(rowData.getRow(), {
+        pid: (get(staticRow, 'pid') || '').replace('temp-', 'default-'),
+        childrenids: (get(staticRow, 'childrenids') || '').replace(/temp-/g, 'default-'),
+      });
     });
     if (type === 'append') {
       dispatch(addRows(rows));
-      triggerSubListControlValueChange({ action: 'append', isDefault: true, rows: getState().rows });
+      triggerSubListControlValueChange({
+        action: 'append',
+        isDefault: true,
+        rows: filterEmptyChildTableRows(getState().rows),
+      });
     } else {
       dispatch(clearAndSetRows(rows));
-      triggerSubListControlValueChange({ action: 'clearAndSet', isDefault: true, rows: getState().rows });
+      triggerSubListControlValueChange({
+        action: 'clearAndSet',
+        isDefault: true,
+        rows: filterEmptyChildTableRows(getState().rows),
+      });
+      dispatch(updateTreeTableViewData());
     }
   };
 }

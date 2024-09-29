@@ -3,7 +3,7 @@ import cx from 'classnames';
 import { getRequest, verifyPassword, getCurrentProject } from 'src/util';
 import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
-import { Modal, Progress, WingBlank } from 'antd-mobile';
+import { Popup, Dialog, ActionSheet, Button } from 'antd-mobile';
 import { message } from 'antd';
 import { Icon, LoadDiv } from 'ming-ui';
 import MobileVertifyPassword from 'src/ming-ui/components/VertifyPasswordMoibile';
@@ -184,10 +184,10 @@ class RecordAction extends Component {
       }
     };
     if (batchOptCheckedData.length > 1000) {
-      Modal.alert(_l('最大支持批量执行1000行记录，是否只选中并执行前1000行数据？'), '', [
-        { text: '取消', onPress: () => {} },
-        { text: '确认', onPress: () => handleTrigger() },
-      ]);
+      Dialog.confirm({
+        content: _l('最大支持批量执行1000行记录，是否只选中并执行前1000行数据？'),
+        onConfirm: () => handleTrigger(),
+      });
     } else {
       handleTrigger();
     }
@@ -265,19 +265,21 @@ class RecordAction extends Component {
         break;
       case '12': // 本记录 - 新建关联记录
         if (!addRelationControl || !_.isObject(addRelationControl)) {
-          Modal.alert(_l('无法执行按钮“%0”', btn.name), _l('关联字段被隐藏或已删除'), [
-            { text: _l('确定'), onPress: () => {} },
-          ]);
+          Dialog.alert({
+            title: _l('无法执行按钮“%0”', btn.name),
+            content: _l('关联字段被隐藏或已删除'),
+            confirmText: _l('确定'),
+          });
           return;
         }
         try {
           const controldata = JSON.parse(addRelationControl.value);
           if (addRelationControl.enumDefault === 1 && controldata.length) {
-            Modal.alert(
-              _l('无法执行按钮“%0”', btn.name),
-              _l('%0已有关联记录，无法重复添加', addRelationControl.controlName),
-              [{ text: _l('确定'), onPress: () => {} }],
-            );
+            Dialog.alert({
+              title: _l('无法执行按钮“%0”', btn.name),
+              content: _l('%0已有关联记录，无法重复添加', addRelationControl.controlName),
+              confirmText: _l('确定'),
+            });
             return;
           }
         } catch (err) {}
@@ -306,11 +308,11 @@ class RecordAction extends Component {
             masterFormData: rowInfo.receiveControls,
           };
         } catch (err) {
-          Modal.alert(
-            _l('无法执行按钮“%0”', btn.name),
-            _l('“%0”为空，请关联操作后再执行按钮操作', relationControl.controlName),
-            [{ text: _l('确定'), onPress: () => {} }],
-          );
+          Dialog.alert({
+            title: _l('无法执行按钮“%0”', btn.name),
+            content: _l('“%0”为空，请关联操作后再执行按钮操作', relationControl.controlName),
+            confirmText: _l('确定'),
+          });
           return;
         }
         this.setState({
@@ -326,11 +328,11 @@ class RecordAction extends Component {
           this.fillRecordId = controldata[0].sid;
           this.addRelateRecordRelateRecord(relationControl, btn.addRelationControl);
         } catch (err) {
-          Modal.alert(
-            _l('无法执行按钮“%0”', btn.name),
-            _l('“%0”为空，请关联操作后再执行按钮操作', relationControl.controlName),
-            [{ text: _l('确定'), onPress: () => {} }],
-          );
+          Dialog.alert({
+            title: _l('无法执行按钮“%0”', btn.name),
+            content: _l('“%0”为空，请关联操作后再执行按钮操作', relationControl.controlName),
+            confirmText: _l('确定'),
+          });
           return;
         }
         break;
@@ -343,49 +345,48 @@ class RecordAction extends Component {
     } catch (err) {
       return;
     }
-    worksheetAjax
-      .getRowByID({
-        worksheetId: relationControl.dataSource,
-        getType: 1,
-        appId: relationControl.appId,
-        rowId: controldata[0].sid,
-        viewId: relationControl.viewId,
-      })
-      .then(data => {
-        const relationControlrelationControl = _.find(
-          data.receiveControls,
-          c => c.controlId === relationControlrelationControlId,
-        );
-        if (!relationControlrelationControl) {
-          Modal.alert(_l('无法执行按钮“%0”', this.activeBtn.name), _l('关联字段被隐藏或已删除'), [
-            { text: _l('确定'), onPress: () => {} },
-          ]);
+    getRowDetail({
+      worksheetId: relationControl.dataSource,
+      getType: 1,
+      appId: relationControl.appId,
+      rowId: controldata[0].sid,
+    }).then(data => {
+      const relationControlrelationControl = _.find(
+        data.formData,
+        c => c.controlId === relationControlrelationControlId,
+      );
+      if (!relationControlrelationControl) {
+        Dialog.alert({
+          title: _l('无法执行按钮“%0”', this.activeBtn.name),
+          content: _l('关联字段被隐藏或已删除'),
+          confirmText: _l('确定'),
+        });
+        return;
+      }
+      try {
+        const relationControlrelationControlData = JSON.parse(relationControlrelationControl.value);
+        if (relationControlrelationControl.enumDefault === 1 && relationControlrelationControlData.length) {
+          Dialog.alert({
+            title: _l('无法执行按钮“%0”', this.activeBtn.name),
+            content: _l('“%0”已有关联记录，无法重复添加', relationControlrelationControl.controlName),
+            confirmText: _l('确定'),
+          });
           return;
         }
-        try {
-          const relationControlrelationControlData = JSON.parse(relationControlrelationControl.value);
-          if (relationControlrelationControl.enumDefault === 1 && relationControlrelationControlData.length) {
-            Modal.alert(
-              _l('无法执行按钮“%0”', this.activeBtn.name),
-              _l('“%0”已有关联记录，无法重复添加', relationControlrelationControl.controlName),
-              [{ text: _l('确定'), onPress: () => {} }],
-            );
-            return;
-          }
-        } catch (err) {}
-        this.masterRecord = {
-          rowId: controldata[0].sid,
-          controlId: relationControlrelationControl.controlId,
-          worksheetId: relationControl.dataSource,
-        };
-        if (relationControlrelationControl) {
-          this.btnAddRelateWorksheetId = relationControlrelationControl.dataSource;
-          this.setState({
-            newRecordVisible: true,
-            rowInfo: data,
-          });
-        }
-      });
+      } catch (err) {}
+      this.masterRecord = {
+        rowId: controldata[0].sid,
+        controlId: relationControlrelationControl.controlId,
+        worksheetId: relationControl.dataSource,
+      };
+      if (relationControlrelationControl) {
+        this.btnAddRelateWorksheetId = relationControlrelationControl.dataSource;
+        this.setState({
+          newRecordVisible: true,
+          rowInfo: { ...data, receiveControls: data.formData },
+        });
+      }
+    });
   }
   handleOpenDiscuss = () => {
     const { appId, worksheetId, viewId, rowId } = this.props;
@@ -393,10 +394,35 @@ class RecordAction extends Component {
   };
   handleDeleteAlert = () => {
     const { hideRecordActionVisible } = this.props;
-    Modal.alert(this.isSubList ? _l('是否删除子表记录 ?') : _l('是否删除此条记录 ?'), '', [
-      { text: _l('取消'), style: 'default', onPress: () => {} },
-      { text: _l('确定'), style: { color: 'red' }, onPress: this.handleDelete },
-    ]);
+    let actionDeleteHandler = ActionSheet.show({
+      popupClassName: 'md-adm-actionSheet',
+      actions: [],
+      extra: (
+        <div className="flexColumn w100">
+          <div className="bold Gray Font17 pTop10">
+            {this.isSubList ? _l('是否删除子表记录 ?') : _l('是否删除此条记录 ?')}
+          </div>
+          <div className="valignWrapper flexRow mTop24">
+            <Button
+              className="flex mRight6 bold Gray_75 flex ellipsis Font13"
+              onClick={() => actionDeleteHandler.close()}
+            >
+              {_l('取消')}
+            </Button>
+            <Button
+              className="flex mLeft6 bold ellipsis Font13"
+              color="danger"
+              onClick={() => {
+                actionDeleteHandler.close();
+                this.handleDelete();
+              }}
+            >
+              {_l('确认')}
+            </Button>
+          </div>
+        </div>
+      ),
+    });
     hideRecordActionVisible();
   };
   handleDelete = () => {
@@ -484,10 +510,9 @@ class RecordAction extends Component {
     const { sheetRow, viewId, worksheetInfo = {}, isBatchOperate } = this.props;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
     return (
-      <Modal
-        popup
-        animationType="slide-up"
-        className="mobileFillRecordControlsModal"
+      <Popup
+        destroyOnClose={true}
+        className="mobileFillRecordControlsModal mobileModal minFull topRadius"
         visible={this.state.fillRecordVisible}
         onClose={() => {
           this.setState({ fillRecordVisible: false });
@@ -510,7 +535,7 @@ class RecordAction extends Component {
           {...fillRecordProps}
           customButtonConfirm={this.customButtonConfirm}
         />
-      </Modal>
+      </Popup>
     );
   }
   renderNewRecord() {
@@ -536,7 +561,7 @@ class RecordAction extends Component {
             btnRemark: this.remark,
           }}
           defaultRelatedSheet={{
-            worksheetId,
+            worksheetId: this.masterRecord.worksheetId,
             relateSheetControlId: activeBtn.addRelationControl,
             value: {
               sid: this.masterRecord.rowId,
@@ -575,25 +600,33 @@ class RecordAction extends Component {
       isBatchOperate,
       loading,
       isFavorite,
+      changeActionSheetModalIndex,
       handleCollectRecord = () => {},
     } = this.props;
     const { btnDisable } = this.state;
     const projectId = sheetRow.projectId || worksheetInfo.projectId;
     const isExternal = _.isEmpty(getCurrentProject(projectId));
+    const allowDelete =
+      (isOpenPermit(permitList.recordDelete, sheetRow.switchPermit, viewId) && sheetRow.allowDelete) ||
+      (this.isSubList && this.editable);
+    const allowShare =
+      (isOpenPermit(permitList.recordShareSwitch, sheetRow.switchPermit, viewId) ||
+        isOpenPermit(permitList.embeddedLink, sheetRow.switchPermit, viewId)) &&
+      !md.global.Account.isPortal;
 
     return (
-      <Modal
-        popup
+      <Popup
         forceRender
-        animationType="slide-up"
-        className="actionSheetModal"
+        className="actionSheetModal mobileModal topRadius"
         visible={recordActionVisible}
         onClose={hideRecordActionVisible}
+        onMaskClick={hideRecordActionVisible}
+        style={changeActionSheetModalIndex ? { '--z-index': 10001 } : {}}
       >
         <React.Fragment>
           <div className="flexRow header">
             <span className="Font13">{!isBatchOperate ? _l('更多操作') : _l('对选中记录执行操作')}</span>
-            <div className="closeIcon" onClick={hideRecordActionVisible}>
+            <div className="closeIcon TxtCenter" onClick={hideRecordActionVisible}>
               <Icon icon="close" />
             </div>
           </div>
@@ -618,9 +651,9 @@ class RecordAction extends Component {
               </div>
               {appId && !isBatchOperate ? (
                 <div className="extrBtnBox">
-                  {isOpenPermit(permitList.recordShareSwitch, switchPermit, viewId) && (
+                  {allowShare && (
                     <div className="flexRow extraBtnItem">
-                      <Icon icon="share" className="Font18 delIcon" style={{ color: '#757575' }} />
+                      <Icon icon="share" className="Font18 delIcon Gray_9e" />
                       <div className="flex delTxt Font15 Gray" onClick={this.props.onShare}>
                         {_l('分享')}
                       </div>
@@ -637,7 +670,7 @@ class RecordAction extends Component {
                       </div>
                     </div>
                   )}
-                  {(sheetRow.allowDelete || (this.isSubList && this.editable)) && (
+                  {allowDelete && (
                     <div className="flexRow extraBtnItem">
                       <Icon icon="delete_12" className="Font18 delIcon" />
                       <div className="flex delTxt Font15" onClick={this.handleDeleteAlert}>
@@ -650,7 +683,7 @@ class RecordAction extends Component {
             </Fragment>
           )}
         </React.Fragment>
-      </Modal>
+      </Popup>
     );
   }
   renderRecordInfo = () => {

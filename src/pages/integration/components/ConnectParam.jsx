@@ -144,11 +144,12 @@ const getDefaultParameters = () => {
 
 //连接参数设置
 function ConnectParam(props) {
-  const [{ node, isEdit, isErr, controls }, setState] = useSetState({
+  const [{ node, isEdit, isErr, controls, nodeControls }, setState] = useSetState({
     node: props.node,
     isEdit: false,
     isErr: false,
     controls: props.controls || [],
+    nodeControls: [],
   });
 
   useEffect(() => {
@@ -168,6 +169,7 @@ function ConnectParam(props) {
       .then(res => {
         setState({
           controls: res.controls || [],
+          nodeControls: res.controls || [],
         });
       });
   };
@@ -250,7 +252,11 @@ function ConnectParam(props) {
           <p className="Font17 Bold">{_l('连接参数')}</p>
           <p className="Font13 Gray_75 mTop4">
             <span className="TxtMiddle">{_l('用于配置鉴权时使用，设置为隐藏后，查看时该参数值将以掩码代替')}</span>
-            <Support href="https://help.mingdao.com/integration/api#connection-parameters" type={3} text={_l('使用帮助')} />
+            <Support
+              href="https://help.mingdao.com/integration/api#connection-parameters"
+              type={3}
+              text={_l('使用帮助')}
+            />
           </p>
         </div>
         {!isEdit && props.canEdit && (
@@ -305,6 +311,7 @@ function ConnectParam(props) {
             </div>
           )}
           {controls.map((o, i) => {
+            const disabled = (nodeControls.find(it => o.controlId === it.controlId) || {}).hide;
             return (
               <div className="par conTr flexRow">
                 <div className={cx('name WordBreak', { disable: props.connectType === 2 })}>
@@ -320,7 +327,7 @@ function ConnectParam(props) {
                       className="mLeft5 flex TxtMiddle"
                       size="small"
                       checked={o.hide}
-                      disabled={o.hide} //设置成隐藏后，不可设置成不隐藏
+                      disabled={disabled} //设置成隐藏后，不可设置成不隐藏
                       onClick={() => {
                         setState({
                           controls: controls.map((item, n) => {

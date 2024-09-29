@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import Trigger from 'rc-trigger';
 import _ from 'lodash';
 import '../WorksheetRecordLogValue.less';
+
 function TriggerSelect(props) {
-  const { text, childNode, onSelect } = props;
+  const { text, onSelect, children } = props;
   const [visible, setVisible] = useState(false);
+
   return (
     <Trigger
       popupVisible={visible}
@@ -25,7 +27,7 @@ function TriggerSelect(props) {
         </span>
       }
     >
-      {childNode}
+      {children}
     </Trigger>
   );
 }

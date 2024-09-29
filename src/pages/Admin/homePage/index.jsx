@@ -12,6 +12,7 @@ import InstallDialog from './installDialog';
 import { Support, Tooltip, Icon } from 'ming-ui';
 import addFriends from 'src/components/addFriends';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
+import PurchaseExpandPack from '../components/PurchaseExpandPack';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 
@@ -23,9 +24,6 @@ export default function HomePage({ match, location: routerLocation }) {
   const [freeTrialVisible, setVisible] = useState(_.includes(routerLocation.pathname, 'showInvite'));
   const isTrial = data.licenseType === 2;
   const isFree = data.licenseType === 0;
-  const wrap = useRef(null);
-  const content1 = useRef(null);
-  const content2 = useRef(null);
   const isEnLang = md.global.Account.lang === 'en';
 
   useEffect(() => {
@@ -122,7 +120,7 @@ export default function HomePage({ match, location: routerLocation }) {
     }
   };
   const handleClick = type => {
-    if (_.includes(['user', 'workflow', 'storage', 'portaluser', 'portalupgrade', 'dataSync'], type)) {
+    if (_.includes(['user', 'portalexpand', 'portalupgrade'], type)) {
       location.assign(`/admin/expansionservice/${projectId}/${type}`);
     }
     if (type === 'recharge') {
@@ -270,10 +268,8 @@ export default function HomePage({ match, location: routerLocation }) {
               </ul>
               {isShowInviteUser && (
                 <div className="inviteUserWrap">
-                  <div className="inviteUserBox">
-                    <div className="inviteUser" onClick={() => handleActionClick('addPerson')}>
-                      {_l('邀请成员')}
-                    </div>
+                  <div className="inviteUser Hand" onClick={() => handleActionClick('addPerson')}>
+                    {_l('邀请成员')}
                   </div>
                 </div>
               )}
@@ -449,18 +445,9 @@ export default function HomePage({ match, location: routerLocation }) {
                             </Tooltip>
                           )}
                         </div>
-                        {/* {!isTrial && !isFree ? (
-                          <span
-                            className="Normal ThemeColor"
-                            onClick={e => {
-                              e.stopPropagation();
-                              e.nativeEvent.stopImmediatePropagation();
-                              handleClick(click);
-                            }}
-                          >
-                            {_l('扩容')}
-                          </span>
-                        ) : null} */}
+                        {!isTrial && !isFree ? (
+                          <PurchaseExpandPack text={_l('扩容')} type={click} projectId={projectId} />
+                        ) : null}
                       </div>
                       <Progress
                         showInfo={false}

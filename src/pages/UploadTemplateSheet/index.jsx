@@ -141,9 +141,7 @@ export default class UploadTemplateSheet extends React.Component {
 
         // 是否为关联记录（列表）、子表
         const isRalate =
-          (type == 29 && advancedSetting && ['2', '5', '6'].includes(advancedSetting.showtype)) ||
-          type == 34 ||
-          (type == 51 && advancedSetting && ['2', '5', '6'].includes(advancedSetting.showtype));
+          ([29, 51].includes(type) && ['2', '5', '6'].includes(_.get(advancedSetting, 'showtype'))) || type == 34;
         if (isRalate) cardControls.push(controls[i]);
         else commonControls.push(controls[i]);
       }
@@ -246,6 +244,10 @@ export default class UploadTemplateSheet extends React.Component {
     }`;
   };
 
+  getIsRelationList = control =>
+    control.type === 51 ||
+    (control.type === 29 && ['2', '5', '6'].includes(_.get(control, 'advancedSetting.showtype')));
+
   renderItem = it => {
     const that = this;
 
@@ -321,14 +323,11 @@ export default class UploadTemplateSheet extends React.Component {
             {/** 字段列表 */}
             {showControls.map(o => {
               const control = (it.relationControls || []).find(a => o === a.controlId);
-              // 过滤掉关联字段列表类型
-              const isRealtionList =
-                [29, 51].includes(control.type) &&
-                control.advancedSetting &&
-                ['2', '5', '6'].includes(control.advancedSetting.showtype);
+              // 过滤掉关联字段列表、查询字段类型
+              const isRelationList = this.getIsRelationList(control);
               // 是否为子表。分割线。备注
               const isNotSupport = [21, 34].concat(controlNo).includes(control.type);
-              return isRealtionList || isNotSupport ? '' : this.renderRelaItem(it, control, true);
+              return isRelationList || isNotSupport ? '' : this.renderRelaItem(it, control, true);
             })}
 
             {/** 点击查看所有字段 */}
@@ -364,15 +363,14 @@ export default class UploadTemplateSheet extends React.Component {
 
               {/** 弹层中的字段列表 */}
               {(it.controlList || []).map(o => {
-                const { type, advancedSetting } = o;
+                const { type } = o;
 
-                // 过滤掉关联字段列表类型
-                const isRealtionList =
-                  [29, 51].includes(type) && advancedSetting && ['2', '5', '6'].includes(advancedSetting.showtype);
+                // 过滤掉关联字段列表、查询字段类型
+                const isRelationList = this.getIsRelationList(o);
 
                 // 是否为子表、分割线、备注
                 const isNotSupport = [21, 34].concat(controlNo).includes(type);
-                return !isRealtionList && !isNotSupport ? this.renderRelaItem(it, o, true) : '';
+                return !isRelationList && !isNotSupport ? this.renderRelaItem(it, o, true) : '';
               })}
             </div>
           </Dialog>
@@ -590,15 +588,12 @@ export default class UploadTemplateSheet extends React.Component {
                       {(it.controlList || []).map(o => {
                         const { type, advancedSetting } = o;
 
-                        // 过滤掉关联字段列表类型
-                        const isRealtionList =
-                          [29, 51].includes(type) &&
-                          advancedSetting &&
-                          ['2', '5', '6'].includes(advancedSetting.showtype);
+                        // 过滤掉关联字段列表、查询字段类型
+                        const isRelationList = this.getIsRelationList(o);
 
                         // 是否为子表。分割线。备注
                         const isNotSupport = controlNo.includes(type) || type == 34;
-                        return !isRealtionList && !isNotSupport ? this.renderRelaItem(it, o, false) : '';
+                        return !isRelationList && !isNotSupport ? this.renderRelaItem(it, o, false) : '';
                       })}
                     </div>
                   </Dialog>

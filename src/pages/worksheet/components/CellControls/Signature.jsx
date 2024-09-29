@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import _ from 'lodash';
 import SignatureComp from 'src/components/newCustomFields/widgets/Signature';
@@ -40,8 +39,7 @@ export default class Signature extends React.Component {
   editIcon = React.createRef();
   editRef = React.createRef();
 
-  @autobind
-  handleTableKeyDown(e) {
+  handleTableKeyDown = e => {
     const { updateEditingStatus } = this.props;
     switch (e.key) {
       case 'Escape':
@@ -55,16 +53,15 @@ export default class Signature extends React.Component {
       default:
         break;
     }
-  }
+  };
 
-  @autobind
-  handleChange(value) {
+  handleChange = value => {
     const { updateCell, updateEditingStatus } = this.props;
 
     updateCell({ value });
     this.setState({ value });
     updateEditingStatus(false);
-  }
+  };
 
   previewAttachment(value) {
     const {

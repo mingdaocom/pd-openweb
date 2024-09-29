@@ -41,6 +41,7 @@ export default class RecordInfo extends Component {
           visible
           appId={worksheetInfo.appId}
           worksheetId={worksheetInfo.worksheetId}
+          enablePayment={worksheetInfo.enablePayment}
           viewId={base.viewId}
           rowId={row.rowid}
           onClose={onClose}
@@ -49,6 +50,7 @@ export default class RecordInfo extends Component {
     } else {
       return (
         <RecordInfoWrapper
+          enablePayment={worksheetInfo.enablePayment}
           showPrevNext
           sheetSwitchPermit={sheetSwitchPermit}
           from={1}

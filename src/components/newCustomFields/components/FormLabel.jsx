@@ -38,15 +38,21 @@ const ControlLabel = styled.div`
         : 'maxWidth: calc(100% - 140px);margin-top:20px;'
       : 'min-height: 0px !important;'}
   .controlLabelName {
-    ${({ displayRow, isMobile, align_app = '1', align_pc = '1' }) => {
+    ${({ displayRow, isMobile, align_app = '1', align_pc = '1', showTitle }) => {
       if (displayRow) {
         if (isMobile) {
           return align_app === '1' ? 'text-align: left;' : 'text-align: right;flex: 1;';
         }
+        if (!showTitle) {
+          return 'display: none;';
+        }
         return !isMobile && align_pc === '1' ? 'text-align: left;' : 'text-align: right;flex: 1;';
+      } else {
+        if (!showTitle) {
+          return 'visibility: hidden;';
+        }
       }
     }}
-    ${({ showTitle }) => (showTitle ? '' : 'display: none;')}
     font-size: ${props => props.titleSize};
     color: ${props => props.titleColor};
     ${props => props.titleStyle || ''};
@@ -63,6 +69,9 @@ const ControlLabel = styled.div`
       margin: 14px 0 0;
       font-size: 15px;
       color: #333;
+    }
+    .descBoxInfo {
+      margin: 14px 0 0;
     }
   }
 `;
@@ -107,6 +116,7 @@ export default ({
     item.type === 29 && _.get(item, 'advancedSetting.showtype') === String(RELATE_RECORD_SHOW_TYPE.TABLE);
   const isRelationSearchTable =
     item.type === 51 && _.get(item, 'advancedSetting.showtype') === String(RELATION_SEARCH_SHOW_TYPE.EMBED_LIST);
+  let showCount = _.get(item, 'advancedSetting.showcount') !== '1' && !_.get(item, 'advancedSetting.layercontrolid');
   let errorMessage = '';
   const isMobile = browserIsMobile();
 
@@ -214,10 +224,21 @@ export default ({
           )
         )}
 
-        <div title={item.controlName} className="controlLabelName">
-          {item.controlName}
-          {_.get(item, 'advancedSetting.showcount') !== '1' && renderCount(item)}
-        </div>
+        {item.type !== 34 ? (
+          <div title={item.controlName} className="controlLabelName">
+            {item.controlName}
+            {showCount && renderCount(item)}
+          </div>
+        ) : (
+          <div
+            title={item.controlName}
+            className="controlLabelName flexRow"
+            style={isMobile ? { paddingRight: recordId ? 100 : 40 } : {}}
+          >
+            <div className="flex ellipsis">{item.controlName}</div>
+            {showCount && renderCount(item)}
+          </div>
+        )}
 
         {hintShowAsIcon && <WidgetsDesc item={item} from={from} />}
 

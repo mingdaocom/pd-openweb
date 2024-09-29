@@ -1,12 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import { Button, Icon, Tooltip, LoadDiv } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import Pagination from 'worksheet/components/Pagination';
 import ControlsDataTable from 'src/pages/worksheet/components/ControlsDataTable';
 import emptyImg from './img/empty.png';
-import { getNodeInfo, isHasChange } from '../util';
+import { getNodeInfo, isHasChange, getAllSourceList, getSourceIndex } from '../util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { DEFAULT_COLORS } from '../config';
 import _ from 'lodash';
@@ -161,6 +160,10 @@ function Preview(props) {
           type: [29, 31, 38, 32, 35].includes(_.get(o, 'resultField.mdType')) ? 2 : _.get(o, 'resultField.mdType'),
           controlId: flowData.fieldIdAndAssignCidMap ? flowData.fieldIdAndAssignCidMap[o.resultField.id] : o.id,
           isGroupFields: true,
+          isRelative:
+            (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length <= 1
+              ? _.get(o, 'resultField.parentFieldInfo.controlSetting.controlId')
+              : false,
         };
       })
       .concat(
@@ -174,26 +177,23 @@ function Preview(props) {
             controlName: o.alias,
             type: o.isCalculateField ? 31 : 6,
             controlId: flowData.fieldIdAndAssignCidMap ? flowData.fieldIdAndAssignCidMap[o.id] : o.id,
+            isRelative: o.isCalculateField ? false : _.get(o, 'parentFieldInfo.controlSetting.controlId'),
           };
         }),
       )
       .filter(o => !!o);
     controlList = (controlList || []).map((o = {}) => {
-      let index = -1;
-      (props.sourceInfos || []).map((it, i) => {
-        if (o.oid && o.oid.indexOf(it.worksheetId) >= 0) {
-          index = i;
-        }
-      });
+      const sourceList = getAllSourceList(flowData) || [];
+      const index = getSourceIndex(flowData, o);
       return {
         ...o,
         //聚合的字段只有计算和数值两种icon
         icon: getIconByType(o.isCalculateField ? 31 : !o.isGroupFields ? 6 : o.mdType),
         color:
-          o.isGroupFields ||
+          (o.isGroupFields && (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length > 1) ||
           o.isCalculateField ||
           index < 0 ||
-          (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length <= 1
+          sourceList.length <= 1
             ? null
             : DEFAULT_COLORS[index],
       };

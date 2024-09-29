@@ -7,6 +7,8 @@ import styled from 'styled-components';
 
 const MenuWrap = styled(Menu)`
   width: 130px !important;
+  position: relative !important;
+  min-width: 130px;
 `;
 
 export default function ActionDrop(props) {
@@ -22,7 +24,7 @@ export default function ActionDrop(props) {
         popupVisible={visible}
         onPopupVisibleChange={dropdownVisible => setVisible(dropdownVisible)}
         action={['click']}
-        popupAlign={{ points: ['tc', 'bc'], offset: [-120, 30] }}
+        popupAlign={{ points: ['tc', 'bc'], offset: [-60, 30], overflow: { adjustX: true, adjustY: true } }}
         popup={
           <MenuWrap>
             <MenuItem

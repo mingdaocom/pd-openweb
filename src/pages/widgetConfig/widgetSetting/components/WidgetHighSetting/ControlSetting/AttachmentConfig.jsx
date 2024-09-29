@@ -279,7 +279,7 @@ function WaterMarkDialog(props) {
 
 export default function AttachmentVerify(props) {
   const { data, onChange, globalSheetInfo } = props;
-  const { alldownload = '1', showwatermark, filetype } = getAdvanceSetting(data);
+  const { showwatermark, filetype } = getAdvanceSetting(data);
   const [markVisible, setMarkVisible] = useState(false);
 
   const supportMark = !_.includes(['2', '3', '4'], safeParse(filetype || '{}').type);
@@ -287,16 +287,6 @@ export default function AttachmentVerify(props) {
 
   return (
     <Fragment>
-      <div className="labelWrap">
-        <Checkbox
-          size="small"
-          checked={alldownload === '1'}
-          onClick={checked => onChange(handleAdvancedSettingChange(data, { alldownload: checked ? '0' : '1' }))}
-        >
-          <span>{_l('允许全部下载')}</span>
-        </Checkbox>
-      </div>
-
       {supportMark && (
         <div className="labelWrap labelBetween">
           <Checkbox

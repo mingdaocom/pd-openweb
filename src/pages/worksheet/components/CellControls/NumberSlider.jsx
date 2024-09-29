@@ -7,7 +7,6 @@ import styled from 'styled-components';
 import { Slider } from 'ming-ui';
 import cx from 'classnames';
 import { FROM } from './enum';
-import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 const ClickAway = createDecoratedComponent(withClickAway);
@@ -85,8 +84,7 @@ export default class NumberSlider extends React.Component {
     return `numberSlider-${rowIndex}-${cell.controlId}`;
   }
 
-  @autobind
-  handleTableKeyDown(e) {
+  handleTableKeyDown = e => {
     const { cell, isediting, editable, updateEditingStatus, updateCell } = this.props;
     const { min, max, numinterval } = cell.advancedSetting || {};
     const minNumber = levelSafeParse(min);
@@ -135,10 +133,9 @@ export default class NumberSlider extends React.Component {
         });
       }
     }
-  }
+  };
 
-  @autobind
-  handleChange(value) {
+  handleChange = value => {
     const { updateCell, updateEditingStatus, onFocusCell = _.noop } = this.props;
     this.setState({ value });
     updateEditingStatus(false);
@@ -146,10 +143,9 @@ export default class NumberSlider extends React.Component {
       value,
     });
     onFocusCell();
-  }
+  };
 
-  @autobind
-  handleExit() {
+  handleExit = () => {
     const { updateEditingStatus, updateCell } = this.props;
     const { value } = this.state;
     updateEditingStatus(false);
@@ -157,7 +153,7 @@ export default class NumberSlider extends React.Component {
     if (value !== this.props.cell.value) {
       updateCell({ value: this.state.value });
     }
-  }
+  };
 
   render() {
     const {

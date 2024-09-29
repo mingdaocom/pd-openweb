@@ -1,20 +1,15 @@
 .searchListModals {
   height: 90%;
-  .am-modal-content {
-    border-radius: 20px 20px 0 0;
-    .am-modal-header {
-      height: 44px;
-      padding: 0 17px;
-      border-bottom: 1px solid #ddd;
-      .am-modal-title {
-        line-height: 44px;
-      }
-    }
-    .am-modal-body {
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
+  .header {
+    height: 44px;
+    line-height: 44px;
+    padding: 0 17px;
+    border-bottom: 1px solid #ddd;
+  }
+  .adm-popup-body {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     .searchBox {
       display: flex;
       height: 36px;
@@ -86,6 +81,10 @@
 
 .customApiSelect {
   padding-right: 36px;
+  .ant-select-selection-item {
+    padding: 8px 18px 6px 0px !important;
+    line-height: 22px !important;
+  }
   .ant-select-arrow {
     height: 36px !important;
     width: 36px !important;

@@ -86,6 +86,7 @@ export default class RelateFilter extends Component {
       sourceControlId,
       from,
       showCustom,
+      widgetControlData,
     } = this.props;
     return (
       <div className={cx('worksheetFilterRelateCondition', { disabled })}>
@@ -139,6 +140,7 @@ export default class RelateFilter extends Component {
             defaultValue={type}
             sourceControlId={sourceControlId}
             showCustom={showCustom}
+            widgetControlData={widgetControlData}
             setKeys={keywords => {
               this.setState({
                 keywords,

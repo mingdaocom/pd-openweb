@@ -1,26 +1,42 @@
 .collectAppDragItem {
-  width: 200px;
-  background: #f8f8f8;
-  border-radius: 8px;
+  height: 50px;
+  > div {
+    background: #f8f8f8 !important;
+    border-radius: 8px;
+  }
   .markStarIcon {
     display: block;
   }
 }
 
 .chartSortItemHelper {
-  z-index: 10;
-  position: relative;
-  width: calc(50% - 10px);
-  height: 300px;
-  border: 1px solid #eaeaea;
-  border-radius: 8px;
-  padding: 10px 20px 20px 20px;
-  background: #fff;
   .dragWrap {
-    position: absolute;
-    left: 8px;
-    top: 16px;
-    display: block;
-    color: #2196f3;
+    display: block !important;
+    color: #2196f3 !important;
+  }
+}
+
+.suggestWrapper {
+  padding: 16px 24px 40px;
+  &.Tooltip-wrapper {
+    width: 640px;
+    max-width: 640px !important;
+  }
+  .title {
+    font-size: 17px;
+    font-weight: bold;
+  }
+  .description {
+    font-size: 14px;
+    margin: 8px 0 16px;
+  }
+  img {
+    width: 100%;
+  }
+}
+
+.bulletinHelperClass {
+  .bulletinItem {
+    border-color: #eaeaea;
   }
 }

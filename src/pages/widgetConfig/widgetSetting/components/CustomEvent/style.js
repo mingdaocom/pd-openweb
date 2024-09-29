@@ -163,14 +163,6 @@ export const CustomActionWrap = styled.div`
         flex: 1;
         min-width: 0;
       }
-      .sheetDynamic {
-        & > div > div > div {
-          width: 100%;
-        }
-        .selectOtherFieldContainer {
-          display: none;
-        }
-      }
       .itemFiled {
         padding: 0 12px;
         display: flex;

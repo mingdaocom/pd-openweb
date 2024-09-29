@@ -9,6 +9,7 @@ import { emitter } from 'worksheet/util';
 import IconBtn from './IconBtn';
 import SwitchRecord from './SwitchRecord';
 import Operates from './Operates';
+import MoreMenu from './MoreMenu';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
@@ -17,6 +18,7 @@ import { getCurrentProject } from 'src/util';
 
 const SideBarIcon = styled(IconBtn)`
   display: flex;
+  flex-shrink: 0;
   .discussCount {
     font-size: 14px;
   }
@@ -56,7 +58,7 @@ export default function InfoHeader(props) {
     from,
     isOpenNewAddedRecord,
     customBtnTriggerCb,
-    enableOrderVisible,
+    payConfig = {},
     updateDiscussCount = _.noop,
     // allowExAccountDiscuss = false, //允许外部用户讨论
     // exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
@@ -83,11 +85,11 @@ export default function InfoHeader(props) {
   const isPublicRecordLand = isPublicShare && notDialog;
   const project = getCurrentProject(projectId);
   const showFav =
-    !window.shareState.shareId && !window.isPublicApp && !md.global.Account.isPortal && !_.isEmpty(project); //&& !_.isEmpty(recordinfo);
+    !window.shareState.shareId && !window.isPublicApp && !md.global.Account.isPortal && !_.isEmpty(project);
+  const showOrder = payConfig.rowDetailIsShowOrder;
   const showSideBar =
-    (!isPublicShare &&
-      !md.global.Account.isPortal &&
-      (workflowVisible || discussVisible || logVisible || enableOrderVisible)) ||
+    (!isPublicShare && showOrder) ||
+    (!isPublicShare && !md.global.Account.isPortal && (workflowVisible || discussVisible || logVisible)) ||
     (md.global.Account.isPortal && props.allowExAccountDiscuss && discussVisible) ||
     (md.global.Account.isPortal && props.approved && workflowVisible) ||
     from === RECORD_INFO_FROM.WORKFLOW;
@@ -257,7 +259,11 @@ export default function InfoHeader(props) {
               isLoading: refreshRotating,
               disable: iseditting,
             })}
-            onClick={iseditting ? () => {} : onRefresh}
+            onClick={() => {
+              if (iseditting) return;
+              onRefresh();
+              emitter.emit('RELOAD_RECORD_INFO_BEGIN', recordId);
+            }}
           >
             <Tooltip offset={[0, 0]} text={<span>{_l('刷新')}</span>}>
               <i className="icon icon-task-later" />
@@ -266,7 +272,6 @@ export default function InfoHeader(props) {
           {!isPublicShare && !iseditting ? (
             <Operates
               isCharge={isCharge}
-              hideFav
               addRefreshEvents={addRefreshEvents}
               iseditting={iseditting}
               sideVisible={sideVisible}
@@ -285,6 +290,19 @@ export default function InfoHeader(props) {
           )}
           {showFav && favBtn()}
           {showSideBar && sideBarBtn()}
+          {!isPublicShare && (
+            <MoreMenu
+              hideFav
+              recordbase={recordbase}
+              recordinfo={recordinfo}
+              sheetSwitchPermit={sheetSwitchPermit}
+              reloadRecord={reloadRecord}
+              onUpdate={onUpdate}
+              onDelete={onDelete}
+              handleAddSheetRow={handleAddSheetRow}
+              hideRecordInfo={hideRecordInfo}
+            />
+          )}
           {(!isPublicRecordLand ||
             _.get(window, 'shareState.isPublicView') ||
             _.get(window, 'shareState.isPublicPage')) &&

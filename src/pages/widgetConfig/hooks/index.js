@@ -18,7 +18,7 @@ export const useSheetInfo = ({ worksheetId, saveIndex = 0, ...rest }) => {
         setData({
           info: res,
           views,
-          noAuth: res.resultCode === 1 && ![2, 4].includes(res.roleType),
+          noAuth: res.resultCode === 1 && ![2, 4, 6].includes(res.roleType),
           controls: _.get(template, 'controls') || [],
         });
         !_.isUndefined(appTimeZone) && (window[`timeZone_${appId}`] = appTimeZone);

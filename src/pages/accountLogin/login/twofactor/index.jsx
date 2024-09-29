@@ -144,7 +144,7 @@ export default class TwofactorContainer extends React.Component {
       if (md.global.getCaptchaType() === 1) {
         new captcha(callback);
       } else {
-        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback).show();
+        new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), callback, { needFeedBack: false }).show();
       }
     } else {
       callback();

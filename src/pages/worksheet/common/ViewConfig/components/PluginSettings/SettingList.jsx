@@ -1,8 +1,6 @@
 import React, { createRef, useState, useEffect, useRef } from 'react';
-import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { Icon, Input } from 'ming-ui';
-import { SortableContainer, SortableElement, SortableHandle } from '@mdfe/react-sortable-hoc';
+import { Icon, Input, SortableList } from 'ming-ui';
 import { PARAM_TYPES } from './config';
 import './index.less';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
@@ -13,13 +11,10 @@ const WrapLi = styled.div`
   margin-top: 10px;
 `;
 
-const SortHandle = SortableHandle(() => <Icon className="mRight10 Font16 Hand Gray_9e" icon="drag" />);
+const Item = data => {
+  const { item, onEdit, openEdit, onDelete, list, key, DragHandle } = data;
+  const { type, controlName, fieldId, num } = item;
 
-const Item = SortableElement(data => {
-  const { type, onEdit, openEdit, onDelete, num, list, key } = data;
-  const [{ controlName }, setState] = useSetState({
-    controlName: data.controlName,
-  });
   const $ref = useRef(null);
   const $refFieldId = useRef(null);
   useEffect(() => {
@@ -30,18 +25,20 @@ const Item = SortableElement(data => {
     }, 200);
   }, []);
   useEffect(() => {
-    if (data.controlName) {
-      $ref.current.value = data.controlName;
+    if (controlName) {
+      $ref.current.value = controlName;
     } else {
       $ref.current.value = '';
     }
-    if (data.fieldId && $refFieldId.current) {
-      $refFieldId.current.value = data.fieldId;
+    if (fieldId && $refFieldId.current) {
+      $refFieldId.current.value = fieldId;
     }
   }, [data]);
   return (
     <WrapLi className="flexRow alignItemsCenter mBottom10 itemSortLi" key={key}>
-      <SortHandle />
+      <DragHandle className="alignItemsCenter flexRow">
+        <Icon className="mRight10 Font16 Hand Gray_9e" icon="drag" />
+      </DragHandle>
       <div
         className="typeTxt WordBreak overflow_ellipsis"
         title={(PARAM_TYPES.find(o => o.type === type) || {}).paramName}
@@ -68,19 +65,19 @@ const Item = SortableElement(data => {
       ) : (
         <Input
           className="flex mLeft12 placeholderColor"
-          defaultValue={data.fieldId}
+          defaultValue={fieldId}
           manualRef={ref => {
             $refFieldId.current = ref;
           }}
           onBlur={e => {
             let newFieldId = e.target.value.trim();
             if (!!list.find((o, n) => o.fieldId === newFieldId && n !== num)) {
-              $refFieldId.current.value = data.fieldId;
+              $refFieldId.current.value = fieldId;
               alert(_l('变量id重复'), 3);
               return;
             }
             if (!newFieldId) {
-              $refFieldId.current.value = data.fieldId;
+              $refFieldId.current.value = fieldId;
               // alert(_l('变量id必填'), 3);
             } else {
               onEdit({ fieldId: newFieldId }, num);
@@ -109,19 +106,23 @@ const Item = SortableElement(data => {
       </div>
     </WrapLi>
   );
-});
-const SortableList = SortableContainer(info => {
-  const { items } = info;
-  return (
-    <div className="">
-      {_.map(items, (item, index) => {
-        return <Item {...info} {...item} key={'item_' + index} index={index} list={items} num={index} />;
-      })}
-    </div>
-  );
-});
+};
 
 function SettingList(props) {
-  return <SortableList {...props} />;
+  return (
+    <SortableList
+      useDragHandle
+      canDrag
+      items={props.items.map((o, i) => {
+        return { ...o, num: i };
+      })}
+      itemKey="num"
+      onSortEnd={(newItems = [], newIndex) => {
+        props.onSortEnd(newItems, false);
+      }}
+      itemClassName="boderRadAll_4"
+      renderItem={options => <Item {...props} {...options} key={'item_' + options.num} list={props.items} />}
+    />
+  );
 }
 export default errorBoundary(SettingList);

@@ -23,59 +23,64 @@ export default class Footer extends Component {
       otherActionVisible: false,
     };
   }
+  componentWillUnmount() {
+    this.actionVerifyPasswordHandler && this.actionVerifyPasswordHandler.close();
+    this.actionOperationHandler && this.actionOperationHandler.close();
+    this.actionSelectOperationHandler && this.actionSelectOperationHandler.close();
+  }
   writeVerifyPassword = removeNoneVerification => {
-    ActionSheet.showActionSheetWithOptions(
-      {
-        options: [],
-        message: (
-          <div className="TxtLeft sheetProcessRowRecord">
-            <div className="Font17 Bold Gray mBottom10">{_l('提交记录')}</div>
-            <VerifyPasswordInput
-              autoFocus={true}
-              showSubTitle={false}
-              isRequired={true}
-              allowNoVerify={!removeNoneVerification}
-              onChange={({ password, isNoneVerification }) => {
-                if (password !== undefined) this.password = password;
-                if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
+    this.actionVerifyPasswordHandler = ActionSheet.show({
+      actions: [],
+      extra: (
+        <div className="TxtLeft sheetProcessRowRecord">
+          <div className="Font17 Bold Gray mBottom10">{_l('提交记录')}</div>
+          <VerifyPasswordInput
+            autoFocus={true}
+            showSubTitle={false}
+            isRequired={true}
+            allowNoVerify={!removeNoneVerification}
+            onChange={({ password, isNoneVerification }) => {
+              if (password !== undefined) this.password = password;
+              if (isNoneVerification !== undefined) this.isNoneVerification = isNoneVerification;
+            }}
+          />
+          <div className="flexRow btnsWrapper mTop20 pAll0 Border0 ">
+            <Button
+              className="Font13 flex bold Gray_75 mRight10"
+              onClick={() => {
+                this.actionSheetHandler.close();
               }}
-            />
-            <div className="flexRow btnsWrapper mTop20 pAll0 Border0 ">
-              <Button
-                className="Font13 flex bold Gray_75 mRight10"
-                onClick={() => {
-                  ActionSheet.close();
-                }}
-              >
-                <span>{_l('取消')}</span>
-              </Button>
-              <Button
-                className="Font13 flex bold"
-                type="primary"
-                onClick={() => {
-                  if (!this.password || !this.password.trim()) {
-                    alert(_l('请输入密码'), 3);
-                    return;
-                  }
-                  verifyPassword({
-                    password: this.password,
-                    closeImageValidation: true,
-                    isNoneVerification: this.isNoneVerification,
-                    success: () => {
-                      this.request('submit');
-                      ActionSheet.close();
-                    },
-                  });
-                }}
-              >
-                {_l('保存')}
-              </Button>
-            </div>
+            >
+              <span>{_l('取消')}</span>
+            </Button>
+            <Button
+              className="Font13 flex bold"
+              color="primary"
+              onClick={() => {
+                if (!this.password || !this.password.trim()) {
+                  alert(_l('请输入密码'), 3);
+                  return;
+                }
+                verifyPassword({
+                  password: this.password,
+                  closeImageValidation: true,
+                  isNoneVerification: this.isNoneVerification,
+                  success: () => {
+                    this.request('submit');
+                    this.actionSheetHandler.close();
+                  },
+                });
+              }}
+            >
+              {_l('保存')}
+            </Button>
           </div>
-        ),
-      },
-      buttonIndex => {},
-    );
+        </div>
+      ),
+      onAction: (action) => {
+        this.actionSheetHandler.close();
+      }
+    });
   };
   safeAuthentication = (success = () => {}) => {
     const { instance } = this.props;
@@ -271,30 +276,32 @@ export default class Footer extends Component {
       } else if (instance.signOperationType === 2) {
         run('after');
       } else {
-        ActionSheet.showActionSheetWithOptions(
-          {
-            options: [
-              <div className="Gray bold">{_l('通过申请后增加一位审批人')}</div>,
-              <div className="Gray bold">{_l('在我审批前增加一位审批人')}</div>,
-            ],
-            message: (
-              <div className="flexRow header">
-                <span className="Font13">{_l('加签')}</span>
-                <div className="closeIcon" onClick={() => ActionSheet.close()}>
-                  <Icon icon="close" />
-                </div>
+        this.actionOperationHandler = ActionSheet.show({
+          actions: [{
+            key: 'after',
+            text: <div className="Gray bold">{_l('通过申请后增加一位审批人')}</div>
+          },{
+            key: 'before',
+            text: <div className="Gray bold">{_l('在我审批前增加一位审批人')}</div>
+          }],
+          extra: (
+            <div className="flexRow header">
+              <span className="Font13">{_l('加签')}</span>
+              <div className="closeIcon" onClick={() => this.actionOperationHandler.close()}>
+                <Icon icon="close" />
               </div>
-            ),
-          },
-          buttonIndex => {
-            if (buttonIndex === 0) {
+            </div>
+          ),
+          onAction: (action, index) => {
+            if (index === 0) {
               run('after');
             }
-            if (buttonIndex === 1) {
+            if (index === 1) {
               run('before');
             }
-          },
-        );
+            this.actionOperationHandler.close();
+          }
+        });
       }
       return;
     }
@@ -304,33 +311,31 @@ export default class Footer extends Component {
   handleSelectOperation = buttons => {
     const { instance } = this.props;
     const { btnMap = {} } = instance;
-    ActionSheet.showActionSheetWithOptions(
-      {
-        options: buttons.map(item => (
-          <Fragment>
-            <Icon className="mRight10 Gray_9e Font22" icon={item.icon} />
-            <span className="Bold ellipsis">{btnMap[item.type] || item.text}</span>
-          </Fragment>
-        )),
-        message: (
-          <div className="flexRow header">
-            <span className="Font13">{_l('审批')}</span>
-            <div
-              className="closeIcon"
-              onClick={() => {
-                ActionSheet.close();
-              }}
-            >
-              <Icon icon="close" />
-            </div>
+    this.actionSelectOperationHandler = ActionSheet.show({
+      actions: buttons.map((item, index) => {
+        return {
+          key: index,
+          text: (
+            <Fragment>
+              <Icon className="mRight10 Gray_9e Font22" icon={item.icon} />
+              <span className="Bold ellipsis">{btnMap[item.type] || item.text}</span>
+            </Fragment>
+          )
+        }
+      }),
+      extra: (
+        <div className="flexRow header">
+          <span className="Font13">{_l('审批')}</span>
+          <div className="closeIcon" onClick={() => this.actionSelectOperationHandler.close()}>
+            <Icon icon="close" />
           </div>
-        ),
-      },
-      buttonIndex => {
-        if (buttonIndex === -1) return;
-        this.handleOperation(buttons[buttonIndex].id);
-      },
-    );
+        </div>
+      ),
+      onAction: (action, index) => {
+        this.handleOperation(buttons[index].id);
+        this.actionSelectOperationHandler.close();
+      }
+    });
   };
   get getHandleBtnConfig() {
     const { instance } = this.props;

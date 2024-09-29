@@ -110,26 +110,25 @@
 
   .appSectionCon {
     overflow-y: auto;
-    .am-accordion-header {
+    .adm-collapse-panel-header {
       font-size: 14px;
       font-weight: 400;
       display: flex;
       align-items: center;
       padding-right: 0;
       .accordionHeaderWrap {
+        padding: 0 15px;
         width: 100%;
         display: flex;
         justify-content: space-between;
         align-items: center;
         line-height: normal;
-        &.appSectionHeader {
-          height: 48px;
-          line-height: 48px;
+        .open {
+          transform: rotate(180deg) !important;
         }
       }
       i {
         position: unset;
-        margin-right: 20px;
       }
       .arrow {
         display: none;
@@ -147,23 +146,8 @@
         background: none;
       }
     }
-    .am-accordion .am-accordion-item {
-      border-bottom: 6px solid #f5f5f5;
-    }
-    .am-accordion .am-accordion-item:last-child {
-      border-bottom: none;
-    }
-    .am-accordion .am-accordion-content .am-accordion .am-accordion-item {
-      border-bottom: none;
-    }
-    .am-accordion .am-accordion-item .am-accordion-header i {
-      transform: rotate(0deg) !important;
-    }
-    .am-accordion .am-accordion-item .am-accordion-header[aria-expanded~='true'] i {
-      transform: rotate(180deg) !important;
-    }
     .sudokuSectionWrap {
-      .am-accordion-header {
+      .adm-collapse-panel-header {
         height: 40px;
         line-height: 40px;
         margin-bottom: 8px;
@@ -172,53 +156,49 @@
     }
   }
 
-  .am-list-item {
+  .appItem {
     height: 50px;
-    padding-left: 20px;
-    .am-list-line {
-      padding-right: 20px !important;
-      .am-list-content {
-        padding-top: 5px;
-        padding-bottom: 5px;
-      }
-      .am-list-extra {
-        margin-left: 10px;
-        flex-basis: 20px;
-      }
-      .icon-public-folder-hidden {
-        color: #ffa700;
-      }
+    display: flex !important;
+    .adm-list-item-content-extra {
+      padding-right: 10px;
     }
-    .am-list-thumb:first-child {
-      margin-right: 12px;
+    .icon-public-folder-hidden {
+      color: #ffa700;
     }
   }
 
-  .am-tab-bar {
-    .am-tab-bar-tab {
+  .adm-tab-bar {
+    .adm-tab-bar-item {
       width: 0;
+      padding: 0;
     }
-    .am-tab-bar-tab-title {
+    .adm-tab-bar-item-title {
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
       width: 100%;
       padding: 0 5px;
+      text-align: center;
     }
   }
 
-  .emptyAppSection .am-accordion-header {
-    display: none;
+  .adm-list, .adm-list-body, .adm-list-item-content {
+    border: 0;
   }
-  .emptyAppSection .am-accordion-content .am-accordion-header {
-    display: flex;
+  .adm-list-item, .adm-list-item-content {
+    padding: 0;
+    width: 100%;
   }
-
-  .am-list-body::after,
-  .am-accordion::before,
-  .am-accordion .am-accordion-item .am-accordion-header::after,
-  .am-accordion .am-accordion-item .am-accordion-content .am-accordion-content-box::after {
-    content: none !important;
+  .levelCollapse>.adm-list>.adm-list-body>.adm-list-body-inner>.adm-collapse-panel-content {
+    border-bottom: 6px solid #f5f5f5;
+  }
+  .level2Collapse .adm-collapse-panel-header .adm-list-item-content-main {
+    padding: 12px 0 !important;
+  }
+  .adm-collapse-panel-content .adm-list-item-content-main {
+    padding: 0;
+    flex: 1;
+    width: 0;
   }
 
   .am-list-body div:last-child .am-list-line::after {
@@ -242,6 +222,7 @@
 
   .sudokuWrapper {
     padding: 0 10px;
+    flex-wrap: wrap;
     .sudokuItemWrapper {
       width: 33%;
       margin-bottom: 10px;

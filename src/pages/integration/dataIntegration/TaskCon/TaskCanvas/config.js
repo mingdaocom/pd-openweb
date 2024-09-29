@@ -1,4 +1,5 @@
 import { FILTER_RELATION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import moment from 'moment';
 
 export const tW = 220;
 export const tH = 58;
@@ -119,15 +120,6 @@ export const node_status = [
   { text: _l('正常'), value: 'NORMAL' },
   { text: _l('失效'), value: 'DISABLE' },
 ];
-//聚合函数类型
-export const OPERATION_TYPE_DATA = [
-  { text: _l('求和'), value: 'SUM' },
-  { text: _l('最大值'), value: 'MAX' },
-  { text: _l('最小值'), value: 'MIN' },
-  { text: _l('平均值'), value: 'AVG' },
-  { text: _l('计数'), value: 'COUNT' },
-  { text: _l('去重计数'), value: 'DISTINCT_COUNT' },
-];
 
 //数据合并类型
 export const UNION_TYPE_LIST = [
@@ -219,4 +211,53 @@ export const mdUniquePkData = {
 //文本类
 export const text_jdbcTypeIds = [12, -1, -15, -16, -9, 1];
 //数值类
-export const num_jdbcTypeIds = [-7, -6, 5, 4, -5, 2, 3, 6, 7, 8, 91, 92, 93, 2013, 2014];
+export const num_jdbcTypeIds = [-7, -6, 5, 4, -5, 2, 3, 6, 7, 8];
+//时间类
+export const time_jdbcTypeIds = [91, 92, 93, 2013, 2014];
+
+//聚合函数类型
+export const OPERATION_TYPE_DATA = [
+  { text: _l('求和'), value: 'SUM' },
+  { text: _l('最大值'), value: 'MAX' },
+  { text: _l('最小值'), value: 'MIN' },
+  { text: _l('平均值'), value: 'AVG' },
+  { text: _l('计数'), value: 'COUNT' },
+  { text: _l('去重计数'), value: 'DISTINCT_COUNT' },
+];
+/**
+ * 时间粒度
+ */
+export const DATE_TIME_DATA_PARTICLE = [
+  { text: _l('年'), value: 'CUR_YEAR', getTime: () => moment().year() },
+  { text: _l('季'), value: 'CUR_SEASON', getTime: () => moment().format('YYYY[Q]Q') },
+  { text: _l('月'), value: 'CUR_MONTH', getTime: () => moment().format('YYYY/MM') },
+  { text: _l('周'), value: 'CUR_WEEK', getTime: () => moment().format('YYYY[W]WW') },
+  { text: _l('日'), value: 'TODAY', getTime: () => moment().format('YYYY/MM/DD') },
+  { text: _l('时'), value: 'CUR_HOUR', getTime: () => moment().format('YYYY/MM/DD HH') + _l('时') },
+  { text: _l('分'), value: 'CUR_MINUTE', getTime: () => moment().format('YYYY/MM/DD HH:mm') },
+];
+export const TIME_DATA_PARTICLE = [
+  { text: _l('时'), value: 'CUR_HOUR', getTime: () => moment().format('HH') },
+  { text: _l('分'), value: 'CUR_MINUTE', getTime: () => moment().format('HH:mm') },
+];
+export const ONLY_TIME_DATA_PARTICLE = [
+  { text: _l('时'), value: 'HOUR_FOR_TIME', getTime: () => moment().format('HH') },
+  { text: _l('分'), value: 'TIME', getTime: () => moment().format('HH:mm') },
+];
+/**
+ * 集合粒度
+ */
+export const TIME_GATHER_PARTICLE = [
+  { text: _l('季'), value: 'SEASON', getTime: () => moment().format('[Q]Q') },
+  { text: _l('月'), value: 'MONTH', getTime: () => moment().format('MM') },
+  { text: _l('日'), value: 'DAY', getTime: () => moment().format('DD') },
+  { text: _l('时'), value: 'HOUR', getTime: () => moment().format('HH') },
+];
+
+export const ALL_OPERATION_TYPE_DATA = [
+  ...OPERATION_TYPE_DATA,
+  ...TIME_DATA_PARTICLE,
+  ...TIME_GATHER_PARTICLE,
+  ...DATE_TIME_DATA_PARTICLE,
+  ...ONLY_TIME_DATA_PARTICLE,
+];

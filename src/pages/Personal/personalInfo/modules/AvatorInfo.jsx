@@ -110,6 +110,7 @@ export default class AvatarEditor extends Component {
   };
 
   render() {
+    const { from, label, minCropRadius } = this.props;
     const { avatar, preview } = this.state;
 
     if (!avatar) {
@@ -120,20 +121,23 @@ export default class AvatarEditor extends Component {
       <div className="mTop25">
         <div className="flexRow" style={{ minHeight: 200 }}>
           <Avatar
-            label={_l('上传图片')}
+            label={label || _l('上传图片')}
             labelStyle={{ display: 'block', cursor: 'pointer', fontWeight: 700, fontSize: '16px' }}
             width={200}
             height={200}
             imageWidth={200}
+            minCropRadius={minCropRadius}
             onCrop={this.onCrop}
             onClose={this.onClose}
             onBeforeFileLoad={this.onBeforeFileLoad}
             src={this.state.src}
           />
-          <div className="reviewBox">
-            <span className="Block Gray_9e mBottom16">{_l('预览')}</span>
-            <img src={preview || avatar} style={{ width: 80, height: 80, borderRadius: '50%' }} />
-          </div>
+          {!(from === 'integration' && !preview) && (
+            <div className="reviewBox">
+              <span className="Block Gray_9e mBottom16">{_l('预览')}</span>
+              <img src={preview || avatar} style={{ width: 80, height: 80, borderRadius: '50%' }} />
+            </div>
+          )}
         </div>
         {!browserIsMobile() ? (
           <div className="flexEnd">

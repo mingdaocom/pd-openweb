@@ -1,5 +1,5 @@
 import React, { Fragment, Component } from 'react';
-import { Modal } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import { ScrollView, LoadDiv, Icon } from 'ming-ui';
 import * as actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { RecordInfoModal } from 'mobile/Record';
@@ -191,86 +191,85 @@ class ScheduleModal extends Component {
   };
   render() {
     let { isSearch, previewRecordId, wsid } = this.state;
-    const { base, visible, showschedule, calendarview = {}, getInitType } = this.props;
+    const { base, visible, showschedule, calendarview = {}, getInitType, worksheetInfo = {} } = this.props;
     const { calenderEventList = {}, calendarLoading = false } = calendarview;
     const { keyWords, seachData = [] } = calenderEventList;
     const typeEvent = getInitType();
     const eventData = calenderEventList[typeEvent];
     return (
       <Fragment>
-        <Modal
-          popup
+        <Popup
           visible={visible}
           onClose={showschedule}
-          animationType="slide-up"
-          className="mobileSchedulekModal"
-          title={
-            <div>
-              {_l('排期')}
-              <Icon icon="close" className="closeIcon" onClick={showschedule} />
-            </div>
-          }
+          className="mobileSchedulekModal mobileModal minFull topRadius"
         >
-          <ul className="tab">
-            {tabList.map((it, i) => {
-              return (
-                <li
-                  key={it.key}
-                  className={cx('Hand', { current: it.key === typeEvent })}
-                  onClick={() => {
-                    this.props.getEventScheduledData(it.key);
-                    safeLocalStorageSetItem('CalendarShowExternalTypeEvent', it.key);
+          <div className="header">
+            {_l('排期')}
+            <Icon icon="close" className="closeIcon" onClick={showschedule} />
+          </div>
+          <div className="content pTop5">
+            <ul className="tab">
+              {tabList.map((it, i) => {
+                return (
+                  <li
+                    key={it.key}
+                    className={cx('Hand', { current: it.key === typeEvent })}
+                    onClick={() => {
+                      this.props.getEventScheduledData(it.key);
+                      safeLocalStorageSetItem('CalendarShowExternalTypeEvent', it.key);
+                    }}
+                  >
+                    {it.txt}
+                  </li>
+                );
+              })}
+            </ul>
+            {eventData.length || seachData.length ? (
+              <div className="searchWrapper">
+                <Icon icon="search" className="searchIcon Font20" />
+                <input
+                  type="text"
+                  className="cursorText"
+                  placeholder={_l('搜索%0', (tabList.find(o => o.key === typeEvent) || {}).txt)}
+                  onChange={event => {
+                    const searchValue = event.target.value;
+                    this.props.searchKeys(searchValue);
+                    if (!searchValue) {
+                      this.setState({ isSearch: false });
+                    }
                   }}
-                >
-                  {it.txt}
-                </li>
-              );
-            })}
-          </ul>
-          {eventData.length || seachData.length ? (
-            <div className="searchWrapper">
-              <Icon icon="search" className="searchIcon Font20" />
-              <input
-                type="text"
-                className="cursorText"
-                placeholder={_l('搜索%0', (tabList.find(o => o.key === typeEvent) || {}).txt)}
-                onChange={event => {
-                  const searchValue = event.target.value;
-                  this.props.searchKeys(searchValue);
-                  if (!searchValue) {
-                    this.setState({ isSearch: false });
-                  }
-                }}
-                onKeyUp={e => {
-                  if (e.keyCode === 13) {
-                    const searchValue = e.target.value;
-                    this.props.searchEventArgs(searchValue, 1);
-                    $('.eventListBox .nano-content').scrollTop(0);
-                    this.setState({ isSearch: !!searchValue });
-                  }
-                }}
-                value={keyWords}
-              />
-            </div>
-          ) : null}
-          {calendarLoading && <LoadDiv />}
-          {!isSearch && !calendarLoading && eventData && eventData.length > 0 && (
-            <ScrollView className="recordListBox" updateEvent={this.handleScroll}>
-              {this.renderListEvent()}
-            </ScrollView>
-          )}
-          {this.state.isSearch && !calendarLoading && (
-            <ScrollView className="recordListBox">
-              <div className="listContainer">{this.renderSearchData(seachData)}</div>
-            </ScrollView>
-          )}
-          {!isSearch && !calendarLoading && (!eventData || eventData.length <= 0) && (
-            <div className="noData">{_l('没有%0', (tabList.find(o => o.key === typeEvent) || {}).txt)}</div>
-          )}
-        </Modal>
+                  onKeyUp={e => {
+                    if (e.keyCode === 13) {
+                      const searchValue = e.target.value;
+                      this.props.searchEventArgs(searchValue, 1);
+                      $('.eventListBox .nano-content').scrollTop(0);
+                      this.setState({ isSearch: !!searchValue });
+                    }
+                  }}
+                  value={keyWords}
+                />
+              </div>
+            ) : null}
+            {calendarLoading && <LoadDiv />}
+            {!isSearch && !calendarLoading && eventData && eventData.length > 0 && (
+              <ScrollView className="recordListBox" updateEvent={this.handleScroll}>
+                {this.renderListEvent()}
+              </ScrollView>
+            )}
+            {this.state.isSearch && !calendarLoading && (
+              <ScrollView className="recordListBox">
+                <div className="listContainer">{this.renderSearchData(seachData)}</div>
+              </ScrollView>
+            )}
+            {!isSearch && !calendarLoading && (!eventData || eventData.length <= 0) && (
+              <div className="noData">{_l('没有%0', (tabList.find(o => o.key === typeEvent) || {}).txt)}</div>
+            )}
+          </div>
+        </Popup>
         <RecordInfoModal
           className="full"
           visible={!!previewRecordId}
+          enablePayment={worksheetInfo.enablePayment}
           appId={base.appId}
           worksheetId={wsid}
           viewId={base.viewId}
@@ -291,6 +290,7 @@ export default connect(
   state => ({
     calendarview: state.sheet.calendarview,
     base: state.sheet.base,
+    worksheetInfo: state.mobile.worksheetInfo,
   }),
   dispatch => bindActionCreators({ ...actions }, dispatch),
 )(ScheduleModal);

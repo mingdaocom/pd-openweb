@@ -40,6 +40,18 @@ var custom = {
     return mdyAPI(controllerName, 'customsavePage', JSON.stringify(args), $.extend(base, options));
   },
   /**
+   * 转换控件的value默认值
+   * @param {Object} args 请求参数
+   * @param {TransformControlValueRequest} {companyId:网络id(string),controls:控件列表(array),}*transformControlValueRequest
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   */
+  transformControlValue: function(args, options) {
+    base.ajaxOptions.url = base.server() + '/custom/transformControlValue';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'customtransformControlValue', JSON.stringify(args), $.extend(base, options));
+  },
+  /**
    * 保存自定义页面配置说明和强转适应屏幕
    * @param {Object} args 请求参数
    * @param {更新自定义页面} {adjustScreen:强转适应屏幕(boolean),appId:appId(string),config:参数，仅供前端使用(object),desc:页面说明(string),}*updatePageRequest

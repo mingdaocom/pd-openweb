@@ -256,9 +256,8 @@ export default class ChartStyle extends Component {
   }
   renderLabel() {
     const { currentReport } = this.props;
-    const { showLabelPercent } = currentReport.style || {};
-    const { showNumber, showPileTotal, hideOverlapText } = currentReport.displaySetup;
-    const switchChecked = showNumber || showPileTotal || showLabelPercent || hideOverlapText;
+    const { showNumber, showPileTotal, hideOverlapText, percent } = currentReport.displaySetup;
+    const switchChecked = showNumber || showPileTotal || hideOverlapText || percent.enable;
     return (
       <Collapse.Panel
         key="label"
@@ -279,8 +278,11 @@ export default class ChartStyle extends Component {
                 showPercent: checked,
                 showPileTotal: checked,
                 hideOverlapText: checked,
+                percent: {
+                  ...percent,
+                  enable: checked
+                }
               });
-              this.handleChangeStyle({ showLabelPercent: checked });
             }}
           />
         }
@@ -762,9 +764,9 @@ export default class ChartStyle extends Component {
           )}
           {[reportTypes.TopChart].includes(reportType) &&
             this.renderTopChart()}
+          {![reportTypes.WordCloudChart].includes(reportType) && this.renderUnit()}
           {![reportTypes.NumberChart, reportTypes.CountryLayer, reportTypes.DualAxes, reportTypes.BidirectionalBarChart, reportTypes.WordCloudChart, reportTypes.GaugeChart, reportTypes.ProgressChart, reportTypes.ScatterChart].includes(reportType) &&
             this.renderDataFilter()}
-          {![reportTypes.WordCloudChart].includes(reportType) && this.renderUnit()}
           {![reportTypes.NumberChart, reportTypes.PivotTable, reportTypes.GaugeChart].includes(reportType) &&
             this.renderColor()}
           {reportTypes.PivotTable === reportType && this.renderPivotTableFieldColor()}

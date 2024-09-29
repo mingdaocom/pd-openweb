@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dialog, Checkbox, Dropdown, Icon, Radio } from 'ming-ui';
+import { ScrollView, LoadDiv, Dialog } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import {
   DetailHeader,
@@ -9,8 +9,6 @@ import {
   SelectUserDropDown,
   ApprovalProcessSettings,
 } from '../components';
-import cx from 'classnames';
-import { Tooltip } from 'antd';
 import _ from 'lodash';
 import { OPERATION_TYPE } from '../../enum';
 import { clearFlowNodeMapParameter } from '../../utils';
@@ -107,7 +105,8 @@ export default class ApprovalProcess extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { appId, name, selectNodeId, accounts, processConfig, fields, flowNodeMap } = data;
+    const { appId, name, selectNodeId, accounts, processConfig, fields, flowNodeMap, addNotAllowView, formProperties } =
+      data;
 
     if (!selectNodeId) {
       alert(_l('必须先选择一个数据对象'), 2);
@@ -120,8 +119,8 @@ export default class ApprovalProcess extends Component {
     }
 
     if (
-      (processConfig.initiatorMaps[5] && !processConfig.initiatorMaps[5].length) ||
-      (processConfig.userTaskNullMaps[5] && !processConfig.userTaskNullMaps[5].length)
+      (processConfig.initiatorMaps && processConfig.initiatorMaps[5] && !processConfig.initiatorMaps[5].length) ||
+      (processConfig.userTaskNullMaps && processConfig.userTaskNullMaps[5] && !processConfig.userTaskNullMaps[5].length)
     ) {
       alert(_l('必须指定代理人'), 2);
       return;
@@ -143,6 +142,8 @@ export default class ApprovalProcess extends Component {
         processConfig,
         fields,
         flowNodeMap: clearFlowNodeMapParameter(flowNodeMap),
+        addNotAllowView,
+        formProperties,
       })
       .then(result => {
         this.props.updateNodeData(result);

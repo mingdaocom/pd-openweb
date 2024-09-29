@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import flowNode from '../../../api/flowNode';
-import { ScrollView, LoadDiv, Dropdown, Checkbox } from 'ming-ui';
+import { ScrollView, LoadDiv, Dropdown, Checkbox, Support } from 'ming-ui';
 import cx from 'classnames';
 import {
   SelectUserDropDown,
@@ -10,9 +10,34 @@ import {
   DetailFooter,
   CustomTextarea,
   WriteFields,
+  EmailApproval,
 } from '../components';
 import worksheet from 'src/api/worksheet';
 import _ from 'lodash';
+import styled from 'styled-components';
+import { OPERATION_TYPE } from '../../enum';
+import { clearFlowNodeMapParameter } from '../../utils';
+
+const TABS_ITEM = styled.div`
+  display: inline-flex;
+  padding: 0 12px 12px 12px;
+  margin-right: 36px;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  position: relative;
+  &.active {
+    &::before {
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      content: '';
+      height: 0;
+      border-bottom: 3px solid #2196f3;
+    }
+  }
+`;
 
 export default class CC extends Component {
   constructor(props) {
@@ -22,6 +47,8 @@ export default class CC extends Component {
       saveRequest: false,
       showSelectUserDialog: false,
       views: [],
+      tabIndex: 1,
+      isNewCC: false,
     };
   }
 
@@ -47,20 +74,23 @@ export default class CC extends Component {
   /**
    * 获取节点详情
    */
-  getNodeDetail(props) {
+  getNodeDetail(props, sId) {
     const { processId, selectNodeId, selectNodeType, isApproval, instanceId } = props;
+    const { isNewCC } = this.state;
 
     flowNode
-      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
+      .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId, selectNodeId: sId })
       .then(result => {
-        this.setState({ data: result }, () => {
-          if (isApproval && !result.selectNodeId) {
-            this.onChange(result.flowNodeList[0].nodeId);
-          }
-        });
+        if (isApproval && !result.selectNodeId) {
+          this.setState({ isNewCC: true }, () => {
+            this.getNodeDetail(props, result.flowNodeList[0].nodeId);
+          });
+        } else {
+          this.setState({ data: result, isNewCC: !!result.viewId || !result.selectNodeId || isNewCC });
 
-        if (result.appId) {
-          this.getWorksheetInfo(result.appId);
+          if (result.appId) {
+            this.getWorksheetInfo(result.appId);
+          }
         }
       });
   }
@@ -74,18 +104,39 @@ export default class CC extends Component {
   };
 
   /**
+   * 更新节点对象数据
+   */
+  updateFlowMapSource = (key, obj) => {
+    const { data } = this.state;
+
+    this.updateSource({
+      flowNodeMap: Object.assign({}, data.flowNodeMap, { [key]: Object.assign({}, data.flowNodeMap[key], obj) }),
+    });
+  };
+
+  /**
    * 保存
    */
   onSave = () => {
-    const { data, saveRequest } = this.state;
-    const { accounts, selectNodeId, name, sendContent, formProperties, viewId, addNotAllowView, showTitle } = data;
+    const { data, saveRequest, isNewCC } = this.state;
+    const {
+      accounts,
+      selectNodeId,
+      name,
+      sendContent,
+      formProperties,
+      viewId,
+      addNotAllowView,
+      showTitle,
+      flowNodeMap,
+    } = data;
 
     if (!selectNodeId) {
       alert(_l('必须指定数据对象'), 2);
       return;
     }
 
-    if (!formProperties.length && !viewId) {
+    if (isNewCC && !viewId) {
       alert(_l('必须指定视图'), 2);
       return;
     }
@@ -112,6 +163,7 @@ export default class CC extends Component {
         viewId,
         addNotAllowView,
         showTitle: sendContent.trim() ? showTitle : true,
+        flowNodeMap: clearFlowNodeMapParameter(flowNodeMap),
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -125,7 +177,7 @@ export default class CC extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { data, showSelectUserDialog } = this.state;
+    const { data, showSelectUserDialog, tabIndex, isNewCC } = this.state;
     const views = this.state.views.map(o => ({
       text: o.name,
       value: o.viewId,
@@ -142,10 +194,10 @@ export default class CC extends Component {
           appList={data.appList}
           selectNodeId={data.selectNodeId}
           selectNodeObj={data.selectNodeObj}
-          onChange={this.onChange}
+          onChange={sId => this.getNodeDetail(this.props, sId)}
         />
 
-        {data.selectNodeId && !!data.formProperties.length && (
+        {data.selectNodeId && !isNewCC && (
           <Fragment>
             <div
               className="workflowDetailDesc pTop15 pBottom15 mTop20"
@@ -161,25 +213,30 @@ export default class CC extends Component {
               </div>
               <span
                 className="ThemeColor3 ThemeHoverColor2 pointer"
-                onClick={() => this.updateSource({ formProperties: [] })}
+                onClick={() => {
+                  this.setState({ isNewCC: true });
+                  this.updateSource({
+                    formProperties: data.formProperties.map(item => Object.assign(item, { property: 1 })),
+                  });
+                }}
               >
                 {_l('切换为新版配置方式')}
               </span>
             </div>
             <div className="Font13 bold mTop20">{_l('设置字段')}</div>
-            <WriteFields
-              processId={this.props.processId}
-              nodeId={this.props.selectNodeId}
-              selectNodeId={data.selectNodeId}
-              data={data.formProperties}
-              addNotAllowView={data.addNotAllowView}
-              updateSource={this.updateSource}
-              hideTypes={[2, 3]}
-            />
+            <div className="Font13 mTop15">
+              <WriteFields
+                selectNodeType={this.props.selectNodeType}
+                data={data.formProperties}
+                addNotAllowView={data.addNotAllowView}
+                updateSource={this.updateSource}
+                hideTypes={[2, 3]}
+              />
+            </div>
           </Fragment>
         )}
 
-        {!data.formProperties.length && (
+        {data.selectNodeId && isNewCC && (
           <Fragment>
             <div className="Font13 bold mTop20">{_l('视图')}</div>
             <div className="Font13 Gray_75 mTop5">
@@ -206,71 +263,114 @@ export default class CC extends Component {
           </Fragment>
         )}
 
-        <div className="Font13 bold mTop20">{_l('抄送人')}</div>
-        <Member
-          companyId={this.props.companyId}
-          appId={this.props.relationType === 2 ? this.props.relationId : ''}
-          accounts={data.accounts}
-          updateSource={this.updateSource}
-        />
-        <div
-          className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
-          onClick={() => this.setState({ showSelectUserDialog: true })}
-        >
-          <i className="Font28 icon-task-add-member-circle mRight10" />
-          {_l('添加抄送人')}
-          <SelectUserDropDown
-            appId={this.props.relationType === 2 ? this.props.relationId : ''}
-            visible={showSelectUserDialog}
-            companyId={this.props.companyId}
-            processId={this.props.processId}
-            nodeId={this.props.selectNodeId}
-            unique={false}
-            accounts={data.accounts}
-            updateSource={this.updateSource}
-            onClose={() => this.setState({ showSelectUserDialog: false })}
-          />
-        </div>
+        {data.selectNodeId && (
+          <Fragment>
+            <div className="Font13 bold mTop20">{_l('抄送人')}</div>
+            <Member
+              companyId={this.props.companyId}
+              appId={this.props.relationType === 2 ? this.props.relationId : ''}
+              accounts={data.accounts}
+              updateSource={this.updateSource}
+            />
+            <div
+              className="flexRow mTop15 ThemeColor3 workflowDetailAddBtn"
+              onClick={() => this.setState({ showSelectUserDialog: true })}
+            >
+              <i className="Font28 icon-task-add-member-circle mRight10" />
+              {_l('添加抄送人')}
+              <SelectUserDropDown
+                appId={this.props.relationType === 2 ? this.props.relationId : ''}
+                visible={showSelectUserDialog}
+                companyId={this.props.companyId}
+                processId={this.props.processId}
+                nodeId={this.props.selectNodeId}
+                unique={false}
+                accounts={data.accounts}
+                updateSource={this.updateSource}
+                onClose={() => this.setState({ showSelectUserDialog: false })}
+              />
+            </div>
+          </Fragment>
+        )}
 
-        <div className="Font13 bold mTop20">{_l('通知内容')}</div>
-        <div className="Font13 Gray_75 mTop5">
-          {_l('可不设，默认显示记录标题。设置后，显示设置的通知内容和记录标题（可选）')}
-        </div>
-        <CustomTextarea
-          className="minH100"
-          projectId={this.props.companyId}
-          processId={this.props.processId}
-          relationId={this.props.relationId}
-          selectNodeId={this.props.selectNodeId}
-          type={2}
-          content={data.sendContent}
-          formulaMap={data.formulaMap}
-          onChange={(err, value, obj) => this.updateSource({ sendContent: value })}
-          updateSource={this.updateSource}
-        />
-        <div className="mTop10">
-          <Checkbox
-            className="InlineFlex"
-            disabled={!data.sendContent}
-            text={_l('显示记录标题')}
-            checked={data.showTitle || !data.sendContent}
-            onClick={checked => this.updateSource({ showTitle: !checked })}
-          />
-        </div>
+        {data.selectNodeId && isNewCC && (
+          <Fragment>
+            {this.renderTabs()}
+
+            {tabIndex === 1 && (
+              <Fragment>
+                <div className="Font13 bold mTop20">{_l('通知内容')}</div>
+                <div className="Font13 Gray_75 mTop5">
+                  {_l('可不设，默认显示记录标题。设置后，显示设置的通知内容和记录标题（可选）')}
+                </div>
+                <CustomTextarea
+                  className="minH100"
+                  projectId={this.props.companyId}
+                  processId={this.props.processId}
+                  relationId={this.props.relationId}
+                  selectNodeId={this.props.selectNodeId}
+                  type={2}
+                  content={data.sendContent}
+                  formulaMap={data.formulaMap}
+                  onChange={(err, value, obj) => this.updateSource({ sendContent: value })}
+                  updateSource={this.updateSource}
+                />
+                <div className="mTop10">
+                  <Checkbox
+                    className="InlineFlex"
+                    disabled={!data.sendContent}
+                    text={_l('显示记录标题')}
+                    checked={data.showTitle || !data.sendContent}
+                    onClick={checked => this.updateSource({ showTitle: !checked })}
+                  />
+                </div>
+
+                <div className="Font13 mTop25 bold">{_l('其他')}</div>
+                <EmailApproval
+                  {...this.props}
+                  title={_l('启用邮件通知')}
+                  desc={_l('启用后，待办消息同时会以邮件的形式发送给相关负责人；邮件0.03元/封，自动从账务中心扣费')}
+                  flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
+                  updateSource={obj => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj)}
+                />
+              </Fragment>
+            )}
+
+            {tabIndex === 2 && (
+              <Fragment>
+                <div className="Gray_75 mTop20">
+                  {_l('设为摘要的字段可以在待办列表和邮件通知中直接查看。')}
+                  <Support
+                    type={3}
+                    text={_l('帮助')}
+                    className="ThemeColor3 ThemeHoverColor2"
+                    href="https://help.mingdao.com/worksheet/field-filter"
+                  />
+                </div>
+                {data.selectNodeId ? (
+                  <div className="Font13 mTop15">
+                    <WriteFields
+                      selectNodeType={this.props.selectNodeType}
+                      data={data.formProperties}
+                      addNotAllowView={data.addNotAllowView}
+                      updateSource={this.updateSource}
+                      showCard={true}
+                      hideTypes={[1, 2, 3]}
+                    />
+                  </div>
+                ) : (
+                  <div className="Gray_75 Font13 flexRow flowDetailTips mTop15">
+                    <i className="icon-task-setting_promet Font16 Gray_9e" />
+                    <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
+                  </div>
+                )}
+              </Fragment>
+            )}
+          </Fragment>
+        )}
       </Fragment>
     );
   }
-
-  /**
-   * 下拉框更改
-   */
-  onChange = selectNodeId => {
-    const { data } = this.state;
-    const selectNodeObj = _.find(data.appList, item => item.nodeId === selectNodeId);
-
-    this.updateSource({ selectNodeId, selectNodeObj, viewId: '' });
-    this.getWorksheetInfo(selectNodeObj.appId);
-  };
 
   /**
    * 获取工作表详情
@@ -283,8 +383,35 @@ export default class CC extends Component {
     });
   }
 
+  /**
+   * 渲染tabs
+   */
+  renderTabs() {
+    const { tabIndex } = this.state;
+    const TABS = [
+      { text: _l('抄送设置'), value: 1 },
+      { text: _l('字段设置'), value: 2 },
+    ];
+
+    return (
+      <div className="mTop25" style={{ borderBottom: '1px solid #ddd' }}>
+        {TABS.map(item => {
+          return (
+            <TABS_ITEM
+              key={item.value}
+              className={cx('pointerEventsAuto', { active: item.value === tabIndex })}
+              onClick={() => this.setState({ tabIndex: item.value })}
+            >
+              {item.text}
+            </TABS_ITEM>
+          );
+        })}
+      </div>
+    );
+  }
+
   render() {
-    const { data } = this.state;
+    const { data, isNewCC } = this.state;
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
@@ -304,7 +431,11 @@ export default class CC extends Component {
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>
-        <DetailFooter {...this.props} isCorrect={!!data.accounts.length && data.selectNodeId} onSave={this.onSave} />
+        <DetailFooter
+          {...this.props}
+          isCorrect={!!data.accounts.length && data.selectNodeId && (!isNewCC || (isNewCC && data.viewId))}
+          onSave={this.onSave}
+        />
       </Fragment>
     );
   }

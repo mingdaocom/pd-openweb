@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors, getStyleColor } from './common';
+import { formatYaxisList, formatrChartValue, formatControlInfo, getChartColors, getStyleColor, formatNumberValue } from './common';
 import { formatSummaryName, isFormatNumber } from 'statistics/common';
 import { SYS_CHART_COLORS } from 'src/pages/Admin/settings/config';
 import { generate } from '@ant-design/colors';
@@ -142,9 +142,9 @@ export default class extends Component {
     if (
       displaySetup.showDimension !== oldDisplaySetup.showDimension ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
-      displaySetup.showPercent !== oldDisplaySetup.showPercent ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
+      !_.isEqual(displaySetup.percent, oldDisplaySetup.percent) ||
       !_.isEqual(style, oldStyle) ||
       !_.isEqual(chartColor, oldChartColor) ||
       nextProps.themeColor !== this.props.themeColor
@@ -179,7 +179,8 @@ export default class extends Component {
     const { themeColor, projectId, customPageConfig = {}, reportData, isThumbnail } = props;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const { map, yaxisList, displaySetup } = reportData;
-    const { showChartType, showDimension, showNumber, showPercent, colorRules } = displaySetup;
+    const { showChartType, showDimension, showNumber, colorRules } = displaySetup;
+    const showPercent = displaySetup.percent.enable;
     const styleConfig = reportData.style || {};
     const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const { indicatorVisible, fontColor = 'rgba(0, 0, 0, 1)', gaugeColorType = 1, sectionColorConfig = {}, isApplyGaugeColor, applySectionScale } = style;
@@ -342,7 +343,7 @@ export default class extends Component {
         content: (showNumber || showPercent) ? {
           formatter: ({ percent }) => {
             const value = formatrChartValue(data.value, false, yaxisList);
-            const percentValue = `(${(percent * 100).toFixed(0)}%)`;
+            const percentValue = `(${formatNumberValue(percent * 100, displaySetup.percent)}%)`;
             return `${showNumber ? value : ''} ${showPercent ? percentValue : ''}`;
           },
           style: {

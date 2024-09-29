@@ -8,6 +8,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { addBehaviorLog } from 'src/util';
 import { useClickAway } from 'react-use';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
+import { getSheetViewRows, getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
 import { find, findIndex, get, identity, includes, isEmpty, isEqual, uniq, uniqBy } from 'lodash';
 import * as actions from './redux/action';
 import RowHead from './RelateRecordTableRowHead';
@@ -82,13 +83,13 @@ function getTableConfig(control) {
 
 const PAGE_SIZE = 20;
 
-function getPageRecords({ records = [], pageSize = PAGE_SIZE, pageIndex = 1 } = {}) {
+function getPageRecords({ records = [], pageSize = PAGE_SIZE, pageIndex = 1, isTreeTableView } = {}) {
   if (pageIndex !== 1) {
     return records.slice(0, pageSize);
   }
   const newRecords = records.filter(record => record.isNew);
   const savedRecords = records.filter(record => !record.isNew);
-  return newRecords.concat(savedRecords.slice(0, pageSize));
+  return newRecords.concat(savedRecords.slice(0, isTreeTableView ? undefined : pageSize));
 }
 
 function TableComp(props) {
@@ -97,6 +98,7 @@ function TableComp(props) {
     cache,
     control,
     base = {},
+    treeTableViewData = {},
     tableState = {},
     changes = {},
     controls,
@@ -105,12 +107,14 @@ function TableComp(props) {
     deleteRecords,
     updateTableState,
     updateRecord,
+    updateRecordByRecordId,
     handleOpenRecordInfo,
     handleRecreateRecord,
     updateCell,
     updateSort,
     handleRemoveRelation,
     handleSaveSheetLayout,
+    updateTreeNodeExpansion = () => {},
     onUpdateCell = () => {},
   } = props;
   const { addedRecords = [] } = changes;
@@ -120,6 +124,8 @@ function TableComp(props) {
     isTab,
     from,
     initialCount,
+    isTreeTableView,
+    treeLayerControlId,
     isCharge,
     recordId,
     allowEdit,
@@ -147,10 +153,18 @@ function TableComp(props) {
     isBatchEditing,
   } = tableState;
   const worksheetTableRef = useRef();
-  const columns = useMemo(
-    () => getVisibleControls(control, controls, sheetHiddenColumnIds, disableMaskDataControls),
-    [controls, control, sheetHiddenColumnIds],
-  );
+  const dataCache = useRef({});
+  const columns = useMemo(() => {
+    const visibleControls = getVisibleControls(control, controls, sheetHiddenColumnIds, disableMaskDataControls);
+    if (isTreeTableView && visibleControls[0]) {
+      const appendWidth = getTreeExpandCellWidth(treeTableViewData.maxLevel, records.length);
+      dataCache.current.expandCellAppendWidth = appendWidth;
+      visibleControls[0].appendWidth = appendWidth;
+      visibleControls[0].hideFrozen = true;
+      visibleControls[0].isTreeExpandCell = true;
+    }
+    return visibleControls;
+  }, [controls, control, sheetHiddenColumnIds, records, treeTableViewData.maxLevel]);
   const columnWidthsOfSetting = useMemo(() => getCellWidths(control, controls), [control, controls]);
   const tableConfig = getTableConfig(control);
   const { showQuickFromSetting, allowOpenRecord, allowDeleteFromSetting } = tableConfig;
@@ -158,20 +172,18 @@ function TableComp(props) {
   if (recordId && !base.saveSync && pageIndex === 1) {
     records = addedRecords.concat(records);
   }
-  let rowCount = records.length > emptyRowCount ? records.length : emptyRowCount;
   const isNewRecord = !recordId;
   const pageSize = tableState.pageSize || PAGE_SIZE;
   const rowHeight = Number((control.advancedSetting || {}).rowheight || 0);
   const allIsSelected = isEqual(
     uniq(selectedRowIds),
-    (recordId && !base.saveSync ? getPageRecords({ records, pageIndex, pageSize }) : records).map(r => r.rowid),
+    (recordId && !base.saveSync ? getPageRecords({ records, pageIndex, pageSize, isTreeTableView }) : records).map(
+      r => r.rowid,
+    ),
   );
   const numberWidth = String(isNewRecord ? records.length * 10 : pageIndex * pageSize).length * 8;
   let rowHeadWidth =
     (numberWidth > 24 ? numberWidth : 24) + 32 + (tableConfig.tableType === 'classic' && allowOpenRecord ? 34 : 0);
-  if (recordId && base.saveSync && rowCount > pageSize) {
-    rowCount = pageSize;
-  }
   const addHiddenTip = useCallback(
     oldRecords => {
       if (
@@ -200,6 +212,15 @@ function TableComp(props) {
     },
     [control.controlId],
   );
+  let tableData = recordId ? addHiddenTip(getPageRecords({ records, pageIndex, pageSize })) : records;
+  let rowCount = records.length > emptyRowCount ? records.length : emptyRowCount;
+  if (isTreeTableView) {
+    tableData = getSheetViewRows({ rows: records }, { treeMap: treeTableViewData.treeMap });
+    rowCount = tableData.length > emptyRowCount ? tableData.length : emptyRowCount;
+  }
+  if (recordId && base.saveSync && rowCount > pageSize) {
+    rowCount = pageSize;
+  }
   useClickAway({ current: get(worksheetTableRef, 'current.con') }, e => {
     if (window.activeTableId === tableId && !e.target.closest(`.sheetViewTable.id-${tableId}-id`)) {
       window.activeTableId = undefined;
@@ -210,6 +231,10 @@ function TableComp(props) {
   }
   return (
     <WorksheetTable
+      isTreeTableView={isTreeTableView}
+      treeLayerControlId={treeLayerControlId}
+      treeTableViewData={treeTableViewData}
+      expandCellAppendWidth={dataCache.current.expandCellAppendWidth}
       tableId={tableId}
       scrollBarHoverShow
       isRelateRecordList
@@ -239,7 +264,8 @@ function TableComp(props) {
       rowHeadWidth={rowHeadWidth}
       rowHeight={ROW_HEIGHT[rowHeight] || 34}
       controls={controls}
-      data={recordId ? addHiddenTip(getPageRecords({ records, pageIndex, pageSize })) : records}
+      data={tableData}
+      allowAdd={addVisible}
       columns={columns}
       sheetColumnWidths={{ ...columnWidthsOfSetting, ...sheetColumnWidths }}
       sheetViewHighlightRows={highlightRows}
@@ -280,7 +306,7 @@ function TableComp(props) {
             updateTableState({
               highlightRows: { [record.rowid]: true },
             });
-            appendRecords([record], { afterRecordId });
+            appendRecords([{ ...record, pid: row.pid }], { afterRecordId });
           }}
           saveSheetLayout={() => {
             handleSaveSheetLayout({ updateWorksheetControls, columns, columnWidthsOfSetting });
@@ -330,7 +356,7 @@ function TableComp(props) {
               case 'selectAll':
                 updateTableState({
                   selectedRowIds: (recordId && !base.saveSync
-                    ? getPageRecords({ records, pageIndex, pageSize })
+                    ? getPageRecords({ records, pageIndex, pageSize, isTreeTableView })
                     : records
                   ).map(r => r.rowid),
                 });
@@ -421,6 +447,20 @@ function TableComp(props) {
           sheetColumnWidths: { ...sheetColumnWidths, [controlId]: value },
         });
       }}
+      actions={{
+        updateTreeNodeExpansion,
+        onTreeAddRecord: (parentRow, record) => {
+          const newRecord = { ...record, pid: parentRow.rowid };
+          appendRecords([newRecord]);
+          updateTreeNodeExpansion(parentRow, {
+            forceUpdate: true,
+            getNewRows: () => Promise.resolve([newRecord]),
+            updateRows: ([recordId], changes) => {
+              updateRecordByRecordId(recordId, changes);
+            },
+          });
+        },
+      }}
     />
   );
 }
@@ -452,11 +492,13 @@ export default connect(
     updateTableState: bindActionCreators(actions.updateTableState, dispatch),
     appendRecords: bindActionCreators(actions.appendRecords, dispatch),
     updateRecord: bindActionCreators(actions.updateRecord, dispatch),
+    updateRecordByRecordId: bindActionCreators(actions.updateRecordByRecordId, dispatch),
     deleteRecords: bindActionCreators(actions.deleteRecords, dispatch),
     handleRecreateRecord: bindActionCreators(actions.handleRecreateRecord, dispatch),
     updateCell: bindActionCreators(actions.updateCell, dispatch),
     updateSort: bindActionCreators(actions.updateSort, dispatch),
     handleRemoveRelation: bindActionCreators(actions.handleRemoveRelation, dispatch),
     handleSaveSheetLayout: bindActionCreators(actions.handleSaveSheetLayout, dispatch),
+    updateTreeNodeExpansion: bindActionCreators(actions.updateTreeNodeExpansion, dispatch),
   }),
 )(TableComp);

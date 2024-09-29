@@ -202,17 +202,21 @@ export default class UploadFiles extends Component {
     }
   }
 
-  handleOpenControlAttachmentInNewTab(fileID) {
+  handleOpenControlAttachmentInNewTab(fileID, options = {}) {
     const { controlId } = this.props;
     const recordBaseInfo = _.get(this, 'context.recordBaseInfo');
     if (!recordBaseInfo) {
       return;
     }
     openControlAttachmentInNewTab(
-      _.assign(_.pick(recordBaseInfo, ['appId', 'recordId', 'viewId', 'worksheetId']), {
-        controlId,
-        fileId: fileID,
-      }),
+      _.assign(
+        _.pick(recordBaseInfo, ['appId', 'recordId', 'viewId', 'worksheetId']),
+        {
+          controlId,
+          fileId: fileID,
+        },
+        options,
+      ),
     );
   }
 
@@ -596,7 +600,8 @@ export default class UploadFiles extends Component {
   renderQiniuUpload() {
     const _this = this;
     const { maxTotalSize } = this.state;
-    const { noTotal, dropPasteElement, from, projectId, appId, worksheetId, advancedSetting, checkValueByFilterRegex } = this.props;
+    const { noTotal, dropPasteElement, from, projectId, appId, worksheetId, advancedSetting, checkValueByFilterRegex } =
+      this.props;
     const isPublicWorkflow = _.get(window, 'shareState.isPublicWorkflowRecord');
     const isPublic = from === FROM.PUBLIC_ADD || from === FROM.WORKFLOW || window.isPublicWorksheet || isPublicWorkflow;
     const { licenseType } = _.find(md.global.Account.projects, item => item.projectId === projectId) || {};
@@ -769,7 +774,6 @@ export default class UploadFiles extends Component {
           _this.setState({
             temporaryData: _this.state.temporaryData.concat(addFiles),
           });
-
         }}
         onBeforeUpload={uploader => {
           _this.currentFile = uploader;

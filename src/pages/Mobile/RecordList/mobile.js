@@ -1,5 +1,5 @@
 import React, { Fragment, Component } from 'react';
-import {  Flex, ActivityIndicator } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import { withRouter } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { Icon } from 'ming-ui';
@@ -172,9 +172,9 @@ class RecordList extends Component {
     }
     if (workSheetLoading) {
       return (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
+        <div className="flexRow justifyContentCenter alignItemsCenter h100">
+          <SpinLoading color='primary' />
+        </div>
       );
     }
 
@@ -182,7 +182,11 @@ class RecordList extends Component {
       return <State type="sheet" />;
     }
 
-    return <Flex justify="center" align="center" className="w100 h100 relative">{this.renderContent()}</Flex>;
+    return (
+      <div className="flexRow justifyContentCenter alignItemsCenter w100 relative h100">
+        {this.renderContent()}
+      </div>
+    );
   }
 }
 

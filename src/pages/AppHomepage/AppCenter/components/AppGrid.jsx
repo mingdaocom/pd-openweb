@@ -554,7 +554,7 @@ export default function AppGrid(props) {
   const {
     setting = {},
     keywords,
-    activeGroup,
+    activeGroup = {},
     projectId,
     loading,
     myApps = [],
@@ -570,6 +570,8 @@ export default function AppGrid(props) {
     currentTheme,
     projectGroupsLang = [],
     myPermissions = [],
+    isOwnedApp,
+    ownedApps = [],
     ...rest
   } = props;
   const { actions } = rest;
@@ -867,7 +869,7 @@ export default function AppGrid(props) {
     );
   }, [currentGroupTab]);
 
-  if (activeGroup) {
+  if (!_.isEmpty(activeGroup) || isOwnedApp) {
     return (
       <Con>
         <SearchInputCon>
@@ -881,21 +883,25 @@ export default function AppGrid(props) {
               <GroupTitle
                 disabled
                 id={activeGroup.id}
-                title={_.get(projectGroupsLang, `${activeGroup.id}.data[0].value`) || activeGroup.name}
-                count={activeGroupApps.length}
-                isFolded={foldedMap[activeGroup.id]}
+                title={
+                  _.get(projectGroupsLang, `${activeGroup.id}.data[0].value`) || activeGroup.name || _l('我拥有的')
+                }
+                count={(isOwnedApp ? ownedApps : activeGroupApps).length}
+                isFolded={foldedMap[activeGroup.id || 'owned']}
                 projectId={projectId}
-                onClick={() => toggleFolded(activeGroup.id)}
+                onClick={() => toggleFolded(activeGroup.id || 'owned')}
               />
-              {keywords && !activeGroupApps.length && <div className="Font14 Gray_9e mTop24">{_l('无搜索结果')}</div>}
+              {keywords && !(isOwnedApp ? ownedApps : activeGroupApps).length && (
+                <div className="Font14 Gray_9e mTop24">{_l('无搜索结果')}</div>
+              )}
               <AppList
                 {...props}
-                allowCreate={allowCreate && !!activeGroup.id}
-                type="group"
+                allowCreate={allowCreate && (!!activeGroup.id || isOwnedApp)}
+                type={isOwnedApp ? 'owned' : 'group'}
                 groupId={activeGroup.id}
                 groupType={activeGroup.groupType}
                 projectId={projectId}
-                apps={activeGroupApps}
+                apps={isOwnedApp ? ownedApps : activeGroupApps}
               />
             </AppsCon>
           </ScrollCon>

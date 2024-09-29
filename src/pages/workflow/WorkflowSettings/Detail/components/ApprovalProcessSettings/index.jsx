@@ -1,8 +1,10 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import { Checkbox, Icon, Dropdown, Radio } from 'ming-ui';
+import { Checkbox, Icon, Dropdown, Radio, Menu, MenuItem, SortableList } from 'ming-ui';
 import UpdateFields from '../UpdateFields';
 import ProcessDetails from '../ProcessDetails';
 import OperatorEmpty from '../OperatorEmpty';
+import WriteFields from '../WriteFields';
+import CustomTextarea from '../CustomTextarea';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
@@ -10,6 +12,8 @@ import { OPERATION_TYPE, USER_TYPE, NODE_TYPE } from '../../../enum';
 import Member from '../Member';
 import { quickSelectUser } from 'ming-ui/functions';
 import { Tooltip } from 'antd';
+import sheetAjax from 'src/api/worksheet';
+import Trigger from 'rc-trigger';
 
 const TABS_ITEM = styled.div`
   display: inline-flex;
@@ -32,10 +36,39 @@ const TABS_ITEM = styled.div`
   }
 `;
 
+const SortableItemBox = styled.div`
+  padding: 1px 0;
+  .workflowPrintItem {
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  .icon-delete2 {
+    &:hover {
+      color: #f44336 !important;
+    }
+  }
+  .icon-new_word {
+    color: #2196f3;
+  }
+  .icon-new_excel {
+    color: #4caf50;
+  }
+  .icon-doc {
+    color: #465a65;
+  }
+  .red {
+    color: #f44336;
+  }
+`;
+
 export default props => {
-  const { companyId, processId, data, updateSource, cacheKey } = props;
+  const { companyId, processId, data, updateSource, cacheKey, selectNodeType } = props;
   const [tabIndex, setTabIndex] = useState(1);
   const [selected, setSelected] = useState(!!data.processConfig.requiredIds.length);
+  const [printList, setPrintList] = useState([]);
+  const worksheetId = selectNodeType === NODE_TYPE.FIRST ? data.appId : data.selectNodeObj.appId;
   const InitiatorAction = [
     { text: _l('允许发起人撤回'), key: 'allowRevoke' },
     { text: _l('允许审批人撤回'), key: 'allowTaskRevoke' },
@@ -49,7 +82,8 @@ export default props => {
   ];
   const TABS = [
     { text: _l('流程设置'), value: 1 },
-    { text: _l('数据更新'), value: 2 },
+    { text: _l('字段设置'), value: 2 },
+    { text: _l('数据更新'), value: 3 },
   ];
   const AutoPass = [
     { text: _l('发起人无需审批自动通过'), key: 'startEventPass' },
@@ -110,7 +144,7 @@ export default props => {
 
     return (
       <Fragment>
-        <div className="mTop10 mLeft25 flexRow" style={{ alignItems: 'center' }}>
+        <div className="mTop10 mLeft25 flexRow alignItemsCenter">
           <div>{_l('节点')}</div>
           <Dropdown
             className="mLeft10 flex flowDropdown flowDropdownMoreSelect"
@@ -200,13 +234,156 @@ export default props => {
       </Fragment>
     );
   };
+  const getPrintList = () => {
+    sheetAjax.getPrintList({ worksheetId }).then(data => {
+      setPrintList(
+        data
+          .filter(o => _.includes([0, 2, 5], o.type))
+          .map(o => {
+            return {
+              id: o.id,
+              type: o.type,
+              text: o.name,
+            };
+          }),
+      );
+    });
+  };
+  const renderPrintItem = ({ items, item, DragHandle, dragging }) => {
+    const selectItem = _.find(printList, o => o.id === item);
+
+    return (
+      <SortableItemBox className="flexRow mTop10 alignItemsCenter">
+        <DragHandle>
+          <Tooltip title={dragging ? '' : _l('拖拽调整排序')}>
+            <i className="icon-drag Font16 Gray_75 ThemeHoverColor3" style={{ cursor: 'move' }} />
+          </Tooltip>
+        </DragHandle>
+        <div className="flex mLeft10 Font13 workflowPrintItem flexRow alignItemsCenter">
+          {selectItem ? (
+            <Fragment>
+              <Icon
+                icon={selectItem.type === 2 ? 'new_word' : selectItem.type === 5 ? 'new_excel' : 'doc'}
+                className="Font20"
+              />
+              <span className="mLeft6 Font12">{selectItem.text}</span>
+            </Fragment>
+          ) : (
+            <span className="red">{_l('模板已删除')}</span>
+          )}
+        </div>
+        <Tooltip title={_l('删除')}>
+          <i
+            className="icon-delete2 Font16 Gray_75 pointer mLeft10"
+            onClick={() =>
+              updateSource({
+                processConfig: Object.assign({}, data.processConfig, { printIds: items.filter(id => id !== item) }),
+              })
+            }
+          />
+        </Tooltip>
+      </SortableItemBox>
+    );
+  };
+  const renderOpinionNode = () => {
+    const { revokeFlowNodes, viewNodeIds } = data.processConfig;
+    const opinionNodes = revokeFlowNodes.map(item => {
+      return {
+        text: item.name,
+        value: item.id,
+        disabled: _.includes(viewNodeIds || [], item.id),
+      };
+    });
+
+    return (
+      <div className="mTop10 mLeft25 flexRow alignItemsCenter">
+        <div>{_l('节点')}</div>
+        <Dropdown
+          className="mLeft10 flex flowDropdown flowDropdownMoreSelect"
+          menuStyle={{ width: '100%' }}
+          data={[opinionNodes, [{ text: _l('所有审批节点'), value: null, disabled: viewNodeIds === null }]]}
+          value={viewNodeIds || 'all'}
+          border
+          openSearch
+          renderTitle={
+            viewNodeIds === null
+              ? () => <span>{_l('所有审批节点')}</span>
+              : () => (
+                  <ul className="tagWrap">
+                    {viewNodeIds.map(id => {
+                      const item = _.find(revokeFlowNodes, item => item.id === id);
+
+                      return (
+                        <li key={id} className={cx('tagItem flexRow', { error: !item })}>
+                          <Tooltip title={item ? null : `ID：${id}`}>
+                            <span className="tag">{item ? item.name : _l('节点已删除')}</span>
+                          </Tooltip>
+                          <span
+                            className="delTag"
+                            onClick={e => {
+                              e.stopPropagation();
+                              const ids = [].concat(viewNodeIds);
+                              _.remove(ids, item => item === id);
+
+                              updateSource({
+                                processConfig: Object.assign({}, data.processConfig, { viewNodeIds: ids }),
+                              });
+                            }}
+                          >
+                            <Icon icon="close" className="pointer" />
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )
+          }
+          onChange={nodeId =>
+            updateSource({
+              processConfig: Object.assign({}, data.processConfig, {
+                viewNodeIds: nodeId === null ? null : (viewNodeIds || []).concat(nodeId),
+              }),
+            })
+          }
+        />
+      </div>
+    );
+  };
 
   useEffect(() => {
     setSelected(!!data.processConfig.requiredIds.length);
   }, [cacheKey]);
 
+  useEffect(() => {
+    worksheetId && getPrintList();
+  }, [worksheetId]);
+
   return (
     <Fragment>
+      <div className="Font13 mTop20">
+        <span className="bold">{_l('待办标题')}</span>
+        <span className="Gray_75">{_l('（未设置时显示记录的标题）')}</span>
+      </div>
+      <CustomTextarea
+        projectId={companyId}
+        processId={processId}
+        relationId={props.relationId}
+        selectNodeId={props.selectNodeId}
+        type={2}
+        height={0}
+        showCurrent
+        content={data.processConfig.recordTitle}
+        formulaMap={data.processConfig.formulaMap}
+        onChange={(err, value, obj) =>
+          updateSource({
+            processConfig: Object.assign({}, data.processConfig, { recordTitle: value }),
+          })
+        }
+        updateSource={(obj, callback = () => {}) =>
+          updateSource({ processConfig: Object.assign({}, data.processConfig, obj) }, callback)
+        }
+      />
+
       <div className="Font13 mTop20 bold">{_l('发起人操作')}</div>
       {InitiatorAction.map((item, i) => (
         <Fragment key={i}>
@@ -216,13 +393,36 @@ export default props => {
             checked={data.processConfig[item.key]}
             onClick={checked =>
               updateSource({
-                processConfig: Object.assign({}, data.processConfig, { [item.key]: !checked }),
+                processConfig: Object.assign(
+                  {},
+                  data.processConfig,
+                  { [item.key]: !checked },
+                  item.key === 'allowRevoke' && checked ? { callBackType: -1 } : {},
+                ),
               })
             }
           />
           {item.key === 'allowRevoke' && data.processConfig.allowRevoke && renderRevokeNode()}
         </Fragment>
       ))}
+
+      <Checkbox
+        className="mTop15 flexRow"
+        text={_l('允许发起人查看审批意见')}
+        checked={
+          _.isArray(data.processConfig.viewNodeIds)
+            ? !!data.processConfig.viewNodeIds.length
+            : data.processConfig.viewNodeIds === null
+        }
+        onClick={checked =>
+          updateSource({
+            processConfig: Object.assign({}, data.processConfig, { viewNodeIds: !checked ? null : [] }),
+          })
+        }
+      />
+      {(_.isArray(data.processConfig.viewNodeIds)
+        ? !!data.processConfig.viewNodeIds.length
+        : data.processConfig.viewNodeIds === null) && renderOpinionNode()}
 
       <div className="Font13 mTop20 bold">
         {_l('发起人为空时')}
@@ -438,6 +638,65 @@ export default props => {
             }
           />
 
+          <div className="Font13 mTop20 flexRow alignItemsCenter">
+            <div className="bold flex">{_l('打印模板')}</div>
+            <Checkbox
+              text={_l('系统打印模板')}
+              checked={!data.processConfig.disabledPrint}
+              onClick={disabledPrint =>
+                updateSource({ processConfig: Object.assign({}, data.processConfig, { disabledPrint }) })
+              }
+            />
+          </div>
+          <div></div>
+
+          <SortableList
+            useDragHandle
+            renderBody
+            items={data.processConfig.printIds}
+            renderItem={renderPrintItem}
+            onSortEnd={newItems => {
+              updateSource({ processConfig: Object.assign({}, data.processConfig, { printIds: newItems }) });
+            }}
+          />
+
+          <div className="mTop10">
+            <Trigger
+              popup={() => (
+                <Menu className="workflowPrintTrigger">
+                  {printList.map(o => (
+                    <MenuItem
+                      key={o.id}
+                      disabled={_.includes(data.processConfig.printIds, o.id)}
+                      onClick={() => {
+                        if (_.includes(data.processConfig.printIds, o.id)) return;
+
+                        updateSource({
+                          processConfig: Object.assign({}, data.processConfig, {
+                            printIds: data.processConfig.printIds.concat(o.id),
+                          }),
+                        });
+                      }}
+                    >
+                      <Icon icon={o.type === 2 ? 'new_word' : o.type === 5 ? 'new_excel' : 'doc'} className="Font20" />
+                      <span>{o.text}</span>
+                    </MenuItem>
+                  ))}
+                </Menu>
+              )}
+              action={printList.length ? ['click'] : []}
+              popupAlign={{
+                points: ['tl', 'bl'],
+                offset: [5, 5],
+                overflow: { adjustX: true, adjustY: true },
+              }}
+            >
+              <span className={cx('Gray_75', { 'pointer ThemeHoverColor3': !!printList.length })}>
+                {printList.length ? `+ ${_l('添加打印模板')}` : _l('无打印模板')}
+              </span>
+            </Trigger>
+          </div>
+
           <div className="Font13 mTop20 bold">{_l('其他')}</div>
           <div className="flexRow mTop15 alignItemsCenter">
             <Checkbox
@@ -494,14 +753,38 @@ export default props => {
 
       {tabIndex === 2 && (
         <Fragment>
+          <div className="Gray_75 mTop20">
+            {_l('设置发起人撤回或被退回重新处理时可以查看、编辑、必填的字段。未设置时按照发起人在应用中的原始记录权限')}
+          </div>
+
+          {props.selectNodeId ? (
+            <div className="Font13 mTop15">
+              <WriteFields
+                data={data.formProperties}
+                addNotAllowView={!!data.addNotAllowView}
+                updateSource={updateSource}
+                showCard={true}
+              />
+            </div>
+          ) : (
+            <div className="Gray_75 Font13 flexRow flowDetailTips mTop15">
+              <i className="icon-task-setting_promet Font16 Gray_9e" />
+              <div className="flex mLeft10">{_l('必须先选择一个对象后，才能设置字段权限')}</div>
+            </div>
+          )}
+        </Fragment>
+      )}
+
+      {tabIndex === 3 && (
+        <Fragment>
           {data.flowNodeMap ? (
             <Fragment>
-              <div className="Font13 bold mTop25">{_l('回到发起节点时')}</div>
+              <div className="Font13 bold mTop20">{_l('回到发起节点时')}</div>
               <div className="Font13 Gray_75 mTop10">{_l('当流程退回至此节点时触发更新')}</div>
               <UpdateFields
                 type={1}
-                companyId={props.companyId}
-                processId={props.processId}
+                companyId={companyId}
+                processId={processId}
                 relationId={props.relationId}
                 selectNodeId={props.selectNodeId}
                 nodeId={data.flowNodeMap[OPERATION_TYPE.BEFORE].selectNodeId}
@@ -524,7 +807,7 @@ export default props => {
               <ProcessDetails {...props} />
             </Fragment>
           ) : (
-            <div className="mTop25 Gray_75">{_l('节点异常，无法配置')}</div>
+            <div className="mTop20 Gray_75">{_l('节点异常，无法配置')}</div>
           )}
         </Fragment>
       )}

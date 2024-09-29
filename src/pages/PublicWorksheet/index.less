@@ -138,6 +138,27 @@ body,
   }
 }
 
+.fillWorksheetSection {
+  display: flex;
+  margin-left: -19px;
+  &.isFixedRight {
+    margin-left: 0;
+    flex-direction: row-reverse;
+    .relateRecordBlockCon {
+      padding-left: 0 !important;
+      padding-right: 24px;
+    }
+  }
+  & > .customFieldsContainer {
+    margin: 0 !important;
+  }
+  .relateRecordBlockCon {
+    flex: 1;
+    min-width: 0;
+    padding-left: 24px;
+  }
+}
+
 @media (min-width: 1200px) {
   .formContent {
     width: 1100px !important;

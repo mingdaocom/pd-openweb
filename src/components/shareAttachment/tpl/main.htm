@@ -21,7 +21,7 @@
         {{? it.showChangeDownload}}
         <div class="dItem">
             <div class="itemLabel">
-                {{=_l('允许下载')}}
+                {{=_l('允许下载%02071')}}
             </div>
             <div class="itemContent">
                 <div class="downloadableCon">
@@ -77,38 +77,40 @@
                     <span class="next icon icon-arrow-right-border ThemeHoverColor3 Hand"></span>
                     <div class="listBox overfllowHidden">
                         <div class="listCon">
-                            <div class="targetBtn chat" data-type="{{! it.SEND_TO_TYPE.CHAT.toString()}}">
-                                <span class="icon icon-to-chat-circle">
-                                </span>
-                                <p>{{=_l('发消息')}}</p>
-                            </div>
-                            {{? !md.global.SysSettings.forbidSuites.includes('1')}}
-                                <div class="targetBtn feed" data-type="{{! it.SEND_TO_TYPE.FEED}}">
-                                    <span class="icon icon-to-feed-circle"></span>
-                                    <p>{{=_l('发动态')}}</p>
+                            <div class="contentCon">
+                                <div class="targetBtn chat" data-type="{{! it.SEND_TO_TYPE.CHAT.toString()}}">
+                                    <span class="icon icon-to-chat-circle">
+                                    </span>
+                                    <p>{{=_l('发消息%02072')}}</p>
                                 </div>
-                            {{?}}
-                            {{? !md.global.SysSettings.forbidSuites.includes('2')}}
-                                <div class="targetBtn task" data-type="{{! it.SEND_TO_TYPE.TASK}}">
-                                    <span class="icon icon-to-task-circle"></span>
-                                    <p>{{=_l('发任务')}}</p>
-                                </div>
-                            {{?}}
-                            {{? !md.global.SysSettings.forbidSuites.includes('3')}}
-                                <div class="targetBtn calendar" data-type="{{! it.SEND_TO_TYPE.CALENDAR}}">
-                                    <span class="icon icon-calendar"></span>
-                                    <p>{{=_l('发日程')}}</p>
-                                </div>
-                            {{?}}
-                            {{? !md.global.SysSettings.forbidSuites.includes('4')}}
-                                <div class="targetBtn kc" data-type="{{! it.SEND_TO_TYPE.KC}}">
-                                    <span class="icon icon-to-kc-circle"></span>
-                                    <p>{{=_l('存入知识')}}</p>
-                                </div>
-                            {{?}}
-                            <div class="targetBtn qr" data-type="{{! it.SEND_TO_TYPE.QR}}">
-                                <span class="icon icon-invite-qrcode"></span>
-                                <p>{{=_l('二维码')}}</p>
+                                {{? !md.global.SysSettings.forbidSuites.includes('1')}}
+                                    <div class="targetBtn feed" data-type="{{! it.SEND_TO_TYPE.FEED}}">
+                                        <span class="icon icon-to-feed-circle"></span>
+                                        <p>{{=_l('发动态%02073')}}</p>
+                                    </div>
+                                {{?}}
+                                {{? !md.global.SysSettings.forbidSuites.includes('2')}}
+                                    <div class="targetBtn task" data-type="{{! it.SEND_TO_TYPE.TASK}}">
+                                        <span class="icon icon-to-task-circle"></span>
+                                        <p>{{=_l('发任务%02074')}}</p>
+                                    </div>
+                                {{?}}
+                                {{? !md.global.SysSettings.forbidSuites.includes('3')}}
+                                    <div class="targetBtn calendar" data-type="{{! it.SEND_TO_TYPE.CALENDAR}}">
+                                        <span class="icon icon-calendar"></span>
+                                        <p>{{=_l('发日程%02075')}}</p>
+                                    </div>
+                                {{?}}
+                                {{? !md.global.SysSettings.forbidSuites.includes('4')}}
+                                    <div class="targetBtn kc" data-type="{{! it.SEND_TO_TYPE.KC}}">
+                                        <span class="icon icon-to-kc-circle"></span>
+                                        <p>{{=_l('存入知识%02076')}}</p>
+                                    </div>
+                                {{?}}
+                                <!-- <div class="targetBtn qr" data-type="{{! it.SEND_TO_TYPE.QR}}">
+                                    <span class="icon icon-invite-qrcode"></span>
+                                    <p>{{=_l('二维码')}}</p>
+                                </div> -->
                             </div>
                         </div>
                     </div>

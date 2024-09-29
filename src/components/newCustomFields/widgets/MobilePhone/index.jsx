@@ -104,6 +104,9 @@ export default class Widgets extends Component {
         this.iti.setCountry(this.initialCountry());
       }
     }
+    if (nextProps.flag !== this.props.flag) {
+      this.setState({ maskStatus: _.get(nextProps, 'advancedSetting.datamask') === '1' });
+    }
   }
 
   componentWillUnmount() {

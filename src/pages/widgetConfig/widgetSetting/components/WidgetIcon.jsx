@@ -5,6 +5,7 @@ import { SettingItem } from '../../styled';
 import { DISPLAY_ICON } from '../../config/score';
 import DropdownWrapper from 'worksheet/components/DropdownWrapper';
 import { handleAdvancedSettingChange, getAdvanceSetting } from '../../util/setting';
+import cx from 'classnames';
 
 const WidgetIconStyle = styled.div`
   display: flex;
@@ -18,7 +19,7 @@ const WidgetIconStyle = styled.div`
     font-size: 22px;
     text-align: center;
     line-height: 34px;
-    border-radius: 2px;
+    border-radius: 3px;
     color: #9e9e9e;
     &:nth-child(8) {
       margin-right: 0px;
@@ -27,7 +28,10 @@ const WidgetIconStyle = styled.div`
       margin-right: 0px;
     }
     &:hover {
-      background: #2196f3;
+      background: #f5f5f5;
+    }
+    &.active {
+      background: #9e9e9e;
       color: #fff;
     }
   }
@@ -59,7 +63,7 @@ export default function WidgetIcon({ data, onChange }) {
             {DISPLAY_ICON.map(item => {
               return (
                 <div
-                  className="icon_item"
+                  className={cx('icon_item', { active: itemicon === item.name })}
                   onClick={() => {
                     onChange(handleAdvancedSettingChange(data, { itemicon: item.name }));
                   }}

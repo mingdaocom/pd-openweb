@@ -4,7 +4,6 @@ const initialState = {
   keywords: '',
   isSearching: false,
   result: {},
-  showSeachResult: false,
   searchValue: '',
 };
 
@@ -34,12 +33,6 @@ export default (state = initialState, action) => {
         keywords: '',
         result: {},
         isSearching: false,
-        showSeachResult: false,
-      };
-    case 'SHOW_SEACH_RESULT':
-      return {
-        ...state,
-        showSeachResult: true,
       };
     case 'UPDATE_SEARCH_VALUYE':
       return {

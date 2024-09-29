@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import { Input } from 'ming-ui';
@@ -77,13 +76,13 @@ export default class FilterItem extends Component {
       operateVisible: false,
     };
   }
-  @autobind
-  checkFilterEditable() {
+
+  checkFilterEditable = () => {
     const { filter, isCharge } = this.props;
     return filter.type === FILTER_TYPE.PUBLIC ? isCharge : filter.createAccountId === md.global.Account.accountId;
-  }
-  @autobind
-  renderConditions() {
+  };
+
+  renderConditions = () => {
     const { columns, filter, updateCondition, deleteCondition, updateFilter, projectId, appId } = this.props;
     const { relationType, conditions } = filter;
     const canEdit = this.checkFilterEditable();
@@ -117,9 +116,9 @@ export default class FilterItem extends Component {
         />
       );
     });
-  }
-  @autobind
-  renderOperate(canSave) {
+  };
+
+  renderOperate = canSave => {
     const { unsaved, isCharge, filter, onDelete, onCopy, onUpdateFilterType, onSave, onSaveAs } = this.props;
     const { operateVisible } = this.state;
     const canEdit = this.checkFilterEditable();
@@ -242,13 +241,13 @@ export default class FilterItem extends Component {
         <i className="icon icon-more_horiz moreOperateBtn" onClick={() => this.setState({ operateVisible: true })}></i>
       </Trigger>
     );
-  }
+  };
   checkNewFilter(filter) {
     const availableConditions = filter.conditions.filter(condition => checkConditionAvailable(condition));
     return !!availableConditions.length;
   }
-  @autobind
-  renameFilter(value) {
+
+  renameFilter = value => {
     const { filter, onRename } = this.props;
     if (!value) {
       alert(_l('请输入名称'), 3);
@@ -260,7 +259,7 @@ export default class FilterItem extends Component {
     if (filter.name !== value) {
       onRename(value);
     }
-  }
+  };
   render() {
     const {
       disableSave,

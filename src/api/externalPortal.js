@@ -211,6 +211,7 @@ export default {
   * @param {string} args.appId AppId
   * @param {boolean} args.getSystem 是否获取系统字段，这里只会添加（name,phone）
   * @param {string} args.exAccountId 外部账户Id
+  * @param {} args.lang
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -497,6 +498,7 @@ export default {
   * @param {string} args.viewId 视图Id
   * @param {string} args.appId 应用Id
   * @param {string} args.relationWorksheetId relationWorksheetId
+  * @param {string} args.relationViewId RelationViewId
   * @param {string} args.rowId 行id
   * @param {string} args.controlId 控件Id
   * @param {string} args.kanbanKey 全部看板，&#34;-1&#34;:无等于或无选项单看板，&#34;key&#34;:单看板数据,

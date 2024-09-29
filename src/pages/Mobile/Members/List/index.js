@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
 import cx from 'classnames';
-import { List, Flex, ActionSheet, Modal, ActivityIndicator, Button } from 'antd-mobile';
-import { Icon, Dialog } from 'ming-ui';
+import { Button, List, SpinLoading, ActionSheet, Dialog } from 'antd-mobile';
+import { Icon } from 'ming-ui';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 import { userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
@@ -15,16 +15,8 @@ import SelectOrgRole from '../../components/SelectOrgRole';
 import AppManagement from 'src/api/appManagement.js';
 import { getUserRole } from 'src/pages/worksheet/redux/actions/util';
 import './index.less';
-import '../index.less';
 import _ from 'lodash';
 
-const isIPhone = new RegExp('\\biPhone\\b|\\biPod\\b', 'i').test(window.navigator.userAgent);
-let wrapProps;
-if (isIPhone) {
-  wrapProps = {
-    onTouchStart: e => e.preventDefault(),
-  };
-}
 let modal = null;
 class MemberList extends Component {
   constructor(props) {
@@ -52,7 +44,9 @@ class MemberList extends Component {
     } else {
       modal = null;
     }
-    ActionSheet.close();
+    this.actionSheetHandler && this.actionSheetHandler.close();
+    this.actionDepartmentHandler && this.actionDepartmentHandler.close();
+    this.actionUserHandler && this.actionUserHandler.close();
   }
 
   showActionSheet = (roleId, userIds, roleType, data) => {
@@ -66,100 +60,93 @@ class MemberList extends Component {
           { name: _l('添加组织角色'), icon: 'group', iconClass: 'Font22' },
         ]
       : [addUser];
-    ActionSheet.showActionSheetWithOptions(
-      {
-        options: BUTTONS.map(item => (
-          <Fragment>
-            <Icon className={cx('mRight15 Gray_9e', item.iconClass)} icon={item.icon} />
-            <span className="Bold">{item.name}</span>
-          </Fragment>
-        )),
-        maskClosable: true,
-        'data-seed': 'logId',
-        message: (
-          <div className="flexRow header">
-            <span className="Font13">{_l('人员管理')}</span>
-            <div
-              className="closeIcon"
-              onClick={() => {
-                ActionSheet.close();
-              }}
-            >
-              <Icon icon="close" />
-            </div>
+    this.actionSheetHandler = ActionSheet.show({
+      actions: BUTTONS.map((item, index) => {
+        return {
+          key: index,
+          text: (
+            <Fragment>
+              <Icon className={cx('mRight15 Gray_9e', item.iconClass)} icon={item.icon} />
+              <span className="Bold">{item.name}</span>
+            </Fragment>
+          )
+        }
+      }),
+      extra: (
+        <div className="flexRow header">
+          <span className="Font13">{_l('人员管理')}</span>
+          <div className="closeIcon" onClick={() => this.actionSheetHandler.close()}>
+            <Icon icon="close" />
           </div>
-        ),
-        wrapProps,
-      },
-      buttonIndex => {
-        if (buttonIndex === -1) return;
-        if (buttonIndex === 0) {
+        </div>
+      ),
+      onAction: (action, index) => {
+        if (index === 0) {
           this.setState({
             type: 'user',
             selectUserVisible: true,
           });
         }
-        if (buttonIndex === 1 && detail.projectId) {
+        if (index === 1 && detail.projectId) {
           this.showActionDepartment();
         }
-        if (buttonIndex === 2 && detail.projectId) {
+        if (index === 2 && detail.projectId) {
           this.setState({ selectJobVisible: true, type: 'job' });
         }
-        if (buttonIndex === 3 && detail.projectId) {
+        if (index === 3 && detail.projectId) {
           this.setState({ selectOrgnizedRoleVisible: true, type: 'orgnizeRole' });
         }
-      },
-    );
+        this.actionSheetHandler.close();
+      }
+    });
   };
   showActionDepartment = (roleId, userIds, roleType, data) => {
     const BUTTONS = [
       { name: _l('仅选择当前部门'), selectValue: 'current' },
       { name: _l('选择当前部门下所有子部门'), selectValue: 'all' },
     ];
-    ActionSheet.showActionSheetWithOptions(
-      {
-        options: BUTTONS.map(item => (
-          <Fragment>
+    this.actionDepartmentHandler = ActionSheet.show({
+      actions: BUTTONS.map((item, index) => {
+        return {
+          key: index,
+          text: (
             <span className="Bold">{item.name}</span>
-          </Fragment>
-        )),
-        maskClosable: true,
-        'data-seed': 'logId',
-        message: (
-          <div className="flexRow header">
-            <span className="Font13">
-              <Icon
-                icon="arrow_back"
-                className="mRight10"
-                onClick={() => {
-                  ActionSheet.close();
-                  this.showActionSheet();
-                }}
-              />
-              {_l('添加部门')}
-            </span>
-            <div
-              className="closeIcon"
+          )
+        }
+      }),
+      extra: (
+        <div className="flexRow header">
+          <span className="Font13">
+            <Icon
+              icon="arrow_back"
+              className="mRight10"
               onClick={() => {
-                ActionSheet.close();
+                this.actionDepartmentHandler.close();
                 this.showActionSheet();
               }}
-            >
-              <Icon icon="close" />
-            </div>
+            />
+            {_l('添加部门')}
+          </span>
+          <div
+            className="closeIcon"
+            onClick={() => {
+              this.actionDepartmentHandler.close();
+              this.showActionSheet();
+            }}
+          >
+            <Icon icon="close" />
           </div>
-        ),
-        wrapProps,
-      },
-      buttonIndex => {
-        if (buttonIndex === -1) return;
+        </div>
+      ),
+      onAction: (action, index) => {
         this.setState({
           type: 'department',
           selectUserVisible: true,
-          selectDepartmentType: buttonIndex === 0 ? 'current' : 'all',
+          selectDepartmentType: index === 0 ? 'current' : 'all',
         });
-      },
-    );
+        this.actionDepartmentHandler.close();
+      }
+    });
   };
 
   handleSave = items => {
@@ -221,35 +208,32 @@ class MemberList extends Component {
       // 系统角色&当前用户为拥有者
       BUTTONS = BUTTONS_Owers;
     }
-
-    ActionSheet.showActionSheetWithOptions(
-      {
-        options: BUTTONS.map(item => (
-          <Fragment>
-            <Icon className={cx('mRight10', item.iconClass)} icon={item.icon} />
-            <span className="Bold">{item.name}</span>
-          </Fragment>
-        )),
-        destructiveButtonIndex: isSysRole && isOwner && isMe ? null : BUTTONS.length - 1,
-        maskClosable: true,
-        'data-seed': 'logId',
-        message: (
-          <div className="flexRow header">
-            <span className="Font13">{_l('人员管理')}</span>
-            <div
-              className="closeIcon"
-              onClick={() => {
-                ActionSheet.close();
-              }}
-            >
-              <Icon icon="close" />
+    this.actionUserHandler = ActionSheet.show({
+      actions: BUTTONS.map((item, index) => {
+        return {
+          key: index,
+          text: (
+            <div className={cx('flexRow alignItemsCenter', { Red: ['exit_to_app2', 'task-new-delete'].includes(item.icon) })}>
+              <Icon className={cx('mRight10', item.iconClass)} icon={item.icon} />
+              <span className="Bold">{item.name}</span>
             </div>
+          )
+        }
+      }),
+      extra: (
+        <div className="flexRow header">
+          <span className="Font13">
+            {_l('人员管理')}
+          </span>
+          <div
+            className="closeIcon"
+            onClick={() => this.actionUserHandler.close()}
+          >
+            <Icon icon="close" />
           </div>
-        ),
-        wrapProps,
-      },
-      buttonIndex => {
-        if (buttonIndex === -1) return;
+        </div>
+      ),
+      onAction: (action, buttonIndex) => {
         if (!isSysRole && buttonIndex === 0 && !isAllOrganization && !!accountId) {
           const param = {
             appId: params.appId,
@@ -267,26 +251,20 @@ class MemberList extends Component {
               }
             });
           } else {
-            modal = Modal.alert(
-              <span className="Font16 Gray bold">{_l('确认设置为角色负责人？')}</span>,
-              <div className="Font13 Gray pLeft15 pRight15">{_l('角色负责人可添加、移出当前角色下的成员')}</div>,
-              [
-                { text: _l('取消'), onPress: () => {}, style: 'default' },
-                {
-                  text: _l('确认'),
-                  onPress: () => {
-                    AppManagement.setRoleCharger(param).then(res => {
-                      if (res) {
-                        this.props.dispatch(actions.getMembersList(params.appId, params.roleId));
-                        alert(_l('设置成功'));
-                      } else {
-                        alert(_l('设置失败'), 2);
-                      }
-                    });
-                  },
-                },
-              ],
-            );
+            Dialog.confirm({
+              title: <span className="Font16 Gray bold">{_l('确认设置为角色负责人？')}</span>,
+              content: <div className="Font13 Gray pLeft15 pRight15">{_l('角色负责人可添加、移出当前角色下的成员')}</div>,
+              onConfirm: () => {
+                AppManagement.setRoleCharger(param).then(res => {
+                  if (res) {
+                    this.props.dispatch(actions.getMembersList(params.appId, params.roleId));
+                    alert(_l('设置成功'));
+                  } else {
+                    alert(_l('设置失败'), 2);
+                  }
+                });
+              }
+            });
           }
         } else if (isSysRole && isOwner && isMe && buttonIndex === 0) {
           // 将应用托付给他人
@@ -309,59 +287,45 @@ class MemberList extends Component {
         ) {
           if (isSysRole && isAdmin && isMe && !((detail.debugRole || {}).canDebug && !_.isEmpty(debugRoles))) {
             // 退出
-            modal = Modal.alert(_l('确认退出此角色吗 ?'), '', [
-              {
-                text: _l('取消'),
-                style: { color: '#2196F3' },
-                onPress: () => {},
-              },
-              {
-                text: _l('退出'),
-                style: { color: 'red' },
-                onPress: () => {
-                  this.props.dispatch(
-                    actions.exitRole({
-                      roleId: params.roleId,
-                      appId: params.appId,
-                      callback: () => {
-                        this.props.history.push(`/mobile/dashboard`);
-                      },
-                    }),
-                  );
-                },
-              },
-            ]);
+            Dialog.confirm({
+              content: _l('确认退出此角色吗 ?'),
+              onConfirm: () => {
+                this.props.dispatch(
+                  actions.exitRole({
+                    roleId: params.roleId,
+                    appId: params.appId,
+                    callback: () => {
+                      this.props.history.push(`/mobile/dashboard`);
+                    },
+                  }),
+                );
+              }
+            });
             return;
           }
           // 移除
-          modal = Modal.alert(_l('是否移除该成员？'), '', [
-            {
-              text: _l('取消'),
-              style: { color: '#2196F3' },
-              onPress: () => {},
-            },
-            {
-              text: _l('移除'),
-              style: { color: 'red' },
-              onPress: () => {
-                this.props.dispatch(
-                  actions.removeUserFromRole({
-                    projectId: detail.projectId,
-                    appId: params.appId,
-                    roleId: params.roleId,
-                    userIds: accountId ? [accountId] : [],
-                    departmentIds: departmentId ? [departmentId] : [],
-                    departmentTreeIds: departmentTreeId ? [departmentTreeId] : [],
-                    projectOrganizeIds: projectOrganizeId ? [projectOrganizeId] : [],
-                    jobIds: jobId ? [jobId] : [],
-                  }),
-                );
-              },
-            },
-          ]);
+          Dialog.confirm({
+            content: _l('是否移除该成员？'),
+            confirmText: <span className="Red">{_l('移除')}</span>,
+            onConfirm: () => {
+              this.props.dispatch(
+                actions.removeUserFromRole({
+                  projectId: detail.projectId,
+                  appId: params.appId,
+                  roleId: params.roleId,
+                  userIds: accountId ? [accountId] : [],
+                  departmentIds: departmentId ? [departmentId] : [],
+                  departmentTreeIds: departmentTreeId ? [departmentTreeId] : [],
+                  projectOrganizeIds: projectOrganizeId ? [projectOrganizeId] : [],
+                  jobIds: jobId ? [jobId] : [],
+                }),
+              );
+            }
+          });
         }
-      },
-    );
+        this.actionUserHandler.close();
+      }
+    });
   };
 
   renderUserTag = (roleType, isOwner) => {
@@ -465,15 +429,15 @@ class MemberList extends Component {
     return (
       <div className="memberListWrapper h100">
         {this.renderBase()}
-        <Flex align="center" justify="between" className="TxtMiddle TxtCenter h100">
-          <Flex.Item className="flexColumn valignWrapper">
+        <div className="flexRow alignItemsCenter TxtMiddle TxtCenter h100">
+          <div className="flex flexColumn valignWrapper">
             <img src={noMmberImg} alt={_l('暂无成员')} width="110" />
             <br />
             <p className="mTop0 Gray_bd Font17">{_l('暂无成员')}</p>
             {canEditUser && !window.isPublicApp && (
               <Button
                 className="addUserButton"
-                type="primary"
+                color="primary"
                 onClick={() => {
                   this.showActionSheet(data.roleId, data.userIds, data.roleType, data);
                 }}
@@ -481,8 +445,8 @@ class MemberList extends Component {
                 {_l('添加成员')}
               </Button>
             )}
-          </Flex.Item>
-        </Flex>
+          </div>
+        </div>
       </div>
     );
   };
@@ -539,8 +503,6 @@ class MemberList extends Component {
           className="listCon"
           arrow={
             canEditUser && (item.isOwner ? item.accountId === md.global.Account.accountId : true)
-              ? 'horizontal'
-              : 'empty'
           }
           onClick={() => {
             canEditUser &&
@@ -571,10 +533,9 @@ class MemberList extends Component {
     isAdmin = isAdmin || isOwner;
 
     return (
-      <div className="memberListWrapper h100 pBottom44">
+      <div className="memberListWrapper h100 pBottom44 flexColumn">
         {this.renderBase()}
-
-        <List className="ListSection">{this.renderItem(data)}</List>
+        <List className="ListSection flex" style={{ overflow: 'auto' }}>{this.renderItem(data)}</List>
         {(data.canSetMembers || isAdmin) &&
           !(
             detail.permissionType === APP_ROLE_TYPE.RUNNER_ROLE && ['all', 'apply', 'outsourcing'].includes(data.roleId)
@@ -594,9 +555,9 @@ class MemberList extends Component {
     const { isListLoading } = this.props;
     if (isListLoading) {
       return (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
+        <div className="flexRow justifyContentCenter alignItemsCenter h100">
+          <SpinLoading color='primary' />
+        </div>
       );
     }
     const { params } = this.props.match;

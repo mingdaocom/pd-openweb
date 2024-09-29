@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './portalSort.less';
 import styled from 'styled-components';
-import { Icon, Dropdown, Checkbox } from 'ming-ui';
+import { Icon, Dropdown, Checkbox, SortableList } from 'ming-ui';
 import cx from 'classnames';
 import { DEFAULT_DATA, DEFAULT_CONFIG } from 'src/pages/widgetConfig/config/widget';
 import { v4 as uuidv4 } from 'uuid';
 import { enumWidgetType } from 'src/pages/widgetConfig/util';
-import { SortableContainer, SortableElement, SortableHandle } from '@mdfe/react-sortable-hoc';
 import PortalSettingDialog from 'src/pages/widgetConfig/widgetSetting/components/PortalSettingDialog';
 import _ from 'lodash';
 
@@ -109,22 +108,24 @@ const initData = (enumType, type, controlId) => {
     fieldPermission: '110', //默认收集
   };
 };
-const SortHandle = SortableHandle(() => <Icon className="mRight12 Font16 Hand Gray_9e" icon="drag" />);
 
-const Item = SortableElement(props => {
+const Item = props => {
   let {
     type,
     showEditDialog,
     deleteBtn,
     onChange,
-    isRequired,
+    required,
     fieldPermission = '111',
     controlName,
     controlId,
+    DragHandle,
   } = props;
   return (
     <WrapSorh className="mBottom10 porTalSort flexRow">
-      <SortHandle />
+      <DragHandle className="alignItemsCenter flexRow">
+        <Icon className="mRight12 Font16 Hand Gray_9e" icon="drag" />
+      </DragHandle>
       {type ? (
         <span className="InlineBlock controlN">
           {DEFAULT_CONFIG[WIDGETS_TO_API_TYPE_ENUM_N[type] || 'TEXT'].widgetName}
@@ -165,9 +166,9 @@ const Item = SortableElement(props => {
       <Checkbox
         className="TxtLeft InlineBlock Hand required"
         text={''}
-        checked={isRequired}
+        checked={required}
         onClick={() => {
-          onChange({ required: !isRequired, controlId });
+          onChange({ required: !required, controlId });
         }}
       />
       <Icon
@@ -190,30 +191,7 @@ const Item = SortableElement(props => {
       />
     </WrapSorh>
   );
-});
-
-const SortableList = SortableContainer(({ items, showEditDialog, deleteBtn, onChange }) => {
-  return (
-    <div className="">
-      {_.map(items, (item, index) => {
-        return (
-          <Item
-            {...item}
-            controlName={item.controlName}
-            type={item.type}
-            index={index + 1} //很重要
-            isRequired={item.required}
-            fieldPermission={item.fieldPermission}
-            key={'item_' + index}
-            showEditDialog={showEditDialog.bind(item)}
-            deleteBtn={deleteBtn.bind(item)}
-            onChange={onChange.bind(item)}
-          />
-        );
-      })}
-    </div>
-  );
-});
+};
 
 export default function InfoSet(props) {
   const { portal = {}, appId } = props;
@@ -269,12 +247,8 @@ export default function InfoSet(props) {
       }),
     );
   };
-  const handleSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-    const list = controls.slice();
-    const currentItem = list.splice(oldIndex, 1)[0];
-    list.splice(newIndex, 0, currentItem);
-    handleMoveApp(list);
+  const handleSortEnd = list => {
+    handleMoveApp([controls[0], ...list]);
   };
   const renderCon = () => {
     return (
@@ -369,31 +343,40 @@ export default function InfoSet(props) {
           <Checkbox className="TxtLeft InlineBlock Hand required" text={''} disabled checked={controls[0].required} />
           <div style={{ width: 46 }} />
         </WrapSorh>
-        <SortableList
-          items={controls.filter((o, i) => i !== 0)}
-          useDragHandle
-          onSortEnd={handleSortEnd}
-          helperClass={'portalList'}
-          onChange={control => {
-            setHs(true);
-            setControls(
-              controls.map(o => {
-                if (o.controlId === control.controlId) {
-                  return { ...o, ...control };
-                }
-                return o;
-              }),
-            );
-          }}
-          showEditDialog={(controlId, type) => {
-            setCurrenControl(controls.find(o => o.controlId === controlId));
-            setShow(true);
-          }}
-          deleteBtn={controlId => {
-            setHs(true);
-            setControls(controls.filter(o => o.controlId !== controlId));
-          }}
-        />
+        <div className="">
+          <SortableList
+            itemKey="controlId"
+            items={controls.filter((o, i) => i !== 0)}
+            useDragHandle
+            onSortEnd={handleSortEnd}
+            helperClass={'portalList'}
+            renderItem={options => (
+              <Item
+                {...options}
+                {...options.item}
+                onChange={control => {
+                  setHs(true);
+                  setControls(
+                    controls.map(o => {
+                      if (o.controlId === control.controlId) {
+                        return { ...o, ...control };
+                      }
+                      return o;
+                    }),
+                  );
+                }}
+                showEditDialog={(controlId, type) => {
+                  setCurrenControl(controls.find(o => o.controlId === controlId));
+                  setShow(true);
+                }}
+                deleteBtn={controlId => {
+                  setHs(true);
+                  setControls(controls.filter(o => o.controlId !== controlId));
+                }}
+              />
+            )}
+          />
+        </div>
       </React.Fragment>
     );
   };

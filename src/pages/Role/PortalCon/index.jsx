@@ -14,6 +14,8 @@ import UserCon from './tabCon/UserCon';
 import RoleCon from './tabCon/RoleCon';
 import { navigateTo } from 'router/navigateTo';
 import _ from 'lodash';
+// import { VersionProductType } from 'src/util/enum';
+// import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 
 const Wrap = styled.div`
   width: 60%;
@@ -46,20 +48,33 @@ const Wrap = styled.div`
     }
   }
   .setBtn {
-    margin-left: 14px;
-    height: 32px;
-    line-height: 30px;
+    margin-left: 10px;
+    line-height: 32px;
     padding: 0 20px;
-    background: #ffffff;
-    border: 1px solid #2196f3;
+    background: #2196f3;
     border-radius: 3px;
     text-align: center;
-    color: #2196f3;
+    color: #fff;
+    font-weight: 700;
     overflow: hidden;
     &:hover {
-      color: #ffffff;
-      background: #2196f3;
+      background: #1e88e5;
     }
+  }
+`;
+const PayButton = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  line-height: 32px;
+  margin-left: 10px;
+  border-radius: 3px;
+  color: #2196f3;
+  background: #e3f2ff;
+  &:hover {
+    color: #1c80d0;
+    background: #d6edff;
   }
 `;
 const conList = [
@@ -166,6 +181,7 @@ class PortalCon extends React.Component {
     if (!canEditUser) {
       tablist = tablist.filter(o => !['user', 'statistics'].includes(o.key));
     }
+    // const featureType = getFeatureStatus(appDetail.projectId, VersionProductType.PAY);
     return (
       <WrapCon className="flexColumn overflowHidden">
         <WrapHeader className="">
@@ -214,15 +230,31 @@ class PortalCon extends React.Component {
                     : _l('可以将链接放在微信公众号的自定义菜单与自动回复内，方便微信用户关注公众号后随时打开此链接')
                 }
               />
+              {/* {featureType && (
+                <PayButton
+                  className="Bold Hand"
+                  onClick={() => {
+                    if (featureType === '2') {
+                      buriedUpgradeVersionDialog(appDetail.projectId, VersionProductType.PAY);
+                      return;
+                    }
+                    location.href = `/worksheet/form/edit/${_.get(portalSet, 'portalSetModel.worksheetId')}/pay`;
+                  }}
+                >
+                  <i className="icon icon-sp_payment_white Font20 mRight5" />
+                  {_l('支付')}
+                </PayButton>
+              )} */}
               {canEditApp && (
                 <span
-                  className="setBtn Hand"
+                  className="setBtn Hand flexRow alignItemsCenter"
                   onClick={() =>
                     this.setState({
                       showPortalSetting: true,
                     })
                   }
                 >
+                  <i className="icon icon-settings Font18 mRight5" />
                   {_l('门户设置')}
                 </span>
               )}

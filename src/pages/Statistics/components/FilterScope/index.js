@@ -1,7 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
 import { Select, DatePicker, Input, Dropdown, Menu } from 'antd';
-import { Icon, ScrollView } from 'ming-ui';
+import { Icon, ScrollView, TimeZoneTag, Dialog } from 'ming-ui';
 import {
   dropdownScopeData,
   dropdownDayData,
@@ -12,9 +12,11 @@ import {
   timeTypes,
   unitTypes,
 } from 'statistics/common';
+import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
+import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
+import { filterData } from 'src/pages/FormSet/components/columnRules/config';
 import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
-import SingleFilter from 'worksheet/common/WorkSheetFilter/common/SingleFilter';
-import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
+import { redefineComplexControl, formatValuesOfOriginConditions } from 'worksheet/common/WorkSheetFilter/util';
 import { CONTROL_FILTER_WHITELIST } from 'worksheet/common/WorkSheetFilter/enum';
 import { reportTypes } from 'statistics/Charts/common';
 import 'moment/locale/zh-cn';
@@ -27,7 +29,7 @@ import * as actions from 'statistics/redux/actions';
 import { formatNumberFromInput } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
-import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
+import './index.less';
 
 const { RangePicker } = DatePicker;
 
@@ -51,6 +53,9 @@ export default class extends Component {
       particleSizeType: xaxes ? xaxes.particleSizeType : 0,
       dynamicFilter: { startType: 1, startCount: 1, startUnit: 1, endType: 1, endCount: 1, endUnit: 1 },
       customRangeDay: false,
+      visible: false,
+      filterConditions: [],
+      showFilterConditions: [],
     };
   }
   getTableData = () => {
@@ -395,7 +400,7 @@ export default class extends Component {
     const { currentReport } = this.props;
     const { xaxes } = currentReport;
     const { particleSizeType } = this.state;
-    const timeData = function() {
+    const timeData = (function () {
       if (xaxes.controlType === 16) {
         return timeDataParticle;
       }
@@ -403,7 +408,7 @@ export default class extends Component {
         return timeDataParticle.filter(item => [6, 7, 13].includes(item.value));
       }
       return timeDataParticle.filter(item => ![6, 7].includes(item.value));
-    }();
+    })();
     const timeDataIndex = _.findIndex(timeData, { value: particleSizeType });
     const timeGatherParticleIndex = _.findIndex(timeGatherParticle, { value: particleSizeType });
     return (
@@ -414,12 +419,15 @@ export default class extends Component {
           value={xaxes.particleSizeType}
           suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
           onChange={value => {
-            this.props.changeCurrentReport({
-              xaxes: {
-                ...xaxes,
-                particleSizeType: value
-              }
-            }, true);
+            this.props.changeCurrentReport(
+              {
+                xaxes: {
+                  ...xaxes,
+                  particleSizeType: value,
+                },
+              },
+              true,
+            );
           }}
         >
           {_.find(timeData, { value: xaxes.particleSizeType }) && (
@@ -449,7 +457,8 @@ export default class extends Component {
     );
   }
   render() {
-    const { dropdownScopeValue, dropdownDayValue, currentRangeType } = this.state;
+    const { visible, filterConditions, showFilterConditions, dropdownScopeValue, dropdownDayValue, currentRangeType } =
+      this.state;
     const { projectId, worksheetInfo, currentReport } = this.props;
     const { appType = 1 } = currentReport;
     const xaxes = _.get(currentReport, 'xaxes') || {};
@@ -492,41 +501,92 @@ export default class extends Component {
               <div className="Font12 Bold mBottom10 mTop20 pTop10 flexRow" style={{ borderTop: '1px solid #E0E0E0' }}>
                 <span className="flex">{_l('筛选')}</span>
               </div>
-              <SingleFilter
-                canEdit
-                projectId={projectId}
-                appId={worksheetInfo.appId}
-                columns={controls}
-                conditions={[]}
-                filterResigned={false}
-                onConditionsChange={_.debounce((conditions = [], localConditions) => {
-                  conditions = conditions.map(item => {
-                    const isTime = isTimeControl(item.dataType);
-                    const isMoment = moment.isMoment(item.value);
-                    if (isTime && isMoment) {
-                      return {
-                        ...item,
-                        value: item.value.format('YYYY-MM-DD'),
-                      };
-                    } else {
-                      return item;
-                    }
-                  });
-                  this.props.changeCurrentReport(
-                    {
-                      filter: {
-                        ...filter,
-                        filterControls: conditions,
+              {showFilterConditions.length ? (
+                <FilterItemTexts
+                  className="WhiteBG"
+                  loading={false}
+                  filterItemTexts={filterData(worksheetInfo.columns, showFilterConditions)}
+                  onClear={() => {
+                    this.setState({
+                      filterConditions: [],
+                      showFilterConditions: [],
+                    });
+                    this.props.changeCurrentReport(
+                      {
+                        filter: {
+                          ...filter,
+                          filterControls: [],
+                        },
                       },
-                    },
-                    true,
-                  );
-                  this.getTableData();
-                }, 200)}
-              />
+                      true,
+                    );
+                    this.getTableData();
+                  }}
+                  editFn={() => this.setState({ visible: true })}
+                />
+              ) : (
+                <div
+                  className="filterWrapper flexRow alignItemsCenter Gray_bd Font13 Hover_21"
+                  onClick={() => this.setState({ visible: true })}
+                >
+                  {_l('添加筛选字段')}
+                </div>
+              )}
             </div>
           </div>
         </ScrollView>
+        <Dialog
+          visible={visible}
+          title={_l('筛选')}
+          okText={_l('确定')}
+          cancelText={_l('取消')}
+          onCancel={() => this.setState({ visible: false })}
+          onOk={() => {
+            this.setState({ visible: false });
+            this.setState({
+              showFilterConditions: this.state.filterConditions,
+            });
+            const conditions = this.state.filterConditions.map(item => {
+              const isTime = isTimeControl(item.dataType);
+              const isMoment = moment.isMoment(item.value);
+              if (isTime && isMoment) {
+                return {
+                  ...item,
+                  value: item.value.format('YYYY-MM-DD'),
+                };
+              } else {
+                return item;
+              }
+            });
+            this.props.changeCurrentReport(
+              {
+                filter: {
+                  ...filter,
+                  filterControls: formatValuesOfOriginConditions(conditions),
+                },
+              },
+              true,
+            );
+            this.getTableData();
+          }}
+        >
+          <FilterConfig
+            canEdit
+            showSystemControls
+            feOnly
+            supportGroup
+            projectId={projectId || worksheetInfo.projectId}
+            appId={worksheetInfo.appId}
+            columns={worksheetInfo.columns}
+            conditions={filterConditions}
+            filterResigned={false}
+            onConditionsChange={conditions => {
+              this.setState({
+                filterConditions: conditions.filter(n => (n.isGroup ? n.groupFilters.length : true)),
+              });
+            }}
+          />
+        </Dialog>
       </div>
     );
   }

@@ -72,6 +72,10 @@ window.utils = {};
   window.api[functionName] = args => window.callMdApi(functionName, args);
 });
 
+window.api.call = (controller, action, data) => {
+  return window.callMd('call-main-web', [controller, action].join('/'), { controller, action, data });
+};
+
 [
   'selectUsers',
   'openNewRecord',

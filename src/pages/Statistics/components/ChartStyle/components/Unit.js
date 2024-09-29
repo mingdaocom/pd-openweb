@@ -76,90 +76,108 @@ class Unit extends Component {
   render() {
     const { data, currentReport = {} } = this.props;
     const { reportType, pivotTable = {} } = currentReport;
-    const { magnitude, roundType, dotFormat, ydot, dot, suffix, fixType, controlType, showNumber = true, showPercent = 0 } = data;
+    const { magnitude, roundType, dotFormat, ydot, dot, suffix, fixType, controlType, showNumber = true, percent = {} } = data;
     const sheetDot = magnitude === 1 && ydot === '';
     const isPivotTable = reportTypes.PivotTable === reportType;
     const { lines = [] } = pivotTable;
     const subTotalSwitchChecked = !lines.slice(1, lines.length).filter(n => n.subTotal).length;
     return (
       <Fragment>
-        <div className="mBottom15">
-          <div className="mBottom8">{_l('数值数量级')}</div>
-          <Select
-            className="chartSelect w100"
-            value={magnitude}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
-            onChange={value => {
-              this.handleChangeMagnitude(value, data);
-            }}
-          >
-            {numberLevel.map(item => (
-              <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                {item.text}
-              </Select.Option>
-            ))}
-          </Select>
-        </div>
-        <div className="mBottom15">
-          <div className="mBottom8">{_l('保留小数')}</div>
-          <Input
-            className="chartInput"
-            value={sheetDot ? undefined : ydot}
-            placeholder={sheetDot && _l('按工作表字段配置显示')}
-            onChange={event => {
-              this.handleChangeYdot(event.target.value.replace(/-/g, ''), data);
-            }}
-            suffix={
-              <div className="flexColumn">
-                <Icon
-                  icon="expand_less"
-                  className="Gray_9e Font20 pointer mBottom2"
-                  onClick={() => {
-                    let newYdot = Number(ydot);
-                    this.handleChangeYdot(newYdot + 1, data);
-                  }}
-                />
-                <Icon
-                  icon="expand_more"
-                  className="Gray_9e Font20 pointer mTop2"
-                  onClick={() => {
-                    let newYdot = Number(ydot);
-                    this.handleChangeYdot(newYdot ? newYdot - 1 : 0, data);
-                  }}
-                />
-              </div>
-            }
-          />
-          <Select
-            className="chartSelect w100 mTop10"
-            value={roundType}
-            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
-            onChange={value => {
-              this.handleChangeYaxis('roundType', value, data);
-            }}
-          >
-            {roundTypes.map(item => (
-              <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
-                {item.text}
-              </Select.Option>
-            ))}
-          </Select>
-          <div className="flexRow valignWrapper mTop10">
+        {isPivotTable && (
+          <div className="flexRow valignWrapper mBottom12">
             <Checkbox
               className="flexRow"
-              checked={dotFormat === '1'}
-              onChange={() => {
-                const value = dotFormat === '1' ? '0' : '1';
-                this.handleChangeYaxis('dotFormat', value, data);
+              checked={showNumber}
+              onChange={e => {
+                const { checked } = e.target;
+                this.handleChangeYaxis('showNumber', checked, data);
               }}
             >
-              {_l('省略末尾的 0')}
+              {_l('数值')}
             </Checkbox>
-            <Tooltip title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')} placement="bottom" arrowPointAtCenter>
-              <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
-            </Tooltip>
           </div>
-        </div>
+        )}
+        {(isPivotTable ? showNumber : true) && (
+          <Fragment>
+            <div className="mBottom15">
+              <div className="mBottom8">{_l('数值数量级')}</div>
+              <Select
+                className="chartSelect w100"
+                value={magnitude}
+                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                onChange={value => {
+                  this.handleChangeMagnitude(value, data);
+                }}
+              >
+                {numberLevel.map(item => (
+                  <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
+                    {item.text}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+            <div className="mBottom15">
+              <div className="mBottom8">{_l('保留小数')}</div>
+              <Input
+                className="chartInput"
+                value={sheetDot ? undefined : ydot}
+                placeholder={sheetDot && _l('按工作表字段配置显示')}
+                onChange={event => {
+                  this.handleChangeYdot(event.target.value.replace(/-/g, ''), data);
+                }}
+                suffix={
+                  <div className="flexColumn">
+                    <Icon
+                      icon="expand_less"
+                      className="Gray_9e Font20 pointer mBottom2"
+                      onClick={() => {
+                        let newYdot = Number(ydot);
+                        this.handleChangeYdot(newYdot + 1, data);
+                      }}
+                    />
+                    <Icon
+                      icon="expand_more"
+                      className="Gray_9e Font20 pointer mTop2"
+                      onClick={() => {
+                        let newYdot = Number(ydot);
+                        this.handleChangeYdot(newYdot ? newYdot - 1 : 0, data);
+                      }}
+                    />
+                  </div>
+                }
+              />
+              <Select
+                className="chartSelect w100 mTop10"
+                value={roundType}
+                suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                onChange={value => {
+                  this.handleChangeYaxis('roundType', value, data);
+                }}
+              >
+                {roundTypes.map(item => (
+                  <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
+                    {item.text}
+                  </Select.Option>
+                ))}
+              </Select>
+              <div className="flexRow valignWrapper mTop10">
+                <Checkbox
+                  className="flexRow"
+                  checked={dotFormat === '1'}
+                  onChange={() => {
+                    const value = dotFormat === '1' ? '0' : '1';
+                    this.handleChangeYaxis('dotFormat', value, data);
+                  }}
+                >
+                  {_l('省略末尾的 0')}
+                </Checkbox>
+                <Tooltip title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')} placement="bottom" arrowPointAtCenter>
+                  <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+                </Tooltip>
+              </div>
+            </div>
+          </Fragment>
+        )}
         <div className="mBottom15">
           <div className="mBottom8">{_l('单位')}</div>
           <div className="addonBeforeWrapper valignWrapper">
@@ -186,50 +204,118 @@ class Unit extends Component {
             />
           </div>
         </div>
-        {/*isPivotTable && (
+        {isPivotTable && (
           <div className="mBottom15">
-            <div className="mBottom8">{_l('数据显示方式')}</div>
             <div className="flexRow valignWrapper mTop10">
               <Checkbox
                 className="flexRow"
-                checked={showNumber}
-                disabled={showNumber && showPercent === 0}
-                onChange={e => {
-                  const { checked } = e.target;
-                  this.handleChangeYaxis('showNumber', checked, data);
-                }}
-              >
-                {_l('显示数值')}
-              </Checkbox>
-            </div>
-            <div className="flexRow valignWrapper mTop10">
-              <Checkbox
-                className="flexRow"
-                checked={showPercent !== 0}
-                disabled={showPercent && !showNumber}
-                onChange={() => {
-                  this.handleChangeYaxis('showPercent', showPercent ? 0 : 1, data);
+                checked={percent.enable}
+                onChange={event => {
+                  this.handleChangeYaxis('percent', {
+                    ...percent,
+                    enable: event.target.checked
+                  }, data);
                 }}
               >
                 {_l('显示百分比')}
               </Checkbox>
             </div>
-            {!!showPercent && (
-              <div className="flexRow valignWrapper mTop10">
-                <Radio.Group
-                  value={showPercent}
-                  onChange={e => {
-                    const { value } = e.target;
-                    this.handleChangeYaxis('showPercent', value, data);
-                  }}
-                >
-                  <Radio disabled={subTotalSwitchChecked} value={2}>{_l('按小计')}</Radio>
-                  <Radio value={1}>{_l('按总计')}</Radio>
-                </Radio.Group>
-              </div>
+            {percent.enable && (
+              <Fragment>
+                <div className="flexRow valignWrapper mTop10">
+                  <Radio.Group
+                    value={percent.type}
+                    onChange={e => {
+                      const { value } = e.target;
+                      this.handleChangeYaxis('percent', {
+                        ...percent,
+                        type: value
+                      }, data);
+                    }}
+                  >
+                    <Radio className="Font13" disabled={subTotalSwitchChecked} value={1}>{_l('按小计')}</Radio>
+                    <Radio className="Font13" value={2}>{_l('按总计')}</Radio>
+                  </Radio.Group>
+                </div>
+                <div className="mTop15 mBottom15">
+                  <div className="mBottom8">{_l('保留小数')}</div>
+                  <Input
+                    className="chartInput"
+                    value={percent.dot}
+                    onChange={event => {
+                      const count = Number(event.target.value.replace(/-/g, ''));
+                      this.handleChangeYaxis('percent', {
+                        ...percent,
+                        dot: count >= 9 ? 9 : count
+                      }, data);
+                    }}
+                    suffix={
+                      <div className="flexColumn">
+                        <Icon
+                          icon="expand_less"
+                          className="Gray_9e Font20 pointer mBottom2"
+                          onClick={() => {
+                            let newYdot = Number(percent.dot);
+                            this.handleChangeYaxis('percent', {
+                              ...percent,
+                              dot: newYdot >= 9 ? 9 : newYdot + 1
+                            }, data);
+                          }}
+                        />
+                        <Icon
+                          icon="expand_more"
+                          className="Gray_9e Font20 pointer mTop2"
+                          onClick={() => {
+                            let newYdot = Number(percent.dot);
+                            this.handleChangeYaxis('percent', {
+                              ...percent,
+                              dot: newYdot ? newYdot - 1 : 0
+                            }, data);
+                          }}
+                        />
+                      </div>
+                    }
+                  />
+                  <Select
+                    className="chartSelect w100 mTop10"
+                    value={percent.roundType}
+                    suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+                    onChange={value => {
+                      this.handleChangeYaxis('percent', {
+                        ...percent,
+                        roundType: value
+                      }, data);
+                    }}
+                  >
+                    {roundTypes.map(item => (
+                      <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
+                        {item.text}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                  <div className="flexRow valignWrapper mTop10">
+                    <Checkbox
+                      className="flexRow"
+                      checked={percent.dotFormat === '1'}
+                      onChange={() => {
+                        const value = percent.dotFormat === '1' ? '0' : '1';
+                        this.handleChangeYaxis('percent', {
+                          ...percent,
+                          dotFormat: value
+                        }, data);
+                      }}
+                    >
+                      {_l('省略末尾的 0')}
+                    </Checkbox>
+                    <Tooltip title={_l('勾选后，不足小数位数时省略末尾的0。如设置4位小数时，默认显示完整精度2.800，勾选后显示为2.8')} placement="bottom" arrowPointAtCenter>
+                      <Icon className="Gray_9e Font18 pointer" icon="knowledge-message" />
+                    </Tooltip>
+                  </div>
+                </div>
+              </Fragment>
             )}
           </div>
-        )*/}
+        )}
       </Fragment>
     );
   }
@@ -246,7 +332,7 @@ export default function unitPanelGenerator(props) {
   return (
     <Fragment>
       {[reportTypes.PivotTable, reportTypes.NumberChart, reportTypes.TopChart].includes(reportType) ? (
-        <Collapse.Panel header={_l('显示单位')} key="pivotTableUnit" {...collapseProps}>
+        <Collapse.Panel header={_l('值')} key="pivotTableUnit" {...collapseProps}>
           {
             yaxisList.filter(data => data.normType !== 7).map(item => (
               <Fragment>
@@ -270,7 +356,7 @@ export default function unitPanelGenerator(props) {
           }
         </Collapse.Panel>
       ) : (
-        <Collapse.Panel header={_l('显示单位')} key="leftUnit" {...collapseProps}>
+        <Collapse.Panel header={_l('值')} key="leftUnit" {...collapseProps}>
           {firstYaxis && (
             <Fragment>
               {isDualAxes && <div className="mBottom12 Bold Gray_75">{_l('Y轴')}</div>}

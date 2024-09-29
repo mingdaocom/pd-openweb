@@ -36,6 +36,9 @@ const formatUser = function (props) {
       applicationType = 'worksheet';
       break;
     case MSGTYPES.WorkFlowMessage:
+    case MSGTYPES.WorkFlowTaskMessage:
+    case MSGTYPES.WorkFlowUserTaskMessage:
+    case MSGTYPES.WorkFlowSendTaskMessage:
       applicationType = 'workflow';
       break;
     default:

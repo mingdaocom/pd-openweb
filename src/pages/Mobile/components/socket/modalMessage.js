@@ -1,18 +1,12 @@
 import React, { Fragment, useRef, useState, useEffect } from 'react';
-import { Modal } from 'antd-mobile';
+import { Popup, Dialog } from 'antd-mobile';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import styled from 'styled-components';
 
-const ModalWrap = styled(Modal)`
+const ModalWrap = styled(Popup)`
   overflow: hidden;
-  border-top-right-radius: 15px;
-  border-top-left-radius: 15px;
-  height: 95%;
-  .am-modal-content {
+  .adm-popup-body {
     padding: 16px;
-    text-align: left;
-  }
-  .am-modal-body {
     color: #333;
     font-size: 13px;
     display: flex;
@@ -131,19 +125,20 @@ function MessageComp(props) {
     if (modal) {
       modal.close();
     }
-    modal = Modal.alert(
-      <BatchModalWrap>
-        <div className="flexRow">
-          <div className="flex mBottom16 ellipsis">
-            {getIcon()}
-            <span className="bold Font18 TxtBottom mLeft10">{title}</span>
+    modal = Dialog.alert({
+      content: (
+        <BatchModalWrap>
+          <div className="flexRow">
+            <div className="flex mBottom16 ellipsis">
+              {getIcon()}
+              <span className="bold Font18 TxtBottom mLeft10">{title}</span>
+            </div>
           </div>
-        </div>
-        <div className="mobileNoticeContent">{getBatchNoticeDescription(batchInfo)}</div>
-      </BatchModalWrap>,
-      '',
-      [{ text: _l('关闭') }],
-    );
+          <div className="mobileNoticeContent">{getBatchNoticeDescription(batchInfo)}</div>
+        </BatchModalWrap>
+      ),
+      confirmText: _l('关闭'),
+    });
   };
 
   if (position === 'center') {
@@ -151,7 +146,7 @@ function MessageComp(props) {
   }
 
   return (
-    <ModalWrap popup animationType="slide-up" onClose={hideModalMessage} visible={visible} className="mobileNoticeWrap">
+    <ModalWrap onClose={hideModalMessage} visible={visible} className="mobileNoticeWrap mobileModal minFull topRadius">
       <div className="flex overflowAuto">
         <div className="flexRow">
           <div className="flex mBottom16">

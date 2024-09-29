@@ -207,9 +207,7 @@ export default class CalendarDetail extends Component {
         state.recurType === RECURTYPE.DATE &&
         (state.untilDate === '0' || moment(state.end).isAfter(moment(state.untilDate), 'day'))
       ) {
-        diff.untilDate = moment(state.end)
-          .add(1, 'd')
-          .format('YYYY-MM-DD');
+        diff.untilDate = moment(state.end).add(1, 'd').format('YYYY-MM-DD');
       }
       if (state.recurType === RECURTYPE.COUNT && !state.recurCount) {
         diff.recurCount = 1;
@@ -389,6 +387,7 @@ export default class CalendarDetail extends Component {
       });
     };
 
+    const { reFetchData } = this.props;
     const { title, color, canLook } = this.state;
     const headerProps = {
       // variables
@@ -396,6 +395,7 @@ export default class CalendarDetail extends Component {
       title,
       color,
       canLook,
+      reFetchData,
       // methods
       changeTitle,
       changeCategory,
@@ -428,8 +428,8 @@ export default class CalendarDetail extends Component {
         sourceId: originRecur && isChildCalendar ? id + '|' + recurTime : id,
         fromType: 5,
         SelectUserSettings: {
-          filterAccountIds: members.map(user => user.accountID),
-          callback: function(users) {
+          selectedAccountIds: members.map(user => user.accountID),
+          callback: function (users) {
             Common.addMember(
               {
                 members,
@@ -481,7 +481,7 @@ export default class CalendarDetail extends Component {
       const { members, id, recurTime, isChildCalendar, originRecur } = this.state;
       const argsProps = { id, recurTime, isChildCalendar, originRecur };
       Common.reInvite(accountId, argsProps).then(({ isAllCalendar }) => {
-        _.some(members, function(member) {
+        _.some(members, function (member) {
           if (member.accountID === accountId) {
             member.status = MEMBER_STATUS.UNCONFIRMED;
             member.remark = '';

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes, { bool, func, shape, string } from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import styled from 'styled-components';
 import Trigger from 'rc-trigger';
@@ -223,8 +222,7 @@ export default class Options extends React.Component {
   con = React.createRef();
   cell = React.createRef();
 
-  @autobind
-  handleChange(value, { forceUpdate, needUpdateCell, noUpdateCell } = {}) {
+  handleChange = (value, { forceUpdate, needUpdateCell, noUpdateCell } = {}) => {
     const { cell, updateCell, onValidate } = this.props;
     const isOther =
       (typeof value === 'string' && value.startsWith('other')) || (value && value[0] && value[0].startsWith('other'));
@@ -265,10 +263,9 @@ export default class Options extends React.Component {
     if (!value || !isMultiple) {
       this.handleExit();
     }
-  }
+  };
 
-  @autobind
-  handleTableKeyDown(e) {
+  handleTableKeyDown = e => {
     const { updateEditingStatus } = this.props;
     switch (e.key) {
       case 'Tab':
@@ -282,9 +279,9 @@ export default class Options extends React.Component {
         updateEditingStatus(true);
         break;
     }
-  }
-  @autobind
-  handleExit(target) {
+  };
+
+  handleExit = target => {
     const { cell, error, updateEditingStatus, updateCell } = this.props;
     const { value } = this.state;
     const isMultiple = cell.type === 10;
@@ -302,7 +299,7 @@ export default class Options extends React.Component {
         value: formatControlToServer(Object.assign({}, cell, { value })).value,
       });
     }
-  }
+  };
 
   getShowValue(option, { defaultEmpty = false } = {}) {
     const { value } = this.state;

@@ -22,7 +22,6 @@ import * as actions from 'worksheet/redux/actions/galleryview';
 import autoSize from 'ming-ui/decorators/autoSize';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
-import { autobind } from 'core-decorators';
 
 const isMobile = browserIsMobile();
 
@@ -97,8 +96,7 @@ export default class RecordGallery extends Component {
     window.removeEventListener('resize', this.resizeBind);
   }
 
-  @autobind
-  updateRecordEvent({ worksheetId, recordId }) {
+  updateRecordEvent = ({ worksheetId, recordId }) => {
     const { base, galleryview } = this.props;
     const { gallery = [] } = galleryview;
     const { viewId } = base;
@@ -120,7 +118,7 @@ export default class RecordGallery extends Component {
           }
         });
     }
-  }
+  };
 
   getFetch = nextProps => {
     const { base, views } = nextProps;
@@ -339,6 +337,7 @@ export default class RecordGallery extends Component {
                 visible
                 appId={appId}
                 worksheetId={worksheetId}
+                enablePayment={worksheetInfo.enablePayment}
                 viewId={viewId}
                 rowId={recordId}
                 onClose={() => {
@@ -347,6 +346,7 @@ export default class RecordGallery extends Component {
               />
             ) : (
               <RecordInfoWrapper
+                enablePayment={worksheetInfo.enablePayment}
                 sheetSwitchPermit={sheetSwitchPermit} // 表单权限
                 allowAdd={worksheetInfo.allowAdd}
                 visible

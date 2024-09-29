@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import worksheetAjax from 'src/api/worksheet';
 import GeneratingPopup from './GeneratingPopup';
+import { generateLabelPdf } from './vectorLabel';
 import { getCodeTexts, getCodeContent } from './util';
-import { SOURCE_TYPE, SOURCE_URL_TYPE } from './enum';
+import { PRINT_TYPE, SOURCE_TYPE, SOURCE_URL_TYPE } from './enum';
 import { QrPdf } from './print';
-import _ from 'lodash';
+import _, { includes } from 'lodash';
 
 const PAGE_SIZE = 200;
 
@@ -28,6 +29,7 @@ export default function GeneratingPdf(props) {
   } = props;
   const [printConfig, setPrintConfig] = useState(config && { ...config });
   const [loading, setLoading] = useState(true);
+  const [loadingText, setLoadingText] = useState();
   const rows = useRef(selectedRows);
   const [pageIndex, setPageIndex] = useState(1);
   const [embedUrl, setEmbedUrl] = useState();
@@ -73,17 +75,29 @@ export default function GeneratingPdf(props) {
           row,
         ),
       }));
-
-      const pdf = new QrPdf({
-        printType: config.printType,
-        layout: config.layout,
-        printData,
-        correctLevel: config.codeFaultTolerance || 1,
-        config: config,
-      });
-      await pdf.render();
-      setEmbedUrl(pdf.doc.output('bloburl'));
-      setLoading(false);
+      const usePdfKit = includes([PRINT_TYPE.QR, PRINT_TYPE.BAR], config.printType);
+      if (usePdfKit) {
+        const blobUrl = await generateLabelPdf({
+          ...config,
+          printData,
+          onProgress: progressText => {
+            setLoadingText(progressText);
+          },
+        });
+        setEmbedUrl(blobUrl);
+        setLoading(false);
+      } else {
+        const pdf = new QrPdf({
+          printType: config.printType,
+          layout: config.layout,
+          printData,
+          correctLevel: config.codeFaultTolerance || 1,
+          config: config,
+        });
+        await pdf.render();
+        setEmbedUrl(pdf.doc.output('bloburl'));
+        setLoading(false);
+      }
     }
     if (config.sourceType === SOURCE_TYPE.URL && config.sourceUrlType === SOURCE_URL_TYPE.PUBLIC) {
       worksheetAjax
@@ -139,6 +153,7 @@ export default function GeneratingPdf(props) {
       count={count}
       zIndex={zIndex}
       loading={loading}
+      loadingText={loadingText}
       name={name}
       embedUrl={embedUrl}
       onPrev={() => {

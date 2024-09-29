@@ -1,13 +1,12 @@
 import React, { useState, Fragment, useEffect } from 'react';
-import { Dialog, Checkbox, Support, Icon } from 'ming-ui';
+import { Dialog, Checkbox, Support, Icon, SortableList } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Input } from 'antd';
 import { SettingItem } from '../../../styled';
 import 'src/pages/widgetConfig/styled/style.less';
-import { getAdvanceSetting } from '../../../util';
+import { getAdvanceSetting, getSortItems } from '../../../util';
 import { handleAdvancedSettingChange } from '../../../util/setting';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import renderCustomFilter from '../CustomEvent/CustomFilter';
 import { FilterItemTexts } from '../FilterData';
 import _ from 'lodash';
@@ -132,7 +131,7 @@ const AddVerify = styled.div`
   }
 `;
 
-const SortableItem = SortableElement(props => {
+function SortableItem(props) {
   const { itemData = {}, sortIndex, setIndex, onDelete, changeFilters, fromPortal } = props;
   const filters = itemData.filters || [];
   const name = itemData.name || _l('未命名');
@@ -202,18 +201,7 @@ const SortableItem = SortableElement(props => {
       )}
     </FormatInfo>
   );
-});
-
-const SortableList = SortableContainer(props => {
-  const { filterRegex } = props;
-  return (
-    <div className="flexColumn">
-      {filterRegex.map((item, index) => {
-        return <SortableItem itemData={item} {...props} sortIndex={index} key={'item_' + index} index={index} />;
-      })}
-    </div>
-  );
-});
+}
 
 export default function TextVerify(props) {
   const { data, onChange } = props;
@@ -244,29 +232,38 @@ export default function TextVerify(props) {
     if (!filterRegex.length) return null;
 
     return (
-      <SortableList
-        filterRegex={filterRegex}
-        {..._.pick(props, ['globalSheetInfo', 'allControls', 'fromPortal'])}
-        distance={10}
-        axis="y"
-        helperClass="filterRegexSortableList"
-        setIndex={setIndex}
-        changeFilters={(value, index) => {
-          const newList = filterRegex.map((i, idx) => {
-            return index === idx ? { ...i, filters: value } : i;
-          });
-          onChange(handleAdvancedSettingChange(data, { filterregex: JSON.stringify(newList) }));
-        }}
-        onDelete={index => {
-          const newList = filterRegex.filter((i, idx) => index !== idx);
-          onChange(handleAdvancedSettingChange(data, { filterregex: JSON.stringify(newList) }));
-        }}
-        onSortEnd={({ oldIndex, newIndex }) => {
-          if (oldIndex === newIndex) return;
-          const newList = arrayMove(filterRegex, oldIndex, newIndex);
-          onChange(handleAdvancedSettingChange(data, { filterregex: JSON.stringify(newList) }));
-        }}
-      />
+      <div className="flexColumn">
+        <SortableList
+          items={getSortItems(filterRegex, true)}
+          itemKey="key"
+          helperClass="filterRegexSortableList"
+          onSortEnd={newItems => {
+            onChange(handleAdvancedSettingChange(data, { filterregex: JSON.stringify(getSortItems(newItems, false)) }));
+          }}
+          renderItem={({ item, index }) => (
+            <SortableItem
+              {..._.pick(props, ['globalSheetInfo', 'allControls', 'fromPortal'])}
+              setIndex={setIndex}
+              itemData={item}
+              sortIndex={index}
+              changeFilters={(value, sortIdx) => {
+                const newList = filterRegex.map((i, idx) => {
+                  return sortIdx === idx ? { ...i, filters: value } : i;
+                });
+                onChange(
+                  handleAdvancedSettingChange(data, { filterregex: JSON.stringify(getSortItems(newList, false)) }),
+                );
+              }}
+              onDelete={sortIdx => {
+                const newList = filterRegex.filter((i, idx) => sortIdx !== idx);
+                onChange(
+                  handleAdvancedSettingChange(data, { filterregex: JSON.stringify(getSortItems(newList, false)) }),
+                );
+              }}
+            />
+          )}
+        />
+      </div>
     );
   };
 

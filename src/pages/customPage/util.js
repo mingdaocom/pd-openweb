@@ -286,15 +286,15 @@ export const getSuspensionAiComponent = components => {
 }
 
 export const formatNavfilters = data => {
-  const { dataType, advancedSetting } = data;
+  const { advancedSetting } = data;
   const { navshow, navfilters, showNavfilters } = advancedSetting;
-  if (navshow === '2' && dataType === 29 && navfilters && !showNavfilters) {
+  if (['2', '3'].includes(navshow) && navfilters && !showNavfilters) {
     const res = JSON.parse(navfilters);
-    return JSON.stringify(res.map(item => JSON.parse(item).id));
-  }
-  if (navshow === '3' && dataType === 29 && navfilters && !showNavfilters) {
-    const res = JSON.parse(navfilters);
-    return JSON.stringify(res.map(handleCondition));
+    const { values } = handleCondition({
+      ...data,
+      values: res
+    });
+    return JSON.stringify(values);
   }
   return navfilters;
 }

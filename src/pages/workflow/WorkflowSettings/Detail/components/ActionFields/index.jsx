@@ -108,11 +108,10 @@ export default class ActionFields extends Component {
           {header && header}
           {openSearch && (
             <div
-              className="flexRow mTop5 mBottom5"
+              className="flexRow mTop5 mBottom5 alignItemsCenter"
               style={{
                 padding: '0 16px 0 14px',
                 height: 36,
-                alignItems: 'center',
                 borderBottom: '1px solid #e0e0e0',
               }}
             >

@@ -13,6 +13,7 @@ const Wrap = styled.div`
   }
   .itemControl {
     padding: 10px 16px;
+    line-height: 16px;
     &:hover {
       background: #f5f5f5;
     }

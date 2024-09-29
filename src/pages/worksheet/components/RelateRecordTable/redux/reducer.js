@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
-import { cloneDeep, findIndex, get, includes, uniq, uniqBy } from 'lodash';
+import { assign, cloneDeep, findIndex, get, includes, uniq, uniqBy } from 'lodash';
+import { treeTableViewData, handleTreeNodeRow } from 'worksheet/common/TreeTableHelper/index.js';
 
 function loading(state = true, action) {
   switch (action.type) {
@@ -123,6 +124,8 @@ function records(state = [], action) {
       return action.records;
     case 'UPDATE_RECORD':
       return state.map(r => (r.rowid === get(action, 'newRecord.rowid') ? action.newRecord : r));
+    case 'UPDATE_RECORD_BY_RECORD_ID':
+      return state.map(r => (r.rowid === action.recordId ? assign({}, r, action.changes) : r));
     case 'APPEND_RECORDS':
       newRecords = action.records;
       if (!action.saveSync && !!action.recordId) {
@@ -137,7 +140,9 @@ function records(state = [], action) {
         return newRecords.concat(state);
       }
     case 'DELETE_RECORDS':
-      return state.filter(record => !includes(action.recordIds, record.rowid));
+      return state
+        .filter(record => !includes(action.recordIds, record.rowid))
+        .map(row => handleTreeNodeRow(row, action.recordIds));
     case 'CLEAR_RECORDS':
     case 'DELETE_ALL':
       return [];
@@ -159,6 +164,7 @@ export default combineReducers({
   initialized,
   loading,
   base,
+  treeTableViewData,
   controls,
   records,
   tableState,

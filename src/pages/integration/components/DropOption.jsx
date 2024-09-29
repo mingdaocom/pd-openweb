@@ -20,6 +20,9 @@ const MenuWrap = styled(Menu)`
       .Item-content:not(.disabled):hover {
         background-color: #1e88e5 !important;
         color: #fff !important;
+        .gray_75 {
+          color: #fff;
+        }
       }
     }
     .Item-content:not(.disabled):hover {
@@ -56,8 +59,12 @@ const MenuWrap = styled(Menu)`
     bottom: 0;
     z-index: 0;
   }
+  .gray_75 {
+    color: #757575;
+  }
 `;
 export default function DropOption(props) {
+  const { forGroup } = props;
   const [{ popupVisible }, setState] = useSetState({
     popupVisible: props.popupVisible,
   });
@@ -76,7 +83,7 @@ export default function DropOption(props) {
       }}
       popupAlign={{
         points: ['tr', 'br'],
-        offset: [0, 10],
+        offset: forGroup ? [0, -100] : [0, 10],
         overflow: { adjustX: true, adjustY: true },
       }}
       popup={
@@ -89,20 +96,32 @@ export default function DropOption(props) {
               }}
             ></div>
           )}
-          {props.list.map(({ text, value, disabled }) => (
-            <MenuItem
-              key={value}
-              className={cx({ cur: value === props.value })}
-              onClick={() => {
-                if (value !== props.value) {
-                  props.handleChangeType(value);
-                }
-                setState({ popupVisible: false });
-              }}
-              disabled={disabled}
-            >
-              <span className="viewName">{text}</span>
-            </MenuItem>
+          {props.list.map(({ text, value, disabled, getTime = () => {} }, i) => (
+            <React.Fragment>
+              {forGroup && i === 0 && <div className="Gray_75 mLeft12 LineHeight36">{_l('时间')}</div>}
+              <MenuItem
+                key={value}
+                className={cx({ cur: value === props.value })}
+                onClick={() => {
+                  if (value !== props.value) {
+                    props.handleChangeType(value);
+                  }
+                  setState({ popupVisible: false });
+                }}
+                disabled={disabled}
+              >
+                <div className="flexRow">
+                  <span className="viewName flex">{text}</span>
+                  {forGroup && <span className="gray_75">{getTime()}</span>}
+                </div>
+              </MenuItem>
+              {forGroup && ['TIME', 'CUR_MINUTE'].includes(value) && (
+                <React.Fragment>
+                  <div className="mTop3 mBottom3" style={{ borderBottom: '1px solid #EAEAEA' }}></div>
+                  <div className="Gray_75 mLeft12 LineHeight36">{_l('集合')}</div>
+                </React.Fragment>
+              )}
+            </React.Fragment>
           ))}
           <div className="mTop3 mBottom3" style={{ borderBottom: '1px solid #EAEAEA' }}></div>
           <MenuItem

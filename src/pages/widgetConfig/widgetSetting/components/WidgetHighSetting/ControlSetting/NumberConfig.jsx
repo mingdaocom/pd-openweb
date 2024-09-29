@@ -10,9 +10,13 @@ export default function NumberConfig(props) {
   const {
     type,
     enumDefault,
+    enumDefault2,
     advancedSetting: { numshow, thousandth, showtype, showinput, numinterval, min, max } = {},
   } = data;
-  const isNumShow = _.includes([6, 31], type) || (type === 37 && _.includes([1, 2, 3, 5], enumDefault));
+  const isNumShow =
+    _.includes([6, 31], type) ||
+    (type === 37 && _.includes([1, 2, 3, 5], enumDefault)) ||
+    (type === 53 && enumDefault2 === 6);
   const [nameVisible, setNameVisible] = useState(false);
 
   // 数值进度

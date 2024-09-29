@@ -1,5 +1,6 @@
 import React from 'react';
 import { Icon, antNotification } from 'ming-ui';
+import filterXSS from 'xss';
 import { navigateTo } from 'src/router/navigateTo';
 
 const getAction = status => {
@@ -22,7 +23,7 @@ const getCommon = ({ id, title, msg, status }) => {
     closeIcon: <Icon icon="close" className="Font20 Gray_9d ThemeHoverColor3" />,
     duration: 5,
     message: title,
-    description: <div dangerouslySetInnerHTML={{ __html: msg }} />,
+    description: <div dangerouslySetInnerHTML={{ __html: filterXSS(msg) }} />,
     loading: status === 1,
   };
 };

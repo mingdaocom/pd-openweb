@@ -1,7 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import cx from 'classnames';
 import qs from 'query-string';
-import { Tabs, Flex } from 'antd-mobile';
+import { Tabs } from 'antd-mobile';
 import Icon from 'ming-ui/components/Icon';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import ScrollView from 'ming-ui/components/ScrollView';
@@ -93,13 +93,13 @@ export default class ProcessInform extends Component {
       });
     });
   }
-  handleChangeCompleteTab = tab => {
+  handleChangeCompleteTab = id => {
     this.setState({
       loading: false,
       pageIndex: 1,
       isMore: true,
       list: [],
-      currentTab: tab.id,
+      currentTab: id,
     }, () => {
       this.getTodoList();
     });
@@ -122,7 +122,7 @@ export default class ProcessInform extends Component {
             });
           }}
           onKeyDown={event => {
-            event.which === 13 && this.handleChangeCompleteTab({ id: this.state.currentTab });
+            event.which === 13 && this.handleChangeCompleteTab(this.state.currentTab);
           }}
         />
         {searchValue ? (
@@ -133,7 +133,7 @@ export default class ProcessInform extends Component {
               this.setState({
                 searchValue: '',
               }, () => {
-                this.handleChangeCompleteTab({ id: this.state.currentTab });
+                this.handleChangeCompleteTab(this.state.currentTab);
               });
             }}
           />
@@ -183,13 +183,17 @@ export default class ProcessInform extends Component {
         <div className="flex flexColumn">
           <div className="processTabs mBottom10 z-depth-1">
             <Tabs
-              tabBarInactiveTextColor="#9e9e9e"
-              tabs={processInformTabs}
-              page={currentTab ? _.findIndex(processInformTabs, { id: currentTab }) : -1}
-              onTabClick={this.handleChangeCompleteTab}
-              renderTab={tab => (
-                <span>{tab.name} {tab.id === 'unread' && countData.waitingExamine ? `(${countData.waitingExamine})` : null}</span>
-              )}>
+              className="md-adm-tabs"
+              activeLineMode="fixed"
+              activeKey={currentTab}
+              onChange={this.handleChangeCompleteTab}
+            >
+              {processInformTabs.map(tab => (
+                <Tabs.Tab
+                  title={<span>{tab.name} {tab.id === 'unread' && countData.waitingExamine ? `(${countData.waitingExamine})` : null}</span>}
+                  key={tab.id}
+                />
+              ))}
             </Tabs>
           </div>
           <Back

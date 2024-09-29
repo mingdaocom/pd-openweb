@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Fragment } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
@@ -56,12 +56,6 @@ const Wrap = styled.div`
   .w180 {
     width: 180px;
   }
-  .width100 {
-    width: 100px;
-  }
-  .w200 {
-    width: 200px;
-  }
   .paramLi {
     // height: 34px;
     line-height: 34px;
@@ -99,6 +93,12 @@ function AddNode(props) {
       >
         <Icon icon="worksheet_API" className="Font17" />
         <span className="mLeft3">{_l('插入代码')}</span>
+        <Tooltip
+          popupPlacement="bottom"
+          text={<span>{_l('可对前面节点输出的数据做处理，以供后面节点使用，如加密、解密等')}</span>}
+        >
+          <Icon icon="info_outline" className="Gray_bd Font16 mLeft5" />
+        </Tooltip>
       </WrapBtn>
     </React.Fragment>
   );
@@ -208,14 +208,24 @@ export default function Card(props) {
                 return null;
               }
               return (
-                <div className="flexRow paramLi Hand">
-                  <div className="w200 WordBreak" style={{ 'padding-left': (o.level || 0) * 20 }}>
-                    <span className="WordBreak flex">{o.controlName}</span>
-                    <span className="Gray_9e mLeft5 WordBreak">{o.alias}</span>
+                <Fragment>
+                  <div className="flexRow paramLi Hand">
+                    <div className="w180 WordBreak" style={{ 'padding-left': (o.level || 0) * 20 }}>
+                      <span className="WordBreak flex">{o.controlName}</span>
+                      <span className="Gray_9e mLeft5 WordBreak">{o.alias}</span>
+                    </div>
+                    <div className="w180 Gray_75 WordBreak">{FIELD_TYPE.find(s => s.value === o.type).text}</div>
+                    <div className="flex WordBreak">{o.desc}</div>
                   </div>
-                  <div className="width100 Gray_75 WordBreak">{FIELD_TYPE.find(s => s.value === o.type).text}</div>
-                  <div className="flex WordBreak">{o.desc}</div>
-                </div>
+                  {o.type === 9 &&
+                    o.options.map(item => (
+                      <div className="flexRow paramLi Hand" key={item.key}>
+                        <div className="w180 WordBreak"></div>
+                        <div className="w180 Gray_75 WordBreak">{item.value}</div>
+                        <div className="flex WordBreak">{item.key}</div>
+                      </div>
+                    ))}
+                </Fragment>
               );
             })}
           </div>

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
-import { WingBlank, Button, ActionSheet, Toast, Modal } from 'antd-mobile';
+import { Button, Toast, ActionSheet } from 'antd-mobile';
 import RecordAction from './RecordAction';
 import CustomButtons from './RecordAction/CustomButtons';
 import copy from 'copy-to-clipboard';
@@ -16,66 +16,98 @@ import _ from 'lodash';
 const getRecordUrl = ({ appId, worksheetId, recordId, viewId }) => {
   const shareUrl = `${location.origin}/mobile/record/${appId}/${worksheetId}/${viewId}/${recordId}`;
   if (navigator.share) {
-    navigator.share({
-      title: _l('系统'),
-      text: document.title,
-      url: shareUrl,
-    }).then(() => {
-      Toast.info(_l('分享成功'));
-    });
-  } else {
-    copy(shareUrl);
-    Toast.info(_l('复制成功'));
-  }
-}
-
-const getWorksheetShareUrl = ({ appId, worksheetId, recordId, viewId }) => {
-  Toast.loading();
-  worksheetApi.getWorksheetShareUrl({
-    appId,
-    worksheetId,
-    rowId: recordId,
-    viewId,
-    objectType: 2,
-  }).then(data => {
-    Toast.hide();
-    if (navigator.share) {
-      navigator.share({
+    navigator
+      .share({
         title: _l('系统'),
         text: document.title,
-        url: data.shareLink,
-      }).then(() => {
-        Toast.info(_l('分享成功'));
+        url: shareUrl,
+      })
+      .then(() => {
+        alert(_l('分享成功'));
       });
-    } else {
-      copy(data.shareLink);
-      Toast.info(_l('复制成功'));
-    }
-  });
-}
+  } else {
+    copy(shareUrl);
+    alert(_l('复制成功'));
+  }
+};
+
+const getWorksheetShareUrl = ({ appId, worksheetId, recordId, viewId }) => {
+  Toast.show({ icon: 'loading' });
+  worksheetApi
+    .getWorksheetShareUrl({
+      appId,
+      worksheetId,
+      rowId: recordId,
+      viewId,
+      objectType: 2,
+    })
+    .then(data => {
+      Toast.clear();
+      if (navigator.share) {
+        navigator
+          .share({
+            title: _l('系统'),
+            text: document.title,
+            url: data.shareLink,
+          })
+          .then(() => {
+            alert(_l('分享成功'));
+          });
+      } else {
+        copy(data.shareLink);
+        alert(_l('复制成功'));
+      }
+    });
+};
 
 const onDeleteRecord = ({ isSubList, recordBase }) => {
   const ok = () => {
     const { appId, worksheetId, viewId, recordId } = recordBase;
-    worksheetApi.deleteWorksheetRows({
-      worksheetId,
-      viewId,
-      appId,
-      rowIds: [recordId],
-    }).then(({ isSuccess }) => {
-      if (isSuccess) {
-        alert(_l('删除成功'));
-        history.back();
-      } else {
-        alert(_l('删除失败'), 2);
-      }
-    });
-  }
-  Modal.alert(isSubList ? _l('是否删除子表记录 ?') : _l('是否删除此条记录 ?'), '', [
-    { text: _l('取消'), style: 'default', onPress: () => { } },
-    { text: _l('确定'), style: { color: 'red' }, onPress: ok },
-  ]);
-}
+    worksheetApi
+      .deleteWorksheetRows({
+        worksheetId,
+        viewId,
+        appId,
+        rowIds: [recordId],
+      })
+      .then(({ isSuccess }) => {
+        if (isSuccess) {
+          alert(_l('删除成功'));
+          history.back();
+        } else {
+          alert(_l('删除失败'), 2);
+        }
+      });
+  };
+
+  let actionDeleteHandler = ActionSheet.show({
+    popupClassName: 'md-adm-actionSheet',
+    actions: [],
+    extra: (
+      <div className="flexColumn w100">
+        <div className="bold Gray Font17 pTop10">{isSubList ? _l('是否删除子表记录 ?') : _l('是否删除此条记录 ?')}</div>
+        <div className="valignWrapper flexRow mTop24">
+          <Button
+            className="flex mRight6 bold Gray_75 flex ellipsis Font13"
+            onClick={() => actionDeleteHandler.close()}
+          >
+            {_l('取消')}
+          </Button>
+          <Button
+            className="flex mLeft6 bold ellipsis Font13"
+            color="danger"
+            onClick={() => {
+              actionDeleteHandler.close();
+              ok();
+            }}
+          >
+            {_l('确认')}
+          </Button>
+        </div>
+      </div>
+    ),
+  });
+};
 
 export default class RecordFooter extends Component {
   constructor(props) {
@@ -105,6 +137,10 @@ export default class RecordFooter extends Component {
       this.loadCustomBtns();
     });
     this.setState({ isFavorite: this.props.recordInfo.isFavorite });
+  }
+  componentWillUnmount() {
+    this.actionSheetHandler && this.actionSheetHandler.close();
+    this.shareSheetHandler && this.shareSheetHandler.close();
   }
   loadCustomBtns = () => {
     if (location.pathname.indexOf('public') > -1) return;
@@ -151,25 +187,36 @@ export default class RecordFooter extends Component {
           }
         : null,
     ].filter(_ => _);
-    ActionSheet.showActionSheetWithOptions({
-      options: BUTTONS.map(item => (
-        <div className={cx('flexRow valignWrapper w100', item.class)} onClick={item.fn}>
-          <Icon className={cx('mRight10', item.iconClass)} icon={item.icon} />
-          <span className="Bold">{item.name}</span>
-        </div>
-      )),
-      message: (
+    this.actionSheetHandler = ActionSheet.show({
+      actions: BUTTONS.map(item => {
+        return {
+          key: item.icon,
+          text: (
+            <div className={cx('flexRow valignWrapper w100', item.class)} onClick={item.fn}>
+              <Icon className={cx('mRight20', item.iconClass)} icon={item.icon} />
+              <span className="Bold">{item.name}</span>
+            </div>
+          )
+        }
+      }),
+      extra: (
         <div className="flexRow header">
           <span className="Font13">{_l('更多操作')}</span>
-          <div className="closeIcon" onClick={() => ActionSheet.close()}>
+          <div className="closeIcon" onClick={() => this.actionSheetHandler.close()}>
             <Icon icon="close" />
           </div>
         </div>
       ),
+      onAction: (action, index) => {
+        this.actionSheetHandler.close();
+      }
     });
   }
   handleShare = () => {
     const { recordInfo, recordBase } = this.props;
+    const publicShare = isOpenPermit(permitList.recordShareSwitch, recordInfo.switchPermit, recordBase.viewId);
+    const innerShare = isOpenPermit(permitList.embeddedLink, recordInfo.switchPermit, recordBase.viewId);
+
     const BUTTONS = [
       {
         key: 'innerShare',
@@ -188,28 +235,45 @@ export default class RecordFooter extends Component {
         iconClass: 'Font22 Red',
         fn: () => getWorksheetShareUrl(recordBase),
       },
-    ].filter(v => isOpenPermit(permitList.recordShareSwitch, recordInfo.switchPermit, recordBase.viewId) ? true : v.key !== 'publicShare');
-    ActionSheet.showActionSheetWithOptions({
-      options: BUTTONS.map(item => (
-        <div className={cx('flexRow valignWrapper w100', item.className)} onClick={item.fn}>
-          <div className="flex flexColumn" style={{ lineHeight: '22px' }}>
-            <span className="Bold">{item.name}</span>
-            <span className="Font12 Gray_75">{item.info}</span>
-          </div>
-          <Icon className="Font18 Gray_9e" icon="arrow-right-border" />
-        </div>
-      )),
-      message: (
+    ].filter(v =>
+      publicShare && innerShare
+        ? true
+        : publicShare
+        ? v.key === 'publicShare'
+        : innerShare
+        ? v.key === 'innerShare'
+        : false,
+    );
+
+    this.shareSheetHandler = ActionSheet.show({
+      actions: BUTTONS.map(item => {
+        return {
+          key: item.icon,
+          text: (
+            <div className={cx('flexRow valignWrapper w100', item.className)} onClick={item.fn}>
+              <div className="flex flexColumn" style={{ lineHeight: '22px' }}>
+                <span className="Bold">{item.name}</span>
+                <span className="Font12 Gray_75">{item.info}</span>
+              </div>
+              <Icon className="Font18 Gray_9e" icon="arrow-right-border" />
+            </div>
+          )
+        }
+      }),
+      extra: (
         <div className="flexRow header">
           <span className="Font13">{_l('分享')}</span>
-          <div className="closeIcon" onClick={() => ActionSheet.close()}>
+          <div className="closeIcon" onClick={() => this.shareSheetHandler.close()}>
             <Icon icon="close" />
           </div>
         </div>
       ),
+      onAction: (action, index) => {
+        this.shareSheetHandler.close();
+      }
     });
   }
-  
+
   handleCollectRecord = () => {
     const { recordBase, recordInfo, refreshCollectRecordList = () => {} } = this.props;
     const { worksheetId, recordId, viewId } = recordBase;
@@ -264,44 +328,43 @@ export default class RecordFooter extends Component {
     const { onEditRecord, onSubmitRecord, onSaveRecord } = this.props;
     const { loading, customBtns } = this.state;
     const allowEdit = recordInfo.allowEdit || editable;
-    const allowDelete = recordInfo.allowDelete || (isSubList && editable);
-    const allowShare = !md.global.Account.isPortal;
+    const allowDelete =
+      (isOpenPermit(permitList.recordDelete, recordInfo.switchPermit, recordBase.viewId) && recordInfo.allowDelete) ||
+      (isSubList && editable);
+    const allowShare =
+      (isOpenPermit(permitList.recordShareSwitch, recordInfo.switchPermit, recordBase.viewId) ||
+        isOpenPermit(permitList.embeddedLink, recordInfo.switchPermit, recordBase.viewId)) &&
+      !md.global.Account.isPortal;
     return (
       <Fragment>
         {(allowEdit || getDataType === 21) && !recordBase.workId && (
-          <WingBlank className="flex mLeft6 mRight6" size="sm">
-            <Button
-              disabled={getDataType === 21 ? false : recordInfo.rulesLocked}
-              className="Font13 edit letterSpacing"
-              onClick={onEditRecord}
-            >
-              <Icon icon="edit" className="Font15 mRight6" />
-              <span>{_l('编辑')}</span>
-            </Button>
-          </WingBlank>
+          <Button
+            disabled={getDataType === 21 ? false : recordInfo.rulesLocked}
+            className="flex mLeft6 mRight6 Font13"
+            onClick={onEditRecord}
+          >
+            <Icon icon="edit" className="Font15 mRight6 ThemeColor" />
+            <span className="ThemeColor bold">{_l('编辑')}</span>
+          </Button>
         )}
         {recordBase.workId && recordBase.from === 6 && (
-          <WingBlank className="flex" size="sm">
-            <Button
-              disabled={!formChanged}
-              className="Font13 bold"
-              type="primary"
-              onClick={onSaveRecord}
-            >
-              {_l('保存')}
-            </Button>
-          </WingBlank>
+          <Button
+            disabled={!formChanged}
+            className="flex mLeft6 mRight6 Font13 bold"
+            color="primary"
+            onClick={onSaveRecord}
+          >
+            {_l('保存')}
+          </Button>
         )}
         {getDataType === 21 && ((childTableControlIds && !_.isEmpty(childTableControlIds) && canSubmitDraft) || !childTableControlIds) && (
-          <WingBlank className="flex mLeft6 mRight6" size="sm">
-            <Button
-              className="Font13"
-              type="primary"
-              onClick={onSubmitRecord}
-            >
-              <span>{recordInfo.advancedSetting.sub || _l('提交')}</span>
-            </Button>
-          </WingBlank>
+          <Button
+            className="flex mLeft6 mRight6 Font13"
+            color="primary"
+            onClick={onSubmitRecord}
+          >
+            <span>{recordInfo.advancedSetting.sub || _l('提交')}</span>
+          </Button>
         )}
         {!loading && (
           <Fragment>
@@ -317,15 +380,13 @@ export default class RecordFooter extends Component {
               }}
             />
             {(!getDataType || getDataType !== 21) && (allowDelete || allowShare) && !customBtns.length && !hideOtherOperate && (
-              <WingBlank className="flex mLeft6 mRight6" size="sm">
-                <Button
-                  className="Font13"
-                  type="primary"
-                  onClick={() => this.handleMoreOperation({ allowDelete, allowShare })}
-                >
-                  <span>{_l('更多操作')}</span>
-                </Button>
-              </WingBlank>
+              <Button
+                className="flex mLeft6 mRight6 Font13"
+                color="primary"
+                onClick={() => this.handleMoreOperation({ allowDelete, allowShare })}
+              >
+                <span className='bold'>{_l('更多操作')}</span>
+              </Button>
             )}
             {!!customBtns.length && recordBase.appId && !isMobileOperate && (
               <div
@@ -344,23 +405,19 @@ export default class RecordFooter extends Component {
     const { onCancelSave, onSaveRecord } = this.props
     return (
       <Fragment>
-        <WingBlank className="flex" size="sm">
-          <Button
-            className="Font13 bold Gray_75"
-            onClick={onCancelSave}
-          >
-            <span>{_l('取消')}</span>
-          </Button>
-        </WingBlank>
-        <WingBlank className="flex" size="sm">
-          <Button
-            className="Font13 bold"
-            type="primary"
-            onClick={onSaveRecord}
-          >
-            {_l('保存')}
-          </Button>
-        </WingBlank>
+        <Button
+          className="flex mLeft6 mRight6 Font13 bold Gray_75"
+          onClick={onCancelSave}
+        >
+          <span>{_l('取消')}</span>
+        </Button>
+        <Button
+          className="flex mLeft6 mRight6 Font13 bold"
+          color="primary"
+          onClick={onSaveRecord}
+        >
+          {_l('保存')}
+        </Button>
       </Fragment>
     );
   }
@@ -396,10 +453,8 @@ export default class RecordFooter extends Component {
     const { isEditRecord } = this.props;
     return (
       <Fragment>
-        <div className="btnsWrapper">
-          <div className="flexRow">
-            {isEditRecord ? this.renderEditContent() : this.renderContent()}
-          </div>
+        <div className="flexRow alignItemsCenter WhiteBG pAll10 footer">
+          {isEditRecord ? this.renderEditContent() : this.renderContent()}
         </div>
         {this.renderRecordAction()}
       </Fragment>

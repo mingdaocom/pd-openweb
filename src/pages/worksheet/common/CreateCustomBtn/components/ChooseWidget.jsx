@@ -9,19 +9,20 @@ import {
   formatControlsChildBySectionId,
   getRealData,
   canNotForCustomWrite,
+  getFormatCustomWriteData,
 } from 'src/pages/worksheet/common/CreateCustomBtn/utils.js';
 import _ from 'lodash';
 
 const ChooseWidgetWrap = styled.div`
    {
+    z-index: 1;
     width: 300px;
     padding-bottom: 10px;
     height: auto;
     background: #fff;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
     border-radius: 3px;
-    position: absolute;
-    max-height: 900px;
+    max-height: ${window.innerHeight - 24}px;
     .searchWrapper {
       border-bottom: 1px solid #e0e0e0;
       margin: 8px 16px 0;
@@ -29,6 +30,8 @@ const ChooseWidgetWrap = styled.div`
       height: 38px;
       line-height: 38px;
       overflow: hidden;
+      flex-shrink: 0;
+      min-height: 0;
       .cursorText {
         border: none;
         flex: 1;
@@ -41,9 +44,13 @@ const ChooseWidgetWrap = styled.div`
         color: #bdbdbd;
       }
     }
+    .selectAll,
+    .clearAll {
+      background: #f5f5f5;
+      border-radius: 3px;
+    }
     .listBox {
       overflow: auto;
-      max-height: 844px;
       &::-webkit-scrollbar {
         width: 10px;
         height: 10px;
@@ -121,37 +128,39 @@ export default class ChooseWidget extends React.Component {
     $('.cursorText').focus();
   }
   componentWillReceiveProps(nextProps) {
-    const { writeControls = [], showChooseWidgetDialog } = nextProps;
-    if (this.props.writeControls !== writeControls || showChooseWidgetDialog) {
+    const { writeControls = [], writeObject, relationControls, widgetList } = nextProps;
+    if (
+      this.props.writeControls !== writeControls ||
+      this.props.relationControls !== relationControls ||
+      this.props.widgetList !== widgetList ||
+      writeObject !== this.props.writeObject
+    ) {
+      const data = this.getData(nextProps).filter(it => it.controlName.indexOf(this.state.keyWords) >= 0);
       this.setState({
-        data: this.getData(nextProps).filter(it => it.controlName.indexOf(this.state.keyWords) >= 0),
+        data,
         writeControls,
       });
     }
   }
-  getData = props => {
-    const { writeObject, relationControls = [], widgetList = [] } = props;
-    return (writeObject !== 1 ? relationControls : widgetList).filter(o => !canNotForCustomWrite(o));
-  };
+
   setPoint = () => {
     let wh = $(window).height();
     let ot = $('.noAppointFilter').offset().top;
     let ol = $('.noAppointFilter').offset().left;
     let ds = $(document.documentElement).scrollTop();
-    let icoimg_h = $('.noAppointFilter').height();
-    let bh = wh - icoimg_h - [ot - ds];
+    let btnH = $('.noAppointFilter').height();
+    let bh = wh - btnH - [ot - ds];
     let diaH = $(this.chooseDia).height();
-    let hh = $(this.chooseDia).find('.listBox').height();
-    $(this.chooseDia)
-      .css({
-        top: diaH + 24 > bh ? 'initial' : ot + icoimg_h,
-        bottom: diaH + 24 > bh ? 24 : 'initial',
-        left: ol,
-      })
-      .find('.listBox')
-      .css({
-        height: wh - 106 > hh ? hh : wh - 106,
-      });
+    $(this.chooseDia).css({
+      top: diaH + 24 > bh ? 'initial' : ot + btnH,
+      bottom: diaH + 24 > bh ? 24 : 'initial',
+      left: ol,
+    });
+  };
+
+  getData = props => {
+    const { writeObject, relationControls = [], widgetList = [] } = props;
+    return (writeObject !== 1 ? relationControls : widgetList).filter(o => !canNotForCustomWrite(o));
   };
 
   handSet = (item, isAdd) => {
@@ -165,18 +174,36 @@ export default class ChooseWidget extends React.Component {
     );
     const othersAdd = list.filter(o => !writeControlsIds.includes(o.controlId) && ![52].includes(o.type));
     const othersDel = this.state.writeControls.filter(o => !list.map(it => it.controlId).includes(o.controlId));
-    this.props.SwitchFn(
+    this.props.onChange(
       isAdd
-        ? this.state.writeControls.concat(
-            othersAdd.map(o => {
-              return {
-                controlId: o.controlId,
-                type: this.props.isOnlyRead(o.type) ? 1 : o.required ? 3 : 2, //1：只读 2：填写 3：必填
-              };
-            }),
-          )
+        ? this.state.writeControls.concat(othersAdd.map(o => getFormatCustomWriteData(o)))
         : this.state.writeControls.filter(o => !othersDel.map(it => it.controlId).includes(o.controlId)),
     );
+  };
+
+  selectOrClearAll = isSelect => {
+    if (!isSelect) {
+      this.setState({
+        writeControls: [],
+      });
+      this.props.onChange([]);
+    } else {
+      let writeControls = [];
+      this.state.data
+        .filter(
+          item =>
+            !(
+              canNotForCustomWrite(item) || //排除表格类的显示方式
+              ALL_SYS.includes(item.controlId)
+            ), //排除系统字段
+        )
+        .map(o => {
+          writeControls = writeControls.concat(
+            (o.child || []).length > 0 ? o.child.map(it => getFormatCustomWriteData(it)) : getFormatCustomWriteData(o),
+          );
+        });
+      this.props.onChange(writeControls);
+    }
   };
 
   renderCon = item => {
@@ -202,7 +229,6 @@ export default class ChooseWidget extends React.Component {
           >
             <Checkbox
               className="InlineBlock"
-              // size="small"
               checked={isChecked}
               clearselected={checkedChildNum > 0 && child.length > checkedChildNum}
               text={null}
@@ -241,18 +267,17 @@ export default class ChooseWidget extends React.Component {
   };
 
   render() {
-    const { hideFn } = this.props;
+    const { onClose } = this.props;
     const { data = [], keyWords, initData = [] } = this.state;
     const list = keyWords ? data : formatControlsChildBySectionId(data);
     return (
       <div
         className="ChooseWidgetDialogWrap"
         style={{ position: 'fixed', top: 0, left: 0, bottom: 0, right: 0, zIndex: 1000 }}
-        onClick={() => {
-          hideFn();
-        }}
+        onClick={onClose}
       >
         <ChooseWidgetWrap
+          className="flexColumn Absolute"
           ref={chooseDia => {
             this.chooseDia = chooseDia;
           }}
@@ -260,7 +285,7 @@ export default class ChooseWidget extends React.Component {
             e.stopPropagation();
           }}
         >
-          <div className="searchWrapper">
+          <div className="searchWrapper h100">
             <Icon icon="search" className="Font18" />
             <input
               type="text"
@@ -297,7 +322,23 @@ export default class ChooseWidget extends React.Component {
               />
             )}
           </div>
-          <div className="listBox mTop10">
+          {!keyWords && (
+            <div className="con flexRow mTop15">
+              <span
+                className="selectAll Hand Gray_75 ThemeHoverColor3 pTop8 pBottom8 pLeft16 pRight16 mLeft16"
+                onClick={() => this.selectOrClearAll(true)}
+              >
+                {_l('全选')}
+              </span>
+              <span
+                className="clearAll Hand Gray_75 ThemeHoverColor3 pTop8 pBottom8 pLeft16 pRight16 mLeft10"
+                onClick={() => this.selectOrClearAll()}
+              >
+                {_l('清空')}
+              </span>
+            </div>
+          )}
+          <div className="listBox flex mTop10">
             {list.length > 0 ? (
               list
                 .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1))

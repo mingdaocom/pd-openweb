@@ -49,7 +49,7 @@ export default class Widgets extends Component {
       formData = [],
     } = this.props;
     const value = this.getUserValue();
-    const filterAccountIds = value.map(item => item.accountId);
+    const selectedAccountIds = value.map(item => item.accountId);
     const that = this;
     const tabType = getTabTypeBySelectUser(this.props);
 
@@ -73,7 +73,7 @@ export default class Widgets extends Component {
         tabType,
         appId,
         prefixAccounts:
-          !_.includes(filterAccountIds, md.global.Account.accountId) && !hasUserRange
+          !_.includes(selectedAccountIds, md.global.Account.accountId) && !hasUserRange
             ? [
                 {
                   accountId: md.global.Account.accountId,
@@ -82,7 +82,7 @@ export default class Widgets extends Component {
                 },
               ]
             : [],
-        filterAccountIds,
+        selectedAccountIds,
         minHeight: 400,
         offset: {
           top: 16,
@@ -94,7 +94,7 @@ export default class Widgets extends Component {
         SelectUserSettings: {
           unique: enumDefault === 0,
           projectId: projectId,
-          filterAccountIds,
+          selectedAccountIds,
           callback: that.onSave,
         },
         selectCb: that.onSave,

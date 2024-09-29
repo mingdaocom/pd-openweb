@@ -2,7 +2,7 @@ import React, { useState, Fragment } from 'react';
 import { Icon, ColorPicker, SvgIcon } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { Input, Collapse, Checkbox, Switch, Tooltip } from 'antd';
+import { Input, Collapse, Checkbox, Switch, Tooltip, Select } from 'antd';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
 import Trigger from 'rc-trigger';
 import { normTypes } from 'statistics/common';
@@ -133,6 +133,8 @@ const colorTypes = [
   },
 ];
 
+const maxColumnCount = 6;
+
 export const defaultNumberChartStyle = {
   textAlign: 'center',
   columnCount: 4,
@@ -155,7 +157,7 @@ const CardLayout = props => {
     if (value) {
       value = parseInt(value);
       value = isNaN(value) ? 0 : value;
-      value = value > 4 ? 4 : value;
+      value = value > maxColumnCount ? maxColumnCount : value;
     } else {
       value = 1;
     }
@@ -198,7 +200,7 @@ const CardLayout = props => {
               <div className="flexColumn">
                 <Icon
                   icon="expand_less"
-                  className={cx('Font20 pointer mBottom2', numberChartStyle.columnCount === 4 ? 'disabled' : 'Gray_9e')}
+                  className={cx('Font20 pointer mBottom2', numberChartStyle.columnCount === maxColumnCount ? 'disabled' : 'Gray_9e')}
                   onClick={() => {
                     let value = Number(numberChartStyle.columnCount);
                     changeColumnCount(value + 1);
@@ -267,7 +269,7 @@ const IconSetting = props => {
             />
           }
         >
-          <EntranceWrapper className="ruleIcon flexRow valignWrapper pointer mLeft0 mRight10" onClick={() => {}}>
+          <EntranceWrapper className="ruleIcon flexRow valignWrapper pointer mLeft0 mRight10" onClick={() => { }}>
             <SvgIcon url={`${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`} fill="#9e9e9e" size={22} />
           </EntranceWrapper>
         </Trigger>
@@ -561,31 +563,33 @@ export function numberSummaryPanelGenerator(props) {
     >
       <div className="mBottom16">
         <div className="mBottom8">{_l('汇总方式')}</div>
-        <div className="chartTypeSelect flexRow valignWrapper">
+        <Select
+          className="chartSelect w100"
+          value={summary.type}
+          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          onChange={value => {
+            const item = _.find(normTypes, { value });
+            const isDefault = normTypes.map(item => item.text).includes(summary.name);
+            changeCurrentReport(
+              {
+                summary: {
+                  ...summary,
+                  type: item.value,
+                  name: isDefault ? item.text : summary.name,
+                },
+              },
+              true,
+            );
+          }}
+        >
           {normTypes
             .filter(n => n.value !== 5)
             .map(item => (
-              <div
-                key={item.value}
-                className={cx('flex centerAlign pointer Gray_75', { active: summary.type == item.value })}
-                onClick={() => {
-                  const isDefault = normTypes.map(item => item.text).includes(summary.name);
-                  changeCurrentReport(
-                    {
-                      summary: {
-                        ...summary,
-                        type: item.value,
-                        name: isDefault ? item.text : summary.name,
-                      },
-                    },
-                    true,
-                  );
-                }}
-              >
+              <Select.Option className="selectOptionWrapper" value={item.value}>
                 {item.alias || item.text}
-              </div>
+              </Select.Option>
             ))}
-        </div>
+        </Select>
       </div>
       <div className="mBottom16">
         <div className="mBottom8">{_l('提示')}</div>

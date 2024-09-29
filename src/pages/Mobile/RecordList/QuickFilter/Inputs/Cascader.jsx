@@ -1,6 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import { Icon, Radio, LoadDiv } from 'ming-ui';
-import { Modal, List } from 'antd-mobile';
+import { Popup, List } from 'antd-mobile'
 import { arrayOf, bool, func, shape, string } from 'prop-types';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import sheetAjax from 'src/api/worksheet';
@@ -256,7 +256,7 @@ export default class Cascader extends Component {
     // 必须选择最后一级
     if (+anylevel) {
       return (
-        <List>
+        <List className="leftAlign">
           {h5Options.map(item => (
             <List.Item
               key={item.value}
@@ -288,7 +288,7 @@ export default class Cascader extends Component {
     // 至少向后选择指定级
     if (minLayer) {
       return (
-        <List>
+        <List className="leftAlign">
           {h5Options.map(item => (
             <List.Item
               key={item.value}
@@ -308,7 +308,7 @@ export default class Cascader extends Component {
               {operatePath.length >= minLayer ? (
                 <div className="flexRow">
                   <Radio
-                    className="flex cascaderRadio flexRow"
+                    className="flex cascaderRadio flexRow Gray"
                     text={item.label}
                     checked={selectItem.id ? item.value === selectItem.id : item.value === selectedId}
                     onClick={() => this.setState({ selectItem: { id: item.value, label: item.label } })}
@@ -331,7 +331,7 @@ export default class Cascader extends Component {
                   )}
                 </div>
               ) : (
-                <div className="flexRow">
+                <div className="flexRow Gray">
                   <div className="flex ellipsis">{item.label}</div>
                   {!item.isLeaf && (
                     <div className="pLeft10 Font16 Gray_9e">
@@ -348,12 +348,12 @@ export default class Cascader extends Component {
 
     // 任意层级
     return (
-      <List>
+      <List className="leftAlign">
         {h5Options.map(item => (
           <List.Item key={item.value}>
             <div className="flexRow">
               <Radio
-                className="flex cascaderRadio flexRow"
+                className="flex cascaderRadio flexRow Gray"
                 text={item.label}
                 checked={selectItem.id ? item.value === selectItem.id : item.value === selectedId}
                 onClick={() => this.setState({ selectItem: { id: item.value, label: item.label } })}
@@ -425,18 +425,16 @@ export default class Cascader extends Component {
           </CascaderCon>
         </div>
         {visible && (
-          <Modal
+          <Popup
             className="antModalRadius"
-            popup
             visible={true}
             onClose={() => {
               this.setState({ visible: false, operatePath: [], selectItem: {} });
             }}
-            animationType="slide-up"
           >
             {this.renderH5Header()}
             <div style={{ height: 280, overflowY: 'auto' }}>{this.renderH5Content()}</div>
-          </Modal>
+          </Popup>
         )}
       </Fragment>
     );

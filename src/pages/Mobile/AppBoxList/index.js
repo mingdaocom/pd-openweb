@@ -1,5 +1,5 @@
 import React, { Fragment, Component } from 'react';
-import { Flex, ActivityIndicator, List, Toast } from 'antd-mobile';
+import { SpinLoading, List } from 'antd-mobile';
 import Back from '../components/Back';
 import AddDialog from 'mobile/AppBoxInfo/AppDetails/AddDialog';
 import './index.less';
@@ -44,7 +44,7 @@ export default class AddBoxList extends Component {
       if (projects.length) {
         this.addDialogEl.installApp(projects[0].projectId, item.libraryId);
       } else {
-        Toast.info(_l('您没有可安装模板的组织'), 3);
+        alert(_l('您没有可安装模板的组织'), 3);
       }
     } else {
       this.setState({
@@ -60,7 +60,8 @@ export default class AddBoxList extends Component {
         {dataBysearch.map(item => (
           <Item
             key={item.libraryId}
-            thumb={
+            arrow={false}
+            prefix={
               <div className="iconWrapper" style={{ backgroundColor: item.iconColor }}>
                 <SvgIcon url={item.iconUrl} fill="#fff" size={34} />
               </div>
@@ -93,9 +94,9 @@ export default class AddBoxList extends Component {
     return (
       <Fragment>
         {loading ? (
-          <Flex justify="center" align="center" className="h100">
-            <ActivityIndicator size="large" />
-          </Flex>
+          <div className="flexRow justifyContentCenter alignItemsCenter h100">
+            <SpinLoading color='primary' />
+          </div>
         ) : (
           this.renderAppsInfo()
         )}

@@ -1,14 +1,13 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon } from 'ming-ui';
-import plupload from '@mdfe/jquery-plupload';
-import { Flex, ActionSheet, ActivityIndicator, WhiteSpace } from 'antd-mobile';
+import { Popup, ActionSheet } from 'antd-mobile';
 import SelectUser from 'mobile/components/SelectUser';
-import AttachmentFiles, { UploadFileWrapper } from '../Discuss/AttachmentFiles';
+import AttachmentFiles, { UploadFileWrapper } from '../components/AttachmentFiles';
 import discussionAjax from 'src/api/discussion';
+import cx from 'classnames';
 import './index.less';
 import externalPortalAjax from 'src/api/externalPortal';
-import { ModalWrap } from '../baseStyled';
 import _ from 'lodash';
 
 const BASE_BUTTONS = [_l('@用户'), _l('输入@')];
@@ -43,7 +42,7 @@ class AddDiscuss extends Component {
     this.getPortalConfigSet();
   }
   componentWillUnmount() {
-    ActionSheet.close();
+    this.actionSheetHandler && this.actionSheetHandler.close();
   }
   getPortalConfigSet = () => {
     const { params } = this.props.match;
@@ -65,37 +64,36 @@ class AddDiscuss extends Component {
     const { rowId } = params;
     const newRowId = formatEmpty(rowId);
     const BUTTONS = _.isEmpty(newRowId) ? SHEET_BUTTONS : ROW_BUTTONS;
-
-    ActionSheet.showActionSheetWithOptions(
-      {
-        message: (
-          <div className="flexRow">
-            <span className="flex Font13 leftAlign">{_l('讨论')}</span>
-            <Icon
-              onClick={() => {
-                ActionSheet.close();
-              }}
-              icon="closeelement-bg-circle"
-              className="Font22 Gray_9e"
-            />
+    this.actionSheetHandler = ActionSheet.show({
+      actions: BUTTONS.map((item, index) => {
+        return {
+          key: index,
+          text: (
+            <span className="Bold">{item}</span>
+          )
+        }
+      }),
+      extra: (
+        <div className="flexRow header">
+          <span className="Font13">{_l('讨论')}</span>
+          <div className="closeIcon" onClick={() => this.actionSheetHandler.close()}>
+            <Icon icon="close" />
           </div>
-        ),
-        options: BUTTONS.map(item => (
-          <span className="Bold">{item}</span>
-        )),
-      },
-      buttonIndex => {
-        if (buttonIndex === 0) {
+        </div>
+      ),
+      onAction: (action, index) => {
+        if (index === 0) {
           this.handlePushValue(` ${BUTTONS[0]} `);
         }
-        if (buttonIndex === 1) {
+        if (index === 1) {
           this.setState({ showSelectUser: true });
         }
-        if (buttonIndex === 2) {
+        if (index === 2) {
           this.handlePushValue('@');
         }
-      },
-    );
+        this.actionSheetHandler.close();
+      }
+    });
   }
   handlePushValue(text) {
     const { value } = this.state;
@@ -183,8 +181,8 @@ class AddDiscuss extends Component {
           }}
         />
         {files.length ? <div className="filesWrapper">{this.renderFiles()}</div> : null}
-        <Flex className="handleBar">
-          <Flex.Item className="flexRow">
+        <div className="handleBar flexRow alignItemsCenter">
+          <div className="flexRow flex">
             <UploadFileWrapper
               files={files}
               projectId={projectId}
@@ -198,11 +196,11 @@ class AddDiscuss extends Component {
               <Icon icon="attachment" />
             </UploadFileWrapper>
             {!md.global.Account.isPortal && <Icon icon="chat-at" onClick={this.handleAt.bind(this)} />}
-          </Flex.Item>
+          </div>
           <div className="addRecord" onClick={this.handleSendMessage.bind(this)}>
             {_l('发送')}
           </div>
-        </Flex>
+        </div>
         {showSelectUser && (
           <SelectUser
             visible={true}
@@ -229,10 +227,8 @@ export default props => {
   const { className, visible, onClose, onAdd ,projectId} = props;
 
   return (
-    <ModalWrap
-      popup
-      animationType="slide-up"
-      className={className}
+    <Popup
+      className={cx('mobileModal minFull topRadius', className)}
       onClose={onClose}
       visible={visible}
     >
@@ -244,7 +240,7 @@ export default props => {
           projectId={projectId}
         />
       )}
-    </ModalWrap>
+    </Popup>
   );
 }
 

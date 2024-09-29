@@ -74,6 +74,7 @@ export default props => {
                 {singleObj.required && <span className="mLeft5 red">*</span>}
                 {singleObj.type === 29 && <span className="Gray_75">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
               </div>
+              {singleObj.type === 36 && <span className="Gray_75">{_l('是-(1,true), 否-(0,false), 其余值忽略')}</span>}
               {singleObj.type === 40 && (
                 <span className="Gray_75">{`{"x": "121.473667", "y": "31.230525", "title": "Shanghai", "address": ""}`}</span>
               )}

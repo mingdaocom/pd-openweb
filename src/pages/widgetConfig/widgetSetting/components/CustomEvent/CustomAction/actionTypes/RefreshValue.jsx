@@ -10,7 +10,8 @@ export default function RefreshValue(props) {
   const selectControls = allControls
     .filter(
       item =>
-        (item.type === 30 && (item.strDefault || '').split('')[0] !== '1') || _.includes([31, 32, 37, 38], item.type),
+        (item.type === 30 && (item.strDefault || '').split('')[0] !== '1') ||
+        _.includes([31, 32, 37, 38, 53], item.type),
     )
     .map(i => ({ ...i, sectionId: '' }));
   const [{ actionItems, visible }, setState] = useSetState({

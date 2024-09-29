@@ -86,7 +86,6 @@ export default class AppInfo extends Component {
       modifyAppLockPasswordVisible: false,
       lockAppVisisble: false,
       roleDebugVisible: false,
-      roleList: [],
     };
   }
 
@@ -688,7 +687,6 @@ export default class AppInfo extends Component {
       isAutofucus,
       appAnalyticsVisible,
       roleDebugVisible,
-      roleList,
     } = this.state;
     const {
       id: appId,
@@ -891,7 +889,7 @@ export default class AppInfo extends Component {
             <RoleSelect
               {..._.pick(data, ['permissionType', 'id'])}
               visible={roleDebugVisible}
-              data={roleList}
+              roleSelectValue={_.get(debugRole, 'selectedRoles') || []}
               posX={x}
               appId={appId}
               handleClose={() => this.setState({ roleDebugVisible: false })}

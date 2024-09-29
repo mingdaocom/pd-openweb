@@ -46,7 +46,7 @@ export default function BtnName(props) {
   const { name, color, config } = btnSetting;
   const { btnType = 1 } = btnConfig || {};
   const defaultConfig =
-    btnType === 2 ? { iconUrl: `${md.global.FileStoreConfig.pubHost}/customIcon/custom_actions.svg` } : {};
+    btnType === 2 ? { iconUrl: `${md.global.FileStoreConfig.pubHost}customIcon/custom_actions.svg` } : {};
   const { icon, iconUrl } = config || defaultConfig;
 
   const [visible, setVisible] = useState(false);

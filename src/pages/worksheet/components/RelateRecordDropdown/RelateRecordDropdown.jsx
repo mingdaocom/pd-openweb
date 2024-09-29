@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Trigger from 'rc-trigger';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { ClickAway } from 'ming-ui';
 import styled from 'styled-components';
@@ -87,6 +86,7 @@ export default class RelateRecordDropdown extends React.Component {
       addedIds: [],
     };
     this.initSearchControl(props);
+    this.focusInput = this.focusInput.bind(this);
   }
 
   componentDidMount() {
@@ -215,8 +215,7 @@ export default class RelateRecordDropdown extends React.Component {
     return 0;
   }
 
-  @autobind
-  openPopup() {
+  openPopup = () => {
     if (!this.cell.current) {
       this.setState({
         listvisible: true,
@@ -230,10 +229,9 @@ export default class RelateRecordDropdown extends React.Component {
       listvisible: true,
       cellToTop,
     });
-  }
+  };
 
-  @autobind
-  handleAdd(record, cb = () => {}) {
+  handleAdd = (record, cb = () => {}) => {
     const { multiple } = this.props;
     const { selected, addedIds = [] } = this.state;
     if (multiple && selected.length >= MAX_COUNT) {
@@ -252,10 +250,9 @@ export default class RelateRecordDropdown extends React.Component {
         },
       );
     }
-  }
+  };
 
-  @autobind
-  handleClear() {
+  handleClear = () => {
     const { onVisibleChange } = this.props;
     this.setState(
       {
@@ -267,10 +264,9 @@ export default class RelateRecordDropdown extends React.Component {
         onVisibleChange(false);
       },
     );
-  }
+  };
 
-  @autobind
-  handleDelete(record) {
+  handleDelete = record => {
     const { selected, deletedIds = [] } = this.state;
     this.setState(
       {
@@ -279,10 +275,9 @@ export default class RelateRecordDropdown extends React.Component {
       },
       this.handleChange,
     );
-  }
+  };
 
-  @autobind
-  handleItemClick(record) {
+  handleItemClick = record => {
     const { multiple, onVisibleChange } = this.props;
     const { selected } = this.state;
     if (multiple && record.rowid !== 'isEmpty') {
@@ -302,10 +297,9 @@ export default class RelateRecordDropdown extends React.Component {
         this.setState({ newrecordVisible: false });
       });
     }
-  }
+  };
 
-  @autobind
-  handleInputKeyDown(e) {
+  handleInputKeyDown = e => {
     const { control } = this.props;
     const { selected } = this.state;
     if (!get(this, 'list.current')) return;
@@ -324,7 +318,7 @@ export default class RelateRecordDropdown extends React.Component {
         this.handleDelete(needDelete);
       }
     }
-  }
+  };
 
   handleChange() {
     const { multiple, doNotClearKeywordsWhenChange, onChange } = this.props;
@@ -332,8 +326,8 @@ export default class RelateRecordDropdown extends React.Component {
     if (selected.length > 1 && _.find(selected, { rowid: 'isEmpty' })) {
       selected = selected.filter(r => r.rowid !== 'isEmpty');
     }
-    if (multiple && this.inputRef && this.inputRef.current) {
-      this.inputRef.current.focus();
+    if (multiple) {
+      this.focusInput();
     }
     if (!doNotClearKeywordsWhenChange) {
       this.setState({ keywords: '' });
@@ -341,21 +335,24 @@ export default class RelateRecordDropdown extends React.Component {
     onChange(selected, { addedIds, deletedIds });
   }
 
-  @autobind
-  handleClick() {
+  focusInput() {
+    if (this.inputRef && this.inputRef.current) {
+      this.inputRef.current.focus();
+    }
+  }
+
+  handleClick = () => {
     const { insheet, disabled, onClick } = this.props;
     if (insheet) {
       if (this.active) {
-        if (this.inputRef && this.inputRef.current) {
-          this.inputRef.current.focus();
-        }
+        this.focusInput();
       } else {
         onClick();
       }
     } else {
       this.setState({ listvisible: !disabled });
     }
-  }
+  };
 
   renderSingle() {
     const { insheet, isediting, isQuickFilter, control, allowOpenRecord, entityName, staticRecords } = this.props;
@@ -386,10 +383,14 @@ export default class RelateRecordDropdown extends React.Component {
           />
         )}
         {!active && _.isEmpty(selected) && !insheet && control.hint && (
-          <PlaceHolder className="ellipsis">{control.hint}</PlaceHolder>
+          <PlaceHolder className="ellipsis" onClick={this.focusInput}>
+            {control.hint}
+          </PlaceHolder>
         )}
         {_.isEmpty(staticRecords) && canSelect && !selected.length && active && !keywords && this.searchControl && (
-          <PlaceHolder className="ellipsis">{_l('搜索%0', this.searchControl.controlName)}</PlaceHolder>
+          <PlaceHolder className="ellipsis" onClick={this.focusInput}>
+            {_l('搜索%0', this.searchControl.controlName)}
+          </PlaceHolder>
         )}
         {insheet && isediting && !canSelect && selected.length === 0 && (
           <span
@@ -440,7 +441,7 @@ export default class RelateRecordDropdown extends React.Component {
               className={cx('activeSelectedItem', { active, allowRemove: this.allowRemove || record.isNewAdd })}
               style={_.assign({}, i === 0 ? (cellFrom === 4 ? { margin: 0 } : { marginTop: 6 }) : {})}
               onClick={e => {
-                if (!allowOpenRecord || active) {
+                if (!allowOpenRecord || active || /^temp/.test(record.rowid)) {
                   return;
                 }
                 this.setState({ previewRecord: { recordId: record.rowid } });
@@ -612,7 +613,7 @@ export default class RelateRecordDropdown extends React.Component {
     const { selected, keywords, listvisible } = this.state;
     let content;
     if (_.isFunction(renderSelected) && !(isQuickFilter && listvisible)) {
-      content = renderSelected(selected);
+      content = renderSelected(selected, { handleDelete: this.handleDelete });
     } else if (multiple && !isQuickFilter) {
       content = this.renderMultipe();
     } else {
@@ -643,9 +644,7 @@ export default class RelateRecordDropdown extends React.Component {
               e.stopPropagation();
               if (keywords) {
                 this.setState({ keywords: '' }, () => {
-                  if (this.inputRef && this.inputRef.current) {
-                    this.inputRef.current.focus();
-                  }
+                  this.focusInput();
                 });
               } else {
                 this.handleClear();
@@ -723,7 +722,7 @@ export default class RelateRecordDropdown extends React.Component {
             <div style={selectedStyle} ref={this.cell} />
           )}
         </Trigger>
-        {isQuickFilter && (
+        {window.isIPad && (
           <input
             type="text"
             style={{ width: 0, opacity: 0, height: 0, position: 'absolute', padding: 0, margin: 0 }}

@@ -2,14 +2,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
 import Back from '../../components/Back';
-import { List, Flex, ActionSheet, ActivityIndicator, WhiteSpace, Modal } from 'antd-mobile';
+import { Dialog, SpinLoading, ActionSheet, Input } from 'antd-mobile';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
 import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
-
-const prompt = Modal.prompt;
 
 class ApplyList extends React.Component {
   constructor(props) {
@@ -24,53 +22,46 @@ class ApplyList extends React.Component {
 
   componentWillUnmount() {
     $('html').removeClass('applyCon');
-    ActionSheet.close();
+    this.actionSheetHandler && this.actionSheetHandler.close();
   }
 
   showActionSheet = id => {
     const { applyList, roleList } = this.props.applyData;
     const { params } = this.props.match;
-    const BUTTONS = _.map(roleList, (item, i) => {
-      return (
-        <span className="Bold" key={`${item.roleId}-${i}`}>
-          {_l('设为%0', item.name)}
-        </span>
-      );
-    });
-    ActionSheet.showActionSheetWithOptions(
-      {
-        options: BUTTONS,
-        maskClosable: true,
-        message: (
-          <div className="flexRow header">
-            <span className="Font13">{_l('申请管理')}</span>
-            <div
-              className="closeIcon"
-              onClick={() => {
-                ActionSheet.close();
-              }}
-            >
-              <Icon icon="close" />
-            </div>
+    this.actionSheetHandler = ActionSheet.show({
+      actions: roleList.map(item => {
+        return {
+          key: item.roleId,
+          text: (
+            <span className="Bold">
+              {_l('设为%0', item.name)}
+            </span>
+          )
+        }
+      }),
+      extra: (
+        <div className="flexRow header">
+          <span className="Font13">{_l('申请管理')}</span>
+          <div className="closeIcon" onClick={() => this.actionSheetHandler.close()}>
+            <Icon icon="close" />
           </div>
-        ),
-        'data-seed': 'logId',
-      },
-      buttonIndex => {
-        if (buttonIndex === -1) return;
-        if (buttonIndex < roleList.length) {
+        </div>
+      ),
+      onAction: (action, index) => {
+        if (index < roleList.length) {
           this.props.dispatch(
             actions.editAppApplyStatus({
               ids: [id],
               appId: params.appId,
               status: 2,
-              role: roleList[buttonIndex],
-              roleId: roleList[buttonIndex].roleId,
+              role: roleList[index],
+              roleId: roleList[index].roleId,
             }),
           );
         }
-      },
-    );
+        this.actionSheetHandler.close();
+      }
+    });
   };
 
   render() {
@@ -80,9 +71,9 @@ class ApplyList extends React.Component {
 
     if (isApplyLoading) {
       return (
-        <Flex justify="center" align="center" className="h100">
-          <ActivityIndicator size="large" />
-        </Flex>
+      <div className="flexRow justifyContentCenter alignItemsCenter h100">
+        <SpinLoading color='primary' />
+      </div>
       );
     }
 
@@ -93,30 +84,35 @@ class ApplyList extends React.Component {
             {_.map(applyList, (item, i) => {
               return (
                 <React.Fragment key={item.id}>
-                  <WhiteSpace size="xl" />
-                  <List.Item className="listApply" key={item.id}>
+                  <div className="listApply pTop20 pLeft10 pRight10" key={item.id}>
                     <div className="flexRow">
                       <span className="Gray Font17 flex">{item.accountInfo.fullName}</span>
                       <div>
                         <span
                           className="InlineBlock toBeBtn rejectBtn"
                           onClick={() => {
-                            prompt(_l('拒绝'), _l('请填写拒绝的原因'), [
-                              { text: _l('取消') },
-                              {
-                                text: _l('确认'),
-                                onPress: value => {
-                                  this.props.dispatch(
-                                    actions.editAppApplyStatus({
-                                      ids: [item.id],
-                                      appId: params.appId,
-                                      status: 3,
-                                      remark: value,
-                                    }),
-                                  );
-                                },
-                              },
-                            ]);
+                            Dialog.confirm({
+                              title: _l('拒绝'),
+                              content: (
+                                <div className="TxtCenter">
+                                  {_l('请填写拒绝的原因')}
+                                  <Input className="mTop10 pAll5 rejectConfirmInput" style={{ borderRadius: 4, border: '1px solid #ededed', '--font-size': 13 }} />
+                                </div>
+                              ),
+                              cancelText: _l('取消'),
+                              confirmText: _l('确认'),
+                              onConfirm: () => {
+                                const el = document.querySelector('.rejectConfirmInput input');
+                                this.props.dispatch(
+                                  actions.editAppApplyStatus({
+                                    ids: [item.id],
+                                    appId: params.appId,
+                                    status: 3,
+                                    remark: el.value,
+                                  }),
+                                );
+                              }
+                            });
                           }}
                         >
                           {_l('拒绝')}
@@ -132,7 +128,7 @@ class ApplyList extends React.Component {
                       </div>
                     </div>
                     {item.remark ? <div className="Gray_9e Font13 mTop10 applyInfo">{item.remark}</div> : null}
-                  </List.Item>
+                  </div>
                 </React.Fragment>
               );
             })}

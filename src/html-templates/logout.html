@@ -37,8 +37,10 @@
                 window.subPath = '/portal';
             }
             var request = new XMLHttpRequest();
+            var cookie = document.cookie.match(/md_pss_id=(\w+)/)[1];
             request.open('POST', __api_server__.main + 'Login/LoginOut');
             request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+            request.setRequestHeader('Authorization', 'md_pss_id ' + cookie);
             request.send();
             request.onload = function () {
                 if (this.status >= 200 && this.status < 400) {

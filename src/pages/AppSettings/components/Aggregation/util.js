@@ -1,38 +1,53 @@
 import { useEffect, useRef } from 'react';
 import _ from 'lodash';
-import { OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
+import {
+  OPERATION_TYPE_DATA,
+  TIME_DATA_PARTICLE,
+} from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
 import { API_ENUM_TO_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import {
   isFormulaResultAsSubtotal,
+  isFormulaResultAsSubtotalTime,
+  isFormulaResultAsSubtotalDateTime,
   isFormulaResultAsNumber,
   isFormulaResultAsDateTime,
   isFormulaResultAsDate,
   isFormulaResultAsTime,
 } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import { CAN_AS_TIME_DYNAMIC_FIELD } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
+import { DATE_TIME_DATA_PARTICLE } from './config';
 
 export const getNodeInfo = (flowData, type) => {
   return _.values(_.get(flowData, 'aggTableNodes') || {}).find(o => _.get(o, 'nodeType') === type) || {};
 };
-export const getConfigControls = (flowData, isGroup) => {
+
+//是否同一个字段
+const isEqualControl = (parentControl, control, item, workSheetId) => {
+  return parentControl && _.get(item, 'parentFieldInfo.oid')
+    ? _.get(item, 'oid') === `${parentControl.dataSource}_${control.controlId}` &&
+        _.get(item, 'parentFieldInfo.oid') === `${workSheetId}_${parentControl.controlId}`
+    : !parentControl && _.get(item, 'oid') === `${workSheetId}_${control.controlId}`;
+};
+
+//判断这个字段是否已配置过
+export const isIn = (flowData, control, parentControl, workSheetId, isGroup) => {
   const groupDt = getNodeInfo(flowData, 'GROUP');
   const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
-  let controlOids = [];
+  let hs = [];
   (_.get(groupDt, 'nodeConfig.config.groupFields') || []).map(o => {
     const { fields = [] } = o;
-    fields.map((a = {}) => {
-      controlOids.push(a.oid || '');
-    });
+    hs.push(...fields.filter((a = {}) => isEqualControl(parentControl, control, a, workSheetId)));
   });
   if (isGroup) {
-    return controlOids;
+    return hs.length > 0;
   }
-  // !forAggregation &&
-  (_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).map((o = {}) => {
-    if (!o.isCalculateField) {
-      controlOids.push(o.oid || {});
-    }
-  });
-  return controlOids;
+  const aggHs = (_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).find(
+    (a = {}) => !a.isCalculateField && isEqualControl(parentControl, control, a, workSheetId),
+  );
+  if (aggHs) {
+    hs = hs.concat(aggHs);
+  }
+  return hs.length > 0;
 };
 
 export const getGroupFields = flowData => {
@@ -40,17 +55,24 @@ export const getGroupFields = flowData => {
   return (_.get(groupDt, 'nodeConfig.config.groupFields') || []).filter(o => !!o.fields && !!o.resultField);
 };
 
-const getAggFuncTypesByOid = (aggregateFields, oid) => {
-  return _.uniq(aggregateFields.filter(o => o.oid === oid).map(o => o.aggFuncType));
+export const canChooseForParent = (flowData, dataSource) => {
+  const sourceDtList = getAllSourceList(flowData);
+  return sourceDtList.find(o => o.isRelative && o.dataSource === dataSource) || sourceDtList.length < 5;
+};
+
+export const canAgg = (control, parentControl, flowData, workSheetId) => {
+  const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
+  const aggregateFields = _.get(aggregateDt, 'nodeConfig.config.aggregateFields') || [];
+  return (
+    aggregateFields.filter(a => isEqualControl(parentControl, control, a, workSheetId)).length <
+    getDefaultOperationDatas(control).length
+  );
 };
 
 export const getCanSelectControls = (sourceInfos, flowData, workSheetId, forAggregation) => {
-  const controlOids = getConfigControls(flowData) || [];
-  let list = [];
+  let list = formatControls((sourceInfos.find(it => it.worksheetId === workSheetId) || {}).controls || [], workSheetId);
   if (forAggregation) {
-    const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
-    const aggregateFields = _.get(aggregateDt, 'nodeConfig.config.aggregateFields') || [];
-    list = formatControls((sourceInfos.find(it => it.worksheetId === workSheetId) || {}).controls || []).filter(
+    list = list.filter(
       o =>
         !(
           (
@@ -59,27 +81,86 @@ export const getCanSelectControls = (sourceInfos, flowData, workSheetId, forAggr
           ) //聚合不支持数值之外的
         ),
     );
-    const groupOids = getConfigControls(flowData, true);
-    list = list.filter(o =>
-      o.controlId === 'rowscount'
-        ? !_.includes(controlOids, `${workSheetId}_${o.controlId}`)
-        : _.includes(groupOids, `${workSheetId}_${o.controlId}`)
-        ? false //归组的字段，聚合不可选
-        : _.includes(controlOids, `${workSheetId}_${o.controlId}`)
-        ? getAggFuncTypesByOid(aggregateFields, `${workSheetId}_${o.controlId}`).length <
-          getDefaultOperationDatas(o).length
-        : true,
-    );
-  } else {
-    list = formatControls((sourceInfos.find(it => it.worksheetId === workSheetId) || {}).controls || [])
-      .filter(o => !_.includes(controlOids, `${workSheetId}_${o.controlId}`))
-      .filter(
-        o => ![31, 37].includes(o.type), //归组不支持汇总 公式数值
+    const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
+    const aggregateFields = _.get(aggregateDt, 'nodeConfig.config.aggregateFields') || [];
+    const onFilter = it => {
+      return (
+        ![34, 35, 29].includes(it.type) &&
+        !(
+          (
+            (it.type === 38 && it.enumDefault === 2) || //聚合不支持公式日期加减
+            (it.type === 37 && !isFormulaResultAsSubtotal(it))
+          ) //聚合不支持数值之外的
+        )
       );
+    };
+    const isInGroup = o => {
+      if ([34, 35, 29].includes(o.type)) {
+        return (
+          formatControls(o.relationControls).filter(it => !isIn(flowData, it, o, workSheetId, true) && onFilter(it))
+            .length <= 0
+        );
+      } else {
+        return isIn(flowData, o, null, workSheetId, true);
+      }
+    };
+    list = list.map(oo => {
+      let o = { ...oo, disableChoose: false };
+      if (o.controlId === 'rowscount') {
+        if (isIn(flowData, o, null, workSheetId, false)) {
+          return { ...o, disableChoose: true };
+        }
+        return o;
+      }
+      if ([34, 35, 29].includes(o.type)) {
+        //聚合中的字段，聚合方式不能重复
+        if (
+          !isInGroup(o) &&
+          formatControls(o.relationControls).filter(it => onFilter(it) && canAgg(it, o, flowData, workSheetId)).length >
+            0
+        ) {
+          return o;
+        }
+        return { ...o, disableChoose: true };
+      } else {
+        if (isInGroup(o)) {
+          //归组的字段，聚合不可选
+          return { ...o, disableChoose: true };
+        }
+        if (isIn(flowData, o, null, workSheetId, false)) {
+          return { ...o, disableChoose: !canAgg(o, null, flowData, workSheetId) };
+        }
+        return { ...o, disableChoose: false };
+      }
+    });
+  } else {
+    list = list.filter(
+      o => ![31, 37].includes(o.type), //归组不支持汇总 公式数值
+    );
+    const onFilter = it => {
+      return ![34, 35, 29, 31, 37, 6, 8].includes(it.type);
+    };
+    list = list.map(oo => {
+      let o = { ...oo, disableChoose: false };
+      if ([34, 35, 29].includes(o.type)) {
+        const relationControls = formatControls(o.relationControls).filter(
+          it => !isIn(flowData, it, o, workSheetId, false) && onFilter(it),
+        );
+        return {
+          ...o,
+          disableChoose: relationControls.length <= 0,
+        };
+      } else {
+        if (isIn(flowData, o, null, workSheetId, false)) {
+          return { ...o, disableChoose: true };
+        }
+        return o;
+      }
+    });
   }
   return list;
 };
-
+//聚合方式
 export const getDefaultOperationDatas = item => {
   return OPERATION_TYPE_DATA.filter(o => {
     // 数值类字段
@@ -88,32 +169,68 @@ export const getDefaultOperationDatas = item => {
       (item.type === 38 && isFormulaResultAsNumber(item)) ||
       (item.type === 37 && isFormulaResultAsSubtotal(item))
     ) {
-      return ['SUM', 'MAX', 'MIN', 'AVG'].includes(o.value);
+      return ['SUM', 'MAX', 'MIN', 'AVG', 'COUNT', 'DISTINCT_COUNT'].includes(o.value);
     } else {
       return ['COUNT', 'DISTINCT_COUNT'].includes(o.value);
     }
   });
 };
 
-export const formatControls = controls => {
+const isRuleRelative = o => {
+  //单对单
+  return (
+    o.type === 29 &&
+    o.enumDefault === 1 &&
+    o.sourceControlId &&
+    o.relationControls.length > 0 &&
+    _.get(getSourceControl(o.relationControls, o.sourceControlId), 'type') === 29 &&
+    _.get(getSourceControl(o.relationControls, o.sourceControlId), 'enumDefault') === 1
+  );
+};
+
+export const formatControls = (controls, worksheetId) => {
   // 嵌入,条码,分段,备注,标签页,自由链接,富文本,查询记录,他表字段仅显示,文本识别,api查询(按钮),加密文本,成员外部门户
-  // 大写金额，定位 签名 子表 附件 公式字段(距离此刻时长/时长)(只支持加减)
+  // 大写金额，定位 签名 附件
+  //老字段 17 18
+  //汇总都不支持配置  37
+  // 公式字段(距离此刻时长|为日期加减时间) 不支持
+  return controls.filter(
+    o =>
+      o.type === 29
+        ? _.get(o, 'advancedSetting.hide') !== '1' && o.dataSource !== worksheetId && isRuleRelative(o) //关联仅支持单对单
+        : !(
+            [17, 18, 45, 47, 22, 10010, 52, 21, 41, 51, 49, 43, 25, 40, 42, 14, 53, 37].includes(o.type) ||
+            // (o.type === 30 && (o.strDefault || '').split('')[0] === '1') ||
+            o.type === 30 || // 他表字段 暂时都不支持
+            !!o.encryId ||
+            (o.type === 26 && _.get(o, 'advancedSetting.usertype') === '2')
+          ) &&
+          !([34, 35].includes(o.type) && o.dataSource === worksheetId) &&
+          !(o.type === 38 && [2, 3].includes(o.enumDefault)), //公式字段(距离此刻时长|为日期加减时间) 不支持
+  );
+};
+
+const getSourceControl = (relationControls, sourceControlId) => {
+  return relationControls.find(o => o.controlId === sourceControlId);
+};
+
+export const filterForFilterDialog = controls => {
+  // 嵌入,条码,分段,备注,标签页,自由链接,查询记录,他表字段仅显示,文本识别,api查询(按钮),成员外部门户
+  // 大写金额， 附件
   //老字段 17 18
   return controls.filter(
     o =>
       !(
-        [17, 18, 45, 47, 22, 10010, 52, 21, 41, 51, 49, 43, 25, 40, 42, 34, 14].includes(o.type) ||
+        [17, 18, 45, 47, 22, 10010, 52, 21, 51, 49, 43, 25, 14, 53].includes(o.type) ||
         // (o.type === 30 && (o.strDefault || '').split('')[0] === '1') ||
         o.type === 30 || // 他表字段 暂时都不支持
-        !!o.encryId ||
         (o.type === 26 && _.get(o, 'advancedSetting.usertype') === '2') ||
-        (o.type === 38 && o.enumDefault !== 2) || //公式字段(距离此刻时长) 公式字段(时长) 不支持，只支持加减
         (o.type === 29 && _.get(o, 'advancedSetting.hide') === '1')
       ),
   );
 };
 
-export const getAggFuncTypes = (aggregateFields, control, worksheetId) => {
+export const getAggFuncTypes = (aggregateFields, parentControl, control, worksheetId) => {
   let hs = false;
   let aggFuncType = 'COUNT';
   let aggFuncName = _l('计数');
@@ -122,7 +239,7 @@ export const getAggFuncTypes = (aggregateFields, control, worksheetId) => {
   } else {
     const list = getDefaultOperationDatas(control);
     const aggFuncTypes = aggregateFields
-      .filter(o => o.oid === `${worksheetId}_${control.controlId}`)
+      .filter(o => isEqualControl(parentControl, control, o, worksheetId))
       .map(o => o.aggFuncType);
     const others = list.filter(o => !(aggFuncTypes || []).includes(o.value));
     if (others.length <= 0) {
@@ -192,78 +309,127 @@ export const getRuleAlias = (alias, flowData, isRule, getLen) => {
 export const getControls = (data, controls = []) => {
   return (
     controls
-      //排除 非选项集的选项、大写金额、汇总、子表、签名、定位、关联多条
+      //排除 非选项集的选项、大写金额、汇总、签名、定位
       .filter(
         o =>
           !([9, 10, 11].includes(o.type) && !o.dataSource) && //选项集的选项
-          ![25, 37, 34, 42, 40].includes(o.type) && //大写金额、汇总、子表、签名、定位
-          !([29].includes(o.type) && o.enumDefault === 2), //关联多条
+          ![25, 37, 42, 40].includes(o.type), //大写金额、汇总、签名、定位
       )
-      .filter(o =>
-        !!data
-          ? [9, 10, 11].includes(data.mdType) //选项集且dataSource一致
-            ? o.dataSource === _.get(data, 'controlSetting.dataSource') && [9, 10, 11].includes(o.type)
-            : [29].includes(data.mdType)
-            ? data.controlSetting.dataSource === o.dataSource && [29].includes(o.type) //相同的关联表
-            : canSelectTypes(_.get(data, 'controlSetting'), o)
-          : true,
-      )
+      .filter(o => (!!data ? canSelectTypes(_.get(data, 'controlSetting'), o) : true))
   );
 };
 
-//可选的字段类型
+//多源归组 可选的字段类型
 export const canSelectTypes = (data, item) => {
+  //关联下的字段 排除非单对单
+  if (29 === item.type ? isRuleRelative(item) : [34, 35].includes(item.type)) {
+    const onFilter = it => {
+      return ![34, 35, 29, 31, 37, 6, 8].includes(it.type);
+    };
+    const relationControls = formatControls(item.relationControls).filter(
+      it => onFilter(it) && canSelectTypes(data, it),
+    );
+    return relationControls.length > 0;
+  }
+  if ([9, 10, 11].includes(data.mdType)) {
+    //选项集且dataSource一致
+    return item.dataSource === _.get(data, 'controlSetting.dataSource') && [9, 10, 11].includes(item.type);
+  }
+  if ([29].includes(data.mdType)) {
+    return data.controlSetting.dataSource === item.dataSource && [29].includes(item.type); //相同的关联表
+  }
   switch (data.type) {
-    case API_ENUM_TO_TYPE.TEXTAREA_INPUT_1:
+    case API_ENUM_TO_TYPE.NEW_FORMULA_38:
+    case API_ENUM_TO_TYPE.NEW_FORMULA_31:
+    case API_ENUM_TO_TYPE.SUBTOTAL:
+      // 时间类
+      if (
+        (data.type === API_ENUM_TO_TYPE.SUBTOTAL && isFormulaResultAsSubtotalTime(data)) ||
+        (data.type === API_ENUM_TO_TYPE.NEW_FORMULA_38 && isFormulaResultAsTime(data))
+      ) {
+        return (
+          API_ENUM_TO_TYPE.TIME === item.type ||
+          (item.type === API_ENUM_TO_TYPE.SUBTOTAL && isFormulaResultAsSubtotalTime(item)) ||
+          (item.type === API_ENUM_TO_TYPE.NEW_FORMULA_38 && isFormulaResultAsTime(item))
+        );
+      }
+      // 日期时间类
+      if (
+        (data.type === API_ENUM_TO_TYPE.NEW_FORMULA_38 &&
+          (isFormulaResultAsDateTime(data) || isFormulaResultAsDate(data))) || // 公式日期加减 =>日期、公式（日期加减时间）
+        (data.type === API_ENUM_TO_TYPE.SUBTOTAL && isFormulaResultAsSubtotalDateTime(data)) //汇总日期时间类
+      ) {
+        return (
+          [
+            API_ENUM_TO_TYPE.DATE_INPUT_15,
+            API_ENUM_TO_TYPE.DATE_INPUT_16,
+            API_ENUM_TO_TYPE.DATE_TIME_RANGE_17,
+            API_ENUM_TO_TYPE.DATE_TIME_RANGE_18,
+          ].includes(item.type) ||
+          (data.type === API_ENUM_TO_TYPE.NEW_FORMULA_38 &&
+            (isFormulaResultAsDateTime(data) || isFormulaResultAsDate(data))) ||
+          (item.type === API_ENUM_TO_TYPE.SUBTOTAL && isFormulaResultAsSubtotalDateTime(item))
+        );
+      } else {
+        //数值类
+        // 公式（除日期加减时间）=> 数值、金额、公式（除日期加减时间）、等级、
+        return (
+          [
+            API_ENUM_TO_TYPE.TEXTAREA_INPUT_1,
+            API_ENUM_TO_TYPE.TEXTAREA_INPUT_2,
+            API_ENUM_TO_TYPE.NUMBER_INPUT,
+            API_ENUM_TO_TYPE.MONEY_AMOUNT_8,
+            API_ENUM_TO_TYPE.NEW_FORMULA_31,
+            API_ENUM_TO_TYPE.SCORE,
+            API_ENUM_TO_TYPE.EMAIL_INPUT,
+            API_ENUM_TO_TYPE.PHONE_NUMBER_3,
+            API_ENUM_TO_TYPE.PHONE_NUMBER_4,
+            API_ENUM_TO_TYPE.CRED_INPUT,
+            API_ENUM_TO_TYPE.CONCATENATE,
+            API_ENUM_TO_TYPE.API_SEARCH,
+            API_ENUM_TO_TYPE.AUTOID,
+          ].includes(item.type) ||
+          isFormulaResultAsNumber(item) ||
+          isFormulaResultAsSubtotal(item)
+        );
+      }
+    case API_ENUM_TO_TYPE.TIME:
+      return (
+        API_ENUM_TO_TYPE.TIME === item.type ||
+        (item.type === API_ENUM_TO_TYPE.SUBTOTAL && isFormulaResultAsSubtotalTime(item)) ||
+        (item.type === API_ENUM_TO_TYPE.NEW_FORMULA_38 && isFormulaResultAsTime(item))
+      );
+    case API_ENUM_TO_TYPE.TEXTAREA_INPUT_1: //文本
     case API_ENUM_TO_TYPE.TEXTAREA_INPUT_2:
-    case API_ENUM_TO_TYPE.CONCATENATE:
-      // 文本（单行、多行）
-      //文本、数值、金额、邮箱、时间、手机、、证件、文本组合、汇总、API查询(暂不支持)、自动编号（日期、公式需要数据集成支持转成文本在支持）
-      return [
-        API_ENUM_TO_TYPE.TEXTAREA_INPUT_1,
-        API_ENUM_TO_TYPE.TEXTAREA_INPUT_2,
-        API_ENUM_TO_TYPE.NUMBER_INPUT,
-        API_ENUM_TO_TYPE.MONEY_AMOUNT_8,
-        API_ENUM_TO_TYPE.EMAIL_INPUT,
-        API_ENUM_TO_TYPE.TIME,
-        API_ENUM_TO_TYPE.PHONE_NUMBER_3,
-        API_ENUM_TO_TYPE.PHONE_NUMBER_4,
-        // API_ENUM_TO_TYPE.DATE_INPUT_15,//暂时排除日期
-        // API_ENUM_TO_TYPE.DATE_INPUT_16,
-        // API_ENUM_TO_TYPE.DATE_TIME_RANGE_17,
-        // API_ENUM_TO_TYPE.DATE_TIME_RANGE_18,
-        // API_ENUM_TO_TYPE.NEW_FORMULA_31,
-        // API_ENUM_TO_TYPE.NEW_FORMULA_38,
-        API_ENUM_TO_TYPE.CRED_INPUT,
-        API_ENUM_TO_TYPE.CONCATENATE,
-        API_ENUM_TO_TYPE.SUBTOTAL,
-      ].includes(item.type);
+    case API_ENUM_TO_TYPE.NUMBER_INPUT: //数值
+    case API_ENUM_TO_TYPE.MONEY_AMOUNT_8: //金额
+    case API_ENUM_TO_TYPE.SCORE: //等级
+    case API_ENUM_TO_TYPE.EMAIL_INPUT: //邮箱
     case API_ENUM_TO_TYPE.PHONE_NUMBER_3:
-    case API_ENUM_TO_TYPE.PHONE_NUMBER_4:
-      // 电话
-      //文本、电话
-      return [
-        API_ENUM_TO_TYPE.TEXTAREA_INPUT_1,
-        API_ENUM_TO_TYPE.TEXTAREA_INPUT_2,
-        API_ENUM_TO_TYPE.PHONE_NUMBER_3,
-        API_ENUM_TO_TYPE.PHONE_NUMBER_4,
-      ].includes(item.type);
-    case API_ENUM_TO_TYPE.CRED_INPUT:
-      // 证件
-      // 证件 文本、
-      return [
-        API_ENUM_TO_TYPE.TEXTAREA_INPUT_1,
-        API_ENUM_TO_TYPE.TEXTAREA_INPUT_2,
-        API_ENUM_TO_TYPE.CRED_INPUT,
-      ].includes(item.type);
-    case API_ENUM_TO_TYPE.EMAIL_INPUT:
-      // 邮箱
-      //文本、邮箱
-      return [
-        API_ENUM_TO_TYPE.TEXTAREA_INPUT_1,
-        API_ENUM_TO_TYPE.TEXTAREA_INPUT_2,
-        API_ENUM_TO_TYPE.EMAIL_INPUT,
-      ].includes(item.type);
+    case API_ENUM_TO_TYPE.PHONE_NUMBER_4: //手机
+    case API_ENUM_TO_TYPE.CRED_INPUT: //证件
+    case API_ENUM_TO_TYPE.CONCATENATE: //文本组合
+    case API_ENUM_TO_TYPE.API_SEARCH: //API查询、
+    case API_ENUM_TO_TYPE.AUTOID: //自动编号
+      return (
+        [
+          API_ENUM_TO_TYPE.TEXTAREA_INPUT_1,
+          API_ENUM_TO_TYPE.TEXTAREA_INPUT_2,
+          API_ENUM_TO_TYPE.NUMBER_INPUT,
+          API_ENUM_TO_TYPE.MONEY_AMOUNT_8,
+          API_ENUM_TO_TYPE.NEW_FORMULA_31,
+          API_ENUM_TO_TYPE.SCORE,
+          API_ENUM_TO_TYPE.EMAIL_INPUT,
+          API_ENUM_TO_TYPE.PHONE_NUMBER_3,
+          API_ENUM_TO_TYPE.PHONE_NUMBER_4,
+          API_ENUM_TO_TYPE.CRED_INPUT,
+          API_ENUM_TO_TYPE.CONCATENATE,
+          API_ENUM_TO_TYPE.API_SEARCH,
+          API_ENUM_TO_TYPE.AUTOID,
+        ].includes(item.type) ||
+        isFormulaResultAsNumber(item) ||
+        isFormulaResultAsSubtotal(item)
+      );
     case API_ENUM_TO_TYPE.AREA_INPUT_24:
     case API_ENUM_TO_TYPE.AREA_INPUT_19:
     case API_ENUM_TO_TYPE.AREA_INPUT_23:
@@ -283,50 +449,9 @@ export const canSelectTypes = (data, item) => {
           API_ENUM_TO_TYPE.DATE_TIME_RANGE_17,
           API_ENUM_TO_TYPE.DATE_TIME_RANGE_18,
         ].includes(item.type) ||
-        (item.type === API_ENUM_TO_TYPE.NEW_FORMULA_38 && item.enumDefault === 2)
-      );
-    case API_ENUM_TO_TYPE.NEW_FORMULA_38:
-    case API_ENUM_TO_TYPE.NEW_FORMULA_31:
-      if (data.enumDefault === 2 && data.type === API_ENUM_TO_TYPE.NEW_FORMULA_38) {
-        // 公式日期加减 =>日期、公式（日期加减时间）
-        return (
-          [
-            API_ENUM_TO_TYPE.DATE_INPUT_15,
-            API_ENUM_TO_TYPE.DATE_INPUT_16,
-            API_ENUM_TO_TYPE.DATE_TIME_RANGE_17,
-            API_ENUM_TO_TYPE.DATE_TIME_RANGE_18,
-          ].includes(item.type) ||
-          (item.type === API_ENUM_TO_TYPE.NEW_FORMULA_38 && item.enumDefault === 2)
-        );
-      } else {
-        // 公式（除日期加减时间）=> 数值、金额、公式（除日期加减时间）、等级、
-        return (
-          [
-            API_ENUM_TO_TYPE.NUMBER_INPUT,
-            API_ENUM_TO_TYPE.MONEY_AMOUNT_8,
-            API_ENUM_TO_TYPE.NEW_FORMULA_31,
-            API_ENUM_TO_TYPE.SCORE,
-          ].includes(item.type) ||
-          (item.type === API_ENUM_TO_TYPE.NEW_FORMULA_38 && item.enumDefault !== 2)
-        );
-      }
-    case API_ENUM_TO_TYPE.NUMBER_INPUT:
-    case API_ENUM_TO_TYPE.MONEY_AMOUNT_8:
-    case API_ENUM_TO_TYPE.SCORE:
-      // 数值、金额、公式（除日期加减时间）、等级、=> 数值、金额、公式（除日期加减时间）、等级、
-      return (
-        [
-          API_ENUM_TO_TYPE.NUMBER_INPUT,
-          API_ENUM_TO_TYPE.MONEY_AMOUNT_8,
-          API_ENUM_TO_TYPE.NEW_FORMULA_31,
-          API_ENUM_TO_TYPE.SCORE,
-        ].includes(item.type) ||
-        (item.type === API_ENUM_TO_TYPE.NEW_FORMULA_38 && item.enumDefault !== 2)
-      );
-    case API_ENUM_TO_TYPE.AUTOID:
-      // 自动编号  自动编号和文本
-      return [API_ENUM_TO_TYPE.AUTOID, API_ENUM_TO_TYPE.TEXTAREA_INPUT_1, API_ENUM_TO_TYPE.TEXTAREA_INPUT_2].includes(
-        item.type,
+        (data.type === API_ENUM_TO_TYPE.NEW_FORMULA_38 &&
+          (isFormulaResultAsDateTime(data) || isFormulaResultAsDate(data))) ||
+        (item.type === API_ENUM_TO_TYPE.SUBTOTAL && isFormulaResultAsSubtotalDateTime(item))
       );
     default:
       return data.type === item.type;
@@ -389,24 +514,21 @@ export const isHasChange = flowData => {
     isDisPreview: groupFields.length <= 0 || aggregateFields.length <= 0,
   };
 };
-
-export const getResultField = (fields = []) => {
+//多源归组ResultField及配置处理
+export const getResultField = (fields = [], flowData, aggFuncType) => {
   if (fields.length <= 0) {
     return undefined;
   }
   let data = {
     ...fields[0],
-    controlSetting: _.get(fields, '[0].controlSetting'),
+    ...getGroupInfo({ fields }, flowData),
+    controlSetting: formatGroupConfig(fields),
+    mdType: formatGroupConfig(fields).type,
   };
+  if (aggFuncType) {
+    data.aggFuncType = aggFuncType;
+  }
   const getShowtype = () => {
-    // { text: _l('年'), value: '5' },
-    // { text: _l('年-月'), value: '4' },
-    // { text: _l('年-月-日'), value: '3' },
-    // { text: _l('年-月-日 时'), value: '2' },
-    // { text: _l('年-月-日 时:分'), value: '1' },
-    // { text: _l('年-月-日 时:分:秒'), value: '6' },
-    // { text: _l('时:分'), value: '8' },
-    // { text: _l('时:分:秒'), value: '9' },
     let list = [];
     fields.map(o => {
       if (
@@ -434,25 +556,329 @@ export const getResultField = (fields = []) => {
       return _.max(list);
     }
   };
-  if (
-    isFormulaResultAsDate(data.controlSetting) ||
-    isFormulaResultAsDateTime(data.controlSetting) ||
-    [15, 16, 17, 18].includes(_.get(data, 'controlSetting.type'))
-  ) {
-    const datatype = getShowtype();
-    console.log(datatype);
-    if (isFormulaResultAsDate(data.controlSetting) || isFormulaResultAsDateTime(data.controlSetting)) {
-      //公式字段 配置在unit
+  if (data.aggFuncType) {
+    data = setResultFieldSettingByAggFuncType(data);
+  } else {
+    if (
+      isFormulaResultAsDate(data.controlSetting) ||
+      isFormulaResultAsDateTime(data.controlSetting) ||
+      [15, 16, 17, 18].includes(_.get(data, 'controlSetting.type'))
+    ) {
+      const datatype = getShowtype();
+      if (isFormulaResultAsDate(data.controlSetting) || isFormulaResultAsDateTime(data.controlSetting)) {
+        //公式字段 配置在unit
+        data.controlSetting.unit = datatype;
+      } else {
+        // 日期字段配置在showtype
+        data.controlSetting.advancedSetting.showtype = datatype;
+      }
+    }
+    if (isFormulaResultAsTime(data.controlSetting) || [46].includes(_.get(data, 'controlSetting.type'))) {
+      const datatype = getShowtype();
       data.controlSetting.unit = datatype;
-    } else {
-      // 日期字段配置在showtype
-      data.controlSetting.advancedSetting.showtype = datatype;
     }
   }
-  if (isFormulaResultAsTime(data.controlSetting) || [46].includes(_.get(data, 'controlSetting.type'))) {
-    const datatype = getShowtype();
-    console.log(datatype);
+  return data;
+};
+
+//归组字段是否日期时间类字段
+export const isDateTimeGroup = item => {
+  let isTimeType = true;
+  (_.get(item, 'fields') || []).map(data => {
+    if (
+      !(
+        isFormulaResultAsSubtotalDateTime(data.controlSetting) ||
+        [15, 16, 17, 18].includes(_.get(data, 'controlSetting.type'))
+      )
+    ) {
+      isTimeType = false;
+    }
+  });
+  return isTimeType;
+};
+
+//归组字段是否公式日期 日期时间
+export const isDateForFormulaResultGroup = item => {
+  let isTimeType = true;
+  (_.get(item, 'fields') || []).map(data => {
+    if (!isFormulaDateOrDateTimeResult(data.controlSetting)) {
+      isTimeType = false;
+    }
+  });
+  return isTimeType;
+};
+
+//公式日期 日期 日期时间
+export const isFormulaDateOrDateTimeResult = data => {
+  return isFormulaResultAsDate(data) || isFormulaResultAsDateTime(data);
+};
+
+//归组字段是否时间类字段
+export const isTimeGroup = item => {
+  let isTimeType = true;
+  (_.get(item, 'fields') || []).map(data => {
+    if (
+      !(
+        isFormulaResultAsTime(data.controlSetting) ||
+        isFormulaResultAsSubtotalTime(data.controlSetting) ||
+        [46].includes(_.get(data, 'controlSetting.type'))
+      )
+    ) {
+      isTimeType = false;
+    }
+  });
+  return isTimeType;
+};
+
+//归组字段是否数字类字段
+export const isNumberGroup = item => {
+  let isNumberType = true;
+  (_.get(item, 'fields') || []).map(data => {
+    //数值、金额、公式（数值类型）、等级、汇总
+    if (
+      !(
+        [API_ENUM_TO_TYPE.NUMBER_INPUT, API_ENUM_TO_TYPE.MONEY_AMOUNT_8, API_ENUM_TO_TYPE.SCORE].includes(
+          _.get(data, 'controlSetting.type'),
+        ) ||
+        isFormulaResultAsNumber(data) ||
+        isFormulaResultAsSubtotal(data)
+      )
+    ) {
+      isNumberType = false;
+    }
+  });
+  return isNumberType;
+};
+
+// 归组方式
+export const getDefaultOperationForGroup = item => {
+  return isDateTimeGroup(item)
+    ? DATE_TIME_DATA_PARTICLE.filter(o => !['CUR_SEASON', 'CUR_WEEK'].includes(o.value)) //暂时排除季和周
+    : [];
+};
+
+//计数归组字段的alias和aggFuncType
+export const getGroupInfo = (data, flowData) => {
+  let newDt = {};
+  if (
+    isDateTimeGroup(data) //|| isTimeGroup(data)
+  ) {
+    const aggFuncTypeList = getDefaultOperationForGroup(data);
+    newDt.aggFuncType = !!aggFuncTypeList.find(o => o.value === 'TODAY') ? 'TODAY' : aggFuncTypeList[0].value;
+    const text = aggFuncTypeList.find(o => o.value === newDt.aggFuncType).text;
+    newDt.alias = getRuleAlias(`${_.get(data, 'fields[0].alias') || _.get(data, 'fields[0].name')}-${text}`, flowData);
+    if (_.get(newDt, 'controlSetting.advancedSetting.showformat')) {
+      newDt.controlSetting.advancedSetting.showformat = '0'; //日期时间 ---
+    }
+  }
+  return newDt;
+};
+//获取数据源节点需要展示的数据 包含源节点 以及关联的字段
+export const getAllSourceList = (flowData, source) => {
+  const sourceDt = getNodeInfo(flowData, 'DATASOURCE');
+  const groupDt = getNodeInfo(flowData, 'GROUP');
+  const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
+  const sourceDtList = _.get(sourceDt, 'nodeConfig.config.sourceTables') || [];
+  let list = [];
+  (_.get(groupDt, 'nodeConfig.config.groupFields') || []).map(o => {
+    const { fields = [] } = o;
+    fields.map((item = {}) => {
+      if (_.get(item, 'parentFieldInfo.controlSetting.controlId')) {
+        list.push({
+          ..._.get(item, 'parentFieldInfo.controlSetting'),
+          isRelative: true,
+          isDelete: source ? isDelStatus(item, source) : false,
+        });
+      }
+    });
+  });
+  (_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).map((item = {}) => {
+    if (_.get(item, 'parentFieldInfo.controlSetting.controlId')) {
+      list.push({
+        ..._.get(item, 'parentFieldInfo.controlSetting'),
+        isRelative: true,
+        isDelete: source ? isDelStatus(item, source) : false,
+      });
+    }
+  });
+  return [...sourceDtList, ..._.uniqBy(list, 'dataSource')];
+};
+
+//判断当前字段是否已删除
+export const isDelStatus = (item, source) => {
+  let isDelete = false;
+  if (_.get(item, 'parentFieldInfo.controlSetting.controlId') && _.get(item, 'parentFieldInfo.oid')) {
+    const dataControls =
+      (source.find(it => (_.get(item, 'parentFieldInfo.oid') || '').split('_')[0] === it.worksheetId) || {}).controls ||
+      [];
+    const data = dataControls.find(o => o.controlId === _.get(item, 'parentFieldInfo.controlSetting.controlId')) || {};
+    if (
+      [29, 34, 35].includes(data.type) &&
+      (data.dataSource === (_.get(item, 'parentFieldInfo.oid') || '').split('_')[0] ||
+        (29 === data.type && !isRuleRelative(data)))
+    ) {
+      // 关联本表 或 非单对单 均不支持
+      isDelete = true;
+    }
+  }
+  if (
+    !_.get(item, 'parentFieldInfo.controlSetting.controlId') &&
+    !source.find(it => item.oid && item.oid.indexOf(it.worksheetId) >= 0)
+  ) {
+    isDelete = true;
+  }
+  return isDelete;
+};
+
+//更新最新的字段配置到聚合表归组设置
+export const setGroupFields = (groupDt, sourceInfos, flowData) => {
+  return (_.get(groupDt, 'nodeConfig.config.groupFields') || []).map(o => {
+    let fields = o.fields.map((it = {}, i) => {
+      let controlSetting = {};
+      let parentFieldInfo = it.parentFieldInfo || {};
+      if (_.get(parentFieldInfo, 'controlSetting.controlId')) {
+        parentFieldInfo.controlSetting = (_.get(sourceInfos, `[${i}]controls`) || []).find(
+          a => a.controlId === _.get(parentFieldInfo, 'controlSetting.controlId'),
+        );
+        controlSetting =
+          (_.get(parentFieldInfo, 'controlSetting.relationControls') || []).find(
+            a => a.controlId === _.get(it, 'controlSetting.controlId'),
+          ) || {};
+      } else {
+        controlSetting =
+          (_.get(sourceInfos, `[${i}]controls`) || []).find(
+            a => a.controlId === _.get(it, 'controlSetting.controlId'),
+          ) || {};
+      }
+      return {
+        ...it,
+        parentFieldInfo,
+        controlSetting,
+      };
+    });
+    const resultField = o.resultField;
+    const result = getResultField(fields, flowData, resultField.aggFuncType);
+    return {
+      fields: fields,
+      resultField: {
+        ...result,
+        alias: resultField.alias || result.alias,
+        aggFuncType: resultField.aggFuncType || result.aggFuncType,
+      },
+    };
+  });
+};
+
+//聚合字段配置处理
+export const formatAggConfig = (it, isAdd) => {
+  const dot = ['COUNT', 'DISTINCT_COUNT'].includes(it.aggFuncType)
+    ? undefined
+    : isAdd
+      ? 2
+      : _.get(it, 'controlSetting.advancedSetting.dot') || _.get(it, 'controlSetting.dot');
+
+  const suffix = ['COUNT', 'DISTINCT_COUNT'].includes(it.aggFuncType)
+    ? undefined
+    : _.get(it, 'controlSetting.advancedSetting.suffix');
+  return {
+    ...it,
+    controlSetting: {
+      ..._.get(it, 'controlSetting'),
+      dot,
+      advancedSetting: {
+        ..._.get(it, 'controlSetting.advancedSetting'),
+        showtype: '0',
+        dot,
+        suffix,
+      }, //聚合字段showtype：0
+      unit:
+        isFormulaResultAsTime(it.controlSetting) || // 公式控件计算为时间的
+        isFormulaResultAsDateTime(it.controlSetting) || // 公式控件计算为日期时间的
+        isFormulaResultAsNumber(it.controlSetting) || //公式计算为数值的
+        _.includes(CAN_AS_TIME_DYNAMIC_FIELD, it.controlSetting.type) ||
+        ['COUNT', 'DISTINCT_COUNT'].includes(it.aggFuncType)
+          ? ''
+          : it.controlSetting.unit, //时间类默认把unit都去掉
+    },
+  };
+};
+
+//归组字段配置处理
+export const formatGroupConfig = fields => {
+  if (fields.length <= 1) {
+    return _.get(fields, '[0].controlSetting');
+  }
+  //符合文本可互相映射的类型
+  const isInTxtType =
+    [
+      API_ENUM_TO_TYPE.TEXTAREA_INPUT_1,
+      API_ENUM_TO_TYPE.TEXTAREA_INPUT_2,
+      API_ENUM_TO_TYPE.NUMBER_INPUT,
+      API_ENUM_TO_TYPE.MONEY_AMOUNT_8,
+      API_ENUM_TO_TYPE.NEW_FORMULA_31,
+      API_ENUM_TO_TYPE.SCORE,
+      API_ENUM_TO_TYPE.EMAIL_INPUT,
+      API_ENUM_TO_TYPE.PHONE_NUMBER_3,
+      API_ENUM_TO_TYPE.PHONE_NUMBER_4,
+      API_ENUM_TO_TYPE.CRED_INPUT,
+      API_ENUM_TO_TYPE.CONCATENATE,
+      API_ENUM_TO_TYPE.API_SEARCH,
+      API_ENUM_TO_TYPE.AUTOID,
+    ].includes(_.get(fields, '[0].controlSetting.type')) ||
+    isFormulaResultAsNumber(_.get(fields, '[0].controlSetting')) ||
+    (isFormulaResultAsSubtotal(_.get(fields, '[0].controlSetting')) &&
+      (!!fields.find(o => [API_ENUM_TO_TYPE.TEXTAREA_INPUT_1, API_ENUM_TO_TYPE.TEXTAREA_INPUT_2].includes(o.type)) ||
+        _.uniq(fields.map(o => o.type)).length > 1));
+  if (isInTxtType) {
+    return {
+      ..._.get(fields, '[0].controlSetting'),
+      type: 2,
+    };
+  }
+  return _.get(fields, '[0].controlSetting');
+};
+
+export const setResultFieldSettingByAggFuncType = data => {
+  if ([15, 16, 17, 18].includes(_.get(data, 'controlSetting.type'))) {
+    const DATE_VALUE = { CUR_YEAR: '5', CUR_MONTH: '4', TODAY: '3', CUR_HOUR: '2', CUR_MINUTE: '1' };
+    let datatype = DATE_VALUE[data.aggFuncType];
+    if (!_.get(data, 'controlSetting.advancedSetting')) {
+      data.controlSetting.advancedSetting = {};
+    }
+    data.controlSetting.advancedSetting.showtype = datatype;
+    data.controlSetting.advancedSetting.showformat = '0';
+  }
+  if (
+    (isFormulaResultAsTime(data.controlSetting) || [46].includes(_.get(data, 'controlSetting.type'))) &&
+    data.aggFuncType
+  ) {
+    // { text: _l('时:分'), value: '8' },
+    // { text: _l('时:分:秒'), value: '9' },
+    const DATE_VALUE = { CUR_MINUTE: '8' };
+    let datatype = DATE_VALUE[data.aggFuncType];
     data.controlSetting.unit = datatype;
+    if (!_.get(data, 'controlSetting.advancedSetting')) {
+      data.controlSetting.advancedSetting = {};
+    }
+    data.controlSetting.advancedSetting.showformat = '0';
   }
   return data;
+};
+
+export const getSourceIndex = (flowData, o) => {
+  let index = -1;
+  const sourceList = getAllSourceList(flowData) || [];
+  sourceList.find((it, i) => {
+    if (
+      (o.oid && o.oid.indexOf(it.workSheetId) >= 0) ||
+      (_.get(o, 'resultField.oid') && _.get(o, 'resultField.oid').indexOf(it.workSheetId) >= 0) ||
+      (_.get(o, 'parentFieldInfo.controlSetting.dataSource') &&
+        _.get(o, 'parentFieldInfo.controlSetting.dataSource') === it.dataSource) ||
+      (_.get(o, 'resultField.parentFieldInfo.controlSetting.dataSource') &&
+        _.get(o, 'resultField.parentFieldInfo.controlSetting.dataSource') === it.dataSource)
+    ) {
+      index = i;
+    }
+  });
+  return index;
 };

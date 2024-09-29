@@ -19,6 +19,7 @@ import { getVerifyInfo, handleAdvancedSettingChange } from '../util/setting';
 import { batchCopyWidgets, deleteSection, batchShiftWidgets, handleAddWidgets } from '../util/data';
 import WidgetOperation from './components/WidgetOperation';
 import WidgetDisplay from './widgetDisplay';
+import { SUPPORT_RELATE_SEARCH } from '../config';
 
 const DisplayItemWrap = styled.div`
   align-self: stretch;
@@ -104,8 +105,10 @@ export default function DisplayItem(props) {
     setStyleInfo = () => {},
     batchDrag,
     setBatchDrag = () => {},
+    styleInfo = {},
   } = props;
   const { type, controlId, dataSource, sourceControlId } = data;
+  const { titlestorage } = styleInfo.info || {};
   const { worksheetId: globalSheetId } = globalSheetInfo;
   const size = data.size || WHOLE_SIZE;
   const [row, col] = path;
@@ -402,6 +405,9 @@ export default function DisplayItem(props) {
       const newWidgets = resetWidgets(widgets, { attribute: 0 });
       setWidgets(update(newWidgets, { [row]: { [col]: { $apply: item => ({ ...item, attribute: 1 }) } } }));
       setActiveWidget({ ...(_.isEmpty(activeWidget) ? data : activeWidget), attribute: 1 });
+      if (!_.includes(SUPPORT_RELATE_SEARCH, data.type) && titlestorage !== '0') {
+        setStyleInfo({ info: { ...styleInfo.info, titlestorage: '0' } });
+      }
       return;
     }
 
@@ -501,7 +507,7 @@ export default function DisplayItem(props) {
         <div className={`verticalDragDir drag-${dirLocation}`} style={getDirStyle()}></div>
       )}
       {['left', 'right'].includes(dirLocation) && <div className={`horizonDragDir drag-${dirLocation}`}></div>}
-      <WidgetDisplay {...props} />
+      <WidgetDisplay {...props} isTab={isTab} />
     </DisplayItemWrap>
   );
 }

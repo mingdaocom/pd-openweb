@@ -8,7 +8,7 @@ import PaymentDetails from '../../PaymentDetails';
 import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
 import DatePickerFilter from '../../../common/datePickerFilter';
 import reimburseDialogFunc from './WithdrawReimburseDialog';
-import { ORDER_STATUS, PAY_METHOD, INVOICE_STATUS, INCOME_INFO, DATE_CONFIG } from '../config';
+import { ORDER_STATUS, PAY_METHOD, INVOICE_STATUS, INCOME_INFO, DATE_CONFIG, ORDER_SOURCE } from '../config';
 import paymentAjax from 'src/api/payment';
 import appManagementAjax from 'src/api/appManagement';
 import styled from 'styled-components';
@@ -83,7 +83,7 @@ export default class TransactionDetails extends Component {
       {
         title: _l('交易金额'),
         dataIndex: 'amount',
-        width: 120,
+        width: 170,
         render: (text, record) => {
           return text <= 0 ? 0 : text;
         },
@@ -91,7 +91,7 @@ export default class TransactionDetails extends Component {
       {
         title: _l('结算金额'),
         dataIndex: 'settlementAmount',
-        width: 120,
+        width: 170,
         render: (text, record) => {
           const { status } = record;
           return _.includes([1, 2, 3, 5], status) ? text : '-';
@@ -115,10 +115,51 @@ export default class TransactionDetails extends Component {
       },
       {
         title: _l('退款金额'),
-        dataIndex: 'refundAmount',
-        width: 120,
+        dataIndex: 'actualRefundAmount',
+        width: 150,
         render: (text, record) => {
           return _.includes([3, 5], record.status) ? <div className="color_47">{text}</div> : '-';
+        },
+      },
+      {
+        title: _l('订单来源'),
+        dataIndex: 'sourceType',
+        width: 150,
+        render: (text = 1, record) => {
+          return (_.find(ORDER_SOURCE, v => v.value === text) || {}).label;
+        },
+      },
+      {
+        title: _l('下单人'),
+        dataIndex: 'accountId',
+        width: 160,
+        render: (text, record) => {
+          const { payAccountInfo = {} } = record;
+          const { accountId, fullname, avatar, isPortal } = payAccountInfo;
+          return (
+            <div className="flexRow">
+              <UserHead
+                className="circle"
+                user={{
+                  userHead: avatar,
+                  accountId: accountId,
+                }}
+                size={24}
+                projectId={props.projectId}
+              />
+              {isPortal ? (
+                <div className="pLeft5">{fullname}</div>
+              ) : (
+                <UserName
+                  className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
+                  user={{
+                    userName: fullname,
+                    accountId: accountId,
+                  }}
+                />
+              )}
+            </div>
+          );
         },
       },
       { title: _l('下单时间'), dataIndex: 'createTime', width: 220 },
@@ -142,34 +183,6 @@ export default class TransactionDetails extends Component {
         },
       },
       { title: _l('收款商户'), dataIndex: 'shortName', width: 300, ellipsis: true },
-      // {
-      //   title: _l('付款人'),
-      //   dataIndex: 'accountId',
-      //   width: 160,
-      //   render: (text, record) => {
-      //     const { accountId, accountName, avatar } = record;
-      //     return (
-      //       <div className="flexRow">
-      //         <UserHead
-      //           className="circle"
-      //           user={{
-      //             userHead: avatar,
-      //             accountId: accountId,
-      //           }}
-      //           size={24}
-      //           projectId={props.projectId}
-      //         />
-      //         <UserName
-      //           className="Gray Font13 pLeft5 pRight10 pTop3 flex ellipsis"
-      //           user={{
-      //             userName: accountName,
-      //             accountId: accountId,
-      //           }}
-      //         />
-      //       </div>
-      //     );
-      //   },
-      // },
       {
         title: _l('所属应用'),
         dataIndex: 'app',
@@ -190,12 +203,16 @@ export default class TransactionDetails extends Component {
         },
       },
       {
-        title: _l('表单'),
+        title: _l('所属表单'),
         dataIndex: 'worksheet',
         width: 160,
         render: (text, record) => {
           const { sourceInfo = {} } = record;
           const { workSheetName, worksheetId } = sourceInfo;
+
+          if (!worksheetId) {
+            return <span>{workSheetName}</span>;
+          }
 
           return (
             <span
@@ -344,7 +361,18 @@ export default class TransactionDetails extends Component {
     const { projectId } = this.props;
     const { searchValues = {} } = this.state;
 
-    const { orderId, status, payOrderType, startDate, endDate, appIds, worksheetIds, merchantNo } = searchValues;
+    const {
+      orderId,
+      status,
+      payOrderType,
+      payTimeInfo = {},
+      appIds,
+      worksheetIds,
+      merchantNo,
+      sourceType,
+    } = searchValues;
+    const { startDate, endDate } = payTimeInfo;
+
     this.setState({ loading: true });
 
     paymentAjax
@@ -360,6 +388,7 @@ export default class TransactionDetails extends Component {
         startPaidTime: startDate, //更新时间 开始
         endPaidTime: endDate, //更新时间 结束
         payOrderType,
+        sourceType,
         pageFilter: {
           pageIndex, //页码
           pageSize: 50, //每页条数
@@ -442,7 +471,7 @@ export default class TransactionDetails extends Component {
       merchantListLoading,
       loadingApp,
     } = this.state;
-    const { status, payOrderType, appIds = [], worksheetIds = [], merchantNo } = searchValues;
+    const { status, payOrderType, appIds = [], worksheetIds = [], merchantNo, sourceType } = searchValues;
 
     let conditions = [
       {
@@ -507,7 +536,7 @@ export default class TransactionDetails extends Component {
         maxTagCount: 'responsive',
       },
       {
-        key: 'startCreateTime',
+        key: 'payTimeInfo',
         type: 'selectTime',
         label: _l('支付时间'),
         placeholder: _l('选择日期范围'),
@@ -546,6 +575,16 @@ export default class TransactionDetails extends Component {
         onFocus: () => !merchantList.length && this.getMerchantList(),
         notFoundContent: merchantListLoading ? <LoadDiv /> : <span className="Gray_9e">{_l('无搜索结果')}</span>,
       },
+      {
+        key: 'sourceType',
+        type: 'select',
+        label: _l('订单来源'),
+        placeholder: _l('请选择'),
+        allowClear: true,
+        value: sourceType,
+        maxTagCount: 'responsive',
+        options: ORDER_SOURCE,
+      },
       // {
       //   key: 'type',
       //   type: 'select',
@@ -562,28 +601,80 @@ export default class TransactionDetails extends Component {
     return conditions;
   };
 
+  changeSearchParams = (searchParams, isSearch) => {
+    const { searchValues } = this.state;
+    const { appIds, merchantNo } = searchValues || {};
+
+    if (searchParams.appIds && !_.isEqual(searchParams.appIds, appIds)) {
+      this.getWorksheetList(searchParams.appIds);
+    }
+    if (_.isEmpty(searchParams) && this.state.keyword) {
+      this.setState({ appPageIndex: 1, keyword: '' }, this.getAppList);
+    }
+
+    if (_.isEmpty(searchParams)) {
+      this.setState({ searchValues: searchParams, pageIndex: 1 }, () => {
+        this.getPayOrderSummary();
+        this.getDataList();
+      });
+      return;
+    }
+
+    this.setState(
+      {
+        searchValues: {
+          ...searchValues,
+          ...searchParams,
+          worksheetIds:
+            !searchParams.appIds || !_.isEqual(searchParams.appIds, appIds) ? undefined : searchParams.worksheetIds,
+        },
+        pageIndex: 1,
+      },
+      () => {
+        if (_.isEqual(this.state.searchValues, searchValues) && !isSearch) return;
+        if (this.state.searchValues.merchantNo !== merchantNo) {
+          this.getPayOrderSummary();
+        }
+        this.getDataList();
+      },
+    );
+  };
+
   handleExport = () => {
     const { projectId } = this.props;
     const { searchValues = {}, pageIndex, isExport } = this.state;
 
-    const { orderId, status, payOrderType, startDate, endDate, appIds, worksheetIds } = searchValues;
+    const {
+      orderId,
+      status,
+      payOrderType,
+      payTimeInfo = {},
+      appIds,
+      worksheetIds,
+      merchantNo,
+      sourceType,
+    } = searchValues;
+    const { startDate, endDate } = payTimeInfo;
 
     if (isExport) return;
 
     this.setState({ isExport: true });
+    this.props.updateDisabledExportBtn(true);
 
     paymentAjax
       .exportOrder({
         projectId, //组织Id
-        orderId, //订单Id
+        orderId: _.trim(orderId), //订单Id
+        merchantNo, // 商户编号
         sourceInfo: {
           appId: appIds,
           worksheetId: worksheetIds,
         }, //支付附加信息
         status, //状态 0未支付 1已支付 2退款中 3已退款
-        startUpdateTime: startDate, //更新时间 开始
-        endUpdateTime: endDate, //更新时间 结束
+        startPaidTime: startDate, //更新时间 开始
+        endPaidTime: endDate, //更新时间 结束
         payOrderType,
+        sourceType,
         pageFilter: {
           pageIndex, //页码
           pageSize: 50, //每页条数
@@ -591,6 +682,11 @@ export default class TransactionDetails extends Component {
       })
       .then(res => {
         this.setState({ isExport: false });
+        this.props.updateDisabledExportBtn(false);
+      })
+      .catch(err => {
+        this.setState({ isExport: false });
+        this.props.updateDisabledExportBtn(false);
       });
   };
 
@@ -609,7 +705,6 @@ export default class TransactionDetails extends Component {
       endDate,
       searchValues,
     } = this.state;
-    const { appIds, worksheetIds, merchantNo } = searchValues || {};
 
     if (showPaymentDetails) {
       return (
@@ -685,7 +780,17 @@ export default class TransactionDetails extends Component {
                     </span>
                   </Trigger>
                 )}
-                {id !== 'dateRangeTotalAmount' && <span>{`${text} ¥`}</span>}
+                {id !== 'dateRangeTotalAmount' && (
+                  <span>
+                    {text}
+                    {_.includes(['totalAmount', 'realAmount'], id) && (
+                      <Tooltip text={id === 'totalAmount' ? _l('交易金额的总和') : _l('总收入-手续费-退款金额')}>
+                        <i className="icon icon-info Gray_9e Font14 mRight5" />
+                      </Tooltip>
+                    )}
+                    ¥
+                  </span>
+                )}
                 <span
                   className={cx('Font26 bold mLeft5', {
                     ThemeColor: _.includes(['totalAmount', 'dateRangeTotalAmount', 'realAmount'], id),
@@ -703,47 +808,7 @@ export default class TransactionDetails extends Component {
           searchList={this.getConditions()}
           searchValues={searchValues}
           showExpandBtn={true}
-          onChange={searchParams => {
-            if (searchParams.appIds && !_.isEqual(searchParams.appIds, appIds)) {
-              this.getWorksheetList(searchParams.appIds);
-            }
-            if (_.isEmpty(searchParams) && this.state.keyword) {
-              this.setState({ appPageIndex: 1, keyword: '' }, this.getAppList);
-            }
-
-            if (_.isEmpty(searchParams)) {
-              this.setState({ searchValues: searchParams, pageIndex: 1 }, () => {
-                this.getPayOrderSummary();
-                this.getDataList();
-              });
-              return;
-            }
-
-            if ('orderId' in searchParams && !_.trim(searchParams['orderId']) && !searchValues.orderId) {
-              delete searchParams.orderId;
-            }
-
-            this.setState(
-              {
-                searchValues: {
-                  ...searchValues,
-                  ...searchParams,
-                  worksheetIds:
-                    !searchParams.appIds || !_.isEqual(searchParams.appIds, appIds)
-                      ? undefined
-                      : searchParams.worksheetIds,
-                },
-                pageIndex: 1,
-              },
-              () => {
-                if (_.isEqual(this.state.searchValues, searchValues)) return;
-                if (this.state.searchValues.merchantNo !== merchantNo) {
-                  this.getPayOrderSummary();
-                }
-                this.getDataList();
-              },
-            );
-          }}
+          onChange={this.changeSearchParams}
         />
         <FlexWrap>
           <PageTableCon

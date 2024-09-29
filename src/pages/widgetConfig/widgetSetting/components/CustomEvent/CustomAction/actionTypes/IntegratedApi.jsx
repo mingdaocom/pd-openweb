@@ -74,7 +74,7 @@ export default function IntegratedApi(props) {
           onChange={newData => {
             setState({
               advancedSetting: {
-                ..._.pick(newData.advancedSetting, ['requestmap', 'responsemap']),
+                ..._.pick(newData.advancedSetting, ['requestmap', 'responsemap', 'authaccount']),
               },
               dataSource: newData.dataSource,
             });

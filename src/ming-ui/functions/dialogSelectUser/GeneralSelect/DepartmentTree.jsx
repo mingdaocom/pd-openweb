@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import User from './User';
 import cx from 'classnames';
 import NoData from './NoData';
-import { Icon, Checkbox, ScrollView, LoadDiv } from 'ming-ui';
+import { Icon, Checkbox, ScrollView, LoadDiv, Tooltip } from 'ming-ui';
 import styled from 'styled-components';
 import departmentController from 'src/api/department';
 import _ from 'lodash';
@@ -73,14 +73,23 @@ export default class DepartmentTree extends Component {
         : false,
     };
   }
+
   componentDidMount() {
     if (this.props.defaultCheckedDepId) {
       this.handleSelectGroup(this.props.defaultCheckedDepId);
     }
   }
+
   getChecked(user) {
-    return !!this.props.selectedUsers.filter(item => item.accountId === user.accountId).length;
+    return (
+      !!this.props.selectedUsers.filter(item => item.accountId === user.accountId).length || this.getIncluded(user)
+    );
   }
+
+  getIncluded(user) {
+    return _.includes(this.props.selectedAccountIds || [], user.accountId);
+  }
+
   handleScrollEnd = () => {
     const { groupId, loading, isMore } = this.state;
     const { projectId } = this.props;
@@ -92,6 +101,7 @@ export default class DepartmentTree extends Component {
       }
     }
   };
+
   getNextPageDepartmentTrees = id => {
     const { pagedDepartmentIndex, pagedDepartmentSize } = this.state;
     const { projectId, isNetwork } = this.props;
@@ -115,6 +125,7 @@ export default class DepartmentTree extends Component {
       });
     });
   };
+
   handleLoadAll = id => {
     const { pageIndex } = this.state;
     const { projectId } = this.props;
@@ -135,6 +146,7 @@ export default class DepartmentTree extends Component {
         });
       });
   };
+
   handleSelectGroup = id => {
     const { pageIndex } = this.state;
     const { userSettings, projectId } = this.props;
@@ -163,12 +175,15 @@ export default class DepartmentTree extends Component {
       if (node.id === key) {
         return { ...node, subs };
       }
+
       if (node.subs) {
         return { ...node, subs: this.updateTreeData(node.subs, key, subs) };
       }
+
       return node;
     });
   };
+
   expandNext = id => {
     const { projectId, isNetwork } = this.props;
     let { department } = this.state;
@@ -182,6 +197,35 @@ export default class DepartmentTree extends Component {
       let data = res.map(item => ({ ...item, name: item.departmentName, id: item.departmentId, subs: [] }));
       this.setState({ department: this.updateTreeData(department, id, data), departmentLoading: false });
     });
+  };
+
+  handleCheckAll = () => {
+    const { selectedUsers, selectedAccountIds } = this.props;
+    const { groupList, isMore } = this.state;
+    const ids = selectedUsers.map(item => item.accountId);
+    const res = groupList.filter(item => ids.includes(item.accountId));
+    const reallyGroupLength = groupList.filter(l => !(selectedAccountIds || []).includes(l.accountId)).length;
+    const isAll = res.length !== reallyGroupLength;
+
+    if (isAll) {
+      const ids = selectedUsers.map(item => item.accountId).concat(selectedAccountIds);
+      const res = groupList
+        .filter(item => !ids.includes(item.accountId))
+        .map(item => {
+          return {
+            data: item,
+            type: 'user',
+          };
+        });
+      this.props.addSelectedData(res);
+
+      if (isMore) {
+        alert(_l('已选%0，滚动可加载更多。', reallyGroupLength));
+      }
+    } else {
+      const ids = selectedUsers.map(item => item.accountId);
+      this.props.removeSelectedData(groupList.filter(item => ids.includes(item.accountId)).map(item => item.accountId));
+    }
   };
 
   renderDepartment(item) {
@@ -234,11 +278,13 @@ export default class DepartmentTree extends Component {
       </Fragment>
     );
   }
+
   onlyShowJoinDepartment = checked => {
     this.setState({ onlyJoinDepartmentChecked: !checked });
     safeLocalStorageSetItem('isCheckedOnlyMyJoin', !checked);
     this.props.userAction();
   };
+
   renderDepartmentTree() {
     const { department = [], departmentLoading, onlyJoinDepartmentChecked } = this.state;
     return (
@@ -277,9 +323,11 @@ export default class DepartmentTree extends Component {
       </DepartmentTreeWrapper>
     );
   }
+
   renderUsers() {
     const { pageIndex } = this.props;
     const { groupId, loading, groupList, isMore } = this.state;
+
     if (loading && !groupList.length) {
       return (
         <div className="justifyCenter flexRow valignWrapper h100">
@@ -289,38 +337,25 @@ export default class DepartmentTree extends Component {
     } else {
       const ids = this.props.selectedUsers.map(item => item.accountId);
       const res = groupList.filter(item => ids.includes(item.accountId));
+      const reallyGroupLength = groupList.filter(
+        l => !(this.props.selectedAccountIds || []).includes(l.accountId),
+      ).length;
+      const isAllSelectedAccountIds = res.length === reallyGroupLength && !reallyGroupLength;
+
       return (
         <Fragment>
           {groupList.length ? (
             <div className="h100 flexColumn">
               <div className="flexRow valignWrapper pLeft15 pBottom5">
-                <Checkbox
-                  checked={res.length === groupList.length}
-                  disabled={this.props.unique}
-                  onClick={() => {
-                    const isAll = res.length !== groupList.length;
-                    if (isAll) {
-                      const ids = this.props.selectedUsers.map(item => item.accountId);
-                      const res = groupList
-                        .filter(item => !ids.includes(item.accountId))
-                        .map(item => {
-                          return {
-                            data: item,
-                            type: 'user',
-                          };
-                        });
-                      this.props.addSelectedData(res);
-                      if (isMore) {
-                        alert(_l('已选%0，滚动可加载更多。', groupList.length));
-                      }
-                    } else {
-                      const ids = this.props.selectedUsers.map(item => item.accountId);
-                      this.props.removeSelectedData(
-                        groupList.filter(item => ids.includes(item.accountId)).map(item => item.accountId),
-                      );
-                    }
-                  }}
-                />
+                <Tooltip text={_l('部门下所有人已加入')} disable={!isAllSelectedAccountIds}>
+                  <span>
+                    <Checkbox
+                      checked={res.length === reallyGroupLength}
+                      disabled={this.props.unique || isAllSelectedAccountIds}
+                      onClick={() => this.handleCheckAll()}
+                    />
+                  </span>
+                </Tooltip>
                 <div className="Gray_75">
                   {res.length ? _l('已选 %0/%1', res.length, groupList.length) : _l('全选')}
                 </div>
@@ -333,6 +368,7 @@ export default class DepartmentTree extends Component {
                     projectId={this.props.projectId}
                     checked={this.getChecked(item)}
                     onChange={this.props.onChange}
+                    disabled={this.getIncluded(item)}
                   />
                 ))}
                 {loading && (
@@ -351,6 +387,7 @@ export default class DepartmentTree extends Component {
       );
     }
   }
+
   render() {
     let { departmentLoading, department = [] } = this.state;
     return (

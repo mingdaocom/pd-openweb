@@ -57,7 +57,6 @@ function webLayout(props) {
   const [editingWidget, setWidget] = useState({});
   const $ref = useRef(null);
   const { adjustScreen } = rest;
-  const { iconColor } = rest.apk;
   const pageConfig = replaceColor(config || {}, appPkg.iconColor || rest.apk.iconColor);
   const components = filterSuspensionAiComponent(props.components || []);
   const suspensionAi = getSuspensionAiComponent(props.components || []);

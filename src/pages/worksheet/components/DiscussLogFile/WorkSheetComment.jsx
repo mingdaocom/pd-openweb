@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { autobind } from 'core-decorators';
 import ScrollView from 'ming-ui/components/ScrollView';
 import homeAppAjax from 'src/api/homeApp';
 import WorkSheetCommenter from './WorkSheetCommenter';
@@ -122,8 +121,8 @@ export default class WorkSheetComment extends React.Component {
       atData: data2,
     });
   };
-  @autobind
-  handleRecordRightContentScroll(e) {
+
+  handleRecordRightContentScroll = e => {
     if (
       this.$scrollCon &&
       this.$scrollCon.scrollHeight - this.$scrollCon.clientHeight - this.$scrollCon.scrollTop < 20
@@ -131,15 +130,15 @@ export default class WorkSheetComment extends React.Component {
       const { updatePageIndex } = this.commentList;
       updatePageIndex();
     }
-  }
+  };
+
   scrollToListTop() {
     if (this.scrollView && this.scrollView.nanoScroller && this.commentList) {
-      const $nano = $(this.scrollView.nanoScroller);
       $(this.scrollView.nanoScroller).nanoScroller({ scrollTop: 0 });
     }
   }
-  @autobind
-  handleScroll(event, values) {
+
+  handleScroll = (event, values) => {
     const { direction, maximum, position } = values;
     // filelist ignore event
     if (direction === 'down' && maximum - position < 20 && this.commentList) {
@@ -147,7 +146,7 @@ export default class WorkSheetComment extends React.Component {
       const { updatePageIndex } = this.commentList;
       updatePageIndex();
     }
-  }
+  };
   render() {
     const {
       disableScroll,

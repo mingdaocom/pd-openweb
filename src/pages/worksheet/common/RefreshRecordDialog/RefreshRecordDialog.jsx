@@ -67,6 +67,7 @@ function getRefreshControls(controls) {
         [
           WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL, // 汇总
           WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER, // 公式数值
+          WIDGETS_TO_API_TYPE_ENUM.FORMULA_FUNC, // 公式函数
           WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE, // 公式日期
           WIDGETS_TO_API_TYPE_ENUM.CONCATENATE, // 文本组合
           WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD, // 他表字段
@@ -223,7 +224,12 @@ export default function RefreshRecordDialog(props) {
       description={
         <div>
           {_l('此操作仅系统角色可以执行。单次最多刷新10万行数据，后台异步完成后会发送通知。')}
-          <Support className="moreHelp" type={3} href="https://help.mingdao.com/worksheet/batch-refresh" text={_l('使用帮助')} />
+          <Support
+            className="moreHelp"
+            type={3}
+            href="https://help.mingdao.com/worksheet/batch-refresh"
+            text={_l('使用帮助')}
+          />
         </div>
       }
       overlayClosable={false}

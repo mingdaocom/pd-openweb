@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { connect } from 'react-redux';
-import shallowEqual from 'react-redux/lib/utils/shallowEqual';
-
 import {
   updateCollapse,
   addSubordinates,
@@ -13,7 +11,6 @@ import {
   fetchSubordinates,
 } from '../actions';
 import { selectUser } from '../common';
-
 import { Icon, LoadDiv, Dialog } from 'ming-ui';
 import Item from './item';
 import NoData from './noData';

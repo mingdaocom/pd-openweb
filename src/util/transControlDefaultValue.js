@@ -3,6 +3,7 @@ import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { v4 as uuidv4 } from 'uuid';
 import _ from 'lodash';
 import RegExpValidator from 'src/util/expression';
+import { addPrefixForRowIdOfRows } from 'worksheet/util';
 const SYSTEM_FIELD_IDS = [
   'rowid',
   'ownerid',
@@ -90,11 +91,15 @@ export async function fillRowRelationRows(control, rowId, worksheetId, isRecreat
         const subControls = ((res.template || {}).controls || []).filter(
           c => !_.includes(SYSTEM_FIELD_IDS, c.controlId),
         );
-        const staticValue = (res.data || []).map(item => {
-          let itemValue = {};
+        const staticValue = addPrefixForRowIdOfRows(res.data || [], 'temp-').map(item => {
+          let itemValue = {
+            rowid: item.rowid,
+            pid: item.pid,
+            childrenids: item.childrenids,
+          };
           subControls.forEach(c => {
             if (isRecreate && c.type === 29 && c.advancedSetting.showtype === '3') {
-              let value = JSON.parse(item[c.controlId]).slice(0, 5);
+              let value = safeParse(item[c.controlId], 'array').slice(0, 5);
               itemValue[c.controlId] = JSON.stringify(value);
               return;
             }
@@ -146,7 +151,8 @@ export async function handleRowData(props) {
         const sourceId = control.dataSource.substring(1, control.dataSource.length - 1);
         const sourceControl = columns.find(l => l.controlId === sourceId);
         defaultData[key] =
-          sourceControl.type === 29 && ['2', '5', '6'].includes(sourceControl.advancedSetting.showtype)
+          _.get(sourceControl, 'type') === 29 &&
+          ['2', '5', '6'].includes(_.get(sourceControl, 'advancedSetting.showtype'))
             ? undefined
             : value;
       } else {

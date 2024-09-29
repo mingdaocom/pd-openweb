@@ -249,6 +249,7 @@ export const SYSTEM_CONTROLS = [
     controlName: _l('创建人'),
     controlPermissions: '100',
     type: 26,
+    enumDefault: 0,
     display: true,
   },
   {

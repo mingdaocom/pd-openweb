@@ -670,10 +670,10 @@ $.extend(CreateCalendar.prototype, {
           },
           fromType: 5,
           zIndex: 1111,
-          filterAccountIds: existsIds,
+          selectedAccountIds: existsIds,
           isDynamic: true,
           SelectUserSettings: {
-            filterAccountIds: existsIds,
+            selectedAccountIds: existsIds,
             projectId: settings.ProjectID,
             callback: function (users) {
               updateMemberFun(users);

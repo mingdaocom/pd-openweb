@@ -1,20 +1,7 @@
 import React, { Fragment } from 'react';
-import { APP_TYPE } from '../../enum';
+import { APP_TYPE, APP_TYPE_TEXT } from '../../enum';
 
 export default ({ data }) => {
-  const types = {
-    7: _l('发送 API 请求'),
-    12: _l('代码块'),
-    17: _l('业务流程数组'),
-    18: _l('JSON 解析'),
-    20: _l('人员信息'),
-    21: _l('部门信息'),
-    23: _l('外部用户'),
-    42: _l('API数组'),
-    46: _l('AIGC'),
-    405: _l('人工节点'),
-  };
-
   return (
     <Fragment>
       <div className="flowDetailStartHeader flexColumn BGBlueAsh">
@@ -26,7 +13,9 @@ export default ({ data }) => {
       <div className="workflowDetailBox mTop20">
         <div className="Font13 bold">{_l('数据源')}</div>
         <div className="Font13 mTop10">
-          {data.appType === APP_TYPE.SHEET ? _l('工作表：%0', data.appName) : _l('其他：%0', types[data.appType])}
+          {data.appType === APP_TYPE.SHEET
+            ? _l('工作表：%0', data.appName)
+            : _l('其他：%0', APP_TYPE_TEXT[data.appType])}
         </div>
 
         <div className="Font13 bold mTop20">{_l('被以下工作流触发')}</div>

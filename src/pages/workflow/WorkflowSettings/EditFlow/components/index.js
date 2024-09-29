@@ -3,5 +3,7 @@ export { default as CreateNode } from './CreateNode';
 export { default as CreateNodeDialog } from './CreateNodeDialog';
 export { default as MembersName } from './MembersName';
 export { default as NodeOperate } from './NodeOperate';
+export { default as NodeWrap } from './NodeWrap';
 export { default as SimplifyNode } from './SimplifyNode';
 export { default as Thumbnail } from './Thumbnail';
+export { default as WhiteNode } from './WhiteNode';

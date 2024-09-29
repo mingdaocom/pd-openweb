@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
+import { SortableList } from 'ming-ui';
 import { Modal, ConfigProvider, Button, Radio, Input, Select, Checkbox } from 'antd';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import { Icon, ColorPicker } from 'ming-ui';
 import { colorGroup, reportTypes } from 'statistics/Charts/common';
 import { getIsAlienationColor } from 'statistics/common';
@@ -9,12 +9,16 @@ import { formatNumberFromInput } from 'src/util';
 import { getGradientColors, isNumberControl, textNormTypes } from 'statistics/common';
 import './RuleColor.less';
 
-const SortableItem = SortableElement(({ item, ruleIndex, rulesLength, isPercent, ...otherProps }) => {
+const renderSortableItem = ({ DragHandle, index, item, otherProps }) => {
+  const { rulesLength, isPercent } = otherProps;
+  const ruleIndex = index;
   const { type, and, min, max, value, color } = item;
   return (
     <div className="flexRow valignWrapper scopeRule" key={ruleIndex}>
       <div className="flexRow valignWrapper flex">
-        <Icon icon="drag" className="Font18 Gray_9e pointer" />
+        <DragHandle>
+          <Icon icon="drag" className="Font18 Gray_9e pointer" />
+        </DragHandle>
         <div className="mRight10">{_l('如果值')}</div>
         <Select
           style={{ width: 80 }}
@@ -133,24 +137,7 @@ const SortableItem = SortableElement(({ item, ruleIndex, rulesLength, isPercent,
       />
     </div>
   );
-});
-
-const SortableList = SortableContainer(({ rules, ...otherProps }) => {
-  return (
-    <div className="scopeRulesWrap">
-      {rules.map((item, index) => (
-        <SortableItem
-          key={index}
-          index={index}
-          ruleIndex={index}
-          rulesLength={rules.length}
-          item={item}
-          {...otherProps}
-        />
-      ))}
-    </div>
-  );
-});
+};
 
 class ColorLevel extends Component {
   constructor(props) {
@@ -348,17 +335,22 @@ class ColorScope extends Component {
   constructor(props) {
     super(props);
     const { scopeRules } = props.colorRule;
+    const defaultScopeRules = [{
+      type: 2,
+      and: 6,
+      min: undefined,
+      max: undefined,
+      value: undefined,
+      color: '#0097ef',
+      id: 1
+    }];
     this.state = {
-      scopeRules: scopeRules || [
-        {
-          type: 2,
-          and: 6,
-          min: undefined,
-          max: undefined,
-          value: undefined,
-          color: '#0097ef',
-        },
-      ],
+      scopeRules: scopeRules ? scopeRules.map((n, index) => {
+        return {
+          ...n,
+          id: index + 1
+        }
+      }) : defaultScopeRules,
     };
   }
   handleAddRule = () => {
@@ -371,6 +363,7 @@ class ColorScope extends Component {
         max: undefined,
         value: undefined,
         color: '#3bb057',
+        id: scopeRules.length + 1
       }),
     });
   };
@@ -400,16 +393,20 @@ class ColorScope extends Component {
       scopeRules: scopeRules.filter((_, i) => i !== index),
     });
   };
-  handleSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-    const { scopeRules } = this.state;
+  handleSortEnd = scopeRules => {
     this.setState({
-      scopeRules: arrayMove(scopeRules, oldIndex, newIndex),
+      scopeRules,
     });
   };
   render() {
     const { isPercent } = this.props;
     const { scopeRules } = this.state;
+    const otherProps = {
+      isPercent,
+      rulesLength: scopeRules.length,
+      onSetRule: this.handleSetRule,
+      onDeleteRule: this.handleDeleteRule
+    }
     return (
       <Fragment>
         <div className="flexRow valignWrapper mTop16 mBottom8">
@@ -419,16 +416,19 @@ class ColorScope extends Component {
             {_l('添加规则')}
           </div>
         </div>
-        <SortableList
-          axis="y"
-          rules={scopeRules}
-          isPercent={isPercent}
-          helperClass="sortableScopeRuleWrap"
-          shouldCancelStart={e => !e.target.classList.contains('icon-drag')}
-          onSortEnd={this.handleSortEnd}
-          onSetRule={this.handleSetRule}
-          onDeleteRule={this.handleDeleteRule}
-        />
+        <div className="scopeRulesWrap">
+          <SortableList
+            useDragHandle
+            dragPreviewImage
+            items={scopeRules}
+            itemKey="id"
+            renderItem={(options) => renderSortableItem({
+              ...options,
+              otherProps
+            })}
+            onSortEnd={this.handleSortEnd}
+          />
+        </div>
       </Fragment>
     );
   }

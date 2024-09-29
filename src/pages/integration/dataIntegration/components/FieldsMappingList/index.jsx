@@ -1,14 +1,14 @@
 import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { Icon, Checkbox, Input, Support } from 'ming-ui';
-import { Select } from 'antd';
+import { Select, Tooltip } from 'antd';
 import cx from 'classnames';
 import _ from 'lodash';
 import { getIconByType, canSetAsTitle } from 'src/pages/widgetConfig/util';
 import SelectType from './SelectType';
 import SetComment from './SetComment';
 import { DATABASE_TYPE, isValidName, namePattern, SYSTEM_FIELD_IDS } from '../../constant';
-import { OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config';
+import { ALL_OPERATION_TYPE_DATA } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config';
 import { useState } from 'react';
 import { isNotSupportField } from '../../utils';
 
@@ -21,15 +21,20 @@ const Wrapper = styled.div`
     padding: 8px 0px 8px 8px;
     border-bottom: 1px solid #e0e0e0;
 
+    .checkColumn {
+      width: 36px;
+    }
     .name,
     .dataType {
       width: 0;
       padding-right: 8px;
     }
+    .name_dest {
+      padding-right: 20px;
+    }
     .name_dest,
     .dataType_dest {
       width: 0;
-      padding-right: 20px;
       position: relative;
     }
     .arrowIcon {
@@ -37,6 +42,12 @@ const Wrapper = styled.div`
       height: 20px;
       transform: rotate(-90deg);
       color: #2196f3;
+    }
+    .numberTips {
+      width: 20px;
+    }
+    .title_dest {
+      padding-left: 16px;
     }
   }
   .dataItem {
@@ -98,8 +109,14 @@ const Wrapper = styled.div`
     /* border: 1px solid #ccc !important; */
   }
   .systemFieldsHeader {
-    padding: 24px 24px 8px 24px;
+    display: flex;
+    align-items: center;
+    padding: 24px 8px 8px 8px;
     border-bottom: 1px solid #e0e0e0;
+
+    .Checkbox {
+      width: 36px;
+    }
     .content {
       width: fit-content;
       display: flex;
@@ -121,6 +138,8 @@ const Wrapper = styled.div`
 `;
 
 const SelectWrapper = styled.div`
+  display: flex;
+  align-items: center;
   .isNoMatchOption {
     .ant-select-selector .ant-select-selection-item {
       color: #f00;
@@ -130,21 +149,52 @@ const SelectWrapper = styled.div`
 
 export default function FieldMappingList(props) {
   const { sourceData = {}, destData = {}, isCreate, fieldsMapping, setFieldsMapping, matchedTypes } = props;
-  const checkAll =
-    fieldsMapping.filter(
-      item =>
-        !_.get(item, 'destField.isCheck') &&
-        (isValidName(item.sourceField.name) || !sourceData.isDbType) &&
-        matchedTypes &&
-        !!(matchedTypes[item.sourceField.id] || []).length,
-    ).length === 0;
   const selectedFieldIds = fieldsMapping.map(item => _.get(item, 'destField.id')).filter(o => o);
   const selectNameRef = useRef([]);
   const isExistJoinPk = !!(sourceData.sourceFields || []).filter(item => item.isUniquePk).length;
-  const [systemFieldsExpand, setSystemFieldsExpand] = useState(false);
-
+  const systemFieldsExceptRowId = SYSTEM_FIELD_IDS.filter(id => id !== 'rowid');
   let leftColumns = [];
   let rightColumns = [];
+
+  const [systemFieldsExpand, setSystemFieldsExpand] = useState(false);
+
+  const canCheckField = field => {
+    return (isValidName(field.name) || !sourceData.isDbType) && matchedTypes && !isNotSupportField(field, matchedTypes);
+  };
+
+  const isSystemField = sourceField => {
+    return systemFieldsExceptRowId.includes((sourceField.fid || '').split('_')[0]);
+  };
+
+  const isCheckAll = isSystemFields => {
+    return (
+      fieldsMapping.filter(
+        item =>
+          !_.get(item, 'destField.isCheck') &&
+          canCheckField(item.sourceField) &&
+          (isSystemFields ? isSystemField(item.sourceField) : !isSystemField(item.sourceField)),
+      ).length === 0
+    );
+  };
+
+  const onCheckAll = (checked, isSystemFields) => {
+    const newFieldsMapping = fieldsMapping.map(item => {
+      const { sourceField = {}, destField = {} } = item;
+      return (isSystemFields ? isSystemField(item.sourceField) : !isSystemField(item.sourceField))
+        ? {
+            sourceField: {
+              ...sourceField,
+              isCheck: canCheckField(sourceField) ? (sourceField.isPk ? true : !checked) : false,
+            },
+            destField: {
+              ...destField,
+              isCheck: canCheckField(sourceField) ? (destField && destField.isPk ? true : !checked) : false,
+            },
+          }
+        : item;
+    });
+    setFieldsMapping(newFieldsMapping);
+  };
 
   //更新FieldsMapping
   const updateFieldsMapping = data => {
@@ -172,43 +222,52 @@ export default function FieldMappingList(props) {
         : destData.dsType === DATABASE_TYPE.MONGO_DB && sourceField.isPk;
 
     return (
-      <Input
-        className="w100"
-        value={destField.name || ''}
-        disabled={isDisabled}
-        onBlur={event => {
-          const hasRepeatName =
-            fieldsMapping.filter(item => _.get(item, 'destField.name') === event.target.value).length > 1;
-          if (hasRepeatName) {
-            const newName = destField.name + Math.floor(Math.random() * 10000);
+      <div className="flexRow alignItemsCenter">
+        <Input
+          className="flex"
+          value={destField.name || ''}
+          disabled={isDisabled}
+          onBlur={event => {
+            const hasRepeatName =
+              fieldsMapping.filter(item => _.get(item, 'destField.name') === event.target.value).length > 1;
+            if (hasRepeatName) {
+              const newName = destField.name + Math.floor(Math.random() * 10000);
+              updateFieldsMapping({
+                ...data,
+                destField: {
+                  ...destField,
+                  name: newName,
+                },
+              });
+            } else {
+              const needReplace = sourceData.isDbType || destData.isDbType;
+              updateFieldsMapping({
+                ...data,
+                destField: {
+                  ...destField,
+                  name: needReplace ? event.target.value.replace(namePattern, '') : event.target.value,
+                },
+              });
+            }
+          }}
+          onChange={value =>
             updateFieldsMapping({
               ...data,
               destField: {
                 ...destField,
-                name: newName,
+                name: value,
               },
-            });
-          } else {
-            const needReplace = sourceData.isDbType || destData.isDbType;
-            updateFieldsMapping({
-              ...data,
-              destField: {
-                ...destField,
-                name: needReplace ? event.target.value.replace(namePattern, '') : event.target.value,
-              },
-            });
+            })
           }
-        }}
-        onChange={value =>
-          updateFieldsMapping({
-            ...data,
-            destField: {
-              ...destField,
-              name: value,
-            },
-          })
-        }
-      />
+        />
+        <div className="numberTips">
+          {!sourceData.isDbType && !destData.isDbType && destField.mdType === 6 && (
+            <Tooltip title={_l('数值最大支持16位数字')} placement="top">
+              <Icon icon="info1" className="Gray_bd mLeft5" />
+            </Tooltip>
+          )}
+        </div>
+      </div>
     );
   };
   const renderSelectType = data => {
@@ -239,32 +298,6 @@ export default function FieldMappingList(props) {
         itemData={data}
         updateFieldsMapping={updateFieldsMapping}
         isDestDbType={destData.isDbType}
-      />
-    );
-  };
-  const renderCheckAll = () => {
-    return (
-      <Checkbox
-        size="small"
-        checked={checkAll}
-        onClick={checked => {
-          const newFieldsMapping = fieldsMapping.map(item => {
-            const { sourceField = {}, destField = {} } = item;
-            const isValidField = isValidName(sourceField.name) || !sourceData.isDbType;
-            const isNotSupport = isNotSupportField(sourceField, matchedTypes);
-            return {
-              sourceField: {
-                ...sourceField,
-                isCheck: isValidField && !isNotSupport ? (sourceField.isPk ? true : !checked) : false,
-              },
-              destField: {
-                ...destField,
-                isCheck: isValidField && !isNotSupport ? (destField && destField.isPk ? true : !checked) : false,
-              },
-            };
-          });
-          setFieldsMapping(newFieldsMapping);
-        }}
       />
     );
   };
@@ -324,6 +357,7 @@ export default function FieldMappingList(props) {
               <span title={item.name} className="mLeft8 overflow_ellipsis Gray">
                 {item.name}
               </span>
+              {destData.isDbType && item.isPk && <Icon icon="key1" className="Gray_bd Font14 mLeft8" />}
             </div>
           ),
           value: item.id,
@@ -351,7 +385,7 @@ export default function FieldMappingList(props) {
       <SelectWrapper ref={select => (selectNameRef.current[sourceField.id] = select)}>
         <Select
           disabled={!isValidField || isNotSupport}
-          className={cx('selectItem w100', { isNoMatchOption })}
+          className={cx('selectItem flex', { isNoMatchOption })}
           placeholder={_l('无')}
           notFoundContent={_l('暂无数据')}
           getPopupContainer={() => selectNameRef.current[sourceField.id]}
@@ -392,7 +426,7 @@ export default function FieldMappingList(props) {
                     precision: null,
                     scale: null,
                     isCheck: false,
-                    isNotNull:false,
+                    isNotNull: false,
                     mdType: null,
                     controlSetting: null,
                     oid: null,
@@ -401,6 +435,13 @@ export default function FieldMappingList(props) {
             updateFieldsMapping(updatedMapping);
           }}
         />
+        <div className="numberTips">
+          {!destData.isDbType && destField.mdType === 6 && (
+            <Tooltip title={_l('数值最大支持16位数字')} placement="top" autoAdjustOverflow={true}>
+              <Icon icon="info1" className="Gray_bd mLeft5" />
+            </Tooltip>
+          )}
+        </div>
       </SelectWrapper>
     );
   };
@@ -424,7 +465,7 @@ export default function FieldMappingList(props) {
                 </span>
                 {sourceField.aggFuncType && (
                   <span className={`flexShrink0 ${sourceField.isDelete ? 'Red' : 'Gray_9e'}`}>
-                    ({OPERATION_TYPE_DATA.find(o => o.value === sourceField.aggFuncType).text})
+                    ({ALL_OPERATION_TYPE_DATA.find(o => o.value === sourceField.aggFuncType).text})
                   </span>
                 )}
                 {sourceField.isPk && (
@@ -500,7 +541,7 @@ export default function FieldMappingList(props) {
                 </span>
                 {sourceField.aggFuncType && (
                   <span className={`flexShrink0 ${sourceField.isDelete ? 'Red' : 'Gray_9e'}`}>
-                    ({OPERATION_TYPE_DATA.find(o => o.value === sourceField.aggFuncType).text})
+                    ({ALL_OPERATION_TYPE_DATA.find(o => o.value === sourceField.aggFuncType).text})
                   </span>
                 )}
                 {sourceField.isPk && (
@@ -722,8 +763,7 @@ export default function FieldMappingList(props) {
     const columns = [
       {
         dataIndex: 'checkColumn',
-        flex: 1,
-        renderTitle: renderCheckAll,
+        renderTitle: () => <Checkbox size="small" checked={isCheckAll()} onClick={checked => onCheckAll(checked)} />,
         render: data => renderCheckbox(data, 'isCheck'),
       },
       ...leftColumns.filter(item => sourceData.dsType !== DATABASE_TYPE.KAFKA || item.dataIndex !== 'isNotNull'),
@@ -750,33 +790,60 @@ export default function FieldMappingList(props) {
     return columns;
   };
 
-  const renderMappingList = (data = []) => {
-    return data.map((field, i) => {
-      const sourceField = field.sourceField || {};
-      return (
-        <div className="itemWrapper">
-          <div key={i} className="dataItem">
-            {getColumns().map((column, j) => {
-              return (
-                <div key={`${i}-${j}`} style={{ flex: column.flex }} className={`${column.dataIndex}`}>
-                  {column.render ? column.render(field, column) : field[column.dataIndex]}
-                </div>
-              );
-            })}
-          </div>
-          {sourceField.isDelete && (
-            <Icon
-              className="deleteIcon"
-              icon="delete1"
-              onClick={() => {
-                const newFieldsMapping = fieldsMapping.filter(item => item.sourceField.id !== sourceField.id);
-                setFieldsMapping(newFieldsMapping);
-              }}
-            />
-          )}
-        </div>
-      );
+  const renderMappingList = isSystemFields => {
+    const data = (fieldsMapping || []).filter(field => {
+      const originId = (field.sourceField.fid || '').split('_')[0];
+      return isSystemFields
+        ? _.includes(systemFieldsExceptRowId, originId)
+        : !(!sourceData.isDbType && destData.isDbType && _.includes(systemFieldsExceptRowId, originId));
     });
+
+    if (!data.length) {
+      return null;
+    }
+
+    return (
+      <React.Fragment>
+        {isSystemFields && !sourceData.isDbType && destData.isDbType && (
+          <div className="systemFieldsHeader">
+            {isCreate && (
+              <Checkbox size="small" checked={isCheckAll(true)} onClick={checked => onCheckAll(checked, true)} />
+            )}
+            <div className="content" onClick={() => setSystemFieldsExpand(!systemFieldsExpand)}>
+              <span>{_l('系统字段')}</span>
+              <Icon icon={systemFieldsExpand ? 'arrow-down-border' : 'arrow-right-border'} />
+            </div>
+          </div>
+        )}
+        {(!isSystemFields || systemFieldsExpand) &&
+          data.map((field, i) => {
+            const sourceField = field.sourceField || {};
+            return (
+              <div className="itemWrapper">
+                <div key={i} className="dataItem">
+                  {getColumns().map((column, j) => {
+                    return (
+                      <div key={`${i}-${j}`} style={{ flex: column.flex }} className={`${column.dataIndex}`}>
+                        {column.render ? column.render(field, column) : field[column.dataIndex]}
+                      </div>
+                    );
+                  })}
+                </div>
+                {sourceField.isDelete && (
+                  <Icon
+                    className="deleteIcon"
+                    icon="delete1"
+                    onClick={() => {
+                      const newFieldsMapping = fieldsMapping.filter(item => item.sourceField.id !== sourceField.id);
+                      setFieldsMapping(newFieldsMapping);
+                    }}
+                  />
+                )}
+              </div>
+            );
+          })}
+      </React.Fragment>
+    );
   };
 
   return (
@@ -791,29 +858,8 @@ export default function FieldMappingList(props) {
         })}
       </div>
 
-      {renderMappingList(
-        (fieldsMapping || []).filter(field => {
-          const originId = (field.sourceField.fid || '').split('_')[0];
-          return !(!sourceData.isDbType && destData.isDbType) || !_.includes(SYSTEM_FIELD_IDS, originId);
-        }),
-      )}
-
-      {!sourceData.isDbType && destData.isDbType && (
-        <div className="systemFieldsHeader">
-          <div className="content" onClick={() => setSystemFieldsExpand(!systemFieldsExpand)}>
-            <span>{_l('系统字段')}</span>
-            <Icon icon={systemFieldsExpand ? 'arrow-down-border' : 'arrow-right-border'} />
-          </div>
-        </div>
-      )}
-
-      {systemFieldsExpand &&
-        renderMappingList(
-          (fieldsMapping || []).filter(field => {
-            const originId = (field.sourceField.fid || '').split('_')[0];
-            return _.includes(SYSTEM_FIELD_IDS, originId);
-          }),
-        )}
+      {renderMappingList(false)}
+      {renderMappingList(true)}
     </Wrapper>
   );
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon, Tooltip, SvgIcon } from 'ming-ui';
+import { Icon, Tooltip, SvgIcon, SortableList } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
 import AppStatusComp from '../AppCenter/components/AppStatus';
 import { getAppNavigateUrl, transferExternalLinkUrl } from '../AppCenter/utils';
@@ -12,7 +12,6 @@ import recentEmptyPng from 'staticfiles/images/time.png';
 import _ from 'lodash';
 import { navigateTo } from 'src/router/navigateTo';
 import { navigateToAppItem } from 'src/pages/widgetConfig/util/data';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
 import './style.less';
 
 const Wrapper = styled.div`
@@ -29,25 +28,27 @@ const Wrapper = styled.div`
       max-height: 116px;
     }
   }
+  .appItemWrapper {
+    flex: 1;
+    min-width: 180px;
+    height: 50px;
+    border-radius: 8px;
+    margin: 4px 0;
+    cursor: pointer;
+    &:hover {
+      background: #f8f8f8;
+      .markStarIcon {
+        display: block;
+      }
+    }
+  }
 `;
 
 const AppItem = styled.div`
-  flex: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-width: 180px;
-  height: 50px;
   padding: 8px;
-  border-radius: 8px;
-  margin: 4px 0;
-  cursor: pointer;
-  &:hover {
-    background: #f8f8f8;
-    .markStarIcon {
-      display: block;
-    }
-  }
 
   .appIcon {
     width: 32px;
@@ -118,140 +119,38 @@ const ListItemSkeleton = styled.div`
   }
 `;
 
-const SortableItem = SortableElement(data => {
-  const { item, projectId, appLang, onMarkApp } = data;
-  const appName = _.get(_.find(appLang, { key: item.id }), 'value') || item.name;
-  const itemName = _.get(_.find(appLang, { key: item.itemId }), 'value') || item.itemName;
-
-  const onAddBehaviorLog = item => {
-    switch (item.type) {
-      case 0:
-        addBehaviorLog('app', item.id);
-        break;
-      case 1:
-        addBehaviorLog('customPage', item.itemId);
-        break;
-      case 2:
-        addBehaviorLog('worksheet', item.itemId);
-        break;
-      default:
-        addBehaviorLog('app', item.id);
-        break;
-    }
-  };
-
-  return (
-    <AppItem
-      onClick={e => {
-        e.stopPropagation();
-        e.preventDefault();
-
-        onAddBehaviorLog(item); // 浏览应用/应用项埋点
-        if (item.createType === 1) {
-          //是外部链接应用
-          window.open(transferExternalLinkUrl(item.urlTemplate, projectId, item.id));
-        } else {
-          !!item.type
-            ? navigateToAppItem(item.itemId)
-            : navigateTo(getAppNavigateUrl(item.id, item.pcNaviStyle, item.selectAppItmeType));
-        }
-      }}
-    >
-      <div className="flexRow alignItemsCenter">
-        <div
-          className="appIcon"
-          style={{
-            backgroundColor: !!item.type ? getAppOrItemColor(item, true).bg : getAppOrItemColor(item).bg,
-          }}
-        >
-          <SvgIcon
-            url={!!item.type ? item.itemUrl : item.iconUrl}
-            fill={!!item.type ? getAppOrItemColor(item, true).iconColor : getAppOrItemColor(item).iconColor}
-            size={20}
-          />
-          <AppStatusComp {..._.pick(item, ['isGoodsStatus', 'isNew', 'fixed'])} isRecent={true} />
-        </div>
-        <div className="textContent">
-          <div className="titleName overflow_ellipsis" title={!!item.type ? itemName : appName}>
-            {!!item.type ? itemName : appName}
-          </div>
-          {!!item.type && (
-            <div className="appName overflow_ellipsis" title={appName}>
-              {appName}
-            </div>
-          )}
-        </div>
-      </div>
-      <Tooltip text={item.isMarked ? _l('取消收藏') : _l('收藏')} popupPlacement="bottom">
-        <div
-          className="markStarIcon stopPropagation"
-          onClick={e => {
-            e.stopPropagation();
-            e.preventDefault();
-            onMarkApp({
-              projectId,
-              isMark: !item.isMarked,
-              appId: item.id,
-              ..._.pick(item, ['type', 'itemId', 'itemName', 'itemUrl']),
-            });
-          }}
-        >
-          <Icon className="Font16" icon={item.isMarked ? 'task-star' : 'star-hollow'} />
-        </div>
-      </Tooltip>
-    </AppItem>
-  );
-});
-
-const SortableList = SortableContainer(props => {
-  const { apps, draggable, isFold, setIsOverflow, width } = props;
+function RecentOrCollectAppList(props) {
+  const {
+    apps = [],
+    loading,
+    isCollect,
+    onAppSorted,
+    projectId,
+    appLang,
+    isFold,
+    setIsOverflow,
+    width,
+    draggable,
+    onMarkApp,
+  } = props;
+  const [sortIds, setSortIds] = useState([]);
+  const [blankBlockCount, setBlankBlockCount] = useState(0);
   const listRef = useRef();
   const minWidth = 180;
 
   useEffect(() => {
-    setIsOverflow && setIsOverflow(listRef.current && listRef.current.scrollHeight > 116);
-  }, [apps, listRef.current]);
-
-  // 渲染占位块
-  const renderBlankBlock = () => {
-    const columnSize = Math.floor((width - 40) / minWidth);
-    const number = apps.length % columnSize;
-    const list = [];
-
-    if (!number) return null;
-
-    for (let i = 0; i < columnSize - number; i++) {
-      list.push(<AppItem className="Visibility" />);
-    }
-
-    return list;
-  };
-
-  return (
-    <div ref={listRef} className={cx('listWrapper', { isFold })}>
-      {apps.map((item, index) => {
-        return (
-          <SortableItem
-            item={item}
-            {...props}
-            key={`item_${!!item.type ? item.itemId + index : item.id}`}
-            index={index}
-            disabled={!draggable}
-          />
-        );
-      })}
-      {renderBlankBlock()}
-    </div>
-  );
-});
-
-function RecentOrCollectAppList(props) {
-  const { apps = [], loading, isCollect, onAppSorted, projectId } = props;
-  const [sortIds, setSortIds] = useState([]);
-
-  useEffect(() => {
     setSortIds(apps.map(item => (!!item.type ? item.itemId : item.id)));
   }, [apps]);
+
+  useEffect(() => {
+    const columnSize = Math.floor((width - 40) / minWidth);
+    const number = apps.length % columnSize;
+    setBlankBlockCount(!number ? 0 : columnSize - number);
+
+    setTimeout(() => {
+      setIsOverflow && setIsOverflow(listRef.current && listRef.current.scrollHeight > 116);
+    }, 100);
+  }, [apps, listRef.current, width]);
 
   const renderListSkeleton = () => {
     return Array.from({ length: 6 }).map((_, index) => {
@@ -273,6 +172,90 @@ function RecentOrCollectAppList(props) {
     );
   };
 
+  const renderItem = ({ item }) => {
+    const appName = _.get(_.find(appLang, { key: item.id }), 'value') || item.name;
+    const itemName = _.get(_.find(appLang, { key: item.itemId }), 'value') || item.itemName;
+
+    const onAddBehaviorLog = item => {
+      switch (item.type) {
+        case 0:
+          addBehaviorLog('app', item.id);
+          break;
+        case 1:
+          addBehaviorLog('customPage', item.itemId);
+          break;
+        case 2:
+          addBehaviorLog('worksheet', item.itemId);
+          break;
+        default:
+          addBehaviorLog('app', item.id);
+          break;
+      }
+    };
+
+    return (
+      <AppItem
+        onClick={e => {
+          e.stopPropagation();
+          e.preventDefault();
+
+          onAddBehaviorLog(item); // 浏览应用/应用项埋点
+          if (item.createType === 1) {
+            //是外部链接应用
+            window.open(transferExternalLinkUrl(item.urlTemplate, projectId, item.id));
+          } else {
+            !!item.type
+              ? navigateToAppItem(item.itemId)
+              : navigateTo(getAppNavigateUrl(item.id, item.pcNaviStyle, item.selectAppItmeType));
+          }
+        }}
+      >
+        <div className="flexRow alignItemsCenter">
+          <div
+            className="appIcon"
+            style={{
+              backgroundColor: !!item.type ? getAppOrItemColor(item, true).bg : getAppOrItemColor(item).bg,
+            }}
+          >
+            <SvgIcon
+              url={!!item.type ? item.itemUrl : item.iconUrl}
+              fill={!!item.type ? getAppOrItemColor(item, true).iconColor : getAppOrItemColor(item).iconColor}
+              size={20}
+            />
+            <AppStatusComp {..._.pick(item, ['isGoodsStatus', 'isNew', 'fixed'])} isRecent={true} />
+          </div>
+          <div className="textContent">
+            <div className="titleName overflow_ellipsis" title={!!item.type ? itemName : appName}>
+              {!!item.type ? itemName : appName}
+            </div>
+            {!!item.type && (
+              <div className="appName overflow_ellipsis" title={appName}>
+                {appName}
+              </div>
+            )}
+          </div>
+        </div>
+        <Tooltip text={item.isMarked ? _l('取消收藏') : _l('收藏')} popupPlacement="bottom">
+          <div
+            className="markStarIcon stopPropagation"
+            onClick={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              onMarkApp({
+                projectId,
+                isMark: !item.isMarked,
+                appId: item.id,
+                ..._.pick(item, ['type', 'itemId', 'itemName', 'itemUrl']),
+              });
+            }}
+          >
+            <Icon className="Font16" icon={item.isMarked ? 'task-star' : 'star-hollow'} />
+          </div>
+        </Tooltip>
+      </AppItem>
+    );
+  };
+
   return (
     <Wrapper>
       {loading && renderListSkeleton()}
@@ -280,21 +263,32 @@ function RecentOrCollectAppList(props) {
         (!apps.length ? (
           renderEmpty()
         ) : (
-          <SortableList
-            {..._.omit(props, 'apps')}
-            axis={'xy'}
-            distance={3}
-            helperClass="collectAppDragItem"
-            apps={sortIds
-              .map(id => _.find(apps, app => (!!app.type ? app.itemId === id : app.id === id)))
-              .filter(item => !_.isUndefined(item))}
-            onSortEnd={({ oldIndex, newIndex }) => {
-              if (oldIndex === newIndex) return;
-              const newSortIds = arrayMove(sortIds, oldIndex, newIndex);
-              setSortIds(newSortIds);
-              onAppSorted({ appIds: newSortIds, projectId, sortType: 1 });
-            }}
-          />
+          <div ref={listRef} className={cx('listWrapper', { isFold })}>
+            <SortableList
+              canDrag={draggable}
+              items={sortIds
+                .map(id => {
+                  const it = _.find(apps, app => (!!app.type ? app.itemId === id : app.id === id));
+
+                  return it ? { ...it, uniqueId: `${it.id}-${it.itemId}` } : undefined;
+                })
+                .filter(item => !_.isUndefined(item))}
+              renderItem={renderItem}
+              itemKey="uniqueId"
+              itemClassName="appItemWrapper"
+              helperClass="collectAppDragItem"
+              onSortEnd={newItems => {
+                const newSortIds = newItems.map(app => (!!app.type ? app.itemId : app.id));
+                setSortIds(newSortIds);
+                onAppSorted({ appIds: newSortIds, projectId, sortType: 1 });
+              }}
+            />
+
+            {!!blankBlockCount &&
+              Array.from({ length: blankBlockCount }).map((_, index) => (
+                <div key={index} className="Visibility appItemWrapper" />
+              ))}
+          </div>
         ))}
     </Wrapper>
   );

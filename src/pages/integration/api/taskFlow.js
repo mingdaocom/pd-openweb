@@ -201,7 +201,10 @@ var taskFlow = {
    * @param {object} args.fieldForIdentifyDuplicate 用于工作表识别重复的字段信息(object)
    * @param {string} args.writeMode 工作表写入模式(See: 写入模式)
    * @param {boolean} args.isCleanDestTableData 是否清空目标表数据
+   * @param {boolean} args.isCheckPasswordWasVerified 需要清空目标表数据时，是否检查密码是否检验过
    * @param {boolean} args.preview 是否预览
+   * @param {integer} args.taskType 同步任务类型<br>{@link TaskTypeEnum.DATA_INTEGRATE}<br>{@link TaskTypeEnum.AGG_TABLE}<br>{@link TaskTypeEnum.AGG_PREVIEW}<br>数据集成同步任务<br>DATA_INTEGRATE(0,"sync"),<br>聚合表同步任务<br>AGG_TABLE(1,"agg"),<br>聚合表预览临时同步任务<br>AGG_PREVIEW(2,"preview");
+   * @param {integer} args.parallelism 运行并行度
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

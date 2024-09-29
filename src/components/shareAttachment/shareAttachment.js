@@ -496,14 +496,18 @@ ShareAttachment.prototype = {
     var targetBtnWidth = 50 + 36;
     var targetBtnNums = 4;
     var $targetBtnList = SA.$dialog.find('.selectTargetBtnList');
+    var $listBox = $targetBtnList.find('.listBox');
     var $listCon = $targetBtnList.find('.listCon');
-    var $prevBtn = $targetBtnList.find('.prev');
-    var $nextBtn = $targetBtnList.find('.next');
     SA.$dialog.find('.selectTargetCon').addClass('inited').removeClass('hide');
-    $listCon.width($listCon.find('.targetBtn').length * targetBtnWidth);
+    var listConWidth = $listCon.find('.contentCon')[0].clientWidth;
+    $listCon.width(listConWidth + 2);
+    var listBoxWidth = $listBox[0].clientWidth;
+    if (listConWidth < listBoxWidth) {
+      $listBox[0].style.justifyContent = 'center';
+    }
     showControlBtn();
     $targetBtnList.on('click', '.prev, .next', function () {
-      left += targetBtnWidth * targetBtnNums * ($(this).hasClass('prev') ? 1 : -1);
+      left += listBoxWidth * ($(this).hasClass('prev') ? 1 : -1);
       showControlBtn();
       $listCon.animate({
         left: left,
@@ -521,7 +525,7 @@ ShareAttachment.prototype = {
       if (left < 0) {
         $targetBtnList.find('.prev').show();
       }
-      if (-1 * left + targetBtnWidth * targetBtnNums <= $listCon.find('.targetBtn').length * targetBtnWidth) {
+      if (-1 * left + listBoxWidth <= $listCon[0].clientWidth) {
         $targetBtnList.find('.next').show();
       }
     }

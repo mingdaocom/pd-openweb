@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import cx from 'classnames';
-import { autobind } from 'core-decorators';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
 const ClickAway = createDecoratedComponent(withClickAway);
@@ -14,7 +13,7 @@ import 'src/components/mentioninput/mentionsInput';
 import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/uploadAttachment/uploadAttachment';
 import Emotion from 'src/components/emotion/emotion';
-import _, { bind } from 'lodash';
+import _ from 'lodash';
 
 const LET_ME_REPLY = _l('我来回复');
 const TEXT_AREA_MIN_HEIGHT_COLLAPSE = 22;
@@ -81,12 +80,11 @@ class PostCommentInput extends React.Component {
     $(button).off();
   }
 
-  @autobind
-  componentClickAway(e) {
+  componentClickAway = e => {
     if ($(e.target).attr('type') !== 'file' && this.state.isUploadComplete) {
       this.setState({ isEditing: false });
     }
-  }
+  };
 
   initTextarea() {
     const comp = this;

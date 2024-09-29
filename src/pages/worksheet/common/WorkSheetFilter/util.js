@@ -322,6 +322,9 @@ export function getConditionOverrideValue(type, condition, valueType) {
     case CONTROL_FILTER_WHITELIST.USERS.value:
     case CONTROL_FILTER_WHITELIST.RELATE_RECORD.value:
     case CONTROL_FILTER_WHITELIST.CASCADER.value:
+      if (type === FILTER_CONDITION_TYPE.NORMALUSER || type === FILTER_CONDITION_TYPE.PORTALUSER) {
+        return Object.assign({}, base, { values: [] });
+      }
       return Object.assign({}, base, { values });
     default:
       return base;
@@ -632,7 +635,7 @@ export function redefineComplexControl(contorl) {
   }
   if (contorl.type === 30) {
     let controlType = contorl.sourceControlType;
-    if (controlType === 37) {
+    if (_.includes([37, 53], controlType)) {
       controlType = contorl.enumDefault2;
     }
     if (controlType === 38) {
@@ -653,6 +656,10 @@ export function redefineComplexControl(contorl) {
   }
   if (contorl.type === 50) {
     return { ...contorl, ...{ type: 2, originType: contorl.type } };
+  }
+  // 公式函数
+  if (contorl.type === 53) {
+    return { ...contorl, ...{ type: contorl.enumDefault2, originType: contorl.type } };
   }
   return { ...contorl };
 }
@@ -757,17 +764,18 @@ export function relateDy(conditionType, controls, control, defaultValue) {
     // 电话、证件、邮件
     case API_ENUM_TO_TYPE.PHONE_NUMBER_3:
     case API_ENUM_TO_TYPE.PHONE_NUMBER_4:
-    case API_ENUM_TO_TYPE.CRED_INPUT:
-    case API_ENUM_TO_TYPE.EMAIL_INPUT:
-      // 文本框和自身类型（电话、证件或邮件）
       typeList = [
         API_ENUM_TO_TYPE.PHONE_NUMBER_3,
         API_ENUM_TO_TYPE.PHONE_NUMBER_4,
-        API_ENUM_TO_TYPE.CRED_INPUT,
         API_ENUM_TO_TYPE.TEXTAREA_INPUT_1,
         API_ENUM_TO_TYPE.TEXTAREA_INPUT_2,
-        API_ENUM_TO_TYPE.EMAIL_INPUT, // 邮件
       ];
+      return _.filter(controls, items => _.includes(typeList, items.type));
+    case API_ENUM_TO_TYPE.CRED_INPUT:
+      typeList = [API_ENUM_TO_TYPE.CRED_INPUT, API_ENUM_TO_TYPE.TEXTAREA_INPUT_1, API_ENUM_TO_TYPE.TEXTAREA_INPUT_2];
+      return _.filter(controls, items => _.includes(typeList, items.type));
+    case API_ENUM_TO_TYPE.EMAIL_INPUT:
+      typeList = [API_ENUM_TO_TYPE.TEXTAREA_INPUT_1, API_ENUM_TO_TYPE.TEXTAREA_INPUT_2, API_ENUM_TO_TYPE.EMAIL_INPUT];
       return _.filter(controls, items => _.includes(typeList, items.type));
     // 数值、金额、公式
     case API_ENUM_TO_TYPE.NUMBER_INPUT:
@@ -782,6 +790,7 @@ export function relateDy(conditionType, controls, control, defaultValue) {
         API_ENUM_TO_TYPE.SUBTOTAL,
         API_ENUM_TO_TYPE.AUTOID,
         API_ENUM_TO_TYPE.NUMBER_INPUT,
+        API_ENUM_TO_TYPE.SCORE,
       ];
       return _.filter(
         _.filter(controls, items => _.includes(typeList, items.type)),
@@ -879,8 +888,13 @@ export function relateDy(conditionType, controls, control, defaultValue) {
 
     // 等级
     case API_ENUM_TO_TYPE.SCORE:
-      // 部门
-      return _.filter(controls, items => items.type === API_ENUM_TO_TYPE.SCORE);
+      typeList = [
+        API_ENUM_TO_TYPE.SCORE,
+        API_ENUM_TO_TYPE.NUMBER_INPUT,
+        API_ENUM_TO_TYPE.MONEY_AMOUNT_8,
+        API_ENUM_TO_TYPE.NEW_FORMULA_31,
+      ];
+      return _.filter(controls, items => _.includes(typeList, items.type));
     // 时间
     case API_ENUM_TO_TYPE.TIME:
       return _.filter(controls, items =>
@@ -966,15 +980,6 @@ export function getFilter({ control, formData = [], filterKey = 'filters' }) {
   }
 }
 
-function getValueFromFilterData(dynamicControl = {}) {
-  if (checkIsTextControl(dynamicControl.type)) {
-    return dynamicControl.filterValue.value
-      ? { values: [dynamicControl.filterValue.value] }
-      : dynamicControl.filterValue;
-  }
-  return dynamicControl.filterValue || {};
-}
-
 export function fillConditionValue({ condition, formData, relateControl, ignoreFilterControl = false }) {
   const { dataType, controlId } = condition;
   const dynamicSource = condition.dynamicSource[0];
@@ -1040,7 +1045,7 @@ export function fillConditionValue({ condition, formData, relateControl, ignoreF
   if (dynamicControl.filterValue) {
     const newCondition = {
       ...condition,
-      ...getValueFromFilterData(dynamicControl),
+      ...(dynamicControl.filterValue || {}),
     };
     return validate(newCondition) || newCondition.filterType === 7 ? newCondition : false;
   }
@@ -1051,6 +1056,20 @@ export function fillConditionValue({ condition, formData, relateControl, ignoreF
   });
   if (!value) {
     return;
+  }
+  // // 强制异化，rowid取关联记录的值
+  if (controlId === 'rowid' && dynamicControl.type === 29) {
+    try {
+      condition.values = (_.isObject(value) ? value.records : JSON.parse(value))
+        .map(r => r.sid || r.rowid)
+        .filter(_.identity);
+    } catch (err) {
+      condition.values = [];
+    }
+    if (_.isEmpty(condition.values)) {
+      return;
+    }
+    return condition;
   }
   if (dataType === 2 || dataType === 32 || dataType === 3 || dataType === 7 || dataType === 5) {
     condition.values = [

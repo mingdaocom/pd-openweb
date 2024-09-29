@@ -99,57 +99,6 @@ class Alias extends React.Component {
         <ScrollView>
           <div className="aliasCon">
             <div className="conBox">
-              <h5>{_l('标题字段')}</h5>
-              <p>{_l('记录标题用于快速辨识一条数据，用于数据详情、关联数据、和消息通知等功能场景中。')}</p>
-              <h6 className="Font13 mTop24">{_l('标题字段')}</h6>
-              <div className="attr mTop6">
-                <div
-                  className={cx('inputTxt overflow_ellipsis', { noData: !data.controlName })}
-                  onClick={() => {
-                    this.setState({
-                      showControlList: !showControlList,
-                    });
-                  }}
-                >
-                  {data.controlName || _l('请选择')}
-                </div>
-                <Icon
-                  icon="expand_more"
-                  className="Font16"
-                  onClick={() => {
-                    this.setState({
-                      showControlList: !showControlList,
-                    });
-                  }}
-                />
-                {showControlList && (
-                  <DropControlList
-                    columsList={controls.filter(o => !ALL_SYS.includes(o.controlId))}
-                    onClickAwayExceptions={[]}
-                    onClickAway={() => this.setState({ showControlList: false })}
-                    id={id}
-                    setFn={(id, list) => {
-                      this.setState({
-                        id,
-                        showControlList: !showControlList,
-                      });
-                      sheetAjax
-                        .editWorksheetControls({
-                          worksheetId: worksheetId,
-                          appId: appId,
-                          controls: [{ ...list, attribute: 1 }],
-                        })
-                        .then(data => {
-                          // alert(_l('修改成功'));
-                        })
-                        .catch(err => {
-                          alert(_l('修改失败'), 2);
-                        });
-                    }}
-                  />
-                )}
-              </div>
-              <span className="line"></span>
               <h5>{_l('记录名称')}</h5>
               <p>
                 {_l(

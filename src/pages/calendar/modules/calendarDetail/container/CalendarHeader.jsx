@@ -168,11 +168,17 @@ export default class CalendarHeader extends Component {
   }
 
   renderOperations() {
-    const { auth, openDetailPage, postMessage, shareCalendar, deleteCalendar, exitCalendar, createTask } = this.props;
+    const { auth, openDetailPage, postMessage, shareCalendar, deleteCalendar, exitCalendar, createTask, reFetchData } =
+      this.props;
     const { showShare, showExit, showDelete, showEdit } = auth;
     const { isShowOpList } = this.state;
     return (
       <div className="calendarOperations pLeft15">
+        <span
+          className="icon-task-later Font18 ThemeHoverColor3 pointer"
+          title={_l('刷新')}
+          onClick={reFetchData}
+        ></span>
         <span className="Relative mLeft20 calMoreOp">
           <span
             className="icon-task-point-more Font19 ThemeHoverColor3 pointer"

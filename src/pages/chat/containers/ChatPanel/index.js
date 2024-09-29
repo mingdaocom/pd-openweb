@@ -40,18 +40,24 @@ class ChatPanel extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { currentSession: newCurrentSession } = nextProps;
-    const { currentSession, currentSessionList } = this.props;
-    const superfluous = currentSessionList.filter(item => (item.groupId || item.accountId) === newCurrentSession.value);
-    if (superfluous.length && 'isContact' in newCurrentSession && !newCurrentSession.isContact && newCurrentSession.value !== currentSession.value) {
+    const { currentSession, currentSessionList, currentInboxList } = this.props;
+    const sessionSuperfluous = currentSessionList.filter(item => (item.groupId || item.accountId) === newCurrentSession.value);
+    const inboxSuperfluous = currentInboxList.filter(item => item.id === newCurrentSession.value);
+    const isExist = sessionSuperfluous.length || inboxSuperfluous.length;
+    if (isExist && 'isContact' in newCurrentSession && !newCurrentSession.isContact && newCurrentSession.value !== currentSession.value) {
       this.props.dispatch(actions.removeCurrentSession(newCurrentSession.value));
       this.props.dispatch(actions.removeMessages(newCurrentSession.value));
       this.chatSessionItem(newCurrentSession);
     }
-    if (superfluous.length || newCurrentSession.iconType || _.isEmpty(newCurrentSession)) {
+    if (isExist || _.isEmpty(newCurrentSession)) {
       return;
     }
     if (newCurrentSession.value !== currentSession.value) {
-      this.chatSessionItem(newCurrentSession);
+      if (newCurrentSession.iconType) {
+        this.inboxSessionItem(newCurrentSession);
+      } else {
+        this.chatSessionItem(newCurrentSession);
+      }
     }
   }
   chatSessionItem(session) {
@@ -96,6 +102,9 @@ class ChatPanel extends Component {
         });
       });
   }
+  inboxSessionItem(session) {
+    this.props.dispatch(actions.addCurrentInbox(session));
+  }
   handleClosePanel() {
     const { currentSession } = this.props;
     if (currentSession.value) {
@@ -111,19 +120,22 @@ class ChatPanel extends Component {
     this.setState({ isError: false });
     this.chatSessionItem(currentSession);
   }
-  renderInbox() {
-    const { currentSession } = this.props;
-
+  renderInbox(item) {
+    const { currentSession = {} } = this.props;
     return (
-      <div className="ChatPanel ChatPanel-inbox">
+      <div className={cx('ChatPanel ChatPanel-inbox', { 'ChatPanel-active': currentSession.value === item.id })} key={item.id}>
         <i onClick={this.handleClosePanel.bind(this)} className="ChatPanel-inbox-close icon-close ThemeColor3" />
-        <Inbox inboxType={currentSession.iconType} count={currentSession.count} />
+        <Inbox
+          inboxType={item.id}
+          count={currentSession.value === item.id ? currentSession.count : 0}
+          weak_count={currentSession.value === item.id ? currentSession.weak_count : 0}
+        />
       </div>
     );
   }
   render() {
     const { loading, isError } = this.state;
-    const { currentSession, currentSessionList = [], visible } = this.props;
+    const { currentSession, currentSessionList = [], currentInboxList = [], visible } = this.props;
     const exceptions = [
       '.ChatList-wrapper',
       // '.ChatList-wrapper .SessionList-scrollView',
@@ -166,7 +178,9 @@ class ChatPanel extends Component {
         {currentSessionList.map(item => (
           <ChatPanelSession session={item} key={item.id} />
         ))}
-        {currentSession.iconType ? this.renderInbox() : undefined}
+        {currentInboxList.map(item => (
+          this.renderInbox(item)
+        ))}
         {loading ? (
           <div className="ChatPanel ChatPanel-loading">
             {isError && !loading ? (
@@ -184,10 +198,11 @@ class ChatPanel extends Component {
 }
 
 export default connect(state => {
-  const { currentSession, currentSessionList, visible } = state.chat;
+  const { currentSession, currentSessionList, currentInboxList, visible } = state.chat;
   return {
     currentSession,
     currentSessionList,
+    currentInboxList,
     visible,
   };
 })(ChatPanel);

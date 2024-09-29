@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
 import styled from 'styled-components';
-import { Select } from 'antd';
-import { Input } from 'ming-ui';
+import { Select, Tooltip } from 'antd';
+import { Input, Icon } from 'ming-ui';
 import { enumWidgetType, canSetAsTitle } from 'src/pages/widgetConfig/util';
 import Settings from 'src/pages/widgetConfig/widgetSetting/settings';
 import { DEFAULT_DATA } from 'src/pages/widgetConfig/config/widget.js';
@@ -118,145 +118,154 @@ export default function SelectType(props) {
   };
 
   return (
-    <Trigger
-      action={['click']}
-      popupClassName="moreOption"
-      getPopupContainer={() => selectRef.current}
-      popupVisible={visible}
-      onPopupVisibleChange={onPopupVisibleChange}
-      popupAlign={{
-        points: ['tr', 'br'],
-        offset: [0, 5],
-        overflow: { adjustX: true, adjustY: true },
-      }}
-      popup={
-        isDestDbType ? (
-          <Wrapper>
-            <p className="bold mBottom10">{_l('类型')}</p>
-            <div ref={selectOptionListRef}>
-              <Select
-                className="selectItem"
-                placeholder={_l('请选择')}
-                notFoundContent={_l('暂无数据')}
-                getPopupContainer={() => selectOptionListRef.current}
-                value={destField.dataType}
-                options={options}
-                onChange={(value, option) => {
-                  updateFieldsMapping &&
-                    updateFieldsMapping({
-                      ...itemData,
-                      destField: {
-                        ...destField,
-                        dataType: value,
-                        jdbcTypeId: option.dataType,
-                        precision: option.maxLength,
-                        scale: option.defaultScale,
-                      },
-                    });
-                }}
-              />
-            </div>
-
-            {!!currentOption.maxLength && (
-              <div>
-                <p className="bold mBottom10 mTop24">{_l('长度')}</p>
-                <Input
-                  className="commonInput"
-                  value={destField.precision || ''}
-                  onChange={value => {
-                    const validPrecision =
-                      parseInt(value) > currentOption.maxLength
-                        ? currentOption.maxLength
-                        : parseInt(value) < 1
-                        ? 1
-                        : parseInt(value);
-
-                    updateFieldsMapping({
-                      ...itemData,
-                      destField: {
-                        ...destField,
-                        precision: validPrecision,
-                      },
-                    });
-                  }}
-                />
-              </div>
-            )}
-
-            {!!currentOption.maximumScale && (
-              <div>
-                <p className="bold mBottom10 mTop24">{_l('精度')}</p>
-                <Input
-                  className="commonInput"
-                  value={destField.scale === 0 ? 0 : destField.scale || ''}
-                  onChange={value => {
-                    const validScale =
-                      parseInt(value) > currentOption.maximumScale
-                        ? currentOption.maximumScale
-                        : parseInt(value) < currentOption.minimumScale
-                        ? 0
-                        : parseInt(value);
-                    updateFieldsMapping({
-                      ...itemData,
-                      destField: {
-                        ...destField,
-                        scale: validScale,
-                      },
-                    });
-                  }}
-                />
-              </div>
-            )}
-          </Wrapper>
-        ) : (
-          <Wrapper>
-            <p className="bold mBottom10">{_l('类型')}</p>
-            <div ref={selectOptionListRef}>
-              <Select
-                className="selectItem"
-                placeholder={_l('请选择')}
-                notFoundContent={_l('暂无数据')}
-                getPopupContainer={() => selectOptionListRef.current}
-                value={destField.mdType}
-                options={options}
-                onChange={(value, option) => onWorkSheetTypeChange(value, option)}
-              />
-            </div>
-
-            {destField.mdType && settingComponent.component && (
-              <settingComponent.component
-                data={destField.controlSetting}
-                fromExcel={true}
-                onChange={data => {
-                  updateFieldsMapping &&
-                    updateFieldsMapping({
-                      ...itemData,
-                      destField: {
-                        ...destField,
-                        scale: data.dot || 0,
-                        controlSetting: {
-                          ...destField.controlSetting,
-                          ..._.pick(data, ['advancedSetting', 'enumDefault', 'type', 'dot']),
+    <div className="flexRow alignItemsCenter">
+      <Trigger
+        action={['click']}
+        popupClassName="moreOption"
+        getPopupContainer={() => selectRef.current}
+        popupVisible={visible}
+        onPopupVisibleChange={onPopupVisibleChange}
+        popupAlign={{
+          points: ['tr', 'br'],
+          offset: [0, 5],
+          overflow: { adjustX: true, adjustY: true },
+        }}
+        popup={
+          isDestDbType ? (
+            <Wrapper>
+              <p className="bold mBottom10">{_l('类型')}</p>
+              <div ref={selectOptionListRef}>
+                <Select
+                  className="selectItem"
+                  placeholder={_l('请选择')}
+                  notFoundContent={_l('暂无数据')}
+                  getPopupContainer={() => selectOptionListRef.current}
+                  value={destField.dataType}
+                  options={options}
+                  onChange={(value, option) => {
+                    updateFieldsMapping &&
+                      updateFieldsMapping({
+                        ...itemData,
+                        destField: {
+                          ...destField,
+                          dataType: value,
+                          jdbcTypeId: option.dataType,
+                          precision: option.maxLength,
+                          scale: option.defaultScale,
                         },
-                      },
-                    });
-                }}
-              />
-            )}
-          </Wrapper>
-        )
-      }
-    >
-      <div ref={selectRef}>
-        <Select
-          className="selectItem commonWidth"
-          open={false}
-          placeholder={_l('请选择')}
-          notFoundContent={_l('暂无数据')}
-          value={isDestDbType ? destField.dataType : destField.mdType}
-          options={options}
-        />
+                      });
+                  }}
+                />
+              </div>
+
+              {!!currentOption.maxLength && (
+                <div>
+                  <p className="bold mBottom10 mTop24">{_l('长度')}</p>
+                  <Input
+                    className="commonInput"
+                    value={destField.precision || ''}
+                    onChange={value => {
+                      const validPrecision =
+                        parseInt(value) > currentOption.maxLength
+                          ? currentOption.maxLength
+                          : parseInt(value) < 1
+                          ? 1
+                          : parseInt(value);
+
+                      updateFieldsMapping({
+                        ...itemData,
+                        destField: {
+                          ...destField,
+                          precision: validPrecision,
+                        },
+                      });
+                    }}
+                  />
+                </div>
+              )}
+
+              {!!currentOption.maximumScale && (
+                <div>
+                  <p className="bold mBottom10 mTop24">{_l('精度')}</p>
+                  <Input
+                    className="commonInput"
+                    value={destField.scale === 0 ? 0 : destField.scale || ''}
+                    onChange={value => {
+                      const validScale =
+                        parseInt(value) > currentOption.maximumScale
+                          ? currentOption.maximumScale
+                          : parseInt(value) < currentOption.minimumScale
+                          ? 0
+                          : parseInt(value);
+                      updateFieldsMapping({
+                        ...itemData,
+                        destField: {
+                          ...destField,
+                          scale: validScale,
+                        },
+                      });
+                    }}
+                  />
+                </div>
+              )}
+            </Wrapper>
+          ) : (
+            <Wrapper>
+              <p className="bold mBottom10">{_l('类型')}</p>
+              <div ref={selectOptionListRef}>
+                <Select
+                  className="selectItem"
+                  placeholder={_l('请选择')}
+                  notFoundContent={_l('暂无数据')}
+                  getPopupContainer={() => selectOptionListRef.current}
+                  value={destField.mdType}
+                  options={options}
+                  onChange={(value, option) => onWorkSheetTypeChange(value, option)}
+                />
+              </div>
+
+              {destField.mdType && settingComponent.component && (
+                <settingComponent.component
+                  data={destField.controlSetting}
+                  fromExcel={true}
+                  onChange={data => {
+                    updateFieldsMapping &&
+                      updateFieldsMapping({
+                        ...itemData,
+                        destField: {
+                          ...destField,
+                          scale: data.dot || 0,
+                          controlSetting: {
+                            ...destField.controlSetting,
+                            ..._.pick(data, ['advancedSetting', 'enumDefault', 'type', 'dot']),
+                          },
+                        },
+                      });
+                  }}
+                />
+              )}
+            </Wrapper>
+          )
+        }
+      >
+        <div className="flex minWidth0" ref={selectRef}>
+          <Select
+            className="selectItem commonWidth"
+            open={false}
+            placeholder={_l('请选择')}
+            notFoundContent={_l('暂无数据')}
+            value={isDestDbType ? destField.dataType : destField.mdType}
+            options={options}
+          />
+        </div>
+      </Trigger>
+      <div className="numberTips">
+        {!isDestDbType && destField.mdType === 6 && (
+          <Tooltip title={_l('数值最大支持16位数字')} placement="top">
+            <Icon icon="info1" className="Gray_bd mLeft5" />
+          </Tooltip>
+        )}
       </div>
-    </Trigger>
+    </div>
   );
 }

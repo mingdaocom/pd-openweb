@@ -243,7 +243,7 @@ export const browserIsMobile = () => {
   if (sUserAgent.includes('dingtalk') || sUserAgent.includes('wxwork')) {
     // 钉钉和微信设备针对侧边栏打开判断为 mobile 环境
     const { pc_slide = '' } = getRequest();
-    return pc_slide.includes('true') ? true : value;
+    return pc_slide.includes('true') || sessionStorage.getItem('dingtalk_pc_slide') ? true : value;
   } else {
     return value;
   }
@@ -939,7 +939,7 @@ export function verifyPassword({
     if (md.global.getCaptchaType() === 1) {
       new captcha(cb);
     } else {
-      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb).show();
+      new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), cb, { needFeedBack: false }).show();
     }
   };
 
@@ -1586,7 +1586,9 @@ export const dateConvertToServerZone = date => {
     .format('YYYY-MM-DD HH:mm:ss');
 };
 
-// 数值千分位显示
+/**
+ * 数值千分位显示
+ */
 export const formatNumberThousand = value => {
   const content = (value || _.isNumber(value) ? value : '').toString();
   const reg = content.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;

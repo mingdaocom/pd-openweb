@@ -182,7 +182,7 @@ export default function RowHead(props) {
       style={style}
       readonly={readonly || !hasBatch}
       onClick={e => {
-        if (e.target.classList.contains('cell')) {
+        if (e.target.classList.contains('control-rowHead')) {
           onOpenRecord();
         }
       }}
@@ -252,7 +252,7 @@ export default function RowHead(props) {
             <span className="moreOperate" style={{ width: 24 }} />
           )}
           {(hasBatch || showNumber) && (
-            <div className="numberCon" style={{ marginLeft: 10, width: numberWidth }}>
+            <div className="numberCon" style={{ marginLeft: isDraft ? 0 : 10, width: numberWidth }}>
               {showNumber && <div className="number">{lineNumberBegin + rowIndex + 1}</div>}
               {!readonly && hasBatch && (
                 <div className="checkbox">

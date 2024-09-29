@@ -424,7 +424,8 @@ var transformFunc = function (elements) {
     var element = elements[i];
 
     // 替换文本内容中的 [[[]]] 部分
-    element.innerHTML = staticLanguages[element.getAttribute('content') || element.innerHTML][lang];
+    var content = element.getAttribute('content') || element.innerHTML;
+    element.innerHTML = staticLanguages[content] ? staticLanguages[content][lang] : content;
   }
 };
 

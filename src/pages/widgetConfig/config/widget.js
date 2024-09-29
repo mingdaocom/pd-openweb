@@ -62,6 +62,7 @@ export const WIDGETS_TO_API_TYPE_ENUM = {
   SEARCH: 50,
   RELATION_SEARCH: 51,
   SECTION: 52,
+  FORMULA_FUNC: 53,
   REMARK: 10010,
 };
 
@@ -239,6 +240,12 @@ export const DEFAULT_CONFIG = {
     moreIntroLink: 'https://help.mingdao.com/worksheet/control-formula',
   },
   FORMULA_DATE: {
+    icon: 'formula',
+    widgetName: _l('公式'),
+    intro: _l('将当前记录中的字段进行数值或日期计算'),
+    moreIntroLink: 'https://help.mingdao.com/worksheet/control-formula',
+  },
+  FORMULA_FUNC: {
     icon: 'formula',
     widgetName: _l('公式'),
     intro: _l('将当前记录中的字段进行数值或日期计算'),
@@ -429,6 +436,10 @@ export const DEFAULT_DATA = {
       covertype: '0',
       alldownload: '1',
       webcompress: '1',
+      allowupload: '1',
+      allowdelete: '1',
+      allowdownload: '1',
+      alldownload: '1',
     },
   },
   DATE: {
@@ -562,6 +573,10 @@ export const DEFAULT_DATA = {
       showtype: '1',
       blankrow: '1',
       rownum: '15',
+      allowlink: '1',
+      allowcopy: '1',
+      allowimport: '1',
+      allowbatch: '1',
     },
   },
   SWITCH: {
@@ -595,6 +610,11 @@ export const DEFAULT_DATA = {
     advancedSetting: {
       dateformulatype: '1',
     },
+  },
+  FORMULA_FUNC: {
+    controlName: _l('函数公式'),
+    size: 6,
+    enumDefault2: 1,
   },
   LOCATION: {
     controlName: _l('定位'),

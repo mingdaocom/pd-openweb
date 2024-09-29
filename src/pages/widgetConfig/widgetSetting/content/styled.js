@@ -7,6 +7,9 @@ export const SettingCollapseWrap = styled(Collapse)`
     background-color: #fff !important;
     .ant-collapse-item {
       border-bottom: 1px solid #eaeaea !important;
+      &:last-child {
+        border-bottom: none !important;
+      }
     }
     .ant-collapse-item > .ant-collapse-header {
       padding: 20px 0 !important;

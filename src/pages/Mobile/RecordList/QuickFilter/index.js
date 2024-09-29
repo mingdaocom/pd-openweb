@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useState, useMemo, useRef } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import * as actions from 'mobile/RecordList/redux/actions';
+import * as sheetActions from 'src/pages/worksheet/redux/actions';
 import { bindActionCreators } from 'redux';
 import { Icon } from 'ming-ui';
 import FilterInput, { NumberTypes } from './Inputs';
@@ -53,11 +54,12 @@ export function QuickFilter(props) {
     view,
     filters,
     controls,
-    updateQuickFilter,
+    pcUpdateQuickFilter,
     onHideSidebar,
     mobileNavGroupFilters = [],
     quickFilter = [],
   } = props;
+  const updateQuickFilter = _.includes([21], view.viewType) ? pcUpdateQuickFilter : props.updateQuickFilter;
   const width = document.documentElement.clientWidth - 60;
   const showQueryBtn = view.advancedSetting && view.advancedSetting.enablebtn && view.advancedSetting.enablebtn === '1';
   const store = useRef({});
@@ -111,10 +113,10 @@ export function QuickFilter(props) {
       if (_.includes(NumberTypes, store.current.activeType)) {
         debounceUpdateQuickFilter.current(formatQuickFilter(quickFilterDataFormat));
       } else {
-        updateQuickFilter(formatQuickFilter(quickFilterDataFormat));
+        updateQuickFilter(formatQuickFilter(quickFilterDataFormat), view);
       }
     } else {
-      updateQuickFilter([]);
+      updateQuickFilter([], view);
     }
   };
   const handleQuery = () => {
@@ -123,7 +125,7 @@ export function QuickFilter(props) {
   };
   const handleReset = () => {
     setValues({});
-    updateQuickFilter([]);
+    updateQuickFilter([], view);
     onHideSidebar();
   };
   useEffect(() => {
@@ -209,5 +211,9 @@ export default connect(
     mobileNavGroupFilters: state.mobile.mobileNavGroupFilters,
     quickFilter: state.mobile.quickFilter,
   }),
-  dispatch => bindActionCreators(_.pick(actions, ['updateQuickFilter']), dispatch),
+  dispatch =>
+    bindActionCreators(
+      { ..._.pick(actions, ['updateQuickFilter']), pcUpdateQuickFilter: sheetActions.updateQuickFilter },
+      dispatch,
+    ),
 )(QuickFilter);

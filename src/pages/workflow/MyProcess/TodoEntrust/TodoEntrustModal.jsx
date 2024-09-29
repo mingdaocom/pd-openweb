@@ -100,7 +100,8 @@ export default function TodoEntrustModal(props) {
   const onAddOrChangeMember = () => {
     dialogSelectUser({
       SelectUserSettings: {
-        filterAccountIds: [md.global.Account.accountId].concat((formData.trustee || {}).accountId || []),
+        filterAccountIds: [md.global.Account.accountId],
+        selectedAccountIds: (formData.trustee || {}).accountId ? [(formData.trustee || {}).accountId] : [],
         projectId: formData.companyId,
         filterAll: true,
         filterFriend: true,

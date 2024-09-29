@@ -269,6 +269,7 @@ export default {
   * @param {string} args.viewId 视图Id
   * @param {string} args.appId 应用Id
   * @param {string} args.relationWorksheetId relationWorksheetId
+  * @param {string} args.relationViewId RelationViewId
   * @param {string} args.rowId 行id
   * @param {string} args.controlId 控件Id
   * @param {string} args.kanbanKey 全部看板，&#34;-1&#34;:无等于或无选项单看板，&#34;key&#34;:单看板数据,
@@ -316,6 +317,7 @@ export default {
   * @param {string} args.viewId 视图Id
   * @param {string} args.appId 应用Id
   * @param {string} args.relationWorksheetId relationWorksheetId
+  * @param {string} args.relationViewId RelationViewId
   * @param {string} args.rowId 行id
   * @param {string} args.controlId 控件Id
   * @param {string} args.kanbanKey 全部看板，&#34;-1&#34;:无等于或无选项单看板，&#34;key&#34;:单看板数据,
@@ -363,6 +365,7 @@ export default {
   * @param {string} args.viewId 视图Id
   * @param {string} args.appId 应用Id
   * @param {string} args.relationWorksheetId relationWorksheetId
+  * @param {string} args.relationViewId RelationViewId
   * @param {string} args.rowId 行id
   * @param {string} args.controlId 控件Id
   * @param {string} args.kanbanKey 全部看板，&#34;-1&#34;:无等于或无选项单看板，&#34;key&#34;:单看板数据,
@@ -510,6 +513,7 @@ export default {
   * @param {string} args.viewId 视图Id
   * @param {string} args.appId 应用Id
   * @param {string} args.relationWorksheetId relationWorksheetId
+  * @param {string} args.relationViewId RelationViewId
   * @param {string} args.rowId 行id
   * @param {string} args.controlId 控件Id
   * @param {string} args.kanbanKey 全部看板，&#34;-1&#34;:无等于或无选项单看板，&#34;key&#34;:单看板数据,

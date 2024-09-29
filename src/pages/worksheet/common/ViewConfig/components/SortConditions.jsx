@@ -1,16 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import update from 'immutability-helper';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { Icon, Dropdown, Tooltip, Support } from 'ming-ui';
+import { Icon, Dropdown, Tooltip, Support, SortableList } from 'ming-ui';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { getSortData } from 'src/pages/worksheet/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
+
 const ConditionsWrap = styled.div`
   .operateBtn {
     cursor: pointer;
@@ -37,9 +36,8 @@ const ConditionsWrap = styled.div`
   }
 `;
 
-const SortHandle = SortableHandle(() => <Icon className="mRight5 Font14 Hand" icon="drag" />);
-const Item = SortableElement(props => {
-  const { sortConditions = [], columns, condition = {}, info = {} } = props;
+const Item = props => {
+  const { sortConditions = [], columns, condition = {}, info = {}, DragHandle } = props;
   const { index } = info;
   const canDelete = !(index === 0 && sortConditions.length === 1);
   const canAdd = sortConditions.length < (columns.length < 5 ? columns.length : 5);
@@ -47,7 +45,9 @@ const Item = SortableElement(props => {
   let controlType = control ? (control.type === 30 ? control.sourceControlType : control.type) : '';
   return (
     <div className="flexRow alignItemsCenter mBottom10">
-      <SortHandle />
+      <DragHandle className="alignItemsCenter flexRow">
+        <Icon className="mRight5 Font14 Hand" icon="drag" />
+      </DragHandle>
       <div className="flexRow flex" style={{ position: 'relative' }} key={condition.controlId}>
         {[9, 10, 11].includes(controlType) && (
           <Tooltip
@@ -121,26 +121,7 @@ const Item = SortableElement(props => {
       </div>
     </div>
   );
-});
-
-const SortableList = SortableContainer(({ sortConditions, ...objs }) => {
-  return (
-    <div className="mTop24">
-      {_.map(sortConditions, (item, index) => {
-        return (
-          <Item
-            index={index}
-            sortConditions={sortConditions}
-            condition={item}
-            {...objs}
-            key={'item_' + index}
-            info={{ index }}
-          />
-        );
-      })}
-    </div>
-  );
-});
+};
 
 export default class SortConditions extends React.Component {
   static propTypes = {
@@ -190,8 +171,7 @@ export default class SortConditions extends React.Component {
     onChange(newSortConditions);
   };
 
-  @autobind
-  handleChangeSortControl(index, value) {
+  handleChangeSortControl = (index, value) => {
     const { sortConditions } = this.state;
     const newSortConditions = update(sortConditions, {
       [index]: {
@@ -202,10 +182,9 @@ export default class SortConditions extends React.Component {
       },
     });
     this.handleChange(newSortConditions);
-  }
+  };
 
-  @autobind
-  handleChangeSortType(index, value) {
+  handleChangeSortType = (index, value) => {
     const { sortConditions } = this.state;
     const newSortConditions = update(sortConditions, {
       [index]: {
@@ -215,10 +194,9 @@ export default class SortConditions extends React.Component {
       },
     });
     this.handleChange(newSortConditions);
-  }
+  };
 
-  @autobind
-  handleAddCondition(index) {
+  handleAddCondition = index => {
     const newCondition = this.getCanSelectColumns()[0];
     if (!newCondition) {
       return;
@@ -237,14 +215,13 @@ export default class SortConditions extends React.Component {
       ],
     });
     this.handleChange(newSortConditions);
-  }
+  };
 
-  @autobind
-  handleDeleteCondition(controlId) {
+  handleDeleteCondition = controlId => {
     const { sortConditions } = this.state;
     const newSortConditions = sortConditions.filter(sc => sc.controlId !== controlId);
     this.handleChange(newSortConditions);
-  }
+  };
 
   getCanSelectColumns = controlId => {
     const { columns, sortConditions } = this.state;
@@ -279,28 +256,40 @@ export default class SortConditions extends React.Component {
   };
 
   //拖拽排序
-  handleSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-    let listNew = arrayMove(this.state.sortConditions, oldIndex, newIndex);
+  handleSortEnd = listNew => {
     this.handleChange(listNew);
   };
 
   renderCondtions = () => {
     const { columns, sortConditions } = this.state;
     return (
-      <SortableList
-        sortConditions={sortConditions}
-        columns={columns}
-        useDragHandle
-        onSortEnd={this.handleSortEnd}
-        helperClass={cx('sortConditionsViewControl', this.props.helperClass)}
-        handleChangeSortControl={this.handleChangeSortControl}
-        handleChangeSortType={this.handleChangeSortType}
-        handleDeleteCondition={this.handleDeleteCondition}
-        handleAddCondition={this.handleAddCondition}
-        getSortTypes={this.getSortTypes}
-        getCanSelectColumns={this.getCanSelectColumns}
-      />
+      <div className="mTop24">
+        <SortableList
+          itemKey="controlId"
+          items={sortConditions}
+          useDragHandle
+          onSortEnd={this.handleSortEnd}
+          helperClass={cx('sortConditionsViewControl', this.props.helperClass)}
+          renderItem={options => (
+            <Item
+              {...this.props}
+              {...options}
+              index={options.index}
+              sortConditions={sortConditions}
+              condition={options.item}
+              key={'item_' + options.index}
+              info={{ index: options.index }}
+              columns={columns}
+              handleChangeSortControl={this.handleChangeSortControl}
+              handleChangeSortType={this.handleChangeSortType}
+              handleDeleteCondition={this.handleDeleteCondition}
+              handleAddCondition={this.handleAddCondition}
+              getSortTypes={this.getSortTypes}
+              getCanSelectColumns={this.getCanSelectColumns}
+            />
+          )}
+        />
+      </div>
     );
   };
 

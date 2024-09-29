@@ -34,11 +34,11 @@
         }
       }
       &.worksheetRecordIcon {
-          background: url(./images/worksheet-record-icon.svg);
-          margin: 0 auto;
-          .fileSize {
-            display: none;
-          }
+        background: url(./images/worksheet-record-icon.svg);
+        margin: 0 auto;
+        .fileSize {
+          display: none;
+        }
       }
     }
     .fileIcon-folder .fileSize {
@@ -140,6 +140,9 @@
         }
       }
     }
+    .selectTargetCon {
+      padding: 0 10px;
+    }
   }
   .fileNameText {
     display: inline-block;
@@ -155,7 +158,6 @@
   }
   .selectTargetBtnList {
     position: relative;
-    width: 309px;
     .prev,
     .next {
       display: none;
@@ -175,6 +177,7 @@
       overflow: hidden;
     }
     .listBox {
+      display: flex;
       position: relative;
       height: 88px;
       padding: 10px 10px 0 10px;
@@ -193,11 +196,16 @@
         margin-top: -1px !important;
       }
     }
+    .contentCon {
+      display: inline-block;
+    }
     .targetBtn {
       float: left;
       text-align: center;
       cursor: pointer;
-      margin-right: 36px;
+      &:not(:last-child) {
+        margin-right: 36px;
+      }
       &:hover {
         .icon {
           transform: scale(1.1);
@@ -207,6 +215,7 @@
         display: block;
         width: 50px;
         height: 50px;
+        margin: 0 auto;
         border-radius: 50%;
         font-size: 50px;
         line-height: 50px;

@@ -167,7 +167,7 @@ class ActionSet extends Component {
             {/* 记录详情的自定义动作 单条 */}
             <div className="customBtnBox">
               <div className="flexRow mTop25 alignItemsCenter">
-                <p className="Bold Gray_75 Font13 mAll0 flex">{_l('自定义动作')}</p>
+                <p className="Bold Gray_75 Font13 mAll0 flex">{_l('自定义按钮')}</p>
                 {detailBtns.length > 0 && (
                   <Checkbox
                     className="hideBtn"
@@ -227,7 +227,7 @@ class ActionSet extends Component {
                 /> */}
                 {/* 批量操作的自定义动作 */}
                 <div className="customBtnBox">
-                  <p className="Bold Gray_75 Font13 mTop25 mBottom0">{_l('自定义动作')}</p>
+                  <p className="Bold Gray_75 Font13 mTop25 mBottom0">{_l('自定义按钮')}</p>
                   <CustomBtnCon
                     {...this.props}
                     isListOption={true}

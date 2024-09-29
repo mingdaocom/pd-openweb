@@ -62,11 +62,6 @@ export const ROUTE_CONFIG = {
     component: () => import('src/pages/kc/share'),
     title: _l('知识'),
   },
-  recordFile: {
-    path: '/land/record/file',
-    component: () => import('src/pages/kc/share'),
-    title: _l('记录附件'),
-  },
 
   // 工作表
   newRecord: {
@@ -196,7 +191,10 @@ export const ROUTE_CONFIG = {
   workflowEdit: {
     path: '/workflowedit/:flowId/:type?/:operator?/:operatorId?',
     component: () => import('src/pages/workflow/WorkflowSettings'),
-    title: _l('编辑工作流'),
+  },
+  workflowPlugin: {
+    path: '/workflowplugin/:flowId/:type?/:operator?/:operatorId?',
+    component: () => import('src/pages/workflow/WorkflowSettings'),
   },
   checkSheet: {
     path: '/workflow/checksheet/:processId/:currentNodeId/:selectNodeId',
@@ -214,7 +212,7 @@ export const ROUTE_CONFIG = {
     title: _l('正在导出，请稍候...'),
   },
   home: {
-    path: ['/dashboard', '/app/my/(group|all)?/:projectId?/:groupType?/:groupId?', '/favorite', '/app/lib/'],
+    path: ['/dashboard', '/app/my/(group|owned)?/:projectId?/:groupType?/:groupId?', '/favorite', '/app/lib/'],
     component: () => import('src/pages/AppHomepage/AppCenter'),
   },
   aggregationInfo: {
@@ -256,6 +254,11 @@ export const ROUTE_CONFIG = {
     path: '/integrationApi/:apiId?',
     component: () => import('src/pages/integration/integrationApi'),
     title: _l('集成中心'),
+  },
+  dataMirrorPreview: {
+    path: '/dataMirrorPreview/:id?',
+    component: () => import('src/pages/integration/dataIntegration/dataMirror/Preview'),
+    title: _l('工作表数据镜像'),
   },
   plugin: {
     path: '/plugin/:type?',
@@ -299,6 +302,7 @@ const withoutHeaderPathList = [
   'role',
   'portaluser',
   'aggregation',
+  'dataMirrorPreview',
 ];
 const withoutChatPathList = [
   'demo',
@@ -331,6 +335,7 @@ const withoutChatPathList = [
   'orderpay',
   'embed/view',
   'aggregation',
+  'dataMirrorPreview',
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;
 export const withoutChatUrl = `/(.*)(${withoutChatPathList.join('|')})`;

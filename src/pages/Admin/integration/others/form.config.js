@@ -52,19 +52,16 @@ export const formListBottom = [
   {
     label: _l('用户帐号'),
     key: 'searchFilter',
-    desc: _l('LDAP Server 登录账户字段，用于与系统用户信息匹配字段'),
     errorMsg: _l('请输入LDAP Server账户字段名称'),
   },
   {
     label: _l('Email'),
     key: 'emailAttr',
-    desc: _l('LDAP Server 登录账户字段，用于与系统用户信息匹配字段'),
     errorMsg: _l('请输入LDAP Server邮箱字段名称'),
   },
   {
     label: _l('用户姓名'),
     key: 'fullnameAttr',
-    desc: _l('同步至系统用户姓名。'),
     showCheckbox: true,
     checkedField: 'mustFullname',
     placeholder: 'displayname',
@@ -72,7 +69,6 @@ export const formListBottom = [
   {
     label: _l('部门'),
     key: 'departmentAttr',
-    desc: _l('同步至系统用户部门。'),
     showCheckbox: true,
     checkedField: 'mustDepartment',
     placeholder: 'department',
@@ -80,7 +76,6 @@ export const formListBottom = [
   {
     label: _l('职位'),
     key: 'jobAttr',
-    desc: _l('同步至系统用户职位。'),
     showCheckbox: true,
     checkedField: 'mustJob',
     placeholder: 'title',
@@ -88,7 +83,6 @@ export const formListBottom = [
   {
     label: _l('联系电话'),
     key: 'workphoneAttr',
-    desc: _l('同步至系统用户联系电话。'),
     showCheckbox: true,
     checkedField: 'mustWorkphone',
     placeholder: 'telephoneNumber',

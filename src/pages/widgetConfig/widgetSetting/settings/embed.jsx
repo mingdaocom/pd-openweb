@@ -22,7 +22,7 @@ const EMBED_TYPES = [
   {
     value: 2,
     text: _l('统计'),
-    img: 'worksheet_column_chart',
+    img: 'stats_bar_chart',
     headerText: _l('图表'),
   },
   {
@@ -214,9 +214,9 @@ export default function Embed(props) {
                 }}
               >
                 <div className="mBottom4">
-                  <Icon icon={img} />
+                  <Icon icon={img} className="Font28" />
                 </div>
-                <span className="Gray_9e">{text}</span>
+                <span className="text">{text}</span>
               </div>
             );
           })}

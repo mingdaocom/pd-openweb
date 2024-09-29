@@ -569,6 +569,7 @@ export default class StepItem extends Component {
       multipleLevelType,
       sort,
       debugEventDump,
+      explain,
     } = data || {};
     /** 是否是当前流程节点 */
     let isCurrentWork =
@@ -605,8 +606,9 @@ export default class StepItem extends Component {
               {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
               {isCC && `(${workItems.length})`}
             </div>
+
             {countersign && (
-              <div className="mTop10 mLeft16 Gray_75 mRight16">
+              <div className="mTop6 mLeft14 mRight14 Gray_75">
                 {countersignType === 3
                   ? MULTIPLE_OPERATION[flowNode.type || '4']
                   : `${condition ? condition + '%' : ''}${SIGN_TYPE[countersignType]}`}
@@ -616,13 +618,17 @@ export default class StepItem extends Component {
             {workItems[0].type === 5 && (
               <Fragment>
                 <div
-                  className="pLeft16 pRight16 pTop6 breakAll Gray_75"
+                  className="mTop6 mLeft14 mRight14 breakAll Gray_75"
                   style={{ whiteSpace: 'normal' }}
                   dangerouslySetInnerHTML={{
                     __html: filterXSS(this.generateLink(workItems[0].opinion)),
                   }}
                 />
               </Fragment>
+            )}
+
+            {isCurrentWork && _.includes([3, 4], flowNode.type) && explain && (
+              <div className="mTop6 mLeft14 mRight14 breakAll">{explain}</div>
             )}
 
             {(isCC && workItems.length > 5 && !showMore ? workItems.slice(0, 5) : workItems).map((item, index) => {

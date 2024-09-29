@@ -277,13 +277,15 @@ function previewAttachment({
   fileId,
   controlId,
   from,
+  advancedSetting,
 }) {
   const recordAttachmentSwitch =
     !!_.get(window, 'shareState.shareId') || isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
-  let hideFunctions = ['editFileName'];
-  if (!recordAttachmentSwitch || disableDownload) {
+  let hideFunctions = ['editFileName', 'saveToKnowlege'];
+  const allowDownload = advancedSetting.allowdownload || '1';
+  if (!recordAttachmentSwitch || disableDownload || allowDownload === '0') {
     /* 是否不可下载 且 不可保存到知识和分享 */
-    hideFunctions.push('download', 'share', 'saveToKnowlege');
+    hideFunctions.push('download', 'share');
   }
   addBehaviorLog('previewFile', worksheetId, { fileId, rowId: recordId });
   previewAttachments(
@@ -332,13 +334,19 @@ function HoverPreviewPanel(props, cb = () => {}) {
     sheetSwitchPermit,
   } = props;
   const { originalFilename, ext = '', filesize } = attachment;
-  const { controlId } = cell;
+  const { controlId, advancedSetting } = cell;
   const { appId, viewId, worksheetId, recordId, disableDownload } = cellInfo;
   const [loading, setLoading] = useState(true);
+  const allowDelete = advancedSetting.allowdelete || '1';
+  const allowDownload = advancedSetting.allowdownload || '1';
   const recordAttachmentSwitch =
     !!_.get(window, 'shareState.shareId') || isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
   const downloadable =
-    recordAttachmentSwitch && !disableDownload && attachment.fileID && attachment.fileID.length === 36;
+    recordAttachmentSwitch &&
+    !disableDownload &&
+    attachment.fileID &&
+    attachment.fileID.length === 36 &&
+    allowDownload === '1';
   const imageUrl = attachment.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/h/160');
   useEffect(() => {
     const image = new Image();
@@ -385,12 +393,14 @@ function HoverPreviewPanel(props, cb = () => {}) {
         <div className="fileName">{originalFilename + ext}</div>
         <div className="panelFooter">
           <span className="fileSize">{formatFileSize(filesize)}</span>
-          <Tooltip text={<span>{_l('删除')}</span>} popupPlacement="top">
-            <i
-              className={cx('icon icon-trash deleteBtn', { disabled: !editable })}
-              onClick={editable ? handleDelete : () => {}}
-            ></i>
-          </Tooltip>
+          {allowDelete === '1' && (
+            <Tooltip text={<span>{_l('删除')}</span>} popupPlacement="top">
+              <i
+                className={cx('icon icon-trash deleteBtn', { disabled: !editable })}
+                onClick={editable ? handleDelete : () => {}}
+              ></i>
+            </Tooltip>
+          )}
           {downloadable && (
             <Tooltip text={<span>{_l('下载')}</span>} popupPlacement="top">
               <i
@@ -501,7 +511,7 @@ function Attachment(props) {
             disableDownload: cellInfo.disableDownload,
             handleOpenControlAttachmentInNewTab: isTrash
               ? undefined
-              : fileId => {
+              : (fileId, options = {}) => {
                   openControlAttachmentInNewTab({
                     appId,
                     recordId,
@@ -510,6 +520,7 @@ function Attachment(props) {
                     controlId: cell.controlId,
                     fileId,
                     getType: from === 21 ? from : undefined,
+                    ...options,
                   });
                 },
             worksheetId,
@@ -517,6 +528,7 @@ function Attachment(props) {
             fileId: attachment.fileID,
             controlId: cell.controlId,
             from,
+            advancedSetting: cell.advancedSetting,
           });
           e.stopPropagation();
         }}
@@ -573,6 +585,7 @@ function cellAttachments(props, sourceRef) {
   let { editable } = props;
   const { value, strDefault = '', advancedSetting = {}, enumDefault } = cell;
   const [, onlyAllowMobileInput] = strDefault.split('');
+  const allowupload = advancedSetting.allowupload || '1';
   if (cell.type === 14 && onlyAllowMobileInput === '1') {
     editable = false;
   }
@@ -689,7 +702,7 @@ function cellAttachments(props, sourceRef) {
       }}
     />
   ));
-  if (isediting) {
+  if (isediting && allowupload === '1') {
     const popContent = (
       <UploadFilesTrigger
         appId={appId}
@@ -727,17 +740,24 @@ function cellAttachments(props, sourceRef) {
         }}
         checkValueByFilterRegex={name => {
           const formData = props.rowFormData();
-          return checkValueByFilterRegex({ advancedSetting }, RegExpValidator.getNameOfFileName(name), formData, rest.recordId);
+          return checkValueByFilterRegex(
+            { advancedSetting },
+            RegExpValidator.getNameOfFileName(name),
+            formData,
+            rest.recordId,
+          );
         }}
       >
         <EditingCon ref={ref} style={{ width: style.width, minHeight: style.height }}>
           {attachmentsComp}
-          <Add
-            style={{ width: fileWidth, height: fileHeight, lineHeight: fileHeight - 2 + 'px' }}
-            onClick={() => setUploadFileVisible(true)}
-          >
-            <i className="icon icon-plus"></i>
-          </Add>
+          {allowupload === '1' && (
+            <Add
+              style={{ width: fileWidth, height: fileHeight, lineHeight: fileHeight - 2 + 'px' }}
+              onClick={() => setUploadFileVisible(true)}
+            >
+              <i className="icon icon-plus"></i>
+            </Add>
+          )}
         </EditingCon>
       </UploadFilesTrigger>
     );
@@ -759,9 +779,14 @@ function cellAttachments(props, sourceRef) {
     );
   }
   return (
-    <Con className={cx(className, { canedit: editable })} tableType={tableType} style={style} onClick={onClick}>
+    <Con
+      className={cx(className, { canedit: editable })}
+      tableType={tableType}
+      style={style}
+      onClick={allowupload === '1' ? onClick : undefined}
+    >
       {rowHeight === 34 ? <CutCon className="CutCon">{attachmentsComp}</CutCon> : attachmentsComp}
-      {editable && (
+      {editable && allowupload === '1' && (
         <OperateIcon className="OperateIcon">
           <i
             className="ThemeHoverColor3 icon icon-attachment"

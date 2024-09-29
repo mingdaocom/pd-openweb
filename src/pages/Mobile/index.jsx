@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { BrowserRouter as Router, Route, Switch, withRouter, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch, withRouter } from 'react-router-dom';
+import { Dialog, Modal } from 'antd-mobile';
 import { navigateTo } from 'src/router/navigateTo';
 import DeclareConfirm from './components/DeclareConfirm';
 import preall from 'src/common/preall';
@@ -9,6 +10,7 @@ import genRouteComponent from 'src/router/genRouteComponent';
 import store from 'src/redux/configureStore';
 import { socketInit } from 'src/socket/mobileSocketInit';
 import { ROUTE_CONFIG, PORTAL } from './config';
+import { getRequest } from 'src/util';
 import './index.less';
 import _ from 'lodash';
 import { formatPortalHref } from 'src/pages/Portal/util';
@@ -34,6 +36,13 @@ class App extends Component {
   componentDidMount() {
     this.switchPath(this.props.location);
     sessionStorage.setItem('entryUrl', location.href);
+    if (window.isMingDaoApp) {
+      import('mobile/components/MDJSSDK/md_js_1.0.js');
+    }
+    const { pc_slide = '' } = getRequest();
+    if (pc_slide.includes('true')) {
+      sessionStorage.setItem('dingtalk_pc_slide', 'true');
+    }
     window.mobileNavigateTo = (url, isReplace) => {
       url = (window.subPath || '') + url;
 
@@ -49,6 +58,8 @@ class App extends Component {
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.location.pathname !== this.props.location.pathname) {
+      Dialog.clear();
+      Modal.clear();
       this.switchPath(nextProps.location);
     }
   }

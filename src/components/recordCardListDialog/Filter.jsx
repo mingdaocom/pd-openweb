@@ -112,7 +112,7 @@ export default function Header(props) {
               className="selectRecordConditions"
               showQueryBtn
               colNum={1}
-              controls={controls}
+              controls={controls.filter(c => c.controlId !== 'daid')}
               appId={control.appId || appId}
               projectId={projectId}
               filters={formatSearchFilters(searchFilters, controls)}

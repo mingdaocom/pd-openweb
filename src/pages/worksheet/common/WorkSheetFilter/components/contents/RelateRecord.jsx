@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { autobind } from 'core-decorators';
 import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 import _ from 'lodash';
@@ -41,8 +40,7 @@ export default class RelateRecord extends React.Component {
     return control.enumDefault === 1 && _.includes([FILTER_CONDITION_TYPE.ARREQ, FILTER_CONDITION_TYPE.ARRNE], type);
   }
 
-  @autobind
-  addRecord(selectedRecords) {
+  addRecord = selectedRecords => {
     const { control, onChange } = this.props;
     const { records } = this.state;
     const { relationControls } = control;
@@ -58,10 +56,9 @@ export default class RelateRecord extends React.Component {
       records: newRecords,
     });
     onChange({ values: newRecords.map(r => r.id), fullValues: newRecords.map(v => JSON.stringify(v)) });
-  }
+  };
 
-  @autobind
-  removeRecord(record) {
+  removeRecord = record => {
     const { onChange } = this.props;
     const { records } = this.state;
     const newRecords = records.filter(r => r.id !== record.id);
@@ -69,7 +66,7 @@ export default class RelateRecord extends React.Component {
       records: newRecords,
     });
     onChange({ values: newRecords.map(r => r.id), fullValues: newRecords.map(v => JSON.stringify(v)) });
-  }
+  };
 
   render() {
     const { type, control, worksheetId, disabled } = this.props;

@@ -626,7 +626,7 @@ export default class AppManagement extends Component {
         filterFriend: true,
         filterOthers: true,
         filterOtherProject: true,
-        filterAccountIds: [accountId],
+        selectedAccountIds: [accountId],
         projectId: this.props.match.params.projectId,
         unique: true,
         callback: users => {

@@ -149,6 +149,7 @@ export default class WebHook extends Component {
       successCode,
       errorMsg,
       executeType,
+      authId,
     } = data;
     const handleFormControls = formControls
       .filter(item => item.name)
@@ -213,6 +214,7 @@ export default class WebHook extends Component {
           errorMap,
           errorMsg,
           executeType,
+          authId,
         },
         { isIntegration: this.props.isIntegration },
       )
@@ -260,7 +262,7 @@ export default class WebHook extends Component {
    * 渲染自定义数据
    */
   renderCustomSource() {
-    const { selectNodeType, isIntegration } = this.props;
+    const { selectNodeType, isIntegration, connectId, hasAuth } = this.props;
     const { data, showTestDialog, testArray, fileArray } = this.state;
 
     return (
@@ -317,12 +319,15 @@ export default class WebHook extends Component {
         {showTestDialog && (
           <TestParameter
             title={_l('编辑 API 测试数据')}
-            onOk={this.send}
+            onOk={(testMap, authId) => this.send(testMap, { authId })}
             onClose={() => this.setState({ showTestDialog: false })}
             testArray={testArray}
             fileArray={fileArray}
             formulaMap={data.formulaMap}
             testMap={data.testMap}
+            authId={data.authId}
+            connectId={connectId}
+            hasAuth={hasAuth}
           />
         )}
       </Fragment>
@@ -396,6 +401,7 @@ export default class WebHook extends Component {
             relationId={this.props.relationId}
             selectNodeId={this.props.selectNodeId}
             isIntegration={this.props.isIntegration}
+            isPlugin={this.props.isPlugin}
             source={data.formControls}
             sourceKey="formControls"
             showType={data.contentType === 4}
@@ -414,6 +420,7 @@ export default class WebHook extends Component {
             relationId={this.props.relationId}
             selectNodeId={this.props.selectNodeId}
             isIntegration={this.props.isIntegration}
+            isPlugin={this.props.isPlugin}
             type={2}
             content={data.body}
             formulaMap={data.formulaMap}
@@ -473,6 +480,7 @@ export default class WebHook extends Component {
               relationId={this.props.relationId}
               selectNodeId={this.props.selectNodeId}
               isIntegration={this.props.isIntegration}
+              isPlugin={this.props.isPlugin}
               type={2}
               height={0}
               content={data.sendContent}
@@ -502,6 +510,7 @@ export default class WebHook extends Component {
           relationId={this.props.relationId}
           selectNodeId={this.props.selectNodeId}
           isIntegration={this.props.isIntegration}
+          isPlugin={this.props.isPlugin}
           source={data.headers}
           sourceKey="headers"
           formulaMap={data.formulaMap}
@@ -544,7 +553,7 @@ export default class WebHook extends Component {
   /**
    * 发送
    */
-  send = (testMap = {}, json) => {
+  send = (testMap = {}, { json, authId } = {}) => {
     const { processId, selectNodeId, isIntegration } = this.props;
     const { data, sendRequest } = this.state;
     const { headers, body, sendContent, method, formControls, contentType, settings } = data;
@@ -581,6 +590,7 @@ export default class WebHook extends Component {
           contentType,
           settings,
           json,
+          authId,
         },
         { isIntegration },
       )
@@ -592,9 +602,10 @@ export default class WebHook extends Component {
             requestDate: result.requestDate,
             requestTime: result.requestTime,
             statusCode: result.statusCode,
+            authId,
           });
         } else {
-          this.updateSource({ testMap });
+          this.updateSource({ testMap, authId });
           alert(result.msg || _l('请求异常'), 2);
         }
 
@@ -755,7 +766,7 @@ export default class WebHook extends Component {
 
           if (!json.trim() || checkJSON(json)) {
             this.updateSource({ json });
-            this.send(data.testMap, json);
+            this.send(data.testMap, { json });
             resolve();
           } else {
             alert(_l('JSON格式有错误'), 2);

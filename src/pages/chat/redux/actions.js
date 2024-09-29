@@ -466,6 +466,7 @@ export const sessionRemoved = message => (dispatch, getState) => {
   const value = type > 2 ? utils.getInboxId(type) : id;
   dispatch(removeSession(value));
   dispatch(removeCurrentSession(value));
+  dispatch(removeCurrentInbox(value));
   dispatch(removeMessages(value));
   if (value === currentSession.value) {
     dispatch(setNewCurrentSession({}));
@@ -519,9 +520,15 @@ export const clearAllUnread = () => (dispatch, getState) => {
  * @param {*} message
  */
 export const clearNotification = message => (dispatch, getState) => {
-  const { sessionList } = getState().chat;
+  const { sessionList, currentSession } = getState().chat;
   const { type } = message;
   dispatch(updateSessionList({ id: type, clearCount: 0 }));
+  if (currentSession.id === type && currentSession.count) {
+    dispatch({
+      type: 'SET_CURRENT_SESSION',
+      result: Object.assign(currentSession, { count: 0 }),
+    });
+  }
   utils.removeFlashTitle(type, sessionList);
 };
 
@@ -563,12 +570,18 @@ export const setVisible = visible => {
  * 设置一个新的会话信息
  * @param {*} result
  */
-export const setNewCurrentSession = result => {
+export const setNewCurrentSession = result => (dispatch, getState) => {
   socket.Contact.setCurrentChat(result);
-  return {
+  dispatch({
     type: 'SET_CURRENT_SESSION',
     result,
-  };
+  });
+  if (result.value !== 'workflow') {
+    dispatch({
+      type: 'REMOVE_INBOX_SESSION',
+      id: 'workflow',
+    });
+  }
 };
 
 /**
@@ -596,7 +609,7 @@ export const addCurrentSession = result => (dispatch, getState) => {
   const { currentSessionList, sessionList } = getState().chat;
   result.isGroup = 'isPost' in result;
   result.id = result.isGroup ? result.groupId : result.accountId;
-  if (currentSessionList.length >= 2) {
+  if (currentSessionList.length >= 3) {
     const { id } = currentSessionList[0];
     dispatch(removeCurrentSession(id));
     dispatch(removeMessages(id));
@@ -614,12 +627,39 @@ export const addCurrentSession = result => (dispatch, getState) => {
 };
 
 /**
+ * 添加打开过 inbox 消息
+ * @param {*} result
+ */
+ export const addCurrentInbox = result => (dispatch, getState) => {
+  const { currentInboxList = [], sessionList } = getState().chat;
+  if (currentInboxList.length >= 3) {
+    const { id } = currentInboxList[0];
+    dispatch(removeCurrentInbox(id));
+  }
+  dispatch({
+    type: 'ADD_INBOX_SESSION',
+    result,
+  });
+};
+
+/**
  * 删除聊过的会话信息
  * @param {*} result
  */
 export const removeCurrentSession = id => {
   return {
     type: 'REMOVE_CURRENT_SESSION',
+    id,
+  };
+};
+
+/**
+ * 删除打开过的 inbox 信息
+ * @param {*} result
+ */
+export const removeCurrentInbox = id => {
+  return {
+    type: 'REMOVE_INBOX_SESSION',
     id,
   };
 };

@@ -26,6 +26,7 @@ import {
   formatSearchConfigs,
   getBoundRowByTab,
   fixedBottomWidgets,
+  canSetAsTitle,
 } from './util';
 import { resetDisplay } from './util/drag';
 import NoTitleControlDialog from './widgetSetting/components/NoTitleControlDialog';
@@ -120,6 +121,11 @@ export default function Container(props) {
         }, 100);
         return resetDisplay({ widgets, srcPath: path, srcItem: newData, targetIndex });
       }
+    }
+
+    // 不支持设置为标题的，被设为标题了，清空一下
+    if (!canSetAsTitle(data) && data.attribute === 1) {
+      data.attribute = '';
     }
 
     // 如果将当前变成整行 且当前行有其他控件 则另起一行

@@ -1,7 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import { Icon } from 'ming-ui';
 import { withRouter } from 'react-router-dom';
-import { Modal, List, Toast } from 'antd-mobile';
+import { Toast, ActionSheet } from 'antd-mobile';
 import axios from 'axios';
 import './AddDialog.less';
 import _ from 'lodash';
@@ -20,15 +20,20 @@ class AddDialog extends Component {
     super(props);
   }
 
-  installApp = (projectId, libraryId) => {
+  installApp = (projectId) => {
     if ((_.find(md.global.Account.projects, item => item.projectId === projectId) || {}).cannotCreateApp) {
-      Toast.catch(_l('您没有权限安装应用'), 2);
+      alert(_l('您没有权限安装应用'), 2);
       return;
     }
 
-    Toast.loading(_l('正在添加'), 0);
+    Toast.show({
+      icon: 'loading',
+      content: _l('正在添加')
+    });
+
     this.props.onCancel();
     let baseUrl =(md && md.global && md.global.SysSettings && md.global.SysSettings.templateLibraryTypes === '2') ? __api_server__.main : 'https://pd.mingdao.com/api/';
+    const { libraryId } = this.props;
     axios
       .post(`${baseUrl}AppManagement/GetLibraryToken`, {
         projectId,
@@ -37,7 +42,7 @@ class AddDialog extends Component {
       .then(result => {
         const { data } = result.data;
         if (!data) {
-          Toast.catch(_l('安装失败，请稍后重试'), 2);
+          alert(_l('安装失败，请稍后重试'), 2);
           return;
         }
         axios
@@ -51,15 +56,15 @@ class AddDialog extends Component {
             result => {
               const { appId } = result.data;
               if (!appId) {
-                Toast.catch(_l('安装失败，请稍后重试'), 2);
+                alert(_l('安装失败，请稍后重试'), 2);
                 return;
               }
-              Toast.success(_l('添加成功'), 2, () => {
+              alert(_l('添加成功'), 1, 2000, () => {
                 this.props.history.push(`/mobile/app/${appId}/true`);
               });
             },
             err => {
-              Toast.hide();
+              Toast.clear();
               this.props.onCancel();
             },
           );
@@ -70,21 +75,30 @@ class AddDialog extends Component {
     const { onCancel, visible, projectId } = this.props;
     const { length } = md.global.Account.projects;
     return (
-      <Modal popup visible={visible} onClose={onCancel} animationType="slide-up">
-        <List renderHeader={() => <div>{_l('安装到')}</div>} style={{ maxHeight: 390 }}>
-          {md.global.Account.projects.map((item, index) => (
-            <List.Item
-              key={item.projectId}
-              thumb={<Icon className="Font20" icon={`chatnetwork-type${((length - 1 - index) % 6) + 1}`} />}
-              onClick={() => {
-                this.installApp(item.projectId, this.props.libraryId);
-              }}
-            >
-              {item.companyName}
-            </List.Item>
-          ))}
-        </List>
-      </Modal>
+      <ActionSheet
+        visible={visible}
+        extra={(
+          <div className="flexRow header">
+            <span className="Font13">{_l('安装到')}</span>
+            <div className="closeIcon" onClick={onCancel}>
+              <Icon icon="close" />
+            </div>
+          </div>
+        )}
+        actions={md.global.Account.projects.map((item, index) => {
+          return {
+            key: item.projectId,
+            text: (
+              <div className="Bold">
+                {item.companyName}
+              </div>
+            ),
+            onClick: () => this.installApp(item.projectId)
+          }
+        })}
+        onClose={onCancel}
+      >
+      </ActionSheet>
     );
   }
 }

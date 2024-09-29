@@ -6,10 +6,12 @@ import { DATABASE_TYPE, DETAIL_TYPE, ROLE_TYPE, SOURCE_DETAIL_TAB_LIST } from '.
 import ConfigForm from '../../../components/configForm';
 import ConfigGuide from '../../../components/configGuide';
 import UsageDetail from '../UsageDetail';
+import TimingSettingList from '../TimingSettingList';
 import dataSourceApi from '../../../../api/datasource';
 import { getCurrentProject } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
 import { getExtraParams } from '../../../utils';
+import 'src/pages/integration/svgIcon';
 
 const AddOrEditSourceWrapper = styled.div`
   position: fixed;
@@ -113,10 +115,11 @@ export default function AddOrEditSource(props) {
   const { source, onRefresh, isCreateDialog, onClose } = props;
   const { sourceId, type } = (props.match || {}).params || {};
   const currentProject = getCurrentProject(localStorage.getItem('currentProjectId')) || {};
-  const [currentTab, setCurrentTab] = useState(type);
+  const [currentTab, setCurrentTab] = useState(type || DETAIL_TYPE.SETTING);
   const [dataSource, setDataSource] = useState(isCreateDialog ? source : {});
   const [saveDisabled, setSaveDisabled] = useState(true);
   const [dialogVisible, setDialogVisible] = useState(false);
+  const [noExistSource, setNoExistSource] = useState(false);
 
   useEffect(() => {
     if (!isCreateDialog) {
@@ -128,16 +131,22 @@ export default function AddOrEditSource(props) {
         })
         .then(res => {
           if (res) {
-            const detail = {
-              ...res,
-              address: res.hosts[0].split(':')[0],
-              post: res.hosts[0].split(':')[1],
-              type: res.dsTypeInfo,
-              roleType: JSON.stringify(
-                res.roleType ? (res.roleType === 'ALL' ? [ROLE_TYPE.SOURCE, ROLE_TYPE.DEST] : [res.roleType]) : [],
-              ),
-            };
-            setDataSource({ formData: detail, ...res.dsTypeInfo });
+            if (!!res.errorMsgList) {
+              setNoExistSource(true);
+              alert(_l('数据源不存在'), 2);
+              setTimeout(() => location.assign('/integration/source'), 5000);
+            } else {
+              const detail = {
+                ...res,
+                address: res.hosts[0].split(':')[0],
+                post: res.hosts[0].split(':')[1],
+                type: res.dsTypeInfo,
+                roleType: JSON.stringify(
+                  res.roleType ? (res.roleType === 'ALL' ? [ROLE_TYPE.SOURCE, ROLE_TYPE.DEST] : [res.roleType]) : [],
+                ),
+              };
+              setDataSource({ formData: detail, ...res.dsTypeInfo });
+            }
           }
         });
     }
@@ -183,29 +192,28 @@ export default function AddOrEditSource(props) {
         {!isCreateDialog && (
           <div className="headerMiddle">
             <ul>
-              {SOURCE_DETAIL_TAB_LIST.map((item, index) => {
-                return (
-                  <li
-                    key={index}
-                    className={cx({
-                      isCur: item.key === currentTab || (!currentTab && item.key === DETAIL_TYPE.SETTING),
-                    })}
-                    onClick={() => {
-                      if (currentTab === item.key) {
-                        return;
-                      }
-                      setCurrentTab(item.key);
-                    }}
-                  >
-                    <a className="pLeft18">{item.text}</a>
-                  </li>
-                );
-              })}
+              {SOURCE_DETAIL_TAB_LIST
+                // .filter(
+                //   item => !(item.key === DETAIL_TYPE.TIMING_SETTING && dataSource.type !== DATABASE_TYPE.SAP_HANA),
+                // )
+                .map((item, index) => {
+                  return (
+                    <li
+                      key={index}
+                      className={cx({
+                        isCur: item.key === currentTab || (!currentTab && item.key === DETAIL_TYPE.SETTING),
+                      })}
+                      onClick={() => setCurrentTab(item.key)}
+                    >
+                      <a className="pLeft18">{item.text}</a>
+                    </li>
+                  );
+                })}
             </ul>
           </div>
         )}
         <div className="headerRight">
-          {currentTab !== DETAIL_TYPE.USE_DETAIL && (
+          {currentTab === DETAIL_TYPE.SETTING && (
             <Button
               type="primary"
               size="small"
@@ -247,26 +255,36 @@ export default function AddOrEditSource(props) {
         </div>
       </HeaderWrapper>
 
-      {currentTab === DETAIL_TYPE.USE_DETAIL ? (
-        <UsageDetail projectId={currentProject.projectId} sourceId={sourceId} />
-      ) : (
-        <ContentWrapper>
-          <div className="configForm">
-            <ConfigForm
-              {...props}
-              currentProjectId={currentProject.projectId}
-              connectorConfigData={{ source: dataSource }}
-              setConnectorConfigData={result => setDataSource(result.source)}
-              roleType="source"
-              isCreateConnector={false}
-              isEditSource={!isCreateDialog}
-              setSaveDisabled={setSaveDisabled}
-            />
-          </div>
-          <div className="configGuide">
-            <ConfigGuide source={dataSource} current="source" />
-          </div>
-        </ContentWrapper>
+      {!noExistSource && (
+        <React.Fragment>
+          {currentTab === DETAIL_TYPE.SETTING && (
+            <ContentWrapper>
+              <div className="configForm">
+                <ConfigForm
+                  {...props}
+                  currentProjectId={currentProject.projectId}
+                  connectorConfigData={{ source: dataSource }}
+                  setConnectorConfigData={result => setDataSource(result.source)}
+                  roleType="source"
+                  isCreateConnector={false}
+                  isEditSource={!isCreateDialog}
+                  setSaveDisabled={setSaveDisabled}
+                />
+              </div>
+              <div className="configGuide">
+                <ConfigGuide source={dataSource} current="source" />
+              </div>
+            </ContentWrapper>
+          )}
+
+          {currentTab === DETAIL_TYPE.TIMING_SETTING && (
+            <TimingSettingList projectId={currentProject.projectId} sourceId={sourceId} />
+          )}
+
+          {currentTab === DETAIL_TYPE.USE_DETAIL && (
+            <UsageDetail projectId={currentProject.projectId} sourceId={sourceId} />
+          )}
+        </React.Fragment>
       )}
     </AddOrEditSourceWrapper>
   );

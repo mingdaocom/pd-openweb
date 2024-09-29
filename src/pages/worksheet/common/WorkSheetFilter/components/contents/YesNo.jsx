@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import { RadioGroup } from 'ming-ui';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
@@ -17,8 +16,8 @@ export default class YesNo extends Component {
     super(props);
     this.state = {};
   }
-  @autobind
-  getRadioGroupData() {
+
+  getRadioGroupData = () => {
     const { control } = this.props;
     if (control.type === 36) {
       const itemnames = getSwitchItemNames(control, { isShow: true });
@@ -34,23 +33,23 @@ export default class YesNo extends Component {
       { text: _l('有%25026'), value: 1 },
       { text: _l('无%25027'), value: 0 },
     ];
-  }
-  @autobind
-  getCheckedByFilterType(type) {
+  };
+
+  getCheckedByFilterType = type => {
     const { control } = this.props;
     if (control.type === 36) {
       return type === FILTER_CONDITION_TYPE.EQ ? 1 : 0;
     }
     return type === FILTER_CONDITION_TYPE.HASVALUE ? 1 : 0;
-  }
-  @autobind
-  getFilterTypeByCheckedValue(value) {
+  };
+
+  getFilterTypeByCheckedValue = value => {
     const { control } = this.props;
     if (control.type === 36) {
       return value ? FILTER_CONDITION_TYPE.EQ : FILTER_CONDITION_TYPE.NE;
     }
     return value ? FILTER_CONDITION_TYPE.HASVALUE : FILTER_CONDITION_TYPE.ISNULL;
-  }
+  };
   render() {
     const { disabled, control, type, onChange } = this.props;
     const data = this.getRadioGroupData(control.type);

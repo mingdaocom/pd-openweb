@@ -23,11 +23,16 @@ class Detail extends Component {
     isIntegration: PropTypes.bool,
     customNodeName: PropTypes.string,
     updateNodeData: PropTypes.func,
+    connectId: PropTypes.string,
+    hasAuth: PropTypes.bool,
+    isPlugin: PropTypes.bool,
   };
 
   static defaultProps = {
     flowInfo: {},
     haveChange: () => {},
+    connectId: '',
+    hasAuth: false,
   };
 
   constructor(props) {

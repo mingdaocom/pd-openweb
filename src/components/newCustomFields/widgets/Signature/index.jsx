@@ -1,7 +1,7 @@
 import React, { createRef, Component, Fragment } from 'react';
 import styled from 'styled-components';
 import { Button } from 'ming-ui';
-import { Modal } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
@@ -19,12 +19,6 @@ import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
-const ModalWrap = styled(Modal)`
-  height: 300px !important;
-  overflow: hidden;
-  border-top-right-radius: 15px;
-  border-top-left-radius: 15px;
-`;
 const SignatureBox = styled.div`
   cursor: pointer;
   height: ${props => props.autoHeight && 'auto !important'};
@@ -281,6 +275,13 @@ export default class Signature extends Component {
     e.nativeEvent.stopImmediatePropagation();
     const { value } = this.props;
 
+    if (window.isMingDaoApp) {
+      window.MDJS.previewSignature({
+        url: value
+      });
+      return;
+    }
+
     previewAttachments({
       attachments: [
         {
@@ -296,6 +297,24 @@ export default class Signature extends Component {
       hideFunctions: location.href.indexOf('/public/') > -1 ? ['editFileName', 'download'] : ['editFileName'],
     });
   };
+
+  openSignature = () => {
+    const { controlId, formData } = this.props;
+    const control = _.find(formData, { controlId }) || {};
+    window.MDJS.signature({
+      control,
+      success: (res) => {
+        var { url } = res.signature;
+        this.props.onChange(url);
+      },
+      cancel: (res) => {
+        const { errMsg } = res;
+        if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
+          window.nativeAlert(JSON.stringify(res));
+        }
+      }
+    });
+  }
 
   componentWillUnmount() {
     if (_.isFunction(this.props.triggerCustomEvent)) {
@@ -335,16 +354,20 @@ export default class Signature extends Component {
         <div
           className="addSignature"
           onClick={e => {
-            this.setState({ popupVisible: true });
-            setTimeout(this.initCanvas, 500);
-            e.nativeEvent.stopImmediatePropagation();
+            if (window.isMingDaoApp) {
+              this.openSignature();
+            } else {
+              this.setState({ popupVisible: true });
+              setTimeout(this.initCanvas, 500);
+              e.nativeEvent.stopImmediatePropagation();
+            }
           }}
         >
           <i className="icon-e-signature Font17"></i>
           <span className="mLeft5">{_l('添加签名')}</span>
         </div>
 
-        <ModalWrap popup visible={popupVisible} animationType="slide-up">
+        <Popup visible={popupVisible} className="mobileModal topRadius">
           <div className="flexColumn leftAlign h100">
             <div className="flexRow pTop15 pLeft20 pRight20 pBottom8">
               <div className="Font18 Gray flex bold ellipsis">{_l('请在下方空白区域横向书写签名')}</div>
@@ -363,7 +386,7 @@ export default class Signature extends Component {
             )}
             {this.renderFooter()}
           </div>
-        </ModalWrap>
+        </Popup>
       </Fragment>
     ) : (
       <Trigger

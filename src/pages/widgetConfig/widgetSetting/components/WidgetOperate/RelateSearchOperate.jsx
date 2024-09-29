@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
 import { Checkbox, Dropdown } from 'ming-ui';
-import { formatViewToDropdown } from '../../../util';
+import { Tooltip } from 'antd';
+import { formatViewToDropdown, isSheetDisplay } from '../../../util';
 import { SheetViewWrap } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 
@@ -9,11 +10,12 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widget
 export default function RelateSearchOperate(props) {
   const { data, onChange } = props;
   const { enumDefault2 = 1, controlId, viewId } = data;
-  let { allowlink, openview = '' } = getAdvanceSetting(data);
+  let { allowlink, openview = '', allowexport } = getAdvanceSetting(data);
   const { loading, views = [] } = window.subListSheetConfig[controlId] || {};
   const selectedViewIsDeleted = !loading && viewId && !_.find(views, sheet => sheet.viewId === viewId);
   const selectedOpenViewIsDelete = !loading && openview && !_.find(views, sheet => sheet.viewId === openview);
   const disableOpenViewDrop = !openview && viewId && !selectedViewIsDeleted;
+  const isList = isSheetDisplay(data);
 
   return (
     <Fragment>
@@ -64,6 +66,20 @@ export default function RelateSearchOperate(props) {
           />
         </SheetViewWrap>
       ) : null}
+      {isList && (
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={allowexport === '1'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { allowexport: String(+!checked) }))}
+          >
+            <span style={{ marginRight: '4px' }}>{_l('允许导出')}</span>
+            <Tooltip placement="bottom" title={_l('勾选后支持在主记录详情中将查询到的可见记录导出为 Excel')}>
+              <i className="icon-help Gray_9e Font16"></i>
+            </Tooltip>
+          </Checkbox>
+        </div>
+      )}
     </Fragment>
   );
 }

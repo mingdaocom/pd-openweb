@@ -95,7 +95,7 @@ var aggTable = {
    * @param {Object} args 请求参数
    * @param {string} args.projectId 组织id
    * @param {string} args.aggTableId 聚合表id
-   * @param {boolean} args.updateFlag 是否作为更新标识：<br>更新节点配置中(产品交互中)：<br>1、更新数据源，过滤条件，归组，添加聚合字段，更改聚合方式时：需要重新预览<br>2、修改名称、顺序、字段显示配置，增删改计算字段：直接更新预览配置并刷新，无需重新预览
+   * @param {boolean} args.updateFlag 是否作为更新标识：20240527沟通：修改名称、顺序、字段显示配置(小数位、百分比等这些)，同步到到保存发布的聚合表<br>更新节点配置中(产品交互中)：<br>1、更新数据源，过滤条件，归组，添加聚合字段，更改聚合方式时：需要重新预览 (true)<br>2、修改名称、顺序、字段显示配置，增删改计算字段：直接更新预览配置并刷新，无需重新预览 (false)
    * @param {array} args.nodeConfigs 多节点配置
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层

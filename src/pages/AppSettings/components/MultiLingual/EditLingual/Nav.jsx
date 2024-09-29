@@ -284,7 +284,7 @@ export default function Nav(props) {
           <SvgIcon url={iconUrl} fill="#9e9e9e" size={18} />
           <span className="Font13 mLeft5 ellipsis">{getTranslateInfo(app.id, null, app.id).name || name}</span>
         </div>
-        <ScrollView className="flex mTop10">
+        <ScrollView className="flex mTop10 navScroll">
           <Tree
             showLine={{ showLeafIcon: false }}
             showIcon={true}

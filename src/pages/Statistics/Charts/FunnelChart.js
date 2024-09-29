@@ -193,7 +193,7 @@ export default class extends Component {
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
       const config = this.getComponentConfig(nextProps);
-      this.FunnelChart.update(config);
+      this.FunnelChart && this.FunnelChart.update(config);
     }
     // 切换图表类型 & 累计
     if (
@@ -201,7 +201,7 @@ export default class extends Component {
       displaySetup.isAccumulate !== oldDisplaySetup.isAccumulate ||
       nextProps.isLinkageData !== this.props.isLinkageData
     ) {
-      this.FunnelChart.destroy();
+      this.FunnelChart && this.FunnelChart.destroy();
       this.renderFunnelChart(nextProps);
     }
   }
@@ -289,7 +289,7 @@ export default class extends Component {
       dropdownVisible: false,
     }, () => {
       const config = this.getComponentConfig(this.props);
-      this.FunnelChart.update(config);
+      this.FunnelChart && this.FunnelChart.update(config);
     });
   }
   getComponentConfig(props) {

@@ -115,6 +115,7 @@ export const SwitchStyle = styled.div`
   display: inline-block;
   .switchText {
     line-height: 24px;
+    font-size: 13px;
   }
   .icon {
     vertical-align: middle;
@@ -413,12 +414,12 @@ export default function BaseSet(props) {
           <div style={{ 'margin-left': '44px' }}>
             {!!portalSetModel.termsAndAgreementEnable && (
               <React.Fragment>
-                <p className="Gray_9e LineHeight18 mBottom8">
+                <p className="Gray_9e LineHeight18 mBottom8 Font13">
                   {_l(
                     '平台已预置了通用协议内容（无公司主体），因各门户的具体业务不同收集的用户信息不同，请您务必根据公司实际业务重新上传符合规定的协议内容',
                   )}
                 </p>
-                <div className="bold mTop6 LineHeight24">
+                <div className="bold mTop6 LineHeight24 Font13">
                   {_l('设置')}
                   <span
                     className="ThemeColor3 Hand mRight10 mLeft10"
@@ -577,7 +578,7 @@ export default function BaseSet(props) {
             <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('两步验证')}</div>
           </SwitchStyle>
           {portalSetModel.twoAuthenticationEnabled && (
-            <div style={{ 'margin-left': '44px' }} className="Gray_9e">
+            <div style={{ 'margin-left': '44px' }} className="Gray_9e Font13">
               {_l('外部用户通过账号密码或微信扫码登录后，需要额外进行验证码验证，验证通过后才能成功登录')}
             </div>
           )}
@@ -609,7 +610,9 @@ export default function BaseSet(props) {
                 });
               }}
             />
-            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('允许参与记录讨论')}</div>
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+              {_l('允许参与记录讨论')}
+            </div>
           </SwitchStyle>
           <div style={{ 'margin-left': '36px' }}>
             {portalSetModel.allowExAccountDiscuss && (
@@ -619,7 +622,7 @@ export default function BaseSet(props) {
                     return (
                       <div className="">
                         <Radio
-                          className=""
+                          className="Font13"
                           text={o}
                           checked={portalSetModel.exAccountDiscussEnum === i}
                           onClick={() => {
@@ -674,7 +677,7 @@ export default function BaseSet(props) {
                             });
                           }}
                         />
-                        <p className="Gray_9e mTop6 mLeft30">
+                        <p className="Gray_9e mTop6 mLeft30 Font13">
                           {i === 0
                             ? _l('外部用户与成员共用一个讨论区域，可见全部讨论内容')
                             : _l('分为内部和外部两个讨论区，外部用户不可见内部讨论区')}
@@ -701,7 +704,9 @@ export default function BaseSet(props) {
                 });
               }}
             />
-            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('允许查看审批流转详情')}</div>
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
+              {_l('允许查看审批流转详情')}
+            </div>
           </SwitchStyle>
         </div>
         <div className="mTop5">
@@ -721,7 +726,7 @@ export default function BaseSet(props) {
             <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('水印设置')}</div>
           </SwitchStyle>
           {portalSetModel.watermark === 1 && (
-            <div style={{ 'margin-left': '44px' }} className="Gray_9e">
+            <div style={{ 'margin-left': '44px' }} className="Gray_9e Font13">
               {_l('启用水印配置后，将在外部门户内显示当前使用者的姓名+手机号后4位或邮箱前缀')}
             </div>
           )}
@@ -790,7 +795,7 @@ export default function BaseSet(props) {
           </SwitchStyle>
         </div>
         {noticeScope.discussionNotice && (
-          <div className="exAccountSendCon flexRow">
+          <div className="exAccountSendCon flexRow Font13">
             {epDiscussWorkFlow.workFlowName && (
               <span className="flex">
                 {epDiscussWorkFlow.workFlowName}

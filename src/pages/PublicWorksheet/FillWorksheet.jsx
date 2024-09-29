@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { autobind } from 'core-decorators';
 import { Button, RichText } from 'ming-ui';
 import { captcha } from 'ming-ui/functions';
 import CustomFields from 'src/components/newCustomFields';
 import { addWorksheetRow } from './action';
-import { checkMobileVerify, controlState } from 'src/components/newCustomFields/tools/utils';
+import { checkMobileVerify, controlState, getControlsByTab } from 'src/components/newCustomFields/tools/utils';
+import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import './index.less';
 import _, { get } from 'lodash';
 import moment from 'moment';
@@ -16,9 +16,10 @@ import FilledRecord from './FilledRecord';
 import { FILL_STATUS } from './enum';
 import CountDown from '../publicWorksheetConfig/common/CountDown';
 import { getRgbaByColor } from '../widgetConfig/util';
-import { getRequest } from 'src/util';
+import { getRequest, browserIsMobile } from 'src/util';
 import cx from 'classnames';
 import localForage from 'localforage';
+import FormSection from 'src/pages/worksheet/common/recordInfo/RecordForm/FormSection';
 
 const ImgCon = styled.div`
   position: relative;
@@ -82,16 +83,15 @@ export default class FillWorksheet extends React.Component {
 
   con = React.createRef();
   customwidget = React.createRef();
+  sectionTab = React.createRef();
   cellObjs = {};
 
-  @autobind
-  handleSubmit() {
+  handleSubmit = () => {
     this.setState({ submitLoading: true });
     this.customwidget.current.submitFormData();
-  }
+  };
 
-  @autobind
-  onSave(error, { data, updateControlIds, handleRuleError }) {
+  onSave = (error, { data, updateControlIds, handleRuleError }) => {
     if (this.issubmitting) {
       return;
     }
@@ -207,13 +207,39 @@ export default class FillWorksheet extends React.Component {
         if (md.global.getCaptchaType() === 1) {
           captcha(submit, () => submit({}));
         } else {
-          new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), submit).show();
+          new TencentCaptcha(md.global.Config.CaptchaAppId.toString(), submit, { needFeedBack: false }).show();
         }
       } else {
         submit();
       }
     }
-  }
+  };
+
+  renderFormSection = () => {
+    const { publicWorksheetInfo = {}, rules = [] } = this.props;
+    const { formData = [] } = this.state;
+    const getRulesData = updateRulesData({
+      from: 4,
+      rules,
+      data: formData,
+    }).filter(control => controlState(control, 4).visible);
+
+    const { tabData = [] } = getControlsByTab(getRulesData, publicWorksheetInfo.advancedSetting, 4);
+
+    return (
+      <FormSection
+        from={4}
+        ref={this.sectionTab}
+        tabControls={tabData}
+        widgetStyle={publicWorksheetInfo.advancedSetting}
+        onClick={controlId => {
+          if (this.customwidget.current) {
+            this.customwidget.current.setActiveTabControlId(controlId);
+          }
+        }}
+      />
+    );
+  };
 
   render() {
     const { loading, publicWorksheetInfo = {}, rules, status, isPreview } = this.props;
@@ -235,9 +261,12 @@ export default class FillWorksheet extends React.Component {
       completeNumber,
       cacheDraft,
       themeBgColor,
+      advancedSetting = {},
     } = publicWorksheetInfo;
     const request = getRequest();
     const { header, submit } = request;
+    const isFixedLeft = !browserIsMobile() && _.get(advancedSetting, 'tabposition') === '3';
+    const isFixedRight = _.get(advancedSetting, 'tabposition') === '4';
 
     return (
       <React.Fragment>
@@ -332,45 +361,63 @@ export default class FillWorksheet extends React.Component {
           )}
         </div>
 
-        <div className="formMain" ref={this.con} style={{ padding: '0 32px' }}>
+        <div
+          className={cx('formMain', {
+            fillWorksheetSection: isFixedLeft || isFixedRight,
+            isFixedRight,
+            flexColumn: browserIsMobile(),
+          })}
+          ref={this.con}
+          style={{ padding: '0 32px' }}
+        >
           {!loading && (
-            <CustomFields
-              widgetStyle={publicWorksheetInfo.advancedSetting}
-              rules={rules}
-              ref={this.customwidget}
-              data={formData}
-              appId={appId}
-              projectId={projectId}
-              from={4}
-              worksheetId={worksheetId}
-              isWorksheetQuery={isWorksheetQuery}
-              smsVerificationFiled={smsVerificationFiled}
-              smsVerification={smsVerification}
-              showError={showError}
-              registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
-              onChange={(data, id) => {
-                if (cacheDraft) {
-                  const draftData = (data || []).map(item => ({
-                    controlId: item.controlId,
-                    value:
-                      item.type === 34
-                        ? _.get(item, 'value.rows')
-                          ? JSON.stringify(item.value.rows)
-                          : undefined
-                        : item.value,
-                  }));
-                  localForage.setItem(`cacheDraft_${publicWorksheetInfo.shareId}`, draftData);
-                }
+            <Fragment>
+              {(isFixedLeft || isFixedRight) && this.renderFormSection()}
+              <CustomFields
+                widgetStyle={advancedSetting}
+                rules={rules}
+                ref={this.customwidget}
+                data={formData}
+                appId={appId}
+                projectId={projectId}
+                from={4}
+                worksheetId={worksheetId}
+                isWorksheetQuery={isWorksheetQuery}
+                smsVerificationFiled={smsVerificationFiled}
+                smsVerification={smsVerification}
+                showError={showError}
+                registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
+                onChange={(data, id) => {
+                  if (cacheDraft) {
+                    const draftData = (data || []).map(item => ({
+                      controlId: item.controlId,
+                      value:
+                        item.type === 34
+                          ? _.get(item, 'value.rows')
+                            ? JSON.stringify(item.value.rows)
+                            : undefined
+                          : item.value,
+                    }));
+                    localForage.setItem(`cacheDraft_${publicWorksheetInfo.shareId}`, draftData);
+                  }
 
-                this.setState({
-                  formData: data,
-                });
-              }}
-              onSave={this.onSave}
-              onError={() => {
-                this.setState({ submitLoading: false });
-              }}
-            />
+                  this.setState({
+                    formData: data,
+                  });
+                }}
+                onSave={this.onSave}
+                onError={() => {
+                  this.setState({ submitLoading: false });
+                }}
+                tabControlProp={{
+                  handleSectionClick: id => {
+                    if (this.sectionTab && this.sectionTab.current) {
+                      this.sectionTab.current.setActiveId(id);
+                    }
+                  },
+                }}
+              />
+            </Fragment>
           )}
         </div>
         <div className={cx('submitCon', { TxtLeft: submit === 'left', TxtRight: submit === 'right' })}>

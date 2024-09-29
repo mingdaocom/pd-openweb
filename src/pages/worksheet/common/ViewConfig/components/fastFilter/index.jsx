@@ -68,11 +68,7 @@ export default function FastFilter(params) {
     const d = setSysWorkflowTimeControlFormat(view.fastFilters || [], currentSheetInfo.switches || []);
     setData(d);
   }, [view.fastFilters]);
-  const handleSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-    let list = fastFilters.slice();
-    const currentItem = list.splice(oldIndex, 1)[0];
-    list.splice(newIndex, 0, currentItem);
+  const handleSortEnd = list => {
     updateView(list);
   };
   const onEdit = id => {

@@ -22,28 +22,6 @@ export default class PublishBtn extends Component {
   };
 
   /**
-   * format 日期
-   */
-  formatDate(date) {
-    // 今天
-    if (moment(date).format('YYYY-MM-DD') === moment().format('YYYY-MM-DD')) {
-      return `${_l('今天')} ${moment(date).format('HH:mm')}`;
-    }
-
-    // 昨天
-    if (new Date(moment().format('YYYY-MM-DD')) - new Date(moment(date).format('YYYY-MM-DD')) === 24 * 60 * 60 * 1000) {
-      return `${_l('昨天')} ${moment(date).format('HH:mm')}`;
-    }
-
-    // 今年
-    if (moment(date).format('YYYY') === moment().format('YYYY')) {
-      return moment(date).format('MMMDo HH:mm');
-    }
-
-    return moment(date).format('YYYY-MM-DD HH:mm');
-  }
-
-  /**
    * 编辑工作流
    */
   editFlow = () => {
@@ -118,11 +96,11 @@ export default class PublishBtn extends Component {
         {!!showTime && (
           <Fragment>
             {showCreateTime ? (
-              <span className="mLeft10 Font12 Gray_75">{this.formatDate(item.createdDate)}</span>
+              <span className="mLeft10 Font12 Gray_75">{createTimeSpan(item.createdDate)}</span>
             ) : (
               <span
                 className={cx('mLeft10 Font12', item.publishStatus === 1 ? 'ThemeColor3' : 'Gray_75')}
-              >{`${this.formatDate(item.lastModifiedDate)} ${publishStatus2Text[item.publishStatus]}`}</span>
+              >{`${createTimeSpan(item.lastModifiedDate)} ${publishStatus2Text[item.publishStatus]}`}</span>
             )}
           </Fragment>
         )}

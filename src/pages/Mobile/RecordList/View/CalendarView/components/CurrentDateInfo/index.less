@@ -1,81 +1,78 @@
 .currentDateInfoModal {
-  height: 93%;
-  border-radius: 12px 12px 0 0;
   overflow: hidden;
-  .am-modal-content {
+  .adm-popup-body {
     height: 100%;
-    .am-modal-header {
+    .header {
       height: 44px;
       padding: 0;
-      .am-modal-title {
-        line-height: 44px;
+      line-height: 44px;
+      position: relative;
+      background: #fff;
+      text-align: center;
+      font-size: 18px;
+      .closeIcon {
+        position: absolute;
+        right: 16px;
+        top: 10px;
+        color: #2196f3;
+        font-size: 24px;
+      }
+    }
+    .modalContentBox {
+      height: 100%;
+      background-color: #f2f2f2;
+      .searchWrapper {
+        display: flex;
+        height: 36px;
+        background: #fff;
+        border-radius: 18px;
+        margin: 14px 7px 10px;
         position: relative;
-        .closeIcon {
+        padding-left: 38px;
+        .searchIcon {
+          width: 14px;
+          height: 14px;
           position: absolute;
-          right: 16px;
-          top: 10px;
-          color: #2196f3;
-          font-size: 24px;
+          top: 8px;
+          left: 16px;
+        }
+        .cursorText {
+          width: 100%;
+          font-size: 14px;
+          border: none;
+          border-radius: 0 18px 18px 0;
+        }
+        .am-list-item {
+          flex: 1;
+          height: 36px;
+          min-height: 36px;
+          padding: 0;
+        }
+      }
+      .nano-content {
+        .listItem {
+          margin: 0 8px 12px;
+          text-align: left;
+          padding: 12px 14px 14px;
+          background: #ffffff;
+          border: 1px solid #eaeaea;
+          border-radius: 3px;
+          box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.12); 
+          .title {
+            color: #333;
+          }
+        }
+        .listItem:last-child{
+          margin-bottom: 45px;
         }
       }
     }
-    .am-modal-body {
-      background-color: #f2f2f2;
-      .modalContentBox {
-        height: 100%;
-        .searchWrapper {
-          display: flex;
-          height: 36px;
-          background: #fff;
-          border-radius: 18px;
-          margin: 14px 7px 10px;
-          position: relative;
-          padding-left: 38px;
-          .searchIcon {
-            width: 14px;
-            height: 14px;
-            position: absolute;
-            top: 8px;
-            left: 16px;
-          }
-          .cursorText {
-            width: 100%;
-            font-size: 14px;
-            border: none;
-            border-radius: 0 18px 18px 0;
-          }
-          .am-list-item {
-            flex: 1;
-            height: 36px;
-            min-height: 36px;
-            padding: 0;
-          }
-        }
-        .nano-content {
-          .listItem {
-            margin: 0 8px 12px;
-            text-align: left;
-            padding: 12px 14px 14px;
-            background: #ffffff;
-            border: 1px solid #eaeaea;
-            border-radius: 3px;
-            box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.12); 
-            .title {
-              color: #333;
-            }
-          }
-          .listItem:last-child{
-            margin-bottom: 45px;
-          }
-        }
-      }
-      .emptyContainer {
-        justify-content: center;
-        align-items: center;
-        font-size: 18px;
-        color: #bdbdbd;
-        border: 1px solid #f5f5f5;
-      }
+    .emptyContainer {
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      color: #bdbdbd;
+      border: 1px solid #f5f5f5;
     }
   }
 }

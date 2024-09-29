@@ -1,14 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Radio, Dialog } from 'ming-ui';
+import { ScrollView, LoadDiv, Radio } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import process from '../../../api/process';
 import {
   DetailHeader,
   DetailFooter,
   TriggerCondition,
   SpecificFieldsValue,
   LoopProcessParameters,
-  ProcessVariables,
 } from '../components';
 import { ACTION_ID } from '../../enum';
 import _ from 'lodash';
@@ -20,13 +18,8 @@ export default class LoopProcess extends Component {
     this.state = {
       data: {},
       saveRequest: false,
-      subProcessDialog: false,
-      processVariables: [],
-      errorItems: {},
     };
   }
-
-  cacheSubProcessVariables = null;
 
   componentDidMount() {
     this.getNodeDetail(this.props);
@@ -50,9 +43,8 @@ export default class LoopProcess extends Component {
   /**
    * 获取节点详情
    */
-  getNodeDetail(props, isGetFields = false) {
+  getNodeDetail(props) {
     const { processId, selectNodeId, selectNodeType, instanceId } = props;
-    const { data } = this.state;
 
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId })
@@ -61,19 +53,13 @@ export default class LoopProcess extends Component {
           result.conditions = [[{}]];
         }
 
-        if (isGetFields) {
-          result.conditions = data.conditions;
-          result.maxLoopCount = data.maxLoopCount;
-          result.executeType = data.executeType;
-          result.fields = result.fields.map(item => {
-            return _.find(data.fields, o => o.fieldId === item.fieldId) || item;
-          });
-          result.subProcessVariables = result.subProcessVariables.map(item => {
-            return _.find(data.subProcessVariables, o => o.controlId === item.controlId) || item;
-          });
-        } else {
-          this.cacheSubProcessVariables = _.cloneDeep(result.subProcessVariables);
-        }
+        result.controls = result.subProcessVariables;
+        result.fields = result.fields.map(item => {
+          return {
+            ...item,
+            controlName: result.subProcessVariables.find(o => o.controlId === item.fieldId).controlName,
+          };
+        });
 
         this.setState({ data: result });
       });
@@ -92,7 +78,7 @@ export default class LoopProcess extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { conditions, subProcessVariables } = data;
+    const { conditions } = data;
 
     if (saveRequest) {
       return;
@@ -107,8 +93,6 @@ export default class LoopProcess extends Component {
       alert(_l('循环退出条件的判断值不能为空'), 2);
       return;
     }
-
-    this.saveSubProcessOptions(subProcessVariables, true);
 
     flowNode
       .saveNode({
@@ -129,7 +113,7 @@ export default class LoopProcess extends Component {
    * 渲染内容
    */
   renderContent() {
-    const { data, subProcessDialog, processVariables, errorItems } = this.state;
+    const { data } = this.state;
     const END_LIST = [
       { text: _l('跳出并进入下一次循环'), value: 1 },
       { text: _l('跳出并终止循环，继续后面的流程'), value: 2 },
@@ -138,30 +122,23 @@ export default class LoopProcess extends Component {
 
     return (
       <Fragment>
-        <div className="Font13 mTop20 bold">{_l('参数设置')}</div>
-        <div className="Font13 mTop5 Gray_75">
-          {data.actionId === ACTION_ID.CONDITION_LOOP
-            ? _l('定义循环中使用的参数，每次循环可以使用前一次循环中更新的参数值。“index”参数每次循环后自动加1。')
-            : _l(
-                '定义循环中使用的参数，每次循环可以使用前一次循环中更新的参数值。“start”参数每次循环自动增加“step”的值。',
-              )}
+        <div className="Font13 bold">
+          {data.actionId === ACTION_ID.CONDITION_LOOP ? _l('满足条件时循环') : _l('循环指定次数')}
         </div>
-        <LoopProcessParameters
-          {...this.props}
-          data={data}
-          updateSource={this.updateSource}
-          onDelete={this.saveSubProcessOptions}
-        />
+        <div className="flexRow mTop5 alignItemsCenter mBottom20">
+          <div className="ellipsis">
+            {data.subProcessName || <span style={{ color: '#f44336' }}>{_l('流程已删除')}</span>}
+          </div>
+          {data.subProcessId && data.subProcessName && (
+            <i
+              className="mLeft5 icon-task-new-detail Font12 ThemeColor3 ThemeHoverColor2 pointer"
+              onMouseDown={this.openSubProcess}
+            />
+          )}
+          <div className="flex" />
+        </div>
 
-        <div className="addActionBtn mTop15">
-          <span
-            className="ThemeBorderColor3"
-            onClick={() => this.setState({ subProcessDialog: true, processVariables: data.subProcessVariables })}
-          >
-            <i className="icon-add Font16" />
-            {_l('新参数')}
-          </span>
-        </div>
+        <LoopProcessParameters {...this.props} data={data} updateSource={this.updateSource} />
 
         <div className="Font13 mTop20 bold">{_l('循环退出条件')}</div>
         <div className="Font13 mTop5 Gray_75">
@@ -215,23 +192,6 @@ export default class LoopProcess extends Component {
             />
           </div>
         ))}
-
-        {subProcessDialog && (
-          <Dialog
-            visible
-            className="subProcessDialog"
-            onCancel={() => this.setState({ subProcessDialog: false })}
-            onOk={() => this.saveSubProcessOptions(processVariables)}
-            title={_l('参数设置')}
-          >
-            <ProcessVariables
-              processVariables={processVariables}
-              errorItems={errorItems}
-              setErrorItems={errorItems => this.setState({ errorItems })}
-              updateSource={processVariables => this.setState(processVariables)}
-            />
-          </Dialog>
-        )}
       </Fragment>
     );
   }
@@ -255,36 +215,11 @@ export default class LoopProcess extends Component {
     );
   }
 
-  /**
-   * 保存子流程参数
-   */
-  saveSubProcessOptions = (processVariables, exist = false) => {
-    const { data, errorItems } = this.state;
+  openSubProcess = evt => {
+    const { data } = this.state;
 
-    if (_.isEqual(this.cacheSubProcessVariables, processVariables)) return;
-
-    if (_.find(errorItems, o => o)) {
-      alert(_l('有参数配置错误'), 2);
-      return;
-    }
-
-    if (processVariables.filter(item => !item.controlName).length) {
-      alert(_l('参数名称不能为空'), 2);
-      return;
-    }
-
-    process
-      .saveProcessConfig({
-        processId: data.subProcessId,
-        isSaveVariables: true,
-        processVariables,
-      })
-      .then(result => {
-        if (result && !exist) {
-          this.setState({ subProcessDialog: false });
-          this.getNodeDetail(this.props, true);
-        }
-      });
+    evt.stopPropagation();
+    window.open(`/workflowedit/${data.subProcessId}`);
   };
 
   render() {
@@ -301,24 +236,10 @@ export default class LoopProcess extends Component {
           data={{ ...data }}
           icon="icon-arrow_loop"
           bg="BGBlueAsh"
-          removeNodeName
           updateSource={this.updateSource}
         />
         <div className="flex">
           <ScrollView>
-            <div className="flowDetailStartHeader flexColumn BGBlueAsh" style={{ height: 245 }}>
-              <div className="flowDetailStartIcon flexRow" style={{ background: 'rgba(0, 0, 0, 0.24)' }}>
-                <i className="icon-arrow_loop Font40 white" />
-              </div>
-              <div className="Font16 mTop10">
-                {data.actionId === ACTION_ID.CONDITION_LOOP ? _l('满足条件时循环') : _l('循环指定次数')}
-              </div>
-              <div className="Font14 mTop10">
-                {data.actionId === ACTION_ID.CONDITION_LOOP
-                  ? _l('一直循环运行一段流程，并在参数达到退出条件后结束')
-                  : _l('按指定的起始值、结束值和步长值循环固定次数')}
-              </div>
-            </div>
             <div className="workflowDetailBox">{this.renderContent()}</div>
           </ScrollView>
         </div>

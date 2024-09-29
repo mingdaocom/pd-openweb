@@ -344,7 +344,7 @@ export function handleChangeOwner({ recordId, ownerAccountId, appId, projectId, 
     tabType: 3,
     appId,
     includeUndefinedAndMySelf: true,
-    filterAccountIds: [ownerAccountId],
+    selectedAccountIds: [ownerAccountId],
     offset: {
       top: 16,
       left: 0,
@@ -353,7 +353,7 @@ export function handleChangeOwner({ recordId, ownerAccountId, appId, projectId, 
     SelectUserSettings: {
       unique: true,
       projectId: projectId,
-      filterAccountIds: [ownerAccountId],
+      selectedAccountIds: [ownerAccountId],
       callback(users) {
         if (users[0].accountId === md.global.Account.accountId) {
           users[0].fullname = md.global.Account.fullname;
@@ -370,7 +370,10 @@ export function handleChangeOwner({ recordId, ownerAccountId, appId, projectId, 
   });
 }
 
-export async function handleShare({ isCharge, appId, worksheetId, viewId, recordId, hidePublicShare }, callback) {
+export async function handleShare(
+  { isCharge, appId, worksheetId, viewId, recordId, hidePublicShare, privateShare = true },
+  callback,
+) {
   try {
     const row = await getRowDetail({ appId, worksheetId, viewId, rowId: recordId });
     let recordTitle = getTitleTextFromControls(row.formData);
@@ -382,6 +385,7 @@ export async function handleShare({ isCharge, appId, worksheetId, viewId, record
       isPublic: shareRange === 2,
       isCharge: allowChange,
       hidePublicShare,
+      privateShare,
       params: {
         appId,
         worksheetId,
@@ -448,6 +452,7 @@ export async function exportRelateRecordRecords({
   rowId,
   controlId,
   fileName,
+  filterControls,
   onDownload,
 } = {}) {
   const token = await appManagement.getToken({ worksheetId, viewId, tokenType: 8 });
@@ -464,6 +469,6 @@ export async function exportRelateRecordRecords({
   if (typeof rowIds !== 'undefined') {
     postWithToken(`${downLoadUrl}/ExportExcel/Export`, { worksheetId, tokenType: 8 }, args);
   } else {
-    exportSheet({ worksheetId, rowId, controlId, fileName, onDownload })();
+    exportSheet({ worksheetId, rowId, controlId, fileName, filterControls, onDownload })();
   }
 }

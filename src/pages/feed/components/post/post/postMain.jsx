@@ -59,7 +59,7 @@ class PostMain extends React.Component {
 
   toggleCreateTaskSchedule = event => {
     const e = event || window.event;
-    if (e.button !== 0) return; // 只左键松开时触发
+    if (e.button !== 0 || this.state.isFastCreate) return; // 只左键松开时触发
     const even = e.srcElement || e.target;
     if ($(even).hasClass('postContent') || $(even).closest('.postContent').length) {
       let txt = '';

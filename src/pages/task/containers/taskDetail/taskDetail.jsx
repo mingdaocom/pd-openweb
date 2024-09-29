@@ -117,11 +117,11 @@ class TaskDetail extends Component {
     const { hasNotice, postSuccessCount } = this.state;
 
     // 处理有新讨论滚动问题
-    if (hasNotice && postSuccessCount === 4) {
+    if (hasNotice || postSuccessCount) {
       setTimeout(() => {
         this.scrollToFixedPosition({ scrollTo: $('.taskDetail .talkNav') });
-      }, 100);
-      this.setState({ hasNotice: false });
+      }, 500);
+      this.setState({ hasNotice: false, postSuccessCount: 0 });
     }
 
     if (this.state.forceUpdateSource) {
@@ -550,7 +550,7 @@ class TaskDetail extends Component {
                 className={cx('ThemeBorderColor3 ThemeColor3', { active: tabIndex === TAB_TYPE.comment })}
                 onClick={() => this.switchTabs(TAB_TYPE.comment)}
               >
-                {_l('评论')}
+                {_l('讨论')}
               </li>
               <li
                 className={cx('ThemeBorderColor3 ThemeColor3 mLeft20', { active: tabIndex === TAB_TYPE.attachment })}

@@ -29,9 +29,6 @@ const Wrap = styled.div`
     border-radius: 2px;
     padding: 4px;
     background: ${props => props.row.color};
-    &:hover {
-      background: ${props => props.row.hoverColor};
-    }
     .rowInfo {
       display: -webkit-box;
       -webkit-box-orient: vertical;
@@ -44,16 +41,27 @@ const Wrap = styled.div`
   .dragStart,
   .dragEnd {
     position: absolute;
-    top: 0;
     cursor: col-resize;
     display: none;
-    width: 2px;
-    height: 100%;
-    &.dragStart {
+    width: 4px;
+    top: 0;
+    height: ${props => props.height}px;
+    &::before {
+      content: '';
+      height: 8px;
+      background: #fff;
+      position: absolute;
       left: 0;
+      top: 50%;
+      width: 4px;
+      border: 1px solid #2196f3;
+      transform: translate(0, -4px);
+    }
+    &.dragStart {
+      left: -2px;
     }
     &.dragEnd {
-      right: 0;
+      right: -2px;
     }
   }
   &:hover {
@@ -81,7 +89,7 @@ export default function RecordBlock(props) {
 
   const type =
     localStorage.getItem(`${view.viewId}_resource_type`) || types[_.get(view, 'advancedSetting.calendarType') || 0];
-  const oneWidth = type !== 'Day' ? timeWidth : timeWidthHalf;
+  const oneWidth = type === 'Week' ? timeWidth * 2 : type !== 'Day' ? timeWidth : timeWidthHalf;
   const [{ recordInfoVisible, style }, setState] = useSetState({
     recordInfoVisible: false,
     style: {},
@@ -120,8 +128,13 @@ export default function RecordBlock(props) {
       $ref.current.style.transform = `translate(${move}px,${moveY}px)`;
       $ref.current.style.zIndex = 100;
       let oldTop = allList.find(it => it.key === keyForGroup).top + top;
-      let newTop = oldTop + changValueY;
-      newKey = (allList.find(o => (o.top < newTop || o.top === newTop) && newTop < o.bottom) || {}).key;
+      let newTop = oldTop + changValueY + 3; //3px偏差
+      const { controls = [] } = props;
+      const viewControlData = controls.find(o => o.controlId === view.viewControl) || {};
+      newKey =
+        (viewControlData.fieldPermission || '111')[1] === '1'
+          ? (allList.find(o => (o.top < newTop || o.top === newTop) && newTop < o.bottom) || {}).key
+          : null;
     };
     document.onmouseup = () => {
       $ref.current.style.transform = 'none';
@@ -211,12 +224,17 @@ export default function RecordBlock(props) {
     };
     document.onmouseup = () => {
       $ref.current.style.zIndex = 0;
+      const date = gridTimes[(changValue > gridTimes.length ? gridTimes.length : changValue) - 1].date;
       changValue &&
         handleChangeEnd(
-          moment(gridTimes[(changValue > gridTimes.length ? gridTimes.length : changValue) - 1].date)
-            .add(type === 'Day' ? 0.5 : 1, type !== 'Month' ? 'h' : 'd')
-            .subtract(1, 's')
-            .format('YYYY-MM-DD HH:mm'),
+          type === 'Year'
+            ? moment(date).date() < 16
+              ? moment(date).format('YYYY-MM-15 23:59:59')
+              : moment(date).endOf('month').format('YYYY-MM-DD HH:mm')
+            : moment(date)
+                .add(type === 'Day' || type === 'Week' ? 0.5 : 1, type !== 'Month' ? 'h' : 'd')
+                .subtract(1, 's')
+                .format('YYYY-MM-DD HH:mm'),
         );
       document.onmousemove = null;
       document.onmouseup = null;
@@ -309,6 +327,7 @@ export default function RecordBlock(props) {
             visible
             appId={appId}
             worksheetId={worksheetId}
+            enablePayment={worksheetInfo.enablePayment}
             viewId={viewId}
             rowId={props.row.rowid}
             onClose={() => {
@@ -317,6 +336,7 @@ export default function RecordBlock(props) {
           />
         ) : (
           <RecordInfoWrapper
+            enablePayment={worksheetInfo.enablePayment}
             projectId={worksheetInfo.projectId}
             // currentSheetRows={props.list}
             // showPrevNext

@@ -40,6 +40,7 @@ const CarouselWrapper = styled(Carousel)`
     background-color: #454545;
     background-repeat: no-repeat;
     background-position: center;
+    background-size: cover;
     transition: all 2s ease;
     &:hover {
       transform: scale(1.05);
@@ -98,11 +99,7 @@ export default function BulletinBoard(props) {
             >
               <div
                 className={cx('image', { pointer: item.link })}
-                style={{
-                  backgroundImage: `url(${item.url})`,
-                  height: `${height}px`,
-                  backgroundSize: `auto ${height}px`,
-                }}
+                style={{ backgroundImage: `url(${item.url})`, height: `${height}px` }}
               />
               {item.title && (
                 <div className={cx('explain', { pointer: item.link })}>

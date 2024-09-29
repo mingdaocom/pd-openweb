@@ -8,6 +8,7 @@ import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { emitter, getCurrentProject, upgradeVersionDialog } from 'src/util';
 import Connector from './dataIntegration/connector';
 import DataSource from './dataIntegration/source';
+import DataMirror from './dataIntegration/dataMirror';
 import SyncTask from './dataIntegration/task';
 import TaskCon from './dataIntegration/TaskCon';
 import { integrationConfig, dataIntegrationList } from 'src/pages/integration/config.js';
@@ -17,6 +18,8 @@ import _ from 'lodash';
 import { getMyPermissions } from 'src/components/checkPermission';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { VersionProductType } from 'src/util/enum';
+import { getFeatureStatus } from 'src/util';
 
 const ROUTE_CONFIG_PATH = {
   connectList: '/integration/connectList',
@@ -24,6 +27,7 @@ const ROUTE_CONFIG_PATH = {
   taskCon: '/integration/taskCon',
   task: '/integration/task',
   source: '/integration/source',
+  dataMirror: '/integration/dataMirror',
 };
 const TYPE_TO_COMP = {
   connectList: ConnectList,
@@ -31,6 +35,7 @@ const TYPE_TO_COMP = {
   taskCon: TaskCon,
   task: SyncTask,
   source: DataSource,
+  dataMirror: DataMirror,
 };
 const ENABLE_DATAPIPELINE_KEYS = ['dataConnect', 'taskCon', 'task', 'source'];
 
@@ -39,35 +44,39 @@ const getRoutes = param => {
   _.keys(ROUTE_CONFIG_PATH).forEach((key, i) => {
     const path = ROUTE_CONFIG_PATH[key];
     const Component = TYPE_TO_COMP[key];
-    components.push(
-      <Route
-        key={i}
-        path={path}
-        component={() => {
-          return md.global.Config.IsLocal &&
-            !md.global.Config.EnableDataPipeline &&
-            ENABLE_DATAPIPELINE_KEYS.includes(key) ? (
-            <div className="flexColumn alignItemsCenter justifyContentCenter h100">
-              {upgradeVersionDialog({
-                hint: md.global.Config.IsPlatformLocal ? (
-                  _l('数据集成服务未部署，暂不可用')
-                ) : (
-                  <span>
-                    {_l('数据集成服务未部署，请参考')}
-                    <a href="https://docs-pd.mingdao.com/faq/integrate/flink" target="_blank">
-                      {_l('帮助')}
-                    </a>
-                  </span>
-                ),
-                dialogType: 'content',
-              })}
-            </div>
-          ) : (
-            <Component {...param} />
-          );
-        }}
-      />,
-    );
+    const featureType = getFeatureStatus(param.currentProjectId, VersionProductType.dataMirror);
+    const noRender = !featureType && key === 'dataMirror';
+    if (!noRender) {
+      components.push(
+        <Route
+          key={i}
+          path={path}
+          component={() => {
+            return md.global.Config.IsLocal &&
+              !md.global.Config.EnableDataPipeline &&
+              ENABLE_DATAPIPELINE_KEYS.includes(key) ? (
+              <div className="flexColumn alignItemsCenter justifyContentCenter h100">
+                {upgradeVersionDialog({
+                  hint: md.global.Config.IsPlatformLocal ? (
+                    _l('数据集成服务未部署，暂不可用')
+                  ) : (
+                    <span>
+                      {_l('数据集成服务未部署，请参考')}
+                      <a href="https://docs-pd.mingdao.com/faq/integrate/flink" target="_blank">
+                        {_l('帮助')}
+                      </a>
+                    </span>
+                  ),
+                  dialogType: 'content',
+                })}
+              </div>
+            ) : (
+              <Component {...param} />
+            );
+          }}
+        />,
+      );
+    }
   });
   return components;
 };

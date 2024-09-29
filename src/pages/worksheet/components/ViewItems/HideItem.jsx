@@ -8,34 +8,12 @@ import cx from 'classnames';
 import SettingMenu from './SettingMenu';
 
 export default function HideItem(props) {
-  const {
-    appId,
-    item = {},
-    viewList,
-    currentViewId,
-    type,
-    toView,
-    isCharge,
-    updateAdvancedSetting,
-    updateViewName,
-    handleSortEnd,
-  } = props;
+  const { appId, item = {}, currentViewId, type, toView, isCharge, updateAdvancedSetting, updateViewName } = props;
+
   const [visible, setVisible] = useState(false);
   const [edit, setEdit] = useState(false);
-  const [status, setStatus] = useState(undefined);
   const nameRef = useRef(null);
   let focusFlag = false;
-
-  useEffect(() => {
-    let _prop = {};
-    _prop.newIndex = _.findIndex(viewList, l => l.viewId === item.viewId) + 1;
-    _prop.oldIndex = viewList.length - 1;
-    if (_prop.newIndex === _prop.oldIndex || status !== 'copy') {
-      return;
-    }
-    status !== 'copy' && handleSortEnd(_prop);
-    setStatus(undefined);
-  }, [viewList]);
 
   const clickEditName = () => {
     setEdit(true);
@@ -48,7 +26,6 @@ export default function HideItem(props) {
         {...props}
         editName={true}
         clickEditName={clickEditName}
-        onCopy={() => setStatus('copy')}
         onChangeHidden={async showhiden => {
           setVisible(false);
           await toView();

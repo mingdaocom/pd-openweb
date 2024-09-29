@@ -18,6 +18,8 @@ const TableWrap = styled(PageTableCon)`
   &.resignTableList {
     .actionWrap {
       width: 20px;
+      margin-left: auto;
+      margin-right: 0;
     }
     .ant-table-tbody > tr.ant-table-row {
       .icon-moreop {
@@ -78,12 +80,9 @@ export default class extends React.Component {
           },
         },
         {
-          title: _l('工号'),
-          dataIndex: 'jobNumber',
-        },
-        {
           title: _l('部门'),
           dataIndex: 'departmentInfos',
+          width: 200,
           render: (text, record) => {
             const { departmentInfos = [] } = record;
             const txt = departmentInfos.map((item, index) => {
@@ -116,8 +115,14 @@ export default class extends React.Component {
           },
         },
         {
+          title: _l('工号'),
+          dataIndex: 'jobNumber',
+          width: 100,
+        },
+        {
           title: _l('加入天数'),
           dataIndex: 'joinDays',
+          width: 80,
           render: (text, record) => {
             return moment().diff(moment(record.createTime), 'days');
           },
@@ -125,7 +130,7 @@ export default class extends React.Component {
         {
           title: _l('离职时间'),
           dataIndex: 'updateTime',
-          width: 200,
+          // width: 200,
         },
       ].map(item => ({
         ...item,
@@ -248,7 +253,7 @@ export default class extends React.Component {
           <SearchInput placeholder={_l('搜索成员')} onSearch={val => this.setState({ keywords: val }, this.getData)} />
           {hasPermission(authority, PERMISSION_ENUM.APP_RESOURCE_SERVICE) && (
             <span className="ThemeColor Hand Font13 Normal" onClick={() => this.setState({ handoverVisible: true })}>
-              {_l('交接协作')}
+              {_l('交接协作相关数据')}
             </span>
           )}
         </Wrap>

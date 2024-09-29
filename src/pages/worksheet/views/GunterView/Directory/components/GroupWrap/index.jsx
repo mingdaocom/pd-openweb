@@ -96,7 +96,7 @@ export default class GroupWrap extends Component {
     if (nextProps.loading !== this.props.loading) {
       setTimeout(() => {
         nextProps.groupingScroll.refresh();
-      }, 0);
+      }, 100);
     }
   }
   componentWillUnmount() {

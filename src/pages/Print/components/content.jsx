@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import sheetAjax from 'src/api/worksheet';
 import './content.less';
-import { getPrintContent, sortByShowControls, getVisibleControls, isRelation } from '../util';
+import { getPrintContent, sortByShowControls, isRelation } from '../util';
 import TableRelation from './relationTable';
 import { ScrollView, Qr } from 'ming-ui';
 import {
@@ -11,21 +11,56 @@ import {
   fromType,
   typeForCon,
   DEFAULT_FONT_SIZE,
-  UNPRINTCONTROL,
+  UN_PRINT_CONTROL,
   DefaultNameWidth,
   RecordTitleFont,
   FONT_STYLE,
   TitleFont,
 } from '../config';
 import { putControlByOrder, replaceHalfWithSizeControls } from 'src/pages/widgetConfig/util';
-import { SYSTOPRINTTXT } from '../config';
+import { SYST_PRINT_TXT } from '../config';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import _ from 'lodash';
-import moment from 'moment';
 import STYLE_PRINT from './exportWordPrintTemCssString';
 import { dateConvertToUserZone } from 'src/util';
 import RegExpValidator from 'src/util/expression';
+
+const RELATION_SHOW_TYPES = [
+  {
+    label: _l('表格'),
+    value: 1,
+  },
+  {
+    label: _l('平铺'),
+    value: 2,
+  },
+];
+
+const WORKS_TDS = [
+  {
+    label: _l('流程节点'),
+    width: '20%',
+  },
+  {
+    label: _l('操作人'),
+    width: '20%',
+  },
+  {
+    label: _l('操作'),
+    width: '12%',
+  },
+  {
+    label: _l('操作时间'),
+    width: '22%',
+  },
+  {
+    label: [_l('备注/签名'), _l('备注')],
+    width: '26%',
+    labelKey: 'approvePosition',
+  },
+];
+
 export default class Con extends React.Component {
   constructor(props) {
     super(props);
@@ -85,24 +120,25 @@ export default class Con extends React.Component {
   renderControls() {
     const { printData, controls = [] } = this.props;
     let { appId, worksheetId, viewId, rowId, type, from } = this.props.params;
-    const { showData, printOption, rowIdForQr, advanceSettings } = printData;
+    const { showData, printOption, rowIdForQr, advanceSettings = [] } = printData;
     const nameWidth = (advanceSettings.find(l => l.key === 'nameWidth') || {}).value || DefaultNameWidth;
+    const fileStyle = safeParse((advanceSettings.find(l => l.key === 'atta_style') || {}).value);
     let dataInfo = {
       recordId: rowId || rowIdForQr,
       appId,
       worksheetId,
       viewIdForPermit: viewId,
       controls,
+      fileStyle,
     };
-    let visibleControls = getVisibleControls(controls);
     const controlData = putControlByOrder(
       replaceHalfWithSizeControls(
-        visibleControls
-          .filter(l => !l.sectionId || visibleControls.find(o => o.controlId === l.sectionId))
-          .filter(o => !UNPRINTCONTROL.includes(o.type)),
+        controls
+          .filter(l => !l.sectionId || controls.find(o => o.controlId === l.sectionId))
+          .filter(o => !UN_PRINT_CONTROL.includes(o.type)),
       ),
     );
-    let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
+    let isHideNull = !showData && !(from === fromType.FORM_SET && type !== typeForCon.PREVIEW);
     const tableList = [];
     let preRelationControls = false;
     const fontType = FONT_STYLE[printData.font || DEFAULT_FONT_SIZE];
@@ -401,13 +437,16 @@ export default class Con extends React.Component {
   renderRelations = tableList => {
     const { printData, handChange, params } = this.props;
     const { type, from } = params;
-    const { showData, relationStyle = [], orderNumber = [] } = printData;
+    const { showData, relationStyle = [], orderNumber = [], advanceSettings = [] } = printData;
     let orderNumberCheck = (orderNumber.find(o => o.receiveControlId === tableList.controlId) || []).checked;
     let relationControls = tableList.relationControls || [];
     let relationsList = tableList.relationsData || {};
-    let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
+    let isHideNull = !showData && !(from === fromType.FORM_SET && type !== typeForCon.PREVIEW);
     let list = relationsList.data || [];
     const fontType = FONT_STYLE[printData.font || DEFAULT_FONT_SIZE];
+    const fileStyle = safeParse((advanceSettings.find(l => l.key === 'atta_style') || {}).value);
+    const relationFileStyle = _.pickBy(fileStyle, (value, key) => _.startsWith(key, `${tableList.controlId}_`));
+
     //空置隐藏则不显示
     if (isHideNull && list.length <= 0) {
       return '';
@@ -415,11 +454,11 @@ export default class Con extends React.Component {
     let controls = [];
     if (tableList.showControls && tableList.showControls.length > 0) {
       //数据根据ShowControls处理
-      controls = getVisibleControls(sortByShowControls(tableList));
+      controls = sortByShowControls(tableList);
       //只展示checked
       controls = controls.filter(it => {
         let data = relationControls.find(o => o.controlId === it.controlId) || [];
-        if (data.checked && !UNPRINTCONTROL.includes(o.type)) {
+        if (data.checked && !UN_PRINT_CONTROL.includes(o.type)) {
           return it;
         }
       });
@@ -491,32 +530,19 @@ export default class Con extends React.Component {
                 float: 'right',
               }}
             >
-              <li
-                style={{
-                  ...STYLE_PRINT.relations_Ul_Li,
-                  border: sign ? '0.1px solid #2196f3' : '0.1px solid #bdbdbd',
-                  color: sign ? '#2196f3' : '#bdbdbd',
-                  zIndex: sign ? 1 : 0,
-                }}
-                onClick={() => {
-                  setStyle(1);
-                }}
-              >
-                {_l('表格')}
-              </li>
-              <li
-                style={{
-                  ...STYLE_PRINT.relations_Ul_Li,
-                  border: !sign ? '0.1px solid #2196f3' : '0.1px solid #bdbdbd',
-                  color: !sign ? '#2196f3' : '#bdbdbd',
-                  zIndex: !sign ? 1 : 0,
-                }}
-                onClick={() => {
-                  setStyle(2);
-                }}
-              >
-                {_l('平铺')}
-              </li>
+              {RELATION_SHOW_TYPES.map((l, i) => (
+                <li
+                  style={{
+                    ...STYLE_PRINT.relations_Ul_Li,
+                    border: sign === !i ? '0.1px solid #2196f3' : '0.1px solid #bdbdbd',
+                    color: sign === !i ? '#2196f3' : '#bdbdbd',
+                    zIndex: sign === !i ? 1 : 0,
+                  }}
+                  onClick={() => setStyle(l.value)}
+                >
+                  {l.label}
+                </li>
+              ))}
             </ul>
           )}
         </p>
@@ -534,6 +560,7 @@ export default class Con extends React.Component {
             style={{
               fontSize: printData.font || DEFAULT_FONT_SIZE,
             }}
+            fileStyle={relationFileStyle}
           />
         ) : (
           // 平铺
@@ -543,13 +570,17 @@ export default class Con extends React.Component {
                 if (controls.length <= 0) {
                   return '';
                 }
+
                 let controlList = controls.filter(it => {
                   let data = {
                     ...it,
                     value: o[it.controlId],
                     isRelateMultipleSheet: true,
                     showUnit: true,
+                    fileStyle: relationFileStyle,
+                    dataSource: tableList.controlId,
                   };
+
                   return this.isShow(
                     getPrintContent({
                       ...data,
@@ -587,15 +618,21 @@ export default class Con extends React.Component {
                           let data = {
                             ...it,
                             value: o[it.controlId],
-                            isRelateMultipleSheet: it.type !== 14,
+                            isRelateMultipleSheet: true,
                             showUnit: true,
+                            fileStyle: relationFileStyle,
+                            dataSource: tableList.controlId,
                           };
+
                           if ([29].includes(it.type)) {
                             let list = (it.relationControls || []).find(o => o.attribute === 1) || {};
+
                             if (list.type && ![29, 30].includes(list.type)) {
-                              data = { ...data, sourceControlType: list.type, advancedSetting: list.advancedSetting };
+                              data.sourceControlType = list.type;
+                              data.advancedSetting = list.advancedSetting;
                             }
                           }
+
                           let expStyle =
                             index + 1 === controlList.length
                               ? {
@@ -605,6 +642,7 @@ export default class Con extends React.Component {
                               : {
                                   paddingTop: 5,
                                 };
+
                           return (
                             <tr className="trFlex">
                               <td
@@ -621,6 +659,7 @@ export default class Con extends React.Component {
                                   whiteSpace: 'pre-wrap',
                                   verticalAlign: 'top',
                                   paddingLeft: 5,
+                                  flex: 1,
                                 }}
                               >
                                 {getPrintContent(data)}
@@ -720,58 +759,24 @@ export default class Con extends React.Component {
                 >
                   <tbody>
                     <tr>
-                      <td
-                        style={{
-                          ...STYLE_PRINT.worksTable_workPersons_th,
-                          width: '20%',
-                          borderTop: '0.1px solid #ddd',
-                          backgroundColor: '#fafafa',
-                          borderLeft: 0,
-                          tableLayout: 'auto',
-                        }}
-                      >
-                        {_l('流程节点')}
-                      </td>
-                      <td
-                        style={{
-                          ...STYLE_PRINT.worksTable_workPersons_th,
-                          width: '20%',
-                          borderTop: '0.1px solid #ddd',
-                          backgroundColor: '#fafafa',
-                        }}
-                      >
-                        {_l('操作人')}
-                      </td>
-                      <td
-                        style={{
-                          ...STYLE_PRINT.worksTable_workPersons_th,
-                          width: '12%',
-                          borderTop: '0.1px solid #ddd',
-                          backgroundColor: '#fafafa',
-                        }}
-                      >
-                        {_l('操作')}
-                      </td>
-                      <td
-                        style={{
-                          ...STYLE_PRINT.worksTable_workPersons_th,
-                          width: '22%',
-                          borderTop: '0.1px solid #ddd',
-                          backgroundColor: '#fafafa',
-                        }}
-                      >
-                        {_l('操作时间')}
-                      </td>
-                      <td
-                        style={{
-                          ...STYLE_PRINT.worksTable_workPersons_th,
-                          width: '26%',
-                          borderTop: '0.1px solid #ddd',
-                          backgroundColor: '#fafafa',
-                        }}
-                      >
-                        {approvePosition === 0 ? _l('备注/签名') : _l('备注')}
-                      </td>
+                      {WORKS_TDS.map((l, i) => {
+                        const workTdExp = i === 0 ? { borderLeft: 0, tableLayout: 'auto' } : {};
+
+                        return (
+                          <td
+                            style={{
+                              ...STYLE_PRINT.worksTable_workPersons_th,
+                              ...workTdExp,
+                              width: '20%',
+                              borderTop: '0.1px solid #ddd',
+                              backgroundColor: '#fafafa',
+                            }}
+                            key={`print-works-thead-${i}`}
+                          >
+                            {l.labelKey ? l.label[approvePosition] : l.label}
+                          </td>
+                        );
+                      })}
                     </tr>
                     {works.map((item, index) => {
                       return item.workItems.map((workItem, workItemIndex) => {
@@ -940,7 +945,7 @@ export default class Con extends React.Component {
     const { printData, sheetSwitchPermit, params } = this.props;
     const { viewId } = params;
     const { approval = [], approvePosition } = printData;
-    const visibleItem = approval.filter(item => item.child.some(l => l.checked));
+    const visibleItem = approval.filter(item => item.child && item.child.some(l => l.checked));
 
     if (!isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId)) {
       return null;
@@ -987,7 +992,7 @@ export default class Con extends React.Component {
     const { printData, params } = this.props;
     const { type, from } = params;
     const { showData } = printData;
-    let isHideNull = !showData && !(from === fromType.FORMSET && type !== typeForCon.PREVIEW);
+    let isHideNull = !showData && !(from === fromType.FORM_SET && type !== typeForCon.PREVIEW);
     // 隐藏字段，只在表单编辑中的新建和编辑不生效，仅保存设置
     return !isHideNull || !!data;
   };
@@ -1028,7 +1033,7 @@ export default class Con extends React.Component {
           if (!it) return null;
           return (
             <span>
-              {SYSTOPRINTTXT[it]}
+              {SYST_PRINT_TXT[it]}
               {printData[it]}
             </span>
           );
@@ -1040,7 +1045,7 @@ export default class Con extends React.Component {
   render() {
     const { loading, shareUrl } = this.state;
     const { printData, controls, signature } = this.props;
-    const { workflow = [], approval = [], attributeName, advanceSettings } = printData;
+    const { workflow = [], approval = [], attributeName, advanceSettings = [] } = printData;
     const formNameSite = (advanceSettings.find(l => l.key === 'formNameSite') || {}).value || '0';
     const fontType = FONT_STYLE[printData.font || DEFAULT_FONT_SIZE];
     const formNameLeft = this.isShow(printData.formName, printData.formNameChecked && formNameSite === '1');

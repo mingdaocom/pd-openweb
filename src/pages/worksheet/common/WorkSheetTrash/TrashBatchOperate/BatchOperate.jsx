@@ -10,7 +10,10 @@ export default function BatchOperate(props) {
   const [state, setState] = useState({});
   const { select1000 } = state;
   return (
-    <DropMotion style={{ marginLeft: -24, marginRight: -24 }} visible={!!selectedLength}>
+    <DropMotion
+      style={{ marginLeft: -24, marginRight: -24, position: 'relative', zIndex: 2 }}
+      visible={!!selectedLength}
+    >
       <div className="trashBatchOperateCon">
         <span className="selectedStatus Font14">
           {isAll

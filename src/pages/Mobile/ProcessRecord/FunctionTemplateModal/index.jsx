@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Icon } from 'ming-ui';
-import { Modal, WingBlank, Button } from 'antd-mobile';
+import { Popup, Button } from 'antd-mobile';
 import styled from 'styled-components';
 
 const Wrap = styled.div`
@@ -69,10 +69,10 @@ class ModalWrap extends Component {
     );
   }
   render() {
-    const { visible, onSelect, onClose, onCustom, opinions, inputType } = this.props;
+    const { visible, onSelect, onClose, onCustom, opinions = [], inputType } = this.props;
     const { searchValue } = this.state;
     return (
-      <Modal popup visible={visible} onClose={onClose} animationType="slide-up" className="h100">
+      <Popup visible={visible} onClose={onClose} className="mobileModal full">
         <Wrap className="flexColumn leftAlign h100">
           {this.renderInput()}
           <div className="flex opinionsWrap">
@@ -103,9 +103,9 @@ class ModalWrap extends Component {
               ))}
           </div>
           {inputType === 1 && (
-            <div className="btnsWrapper valignWrapper flexRow">
+            <div className="btnsWrapper valignWrapper flexRow pAll10">
               <Button
-                type="primary"
+                color="primary"
                 className="flex Font12 bold"
                 onClick={() => {
                   onClose();
@@ -117,7 +117,7 @@ class ModalWrap extends Component {
             </div>
           )}
         </Wrap>
-      </Modal>
+      </Popup>
     );
   }
 }

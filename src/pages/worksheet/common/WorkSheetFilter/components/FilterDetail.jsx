@@ -254,6 +254,7 @@ export default function FilterDetail(props) {
           <AddCondition
             columns={filterAddConditionControls(controls)}
             from={from}
+            widgetControlData={_.get(conditionProps, 'widgetControlData')}
             onAdd={control => {
               if (filter.isGroup) {
                 actions.addCondition(control, undefined, from);

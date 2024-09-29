@@ -1,22 +1,16 @@
 import React, { useState } from 'react';
-import { Modal } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import { Button, VerifyPasswordInput } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { verifyPassword } from 'src/util';
+import cx from 'classnames';
 import styled from 'styled-components';
 
-const VertifyPasswordDialogWrap = styled(Modal)`
-  .am-modal-content {
-    border-top-right-radius: 15px;
-    border-top-left-radius: 15px;
-    padding: 0;
-    padding-top: 10px;
-  }
-  .am-modal-body {
-    text-align: left;
+const VertifyPasswordDialogWrap = styled(Popup)`
+  .adm-popup-body {
     overflow: auto;
     max-height: calc(100vh - 30px);
-    padding: 10px 20px 10px;
+    padding: 20px 20px 0px;
   }
   .ming.Textarea {
     border: 1px solid #e6e6e6;
@@ -59,7 +53,7 @@ export default function MobileVertifyPassword(props) {
   const [isNoneVerification, setIsNoneVerification] = useState(false);
 
   return (
-    <VertifyPasswordDialogWrap popup animationType="slide-up" className={className} onClose={onClose} visible={visible}>
+    <VertifyPasswordDialogWrap className={cx('mobileModal topRadius', className)} onClose={onClose} visible={visible}>
       <VerifyPasswordInput
         className="mBottom25"
         showSubTitle={true}

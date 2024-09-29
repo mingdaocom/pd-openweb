@@ -30,6 +30,9 @@ export function turnControl(control) {
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE) {
     control.type = control.enumDefault === 2 ? 15 : 6;
   }
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_FUNC) {
+    control.type = control.enumDefault2;
+  }
   return control;
 }
 
@@ -53,6 +56,7 @@ export function validate(condition) {
     includes(
       [
         WIDGETS_TO_API_TYPE_ENUM.TEXT, // 文本
+        WIDGETS_TO_API_TYPE_ENUM.RICH_TEXT, // 富文本
         WIDGETS_TO_API_TYPE_ENUM.TELEPHONE, // 电话号码
         WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE, // 手机号码
         WIDGETS_TO_API_TYPE_ENUM.EMAIL, // 邮件地址
@@ -81,15 +85,17 @@ export function validate(condition) {
       [
         WIDGETS_TO_API_TYPE_ENUM.NUMBER, // 数值
         WIDGETS_TO_API_TYPE_ENUM.MONEY, // 金额
+        WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER, // 公式
       ],
       dataType,
     )
   ) {
+    const isNumberStr = value => {
+      return value !== '' && typeof +value === 'number' && !isNaN(+value);
+    };
     return condition.filterType === FILTER_CONDITION_TYPE.BETWEEN
-      ? !isUndefined(condition.minValue) &&
-          !isUndefined(condition.maxValue) &&
-          parseFloat(condition.maxValue) > parseFloat(condition.minValue)
-      : !isUndefined(condition.value);
+      ? isNumberStr(condition.minValue) || isNumberStr(condition.maxValue)
+      : isNumberStr(condition.value);
   }
   if (
     includes(

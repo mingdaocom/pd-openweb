@@ -22,6 +22,7 @@ rewrite (?i)^(/|/portal/)public/query /publicQuery.html break;
 rewrite (?i)^(/|/portal/)public/print /recordshare.html break;
 rewrite (?i)^(/|/portal/)public/form/ /publicworksheet.html break;
 rewrite (?i)^(/|/portal/)recordfile /kcshare.html break;
+rewrite (?i)^(/|/portal/)rowfile /kcshare.html break;
 rewrite (?i)^(/|/portal/)public/workflow /workflowrecordshare.html break;
 rewrite (?i)^(/|/portal/)excelfile /excelfile.html break;
 rewrite (?i)^(/|/portal/)privacy /privacyOrAgreen.html break;

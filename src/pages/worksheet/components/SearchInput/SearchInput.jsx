@@ -90,6 +90,7 @@ export default class SearchInput extends Component {
             )}
           </Tooltip>
           <input
+            className={cx({ flex: browserIsMobile() })}
             ref={inputEl => {
               this.inputEl = inputEl;
             }}

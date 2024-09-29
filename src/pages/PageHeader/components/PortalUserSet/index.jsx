@@ -460,10 +460,8 @@ export default class PortalUserSet extends Component {
         </Drawer>
         {showModel && (
           <ModalWrap
-            popup
-            animationType="slide-up"
             visible={showModel}
-            className="appMoreActionWrap"
+            className="appMoreActionWrap mobileModal minFull topRadius"
             onClose={() => {
               this.setState({
                 showModel: false,

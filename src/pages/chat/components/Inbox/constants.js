@@ -56,6 +56,9 @@ export const TYPES = {
   WorkSheetRowComment: '42',
   WorkSheetAll: '43',
   WorkFlowAll: '44',
+  WorkFlowTaskMessage: '45',
+  WorkFlowUserTaskMessage: '46',
+  WorkFlowSendTaskMessage: '47',
 };
 
 /**
@@ -153,6 +156,12 @@ export const MSGTYPES = {
   WorkSheetRowComment: 43,
   // 工作流消息
   WorkFlowMessage: 44,
+  // 工作流填写系统消息
+  WorkFlowTaskMessage: 45,
+  // 工作流审批系统消息
+  WorkFlowUserTaskMessage: 46,
+  // 工作流抄送系统消息
+  WorkFlowSendTaskMessage: 47,
 };
 
 // Code Enums 代码枚举
@@ -237,18 +246,34 @@ export const TYPE_GROUP = {
   },
   [INBOXTYPES.WORKFLOW]: {
     [TYPES.WorkFlowAll]: _l('全部消息'),
+    [TYPES.WorkFlowUserTaskMessage]: _l('审批'),
+    [TYPES.WorkFlowTaskMessage]: _l('填写'),
+    [TYPES.WorkFlowSendTaskMessage]: _l('抄送'),
   },
 };
 
 export const DROPDOWN_GROUPLIST = {
   [INBOXTYPES.POST]: [TYPES.PostAll, TYPES.PostReply, TYPES.PostMentionedUser, TYPES.PostMentionedGroup],
   [INBOXTYPES.TASK]: [TYPES.TaskAll, TYPES.TaskReply, TYPES.TaskMentioned, TYPES.TaskMessage],
-  [INBOXTYPES.CALENDAR]: [TYPES.CalendarAll, TYPES.CalendarMentioned, TYPES.CalendarReply, TYPES.CalendarMessage, TYPES.CalendarComment],
-  [INBOXTYPES.HR]: [TYPES.HrAll, TYPES.ApprovalMessage, TYPES.ApprovalReply, TYPES.ApprovalMentioned, TYPES.AttendanceMessage, TYPES.DossierMessage],
+  [INBOXTYPES.CALENDAR]: [
+    TYPES.CalendarAll,
+    TYPES.CalendarMentioned,
+    TYPES.CalendarReply,
+    TYPES.CalendarMessage,
+    TYPES.CalendarComment,
+  ],
+  [INBOXTYPES.HR]: [
+    TYPES.HrAll,
+    TYPES.ApprovalMessage,
+    TYPES.ApprovalReply,
+    TYPES.ApprovalMentioned,
+    TYPES.AttendanceMessage,
+    TYPES.DossierMessage,
+  ],
   [INBOXTYPES.SYSTEM]: [TYPES.SystemMessage],
   [INBOXTYPES.KC]: [TYPES.KCAll],
   [INBOXTYPES.WORKSHEET]: [TYPES.WorkSheetAll, TYPES.WorkSheetMentioned, TYPES.WorkSheetReply, TYPES.WorkSheetMessage],
-  [INBOXTYPES.WORKFLOW]: [TYPES.WorkFlowAll],
+  [INBOXTYPES.WORKFLOW]: [TYPES.WorkFlowAll, TYPES.WorkFlowUserTaskMessage, TYPES.WorkFlowTaskMessage, TYPES.WorkFlowSendTaskMessage],
 };
 
 export const APPID = {

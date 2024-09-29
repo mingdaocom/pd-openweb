@@ -20,7 +20,7 @@ import { getDynamicValue } from 'src/components/newCustomFields/tools/DataFormat
 import { formatQuickFilter, getFilledRequestParams, handleRecordError } from 'worksheet/util';
 import { PERIOD_TYPE } from 'src/pages/worksheet/views/GunterView/config';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
-import { getRequest } from 'src/util';
+import { getRequest, dateConvertToUserZone, dateConvertToServerZone } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -86,13 +86,22 @@ export const fetchRows = () => {
         const isGunterExport = location.href.includes('gunterExport');
         setTimeout(
           () => {
-            const { base, gunterView } = getState().sheet;
-            const { colorId } = gunterView.viewConfig;
+            const { gunterView } = getState().sheet;
+            const { colorId, startId, endId, startType, endType } = gunterView.viewConfig;
+            const startFormat = startType === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
+            const endFormat = endType === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
             const grouping = sortGrouping(
               data.map(item => {
                 const rows = (item.rows || []).map(row => {
+                  const data = formatRecordTime(JSON.parse(row), gunterView.viewConfig);
+                  const startTime = data.startTime ? moment(dateConvertToUserZone(data.startTime)).format(startFormat) : data.startTime;
+                  const endTime = data.endTime ? moment(dateConvertToUserZone(data.endTime)).format(endFormat) : data.endTime;
+                  data[startId] = startTime;
+                  data[endId] = endTime;
+                  data.startTime = startTime;
+                  data.endTime = endTime;
                   return {
-                    ...formatRecordTime(JSON.parse(row), gunterView.viewConfig),
+                    ...data,
                     groupId: item.key,
                   };
                 });
@@ -105,6 +114,8 @@ export const fetchRows = () => {
                   subVisible: localStorage.getItem(key) ? true : isGunterExport,
                 };
               }),
+              view,
+              controls
             );
             if (isGunterExport) {
               const { calendartype } = view.advancedSetting;
@@ -137,7 +148,7 @@ export const fetchRows = () => {
  */
 export const updateGroupingData = grouping => {
   return (dispatch, getState) => {
-    const { gunterView } = getState().sheet;
+    const { gunterView, views = [], controls = [], base = {} } = getState().sheet;
     const { viewConfig, withoutArrangementVisible } = gunterView;
     const { viewControl } = viewConfig;
     grouping.forEach((item, index) => {
@@ -352,14 +363,14 @@ export const addRecord = (cell, row) => {
         controlName: startControl.controlName,
         dot: startControl.dot,
         type: startControl.type,
-        value: moment().format('YYYY-MM-DD'),
+        value: dateConvertToServerZone(moment().format('YYYY-MM-DD')),
       },
       {
         controlId: endId,
         controlName: endControl.controlName,
         dot: endControl.dot,
         type: endControl.type,
-        value: moment().format('YYYY-MM-DD'),
+        value: dateConvertToServerZone(moment().format('YYYY-MM-DD')),
       },
     ];
 
@@ -399,14 +410,19 @@ export const addRecord = (cell, row) => {
     dispatch(updateGroupingRow({ [cell.controlId]: cell.value }, row.rowid));
 
     controls.forEach(c => {
-      if (c.advancedSetting && c.advancedSetting.defsource && c.type !== 30 && !_.find(receiveControls, { controlId: c.controlId })) {
-        const value =  getDynamicValue(row, c);
+      if (
+        c.advancedSetting &&
+        c.advancedSetting.defsource &&
+        c.type !== 30 &&
+        !_.find(receiveControls, { controlId: c.controlId })
+      ) {
+        const value = getDynamicValue(row, c);
         receiveControls.push({
           controlId: c.controlId,
           controlName: c.controlName,
           dot: c.dot,
           type: c.type,
-          value
+          value,
         });
       }
     });
@@ -505,6 +521,9 @@ export const updateRecord = (row, updateControls, newItem) => {
         const data = viewControl ? JSON.parse(viewControl)[0] : '-1';
         newKey = data;
       }
+      if (newKey && newKey.includes('other:')) {
+        newKey = 'other';
+      }
       dispatch(moveGroupingRow(record, newKey, row.groupId));
       dispatch(updateEditIndex(null));
     } else {
@@ -547,7 +566,7 @@ export const updateRecordTime = (row, start, end) => {
         controlName: startControl.controlName,
         dot: startControl.dot,
         type: startControl.type,
-        value: start,
+        value: dateConvertToServerZone(start),
       });
       row[startId] = start;
       row.startTime = start;
@@ -559,7 +578,7 @@ export const updateRecordTime = (row, start, end) => {
         controlName: endControl.controlName,
         dot: endControl.dot,
         type: endControl.type,
-        value: end,
+        value: dateConvertToServerZone(end),
       });
       row[endId] = end;
       row.endTime = end;

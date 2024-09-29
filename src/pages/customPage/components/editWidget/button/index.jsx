@@ -13,6 +13,7 @@ import SideWrap from '../../SideWrap';
 import { Header, EditWidgetContent } from '../../../styled';
 import { GET_DEFAULT_BUTTON_LIST } from './config';
 import { getThemeColors } from 'src/util';
+import { dealUserId } from 'src/pages/widgetConfig/util/data.js';
 import ButtonDisplay from './ButtonDisplay';
 import _ from 'lodash';
 
@@ -75,7 +76,7 @@ export default function Btn(props) {
     const data = { name: _l('我是按钮'), color, id: uuidv4() };
     if (btnType === 2) {
       const icon = 'custom_actions';
-      const iconUrl = `${md.global.FileStoreConfig.pubHost}/customIcon/${icon}.svg`;
+      const iconUrl = `${md.global.FileStoreConfig.pubHost}customIcon/${icon}.svg`;
       data.config = {
         icon,
         iconUrl,
@@ -120,6 +121,23 @@ export default function Btn(props) {
       setErrorBtns(emptyParamBtns);
       alert(_l('业务流程有必填参数，请完善'), 3);
     } else {
+      // 替换 inputs values
+      buttonList.forEach(btn => {
+        const { inputsIsEdit, inputs } = btn.config || {};
+        if (inputsIsEdit) {
+          inputs.forEach(input => {
+            if ([26, 27, 48].includes(input.type)) {
+              const { advancedSetting } = dealUserId({
+                ...input,
+                advancedSetting: { defsource: JSON.stringify(input.value),
+                enumDefault: _.includes([26, 27, 48], input.type) ? 1 : inputData.enumDefault,
+              } });
+              input.value = JSON.parse(advancedSetting.defsource);
+            }
+          });
+          delete btn.config.inputsIsEdit;
+        }
+      });
       onEdit({ button: btnSetting });
     }
   };

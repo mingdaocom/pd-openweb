@@ -151,7 +151,7 @@ export function compareType(type, cellControl) {
  */
 export function fieldCanSort(type, control = {}) {
   const canSortTypes = [
-    2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 26, 27, 28, 29, 30, 31, 32, 33, 34, 36, 37, 38, 42, 46, 48, 50,
+    2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 26, 27, 28, 29, 30, 31, 32, 33, 34, 36, 37, 38, 42, 46, 48, 50, 53,
   ];
   if (control.type === 30 && control.strDefault === '10') {
     return false;
@@ -353,7 +353,7 @@ export function getFormData({ cid, data }) {
 }
 
 const stringCellList = [2, 3, 4, 25, 7, 19, 23, 24, 10010, 32, 33, 41, 15, 16, 5, 17, 18];
-const stringUnitCellList = [8, 6, 31, 38];
+const stringUnitCellList = [8, 6, 31, 38, 53];
 
 /** 是否是文本了控件 */
 export function checkIsTextControl(type) {
@@ -624,7 +624,7 @@ export function controlIsNumber({ type, sourceControlType, enumDefault, enumDefa
     type === 6 ||
     type === 8 ||
     type === 31 ||
-    (type === 37 && controlIsNumber({ type: enumDefault2 })) ||
+    ((type === 37 || type === 53) && controlIsNumber({ type: enumDefault2 })) ||
     (type === 30 && controlIsNumber({ type: sourceControlType, enumDefault })) ||
     (type === 38 && (enumDefault === 1 || enumDefault === 3))
   );
@@ -1153,6 +1153,17 @@ export function validateFnExpression(expression, type = 'mdfunction') {
  * 对字段的 advancedSettings 进行解析处理
  */
 export function parseAdvancedSetting(setting = {}) {
+  const {
+    allowlink = '1',
+    allowimport = '1',
+    allowcopy = '1',
+    allowexport = '1',
+    allowbatch = '1',
+    showcount,
+    titlewrap,
+    freezeids,
+    layercontrolid,
+  } = setting;
   return {
     allowadd: setting.allowadd === '1', // 子表允许新增
     allowcancel: setting.allowcancel === '1', // 子表允许删除
@@ -1168,6 +1179,16 @@ export function parseAdvancedSetting(setting = {}) {
     rownum: Number(setting.rownum || 15), // 最大高度行数/每页行数
     showtype: setting.showtype || '1', // 显示方式 1滚动 2翻页
     uniqueControlIds: safeParse(setting.uniquecontrols, 'arrray'), // 显示方式 1滚动 2翻页
+    h5showtype: setting.h5showtype || '1', // 子表移动端web显示样式 1列表 2平铺
+    h5abstractids: safeParse(setting.h5abstractids, 'arrray'), // 子表移动端web摘要字段
+    allowOpenRecord: allowlink === '1', // 允许打开子记录 默认勾选
+    allowImport: allowimport === '1', // 允许导入（控制导入新增入口）
+    allowCopy: allowcopy === '1', //允许复制 默认勾选
+    allowBatch: allowbatch === '1', //允许批量操作
+    frozenIndex: Number(safeParse(freezeids, 'array')[0] || '0'), //冻结列["1","2","3"]
+    titleWrap: titlewrap === '1', // 标题行文字换行
+    showCount: showcount !== '1', // 显示计数 默认勾选
+    treeLayerControlId: layercontrolid, // 子表树形对应控件id
   };
 }
 
@@ -1591,14 +1612,14 @@ export const getFilledRequestParams = params => {
 
 export const getButtonColor = mainColor => {
   let borderColor = mainColor;
-  let fontColor = '#fff';
+  let fontColor = !isLightColor(mainColor) ? '#fff' : '#333';
   if (mainColor === 'transparent') {
     fontColor = '#333';
     borderColor = '#ccc';
   }
   return {
     backgroundColor: mainColor || '#2196f3',
-    borderColor,
+    border: `1px solid ${borderColor}`,
     color: fontColor,
   };
 };
@@ -1769,16 +1790,22 @@ export function needHideViewFilters(view) {
   return (
     (String(view.viewType) === VIEW_DISPLAY_TYPE.structure &&
       _.includes([0, 1], Number(view.childType)) &&
-      get(view, 'advancedSetting.hierarchyViewType') !== '3') ||
+      get(view, 'advancedSetting.hierarchyViewType') === '3') ||
     String(view.viewType) === VIEW_DISPLAY_TYPE.gunter
   );
 }
 
-export function getTreeExpandCellWidth(index, rowsLength) {
-  rowsLength = rowsLength || 1;
-  let strLength = String(rowsLength).length;
-  if (strLength < 2) {
-    strLength = 2;
-  }
-  return index * (strLength * 14) + 34;
+export function addPrefixForRowIdOfRows(rows = [], prefix = '') {
+  const rowIds = rows.map(row => row.rowid);
+  return rows.map(row => {
+    const newRow = { ...row };
+    rowIds.forEach(rowId => {
+      Object.keys(newRow).forEach(key => {
+        if (_.includes(newRow[key], rowId)) {
+          newRow[key] = newRow[key].replace(rowId, prefix + rowId);
+        }
+      });
+    });
+    return newRow;
+  });
 }

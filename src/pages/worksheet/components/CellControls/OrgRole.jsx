@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import Trigger from 'rc-trigger';
 import cx from 'classnames';
 import { quickSelectRole } from 'ming-ui/functions';
@@ -48,8 +47,8 @@ export default class Text extends React.Component {
     }
   }
   cell = React.createRef();
-  @autobind
-  handleTableKeyDown(e) {
+
+  handleTableKeyDown = e => {
     const { updateEditingStatus } = this.props;
     switch (e.key) {
       case 'Escape':
@@ -63,19 +62,17 @@ export default class Text extends React.Component {
       default:
         break;
     }
-  }
+  };
 
-  @autobind
-  handleChange() {
+  handleChange = () => {
     const { updateCell } = this.props;
     const { value } = this.state;
     updateCell({
       value: JSON.stringify(value),
     });
-  }
+  };
 
-  @autobind
-  handleSelect(e) {
+  handleSelect = e => {
     const { projectId, cell, rowFormData, masterData = () => {} } = this.props;
     const target = (this.cell && this.cell.current) || (event || {}).target;
 
@@ -106,10 +103,9 @@ export default class Text extends React.Component {
         this.isSelecting = false;
       },
     });
-  }
+  };
 
-  @autobind
-  onSave(data, isCancel = false) {
+  onSave = (data, isCancel = false) => {
     const { value } = this.state;
     const lastIds = _.sortedUniq(value.map(l => l.organizeId));
     const newIds = _.sortedUniq(data.map(l => l.organizeId));
@@ -145,16 +141,14 @@ export default class Text extends React.Component {
         this.handleChange,
       );
     }
-  }
+  };
 
-  @autobind
-  handleMutipleEdit() {
+  handleMutipleEdit = () => {
     const { updateEditingStatus } = this.props;
     updateEditingStatus(true);
-  }
+  };
 
-  @autobind
-  deleteDepartment(organizeId) {
+  deleteDepartment = organizeId => {
     const { value } = this.state;
     this.setState(
       {
@@ -162,7 +156,7 @@ export default class Text extends React.Component {
       },
       this.handleChange,
     );
-  }
+  };
 
   render() {
     const {

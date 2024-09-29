@@ -172,6 +172,7 @@ function Func(props, ref) {
             type={type}
             controlGroups={controlGroups}
             controls={controls}
+            control={control}
             insertTagToEditor={editorFunctions('insertTag')}
             insertFn={editorFunctions('insertFn')}
           />

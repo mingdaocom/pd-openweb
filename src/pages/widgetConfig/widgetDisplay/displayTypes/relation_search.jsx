@@ -11,7 +11,7 @@ const SYSTEM_CONTROL = Object.keys(SYSTEM_FIELD_TO_TEXT).map(item => ({
   controlName: SYSTEM_FIELD_TO_TEXT[item],
 }));
 
-export default function RelationSearch({ data = {}, fromType }) {
+export default function RelationSearch({ data = {}, fromType, isTab }) {
   const { enumDefault, hint = '', dataSource, controlId } = data;
   const { showtype = String(enumDefault) } = getAdvanceSetting(data);
   const [controls, setControls] = useState([]);
@@ -48,7 +48,7 @@ export default function RelationSearch({ data = {}, fromType }) {
 
     if (isSheetDisplay(data)) {
       return (
-        <EditModelWrap isTab={true}>
+        <EditModelWrap isTab={isTab}>
           {showControls.length > 0 ? (
             <div className="tableWrap" onMouseDown={e => e.stopPropagation()} onMouseMove={e => e.stopPropagation()}>
               <table style={{ width: `${width}px` }}>

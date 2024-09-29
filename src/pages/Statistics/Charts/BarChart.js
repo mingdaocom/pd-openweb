@@ -13,7 +13,8 @@ import {
   getAuxiliaryLineConfig,
   getControlMinAndMax,
   getStyleColor,
-  getEmptyChartData
+  getEmptyChartData,
+  formatNumberValue
 } from './common';
 import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
@@ -145,7 +146,7 @@ export default class extends Component {
       displaySetup.ydisplay.lineStyle !== oldDisplaySetup.ydisplay.lineStyle ||
       !_.isEqual(displaySetup.auxiliaryLines, oldDisplaySetup.auxiliaryLines) ||
       !_.isEqual(displaySetup.colorRules, oldDisplaySetup.colorRules) ||
-      style.showLabelPercent !== oldStyle.showLabelPercent ||
+      !_.isEqual(displaySetup.percent, oldDisplaySetup.percent) ||
       style.showXAxisSlider !== oldStyle.showXAxisSlider ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
@@ -177,7 +178,7 @@ export default class extends Component {
       if (this.isViewOriginalData || this.isLinkageData) {
         this.BarChart.on('element:click', this.handleClick);
       }
-      this.BarChart.render();
+      this.BarChart && this.BarChart.render();
     }
   }
   handleClick = (data) => {
@@ -286,7 +287,9 @@ export default class extends Component {
       ydisplay,
       auxiliaryLines,
       colorRules,
+      percent,
     } = displaySetup;
+    const showPercent = percent.enable;
     const { position } = getLegendType(legendType);
     const data = formatChartData(map, yaxisList, split.controlId, xaxes.controlId);
     const isVertical = showChartType === 1;
@@ -316,7 +319,7 @@ export default class extends Component {
 
     const baseConfig = {
       data: data.length ? data : getEmptyChartData(reportData),
-      appendPadding: isVertical ? [25, 0, 5, 0] : [10, 50, 0, 0],
+      appendPadding: isVertical ? [25, 0, 5, 0] : [10, 70, 0, 0],
       seriesField: (isOptionsColor || isCustomColor) ? 'originalId' : 'groupName',
       meta: {
         originalId: {
@@ -397,16 +400,18 @@ export default class extends Component {
           const { name, id } = formatControlInfo(groupName);
           const getLabelPercent = value => {
             const { originalId } = item;
-            if (style.showLabelPercent) {
+            if (showPercent) {
               if (yaxisList.length > 1) {
                 const result = _.filter(data, { originalId });
                 const count = _.reduce(result, (total, item) => total + item.value, 0);
-                const percent = value && count ? (value / count * 100).toFixed(2) : undefined;
-                return percent ? `(${percent}%)` : '';
+                const percentValue = value && count ? formatNumberValue((value / count * 100), percent) : undefined;
+                return (percentValue && count) ? `(${percentValue}%)` : '';
               }
               if (displaySetup.showTotal) {
-                const count = summary.all ? summary.sum : _.get(_.find(summary.controlList, { controlId: id }), 'sum');
-                return count ? `(${(value / count * 100).toFixed(2)}%)` : '';
+                const controlId = split.controlId ? newYaxisList[0].controlId : id;
+                const count = summary.all ? summary.sum : _.get((summary.controlList ? _.find(summary.controlList, { controlId }) : summary), 'sum');
+                const percentValue = formatNumberValue(value / count * 100, percent);
+                return (percentValue && count) ? `(${percentValue}%)` : '';
               }
               return '';
             }
@@ -435,7 +440,7 @@ export default class extends Component {
           }
         }
       },
-      label: showNumber || style.showLabelPercent
+      label: showNumber || showPercent
         ? {
             position: isPile || isPerPile ? 'middle' : isVertical ? 'top' : 'right',
             layout: [
@@ -447,23 +452,28 @@ export default class extends Component {
               const { value, groupName, controlId, originalId } = labelData;
               const id = split.controlId ? newYaxisList[0].controlId : controlId;
               const labelValue = formatrChartValue(value, isPerPile, newYaxisList, value ? undefined : id);
-              if (style.showLabelPercent && !isPerPile) {
+              if (showPercent && !isPerPile) {
                 if (yaxisList.length > 1) {
                   const result = _.filter(data, { originalId });
                   const count = _.reduce(result, (total, item) => total + item.value, 0);
-                  const percent = value && count ? (value / count * 100).toFixed(2) : undefined;
-                  if (showNumber && style.showLabelPercent) {
-                    return `${labelValue} ${percent ? `(${percent}%)` : ''}`;
+                  const percentValue = value && count ? formatNumberValue((value / count * 100), percent) : undefined;
+                  if (showNumber && showPercent && count) {
+                    return `${labelValue} ${percentValue ? `(${percentValue}%)` : ''}`;
                   }
-                  if (style.showLabelPercent && percent) {
-                    return `${percent}%`;
+                  if (showPercent && percentValue && count) {
+                    return `${percentValue}%`;
                   }
                   return labelValue;
                 }
                 if (displaySetup.showTotal) {
-                  const count = summary.all ? summary.sum : _.get(_.find(summary.controlList, { controlId }), 'sum');
-                  const percent = count ? (value / count * 100).toFixed(2) : undefined;
-                  return `${labelValue} ${percent ? `(${percent}%)` : ''}`;
+                  const count = summary.all ? summary.sum : _.get((summary.controlList ? _.find(summary.controlList, { controlId: id }) : summary), 'sum');
+                  const percentValue = formatNumberValue(value / count * 100, percent);
+                  if (showNumber && showPercent && count) {
+                    return `${labelValue} ${percentValue ? `(${percentValue}%)` : ''}`;
+                  }
+                  if (showPercent && percentValue && count) {
+                    return `${percentValue}%`;
+                  }
                 }
                 return labelValue;
               } else {

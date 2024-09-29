@@ -33,8 +33,15 @@ const Wrap = styled.div`
 `;
 
 export default function (props) {
-  const { updateCurrentView, view, appId, controls, onChange, projectId } = props;
-  const viewControlData = controls.find(o => o.controlId === _.get(view, 'viewControl')) || {};
+  const {
+    view,
+    controls,
+    onChange,
+    projectId,
+    navsortsKey = 'navsorts',
+    customitemsKey = 'customitems',
+    viewControlData = {},
+  } = props;
   const [showCustom, setShow] = useState(false);
   const canCustom = viewControlData.type !== 28;
   const canSort = viewControlData.type !== 26;
@@ -48,12 +55,12 @@ export default function (props) {
             <SortInput
               className="flex mTop0 sortInput mRight10"
               {...props}
-              advancedSettingKey="navsorts"
+              advancedSettingKey={navsortsKey}
               viewControlData={viewControlData}
               relationControls={viewControlData.relationControls}
               onChange={data => {
                 onChange({
-                  navsorts: !data ? '[]' : _.get(data, `advancedSetting.navsorts`),
+                  [navsortsKey]: !data ? '[]' : _.get(data, `advancedSetting.${navsortsKey}`),
                 });
               }}
               canClear
@@ -64,20 +71,22 @@ export default function (props) {
               cancelAble
               isAppendToBody
               className={cx('flex mTop0', { mRight10: canCustom })}
-              value={!_.get(view, `advancedSetting.navsorts`) ? '0' : _.get(view, `advancedSetting.navsorts`)}
+              value={
+                !_.get(view, `advancedSetting.${navsortsKey}`) ? '0' : _.get(view, `advancedSetting.${navsortsKey}`)
+              }
               data={[
                 {
-                  text: _l('正序'),
+                  text: _l('升序'),
                   value: '0',
                 },
                 {
-                  text: _l('倒序'),
+                  text: _l('降序'),
                   value: '1',
                 },
               ]}
               onChange={value => {
                 onChange({
-                  navsorts: !value ? '' : value,
+                  [navsortsKey]: !value ? '' : value,
                 });
               }}
             />
@@ -85,7 +94,7 @@ export default function (props) {
         {canCustom && (
           <span
             className={cx('custom ThemeHoverColor3 TxtCenter Hand', {
-              has: getAdvanceSetting(view, 'customitems').length > 0,
+              has: getAdvanceSetting(view, customitemsKey).length > 0,
             })}
             onClick={() => {
               setShow(true);
@@ -103,7 +112,7 @@ export default function (props) {
             maxCount={50}
             controlInfo={viewControlData}
             title={_l('自定义排序')}
-            advancedSettingKey="customitems"
+            advancedSettingKey={customitemsKey}
             description={_l('最多可对50项排序，设置排序的项显示在最前')}
             onChange={infos => {
               let values = [];
@@ -120,7 +129,7 @@ export default function (props) {
               }
               values = values.slice(0, 50);
               onChange({
-                customitems: JSON.stringify(values),
+                [customitemsKey]: JSON.stringify(values),
               });
               setShow(false);
             }}

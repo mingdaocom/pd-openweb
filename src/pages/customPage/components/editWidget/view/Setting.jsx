@@ -118,8 +118,7 @@ function Setting(props) {
                 viewId: value,
                 config: {
                   ...config,
-                  _viewName: view.text,
-                  isPluginView: view.viewType === 21 ? true : undefined
+                  _viewName: view.text
                 }
               });
               setTimeout(() => setLoading(false));

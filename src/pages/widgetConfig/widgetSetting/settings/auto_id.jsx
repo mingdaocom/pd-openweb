@@ -1,14 +1,13 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
-import { arrayMove, SortableContainer, SortableElement, SortableHandle } from '@mdfe/react-sortable-hoc';
 import update from 'immutability-helper';
 import { isEmpty } from 'lodash';
 import { Dropdown } from 'antd';
 import { useSetState } from 'react-use';
-import { Menu, MenuItem } from 'ming-ui';
+import { Menu, MenuItem, SortableList } from 'ming-ui';
 import AutoIcon from '../../components/Icon';
 import { SettingItem, InfoWrap, DropdownPlaceholder } from '../../styled';
-import { getControlByControlId, getIconByType } from '../../util';
+import { getControlByControlId, getIconByType, getSortItems } from '../../util';
 import { getAdvanceSetting, handleAdvancedSettingChange, isAutoNumberSelectableControl } from '../../util/setting';
 import SelectControlWithRelate from '../components/SelectControlWithRelate';
 import StrInput from '../components/autoId/StrInput';
@@ -154,9 +153,7 @@ const TIME_MODE = [
 
 const DEFAULT_PARA = { 4: { format: 'YYYYMMDD', type: 4 } };
 
-const DragHandle = SortableHandle(() => <i className="icon-drag Gray_75 dragIcon ThemeHoverColor3 pointer"></i>);
-
-const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, updateRule, ...rest }) => {
+function SortableItem({ index, rule, allControls, deleteRule, updateRule, ...rest }) {
   const [{ numberConfigVisible, timeFormatVisible }, setVisible] = useSetState({
     numberConfigVisible: false,
     timeFormatVisible: false,
@@ -256,7 +253,7 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
   };
   return (
     <RuleInfo>
-      <DragHandle />
+      <i className="icon-drag Gray_75 dragIcon ThemeHoverColor3 pointer"></i>
       <div className="rule" onMouseDown={() => {}}>
         {type === 2 ? (
           <StrInput rule={rule} updateRule={updateRule} deleteRule={deleteRule} />
@@ -288,8 +285,9 @@ const SortableItem = SortableElement(({ index, rule, allControls, deleteRule, up
       )}
     </RuleInfo>
   );
-});
-const SortableRules = SortableContainer(({ rules, deleteRule, updateRule, addRule, fromExcel, ...rest }) => {
+}
+
+function SortableRules({ rules, deleteRule, updateRule, addRule, onSortEnd, fromExcel, ...rest }) {
   const getTypes = () => {
     return rules.some(item => item.type === 4)
       ? [
@@ -305,16 +303,22 @@ const SortableRules = SortableContainer(({ rules, deleteRule, updateRule, addRul
   const typesData = fromExcel ? getTypes().filter(i => i.value !== 3) : getTypes();
   return (
     <RuleList>
-      {rules.map((rule, index) => (
-        <SortableItem
-          key={`${rule.type}-${index}`}
-          index={index}
-          rule={rule}
-          updateRule={obj => updateRule(index, obj)}
-          deleteRule={() => deleteRule(index)}
-          {...rest}
+      {_.isEmpty(rules) ? null : (
+        <SortableList
+          items={getSortItems(rules, true)}
+          itemKey="key"
+          onSortEnd={onSortEnd}
+          renderItem={({ item, index }) => (
+            <SortableItem
+              index={index}
+              rule={item}
+              updateRule={obj => updateRule(index, obj)}
+              deleteRule={() => deleteRule(index)}
+              {...rest}
+            />
+          )}
         />
-      ))}
+      )}
       <Dropdown
         trigger={['click']}
         overlay={
@@ -334,7 +338,7 @@ const SortableRules = SortableContainer(({ rules, deleteRule, updateRule, addRul
       </Dropdown>
     </RuleList>
   );
-});
+}
 
 export default function AutoId({ data, onChange, ...rest }) {
   const rules = getAdvanceSetting(data, 'increase') || [{ type: 1, repeatType: 0, start: '', length: 0, format: '' }];
@@ -365,12 +369,8 @@ export default function AutoId({ data, onChange, ...rest }) {
         <div className="settingItemTitle">{_l('编号规则')}</div>
         <SortableRules
           {...rest}
-          helperClass="zIndex99999"
-          distance={5}
           rules={rules}
-          onSortEnd={({ oldIndex, newIndex }) => {
-            handleRulesChange(arrayMove(rules, oldIndex, newIndex));
-          }}
+          onSortEnd={newRules => handleRulesChange(getSortItems(newRules, false))}
           deleteRule={deleteRule}
           addRule={addRule}
           updateRule={updateRule}

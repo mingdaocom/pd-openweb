@@ -68,11 +68,6 @@ class UserTable extends React.Component {
     clearActiveDialog(this.props);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    //搜索结果层出现时不需要更新数据
-    return !nextProps.showSeachResult;
-  }
-
   renderNullState() {
     const { typeCursor } = this.props;
     return (
@@ -301,29 +296,18 @@ class UserTable extends React.Component {
     let { columnsInfo } = this.state;
     let columnsInfoData = JSON.parse(localStorage.getItem('columnsInfoData')) || [];
     let temp = (!_.isEmpty(columnsInfoData) && columnsInfoData) || columnsInfo;
-    let {
-      usersCurrentPage = [],
-      projectId,
-      chargeUsers = [],
-      searchAccountIds,
-      searchId = [],
-      isSearch,
-      authority = [],
-    } = props;
+    let { usersCurrentPage = [], projectId, searchAccountIds, searchId = [], isSearch, authority = [] } = props;
     if (isSearch && !!searchId[0] && searchAccountIds.length > 0) {
       usersCurrentPage = searchAccountIds.filter(user => user.accountId === searchId[0]);
     }
 
     if (usersCurrentPage.length <= 0) return '';
 
-    return _.sortBy(usersCurrentPage, user => !_.includes(chargeUsers, user.accountId)).map((user, index) => {
-      const isChargeUser = _.includes(chargeUsers, user.accountId);
-
+    return _.sortBy(usersCurrentPage, user => !user.isDepartmentChargeUser).map((user, index) => {
       return (
         <UserItem
           authority={authority}
           isSearch={props.isSearch}
-          isChargeUser={isChargeUser}
           user={user}
           projectId={projectId}
           key={user.accountId || index}
@@ -440,8 +424,6 @@ const mapStateToProp = (state, ownProps) => {
     current: { selectedAccountIds = [], activeAccountId, typeCursor, isSelectAll, departmentId },
     search: { showSeachResult = false },
   } = state;
-  let data = departments[departmentId] || {};
-  const { chargeUsers = [] } = data;
   const usersPagination = userList && userList.ids ? userList : { ids: [] };
 
   const { ids = [], searchId = [], pageIndex } = userList;
@@ -457,7 +439,6 @@ const mapStateToProp = (state, ownProps) => {
     activeAccountId,
     // isChecked,
     isSelectAll,
-    chargeUsers,
     usersCurrentPage: users,
     typeCursor,
     isThisPageCheck,

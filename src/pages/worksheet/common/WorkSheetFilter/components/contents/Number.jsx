@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 import _ from 'lodash';
 
@@ -36,8 +35,8 @@ export default class Number extends Component {
       );
     }
   }
-  @autobind
-  handleChange() {
+
+  handleChange = () => {
     const { onChange } = this.props;
     let { value, maxValue, minValue } = this.state;
     function isEmpty(v) {
@@ -62,9 +61,9 @@ export default class Number extends Component {
     if (value !== this.props.value || minValue !== this.props.minValue || maxValue !== this.props.maxValue) {
       onChange(changes);
     }
-  }
-  @autobind
-  setValue(key, value) {
+  };
+
+  setValue = (key, value) => {
     const newValues = {
       value: this.state.value,
       minValue: this.state.minValue,
@@ -73,7 +72,7 @@ export default class Number extends Component {
     value = value.trim().replace(/[^-\d.]/g, '');
     newValues[key] = value;
     this.setState(newValues);
-  }
+  };
   render() {
     const { type, disabled } = this.props;
     const { value = '', maxValue = '', minValue = '' } = this.state;

@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { string, number, arrayOf, shape, bool, func, any, array } from 'prop-types';
 import cx from 'classnames';
-import HistoryListItem from './HistoryListItem';
+import HistoryListItem from './components/HistoryListItem';
 import { STATUS2COLOR } from './config';
 import styled from 'styled-components';
 import { Menu, MenuItem, Support, Dialog, Checkbox } from 'ming-ui';

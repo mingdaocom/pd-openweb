@@ -1,4 +1,5 @@
 .selectUserModal {
+  text-align: left;
   background-color: #f8f8f8;
 
   .searchWrapper {
@@ -45,8 +46,11 @@
   }
 
   .departmentWrapper {
-    .am-list-body {
+    .adm-list-body, .adm-list-body-inner {
       height: 100%;
+    }
+    .adm-list-item-content-main {
+      padding: 15px 0 !important;
     }
     .avtive {
       color: #2196f3;
@@ -61,19 +65,12 @@
       background-color: #2196f3;
     }
   }
-  .departmentItem .am-checkbox-wrapper {
-    margin-right: 10px;
-    .am-checkbox-disabled {
-      .am-checkbox-inner {
-        background-color: #ddd !important;
-      }
-    }
-  }
 
-  .am-list-body {
-    &::before,
-    &::after {
-      content: none !important;
+  .adm-list-body {
+    border: none !important;
+    .adm-list-item-content-main, .adm-checkbox-content {
+      color: #333;
+      font-size: 15px;
     }
   }
 
@@ -83,19 +80,11 @@
     border-radius: 50%;
     margin-right: 16px;
   }
-  .am-list .am-list-item.am-checkbox-item .am-list-thumb .am-checkbox-inner {
-    top: 16px;
-  }
-  .am-list-item .am-list-line .am-list-content {
-    color: #333;
-    font-size: 15px;
-  }
   .onlyShowJoinDepartment {
     display: flex;
     justify-content: space-between;
     padding: 13px 15px 13px 0;
     margin-left: 15px;
-    border-bottom: 1px solid #eaeaea;
   }
   .currentAccount {
     height: 50px;

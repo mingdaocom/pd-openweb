@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { Dialog, LoadDiv, Checkbox, Button, SvgIcon } from 'ming-ui';
+import { Dialog, LoadDiv, Checkbox, Button, SvgIcon, Tooltip, Icon } from 'ming-ui';
 import transferAjax from 'src/pages/workflow/api/transfer';
+import appManagementAjax from 'src/api/appManagement';
 import { dialogSelectUser } from 'ming-ui/functions';
 import cx from 'classnames';
 import './index.less';
@@ -9,6 +10,7 @@ import _ from 'lodash';
 const TAB_LIST = [
   { tab: 1, tabName: _l('流程待办') },
   { tab: 2, tabName: _l('工作流') },
+  { tab: 3, tabName: _l('应用成员') },
 ];
 
 const setAll = data => {
@@ -47,6 +49,55 @@ const getCount = data => {
   );
   return count || '';
 };
+
+const AppItem = props => {
+  const {
+    key,
+    className,
+    checked,
+    clearSelected,
+    iconUrl,
+    iconColor,
+    appName,
+    nameTips = false,
+    roles = [],
+    onClick = () => {},
+    handleChecked = () => {},
+  } = props;
+  const sysNames = roles
+    .filter(l => l.isSystemRole)
+    .map(l => l.name)
+    .join('、');
+  const cusNames = roles
+    .filter(l => !l.isSystemRole)
+    .map(l => l.name)
+    .join('、');
+  const namesText = `${sysNames ? _l('系统角色：') : ''}${sysNames}${sysNames && cusNames ? '；' : ''}${
+    cusNames ? _l('普通角色：') : ''
+  }${cusNames}`;
+
+  return (
+    <div
+      key={key}
+      onClick={onClick}
+      className={cx('checkItem flexRow alignItemsCenter Hand', { [className]: className })}
+    >
+      <Checkbox clearselected={clearSelected} checked={checked} onClick={handleChecked} />
+      <div className="appIconWrap" style={{ backgroundColor: iconColor }}>
+        <SvgIcon url={iconUrl} fill="#fff" size={16} addClassName="mTop2" />
+      </div>
+      <Tooltip text={appName} popupPlacement="topLeft" disable={!nameTips} mouseEnterDelay={0.5}>
+        <span className="flex ellipsis mLeft8"> {appName}</span>
+      </Tooltip>
+      {!!roles.length && (
+        <Tooltip text={namesText} popupPlacement="topLeft" mouseEnterDelay={0.5}>
+          <span className="flex2 ellipsis">{namesText}</span>
+        </Tooltip>
+      )}
+    </div>
+  );
+};
+
 export default class WorkHandoverDialog extends Component {
   constructor(props) {
     super(props);
@@ -59,13 +110,36 @@ export default class WorkHandoverDialog extends Component {
       workflowList: [],
       todoCheckedInfo: {},
       workflowCheckedInfo: {},
+      selectAppMemberData: [],
+      appsMemberData: [],
     };
   }
 
   componentDidMount() {
     this.getCount();
     this.getList();
+    this.getApps();
   }
+
+  getApps = () => {
+    const { transferor = {}, projectId } = this.props;
+    const { countInfo } = this.state;
+
+    appManagementAjax
+      .getUserIdApps({
+        projectId,
+        userId: transferor.accountId,
+      })
+      .then(res => {
+        this.setState({
+          countInfo: { ...countInfo, 3: res.length },
+          appsMemberData: res,
+        });
+      })
+      .catch(err => {
+        this.setState({ countInfo: { ...countInfo, 3: 0 } });
+      });
+  };
 
   getCount = () => {
     const { transferor = {}, projectId } = this.props;
@@ -186,10 +260,10 @@ export default class WorkHandoverDialog extends Component {
   // 交接给
   transfer = () => {
     const { projectId, transferor = {} } = this.props;
-    const { todoCheckedInfo, workflowCheckedInfo } = this.state;
+    const { todoCheckedInfo, workflowCheckedInfo, selectAppMemberData } = this.state;
     const _this = this;
 
-    if (_.isEmpty(todoCheckedInfo) && _.isEmpty(workflowCheckedInfo)) {
+    if (_.isEmpty(todoCheckedInfo) && _.isEmpty(workflowCheckedInfo) && _.isEmpty(selectAppMemberData)) {
       alert(_l('请选择交接内容'), 3);
       return;
     }
@@ -204,7 +278,10 @@ export default class WorkHandoverDialog extends Component {
         filterOthers: true,
         unique: true,
         filterAccountIds: [transferor.accountId],
-        callback: _this.handleHandover,
+        callback: users => {
+          this.replaceAppMember(users[0].accountId);
+          this.handleHandover(users);
+        },
       },
     });
   };
@@ -213,10 +290,7 @@ export default class WorkHandoverDialog extends Component {
     const { transferor = {}, projectId } = this.props;
     const { todoCheckedInfo, workflowCheckedInfo, todoList = [], workflowList, activeTab } = this.state;
 
-    if (_.isEmpty(todoCheckedInfo) && _.isEmpty(workflowCheckedInfo)) {
-      alert(_l('请选择交接内容'));
-      return;
-    }
+    if (_.isEmpty(todoCheckedInfo) && _.isEmpty(workflowCheckedInfo)) return;
 
     const getIds = (info = {}) => {
       let arr = [];
@@ -256,6 +330,75 @@ export default class WorkHandoverDialog extends Component {
     return <div className="h100 Gray_75 flexRow alignItemsCenter justifyContentCenter">{_l('没有内容需要交接')}</div>;
   };
 
+  replaceAppMember = (addUserId = '') => {
+    const { transferor = {}, projectId } = this.props;
+    const { selectAppMemberData, appsMemberData, countInfo } = this.state;
+
+    if (!selectAppMemberData.length) return;
+
+    appManagementAjax
+      .replaceRoleMemberForApps({
+        projectId,
+        removeUserId: transferor.accountId,
+        addUserId,
+        roles: selectAppMemberData,
+      })
+      .then(res => {
+        if (res) {
+          alert(addUserId ? _l('交接成功') : _l('移除成功'));
+          const newList = _.differenceBy(appsMemberData, selectAppMemberData, 'appId');
+          this.setState({
+            selectAppMemberData: [],
+            appsMemberData: newList,
+            countInfo: { ...countInfo, 3: newList.length },
+          });
+        } else {
+          alert(addUserId ? _l('交接失败') : _l('移除失败'), 2);
+        }
+      });
+  };
+
+  openRemoveAppMember = () => {
+    const { selectAppMemberData } = this.state;
+
+    Dialog.confirm({
+      title: _l('确认移除'),
+      children: _l('已选 %0 项，成员将会从所选应用中移除', selectAppMemberData.length),
+      onOk: this.replaceAppMember,
+    });
+  };
+
+  renderAppMember = () => {
+    const { appsMemberData, currentAppId, selectAppMemberData } = this.state;
+
+    return appsMemberData.map(item => {
+      const checked = !!_.find(selectAppMemberData, l => l.appId === item.appId);
+
+      return (
+        <div className="appWrap">
+          <AppItem
+            key={`work-handle-over-${item.appId}`}
+            className="pLeft16"
+            appName={item.appName}
+            iconUrl={item.iconUrl}
+            iconColor={item.iconColor}
+            currentAppId={currentAppId}
+            checked={checked}
+            nameTips={true}
+            roles={item.roles}
+            onClick={() => {
+              this.setState({
+                selectAppMemberData: checked
+                  ? selectAppMemberData.filter(l => l.appId !== item.appId)
+                  : selectAppMemberData.concat(item),
+              });
+            }}
+          />
+        </div>
+      );
+    });
+  };
+
   render() {
     const { visible, transferor = {}, onCancel = () => {} } = this.props;
     const { fullname } = transferor;
@@ -268,8 +411,10 @@ export default class WorkHandoverDialog extends Component {
       todoCheckedInfo,
       workflowCheckedInfo,
       countInfo,
+      selectAppMemberData,
+      appsMemberData,
     } = this.state;
-    const dataList = activeTab === 1 ? todoList : workflowList;
+    const dataList = activeTab === 1 ? todoList : activeTab === 2 ? workflowList : appsMemberData;
     const checkedInfo = activeTab === 1 ? todoCheckedInfo : workflowCheckedInfo;
 
     const items = (_.find(dataList, item => item.id === currentAppId) || {}).items || [];
@@ -308,7 +453,8 @@ export default class WorkHandoverDialog extends Component {
                 {item.tabName}
                 {!loading && (
                   <span className="Gray_75 mLeft4">
-                    {countInfo[item.tab] || (item.tab === 1 ? getCount(todoList) : getCount(workflowList))}
+                    {countInfo[item.tab] ||
+                      (item.tab === 1 ? getCount(todoList) : item.tab === 2 ? getCount(workflowList) : '')}
                   </span>
                 )}
               </div>
@@ -317,6 +463,13 @@ export default class WorkHandoverDialog extends Component {
               <i className="icon icon-refresh1 Gray_9e Hand Font18" onClick={() => this.getList(true)} />
             </div>
           </div>
+          <div className="description">
+            {activeTab === 1
+              ? _l('交接当前用户未处理的流程待办')
+              : activeTab === 2
+              ? _l('交接当前用户作为流程拥有者、通知人和节点负责人的工作流')
+              : _l('移除或交接当前用户作为成员直接加入的应用（不包含通过部门、组织角色、职位加入的应用）')}
+          </div>
           {loading ? (
             <div className="mTop40 TxtCenter flex">
               <LoadDiv className="mBottom25" />
@@ -324,9 +477,10 @@ export default class WorkHandoverDialog extends Component {
             </div>
           ) : _.isEmpty(dataList) ? (
             this.renderEmpty()
-          ) : (
+          ) : _.includes([1, 2], activeTab) ? (
             <div className="overflowHidden flex flexRow">
               <div className="apps">
+                <div className="Gray_9e pLeft12 mBottom10">{_l('选择应用')}</div>
                 <div className="checkItem checkAll flexRow alignItemsCenter">
                   <Checkbox checked={checkedAll} onClick={this.checkedAllApps} />
                   <span className="flex ellipsis">{_l('全选')}</span>
@@ -336,25 +490,25 @@ export default class WorkHandoverDialog extends Component {
                   const { name, iconUrl, iconColor } = apk;
 
                   return (
-                    <div
+                    <AppItem
                       key={id}
-                      className={cx('checkItem flexRow alignItemsCenter Hand', { activeApp: currentAppId === id })}
+                      className={cx({ activeApp: currentAppId === id })}
+                      appName={name}
+                      iconUrl={iconUrl}
+                      iconColor={iconColor}
+                      currentAppId={currentAppId}
+                      checked={_.has(checkedInfo, id)}
+                      clearSelected={_.has(checkedInfo, id) && !_.get(checkedInfo, `[${id}].checkedAll`)}
                       onClick={() => this.setState({ currentAppId: id })}
-                    >
-                      <Checkbox
-                        clearselected={_.has(checkedInfo, id) && !_.get(checkedInfo, `[${id}].checkedAll`)}
-                        checked={_.has(checkedInfo, id)}
-                        onClick={checked => this.checkedAppItem({ checked, appId: id, checkType: 'app' })}
-                      />
-                      <div className="appIconWrap" style={{ backgroundColor: iconColor }}>
-                        <SvgIcon url={iconUrl} fill="#fff" size={16} addClassName="mTop2" />
-                      </div>
-                      <span className="flex ellipsis mLeft8"> {name}</span>
-                    </div>
+                      handleChecked={checked => this.checkedAppItem({ checked, appId: id, checkType: 'app' })}
+                    />
                   );
                 })}
               </div>
               <div className="handoverList flex">
+                <div className="Gray_9e pLeft12 mBottom10">
+                  {activeTab === 1 ? _l('选择流程待办') : activeTab === 2 ? _l('选择工作流') : ''}
+                </div>
                 {_.isEmpty(items)
                   ? this.renderEmpty()
                   : items.map(item => {
@@ -378,10 +532,29 @@ export default class WorkHandoverDialog extends Component {
                     })}
               </div>
             </div>
+          ) : (
+            <div className="flex flexColumn pLeft20 pRight20" style={{ overflow: 'auto' }}>
+              {this.renderAppMember()}
+            </div>
           )}
-          {!loading && (!_.isEmpty(todoList) || !_.isEmpty(workflowList)) && (
+          {!loading && (!_.isEmpty(todoList) || !_.isEmpty(workflowList) || !_.isEmpty(appsMemberData)) && (
             <div className="footer">
-              <Button disabled={_.isEmpty(todoCheckedInfo) && _.isEmpty(workflowCheckedInfo)} onClick={this.transfer}>
+              {activeTab === 3 && (
+                <Button
+                  className="mRight20 removeAppMember"
+                  type="link"
+                  disabled={_.isEmpty(selectAppMemberData)}
+                  onClick={this.openRemoveAppMember}
+                >
+                  {_l('移除')}
+                </Button>
+              )}
+              <Button
+                disabled={
+                  _.isEmpty(todoCheckedInfo) && _.isEmpty(workflowCheckedInfo) && _.isEmpty(selectAppMemberData)
+                }
+                onClick={this.transfer}
+              >
                 {_l('交接给')}
               </Button>
             </div>

@@ -33,10 +33,15 @@ export default class Inbox extends React.Component {
     type: getInitialLoadType(this.props.inboxType),
     inboxFavorite: false,
     filter: null,
+    updateNow: undefined,
   };
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.inboxType !== this.props.inboxType) {
+    if (
+      nextProps.inboxType !== this.props.inboxType ||
+      nextProps.count !== this.props.count ||
+      nextProps.weak_count !== this.props.weak_count
+    ) {
       this.setState({
         filter: null,
         type: getInitialLoadType(nextProps.inboxType),
@@ -49,6 +54,12 @@ export default class Inbox extends React.Component {
       type,
     });
   };
+
+  changeUpdateNow = () => {
+    this.setState({
+      updateNow: Date.now(),
+    });
+  }
 
   changeFaviorite = inboxFavorite => {
     this.setState({
@@ -76,14 +87,28 @@ export default class Inbox extends React.Component {
       changeType: this.changeType,
       changeFaviorite: this.changeFaviorite,
       changeInboxFilter: this.changeInboxFilter,
+      changeUpdateNow: this.changeUpdateNow,
     };
     return <InboxHeader {...props} />;
   }
 
   renderList() {
-    const { type, inboxFavorite, filter } = this.state;
-    const { clearUnread, inboxType, count } = this.props;
-    return <InboxList {...{ type, inboxFavorite, clearUnread, inboxType, count, filter }} />;
+    const { type, inboxFavorite, filter, updateNow } = this.state;
+    const { clearUnread, inboxType, count, weak_count } = this.props;
+    return (
+      <InboxList
+        {...{
+          type,
+          inboxFavorite,
+          clearUnread,
+          inboxType,
+          count,
+          weak_count: ['calendar'].includes(inboxType) ? weak_count : undefined,
+          filter,
+          updateNow
+        }}
+      />
+    );
   }
 
   render() {

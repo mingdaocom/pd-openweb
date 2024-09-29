@@ -1,6 +1,5 @@
 import React, { Component, createRef } from 'react';
 import { string, func, number, shape } from 'prop-types';
-import { SortableElement } from '@mdfe/react-sortable-hoc';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
@@ -29,7 +28,6 @@ const LiCon = styled.li`
 `;
 
 @connect(state => state, dispatch => bindActionCreators({ changeBoardViewData }, dispatch))
-@SortableElement
 export default class SortableAppItem extends Component {
   static propTypes = {
     value: shape({

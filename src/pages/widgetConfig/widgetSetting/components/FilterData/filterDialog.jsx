@@ -126,6 +126,7 @@ export default function FilterDialog(props) {
           showCustom={showCustom}
           from={fromCondition}
           filterResigned={false}
+          widgetControlData={{ ...data, globalSheetId: globalSheetInfo.worksheetId }} // 关联控件配置
           sourceControlId={sourceControlId}
           relateSheetList={relateSheetList} // 除去自身的本表的关联单条的数据
           onConditionsChange={conditions => {

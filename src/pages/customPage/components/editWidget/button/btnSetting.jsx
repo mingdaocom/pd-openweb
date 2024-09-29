@@ -785,7 +785,7 @@ function BtnSetting(props) {
 
     if (_.get(data, ['config', 'isNewBtn'])) {
       const { svgIcon } = _.find(CLICK_ACTION, { value });
-      const iconUrl = `${md.global.FileStoreConfig.pubHost}/customIcon/${svgIcon}.svg`;
+      const iconUrl = `${md.global.FileStoreConfig.pubHost}customIcon/${svgIcon}.svg`;
       delete data.config.isNewBtn;
       data.config = {
         ...data.config,

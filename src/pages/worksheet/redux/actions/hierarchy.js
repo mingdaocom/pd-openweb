@@ -10,16 +10,17 @@ const MULTI_RELATE_MAX_PAGE_SIZE = 500;
 let hierarchyPromiseObj;
 let hierarchyPromiseViewIds = [];
 
-const getTotalData = (hierarchyViewData = {}, total = 0) => {
+const getTotalDataIds = (hierarchyViewData = {}, total = 0) => {
+  let totalIds = [];
   Object.values(hierarchyViewData).map(item => {
     if (item) {
-      total += 1;
+      totalIds.push(item.rowid);
     }
     if (get(item, 'childrenids.length') > 0) {
-      total = getTotalData(item.childrenids, total);
+      totalIds.concat(getTotalDataIds(item.childrenids, total));
     }
   });
-  return total;
+  return _.uniq(totalIds);
 };
 
 // 展开多级数据
@@ -58,7 +59,7 @@ export function expandedMultiLevelHierarchyData(args, changeFilters) {
       hierarchyPromiseViewIds = hierarchyPromiseViewIds.filter(o => o !== params.viewId);
       if (resultCode === 1) {
         const treeData = dealData(data);
-        const totalDataOver = getTotalData(data);
+        const totalDataOver = getTotalDataIds(data).length;
         // 第一次调用少于1000条，加载全量数据
         const needGetOne =
           ((totalDataOver < 1000 && pageSize === 50) || (totalDataOver > 1000 && pageSize === 1000)) &&

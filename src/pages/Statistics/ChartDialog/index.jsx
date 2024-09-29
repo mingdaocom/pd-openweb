@@ -203,7 +203,7 @@ export default class ChartDialog extends Component {
     this.getReportConfigDetail(type);
   }
   renderHeader() {
-    const { report, permissions, isCharge, isLock, permissionType, sourceType = 0, currentReport, reportData, worksheetInfo, base, onRemove, ownerId, projectId, onCancelFavorite } = this.props;
+    const { report, permissions, isCharge, isLock, permissionType, sourceType = 0, currentReport, customPageConfig, reportData, worksheetInfo, base, onRemove, ownerId, projectId, onCancelFavorite } = this.props;
     const { saveLoading, settingVisible } = this.state;
     const isPublicShareChart = location.href.includes('public/chart');
     const isPublicSharePage = window.shareAuthor || _.get(window, 'shareState.shareId');
@@ -267,6 +267,7 @@ export default class ChartDialog extends Component {
                 particleSizeType: currentReport.particleSizeType,
                 ...currentReport.filter
               }}
+              customPageConfig={customPageConfig}
               sheetVisible={base.sheetVisible}
               projectId={projectId}
               appId={worksheetInfo.appId}

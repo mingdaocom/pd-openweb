@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import './index.less';
 import nodeModules from './nodeModules';
 import End from './End';
-import { CreateNodeDialog, Thumbnail } from './components';
+import { CreateNodeDialog, Thumbnail, NodeWrap, WhiteNode } from './components';
 import Detail from '../Detail';
 import cx from 'classnames';
-import { Dialog, LoadDiv, EditingBar } from 'ming-ui';
+import { Dialog, LoadDiv, EditingBar, SvgIcon } from 'ming-ui';
 import { getSameLevelIds } from '../utils';
-import { APP_TYPE, NODE_TYPE } from '../enum';
+import { ACTION_ID, APP_TYPE, NODE_TYPE } from '../enum';
 import {
   addFlowNode,
   deleteFlowNode,
@@ -65,6 +65,11 @@ class EditFlow extends Component {
     ) {
       this.setState({ refreshThumbnail: +new Date(), refreshPosition: +new Date() });
     }
+
+    if (!prevProps.infoVisible && this.props.infoVisible) {
+      this.cancelCopy();
+      this.closeDetail();
+    }
   }
 
   firstLoad = true;
@@ -100,6 +105,8 @@ class EditFlow extends Component {
    * 选择添加节点的id
    */
   selectAddNodeId = (nodeId, selectProcessId) => {
+    this.props.changeFlowInfo(false);
+
     if (nodeId && this.change && this.state.selectNodeId) {
       this.detailUpdateConfirm(() => {
         this.closeDetail();
@@ -177,9 +184,17 @@ class EditFlow extends Component {
    */
   addFlowNode = (processId, args) => {
     this.props.dispatch(
-      addFlowNode(processId, args, id => {
+      addFlowNode(processId, args, ({ id, subProcessId }) => {
         if (args.typeId === NODE_TYPE.APPROVAL_PROCESS) {
           this.openDetail(processId, id, args.typeId);
+        }
+
+        // 循环节点打开新页面
+        if (
+          args.typeId === NODE_TYPE.LOOP &&
+          _.includes([ACTION_ID.CONDITION_LOOP, ACTION_ID.COUNT_LOOP], args.actionId)
+        ) {
+          window.open(`/workflowedit/${subProcessId}`);
         }
       }),
     );
@@ -228,17 +243,19 @@ class EditFlow extends Component {
    * render节点
    */
   renderNode = ({ processId, data, firstId, excludeFirstId = false, isApproval }) => {
-    const { flowInfo, workflowDetail } = this.props;
+    const { flowInfo, workflowDetail, isPlugin } = this.props;
     const { startEventId, flowNodeMap, child, isSimple } = workflowDetail;
     const firstNode = flowNodeMap[startEventId];
     const disabled =
       ((firstNode.appType === APP_TYPE.SHEET || firstNode.appType === APP_TYPE.DATE) && !firstNode.appName) ||
       (firstNode.appType === APP_TYPE.LOOP && !firstNode.executeTime) ||
       (firstNode.appType === APP_TYPE.WEBHOOK && !firstNode.count) ||
-      (firstNode.appType === APP_TYPE.PBC && !firstNode.appId && !child) ||
+      (firstNode.appType === APP_TYPE.PBC && !firstNode.appId && !child && !isPlugin) ||
       (this.state.isCopy && processId !== this.state.selectProcessId);
-
-    return getSameLevelIds(data, firstId, excludeFirstId).map((id, i) => {
+    let pluginInputNode;
+    let pluginOutputNode;
+    let pluginInputNodeProps;
+    const nodeList = getSameLevelIds(data, firstId, excludeFirstId).map((id, i) => {
       const props = {
         key: id,
         companyId: flowInfo.companyId,
@@ -261,6 +278,7 @@ class EditFlow extends Component {
         isApproval: isApproval || firstNode.appType === APP_TYPE.APPROVAL_START,
         isNestedProcess: isApproval,
         isSimple,
+        isPlugin,
         renderNode: this.renderNode,
         selectAddNodeId: this.selectAddNodeId,
         selectCopy: this.selectCopy,
@@ -280,22 +298,52 @@ class EditFlow extends Component {
 
       const NodeComponent = nodeModules[data[id].typeId];
 
+      // 工作流插件输入节点
+      if (isPlugin && data[id].typeId === NODE_TYPE.FIRST) {
+        pluginInputNode = <NodeComponent {...props} />;
+        pluginInputNodeProps = props;
+
+        return null;
+      }
+
+      // 工作流插件输出节点
+      if (isPlugin && data[id].typeId === NODE_TYPE.PBC) {
+        pluginOutputNode = <NodeComponent {...props} />;
+
+        return null;
+      }
+
       return <NodeComponent {...props} />;
     });
+
+    // 插件
+    if (isPlugin && workflowDetail.startEventId === firstId) {
+      return (
+        <Fragment>
+          {pluginInputNode}
+          <NodeWrap {...pluginInputNodeProps}>{nodeList}</NodeWrap>
+          {pluginOutputNode}
+        </Fragment>
+      );
+    }
+
+    return nodeList;
   };
 
   /**
    * 打开详情
    */
   openDetail = (processId, id, type) => {
-    const { flowInfo, workflowDetail } = this.props;
+    const { flowInfo, workflowDetail, changeFlowInfo } = this.props;
     const { isCopy } = this.state;
     const switchDetail = () => {
-      this.setState({ selectProcessId: processId, selectNodeId: id, selectNodeType: type });
+      this.setState({ nodeId: '', selectProcessId: processId, selectNodeId: id, selectNodeType: type });
       this.change = false;
     };
 
     if (isCopy) return;
+
+    changeFlowInfo(false);
 
     // 审批流开始节点未完成配置
     if (flowInfo.id !== processId && !flowInfo.parentId) {
@@ -425,8 +473,35 @@ class EditFlow extends Component {
     }
   };
 
+  /**
+   * 渲染插件节点
+   */
+  renderPluginNode = () => {
+    const { flowInfo, infoVisible, changeFlowInfo } = this.props;
+
+    return (
+      <WhiteNode
+        className="mBottom10"
+        IconElement={
+          flowInfo.iconName ? (
+            <span className="workflowAvatar workflowAvatarSvg" style={{ background: flowInfo.iconColor }}>
+              <SvgIcon url={flowInfo.iconName} fill="#fff" size={22} />
+            </span>
+          ) : (
+            <i className="workflowAvatar icon-workflow" style={{ background: flowInfo.iconColor || '#2196f3' }} />
+          )
+        }
+        nodeName={flowInfo.name}
+        nodeDesc={_l('设置名称和图标')}
+        isComplete={flowInfo.iconName}
+        isActive={infoVisible}
+        onClick={() => changeFlowInfo(true)}
+      />
+    );
+  };
+
   render() {
-    const { flowInfo, workflowDetail, instanceId } = this.props;
+    const { flowInfo, workflowDetail, instanceId, isPlugin } = this.props;
     const {
       nodeId,
       selectNodeId,
@@ -451,6 +526,7 @@ class EditFlow extends Component {
       instanceId,
       debugEvents: flowInfo.debugEvents,
       isIntegration: location.href.indexOf('integration') > -1,
+      isPlugin,
       closeDetail: this.closeDetail,
       haveChange: this.haveChange,
       deleteNode: this.deleteNode,
@@ -459,7 +535,8 @@ class EditFlow extends Component {
     const startNodeError =
       (flowNodeMap[startEventId] || {}).appId &&
       !(flowNodeMap[startEventId] || {}).appName &&
-      !_.includes([APP_TYPE.PBC, APP_TYPE.PARAMETER, APP_TYPE.LOOP_PROCESS], flowNodeMap[startEventId].appType);
+      !_.includes([APP_TYPE.PBC, APP_TYPE.PARAMETER, APP_TYPE.LOOP_PROCESS], flowNodeMap[startEventId].appType) &&
+      !isPlugin;
 
     return (
       <Fragment>
@@ -475,8 +552,9 @@ class EditFlow extends Component {
             className="workflowEditContent"
             style={{ transform: `scale(${scale / 100})`, transformOrigin: 'center 48px' }}
           >
+            {isPlugin && this.renderPluginNode()}
             {this.renderNode({ processId: flowInfo.id, data: flowNodeMap, firstId: startEventId })}
-            <End />
+            {isPlugin ? <div className="workflowEndBox"></div> : <End />}
           </div>
         </div>
 
@@ -490,6 +568,7 @@ class EditFlow extends Component {
             nodeId={isCopy ? '' : nodeId}
             selectProcessId={selectProcessId}
             isApproval={flowInfo.startAppType === APP_TYPE.APPROVAL_START}
+            isPlugin={isPlugin}
             addFlowNode={this.addFlowNode}
             selectAddNodeId={this.selectAddNodeId}
             selectCopy={this.selectCopy}

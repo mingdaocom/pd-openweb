@@ -369,15 +369,6 @@ export const doCreateAccount = callback => {
             return;
           }
 
-          if (isLink) {
-            if (!(nextAction == AccountNextActions.createProject || nextAction == AccountNextActions.userCardInfo)) {
-              const { user = {} } = data;
-              const { encrypeAccount, encrypePassword } = user;
-
-              dispatch(setData({ encrypeAccount, encrypePassword }));
-            }
-          }
-
           callback && callback();
         } else if (data.actionResult == ActionResult.userAccountExists) {
           dispatch(setData({ focusDiv: '' }));

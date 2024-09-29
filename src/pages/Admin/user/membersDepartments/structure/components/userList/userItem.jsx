@@ -302,7 +302,7 @@ class UserItem extends Component {
   };
 
   renderAction = () => {
-    const { user, isChargeUser, typeCursor, departmentId, authority = [] } = this.props;
+    const { user, typeCursor, departmentId, authority = [] } = this.props;
 
     return _.includes([0, 1], typeCursor) ? (
       <Menu className="userOptList">
@@ -310,8 +310,12 @@ class UserItem extends Component {
         {md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal && (
           <MenuItem onClick={this.handleResetPasswordClick}> {_l('重置密码')}</MenuItem>
         )}
-        {departmentId && !isChargeUser && <MenuItem onClick={this.setAndCancelCharge}>{_l('设为部门负责人')}</MenuItem>}
-        {departmentId && isChargeUser && <MenuItem onClick={this.setAndCancelCharge}>{_l('取消部门负责人')}</MenuItem>}
+        {departmentId && !user.isDepartmentChargeUser && (
+          <MenuItem onClick={this.setAndCancelCharge}>{_l('设为部门负责人')}</MenuItem>
+        )}
+        {departmentId && user.isDepartmentChargeUser && (
+          <MenuItem onClick={this.setAndCancelCharge}>{_l('取消部门负责人')}</MenuItem>
+        )}
         {hasPermission(authority, PERMISSION_ENUM.APP_RESOURCE_SERVICE) && (
           <MenuItem onClick={this.handleTransfer}> {_l('交接工作')}</MenuItem>
         )}
@@ -341,7 +345,6 @@ class UserItem extends Component {
   render() {
     const {
       user,
-      isChargeUser,
       isChecked,
       typeCursor,
       projectId,
@@ -353,7 +356,7 @@ class UserItem extends Component {
       departmentId,
     } = this.props;
     const { isMinSc, optListVisible, showWorkHandover } = this.state;
-    let { jobs, departments, departmentInfos, jobInfos } = user;
+    let { jobs, departments, departmentInfos, jobInfos, isDepartmentChargeUser } = user;
     let departmentData = departmentId ? departmentInfos : departments || departmentInfos || [];
     let jobData = jobs || jobInfos;
     let totalColWidth = 0;
@@ -409,7 +412,7 @@ class UserItem extends Component {
               <a className="overflow_ellipsis mLeft10 LineHeight32" title={user.fullname}>
                 {user.fullname}
               </a>
-              {isChargeUser ? (
+              {isDepartmentChargeUser ? (
                 <Tooltip text={<span>{_l('部门负责人')}</span>} action={['hover']}>
                   <span className="icon-ic-head Font16 mLeft5 chargeIcon" title={_l('部门负责人')} />
                 </Tooltip>

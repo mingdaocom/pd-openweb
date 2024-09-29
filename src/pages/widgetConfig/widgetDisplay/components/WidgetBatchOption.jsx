@@ -86,7 +86,7 @@ function WidgetBatch(props) {
 
   const getDisabledStatus = mode => {
     if (mode === 'readonly') {
-      const unReadOnly = [31, 33, 25, 32, 38, 43, 47, 45, 30, 51, 37, 22, 52, 10010];
+      const unReadOnly = [31, 33, 25, 32, 38, 43, 47, 45, 30, 51, 37, 22, 52, 53, 10010];
       return batchActive.some(i => _.includes(unReadOnly, i.type));
     }
     if (mode === 'required') {

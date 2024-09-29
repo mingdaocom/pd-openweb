@@ -48,30 +48,32 @@ export class Count extends Component {
                 </Tooltip>
               )}
             </div>
-            <div className="chartTypeSelect flexRow valignWrapper">
+            <Select
+              className="chartSelect w100"
+              value={summary.type}
+              suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+              onChange={value => {
+                const item = _.find(normTypes, { value });
+                if (isPivotTable) {
+                  onChangeSummary({
+                    type: item.value,
+                    name: item.value === 1 ? '' : item.text,
+                  });
+                } else {
+                  const isDefault = normTypes.map(item => item.text).includes(summary.name);
+                  onChangeSummary({
+                    type: item.value,
+                    name: isDefault ? item.text : summary.name,
+                  });
+                }
+              }}
+            >
               {(isPivotTable && yAxis.controlType === 10000001 ? normTypes : normTypes.filter(n => n.value !== 5)).map(item => (
-                <div
-                  key={item.value}
-                  className={cx('flex centerAlign pointer Gray_75', { active: summary.type == item.value })}
-                  onClick={() => {
-                    if (isPivotTable) {
-                      onChangeSummary({
-                        type: item.value,
-                        name: item.value === 1 ? '' : item.text,
-                      });
-                    } else {
-                      const isDefault = normTypes.map(item => item.text).includes(summary.name);
-                      onChangeSummary({
-                        type: item.value,
-                        name: isDefault ? item.text : summary.name,
-                      });
-                    }
-                  }}
-                >
+                <Select.Option className="selectOptionWrapper" value={item.value}>
                   {item.alias || item.text}
-                </div>
+                </Select.Option>
               ))}
-            </div>
+            </Select>
           </div>
         )}
         <div className="mBottom16">

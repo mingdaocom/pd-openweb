@@ -67,20 +67,6 @@ const setColorLavel = data => {
   return res;
 };
 
-const getColorValues = (data, colors) => {
-  const maxLength = Math.max.apply(
-    null,
-    data.map(item => item.colorLavel),
-  );
-  if (maxLength === 1) {
-    return [colors[0], colors[0]];
-  } else if (maxLength < colors.length) {
-    return colors.slice(0, maxLength);
-  } else {
-    return colors;
-  }
-};
-
 let mapbox = null;
 
 @connect(
@@ -359,7 +345,6 @@ export default class extends Component {
   };
   handleDrillDownTriggerData = () => {
     const { base, reportData } = this.props;
-    const { xaxes, country } = reportData;
     const { match } = this.state;
     const key = _.findKey(match);
     const code = match[key];
@@ -402,6 +387,7 @@ export default class extends Component {
         if (municipality.includes(code)) {
           const last = _.find(this.CountryLayerChart.provinceLayer.options.data, { code: code });
           this.setState({ path: [_l('全国'), last.name] });
+          this.depthColorLavels = this.getColorLavels(this.props, data);
           this.CountryLayerChart.depth = 3;
           this.CountryLayerChart.drillState = 'Province';
           this.CountryLayerChart.drillDown(code, data);
@@ -470,6 +456,7 @@ export default class extends Component {
         this.CountryLayerChart.drillUp('Province');
         this.CountryLayerChart.drillUp('Country');
         this.setState({ path: [] });
+        this.depthColorLavels = null;
       }
     } else {
       if (country.particleSizeType === 1) {
@@ -507,24 +494,25 @@ export default class extends Component {
       match: null,
     });
   };
+  getColorLavels = (props, data) => {
+    const { reportData } = props;
+    const { yaxisList, sorts } = reportData;
+    const sort = _.get(sorts[0], yaxisList[0].controlId);
+    const maxColorLavel = _.max(data.map(n => n.colorLavel));
+    const generateColors = generate(this.colors[0]).filter((_, index) => [0, 2, 4, 6, 7, 9].includes(index)).filter((_, index) => maxColorLavel > index);
+    return sort === 2 ? generateColors.reverse() : generateColors;
+  }
   getChartConfig(props) {
     const { themeColor, projectId, customPageConfig = {}, reportData } = props;
-    const { country, displaySetup, map, yaxisList, summary, sorts } = reportData;
+    const { country, displaySetup, map, yaxisList, summary } = reportData;
     const { colorRules } = displaySetup;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
-    const sort = _.get(sorts[0], yaxisList[0].controlId);
     const styleConfig = reportData.style || {};
     const style =
       chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0)
         ? { ...styleConfig, ...chartColor }
         : styleConfig;
     const data = setColorLavel(map);
-    const maxColorLavel = _.max(data.map(n => n.colorLavel));
-    const colors = getChartColors(style, themeColor, projectId);
-    const generateColors = generate(colors[0])
-      .filter((_, index) => [0, 2, 4, 6, 7, 9].includes(index))
-      .filter((_, index) => maxColorLavel > index);
-    const colorLavels = sort === 2 ? generateColors.reverse() : generateColors;
     const rule = _.get(colorRules[0], 'dataBarRule') || {};
     const isRuleColor = !_.isEmpty(rule);
     const controlMinAndMax = isRuleColor
@@ -537,6 +525,8 @@ export default class extends Component {
     const { Scene, Mapbox, CountryLayer, ProvinceLayer, CityLayer, DrillDownLayer } = this.asyncComponents;
 
     this.setCount(newYaxisList, summary);
+    this.colors = getChartColors(style, themeColor, projectId);
+    this.colorLavels = this.getColorLavels(props, data);
 
     if (!mapbox) {
       mapbox = new Mapbox({
@@ -577,7 +567,7 @@ export default class extends Component {
       config.provinceStroke = '#FFF';
       config.cityStroke = '#FFF';
       config.bubble = {
-        color: colors[0],
+        color: this.colors[0],
         enable: true,
         size: {
           field: 'colorLavel',
@@ -609,8 +599,12 @@ export default class extends Component {
           color: {
             field: 'colorLavel',
             values: value => {
-              return colorLavels[value - 1];
-            },
+              if (this.depthColorLavels) {
+                return this.depthColorLavels[value - 1];
+              } else {
+                return this.colorLavels[value - 1];
+              }
+            }
           },
         };
       }

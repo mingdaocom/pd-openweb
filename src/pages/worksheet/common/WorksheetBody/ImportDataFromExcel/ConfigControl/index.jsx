@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
+import filterXSS from 'xss';
 import sheetAjax from 'src/api/worksheet';
 import { Button, Checkbox, Dropdown, LoadDiv, Dialog, ScrollView, Tooltip, Icon, Menu } from 'ming-ui';
 import './index.less';
@@ -525,15 +526,18 @@ export default class ConfigControl extends Component {
           throw _l('依据字段“%0“的匹配字段仅限人员ID', repeatConfig.controlName);
         }
 
-        columnContent = `<span class="Gray Bold">【 ${
+        columnContent = `<span class="Gray Bold">【 ${filterXSS(
           repeatConfig.controlId === recordObj.value
             ? recordObj.text
-            : _.get(_.find(controlMappingFilter, item => item.ControlId === repeatConfig.controlId) || {}, 'ColumnName')
-        } 】</span>`;
+            : _.get(
+                _.find(controlMappingFilter, item => item.ControlId === repeatConfig.controlId) || {},
+                'ColumnName',
+              ),
+        )} 】</span>`;
 
-        fieldContent = `<span class="Gray Bold">【 ${
-          repeatConfig.controlId === recordObj.value ? recordObj.value : repeatConfig.controlName
-        } 】</span>`;
+        fieldContent = `<span class="Gray Bold">【 ${filterXSS(
+          repeatConfig.controlId === recordObj.value ? recordObj.value : repeatConfig.controlName,
+        )} 】</span>`;
 
         repeatModeContent = `<span class="Gray Bold">${handleEnumText[repeatConfig.handleEnum]}</span>`;
 

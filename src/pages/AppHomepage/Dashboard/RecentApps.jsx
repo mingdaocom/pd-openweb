@@ -88,6 +88,7 @@ export default function RecentApps(props) {
           appLang={appLang}
           onMarkApp={onMarkApp}
           loading={loading}
+          draggable={false}
         />
       </div>
     </Wrapper>

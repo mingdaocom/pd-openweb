@@ -1,22 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Link } from 'react-router-dom';
-import { Icon, ScrollView, LoadDiv, Dialog, Dropdown, UserHead } from 'ming-ui';
+import { ScrollView } from 'ming-ui';
 import HistoryHeader from './HistoryHeader';
 import HistoryList from './HistoryList';
 import HistoryDetail from './HistoryDetail';
 import './index.less';
 import api from '../../api/instance';
-import process from '../../api/process';
 import processVersion from '../../api/processVersion';
-import createDecoratedComponent from 'ming-ui/decorators/createDecoratedComponent';
-import withClickAway from 'ming-ui/decorators/withClickAway';
 import _ from 'lodash';
 import moment from 'moment';
 import Detail from '../Detail';
 import ArchivedList from 'src/components/ArchivedList';
-
-const ClickAwayable = createDecoratedComponent(withClickAway);
 
 @withRouter
 class History extends Component {
@@ -40,11 +35,6 @@ class History extends Component {
       pageIndex: 1,
       hasMoreData: false,
       instanceData: null,
-      historyVisible: false,
-      historyIsLoading: false,
-      historyIndex: 1,
-      historyIsMore: true,
-      historyList: [],
       accumulation: {},
       requestPending: false,
       batchIds: [],
@@ -120,22 +110,8 @@ class History extends Component {
     });
   };
 
-  handleRestoreVisible = id => {
-    const { flowInfo } = this.props;
-
-    Dialog.confirm({
-      title: _l('确定恢复到指定版本吗？'),
-      description: _l('执行此操作后，流程将回滚到指定的发布版本。您未发布的流程修改将会被清除，此操作无法撤回'),
-      okText: _l('确定恢复'),
-      onOk: () => {
-        process.goBack({ processId: id }).then(() => {
-          location.href = `/workflowedit/${flowInfo.id}`;
-        });
-      },
-    });
-  };
-
   renderInstanceContent() {
+    const { isPlugin } = this.props;
     const { instanceId, instanceData } = this.state;
 
     if (!instanceId || instanceData === null) return null;
@@ -146,7 +122,9 @@ class History extends Component {
           <div className="flex bold">
             <span
               className="ThemeColor3 ThemeHoverColor2 mRight10 pointer"
-              onClick={() => window.open(`/workflowedit/${instanceData.process.id}`)}
+              onClick={() =>
+                window.open(`${isPlugin ? '/workflowplugin' : '/workflowedit'}/${instanceData.process.id}`)
+              }
             >
               {instanceData.process.name}
             </span>
@@ -154,7 +132,7 @@ class History extends Component {
           </div>
           <Link
             className="pointer Gray_75 ThemeHoverColor3 Font16 mLeft20"
-            to={`/workflowedit/${this.props.flowInfo.id}/2`}
+            to={`${isPlugin ? '/workflowplugin' : '/workflowedit'}/${this.props.flowInfo.id}/2`}
             onClick={() => {
               this.setState({ workId: '', instanceId: '', instanceData: null }, this.handleFilter);
             }}
@@ -165,95 +143,6 @@ class History extends Component {
       </div>
     );
   }
-
-  getHistoryList = _.throttle(() => {
-    const { flowInfo } = this.props;
-    const { historyIsLoading, historyIndex, historyIsMore, historyList } = this.state;
-
-    // 加载更多
-    if (historyIndex > 1 && ((historyIsLoading && historyIsMore) || !historyIsMore)) {
-      return;
-    }
-
-    this.setState({ historyIsLoading: true });
-
-    process.getHistory({ processId: flowInfo.id, pageIndex: historyIndex, pageSize: 20 }).then(result => {
-      this.setState({
-        historyList: historyIndex === 1 ? result : historyList.concat(result),
-        historyIsLoading: false,
-        historyIndex: historyIndex + 1,
-        historyIsMore: result.length === 20,
-      });
-    });
-  }, 200);
-
-  renderHistory() {
-    const { flowInfo } = this.props;
-    const { enabled, companyId } = flowInfo;
-    const { historyIsLoading, historyIndex, historyList } = this.state;
-
-    return (
-      <ClickAwayable
-        component="div"
-        className="historyBox flexColumn"
-        style={{ height: historyList.length * 40 + 64 }}
-        onClickAwayExceptions={['.restoreWrap', '.mui-dialog-container']}
-        onClickAway={() => this.setState({ historyVisible: false })}
-      >
-        <div className="flexRow historyReleaseItem Gray_75 noBG">
-          <div className="w250">{_l('发布时间')}</div>
-          <div className="flex">{_l('发布者')}</div>
-        </div>
-        <ScrollView className="flex" onScrollEnd={this.getHistoryList}>
-          {historyList.map((item, i) => {
-            return (
-              <div
-                className="flexRow historyReleaseItem"
-                key={i}
-                onClick={() => (location.href = `/workflowedit/${item.id}`)}
-              >
-                <div className="w250">
-                  {createTimeSpan(item.date)}
-                  {i === 0 && enabled && <span className="historyReleaseItemActive">{_l('运行中')}</span>}
-                </div>
-                <div className="flex flexRow">
-                  <UserHead
-                    projectId={companyId}
-                    user={{
-                      userHead: item.publisher.avatar,
-                      accountId: item.publisher.accountId,
-                    }}
-                    size={26}
-                  />
-                  <div className="mLeft12 flex ellipsis">{item.publisher.fullName}</div>
-                </div>
-                <div className="mLeft12">
-                  <span
-                    data-tip={_l('恢复')}
-                    className={historyList.length > 1 && i === historyList.length - 1 ? 'tip-top' : ''}
-                  >
-                    <Icon
-                      className="Font16 Gray_75 ThemeHoverColor3 pointer"
-                      icon="restore2"
-                      onClick={e => {
-                        e.stopPropagation();
-                        this.handleRestoreVisible(item.id);
-                      }}
-                    />
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-          {historyIsLoading && historyIndex > 1 && <LoadDiv className="mTop15" size="small" />}
-        </ScrollView>
-      </ClickAwayable>
-    );
-  }
-
-  formatData = data => {
-    return Object.keys(data).map(key => ({ ...data[key], value: key }));
-  };
 
   /**
    * 获取流程堆积量
@@ -278,12 +167,11 @@ class History extends Component {
   };
 
   render() {
-    const { flowInfo } = this.props;
+    const { flowInfo, match, isPlugin } = this.props;
     const {
       data,
       selectActionId,
       hasMoreData,
-      historyVisible,
       accumulation,
       requestPending,
       batchIds,
@@ -298,6 +186,7 @@ class History extends Component {
       selectNodeType: selectNodeObj.selectNodeType,
       debugEvents: selectNodeObj.debugEvents,
       instanceId: selectActionId,
+      isPlugin,
       closeDetail: () => this.setState({ selectNodeObj: {} }),
     };
 
@@ -307,8 +196,17 @@ class History extends Component {
           <ScrollView className="workflowHistoryWrap flex">
             <div className="workflowHistoryContentWrap">
               <HistoryDetail
+                isPlugin={isPlugin}
                 id={selectActionId}
-                onClick={() => this.setState({ selectActionId: '' })}
+                onClick={() => {
+                  if (match.params.operator) {
+                    location.replace(
+                      `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${flowInfo.id}/${match.params.type}`,
+                    );
+                  } else {
+                    this.setState({ selectActionId: '' });
+                  }
+                }}
                 openNodeDetail={selectNodeObj => this.setState({ selectNodeObj })}
               />
             </div>
@@ -347,7 +245,7 @@ class History extends Component {
                     {_l('只展示该发布版本的流程历史')}
                     <span
                       className="ThemeColor3 ThemeHoverColor2 mLeft10 pointer"
-                      onClick={() => (location.href = `/workflowedit/${parentId}`)}
+                      onClick={() => (location.href = `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${parentId}`)}
                     >
                       {_l('打开当前流程')}
                     </span>
@@ -355,24 +253,6 @@ class History extends Component {
                 ) : lastPublishDate ? (
                   <Fragment>
                     {enabled && <span>{_l('当前运行中流程发布于: %0', createTimeSpan(lastPublishDate))}</span>}
-                    <span
-                      className="restoreWrap ThemeHoverColor3 relative"
-                      onClick={evt => {
-                        if (evt.target.className.indexOf('restoreWrap') > -1) {
-                          if (historyVisible) {
-                            this.setState({ historyVisible: false });
-                          } else {
-                            this.setState(
-                              { historyVisible: true, historyIndex: 1, historyIsMore: true, historyList: [] },
-                              this.getHistoryList,
-                            );
-                          }
-                        }
-                      }}
-                    >
-                      {_l('历史版本')}
-                      {historyVisible && this.renderHistory()}
-                    </span>
                   </Fragment>
                 ) : null}
               </div>
@@ -392,6 +272,7 @@ class History extends Component {
           {this.renderInstanceContent()}
           <HistoryHeader
             key={cacheKey}
+            isPlugin={isPlugin}
             processId={flowInfo.id}
             isSerial={_.includes([2, 3], flowInfo.executeType)}
             batchIds={batchIds}
@@ -406,6 +287,7 @@ class History extends Component {
           />
           <HistoryList
             processId={flowInfo.id}
+            isPlugin={isPlugin}
             data={data}
             accumulation={accumulation}
             updateSource={(item, index) => {

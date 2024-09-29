@@ -20,7 +20,7 @@ const DialogWrap = styled(Dialog)`
       top: 10px !important;
     }
     .mui-dialog-body {
-      padding: 0px 24px 60px !important;
+      padding: 0px 24px 32px !important;
     }
     .cancelPay {
       min-width: 120px;
@@ -29,7 +29,6 @@ const DialogWrap = styled(Dialog)`
       border-radius: 3px;
       border: 1px solid #e0e0e0;
       padding: 0 24px;
-      font-size: 14px;
       font-weight: 600;
       margin-right: 16px;
       &:hover {
@@ -58,7 +57,7 @@ const DialogWrap = styled(Dialog)`
     .orderPayWrap {
       width: unset;
       text-align: left;
-      padding-top: 40px;
+      padding-top: 32px;
     }
     .orderPayCon {
       height: 230px;
@@ -110,14 +109,16 @@ const DialogWrap = styled(Dialog)`
   }
   &.mobilePayOrderDialog {
     width: 100% !important;
+    height: calc(100% - 32px) !important;
     position: fixed !important;
-    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    border-radius: 0 !important;
     max-height: unset !important;
     padding-top: 140px;
+    border-radius: 0 !important;
+    border-top-left-radius: 8px !important;
+    border-top-right-radius: 8px !important;
     .preOrderWrap {
       height: 100%;
       display: flex;
@@ -129,6 +130,17 @@ const DialogWrap = styled(Dialog)`
       background-color: #2196f3;
       border-radius: 22px;
       font-size: 15px;
+    }
+    .cancelPay {
+      border: 1px solid #eee;
+      border-radius: 22px;
+      line-height: 44px;
+      font-weight: 600;
+    }
+    .mobilePay {
+      padding: 0;
+      min-width: 0;
+      border-radius: 22px;
     }
   }
   .FontW500 {
@@ -154,7 +166,20 @@ export default class PrePayOrder extends Component {
 
   componentDidMount() {
     this.props.orderId ? this.getData() : this.handlePrePayOrder();
+    if (!browserIsMobile()) return;
+
+    // 监听h5浏览器返回
+    window.addEventListener('popstate', this.handleBack, false);
   }
+
+  componentWillUnmount() {
+    if (!browserIsMobile()) return;
+    window.removeEventListener('popstate', this.handleBack, false);
+  }
+
+  handleBack = () => {
+    this.props.onCancel();
+  };
 
   // 生成预检订单
   handlePrePayOrder = () => {
@@ -188,20 +213,26 @@ export default class PrePayOrder extends Component {
     const { worksheetId, rowId, paymentModule, onUpdateSuccess = () => {} } = this.props;
     const { orderInfo = {}, preOrderInfo = {} } = this.state;
 
+    this.setState({ payLoading: true });
+
     paymentAjax
       .createOrder({ worksheetId, rowId, paymentModule })
       .then(res => {
         if (res && res.orderId) {
           if (preOrderInfo.amount <= 0) {
-            this.setState({ orderInfo: { ...orderInfo, orderId: res.orderId }, loading: true }, this.checkPayOrder);
+            this.setState(
+              { orderInfo: { ...orderInfo, orderId: res.orderId }, loading: true, payLoading: false },
+              this.checkPayOrder,
+            );
           } else if (browserIsMobile()) {
+            this.setState({ payLoading: false });
             location.href = `${md.global.Config.WebUrl}orderpay/${res.orderId}`;
           } else {
-            this.setState({ orderId: res.orderId }, () => this.getData());
+            this.setState({ orderId: res.orderId, payLoading: false }, () => this.getData());
           }
           onUpdateSuccess({ orderId: res.orderId });
         } else {
-          this.setState({ orderStatus: res, loading: false });
+          this.setState({ orderStatus: res, loading: false, payLoading: false });
         }
       })
       .catch(({ errorCode, errorMessage }) => {
@@ -339,7 +370,7 @@ export default class PrePayOrder extends Component {
                   <div className="Font15">
                     {amount <= 0
                       ? _l('订单已生成，请于 %0 内完成确认', timeMsg)
-                      : _l('订单已生成，请于 %0 内使用移动设备扫码完成支付', timeMsg)}
+                      : _l('订单已生成，请于 %0 内完成支付', timeMsg)}
                   </div>
                 ) : null}
               </div>
@@ -365,7 +396,7 @@ export default class PrePayOrder extends Component {
                     {wechatPayStatus === 2 && (
                       <Fragment>
                         <i className="icon-invite-wechat weChatColor Font20 TxtMiddle" />
-                        <span className="mLeft6 mRight6">{_l('微信支付')}</span>
+                        <span className="mLeft6 mRight6">{_l('微信')}</span>
                       </Fragment>
                     )}
                   </div>
@@ -400,6 +431,7 @@ export default class PrePayOrder extends Component {
 
         {orderInfo.orderId && !orderInfo.msg && (
           <Button
+            className="okPay"
             onClick={() => {
               window.open(`${md.global.Config.WebUrl}orderpay/${orderInfo.orderId}`);
             }}
@@ -412,8 +444,8 @@ export default class PrePayOrder extends Component {
   };
 
   render() {
-    const { onCancel = () => {}, sheetThemeColor = '#2196F3' } = this.props;
-    const { loading, preOrderInfo = {}, orderInfo = {}, orderStatus, errorMessage } = this.state;
+    const { onCancel = () => {} } = this.props;
+    const { loading, preOrderInfo = {}, orderInfo = {}, orderStatus, errorMessage, payLoading } = this.state;
     const { amount, description } = preOrderInfo;
     const isMobile = browserIsMobile();
 
@@ -427,14 +459,13 @@ export default class PrePayOrder extends Component {
         width={800}
         onCancel={onCancel}
       >
-        {!isMobile && <TopBar color={sheetThemeColor}></TopBar>}
         {loading ? (
           <LoadDiv />
         ) : _.includes([1, 2, 3, 4, 5], orderStatus) ? (
           this.renderPayStatus()
         ) : orderInfo.orderId ? (
           this.renderOrderInfo()
-        ) : orderStatus ? (
+        ) : orderStatus || errorMessage ? (
           <div className="preOrderWrap flexColumn alignItemsCenter justifyContentCenter">
             <div className="Font24 bold mBottom30">{_l('表单已提交')}</div>
             <PayErrorIcon />
@@ -450,32 +481,26 @@ export default class PrePayOrder extends Component {
           </div>
         ) : (
           <div className="preOrderWrap">
-            <div className={cx('bold Font24', { mBottom16: isMobile })}>{_l('表单已提交，您还需支付')}</div>
+            <div className={cx('bold Font24', { mBottom16: isMobile })}>{_l('请支付')}</div>
             <div className="ThemeColor bold mBottom10 mTop10">
               <span className="Font50 amount">¥ {amount <= 0 ? 0 : formatNumberThousand(amount)}</span>
             </div>
             <div className={cx('mBottom24 ellipsis', isMobile ? 'Font17' : 'Font15')}>
               {_l('支付内容：%0', description)}
             </div>
-            {isMobile ? (
-              <Fragment>
-                <div className="flex"></div>
-                <Button className="okPay mobileOkPay pLeft24 pRight24" onClick={this.handlePay}>
-                  {amount <= 0 ? _l('确认') : _l('支付')}
-                </Button>
-              </Fragment>
-            ) : (
-              <div className="flexRow justifyContentCenter">
-                {!isMobile && (
-                  <div className="cancelPay Hand" onClick={onCancel}>
-                    {_l('放弃支付')}
-                  </div>
-                )}
-                <Button className="okPay w120" radius={isMobile} onClick={this.handlePay}>
-                  {_l('支付')}
-                </Button>
+            {isMobile && <div className="flex"></div>}
+            <div className="flexRow justifyContentCenter">
+              <div className={cx('cancelPay Font14 Hand', { 'flex mRight6': isMobile })} onClick={onCancel}>
+                {_l('放弃支付')}
               </div>
-            )}
+              <Button
+                disabled={payLoading}
+                className={cx('okPay w120', { 'flex mobilePay mLeft6': isMobile })}
+                onClick={this.handlePay}
+              >
+                {payLoading ? _l('处理中...') : _l('付款')}
+              </Button>
+            </div>
           </div>
         )}
       </DialogWrap>

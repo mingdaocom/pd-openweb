@@ -1,11 +1,10 @@
 import React, { createRef, useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { SortableContainer, SortableElement, SortableHandle } from '@mdfe/react-sortable-hoc';
-import { Icon, Tooltip } from 'ming-ui';
+import { Icon, Tooltip, SortableList } from 'ming-ui';
 import cx from 'classnames';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import './index.less';
-import { FASTFILTER_CONDITION_TYPE, getSetDefault } from './util';
+import { FASTFILTER_CONDITION_TYPE } from './util';
 import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/AddCondition';
 import { filterOnlyShowField, isOtherShowFeild } from 'src/pages/widgetConfig/util';
 import _ from 'lodash';
@@ -93,12 +92,13 @@ const Wrap = styled.div`
     }
   }
 `;
-const SortHandle = SortableHandle(() => <Icon className="mRight10 Font16 mLeft7 Hand dragHandle" icon="drag" />);
 
-const Item = SortableElement(({ name, type, controlId, onEdit, onDelete, isErr, showOtherField }) => {
+const Item = ({ name, type, controlId, onEdit, onDelete, isErr, showOtherField, DragHandle }) => {
   return (
     <div className="customItemForFastFilter mBottom10">
-      <SortHandle />
+      <DragHandle className="alignItemsCenter flexRow">
+        <Icon className="mRight10 Font16 mLeft7 Hand dragHandle" icon="drag" />
+      </DragHandle>
       <span
         className={cx('con overflow_ellipsis alignItemsCenter', { Red: isErr || showOtherField })}
         onClick={() => {
@@ -142,27 +142,8 @@ const Item = SortableElement(({ name, type, controlId, onEdit, onDelete, isErr, 
       )}
     </div>
   );
-});
+};
 
-const SortableList = SortableContainer(({ items, onEdit, onDelete, worksheetControls }) => {
-  return (
-    <div className="mTop24">
-      {_.map(items, (item, index) => {
-        return (
-          <Item
-            {...item}
-            name={item.controlName}
-            key={'item_' + index}
-            numN={index}
-            index={index}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
-        );
-      })}
-    </div>
-  );
-});
 export default function FastFilterCon(params) {
   const {
     worksheetControls = [],
@@ -175,7 +156,7 @@ export default function FastFilterCon(params) {
     onAdd,
     customAdd,
   } = params;
-  let [fastFilterDataControls, setDatas] = useState();
+  let [fastFilterDataControls, setDatas] = useState([]);
   useEffect(() => {
     setDatas(
       fastFilters.map(filterItem => {
@@ -232,15 +213,34 @@ export default function FastFilterCon(params) {
     <Wrap>
       {fastFilters.length > 0 ? (
         <div className="hasData">
-          <SortableList
-            worksheetControls={worksheetControls}
-            items={fastFilterDataControls}
-            useDragHandle
-            onSortEnd={onSortEnd}
-            helperClass={'filterSortableList'}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
+          <div className="mTop24">
+            <SortableList
+              worksheetControls={worksheetControls}
+              items={fastFilterDataControls}
+              itemKey="controlId"
+              useDragHandle
+              onSortEnd={list => {
+                const order = list.map(o => o.controlId);
+                onSortEnd(
+                  fastFilters.sort((a, b) => {
+                    return order.findIndex(id => id === a.controlId) - order.findIndex(id => id === b.controlId);
+                  }),
+                );
+              }}
+              helperClass={'filterSortableList'}
+              renderItem={options => (
+                <Item
+                  {...options}
+                  {...options.item}
+                  name={options.item.controlName}
+                  key={'item_' + options.index}
+                  numN={options.index}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                />
+              )}
+            />
+          </div>
           {renderAdd()}
         </div>
       ) : (

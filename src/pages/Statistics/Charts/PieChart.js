@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { getLegendType, formatrChartValue, formatYaxisList, getChartColors, getAlienationColor } from './common';
+import { getLegendType, formatrChartValue, formatYaxisList, getChartColors, getAlienationColor, formatNumberValue } from './common';
 import { formatSummaryName, getIsAlienationColor, isFormatNumber } from 'statistics/common';
 import { Icon } from 'ming-ui';
 import { Dropdown, Menu } from 'antd';
@@ -66,10 +66,10 @@ export default class extends Component {
       displaySetup.legendType !== oldDisplaySetup.legendType ||
       displaySetup.showDimension !== oldDisplaySetup.showDimension ||
       displaySetup.showNumber !== oldDisplaySetup.showNumber ||
-      displaySetup.showPercent !== oldDisplaySetup.showPercent ||
       displaySetup.magnitudeUpdateFlag !== oldDisplaySetup.magnitudeUpdateFlag ||
       style.tooltipValueType !== oldStyle.tooltipValueType ||
       !_.isEqual(chartColor, oldChartColor) ||
+      !_.isEqual(displaySetup.percent, oldDisplaySetup.percent) ||
       nextProps.themeColor !== this.props.themeColor ||
       !_.isEqual(nextProps.linkageMatch, this.props.linkageMatch)
     ) {
@@ -198,11 +198,12 @@ export default class extends Component {
     const { themeColor, projectId, customPageConfig = {}, reportData, linkageMatch } = props;
     const { chartColor, chartColorIndex = 1 } = customPageConfig;
     const { map, displaySetup, yaxisList, summary, xaxes, reportId } = reportData;
+    const { percent } = displaySetup;
     const styleConfig = reportData.style || {};
     const style = chartColor && chartColorIndex >= (styleConfig.chartColorIndex || 0) ? { ...styleConfig, ...chartColor } : styleConfig;
     const data = xaxes.controlId ? formatChartData(_.get(map[0], 'value')) : formatChartMap(map, yaxisList);
     const { position } = getLegendType(displaySetup.legendType);
-    const isLabelVisible = displaySetup.showDimension || displaySetup.showNumber || displaySetup.showPercent;
+    const isLabelVisible = displaySetup.showDimension || displaySetup.showNumber || percent.enable;
     const newYaxisList = formatYaxisList(data, yaxisList);
     const isAnnular = displaySetup.showChartType === 1;
     const colors = getChartColors(style, themeColor, projectId);
@@ -317,7 +318,7 @@ export default class extends Component {
                     false
                   )}`
                 : '';
-              const percentText = displaySetup.showPercent ? `(${toFixed(item.percent * 100, 2)}%)` : '';
+              const percentText = percent.enable ? `(${formatNumberValue(item.percent * 100, percent)}%)` : '';
               return `${dimensionText} ${numberText} ${percentText}`;
             },
           }

@@ -1,9 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import styled from 'styled-components';
 import cx from 'classnames';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Select, Divider } from 'antd';
-import { enumWidgetType } from 'src/pages/customPage/util';
 import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import sheetApi from 'src/api/worksheet';
 import { getIconByType, filterOnlyShowField } from 'src/pages/widgetConfig/util';

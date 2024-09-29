@@ -171,7 +171,7 @@ class CommentList extends React.Component {
         case containAttachment:
           return _l('暂无含附件的讨论');
         default:
-          return _l('发布评论');
+          return _l('暂无讨论');
       }
     };
 

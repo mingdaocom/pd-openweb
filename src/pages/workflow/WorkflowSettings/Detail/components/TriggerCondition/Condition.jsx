@@ -26,6 +26,7 @@ export default class TriggerCondition extends Component {
     selectNodeId: PropTypes.string,
     sourceAppId: PropTypes.string,
     isIntegration: PropTypes.bool,
+    isPlugin: PropTypes.bool,
     Header: PropTypes.func,
     isNodeHeader: PropTypes.bool,
     openNewFilter: PropTypes.bool,
@@ -39,6 +40,7 @@ export default class TriggerCondition extends Component {
     filterEncryptCondition: PropTypes.bool,
     excludingDepartmentSpecialFilter: PropTypes.bool,
     allowEmptyIgnore: PropTypes.bool,
+    filterRelationCondition: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -58,6 +60,7 @@ export default class TriggerCondition extends Component {
     filterEncryptCondition: false,
     excludingDepartmentSpecialFilter: false,
     allowEmptyIgnore: true,
+    filterRelationCondition: false,
   };
 
   constructor(props) {
@@ -65,7 +68,7 @@ export default class TriggerCondition extends Component {
     this.state = {
       showControlsIndex: '',
       moreFieldsIndex: '',
-      controlsData: this.getFieldData(props.controls),
+      controlsData: this.getFieldData(props.controls || []),
       search: undefined,
       keywords: '',
     };
@@ -74,7 +77,7 @@ export default class TriggerCondition extends Component {
 
   componentWillReceiveProps(nextProps, nextState) {
     if (!_.isEqual(nextProps.controls, this.props.controls)) {
-      this.setState({ controlsData: this.getFieldData(nextProps.controls) });
+      this.setState({ controlsData: this.getFieldData(nextProps.controls || []) });
     }
   }
 
@@ -149,6 +152,7 @@ export default class TriggerCondition extends Component {
       filterEncryptCondition,
       excludingDepartmentSpecialFilter,
       allowEmptyIgnore,
+      filterRelationCondition,
     } = this.props;
     let controlNumber;
     let conditionData = [];
@@ -209,6 +213,11 @@ export default class TriggerCondition extends Component {
     // 过滤特殊的部门筛选条件
     if (excludingDepartmentSpecialFilter && single && single.type === 27) {
       _.remove(conditionData, o => _.includes(['48', '49'], o.value));
+    }
+
+    // 过滤关联筛选条件
+    if (filterRelationCondition && single && single.type === 29) {
+      _.remove(conditionData, o => _.includes(['9', '10'], o.value));
     }
 
     return (
@@ -1052,7 +1061,7 @@ export default class TriggerCondition extends Component {
       title: _l('选择人员'),
       SelectUserSettings: {
         filterResigned: false,
-        filterAccountIds: unique ? [] : users.map(item => item.value.key),
+        selectedAccountIds: unique ? [] : users.map(item => item.value.key),
         projectId: this.props.projectId,
         dataRange: 2,
         unique,
@@ -1238,11 +1247,12 @@ export default class TriggerCondition extends Component {
    * 更多节点的值
    */
   renderOtherFields(item, i, j, second = false) {
-    const { projectId, processId, relationId, selectNodeId, sourceAppId, isIntegration, controls } = this.props;
+    const { projectId, processId, relationId, selectNodeId, sourceAppId, isIntegration, isPlugin, controls } =
+      this.props;
     const { moreFieldsIndex } = this.state;
     let dataSource = '';
 
-    if (item.filedTypeId === 29) {
+    if (item.filedTypeId === 29 || (item.filedTypeId === 2 && item.filedId === 'rowid')) {
       controls.forEach(obj => {
         if (obj.controls) {
           obj.controls.forEach(o => {
@@ -1267,6 +1277,7 @@ export default class TriggerCondition extends Component {
         selectNodeId={selectNodeId}
         sourceAppId={sourceAppId}
         isIntegration={isIntegration}
+        isPlugin={isPlugin}
         conditionId={item.conditionId}
         dataSource={dataSource}
         handleFieldClick={obj => this.updateDynamicConditionValue({ ...obj, i, j, second })}

@@ -11,10 +11,6 @@ import { browserIsMobile } from 'src/util';
 import { calculateTimePercentage } from 'src/pages/worksheet/views/ResourceView/util.js';
 
 const Wrap = styled.div`
-  .weekTxt {
-    left: 50%;
-    position: sticky;
-  }
   .showGroup {
     position: absolute;
     left: 0;
@@ -105,15 +101,24 @@ const GridCon = styled.div`
       border-bottom: 1px solid rgba(0, 0, 0, 0.09);
     }
     .gridWeek {
+      line-height: 28px;
+      height: 28px;
+      border-bottom: 1px solid #ddd;
+      box-sizing: border-box;
       width: ${props => props.weekWidth}px;
       min-width: ${props => props.weekWidth}px;
       max-width: ${props => props.weekWidth}px;
-      border-right: 2px solid rgba(0, 0, 0, 0.09);
-      border-top: 1px solid rgba(0, 0, 0, 0.09);
-      &:last-child {
-        // border-right: none;
-      }
     }
+  }
+  .gridYear {
+    width: ${timeWidth * 2 * 12}px;
+  }
+  .gridYearOne {
+    width: ${timeWidth * 2}px;
+    line-height: 28px;
+    height: 28px;
+    border-bottom: 1px solid #ddd;
+    box-sizing: border-box;
   }
   .gridWeekCon {
     & > div.weekG {
@@ -230,7 +235,12 @@ export default function Timegrid(props) {
     const type =
       localStorage.getItem(`${view.viewId}_resource_type`) || types[_.get(view, 'advancedSetting.calendarType') || 0];
     const timeGridCount = gridTimes.length;
-    const widthCon = type !== 'Day' ? timeGridCount * timeWidth : timeGridCount * timeWidthHalf;
+    const widthCon =
+      type !== 'Day'
+        ? type === 'Week'
+          ? timeWidth * 2 * timeGridCount
+          : timeGridCount * timeWidth
+        : timeGridCount * timeWidthHalf;
     const allW = widthCon; // widthCon >= mx ? widthCon : mx;
     const onScroll = () => {
       const { view, viewId } = props;
@@ -277,7 +287,17 @@ export default function Timegrid(props) {
             )}
             <Tooltip
               disable={isM}
-              text={<span>{type === 'Month' ? _l('上个月') : type === 'Week' ? _l('上一周') : _l('上一天')}</span>}
+              text={
+                <span>
+                  {type === 'Month'
+                    ? _l('上个月')
+                    : type === 'Week'
+                    ? _l('上一周')
+                    : type === 'Year'
+                    ? _l('上一年')
+                    : _l('上一天')}
+                </span>
+              }
             >
               <div
                 className="pre Hand flexRow alignItemsCenter TxtCenter"
@@ -286,7 +306,7 @@ export default function Timegrid(props) {
                     moment(
                       (!!currentTime ? moment(currentTime) : moment()).subtract(
                         type === 'Week' ? 7 : 1,
-                        type === 'Month' ? 'months' : 'days',
+                        type === 'Month' ? 'months' : type === 'Year' ? 'years' : 'days',
                       ),
                     ).format('YYYY-MM-DD'),
                   );
@@ -297,7 +317,17 @@ export default function Timegrid(props) {
             </Tooltip>
             <Tooltip
               disable={isM}
-              text={<span>{type === 'Month' ? _l('下个月') : type === 'Week' ? _l('下一周') : _l('下一天')}</span>}
+              text={
+                <span>
+                  {type === 'Month'
+                    ? _l('下个月')
+                    : type === 'Week'
+                    ? _l('下一周')
+                    : type === 'Year'
+                    ? _l('下一年')
+                    : _l('下一天')}
+                </span>
+              }
             >
               <div
                 className="next Hand flexRow alignItemsCenter TxtCenter"
@@ -306,7 +336,7 @@ export default function Timegrid(props) {
                     moment(
                       (!!currentTime ? moment(currentTime) : moment()).add(
                         type === 'Week' ? 7 : 1,
-                        type === 'Month' ? 'months' : 'days',
+                        type === 'Month' ? 'months' : type === 'Year' ? 'years' : 'days',
                       ),
                     ).format('YYYY-MM-DD'),
                   );
@@ -332,10 +362,16 @@ export default function Timegrid(props) {
           <GridCon
             className="gridCon flexColumn h100"
             width={allW}
-            weekWidth={!['Month'].includes(type) && (list[0].times || []).length * timeWidth}
+            weekWidth={!['Month'].includes(type) && (list[0].times || []).length * timeWidth * 2}
           >
             <div className="headGridCon">
-              {type === 'Month' ? renderMonth() : type === 'Week' ? renderWeek() : renderDay()}
+              {type === 'Month'
+                ? renderMonth()
+                : type === 'Week'
+                ? renderWeek()
+                : type === 'Year'
+                ? renderYear()
+                : renderDay()}
             </div>
             <div className="timeCanvas flex flexRow Relative h100">
               <div className="flex h100 flexRow timeCanvasLines" style={{ width: widthCon }}>
@@ -354,8 +390,17 @@ export default function Timegrid(props) {
                       className={cx('gridOneCon h100 Relative', {
                         isBg: ['Month'].includes(type) && [6, 7].includes(o.dayOfWeek),
                       })}
-                      gridWidth={['Week', 'Month'].includes(type) ? timeWidth : timeWidthHalf}
-                      isBorder2={['Week'].includes(type) && (i + 1) % (list[0].times || []).length === 0}
+                      gridWidth={
+                        ['Week'].includes(type)
+                          ? timeWidth * 2
+                          : ['Month', 'Year'].includes(type)
+                          ? timeWidth
+                          : timeWidthHalf
+                      }
+                      isBorder2={
+                        (['Week'].includes(type) && (i + 1) % (list[0].times || []).length === 0) ||
+                        (['Year'].includes(type) && (i + 1) % 2 === 0)
+                      }
                     >
                       {percentage >= 0 && (
                         <div
@@ -380,7 +425,15 @@ export default function Timegrid(props) {
               <RecordWrap
                 {...props}
                 width={allW}
-                gridWidth={['Week', 'Month'].includes(type) ? timeWidth : timeWidthHalf}
+                gridWidth={
+                  ['Year'].includes(type)
+                    ? timeWidth * 2
+                    : ['Week'].includes(type)
+                    ? timeWidth * 4
+                    : ['Month'].includes(type)
+                    ? timeWidth
+                    : timeWidthHalf
+                }
                 style={{ width: allW }}
                 listHeight={_.sum(resourceDataByKey.map(o => o.height))}
               />
@@ -389,7 +442,7 @@ export default function Timegrid(props) {
         </div>
         <ScrollWrap
           id={`scrollDiv_${view.viewId}`}
-          top={(type === 'Week' ? 48 + 1 : type === 'Day' ? 28 + 2 : 28) + 44}
+          top={(type === 'Day' ? 28 + 2 : 28) + 44}
           onScroll={onScroll}
           ref={scrollDiv}
           width={Math.floor(props.mx - allW) > 0 ? Math.floor(props.mx - allW) : 10}
@@ -458,6 +511,36 @@ export default function Timegrid(props) {
     );
   };
 
+  const renderYear = () => {
+    const { resourceview } = props;
+    const { timeList } = resourceview;
+    const { list = [] } = timeList;
+    return (
+      <div className="flexRow con h100 Relative">
+        {list.map(o => {
+          return (
+            <div className="flexColumn">
+              <div className="gridYear TxtCenter flexColumn h100">
+                <div className="flexRow flex gridWeekCon">
+                  {(o.times || []).map(it => {
+                    return (
+                      <div className="timeG">
+                        <div className="gridYearOne TxtCenter Font12">
+                          {it.time}
+                          {_l('月')}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const renderWeek = () => {
     const { resourceview } = props;
     const { timeList } = resourceview;
@@ -468,23 +551,11 @@ export default function Timegrid(props) {
           return (
             <div className="flexColumn">
               <div className="gridWeek TxtCenter flexColumn h100">
-                <div className="TxtLeft LineHeight20 Relative">
-                  <span className="weekTxt">
+                <div className="">
+                  <span className="weekTxt TxtCenter">
                     {moment(o.date).format('M/D')}
                     {weekObj[o.dayOfWeek - 1]}
                   </span>
-                </div>
-                <div className="flexRow flex gridWeekCon">
-                  {(o.times || []).map(it => {
-                    return (
-                      <div className="weekG">
-                        <div className="gridOne TxtCenter Font12">
-                          {it.time}
-                          {it.amOrPm}
-                        </div>
-                      </div>
-                    );
-                  })}
                 </div>
               </div>
             </div>

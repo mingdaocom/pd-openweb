@@ -22,6 +22,26 @@
   .actionCustomBoxError {
     background: #fff6ed;
   }
+  .workflowPrintTrigger {
+    width: 752px;
+    .Item-content {
+      padding-left: 36px !important;
+      &:not(.disabled):hover {
+        .icon {
+          color: #fff !important;
+        }
+      }
+    }
+    .icon-new_word {
+      color: #2196f3 !important;
+    }
+    .icon-new_excel {
+      color: #4caf50 !important;
+    }
+    .icon-doc {
+      color: #465a65 !important;
+    }
+  }
 }
 
 .workflowSettings {
@@ -115,11 +135,11 @@
         margin-left: 5px;
         font-size: 17px;
         font-weight: bold;
-        &:hover {
+        &:not(:disabled):hover {
           background: rgba(255, 255, 255, 0.12);
         }
         &:focus {
-          background: #fff;
+          background: #fff !important;
           color: #333;
           + .icon-delete {
             display: none;
@@ -185,6 +205,7 @@
       .flowDropdown {
         min-width: 0;
         width: 100%;
+        font-size: 13px;
         &.flowDropdownMoreSelect {
           .Dropdown--input {
             height: auto;
@@ -427,33 +448,6 @@
         }
       }
     }
-    .workflowDetailFooter {
-      background: #f4f4f4;
-      padding: 0 24px;
-      align-items: center;
-      height: 60px;
-      &.workflowDetailFooterWhile {
-        background: #fff;
-      }
-      .footerSaveBtn,
-      .footerCancelBtn {
-        height: 36px;
-        line-height: 36px;
-        display: inline-block;
-        padding: 0 32px;
-        border-radius: 3px;
-        cursor: pointer;
-        font-size: 14px;
-        box-sizing: border-box;
-      }
-      .footerSaveBtn {
-        color: #fff;
-      }
-      .footerCancelBtn {
-        border-width: 1px;
-        border-style: solid;
-      }
-    }
     .clearBorderRadius {
       border-top-right-radius: 0 !important;
       border-bottom-right-radius: 0 !important;
@@ -607,6 +601,7 @@
       padding: 21px 16px;
       background: #f5f5f5;
       border-radius: 3px;
+      word-break: break-all;
       &.subProcessDesc {
         border: 1px solid #ebebeb;
         padding: 8px 12px;
@@ -804,9 +799,6 @@
       min-height: 36px;
       &:not(.active) {
         border-color: #ddd !important;
-      }
-      .CodeMirror-lines {
-        padding: 7px 0 6px;
       }
     }
   }
@@ -1084,6 +1076,29 @@
   .errorBG {
     background: #fff2f2 !important;
   }
+  .flowDropdownOnlyIcon {
+    background: #fff;
+    position: absolute;
+    top: 1px;
+    right: 37px;
+    height: 34px;
+    display: inline-flex;
+    justify-content: center;
+    border-left: 1px solid #ddd;
+    padding: 0 10px;
+    &.clearBorderRadius {
+      right: 0;
+    }
+    &:hover {
+      .Dropdown--placeholder,
+      .icon {
+        color: #2196f3 !important;
+      }
+    }
+    .Dropdown--input {
+      padding: 7px 0;
+    }
+  }
 }
 
 .workflowDialogBox {
@@ -1185,6 +1200,9 @@
       color: #bdbdbd !important;
     }
   }
+  .workflowDetail {
+    box-shadow: none;
+  }
 }
 
 .workfowFullCode {
@@ -1234,3 +1252,4 @@
     border-radius: 0 0 3px 3px;
   }
 }
+

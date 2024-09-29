@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import { UserHead } from 'ming-ui';
@@ -61,14 +60,16 @@ export default class Users extends Component {
       ),
     });
   }
-  @autobind
-  addUser() {
+
+  addUser = () => {
     const { projectId, from = '', control = {}, appId, filterResigned } = this.props;
     const tabType = getTabTypeBySelectUser(control);
     const _this = this;
+
     if (this.props.disabled) {
       return;
     }
+
     quickSelectUser(this.userscon, {
       showMoreInvite: false,
       isTask: false,
@@ -95,6 +96,7 @@ export default class Users extends Component {
       },
       zIndex: 10001,
       appId,
+      selectedAccountIds: this.state.users.map(l => l.accountId),
       SelectUserSettings: {
         unique: this.selectSingle,
         projectId,
@@ -107,9 +109,9 @@ export default class Users extends Component {
         _this.addUsers(users);
       },
     });
-  }
-  @autobind
-  addUsers(selectusers) {
+  };
+
+  addUsers = selectusers => {
     const { users } = this.state;
     const newUsers = users.concat(selectusers);
     if (this.selectSingle) {
@@ -121,12 +123,13 @@ export default class Users extends Component {
       return;
     }
     this.changeUsers(newUsers);
-  }
-  @autobind
-  removeUser(user) {
+  };
+
+  removeUser = user => {
     const newUsers = this.state.users.filter(u => u.accountId !== user.accountId);
     this.changeUsers(newUsers);
-  }
+  };
+
   changeUsers = newUsers => {
     const { onChange } = this.props;
     this.setState(

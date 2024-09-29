@@ -243,7 +243,7 @@ export default class Logs extends Component {
             <div className="flexRow logItem Font14" key={index}>
               <div className="time">{item.time}</div>
               <div className="serverName">{item.serviceName}</div>
-              <div className="logContent" dangerouslySetInnerHTML={{ __html: highlightMessageText(keywords, item.message) }}></div>
+              <div className="logContent" dangerouslySetInnerHTML={{ __html: item.message }}></div>
             </div>
           ))}
           {!loading && !logList.length && (

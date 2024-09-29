@@ -125,7 +125,6 @@ export default class InboxFilter extends React.Component {
       showMoreInvite: false,
       isTask: false,
       selectRangeOptions: false,
-      // prefixAccounts: !_.includes(filterAccountIds, md.global.Account.accountId) ? [account] : [],
       filterAccountIds,
       minHeight: 400,
       container: $('.InboxFilterWrapper'),

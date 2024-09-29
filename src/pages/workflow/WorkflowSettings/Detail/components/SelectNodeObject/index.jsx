@@ -41,7 +41,7 @@ export default class SelectNodeObject extends Component {
     const { isIntegration } = this.props;
 
     return (
-      <div className="flexRow" style={{ alignItems: 'center' }}>
+      <div className="flexRow alignItemsCenter">
         <span className={cx('Font16 Gray_75', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
         <span className={cx('Font14 mLeft5 ellipsis flex', { Gray_75: !item.appId })}>{item.nodeName}</span>
         {isIntegration || item.appType === APP_TYPE.LOOP_PROCESS ? null : item.appId && item.appName ? (

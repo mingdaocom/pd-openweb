@@ -1,10 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import update from 'immutability-helper';
 import { flatten, last, head, isEmpty } from 'lodash';
 import cx from 'classnames';
 import { isFullLineControl, isHaveGap } from '../../util/widgets';
 import { WHOLE_SIZE } from '../../config/Drag';
-import { AnimationWrap } from '../../styled';
+import { AnimationWrap, SettingItem } from '../../styled';
 import styled from 'styled-components';
 
 const ArrangeBtn = styled.div`
@@ -27,7 +27,7 @@ const ARRANGE_TYPE = [
   { text: _l('四列'), value: 4 },
 ];
 
-export default function quickArrange({ widgets, setWidgets }) {
+export default function QuickArrange({ widgets, setWidgets }) {
   const $originWidgets = useRef(widgets);
   const [activeColumn, setActive] = useState(-1);
 
@@ -101,10 +101,10 @@ export default function quickArrange({ widgets, setWidgets }) {
     setWidgets(nextWidgets);
   };
 
-  const ColumnHeader = () => {
-    return (
-      <div className="flexCenter">
-        <span className="Font14">{_l('列数')}</span>
+  return (
+    <SettingItem>
+      <div className="settingItemTitle">
+        {_l('每行字段数量')}
         <div className="Absolute Right1 flexCenter">
           {activeColumn > 0 && (
             <ArrangeBtn className="mRight16" onClick={restore}>
@@ -123,11 +123,6 @@ export default function quickArrange({ widgets, setWidgets }) {
           </ArrangeBtn>
         </div>
       </div>
-    );
-  };
-
-  const ColumnContent = () => {
-    return (
       <AnimationWrap>
         {ARRANGE_TYPE.map(item => (
           <div
@@ -138,8 +133,6 @@ export default function quickArrange({ widgets, setWidgets }) {
           </div>
         ))}
       </AnimationWrap>
-    );
-  };
-
-  return { ColumnHeader, ColumnContent };
+    </SettingItem>
+  );
 }

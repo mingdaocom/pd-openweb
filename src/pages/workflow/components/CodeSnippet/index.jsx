@@ -183,14 +183,19 @@ export const CodeSnippetEdit = ({
   const hasAppResourceAuth = checkPermission(projectId, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
 
   const save = () => {
-    flowNodeAjax[id ? 'updateCodeTemplate' : 'createCodeTemplate']({
-      id,
-      name,
-      source: position,
-      type: id ? undefined : type,
-      code,
-      inputDatas,
-    }).then(res => {
+    flowNodeAjax[id ? 'updateCodeTemplate' : 'createCodeTemplate'](
+      {
+        id,
+        name,
+        source: position,
+        type: id ? undefined : type,
+        code,
+        inputDatas,
+      },
+      {
+        isWorkflow: true,
+      },
+    ).then(res => {
       if (res) {
         onSave({ id: id || res.id, name, source: position });
       }
@@ -292,12 +297,19 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
       description: _l('删除后将无法恢复'),
       okText: _l('删除'),
       onOk: () => {
-        flowNodeAjax.updateCodeTemplate({ id, deleted: true }).then(res => {
-          if (res) {
-            alert(_l('删除成功'));
-            removeTemplateItem(id);
-          }
-        });
+        flowNodeAjax
+          .updateCodeTemplate(
+            { id, deleted: true },
+            {
+              isWorkflow: true,
+            },
+          )
+          .then(res => {
+            if (res) {
+              alert(_l('删除成功'));
+              removeTemplateItem(id);
+            }
+          });
       },
     });
   };
@@ -312,13 +324,18 @@ const CodeSnippet = ({ projectId, type = 0, onSave = () => {}, onClose = () => {
     setLoading(true);
 
     flowNodeAjax
-      .getCodeTemplateList({
-        keyword: keywords,
-        pageIndex,
-        pageSize: 50,
-        source: tabIndex === 1 ? '' : tabIndex === 2 ? projectId : md.global.Account.accountId,
-        type: langType,
-      })
+      .getCodeTemplateList(
+        {
+          keyword: keywords,
+          pageIndex,
+          pageSize: 50,
+          source: tabIndex === 1 ? '' : tabIndex === 2 ? projectId : md.global.Account.accountId,
+          type: langType,
+        },
+        {
+          isWorkflow: true,
+        },
+      )
       .then(res => {
         setPageIndex(pageIndex);
         setHasMore(res.length === 50);

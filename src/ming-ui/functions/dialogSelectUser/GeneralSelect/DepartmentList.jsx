@@ -1,20 +1,12 @@
 import React, { Component } from 'react';
-import Checkbox from 'ming-ui/components/Checkbox';
-import { LoadDiv } from 'ming-ui';
-import { autobind } from 'core-decorators';
-
-/**
- * 选择部门
- */
+import { LoadDiv, Checkbox, Radio } from 'ming-ui';
 import PropTypes from 'prop-types';
-
-import Radio from 'ming-ui/components/Radio';
 import cx from 'classnames';
 import NoData from './NoData';
-
 import './css/department.less';
 import styled from 'styled-components';
 import _ from 'lodash';
+
 const Wrap = styled.div`
   .onlySelf {
     display: none;
@@ -25,6 +17,7 @@ const Wrap = styled.div`
     }
   }
 `;
+
 export default class DepartmentList extends Component {
   static propTypes = {
     selectedDepartment: PropTypes.array,
@@ -133,8 +126,8 @@ class Department extends Component {
       });
     }
   }
-  @autobind
-  toogleDepargmentSelect(event) {
+
+  toogleDepargmentSelect = event => {
     const {
       department: { open, disabled, departmentId },
     } = this.props;
@@ -145,13 +138,12 @@ class Department extends Component {
     // if (!open) {
     //   this.props.toggleDepartmentList(departmentId);
     // }
-  }
+  };
 
-  @autobind
-  toggleDepartmentList(event) {
+  toggleDepartmentList = event => {
     event.stopPropagation();
     this.props.toggleDepartmentList(this.props.department.departmentId);
-  }
+  };
   render() {
     const { moreIdLoading } = this.state;
     let { active, department, checked, keywords, isIncludesByParent, checkIncludeChilren } = this.props;

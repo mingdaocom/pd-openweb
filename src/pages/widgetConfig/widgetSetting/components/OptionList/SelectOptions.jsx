@@ -337,10 +337,9 @@ export default function SelectOptions(props) {
                     <AutoIcon icon="swap_horiz" onClick={toOptionList} />
                   </Tooltip>
                   {deleteOptions.length > 0 && (
-                    <Tooltip title={_l('已删除选项')} placement="bottom">
+                    <Tooltip title={_l('恢复选项')} placement="bottom">
                       <span className="mLeft15 flexCenter pointer" onClick={() => setVisible({ deleteVisible: true })}>
-                        <AutoIcon icon="trash" />
-                        <span className="mLeft5">{deleteOptions.length}</span>
+                        <AutoIcon icon="trash-loop" className="Font20" />
                       </span>
                     </Tooltip>
                   )}

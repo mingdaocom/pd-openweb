@@ -3,13 +3,28 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as actions from 'mobile/RecordList/redux/actions';
 import SheetRows, { WithoutRows } from '../../SheetRows/';
-import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import { RecordInfoModal } from 'mobile/Record';
+import { LoadDiv } from 'ming-ui';
 
 class DetailView extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      loading: false,
+    };
   }
+
+  componentWillReceiveProps(nextProps) {
+    if (
+      _.get(nextProps, 'view.childType') === 1 &&
+      _.get(this.props, 'view.viewId') !== _.get(nextProps, 'view.viewId')
+    ) {
+      this.setState({ loading: true });
+    } else {
+      this.setState({ loading: false });
+    }
+  }
+
   renderWithoutRows = () => {
     const { filters, quickFilter, view } = this.props;
     const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
@@ -30,57 +45,32 @@ class DetailView extends Component {
     );
   };
   render() {
-    const {
-      view,
-      worksheetInfo,
-      filters,
-      quickFilter,
-      appDetail,
-      currentSheetRows = [],
-      base = {},
-      sheetSwitchPermit,
-      hasDebugRoles,
-      appNaviStyle,
-    } = this.props;
-    const { detail } = appDetail;
-    const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
-    const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
-    const viewFilters = view.fastFilters
-      .map(filter => ({
-        ...filter,
-        control: _.find(sheetControls, c => c.controlId === filter.controlId),
-      }))
-      .filter(c => c.control);
-    const isFilter = quickFilter.length;
+    const { view, currentSheetRows = [], base = {}, sheetSwitchPermit, appNaviStyle, worksheetInfo = {} } = this.props;
+    const { loading } = this.state;
 
     return (
       <Fragment>
-        {view.childType !== 1 && (
-          <QuickFilterSearch
-            excludeTextFilter={viewFilters}
-            isFilter={isFilter}
-            filters={filters}
-            detail={detail}
-            view={view}
-            worksheetInfo={worksheetInfo}
-            sheetControls={sheetControls}
-            updateFilters={this.props.updateFilters}
-          />
-        )}
-        {_.isEmpty(currentSheetRows) || (needClickToSearch && _.isEmpty(quickFilter)) ? (
+        {_.isEmpty(currentSheetRows) ? (
           this.renderWithoutRows()
         ) : view.childType === 1 ? (
-          <RecordInfoModal
-            notModal={true}
-            visible={true}
-            appId={base.appId}
-            worksheetId={base.worksheetId}
-            viewId={base.viewId || view.viewId}
-            rowId={currentSheetRows[0].rowid}
-            sheetSwitchPermit={sheetSwitchPermit}
-            view={view}
-            chartEntryStyle={appNaviStyle === 2 ? { bottom: 100 } : {}}
-          />
+          loading ? (
+            <div className="w100 h100 flexRow justifyContentCenter alignItemsCenter">
+              <LoadDiv />
+            </div>
+          ) : (
+            <RecordInfoModal
+              notModal={true}
+              visible={true}
+              enablePayment={worksheetInfo.enablePayment}
+              appId={base.appId}
+              worksheetId={base.worksheetId}
+              viewId={base.viewId || view.viewId}
+              rowId={currentSheetRows[0].rowid}
+              sheetSwitchPermit={sheetSwitchPermit}
+              view={view}
+              chartEntryStyle={appNaviStyle === 2 ? { bottom: 100 } : {}}
+            />
+          )
         ) : (
           <SheetRows view={view} navigateTo={window.mobileNavigateTo} />
         )}
@@ -94,7 +84,6 @@ export default connect(
     ..._.pick(state.mobile, [
       'worksheetInfo',
       'filters',
-      'appDetail',
       'quickFilter',
       'currentSheetRows',
       'base',

@@ -1,8 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { Checkbox, Icon } from 'ming-ui';
-import { Modal, List, Button } from 'antd-mobile';
-import { ModalWrap } from 'src/pages/Mobile/baseStyled.jsx';
+import { Popup, List } from 'antd-mobile';
 import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
 import './less/MobileCheckbox.less';
 import _ from 'lodash';
@@ -89,12 +88,9 @@ export default class MobileCheckbox extends Component {
             })}
         </span>
 
-        <ModalWrap
-          popup
+        <Popup
           visible={visible}
-          animationType="slide-up"
-          maskClosable={false}
-          className="mobileCheckboxDialog"
+          className="mobileCheckboxDialog mobileModal minFull topRadius"
         >
           <div className="flexColumn h100">
             <div className="flexRow valignWrapper mobileCheckboxBtnsWrapper pLeft15 pRight15">
@@ -135,7 +131,7 @@ export default class MobileCheckbox extends Component {
             </div>
             <List className="flex" style={{ overflow: 'auto' }}>
               {!keywords.length && !!selectChecked.length && (
-                <List.Item className="mLeft31" onClick={() => this.setState({ selectChecked: [] })}>
+                <List.Item className="mLeft31" arrowIcon={false} onClick={() => this.setState({ selectChecked: [] })}>
                   <span className="Font15 ThemeColor3">{_l('清除选择')}</span>
                 </List.Item>
               )}
@@ -143,7 +139,11 @@ export default class MobileCheckbox extends Component {
               {source
                 .filter(item => item.value.indexOf(keywords) > -1)
                 .map(item => (
-                  <List.Item key={item.key} onClick={() => this.onChange(item.key)}>
+                  <List.Item
+                    key={item.key}
+                    arrowIcon={false}
+                    onClick={() => this.onChange(item.key)}
+                  >
                     <Checkbox
                       className="flexRow alignItemsCenter"
                       text={renderText ? renderText(item) : item.value}
@@ -155,6 +155,7 @@ export default class MobileCheckbox extends Component {
 
               {!!keywords.length && allowAdd && !source.find(item => item.value === keywords) && canAddOption && (
                 <List.Item
+                  arrowIcon={false}
                   onClick={() => {
                     if (!_.trim(keywords)) return;
                     this.setState({ keywords: '' });
@@ -168,7 +169,7 @@ export default class MobileCheckbox extends Component {
               )}
             </List>
           </div>
-        </ModalWrap>
+        </Popup>
       </Fragment>
     );
   }

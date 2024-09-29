@@ -5,6 +5,35 @@ import flowNode from '../../../../api/flowNode';
 import { Dialog, ScrollView, LoadDiv } from 'ming-ui';
 import JsonView from 'react-json-view';
 import { NODE_TYPE } from '../../../enum';
+import styled from 'styled-components';
+
+const Footer = styled.div`
+  background: #f4f4f4;
+  padding: 0 24px;
+  align-items: center;
+  height: 60px;
+  &.workflowDetailFooterWhile {
+    background: #fff;
+  }
+  .footerSaveBtn,
+  .footerCancelBtn {
+    height: 36px;
+    line-height: 36px;
+    display: inline-block;
+    padding: 0 32px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+  .footerSaveBtn {
+    color: #fff;
+  }
+  .footerCancelBtn {
+    border-width: 1px;
+    border-style: solid;
+  }
+`;
 
 DetailFooter.propTypes = {
   isCorrect: any,
@@ -51,7 +80,7 @@ export default function DetailFooter({
           };
         }
 
-        if (_.includes([NODE_TYPE.CODE, NODE_TYPE.JSON_PARSE], selectNodeType)) {
+        if (_.includes([NODE_TYPE.CODE, NODE_TYPE.JSON_PARSE, NODE_TYPE.PLUGIN], selectNodeType)) {
           res = safeParse(res);
         }
 
@@ -65,18 +94,18 @@ export default function DetailFooter({
   }, [selectNodeId]);
 
   // 执行数据
-  if (_.includes(debugEvents, 0) && instanceId) {
-    const hideNodeType = [5, 10, 11, 15, 17, 18, 19, 27];
+  if ((_.includes(debugEvents, -1) || _.includes(debugEvents, 0)) && instanceId) {
+    const hideNodeType = [5, 10, 11, 12, 15, 17, 18, 19, 27];
 
     if (_.includes(hideNodeType, selectNodeType)) return null;
 
     return (
       <Fragment>
-        <div className="workflowDetailFooter flexRow">
+        <Footer className="flexRow">
           <span className="footerSaveBtn ThemeBGColor3 ThemeHoverBGColor2 mRight10" onClick={getSource}>
             {_l('查看输出数据')}
           </span>
-        </div>
+        </Footer>
         {showDialog && (
           <Dialog
             className="workflowDetailExecDialog"
@@ -111,7 +140,7 @@ export default function DetailFooter({
   if (flowInfo.parentId || instanceId) return null;
 
   return (
-    <div className={cx('workflowDetailFooter flexRow', { workflowDetailFooterWhile: isIntegration })}>
+    <Footer className={cx('flexRow', { workflowDetailFooterWhile: isIntegration })}>
       <span
         className={cx('footerSaveBtn ThemeBGColor3 ThemeHoverBGColor2 mRight10', { Alpha5: !isCorrect })}
         onClick={onSave}
@@ -125,6 +154,6 @@ export default function DetailFooter({
       >
         {_l('取消')}
       </span>
-    </div>
+    </Footer>
   );
 }

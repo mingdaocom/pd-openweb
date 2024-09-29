@@ -75,7 +75,7 @@ export default function BothWayRelate(props) {
               {sheetName}
             </span>
             {_l('中显示关联的')}
-            <span className="Bold">{name || sourceName}</span>
+            <span className="Bold breakAll">{name || sourceName}</span>
           </div>
           <div className="displayType">
             {_l('类型: %0 ( %1 )', DISPLAY_TYPE_TEXT[displayType], RELATE_COUNT_TEXT[enumDefault])}

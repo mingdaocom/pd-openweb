@@ -261,6 +261,9 @@ class TaskControl extends Component {
             <CustomFields
               flag={flag}
               ref={fields => (this.fields = fields)}
+              sheetSwitchPermit={[{ type: 14, state: true }]}
+              isWorksheetQuery={false}
+              disableRules={true}
               data={controlData}
               widgetStyle={{ align_pc: '1', titlelayout_pc: '2', titlewidth_pc: '84' }}
               onChange={(values, ids, { controlId }) => this.updateFieldsData({ controlId })}

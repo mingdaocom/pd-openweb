@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { autobind } from 'core-decorators';
 import PropTypes from 'prop-types';
 import { LoadDiv, Modal } from 'ming-ui';
 import autoSize from 'ming-ui/decorators/autoSize';
@@ -86,8 +85,7 @@ export default class RecordInfoWrapper extends Component {
     });
   }
 
-  @autobind
-  handleCancel(e) {
+  handleCancel = e => {
     e.stopPropagation();
     const { hideRecordInfo } = this.props;
     if (this.recordinfo.current) {
@@ -95,7 +93,7 @@ export default class RecordInfoWrapper extends Component {
     } else {
       hideRecordInfo();
     }
-  }
+  };
 
   saveDraftData({ draftType }) {
     if (this.recordinfo.current) {

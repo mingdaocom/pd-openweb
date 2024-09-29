@@ -3,7 +3,8 @@ import reducer from './reducer';
 import { init, refresh } from './action';
 import thunk from 'redux-thunk';
 import { v4 } from 'uuid';
-import { get } from 'lodash';
+import { find, get } from 'lodash';
+import { isRelateRecordTableControl } from 'worksheet/util';
 
 export default function generateStore(
   control,
@@ -31,6 +32,8 @@ export default function generateStore(
 
   const store = createStore(reducer, compose(applyMiddleware(thunk)));
   store.version = v4();
+  const treeLayerControlId = get(control, 'advancedSetting.layercontrolid');
+  const treeLayerControl = find(control.relationControls, { controlId: treeLayerControlId });
   store.dispatch({
     type: 'UPDATE_BASE',
     value: {
@@ -45,6 +48,12 @@ export default function generateStore(
       instanceId,
       workId,
       saveSync,
+      treeLayerControlId,
+      isTreeTableView:
+        treeLayerControl &&
+        treeLayerControl.type === 29 &&
+        !isRelateRecordTableControl(treeLayerControl) &&
+        !!treeLayerControlId,
       initialCount: Number(control.value),
     },
   });

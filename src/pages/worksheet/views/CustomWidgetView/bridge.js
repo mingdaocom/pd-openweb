@@ -1,6 +1,5 @@
-import { autobind } from 'core-decorators';
 import { get, last, isFunction } from 'lodash';
-import { api, utils } from './widgetFunctions';
+import { api, utils, mainWebApi } from './widgetFunctions';
 
 export default class WidgetBridge {
   constructor(options) {
@@ -14,8 +13,7 @@ export default class WidgetBridge {
   destroy() {
     window.removeEventListener('message', this.handleWidgetContainerMessage);
   }
-  @autobind
-  sendWidgetBridge(args) {
+  sendWidgetBridge = args => {
     if (this.targetWindow) {
       this.targetWindow.postMessage(
         {
@@ -25,7 +23,7 @@ export default class WidgetBridge {
         '*',
       );
     }
-  }
+  };
   mountPropertyOnWindow(propertyName, propertyValue) {
     this.sendWidgetBridge({
       action: 'set-window',
@@ -33,8 +31,7 @@ export default class WidgetBridge {
       value: propertyValue,
     });
   }
-  @autobind
-  async handleWidgetContainerMessage(e) {
+  handleWidgetContainerMessage = async e => {
     if (e.data.from !== 'customwidget') return;
     if (this.cache.current.scriptUrl && e.data.action === 'begin-load-widget' && this.targetWindow) {
       // prepare(iframeRef.current.contentWindow, worksheetInfo);
@@ -94,6 +91,26 @@ export default class WidgetBridge {
       this.onLoadError();
     } else if (e.data.action === 'document-click-event') {
       document.body.dispatchEvent(new Event('mousedown'));
+    } else if (e.data.action === 'call-main-web') {
+      const { args = {} } = e.data;
+      const { data } = args;
+      let controller = args.controller;
+      let action = args.action;
+      controller = _.lowerCase(controller[0]) + controller.slice(1);
+      action = _.lowerCase(action[0]) + action.slice(1);
+      action;
+      if (get(mainWebApi, [controller, action].join('.'))) {
+        try {
+          const result = await get(mainWebApi, [controller, action].join('.'))(data);
+          e.ports[0].postMessage({
+            result,
+          });
+        } catch (err) {
+          e.ports[0].postMessage({
+            error: err,
+          });
+        }
+      }
     }
-  }
+  };
 }

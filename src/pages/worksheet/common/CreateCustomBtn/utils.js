@@ -1,3 +1,5 @@
+import { noWriteTypes } from './config';
+
 //根据分段id 处理呈现数据
 export const formatControlsBySectionId = controls => {
   let list = [];
@@ -70,4 +72,16 @@ export const canNotForCustomWrite = o => {
     (o.type === 29 && !['1', '3', '5'].includes(_.get(o, 'advancedSetting.showtype'))) || //多表关联的标签页,不支持"填写指定字段"
     (o.type === 51 && !['1', '3'].includes(_.get(o, 'advancedSetting.showtype')))
   ); //查询记录表格类,不支持"填写指定字段"
+};
+
+//
+export const isOnlyRead = type => {
+  return noWriteTypes.indexOf(type) >= 0;
+};
+
+export const getFormatCustomWriteData = o => {
+  return {
+    controlId: o.controlId,
+    type: noWriteTypes.indexOf(o.type) >= 0 ? 1 : o.required ? 3 : 2, //1：只读 2：填写 3：必填
+  };
 };

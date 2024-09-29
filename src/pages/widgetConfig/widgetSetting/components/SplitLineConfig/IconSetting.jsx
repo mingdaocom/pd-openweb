@@ -35,7 +35,7 @@ export default function IconSetting(props) {
     <Trigger
       popup={() => {
         return (
-          <div className="selectIconWrap" style={{ width: '350px' }}>
+          <div className="selectIconWrap" style={{ width: '350px', position: 'relative' }}>
             <IconTabs {..._.pick(props, ['projectId', 'iconColor', 'handleClick'])} icon={icon} />
           </div>
         );
@@ -44,8 +44,10 @@ export default function IconSetting(props) {
       popupAlign={{
         points: ['tl', 'bl'],
         offset: [-80, 3],
+        overflow: { adjustX: true, adjustY: true },
       }}
       getPopupContainer={() => document.body}
+      destroyPopupOnHide
     >
       <ColorBox>
         <div className="flex pTop2 mLeft6">

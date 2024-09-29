@@ -75,6 +75,7 @@ export default function DisplayCollapse(props) {
       {!_.isEmpty(selectItem) ? (
         <Component
           {...props}
+          isTab={true}
           data={_.find(tabWidgets, t => t.controlId === selectItem.controlId)}
           path={[_.head(getPathById(widgets, selectItem.controlId)), 0]}
         />

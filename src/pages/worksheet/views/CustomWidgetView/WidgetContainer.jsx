@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { get, pick } from 'lodash';
 import { emitter } from 'worksheet/util';
 import WidgetBridge from './bridge';
+import filterXSS from 'xss';
 
 const Con = styled.div`
   width: 100%;
@@ -75,7 +76,14 @@ export default function WidgetContainer(props) {
       worksheetInfo,
       filters: getFilters(filters, quickFilter, navGroupFilters),
       query: qs.parse(location.search.slice(1)),
-      currentAccount: pick(get(md, 'global.Account') || {}, ['fullname', 'avatar', 'lang', 'accountId']),
+      currentAccount: pick(get(md, 'global.Account') || {}, [
+        'fullname',
+        'avatar',
+        'lang',
+        'accountId',
+        'email',
+        'mobilePhone',
+      ]),
     },
   };
   const emitWidgetDataUpdate = useCallback(
@@ -139,7 +147,7 @@ export default function WidgetContainer(props) {
       />
       {side &&
         (side.type === 'html' ? (
-          <Side dangerouslySetInnerHTML={{ __html: side.html }} />
+          <Side dangerouslySetInnerHTML={{ __html: filterXSS(side.html) }} />
         ) : (
           <Side>
             {RecordInfoComponent ? (

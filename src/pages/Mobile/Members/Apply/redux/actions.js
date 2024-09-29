@@ -1,5 +1,5 @@
 import ajaxRequest from 'src/api/appManagement';
-import { Modal, Toast } from 'antd-mobile';
+import { Dialog } from 'antd-mobile';
 
 export const getAppApplyInfo = ({
   appId,
@@ -34,18 +34,14 @@ export const getAppApplyInfo = ({
 export const editAppApplyStatus = (params) => (dispath) => {
   ajaxRequest.editAppApplyStatus(params).then(res => {
     if (res) {
-      Toast.info(_l('操作成功'));
+      alert(_l('操作成功'));
       dispath(getAppApplyInfo({
         appId: params.appId,
       }));
     } else {
-      Modal.alert(
-        _l('失败'),
-        '',
-        [{
-          text: _l('确定'),
-          onPress: () => {},
-        }]);
+      Dialog.alert({
+        content: _l('失败'),
+      });
     }
   });
 };

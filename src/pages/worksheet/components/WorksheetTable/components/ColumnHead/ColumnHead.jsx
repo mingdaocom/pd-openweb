@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
@@ -84,13 +83,12 @@ class ColumnHead extends Component {
     );
   }
 
-  @autobind
-  changeSort(newIsAsc) {
+  changeSort = newIsAsc => {
     const { updateDefaultScrollLeft } = this.props;
     const { controlId, sourceControlType, type } = this.props.control;
     this.changeSortType(controlId, newIsAsc, this.getType({ sourceControlType, type }));
     updateDefaultScrollLeft();
-  }
+  };
 
   frozen(index) {
     const { isTreeTableView, readonly, viewId, frozenColumn } = this.props;
@@ -103,12 +101,11 @@ class ColumnHead extends Component {
     saveLRUWorksheetConfig('WORKSHEET_VIEW_COLUMN_FROZON', viewId, index);
   }
 
-  @autobind
-  updateColumnWidth({ controlId, value }) {
+  updateColumnWidth = ({ controlId, value }) => {
     const { updateSheetColumnWidths } = this.props;
     this.handleColumnWidthLRUSave(controlId, value);
     updateSheetColumnWidths({ controlId, value });
-  }
+  };
 
   render() {
     const {

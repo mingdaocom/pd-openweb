@@ -31,14 +31,18 @@ export default class SubLineCount extends Component {
                   }
                   return item;
                 });
-                // if (!newLines.filter(n => n.subTotal).length) {
-                //   param.yaxisList = yaxisList.map(n => {
-                //     return {
-                //       ...n,
-                //       showPercent: 0
-                //     }
-                //   });
-                // }
+                if (!newLines.filter(n => n.subTotal).length) {
+                  param.yaxisList = yaxisList.map(n => {
+                    return {
+                      ...n,
+                      percent: {
+                        ...n.percent,
+                        enable: false,
+                        type: 2
+                      }
+                    }
+                  });
+                }
                 param.pivotTable.lines = newLines;
                 onChangeCurrentReport(param, true);
               }}

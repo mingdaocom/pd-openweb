@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Drawer } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import { QuickFilter } from 'mobile/RecordList/QuickFilter';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 
@@ -39,12 +39,20 @@ function formatSearchFilters(filters = [], controls = []) {
 export default function MobileFilter(props) {
   const { controls = [], worksheetInfo = {}, searchFilters, filtersVisible, onChangeFiltersVisible, onChangeQuickFilter } = props;
   return (
-    <Drawer
+    <Popup
       className={cx('quickFilterStepListWrapper', {
         open: filtersVisible,
       })}
+      bodyStyle={{
+        borderRadius: '14px 0 0 14px',
+        overflow: 'hidden'
+      }}
       position="right"
-      sidebar={(
+      visible={filtersVisible}
+      onMaskClick={() => onChangeFiltersVisible(!filtersVisible)}
+      onClose={() => onChangeFiltersVisible(!filtersVisible)}
+    >
+      {
         !!controls.length && (
           <QuickFilter
             filterText={false}
@@ -63,11 +71,7 @@ export default function MobileFilter(props) {
             updateQuickFilter={onChangeQuickFilter}
           />
         )
-      )}
-      open={filtersVisible}
-      onOpenChange={() => onChangeFiltersVisible(!filtersVisible)}
-    >
-      <Fragment />
-    </Drawer>
+      }
+    </Popup>
   );
 }

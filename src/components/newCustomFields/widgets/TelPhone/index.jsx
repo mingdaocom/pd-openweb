@@ -2,10 +2,18 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
-import { FROM } from '../../tools/config';
-import { browserIsMobile } from 'src/util';
+import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import _ from 'lodash';
+import styled from 'styled-components';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+
+const TelPhoneWrap = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  z-index: ${props => (props.isEditing ? 2 : -1)};
+`;
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -20,6 +28,7 @@ export default class Widgets extends Component {
   state = {
     originValue: '',
     isEditing: false,
+    maskStatus: _.get(this.props, 'advancedSetting.datamask') === '1',
   };
 
   componentDidMount() {
@@ -31,6 +40,9 @@ export default class Widgets extends Component {
   componentWillReceiveProps(nextProps, nextState) {
     if (this.text && nextProps.value !== this.text.value) {
       this.text.value = nextProps.value || '';
+    }
+    if (nextProps.flag !== this.props.flag) {
+      this.setState({ maskStatus: _.get(nextProps, 'advancedSetting.datamask') === '1' });
     }
   }
 
@@ -46,6 +58,11 @@ export default class Widgets extends Component {
     this.props.onChange(value);
   };
 
+  getShowValue = () => {
+    const value = this.text ? (this.text.value || '').replace(/ /g, '') : this.props.value || '';
+    return this.state.maskStatus && value ? dealMaskValue({ ...this.props, value }) : value;
+  };
+
   componentWillUnmount() {
     if (_.isFunction(this.props.triggerCustomEvent)) {
       this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
@@ -53,43 +70,59 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { disabled, hint, value, onBlur, onChange, from } = this.props;
-    const { originValue, isEditing } = this.state;
+    const { disabled, hint, value, onBlur, onChange, from, maskPermissions } = this.props;
+    const { originValue, isEditing, maskStatus } = this.state;
+    const isMask = maskPermissions && value && maskStatus;
 
     return (
       <Fragment>
-        <input
-          type="text"
-          className={cx('customFormControlBox', {
-            controlDisabled: disabled,
-            customFormControlTelPhone: !isEditing && value,
-          })}
-          ref={text => {
-            this.text = text;
-          }}
-          placeholder={hint}
-          disabled={disabled}
-          defaultValue={value}
-          onChange={this.onChange}
-          onFocus={this.onFocus}
-          onBlur={event => {
-            if (event.target.value.trim() !== value) {
-              onChange(event.target.value.trim());
+        <div
+          className={cx(
+            'customFormControlBox',
+            { Gray_bd: !value },
+            { controlDisabled: disabled },
+            { Visibility: isEditing },
+          )}
+          onClick={() => {
+            if (!disabled) {
+              this.setState({ isEditing: true }, () => this.text && this.text.focus());
             }
-            onBlur(originValue);
-            this.setState({ isEditing: false });
           }}
-        />
-
-        {(_.includes([FROM.H5_ADD, FROM.H5_EDIT], from) || (browserIsMobile() && from === FROM.SHARE)) && !!value && (
-          <a
-            href={`tel:${value.replace(/-/g, '')}`}
-            className="Absolute customFormControlTelBtn"
-            style={{ right: 0, top: 10 }}
+        >
+          <span
+            className={cx({ maskHoverTheme: disabled && isMask })}
+            onClick={() => {
+              if (disabled && isMask) this.setState({ maskStatus: false });
+            }}
           >
-            <Icon icon="phone22" className="Font16 ThemeColor3" />
-          </a>
-        )}
+            {this.getShowValue()}
+            {isMask && <Icon icon="eye_off" className={cx('Gray_bd', disabled ? 'mLeft7' : 'maskIcon')} />}
+          </span>
+        </div>
+        <TelPhoneWrap isEditing={isEditing}>
+          <input
+            type="text"
+            className={cx('customFormControlBox', {
+              controlDisabled: disabled,
+              customFormControlTelPhone: !isEditing && value,
+            })}
+            ref={text => {
+              this.text = text;
+            }}
+            placeholder={hint}
+            disabled={disabled}
+            defaultValue={value}
+            onChange={this.onChange}
+            onFocus={this.onFocus}
+            onBlur={event => {
+              if (event.target.value.trim() !== value) {
+                onChange(event.target.value.trim());
+              }
+              onBlur(originValue);
+              this.setState({ isEditing: false });
+            }}
+          />
+        </TelPhoneWrap>
       </Fragment>
     );
   }

@@ -97,6 +97,7 @@ export default function GeneratingPopup(props) {
   const {
     name = _l('打印'),
     loading,
+    loadingText = _l('正在生成打印文件···'),
     embedUrl,
     allowLoadMore,
     pageIndex = 1,
@@ -160,7 +161,7 @@ export default function GeneratingPopup(props) {
         {loading && (
           <Loading>
             <i className="icon icon-loading_button"></i>
-            <p>{_l('正在生成打印文件···')}</p>
+            <p>{loadingText}</p>
           </Loading>
         )}
         <Embed loading={loading} ref={embedRef} />

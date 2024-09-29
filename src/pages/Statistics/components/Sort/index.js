@@ -2,8 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import styled from 'styled-components';
 import { Modal, Dropdown, Tooltip, Button, ConfigProvider } from 'antd';
-import { Icon, LoadDiv, ScrollView } from 'ming-ui';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
+import { Icon, LoadDiv, ScrollView, SortableList } from 'ming-ui';
 import reportConfig from 'statistics/api/reportConfig';
 import { getSortData, isCustomSort, isTimeControl, formatSorts, timeParticleSizeDropdownData } from '../../common';
 import { reportTypes } from '../../Charts/common';
@@ -58,12 +57,8 @@ const SortContent = styled.div`
 const CustomSortItemContent = styled.div`
   border-radius: 3px;
   padding: 8px 5px;
-  &:hover,
-  &.sortableCustomSortItem {
+  &:hover {
     background-color: #f6f6f6;
-  }
-  &.sortableCustomSortItem {
-    z-index: 9999;
   }
 `;
 
@@ -87,25 +82,16 @@ const customSort = {
   text: _l('自定义'),
 };
 
-const SortableItem = SortableElement(props => {
-  const { item, sortIndex } = props;
+const renderSortableItem = ({ item, DragHandle }) => {
   return (
-    <CustomSortItemContent className="customSortItem flexRow valignWrapper" key={sortIndex}>
-      <Icon icon="drag" className="Gray_9e Font15 pointer" />
+    <CustomSortItemContent className="customSortItem flexRow valignWrapper">
+      <DragHandle>
+        <Icon icon="drag" className="Gray_9e Font15 pointer" />
+      </DragHandle>
       <span className="Gray Font14 mLeft5">{item.name}</span>
     </CustomSortItemContent>
   );
-});
-
-const SortableList = SortableContainer(({ list }) => {
-  return (
-    <div>
-      {list.map((item, index) => (
-        <SortableItem key={index} index={index} sortIndex={index} item={item} />
-      ))}
-    </div>
-  );
-});
+};
 
 export default class Sort extends Component {
   constructor(props) {
@@ -244,11 +230,12 @@ export default class Sort extends Component {
       })
       .then(result => {
         this.setState({
-          sortList: result.map(item => {
+          sortList: result.map((item, index) => {
             const key = _.findKey(item);
             return {
               name: item[key],
               originalName: key,
+              id: index
             };
           }),
           customSortLoading: false,
@@ -387,18 +374,13 @@ export default class Sort extends Component {
       value && this.createSortItem(controlId, value);
     }
   };
-  handleSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) {
-      return;
-    }
-    const { currentCustomSort, sortList } = this.state;
-    const newSortList = arrayMove(sortList, oldIndex, newIndex);
+  handleSortEnd = (newSortList) => {
     this.setState({ sortList: newSortList, customSortValue: null });
   };
   renderItem(item, fn, index) {
     const { currentReport } = this.props;
     const { sorts } = currentReport;
-    const sortData = isCustomSort(item) ? [...getSortData(item), customSort] : getSortData(item);
+    const sortData = (isCustomSort(item) && index !== 3) ? [...getSortData(item), customSort] : getSortData(item);
     const sortsItem = _.find(sorts, item.controlId);
     const value = sortsItem ? sortsItem[item.controlId] : 0;
     return (
@@ -589,10 +571,10 @@ export default class Sort extends Component {
               ) : (
                 currentCustomSort && (
                   <SortableList
-                    axis="y"
-                    helperClass="sortableCustomSortItem"
-                    list={sortList}
-                    shouldCancelStart={({ target }) => !target.classList.contains('icon-drag')}
+                    useDragHandle
+                    items={sortList}
+                    itemKey="id"
+                    renderItem={(options) => renderSortableItem({ ...options })}
                     onSortEnd={this.handleSortEnd}
                   />
                 )

@@ -9,6 +9,7 @@ export default function RecordInfoRight(props) {
     loading,
     workflowStatus,
     className,
+    style,
     discussCount,
     recordbase,
     workflow,
@@ -19,14 +20,14 @@ export default function RecordInfoRight(props) {
     projectId,
     formFlag,
     formdata,
-    enableOrderVisible,
+    payConfig,
   } = props;
-  const { isSubList, appId, viewId, appSectionId, worksheetId, recordId, recordTitle } = recordbase;
+  const { isSubList, appId, viewId, appSectionId, worksheetId, recordId, recordTitle, roleType } = recordbase;
   let hiddenTabs = [];
   const noApproved =
     !isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId) ||
     (md.global.Account.isPortal && !props.approved);
-  if (!enableOrderVisible) {
+  if (!payConfig.rowDetailIsShowOrder) {
     hiddenTabs.push('pay');
   }
   if (isSubList) {
@@ -58,8 +59,9 @@ export default function RecordInfoRight(props) {
   if ([...new Set(hiddenTabs)].length >= 6) {
     return '';
   }
+
   return (
-    <div className={`recordInfoInfo ${className || ''}`}>
+    <div className={`recordInfoInfo ${className || ''}`} style={style}>
       <DiscussLogFile
         discussCount={discussCount}
         configLoading={loading}
@@ -83,6 +85,7 @@ export default function RecordInfoRight(props) {
         allowExAccountDiscuss={props.allowExAccountDiscuss}
         exAccountDiscussEnum={props.exAccountDiscussEnum}
         approved={props.approved}
+        roleType={roleType}
       />
     </div>
   );

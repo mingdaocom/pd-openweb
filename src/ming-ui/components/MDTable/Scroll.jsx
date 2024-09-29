@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { autobind } from 'core-decorators';
 
 const BarCon = styled.div`
   position: absolute;
@@ -94,7 +93,7 @@ export default class extends React.Component {
         horVisible,
         verVisible,
       },
-      cb
+      cb,
     );
   }
 
@@ -110,8 +109,7 @@ export default class extends React.Component {
     document.removeEventListener('mousemove', this.documentMousemove);
   }
 
-  @autobind
-  documentMousedown(e) {
+  documentMousedown = e => {
     if (e.target === this.scrollver.current) {
       this.lastY = e.y;
       this.startScrollTop = this.scrollinner.current.scrollTop;
@@ -122,49 +120,67 @@ export default class extends React.Component {
       this.startScrollLeft = this.scrollinner.current.scrollLeft;
       this.hordown = true;
     }
-  }
+  };
 
-  @autobind
-  documentMousemove(e) {
+  documentMousemove = e => {
     if (this.verdown) {
-      this.scrollinner.current.scrollTop = this.startScrollTop + ((e.y - this.lastY) / (this.height / this.scrollHeight));
+      this.scrollinner.current.scrollTop = this.startScrollTop + (e.y - this.lastY) / (this.height / this.scrollHeight);
       e.preventDefault();
     }
     if (this.hordown) {
-      this.scrollinner.current.scrollLeft = this.startScrollLeft + ((e.x - this.lastX) / (this.width / this.scrollWidth));
+      this.scrollinner.current.scrollLeft = this.startScrollLeft + (e.x - this.lastX) / (this.width / this.scrollWidth);
       e.preventDefault();
     }
-  }
+  };
 
-  @autobind
-  documentMouseup(e) {
+  documentMouseup = e => {
     this.lastY = 0;
     this.lastX = 0;
     this.verdown = false;
     this.hordown = false;
-  }
+  };
 
-  @autobind
-  handleScroll(e) {
+  handleScroll = e => {
     if (!this.scrollcon || !this.scrollcon.current || !this.scrollinner || !this.scrollinner.current) {
       return;
     }
     if (this.scrollhor && this.scrollhor.current) {
-      this.scrollhor.current.style.transform = `translate3d(${(this.scrollinner.current.scrollLeft / this.scrollWidth) * this.width}px,0px,0px)`;
+      this.scrollhor.current.style.transform = `translate3d(${
+        (this.scrollinner.current.scrollLeft / this.scrollWidth) * this.width
+      }px,0px,0px)`;
     }
     if (this.scrollver && this.scrollver.current) {
-      this.scrollver.current.style.transform = `translate3d(0px,${(this.scrollinner.current.scrollTop / this.scrollHeight) * this.height}px,0px)`;
+      this.scrollver.current.style.transform = `translate3d(0px,${
+        (this.scrollinner.current.scrollTop / this.scrollHeight) * this.height
+      }px,0px)`;
     }
     this.props.onScroll(e);
-  }
+  };
 
   render() {
-    const { className, style, barConClassName, barClassName, barConVerStyle, barConHorStyle, barVerStyle, barHorStyle, barwidth, vertical, horizontal, children } = this.props;
+    const {
+      className,
+      style,
+      barConClassName,
+      barClassName,
+      barConVerStyle,
+      barConHorStyle,
+      barVerStyle,
+      barHorStyle,
+      barwidth,
+      vertical,
+      horizontal,
+      children,
+    } = this.props;
     const { barWidth, barHeight, verVisible, horVisible } = this.state;
-    const scrollStyle = Object.assign({}, {
-      position: 'relative',
-      overflow: 'hidden',
-    }, style);
+    const scrollStyle = Object.assign(
+      {},
+      {
+        position: 'relative',
+        overflow: 'hidden',
+      },
+      style,
+    );
     return (
       <div className={`mdscroll ${className}`} style={scrollStyle} ref={this.scrollcon}>
         <div
@@ -184,12 +200,20 @@ export default class extends React.Component {
         </div>
         {verVisible && !horizontal && (
           <BarCon className={barConClassName} style={Object.assign({}, barConVerStyle, { top: 0 })}>
-            <Bar className={barClassName} ref={this.scrollver} style={Object.assign({}, barVerStyle, { height: barHeight })} />
+            <Bar
+              className={barClassName}
+              ref={this.scrollver}
+              style={Object.assign({}, barVerStyle, { height: barHeight })}
+            />
           </BarCon>
         )}
         {horVisible && !vertical && (
           <BarCon className={barConClassName} style={Object.assign({}, barConHorStyle, { left: 0 })}>
-            <Bar className={barClassName} ref={this.scrollhor} style={Object.assign({}, barHorStyle, { width: barWidth })} />
+            <Bar
+              className={barClassName}
+              ref={this.scrollhor}
+              style={Object.assign({}, barHorStyle, { width: barWidth })}
+            />
           </BarCon>
         )}
       </div>

@@ -285,7 +285,7 @@ export default function TrashDialog(props) {
     return (
       <div className="flexRow trashLi alignItemsCenter">
         {columns.map(o => {
-          return <div className={cx('flex', o.className)}>{o.render(item)}</div>;
+          return <div className={cx('flex minWidth0', o.className)}>{o.render(item)}</div>;
         })}
       </div>
     );

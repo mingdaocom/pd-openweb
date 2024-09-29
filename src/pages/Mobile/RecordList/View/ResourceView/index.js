@@ -1,10 +1,9 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import ResourceView from 'src/pages/worksheet/views/ResourceView';
 import ViewErrorPage from '../components/ViewErrorPage';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import * as actions from 'mobile/RecordList/redux/actions';
 import styled from 'styled-components';
 
@@ -16,7 +15,7 @@ const ResourceViewWrap = styled.div`
 `;
 
 function MobileResourceView(props) {
-  const { view, controls, sheetSwitchPermit, quickFilter, appDetail, worksheetInfo, updateFilters = () => {} } = props;
+  const { view, controls, sheetSwitchPermit } = props;
   const viewControlInfo =
     (
       setSysWorkflowTimeControlFormat(
@@ -29,31 +28,10 @@ function MobileResourceView(props) {
     return <ViewErrorPage icon="arrows_square" viewName={view.name + _l('视图')} color="#4caf50" />;
   }
 
-  const { detail } = appDetail;
-  const filters = view.fastFilters
-    .map(filter => ({
-      ...filter,
-      control: _.find(controls, c => c.controlId === filter.controlId),
-    }))
-    .filter(c => c.control);
-  const isFilter = quickFilter.length;
-
   return (
-    <Fragment>
-      <QuickFilterSearch
-        excludeTextFilter={filters}
-        isFilter={isFilter}
-        filters={props.filters}
-        detail={detail}
-        view={view}
-        worksheetInfo={worksheetInfo}
-        sheetControls={controls}
-        updateFilters={updateFilters}
-      />
-      <ResourceViewWrap>
-        <ResourceView {...props} />;
-      </ResourceViewWrap>
-    </Fragment>
+    <ResourceViewWrap>
+      <ResourceView {...props} />;
+    </ResourceViewWrap>
   );
 }
 

@@ -18,7 +18,7 @@ import { ITEM_TYPE, SCROLL_CONFIG } from '../HierarchyView/config';
 import * as hierarchyActions from 'worksheet/redux/actions/hierarchy';
 import * as viewActions from 'worksheet/redux/actions/index';
 import NewRecord from 'worksheet/common/newRecord/NewRecord';
-import { updateWorksheetControls } from '../../redux/actions';
+import { updateWorksheetControls, updateWorksheetInfo } from '../../redux/actions';
 import ToolBar from '../HierarchyView/ToolBar';
 import SelectField from '../components/SelectField';
 import ViewEmpty from '../components/ViewEmpty';
@@ -84,6 +84,7 @@ function HierarchyMix(props) {
     getTopLevelHierarchyData,
     saveView,
     updateWorksheetControls,
+    updateWorksheetInfo,
     expandedMultiLevelHierarchyData,
     expandMultiLevelHierarchyDataOfMultiRelate,
     getDefaultHierarchyData,
@@ -232,6 +233,7 @@ function HierarchyMix(props) {
         .then(res => {
           const allControls = _.get(res, 'template.controls') || [];
           updateWorksheetControls(allControls);
+          updateWorksheetInfo(res);
         });
     });
   };
@@ -605,7 +607,8 @@ const ConnectedHierarchyMixView = connect(
     ..._.get(state.sheet, 'hierarchyView'),
     searchData: getSearchData(state.sheet),
   }),
-  dispatch => bindActionCreators({ ...hierarchyActions, ...viewActions, updateWorksheetControls }, dispatch),
+  dispatch =>
+    bindActionCreators({ ...hierarchyActions, ...viewActions, updateWorksheetControls, updateWorksheetInfo }, dispatch),
 )(HierarchyMix);
 
 export default function HierarchyMixView(props) {

@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { autobind } from 'core-decorators';
 import CascaderDropdown from 'src/components/newCustomFields/widgets/Cascader';
 import { FILTER_CONDITION_TYPE } from '../../enum';
 import _ from 'lodash';
@@ -41,8 +40,7 @@ export default class RelateRecord extends React.Component {
     onChange({ values: records.map(r => r.id), fullValues: records.map(v => JSON.stringify(v)) });
   }
 
-  @autobind
-  addRecord(selectedRecords, cb = () => {}) {
+  addRecord = (selectedRecords, cb = () => {}) => {
     const { onChange } = this.props;
     const { records } = this.state;
     const newRecords = records
@@ -59,10 +57,9 @@ export default class RelateRecord extends React.Component {
       },
       cb,
     );
-  }
+  };
 
-  @autobind
-  removeRecord(record) {
+  removeRecord = record => {
     const { onChange } = this.props;
     const { records } = this.state;
     const newRecords = records.filter(r => r.id !== record.id);
@@ -72,10 +69,9 @@ export default class RelateRecord extends React.Component {
       },
       this.triggerChange,
     );
-  }
+  };
 
-  @autobind
-  handleChange(selected, text) {
+  handleChange = (selected, text) => {
     const { control } = this.props;
     const isTree = control.advancedSetting.showtype === '4';
     // const fullPath = control.advancedSetting.allpath === '1'; // 5.10.1 后端不支持 后面放开
@@ -95,7 +91,7 @@ export default class RelateRecord extends React.Component {
         this.tempRecord = selected;
       }
     }
-  }
+  };
 
   render() {
     const { control, disabled } = this.props;

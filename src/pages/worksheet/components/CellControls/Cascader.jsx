@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import EditableCellCon from '../EditableCellCon';
 import renderText from './renderText';
@@ -35,8 +34,7 @@ export default class Cascader extends React.Component {
   con = React.createRef();
   cell = React.createRef();
 
-  @autobind
-  handleTableKeyDown(e) {
+  handleTableKeyDown = e => {
     const { tableId, recordId, cell, isediting, updateCell, updateEditingStatus } = this.props;
     switch (e.key) {
       default:
@@ -49,20 +47,18 @@ export default class Cascader extends React.Component {
           e.preventDefault();
         })();
     }
-  }
+  };
 
-  @autobind
-  handleChange(value) {
+  handleChange = value => {
     this.value = value;
     this.setState({
       value,
     });
-  }
+  };
 
-  @autobind
-  handleClear() {
+  handleClear = () => {
     this.handleChange('');
-  }
+  };
 
   render() {
     const {

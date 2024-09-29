@@ -26,6 +26,7 @@ export default function WidgetDisplay(props) {
     styleInfo: { info = {} } = {},
     fromType,
     commonWidgets = [],
+    isTab,
   } = props;
   const { type, sourceControlType, required, hint, unit, desc, strDefault, controlId, fieldPermission = '111' } = data;
   const readOnly = fieldPermission[1] === '0';
@@ -107,7 +108,7 @@ export default function WidgetDisplay(props) {
         <div className="tabHeaderTileWrap">
           <TabHeaderItem {...props} />
         </div>
-        <Component {...props} />
+        <Component {...props} isTab={true} />
       </TitleContentWrap>
     );
   }
@@ -133,7 +134,7 @@ export default function WidgetDisplay(props) {
 
       <div className="flex overflow_ellipsis">
         {includes(NEED_SPECIAL_DISPLAY_CONTROLS, type) ? (
-          <Component data={data} controls={actualControls} displayRow={displayRow} fromType={fromType} />
+          <Component data={data} controls={actualControls} displayRow={displayRow} fromType={fromType} isTab={isTab} />
         ) : (
           <CommonDisplay>
             {prefix && <div className="unit prefix">{prefix}</div>}

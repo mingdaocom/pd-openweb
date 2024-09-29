@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
-import { Flex, ActivityIndicator } from 'antd-mobile';
+import { SpinLoading } from 'antd-mobile';
 import { WaterMark } from 'ming-ui';
 import Back from '../components/Back';
 import styled from 'styled-components';
@@ -185,21 +185,21 @@ export default class CustomPage extends Component {
   }
   renderLoading() {
     return (
-      <Flex justify="center" align="center" className="h100">
-        <ActivityIndicator size="large" />
-      </Flex>
+      <div className="flexRow justifyContentCenter alignItemsCenter h100">
+        <SpinLoading color='primary' />
+      </div>
     );
   }
   renderWithoutData() {
     return (
-      <Flex justify="center" align="center" className="h100">
+      <div className="flexRow justifyContentCenter alignItemsCenter h100">
         <EmptyData>
           <div className="iconWrap">
             <i className="icon-custom_widgets"></i>
           </div>
           <p className="Gray_75 TxtCenter mTop16">{_l('没有内容')}</p>
         </EmptyData>
-      </Flex>
+      </div>
     );
   }
   renderContent() {

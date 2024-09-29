@@ -98,23 +98,23 @@ export const TYPE_TO_STYLE = {
 export const FLOW_NODE_TYPE_STATUS = {
   3: {
     0: { text: _l('待填写'), color: '#757575' },
-    1: { text: _l('已填写'), color: '#757575' },
-    2: { text: _l('已转交'), color: '#757575' },
-    3: { text: _l('已转交'), color: '#757575' },
+    1: { text: _l('我已填写'), color: '#fff', shallowBg: '#0096fe' },
+    2: { text: _l('我已转交'), color: '#757575' },
+    3: { text: _l('我已转交'), color: '#757575' },
     5: { text: _l('无需填写'), color: '#757575' },
-    22: { text: _l('已填写'), color: '#757575' },
+    22: { text: _l('我已填写'), color: '#fff', shallowBg: '#0096fe' },
   },
   4: {
     0: { text: _l('待审批'), color: '#757575' },
-    1: { text: _l('已通过'), color: '#4CAF50', shallowBg: '#4CAF5026' },
-    2: { text: _l('已加签'), color: '#757575' },
-    3: { text: _l('已转审'), color: '#757575' },
-    4: { text: _l('已否决'), color: '#F44336', shallowBg: '#F4433626' },
+    1: { text: _l('我已通过'), color: '#fff ', shallowBg: '#4CAF50' },
+    2: { text: _l('我已加签'), color: '#757575' },
+    3: { text: _l('我已转审'), color: '#757575' },
+    4: { text: _l('流程否决'), color: '#fff', shallowBg: '#F44336' },
     5: { text: _l('无需审批'), color: '#757575' },
-    8: { text: _l('已转审'), color: '#757575' },
-    16: { text: _l('已加签'), color: '#757575' },
-    17: { text: _l('已加签'), color: '#757575' },
-    22: { text: _l('已否决'), color: '#F44336', shallowBg: '#F4433626' },
+    8: { text: _l('我已转审'), color: '#757575' },
+    16: { text: _l('我已加签'), color: '#757575' },
+    17: { text: _l('我已加签'), color: '#757575' },
+    22: { text: _l('流程否决'), color: '#fff', shallowBg: '#F44336' },
   },
   5: {
     0: { text: _l('待查看'), color: '#2196F3', shallowBg: '#2196F326' },
@@ -124,11 +124,11 @@ export const FLOW_NODE_TYPE_STATUS = {
 
 export const INSTANCELOG_STATUS = {
   1: { text: _l('等待') },
-  2: { text: _l('已通过'), bg: '#4CAF50', shallowBg: '#4CAF5026', icon: 'done' },
-  3: { text: _l('流程中止'), bg: '#AAAAAA', shallowBg: '#AAAAAA26' },
-  4: { text: _l('流程中止'), bg: '#AAAAAA', shallowBg: '#AAAAAA26' },
-  5: { text: _l('已否决'), bg: '#F44336', shallowBg: '#F4433626', icon: 'clear' },
-  6: { text: _l('流程中止'), bg: '#AAAAAA' },
+  2: { text: _l('流程通过'), bg: '#4CAF50', shallowBg: '#4CAF5026', icon: 'done' },
+  3: { text: _l('流程中止'), bg: '#ffa340', shallowBg: '#ffa34026' },
+  4: { text: _l('流程中止'), bg: '#ffa340', shallowBg: '#ffa34026' },
+  5: { text: _l('流程否决'), bg: '#F44336', shallowBg: '#F4433626', icon: 'clear' },
+  6: { text: _l('流程中止'), bg: '#ffa340', shallowBg: '#ffa34026' },
 };
 
 const getYear = () => {

@@ -65,7 +65,7 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { disabled, type, from, value, onChange, advancedSetting, recordId } = this.props;
+    const { disabled, type, from, value, onChange, advancedSetting, recordId, controlId } = this.props;
     const { anylevel } = advancedSetting || {};
     const { search, keywords, visible } = this.state;
 
@@ -78,6 +78,7 @@ export default class Widgets extends Component {
 
     return (
       <CityPicker
+        id={`customFields-cityPicker-${controlId}-${recordId}`}
         search={keywords}
         defaultValue={city ? city.name : ''}
         level={type === 19 ? 1 : type === 23 ? 2 : 3}
@@ -104,9 +105,10 @@ export default class Widgets extends Component {
           disabled={disabled}
         >
           <Input
-            className={cx('flex mRight20 ellipsis CityPicker-input-textCon')}
+            className={cx('flex minWidth0 mRight20 ellipsis CityPicker-input-textCon')}
             placeholder={city ? city.name : HINT_TEXT[type]}
             value={visible ? search || '' : (city || { name: '' }).name}
+            title={(disabled && _.get(city, 'name')) || ''}
             onChange={value => {
               this.setState({ search: value });
               this.onFetchData(value);

@@ -148,6 +148,9 @@ export const convertControl = type => {
     case 52:
       return 'Section'; // 分段
 
+    case 53:
+      return 'FormulaFunc'; // 函数公式
+
     default:
       return 'CustomWidgets'; // 自定义组件
   }
@@ -161,9 +164,12 @@ const Reg = {
   // 身份证号码
   idCardNumber:
     /(^\d{8}(0\d|10|11|12)([0-2]\d|30|31)\d{3}$)|(^\d{6}(18|19|20)\d{2}(0\d|10|11|12)([0-2]\d|30|31)\d{3}(\d|X|x)$)/,
+  hkCardNumber: /^[A-Z]{1}(\d{6})(\(\d\)|\d)?$/,
+  moCardNumber: /^[A-Z]{1}\d{6}([A-Z]|\d)?$/,
+  twCardNumber: /^[A-Z][1-2]\d{8}$/,
   // 护照
   passportNumber: /^[a-zA-Z0-9]{5,17}$/,
-  // 港澳通行证
+  // 香港通行证
   hkPassportNumber: /.*/,
   // 台湾通行证
   twPassportNumber: /.*/,
@@ -177,7 +183,12 @@ export const Validator = {
     return Reg.emailAddress.test(str);
   },
   isIdCardNumber: str => {
-    return Reg.idCardNumber.test(str);
+    return (
+      Reg.idCardNumber.test(str) ||
+      Reg.hkCardNumber.test(str) ||
+      Reg.moCardNumber.test(str) ||
+      Reg.twCardNumber.test(str)
+    );
   },
   isPassportNumber: str => {
     return Reg.passportNumber.test(str);
@@ -190,7 +201,7 @@ export const Validator = {
   },
 };
 
-function formatRowToServer(row, controls = [], { isDraft } = {}) {
+function formatRowToServer(row, controls = [], { isDraft, isSubList } = {}) {
   controls = controls.filter(c => c.type !== 34);
   return Object.keys(row)
     .map(key => {
@@ -207,6 +218,7 @@ function formatRowToServer(row, controls = [], { isDraft } = {}) {
           formatControlToServer(
             { ...c, value: row[key] },
             {
+              isSubList,
               isSubListCopy: row.isCopy,
               isDraft,
               isNewRecord: row.rowid && (row.rowid.startsWith('temp') || row.rowid.startsWith('default')),
@@ -228,6 +240,7 @@ export function formatControlToServer(
   {
     isSubListCopy,
     isDraft,
+    isSubList,
     isNewRecord,
     needSourceValue,
     needFullUpdate,
@@ -366,7 +379,11 @@ export function formatControlToServer(
                       sid: item.sid,
                       sourcevalue: needSourceValue && item.sourcevalue,
                     }))
-                    .filter(item => !_.isEmpty(item.sid) && validate(item.sid)),
+                    .filter(
+                      item =>
+                        !_.isEmpty(item.sid) &&
+                        (isSubList ? validate(_.replace(item.sid, /^(temp|default)-/, '')) : validate(item.sid)),
+                    ),
                 )
               : '';
           } else {
@@ -411,19 +428,20 @@ export function formatControlToServer(
 
       if (
         (!result.value || (_.isNumber(Number(result.value)) && !_.isNaN(Number(result.value)))) &&
-        !_.isEmpty(filterEmptyChildTableRows(control.store.getState().rows))
+        (!_.isEmpty(filterEmptyChildTableRows(control.store.getState().rows)) ||
+          get(control.store.getState(), 'changes.isDeleteAll'))
       ) {
         result.editType = 9;
         if (isNewRecord) {
           result.value = JSON.stringify(
             filterEmptyChildTableRows(control.store.getState().rows).map(row =>
-              formatRowToServer(row, childTableControls || [], { isDraft }),
+              formatRowToServer(row, childTableControls || [], { isDraft, isSubList: true }),
             ),
           );
         } else {
           rows = filterEmptyChildTableRows(control.store.getState().rows).map(row => ({
             editType: 0,
-            newOldControl: formatRowToServer(row, childTableControls || [], { isDraft }),
+            newOldControl: formatRowToServer(row, childTableControls || [], { isDraft, isSubList: true }),
           }));
           if (!_.isEmpty(rows)) {
             result.value = JSON.stringify([
@@ -432,6 +450,13 @@ export function formatControlToServer(
                 editType: 2,
               },
               ...rows,
+            ]);
+          } else if (get(control.store.getState(), 'changes.isDeleteAll')) {
+            result.value = JSON.stringify([
+              {
+                rowid: 'all',
+                editType: 2,
+              },
             ]);
           } else {
             result.value = '';
@@ -442,7 +467,7 @@ export function formatControlToServer(
       } else if (result.value.isAdd) {
         result.value = JSON.stringify(
           filterEmptyChildTableRows(control.value.rows).map(row =>
-            formatRowToServer(row, childTableControls || [], { isDraft }),
+            formatRowToServer(row, childTableControls || [], { isDraft, isSubList: true }),
           ),
         );
         if (result.value === '[]') {
@@ -471,7 +496,7 @@ export function formatControlToServer(
                 if (isNew) {
                   return {
                     editType: 0,
-                    newOldControl: formatRowToServer({ ...row, rowid }, childTableControls),
+                    newOldControl: formatRowToServer({ ...row, rowid }, childTableControls, { isSubList: true }),
                   };
                 } else {
                   if (row && row.updatedControlIds) {
@@ -481,14 +506,25 @@ export function formatControlToServer(
                   return {
                     rowid,
                     editType: 0,
-                    newOldControl: formatRowToServer({ ...row, rowid }, childTableControls),
+                    newOldControl: formatRowToServer({ ...row, rowid }, childTableControls, { isSubList: true }),
                   };
                 }
               })
               .filter(_.identity),
           );
         }
+        if (get(control.store.getState(), 'changes.isDeleteAll')) {
+          resultvalue = resultvalue.concat({
+            rowid: 'all',
+            editType: 2,
+          });
+        }
         result.value = JSON.stringify(filterEmptyChildTableRows(resultvalue));
+        if (control.store && control.store.dispatch) {
+          control.store.dispatch({
+            type: 'RESET_CHANGES',
+          });
+        }
         if (_.isEmpty(resultvalue) && control && typeof control.value === 'string') {
           try {
             const rows = JSON.parse(control.value);
@@ -852,7 +888,7 @@ export const getCurrentValue = (item, data, control) => {
 
 // 特殊手机号验证是否合法
 export const specialTelVerify = value => {
-  return /\+61\d{9}$|\+861[3-9]\d{9}$/.test(value || '');
+  return /\+61\d{9,10}$|\+861[3-9]\d{9}$/.test(value || '');
 };
 
 export const compareWithTime = (start, end, type) => {
@@ -1116,10 +1152,6 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
   const tabPosition = widgetStyle.tabposition || '1';
   const isMobile = browserIsMobile();
 
-  if (ignoreSection) {
-    return { commonData: controls, tabData: [] };
-  }
-
   function sortList(list = []) {
     return list.sort((a, b) => {
       if (a.row === b.row) {
@@ -1127,6 +1159,10 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
       }
       return a.row - b.row;
     });
+  }
+
+  if (ignoreSection) {
+    return { commonData: sortList(controls), tabData: [] };
   }
 
   controls
@@ -1148,7 +1184,7 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
   tabData = sortList(tabData).concat(sortList(oldRelateList));
 
   // h5或者配置在顶部的
-  if (isMobile || (isMobile && !_.isEmpty(otherTabs)) || (tabPosition === '2' && !ignoreSection)) {
+  if (isMobile || (isMobile && !_.isEmpty(otherTabs)) || (_.includes(['2', '3', '4'], tabPosition) && !ignoreSection)) {
     const defaultTab = [
       {
         controlId: 'detail',
@@ -1299,15 +1335,24 @@ export const isUnTextWidget = (data = {}) => {
 };
 
 export const isPublicLink = () => {
+  const {
+    isPublicForm,
+    isPublicView,
+    isPublicPage,
+    isPublicRecord,
+    isPublicQuery,
+    isPublicFormPreview,
+    isPublicWorkflowRecord,
+  } = _.get(window, 'shareState') || {};
   return (
     _.get(window, 'isPublicWorksheet') ||
-    _.get(window, 'shareState.isPublicForm') ||
-    _.get(window, 'shareState.isPublicView') ||
-    _.get(window, 'shareState.isPublicPage') ||
-    _.get(window, 'shareState.isPublicRecord') ||
-    _.get(window, 'shareState.isPublicQuery') ||
-    _.get(window, 'shareState.isPublicFormPreview') ||
-    _.get(window, 'shareState.isPublicWorkflowRecord')
+    isPublicForm ||
+    isPublicView ||
+    isPublicPage ||
+    isPublicRecord ||
+    isPublicQuery ||
+    isPublicFormPreview ||
+    isPublicWorkflowRecord
   );
 };
 
@@ -1323,7 +1368,12 @@ export const checkValueByFilterRegex = (data = {}, name, formData, recordId) => 
         console.log(error);
       }
 
-      if (_.isEmpty(filters) || _.get(checkValueAvailable({ filters: filters }, formData, recordId), 'isAvailable')) {
+      const newFormatData = (formData || []).map(i => (i.controlId === data.controlId ? { ...i, value: name } : i));
+
+      if (
+        _.isEmpty(filters) ||
+        _.get(checkValueAvailable({ filters: filters }, newFormatData, recordId), 'isAvailable')
+      ) {
         return !name || !reg || reg.test(name) ? '' : err || _l('请输入有效文本');
       }
     }

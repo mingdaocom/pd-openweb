@@ -6,6 +6,7 @@ import { useSetState } from 'react-use';
 import ConnectDesDia from '../../components/connectDesDialog';
 import ConnectSet from './ConnectSet';
 import APIList from './APIList';
+import AccountList from './AccountList';
 import AuthorizeToApp from './AuthorizeToApp';
 import { TYPELIST } from '../../config';
 import Trigger from 'rc-trigger';
@@ -18,6 +19,7 @@ import _ from 'lodash';
 import ConnectAvator from '../../components/ConnectAvator';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { getNodeList } from './util';
 
 const Wrap = styled.div`
   .scrollDiv {
@@ -25,6 +27,9 @@ const Wrap = styled.div`
   }
   p {
     margin: 0;
+  }
+  .chooseTypeContent {
+    gap: 10px;
   }
   .chooseTypeCon {
     .Radio-text {
@@ -160,6 +165,7 @@ const Wrap = styled.div`
 
 const TABLIST = [
   { tab: 0, txt: _l('连接设置') },
+  { tab: 3, txt: _l('账户') },
   { tab: 1, txt: _l('API 管理') },
   { tab: 2, txt: _l('授权到应用') },
 ];
@@ -213,7 +219,10 @@ function ConnectCon(props) {
   });
   const headerRef = useRef();
   const WrapRef = useRef();
-  const [authType, setAuthType] = useState(_.get(props, ['data', 'authType']));
+  const [{ authType, actionId }, setDefaultFlowNode] = useSetState({
+    authType: _.get(props, 'data.authType'),
+    actionId: _.get(props, 'data.actionId'),
+  });
   useEffect(() => {
     const { match = {} } = props;
     const { params = {} } = match;
@@ -327,7 +336,7 @@ function ConnectCon(props) {
         {
           companyId: localStorage.getItem('currentProjectId'),
           defaultFlowNode: {
-            actionId: TYPELIST.find(o => o.appType === authType).actionId,
+            actionId: actionId,
             appType: authType,
           },
           explain: '',
@@ -347,6 +356,7 @@ function ConnectCon(props) {
           ...res,
           isOwner: true,
           authType: authType,
+          hasAuth: actionId === '523' && authType === 32,
           type: 1,
           ownerAccount: {
             ...res.ownerAccount,
@@ -374,6 +384,10 @@ function ConnectCon(props) {
         { isIntegration: true },
       )
       .then(res => {
+        const flowDts = getNodeList(res).filter(o => o.typeId === 22);
+        if (flowDts.length > 1) {
+          setDefaultFlowNode({ authType: 32, actionId: '523' });
+        }
         setState({
           nodeInfo: res,
           // loading: false,
@@ -420,6 +434,7 @@ function ConnectCon(props) {
         let newData = {
           ...connectData,
           ...res,
+          hasAuth: connectData.hasAuth,
           ownerAccount: !res.ownerAccount.accountId ? connectData.ownerAccount : res.ownerAccount,
           isOwner: connectData.isOwner,
           iconName: info.iconName,
@@ -485,6 +500,7 @@ function ConnectCon(props) {
               })
             }
             {...nodeInfo}
+            hasAuth={connectData.hasAuth}
             fetchInfo={() => {
               getInfo(connectData.id);
               setState({
@@ -503,6 +519,7 @@ function ConnectCon(props) {
         return (
           <APIList
             {...connectData}
+            hasAuth={connectData.hasAuth}
             connectData={connectData}
             isConnectOwner={isConnectOwner}
             hasChange={() =>
@@ -526,6 +543,7 @@ function ConnectCon(props) {
         return (
           <AuthorizeToApp
             {...nodeInfo}
+            hasAuth={connectData.hasAuth}
             isConnectOwner={isConnectOwner}
             processId={connectData.id}
             list={connectData.apks || []}
@@ -542,6 +560,8 @@ function ConnectCon(props) {
             }}
           />
         );
+      case 3:
+        return <AccountList {...nodeInfo} connectId={connectData.id} hasAuth={connectData.hasAuth} />;
     }
   };
   const openNewPage = () => {
@@ -696,7 +716,8 @@ function ConnectCon(props) {
                           <React.Fragment>
                             {/* 自定义连接如果还未上架，则有「申请上架」菜单可选；如果已经上架，则弹出「申请上架新版本」菜单； */}
                             {!md.global.Config.IsLocal && //私有部署没有上架
-                              connectData.type !== 2 && ( //安装的连接 不能上架
+                              connectData.type !== 2 && //安装的连接 不能上架
+                              !connectData.hasAuth && ( //授权码鉴权类型连接不允许上架
                                 <MenuItemWrap
                                   icon={<Icon icon="publish" className="Font17 mLeft5" />}
                                   onClick={() => {
@@ -760,6 +781,10 @@ function ConnectCon(props) {
           <div className="tabCon">
             <ul>
               {tabList.map(o => {
+                if (actionId !== '523' && o.tab === 3) {
+                  //OAuth 2.0 认证（授权码）=>有账户
+                  return null;
+                }
                 return (
                   <li
                     className={cx('Hand', { isCur: tab === o.tab, disble: !nodeInfo.startEventId })}
@@ -771,7 +796,7 @@ function ConnectCon(props) {
                     }}
                   >
                     {o.txt}
-                    {o.tab === 0 ? '' : `( ${o.tab === 1 ? apiCount : (connectData.apks || []).length} )`}
+                    {[1, 2].includes(o.tab) && `( ${o.tab === 1 ? apiCount : (connectData.apks || []).length} )`}
                   </li>
                 );
               })}
@@ -783,16 +808,16 @@ function ConnectCon(props) {
           {!nodeInfo.startEventId && !loading ? ( //新创建
             <div className="chooseAuthType">
               <p className="title TxtLeft">{_l('请选择鉴权方式')}</p>
-              <ul className="flexRow mTop30">
+              <ul className="flexRow mTop30 chooseTypeContent justifyContentCenter">
                 {TYPELIST.map(o => {
                   return (
-                    <li className="flex chooseTypeCon">
+                    <li className={'chooseTypeCon'}>
                       <Radio
                         className=""
                         text={o.name}
-                        checked={authType === o.appType}
+                        checked={authType === o.appType && actionId === o.actionId}
                         onClick={() => {
-                          setAuthType(o.appType);
+                          setDefaultFlowNode({ authType: o.appType, actionId: o.actionId });
                         }}
                       />
                     </li>
@@ -815,7 +840,6 @@ function ConnectCon(props) {
             renderCon()
           )}
         </div>
-
         {show && (
           <PublishDialog
             onOk={data => {

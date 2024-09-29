@@ -157,7 +157,7 @@ export default class PageTableCon extends Component {
                     return {
                       style: {
                         maxWidth: item.width || 150,
-                        minWidth: 150,
+                        minWidth: item.width || 150,
                         overflow: 'hidden',
                         whiteSpace: 'nowrap',
                         textOverflow: 'ellipsis',

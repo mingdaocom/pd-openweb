@@ -11,6 +11,7 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widget
 import SearchParams from './SearchParams';
 import SearchMapping from './SearchMapping';
 import SearchMappingFilter from './SearchMappingFilter';
+import SelectAuthAccount from 'src/pages/workflow/WorkflowSettings/Detail/components/SelectAuthAccount';
 import _ from 'lodash';
 
 const SearchMode = styled.div`
@@ -73,6 +74,17 @@ const SearchMode = styled.div`
   }
 `;
 
+const AuthWrap = styled.div`
+  margin-top: 16px;
+  position: relative;
+  .authRequired {
+    color: #f44336;
+    position: absolute;
+    margin-top: 1px;
+    left: -6px;
+  }
+`;
+
 function BasicInfo(props) {
   const { data = {}, apiInfo = {}, onClick, globalSheetInfo = {} } = props;
   return (
@@ -130,6 +142,7 @@ export default function ApiSearchConfig(props) {
   const { data = {}, globalSheetInfo = {}, onChange, status: { saveIndex } = {}, fromCustomFilter } = props;
   const requestmap = getAdvanceSetting(data, 'requestmap') || [];
   const responsemap = getAdvanceSetting(data, 'responsemap') || [];
+  const { authaccount } = getAdvanceSetting(data);
   const [loading, setLoading] = useState(false);
   const [apiInfo, setApiInfo] = useState({});
   const [requestControls, setRequestControls] = useState([]);
@@ -216,6 +229,7 @@ export default function ApiSearchConfig(props) {
               itemsource: '',
               itemtitle: '',
               itemdesc: '',
+              authaccount: '',
             }),
             dataSource: id,
           });
@@ -231,7 +245,19 @@ export default function ApiSearchConfig(props) {
         {loading ? (
           <LoadDiv className="mTop20 flexCenter" size="small" />
         ) : (
-          <BasicInfo data={data} apiInfo={apiInfo} onClick={integrationApi} globalSheetInfo={globalSheetInfo} />
+          <Fragment>
+            <BasicInfo data={data} apiInfo={apiInfo} onClick={integrationApi} globalSheetInfo={globalSheetInfo} />
+            {_.get(apiInfo, 'hasAuth') && (
+              <AuthWrap>
+                <span className="authRequired">*</span>
+                <SelectAuthAccount
+                  authId={authaccount}
+                  apiId={data.dataSource}
+                  onChange={authId => onChange(handleAdvancedSettingChange(data, { authaccount: authId }))}
+                />
+              </AuthWrap>
+            )}
+          </Fragment>
         )}
       </SettingItem>
 

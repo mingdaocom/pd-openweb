@@ -1,6 +1,6 @@
 import ajaxRequest from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
-import { Modal } from 'antd-mobile';
+import { Dialog } from 'antd-mobile';
 import _ from 'lodash';
 
 export const getMembersList = (appId, roleId) => (dispatch, getState) => {
@@ -45,12 +45,9 @@ export const removeUserFromRole =
         if (data.result) {
           dispatch(getMembersList(appId));
         } else {
-          Modal.alert(_l('移除失败'), '', [
-            {
-              text: _l('确定'),
-              onPress: () => {},
-            },
-          ]);
+          Dialog.alert({
+            content: _l('移除失败'),
+          });
         }
       });
   };
@@ -73,20 +70,15 @@ export const exitRole =
           if (res.isRoleDepartment) {
             callback();
           } else {
-            Modal.alert(_l('无法退出非“人员”类型成员加入的角色'), _l('非“人员”类型的成员，只能由管理员或运营者操作'), [
-              {
-                text: _l('确定'),
-                onPress: () => {},
-              },
-            ]);
+            Dialog.alert({
+              title: _l('无法退出非“人员”类型成员加入的角色'),
+              content: _l('非“人员”类型的成员，只能由管理员或运营者操作'),
+            });
           }
         } else {
-          Modal.alert(_l('退出失败'), '', [
-            {
-              text: _l('确定'),
-              onPress: () => {},
-            },
-          ]);
+          Dialog.alert({
+            content: _l('退出失败')
+          });
         }
       });
   };
@@ -123,12 +115,9 @@ export const addRoleMembers =
         if (res) {
           dispatch(getMembersList(appId));
         } else {
-          Modal.alert(_l('添加失败'), '', [
-            {
-              text: _l('确定'),
-              onPress: () => {},
-            },
-          ]);
+          Dialog.alert({
+            content: _l('添加失败')
+          });
         }
       });
   };
@@ -150,12 +139,9 @@ export const transferApp =
         if (res) {
           dispatch(getMembersList(appId));
         } else {
-          Modal.alert(_l('托付失败'), '', [
-            {
-              text: _l('确定'),
-              onPress: () => {},
-            },
-          ]);
+          Dialog.alert({
+            content: _l('托付失败')
+          });
         }
       });
   };

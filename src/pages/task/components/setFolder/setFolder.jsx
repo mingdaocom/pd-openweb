@@ -253,7 +253,7 @@ export default class SetFolder extends Component {
         dialogClasses="setFolder"
         title={_l('项目配置')}
         showFooter={false}
-        handleClose={() => $('.setFolder').parent().remove()}
+        handleClose={this.props.onClose}
       >
         {this.state.data ? (
           <div>

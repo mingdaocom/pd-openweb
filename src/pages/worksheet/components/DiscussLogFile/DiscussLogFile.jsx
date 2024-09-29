@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { autobind } from 'core-decorators';
 import { emitter } from 'worksheet/util';
 import WorkSheetComment from './WorkSheetComment';
 import WorksheetLog from './WorksheetLog';
@@ -10,6 +9,7 @@ import WorksheetRocordLog from '../WorksheetRecordLog/WorksheetRocordLog';
 import './DiscussLogFile.less';
 import errorBoundary from 'ming-ui/decorators/errorBoundary';
 import _ from 'lodash';
+import { getRequest } from 'src/util';
 
 @errorBoundary
 class DiscussLogFile extends Component {
@@ -61,6 +61,10 @@ class DiscussLogFile extends Component {
   }
 
   getActive(props = {}) {
+    const { sideactive } = getRequest();
+    if (sideactive === 'pay' && !!this.showTabs.find(o => o.name === 'pay')) {
+      return 5;
+    }
     if (_.find(this.showTabs, { name: 'approval' }) && !(props.workflowStatus || '').startsWith('["other')) {
       const activeTab = this.showTabs.filter(tab => tab.name !== 'approval')[0];
       if (activeTab) {
@@ -70,12 +74,11 @@ class DiscussLogFile extends Component {
     return this.showTabs.length && this.showTabs[0].id; // 日志讨论  1 日志  2讨论
   }
 
-  @autobind
-  reloadLog() {
+  reloadLog = () => {
     if (_.isFunction(_.get(this, 'logRef.current.reload'))) {
       _.get(this, 'logRef.current.reload')();
     }
-  }
+  };
 
   getShowTabs = props => {
     this.showTabs = [

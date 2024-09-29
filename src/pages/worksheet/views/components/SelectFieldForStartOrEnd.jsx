@@ -96,7 +96,7 @@ export default function SelectFieldForStartOrEnd(props) {
       (!isCalendarcids && isIllegal(start)) ||
       isIllegal(end);
     setIsUnAb(isErr);
-  }, [begindate, enddate, calendarcids]);
+  }, [begindate, enddate, calendarcids, props.controls]);
   const handleChangeFn = obj => {
     let {
       begindate = begindateOrFirst ? (timeControls[0] || {}).controlId : '',

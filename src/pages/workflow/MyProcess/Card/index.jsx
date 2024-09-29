@@ -1,6 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import { Icon, UserHead, SvgIcon } from 'ming-ui';
 import { TABS } from '../index';
+import cx from 'classnames';
 import { Checkbox, Tooltip } from 'antd';
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
 import { covertTime, ACTION_TYPES, TYPE_TO_STYLE, FLOW_NODE_TYPE_STATUS, INSTANCELOG_STATUS } from '../config';
@@ -29,6 +30,7 @@ export default class Card extends Component {
 
     let RenderState = null;
     let RenderRightHander = null;
+    let RenderResultState = null;
 
     if ([TABS.WAITING_APPROVE, TABS.WAITING_FILL, TABS.WAITING_EXAMINE].includes(stateTab)) {
       RenderState = (
@@ -82,17 +84,17 @@ export default class Card extends Component {
     if (stateTab === TABS.COMPLETE) {
       const { type } = this.props;
       const { operationType, operationTime } = workItem;
+
       if (type === 0) {
         const instanceStatus = status === 3 || status === 4 ? instanceLog.status : status;
-        const { text, bg, icon } = INSTANCELOG_STATUS[instanceStatus];
+        const { text, bg, shallowBg } = INSTANCELOG_STATUS[instanceStatus];
         RenderState = (
           <Fragment>
-            <div className="state bold valignWrapper" style={{ backgroundColor: bg }}>
-              {icon ? <Icon icon={icon} className="mRight5" /> : null}
-              <div className="Font13">{text}</div>
+            <div className="state bold valignWrapper" style={{ backgroundColor: shallowBg }}>
+              <div className="Font13" style={{ color: bg }}>{text}</div>
             </div>
             {instanceLog && instanceLog.cause && instanceStatus !== 5 && (
-              <div className="Font13 mLeft10 Gray_75 ellipsis" style={{ maxWidth: 500 }}>
+              <div className="Font13 mLeft10 Gray_75 ellipsis" style={{ maxWidth: 200 }} title={FLOW_FAIL_REASON[instanceLog.cause] || instanceLog.causeMsg}>
                 {`${instanceLog.cause === 40007 ? '' : _l('节点：')}${
                   FLOW_FAIL_REASON[instanceLog.cause] || instanceLog.causeMsg
                 }`}
@@ -110,18 +112,63 @@ export default class Card extends Component {
           );
         }
       }
-      RenderRightHander = <div className="Gray_75">{createTimeSpan(type === 0 ? completeDate : operationTime)}</div>;
+      if (type === 0) {
+        RenderRightHander = <div className="Gray_9e mRight10 mLeft10">{createTimeSpan(type === 0 ? completeDate : operationTime)}</div>
+      } else {
+        const timeConsuming = this.renderTimeConsuming();
+        RenderRightHander = (
+          <div className="flexRow valignWrapper">
+            {timeConsuming && (
+              <Fragment>
+                {timeConsuming}
+                <div style={{ height: 15, width: 1, backgroundColor: '#9e9e9e' }} className="mLeft10" />
+              </Fragment>
+            )}
+            <div className="Gray_9e mRight10 mLeft10">{createTimeSpan(type === 0 ? completeDate : operationTime)}</div>
+            {RenderState}
+          </div>
+        )
+      }
+    }
+
+    const alreadyDisposeOrExamine = stateTab === TABS.COMPLETE && this.props.type !== 0;
+
+    if (alreadyDisposeOrExamine) {
+      const currentWorkFlowNode = _.isEmpty(currentWorkFlowNodes) ? {} : currentWorkFlowNodes[currentWorkFlowNodes.length - 1];
+      if (status === 1) {
+        RenderResultState = (
+          <div className="state bold valignWrapper">
+            <div className="Font13 Gray_75">
+              {currentWorkFlowNodes && currentWorkFlowNodes.length > 1
+                ? _l('%0个节点', currentWorkFlowNodes.length)
+                : currentWorkFlowNode
+                ? currentWorkFlowNode.name
+                : flowNode.name}
+            </div>
+            <div className="info mLeft5 Gray_75 Font13">{_l('处理中…')}</div>
+          </div>
+        )
+      } else {
+        const instanceStatus = status === 3 || status === 4 ? (instanceLog ? instanceLog.status : status) : status;
+        const { text, bg, shallowBg } = INSTANCELOG_STATUS[instanceStatus] || {};
+        RenderResultState = (
+          <div className="state bold valignWrapper" style={{ backgroundColor: shallowBg }}>
+            <div className="Font13" style={{ color: bg }}>{text}</div>
+          </div>
+        )
+      }
     }
 
     return (
       <div className="cardHeader valignWrapper">
         <div className="stateWrapper valignWrapper">
           {this.renderApp()}
-          {RenderState}
-          {this.renderTimeConsuming()}
+          {RenderResultState}
+          {!alreadyDisposeOrExamine && RenderState}
+          {!alreadyDisposeOrExamine && this.renderTimeConsuming()}
           {this.renderSurplusTime()}
         </div>
-        {RenderRightHander}
+        <div className="Red">{RenderRightHander}</div>
       </div>
     );
   }
@@ -246,7 +293,7 @@ export default class Card extends Component {
         <div className="appIcon" style={{ backgroundColor: app.iconColor }}>
           <SvgIcon url={app.iconUrl} fill="#fff" size={18} addClassName="mTop2" />
         </div>
-        <span className="Gray_75 bold ellipsis">
+        <span className="Gray_75 bold ellipsis" style={{ maxWidth: 460 }}>
           {app.name}
           <span className="dot" />
           {process.name}
@@ -297,8 +344,9 @@ export default class Card extends Component {
     );
   }
   renderControl(item) {
+    const { controls } = this.props.item;
     return (
-      <div key={item.controlId} className="controlWrapper flexColumn mTop10">
+      <div key={item.controlId} className={cx('controlWrapper flexColumn mTop10', { flex: controls.length <= 1 })}>
         <div className="Gray_75">{item.controlName}</div>
         <div className="controlValue">{item.value || '--'}</div>
       </div>

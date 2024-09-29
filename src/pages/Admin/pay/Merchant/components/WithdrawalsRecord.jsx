@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, UserHead, UserName, LoadDiv } from 'ming-ui';
+import { Icon, UserHead, UserName, LoadDiv, Tooltip } from 'ming-ui';
 import styled from 'styled-components';
 import SearchWrap from 'src/pages/Admin/components/SearchWrap';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
@@ -9,14 +9,20 @@ import withdrawalsEmptyImg from '../../images/withdrawals.png';
 import paymentAjax from 'src/api/payment';
 import { buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
+import { BALANCE_INFO } from '../config';
 
 const BalanceWrap = styled.div`
-  padding: 0 0 10px 32px;
+  padding: 36px 0 25px 32px;
   border-bottom: 1px solid #eaeaea;
   position: relative;
-  .icon-sp_account_balance_wallet_white {
-    position: absolute;
-    top: 13px;
+  .alignItemsBaseline {
+    align-items: baseline;
+  }
+  .icon-help {
+    color: #9d9d9d;
+    &:hover {
+      color: #2196f3;
+    }
   }
 `;
 
@@ -44,7 +50,7 @@ export default class WithdrawalsRecord extends Component {
     this.state = {
       loading: false,
       list: [],
-      totalBalance: 0,
+      banlance: 0,
       balanceLoading: true,
     };
     this.isInit = true;
@@ -116,7 +122,7 @@ export default class WithdrawalsRecord extends Component {
         merchantNo: currentMerchantInfo.merchantNo,
       })
       .then(res => {
-        this.setState({ totalBalance: res, balanceLoading: false });
+        this.setState({ ...res, balanceLoading: false });
       })
       .catch(err => {
         this.setState({ balanceLoading: false });
@@ -128,7 +134,8 @@ export default class WithdrawalsRecord extends Component {
     const { projectId, currentMerchantInfo = {} } = this.props;
     const { merchantNo } = currentMerchantInfo;
     const { searchValues = {} } = this.state;
-    const { selectUserInfo = [], shortName, startDate, endDate, status } = searchValues;
+    const { selectUserInfo = [], shortName, withdrawTimeInfo = {}, status } = searchValues;
+    const { startDate, endDate } = withdrawTimeInfo;
 
     const ids = selectUserInfo.map(item => item.accountId);
 
@@ -152,9 +159,40 @@ export default class WithdrawalsRecord extends Component {
       });
   };
 
-  render() {
+  // 提现
+  handleWithdraw = () => {
     const { projectId, currentMerchantInfo = {}, featureType } = this.props;
-    const { loading, list, searchValues, pageIndex, count, totalBalance, balanceLoading } = this.state;
+    const { banlance } = this.state;
+
+    if (featureType === '2') {
+      buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
+      return;
+    }
+    WithdrawalsDialogFunc({
+      type: 'withdrawals',
+      title: _l('提现'),
+      okText: _l('提现'),
+      label: _l('提现金额'),
+      projectId: projectId,
+      orderInfo: currentMerchantInfo,
+      min: 0,
+      max: banlance,
+      desc: (
+        <div className="Gray_9e Font12 mTop10">
+          <div>{_l('1、提现手续费说明：beta版暂时不收取手续费')}</div>
+          <div>{_l('2、可提现金额=余额-手续费（0元）；余额的变动会影响后续退款是否成功')}</div>
+        </div>
+      ),
+      updateList: () => {
+        this.getMerchantBalance();
+        this.getDataList();
+      },
+    });
+  };
+
+  render() {
+    const { projectId } = this.props;
+    const { loading, list, searchValues, pageIndex, count, balanceLoading } = this.state;
     const { status = '' } = searchValues || {};
 
     return (
@@ -169,47 +207,30 @@ export default class WithdrawalsRecord extends Component {
             {_l('提现记录')}
           </Header>
         </div>
-        <BalanceWrap>
-          <i className="icon-sp_account_balance_wallet_white Font24 Gray_9e mRight10" />
-          <span className="mLeft26">{_l('账户余额')}</span>
-          <span className="mLeft4 mRight18">(￥)</span>
-          <span className="ThemeColor Font28">{!balanceLoading ? totalBalance : '-'}</span>
-          {!balanceLoading && (
-            <span
-              className="ThemeColor Hand mLeft12"
-              onClick={() => {
-                if (featureType === '2') {
-                  buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
-                  return;
-                }
-                WithdrawalsDialogFunc({
-                  type: 'withdrawals',
-                  title: _l('提现'),
-                  okText: _l('提现'),
-                  label: _l('提现金额'),
-                  projectId: projectId,
-                  orderInfo: currentMerchantInfo,
-                  min: 0,
-                  max: totalBalance,
-                  desc: (
-                    <div className="Gray_9e Font12 mTop10">
-                      <div>{_l('1、提现手续费说明：beta版暂时不收取手续费')}</div>
-                      <div>{_l('2、可提现金额=余额-手续费（0元）；余额的变动会影响后续退款是否成功')}</div>
-                    </div>
-                  ),
-                  updateList: () => {
-                    this.getMerchantBalance();
-                    this.getDataList();
-                  },
-                });
-              }}
-            >
-              {_l('提现')}
-            </span>
-          )}
-          <span className="Gray_9e mLeft12">
-            {_l('余额不是实时更新，T+1下午3点才能结算到账，T+1指的是工作日结算，周末以及节假日不参与结算')}
-          </span>
+        <BalanceWrap className="flexRow">
+          {BALANCE_INFO.map(item => {
+            const { id, text } = item;
+
+            return (
+              <div key={id} className="flexRow alignItemsBaseline mRight60">
+                <span className="Font12">{`${text}`}</span>
+                <span className="Font24 bold mLeft10 ThemeColor">
+                  {!balanceLoading && !_.isUndefined(this.state[id]) ? (
+                    <Fragment>
+                      <span className="Font18">¥</span> {this.state[id]}
+                    </Fragment>
+                  ) : (
+                    '-'
+                  )}
+                </span>
+                {!balanceLoading && (
+                  <span className="ThemeColor Hand mLeft10" onClick={this.handleWithdraw}>
+                    {_l('提现')}
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </BalanceWrap>
 
         <Content className="orgManagementContent flexColumn">
@@ -245,14 +266,14 @@ export default class WithdrawalsRecord extends Component {
                     ],
                   },
                   {
-                    key: 'accountId',
+                    key: 'selectUserInfo',
                     type: 'selectUser',
                     label: _l('操作人'),
                     unique: true,
                     suffixIcon: <Icon icon="person" className="Font16" />,
                   },
                   {
-                    key: 'payTime',
+                    key: 'withdrawTimeInfo',
                     type: 'selectTime',
                     label: _l('提现时间'),
                     placeholder: _l('选择日期范围'),

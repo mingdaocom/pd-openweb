@@ -5,6 +5,7 @@ import { DEFAULT_FONT_SIZE } from '../config';
 import _ from 'lodash';
 import STYLE_PRINT from './exportWordPrintTemCssString';
 import RegExpValidator from 'src/util/expression';
+
 let minPictureW = 169;
 let minW = 33;
 const ResizeableTitle = props => {
@@ -75,16 +76,17 @@ export default class TableRelation extends React.Component {
     if (
       !_.isEqual(nextProps.controls, this.props.controls) ||
       nextProps.showData !== this.props.showData ||
-      !_.isEqual(nextProps.orderNumberCheck, this.props.orderNumberCheck)
+      !_.isEqual(nextProps.orderNumberCheck, this.props.orderNumberCheck) ||
+      !_.isEqual(nextProps.fileStyle, this.props.fileStyle)
     ) {
       this.setData(nextProps);
     }
   };
 
   setData = props => {
-    const { printData, dataSource, controls, orderNumberCheck, id, isShowFn, showData } = props;
-    const { controlStyles = [] } = printData;
+    const { printData, dataSource, controls, orderNumberCheck, id, isShowFn, showData, fileStyle } = props;
     let list = [];
+
     if (orderNumberCheck) {
       list = [
         {
@@ -96,6 +98,7 @@ export default class TableRelation extends React.Component {
         },
       ];
     }
+
     let controlsList = [];
     controls.map(it => {
       let da = false;
@@ -126,6 +129,7 @@ export default class TableRelation extends React.Component {
         controlsList.push(it);
       }
     });
+
     controlsList.map(it => {
       if (it.type !== 22) {
         let isIn = this.isIn(it.controlId);
@@ -149,17 +153,21 @@ export default class TableRelation extends React.Component {
           dataIndex: `${it.controlId}-${id}`,
           className: `${it.controlId}-${id}`,
           width,
+          controlId: it.controlId,
           render: (text, record, index) => {
-            if ([29].includes(it.type)) {
+            if ([29].includes(it.type) && !['2', '5', '6'].includes(it.advancedSetting.showtype)) {
               let list = (it.relationControls || []).find(o => o.attribute === 1) || {};
               if (list.type && ![29, 30].includes(list.type)) {
                 it = { ...it, sourceControlType: list.type, advancedSetting: list.advancedSetting };
               }
             }
+
             return getPrintContent({
               ...it,
               isRelateMultipleSheet: true,
               value: record[it.controlId],
+              fileStyle,
+              dataSource: id,
             });
           },
         });
@@ -251,7 +259,7 @@ export default class TableRelation extends React.Component {
   };
 
   changeData = (controlId, w, dataList) => {
-    const { printData, dataSource, controls, orderNumberCheck, id } = this.props;
+    const { printData } = this.props;
     let { controlStyles = [] } = printData;
     let data = [];
     if (dataList) {
@@ -287,22 +295,28 @@ export default class TableRelation extends React.Component {
       if (col.dataIndex === 'number') {
         return;
       }
+
       $(`.${col.dataIndex}`).addClass('borderLine');
       this.resizeWidth(col.dataIndex, size.width);
     };
+
   isIn = controlId => {
     const { printData, id } = this.props;
     const { controlStyles = [] } = printData;
     let list = controlStyles.map(o => o.controlId);
+
     return list.includes(`${controlId}-${id}`) || list.includes(controlId);
   };
+
   curStylesW = controlId => {
     const { printData, id } = this.props;
     const { controlStyles = [] } = printData;
     let o = controlStyles.find(s => s.controlId === `${controlId}-${id}`);
     o = !o ? controlStyles.find(o => o.controlId === controlId) || {} : o; //兼容之前老数据
+
     return o.width;
   };
+
   setDefaultWidth = (controls, orderNumberCheck) => {
     let widthN = 0;
     let num = 0;
@@ -310,6 +324,7 @@ export default class TableRelation extends React.Component {
       let width = 0;
       //是否附件且有内容
       let isType14 = this.isAttachments(it);
+
       if (this.isIn(it.controlId)) {
         width = isType14 ? Math.max(this.curStylesW(it.controlId), minPictureW) : this.curStylesW(it.controlId);
         widthN = widthN + width;
@@ -324,18 +339,22 @@ export default class TableRelation extends React.Component {
     });
     // 728总宽度 50序号宽度
     let width = Math.floor((728 - widthN) / (controls.length - num));
+
     if (orderNumberCheck) {
       width = Math.floor((728 - 50 - widthN) / (controls.length - num));
     }
+
     return width;
   };
 
   render() {
     const { printData, dataSource, controls, orderNumberCheck, id, showData, style = {} } = this.props;
     const { list } = this.state;
+
     if (list.length <= 0 && !orderNumberCheck) {
       return '';
     }
+
     const columns = list.map((col, index) => ({
       ...col,
       onHeaderCell: column => ({
@@ -366,9 +385,9 @@ export default class TableRelation extends React.Component {
         </tr>
         {dataSource.map((item, i) => {
           return (
-            <tr>
+            <tr key={`print-relation-tr-${id}-${item.rowid}`}>
               {columns.map((column, index) => {
-                let borderLeftNone = index === 0 ? { borderLeft: 'none' } : {};
+                const borderLeftNone = index === 0 ? { borderLeft: 'none' } : {};
 
                 return (
                   <td
@@ -379,6 +398,7 @@ export default class TableRelation extends React.Component {
                       borderBottomColor: index + 1 === column.length ? '#000' : '#ddd',
                     }}
                     className="WordBreak"
+                    key={`print-relation-tr-${id}-${item.rowid}-${column.controlId}`}
                   >
                     {column.render(item[column.dataIndex], item, i)}
                   </td>

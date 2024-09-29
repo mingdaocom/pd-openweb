@@ -109,6 +109,7 @@ export default function SourceSelectModal({ projectId, isCreateConnector, onChan
         const list = isCreateConnector
           ? res.filter(item => _.includes([ROLE_TYPE.ALL, roleType.toUpperCase()], item.roleType))
           : res.filter(item => item.type !== DATABASE_TYPE.APPLICATION_WORKSHEET);
+
         const sourceList = [
           {
             key: SOURCE_FROM_TYPE.COMMON,

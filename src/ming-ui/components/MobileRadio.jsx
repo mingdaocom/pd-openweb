@@ -1,8 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { List } from 'antd-mobile';
+import { Popup, List } from 'antd-mobile';
 import { Icon, Radio } from 'ming-ui';
-import { ModalWrap } from 'src/pages/Mobile/baseStyled.jsx';
 import { MAX_OPTIONS_COUNT } from 'src/pages/widgetConfig/config';
 import './less/MobileCheckbox.less';
 import _ from 'lodash';
@@ -54,12 +53,9 @@ export default class MobileRadio extends Component {
               })}
         </span>
 
-        <ModalWrap
-          popup
+        <Popup
           visible={visible}
-          animationType="slide-up"
-          maskClosable={false}
-          className="mobileCheckboxDialog"
+          className="mobileCheckboxDialog mobileModal minFull topRadius"
         >
           <div className="flexColumn h100">
             <div className="flexRow valignWrapper mobileCheckboxBtnsWrapper">
@@ -82,7 +78,7 @@ export default class MobileRadio extends Component {
             </div>
             <List className="flex" style={{ overflow: 'auto' }}>
               {!keywords.length && !!value.length && (
-                <List.Item className="mLeft31" onClick={() => this.onChange('')}>
+                <List.Item className="mLeft31" arrowIcon={false} onClick={() => this.onChange('')}>
                   <span className="Font15 ThemeColor3">{_l('清除选择')}</span>
                 </List.Item>
               )}
@@ -92,6 +88,7 @@ export default class MobileRadio extends Component {
                 .map(item => (
                   <List.Item
                     key={item.key}
+                    arrowIcon={false}
                     onClick={() => {
                       this.onChange(item.key);
                     }}
@@ -107,6 +104,7 @@ export default class MobileRadio extends Component {
 
               {!!keywords.length && allowAdd && !data.find(item => item.value === keywords) && canAddOption && (
                 <List.Item
+                  arrowIcon={false}
                   onClick={() => {
                     if (!_.trim(keywords)) return;
                     const opt = _.find(delOptions, v => v.value === keywords);
@@ -119,7 +117,7 @@ export default class MobileRadio extends Component {
               )}
             </List>
           </div>
-        </ModalWrap>
+        </Popup>
       </Fragment>
     );
   }

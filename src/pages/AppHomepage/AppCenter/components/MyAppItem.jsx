@@ -52,6 +52,7 @@ export default class MyAppItem extends Component {
     copyAppVisible: false,
     externalLinkVisible: false,
     showRoleDialog: false,
+    selectIconLeft: false,
   };
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -83,6 +84,26 @@ export default class MyAppItem extends Component {
 
   componentWillUnmount() {
     clearTimeout(this.clickTimer);
+  }
+
+  componentDidMount() {
+    const offsetLeft = _.get(this, '$myAppItem.current.offsetLeft');
+    this.setState({ selectIconLeft: offsetLeft < 414 && 0 });
+  }
+
+  componentDidUpdate() {
+    const { newAppItemId, id, canDrag, onChangeCanDrag = () => {} } = this.props;
+    const isShowSelectIcon = this.state.selectIconVisible || newAppItemId === id;
+
+    const newLeft = _.get(this, '$myAppItem.current.offsetLeft') < 414 && 0;
+
+    if (this.state.selectIconLeft !== newLeft) {
+      this.setState({ selectIconLeft: newLeft });
+    }
+
+    if (canDrag !== !isShowSelectIcon) {
+      onChangeCanDrag(!isShowSelectIcon);
+    }
   }
 
   $myAppItem = React.createRef();
@@ -149,6 +170,7 @@ export default class MyAppItem extends Component {
       copyAppVisible,
       externalLinkVisible,
       showRoleDialog,
+      selectIconLeft,
     } = this.state;
     const {
       groupId,
@@ -184,8 +206,6 @@ export default class MyAppItem extends Component {
       myPermissions = [],
     } = this.props;
     const isShowSelectIcon = selectIconVisible || newAppItemId === id;
-    const offsetLeft = _.get(this, '$myAppItem.current.offsetLeft');
-    const selectIconLeft = !_.isUndefined(offsetLeft) && offsetLeft < 414 && 0;
     const iconColor = this.props.iconColor || '#2196f3';
     const navColor = this.props.navColor || iconColor;
     const black = '#1b2025' === navColor;
@@ -301,9 +321,7 @@ export default class MyAppItem extends Component {
               <SelectIcon
                 projectId={projectId}
                 className="myAppItemSelectIconWrap"
-                style={{
-                  left: selectIconLeft,
-                }}
+                style={{ left: selectIconLeft }}
                 {..._.pick(this.props, ['icon', 'name', 'iconColor', 'navColor', 'lightColor'])}
                 onModify={this.handleModify}
                 onChange={this.handleAppChange}

@@ -280,6 +280,7 @@ class FolderDetail extends Component {
             </div>
           );
         })}
+
         {data.isAdmin && (
           <span data-tip={_l('添加项目管理员')}>
             <i
@@ -493,7 +494,7 @@ class FolderDetail extends Component {
   addFolderMembersEvents(evt, isAdmin) {
     const { data } = this.state;
     const { folderId, projectId } = this.props.taskConfig;
-    let existsIds = [data.chargeUser.accountID];
+    let existsIds = [];
     const callback = users => {
       this.addFolderMembers(users, isAdmin);
     };
@@ -508,9 +509,11 @@ class FolderDetail extends Component {
       sourceId: folderId,
       projectId,
       fromType: 6,
-      filterAccountIds: existsIds,
+      filterAccountIds: [data.chargeUser.accountID],
+      selectedAccountIds: existsIds,
       SelectUserSettings: {
-        filterAccountIds: existsIds,
+        filterAccountIds: [data.chargeUser.accountID],
+        selectedAccountIds: existsIds,
         projectId: checkIsProject(projectId) ? projectId : '',
         callback,
       },

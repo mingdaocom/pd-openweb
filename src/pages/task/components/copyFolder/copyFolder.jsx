@@ -17,8 +17,10 @@ export default class CopyFolder extends Component {
       avatar: md.global.Account.avatar,
       showNetwork: false,
       projectId: props.projectId,
-      taskAccountId: md.global.SystemAccounts.undefined.accountId,
-      taskAvatar: md.global.SystemAccounts.undefined.avatar,
+      taskAccountId: 'user-undefined',
+      taskAvatar:
+        md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+        '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
     };
   }
 
@@ -65,7 +67,7 @@ export default class CopyFolder extends Component {
       showMoreInvite: false,
       fromType: 2,
       SelectUserSettings: {
-        filterAccountIds: [accountId],
+        selectedAccountIds: [accountId],
         projectId: projectId,
         unique: true,
         callback: users => {
@@ -88,7 +90,7 @@ export default class CopyFolder extends Component {
       showMoreInvite: false,
       fromType: 2,
       SelectUserSettings: {
-        filterAccountIds: [accountId],
+        selectedAccountIds: [accountId],
         projectId: projectId,
         unique: true,
         callback: users => {

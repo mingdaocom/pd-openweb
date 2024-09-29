@@ -29,6 +29,10 @@ const FlexWrap = styled.div`
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  .disabledDetail {
+    cursor: not-allowed;
+    color: #757575;
+  }
 `;
 const TabWrap = styled.div`
   height: 56px;
@@ -54,14 +58,13 @@ const TabWrap = styled.div`
     margin-right: 4px;
     padding: 0 16px;
     cursor: pointer;
-    &:hover{
+    &:hover {
       background-color: #f5f5f5;
     }
     &.active {
       color: #2196f3;
       border-bottom-color: #2196f3;
     }
-  }
   }
 `;
 const NoAuthorWrap = styled.div`
@@ -235,7 +238,7 @@ export default class AppAndWorksheetLog extends Component {
   }
 
   componentDidMount() {
-    this.getLoglist();
+    this.getLogList();
   }
   componentWillUnmount() {
     localStorage.removeItem('globalLogTab');
@@ -301,9 +304,9 @@ export default class AppAndWorksheetLog extends Component {
     const galFeatureType = getFeatureStatus(projectId, VersionProductType.globalBehaviorLog);
     let operationTypesData = OPERATE_LIST.filter(it =>
       logType === 1
-        ? _.includes(['all', 1, 2, 3, 6, 7, 16], it.value)
+        ? _.includes(['all', 1, 2, 3, 6, 7, 16, 18, 19, 20], it.value)
         : logType === 2
-        ? !_.includes([4, 10, 16], it.value)
+        ? !_.includes([4, 10, 16, 18, 19, 20], it.value)
         : logType === 3
         ? _.includes(['all', 4, 10], it.value)
         : true,
@@ -316,7 +319,7 @@ export default class AppAndWorksheetLog extends Component {
 
     const coditions = [
       {
-        key: 'operators',
+        key: 'selectUserInfo',
         type: 'selectUser',
         label: _l('用户'),
         suffixIcon: <Icon icon="person" className="Font16" />,
@@ -382,10 +385,13 @@ export default class AppAndWorksheetLog extends Component {
         type: 'select',
         label: _l('操作对象'),
         placeholder: _l('全部'),
-        options: MODULE_LIST.filter(it => !_.includes(logType === 1 ? [8, 9] : logType === 3 ? [3, 4] : [], it.value)),
+        options: MODULE_LIST.filter(
+          it => !_.includes(logType === 1 ? [8, 9] : logType === 3 ? [3, 4, 11] : [], it.value),
+        ),
         value: modules,
         mode: 'multiple',
         maxTagCount: 'responsive',
+        filterOption: (inputValue, option) => option.children.toLowerCase().includes(inputValue.toLowerCase()),
       },
       {
         key: 'operationTypes',
@@ -396,6 +402,7 @@ export default class AppAndWorksheetLog extends Component {
         value: operationTypes,
         mode: 'multiple',
         maxTagCount: 'responsive',
+        filterOption: (inputValue, option) => option.children.toLowerCase().includes(inputValue.toLowerCase()),
       },
       {
         key: 'dateTimeRange',
@@ -419,7 +426,7 @@ export default class AppAndWorksheetLog extends Component {
     });
   };
 
-  getLoglist = (params = {}) => {
+  getLogList = (params = {}) => {
     this.setState({ loading: true, pageIndex: params.pageIndex });
     const { projectId, appId } = this.props;
     const { logType, searchValues } = this.state;
@@ -430,9 +437,9 @@ export default class AppAndWorksheetLog extends Component {
       worksheetIds = [],
       modules = [],
       operationTypes = [],
-      startDate,
-      endDate,
+      dateTimeRange = {},
     } = searchValues;
+    const { startDate, endDate } = dateTimeRange;
 
     appManagementAjax
       .getGlobalLogs({
@@ -483,9 +490,9 @@ export default class AppAndWorksheetLog extends Component {
       worksheetIds = [],
       modules = [],
       operationTypes = [],
-      startDate,
-      endDate,
+      dateTimeRange = {},
     } = searchValues;
+    const { startDate, endDate } = dateTimeRange;
 
     let params = {
       pageIndex,
@@ -525,6 +532,10 @@ export default class AppAndWorksheetLog extends Component {
 
   // 查看记录记录
   getControls = record => {
+    if (this.state.loadingControlDetails) return;
+
+    this.setState({ loadingControlDetails: true, currentRowInfo: record });
+
     sheetAjax
       .getWorksheetInfo({ getRules: true, getTemplate: true, worksheetId: _.get(record, 'appItem.id') })
       .then(res => {
@@ -532,7 +543,10 @@ export default class AppAndWorksheetLog extends Component {
           return { ...it };
         });
 
-        this.setState({ controls, showRecordLog: true, currentRowInfo: record });
+        this.setState({ controls, showRecordLog: true, currentRowInfo: record, loadingControlDetails: false });
+      })
+      .catch(err => {
+        this.setState({ loadingControlDetails: false });
       });
   };
 
@@ -550,6 +564,7 @@ export default class AppAndWorksheetLog extends Component {
       disabledExportBtn,
       isAuthority,
       controls = [],
+      loadingControlDetails,
     } = this.state;
     const { appIds = [], worksheetIds = [] } = searchValues;
     const glFeatureType = getFeatureStatus(projectId, VersionProductType.glabalLog);
@@ -587,7 +602,7 @@ export default class AppAndWorksheetLog extends Component {
                 className={cx('tabItem', { active: item.tab === logType })}
                 onClick={() => {
                   safeLocalStorageSetItem('globalLogTab', item.tab);
-                  this.setState({ logType: item.tab, searchValues: {} }, this.getLoglist);
+                  this.setState({ logType: item.tab, searchValues: {} }, this.getLogList);
                   this.tableWrap && this.tableWrap.setCheckedCols(this.columns.map(it => it.dataIndex));
                 }}
               >
@@ -597,30 +612,27 @@ export default class AppAndWorksheetLog extends Component {
           </div>
 
           <div>
-            {md.global.Config.IsLocal ? (
-              ''
-            ) : (
-              <span className="tipInfo">
-                {_l('保留最近6个月的应用日志')}
-                <Tooltip
-                  text={<span>{_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}</span>}
-                  popupPlacement="bottom"
-                >
-                  <Icon icon="info" className="Font14 mLeft5 Gray_9e" />
-                </Tooltip>
-              </span>
-            )}
-            <Button
-              type="primary"
-              className="export mLeft24"
-              disabled={disabledExportBtn}
-              onClick={() => {
-                if (disabledExportBtn) return;
-                this.exportListData();
-              }}
+            {md.global.Config.IsLocal ? '' : <span className="tipInfo mRight26">{_l('保留最近6个月的日志')}</span>}
+            <i
+              className="icon-task-later Gray_9 hoverText mRight26 Font17"
+              onClick={() => this.setState({ searchValues: {}, pageIndex: 1 }, this.getLogList)}
+            />
+            <Tooltip
+              text={<span>{_l('导出上限10万条，超出限制可以先筛选，再分次导出。')}</span>}
+              popupPlacement="bottom"
             >
-              {_l('导出')}
-            </Button>
+              <Button
+                type="primary"
+                className="export"
+                disabled={disabledExportBtn}
+                onClick={() => {
+                  if (disabledExportBtn) return;
+                  this.exportListData();
+                }}
+              >
+                {_l('导出')}
+              </Button>
+            </Tooltip>
           </div>
         </TabWrap>
         {logType === 3 && galFeatureType === '2' ? (
@@ -628,7 +640,7 @@ export default class AppAndWorksheetLog extends Component {
             {buriedUpgradeVersionDialog(projectId, VersionProductType.globalBehaviorLog, { dialogType: 'content' })}
           </div>
         ) : (
-          <FlexWrap className="flexColumn pLeft24 pRight24">
+          <FlexWrap className={cx('orgManagementContent pTop0 flexColumn', { 'pLeft24 pRight24': appId })}>
             <div ref={ele => (this.seatchWrap = ele)}>
               <SearchWrap
                 projectId={projectId}
@@ -636,7 +648,7 @@ export default class AppAndWorksheetLog extends Component {
                 searchValues={searchValues}
                 showExpandBtn={true}
                 onChange={searchParams => {
-                  const { startDate, endDate } = searchParams;
+                  const { startDate, endDate } = searchParams.dateTimeRange || {};
 
                   if (
                     md.global.Config.IsLocal &&
@@ -671,7 +683,7 @@ export default class AppAndWorksheetLog extends Component {
                       worksheetList:
                         searchParams.appIds && _.isEmpty(searchParams.appIds) ? [] : this.state.worksheetList,
                     },
-                    this.getLoglist,
+                    this.getLogList,
                   );
                 }}
               />
@@ -685,15 +697,20 @@ export default class AppAndWorksheetLog extends Component {
                 columns={this.columns}
                 dataSource={dataSource}
                 count={count}
-                getDataSource={this.getLoglist}
+                getDataSource={this.getLogList}
                 fixedShowCols={logType === 1 || logType === 3 ? true : false}
                 moreAction={true}
                 moreActionContent={record =>
                   _.get(record, 'appItem.status') === 1 &&
                   record.module === 8 &&
                   _.includes([1, 3], record.operationType) ? (
-                    <span className="ThemeColor Hand" onClick={() => this.getControls(record)}>
-                      {_l('详情')}
+                    <span
+                      className={cx('ThemeColor Hand', {
+                        disabledDetail: loadingControlDetails && currentRowInfo.id === record.id,
+                      })}
+                      onClick={() => this.getControls(record)}
+                    >
+                      {loadingControlDetails && currentRowInfo.id === record.id ? _l('加载中...') : _l('详情')}
                     </span>
                   ) : (
                     ''

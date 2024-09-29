@@ -1,6 +1,6 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Support, Button, Dropdown, LoadDiv } from 'ming-ui';
+import { Support, Button, Dropdown, LoadDiv, Checkbox } from 'ming-ui';
 import _ from 'lodash';
 import { getWithToken, postWithToken } from 'worksheet/util';
 import convert from './convertData';
@@ -68,6 +68,28 @@ const ConvertingMask = styled.div`
   align-items: center;
 `;
 
+function getMapConfigByExcel(controls = [], excelData = []) {
+  const result = {};
+  if (excelData.length < controls.length) {
+    excelData = excelData.concat(new Array(controls.length - excelData.length).fill(''));
+  }
+  excelData.forEach((t, i) => {
+    const valuesOfResult = _.values(result);
+    const matchedControl = _.find(
+      controls,
+      c => _.trim(c.controlName) === t && !_.includes(valuesOfResult, c.controlId),
+    );
+    result[i] = matchedControl ? matchedControl.controlId : '';
+  });
+  return result;
+}
+
+function getDefaultMap(controls) {
+  return [...new Array(controls.length)]
+    .map((a, i) => ({ [i]: _.get(controls, `${i}.controlId`) }))
+    .reduce((a, b) => Object.assign({}, a, b));
+}
+
 export default function PreviewData(props) {
   const {
     maxCount = 1000,
@@ -84,6 +106,7 @@ export default function PreviewData(props) {
     onClose,
     onAddRows,
   } = props;
+  const [mapByExcel, setMapByExcel] = useState(dataFrom === 'excel');
   const [tableLoading, setTableLoading] = useState(false);
   const [isConverting, setIsConverting] = useState(false);
   const [cellsData, setCellsData] = useState(props.cellsData || []);
@@ -95,13 +118,18 @@ export default function PreviewData(props) {
   );
   const valuedData = needImportCellData.filter(row => !_.isEmpty(row.filter(_.identity)));
   const dataColCount = _.get(needImportCellData, '0.length');
-  const [mapConfig, setMapConfig] = useState(
-    [...new Array(controls.length)]
-      .map((a, i) => ({ [i]: _.get(controls, `${i}.controlId`) }))
-      .reduce((a, b) => Object.assign({}, a, b)),
-  );
+  const [mapConfig, setMapConfig] = useState(getDefaultMap(controls));
   const showHeader = dataFrom === 'excel' || sheets.length > 1;
   const height = showHeader ? dialogHeight - 177 : dialogHeight - 127;
+  useEffect(() => {
+    if (mapByExcel) {
+      if (headRowIndex >= 0) {
+        setMapConfig(getMapConfigByExcel(controls, cellsData[headRowIndex - 1]));
+      }
+    } else {
+      setMapConfig(getDefaultMap(controls));
+    }
+  }, [mapByExcel, headRowIndex, cellsData]);
   return (
     <Fragment>
       {isConverting && (
@@ -117,20 +145,31 @@ export default function PreviewData(props) {
         {showHeader && (
           <div className="header mBottom18">
             {dataFrom === 'excel' && (
-              <div className="setHead">
-                {_l('表头行')}
-                <Dropdown
-                  className="headNumber"
-                  border
-                  value={headRowIndex}
-                  data={new Array(cellsData.length < 10 ? cellsData.length : 10)
-                    .fill()
-                    .map((e, i) => ({ text: i === 0 ? _l('没有表头行') : _l('第%0行', i), value: i }))}
-                  onChange={setHeadRowIndex}
-                />
-                <span data-tip={_l('只有表头下方的数据才会被导入')} className="mLeft8">
-                  <i className="icon-info_outline Font18 Gray_bd"></i>
-                </span>
+              <div className="flexRow">
+                <div className="setHead">
+                  {_l('表头行')}
+                  <Dropdown
+                    className="headNumber"
+                    border
+                    value={headRowIndex}
+                    data={new Array(cellsData.length < 10 ? cellsData.length : 10)
+                      .fill()
+                      .map((e, i) => ({ text: i === 0 ? _l('没有表头行') : _l('第%0行', i), value: i }))}
+                    onChange={setHeadRowIndex}
+                  />
+                  <span data-tip={_l('只有表头下方的数据才会被导入')} className="mLeft8 LineHeight1em">
+                    <i className="icon-info_outline Font18 Gray_bd"></i>
+                  </span>
+                </div>
+                <div className="flexRow mLeft30 valignWrapper">
+                  <Checkbox text={_l('按名称匹配')} checked={mapByExcel} onClick={() => setMapByExcel(!mapByExcel)} />
+                  <span
+                    data-tip={_l('勾选时，自动匹配与表头行名称的一致的字段。取消勾选时，默认按照字段顺序依次匹配')}
+                    className="mLeft8 LineHeight1em"
+                  >
+                    <i className="icon-info_outline Font18 Gray_bd"></i>
+                  </span>
+                </div>
               </div>
             )}
             {sheets.length > 1 && (

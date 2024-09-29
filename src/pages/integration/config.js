@@ -32,11 +32,11 @@ export const dataIntegrationList = [
     txt: _l('同步任务'),
     icon: 'synchronization',
   },
-  // {
-  //   type: 'browser',
-  //   txt: _l('数据浏览器'),
-  //   icon: 'api',
-  // },
+  {
+    type: 'dataMirror',
+    txt: _l('工作表数据镜像'),
+    icon: 'data_mirroring',
+  },
 ];
 
 export const integrationConfig = [...list, ...dataIntegrationList];
@@ -70,6 +70,7 @@ export const CARD_TYE_LIST = [
 export const TYPELIST = [
   { name: _l('Basic Auth 认证'), actionId: '521', appType: 31 },
   { name: _l('OAuth 2.0 认证（客户端凭证）'), actionId: '522', appType: 32 },
+  { name: _l('OAuth 2.0 认证（授权码）'), actionId: '523', appType: 32 },
   { name: _l('API Key 或无需鉴权'), actionId: '520', appType: 30 },
 ];
 

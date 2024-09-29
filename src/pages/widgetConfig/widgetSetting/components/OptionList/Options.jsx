@@ -1,16 +1,14 @@
 import React, { useState, Fragment, useEffect } from 'react';
-import { SortableContainer, SortableElement, SortableHandle, arrayMove } from '@mdfe/react-sortable-hoc';
-import { Checkbox, Radio, ColorPicker } from 'ming-ui';
+import { ColorPicker, SortableList, Tooltip } from 'ming-ui';
 import { v4 as uuidv4 } from 'uuid';
 import styled from 'styled-components';
 import cx from 'classnames';
 import 'rc-trigger/assets/index.css';
-import { Tooltip } from 'antd';
 import update from 'immutability-helper';
 import { useSetState } from 'react-use';
-import { every, includes, pull } from 'lodash';
+import { every } from 'lodash';
 import { isLightColor, getUnUniqName } from 'src/util';
-import { getAdvanceSetting, parseOptionValue } from '../../../util/setting';
+import { getAdvanceSetting } from '../../../util/setting';
 import { OPTION_COLORS_LIST, MAX_OPTIONS_COUNT } from '../../../config';
 import BatchAdd from './BatchAdd';
 import AssignValue from './AssignValue';
@@ -18,7 +16,7 @@ import 'src/pages/widgetConfig/styled/style.less';
 
 const OptionsWrap = styled.div`
   margin-top: 8px;
-
+  border: ${({ showBorder }) => (showBorder ? '1px solid rgba(253 ,180,50 ,0.3)' : 'none')};
   .dragPointer {
     &:hover {
       cursor: move;
@@ -65,7 +63,7 @@ const HandleOption = styled.div`
     }
   }
 `;
-const DragItem = styled.li`
+const DragItem = styled.div`
   display: flex;
   align-items: center;
   background-color: #fff;
@@ -96,7 +94,7 @@ const DragItem = styled.li`
   }
 
   .optionContent {
-    margin-left: ${props => (props.isOther ? '21px' : '8px')}
+    margin-left: ${props => (props.isOther ? '21px' : '8px')};
     padding-right: 8px;
     display: flex;
     align-items: center;
@@ -126,7 +124,7 @@ const DragItem = styled.li`
     outline: none;
     line-height: 37px;
     &:hover {
-      ${props => (props.isFocus ? '' : 'background: #f5f5f5;cursor: pointer;')} ;
+      ${props => (props.isFocus ? '' : 'background: #f5f5f5;cursor: pointer;')};
     }
   }
   .deleteWrap {
@@ -134,126 +132,114 @@ const DragItem = styled.li`
   }
 `;
 
-const DragHandle = SortableHandle(() => (
-  <Tooltip title={_l('拖拽调整排序')}>
-    <div className="pointer dragPointer">
-      <i className="icon-drag"></i>
-    </div>
-  </Tooltip>
-));
+function OptionItem({
+  addOption,
+  item = {},
+  focusIndex,
+  options,
+  idx: index,
+  colorful,
+  updateOption,
+  setIndex,
+  optionKey,
+  renderDragHandle,
+}) {
+  const isFocus = index === focusIndex;
+  const [originValue, setValue] = useState('');
+  const { key, value, isDeleted, color } = item;
+  const isOther = key === 'other' && !isDeleted;
 
-const OptionItem = SortableElement(
-  ({ checkedValue = [], addOption, item, focusIndex, options, idx: index, colorful, updateOption, setIndex }) => {
-    const isFocus = index === focusIndex;
-    const [originValue, setValue] = useState('');
-    const { key, value, isDeleted, color } = item;
-    const isOther = key === 'other' && !isDeleted;
+  useEffect(() => {
+    setValue(isFocus ? value : '');
+  }, [isFocus]);
 
-    useEffect(() => {
-      setValue(isFocus ? value : '');
-    }, [isFocus]);
+  const handleBlurCheck = () => {
+    if (!(value || '').trim()) {
+      alert(_l('选项不得为空'), 3);
+      updateOption(index, { value: originValue });
+      setIndex(-1);
+      return false;
+    }
+    const exitsOptions = options.filter(o => o.key !== key && o.value === value);
+    if (!!exitsOptions.length) {
+      alert(_l('不得与已有选项（包括回收站）重复'), 3);
+      return false;
+    }
+    return true;
+  };
 
-    const handleBlurCheck = () => {
-      if (!value.trim()) {
-        alert(_l('选项不得为空'), 3);
-        updateOption(index, { value: originValue });
-        setIndex(-1);
-        return false;
-      }
-      const exitsOptions = options.filter(o => o.key !== key && o.value === value);
-      if (!!exitsOptions.length) {
-        alert(_l('不得与已有选项（包括回收站）重复'), 3);
-        return false;
-      }
-      return true;
-    };
-
-    return (
-      <DragItem isOther={isOther} isFocus={isFocus}>
-        {!isDeleted && (
-          <Fragment>
-            {!isOther && <DragHandle />}
-            <div className="optionContent scfdv">
-              {colorful && (
-                <ColorPicker
-                  sysColor
-                  isPopupBody
-                  value={item.color || OPTION_COLORS_LIST[index % OPTION_COLORS_LIST.length]}
-                  onChange={color => updateOption(index, { color })}
-                  popupAlign={{ points: ['tl', 'bl'], offset: [-260, 10] }}
-                >
-                  <div className="colorWrap pointer" style={{ backgroundColor: color }}>
-                    <div className={cx('tri', { isLight: isLightColor(color) })}></div>
-                  </div>
-                </ColorPicker>
-              )}
-              <div className="optionName">
-                <input
-                  id={key}
-                  autoFocus={isFocus}
-                  value={value}
-                  onFocus={() => setIndex(index)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' && !isOther) {
-                      if (handleBlurCheck()) {
-                        addOption(false, index + 1);
-                      }
-                    }
-                    // focus上、下
-                    if (e.which === 38 || e.which === 40) {
-                      if (handleBlurCheck()) {
-                        let nextIndex =
-                          e.which === 38
-                            ? focusIndex === 0
-                              ? options.length - 1
-                              : focusIndex - 1
-                            : focusIndex === options.length - 1
-                            ? 0
-                            : focusIndex + 1;
-                        setIndex(nextIndex);
-                        const timer = setTimeout(() => {
-                          const optionEl = document.getElementById(_.get(options[nextIndex], 'key'));
-                          optionEl && optionEl.select();
-                          clearTimeout(timer);
-                        }, 50);
-                      }
-                    }
-                  }}
-                  onChange={e => updateOption(index, { value: e.target.value })}
-                  onBlur={() => {
-                    if (handleBlurCheck()) setIndex(-1);
-                  }}
-                />
-              </div>
-              <div
-                className="deleteWrap pointer"
-                data-tip={_l('删除')}
-                onClick={() => updateOption(index, { isDeleted: true })}
+  return (
+    <DragItem isOther={isOther} isFocus={isFocus} key={optionKey}>
+      {!isDeleted && (
+        <Fragment>
+          {!isOther && renderDragHandle()}
+          <div className="optionContent scfdv">
+            {colorful && (
+              <ColorPicker
+                sysColor
+                isPopupBody
+                value={item.color || OPTION_COLORS_LIST[index % OPTION_COLORS_LIST.length]}
+                onChange={color => updateOption(index, { color })}
+                popupAlign={{ points: ['tl', 'bl'], offset: [-260, 10] }}
               >
+                <div className="colorWrap pointer" style={{ backgroundColor: color }}>
+                  <div className={cx('tri', { isLight: isLightColor(color) })}></div>
+                </div>
+              </ColorPicker>
+            )}
+            <div className="optionName">
+              <input
+                id={key}
+                autoFocus={isFocus}
+                value={value}
+                onFocus={() => setIndex(index)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && !isOther) {
+                    if (handleBlurCheck()) {
+                      addOption(false, index + 1);
+                    }
+                  }
+                  // focus上、下
+                  if (e.which === 38 || e.which === 40) {
+                    if (handleBlurCheck()) {
+                      let nextIndex =
+                        e.which === 38
+                          ? focusIndex === 0
+                            ? options.length - 1
+                            : focusIndex - 1
+                          : focusIndex === options.length - 1
+                          ? 0
+                          : focusIndex + 1;
+                      setIndex(nextIndex);
+                      const timer = setTimeout(() => {
+                        const optionEl = document.getElementById(_.get(options[nextIndex], 'key'));
+                        optionEl && optionEl.select();
+                        clearTimeout(timer);
+                      }, 50);
+                    }
+                  }
+                }}
+                onChange={e => updateOption(index, { value: e.target.value })}
+                onBlur={() => {
+                  if (handleBlurCheck()) setIndex(-1);
+                }}
+              />
+            </div>
+            <Tooltip text={_l('删除')} popupPlacement="bottom">
+              <div className="deleteWrap pointer" onClick={() => updateOption(index, { isDeleted: true })}>
                 <i className="icon-delete Font18"></i>
               </div>
-            </div>
-          </Fragment>
-        )}
-      </DragItem>
-    );
-  },
-);
-
-const OptionList = SortableContainer(({ options = [], ...rest }) => {
-  return (
-    <ul>
-      {options.map((option, index) => (
-        <OptionItem key={option.key} options={options} index={index} idx={index} item={option} {...rest} />
-      ))}
-    </ul>
+            </Tooltip>
+          </div>
+        </Fragment>
+      )}
+    </DragItem>
   );
-});
+}
 
 export default function SelectOptions(props) {
   const {
     mode = 'add',
-    onAdd,
     onChange,
     options,
     isMulti,
@@ -261,11 +247,12 @@ export default function SelectOptions(props) {
     showAssign = false,
     fromPortal,
     enableScore,
+    className,
+    isDialog,
   } = props;
   const [focusIndex, setIndex] = useState(-1);
-  const checkedValue = parseOptionValue(data.default);
   const { showtype } = getAdvanceSetting(data);
-
+  const [isDrag, setIsDrag] = useState(false);
   const hasOther = _.find(options, i => i.key === 'other' && !i.isDeleted);
   const findOther = _.findIndex(options, i => i.key === 'other');
   const noDelOptions = options.filter(i => !i.isDeleted);
@@ -310,21 +297,8 @@ export default function SelectOptions(props) {
 
     setIndex(newIndex);
     setTimeout(() => {
-      document.getElementById(nextKey).select();
+      document.getElementById(nextKey) && document.getElementById(nextKey).select();
     }, 50);
-
-    if (onAdd) {
-      onAdd();
-    }
-  };
-
-  const switchChecked = key => {
-    if (!isMulti) {
-      onChange({ default: JSON.stringify(checkedValue.includes(key) ? [] : [key]) });
-      return;
-    }
-    const nextCheckedValue = checkedValue.includes(key) ? pull(checkedValue, key) : checkedValue.concat(key);
-    onChange({ default: JSON.stringify(nextCheckedValue) });
   };
 
   const updateOption = (index, obj) => {
@@ -336,29 +310,48 @@ export default function SelectOptions(props) {
     onChange({ options: nextOptions });
   };
 
-  const onSortEnd = ({ oldIndex, newIndex }) => {
+  const onSortEnd = (newItems = []) => {
     // 选项拖拽重新生成index
-    onChange({ options: arrayMove(options, oldIndex, newIndex).map((item, index) => ({ ...item, index })) });
+    setIsDrag(false);
+    onChange({ options: newItems.map((item, index) => ({ ...item, index })) });
   };
 
   const updateVisible = (type, visible = true) => {
     setVisible({ [`${type}Visible`]: visible });
   };
 
+  const windowHeight = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
+  const showBorder = isDialog && isDrag && windowHeight - 340 < options.length * 40;
+
   return (
-    <OptionsWrap>
-      <OptionList
-        {...props}
+    <OptionsWrap className={className} showBorder={showBorder}>
+      <SortableList
         useDragHandle
-        showtype={showtype}
-        addOption={addOption}
+        items={options}
+        itemKey="key"
         onSortEnd={onSortEnd}
-        switchChecked={switchChecked}
-        updateOption={updateOption}
-        setIndex={setIndex}
-        focusIndex={focusIndex}
-        checkedValue={checkedValue}
-        helperClass="selectOptionSortableList"
+        moveItem={() => setIsDrag(true)}
+        renderItem={({ item, index, DragHandle }) => {
+          return (
+            <OptionItem
+              {...props}
+              optionKey={`item_${item.key}`}
+              item={_.find(options, o => o.key === item.key)}
+              idx={index}
+              addOption={addOption}
+              updateOption={updateOption}
+              setIndex={setIndex}
+              focusIndex={focusIndex}
+              renderDragHandle={() => (
+                <DragHandle>
+                  <div className="pointer dragPointer">
+                    <i className="icon-drag"></i>
+                  </div>
+                </DragHandle>
+              )}
+            />
+          );
+        }}
       />
       <HandleOption className="handleOption">
         <div className="addOptions" onClick={() => addOption()}>

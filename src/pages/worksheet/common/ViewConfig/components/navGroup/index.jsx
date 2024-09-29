@@ -10,6 +10,7 @@ import AddCondition from 'src/pages/worksheet/common/WorkSheetFilter/components/
 import sheetAjax from 'src/api/worksheet';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import NavShow from './NavShow';
+import NavSort from '../NavSort';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import _ from 'lodash';
 import { MaxNavW, MinNavW, defaultNavOpenW } from 'src/pages/worksheet/common/ViewConfig/config.js';
@@ -226,7 +227,14 @@ const Wrap = styled.div`
     height: auto;
   }
 `;
-
+const WrapDrop = styled.div`
+  .Dropdown {
+    margin-bottom: 0 !important;
+    .Dropdown--input {
+      padding: 0 5px 0 12px !important;
+    }
+  }
+`;
 export default function NavGroup(params) {
   let ajaxInfoFn = null;
   const { worksheetControls = [], view = {}, updateCurrentView, worksheetId, columns, currentSheetInfo = {} } = params;
@@ -290,18 +298,16 @@ export default function NavGroup(params) {
     const d = getSetDefault(data);
     let info = {
       shownullitem: '1', //默认新增显示空
-    };
-    if ([35].includes(data.type)) {
-      info = {
-        showallitem: '',
-      };
-    }
-    updateView(d, {
+      navsorts: '',
+      customnavs: '',
       navshow: !['0', '1'].includes(navshow + '') ? '0' : navshow, //新配置需要前端把这个值设为1
       navfilters: JSON.stringify([]),
       usenav: '0', //新配置 默认不勾选
-      ...info,
-    });
+    };
+    if ([35].includes(data.type)) {
+      info.showallitem = '';
+    }
+    updateView(d, info);
     setShowAddCondition(false);
     data.type === 29 && data.dataSource && getRelate(data.dataSource);
   };
@@ -384,40 +390,82 @@ export default function NavGroup(params) {
       if (o.key === 'filterType' && [29, 35].includes(data.type)) {
         value = value === 11 ? value : 24; //筛选方式 24是 | 11包含 老数据是0 按照24走
       }
+      if (o.key === 'isAsc') return null; //排序合并到显示项处理
       if (o.key === 'navshow') {
         return (
-          <NavShow
-            canShowAll
-            canShowNull
-            params={o}
-            value={navshow}
-            onChange={newValue => {
-              updateCurrentView(
-                Object.assign(view, {
-                  advancedSetting: newValue,
+          <WrapDrop>
+            <NavShow
+              canShowAll
+              canShowNull
+              params={o}
+              value={navshow}
+              onChange={newValue => {
+                let param = newValue;
+                if (newValue.navshow === '2') {
+                  param = { ...param, navsorts: '', customnavs: '' };
+                }
+                updateCurrentView({
+                  ...view,
+                  advancedSetting: param,
                   editAttrs: ['advancedSetting'],
-                  editAdKeys: Object.keys(newValue),
-                }),
-              );
-            }}
-            advancedSetting={view.advancedSetting}
-            navfilters={navfilters}
-            filterInfo={{
-              relateControls: relateControls,
-              allControls: worksheetControls,
-              globalSheetInfo: _.pick(currentSheetInfo, [
-                'appId',
-                'groupId',
-                'name',
-                'projectId',
-                'roleType',
-                'worksheetId',
-                'switches',
-              ]),
-              columns,
-              viewControl: data.controlId,
-            }}
-          />
+                  editAdKeys: Object.keys(param),
+                });
+              }}
+              advancedSetting={view.advancedSetting}
+              navfilters={navfilters}
+              filterInfo={{
+                relateControls: relateControls,
+                allControls: worksheetControls,
+                globalSheetInfo: _.pick(currentSheetInfo, [
+                  'appId',
+                  'groupId',
+                  'name',
+                  'projectId',
+                  'roleType',
+                  'worksheetId',
+                  'switches',
+                ]),
+                columns,
+                navGroupId: data.controlId,
+              }}
+            />
+            {/*  支持排序的字段：关联记录、人员、选项、等级*/}
+            {[29, 26, 9, 10, 11, 28].includes(
+              (worksheetControls.find(o => o.controlId === navGroup.controlId) || {}).type,
+            ) &&
+              !['2'].includes(navshow) && (
+                <NavSort
+                  view={view}
+                  customitemsKey={'customnavs'}
+                  viewControlData={worksheetControls.find(o => o.controlId === navGroup.controlId) || {}}
+                  appId={_.get(currentSheetInfo, 'appId')}
+                  projectId={_.get(currentSheetInfo, 'projectId')}
+                  controls={worksheetControls}
+                  advancedSetting={view.advancedSetting}
+                  onChange={newValue => {
+                    let editAttrs = ['advancedSetting'];
+                    let editAdKeys = Object.keys(newValue);
+                    let data = {};
+                    if (
+                      editAdKeys.includes('navsorts') &&
+                      [9, 10, 11].includes((worksheetControls.find(o => o.controlId === navGroup.controlId) || {}).type)
+                    ) {
+                      //  _l('升序') '0', _l('降序') '1',
+                      data = { navGroup: [{ ...navGroup, isAsc: newValue.navsorts + '' !== '1' }] };
+                      editAttrs.push('navGroup');
+                    }
+                    updateCurrentView({
+                      ...view,
+                      ...data,
+                      appId: _.get(currentSheetInfo, 'appId'),
+                      advancedSetting: newValue,
+                      editAttrs,
+                      editAdKeys,
+                    });
+                  }}
+                />
+              )}
+          </WrapDrop>
         );
       }
       return (
@@ -432,13 +480,13 @@ export default function NavGroup(params) {
               updateView(
                 { ...navGroup, [o.key]: newValue },
                 o.key === 'viewId' && data.type === 29 //关联记录 以层级视图时，没有显示项
-                  ? { navshow: '0', navfilters: JSON.stringify([]) }
+                  ? { navshow: '0', navfilters: JSON.stringify([]), navsorts: '', customnavs: '' }
                   : null,
               );
             }}
             border
             renderError={() => {
-              if (data.type === 29 && relateSheetInfo.length > 0 && o.key === 'viewId') {
+              if (data.type === 29 && !!value && o.key === 'viewId') {
                 return (
                   <span className="Red TxtMiddle">
                     <Icon icon={'error1'} className={cx('mRight12 Font16')} />

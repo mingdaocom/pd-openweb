@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Icon, Menu, MenuItem, Button, Tooltip } from 'ming-ui';
+import { Modal, Icon, Menu, MenuItem, Button, Tooltip, Dialog } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import WorksheetDraftOperate from './WorksheetDraftOperate';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
@@ -74,7 +74,7 @@ function DraftModal(props) {
     setHighLightOfRows = () => {},
   } = props;
 
-  const { worksheetId, projectId, rules = [], isWorksheetQuery, advancedSetting = {} } = worksheetInfo;
+  const { worksheetId, projectId, rules = [], isWorksheetQuery, advancedSetting = {}, enablePayment } = worksheetInfo;
   const { rows } = sheetViewData;
   const [selected, setSelected] = useState([]);
   const [recordInfoVisible, setRecordInfoVisible] = useState(false);
@@ -185,27 +185,6 @@ function DraftModal(props) {
       />
     );
   };
-
-  const changeSort = (newIsAsc, control) => {
-    const newSortControl = _.isUndefined(newIsAsc)
-      ? {}
-      : {
-          controlId: control.controlId,
-          isAsc: newIsAsc,
-        };
-    setSortControl(newSortControl);
-    loadRows({
-      sortControls: _.isUndefined(newIsAsc)
-        ? []
-        : [
-            {
-              datatype: control.type,
-              ...newSortControl,
-            },
-          ],
-    });
-  };
-
   const deleteSelete = ids => {
     worksheetAjax
       .deleteWorksheetRows({
@@ -221,14 +200,44 @@ function DraftModal(props) {
           setRecords(data);
           updateDraftDataCount(data.length);
           setSelected([]);
-          if (props.loadDraftDataCount && _.isFunction(props.loadDraftDataCount) && !data.length) {
-            props.loadDraftDataCount({ appId, worksheetId });
-          }
+          // if (props.loadDraftDataCount && _.isFunction(props.loadDraftDataCount) && !data.length) {
+          //   props.loadDraftDataCount({ appId, worksheetId });
+          // }
         } else {
           alert(_l('删除失败'), 2);
         }
       });
   };
+
+  const doubleConfirmSubmit = () => {
+    const doubleConfirm = safeParse(_.get(worksheetInfo, 'advancedSetting.doubleconfirm'));
+    if (_.get(worksheetInfo, 'advancedSetting.enableconfirm') === '1') {
+      Dialog.confirm({
+        title: <div className="breakAll">{doubleConfirm.confirmMsg}</div>,
+        description: doubleConfirm.confirmContent,
+        okText: (
+          <div className="InlineBlock ellipsis" style={{ maxWidth: 100 }}>
+            {doubleConfirm.sureName}
+          </div>
+        ),
+        cancelText: (
+          <div className="InlineBlock ellipsis" style={{ maxWidth: 100 }}>
+            {doubleConfirm.cancelName}
+          </div>
+        ),
+        onOk: submitDraft,
+      });
+
+      return;
+    }
+    submitDraft();
+  };
+
+  const submitDraft = _.throttle(() => {
+    if (recordInfoRef.current) {
+      recordInfoRef.current.saveDraftData({ draftType: 'submit' });
+    }
+  }, 1000);
 
   return (
     <BrowserRouter>
@@ -313,6 +322,7 @@ function DraftModal(props) {
         {recordInfoVisible && (
           <RecordInfo
             ref={recordInfoRef}
+            enablePayment={enablePayment}
             controls={controls}
             draftFormControls={controls.filter(
               item =>
@@ -371,14 +381,7 @@ function DraftModal(props) {
                 >
                   {_l('存草稿')}
                 </DraftButton>
-                <Button
-                  className="mRight12"
-                  onClick={_.throttle(() => {
-                    if (recordInfoRef.current) {
-                      recordInfoRef.current.saveDraftData({ draftType: 'submit' });
-                    }
-                  }, 1000)}
-                >
+                <Button className="mRight12" onClick={doubleConfirmSubmit}>
                   {advancedSetting.sub || _l('提交')}
                 </Button>
               </div>
@@ -435,7 +438,7 @@ function WorksheetDraft(props) {
         }}
       >
         <Icon icon="drafts_approval" className="Font20 Gray_9e pointer mTop4" />
-        {draftDataCount ? <span className="draftDot"></span> : ''}
+        {/* {draftDataCount ? <span className="draftDot"></span> : ''} */}
       </span>
     </Tooltip>
   );

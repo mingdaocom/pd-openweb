@@ -53,15 +53,13 @@ export default function allCountPanelGenerator(props) {
             checked={summary.all}
             onChange={(event) => {
               const data = {
+                displaySetup: {
+                  ...displaySetup,
+                  showTotal: event.target.checked || controlList.length ? true : false
+                },
                 summary: {
                   ...summary,
                   all: event.target.checked,
-                }
-              }
-              if (event.target.checked) {
-                data.displaySetup = {
-                  ...displaySetup,
-                  showTotal: true
                 }
               }
               changeCurrentReport(data, true);
@@ -116,10 +114,15 @@ export default function allCountPanelGenerator(props) {
                       }
                       changeCurrentReport(result, true);
                     } else {
+                      const newControlList = controlList.filter(item => item.controlId !== id);
                       changeCurrentReport({
+                        displaySetup: {
+                          ...displaySetup,
+                          showTotal: newControlList.length || summary.all ? true : false
+                        },
                         summary: {
                           ...summary,
-                          controlList: controlList.filter(item => item.controlId !== id)
+                          controlList: newControlList
                         }
                       }, true);
                     }

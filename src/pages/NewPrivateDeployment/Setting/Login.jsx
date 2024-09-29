@@ -21,13 +21,14 @@ const Login = props => {
   const [linkListLoading, setLinkListLoading] = useState(true);
 
   const [
-    { hideRegister, enableMobilePhoneRegister, enableEmailRegister, enableEditAccountInfo, enableDeclareRegisterConfirm, enableDeclareConfirm, enableFooterInfo, footerThemeColor },
+    { hideRegister, enableMobilePhoneRegister, enableEmailRegister, enableEditAccountInfo, allowBindAccountNoVerify, enableDeclareRegisterConfirm, enableDeclareConfirm, enableFooterInfo, footerThemeColor },
     setData,
   ] = useSetState({
     hideRegister: SysSettings.hideRegister,
     enableMobilePhoneRegister: SysSettings.enableMobilePhoneRegister,
     enableEmailRegister: SysSettings.enableEmailRegister,
     enableEditAccountInfo: SysSettings.enableEditAccountInfo,
+    allowBindAccountNoVerify: SysSettings.allowBindAccountNoVerify,
     enableDeclareRegisterConfirm: SysSettings.enableDeclareRegisterConfirm,
     enableDeclareConfirm: SysSettings.enableDeclareConfirm || false,
     enableFooterInfo: SysSettings.enableFooterInfo,
@@ -137,6 +138,23 @@ const Login = props => {
     );
   };
 
+  const renderAllowBindAccountNoVerify = () => {
+    return (
+      <div className="flexRow valignWrapper">
+        <div className="flex flexColumn">
+          <div className="Font14 bold mBottom8">{_l('邮箱和手机号验证')}</div>
+          <div className="Gray_9e">{_l('开启后绑定邮箱或手机号时，需要验证合法性')}</div>
+        </div>
+        <Switch
+          checked={!allowBindAccountNoVerify}
+          onClick={value => {
+            changeSysSettings('allowBindAccountNoVerify', !value);
+          }}
+        />
+      </div>
+    );
+  };
+
   const renderFooterInfo = () => {
     return (
       <Fragment>
@@ -217,6 +235,12 @@ const Login = props => {
       <Divider className="mTop20 mBottom20" />
       {renderAllowEditAccountInfo()}
       <Divider className="mTop20 mBottom20" />
+      {!IsPlatformLocal && (
+        <Fragment>
+          {renderAllowBindAccountNoVerify()}
+          <Divider className="mTop20 mBottom20" />
+        </Fragment>
+      )}
       {renderDeclare()}
       <Divider className="mTop20 mBottom20" />
       {renderFooterInfo()}

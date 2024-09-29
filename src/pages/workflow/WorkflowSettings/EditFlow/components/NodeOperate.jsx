@@ -383,7 +383,7 @@ export default class NodeOperate extends Component {
   };
 
   render() {
-    const { item, nodeClassName, noCopy } = this.props;
+    const { item, nodeClassName, noCopy, nodeStyle = {} } = this.props;
 
     return (
       <Fragment>
@@ -393,7 +393,9 @@ export default class NodeOperate extends Component {
             <span className="flex" />
           </Fragment>
         ) : (
-          <div className={cx('workflowName TxtCenter', nodeClassName)}>{this.renderNodeName()}</div>
+          <div className={cx('workflowName TxtCenter', nodeClassName)} style={nodeStyle}>
+            {this.renderNodeName()}
+          </div>
         )}
 
         {!_.includes([NODE_TYPE.FIRST, NODE_TYPE.BRANCH_ITEM], item.typeId) && !noCopy && <CopyNode {...this.props} />}

@@ -73,6 +73,19 @@ const EmptyStatus = styled.div`
   align-items: center;
 `;
 
+function getKeyOfFiltersGroup(filtersGroup) {
+  function getKey(f) {
+    return JSON.stringify(_.pick(f, ['controlId', 'value', 'values', 'minValue', 'maxValue']));
+  }
+  if (_.isEmpty(filtersGroup)) {
+    return '';
+  } else if (_.get(filtersGroup, '0.groupFilters')) {
+    return _.flatten(_.map(filtersGroup, item => _.map(item.groupFilters, getKey))).join('|');
+  } else {
+    return _.map(filtersGroup, getKey).join('|');
+  }
+}
+
 function Sheet(props) {
   const {
     loading,
@@ -199,7 +212,7 @@ function Sheet(props) {
     if (_.isArray(filtersGroup) && !loading) {
       updateFilters({ filtersGroup }, view);
     }
-  }, [filtersGroup, loading]);
+  }, [getKeyOfFiltersGroup(filtersGroup), loading]);
 
   useEffect(() => {
     updateGroupFilter([], view);
@@ -230,7 +243,6 @@ function Sheet(props) {
     return () => {
       updateGroupFilter([], view);
       delete window.openViewConfig;
-      window.localStorage.removeItem('getRowDetailIsShowOrder');
     };
   }, []);
   return (

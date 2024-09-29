@@ -112,11 +112,7 @@ function PluginSettings(params) {
       iconColor: iconColor || '#445A65',
     });
   }, [params]);
-  const handleSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
-    const list = paramSettings.slice();
-    const currentItem = list.splice(oldIndex, 1)[0];
-    list.splice(newIndex, 0, currentItem);
+  const handleSortEnd = list => {
     onChangeView(
       {
         paramSettings: list,
@@ -320,7 +316,6 @@ function PluginSettings(params) {
           <SettingList
             items={paramSettings}
             key={key}
-            useDragHandle
             helperClass={'itemSortLiHand'}
             onEdit={onEdit}
             openEdit={openEdit}

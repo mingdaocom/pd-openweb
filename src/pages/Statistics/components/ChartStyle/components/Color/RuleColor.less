@@ -29,9 +29,11 @@
   margin: 0 -24px;
   .scopeRule {
     padding: 5px 24px;
+    position: relative;
     .icon-drag {
       position: absolute;
       left: 4px;
+      top: 15px;
       display: none;
     }
     &:hover {
@@ -65,15 +67,6 @@
   .dataBarColorContent .ColorPicker-wrapper {
     display: block;
     width: max-content;
-  }
-}
-
-.sortableScopeRuleWrap {
-  background-color: #f6f6f6;
-  z-index: 1000;
-  .palette();
-  &.scopeRulesWrap {
-    .scopeRulesWrap;
   }
 }
 

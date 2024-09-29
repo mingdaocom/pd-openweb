@@ -375,11 +375,15 @@ export function isWpsPreview(fileExt) {
     'pptm',
     'potm',
     'ppsm',
-    'wps',
   ];
   if (fileExt) {
     fileExt = fileExt.toLowerCase();
     return fileExts.indexOf(fileExt) !== -1;
   }
   return false;
+}
+
+export function defaultWpsPreview(ext) {
+  const fileExts = ['wps', 'wpt', 'et', 'dpt', 'dps'];
+  return ext && fileExts.indexOf(ext.toLowerCase()) !== -1;
 }

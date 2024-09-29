@@ -131,8 +131,8 @@ class CalculateControl extends Component {
     }
     this.setState({ dot: count });
   }
-  renderControlTypeOverlay({ controlId, type }, norm) {
-    const isNumber = isNumberControl(type);
+  renderControlTypeOverlay({ controlId, type, enumDefault }, norm) {
+    const isNumber = isNumberControl(type) || enumDefault === 1;
     return (
       <Menu className="chartMenu" style={{ width: 140 }}>
         {(isNumber ? calculateControlNormTypes : textControlNormTypes).map(item => (
@@ -141,7 +141,7 @@ class CalculateControl extends Component {
             style={{ color: norm.value === item.value ? '#2196f3' : null }}
             onClick={() => {
               const newFormulaStr = this.state.formulaStr.replace(
-                new RegExp(`${controlId}-${norm.value}`),
+                new RegExp(`${controlId}-${norm.value || '\\d'}`),
                 `${controlId}-${item.value}`,
               );
               this.tagtextarea.setValue(newFormulaStr);
@@ -158,7 +158,7 @@ class CalculateControl extends Component {
     const control = _.find(axisControls, { controlId: id.replace(/-\w/, '') }) || {};
     const invalid = _.isEmpty(control);
     const type = id.replace(/\w+-/, '');
-    const isNumber = isNumberControl(control.type);
+    const isNumber = isNumberControl(control.type) || control.enumDefault === 1;
     const norm = _.find(isNumber ? calculateControlNormTypes : textControlNormTypes, { value: Number(type) });
     return (
       <ControlTag className={cx('flexRow valignWrapper', { invalid })}>
@@ -166,6 +166,11 @@ class CalculateControl extends Component {
         {norm && (
           <span className="Font12 mLeft5" style={{ color: '#688ca7' }}>
             {norm.text}
+          </span>
+        )}
+        {!norm && control.type === 11 && (
+          <span className="Font12 mLeft5 Red">
+            {_l('计算方式失效，请重新调整')}
           </span>
         )}
         {!invalid && (
@@ -179,7 +184,7 @@ class CalculateControl extends Component {
     const control = _.find(this.props.axisControls, { controlId: showDropdownId.replace(/-\w/, '') }) || {};
     const invalid = _.isEmpty(control);
     const type = showDropdownId.replace(/\w+-/, '');
-    const isNumber = isNumberControl(control.type);
+    const isNumber = isNumberControl(control.type) || control.enumDefault === 1;
     const norm = _.find(isNumber ? calculateControlNormTypes : textControlNormTypes, { value: Number(type) }) || {};
     if (showDropdownId) {
       return (

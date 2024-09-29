@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { SortableContainer, SortableElement, arrayMove } from '@mdfe/react-sortable-hoc';
-import { Tooltip, Icon, Dialog, Input } from 'ming-ui';
+import { Tooltip, Icon, Dialog, Input, SortableList } from 'ming-ui';
 import Trigger from 'rc-trigger';
 import 'rc-trigger/assets/index.css';
 import sheetAjax from 'src/api/worksheet';
@@ -26,29 +25,6 @@ const EmptyData = styled.div`
 
 const confirm = Dialog.confirm;
 
-const SortableItem = SortableElement(({ ...props }) => {
-  return <Item {...props} />;
-});
-
-const SortableList = SortableContainer(({ list, onScroll, ...other }) => {
-  return (
-    <div className="viewsScroll" onScroll={onScroll}>
-      <div className="stance" />
-      {list.map((item, index) => (
-        <SortableItem key={index} index={index} item={item} list={list} {...other} />
-      ))}
-      <div className="stance" />
-    </div>
-  );
-});
-
-const SortHiddenListItem = SortableElement(({ ...props }) => {
-  return <HideItem {...props} />;
-});
-
-const SortHiddenListContainer = SortableContainer(({ children, type = 'drawerWorksheetShowList' }) => {
-  return <ul className={type}>{children}</ul>;
-});
 @withRouter
 export default class ViewItems extends Component {
   static defaultProps = {
@@ -301,22 +277,25 @@ export default class ViewItems extends Component {
       });
     }
   };
-  handleSortEnd = ({ oldIndex, newIndex }) => {
-    if (oldIndex === newIndex) return;
+
+  handleSortEnd = (newViewList, type) => {
     const { viewList, worksheetId, appId } = this.props;
-    const newViewList = arrayMove(viewList, oldIndex, newIndex);
-    this.props.updateViewList(newViewList);
+    const otherSortList = _.differenceBy(viewList, newViewList, 'viewId');
+    const newSortList = type ? newViewList.concat(otherSortList) : otherSortList.concat(newViewList);
+
+    this.props.updateViewList(newSortList);
     sheetAjax
       .sortWorksheetViews({
         appId,
         worksheetId,
-        viewIds: newViewList.map(item => item.viewId),
+        viewIds: newSortList.map(l => l.viewId),
       })
       .then(result => {})
       .catch(err => {
         alert(_l('退拽排序视图失败'), 2);
       });
   };
+
   updateViewName = view => {
     this.props.updateCurrentView(
       {
@@ -360,6 +339,83 @@ export default class ViewItems extends Component {
     this.handleAutoFocus();
   };
 
+  renderSortList = (type, items) => {
+    const { searchWorksheetListValue } = this.state;
+    const {
+      viewList,
+      currentViewId,
+      isCharge,
+      worksheetControls,
+      sheetSwitchPermit,
+      getNavigateUrl,
+      isLock,
+      appId,
+      changeViewDisplayType,
+    } = this.props;
+    const isNavSort = type === 'sortNav';
+
+    const ItemComp = isNavSort ? Item : HideItem;
+    const param = isNavSort
+      ? {
+          list: viewList,
+          changeViewDisplayType,
+          currentView: _.find(viewList, { viewId: currentViewId }) || {},
+          getNavigateUrl,
+          onSortEnd: this.handleSortEnd,
+        }
+      : {
+          viewList,
+          type,
+          disabled: !isCharge,
+        };
+    const content = (
+      <SortableList
+        canDrag
+        renderBody={!isNavSort}
+        items={
+          isNavSort
+            ? items
+            : items.filter(l => !searchWorksheetListValue || l.name.includes(_.trim(searchWorksheetListValue)))
+        }
+        itemKey="viewId"
+        onSortEnd={newList => this.handleSortEnd(newList, type === 'drawerWorksheetShowList')}
+        renderItem={options => (
+          <ItemComp
+            {...options}
+            {...param}
+            isCharge={isCharge}
+            isLock={isLock}
+            currentViewId={currentViewId}
+            appId={appId}
+            style={{ zIndex: 999999 }}
+            controls={worksheetControls}
+            sheetSwitchPermit={sheetSwitchPermit}
+            projectId={_.get(this.props, 'worksheetInfo.projectId')}
+            onCopyView={this.handleCopyView}
+            updateAdvancedSetting={this.updateAdvancedSetting}
+            onRemoveView={this.handleRemoveView}
+            updateViewName={this.updateViewName}
+            onOpenView={this.handleOpenView}
+            onShare={this.props.onShare}
+            onExport={this.props.onExport}
+            onExportAttachment={this.props.onExportAttachment}
+            toView={() => navigateTo(getNavigateUrl(options.item))}
+          />
+        )}
+      />
+    );
+
+    return isNavSort ? (
+      <div className="viewsScroll" onScroll={this.updateScrollBtnState}>
+        <div className="stance" />
+        {content}
+        <div className="stance" />
+      </div>
+    ) : (
+      <ul className={type}>{content}</ul>
+    );
+  };
+
   render() {
     const { directionVisible, hideDirection, addMenuVisible, setWorksheetHidden, searchWorksheetListValue } =
       this.state;
@@ -376,6 +432,7 @@ export default class ViewItems extends Component {
       viewList.find(l => l.viewId === currentViewId) || {},
       'advancedSetting.showhide',
     );
+    const hideList = viewList.filter(l => _.get(l, 'advancedSetting.showhide') === 'hide');
 
     return (
       <div className="valignWrapper flex">
@@ -430,113 +487,18 @@ export default class ViewItems extends Component {
               <EmptyData>{_l('没有搜索到相关视图')}</EmptyData>
             ) : (
               <Fragment>
-                <SortHiddenListContainer
-                  distance={10}
-                  onSortEnd={prop => {
-                    if (!isCharge) return;
-                    const { newIndex, oldIndex } = prop;
-                    if (newIndex === oldIndex) {
-                      return;
-                    }
-                    let _newList = viewList.filter(l => _.get(l, 'advancedSetting.showhide') !== 'hide');
-                    let _prop = {};
-                    _prop.newIndex = _.findIndex(viewList, l => l.viewId === _newList[newIndex].viewId);
-                    _prop.oldIndex = _.findIndex(viewList, l => l.viewId === _newList[oldIndex].viewId);
-                    this.handleSortEnd(_prop);
-                  }}
-                  type="drawerWorksheetShowList"
-                  helperClass="drawerWorksheetShowListItem"
-                >
-                  {viewList
-                    .filter(l => _.get(l, 'advancedSetting.showhide') !== 'hide')
-                    .filter(l => isCharge || !(_.get(l, 'advancedSetting.showhide') || '').includes('hpc'))
-                    .filter(l => !searchWorksheetListValue || l.name.includes(_.trim(searchWorksheetListValue)))
-                    .map((item, index) => (
-                      <SortHiddenListItem
-                        disabled={!isCharge}
-                        isCharge={isCharge}
-                        isLock={this.props.isLock}
-                        lockAxis={'y'}
-                        currentViewId={currentViewId}
-                        projectId={_.get(this.props, 'worksheetInfo.projectId')}
-                        item={item}
-                        appId={this.props.appId}
-                        key={`drawerWorksheetShowList-${item.viewId}`}
-                        index={index}
-                        style={{ zIndex: 999999 }}
-                        type="drawerWorksheetShowList"
-                        viewList={viewList}
-                        controls={this.props.worksheetControls}
-                        sheetSwitchPermit={sheetSwitchPermit}
-                        toView={() => navigateTo(getNavigateUrl(item))}
-                        onCopyView={this.handleCopyView}
-                        updateAdvancedSetting={this.updateAdvancedSetting}
-                        onRemoveView={this.handleRemoveView}
-                        updateViewName={this.updateViewName}
-                        handleSortEnd={this.handleSortEnd}
-                        onOpenView={this.handleOpenView}
-                        onShare={this.props.onShare}
-                        onExport={this.props.onExport}
-                        onExportAttachment={this.props.onExportAttachment}
-                      />
-                    ))}
-                </SortHiddenListContainer>
-                {isCharge &&
-                  !!viewList
-                    .filter(l => _.get(l, 'advancedSetting.showhide') === 'hide')
-                    .filter(l => !searchWorksheetListValue || l.name.includes(_.trim(searchWorksheetListValue)))
-                    .length && <div className="drawerWorksheetHiddenListTitle Gray_9e">{_l('隐藏的视图')}</div>}
-                {isCharge && (
-                  <SortHiddenListContainer
-                    disabled={!isCharge}
-                    distance={10}
-                    onSortEnd={prop => {
-                      const { newIndex, oldIndex } = prop;
-                      if (newIndex === oldIndex) {
-                        return;
-                      }
-                      let _newList = viewList.filter(l => _.get(l, 'advancedSetting.showhide') === 'hide');
-                      let _prop = {};
-                      _prop.newIndex = _.findIndex(viewList, l => l.viewId === _newList[newIndex].viewId);
-                      _prop.oldIndex = _.findIndex(viewList, l => l.viewId === _newList[oldIndex].viewId);
-                      this.handleSortEnd(_prop);
-                    }}
-                    type="drawerWorksheetHiddenList"
-                  >
-                    {viewList
-                      .filter(l => _.get(l, 'advancedSetting.showhide') === 'hide')
-                      .filter(l => !searchWorksheetListValue || l.name.includes(searchWorksheetListValue))
-                      .map((item, index) => (
-                        <SortHiddenListItem
-                          disabled={!isCharge}
-                          isCharge={isCharge}
-                          isLock={this.props.isLock}
-                          lockAxis={'y'}
-                          currentViewId={currentViewId}
-                          projectId={_.get(this.props, 'worksheetInfo.projectId')}
-                          item={item}
-                          appId={this.props.appId}
-                          key={`drawerWorksheetHiddenList-${item.viewId}`}
-                          index={index}
-                          style={{ zIndex: 999999 }}
-                          type="drawerWorksheetHiddenList"
-                          viewList={viewList}
-                          controls={this.props.worksheetControls}
-                          sheetSwitchPermit={sheetSwitchPermit}
-                          toView={() => navigateTo(getNavigateUrl(item))}
-                          onCopyView={this.handleCopyView}
-                          updateAdvancedSetting={this.updateAdvancedSetting}
-                          onRemoveView={this.handleRemoveView}
-                          updateViewName={this.updateViewName}
-                          handleSortEnd={this.handleSortEnd}
-                          onOpenView={this.handleOpenView}
-                          onShare={this.props.onShare}
-                          onExport={this.props.onExport}
-                          onExportAttachment={this.props.onExportAttachment}
-                        />
-                      ))}
-                  </SortHiddenListContainer>
+                {this.renderSortList(
+                  'drawerWorksheetShowList',
+                  viewList.filter(
+                    l =>
+                      _.get(l, 'advancedSetting.showhide') !== 'hide' &&
+                      (isCharge || !(_.get(l, 'advancedSetting.showhide') || '').includes('hpc')),
+                  ),
                 )}
+                {isCharge && !!hideList.length && (
+                  <div className="drawerWorksheetHiddenListTitle Gray_9e">{_l('隐藏的视图')}</div>
+                )}
+                {isCharge && this.renderSortList('drawerWorksheetHiddenList', hideList)}
               </Fragment>
             )}
           </Drawer>
@@ -571,34 +533,7 @@ export default class ViewItems extends Component {
             this.scrollWraperEl = scrollWraperEl;
           }}
         >
-          <SortableList
-            axis="x"
-            lockAxis={'x'}
-            disabled={!isCharge}
-            helperClass="workSheetSortableViewItem"
-            distance={5}
-            list={viewList}
-            currentViewId={currentViewId}
-            currentView={_.find(viewList, { viewId: currentViewId }) || {}}
-            changeViewDisplayType={changeViewDisplayType}
-            onSortEnd={this.handleSortEnd}
-            onRemoveView={this.handleRemoveView}
-            onOpenView={this.handleOpenView}
-            getNavigateUrl={this.props.getNavigateUrl}
-            onCopyView={this.handleCopyView}
-            onShare={this.props.onShare}
-            onExport={this.props.onExport}
-            onExportAttachment={this.props.onExportAttachment}
-            onScroll={this.updateScrollBtnState}
-            updateViewName={this.updateViewName}
-            isCharge={isCharge}
-            sheetSwitchPermit={sheetSwitchPermit}
-            updateAdvancedSetting={this.updateAdvancedSetting}
-            isLock={this.props.isLock}
-            appId={this.props.appId}
-            controls={this.props.worksheetControls}
-            projectId={_.get(this.props, 'worksheetInfo.projectId')}
-          />
+          {this.renderSortList('sortNav', viewList)}
         </div>
         {directionVisible ? (
           <div className="Width95">

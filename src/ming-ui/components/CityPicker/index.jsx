@@ -76,6 +76,7 @@ const CascaderSearchSelectWrap = styled.ul`
 
 export default function CityPicker(props) {
   const {
+    id = 'CityPicker',
     level = 3,
     search,
     placeholder = _l('省/市/县'),
@@ -109,10 +110,15 @@ export default function CityPicker(props) {
 
   useEffect(() => {
     if (!defaultValue && !isMobile && data.length > 0) {
-      setSelect([]);
-      setData(_.isArray(data[0]) ? data[0] : [data[0]]);
+      init();
     }
   }, [defaultValue]);
+
+  useEffect(() => {
+    if (data.length > 0) {
+      init();
+    }
+  }, [id]);
 
   useEffect(() => {
     if (visible && !search && (!data.length || !_.isArray(data[0]))) {
@@ -135,6 +141,11 @@ export default function CityPicker(props) {
       setData(data.slice(0, level));
     }
   }, [level]);
+
+  const init = () => {
+    setSelect([]);
+    setData(_.isArray(data[0]) ? data[0] : [data[0]]);
+  };
 
   const getCitys = (param = {}, key = 0) => {
     const { parentId = '', keywords = '' } = param;

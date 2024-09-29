@@ -313,7 +313,7 @@ export default class Widgets extends Component {
 
                   if (current && minDate && moment(current).isSame(moment(minDate), 'day')) {
                     for (let i = 0; i < 60; i++) {
-                      if (moment(current).hour() === moment(maxDate).hour() && i < moment(minDate).minute()) {
+                      if (moment(current).hour() === moment(minDate).hour() && i < moment(minDate).minute()) {
                         result.push(i);
                       }
                     }

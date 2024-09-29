@@ -1,6 +1,6 @@
 export const fromType = {
   PRINT: 'print', // 打印
-  FORMSET: 'formSet', // 设置
+  FORM_SET: 'formSet', // 设置
 };
 
 export const printType = {
@@ -64,7 +64,7 @@ export const PRINT_TEMP = {
   BAR_CODE_PRINT: 2,
 };
 
-export const SYSTOPRINT = {
+export const SYST_PRINT = {
   ownerid: 'ownerAccountChecked',
   caid: 'createAccountChecked',
   ctime: 'createTimeChecked',
@@ -72,7 +72,7 @@ export const SYSTOPRINT = {
   uaid: 'updateAccountChecked',
 };
 
-export const SYSTOPRINTTXT = {
+export const SYST_PRINT_TXT = {
   ownerAccount: _l('拥有者：'),
   createAccount: _l('创建人：'),
   createTime: _l('创建时间：'),
@@ -80,7 +80,7 @@ export const SYSTOPRINTTXT = {
   updateAccount: _l('最近修改人：'),
 };
 
-export const UNPRINTCONTROL = [43]; //不支持打印的type 文本识别 43
+export const UN_PRINT_CONTROL = [43]; //不支持打印的type 文本识别 43
 
 //打印不支持的系统字段
 export const FILTER_SYS = [
@@ -171,3 +171,41 @@ export const FONT_STYLE = {
   16: 'middle',
   18: 'big',
 };
+
+export const FONT_OPTION = [
+  {
+    label: _l('标准'),
+    fontSize: DEFAULT_FONT_SIZE,
+  },
+  {
+    label: _l('中'),
+    fontSize: MIDDLE_FONT_SIZE,
+  },
+  {
+    label: _l('大'),
+    fontSize: MAX_FONT_SIZE,
+  },
+];
+
+export const POSITION_OPTION = [
+  {
+    label: _l('左'),
+    value: '1',
+  },
+  {
+    label: _l('中'),
+    value: '0',
+  },
+];
+
+export const PRINT_FILE_OPTIONS = [
+  {
+    text: _l('缩略图'),
+    value: '0',
+    tips: _l('仅图片类型支持按缩略图打印，非图片类型会在最后以文件名显示'),
+  },
+  {
+    text: _l('名称'),
+    value: '1',
+  },
+];

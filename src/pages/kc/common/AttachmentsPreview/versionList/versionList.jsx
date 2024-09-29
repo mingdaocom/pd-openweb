@@ -65,7 +65,7 @@ class VersionList extends React.Component {
         .then(outerItem => {
           if (isLastLeft) {
             alert('删除成功');
-            this.props.onClose();
+            this.props.onClose && this.props.onClose();
             this.props.performRemoveItems && this.props.performRemoveItems([versionFile.id]);
             return;
           }
@@ -128,16 +128,15 @@ class VersionList extends React.Component {
           </span>
           <span className="createTime">{version.isNew ? '当前版本' : version.createTime}</span>
           <span className="historyBtn btnDelete">
-            {(version.isAdmin ||
-              version.isCreateUser ||
-              (version.owner.accountId === md.global.Account.accountId && list.length > 1)) && (
-              <i
-                className="icon-delete"
-                onClick={() => {
-                  this.remove(version, i);
-                }}
-              />
-            )}
+            {(version.isAdmin || version.isCreateUser || version.owner.accountId === md.global.Account.accountId) &&
+              list.length > 1 && (
+                <i
+                  className="icon-delete"
+                  onClick={() => {
+                    this.remove(version, i);
+                  }}
+                />
+              )}
           </span>
           <span className="historyBtn btnDownload">
             <i

@@ -176,3 +176,19 @@ export function renderLimitInfo(worksheetSettings) {
     </React.Fragment>
   );
 }
+
+// 本地存储当前选中菜单
+export const saveSelectExtensionNavType = (worksheetId, navType, navValue) => {
+  const sheetConfigNavInfo = localStorage.getItem('sheetConfigNavInfo')
+    ? JSON.parse(localStorage.getItem('sheetConfigNavInfo'))
+    : {};
+  if (!sheetConfigNavInfo[worksheetId]) {
+    sheetConfigNavInfo[worksheetId] = {};
+  }
+  sheetConfigNavInfo[worksheetId][navType] = navValue;
+  const sheetIds = Object.keys(sheetConfigNavInfo);
+  if (sheetIds.length > 10) {
+    delete sheetConfigNavInfo[sheetIds[0]];
+  }
+  localStorage.setItem('sheetConfigNavInfo', JSON.stringify(sheetConfigNavInfo));
+};

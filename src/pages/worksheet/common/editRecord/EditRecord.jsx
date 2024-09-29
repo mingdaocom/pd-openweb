@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { autobind } from 'core-decorators';
 import { Dialog, Dropdown } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import RadioGroup from 'ming-ui/components/RadioGroup';
@@ -64,6 +63,7 @@ export default class EditRecord extends Component {
           ((control.type < 10000 &&
             _.includes(CONTROL_EDITABLE_WHITELIST, control.type) &&
             !(control.type === 29 && _.includes(['2', '5', '6'], _.get(control, 'advancedSetting.showtype'))) &&
+            !(control.type === 14 && _.includes(['0'], _.get(control, 'advancedSetting.allowdelete') || '1')) &&
             !_.find(SYSTEM_CONTROL_WITH_UAID.concat(WORKFLOW_SYSTEM_CONTROL), { controlId: control.controlId }) &&
             !_.find(view.controls, id => control.controlId === id)) ||
             control.controlId === 'ownerid') &&
@@ -95,13 +95,13 @@ export default class EditRecord extends Component {
   updating = false;
   customwidget = React.createRef();
 
-  @autobind
-  selectOwner(e) {
+  selectOwner = e => {
     const _this = this;
     const { appId, projectId } = this.props;
+    const selectId = this.state.ownerAccount.accountId;
+
     quickSelectUser($(e.target).closest('.selectOwner')[0], {
       projectId: projectId,
-
       showMoreInvite: false,
       isTask: false,
       tabType: 3,
@@ -112,6 +112,7 @@ export default class EditRecord extends Component {
         left: 0,
       },
       zIndex: 10001,
+      selectedAccountIds: selectId ? [selectId] : [],
       SelectUserSettings: {
         unique: true,
         projectId: projectId,
@@ -123,10 +124,9 @@ export default class EditRecord extends Component {
         _this.setState({ ownerAccount: users[0], hasError: false });
       },
     });
-  }
+  };
 
-  @autobind
-  updateRecords() {
+  updateRecords = () => {
     const { formData, selectedControlId, updateType, ownerAccount } = this.state;
     const {
       appId,
@@ -284,7 +284,7 @@ export default class EditRecord extends Component {
         alert(_l('修改失败'), 2);
       }
     });
-  }
+  };
 
   getUpdateTypes(control) {
     if (!control) {
@@ -389,7 +389,7 @@ export default class EditRecord extends Component {
             </div>
             <div className="selectControlContent">
               <span className="TxtMiddle mRight8 label Gray_9e">{_l('字段内容')}</span>
-              <span className="TxtMiddle updateControlType mLeft5">
+              <span className="TxtMiddle updateControlType pLeft12">
                 <RadioGroup
                   className="controlValueRadio TxtMiddle InlineBlock"
                   vertical

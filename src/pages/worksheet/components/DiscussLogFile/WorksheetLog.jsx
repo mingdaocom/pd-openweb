@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import { Icon, ScrollView, LoadDiv } from 'ming-ui';
 import sheetAjax from 'src/api/worksheet';
 import { createLinksForMessage } from 'src/util';
@@ -79,13 +78,12 @@ export default class Discuss extends Component {
       });
   }
 
-  @autobind
-  handleScroll() {
+  handleScroll = () => {
     const { loading, loadouted, pageIndex, discussList } = this.state;
     if (!loading && !loadouted && discussList.length >= PAGE_SIZE) {
       this.loadLog({ pageIndex: pageIndex + 1, ..._.pick(this.props, ['worksheetId', 'rowId']) });
     }
-  }
+  };
 
   handleTimeFormat = () => {
     const { isSimplify } = this.state;

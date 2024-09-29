@@ -1,5 +1,4 @@
 import React, { Fragment, Component } from 'react';
-import { connect } from 'react-redux';
 import { List } from 'antd-mobile';
 import { Icon } from 'ming-ui';
 import TabBar from '../components/TabBar';
@@ -8,8 +7,6 @@ import { navigateToLogin } from 'src/router/navigateTo';
 import { getCurrentProject } from 'src/util';
 import localForage from 'localforage';
 import { removePssId } from 'src/util/pssId';
-
-const { Item } = List;
 
 class MyHome extends Component {
   constructor(props) {
@@ -46,31 +43,29 @@ class MyHome extends Component {
             </div>
           </div>
           <List className="body flex mTop20">
-            <Item
-              thumb={
+            <List.Item
+              prefix={
                 <div className="businessWrapper valignWrapper flexRow">
                   <Icon icon="business" className="Font16" />
                 </div>
               }
-              arrow="horizontal"
-              extra={<span className="Font17 Gray_75">{currentProject.companyName}</span>}
+              extra={<div className="Font17 Gray_75 ellipsis" style={{ width: 120 }}>{currentProject.companyName}</div>}
               onClick={() => {
                 this.props.history.push(`/mobile/enterprise`);
               }}
             >
               {_l('切换组织')}
-            </Item>
+            </List.Item>
             {md.global.Config.IsLocal || window.isWxWork || window.isDingTalk ? null : (
               <Fragment>
-                <Item
-                  thumb={<Icon icon="workflow_help" className="Font26" />}
-                  arrow="horizontal"
+                <List.Item
+                  prefix={<Icon icon="workflow_help" className="Font26" />}
                   onClick={() => {
                     this.props.history.push(`/mobile/iframe/help`);
                   }}
                 >
                   {_l('帮助中心')}
-                </Item>
+                </List.Item>
               </Fragment>
             )}
           </List>

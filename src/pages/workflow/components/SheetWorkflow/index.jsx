@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react';
 import { Icon, LoadDiv, Dialog, ScrollView, UserHead } from 'ming-ui';
-import { Modal } from 'antd-mobile';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import instance from 'src/pages/workflow/api/instance';
@@ -753,7 +752,7 @@ export default function SheetWorkflow(props) {
       <Drawer
         placement="right"
         width={isMobile ? '85%' : '100%'}
-        zIndex={isMobile ? 999 : 10}
+        zIndex={isMobile ? 1000 : 10}
         className="sheetWorkflowDrawer"
         closable={false}
         getContainer={isMobile ? () => document.body : false}

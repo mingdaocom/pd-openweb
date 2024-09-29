@@ -14,6 +14,7 @@ import PrintOptDialog from './PrintOptDialog';
 import { formatFormulaDate } from 'src/pages/worksheet/util';
 import model from './model';
 import nzh from 'nzh';
+import filterXss from 'xss';
 import './Print.less';
 import { htmlDecodeReg, accAdd, accDiv, accMul } from 'src/util';
 import _ from 'lodash';
@@ -55,7 +56,7 @@ const allocationTask = result => {
     } else if (item.key === 'tag') {
       item.value = result.tag.join('、');
     } else if (item.key === 'desc') {
-      item.value = <span dangerouslySetInnerHTML={{ __html: htmlDecodeReg(result.desc) }} />;
+      item.value = <span dangerouslySetInnerHTML={{ __html: filterXss(htmlDecodeReg(result.desc)) }} />;
     } else {
       item.value = result[item.key];
     }
@@ -163,8 +164,8 @@ export default class Print extends Component {
       },
     );
   }
-  @autobind
-  loadRowRelationRows(args) {
+
+  loadRowRelationRows = args => {
     const { appId, worksheetId, rowId, control } = args;
     sheetAjax
       .getRowRelationRows({
@@ -184,7 +185,7 @@ export default class Print extends Component {
         });
       })
       .catch(err => {});
-  }
+  };
   loadWorksheetShortUrl(appId, worksheetId, viewId, rowId) {
     sheetAjax
       .getWorksheetShareUrl({
@@ -521,13 +522,13 @@ export default class Print extends Component {
         return content;
       }
       case 41: {
-        return <div className="richText" dangerouslySetInnerHTML={{ __html: value }}></div>;
+        return <div className="richText" dangerouslySetInnerHTML={{ __html: filterXss(value) }}></div>;
       }
       case 42: {
         return <img src={value} style={{ width: 168 }} />;
       }
       case 10010:
-        return <div className="richText" dangerouslySetInnerHTML={{ __html: value }}></div>;
+        return <div className="richText" dangerouslySetInnerHTML={{ __html: filterXss(value) }}></div>;
       default:
         break;
     }

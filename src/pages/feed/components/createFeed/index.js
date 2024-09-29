@@ -56,6 +56,7 @@ export default function (options) {
       let $Attachment_updater = $('[targetdiv="#MDUpdater_Attachment_updater"]');
       if (!$Attachment_updater.hasClass('ThemeColor3')) {
         $Attachment_updater.click();
+        MDUpdater.options.filesRender = true;
       }
     },
     handleUploadComplete(bool) {
@@ -95,6 +96,10 @@ export default function (options) {
           }}
           onUploadComplete={bool => {
             this.handleUploadComplete(bool);
+            if (bool && MDUpdater.options.filesRender) {
+              MDUpdater.options.filesRender = undefined;
+              this.render();
+            }
           }}
         />,
       );

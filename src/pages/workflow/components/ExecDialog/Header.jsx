@@ -7,12 +7,12 @@ import { ACTION_LIST, OPERATION_LIST, ACTION_TO_METHOD } from './config';
 import OtherAction from './components/OtherAction';
 import AddApproveWay from './components/AddApproveWay';
 import instance from '../../api/instance';
-import webCacheAjax from 'src/api/webCache';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import moment from 'moment';
 import { verifyPassword } from 'src/util';
+import PrintList from './components/PrintList';
 
 // 处理特殊多语言文本
 const SPECIAL_LANG_TEXT = {
@@ -55,32 +55,6 @@ export default class Header extends Component {
    * 头部更多操作的处理逻辑
    */
   handleMoreOperation = action => {
-    const { projectId, id, workId, data, worksheetId } = this.props;
-    const { app } = data;
-
-    if (action === 'print') {
-      let printId = '';
-      let isDefault = true;
-      let printData = {
-        printId,
-        isDefault, // 系统打印模板
-        worksheetId,
-        projectId,
-        id,
-        rowId: '',
-        getType: 1,
-        viewId: '',
-        appId: app.id,
-        workId,
-      };
-      let printKey = Math.random().toString(36).substring(2);
-      webCacheAjax.add({
-        key: `${printKey}`,
-        value: JSON.stringify(printData),
-      });
-      window.open(`${window.subPath || ''}/printForm/${app.id}/flow/new/print/${printKey}`);
-    }
-
     if (action === 'addApprove') {
       this.setState({ action, otherActionVisible: true });
     }
@@ -356,7 +330,7 @@ export default class Header extends Component {
     }
 
     if (flowNode) {
-      const { text, color } =
+      const { text, color, shallowBg } =
         currentWorkItem && currentWorkItem.type && currentWorkItem.type !== 0
           ? FLOW_NODE_TYPE_STATUS[currentWorkItem.type][currentWorkItem.operationType] || {}
           : {};
@@ -390,7 +364,7 @@ export default class Header extends Component {
                     {createTimeSpan(urgeTime || currentWorkItem.operationTime)}
                     {!!urgeTime && <span className="mLeft5 Gray_75">{_l('已催办')}</span>}
                     {text && !urgeTime && (
-                      <span className="mLeft5" style={{ color }}>
+                      <span className="mLeft5" style={{ color: shallowBg || color }}>
                         {text}
                       </span>
                     )}
@@ -433,19 +407,20 @@ export default class Header extends Component {
                   </div>
 
                   {moreOperationVisible && (
-                    <Menu className="moreOperation" onClickAway={() => this.setState({ moreOperationVisible: false })}>
-                      {operationTypeList[1].map(
-                        (item, index) =>
-                          //打印需要绑定权限
-                          !(
-                            OPERATION_LIST[item].id === 'print' &&
-                            !isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId)
-                          ) && (
-                            <MenuItem key={index} onClick={() => this.handleMoreOperation(OPERATION_LIST[item].id)}>
-                              <Icon icon={OPERATION_LIST[item].icon} />
-                              <span className="actionText">{OPERATION_LIST[item].text}</span>
-                            </MenuItem>
-                          ),
+                    <Menu
+                      className="moreOperation"
+                      onClickAwayExceptions={['.workflowExecPrintTrigger']}
+                      onClickAway={() => this.setState({ moreOperationVisible: false })}
+                    >
+                      {operationTypeList[1].map((item, index) => (
+                        <MenuItem key={index} onClick={() => this.handleMoreOperation(OPERATION_LIST[item].id)}>
+                          <Icon icon={OPERATION_LIST[item].icon} />
+                          <span className="actionText">{OPERATION_LIST[item].text}</span>
+                        </MenuItem>
+                      ))}
+
+                      {isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId) && (
+                        <PrintList {...this.props} onClose={() => this.setState({ moreOperationVisible: false })} />
                       )}
 
                       <MenuItem onClick={() => window.open(`/app/${app.id}/workflowdetail/record/${id}/${workId}`)}>

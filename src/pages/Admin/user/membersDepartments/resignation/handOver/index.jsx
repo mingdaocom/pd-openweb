@@ -246,7 +246,7 @@ export default class HandOver extends React.Component {
                   className="icon icon-arrow_back mRight10 Hand"
                   onClick={() => this.setState({ selectAccount: null })}
                 />
-                {_l('交接协作:%0', (selectAccount || {}).fullname)}
+                {_l('交接协作相关数据:%0', (selectAccount || {}).fullname)}
               </div>
             </div>
             {this.renderDetail()}
@@ -254,7 +254,7 @@ export default class HandOver extends React.Component {
         ) : (
           <Fragment>
             <div className="flexRow">
-              <div className="flex bold Font17">{_l('交接协作')}</div>
+              <div className="flex bold Font17">{_l('交接协作相关数据')}</div>
               <SearchInput onSearch={val => this.setState({ keywords: val }, this.fetchList)} />
             </div>
             {this.renderContent()}

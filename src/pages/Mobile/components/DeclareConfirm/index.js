@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
-import { Flex, Button, Modal, ActivityIndicator } from 'antd-mobile';
-import { RichText } from 'ming-ui';
+import { Button, CenterPopup, Popup, SpinLoading } from 'antd-mobile';
 import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
 import privateLegalApi from 'src/api/privateLegal';
@@ -40,13 +39,6 @@ const Con = styled.div`
     line-height: 35px;
   }
 `;
-
-const DeclareModal = styled(Modal)`
-  width: 90%!important;
-  .am-modal-content {
-    text-align: unset!important;
-  }
-`
 
 const declareConfirm = (Component) => {
   class DeclareConfirm extends React.Component {
@@ -107,19 +99,20 @@ const declareConfirm = (Component) => {
         privacy: 'privacy',
       }
       return (
-        <DeclareModal
+        <CenterPopup
+          style={{ '--min-width': '90%' }}
           visible={declareModal}
-          transparent
-          onClose={() => {
+          onMaskClick={() => {
             this.setState({ declareModal: false });
           }}
+          getContainer={() => document.body}
           title={title[type]}
           footer={[{ text: _l('关闭'), onPress: () => { this.setState({ declareModal: false }); } }]}
         >
-          <div style={{ height: document.body.clientHeight - 200, color: 'initial' }}>
+          <div style={{ height: document.body.clientHeight - 200, color: 'initial', borderRadius: 10, overflow: 'hidden'  }}>
             <iframe className="w100 h100" style={{ border: 'none' }} src={`${md.global.Config.WebUrl}legalportal/${url[type]}?hideHeader=1`} />
           </div>
-        </DeclareModal>
+        </CenterPopup>
       );
     }
     renderConfirm() {
@@ -132,10 +125,10 @@ const declareConfirm = (Component) => {
               <div className="bold Gray Font16 mBottom10">{_l('用户服务协议和隐私政策')}</div>
               <div className="Gray Font14">{_l('您拒绝了我们的用户服务协议和隐私政策，很遗憾无法继续提供服务！请手动关闭页面后退出。')}</div>
               <div className="flexRow mTop20">
-                <Button className="bold mRight20 alreadyReject" type="default" size="small" inline>{_l('已拒绝')}</Button>
+                <Button className="bold mRight20 alreadyReject" color="default" size="small" inline>{_l('已拒绝')}</Button>
                 <Button
                   className="bold flex agree"
-                  type="primary"
+                  color="primary"
                   size="small"
                   inline
                   onClick={() => {
@@ -159,7 +152,7 @@ const declareConfirm = (Component) => {
               <div className="flexRow mTop20">
                 <Button
                   className="bold mRight20 reject"
-                  type="default"
+                  color="default"
                   size="small"
                   inline
                   onClick={() => {
@@ -170,7 +163,7 @@ const declareConfirm = (Component) => {
                 </Button>
                 <Button
                   className="bold flex agree"
-                  type="primary"
+                  color="primary"
                   size="small"
                   inline
                   onClick={this.handleAgree}
@@ -188,24 +181,21 @@ const declareConfirm = (Component) => {
 
       if (loading) {
         return (
-          <Flex justify="center" align="center" className="h100">
-            <ActivityIndicator size="large" />
-          </Flex>
+          <div className="flexRow justifyContentCenter alignItemsCenter h100">
+            <SpinLoading color='primary' />
+          </div>
         )
       }
 
       if (confirm) {
         return (
           <Fragment>
-            <Modal
-              popup
+            <Popup
               visible={true}
               onClose={() => {}}
-              animationType="slide-up"
-              afterClose={() => {  }}
             >
               {this.renderConfirm()}
-            </Modal>
+            </Popup>
             {this.renderDeclare()}
           </Fragment>
         )

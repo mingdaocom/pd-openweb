@@ -211,7 +211,7 @@ export default class DropDownItem extends Component {
         }}
       >
         {this.renderChecked(item, parentControl)}
-        <Icon icon={getNewIconByType(item)} className="Font14 Gray_9e mLeft14 mRight6" />
+        <Icon icon={getNewIconByType(item)} className="Font14 Gray_9e mRight6" />
         <span className="ellipsis controlNameBox">{item.controlName}</span>
         {showArrow ? (
           <i
@@ -295,6 +295,7 @@ export default class DropDownItem extends Component {
           <div className="ruleSearchWrap">
             <input
               type="text"
+              autoFocus
               value={keyword}
               placeholder={_l('搜索字段')}
               onChange={e => this.setState({ keyword: e.target.value }, this.handleSearch)}

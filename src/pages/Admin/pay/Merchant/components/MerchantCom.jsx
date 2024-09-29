@@ -117,7 +117,6 @@ export default class MerchantCom extends Component {
       { title: _l('商户简称'), dataIndex: 'shortName', ellipsis: true },
       {
         title: _l('状态'),
-        width: 'fit-content',
         dataIndex: 'status',
         render: (text, record) => {
           return (
@@ -254,7 +253,7 @@ export default class MerchantCom extends Component {
       })
       .then(({ merchants, dataCount }) => {
         this.setState({ merchantList: merchants, count: dataCount, loading: false, pageIndex });
-        localStorage.setItem(`${projectId}-showOrderDetail`, !_.isEmpty(merchants));
+        localStorage.setItem(`${projectId}-hasMerchant`, !_.isEmpty(merchants));
         if (!_.isEmpty(merchants)) {
           this.props.changeShowCreateMerchant(true);
         }
@@ -310,10 +309,10 @@ export default class MerchantCom extends Component {
         paymentAjax.deleteMerchant({ projectId, merchantId: record.id, merchantNo: record.merchantNo }).then(res => {
           if (res) {
             alert(_l('删除成功'));
-            this.setState({ merchantList: _.filter(merchantList, v => v.id !== record.id), count: count - 1 });
-
-            if (_.isEmpty(_.filter(merchantList, v => v.id !== record.id))) {
-              localStorage.setItem(`${projectId}-showOrderDetail`, false);
+            const newList = _.filter(merchantList, v => v.id !== record.id);
+            this.setState({ merchantList: newList, count: count - 1 });
+            if (_.isEmpty(newList)) {
+              localStorage.setItem(`${projectId}-hasMerchant`, false);
               this.props.changeShowCreateMerchant(false);
             }
           } else {

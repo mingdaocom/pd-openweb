@@ -347,7 +347,7 @@ export default class Card extends Component {
             className="mobileProcessCardContent flexColumn flex"
             onClick={() => {
               if (batchApproval) {
-                !disabled && onChangeApproveCards({ target: { checked: !approveChecked } });
+                !disabled && onChangeApproveCards(!approveChecked);
               } else {
                 onClick();
               }

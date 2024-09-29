@@ -15,6 +15,7 @@ import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import { navigateTo } from 'src/router/navigateTo';
 import { COMPUTING_INSTANCE_STATUS } from '../config';
+import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack.jsx';
 import '../index.less';
 
 const MoreOperateMenu = styled.ul`
@@ -33,11 +34,17 @@ const MoreOperateMenu = styled.ul`
       color: #333;
       transition: none !important;
     }
+    .renewal {
+      color: #333 !important;
+    }
     &:hover {
       background-color: #2196f3;
       color: #fff;
       a {
         color: #fff;
+      }
+      .renewal {
+        color: #fff !important;
       }
     }
   }
@@ -301,13 +308,16 @@ function ExplanList(props) {
                             >
                               {_l('修改名称')}
                             </li>
-                            {item.canRenew && !(md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal) && (
-                              <li
-                                onClick={() => {
-                                  navigateTo(`/admin/expansionserviceComputing/${projectId}/renewcomputing/${item.id}`);
-                                }}
-                              >
-                                {_l('续费')}
+                            {item.canRenew && (
+                              <li>
+                                <PurchaseExpandPack
+                                  className="Block renewal"
+                                  text={_l('续费')}
+                                  type="renewcomputing"
+                                  routePath="expansionserviceComputing"
+                                  projectId={projectId}
+                                  extraParams={item.id}
+                                />
                               </li>
                             )}
                           </Fragment>

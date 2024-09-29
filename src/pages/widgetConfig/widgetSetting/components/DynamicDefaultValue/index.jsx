@@ -29,9 +29,15 @@ export default function DynamicDefaultValue(props) {
 
   // 更新data
   const handleDynamicValueChange = value => {
+    let tempValue = value;
+    if (_.isArray(value) && _.get(_.last(value), 'cid') === 'empty') {
+      tempValue = [{ rcid: '', cid: 'empty', staticValue: '' }];
+    } else {
+      tempValue = value.filter(i => !(i.cid === 'empty'));
+    }
     onChange(
       handleAdvancedSettingChange(data, {
-        defsource: JSON.stringify(value),
+        defsource: JSON.stringify(tempValue),
         defaulttype: '',
         defaultfunc: '',
         dynamicsrc: '',

@@ -3,7 +3,7 @@ import { useSetState } from 'react-use';
 import { Dropdown, Icon, Dialog } from 'ming-ui';
 import _ from 'lodash';
 
-export default ({ isApproval, data, getCallBackNodeNames, updateSource, onClose }) => {
+export default ({ data, getCallBackNodeNames, updateSource, onClose }) => {
   const [callbackOptions, setCallbackOptions] = useSetState({
     callBackNodeType: data.callBackNodeType,
     callBackType: data.callBackType === 1 && data.callBackMultipleLevel === 1 ? 2 : data.callBackType,
@@ -24,10 +24,6 @@ export default ({ isApproval, data, getCallBackNodeNames, updateSource, onClose 
 
   if (data.multipleLevelType === 0) {
     _.remove(CALL_BACK, o => o.value === 2);
-  }
-
-  if (!isApproval) {
-    _.remove(CALLBACK_NODE_TYPE, o => _.includes([2, 3], o.value));
   }
 
   return (

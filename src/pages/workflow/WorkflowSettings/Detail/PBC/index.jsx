@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown, Radio, Checkbox } from 'ming-ui';
+import { ScrollView, LoadDiv, Dropdown, Radio, Checkbox, Dialog } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import {
   DetailHeader,
@@ -14,6 +14,16 @@ import { ACTION_ID, FIELD_TYPE_LIST } from '../../enum';
 import { v4 as uuidv4, validate } from 'uuid';
 import cx from 'classnames';
 import _ from 'lodash';
+import styled from 'styled-components';
+
+const Header = styled.div`
+  .w180 {
+    width: 180px;
+  }
+  .red {
+    color: #f44336;
+  }
+`;
 
 export default class PBC extends Component {
   constructor(props) {
@@ -23,8 +33,11 @@ export default class PBC extends Component {
       saveRequest: false,
       execCountType: 1,
       showOtherPBC: false,
+      selectFieldId: '',
     };
   }
+
+  cacheItem = {};
 
   componentDidMount() {
     this.getNodeDetail(this.props);
@@ -98,7 +111,15 @@ export default class PBC extends Component {
       obj.fields
         .filter(item => item.type === 10000008 && item.fieldValueId)
         .forEach(item => {
-          _.remove(obj.fields, o => o.dataSource === item.fieldId);
+          // 清理字段名为空的子项
+          _.remove(obj.fields, o => o.dataSource === item.fieldId && !o.fieldName);
+
+          obj.fields.forEach(o => {
+            if (o.dataSource === item.fieldId) {
+              o.fieldValue = '';
+              o.fieldValueId = '';
+            }
+          });
         });
     }
 
@@ -109,6 +130,7 @@ export default class PBC extends Component {
    * 保存
    */
   onSave = () => {
+    const { isPlugin } = this.props;
     const { data, saveRequest } = this.state;
     const { appId, name, fields, executeType, number, selectNodeId, nextExecute } = data;
     const subProcessVariables = _.cloneDeep(data.subProcessVariables);
@@ -123,7 +145,12 @@ export default class PBC extends Component {
     // PBC 输出参数
     if (isPBCOut) {
       if (fields.filter(item => !item.fieldName).length) {
-        alert(_l('参数名称不能为空'), 2);
+        alert(_l('字段名不能为空'), 2);
+        return;
+      }
+
+      if (!fields.length && isPlugin) {
+        alert(_l('输出参数不允许为空'), 2);
         return;
       }
     }
@@ -184,11 +211,21 @@ export default class PBC extends Component {
    * 渲染PBC输出节点
    */
   renderExportContent() {
-    const { data } = this.state;
+    const { isPlugin } = this.props;
+    const { data, selectFieldId } = this.state;
+    const selectItem = data.fields.find(o => o.fieldId === selectFieldId);
 
     return (
       <Fragment>
         <div className="bold">{_l('输出参数')}</div>
+        <Header className="mTop15 flexRow">
+          <div className="w180">{_l('类型')}</div>
+          <div className="w180 mLeft10">
+            {_l('字段名')}
+            <span className="red">*</span>
+          </div>
+          <div className="flex mLeft10">{_l('值')}</div>
+        </Header>
 
         {this.renderList(data.fields.filter(o => !o.dataSource))}
 
@@ -198,114 +235,237 @@ export default class PBC extends Component {
             {_l('添加参数')}
           </span>
         </div>
+
+        {!!selectFieldId && (
+          <Dialog
+            className="workflowDialogBox workflowSettings"
+            style={{ overflow: 'initial' }}
+            overlayClosable={false}
+            type="scroll"
+            visible
+            bodyClass="workflowDetail"
+            title={FIELD_TYPE_LIST.find(o => o.value === selectItem.type).text}
+            onCancel={() => {
+              this.updateSource({
+                fields: data.fields.map(item => (item.fieldId === selectFieldId ? this.cacheItem : item)),
+              });
+              this.setState({ selectFieldId: '' });
+            }}
+            width={800}
+            onOk={() => this.setState({ selectFieldId: '' })}
+          >
+            <div className="flexRow">
+              <div className="flex bold">
+                <div>{_l('类型')}</div>
+                <div className="mTop10">{this.renderFieldType(selectItem)}</div>
+              </div>
+              <div className="flex mLeft10"></div>
+            </div>
+
+            <div className="mTop20 bold">
+              {_l('字段名')}
+              <span style={{ color: '#f44336' }}>*</span>
+            </div>
+            <div className="mTop10 flexRow">{this.renderFieldName(selectItem)}</div>
+            <div className="mTop5 Gray_75">{_l('在工作流使用时，作为返回结果的字段名称')}</div>
+
+            <div className="mTop20 mBottom2 bold">{_l('值')}</div>
+            <div className="Font14" style={{ lineHeight: 1.5715 }}>
+              {this.renderFieldValue(selectItem)}
+            </div>
+
+            <div className="mTop25" style={{ height: 1, background: '#ddd' }} />
+
+            <div className="mTop20 bold">{_l('参数名')}</div>
+            <div className="mTop10 flexRow">
+              <input
+                type="text"
+                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                placeholder={_l('参数名')}
+                value={selectItem.alias}
+                onChange={e => this.updateExportFields('alias', e.target.value.replace(/[^a-z\d-_]/gi, ''), selectItem)}
+                onBlur={e => {
+                  let value = e.target.value.trim();
+
+                  if (value && !/^[a-zA-Z]{1}/.test(value)) {
+                    value = (isPlugin ? 'plugin' : 'pbp') + value;
+                  }
+
+                  this.updateExportFields('alias', value, selectItem, true);
+                }}
+              />
+            </div>
+            <div className="mTop5 Gray_75">
+              {_l('启用平台API能力时，在API文档中作为输出参数的名称。未填写时，使用字段名')}
+            </div>
+
+            <div className="mTop20 bold">{_l('参数说明')}</div>
+            <div className="mTop10 flexRow">
+              <input
+                type="text"
+                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+                placeholder={_l('参数说明')}
+                value={selectItem.desc}
+                onChange={evt => this.updateExportFields('desc', evt.target.value, selectItem)}
+                onBlur={evt => this.updateExportFields('desc', evt.target.value.trim(), selectItem)}
+              />
+            </div>
+            <div className="mTop5 Gray_75">{_l('启用平台API能力时，在API文档中作为输出参数的说明')}</div>
+          </Dialog>
+        )}
       </Fragment>
     );
   }
 
   /**
+   * 渲染字段类型
+   */
+  renderFieldType = item => {
+    const { isPlugin } = this.props;
+
+    return (
+      <Dropdown
+        className="flowDropdown w100"
+        menuClass="w100"
+        data={FIELD_TYPE_LIST.filter(
+          o =>
+            _.includes([2, 6, 16, 26, 27, 48, 10000007, 10000008], o.value) &&
+            (!item.dataSource || (item.dataSource && o.value !== 10000008)) &&
+            !(isPlugin && _.includes([26, 27, 48], o.value)),
+        )}
+        value={item.type}
+        renderTitle={() => <span>{FIELD_TYPE_LIST.find(o => o.value === item.type).text}</span>}
+        border
+        disabled={!validate(item.fieldId)}
+        onChange={type => this.updateExportFields('type', type, item)}
+      />
+    );
+  };
+
+  /**
+   * 渲染字段名称
+   */
+  renderFieldName = item => {
+    return (
+      <input
+        type="text"
+        className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+        placeholder={_l('字段名（必填）')}
+        value={item.fieldName}
+        maxLength={64}
+        onChange={e => this.updateExportFields('fieldName', e.target.value, item)}
+        onBlur={e => this.updateExportFields('fieldName', e.target.value.trim(), item, true)}
+      />
+    );
+  };
+
+  /**
+   * 渲染字段值
+   */
+  renderFieldValue = item => {
+    const { isPlugin } = this.props;
+    const { data, selectFieldId } = this.state;
+    const parentNode = item.dataSource ? _.find(data.fields, o => o.fieldId === item.dataSource) : {};
+
+    return (
+      <SingleControlValue
+        companyId={this.props.companyId}
+        relationId={this.props.relationId}
+        processId={this.props.processId}
+        selectNodeId={this.props.selectNodeId}
+        sourceNodeId={item.dataSource ? parentNode.nodeId : ''}
+        controls={data.fields.map(o => {
+          if (o.type === 10000008) {
+            o.controlId = o.fieldId;
+            o.flowNodeAppDtos = data.batchNodes;
+          }
+          return o;
+        })}
+        formulaMap={data.formulaMap}
+        fields={data.fields}
+        updateSource={this.updateSource}
+        item={item}
+        i={_.findIndex(data.fields, o => o.fieldId === item.fieldId)}
+        isPlugin={isPlugin}
+        moreNodesMenuStyle={selectFieldId ? { marginLeft: -570, width: 715 } : { marginLeft: -112, width: 256 }}
+      />
+    );
+  };
+
+  /**
    * 渲染输出参数列表
    */
   renderList = source => {
+    const { isPlugin } = this.props;
     const { data } = this.state;
 
     return source.map(item => {
       const parentNode = item.dataSource ? _.find(data.fields, o => o.fieldId === item.dataSource) : {};
 
-      if (parentNode.type === 10000007) return null;
+      if (parentNode.type === 10000007 || (parentNode.type === 10000008 && parentNode.fieldValueId)) return null;
 
       return (
         <Fragment key={item.fieldId}>
-          <div className={cx('mTop8 flexRow relative alignItemsCenter', { pLeft20: item.dataSource })}>
-            <input
-              type="text"
-              className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mTop8"
-              style={{ width: 150 }}
-              placeholder={_l('参数名（必填）')}
-              value={item.fieldName}
-              maxLength={64}
-              onChange={e => this.updateExportFields('fieldName', e.target.value, item)}
-              onBlur={e => this.updateExportFields('fieldName', e.target.value.trim(), item, true)}
-            />
+          <div className={cx('mTop2 flexRow relative alignItemsCenter', { pLeft20: item.dataSource })}>
+            <div className="mTop8" style={{ width: item.dataSource ? 160 : 180 }}>
+              {this.renderFieldType(item)}
+            </div>
 
-            <Dropdown
-              className="flowDropdown mLeft10 mTop8"
-              style={{ width: 120 }}
-              data={FIELD_TYPE_LIST.filter(
-                o =>
-                  !_.includes([14, 10000003], o.value) &&
-                  (!item.dataSource || (item.dataSource && o.value !== 10000008)),
-              )}
-              value={item.type}
-              renderTitle={() => <span>{FIELD_TYPE_LIST.find(o => o.value === item.type).text}</span>}
-              border
-              disabled={!validate(item.fieldId)}
-              onChange={type => {
-                this.updateExportFields('type', type, item);
-              }}
-            />
+            <div className="flexRow mLeft10 mTop8" style={{ width: 180 }}>
+              {this.renderFieldName(item)}
+            </div>
 
             <div className="flex mLeft10" style={{ minWidth: 0 }}>
-              <SingleControlValue
-                companyId={this.props.companyId}
-                relationId={this.props.relationId}
-                processId={this.props.processId}
-                selectNodeId={this.props.selectNodeId}
-                sourceNodeId={item.dataSource ? parentNode.nodeId : ''}
-                controls={data.fields.map(o => {
-                  if (o.type === 10000008) {
-                    o.controlId = o.fieldId;
-                    o.flowNodeAppDtos = data.batchNodes;
-                  }
-                  return o;
-                })}
-                formulaMap={data.formulaMap}
-                fields={data.fields}
-                updateSource={this.updateSource}
-                item={item}
-                i={_.findIndex(data.fields, o => o.fieldId === item.fieldId)}
-              />
+              {this.renderFieldValue(item)}
             </div>
-            <i
-              className="icon-delete2 Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer mTop8"
+
+            {!isPlugin && (
+              <span
+                className="Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer mTop8"
+                data-tip={_l('编辑')}
+                onClick={() => {
+                  this.setState({ selectFieldId: item.fieldId });
+                  this.cacheItem = item;
+                }}
+              >
+                <i className="icon-edit " />
+              </span>
+            )}
+
+            <span
+              className="Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer mTop8"
+              data-tip={_l('删除')}
               onClick={() => {
                 let fields = [].concat(data.fields);
+                let objArrayIds = [];
 
-                _.remove(fields, o => o.fieldId === item.fieldId);
+                _.remove(fields, o => {
+                  const isDelete = o.fieldId === item.fieldId || o.dataSource === item.fieldId;
+
+                  if (isDelete && o.type === 10000007) {
+                    objArrayIds.push(o.fieldId);
+                  }
+
+                  return isDelete;
+                });
+
+                // 移除普通数组的子项
+                _.remove(fields, o => _.includes(objArrayIds, o.dataSource));
+
                 this.updateSource({ fields });
               }}
-            />
-            <i
-              className="icon-add Font16 pointer Gray_75 ThemeHoverColor3 mLeft10 pointer mTop8"
+            >
+              <i className="icon-delete2" />
+            </span>
+
+            <span
+              className="Font16 Gray_75 ThemeHoverColor3 mLeft10 pointer mTop8"
               style={{ visibility: item.type === 10000008 && item.fieldValueId ? 'hidden' : 'visible' }}
+              data-tip={_l('添加')}
               onClick={() => this.addParameters(item)}
-            />
-          </div>
-          <div className={cx('mTop10 flexRow alignItemsCenter', { pLeft20: item.dataSource })}>
-            <input
-              type="text"
-              className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10"
-              style={{ width: 150 }}
-              placeholder={_l('别名')}
-              value={item.alias}
-              onChange={e => this.updateExportFields('alias', e.target.value.replace(/[^a-z\d-_]/gi, ''), item)}
-              onBlur={e => {
-                let value = e.target.value.trim();
-
-                if (value && !/^[a-zA-Z]{1}/.test(value)) {
-                  value = 'pbp' + value;
-                }
-
-                this.updateExportFields('alias', value, item, true);
-              }}
-            />
-            <input
-              type="text"
-              className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex mLeft10"
-              placeholder={_l('说明')}
-              value={item.desc}
-              onChange={evt => this.updateExportFields('desc', evt.target.value, item)}
-              onBlur={evt => this.updateExportFields('desc', evt.target.value.trim(), item)}
-            />
+            >
+              <i className="icon-add" />
+            </span>
           </div>
           {this.renderList(data.fields.filter(o => o.dataSource === item.fieldId))}
         </Fragment>
@@ -360,8 +520,10 @@ export default class PBC extends Component {
    * 添加输出参数
    */
   addParameters = ({ type, dataSource, fieldId }) => {
+    const { isPlugin } = this.props;
     const { data } = this.state;
     const fields = _.cloneDeep(data.fields);
+    const defaultParameters = this.getDefaultParameters();
     let index = 0;
 
     fields.forEach((item, i) => {
@@ -375,16 +537,17 @@ export default class PBC extends Component {
     }
 
     if (type === 10000008 || dataSource) {
-      fields.splice(
-        index + 1,
-        0,
-        Object.assign({}, this.getDefaultParameters(), { dataSource: dataSource || fieldId }),
-      );
+      fields.splice(index + 1, 0, Object.assign({}, defaultParameters, { dataSource: dataSource || fieldId }));
     } else {
-      fields.splice(index + 1, 0, this.getDefaultParameters());
+      fields.splice(index + 1, 0, defaultParameters);
     }
 
     this.updateSource({ fields });
+
+    if (!isPlugin) {
+      this.setState({ selectFieldId: defaultParameters.fieldId });
+      this.cacheItem = _.cloneDeep(defaultParameters);
+    }
   };
 
   /**
@@ -425,7 +588,13 @@ export default class PBC extends Component {
                   <Radio
                     text={item.text}
                     checked={item.value === data.executeType || (item.value === 1 && data.executeType === 2)}
-                    onClick={() => this.updateSource({ executeType: item.value })}
+                    onClick={() =>
+                      this.updateSource({
+                        executeType: item.value,
+                        selectNodeId: '',
+                        number: Object.assign({}, data.number, { fieldControlId: '', fieldNodeId: '', fieldValue: '' }),
+                      })
+                    }
                   />
                 </div>
               );
@@ -544,7 +713,10 @@ export default class PBC extends Component {
           value={execCountType}
           border
           onChange={execCountType => {
-            this.updateSource({ selectNodeId: '' });
+            this.updateSource({
+              selectNodeId: '',
+              number: Object.assign({}, data.number, { fieldControlId: '', fieldNodeId: '', fieldValue: '' }),
+            });
             this.setState({ execCountType });
           }}
         />
@@ -592,7 +764,7 @@ export default class PBC extends Component {
         <DetailHeader
           {...this.props}
           data={{ ...data }}
-          icon="icon-pbc"
+          icon={isPBCOut ? 'icon-output' : 'icon-pbc'}
           bg="BGBlueAsh"
           updateSource={this.updateSource}
         />

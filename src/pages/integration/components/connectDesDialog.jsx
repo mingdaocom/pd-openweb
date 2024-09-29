@@ -72,6 +72,12 @@ const Wrap = styled.div`
   }
 `;
 
+const WrapAvatorInfo = styled.div`
+  .reviewBox {
+    margin-left: 40px;
+  }
+`;
+
 function ConnectDesDia(props) {
   const [{ uploadLoading, iconName, name, explain }, setState] = useSetState({
     iconName: _.get(props, ['data', 'iconName']),
@@ -89,20 +95,26 @@ function ConnectDesDia(props) {
 
     Dialog.confirm({
       width: 460,
-      title: _l('上传logo'),
+      title: 'Logo',
       showFooter: false,
       dialogClasses: 'uploadAvatorDialogId_container',
+      description: _l('支持.png、.jpg图片格式，不小于80*80px'),
       children: (
-        <AvatorInfo
-          editAvatar={res => {
-            setState({ iconName: res.url });
-          }}
-          avatar={(iconName || ' ').split('imageView2')[0]}
-          closeDialog={() => {
-            $('.uploadAvatorDialogId_container').parent().remove();
-          }}
-          defaultType
-        />
+        <WrapAvatorInfo>
+          <AvatorInfo
+            editAvatar={res => {
+              setState({ iconName: res.url });
+            }}
+            from="integration"
+            label={_l('点击这里上传图片')}
+            avatar={(iconName || ' ').split('imageView2')[0]}
+            closeDialog={() => {
+              $('.uploadAvatorDialogId_container').parent().remove();
+            }}
+            defaultType
+            minCropRadius={100}
+          />
+        </WrapAvatorInfo>
       ),
     });
   };
@@ -110,7 +122,7 @@ function ConnectDesDia(props) {
   return (
     <Wrap className="">
       <h5 className="Gray Font17 Bold">{_l('基础信息设置')}</h5>
-      <p className="title pTop3">{_l('连接logo')}</p>
+      <p className="title pTop3">Logo</p>
       {iconName ? (
         <img src={iconName} alt="" srcset="" className="logo InlineBlock mTop8" onClick={handleUploadImg} />
       ) : (
@@ -118,7 +130,7 @@ function ConnectDesDia(props) {
           <Icon icon="add" className="Gray_75 Font28 TxtMiddle" />
         </span>
       )}
-      <p className="txt Gray_9e mTop6">{_l('支持png ,jpg格式图片，不小于80*80px')}</p>
+      <p className="txt Gray_9e mTop6">{_l('支持.png、.jpg图片格式，不小于80*80px')}</p>
       <p className="title">{_l('连接名称')}</p>
       <div className="Relative">
         <input

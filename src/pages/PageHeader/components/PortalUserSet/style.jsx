@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Modal } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import { MenuItem } from 'ming-ui';
 
 export const WrapHeader = styled.div`
@@ -264,10 +264,7 @@ export const Wrap = styled.div`
   }
 `;
 
-export const ModalWrap = styled(Modal)`
-  overflow: hidden;
-  border-top-right-radius: 15px;
-  border-top-left-radius: 15px;
+export const ModalWrap = styled(Popup)`
   &.appMoreActionWrap {
     .header {
       line-height: 24px;

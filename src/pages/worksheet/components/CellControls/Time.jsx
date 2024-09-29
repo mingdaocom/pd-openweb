@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import TimePicker from 'src/components/newCustomFields/widgets/Time';
@@ -41,8 +40,7 @@ export default class Date extends React.Component {
 
   editIcon = React.createRef();
 
-  @autobind
-  handleTableKeyDown(e) {
+  handleTableKeyDown = e => {
     const { updateEditingStatus } = this.props;
     switch (e.key) {
       case 'Escape':
@@ -51,10 +49,9 @@ export default class Date extends React.Component {
       default:
         break;
     }
-  }
+  };
 
-  @autobind
-  handleChange(value) {
+  handleChange = value => {
     const { cell, updateCell, updateEditingStatus, onValidate } = this.props;
     const error = !onValidate(value);
     if (error) {
@@ -67,12 +64,11 @@ export default class Date extends React.Component {
       value,
     });
     updateEditingStatus(false);
-  }
+  };
 
-  @autobind
-  handleClear() {
+  handleClear = () => {
     this.handleChange('');
-  }
+  };
 
   render() {
     const {

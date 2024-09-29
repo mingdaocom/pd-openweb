@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { autobind } from 'core-decorators';
 import styled from 'styled-components';
 import update from 'immutability-helper';
 import { bindActionCreators } from 'redux';
@@ -111,8 +110,7 @@ class PublicConfig extends React.Component {
       .then(res => this.setState({ weChatBind: { isBind: res && res.length, name: (res[0] || {}).nickName } }));
   }
 
-  @autobind
-  getTimeRange(settings) {
+  getTimeRange = settings => {
     const { monthSetting = {}, daySetting = {}, hourSetting = {} } = _.get(settings, 'limitWriteTime');
     const { defineMonth = [], monthType } = monthSetting;
     const { defineDay = [], dayType } = daySetting;
@@ -135,10 +133,9 @@ class PublicConfig extends React.Component {
           : [{ start: null, end: null }],
     };
     return timeRange;
-  }
+  };
 
-  @autobind
-  resetInitState() {
+  resetInitState = () => {
     const settings = this.cacheSettings;
     this.setState({
       ..._.pick(settings, [
@@ -160,7 +157,7 @@ class PublicConfig extends React.Component {
       smsSignature: settings.smsSignature || '',
       timeRange: this.getTimeRange(settings),
     });
-  }
+  };
 
   getChangedIds() {
     const { worksheetSettings } = this.props;
@@ -179,8 +176,7 @@ class PublicConfig extends React.Component {
     );
   }
 
-  @autobind
-  validateConfigData() {
+  validateConfigData = () => {
     const { originalControls = [] } = this.props;
     const {
       linkSwitchTime,
@@ -312,10 +308,9 @@ class PublicConfig extends React.Component {
     }
 
     return true;
-  }
+  };
 
-  @autobind
-  saveSetting(cb = () => {}) {
+  saveSetting = (cb = () => {}) => {
     const {
       limitWriteFrequencySetting,
       ipControlId,
@@ -376,25 +371,22 @@ class PublicConfig extends React.Component {
         this.cacheSettings = newSettings;
       }
     });
-  }
+  };
 
-  @autobind
-  handleChange(key, value, cb = () => {}) {
+  handleChange = (key, value, cb = () => {}) => {
     const changed = {};
     changed[key] = value;
     this.setState(changed, () => {
       cb();
       this.saveSetting();
     });
-  }
+  };
 
-  @autobind
-  handleLinkSettingChange(stateObj) {
+  handleLinkSettingChange = stateObj => {
     this.setState({ ...stateObj, settingChanged: true });
-  }
+  };
 
-  @autobind
-  handleGenUrl() {
+  handleGenUrl = () => {
     const { sourceKeys } = this.state;
     if (this.keyinput.value.trim() === '') {
       alert(_l('参数不能为空'), 3);
@@ -403,21 +395,18 @@ class PublicConfig extends React.Component {
     this.handleChange('sourceKeys', update(sourceKeys, { $push: [this.keyinput.value] }), () => {
       this.keyinput.value = '';
     });
-  }
+  };
 
-  @autobind
-  handleRemoveUrl(index) {
+  handleRemoveUrl = index => {
     const { sourceKeys } = this.state;
     this.handleChange('sourceKeys', update(sourceKeys, { $splice: [[index, 1]] }));
-  }
+  };
 
-  @autobind
-  handleShowControl(key) {
+  handleShowControl = key => {
     this.setState({ addControlVisible: true, activeSourceKey: key });
-  }
+  };
 
-  @autobind
-  handleAddControl(controlName) {
+  handleAddControl = controlName => {
     const { addWorksheetControl } = this.props;
     const { activeSourceKey } = this.state;
     addWorksheetControl(controlName, control => {
@@ -428,38 +417,29 @@ class PublicConfig extends React.Component {
         });
       }
     });
-  }
+  };
 
   getIframeHtml() {
     return `<iframe width="100%" height="100%" style="border: none; margin: 0; padding: 0;" src="${this.props.shareUrl}"></iframe>`;
   }
 
   getDropdownControls(key) {
-    const { originalControls } = this.props;
+    const { originalControls, worksheetSettings } = this.props;
     const { extendSourceId, ipControlId, browserControlId, deviceControlId, systemControlId, weChatSetting } =
       this.state;
-    return [
-      {
-        style: { color: '#757575' },
-        text: <span>{_l('清除')}</span>,
-        value: 'clear',
-      },
-    ]
+    const wxMapControlIds = Object.values(weChatSetting.fieldMaps || {});
+    const needFilterIds = [extendSourceId, ipControlId, browserControlId, deviceControlId, systemControlId]
+      .concat(wxMapControlIds)
+      .concat(worksheetSettings.boundControlIds);
+
+    return [{ style: { color: '#757575' }, text: <span>{_l('清除')}</span>, value: 'clear' }]
       .concat(
         originalControls
-          .filter(control => {
-            const wxMapControlIds = Object.values(weChatSetting.fieldMaps || {});
-            return (
+          .filter(
+            control =>
               control.type === 2 &&
-              (!_.find(
-                [extendSourceId, ipControlId, browserControlId, deviceControlId, systemControlId].concat(
-                  wxMapControlIds,
-                ),
-                id => control.controlId === id,
-              ) ||
-                control.controlId === this.state[key])
-            );
-          })
+              (!_.find(needFilterIds, id => control.controlId === id) || control.controlId === this.state[key]),
+          )
           .map(control => ({
             text: <span>{control.controlName}</span>,
             value: control.controlId,
@@ -477,7 +457,7 @@ class PublicConfig extends React.Component {
   }
 
   render() {
-    const { onClose, shareUrl, originalControls = [], addWorksheetControl, controls } = this.props;
+    const { onClose, shareUrl, originalControls = [], addWorksheetControl, controls, worksheetSettings } = this.props;
     const {
       addControlVisible,
       activeTab,
@@ -592,6 +572,7 @@ class PublicConfig extends React.Component {
                     deviceControlId,
                     systemControlId,
                     titleFolded,
+                    boundControlIds: worksheetSettings.boundControlIds,
                   }}
                   weChatBind={this.state.weChatBind}
                   setState={this.handleLinkSettingChange}

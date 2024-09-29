@@ -37,7 +37,7 @@ const AiBtnWrap = styled.div`
   background: #fff;
   border-radius: 4px;
   cursor: pointer;
-  margin-right: 24px;
+  margin-right: 10px;
   padding: 0 16px;
   display: flex;
   align-items: center;
@@ -265,12 +265,12 @@ export default function WidgetAiRecommend({ worksheetName, ...rest }) {
   };
 
   const handleAdd = () => {
-    const newData = selectIds.map(item => {
-      const curControl = _.find(controlData, i => i.controlId === item);
-      if (curControl) {
-        return getDefaultData(curControl);
-      }
-    });
+    const newData = selectIds
+      .map(item => {
+        const curControl = _.find(controlData, i => i.controlId === item);
+        return curControl ? getDefaultData(curControl) : null;
+      })
+      .filter(_.identity);
     handleAddWidgets(newData, {}, rest, () => {
       setVisible(false);
       handleClear();

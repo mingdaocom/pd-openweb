@@ -14,7 +14,7 @@ export default function InputSuffix({ data, onChange }) {
   return (
     <SettingItem>
       <div className="settingItemTitle" style={{ justifyContent: 'space-between' }}>
-        {_l('输出格式')}
+        {_l('单位')}
         {!_.includes(['5'], unit) && (
           <Checkbox
             size="small"

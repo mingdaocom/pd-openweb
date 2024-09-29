@@ -4,12 +4,12 @@ import renderCellText from 'src/pages/worksheet/components/CellControls/renderTe
 import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
-import { SYSTOPRINT } from './config';
+import { SYST_PRINT, FILTER_SYS } from './config';
 import { RichText } from 'ming-ui';
 import _ from 'lodash';
 import Embed from 'src/components/newCustomFields/widgets/Embed';
 import BarCode from 'src/components/newCustomFields/widgets/BarCode';
-import { getBarCodeValue } from 'src/components/newCustomFields/tools/utils';
+import { getBarCodeValue, controlState } from 'src/components/newCustomFields/tools/utils';
 import { parseDataSource } from 'src/pages/widgetConfig/util/setting.js';
 import STYLE_PRINT from './components/exportWordPrintTemCssString';
 import RegExpValidator from 'src/util/expression'; /*
@@ -69,7 +69,10 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         return <div style={{ textAlign: item.isRelateMultipleSheet ? 'right' : 'left' }}>{_value}</div>;
       }
     case 14:
-      return value ? renderRecordAttachments(value, item.isRelateMultipleSheet) : '';
+      const fileStyle = item.fileStyle || {};
+      const id = item.isRelateMultipleSheet ? `${item.dataSource}_${item.controlId}` : item.controlId;
+
+      return value ? renderRecordAttachments(value, item.isRelateMultipleSheet, fileStyle[id]) : '';
     case 28:
       return value
         ? _.get(
@@ -157,7 +160,13 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                         if (
                           item.showData &&
                           !getPrintContent(
-                            { ...it, isRelateMultipleSheet: true, showUnit: true, printOption: false },
+                            {
+                              ...it,
+                              isRelateMultipleSheet: true,
+                              showUnit: true,
+                              printOption: false,
+                              fileStyle: item.fileStyle,
+                            },
                             it.type,
                             data[it.controlId],
                           )
@@ -171,7 +180,13 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                             <div className="listRight">
                               {/* 关联表单选多选不需要特殊处理 printOption: false */}
                               {getPrintContent(
-                                { ...it, isRelateMultipleSheet: true, showUnit: true, printOption: false },
+                                {
+                                  ...it,
+                                  isRelateMultipleSheet: true,
+                                  showUnit: true,
+                                  printOption: false,
+                                  fileStyle: item.fileStyle,
+                                },
                                 it.type,
                                 data[it.controlId],
                               ) || ''}
@@ -220,15 +235,22 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
           records = JSON.parse(value);
         } catch (err) {}
         let list = (dataItem.relationControls || []).find(o => o.attribute === 1) || [];
+
         if (list.type && ![29, 30, dataItem.sourceControlType].includes(list.type)) {
           dataItem = { ...dataItem, sourceControlType: list.type };
         }
+        // 公式
+        if (list.type === 53) {
+          dataItem.enumDefault2 = list.enumDefault2;
+        }
+
         // 1 卡片 2 列表 3 下拉
         if (item.advancedSetting && item.advancedSetting.showtype === '3') {
           //下拉 显示关联表名称
-          if (item.isRelateMultipleSheet && records.length <= 0) {
+          if (records.length <= 0) {
             return '';
           }
+
           if (
             !item.isRelateMultipleSheet &&
             [11, 26].includes(dataItem.sourceControlType) &&
@@ -236,6 +258,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
           ) {
             dataItem = { ...dataItem, enumDefault: 1 };
           }
+
           return (
             <span className="relaList">
               {item.isRelateMultipleSheet ? (records[0] || {}).name : renderCellText(dataItem)}
@@ -245,6 +268,7 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         //按文本形式 显示关联表标题字段（卡片，下拉）/数量（列表）
         if (item.isRelateMultipleSheet) {
           if (records.length <= 0) return '';
+
           return renderCellText({ ...dataItem, enumDefault: dataItem.type === 29 ? 1 : dataItem.enumDefault });
         }
         //关联表内除标题字段外的其他字段
@@ -270,11 +294,11 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                 let coverCid = coverCidData.length > 0 ? coverCidData[0].controlId || '' : '';
                 let cover = coverCid ? JSON.parse(data[coverCid] || '[]') : [];
                 let coverData = cover.length > 0 ? cover[0] : '';
-                let list = (item.relationControls || []).find(o => o.attribute === 1) || [];
                 const type =
                   list.type && ![29, 30, item.sourceControlType].includes(list.type)
                     ? list.type
                     : item.sourceControlType;
+
                 return (
                   <tr>
                     <td className="listTextDiv">
@@ -296,7 +320,13 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                         if (
                           item.showData &&
                           !getPrintContent(
-                            { ...it, isRelateMultipleSheet: true, showUnit: true, printOption: false },
+                            {
+                              ...it,
+                              isRelateMultipleSheet: true,
+                              showUnit: true,
+                              printOption: false,
+                              fileStyle: item.fileStyle,
+                            },
                             it.type,
                             data[it.controlId],
                           )
@@ -310,7 +340,13 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
                             <div className="listRight">
                               {/* 关联表单选多选不需要特殊处理 printOption: false */}
                               {getPrintContent(
-                                { ...it, isRelateMultipleSheet: true, showUnit: true, printOption: false },
+                                {
+                                  ...it,
+                                  isRelateMultipleSheet: true,
+                                  showUnit: true,
+                                  printOption: false,
+                                  fileStyle: item.fileStyle,
+                                },
                                 it.type,
                                 data[it.controlId],
                               ) || ''}
@@ -456,19 +492,32 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
   }
 };
 
-// 附件的显示
-export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
+const getPictureImageUrl = data => {
+  return data.previewUrl.indexOf('imageView2') > -1
+    ? data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/2/w/600/q/90')
+    : `${data.previewUrl}${data.ext !== '.svg' ? '&imageView2/2/w/600/q/90' : ''}`;
+};
+
+// 附件的显示 fileStyle 0 缩略图 1 名称 默认0
+export const renderRecordAttachments = (value, isRelateMultipleSheet, fileStyle = '0') => {
   let attachments;
   try {
     attachments = JSON.parse(value);
   } catch (err) {
     return <span className="mBottom5 InlineBlock" dangerouslySetInnerHTML={{ __html: '&nbsp;' }}></span>;
   }
+
   if (attachments.length <= 0) {
     return '';
   }
-  const pictureAttachments = attachments.filter(attachment => RegExpValidator.fileIsPicture(attachment.ext));
-  const otherAttachments = attachments.filter(attachment => !RegExpValidator.fileIsPicture(attachment.ext));
+
+  const showPic = fileStyle === '0';
+  const pictureAttachments = showPic
+    ? attachments.filter(attachment => RegExpValidator.fileIsPicture(attachment.ext))
+    : [];
+  const otherAttachments = showPic
+    ? attachments.filter(attachment => !RegExpValidator.fileIsPicture(attachment.ext))
+    : attachments;
 
   return (
     <React.Fragment>
@@ -508,14 +557,7 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
                         maxWidth: 140,
                         maxHeight: 158,
                       }}
-                      src={
-                        pictureAttachments[index].previewUrl.indexOf('imageView2') > -1
-                          ? pictureAttachments[index].previewUrl.replace(
-                              /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-                              'imageView2/2/w/600/q/90',
-                            )
-                          : `${pictureAttachments[index].previewUrl}&imageView2/2/w/600/q/90`
-                      }
+                      src={getPictureImageUrl(pictureAttachments[index])}
                       alt=""
                     />
                   </div>
@@ -551,14 +593,7 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
                             maxHeight: 158,
                             maxWidth: '100%',
                           }}
-                          src={
-                            pictureAttachments[index * 2 + i].previewUrl.indexOf('imageView2') > -1
-                              ? pictureAttachments[index * 2 + i].previewUrl.replace(
-                                  /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
-                                  'imageView2/2/w/600/q/90',
-                                )
-                              : `${pictureAttachments[index * 2 + i].previewUrl}&imageView2/2/w/600/q/90`
-                          }
+                          src={getPictureImageUrl(pictureAttachments[index * 2 + i])}
                         />
                       )}
                     </td>
@@ -572,13 +607,13 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
         <div className="recordAttachmentPictures">
           {otherAttachments.map(item => (
             <div className="pictureAttachment onlyText">
-              <p className="imageAttachmentName ellipsis"> {item.originalFilename + item.ext} </p>
+              <p className="imageAttachmentName ellipsis preWrap"> {item.originalFilename + item.ext} </p>
             </div>
           ))}
         </div>
       ) : (
         <p style={{ ...STYLE_PRINT.p, marginTop: 4, marginBottom: 0 }}>
-          {otherAttachments.map(item => item.originalFilename + item.ext).join(', ')}
+          {otherAttachments.map(item => item.originalFilename + item.ext).join(' ; ')}
         </p>
       )}
     </React.Fragment>
@@ -586,12 +621,9 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet) => {
 };
 
 export const isVisible = control => {
-  let { fieldPermission = '111' } = control;
-  const [visible, editable, canAdd] = fieldPermission.split('');
-  if (visible === '0') {
-    return false;
-  }
-  return true;
+  const { fieldPermission = '111' } = control;
+
+  return fieldPermission[0] === '1';
 };
 
 export const getVisibleControls = controls => {
@@ -623,7 +655,7 @@ export const sortByShowControls = list => {
   let controls = [];
   list.showControls.map(id => {
     let l = list.relationControls.find(it => id === it.controlId);
-    if (l) {
+    if (l && isVisible(l)) {
       controls.push(l);
     }
   });
@@ -631,41 +663,54 @@ export const sortByShowControls = list => {
 };
 
 //处理打印数据
-export const getControlsForPrint = (receiveControls, relationMaps = {}) => {
-  //关联表数据处理
-  let relation = receiveControls.filter(
-    control => (control.type === 29 && control.enumDefault === 2) || control.type === 34,
-  );
-  relation = relation
-    .filter(l => l.checked)
-    .map((it, i) => {
-      let relationsData = relationMaps[it.controlId];
-      return { ...it, relationControls: getShowControl(it.relationControls), relationsData: relationsData };
+export const getControlsForPrint = (receiveControls, relationMaps = {}, needVisible, additional) => {
+  const fileStyle = safeParse(_.get(additional, 'fileStyle.value'));
+
+  let controls = getShowControl(receiveControls)
+    .filter(
+      o => ![43, 49].includes(o.type) && !FILTER_SYS.includes(o.controlId) && (needVisible || controlState(o).visible),
+    )
+    .map(control => {
+      const extendAttr = {};
+      let _control = (_.get(additional, 'info.template.controls') || []).find(m => m.controlId === control.controlId);
+
+      if (_control) {
+        extendAttr.advancedSetting = _control.advancedSetting;
+      }
+
+      //关联表数据处理
+      if (((control.type === 29 && control.enumDefault === 2) || control.type === 34) && control.checked) {
+        extendAttr.relationControls = getShowControl(control.relationControls);
+        extendAttr.relationsData = relationMaps[control.controlId];
+      }
+
+      return {
+        ...control,
+        ...extendAttr,
+      };
     });
-  receiveControls = receiveControls.map(control => {
-    let data = relation.find(it => it.controlId === control.controlId);
-    return data || control;
-  });
-  receiveControls = receiveControls.sort((a, b) => {
+
+  controls = controls.sort((a, b) => {
     if (a.row === b.row) {
       return a.col - b.col;
     } else {
       return a.row - b.row;
     }
   });
-  return getShowControl(receiveControls);
+  // 模版打印/配置（新建模版）=> 不考虑显隐设置
+  //系统打印需要根据用户权限显示
+  return controls;
 };
 
-export const sysToPrintData = data => {
+export const SYST_PRINTData = data => {
   return SYSTEM_CONTROL_WITH_UAID.map(o => {
-    return { ...o, checked: data[SYSTOPRINT[o.controlId]] };
+    return { ...o, checked: data[SYST_PRINT[o.controlId]] };
   });
 };
 
 export const isRelation = control => {
   return (
-    (control.type === 29 && control.advancedSetting && ['2', '5', '6'].includes(control.advancedSetting.showtype)) ||
-    control.type === 34 ||
-    (control.type === 51 && control.advancedSetting && ['2', '5', '6'].includes(control.advancedSetting.showtype))
+    ([29, 51].includes(control.type) && ['2', '5', '6'].includes(_.get(control, 'advancedSetting.showtype'))) ||
+    control.type === 34
   );
 };

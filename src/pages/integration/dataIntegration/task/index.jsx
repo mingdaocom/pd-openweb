@@ -17,6 +17,7 @@ const SyncTaskWrapper = styled.div`
 
   .filterContent {
     margin-top: 24px;
+    position: relative;
 
     .taskListText {
       font-size: 15px;
@@ -61,6 +62,10 @@ const SyncTaskWrapper = styled.div`
         background: #1764c0;
       }
     }
+  }
+
+  .leftMove22 {
+    margin-left: -22px;
   }
 `;
 

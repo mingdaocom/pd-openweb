@@ -3,11 +3,10 @@ import { connect } from 'react-redux';
 import './index.less';
 import cx from 'classnames';
 import { Tooltip, Popover } from 'antd';
-import WorkflowInfo from './WorkflowInfo';
-import { updateProcess, updatePublishState } from '../../redux/actions';
+import { updatePublishState } from '../../redux/actions';
 import process from '../../api/process';
 import Switch from '../../components/Switch';
-import { Button, Icon, Checkbox } from 'ming-ui';
+import { Button, Icon, Checkbox, MenuItem, LoadDiv, SvgIcon, ScrollView } from 'ming-ui';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
 import Confirm from 'ming-ui/components/Dialog/Confirm';
 import PublishErrorDialog from '../../components/PublishErrorDialog';
@@ -19,12 +18,104 @@ import flowPNG from './images/flow.png';
 import _ from 'lodash';
 import moment from 'moment';
 import { getAppFeaturesPath } from 'src/util';
+import HistoryVersion from './HistoryVersion';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
+import { getIcons, getStartNodeColor } from '../utils';
+import flowNode from '../../api/flowNode';
+import { ProcessParameters } from '../Detail/components';
 
 const TABS_OPTS = [
   { tabIndex: 1, name: _l('流程') },
   { tabIndex: 3, name: _l('配置') },
   { tabIndex: 2, name: _l('历史') },
 ];
+
+const MenuBox = styled.div`
+  min-width: 180px;
+  padding: 5px 0;
+  border-radius: 3px;
+  background: white;
+  box-shadow: 0 3px 6px 1px rgba(0, 0, 0, 0.1608);
+  .Item-content {
+    padding-left: 36px !important;
+  }
+`;
+
+const Description = styled.div`
+  > div {
+    padding-left: 18px;
+    margin-bottom: 10px;
+    position: relative;
+    color: #333;
+    &::before {
+      position: absolute;
+      top: 7px;
+      left: 0;
+      content: '';
+      width: 5px;
+      height: 5px;
+      background: #333;
+      border-radius: 50%;
+    }
+  }
+`;
+
+const TestHeader = styled.div`
+  display: flex;
+  align-items: center;
+  height: 55px;
+  padding: 0 20px;
+  align-items: center;
+  color: #fff;
+  .icon-delete {
+    width: 18px;
+    display: inline-block;
+    cursor: pointer;
+    transition: all 250ms ease-out;
+    &:hover {
+      transform: rotate(90deg);
+    }
+  }
+  &.BGYellow {
+    background: #ffa340;
+  }
+  &.BGViolet {
+    background: #7e57c2;
+  }
+  &.BGBlueAsh {
+    background: #4c7d9e;
+  }
+  &.BGBlue {
+    background: #2196f3;
+  }
+  &.BGSkyBlue {
+    background: #00bcd4;
+  }
+  &.BGGreen {
+    background: #01ca83;
+  }
+  &.BGDarkBlue {
+    background: #4158db;
+  }
+  &.BGRed {
+    background: #f15b75;
+  }
+`;
+
+const Footer = styled.div`
+  .footerSaveBtn {
+    height: 36px;
+    line-height: 36px;
+    display: inline-block;
+    padding: 0 32px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    box-sizing: border-box;
+    color: #fff;
+  }
+`;
 
 class Header extends Component {
   static defaultProps = {
@@ -35,7 +126,6 @@ class Header extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      visible: false,
       showPublishDialog: false,
       publishErrorVisible: false,
       errorInfo: {},
@@ -43,8 +133,13 @@ class Header extends Component {
       data: {},
       showApprovalFields: false,
       showApprovalDetail: false,
+      testVisible: false,
+      showTestFlow: false,
+      startNodeDetail: {},
     };
   }
+
+  closeTestDialog = false;
 
   componentDidMount() {
     const that = this;
@@ -54,16 +149,6 @@ class Header extends Component {
       that.setState({ showPublishDialog: false });
     });
   }
-
-  /**
-   * 修改流程基本信息
-   */
-  updateProcess = opts => {
-    const { flowInfo } = this.props;
-
-    this.props.dispatch(updateProcess(flowInfo.companyId, flowInfo.id, opts.name, opts.explain));
-    this.setState({ visible: false });
-  };
 
   /**
    * 开启关闭流程
@@ -77,7 +162,7 @@ class Header extends Component {
    * 发布或关闭工作流
    */
   publishOrCloseFlow = (isPublish = true) => {
-    const { flowInfo } = this.props;
+    const { flowInfo, isPlugin } = this.props;
     const unpublished = !flowInfo.lastPublishDate;
 
     this.props.dispatch(updatePublishState({ pending: true }));
@@ -102,7 +187,7 @@ class Header extends Component {
             );
 
             // 未发布
-            if (unpublished) {
+            if (unpublished && !isPlugin) {
               setTimeout(() => {
                 this.setState({ showPublishDialog: true, data: result });
               }, 300);
@@ -152,7 +237,7 @@ class Header extends Component {
    * 返回
    */
   back = () => {
-    const { workflowDetail, flowInfo } = this.props;
+    const { workflowDetail, flowInfo, isPlugin } = this.props;
     let { onBack } = this.props;
     const { startEventId, flowNodeMap } = workflowDetail;
     const noSelectWorksheet =
@@ -162,9 +247,13 @@ class Header extends Component {
 
     if (!onBack) {
       onBack = () => {
-        location.href = `/app/${flowInfo.relationId}/workflow${
-          location.hash ? '?' + location.hash.replace('#', '') : ''
-        }${(location.hash ? '&' : '?') + getAppFeaturesPath()}`;
+        const featurePath = getAppFeaturesPath();
+
+        location.href = isPlugin
+          ? `/plugin/node${featurePath ? '?' + featurePath : ''}`
+          : `/app/${flowInfo.relationId}/workflow${location.hash ? '?' + location.hash.replace('#', '') : ''}${
+              (location.hash ? '&' : '?') + featurePath
+            }`;
       };
     }
 
@@ -200,25 +289,16 @@ class Header extends Component {
   };
 
   /**
-   * 渲染执行按钮
+   * 渲染测试按钮
    */
-  renderActionBtn() {
-    const { isProgressing } = this.state;
+  renderTestBtn() {
     const { flowInfo } = this.props;
-    const TEXT = {
-      [APP_TYPE.LOOP]: {
-        tip: _l('立即触发一条流程，执行时间即为系统的当前时间'),
-      },
-      default: {
-        tip: _l('手动选择一条数据源，立即触发一条流程'),
-      },
-    };
-    const btnText = TEXT[flowInfo.startAppType === APP_TYPE.LOOP ? APP_TYPE.LOOP : 'default'];
+    const { testVisible } = this.state;
 
+    // 未发布和非立即执行的只有测试
     if (
-      flowInfo.publishStatus === 2 &&
-      flowInfo.enabled &&
-      _.includes(
+      !flowInfo.lastPublishDate ||
+      !_.includes(
         [
           APP_TYPE.SHEET,
           APP_TYPE.LOOP,
@@ -231,97 +311,163 @@ class Header extends Component {
       )
     ) {
       return (
-        <span
-          className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3 workflowDetailTipsWidth"
-          data-tip={btnText.tip}
-          onClick={this.action}
-        >
-          {isProgressing ? _l('执行中...') : _l('立即执行%03000')}
+        <span className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3" onClick={this.test}>
+          {_l('测试')}
         </span>
       );
     }
 
-    return null;
+    return (
+      <Trigger
+        popupVisible={testVisible}
+        onPopupVisibleChange={testVisible => {
+          this.setState({ testVisible });
+        }}
+        action={['click']}
+        mouseEnterDelay={0.1}
+        popupAlign={{ points: ['tr', 'br'], offset: [0, 0], overflow: { adjustX: 1, adjustY: 2 } }}
+        popup={
+          <MenuBox>
+            <MenuItem
+              icon={<Icon icon="test_workflow" className="Font16" />}
+              onClick={() => {
+                this.setState({ testVisible: false });
+                this.test();
+              }}
+            >
+              {_l('测试编辑中流程')}
+            </MenuItem>
+            <MenuItem
+              icon={<Icon icon="play_circle_filled" className="Font16" />}
+              onClick={() => {
+                this.setState({ testVisible: false });
+                this.onExecuteFlow(false);
+              }}
+            >
+              {_l('执行当前运行中的流程')}
+            </MenuItem>
+          </MenuBox>
+        }
+      >
+        <span className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3">{_l('测试')}</span>
+      </Trigger>
+    );
   }
 
   /**
-   * 立即执行
+   * 测试
    */
-  action = () => {
-    const { flowInfo, tabIndex, workflowDetail } = this.props;
-    const { isProgressing } = this.state;
-    const actionProcess = sourceId => {
-      const { flowNodeMap } = workflowDetail;
-      let showSendModeDialog = this.hasTodoNode(flowNodeMap);
-      const execFunc = (debugEvents = []) => {
-        this.setState({ isProgressing: true });
+  test = () => {
+    const { isPlugin } = this.props;
 
-        process.startProcessById({ processId: flowInfo.id, sourceId, debugEvents }).then(result => {
-          if (result) {
-            alert(_l('执行成功'));
+    if (!localStorage.getItem('closeWorkflowTestPrompt') && !isPlugin) {
+      Confirm({
+        width: 560,
+        title: _l('测试编辑中流程'),
+        description: (
+          <Description>
+            <div>{_l('待办、通知节点以我自己作为节点执行人，实际执行人不会收到消息。')}</div>
+            <div>{_l('审批、填写节点无需操作，将会自动通过。')}</div>
+            <div>{_l('仅对主流程进行测试执行。引用的子流程、PBP、审批流程将跳过执行，可单独前往测试这些流程。')}</div>
+          </Description>
+        ),
+        footerLeftElement: () => (
+          <Checkbox text={_l('下次不再提示')} onClick={checked => (this.closeTestDialog = checked)} />
+        ),
+        okText: _l('继续'),
+        removeCancelBtn: true,
+        onOk: () => {
+          // 本地记忆测试流程弹层提示
+          if (this.closeTestDialog) {
+            localStorage.setItem('closeWorkflowTestPrompt', true);
           }
 
-          this.setState({ isProgressing: false });
-          // 手动刷新一下历史数据
-          if (tabIndex === 2) {
-            document.getElementById('historyRefresh') && document.getElementById('historyRefresh').click();
-          }
-        });
-      };
-
-      // 检测审批流中的待办节点
-      Object.keys(flowNodeMap).forEach(key => {
-        if (flowNodeMap[key].typeId === NODE_TYPE.APPROVAL_PROCESS) {
-          if (this.hasTodoNode(flowNodeMap[key].processNode.flowNodeMap)) {
-            showSendModeDialog = true;
-          }
-        }
+          this.onExecuteFlow();
+        },
       });
+    } else {
+      this.onExecuteFlow();
+    }
+  };
 
-      if (showSendModeDialog) {
-        Confirm({
-          width: 560,
-          className: 'actionProcessDialog',
-          title: _l('待办、通知发送方式'),
-          description: (
-            <div>
-              <p className="Gray">
-                {_l('点击【发给我自己测试】时，实际执行人不收到消息，由我作为节点的执行人进行测试。')}
-              </p>
-              <p>
-                •
-                <span className="mLeft5">
-                  {_l('包含待办节点（审批、填写、抄送），通知节点（站内消息、短信、邮件）。')}
-                </span>
-              </p>
-              <p>
-                •<span className="mLeft5">{_l('短信、邮件将发送给我的账号绑定的手机、邮箱测试。')}</span>
-              </p>
-              <p>
-                •
-                <span className="mLeft5">
-                  {_l(
-                    '暂时仅主流程中的节点支持此功能。引用的子流程、PBP中的节点仍为实际执行人，可 单独去测试这些节点。',
+  /**
+   * 渲染测试流程
+   */
+  renderTestFlow = () => {
+    const { flowInfo, isPlugin } = this.props;
+    const { startNodeDetail } = this.state;
+    const { appType, triggerId, typeId, name } = startNodeDetail;
+
+    return (
+      <DialogBase visible type="fixed" className="workflowSettings" width={800}>
+        <div className="flexColumn h100 workflowDetail">
+          {_.isEmpty(startNodeDetail) ? (
+            <LoadDiv className="mTop15" />
+          ) : (
+            <Fragment>
+              <TestHeader
+                className={isPlugin ? '' : flowInfo.child ? 'BGBlueAsh' : getStartNodeColor(appType, triggerId)}
+                style={isPlugin ? { background: flowInfo.iconColor || '#2196f3' } : {}}
+              >
+                {isPlugin && flowInfo.iconName ? (
+                  <SvgIcon url={flowInfo.iconName} fill="#fff" size={24} />
+                ) : (
+                  <i
+                    className={cx(
+                      'Font24',
+                      isPlugin
+                        ? 'icon-workflow'
+                        : flowInfo.child
+                        ? 'icon-subprocess'
+                        : getIcons(typeId, appType, triggerId),
+                    )}
+                  />
+                )}
+                <div className="flex mLeft10 Font17 bold">{isPlugin ? flowInfo.name : name}</div>
+                <i className="icon-delete Font18 mLeft10" onClick={() => this.setState({ showTestFlow: false })} />
+              </TestHeader>
+              <ScrollView className="flex">
+                <div className="workflowDetailBox pBottom0">
+                  {isPlugin && flowInfo.explain && (
+                    <div className="Font14 Gray_75 workflowDetailDesc mBottom20">{flowInfo.explain}</div>
                   )}
-                </span>
-              </p>
-            </div>
-          ),
-          okText: _l('发给实际执行人'),
-          cancelText: _l('发给我自己测试'),
-          cancelType: 'primary',
-          onlyClose: true,
-          onOk: execFunc,
-          onCancel: () => {
-            execFunc([1, 2, 3]);
-          },
-        });
-      } else {
-        execFunc();
-      }
-    };
 
-    if (isProgressing) return false;
+                  <div style={{ marginTop: -15 }}>
+                    <ProcessParameters
+                      companyId={flowInfo.companyId}
+                      selectNodeType={NODE_TYPE.PLUGIN}
+                      hideOtherField
+                      data={startNodeDetail}
+                      updateSource={obj => {
+                        this.setState({ startNodeDetail: Object.assign({}, startNodeDetail, obj) });
+                      }}
+                    />
+                  </div>
+                </div>
+              </ScrollView>
+
+              <Footer className="mTop30 mLeft24 mBottom20">
+                <span
+                  className="footerSaveBtn ThemeBGColor3 ThemeHoverBGColor2"
+                  onClick={() => {
+                    this.sendTestFlow({ fields: startNodeDetail.fields });
+                  }}
+                >
+                  {_l('测试')}
+                </span>
+              </Footer>
+            </Fragment>
+          )}
+        </div>
+      </DialogBase>
+    );
+  };
+
+  /**
+   * 立即执行流程
+   */
+  onExecuteFlow = (isTest = true) => {
+    const { flowInfo } = this.props;
 
     if (
       _.includes(
@@ -336,12 +482,131 @@ class Header extends Component {
         singleConfirm: true,
         relateSheetId: flowInfo.startAppId,
         onText: _l('开始测试'),
+        allowNewRecord: true,
+        allowAdd: true,
         onOk: selectedRecords => {
-          actionProcess(selectedRecords[0].rowid);
+          isTest
+            ? this.sendTestFlow({ sourceId: selectedRecords[0].rowid })
+            : this.sendRealityFlow({ sourceId: selectedRecords[0].rowid });
+        },
+      });
+    } else if (flowInfo.startAppType === APP_TYPE.LOOP) {
+      Confirm({
+        width: 560,
+        title: _l('执行定时触发流程'),
+        description: _l('点击确定后，将会立即开始执行此流程'),
+        removeCancelBtn: true,
+        onOk: () => {
+          isTest ? this.sendTestFlow() : this.sendRealityFlow();
         },
       });
     } else {
-      actionProcess();
+      this.setState({ showTestFlow: true, startNodeDetail: {} });
+      this.getNodeDetail();
+    }
+  };
+
+  /**
+   * 发送测试流程
+   */
+  sendTestFlow = ({ sourceId, fields } = {}) => {
+    const { flowInfo, isPlugin } = this.props;
+    let hasError = 0;
+
+    (fields || []).forEach(o => {
+      if (o.required && !o.fieldValue) {
+        hasError++;
+      }
+    });
+
+    if (hasError > 0) {
+      alert(_l('有必填字段未填写'), 2);
+      return;
+    }
+
+    process
+      .startProcessById({ processId: flowInfo.id, sourceId, debugEvents: [-1, 0, 1, 2, 3], fields })
+      .then(result => {
+        // 流程存在异常
+        if (result.processWarnings) {
+          this.setState({ showTestFlow: false, publishErrorVisible: true, errorInfo: result });
+        } else {
+          location.href = `${isPlugin ? '/workflowplugin' : '/workflowedit'}/${flowInfo.id}/2/${result.id}`;
+        }
+      });
+  };
+
+  /**
+   * 发送实际流程
+   */
+  sendRealityFlow = ({ sourceId } = {}) => {
+    const { flowInfo, tabIndex, workflowDetail } = this.props;
+    const { isProgressing } = this.state;
+    const { flowNodeMap } = workflowDetail;
+    let showSendModeDialog = this.hasTodoNode(flowNodeMap);
+    const execFunc = (debugEvents = []) => {
+      this.setState({ isProgressing: true });
+
+      process.startProcessById({ processId: flowInfo.id, sourceId, debugEvents }).then(() => {
+        // 手动刷新一下历史数据
+        if (tabIndex === 2) {
+          document.getElementById('historyRefresh') && document.getElementById('historyRefresh').click();
+        }
+
+        this.setState({ isProgressing: false });
+        alert(_l('执行成功'));
+      });
+    };
+
+    if (isProgressing) return false;
+
+    // 检测审批流中的待办节点
+    Object.keys(flowNodeMap).forEach(key => {
+      if (flowNodeMap[key].typeId === NODE_TYPE.APPROVAL_PROCESS) {
+        if (this.hasTodoNode(flowNodeMap[key].processNode.flowNodeMap)) {
+          showSendModeDialog = true;
+        }
+      }
+    });
+
+    if (showSendModeDialog) {
+      Confirm({
+        width: 560,
+        className: 'actionProcessDialog',
+        title: _l('待办、通知发送方式'),
+        description: (
+          <div>
+            <p className="Gray">
+              {_l('点击【发给我自己测试】时，实际执行人不收到消息，由我作为节点的执行人进行测试。')}
+            </p>
+            <p>
+              •
+              <span className="mLeft5">
+                {_l('包含待办节点（审批、填写、抄送），通知节点（站内消息、短信、邮件）。')}
+              </span>
+            </p>
+            <p>
+              •<span className="mLeft5">{_l('短信、邮件将发送给我的账号绑定的手机、邮箱测试。')}</span>
+            </p>
+            <p>
+              •
+              <span className="mLeft5">
+                {_l('暂时仅主流程中的节点支持此功能。引用的子流程、PBP中的节点仍为实际执行人，可 单独去测试这些节点。')}
+              </span>
+            </p>
+          </div>
+        ),
+        okText: _l('发给实际执行人'),
+        cancelText: _l('发给我自己测试'),
+        cancelType: 'primary',
+        onlyClose: true,
+        onOk: execFunc,
+        onCancel: () => {
+          execFunc([1, 2, 3]);
+        },
+      });
+    } else {
+      execFunc();
     }
   };
 
@@ -472,42 +737,82 @@ class Header extends Component {
     return showSendModeDialog;
   }
 
+  /**
+   * 获取节点详情
+   */
+  getNodeDetail = () => {
+    const { flowInfo, isIntegration } = this.props;
+    const isSystemVariable = o => {
+      return o.processVariableType === 3 && flowInfo.startAppType === APP_TYPE.LOOP_PROCESS;
+    };
+
+    flowNode
+      .getNodeDetail({ processId: flowInfo.id, nodeId: flowInfo.startNodeId, flowNodeType: 0 }, { isIntegration })
+      .then(result => {
+        result.subProcessVariables = result.controls.map(o => ({
+          ...o,
+          required: isSystemVariable(o) ? true : o.required,
+        }));
+        result.fields = result.controls.map(o => ({
+          ...o,
+          type: _.includes([14, 10000003, 10000006, 10000007, 10000008], o.type) ? 2 : o.type,
+          fieldId: o.controlId,
+          fieldValue: o.type === 26 || o.type === 27 ? '[]' : '',
+          required: isSystemVariable(o) ? true : o.required,
+        }));
+
+        this.setState({ startNodeDetail: result });
+      });
+  };
+
   render() {
-    const { visible, publishErrorVisible, errorInfo } = this.state;
-    const { tabIndex, switchTabs, flowInfo } = this.props;
+    const { tabIndex, switchTabs, flowInfo, isPlugin, openFlowInfo } = this.props;
+    const { publishErrorVisible, errorInfo, isProgressing, showTestFlow } = this.state;
+    const tabs = TABS_OPTS.filter(
+      item => (flowInfo.startAppType !== APP_TYPE.APPROVAL_START && !isPlugin) || item.tabIndex !== 3,
+    );
 
     return (
       <div className={cx('workflowSettingsHeader flexRow', { workflowReleaseHeader: flowInfo.parentId })}>
         <i className="icon-backspace Font20 ThemeColor3 workflowReturn" onClick={this.back} />
         <div className="flex relative w100 h100">
           <div className="flexColumn workflowHeaderDesc">
-            <div className="Font17 ellipsis pointer" onClick={() => this.setState({ visible: true })}>
+            <div className="Font17 ellipsis pointer" onClick={openFlowInfo}>
               {flowInfo.name}
+              {flowInfo.explain && (
+                <Tooltip placement="bottomLeft" title={flowInfo.explain}>
+                  <Icon icon="info" className="Gray_9e Font18 mLeft5" />
+                </Tooltip>
+              )}
+              {flowInfo.publishStatus === 1 && flowInfo.enabled && (
+                <div className="workflowSettingsHeaderUpdateBtn Font12 mLeft5 bold">{_l('已修改')}</div>
+              )}
             </div>
-            <Tooltip placement="bottomLeft" title={flowInfo.explain || _l('添加流程说明...')}>
-              <div className="Gray_75 ellipsis pointer Font12" onClick={() => this.setState({ visible: true })}>
-                {flowInfo.explain || _l('添加流程说明...')}
+            {flowInfo.lastPublishDate && !flowInfo.parentId && (
+              <div className="Font12">
+                <span className="Gray_75 mRight5">
+                  {_l('上次发布：%0', moment(flowInfo.lastPublishDate).format('YYYY-MM-DD HH:mm'))}
+                </span>
+                <HistoryVersion {...this.props} />
               </div>
-            </Tooltip>
+            )}
           </div>
         </div>
 
-        {TABS_OPTS.filter(item => flowInfo.startAppType !== APP_TYPE.APPROVAL_START || item.tabIndex !== 3).map(
-          (item, i) => {
-            return (
-              <div
-                key={i}
-                className={cx('Font16 ThemeColor3 ThemeBorderColor3 workflowHeaderTab', {
-                  active: tabIndex === item.tabIndex,
-                  mRight60: TABS_OPTS.length - 1 === i,
-                })}
-                onClick={() => switchTabs(item.tabIndex)}
-              >
-                {item.name}
-              </div>
-            );
-          },
-        )}
+        {tabs.map((item, i) => {
+          return (
+            <div
+              key={i}
+              className={cx('Font16 ThemeColor3 ThemeBorderColor3 workflowHeaderTab', {
+                active: tabIndex === item.tabIndex,
+                mRight60: TABS_OPTS.length - 1 === i,
+              })}
+              onClick={() => switchTabs(item.tabIndex)}
+            >
+              {item.name}
+            </div>
+          );
+        })}
 
         <div className="flex flexRow" style={{ justifyContent: 'flex-end' }}>
           {flowInfo.parentId ? (
@@ -515,18 +820,43 @@ class Header extends Component {
               <div className="workflowReleaseBtn">
                 {_l('历史版本')}
                 <span className="mLeft5">{createTimeSpan(flowInfo.lastPublishDate)}</span>
-                <span data-tip={_l('恢复')}>
-                  <Icon
-                    className="Font18 mLeft10 White ThemeHoverColor3 pointer"
-                    icon="restore2"
-                    onClick={this.handleRestoreVisible}
-                  />
-                </span>
+                {!isPlugin && (
+                  <span data-tip={_l('恢复')}>
+                    <Icon
+                      className="Font18 mLeft10 White ThemeHoverColor3 pointer"
+                      icon="restore2"
+                      onClick={this.handleRestoreVisible}
+                    />
+                  </span>
+                )}
               </div>
             </div>
           ) : (
             <Fragment>
-              {this.renderActionBtn()}
+              {!_.includes([APP_TYPE.WEBHOOK, APP_TYPE.USER, APP_TYPE.EXTERNAL_USER], flowInfo.startAppType) &&
+                flowInfo.publishStatus !== 2 &&
+                this.renderTestBtn()}
+
+              {flowInfo.publishStatus === 2 &&
+                flowInfo.enabled &&
+                _.includes(
+                  [
+                    APP_TYPE.SHEET,
+                    APP_TYPE.LOOP,
+                    APP_TYPE.DATE,
+                    APP_TYPE.CUSTOM_ACTION,
+                    APP_TYPE.APPROVAL_START,
+                    APP_TYPE.EVENT_PUSH,
+                  ],
+                  flowInfo.startAppType,
+                ) && (
+                  <span
+                    className="workflowAction ThemeHoverColor3 ThemeHoverBorderColor3"
+                    onClick={() => this.onExecuteFlow(false)}
+                  >
+                    {isProgressing ? _l('执行中...') : _l('立即执行%03000')}
+                  </span>
+                )}
 
               <Switch
                 disabledClose={flowInfo.startAppType === APP_TYPE.APPROVAL_START && flowInfo.enabled}
@@ -542,17 +872,9 @@ class Header extends Component {
           )}
         </div>
 
-        {visible && (
-          <WorkflowInfo
-            onCancel={() => this.setState({ visible: false })}
-            onOk={this.updateProcess}
-            flowName={flowInfo.name}
-            explain={flowInfo.explain}
-          />
-        )}
-
         {publishErrorVisible && (
           <PublishErrorDialog
+            isPlugin={isPlugin}
             info={errorInfo}
             onOk={() => {
               this.props.switchTabs(1);
@@ -564,6 +886,8 @@ class Header extends Component {
         )}
 
         {this.renderPublishDialog()}
+
+        {showTestFlow && this.renderTestFlow()}
       </div>
     );
   }

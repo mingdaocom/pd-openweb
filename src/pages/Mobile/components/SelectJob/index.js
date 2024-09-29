@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import { Icon, ScrollView } from 'ming-ui';
-import { Modal, Button, WingBlank, Checkbox } from 'antd-mobile';
+import { Popup, Button, Checkbox } from 'antd-mobile';
 import jobAjax from 'src/api/job.js';
 import './index.less';
 import _ from 'lodash';
-
-const { CheckboxItem } = Checkbox;
 
 export default class SelectJob extends Component {
   constructor(props) {
@@ -143,10 +141,11 @@ export default class SelectJob extends Component {
       <ScrollView className="flex jobList" onScrollEnd={this.onScrollEnd}>
         {jobList.map(item => (
           <div className="flexRow jobItem" onClick={() => this.checkJobs(item)}>
-            <CheckboxItem
+            <Checkbox
+              className="mLeft10 mRight10"
               checked={_.includes(selectJobsIds, item.jobId)}
-              onChange={() => this.checkJobs(item)}
-            ></CheckboxItem>
+              onClick={() => this.checkJobs(item)}
+            ></Checkbox>
             <div className="flex jobName ellipsis Gray">{item.jobName}</div>
           </div>
         ))}
@@ -165,23 +164,19 @@ export default class SelectJob extends Component {
   render() {
     const { visible, onClose } = this.props;
     return (
-      <Modal popup visible={visible} onClose={onClose} animationType="slide-up" className="h100">
+      <Popup visible={visible} onClose={onClose} className="mobileModal full">
         <div className="selectUserModal flexColumn h100">
           {this.renderContent()}
-          <div className="btnsWrapper flexRow">
-            <WingBlank className="flex" size="sm">
-              <Button className="Gray_75 bold Font14" onClick={onClose}>
-                {_l('取消')}
-              </Button>
-            </WingBlank>
-            <WingBlank className="flex" size="sm">
-              <Button className="bold Font14" onClick={this.handleSave} type="primary">
-                {_l('确定')}
-              </Button>
-            </WingBlank>
+          <div className="flexRow WhiteBG pAll10">
+            <Button className="flex mLeft6 mRight6 Gray_75 bold Font14" onClick={onClose}>
+              {_l('取消')}
+            </Button>
+            <Button className="flex mLeft6 mRight6 bold Font14" onClick={this.handleSave} color="primary">
+              {_l('确定')}
+            </Button>
           </div>
         </div>
-      </Modal>
+      </Popup>
     );
   }
 }

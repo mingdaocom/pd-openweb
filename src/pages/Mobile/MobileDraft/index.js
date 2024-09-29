@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { Icon, ScrollView } from 'ming-ui';
-import { Flex, Modal } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import worksheetAjax from 'src/api/worksheet';
 import CellControl from 'src/pages/worksheet/components/CellControls';
 import { getTitleTextFromControls, controlState } from 'src/components/newCustomFields/tools/utils';
@@ -10,25 +10,13 @@ import { BrowserRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import _ from 'lodash';
 
-const ModalWrap = styled(Modal)`
-  height: 95%;
-  overflow: hidden;
-  border-top-right-radius: 15px;
-  border-top-left-radius: 15px;
-  &.full {
-    height: 100%;
-    border-top-right-radius: 0;
-    border-top-left-radius: 0;
-  }
+const ModalWrap = styled(Popup)`
   .mobileContainer {
     padding-top: 25px;
   }
-  .am-modal-content {
-    background-color: #f5f5f5;
-  }
-  .am-modal-body {
+  .adm-popup-body {
     color: #333 !important;
-    font-size: inherit !important;
+    background-color: #f5f5f5;
   }
   .recordCardContent {
     padding: 5px 12px;
@@ -87,6 +75,7 @@ function MobileDraftList(props) {
     draftData = [],
     getDraftData = () => {},
     sheetSwitchPermit,
+    worksheetInfo = {},
   } = props;
   const [currentRowId, setCurrentRowId] = useState('');
 
@@ -200,7 +189,7 @@ function MobileDraftList(props) {
   };
   return (
     <BrowserRouter>
-      <ModalWrap popup animationType="slide-up" onClose={onCancel} visible={visible} className="full">
+      <ModalWrap onClose={onCancel} visible={visible} className="mobileModal full">
         <div className="flexColumn h100">
           <div className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8">
             <div className="flex Font15 Gray_9e leftAlign ellipsis">{_l('共%0条', draftData.length)}</div>
@@ -208,10 +197,10 @@ function MobileDraftList(props) {
           </div>
           <div className="flex">
             {_.isEmpty(draftData) ? (
-              <Flex className="withoutRows" direction="column" justify="center" align="center">
+              <div className="withoutRows flexColumn alignItemsCenter justifyContentCenter">
                 <Icon icon="drafts_approval" />
                 <div className="text">{_l('暂无草稿')}</div>
-              </Flex>
+              </div>
             ) : (
               <ScrollView>{draftData.map(item => renderRow(item))}</ScrollView>
             )}
@@ -225,6 +214,7 @@ function MobileDraftList(props) {
           worksheetId={worksheetId}
           rowId={currentRowId}
           sheetSwitchPermit={sheetSwitchPermit}
+          worksheetInfo={worksheetInfo}
           draftFormControls={controls
             .filter(
               item =>
@@ -290,7 +280,7 @@ export default function MobileDraft(props) {
           }}
         >
           <i className="icon-drafts_approval Font22 Gray_9d"></i>
-          {!_.isEmpty(draftData) && <span className="draftDot"></span>}
+          {/* {!_.isEmpty(draftData) && <span className="draftDot"></span>} */}
         </DraftEntry>
       )}
 

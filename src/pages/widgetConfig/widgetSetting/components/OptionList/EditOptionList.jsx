@@ -62,7 +62,7 @@ export default function EditOptionList(props) {
       onCancel={onCancel}
       onOk={handleOk}
     >
-      <SettingItem style={{ marginTop: '0px' }}>
+      <SettingItem className="pLeft24 pRight24 mTop0">
         <div className="settingItemTitle flexRow">
           <div className="flex">{_l('名称')}</div>
           {!_.isEmpty(options) && (
@@ -73,7 +73,7 @@ export default function EditOptionList(props) {
         </div>
         <Input value={name} placeholder={_l('选项集')} onChange={e => setName(e.target.value)} />
       </SettingItem>
-      <SettingItem>
+      <SettingItem className="pLeft24 pRight24">
         <div className="settingItemTitle">{_l('选项 ( %0 ) ', getOptionCount())}</div>
         <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
           <div className="flexCenter">
@@ -105,6 +105,8 @@ export default function EditOptionList(props) {
         </div>
       </SettingItem>
       <Options
+        className="optionsWrap"
+        isDialog={true}
         mode="list"
         options={data}
         colorful={colorful}

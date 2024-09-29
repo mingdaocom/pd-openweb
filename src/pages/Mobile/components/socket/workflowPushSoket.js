@@ -12,6 +12,12 @@ export default props => {
   md.global.Config.pushUniqueId = (+new Date()).toString();
 
   IM.socket.on('workflow_push', result => {
+    if (window.isMingDaoApp) {
+      window.MDJS.workflowPushMessage({
+        message: result
+      });
+      return;
+    }
     const pushType = parseInt(Object.keys(result)[0]);
     const { pushUniqueId, content, promptType, duration, title, buttons = [] } = result[pushType];
     const actionFun = (data, pushType) => {

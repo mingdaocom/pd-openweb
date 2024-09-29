@@ -125,6 +125,7 @@ export default class Widgets extends Component {
 
   render() {
     const {
+      controlId,
       disabled,
       value = '',
       enumDefault,
@@ -132,14 +133,18 @@ export default class Widgets extends Component {
       advancedSetting,
       projectId,
       maskPermissions,
+      formData
     } = this.props;
     let { hint } = this.props;
     const { isEditing, maskStatus } = this.state;
     const isMask = maskPermissions && enumDefault === 2 && value && maskStatus;
     const disabledInput = advancedSetting.dismanual === '1';
+    const isMobile = browserIsMobile();
+    const minHeight = isMobile ? 90 : Number(advancedSetting.minheight || '90');
+    const maxHeight = isMobile ? 400 : Number(advancedSetting.maxheight || '400');
     const isSingleLine = enumDefault === 2;
     const isScanQR = getIsScanQR();
-    const startTextScanCode = !disabled && isScanQR && strDefault.split('')[1] === '1';
+    const startTextScanCode = !disabled && isScanQR && advancedSetting.scantype;
     const compositionOptions = {
       onCompositionStart: () => (this.isOnComposition = true),
       onCompositionEnd: event => {
@@ -173,16 +178,17 @@ export default class Widgets extends Component {
               { textAreaDisabledControl: enumDefault === 1 && disabled },
             )}
             style={{
-              minHeight: enumDefault === 1 ? 90 : 36,
+              minHeight: enumDefault === 1 ? minHeight : 36,
               width: startTextScanCode ? 'calc(100% - 42px)' : '100%',
               lineHeight: 1.5,
               ...(disabled ? { wordBreak: 'break-all' } : {}),
+              ...(enumDefault === 1 ? { maxHeight, overflowX: 'hidden' } : {}),
             }}
             onClick={this.joinTextareaEdit}
           >
             <span
               className={cx('WordBreak', { maskHoverTheme: disabled && isMask })}
-              style={browserIsMobile() ? { wordWrap: 'break-word' } : {}}
+              style={isMobile ? { wordWrap: 'break-word' } : {}}
               onClick={() => {
                 if (disabled && isMask) this.setState({ maskStatus: false });
               }}
@@ -225,8 +231,8 @@ export default class Widgets extends Component {
             isFocus
             className="customFormTextarea escclose"
             style={{ width: startTextScanCode ? 'calc(100% - 42px)' : '100%' }}
-            minHeight={enumDefault === 1 ? 90 : 36}
-            maxHeight={400}
+            minHeight={enumDefault === 1 ? minHeight : 36}
+            maxHeight={maxHeight}
             manualRef={text => {
               this.text = text;
             }}
@@ -253,6 +259,8 @@ export default class Widgets extends Component {
           <TextScanQRCode
             projectId={projectId}
             disablePhoto={strDefault.split('')[0] === '1'}
+            scantype={advancedSetting.scantype || '0'}
+            control={_.find(formData, { controlId }) || {}}
             onChange={this.onChange}
           />
         )}

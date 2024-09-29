@@ -1,7 +1,7 @@
 import PDFObject from 'pdfobject';
-import { autobind } from 'core-decorators';
+import QRCode from '@mdfe/qrcode-base';
 import genQrDataurl, { QRErrorCorrectLevel } from './genQrDataurl';
-import { A4_OPTS, QRPRINT_OPTS, A4_SIZE, QRPRINT_SIZES } from './printConfig';
+import { A4_OPTS, A4_SIZE } from './printConfig';
 import { createBarLabeObjectFromConfig, createQrLabeObjectFromConfig } from './util';
 import {
   BAR_LAYOUT,
@@ -13,6 +13,51 @@ import {
   QR_LABEL_SIZES,
 } from './enum';
 import _ from 'lodash';
+
+const defaultOptions = {
+  gap: 0,
+  render: 'canvas',
+  width: 256,
+  height: 256,
+  typeNumber: -1,
+  correctLevel: QRErrorCorrectLevel.M,
+  background: '#ffffff',
+  foreground: '#000000',
+  setFillColor: () => {},
+  rect: () => {},
+  renderCell: () => {},
+};
+
+const renderQr = function (options) {
+  options = Object.assign({}, defaultOptions, options);
+  const qrcode = new QRCode(options.typeNumber, options.correctLevel);
+  qrcode.addData(options.value);
+  qrcode.make();
+  console.log(qrcode.getModuleCount());
+  const tileW = (options.width - options.gap * 2) / qrcode.getModuleCount();
+  const tileH = (options.height - options.gap * 2) / qrcode.getModuleCount();
+  console.log(qrcode.isDark(1, 0));
+  for (let row = 0; row < qrcode.getModuleCount(); row++) {
+    for (let col = 0; col < qrcode.getModuleCount(); col++) {
+      const w = Math.ceil((col + 1) * tileW) - Math.floor(col * tileW);
+      const h = Math.ceil((row + 1) * tileH) - Math.floor(row * tileH);
+      // const w = tileW;
+      // const h = tileH;
+      options.renderCell({
+        x: Math.round(col * tileW) + options.gap,
+        y: Math.round(row * tileH) + options.gap,
+        w,
+        h,
+        isDark: qrcode.isDark(row, col),
+        color: qrcode.isDark(row, col) ? options.foreground : options.background,
+      });
+    }
+  }
+};
+
+function mmToPt(mm) {
+  return mm * 2.83464567;
+}
 
 function cutText(text, fontSize, width) {
   fontSize = fontSize || 12;
@@ -438,13 +483,13 @@ export class QrPdf {
     }, 100);
     PDFObject.embed(this.doc.output('bloburl'), this.$dialog.querySelector('.previewBody'));
   }
-  @autobind
-  closeDialog() {
+
+  closeDialog = () => {
     this.$dialog.classList.remove('visible');
     setTimeout(() => {
       this.$dialog.remove();
     }, 400);
-  }
+  };
 }
 
 export default async function (
@@ -453,7 +498,17 @@ export default async function (
 ) {
   console.time('render qr');
   const pdf = new QrPdf({ worksheetName, printType, layout, printData, correctLevel, config });
-  await pdf.render();
+  if (pdf.isPdfKit) {
+    this.doc.end();
+    this.stream.on('finish', function () {
+      console.log('finish');
+      const url = this.stream.toBlobURL('application/pdf');
+      // document.querySelector('iframe').src = url;
+      window.open(url);
+    });
+  } else {
+    await pdf.render();
+  }
   console.timeEnd('render qr');
   pdf.openDialog();
   cb();

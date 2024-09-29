@@ -1,6 +1,4 @@
-import React, { Component, createRef } from 'react';
-import { string } from 'prop-types';
-import { autobind } from 'core-decorators';
+import React, { Component } from 'react';
 import styled from 'styled-components';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -85,7 +83,7 @@ export default class CustomPage extends Component {
           config: config || defaultConfig,
           apk: apk || {},
           visible: true,
-          filterComponents: components.filter(item => item.value && item.type === enumWidgetType.filter)
+          filterComponents: components.filter(item => item.value && item.type === enumWidgetType.filter),
         });
         this.$originComponents = components;
         this.$originAdjustScreen = adjustScreen;
@@ -259,7 +257,7 @@ export default class CustomPage extends Component {
                           temporaryWriteControls: undefined,
                           controls: undefined,
                           isEmptyWriteControls: undefined,
-                        }
+                        },
                       };
                     }
                   }),
@@ -360,7 +358,7 @@ export default class CustomPage extends Component {
                 advancedSetting: {
                   ...item.advancedSetting,
                   navfilters,
-                  showNavfilters: undefined
+                  showNavfilters: undefined,
                 },
                 values: formatFilterValuesToServer(item.dataType, item.values),
                 control: undefined,
@@ -445,10 +443,10 @@ export default class CustomPage extends Component {
                   temporaryWriteControls: undefined,
                   controls: undefined,
                   isEmptyWriteControls: undefined,
-                }
+                },
               };
             }),
-          }
+          },
         };
       }
       // 找到透视表，保存管理员列宽的配置
@@ -458,16 +456,15 @@ export default class CustomPage extends Component {
           ...component,
           config: {
             ...component.config,
-            columnWidthConfig
-          }
-        }
+            columnWidthConfig,
+          },
+        };
       }
       return component;
     });
   };
 
-  @autobind
-  async handleSave() {
+  handleSave = async () => {
     const { version, ids, adjustScreen, config, components, updatePageInfo, updateSaveLoading } = this.props;
     const pageId = ids.worksheetId;
 
@@ -486,7 +483,7 @@ export default class CustomPage extends Component {
         version: version,
         components: newComponents,
         adjustScreen,
-        config
+        config,
       })
       .then(({ appId: pageId, version, components, apk }) => {
         if (_.isNumber(version)) {
@@ -502,7 +499,7 @@ export default class CustomPage extends Component {
             version,
             modified: false,
             filterComponents: components.filter(item => item.value && item.type === enumWidgetType.filter),
-            apk
+            apk,
           });
           alert(_l('保存成功'), 1);
         } else {
@@ -513,14 +510,14 @@ export default class CustomPage extends Component {
         alert(_l('保存失败'), 2);
       })
       .finally(() => updateSaveLoading(false));
-  }
+  };
 
   cancelModified = () => {
     const { updatePageInfo } = this.props;
     updatePageInfo({
       components: this.$originComponents,
       adjustScreen: this.$originAdjustScreen,
-      config: this.$originConfig
+      config: this.$originConfig,
     });
     this.handleBack();
   };

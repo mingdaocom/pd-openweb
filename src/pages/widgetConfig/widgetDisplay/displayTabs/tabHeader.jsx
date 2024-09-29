@@ -28,6 +28,7 @@ const TabHeaderItemWrap = styled.div`
     height: 30px;
     line-height: 34px;
     text-align: center;
+    cursor: pointer;
   }
 `;
 

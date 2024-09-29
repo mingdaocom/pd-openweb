@@ -104,7 +104,7 @@ export default function OptionColumn(props) {
                 alert(_l('数据源删除成功'));
                 setSourceList(sourceList.filter(item => item.id !== sourceId));
               } else {
-                alert(res.errorMsg, 2);
+                alert(res.errorMsg || (res.errorMsgList || [])[0], 2);
               }
 
               setDialogVisible(false);
