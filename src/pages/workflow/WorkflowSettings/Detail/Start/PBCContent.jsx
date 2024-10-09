@@ -34,7 +34,7 @@ const Header = styled.div`
   }
 `;
 
-const getDefaultParameters = () => {
+const getDefaultParameters = isPlugin => {
   return {
     controlId: uuidv4(),
     controlName: '',
@@ -44,7 +44,7 @@ const getDefaultParameters = () => {
     desc: '',
     workflowDefaultValue: '',
     attribute: 0,
-    options: [{ key: '', value: '' }],
+    options: isPlugin ? [{ key: '', value: '' }] : [],
   };
 };
 
@@ -194,7 +194,9 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
 
     // 普通数组
     if (action === 'type' && value === 10000007) {
-      controls.push(Object.assign({}, getDefaultParameters(), { controlName: 'string', dataSource: controlId }));
+      controls.push(
+        Object.assign({}, getDefaultParameters(isPlugin), { controlName: 'string', dataSource: controlId }),
+      );
     }
 
     updateSource({ controls });
@@ -218,7 +220,7 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
   };
   const addParameters = ({ type, dataSource, controlId }) => {
     const controls = _.cloneDeep(data.controls);
-    const defaultParameters = getDefaultParameters();
+    const defaultParameters = getDefaultParameters(isPlugin);
     let index = 0;
 
     controls.forEach((item, i) => {

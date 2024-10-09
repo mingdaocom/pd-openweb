@@ -138,6 +138,7 @@ export default class WorkwxSyncCourse extends React.Component {
 
   renderDing = () => {
     const { domainName, homeUrl } = this.state;
+    const url = encodeURIComponent(`${md.global.Config.WebUrl}dashboard`);
     // 图片加载需要时间，固定高度能让 hash 定位到指定的位置
     return (
       <React.Fragment>
@@ -187,7 +188,7 @@ export default class WorkwxSyncCourse extends React.Component {
           <img src={wxPng4} alt={_l('继续完善对接信息')} />
           <img src={wxPng5} alt={_l('继续完善对接信息')} />
           <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('2.点击“应用主页”，填写“网页地址”')}</p>
-          <AppLinkParamsSettings url={homeUrl} defaultHide={['s', 'ch', 'ac']} />
+          <AppLinkParamsSettings url={`${homeUrl}&url=${url}`} defaultHide={['s', 'ch', 'ac']} />
           <img src={wxPng6} alt={_l('点击“应用主页”，填写“网页地址”')} />
           <img src={wxPng7} alt={_l('点击“应用主页”，填写“网页地址”')} />
           <h3 className="Font18 Gray mTop40">{_l('5. 如何获取CorpId、AgentId和Secret')}</h3>

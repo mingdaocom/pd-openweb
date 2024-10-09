@@ -110,7 +110,7 @@ export default class AvatarEditor extends Component {
   };
 
   render() {
-    const { from, label, minCropRadius } = this.props;
+    const { from, label, cropRadius } = this.props;
     const { avatar, preview } = this.state;
 
     if (!avatar) {
@@ -126,7 +126,7 @@ export default class AvatarEditor extends Component {
             width={200}
             height={200}
             imageWidth={200}
-            minCropRadius={minCropRadius}
+            cropRadius={cropRadius}
             onCrop={this.onCrop}
             onClose={this.onClose}
             onBeforeFileLoad={this.onBeforeFileLoad}

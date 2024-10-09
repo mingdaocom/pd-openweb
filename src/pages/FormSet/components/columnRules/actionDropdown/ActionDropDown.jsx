@@ -66,7 +66,7 @@ export default class DropDownItem extends Component {
             .map(re => ({ ...re, relationControls: (re.relationControls || []).filter(i => filterFn(i)) }))
             .filter(i => {
               if (!_.isEmpty(i.relationControls)) extendId.push(i.controlId);
-              return !_.isEmpty(i.relationControls);
+              return !_.isEmpty(i.relationControls) || filterFn(i);
             });
 
           newRelationData = _.isEmpty(childFilter)

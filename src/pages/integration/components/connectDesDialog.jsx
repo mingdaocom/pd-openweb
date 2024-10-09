@@ -112,7 +112,7 @@ function ConnectDesDia(props) {
               $('.uploadAvatorDialogId_container').parent().remove();
             }}
             defaultType
-            minCropRadius={100}
+            cropRadius={100}
           />
         </WrapAvatorInfo>
       ),

@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Icon, SvgIcon } from 'ming-ui';
-import { hexToRgba } from 'src/util';
+import { getButtonColor } from 'src/pages/worksheet/util';
 import styled from 'styled-components';
 import cx from 'classnames';
 
@@ -12,9 +12,6 @@ const BtnCon = styled.div`
   border-radius: 18px;
   padding: 0 10px;
   box-sizing: border-box;
-  border: ${({ btn }) => (!btn.disabled && (!btn.color || btn.color === 'transparent') ? '1px solid #ddd' : 'none')};
-  color: ${({ btn }) => (btn.color && btn.color !== 'transparent' ? btn.color : '#333')};
-  background: ${({ btn }) => (btn.color && btn.color !== 'transparent' ? hexToRgba(btn.color, 0.05) : '#fff')};
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -22,8 +19,9 @@ const BtnCon = styled.div`
     color: rgba(117, 117, 117, 0.5) !important;
   }
   &.disabled {
-    background-color: rgba(0, 0, 0, 0.03);
-    color: #757575;
+    background-color: rgba(0, 0, 0, 0.03) !important;
+    color: #757575 !important;
+    border: none !important;
   }
 `;
 
@@ -43,7 +41,7 @@ export default class CustomButtons extends Component {
         return (
           <BtnCon
             className={cx(`LineHeight36 ${classNames}`, { disabled: btnDisable[btn.btnId] || btn.disabled })}
-            btn={btn}
+            style={{ ...getButtonColor(btn.color) }}
             onClick={() => {
               if (btnDisable[btn.btnId] || btn.disabled) return;
               handleClick(btn);

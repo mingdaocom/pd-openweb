@@ -106,7 +106,7 @@ function APILibraryCon(props) {
         },
         manageAllConnects: hasPermission(myPermissions, [PERMISSION_ENUM.MANAGE_API_CONNECTS]),
         currentProjectId: currentProjectId,
-        getUrl: 'https://api.mingdao.com/integration',
+        getUrl: 'https://pd.mingdao.com/integration',
         installUrl: __api_server__.integration || md.global.Config.IntegrationAPIUrl,
       });
   };
