@@ -191,7 +191,7 @@ export default function WidgetSection(props) {
             marginBottom: '8px',
             marginLeft: '-24px',
             paddingLeft: '24px',
-            ...(isSplit && { borderTop: '3px solid #ddd', padding: '0 24px' }),
+            ...(isSplit && { borderTop: '3px solid #ddd', marginLeft: '0px', padding: '0 24px' }),
           }}
         >
           {isSplit && <Drag onMouseDown={beginDrag} />}

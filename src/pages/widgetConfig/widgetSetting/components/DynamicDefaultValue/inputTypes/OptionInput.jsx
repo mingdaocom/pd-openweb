@@ -87,8 +87,8 @@ export default function DefaultOptions(props) {
   const $wrap = createRef(null);
 
   useEffect(() => {
-    // 非选项集且有default老配置的
-    if (defaultValue && !dataSource) {
+    // 有default老配置的
+    if (defaultValue) {
       const defaultOptions = safeParse(defaultValue);
       const arr = defaultOptions.map(v => ({ rcid: '', cid: '', staticValue: v })) || [];
       onChange({
