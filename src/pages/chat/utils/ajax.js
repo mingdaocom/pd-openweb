@@ -8,6 +8,8 @@ import CommonAjaxInvitation from 'src/api/invitation';
 import PostController from 'src/api/post';
 import { getPssId } from 'src/util/pssId';
 
+const isDevelopment = process.env.NODE_ENV === 'development';
+
 /**
  * 获取会话列表
  * @param {*} param
@@ -15,7 +17,7 @@ import { getPssId } from 'src/util/pssId';
 export const chatSessionList = (param) => {
   return $.ajax({
     url: _.get(window, 'config.HTTP_SERVER') + '/chat_list',
-    data: param,
+    data: isDevelopment ? { ...param, pss_id: getPssId()  } : param,
     headers: {
       pssid: getPssId(),
     },
@@ -60,6 +62,9 @@ export const getMessage = (conf) => {
   param.num = conf.num ? conf.num + chatConfig.MSG_LENGTH_MORE : chatConfig.MSG_LENGTH_MORE;
   param.keyword = conf.keyword || '';
   param.direction = conf.direction || '';
+  if (isDevelopment) {
+    param.pss_id = getPssId();
+  }
   if (conf.type === Constant.SESSIONTYPE_GROUP) {
     param.groupid = conf.id;
     return $.ajax({
@@ -103,6 +108,9 @@ export const getMessageById = (conf) => {
     param.accountId = conf.id || '';
     url = '/messages_byid';
   }
+  if (isDevelopment) {
+    param.pss_id = getPssId();
+  }
   param.msgid = conf.msgid || '';
   param.size = conf.size || 21;
   return $.ajax({
@@ -131,10 +139,12 @@ export const getImageContext = (conf) => {
     param.accountid = conf.id || 0;
     url = '/user_files_byid';
   }
+  if (isDevelopment) {
+    param.pss_id = getPssId();
+  }
   param.msgid = conf.msgid || '';
   param.size = conf.size || 20;
   param.type = conf.type || 0; // 0：表示全部上下文图片消息；1：表示上文图片消息；2：表示下文图片消息
-
   return $.ajax({
     url: _.get(window, 'config.HTTP_SERVER') + url,
     data: param,
