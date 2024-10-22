@@ -37,7 +37,7 @@ const TYPE_TO_COMP = {
   source: DataSource,
   dataMirror: DataMirror,
 };
-const ENABLE_DATAPIPELINE_KEYS = ['dataConnect', 'taskCon', 'task', 'source'];
+const ENABLE_DATAPIPELINE_KEYS = ['dataConnect', 'taskCon', 'task', 'source', 'dataMirror'];
 
 const getRoutes = param => {
   let components = [];
