@@ -557,7 +557,7 @@ export default class RelateRecordDropdown extends React.Component {
             style={{
               ...(renderToTop
                 ? {
-                    bottom: (_.get(this, 'cell.current.clientHeight') || 0) + (insheet ? 0 : 3),
+                    bottom: (_.get(this, 'cell.current.clientHeight') || 30) + (insheet ? 0 : 3),
                   }
                 : {
                     top: '100%',
