@@ -289,6 +289,7 @@ export default class Condition extends Component {
                     staticValue: '',
                   },
                 ],
+                isDynamicsource: true,
                 ...dateRangeSetObj,
               });
             }}

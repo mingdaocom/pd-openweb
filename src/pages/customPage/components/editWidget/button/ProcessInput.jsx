@@ -4,6 +4,9 @@ import styled from 'styled-components';
 import _ from 'lodash';
 
 const ProcessWrap = styled.div`
+  .Menu.List {
+    max-height: max-content;
+  }
   .selectOtherFieldContainer {
     ${props => (props.hideDynamicValue ? 'display: none;' : '')}
   }

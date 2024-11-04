@@ -488,22 +488,30 @@ const Request = getRequest();
     }
 
     function addMention(mention) {
-      const currentMessage = `${getInputBoxValue().trim()} `;
+      let currentMessage = `${getInputBoxValue().trim()} `;
 
-      const position = getCaretPosition(elmInputBox[0]) + (mention.addAt ? 2 : 0);
+      const position = getCaretPosition(elmInputBox[0]) + (mention.chatAt ? 1 : 0);
 
       let startCaretPosition = 0;
-      if ((mention.addAt ? false : isAt) && atPos < position) {
+      if ((mention.chatAt ? false : isAt) && atPos < position) {
         // 中文问题
         startCaretPosition = position - currentDataQuery.length - 1;
       } else startCaretPosition = position - 1;
 
       const currentCaretPosition = position;
 
+      // 补充 @ 字符
+      if (mention.chatAt) {
+        let start = currentMessage.substr(0, startCaretPosition);
+        let end = currentMessage.substr(startCaretPosition);
+        currentMessage = start + '@' + end;
+      }
+
       const start = currentMessage.substr(0, startCaretPosition);
       const end = currentMessage.substr(currentCaretPosition, currentMessage.length);
+
       let startEndIndex;
-      if (currentType == '@') {
+      if (currentType == '@' || mention.chatAt) {
         startEndIndex = (start + '@' + mention.value).length + 1;
         mention.type = mention.type || '';
         mentionsCollection.push(mention);
@@ -516,7 +524,7 @@ const Request = getRequest();
       currentDataQuery = '';
       hideAutoComplete();
       let updatedMessageText;
-      if (currentType == '@') {
+      if (currentType == '@' || mention.chatAt) {
         updatedMessageText = start.replace(/(@$)/g, '') + '@' + mention.value + ' ' + end;
       } else if (settings.showCategory && currentType == '#') {
         updatedMessageText = start + '#' + mention.value + '# ' + end;

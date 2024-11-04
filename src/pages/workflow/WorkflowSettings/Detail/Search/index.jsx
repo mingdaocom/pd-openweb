@@ -11,9 +11,9 @@ import {
   CustomTextarea,
   UpdateFields,
 } from '../components';
-import { CONTROLS_NAME, RELATION_TYPE, ACTION_ID } from '../../enum';
+import { RELATION_TYPE, ACTION_ID } from '../../enum';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { checkConditionsIsNull } from '../../utils';
+import { checkConditionsIsNull, getControlTypeName } from '../../utils';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -211,7 +211,7 @@ export default class Search extends Component {
         '通过解析内部成员访问或对外公开分享的记录链接来获取对应的记录对象，供流程中的其他节点使用。场景例如：仓库管理员在PC端使用扫描枪来扫描商品的二维码，将指向的记录链接写入文本框，由工作流解析出关联的产品，实现自动化出入库。',
       ),
       [ACTION_ID.RECORD_UPDATE]: _l(
-        '从工作表中通过筛选条件和排序规则查找符合条件的唯一数据，并在获取的同时对记录进行更新',
+        '根据筛选条件和排序规则从工作表中查找符合条件的第一条数据，并在获取的同时对记录进行更新（原子性防止并发操作，适用于出入库等场景）',
       ),
       [ACTION_ID.RECORD_DELETE]: _l('从工作表中通过筛选条件和排序规则直接删除符合条件的唯一数据'),
     };
@@ -503,7 +503,7 @@ export default class Search extends Component {
 
     return (
       <Fragment>
-        <span className="Gray_75 mRight5">[{CONTROLS_NAME[item.type === 37 ? item.enumDefault2 : item.type]}]</span>
+        <span className="Gray_75 mRight5">[{getControlTypeName(item)}]</span>
         <span>{item.controlName}</span>
       </Fragment>
     );

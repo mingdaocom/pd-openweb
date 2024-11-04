@@ -50,7 +50,7 @@ export const updateSessionList = result => (dispatch, getState) => {
       // 计数
       if ('count' in result) {
         item.count = 'weak' in result ? item.count : (item.count || 0) + result.count;
-        item.time = utils.formatMsgDate(dateConvertToUserZone(result.time || utils.getCurrentTime()));
+        item.time = createTimeSpan(dateConvertToUserZone(result.time || utils.getCurrentTime()), 2);
         item.msg.con = result.msg;
         item.id = result.msgId;
         item.isPush = result.isPush;
@@ -81,7 +81,7 @@ export const updateSessionList = result => (dispatch, getState) => {
       }
       // 添加会话
       if ('addMsg' in result) {
-        item.time = utils.formatMsgDate(dateConvertToUserZone(result.time || utils.getCurrentTime()));
+        item.time = createTimeSpan(dateConvertToUserZone(result.time || utils.getCurrentTime()));
         item.msg.con = result.addMsg;
         adjust.push(item);
         delete item.isSession;
@@ -636,11 +636,26 @@ export const addCurrentSession = result => (dispatch, getState) => {
     const { id } = currentInboxList[0];
     dispatch(removeCurrentInbox(id));
   }
+  result.requestNow = Date.now();
   dispatch({
     type: 'ADD_INBOX_SESSION',
     result,
   });
 };
+
+/**
+ * 更新 inbox 时间
+ * @param {*} result
+ */
+export const updateInoxRequestNow = id => {
+  return {
+    type: 'UPDATE_INBOX_SESSION',
+    id,
+    data: {
+      requestNow: Date.now()
+    }
+  }
+}
 
 /**
  * 删除聊过的会话信息
@@ -1074,6 +1089,9 @@ export const updateWithdrawMessage = (id, newMessage) => (dispatch, getState) =>
     if (item.id == messageId) {
       const nextMessage = currentMessage[index + 1];
       item.iswd = true;
+      if (item.from === md.global.Account.accountId && !item.msg.oldCon) {
+        item.msg.oldCon = item.msg.con;
+      }
       item.msg.con = msg.con;
       if (nextMessage) {
         nextMessage.isDuplicated = false;

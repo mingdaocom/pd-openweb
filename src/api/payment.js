@@ -81,6 +81,18 @@ export default {
      return mdyAPI('Payment', 'GetPayOrder', args, options);
    },
   /**
+  * 获取订单信息 商家小票展示
+  * @param {Object} args 请求参数
+  * @param {string} args.paymentPlatformOrderId 微信或支付宝的交易单号
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getPayOrderForTicket: function (args, options = {}) {
+     
+     return mdyAPI('Payment', 'GetPayOrderForTicket', args, options);
+   },
+  /**
   * 获取订单状态
 用于订单支付状态轮询
   * @param {Object} args 请求参数
@@ -384,6 +396,7 @@ export default {
   * @param {string} args.description 提现描述
   * @param {string} args.projectId 组织id
   * @param {} args.refundSourceType
+  * @param {string} args.viewId
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

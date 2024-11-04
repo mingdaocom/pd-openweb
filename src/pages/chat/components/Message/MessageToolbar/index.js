@@ -2,14 +2,12 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import './index.less';
 import * as ajax from '../../../utils/ajax';
-import config from '../../../utils/config';
 import Constant from '../../../utils/constant';
-import Trigger from 'rc-trigger';
-import ClipboardButton from 'react-clipboard.js';
-import * as cardSender from '../../../utils/cardSender';
+import copy from 'copy-to-clipboard';
 import { getCurrentTime } from '../../../utils';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import Dialog from 'ming-ui/components/Dialog';
+import DeleteConfirm from 'ming-ui/components/DeleteReconfirm';
 import { downloadFile } from 'src/util';
 import moment from 'moment';
 import RegExpValidator from 'src/util/expression';
@@ -117,29 +115,24 @@ export default class MessageToolbar extends Component {
     super(props);
   }
   getToolbarConfig() {
-    let toolbarConfig = {};
     const { message, session } = this.props;
     const { isMine, type } = message;
     const { isAdmin } = session;
     const isWithdraw = isMine || isAdmin;
+    let toolbarConfig = {};
 
     if (type === Constant.MSGTYPE_TEXT) {
       // 文字类型
       toolbarConfig = {
         reference: true,
-        dynamic: true,
-        more: {
-          task: true,
-          schedule: true,
-          copy: true,
-          withdraw: isWithdraw,
-        },
+        copy: true,
+        withdraw: isWithdraw
       };
     } else if (type === Constant.MSGTYPE_PIC || type === Constant.MSGTYPE_FILE || type === Constant.MSGTYPE_APP_VIDEO) {
       const { files = {} } = message.msg;
       if (files.isEmotion) {
         isWithdraw &&
-          (toolbarConfig.more = {
+          (toolbarConfig = {
             withdraw: isWithdraw,
           });
       } else {
@@ -147,11 +140,8 @@ export default class MessageToolbar extends Component {
         toolbarConfig = {
           reference: true,
           download: true,
-          more: {
-            preview: true,
-            share: true,
-            withdraw: isWithdraw,
-          },
+          share: true,
+          withdraw: isWithdraw,
         };
       }
     } else if (type === Constant.MSGTYPE_CARD) {
@@ -160,23 +150,19 @@ export default class MessageToolbar extends Component {
         toolbarConfig = {
           reference: true,
           download: true,
-          more: {
-            previewKnowledge: true,
-            share: true,
-            depositKnowledge: true,
-            withdraw: isWithdraw,
-          },
+          share: true,
+          withdraw: isWithdraw,
         };
       } else {
         // 任务&日程等卡片
         isWithdraw &&
-          (toolbarConfig.more = {
+          (toolbarConfig = {
             withdraw: isWithdraw,
           });
       }
     } else if (type === Constant.MSGTYPE_AUDIO) {
       isWithdraw &&
-        (toolbarConfig.more = {
+        (toolbarConfig = {
           withdraw: isWithdraw,
         });
     }
@@ -185,21 +171,6 @@ export default class MessageToolbar extends Component {
   }
   handleMessageReference() {
     this.props.onAddReferMessage();
-  }
-  handleCreatePost() {
-    const { message } = this.props;
-    cardSender
-      .newFeed(
-        {},
-        {
-          postMsg: message.msg.con,
-          showSuccessTip: false,
-        },
-      )
-      .then(result => {
-        alert(_l('创建成功'));
-      });
-    this.props.onSetMessageMoreVisible(false);
   }
   handleMessageFileDownload() {
     const { message } = this.props;
@@ -217,56 +188,6 @@ export default class MessageToolbar extends Component {
       window.open(downloadFile(downloadUrl));
     } else {
       alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
-    }
-    this.props.onSetMessageMoreVisible(false);
-  }
-  handleCreateTask() {
-    const { message } = this.props;
-    cardSender
-      .newTask(
-        {},
-        {
-          description: message.msg.con,
-          showSuccessTip: true,
-        },
-      )
-      .then(result => {
-        alert(_l('创建成功'));
-      });
-    this.props.onSetMessageMoreVisible(false);
-  }
-  handleCreateCalendar() {
-    const { message } = this.props;
-    cardSender
-      .newSchedule(
-        {},
-        {
-          description: message.msg.con,
-          showSuccessTip: true,
-        },
-      )
-      .then(result => {
-        alert(_l('创建成功'));
-      });
-    this.props.onSetMessageMoreVisible(false);
-  }
-  handleMessageFilePreview() {
-    handleMessageFilePreview.call(this);
-    this.props.onSetMessageMoreVisible(false);
-  }
-  handleMessageKnowledgePreview() {
-    const { kcFile } = this.props.message;
-    if (kcFile) {
-      previewAttachments(
-        {
-          attachments: [kcFile],
-          callFrom: 'kc',
-          hideFunctions: ['editFileName'],
-        },
-        {},
-      );
-    } else {
-      alert('权限不足或文件不存在，请联系文件夹管理员或文件上传者', 3);
     }
     this.props.onSetMessageMoreVisible(false);
   }
@@ -320,48 +241,7 @@ export default class MessageToolbar extends Component {
         params.node = attachment;
       }
       share.default(params, {
-        performUpdateItem: visibleType => {},
-      });
-    });
-  }
-  handleSaveToKc() {
-    const { message } = this.props;
-    const { kcFile } = message;
-    const nodeType = 2;
-
-    this.props.onSetMessageMoreVisible(false);
-
-    if (!kcFile) {
-      alert('权限不足或文件不存在，请联系文件夹管理员或文件上传者', 3);
-      return;
-    }
-    if (!kcFile.downloadUrl) {
-      alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
-      return;
-    }
-    import('src/components/saveToKnowledge/saveToKnowledge').then(saveToKnowledge => {
-      const sourceData = {};
-      sourceData.nodeId = kcFile.id;
-      import('src/components/kc/folderSelectDialog/folderSelectDialog').then(folderDg => {
-        folderDg({
-          dialogTitle: _l('选择路径'),
-          isFolderNode: 1,
-          selectedItems: null,
-          zIndex: 9999,
-        })
-          .then(result => {
-            saveToKnowledge(nodeType, sourceData)
-              .save(result)
-              .then(() => {
-                alert(_l('保存成功'));
-              })
-              .catch(() => {
-                alert(_l('保存失败'), 2);
-              });
-          })
-          .catch(() => {
-            // alert('保存失败，未能成功调出知识文件选择层');
-          });
+        performUpdateItem: visibleType => { },
       });
     });
   }
@@ -371,7 +251,16 @@ export default class MessageToolbar extends Component {
     const { isMine } = message;
     const differenceTime = moment(getCurrentTime()).valueOf() - moment(message.time).valueOf() <= 300 * 1000;
     const isWithdraw = isMine ? differenceTime : isAdmin || differenceTime;
-    if (isWithdraw) {
+    const isFileTransfer = session.id === 'file-transfer';
+    if (isFileTransfer) {
+      confirm({
+        title: <span className="Red">{_l('是否确认删除 ?')}</span>,
+        buttonType: 'danger',
+        onOk: () => {
+          this.props.onWithdrawMessage();
+        },
+      });
+    } else if (isWithdraw) {
       if (isAdmin && !isMine) {
         confirm({
           title: _l('管理员消息撤回'),
@@ -388,145 +277,42 @@ export default class MessageToolbar extends Component {
     }
     this.props.onSetMessageMoreVisible(false);
   }
-  handleCopyTextSuccess() {
+  handleAddAtUser = () => {
+    const { message, session } = this.props;
+    const { fromAccount } = message;
+    const textarea = $(`#ChatPanel-${session.id}`).find('.ChatPanel-Textarea .Textarea');
+    const at = {
+      id: fromAccount.id,
+      logo: fromAccount.logo,
+      name: fromAccount.name,
+      value: fromAccount.name,
+      chatAt: true
+    };
+    setTimeout(() => {
+      textarea.wcMentionsInput('addMention', at);
+    }, 0);
+  }
+  handleCopyText() {
+    const { message } = this.props;
+    copy(message.msg.con);
     alert(_l('复制成功'));
     this.props.onSetMessageMoreVisible(false);
-  }
-  handleChange() {
-    const { moreVisible } = this.props;
-    this.props.onSetMessageMoreVisible(!moreVisible);
-  }
-  handleMouseLeave() {
-    this.props.onSetMessageMoreVisible(false);
-  }
-  handleMouseEnter() {
-    this.props.onSetMessageMoreVisible(true);
   }
   renderBtn(toolbarConfig) {
     return (
       <div className="Message-toolbarItem" onClick={toolbarConfig.fn}>
-        <span className="Message-toolbarItemBtn ThemeColor3" data-tip={toolbarConfig.name}>
+        <span className={cx('Message-toolbarItemBtn ThemeColor3', toolbarConfig.className)} data-tip={toolbarConfig.name}>
           <i className={toolbarConfig.icon} />
         </span>
       </div>
     );
   }
-  renderItem(item) {
-    return (
-      <div className="menuItem ThemeBGColor3" onClick={item.fn}>
-        <i className={item.icon} />
-        <div className="menuItem-text">{item.name}</div>
-      </div>
-    );
-  }
-  renderCopy() {
-    const { message } = this.props;
-    return (
-      <ClipboardButton
-        component="div"
-        data-clipboard-text={message.msg.con}
-        onSuccess={this.handleCopyTextSuccess.bind(this)}
-      >
-        <div className="menuItem ThemeBGColor3">
-          <i className="icon-content_copy" />
-          <div className="menuItem-text">{_l('复制')}</div>
-        </div>
-      </ClipboardButton>
-    );
-  }
-  renderMoreToolbar(moreConfig) {
-    return (
-      <div
-        className="ChatPanel-MessageToolbar-Trigger"
-        onMouseEnter={this.handleMouseEnter.bind(this)}
-        onMouseLeave={this.handleMouseLeave.bind(this)}
-      >
-        <div className="ChatPanel-addToolbar-menu">
-          {moreConfig.task &&
-            this.renderItem({
-              name: _l('创建为任务'),
-              icon: 'icon-task',
-              fn: this.handleCreateTask.bind(this),
-            })}
-          {moreConfig.schedule &&
-            this.renderItem({
-              name: _l('创建为日程'),
-              icon: 'icon-bellSchedule',
-              fn: this.handleCreateCalendar.bind(this),
-            })}
-          {moreConfig.preview &&
-            this.renderItem({
-              name: _l('预览'),
-              icon: 'icon-eye',
-              fn: this.handleMessageFilePreview.bind(this), // 普通文件预览
-            })}
-          {moreConfig.previewKnowledge &&
-            this.renderItem({
-              name: _l('预览'),
-              icon: 'icon-eye',
-              fn: this.handleMessageKnowledgePreview.bind(this), // 知识文件预览
-            })}
-          {moreConfig.share &&
-            this.renderItem({
-              name: _l('分享'),
-              icon: 'icon-share',
-              fn: this.handleShareNode.bind(this),
-            })}
-          {moreConfig.depositKnowledge &&
-            this.renderItem({
-              name: _l('存入知识'),
-              icon: 'icon-batch_import',
-              fn: this.handleSaveToKc.bind(this),
-            })}
-
-          {moreConfig.copy && <hr />}
-          {moreConfig.copy && this.renderCopy()}
-
-          {moreConfig.withdraw &&
-            this.renderWithdrawItem({
-              name: _l('撤回'),
-              icon: 'icon-redo',
-              fn: this.handleWithdraw.bind(this),
-            })}
-        </div>
-      </div>
-    );
-  }
-  renderWithdrawItem(withdrawConfig) {
-    const { message, session } = this.props;
-    const { isMine } = message;
+  render() {
+    const { message, session, isDuplicated } = this.props;
     const isAdmin = session.isAdmin || false;
     const differenceTime = moment(getCurrentTime()).valueOf() - moment(message.time).valueOf() <= 300 * 1000;
-    const isWithdraw = isMine ? differenceTime : isAdmin || differenceTime;
-    return (
-      <div className={cx('menuItem ThemeBGColor3', { disable: !isWithdraw })} onClick={withdrawConfig.fn}>
-        <i className={withdrawConfig.icon} />
-        <div className="menuItem-text">{withdrawConfig.name}</div>
-      </div>
-    );
-  }
-  renderMore(moreConfig) {
-    const { moreVisible } = this.props;
-    return (
-      <Trigger
-        popupVisible={moreVisible}
-        onPopupVisibleChange={this.handleChange.bind(this)}
-        popupClassName="ChatPanel-Trigger"
-        action={['click']}
-        popupPlacement="top"
-        builtinPlacements={config.builtinPlacements}
-        popup={this.renderMoreToolbar(moreConfig)}
-        popupAlign={{ offset: [64, 0], overflow: { adjustX: 1, adjustY: 2 } }}
-      >
-        <div className="Message-toolbarItem">
-          <span className="Message-toolbarItemBtn ThemeColor3" data-tip={_l('更多')}>
-            <i className={cx('icon-more_horiz', { ThemeColor3: moreVisible })} />
-          </span>
-        </div>
-      </Trigger>
-    );
-  }
-  render() {
+    const isFileTransfer = session.id === 'file-transfer';
+    const isWithdraw = isFileTransfer ? true : (message.isMine ? differenceTime : isAdmin || differenceTime);
     const toolbarConfig = this.getToolbarConfig();
     return (
       <div className="Message-toolbar-wrapper">
@@ -537,11 +323,11 @@ export default class MessageToolbar extends Component {
               icon: 'icon-quote-left',
               fn: this.handleMessageReference.bind(this),
             })}
-          {toolbarConfig.dynamic &&
+          {session.isGroup && !message.isMine && !isDuplicated &&
             this.renderBtn({
-              name: _l('创建为动态'),
-              icon: 'icon-dynamic-empty',
-              fn: this.handleCreatePost.bind(this),
+              name: _l('@TA'),
+              icon: 'icon-chat-at',
+              fn: this.handleAddAtUser,
             })}
           {toolbarConfig.download &&
             this.renderBtn({
@@ -549,7 +335,25 @@ export default class MessageToolbar extends Component {
               icon: 'icon-download',
               fn: this.handleMessageFileDownload.bind(this),
             })}
-          {toolbarConfig.more && this.renderMore(toolbarConfig.more)}
+          {toolbarConfig.share &&
+            this.renderBtn({
+              name: _l('分享'),
+              icon: 'icon-share',
+              fn: this.handleShareNode.bind(this),
+            })}
+          {toolbarConfig.copy &&
+            this.renderBtn({
+              name: _l('复制'),
+              icon: 'icon-copy',
+              fn: this.handleCopyText.bind(this),
+            })}
+          {toolbarConfig.withdraw && isWithdraw &&
+            this.renderBtn({
+              className: isFileTransfer ? 'deleteBtn' : '',
+              name: isFileTransfer ? _l('删除') : _l('撤回'),
+              icon: isFileTransfer ? 'icon-delete2' : 'icon-redo',
+              fn: this.handleWithdraw.bind(this),
+            })}
         </div>
       </div>
     );

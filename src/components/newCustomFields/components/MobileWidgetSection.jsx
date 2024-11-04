@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState, useRef } from 'react';
 import { Tabs } from 'antd-mobile';
 import { Icon, SvgIcon } from 'ming-ui';
 import RelateRecord from 'src/components/newCustomFields/widgets/RelateRecord';
@@ -7,6 +7,7 @@ import RelationList from 'mobile/RelationRow/RelationList';
 import styled from 'styled-components';
 import { FROM } from '../tools/config';
 import { browserIsMobile } from 'src/util';
+import { ADD_EVENT_ENUM } from '../../../pages/widgetConfig/widgetSetting/components/CustomEvent/config';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -120,11 +121,38 @@ export default function MobileWidgetSection(props) {
   } = props;
   const { otherTabs = [], changeMobileTab = () => {} } = tabControlProp;
   const [newFlag, setNewFlag] = useState(flag);
+  const $sectionControls = useRef([]);
+  const hideTab = _.get(widgetStyle, 'hidetab') === '1' && tabControls.length === 1 && _.isEmpty(otherTabs);
 
   useEffect(() => {
     setActiveTabControlId(_.get(tabControls[0], 'controlId'));
     changeMobileTab(_.get(tabControls[0], 'controlId'));
   }, [flag]);
+
+  useEffect(() => {
+    sectionCustomEvent();
+  }, [tabControls.length]);
+
+  const sectionCustomEvent = () => {
+    let changeControls = [];
+    let triggerType = '';
+    const preControls = _.get($sectionControls, 'current') || [];
+    if (preControls.length > tabControls.length) {
+      // 卸载
+      changeControls = _.differenceBy(preControls, tabControls, 'controlId');
+      triggerType = ADD_EVENT_ENUM.HIDE;
+    } else {
+      // 挂载
+      changeControls = _.differenceBy(tabControls, preControls, 'controlId');
+      triggerType = ADD_EVENT_ENUM.SHOW;
+    }
+    if (_.isFunction(props.triggerCustomEvent) && changeControls.length && triggerType) {
+      changeControls.forEach(itemControl => {
+        props.triggerCustomEvent({ ...itemControl, triggerType });
+      });
+    }
+    $sectionControls.current = tabControls;
+  };
 
   const getCount = (control = {}) => {
     const { value } = control;
@@ -249,7 +277,10 @@ export default function MobileWidgetSection(props) {
             widgetStyle={widgetStyle}
             formData={data}
             showRelateRecordEmpty={true}
-            onChange={(value, cid = activeControl.controlId) => onChange(value, cid, activeControl)}
+            onChange={(value, cid = activeControl.controlId) => {
+              props.triggerCustomEvent({ ...activeControl, triggerType: ADD_EVENT_ENUM.CHANGE });
+              onChange(value, cid, activeControl)
+            }}
             loadMoreRelateCards={loadMoreRelateCards}
           />
         </RelateTabCon>
@@ -259,10 +290,7 @@ export default function MobileWidgetSection(props) {
     // 查询记录列表 新增
     if (activeControl.type === 51) {
       return (
-        <div
-          className={cx({ 'pLeft10 pRight10 pTop5': !_.includes([FROM.H5_ADD], from) })}
-          style={{ margin: '0 -10px' }}
-        >
+        <div className={cx({ 'pLeft10 pRight10 pTop5': !_.includes([FROM.H5_ADD], from) })}>
           <RelationSearch
             {...activeControl}
             viewId={viewId}
@@ -283,12 +311,19 @@ export default function MobileWidgetSection(props) {
 
   return (
     <Fragment>
-      <TabCon className={cx(`tabsWrapper`, { addStyle: _.includes([FROM.H5_ADD], from) })}>{TabsContent()}</TabCon>
-      <TabCon
-        className={cx(`fixedTabs Fixed w100 hide top`, { addStyle: _.includes([FROM.H5_ADD], from), hide: !disabled })}
-      >
-        {TabsContent()}
-      </TabCon>
+      {hideTab ? null : (
+        <Fragment>
+          <TabCon className={cx(`tabsWrapper`, { addStyle: _.includes([FROM.H5_ADD], from) })}>{TabsContent()}</TabCon>
+          <TabCon
+            className={cx(`fixedTabs Fixed w100 hide top`, {
+              addStyle: _.includes([FROM.H5_ADD], from),
+              hide: !disabled,
+            })}
+          >
+            {TabsContent()}
+          </TabCon>
+        </Fragment>
+      )}
       {renderContent()}
     </Fragment>
   );

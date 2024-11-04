@@ -10,6 +10,7 @@ import ProcessRecordInfo from 'mobile/ProcessRecord';
 import instanceVersion from 'src/pages/workflow/api/instanceVersion';
 import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
+import { handlePushState, handleReplaceState } from 'src/util';
 import Card from './Card';
 import './index.less';
 import _ from 'lodash';
@@ -46,7 +47,15 @@ export default class ProcessInform extends Component {
     this.getTodoList();
     this.getTodoCount();
     workflowPushSoket();
+    window.addEventListener('popstate', this.onQueryChange);
   }
+  componentWillUnmount() {
+    window.addEventListener('popstate', this.onQueryChange);
+  }
+  onQueryChange = () => {
+    if (!this.state.previewRecord || _.isEmpty(this.state.previewRecord)) return;
+    handleReplaceState('page', 'processRecord', () => this.setState({ previewRecord: {} }));
+  };
   getTodoList() {
     const param = {};
     const { loading, isMore, currentTab, searchValue } = this.state;
@@ -107,6 +116,18 @@ export default class ProcessInform extends Component {
   handleScrollEnd = tab => {
     this.getTodoList();
   }
+
+  handleRead = item => {
+    const { list, visible, countData } = this.state;
+    const { waitingExamine } = countData;
+    const newList = list.filter(n => n.workId !== item.workId);
+    this.setState({
+      list: newList,
+      visible: newList.length ? visible : false,
+      countData: { ...countData, waitingExamine: waitingExamine - 1 },
+    });
+  };
+
   renderInput() {
     const { searchValue } = this.state;
     return (
@@ -150,9 +171,20 @@ export default class ProcessInform extends Component {
     );
   }
   renderContent() {
-    const { stateTab, list, loading, pageIndex, filter, currentTab } = this.state;
+    const { stateTab, list, loading, pageIndex, filter, currentTab, countData } = this.state;
     return (
       <ScrollView className="flex" onScrollEnd={this.handleScrollEnd}>
+        {currentTab === 'unread' && countData.waitingExamine ? (
+          <div className="valignWrapper w100 pTop15 pBottom15 pRight15 pLeft15 Height50">
+            <div className="flex Font15 bold">{_l('%0个待查看', countData.waitingExamine)}</div>
+            <div className="pointer" onClick={this.handleAllRead}>
+              <Icon icon="done_all" className="Font18 Gray_75" />
+              <span className="Font15 mLeft5 Gray_75 bold">{_l('全部已读')}</span>
+            </div>
+          </div>
+        ) : (
+          ''
+        )}
         {list.map(item => (
           <div className="pLeft10 pRight10" key={item.workId}>
             <Card
@@ -164,9 +196,13 @@ export default class ProcessInform extends Component {
                 return item.title;
               }}
               onClick={() => {
+                handlePushState('page', 'processRecord');
                 this.setState({
-                  previewRecord: { instanceId: item.id, workId: item.workId }
+                  previewRecord: { instanceId: item.id, workId: item.workId },
                 });
+                if (currentTab === 'unread') {
+                  this.handleRead(item);
+                }
               }}
             />
           </div>
@@ -176,6 +212,27 @@ export default class ProcessInform extends Component {
       </ScrollView>
     );
   }
+
+  handleAllRead = () => {
+    const { filter } = this.state;
+    const param = { type: 5 };
+    if (filter) {
+      Object.assign(param, filter);
+    }
+    instanceVersion.batch(param).then(result => {
+      if (result) {
+        alert(_l('操作成功'));
+        this.setState({
+          list: [],
+          isMore: false,
+          isResetFilter: true,
+          visible: false,
+        });
+        this.getTodoCount();
+      }
+    });
+  };
+
   render() {
     const { currentTab, countData, previewRecord } = this.state;
     return (
@@ -211,6 +268,7 @@ export default class ProcessInform extends Component {
             instanceId={previewRecord.instanceId}
             workId={previewRecord.workId}
             onClose={() => {
+              history.back();
               this.setState({
                 previewRecord: {}
               });

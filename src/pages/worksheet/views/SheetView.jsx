@@ -920,7 +920,8 @@ class TableView extends React.Component {
             worksheetId={worksheetId}
             sheetViewHighlightRows={this.highLightRows}
             showRowHead={!this.hideRowHead}
-            lineEditable={lineEditable && isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, viewId)}
+            lineEditable={lineEditable}
+            disableQuickEdit={!isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, viewId)}
             fixedColumnCount={isTreeTableView ? fixedColumnCount + 1 : fixedColumnCount}
             sheetColumnWidths={sheetColumnWidths}
             allowAdd={isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd}

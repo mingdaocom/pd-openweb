@@ -1,8 +1,12 @@
 import React, { Fragment, useState, useRef, useEffect } from 'react';
 import { useSetState } from 'react-use';
 import PropTypes from 'prop-types';
-import { Select } from 'antd';
+import { Select, DatePicker } from 'antd';
 import { Motion, spring } from 'react-motion';
+import zh_CN from 'antd/es/date-picker/locale/zh_CN';
+import zh_TW from 'antd/es/date-picker/locale/zh_TW';
+import en_US from 'antd/es/date-picker/locale/en_US';
+import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 import SelectUser from '../SelectUser';
 import CustomSelectDate from '../CustomSelectDate';
 import styled from 'styled-components';
@@ -29,7 +33,7 @@ const Item = styled.div(
       : ''
   }
   .searcValueContent{
-    ${fullShow ? `flex: 1;width: 0;margin: 0 10px;` : `width:200px;margin: 0 18px 0 10px;`}
+    ${fullShow ? `flex: 1;width: 0;margin: 0 10px;` : `min-width:200px;margin: 0 18px 0 10px;`}
     min-height: 34px;
     input::-webkit-input-placeholder {
       color: #bdbdbd;
@@ -78,6 +82,7 @@ const Input = styled.input`
     border-color: #1e88e5;
   }
 `;
+const { RangePicker } = DatePicker;
 
 let resizeObserver = null;
 export default function SearchWrap(props) {
@@ -162,6 +167,31 @@ export default function SearchWrap(props) {
                 if (!val && !searchValues[key]) return;
                 onChange({ ...searchValues, [key]: val ? val : '' }, true);
               }
+            }}
+          />
+        );
+      case 'antdRangePicker':
+        const lang = getCurrentLangCode();
+        return (
+          <RangePicker
+            {...extra}
+            locale={lang === 1 ? en_US : lang === 2 ? ja_JP : lang === 3 ? zh_TW : zh_CN}
+            onChange={(dates = []) => {
+              onChange({ ...searchValues, [key]: !_.isEmpty(dates) ? { startDate: dates[0], endDate: dates[1] } : {} });
+            }}
+          />
+        );
+      case 'antdDatePicker':
+        return (
+          <DatePicker
+            className="w100"
+            locale={lang === 1 ? en_US : lang === 2 ? ja_JP : lang === 3 ? zh_TW : zh_CN}
+            {...extra}
+            onChange={date => {
+              onChange({
+                ...searchValues,
+                [key]: date,
+              });
             }}
           />
         );

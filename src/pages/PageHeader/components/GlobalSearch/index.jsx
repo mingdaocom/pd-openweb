@@ -89,7 +89,10 @@ class GlobalSearch extends Component {
           <Icon
             icon="external_collaboration"
             className="hrefIcon Font16"
-            onClick={() => navigateTo(`/search?search_key=${searchVal}`)}
+            onClick={() => {
+              navigateTo(`/search?search_key=${searchVal}`);
+              this.props.onClose();
+            }}
           />
           <Icon
             icon="delete"

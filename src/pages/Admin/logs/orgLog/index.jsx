@@ -98,13 +98,10 @@ export default class orgLog extends React.Component {
               const txt = (isUser ? message : opeartContent).replace(/\<a.*?\>/, '').replace(/\<\/a\>/, '');
               return opeartContent ? (
                 <Tooltip text={<spam>{txt}</spam>} popupPlacement="bottom">
-                  <span>
-                    {isUser ? (
-                      <span dangerouslySetInnerHTML={{ __html: filterXss(message) }}></span>
-                    ) : (
-                      <span dangerouslySetInnerHTML={{ __html: filterXss(opeartContent) }}></span>
-                    )}
-                  </span>
+                  <span
+                    className="wMax100 ellipsis InlineBlock"
+                    dangerouslySetInnerHTML={{ __html: isUser ? filterXss(message) : filterXss(opeartContent) }}
+                  ></span>
                 </Tooltip>
               ) : (
                 '-'

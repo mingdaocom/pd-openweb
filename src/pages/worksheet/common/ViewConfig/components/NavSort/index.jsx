@@ -115,8 +115,9 @@ export default function (props) {
             advancedSettingKey={customitemsKey}
             description={_l('最多可对50项排序，设置排序的项显示在最前')}
             onChange={infos => {
+              const type = viewControlData.type === 30 ? viewControlData.sourceControlType : viewControlData.type;
               let values = [];
-              switch (viewControlData.type) {
+              switch (type) {
                 case 29:
                   values = infos.map(o => o.rowid);
                   break;

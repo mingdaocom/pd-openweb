@@ -13,7 +13,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sendRegisterVerifyCode: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'SendRegisterVerifyCode', args, options);
    },
   /**
@@ -29,7 +29,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkExistAccount: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'CheckExistAccount', args, options);
    },
   /**
@@ -45,7 +45,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkExistAccountByConfirmation: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'CheckExistAccountByConfirmation', args, options);
    },
   /**
@@ -57,7 +57,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkExistAccountByCurrentAccount: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'CheckExistAccountByCurrentAccount', args, options);
    },
   /**
@@ -70,7 +70,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkInviteLink: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'CheckInviteLink', args, options);
    },
   /**
@@ -82,7 +82,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkJoinLink: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'CheckJoinLink', args, options);
    },
   /**
@@ -100,7 +100,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    joinByExistAccount: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'JoinByExistAccount', args, options);
    },
   /**
@@ -123,7 +123,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    createAccount: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'CreateAccount', args, options);
    },
   /**
@@ -136,7 +136,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    setAccountInfo: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'SetAccountInfo', args, options);
    },
   /**
@@ -151,7 +151,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkProjectCode: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'CheckProjectCode', args, options);
    },
   /**
@@ -163,7 +163,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getCompanyInfo: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'GetCompanyInfo', args, options);
    },
   /**
@@ -177,7 +177,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkCreateCompany: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'CheckCreateCompany', args, options);
    },
   /**
@@ -206,7 +206,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    createCompany: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'CreateCompany', args, options);
    },
   /**
@@ -232,7 +232,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    inviteJoinCompany: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'InviteJoinCompany', args, options);
    },
   /**
@@ -262,7 +262,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    applyJoinCompany: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'ApplyJoinCompany', args, options);
    },
   /**
@@ -279,7 +279,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sendFindPasswordVerifyCode: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'SendFindPasswordVerifyCode', args, options);
    },
   /**
@@ -296,7 +296,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updatePassword: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'UpdatePassword', args, options);
    },
   /**
@@ -308,7 +308,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getResetPasswordTrigerInfo: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'GetResetPasswordTrigerInfo', args, options);
    },
   /**
@@ -321,7 +321,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    resetPasswordByState: function (args, options = {}) {
-
+     
      return mdyAPI('Register', 'ResetPasswordByState', args, options);
    },
 };

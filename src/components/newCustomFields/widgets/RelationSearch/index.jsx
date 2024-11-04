@@ -17,7 +17,7 @@ import { LoadingButton, getCardWidth } from 'worksheet/components/RelateRecordCa
 import RelateRecordTable from 'worksheet/components/RelateRecordTable';
 import { Button } from 'worksheet/components/RelateRecordTable/RelateRecordBtn.jsx';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
-import { browserIsMobile, addBehaviorLog } from 'src/util';
+import { browserIsMobile, addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
 import { openAddRecord } from 'mobile/Record/addRecord';
 import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
@@ -435,6 +435,7 @@ function RelationSearch(props) {
   const handleOpenRecord = useCallback(needOpenRecordId => {
     addBehaviorLog('worksheetRecord', control.dataSource, { rowId: needOpenRecordId }); // 埋点
     if (isMobile) {
+      handlePushState('page', 'relateRecord');
       setRecordInfoVisible(true);
       setOpenRecordId(needOpenRecordId);
       return;
@@ -446,6 +447,12 @@ function RelationSearch(props) {
       viewId: advancedSetting.openview || control.viewId,
     });
   });
+
+  const onQueryChange = () => {
+    if (!recordInfoVisible) return;
+    handleReplaceState('page', 'relateRecord', () => setRecordInfoVisible(false));
+  };
+
   useEffect(() => {
     loadRecords();
     if (_.isFunction(control.addRefreshEvents)) {
@@ -469,6 +476,14 @@ function RelationSearch(props) {
       setState(oldState => ({ ...oldState, loading: false, records: [] }));
     }
   });
+
+  useEffect(() => {
+    if (!isMobile) return;
+    window.addEventListener('popstate', onQueryChange);
+    return () => {
+      window.removeEventListener('popstate', onQueryChange);
+    };
+  }, [recordInfoVisible]);
 
   return (
     <Con ref={ref}>

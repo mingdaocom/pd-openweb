@@ -1,5 +1,5 @@
-import React, { Fragment, useState } from 'react';
-import { Dialog, Radio, Checkbox, Dropdown, Support } from 'ming-ui';
+import React, { Fragment, useEffect, useState } from 'react';
+import { Dialog, Radio, Checkbox, Dropdown, Support, Icon } from 'ming-ui';
 import { arrayOf, shape } from 'prop-types';
 import { VerticalMiddle, FlexCenter } from 'src/pages/worksheet/components/Basics';
 import styled from 'styled-components';
@@ -8,11 +8,15 @@ import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { WORKFLOW_SYSTEM_CONTROL, FORM_HIDDEN_CONTROL_IDS } from 'src/pages/widgetConfig/config/widget';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { refreshRecord } from './dal';
+import worksheetAjax from 'src/api/worksheet';
 import _ from 'lodash';
 
 const NewDialog = styled(Dialog)`
   .secTitle {
     margin: 18px 0;
+    &:nth-child(1) {
+      margin-top: 0;
+    }
   }
   .Checkbox {
     margin-bottom: 14px;
@@ -20,13 +24,11 @@ const NewDialog = styled(Dialog)`
       vertical-align: text-bottom;
     }
   }
-`;
-
-const RadioCon = styled.div`
-  margin-top: 10px;
-  > label {
-    min-width: 140px;
-    display: inline-block;
+  .relationControls {
+    display: flex;
+    gap: 0 20px;
+    margin-left: 24px;
+    flex-wrap: wrap;
   }
 `;
 
@@ -60,21 +62,33 @@ const Circle = styled(FlexCenter)`
   color: #bdbdbd;
 `;
 
+const Info = styled.div`
+  background: #fefbe7;
+  border-radius: 3px;
+  border: 1px solid #fce596;
+  padding: 8px;
+  color: #333;
+  font-size: 13px;
+  margin-top: 8px;
+  .icon {
+    color: #f0b041;
+    margin-right: 8px;
+    font-size: 18px;
+  }
+`;
+
 function getRefreshControls(controls) {
   return controls.filter(
     c =>
       _.includes(
         [
-          WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL, // 汇总
           WIDGETS_TO_API_TYPE_ENUM.FORMULA_NUMBER, // 公式数值
           WIDGETS_TO_API_TYPE_ENUM.FORMULA_FUNC, // 公式函数
           WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE, // 公式日期
           WIDGETS_TO_API_TYPE_ENUM.CONCATENATE, // 文本组合
-          WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD, // 他表字段
         ],
         c.type,
       ) ||
-      (c.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && _.get(c, 'strDefault.0') !== '1') ||
       (c.type === WIDGETS_TO_API_TYPE_ENUM.CASCADER && _.get(c, 'advancedSetting.storelayer') === '1'),
   );
 }
@@ -90,6 +104,26 @@ function getRefreshSortControls(controls) {
       c.type,
     ),
   );
+}
+
+function getOtherTableControls(controls) {
+  const list = controls.filter(
+    l =>
+      l.dataSource &&
+      (WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL === l.type ||
+        (l.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD && _.get(l, 'strDefault.0') !== '1')),
+  );
+  const group = _.groupBy(list, l => l.dataSource);
+  const data = [];
+  _.forEach(group, (value, key) => {
+    const control = controls.find(l => l.controlId === key.slice(1, key.length - 1));
+    data.push({
+      ..._.pick(control, ['controlId', 'controlName', 'type']),
+      children: value,
+    });
+  });
+
+  return data;
 }
 
 function getAllowUpdateControls(controls) {
@@ -173,7 +207,6 @@ const ACTIVE_TYPE = {
 export default function RefreshRecordDialog(props) {
   const {
     controls = [],
-    worksheetInfo,
     appId,
     viewId,
     worksheetId,
@@ -193,13 +226,16 @@ export default function RefreshRecordDialog(props) {
   const refreshControls = getRefreshControls(visibleControls);
   const refreshSortControls = getRefreshSortControls(visibleControls);
   const encryptControls = visibleControls.filter(c => c.encryId);
-  const refreshVisible = !!refreshControls.concat(refreshSortControls).concat(encryptControls).length;
+  const otherTableControls = getOtherTableControls(visibleControls);
+  const refreshVisible = !!refreshControls.concat(refreshSortControls, encryptControls, otherTableControls).length;
   const [calibrateConfig, setCalibrateConfig] = useState({});
   const [calibrateSortConfig, setCalibrateSortConfig] = useState({});
   const [controlMapList, setControlMapList] = useState([]);
   const [activeType, setActiveType] = useState(
     refreshVisible ? ACTIVE_TYPE.CALIBRATE.value : ACTIVE_TYPE.REFRESH.value,
   );
+  const [time, setTime] = useState(0);
+
   const selectedControlIds = _.flatten(controlMapList.map(c => [c.sourceId, c.targetId])).filter(_.identity);
   function updateMap(index, key, value) {
     setControlMapList(oldValue => [
@@ -216,92 +252,143 @@ export default function RefreshRecordDialog(props) {
   } else {
     okAvailable = !!controlMapList.filter(item => item.sourceId && item.targetId).length;
   }
+
+  useEffect(() => {
+    worksheetAjax.getRefreshRowsMinute().then(res => res && setTime(Number(res)));
+  }, []);
+
+  const handleOk = () => {
+    const hasAuthRowIds = selectedRows.filter(row => row.allowedit || row.allowEdit).map(row => row.rowid);
+    let updateControls;
+
+    if (activeType === ACTIVE_TYPE.CALIBRATE.value) {
+      const allConfig = Object.assign({}, calibrateConfig, calibrateSortConfig);
+      updateControls = Object.keys(allConfig)
+        .filter(key => allConfig[key])
+        .map(key => {
+          const control = _.find(controls, { controlId: key });
+          return control
+            ? {
+                ...{
+                  ..._.pick(control, ['controlId', 'type']),
+                },
+                ...(control.encryId ? { editType: 21 } : {}),
+              }
+            : undefined;
+        })
+        .filter(_.identity);
+    } else {
+      updateControls = controlMapList
+        .filter(item => item.sourceId && item.targetId)
+        .map(item => ({
+          controlId: item.targetId,
+          value: item.sourceId,
+        }));
+    }
+
+    if (!updateControls.length) {
+      return;
+    }
+
+    refreshRecord({
+      appId,
+      viewId,
+      worksheetId,
+      hasAuthRowIds,
+      allWorksheetIsSelected,
+      selectedRows,
+      searchArgs,
+      quickFilter,
+      navGroupFilters,
+      updateControls,
+      cb: data => {
+        if (data.isSuccess) {
+          alert(_l('刷新成功'));
+          clearSelect();
+          onClose();
+          reloadWorksheet();
+          getWorksheetSheetViewSummary();
+        } else {
+          alert(
+            data.successCount < 60
+              ? _l('单表的刷新数据最小间隔为%0分钟，请稍后再试。', data.successCount)
+              : data.successCount % 60 > 0
+              ? _l(
+                  '单表的刷新数据最小间隔为%0小时%1分钟，请稍后再试',
+                  parseInt(data.successCount / 60),
+                  parseInt(data.successCount % 60),
+                )
+              : _l('单表的刷新数据最小间隔为%0小时，请稍后再试。', data.successCount / 60),
+            3,
+          );
+        }
+      },
+    });
+  };
+
+  const handleAllChecked = (controls, checked) => {
+    const value = {};
+    controls.forEach(l => {
+      value[l.controlId] = checked;
+    });
+    setCalibrateConfig({ ...calibrateConfig, ...value });
+  };
+
+  const renderCheckbox = list => {
+    return list.map((c, i) => (
+      <Checkbox
+        key={i}
+        text={
+          <span>
+            <i className={`icon-${getIconByType(c.type)} Gray_9e Font16 mRight8`}></i>
+            {c.controlName}
+          </span>
+        }
+        checked={calibrateConfig[c.controlId]}
+        onClick={() => {
+          setCalibrateConfig(config => ({ ...config, [c.controlId]: !calibrateConfig[c.controlId] }));
+        }}
+      />
+    ));
+  };
+
   return (
     <NewDialog
       visible
-      // title={_l('刷新数据')}
       title={_l('校准数据')}
       description={
-        <div>
-          {_l('此操作仅系统角色可以执行。单次最多刷新10万行数据，后台异步完成后会发送通知。')}
-          <Support
-            className="moreHelp"
-            type={3}
-            href="https://help.mingdao.com/worksheet/batch-refresh"
-            text={_l('使用帮助')}
-          />
-        </div>
+        <Fragment>
+          <div>
+            {_l('仅限管理员操作，一次最多校准10万行数据，校准完成后将推送系统消息通知。')}
+            <Support
+              className="moreHelp"
+              type={3}
+              href="https://help.mingdao.com/worksheet/batch-refresh"
+              text={_l('使用帮助')}
+            />
+          </div>
+          <Info className="valignWrapper">
+            <Icon icon="info" className="" />
+            <span>
+              {time < 60
+                ? _l('单个工作表数据校准时间间隔为%0分钟，请确保已选择所有需要校准的记录和字段。', time)
+                : time % 60
+                ? _l(
+                    '单个工作表数据校准时间间隔为%0小时%1分钟，请确保已选择所有需要校准的记录和字段。',
+                    parseInt(time / 60),
+                    parseInt(time % 60),
+                  )
+                : _l('单个工作表数据校准时间间隔为%0小时，请确保已选择所有需要校准的记录和字段。', time / 60)}
+            </span>
+          </Info>
+        </Fragment>
       }
       overlayClosable={false}
-      width="624"
+      width="640"
       anim={false}
       okDisabled={!okAvailable}
       onCancel={onClose}
-      onOk={() => {
-        const hasAuthRowIds = selectedRows.filter(row => row.allowedit || row.allowEdit).map(row => row.rowid);
-        let updateControls;
-        if (activeType === ACTIVE_TYPE.CALIBRATE.value) {
-          const allConfig = Object.assign({}, calibrateConfig, calibrateSortConfig);
-          updateControls = Object.keys(allConfig)
-            .filter(key => allConfig[key])
-            .map(key => {
-              const control = _.find(controls, { controlId: key });
-              return control
-                ? {
-                    ...{
-                      ..._.pick(control, ['controlId', 'type']),
-                    },
-                    ...(control.encryId ? { editType: 21 } : {}),
-                  }
-                : undefined;
-            })
-            .filter(_.identity);
-        } else {
-          updateControls = controlMapList
-            .filter(item => item.sourceId && item.targetId)
-            .map(item => ({
-              controlId: item.targetId,
-              value: item.sourceId,
-            }));
-        }
-        if (!updateControls.length) {
-          return;
-        }
-        refreshRecord({
-          appId,
-          viewId,
-          worksheetId,
-          hasAuthRowIds,
-          allWorksheetIsSelected,
-          selectedRows,
-          searchArgs,
-          quickFilter,
-          navGroupFilters,
-          updateControls,
-          cb: data => {
-            if (data.isSuccess) {
-              alert(_l('刷新成功'));
-              clearSelect();
-              onClose();
-              reloadWorksheet();
-              getWorksheetSheetViewSummary();
-            } else {
-              alert(
-                _l(
-                  '单表的刷新数据最小间隔为%0，请稍后再试。',
-                  data.successCount < 60
-                    ? _l('%0分钟', data.successCount)
-                    : _l(
-                        '%0个小时',
-                        (data.successCount / 60) % 1 > 0 ? (data.successCount / 60).toFixed(2) : data.successCount / 60,
-                      ),
-                ),
-                2,
-              );
-            }
-          },
-        });
-      }}
+      onOk={handleOk}
     >
       <div>
         {!refreshVisible && (
@@ -312,63 +399,54 @@ export default function RefreshRecordDialog(props) {
             <span className="Gray_9e Font13 mTop20">{_l('当前工作表没有可以校准的字段。')}</span>
           </Empty>
         )}
-        {/* <RadioCon>
-          {Object.keys(ACTIVE_TYPE).map((key, i) => (
-            <Radio
-              className={`${key === 'REFRESH' ? 'hide' : ''}`} // 刷新为其他字段先不上线
-              key={i}
-              disabled={key === 'CALIBRATE' && !refreshVisible}
-              checked={activeType === ACTIVE_TYPE[key].value}
-              title={ACTIVE_TYPE[key].text}
-                <span>
-              text={
-                  {ACTIVE_TYPE[key].text}
-                  {key === 'CALIBRATE' && !refreshVisible && (
-                    <span data-tip={_l('当前没有需要校准的字段。')}>
-                      <i className="icon icon-info Gray_bd Font17 mLeft5"></i>
-                    </span>
-                  )}
-                </span>
-              }
-              onClick={() => {
-                if (activeType !== ACTIVE_TYPE[key].value) {
-                  setCalibrateConfig({});
-                  setControlMapList([]);
-                }
-                setActiveType(ACTIVE_TYPE[key].value);
-              }}
-            />
-          ))}
-        </RadioCon> */}
         {activeType === ACTIVE_TYPE.CALIBRATE.value &&
           [
-            { title: _l('刷新字段值'), controls: refreshControls },
+            { title: _l('刷新计算结果'), controls: refreshControls },
             { title: _l('刷新选项排序和分值'), controls: refreshSortControls },
             { title: _l('刷新字段加密值'), controls: encryptControls },
+            { title: _l('刷新他表字段和汇总结果'), controls: otherTableControls, hasChildren: true },
           ]
             .filter(item => item.controls.length)
-            .map(item => (
-              <Fragment>
-                <div className="secTitle Gray_75">{item.title}</div>
-                {item.controls.map((c, i) => (
-                  <Checkbox
-                    key={i}
-                    text={
-                      <span>
-                        <i className={`icon-${getIconByType(c.type)} Gray_9e Font16 mRight8`}></i>
-                        {c.controlName}
-                      </span>
-                    }
-                    checked={calibrateConfig[c.controlId]}
-                    onClick={() => {
-                      setCalibrateConfig(config => ({ ...config, [c.controlId]: !calibrateConfig[c.controlId] }));
-                    }}
-                  />
-                ))}
-              </Fragment>
-            ))}
+            .map(item => {
+              const notAllChecked = !item.hasChildren && _.some(item.controls, l => !calibrateConfig[l.controlId]);
 
-        {/* {activeType === ACTIVE_TYPE.REFRESH.value && ( */}
+              return (
+                <Fragment>
+                  <div className="secTitle Bold">
+                    {item.title}
+                    {!item.hasChildren && (
+                      <span
+                        className="mLeft14 Gray_75 Normal Hand"
+                        onClick={() => handleAllChecked(item.controls, notAllChecked)}
+                      >
+                        {notAllChecked ? _l('全选') : _l('取消全选')}
+                      </span>
+                    )}
+                  </div>
+                  {item.hasChildren
+                    ? item.controls.map(l => {
+                        const notAllChecked = _.some(l.children, l => !calibrateConfig[l.controlId]);
+
+                        return (
+                          <Fragment key={`relation-${l.controlId}`}>
+                            <div className="mBottom14">
+                              <i className={`icon-${getIconByType(l.type)} Gray_9e Font16 mRight8`}></i>
+                              {l.controlName}
+                              <span
+                                className="mLeft14 Gray_75 Normal Hand"
+                                onClick={() => handleAllChecked(l.children, notAllChecked)}
+                              >
+                                {notAllChecked ? _l('全选') : _l('取消全选')}
+                              </span>
+                            </div>
+                            <div className="relationControls">{renderCheckbox(l.children)}</div>
+                          </Fragment>
+                        );
+                      })
+                    : renderCheckbox(item.controls)}
+                </Fragment>
+              );
+            })}
         {false && ( // 刷新为其他字段先不上线
           <Fragment>
             <div className="mTop10">

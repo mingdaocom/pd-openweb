@@ -7,7 +7,7 @@ import { RecordInfoModal } from 'mobile/Record';
 import { getPosition } from '../util';
 import SVG from 'svg.js';
 import DraggableRecord from './DraggableRecord';
-import { browserIsMobile, addBehaviorLog, emitter } from 'src/util';
+import { browserIsMobile, addBehaviorLog, emitter, handlePushState, handleReplaceState } from 'src/util';
 import { handleRecordClick } from 'worksheet/util';
 
 const isMobile = browserIsMobile();
@@ -34,6 +34,11 @@ export default class SortableRecordItem extends Component {
   }
   componentDidMount() {
     this.drawConnector();
+    window.addEventListener('popstate', this.onQueryChange);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.onQueryChange);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -54,6 +59,10 @@ export default class SortableRecordItem extends Component {
     this.drawConnector();
     // }
   }
+
+  onQueryChange = () => {
+    handleReplaceState('page', 'recordDetail', () => this.setState({ recordInfoVisible: false }));
+  };
 
   getNode = (data, path) => {
     if (!path.length) return {};
@@ -128,12 +137,13 @@ export default class SortableRecordItem extends Component {
     }
   };
   handleRecordVisible = rowId => {
-    if (window.isMingDaoApp) {
+    if (window.isMingDaoApp && !window.shareState.shareId) {
       const { appId, treeData } = this.props;
       const curInfo = treeData[rowId];
       window.location.href = `/mobile/record/${appId}/${curInfo.wsid}/${rowId}`;
       return;
     }
+    handlePushState('page', 'recordDetail');
     this.setState({ recordInfoRowId: rowId, recordInfoVisible: true });
   };
   getRecordInfoPara = () => {

@@ -7,6 +7,7 @@ import { browserIsMobile } from 'src/util';
 import { dealUserRange } from '../../tools/utils';
 import _ from 'lodash';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import { SortableList } from 'ming-ui';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -93,27 +94,43 @@ export default class Widgets extends Component {
     }
   }
 
+  renderItem({ item, items = [] }) {
+    const { disabled, enumDefault } = this.props;
+
+    return (
+      <div
+        className={cx('customFormControlTags pLeft10', { selected: browserIsMobile() && !disabled })}
+        key={item.organizeId}
+      >
+        <span className="ellipsis" style={{ maxWidth: 200 }}>
+          {item.organizeName}
+        </span>
+
+        {((enumDefault === 0 && items.length === 1) || enumDefault !== 0) && !disabled && (
+          <i className="icon-minus-square Font16 tagDel" onClick={() => this.removeOrgRole(item.organizeId)} />
+        )}
+      </div>
+    );
+  }
+
   render() {
-    const { projectId, disabled, enumDefault, formData, masterData = {} } = this.props;
+    const { projectId, disabled, enumDefault, formData, masterData = {}, onChange } = this.props;
     const value = JSON.parse(this.props.value || '[]');
     const { showMobileOrgRole } = this.state;
     const orgRange = dealUserRange(this.props, formData, masterData);
 
     return (
       <div className="customFormControlBox customFormControlUser">
-        {value.map((item, index) => {
-          return (
-            <div className={cx('customFormControlTags pLeft10', { selected: browserIsMobile() && !disabled })} key={index}>
-              <span className="ellipsis" style={{ maxWidth: 200 }}>
-                {item.organizeName}
-              </span>
-
-              {((enumDefault === 0 && value.length === 1) || enumDefault !== 0) && !disabled && (
-                <i className="icon-minus-square Font16 tagDel" onClick={() => this.removeOrgRole(item.organizeId)} />
-              )}
-            </div>
-          );
-        })}
+        <SortableList
+          items={value}
+          canDrag={!disabled && enumDefault !== 0}
+          itemKey="organizeId"
+          itemClassName="inlineFlex grab"
+          direction="vertical"
+          renderBody
+          renderItem={item => this.renderItem(item)}
+          onSortEnd={items => onChange(JSON.stringify(items))}
+        />
 
         {!disabled && (
           <div

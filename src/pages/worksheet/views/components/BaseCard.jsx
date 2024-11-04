@@ -148,6 +148,7 @@ const RecordFieldsWrap = styled(FlexCenter)`
   .contentWrap {
     flex: 1;
     overflow: auto;
+    scrollbar-color: auto;
     &::-webkit-scrollbar {
       height: 0;
     }

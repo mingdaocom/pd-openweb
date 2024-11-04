@@ -30,12 +30,12 @@ const Wrapper = styled.div`
 
 export default function SelectDataObjForm(props) {
   const { source, tableList, dataObj, setDataObj } = props;
-  const { hasSchema } = source;
+  const { hasSchema, type, id } = source;
   const [selectedTables, setSelectedTables] = useState([]);
 
   useEffect(() => {
     // 获取数据源下数据库列表
-    datasourceApi.getDatabases({ projectId: props.currentProjectId, datasourceId: source.id }).then(res => {
+    datasourceApi.getDatabases({ projectId: props.currentProjectId, datasourceId: id }).then(res => {
       if (res) {
         const dbOptionList = res.map(item => {
           return { label: item, value: item };
@@ -64,18 +64,17 @@ export default function SelectDataObjForm(props) {
     } else {
       if (hasSchema) {
         //获取指定数据库下schema列表
-        datasourceApi
-          .getSchemas({ projectId: props.currentProjectId, datasourceId: source.id, dbName: db })
-          .then(res => {
-            if (res) {
-              const schemaOptionList = res.map(item => {
-                return { label: item, value: item };
-              });
-              setDataObj({ db, schema: null, tables: [], schemaOptionList });
-            }
-          });
+        datasourceApi.getSchemas({ projectId: props.currentProjectId, datasourceId: id, dbName: db }).then(res => {
+          if (res) {
+            const schemaOptionList = res.map(item => {
+              return { label: item, value: item };
+            });
+            setDataObj({ db, schema: null, tables: [], schemaOptionList });
+          }
+        });
       } else {
-        setDataObj({ db, tables: [] });
+        //HANA类型 schema值=dbName
+        setDataObj({ db, tables: [], schema: type === DATABASE_TYPE.HANA ? db : undefined });
       }
     }
   };
@@ -91,17 +90,24 @@ export default function SelectDataObjForm(props) {
   };
 
   const onChangeTable = data => {
+    //既支持多主键，又支持无主键
     const supportTypes = [DATABASE_TYPE.MYSQL, DATABASE_TYPE.ALIYUN_MYSQL, DATABASE_TYPE.TENCENT_MYSQL];
-    const sqlServerTypes = [DATABASE_TYPE.SQL_SERVER, DATABASE_TYPE.ALIYUN_SQLSERVER, DATABASE_TYPE.TENCENT_SQLSERVER];
+    //只支持多主键
+    const onlyMultiTypes = [
+      DATABASE_TYPE.SQL_SERVER,
+      DATABASE_TYPE.ALIYUN_SQLSERVER,
+      DATABASE_TYPE.TENCENT_SQLSERVER,
+      DATABASE_TYPE.HANA,
+    ];
 
-    if (_.includes(supportTypes, source.type) || data.length <= selectedTables.length) {
+    if (_.includes(supportTypes, type) || data.length <= selectedTables.length) {
       setSelectedTables(data);
       setDataObj({ tables: data });
     } else {
       const addTable = _.differenceBy(data, selectedTables, 'value')[0];
       const params = {
         projectId: props.currentProjectId,
-        datasourceId: source.id,
+        datasourceId: id,
         dbName: dataObj.db,
         schema: dataObj.schema,
         tableName: addTable.value,
@@ -110,7 +116,7 @@ export default function SelectDataObjForm(props) {
         if (res && _.isArray(res)) {
           const arr = res.filter(item => item.isPk);
           switch (true) {
-            case arr.length === 1 || (_.includes(sqlServerTypes, source.type) && arr.length > 1):
+            case arr.length === 1 || (_.includes(onlyMultiTypes, type) && arr.length > 1):
               setSelectedTables([...selectedTables, addTable]);
               setDataObj({ tables: [...selectedTables, addTable] });
               break;
@@ -163,7 +169,7 @@ export default function SelectDataObjForm(props) {
         onChangeOptions={tableOptionList => setDataObj({ tableOptionList })}
         onChangeTable={onChangeTable}
         projectId={props.currentProjectId}
-        datasourceId={source.id}
+        datasourceId={id}
         dbName={dataObj.db}
         schema={dataObj.schema}
         isMultiple={true}

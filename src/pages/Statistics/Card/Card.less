@@ -18,14 +18,15 @@
     align-items: center;
     height: 32px;
     position: relative;
-    .operateIconWrap, .dragWrap {
+    .operateIconWrap {
       display: none;
     }
     .dragWrap {
       font-size: 15px !important;
       position: absolute;
       left: -15px;
-      top: 8px;
+      top: 6px;
+      opacity: 0;
     }
     .iconItem {
       margin-right: 12px;
@@ -87,10 +88,14 @@
       font-family: system-ui,BlinkMacSystemFont,segoe ui,Roboto,Helvetica,Arial,sans-serif,apple color emoji,segoe ui emoji,segoe ui symbol;
     }
     .g2-tooltip {
+      .g2-tooltip-list {
+        padding-bottom: 5px !important;
+      }
       .g2-tooltip-list-item {
         display: flex;
         align-items: center;
         white-space: nowrap;
+        margin: 6px 0 !important;
       }
       .g2-tooltip-name {
         max-width: 320px;
@@ -139,15 +144,19 @@
     font-weight: 500 !important;
   }
 
-  &.cardHover:hover,
+  &:hover,
   &.active {
-    .header .operateIconWrap, .header .dragWrap {
+    .header .operateIconWrap {
       display: flex;
+    }
+    .header .dragWrap {
+      opacity: 1;
+      visibility: unset;
     }
   }
 
   &.headerHover .header:hover {
-    .operateIconWrap, .dragWrap {
+    .operateIconWrap {
       display: flex;
     }
   }

@@ -112,6 +112,9 @@ export default class Widgets extends Component {
 
     if (browserIsMobile()) {
       let formatMode = unit === '6' ? 'HH:mm:ss' : 'HH:mm';
+      const currentMinute = moment().minute();
+      const defaultValue =
+        timeInterval === 1 ? new Date() : moment().minute(currentMinute - (currentMinute % timeInterval));
 
       return (
         <Fragment>
@@ -136,7 +139,7 @@ export default class Widgets extends Component {
               minuteStep={timeInterval}
               customHeader={controlName}
               isOpen={showobileDatePicker}
-              value={value}
+              value={value || defaultValue}
               min={minDate ? new Date(moment(minDate)) : new Date(1900, 1, 1, 0, 0, 0)}
               max={maxDate ? new Date(moment(maxDate)) : new Date(2100, 12, 31, 23, 59, 59)}
               disabled={disabled}

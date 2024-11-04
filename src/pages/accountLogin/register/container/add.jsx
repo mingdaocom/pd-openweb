@@ -190,8 +190,8 @@ export default class Add extends React.Component {
             {_l('返回')}
           </span>
         )}
-        <div className="title mTop24 Font20">{_l('请填写组织门牌号')}</div>
-        <p className="mTop10 Gray_9e Font15">{_l('组织门牌号可以通过管理员获取')}</p>
+        <div className="title mTop16 Font26 Bold">{_l('请填写组织门牌号')}</div>
+        <p className="mTop6 Gray Font15">{_l('组织门牌号可以通过管理员获取')}</p>
         {this.renderCon()}
         <Support
           type={3}

@@ -54,7 +54,7 @@ export default class Container extends React.Component {
       _.get(nextProps, 'warnningData') !== _.get(this.props, 'warnningData') &&
       (_.get(nextProps, 'warnningData') || []).length > 0
     ) {
-      clickErrInput(_.get(nextProps, 'warnningData'), _.get(nextProps, 'registerData.focusDiv'), nextProps.setData);
+      clickErrInput(_.get(nextProps, 'warnningData'), _.get(nextProps, 'registerData.focusDiv'));
     }
     if (
       _.get(nextProps, 'isFrequentLoginError') !== _.get(this.props, 'isFrequentLoginError') &&
@@ -216,7 +216,7 @@ export default class Container extends React.Component {
         {!(isLink && loginForAdd) && _.get(md, 'global.SysSettings.enableDeclareRegisterConfirm') && (
           <div className="messageBox">
             <div
-              className={cx('termsText Gray_75 privacyText mesDiv', {
+              className={cx('termsText Gray privacyText mesDiv', {
                 ...setWarnningData(warnningData, ['.privacyText'], focusDiv, hasCheckPrivacy),
               })}
             >
@@ -252,7 +252,6 @@ export default class Container extends React.Component {
                   {_l('《隐私条款》')}
                 </a>
               </span>
-              {warnningTipFn(warnningData, ['.privacyText'], focusDiv)}
             </div>
           </div>
         )}

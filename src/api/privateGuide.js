@@ -14,7 +14,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    applyLicenseCode: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'ApplyLicenseCode', args, options);
    },
   /**
@@ -25,7 +25,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getLicenseList: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'GetLicenseList', args, options);
    },
   /**
@@ -36,7 +36,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getServerLicenseList: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'GetServerLicenseList', args, options);
    },
   /**
@@ -47,7 +47,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getServerInfo: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'GetServerInfo', args, options);
    },
   /**
@@ -58,7 +58,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPlatformLicenseInfo: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'GetPlatformLicenseInfo', args, options);
    },
   /**
@@ -71,7 +71,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPlatformLicenseLogs: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'GetPlatformLicenseLogs', args, options);
    },
   /**
@@ -82,7 +82,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getSupportInfo: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'GetSupportInfo', args, options);
    },
   /**
@@ -93,7 +93,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjects: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'GetProjects', args, options);
    },
   /**
@@ -105,7 +105,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    bindProject: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'BindProject', args, options);
    },
   /**
@@ -117,7 +117,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    bindLicenseCode: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'BindLicenseCode', args, options);
    },
   /**
@@ -129,7 +129,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    enableLicenseCode: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'EnableLicenseCode', args, options);
    },
   /**
@@ -142,7 +142,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    bindTrialLicenseCode: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'BindTrialLicenseCode', args, options);
    },
   /**
@@ -156,7 +156,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addAdmin: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'AddAdmin', args, options);
    },
   /**
@@ -168,7 +168,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addProject: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'AddProject', args, options);
    },
   /**
@@ -179,7 +179,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getGuideStepStatus: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateGuide', 'GetGuideStepStatus', args, options);
    },
 };

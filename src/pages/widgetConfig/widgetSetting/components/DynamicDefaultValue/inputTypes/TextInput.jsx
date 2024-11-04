@@ -6,7 +6,7 @@ import { DynamicValueInputWrap } from '../styled';
 import { transferValue } from '../util';
 import { handleAdvancedSettingChange } from '../../../../util/setting';
 import _ from 'lodash';
-
+import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 export default class TextInput extends Component {
   static propTypes = {
     dynamicValue: arrayOf(shape({ cid: string, rcid: string, staticValue: string })),
@@ -81,6 +81,10 @@ export default class TextInput extends Component {
   handleDynamicValue = (newField = []) => {
     if (this.$tagtextarea) {
       const { cid = '', rcid = '', staticValue } = newField[0];
+      if (rcid === 'url') {
+        this.props.onDynamicValueChange(newField);
+        return;
+      }
       const id = rcid ? `${cid}~${rcid}` : `${cid}`;
       this.$tagtextarea.insertColumnTag(id);
       let newValue = this.$tagtextarea.cmObj.getValue();
@@ -88,7 +92,7 @@ export default class TextInput extends Component {
       if (_.includes(['search-keyword', 'empty'], cid) && !staticValue) {
         newValue = `$${cid}$`;
       } else {
-        newValue = newValue.replace(/\$empty\$|\$search-keyword\$/g, '')
+        newValue = newValue.replace(/\$empty\$|\$search-keyword\$/g, '');
       }
 
       this.transferValue(newValue);
@@ -98,7 +102,7 @@ export default class TextInput extends Component {
   };
 
   render() {
-    const { defaultType } = this.props;
+    const { defaultType, from } = this.props;
     return (
       <DynamicValueInputWrap ref={con => (this.$textinput = con)} triggerStyle={true}>
         {defaultType ? (
@@ -113,7 +117,10 @@ export default class TextInput extends Component {
             }}
             getRef={tagtextarea => (this.$tagtextarea = tagtextarea)}
             onChange={(err, value, obj) => {
-              this.transferValue(value.trim());
+              from !== DYNAMIC_FROM_MODE.FAST_FILTER && this.transferValue(value.trim());
+            }}
+            onBlur={() => {
+              from === DYNAMIC_FROM_MODE.FAST_FILTER && this.transferValue(this.$tagtextarea.cmObj.getValue());
             }}
           />
         )}

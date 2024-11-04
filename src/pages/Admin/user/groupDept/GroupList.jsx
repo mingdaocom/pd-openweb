@@ -121,7 +121,7 @@ export default class GroupsList extends Component {
         title: _l('创建时间'),
         dataIndex: 'createTime',
         render: text => {
-          return <span className="color_g">{moment(text).format('YYYY.MM.DD')}</span>;
+          return <span className="color_g">{moment(text).format('YYYY-MM-DD HH:mm:ss')}</span>;
         },
         sorter: true,
       },

@@ -1,9 +1,11 @@
+import React from 'react';
 import './voteUpdater.css';
 import doT from 'dot';
 import 'src/components/uploadAttachment/uploadAttachment';
-import 'src/components/mdDatePicker/mdDatePicker';
 import _ from 'lodash';
 import moment from 'moment';
+import { createRoot } from 'react-dom/client';
+import { DatePicker } from 'ming-ui';
 
 const VoteUpdater = {
   init: function ($el) {
@@ -120,37 +122,45 @@ const VoteUpdater = {
             }),
           );
         });
-      $el.find('.voteLastTime').val(_this.getTomorrowEnd());
-      $el.find('.voteLastTime').mdDatePicker({
-        selectDate: moment(_this.getTomorrowEnd()),
-        dialogStyle: {
-          offsetLeft: 0,
-          offsetTop: 24,
-        },
-        isShowClear: false,
-        zIndex: 1002,
-        onChange: function (dateText) {
-          var voteLastTime = dateText;
-          voteLastTime = new Date(voteLastTime);
-          var today = new Date(new Date().getTime() - (new Date().getTime() % 86400000));
-          if (today - voteLastTime === 0) {
-            var hour = new Date().getHours();
-            $el
-              .find('.voteLastHour')
-              .find('option')
-              .each(function (hourOptionIndex, option) {
-                var disabled = parseInt($(option).val(), 10) <= hour;
-                if (disabled) $(option).hide();
-                $(option).prop('disabled', disabled);
-              })
-              .end()
-              .val(hour + 1 >= 24 ? 0 : hour + 1);
-          } else {
-            $el.find('.voteLastHour option').prop('disabled', false).show();
-          }
-        },
-      });
+
+      _this.renderDatePicker($el);
     });
+  },
+  renderDatePicker: function ($el) {
+    const _this = this;
+    const root = createRoot(document.getElementById('voteLastTime'));
+    _this.voteLastTime = moment(_this.getTomorrowEnd()).format('YYYY-MM-DD');
+    root.render(
+      <span className="InlineBlock voteLastTimeWrap">
+        <DatePicker
+          timePicker={false}
+          allowClear={false}
+          offsetTop={24}
+          selectedValue={moment(_this.voteLastTime)}
+          onOk={value => {
+            _this.voteLastTime = moment(value).format('YYYY-MM-DD');
+            var voteLastTime = value;
+            voteLastTime = new Date(voteLastTime);
+            var today = new Date(new Date().getTime() - (new Date().getTime() % 86400000));
+            if (today - voteLastTime === 0) {
+              var hour = new Date().getHours();
+              $el
+                .find('.voteLastHour')
+                .find('option')
+                .each(function (hourOptionIndex, option) {
+                  var disabled = parseInt($(option).val(), 10) <= hour;
+                  if (disabled) $(option).hide();
+                  $(option).prop('disabled', disabled);
+                })
+                .end()
+                .val(hour + 1 >= 24 ? 0 : hour + 1);
+            } else {
+              $el.find('.voteLastHour option').prop('disabled', false).show();
+            }
+          }}
+        ></DatePicker>
+      </span>,
+    );
   },
   getDefaultContent: function (idPrefix, left) {
     left = left || 73;
@@ -189,7 +199,7 @@ const VoteUpdater = {
               ' +
       _l('截止日期') +
       '\
-              <input class="TextBox voteLastTime" style="width: 70px" />\
+              <span id="voteLastTime"></span>\
               <select class="voteLastHour">\
                 <option value="0">0</option>\
                 <option value="1">1</option>\
@@ -322,7 +332,7 @@ const VoteUpdater = {
         }
       }
       $el.find('.voteLastHour').val(new Date().getHours());
-      $el.find('.voteLastTime').val(_this.getTomorrowEnd());
+      _this.voteLastTime = moment(_this.getTomorrowEnd()).format('YYYY-MM-DD');
       $el.find('.voteUpdaterOperate').show();
     });
   },
@@ -330,7 +340,7 @@ const VoteUpdater = {
     var $voteItems = $el.find('.voteOptions li');
     var voteOptions = '';
     var voteOptionFiles = '';
-    var voteLastTime = '';
+    var voteLastTime = this.voteLastTime;
     var voteLastHour = '';
     var voteAvailableNumber = '';
     var voteAnonymous = false;
@@ -347,7 +357,6 @@ const VoteUpdater = {
       }
     });
 
-    voteLastTime = $el.find('.voteLastTime').val();
     voteLastHour = $el.find('.voteLastHour').val();
     voteAvailableNumber = parseInt($el.find('.voteAvailableNumber').val() || '0', 10);
     voteAnonymous = $el.find('.voteAnonymous').prop('checked');

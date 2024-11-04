@@ -6,6 +6,7 @@ import update from 'immutability-helper';
 import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _ from 'lodash';
+import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 
 export default class DateInput extends Component {
   static propTypes = {
@@ -46,7 +47,7 @@ export default class DateInput extends Component {
     }));
   };
   selectUser = event => {
-    const { data, dynamicValue, globalSheetInfo = {} } = this.props;
+    const { data, dynamicValue, globalSheetInfo = {}, from } = this.props;
     const tabType = getTabTypeBySelectUser(data);
     const unique = data.enumDefault === 0;
     const selectedAccountIds = dynamicValue
@@ -67,9 +68,22 @@ export default class DateInput extends Component {
         return existUser.includes(getId(curr)) ? prev : prev.concat(curr);
       }, dynamicValue);
     };
+    if (tabType === 2 || from === DYNAMIC_FROM_MODE.FAST_FILTER) {
+      let param = {};
+      if (from === DYNAMIC_FROM_MODE.FAST_FILTER && _.get(data, 'advancedSetting.shownullitem') === '1') {
+        param.staticAccounts = [
+          {
+            avatar:
+              md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+              '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
+            fullname: _.get(data, 'advancedSetting.nullitemname') || _l('为空'),
+            accountId: 'isEmpty',
+          },
+        ];
+      }
 
-    if (tabType === 2) {
       quickSelectUser(event.target, {
+        ...param,
         showMoreInvite: false,
         isTask: false,
         tabType,

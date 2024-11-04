@@ -18,7 +18,7 @@ class TaskComment extends Component {
   /**
    * 发表任务讨论
    */
-  onSubmit = (data) => {
+  onSubmit = data => {
     const { taskId } = this.props;
     this.props.dispatch(addTaskDiscussions(taskId, data));
 
@@ -26,7 +26,7 @@ class TaskComment extends Component {
       this.props.dispatch(discussionsAddMembers(taskId, data.newAccounts));
     }
     this.props.scrollToComment();
-  }
+  };
 
   render() {
     const { taskId, taskDetails } = this.props;
@@ -54,7 +54,7 @@ class TaskComment extends Component {
           <Commenter
             sourceId={taskId}
             sourceType={Commenter.TYPES.TASK}
-            appId= {md.global.APPInfo.taskAppID}
+            appId={md.global.APPInfo.taskAppID}
             remark={taskId + '|' + htmlDecodeReg(data.taskName) + '|' + _l('任务')}
             storageId={taskId}
             mentionsOptions={{ position: 'top' }}

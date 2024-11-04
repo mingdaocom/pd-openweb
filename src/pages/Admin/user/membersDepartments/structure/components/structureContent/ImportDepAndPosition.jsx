@@ -338,7 +338,7 @@ class ImportDepAndPosition extends Component {
             <span className="Font17">{_l('导入部门模板')}</span>
           </div>
           <a className="Font16 downloadBtn" href={dptTemplatePaths[getCurrentLangCode()]} target="_blank">
-            {_l('立即下载')}
+            {_l('下载')}
           </a>
         </div>
         <div className="serialTitle mTop32 mBottom14">{_l('2.上传完善后的表格')}</div>

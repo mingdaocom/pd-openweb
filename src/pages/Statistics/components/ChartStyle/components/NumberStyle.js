@@ -583,7 +583,7 @@ export function numberSummaryPanelGenerator(props) {
           }}
         >
           {normTypes
-            .filter(n => n.value !== 5)
+            .filter(n => ![5, 6].includes(n.value))
             .map(item => (
               <Select.Option className="selectOptionWrapper" value={item.value}>
                 {item.alias || item.text}

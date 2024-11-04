@@ -275,7 +275,11 @@ function DoubleConfirm(props) {
       <div className={cx('Gray Font17 mBottom12 bold', { mBottom24: !description && !enableRemark && !verifyPwd })}>
         {enableConfirm ? title : _l('安全验证')}
       </div>
-
+      {description && (
+        <div className="Gray_9e Font14 mBottom12" style={{ marginTop: -10 }}>
+          {description}
+        </div>
+      )}
       {verifyPwd && needPassWord && (
         <VerifyPasswordInput
           className="mBottom25"
@@ -289,8 +293,6 @@ function DoubleConfirm(props) {
           }}
         />
       )}
-
-      {description && <div className="Gray_9e Font14 mBottom12">{description}</div>}
       {enableRemark && (
         <div className="remarkWrap">
           <SectionName className={cx({ required: remarkRequired })}>

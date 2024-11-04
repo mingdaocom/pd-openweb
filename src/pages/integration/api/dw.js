@@ -14,6 +14,7 @@ var dw = {
    * @param {array} args.ids ids(用于列表页查询异常信息使用)
    * @param {string} args.dataSourceId 数据源id
    * @param {string} args.dbName 数据库名称
+   * @param {string} args.schemaName 数据库 schema 名称
    * @param {string} args.tableName 表名称
    * @param {string} args.appId 应用id
    * @param {string} args.projectId 组织id
@@ -21,6 +22,7 @@ var dw = {
    * @param {string} args.wsId 工作表名称
    * @param {array} args.doubleWriteTables 双写表配置(工作表名称，工作表id，表名)
    * @param {array} args.tableNames 表名集合
+   * @param {string} args.accountId No comments found.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -43,6 +45,7 @@ var dw = {
    * @param {array} args.ids ids(用于列表页查询异常信息使用)
    * @param {string} args.dataSourceId 数据源id
    * @param {string} args.dbName 数据库名称
+   * @param {string} args.schemaName 数据库 schema 名称
    * @param {string} args.tableName 表名称
    * @param {string} args.appId 应用id
    * @param {string} args.projectId 组织id
@@ -50,6 +53,7 @@ var dw = {
    * @param {string} args.wsId 工作表名称
    * @param {array} args.doubleWriteTables 双写表配置(工作表名称，工作表id，表名)
    * @param {array} args.tableNames 表名集合
+   * @param {string} args.accountId No comments found.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -72,6 +76,7 @@ var dw = {
    * @param {array} args.ids ids(用于列表页查询异常信息使用)
    * @param {string} args.dataSourceId 数据源id
    * @param {string} args.dbName 数据库名称
+   * @param {string} args.schemaName 数据库 schema 名称
    * @param {string} args.tableName 表名称
    * @param {string} args.appId 应用id
    * @param {string} args.projectId 组织id
@@ -79,6 +84,7 @@ var dw = {
    * @param {string} args.wsId 工作表名称
    * @param {array} args.doubleWriteTables 双写表配置(工作表名称，工作表id，表名)
    * @param {array} args.tableNames 表名集合
+   * @param {string} args.accountId No comments found.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -87,6 +93,20 @@ var dw = {
     base.ajaxOptions.url = base.server(options) + 'dw/createJob';
     base.ajaxOptions.type = 'POST';
     return mdyAPI(controllerName, 'dwcreateJob', JSON.stringify(args), $.extend(base, options));
+  },
+
+  /**
+   * 清空double 库
+   *
+   * @param {Object} args 请求参数
+   * @param {Object} options 配置参数
+   * @param {Boolean} options.silent 是否禁止错误弹层
+   * @returns {Promise<Boolean, ErrorModel>}
+   **/
+  clearDoubleWrite: function (args, options) {
+    base.ajaxOptions.url = base.server(options) + 'dw/clearDoubleWrite';
+    base.ajaxOptions.type = 'POST';
+    return mdyAPI(controllerName, 'dwclearDoubleWrite', JSON.stringify(args), $.extend(base, options));
   },
 
   /**
@@ -101,6 +121,7 @@ var dw = {
    * @param {array} args.ids ids(用于列表页查询异常信息使用)
    * @param {string} args.dataSourceId 数据源id
    * @param {string} args.dbName 数据库名称
+   * @param {string} args.schemaName 数据库 schema 名称
    * @param {string} args.tableName 表名称
    * @param {string} args.appId 应用id
    * @param {string} args.projectId 组织id
@@ -108,6 +129,7 @@ var dw = {
    * @param {string} args.wsId 工作表名称
    * @param {array} args.doubleWriteTables 双写表配置(工作表名称，工作表id，表名)
    * @param {array} args.tableNames 表名集合
+   * @param {string} args.accountId No comments found.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -130,6 +152,7 @@ var dw = {
    * @param {array} args.ids ids(用于列表页查询异常信息使用)
    * @param {string} args.dataSourceId 数据源id
    * @param {string} args.dbName 数据库名称
+   * @param {string} args.schemaName 数据库 schema 名称
    * @param {string} args.tableName 表名称
    * @param {string} args.appId 应用id
    * @param {string} args.projectId 组织id
@@ -137,6 +160,7 @@ var dw = {
    * @param {string} args.wsId 工作表名称
    * @param {array} args.doubleWriteTables 双写表配置(工作表名称，工作表id，表名)
    * @param {array} args.tableNames 表名集合
+   * @param {string} args.accountId No comments found.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -159,6 +183,7 @@ var dw = {
    * @param {array} args.ids ids(用于列表页查询异常信息使用)
    * @param {string} args.dataSourceId 数据源id
    * @param {string} args.dbName 数据库名称
+   * @param {string} args.schemaName 数据库 schema 名称
    * @param {string} args.tableName 表名称
    * @param {string} args.appId 应用id
    * @param {string} args.projectId 组织id
@@ -166,6 +191,7 @@ var dw = {
    * @param {string} args.wsId 工作表名称
    * @param {array} args.doubleWriteTables 双写表配置(工作表名称，工作表id，表名)
    * @param {array} args.tableNames 表名集合
+   * @param {string} args.accountId No comments found.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -188,6 +214,7 @@ var dw = {
    * @param {array} args.ids ids(用于列表页查询异常信息使用)
    * @param {string} args.dataSourceId 数据源id
    * @param {string} args.dbName 数据库名称
+   * @param {string} args.schemaName 数据库 schema 名称
    * @param {string} args.tableName 表名称
    * @param {string} args.appId 应用id
    * @param {string} args.projectId 组织id
@@ -195,6 +222,7 @@ var dw = {
    * @param {string} args.wsId 工作表名称
    * @param {array} args.doubleWriteTables 双写表配置(工作表名称，工作表id，表名)
    * @param {array} args.tableNames 表名集合
+   * @param {string} args.accountId No comments found.
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

@@ -13,6 +13,8 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import { canEditData, isHaveCharge, canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { saveSelectExtensionNavType } from 'src/pages/publicWorksheetConfig/utils';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 
 export default function SheetMoreOperate(props) {
   const {
@@ -30,6 +32,7 @@ export default function SheetMoreOperate(props) {
   const { setSheetDescVisible, setEditNameVisible, updateWorksheetInfo, reloadWorksheet, deleteSheet } = props;
   const { name, projectId, worksheetId, allowAdd, entityName, btnName } = worksheetInfo;
   const [menuVisible, setMenuVisible] = useState();
+  const featureType = getFeatureStatus(projectId, VersionProductType.PAY);
   const autoNumberControls = _.filter(controls, item => item.type === 33);
   const canDelete = isCharge && !isLock;
   const canSheetTrash = isOpenPermit(permitList.sheetTrash, sheetSwitchPermit);
@@ -101,17 +104,23 @@ export default function SheetMoreOperate(props) {
                         {[
                           { type: 'publicform', text: _l('公开发布%02024') },
                           { type: 'pay', text: _l('支付') },
-                        ].map(({ type, text }) => (
-                          <MenuItem
-                            key={type}
-                            onClick={() => {
-                              saveSelectExtensionNavType(worksheetId, 'extensionNav', type);
-                              navigateTo(`/worksheet/form/edit/${worksheetId}/${type}`);
-                            }}
-                          >
-                            <span className="text">{text}</span>
-                          </MenuItem>
-                        ))}
+                        ]
+                          .filter(v => (v.type === 'pay' && featureType) || v.type !== 'pay')
+                          .map(({ type, text }) => (
+                            <MenuItem
+                              key={type}
+                              onClick={() => {
+                                if (type === 'pay' && featureType === '2') {
+                                  buriedUpgradeVersionDialog(projectId, VersionProductType.PAY);
+                                  return;
+                                }
+                                saveSelectExtensionNavType(worksheetId, 'extensionNav', type);
+                                navigateTo(`/worksheet/form/edit/${worksheetId}/${type}`);
+                              }}
+                            >
+                              <span className="text">{text}</span>
+                            </MenuItem>
+                          ))}
                       </Menu>
                     }
                   >
@@ -212,6 +221,16 @@ export default function SheetMoreOperate(props) {
               }}
             >
               <span className="text">{_l('从Excel导入数据%02031')}</span>
+            </MenuItem>
+          )}
+          {canEdit && (
+            <MenuItem
+              icon={<Icon icon="wysiwyg" className="Font16" />}
+              onClick={() => {
+                window.open(`/app/${appId}/logs/${projectId}/${worksheetId}`, '__blank');
+              }}
+            >
+              <span className="text">{_l('日志')}</span>
             </MenuItem>
           )}
           {canSheetTrash && (

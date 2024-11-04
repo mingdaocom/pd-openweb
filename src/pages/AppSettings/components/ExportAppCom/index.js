@@ -5,6 +5,7 @@ import AppSettingHeader from '../AppSettingHeader';
 import EmptyStatus from '../EmptyStatus';
 import appManagementAjax from 'src/api/appManagement';
 import cx from 'classnames';
+import { dateConvertToUserZone } from 'src/util';
 import './index.less';
 
 export default class ExportAppCom extends Component {
@@ -210,7 +211,7 @@ export default class ExportAppCom extends Component {
                             }}
                           />
                         </div>
-                        <div className="date">{createTime}</div>
+                        <div className="date">{createTimeSpan(dateConvertToUserZone(createTime))}</div>
                         <div className="exportType flex overflowHidden">
                           {apps.length === 1 ? (
                             _l('单应用')

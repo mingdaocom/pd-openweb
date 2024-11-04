@@ -106,12 +106,15 @@ export default class CC extends Component {
   /**
    * 更新节点对象数据
    */
-  updateFlowMapSource = (key, obj) => {
+  updateFlowMapSource = (key, obj, callback) => {
     const { data } = this.state;
 
-    this.updateSource({
-      flowNodeMap: Object.assign({}, data.flowNodeMap, { [key]: Object.assign({}, data.flowNodeMap[key], obj) }),
-    });
+    this.updateSource(
+      {
+        flowNodeMap: Object.assign({}, data.flowNodeMap, { [key]: Object.assign({}, data.flowNodeMap[key], obj) }),
+      },
+      callback,
+    );
   };
 
   /**
@@ -319,7 +322,7 @@ export default class CC extends Component {
                   <Checkbox
                     className="InlineFlex"
                     disabled={!data.sendContent}
-                    text={_l('显示记录标题')}
+                    text={_l('显示待办/记录标题')}
                     checked={data.showTitle || !data.sendContent}
                     onClick={checked => this.updateSource({ showTitle: !checked })}
                   />
@@ -331,7 +334,7 @@ export default class CC extends Component {
                   title={_l('启用邮件通知')}
                   desc={_l('启用后，待办消息同时会以邮件的形式发送给相关负责人；邮件0.03元/封，自动从账务中心扣费')}
                   flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
-                  updateSource={obj => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj)}
+                  updateSource={(obj, callback) => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj, callback)}
                 />
               </Fragment>
             )}
@@ -344,7 +347,7 @@ export default class CC extends Component {
                     type={3}
                     text={_l('帮助')}
                     className="ThemeColor3 ThemeHoverColor2"
-                    href="https://help.mingdao.com/worksheet/field-filter"
+                    href="https://help.mingdao.com/workflow/node-cc-send-internal-notification"
                   />
                 </div>
                 {data.selectNodeId ? (

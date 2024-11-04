@@ -75,6 +75,7 @@ export const CONTROL_FILTER_WHITELIST = {
       31, // 公式
       53, // 函数公式
       37, // 汇总
+      28, // 等级
     ],
   },
   BOOL: {
@@ -101,7 +102,6 @@ export const CONTROL_FILTER_WHITELIST = {
       11, // 选项
       10, // 多选
       9, // 单选 平铺
-      28, // 等级
       27, // 部门
       48, // 角色权限
       11, // 单选下拉菜单
@@ -236,6 +236,7 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
   const isDate = typeKey === 'DATE';
   const isCascader = control && control.type === 35;
   const isDepartment = control && control.type === 27;
+  const isLevel = control && control.type === 28;
   const isArea = control && _.includes([19, 23, 24], control.type);
   const isRelateRecordMultiple = control && control.type === 29 && control.enumDefault === 2;
   const { isSingle, isMultiple } = getControlSelectType(control);
@@ -246,8 +247,8 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
     case FILTER_CONDITION_TYPE.EQ_FOR_SINGLE:
       return _l('是');
     case FILTER_CONDITION_TYPE.EQ:
-      if (isNumber) return '=';
-      if (isSingle || isArea) {
+      if (isNumber && !isLevel) return '=';
+      if (isSingle || isArea || isLevel) {
         return _l('是其中一个%25017');
       }
       if (isMultiple) {
@@ -266,8 +267,8 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
       if (isDepartment || isArea) return _l('下级不包含%25025');
       return _l('不包含%25004');
     case FILTER_CONDITION_TYPE.NE:
-      if (isNumber) return '≠';
-      if (isSingle || isArea) {
+      if (isNumber && !isLevel) return '≠';
+      if (isSingle || isArea || isLevel) {
         return _l('不是任何一个%25018');
       }
       if (isMultiple) {

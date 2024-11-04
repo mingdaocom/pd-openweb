@@ -38,6 +38,7 @@ export default class WidgetBridge {
       // iframeRef.current.contentWindow.openSide = value => {
       //   setSide(value);
       // };
+      this.onLoad();
       let loadUrl = this.cache.current.scriptUrl;
       if (this.cache.current.isServerUrl) {
         loadUrl =
@@ -49,7 +50,6 @@ export default class WidgetBridge {
         action: 'load-widget',
         value: loadUrl,
       });
-      this.onLoad();
     } else if (e.data.action === 'call-md-api') {
       try {
         const { functionName, args } = e.data;

@@ -61,7 +61,7 @@ function ListItemLayer(props) {
   const getItemStyle = () => {
     if (!initialClientOffset || !currentOffset || !item) {
       return {
-        display: 'none',
+        display: 'none !important',
       };
     }
 

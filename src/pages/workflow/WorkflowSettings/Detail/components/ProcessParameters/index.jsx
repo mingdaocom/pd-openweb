@@ -1,6 +1,7 @@
 import React from 'react';
 import SingleControlValue from '../SingleControlValue';
-import { CONTROLS_NAME, NODE_TYPE } from '../../../enum';
+import { NODE_TYPE } from '../../../enum';
+import { getControlTypeName } from '../../../utils';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -29,7 +30,7 @@ export default ({
       <div key={item.fieldId} className={cx('relative', { mLeft24: singleObj.dataSource })}>
         <div className="mTop15 ellipsis Font13">
           {selectNodeType !== NODE_TYPE.PLUGIN && (
-            <span className="Gray_75 mRight5">[{CONTROLS_NAME[singleObj.type]}]</span>
+            <span className="Gray_75 mRight5">[{getControlTypeName(singleObj)}]</span>
           )}
           <span className={cx({ bold: selectNodeType === NODE_TYPE.PLUGIN })}>{controlName}</span>
           {singleObj.required && <span className="mLeft5 red">*</span>}

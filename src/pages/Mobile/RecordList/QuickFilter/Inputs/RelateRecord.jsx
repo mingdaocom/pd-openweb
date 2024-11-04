@@ -143,6 +143,14 @@ export default function RelateRecord(props) {
             handleChange({ values: isMultiple ? result : newRecords });
           }}
           formData={formData}
+          fastSearchControlArgs={
+            advancedSetting.searchcontrol
+              ? {
+                  controlId: advancedSetting.searchcontrol,
+                  filterType: advancedSetting.searchtype === '1' ? 2 : 1,
+                }
+              : undefined
+          }
         />
       )}
     </div>

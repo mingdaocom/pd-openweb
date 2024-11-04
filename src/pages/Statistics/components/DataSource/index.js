@@ -197,9 +197,17 @@ export default class DataSource extends Component {
     );
   }
   renderTime() {
-    const { worksheetInfo, currentReport, axisControls, appId } = this.props;
+    const { currentReport, axisControls, appId, base } = this.props;
     const { filter = {}, displaySetup } = currentReport;
     const { timeModalVisible } = this.state;
+    if (base.appType === 2) {
+      const alreadySelectControlId = getAlreadySelectControlId(currentReport);
+      const controls = alreadySelectControlId.map(id => _.find(axisControls, { controlId: id }));
+      const timeControls = controls.filter(item => item && isTimeControl(item.type));
+      if (!timeControls.length) {
+        return null;
+      }
+    }
     return (
       <div className="mTop15 horizontalPaddingWrapper">
         <div className="Bold Font13 Gray mBottom10">{_l('时间')}</div>
@@ -431,7 +439,7 @@ export default class DataSource extends Component {
             {this.renderHeader()}
             <ScrollView className="flex scrollWrapper">
               {this.renderSheet()}
-              {appType !== 2 && this.renderTime()}
+              {this.renderTime()}
               {!ownerId && appType !== 2 && this.renderPermission()}
               {this.renderField()}
             </ScrollView>

@@ -187,7 +187,7 @@
   }
   .extraAction {
     position: fixed;
-    bottom: 56px;
+    bottom: 66px;
     padding-bottom: calc(~'constant(safe-area-inset-bottom) - 20px');
     padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px');
     right: 20px;
@@ -202,13 +202,13 @@
     }
     .chatMessageContainer {
       & > div {
-        padding: 0 10px;
+        padding: 0 14px;
         width: auto;
-        height: 32px;
+        height: 40px;
         color: #757575;
         text-align: center;
-        line-height: 32px;
-        border-radius: 16px;
+        line-height: 40px;
+        border-radius: 20px;
         background-color: #fff;
         box-shadow: 0 3px 6px 0px rgba(0, 0, 0, 0.16);
         z-index: 99;
@@ -273,4 +273,17 @@
 }
 .activeStar {
   color: #ffb100 !important;
+}
+
+.nextEntryWrap {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  font-size: 18px;
+  border-radius: 50%;
+  background-color: #fff;
+  box-shadow: 0 3px 6px 0px rgba(0, 0, 0, 0.16);
+  z-index: 99;
+  padding-bottom: calc(~'constant(safe-area-inset-bottom) - 20px');
+  padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px');
 }

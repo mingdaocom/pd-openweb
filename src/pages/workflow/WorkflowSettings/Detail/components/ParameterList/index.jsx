@@ -1,6 +1,6 @@
 import React from 'react';
 import { Checkbox } from 'ming-ui';
-import { CONTROLS_NAME } from '../../../enum';
+import { getControlTypeName } from '../../../utils';
 
 export default ({ data, controls, showRequired, updateSource, hideControlType }) => {
   return (
@@ -16,7 +16,7 @@ export default ({ data, controls, showRequired, updateSource, hideControlType })
           return (
             <li className="flexRow" key={i}>
               <div className="w180">{item.controlName}</div>
-              {!hideControlType && <div className="mLeft15 w70 ellipsis">{CONTROLS_NAME[item.type]}</div>}
+              {!hideControlType && <div className="mLeft15 w70 ellipsis">{getControlTypeName(item)}</div>}
               <div className="mLeft15 flex" style={{ minWidth: 0 }}>
                 {item.value}
               </div>

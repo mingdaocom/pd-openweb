@@ -6,7 +6,7 @@ import { captcha } from 'ming-ui/functions';
 import cx from 'classnames';
 import { ActionResult, CodeTypeEnum } from 'src/pages/accountLogin/config';
 import styled from 'styled-components';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, encrypt } from 'src/util';
 import externalPortalAjax from 'src/api/externalPortal';
 
 const AccountWrap = styled.div`
@@ -226,12 +226,13 @@ class TelCon extends React.Component {
           randStr: res.randstr,
           captchaType: md.global.getCaptchaType(),
           codeType: this.props.type, //验证码类型(不能为0) 1：注销；2：申请修改；3：绑定新账号
-          account:
+          account: encrypt(
             this.props.type === 3
               ? this.props.inputType === 'phone'
                 ? this.iti.getNumber().replace(/\s*/g, '')
                 : this.props.newAccount
               : this.props.account,
+          ),
         };
         let thenFn = data => {
           if (data.actionResult === 1) {
@@ -314,8 +315,8 @@ class TelCon extends React.Component {
                 ? _l('邮箱')
                 : _l('手机号')
               : inputType === 'phone'
-              ? _l('新手机号')
-              : _l('新邮箱')}
+                ? _l('新手机号')
+                : _l('新邮箱')}
           </span>
           <span className={cx('telBox', { hid: !account })}>{account}</span>
           <input

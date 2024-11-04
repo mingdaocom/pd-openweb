@@ -1,4 +1,4 @@
-import React, { Component, createRef, useRef } from 'react';
+import React, { Component, createRef, useRef, useEffect } from 'react';
 import { string } from 'prop-types';
 import { get, includes } from 'lodash';
 import { bindActionCreators } from 'redux';
@@ -15,7 +15,7 @@ import { CAN_AS_BOARD_OPTION, ITEM_TYPE } from '../config';
 import RecordPortal from '../../components/RecordPortal';
 import EditableCard from '../../components/EditableCard';
 import EditingRecordItem from '../../components/EditingRecordItem';
-import { browserIsMobile, addBehaviorLog, emitter } from 'src/util';
+import { browserIsMobile, addBehaviorLog, emitter, handlePushState, handleReplaceState } from 'src/util';
 import { getTargetName } from '../util';
 import { handleRecordClick } from 'worksheet/util';
 
@@ -120,12 +120,13 @@ function SortableRecordItem(props) {
 
   // 展示记录信息
   const showRecordInfo = obj => {
-    if (window.isMingDaoApp) {
+    if (window.isMingDaoApp && !window.shareState.shareId) {
       const { appId, worksheetId, viewId } = props;
       const rowId = obj.type === RELATION_SHEET_TYPE ? obj.rowId : obj.recordInfoRowId;
       window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${rowId}`;
       return;
     }
+    handlePushState('page', 'recordDetail');
     if (obj.type === RELATION_SHEET_TYPE) {
       setState({
         recordInfoVisible: true,
@@ -174,6 +175,19 @@ function SortableRecordItem(props) {
   const closeEdit = () => {
     setState({ isEditTitle: false });
   };
+
+  const onQueryChange = () => {
+    handleReplaceState('page', 'recordDetail', () => setState({ recordInfoVisible: false }));
+  };
+
+  useEffect(() => {
+    window.addEventListener('popstate', onQueryChange);
+
+    return () => {
+      window.removeEventListener('popstate', onQueryChange);
+    };
+  }, []);
+
   const isMobile = browserIsMobile();
 
   return (

@@ -16,9 +16,9 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { RecordInfoModal } from 'mobile/Record';
 import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
 import CustomButtons from './CustomButtons';
-import { handleRecordError } from 'worksheet/util';
+import { appendDataToLocalPushUniqueId, handleRecordError, emitter } from 'worksheet/util';
 import './index.less';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 
 const CUSTOM_BUTTOM_CLICK_TYPE = {
   IMMEDIATELY: 1,
@@ -45,6 +45,10 @@ class RecordAction extends Component {
   componentDidMount() {
     if (this.props.isBatchOperate && !this.props.recordActionVisible) return;
     customBtnWorkflow();
+    emitter.on('RECORD_WORKFLOW_UPDATE', this.handleRecordWorkflowUpdate);
+  }
+  componentWillUnmount() {
+    emitter.off('RECORD_WORKFLOW_UPDATE', this.handleRecordWorkflowUpdate);
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.recordActionVisible !== this.props.recordActionVisible && this.props.isBatchOperate) {
@@ -57,6 +61,25 @@ class RecordAction extends Component {
   }
 
   recef = React.createRef();
+
+  get tipConfig() {
+    return {
+      enableTip: get(this.activeBtn, 'advancedSetting.opentip') !== '0',
+      tipText: get(this.activeBtn, 'advancedSetting.tiptext') || _l('操作完成'),
+    };
+  }
+
+  get continueFill() {
+    return get(this.activeBtn, 'advancedSetting.continuewrite') === '1';
+  }
+
+  handleRecordWorkflowUpdate = ({ recordId: triggerRecordId, triggerBtnId, isSuccess }) => {
+    const { rowId } = this.props;
+    if (this.continueFill && isSuccess && rowId === triggerRecordId && triggerBtnId === get(this.activeBtn, 'btnId')) {
+      this.setState({ fillRecordVisible: false });
+      this.handleTriggerCustomBtn(this.activeBtn);
+    }
+  };
 
   handleTriggerCustomBtn = btn => {
     const {
@@ -77,6 +100,8 @@ class RecordAction extends Component {
       alert(_l('预览模式下，不能操作'), 3);
       return;
     }
+    this.activeBtn = btn;
+    appendDataToLocalPushUniqueId(_this.tipConfig);
     const run = ({ remark } = {}) => {
       const trigger = () => {
         if (_.isFunction(handleBatchOperateCustomBtn)) {
@@ -251,6 +276,7 @@ class RecordAction extends Component {
     this.masterRecord = {};
     this.fillRecordProps = {};
     this.customButtonConfirm = btn.confirm;
+    appendDataToLocalPushUniqueId({ triggerBtnId: btn.btnId });
     switch (caseStr) {
       case '11': // 本记录 - 填写字段
         this.btnRelateWorksheetId = worksheetId;
@@ -277,7 +303,9 @@ class RecordAction extends Component {
           if (addRelationControl.enumDefault === 1 && controldata.length) {
             Dialog.alert({
               title: _l('无法执行按钮“%0”', btn.name),
-              content: _l('%0已有关联记录，无法重复添加', addRelationControl.controlName),
+              content: (
+                <div className="breakAll">{_l('%0已有关联记录，无法重复添加', addRelationControl.controlName)}</div>
+              ),
               confirmText: _l('确定'),
             });
             return;
@@ -310,7 +338,9 @@ class RecordAction extends Component {
         } catch (err) {
           Dialog.alert({
             title: _l('无法执行按钮“%0”', btn.name),
-            content: _l('“%0”为空，请关联操作后再执行按钮操作', relationControl.controlName),
+            content: (
+              <div className="breakAll">{_l('“%0”为空，请关联操作后再执行按钮操作', relationControl.controlName)}</div>
+            ),
             confirmText: _l('确定'),
           });
           return;
@@ -330,7 +360,9 @@ class RecordAction extends Component {
         } catch (err) {
           Dialog.alert({
             title: _l('无法执行按钮“%0”', btn.name),
-            content: _l('“%0”为空，请关联操作后再执行按钮操作', relationControl.controlName),
+            content: (
+              <div className="breakAll">{_l('“%0”为空，请关联操作后再执行按钮操作', relationControl.controlName)}</div>
+            ),
             confirmText: _l('确定'),
           });
           return;
@@ -368,7 +400,11 @@ class RecordAction extends Component {
         if (relationControlrelationControl.enumDefault === 1 && relationControlrelationControlData.length) {
           Dialog.alert({
             title: _l('无法执行按钮“%0”', this.activeBtn.name),
-            content: _l('“%0”已有关联记录，无法重复添加', relationControlrelationControl.controlName),
+            content: (
+              <div className="breakAll">
+                {_l('“%0”已有关联记录，无法重复添加', relationControlrelationControl.controlName)}
+              </div>
+            ),
             confirmText: _l('确定'),
           });
           return;
@@ -426,7 +462,7 @@ class RecordAction extends Component {
     hideRecordActionVisible();
   };
   handleDelete = () => {
-    const { appId, worksheetId, viewId, rowId } = this.props;
+    const { appId, worksheetId, viewId, rowId, handleDeleteSuccess = () => {} } = this.props;
     worksheetAjax
       .deleteWorksheetRows({
         worksheetId,
@@ -437,7 +473,7 @@ class RecordAction extends Component {
       .then(({ isSuccess }) => {
         if (isSuccess) {
           alert(_l('删除成功'));
-          history.back();
+          handleDeleteSuccess(recordId);
         } else {
           alert(_l('删除失败'), 2);
         }
@@ -468,23 +504,14 @@ class RecordAction extends Component {
       if (res && res.data) {
         this.props.loadRow();
         this.props.loadCustomBtns();
-        if (this.activeBtn.workflowType === 2) {
-          alert(_l('修改成功'));
-        } else {
-          message.info({
-            className: 'flowToastInfo',
-            content: (
-              <div className="feedbackInfo">
-                <span className="custBtnName">“{custBtnName}”</span>
-                <span className="verticalAlignM">{_l('正在执行...')}</span>
-              </div>
-            ),
-            duration: 1,
+        if (this.activeBtn.workflowType === 2 && get(this.tipConfig, 'enableTip')) {
+          alert(get(this.tipConfig, 'tipText'));
+        }
+        if (!this.continueFill) {
+          this.setState({
+            fillRecordVisible: false,
           });
         }
-        this.setState({
-          fillRecordVisible: false,
-        });
       } else {
         if (res.resultCode === 11) {
           if (this.customwidget.current && _.isFunction(this.customwidget.current.uniqueErrorUpdate)) {
@@ -499,8 +526,8 @@ class RecordAction extends Component {
   };
   handleAddRecordCallback = () => {
     const { isBatchOperate } = this.props;
-    if (this.activeBtn.workflowType === 2) {
-      alert(_l('创建成功'));
+    if (this.activeBtn.workflowType === 2 && get(this.tipConfig, 'enableTip')) {
+      alert(get(this.tipConfig, 'tipText'));
     }
     !isBatchOperate && this.props.loadRow();
     this.props.loadCustomBtns();
@@ -509,6 +536,9 @@ class RecordAction extends Component {
     const { activeBtn = {}, fillRecordId, btnRelateWorksheetId, fillRecordProps } = this;
     const { sheetRow, viewId, worksheetInfo = {}, isBatchOperate } = this.props;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
+
+    if (!this.state.fillRecordVisible) return null;
+
     return (
       <Popup
         destroyOnClose={true}
@@ -526,6 +556,7 @@ class RecordAction extends Component {
           recordId={fillRecordId}
           worksheetId={btnRelateWorksheetId}
           writeControls={activeBtn.writeControls}
+          continueFill={this.continueFill}
           onSubmit={this.fillRecordControls}
           hideDialog={() => {
             this.setState({

@@ -1,13 +1,11 @@
 ﻿import { getClassNameByExt, htmlEncodeReg } from 'src/util';
 import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/mentioninput/mentionsInput';
-import 'src/components/selectGroup/selectAllGroup';
 import 'src/components/uploadAttachment/uploadAttachment';
 import LinkView from 'src/components/linkView/linkView';
 import VoteUpdater from 'src/components/voteUpdater/voteUpdater';
 import kcAjax from 'src/api/kc';
 import selectNode from 'src/components/kc/folderSelectDialog/folderSelectDialog';
-import applicationAjax from 'src/api/application';
 import postAjax from 'src/api/post';
 import { Dialog } from 'ming-ui';
 import React from 'react';
@@ -25,11 +23,6 @@ var MyUpdater = {
     kcAttachmentData: [],
     uploadObj: null,
     projectId: '',
-    group: {
-      groupID: '',
-      groupName: '',
-      isJoin: true,
-    },
   },
 
   addPost: false,
@@ -473,8 +466,6 @@ var MyUpdater = {
         }
       });
 
-    MyUpdater.BindSelectGroup();
-
     $textareaUpdater.mentionsInput({
       submitBtn: 'button_Share',
       showCategory: true,
@@ -525,21 +516,6 @@ var MyUpdater = {
         }
       }
     });
-  },
-  BindSelectGroup: function (defaultValue) {
-    var selectGroupObj = {
-      defaultValue: defaultValue || '',
-      isAll: true,
-      isMe: true,
-      reloadAfterCreateGroup: true,
-      changeCallback: function (result) {
-        $('#hidden_GroupID_All').attr('scope', JSON.stringify($('#hidden_GroupID_All').SelectGroup('getScope')));
-      },
-    };
-    if (!defaultValue && MyUpdater.options.group.groupId) {
-      selectGroupObj.defaultValue = MyUpdater.options.group.groupId;
-    }
-    $('#hidden_GroupID_All').SelectGroup(selectGroupObj);
   },
   // 重置参数
   ResetUpdaterDiv: function () {
@@ -716,12 +692,10 @@ var MyUpdater = {
       var knowledgeID = '';
       knowledgeID = $('#txtKnowledge').val();
 
-      var scope = $('#hidden_GroupID_All').SelectGroup('getScope');
-      if (scope) {
-        rData.scope = JSON.parse($('#hidden_GroupID_All').attr('scope') || '{}');
+      if (result.scope) {
+        rData.scope = result.scope;
       } else {
         alert(_l('请选择群组'), 3);
-        $('#hidden_GroupID_All').SelectGroup('slideDown');
         return;
       }
 
@@ -828,7 +802,6 @@ var MyUpdater = {
 
               if (typeof MyUpdater !== 'undefined') MyUpdater.ResetUpdaterDiv();
 
-              MyUpdater.BindSelectGroup();
               if (successCallback) {
                 successCallback(result);
               }

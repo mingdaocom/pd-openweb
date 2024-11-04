@@ -81,6 +81,10 @@ export default function Users(props) {
   const tabType = getTabTypeBySelectUser(props.control);
   let staticAccounts = [];
 
+  const emptyAvatar =
+    md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+    '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90';
+
   if (navshow === '2') {
     staticAccounts = safeParse(navfilters)
       .map(safeParse)
@@ -133,9 +137,7 @@ export default function Users(props) {
         staticAccounts: (shownullitem === '1'
           ? [
               {
-                avatar:
-                  md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
-                  '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
+                avatar: emptyAvatar,
                 fullname: nullitemname || _l('为空'),
                 accountId: 'isEmpty',
               },
@@ -171,38 +173,44 @@ export default function Users(props) {
             <UserHead
               className="userHead"
               user={{
-                userHead: values[0].avatar,
+                userHead: values[0].avatar || emptyAvatar,
                 accountId: values[0].accountId,
               }}
               size={24}
               appId={appId}
               projectId={projectId}
             />
-            {values[0].fullname}
+            {values[0].fullname || _l('为空')}
           </SingleUserItem>
         ) : (
-          values.map(user => (
-            <UserItem className="ellipsis">
-              <UserHead
-                className="userHead"
-                user={{
-                  userHead: user.avatar,
-                  accountId: user.accountId,
-                }}
-                size={24}
-                appId={appId}
-                projectId={projectId}
-              />
-              {user.fullname}
-              <i
-                className="icon icon-delete Gray_9e Font10 mLeft6 Hand"
-                onClick={e => {
-                  e.stopPropagation();
-                  onChange({ values: values.filter(v => v.accountId !== user.accountId) });
-                }}
-              />
-            </UserItem>
-          ))
+          values.map(user => {
+            if (user.accountId === 'isEmpty' && !user.avatar && !user.fullname) {
+              user.avatar = emptyAvatar;
+              user.fullname = _l('为空');
+            }
+            return (
+              <UserItem className="ellipsis">
+                <UserHead
+                  className="userHead"
+                  user={{
+                    userHead: user.avatar,
+                    accountId: user.accountId,
+                  }}
+                  size={24}
+                  appId={appId}
+                  projectId={projectId}
+                />
+                {user.fullname}
+                <i
+                  className="icon icon-delete Gray_9e Font10 mLeft6 Hand"
+                  onClick={e => {
+                    e.stopPropagation();
+                    onChange({ values: values.filter(v => v.accountId !== user.accountId) });
+                  }}
+                />
+              </UserItem>
+            );
+          })
         )}
       </UsersCon>
       <Icon className="icon icon-arrow-down-border downIcon" />

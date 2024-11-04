@@ -225,6 +225,7 @@ var taskFlow = {
    * @param {object} args.destNode 目的地节点(object)
    * @param {object} args.workflowConfig 工作流配置(object)
    * @param {boolean} args.comment 是否同步注释信息(新建表)
+   * @param {object} args.scheduleConfig 定时配置信息(object)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -261,6 +262,7 @@ var taskFlow = {
    * @param {object} args.destNode 目的地节点(object)
    * @param {object} args.workflowConfig 工作流配置(object)
    * @param {boolean} args.comment 是否同步注释信息(新建表)
+   * @param {object} args.scheduleConfig 定时配置信息(object)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}
@@ -281,6 +283,7 @@ var taskFlow = {
    * @param {object} args.destNode 目的地节点(object)
    * @param {object} args.workflowConfig 工作流配置(object)
    * @param {boolean} args.comment 是否同步注释信息(新建表)
+   * @param {object} args.scheduleConfig 定时配置信息(object)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    * @returns {Promise<Boolean, ErrorModel>}

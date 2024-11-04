@@ -79,7 +79,7 @@ function APIList(props) {
     packageVersionAjax
       .getApiList(
         {
-          companyId: localStorage.getItem('currentProjectId'),
+          companyId: props.companyId,
           // types: [1, 2],
           pageIndex,
           pageSize: 10000, //PageSize,

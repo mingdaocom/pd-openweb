@@ -6,6 +6,7 @@ import { getPssId, setPssId } from 'src/util/pssId';
 import _ from 'lodash';
 import moment from 'moment';
 import accountSetting from 'src/api/accountSetting';
+import { resetPortalUrl } from 'src/pages/accountLogin/portalAccount/util.js';
 
 /** 存储分发类入口 状态 和 分享id */
 const parseShareId = () => {
@@ -150,6 +151,8 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
 
   // 设置md_pss_id
   setPssId(getPssId());
+
+  md.global.Account.isPortal && resetPortalUrl();
 
   redirect(location.pathname);
 };

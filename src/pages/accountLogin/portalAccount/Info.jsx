@@ -171,11 +171,14 @@ export default function Info(props) {
               }
               setSending(true);
               externalPortalAjax
-                .infoLogin({
-                  state,
-                  receiveControls: data.map(formatControlToServer),
-                  autoLogin: isAutoLogin,
-                })
+                .infoLogin(
+                  {
+                    state,
+                    receiveControls: data.map(formatControlToServer),
+                    autoLogin: isAutoLogin,
+                  },
+                  props.customLink ? { ajaxOptions: { header: { 'Ex-custom-link-path': props.customLink } } } : {},
+                )
                 .then(res => {
                   setSending(false);
                   setAutoLoginKey({ ...res, appId });
@@ -193,7 +196,7 @@ export default function Info(props) {
                       3,
                     );
                   } else {
-                    accountResultAction(res);
+                    accountResultAction(res, props.customLink);
                   }
                 });
             }}

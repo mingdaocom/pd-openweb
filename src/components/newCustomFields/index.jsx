@@ -22,6 +22,7 @@ import {
   formatControlValue,
   isUnTextWidget,
   isPublicLink,
+  getServiceError,
 } from './tools/utils';
 import { isRelateRecordTableControl } from 'worksheet/util';
 import { FORM_ERROR_TYPE, FROM } from './tools/config';
@@ -57,10 +58,11 @@ const CustomFormItemControlWrap = styled.div`
       }
     }}
     ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
-    ${props => (_.includes([25, 31, 32, 33, 37, 38], props.type) ? props.valueStyle : '')}
+    ${props => (_.includes([25, 31, 32, 33, 37, 38, 53], props.type) ? props.valueStyle : '')}
     & > span:first-child {
       ${props =>
-        _.includes([2, 3, 4, 5, 6, 7, 8], props.type) || (props.isMobile && _.includes([15, 16, 46], props.type))
+        _.includes([2, 3, 4, 5, 6, 7, 8, 15, 16], props.type) ||
+        (props.isMobile && _.includes([15, 16, 46], props.type))
           ? props.valueStyle
           : ''}
     }
@@ -683,8 +685,14 @@ export default class CustomFields extends Component {
     if (
       !_.includes([22, 52, 34], item.type) &&
       !(item.type === 29 && isRelateRecordTableControl(item)) &&
+      !(
+        _.includes([9, 10, 11], item.type) &&
+        (item.advancedSetting || {}).readonlyshowall === '1' &&
+        !browserIsMobile()
+      ) &&
       (item.disabled || _.includes([25, 31, 32, 33, 37, 38, 53], item.type) || !isEditable) &&
       ((!item.value && item.value !== 0 && !_.includes([28, 47, 51], item.type)) ||
+        (browserIsMobile() && _.includes([9, 10, 11], item.type) && item.value && !JSON.parse(item.value).length) ||
         (item.type === 29 &&
           (safeParse(item.value).length <= 0 ||
             (browserIsMobile() && !item.value) ||
@@ -731,9 +739,17 @@ export default class CustomFields extends Component {
             if (item.unique && value && isUnTextWidget(item)) {
               this.checkControlUnique(controlId, type, value);
             }
+
+            // h5附件上传完成后才能触发自定义事件
+            let uploadFieldTriggerEvent = true;
+            if (browserIsMobile() && item.type === 14) {
+              const attachmentsData = value ? JSON.parse(value) : {};
+              uploadFieldTriggerEvent = !_.some(attachmentsData.attachments || [], v => !v.fileID);
+            }
+
             // 非文本类值改变时触发自定义事件
-            if (isUnTextWidget(item) && item.value !== value) {
-              this.triggerCustomEvent({ ...item, triggerType: ADD_EVENT_ENUM.CHANGE });
+            if (isUnTextWidget(item) && item.value !== value && uploadFieldTriggerEvent) {
+              this.triggerCustomEvent({ ...item, value, triggerType: ADD_EVENT_ENUM.CHANGE });
             }
           }}
           onBlur={(originValue, newVal) => {
@@ -804,7 +820,8 @@ export default class CustomFields extends Component {
         controlValue: formatControlValue(controlValue, controlType),
       })
       .then(res => {
-        if (!res.isSuccess && res.data && res.data.rowId !== recordId) {
+        const isError = !res.isSuccess && res.data && res.data.rowId !== recordId;
+        if (isError) {
           uniqueErrorItems.push({
             controlId,
             errorType: FORM_ERROR_TYPE.UNIQUE,
@@ -816,7 +833,7 @@ export default class CustomFields extends Component {
         }
 
         this.setState({ uniqueErrorItems, loadingItems: { ...loadingItems, [controlId]: false } }, () => {
-          if (res.isSuccess && this.submitBegin) {
+          if ((res.isSuccess || !isError) && this.submitBegin) {
             this.submitFormData();
           }
         });
@@ -987,7 +1004,7 @@ export default class CustomFields extends Component {
     if (hasError) {
       if (!ignoreAlert && !silent) alert(_l('请正确填写记录'), 3);
       error = true;
-    } else if ($('.recordInfoForm').find('.fileUpdateLoading').length) {
+    } else if ($('.recordInfoForm,.formMain').find('.fileUpdateLoading').length) {
       alert(_l('附件正在上传，请稍后'), 3);
       error = true;
     } else if (hasRuleError) {
@@ -1017,7 +1034,7 @@ export default class CustomFields extends Component {
     onSave(error, {
       data,
       updateControlIds,
-      handleRuleError: (badData, cellObjs) => {
+      handleRuleError: badData => {
         badData.forEach(itemBadData => {
           const [rowId, ruleId, controlId] = (itemBadData || '').split(':').reverse();
           const control = _.find(data, d => d.controlId === controlId);
@@ -1050,7 +1067,7 @@ export default class CustomFields extends Component {
             return total.concat(its.errorInfo);
           }, [])
           .filter(i => _.find(data, d => d.controlId === i.controlId));
-        const hideControlError = totalRuleError
+        const hideControlErrors = totalRuleError
           .filter(
             i =>
               !controlState(
@@ -1060,14 +1077,26 @@ export default class CustomFields extends Component {
           )
           .map(i => i.errorMessage);
         // 后端校验隐藏字段报错
-        if (hideControlError.length > 0) {
-          this.errorDialog(hideControlError);
+        if (hideControlErrors.length > 0) {
+          this.errorDialog(hideControlErrors);
         }
         // 过滤掉子表报错、ids：不需校验的字段合集
         totalRuleError = totalRuleError.filter(it => _.includes(ids, it.controlId));
         this.setState({
           errorItems: totalRuleError,
         });
+      },
+      // 接口报错
+      handleServiceError: badData => {
+        const { serviceError, hideControlErrors } = getServiceError(badData, data, from);
+        // 后端校验隐藏字段报错
+        if (hideControlErrors.length > 0) {
+          this.errorDialog(hideControlErrors);
+        }
+        this.setState({
+          errorItems: serviceError,
+        });
+        alert(_l('记录提交失败：有必填字段未填写'), 2);
       },
     });
     this.submitBegin = false;

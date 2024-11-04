@@ -26,7 +26,7 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
 
     // 日志
     appLogs: {
-      path: '/app/:appId/logs/:projectId',
+      path: '/app/:appId/logs/:projectId/:worksheetId?',
       component: () => import('src/pages/Admin/logs/AppLog'),
       sensitive: true,
     },

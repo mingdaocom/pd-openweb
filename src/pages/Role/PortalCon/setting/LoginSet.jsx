@@ -288,7 +288,7 @@ const WrapCon = styled.div`
   }
 `;
 export default function LoginSet(props) {
-  const { appId, appPkg, onChangePortalSet } = props;
+  const { appId, appPkg = {}, onChangePortalSet } = props;
   const [portalSetModel, setPortalSetModel] = useState({});
   const {
     iconColor = '#00bcd4',
@@ -406,13 +406,10 @@ export default function LoginSet(props) {
           value={portalSetModel.pageTitle}
           onFocus={() => {}}
           onBlur={e => {
-            if (!e.target.value) {
-              return alert(_l('请输入登录页名称'), 3);
-            }
             onChangePortalSet({
               portalSetModel: {
                 ...portalSetModel,
-                pageTitle: e.target.value, //允许输入空格
+                pageTitle: e.target.value.trim() || appPkg.name, //允许输入空格
               },
             });
           }}
@@ -550,8 +547,8 @@ export default function LoginSet(props) {
             portalSetModel.backGroundType === 3
               ? { 'background-color': portalSetModel.backColor }
               : portalSetModel.pageMode === 3
-              ? { 'background-image': `url(${portalSetModel.backImageUrl})` }
-              : {}
+                ? { 'background-image': `url(${portalSetModel.backImageUrl})` }
+                : {}
           }
           className={cx('Relative', { isCenter: portalSetModel.pageMode === 3 })}
         >

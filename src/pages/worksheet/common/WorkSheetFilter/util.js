@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, { assign } from 'lodash';
 import moment from 'moment';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { checkIsTextControl, getFormData, getSelectedOptions } from 'src/pages/worksheet/util';
@@ -14,6 +14,13 @@ import {
   API_ENUM_TO_TYPE,
   getControlSelectType,
 } from './enum';
+
+export function getConditionType(condition) {
+  return (condition.controlType === 28 || condition.dataType === 28) &&
+    _.includes([FILTER_CONDITION_TYPE.EQ, FILTER_CONDITION_TYPE.NE], condition.type)
+    ? CONTROL_FILTER_WHITELIST.OPTIONS.value
+    : condition.conditionGroupType;
+}
 
 export function formatConditionForSave(condition, relationType, options = {}) {
   let { controlId, values, controlType } = condition;
@@ -113,7 +120,11 @@ export function formatValuesOfOriginConditions(conditions) {
 
 function formatConditions(items) {
   return items.map(condition => {
-    const conditionGroupType = (CONTROL_FILTER_WHITELIST[getTypeKey(condition.dataType)] || {}).value;
+    const conditionGroupType = getConditionType(
+      assign({}, condition, {
+        conditionGroupType: (CONTROL_FILTER_WHITELIST[getTypeKey(condition.dataType)] || {}).value,
+      }),
+    );
     return {
       controlId: condition.controlId,
       controlType: condition.dataType,
@@ -201,17 +212,8 @@ export function filterUnavailableConditions(conditions) {
 }
 
 export function checkConditionAvailable(condition) {
-  const {
-    conditionGroupType,
-    type,
-    value,
-    values,
-    minValue,
-    maxValue,
-    dateRange,
-    dynamicSource = [],
-    isDynamicsource = false,
-  } = condition;
+  const { type, value, values, minValue, maxValue, dateRange, dynamicSource = [], isDynamicsource = false } = condition;
+  const conditionGroupType = getConditionType(condition);
   if (dynamicSource.length > 0 && isDynamicsource) {
     if (_.get(dynamicSource[0], 'rcid') === 'url' && !_.get(dynamicSource[0], 'cid')) {
       return false;
@@ -262,7 +264,8 @@ export function checkConditionAvailable(condition) {
 }
 
 export function getConditionOverrideValue(type, condition, valueType) {
-  const { conditionGroupType, value, values, dateRange, dateRangeType, fullValues } = condition;
+  const { value, values, dateRange, dateRangeType, fullValues } = condition;
+  const conditionGroupType = getConditionType(condition);
   const base = {
     type,
     values: [],
@@ -398,6 +401,12 @@ export function getFilterTypes(control = {}, conditionType, from) {
       typeEnums = [
         FILTER_CONDITION_TYPE.EQ,
         FILTER_CONDITION_TYPE.NE,
+        FILTER_CONDITION_TYPE.GT,
+        FILTER_CONDITION_TYPE.LT,
+        FILTER_CONDITION_TYPE.GTE,
+        FILTER_CONDITION_TYPE.LTE,
+        FILTER_CONDITION_TYPE.BETWEEN,
+        FILTER_CONDITION_TYPE.NBETWEEN,
         FILTER_CONDITION_TYPE.ISNULL,
         FILTER_CONDITION_TYPE.HASVALUE,
       ];
@@ -627,41 +636,53 @@ export function getDefaultCondition(control, from) {
 
 /**
  * 处理汇总、他表字段、公式等复杂复合控件的 type
- * @param {*} contorl 控件
+ * @param {*} control 控件
  *  */
-export function redefineComplexControl(contorl) {
-  if (contorl.type === 37) {
-    return { ...contorl, ...{ type: contorl.enumDefault2 || 6, originType: contorl.type } };
+export function redefineComplexControl(control) {
+  if (control.type === 37) {
+    return { ...control, ...{ type: control.enumDefault2 || 6, originType: control.type } };
   }
-  if (contorl.type === 30) {
-    let controlType = contorl.sourceControlType;
+  if (control.type === 30) {
+    let controlType = control.sourceControlType;
     if (_.includes([37, 53], controlType)) {
-      controlType = contorl.enumDefault2;
+      controlType = control.enumDefault2;
+    }
+    if (controlType === 31) {
+      controlType = 6;
+    }
+    if (controlType === 32) {
+      controlType = 2;
     }
     if (controlType === 38) {
       controlType = 6;
     }
     return {
-      ...contorl,
+      ...control,
       ...{
         type: controlType,
-        originType: contorl.type,
+        originType: control.type,
         // 他表选项处理
-        ...(_.includes([9, 10, 11], controlType) ? { options: _.get(contorl, 'sourceControl.options') } : {}),
+        ...(_.includes([9, 10, 11], controlType) ? { options: _.get(control, 'sourceControl.options') } : {}),
       },
     };
   }
-  if (contorl.type === 38) {
-    return { ...contorl, ...{ type: contorl.enumDefault === 2 ? 15 : 6, originType: contorl.type } };
+  if (control.type === 31) {
+    return { ...control, ...{ type: 6, originType: control.type } };
   }
-  if (contorl.type === 50) {
-    return { ...contorl, ...{ type: 2, originType: contorl.type } };
+  if (control.type === 32) {
+    return { ...control, ...{ type: 2, originType: control.type } };
+  }
+  if (control.type === 38) {
+    return { ...control, ...{ type: control.enumDefault === 2 ? 15 : 6, originType: control.type } };
+  }
+  if (control.type === 50) {
+    return { ...control, ...{ type: 2, originType: control.type } };
   }
   // 公式函数
-  if (contorl.type === 53) {
-    return { ...contorl, ...{ type: contorl.enumDefault2, originType: contorl.type } };
+  if (control.type === 53) {
+    return { ...control, ...{ type: control.enumDefault2, originType: control.type } };
   }
-  return { ...contorl };
+  return { ...control };
 }
 
 // export const API_ENUM_TO_TYPE = {
@@ -1189,7 +1210,11 @@ export function fillConditionValue({ condition, formData, relateControl, ignoreF
   ) {
     condition.values = [value];
   } else if (dataType === 28 || dataType === 33) {
-    condition.values = [value];
+    if (_.includes([FILTER_CONDITION_TYPE.EQ, FILTER_CONDITION_TYPE.NE], condition.filterType)) {
+      condition.values = [value];
+    } else {
+      condition.value = value;
+    }
   }
   return condition;
 }

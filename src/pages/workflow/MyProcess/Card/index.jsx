@@ -8,15 +8,18 @@ import { covertTime, ACTION_TYPES, TYPE_TO_STYLE, FLOW_NODE_TYPE_STATUS, INSTANC
 import './index.less';
 import _ from 'lodash';
 import moment from 'moment';
+import { dateConvertToUserZone } from 'src/util';
 
 export default class Card extends Component {
   constructor(props) {
     super(props);
   }
   shouldComponentUpdate(nextProps, nextState) {
-    return !_.isEqual(this.props.item.id, nextProps.item.id) ||
+    return (
+      !_.isEqual(this.props.item.id, nextProps.item.id) ||
       this.props.approveChecked !== nextProps.approveChecked ||
-      this.props.type !== nextProps.type;
+      this.props.type !== nextProps.type
+    );
   }
   renderHeader() {
     const { stateTab, item, showApproveChecked = true } = this.props;
@@ -91,10 +94,16 @@ export default class Card extends Component {
         RenderState = (
           <Fragment>
             <div className="state bold valignWrapper" style={{ backgroundColor: shallowBg }}>
-              <div className="Font13" style={{ color: bg }}>{text}</div>
+              <div className="Font13" style={{ color: bg }}>
+                {text}
+              </div>
             </div>
             {instanceLog && instanceLog.cause && instanceStatus !== 5 && (
-              <div className="Font13 mLeft10 Gray_75 ellipsis" style={{ maxWidth: 200 }} title={FLOW_FAIL_REASON[instanceLog.cause] || instanceLog.causeMsg}>
+              <div
+                className="Font13 mLeft10 Gray_75 ellipsis"
+                style={{ maxWidth: 200 }}
+                title={FLOW_FAIL_REASON[instanceLog.cause] || instanceLog.causeMsg}
+              >
                 {`${instanceLog.cause === 40007 ? '' : _l('节点：')}${
                   FLOW_FAIL_REASON[instanceLog.cause] || instanceLog.causeMsg
                 }`}
@@ -113,7 +122,9 @@ export default class Card extends Component {
         }
       }
       if (type === 0) {
-        RenderRightHander = <div className="Gray_9e mRight10 mLeft10">{createTimeSpan(type === 0 ? completeDate : operationTime)}</div>
+        RenderRightHander = (
+          <div className="Gray_9e mRight10 mLeft10">{createTimeSpan(type === 0 ? completeDate : operationTime)}</div>
+        );
       } else {
         const timeConsuming = this.renderTimeConsuming();
         RenderRightHander = (
@@ -127,14 +138,16 @@ export default class Card extends Component {
             <div className="Gray_9e mRight10 mLeft10">{createTimeSpan(type === 0 ? completeDate : operationTime)}</div>
             {RenderState}
           </div>
-        )
+        );
       }
     }
 
     const alreadyDisposeOrExamine = stateTab === TABS.COMPLETE && this.props.type !== 0;
 
     if (alreadyDisposeOrExamine) {
-      const currentWorkFlowNode = _.isEmpty(currentWorkFlowNodes) ? {} : currentWorkFlowNodes[currentWorkFlowNodes.length - 1];
+      const currentWorkFlowNode = _.isEmpty(currentWorkFlowNodes)
+        ? {}
+        : currentWorkFlowNodes[currentWorkFlowNodes.length - 1];
       if (status === 1) {
         RenderResultState = (
           <div className="state bold valignWrapper">
@@ -147,15 +160,17 @@ export default class Card extends Component {
             </div>
             <div className="info mLeft5 Gray_75 Font13">{_l('处理中…')}</div>
           </div>
-        )
+        );
       } else {
         const instanceStatus = status === 3 || status === 4 ? (instanceLog ? instanceLog.status : status) : status;
         const { text, bg, shallowBg } = INSTANCELOG_STATUS[instanceStatus] || {};
         RenderResultState = (
           <div className="state bold valignWrapper" style={{ backgroundColor: shallowBg }}>
-            <div className="Font13" style={{ color: bg }}>{text}</div>
+            <div className="Font13" style={{ color: bg }}>
+              {text}
+            </div>
           </div>
-        )
+        );
       }
     }
 
@@ -308,9 +323,9 @@ export default class Card extends Component {
       <div className="Gray_75">
         <div className="pLeft16 flexRow">
           {stateTab === TABS.MY_SPONSOR || (type === 0 && stateTab === TABS.COMPLETE) ? (
-            <span>{createTimeSpan(createDate)}</span>
+            <span>{createTimeSpan(dateConvertToUserZone(createDate))}</span>
           ) : (
-            <span>{createTimeSpan(workItem.receiveTime)}</span>
+            <span>{createTimeSpan(dateConvertToUserZone(workItem.receiveTime))}</span>
           )}
         </div>
       </div>

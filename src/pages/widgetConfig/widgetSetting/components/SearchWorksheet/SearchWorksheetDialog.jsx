@@ -20,6 +20,7 @@ import _ from 'lodash';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { RESULT_DISPLAY } from '../CustomEvent/config';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { DYNAMIC_FROM_MODE } from '../DynamicDefaultValue/config';
 
 const RadioDisplay = [
   {
@@ -278,7 +279,12 @@ export default class SearchWorksheetDialog extends Component {
 
   // 获取子表下拉数据或查询表下拉数据
   getDropData = (controls = [], control = {}, hasRowId) => {
-    let filterControls = getControls({ data: control, controls, isCurrent: true, needFilter: true });
+    let filterControls = getControls({
+      data: control,
+      controls,
+      isCurrent: true,
+      from: DYNAMIC_FROM_MODE.SEARCH_WORKSHEET,
+    });
     filterControls = filterControls.filter(i => !_.includes(['wfftime', 'rowid'], i.controlId));
     // 有记录id选项(同查询表的关联记录或者文本类控件)
     if (hasRowId) {
@@ -299,8 +305,8 @@ export default class SearchWorksheetDialog extends Component {
     controls = controls.filter(i => !_.includes([...SYS_CONTROLS, ...FORM_HIDDEN_CONTROL_IDS], i.controlId));
     controls = controls.filter(co => {
       return (
-        _.includes([2, 3, 4, 5, 6, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 36, 46, 48], co.type) ||
-        !isSheetDisplay(co)
+        _.includes([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 35, 36, 40, 41, 46, 48], co.type) ||
+        (co.type === 29 && !isSheetDisplay(co))
       );
     });
     return controls.filter(i => !_.includes(configs.map(x => x.cid) || [], i.controlId));

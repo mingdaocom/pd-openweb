@@ -3,7 +3,7 @@ import { TagTextarea, Tooltip } from 'ming-ui';
 import { includes, get, find } from 'lodash';
 import cx from 'classnames';
 import { SettingItem, SelectFieldsWrap, ControlTag } from '../../styled';
-import { SYSTEM_CONTROL } from '../../config/widget';
+import { SYSTEM_CONTROL, ROW_ID_CONTROL } from '../../config/widget';
 import SelectControl from './SelectControl';
 import { getConcatenateControls } from '../../util/data';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
@@ -12,7 +12,7 @@ export default function Concatenate({ data, onChange, allControls }) {
   const $tagtextarea = useRef(null);
   const { controlId, dataSource } = data;
   const [visible, setVisible] = useState(false);
-  const availableControls = getConcatenateControls(allControls, data).concat(SYSTEM_CONTROL);
+  const availableControls = [...SYSTEM_CONTROL, ...ROW_ID_CONTROL, ...getConcatenateControls(allControls, data)];
   useEffect(() => {
     $tagtextarea.current.setValue(dataSource || '');
   }, [controlId]);

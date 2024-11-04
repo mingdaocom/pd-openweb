@@ -46,11 +46,7 @@ export default function Filter(props) {
   return (
     <WrapL>
       <div className="title Bold">{_l('筛选')}</div>
-      <div className="des mTop15 Gray_9e">
-        {_l(
-          '设置筛选条件后，只有满足条件的数据才能进入本节点。允许添加多个筛选过滤节点分支将数据写入不同的数据目的地。',
-        )}
-      </div>
+      <div className="des mTop15 Gray_9e">{_l('设置筛选条件后，只有满足条件的数据才能进入本节点。')}</div>
       {filters.length <= 0 && (
         <div
           className="addFilter Bold mTop16 Hand TxtCenter"

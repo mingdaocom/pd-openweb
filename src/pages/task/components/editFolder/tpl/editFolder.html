@@ -1,20 +1,21 @@
 ﻿<div id="privateFolder" class="folderAuth">
     <div class="ckCircle">
-        <input type="radio" name="folderVisibility" checked="checked">
+        <input type="radio" name="folderVisibility" checked="checked" />
     </div>
     <div class="descBox">
-        <div> <i class="icon-folder-private folderIocn"></i> <span class="text">{{=_l('仅项目成员可见') }}</span> </div>
+        <div><i class="icon-folder-private folderIocn"></i> <span class="text">{{=_l('仅项目成员可见') }}</span></div>
         <div class="descTip">{{=_l('只有添加为项目成员才可以查看项目') }}</div>
     </div>
 </div>
 <div id="publicFolder" class="folderAuth">
     <div class="ckCircle">
-        <input type="radio" name="folderVisibility">
+        <input type="radio" name="folderVisibility" />
     </div>
     <div class="descBox">
-        <div> <i class="icon-folder-public folderIocn"></i> <span class="text">{{=_l('公开给指定群组') }}</span></div>
+        <div><i class="icon-folder-public folderIocn"></i> <span class="text">{{=_l('公开给指定群组') }}</span></div>
         <div class="descTip">
-            <span>{{=_l('所选范围内的所有人都可以查看项目') }}</span><input type="hidden" id="privateRange" />
+            <span>{{=_l('所选范围内的所有人都可以查看项目') }}</span>
+            <span id="privateGroupRange"></span>
         </div>
     </div>
 </div>

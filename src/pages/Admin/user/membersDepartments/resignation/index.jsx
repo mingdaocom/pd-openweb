@@ -122,7 +122,7 @@ export default class extends React.Component {
         {
           title: _l('加入天数'),
           dataIndex: 'joinDays',
-          width: 80,
+          width: 100,
           render: (text, record) => {
             return moment().diff(moment(record.createTime), 'days');
           },
@@ -130,7 +130,10 @@ export default class extends React.Component {
         {
           title: _l('离职时间'),
           dataIndex: 'updateTime',
-          // width: 200,
+          width: 200,
+          render: value => {
+            return createTimeSpan(value);
+          },
         },
       ].map(item => ({
         ...item,

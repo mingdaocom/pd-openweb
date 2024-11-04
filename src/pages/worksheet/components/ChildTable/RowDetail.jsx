@@ -60,12 +60,12 @@ export default class RowDetail extends React.Component {
     onSave({ ...data, ...row, empty: false }, updateControlIds);
   };
 
-  handleSave = (nextContinue, isSwitchSave) => {
+  handleSave = (nextContinue, isSwitchSave, ignoreAlert) => {
     if (!this.customwidget.current) {
       return;
     }
     const { data, onSave, onClose, openNextRecord } = this.props;
-    const submitData = this.customwidget.current.getSubmitData();
+    const submitData = this.customwidget.current.getSubmitData({ ignoreAlert });
     const updateControlIds = this.customwidget.current.dataFormat.getUpdateControlIds();
     const formdata = submitData.fullData;
 

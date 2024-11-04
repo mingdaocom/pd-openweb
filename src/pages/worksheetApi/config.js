@@ -137,6 +137,12 @@ export const DATA_RELATIONS_SUCCESS_DATA = {
   error_code: 1,
 };
 
+export const DATA_PIPELINE_MENUS = ['Table', 'List', 'GetDetail', 'GetDetailPost', 'TotalNum'];
+export const DATA_PIPELINE_FILTERS = {
+  List: ['viewId', 'listType'],
+  TotalNum: ['viewId'],
+};
+
 export const MENU_LIST = [
   {
     id: 'Table',
@@ -1599,48 +1605,6 @@ export const MENU_LIST_APPENDIX = [
       state: 1,
     },
   },
-  {
-    id: 'ErrorCode',
-    title: _l('错误码'),
-    data: [
-      {
-        name: 0,
-        desc: _l('失败'),
-      },
-      {
-        name: 1,
-        desc: _l('成功'),
-      },
-      {
-        name: 10001,
-        desc: _l('缺少参数'),
-      },
-      {
-        name: 10002,
-        desc: _l('参数值错误'),
-      },
-      {
-        name: 10005,
-        desc: _l('数据操作无权限'),
-      },
-      {
-        name: 10007,
-        desc: _l('数据不存在'),
-      },
-      {
-        name: 10101,
-        desc: _l('请求令牌不存在'),
-      },
-      {
-        name: 10102,
-        desc: _l('签名不合法'),
-      },
-      {
-        name: 99999,
-        desc: _l('数据操作异常'),
-      },
-    ],
-  },
 ];
 
 /**
@@ -1835,6 +1799,43 @@ export const SIDEBAR_LIST = [
     key: 'appInfo',
     title: _l('获取应用信息'),
   },
+  {
+    key: 'worksheetCreateForm',
+    title: _l('工作表'),
+    render: 'renderWorksheetSide',
+  },
+  {
+    key: 'dataPipeline',
+    title: _l('聚合表'),
+    render: 'renderDataPipelineSide',
+  },
+  {
+    key: 'workflowInfo',
+    title: _l('封装业务流程'),
+    render: 'renderPBCSide',
+  },
+  {
+    key: 'role',
+    title: _l('应用角色'),
+    render: 'renderOtherSide',
+    args: 0,
+  },
+  {
+    key: 'filter',
+    title: _l('筛选'),
+    render: 'renderOtherSide',
+    args: 1,
+  },
+  {
+    key: 'options',
+    title: _l('选项集'),
+    render: 'renderOtherSide',
+    args: 2,
+  },
+  {
+    key: 'ErrorCode',
+    title: _l('错误码'),
+  },
 ];
 
 export const ADD_API_CONTROLS = [
@@ -2001,3 +2002,112 @@ export const BATCH_ADD_WORKSHEET_SUCCESS = {
   success: true,
   error_code: 1,
 };
+
+export const ERROR_CODE = [
+  {
+    id: 'ErrorCode',
+    title: _l('错误码'),
+    data: [
+      {
+        name: 0,
+        desc: _l('失败'),
+      },
+      {
+        name: 1,
+        desc: _l('成功'),
+      },
+      {
+        name: 10000,
+        desc: _l('拒绝访问ip 受限'),
+      },
+      {
+        name: 10001,
+        desc: _l('参数错误'),
+      },
+      {
+        name: 10002,
+        desc: _l('参数值错误'),
+      },
+      {
+        name: 10005,
+        desc: _l('数据操作无权限'),
+      },
+      {
+        name: 10006,
+        desc: _l('数据已存在'),
+      },
+      {
+        name: 10007,
+        desc: _l('数据不存在或已经删除'),
+      },
+      {
+        name: 10101,
+        desc: _l('令牌不存在'),
+      },
+      {
+        name: 10102,
+        desc: _l('签名不合法'),
+      },
+      {
+        name: 10105,
+        desc: _l('用户访问令牌失效'),
+      },
+      {
+        name: 10106,
+        desc: _l('用户访问组织令牌受限'),
+      },
+      {
+        name: 100005,
+        desc: _l('字段值重复'),
+      },
+      {
+        name: 100006,
+        desc: _l('选项数量已达上限'),
+      },
+      {
+        name: 100007,
+        desc: _l('附件数量已达上限'),
+      },
+      {
+        name: 430013,
+        desc: _l('应用未找到工作表'),
+      },
+      {
+        name: 430014,
+        desc: _l('工作表字段权限不足'),
+      },
+      {
+        name: 430017,
+        desc: _l('应用附件上传量不足'),
+      },
+      {
+        name: 430018,
+        desc: _l('草稿箱记录数量已达上限'),
+      },
+      {
+        name: 430019,
+        desc: _l('必填字段值为空'),
+      },
+      {
+        name: 430020,
+        desc: _l('子表数据错误'),
+      },
+      {
+        name: 430021,
+        desc: _l('数据不满足业务规则'),
+      },
+      {
+        name: 430022,
+        desc: _l('工作表不存在'),
+      },
+      {
+        name: 90000,
+        desc: _l('请求次数超出限制'),
+      },
+      {
+        name: 99999,
+        desc: _l('数据操作异常'),
+      },
+    ],
+  },
+];

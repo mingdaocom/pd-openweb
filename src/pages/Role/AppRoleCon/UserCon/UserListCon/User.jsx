@@ -18,7 +18,7 @@ import { sysRoleType } from 'src/pages/Role/config.js';
 import { userStatusList } from 'src/pages/Role/AppRoleCon/UserCon/config.js';
 import AppManagement from 'src/api/appManagement.js';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
-import { getCurrentProject } from 'src/util';
+import { getCurrentProject, dateConvertToUserZone } from 'src/util';
 
 const Wrap = styled.div`
   padding: 20px 10px 20px 10px;
@@ -387,7 +387,7 @@ function User(props) {
       className: 'operateTime timeTr',
       minW: 130,
       render: (text, data, index) => {
-        return moment(data.operateTime).format('YYYY-MM-DD HH:mm');
+        return createTimeSpan(dateConvertToUserZone(data.operateTime));
       },
     },
     {

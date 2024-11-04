@@ -58,6 +58,7 @@ export function QuickFilter(props) {
     onHideSidebar,
     mobileNavGroupFilters = [],
     quickFilter = [],
+    updateQuickFilterWithDefault = () => {},
   } = props;
   const updateQuickFilter = _.includes([21], view.viewType) ? pcUpdateQuickFilter : props.updateQuickFilter;
   const width = document.documentElement.clientWidth - 60;
@@ -65,6 +66,9 @@ export function QuickFilter(props) {
   const store = useRef({});
   const [values, setValues] = useState({});
   const debounceUpdateQuickFilter = useRef(_.debounce(updateQuickFilter, 500));
+
+ 
+
   const items = useMemo(
     () =>
       filters
@@ -81,6 +85,7 @@ export function QuickFilter(props) {
         .filter(c => c.control && !(window.shareState.shareId && _.includes([26, 27, 48], c.control.type))),
     [JSON.stringify(filters)],
   );
+
   const update = newValues => {
     const valuesToUpdate = newValues || values;
     const quickFilter = items
@@ -124,6 +129,10 @@ export function QuickFilter(props) {
     onHideSidebar();
   };
   const handleReset = () => {
+    updateQuickFilterWithDefault(
+      items.map(item => ({ ...item, values: [] })),
+      view,
+    );
     setValues({});
     updateQuickFilter([], view);
     onHideSidebar();

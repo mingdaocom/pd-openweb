@@ -81,7 +81,7 @@ export default class SelectFields extends Component {
   };
 
   filterFieldList = () => {
-    const { from, globalSheetInfo, controls, data = {}, needFilter, fromCustomEventApi } = this.props;
+    const { from, globalSheetInfo, controls, data = {}, fromCustomEventApi } = this.props;
     const subListControls = this.omitSelfAndNest(controls) || [];
     const globalSheetControls = this.omitSelfAndNest(this.props.globalSheetControls);
     const { worksheetId } = globalSheetInfo;
@@ -103,9 +103,9 @@ export default class SelectFields extends Component {
         data,
         controls: filterSys(subListControls, fromCustomEventApi),
         isCurrent: true,
-        needFilter,
+        from,
       }),
-      [worksheetId]: getControls({ data, controls: filterSys(globalSheetControls), isCurrent: true, needFilter }),
+      [worksheetId]: getControls({ data, controls: filterSys(globalSheetControls), isCurrent: true, from }),
     };
     // 获取关联表控件下的所有符合条件的字段
     sheetList.slice(initSheetList.length).forEach(({ id }) => {
@@ -119,7 +119,7 @@ export default class SelectFields extends Component {
           .filter(i => !_.includes(['wfstatus'], i));
       }
 
-      const filteredRelationControls = getControls({ data, controls: relationControls, needFilter });
+      const filteredRelationControls = getControls({ data, controls: relationControls, from });
       fieldList[id] = filteredRelationControls;
     });
     if (!searchValue) return { sheetList, filteredList: fieldList };

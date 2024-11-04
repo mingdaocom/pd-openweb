@@ -13,7 +13,7 @@ import '../less/ColorPicker.less';
 
 const TYPES = ['HEX', 'RGB'];
 const THEME_COLOR_VALUE = ['DARK_COLOR', 'LIGHT_COLOR'];
-const DEFAULT_COLORS = [
+const DEFAULT_COLORS_ROW_1 = [
   '#000000ff',
   '#333333ff',
   '#5a5a5aff',
@@ -23,6 +23,9 @@ const DEFAULT_COLORS = [
   '#ddddddff',
   '#f5f5f5ff',
   '#ffffffff',
+];
+
+const DEFAULT_COLORS_ROW_2 = [
   '#2196f3ff',
   '#08c9c9ff',
   '#00c345ff',
@@ -32,6 +35,9 @@ const DEFAULT_COLORS = [
   '#eb2f96ff',
   '#7500eaff',
   '#2d46c4ff',
+];
+
+const DEFAULT_COLORS_ROW_3 = [
   '#c9e6fcff',
   '#c3f2f2ff',
   '#c2f1d2ff',
@@ -42,6 +48,7 @@ const DEFAULT_COLORS = [
   '#dec2faff',
   '#ccd2f1ff',
 ];
+
 const DEFAULT_COLORS2 = [
   '#333333ff',
   '#757575ff',
@@ -102,6 +109,7 @@ class ColorPicker extends Component {
     handleClose: PropTypes.func, // 弹层关闭回调函数
     sysColor: PropTypes.bool, // 左侧系统预设 默认false
     themeColor: PropTypes.string, // 主题色
+    lightBefore: false, // 是否浅色在前
   };
 
   static defaultProps = {
@@ -226,9 +234,21 @@ class ColorPicker extends Component {
   };
 
   render() {
-    const { children, className, sysColor, themeColor, fromWidget, popupAlign = {}, defaultColors } = this.props;
+    const {
+      children,
+      className,
+      sysColor,
+      themeColor,
+      fromWidget,
+      popupAlign = {},
+      defaultColors,
+      lightBefore,
+    } = this.props;
     const { color, visible, type, defaultExpand, recentExpand, recentColors, themeExpand } = this.state;
     const themeColors = [themeColor, generate(themeColor)[0]];
+    const DEFAULT_COLORS = lightBefore
+      ? DEFAULT_COLORS_ROW_3.concat(DEFAULT_COLORS_ROW_2, DEFAULT_COLORS_ROW_1)
+      : DEFAULT_COLORS_ROW_1.concat(DEFAULT_COLORS_ROW_2, DEFAULT_COLORS_ROW_3);
 
     let content = (
       <COLOR_BOX background={this.getStringColor(color)}>

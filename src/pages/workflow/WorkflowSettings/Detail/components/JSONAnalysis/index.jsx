@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { JSONPath } from 'jsonpath-plus';
-import { CONTROLS_NAME } from '../../../enum';
+import { getControlTypeName } from '../../../utils';
 import _ from 'lodash';
 
 export default ({ list, isIntegration = false, json }) => {
@@ -15,7 +15,7 @@ export default ({ list, isIntegration = false, json }) => {
         <Fragment>
           <li className="flexRow" key={i}>
             <div className={cx('w180 ellipsis', { pLeft20: item.dataSource })}>{item.controlName || ''}</div>
-            {isIntegration && <div className="w120 ellipsis">{CONTROLS_NAME[item.type]}</div>}
+            {isIntegration && <div className="w120 ellipsis">{getControlTypeName(item)}</div>}
             <div className={cx('mLeft15 flex', { ellipsis: !isIntegration })} style={{ minWidth: 0 }}>
               {isIntegration ? item.desc : renderParameters(item)}
             </div>

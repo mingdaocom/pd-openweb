@@ -81,6 +81,9 @@ const Wrapper = styled.div(
       height: 100% !important;
     }
     &.ck-editor__top {
+      .ck-sticky-panel .ck-sticky-panel__content{
+        border: none;
+      }
       .ck-toolbar_grouping {
         background: #fafafa !important;
         border: 1px solid #dddddd !important;
@@ -392,6 +395,9 @@ const RichText = ({
         editor={MDEditor.default}
         id={id}
         config={{
+          link: {
+            allowedProtocols: ['https?', 'http?', 'ftp?', 'ftps?', 'mailto', 'Notes'],
+          },
           language: lang(),
           toolbar: {
             items: toolbarList

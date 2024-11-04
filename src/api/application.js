@@ -7,7 +7,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAccountApps: function (args, options = {}) {
-
+     
      return mdyAPI('Application', 'GetAccountApps', args, options);
    },
   /**
@@ -20,7 +20,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateAccountAppTop: function (args, options = {}) {
-
+     
      return mdyAPI('Application', 'UpdateAccountAppTop', args, options);
    },
   /**
@@ -37,7 +37,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addApplication: function (args, options = {}) {
-
+     
      return mdyAPI('Application', 'AddApplication', args, options);
    },
   /**
@@ -55,7 +55,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editApplication: function (args, options = {}) {
-
+     
      return mdyAPI('Application', 'EditApplication', args, options);
    },
   /**
@@ -68,7 +68,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeApplication: function (args, options = {}) {
-
+     
      return mdyAPI('Application', 'RemoveApplication', args, options);
    },
   /**
@@ -80,7 +80,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectApplicationList: function (args, options = {}) {
-
+     
      return mdyAPI('Application', 'GetProjectApplicationList', args, options);
    },
 };

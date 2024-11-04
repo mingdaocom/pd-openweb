@@ -33,7 +33,7 @@ import './index.less';
 
 const { RangePicker } = DatePicker;
 
-const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21];
+const naturalTime = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21, 24];
 
 @connect(
   state => ({

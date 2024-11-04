@@ -30,7 +30,9 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
       case DATABASE_TYPE.ALIYUN_MONGODB:
       case DATABASE_TYPE.TENCENT_MONGODB:
         return '27017';
-      case DATABASE_TYPE.SAP_HANA:
+      case DATABASE_TYPE.KAFKA:
+        return '';
+      case DATABASE_TYPE.HANA:
         return '30015';
       default:
         return '';
@@ -443,6 +445,9 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
     case DATABASE_TYPE.KAFKA:
       data = kafkaFormData;
       break;
+    case DATABASE_TYPE.HANA:
+      data = basicFormData.filter(item => item.controlId !== 'cdcParams');
+      break;
     default:
       data = basicFormData;
       break;
@@ -483,7 +488,7 @@ export const getCardDescription = databaseType => {
       return _l('系统将实时同步数据到所选工作表');
     case DATABASE_TYPE.KAFKA:
       return _l('系统将实时同步Kafka的所有数据');
-    case DATABASE_TYPE.SAP_HANA:
+    case DATABASE_TYPE.HANA:
       return _l('此类型数据库仅支持定时同步');
     default:
       return _l('');

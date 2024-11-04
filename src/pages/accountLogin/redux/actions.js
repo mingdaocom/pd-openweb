@@ -10,14 +10,13 @@ import {
 } from 'src/pages/accountLogin/util.js';
 import registerApi from 'src/api/register';
 import accountApi from 'src/api/account';
-import { encrypt, mdAppResponse, getRequest } from 'src/util';
+import { encrypt, mdAppResponse, getRequest, isPasswordRule } from 'src/util';
 import { setPssId } from 'src/util/pssId';
 import { ActionResult, AccountNextActions } from 'src/pages/accountLogin/config.js';
 import { LoginResult } from 'src/pages/accountLogin/login/config.js';
 import { getDataByFilterXSS } from 'src/pages/accountLogin/util.js';
 import moment from 'moment';
 import { navigateTo } from 'src/router/navigateTo';
-import RegExpValidator from 'src/util/expression';
 
 let request = getRequest();
 
@@ -96,14 +95,6 @@ export const clearInfoByUrl = () => {
       }),
     );
   };
-};
-
-const isPasswordRule = str => {
-  const { md = {} } = window;
-  const { global = {} } = md;
-  const { SysSettings = {} } = global;
-  const { passwordRegexTip, passwordRegex } = SysSettings;
-  return RegExpValidator.isPasswordValid(str, passwordRegex);
 };
 
 // 验证input内容 手机 验证码 密码
@@ -598,7 +589,7 @@ export const loginCallback = data => {
       // 注销
       if (data.accountResult === LoginResult.cancellation) {
         location.href = '/cancellation';
-        return
+        return;
       }
 
       dispatch(setLoading(false));

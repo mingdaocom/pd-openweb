@@ -1,10 +1,11 @@
 import styled from 'styled-components';
+import { browserIsMobile } from 'src/util';
 
 export const Wrap = styled.div`
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: #f2f5f7;
+  background-color: ${browserIsMobile() ? '#fff' : '#f2f5f7'};
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -19,8 +20,8 @@ export const Wrap = styled.div`
     padding-top: 80px;
     z-index: 1;
     .loginContainer {
-      max-width: 420px;
-      padding: 48px 48px 23px;
+      max-width: 480px;
+      padding: 48px;
       box-sizing: border-box;
       margin: 0 auto;
       background: #ffffff;
@@ -59,9 +60,9 @@ export const Wrap = styled.div`
         line-height: 1;
         .title {
           text-align: left;
-          font-size: 20px;
+          font-size: 26px;
           color: #333333;
-          line-height: 24px;
+          line-height: 1.75;
 
           span {
             display: block;
@@ -77,7 +78,7 @@ export const Wrap = styled.div`
 
   @media screen and (max-width: 414px) {
     .loginBox {
-      padding: 46px 16px;
+      padding: 46px 0;
       .loginContainer {
         margin: 0;
         padding: 48px 24px 23px;

@@ -154,7 +154,7 @@ export default function PrintQrBarCode(props) {
         urls: [
           config.sourceUrlType === SOURCE_URL_TYPE.MEMBER
             ? `${location.origin}/app/${appId}/${worksheetId}/${viewId}/row/${previewRow.rowid}`
-            : previewRowPublicUrl || 'https://mingdao.com',
+            : previewRowPublicUrl || 'error',
         ],
         index: 0,
       }),
@@ -236,7 +236,7 @@ export default function PrintQrBarCode(props) {
           setPreviewRowPublicUrl(data[recordId]);
         });
     } else {
-      setPreviewRowPublicUrl('https://mingdao.com');
+      setPreviewRowPublicUrl('error');
     }
   }
   useEffect(() => {

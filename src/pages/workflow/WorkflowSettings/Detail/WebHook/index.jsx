@@ -824,7 +824,10 @@ export default class WebHook extends Component {
         <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">
-              {_.includes([APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION, APP_TYPE.EVENT_PUSH], data.appType) &&
+              {_.includes(
+                [APP_TYPE.SHEET, APP_TYPE.CUSTOM_ACTION, APP_TYPE.APPROVAL_START, APP_TYPE.EVENT_PUSH],
+                data.appType,
+              ) &&
                 data.actionId !== ACTION_ID.PBC_OUT &&
                 this.renderDefaultSource()}
               {data.appType === APP_TYPE.WEBHOOK && this.renderCustomSource()}

@@ -57,6 +57,15 @@ export const quickFilter = (state = [], action) => {
   }
 };
 
+export function quickFilterWithDefault(state = [], action) {
+  switch (action.type) {
+    case 'UPDATE_QUICK_FILTER_WITH_DEFAULT':
+      return [...action.filter];
+    default:
+      return state;
+  }
+}
+
 export const sheetFiltersGroup = (state = [], action) => {
   switch (action.type) {
     case 'MOBILE_UPDATE_FILTERS_GROUP':

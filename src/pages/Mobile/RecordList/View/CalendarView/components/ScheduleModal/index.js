@@ -106,7 +106,7 @@ class ScheduleModal extends Component {
                 border: `1px solid ${recordColor && recordColor.showBg ? recordColor.lightColor : '#fff'}`,
               }}
               onClick={() => {
-                if (window.isMingDaoApp) {
+                if (window.isMingDaoApp && !window.shareState.shareId) {
                   const { base } = this.props;
                   window.location.href = `/mobile/record/${base.appId}/${wsid}/${base.viewId}/${rowid}`;
                   return;

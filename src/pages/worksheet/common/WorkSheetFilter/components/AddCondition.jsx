@@ -20,16 +20,6 @@ export default class AddCondition extends Component {
     };
   }
 
-  inputRef = React.createRef();
-
-  componentDidMount() {
-    setTimeout(() => {
-      if (this.inputRef.current) {
-        this.inputRef.current.focus();
-      }
-    }, 300);
-  }
-
   componentWillReceiveProps(nextProps) {
     if (
       nextProps.from === 'fastFilter' &&
@@ -73,6 +63,7 @@ export default class AddCondition extends Component {
               controls={columns}
               className={this.props.classNamePopup}
               filterColumnClassName={filterColumnClassName}
+              visible={columnListVisible}
               onAdd={control => {
                 onAdd(control);
                 if (from !== 'fastFilter') {
@@ -102,11 +93,7 @@ export default class AddCondition extends Component {
               if (disabled) {
                 return;
               }
-              this.setState({ columnListVisible: true }, () => {
-                if (this.inputRef.current) {
-                  this.inputRef.current.focus();
-                }
-              });
+              this.setState({ columnListVisible: true });
             }}
           >
             {children ||

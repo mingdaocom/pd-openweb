@@ -50,7 +50,7 @@ const SelectWrapper = styled(Select)`
 const defaultSize = 2;
 
 const renderSortableItem = ({ DragHandle, item, otherProps }) => {
-  const { selected, attribute, handleItemClick, handleChangeSize } = otherProps;
+  const { selected, attribute = {}, handleItemClick, handleChangeSize } = otherProps;
   const isAttribute = attribute.controlId === item.controlId;
   const column = item;
   const control = _.find(selected, { controlId: column.controlId });
@@ -113,7 +113,7 @@ export default class ShowControlModal extends Component {
       const columns = nextProps.relationControls
         .filter(item => {
           return (
-            ![10010, 21, 22, 25, 29, 30, 41, 42, 43, 45, 47, 49, 51, 52, 53].includes(item.type) &&
+            ![10010, 21, 22, 25, 29, 30, 41, 42, 43, 45, 47, 49, 51, 52].includes(item.type) &&
             !_.find(nextProps.fields, { controlId: item.controlId })
           );
         })
@@ -143,7 +143,7 @@ export default class ShowControlModal extends Component {
   handleSave = () => {
     const { columns, selected } = this.state;
     const { relationControls } = this.props;
-    const attribute = _.find(relationControls, { attribute: 1 });
+    const attribute = _.find(relationControls, { attribute: 1 }) || {};
     const filterColumns = columns.filter(item => _.find(selected, { controlId: item.controlId }));
     const fields = filterColumns.map(item => {
       return _.find(selected, { controlId: item.controlId });
@@ -171,7 +171,7 @@ export default class ShowControlModal extends Component {
   handleHideAll = () => {
     const { relationControls } = this.props;
     const { selected } = this.state;
-    const attribute = _.find(relationControls, { attribute: 1 });
+    const attribute = _.find(relationControls, { attribute: 1 }) || {};
     this.setState({ selected: selected.filter(item => item.controlId == attribute.controlId) });
   };
   handleItemClick = column => {
@@ -227,7 +227,7 @@ export default class ShowControlModal extends Component {
       (column.controlName || '').toLocaleLowerCase().includes(searchValue.toLocaleLowerCase()),
     );
     const otherProps = {
-      attribute: _.find(relationControls, { attribute: 1 }),
+      attribute: _.find(relationControls, { attribute: 1 }) || {},
       selected,
       handleItemClick: this.handleItemClick,
       handleChangeSize: this.handleChangeSize,

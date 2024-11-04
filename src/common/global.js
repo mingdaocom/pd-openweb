@@ -331,9 +331,10 @@ window.safeLocalStorageSetItem = (...args) => {
 /**
  * 格式化时间
  * @param {string} dateStr 具体的日期字符串，格式为 yyyy-MM-dd HH:mm:ss
+ * @param {string} showType 输出类型 1:精简模式 2:极简模式 3:完整显示
  * @returns {string} 相对的时间，如15分钟前
  */
-window.createTimeSpan = (dateStr, needSecond = false) => {
+window.createTimeSpan = (dateStr, showType = 1) => {
   const dateTime = moment(dateStr);
   const now = moment();
   const diff = now.diff(dateTime);
@@ -342,27 +343,33 @@ window.createTimeSpan = (dateStr, needSecond = false) => {
   const minutes = Math.floor(seconds / 60);
   const year = dateTime.format('YYYY');
   const month = dateTime.format('MM');
+  const simpleMonth = dateTime.format('M');
   const day = dateTime.format('DD');
+  const simpleDay = dateTime.format('D');
   const hour = dateTime.format('HH');
   const minute = dateTime.format('mm');
-  const second = needSecond ? ':' + dateTime.format('ss') : '';
+  const second = dateTime.format('ss');
+
+  if (showType === 3) return `${_l('%0年%1月%2日', year, month, day)} ${hour}:${minute}:${second}`;
 
   // 处理未来时间的情况
   if (diff < 0) return `${hour}:${minute}`;
 
+  const isShowSort = showType === 2;
+
   if (seconds < 60) {
     return _l('刚刚');
   } else if (minutes < 60) {
-    return `${minutes}${_l('分钟前')}`;
+    return isShowSort ? `${hour}:${minute}` : `${minutes}${_l('分钟前')}`;
   } else if (dateTime.isSame(now, 'd')) {
-    return `${_l('今天')} ${hour}:${minute}${second}`;
+    return `${isShowSort ? '' : _l('今天')} ${hour}:${minute}`;
   } else if (dateTime.isSame(now.subtract(1, 'd'), 'd')) {
-    return `${_l('昨天')} ${hour}:${minute}${second}`;
+    return _l('昨天') + (isShowSort ? '' : ` ${hour}:${minute}`);
   } else if (dateTime.format('YYYY') === now.format('YYYY')) {
-    return `${_l('%0月%1日', month, day)} ${hour}:${minute}${second}`;
+    return `${_l('%0月%1日', simpleMonth, simpleDay)}` + (isShowSort ? '' : ` ${hour}:${minute}`);
   }
 
-  return `${_l('%0年%1月%2日', year, month, day)} ${hour}:${minute}${second}`;
+  return isShowSort ? `${_l('%0年', year)}` : `${_l('%0年%1月%2日', year, simpleMonth, simpleDay)} ${hour}:${minute}`;
 };
 
 /**
@@ -440,6 +447,7 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
     Authorization: getPssId() ? `md_pss_id ${getPssId()}` : '',
     AccountId: !ajaxOptions.url && _.get(md.global.Account, 'accountId') ? md.global.Account.accountId : undefined,
     'X-Requested-With': !ajaxOptions.url ? 'XMLHttpRequest' : undefined,
+    ...(ajaxOptions.header || {}),
   };
   const clientId = window.clientId || sessionStorage.getItem('clientId');
   const needClientIdControllerNames = [
@@ -452,6 +460,7 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
     'Kc',
     'Workflow',
     'Payment',
+    'Integration',
   ];
 
   if (location.href.indexOf('/public/') > -1 && clientId && _.includes(needClientIdControllerNames, controllerName)) {
@@ -531,6 +540,7 @@ const generateLocalizationParams = (requestData = {}) => {
         'Worksheet_EditWorksheetControls',
         'WorksheetSetting_SavPaymentSetting',
         'Worksheet_UpdateEntityName',
+        'Login_LoginOut',
       ],
     },
     Worksheet_GetQueryBySheetId: {

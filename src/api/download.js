@@ -146,6 +146,18 @@ export default {
      return mdyAPI('Download', 'ExportProjectJobList', args, options);
    },
   /**
+  * 导出公司组织角色列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   exportProjectOrgRoleList: function (args, options = {}) {
+     
+     return mdyAPI('Download', 'ExportProjectOrgRoleList', args, options);
+   },
+  /**
   * 导出公司部门列表
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id

@@ -15,9 +15,10 @@ import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/Calen
 import { calculateZoomLevel, parseRecord, calculatePoleCenter } from './utils';
 import PinMarker from './components/PinMarker';
 import Map from './amap/Map';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, handlePushState, handleReplaceState } from 'src/util';
 import { RecordInfoModal } from 'mobile/Record';
 import { LoadDiv } from 'ming-ui';
+import GMap from './GMap/GMap';
 
 const Con = styled.div`
   position: relative;
@@ -43,6 +44,7 @@ function MapView(props) {
   } = props;
   const { mapViewState, mapViewLoading, refreshMap } = mapView;
   const isMobile = browserIsMobile();
+  const isGoogle = !!md.global.Account.map;
 
   const conRef = useRef();
   const [zoom, setZoom] = useState(5);
@@ -85,6 +87,17 @@ function MapView(props) {
       setCenter(newCenter ? newCenter.reverse() : [116.4, 39.9]);
     }
   }, [mapView.mapViewData, mapViewConfig]);
+
+  useEffect(() => {
+    window.addEventListener('popstate', onQueryChange);
+    return () => {
+      window.removeEventListener('popstate', onQueryChange);
+    };
+  }, []);
+
+  const onQueryChange = () => {
+    handleReplaceState('page', 'recordDetail', () => setRecordInfoRowId(null));
+  };
 
   const init = () => {
     if (!viewId || !view.viewControl) return;
@@ -150,6 +163,29 @@ function MapView(props) {
       );
     }
 
+    const markOptions = {
+      ..._.pick(props, [
+        'view',
+        'isCharge',
+        'appId',
+        'worksheetInfo',
+        'sheetSwitchPermit',
+        'viewId',
+        'groupId',
+        'updateNavGroup',
+      ]),
+      mapViewState: mapViewState,
+      controls: controls,
+      mapViewConfig: mapViewConfig,
+      isMobile: isMobile,
+      mobileCloseCard: mobileCloseCard,
+      onChangeRecordId: value => {
+        handlePushState('page', 'recordDetail');
+        setRecordInfoRowId(value);
+      },
+      getData: () => initMapViewData(view),
+    };
+
     return (
       <Con
         onTouchStartCapture={e => {
@@ -157,34 +193,23 @@ function MapView(props) {
           $('.mapViewCard.active')[0] && setMobileCloseCard(!mobileCloseCard);
         }}
       >
-        <Map zoom={zoom} center={center}>
-          {markers &&
-            markers.map((marker, i) => {
-              return (
-                <PinMarker
-                  {..._.pick(props, [
-                    'view',
-                    'isCharge',
-                    'appId',
-                    'worksheetInfo',
-                    'sheetSwitchPermit',
-                    'viewId',
-                    'groupId',
-                    'updateNavGroup',
-                  ])}
-                  key={`PinMark-${marker.record.rowid}`}
-                  isCurrent={_.get(mapViewState, 'searchData.rowid') === marker.record.rowid}
-                  marker={marker}
-                  controls={controls}
-                  mapViewConfig={mapViewConfig}
-                  isMobile={isMobile}
-                  mobileCloseCard={mobileCloseCard}
-                  onChangeRecordId={value => setRecordInfoRowId(value)}
-                  getData={() => initMapViewData(view)}
-                />
-              );
-            })}
-        </Map>
+        {isGoogle ? (
+          <GMap zoom={zoom} center={center} markers={markers} markOptions={markOptions} />
+        ) : (
+          <Map zoom={zoom} center={center}>
+            {markers &&
+              markers.map((marker, i) => {
+                return (
+                  <PinMarker
+                    {...markOptions}
+                    key={`PinMark-${marker.record.rowid}`}
+                    isCurrent={_.get(mapViewState, 'searchData.rowid') === marker.record.rowid}
+                    marker={marker}
+                  />
+                );
+              })}
+          </Map>
+        )}
       </Con>
     );
   };

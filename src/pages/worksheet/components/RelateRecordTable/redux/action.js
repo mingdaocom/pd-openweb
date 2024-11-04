@@ -468,6 +468,12 @@ export function updateCell({ cell, row }, options = {}) {
             });
           });
         } else if (changes.controlId) {
+          const control = _.find(get(relateWorksheetInfo, 'template.controls') || controls, {
+            controlId: changes.controlId,
+          });
+          if (control && control.type === 34) {
+            return;
+          }
           if (changes.value === 'deleteRowIds: all') {
             changes.value = '';
           }

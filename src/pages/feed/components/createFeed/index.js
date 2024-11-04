@@ -7,13 +7,13 @@ import { createRoot } from 'react-dom/client';
 import UploadFiles from 'src/components/UploadFiles';
 import VoteUpdater from 'src/components/voteUpdater/voteUpdater';
 import 'src/components/mentioninput/mentionsInput';
-import 'src/components/selectGroup/selectAllGroup';
 import LinkView from 'src/components/linkView/linkView';
 import createShare from 'src/components/createShare/createShare';
 import doT from 'dot';
 import 'src/components/autoTextarea/autoTextarea';
 import _ from 'lodash';
 import Dialog from 'ming-ui/components/Dialog';
+import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
 
 var langUploadFiles = _l('上传附件');
 var langShareLink = _l('分享网站') + '...';
@@ -44,13 +44,11 @@ export default function (options) {
         maxHeight: 270,
         isAll: true,
         isMe: true,
-        groupLink: true,
-        defaultIsNone: true,
         defaultValue: '',
-        defaultValueAllowChange: true, // 默认值是否可以修改
       },
       callback: null,
       createShare: true,
+      scope: undefined,
     },
     handleOpen() {
       let $Attachment_updater = $('[targetdiv="#MDUpdater_Attachment_updater"]');
@@ -183,10 +181,7 @@ export default function (options) {
         }
 
         var postType = $('#MDUpdater_hidden_UpdaterType').val();
-        var scope = $('#MDUpdater_hidden_GroupID_All').SelectGroup('getScope');
-
         var isToFeed = $('#isToFeed').prop('checked');
-
         var rData = { postType: postType, postMsg: postMsg };
         // 不在动态更新显示
         if (!isToFeed) {
@@ -256,8 +251,8 @@ export default function (options) {
         rData.appId = MDUpdater.options.appId;
 
         // 判断群组
-        if (scope) {
-          rData.scope = scope;
+        if (MDUpdater.options.scope) {
+          rData.scope = MDUpdater.options.scope;
         } else if (!isToFeed) {
           rData.scope = {
             radioProjectIds: '',
@@ -266,12 +261,10 @@ export default function (options) {
           };
         } else {
           alert(_l('请选择群组'), 3);
-          $('#MDUpdater_hidden_GroupID_All').SelectGroup('slideDown');
           return;
         }
 
         // 知识门户
-        // var knowledgeID = md.global.Project.haveKnowledge ? $("#MDUpdater_txtKnowledge").val() : "";
         $(obj).attr('disabled', 'disabled').addClass('Disabled');
 
         postAjax
@@ -299,8 +292,7 @@ export default function (options) {
             $mdUpdaterTextareaUpdater.val('');
             $mdUpdaterTextareaUpdater.mentionsInput('reset').mentionsInput('clearStore');
             MDUpdater.resetUpdater(null, true);
-
-            $('#MDUpdaterhidden_GroupID_All').SelectGroup(MDUpdater.options.selectGroupOptions);
+            MDUpdater.renderSelectGroup(MDUpdater.options.selectGroupOptions);
           })
           .finally(function () {
             $(obj).removeAttr('disabled').removeClass('Disabled');
@@ -316,7 +308,7 @@ export default function (options) {
           var selectGroupOptions = MDUpdater.options.selectGroupOptions;
           selectGroupOptions.defaultValue = groupIDs;
 
-          $(hidGroupID).SelectGroup(selectGroupOptions);
+          MDUpdater.renderSelectGroup(selectGroupOptions);
           MDUpdater.postUpdater(el);
         },
       });
@@ -346,7 +338,7 @@ export default function (options) {
       setTimeout('$("#MDUpdater_textarea_Updater")[0].focus();', 10);
 
       // 分享范围
-      $('#MDUpdater_hidden_GroupID_All').SelectGroup(MDUpdater.options.selectGroupOptions);
+      MDUpdater.renderSelectGroup(MDUpdater.options.selectGroupOptions);
 
       // 分享按钮
       $('#MDUpdater_button_Share').val(_l('分享'));
@@ -604,6 +596,44 @@ export default function (options) {
         $('#MDUpdater_Attachment_updater').show();
         $("div.MDUpdater a[targetdiv='#MDUpdater_Attachment_updater']").addClass('ThemeColor3').removeClass('Gray_c');
       }
+    },
+    renderSelectGroup: options => {
+      if (options.defaultValue) {
+        MDUpdater.options.scope = {
+          shareGroupIds: [options.defaultValue],
+          shareProjectIds: [],
+          radioProjectIds: [],
+        };
+      }
+
+      const ele = document.getElementById('createFeedGroupSelect');
+
+      if (!ele) return;
+
+      const root = createRoot(ele);
+
+      root.render(
+        <SelectGroupTrigger
+          {...options}
+          defaultValue={
+            options.defaultValue
+              ? {
+                  shareGroupIds: [options.defaultValue],
+                }
+              : undefined
+          }
+          onChange={value => {
+            MDUpdater.options.scope =
+              !value.isMe &&
+              !(value.shareGroupIds || []).length &&
+              !(value.shareProjectIds || []).length &&
+              !(value.radioProjectIds || []).length
+                ? undefined
+                : _.pick(value, ['radioProjectIds', 'shareGroupIds', 'shareProjectIds']);
+          }}
+          getPopupContainer={() => document.body}
+        />,
+      );
     },
     showVideoUpload: function () {
       var dialogHeight = 450;

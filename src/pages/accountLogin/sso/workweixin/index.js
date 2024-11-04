@@ -1,4 +1,4 @@
-import { ajax, login, browserIsMobile, getRequest, checkLogin } from 'src/util/sso';
+import { ajax, login, browserIsMobile, getRequest, checkLogin, checkOriginUrl } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 import preall from 'src/common/preall';
 
@@ -7,7 +7,7 @@ const isMobile = browserIsMobile();
 
 if (source === 'wxwork') {
   if (checkLogin()) {
-    if (url) {
+    if (checkOriginUrl(url)) {
       location.href = decodeURIComponent(url);
     } else {
       location.href = isMobile ? `/mobile` : `/app`;
@@ -24,7 +24,7 @@ if (source === 'wxwork') {
         if (accountResult === 1) {
           preall({ type: 'function' });
           setPssId(sessionId);
-          if (url) {
+          if (checkOriginUrl(url)) {
             location.href = decodeURIComponent(url);
           } else {
             location.href = isMobile ? `/mobile` : `/app`;
@@ -36,7 +36,7 @@ if (source === 'wxwork') {
   }
 } else {
   if (checkLogin()) {
-    if (ret) {
+    if (checkOriginUrl(ret)) {
       location.href = ret;
     } else {
       location.href = isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;
@@ -56,7 +56,7 @@ if (source === 'wxwork') {
         if (accountResult === 1) {
           preall({ type: 'function' });
           setPssId(sessionId);
-          if (ret) {
+          if (checkOriginUrl(ret)) {
             location.href = ret;
           } else {
             location.href = isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;

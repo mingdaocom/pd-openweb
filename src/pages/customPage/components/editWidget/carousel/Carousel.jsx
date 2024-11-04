@@ -354,13 +354,24 @@ export default function CarouselPreview(props) {
   };
 
   const renderFileImage = (record, data) => {
-    return (
-      <div
-        onClick={() => handleTriggerAction(record)}
-        className={cx('image pointer', { fill: config.fill === 1, full: config.fill === 2 })}
-        style={{ backgroundImage: `url(${data.viewUrl}&|imageView2/0/q/100)` }}
-      />
-    );
+    const url = `${data.viewUrl}&|imageView2/0/q/100`;
+    if (config.fill === 3) {
+      return (
+        <img
+          onClick={() => handleTriggerAction(record)}
+          src={url}
+          className="w100 h100"
+        />
+      );
+    } else {
+      return (
+        <div
+          onClick={() => handleTriggerAction(record)}
+          className={cx('image pointer', { fill: config.fill === 1, full: config.fill === 2 })}
+          style={{ backgroundImage: `url(${url})` }}
+        />
+      );
+    }
   }
 
   const renderBarCode = (record, data) => {

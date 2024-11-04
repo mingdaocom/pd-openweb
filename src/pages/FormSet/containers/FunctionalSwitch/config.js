@@ -68,7 +68,7 @@ export const hasRangeList = [
 
 export const helfList = [10, 22, 23, 33, 32, 40, 37]; //有帮助提示
 
-export const worksheetSwitch = [10, 11, 12, 13, 14, 500, 50, 51]; //工作表相关
+export const worksheetSwitch = [10, 11, 13, 14, 500, 50, 51]; //工作表相关
 export const viewSwitch = [20, 38, 21, 22, 25, 24, 26, 23, 27, 28, 29]; //视图相关
 export const recordSwitch = [30, 52, 36, 39, 37, 35, 32, 33, 34]; //记录相关
 export const approveSwitch = [40, 41]; //审批相关

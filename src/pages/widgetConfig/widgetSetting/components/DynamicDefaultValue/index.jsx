@@ -7,6 +7,8 @@ import { DEFAULT_TYPES } from './config';
 import { Tooltip } from 'ming-ui';
 import _ from 'lodash';
 import cx from 'classnames';
+import { getAdvanceSetting as getAdvanceSettingByKey } from 'src/util/index.js';
+import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 
 export default function DynamicDefaultValue(props) {
   const { data, allControls, onChange, from, hideTitle } = props;
@@ -49,12 +51,13 @@ export default function DynamicDefaultValue(props) {
     onChange(para);
   };
 
+  const isLinkParams = (getAdvanceSettingByKey(data, 'defsource') || []).filter(o => o.rcid === 'url').length > 0;
   return (
     <SettingItem className={cx({ mTop0: hideTitle })}>
       {!hideTitle && (
         <div className="settingItemTitle">
           {_l('默认值')}
-          {type === 'department' && (
+          {type === 'department' && from !== DYNAMIC_FROM_MODE.FAST_FILTER && (
             <Tooltip text={<span>{_l('默认值为成员字段时，取成员所在的主部门')}</span>}>
               <span className="Gray_9e pointer Font15">
                 <i className="icon-help"></i>
@@ -68,7 +71,7 @@ export default function DynamicDefaultValue(props) {
         data={data}
         controls={allControls}
         dynamicValue={dynamicValue}
-        defaultType={defaultType}
+        defaultType={defaultType || isLinkParams}
         dynamicData={dynamicData}
         clearOldDefault={clearOldDefault}
         onDynamicValueChange={handleDynamicValueChange}

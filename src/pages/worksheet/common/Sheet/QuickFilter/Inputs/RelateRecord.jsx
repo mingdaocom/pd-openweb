@@ -6,7 +6,7 @@ import cx from 'classnames';
 import { getTitleTextFromRelateControl } from 'src/components/newCustomFields/tools/utils';
 import RelateRecordDropdown from 'worksheet/components/RelateRecordDropdown/RelateRecordDropdownCopy';
 import RelateRecordOptions from './RelateRecordOptions';
-import _ from 'lodash';
+import _, { find } from 'lodash';
 
 const Con = styled.div`
   display: flex;
@@ -142,7 +142,7 @@ export default function RelateRecord(props) {
         {_l('请选择')}
       </span>
     );
-  } else if (isMultiple) {
+  } else if (isMultiple || values.length > 1) {
     renderSelected = (selected = [], { handleDelete = () => {} } = {}) => {
       let text;
       if ((selected[0] || {}).rowid === 'isEmpty') {
@@ -183,7 +183,13 @@ export default function RelateRecord(props) {
         control={control}
         parentWorksheetId={worksheetId}
         prefixRecords={prefixRecords}
-        staticRecords={staticRecords}
+        staticRecords={
+          staticRecords
+            ? staticRecords.concat(
+                values.filter(item => !find(staticRecords, r => r.rowid === item.rowid) && item.rowid !== 'isEmpty'),
+              )
+            : []
+        }
         onChange={newRecords => {
           handleChange({ values: newRecords });
         }}

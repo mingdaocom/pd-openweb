@@ -225,7 +225,9 @@ function transformLng(lng, lat) {
   return dLng;
 }
 
-export function wgs84togcj02(lng, lat) {
+export function wgs84togcj02(longitude, latitude) {
+  var lng = parseFloat(longitude);
+  var lat = parseFloat(latitude);
   var a = 6378245.0;
   var ee = 0.00669342162296594323;
   var pi = 3.14159265358979324;

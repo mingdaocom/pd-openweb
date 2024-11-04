@@ -77,7 +77,7 @@ export default class WorkwxSyncCourse extends React.Component {
   renderScanContent = () => {
     const { scanUrl } = this.state;
     return (
-      <div class="scanWorkwx" style={{ height: 1882 }}>
+      <div className="scanWorkwx" style={{ height: 1882 }}>
         <h3 className="Font18 Gray mTop40">{_l('企业微信扫码登录（可选）')}</h3>
         <p className="mTop24">{_l('开启后，在二级域名下使用企业微信扫一扫，直接登录')}</p>
         <p className="Font14 Gray_75 mTop20 LineHeight22">{_l('1.设置二级域名')}</p>

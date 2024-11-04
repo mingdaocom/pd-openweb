@@ -12,10 +12,10 @@ import './index.less';
 import BtnName from './BtnName';
 import LinkPara from '../LinkPara';
 import DefaultValue from './DefaultValue';
+import CallBackRefresh from './CallBackRefresh';
 import FilterData from './FilterData';
 import SelectProcess from './SelectProcess';
 import ClickConfirm from './ClickConfirm';
-import { DropdownContent } from 'src/pages/widgetConfig/styled';
 import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
 import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
@@ -24,6 +24,7 @@ const BtnSettingWrap = styled.div`
   display: flex;
   flex-direction: column;
   flex-basis: 360px;
+  max-width: 360px;
   background-color: #f8f8f8;
   padding: 16px 0;
   .btnDisplayTab {
@@ -240,8 +241,8 @@ const ProcessDefaultConfig = {
 let sheetRequest = null;
 
 function BtnSetting(props) {
-  const { activeIndex, appPkg = {}, ids = {}, btnSetting, btnConfig, explain, setBtnSetting, setSetting, onDel, onCopy } = props;
-  const { appId, pageId } = ids;
+  const { pageId, activeIndex, appPkg = {}, btnSetting, btnConfig, explain, components, setBtnSetting, setSetting, onDel, onCopy } = props;
+  const appId = appPkg.id;
   const [displayType, setDisplayType] = useState('setting');
   const [paras, setParas] = useState(btnSetting.param || []);
   const [sheetLoading, setSheetLoading] = useState(true);
@@ -252,8 +253,8 @@ function BtnSetting(props) {
 
   const initConfigData = { action: '', viewId: '', openMode: 1, value: '' };
 
-  const { worksheets, views, pages, controls } = dataSource;
-  const { name, action, viewId, searchId, filterId, openMode, icon, color, btnId, value, param, config } = btnSetting;
+  const { views, controls } = dataSource;
+  const { action, viewId, searchId, filterId, openMode, btnId, value, config } = btnSetting;
 
   useEffect(() => {
     setParas(btnSetting.param || []);
@@ -314,6 +315,25 @@ function BtnSetting(props) {
     }
   }, [value, action, activeIndex]);
 
+  const renderCallBackRefresh = () => {
+    return (
+      <CallBackRefresh
+        pageId={pageId}
+        components={components}
+        refreshObjects={_.get(config, 'refreshObjects')}
+        onChange={objects => {
+          setBtnSetting({
+            ...btnSetting,
+            config: {
+              ...config,
+              refreshObjects: objects
+            }
+          });
+        }}
+      />
+    );
+  }
+
   const renderConfig = () => {
     // 创建记录
     if (action === 1) {
@@ -353,6 +373,7 @@ function BtnSetting(props) {
               }}
             />
           )}
+          {renderCallBackRefresh()}
         </Fragment>
       );
     }
@@ -734,6 +755,7 @@ function BtnSetting(props) {
                 setBtnSetting={setBtnSetting}
                 setDataSource={setDataSource}
               />
+              {renderCallBackRefresh()}
             </Fragment>
           )}
         </Fragment>
@@ -755,6 +777,7 @@ function BtnSetting(props) {
             setBtnSetting={setBtnSetting}
             setDataSource={setDataSource}
           />
+          {renderCallBackRefresh()}
         </Fragment>
       );
     }
@@ -833,6 +856,7 @@ function BtnSetting(props) {
                   value={action}
                   data={CLICK_ACTION}
                   onChange={value => {
+                    if (value === action) return;
                     changeAction(value);
                   }}
                   menuStyle={{ width: '100%' }}

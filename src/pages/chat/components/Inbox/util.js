@@ -256,3 +256,9 @@ export const buildSourceLink = function (type, _sourceId, _extendsId) {
   }
   return `${window.subPath || ''}${linkUrl}`;
 };
+
+export function isWithinOneHour(timestamp) {
+  const currentTime = Date.now();
+  const oneHour = 60 * 60 * 1000;
+  return Math.abs(currentTime - timestamp) <= oneHour;
+}

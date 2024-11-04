@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { DynamicInputStyle } from '../styled';
 import { Tooltip } from 'ming-ui';
 import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
+import { getAdvanceSetting } from 'src/util/index.js';
 
 const ICON_TYPES = [
   { key: 'dynamicsrc', icon: 'icon-lookup', text: _l('查询工作表') },
@@ -17,6 +18,7 @@ export default function DynamicInput({
   data = {},
   onChange,
   updateQueryConfigs = () => {},
+  linkParams,
 }) {
   const current = _.find(ICON_TYPES, item => item.key === defaultType) || {};
   const name = `<span>：${_.get(queryConfig, 'sourceName')}</span>`;
@@ -43,7 +45,27 @@ export default function DynamicInput({
       onChange(handleAdvancedSettingChange(data, { defaultfunc: '', defaulttype: '', defsource: '' }));
     }
   };
-
+  const isLinkParams = (getAdvanceSetting(data, 'defsource') || []).filter(o => o.rcid === 'url').length > 0;
+  if (isLinkParams) {
+    return (
+      <DynamicInputStyle className="">
+        {(getAdvanceSetting(data, 'defsource') || []).map(o => {
+          const isDel = !(linkParams || []).includes(o.cid);
+          return <span className={isDel ? 'Red' : ''}>{!isDel ? o.cid : _l('该参数已删除')}</span>;
+        })}
+        <Tooltip text={<span>{_l('清除')}</span>}>
+          <div
+            className="delete"
+            onClick={() => {
+              onChange(handleAdvancedSettingChange(data, { defsource: JSON.stringify([]) }));
+            }}
+          >
+            <i className="icon-cancel1"></i>
+          </div>
+        </Tooltip>
+      </DynamicInputStyle>
+    );
+  }
   return (
     <DynamicInputStyle onClick={onTriggerClick}>
       <div className={`text ${dynamicData && dynamicData.status === -1 ? 'error' : ''}`}>

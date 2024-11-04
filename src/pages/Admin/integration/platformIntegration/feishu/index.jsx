@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { Link } from 'react-router-dom';
 import { Switch, Icon, Button, LoadDiv } from 'ming-ui';
 import { Popover } from 'antd';
 import Ajax from 'src/api/workWeiXin';
-import IntegrationSetPssword from '../../../components/IntegrationSetPssword';
+import IntegrationSetPassword from '../components/IntegrationSetPassword';
 import IntegrationSync from '../components/IntegrationSync';
 import CancelIntegration from '../components/CancelIntegration';
+import EnableScanLogin from '../components/EnableScanLogin';
 import { integrationFailed, checkClearIntergrationData } from '../utils';
 import fsImg from './feishuSyncCourse/img/8.png';
 import './style.less';
@@ -63,6 +64,7 @@ export default class FeiShu extends React.Component {
           show1: !(res.appId && res.appSecret && res.status != 2),
           show2: !(res.appId && res.appSecret && res.status != 2),
           status: res.status,
+          integrationScanEnabled: res.intergrationScanEnabled,
         });
       }
     });
@@ -309,7 +311,8 @@ export default class FeiShu extends React.Component {
     }
   };
   render() {
-    const { currentTab, AppId, AppSecret } = this.state;
+    const { projectId } = this.props;
+    const { currentTab, AppId, AppSecret, integrationScanEnabled, isCloseDing } = this.state;
 
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
@@ -323,29 +326,19 @@ export default class FeiShu extends React.Component {
             )}
             <div
               className={cx('tabBox', {
-                singleTab: !(md.global.Config.IsLocal && this.state.status === 1 && !this.state.isCloseDing),
+                singleTab: !(this.state.status === 1 && !this.state.isCloseDing),
               })}
             >
               {[
                 { key: 'base', label: _l('飞书集成') },
-                { key: 'other', label: _l('其他') },
+                { key: 'other', label: _l('扫码登录') },
               ].map(({ key, label }) => {
-                if (
-                  key === 'other' &&
-                  !(md.global.Config.IsLocal && this.state.status === 1 && !this.state.isCloseDing)
-                )
-                  return;
+                if (key === 'other' && !(this.state.status === 1 && !this.state.isCloseDing)) return;
 
                 return (
                   <span
                     key={key}
-                    className={cx('tabItem Hand', {
-                      active:
-                        currentTab === key &&
-                        md.global.Config.IsLocal &&
-                        this.state.status === 1 &&
-                        !this.state.isCloseDing,
-                    })}
+                    className={cx('tabItem Hand', { active: currentTab === key })}
                     onClick={() => this.changeTab(key)}
                   >
                     {label}
@@ -368,13 +361,27 @@ export default class FeiShu extends React.Component {
         <div className="orgManagementContent">
           {currentTab === 'base' && this.stepRender()}
           {currentTab === 'other' && (
-            <IntegrationSetPssword
-              password={this.state.password}
-              isSetPassword={this.state.isSetPassword}
-              disabled={
-                (this.state.canEditInfo && !this.state.isHasInfo) || this.state.isCloseDing || this.state.showSyncDiaLog
-              }
-            />
+            <Fragment>
+              <EnableScanLogin
+                integrationType={6}
+                projectId={projectId}
+                scanEnabled={integrationScanEnabled}
+                disabled={isCloseDing}
+                href={`/feishuSyncCourse/${projectId}`}
+                updateScanEnabled={integrationScanEnabled => this.setState({ integrationScanEnabled })}
+              />
+              {md.global.Config.IsLocal && (
+                <IntegrationSetPassword
+                  password={this.state.password}
+                  isSetPassword={this.state.isSetPassword}
+                  disabled={
+                    (this.state.canEditInfo && !this.state.isHasInfo) ||
+                    this.state.isCloseDing ||
+                    this.state.showSyncDiaLog
+                  }
+                />
+              )}
+            </Fragment>
           )}
         </div>
       </div>

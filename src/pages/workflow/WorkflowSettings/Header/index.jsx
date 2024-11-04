@@ -292,12 +292,13 @@ class Header extends Component {
    * 渲染测试按钮
    */
   renderTestBtn() {
-    const { flowInfo } = this.props;
+    const { flowInfo, isPlugin } = this.props;
     const { testVisible } = this.state;
 
     // 未发布和非立即执行的只有测试
     if (
       !flowInfo.lastPublishDate ||
+      isPlugin ||
       !_.includes(
         [
           APP_TYPE.SHEET,
@@ -429,7 +430,7 @@ class Header extends Component {
               <ScrollView className="flex">
                 <div className="workflowDetailBox pBottom0">
                   {isPlugin && flowInfo.explain && (
-                    <div className="Font14 Gray_75 workflowDetailDesc mBottom20">{flowInfo.explain}</div>
+                    <div className="Font14 Gray_75 workflowDetailDesc mBottom30">{flowInfo.explain}</div>
                   )}
 
                   <div style={{ marginTop: -15 }}>
@@ -525,7 +526,13 @@ class Header extends Component {
     }
 
     process
-      .startProcessById({ processId: flowInfo.id, sourceId, debugEvents: [-1, 0, 1, 2, 3], fields })
+      .startProcessById({
+        processId: flowInfo.id,
+        sourceId,
+        debugEvents: [-1, 0, 1, 2, 3],
+        fields,
+        pushUniqueId: md.global.Config.pushUniqueId,
+      })
       .then(result => {
         // 流程存在异常
         if (result.processWarnings) {
@@ -547,15 +554,22 @@ class Header extends Component {
     const execFunc = (debugEvents = []) => {
       this.setState({ isProgressing: true });
 
-      process.startProcessById({ processId: flowInfo.id, sourceId, debugEvents }).then(() => {
-        // 手动刷新一下历史数据
-        if (tabIndex === 2) {
-          document.getElementById('historyRefresh') && document.getElementById('historyRefresh').click();
-        }
+      process
+        .startProcessById({
+          processId: flowInfo.id,
+          sourceId,
+          debugEvents,
+          pushUniqueId: md.global.Config.pushUniqueId,
+        })
+        .then(() => {
+          // 手动刷新一下历史数据
+          if (tabIndex === 2) {
+            document.getElementById('historyRefresh') && document.getElementById('historyRefresh').click();
+          }
 
-        this.setState({ isProgressing: false });
-        alert(_l('执行成功'));
-      });
+          this.setState({ isProgressing: false });
+          alert(_l('执行成功'));
+        });
     };
 
     if (isProgressing) return false;
@@ -834,7 +848,7 @@ class Header extends Component {
           ) : (
             <Fragment>
               {!_.includes([APP_TYPE.WEBHOOK, APP_TYPE.USER, APP_TYPE.EXTERNAL_USER], flowInfo.startAppType) &&
-                flowInfo.publishStatus !== 2 &&
+                (flowInfo.publishStatus !== 2 || isPlugin) &&
                 this.renderTestBtn()}
 
               {flowInfo.publishStatus === 2 &&

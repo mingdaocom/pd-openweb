@@ -667,7 +667,7 @@ function PluginConfig(props) {
                     <span className="Gray_75 mLeft12 flexColumn minWidth0">
                       <div>
                         {source === 0
-                          ? `${detailData.creator.fullname} 发布于 ${moment(
+                          ? `${detailData.creator.fullname} ${_l('发布于')} ${moment(
                               detailData.currentVersion.releaseTime,
                             ).format('YYYY年MM月DD日 HH:mm')}`
                           : getPluginOperateText(detailData.recentOperation)}

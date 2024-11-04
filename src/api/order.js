@@ -8,7 +8,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAuthorizeVersions: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetAuthorizeVersions', args, options);
    },
   /**
@@ -20,7 +20,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAuthorizeDraftOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetAuthorizeDraftOrder', args, options);
    },
   /**
@@ -37,7 +37,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addAuthorizeOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddAuthorizeOrder', args, options);
    },
   /**
@@ -53,7 +53,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAuthorizeOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetAuthorizeOrderPrice', args, options);
    },
   /**
@@ -65,7 +65,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectComputingInstances: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetProjectComputingInstances', args, options);
    },
   /**
@@ -80,7 +80,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPersonOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetPersonOrderPrice', args, options);
    },
   /**
@@ -95,7 +95,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addPersonOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddPersonOrder', args, options);
    },
   /**
@@ -110,7 +110,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getApkStorageOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetApkStorageOrderPrice', args, options);
    },
   /**
@@ -125,7 +125,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addApkStorageOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddApkStorageOrder', args, options);
    },
   /**
@@ -140,7 +140,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorkflowOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetWorkflowOrderPrice', args, options);
    },
   /**
@@ -155,7 +155,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addWorkflowOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddWorkflowOrder', args, options);
    },
   /**
@@ -170,7 +170,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getMonthlyWorkflowOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetMonthlyWorkflowOrderPrice', args, options);
    },
   /**
@@ -185,7 +185,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addMonthlyWorkflowOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddMonthlyWorkflowOrder', args, options);
    },
   /**
@@ -200,7 +200,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getExternalUserOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetExternalUserOrderPrice', args, options);
    },
   /**
@@ -215,7 +215,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getExternalUserExtensionOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetExternalUserExtensionOrderPrice', args, options);
    },
   /**
@@ -230,7 +230,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addExternalUserOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddExternalUserOrder', args, options);
    },
   /**
@@ -243,7 +243,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addExternalUserExtensionOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddExternalUserExtensionOrder', args, options);
    },
   /**
@@ -258,7 +258,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getDataPipelineOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetDataPipelineOrderPrice', args, options);
    },
   /**
@@ -273,7 +273,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addDataPipelineOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddDataPipelineOrder', args, options);
    },
   /**
@@ -288,7 +288,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getMonthlyDataPipelineOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetMonthlyDataPipelineOrderPrice', args, options);
    },
   /**
@@ -303,7 +303,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addMonthlyDataPipelineOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddMonthlyDataPipelineOrder', args, options);
    },
   /**
@@ -318,7 +318,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getComputingInstanceOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetComputingInstanceOrderPrice', args, options);
    },
   /**
@@ -333,7 +333,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getComputingInstanceExtensionOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetComputingInstanceExtensionOrderPrice', args, options);
    },
   /**
@@ -348,7 +348,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addPermanentComputingInstanceOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddPermanentComputingInstanceOrder', args, options);
    },
   /**
@@ -363,7 +363,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addComputingInstanceOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddComputingInstanceOrder', args, options);
    },
   /**
@@ -378,7 +378,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addComputingInstanceExtensionOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddComputingInstanceExtensionOrder', args, options);
    },
   /**
@@ -393,7 +393,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getMonthlyComputingInstanceOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetMonthlyComputingInstanceOrderPrice', args, options);
    },
   /**
@@ -408,7 +408,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addMonthlyComputingInstanceOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddMonthlyComputingInstanceOrder', args, options);
    },
   /**
@@ -423,7 +423,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAggregationTableOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetAggregationTableOrderPrice', args, options);
    },
   /**
@@ -438,7 +438,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addAggregationTableOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddAggregationTableOrder', args, options);
    },
   /**
@@ -451,7 +451,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addThreePartPayOrderLog: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddThreePartPayOrderLog', args, options);
    },
   /**
@@ -465,7 +465,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    balancePayOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'BalancePayOrder', args, options);
    },
   /**
@@ -478,7 +478,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUpgradeVersionOrderPrice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetUpgradeVersionOrderPrice', args, options);
    },
   /**
@@ -491,7 +491,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addUpgradeVersionOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddUpgradeVersionOrder', args, options);
    },
   /**
@@ -503,7 +503,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUpgradeVersionData: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetUpgradeVersionData', args, options);
    },
   /**
@@ -517,7 +517,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addRechargeOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'AddRechargeOrder', args, options);
    },
   /**
@@ -529,7 +529,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectPayResult: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetProjectPayResult', args, options);
    },
   /**
@@ -544,7 +544,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    cancelOrder: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'CancelOrder', args, options);
    },
   /**
@@ -558,7 +558,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downloadBankInfo: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'DownloadBankInfo', args, options);
    },
   /**
@@ -576,7 +576,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getTransactionRecordByPage: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetTransactionRecordByPage', args, options);
    },
   /**
@@ -589,7 +589,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getTransactionRecordByOrderId: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'GetTransactionRecordByOrderId', args, options);
    },
   /**
@@ -614,7 +614,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    applyInvoice: function (args, options = {}) {
-
+     
      return mdyAPI('Order', 'ApplyInvoice', args, options);
    },
 };

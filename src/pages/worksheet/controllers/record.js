@@ -179,6 +179,7 @@ export function submitNewRecord(props) {
     rowStatus,
     setSubListUniqueError,
     setRuleError,
+    setServiceError,
   } = props;
   const receiveControls = formdata
     .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32 && item.type !== 51)
@@ -240,6 +241,8 @@ export function submitNewRecord(props) {
       } else if (res.resultCode === 22) {
         setSubListUniqueError(res.badData);
         handleRecordError(res.resultCode);
+      } else if (res.resultCode === 31) {
+        setServiceError(res.badData);
       } else if (res.resultCode === 32) {
         setRuleError(res.badData);
       } else {
@@ -255,8 +258,6 @@ export function submitNewRecord(props) {
         if (!err.errorMessage) {
           alert(_l('记录添加失败'), 2);
         }
-      } else {
-        alert(err || _l('记录添加失败'), 2);
       }
     });
 }

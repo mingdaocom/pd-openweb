@@ -46,7 +46,7 @@ export default function VerifyPasswordInput(props) {
     showAccountEmail,
     onChange = () => {},
   } = props;
-  const mobilePhone = md.global.Account.mobilePhone.replace(/((\+86)?\d{3})\d*(\d{4})/, '$1****$3');
+  const mobilePhone = md.global.Account.mobilePhone;
   const email = md.global.Account.email.replace(/(.{3}).*(@.*)/, '$1***$2');
   const [isNoneVerification, setIsNoneVerification] = useState(false);
   const passWordRef = useRef(null);

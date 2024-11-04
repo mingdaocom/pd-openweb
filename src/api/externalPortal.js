@@ -15,6 +15,7 @@ export default {
   * 获取 门户配置
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -39,6 +40,7 @@ export default {
   * 获取 用户协议
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -51,6 +53,7 @@ export default {
   * 获取 隐私条款
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -63,6 +66,7 @@ export default {
   * 根据AppId获取外部门户配置(含用户自定义字段)
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -75,6 +79,7 @@ export default {
   * 根据AppId获取门户启用状态
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -88,6 +93,7 @@ export default {
 获取功能配置
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -100,6 +106,7 @@ export default {
   * 创建 外部门户讨论工作流
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -107,6 +114,19 @@ export default {
    createEPDiscussWorkFlow: function (args, options = {}) {
      
      return mdyAPI('ExternalPortal', 'CreateEPDiscussWorkFlow', args, options);
+   },
+  /**
+  * 生成地址
+  * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   initAddressExt: function (args, options = {}) {
+     
+     return mdyAPI('ExternalPortal', 'InitAddressExt', args, options);
    },
   /**
   * 编辑 外部门户的启用状态
@@ -162,6 +182,19 @@ export default {
      return mdyAPI('ExternalPortal', 'EditCustomAddressSuffix', args, options);
    },
   /**
+  * 编辑 门户自定义扩展地址
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用 AppId
+  * @param {array} args.addressExt 扩展地址
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editCustomAddressExt: function (args, options = {}) {
+     
+     return mdyAPI('ExternalPortal', 'EditCustomAddressExt', args, options);
+   },
+  /**
   * 发送 验证码（登录后）
   * @param {Object} args 请求参数
   * @param {string} args.ticket 验证码返票据
@@ -182,6 +215,7 @@ export default {
   * 检查 验证码
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {string} args.verifyCode 验证码
   * @param {string} args.account 账号：手机号/邮箱
   * @param {} args.handleType
@@ -197,6 +231,7 @@ export default {
   * 获取外部人员列表基础配置信息
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -209,6 +244,7 @@ export default {
   * 获取待收集信息
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {boolean} args.getSystem 是否获取系统字段，这里只会添加（name,phone）
   * @param {string} args.exAccountId 外部账户Id
   * @param {} args.lang
@@ -385,6 +421,7 @@ export default {
   * 外部用户 注销
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -397,6 +434,7 @@ export default {
   * 外部用户 绑定新账户
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {string} args.verifyCode 验证码
   * @param {string} args.account 新手机号
   * @param {Object} options 配置参数
@@ -411,6 +449,7 @@ export default {
   * 外部用户 修改新账户
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {string} args.verifyCode 验证码
   * @param {string} args.account 新手机号
   * @param {Object} options 配置参数
@@ -439,6 +478,7 @@ export default {
   * 获取显示列
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -464,6 +504,7 @@ export default {
   * 获取外部用户分类数量
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -605,6 +646,7 @@ export default {
   * 获取外部门户的角色列表
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

@@ -276,40 +276,42 @@ function BoardView(props) {
         return <ViewEmpty filters={filters} viewFilter={view.filters || []} />;
       }
 
-      return (viewData || [])
-        .slice(freezenav === '1' && !fixFirst ? 1 : 0, fixFirst ? 1 : undefined)
-        .map((board, index) => {
-          if (!(_.get(board, 'rows') || []).length && !fixFirst) {
-            // 看板无数据时 当配置隐藏无数据看板或看板本身是未分类时 看板不显示
-            if (board.noGroup || navshow === '1') return null;
-          }
+      return (
+        !browserIsMobile()
+          ? (viewData || []).slice(freezenav === '1' && !fixFirst ? 1 : 0, fixFirst ? 1 : undefined)
+          : viewData || []
+      ).map((board, index) => {
+        if (!(_.get(board, 'rows') || []).length && !fixFirst) {
+          // 看板无数据时 当配置隐藏无数据看板或看板本身是未分类时 看板不显示
+          if (board.noGroup || navshow === '1') return null;
+        }
 
-          return (
-            <Board
-              {...boardView}
-              key={index}
-              index={index}
-              list={board}
-              viewData={viewData}
-              view={view}
-              worksheetId={worksheetId}
-              viewControl={viewControl}
-              sortRecord={sortRecord}
-              selectControl={selectControl()}
-              addRecord={addRecord}
-              {..._.pick(props, [
-                'appId',
-                'viewId',
-                'searchRow',
-                'updateBoardViewData',
-                'isCharge',
-                'sheetSwitchPermit',
-                'fieldShowCount',
-              ])}
-              {...rest}
-            />
-          );
-        });
+        return (
+          <Board
+            {...boardView}
+            key={index}
+            index={index}
+            list={board}
+            viewData={viewData}
+            view={view}
+            worksheetId={worksheetId}
+            viewControl={viewControl}
+            sortRecord={sortRecord}
+            selectControl={selectControl()}
+            addRecord={addRecord}
+            {..._.pick(props, [
+              'appId',
+              'viewId',
+              'searchRow',
+              'updateBoardViewData',
+              'isCharge',
+              'sheetSwitchPermit',
+              'fieldShowCount',
+            ])}
+            {...rest}
+          />
+        );
+      });
     };
 
     return (

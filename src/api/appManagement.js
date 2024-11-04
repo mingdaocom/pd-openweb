@@ -1,491 +1,5 @@
 export default {
   /**
-  * 还原数据
-  * @param {Object} args 请求参数
-  * @param {string} args.id 任务id
-  * @param {string} args.projectId 组织id
-  * @param {string} args.appId 应用id
-  * @param {string} args.fileUrl 文件链接
-  * @param {string} args.fileName 文件名称
-  * @param {boolean} args.backupCurrentVersion 备份当前版本
-  * @param {string} args.dbInstanceId 数据库实例id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   restoreData: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'RestoreData', args, options);
-   },
-  /**
-  * 备份应用
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用Id
-  * @param {boolean} args.containData 是否备份数据
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   backup: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'Backup', args, options);
-   },
-  /**
-  * 校验还原文件
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用id
-  * @param {string} args.fileUrl 文件url
-  * @param {string} args.fileName 文件名称
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   checkRestoreFile: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'CheckRestoreFile', args, options);
-   },
-  /**
-  * 获取tar文件上传状态
-  * @param {Object} args 请求参数
-  * @param {string} args.id 任务id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getTarTaskInfo: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'GetTarTaskInfo', args, options);
-   },
-  /**
-  * 使用情况统计分析
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {string} args.departmentId 部门id
-  * @param {boolean} args.depFlag true表示仅当强部门，false表示部门树
-  * @param {string} args.appId 应用id
-  * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
-  * @param {string} args.dateDemension &#34;1h&#34;:1小时 &#34;1d&#34;:1天 &#34;1w&#34;:1周 &#34;1M&#34;:1月 &#34;1q&#34;:1季度 &#34;1y&#34;:1年
-  * @param {boolean} args.isApp 表示是否是应用的使用分析
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   allUsageOverviewStatistics: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'AllUsageOverviewStatistics', args, options);
-   },
-  /**
-  * 应用汇总概览
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {string} args.keyWord 关键字搜索
-  * @param {integer} args.pageIndex 当前页
-  * @param {integer} args.pageSize 页大小
-  * @param {string} args.sortFiled 排序字段
-  * @param {boolean} args.sorted 排序方式 true--asc false--desc
-  * @param {string} args.appId 应用id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   appUsageOverviewStatistics: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'AppUsageOverviewStatistics', args, options);
-   },
-  /**
-  * 不同维度使用情况统计(按应用，按成员)
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
-  * @param {integer} args.pageIndex 当前页
-  * @param {integer} args.pageSize 页大小
-  * @param {integer} args.dimension 维度 1-应用 2-用户
-  * @param {string} args.sortFiled 排序字段（返回结果的列名，例如:appAccess）
-  * @param {boolean} args.sorted 排序方式
-  * @param {string} args.keyword 关键词查询
-  * @param {string} args.appId 应用id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   usageStatisticsForDimension: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'UsageStatisticsForDimension', args, options);
-   },
-  /**
-  * 获取应用日志
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {} args.queryType
-  * @param {array} args.operators 操作人id数组
-  * @param {array} args.appIds 应用id数组
-  * @param {array} args.worksheetIds 工作表id数组
-  * @param {array} args.modules 所属日志模块
-  * @param {array} args.operationTypes 操作类型
-  * @param {integer} args.pageIndex 当前页
-  * @param {integer} args.pageSize 页大小
-  * @param {array} args.columnNames 列名称
-  * @param {string} args.menuName 菜单名称
-  * @param {string} args.startDateTime 开始时间
-  * @param {string} args.endDateTime 结束时间
-  * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
-  * @param {boolean} args.isSingle 是否是单个应用
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getGlobalLogs: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'GetGlobalLogs', args, options);
-   },
-  /**
-  * 获取应用下工作表信息
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {array} args.appIds 应用ids
-  * @param {boolean} args.isFilterCustomPage 是否过滤自定义页面
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getWorksheetsUnderTheApp: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'GetWorksheetsUnderTheApp', args, options);
-   },
-  /**
-  * 开启密码锁
-  * @param {Object} args 请求参数
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.appId
-  * @param {string} args.password
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addLock: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'AddLock', args, options);
-   },
-  /**
-  * map解锁
-  * @param {Object} args 请求参数
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.appId
-  * @param {string} args.password
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   unlock: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'Unlock', args, options);
-   },
-  /**
-  * 修改锁定密码
-  * @param {Object} args 请求参数
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.appId
-  * @param {string} args.password
-  * @param {string} args.newPassword
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editLockPassword: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'EditLockPassword', args, options);
-   },
-  /**
-  * 重新锁定
-  * @param {Object} args 请求参数
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.appId 应用id
-  * @param {boolean} args.getSection 是否获取分组信息
-  * @param {boolean} args.getManager 是否获取管理员列表信息
-  * @param {boolean} args.getProject 获取组织信息
-  * @param {boolean} args.getLang 是否获取应用语种信息
-  * @param {boolean} args.isMobile 是否是移动端
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   resetLock: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'ResetLock', args, options);
-   },
-  /**
-  * 关闭应用锁
-  * @param {Object} args 请求参数
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType
-  * @param {string} args.clientId 客户端标识
-记录输入密码之后，页面刷新不用重复输入密码操作
-滑动过期
-  * @param {string} args.appId 应用id
-  * @param {boolean} args.getSection 是否获取分组信息
-  * @param {boolean} args.getManager 是否获取管理员列表信息
-  * @param {boolean} args.getProject 获取组织信息
-  * @param {boolean} args.getLang 是否获取应用语种信息
-  * @param {boolean} args.isMobile 是否是移动端
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   closeLock: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'CloseLock', args, options);
-   },
-  /**
-  * 校验升级文件
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用id
-  * @param {string} args.url 文件url
-  * @param {string} args.password 密码
-  * @param {string} args.fileName 文件名
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   checkUpgrade: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'CheckUpgrade', args, options);
-   },
-  /**
-  * 获取表升级详情
-  * @param {Object} args 请求参数
-  * @param {string} args.id
-  * @param {string} args.worksheetId 工作表id
-  * @param {string} args.appId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getWorksheetUpgrade: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'GetWorksheetUpgrade', args, options);
-   },
-  /**
-  * 升级
-  * @param {Object} args 请求参数
-  * @param {string} args.id 批次id
-  * @param {string} args.appId 应用id
-  * @param {string} args.url 导入文件链接（不带token的）
-  * @param {array} args.worksheets 勾选的升级的表
-  * @param {array} args.workflows 勾选升级的流
-  * @param {array} args.pages 勾选升级的页面
-  * @param {array} args.roles 勾选升级的角色
-  * @param {boolean} args.backupCurrentVersion 备份当前版本
-  * @param {boolean} args.matchOffice 是否匹配用户
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   upgrade: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'Upgrade', args, options);
-   },
-  /**
-  * 获取应用升级记录
-  * @param {Object} args 请求参数
-  * @param {string} args.appId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getUpgradeLogs: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'GetUpgradeLogs', args, options);
-   },
-  /**
-  * 获取mdy文件相关密码
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {string} args.url 文件url不带token
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getMdyInfo: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'GetMdyInfo', args, options);
-   },
-  /**
-  * 获取应用语种列表
-  * @param {Object} args 请求参数
-  * @param {string} args.appId
-  * @param {string} args.projectId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAppLangs: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'GetAppLangs', args, options);
-   },
-  /**
-  * 创建应用语言
-  * @param {Object} args 请求参数
-  * @param {string} args.appId
-  * @param {array} args.langTypes
-  * @param {string} args.projectId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   createAppLang: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'CreateAppLang', args, options);
-   },
-  /**
-  * 删除应用语言
-  * @param {Object} args 请求参数
-  * @param {string} args.appId
-  * @param {string} args.id
-  * @param {string} args.projectId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   deleteAppLang: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'DeleteAppLang', args, options);
-   },
-  /**
-  * 获取应用语言详情
-  * @param {Object} args 请求参数
-  * @param {string} args.appId
-  * @param {string} args.appLangId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAppLangDetail: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'GetAppLangDetail', args, options);
-   },
-  /**
-  * 编辑应用语言详情
-  * @param {Object} args 请求参数
-  * @param {string} args.appId
-  * @param {string} args.langId
-  * @param {string} args.id
-  * @param {string} args.parentId
-  * @param {string} args.correlationId
-  * @param {} args.type
-  * @param {object} args.data
-  * @param {string} args.projectId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editAppLang: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'EditAppLang', args, options);
-   },
-  /**
-  * 机器翻译
-  * @param {Object} args 请求参数
-  * @param {string} args.appId
-  * @param {string} args.comparisonLangId
-  * @param {string} args.targetLangId
-  * @param {} args.fillType
-  * @param {string} args.projectId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   machineTranslation: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'MachineTranslation', args, options);
-   },
-  /**
-  * 
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getAppStructureForER: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'GetAppStructureForER', args, options);
-   },
-  /**
-  * 获取组织语言
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {array} args.correlationIds 业务模块id（不需要筛选业务，不传就行）
-  * @param {integer} args.type 业务模块，0 = 组织名称，20 = 应用分组（不需要筛选业务，不传就行）
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProjectLangs: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'GetProjectLangs', args, options);
-   },
-  /**
-  * 批量获取业务类型组织语言
-  * @param {Object} args 请求参数
-  * @param {array} args.projectIds
-  * @param {integer} args.type 业务模块，0 = 组织名称，20 = 应用分组
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getsByProjectIds: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'GetsByProjectIds', args, options);
-   },
-  /**
-  * 编辑组织语言
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 组织id
-  * @param {string} args.correlationId 业务模块id
-  * @param {integer} args.type 业务模块，0 = 组织名称，20 = 应用分组
-  * @param {array} args.data 翻译数据
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editProjectLangs: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'EditProjectLangs', args, options);
-   },
-  /**
-  * 获取组织名称多语言(只能获取名称)
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getProjectLang: function (args, options = {}) {
-     
-     return mdyAPI('AppManagement', 'GetProjectLang', args, options);
-   },
-  /**
   * 添加角色
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
@@ -976,7 +490,7 @@ export default {
   /**
   * 刷新权限缓存
   * @param {Object} args 请求参数
-  * @param {string} args.appId
+  * @param {string} args.appId 应用id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1366,6 +880,7 @@ export default {
   * 获取绑定的微信公众号信息
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1591,6 +1106,7 @@ export default {
   * 创建工作流CSM
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {string} args.name 实体名称
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1686,6 +1202,7 @@ export default {
   * 获取应用数量信息
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -1743,5 +1260,618 @@ export default {
    restore: function (args, options = {}) {
      
      return mdyAPI('AppManagement', 'Restore', args, options);
+   },
+  /**
+  * 还原数据
+  * @param {Object} args 请求参数
+  * @param {string} args.id 任务id
+  * @param {string} args.projectId 组织id
+  * @param {string} args.appId 应用id
+  * @param {string} args.fileUrl 文件链接
+  * @param {string} args.fileName 文件名称
+  * @param {boolean} args.backupCurrentVersion 备份当前版本
+  * @param {string} args.dbInstanceId 数据库实例id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   restoreData: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'RestoreData', args, options);
+   },
+  /**
+  * 备份应用
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {boolean} args.containData 是否备份数据
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   backup: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'Backup', args, options);
+   },
+  /**
+  * 校验还原文件
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.fileUrl 文件url
+  * @param {string} args.fileName 文件名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkRestoreFile: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'CheckRestoreFile', args, options);
+   },
+  /**
+  * 获取tar文件上传状态
+  * @param {Object} args 请求参数
+  * @param {string} args.id 任务id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getTarTaskInfo: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetTarTaskInfo', args, options);
+   },
+  /**
+  * 使用情况统计分析
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.departmentId 部门id
+  * @param {boolean} args.depFlag true表示仅当强部门，false表示部门树
+  * @param {string} args.appId 应用id
+  * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
+  * @param {string} args.dateDemension &#34;1h&#34;:1小时 &#34;1d&#34;:1天 &#34;1w&#34;:1周 &#34;1M&#34;:1月 &#34;1q&#34;:1季度 &#34;1y&#34;:1年
+  * @param {boolean} args.isApp 表示是否是应用的使用分析
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   allUsageOverviewStatistics: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'AllUsageOverviewStatistics', args, options);
+   },
+  /**
+  * 应用汇总概览
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.keyWord 关键字搜索
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {string} args.sortFiled 排序字段
+  * @param {boolean} args.sorted 排序方式 true--asc false--desc
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   appUsageOverviewStatistics: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'AppUsageOverviewStatistics', args, options);
+   },
+  /**
+  * 不同维度使用情况统计(按应用，按成员)
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {integer} args.dayRange 天数范围 0 = 最近7天，1 = 最近一个月，2=最近一个季度，3=最近半年，4=最近一年
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {integer} args.dimension 维度 1-应用 2-用户
+  * @param {string} args.sortFiled 排序字段（返回结果的列名，例如:appAccess）
+  * @param {boolean} args.sorted 排序方式
+  * @param {string} args.keyword 关键词查询
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   usageStatisticsForDimension: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'UsageStatisticsForDimension', args, options);
+   },
+  /**
+  * 获取应用日志
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {} args.queryType
+  * @param {array} args.operators 操作人id数组
+  * @param {array} args.appIds 应用id数组
+  * @param {array} args.worksheetIds 工作表id数组
+  * @param {array} args.modules 所属日志模块
+  * @param {array} args.operationTypes 操作类型
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {array} args.columnNames 列名称
+  * @param {string} args.menuName 菜单名称
+  * @param {string} args.startDateTime 开始时间
+  * @param {string} args.endDateTime 结束时间
+  * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
+  * @param {boolean} args.isSingle 是否是单个应用
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getGlobalLogs: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetGlobalLogs', args, options);
+   },
+  /**
+  * 归档日志查询
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {} args.queryType
+  * @param {array} args.operators 操作人id数组
+  * @param {array} args.appIds 应用id数组
+  * @param {array} args.worksheetIds 工作表id数组
+  * @param {array} args.modules 所属日志模块
+  * @param {array} args.operationTypes 操作类型
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {array} args.columnNames 列名称
+  * @param {string} args.menuName 菜单名称
+  * @param {string} args.startDateTime 开始时间
+  * @param {string} args.endDateTime 结束时间
+  * @param {boolean} args.confirmExport 是否确认导出(超量的情况下传)
+  * @param {boolean} args.isSingle 是否是单个应用
+  * @param {string} args.archivedId 归档id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getArchivedGlobalLogs: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetArchivedGlobalLogs', args, options);
+   },
+  /**
+  * 获取归档
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.appId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getArchivedList: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetArchivedList', args, options);
+   },
+  /**
+  * 获取应用下工作表信息
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {array} args.appIds 应用ids
+  * @param {boolean} args.isFilterCustomPage 是否过滤自定义页面
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorksheetsUnderTheApp: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetWorksheetsUnderTheApp', args, options);
+   },
+  /**
+  * 开启密码锁
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
+  * @param {string} args.appId
+  * @param {string} args.password
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addLock: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'AddLock', args, options);
+   },
+  /**
+  * map解锁
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
+  * @param {string} args.appId
+  * @param {string} args.password
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   unlock: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'Unlock', args, options);
+   },
+  /**
+  * 修改锁定密码
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
+  * @param {string} args.appId
+  * @param {string} args.password
+  * @param {string} args.newPassword
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editLockPassword: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'EditLockPassword', args, options);
+   },
+  /**
+  * 重新锁定
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
+  * @param {string} args.appId 应用id
+  * @param {boolean} args.getSection 是否获取分组信息
+  * @param {boolean} args.getManager 是否获取管理员列表信息
+  * @param {boolean} args.getProject 获取组织信息
+  * @param {boolean} args.getLang 是否获取应用语种信息
+  * @param {boolean} args.isMobile 是否是移动端
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   resetLock: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'ResetLock', args, options);
+   },
+  /**
+  * 关闭应用锁
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.clientId 客户端标识
+记录输入密码之后，页面刷新不用重复输入密码操作
+滑动过期
+  * @param {string} args.appId 应用id
+  * @param {boolean} args.getSection 是否获取分组信息
+  * @param {boolean} args.getManager 是否获取管理员列表信息
+  * @param {boolean} args.getProject 获取组织信息
+  * @param {boolean} args.getLang 是否获取应用语种信息
+  * @param {boolean} args.isMobile 是否是移动端
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   closeLock: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'CloseLock', args, options);
+   },
+  /**
+  * 校验升级文件
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.url 文件url
+  * @param {string} args.password 密码
+  * @param {string} args.fileName 文件名
+  * @param {string} args.batchId 批量导入升级的批次id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkUpgrade: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'CheckUpgrade', args, options);
+   },
+  /**
+  * 获取表升级详情
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.appId
+  * @param {string} args.batchId 批量升级批次id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorksheetUpgrade: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetWorksheetUpgrade', args, options);
+   },
+  /**
+  * 升级
+  * @param {Object} args 请求参数
+  * @param {string} args.id 批次id
+  * @param {string} args.appId 应用id
+  * @param {string} args.url 导入文件链接（不带token的）
+  * @param {array} args.worksheets 勾选的升级的表
+  * @param {array} args.workflows 勾选升级的流
+  * @param {array} args.pages 勾选升级的页面
+  * @param {array} args.roles 勾选升级的角色
+  * @param {boolean} args.backupCurrentVersion 备份当前版本
+  * @param {boolean} args.matchOffice 是否匹配用户
+  * @param {boolean} args.roleHide 不更新角色显影配置（隐藏应用）
+  * @param {boolean} args.noUpgradeStyle 不升级应用外观，导航
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   upgrade: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'Upgrade', args, options);
+   },
+  /**
+  * 获取应用升级记录
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getUpgradeLogs: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetUpgradeLogs', args, options);
+   },
+  /**
+  * 获取mdy文件相关密码
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.url 文件url不带token
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMdyInfo: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetMdyInfo', args, options);
+   },
+  /**
+  * 批量导出应用
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.password 密码
+  * @param {boolean} args.locked 是否加锁
+  * @param {string} args.lockPassword 锁密码
+  * @param {array} args.appConfigs 导出应用配置
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   batchExportApp: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'BatchExportApp', args, options);
+   },
+  /**
+  * 获取组织下同源应用列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.unionId 同源id
+  * @param {integer} args.status 应用状态  0=关闭 1=启用  （可空 ，不传查全部）
+  * @param {} args.order
+  * @param {integer} args.pageIndex 页数（从1开始）
+  * @param {integer} args.pageSize 每页显示数
+  * @param {string} args.keyword 搜索关键字（支持名称和拥有者名称）
+  * @param {integer} args.filterDBType 数据筛选类型（0：全部，1= 默认数据库，2 =专属数据库，DbInstanceId传具体id）
+  * @param {string} args.dbInstanceId 数据库实例id
+  * @param {array} args.excludeAppIds 需要排除的应用id数组
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getsByUnionId: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetsByUnionId', args, options);
+   },
+  /**
+  * 获取批量导入升级批次id
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getBatchId: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetBatchId', args, options);
+   },
+  /**
+  * 校验批量升级mdy文件
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.batchId
+  * @param {string} args.url mdy链接（不要带token）
+  * @param {string} args.password mdy密码
+  * @param {boolean} args.removed 是否是移除mdy操作
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   batchImportCheck: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'BatchImportCheck', args, options);
+   },
+  /**
+  * 批量导入升级
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.batchId 批次id
+  * @param {array} args.datas 批量导入升级业务数据
+  * @param {boolean} args.noUpgradeStyle 不升级应用外观，导航
+  * @param {boolean} args.matchOffice 是否匹配组织人员等信息
+  * @param {boolean} args.roleHide 不更新角色显影配置（隐藏应用）
+  * @param {boolean} args.backupCurrentVersion 是否备份当前应用
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   batchImport: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'BatchImport', args, options);
+   },
+  /**
+  * 获取应用语种列表
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.projectId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAppLangs: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetAppLangs', args, options);
+   },
+  /**
+  * 创建应用语言
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {array} args.langTypes 应用语种数组
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   createAppLang: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'CreateAppLang', args, options);
+   },
+  /**
+  * 删除应用语言
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.id 应用语种id
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   deleteAppLang: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'DeleteAppLang', args, options);
+   },
+  /**
+  * 获取应用语言详情
+  * @param {Object} args 请求参数
+  * @param {string} args.appId
+  * @param {string} args.appLangId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAppLangDetail: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetAppLangDetail', args, options);
+   },
+  /**
+  * 编辑应用语言详情
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.langId 语种id
+  * @param {string} args.id 节点id
+  * @param {string} args.parentId 父级节点id
+  * @param {string} args.correlationId 关联id(应用id，分组id，工作表id等等)
+  * @param {} args.type
+  * @param {object} args.data 翻译数据
+  * @param {string} args.projectId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editAppLang: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'EditAppLang', args, options);
+   },
+  /**
+  * 机器翻译
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.comparisonLangId 对照语种id
+  * @param {string} args.targetLangId 目标语种id
+  * @param {} args.fillType
+  * @param {string} args.projectId 组织id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   machineTranslation: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'MachineTranslation', args, options);
+   },
+  /**
+  * 
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAppStructureForER: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetAppStructureForER', args, options);
+   },
+  /**
+  * 获取组织语言
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {array} args.correlationIds 业务模块id（不需要筛选业务，不传就行）
+  * @param {integer} args.type 业务模块，0 = 组织名称，20 = 应用分组（不需要筛选业务，不传就行）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getProjectLangs: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetProjectLangs', args, options);
+   },
+  /**
+  * 批量获取业务类型组织语言
+  * @param {Object} args 请求参数
+  * @param {array} args.projectIds
+  * @param {integer} args.type 业务模块，0 = 组织名称，20 = 应用分组
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getsByProjectIds: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetsByProjectIds', args, options);
+   },
+  /**
+  * 编辑组织语言
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 组织id
+  * @param {string} args.correlationId 业务模块id
+  * @param {integer} args.type 业务模块，0 = 组织名称，20 = 应用分组
+  * @param {array} args.data 翻译数据
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editProjectLangs: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'EditProjectLangs', args, options);
+   },
+  /**
+  * 获取组织名称多语言(只能获取名称)
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getProjectLang: function (args, options = {}) {
+     
+     return mdyAPI('AppManagement', 'GetProjectLang', args, options);
    },
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import Clipboard from 'react-clipboard.js';
+import copy from 'copy-to-clipboard';
 import Ajax from 'src/api/workWeiXin';
 import { LoadDiv } from 'ming-ui';
 import { compareProps } from 'pages/PageHeader/util.js';
@@ -12,6 +13,10 @@ import fsImg5 from './img/5.png';
 import fsImg6 from './img/6.png';
 import fsImg7 from './img/7.png';
 import fsImg8 from './img/8.png';
+import scan1 from '../../workwx/workwxSyncCourse/img/scan1.png';
+import scan2 from './img/scan2.png';
+import scan4 from './img/scan4.png';
+import scan5 from './img/scan5.png';
 import './style.less';
 import moment from 'moment';
 
@@ -21,6 +26,7 @@ export default class WorkwxSyncCourse extends React.Component {
     this.state = {
       homeUrl: '',
       loading: true,
+      scanSafeDomain: '',
     };
   }
 
@@ -34,9 +40,11 @@ export default class WorkwxSyncCourse extends React.Component {
       apkId: match.params.apkId,
     }).then(result => {
       if (result) {
+        const { homeUrl, scanSafeDomain } = result;
         this.setState({
           loading: false,
-          homeUrl: result,
+          homeUrl,
+          scanSafeDomain,
         });
       } else {
         this.setState({
@@ -129,6 +137,40 @@ export default class WorkwxSyncCourse extends React.Component {
     );
   };
 
+  renderScanContent = () => {
+    const { scanSafeDomain } = this.state;
+
+    return (
+      <div className="scanWorkwx" style={{ height: 2240 }}>
+        <h3 className="Font18 Gray mTop40">{_l('飞书扫码登录（可选）')}</h3>
+        <p className="mTop24">{_l('开启后，在二级域名下使用钉钉扫一扫，直接登录')}</p>
+        <p className="Font14 Gray_75 mTop20 LineHeight22">{_l('1.设置二级域名')}</p>
+        <p className="mTop10">{_l('如果您还没有申请二级域名，请前往 组织 — 组织信息 — 二级域名 处进行配置。')}</p>
+        <img src={scan1} />
+        <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('2.添加重定向 URL')}</p>
+        <div className="inputList mTop20">
+          <span className="inputTitle">{_l('重定向 URL')}</span>
+          <input type="text" className="inputBox" readOnly value={scanSafeDomain} />
+          <span
+            className="copyBtn"
+            onClick={() => {
+              copy(scanSafeDomain);
+              alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
+            }}
+          >
+            {_l('复制')}
+          </span>
+        </div>
+        <img src={scan2} />
+        <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('3.启用该功能')}</p>
+        <p className="mTop10">{_l('回到组织管理后台的飞书对接部分，开启第四步的功能开关')}</p>
+        <img src={scan4} />
+        <p className="mTop24">{_l('完成后，从二级域名下登录，点击飞书的图标，扫一扫即可')}</p>
+        <img src={scan5} />
+      </div>
+    );
+  };
+
   render() {
     if (this.state.loading) {
       return (
@@ -142,6 +184,7 @@ export default class WorkwxSyncCourse extends React.Component {
         <div className="feishuSyncBox card">
           <h1 className="Gray">{_l('获取对接信息')}</h1>
           {this.renderDing()}
+          {this.renderScanContent()}
         </div>
       </div>
     );

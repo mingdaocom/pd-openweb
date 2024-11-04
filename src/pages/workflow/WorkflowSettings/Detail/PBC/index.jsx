@@ -15,6 +15,8 @@ import { v4 as uuidv4, validate } from 'uuid';
 import cx from 'classnames';
 import _ from 'lodash';
 import styled from 'styled-components';
+import process from '../../../api/process';
+import appManagement from 'src/api/appManagement';
 
 const Header = styled.div`
   .w180 {
@@ -576,7 +578,13 @@ export default class PBC extends Component {
 
     return (
       <Fragment>
-        <div className="bold">{_l('选择业务流程')}</div>
+        <div className="flexRow">
+          <div className="bold flex">{_l('选择业务流程')}</div>
+          <div className="ThemeColor3 ThemeHoverColor2 pointer" onClick={this.createNewPBPFlow}>
+            + {_l('新建封装业务流程')}
+          </div>
+        </div>
+
         {this.renderSelectPBC()}
 
         {data.appId && (
@@ -750,6 +758,27 @@ export default class PBC extends Component {
       </Fragment>
     );
   }
+
+  /**
+   * 新建封装业务流程
+   */
+  createNewPBPFlow = () => {
+    const { relationId, closeDetail } = this.props;
+
+    process
+      .addProcess({
+        companyId: '',
+        relationId,
+        relationType: 2,
+        startEventAppType: 17,
+        name: _l('未命名业务流程'),
+      })
+      .then(res => {
+        appManagement.addWorkflow({ projectId: res.companyId, name: _l('未命名业务流程') });
+        window.open(`/workflowedit/${res.id}`);
+        closeDetail();
+      });
+  };
 
   render() {
     const { data, showOtherPBC } = this.state;

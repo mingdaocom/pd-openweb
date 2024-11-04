@@ -105,7 +105,7 @@ const NoDataContent = styled.div`
 `;
 
 export default function OnlySyncStep(props) {
-  const { onClose, source, dest, setSubmitData } = props;
+  const { onClose, source, dest, setSubmitData, currentProjectId } = props;
   const [currentTab, setCurrentTab] = useState({});
   const [optionList, setOptionList] = useSetState({ dbOptionList: [], sheetOptionList: [] });
   const [sheetData, setSheetData] = useSetState({});
@@ -117,7 +117,7 @@ export default function OnlySyncStep(props) {
 
   const isSourceAppType = source.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
   const isDestAppType = dest.type === DATABASE_TYPE.APPLICATION_WORKSHEET;
-  const hasTimingSetting = source.type === DATABASE_TYPE.SAP_HANA;
+  const hasTimingSetting = source.type === DATABASE_TYPE.HANA;
   const destHasSchema = dest.hasSchema;
 
   const onChangeStateData = (state, setState, options) => {
@@ -181,7 +181,7 @@ export default function OnlySyncStep(props) {
 
   useEffect(() => {
     if (!isDestAppType) {
-      dataSourceApi.getDatabases({ projectId: props.currentProjectId, datasourceId: dest.id }).then(res => {
+      dataSourceApi.getDatabases({ projectId: currentProjectId, datasourceId: dest.id }).then(res => {
         if (res) {
           const dbOptionList = res.map(item => {
             return { label: item, value: item };
@@ -264,7 +264,7 @@ export default function OnlySyncStep(props) {
               : {};
 
           const data = {
-            projectId: props.currentProjectId,
+            projectId: currentProjectId,
             owner: md.global.Account.accountId,
             sourceNode: {
               nodeId: '1',
@@ -294,7 +294,7 @@ export default function OnlySyncStep(props) {
               config: {
                 dataDestId: dest.id,
                 dbName: _.get(sheetData, [db, table, 'dbName']),
-                tableName: _.get(sheetData, [db, table, 'sheetName']),
+                tableName: _.get(sheetData, [db, table, 'sheetName']) || _.get(sheetData, [db, table, 'tableName']),
                 schema: _.get(sheetData, [db, table, 'schemaName']),
                 createTable:
                   _.get(sheetData, [db, table, 'sheetCreateType']) === CREATE_TYPE.SELECT_EXIST ? false : true,
@@ -315,6 +315,10 @@ export default function OnlySyncStep(props) {
                   deleteTrigger: !!_.get(sheetData, [db, table, 'deleteTrigger']),
                 }
               : undefined,
+            scheduleConfig:
+              source.type === DATABASE_TYPE.HANA
+                ? _.get(sheetData, [db, table, 'scheduleConfig']) || { readIntervalType: 0, readType: 0 }
+                : undefined,
             tableList: _.get(optionList, [currentTab.db, currentTab.table, 'sheetOptionList']) || [],
             destPkCount: (_.get(destFields, [db, table, 'fields']) || []).filter(item => item.isPk).length,
           };
@@ -371,7 +375,7 @@ export default function OnlySyncStep(props) {
   const loadTableFields = () => {
     setLoading(true);
     const params = {
-      projectId: props.currentProjectId,
+      projectId: currentProjectId,
       datasourceId: source.id,
       dbName: source.type === DATABASE_TYPE.KAFKA ? currentTab.tableName : currentTab.db,
       schema: currentTab.schema,
@@ -441,17 +445,15 @@ export default function OnlySyncStep(props) {
 
     if (destHasSchema) {
       //获取指定数据库下schema列表
-      dataSourceApi
-        .getSchemas({ projectId: props.currentProjectId, datasourceId: dest.id, dbName: db.value })
-        .then(res => {
-          if (res) {
-            const schemaOptionList = res.map(item => {
-              return { label: item, value: item };
-            });
-            onChangeStateData(sheetData, setSheetData, { dbName: db.value, schemaName: null, sheetNameValue: null });
-            onChangeStateData(optionList, setOptionList, { schemaOptionList });
-          }
-        });
+      dataSourceApi.getSchemas({ projectId: currentProjectId, datasourceId: dest.id, dbName: db.value }).then(res => {
+        if (res) {
+          const schemaOptionList = res.map(item => {
+            return { label: item, value: item };
+          });
+          onChangeStateData(sheetData, setSheetData, { dbName: db.value, schemaName: null, sheetNameValue: null });
+          onChangeStateData(optionList, setOptionList, { schemaOptionList });
+        }
+      });
     } else {
       onChangeStateData(sheetData, setSheetData, { dbName: db.value, sheetNameValue: null });
     }
@@ -548,7 +550,7 @@ export default function OnlySyncStep(props) {
       });
     } else {
       const params = {
-        projectId: props.currentProjectId,
+        projectId: currentProjectId,
         datasourceId: dest.id,
         dbName: _.get(sheetData, [currentTab.db, currentTab.table, 'dbName']),
         schema: _.get(sheetData, [currentTab.db, currentTab.table, 'schemaName']),
@@ -753,7 +755,17 @@ export default function OnlySyncStep(props) {
     return (
       <div className="timingSettingWrapper">
         <div className="Font14 bold mBottom16">{_l('定时设置')}</div>
-        <TimingSetting showInDrawer={false} />
+        <TimingSetting
+          showInDrawer={false}
+          projectId={currentProjectId}
+          sourceId={source.id}
+          dbName={currentTab.db}
+          schema={currentTab.schema}
+          tableName={currentTab.table}
+          sourceFields={_.get(sourceFields, [currentTab.db, currentTab.table, 'fields']) || []}
+          settingValue={_.get(sheetData, [currentTab.db, currentTab.table, 'scheduleConfig'])}
+          onChange={scheduleConfig => onChangeStateData(sheetData, setSheetData, { scheduleConfig })}
+        />
       </div>
     );
   };
@@ -879,7 +891,7 @@ export default function OnlySyncStep(props) {
                               onChangeStateData(optionList, setOptionList, { sheetOptionList })
                             }
                             onChangeTable={onChangeSheet}
-                            projectId={props.currentProjectId}
+                            projectId={currentProjectId}
                             datasourceId={dest.id}
                             dbName={_.get(sheetData, [currentTab.db, currentTab.table, 'dbName'])}
                             schema={_.get(sheetData, [currentTab.db, currentTab.table, 'schemaName'])}
@@ -898,7 +910,10 @@ export default function OnlySyncStep(props) {
                         ) : (
                           <Input
                             className="mBottom20 w100"
-                            value={_.get(sheetData, [currentTab.db, currentTab.table, 'sheetName'])}
+                            value={
+                              _.get(sheetData, [currentTab.db, currentTab.table, 'sheetName']) ||
+                              _.get(sheetData, [currentTab.db, currentTab.table, 'tableName'])
+                            }
                             onBlur={event =>
                               onChangeStateData(sheetData, setSheetData, {
                                 sheetName: event.target.value.replace(namePattern, ''),

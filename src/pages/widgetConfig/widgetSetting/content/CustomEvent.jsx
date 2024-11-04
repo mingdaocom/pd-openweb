@@ -164,7 +164,9 @@ export default function CustomEvent(props) {
       case ACTION_VALUE_ENUM.READONLY:
       case ACTION_VALUE_ENUM.EDIT:
         const textArr = getTextById(allControls, actionItems, actionType) || [];
-        return <div className="textCon">{isAll ? _l('所有字段') : textArr.map(cur => cur.name).join(', ')}</div>;
+        return (
+          <div className="textCon breakAll">{isAll ? _l('所有字段') : textArr.map(cur => cur.name).join(', ')}</div>
+        );
       // 错误提示
       case ACTION_VALUE_ENUM.ERROR:
         return (

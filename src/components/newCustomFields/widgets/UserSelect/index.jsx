@@ -1,11 +1,11 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { FROM } from '../../tools/config';
-import { UserHead } from 'ming-ui';
+import { UserHead, SortableList } from 'ming-ui';
 import { quickSelectUser } from 'ming-ui/functions';
 import cx from 'classnames';
 import SelectUser from 'mobile/components/SelectUser';
-import { browserIsMobile, getCurrentProject } from 'src/util';
+import { browserIsMobile } from 'src/util';
 import { dealUserRange } from '../../tools/utils';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import _ from 'lodash';
@@ -136,55 +136,56 @@ export default class Widgets extends Component {
     }
   }
 
+  renderItem({ item, dragging }) {
+    const { projectId, disabled, from, appId, dataSource } = this.props;
+    const isMobile = browserIsMobile();
+
+    return (
+      <div className={cx('customFormControlTags', { selected: isMobile && !disabled })} key={item.accountId}>
+        {from === FROM.SHARE || from === FROM.WORKFLOW ? (
+          <div class="cursorDefault userHead InlineBlock" style={{ width: 26, height: 26 }}>
+            <img class="circle" width="26" height="26" src={item.avatar} />
+          </div>
+        ) : (
+          <UserHead
+            projectId={projectId}
+            className="userHead InlineBlock"
+            key={`UserHead-${item.accountId}`}
+            appId={dataSource ? undefined : appId}
+            user={{
+              userHead: item.avatar,
+              accountId: item.accountId,
+            }}
+            size={26}
+            disabled={dragging}
+          />
+        )}
+        <span className="ellipsis mLeft8" style={{ maxWidth: 200 }}>
+          {item.name || item.fullname || item.fullName}
+        </span>
+
+        {!disabled && <i className="icon-minus-square Font16 tagDel" onClick={() => this.removeUser(item.accountId)} />}
+      </div>
+    );
+  }
+
   render() {
-    const {
-      projectId,
-      disabled,
-      enumDefault,
-      from,
-      formData = [],
-      worksheetId,
-      controlId,
-      appId,
-      dataSource,
-      masterData = {},
-    } = this.props;
+    const { projectId, disabled, enumDefault, formData = [], appId, masterData = {}, onChange } = this.props;
     const { showSelectUser } = this.state;
     const value = this.getUserValue();
-    const isMobile = browserIsMobile();
+
     return (
       <div className="customFormControlBox customFormControlUser">
-        {value.map((item, index) => {
-          return (
-            <div className={cx('customFormControlTags', { selected: isMobile && !disabled })} key={index}>
-              {from === FROM.SHARE || from === FROM.WORKFLOW ? (
-                <div class="cursorDefault userHead InlineBlock" style={{ width: 26, height: 26 }}>
-                  <img class="circle" width="26" height="26" src={item.avatar} />
-                </div>
-              ) : (
-                <UserHead
-                  projectId={projectId}
-                  className="userHead InlineBlock"
-                  alwaysBindCard
-                  key={index}
-                  appId={dataSource ? undefined : appId}
-                  user={{
-                    userHead: item.avatar,
-                    accountId: item.accountId,
-                  }}
-                  size={26}
-                />
-              )}
-              <span className="ellipsis mLeft8" style={{ maxWidth: 200 }}>
-                {item.name || item.fullname || item.fullName}
-              </span>
-
-              {!disabled && (
-                <i className="icon-minus-square Font16 tagDel" onClick={() => this.removeUser(item.accountId)} />
-              )}
-            </div>
-          );
-        })}
+        <SortableList
+          items={value}
+          canDrag={!disabled && enumDefault !== 0}
+          itemKey="accountId"
+          itemClassName="inlineFlex grab"
+          direction="vertical"
+          renderBody
+          renderItem={item => this.renderItem(item)}
+          onSortEnd={items => onChange(JSON.stringify(items))}
+        />
 
         {!disabled && (
           <div

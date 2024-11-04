@@ -191,7 +191,7 @@ export default function ControlsSetting(props) {
                   {it.expand && it.type === 52 && <div className="Relative sectionLiCon">{renderLi(sectionLi)}</div>}
                 </div>
               )}
-              {it.type === 14 && renderFileRadio(it.controlId)}
+              {it.type === 14 && isChecked && renderFileRadio(it.controlId)}
             </div>
           );
         })}
@@ -255,7 +255,7 @@ export default function ControlsSetting(props) {
                 }
                 text={it.controlName || _l('未命名')}
               />
-              {it.type === 14 && renderFileRadio(`${list.controlId}_${it.controlId}`)}
+              {it.type === 14 && it.checked && renderFileRadio(`${list.controlId}_${it.controlId}`)}
             </React.Fragment>
           );
         })}

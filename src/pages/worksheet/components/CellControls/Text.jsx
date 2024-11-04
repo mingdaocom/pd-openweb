@@ -230,7 +230,7 @@ export default class Text extends React.Component {
       oldValue: value,
       value,
     });
-    updateEditingStatus(false);
+    updateEditingStatus(false, undefined, { value });
   };
 
   handleChange = value => {

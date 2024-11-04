@@ -1,641 +1,5 @@
 export default {
   /**
-  * 修改打印模板筛选条件
-  * @param {Object} args 请求参数
-  * @param {string} args.id
-  * @param {array} args.filters 筛选条件
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editPrintFilter: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'EditPrintFilter', args, options);
-   },
-  /**
-  * 修改模板下载权限
-  * @param {Object} args 请求参数
-  * @param {string} args.id 打印模板id
-  * @param {} args.allowDownloadPermission
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editTemplateDownloadPermission: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'EditTemplateDownloadPermission', args, options);
-   },
-  /**
-  * 修改打印模板排序
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId
-  * @param {string} args.worksheetId
-  * @param {array} args.sortItems
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editPrintTemplateSort: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'EditPrintTemplateSort', args, options);
-   },
-  /**
-  * 删除打印模板
-  * @param {Object} args 请求参数
-  * @param {string} args.id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   deletePrint: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'DeletePrint', args, options);
-   },
-  /**
-  * 获取 工作表 索引字段配置
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表Id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getRowIndexes: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetRowIndexes', args, options);
-   },
-  /**
-  * 新增 工作表行内容表索引
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表Id
-  * @param {string} args.customeIndexName 自定义索引名称
-  * @param {array} args.indexFields 索引字段
-  * @param {boolean} args.uniqueIndex 是否 唯一索引
-  * @param {boolean} args.wildcardIndex 是否 通配符文本索引
-  * @param {boolean} args.sparseIndex 是否 稀疏索引
-  * @param {boolean} args.backgroundIndex 是否 后台索引
-  * @param {string} args.appId AppId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addRowIndex: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'AddRowIndex', args, options);
-   },
-  /**
-  * 更新 工作表行内容表索引
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表Id
-  * @param {string} args.customeIndexName 自定义索引名称
-  * @param {array} args.indexFields 索引字段
-  * @param {boolean} args.uniqueIndex 是否 唯一索引
-  * @param {boolean} args.wildcardIndex 是否 通配符文本索引
-  * @param {boolean} args.sparseIndex 是否 稀疏索引
-  * @param {boolean} args.backgroundIndex 是否 后台索引
-  * @param {string} args.indexConfigId 索引配置Id
-（系统级索引可为空）
-  * @param {string} args.appId AppId
-  * @param {boolean} args.isSystemIndex 是否 系统级索引
-  * @param {string} args.systemIndexName 系统级索引名称
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateRowIndex: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'UpdateRowIndex', args, options);
-   },
-  /**
-  * 更新 工作表行内容表索引名称
-  * @param {Object} args 请求参数
-  * @param {string} args.appId AppId
-  * @param {string} args.worksheetId 工作表Id
-  * @param {string} args.indexConfigId 索引配置Id
-  * @param {string} args.customeIndexName 自定义索引名称
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateRowIndexCustomeIndexName: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'UpdateRowIndexCustomeIndexName', args, options);
-   },
-  /**
-  * 移除 工作表行内容表索引
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用Id
-  * @param {string} args.worksheetId 工作表Id
-  * @param {string} args.indexConfigId 索引配置Id
-  * @param {boolean} args.isSystemIndex 是否 系统级索引
-  * @param {string} args.systemIndexName 系统级索引名称
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   removeRowIndex: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'RemoveRowIndex', args, options);
-   },
-  /**
-  * 获取链接行记录
-  * @param {Object} args 请求参数
-  * @param {string} args.ticket 验证码返票据
-  * @param {string} args.randStr 票据随机字符串
-  * @param {} args.captchaType
-  * @param {string} args.id
-  * @param {string} args.password
-  * @param {} args.langType
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getLinkDetail: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetLinkDetail', args, options);
-   },
-  /**
-  * 获取工作表创建记录表单提交设置信息
-  * @param {Object} args 请求参数
-  * @param {string} args.workSheetId 工作表Id
-  * @param {string} args.appId 应用id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFormSubmissionSettings: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetFormSubmissionSettings', args, options);
-   },
-  /**
-  * 更新工作表创建记录表单设置信息
-  * @param {Object} args 请求参数
-  * @param {string} args.workSheetId 工作表id
-  * @param {string} args.appId 应用id
-  * @param {object} args.advancedSetting 配置项数据
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editWorksheetSetting: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'EditWorksheetSetting', args, options);
-   },
-  /**
-  * 获取功能系统开关配置
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getSwitch: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetSwitch', args, options);
-   },
-  /**
-  * 更新系统配置开关（单个）
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表id
-  * @param {boolean} args.state 开关
-  * @param {} args.type
-  * @param {} args.roleType
-  * @param {array} args.viewIds
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editSwitch: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'EditSwitch', args, options);
-   },
-  /**
-  * 更新系统配置开关（批量）
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表id
-  * @param {array} args.switchList
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   batchEditSwitch: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'BatchEditSwitch', args, options);
-   },
-  /**
-  * 获取功能系统开关（包含管理员判断）
-  * @param {Object} args 请求参数
-  * @param {string} args.appId 应用管理员
-  * @param {string} args.worksheetId 工作表id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getSwitchPermit: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetSwitchPermit', args, options);
-   },
-  /**
-  * 获取工作表信息
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表id
-  * @param {string} args.appId 应用id
-  * @param {integer} args.version 版本  1=v1  2=v2
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getWorksheetApiInfo: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetWorksheetApiInfo', args, options);
-   },
-  /**
-  * 获取应用下选项集
-  * @param {Object} args 请求参数
-  * @param {string} args.collectionId
-  * @param {array} args.collectionIds
-  * @param {string} args.appId
-  * @param {string} args.worksheetId
-  * @param {array} args.options
-  * @param {string} args.name
-  * @param {boolean} args.colorful
-  * @param {boolean} args.enableScore
-  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getCollectionsByAppId: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetCollectionsByAppId', args, options);
-   },
-  /**
-  * 保存选项集
-  * @param {Object} args 请求参数
-  * @param {string} args.collectionId
-  * @param {array} args.collectionIds
-  * @param {string} args.appId
-  * @param {string} args.worksheetId
-  * @param {array} args.options
-  * @param {string} args.name
-  * @param {boolean} args.colorful
-  * @param {boolean} args.enableScore
-  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   saveOptionsCollection: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'SaveOptionsCollection', args, options);
-   },
-  /**
-  * 更新选项集所属应用
-  * @param {Object} args 请求参数
-  * @param {string} args.collectionId
-  * @param {array} args.collectionIds
-  * @param {string} args.appId
-  * @param {string} args.worksheetId
-  * @param {array} args.options
-  * @param {string} args.name
-  * @param {boolean} args.colorful
-  * @param {boolean} args.enableScore
-  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateOptionsCollectionAppId: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'UpdateOptionsCollectionAppId', args, options);
-   },
-  /**
-  * 删除选项集
-  * @param {Object} args 请求参数
-  * @param {string} args.collectionId
-  * @param {array} args.collectionIds
-  * @param {string} args.appId
-  * @param {string} args.worksheetId
-  * @param {array} args.options
-  * @param {string} args.name
-  * @param {boolean} args.colorful
-  * @param {boolean} args.enableScore
-  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   deleteOptionsCollection: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'DeleteOptionsCollection', args, options);
-   },
-  /**
-  * 获取选项集详细数据
-  * @param {Object} args 请求参数
-  * @param {string} args.collectionId
-  * @param {array} args.collectionIds
-  * @param {string} args.appId
-  * @param {string} args.worksheetId
-  * @param {array} args.options
-  * @param {string} args.name
-  * @param {boolean} args.colorful
-  * @param {boolean} args.enableScore
-  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getCollectionByCollectId: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetCollectionByCollectId', args, options);
-   },
-  /**
-  * 批量获取选项集
-  * @param {Object} args 请求参数
-  * @param {string} args.collectionId
-  * @param {array} args.collectionIds
-  * @param {string} args.appId
-  * @param {string} args.worksheetId
-  * @param {array} args.options
-  * @param {string} args.name
-  * @param {boolean} args.colorful
-  * @param {boolean} args.enableScore
-  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getCollectionsByCollectIds: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetCollectionsByCollectIds', args, options);
-   },
-  /**
-  * 获取选项集引用的控件列表
-  * @param {Object} args 请求参数
-  * @param {string} args.collectionId
-  * @param {array} args.collectionIds
-  * @param {string} args.appId
-  * @param {string} args.worksheetId
-  * @param {array} args.options
-  * @param {string} args.name
-  * @param {boolean} args.colorful
-  * @param {boolean} args.enableScore
-  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getQuoteControlsById: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetQuoteControlsById', args, options);
-   },
-  /**
-  * 获取添加选项接集接口信息
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addOrUpdateOptionSetApiInfo: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'AddOrUpdateOptionSetApiInfo', args, options);
-   },
-  /**
-  * 获取选项接集列表接口信息
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   optionSetListApiInfo: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'OptionSetListApiInfo', args, options);
-   },
-  /**
-  * 工作表OCR识别
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表id
-  * @param {string} args.controlId ocr控件id
-  * @param {array} args.data ocr映射url数组(不管单个还是多个批量,都是数组)
-remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码后不超过 7M，分辨率建议500*800以上，支持PNG、JPG、JPEG、BMP格式。建议卡片部分占据图片2/3以上。 建议图片存储于腾讯云，可保障更高的下载速度和稳定性
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   ocr: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'Ocr', args, options);
-   },
-  /**
-  * get单个工作表查询
-  * @param {Object} args 请求参数
-  * @param {string} args.id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getQuery: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetQuery', args, options);
-   },
-  /**
-  * worksheetId 批量获取工作表查询
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getQueryBySheetId: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetQueryBySheetId', args, options);
-   },
-  /**
-  * 保存工作表查询
-  * @param {Object} args 请求参数
-  * @param {string} args.id id 新建为空，修改传原值
-  * @param {string} args.worksheetId 本表id
-  * @param {string} args.controlId 默认值控件id
-  * @param {string} args.sourceId 来源id （这里值得工作表id）
-  * @param {integer} args.sourceType 1 = 本表，2 = 他表
-  * @param {array} args.items 筛选条件
-  * @param {array} args.configs 映射字段
-  * @param {integer} args.moreType 0 = 获取第一条时，按配置来，1= 不赋值
-  * @param {array} args.moreSort 排序
-  * @param {integer} args.queryCount 查询条数
-  * @param {integer} args.resultType 结果类型 0=查询到记录，1=仅查询到一条记录，2=查询到多条记录，3=未查询到记录
-  * @param {integer} args.eventType 0 = 常规字段默认值，1 = 表单事件
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   saveQuery: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'SaveQuery', args, options);
-   },
-  /**
-  * 保存筛选组件
-  * @param {Object} args 请求参数
-  * @param {string} args.filtersGroupId 筛选组件ID
-  * @param {string} args.name 名称
-  * @param {boolean} args.enableBtn 开启搜索按钮
-  * @param {array} args.filters filters
-  * @param {object} args.advancedSetting 视图高级配置
-  * @param {string} args.appId 应用ID
-  * @param {array} args.filtersGroupIds 批量获取和删除使用
-  * @param {string} args.pageId 自定义页面ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   saveFiltersGroup: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'SaveFiltersGroup', args, options);
-   },
-  /**
-  * 获取筛选组件
-  * @param {Object} args 请求参数
-  * @param {string} args.filtersGroupId 筛选组件ID
-  * @param {string} args.name 名称
-  * @param {boolean} args.enableBtn 开启搜索按钮
-  * @param {array} args.filters filters
-  * @param {object} args.advancedSetting 视图高级配置
-  * @param {string} args.appId 应用ID
-  * @param {array} args.filtersGroupIds 批量获取和删除使用
-  * @param {string} args.pageId 自定义页面ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFiltersGroupByIds: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetFiltersGroupByIds', args, options);
-   },
-  /**
-  * 删除筛选组件
-  * @param {Object} args 请求参数
-  * @param {string} args.filtersGroupId 筛选组件ID
-  * @param {string} args.name 名称
-  * @param {boolean} args.enableBtn 开启搜索按钮
-  * @param {array} args.filters filters
-  * @param {object} args.advancedSetting 视图高级配置
-  * @param {string} args.appId 应用ID
-  * @param {array} args.filtersGroupIds 批量获取和删除使用
-  * @param {string} args.pageId 自定义页面ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   deleteFiltersGroupByIds: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'DeleteFiltersGroupByIds', args, options);
-   },
-  /**
-  * 执行api查询
-  * @param {Object} args 请求参数
-  * @param {object} args.data 执行api查询数据
-  * @param {string} args.projectId 组织id
-  * @param {string} args.workSheetId 工作表id
-  * @param {string} args.controlId 控件id
-  * @param {string} args.apiTemplateId api模板id
-  * @param {string} args.apkId 应用id
-  * @param {string} args.formId 公开表单id
-  * @param {string} args.apiEventId 动作事件id（不传默认识别为api查询字段）
-  * @param {string} args.authId 授权账户Id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   excuteApiQuery: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'ExcuteApiQuery', args, options);
-   },
-  /**
-  * 获取api模板消息信息
-  * @param {Object} args 请求参数
-  * @param {string} args.apiTemplateId api模板id
-  * @param {integer} args.type 是否为请求参数模板 1-请求模板 2-响应模板 不传-请求响应
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getApiControlDetail: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetApiControlDetail', args, options);
-   },
-  /**
-  * 更新附件排序
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 表id
-  * @param {string} args.rowId
-  * @param {string} args.controlId 附件控件id
-  * @param {string} args.viewId
-  * @param {array} args.fileIds 附件ids（排好序的）
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   sortAttachment: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'SortAttachment', args, options);
-   },
-  /**
-  * 更新记录附件名
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId 工作表id
-  * @param {string} args.rowId 行id
-  * @param {} args.getType
-  * @param {string} args.viewId 视图Id
-  * @param {string} args.appId 应用Id
-  * @param {string} args.instanceId 流程实例id
-  * @param {string} args.workId 运行节点id
-  * @param {boolean} args.getTemplate 是否获取模板
-  * @param {string} args.shareId 分享页获取关联记录iD
-  * @param {boolean} args.checkView 是否验证视图
-  * @param {string} args.relationWorksheetId 关联控件ID
-  * @param {string} args.fileId
-  * @param {string} args.fileName
-  * @param {string} args.controlId 附件的控件id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   editAttachmentName: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'EditAttachmentName', args, options);
-   },
-  /**
-  * 获取导出excel配置
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId
-  * @param {string} args.viewId
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getExportConfig: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'GetExportConfig', args, options);
-   },
-  /**
-  * 保存导出配置
-  * @param {Object} args 请求参数
-  * @param {string} args.worksheetId
-  * @param {string} args.viewId
-  * @param {array} args.exportExtIds 导出特殊列配置
-  * @param {array} args.controlIds 需要导出的控件ids
-  * @param {} args.type
-  * @param {} args.exportFieldType
-  * @param {boolean} args.getColumnRpt 是否导出列统计
-  * @param {boolean} args.edited 是否允许修改
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   saveExportConfig: function (args, options = {}) {
-     
-     return mdyAPI('Worksheet', 'SaveExportConfig', args, options);
-   },
-  /**
   * 获取视图权限
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId 工作表id
@@ -653,6 +17,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * 获取应用角色用户扩展属性
   * @param {Object} args 请求参数
   * @param {string} args.appId AppId
+  * @param {string} args.customLink 客户自定义登录链接参数值
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -873,6 +238,17 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
    getShareInfoByShareId: function (args, options = {}) {
      
      return mdyAPI('Worksheet', 'GetShareInfoByShareId', args, options);
+   },
+  /**
+  * 获取工作表校准间隔时间
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getRefreshRowsMinute: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetRefreshRowsMinute', args, options);
    },
   /**
   * 行详情
@@ -2323,5 +1699,643 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
    editPrintRange: function (args, options = {}) {
      
      return mdyAPI('Worksheet', 'EditPrintRange', args, options);
+   },
+  /**
+  * 修改打印模板筛选条件
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {array} args.filters 筛选条件
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editPrintFilter: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'EditPrintFilter', args, options);
+   },
+  /**
+  * 修改模板下载权限
+  * @param {Object} args 请求参数
+  * @param {string} args.id 打印模板id
+  * @param {} args.allowDownloadPermission
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editTemplateDownloadPermission: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'EditTemplateDownloadPermission', args, options);
+   },
+  /**
+  * 修改打印模板排序
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId
+  * @param {string} args.worksheetId
+  * @param {array} args.sortItems
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editPrintTemplateSort: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'EditPrintTemplateSort', args, options);
+   },
+  /**
+  * 删除打印模板
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   deletePrint: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'DeletePrint', args, options);
+   },
+  /**
+  * 获取 工作表 索引字段配置
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getRowIndexes: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetRowIndexes', args, options);
+   },
+  /**
+  * 新增 工作表行内容表索引
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表Id
+  * @param {string} args.customeIndexName 自定义索引名称
+  * @param {array} args.indexFields 索引字段
+  * @param {boolean} args.uniqueIndex 是否 唯一索引
+  * @param {boolean} args.wildcardIndex 是否 通配符文本索引
+  * @param {boolean} args.sparseIndex 是否 稀疏索引
+  * @param {boolean} args.backgroundIndex 是否 后台索引
+  * @param {string} args.appId AppId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addRowIndex: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'AddRowIndex', args, options);
+   },
+  /**
+  * 更新 工作表行内容表索引
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表Id
+  * @param {string} args.customeIndexName 自定义索引名称
+  * @param {array} args.indexFields 索引字段
+  * @param {boolean} args.uniqueIndex 是否 唯一索引
+  * @param {boolean} args.wildcardIndex 是否 通配符文本索引
+  * @param {boolean} args.sparseIndex 是否 稀疏索引
+  * @param {boolean} args.backgroundIndex 是否 后台索引
+  * @param {string} args.indexConfigId 索引配置Id
+（系统级索引可为空）
+  * @param {string} args.appId AppId
+  * @param {boolean} args.isSystemIndex 是否 系统级索引
+  * @param {string} args.systemIndexName 系统级索引名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateRowIndex: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'UpdateRowIndex', args, options);
+   },
+  /**
+  * 更新 工作表行内容表索引名称
+  * @param {Object} args 请求参数
+  * @param {string} args.appId AppId
+  * @param {string} args.worksheetId 工作表Id
+  * @param {string} args.indexConfigId 索引配置Id
+  * @param {string} args.customeIndexName 自定义索引名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateRowIndexCustomeIndexName: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'UpdateRowIndexCustomeIndexName', args, options);
+   },
+  /**
+  * 移除 工作表行内容表索引
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用Id
+  * @param {string} args.worksheetId 工作表Id
+  * @param {string} args.indexConfigId 索引配置Id
+  * @param {boolean} args.isSystemIndex 是否 系统级索引
+  * @param {string} args.systemIndexName 系统级索引名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   removeRowIndex: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'RemoveRowIndex', args, options);
+   },
+  /**
+  * 获取链接行记录
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.id
+  * @param {string} args.password
+  * @param {} args.langType
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getLinkDetail: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetLinkDetail', args, options);
+   },
+  /**
+  * 获取工作表创建记录表单提交设置信息
+  * @param {Object} args 请求参数
+  * @param {string} args.workSheetId 工作表Id
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFormSubmissionSettings: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetFormSubmissionSettings', args, options);
+   },
+  /**
+  * 更新工作表创建记录表单设置信息
+  * @param {Object} args 请求参数
+  * @param {string} args.workSheetId 工作表id
+  * @param {string} args.appId 应用id
+  * @param {object} args.advancedSetting 配置项数据
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editWorksheetSetting: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'EditWorksheetSetting', args, options);
+   },
+  /**
+  * 获取功能系统开关配置
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getSwitch: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetSwitch', args, options);
+   },
+  /**
+  * 更新系统配置开关（单个）
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {boolean} args.state 开关
+  * @param {} args.type
+  * @param {} args.roleType
+  * @param {array} args.viewIds
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editSwitch: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'EditSwitch', args, options);
+   },
+  /**
+  * 更新系统配置开关（批量）
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {array} args.switchList
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   batchEditSwitch: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'BatchEditSwitch', args, options);
+   },
+  /**
+  * 获取功能系统开关（包含管理员判断）
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用管理员
+  * @param {string} args.worksheetId 工作表id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getSwitchPermit: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetSwitchPermit', args, options);
+   },
+  /**
+  * 获取工作表信息
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.appId 应用id
+  * @param {integer} args.version 版本  1=v1  2=v2
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getWorksheetApiInfo: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetWorksheetApiInfo', args, options);
+   },
+  /**
+  * 获取应用下选项集
+  * @param {Object} args 请求参数
+  * @param {string} args.collectionId
+  * @param {array} args.collectionIds
+  * @param {string} args.appId
+  * @param {string} args.worksheetId
+  * @param {array} args.options
+  * @param {string} args.name
+  * @param {boolean} args.colorful
+  * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getCollectionsByAppId: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetCollectionsByAppId', args, options);
+   },
+  /**
+  * 保存选项集
+  * @param {Object} args 请求参数
+  * @param {string} args.collectionId
+  * @param {array} args.collectionIds
+  * @param {string} args.appId
+  * @param {string} args.worksheetId
+  * @param {array} args.options
+  * @param {string} args.name
+  * @param {boolean} args.colorful
+  * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   saveOptionsCollection: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'SaveOptionsCollection', args, options);
+   },
+  /**
+  * 更新选项集所属应用
+  * @param {Object} args 请求参数
+  * @param {string} args.collectionId
+  * @param {array} args.collectionIds
+  * @param {string} args.appId
+  * @param {string} args.worksheetId
+  * @param {array} args.options
+  * @param {string} args.name
+  * @param {boolean} args.colorful
+  * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateOptionsCollectionAppId: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'UpdateOptionsCollectionAppId', args, options);
+   },
+  /**
+  * 删除选项集
+  * @param {Object} args 请求参数
+  * @param {string} args.collectionId
+  * @param {array} args.collectionIds
+  * @param {string} args.appId
+  * @param {string} args.worksheetId
+  * @param {array} args.options
+  * @param {string} args.name
+  * @param {boolean} args.colorful
+  * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   deleteOptionsCollection: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'DeleteOptionsCollection', args, options);
+   },
+  /**
+  * 获取选项集详细数据
+  * @param {Object} args 请求参数
+  * @param {string} args.collectionId
+  * @param {array} args.collectionIds
+  * @param {string} args.appId
+  * @param {string} args.worksheetId
+  * @param {array} args.options
+  * @param {string} args.name
+  * @param {boolean} args.colorful
+  * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getCollectionByCollectId: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetCollectionByCollectId', args, options);
+   },
+  /**
+  * 批量获取选项集
+  * @param {Object} args 请求参数
+  * @param {string} args.collectionId
+  * @param {array} args.collectionIds
+  * @param {string} args.appId
+  * @param {string} args.worksheetId
+  * @param {array} args.options
+  * @param {string} args.name
+  * @param {boolean} args.colorful
+  * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getCollectionsByCollectIds: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetCollectionsByCollectIds', args, options);
+   },
+  /**
+  * 获取选项集引用的控件列表
+  * @param {Object} args 请求参数
+  * @param {string} args.collectionId
+  * @param {array} args.collectionIds
+  * @param {string} args.appId
+  * @param {string} args.worksheetId
+  * @param {array} args.options
+  * @param {string} args.name
+  * @param {boolean} args.colorful
+  * @param {boolean} args.enableScore
+  * @param {integer} args.status 0或者1：正常 9：停用,999：删除
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getQuoteControlsById: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetQuoteControlsById', args, options);
+   },
+  /**
+  * 获取添加选项接集接口信息
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addOrUpdateOptionSetApiInfo: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'AddOrUpdateOptionSetApiInfo', args, options);
+   },
+  /**
+  * 获取选项接集列表接口信息
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   optionSetListApiInfo: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'OptionSetListApiInfo', args, options);
+   },
+  /**
+  * 工作表OCR识别
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.controlId ocr控件id
+  * @param {array} args.data ocr映射url数组(不管单个还是多个批量,都是数组)
+remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码后不超过 7M，分辨率建议500*800以上，支持PNG、JPG、JPEG、BMP格式。建议卡片部分占据图片2/3以上。 建议图片存储于腾讯云，可保障更高的下载速度和稳定性
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   ocr: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'Ocr', args, options);
+   },
+  /**
+  * get单个工作表查询
+  * @param {Object} args 请求参数
+  * @param {string} args.id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getQuery: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetQuery', args, options);
+   },
+  /**
+  * worksheetId 批量获取工作表查询
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getQueryBySheetId: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetQueryBySheetId', args, options);
+   },
+  /**
+  * 保存工作表查询
+  * @param {Object} args 请求参数
+  * @param {string} args.id id 新建为空，修改传原值
+  * @param {string} args.worksheetId 本表id
+  * @param {string} args.controlId 默认值控件id
+  * @param {string} args.sourceId 来源id （这里值得工作表id）
+  * @param {integer} args.sourceType 1 = 本表，2 = 他表
+  * @param {array} args.items 筛选条件
+  * @param {array} args.configs 映射字段
+  * @param {integer} args.moreType 0 = 获取第一条时，按配置来，1= 不赋值
+  * @param {array} args.moreSort 排序
+  * @param {integer} args.queryCount 查询条数
+  * @param {integer} args.resultType 结果类型 0=查询到记录，1=仅查询到一条记录，2=查询到多条记录，3=未查询到记录
+  * @param {integer} args.eventType 0 = 常规字段默认值，1 = 表单事件
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   saveQuery: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'SaveQuery', args, options);
+   },
+  /**
+  * 保存筛选组件
+  * @param {Object} args 请求参数
+  * @param {string} args.filtersGroupId 筛选组件ID
+  * @param {string} args.name 名称
+  * @param {boolean} args.enableBtn 开启搜索按钮
+  * @param {array} args.filters filters
+  * @param {object} args.advancedSetting 视图高级配置
+  * @param {string} args.appId 应用ID
+  * @param {array} args.filtersGroupIds 批量获取和删除使用
+  * @param {string} args.pageId 自定义页面ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   saveFiltersGroup: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'SaveFiltersGroup', args, options);
+   },
+  /**
+  * 获取筛选组件
+  * @param {Object} args 请求参数
+  * @param {string} args.filtersGroupId 筛选组件ID
+  * @param {string} args.name 名称
+  * @param {boolean} args.enableBtn 开启搜索按钮
+  * @param {array} args.filters filters
+  * @param {object} args.advancedSetting 视图高级配置
+  * @param {string} args.appId 应用ID
+  * @param {array} args.filtersGroupIds 批量获取和删除使用
+  * @param {string} args.pageId 自定义页面ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFiltersGroupByIds: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetFiltersGroupByIds', args, options);
+   },
+  /**
+  * 删除筛选组件
+  * @param {Object} args 请求参数
+  * @param {string} args.filtersGroupId 筛选组件ID
+  * @param {string} args.name 名称
+  * @param {boolean} args.enableBtn 开启搜索按钮
+  * @param {array} args.filters filters
+  * @param {object} args.advancedSetting 视图高级配置
+  * @param {string} args.appId 应用ID
+  * @param {array} args.filtersGroupIds 批量获取和删除使用
+  * @param {string} args.pageId 自定义页面ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   deleteFiltersGroupByIds: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'DeleteFiltersGroupByIds', args, options);
+   },
+  /**
+  * 执行api查询
+  * @param {Object} args 请求参数
+  * @param {object} args.data 执行api查询数据
+  * @param {string} args.projectId 组织id
+  * @param {string} args.workSheetId 工作表id
+  * @param {string} args.controlId 控件id
+  * @param {string} args.apiTemplateId api模板id
+  * @param {string} args.apkId 应用id
+  * @param {string} args.formId 公开表单id
+  * @param {string} args.apiEventId 动作事件id（不传默认识别为api查询字段）
+  * @param {string} args.authId 授权账户Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   excuteApiQuery: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'ExcuteApiQuery', args, options);
+   },
+  /**
+  * 获取api模板消息信息
+  * @param {Object} args 请求参数
+  * @param {string} args.apiTemplateId api模板id
+  * @param {integer} args.type 是否为请求参数模板 1-请求模板 2-响应模板 不传-请求响应
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getApiControlDetail: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetApiControlDetail', args, options);
+   },
+  /**
+  * 更新附件排序
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 表id
+  * @param {string} args.rowId
+  * @param {string} args.controlId 附件控件id
+  * @param {string} args.viewId
+  * @param {array} args.fileIds 附件ids（排好序的）
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   sortAttachment: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'SortAttachment', args, options);
+   },
+  /**
+  * 更新记录附件名
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.rowId 行id
+  * @param {} args.getType
+  * @param {string} args.viewId 视图Id
+  * @param {string} args.appId 应用Id
+  * @param {string} args.instanceId 流程实例id
+  * @param {string} args.workId 运行节点id
+  * @param {boolean} args.getTemplate 是否获取模板
+  * @param {string} args.shareId 分享页获取关联记录iD
+  * @param {boolean} args.checkView 是否验证视图
+  * @param {string} args.relationWorksheetId 关联控件ID
+  * @param {string} args.fileId
+  * @param {string} args.fileName
+  * @param {string} args.controlId 附件的控件id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editAttachmentName: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'EditAttachmentName', args, options);
+   },
+  /**
+  * 获取导出excel配置
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId
+  * @param {string} args.viewId
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getExportConfig: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'GetExportConfig', args, options);
+   },
+  /**
+  * 保存导出配置
+  * @param {Object} args 请求参数
+  * @param {string} args.worksheetId
+  * @param {string} args.viewId
+  * @param {array} args.exportExtIds 导出特殊列配置
+  * @param {array} args.controlIds 需要导出的控件ids
+  * @param {} args.type
+  * @param {} args.exportFieldType
+  * @param {boolean} args.getColumnRpt 是否导出列统计
+  * @param {boolean} args.edited 是否允许修改
+  * @param {array} args.sortRelationCids 强制排序导出的关联控件id集合
+  * @param {boolean} args.isNumber 控件是否以数值格式导出
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   saveExportConfig: function (args, options = {}) {
+     
+     return mdyAPI('Worksheet', 'SaveExportConfig', args, options);
    },
 };

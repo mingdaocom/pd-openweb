@@ -3,9 +3,10 @@ import cx from 'classnames';
 import { Link } from 'react-router-dom';
 import { Switch, Icon, Button, LoadDiv, Radio, Support } from 'ming-ui';
 import Ajax from 'src/api/workWeiXin';
-import IntegrationSetPssword from '../../../components/IntegrationSetPssword';
+import IntegrationSetPassword from '../components/IntegrationSetPassword';
 import IntegrationSync from '../components/IntegrationSync';
 import CancelIntegration from '../components/CancelIntegration';
+import EnableScanLogin from '../components/EnableScanLogin';
 import { integrationFailed, checkClearIntergrationData } from '../utils';
 import './style.less';
 import _ from 'lodash';
@@ -84,6 +85,7 @@ export default class Ding extends React.Component {
           intergrationTodoMessageEnabled: res.intergrationTodoMessageEnabled,
           ddMessagUrlPcSlide: res.ddMessagUrlPcSlide,
           status: res.status,
+          integrationScanEnabled: res.intergrationScanEnabled,
         });
       }
     });
@@ -379,7 +381,8 @@ export default class Ding extends React.Component {
     }
   };
   render() {
-    const { currentTab, CorpId, AppKey, AppSecret, AgentId } = this.state;
+    const { projectId } = this.props;
+    const { currentTab, CorpId, AppKey, AppSecret, AgentId, integrationScanEnabled, isCloseDing } = this.state;
 
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
@@ -422,6 +425,23 @@ export default class Ding extends React.Component {
           {currentTab === 'base' && this.stepRender()}
           {currentTab === 'other' && this.state.status === 1 && !this.state.isCloseDing && (
             <Fragment>
+              <div className="stepItem">
+                <EnableScanLogin
+                  integrationType={1}
+                  projectId={projectId}
+                  scanEnabled={integrationScanEnabled}
+                  disabled={isCloseDing}
+                  href={`/dingSyncCourse/${projectId}`}
+                  updateScanEnabled={integrationScanEnabled => this.setState({ integrationScanEnabled })}
+                />
+              </div>
+              {md.global.Config.IsLocal && (
+                <IntegrationSetPassword
+                  password={this.state.password}
+                  isSetPassword={this.state.isSetPassword}
+                  disabled={this.state.isCloseDing}
+                />
+              )}
               <div className="stepItem">
                 <h3 className="stepTitle Font16 Gray pBottom5">{_l('应用在钉钉PC端打开方式')}</h3>
                 {optionTypes.map(item => {
@@ -470,13 +490,6 @@ export default class Ding extends React.Component {
                   </div>
                 </div>
               </div>
-              {md.global.Config.IsLocal && (
-                <IntegrationSetPssword
-                  password={this.state.password}
-                  isSetPassword={this.state.isSetPassword}
-                  disabled={this.state.isCloseDing}
-                />
-              )}
             </Fragment>
           )}
         </div>

@@ -13,7 +13,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getLogs: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateHkLog', 'GetLogs', args, options);
    },
   /**
@@ -24,7 +24,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downloadLogs: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('PrivateHkLog', 'DownloadLogs', args, options);
    },
 };

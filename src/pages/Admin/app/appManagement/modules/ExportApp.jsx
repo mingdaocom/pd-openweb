@@ -61,10 +61,12 @@ export default class ExportApp extends React.Component {
 
   //立即导出
   handleExportApp() {
+    const { appIds = [], projectId } = this.props;
     const { disabledExportBtn = false, lockPassword, locked, isNeed, password } = this.state;
     const importErr = isNeed ? this.checkedPassword('isNeed', password) : {};
     const lockErr = locked ? this.checkedPassword('locked', lockPassword) : {};
     const errors = { ...importErr, ...lockErr };
+    const batch = appIds.length > 1;
 
     if (Object.keys(errors).length) {
       this.setState({ errors });
@@ -75,31 +77,39 @@ export default class ExportApp extends React.Component {
 
     const { list = [] } = this.settings.state;
     const params = {
-      token: this.state.token,
-      accountId: md.global.Account.accountId,
       password: this.state.password,
       locked,
       lockPassword,
-      appConfig: list.map(item => {
+      [batch ? 'appConfigs' : 'appConfig']: list.map(item => {
         const { entities = [] } = item;
         const sheetConfig = entities.map(entity => {
-          return { worksheetId: entity.worksheetId, count: entity.count > 0 ? entity.count : 0 };
+          return { [batch ? 'sheeId' : 'worksheetId']: entity.worksheetId, count: entity.count > 0 ? entity.count : 0 };
         });
         return { appId: item.appId, exampleType: item.exampleType, sheetConfig };
       }),
     };
     this.props.closeDialog();
-    $.ajax({
-      type: 'POST',
-      url: `${md.global.Config.AppFileServer}AppFile/Export`,
-      data: JSON.stringify(params),
-      dataType: 'JSON',
-      contentType: 'application/json',
-    }).then(({ state, exception }) => {
-      if (state !== 1) {
-        alert(exception, 2, 3000);
-      }
-    });
+
+    if (batch) {
+      params.projectId = projectId;
+      ajaxRequest.batchExportApp(params).then(res => {
+        if (!res) alert(_l('导出失败'), 2, 3000);
+      });
+    } else {
+      params.token = this.state.token;
+      params.accountId = md.global.Account.accountId;
+      $.ajax({
+        type: 'POST',
+        url: `${md.global.Config.AppFileServer}AppFile/Export`,
+        data: JSON.stringify(params),
+        dataType: 'JSON',
+        contentType: 'application/json',
+      }).then(({ state, exception }) => {
+        if (state !== 1) {
+          alert(exception, 2, 3000);
+        }
+      });
+    }
   }
 
   // 密码校验

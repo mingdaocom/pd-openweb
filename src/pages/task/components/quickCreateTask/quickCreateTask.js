@@ -1,7 +1,6 @@
 import './css/quickCreateTask.less';
 import doT from 'dot';
 import ajaxRequest from 'src/api/taskCenter';
-import 'src/components/mdDatePicker/mdDatePicker';
 import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
 import { expireDialogAsync } from 'src/util';
 import quickCreateTask from './tpl/quickCreateTask.html';

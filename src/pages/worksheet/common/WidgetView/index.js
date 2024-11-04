@@ -84,6 +84,7 @@ window.api.call = (controller, action, data) => {
   'selectDepartments',
   'selectOrgRole',
   'selectLocation',
+  'renderText',
 ].forEach(functionName => {
   window.utils[functionName] = args =>
     window.callMdUtil(

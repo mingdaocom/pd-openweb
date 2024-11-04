@@ -21,20 +21,27 @@ export function getNewControlColRow(controls, halfOfNewControl = true) {
 
 const defaultHidedControlTypes = [26, 27, 21, 48];
 
-export function getDisabledControls(controls, systemRelatedIds = {}) {
-  const defaultHided = controls
+export function getNotSupportControlIds(controls) {
+  const notSupportIds = controls
     .filter(
       control =>
         defaultHidedControlTypes.includes(control.type) ||
         (defaultHidedControlTypes.includes(control.sourceControlType) && control.type !== 29) ||
+        (control.type === 29 && !_.includes([0, 1], control.enumDefault2)) || //关联记录不允许选择已有
         (control.type === 51 &&
           [
             String(RELATION_SEARCH_SHOW_TYPE.EMBED_LIST),
             String(RELATION_SEARCH_SHOW_TYPE.TAB_LIST),
             String(RELATION_SEARCH_SHOW_TYPE.LIST),
-          ].includes(_.get(control, 'advancedSetting.showtype'))), //过滤查询记录列表，表格,标签页表格
+          ].includes(_.get(control, 'advancedSetting.showtype'))) || // 过滤查询记录列表，表格,标签页表格
+        ['caid', 'ownerid', 'ctime', 'utime'].includes(control.controlId),
     )
     .map(control => control.controlId);
+  return notSupportIds;
+}
+
+export function getDisabledControls(controls, systemRelatedIds = {}) {
+  const defaultHided = getNotSupportControlIds(controls);
   const hidedWhenNew = controls
     .filter(control => (control.controlPermissions || '000')[2] === '0')
     .map(control => control.controlId);

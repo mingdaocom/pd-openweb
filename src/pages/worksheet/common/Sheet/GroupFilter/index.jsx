@@ -223,9 +223,9 @@ function GroupFilter(props) {
   };
   const renderTxt = (item, control, viewId) => {
     let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
-    if (keywords && (soucre.type === 35 || (soucre.type === 29 && navGroup.viewId && !!viewId))) {
+    if (keywords && (soucre.type === 35 || (soucre.type === 29 && navGroup.viewId && !!viewId && !!item.path))) {
       //视图是否删除 !!viewId
-      const path = JSON.parse(item.path);
+      const path = safeParse(item.path, 'array');
       return path.map((text, i) => {
         const isLast = i === path.length - 1;
         if (text.indexOf(keywords) > -1) {
@@ -263,6 +263,7 @@ function GroupFilter(props) {
             getType: !viewId ? 7 : 10,
             viewId: viewId || soucre.viewId, //关联记录时，如果有关联视图，应该按照视图设置的排序方式排序
           };
+    param.keyWords = keywords;
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
     try {
       navfilters = JSON.parse(navfilters);
@@ -280,6 +281,30 @@ function GroupFilter(props) {
       if (!!_.get(soucre, 'advancedSetting.searchcontrol') && keywords) {
         param.controlId = _.get(soucre, 'controlId');
       }
+      if (!!_.get(view, 'advancedSetting.navsearchcontrol') && keywords) {
+        param.keyWords = undefined;
+        param.getType = 7;
+        param.navGroupFilters = [
+          {
+            spliceType: 1,
+            isGroup: true,
+            groupFilters: [
+              {
+                dataType: (
+                  ((controls.find(o => o.controlId === _.get(soucre, 'controlId')) || {}).relationControls || []).find(
+                    o => o.controlId === _.get(view, 'advancedSetting.navsearchcontrol'),
+                  ) || {}
+                ).type,
+                spliceType: 1,
+                dynamicSource: [],
+                controlId: _.get(view, 'advancedSetting.navsearchcontrol'),
+                values: [keywords],
+                filterType: _.get(view, 'advancedSetting.navsearchtype') === '1' ? 2 : 1,
+              },
+            ],
+          },
+        ];
+      }
     }
     if (
       getNavGroupRequest &&
@@ -293,7 +318,6 @@ function GroupFilter(props) {
       getFilledRequestParams({
         worksheetId,
         viewId,
-        keyWords: keywords,
         pageIndex: 1,
         pageSize: 10000,
         isGetWorksheet: true,

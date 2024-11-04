@@ -203,7 +203,7 @@ function ExportPlugin(props) {
             </div>
             <Textarea
               className="Font13"
-              placeholder={_l('组织编号格式：xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n一行一个，最多10个')}
+              placeholder={_l('组织编号格式') + '：xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n' + _l('一行一个，最多10个')}
               minHeight={100}
               onChange={values => {
                 setData({

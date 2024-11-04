@@ -3,12 +3,7 @@ import { useSetState } from 'react-use';
 import { LoadDiv, RadioGroup, Dialog, Tooltip } from 'ming-ui';
 import { Dropdown } from 'antd';
 import cx from 'classnames';
-import {
-  filterControlsFromAll,
-  getIconByType,
-  resortControlByColRow,
-  filterOnlyShowField,
-} from '../../util';
+import { filterControlsFromAll, getIconByType, resortControlByColRow, filterOnlyShowField } from '../../util';
 import { useSheetInfo } from '../../hooks';
 import { parseDataSource, isSingleRelateSheet, updateConfig } from '../../util/setting';
 import { CAN_NOT_AS_OTHER_FIELD } from '../../config';
@@ -264,7 +259,7 @@ export default function SheetField(props) {
                 popupPlacement="bottom"
                 disable={!controlDel}
               >
-                <span>{controlDel ? _l('字段已删除') : controlName}</span>
+                <span className="breakAll">{controlDel ? _l('字段已删除') : controlName}</span>
               </Tooltip>
             ) : (
               <span className="Gray_9e">{_l('请选择')}</span>

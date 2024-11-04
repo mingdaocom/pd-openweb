@@ -5,12 +5,13 @@ import { arrayOf, func, number, shape, string } from 'prop-types';
 import Dropdown from 'src/components/newCustomFields/widgets/Dropdown';
 import Checkbox from 'src/components/newCustomFields/widgets/Checkbox';
 import Option from './StyledOption';
-import _ from 'lodash';
+import _, { filter, find } from 'lodash';
 
 const Con = styled.div`
   position: relative;
   display: flex;
   align-items: center;
+  line-height: 0px;
   .ant-select {
     border-radius: 4px;
     border: 1px solid #dddddd;
@@ -38,6 +39,9 @@ const Con = styled.div`
         color: #bdbdbd !important;
         font-size: 13px !important;
       }
+      .ant-select-selection-search {
+        line-height: 0px;
+      }
       .ant-select-selection-search-input {
         height: 30px !important;
       }
@@ -49,6 +53,10 @@ const Con = styled.div`
       }
       .ant-select-selection-item > span {
         margin: 3px 0 !important;
+      }
+      .customAntDropdownTitleWithBG {
+        margin-top: 3px !important;
+        margin-bottom: 3px !important;
       }
       .customAntSelectPlaceHolder {
         padding: 0px !important;
@@ -99,12 +107,13 @@ function pickOptions(options, navfilters) {
   }
 }
 export default function Options(props) {
-  const { filterType, isMultiple, values = [], control, advancedSetting = {}, onChange = () => {} } = props;
+  const { filterType, isMultiple, control, advancedSetting = {}, onChange = () => {} } = props;
   const { allowitem, direction, navshow, navfilters, shownullitem, nullitemname } = advancedSetting;
   let { options } = control;
   if (String(navshow) === '2') {
     options = pickOptions(options, navfilters);
   }
+  const values = filter(props.values, key => find(options, { key }) || key === 'isEmpty');
   if (shownullitem === '1') {
     options = [
       {

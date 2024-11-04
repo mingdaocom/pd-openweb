@@ -11,6 +11,7 @@ import { DefaultOptionSetting } from '../../DynamicDefaultValue/inputTypes/Optio
 import { FieldInfo } from '../../DynamicDefaultValue/styled';
 import cx from 'classnames';
 import _ from 'lodash';
+import { DYNAMIC_FROM_MODE } from '../../DynamicDefaultValue/config';
 
 const USER_RANGE_CONFIG = [
   { text: _l('用户通讯录'), value: 0 },
@@ -85,7 +86,7 @@ export default function UserConfig(props) {
     if (item.id === 'assignOrg') {
       dialogSelectOrgRole({
         projectId: globalSheetInfo.projectId,
-        unique: data.enumDefault === 0,
+        unique: false,
         onSave: orgArr => {
           const availArr = orgArr
             .map(item => ({
@@ -227,7 +228,7 @@ export default function UserConfig(props) {
                               {...props}
                               dynamicValue={chooseRange}
                               controls={props.allControls || []}
-                              needFilter={false}
+                              from={DYNAMIC_FROM_MODE.USER_CONFIG}
                               data={{ ...props.data, enumDefault: 1 }}
                               item={item}
                               onDynamicValueChange={nextValue =>
@@ -250,7 +251,7 @@ export default function UserConfig(props) {
               data={{ ...props.data, enumDefault: 1 }}
               controls={props.allControls || []}
               fromRange={true}
-              needFilter={false}
+              from={DYNAMIC_FROM_MODE.USER_CONFIG}
               dynamicValue={chooseRange}
               onDynamicValueChange={handleFieldClick}
               hideSearchAndFun={true}

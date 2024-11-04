@@ -330,21 +330,20 @@ export default function RecordOperate(props) {
               <i className="icon icon-loading_button"></i>
             </Loading>
           )}
-          {!!(defaultCustomButtons || customButtons).length && (
-            <React.Fragment>
-              <CustomButtons
-                type="menu"
-                {...{ projectId, appId, viewId, worksheetId, recordId, isCharge }}
-                buttons={defaultCustomButtons || customButtons}
-                loadBtns={loadButtons}
-                triggerCallback={() => changePopupVisible(false)}
-                onUpdate={onUpdate}
-                reloadRecord={reloadRecord}
-                setCustomButtonActive={v => (customButtonActive.current = v)}
-              />
-              <Hr />
-            </React.Fragment>
-          )}
+
+          <React.Fragment>
+            <CustomButtons
+              type="menu"
+              {...{ projectId, appId, viewId, worksheetId, recordId, isCharge, sheetSwitchPermit }}
+              buttons={defaultCustomButtons || customButtons}
+              loadBtns={loadButtons}
+              triggerCallback={() => changePopupVisible(false)}
+              onUpdate={onUpdate}
+              reloadRecord={reloadRecord}
+              setCustomButtonActive={v => (customButtonActive.current = v)}
+            />
+            {!!(defaultCustomButtons || customButtons).length && <Hr />}
+          </React.Fragment>
           {canFav && (
             <MenuItemWrap
               className="printItem"

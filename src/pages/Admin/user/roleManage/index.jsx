@@ -20,6 +20,8 @@ import organizeAjax from 'src/api/organize.js';
 import './index.less';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { downloadFile } from 'src/pages/Admin/util';
+import { getCurrentProject } from 'src/util';
 
 const PAGE_SIZE = 50;
 
@@ -101,6 +103,14 @@ const DefaultGroup = {
   children: [],
 };
 
+// 导入角色模版
+const roleTemplatePaths = {
+  0: '/staticfiles/template/组织角色导入模板.xlsx',
+  1: '/staticfiles/template/Role Import Template.xlsx',
+  2: '/staticfiles/template/役割インポートテンプレート.xlsx',
+  3: '/staticfiles/template/角色導入模板.xlsx',
+};
+
 class RoleManage extends Component {
   constructor(props) {
     super(props);
@@ -121,6 +131,7 @@ class RoleManage extends Component {
         isMore: false,
         pageIndex: 0,
       },
+      pageIndex: 1,
     };
   }
 
@@ -131,6 +142,7 @@ class RoleManage extends Component {
     this.props.updateProjectId(params.projectId);
     this.props.updateSearchValue('');
     this.props.updateCurrentRole({});
+    this.props.updateIsImportRole(false);
     this.init(false, true);
   }
 
@@ -179,6 +191,7 @@ class RoleManage extends Component {
   updateChildren = (data, orgRoleGroupIds, updateCurrentRole = false, init = false) => {
     const { match, searchValue } = this.props;
     const { params = {} } = match;
+    const { pageIndex, treeData } = this.state;
 
     if (!data.length) {
       this.setState({ treeData: [], loading: false });
@@ -188,7 +201,7 @@ class RoleManage extends Component {
 
     let promiseList = orgRoleGroupIds.map(l => {
       return organizeAjax.getOrganizes({
-        pageIndex: 1,
+        pageIndex: pageIndex || 1,
         pageSize: PAGE_SIZE,
         projectId: params.projectId,
         keywords: searchValue,
@@ -199,14 +212,32 @@ class RoleManage extends Component {
     Promise.all(promiseList).then(res => {
       res.forEach((resLi, i) => {
         let index = _.findIndex(data, l => l.orgRoleGroupId === orgRoleGroupIds[i]);
-        data[index].children = resLi.list.map(l => {
-          return {
-            ...l,
-            title: l.organizeName,
-            key: l.organizeId,
-            isLeaf: true,
-          };
-        });
+        if (index === 0) {
+          const list = resLi.list.map(l => {
+            return {
+              ...l,
+              title: l.organizeName,
+              key: l.organizeId,
+              isLeaf: true,
+            };
+          });
+
+          data[index].children = pageIndex > 1 ? (_.get(data[0], 'children') || []).concat(list) : list;
+          if (data[index].children.length >= 50 && resLi.allCount > data[index].children.length - 1) {
+            data[index].children = data[index].children
+              .filter(v => v.key !== 'isMore')
+              .concat({ title: '加载', key: 'isMore', isLeaf: true, selectable: false });
+          }
+        } else {
+          data[index].children = resLi.list.map(l => {
+            return {
+              ...l,
+              title: l.organizeName,
+              key: l.organizeId,
+              isLeaf: true,
+            };
+          });
+        }
       });
 
       if (data[0].key === DefaultGroup.key && !data[0].children.length) {
@@ -225,11 +256,11 @@ class RoleManage extends Component {
           this.props.updateCurrentRole({});
         }
       }
-
       this.setState({
         treeData: _.cloneDeep(data),
         loading: false,
         expandedKeys: init ? (data[0] ? [data[0].key] : []) : this.state.expandedKeys,
+        pageIndex: pageIndex,
       });
     });
   };
@@ -247,7 +278,7 @@ class RoleManage extends Component {
       organizeAjax
         .getOrganizes({
           pageIndex: 1,
-          // pageSize: PAGE_SIZE,
+          pageSize: treeNode.orgRoleGroupId ? 1000 : PAGE_SIZE,
           projectId: params.projectId,
           keywords: searchValue,
           orgRoleGroupId: treeNode.orgRoleGroupId,
@@ -306,7 +337,7 @@ class RoleManage extends Component {
           clickBackList={() => {
             this.props.updateIsImportRole(false);
           }}
-          downLoadUrl={'/staticfiles/template/positionImport.xlsx'}
+          downLoadUrl={roleTemplatePaths[getCurrentLangCode()]}
           updateList={() => {
             this.init();
           }}
@@ -385,6 +416,12 @@ class RoleManage extends Component {
   };
 
   handleClick = (item, forceUpdate = false) => {
+    const { treeData } = this.state;
+    if (item.key === 'isMore') {
+      this.setState({ pageIndex: this.state.pageIndex + 1 }, () => this.updateChildren(treeData, [''], false));
+      return;
+    }
+
     const { currentRole } = this.props;
     if (!item.isLeaf) {
       const { expandedKeys } = this.state;
@@ -590,67 +627,92 @@ class RoleManage extends Component {
         key={`treeNodeTitleRender-${l.orgRoleGroupId}-${l.key}`}
         onClick={() => this.handleClick(l)}
       >
-        {searchValue && <Icon icon="person_new" className="Gray_9e Font18" />}
-        <span className={cx('flex ellipsis Font13 nodeName', { mLeft4: l.isLeaf })}>
-          {orgGroup.title ? `${orgGroup.title}-${l.title}` : l.title}
-        </span>
-        {!isDefault && hasPermission(authority, PERMISSION_ENUM.ROLE_MENAGE) && (
-          <span className="moreActionButton Hand">
-            <Trigger
-              popupVisible={l.key === actionPopupVisible}
-              popupClassName="actRoleDrop"
-              action={['click']}
-              popupAlign={{
-                points: ['tl', 'bl'],
-                overflow: { adjustX: true, adjustY: true },
-              }}
-              getPopupContainer={() => document.body}
-              onPopupVisibleChange={visible => {
-                this.setState({ actionPopupVisible: visible ? l.key : false });
-              }}
-              popup={
-                <Menu>
-                  <Menu.Item
-                    key="0"
-                    onClick={e => {
-                      l.isLeaf && this.createAndEdit('edit');
-                      this.setState(
-                        l.isLeaf
-                          ? { actionPopupVisible: false }
-                          : {
-                              actionPopupVisible: false,
-                              roleFolderDialog: {
-                                visible: true,
-                                id: l.orgRoleGroupId,
-                                name: l.orgRoleGroupName,
-                              },
-                            },
-                      );
-                    }}
-                  >
-                    {_l('编辑')}
-                  </Menu.Item>
-                  <Menu.Item key="1" className="delRole" onClick={e => this.showDeleteDialog(l)}>
-                    {_l('删除')}
-                  </Menu.Item>
-                </Menu>
-              }
-            >
-              <Icon
-                icon="more_vert"
-                className="Gray_9e Font18 TxtMiddle editIcon Hover_21"
-                onClick={e => e.stopPropagation()}
-              />
-            </Trigger>
-          </span>
-        )}
-        {l.isLeaf && l.remark && l.organizeId !== showDeleteId && (
-          <Tooltip popupPlacement={'rightTop'} offset={[0, -15]} text={<span>{l.remark}</span>}>
-            <Icon icon="info_outline" className="remarkTooptip Gray_9e Font16 TxtMiddle mLeft2" />
-          </Tooltip>
+        {l.key === 'isMore' ? (
+          <span className="ThemeColor mLeft26">{_l('加载')}</span>
+        ) : (
+          <Fragment>
+            {searchValue && <Icon icon="person_new" className="Gray_9e Font18" />}
+            <span className={cx('flex ellipsis Font13 nodeName', { mLeft4: l.isLeaf })}>
+              {orgGroup.title ? `${orgGroup.title}-${l.title}` : l.title}
+            </span>
+            {!isDefault && hasPermission(authority, PERMISSION_ENUM.ROLE_MENAGE) && (
+              <span className="moreActionButton Hand">
+                <Trigger
+                  popupVisible={l.key === actionPopupVisible}
+                  popupClassName="actRoleDrop"
+                  action={['click']}
+                  popupAlign={{
+                    points: ['tl', 'bl'],
+                    overflow: { adjustX: true, adjustY: true },
+                  }}
+                  getPopupContainer={() => document.body}
+                  onPopupVisibleChange={visible => {
+                    this.setState({ actionPopupVisible: visible ? l.key : false });
+                  }}
+                  popup={
+                    <Menu>
+                      <Menu.Item
+                        key="0"
+                        onClick={e => {
+                          l.isLeaf && this.createAndEdit('edit');
+                          this.setState(
+                            l.isLeaf
+                              ? { actionPopupVisible: false }
+                              : {
+                                  actionPopupVisible: false,
+                                  roleFolderDialog: {
+                                    visible: true,
+                                    id: l.orgRoleGroupId,
+                                    name: l.orgRoleGroupName,
+                                  },
+                                },
+                          );
+                        }}
+                      >
+                        {_l('编辑')}
+                      </Menu.Item>
+                      <Menu.Item key="1" className="delRole" onClick={e => this.showDeleteDialog(l)}>
+                        {_l('删除')}
+                      </Menu.Item>
+                    </Menu>
+                  }
+                >
+                  <Icon
+                    icon="more_vert"
+                    className="Gray_9e Font18 TxtMiddle editIcon Hover_21"
+                    onClick={e => e.stopPropagation()}
+                  />
+                </Trigger>
+              </span>
+            )}
+            {l.isLeaf && l.remark && l.organizeId !== showDeleteId && (
+              <Tooltip popupPlacement={'rightTop'} offset={[0, -15]} text={<span>{l.remark}</span>}>
+                <Icon icon="info_outline" className="remarkTooptip Gray_9e Font16 TxtMiddle mLeft2" />
+              </Tooltip>
+            )}
+          </Fragment>
         )}
       </div>
     );
+  };
+
+  // 导出角色
+  exportRoleList = () => {
+    const { projectId } = this.props;
+    const url = `${md.global.Config.AjaxApiUrl}download/exportProjectOrgRoleList`;
+    let projectName = getCurrentProject(projectId, true).companyName;
+    let date = moment().format('YYYYMMDDHHmmss');
+    const fileName = `${projectName}_${_l('组织角色')}_${date}` + '.xlsx';
+
+    this.setState({ popupVisible: false });
+
+    downloadFile({
+      url,
+      params: {
+        projectId,
+      },
+      exportFileName: fileName,
+    });
   };
 
   onExpand = keys => {
@@ -659,7 +721,7 @@ class RoleManage extends Component {
 
   render() {
     const { roleList = [], currentRole = {}, projectId, isImportRole, searchValue, authority } = this.props;
-    let { showRoleDialog, filed, roleFolderDialog, treeData, loading, expandedKeys } = this.state;
+    let { showRoleDialog, filed, roleFolderDialog, treeData, loading, expandedKeys, popupVisible } = this.state;
     const hasRoleAuth = hasPermission(authority, PERMISSION_ENUM.ROLE_MENAGE);
 
     if (isImportRole) {
@@ -693,6 +755,38 @@ class RoleManage extends Component {
                 <Icon icon="add" className="Font18 Bold TxtMiddle" />
                 {_l('角色组')}
               </span>
+              <div className="flex"></div>
+              <Trigger
+                popupClassName="actRoleDrop importExportMenuWrap"
+                action={['click']}
+                popupAlign={{
+                  points: ['tl', 'bl'],
+                  overflow: { adjustX: true, adjustY: true },
+                }}
+                popupVisible={popupVisible}
+                onPopupVisibleChange={popupVisible => this.setState({ popupVisible })}
+                popup={
+                  <Menu className="importExportAction">
+                    <Menu.Item
+                      key="0"
+                      onClick={() => {
+                        this.setState({ popupVisible: false });
+                        this.props.updateIsImportRole(true);
+                      }}
+                    >
+                      {_l('导入角色')}
+                    </Menu.Item>
+                    <Menu.Item key="1" className="mBottom4" onClick={this.exportRoleList}>
+                      {_l('导出角色')}
+                    </Menu.Item>
+                  </Menu>
+                }
+              >
+                <i
+                  className="icon icon-moreop ant-dropdown-trigger Gray_9e Hand Font20 iconHover LineHeight28"
+                  onClick={() => this.setState({ popupVisible: true })}
+                />
+              </Trigger>
             </div>
           )}
 
@@ -716,7 +810,7 @@ class RoleManage extends Component {
                   showIcon
                   switcherIcon={null}
                   icon={l => {
-                    if (!l.isLeaf) return null;
+                    if (!l.isLeaf || l.data.key === 'isMore') return null;
                     return <Icon icon="person_new" className="Gray_9e Font18 LineHeight24" />;
                   }}
                   titleRender={this.titleRender}

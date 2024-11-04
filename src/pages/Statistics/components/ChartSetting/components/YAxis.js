@@ -260,7 +260,7 @@ export default class YAxis extends Component {
   handleSortEnd = list => {
     const { currentReport, yaxisList, onChangeCurrentReport } = this.props;
     const { reportType, config } = currentReport;
-    const data = { yaxisList: newYaxisList };
+    const data = { yaxisList: list };
     if (reportType === reportTypes.ProgressChart) {
       data.config = {
         ...config,

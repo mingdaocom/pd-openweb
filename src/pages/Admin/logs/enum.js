@@ -63,11 +63,12 @@ export const LOGIN_LOG_COLUMNS = [
   {
     title: _l('登录/登出时间'),
     dataIndex: 'date',
-    width: 200,
+    width: 170,
   },
   {
     title: _l('登录方式'),
     dataIndex: 'loginVenue',
+    width: 220,
   },
   {
     title: _l('登录类型'),

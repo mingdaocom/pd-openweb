@@ -8,8 +8,7 @@ import ShowBtnFilterDialog from 'src/pages/worksheet/common/CreateCustomBtn/comp
 import { PRINT_TYPE, PRINT_TYPE_STYLE } from 'src/pages/Print/config';
 import { getPrintCardInfoOfTemplate } from 'src/pages/worksheet/common/PrintQrBarCode/enum';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
-import { redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
-import { handleCondition } from 'src/pages/widgetConfig/util/data';
+import { redefineComplexControl, formatValuesOfCondition } from 'worksheet/common/WorkSheetFilter/util';
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import sheetAjax from 'src/api/worksheet';
 
@@ -128,7 +127,7 @@ export default function PrintSortableItem(props) {
         ).length === 0;
       const _filters = isEmptyFilter ? [] : filters || [];
 
-      sheetAjax.editPrintFilter({ id: item.id, filters: _filters.map(handleCondition) }).then(res => {
+      sheetAjax.editPrintFilter({ id: item.id, filters: _filters.map(formatValuesOfCondition) }).then(res => {
         if (!res) {
           alert(_l('修改失败'), 2);
         } else {

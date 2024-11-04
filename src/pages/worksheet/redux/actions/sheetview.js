@@ -518,6 +518,7 @@ export function saveSheetLayout({ closePopup = () => {} }) {
               /^\w{24}$/.test(c.controlId) || _.includes(safeParse(view.advancedSetting.sysids, 'array'), c.controlId),
           )
           .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1))
+          .filter(c => includes(view.showControls, c.controlId))
           .filter(c => !_.find(sheetHiddenColumns, hcid => hcid === c.controlId))
           .map(c => c.controlId);
       }
@@ -536,6 +537,7 @@ export function saveSheetLayout({ closePopup = () => {} }) {
       type: 'WORKSHEET_UPDATE_VIEW',
       view: {
         ...view,
+        ...updates,
         advancedSetting: {
           ...view.advancedSetting,
           ...updates.advancedSetting,

@@ -15,6 +15,12 @@ const ViewDisplay = props => {
 
   useEffect(() => {
     const customPageContent = document.querySelector('#componentsWrap');
+    window[`refresh-${objectId}`] = () => {
+      setVisible(false);
+      setTimeout(() => {
+        setVisible(true);
+      }, 100);
+    }
     if (!customPageContent || customPageContent.classList.contains('adjustScreen')) {
       setVisible(true);
       return;
@@ -32,6 +38,7 @@ const ViewDisplay = props => {
     checkVisible();
     return () => {
       customPageContent.removeEventListener('scroll', checkVisible, false);
+      delete window[`refresh-${objectId}`];
     }
   }, []);
 
@@ -71,9 +78,9 @@ const ViewDisplay = props => {
 }
 
 export default connect(
-  state => ({
+  (state, ownProps) => ({
     filtersGroup: state.customPage.filtersGroup,
-    filterComponents: state.customPage.filterComponents,
+    filterComponents: state.customPage.filterComponents.filter(n => ownProps.layoutType === 'mobile' ? n.mobileVisible : true),
     loadFilterComponentCount: state.customPage.loadFilterComponentCount,
   })
 )(ViewDisplay);

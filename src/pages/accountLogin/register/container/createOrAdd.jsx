@@ -18,12 +18,14 @@ export default class CreateOrAdd extends React.Component {
             setStep('add');
           }}
         >
-          <h5 className="Gray Font17">
+          <h5 className="Gray Font18 Bold">
             {_l('加入')}
-            <span style={{ color: '#00BCD7' }} className="mLeft3 mRight3">{_l('已有')}</span>
+            <span style={{ color: '#00BCD7' }} className="mLeft3 mRight3">
+              {_l('已有')}
+            </span>
             {_l('组织')}
           </h5>
-          <p className="Gray_75 Font13 mTop12">{_l('如果被告知要使用，或有同事已经在用，请选此项。')}</p>
+          <p className="Gray Font13 mTop12">{_l('同事已经在用，我要找到并加入组织')}</p>
         </div>
         <div
           className="gNextBox mTop24 mBottom25"
@@ -31,12 +33,14 @@ export default class CreateOrAdd extends React.Component {
             setStep('create');
           }}
         >
-          <h5 className="Gray Font17">
+          <h5 className="Gray Font18 Bold">
             {_l('创建')}
-            <span style={{ color: '#3E4DB9' }} className="mLeft3 mRight3">{_l('新的')}</span>
+            <span style={{ color: '#3E4DB9' }} className="mLeft3 mRight3">
+              {_l('新的')}
+            </span>
             {_l('组织')}
           </h5>
-          <p className="Gray_75 Font13 mTop12">{_l('如果想为企业或组织创建账号，请选择此项。')}</p>
+          <p className="Gray Font13 mTop12">{_l('我想自己创建一个新组织')}</p>
         </div>
       </React.Fragment>
     );
@@ -56,7 +60,7 @@ export default class CreateOrAdd extends React.Component {
           >
             <span className="backspace"></span> {_l('返回')}
           </span>
-          <div className="title mTop24">{_l('创建或加入组织')}</div>
+          <div className="title Font26 Bold mTop16">{_l('创建或加入组织')}</div>
         </div>
 
         {this.renderCon()}

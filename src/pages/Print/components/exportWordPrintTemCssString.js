@@ -234,7 +234,7 @@ export default {
   },
   relationPrintTable_Tr_Th: {
     border: '0.1px solid #ddd',
-    padding: '5px',
+    padding: '0',
     borderRight: 'none',
     borderTop: 'none',
     color: '#000',

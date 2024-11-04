@@ -30,8 +30,15 @@ function ViewContent(props) {
     }
     customPageContent.addEventListener('scroll', checkVisible, false);
     checkVisible();
+    window[`refresh-${objectId}`] = () => {
+      setVisible(false);
+      setTimeout(() => {
+        setVisible(true);
+      }, 100);
+    }
     return () => {
       customPageContent.removeEventListener('scroll', checkVisible, false);
+      delete window[`refresh-${objectId}`];
     }
   }, []);
 

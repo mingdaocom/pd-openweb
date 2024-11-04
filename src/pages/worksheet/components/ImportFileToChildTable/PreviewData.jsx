@@ -272,8 +272,8 @@ export default function PreviewData(props) {
                 data: needImportCellData,
               });
               setIsConverting(false);
-              onAddRows(data);
-              onClose();
+
+              onClose(data);
             }}
           >
             {_l('导入')}

@@ -45,7 +45,7 @@ export default function RowItem({ row, displayItemType, sectionId, index, ...res
           }
           setPointerDir(dir);
         } else {
-          const rowItem = (rest.widgets || [])[index];
+          const rowItem = (rest.widgets || [])[index] || [];
           const currentRow = head(item.path);
 
           // 拖拽到其他行如果已经有三个以上也不能拖

@@ -1,6 +1,4 @@
 import React, { useState, useContext } from 'react';
-import { string } from 'prop-types';
-import nzh from 'nzh';
 import { Input } from 'ming-ui';
 import cx from 'classnames';
 import { useSetState } from 'react-use';
@@ -94,7 +92,7 @@ export default function LayerTitle({
                   setIndex(index);
                 }}
               >
-                {value || _l('%0级', nzh.cn.encodeS(index + 1))}
+                {value || _l('%0级', index + 1)}
               </span>
             )}
           </li>

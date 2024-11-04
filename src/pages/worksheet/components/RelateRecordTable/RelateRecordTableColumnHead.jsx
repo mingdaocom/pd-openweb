@@ -31,6 +31,7 @@ export default function ColumnHead(props) {
     !(_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) &&
     _.get(control, 'advancedSetting.datamask') === '1' &&
     _.get(control, 'advancedSetting.isdecrypt') === '1';
+
   return (
     <BaseColumnHead
       disableSort={disabled}

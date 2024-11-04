@@ -65,6 +65,7 @@ export default class TagTextarea extends React.Component {
       height,
       onFocus,
       onBlur,
+      onChange,
       getRef,
       readonly,
       noCursor,
@@ -143,6 +144,11 @@ export default class TagTextarea extends React.Component {
         if (this.cmcon) {
           this.cmcon.classList.remove('active');
         }
+        if (!_.isUndefined(this.tempValue)) {
+          onChange(null, this.tempValue, this.tempObj);
+          this.tempValue = undefined;
+          this.tempObj = undefined;
+        }
         onBlur(...args);
       });
     }
@@ -205,10 +211,15 @@ export default class TagTextarea extends React.Component {
     const value = this.cmObj.getValue();
     if (!includes(['setValue', '*compose'], obj.origin)) {
       onChange(null, value, obj);
+    } else if (obj.origin === '*compose') {
+      this.tempValue = value;
+      this.tempObj = obj;
     }
     setTimeout(() => {
       if (obj.origin === '*compose' && !get(this, 'cmObj.display.input.composing')) {
         onChange(null, value, obj);
+        this.tempValue = undefined;
+        this.tempObj = undefined;
       }
     }, 1);
     this.updateTextareaView();

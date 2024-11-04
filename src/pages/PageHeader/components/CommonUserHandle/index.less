@@ -113,6 +113,10 @@
       }
     }
   }
+  &.dashboardCommonUserHandleWrap {
+    flex: 1;
+    justify-content: flex-end;
+  }
 }
 .leftCommonUserHandleWrap {
   .headerColorSwitch {
@@ -130,10 +134,9 @@
 }
 .pageHeadUser {
   padding: 0 !important;
-  &.commonHeaderUser {
-    .Tooltip-arrow {
-      left: initial;
-      right: 25px !important;
-    }
+  max-width: 280px;
+  width: 280px;
+  .Tooltip-arrow {
+    display: none;
   }
 }

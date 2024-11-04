@@ -3,10 +3,53 @@ import homeAppAjax from 'src/api/homeApp';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { refreshSheet } from 'src/pages/worksheet/redux/actions/index.js';
 import { getRequest, getTranslateInfo } from 'src/util';
-import { getFilledRequestParams, replaceControlsTranslateInfo } from 'worksheet/util';
-import _ from 'lodash';
+import { getFilledRequestParams, replaceControlsTranslateInfo, needHideViewFilters } from 'worksheet/util';
+import { handleConditionsDefault, validate } from 'src/pages/Mobile/RecordList/QuickFilter/utils.js';
+import { formatFilterValues, formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils.js';
+import _, { get, some } from 'lodash';
+
+function fireWhenViewLoaded(view, { controls = [] } = {}) {
+  return (dispatch, getState) => {
+    if (!get(view, 'fastFilters')) return;
+    const newFastFilters = handleConditionsDefault(view.fastFilters || [], controls);
+    const fastFiltersHasDefaultValue = some(newFastFilters, validate);
+    if (fastFiltersHasDefaultValue) {
+      if (get(view, 'advancedSetting.enablebtn') !== '1') {
+        dispatch(
+          updateQuickFilter(
+            newFastFilters.filter(validate).map(condition => ({
+              ...condition,
+              filterType: condition.dataType === 29 ? 24 : condition.filterType || 2,
+              spliceType: condition.spliceType || 1,
+              values: formatFilterValuesToServer(
+                condition.dataType,
+                formatFilterValues(condition.dataType, condition.values),
+              ),
+              ...(condition.dataType === 36 ? { value: 1 } : {}),
+            })),
+            view,
+            { noLoad: true },
+          ),
+        );
+      }
+      dispatch(updateQuickFilterWithDefault(newFastFilters));
+    } else {
+      dispatch(updateQuickFilterWithDefault(view.fastFilters));
+    }
+  };
+}
 
 export const updateBase = base => (dispatch, getState) => {
+  const {
+    worksheetInfo: { views, template },
+  } = getState().mobile;
+  const prevViewId = _.get(getState(), 'mobile.base.viewId');
+  const viewChanged = prevViewId && base.viewId && prevViewId !== base.viewId;
+  const view = _.find(views, v => v.viewId === base.viewId);
+  if (viewChanged && view && !needHideViewFilters(view)) {
+    dispatch({ type: 'MOBILE_UPDATE_FILTERS' });
+    dispatch(fireWhenViewLoaded(view, { controls: template.controls }));
+  }
   dispatch({
     type: 'MOBILE_UPDATE_BASE',
     base,
@@ -32,6 +75,12 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
     dispatch({ type: 'WORKSHEET_PERMISSION_INIT', value: currentNavWorksheetInfo.switches || [] });
     dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: currentNavWorksheetInfo });
     dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
+    const views = currentNavWorksheetInfo.views.filter(
+      v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
+    );
+    const view = base.viewId ? _.find(views, v => v.viewId === base.viewId) : views[0] || {};
+
+    dispatch(fireWhenViewLoaded(view, { controls: currentNavWorksheetInfo.template.controls }));
   } else {
     dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: true });
   }
@@ -75,12 +124,27 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
         sub: sheetTranslateInfo.formSub || advancedSetting.sub,
         continue: sheetTranslateInfo.formContinue || advancedSetting.continue,
       };
-      workSheetInfo.views = views.map(item => {
-        return {
-          ...item,
-          name: getTranslateInfo(base.appId, null, item.viewId).name || item.name,
-        };
-      });
+      workSheetInfo.views = views
+        .map(item => {
+          return {
+            ...item,
+            name: getTranslateInfo(base.appId, null, item.viewId).name || item.name,
+          };
+        })
+        .filter(
+          v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
+        );
+      if (
+        base.type !== 'single' &&
+        !_.includes(
+          workSheetInfo.views.map(v => v.viewId),
+          base.viewId,
+        ) &&
+        !_.isEmpty(workSheetInfo.views)
+      ) {
+        dispatch(updateBase({ ...base, viewId: workSheetInfo.views[0].viewId }));
+      }
+      const view = base.viewId ? _.find(workSheetInfo.views, v => v.viewId === base.viewId) : workSheetInfo.views[0];
       if (workSheetInfo.template) {
         workSheetInfo.template.controls = replaceControlsTranslateInfo(
           base.appId,
@@ -97,6 +161,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
       });
       dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
       dispatch({ type: 'WORKSHEET_UPDATE_FILTERS', filters: { ...filters, filterControls } });
+      dispatch(fireWhenViewLoaded(view, { controls: template.controls }));
     });
   if (noNeedGetApp) return;
   homeAppAjax
@@ -254,7 +319,7 @@ export const changePageIndex = pageIndex => (dispatch, getState) => {
 };
 
 export const updateQuickFilter =
-  (filter = []) =>
+  (filter = [], view, { noLoad } = {}) =>
   (dispatch, getState) => {
     const { base = {}, worksheetInfo = {} } = getState().mobile;
     const view = _.find(worksheetInfo.views || [], item => base.viewId === item.viewId) || {};
@@ -267,6 +332,9 @@ export const updateQuickFilter =
       type: 'MOBILE_UPDATE_SHEET_VIEW',
       sheetView: { pageIndex: 1 },
     });
+
+    if (noLoad) return;
+
     if (view.viewType === 7) {
       dispatch({
         type: 'WORKSHEET_UPDATE_QUICK_FILTER',
@@ -277,6 +345,18 @@ export const updateQuickFilter =
       dispatch(fetchSheetRows());
     }
   };
+
+export function updateQuickFilterWithDefault(filter = []) {
+  return dispatch => {
+    dispatch({
+      type: 'UPDATE_QUICK_FILTER_WITH_DEFAULT',
+      filter: filter.map(condition => ({
+        ...condition,
+        values: formatFilterValues(condition.dataType, condition.values),
+      })),
+    });
+  };
+}
 
 export const updateFilters = (filters, view) => (dispatch, getState) => {
   const { base = {}, worksheetInfo = {} } = getState().mobile;
@@ -315,10 +395,6 @@ export const resetSheetView = () => (dispatch, getState) => {
   dispatch({
     type: 'MOBILE_UPDATE_FILTERS',
     filters: { keyWords: '', quickFilterKeyWords: '' },
-  });
-  dispatch({
-    type: 'MOBILE_UPDATE_QUICK_FILTER',
-    filter: [],
   });
   dispatch(fetchSheetRows());
 };

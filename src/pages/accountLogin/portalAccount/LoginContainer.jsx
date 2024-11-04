@@ -208,6 +208,7 @@ function LoginContainer(props) {
         appId,
       })
       .then(res => {
+        // res.scanUrl=> "http://web.dev.mingdao.net/portal/wxscanauth?state=xxx"
         if (res.accountResult === 1) {
           setState({ loading: false });
           if (res.scanUrl) {
@@ -245,11 +246,14 @@ function LoginContainer(props) {
     }
     type === 'weChat' &&
       externalPortalAjax
-        .scanTpLogin({
-          state: stateWX,
-          appId,
-          autoLogin: isAutoLogin, //自动登录的参数
-        })
+        .scanTpLogin(
+          {
+            state: stateWX,
+            appId,
+            autoLogin: isAutoLogin, //自动登录的参数
+          },
+          props.customLink ? { ajaxOptions: { header: { 'Ex-custom-link-path': props.customLink } } } : {},
+        )
         .then(res => {
           setAutoLoginKey({ ...res, appId });
           const { accountResult, sessionId, state, accountId } = res;
@@ -269,8 +273,11 @@ function LoginContainer(props) {
           } else {
             if (accountResult === 1 || accountResult === 24) {
               //24代表账号频繁登录被锁，state里面会返回锁定时间；
-              accountResultAction(res);
+              accountResultAction(res, props.customLink);
             } else {
+              if (props.customLink && !_.get(props, 'registerMode.email') && !_.get(props, 'registerMode.phone')) {
+                return setStatus(40);
+              }
               setParamForPcWx({
                 mdAppId: appId || '',
                 wxState: state || '',
@@ -367,17 +374,20 @@ function LoginContainer(props) {
     const { dialCode, emailOrTel, verifyCode } = dataLogin;
     const { ticket, randstr } = resRet;
     externalPortalAjax
-      .login({
-        ...paramLogin,
-        account: encrypt(dialCode + emailOrTel),
-        verifyCode,
-        captchaType: md.global.getCaptchaType(),
-        ticket,
-        randStr: randstr,
-        appId, //应用ID
-        state, // 微信登录成功之后返回的临时状态码 用于反向存储微信相关信息，具备有效期
-        autoLogin: isAutoLogin,
-      })
+      .login(
+        {
+          ...paramLogin,
+          account: encrypt(dialCode + emailOrTel),
+          verifyCode,
+          captchaType: md.global.getCaptchaType(),
+          ticket,
+          randStr: randstr,
+          appId, //应用ID
+          state, // 微信登录成功之后返回的临时状态码 用于反向存储微信相关信息，具备有效期
+          autoLogin: isAutoLogin,
+        },
+        props.customLink ? { ajaxOptions: { header: { 'Ex-custom-link-path': props.customLink } } } : {},
+      )
       .then(res => {
         setAutoLoginKey({ ...res, appId });
         loginCallback(res);
@@ -392,15 +402,18 @@ function LoginContainer(props) {
     const { ticket, randstr } = resRet;
     const account = (isTel(emailOrTel) ? dialCode : '') + emailOrTel;
     externalPortalAjax
-      .twofactorLogin({
-        account: encrypt(account),
-        verifyCode,
-        captchaType: md.global.getCaptchaType(),
-        ticket,
-        randStr: randstr,
-        state, // 首次登陆返回的state
-        autoLogin: isAutoLogin,
-      })
+      .twofactorLogin(
+        {
+          account: encrypt(account),
+          verifyCode,
+          captchaType: md.global.getCaptchaType(),
+          ticket,
+          randStr: randstr,
+          state, // 首次登陆返回的state
+          autoLogin: isAutoLogin,
+        },
+        props.customLink ? { ajaxOptions: { header: { 'Ex-custom-link-path': props.customLink } } } : {},
+      )
       .then(res => {
         setAutoLoginKey({ ...res, appId });
         loginCallback(res);
@@ -434,7 +447,7 @@ function LoginContainer(props) {
           3,
         );
       } else {
-        accountResultAction(res);
+        accountResultAction(res, props.customLink);
       }
     }
   };
@@ -445,17 +458,21 @@ function LoginContainer(props) {
     }
     const { dialCode, emailOrTel, verifyCode, password } = dataLogin;
     const { ticket, randstr } = resRet;
+
     externalPortalAjax
-      .pwdLogin({
-        account: encrypt(dialCode + emailOrTel),
-        password: encrypt(password),
-        appId,
-        verifyCode, //verifyCode不为空则代表是注册，为空则代表进行密码登录；
-        autoLogin: isAutoLogin,
-        captchaType: md.global.getCaptchaType(),
-        ticket,
-        randStr: randstr,
-      })
+      .pwdLogin(
+        {
+          account: encrypt(dialCode + emailOrTel),
+          password: encrypt(password),
+          appId,
+          verifyCode, //verifyCode不为空则代表是注册，为空则代表进行密码登录；
+          autoLogin: isAutoLogin,
+          captchaType: md.global.getCaptchaType(),
+          ticket,
+          randStr: randstr,
+        },
+        props.customLink ? { ajaxOptions: { header: { 'Ex-custom-link-path': props.customLink } } } : {},
+      )
       .then(res => {
         setAutoLoginKey({ ...res, appId });
         const { accountResult, sessionId, accountId, projectId, state } = res;
@@ -558,10 +575,14 @@ function LoginContainer(props) {
           <div className="mTop16 flexRow alignItemsCenter">
             {findPassword && (
               <span
-                className="Hand ThemeHoverColor3 Gray_9e"
+                className="Hand ThemeHoverColor3 Gray Font14"
                 style={{ margin: '0 0 0 auto' }}
                 onClick={() => {
-                  navigateTo(`${window.subPath || ''}/findPwd?appId=${appId}`);
+                  navigateTo(
+                    `${window.subPath || ''}/findPwd?appId=${appId}${
+                      props.customLink ? '&customLink=' + props.customLink : ''
+                    }`,
+                  );
                 }}
               >
                 {_l('忘记密码')}
@@ -587,7 +608,7 @@ function LoginContainer(props) {
           {sending ? '...' : ''}
         </div>
         {termsAndAgreementEnable && (
-          <div className="mTop12 Gray_9e TxtTop LineHeight22 flexRow">
+          <div className="mTop12 Gray Bold Font14 TxtTop LineHeight22 flexRow">
             <Checkbox
               checked={hasCheck}
               onClick={() => {
@@ -629,7 +650,7 @@ function LoginContainer(props) {
               }}
             >
               <Checkbox checked={isAutoLogin} className="Hand" name="" />
-              <span className="Gray_9e Hand">{_l('7天内免登录')}</span>
+              <span className="Gray Font14 Bold Hand">{_l('7天内免登录')}</span>
             </div>
           </div>
         )}

@@ -4,7 +4,8 @@ import './index.less';
 import { MenuItem } from 'ming-ui';
 import ActionFields from '../ActionFields';
 import SelectUsersFromApp from '../../../../components/SelectUsersFromApp';
-import { USER_TYPE, CONTROLS_NAME } from '../../../enum';
+import { USER_TYPE } from '../../../enum';
+import { getControlTypeName } from '../../../utils';
 import flowNode from '../../../../api/flowNode';
 import { dialogSelectOrgRole, dialogSelectJob, dialogSelectDept, dialogSelectUser } from 'ming-ui/functions';
 
@@ -45,7 +46,7 @@ export default class SelectUserDropDown extends Component {
             return {
               type: o.type,
               value: o.controlId,
-              field: CONTROLS_NAME[o.type],
+              field: getControlTypeName(o),
               text: o.controlName,
             };
           }),

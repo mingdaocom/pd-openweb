@@ -100,27 +100,25 @@ export const WIDGETS_TO_API_TYPE_ENUM_N = {
   36: 'SWITCH',
 };
 const initData = (enumType, type, controlId) => {
-  return {
+  const tempDefault = {
     ...DEFAULT_DATA[enumType],
     size: 12,
     type: type || enumWidgetType[enumType],
     controlId: controlId ? controlId : uuidv4(),
     fieldPermission: '110', //默认收集
   };
+  if (tempDefault.advancedSetting) {
+    tempDefault.advancedSetting.showselectall = '0';
+  }
+  return tempDefault;
 };
 
 const Item = props => {
-  let {
-    type,
-    showEditDialog,
-    deleteBtn,
-    onChange,
-    required,
-    fieldPermission = '111',
-    controlName,
-    controlId,
-    DragHandle,
-  } = props;
+  let { type, showEditDialog, deleteBtn, onChange, required, fieldPermission = '111', controlId, DragHandle } = props;
+  const [controlName, setControlName] = useState(props.controlName);
+  useEffect(() => {
+    setControlName(props.controlName);
+  }, [props.controlName]);
   return (
     <WrapSorh className="mBottom10 porTalSort flexRow">
       <DragHandle className="alignItemsCenter flexRow">
@@ -148,8 +146,12 @@ const Item = props => {
         value={controlName}
         placeholder={_l('字段标题')}
         onChange={e => {
+          setControlName(e.target.value);
+        }}
+        onBlur={e => {
           let value = e.target.value.trim();
           onChange({ controlName: value, controlId });
+          setControlName(value);
         }}
       />
       <Checkbox

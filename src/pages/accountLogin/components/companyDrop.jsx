@@ -22,10 +22,12 @@ const WrapCon = styled.div`
     }
     span.itemSpan {
       color: #333 !important;
+      font-size: 15px;
     }
     .ming.Item .Item-content:not(.disabled):hover {
       span.itemSpan {
         color: white !important;
+        font-size: 15px;
       }
     }
     .Dropdown--border,
@@ -37,13 +39,13 @@ const WrapCon = styled.div`
       min-height: 40px;
       padding: 4px !important;
       .Dropdown--placeholder {
-        line-height: 30px !important;
+        line-height: 42px !important;
       }
       .icon-arrow-down-border {
-        line-height: 40px !important;
+        line-height: 52px !important;
       }
       .value {
-        line-height: 30px !important;
+        line-height: 42px !important;
         display: flex !important;
         & > div {
           flex: 1 !important;
@@ -82,6 +84,7 @@ function Drop(props) {
         selectClose={info.multiple !== 1}
         cancelAble={info.multiple === 1}
         showItemTitle
+        openSearch
         menuClass={''}
         value={
           !_.get(extraDatas, `${info.id}`) || _.get(extraDatas, `${info.id}`).length <= 0
@@ -119,7 +122,7 @@ function Drop(props) {
               })}
             >
               <span
-                className="flex itemSpan"
+                className="flex itemSpan Font15"
                 dangerouslySetInnerHTML={{
                   __html: item.text,
                 }}
@@ -129,6 +132,7 @@ function Drop(props) {
           );
         }}
         isAppendToBody
+        onVisibleChange={props.onVisibleChange}
         renderTitle={() => {
           let ids = _.get(extraDatas, `${info.id}`) || [];
           if (info.multiple === 1) {

@@ -7,7 +7,7 @@
     height: 0 !important;
   }
   .iti__dropdown-content {
-    width: 324px !important;
+    width: 382px !important;
   }
   input[type='text'].iti__tel-input,
   input[type='text'].itiCon {
@@ -28,15 +28,16 @@
   }
 
   .privacyText {
-    margin: 5px 0 0 !important;
+    margin: 20px 0 0 !important;
     padding: 10px;
-    // line-height: 40px;
     height: auto !important;
     padding: 0 4px;
     border-radius: 3px;
     .privacyTextCon {
       flex-wrap: wrap;
       padding: 10px 0;
+      font-size: 14px;
+      font-weight: bold;
     }
     &.errorDiv {
       background: #fff0f0;
@@ -51,7 +52,7 @@
   .passwordTip {
     line-height: 30px;
     width: 30px;
-    top: 5px;
+    top: 11px;
     border-radius: 50%;
     text-align: center;
     color: #757575;
@@ -67,7 +68,7 @@
   .iti {
     // width: 100%;
     font-size: 13px;
-    height: 38px;
+    height: 48px;
   }
 
   .iti__country-container,
@@ -110,7 +111,7 @@
       width: 100%;
       padding: 0 10px;
       box-sizing: border-box;
-      line-height: 40px;
+      line-height: 52px;
     }
   }
 
@@ -142,10 +143,10 @@
     position: relative;
     margin-top: 24px;
     background: #ffffff;
-    height: 40px;
+    height: 52px;
     &.mesDivDrop {
       height: auto;
-      min-height: 40px;
+      min-height: 52px;
     }
     box-sizing: border-box;
     .iti__country-container {
@@ -186,16 +187,27 @@
     .title {
       position: absolute;
       left: 12px;
-      top: 13px;
+      top: 18px;
       color: #9e9e9e;
       font-size: 14px;
       z-index: 0;
       line-height: 1;
       transition: all 0.3s;
+      font-weight: 400;
     }
 
     .warnningTip {
-      display: none;
+      display: block;
+      color: red;
+      text-align: right;
+      font-size: 13px;
+      width: 100%;
+      line-height: 20px;
+      word-wrap: break-word;
+    }
+    .inputHidden {
+      position: fixed;
+      top: -100px;
     }
 
     &.errorDiv {
@@ -203,7 +215,7 @@
         input[type='text']:not(.iti__search-input),
         input[type='password'],
         .Dropdown--input {
-          border: 1px solid #2196f3 !important;
+          border: 2px solid #2196f3 !important;
         }
       }
 
@@ -211,78 +223,58 @@
       input[type='password'],
       .Dropdown--input,
       .ant-select-selector {
-        border: 1px solid red !important;
+        border: 2px solid red !important;
+      }
+      .title {
+        color: red !important;
+        top: -9px;
+        background: #fff;
+        padding: 0 4px;
       }
       &.warnDiv {
         input[type='text']:not(.iti__search-input),
         input[type='password'],
         .Dropdown--input {
-          border: 1px solid #e6e6e6 !important;
+          border: 2px solid #e6e6e6 !important;
         }
         &.errorDivCu {
           input[type='text']:not(.iti__search-input),
           input[type='password'],
           .Dropdown--input {
-            border: 1px solid #2196f3 !important;
+            border: 2px solid #2196f3 !important;
           }
+        }
+        .title {
+          color: #2196f3 !important;
+        }
+        .warnningTip.noIcon {
+          color: #333 !important;
+          padding: 10px 10px;
+          font-weight: bold;
+          font-size: 13px;
+          line-height: 24px;
+          background: #ffffff 0% 0% no-repeat padding-box;
+          box-shadow: 0px 3px 6px #00000029;
+          border-radius: 4px;
+          text-align: left;
+          z-index: 1;
+          position: absolute;
+          top: 100%;
         }
       }
       #btnSendVerifyCode {
         border: 1px solid #2196f3 !important;
       }
 
-      .warnningTip {
-        display: inline-block;
-        color: #333;
-        position: absolute;
-        left: 101%;
-        width: -webkit-max-content;
-        width: max-content;
-        min-width: 100px;
-        max-width: 200px;
-        padding: 10px 10px;
-        top: 0;
-        line-height: 20px;
-        background: #ffffff 0% 0% no-repeat padding-box;
-        box-shadow: 0px 3px 6px #00000029;
-        border-radius: 4px;
-        z-index: 1;
-        padding-left: 29px;
-        word-wrap: break-word;
-
-        &::before {
-          background-color: red;
-          color: #fff;
-          border-radius: 50%;
-          display: inline-block;
-          content: '!';
-          width: 14px;
-          height: 14px;
-          line-height: 14px;
-          text-align: center;
-          font-size: 12px;
-          margin-right: 8px;
-          vertical-align: middle;
-          position: absolute;
-          left: 10px;
-          top: 12px;
-        }
-        &.noIcon {
-          padding-left: 10px;
-          &::before {
-            content: '';
-            width: 0;
-            display: none;
-          }
-        }
-
-        @media screen and (max-width: 620px) {
-          right: 0;
-          top: initial;
-          bottom: 44px;
-          left: initial;
-        }
-      }
+      // .warnningTip {
+      //   display: block;
+      //   color: red;
+      //   text-align: right;
+      //   font-size: 13px;
+      //   width: 100%;
+      //   line-height: 20px;
+      //   word-wrap: break-word;
+      // }
     }
     .ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
       border: 1px solid #e6e6e6;
@@ -292,7 +284,7 @@
       border: none;
     }
     .ant-select-single:not(.ant-select-customize-input) .ant-select-selector .ant-select-selection-search-input {
-      height: 40px;
+      height: 52px;
     }
     input[type='text']:not(.iti__search-input),
     input[type='password'],
@@ -301,19 +293,19 @@
       vertical-align: top;
       border: 0px;
       width: 100%;
-      padding: 5px 10px;
+      padding: 0 15px;
       box-sizing: border-box;
-      height: 40px;
+      height: 52px;
       vertical-align: top;
-      line-height: 30px;
-      font-size: 13px;
+      line-height: 42px;
+      font-size: 16px;
       border: 1px solid #e6e6e6;
       border-radius: 3px;
 
       .Dropdown--placeholder {
-        padding: 0 10px;
+        padding: 0 15px;
         color: #9e9e9e !important;
-        line-height: 40px;
+        line-height: 42px;
       }
 
       &:focus {
@@ -336,27 +328,23 @@
 
     &.current {
       .title {
-        font-size: 12px;
-        // color: #2196F3;
-        color: #757575;
+        font-size: 14px;
+        color: #2196f3 !important;
         top: -9px;
         z-index: 0;
         background: #fff;
         padding: 0 4px;
-        &.focusTitle {
-          color: #2196f3;
-        }
       }
 
       input:not(.iti__search-input),
       .Dropdown--input {
         border: 1px solid #e6e6e6;
         &:focus {
-          border: 1px solid #2196f3;
+          border: 2px solid #2196f3 !important;
         }
         .icon-arrow-down-border {
           position: absolute;
-          line-height: 40px;
+          line-height: 52px;
           top: 0;
           right: 12px;
         }
@@ -370,16 +358,17 @@
     .btnSendVerifyCode {
       display: inline-block;
       padding: 0 10px;
-      height: 32px;
+      height: 44px;
       background-color: #2196f3;
       border-radius: 4px;
       position: absolute;
       right: 4px;
       top: 4px;
       text-align: center;
-      font-size: 13px;
+      font-size: 14px;
+      font-weight: bold;
       color: #fff;
-      line-height: 32px;
+      line-height: 44px;
       cursor: pointer;
       z-index: 1;
 

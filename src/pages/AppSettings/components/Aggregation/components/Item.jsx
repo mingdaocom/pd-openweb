@@ -8,7 +8,6 @@ import Trigger from 'rc-trigger';
 import { TASK_STATUS_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import SyncTask from 'src/pages/integration/api/syncTask.js';
 import ChangeName from 'src/pages/integration/components/ChangeName.jsx';
-import { formatDate } from 'src/pages/integration/config.js';
 import AggTableAjax from 'src/pages/integration/api/aggTable.js';
 import customApi from 'statistics/api/custom.js';
 import MoveDialog from './MoveDialog';
@@ -346,7 +345,7 @@ export default function ItemCard(props) {
         </div>
       </div>
       <div className="w180px pRight20 mRight20 flexRow alignItemsCenter">
-        <span className="Gray_9e">{`${formatDate(item[displayType])}`}</span>
+        <span className="Gray_9e">{`${createTimeSpan(item[displayType])}`}</span>
       </div>
       <div className="w100px minWidth100 mRight20 Gray_75 flexRow alignItemsCenter">
         <UserHead

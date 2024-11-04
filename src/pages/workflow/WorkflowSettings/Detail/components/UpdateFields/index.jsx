@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Dropdown } from 'ming-ui';
-import { CONTROLS_NAME } from '../../../enum';
+import { getControlTypeName } from '../../../utils';
 import { SingleControlValue, AddOptions } from '../';
 import _ from 'lodash';
 
@@ -32,7 +32,7 @@ export default class UpdateFields extends Component {
       return (
         <div className="flexRow">
           <div>
-            <span className="Gray_75 mRight5">[{CONTROLS_NAME[item.type]}]</span>
+            <span className="Gray_75 mRight5">[{getControlTypeName(item)}]</span>
             <span>{item.controlName}</span>
           </div>
           <span className="flex ellipsis mLeft10 Gray_75" style={{ textAlign: 'right' }}>
@@ -44,7 +44,7 @@ export default class UpdateFields extends Component {
 
     return (
       <Fragment>
-        <span className="Gray_75 mRight5">[{CONTROLS_NAME[item.type]}]</span>
+        <span className="Gray_75 mRight5">[{getControlTypeName(item)}]</span>
         <span>{item.controlName}</span>
       </Fragment>
     );

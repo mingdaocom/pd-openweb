@@ -4,7 +4,7 @@ import { Select } from 'antd';
 import appManagement from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
-import { selectDateList, dateDimension, formatter } from '../../util';
+import { selectDateList, dateDimension, formatter, formatChartData } from '../../util';
 import { formatValue } from 'src/pages/Admin/homePage/config.js';
 import { dialogSelectDept } from 'ming-ui/functions';
 import LineChart from '../LineChart';
@@ -14,6 +14,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import _ from 'lodash';
 import moment from 'moment';
+import { formatFileSize } from 'src/util';
 
 const { Option } = Select;
 const Summary = styled.div`
@@ -196,13 +197,26 @@ export default class Overview extends Component {
         ...extra,
       })
       .then(({ workflow = {}, record = {}, app = {}, attachment = {} }) => {
-        this.updateChartData({ workflow, record, app, attachment });
+        this.updateChartData({ workflow, record, app, attachment, isFilterByDepartment: !!extra.departmentId });
       })
       .catch(err => {
         this.setState({ loading: false });
       });
   };
-  updateChartData = ({ workflow = {}, record = {}, app = {}, attachment = {} }) => {
+
+  getUserTotalCapacityUsage = (attachmentStatisticsResult = []) => {
+    const total = _.reduce(
+      attachmentStatisticsResult || [],
+      (sum, item) => {
+        const currentValue = _.find(item.value || [], v => v.subType === 1);
+        return sum + (currentValue ? currentValue.size : 0);
+      },
+      0,
+    );
+    return formatFileSize(total, 2);
+  };
+
+  updateChartData = ({ workflow = {}, record = {}, app = {}, attachment = {}, isFilterByDepartment }) => {
     const { totalNumberOfexecute = 0, statisticsResult: workflowStatisticsResult } = workflow;
     const {
       totalNumberOfRow = 0,
@@ -211,25 +225,20 @@ export default class Overview extends Component {
       rowStatisticsResult = [],
     } = record;
     const { totalDegree = 0, totalNumberOfPerson: appTotal, degreeStatisticsResult = [] } = app;
-    const { totalCapacityUsage, statisticsResult: attachmentStatisticsResult } = attachment;
+    const { totalCapacityUsage, statisticsResult: attachmentStatisticsResult, subTypeTotal } = attachment;
     const apppersonStatisticsResult = app.personStatisticsResult || [];
-    let maxSize = Math.max(...attachmentStatisticsResult.map(item => item.value));
-    let maxValue = (maxSize / Math.pow(1024, 2)).toFixed(2) * 1;
+
     this.setState({
       totalNumberOfexecute: formatter(totalNumberOfexecute) + _l(' 次'),
-      workflowStatisticsResult: workflowStatisticsResult.map(item => ({ ...item, category: _l('工作流执行数') })),
-      totalCapacityUsage:
-        maxValue > 1024
-          ? formatter((totalCapacityUsage / Math.pow(1024, 3)).toFixed(2) * 1) + ' GB'
-          : formatter((totalCapacityUsage / Math.pow(1024, 2)).toFixed(2) * 1) + ' MB',
-      attachmentStatisticsResult: attachmentStatisticsResult.map(item => ({
+      workflowStatisticsResult: (workflowStatisticsResult || []).map(item => ({
         ...item,
-        category: _l('附件上传量'),
-        value:
-          maxValue > 1024
-            ? (item.value / Math.pow(1024, 3)).toFixed(2) * 1
-            : (item.value / Math.pow(1024, 2)).toFixed(2) * 1,
+        category: _l('工作流执行数'),
       })),
+      totalCapacityUsage: isFilterByDepartment
+        ? this.getUserTotalCapacityUsage(attachmentStatisticsResult)
+        : formatFileSize(totalCapacityUsage, 2),
+      attachmentStatisticsResult: formatChartData('attachment', attachmentStatisticsResult, isFilterByDepartment),
+      subTypeTotal,
       totalNumberOfRow: formatter(totalNumberOfRow) + _l(' 条'),
       recordTotal: formatter(recordTotal) + _l(' 人'),
       recordStatisticsResult: [
@@ -305,6 +314,7 @@ export default class Overview extends Component {
 
   renderChart = (data = [], isDualAxes, chartInfo) => {
     const { selectedDate, currentDimension, loading } = this.state;
+    const { total, type } = chartInfo;
     let showEveryXaxis =
       ((selectedDate === 2 || selectedDate === 3 || selectedDate === 4) && currentDimension === '1d') ||
       (selectedDate === 4 && currentDimension === '1w');
@@ -312,7 +322,9 @@ export default class Overview extends Component {
 
     return (
       <div className="w100 chartCon Relative">
-        {!loading && !isEmpty && <span className="Absolute totalTxt">{_l('总计：')}</span>}
+        {!loading && (!isEmpty || _.includes(['attachment', 'workflow'], type)) && (
+          <span className="Absolute totalTxt">{_l('总计：%0', type === 'attachment' ? total : '')}</span>
+        )}
 
         {loading ? (
           this.renderLoading()
@@ -452,6 +464,7 @@ export default class Overview extends Component {
       appTotal,
       appStatisticsResult,
       isMoreApp,
+      subTypeTotal,
     } = this.state;
     return (
       <Fragment>
@@ -596,6 +609,8 @@ export default class Overview extends Component {
                     {_l('· 通过应用图标点击进入应用')}
                     <br />
                     {_l('· 通过系统消息打开了应用')}
+                    <br />
+                    {_l('· 通过超链接访问应用')}
                   </span>
                 }
               >
@@ -636,10 +651,16 @@ export default class Overview extends Component {
             {this.renderChart(workflowStatisticsResult, false, { type: 'workflow', total: totalNumberOfexecute })}
           </div>
           <div className="charContainer">
-            <div className="Font15 fontWeight600 mBotto8 Black">{_l('附件上传量')}</div>
+            <div className="Font15 fontWeight600 mBotto8 Black">
+              {_l('附件上传量')}
+              <Tooltip text={_l('公开表单仅统计非平台登录用户上传的附件')}>
+                <Icon icon="info" className="Font16 Gray_9e mLeft12 hover_f3" />
+              </Tooltip>
+            </div>
             {this.renderChart(attachmentStatisticsResult, false, {
               type: 'attachment',
               total: totalCapacityUsage,
+              subTypeTotal,
             })}
           </div>
         </ChartWrap>

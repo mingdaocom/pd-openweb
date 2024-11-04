@@ -13,3 +13,4 @@ export { default as quickSelectRole } from './quickSelectRole';
 export { default as quickSelectUser } from './quickSelectUser';
 export { default as dialogEditWorksheet } from './dialogEditWorksheet';
 export { default as quickSelectDept } from './quickSelectDept';
+export { default as quickSelectGroup } from './quickSelectGroup';

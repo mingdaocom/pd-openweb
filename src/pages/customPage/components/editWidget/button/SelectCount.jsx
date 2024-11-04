@@ -14,8 +14,7 @@ const SelectCountWrap = styled.div`
   .countWrap {
     box-sizing: border-box;
     line-height: 30px;
-    width: 60px;
-    padding: 0 10px;
+    padding: 0 25px 0 10px;
     background: #fff;
     border-radius: 3px;
   }
@@ -51,7 +50,7 @@ const SelectCountWrap = styled.div`
 const CountList = styled.ul`
   padding: 6px 0;
   flex-direction: column;
-  width: 60px;
+  min-width: 60px;
   max-height: 300px;
   overflow-y: auto;
   border-radius: 2px;
@@ -103,7 +102,7 @@ export default function SelectCount({
         onPopupVisibleChange={value => setVisible(value)}
         getPopupContainer={() => $ref.current}
         popup={
-          <CountList style={{ width: _.get($ref, 'current.clientWidth') }}>
+          <CountList style={{ minWidth: _.get($ref, 'current.clientWidth') }}>
             {getList().map(item => (
               <li
                 key={item}

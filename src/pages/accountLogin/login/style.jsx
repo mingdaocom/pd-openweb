@@ -4,6 +4,8 @@ import checkedIcon from './img/checkedIcon.png';
 import weixinIcon from './img/weixinIcon.png';
 import personalQQIcon from './img/personalQQIcon.png';
 import workWeixinIcon from './img/workWeixinIcon.png';
+import dingIcon from './img/ding.png';
+import feishuIcon from './img/feishu.png';
 import ssoIcon from './img/ssoIcon.png';
 export const Wrap = styled.div`
   min-height: 400px;
@@ -16,12 +18,13 @@ export const Wrap = styled.div`
     overflow: hidden;
   }
   .footerCon {
-    margin-top: 32px;
+    margin-top: 40px;
     width: 100%;
     text-align: center;
     .changeBtn {
       font-size: 14px;
       color: #2196f3;
+      font-weight: bold;
       &:hover {
         color: #1182dd;
       }
@@ -35,12 +38,12 @@ export const Wrap = styled.div`
   .btnForLogin {
     font-weight: 600;
     width: 100%;
-    height: 40px;
-    line-height: 40px;
+    height: 48px;
+    line-height: 48px;
     display: block;
     background: #2296f3;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 16px;
     color: #fff;
     margin-top: 32px;
     text-align: center;
@@ -59,13 +62,12 @@ export const Wrap = styled.div`
     line-height: 1.5;
   }
   .findPassword {
-    color: #757575 !important;
+    color: #333 !important;
     &:hover {
       color: #1182dd !important;
     }
   }
   .cbRememberPasswordDiv {
-    color: #757575;
     line-height: 18px;
     cursor: pointer;
   }
@@ -86,17 +88,17 @@ export const Wrap = styled.div`
   }
   .tpLogin {
     .title {
-      font-weight: 400;
-      font-size: 13px;
-      color: #757575;
+      font-weight: bold;
+      font-size: 14px;
+      color: #333;
       margin: 32px auto 0;
       padding-bottom: 6px;
     }
 
     a {
       width: 100%;
-      line-height: 40px;
-      height: 40px;
+      line-height: 48px;
+      height: 48px;
       background: #ffffff;
       border-radius: 3px;
       border: 1px solid #e6e6e6;
@@ -109,8 +111,8 @@ export const Wrap = styled.div`
       justify-content: center;
       margin-bottom: 5px;
       margin-top: 10px;
-      // font-weight: 600;
-      font-size: 13px;
+      font-weight: bold;
+      font-size: 14px;
       color: #333333;
 
       i {
@@ -139,6 +141,12 @@ export const Wrap = styled.div`
   }
   .tpLogin .workWeixinIcon {
     background-image: url(${workWeixinIcon});
+  }
+  .tpLogin .dingIcon {
+    background-image: url(${dingIcon});
+  }
+  .tpLogin .feishuIcon {
+    background-image: url(${feishuIcon});
   }
   .tpLogin .ssoIcon {
     background-image: url(${ssoIcon});

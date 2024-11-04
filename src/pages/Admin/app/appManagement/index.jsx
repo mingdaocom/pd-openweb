@@ -13,6 +13,7 @@ import {
   SvgIcon,
   Tooltip,
   UserHead,
+  UpgradeIcon,
 } from 'ming-ui';
 import cx from 'classnames';
 import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
@@ -42,23 +43,31 @@ import qs from 'query-string';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import UpgradeProcess from 'src/pages/AppSettings/components/ImportUpgrade/components/UpgradeProcess';
 
 export const emitter = new EventEmitter();
 
 const optionData = [
+  // {
+  //   label: _l('导入应用'),
+  //   icon: 'reply1',
+  //   action: 'handleImport',
+  //   hasBeta: true,
+  //   featureId: VersionProductType.appImportExport,
+  // },
   {
-    label: _l('导入应用'),
-    icon: 'reply1',
-    action: 'handleImport',
-    hasBeta: true,
-    featureId: VersionProductType.appImportExport,
-  },
-  {
-    label: _l('批量导出'),
+    label: _l('导出应用'),
     icon: 'cloud_download',
     action: 'handleExportAll',
     hasBeta: true,
     featureId: VersionProductType.appImportExport,
+  },
+  {
+    label: _l('导入应用'),
+    icon: 'unarchive',
+    action: 'handleUpdateAll',
+    hasBeta: true,
+    featureId: VersionProductType.appBackupRestore,
   },
   { label: _l('日志'), icon: 'assignment', action: 'handleLog', hasBeta: false },
   {
@@ -108,6 +117,7 @@ export default class AppManagement extends Component {
       moreVisible: false,
       rowVisible: null,
       drawerVisible: false,
+      updateVisible: false,
 
       //单个导出弹层ids
       exportIds: [],
@@ -558,6 +568,13 @@ export default class AppManagement extends Component {
   }
 
   /**
+   * 批量导入升级
+   */
+  handleUpdateAll() {
+    this.setState({ updateVisible: true });
+  }
+
+  /**
    * 修改应用状态
    */
   editAppStatus(appId, status) {
@@ -706,6 +723,7 @@ export default class AppManagement extends Component {
       dbInstanceId,
       dataDBInstances,
       DBInstancesDialog = false,
+      updateVisible,
     } = this.state;
     const projectId = this.props.match.params.projectId;
     const { authority = [] } = this.props;
@@ -737,7 +755,10 @@ export default class AppManagement extends Component {
                   {optionData.map(item => {
                     const featureType = getFeatureStatus(projectId, item.featureId);
 
-                    if (_.includes(['handleImport', 'handleExportAll', 'openAppTrash'], item.action) && !featureType) {
+                    if (
+                      _.includes(['handleImport', 'handleExportAll', 'openAppTrash', 'handleUpdateAll'], item.action) &&
+                      !featureType
+                    ) {
                       return;
                     }
 
@@ -762,6 +783,7 @@ export default class AppManagement extends Component {
                       >
                         <Icon icon={item.icon} className="mRight12 Gray_9e" />
                         {item.label}
+                        {item.featureId && featureType === '2' && <UpgradeIcon />}
                       </li>
                     );
                   })}
@@ -907,7 +929,7 @@ export default class AppManagement extends Component {
         </Drawer>
 
         {exportIds.length > 0 ? (
-          <ExportApp appIds={exportIds} closeDialog={() => this.setState({ exportIds: [] })} />
+          <ExportApp appIds={exportIds} projectId={projectId} closeDialog={() => this.setState({ exportIds: [] })} />
         ) : null}
 
         {appTrashVisible && (
@@ -925,6 +947,10 @@ export default class AppManagement extends Component {
           onOk={id => this.handleImportApp(id)}
           onCancel={() => this.setState({ DBInstancesDialog: false })}
         />
+
+        {updateVisible && (
+          <UpgradeProcess projectId={projectId} type="2" onCancel={() => this.setState({ updateVisible: false })} />
+        )}
       </div>
     );
   }

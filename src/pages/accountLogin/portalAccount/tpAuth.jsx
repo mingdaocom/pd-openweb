@@ -82,6 +82,8 @@ export default function TPAuth(props) {
         window.localStorage.removeItem('pcScan');
         const { accountResult, sessionId, state, accountId, appName } = res;
         let mdAppId = res.appId;
+        const customLink = window.isWeiXin && mdAppId ? localStorage.getItem(`${mdAppId}_portalCustomLink`) : '';
+        window.localStorage.removeItem(`${mdAppId}_portalCustomLink`);
         if (appName) {
           setState({
             appName,
@@ -107,7 +109,9 @@ export default function TPAuth(props) {
               break;
             default:
               goPortalLogin(
-                `mdAppId=${mdAppId || ''}&wxState=${res.state || ''}&status=${accountResult}&accountId=${accountId}`,
+                `mdAppId=${mdAppId || ''}&wxState=${res.state || ''}&status=${accountResult}&accountId=${accountId}${
+                  customLink ? '&customLink=' + customLink : ''
+                }`,
               );
               break;
           }
@@ -119,7 +123,9 @@ export default function TPAuth(props) {
             getUrl(state);
           } else {
             goPortalLogin(
-              `mdAppId=${mdAppId || ''}&wxState=${res.state || ''}&status=${accountResult}&accountId=${accountId}`,
+              `mdAppId=${mdAppId || ''}&wxState=${res.state || ''}&status=${accountResult}&accountId=${accountId}${
+                customLink ? '&customLink=' + customLink : ''
+              }`,
             );
           }
         }

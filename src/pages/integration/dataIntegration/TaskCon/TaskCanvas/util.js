@@ -314,9 +314,9 @@ export const getFields = async ({
       projectId,
       datasourceId: datasourceId || dataDestId,
       dbName,
-      schema,
       tableName,
       destType,
+      schema: dsType === DATABASE_TYPE.HANA ? dbName : schema,
     };
     const res = await dataSourceApi.getTableFields(params);
     return res;
@@ -384,7 +384,11 @@ export const hsMorePkControl = (preNode, list) => {
   //多源且多主键的情况
   const pks = (_.get(preNode, 'nodeConfig.fields') || []).filter(o => o.isPk);
   const sourceNodes = list.filter(o => ['SOURCE_TABLE'].includes(o.nodeType));
-  return pks.length > 1 && sourceNodes.length > 1;
+  const destNodes = list.find(o => ['DEST_TABLE'].includes(o.nodeType));
+  return (
+    pks.length > 1 &&
+    (sourceNodes.length > 1 || _.get(destNodes, 'nodeConfig.config.dsType') === DATABASE_TYPE.APPLICATION_WORKSHEET)
+  );
 };
 
 export const getUnionFeids = (defaultFields = [], list, node) => {

@@ -430,5 +430,34 @@ export const getSetDefault = (control = {}) => {
   if (!!control.encryId) {
     fastFilterSet = { ...fastFilterSet, filterType: FILTER_CONDITION_TYPE.EQ };
   }
+  if (!!_.get(control, 'advancedSetting.searchcontrol')) {
+    fastFilterSet.advancedSetting.searchcontrol = _.get(control, 'advancedSetting.searchcontrol');
+  }
+  if (!!_.get(control, 'advancedSetting.searchtype')) {
+    fastFilterSet.advancedSetting.searchtype = _.get(control, 'advancedSetting.searchtype');
+  }
   return fastFilterSet;
+};
+
+//格式化接口人员等字段只提交id
+export const formatFastFilterData = info => {
+  return info.map(o => {
+    let values = o.values;
+    if ([26, 27, 48, 29, 35].includes(o.dataType)) {
+      const key = [29, 35].includes(o.dataType)
+        ? 'rowid'
+        : o.dataType === 26
+        ? 'accountId'
+        : o.dataType === 27
+        ? 'departmentId'
+        : 'organizeId';
+      values = (values || []).map(o => {
+        if (o.indexOf(key) < 0 && o.indexOf('id') < 0) {
+          return o;
+        }
+        return (safeParse(o) || {})[key] || (safeParse(o) || {}).id || o;
+      });
+    }
+    return { ...o, values };
+  });
 };

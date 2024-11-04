@@ -13,7 +13,7 @@ import MobileOtherAction from 'mobile/ProcessRecord/OtherAction';
 import { ACTION_TO_METHOD } from 'src/pages/workflow/components/ExecDialog/config';
 import { covertTime, INSTANCELOG_STATUS } from 'src/pages/workflow/MyProcess/config';
 import WorkflowAction, { TaskRevokeAction } from './Action';
-import { browserIsMobile, dateConvertToUserZone } from 'src/util';
+import { browserIsMobile, dateConvertToUserZone, handlePushState, handleReplaceState } from 'src/util';
 import _ from 'lodash';
 import moment from 'moment';
 import './index.less';
@@ -592,6 +592,7 @@ export default function SheetWorkflow(props) {
   };
 
   const handleViewExecDialog = data => {
+    handlePushState('page', 'processRecord');
     setViewWorkflow({
       id: data.id,
       workId: data.workId,
@@ -609,6 +610,17 @@ export default function SheetWorkflow(props) {
       getList();
     }
   }, [refreshBtnNeedLoading]);
+
+  useEffect(() => {
+    window.addEventListener('popstate', onQueryChange);
+    return () => {
+      window.removeEventListener('popstate', onQueryChange);
+    };
+  }, []);
+
+  const onQueryChange = () => {
+    handleReplaceState('page', 'processRecord', () => setViewWorkflow(null));
+  };
 
   const renderStepItem = () => {
     const { processId, cardData = {}, processName, works = [], workItem, currentWorkItem, status } = currentWorkflow;
@@ -772,6 +784,7 @@ export default function SheetWorkflow(props) {
             instanceId={viewWorkflow.id}
             workId={viewWorkflow.workId}
             onClose={() => {
+              history.back();
               setViewWorkflow(null);
             }}
           />

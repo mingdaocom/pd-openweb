@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useSetState } from 'react-use';
 import { Dropdown, Icon, Checkbox, Input } from 'ming-ui';
 import DropdownWrapper from 'worksheet/components/DropdownWrapper';
-import { getIconByType } from 'src/pages/widgetConfig/util';
+import { getIconByType, filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import {
   MULTI_SELECT_FILTER_TYPE,
@@ -29,6 +29,7 @@ import {
   DATE_GRANULARITY_TYPE,
   getDefaultDateRange,
   getDefaultDateRangeType,
+  formatFastFilterData,
 } from './util';
 import withClickAway from 'ming-ui/decorators/withClickAway';
 import { Radio } from 'antd';
@@ -39,8 +40,11 @@ import _ from 'lodash';
 import { NAVSHOW_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/navGroup/util';
 import NavShow from 'src/pages/worksheet/common/ViewConfig/components/navGroup/NavShow';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
-import { formatAdvancedSettingByNavfilters, formatObjWithNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
+import { formatObjWithNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
 import SearchConfig from './SearchConfig';
+import DefaultValue from './DefaultValue';
+import moment from 'moment';
+
 const Wrap = styled.div`
   width: 400px;
   .boxEditFastFilterCover {
@@ -231,11 +235,6 @@ const Wrap = styled.div`
       }
     }
   }
-  .filterDefaultValue{
-    div:first-child {
-      font-weight: bold;
-    }
-  }
   .RelateRecordDropdown-selected {
     height: auto;
   }
@@ -299,10 +298,10 @@ function Edit(params) {
         ...getSetDefault(dd),
         isErr: !dd.controlName,
         controlName: dd.controlName,
-        type: getControlFormatType(dd),
         sourceControl: dd.sourceControl,
       };
     }
+    controlNew.type = getControlFormatType(dd);
     let advancedSetting = controlNew.advancedSetting || {};
     setState({ fastFilters: d, dataControls: dd, control: controlNew, advancedSetting, dataType: controlNew.type });
   }, [activeFastFilterId, view.fastFilters]);
@@ -313,25 +312,27 @@ function Edit(params) {
   const updateViewSet = data => {
     updateCurrentView(
       Object.assign(view, {
-        fastFilters: fastFilters.map((o, i) => {
-          if (o.controlId === activeFastFilterId) {
-            let filters = o;
-            Object.keys(data).map(ii => {
-              if (![...ADVANCEDSETTING_KEYS, ...Filter_KEYS].includes(ii)) {
-                filters[ii] = data[ii];
-              } else {
-                if (ADVANCEDSETTING_KEYS.includes(ii)) {
-                  filters.advancedSetting[ii] = data[ii];
-                } else {
+        fastFilters: formatFastFilterData(
+          fastFilters.map((o, i) => {
+            if (o.controlId === activeFastFilterId) {
+              let filters = o;
+              Object.keys(data).map(ii => {
+                if (![...ADVANCEDSETTING_KEYS, ...Filter_KEYS].includes(ii)) {
                   filters[ii] = data[ii];
+                } else {
+                  if (ADVANCEDSETTING_KEYS.includes(ii)) {
+                    filters.advancedSetting[ii] = data[ii];
+                  } else {
+                    filters[ii] = data[ii];
+                  }
                 }
-              }
-            });
-            return formatObjWithNavfilters(filters);
-          } else {
-            return formatObjWithNavfilters(o);
-          }
-        }),
+              });
+              return formatObjWithNavfilters(filters);
+            } else {
+              return formatObjWithNavfilters(o);
+            }
+          }),
+        ),
         editAttrs: ['fastFilters'],
       }),
     );
@@ -386,6 +387,16 @@ function Edit(params) {
                     newValue !== FILTER_CONDITION_TYPE.DATEENUM ? undefined : getDefaultDateRangeType(conData),
                 };
               }
+            }
+            if (['filterType'].includes(data.key) && [6, 8, 15, 16, 17, 18, 46].includes(type)) {
+              //清空默认值
+              dataNew = {
+                ...dataNew,
+                values: [],
+                maxValue: '',
+                minValue: '',
+                value: '',
+              };
             }
             updateViewSet({
               ...dataNew,
@@ -550,6 +561,7 @@ function Edit(params) {
         <div className="title">{_l('位数')}</div>
         <Input
           type="number"
+          min={0}
           className="w100 mTop8 placeholderColor"
           value={_.get(advancedSetting, 'limit')}
           placeholder={_l('请输入数值')}
@@ -570,19 +582,223 @@ function Edit(params) {
     );
   };
   const updateView = fastFilters => {
-    updateCurrentView(
-      Object.assign(view, {
-        fastFilters,
-        advancedSetting:
-          fastFilters.length > 0
-            ? view.advancedSetting
-            : {
-                ...advancedSetting,
-                clicksearch: '0', //
-                enablebtn: '0',
-              },
-        editAttrs: ['fastFilters', 'advancedSetting'],
-      }),
+    const editAttrs = fastFilters.length > 0 ? ['fastFilters'] : ['fastFilters', 'advancedSetting'];
+    let param = { fastFilters };
+    if (fastFilters.length <= 0) {
+      param.advancedSetting = {
+        clicksearch: '0',
+        enablebtn: '0',
+      };
+      param.editAdKeys = ['clicksearch', 'enablebtn'];
+    }
+    param.editAttrs = editAttrs;
+    updateCurrentView(Object.assign(view, param));
+  };
+  const renderDefCom = () => {
+    const getDefsource = () => {
+      const { dynamicSource = [], values = [], maxValue, minValue, value } = control;
+      if (
+        (([6, 8].includes(dataType) && control.filterType === 11) ||
+          dataType === 46 ||
+          ([15, 16, 17, 18].includes(dataType) && control.filterType === 31)) &&
+        (maxValue || minValue)
+      ) {
+        const keyStr = [6, 8].includes(dataType) && control.filterType === 11 ? '~' : '-';
+        return [{ cid: '', rcid: '', staticValue: `${minValue}${keyStr}${maxValue}` }];
+      }
+      if ([15, 16, 17, 18].includes(dataType) && control.filterType === 31 && !maxValue && !minValue) {
+        return [{ cid: '', rcid: '', staticValue: '' }];
+      }
+      if (dynamicSource.length > 0) return dynamicSource;
+      if (([6, 8].includes(dataType) && control.filterType === 2) || [15, 16, 17, 18].includes(dataType)) {
+        if (!value) {
+          return '';
+        }
+        return [{ cid: '', rcid: '', staticValue: value }];
+      }
+      if (36 === dataType) {
+        return [{ cid: '', rcid: '', staticValue: control.filterType === 2 ? '1' : '0' }];
+      }
+      return values.map(o => {
+        let staticValue = o;
+        if ([29, 35].includes(dataType)) {
+          const data = safeParse(staticValue);
+          staticValue = JSON.stringify([data.id]);
+          return { cid: '', rcid: '', staticValue, relateSheetName: data.name };
+        }
+        if ([26, 27, 48].includes(dataType)) {
+          const key = dataType === 26 ? 'accountId' : dataType === 27 ? 'departmentId' : 'organizeId';
+          const nameKey = dataType === 26 ? 'fullname' : dataType === 27 ? 'departmentName' : 'organizeName';
+          const data = safeParse(staticValue);
+          staticValue = JSON.stringify({ ...data, [key]: data.id, [nameKey]: data.name });
+          if (26 === dataType && data.id === 'isEmpty') {
+            staticValue = JSON.stringify({
+              avatar:
+                md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') +
+                '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
+              fullname: _.get(control, 'advancedSetting.nullitemname') || _l('为空'),
+              accountId: 'isEmpty',
+            });
+          }
+        }
+        return { cid: '', rcid: '', staticValue };
+      });
+    };
+    return (
+      <div className={'inputDef Relative'}>
+        <DefaultValue
+          data={{
+            ...dataControls,
+            type: dataType,
+            advancedSetting: {
+              ..._.omit(dataControls.advancedSetting, ['dynamicsrc','defaulttype']),
+              ...advancedSetting,
+              defsource: JSON.stringify(getDefsource()),
+              nullitemname: _.get(control, 'advancedSetting.nullitemname'),
+              shownullitem: _.get(control, 'advancedSetting.shownullitem'),
+              showtype:
+                [...DATE_TYPE_M, ...DATE_TYPE_Y].includes(dataType) &&
+                ['3', '4', '5'].includes(_.get(control, 'dateRangeType') + '')
+                  ? _.get(control, 'dateRangeType') + ''
+                  : _.get(dataControls, 'advancedSetting.showtype'),
+            },
+          }}
+          allControls={worksheetControls}
+          onChange={d => {
+            const { advancedSetting = {} } = d;
+            let { defsource } = advancedSetting;
+            const data = safeParse(defsource, 'array');
+            if (data.length <= 0) {
+              updateViewSet({ dynamicSource: [], values: [], value: '', maxValue: undefined, minValue: undefined });
+            } else if (!!data[0].staticValue) {
+              if (
+                ([6, 8].includes(dataType) && control.filterType === 11) ||
+                dataType === 46 ||
+                ([15, 16, 17, 18].includes(dataType) && control.filterType === 31)
+              ) {
+                const { staticValue = '' } = data[0];
+                const keyStr = [6, 8].includes(dataType) && control.filterType === 11 ? '~' : '-';
+                return updateViewSet({
+                  values: [],
+                  value: '',
+                  dynamicSource: [],
+                  maxValue: staticValue.substring(staticValue.indexOf(keyStr) + 1),
+                  minValue: staticValue.substring(0, staticValue.indexOf(keyStr)),
+                  ...(dataType === 46
+                    ? {
+                        dateRange: 18,
+                        filterType: 31,
+                      }
+                    : {}),
+                  ...([15, 16].includes(dataType)
+                    ? {
+                        dateRange: 18,
+                      }
+                    : {}),
+                });
+              }
+              if (([6, 8].includes(dataType) && control.filterType === 2) || [17, 18].includes(dataType)) {
+                return updateViewSet({
+                  values: [],
+                  value: data[0].staticValue,
+                  dynamicSource: [],
+                  dateRange: 18,
+                  maxValue: '',
+                  minValue: '',
+                });
+              }
+              if ([15, 16].includes(dataType)) {
+                return updateViewSet({
+                  values: [],
+                  value: _.includes([4, 5], control.dateRangeType)
+                    ? moment(data[0].staticValue).format(
+                        {
+                          4: 'YYYY-MM',
+                          5: 'YYYY',
+                        }[control.dateRangeType],
+                      )
+                    : data[0].staticValue,
+                  dynamicSource: [],
+                  dateRange: 18,
+                  maxValue: '',
+                  minValue: '',
+                });
+              }
+              //检查项
+              if (36 === dataType) {
+                const { staticValue = '' } = data[0];
+                return updateViewSet({
+                  values: [],
+                  value: '',
+                  dynamicSource: [],
+                  filterType: staticValue === '1' ? 2 : 6,
+                });
+              }
+              if ([29, 35].includes(dataType)) {
+                return updateViewSet({
+                  values: _.uniq(
+                    data.map(o => {
+                      const d = safeParse(o.staticValue, 'array')[0];
+                      return d.id || d.rowid || d;
+                    }),
+                  ),
+                  dynamicSource: [],
+                  maxValue: undefined,
+                  minValue: undefined,
+                });
+              }
+              if ([26, 27, 48].includes(dataType)) {
+                const key = dataType === 26 ? 'accountId' : dataType === 27 ? 'departmentId' : 'organizeId';
+                return updateViewSet({
+                  values: data.map(o => (safeParse(o.staticValue) || {})[key]),
+                  dynamicSource: [],
+                  maxValue: undefined,
+                  minValue: undefined,
+                });
+              }
+              updateViewSet({
+                values: data.map(o => o.staticValue),
+                dynamicSource: [],
+                maxValue: undefined,
+                minValue: undefined,
+              });
+            } else if (data[0].cid) {
+              updateViewSet({
+                dynamicSource: JSON.parse(defsource),
+                values: [],
+                maxValue: undefined,
+                minValue: undefined,
+                value: '',
+              });
+            }
+          }}
+          withMaxOrMin={
+            ([6, 8].includes(dataType) && control.filterType === 11) ||
+            [46].includes(dataType) ||
+            ([15, 16, 17, 18].includes(dataType) && control.filterType === 31)
+          }
+          withLinkParams={[1, 2, 32, 3, 4, 5, 6, 7, 8, 15, 16, 17, 18, 46, 9, 10, 11, 36].includes(dataType)}
+          hideDynamic={[27, 48, 29, 35].includes(dataType)}
+          linkParams={JSON.parse((view.advancedSetting || {}).urlparams || '[]')}
+          titleControl={(_.get(dataControls, 'relationControls') || []).find(o => o.attribute === 1)} //关联表的标题字段
+          globalSheetInfo={_.pick(currentSheetInfo, ['appId', 'groupId', 'name', 'projectId', 'worksheetId'])}
+        />
+        {[6, 8, 15, 16, 17, 18, 9, 10, 11, 36, 46].includes(dataType) && (
+          <div className="Gray_75 Font13 mTop8">
+            {[6, 8].includes(dataType) && control.filterType === 11
+              ? _l('选择链接参数时的参数格式：最小值-最大值')
+              : [15, 16, 17, 18].includes(dataType)
+              ? _l('选择链接参数时的参数格式：yyyy-mm-dd hh:mm:ss')
+              : 46 === dataType
+              ? _l('选择链接参数时的参数格式：开始时间-结束时间。时间格式为hh:mm:ss')
+              : [9, 10, 11].includes(dataType)
+              ? _l('选择链接参数时，多个选项之间用英文逗号隔开')
+              : 36 === dataType
+              ? _l('选择链接参数时的参数格式：0/1，ture/false')
+              : ''}
+          </div>
+        )}
+      </div>
     );
   };
   return (
@@ -592,7 +808,9 @@ function Edit(params) {
         <AddCondition
           renderInParent
           className="addControl"
-          columns={setSysWorkflowTimeControlFormat(worksheetControls, currentSheetInfo.switches || []).filter(
+          columns={filterOnlyShowField(
+            setSysWorkflowTimeControlFormat(worksheetControls, currentSheetInfo.switches || []),
+          ).filter(
             o =>
               (FASTFILTER_CONDITION_TYPE.includes(o.type) ||
                 (o.type === 30 && FASTFILTER_CONDITION_TYPE.includes(getControlFormatType(o)))) &&
@@ -670,6 +888,19 @@ function Edit(params) {
                 }}
                 value={navshow}
                 onChange={newValue => {
+                  if (
+                    newValue.shownullitem !== '1' &&
+                    newValue.shownullitem !== advancedSetting.shownullitem &&
+                    control.values[0]
+                  ) {
+                    const data = safeParse(control.values);
+                    if (data.id === 'isEmpty') {
+                      newValue.values = JSON.stringify([]);
+                      return updateViewSet({
+                        advancedSetting: { ...advancedSetting, ...newValue },
+                      });
+                    }
+                  }
                   updateViewSet({
                     advancedSetting: { ...advancedSetting, ...newValue },
                   });
@@ -730,16 +961,10 @@ function Edit(params) {
           [FILTER_CONDITION_TYPE.START, FILTER_CONDITION_TYPE.END].includes(control.filterType) &&
           renderLimit()}
         {APP_ALLOWSCAN.keys.includes(dataType) && renderAppScan()}
-        {/* <div className="mTop24 filterDefaultValue">
-          <FilterDefaultValue
-            firstControlData={_.cloneDeep(dataControls)}
-            dataType={dataType}
-            filter={control}//带默认值的内容 ？？？
-            setFilter={data => {
-              console.log(data);
-            }}
-          />
-        </div> */}
+        {/* 文本(文本、文本组合，邮件地址、电话号码、证件等) 数值 金额 日期 时间 选项 检查项 部门 人员 组织角色 关联 级联 */}
+        {[1, 2, 32, 3, 4, 5, 6, 7, 8, 15, 16, 17, 18, 46, 9, 10, 11, 36, 27, 26, 48, 29, 35].includes(dataType) && (
+          <div className="mTop24">{renderDefCom()}</div>
+        )}
         {[29].includes(dataType) && _.get(advancedSetting, 'navshow') !== '2' && (
           <SearchConfig
             controls={dataControls.relationControls}

@@ -60,6 +60,7 @@ function Location(props, ref) {
         {isediting && (
           <MDMap
             isMobile={browserIsMobile()}
+            allowCustom={advancedSetting.allowcustom === '1'}
             distance={enumDefault2 ? parseInt(advancedSetting.distance, 10) : 0}
             defaultAddress={locationData || null}
             onAddressChange={({ lng, lat, address, name }) => {

@@ -1338,7 +1338,6 @@ export function getRowGetType(from) {
   if (from == 21) {
     return 21;
   } else if (
-    from === RECORD_INFO_FROM.CHAT ||
     (from === RECORD_INFO_FROM.WORKSHEET_ROW_LAND && location.search && location.search.indexOf('share') > -1) ||
     _.get(window, 'shareState.isPublicView') ||
     _.get(window, 'shareState.isPublicPage') ||
@@ -1627,11 +1626,42 @@ function hexWithAlphaMixWhiteToHex(hex) {
 }
 
 export const getButtonColor = mainColor => {
-  if (mainColor !== 'transparent' && '#4CAF50'.length === 9 && mainColor.slice(-2) !== 'ff') {
+  if (mainColor !== 'transparent' && mainColor.length === 9 && mainColor.slice(-2) !== 'ff') {
     mainColor = hexWithAlphaMixWhiteToHex(mainColor);
   }
   let borderColor = mainColor;
-  let fontColor = !isLightColor(mainColor) ? '#fff' : '#333';
+  let fontColor =
+    !isLightColor(mainColor) ||
+    _.includes(
+      [
+        'transparent',
+        '#60292A',
+        '#60292AFF',
+        '#2196F3',
+        '#2196F3FF',
+        '#00BCD4',
+        '#00BCD4FF',
+        '#4CAF50',
+        '#4CAF50FF',
+        '#F7D100',
+        '#F7D100FF',
+        '#FAD714',
+        '#FAD714FF',
+        '#FF9800',
+        '#FF9800FF',
+        '#F52222',
+        '#F52222FF',
+        '#EB2F96',
+        '#EB2F96FF',
+        '#7500EA',
+        '#7500EAFF',
+        '#3F51B5',
+        '#3F51B5FF',
+      ].map(_.toLower),
+      _.toLower(mainColor),
+    )
+      ? '#fff'
+      : '#333';
   if (mainColor === 'transparent') {
     fontColor = '#333';
     borderColor = '#ccc';
@@ -1827,4 +1857,45 @@ export function addPrefixForRowIdOfRows(rows = [], prefix = '') {
     });
     return newRow;
   });
+}
+
+export function appendDataToLocalPushUniqueId(data) {
+  try {
+    const defaultData = getDataFromLocalPushUniqueId();
+    let pushUniqueId = _.get(md, 'global.Config.pushUniqueId');
+    pushUniqueId = pushUniqueId.replace(/__(.+)/, '');
+    if (pushUniqueId) {
+      md.global.Config.pushUniqueId =
+        pushUniqueId + (!data ? '' : `__${JSON.stringify(_.assign({}, defaultData, data))}`);
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export function resetLocalPushUniqueId() {
+  appendDataToLocalPushUniqueId();
+}
+
+export function getDataFromLocalPushUniqueId() {
+  return safeParse(((_.get(md, 'global.Config.pushUniqueId') || '').match(/__(.+)/) || [])[1]);
+}
+
+export function equalToLocalPushUniqueId(pushUniqueId) {
+  return String(pushUniqueId).replace(/__(.+)/, '') === _.get(md, 'global.Config.pushUniqueId').replace(/__(.+)/, '');
+}
+
+export function getRelateRecordCountOfControlFromRow(control, row = {}) {
+  try {
+    const isTable = isRelateRecordTableControl(control);
+    if (isTable) {
+      return row['rq' + control.controlId] || row[control.controlId];
+    } else {
+      const records = safeParse(row[control.controlId], 'array');
+      return records.length || 0;
+    }
+  } catch (err) {
+    console.error(err);
+    return 0;
+  }
 }

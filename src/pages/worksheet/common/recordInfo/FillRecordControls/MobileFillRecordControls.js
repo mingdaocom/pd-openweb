@@ -51,84 +51,89 @@ class FillRecordControls extends React.Component {
     this.hasDefaultRelateRecordTableControls = [];
     const controls = update(
       props.formData.concat((props.masterFormData || []).map(c => ({ ...c, fromMaster: true }))),
-      {$apply: formData => {
-        const formDataForDataFormat = formData.map(c => {
-          const newControl = { ...c };
-          const writeControl = _.find(props.writeControls, wc => newControl.controlId === wc.controlId);
-          newControl.advancedSetting = { ...(newControl.advancedSetting || {}), defsource: '' };
-          if (writeControl && writeControl.defsource && writeControl.defsource !== '[]') {
-            newControl.value = '';
-            if (_.includes([9, 10, 11], newControl.type)) {
-              newControl.value = newControl.default = safeParse(writeControl.defsource)[0].staticValue;
-            } else {
-              newControl.advancedSetting = { ...(newControl.advancedSetting || {}), defsource: writeControl.defsource };
-            }
-          }
-          return newControl;
-        });
-        const defaultFormData = new DataFormat({
-          data: formDataForDataFormat,
-          isCreate: true,
-          from: 2,
-          projectId,
-        })
-          .getDataSource()
-          .filter(
-            c =>
-              _.includes(
-                props.writeControls.map(c => c.controlId),
-                c.controlId,
-              ) && !_.includes([30, 31, 37, 38], c.type),
-          );
-        formData = formData
-          .map(c => {
-            const writeControl = _.find(props.writeControls, wc => c.controlId === wc.controlId);
-            if (_.isUndefined(c.dataSource)) {
-              return undefined;
-            }
-            // 自定义动作异化：标签页不能配置，所以默认都显示
-            if (c.type === 52) return { ...c, controlPermissions: '111', fieldPermission: '111' };
-            if (!writeControl) {
-              return {
-                ...c,
-                controlPermissions: '000',
-              };
-            }
-            if (c.type === 29 && c.enumDefault === 2 && c.advancedSetting.showtype === '2') {
-              return {
-                ...c,
-                value: '',
-                controlPermissions: '000',
-              };
-            }
-
-            c.controlPermissions =
-              c.controlPermissions[0] + (writeControl.type === 1 ? '0' : '1') + c.controlPermissions[2];
-            c.required = writeControl.type === 3;
-            c.fieldPermission = '111';
-            const defaultFormControl = _.find(defaultFormData, dfc => dfc.controlId === c.controlId);
-            if (defaultFormControl) {
-              if (c.type === 29) {
-                const defaultRecords = _.filter(
-                  safeParse(defaultFormControl.value, 'array'),
-                  r => r.sid || r.sourcevalue,
-                );
-                if (!_.isEmpty(defaultRecords)) {
-                  c.value = JSON.stringify(defaultRecords);
-                  c.count = undefined;
-                  c.hasDefaultValue = true;
-                  this.hasDefaultRelateRecordTableControls.push(defaultFormControl.controlId);
-                }
+      {
+        $apply: formData => {
+          const formDataForDataFormat = formData.map(c => {
+            const newControl = { ...c };
+            const writeControl = _.find(props.writeControls, wc => newControl.controlId === wc.controlId);
+            newControl.advancedSetting = { ...(newControl.advancedSetting || {}), defsource: '' };
+            if (writeControl && writeControl.defsource && writeControl.defsource !== '[]') {
+              newControl.value = '';
+              if (_.includes([9, 10, 11], newControl.type)) {
+                newControl.value = newControl.default = safeParse(writeControl.defsource)[0].staticValue;
               } else {
-                c.value = defaultFormControl.value;
+                newControl.advancedSetting = {
+                  ...(newControl.advancedSetting || {}),
+                  defsource: writeControl.defsource,
+                };
               }
             }
-            return c;
+            return newControl;
+          });
+          const defaultFormData = new DataFormat({
+            data: formDataForDataFormat,
+            isCreate: true,
+            from: 2,
+            projectId,
           })
-          .filter(c => !!c && (!props.isBatchOperate || !_.includes([34], c.type)));
-        return formData;
+            .getDataSource()
+            .filter(
+              c =>
+                _.includes(
+                  props.writeControls.map(c => c.controlId),
+                  c.controlId,
+                ) && !_.includes([30, 31, 37, 38], c.type),
+            );
+          formData = formData
+            .map(c => {
+              const writeControl = _.find(props.writeControls, wc => c.controlId === wc.controlId);
+              if (_.isUndefined(c.dataSource)) {
+                return undefined;
+              }
+              // 自定义动作异化：标签页不能配置，所以默认都显示
+              if (c.type === 52) return { ...c, controlPermissions: '111', fieldPermission: '111' };
+              if (!writeControl) {
+                return {
+                  ...c,
+                  controlPermissions: '000',
+                };
+              }
+              if (c.type === 29 && c.enumDefault === 2 && c.advancedSetting.showtype === '2') {
+                return {
+                  ...c,
+                  value: '',
+                  controlPermissions: '000',
+                };
+              }
+
+              c.controlPermissions =
+                c.controlPermissions[0] + (writeControl.type === 1 ? '0' : '1') + c.controlPermissions[2];
+              c.required = writeControl.type === 3;
+              c.fieldPermission = '111';
+              const defaultFormControl = _.find(defaultFormData, dfc => dfc.controlId === c.controlId);
+              if (defaultFormControl) {
+                if (c.type === 29) {
+                  const defaultRecords = _.filter(
+                    safeParse(defaultFormControl.value, 'array'),
+                    r => r.sid || r.sourcevalue,
+                  );
+                  if (!_.isEmpty(defaultRecords)) {
+                    c.value = JSON.stringify(defaultRecords);
+                    c.count = undefined;
+                    c.hasDefaultValue = true;
+                    this.hasDefaultRelateRecordTableControls.push(defaultFormControl.controlId);
+                  }
+                } else {
+                  c.value = defaultFormControl.value;
+                }
+              }
+              return c;
+            })
+            .filter(c => !!c && (!props.isBatchOperate || !_.includes([34], c.type)));
+          return formData;
+        },
       },
-    });
+    );
     this.state = {
       formData: controls,
       showError: false,
@@ -146,6 +151,7 @@ class FillRecordControls extends React.Component {
     this.customwidget.current.submitFormData();
   };
   onSave = async (error, { data, updateControlIds }) => {
+    const { continueFill } = this.props;
     if (error) {
       this.setState({ submitLoading: false });
       return;
@@ -164,9 +170,6 @@ class FillRecordControls extends React.Component {
     if (customButtonConfirm) {
       try {
         await customButtonConfirm();
-        this.setState({
-          submitLoading: false,
-        });
       } catch (err) {
         this.setState({
           submitLoading: false,
@@ -174,7 +177,9 @@ class FillRecordControls extends React.Component {
         return;
       }
     }
-    this.setState({ isSubmitting: true, submitLoading: false });
+    if (!continueFill) {
+      this.setState({ isSubmitting: true, submitLoading: false });
+    }
     updateControlIds = _.uniq(updateControlIds.concat(writeControls.filter(c => c.defsource).map(c => c.controlId)));
     onSubmit(
       newData
@@ -194,13 +199,14 @@ class FillRecordControls extends React.Component {
     );
   };
   render() {
-    const { appId, recordId, worksheetId, projectId, hideDialog, title } = this.props;
+    const { appId, recordId, worksheetId, projectId, hideDialog, title, continueFill } = this.props;
     const { submitLoading, isSubmitting, formData, showError } = this.state;
+
     return (
       <Con>
         <div className="flex customFieldsWrapper">
           {submitLoading && (
-            <LoadMask>
+            <LoadMask style={continueFill ? { zIndex: 10 } : {}}>
               <LoadDiv />
             </LoadMask>
           )}

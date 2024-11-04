@@ -27,7 +27,6 @@ export const SUBMIT_NEXT_ACTION_LIST = [
 export const permitList = {
   createButtonSwitch: 10, // createButtonSwitch 显示创建按钮
   discussSwitch: 11, // discussSwitch 工作表讨论
-  logSwitch: 12, // logSwitch 工作表日志
   importSwitch: 13, // importSwitch 导入数据
   sheetTrash: 14, // 工作表回收站
   statisticsSwitch: 50, // 公共统计

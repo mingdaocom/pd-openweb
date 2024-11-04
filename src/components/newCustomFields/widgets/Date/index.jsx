@@ -104,7 +104,7 @@ export default class Widgets extends Component {
   };
 
   renderValue = (showformat, value) => {
-    const { disabled, from, type, notConvertZone, advancedSetting, hideIcon } = this.props;
+    const { disabled, from, type, notConvertZone, advancedSetting, hint } = this.props;
     const dateTime = type === 15 || notConvertZone ? value : dateConvertToUserZone(value);
 
     return (
@@ -115,7 +115,7 @@ export default class Widgets extends Component {
         }}
       >
         <span className={cx('flex ellipsis', { Gray_bd: !value })}>
-          {value ? getDateToEn(showformat, dateTime, advancedSetting.showformat) : _l('请选择日期')}
+          {value ? getDateToEn(showformat, dateTime, advancedSetting.showformat) : hint || _l('请选择日期')}
         </span>
         {this.renderIcon(value)}
       </div>
@@ -148,8 +148,10 @@ export default class Widgets extends Component {
     const allowtime = advancedSetting.allowtime || '00:00-24:00';
     const timeInterval = parseInt(advancedSetting.timeinterval || '1');
     const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
-
-    const dateTime = value ? (type === 15 || notConvertZone ? value : dateConvertToUserZone(value)) : '';
+    const currentMinute = moment().minute();
+    const defaultValue =
+      timeInterval === 1 ? new Date() : moment().minute(currentMinute - (currentMinute % timeInterval));
+    const dateTime = value ? (type === 15 || notConvertZone ? value : dateConvertToUserZone(value)) : defaultValue;
 
     let minDate;
     let maxDate;

@@ -3,8 +3,8 @@ import React, { Component } from 'react';
 import cx from 'classnames';
 import ajaxRequest from 'src/api/taskCenter';
 import { expireDialogAsync } from 'src/util';
-import 'src/components/selectGroup/selectAllGroup';
 import DialogBase from 'ming-ui/components/Dialog/DialogBase';
+import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
 import _ from 'lodash';
 
 export default class CreateFolder extends Component {
@@ -16,6 +16,7 @@ export default class CreateFolder extends Component {
     createFolderCallback: null,
     background: '',
     materials: [],
+    scope: undefined,
   };
 
   constructor(props) {
@@ -67,9 +68,6 @@ export default class CreateFolder extends Component {
 
     $('#folderName').select();
 
-    // 绑定分享范围
-    that.bindSelectGroup();
-
     $(document)
       .off('.createFolder')
       .on('click.createFolder', event => {
@@ -104,35 +102,14 @@ export default class CreateFolder extends Component {
       // 监测网络是否过期
       expireDialogAsync(projectId)
         .then(() => {
-          this.setState(
-            {
-              companyName,
-              projectId,
-            },
-            () => {
-              this.bindSelectGroup();
-            },
-          );
+          this.setState({ companyName, projectId });
         })
         .catch(() => {
-          this.setState(
-            {
-              companyName: _l('个人'),
-              projectId: '',
-            },
-            () => {
-              this.bindSelectGroup();
-            },
-          );
+          this.setState({ companyName: _l('个人'), projectId: '' });
         });
     }
 
-    this.setState({
-      showNetworkList: false,
-      onlyMemberLook: true,
-    });
-
-    $('.SelectAllGroup').css('display', 'none');
+    this.setState({ showNetworkList: false, onlyMemberLook: true });
   }
 
   /**
@@ -140,31 +117,7 @@ export default class CreateFolder extends Component {
    * @param  {boolean} onlyMemberLook
    */
   rangeSelect(onlyMemberLook) {
-    this.setState({
-      onlyMemberLook,
-    });
-
-    // 仅成员可见
-    if (onlyMemberLook) {
-      $('.SelectAllGroup').css('display', 'none');
-    } else {
-      $('.SelectAllGroup').css('display', 'inline-block');
-    }
-  }
-
-  /**
-   * 绑定分享范围
-   */
-  bindSelectGroup() {
-    $('#privateRange').SelectGroup({
-      isShowSelectProject: false,
-      projectId: this.state.projectId,
-      autoPosition: true,
-      isMe: false,
-      everyoneOnly: true,
-      createGroupInProject: true,
-      maxHeight: 260,
-    });
+    this.setState({ onlyMemberLook });
   }
 
   /**
@@ -181,10 +134,10 @@ export default class CreateFolder extends Component {
    * 创建项目
    */
   create() {
+    const { scope } = this.state;
     const folderName = $.trim($('#folderName').val());
     let visibility;
     let groupIds = [];
-    const scope = $('#privateRange').SelectGroup('getScope');
 
     if (folderName.length === 0) {
       alert(_l('请输入项目名称'), 3);
@@ -234,6 +187,8 @@ export default class CreateFolder extends Component {
         }
       });
   }
+
+  handleScope = value => this.setState({ scope: value });
 
   render() {
     const sliderHeight = {
@@ -320,12 +275,10 @@ export default class CreateFolder extends Component {
                   </li>
                 </ul>
               </div>
-            ) : (
-              undefined
-            )}
+            ) : undefined}
 
             <div className="folderBoxPadding folderBoxDesc folderBoxMargin">{_l('公开范围：')}</div>
-            <div className="folderBoxPadding">
+            <div className="folderBoxPadding valignWrapper">
               <span
                 className="createFolderBox"
                 onClick={() => this.setState({ showRangeBox: !this.state.showRangeBox })}
@@ -350,7 +303,16 @@ export default class CreateFolder extends Component {
                   </li>
                 </ul>
               </span>
-              <input type="hidden" id="privateRange" />
+              {!this.state.onlyMemberLook && (
+                <SelectGroupTrigger
+                  hideIcon
+                  minHeight={260}
+                  projectId={this.state.projectId}
+                  isMe={false}
+                  everyoneOnly
+                  onChange={this.handleScope}
+                />
+              )}
             </div>
             <div className="createFolderBtn">
               <span className="createFolderBtnCancel ThemeColor3" onClick={() => this.props.onClose()}>

@@ -90,8 +90,17 @@ export default class Operates extends Component {
   };
 
   render() {
-    const { isCharge, iseditting, recordbase, recordinfo, reloadRecord, hideRecordInfo, onUpdate, customBtnTriggerCb } =
-      this.props;
+    const {
+      isCharge,
+      iseditting,
+      recordbase,
+      recordinfo,
+      reloadRecord,
+      hideRecordInfo,
+      onUpdate,
+      customBtnTriggerCb,
+      sheetSwitchPermit,
+    } = this.props;
     const { customBtns, buttonShowNum, btnDisable } = this.state;
     const { viewId, worksheetId, recordId, appId } = recordbase;
     const { projectId } = recordinfo;
@@ -117,6 +126,7 @@ export default class Operates extends Component {
               onHideMoreBtn={() => {}}
               onButtonClick={this.disableCustomButton}
               triggerCallback={customBtnTriggerCb}
+              sheetSwitchPermit={sheetSwitchPermit}
             />
           </div>
         </div>

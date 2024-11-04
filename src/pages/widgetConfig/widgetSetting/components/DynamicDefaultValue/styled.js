@@ -590,3 +590,25 @@ export const DynamicTextWrap = styled.div`
     }
   }
 `;
+
+export const WrapMaxOrMin = styled.div`
+  border: 1px solid #d9d9d9;
+  border-radius: 3px 0 0 3px;
+  width: calc(100% - 36px);
+  .ant-input:focus,
+  .ant-input-focused {
+    box-shadow: none;
+  }
+  .dynamicCityContainer input {
+    border: none !important;
+    height: 34px;
+    line-height: 32px;
+  }
+  .timeMaxOrMinCon {
+    width: 100%;
+    border: none;
+    line-height: 34px;
+    height: 34px;
+    box-shadow: none;
+  }
+`;

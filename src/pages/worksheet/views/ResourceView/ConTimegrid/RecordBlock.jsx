@@ -8,7 +8,7 @@ import { useSetState } from 'react-use';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper.jsx';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { Icon } from 'ming-ui';
-import { browserIsMobile, addBehaviorLog, emitter } from 'src/util';
+import { browserIsMobile, addBehaviorLog, emitter, handlePushState, handleReplaceState } from 'src/util';
 import { RecordInfoModal } from 'mobile/Record';
 import { handleRecordClick } from 'worksheet/util';
 import { getTops } from '../util';
@@ -108,6 +108,12 @@ export default function RecordBlock(props) {
     $ref.current.style.left = `${left}px`;
     $ref.current.style.width = `${width}px`;
   }, [props.row]);
+  useEffect(() => {
+    window.addEventListener('popstate', onQueryChange);
+  }, []);
+  const onQueryChange = () => {
+    handleReplaceState('page', 'recordDetail', () => setState({ recordInfoVisible: false }));
+  };
   const handleMouseDown = event => {
     if (!window.isCanvasTime) {
       return;
@@ -143,7 +149,7 @@ export default function RecordBlock(props) {
         handleRecordClick(view, props.row, () => {
           $ref.current.style.top = `${top + changValueY}px`;
 
-          if (window.isMingDaoApp) {
+          if (window.isMingDaoApp && !window.shareState.shareId) {
             window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${props.row.rowid}`;
             return;
           }
@@ -267,10 +273,11 @@ export default function RecordBlock(props) {
           dragDisable
             ? () => {
                 handleRecordClick(view, props.row, () => {
-                  if (window.isMingDaoApp) {
+                  if (window.isMingDaoApp && !window.shareState.shareId) {
                     window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${props.row.rowid}`;
                     return;
                   }
+                  handlePushState('page', 'recordDetail');
                   setState({ recordInfoVisible: true });
                   addBehaviorLog('worksheetRecord', worksheetId, { rowId: props.row.rowid }); // 埋点
                 });

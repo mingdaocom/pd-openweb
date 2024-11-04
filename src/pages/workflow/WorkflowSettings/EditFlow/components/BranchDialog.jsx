@@ -32,7 +32,7 @@ export default ({
     }
 
     if (
-      _.includes([NODE_TYPE.SEARCH, NODE_TYPE.FIND_SINGLE_MESSAGE], typeId) ||
+      _.includes([NODE_TYPE.SEARCH, NODE_TYPE.FIND_SINGLE_MESSAGE, NODE_TYPE.GET_MORE_RECORD], typeId) ||
       (typeId === NODE_TYPE.ACTION && actionId === ACTION_ID.RELATION)
     ) {
       return [

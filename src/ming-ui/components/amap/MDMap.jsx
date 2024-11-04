@@ -7,21 +7,19 @@ import '../less/MDMap.less';
 import { Tooltip } from 'antd';
 import _ from 'lodash';
 import markImg from './img/mark_r.png';
-import styled from 'styled-components';
+import cx from 'classnames';
+import CustomLocation from './components/CustomLocation';
+import OperatorIcon from './components/OperatorIcon';
+import GoogleMap from './components/GoogleMap';
+import { AnimationWrap } from 'src/pages/widgetConfig/styled/index.js';
+import functionWrap from 'ming-ui/components/FunctionWrap';
 
-const ToolbarIconWrap = styled.div`
-  width: 30px;
-  text-align: center;
-  right: 10px;
-  top: ${({ isMobile, icon }) => (icon === 'gpsFixed' ? (isMobile ? '140px' : '470px') : isMobile ? '180px' : '520px')};
-  z-index: 10;
-  padding: 6px;
-  border-radius: ${icon => (icon === 'gpsFixed' ? ' 50%' : 'unset')};
-  background: #fff;
-  box-shadow: 0 3px 6px 0px rgba(0, 0, 0, 0.16);
-`;
+const MAP_TYPE = [
+  { text: _l('地图位置'), value: 0 },
+  { text: _l('自定义位置'), value: 1 },
+];
 
-export default class MDMap extends Component {
+class GDMap extends Component {
   static defaultProps = {
     isMobile: false,
     distance: 0,
@@ -35,9 +33,11 @@ export default class MDMap extends Component {
     this.state = {
       defaultLocation: null,
       currentLocation: null,
+      customLocation: null,
       defaultList: [],
       list: [],
       zoom: 15,
+      tab: 0,
     };
   }
 
@@ -125,6 +125,9 @@ export default class MDMap extends Component {
             ? undefined
             : this.getCurrentLocation({ x: lng, y: lat, title: name, address }),
           zoom: this._maphHandler.map.getZoom(),
+          ...(this.state.tab === 1
+            ? { customLocation: !this.compareDistance(lng, lat) ? undefined : { lng, lat, name, address } }
+            : {}),
         },
         () => this.setPosition(lng, lat, this.state.zoom),
       );
@@ -209,9 +212,14 @@ export default class MDMap extends Component {
     );
   };
 
-  handleClearAndSet = location => {
+  handleClearAndSet = item => {
+    const { location = {}, address, name } = item;
+    const { lng, lat } = location;
     (document.getElementsByClassName('MDMapInput')[0] || {}).value = '';
-    this.setPosition(location.lng, location.lat);
+    this.setPosition(lng, lat);
+    this.setState({
+      customLocation: { lng, lat, name, address },
+    });
   };
 
   setZoom = type => {
@@ -226,58 +234,52 @@ export default class MDMap extends Component {
     });
   };
 
-  renderOperatorIcon() {
-    const { isMobile, onClose } = this.props;
+  renderOperatorIcon = () => {
     const { defaultLocation } = this.state;
 
     return (
-      <Fragment>
-        <div
-          className="Absolute"
-          style={{ right: 12, top: 11, borderRadius: '50%', background: '#fff', width: 16, height: 16, zIndex: 9 }}
-        />
-        <Icon
-          icon="delete_out"
-          className="Gray_9e Font20 Absolute ThemeHoverColor3 pointer"
-          style={{ right: 10, top: 10, zIndex: 10 }}
-          onClick={onClose}
-        />
+      <OperatorIcon
+        {...this.props}
+        defaultLocation={defaultLocation}
+        setZoom={this.setZoom}
+        setPosition={(lng, lat) => this.setPosition(lng, lat)}
+      />
+    );
+  };
 
-        {defaultLocation && defaultLocation.position && (
-          <ToolbarIconWrap
-            isMobile={isMobile}
-            icon="gpsFixed"
-            className="Gray_9e Absolute ThemeHoverColor3 pointer flexRow gpsFixedIcon"
-            onClick={() => this.setPosition(defaultLocation.position.lng, defaultLocation.position.lat)}
-          >
-            <Icon icon="gps_fixed" className="Font18" />
-          </ToolbarIconWrap>
-        )}
-        {defaultLocation && defaultLocation.position && (
-          <ToolbarIconWrap
-            className="Gray_9e Absolute pointer flexColumn zoomWrap"
-            isMobile={isMobile}
-            icon="plusMinus"
-          >
-            <div className="ThemeHoverColor3" onClick={() => this.setZoom('plus')}>
-              <Icon icon="plus" className="Font14" />
+  renderHeader() {
+    if (!this.props.allowCustom) return null;
+
+    const { isMobile } = this.props;
+
+    return (
+      <AnimationWrap className={cx('mLeft16 mRight16', { mTop16: !isMobile })}>
+        {MAP_TYPE.map(item => {
+          return (
+            <div
+              className={cx('animaItem', { active: this.state.tab === item.value })}
+              onClick={() => {
+                this.setState({ tab: item.value }, () => {
+                  if (!this.state.tab) {
+                    this.setState({ customLocation: null });
+                  }
+                });
+              }}
+            >
+              {item.text}
             </div>
-            <div className="w100 mTop2" style={{ height: 1, border: '1px solid #ddd' }}></div>
-            <div className="ThemeHoverColor3 pTop3" style={{ height: 19 }} onClick={() => this.setZoom('minus')}>
-              <Icon icon="minus" className="Font14" />
-            </div>
-          </ToolbarIconWrap>
-        )}
-      </Fragment>
+          );
+        })}
+      </AnimationWrap>
     );
   }
 
   renderSearch() {
-    const { distance } = this.props;
+    const { distance, isMobile } = this.props;
 
     return (
       <Fragment>
-        <div className="mLeft16 mRight16 relative">
+        <div className={cx('mLeft16 mRight16 relative', { mTop16: !isMobile, mTop10: isMobile })}>
           <Icon icon="search" className="Gray_9e Font16 Absolute" style={{ left: 12, top: 10 }} />
           <input
             type="text"
@@ -356,7 +358,7 @@ export default class MDMap extends Component {
                   <Icon
                     icon="location"
                     className="Font20 Gray_9e ThemeHoverColor3 pointer"
-                    onClick={() => this.handleClearAndSet(item.location)}
+                    onClick={() => this.handleClearAndSet(item)}
                   />
                 </Tooltip>
               </div>
@@ -368,21 +370,45 @@ export default class MDMap extends Component {
     );
   }
 
+  renderMapContent() {
+    const { customLocation, tab, currentLocation } = this.state;
+    if (!tab) {
+      return (
+        <Fragment>
+          {this.renderSearch()}
+          {this.renderSearchList()}
+        </Fragment>
+      );
+    }
+
+    // 自定义
+    return (
+      <CustomLocation
+        {...this.props}
+        customLocation={customLocation}
+        currentLocation={currentLocation}
+        setPosition={(lng, lat) => this.setPosition(lng, lat)}
+      />
+    );
+  }
+
   render() {
     const { isMobile } = this.props;
     const { defaultLocation } = this.state;
 
     if (isMobile) {
       return (
-        <Popup className="MDMap mobileModal minFull topRadius" visible>
+        <Popup className="MDMap mobileModal minFull topRadius mobileMap" visible>
           <div className="flexColumn h100 relative">
             {this.renderOperatorIcon()}
             <div className="Relative">
-              <div className="mBottom5" style={{ height: 250 }} ref={container => (this._mapContainer = container)} />
+              <div className="mBottom10" style={{ height: 254 }} ref={container => (this._mapContainer = container)} />
               {defaultLocation && <img src={markImg} className="markMapImg" />}
             </div>
-            {this.renderSearch()}
-            {this.renderSearchList()}
+            <div className="MDMapSidebar flexColumn w100 flex">
+              {this.renderHeader()}
+              {this.renderMapContent()}
+            </div>
           </div>
         </Popup>
       );
@@ -393,8 +419,8 @@ export default class MDMap extends Component {
         {this.renderOperatorIcon()}
         <div ref={this.conRef} className="flexRow" style={{ height: 600 }}>
           <div className="MDMapSidebar flexColumn">
-            {this.renderSearch()}
-            {this.renderSearchList()}
+            {this.renderHeader()}
+            {this.renderMapContent()}
           </div>
 
           <div className="flex h100 Relative">
@@ -405,4 +431,19 @@ export default class MDMap extends Component {
       </Dialog.DialogBase>
     );
   }
+}
+
+export default class MDMap extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const MapComponent = !!md.global.Account.map ? GoogleMap : GDMap;
+    return <MapComponent {...this.props} />;
+  }
+}
+
+export function dialogLocation(props) {
+  functionWrap(MDMap, props);
 }

@@ -53,6 +53,7 @@ export default function Areas(props) {
   const [active, setActive] = useState();
   const [search, setSearch] = useState(undefined);
   const [keywords, setKeywords] = useState('');
+  const [defaultValue, setDefaultValue] = useState(null);
   const tempArea = useRef();
 
   const onFetchData = _.debounce(value => {
@@ -69,7 +70,7 @@ export default function Areas(props) {
     <CityPicker
       search={keywords}
       destroyPopupOnHide
-      defaultValue={undefined}
+      defaultValue={defaultValue}
       level={control.type === 19 ? 1 : control.type === 23 ? 2 : 3}
       callback={area => {
         const last = _.last(area);
@@ -84,6 +85,7 @@ export default function Areas(props) {
       }}
       handleClose={() => {
         setActive(false);
+        setDefaultValue(null);
         if (tempArea.current) {
           onChange({ values: isMultiple ? _.uniqBy([...values, tempArea.current], 'id') : [tempArea.current] });
         }
@@ -127,6 +129,7 @@ export default function Areas(props) {
               e.stopPropagation();
               onChange({ values: [] });
               tempArea.current = undefined;
+              setDefaultValue('');
               if (search) {
                 setSearch('');
                 setKeywords('');

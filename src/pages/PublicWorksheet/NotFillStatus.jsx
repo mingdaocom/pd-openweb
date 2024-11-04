@@ -9,6 +9,7 @@ import _ from 'lodash';
 import FilledRecord from './FilledRecord';
 import { canSubmitByLimitFrequency } from './utils';
 import { getRequest } from 'src/util';
+import FixedContent from 'src/components/FixedContent';
 
 const Con = styled.div`
   height: 100%;
@@ -17,6 +18,13 @@ const Con = styled.div`
   display: flex;
   text-align: center;
   padding: 100px 0 0 0;
+
+  .unusualContentWrap {
+    padding-bottom: 100px;
+    .unusualContent {
+      box-shadow: none !important;
+    }
+  }
 `;
 const Tip1 = styled.div`
   font-size: 24px;
@@ -105,58 +113,63 @@ export default function NotFillStatus(props) {
     linkSwitchTime = {},
     abilityExpand = {},
     shareId,
+    fixRemark,
   } = publicWorksheetInfo;
   const canSubmitByLimit = canSubmitByLimitFrequency(shareId, limitWriteFrequencySetting);
   const request = getRequest();
 
   return (
     <Con className="notFillStatus">
-      <div style={{ width: '100%' }}>
-        <StatusIcon status={status} worksheetId={worksheetId} />
+      {status === FILL_STATUS.FIXED ? (
+        <FixedContent showLeftSkeleton={false} appPkg={{ fixRemark }} hideFixAccount={true} />
+      ) : (
+        <div style={{ width: '100%' }}>
+          <StatusIcon status={status} worksheetId={worksheetId} />
 
-        {worksheetId && <Tip1 className="mTop10">{name || _l('未命名表单')}</Tip1>}
+          {worksheetId && <Tip1 className="mTop10">{name || _l('未命名表单')}</Tip1>}
 
-        <Tip2 className="mTop8">{getTip(worksheetId, status)}</Tip2>
+          <Tip2 className="mTop8">{getTip(worksheetId, status)}</Tip2>
 
-        {status === FILL_STATUS.NOT_OPEN && (
-          <Tip2 className="mTop8">
-            {_l('表单将于') + moment(linkSwitchTime.startTime).format('YYYY年MM月DD日 HH:mm') + _l('开放填写')}
-          </Tip2>
-        )}
-
-        {status === FILL_STATUS.COMPLETED &&
-          request.statusExtra !== 'no' &&
-          (canSubmitByLimit || !!_.get(abilityExpand, 'allowViewChange.isAllowViewChange')) && (
-            <Tip2
-              style={{ color: '#2196F3', margin: '24px 0', fontWeight: 600 }}
-              className="flexRow justifyContentCenter alignItemsCenter"
-            >
-              <FilledRecord
-                isFillPage={false}
-                publicWorksheetInfo={publicWorksheetInfo}
-                formData={formData}
-                rules={rules}
-                status={status}
-              />
-              {canSubmitByLimit && (
-                <span className="Hand" onClick={onRefill}>
-                  {_l('再填写一份')}
-                </span>
-              )}
+          {status === FILL_STATUS.NOT_OPEN && (
+            <Tip2 className="mTop8">
+              {_l('表单将于') + moment(linkSwitchTime.startTime).format('YYYY年MM月DD日 HH:mm') + _l('开放填写')}
             </Tip2>
           )}
 
-        <div style={{ minHeight: !receipt ? '224px' : '200px' }}>
-          {receipt && status === FILL_STATUS.COMPLETED && (
-            <React.Fragment>
-              <Hr style={{ margin: '20px 0 4px' }} />
-              <Receipt className="receipt">
-                <RichText data={receipt || ''} className="" disabled={true} />
-              </Receipt>
-            </React.Fragment>
-          )}
+          {status === FILL_STATUS.COMPLETED &&
+            request.statusExtra !== 'no' &&
+            (canSubmitByLimit || !!_.get(abilityExpand, 'allowViewChange.isAllowViewChange')) && (
+              <Tip2
+                style={{ color: '#2196F3', margin: '24px 0', fontWeight: 600 }}
+                className="flexRow justifyContentCenter alignItemsCenter"
+              >
+                <FilledRecord
+                  isFillPage={false}
+                  publicWorksheetInfo={publicWorksheetInfo}
+                  formData={formData}
+                  rules={rules}
+                  status={status}
+                />
+                {canSubmitByLimit && (
+                  <span className="Hand" onClick={onRefill}>
+                    {_l('再填写一份')}
+                  </span>
+                )}
+              </Tip2>
+            )}
+
+          <div style={{ minHeight: !receipt ? '224px' : '200px' }}>
+            {receipt && status === FILL_STATUS.COMPLETED && (
+              <React.Fragment>
+                <Hr style={{ margin: '20px 0 4px' }} />
+                <Receipt className="receipt">
+                  <RichText data={receipt || ''} className="" disabled={true} />
+                </Receipt>
+              </React.Fragment>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </Con>
   );
 }

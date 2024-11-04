@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Dropdown, Checkbox, RadioGroup, Tooltip } from 'ming-ui';
+import { Dropdown, RadioGroup, Tooltip } from 'ming-ui';
 import { SettingItem } from '../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange, updateConfig } from '../../util/setting';
 
@@ -45,9 +45,9 @@ const DISTANCE_CONFIG = [
   },
 ];
 export default function Location({ data, onChange }) {
-  const { enumDefault2, default: currentArea } = data;
+  const { enumDefault2 } = data;
   const strDefault = data.strDefault || '00';
-  const { distance, showxy = '0' } = getAdvanceSetting(data);
+  const { distance, showxy = '0', allowcustom } = getAdvanceSetting(data);
 
   return (
     <Fragment>
@@ -70,7 +70,10 @@ export default function Location({ data, onChange }) {
           data={LOCATION_RANGE_TYPE}
           onChange={value =>
             onChange({
-              ...handleAdvancedSettingChange(data, { showxy: value === '0' ? showxy : '1' }),
+              ...handleAdvancedSettingChange(data, {
+                showxy: value === '0' ? showxy : '1',
+                allowcustom: value === '0' ? allowcustom : '0',
+              }),
               strDefault: updateConfig({ config: strDefault, value, index: 0 }),
             })
           }
@@ -109,16 +112,6 @@ export default function Location({ data, onChange }) {
           )}
         </Fragment>
       )}
-
-      <SettingItem>
-        <div className="settingItemTitle">{_l('默认值')}</div>
-        <Checkbox
-          size="small"
-          checked={currentArea === '1'}
-          onClick={checked => onChange({ default: checked ? '0' : '1' })}
-          text={_l('当前位置')}
-        />
-      </SettingItem>
     </Fragment>
   );
 }

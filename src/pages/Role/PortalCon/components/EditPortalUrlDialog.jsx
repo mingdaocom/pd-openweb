@@ -78,32 +78,34 @@ export default function EditPortalUrlDialog(props) {
     }
   };
   const editAddressSuffix = _.debounce(cb => {
-    externalPortalAjax.editCustomAddressSuffix({
-      appId,
-      customAddressSuffix: urlSuffix,
-    }).then(res => {
-      setState({
-        loading: false,
+    externalPortalAjax
+      .editCustomAddressSuffix({
+        appId,
+        customAddressSuffix: urlSuffix,
+      })
+      .then(res => {
+        setState({
+          loading: false,
+        });
+        switch (res.resultEnum) {
+          case 1:
+            cb && cb(res.portalUrl);
+            break;
+          case 2:
+            setState({
+              errStr: _l('此名称已被占用'),
+            });
+            break;
+          case 3:
+            setState({
+              errStr: _l('此名称和系统地址冲突，请重新输入'),
+            });
+            break;
+          default:
+            alert(_l('操作失败，请稍后再试'), 3);
+            break;
+        }
       });
-      switch (res.resultEnum) {
-        case 1:
-          cb && cb(res.portalUrl);
-          break;
-        case 2:
-          setState({
-            errStr: _l('此名称已被占用'),
-          });
-          break;
-        case 3:
-          setState({
-            errStr: _l('此名称和系统地址冲突，请重新输入'),
-          });
-          break;
-        default:
-          alert(_l('操作失败，请稍后再试'), 3);
-          break;
-      }
-    });
   }, 500);
   return (
     <Dialog
@@ -153,15 +155,13 @@ export default function EditPortalUrlDialog(props) {
             maxLength={'60'} //最大60个字
             ref={inputRef}
             onChange={e => {
-              setState({ urlSuffix: e.target.value.trim(), errStr: '' });
+              const str = e.target.value.trim().replace(/[^\w-]|_/gi, '');
+              setState({ urlSuffix: str, errStr: '' });
             }}
             onBlur={e => {
               if (!!e.target.value.trim()) {
                 verify(urlSuffix);
               }
-            }}
-            onKeyUp={e => {
-              setState({ urlSuffix: e.target.value.replace(/[^\w-]|_/gi, '') });
             }}
           />
         </div>

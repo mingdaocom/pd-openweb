@@ -78,7 +78,7 @@ export default function PurchaseMethodModal(props) {
 
   const handleClick = it => {
     if (it.type === 'payOnline') {
-      location.assign(`/upgrade/choose?projectId=${projectId}&goToPost=true${select ? '&select=' + select : ''}`);
+      location.assign(`/upgrade/choose?projectId=${projectId}${select ? '&select=' + select : ''}`);
     } else if (it.type === 'partner') {
       window.open(`${md.global.Config.WebUrl}partnerlist`);
     } else {

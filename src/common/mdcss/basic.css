@@ -152,6 +152,10 @@ textarea {
   display: inline-flex !important;
 }
 
+.inlineFlex {
+  display: inline-flex;
+}
+
 .InlineBlock {
   display: inline-block !important;
   display: -moz-inline-stack;
@@ -370,10 +374,6 @@ body .Hidden {
 
 .Hover_49:hover {
   color: #49adfc !important;
-}
-
-.Hover_21:hover {
-  color: #2196f3 !important;
 }
 
 /*浅黄色 官方群组*/
@@ -1522,6 +1522,14 @@ body .Hidden {
 
 .ThemeColor {
   color: #2196f3;
+}
+
+.Hover_21:hover {
+  color: #2196f3 !important;
+}
+
+.Hover_9e:hover {
+  color: #9e9e9e !important;
 }
 
 .font8 {

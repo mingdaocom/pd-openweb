@@ -8,7 +8,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getSources: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateSource', 'GetSources', args, options);
    },
   /**
@@ -23,7 +23,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addSource: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateSource', 'AddSource', args, options);
    },
   /**
@@ -39,7 +39,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editSource: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateSource', 'EditSource', args, options);
    },
   /**
@@ -52,7 +52,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editSourceStatus: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateSource', 'EditSourceStatus', args, options);
    },
   /**
@@ -64,7 +64,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editSourceSort: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateSource', 'EditSourceSort', args, options);
    },
   /**
@@ -76,7 +76,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeSource: function (args, options = {}) {
-
+     
      return mdyAPI('PrivateSource', 'RemoveSource', args, options);
    },
 };

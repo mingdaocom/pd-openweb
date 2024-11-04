@@ -993,8 +993,9 @@ export const getUnUniqName = (data, name = '', key = 'name') => {
  * @param {string} entityId - 实体 ID。(根据访问类型不同， 传不同模块id：浏览应用，entityId =应用id，
  * 浏览自定义页面，entityId = 页面id。其他的浏览行为 =worksheetId）
  * @param {Object} params - 额外的参数，用于记录日志的详细信息。
+ * @param {boolean} isLinkVisited - 是否通过链接访问
  */
-export const addBehaviorLog = (type, entityId, params = {}) => {
+export const addBehaviorLog = (type, entityId, params = {}, isLinkVisited) => {
   if (!get(md, 'global.Account.accountId')) return;
 
   const typeObj = {
@@ -1011,8 +1012,27 @@ export const addBehaviorLog = (type, entityId, params = {}) => {
     previewFile: 11, // 文件预览
   };
 
+  const addBehaviorLogInfo = sessionStorage.getItem('addBehaviorLogInfo')
+    ? JSON.parse(sessionStorage.getItem('addBehaviorLogInfo'))
+    : undefined;
+
+  if (isLinkVisited && _.isEqual(addBehaviorLogInfo, { type, entityId, params })) {
+    return;
+  }
+
+  sessionStorage.setItem('addBehaviorLogInfo', JSON.stringify({ type, entityId, params }));
+
   // 调用 actionLogAjax.addLog 方法记录行为日志
-  actionLogAjax.addLog({ type: typeObj[type], entityId, params });
+  actionLogAjax
+    .addLog({ type: typeObj[type], entityId, params })
+    .then(res => {
+      if (res && !(type === 'app' && !isLinkVisited) && !(type === 'worksheet' && !isLinkVisited)) {
+        sessionStorage.removeItem('addBehaviorLogInfo');
+      }
+    })
+    .catch(err => {
+      sessionStorage.removeItem('addBehaviorLogInfo');
+    });
 };
 
 /**
@@ -1593,4 +1613,50 @@ export const formatNumberThousand = value => {
   const content = (value || _.isNumber(value) ? value : '').toString();
   const reg = content.indexOf('.') > -1 ? /(\d{1,3})(?=(?:\d{3})+\.)/g : /(\d{1,3})(?=(?:\d{3})+$)/g;
   return content.replace(reg, '$1,');
+};
+
+export const handlePushState = (queryKey = '', queryValue = '') => {
+  if (!browserIsMobile()) return;
+  const popupKey = queryKey + `=` + queryValue;
+
+  history.replaceState({ ...history.state, ...{ popupKey } }, '');
+  const baseUrl = location.href;
+  const url = baseUrl.includes('?') ? `${baseUrl}&${popupKey}` : `${baseUrl}?${popupKey}`;
+
+  history.pushState({ popupKey }, '', url);
+};
+
+export const handleReplaceState = (queryKey, queryValue, callback = () => {}) => {
+  if (_.get(window, 'history.state.popupKey') === `${queryKey}=${queryValue}`) {
+    history.replaceState({ [queryKey]: queryValue }, '', location.href);
+    callback();
+  }
+};
+
+export const isPasswordRule = str => {
+  const { md = {} } = window;
+  const { global = {} } = md;
+  const { SysSettings = {} } = global;
+  const { passwordRegex } = SysSettings;
+  return RegExpValidator.isPasswordValid(str, passwordRegex);
+};
+
+export const getContactInfo = key => {
+  const contactInfo = safeParse(window.localStorage.getItem('contactInfo') || '{}');
+
+  // 用户不匹配、用户信息更改重新获取数据
+  if (
+    _.isEmpty(contactInfo) ||
+    contactInfo.accountId !== md.global.Account.accountId ||
+    (contactInfo[key] &&
+      md.global.Account[key].replace(/\*/g, (a, b) => {
+        return contactInfo[key][b];
+      }) !== contactInfo[key])
+  ) {
+    const data = accountAjax.getMyContactInfo({}, { ajaxOptions: { sync: true } });
+    safeLocalStorageSetItem('contactInfo', JSON.stringify(data));
+    return data[key];
+  }
+
+  return contactInfo[key];
 };

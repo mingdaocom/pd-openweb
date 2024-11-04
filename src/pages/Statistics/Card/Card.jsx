@@ -323,7 +323,6 @@ class Card extends Component {
         className={cx(`statisticsCard statisticsCard-${report.id} statisticsCard-${reportData.reportType}`, className, {
           hideChartHeader: !showTitle,
           hideNumberChartName: !showTitle,
-          cardHover: !showTitle,
           headerHover: showTitle
         })}
       >

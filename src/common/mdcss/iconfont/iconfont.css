@@ -1,8 +1,8 @@
 @font-face {
   font-family: "MD_Icon"; /* Project id 2032949 */
-  src: url('iconfont.woff2?t=1725428507731') format('woff2'),
-       url('iconfont.woff?t=1725428507731') format('woff'),
-       url('iconfont.ttf?t=1725428507731') format('truetype');
+  src: url('iconfont.woff2?t=1729069490654') format('woff2'),
+       url('iconfont.woff?t=1729069490654') format('woff'),
+       url('iconfont.ttf?t=1729069490654') format('truetype');
 }
 
 .MD_Icon {
@@ -11,6 +11,34 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-logout:before {
+  content: "\ece2";
+}
+
+.icon-organization_add:before {
+  content: "\ece1";
+}
+
+.icon-light_mode:before {
+  content: "\ecdf";
+}
+
+.icon-dark_mode:before {
+  content: "\ece0";
+}
+
+.icon-support_agent:before {
+  content: "\ecdc";
+}
+
+.icon-gift:before {
+  content: "\ecdd";
+}
+
+.icon-partner:before {
+  content: "\ecde";
 }
 
 .icon-Reposition-01:before {
@@ -255,10 +283,6 @@
 
 .icon-adds_shallow:before {
   content: "\eab1";
-}
-
-.icon-sending_shallow:before {
-  content: "\eab3";
 }
 
 .icon-stamp_shallow:before {

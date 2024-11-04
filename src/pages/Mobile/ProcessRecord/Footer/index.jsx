@@ -11,6 +11,7 @@ import {
 } from 'src/pages/workflow/components/ExecDialog/config';
 import instanceApi from 'src/pages/workflow/api/instance';
 import { verifyPassword } from 'src/util';
+import customBtnWorkflow from 'mobile/components/socket/customBtnWorkflow';
 import './index.less';
 
 export default class Footer extends Component {
@@ -23,6 +24,11 @@ export default class Footer extends Component {
       otherActionVisible: false,
     };
   }
+
+  componentDidMount() {
+    customBtnWorkflow();
+  }
+
   componentWillUnmount() {
     this.actionVerifyPasswordHandler && this.actionVerifyPasswordHandler.close();
     this.actionOperationHandler && this.actionOperationHandler.close();

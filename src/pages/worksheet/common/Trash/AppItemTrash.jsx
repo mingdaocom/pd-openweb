@@ -2,12 +2,11 @@ import React, { Fragment, useState, useEffect, useRef, useCallback } from 'react
 import { ScrollView, LoadDiv, Dialog, SvgIcon, UserHead } from 'ming-ui';
 import cx from 'classnames';
 import styled from 'styled-components';
-import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput';
 import AppSettingHeader from 'src/pages/AppSettings/components/AppSettingHeader';
 import { string } from 'prop-types';
 import appManagementAjax from 'src/api/appManagement';
-import moment from 'moment';
 import _ from 'lodash';
+import { dateConvertToUserZone } from 'src/util';
 
 const Content = styled.div`
   height: calc(100% - 53px);
@@ -134,7 +133,7 @@ export default function AppItemTrash(props) {
         {_.get(appItem, 'deletePerson.fullname') || _.get(appItem, 'deletePerson.fullName')}
       </span>,
     ],
-    <span className="Gray_9e">{moment(appItem.deleteTime).format('YYYY-MM-DD HH:mm:ss')}</span>,
+    <span className="Gray_9e">{createTimeSpan(dateConvertToUserZone(appItem.deleteTime))}</span>,
   ]);
 
   function setPendingCache(key, value) {

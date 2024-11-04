@@ -8,7 +8,6 @@ import { listLoadingContent } from '../../utils/taskComm';
 import { formatTaskTime, errorMessage, formatStatus, checkIsProject, returnCustonValue } from '../../utils/utils';
 import config from '../../config/config';
 import 'src/components/autoTextarea/autoTextarea';
-import 'src/components/mdDatePicker/mdDatePicker';
 import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
 import nodeLiComm from './tpl/nodeLiComm.html';
 import stageList from './tpl/stageList.html';

@@ -25,7 +25,7 @@ const SyncTaskWrapper = styled.div`
   }
 
   .selectItem {
-    width: 100% !important;
+    width: 100%;
     font-size: 13px;
     .ant-select-selector {
       min-height: 36px;

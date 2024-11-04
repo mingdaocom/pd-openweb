@@ -88,7 +88,8 @@ export default function allCountPanelGenerator(props) {
             <Count
               key={item.controlId}
               yAxis={item}
-              isPivotTable={true}
+              isCollectMode={true}
+              isCalculateMode={false}
               extra={
                 <Checkbox
                   className="mLeft0 mBottom15"

@@ -485,18 +485,17 @@ export default class PayConfig extends Component {
             <Support type={3} text={_l('帮助')} href="https://help.mingdao.com/org/payment" />
           </div>
           <div className="payConfigContent">
-            {/* <div className="Font16 bold mBottom16">{_l('支付场景')}</div> */}
             <ul className="enableScene">
               {[
-                {
-                  key: 'publicWorkSheet',
-                  title: _l('公开表单'),
-                  text: _l('在公开表单提交后支付，常用于活动报名等场景'),
-                },
                 {
                   key: 'workSheet',
                   title: _l('工作表记录'),
                   text: _l('在工作表记录中显示支付按钮，可以在用户使用外部门户时支付，或组织内完成支付'),
+                },
+                {
+                  key: 'publicWorkSheet',
+                  title: _l('公开表单'),
+                  text: _l('在公开表单提交后支付，常用于活动报名等场景'),
                 },
               ].map(item => {
                 return (

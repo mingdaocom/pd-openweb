@@ -16,7 +16,12 @@ import { getInitFieldsMapping } from 'src/pages/integration/dataIntegration/util
 import _ from 'lodash';
 import SlideLayerTem from './SlideLayerTem';
 import { mdUniquePkData } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/config.js';
+import TimingSetting from 'src/pages/integration/dataIntegration/components/TimingSetting/index.jsx';
 
+const tabList = [
+  { key: 0, txt: _l('字段设置') },
+  { key: 1, txt: _l('数据预览') },
+];
 const Wrap = styled.div`
   .AliasInput {
     max-width: 200px;
@@ -56,6 +61,9 @@ const Wrap = styled.div`
         &:hover {
           color: #2196f3;
         }
+      }
+      .tabItem {
+        margin-right: 20px;
       }
     }
     .footerCon {
@@ -106,6 +114,7 @@ export default class CellEdit extends Component {
       isSetDefaultMap: false,
       duplicates: [],
       fieldsBysource: [],
+      tab: 0,
     };
   }
   componentDidMount() {
@@ -345,9 +354,9 @@ export default class CellEdit extends Component {
     );
   };
   render() {
-    const { onClose, onSave, list, flowData = {} } = this.props;
+    const { onClose, onSave, list, flowData = {}, currentProjectId } = this.props;
     const { srcIsDb } = flowData;
-    const { node = {}, loading, sheetName, isEr, fileList } = this.state;
+    const { node = {}, loading, sheetName, isEr, fileList, tab, fieldsBysource } = this.state;
     const { nodeType = '', nodeConfig } = node;
     const { fields = [] } = nodeConfig;
     let disable = false;
@@ -462,6 +471,66 @@ export default class CellEdit extends Component {
         disable = true;
         txt = _l('字段名称不能重复');
       }
+      //非mysql,kafka都不允许无主键的表
+      if (
+        ![DATABASE_TYPE.MYSQL, DATABASE_TYPE.ALIYUN_MYSQL, DATABASE_TYPE.TENCENT_MYSQL, DATABASE_TYPE.KAFKA].includes(
+          _.get(node, 'nodeConfig.config.dsType'),
+        ) &&
+        fieldsBysource.filter(o => o.isPk).length <= 0
+      ) {
+        disable = true;
+        txt = _l('该表没有主键，无法同步');
+      }
+      //HANA库 依据字段更新时 是否选择依据字段
+      let hanaHasBaseField = true;
+      // HANA库 依据字段更新时 首次读取值校验是否为空
+      let isEmptyFirstValue = false;
+      // HANA库 依据字段更新时 首次读取值校验是否有效
+      let validFirstValue = true;
+      // HANA库 读取间隔为每天，具体时间是否选择
+      let isSetReadTime = true;
+      if (_.get(node, 'nodeConfig.config.scheduleConfig')) {
+        if (_.get(node, 'nodeConfig.config.scheduleConfig.readType') === 1) {
+          const basisField = _.get(node, 'nodeConfig.config.scheduleConfig.config.basisField') || {};
+          const firstValue = _.get(node, 'nodeConfig.config.scheduleConfig.config.firstValue');
+          if (!basisField.id) {
+            hanaHasBaseField = false;
+          }
+          if (!firstValue && firstValue !== 0) {
+            isEmptyFirstValue = true;
+          }
+          if ([91, 93].includes(basisField.jdbcTypeId) && !basisField.isPk) {
+            //日期格式
+            const regex =
+              /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:\s(0\d|1\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?)?$/;
+            if (!regex.test(firstValue)) {
+              validFirstValue = false;
+            }
+          }
+        }
+        if (
+          _.get(node, 'nodeConfig.config.scheduleConfig.readIntervalType') === 1 &&
+          !_.get(node, 'nodeConfig.config.scheduleConfig.readTime')
+        ) {
+          isSetReadTime = false;
+        }
+        if (!hanaHasBaseField) {
+          disable = true;
+          txt = _l('定时设置依据字段未设置');
+        }
+        if (isEmptyFirstValue) {
+          disable = true;
+          txt = _l('首次读取开始值不允许为空');
+        }
+        if (!validFirstValue) {
+          disable = true;
+          txt = _l('首次读取开始值格式不完整');
+        }
+        if (!isSetReadTime) {
+          disable = true;
+          txt = _l('请选择每天读取具体时间');
+        }
+      }
     }
     if (nodeType === 'JOIN') {
       if (fields.filter(o => !_.get(o, 'isCheck') && _.get(o, 'isPk')).length > 0) {
@@ -512,11 +581,10 @@ export default class CellEdit extends Component {
       <Wrap className="">
         <div className={cx('conEdit flexColumn', { isMaxC: ['UNION', 'DEST_TABLE'].includes(nodeType) })}>
           <div className="headCon flexRow alignItemsCenter">
-            <span className="Font18 Bold flex">
-              {_l('编辑字段')}
-              {['SOURCE_TABLE', 'JOIN'].includes(nodeType) && this.resetAlias()}
+            <span className="Font18 Bold flex flexRow alignItemsCenter">
+              <div className="flex">{_l('设置')}</div>
+              {['SOURCE_TABLE', 'JOIN'].includes(nodeType) && tab === 0 && this.resetAlias()}
             </span>
-
             {nodeType === 'SOURCE_TABLE' && (
               <Tooltip text={<span>{_l('刷新数据源字段')}</span>} action={['hover']} popupPlacement={'bottom'}>
                 <i
@@ -539,9 +607,42 @@ export default class CellEdit extends Component {
           ) : (
             <React.Fragment>
               <div className="conC flex">
+                <div className="Font14 Bold mBottom10">{_l('字段设置')}</div>
                 <div className="listCon">
                   <SlideLayerTem {...this.props} state={this.state} onChangeInfo={info => this.setState({ ...info })} />
                 </div>
+                {nodeType === 'SOURCE_TABLE' && _.get(node, 'nodeConfig.config.dsType') === DATABASE_TYPE.HANA && (
+                  <div className="">
+                    <div className="Font14 mTop30 Bold mBottom10">{_l('定时设置')}</div>
+                    <TimingSetting
+                      forTaskNode
+                      noGetDefault={!!_.get(node, 'nodeConfig.config.scheduleConfig')}
+                      settingValue={_.get(node, 'nodeConfig.config.scheduleConfig')}
+                      showInDrawer={false}
+                      projectId={currentProjectId}
+                      scheduleConfigId={_.get(node, 'nodeConfig.config.scheduleConfig.id')}
+                      sourceId={_.get(node, 'nodeConfig.config.datasourceId')}
+                      dbName={_.get(node, 'nodeConfig.config.dbName')}
+                      schema={_.get(node, 'nodeConfig.config.schema')}
+                      tableName={_.get(node, 'nodeConfig.config.tableName')}
+                      sourceFields={_.get(node, 'nodeConfig.fields') || []}
+                      onChange={scheduleConfig => {
+                        this.setState({
+                          node: {
+                            ...node,
+                            nodeConfig: {
+                              ..._.get(node, 'nodeConfig'),
+                              config: {
+                                ..._.get(node, 'nodeConfig.config'),
+                                scheduleConfig,
+                              },
+                            },
+                          },
+                        });
+                      }}
+                    />
+                  </div>
+                )}
               </div>
               <div className="footerCon">
                 <span

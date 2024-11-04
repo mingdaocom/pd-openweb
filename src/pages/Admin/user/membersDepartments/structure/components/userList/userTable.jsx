@@ -59,7 +59,7 @@ class UserTable extends React.Component {
       { value: 'jobNum', label: _l('工号'), checked: true, width: 120 },
       { value: 'adress', label: _l('工作地点'), checked: true, width: 120 },
       { value: 'joinDate', label: _l('加入时间'), checked: true, typeCursor: 0, width: 120 },
-      { value: 'applyDate', label: _l('申请日期'), checked: true, typeCursor: 3, width: 160 },
+      { value: 'applyDate', label: _l('申请时间'), checked: true, typeCursor: 3, width: 160 },
       { value: 'operator', label: _l('操作者'), checked: true, typeCursor: 3, width: 160 },
     ],
   };
@@ -259,7 +259,7 @@ class UserTable extends React.Component {
           )}
           {!this.state.isMinSc && props.typeCursor === 3 && (
             <React.Fragment>
-              {this.isHideCurrentColumn('applyDate') && <th className="dateTh">{_l('申请日期')}</th>}
+              {this.isHideCurrentColumn('applyDate') && <th className="dateTh">{_l('申请时间')}</th>}
               {this.isHideCurrentColumn('operator') && <th className="actMenTh">{_l('操作者')}</th>}
             </React.Fragment>
           )}

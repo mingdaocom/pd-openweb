@@ -8,7 +8,8 @@ import styled from 'styled-components';
 import moment from 'moment';
 import cx from 'classnames';
 import { browserIsMobile, createElementFromHtml } from 'src/util';
-import { Menu, MenuItem, SimplePagination, Skeleton } from 'ming-ui';
+import Pagination from 'worksheet/components/Pagination';
+import { Menu, MenuItem, Skeleton } from 'ming-ui';
 import { CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES, ROW_HEIGHT } from 'worksheet/constants/enum';
 import SearchInput from 'worksheet/components/SearchInput';
 import worksheetAjax from 'src/api/worksheet';
@@ -728,18 +729,24 @@ class ChildTable extends React.Component {
       controlId: control.controlId,
       dataCount: filterEmptyChildTableRows(rows).length,
       controls,
-      onAddRows: data => {
-        addRows(
-          data
-            .slice(0, this.settings.maxCount - filterEmptyChildTableRows(rows).length)
-            .map(updatedValues => this.newRow(updatedValues, { isCreate: true })),
-        );
+      onClose: data => {
+        if (!_.isArray(data)) {
+          return;
+        }
+        setTimeout(() => {
+          addRows(
+            data
+              .slice(0, this.settings.maxCount - filterEmptyChildTableRows(rows).length)
+              .map(updatedValues => this.newRow(updatedValues, { isCreate: true })),
+          );
+        }, 0);
       },
     });
   };
 
   handleAddRowsFromRelateRecord = batchAddControls => {
     const { addRows, control, rows } = this.props;
+    let { h5showtype, h5abstractids = [] } = parseAdvancedSetting(control.advancedSetting);
     const { entityName } = this.worksheetInfo;
     const { controls } = this.state;
     const relateRecordControl = batchAddControls[0];
@@ -784,6 +791,12 @@ class ChildTable extends React.Component {
         this.handleSetPageIndexWhenAddRow(rowsLength + selectedRecords.length);
         setTimeout(() => {
           try {
+            const ele = document.querySelector('.mobileSheetRowRecord .recordScroll');
+            if (isMobile && ele) {
+              const itemHeight =
+                h5showtype === '2' ? 36 * ((_.isEmpty(h5abstractids) ? 3 : h5abstractids.length) + 1) : 36;
+              ele.scrollTop = ele.scrollTop + (selectedRecords.length - 1) * itemHeight;
+            }
             this.worksheettable.current.table.refs.setScroll(0, 100000);
           } catch (err) {}
         }, 100);
@@ -975,13 +988,14 @@ class ChildTable extends React.Component {
           >
             ${error}
           </div>`);
-        cell.parentElement.appendChild(errorEle);
+        document.body.appendChild(errorEle);
         const top =
-          cell.offsetTop +
+          cell.getBoundingClientRect().y +
           (/row-0/.test(cell.getAttribute('class')) ? cell.offsetHeight - 1 : -1 * errorEle.offsetHeight);
-        const left = cell.offsetLeft;
+        const left = cell.getBoundingClientRect().x;
         errorEle.style.top = top + 'px';
         errorEle.style.left = left + 'px';
+        errorEle.style.zIndex = 9999999;
       }
     }
   };
@@ -1164,20 +1178,6 @@ class ChildTable extends React.Component {
     }
     const operateComp = (
       <Fragment>
-        {!isMobileSearchFocus && recordId && !valueChanged && (
-          <span
-            className="mRight6 Hand"
-            data-tip={_l('刷新')}
-            style={{ height: 28 }}
-            onClick={() => {
-              this.refresh();
-            }}
-          >
-            <IconBtn>
-              <i className="icon icon-task-later" />
-            </IconBtn>
-          </span>
-        )}
         {showSearch && (
           <SearchInput
             ref={this.searchRef}
@@ -1230,6 +1230,20 @@ class ChildTable extends React.Component {
               }}
             />
           )}
+        {!isMobileSearchFocus && recordId && !valueChanged && (
+          <span
+            className="mLeft6 Hand"
+            data-tip={_l('刷新')}
+            style={{ height: 28 }}
+            onClick={() => {
+              this.refresh();
+            }}
+          >
+            <IconBtn>
+              <i className="icon icon-task-later" />
+            </IconBtn>
+          </span>
+        )}
         {mode !== 'dialog' && from !== FROM.DRAFT && recordId && !isMobile && (
           <span
             className="mLeft6"
@@ -1376,19 +1390,34 @@ class ChildTable extends React.Component {
               )}
               <div className="flex"></div>
               {keywords && <SearchResultNum>{_l('共 %0 行', tableRows.length)}</SearchResultNum>}
+              <div className="mTop5 flexRow alignItemsCenter">{operateComp}</div>
               {showAsPages && tableRows.length > pageSize && (
-                <SimplePagination
+                <Pagination
+                  allowChangePageSize={false}
+                  className="pagination"
                   pageIndex={pageIndex}
                   pageSize={pageSize}
-                  count={tableRows.length}
-                  onChange={newPageIndex => {
+                  allCount={tableRows.length}
+                  changePageIndex={value => {
                     this.setState({
-                      pageIndex: newPageIndex,
+                      pageIndex: value,
+                    });
+                  }}
+                  onPrev={() => {
+                    this.setState({
+                      pageIndex: pageIndex - 1 < 0 ? 0 : pageIndex - 1,
+                    });
+                  }}
+                  onNext={() => {
+                    this.setState({
+                      pageIndex:
+                        pageIndex + 1 > Math.ceil(tableRows.length / pageSize)
+                          ? Math.ceil(tableRows.length / pageSize)
+                          : pageIndex + 1,
                     });
                   }}
                 />
               )}
-              <div className="flexRow alignItemsCenter">{operateComp}</div>
             </div>
           )}
           {!isMobile && !loading && (
@@ -1707,6 +1736,7 @@ class ChildTable extends React.Component {
               h5abstractids={h5abstractids}
               appId={appId}
               worksheetId={control.dataSource}
+              cellErrors={cellErrors}
             />
           )}
           {loading &&

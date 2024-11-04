@@ -89,6 +89,20 @@ class Widgets extends Component {
     this.props.onChange(JSON.stringify(values));
   };
 
+  handleSelectAll = (options = [], isChecked) => {
+    const { value, onChange, advancedSetting = {}, type } = this.props;
+    const { checktype } = advancedSetting;
+    const checkIds = safeParse(value, 'array');
+
+    // 多选平铺, 多选选中则清空
+    if (type === 10 && checktype !== '1' && isChecked) {
+      onChange('');
+      return;
+    }
+    const otherIds = options.filter(i => !_.find(checkIds, c => c.includes(i.key))).map(i => i.key);
+    onChange(JSON.stringify(checkIds.concat(otherIds)));
+  };
+
   componentWillUnmount() {
     if (_.isFunction(this.props.triggerCustomEvent)) {
       this.props.triggerCustomEvent(ADD_EVENT_ENUM.HIDE);
@@ -107,52 +121,100 @@ class Widgets extends Component {
     return `${itemWidth}%`;
   }
 
-  pcContent(checkIds) {
-    const { disabled, options, value, advancedSetting } = this.props;
-    const { direction = '2', width = '200' } = advancedSetting || {};
+  renderSelectAll = (checkIds = [], displayOptions = []) => {
+    const { advancedSetting = {}, disabled } = this.props;
+    const { showselectall, checktype } = advancedSetting;
 
-    const displayOptions = options.filter(
-      item => !item.isDeleted && (_.includes(checkIds, item.key) || (!item.hide && !disabled)),
-    );
-    const noMaxWidth = direction === '0' && !browserIsMobile() && width;
-    return displayOptions.map(item => {
-      if (item.key === 'other' && disabled && browserIsMobile()) {
-        return (
-          <div className="flexColumn" style={direction === '0' && !browserIsMobile() ? { width: `${width}px` } : {}}>
-            <Checkbox
-              key={item.key}
-              disabled={disabled}
-              title={item.value}
-              text={this.renderList(item, noMaxWidth)}
-              value={item.key}
-              checked={_.includes(checkIds, item.key)}
-              onClick={this.onChange}
-            />
-          </div>
-        );
-      }
+    if (disabled || showselectall !== '1') return null;
 
+    if (checktype !== '1') {
+      const isChecked = _.every(displayOptions, d => _.find(checkIds, c => c.includes(d.key)));
+      const clearselected = !isChecked && _.some(displayOptions, d => _.find(checkIds, c => c.includes(d.key)));
       return (
-        <div
-          className="flexColumn"
-          style={direction === '0' && !browserIsMobile() ? { width: this.getItemWidth(displayOptions) } : {}}
-        >
-          <div className="flexColumn" style={direction === '0' && !browserIsMobile() ? { width: `${width}px` } : {}}>
-            <Checkbox
-              className={cx('w100', { flexWidth: noMaxWidth })}
-              key={item.key}
-              disabled={disabled}
-              title={item.value}
-              text={this.renderList(item, noMaxWidth)}
-              value={item.key}
-              checked={_.includes(checkIds, item.key)}
-              onClick={this.onChange}
-            />
-            {item.key === 'other' && <OtherInput {...this.props} isSelect={browserIsMobile() ? true : false} />}
-          </div>
+        <div className="flexColumn w100">
+          <Checkbox
+            key="select-all"
+            title={_l('全选')}
+            text={<span style={{ paddingTop: '3px', display: 'inline-block' }}>{_l('全选')}</span>}
+            value="select-all"
+            clearselected={clearselected}
+            checked={isChecked}
+            onClick={() => {
+              this.handleSelectAll(displayOptions, isChecked);
+            }}
+          />
         </div>
       );
-    });
+    }
+
+    return (
+      <Select.Option value="select-all" key="select-all">
+        <span className="ellipsis customRadioItem ThemeColor3">{_l('全选')}</span>
+      </Select.Option>
+    );
+  };
+
+  pcContent(checkIds) {
+    const { disabled, options, value, advancedSetting } = this.props;
+    const { direction = '2', width = '200', readonlyshowall } = advancedSetting || {};
+    const readOnlyShow = !browserIsMobile() && readonlyshowall === '1' && disabled ? true : !disabled;
+    const displayOptions = options.filter(
+      item => !item.isDeleted && (_.includes(checkIds, item.key) || (!item.hide && readOnlyShow)),
+    );
+    const noMaxWidth = direction === '0' && !browserIsMobile() && width;
+
+    return (
+      <Fragment>
+        {this.renderSelectAll(checkIds, displayOptions)}
+        {displayOptions.map(item => {
+          if (item.key === 'other' && disabled && browserIsMobile()) {
+            return (
+              <div
+                className="flexColumn"
+                style={direction === '0' && !browserIsMobile() ? { width: `${width}px` } : {}}
+              >
+                <Checkbox
+                  key={item.key}
+                  disabled={disabled}
+                  title={item.value}
+                  text={this.renderList(item, noMaxWidth)}
+                  value={item.key}
+                  checked={_.includes(checkIds, item.key)}
+                  onClick={this.onChange}
+                />
+              </div>
+            );
+          }
+
+          return (
+            <div
+              className="flexColumn"
+              style={direction === '0' && !browserIsMobile() ? { width: this.getItemWidth(displayOptions) } : {}}
+            >
+              <div
+                className="flexColumn"
+                style={direction === '0' && !browserIsMobile() ? { width: `${width}px` } : {}}
+              >
+                <Checkbox
+                  className={cx('w100', {
+                    flexWidth: noMaxWidth,
+                    'customRadioItem showRadioTxtAll borderRadiusNone ': browserIsMobile() && disabled,
+                  })}
+                  key={item.key}
+                  disabled={disabled}
+                  title={item.value}
+                  text={this.renderList(item, noMaxWidth)}
+                  value={item.key}
+                  checked={_.includes(checkIds, item.key)}
+                  onClick={this.onChange}
+                />
+                {item.key === 'other' && <OtherInput {...this.props} isSelect={browserIsMobile() ? true : false} />}
+              </div>
+            </div>
+          );
+        })}
+      </Fragment>
+    );
   }
 
   wxContent(checkIds) {
@@ -225,7 +287,7 @@ class Widgets extends Component {
           }}
           mode="multiple"
           dropdownClassName={dropdownClassName}
-          className="w100 customAntSelect"
+          className={cx('w100 customAntSelect', { optionDisabled: disabled })}
           disabled={disabled}
           showSearch
           allowClear={checkIds.length > 0}
@@ -251,6 +313,12 @@ class Widgets extends Component {
               this.select.blur();
               return;
             }
+            // 全选
+            if (value.indexOf('select-all') > -1) {
+              this.handleSelectAll(noDelOptions);
+              this.select.blur();
+              return;
+            }
             onChange(JSON.stringify(value));
             this.setState({ keywords: '' });
           }}
@@ -261,6 +329,8 @@ class Widgets extends Component {
               <span className="ellipsis customRadioItem Gray_9e">{_l('或直接输入添加新选项')}</span>
             </Select.Option>
           )}
+
+          {this.renderSelectAll()}
 
           {noDelOptions.map((item, i) => {
             return (
@@ -328,7 +398,7 @@ class Widgets extends Component {
   render() {
     const { isSheet, disabled, options, advancedSetting, value, controlName } = this.props;
     const { checkIds, otherValue } = getCheckAndOther(value);
-    const { checktype, direction, allowadd } = advancedSetting || {};
+    const { checktype, direction, allowadd, readonlyshowall, showselectall } = advancedSetting || {};
     const isMobile = checktype === '1' && browserIsMobile();
     const Comp = isMobile ? MobileCheckbox : Fragment;
 
@@ -349,9 +419,15 @@ class Widgets extends Component {
           renderText={this.renderList}
           otherValue={otherValue}
           controlName={controlName}
+          showselectall={showselectall}
         >
           <div
-            className={cx('customFormControlBox', { formBoxNoBorder: !isMobile }, { controlDisabled: disabled })}
+            className={cx(
+              'customFormControlBox',
+              { formBoxNoBorder: !isMobile },
+              { controlDisabled: disabled },
+              { readOnlyDisabled: !isMobile && readonlyshowall === '1' && disabled },
+            )}
             style={{ height: 'auto' }}
           >
             <div

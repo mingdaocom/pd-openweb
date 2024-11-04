@@ -9,6 +9,7 @@ import DynamicDefaultValue from '../../../DynamicDefaultValue';
 import { HAS_DYNAMIC_TYPE } from '../../config';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../../util/setting';
 import AddFields from '../AddFields';
+import { DYNAMIC_FROM_MODE } from '../../../DynamicDefaultValue/config';
 
 export default function SetValue(props) {
   const { actionData = {}, handleOk, allControls = [] } = props;
@@ -82,7 +83,7 @@ export default function SetValue(props) {
                         })}
                         hideTitle={true}
                         fromCustomEvent={true}
-                        needFilter={true}
+                        from={DYNAMIC_FROM_MODE.CUSTOM_EVENT}
                         showEmpty={true}
                         onChange={newData => {
                           const { defsource, defaulttype, defaultfunc } = getAdvanceSetting(newData);

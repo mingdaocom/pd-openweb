@@ -4,7 +4,7 @@ import { LoadDiv } from 'ming-ui';
 const isMobile = browserIsMobile();
 
 const ViewSahre = props => {
-  const { data, headerLeft, headerRight } = props;
+  const { data, showHeader, headerLeft, headerRight } = props;
   const [Component, setComponent] = useState(null);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const ViewSahre = props => {
 
   return (
     <Component
-      showHeader={true}
+      showHeader={showHeader !== 'false'}
       headerLeft={headerLeft}
       headerRight={headerRight}
       appId={data.appId}

@@ -9,6 +9,7 @@ export const FILL_STATUS = {
   ONLY_WECHAT_FILL: 'ONLY_WECHAT_FILL',
   NOT_OPEN: 'NOT_OPEN',
   NOT_IN_FILL_TIME: 'NOT_IN_FILL_TIME',
+  FIXED: 'FIXED',
 };
 
 export const SYSTEM_FIELD_IDS = [

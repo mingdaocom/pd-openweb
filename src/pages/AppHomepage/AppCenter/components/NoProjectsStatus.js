@@ -1,17 +1,22 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Icon } from 'ming-ui';
 import { FlexCenter } from 'worksheet/components/Basics';
-import bgPng from '../assets/empty.png';
 
 const FullCon = styled(FlexCenter)`
-  height: 128px;
+  height: 320px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  img {
-    width: 200px;
-    height: 100px;
-    margin-right: 24px;
+  .iconWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: #f5f5f5;
   }
 `;
 
@@ -51,15 +56,17 @@ export default function NoProjectsStatus(props) {
   }
   return (
     <FullCon>
-      <img src={bgPng} alt="" />
-      <div className="Font14 bold">
+      <div className="iconWrapper">
+        <Icon icon="organization_add" className="Gray_9e Font64" />
+      </div>
+      <div className="Font20 bold mTop32">
         <span
           className="ThemeColor pointer mLeft5 mRight5"
           onClick={() => window.open('/enterpriseRegister?type=add', '__blank')}
         >
           {_l('申请加入')}
         </span>
-        <span>{_l('组织，创建自己的应用')}</span>
+        <span className="Gray_75">{_l('组织，创建自己的应用')}</span>
       </div>
     </FullCon>
   );

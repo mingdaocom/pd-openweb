@@ -333,3 +333,15 @@
 #Div_JoinKnowledge .Knowledge_Search_Node .Knowledge_Search_Ico {
   padding-left: 0px !important;
 }
+
+.updaterCard .updaterBottomRightCon {
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse;
+}
+
+.updaterCard .selectAllGroup {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}

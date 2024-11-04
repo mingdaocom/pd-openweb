@@ -214,6 +214,7 @@ export default class CustomPage extends Component {
             };
           });
           return sheetApi.saveWorksheetBtn({
+            name: item.name,
             showType: 9,
             btnId: item.btnId || undefined,
             worksheetId: item.value,

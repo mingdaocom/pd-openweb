@@ -1,6 +1,6 @@
 export default {
   /**
-  * 健康检查
+  * 
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

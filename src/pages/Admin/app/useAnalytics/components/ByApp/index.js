@@ -283,6 +283,8 @@ export default class ByApp extends Component {
             {_l('· 通过应用图标点击进入应用')}
             <br />
             {_l('· 通过系统消息打开了应用')}
+            <br />
+            {_l('· 通过超链接访问应用')}
           </span>
         ),
         className: 'width120',

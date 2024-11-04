@@ -7,6 +7,7 @@ import { isFullLineControl, getRowById } from './widgets';
 import { getControlByControlId } from '.';
 import { NO_CONTENT_CONTROL, MAX_CONTROLS_COUNT, NOT_HAVE_WIDTH_CONFIG } from '../config';
 import { SYSTEM_CONTROLS } from 'src/pages/worksheet/constants/enum';
+import { checkOptionsRepeat } from './data';
 import moment from 'moment';
 
 export const getAdvanceSetting = (data, key) => {
@@ -210,6 +211,9 @@ export const getVerifyInfo = (data, { controls }) => {
   }
   if (type === 6 && advancedSetting.showtype === '3' && !advancedSetting.numinterval) {
     return { isValid: false, text: _l('未配置步长') };
+  }
+  if (_.includes([9, 10, 11], type) && checkOptionsRepeat([data], false)) {
+    return { isValid: false, text: _l('存在重复选项') };
   }
   return { isValid };
 };

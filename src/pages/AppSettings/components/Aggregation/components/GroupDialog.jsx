@@ -156,6 +156,7 @@ export default function GroupDialog(props) {
               const fields = _.get(item, `fields`);
               const data = (fields || []).find((o = {}, n) => !!o.oid && n !== i);
               const list = items.map(a => (_.get(a, `fields[${i}].oid`) || '').split('_')[1]);
+              const oidList = items.map(a => (_.get(a, `fields[${i}].oid`) || ''));
               let sourceInfo = o;
               const groupDt = getNodeInfo(flowData, 'GROUP');
               const sourceInfoData = [
@@ -169,7 +170,7 @@ export default function GroupDialog(props) {
                       return {
                         ...o,
                         relationControls: getControls(data, o.relationControls || []).filter(
-                          o => !list.includes(o.controlId) && ![6, 8].includes(o.type), //这期先不支持数值金额
+                          a => !oidList.includes(`${o.dataSource}_${a.controlId}`) && ![6, 8].includes(a.type), //这期先不支持数值金额
                         ),
                       };
                     }),
@@ -182,8 +183,8 @@ export default function GroupDialog(props) {
               const fieldsName = !_.get(item, `fields[${i}].name`)
                 ? _l('选择字段')
                 : isDel
-                ? _l('已删除')
-                : _.get(item, `fields[${i}].name`);
+                  ? _l('已删除')
+                  : _.get(item, `fields[${i}].name`);
               const flowDataNew = _.cloneDeep(flowData);
               flowDataNew.aggTableNodes[groupDt.nodeId].nodeConfig.config.groupFields = items;
               return (
@@ -213,9 +214,9 @@ export default function GroupDialog(props) {
                               isChildField: !!childrenControl, //可选，是否为子表字段(工作表关联字段关联表下的字段)-默认false
                               parentFieldInfo: !!childrenControl
                                 ? {
-                                    controlSetting: control,
-                                    oid: `${o.worksheetId}_${control.controlId}`,
-                                  }
+                                  controlSetting: control,
+                                  oid: `${o.worksheetId}_${control.controlId}`,
+                                }
                                 : {}, //可选，父字段，子表字段的上级字段，isChildField为true的时候必须有
                               isNotNull: true,
                               isTitle: dataControl.attribute === 1, //是否是标题，只有是工作表字段才有值

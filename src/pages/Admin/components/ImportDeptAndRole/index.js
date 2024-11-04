@@ -5,6 +5,7 @@ import Config from '../../config';
 import jobController from 'src/api/job';
 import departmentController from 'src/api/department';
 import { captcha } from 'ming-ui/functions';
+import importOrgRoleListController from 'src/api/organize';
 import UploadFile from '../UploadFile';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -337,6 +338,8 @@ export default class ImportDeptAndRole extends Component {
       let promiseRequest =
         importType === 'position'
           ? jobController.importJobList(requestData)
+          : importType === 'role'
+          ? importOrgRoleListController.importOrgRoleList(requestData)
           : departmentController.importDepartmentList(requestData);
 
       promiseRequest

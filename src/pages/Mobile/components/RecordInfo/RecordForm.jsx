@@ -206,11 +206,8 @@ export default class RecordForm extends Component {
           onClose && onClose();
         }}
       >
-        <span className="ellipsis">{_l('工作表：%0', recordInfo.worksheetName)}</span>
+        <span className="ellipsis">{recordInfo.worksheetName}</span>
       </div>
-    );
-    const closeIcon = onClose && (
-      <Icon icon="closeelement-bg-circle" className="Gray_9e Font22 mLeft5" onClick={onClose} />
     );
 
     if (formCoverVisible && isCoverid) {
@@ -233,7 +230,6 @@ export default class RecordForm extends Component {
               {refreshRecordIcon}
               {sheetInfo}
             </div>
-            {closeIcon}
           </div>
         </div>
       );
@@ -241,12 +237,7 @@ export default class RecordForm extends Component {
 
     // 审批详情 header
     if (header) {
-      return (
-        <div className="flexRow sheetNameWrap">
-          {header}
-          {closeIcon}
-        </div>
-      );
+      return <div className="flexRow sheetNameWrap">{header}</div>;
     }
 
     return (
@@ -261,7 +252,6 @@ export default class RecordForm extends Component {
             </Fragment>
           )}
         </div>
-        {closeIcon}
       </div>
     );
   }

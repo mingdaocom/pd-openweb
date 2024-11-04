@@ -72,14 +72,7 @@ export default function AbilityExpandSettings(props) {
                 <p className="mBottom8 mTop16">{_l('自动填充')}</p>
                 <CommonFieldDropdown
                   controls={originalControls
-                    .filter(item =>
-                      _.includes(
-                        controls.map(c => {
-                          return c.controlId;
-                        }),
-                        item.controlId,
-                      ),
-                    )
+                    .filter(item => _.find(controls, c => c.controlId === item.controlId))
                     .map(item => {
                       return _.pick(item, ['controlId', 'controlName', 'type']);
                     })}

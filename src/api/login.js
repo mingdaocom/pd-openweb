@@ -222,6 +222,7 @@ export default {
   * @param {string} args.code 授权码
   * @param {string} args.state State
 用于oauth 带的key值，定位Corp 信息
+  * @param {integer} args.type 1钉钉内部登录 2 钉钉扫码登录
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

@@ -132,7 +132,6 @@ export default class FieldRecycleBin extends Component {
               {
                 ..._.head(res.data),
                 attribute: 0,
-                alias: '',
                 sectionId: parentControl ? item.sectionId : '',
                 size: item.size || getDefaultSizeByType(item.type),
                 ...(item.type === 34 && _.isUndefined(item.relationControls) ? { needUpdate: true } : {}),

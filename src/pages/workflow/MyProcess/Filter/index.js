@@ -9,7 +9,10 @@ import { TABS } from '../index';
 import { getDateScope } from '../config';
 import './index.less';
 import _ from 'lodash';
-import locale from 'antd/es/date-picker/locale/zh_CN';
+import zh_CN from 'antd/es/date-picker/locale/zh_CN';
+import zh_TW from 'antd/es/date-picker/locale/zh_TW';
+import en_US from 'antd/es/date-picker/locale/en_US';
+import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 import moment from 'moment';
 
 const { RangePicker } = DatePicker;
@@ -94,6 +97,7 @@ export default class Filter extends Component {
         operationType: {},
         createAccount: {},
         status: {},
+        searchValue: ''
       });
     }
     if (nextProps.stateTab !== TABS.COMPLETE) {
@@ -360,6 +364,8 @@ export default class Filter extends Component {
   renderDateScope() {
     const { archivedItem } = this.props;
     const { startDate, endDate } = this.state;
+    const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
+    
     return (
       <div className="mBottom16">
         <div className="Font12 mBottom10">{_l('时间范围')}</div>
@@ -367,7 +373,7 @@ export default class Filter extends Component {
           <RangePicker
             className="dateInput w100"
             suffixIcon={null}
-            locale={locale}
+            locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
             format="YYYY/MM/DD"
             disabledDate={current => {
               if (current) {
@@ -390,7 +396,7 @@ export default class Filter extends Component {
           <RangePicker
             className="dateInput w100"
             suffixIcon={null}
-            locale={locale}
+            locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
             format="YYYY/MM/DD"
             disabledDate={current => {
               if (current) {

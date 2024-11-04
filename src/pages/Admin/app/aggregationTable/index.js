@@ -13,8 +13,8 @@ import { getFeatureStatus, buriedUpgradeVersionDialog, upgradeVersionDialog } fr
 import { VersionProductType } from 'src/util/enum';
 import { navigateTo } from 'src/router/navigateTo';
 import { TASK_STATUS_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
-import { formatDate } from 'src/pages/integration/config.js';
 import cx from 'classnames';
+import moment from 'moment';
 import './index.less';
 
 export default class AggregationTable extends Component {
@@ -398,7 +398,7 @@ export default class AggregationTable extends Component {
                           </Tooltip>
                         )}
                       </div>
-                      <div className="columnWidth">{formatDate(createDate)}</div>
+                      <div className="columnWidth">{moment(createDate).format('YYYY-MM-DD')}</div>
                       <div className="w140 flexRow alignItemsCenter">
                         <UserHead
                           projectId={projectId}

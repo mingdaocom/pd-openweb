@@ -442,7 +442,9 @@ function changeIndexThunk(dispatch, getState, index, flag, extra = {}) {
 
 export function changeIndex(index, flag, extra) {
   return (dispatch, getState) => {
-    changeIndexThunk(dispatch, getState, index, flag, extra);
+    setTimeout(() => {
+      changeIndexThunk(dispatch, getState, index, flag, extra);
+    }, 10);
   };
 }
 

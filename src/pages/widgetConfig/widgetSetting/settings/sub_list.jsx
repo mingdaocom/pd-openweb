@@ -279,6 +279,8 @@ export default function SubListSetting(props) {
         <div className="settingItemTitle">{_l('显示字段')}</div>
         {!_.isEmpty(relationControls) && (
           <SortColumns
+            sortAutoChange
+            isShowColumns
             min1msg={_l('至少显示一列')}
             showControls={showControls}
             columns={sortedControls}

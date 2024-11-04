@@ -15,14 +15,16 @@ function Header(props) {
     logo = info.logo || _.get(md, 'global.SysSettings.brandLogoUrl');
   }
 
+  const brandLogoRedirectUrl = _.get(md, 'global.Config.IsLocal') ? md.global.SysSettings.brandLogoRedirectUrl : '/';
+  const renderLogo = () => {
+    return <img src={logo} height={_.get(md, 'global.SysSettings.brandLogoHeight') || 40} />;
+  };
   return (
     <React.Fragment>
       {lineLoading && <div className="loadingLine"></div>}
       {!loading && !_.get(md, 'global.SysSettings.hideBrandLogo') && logo && (
         <div className="titleHeader">
-          <a href={isMingDaoApp || _.get(md, 'global.Config.IsLocal') ? 'javascript:;' : '/'}>
-            <img src={logo} height={_.get(md, 'global.SysSettings.brandLogoHeight') || 40} />
-          </a>
+          {isMingDaoApp || !brandLogoRedirectUrl ? renderLogo() : <a href={brandLogoRedirectUrl}>{renderLogo()}</a>}
         </div>
       )}
     </React.Fragment>

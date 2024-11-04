@@ -5,7 +5,7 @@ import {
   DATE_OPTIONS,
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import moment from 'moment';
-import { getTypeKey, redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { getTypeKey, redefineComplexControl, getConditionType } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { isRelateMoreList } from 'src/pages/FormSet/components/columnRules/config';
 import { onValidator } from './DataFormat';
 import { controlState } from './utils';
@@ -275,7 +275,12 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
     }
     const conditionGroupKey = getTypeKey(control.type);
     const conditionGroup = CONTROL_FILTER_WHITELIST[conditionGroupKey] || {};
-    const conditionGroupType = conditionGroup.value;
+    const conditionGroupType = getConditionType({
+      ...filterData,
+      controlType: dataType,
+      conditionGroupType: conditionGroup.value,
+      type: filterType,
+    });
     const { showtype } = advancedSetting; // 1 卡片 2 列表 3 下拉
     let currentControl = {};
     //是否多选

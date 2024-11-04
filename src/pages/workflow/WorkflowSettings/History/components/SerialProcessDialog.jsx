@@ -100,7 +100,7 @@ export default ({ processId, onClose = () => {} }) => {
           type={3}
           text={_l('了解更多')}
           className="ThemeColor3 ThemeHoverColor2 mLeft5"
-          href="https://help.mingdao.com/worksheet/field-filter"
+          href="https://help.mingdao.com/workflow/configuration#operation-mode"
         />
         <div className="flex" />
         <div className="ThemeHoverColor3 pointer" onClick={() => removePendingProcess()}>

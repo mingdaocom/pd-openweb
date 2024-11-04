@@ -17,6 +17,9 @@ const AppItemWrap = styled.div`
   margin-bottom: 10px;
   padding-left: 12px;
   position: relative;
+  &.empty {
+    background-color: #fff;
+  }
   .iconWrap {
     width: ${({ radius }) => radius + 'px'};
     height: ${({ radius }) => radius + 'px'};
@@ -82,6 +85,15 @@ export default function ApplicationItem(props) {
 
   // 应用/应用项 水平显示
   if (direction === 'horizontal') {
+    if (id === 'empty') {
+      return (
+        <AppItemWrap
+          className={cx(`appItem ${className}`, { mRight10: index % 2 === 0 })}
+          key={generateRandomPassword(10)}
+        />
+      );
+    }
+
     return (
       <AppItemWrap
         radius={radius}
@@ -136,6 +148,10 @@ export default function ApplicationItem(props) {
         )}
       </AppItemWrap>
     );
+  }
+
+  if (id === 'empty') {
+    return <div className="myAppItemWrap InlineBlock" key={generateRandomPassword(10)} />;
   }
 
   return (

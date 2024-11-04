@@ -50,6 +50,7 @@ const filterFn = (list = []) => list.filter(i => i.isDeleted);
 
 export default function DelateDialog({ options = [], colorful, onOk, onCancel }) {
   const [deleteOptions, setOptions] = useState(filterFn(options));
+  const noDelOptions = options.filter(o => !o.isDeleted);
 
   return (
     <Dialog
@@ -77,6 +78,10 @@ export default function DelateDialog({ options = [], colorful, onOk, onCancel })
                   onClick={() => {
                     if (options.length - deleteOptions.length >= MAX_OPTIONS_COUNT) {
                       alert(_l('选项不得超过1000个'), 3);
+                      return;
+                    }
+                    if (_.find(noDelOptions, n => n.value === item.value)) {
+                      alert(_l('与列表中选项重复'), 3);
                       return;
                     }
                     const newOptions = options.map(i => {

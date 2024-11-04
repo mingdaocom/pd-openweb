@@ -148,6 +148,7 @@ export default function SelectProcess(props) {
             </Fragment>
           ) : undefined}
           onChange={value => {
+            if (value === processId) return;
             if (value === 'other') {
               setOtherProcessVisible(true);
             } else {

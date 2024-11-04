@@ -1,9 +1,7 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, Fragment } from 'react';
 import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
-import { getStringBytes } from 'src/util';
-import { Icon } from 'ming-ui';
+import { Icon, Support } from 'ming-ui';
 import MailSettingsDialog from 'src/pages/Role/PortalCon/components/MailSettingsDialog';
 import SMSSettingsDialog from 'src/pages/Role/PortalCon/components/SMSSettingsDialog';
 import { getCurrentProject } from 'src/util';
@@ -79,29 +77,20 @@ const Wrap = styled.div`
   }
 `;
 
-let preSign = '';
 export default function TextMessage(props) {
-  let { projectId, onChangePortalSet } = props;
-  const hasWarn = getCurrentProject(projectId).licenseType !== 1; //非付费版需要提示
-  const [sign, setSign] = useState(''); //签名
-  const [emailSignature, setEmailSignature] = useState('');
-  const [portalSetModel, setPortalSetModel] = useState({});
+  const { projectId, onChangePortalSet } = props;
+  const hasWarn = getCurrentProject(projectId).licenseType !== 1 && !md.global.Config.IsLocal; //非付费版需要提示
+  const [sign, setSign] = useState(_.get(props, 'portalSet.portalSetModel.smsSignature')); //签名
+  const [emailSignature, setEmailSignature] = useState(_.get(props, 'portalSet.portalSetModel.emailSignature'));
   const [{ showEmailDialog, showTelDialog }, setState] = useSetState({
     showEmailDialog: false,
     showTelDialog: false,
   });
-  useEffect(() => {
-    let { portalSet = {} } = props;
-    let { portalSetModel = {} } = portalSet;
-    setPortalSetModel(portalSetModel);
-    setSign(portalSetModel.smsSignature);
-    setEmailSignature(portalSetModel.emailSignature);
-  }, [props]);
 
   return (
     <Wrap>
       <div className="content">
-        {!md.global.Config.IsLocal && hasWarn && (
+        {hasWarn && (
           <div className="warnTxt">
             {_l(
               '因为平台安全措施需要，自定义的短信签名和通知内容暂时只对付费组织生效。免费和试用组织只能按默认内容发送',
@@ -109,71 +98,60 @@ export default function TextMessage(props) {
           </div>
         )}
         {md.global.SysSettings.enableSmsCustomContent && (
-          <Fragment>
-            <h6 className="Font16 Gray Bold mBottom0">{_l('短信通知')}</h6>
-            <div className="mTop6 Gray_9e">
-              {_l(
-                '注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义。',
-              )}
-              {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
-                _l(
-                  '短信收费标准：短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。',
-                  _.get(md, 'global.PriceConfig.SmsPrice'),
-                )}
-            </div>
-            <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('签名')}</h6>
-            <div className="mTop6 Gray_9e">
-              {_l(
-                '请谨慎填写您的组织简称、网站名、品牌名，2-12个汉字。如签名不符合规范，将会被运营商拦截。此签名适用于外部门户的短信场景：外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝)',
-              )}
-            </div>
-            <input
-              type="text"
-              className="sign mTop6"
-              placeholder={_l('请输入签名')}
-              maxLength={12}
-              value={sign}
-              onFocus={() => {
-                preSign = sign;
-              }}
-              onBlur={e => {
-                if (!e.target.value.trim()) {
-                  setSign(preSign);
-                  onChangePortalSet({
-                    portalSetModel: {
-                      ...portalSetModel,
-                      smsSignature: preSign,
-                    },
-                  });
-                  return alert(_l('请输入签名'), 3);
-                }
-                if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(e.target.value)) {
-                  return alert(_l('只支持中英文'), 3);
-                }
-              }}
-              onChange={e => {
-                setSign(e.target.value.trim());
-                onChangePortalSet({
-                  portalSetModel: {
-                    ...portalSetModel,
-                    smsSignature: getStrBytesLength(e.target.value.trim()),
-                  },
-                });
-              }}
-            />
-            <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('内容')}</h6>
-            <div
-              className="sysBtn flexRow alignItemsCenter"
-              onClick={() => {
-                setState({
-                  showTelDialog: true,
-                });
-              }}
-            >
-              <Icon icon="textsms1" className="Font18 mRight6" /> {_l('短信设置')}
-            </div>
-            <div className="line mTop24"></div>
-          </Fragment>
+        <Fragment>
+        <h6 className="Font16 Gray Bold mBottom0">{_l('短信通知')}</h6>
+        <div className="mTop6 Gray_9e">
+          {_l(
+            '注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义。',
+          )}
+          {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
+            _l(
+              '短信收费标准：短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。',
+              _.get(md, 'global.PriceConfig.SmsPrice'),
+            )}
+        </div>
+
+        <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('签名')}</h6>
+        <div className="mTop6 Gray_9e">
+          {_l(
+            '签名内容长度为2-12个字；由中英文组成，不能纯英文；签名内容必须能辨别所属公司名称或品牌名称；不符合规范的签名平台会清空需重新输入，同时运营商也会拦截。',
+          )}
+          <Support type={3} href="https://help.mingdao.com/workflow/sms-failure" text={_l('收不到短信？')} />
+        </div>
+        <div className="Gray_9e">
+          {_l('此签名适用于外部门户的短信场景：外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝)')}
+        </div>
+        <input
+          type="text"
+          className="sign mTop6"
+          placeholder={_l('请输入签名')}
+          maxLength={12}
+          value={sign}
+          onBlur={evt => {
+            let value = evt.currentTarget.value.replace(/[^\u4e00-\u9fa5a-zA-Z]+/g, '');
+
+            // 全英文清空
+            if (value.replace(/[\u4e00-\u9fa5]/g, '').length === value.length) {
+              value = '';
+            }
+
+            setSign(value);
+            onChangePortalSet({
+              portalSetModel: {
+                ...props.portalSet.portalSetModel,
+                smsSignature: value,
+              },
+            });
+          }}
+          onChange={evt => setSign(evt.currentTarget.value)}
+        />
+
+        <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('内容')}</h6>
+        <div className="sysBtn flexRow alignItemsCenter" onClick={() => setState({ showTelDialog: true })}>
+          <Icon icon="textsms1" className="Font18 mRight6" /> {_l('短信设置')}
+        </div>
+        <div className="line mTop24"></div>
+        </Fragment>
         )}
         <h6 className={cx('Font16 Gray Bold mBottom0', { mTop24: md.global.SysSettings.enableSmsCustomContent })}>
           {_l('邮件通知')}
@@ -195,71 +173,32 @@ export default function TextMessage(props) {
           className="sign mTop6"
           placeholder={_l('请输入发件人名称')}
           value={emailSignature}
-          onFocus={() => {
-            preSign = emailSignature;
-          }}
-          maxLength={'32'} //32个字符以内
-          onBlur={e => {
-            if (!e.target.value.trim()) {
-              setEmailSignature(preSign);
-              onChangePortalSet({
-                portalSetModel: {
-                  ...portalSetModel,
-                  emailSignature: preSign,
-                },
-              });
-              return alert(_l('请输入发件人名称'), 3);
-            }
+          maxLength={32}
+          onBlur={evt => {
+            const value = evt.currentTarget.value.trim();
+
+            setEmailSignature(value);
             onChangePortalSet({
               portalSetModel: {
-                ...portalSetModel,
-                emailSignature: e.target.value.trim(),
+                ...props.portalSet.portalSetModel,
+                emailSignature: value,
               },
             });
           }}
-          onChange={e => {
-            setEmailSignature(e.target.value);
-            onChangePortalSet({
-              portalSetModel: {
-                ...portalSetModel,
-                emailSignature: e.target.value,
-              },
-            });
-          }}
+          onChange={evt => setEmailSignature(evt.currentTarget.value)}
         />
+
         <h6 className="Font16 Gray Bold mBottom0 mTop24">{_l('内容')}</h6>
-        <div
-          className="sysBtn flexRow alignItemsCenter"
-          onClick={() => {
-            setState({
-              showEmailDialog: true,
-            });
-          }}
-        >
+        <div className="sysBtn flexRow alignItemsCenter" onClick={() => setState({ showEmailDialog: true })}>
           <Icon icon="email" className="Font18 mRight6" style={{ marginTop: -3 }} /> {_l('邮件设置')}
         </div>
       </div>
+
       {showTelDialog && (
-        <SMSSettingsDialog
-          {...props}
-          sign={sign}
-          onCancel={() => {
-            setState({
-              showTelDialog: false,
-            });
-          }}
-        />
+        <SMSSettingsDialog {...props} sign={sign} onCancel={() => setState({ showTelDialog: false })} />
       )}
-      {showEmailDialog && (
-        <MailSettingsDialog
-          {...props}
-          onCancel={() => {
-            setState({
-              showEmailDialog: false,
-            });
-          }}
-        />
-      )}
+
+      {showEmailDialog && <MailSettingsDialog {...props} onCancel={() => setState({ showEmailDialog: false })} />}
     </Wrap>
   );
 }

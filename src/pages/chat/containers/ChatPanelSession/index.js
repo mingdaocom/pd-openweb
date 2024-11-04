@@ -31,6 +31,7 @@ class ChatPanelSession extends Component {
       isOpenFile: false,
       isContact: 'isContact' in session ? session.isContact : true,
     };
+    window[`onChangeChatValue-${id}`] = this.handleChange;
   }
   shouldComponentUpdate(nextProps, nextState) {
     const { session } = this.props;
@@ -38,6 +39,10 @@ class ChatPanelSession extends Component {
       return true;
     }
     return false;
+  }
+  componentWillUnmount() {
+    const { session } = this.props;
+    delete window[`onChangeChatValue-${session.id}`];
   }
   componentWillReceiveProps(nextProps) {
     const value = nextProps.currentSession.value;
@@ -122,7 +127,7 @@ class ChatPanelSession extends Component {
     );
     this.updateValue(value);
   }
-  handleChange(value) {
+  handleChange = value => {
     this.updateValue(value);
     window.currentCursortPosition = value.length;
   }

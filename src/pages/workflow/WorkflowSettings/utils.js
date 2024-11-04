@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { NODE_TYPE, APP_TYPE, ACTION_ID, TRIGGER_ID, CONDITION_TYPE, GLOBAL_VARIABLE } from './enum';
+import { NODE_TYPE, APP_TYPE, ACTION_ID, TRIGGER_ID, CONDITION_TYPE, GLOBAL_VARIABLE, CONTROLS_NAME } from './enum';
 
 /**
  * 遍历获取统计id
@@ -457,7 +457,7 @@ export const getFilterText = (item, conditionId) => {
       'value',
     );
 
-    return showtype === '0' || !conditionText ? CONDITION_TYPE[conditionId][showtype] : conditionText;
+    return showtype === '0' || !conditionText ? CONDITION_TYPE[conditionId][showtype || '0'] : conditionText;
   }
 
   if (_.includes(['3', '4'], conditionId) && _.includes([19, 23, 24], item.type)) {
@@ -619,4 +619,11 @@ export const formatTestParameters = (source, testMap, isArray) => {
   }
 
   return source;
+};
+
+/**
+ * 获取字段类型名称
+ */
+export const getControlTypeName = ({ type, originalType }) => {
+  return (originalType === 30 ? `${CONTROLS_NAME[originalType]}-` : '') + CONTROLS_NAME[type];
 };

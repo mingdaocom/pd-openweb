@@ -5,7 +5,6 @@ import { LoadDiv, Button, Checkbox, RichText, VerifyPasswordInput } from 'ming-u
 import { browserIsMobile, mdAppResponse, verifyPassword } from 'src/util';
 import cx from 'classnames';
 import moment from 'moment';
-import privateDeclareAjax from 'src/api/privateDeclare';
 import accountAjax from 'src/api/account';
 import { Wrap } from './style.jsx';
 import DocumentTitle from 'react-document-title';
@@ -29,11 +28,6 @@ export default class Cancellation extends Component {
   }
   componentDidMount() {
     this.checkLogoutStatus();
-    privateDeclareAjax.getDeclare().then(res => {
-      this.setState({
-        summary: res.agreement,
-      });
-    });
   }
   componentWillUnmount() {
     if (this.timer) {

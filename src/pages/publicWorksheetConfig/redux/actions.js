@@ -1,6 +1,6 @@
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import formAjax from 'src/api/form';
-import { getNewControlColRow } from '../utils';
+import { getNewControlColRow, getNotSupportControlIds } from '../utils';
 import _ from 'lodash';
 
 function changeKeyToServer(value) {
@@ -122,13 +122,7 @@ export function loadPublicWorksheet({ worksheetId }) {
           type: 'PUBLICWORKSHEET_LOAD_SUCCESS',
           controls: data.controls,
           originalControls: data.originalControls
-            .filter(
-              control =>
-                !(
-                  (control.type === 29 && !_.includes([0, 1], control.enumDefault2)) ||
-                  (control.type === 51 && _.get(control, 'advancedSetting.showtype') === '2')
-                ) && !_.includes(['caid', 'ownerid', 'ctime', 'utime'], control.controlId),
-            )
+            .filter(control => !_.includes(getNotSupportControlIds(data.originalControls), control.controlId))
             .map(c => ({
               ...c,
               advancedSetting:

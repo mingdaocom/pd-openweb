@@ -346,6 +346,7 @@ export default class RecordInfo extends Component {
         controls,
         relationWorksheetId,
       });
+      getRowGetType(from) !== 21 && addBehaviorLog('worksheetRecord', worksheetId, { rowId: recordId }, true);
       let portalConfigSet = {};
       const id = this.props.projectId || data.projectId;
       // 支付配置（草稿箱、对外公开分享\公开表单无支付）
@@ -533,7 +534,7 @@ export default class RecordInfo extends Component {
     this.setState({
       tempFormData: tempFormData.map(c => (isRelateRecordTableControl(c) ? { ...c, value: undefined } : c)),
     });
-    addBehaviorLog('worksheetRecord', worksheetId, { rowId: newRecordId }); // 埋点
+    // addBehaviorLog('worksheetRecord', worksheetId, { rowId: newRecordId }); // 埋点
     this.loadRecord({
       needReLoadSheetSwitch: worksheetId !== this.state.worksheetId,
       recordId: newRecordId,
@@ -738,7 +739,7 @@ export default class RecordInfo extends Component {
     });
   };
 
-  onSave = (error, { data, updateControlIds, handleRuleError }) => {
+  onSave = (error, { data, updateControlIds, handleRuleError, handleServiceError }) => {
     const { setHighLightOfRows = () => {}, from } = this.props;
     const { callback = () => {}, noSave, ignoreError } = this.submitOptions || {};
     data =
@@ -828,6 +829,8 @@ export default class RecordInfo extends Component {
             if (this.recordform.current && _.isFunction(this.recordform.current.uniqueErrorUpdate)) {
               this.recordform.current.uniqueErrorUpdate(res.badData);
             }
+          } else if (res.resultCode === 31) {
+            handleServiceError(res.badData);
           } else if (res.resultCode === 2) {
             alert(_l('当前草稿已保存，请勿重复提交'), 2);
           } else {
@@ -875,9 +878,8 @@ export default class RecordInfo extends Component {
         setSubListUniqueError: badData => {
           this.recordform.current.dataFormat.callStore('setUniqueError', { badData });
         },
-        setRuleError: badData => {
-          handleRuleError(badData, cellObjs);
-        },
+        setRuleError: badData => handleRuleError(badData),
+        setServiceError: badData => handleServiceError(badData),
       },
       (err, resdata, logId) => {
         setTimeout(() => {
@@ -1539,11 +1541,10 @@ export default class RecordInfo extends Component {
                 }}
                 renderAbnormal={renderAbnormal}
                 loadDraftChildTableData={controlId => {
-                  this.setState({ loadedChildIds: (this.state.loadedChildIds || []).concat(controlId) }, () => {
-                    if (childTableControlIds.every(v => _.includes(this.state.loadedChildIds, v))) {
-                      this.setState({ canSubmitDraft: true });
-                    }
-                  });
+                  this.loadedChildIds = (this.loadedChildIds || []).concat(controlId);
+                  if (childTableControlIds.every(v => _.includes(this.loadedChildIds || [], v))) {
+                    this.setState({ canSubmitDraft: true });
+                  }
                 }}
                 onRefresh={this.handleRefresh}
                 onUpdateFormSectionWidth={sectionWidth => {

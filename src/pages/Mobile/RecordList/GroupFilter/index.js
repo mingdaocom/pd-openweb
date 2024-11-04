@@ -29,6 +29,7 @@ const TYPE_TO_COMP = {
 };
 
 let ajaxFn = null;
+let ajaxRequest = null;
 const GroupFilter = props => {
   const {
     views = [],
@@ -43,6 +44,7 @@ const GroupFilter = props => {
     mobileNavGroupFilters,
     appNaviStyle,
     filters,
+    viewFlag,
   } = props;
   const { appId, viewId } = base;
   const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
@@ -58,7 +60,7 @@ const GroupFilter = props => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [currentGroup, setCurrentGroup] = useState({});
   let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
-  let isOption = [9, 10, 11].includes(soucre.type); //是否选项
+  let isOption = [9, 10, 11].includes(soucre.type) || [9, 10, 11].includes(soucre.sourceControlType); //是否选项
   const breadNavBar = useRef();
   const Component = TYPE_TO_COMP[String(view.viewType)];
   const viewProps = {
@@ -78,7 +80,9 @@ const GroupFilter = props => {
     batchOptVisible,
     isGroupFilter: true,
   });
-
+  useEffect(() => {
+    ajaxFn = null;
+  }, [viewFlag]);
   useEffect(() => {
     let height = breadNavBar.current ? breadNavBar.current.clientHeight : 0;
     setBreadMavHeight(height);
@@ -117,10 +121,12 @@ const GroupFilter = props => {
     const { rowId, cb } = obj || {};
     let key = keywords;
     let data = [];
+    let filter = navGroup;
+    let soucre = controls.find(o => o.controlId === filter.controlId) || {};
     //级联选择字段 或 已配置层级展示的关联字段
     if ([29, 35].includes(soucre.type)) {
       let { navshow } = getAdvanceSetting(view);
-      if (29 === soucre.type && navshow === '1') {
+      if (29 === soucre.type && navshow === '1' && !key) {
         dataUpdate({
           filterData: navGroupData,
           data: navGroupCounts
@@ -190,7 +196,30 @@ const GroupFilter = props => {
       if (!!_.get(soucre, 'advancedSetting.searchcontrol') && keywords) {
         param.controlId = _.get(soucre, 'controlId');
       }
-
+      if (!!_.get(view, 'advancedSetting.navsearchcontrol') && keywords) {
+        param.keywords = undefined;
+        param.getType = 7;
+        param.navGroupFilters = [
+          {
+            spliceType: 1,
+            isGroup: true,
+            groupFilters: [
+              {
+                dataType: (
+                  ((controls.find(o => o.controlId === _.get(soucre, 'controlId')) || {}).relationControls || []).find(
+                    o => o.controlId === _.get(view, 'advancedSetting.navsearchcontrol'),
+                  ) || {}
+                ).type,
+                spliceType: 1,
+                dynamicSource: [],
+                controlId: _.get(view, 'advancedSetting.navsearchcontrol'),
+                values: [keywords],
+                filterType: _.get(view, 'advancedSetting.navsearchtype') === '1' ? 2 : 1,
+              },
+            ],
+          },
+        ];
+      }
       param.relationWorksheetId = view.worksheetId;
       param.sortControls = safeParse(_.get(view, 'advancedSetting.navsorts'), 'array'); //视图id
     }
@@ -208,22 +237,35 @@ const GroupFilter = props => {
       if (result.resultCode === 4) {
         //视图删除的情况下，显示成为选中视图的状态
         fetchData({ worksheetId, viewId: '', rowId, cb });
+      } else if (result.resultCode === 7) {
+        dataUpdate({
+          filterData: navGroupData,
+          data: [],
+          rowId,
+          cb,
+        });
       } else {
         let { data = [] } = result;
+        let newData = data;
         if (soucre.type !== 35 && navfilters.length > 0 && navshow === '2') {
-          data = data.filter(o => navfilters.includes(o.rowid));
+          newData = [];
+          const ids = navfilters.map(value => safeParse(value).id);
+          ids.map(it => {
+            newData = newData.concat(data.find(o => o.rowid === it));
+          });
         }
+        newData = newData.filter(o => !!o);
         const controls = _.get(result, ['template', 'controls']) || [];
         const control = controls.find(item => item.attribute === 1);
         ajaxFn = '';
         dataUpdate({
           filterData: navGroupData,
-          data: data.map(item => {
+          data: newData.map((item = {}) => {
             return {
               value: item.rowid,
-              txt: renderSearchTxt(item, control),
               isLeaf: !item.childrenids,
-              ...item,
+              text: item[control.controlId],
+              txt: getTitleTextFromControls(controls, item),
             };
           }),
           rowId,
@@ -410,7 +452,7 @@ const GroupFilter = props => {
     }
   };
   const renderSearchTxt = (item, control) => {
-    if (keywords && (soucre.type === 35 || (soucre.type === 29 && navGroup.viewId))) {
+    if (keywords && (soucre.type === 35 || (soucre.type === 29 && navGroup.viewId && !!item.path))) {
       const path = JSON.parse(item.path);
       return path.map((text, i) => {
         const isLast = i === path.length - 1;
@@ -487,9 +529,20 @@ const GroupFilter = props => {
     } catch (error) {
       navfilters = [];
     }
+    //系统字段关闭，且为状态时，默认显示成 全部
+    if (navGroup.controlId === 'wfstatus' && !isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit)) {
+      navshow = '0';
+    }
+
     if (isOption && navfilters.length > 0 && navshow === '2') {
       // 显示 指定项
-      tempData = tempData.filter(o => navfilters.includes(o.value) || !o.value);
+      let list = ['', ...navfilters, 'null'];
+      const data = tempData;
+      tempData = [];
+      list.map(it => {
+        tempData = tempData.concat(data.find(o => o.value === it));
+      });
+      tempData = tempData.filter(o => !!o);
     }
     return (
       <ScrollView style={{ maxHeight: `calc(100% - 56px - ${breadNavHeight}px)` }}>
@@ -527,20 +580,23 @@ const GroupFilter = props => {
           appId,
           searchType: 1,
         };
-    sheetAjax
-      .getFilterRows({
-        worksheetId: base.worksheetId,
-        viewId: view.viewId,
-        keywords,
-        pageIndex: 1,
-        pageSize: 10000,
-        isGetWorksheet: true,
-        ...param,
-      })
-      .then(res => {
-        const { data = [] } = res;
-        setSearchRecordList(data);
-      });
+
+    if (ajaxRequest && ajaxRequest.abort) {
+      ajaxRequest.abort();
+    }
+    ajaxRequest = sheetAjax.getFilterRows({
+      worksheetId: base.worksheetId,
+      viewId: view.viewId,
+      keywords,
+      pageIndex: 1,
+      pageSize: 10000,
+      isGetWorksheet: true,
+      ...param,
+    });
+    ajaxRequest.then(res => {
+      const { data = [] } = res;
+      setSearchRecordList(data);
+    });
   };
   const handleOpenDrawer = () => {
     setDrawerVisible(!drawerVisible);

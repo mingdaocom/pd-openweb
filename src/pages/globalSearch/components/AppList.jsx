@@ -6,7 +6,6 @@ import Trigger from 'rc-trigger';
 import { Icon,SvgIcon } from 'ming-ui';
 import TextHeightLine from './TextHeightLine';
 import { GLOBAL_SEARCH_LIST_SETTING, SEARCH_APP_ITEM_TYPE } from '../enum';
-import { createTimeSpan } from 'src/pages/chat/utils';
 import renderText from 'src/pages/worksheet/components/CellControls/renderText.js';
 import { getAppResultCodeText } from '../utils';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';

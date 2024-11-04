@@ -8,6 +8,7 @@ import UserMenu from '../UserMenu';
 import AddMenu from '../AddMenu';
 import MyProcessEntry from '../MyProcessEntry';
 import CreateAppItem from './CreateAppItem';
+import HelpCollection from './HelpCollection';
 import { canEditApp, canEditData } from 'src/pages/worksheet/redux/actions/util.js';
 import './index.less';
 import { getAppFeaturesVisible } from 'src/util';
@@ -19,6 +20,9 @@ import privateSysSettingApi from 'src/api/privateSysSetting';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import cx from 'classnames';
 import { hasBackStageAdminAuth } from 'src/components/checkPermission';
+import Trigger from 'rc-trigger';
+import HapAiDialog from './HapAiDialog';
+import hapAI from './images/hapAI.png';
 
 const BtnCon = styled.div`
   cursor: pointer;
@@ -41,31 +45,6 @@ const BtnCon = styled.div`
   }
 `;
 
-const DashboardSearch = styled.div`
-  background: rgba(0, 0, 0, 0.03);
-  display: flex;
-  align-items: center;
-  height: 36px;
-  padding: 12px;
-  border-radius: 18px;
-  margin-right: 8px;
-  cursor: pointer;
-  .icon {
-    font-size: 20px;
-    color: rgb(0, 0, 0, 0.6);
-  }
-  span {
-    color: #9e9e9e;
-    margin: 0 2px 1px 4px;
-    &.symbol {
-      font-weight: 500;
-    }
-  }
-  &:hover {
-    background: rgba(0, 0, 0, 0.05);
-  }
-`;
-
 const AdminEntry = styled(VerticalMiddle)`
   cursor: pointer;
   display: inline-flex;
@@ -80,7 +59,33 @@ const AdminEntry = styled(VerticalMiddle)`
     color: rgb(0, 0, 0, 0.6);
   }
   &:hover {
-    background: #fff;
+    background: rgba(0, 0, 0, 0.05);
+  }
+`;
+
+const HelpWrap = styled.div`
+  width: 72px;
+  height: 32px;
+  line-height: 32px;
+  border-radius: 20px 20px 20px 20px;
+  padding-left: 10px;
+  cursor: pointer;
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+`;
+
+const HapAi = styled.div`
+  height: 32px;
+  border-radius: 16px;
+  padding: 6px 15px 0;
+  cursor: pointer;
+  .hapAI {
+    width: 20px;
+    height: 20px;
+  }
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
   }
 `;
 
@@ -93,7 +98,7 @@ export default class CommonUserHandle extends Component {
   state = {
     globalSearchVisible: false,
     userVisible: false,
-    newVersion: null
+    newVersion: null,
   };
 
   componentDidMount() {
@@ -125,7 +130,7 @@ export default class CommonUserHandle extends Component {
   }
 
   render() {
-    const { globalSearchVisible, userVisible, newVersion } = this.state;
+    const { globalSearchVisible, userVisible, popupVisible, showHapAi, newVersion } = this.state;
     const { type, currentProject = {} } = this.props;
     const hasProjectAdminAuth =
       currentProject.projectId &&
@@ -139,7 +144,7 @@ export default class CommonUserHandle extends Component {
     }
 
     return (
-      <div className="commonUserHandleWrap">
+      <div className={cx('commonUserHandleWrap', { dashboardCommonUserHandleWrap: type === 'dashboard' })}>
         {type === 'native' && (
           <React.Fragment>
             <Tooltip
@@ -170,25 +175,46 @@ export default class CommonUserHandle extends Component {
             <div className="appPkgHeaderSearch tip-bottom-left" data-tip={_l('超级搜索(F)')}>
               <Icon icon="search" className="Font20" onClick={this.openGlobalSearch.bind(this)} />
             </div>
-            {/*<div
-              className="workflowHelpIconWrap pointer"
-              data-tip={_l('帮助')}
-              onClick={() => window.KF5SupportBoxAPI && window.KF5SupportBoxAPI.open()}
-            >
-              <Icon icon="workflow_help" className="helpIcon Font20" />
-            </div>*/}
+            {md.global.Config.IsLocal ? (
+              <div
+                className="workflowHelpIconWrap pointer"
+                data-tip={_l('帮助')}
+                onClick={() => window.open('https://help.mingdao.com')}
+              >
+                <Icon icon="workflow_help" className="helpIcon Font20" />
+              </div>
+            ) : (
+              <Trigger
+                action={['click']}
+                popupVisible={popupVisible}
+                onPopupVisibleChange={popupVisible => this.setState({ popupVisible })}
+                popup={
+                  <HelpCollection
+                    hapAIPosition="top"
+                    updatePopupVisible={popupVisible => this.setState({ popupVisible })}
+                  />
+                }
+                popupAlign={{
+                  points: ['tr', 'br'],
+                  offset: [20, 11],
+                  overflow: { adjustX: true, adjustY: true },
+                }}
+              >
+                <div
+                  className="workflowHelpIconWrap pointer"
+                  data-tip={_l('帮助')}
+                  onClick={() => this.setState({ popupVisible: true })}
+                >
+                  <Icon icon="workflow_help" className="helpIcon Font20" />
+                </div>
+              </Trigger>
+            )}
           </React.Fragment>
         )}
 
         {type !== 'appPkg' && (
           <React.Fragment>
-            {type === 'dashboard' ? (
-              <DashboardSearch onClick={this.openGlobalSearch.bind(this)}>
-                <Icon icon="search" />
-                <span>{_l('超级搜索')}</span>
-                <span className="symbol">{_l('F')}</span>
-              </DashboardSearch>
-            ) : (
+            {type !== 'dashboard' && (
               <BtnCon
                 onClick={this.openGlobalSearch.bind(this)}
                 data-tip={_l('超级搜索(F)')}
@@ -196,6 +222,43 @@ export default class CommonUserHandle extends Component {
               >
                 <Icon icon="search" />
               </BtnCon>
+            )}
+
+            {!md.global.Config.IsLocal && type === 'dashboard' && (
+              <HapAi onClick={() => this.setState({ showHapAi: true })}>
+                <img className="hapAI" src={hapAI} />
+                <span className="Gray_75 mLeft6">{_l('HAP助手')}</span>
+              </HapAi>
+            )}
+
+            {md.global.Config.IsLocal && !md.global.SysSettings.hideHelpTip && (
+              <HelpWrap onClick={() => window.open('https://help.mingdao.com')}>
+                <Icon icon="workflow_help Font17 Gray_75 TxtMiddle" className="helpIcon Font20" />
+                <span className="Gray_75 mLeft5 TxtMiddle">{_l('帮助')}</span>
+              </HelpWrap>
+            )}
+            {!md.global.Config.IsLocal && (
+              <Trigger
+                action={['click']}
+                popupVisible={popupVisible}
+                onPopupVisibleChange={popupVisible => this.setState({ popupVisible })}
+                popup={
+                  <HelpCollection
+                    hapAIPosition="top"
+                    updatePopupVisible={popupVisible => this.setState({ popupVisible })}
+                  />
+                }
+                popupAlign={{
+                  points: ['tr', 'br'],
+                  offset: [40, 9],
+                  overflow: { adjustX: true, adjustY: true },
+                }}
+              >
+                <HelpWrap onClick={() => this.setState({ popupVisible: true })}>
+                  <Icon icon="workflow_help Font17 Gray_75 TxtMiddle" className="helpIcon Font20" />
+                  <span className="Gray_75 mLeft5 TxtMiddle">{_l('帮助')}</span>
+                </HelpWrap>
+              </Trigger>
             )}
             {type === 'dashboard' && hasProjectAdminAuth && (
               <MdLink to={`/admin/home/${currentProject.projectId}`}>
@@ -226,12 +289,12 @@ export default class CommonUserHandle extends Component {
         {ac && (
           <Tooltip
             text={<UserMenu handleUserVisibleChange={this.handleUserVisibleChange.bind(this)} />}
-            mouseEnterDelay={0.2}
             action={['click']}
             themeColor="white"
             tooltipClass="pageHeadUser commonHeaderUser Normal"
             getPopupContainer={() => this.avatar}
-            offset={[70, 0]}
+            popupPlacement="bottom"
+            offset={[-110, 0]}
             popupVisible={userVisible}
             onPopupVisibleChange={this.handleUserVisibleChange.bind(this)}
           >
@@ -246,6 +309,8 @@ export default class CommonUserHandle extends Component {
             </div>
           </Tooltip>
         )}
+
+        {showHapAi && <HapAiDialog visible={showHapAi} onCancel={() => this.setState({ showHapAi: false })} />}
       </div>
     );
   }
@@ -290,7 +355,7 @@ export class LeftCommonUserHandle extends Component {
   }
 
   render() {
-    const { globalSearchVisible, userVisible, roleEntryVisible } = this.state;
+    const { globalSearchVisible, userVisible, roleEntryVisible, popupVisible } = this.state;
     const { isAuthorityApp, type, data, sheet, match } = this.props;
     const { projectId, id, permissionType, isLock, appStatus, fixed, pcDisplay } = data;
     const isUpgrade = appStatus === 4;
@@ -345,13 +410,17 @@ export class LeftCommonUserHandle extends Component {
         </div> */}
         {ac && (
           <Tooltip
-            text={<UserMenu handleUserVisibleChange={this.handleUserVisibleChange.bind(this)} />}
-            mouseEnterDelay={0.2}
+            text={
+              <UserMenu
+                handleUserVisibleChange={this.handleUserVisibleChange.bind(this)}
+                leftCommonUserHandleWrap={true}
+              />
+            }
             action={['click']}
             themeColor="white"
             tooltipClass="pageHeadUser"
             getPopupContainer={() => this.avatar}
-            offset={[0, 0]}
+            offset={[160, 50]}
             popupVisible={userVisible}
             onPopupVisibleChange={this.handleUserVisibleChange.bind(this)}
           >

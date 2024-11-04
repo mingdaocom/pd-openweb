@@ -1,12 +1,14 @@
 import React, { useEffect, useState, createRef } from 'react';
 import { Input } from 'antd';
 import { formatNumberFromInput } from 'src/util';
-import { DynamicValueInputWrap } from '../styled';
+import { DynamicValueInputWrap, WrapMaxOrMin } from '../styled';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import _ from 'lodash';
+import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 
 export default function NumberInput(props) {
-  const { dynamicValue, data, clearOldDefault, onDynamicValueChange, defaultType, totalWidth, from } = props;
+  const { dynamicValue, data, clearOldDefault, onDynamicValueChange, defaultType, totalWidth, from, withMaxOrMin } =
+    props;
   const { cid = '' } = dynamicValue[0] || {};
   const [value, setValue] = useState('');
   const [isDynamic, setDynamic] = useState(false);
@@ -19,10 +21,10 @@ export default function NumberInput(props) {
     onDynamicValueChange(newValue || []);
   };
 
-  const handleChange = value => {
+  const handleChange = (value, noChange) => {
     const parsedValue = formatNumberFromInput(value);
     setValue(parsedValue);
-    onDynamicValueChange(value ? [{ cid: '', rcid: '', staticValue: parsedValue }] : []);
+    !noChange && onDynamicValueChange(value ? [{ cid: '', rcid: '', staticValue: parsedValue }] : []);
   };
 
   useEffect(() => {
@@ -56,6 +58,23 @@ export default function NumberInput(props) {
     defaultType && $wrap.current.triggerClick();
   };
 
+  const getMaxOrMin = isMax => {
+    return isMax
+      ? (value || '').substring((value || '').indexOf('~') + 1)
+      : (value || '').substring(0, (value || '').indexOf('~'));
+  };
+
+  const onSaveMaxOrMin = () => {
+    if (value) {
+      const max = getMaxOrMin(true) ? Number(getMaxOrMin(true)) : '';
+      const min = getMaxOrMin() ? Number(getMaxOrMin()) : '';
+      if (max !== '' && min !== '' && max < min) {
+        return onDynamicValueChange([{ cid: '', rcid: '', staticValue: `${max}~${min}` }]);
+      }
+      return onDynamicValueChange([{ cid: '', rcid: '', staticValue: value }]);
+    }
+  };
+
   return (
     <DynamicValueInputWrap>
       {defaultType ? (
@@ -69,6 +88,48 @@ export default function NumberInput(props) {
           }}
           {...props}
         />
+      ) : withMaxOrMin && from === DYNAMIC_FROM_MODE.FAST_FILTER ? (
+        <WrapMaxOrMin>
+          <Input
+            value={getMaxOrMin()}
+            style={{
+              width: 'calc(50% - 18px)',
+              borderRadius: '3px 0 0 3px',
+              border: 0,
+              lineHeight: '20px',
+              minHeight: '34px',
+            }}
+            placeholder={_l('最小值')}
+            onBlur={() => {
+              onSaveMaxOrMin();
+            }}
+            onChange={e => {
+              const parsedValue = formatNumberFromInput(e.target.value);
+              setValue(`${parsedValue}~${getMaxOrMin(true)}`);
+            }}
+            maxLength={16}
+          />
+          -
+          <Input
+            maxLength={16}
+            value={getMaxOrMin(true)}
+            style={{
+              width: 'calc(50% - 18px)',
+              borderRadius: '0',
+              border: 0,
+              lineHeight: '20px',
+              minHeight: '34px',
+            }}
+            placeholder={_l('最大值')}
+            onBlur={() => {
+              onSaveMaxOrMin();
+            }}
+            onChange={e => {
+              const parsedValue = formatNumberFromInput(e.target.value);
+              setValue(`${getMaxOrMin()}~${parsedValue}`);
+            }}
+          />
+        </WrapMaxOrMin>
       ) : (
         <Input
           value={value}
@@ -82,6 +143,9 @@ export default function NumberInput(props) {
           onBlur={() => {
             if (value) {
               let dealValue = value === '-' ? '' : parseFloat(value);
+              if (from === DYNAMIC_FROM_MODE.FAST_FILTER) {
+                return handleChange(String(dealValue));
+              }
               if (isStep && (dealValue === 0 || dealValue)) {
                 if (dealValue > parseFloat(maxValue)) dealValue = maxValue;
                 if (dealValue < parseFloat(minValue)) dealValue = minValue;
@@ -91,9 +155,11 @@ export default function NumberInput(props) {
               if (dealValue === '') {
                 onDynamicValueChange([]);
               }
+            } else if (from === DYNAMIC_FROM_MODE.FAST_FILTER) {
+              onDynamicValueChange([]);
             }
           }}
-          onChange={e => handleChange(e.target.value)}
+          onChange={e => handleChange(e.target.value, from === DYNAMIC_FROM_MODE.FAST_FILTER)}
         />
       )}
       <SelectOtherField onDynamicValueChange={setDynamicValue} {...props} ref={$wrap} />

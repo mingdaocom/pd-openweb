@@ -6,6 +6,7 @@ import { VersionProductType } from 'src/util/enum';
 import EncryptRules from './encryptRules';
 import WebProxySetting from './WebProxySetting';
 import LimitFileDownloadSetting from './LimitFileDownloadSetting';
+import LimitAttachmentUpload from './LimitAttachmentUpload';
 import projectSettingController from 'src/api/projectSetting';
 import dataLimitAjax from 'src/api/dataLimit';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
@@ -17,6 +18,7 @@ export default class DataCom extends Component {
       watermark: false,
       showWebProxySetting: false,
       showLimitDownload: false,
+      showLimitAttachmentUpload: false,
     };
   }
 
@@ -109,6 +111,7 @@ export default class DataCom extends Component {
       showLimitDownload,
       limitType,
       whiteList,
+      showLimitAttachmentUpload,
     } = this.state;
     const projectId = Config.projectId;
 
@@ -130,66 +133,83 @@ export default class DataCom extends Component {
         />
       );
     }
+    if (showLimitAttachmentUpload) {
+      return (
+        <LimitAttachmentUpload
+          projectId={projectId}
+          onClose={() => this.setState({ showLimitAttachmentUpload: false })}
+        />
+      );
+    }
 
     return (
       <div className="orgManagementWrap">
         <AdminTitle prefix={_l('安全 - 数据')} />
         <div className="orgManagementHeader Font17">{_l('数据')}</div>
-        <FeatureListWrap
-          projectId={projectId}
-          configs={[
-            {
-              key: 'watermark',
-              title: _l('屏幕水印'),
-              description: _l('启用水印配置后，将在组织所有应用内显示当前使用者的姓名'),
-              showSlideIcon: false,
-              showSwitch: true,
-              switchChecked: watermark,
-              clickSwitch: this.setEnabledWatermark,
-            },
-            {
-              key: 'limitFileDownload',
-              title: _l('附件下载'),
-              description: _l('禁止成员下载应用、讨论附件，保护组织文件安全'),
-              showSlideIcon: false,
-              showSwitch: true,
-              showSetting: limitFileDownload ? true : false,
-              switchChecked: limitFileDownload ? true : false,
-              customContent: !limitFileDownload
-                ? undefined
-                : limitType === 0
-                ? _l('已设置：禁止所有设备下载')
-                : _l('已设置：禁止所有Web移动端下载'),
-              clickSwitch: this.setLimitDownloadStatus,
-              clickSetting: () => this.setState({ showLimitDownload: true }),
-            },
-            {
-              key: 'addressVisibleRange',
-              title: _l('加密规则'),
-              description: _l('配置工作表字段加密存储时可以选择的加密方式'),
-              showSlideIcon: true,
-              featureId: VersionProductType.dataEnctypt,
-              onClick: () => this.setState({ showEncryptRules: true }),
-            },
-            {
-              key: 'webProxy',
-              title: _l('API网络代理'),
-              description: (
-                <span>
-                  {_l('在发送API请求时可选择通过设置的代理服务器发送')}
-                  <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/org/security#apiproxy" />
-                </span>
-              ),
-              showSlideIcon: false,
-              showSetting: webProxy,
-              showSwitch: true,
-              switchChecked: webProxy,
-              featureId: VersionProductType.apiRequestProxy,
-              clickSwitch: this.updateWebProxyState,
-              clickSetting: () => this.setState({ showWebProxySetting: true }),
-            },
-          ]}
-        />
+        <div className="orgManagementContent pAll0">
+          <FeatureListWrap
+            projectId={projectId}
+            configs={[
+              {
+                key: 'watermark',
+                title: _l('屏幕水印'),
+                description: _l('启用水印配置后，将在组织所有应用内显示当前使用者的姓名'),
+                showSlideIcon: false,
+                showSwitch: true,
+                switchChecked: watermark,
+                clickSwitch: this.setEnabledWatermark,
+              },
+              {
+                key: 'limitFileDownload',
+                title: _l('附件下载'),
+                description: _l('禁止成员下载应用、讨论附件，保护组织文件安全'),
+                showSlideIcon: false,
+                showSwitch: true,
+                showSetting: limitFileDownload ? true : false,
+                switchChecked: limitFileDownload ? true : false,
+                customContent: !limitFileDownload
+                  ? undefined
+                  : limitType === 0
+                  ? _l('已设置：禁止所有设备下载')
+                  : _l('已设置：禁止所有Web移动端下载'),
+                clickSwitch: this.setLimitDownloadStatus,
+                clickSetting: () => this.setState({ showLimitDownload: true }),
+              },
+              {
+                key: 'limitFileDownload',
+                title: _l('单附件上传'),
+                description: _l('全局限制应用中工作表、讨论附件中上传的单个文件大小。可设置白名单'),
+                showSlideIcon: true,
+                onClick: () => this.setState({ showLimitAttachmentUpload: true }),
+              },
+              {
+                key: 'addressVisibleRange',
+                title: _l('加密规则'),
+                description: _l('配置工作表字段加密存储时可以选择的加密方式'),
+                showSlideIcon: true,
+                featureId: VersionProductType.dataEnctypt,
+                onClick: () => this.setState({ showEncryptRules: true }),
+              },
+              {
+                key: 'webProxy',
+                title: _l('API网络代理'),
+                description: (
+                  <span>
+                    {_l('在发送API请求时可选择通过设置的代理服务器发送')}
+                    <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/org/security#apiproxy" />
+                  </span>
+                ),
+                showSlideIcon: false,
+                showSetting: webProxy,
+                showSwitch: true,
+                switchChecked: webProxy,
+                featureId: VersionProductType.apiRequestProxy,
+                clickSwitch: this.updateWebProxyState,
+                clickSetting: () => this.setState({ showWebProxySetting: true }),
+              },
+            ].filter(v => (md.global.Config.IsLocal ? true : v.key !== 'limitFileDownload'))}
+          />
+        </div>
       </div>
     );
   }

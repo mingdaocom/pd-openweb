@@ -11,6 +11,7 @@ import _ from 'lodash';
 import { getOrderStatusInfo } from '../Merchant/config';
 import { formatDate } from '../util';
 import PayErrorIcon from '../components/PayErrorIcon';
+import { match } from 'path-to-regexp';
 
 const formatWeChatPayInfo = payInfo => {
   if (!payInfo) return {};
@@ -22,7 +23,7 @@ const formatWeChatPayInfo = payInfo => {
   });
   return result;
 };
-
+const fn = match('/orderpay/:orderId/:paymentModule?');
 export default class OrderPay extends Component {
   constructor(props) {
     super(props);
@@ -50,16 +51,20 @@ export default class OrderPay extends Component {
   }
 
   getData = async orderId => {
-    const urlMatch = location.pathname.match(/.*\/(\w[\w]*\w)/);
-    orderId = orderId ? orderId : this.props.orderId ? this.props.orderId : urlMatch[1];
+    const { params } = fn(location.pathname) || {};
 
-    if (urlMatch && urlMatch[1].length !== 32 && !this.props.orderId) {
+    orderId = orderId ? orderId : this.props.orderId ? this.props.orderId : params.orderId;
+
+    if (params && params.orderId && params.orderId.length !== 32 && !this.props.orderId) {
       this.setState({ orderStatus: -1, errorMessage: _l('订单不存在'), loading: false });
       return;
     }
 
     const { code } = getRequest() || {};
-    const orderInfo = await paymentAjax.getPayOrder({ orderId: orderId });
+    const orderInfo = await paymentAjax.getPayOrder({
+      orderId: orderId,
+      paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined,
+    });
     const { status, wechatPayStatus, expireCountdown, msg, amount, expireTime } = orderInfo || {};
 
     if (status !== 0 || !!msg) {
@@ -89,13 +94,13 @@ export default class OrderPay extends Component {
 
   // 支付宝支付
   handleAliPay = () => {
-    const urlMatch = location.pathname.match(/.*\/(\w[\w]*\w)/);
-    const orderId = this.props.orderId ? this.props.orderId : urlMatch[1];
+    const { params } = fn(location.pathname) || {};
+    const orderId = this.props.orderId ? this.props.orderId : params.orderId;
     if (this.state.payLoading) return;
     this.setState({ payLoading: true });
 
     paymentAjax
-      .aliPay({ orderId })
+      .aliPay({ orderId, paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined })
       .then(res => {
         this.setState({ payLoading: false });
 
@@ -109,8 +114,8 @@ export default class OrderPay extends Component {
 
   // 微信授权并支付
   getWeChatPayInfo = async wechatPayStatus => {
-    const urlMatch = location.pathname.match(/.*\/(\w[\w]*\w)/);
-    const orderId = this.props.orderId ? this.props.orderId : urlMatch[1];
+    const { params } = fn(location.pathname) || {};
+    const orderId = this.props.orderId ? this.props.orderId : params.orderId;
     const { code } = getRequest() || {};
 
     if (wechatPayStatus !== 2) {
@@ -125,7 +130,10 @@ export default class OrderPay extends Component {
     if (!window.isWeiXin) return;
 
     if (!code && !openId) {
-      const wxAuthUrl = await paymentAjax.getWxAuthUrl({ orderId });
+      const wxAuthUrl = await paymentAjax.getWxAuthUrl({
+        orderId,
+        paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined,
+      });
 
       location.href = wxAuthUrl.replace('&redirect_uri=custom', `&redirect_uri=${encodeURIComponent(location.href)}`);
       return;
@@ -134,7 +142,12 @@ export default class OrderPay extends Component {
     this.setState({ payLoading: true });
 
     paymentAjax
-      .wechatPay({ code, orderId, openId })
+      .wechatPay({
+        code,
+        orderId,
+        openId,
+        paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined,
+      })
       .then(weChatPayInfo => {
         localStorage.setItem('wechatPayOpenId', weChatPayInfo.openId);
         WeixinJSBridge.invoke('getBrandWCPayRequest', formatWeChatPayInfo(weChatPayInfo.payInfo), res => {
@@ -146,13 +159,21 @@ export default class OrderPay extends Component {
           }
           if (res.err_msg == 'get_brand_wcpay_request:cancel' || res.err_msg == 'get_brand_wcpay_request:fail') {
             // 取消支付||支付失败
-            window.history.replaceState({}, '', `${location.origin}/orderpay/${orderId}`);
+            window.history.replaceState(
+              {},
+              '',
+              `${location.origin}/orderpay/${orderId}${params.paymentModule ? '/' + params.paymentModule : ''}`,
+            );
             this.setState({ payLoading: false });
           }
         });
       })
       .catch(({ errorCode, errorMessage }) => {
-        window.history.replaceState({}, '', `${location.origin}/orderpay/${orderId}`);
+        window.history.replaceState(
+          {},
+          '',
+          `${location.origin}/orderpay/${orderId}${params.paymentModule ? '/' + params.paymentModule : ''}`,
+        );
         this.setState({ payLoading: false });
       });
   };
@@ -170,40 +191,46 @@ export default class OrderPay extends Component {
 
   // 轮询订单状态
   pollOrderStatus = (orderInfo = {}) => {
+    const { params } = fn(location.pathname) || {};
     const { orderId } = orderInfo;
 
-    paymentAjax.getPayOrderStatus({ orderId }).then(({ status, expireCountdown, msg, amount, description }) => {
-      if (_.includes([1, 4], status)) {
-        this.getData();
-        $('.qrCodeWrap').parent().parent().remove();
-      } else {
-        this.setState(
-          {
-            orderStatus: orderInfo.expireTime !== 0 && expireCountdown < 0 ? 4 : status,
-            expireCountdown,
-            orderInfo: !!msg ? { ...orderInfo, status, msg, description } : { ...orderInfo, amount, description },
-          },
-          () => {
-            if (amount === 0 && !msg) {
-              this.handleCountDown(expireCountdown);
-            }
-            if (!!msg || amount === 0) return;
+    paymentAjax
+      .getPayOrderStatus({ orderId, paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined })
+      .then(({ status, expireCountdown, msg, amount, description }) => {
+        if (_.includes([1, 4], status)) {
+          this.getData();
+          $('.qrCodeWrap').parent().parent().remove();
+        } else {
+          this.setState(
+            {
+              orderStatus: orderInfo.expireTime !== 0 && expireCountdown < 0 ? 4 : status,
+              expireCountdown,
+              orderInfo: !!msg ? { ...orderInfo, status, msg, description } : { ...orderInfo, amount, description },
+            },
+            () => {
+              if (amount === 0 && !msg) {
+                this.handleCountDown(expireCountdown);
+              }
+              if (!!msg || amount === 0) return;
 
-            this.timer = setTimeout(() => {
-              this.pollOrderStatus(orderInfo);
-            }, 1000);
-          },
-        );
-      }
-    });
+              this.timer = setTimeout(() => {
+                this.pollOrderStatus(orderInfo);
+              }, 1000);
+            },
+          );
+        }
+      });
   };
 
   // 检查订单<=0的订单
   checkPayOrder = () => {
     const { orderInfo = {} } = this.state;
     const { orderId } = orderInfo;
+    const { params } = fn(location.pathname) || {};
 
-    paymentAjax.checkPayOrder({ orderId }).then(() => this.getData(orderId));
+    paymentAjax
+      .checkPayOrder({ orderId, paymentModule: params.paymentModule ? Number(params.paymentModule) : undefined })
+      .then(() => this.getData(orderId));
   };
 
   // 成功、超时等状态
@@ -235,41 +262,41 @@ export default class OrderPay extends Component {
             <Fragment>
               <div className="orderInfoItem">
                 <span>{_l('支付金额：')}</span>
-                <span>{_l('%0元', amount <= 0 ? 0 : formatNumberThousand(amount))}</span>
+                <span className="color_4c bold Font32">{_l('%0元', amount <= 0 ? 0 : formatNumberThousand(amount))}</span>
               </div>
               <div className="orderInfoItem">
                 <span>{_l('支付内容：')}</span>
-                <span className="flex ellipsis">{description || '-'}</span>
+                <span className="flex ellipsis bold">{description || '-'}</span>
               </div>
               <div className="orderInfoItem">
                 <span>{_l('收款账户：')}</span>
-                <span>{shortName}</span>
+                <span className='bold'>{shortName}</span>
               </div>
               {_.includes([1, 2, 3, 5], orderStatus) && amount > 0 && (
                 <div className="orderInfoItem">
                   <span>{_l('支付方式：')}</span>
-                  <span>{payOrderType === 0 ? _l('支付宝') : _l('微信')}</span>
+                  <span className='bold'>{payOrderType === 0 ? _l('支付宝') : _l('微信')}</span>
                 </div>
               )}
               <div className="orderInfoItem">
                 <span>{_l('订单编号：')}</span>
-                <span className="flex value">{orderId || '-'}</span>
+                <span className="flex value bold">{orderId || '-'}</span>
               </div>
               <div className="orderInfoItem">
                 <span>{_l('下单时间：')}</span>
-                <span>{formatDate(createTime)}</span>
+                <span className='bold'>{formatDate(createTime)}</span>
               </div>
               {_.includes([1, 2, 3, 5], orderStatus) && (
                 <Fragment>
                   {merchantOrderId && (
                     <div className="orderInfoItem">
                       <span>{_l('交易单号：')}</span>
-                      <span className="flex value">{merchantOrderId}</span>
+                      <span className="flex value bold">{merchantOrderId}</span>
                     </div>
                   )}
                   <div className="orderInfoItem">
                     <span>{_l('支付时间：')}</span>
-                    <span>{formatDate(paidTime)}</span>
+                    <span className='bold'>{formatDate(paidTime)}</span>
                   </div>
                 </Fragment>
               )}
@@ -314,6 +341,7 @@ export default class OrderPay extends Component {
 
   renderOrderQrCode = (orderId, type) => {
     const isMobile = browserIsMobile();
+    const { params } = fn(location.pathname) || {};
 
     Dialog.confirm({
       overlayClosable: true,
@@ -323,7 +351,13 @@ export default class OrderPay extends Component {
       children: (
         <Fragment>
           <div className="qrCode">
-            <Qr content={`${md.global.Config.WebUrl}orderpay/${orderId}`} width={250} height={250} />
+            <Qr
+              content={`${md.global.Config.WebUrl}orderpay/${orderId}${
+                params.paymentModule ? '/' + params.paymentModule : ''
+              }`}
+              width={250}
+              height={250}
+            />
           </div>
           <div className="bold mTop10 TxtCenter Font15">
             {type == 1 ? _l('请使用微信扫码支付') : _l('请使用支付宝扫码支付')}
@@ -334,6 +368,7 @@ export default class OrderPay extends Component {
   };
 
   render() {
+    const { params } = fn(location.pathname) || {};
     const { loading, orderInfo = {}, orderStatus, payLoading, expireCountdown, errorMessage } = this.state;
     const { description, amount, orderId, createTime, aliPayStatus, wechatPayStatus, shortName, expireTime, msg } =
       orderInfo;
@@ -343,7 +378,9 @@ export default class OrderPay extends Component {
     const statusTxt = _.isUndefined(orderStatus) ? '' : text;
     const m = Math.floor((expireCountdown / 60) % 60);
     const s = Math.floor(expireCountdown % 60);
-    const currentUrl = encodeURIComponent(`${md.global.Config.WebUrl}orderpay/${orderId}`);
+    const currentUrl = encodeURIComponent(
+      `${md.global.Config.WebUrl}orderpay/${orderId}${params.paymentModule ? '/' + params.paymentModule : ''}`,
+    );
 
     return (
       <div className={cx('orderPayWrap', { mobileWrap: isMobile })}>

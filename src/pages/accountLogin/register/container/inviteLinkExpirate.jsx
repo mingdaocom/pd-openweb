@@ -11,13 +11,13 @@ const Wrap = styled.div`
   .btnForLogin {
     margin: 64px auto 0;
     width: 236px;
-    height: 40px;
+    height: 48px;
     background: #2296f3;
     opacity: 1;
     border-radius: 4px;
     display: block;
     color: #fff;
-    line-height: 40px;
+    line-height: 48px;
     text-decoration: none;
 
     &:hover {

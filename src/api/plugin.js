@@ -229,9 +229,9 @@ export default {
   /**
   * 插件导入
   * @param {Object} args 请求参数
-  * @param {string} args.projectId
-  * @param {string} args.url
-  * @param {string} args.pluginId
+  * @param {string} args.projectId 组织id
+  * @param {string} args.url 插件文件url
+  * @param {string} args.pluginId 插件来源id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -243,9 +243,9 @@ export default {
   /**
   * 插件导出
   * @param {Object} args 请求参数
-  * @param {string} args.id
+  * @param {string} args.id 插件id
   * @param {} args.source
-  * @param {string} args.releaseId
+  * @param {string} args.releaseId 版本id
   * @param {} args.profile
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -258,10 +258,10 @@ export default {
   /**
   * 插件导出历史
   * @param {Object} args 请求参数
-  * @param {string} args.id
+  * @param {string} args.id 插件id
   * @param {} args.source
-  * @param {integer} args.pageIndex
-  * @param {integer} args.pageSize
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

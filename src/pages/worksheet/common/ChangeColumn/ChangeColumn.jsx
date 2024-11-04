@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Icon, Input, Tooltip } from 'ming-ui';
+import { Input } from 'ming-ui';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { getControlsSorts, sortControlByIds } from 'worksheet/util';
 import SortableColumn from './SortableColumn';
 import './ChangeColumn.less';
 import _ from 'lodash';
+import ChangedIcon from './ChangeByWorksheet';
 
 export default class ChangeColumn extends Component {
   static propTypes = {
@@ -211,28 +212,23 @@ export default class ChangeColumn extends Component {
           {_l('全隐藏')}
         </button>
         {isShowColumns && (
-          <Tooltip text={_l('按表单字段重置')} popupPlacement="bottom">
-            <button
-              onClick={() => {
-                this.handleChange({
-                  selected: columns
-                    .sort((a, b) => {
-                      if (a.row === b.row) {
-                        return a.col - b.col;
-                      }
-                      return a.row - b.row;
-                    })
-                    .filter(l => l.controlId.length > 20)
-                    .slice(0, 50)
-                    .map(l => l.controlId),
-                  controlsSorts: columns.map(l => l.controlId),
-                });
-              }}
-              className="iconButton ThemeHoverColor3"
-            >
-              <Icon icon="loop" className="Font20" />
-            </button>
-          </Tooltip>
+          <ChangedIcon
+            onOk={() =>
+              this.handleChange({
+                selected: columns
+                  .sort((a, b) => {
+                    if (a.row === b.row) {
+                      return a.col - b.col;
+                    }
+                    return a.row - b.row;
+                  })
+                  .filter(l => l.controlId.length > 20)
+                  .slice(0, 50)
+                  .map(l => l.controlId),
+                controlsSorts: columns.map(l => l.controlId),
+              })
+            }
+          />
         )}
       </div>
     );

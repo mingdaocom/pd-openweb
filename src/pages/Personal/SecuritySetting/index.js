@@ -30,6 +30,7 @@ export default class SecuritySetting extends Component {
       openWeixinLogin: false,
       serviceListApp: [],
       serviceListWeb: [],
+      serviceListOther: [],
       loading: false,
     };
   }
@@ -43,11 +44,14 @@ export default class SecuritySetting extends Component {
       accountSetting.getAccountSettings({}),
       actionLogAjax.getAccountDevices({}),
     ]).then(([data1, data2, data3]) => {
-      const { app = [], web = [] } = _.get(data3, 'data');
+      const { app = [], web = [], other = [] } = _.get(data3, 'data');
+
       let serviceListApp = app.filter(v => !v.current);
       let serviceListWeb = web.filter(v => !v.current);
+      let serviceListOther = other.filter(v => !v.current);
       !_.isEmpty(app.find(it => it.current)) && serviceListApp.unshift(app.find(it => it.current));
       !_.isEmpty(web.find(it => it.current)) && serviceListWeb.unshift(web.find(it => it.current));
+      !_.isEmpty(other.find(it => it.current)) && serviceListOther.unshift(other.find(it => it.current));
       this.setState({
         mobilePhone: data1.mobilePhone,
         email: data1.email,
@@ -58,6 +62,7 @@ export default class SecuritySetting extends Component {
         isHasWeixin: data2.isHasWeixin,
         serviceListApp,
         serviceListWeb,
+        serviceListOther,
         loading: false,
       });
     });
@@ -165,7 +170,7 @@ export default class SecuritySetting extends Component {
 
   renderEquipmentItem = item => {
     const { current, systemInfo, browserName, date, ip, geoCity, sessionId, platform } = item;
-    const { serviceListApp = [], serviceListWeb = [] } = this.state;
+    const { serviceListApp = [], serviceListWeb = [], serviceListOther } = this.state;
     const diff = moment().diff(date, 'm');
     const passTime =
       formatFormulaDate({ value: diff, unit: '1', hideUnitStr: false }) === _l('0分钟')
@@ -202,6 +207,8 @@ export default class SecuritySetting extends Component {
                       alert(_l('退出成功'));
                       if (platform === 'app') {
                         this.setState({ serviceListApp: serviceListApp.filter(v => v.sessionId !== sessionId) });
+                      } else if (platform === 'other') {
+                        this.setState({ serviceListOther: serviceListOther.filter(v => v.sessionId !== sessionId) });
                       } else {
                         this.setState({ serviceListWeb: serviceListWeb.filter(v => v.sessionId !== sessionId) });
                       }
@@ -233,6 +240,7 @@ export default class SecuritySetting extends Component {
       allowMultipleDevicesUse,
       serviceListApp,
       serviceListWeb,
+      serviceListOther,
       loading,
     } = this.state;
 
@@ -287,13 +295,13 @@ export default class SecuritySetting extends Component {
             <div className="Gray">{_l('您当前已在以下设备上登录')}</div>
             {!_.isEmpty(serviceListWeb) && <div className="Font14 mTop30 mBottom8 Bold">{_l('网页端')}</div>}
             {!_.isEmpty(serviceListWeb) && (
-              <div className="Gray_9e mBottom15">
-                {_l('包括桌面端和移动端浏览器（企业微信、钉钉、飞书)，桌面客户端')}
-              </div>
+              <div className="Gray_9e mBottom15">{_l('包括桌面端和移动端浏览器，桌面客户端')}</div>
             )}
             {serviceListWeb.map(item => this.renderEquipmentItem({ ...item, platform: 'web' }))}
             {!_.isEmpty(serviceListApp) && <div className="Font14 mTop30 mBottom15 Bold">{_l('移动客户端')}</div>}
             {serviceListApp.map(item => this.renderEquipmentItem({ ...item, platform: 'app' }))}
+            {!_.isEmpty(serviceListOther) && <div className="Font14 mTop30 mBottom15 Bold">{_l('其他')}</div>}
+            {serviceListOther.map(item => this.renderEquipmentItem({ ...item, platform: 'other' }))}
           </div>
         </div>
 

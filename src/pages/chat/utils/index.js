@@ -4,60 +4,6 @@ import { htmlDecodeReg, dateConvertToUserZone } from 'src/util';
 import moment from 'moment';
 import Emotion from 'src/components/emotion/emotion';
 
-/**
- * 时间戳的转换
- * @param dateStr
- * @returns {*}
- */
-export const createTimeSpan = dateStr => {
-  if (!dateStr) return dateStr;
-
-  const dateTime = new Date();
-
-  const date = dateStr.split(' ')[0];
-  const year = date.split('-')[0];
-  const month = date.split('-')[1] - 1;
-  const day = date.split('-')[2];
-
-  const time = dateStr.split(' ')[1];
-  const hour = time.split(':')[0];
-  const minute = time.split(':')[1];
-  const second = time.split(':')[2];
-
-  dateTime.setFullYear(year);
-  dateTime.setMonth(month);
-  dateTime.setDate(day);
-  dateTime.setHours(hour);
-  dateTime.setMinutes(minute);
-  dateTime.setSeconds(second);
-
-  const now = new Date();
-
-  const today = new Date();
-  today.setFullYear(now.getFullYear());
-  today.setMonth(now.getMonth());
-  today.setDate(now.getDate());
-  today.setHours(0);
-  today.setMinutes(0);
-  today.setSeconds(0);
-
-  let milliseconds = 0;
-  let timeSpanStr;
-  if (dateTime - today >= 0) {
-    timeSpanStr = hour + ':' + minute;
-  } else {
-    milliseconds = today - dateTime;
-    if (milliseconds < 86400000) {
-      timeSpanStr = _l('昨天') + ' ' + hour + ':' + minute;
-    } else if (milliseconds > 86400000 && year == today.getFullYear()) {
-      timeSpanStr = _l('%0月%1日', month + 1, day) + ' ' + hour + ':' + minute;
-    } else {
-      timeSpanStr = `${year}/${month + 1}/${day} ${hour}:${minute}`;
-    }
-  }
-  return timeSpanStr;
-};
-
 export const formatMsgDate = (dateStr, isText = false) => {
   const dateTime = new Date();
 
@@ -205,10 +151,13 @@ const formatSession = item => {
     const { iswd } = item;
     const isSelf = item.from.id === md.global.Account.accountId;
     const isAdmin = item.wdAdminid === md.global.Account.accountId;
+    const isFileTransfer = item.value === 'file-transfer';
     const wdAdminid = item.wdAdminid;
     if (isSelf) {
       let con = '';
-      if (iswd) {
+      if (isFileTransfer) {
+        con = item.msg.con;
+      } else if (iswd) {
         con = wdAdminid ? `${_l('管理员撤回了一条你的消息')}` : `${_l('你')}${item.msg.con}`;
       } else {
         con = `${_l('我')}: ${item.msg.con}`;
@@ -267,7 +216,7 @@ const formatSession = item => {
   }
 
   item._time = item.time;
-  item.time = formatMsgDate(dateConvertToUserZone(item.time));
+  item.time = createTimeSpan(dateConvertToUserZone(item.time), 2);
   item.type = Number(item.type);
   item.messageAtlist = item.atlist;
   item.sendMsg = localStorage.getItem(`textareaValue${item.value}`);

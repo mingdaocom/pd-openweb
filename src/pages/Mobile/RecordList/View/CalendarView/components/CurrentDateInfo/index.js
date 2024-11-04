@@ -5,7 +5,7 @@ import { ScrollView, Icon } from 'ming-ui';
 import { Popup } from 'antd-mobile';
 import * as actions from 'src/pages/worksheet/redux/actions/calendarview';
 import { RecordInfoModal } from 'mobile/Record';
-import { addBehaviorLog } from 'src/util';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
 import './index.less';
 import { dateFormat } from '../util.js';
 import withoutRows from '../../../../SheetRows/assets/withoutRows.png';
@@ -18,9 +18,18 @@ class CurrentDateInfo extends Component {
       isSearch: false,
       searchValue: '',
       searchResultData: [],
-      previewRecordId: undefined
+      previewRecordId: undefined,
     };
   }
+  componentDidMount() {
+    window.addEventListener('popstate', this.onQueryChange);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.onQueryChange);
+  }
+  onQueryChange = () => {
+    handleReplaceState('page', 'recordDetail', () => this.setState({ previewRecordId: undefined }));
+  };
   close = () => {
     this.props.mobileIsShowMoreClick(false);
     this.setState({
@@ -37,11 +46,12 @@ class CurrentDateInfo extends Component {
   };
   // 跳转至详情
   navigateToDetail = rowId => {
-    if (window.isMingDaoApp) {
+    if (window.isMingDaoApp && !window.shareState.shareId) {
       const { base } = this.props;
       window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId}/${rowId}`;
       return;
     }
+    handlePushState('page', 'recordDetail');
     this.setState({ previewRecordId: rowId });
   };
   render() {

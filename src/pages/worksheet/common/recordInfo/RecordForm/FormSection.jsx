@@ -14,7 +14,7 @@ const FormSectionWrap = styled.div`
   ${props => (props.isFixedRight ? 'border-left: 1px solid #d9d9d9;' : 'border-right: 1px solid #d9d9d9;')}
   display: flex;
   flex-direction: column;
-  transition: width 0.3s;
+  transition: all 0.3s;
   padding-bottom: 8px;
   .tabContainer {
     flex: 1;
@@ -22,7 +22,8 @@ const FormSectionWrap = styled.div`
     flex-direction: column;
   }
   .sectionTabItem {
-    line-height: 44px;
+    line-height: 50px;
+    ${props => (props.isUnfold ? '' : 'flex-direction:column;min-height: 50px;justify-content: center;')}
     ${props => (props.isFixedRight ? 'flex-direction: row-reverse;' : '')}
     &.active {
       color: #2196f3;
@@ -39,13 +40,18 @@ const FormSectionWrap = styled.div`
       position: absolute;
       background-color: #2196f3;
     }
+    & > span.ellipsis {
+      display: ${props => (props.isUnfold ? 'inline-block' : 'none')};
+    }
+    & > span:first-child {
+      margin-right: ${props => (props.isUnfold ? '' : '0px')};
+    }
     & > div {
-      visibility: ${props => (props.isUnfold ? 'visible' : 'hidden')}
-      transition: visibility 0.3s;
+      ${props => (props.isUnfold ? '' : 'font-size: 12px;margin-left:0px;line-height: 13px;margin-top: 4px;')}
     }
   }
   .expandIcon {
-    margin: 6px auto 6px 15px;
+    margin: 6px auto 6px ${props => (props.isUnfold ? '16px' : 'auto')};
     width: 28px;
     height: 28px;
     display: flex;
@@ -110,6 +116,8 @@ function FormSection(props, ref) {
       setActiveId(controlId);
     },
   };
+
+  console.log(tabControls);
 
   return (
     <FormSectionWrap className="formSection" isFixedRight={widgetStyle.tabposition === '4'} isUnfold={isUnfold}>

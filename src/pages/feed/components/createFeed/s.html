@@ -1,67 +1,104 @@
 ﻿<div class="MDUpdater">
     <input type="hidden" id="MDUpdater_hidden_UpdaterType" value="0" />
     <input type="hidden" id="MDUpdater_hidden_fromUseMD" value="" />
-    <div class="Updater_Textpanel ">
-        <div id="MDUpdater_msgContainer" class="msgContainer" style="margin-bottom:20px;">
-            <textarea class="Updater_TextArea TextArea mRight10" id="MDUpdater_textarea_Updater" style="height: 50px;"></textarea>
+    <div class="Updater_Textpanel">
+        <div id="MDUpdater_msgContainer" class="msgContainer" style="margin-bottom: 20px">
+            <textarea
+                class="Updater_TextArea TextArea mRight10"
+                id="MDUpdater_textarea_Updater"
+                style="height: 50px"
+            ></textarea>
         </div>
 
-        <div class="msgExpandDiv Right" style="margin-top:-15px;">
+        <div class="msgExpandDiv Right" style="margin-top: -15px">
             <a class="faceBtn icon-smile" href="javascript:void(0)" title="插入表情"></a>
             <div class="Clear"></div>
         </div>
-        <div  class="Clear"></div>
-        <div style="border-top:1px solid #eee;" class="pTop10 mTop5 Relative">
-
-            <div class="Absolute Hidden" id="mdUpdateCloseContainer" style="right:0px; top:23px;">
+        <div class="Clear"></div>
+        <div style="border-top: 1px solid #eee" class="pTop10 mTop5 Relative">
+            <div class="Absolute Hidden" id="mdUpdateCloseContainer" style="right: 0px; top: 23px">
                 <span class="update_close" style="margin: 5px" title="关闭"></span>
             </div>
 
             <div class="myUpdateType mTop12">
-                <a class="icon-attachment Font16 NoUnderLine Gray_c" style="display:none;" href="javascript:;" targetdiv="#MDUpdater_Attachment_updater" showtype="attachment"></a><a class="icon-link Font16 NoUnderLine Gray_c" style="display:none;" href="javascript:;" targetdiv="#MDUpdater_Link_updater" showtype="link"></a><a class="icon-votenobg Font16 NoUnderLine Gray_c" style="display:none;" href="javascript:;" targetdiv="#MDUpdater_Vote_updater" showtype="vote"></a>
+                <a
+                    class="icon-attachment Font16 NoUnderLine Gray_c"
+                    style="display: none"
+                    href="javascript:;"
+                    targetdiv="#MDUpdater_Attachment_updater"
+                    showtype="attachment"
+                ></a
+                ><a
+                    class="icon-link Font16 NoUnderLine Gray_c"
+                    style="display: none"
+                    href="javascript:;"
+                    targetdiv="#MDUpdater_Link_updater"
+                    showtype="link"
+                ></a
+                ><a
+                    class="icon-votenobg Font16 NoUnderLine Gray_c"
+                    style="display: none"
+                    href="javascript:;"
+                    targetdiv="#MDUpdater_Vote_updater"
+                    showtype="vote"
+                ></a>
             </div>
             <div class="Left mTop12 Hidden" id="divIsToFeed">
                 <input type="checkbox" checked="checked" class="Hidden" id="isToFeed" />
-                <label title="转发到动态" for="isToFeed" class="icon-feed Font16 ThemeColor3 Hand divIsToFeedToggle" id="divIsToFeedToggle"></label>
+                <label
+                    title="转发到动态"
+                    for="isToFeed"
+                    class="icon-feed Font16 ThemeColor3 Hand divIsToFeedToggle"
+                    id="divIsToFeedToggle"
+                ></label>
             </div>
-
 
             <div id="MDUpdater_Attachment_updater" class="middleContent mBottom5 Hidden">
                 <input type="hidden" id="hidMDUpdaterUpload" />
             </div>
 
-
-             <!--链接-->
+            <!--链接-->
             <div id="MDUpdater_Link_updater" class="middleContent Hidden">
-                <div class="arrowUpOuter" style="left:38px;"><div class="arrowUpInner"></div></div>
-                <div class="updaterDialog_Main" style="min-height: 35px;">
+                <div class="arrowUpOuter" style="left: 38px"><div class="arrowUpInner"></div></div>
+                <div class="updaterDialog_Main" style="min-height: 35px">
                     <div class="linkViewTextBoxContainer">
                         <div class="Left">
-                            <input type="text" id="MDUpdater_text_LinkUrl" class="TextBox linkTextBox textLinkUrl" value="http://" />
+                            <input
+                                type="text"
+                                id="MDUpdater_text_LinkUrl"
+                                class="TextBox linkTextBox textLinkUrl"
+                                value="http://"
+                            />
                         </div>
                         <div class="Right linkBtnArea">
-                            <input type="button" class="btnBootstrap btnBootstrap-primary btnBootstrap-small linkBtn" value="{{! _l('预览') }}" />
+                            <input
+                                type="button"
+                                class="btnBootstrap btnBootstrap-primary btnBootstrap-small linkBtn"
+                                value="{{! _l('预览') }}"
+                            />
                         </div>
-                        <div class="clear">
-                        </div>
+                        <div class="clear"></div>
                     </div>
-                    <div class="updaterLinkView uploadLinkContent "></div>
+                    <div class="updaterLinkView uploadLinkContent"></div>
                 </div>
             </div>
 
             <!--投票-->
-            <div id="MDUpdater_Vote_updater" class="middleContent Hidden">
-            </div>
+            <div id="MDUpdater_Vote_updater" class="middleContent Hidden"></div>
             <!--加入到知识门户 2012-5-7 john -->
-            <div id="MDUpdater_Div_JoinKnowledge" class="Hidden mAll5 Left" style="width: 200px;">
-                <input type="text" id="MDUpdater_txtKnowledge" style="width: 370px;" />
+            <div id="MDUpdater_Div_JoinKnowledge" class="Hidden mAll5 Left" style="width: 200px">
+                <input type="text" id="MDUpdater_txtKnowledge" style="width: 370px" />
             </div>
-            <div class="mTop10 Right">
-                <div class="Right">
-                    <input id="MDUpdater_button_Share" style="padding:4px 19px" type="button" class="btnBootstrap btnBootstrap-primary btnBootstrap-small" value="分 享" />
-                </div>
-                <div class="Right groupSelect">
-                <input type="hidden" id="MDUpdater_hidden_GroupID_All" value="everyone" />
+            <div class="mTop10 Right valignWrapper">
+                <div class="groupSelect" id="createFeedGroupSelect"></div>
+                <div>
+                    <input
+                        id="MDUpdater_button_Share"
+                        style="padding: 4px 19px"
+                        type="button"
+                        class="btnBootstrap btnBootstrap-primary btnBootstrap-small"
+                        value="分 享"
+                    />
                 </div>
                 <div class="Clear"></div>
             </div>

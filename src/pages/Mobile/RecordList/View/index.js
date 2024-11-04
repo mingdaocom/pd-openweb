@@ -52,7 +52,7 @@ class View extends Component {
         this.props.fetchSheetRows();
       }
     }
-    emitter.addListener('MOBILE_RELOAD_SHEETVIVELIST', this.refreshList);
+    emitter.addListener('MOBILE_RELOAD_RECORD_INFO', this.refreshList);
 
     if (base.type !== 'single') {
       workflowPushSoket();
@@ -111,17 +111,23 @@ class View extends Component {
       sheetSwitchPermit,
       worksheetInfo,
       filters,
+      quickFilterWithDefault,
       updateFilters = () => {},
     } = this.props;
 
-    const { viewType, advancedSetting = {}, fastFilters = [] } = view;
+    const { viewType, advancedSetting = {} } = view;
 
     if (viewType === 2 && advancedSetting.hierarchyViewType === '3') {
       return this.renderError();
     }
 
-    if (viewResultCode !== 1) {
-      return <State resultCode={viewResultCode} type={worksheetInfo.resultCode !== 1 ? 'sheet' : 'view'} />;
+    if (viewResultCode !== 1 || _.isEmpty(view)) {
+      return (
+        <State
+          resultCode={_.isEmpty(view) ? 7 : viewResultCode}
+          type={worksheetInfo.resultCode !== 1 ? 'sheet' : 'view'}
+        />
+      );
     }
 
     if (_.isEmpty(view)) {
@@ -147,7 +153,7 @@ class View extends Component {
       _.includes([sheet, gallery, map], String(view.viewType)); // 是否存在分组列表
 
     const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
-    const viewFilters = view.fastFilters
+    const viewFilters = quickFilterWithDefault
       .map(filter => ({
         ...filter,
         control: _.find(sheetControls, c => c.controlId === filter.controlId),
@@ -174,7 +180,7 @@ class View extends Component {
       <div className="overflowHidden flex mobileView flexColumn Relative">
         {(_.includes([gallery, resource], String(viewType)) ||
           (String(viewType) === detail && view.childType !== 1) ||
-          (String(viewType) === customize && !_.isEmpty(fastFilters))) && (
+          (String(viewType) === customize && !_.isEmpty(quickFilterWithDefault))) && (
           <QuickFilterSearch
             className={String(viewType) === customize ? 'fixedMobileQuickFilter' : ''}
             showSearch={String(viewType) === customize ? false : true}
@@ -186,6 +192,7 @@ class View extends Component {
             worksheetInfo={worksheetInfo}
             sheetControls={sheetControls}
             updateFilters={updateFilters}
+            quickFilterWithDefault={quickFilterWithDefault}
           />
         )}
         {_.includes(
@@ -205,6 +212,11 @@ class View extends Component {
 
 export default connect(
   state => ({
+    controls: state.sheet.controls,
+    views: state.sheet.views,
+    ...state.sheet,
+    sheetSwitchPermit: state.mobile.sheetSwitchPermit,
+    pcQuickFilter: state.sheet.quickFilter,
     ..._.pick(state.mobile, [
       'base',
       'isCharge',
@@ -215,18 +227,14 @@ export default connect(
       'appColor',
       'currentSheetRows',
       'filters',
+      'quickFilter',
+      'quickFilterWithDefault',
     ]),
-    controls: state.sheet.controls,
-    views: state.sheet.views,
-    ...state.sheet,
-    sheetSwitchPermit: state.mobile.sheetSwitchPermit,
-    quickFilter: state.mobile.quickFilter,
-    pcQuickFilter: state.sheet.quickFilter,
   }),
   dispatch =>
     bindActionCreators(
       {
-        ..._.pick({ ...actions, ...worksheetActions }, [
+        ..._.pick({ ...worksheetActions, ...actions }, [
           'fetchSheetRows',
           'getNavGroupCount',
           'changeMobielSheetLoading',

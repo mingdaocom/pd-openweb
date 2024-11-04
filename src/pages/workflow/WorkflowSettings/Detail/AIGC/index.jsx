@@ -193,7 +193,7 @@ export default class AIGC extends Component {
             {_l(
               '%0 模型按 %1元 / 1K tokens 计费，直接从组织账户余额中扣除',
               data.appId,
-              _.find(data.appList, o => o.id === data.appId).entityName,
+              (_.find(data.appList, o => o.id === data.appId) || {}).entityName || '',
             )}
             {!md.global.Config.IsPlatformLocal && (
               <Support type={3} text={_l('扣费说明')} href="https://help.mingdao.com/purchase/billing-items" />

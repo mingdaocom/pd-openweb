@@ -4,7 +4,6 @@
     width: 300px;
     height: 100%;
     border-right: 1px solid rgba(0, 0, 0, 0.05);
-    padding: 16px 0;
     .distanceInfo {
       height: 57px;
       line-height: 60px;
@@ -35,6 +34,44 @@
     span {
       display: flex;
       flex-shrink: 0;
+    }
+  }
+  .MDMapCustom {
+    flex: 1;
+    padding: 24px 16px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    .ant-input {
+      min-height: 36px;
+      box-shadow: none;
+      border-color: #ddd;
+      border-radius: 3px;
+      &:hover {
+        border-color: #ccc;
+      }
+      &:focus {
+        border-color: #2196f3 !important;
+      }
+      &.ant-input-disabled {
+        border-color: #e0e0e0 !important;
+        background-color: #f5f5f5 !important;
+        color: #bdbdbd !important;
+      }
+    }
+    button {
+      margin: auto 0 0 0;
+    }
+  }
+  &.mobileMap {
+    .MDMapSidebar {
+      padding: 0 0 7px !important;
+      min-height: 0;
+    }
+    .MDMapCustom {
+      padding: 15px 15px 0;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
   }
 }

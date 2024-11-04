@@ -8,8 +8,7 @@ import { VersionProductType } from 'src/util/enum';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';
-
-const { pathToRegexp, compile } = require('path-to-regexp');
+import { pathToRegexp, compile } from 'path-to-regexp';
 
 @withRouter
 export default class AdminLeftMenu extends Component {

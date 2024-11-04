@@ -91,6 +91,7 @@ export function updateRecord(
     allowEmptySubmit,
     setSubListUniqueError = () => {},
     setRuleError = () => {},
+    setServiceError = () => {},
   },
   callback = () => {},
 ) {
@@ -156,6 +157,8 @@ export function updateRecord(
         } else if (res.resultCode === 22) {
           setSubListUniqueError(res.badData);
           handleRecordError(res.resultCode);
+        } else if (res.resultCode === 31) {
+          setServiceError(res.badData);
         } else if (res.resultCode === 32) {
           setRuleError(res.badData);
         } else {

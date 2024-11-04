@@ -3,7 +3,6 @@ import _ from 'lodash';
 import cx from 'classnames';
 import { ScrollView, Menu, Radio, MenuItem, LoadDiv, TagTextarea, Tooltip, Support } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
-import { CONTROLS_NAME } from '../../enum';
 import {
   Member,
   SelectUserDropDown,
@@ -15,7 +14,7 @@ import {
   TestParameter,
 } from '../components';
 import styled from 'styled-components';
-import { handleGlobalVariableName } from '../../utils';
+import { handleGlobalVariableName, getControlTypeName } from '../../utils';
 
 const TagBox = styled.div`
   padding: 0 7px;
@@ -164,17 +163,22 @@ export default class Message extends Component {
 
     return (
       <Fragment>
-        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && <div className="Gray_75 workflowDetailDesc">
+        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
+          <div className="Gray_75 workflowDetailDesc">
             <span className="TxtMiddle">
-            {_l('短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。', _.get(md, 'global.PriceConfig.SmsPrice'))}
-            {!_.get(md, 'global.Config.IsLocal') && _l('目前仅支持中国大陆手机号。')}
+              {_l(
+                '短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。',
+                _.get(md, 'global.PriceConfig.SmsPrice'),
+              )}
+              {!_.get(md, 'global.Config.IsLocal') && _l('目前仅支持中国大陆手机号。')}
             </span>
             <Support
               type={3}
               href="https://help.mingdao.com/workflow/sms-failure"
               text={<span className="ThemeColor3 ThemeHoverColor2">{_l('收不到短信？')}</span>}
             />
-        </div>}
+          </div>
+        )}
         <div className="mTop20 bold">{_l('发送给')}</div>
 
         <Member
@@ -498,10 +502,12 @@ export default class Message extends Component {
         <div className="Font18 bold mTop20">{isSelectNewTpl ? _l('修改模板内容') : _l('创建新模板')}</div>
         <div className="bold mTop20">{_l('短信签名')}</div>
         <div className="Gray_75 mTop10">
-          {_l('请谨慎填写您的组织简称、网站名、品牌名，2-12个汉字。如签名不符合规范，将会被运营商拦截。')}
+          {_l(
+            '签名内容长度为2-12个字；由中英文组成，不能纯英文；签名内容必须能辨别所属公司名称或品牌名称；不符合规范的签名平台会清空需重新输入，同时运营商也会拦截。',
+          )}
         </div>
 
-        <div className="mTop10 relative flexRow" style={{ width: 150 }}>
+        <div className="mTop10 relative flexRow" style={{ width: 190 }}>
           <input
             type="text"
             maxLength={12}
@@ -509,8 +515,20 @@ export default class Message extends Component {
             className="ThemeBorderColor3 actionControlBox flex pLeft10 pRight10 pTop0 pBottom0"
             value={sign}
             onFocus={() => this.setState({ showSignList: true })}
-            onBlur={() => this.setState({ showSignList: false })}
-            onChange={evt => this.setState({ sign: evt.currentTarget.value.replace(/[【】]/g, '').trim() })}
+            onBlur={evt => {
+              let value = evt.currentTarget.value.replace(/[^\u4e00-\u9fa5a-zA-Z]+/g, '');
+
+              // 全英文清空
+              if (value.replace(/[\u4e00-\u9fa5]/g, '').length === value.length) {
+                value = '';
+              }
+
+              this.setState({
+                showSignList: false,
+                sign: value,
+              });
+            }}
+            onChange={evt => this.setState({ sign: evt.currentTarget.value })}
           />
 
           {showSignList && (
@@ -821,7 +839,7 @@ export default class Message extends Component {
                 return {
                   type: o.type,
                   value: o.controlId,
-                  field: CONTROLS_NAME[o.type],
+                  field: getControlTypeName(o),
                   text: o.controlName,
                 };
               }),

@@ -7,6 +7,14 @@ import UploadFiles from 'src/components/UploadFiles';
 import { Dialog, Textarea, Button } from 'ming-ui';
 import _ from 'lodash';
 import RegExpValidator from 'src/util/expression';
+import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
+import styled from 'styled-components';
+
+const FooterWrap = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 export default class EditPostDialog extends React.Component {
   static show(postItem, dispatch) {
     const div = document.createElement('div');
@@ -31,6 +39,10 @@ export default class EditPostDialog extends React.Component {
     temporaryData: [],
     isUploadComplete: true,
     submitting: false,
+    scope: {
+      project: _.map(this.props.postItem.scope.shareProjects, p => p.projectId),
+      group: _.map(this.props.postItem.scope.shareGroups, g => g.groupId),
+    },
   };
   constructor(props) {
     super(props);
@@ -75,10 +87,7 @@ export default class EditPostDialog extends React.Component {
     return attachment;
   }
   setContent(postItem) {
-    Promise.all([
-      import('src/components/mentioninput/mentionsInput'),
-      import('src/components/selectGroup/selectAllGroup'),
-    ]).then(() => {
+    import('src/components/mentioninput/mentionsInput').then(() => {
       const message = htmlDecodeReg(
         createLinksForMessage(_.assign({ noLink: true }, postItem))
           .replace(/<br>/g, '\n')
@@ -113,13 +122,6 @@ export default class EditPostDialog extends React.Component {
           showCategory: true,
         })
         .mentionsInput('setValue', message, messageMentions, mentionsCollection);
-
-      $('#updaterEditFor_' + postItem.postID).SelectGroup({
-        defaultValue: {
-          project: _.map(postItem.scope.shareProjects, p => p.projectId),
-          group: _.map(postItem.scope.shareGroups, g => g.groupId),
-        },
-      });
     });
   }
 
@@ -128,6 +130,7 @@ export default class EditPostDialog extends React.Component {
       alert(_l('文件上传中，请稍等'), 3);
       return;
     }
+    const { scope } = this.state;
     const { postItem } = this.props;
     const { postID } = postItem;
     const $textarea = $(ReactDOM.findDOMNode(this.textarea)).parent().find('textarea');
@@ -140,11 +143,9 @@ export default class EditPostDialog extends React.Component {
         alert(_l('发表内容过长，最多允许6000个字符'), 3);
         return false;
       }
-      const $selectGroup = $('#updaterEditFor_' + postID);
-      const scope = $selectGroup.SelectGroup('getScope');
+
       if (!scope) {
         alert(_l('请选择群组'), 3);
-        $selectGroup.SelectGroup('slideDown');
         return;
       }
 
@@ -179,9 +180,20 @@ export default class EditPostDialog extends React.Component {
     });
   }
 
+  handleChangeGroup = value => {
+    this.setState({
+      scope:
+        !value.isMe && !(value.shareGroupIds || []).length && !(value.shareProjectIds || []).length && !(value.radioProjectIds || []).length
+          ? undefined
+          : _.pick(value, ['radioProjectIds', 'shareGroupIds', 'shareProjectIds']),
+    });
+  };
+
   render() {
     const { postItem } = this.props;
+
     if (!postItem) return false;
+
     return (
       <Dialog
         className="editUpdaterDialog"
@@ -191,8 +203,16 @@ export default class EditPostDialog extends React.Component {
         visible={this.state.visible}
         title={_l('编辑动态')}
         footer={
-          <div className="footer">
-            <input type="hidden" id={`updaterEditFor_${this.props.postItem.postID}`} />
+          <FooterWrap className="footer">
+            <span className="flex"></span>
+            <SelectGroupTrigger
+              defaultValue={{
+                shareProjectIds: _.map(postItem.scope.shareProjects, p => p.projectId),
+                shareGroupIds: _.map(postItem.scope.shareGroups, g => g.groupId),
+                isMe: !postItem.scope.shareProjects.length && !postItem.scope.shareGroups.length,
+              }}
+              onChange={this.handleChangeGroup}
+            />
             <Button
               id={`textareaUpdaterEdit_${this.props.postItem.postID}`}
               loading={this.state.submitting}
@@ -200,7 +220,7 @@ export default class EditPostDialog extends React.Component {
             >
               {_l('确定')}
             </Button>
-          </div>
+          </FooterWrap>
         }
         onCancel={() => this.props.dispose()}
       >

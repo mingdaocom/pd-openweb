@@ -139,7 +139,7 @@ export default class Container extends React.Component {
           key={version}
         />
         {loginDisabled && <div className="loadingLine"></div>}
-        <div className="mTop16 clearfix Font14">
+        <div className="mTop24 clearfix Font14">
           {loginMode !== 2 && (
             <div className="Left">
               <a
@@ -155,7 +155,7 @@ export default class Container extends React.Component {
             </div>
           )}
           <div
-            className="cbRememberPasswordDiv Right Hand flexRow alignItemsCenter"
+            className="cbRememberPasswordDiv Gray Font14 Right Hand flexRow alignItemsCenter"
             onClick={() => {
               setData({ isCheck: !isCheck });
             }}

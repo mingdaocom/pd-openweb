@@ -203,7 +203,7 @@ export default class App extends Component {
               <Route
                 path="*"
                 render={() => {
-                  window.location.replace('/dashboard');
+                  window.location.replace('/404');
                   return null;
                 }}
               />

@@ -143,6 +143,14 @@ export function quickFilter(state = [], action) {
       return state;
   }
 }
+export function quickFilterWithDefault(state = [], action) {
+  switch (action.type) {
+    case 'WORKSHEET_UPDATE_QUICK_FILTER_WITH_DEFAULT':
+      return [...action.filter];
+    default:
+      return state;
+  }
+}
 
 export function navGroupFilters(state = [], action) {
   switch (action.type) {

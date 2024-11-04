@@ -154,10 +154,13 @@ class TaskCanvas extends Component {
       nodeType,
       nodeConfig,
     }).then(res => {
-      const { errorMsg, errorMsgList, isSucceeded, toAdd, toDeleteIds, toUpdate, srcIsDb } = res;
+      let { errorMsg, errorMsgList, isSucceeded, toAdd, toDeleteIds, toUpdate, srcIsDb } = res;
       if (res.failed) {
         alert(res.errorMsg, 2);
         return;
+      }
+      if (_.get(node, 'nodeConfig.config.scheduleConfig.isUpdate')) {
+        node.nodeConfig.config.scheduleConfig.isUpdate = false;
       }
       this.onCompute({
         toUpdate: !!toUpdate

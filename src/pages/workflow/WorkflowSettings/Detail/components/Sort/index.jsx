@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dropdown } from 'ming-ui';
-import { CONTROLS_NAME } from '../../../enum';
+import { getControlTypeName } from '../../../utils';
 import _ from 'lodash';
 
 export default ({ controls, sorts, updateSource }) => {
@@ -16,7 +16,7 @@ export default ({ controls, sorts, updateSource }) => {
       return {
         text: (
           <div className="ellipsis">
-            <span className="field">[{CONTROLS_NAME[item.type]}]</span>
+            <span className="field">[{getControlTypeName(item)}]</span>
             <span>{item.controlName}</span>
           </div>
         ),
@@ -36,13 +36,25 @@ export default ({ controls, sorts, updateSource }) => {
       (type === 37 && enumDefault2 === 6) ||
       (type === 38 && enumDefault === 1)
     ) {
-      ruleSort = [{ text: '1 → 9', value: true }, { text: '9 → 1', value: false }];
+      ruleSort = [
+        { text: '1 → 9', value: true },
+        { text: '9 → 1', value: false },
+      ];
     } else if (type === 2) {
-      ruleSort = [{ text: _l('A → Z'), value: true }, { text: _l('Z → A'), value: false }];
+      ruleSort = [
+        { text: _l('A → Z'), value: true },
+        { text: _l('Z → A'), value: false },
+      ];
     } else if (type === 46) {
-      ruleSort = [{ text: _l('最早的在前'), value: true }, { text: _l('最晚的在前'), value: false }];
+      ruleSort = [
+        { text: _l('最早的在前'), value: true },
+        { text: _l('最晚的在前'), value: false },
+      ];
     } else {
-      ruleSort = [{ text: _l('最新的在前'), value: false }, { text: _l('最旧的在前'), value: true }];
+      ruleSort = [
+        { text: _l('最新的在前'), value: false },
+        { text: _l('最旧的在前'), value: true },
+      ];
     }
 
     ruleControls = [ruleControls].concat([

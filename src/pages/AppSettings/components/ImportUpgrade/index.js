@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import EmptyStatus from '../EmptyStatus';
 import UpgradeProcess from './components/UpgradeProcess';
 import AppSettingHeader from '../AppSettingHeader';
-import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { getFeatureStatus, buriedUpgradeVersionDialog, dateConvertToUserZone } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
@@ -98,7 +98,9 @@ export default class AppImportUpgrade extends Component {
                     <div className="Gray_a4 mBottom8">{_l(`${creater.fullName} 操作导入升级`)}</div>
                     <div>{fileName}</div>
                   </div>
-                  <div className="Gray_a4 Font12 mRight20 pTop2">{createTime}</div>
+                  <div className="Gray_a4 Font12 mRight20 pTop2">
+                    {createTimeSpan(dateConvertToUserZone(createTime))}
+                  </div>
                 </div>
               );
             })}

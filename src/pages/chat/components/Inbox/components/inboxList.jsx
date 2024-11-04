@@ -7,8 +7,12 @@ import inboxController from 'src/api/inbox';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import Button from 'ming-ui/components/Button';
 import Message from './inboxMessage';
+import { isWithinOneHour } from '../util';
+import * as actions from '../../../redux/actions';
+import { connect } from 'react-redux';
 import _ from 'lodash';
 
+@connect()
 export default class InboxList extends React.Component {
   static propTypes = {
     inboxFavorite: PropTypes.bool,
@@ -32,8 +36,9 @@ export default class InboxList extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (
-      !_.isEqual(_.omit(nextProps, 'count'), _.omit(this.props, 'count')) ||
-      nextProps.count && nextProps.count !== this.props.count
+      !_.isEqual(_.omit(nextProps, 'count', 'requestNow'), _.omit(this.props, 'count', 'requestNow')) ||
+      nextProps.count && nextProps.count !== this.props.count ||
+      (nextProps.requestNow && !isWithinOneHour(nextProps.requestNow))
     ) {
       this.setState(
         {
@@ -44,6 +49,7 @@ export default class InboxList extends React.Component {
         },
         () => {
           this.fetchInboxList();
+          this.props.dispatch(actions.updateInoxRequestNow(nextProps.inboxType));
         }
       );
     }

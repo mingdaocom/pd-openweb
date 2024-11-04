@@ -30,6 +30,11 @@ import imgPng4_4 from './img/4-4.png';
 import imgPng5 from './img/5.png';
 import imgPng6 from './img/6.png';
 import imgPng7 from './img/7.png';
+import scan1 from '../../workwx/workwxSyncCourse/img/scan1.png';
+import scan2 from './img/scan2.png';
+import scan3 from '../../workwx/workwxSyncCourse/img/scan3.png';
+import scan4 from './img/scan4.png';
+import scan5 from './img/scan5.png';
 import wechat_workPng from './img/wechat_work.png';
 import moment from 'moment';
 
@@ -57,6 +62,7 @@ export default class DingSyncCourse extends React.Component {
       AgentId: null,
       Secret: null,
       baseUrl: '',
+      scanSafeDomain: '',
       createLinkVisible: false,
     };
   }
@@ -142,6 +148,7 @@ export default class DingSyncCourse extends React.Component {
             pcHomeUrl: res.pcHomeUrl,
             AgentId: res.agentId,
             baseUrl: res.baseUrl,
+            scanSafeDomain: res.scanSafeDomain,
           });
           if (this.state.addApp) {
             this.getDetail(apkId);
@@ -406,6 +413,42 @@ export default class DingSyncCourse extends React.Component {
     );
   };
 
+  renderScanContent = () => {
+    const { scanSafeDomain } = this.state;
+    return (
+      <div className="scanWorkwx" style={{ height: 2524 }}>
+        <h3 className="Font18 Gray mTop40">{_l('钉钉扫码登录（可选）')}</h3>
+        <p className="mTop24">{_l('开启后，在二级域名下使用钉钉扫一扫，直接登录')}</p>
+        <p className="Font14 Gray_75 mTop20 LineHeight22">{_l('1.设置二级域名')}</p>
+        <p className="mTop10">{_l('如果您还没有申请二级域名，请前往 组织 — 组织信息 — 二级域名 处进行配置。')}</p>
+        <img src={scan1} />
+        <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('2.填写重定向 URL（授权回调域名）')}</p>
+        <div className="inputList mTop20">
+          <span className="inputTitle" style={{ width: 190 }}>
+            {_l('重定向 URL（授权回调域名）')}
+          </span>
+          <input type="text" className="inputBox" readOnly value={scanSafeDomain} />
+          <span
+            className="copyBtn"
+            onClick={() => {
+              copy(scanSafeDomain);
+              alert(_l('已经复制到粘贴板，你可以使用Ctrl+V 贴到需要的地方去了哦'));
+            }}
+          >
+            {_l('复制')}
+          </span>
+        </div>
+        <img src={scan2} />
+
+        <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('3.启用该功能')}</p>
+        <p className="mTop10">{_l('回到组织管理后台的钉钉对接部分，开启第四步的功能开关')}</p>
+        <img src={scan4} />
+        <p className="mTop24">{_l('完成后，从二级域名下登录，点击钉钉的图标，扫一扫即可')}</p>
+        <img src={scan5} />
+      </div>
+    );
+  };
+
   render() {
     if (this.state.loading) {
       return (
@@ -495,10 +538,11 @@ export default class DingSyncCourse extends React.Component {
               </div>
             </div>
           )}
+          {this.renderScanContent()}
           <CreateLinkDialog
             visible={this.state.createLinkVisible}
             isWX={this.state.isWX}
-            baseUrl={this.state.baseUrl}
+            baseUrl={this.state.homeUrl}
             projectId={this.state.projectId}
             onCancel={() => {
               this.setState({ createLinkVisible: false });

@@ -11,7 +11,7 @@ import DiabledInput from './DiabledInput';
 import RelateRecord from './RelateRecord';
 import Cascader from './Cascader';
 import RelateFilter from './RelateFilter';
-import _ from 'lodash';
+import _, { includes } from 'lodash';
 
 export default function (key, props) {
   if (props.isDynamicsource) {
@@ -51,6 +51,13 @@ export default function (key, props) {
       props.type === FILTER_CONDITION_TYPE.ALLCONTAIN)
   ) {
     return <RelateRecord {...props} />;
+  }
+  if (
+    key === CONTROL_FILTER_WHITELIST.NUMBER.value &&
+    props.controlType === 28 &&
+    includes([FILTER_CONDITION_TYPE.EQ, FILTER_CONDITION_TYPE.NE], props.type)
+  ) {
+    return <Options {...props} />;
   }
   switch (key) {
     case CONTROL_FILTER_WHITELIST.NUMBER.value:

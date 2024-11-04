@@ -15,7 +15,7 @@ import worksheetAjax from 'src/api/worksheet';
 import RecordAction from 'mobile/components/RecordInfo/RecordAction';
 import processAjax from 'src/pages/workflow/api/process';
 import { replaceBtnsTranslateInfo } from 'worksheet/util';
-import _ from 'lodash';
+import _, { pick } from 'lodash';
 
 const BatchOptBtn = styled.div`
   display: flex;
@@ -108,7 +108,7 @@ class SheetView extends Component {
     if (sheetRowLoading && sheetView.pageIndex === 1) {
       return (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">
-          <SpinLoading color='primary' />
+          <SpinLoading color="primary" />
         </div>
       );
     }
@@ -248,7 +248,7 @@ class SheetView extends Component {
         </div>
       ),
       confirmText: <span className="Red">{_l('删除')}</span>,
-      onConfirm: this.comfirmDelete
+      onConfirm: this.comfirmDelete,
     });
   };
   triggerCustomBtn = (btn, isAll) => {
@@ -387,11 +387,13 @@ class SheetView extends Component {
       worksheetId,
       viewId,
       changeActionSheetModalIndex,
+      quickFilterWithDefault,
+      updateFilters = () => {},
     } = this.props;
     const { detail } = appDetail;
     let { customBtns = [], showButtons, customButtonLoading } = this.state;
     const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
-    const viewFilters = view.fastFilters
+    const viewFilters = quickFilterWithDefault
       .map(filter => ({
         ...filter,
         control: _.find(sheetControls, c => c.controlId === filter.controlId),
@@ -428,7 +430,8 @@ class SheetView extends Component {
           view={view}
           worksheetInfo={worksheetInfo}
           sheetControls={sheetControls}
-          updateFilters={this.props.updateFilters}
+          updateFilters={updateFilters}
+          quickFilterWithDefault={quickFilterWithDefault}
         />
         {this.renderContent()}
         {batchOptVisible && (canDelete || showCusTomBtn) && (
@@ -487,30 +490,33 @@ class SheetView extends Component {
 }
 
 export default connect(
-  state => ({
-    filters: state.mobile.filters,
-    quickFilter: state.mobile.quickFilter,
-    worksheetInfo: state.mobile.worksheetInfo,
-    currentSheetRows: state.mobile.currentSheetRows,
-    sheetSwitchPermit: state.mobile.sheetSwitchPermit,
-    sheetRowLoading: state.mobile.sheetRowLoading,
-    sheetView: state.mobile.sheetView,
-    batchOptCheckedData: state.mobile.batchOptCheckedData,
-    batchOptVisible: state.mobile.batchOptVisible,
-    worksheetControls: state.mobile.worksheetControls,
-    appDetail: state.mobile.appDetail,
-    sheetViewConfig: state.sheet.sheetview.sheetViewConfig,
-    navGroupFilters: state.sheet.navGroupFilters,
-  }),
+  state => {
+    const { mobile, sheet } = state;
+
+    return {
+      ..._.pick(mobile, [
+        'filters',
+        'quickFilter',
+        'worksheetInfo',
+        'currentSheetRows',
+        'sheetSwitchPermit',
+        'sheetRowLoading',
+        'sheetView',
+        'batchOptCheckedData',
+        'batchOptVisible',
+        'worksheetControls',
+        'appDetail',
+        'quickFilterWithDefault',
+      ]),
+      sheetViewConfig: sheet.sheetview.sheetViewConfig,
+      navGroupFilters: sheet.navGroupFilters,
+    };
+  },
+
   dispatch =>
     bindActionCreators(
       {
-        ..._.pick(actions, [
-          'fetchSheetRows',
-          'updateFilters',
-          'changeBatchOptVisible',
-          'changeBatchOptData',
-        ]),
+        ..._.pick(actions, ['fetchSheetRows', 'updateFilters', 'changeBatchOptVisible', 'changeBatchOptData']),
         refreshWorksheetControls,
       },
       dispatch,

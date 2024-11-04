@@ -69,7 +69,10 @@ export default function SplitLineSection(props) {
       }
 
       if (_.isFunction(setNavVisible)) {
-        setNavVisible();
+        const timer = setTimeout(() => {
+          setNavVisible();
+          clearTimeout(timer);
+        }, 300);
       }
     }
   };

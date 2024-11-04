@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { CONTROLS_NAME } from '../../enum';
+import { getControlTypeName } from '../../utils';
 import { TriggerCondition, TimeSelect } from '../components';
 import { Dropdown } from 'ming-ui';
 import Time from 'ming-ui/components/NewTimePicker';
@@ -28,7 +28,7 @@ export default ({
 
     return (
       <Fragment>
-        <span className="Gray_75 mRight5">[{CONTROLS_NAME[item.type]}]</span>
+        <span className="Gray_75 mRight5">[{getControlTypeName(item)}]</span>
         <span>{item.controlName}</span>
       </Fragment>
     );

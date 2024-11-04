@@ -192,6 +192,7 @@ function ConnectCon(props) {
       hasGetControl,
       hasGetIntroduce,
       hasManageAuth,
+      currentProjectId,
     },
     setState,
   ] = useSetState({
@@ -213,6 +214,7 @@ function ConnectCon(props) {
     hasGetControl: false,
     hasGetIntroduce: false,
     hasManageAuth: props.hasManageAuth,
+    currentProjectId: props.currentProjectId || localStorage.getItem('currentProjectId'),
   });
   const cache = useRef({
     isFix: false,
@@ -334,7 +336,7 @@ function ConnectCon(props) {
     packageVersionAjax
       .add(
         {
-          companyId: localStorage.getItem('currentProjectId'),
+          companyId: currentProjectId,
           defaultFlowNode: {
             actionId: actionId,
             appType: authType,
@@ -391,6 +393,7 @@ function ConnectCon(props) {
         setState({
           nodeInfo: res,
           // loading: false,
+          currentProjectId: res.companyId,
         });
         getParam(res);
         getApiListFetch({ relationId: res.id });
@@ -403,7 +406,7 @@ function ConnectCon(props) {
     packageVersionAjax
       .getApiList(
         {
-          companyId: localStorage.getItem('currentProjectId'),
+          companyId: currentProjectId,
           pageIndex: 1,
           pageSize: 100000, //PageSize,
           keyword: '',
@@ -421,7 +424,7 @@ function ConnectCon(props) {
     processAjax
       .updateProcess(
         {
-          companyId: localStorage.getItem('currentProjectId'),
+          companyId: currentProjectId,
           processId: connectData.id,
           name: info.name,
           explain: info.explain,
@@ -842,6 +845,7 @@ function ConnectCon(props) {
         </div>
         {show && (
           <PublishDialog
+            currentProjectId={currentProjectId}
             onOk={data => {
               upperConnect(data);
             }}

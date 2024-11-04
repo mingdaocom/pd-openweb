@@ -6,6 +6,7 @@ import { addSuccess } from '../../redux/postActions';
 import MyUpdater from '../common/myupdater/myupdater';
 import { connect } from 'react-redux';
 import UploadFiles from 'src/components/UploadFiles';
+import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
 import './updater.css';
 
 /**
@@ -25,6 +26,7 @@ class Updater extends React.Component {
       kcAttachmentData: [],
       temporaryData: [],
       isUploadComplete: true,
+      shareGroup: {},
     };
   }
 
@@ -41,7 +43,7 @@ class Updater extends React.Component {
   componentDidMount() {
     this._isMounted = true;
     const comp = this;
-    $('.myUpdateItem_Content a').each(function() {
+    $('.myUpdateItem_Content a').each(function () {
       if ($(this).data('targetdiv')) {
         $(this).attr('targetdiv', $(this).data('targetdiv'));
       }
@@ -61,7 +63,8 @@ class Updater extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     if (
       nextState.temporaryData.length !== this.state.temporaryData.length ||
-      nextState.kcAttachmentData.length !== this.state.kcAttachmentData.length
+      nextState.kcAttachmentData.length !== this.state.kcAttachmentData.length ||
+      nextState.shareGroup !== this.state.shareGroup
     ) {
       return true;
     }
@@ -81,25 +84,37 @@ class Updater extends React.Component {
   }
 
   post = () => {
+    const { shareGroup } = this.state;
     if (!this.state.isUploadComplete) {
       alert(_l('文件上传中，请稍等'), 3);
       return;
     }
+
     const addPost = postItem => this.props.dispatch(addSuccess(postItem));
     const resultData = {
       attachmentData: this.state.temporaryData,
       kcAttachmentData: this.state.kcAttachmentData,
       isUploadComplete: this.state.isUploadComplete,
+      scope:
+        shareGroup.shareGroupIds.length ||
+        shareGroup.shareProjectIds.length ||
+        shareGroup.radioProjectIds.length ||
+        shareGroup.isMe
+          ? _.pick(shareGroup, ['radioProjectIds', 'shareGroupIds', 'shareProjectIds'])
+          : undefined,
     };
+
     if (!this._isMounted) {
       return;
     }
+
     MyUpdater.PostUpdater(resultData, this.postBtn, result => {
       addPost(result.post);
       this.setState({
         kcAttachmentData: [],
         temporaryData: [],
         isUploadComplete: true,
+        shareGroup: {},
       });
       $('body').click(); // 发布器收起
     });
@@ -173,7 +188,11 @@ class Updater extends React.Component {
     }
   };
 
+  handleSelectGroup = value => this.setState({ shareGroup: value });
+
   render() {
+    const { shareGroup } = this.state;
+
     return (
       <div className="card updaterCard">
         <input type="hidden" id="hidden_UpdaterType" />
@@ -292,7 +311,7 @@ class Updater extends React.Component {
                   {/* 投票*/}
                   <div id="Vote_updater" className="middleContent Hidden" />
 
-                  <div className="Right mTop5">
+                  <div className="Right mTop5 updaterBottomRightCon">
                     <div className="Right" style={{ boxSizing: 'border-box', marginTop: '2px' }}>
                       <input
                         id="button_Share"
@@ -307,7 +326,7 @@ class Updater extends React.Component {
                       />
                     </div>
                     <div className="Right">
-                      <input type="hidden" id="hidden_GroupID_All" value="" />
+                      <SelectGroupTrigger value={shareGroup} onChange={this.handleSelectGroup} />
                     </div>
                   </div>
                   <div className="Clear" />

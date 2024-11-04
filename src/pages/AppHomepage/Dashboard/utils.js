@@ -48,7 +48,7 @@ export const getDashboardColor = color => {
   if (!color || (!_.includes(themeColors, color) && !color.startsWith('#'))) {
     return {
       bgColor: '#f7f8fc',
-      themeColor: '#2196f3',
+      themeColor: '#2196F3',
       activeColor: getRgbaByColor('#2196f3', '0.1'),
       hoverColor: getRgbaByColor('#2196f3', '0.16'),
     };
@@ -60,6 +60,19 @@ export const getDashboardColor = color => {
     activeColor: getRgbaByColor(color, '0.1'),
     hoverColor: getRgbaByColor(color, '0.16'),
   };
+};
+
+export const urlToBase64 = url => {
+  return fetch(url)
+    .then(response => response.blob())
+    .then(blob => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    });
 };
 
 export const coverUrls = [

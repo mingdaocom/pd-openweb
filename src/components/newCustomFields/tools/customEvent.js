@@ -384,7 +384,7 @@ const triggerCustomActions = async props => {
         });
         const splitMessage = String(messageInfo).substr(0, 50);
         if (splitMessage) {
-          alert(splitMessage, Number(advancedSetting.alerttype));
+          alert(splitMessage, Number(advancedSetting.alerttype), undefined, undefined, undefined, { marginTop: 32 });
         }
         break;
       // 播放声音

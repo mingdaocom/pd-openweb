@@ -8,6 +8,7 @@ import {
   replenishRet,
   formatOtherParam,
   addOtherParam,
+  checkOriginUrl
 } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 import preall from 'src/common/preall';
@@ -22,7 +23,7 @@ function start() {
   if (t == '-1') {
     // 小程序
     if (checkLogin()) {
-      if (url) {
+      if (checkOriginUrl(url)) {
         location.href = decodeURIComponent(url);
       } else {
         location.href = isMobile ? `/mobile` : `/app`;
@@ -40,7 +41,7 @@ function start() {
           if (accountResult === 1) {
             preall({ type: 'function' });
             setPssId(sessionId);
-            if (url) {
+            if (checkOriginUrl(url)) {
               location.href = decodeURIComponent(url);
             } else {
               location.href = isMobile ? `/mobile` : `/app`;
@@ -55,7 +56,7 @@ function start() {
     }
   } else if (t == '1') {
     if (checkLogin()) {
-      if (newRet) {
+      if (checkOriginUrl(newRet)) {
         location.href = newRet;
       } else {
         location.href = isMobile ? `/mobile/app/${i}#hideTabBar` : `/app/${i}`;

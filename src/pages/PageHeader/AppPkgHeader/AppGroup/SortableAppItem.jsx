@@ -197,6 +197,7 @@ export default class SortableAppItem extends Component {
             onClick={event => {
               if (this.ids.groupId !== appSectionId) {
                 changeBoardViewData([]);
+                sessionStorage.setItem('addBehaviorLogInfo', JSON.stringify({ type: 'group' }));
               }
               if (appPkg.pcNaviStyle === 2) {
                 const key = `mdAppCache_${md.global.Account.accountId}_${appPkg.id}`;

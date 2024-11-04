@@ -116,7 +116,9 @@ export default function renderText(cell, options = {}) {
           ? 'YYYY-MM-DD HH:mm:ss'
           : getShowFormat(cell);
         const dateTime = type === 16 && !options.doNotHandleTimeZone ? dateConvertToUserZone(cell.value) : cell.value;
-        value = getDateToEn(showFormat, dateTime, advancedSetting.showformat);
+        value = ['partal_regtime', 'dtime'].includes(cell.controlId)
+          ? createTimeSpan(dateTime)
+          : getDateToEn(showFormat, dateTime, advancedSetting.showformat);
         break;
       case 46: // TIME 时间
         if (_.isEmpty(value)) {
@@ -169,7 +171,10 @@ export default function renderText(cell, options = {}) {
         } catch (err) {
           value = '';
         }
-        value = _.isObject(parsedData) ? `${parsedData.title || ''} ${parsedData.address || ''}` : '';
+        value =
+          _.isObject(parsedData) && (parsedData.title || parsedData.address)
+            ? `${parsedData.title || ''} ${parsedData.address || ''}`
+            : '';
         break;
       // 组件
       case 9: // OPTIONS 单选 平铺

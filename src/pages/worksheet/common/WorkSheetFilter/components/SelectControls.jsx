@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { func, shape, string } from 'prop-types';
 import { Menu, MenuItem, Input } from 'ming-ui';
 import cx from 'classnames';
@@ -17,12 +17,20 @@ export default function SelectControls(props) {
     selected = [],
     onAdd = () => {},
     onClose = () => {},
+    visible,
   } = props;
   const inputRef = useRef();
   const [keyword, setKeyword] = useState('');
   const controls = keyword
     ? props.controls.filter(c => c.controlName.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
     : props.controls;
+
+  useLayoutEffect(() => {
+    if (visible && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [visible]);
+
   return (
     <div className={cx('addFilterPopup', className)} style={style}>
       <div className="columnsFilter">

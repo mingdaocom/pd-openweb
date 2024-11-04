@@ -26,6 +26,9 @@ export const CAN_AS_RICH_TEXT_DYNAMIC_FIELD = [
   2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 25, 26, 27, 28, 31, 32, 33, 35, 36, 40, 41, 46, 47, 48, 50,
 ];
 
+// 可以作为定位的控件
+export const CAN_AS_LOCATION_DYNAMIC_FIELD = [40];
+
 // 可以作为地区动态值的控件
 export const CAN_AS_AREA_DYNAMIC_FIELD = [19, 23, 24];
 
@@ -42,16 +45,16 @@ export const CAN_AS_SWITCH_DYNAMIC_FIELD = [36];
 export const CAN_AS_ORG_ROLE_DYNAMIC_FIELD = [48, 26];
 
 // 有其他动态值的控件
-export const CAN_AS_OTHER_DYNAMIC_FIELD = [3, 5, 15, 16, 26, 27, 46, 48];
+export const CAN_AS_OTHER_DYNAMIC_FIELD = [3, 5, 15, 16, 26, 27, 40, 46, 48];
 
 // 有函数动态值的控件
-export const CAN_AS_FX_DYNAMIC_FIELD = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 28, 36, 41, 46];
+export const CAN_AS_FX_DYNAMIC_FIELD = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 28, 36, 40, 41, 46];
 
 // 没有动态字段值的控件
 export const CAN_NOT_AS_FIELD_DYNAMIC_FIELD = [34];
 
 //日期
-export const CAN_SHOW_CLEAR_FIELD = [15, 16, 46];
+export const CAN_SHOW_CLEAR_FIELD = [15, 16, 40, 46];
 
 // 普通数组
 export const CAN_AS_ARRAY_DYNAMIC_FIELD = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 28, 46];
@@ -89,7 +92,7 @@ export const SYSTEM_FIELD_TO_TEXT = {
 
 // 控件规则匹配规则 未保存的控件正则 匹配uuid 已保存的控件正则 形如 $5e047c2ab2bfdd0001e9b8f9$
 export const FIELD_REG_EXP =
-  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg)?))?\$/g;
+  /\$((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|current-location|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg)?)(~((\w{8}(-\w{4}){3}-\w{12})|(\w{24}|caid|ownerid|utime|ctime|userId|phone|email|language|projectId|appId|groupId|worksheetId|viewId|recordId|ua|timestamp|search-keyword|ocr-file|ocr-file-url|current-location|empty|user-self|current-time|wfname|wfcuaids|wfcaid|wfctime|wfrtime|wfftime|wfstatus|rowid|uaid|codeResult|triggerTime|triggerUser|triggerDepartment|triggerOrg)?))?\$/g;
 
 export const TIME_TYPES = [
   {
@@ -160,6 +163,10 @@ export const CUR_EMPTY_TYPES = [
   },
 ];
 
+export const CUR_LOCATION_TYPES = [
+  { icon: 'icon-location_on', key: 'location', id: 'current-location', text: _l('当前位置') },
+];
+
 export const CHECKBOX_TYPES = [
   { id: '0', text: _l('不选中') },
   { id: '1', text: _l('选中') },
@@ -190,6 +197,7 @@ export const CONTROL_TYPE = {
   34: 'subList',
   35: 'cascader',
   36: 'switch',
+  40: 'location',
   41: 'richtext',
   46: 'time',
   48: 'role',
@@ -231,6 +239,7 @@ export const OTHER_FIELD_TYPE = {
   TRIGGER_USER: 'triggerUser',
   TRIGGER_DEPARTMENT: 'triggerDepartment',
   TRIGGER_ORG: 'triggerOrg',
+  Location: 'location',
 };
 
 export const CURRENT_TYPES = {
@@ -240,6 +249,7 @@ export const CURRENT_TYPES = {
   16: TIME_TYPES,
   26: CUR_USER,
   27: [{ icon: 'icon-department', key: 'dept', id: 'user-departments', text: _l('当前用户所在部门') }],
+  40: CUR_LOCATION_TYPES,
   46: CUR_TIME_TYPES,
   48: [{ icon: 'icon-group', key: 'role', id: 'user-role', text: _l('当前用户的组织角色') }],
   2: CUR_SEARCH_TYPES,
@@ -331,4 +341,9 @@ export const DYNAMIC_FROM_MODE = {
   OCR_PARAMS: 3, // OCR集成参数
   WATER_MASK: 4, // 附件水印
   CUSTOM_PHP: 5, // 自定义页面---封装业务流程
+  SEARCH_WORKSHEET: 6, // 查询工作表
+  USER_CONFIG: 7, // 成员选择范围
+  ORG_CONFIG: 8, // 组织角色选择范围
+  CUSTOM_EVENT: 9, // 自定义事件
+  FAST_FILTER: 10, // 快速筛选
 };

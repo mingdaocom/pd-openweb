@@ -35,7 +35,7 @@ const MULTI_SELECT_DISPLAY = [
 ];
 
 export default function DropdownCom({ data, onChange, globalSheetInfo, fromPortal, fromExcel }) {
-  const { showtype = '0', direction, otherrequired = '0' } = getAdvanceSetting(data);
+  const { showtype = '0', direction, otherrequired = '0', readonlyshowall } = getAdvanceSetting(data);
   const FILTER_OPTIONS_DISPLAY = fromPortal ? OPTIONS_DISPLAY.filter(i => i.value !== '2') : OPTIONS_DISPLAY;
   return (
     <Fragment>
@@ -51,6 +51,7 @@ export default function DropdownCom({ data, onChange, globalSheetInfo, fromPorta
                 ...handleAdvancedSettingChange(data, {
                   showtype: value,
                   otherrequired: value === '2' ? '0' : otherrequired,
+                  readonlyshowall: value === '1' ? readonlyshowall : '',
                 }),
                 type: _.get(
                   _.find(OPTIONS_DISPLAY, i => i.value === value),

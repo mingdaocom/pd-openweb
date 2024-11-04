@@ -192,23 +192,21 @@ export default function AddOrEditSource(props) {
         {!isCreateDialog && (
           <div className="headerMiddle">
             <ul>
-              {SOURCE_DETAIL_TAB_LIST
-                // .filter(
-                //   item => !(item.key === DETAIL_TYPE.TIMING_SETTING && dataSource.type !== DATABASE_TYPE.SAP_HANA),
-                // )
-                .map((item, index) => {
-                  return (
-                    <li
-                      key={index}
-                      className={cx({
-                        isCur: item.key === currentTab || (!currentTab && item.key === DETAIL_TYPE.SETTING),
-                      })}
-                      onClick={() => setCurrentTab(item.key)}
-                    >
-                      <a className="pLeft18">{item.text}</a>
-                    </li>
-                  );
-                })}
+              {SOURCE_DETAIL_TAB_LIST.filter(
+                item => !(item.key === DETAIL_TYPE.TIMING_SETTING && dataSource.type !== DATABASE_TYPE.HANA),
+              ).map((item, index) => {
+                return (
+                  <li
+                    key={index}
+                    className={cx({
+                      isCur: item.key === currentTab || (!currentTab && item.key === DETAIL_TYPE.SETTING),
+                    })}
+                    onClick={() => setCurrentTab(item.key)}
+                  >
+                    <a className="pLeft18">{item.text}</a>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
@@ -278,7 +276,11 @@ export default function AddOrEditSource(props) {
           )}
 
           {currentTab === DETAIL_TYPE.TIMING_SETTING && (
-            <TimingSettingList projectId={currentProject.projectId} sourceId={sourceId} />
+            <TimingSettingList
+              projectId={currentProject.projectId}
+              sourceId={sourceId}
+              onViewUseDetail={() => setCurrentTab(DETAIL_TYPE.USE_DETAIL)}
+            />
           )}
 
           {currentTab === DETAIL_TYPE.USE_DETAIL && (

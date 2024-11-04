@@ -716,7 +716,8 @@ export default class extends Component {
               newRecord.lineSubTotal = Number(valueMap[item.t_id][subTotal]);
             }
             newRecord.showNumber = (record.isSubTotal && newRecord.type === 'columns') ? true : showNumber;
-            newRecord.showPercent = (subTotal || newRecord.key === 'sum' && !record.isSubTotal && newRecord.type === 'columns') && percent.enable && percent.type;
+            // newRecord.showPercent = (subTotal || newRecord.key === 'sum' && !record.isSubTotal && newRecord.type === 'columns') && percent.enable && percent.type;
+            newRecord.showPercent = false;
             return this.renderBodyTd(value, newRecord, item.t_id, controlMinAndMax);
           },
         });

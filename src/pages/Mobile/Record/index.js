@@ -1,4 +1,4 @@
-import React, { Fragment, Component, forwardRef, useMemo, useEffect } from 'react';
+import React, { Fragment, Component, forwardRef, useMemo, useEffect, useState } from 'react';
 import AppPermissions from '../components/AppPermissions';
 import RecordInfo from 'mobile/components/RecordInfo/RecordInfo';
 import cx from 'classnames';
@@ -8,6 +8,7 @@ import { configureStore } from 'src/redux/configureStore';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
+import Back from 'mobile/components/Back';
 
 const RecordInfoPage = props => {
   const { params } = props.match;
@@ -48,6 +49,7 @@ export const RecordInfoModal = forwardRef((props, ref) => {
   } = props;
   const { className, visible, onClose } = props;
   const store = useMemo(configureStore, []);
+  const [isEditable, setIsEditable] = useState(false);
 
   if (!visible) return null;
 
@@ -68,6 +70,7 @@ export const RecordInfoModal = forwardRef((props, ref) => {
         hideOtherOperate={hideOtherOperate}
         allowEmptySubmit={allowEmptySubmit}
         updateSuccess={updateSuccess}
+        updateEditStatus={isEditable => setIsEditable(isEditable)}
       />
     </Provider>
   );
@@ -85,6 +88,16 @@ export const RecordInfoModal = forwardRef((props, ref) => {
       visible={visible}
     >
       {rowId && Content}
+
+      {!isEditable && (
+        <Back
+          icon="back"
+          className="Fixed"
+          style={{ bottom: window.isWxWork ? 130 : 120 }}
+          onClick={onClose}
+          filterWxWork={true}
+        />
+      )}
     </Popup>
   );
 });

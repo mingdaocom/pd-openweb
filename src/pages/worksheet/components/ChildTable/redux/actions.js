@@ -1,5 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
-import { handleSortRows, postWithToken, download, filterEmptyChildTableRows } from 'worksheet/util';
+import {
+  handleSortRows,
+  postWithToken,
+  download,
+  filterEmptyChildTableRows,
+  getRelateRecordCountOfControlFromRow,
+} from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
 import _, { get, includes, isString, pick } from 'lodash';
 import { treeDataUpdater, handleUpdateTreeNodeExpansion } from 'worksheet/common/TreeTableHelper';
@@ -13,11 +19,12 @@ export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, getN
     const { base = {}, rows = [], treeTableViewData } = getState();
     const { control } = base;
     const { treeMap, maxLevel } = treeTableViewData;
-    let controlIdForGetRelationRows;
+    let controlForGetRelationRows, controlIdForGetRelationRows;
     try {
-      controlIdForGetRelationRows = control.relationControls.filter(
+      controlForGetRelationRows = control.relationControls.filter(
         c => c.sourceControlId === control.advancedSetting.layercontrolid,
-      )[0].controlId;
+      )[0];
+      controlIdForGetRelationRows = controlForGetRelationRows.controlId;
     } catch (err) {
       console.log(err);
     }
@@ -33,7 +40,12 @@ export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, getN
             pageSize: 50,
           })
           .then(res => {
-            const newRows = res.data.map(r => ({ ...r, pid: row.rowid, isAddByTree: true }));
+            const newRows = res.data.map(r => ({
+              ...r,
+              pid: row.rowid,
+              isAddByTree: true,
+              childrenids: getRelateRecordCountOfControlFromRow(controlForGetRelationRows, r) > 0 ? '[]' : '',
+            }));
             dispatch(addRows(newRows));
             return newRows;
           }));

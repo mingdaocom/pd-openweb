@@ -40,22 +40,25 @@ const Wrap = styled.div`
   }
 `;
 export default function PublishDialog(props) {
-  const [{ info, selectedList, list, isCheckAll, connectInfo, status, loadingList, loadingDetail }, setState] =
-    useSetState({
-      connectInfo: props.connectInfo,
-      info: props.info || {
-        name: _.get(props, 'connectInfo.name'),
-        explain: _.get(props, 'connectInfo.explain'),
-        accountId: md.global.Account.accountId,
-        companyId: '',
-      },
-      list: props.list || [],
-      selectedList: (props.list || []).map(o => o.id),
-      isCheckAll: true,
-      status: props.status,
-      loadingList: true,
-      loadingDetail: true,
-    });
+  const [
+    { info, selectedList, list, isCheckAll, connectInfo, status, loadingList, loadingDetail, currentProjectId },
+    setState,
+  ] = useSetState({
+    connectInfo: props.connectInfo,
+    info: props.info || {
+      name: _.get(props, 'connectInfo.name'),
+      explain: _.get(props, 'connectInfo.explain'),
+      accountId: md.global.Account.accountId,
+      companyId: '',
+    },
+    list: props.list || [],
+    selectedList: (props.list || []).map(o => o.id),
+    isCheckAll: true,
+    status: props.status,
+    loadingList: true,
+    loadingDetail: true,
+    currentProjectId: props.currentProjectId || localStorage.getItem('currentProjectId'),
+  });
   useEffect(() => {
     if (props.isGetData) {
       getApiListFetch();
@@ -79,7 +82,7 @@ export default function PublishDialog(props) {
     );
   };
   const getApiListFetch = () => {
-    const { id, currentProjectId } = props;
+    const { id } = props;
     packageVersionAjax
       .getApiList(
         {
@@ -226,7 +229,7 @@ export default function PublishDialog(props) {
                                 return;
                               }
                               setState({
-                                info: { ...info, companyId: localStorage.getItem('currentProjectId'), accountId: '' },
+                                info: { ...info, companyId: currentProjectId, accountId: '' },
                               });
                             }}
                           />
@@ -245,9 +248,7 @@ export default function PublishDialog(props) {
                           value={
                             !!info.accountId
                               ? md.global.Account.fullname
-                              : md.global.Account.projects.find(
-                                  o => o.projectId === localStorage.getItem('currentProjectId'),
-                                ).companyName
+                              : md.global.Account.projects.find(o => o.projectId === currentProjectId).companyName
                           }
                           readOnly
                           placeholder={_l('请输入')}

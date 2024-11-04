@@ -32,14 +32,11 @@ export default class VersionUpgrade extends Component {
     this.getUnPaidOrder();
     this.getProjectContractInfo();
     window.addEventListener('scroll', this.handleScroll);
-    const { select, goToPost } = getRequest(location.search);
+    const { select } = getRequest(location.search);
     if (select) {
       this.setState({ activeVersion: Number(select) }, this.getProductPrice);
     } else {
       this.getProductPrice();
-    }
-    if (goToPost === 'true') {
-      this.toPurchase();
     }
   }
 

@@ -76,24 +76,25 @@ export default function SearchConfig(props) {
           onChange({ searchcontrol: value });
         }}
       />
-
-      <div className="configItem">
-        <div className="settingTitle">{_l('搜索方式')}</div>
-        <RadioGroup
-          checkedValue={searchtype}
-          className="mTop8"
-          data={[
-            { value: '0', text: _l('模糊搜索') },
-            { value: '1', text: _l('精确搜索') },
-          ]}
-          onChange={value => {
-            if (value == searchtype) {
-              return;
-            }
-            onChange({ searchtype: value });
-          }}
-        />
-      </div>
+      {searchcontrol && (
+        <div className="configItem">
+          <div className="settingTitle">{_l('搜索方式')}</div>
+          <RadioGroup
+            checkedValue={searchtype}
+            className="mTop8"
+            data={[
+              { value: '1', text: _l('精确搜索') },
+              { value: '0', text: _l('模糊搜索') },
+            ]}
+            onChange={value => {
+              if (value == searchtype) {
+                return;
+              }
+              onChange({ searchtype: value });
+            }}
+          />
+        </div>
+      )}
       <div className="configItem">
         <Checkbox
           className="mTop8"

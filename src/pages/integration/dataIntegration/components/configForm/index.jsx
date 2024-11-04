@@ -393,7 +393,7 @@ export default function ConfigForm(props) {
               setSaveDisabled(!(_.includes(['name', 'roleType'], changed[0]) && isEditSource));
             }}
           />
-          {sshEnable && connectorConfigData[roleType].type !== DATABASE_TYPE.SAP_HANA && (
+          {sshEnable && connectorConfigData[roleType].type !== DATABASE_TYPE.HANA && (
             <SSHConnect
               projectId={props.currentProjectId}
               data={connectorConfigData[roleType].formData}

@@ -28,7 +28,7 @@ import { pick } from 'lodash';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
 import { defaultConfig } from 'src/pages/customPage/components/ConfigSideWrap';
-import { getTranslateInfo } from 'src/util';
+import { getTranslateInfo, addBehaviorLog } from 'src/util';
 
 const CustomPageContentWrap = styled.div`
   flex: 1;
@@ -174,6 +174,9 @@ function CustomPageContent(props) {
       updateLoading(true);
       pageId && getPage();
     }
+    return () => {
+      updateLoading(true);
+    }
   }, []);
 
   const getPage = () => {
@@ -183,6 +186,7 @@ function CustomPageContent(props) {
       })
       .then(({ components, desc, apk, adjustScreen, name, config, version }) => {
         const componentsData = isMobile ? components.filter(item => item.mobile.visible) : components;
+        addBehaviorLog('customPage', pageId, {}, true);
         updatePageInfo({
           components: componentsData,
           desc,

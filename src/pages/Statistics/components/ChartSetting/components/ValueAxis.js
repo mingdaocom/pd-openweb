@@ -30,7 +30,7 @@ export default class ValueAxis extends Component {
       <Menu className="chartControlMenu chartMenu" expandIcon={<Icon icon="arrow-right-tip" />} subMenuOpenDelay={0.2}>
         {isNumberControl(valueAxis.controlType, false) && (
           <Menu.SubMenu popupClassName="chartMenu" title={_l('计算')} popupOffset={[0, -15]}>
-            {normTypes.filter(n => n.value !== 5).map(item => (
+            {normTypes.filter(n => ![5, 6].includes(n.value)).map(item => (
               <Menu.Item
                 style={{ width: 120, color: item.value === valueAxis.normType ? '#1e88e5' : null }}
                 key={item.value}

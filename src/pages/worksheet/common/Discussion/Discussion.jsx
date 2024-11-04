@@ -11,6 +11,7 @@ const clickAwayExceptions = [
   '.folderSelectDialog',
   '.addLinkFileDialog',
   '#attachemntsPreviewContainer',
+  '.mdEmotion',
 ];
 
 export default class Discussion extends Component {
@@ -18,11 +19,7 @@ export default class Discussion extends Component {
     super(props);
   }
   render() {
-    let hiddenTabs = ['discussPortal', 'approval', 'workflow', 'pay']; //工作表讨论暂时不支持外部讨论功能
-    if (!this.props.logSwitch) {
-      // 工作表日志权限
-      hiddenTabs.push('logs');
-    }
+    let hiddenTabs = ['discussPortal', 'approval', 'workflow', 'pay', 'logs']; //工作表讨论暂时不支持外部讨论功能
     if (!this.props.discussSwitch) {
       // 工作表讨论权限
       hiddenTabs.push('discuss', 'files');
@@ -40,6 +37,7 @@ export default class Discussion extends Component {
             appSectionId={this.props.appSectionId}
             viewId={this.props.viewId}
             rowId=""
+            isWorksheetDiscuss={this.props.isWorksheetDiscuss}
             // addCallback={this.handelAddDiscussion}
           />
         </ClickAwayable>

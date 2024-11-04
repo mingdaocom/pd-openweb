@@ -18,7 +18,7 @@ export const DATABASE_TYPE = {
   TENCENT_MONGODB: 'TENCENT_MONGODB',
   KAFKA: 'KAFKA',
   DB2: 'DB2',
-  SAP_HANA: 'SAP_HANA',
+  HANA: 'HANA',
 };
 
 export const SOURCE_FROM_TYPE = {
@@ -89,7 +89,7 @@ export const TASK_STATUS_TAB_LIST = [
 
 export const SOURCE_DETAIL_TAB_LIST = [
   { key: DETAIL_TYPE.SETTING, text: _l('数据源设置') },
-  // { key: DETAIL_TYPE.TIMING_SETTING, text: _l('定时设置') },
+  { key: DETAIL_TYPE.TIMING_SETTING, text: _l('定时设置') },
   { key: DETAIL_TYPE.USE_DETAIL, text: _l('使用详情') },
 ];
 

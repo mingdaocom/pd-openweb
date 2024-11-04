@@ -10,7 +10,9 @@ import logo from '../images/logo.png';
 import _ from 'lodash';
 
 const Wrap = styled.div`
-  .uploadingImageWrap, .uploadingIconWrap {
+  max-width: 880px;
+  .uploadingImageWrap,
+  .uploadingIconWrap {
     border-radius: 4px;
     border: 2px dotted #ddd;
     &:hover {
@@ -63,11 +65,14 @@ const BrandNameDialog = props => {
           alert('请输入品牌名称');
           return;
         }
-        updateSysSettings({
-          brandName
-        }, () => {
-          md.global.SysSettings.brandName = brandName;
-        });
+        updateSysSettings(
+          {
+            brandName,
+          },
+          () => {
+            md.global.SysSettings.brandName = brandName;
+          },
+        );
         onCancel();
         onSave(brandName);
       }}
@@ -81,7 +86,7 @@ const BrandNameDialog = props => {
       />
     </Dialog>
   );
-}
+};
 
 const BrandName = () => {
   const { SysSettings } = md.global;
@@ -102,11 +107,14 @@ const BrandName = () => {
           onClick={() => {
             const value = !hideBrandName;
             setHideBrandName(value);
-            updateSysSettings({
-              hideBrandName: value
-            }, () => {
-              md.global.SysSettings.hideBrandName = value;
-            });
+            updateSysSettings(
+              {
+                hideBrandName: value,
+              },
+              () => {
+                md.global.SysSettings.hideBrandName = value;
+              },
+            );
           }}
         />
         <div className="mLeft8">{_l('在登录界面显示')}</div>
@@ -117,24 +125,25 @@ const BrandName = () => {
         onCancel={() => {
           setBrandNameDialogVisible(false);
         }}
-        onSave={(value) => {
+        onSave={value => {
           setBrandName(value);
         }}
       />
     </Fragment>
   );
-}
+};
 
 const BrandLogo = () => {
   const { SysSettings } = md.global;
   const [brandLogoUrl, setBrandLogoUrl] = useState(SysSettings.brandLogoUrl);
   const [hideBrandLogo, setHideBrandLogo] = useState(SysSettings.hideBrandLogo);
   const [brandLogoHeight, setBrandLogoHeight] = useState(SysSettings.brandLogoHeight);
+  const [brandLogoRedirectUrl, setBrandLogoRedirectUrl] = useState(SysSettings.brandLogoRedirectUrl);
 
   const handleChangeLogoHeight = value => {
     let height = parseInt(formatNumberFromInput(value) || 0);
     setBrandLogoHeight(height);
-  }
+  };
 
   const handleSaveLogoHeight = () => {
     let value = brandLogoHeight;
@@ -145,12 +154,15 @@ const BrandLogo = () => {
       value = 100;
     }
     setBrandLogoHeight(value);
-    updateSysSettings({
-      brandLogoHeight: value
-    }, () => {
-      md.global.SysSettings.brandLogoHeight = value;
-    });
-  }
+    updateSysSettings(
+      {
+        brandLogoHeight: value,
+      },
+      () => {
+        md.global.SysSettings.brandLogoHeight = value;
+      },
+    );
+  };
 
   useEffect(() => {
     $('#hideUploadBrandLogo').uploadAttachment({
@@ -164,18 +176,21 @@ const BrandLogo = () => {
       styleType: '0',
       tokenType: 4,
       checkProjectLimitFileSizeUrl: '',
-      callback: function(attachments) {
+      callback: function (attachments) {
         if (attachments.length > 0) {
           const attachment = attachments[0];
           const fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;
           const logoName = attachment.fileName + attachment.fileExt;
-          updateSysSettings({
-            brandLogo: logoName,
-          }, () => {
-            setBrandLogoUrl(fullFilePath);
-            md.global.SysSettings.brandLogo = logoName;
-            md.global.SysSettings.brandLogoUrl = fullFilePath;
-          });
+          updateSysSettings(
+            {
+              brandLogo: logoName,
+            },
+            () => {
+              setBrandLogoUrl(fullFilePath);
+              md.global.SysSettings.brandLogo = logoName;
+              md.global.SysSettings.brandLogoUrl = fullFilePath;
+            },
+          );
         }
       },
     });
@@ -187,7 +202,10 @@ const BrandLogo = () => {
       <div className="Font13 Gray_9e mBottom8">{_l('推荐尺寸 400*180 px，显示在登录、注册页面')}</div>
       <div
         id="uploadBrandLogo"
-        className={cx('uploadingImageWrap flexRow valignWrapper pointer', { noBorder: brandLogoUrl, justifyContentCenter: !brandLogoUrl })}
+        className={cx('uploadingImageWrap flexRow valignWrapper pointer', {
+          noBorder: brandLogoUrl,
+          justifyContentCenter: !brandLogoUrl,
+        })}
       >
         <input id="hideUploadBrandLogo" type="file" className="Hidden" />
         {brandLogoUrl ? (
@@ -207,11 +225,14 @@ const BrandLogo = () => {
           onClick={() => {
             const value = !hideBrandLogo;
             setHideBrandLogo(value);
-            updateSysSettings({
-              hideBrandLogo: value
-            }, () => {
-              md.global.SysSettings.hideBrandLogo = value;
-            });
+            updateSysSettings(
+              {
+                hideBrandLogo: value,
+              },
+              () => {
+                md.global.SysSettings.hideBrandLogo = value;
+              },
+            );
           }}
         />
         <div className="mLeft8">{_l('在登录界面显示')}</div>
@@ -233,9 +254,27 @@ const BrandLogo = () => {
           <span className="Gray_9e mLeft15">{_l('长方形推荐40px，方形推荐56px')}</span>
         </div>
       )}
+
+      <div className="mBottom8 mTop10">{_l('LOGO跳转链接')}</div>
+      <Input
+        className=""
+        value={brandLogoRedirectUrl}
+        onBlur={() => {
+          if (brandLogoRedirectUrl === SysSettings.brandLogoRedirectUrl) return;
+          updateSysSettings(
+            {
+              brandLogoRedirectUrl: brandLogoRedirectUrl,
+            },
+            () => {
+              md.global.SysSettings.brandLogoRedirectUrl = brandLogoRedirectUrl;
+            },
+          );
+        }}
+        onChange={value => setBrandLogoRedirectUrl(value.trim())}
+      />
     </Fragment>
   );
-}
+};
 
 export const BrandHomeImage = () => {
   const { SysSettings } = md.global;
@@ -253,18 +292,21 @@ export const BrandHomeImage = () => {
       styleType: '0',
       tokenType: 4,
       checkProjectLimitFileSizeUrl: '',
-      callback: function(attachments) {
+      callback: function (attachments) {
         if (attachments.length > 0) {
           const attachment = attachments[0];
           const fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;
           const name = attachment.fileName + attachment.fileExt;
-          updateSysSettings({
-            brandHomeImage: name,
-          }, () => {
-            setBrandHomeImageUrl(fullFilePath);
-            md.global.SysSettings.brandHomeImage = name;
-            md.global.SysSettings.brandHomeImageUrl = fullFilePath;
-          });
+          updateSysSettings(
+            {
+              brandHomeImage: name,
+            },
+            () => {
+              setBrandHomeImageUrl(fullFilePath);
+              md.global.SysSettings.brandHomeImage = name;
+              md.global.SysSettings.brandHomeImageUrl = fullFilePath;
+            },
+          );
         }
       },
     });
@@ -274,24 +316,51 @@ export const BrandHomeImage = () => {
     <Wrap>
       <div className="Font14 bold mBottom8">{_l('背景图')}</div>
       <div className="Font13 Gray_9e mBottom8">{_l('登录页背景图，推荐尺寸 1920*900，2 M以内')}</div>
-      <div id="uploadBrandHomeImage" className={cx('uploadingImageWrap flexRow valignWrapper pointer', { noBorder: brandHomeImageUrl, justifyContentCenter: !brandHomeImageUrl })}>
-        <input id="hideUploadBrandHomeImage" type="file" className="Hidden" />
-        {brandHomeImageUrl ? (
-          <Fragment>
-            <img className="h100" src={brandHomeImageUrl} />
-            <div className="uploadMask flexRow valignWrapper justifyContentCenter">
-              <Icon icon="upload_pictures" className="White Font17" />
+      <div className="flexRow alignItemsCenter">
+        <div
+          id="uploadBrandHomeImage"
+          className={cx('uploadingImageWrap flexRow valignWrapper pointer', {
+            noBorder: brandHomeImageUrl,
+            justifyContentCenter: !brandHomeImageUrl,
+          })}
+        >
+          <input id="hideUploadBrandHomeImage" type="file" className="Hidden" />
+          {brandHomeImageUrl ? (
+            <Fragment>
+              <img className="h100" src={brandHomeImageUrl} />
+              <div className="uploadMask flexRow valignWrapper justifyContentCenter">
+                <Icon icon="upload_pictures" className="White Font17" />
+              </div>
+            </Fragment>
+          ) : (
+            <div className="flexRow valignWrapper justifyContentCenter" style={{ width: 110 }}>
+              <Icon icon="upload_pictures" className="Gray_9e Font20" />
             </div>
-          </Fragment>
-        ) : (
-          <div className="flexRow valignWrapper justifyContentCenter" style={{ width: 110 }}>
-            <Icon icon="upload_pictures" className="Gray_9e Font20" />
-          </div>
+          )}
+        </div>
+        {brandHomeImageUrl && (
+          <span
+            className="clearLogo Hand mLeft15 ThemeHoverColor3"
+            onClick={() =>
+              updateSysSettings(
+                {
+                  brandHomeImage: '',
+                },
+                () => {
+                  setBrandHomeImageUrl('');
+                  md.global.SysSettings.brandHomeImage = '';
+                  md.global.SysSettings.brandHomeImageUrl = 'fullFilePath';
+                },
+              )
+            }
+          >
+            {_l('清除')}
+          </span>
         )}
       </div>
     </Wrap>
   );
-}
+};
 
 const BrandFavicon = () => {
   const { SysSettings } = md.global;
@@ -309,18 +378,21 @@ const BrandFavicon = () => {
       styleType: '0',
       tokenType: 4,
       checkProjectLimitFileSizeUrl: '',
-      callback: function(attachments) {
+      callback: function (attachments) {
         if (attachments.length > 0) {
           const attachment = attachments[0];
           const fullFilePath = attachment.serverName + attachment.filePath + attachment.fileName + attachment.fileExt;
           const name = attachment.fileName + attachment.fileExt;
-          updateSysSettings({
-            brandFavicon: name,
-          }, () => {
-            setBrandFaviconUrl(fullFilePath);
-            md.global.SysSettings.brandFavicon = name;
-            md.global.SysSettings.brandFaviconUrl = fullFilePath;
-          });
+          updateSysSettings(
+            {
+              brandFavicon: name,
+            },
+            () => {
+              setBrandFaviconUrl(fullFilePath);
+              md.global.SysSettings.brandFavicon = name;
+              md.global.SysSettings.brandFaviconUrl = fullFilePath;
+            },
+          );
         }
       },
     });
@@ -329,8 +401,16 @@ const BrandFavicon = () => {
   return (
     <Fragment>
       <div className="Font14 bold mBottom8">{_l('Favicon')}</div>
-      <div className="Font13 Gray_9e mBottom8">{_l('推荐尺寸 32*32 px，文件格式ico，显示在浏览器页签、浏览器收藏夹')}</div>
-      <div id="uploadBrandFavicon" className={cx('uploadingIconWrap flexRow valignWrapper pointer', { noBorder: brandFaviconUrl, justifyContentCenter: !brandFaviconUrl })}>
+      <div className="Font13 Gray_9e mBottom8">
+        {_l('推荐尺寸 32*32 px，文件格式ico，显示在浏览器页签、浏览器收藏夹')}
+      </div>
+      <div
+        id="uploadBrandFavicon"
+        className={cx('uploadingIconWrap flexRow valignWrapper pointer', {
+          noBorder: brandFaviconUrl,
+          justifyContentCenter: !brandFaviconUrl,
+        })}
+      >
         <input id="hideUploadBrandFavicon" type="file" className="Hidden" />
         {brandFaviconUrl ? (
           <Fragment>
@@ -345,7 +425,7 @@ const BrandFavicon = () => {
       </div>
     </Fragment>
   );
-}
+};
 
 const Brand = props => {
   return (
@@ -358,6 +438,6 @@ const Brand = props => {
       <BrandFavicon />*/}
     </Wrap>
   );
-}
+};
 
 export default Brand;

@@ -141,6 +141,7 @@ export default class RecordCardListDialog extends Component {
       getDataType,
       relationRowIds = [],
       isScan,
+      fastSearchControlArgs,
     } = this.props;
     const { pageIndex, keyWords, list, sortControls, worksheetInfo, isScanSearch } = this.state;
     let getFilterRowsPromise, args;
@@ -234,6 +235,29 @@ export default class RecordCardListDialog extends Component {
         filterControls,
         fastFilters,
       };
+    }
+    if (fastSearchControlArgs) {
+      delete args['keyWords'];
+      if (String(keyWords || '').trim()) {
+        args.fastFilters = [
+          {
+            spliceType: 1,
+            isGroup: true,
+            groupFilters: [
+              {
+                controlId: fastSearchControlArgs.controlId,
+                dataType: 2,
+                spliceType: 1,
+                filterType: fastSearchControlArgs.filterType,
+                dateRange: 0,
+                dateRangeType: 1,
+                isDynamicsource: false,
+                values: [keyWords],
+              },
+            ],
+          },
+        ];
+      }
     }
     if (parentWorksheetId && controlId) {
       args.relationWorksheetId = parentWorksheetId;

@@ -12,6 +12,7 @@ import * as detailView from './detailView';
 import * as customWidgetView from './customWidgetView';
 import mapView from './mapView';
 import * as resourceView from './resourceview';
+import { browserIsMobile } from 'src/util';
 
 function base(state = {}, action) {
   switch (action.type) {
@@ -28,6 +29,9 @@ function base(state = {}, action) {
       if (state.worksheetId === action.value.worksheetId) {
         const showViews = action.value.views.filter(view => {
           const showhide = _.get(view, 'advancedSetting.showhide') || '';
+          if (browserIsMobile()) {
+            return !showhide.includes('spc&happ') && !showhide.includes('hide');
+          }
           return !showhide.includes('hpc') && !showhide.includes('hide');
         });
         return {

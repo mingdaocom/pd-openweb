@@ -113,6 +113,11 @@ const DragItem = styled.div`
   .optionName {
     flex: 1;
     padding: 0 8px;
+    &.repeatError {
+      input {
+        color: #f44336;
+      }
+    }
   }
   .ming.Radio {
     margin: 0;
@@ -149,12 +154,14 @@ function OptionItem({
   const { key, value, isDeleted, color } = item;
   const isOther = key === 'other' && !isDeleted;
 
+  const noDelRepeat = options.filter(o => o.key !== key && o.value === value && !o.isDeleted);
+
   useEffect(() => {
     setValue(isFocus ? value : '');
   }, [isFocus]);
 
   const handleBlurCheck = () => {
-    if (!(value || '').trim()) {
+    if (_.isEmpty(value)) {
       alert(_l('选项不得为空'), 3);
       updateOption(index, { value: originValue });
       setIndex(-1);
@@ -173,11 +180,12 @@ function OptionItem({
       {!isDeleted && (
         <Fragment>
           {!isOther && renderDragHandle()}
-          <div className="optionContent scfdv">
+          <div className="optionContent">
             {colorful && (
               <ColorPicker
                 sysColor
                 isPopupBody
+                lightBefore
                 value={item.color || OPTION_COLORS_LIST[index % OPTION_COLORS_LIST.length]}
                 onChange={color => updateOption(index, { color })}
                 popupAlign={{ points: ['tl', 'bl'], offset: [-260, 10] }}
@@ -187,7 +195,10 @@ function OptionItem({
                 </div>
               </ColorPicker>
             )}
-            <div className="optionName">
+            <div
+              className={cx('optionName', { repeatError: !!noDelRepeat.length })}
+              {...(!!noDelRepeat.length ? { 'data-tip': _l('选项重复') } : {})}
+            >
               <input
                 id={key}
                 autoFocus={isFocus}
@@ -297,7 +308,10 @@ export default function SelectOptions(props) {
 
     setIndex(newIndex);
     setTimeout(() => {
-      document.getElementById(nextKey) && document.getElementById(nextKey).select();
+      const $dom = document.getElementById(nextKey);
+      if ($dom) {
+        $dom.setSelectionRange(0, $dom.value.length);
+      }
     }, 50);
   };
 
@@ -399,24 +413,10 @@ export default function SelectOptions(props) {
       )}
       {batchAddVisible && (
         <BatchAdd
+          data={data}
           options={options}
-          onOk={value => {
-            const getNewItems = () => {
-              const formatOptions = arr =>
-                arr.map((value, index) => ({
-                  key: uuidv4(),
-                  value,
-                  checked: false,
-                  isDeleted: false,
-                  index: (mode === 'edit' ? 0 : options.length) + index + 1,
-                  color: OPTION_COLORS_LIST[(index + 1) % OPTION_COLORS_LIST.length],
-                }));
-              const newOptions = update(options, {
-                $splice: [[findOther > -1 ? findOther : options.length, 0, ...formatOptions(value)]],
-              });
-              return newOptions.map((item, idx) => ({ ...item, index: idx + 1 }));
-            };
-            onChange({ options: getNewItems() });
+          onOk={newAddOptions => {
+            onChange({ options: newAddOptions });
             updateVisible('batchAdd', false);
           }}
           onCancel={() => updateVisible('batchAdd', false)}

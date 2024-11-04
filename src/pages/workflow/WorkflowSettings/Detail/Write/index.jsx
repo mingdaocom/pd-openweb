@@ -122,12 +122,15 @@ export default class Write extends Component {
   /**
    * 更新节点对象数据
    */
-  updateFlowMapSource = (key, obj) => {
+  updateFlowMapSource = (key, obj, callback) => {
     const { data } = this.state;
 
-    this.updateSource({
-      flowNodeMap: Object.assign({}, data.flowNodeMap, { [key]: Object.assign({}, data.flowNodeMap[key], obj) }),
-    });
+    this.updateSource(
+      {
+        flowNodeMap: Object.assign({}, data.flowNodeMap, { [key]: Object.assign({}, data.flowNodeMap[key], obj) }),
+      },
+      callback,
+    );
   };
 
   /**
@@ -394,11 +397,12 @@ export default class Write extends Component {
                     desc={
                       <span>
                         {_l('启用后，待办消息同时会以邮件的形式发送给相关负责人。')}
-                        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && _l('邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
+                        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
+                          _l('邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
                       </span>
                     }
                     flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
-                    updateSource={obj => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj)}
+                    updateSource={(obj, callback) => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj, callback)}
                   />
                   <Checkbox
                     className="mTop15 flexRow"
@@ -420,7 +424,7 @@ export default class Write extends Component {
                       type={3}
                       text={_l('帮助')}
                       className="ThemeColor3 ThemeHoverColor2"
-                      href="https://help.mingdao.com/worksheet/field-filter"
+                      href="https://help.mingdao.com/workflow/node-approve#field"
                     />
                   </div>
 

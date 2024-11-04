@@ -1,9 +1,9 @@
 import React, { Component, Fragment } from 'react';
 import { Steps } from 'antd';
-import { QiniuUpload, Button, Support, Dialog, antNotification, Icon, SvgIcon, Checkbox } from 'ming-ui';
+import { QiniuUpload, Button, Support, Dialog, SvgIcon, Checkbox, LoadDiv } from 'ming-ui';
 import UpgradeDetail from '../UpgradeDetail';
-import UpgradeItemWrap from '../UpgradeItemWrap';
 import UpgradeStatus from '../UpgradeStatus';
+import UpgradeItemWrap from '../UpgradeItemWrap';
 import { UPGARADE_TYPE_LIST, UPGRADE_ERRORMSG, UPGRADE_DETAIL_TYPE_LIST } from '../../../../config';
 import { getCheckedInfo, getViewIcon } from '../../../../util';
 import { formatFileSize } from 'src/util';
@@ -12,14 +12,45 @@ import importDisabledImg from 'src/pages/Admin/app/appManagement/img/import_disa
 import importActiveImg from 'src/pages/Admin/app/appManagement/img/import_active.png';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import cx from 'classnames';
-import './index.less';
 import _ from 'lodash';
+import UpgradeFileList from '../UpgradeFileList';
+import UpgradeSelectApp from '../UpgradeSelectApp';
+import Trigger from 'rc-trigger';
+import './index.less';
 
 const { Step } = Steps;
 
-const items = [{ title: _l('上传文件') }, { title: _l('升级范围') }, { title: _l('开始导入') }];
+const MAX_FILES = 20;
+const ITEMS = [
+  { title: _l('上传文件'), key: 'renderUploadFile' },
+  { title: _l('选择应用'), key: 'renderSelectApp' },
+  { title: _l('升级范围'), key: 'renderUpgradeScope' },
+  { title: _l('开始导入') },
+];
 const detailTypeList = UPGRADE_DETAIL_TYPE_LIST.map(v => v.type);
 const upgradeTypeList = UPGARADE_TYPE_LIST.map(v => v.type);
+const AdvancedConfig = [
+  {
+    label: _l('不更新应用外观导航'),
+    key: 'noUpgradeStyle',
+  },
+  {
+    label: _l('不更新角色的显隐配置'),
+    key: 'roleHide',
+  },
+  {
+    label: _l('导入时匹配人员部门和组织角色'),
+    key: 'matchOffice',
+  },
+  {
+    label: _l('升级时同时备份当前版本'),
+    key: 'backupCurrentVersion',
+  },
+];
+const ERROR_CODE = {
+  6: _l('工作表数量超标'),
+  13: _l('上传的文件不能来源于同一个应用'),
+};
 
 export default class UpgradeProcess extends Component {
   constructor(props) {
@@ -29,6 +60,7 @@ export default class UpgradeProcess extends Component {
       currentWorksheet: {},
       current: 0,
       file: {},
+      files: [],
       errTip: _l('导入文件不在允许升级范围内'),
       compareLoading: false,
       isEncrypt: false,
@@ -42,8 +74,23 @@ export default class UpgradeProcess extends Component {
       worksheetDetailParams: {},
       backupCurrentVersion: true,
       matchOffice: true,
+      noUpgradeStyle: true,
+      roleHide: true,
       showUpgradeStatus: false,
+      batchUpdate: props.type === '2',
+      batchId: '',
+      currentAppIndex: 0,
+      addFilesLoading: false,
+      batchCheckUpgradeLoading: false,
     };
+  }
+
+  componentDidMount() {
+    if (this.state.batchUpdate) {
+      appManagementAjax.getBatchId({ projectId: this.props.projectId }).then(({ batchId }) => {
+        this.setState({ batchId: batchId });
+      });
+    }
   }
 
   getIds = (type, data) => {
@@ -68,14 +115,17 @@ export default class UpgradeProcess extends Component {
 
   checkUpgrade = () => {
     const { appDetail } = this.props;
-    const { file } = this.state;
+    const { file, batchUpdate, current } = this.state;
+
     this.setState({ compareLoading: true });
+
     const params = {
       password: this.state.password || '',
       url: this.state.url,
-      appId: appDetail.id,
+      appId: (appDetail || {}).id,
       fileName: file.name,
     };
+
     appManagementAjax
       .checkUpgrade(params)
       .then(res => {
@@ -86,17 +136,17 @@ export default class UpgradeProcess extends Component {
             {
               isEncrypt: false,
               password: '',
-              current: _.isEmpty(worksheets) ? 0 : 1,
-              contrasts,
-              upgradeId: id,
+              current: batchUpdate ? current : _.isEmpty(worksheets) ? 0 : 1,
               compareLoading: false,
               analyzeLoading: false,
+              errTip: _.isEmpty(worksheets) ? _l('应用中没有可导入的数据') : '',
+              contrasts,
+              upgradeId: id,
               checkedInfo: getCheckedInfo({
                 typeList: upgradeTypeList,
                 source: contrasts,
                 defaultCheckedAll: true,
               }),
-              errTip: _.isEmpty(worksheets) ? _l('应用中没有可导入的数据') : '',
             },
             () => {
               if (_.isEmpty(worksheets)) return;
@@ -124,7 +174,129 @@ export default class UpgradeProcess extends Component {
       });
   };
 
-  renderUploadBtn = chidren => {
+  batchCheckFiles = async (checkFiles, isUpdate = false) => {
+    const { projectId } = this.props;
+    const { batchId } = this.state;
+
+    if (!isUpdate && this.state.files.length) {
+      this.setState({ addFilesLoading: true });
+    }
+
+    const res = [];
+
+    for (let l of checkFiles) {
+      res.push(
+        await appManagementAjax.batchImportCheck({
+          projectId,
+          batchId,
+          url: md.global.FileStoreConfig.documentHost + l.key,
+          password: l.password,
+        }),
+      );
+    }
+
+    const files = this.state.files;
+
+    if (isUpdate) {
+      !!checkFiles[0].password &&
+        res[0].code === 3 &&
+        alert(_l('%0密码错误，校验失败', _.get(checkFiles[0], 'apps[0].name')), 2);
+      const index = _.findIndex(files, l => _.get(l, 'fileName') === _.get(checkFiles[0], 'fileName'));
+      files[index] = { ...checkFiles[0], code: res[0].apps.length > 1 ? 1 : res[0].code };
+      this.setState({ files: [...files], analyzeLoading: false, addFilesLoading: false });
+    } else {
+      const newList = res
+        .filter((l, i) => {
+          l.i = i;
+          if (!!ERROR_CODE[l.code]) alert(ERROR_CODE[l.code], 2);
+          return !ERROR_CODE[l.code] && !_.find(files, m => _.get(m, 'fileName') === _.get(l, 'fileName'));
+        })
+        .map(l => ({
+          url: md.global.FileStoreConfig.documentHost + checkFiles[l.i].key,
+          ...l,
+          ..._.pick(checkFiles[l.i], ['key', 'password', 'fileName', 'name']),
+          code: l.apps.length > 1 ? 1 : l.code,
+        }));
+      this.setState({ files: files.concat(newList), analyzeLoading: false, addFilesLoading: false });
+    }
+
+    this.destroyUploadWrap();
+  };
+
+  batchCheckUpgrade = i => {
+    const { files } = this.state;
+
+    if (files[i].index !== undefined) {
+      this.setState({ currentAppIndex: i });
+      return;
+    }
+
+    this.setState({ batchCheckUpgradeLoading: true });
+    const promiseList = files
+      .filter((l, i) => {
+        l.index = i;
+        return l.type === 0;
+      })
+      .map(item =>
+        appManagementAjax.checkUpgrade({
+          password: item.password || '',
+          url: item.url,
+          appId: item.selectApp.appId,
+          fileName: item.name,
+          batchId: item.batchId,
+        }),
+      );
+
+    Promise.all(promiseList).then(res => {
+      const filterFiles = files.filter(l => l.type === 0);
+      res.forEach((item, itemIndex) => {
+        const index = filterFiles[itemIndex].index;
+
+        if (item.resultCode === 0) {
+          files[index] = {
+            ...files[index],
+            contrasts: item.contrasts,
+            upgradeId: item.id,
+            checkedInfo: getCheckedInfo({
+              typeList: upgradeTypeList,
+              source: item.contrasts,
+              defaultCheckedAll: true,
+            }),
+          };
+        } else {
+          files[index].checkUpdateErr = UPGRADE_ERRORMSG[item.resultCode];
+        }
+      });
+
+      this.setState({
+        files: [...files],
+        currentAppIndex: i,
+        batchCheckUpgradeLoading: false,
+      });
+    });
+  };
+
+  onUploadComplete = (up, files) => {
+    const { batchUpdate } = this.state;
+
+    if (batchUpdate) {
+      this.batchCheckFiles(files.slice(0, 10));
+    } else {
+      this.setState(
+        {
+          file: files[0],
+          url: md.global.FileStoreConfig.documentHost + files[0].key,
+          errTip: '',
+          analyzeLoading: false,
+        },
+        this.checkUpgrade,
+      );
+    }
+  };
+
+  renderUploadBtn = children => {
+    const { batchUpdate } = this.state;
+
     return (
       <QiniuUpload
         ref={ele => (this.uploaderWrap = ele)}
@@ -139,24 +311,14 @@ export default class UpgradeProcess extends Component {
         }}
         onBeforeUpload={(up, file) => {
           setTimeout(() => {
-            this.setState({ file, analyzeLoading: true });
+            !this.state.analyzeLoading && this.setState({ file: batchUpdate ? {} : file, analyzeLoading: true });
           }, 200);
         }}
-        onUploaded={(up, file, response) => {
-          const { key } = response;
-          this.setState(
-            {
-              file: file,
-              url: md.global.FileStoreConfig.documentHost + key,
-              errTip: '',
-              analyzeLoading: false,
-            },
-            this.checkUpgrade,
-          );
-        }}
+        onUploadComplete={this.onUploadComplete}
         onError={() => {
           this.setState({
             file: {},
+            files: [],
             url: '',
             password: '',
             errTip: _l('文件上传失败'),
@@ -164,95 +326,110 @@ export default class UpgradeProcess extends Component {
           });
         }}
       >
-        {chidren}
+        {children}
       </QiniuUpload>
     );
   };
 
   renderUploadFile = () => {
-    const { file, errTip, isEncrypt, password, compareLoading, analyzeLoading } = this.state;
+    const { file, errTip, isEncrypt, password, compareLoading, analyzeLoading, files, batchUpdate, addFilesLoading } =
+      this.state;
+    const IsLocal = _.get(md, 'global.Config.IsLocal');
 
     return (
       <Fragment>
         <div className="Gray_75 mBottom20">
-          {_l(
-            '导入单个应用文件，实现对当前应用快速升级。请确认私有部署的版本，高版本向低版本导入，可能会导入失败。应用升级需要一段时间，正在升级中的应用将为不可用状态。',
-          )}
+          {batchUpdate
+            ? _l('上传多个应用文件，实现多个应用整体升级。最多上传%0个文件。', MAX_FILES)
+            : _l('导入单个应用文件，实现对当前应用快速升级。')}
+          {IsLocal ? _l('请确认私有部署的版本，高版本向低版本导入，可能会导入失败。') : ''}
+          {_l('应用升级需要一段时间，正在升级中的应用将为不可用状态。')}
           <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/upgrade" />
         </div>
-        <div className="uploadWrap flex">
-          {isEncrypt ? (
-            <Fragment>
-              <div className="Font14">{_l('文件已加密，需要验证通过才能上传')}</div>
-              <input
-                className="passwordInputBox mTop16 mBottom16"
-                placeholder={_l('请输入密码')}
-                value={password}
-                onChange={e => this.setState({ password: e.target.value })}
-              />
-              <Button
-                type="primary"
-                disabled={!password}
-                onClick={() => this.setState({ isEncrypt: false, errTip: '' }, () => this.checkUpgrade())}
-              >
-                {_l('确认')}
-              </Button>
-            </Fragment>
-          ) : (
-            <Fragment>
-              <img className="uploadImg" src={file.name ? importActiveImg : importDisabledImg}></img>
-              {file.name ? (
-                <Fragment>
-                  <div className="Font17">{file.name}</div>
-                  <div className="Gray_75 mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
-                  {errTip && (
-                    <div className="mTop15 errTip Font14">
-                      <span className="icon-closeelement-bg-circle Font15 mRight6"></span>
-                      <span>{_l(errTip)}</span>
+        {batchUpdate && files.length ? (
+          <UpgradeFileList
+            projectId={this.props.projectId}
+            files={files}
+            addFilesLoading={addFilesLoading}
+            batchCheckFiles={this.batchCheckFiles}
+            updateFiles={this.updateFiles}
+          />
+        ) : (
+          <div className="uploadWrap flex">
+            {isEncrypt ? (
+              <Fragment>
+                <div className="Font14">{_l('文件已加密，需要验证通过才能上传')}</div>
+                <input
+                  className="passwordInputBox mTop16 mBottom16"
+                  placeholder={_l('请输入密码')}
+                  value={password}
+                  onChange={e => this.setState({ password: e.target.value })}
+                />
+                <Button
+                  type="primary"
+                  disabled={!(password || '').trim()}
+                  onClick={() => this.setState({ isEncrypt: false, errTip: '' }, () => this.checkUpgrade())}
+                >
+                  {_l('确认')}
+                </Button>
+              </Fragment>
+            ) : (
+              <Fragment>
+                <img className="uploadImg" src={file.name ? importActiveImg : importDisabledImg}></img>
+                {file.name ? (
+                  <Fragment>
+                    <div className="Font17">{file.name}</div>
+                    <div className="Gray_75 mTop6">{_l('大小：%0', formatFileSize(file.size))}</div>
+                    {errTip && (
+                      <div className="mTop15 errTip Font14">
+                        <span className="icon-closeelement-bg-circle Font15 mRight6"></span>
+                        <span>{_l(errTip)}</span>
+                      </div>
+                    )}
+                  </Fragment>
+                ) : (
+                  <div className="Gray_bd">{_l('请选择.mdy格式的应用文件')}</div>
+                )}
+                {(analyzeLoading || compareLoading) && (
+                  <div className="flexRow mTop16">
+                    <div className="notificationIconWrap">
+                      <i className="icon-loading_button Font20 ThemeColor3"></i>
                     </div>
-                  )}
-                </Fragment>
-              ) : (
-                <div className="Gray_bd">{_l('请选择.mdy格式的应用文件')}</div>
-              )}
-              {(analyzeLoading || compareLoading) && (
-                <div className="flexRow mTop16">
-                  <div className="notificationIconWrap">
-                    <i className="icon-loading_button Font20 ThemeColor3"></i>
+                    {
+                      <span className="Gray_75 mLeft10">
+                        {compareLoading ? _l('正在校验升级内容...') : _l('正在解析文件...')}
+                      </span>
+                    }
                   </div>
-                  {
-                    <span className="Gray_75 mLeft10">
-                      {compareLoading ? _l('正在校验升级内容...') : _l('正在解析文件...')}
-                    </span>
-                  }
-                </div>
-              )}
-              {compareLoading && <div className="Gray_9e Font14 mTop16">{_l('此步骤可能耗时较久，请耐心等待')}</div>}
-            </Fragment>
-          )}
+                )}
+                {compareLoading && <div className="Gray_9e Font14 mTop16">{_l('此步骤可能耗时较久，请耐心等待')}</div>}
+              </Fragment>
+            )}
 
-          {compareLoading
-            ? ''
-            : _.isEmpty(file)
-            ? this.renderUploadBtn(
-                <Button type="primary" radius className={cx({ Visibility: analyzeLoading })}>
-                  {_l('上传文件')}
-                </Button>,
-              )
-            : this.renderUploadBtn(
-                <div className={cx('ThemeColor Hand', { Visibility: analyzeLoading })}>{_l('重新上传')}</div>,
-              )}
-        </div>
+            {compareLoading
+              ? ''
+              : _.isEmpty(file)
+              ? this.renderUploadBtn(
+                  <Button type="primary" radius className={cx({ Visibility: analyzeLoading })}>
+                    {_l('上传文件')}
+                  </Button>,
+                )
+              : this.renderUploadBtn(
+                  <div className={cx('ThemeColor Hand', { Visibility: analyzeLoading })}>{_l('重新上传')}</div>,
+                )}
+          </div>
+        )}
       </Fragment>
     );
   };
 
   checkAllCurrentType = (checked, type) => {
-    const { contrasts, worksheetDetailData, currentWorksheet } = this.state;
+    const { batchUpdate, worksheetDetailData, currentWorksheet, currentAppIndex, files } = this.state;
     const { id } = currentWorksheet || {};
     const { checkedInfo, data } = (id && worksheetDetailData[id]) || {};
     const isDetail = _.includes(detailTypeList, type);
     const copyCheckedInfo = isDetail ? checkedInfo : this.state.checkedInfo;
+    const contrasts = (batchUpdate ? files[currentAppIndex].contrasts : this.state.contrasts) || {};
     const currentTypeAllIds = this.getIds(type, isDetail ? data : contrasts);
     const obj = {
       ...copyCheckedInfo,
@@ -324,34 +501,35 @@ export default class UpgradeProcess extends Component {
   };
 
   getWorksheetDetailParams = () => {
-    const { worksheetDetailData, contrasts = {} } = this.state;
+    const { worksheetDetailData, batchUpdate, files, currentAppIndex } = this.state;
+    const contrasts = (batchUpdate ? files[currentAppIndex].contrasts : this.state.contrasts) || {};
     const { worksheets } = contrasts;
     let result = worksheets.map(item => {
       const { id, upgradeType } = item;
-      // if (_.get(worksheetDetailData, id)) {
-      //   const { data, checkedInfo = {}, upgradeType } = _.get(worksheetDetailData, id);
-      //   const {
-      //     addViewCheckIds = [],
-      //     updateViewCheckIds = [],
-      //     addFieldsCheckIds = [],
-      //     updateFieldsCheckIds = [],
-      //   } = checkedInfo;
-      //   let views = data['addView'].concat(data['updateView']).map(({ id, upgradeType }) => ({ id, upgradeType }));
-      //   let controls = data['addFields']
-      //     .concat(data['updateFields'])
-      //     .map(({ id, upgradeType }) => ({ id, upgradeType }));
-      //   let checkedCurrentWorksheet = _.includes(this.state.checkedInfo.worksheetsCheckIds || [], id);
-      //   let obj = {
-      //     worksheet: checkedCurrentWorksheet ? { id, upgradeType } : {},
-      //     views: checkedCurrentWorksheet
-      //       ? views.filter(v => v && _.includes([...addViewCheckIds, ...updateViewCheckIds], v.id))
-      //       : [],
-      //     controls: checkedCurrentWorksheet
-      //       ? controls.filter(v => v && _.includes([...addFieldsCheckIds, ...updateFieldsCheckIds], v.id))
-      //       : [],
-      //   };
-      //   return obj;
-      // }
+      if (_.get(worksheetDetailData, id)) {
+        const { data, checkedInfo = {}, upgradeType } = _.get(worksheetDetailData, id);
+        const {
+          addViewCheckIds = [],
+          updateViewCheckIds = [],
+          addFieldsCheckIds = [],
+          updateFieldsCheckIds = [],
+        } = checkedInfo;
+        let views = data['addView'].concat(data['updateView']).map(({ id, upgradeType }) => ({ id, upgradeType }));
+        let controls = data['addFields']
+          .concat(data['updateFields'])
+          .map(({ id, upgradeType }) => ({ id, upgradeType }));
+        let checkedCurrentWorksheet = _.includes(this.state.checkedInfo.worksheetsCheckIds || [], id);
+        let obj = {
+          worksheet: checkedCurrentWorksheet ? { id, upgradeType } : {},
+          views: checkedCurrentWorksheet
+            ? views.filter(v => v && _.includes([...addViewCheckIds, ...updateViewCheckIds], v.id))
+            : [],
+          controls: checkedCurrentWorksheet
+            ? controls.filter(v => v && _.includes([...addFieldsCheckIds, ...updateFieldsCheckIds], v.id))
+            : [],
+        };
+        return obj;
+      }
       return {
         worksheet: { id, upgradeType },
       };
@@ -361,40 +539,50 @@ export default class UpgradeProcess extends Component {
   };
 
   getParams = type => {
-    const { contrasts } = this.state;
+    const { batchUpdate, files, currentAppIndex } = this.state;
+    const contrasts = (batchUpdate ? files[currentAppIndex].contrasts : this.state.contrasts) || {};
+
     return (contrasts[type] || [])
       .filter(item => _.includes(this.state.checkedInfo[`${type}CheckIds`] || [], item.id))
       .map(({ id, upgradeType }) => ({ id, upgradeType }));
   };
 
   handleUpgrade = () => {
-    this.setState({ showUpgradeStatus: true });
-    const { appDetail } = this.props;
-    const { upgradeId, backupCurrentVersion, matchOffice, url } = this.state;
-    const params = {
-      id: upgradeId,
-      appId: appDetail.id,
-      url,
-      worksheets: this.getWorksheetDetailParams(),
-      pages: this.getParams('pages'),
-      roles: this.getParams('roles'),
-      workflows: this.getParams('workflows'),
-      backupCurrentVersion,
-      matchOffice,
-    };
+    const { appDetail, projectId, type, onCancel } = this.props;
+    const { batchUpdate, files, upgradeId } = this.state;
 
-    appManagementAjax.upgrade(params).then(res => {});
+    this.setState({ showUpgradeStatus: !batchUpdate });
+
+    const params = batchUpdate
+      ? {
+          projectId,
+          ..._.pick(this.state, ['batchId', 'noUpgradeStyle', 'matchOffice', 'roleHide', 'backupCurrentVersion']),
+          datas: files.map(l => ({
+            id: l.type === 0 ? l.upgradeId : '',
+            appId: l.type === 0 ? _.get(l, 'selectApp.appId') : '',
+            type: l.type,
+            url: l.url,
+          })),
+        }
+      : {
+          id: upgradeId,
+          appId: appDetail.id,
+          worksheets: this.getWorksheetDetailParams(),
+          pages: this.getParams('pages'),
+          roles: this.getParams('roles'),
+          workflows: this.getParams('workflows'),
+          ..._.pick(this.state, ['url', 'noUpgradeStyle', 'matchOffice', 'roleHide', 'backupCurrentVersion']),
+        };
+
+    appManagementAjax[batchUpdate ? 'batchImport' : 'upgrade'](params);
+    type === '2' && onCancel();
   };
 
   renderUpgradeScope = () => {
-    const {
-      expandTypeList,
-      checkedInfo = {},
-      contrasts,
-      worksheetDetailData,
-      backupCurrentVersion,
-      matchOffice,
-    } = this.state;
+    const { expandTypeList, worksheetDetailData, batchUpdate, files, currentAppIndex, batchCheckUpgradeLoading } =
+      this.state;
+    const contrasts = (batchUpdate ? files[currentAppIndex].contrasts : this.state.contrasts) || {};
+    const checkedInfo = (batchUpdate ? files[currentAppIndex].checkedInfo : this.state.checkedInfo) || {};
 
     let checkedUpgradeIds = [];
     upgradeTypeList.forEach(item => {
@@ -405,63 +593,84 @@ export default class UpgradeProcess extends Component {
     });
 
     return (
-      <div className="pBottom68">
-        <div className="Font14 mBottom20">{_l('本次升级将会有以下变更')}</div>
-        {UPGARADE_TYPE_LIST.map(item => {
-          const { type } = item;
-          const itemList = contrasts[type] || [];
-          const isExpand = _.includes(expandTypeList, item.type);
-          if (_.isEmpty(itemList)) return null;
-
-          return (
-            <UpgradeItemWrap
-              isWorksheetDetail={false}
-              itleClassName="Font15"
-              item={item}
-              itemList={itemList}
-              isExpand={isExpand}
-              checkedInfo={checkedInfo}
-              worksheetDetailData={worksheetDetailData}
-              handleExpandCollapse={this.handleExpandCollapse}
-              checkAllCurrentType={this.checkAllCurrentType}
-              checkItem={this.checkItem}
-              openShowUpgradeDetail={this.openShowUpgradeDetail}
-            />
-          );
-        })}
-        <div className="importActionWrap">
-          <div className="actionContent">
-            <Checkbox
-              checked={matchOffice}
-              onClick={checked => {
-                this.setState({ matchOffice: !checked });
-              }}
-            />
-            <span className="mRight30">{_l('导入时匹配人员部门')}</span>
-            <Checkbox
-              checked={backupCurrentVersion}
-              onClick={checked => {
-                this.setState({ backupCurrentVersion: !checked });
-              }}
-            />
-            <span>{_l('升级时同时备份当前版本')}</span>
-            <Button
-              type="primary"
-              // disabled={_.isEmpty(checkedUpgradeIds)}
-              className="mLeft30"
-              onClick={this.handleUpgrade}
-            >
-              {_l('开始导入')}
-            </Button>
-          </div>
+      <div className={cx('pBottom68', { h100: batchCheckUpgradeLoading })}>
+        <div className="Font14 mBottom20">
+          {batchUpdate
+            ? _l('本次升级将会有以下变更，请确认要更新的内容，取消勾选则表示不作变更')
+            : _l('本次升级将会有以下变更')}
         </div>
+        {batchUpdate && (
+          <ul className="upgradeScopeAppBox mBottom20">
+            {files.map((item, i) => {
+              const appInfo = item.type === 0 ? item.selectApp : _.get(item, 'apps[0]');
+
+              return (
+                <li
+                  className={cx('Hand', { current: batchUpdate && currentAppIndex === i })}
+                  onClick={() => this.batchCheckUpgrade(i)}
+                  key={`upgradeScopeAppBox-${_.get(item, 'apps[0].appId')}`}
+                >
+                  <span className="iconWrap" style={{ background: appInfo.iconColor }}>
+                    <SvgIcon url={appInfo.iconUrl} fill="#fff" size={20} />
+                  </span>
+                  <span className="text Font15">{appInfo.appName || appInfo.name}</span>
+                  {item.type === 1 && <span className="tag font8">{_l('新增')}</span>}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {batchUpdate && files[currentAppIndex].checkUpdateErr && <div>{files[currentAppIndex].checkUpdateErr}</div>}
+        {batchCheckUpgradeLoading ? (
+          <div className="h100 scopeLoadingWrap">
+            <LoadDiv size="middle" className="mBottom14" />
+            <div className="Gray_9e Font13 TxtCenter">{_l('数据正在加载中...')}</div>
+          </div>
+        ) : (
+          UPGARADE_TYPE_LIST.map(item => {
+            const { type } = item;
+            const itemList = contrasts[type] || [];
+            const isExpand = _.includes(expandTypeList, item.type);
+
+            if (_.isEmpty(itemList)) return null;
+
+            return (
+              <UpgradeItemWrap
+                isWorksheetDetail={false}
+                itleClassName="Font15"
+                item={item}
+                fileType={batchUpdate ? files[currentAppIndex].type : undefined}
+                itemList={itemList}
+                isExpand={isExpand}
+                checkedInfo={checkedInfo}
+                worksheetDetailData={worksheetDetailData}
+                handleExpandCollapse={this.handleExpandCollapse}
+                checkAllCurrentType={this.checkAllCurrentType}
+                checkItem={this.checkItem}
+                openShowUpgradeDetail={this.openShowUpgradeDetail}
+              />
+            );
+          })
+        )}
       </div>
+    );
+  };
+
+  renderSelectApp = () => {
+    const { projectId } = this.props;
+    const { files = [] } = this.state;
+
+    return (
+      <Fragment>
+        <div className="mTop18">{_l('选择需要升级的应用，可以选择同源应用升级或者生成为新的应用')}</div>
+        <UpgradeSelectApp projectId={projectId} files={files} updateFields={this.updateFiles} />
+      </Fragment>
     );
   };
 
   openShowUpgradeDetail = ({ id, upgradeType, sourceId }) => {
     const { appDetail } = this.props;
-    const { worksheetDetailData, upgradeId } = this.state;
+    const { worksheetDetailData, upgradeId, batchUpdate, files, currentAppIndex, batchId } = this.state;
     if (worksheetDetailData[id]) {
       this.setState({
         currentWorksheet: { id, upgradeType },
@@ -470,12 +679,15 @@ export default class UpgradeProcess extends Component {
       return;
     }
 
+    const isBatchAdd = batchUpdate && files[currentAppIndex].type === 1;
+
     appManagementAjax
       .getWorksheetUpgrade({
-        appId: appDetail.id,
-        id: upgradeId,
+        appId: batchUpdate ? (files[currentAppIndex].selectApp || files[currentAppIndex].apps[0]).appId : appDetail.id,
+        id: batchUpdate ? files[currentAppIndex].upgradeId : upgradeId,
         upgradeType,
         worksheetId: sourceId,
+        batchId: batchUpdate ? batchId : undefined,
       })
       .then(res => {
         let { controls = [], views = [] } = res;
@@ -486,10 +698,10 @@ export default class UpgradeProcess extends Component {
           return { ...item, icon: getViewIcon(item.type) };
         });
         const data = {
-          addFields: controls.filter(v => v.upgradeType === 3),
-          updateFields: controls.filter(v => v.upgradeType === 2),
-          addView: views.filter(v => v.upgradeType === 3),
-          updateView: views.filter(v => v.upgradeType === 2),
+          addFields: isBatchAdd ? controls : controls.filter(v => v.upgradeType === 3),
+          updateFields: isBatchAdd ? [] : controls.filter(v => v.upgradeType === 2),
+          addView: isBatchAdd ? views : views.filter(v => v.upgradeType === 3),
+          updateView: isBatchAdd ? [] : views.filter(v => v.upgradeType === 2),
         };
         this.setState({
           currentWorksheet: { id, upgradeType },
@@ -521,28 +733,131 @@ export default class UpgradeProcess extends Component {
     });
   };
 
+  getNextStatus = () => {
+    const { current, files } = this.state;
+
+    switch (current) {
+      case 0:
+        return !files.length || _.some(files, l => l.code !== 0);
+      case 1:
+        return _.some(files, l => l.type === undefined);
+    }
+  };
+
+  updateFiles = files => this.setState({ files });
+
+  handleNext = () => {
+    const { current, batchUpdate } = this.state;
+
+    this.setState({ current: current + 1 });
+
+    if (current === 1 && batchUpdate) {
+      this.batchCheckUpgrade(0);
+    }
+  };
+
+  renderAdvancedConfig = () => {
+    return (
+      <Trigger
+        action={['click']}
+        popupAlign={{
+          points: ['tr', 'br'],
+          offset: [0, 10],
+          overflow: { adjustX: true, adjustY: true },
+        }}
+        popup={
+          <ul className="upgradeScopeAdvancedConfig">
+            {AdvancedConfig.map(l => (
+              <li className="Hand" key={`upgradeScopeAdvancedConfig-${l.key}`}>
+                <Checkbox
+                  checked={this.state[l.key]}
+                  onClick={checked => {
+                    this.setState({ [l.key]: !checked });
+                  }}
+                />
+                <span className="">{l.label}</span>
+              </li>
+            ))}
+          </ul>
+        }
+      >
+        <span className="Hand ThemeColor">{_l('高级设置')}</span>
+      </Trigger>
+    );
+  };
+
+  renderFooter = () => {
+    const { current, checkedInfo = {}, batchUpdate, batchCheckUpgradeLoading } = this.state;
+    const items = ITEMS.filter((l, index) => index !== 1 || batchUpdate);
+    const isUpgradeScope = items[current].key === 'renderUpgradeScope';
+    if (!batchUpdate && !isUpgradeScope) return null;
+
+    let checkedUpgradeIds = [];
+    upgradeTypeList.forEach(item => {
+      const checkedIds = checkedInfo[`${item}CheckIds`];
+      if (checkedIds && !_.isEmpty(checkedIds)) {
+        checkedUpgradeIds = checkedUpgradeIds.concat(checkedIds);
+      }
+    });
+
+    return (
+      <div className="upgradeProcessFooter">
+        {!isUpgradeScope ? (
+          <div className="actionContent">
+            <Button disabled={this.getNextStatus()} onClick={this.handleNext}>
+              {_l('下一步')}
+            </Button>
+          </div>
+        ) : (
+          <div className="actionContent">
+            {this.renderAdvancedConfig()}
+            <Button type="primary" className="mLeft30" disabled={batchCheckUpgradeLoading} onClick={this.handleUpgrade}>
+              {_l('开始导入')}
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   render() {
     const { appDetail = {} } = this.props;
-    const { current, showUpgradeDetail, currentWorksheet, worksheetDetailData, showUpgradeStatus } = this.state;
+    const {
+      current,
+      showUpgradeDetail,
+      currentWorksheet,
+      worksheetDetailData,
+      showUpgradeStatus,
+      batchUpdate,
+      files,
+      currentAppIndex,
+    } = this.state;
+    const items = ITEMS.filter((l, index) => index !== 1 || batchUpdate);
+    const appInfo = _.get(files[currentAppIndex], 'selectApp') || _.get(files[currentAppIndex], 'apps[0]');
 
     return (
       <div className="upgradeProcessWrap">
         <div className="upgradeProcessHeader">
-          <div className="w110">
+          <div>
             <i className="icon-arrow_back Gray_9e Font24 Hand TxtMiddle" onClick={this.clickBack} />
-            <span className="Font17 TxtMiddle mLeft12 bold">{_l('导入升级')}</span>
+            <span className="Font17 TxtMiddle mLeft12 bold">{_l('应用导入升级')}</span>
           </div>
-          <div className="flex flexRow justifyContentCenter">
-            <div className="applicationIcon " style={{ backgroundColor: appDetail.iconColor }}>
-              <SvgIcon url={appDetail.iconUrl} fill="#fff" size={18} />
+          {(!batchUpdate || items[current].key === 'renderUpgradeScope') && (
+            <div className="flex flexRow justifyContentCenter">
+              <div
+                className="applicationIcon "
+                style={{ backgroundColor: batchUpdate ? appInfo.iconColor : appDetail.iconColor }}
+              >
+                <SvgIcon url={batchUpdate ? appInfo.iconUrl : appDetail.iconUrl} fill="#fff" size={18} />
+              </div>
+              <div className="Font15">{batchUpdate ? appInfo.name || appInfo.appName : appDetail.name}</div>
             </div>
-            <div className="Font15">{appDetail.name}</div>
-          </div>
+          )}
           <div className="Gray_9d Font14 w110 TxtRight helpIcon">
             <Support title={_l('帮助')} type={1} href="https://help.mingdao.com/application/upgrade" />
           </div>
         </div>
-        <div className="upgradeProcessContent">
+        <div className={cx('upgradeProcessContent', { pBottom68: batchUpdate })}>
           <Fragment>
             <Steps current={current} className="mBottom20">
               {items.map(item => {
@@ -550,8 +865,8 @@ export default class UpgradeProcess extends Component {
               })}
             </Steps>
           </Fragment>
-          {current === 0 && this.renderUploadFile()}
-          {current === 1 && this.renderUpgradeScope()}
+          {this[items[current].key]()}
+          {this.renderFooter()}
         </div>
 
         {showUpgradeDetail && (

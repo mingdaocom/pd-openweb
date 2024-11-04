@@ -46,6 +46,8 @@ const ConView = styled.div`
 `;
 
 const QuickFilterCon = styled.div`
+  max-height: 50%;
+  overflow-y: auto;
   border-bottom: 1px solid #e0e0e0;
 `;
 
@@ -101,6 +103,7 @@ function Sheet(props) {
     isCharge,
     authRefreshTime,
     updateGroupFilter,
+    fireWhenViewLoaded,
     refreshSheet,
     updateFilters,
     config = {},
@@ -110,6 +113,7 @@ function Sheet(props) {
     showControlIds,
     showAsSheetView,
     quickFilter,
+    quickFilterWithDefault,
     navGroupFilters,
     openNewRecord,
     updateQuickFilter,
@@ -144,7 +148,7 @@ function Sheet(props) {
       (String(view.viewType) === structure && view.childType !== 2)) &&
     navData;
   const showQuickFilter =
-    !_.isEmpty(view.fastFilters) &&
+    !_.isEmpty(quickFilterWithDefault) &&
     (_.includes([sheet, gallery, board, calendar, gunter, customize, resource, map], String(view.viewType)) ||
       (String(view.viewType) === detail && view.childType === 2) ||
       (String(view.viewType) === structure && view.childType !== 2)) &&
@@ -213,7 +217,9 @@ function Sheet(props) {
       updateFilters({ filtersGroup }, view);
     }
   }, [getKeyOfFiltersGroup(filtersGroup), loading]);
-
+  useEffect(() => {
+    fireWhenViewLoaded(view, controls);
+  }, [view.fastFilters]);
   useEffect(() => {
     updateGroupFilter([], view);
   }, [view.viewId, worksheetId]);
@@ -221,8 +227,8 @@ function Sheet(props) {
     if (_.get(cache, 'current.prevFastFilters.length') > 0 && _.get(view, 'fastFilters.length') === 0) {
       updateQuickFilter([], view);
     }
-    cache.current.prevFastFilters = view.fastFilters;
-  }, [view.fastFilters]);
+    cache.current.prevFastFilters = quickFilterWithDefault;
+  }, [quickFilterWithDefault]);
   useEffect(() => {
     if (isOpenGroup) {
       setOpenNavW();
@@ -277,7 +283,7 @@ function Sheet(props) {
                 <QuickFilterCon>
                   <QuickFilter
                     {...basePara}
-                    filters={setSysWorkflowTimeControlFormat(view.fastFilters, worksheetInfo.switches)}
+                    filters={setSysWorkflowTimeControlFormat(quickFilterWithDefault, worksheetInfo.switches)}
                   />
                 </QuickFilterCon>
               )}
@@ -356,6 +362,7 @@ export default connect(
     views: state.sheet.views,
     activeViewStatus: state.sheet.activeViewStatus,
     quickFilter: state.sheet.quickFilter,
+    quickFilterWithDefault: state.sheet.quickFilterWithDefault,
     navGroupFilters: state.sheet.navGroupFilters,
     controls: state.sheet.controls,
   }),
@@ -369,6 +376,7 @@ export default connect(
         'loadWorksheet',
         'updateGroupFilter',
         'openNewRecord',
+        'fireWhenViewLoaded',
       ]),
       dispatch,
     ),

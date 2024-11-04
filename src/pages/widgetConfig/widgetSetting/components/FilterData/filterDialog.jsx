@@ -26,7 +26,7 @@ export default function FilterDialog(props) {
     relationControls, //关联表的Controls
     helpHref,
     showSubtotalTip,
-    globalSheetInfo,
+    globalSheetInfo = {},
     globalSheetControls, //主标控件 用于 子表中的关联记录字段筛选选择范围，支持使用主表中的字段
     hideSupport,
     showCustom = false,

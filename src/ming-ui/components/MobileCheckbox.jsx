@@ -30,7 +30,7 @@ export default class MobileCheckbox extends Component {
     keywords: '',
   };
 
-  onChange(key) {
+  onChange = key => {
     const { selectChecked } = this.state;
 
     if (_.includes(selectChecked, key)) {
@@ -40,7 +40,15 @@ export default class MobileCheckbox extends Component {
     }
 
     this.setState({ selectChecked });
-  }
+  };
+
+  handleSelectAll = (options, isChecked) => {
+    if (isChecked) {
+      this.setState({ selectChecked: [] });
+    } else {
+      this.setState({ selectChecked: options.map(v => v.key) });
+    }
+  };
 
   render() {
     const {
@@ -54,6 +62,7 @@ export default class MobileCheckbox extends Component {
       otherValue,
       controlName,
       delOptions = [],
+      showselectall,
     } = this.props;
     const { visible, selectChecked, keywords } = this.state;
     let source = [].concat(data).filter(item => !item.isDeleted && !item.hide);
@@ -63,12 +72,6 @@ export default class MobileCheckbox extends Component {
       if ((item || '').indexOf('add_') > -1) {
         source.push({ key: item, color: '#2196F3', value: item.split('add_')[1] });
       }
-    });
-    const otherValueData = selectChecked.map(it => {
-      if (_.includes(it, 'other')) {
-        return `other:${otherValue}`;
-      }
-      return it;
     });
 
     return (
@@ -88,17 +91,17 @@ export default class MobileCheckbox extends Component {
             })}
         </span>
 
-        <Popup
-          visible={visible}
-          className="mobileCheckboxDialog mobileModal minFull topRadius"
-        >
+        <Popup visible={visible} className="mobileCheckboxDialog mobileModal minFull topRadius">
           <div className="flexColumn h100">
             <div className="flexRow valignWrapper mobileCheckboxBtnsWrapper pLeft15 pRight15">
               <div
-                className="Hand ThemeColor bold Font15 mRight10"
-                onClick={() => this.setState({ selectChecked: [], visible: false })}
+                className="Hand Red bold Font15 mRight10"
+                onClick={() => {
+                  callback([]);
+                  this.setState({ selectChecked: [], visible: false });
+                }}
               >
-                {_l('关闭')}
+                {_l('清除')}
               </div>
               <div className="Font15 Gray bold flex ellipsis TxtCenter">{controlName}</div>
               <div
@@ -130,20 +133,25 @@ export default class MobileCheckbox extends Component {
               )}
             </div>
             <List className="flex" style={{ overflow: 'auto' }}>
-              {!keywords.length && !!selectChecked.length && (
-                <List.Item className="mLeft31" arrowIcon={false} onClick={() => this.setState({ selectChecked: [] })}>
-                  <span className="Font15 ThemeColor3">{_l('清除选择')}</span>
+              {showselectall === '1' && (
+                <List.Item
+                  className="bold"
+                  arrowIcon={false}
+                  onClick={() => {
+                    const options = !!keywords.length
+                      ? source.filter(item => item.value.indexOf(keywords) > -1)
+                      : source;
+                    this.handleSelectAll(options, selectChecked.length === options.length);
+                  }}
+                >
+                  <span className="Font15 ThemeColor3">{_l('全选')}</span>
                 </List.Item>
               )}
 
               {source
                 .filter(item => item.value.indexOf(keywords) > -1)
                 .map(item => (
-                  <List.Item
-                    key={item.key}
-                    arrowIcon={false}
-                    onClick={() => this.onChange(item.key)}
-                  >
+                  <List.Item key={item.key} arrowIcon={false} onClick={() => this.onChange(item.key)}>
                     <Checkbox
                       className="flexRow alignItemsCenter"
                       text={renderText ? renderText(item) : item.value}

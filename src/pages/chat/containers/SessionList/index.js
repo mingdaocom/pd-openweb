@@ -193,6 +193,16 @@ class SessionList extends Component {
     }
     this.props.dispatch(actions.setNewCurrentSession(item));
 
+    // 同步窗口
+    const param = {
+      id: item.value,
+      type: item.isGroup ? 2 : 1,
+    };
+    if ('showBadge' in item) {
+      param.showBadge = 0;
+    }
+    socket.Contact.recordAction(param);
+
     // 清除计数
     if (item.count || item.weak_count) {
       socket.Contact.clearUnread(Object.assign({}, item)).then(result => {
@@ -224,14 +234,6 @@ class SessionList extends Component {
     }
     // 如果不存在其他计数关闭新消息提醒
     this.handleRemoveFlashTitle(item.value);
-    const param = {
-      id: item.value,
-      type: item.isGroup ? 2 : 1,
-    };
-    if ('showBadge' in item) {
-      param.showBadge = 0;
-    }
-    socket.Contact.recordAction(param);
   }
   handleRemoveSession(item, event) {
     event.stopPropagation();

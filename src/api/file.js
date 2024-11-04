@@ -7,7 +7,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    oWA: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('File', 'OWA', args, options);
    },
   /**
@@ -18,7 +18,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    docView: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('File', 'DocView', args, options);
    },
   /**
@@ -29,7 +29,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downChatFile: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('File', 'DownChatFile', args, options);
    },
   /**
@@ -40,7 +40,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getChatFileUrl: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('File', 'GetChatFileUrl', args, options);
    },
   /**
@@ -51,7 +51,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downLinkFile: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('File', 'DownLinkFile', args, options);
    },
   /**
@@ -62,7 +62,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downKcFile: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('File', 'DownKcFile', args, options);
    },
   /**
@@ -116,7 +116,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downloadRowsBatchFile: function (args, options = {}) {
-
+     
      return mdyAPI('File', 'DownloadRowsBatchFile', args, options);
    },
   /**
@@ -127,34 +127,34 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    downDocument: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('File', 'DownDocument', args, options);
    },
   /**
-  *
+  * 
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    excelFile: function (args, options = {}) {
-     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' });
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('File', 'ExcelFile', args, options);
    },
   /**
   * 文件校验
   * @param {Object} args 请求参数
-  * @param {string} args.projectId
-  * @param {string} args.url
+  * @param {string} args.projectId 组织id
+  * @param {string} args.url 文件url
   * @param {} args.source
-  * @param {string} args.password
-  * @param {string} args.pluginId
+  * @param {string} args.password 密码
+  * @param {string} args.pluginId 参数id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    check: function (args, options = {}) {
-
+     
      return mdyAPI('File', 'Check', args, options);
    },
 };

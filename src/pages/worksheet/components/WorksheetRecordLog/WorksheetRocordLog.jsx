@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useImperativeHandle, forwardRef, Fragment } from 'react';
-import { Icon, ScrollView, LoadDiv, Tooltip, UserHead } from 'ming-ui';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import { Icon, ScrollView, LoadDiv, Tooltip, UserHead, PreferenceTime } from 'ming-ui';
 import { Divider } from 'antd';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
 import moment from 'moment';
 import filterXSS from 'xss';
 import cx from 'classnames';
-import _, { filter } from 'lodash';
-import renderText from 'src/pages/worksheet/components/CellControls/renderText.js';
+import _ from 'lodash';
 import AddCondition from '../../common/WorkSheetFilter/components/AddCondition';
 import TriggerSelect from './component/TriggerSelect';
 import DatePickSelect from '../DatePickerSelect';
@@ -21,11 +20,10 @@ import {
   renderTitleText,
   getExtendParams,
   hasHiddenControl,
-  transWholeTime,
   isUser,
 } from './util';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { browserIsMobile, createLinksForMessage, dateConvertToUserZone, getFeatureStatus } from 'src/util';
+import { browserIsMobile, createLinksForMessage, getFeatureStatus } from 'src/util';
 import { GET_SYSTEM_USER } from './enum.js';
 import copy from 'copy-to-clipboard';
 import UserPicker from './component/UserPicker';
@@ -88,7 +86,6 @@ function WorksheetRecordLog(props, ref) {
   });
   const [moreList, setMoreList] = useState([]);
   const [worksheetInfo, setWorksheetInfo] = useState({});
-  const [isSimplify, setIsSimplify] = useState((localStorage.getItem('mdTimeFormat') || 'simplify') === 'simplify');
   let INIT_SIGN = false;
   const isMobile = browserIsMobile();
 
@@ -359,12 +356,6 @@ function WorksheetRecordLog(props, ref) {
     );
   };
 
-  const handleTimeFormat = () => {
-    const timeFormat = isSimplify ? 'whole' : 'simplify';
-    setIsSimplify(!isSimplify);
-    localStorage.setItem('mdTimeFormat', timeFormat);
-  };
-
   const onChangeData = data => {
     if (!data.value) {
       return;
@@ -411,13 +402,7 @@ function WorksheetRecordLog(props, ref) {
                 {item.accountName} <span className="Gray_9e">{_l('更新了 %0 个字段', item.child.length)}</span>
               </span>
             </div>
-            <div
-              className="worksheetRocordLogCardName Gray_9e Hover_21 timeDataTip Hand"
-              data-tip={isSimplify ? createTimeSpan(dateConvertToUserZone(item.time), true) : ''}
-              onClick={handleTimeFormat}
-            >
-              {createTimeSpan(dateConvertToUserZone(item.time))}
-            </div>
+            <PreferenceTime value={item.time} className="worksheetRocordLogCardName Gray_9e timeDataTip" />
           </div>
           {item.child.map(childData => {
             const message = createLinksForMessage({
@@ -641,7 +626,6 @@ function WorksheetRecordLog(props, ref) {
           newEditionList.map((item, index) => {
             const { child } = item;
             const ua = getExtendParams(child[0].operatContent.extendParams, 'user_agent');
-            const showWholeTime = transWholeTime(item.time);
 
             return (
               <div className="worksheetRocordLogCard" key={`worksheetRocordLogCard-${item.time}-${index}`}>
@@ -658,13 +642,10 @@ function WorksheetRecordLog(props, ref) {
                       />
                     </Tooltip>
                   )}
-                  <div
-                    className="worksheetRocordLogCardName nowrap Gray_9e mLeft12 Hand Hover_21 timeDataTip"
-                    onClick={handleTimeFormat}
-                    data-tip={isSimplify ? showWholeTime : ''}
-                  >
-                    {isSimplify ? createTimeSpan(dateConvertToUserZone(item.time)) : showWholeTime}
-                  </div>
+                  <PreferenceTime
+                    value={item.time}
+                    className="worksheetRocordLogCardName nowrap Gray_9e mLeft12 timeDataTip"
+                  />
                 </div>
 
                 {item.child.map((childData, index) => {
@@ -672,7 +653,6 @@ function WorksheetRecordLog(props, ref) {
                   const updateControlCount = childData.operatContent.logData.filter(
                     l => l.oldValue !== '' || l.newValue !== '',
                   ).length;
-                  const showChildWholeTime = transWholeTime(childData.operatContent.createTime);
 
                   return (
                     <div
@@ -689,15 +669,7 @@ function WorksheetRecordLog(props, ref) {
                               </Tooltip>
                             )}
                           </span>
-                          <span
-                            className="Hand Hover_21 timeDataTip"
-                            onClick={handleTimeFormat}
-                            data-tip={isSimplify ? showChildWholeTime : ''}
-                          >
-                            {isSimplify
-                              ? createTimeSpan(dateConvertToUserZone(childData.operatContent.createTime))
-                              : showChildWholeTime}
-                          </span>
+                          <PreferenceTime value={childData.operatContent.createTime} className="timeDataTip" />
                         </div>
                       )}
                       <WorksheetRecordLogItem

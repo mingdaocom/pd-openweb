@@ -118,7 +118,7 @@ var datasource = {
   },
 
   /**
-   * 获取数据源列表
+   * 获取数据源列表-自定义分页，去掉前端用不上的参数
    *
    * @param {Object} args 请求参数
    * @param {integer} args.pageNo 页码，从0开始
@@ -128,6 +128,7 @@ var datasource = {
    * @param {string} args.roleType 角色类型 {@link DatasourceRoleType}(See: 数据源的角色类型)
    * @param {string} args.fromType 来源类型 {@link DatasourceFromType}(See: 数据源来源类型)
    * @param {string} args.dsType 数据源类型：MySQL、Oracle、Aliyun MySQL。。。
+   * @param {array} args.dsTypes 数据源类型列表，与 dsType 参数二选一。两个参数都同时有值时，以 dsTypes 为准
    * @param {object} args.sort 排序参数(object)
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层

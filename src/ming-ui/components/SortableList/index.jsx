@@ -18,12 +18,22 @@ const DragItem = props => {
     dragType,
     index,
     dragPreviewImage,
+    direction,
     moveItem,
     onDragEnd,
     setDragging,
     renderItem,
   } = props;
   const ref = useRef(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+
+    ref.current.ondrop = function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+  }, []);
 
   useEffect(() => {
     setDragging(dragging);
@@ -37,9 +47,24 @@ const DragItem = props => {
 
   const [, drop] = useDrop({
     accept: dragType,
-    hover: draggedItem => {
-      if (draggedItem.index === index) {
+    hover: (draggedItem, monitor) => {
+      if (draggedItem.index === index || !ref.current) {
         return;
+      }
+
+      if (!!direction) {
+        const hoverBoundingRect = ref.current.getBoundingClientRect();
+        const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+        const clientOffset = monitor.getClientOffset();
+        const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+
+        if (
+          direction === 'vertical' &&
+          ((draggedItem.index < index && hoverClientY < hoverMiddleY) ||
+            (draggedItem.index > index && hoverClientY > hoverMiddleY))
+        ) {
+          return;
+        }
       }
 
       moveItem(draggedItem.index, index);
@@ -49,7 +74,7 @@ const DragItem = props => {
 
   const [{ isDragging }, drag, dragPreview] = useDrag({
     item: { type: dragType, index, item: item },
-    canDrag,
+    canDrag: item.hasOwnProperty('canDrag') ? item.canDrag : canDrag,
     collect: monitor => ({
       isDragging: monitor.isDragging(),
     }),
@@ -169,7 +194,8 @@ SortableList.prototypes = {
   useDragHandle: bool, // 是否使用拖拽手柄拖拽
   canDrag: bool, // 是否允许拖拽
   flag: string, // 强制刷新
+  vertical: string, // 方向 vertical 垂直 处理闪烁问题 horizontal
   helperClass: string, // 拖动时样式
   dragPreviewImage: bool, // 拖图片
-  renderBody: bool, //是否render到body上
+  renderBody: bool, //是否render到body上 在dialog、drawer等里面渲染需要用
 };

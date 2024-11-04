@@ -59,7 +59,7 @@ const Operation = ({
       {!settingVisible && (
         <Tooltip title={_l('刷新')} placement="bottom">
           <Icon
-            icon="rotate"
+            icon="task-later"
             className="Font20 Gray_9e pointer mLeft16"
             onClick={() => {
               getReportData();

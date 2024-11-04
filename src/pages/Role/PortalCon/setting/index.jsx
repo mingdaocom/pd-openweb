@@ -11,8 +11,6 @@ import InfoSet from './InfoSet';
 import LoginSet from './LoginSet';
 import TextMessage from './TextMessage';
 import externalPortalAjax from 'src/api/externalPortal';
-import { getStringBytes } from 'src/util';
-import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import _ from 'lodash';
 
 const Wrap = styled.div`
@@ -21,9 +19,7 @@ const Wrap = styled.div`
   bottom: 0;
   right: 0;
   z-index: 100;
-  box-shadow:
-    0 10px 24px rgba(0, 0, 0, 0.2),
-    0 3px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-flow: column nowrap;
   width: 640px;
@@ -142,16 +138,13 @@ class PortalSetting extends React.Component {
 
   componentDidMount() {
     const { portalSet = {} } = this.props;
-    this.setState({
-      portalSet,
-    });
+
+    this.setState({ portalSet });
   }
 
   componentWillReceiveProps(nextProps, nextState) {
     if (!_.isEqual(this.props.portalSet, nextProps.portalSet)) {
-      this.setState({
-        portalSet: nextProps.portalSet,
-      });
+      this.setState({ portalSet: nextProps.portalSet });
     }
   }
 
@@ -166,14 +159,9 @@ class PortalSetting extends React.Component {
           this.saveRef && $(this.saveRef).click();
         },
         onCancel: () => {
-          this.setState(
-            {
-              hasChange: false,
-            },
-            () => {
-              callback && callback();
-            },
-          );
+          this.setState({ hasChange: false }, () => {
+            callback && callback();
+          });
         },
       });
     } else {
@@ -186,23 +174,19 @@ class PortalSetting extends React.Component {
       title: _l('关闭后所有人将不能再访问门户'),
       okText: _l('关闭门户'),
       width: 480,
-      onOk: () => {
-        this.props.closePortal();
-      },
+      onOk: () => this.props.closePortal(),
       buttonType: 'danger',
     });
   };
 
   editPortal = noClose => {
     const { portalSet = {} } = this.state;
-    const { projectId, closeSet } = this.props;
+    const { closeSet, appPkg = {} } = this.props;
     const { portalSetModel = {}, controlTemplate = {}, authorizerInfo = {}, epDiscussWorkFlow = {} } = portalSet;
-    let mdSign = getStrBytesLength(
-      ((_.get(md, ['global', 'Account', 'projects']) || []).find(o => o.projectId === projectId) || {}).companyName,
-    );
     let {
-      pageTitle = '',
-      smsSignature = mdSign,
+      pageTitle = appPkg.name,
+      smsSignature,
+      emailSignature,
       allowUserType,
       noticeScope = {},
       pageMode,
@@ -213,41 +197,44 @@ class PortalSetting extends React.Component {
       appId,
       customizeName,
     } = portalSetModel;
-    smsSignature = smsSignature.replace(/\s*/g, ''); //去掉签名中的空格
+
     if (!customizeName) {
-      return alert(_l('请输入外部门户名称'), 3);
+      alert(_l('外部门户名称不能为空'), 3);
+      return false;
     }
-    if (!pageTitle) {
-      return alert(_l('请输入登录页名称'), 3);
+
+    if (md.global.SysSettings.enableSmsCustomContent && !smsSignature) {
+      alert(_l('短信签名不能为空'), 3);
+      return false;
+    } else if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(smsSignature) || smsSignature.length > 12) {
+      alert(_l('短信签名格式不正确'), 3);
+      return false;
     }
-    if (md.global.SysSettings.enableSmsCustomContent) {
-      if (!smsSignature) {
-        return alert(_l('请输入短信签名'), 3);
-      }
-      if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(smsSignature)) {
-        return alert(_l('短信签名只支持中英文'), 3);
-      }
-      if (getStringBytes(smsSignature) > 16) {
-        return alert(_l('短信签名最多只能16个字节'), 3);
-      }
+
+    if (!emailSignature) {
+      alert(_l('发件人名称不能为空'), 3);
+      return false;
     }
+
+
     if (
       _.get(portalSetModel, 'registerInfo.enable') &&
       !_.get(portalSetModel, 'registerInfo.startTime') &&
       !_.get(portalSetModel, 'registerInfo.endTime')
     ) {
-      return alert(_l('已开启外部用户注册开始/停止时间，但未选择开始/停止时间'), 3);
+      alert(_l('已开启外部用户注册开始/停止时间，但未选择开始/停止时间'), 3);
+      return false;
     }
 
     if (controlTemplate.controls.filter(l => !l.controlName).length !== 0) {
-      return alert(_l('用户列表信息名称不能为空'), 3);
+      alert(_l('用户列表信息名称不能为空'), 3);
+      return false;
     }
 
     if (!noClose) {
-      this.setState({
-        saveLoading: true,
-      });
+      this.setState({ saveLoading: true });
     }
+
     externalPortalAjax
       .editPortalSet({
         appId,
@@ -275,6 +262,7 @@ class PortalSetting extends React.Component {
             'watermark',
             'internalControls',
             'externalControls',
+            'addressExt',
           ]),
           epDiscussWorkFlow,
           appId,
@@ -302,6 +290,7 @@ class PortalSetting extends React.Component {
           if (res.success) {
             this.props.onChangePortal(res.portalSetModelDTO);
             this.setState({ hasChange: false, saveLoading: false });
+
             if (!noClose) {
               alert(_l('保存成功'));
               closeSet();
@@ -311,9 +300,7 @@ class PortalSetting extends React.Component {
           }
         },
         () => {
-          this.setState({
-            saveLoading: false,
-          });
+          this.setState({ saveLoading: false });
         },
       );
   };

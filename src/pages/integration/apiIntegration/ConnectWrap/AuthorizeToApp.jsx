@@ -172,15 +172,15 @@ const WrapCon = styled.div`
 `;
 //授权到应用
 function AuthorizeToApp(props) {
-  const [{ keywords, optionLoading, loading, info }, setState] = useSetState({
+  const [{ keywords, optionLoading, loading, info, projectId }, setState] = useSetState({
     keywords: '',
     optionLoading: false,
     loading: true,
     info: {
       errorInterval: 120,
     },
+    projectId: props.companyId,
   });
-  const projectId = localStorage.getItem('currentProjectId');
   const getProcessConfigInfo = () => {
     setState({ loading: true });
     processAjax

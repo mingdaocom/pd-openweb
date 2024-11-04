@@ -2,7 +2,10 @@ import React, { useState } from 'react';
 import { Modal, Dropdown, Icon, UserHead, UserName } from 'ming-ui';
 import styled from 'styled-components';
 import { DatePicker } from 'antd';
-import zhCN from 'antd/es/date-picker/locale/zh_CN';
+import zh_CN from 'antd/es/date-picker/locale/zh_CN';
+import zh_TW from 'antd/es/date-picker/locale/zh_TW';
+import en_US from 'antd/es/date-picker/locale/en_US';
+import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 import moment from 'moment';
 import { dialogSelectUser } from 'ming-ui/functions';
 import delegationApi from 'src/pages/workflow/api/delegation';
@@ -77,6 +80,7 @@ export default function TodoEntrustModal(props) {
   const [formData, setFormData] = useState(
     isEdit ? editEntrustData : { companyId: (projectOptions.filter(item => !item.disabled)[0] || {}).value },
   );
+  const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
   const updateDataSource = options => {
     setFormData(Object.assign({}, formData, options));
   };
@@ -211,7 +215,7 @@ export default function TodoEntrustModal(props) {
                 disabledDate={date => date < moment().subtract(1, 'd')}
                 disabledTime={disabledDateTime}
                 format="YYYY-MM-DD HH:mm"
-                locale={zhCN}
+                locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
                 defaultValue={formData.startDate}
                 allowClear={true}
                 onChange={startDate => updateDataSource({ startDate })}
@@ -231,7 +235,7 @@ export default function TodoEntrustModal(props) {
                 format="YYYY-MM-DD HH:mm"
                 defaultValue={formData.endDate}
                 allowClear={true}
-                locale={zhCN}
+                locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
                 onChange={endDate => updateDataSource({ endDate })}
               />
             </div>

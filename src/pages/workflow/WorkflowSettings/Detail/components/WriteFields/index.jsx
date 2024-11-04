@@ -321,7 +321,7 @@ export default class WriteFields extends Component {
                 )}
               </div>
               <div className="mLeft16">
-                {!_.includes(hideTypes, item.property) && (
+                {!_.includes(hideTypes, 1) && (
                   <Checkbox checked={item.property !== 4} onClick={checked => this.onChange(item, checked ? 4 : 1)} />
                 )}
               </div>

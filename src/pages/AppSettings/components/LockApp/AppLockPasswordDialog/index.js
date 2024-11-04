@@ -68,7 +68,7 @@ const checkErrorPassword = password => {
 
   if (!RegExpValidator.isPasswordValid(password, passwordRegex)) {
     alert(passwordRegexTip || _l('密码，至少8-20位，且含字母+数字'), 3);
-    return;
+    return true;
   }
 };
 

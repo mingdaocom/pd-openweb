@@ -130,6 +130,22 @@ export default {
      return mdyAPI('Organize', 'DeleteOrganizes', args, options);
    },
   /**
+  * 导入组织角色
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.projectId 网络id
+  * @param {string} args.fileName 文件名
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   importOrgRoleList: function (args, options = {}) {
+     
+     return mdyAPI('Organize', 'ImportOrgRoleList', args, options);
+   },
+  /**
   * 根据账号id获取角色列表
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络Id

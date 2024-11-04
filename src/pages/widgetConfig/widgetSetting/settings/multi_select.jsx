@@ -17,7 +17,7 @@ const OPTIONS_DISPLAY = [
 ];
 export default function MultiSelect(props) {
   const { data, onChange, globalSheetInfo, fromPortal, fromExcel } = props;
-  const { checktype = '0' } = getAdvanceSetting(data);
+  const { checktype = '0', readonlyshowall } = getAdvanceSetting(data);
 
   return (
     <Fragment>
@@ -29,7 +29,13 @@ export default function MultiSelect(props) {
           data={OPTIONS_DISPLAY}
           onChange={type => {
             if (type !== checktype) {
-              onChange(handleAdvancedSettingChange(data, { checktype: type, allowadd: '0' }));
+              onChange(
+                handleAdvancedSettingChange(data, {
+                  checktype: type,
+                  allowadd: '0',
+                  readonlyshowall: type === '1' ? '' : readonlyshowall,
+                }),
+              );
             }
           }}
         />

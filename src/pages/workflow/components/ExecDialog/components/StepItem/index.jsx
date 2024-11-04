@@ -61,7 +61,7 @@ const START_TYPE_TEXT = {
 /**
  * 格式化时间
  */
-const formatTime = time => moment(dateConvertToUserZone(time)).format('YYYY.MM.DD HH:mm');
+const formatTime = time => moment(dateConvertToUserZone(time)).format('YYYY-MM-DD HH:mm:ss');
 
 export default class StepItem extends Component {
   static propTypes = {
@@ -588,7 +588,7 @@ export default class StepItem extends Component {
         <div className="stepItem flex flexColumn">
           <div className="flexRow alignItemsCenter">
             <div className="stepItemTime Font15 flex ellipsis Gray_75 bold">
-              {workItems[0] && moment(dateConvertToUserZone(workItems[0].receiveTime)).format('MM-DD HH:mm')}
+              {workItems[0] && createTimeSpan(dateConvertToUserZone(workItems[0].receiveTime))}
             </div>
             {this.renderTimeConsuming()}
             {this.renderSurplusTime()}

@@ -105,7 +105,13 @@ async function getStatus(data, shareId) {
     writeScope,
     projectId,
     returnUrl,
+    fixed,
   } = data;
+
+  //应用维护中
+  if (fixed) {
+    return FILL_STATUS.FIXED;
+  }
 
   //需要填写密码
   if (limitPasswordWrite.isEnable) {
@@ -331,7 +337,7 @@ export async function getFormData(data, status) {
     if (!!cacheFormData.length) {
       let formData = controls.map(item => {
         const cacheField = cacheFormData.filter(c => c.controlId === item.controlId)[0] || {};
-        return { ...item, value: cacheField.value };
+        return item.type !== 29 ? { ...item, value: cacheField.value } : item;
       });
       if (weChatSetting.isCollectWxInfo) {
         formData = fillWxInfo(formData, weChatSetting);
@@ -394,7 +400,7 @@ export async function getFormData(data, status) {
 
     if (!!cacheFormData.length) {
       let formData = controls.map(item => {
-        if (_.includes(cacheFieldData.cacheField, item.controlId)) {
+        if (_.includes(cacheFieldData.cacheField, item.controlId) && item.type !== 29) {
           const cacheField = cacheFormData.filter(c => c.controlId === item.controlId)[0] || {};
           return { ...item, value: cacheField.value };
         } else {
@@ -439,16 +445,14 @@ export function getPublicWorksheet(params, cb = info => {}) {
 
       const status = await getStatus(data, params.shareId);
 
-      if (!data || data.visibleType !== 2) {
+      if (!data || data.visibleType !== 2 || status === FILL_STATUS.FIXED) {
         cb({
           publicWorksheetInfo: {
+            ...data,
             logoUrl: data.logo,
-            name: data.name,
             themeIndex: data.themeColor,
             themeBgColor: getThemeBgColor(data.themeColor, data.themeBgColor),
             coverUrl: data.cover,
-            projectName: data.projectName,
-            worksheetId: data.worksheetId,
           },
           status,
         });
@@ -477,7 +481,7 @@ export function getPublicWorksheet(params, cb = info => {}) {
         const baseUrl = `${md.global.Config.WebUrl}weixinAuth`;
         const authUrl = `${data.returnUrl.replace(
           '&redirect_uri=custom',
-          `&redirect_uri=${encodeURIComponent(`${baseUrl}?returnUrl=${currentUrl}`)}`,
+          `&redirect_uri=${encodeURIComponent(`${baseUrl}?returnUrl=${currentUrl}&time=${new Date().getTime()}`)}`,
         )}`;
         location.href = `${baseUrl}?authUrl=${encodeURIComponent(authUrl)}`;
         return;
@@ -585,6 +589,7 @@ export function addWorksheetRow(
     triggerUniqueError = () => {},
     setSubListUniqueError = () => {},
     setRuleError = () => {},
+    setServiceError = () => {},
   },
   cb = () => {},
 ) {
@@ -623,6 +628,9 @@ export function addWorksheetRow(
               break;
             case 22:
               setSubListUniqueError(data.badData);
+              break;
+            case 31:
+              setServiceError(data.badData);
               break;
             case 32:
               setRuleError(data.badData);

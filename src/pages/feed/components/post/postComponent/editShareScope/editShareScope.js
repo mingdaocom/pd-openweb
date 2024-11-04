@@ -1,12 +1,13 @@
 import doT from 'dot';
+import { createRoot } from 'react-dom/client';
 import postAjax from 'src/api/post';
-import SelectGroup from 'src/components/selectGroup/selectAllGroup';
 import './style.less';
 import mainHtml from './tpl/main.html';
 import resultHtml from './tpl/result.html';
 import _ from 'lodash';
 import Dialog from 'ming-ui/components/Dialog';
 import React from 'react';
+import { SelectGroup } from 'ming-ui/functions/quickSelectGroup';
 
 var EditShareScope = function (options, callback) {
   var DEFAULTS = {};
@@ -49,33 +50,46 @@ EditShareScope.prototype = {
     ES.$shareScpe = ES.$content.find('.shareScope');
     options = {
       projectId: ES.type === 'manager' ? ES.options.projectIds[0] : undefined,
-      noCreateGroup: true,
       filterDisabledGroup: true,
-      showCompanyName: true,
-      isRadio: false,
-      filterByProjects: true,
-      renderWhenBegin: true,
       defaultValue: {
-        group: ES.options.scope.shareGroups.map(function (group) {
+        shareGroupIds: ES.options.scope.shareGroups.map(function (group) {
           return group.groupId;
         }),
-        project: ES.options.scope.shareProjects.map(function (project) {
+        shareProjectIds: ES.options.scope.shareProjects.map(function (project) {
           return project.projectId;
         }),
       },
-      changeCallback: function (scope) {
-        var num = scope.groups.length + scope.shareProjectIds.length;
-        ES.$selectedNum.html(num > 0 ? '(' + num + ')' : '');
-      },
     };
-    ES.scopeObj = new SelectGroup(ES.$shareScpe[0], options);
-    ES.scopeObj.defaultSlide();
+
+    ES.renderSelectGroup(options);
     ES.bindEvent();
+  },
+  renderSelectGroup: function (options) {
+    var ES = this;
+    const root = createRoot(document.getElementById('editShareScopeSelectGroup'));
+
+    root.render(
+      <SelectGroup
+        {...options}
+        showType={2}
+        onChange={value => {
+          ES.options.scopeValue =
+            !value.isMe &&
+            !(value.shareGroupIds || []).length &&
+            !(value.shareProjectIds || []).length &&
+            !(value.radioProjectIds || []).length
+              ? undefined
+              : _.pick(value, ['radioProjectIds', 'shareGroupIds', 'shareProjectIds']);
+          var num = value.shareGroupIds.length + value.shareProjectIds.length;
+          ES.$selectedNum.html(num > 0 ? '(' + num + ')' : '');
+        }}
+      />,
+    );
   },
   bindEvent: function () {
     var ES = this;
     this.$saveBtn.on('click', function () {
-      var scope = ES.$shareScpe.SelectGroup('getScope');
+      var scope = ES.options.scopeValue;
 
       if (!scope) {
         alert(_l('请选择分享范围'), 3);

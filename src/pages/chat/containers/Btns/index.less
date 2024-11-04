@@ -14,6 +14,8 @@
     height: 100%;
     transition: opacity 0.2s;
     z-index: 1;
+    padding-bottom: 6px;
+    box-sizing: border-box;
     .icon-initiate_chat,
     .icon-chat_retract,
     .icon-chat_open {
@@ -44,7 +46,7 @@
   }
   .ChatList-btn {
     width: 25%;
-    height: 35px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -60,25 +62,16 @@
     display: flex !important;
   }
   &.visible {
-    height: 125px;
+    height: 106px;
     flex-direction: column;
     .ChatList-btn {
       width: 100%;
     }
-    .addressBook-btn {
-      margin-top: 5px;
-    }
-    .chat-btn {
-      margin-bottom: 5px;
-    }
     .sidebar-btn {
-      height: 45px;
-      i:not(:hover), i:hover {
-        color: #fff !important;
-      }
+      height: 32px;
     }
     .dark {
-      background-color: rgba(65, 84, 93, .5);
+      color: #9e9e9e;
     }
   }
 }

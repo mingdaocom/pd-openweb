@@ -9,7 +9,7 @@ import NoProjectsStatus from '../AppCenter/components/NoProjectsStatus';
 import AppGrid from '../AppCenter/components/AppGrid';
 import CollectionApps from './CollectionApps';
 import BulletinBoard from './BulletinBoard';
-import { getGreetingText, themeColors, MODULE_TYPES } from './utils';
+import { getGreetingText, MODULE_TYPES, urlToBase64 } from './utils';
 import { getFilterApps } from '../AppCenter/utils';
 import DashboardSetting from './DashboardSetting';
 import RecordFav from 'src/pages/AppHomepage/RecordFav';
@@ -203,6 +203,8 @@ export default function Dashboard(props) {
     dashboardColor,
     hasBgImg,
     myPermissions = [],
+    advancedThemes = [],
+    currentTheme = {},
   } = props;
   const projects = _.get(md, 'global.Account.projects');
   const isExternal = projectId === 'external';
@@ -210,7 +212,6 @@ export default function Dashboard(props) {
   const actions = useMemo(() => new CreateActions({ dispatch, state }), [state]);
   const [flag, setFlag] = useState(null);
   const [settingVisible, setSettingVisible] = useState(false);
-  const [advancedThemes, setAdvancedThemes] = useState([]);
   const {
     origin = {},
     dashboardLoading,
@@ -226,48 +227,30 @@ export default function Dashboard(props) {
     appLang = [],
     projectGroupsLang,
   } = state;
-  const {
-    logo,
-    logoSwitch,
-    slogan,
-    boardSwitch,
-    color = '',
-    logoHeight,
-    bulletinBoards = [],
-    advancedSetting = {},
-  } = platformSetting;
+  const { logo, logoSwitch, slogan, boardSwitch, logoHeight, bulletinBoards = [] } = platformSetting;
   const { displayCommonApp, rowCollect, todoDisplay, displayApp, displayChart, sortItems } = origin.homeSetting || {};
 
-  const hasNewTheme = !md.global.Config.IsLocal && !!advancedThemes.filter(item => item.isNewTheme).length;
-  const newTheme = advancedThemes.filter(item => item.isNewTheme)[0] || {};
+  const hasNewTheme = !md.global.Config.IsLocal && !!advancedThemes.length;
+  const newTheme = advancedThemes[0] || {};
   const hasProjectSetting = hasPermission(myPermissions, PERMISSION_ENUM.DASHBOARD_SETTING);
 
   const fetchData = ({ noCache } = {}) => {
     !isExternal ? actions.loadDashboardInfo({ projectId, noCache }) : actions.loadAppAndGroups({ projectId, noCache });
   };
 
-  useEffect(() => {
-    !md.global.Config.IsLocal &&
-      fetch('https://filepub.mingdao.com/dashboard/themes_2024_09_03.js')
-        .then(res => res.text())
-        .then(res => setAdvancedThemes(eval(res)));
-  }, []);
-
   useEffect(fetchData, [projectId]);
 
   useEffect(() => {
-    color &&
+    dashboardColor.themeColor &&
       $('.appCenterHeader').css(
         'background',
-        color === '#2196F3' || (!_.includes(themeColors, color) && !color.startsWith('#'))
-          ? '#fff'
-          : dashboardColor.bgColor,
+        dashboardColor.themeColor === '#2196F3' ? '#fff' : dashboardColor.bgColor,
       );
 
     return () => {
       $('.appCenterHeader').css('background', '#fff');
     };
-  }, [color]);
+  }, [dashboardColor]);
 
   const onSetAdvancedTheme = theme => {
     const hasThemePic = !!bulletinBoards.filter(item => item.themeKey === theme.themeKey).length;
@@ -275,38 +258,40 @@ export default function Dashboard(props) {
       ? updatePlatformSetting({
           color: theme.themeColor,
           boardSwitch: true,
-          advancedSetting: theme,
+          advancedSetting: _.pick(theme, 'themeKey'),
         })
       : getToken([{ bucket: 4, ext: '.jpg' }]).then(res => {
           if (res.error) {
             alert(res.error);
           } else {
             const url = `${md.global.FileStoreConfig.uploadHost}putb64/-1/key/${Base64.encode(res[0].key)}`;
-            axios
-              .post(url, theme.bulletinPic.replace('data:image/jpeg;base64,', ''), {
-                headers: {
-                  'Content-Type': 'application/octet-stream',
-                  Authorization: `UpToken ${res[0].uptoken}`,
-                },
-              })
-              .then(({ data }) => {
-                const { key = '' } = data || {};
-                updatePlatformSetting({
-                  color: theme.themeColor,
-                  boardSwitch: true,
-                  bulletinBoards: [
-                    {
-                      url: md.global.FileStoreConfig.pictureHost + key,
-                      key,
-                      bucket: 4,
-                      link: theme.bulletinLink,
-                      title: theme.bulletinTitle,
-                      themeKey: theme.themeKey,
-                    },
-                  ].concat(bulletinBoards),
-                  advancedSetting: theme,
+            urlToBase64(theme.bulletinPic).then(base64 => {
+              axios
+                .post(url, base64.replace('data:image/jpeg;base64,', ''), {
+                  headers: {
+                    'Content-Type': 'application/octet-stream',
+                    Authorization: `UpToken ${res[0].uptoken}`,
+                  },
+                })
+                .then(({ data }) => {
+                  const { key = '' } = data || {};
+                  updatePlatformSetting({
+                    color: theme.themeColor,
+                    boardSwitch: true,
+                    bulletinBoards: [
+                      {
+                        url: md.global.FileStoreConfig.pictureHost + key,
+                        key,
+                        bucket: 4,
+                        link: theme.bulletinLink,
+                        title: theme.bulletinTitle,
+                        themeKey: theme.themeKey,
+                      },
+                    ].concat(bulletinBoards),
+                    advancedSetting: _.pick(theme, 'themeKey'),
+                  });
                 });
-              });
+            });
           }
         });
   };
@@ -338,7 +323,7 @@ export default function Dashboard(props) {
                     onAppSorted={args => {
                       actions.updateAppSort(args);
                     }}
-                    currentTheme={advancedSetting}
+                    currentTheme={currentTheme}
                   />
                 </CardItem>
               ) : null;
@@ -353,7 +338,7 @@ export default function Dashboard(props) {
                     recentAppItems={recentAppItems}
                     onMarkApp={para => actions.markApp(para)}
                     dashboardColor={dashboardColor}
-                    currentTheme={advancedSetting}
+                    currentTheme={currentTheme}
                   />
                 </CardItem>
               ) : null;
@@ -362,7 +347,7 @@ export default function Dashboard(props) {
                 <CardItem key={index} className={cx('sortItem rowCollectCard', { halfWidth })}>
                   <div className="cardTitle pointer">
                     <div className="titleText">
-                      {advancedSetting.recordFavIcon && <img src={advancedSetting.recordFavIcon} />}
+                      {currentTheme.recordFavIcon && <img src={currentTheme.recordFavIcon} />}
                       {_l('记录收藏')}
                     </div>
                     <div className="flex"></div>
@@ -386,7 +371,7 @@ export default function Dashboard(props) {
               ) : null;
             default:
               return displayChart ? (
-                <CollectionCharts key={index} projectId={projectId} flag={flag} currentTheme={advancedSetting} />
+                <CollectionCharts key={index} projectId={projectId} flag={flag} currentTheme={currentTheme} />
               ) : null;
           }
         })}
@@ -399,15 +384,15 @@ export default function Dashboard(props) {
       <ScrollView className="flex dashboardScroll">
         <div className="dashboardContent">
           <div className="dashboardHeader">
-            {logoSwitch && (logo || slogan) ? (
+            {(logoSwitch && logo) || slogan ? (
               <div className="logoWrapper">
-                {logo && (
+                {logoSwitch && logo && (
                   <img
                     src={`${md.global.FileStoreConfig.pictureHost}ProjectLogo/${logo}?imageView2/2/h/200/q/90`}
                     alt="logo"
                   />
                 )}
-                {slogan && <span className={logo ? 'Font17 mLeft16' : 'Font17'}>{slogan}</span>}
+                {slogan && <span className={logoSwitch && logo ? 'Font17 mLeft16' : 'Font17'}>{slogan}</span>}
               </div>
             ) : (
               <div className="Font26 overflow_ellipsis">
@@ -420,15 +405,13 @@ export default function Dashboard(props) {
               {hasNewTheme && hasProjectSetting && !isExternal && (
                 <Tooltip
                   title={
-                    advancedSetting.themeKey === newTheme.themeKey
-                      ? _l('修改主题')
-                      : _l('使用%0主题', newTheme.themeName)
+                    currentTheme.themeKey === newTheme.themeKey ? _l('修改主题') : _l('使用%0主题', newTheme.themeName)
                   }
                   placement="bottom"
                 >
                   <NewThemeSet
                     onClick={() => {
-                      advancedSetting.themeKey === newTheme.themeKey
+                      currentTheme.themeKey === newTheme.themeKey
                         ? setSettingVisible(true)
                         : onSetAdvancedTheme(newTheme);
                     }}
@@ -474,7 +457,7 @@ export default function Dashboard(props) {
                     });
                   }}
                   onClose={() => setSettingVisible(false)}
-                  currentTheme={advancedSetting}
+                  currentTheme={currentTheme}
                   onSetAdvancedTheme={onSetAdvancedTheme}
                   advancedThemes={advancedThemes}
                   hasProjectSetting={hasProjectSetting}
@@ -504,7 +487,7 @@ export default function Dashboard(props) {
                 todoDisplay={todoDisplay}
                 flag={flag}
                 setFlag={setFlag}
-                currentTheme={advancedSetting}
+                currentTheme={currentTheme}
               />
             </CardItem>
           </div>
@@ -540,7 +523,7 @@ export default function Dashboard(props) {
                 appLang={appLang}
                 groups={groups}
                 hideExternalTitle={isExternal}
-                currentTheme={advancedSetting}
+                currentTheme={currentTheme}
                 myPermissions={myPermissions}
               />
             </CardItem>

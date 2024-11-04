@@ -19,11 +19,9 @@ import {
   ADD_API_CONTROLS,
   ADD_WORKSHEET_SUCCESS,
   WORKSHEETINFO_SUCCESS_DATA,
-  LIST_SUCCESS,
-  appRoleSuccessData2,
-  DATA_RELATIONS_SUCCESS_DATA,
-  NUMBER_SUCCESS_DATA,
-  ADD_ROW_SUCCESS,
+  DATA_PIPELINE_MENUS,
+  DATA_PIPELINE_FILTERS,
+  ERROR_CODE,
 } from './config';
 import homeApp from 'src/api/homeApp';
 import { Icon, Dialog, Textarea, LoadDiv, ScrollView, Skeleton, SvgIcon } from 'ming-ui';
@@ -41,6 +39,7 @@ import { setFavicon } from 'src/util';
 import Share from 'src/pages/worksheet/components/Share';
 import { ShareState, VerificationPass, SHARE_STATE } from 'worksheet/components/ShareState';
 import DocumentTitle from 'react-document-title';
+import integrationAjax from 'src/pages/integration/api/syncTask';
 
 const FIELD_TYPE = FIELD_TYPE_LIST.concat([{ text: _l('对象'), value: 10000006, en: 'object' }]);
 
@@ -131,6 +130,7 @@ class WorksheetApi extends Component {
       workflowInfo: {},
       menuList: MENU_LIST,
       shareVisible: false,
+      dataPipelineList: undefined,
       expandIds: [],
     };
     this.canScroll = true;
@@ -248,6 +248,7 @@ class WorksheetApi extends Component {
 
   // 获取工作表信息
   getWorksheetApiInfo = worksheetId => {
+    const { selectId } = this.state;
     Promise.all([
       // 获取工作表信息
       ajaxRequest.getWorksheetApiInfo({
@@ -262,26 +263,38 @@ class WorksheetApi extends Component {
       }),
     ]).then(result => {
       let [data = [], list = {}] = result;
+      const isDataPipeline = selectId.includes('dataPipeline');
+
       if (!!list.alias) {
         data = data.map(o => {
           return { ...o, alias: list.alias };
         });
       }
-      MENU_LIST.forEach(item => {
-        if (item.id === 'List') {
-          item.data.forEach(obj => {
-            if (obj.name === 'viewId') {
-              obj.desc = data[0].views.map(o => {
-                return {
-                  [o.name]: o.viewId,
-                };
-              });
-            }
-          });
-        }
-      });
+
+      if (!isDataPipeline) {
+        MENU_LIST.forEach(item => {
+          if (item.id === 'List') {
+            item.data.forEach(obj => {
+              if (obj.name === 'viewId') {
+                obj.desc = data[0].views.map(o => {
+                  return {
+                    [o.name]: o.viewId,
+                  };
+                });
+              }
+            });
+          }
+        });
+      }
+
       this.setState(
-        { data, numberTypeList: list.template.controls || [], loading: false, alias: list.alias, menuList: MENU_LIST },
+        {
+          [isDataPipeline ? 'dataPipelineData' : 'data']: data,
+          numberTypeList: list.template.controls || [],
+          loading: false,
+          alias: list.alias,
+          menuList: MENU_LIST,
+        },
         () => {
           this.scrollToFixedPosition();
         },
@@ -298,6 +311,28 @@ class WorksheetApi extends Component {
     });
   };
 
+  getDataPipelineWorksheet = () => {
+    const { appInfo } = this.state;
+
+    this.setState({ dataPipelineLoading: true });
+
+    integrationAjax
+      .list(
+        {
+          projectId: _.get(appInfo, 'apiResponse.projectId'),
+          appId: _.get(appInfo, 'apiResponse.appId'),
+          status: 'RUNNING',
+          pageSize: 1000,
+          pageNo: 0,
+          taskType: 1,
+        },
+        { isAggTable: true },
+      )
+      .then(res => {
+        this.setState({ dataPipelineList: res.content, dataPipelineLoading: false });
+      });
+  };
+
   getId() {
     const { isSharePage } = this.props;
     if (isSharePage) {
@@ -311,7 +346,10 @@ class WorksheetApi extends Component {
    * 滚动到固定位置
    */
   scrollToFixedPosition(id) {
-    const selectId = id || this.state.selectId;
+    const selectId = (id || this.state.selectId).replace('dataPipeline', '');
+
+    if (!$(`#${selectId}-content`)[0]) return;
+
     setTimeout(() => {
       this.canScroll = true;
       $('.worksheetApiScroll').nanoScroller({ scrollTo: $(`#${selectId}-content`) });
@@ -334,6 +372,12 @@ class WorksheetApi extends Component {
           this.getWorkflowApiInfo(workflowId);
           return;
         }
+
+        if (selectId === 'dataPipeline' && !this.state.dataPipelineList) {
+          this.getDataPipelineWorksheet();
+          return;
+        }
+
         this.scrollToFixedPosition();
       },
     );
@@ -342,37 +386,43 @@ class WorksheetApi extends Component {
   /**
    * 渲染二三级工作表
    */
-  renderSideItem() {
-    const { worksheetList = [], selectId, expandIds = [] } = this.state;
-    return worksheetList.map(item => {
-      const isSelect = (expandIds[1] || '').includes(item.workSheetId);
+  renderSideItem(props) {
+    const { worksheetList = [], selectId, dataPipelineList = [], expandIds = [] } = this.state;
+    const type = _.get(props, 'type') || 'worksheetCreateForm';
+    const list = type === 'dataPipeline' ? MENU_LIST.filter(l => DATA_PIPELINE_MENUS.includes(l.id)) : MENU_LIST;
+
+    return (type === 'dataPipeline' ? dataPipelineList : worksheetList).map(item => {
+      const worksheetId = item.workSheetId || item.worksheetId;
+      const isSelect = (expandIds[1] || '').includes(worksheetId);
+      const prefix = type === 'dataPipeline' ? type : '';
+
       return (
-        <div key={item.workSheetId} className="worksheetApiMenu">
+        <div key={worksheetId} className="worksheetApiMenu">
           <div
             className="worksheetApiMenuItem overflow_ellipsis"
             onClick={() => {
-              let id = item.workSheetId + MENU_LIST[0].id;
+              let id = worksheetId + MENU_LIST[0].id;
               isSelect
                 ? this.setState({ expandIds: [expandIds[0]] })
                 : this.setSelectId({
                     selectId: id,
-                    worksheetId: item.workSheetId,
+                    worksheetId: worksheetId,
                     expandIds: [expandIds[0], id],
                   });
             }}
           >
             <i className={cx('mRight5 Gray_9e', isSelect ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
-            {item.workSheetName}
+            {item.workSheetName || item.name}
           </div>
           {isSelect
-            ? MENU_LIST.map(o => {
+            ? list.map(o => {
                 return (
                   <div
-                    key={item.workSheetId + o.id}
+                    key={worksheetId + o.id}
                     className={cx('worksheetApiMenuItem pLeft58 overflow_ellipsis', {
-                      active: selectId === item.workSheetId + o.id,
+                      active: selectId === `${prefix}${worksheetId}${o.id}`,
                     })}
-                    onClick={() => this.setSelectId({ selectId: item.workSheetId + o.id })}
+                    onClick={() => this.setSelectId({ selectId: `${prefix}${worksheetId}${o.id}` })}
                   >
                     {o.title}
                   </div>
@@ -424,6 +474,30 @@ class WorksheetApi extends Component {
             {this.renderSideItem()}
           </Fragment>
         ) : null}
+      </div>
+    );
+  }
+
+  // 渲染聚合表侧栏
+  renderDataPipelineSide() {
+    const { selectId, expandIds = [], dataPipelineLoading } = this.state;
+    const isOpen = expandIds[0] === 'dataPipeline';
+
+    return (
+      <div className="worksheetApiMenu">
+        <div
+          className="worksheetApiMenuTitle"
+          onClick={() =>
+            isOpen
+              ? this.setState({ expandIds: [] })
+              : this.setSelectId({ selectId: 'dataPipeline', expandIds: ['dataPipeline'] })
+          }
+        >
+          <i className={cx('mRight5 Gray_9e', isOpen ? 'icon-arrow-down' : 'icon-arrow-right-tip')} />
+          {_l('聚合表')}
+        </div>
+        {dataPipelineLoading && <LoadDiv />}
+        {isOpen && this.renderSideItem({ type: 'dataPipeline' })}
       </div>
     );
   }
@@ -525,14 +599,23 @@ class WorksheetApi extends Component {
   /**
    * 渲染内容
    */
-  renderContent(item, i) {
+  renderContent(item, i, type = 'worksheet') {
+    const menuList = type === 'dataPipeline' ? MENU_LIST.filter(l => DATA_PIPELINE_MENUS.includes(l.id)) : MENU_LIST;
+
     return (
-      <Fragment key={i}>
-        {MENU_LIST.map((o, i) => (
-          <div className="flexRow worksheetApiLi" key={i} id={item.worksheetId + MENU_LIST[i].id + '-content'}>
-            {o.id === 'Table' ? this.renderTable(item, i) : this.renderWorksheetCommon(item, i)}
-          </div>
-        ))}
+      <Fragment key={i + type}>
+        {menuList.map((o, i) => {
+          const index = _.findIndex(MENU_LIST, l => l.id === o.id);
+          return (
+            <div
+              className="flexRow worksheetApiLi"
+              key={i + type}
+              id={item.worksheetId + MENU_LIST[index].id + '-content'}
+            >
+              {o.id === 'Table' ? this.renderTable(item, i, type) : this.renderWorksheetCommon(item, index, type)}
+            </div>
+          );
+        })}
       </Fragment>
     );
   }
@@ -908,17 +991,18 @@ class WorksheetApi extends Component {
   /**
    * 渲染附录内容
    */
-  renderAppendixContent() {
+  renderAppendixContent(list) {
     const getWidth = (headerData, key) => _.get(_.find(headerData, headerObj => headerObj.key === key) || {}, 'width');
+    const data = list || MENU_LIST_APPENDIX;
 
     return (
       <Fragment>
-        {MENU_LIST_APPENDIX.map((o, i) => {
+        {data.map((o, i) => {
           const headerData = MENU_LIST_APPENDIX_HEADER[o.id] || [];
-          const isFirst = i === 0;
+          const isFirst = !list && i === 0;
 
           return (
-            <div className="flexRow worksheetApiLi" key={i} id={MENU_LIST_APPENDIX[i].id + '-content'}>
+            <div className="flexRow worksheetApiLi" key={i} id={data[i].id + '-content'}>
               <div className="flex worksheetApiContent1">
                 {isFirst && <div className="Font22 bold mBottom40">{_l('附录')}</div>}
 
@@ -999,8 +1083,8 @@ class WorksheetApi extends Component {
   /**
    * 对照表
    */
-  renderTable(item, i) {
-    const { showAliasDialog, numberTypeList = [], showWorksheetAliasDialog, alias } = this.state;
+  renderTable(item, i, type) {
+    const { showAliasDialog, numberTypeList = [], showWorksheetAliasDialog, alias, dialogType } = this.state;
     const { isSharePage } = this.props;
 
     return (
@@ -1017,6 +1101,7 @@ class WorksheetApi extends Component {
                 onClick={() => {
                   this.setState({
                     showWorksheetAliasDialog: true,
+                    dialogType: type,
                   });
                 }}
               >
@@ -1025,7 +1110,7 @@ class WorksheetApi extends Component {
             )}
           </div>
           <div className="Font17 bold mTop40">
-            {MENU_LIST[0].title}{' '}
+            {MENU_LIST[0].title}
             {!isSharePage && (
               <span
                 className="Right Hand Font13"
@@ -1033,6 +1118,7 @@ class WorksheetApi extends Component {
                 onClick={() => {
                   this.setState({
                     showAliasDialog: !showAliasDialog,
+                    dialogType: type,
                   });
                 }}
               >
@@ -1063,7 +1149,7 @@ class WorksheetApi extends Component {
             );
           })}
         </div>
-        {showAliasDialog && (
+        {showAliasDialog && dialogType === type && (
           <AliasDialog
             showAliasDialog={showAliasDialog}
             controls={this.state.data[0].controls}
@@ -1073,6 +1159,7 @@ class WorksheetApi extends Component {
               this.setState(
                 {
                   showAliasDialog: data.showAliasDialog,
+                  dialogType: undefined,
                 },
                 () => {
                   this.getWorksheetApiInfo(item.worksheetId);
@@ -1081,11 +1168,11 @@ class WorksheetApi extends Component {
             }}
           />
         )}
-        {showWorksheetAliasDialog && (
+        {showWorksheetAliasDialog && dialogType === type && (
           <WorksheetAliasDialog
             show={showWorksheetAliasDialog}
             onClose={() => {
-              this.setState({ showWorksheetAliasDialog: false });
+              this.setState({ showWorksheetAliasDialog: false, dialogType: undefined });
             }}
             alias={alias}
             onOk={alias => {
@@ -1103,6 +1190,7 @@ class WorksheetApi extends Component {
                         return { ...o, alias: alias };
                       }),
                       showWorksheetAliasDialog: false,
+                      dialogType: undefined,
                     });
                   } else if (res === 3) {
                     alert(_l('工作表别名格式不匹配'), 3);
@@ -1468,19 +1556,23 @@ class WorksheetApi extends Component {
       .map(o => this.renderMapItem(o));
   };
 
-  renderWorksheetCommon(item, i) {
+  renderWorksheetCommon(item, i, type) {
     const specification = MENU_LIST[i];
     const rightOptions = {};
-    const otherOptions = _.clone(specification.requestData) || {};
+    const needFilter = type === 'dataPipeline' && DATA_PIPELINE_FILTERS[specification.id];
+    const otherOptions =
+      _.omit(specification.requestData, needFilter ? DATA_PIPELINE_FILTERS[specification.id] : []) || {};
 
+    if (needFilter)
+      specification.data = specification.data.filter(l => !DATA_PIPELINE_FILTERS[specification.id].includes(l.name));
     if (specification.successData) rightOptions.successData = specification.successData;
     if (specification.errorData) rightOptions.errorData = specification.errorData;
     if (specification.id === 'List') otherOptions.filters = this.fillFilters();
-    if (['AddRow', 'AddRows', 'UpdateDetail', 'UpdateDetails'].includes(specification.id))
-      otherOptions[specification.id === 'AddRows' ? 'rows' : 'controls'] = this.fillControls(
-        item,
-        specification.id === 'UpdateDetails',
-      );
+    if (['AddRow', 'AddRows', 'UpdateDetail', 'UpdateDetails'].includes(specification.id)) {
+      const controls = this.fillControls(item, specification.id === 'UpdateDetails');
+      otherOptions[specification.id === 'AddRows' ? 'rows' : 'controls'] =
+        specification.id === 'AddRows' ? [controls] : controls;
+    }
 
     specification.data.forEach(obj => {
       if (
@@ -1579,7 +1671,7 @@ class WorksheetApi extends Component {
   }
 
   render() {
-    const { data = [], loading, selectId, dataApp, isError, shareVisible, appInfo } = this.state;
+    const { data = [], loading, selectId, dataApp, isError, shareVisible, appInfo, dataPipelineData = [] } = this.state;
     const { isSharePage } = this.props;
     const appId = this.getId();
     const sidebarList = isSharePage
@@ -1649,8 +1741,10 @@ class WorksheetApi extends Component {
               </div>
             ) : (
               <ScrollView>
-                {sidebarList.map(({ key, title }) => {
-                  return (
+                {sidebarList.map(({ key, title, render, args }) => {
+                  return render ? (
+                    this[render](args)
+                  ) : (
                     <div
                       className={cx('worksheetApiMenuTitle', { active: selectId === key })}
                       onClick={() => this.setSelectId({ selectId: key })}
@@ -1659,18 +1753,6 @@ class WorksheetApi extends Component {
                     </div>
                   );
                 })}
-                {this.renderWorksheetSide()}
-
-                {this.renderPBCSide()}
-
-                {/** 应用角色 */}
-                {this.renderOtherSide(0)}
-
-                {/** 筛选 */}
-                {this.renderOtherSide(1)}
-
-                {/** 选项集 */}
-                {this.renderOtherSide(2)}
               </ScrollView>
             )}
           </div>
@@ -1729,9 +1811,10 @@ class WorksheetApi extends Component {
                 <div className="flexRow worksheetApiLi" id="workflowInfo-content">
                   {this.renderWorkflowInfo()}
                 </div>
-
                 <div id="list-content">{data.map((item, i) => this.renderContent(item, i))}</div>
-
+                <div id="dataPipeline-content">
+                  {dataPipelineData.map((item, i) => this.renderContent(item, i, 'dataPipeline'))}
+                </div>
                 {/** 应用角色 */}
                 {this.renderAppRoleContent()}
 
@@ -1740,6 +1823,7 @@ class WorksheetApi extends Component {
 
                 {/** 选项集 */}
                 {this.renderOptions()}
+                {this.renderAppendixContent(ERROR_CODE)}
               </ScrollView>
             )}
           </div>

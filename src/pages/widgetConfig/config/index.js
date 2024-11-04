@@ -1,15 +1,5 @@
 export const DEFAULT_INTRO_LINK = 'https://help.mingdao.com/worksheet/controls';
 export const OPTION_COLORS_LIST = [
-  '#2196F3',
-  '#08C9C9',
-  '#00C345',
-  '#FAD714',
-  '#FF9300',
-  '#F52222',
-  '#EB2F96',
-  '#7500EA',
-  '#2D46C4',
-  '#484848',
   '#C9E6FC',
   '#C3F2F2',
   '#C2F1D2',
@@ -20,6 +10,16 @@ export const OPTION_COLORS_LIST = [
   '#DEC2FA',
   '#CCD2F1',
   '#D3D3D3',
+  '#2196F3',
+  '#08C9C9',
+  '#00C345',
+  '#FAD714',
+  '#FF9300',
+  '#F52222',
+  '#EB2F96',
+  '#7500EA',
+  '#2D46C4',
+  '#484848',
 ];
 export const OPTION_COLORS_LIST_HOVER = [
   '#1E85D9',
@@ -96,7 +96,7 @@ export const HAS_EXPLAIN_CONTROL = [2, 3, 4, 5, 6, 7, 8, 14, 15, 16, 35, 43, 46,
 export const NO_CUSTOM_SETTING_CONTROL = [5, 41, 42];
 
 export const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [
-  2, 3, 4, 5, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 35, 36, 41, 46, 48,
+  2, 3, 4, 5, 7, 8, 9, 10, 11, 15, 16, 19, 23, 24, 26, 27, 28, 35, 36, 40, 41, 46, 48,
 ];
 
 // 无描述控件
@@ -144,7 +144,7 @@ export const HAVE_TABLE_STYLE_WIDGET = [34];
 
 // 有高级设置的控件
 export const HAVE_HIGH_SETTING_WIDGET = [
-  2, 3, 6, 14, 15, 16, 23, 24, 26, 27, 28, 29, 31, 32, 33, 35, 38, 40, 42, 46, 51,
+  2, 3, 6, 10, 14, 15, 16, 23, 24, 26, 27, 28, 29, 31, 32, 33, 35, 38, 40, 42, 46, 51,
 ];
 
 // 有移动端设置的控件

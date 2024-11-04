@@ -113,7 +113,7 @@ function Apply(props) {
       className: 'timeTr',
       minW: 130,
       render: (text, data, index) => {
-        return moment(data.createTime).format('YYYY-MM-DD HH:mm');
+        return createTimeSpan(data.createTime);
       },
     },
     {

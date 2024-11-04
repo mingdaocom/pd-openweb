@@ -229,7 +229,7 @@ export default function pivotTableCountPanelGenerator(props) {
             <Count
               key={item.controlId}
               yAxis={item}
-              isPivotTable={true}
+              isCollectMode={true}
               extra={
                 <Checkbox
                   className="mLeft0 mBottom15"
@@ -462,7 +462,7 @@ export default function pivotTableCountPanelGenerator(props) {
             <Count
               key={item.controlId}
               yAxis={item}
-              isPivotTable={true}
+              isCollectMode={true}
               extra={renderExtra(item)}
               summary={_.find(controlList, { controlId: item.controlId }) || { type: 1 }}
               onChangeSummary={(data, isRequest) => {

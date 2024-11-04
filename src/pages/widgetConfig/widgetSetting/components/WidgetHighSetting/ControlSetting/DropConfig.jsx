@@ -8,7 +8,13 @@ import _ from 'lodash';
 export default function DropConfig(props) {
   const { data, onChange, fromPortal } = props;
   const [visible, setVisible] = useState(false);
-  const { type, dataSource, advancedSetting: { showtype, allowadd, checktype } = {}, options = [], enumDefault } = data;
+  const {
+    type,
+    dataSource,
+    advancedSetting: { showtype, allowadd, checktype, readonlyshowall, showselectall } = {},
+    options = [],
+    enumDefault,
+  } = data;
 
   const hasScore = _.find(options, i => _.isNumber(i.score));
 
@@ -48,6 +54,17 @@ export default function DropConfig(props) {
           onCancel={() => setVisible(false)}
         />
       )}
+      {(type === 9 || (type === 10 && checktype !== '1')) && (
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={readonlyshowall === '1'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { readonlyshowall: checked ? '0' : '1' }))}
+          >
+            <span>{_l('只读时显示全部选项')}</span>
+          </Checkbox>
+        </div>
+      )}
       {((type === 11 && showtype !== '2') || (type === 10 && checktype === '1')) && (
         <div className="labelWrap">
           <Checkbox
@@ -59,6 +76,17 @@ export default function DropConfig(props) {
             <Tooltip placement={'bottom'} title={_l('勾选后，用户填写时可输入不在备选项中的内容，并添加至选项列表')}>
               <i className="icon-help tipsIcon Gray_9e Font16 pointer"></i>
             </Tooltip>
+          </Checkbox>
+        </div>
+      )}
+      {type === 10 && (
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={showselectall === '1'}
+            onClick={checked => onChange(handleAdvancedSettingChange(data, { showselectall: checked ? '0' : '1' }))}
+          >
+            <span>{_l('显示全选操作')}</span>
           </Checkbox>
         </div>
       )}

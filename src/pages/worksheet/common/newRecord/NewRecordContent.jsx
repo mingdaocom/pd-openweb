@@ -220,7 +220,7 @@ function NewRecordForm(props) {
     cache.current.newRecordOptions = options;
     customwidget.current.submitFormData();
   }
-  async function onSave(error, { data, handleRuleError } = {}) {
+  async function onSave(error, { data, handleRuleError, handleServiceError } = {}) {
     if (error) {
       onSubmitEnd();
       return;
@@ -272,9 +272,8 @@ function NewRecordForm(props) {
         setSubListUniqueError: badData => {
           customwidget.current.dataFormat.callStore('setUniqueError', { badData });
         },
-        setRuleError: badData => {
-          handleRuleError(badData, cellObjs.current);
-        },
+        setRuleError: badData => handleRuleError(badData),
+        setServiceError: badData => handleServiceError(badData),
         onSubmitSuccess: ({ rowData, newControls }) => {
           if (actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd || notDialog) {
             alert('保存成功', 1, 1000);
@@ -623,6 +622,9 @@ function NewRecordForm(props) {
                   });
                   customwidget.current.updateRenderData();
                 }
+                setFormdata(prevFormData =>
+                  prevFormData.map(item => (item.controlId === controlId ? { ...item, value: String(num) } : item)),
+                );
               }}
               projectId={projectId || props.projectId}
               onWidgetChange={() => {

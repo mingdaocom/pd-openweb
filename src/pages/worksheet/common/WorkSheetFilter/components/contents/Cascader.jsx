@@ -94,7 +94,7 @@ export default class RelateRecord extends React.Component {
   };
 
   render() {
-    const { control, disabled } = this.props;
+    const { control, disabled, from } = this.props;
     const { selectRecordVisible, tempRecord } = this.state;
     let { records } = this.state;
     if (tempRecord) {
@@ -147,7 +147,13 @@ export default class RelateRecord extends React.Component {
                 onChange={this.handleChange}
                 dataSource={control.dataSource}
                 viewId={control.viewId}
-                advancedSetting={_.assign({}, control.advancedSetting, this.isFuzzy ? { anylevel: '0' } : {})}
+                advancedSetting={_.assign(
+                  {},
+                  from === 'rule'
+                    ? _.omit(control.advancedSetting, ['limitlayer', 'minlayer', 'topfilters', 'topshow'])
+                    : control.advancedSetting,
+                  this.isFuzzy ? { anylevel: '0' } : {},
+                )}
                 onPopupVisibleChange={visible => {
                   if (!visible && !isTree && this.isAnyLevel) {
                     if (this.tempRecord) {

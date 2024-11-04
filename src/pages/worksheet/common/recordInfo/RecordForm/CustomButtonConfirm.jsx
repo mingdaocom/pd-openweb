@@ -222,6 +222,11 @@ export default function CustomButtonConfirm(props) {
       }}
       onCancel={onClose}
     >
+      {description && (
+        <div className="Font14 Gray_75 mBottom10" style={{ marginTop: -10 }}>
+          {description}
+        </div>
+      )}
       {verifyPwd && needPassWord && (
         <VerifyPasswordInput
           isRequired={true}
@@ -229,8 +234,6 @@ export default function CustomButtonConfirm(props) {
           onChange={({ password, isNoneVerification }) => setState({ password, noVerify: isNoneVerification })}
         />
       )}
-
-      {description && <div className="Font14 Gray_75">{description}</div>}
       {enableRemark && (
         <Fragment>
           <SectionName className={cx({ required: remarkRequired })}>{remarkName || _l('备注')}</SectionName>

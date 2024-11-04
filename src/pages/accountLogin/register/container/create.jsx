@@ -13,6 +13,64 @@ import fixedDataAjax from 'src/api/fixedData.js';
 import _ from 'lodash';
 import CompanyDrop from 'src/pages/accountLogin/components/companyDrop';
 
+const Wrap = styled.div`
+  &.messageBox {
+    .mesDiv.errorDiv:not(.errorDivCu) {
+      .title {
+        color: red !important;
+        top: -9;
+      }
+      input[type='text']:not(.iti__search-input),
+      input[type='password'],
+      .Dropdown--input,
+      .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+        .Dropdown--placeholder {
+          opacity: 1;
+        }
+      }
+    }
+    .mesDiv:not(.current) {
+      .title {
+        top: 20px !important;
+      }
+      input:not(.iti__search-input) .icon-arrow-down-border,
+      .Dropdown--input .icon-arrow-down-border {
+        position: absolute;
+        right: 12px;
+        top: 0;
+      }
+      input[type='text']:not(.iti__search-input),
+      input[type='password'],
+      .Dropdown--input,
+      .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+        .Dropdown--placeholder {
+          opacity: 0;
+          transition: all 0.3s;
+        }
+        &.active {
+          border: 2px solid #2196f3 !important;
+          .title {
+            color: #2196f3 !important;
+            top: -9;
+          }
+          .Dropdown--placeholder {
+            opacity: 1;
+          }
+        }
+      }
+      &.errorDiv {
+        .title {
+          top: -9px !important;
+        }
+      }
+      &.current {
+        .title {
+          top: -9px !important;
+        }
+      }
+    }
+  }
+`;
 const WrapCon = styled.div`
   position: absolute;
   top: 100%;
@@ -262,7 +320,7 @@ export default class Create extends React.Component {
 
     return (
       <React.Fragment>
-        <div className="messageBox mTop5">
+        <Wrap className="messageBox mTop5">
           <div
             className={cx('mesDiv', {
               ...setWarnningData(warnningData, ['.companyName'], focusDiv, companyName),
@@ -325,7 +383,6 @@ export default class Create extends React.Component {
             >
               {_l('组织名称')}
             </div>
-            {warnningTipFn(warnningData, ['.companyName'], focusDiv)}
           </div>
           {extraList.map(o => {
             //id：自定义，字符串不重复
@@ -336,7 +393,7 @@ export default class Create extends React.Component {
             if (o.type === 3) {
               return (
                 <div
-                  className={cx('mesDiv current mesDivDrop', {
+                  className={cx(`mesDiv mesDivDrop mesDivDrop_${o.id}`, {
                     ...setWarnningData(warnningData, [`.${o.id}`], focusDiv, extraDatas[o.id]),
                   })}
                 >
@@ -351,6 +408,15 @@ export default class Create extends React.Component {
                     }}
                     info={o}
                     warnningData={warnningData}
+                    onVisibleChange={show => {
+                      if (show) {
+                        $(`.mesDivDrop_${o.id}`).addClass('current errorDivCu');
+                      } else {
+                        if (!_.get(extraDatas, `${o.id}`)) {
+                          $(`.mesDivDrop_${o.id}`).removeClass('current errorDivCu');
+                        }
+                      }
+                    }}
                   />
                   <div
                     className="title"
@@ -360,7 +426,6 @@ export default class Create extends React.Component {
                   >
                     {o.name}
                   </div>
-                  {warnningTipFn(warnningData, [`.${o.id}`], focusDiv)}
                 </div>
               );
             } else {
@@ -414,12 +479,11 @@ export default class Create extends React.Component {
                   >
                     {o.name}
                   </div>
-                  {warnningTipFn(warnningData, [`.${o.id}`], focusDiv)}
                 </div>
               );
             }
           })}
-        </div>
+        </Wrap>
       </React.Fragment>
     );
   };

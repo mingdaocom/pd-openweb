@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Popup, Button, Dialog } from 'antd-mobile';
+import { Popup, Button, ActionSheet } from 'antd-mobile';
 import RowDetail from './RowDetail';
 
 export default function RowDetailModal(props) {
@@ -27,6 +27,7 @@ export default function RowDetailModal(props) {
       : 'edit'
     : 'edit';
   const disabled = mobileIsEdit ? props.disabled : true;
+  let deleteConformAction = null;
 
   // 切换上一条/下一条
   const handleSwitch = type => {
@@ -39,40 +40,57 @@ export default function RowDetailModal(props) {
     }
   };
 
+  // 删除记录
+  const deleteRecord = rowid => {
+    deleteConformAction = ActionSheet.show({
+      popupClassName: 'md-adm-actionSheet',
+      actions: [],
+      extra: (
+        <div className="flexColumn w100">
+          <div className="bold Gray Font17 pTop10">{_l('确定删除此记录 ?')}</div>
+          <div className="valignWrapper flexRow confirm mTop24">
+            <Button
+              className="flex mRight6 bold Gray_75 flex ellipsis Font13"
+              onClick={() => deleteConformAction.close()}
+            >
+              {_l('取消')}
+            </Button>
+            <Button
+              className="flex mLeft6 bold flex ellipsis Font13"
+              color="danger"
+              onClick={() => {
+                deleteConformAction.close();
+                onDelete(rowid);
+                onClose();
+              }}
+            >
+              {_l('确定')}
+            </Button>
+          </div>
+        </div>
+      ),
+    });
+  };
+
   const content = (
     <div className="rowDetailCon flexColumn" style={{ height: '100%' }}>
       <div className={cx('header flexRow valignWrapper', type)}>
-        <div className="flexRow Font18 Gray flex bold leftAlign ellipsis">{type === 'new' && title}</div>
         {!props.disabled && allowDelete && (
-          <i
-            className="headerBtn icon icon-task-new-delete mRight10 Font18 Red"
-            onClick={() => {
-              Dialog.confirm({
-                content: _l('确定删除此记录 ?'),
-                confirmText: <span className="Red">{_l('确定')}</span>,
-                onConfirm: () => {
-                  onDelete(data.rowid);
-                  onClose();
-                },
-              });
-            }}
-          ></i>
+          <i className="headerBtn icon icon-task-new-delete Font18 Red" onClick={() => deleteRecord(data.rowid)}></i>
         )}
+        <div className="flex"></div>
         <i
-          className="headerBtn icon icon-close Gray_9e Font20"
+          className="headerBtn icon icon-delete_out Gray_9e Font20"
           onClick={() => {
-            if (disabled) {
-              onClose();
-              return;
+            if (type === 'edit') {
+              formContent.current.handleSave(false, false, true);
             }
-            const hasError = formContent.current.handleSave();
-            if (!_.isUndefined(hasError) && !hasError) return;
             onClose();
           }}
         ></i>
       </div>
       <div className="forCon flex leftAlign">
-        {type === 'edit' && <div className="flexRow Font18 Gray bold leftAlign mBottom10">{title}</div>}
+        <div className="flexRow Font18 Gray bold leftAlign mBottom10">{title}</div>
         <RowDetail
           isMobile
           from={5}

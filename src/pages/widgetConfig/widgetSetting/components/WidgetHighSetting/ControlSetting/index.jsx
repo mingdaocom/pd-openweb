@@ -45,6 +45,7 @@ export default function WidgetConfig(props) {
     allpath,
     showdelete,
     showcount = '0',
+    allowcustom,
   } = getAdvanceSetting(data);
 
   // 文本、文本组合
@@ -98,17 +99,30 @@ export default function WidgetConfig(props) {
             onClick={checked => onChange({ enumDefault: +!checked })}
           />
         </div>
-        <div className="labelWrap">
-          <Checkbox
-            checked={showxy === '1'}
-            disabled={(strDefault || '00')[0] === '1'}
-            size={'small'}
-            text={_l('显示经纬度')}
-            onClick={checked => {
-              onChange(handleAdvancedSettingChange(data, { showxy: checked ? '0' : '1' }));
-            }}
-          />
-        </div>
+        {(strDefault || '00')[0] !== '1' && (
+          <Fragment>
+            <div className="labelWrap">
+              <Checkbox
+                checked={showxy === '1'}
+                size={'small'}
+                text={_l('显示经纬度')}
+                onClick={checked => {
+                  onChange(handleAdvancedSettingChange(data, { showxy: checked ? '0' : '1' }));
+                }}
+              />
+            </div>
+            <div className="labelWrap">
+              <Checkbox
+                checked={allowcustom === '1'}
+                size={'small'}
+                text={_l('允许输入自定义位置')}
+                onClick={checked => {
+                  onChange(handleAdvancedSettingChange(data, { allowcustom: checked ? '0' : '1' }));
+                }}
+              />
+            </div>
+          </Fragment>
+        )}
       </Fragment>
     );
   }

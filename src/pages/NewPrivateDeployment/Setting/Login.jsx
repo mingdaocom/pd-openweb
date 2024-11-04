@@ -324,7 +324,7 @@ const GoogleSso = prosp => {
           }}
         />
       </div>
-      <div className="mBottom15 Gray_9e">{_l('使用预集成的SSO登录方式，开启后在登录页显示登录按钮')}</div>
+      <div className="mBottom15 Gray_9e">{_l('启后将在登录页显示Google登录按钮')}</div>
       <div className={cx('flexRow valignWrapper', { mBottom20: ssoSettings.status === 1 })}>
         <img src={googleIcon} width="20px" />
         <span className="mLeft8">{'Google'}</span>
@@ -456,7 +456,7 @@ const Sso = prosp => {
           }}
         />
       </div>
-      <div className="mBottom15 Gray_9e">{_l('添加自主集成的SSO登录方式。自主集成的SSO登录账号，在退出登录后会认返回到SSO登录页')}</div>
+      <div className="mBottom15 Gray_9e">{_l('当启用SSO自主集成并通过SSO完成登录后，用户在退出登录时将会被重定向回SSO登录页')}</div>
       {edit ? (
         <Fragment>
           <div className="flexColumn mBottom20">

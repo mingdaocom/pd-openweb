@@ -9,6 +9,7 @@ import { DefaultOptionSetting } from '../../DynamicDefaultValue/inputTypes/Optio
 import { FieldInfo } from '../../DynamicDefaultValue/styled';
 import { SettingItem } from '../../../../styled';
 import cx from 'classnames';
+import { DYNAMIC_FROM_MODE } from '../../DynamicDefaultValue/config';
 
 const ROLE_RANGE = [
   { value: 0, text: _l('全部') },
@@ -125,7 +126,7 @@ export default function RoleConfig(props) {
                     return (
                       <OtherField
                         {...props}
-                        needFilter={true}
+                        from={DYNAMIC_FROM_MODE.ORG_CONFIG}
                         dynamicValue={chooseRange}
                         controls={props.allControls || []}
                         item={item}
@@ -146,7 +147,7 @@ export default function RoleConfig(props) {
         <SelectOtherField
           {...props}
           controls={props.allControls || []}
-          needFilter={true}
+          from={DYNAMIC_FROM_MODE.ORG_CONFIG}
           dynamicMultiple={true}
           dynamicValue={chooseRange}
           onDynamicValueChange={handleFieldClick}

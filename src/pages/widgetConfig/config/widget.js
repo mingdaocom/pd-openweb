@@ -5,9 +5,9 @@ import { NUM_5_SETTINGS } from './score';
 
 const getDefaultOptions = () => {
   return [
-    { key: uuidv4(), value: _l('选项1'), isDeleted: false, index: 1, checked: true, color: '#2196F3' },
-    { key: uuidv4(), value: _l('选项2'), isDeleted: false, index: 2, checked: false, color: '#08C9C9' },
-    { key: uuidv4(), value: _l('选项3'), isDeleted: false, index: 3, checked: false, color: '#00C345' },
+    { key: uuidv4(), value: _l('选项1'), isDeleted: false, index: 1, checked: true, color: '#C9E6FC' },
+    { key: uuidv4(), value: _l('选项2'), isDeleted: false, index: 2, checked: false, color: '#C3F2F2' },
+    { key: uuidv4(), value: _l('选项3'), isDeleted: false, index: 3, checked: false, color: '#C2F1D2' },
   ];
 };
 
@@ -414,6 +414,7 @@ export const DEFAULT_DATA = {
     advancedSetting: {
       direction: '2',
       checktype: '0',
+      showselectall: '1',
     },
   },
   DROP_DOWN: {

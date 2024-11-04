@@ -31,7 +31,7 @@ export const warnningTipFn = (warnningData, list, focusDiv) => {
     return (
       <div
         className={cx('warnningTip', {
-          Hidden: !_.includes(list, focusDiv) || !focusDiv,
+          // Hidden: _.includes(list, focusDiv) && !data.noErr,
           noIcon: !!data.noErr,
         })}
         dangerouslySetInnerHTML={{ __html: data.warnningText }}

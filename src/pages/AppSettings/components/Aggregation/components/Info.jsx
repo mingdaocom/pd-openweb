@@ -29,6 +29,7 @@ import SourceCon from './SourceCon';
 import AddAggregation from './AggregationConForAdd';
 import { getTranslateInfo } from 'src/util';
 import DocumentTitle from 'react-document-title';
+import { systemControls } from '../config';
 
 export default function Info(props) {
   const scrollDivRef = useRef(null);
@@ -134,8 +135,14 @@ export default function Info(props) {
           const sourceInfos = _.map(ids, id => _.keyBy(data, 'worksheetId')[id]).map((o = {}) => {
             return {
               ...o,
-              controls: (o.controls || []).map(a => {
-                return { ...a, relationControls: a.relationControls.filter(it => !it.encryId) };
+              controls: [...(o.controls || []), ...systemControls].map(a => {
+                const relationControls = (a.relationControls || []).filter(it => !it.encryId);
+                return {
+                  ...a,
+                  relationControls: [29, 34].includes(a.type)//子表 关联 都支持系统字段
+                    ? [...relationControls, ...systemControls]
+                    : relationControls,
+                };
               }),
             };
           });

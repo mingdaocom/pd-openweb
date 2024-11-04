@@ -35,7 +35,12 @@ export default function DialogMapping(props) {
           {showSupport ? _l('将所选的数据写入表单字段') : _l('将其他返回数据写入表单字段')}
         </span>
         {showSupport && (
-          <Support className="Gray_9e" type={2} text={_l('映射规则')} href="https://help.mingdao.com/worksheet/control-api-query" />
+          <Support
+            className="Gray_9e"
+            type={2}
+            text={_l('映射规则')}
+            href="https://help.mingdao.com/worksheet/control-api-query"
+          />
         )}
       </div>
     );
@@ -85,7 +90,12 @@ export default function DialogMapping(props) {
     const parentMappingItem = _.find(mappingData, i => i.id === item.dataSource);
     const filterSYS = SYS.concat(SYS_CONTROLS);
     const filterSelf = allControls.filter(i => i.controlId !== data.controlId || !_.includes(filterSYS, i.controlId));
-    const filterMappingData = mappingData.filter(i => (i.subid || i.cid) !== showValue);
+    const filterMappingData = mappingData.filter(i => {
+      if (item.dataSource) {
+        return i.pid === item.dataSource && i.subid && i.subid !== showValue;
+      }
+      return (i.subid || i.cid) !== showValue;
+    });
     let filterData = [];
 
     // 如果是子表
@@ -261,7 +271,12 @@ export default function DialogMapping(props) {
   const renderNoData = () => {
     return (
       <div className="mappingNoDataBox">
-        <Support className="Gray_9e Right" type={2} text={_l('映射规则')} href="https://help.mingdao.com/worksheet/control-api-query" />
+        <Support
+          className="Gray_9e Right"
+          type={2}
+          text={_l('映射规则')}
+          href="https://help.mingdao.com/worksheet/control-api-query"
+        />
         <div className="noDataContent">{_l('没有返回参数, 请检查模版配置')}</div>
       </div>
     );

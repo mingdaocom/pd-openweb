@@ -227,6 +227,9 @@ const Files = props => {
         files: attachmentData, // 全部文件列表, H5端直接传给App即可, App做各类型数据兼容
         filterRegex: _.get(advancedSetting, 'filterRegex'), // 给到生效中的文件名正则, 修改文件名时需要符合正则要求
         checkValueByFilterRegex: props.checkValueByFilterRegex,
+        worksheetId: recordBaseInfo.worksheetId,
+        rowId: recordBaseInfo.recordId,
+        controlId,
       });
       return;
     }
@@ -270,6 +273,9 @@ const Files = props => {
         files: res,
         filterRegex: _.get(advancedSetting, 'filterRegex'),
         checkValueByFilterRegex: props.checkValueByFilterRegex,
+        worksheetId: recordBaseInfo.worksheetId,
+        rowId: recordBaseInfo.recordId,
+        controlId,
       });
       return;
     }

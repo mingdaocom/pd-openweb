@@ -202,7 +202,7 @@ export default class ResignList extends React.Component {
               </span>
             </td>
             <td className="color_b tableDays">{moment().diff(moment(user.createTime), 'days')}</td>
-            <td className="color_b tableDays">{user.updateTime === '0001-01-01 00:00:00' ? '-' : user.updateTime}</td>
+            <td className="color_b tableDays">{user.updateTime === '0001-01-01 00:00:00' ? '-' : createTimeSpan(user.updateTime)}</td>
             <td className="tableOptions">
               <span
                 className="ThemeColor3 Hand adminHoverColor"

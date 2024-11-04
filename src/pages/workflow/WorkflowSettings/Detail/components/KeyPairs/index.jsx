@@ -182,7 +182,7 @@ export default ({
             <div className="flexRow alignItemsCenter">
               <span className={cx('Font16 Gray_75', getIcons(item.nodeTypeId, item.appType, item.actionId))} />
               <span className={cx('Font14 mLeft5 ellipsis flex', { Gray_75: !item.appId })}>{item.nodeName}</span>
-              {item.appId && item.appName ? (
+              {isPlugin ? null : item.appId && item.appName ? (
                 <Fragment>
                   <span className="Font14 mLeft5 bold flowDropdownGray">{item.appTypeName}</span>
                   <span

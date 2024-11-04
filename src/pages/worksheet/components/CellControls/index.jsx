@@ -378,7 +378,7 @@ export default class CellControl extends React.Component {
     });
   };
 
-  handleUpdateEditing = (isediting, cb = () => {}) => {
+  handleUpdateEditing = (isediting, cb = () => {}, options = {}) => {
     if (isediting && !this.editable) {
       return;
     }
@@ -430,7 +430,7 @@ export default class CellControl extends React.Component {
     };
     if (!isediting && cell.unique) {
       if (cell.unique && !cell.uniqueInRecord && tableFromModule === WORKSHEETTABLE_FROM_MODULE.SUBLIST) {
-        cellUniqueValidate(cell.controlId, cell.value, row.rowid, true);
+        cellUniqueValidate(cell.controlId, _.isUndefined(options.value) ? cell.value : options.value, row.rowid, true);
       }
     }
     if (isediting && !cellFullVisible.fullvisible) {

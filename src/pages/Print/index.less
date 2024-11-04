@@ -203,6 +203,26 @@
       }
     }
   }
+  .printRelationTable {
+    .baseColumnHead {
+      position: relative;
+      .resizeDrag {
+        position: absolute;
+        right: 0px;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        cursor: ew-resize;
+      }
+      .controlName {
+        .text {
+          overflow: visible !important;
+          white-space: break-spaces !important;
+          text-overflow: unset !important;
+        }
+      }
+    }
+  }
 }
 
 @media print {

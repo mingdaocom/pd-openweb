@@ -13,6 +13,7 @@ import { isTel, getDialCode } from 'src/pages/accountLogin/util.js';
 import DocumentTitle from 'react-document-title';
 import { Wrap } from './style';
 import { getTitle, getDes } from './util';
+import { navigateTo } from 'src/router/navigateTo';
 
 let request = getRequest();
 const Create = createPermissionCheckWrapper(CreateComp);
@@ -42,6 +43,17 @@ export default class RegisterContainer extends React.Component {
     const s = request.s || '';
     if (s) {
       safeLocalStorageSetItem('RegFrom', s);
+    }
+    //私有部署关闭注册入口，跳转到/login
+    if (
+      _.get(md, 'global.Config.IsLocal') &&
+      _.get(md, 'global.SysSettings.hideRegister') &&
+      (location.href.indexOf('/register') >= 0 ||
+        ((location.href.indexOf('/enterpriseRegister') >= 0 || location.href.indexOf('/enterpriseRegister') >= 0) &&
+          !request.type))
+    ) {
+      navigateTo('/login');
+      return;
     }
     if (location.href.match(/enterpriseRegister(\.htm)?/i)) {
       //(加入 ｜ 创建)组织

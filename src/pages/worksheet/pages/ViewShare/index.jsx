@@ -8,7 +8,7 @@ import ViewSahre from './ViewSahre';
 import DocumentTitle from 'react-document-title';
 import styled from 'styled-components';
 import _ from 'lodash';
-import { getTranslateInfo, getAppLangDetail } from 'src/util';
+import { getTranslateInfo, getAppLangDetail, getRequest } from 'src/util';
 import globalEvents from 'src/router/globalEvents';
 
 const Wrap = styled.div`
@@ -52,6 +52,7 @@ const Wrap = styled.div`
 
 const Entry = props => {
   const shareId = location.pathname.match(/.*\/public\/view\/(.*)/)[1];
+  const { showHeader } = getRequest();
   const [loading, setLoading] = useState(true);
   const [share, setShare] = useState({});
 
@@ -164,7 +165,7 @@ const Entry = props => {
   if (share.resultCode === 1) {
     return (
       <Wrap className="h100">
-        <ViewSahre data={share.data} headerLeft={renderInfo()} headerRight={renderSource()} />
+        <ViewSahre data={share.data} showHeader={showHeader} headerLeft={renderInfo()} headerRight={renderSource()} />
       </Wrap>
     );
   } else {

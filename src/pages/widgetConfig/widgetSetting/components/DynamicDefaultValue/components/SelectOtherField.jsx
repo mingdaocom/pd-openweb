@@ -143,6 +143,7 @@ export default class SelectOtherField extends Component {
         onDynamicValueChange([{ rcid: '', cid: '', staticValue: data.value }]);
         this.setState({ isDynamic: false });
         break;
+      case OTHER_FIELD_TYPE.Location:
       case OTHER_FIELD_TYPE.OCR:
       case OTHER_FIELD_TYPE.KEYWORD:
       case OTHER_FIELD_TYPE.WATER_MASK:
@@ -158,15 +159,24 @@ export default class SelectOtherField extends Component {
     }
   };
 
+  handleActionForLinkParam = value => {
+    const { onDynamicValueChange } = this.props;
+    onDynamicValueChange([{ cid: value, rcid: 'url', staticValue: '', isAsync: true }]);
+    this.setState({ isDynamic: false });
+  };
+
   getCurrentField = data => {
+    if (this.props.from === DYNAMIC_FROM_MODE.FAST_FILTER && data.type === 26) {
+      return CURRENT_TYPES[data.type];
+    }
     // 自定义默认值
     if (this.props.from === DYNAMIC_FROM_MODE.CREATE_CUSTOM) {
       let customTypes =
         this.props.writeObject === 1
           ? CURRENT_TYPES[data.type] || []
           : (CURRENT_TYPES[data.type] || []).concat([
-              { icon: 'icon-workflow_other', text: _l('当前记录的字段值'), key: 1 },
-            ]);
+            { icon: 'icon-workflow_other', text: _l('当前记录的字段值'), key: 1 },
+          ]);
       customTypes = this.props.showEmpty ? CUR_EMPTY_TYPES.concat(customTypes) : customTypes;
       return customTypes.filter(c => !_.includes(['keyword'], c.key));
     }
@@ -234,6 +244,9 @@ export default class SelectOtherField extends Component {
       propFiledVisible,
       showEmpty,
       from,
+      withLinkParams,
+      linkParams = [],
+      hideDynamic,
     } = this.props;
     const filterTypes = this.getCurrentField(data);
     //子表、列表默认显示查询工作表icon，如包含清空操作时，显示动态值icon操作
@@ -248,7 +261,26 @@ export default class SelectOtherField extends Component {
             onPopupVisibleChange={isDynamic => this.setState({ isDynamic })}
             getPopupContainer={() => popupContainer || this.$wrap.current}
             popup={() => {
-              return propFiledVisible || filedVisible ? (
+              return withLinkParams ? (
+                linkParams.length > 0 ? (
+                  <Menu>
+                    {linkParams.map(item => {
+                      return (
+                        <MenuItem className="overflow_ellipsis" onClick={(e) => {
+                          this.handleActionForLinkParam(item)
+                          e.stopPropagation();
+                        }}>
+                          <MenuStyle>{item}</MenuStyle>
+                        </MenuItem>
+                      );
+                    })}
+                  </Menu>
+                ) : (
+                  <Menu>
+                    <div className="Gray_75 pLeft16 pTop8 pBottom8">{_l('未添加链接参数')}</div>
+                  </Menu>
+                )
+              ) : propFiledVisible || filedVisible ? (
                 <SelectFields
                   onClickAway={() => this.setState({ isDynamic: false, filedVisible: false })}
                   data={data}
@@ -278,7 +310,11 @@ export default class SelectOtherField extends Component {
               overflow: { adjustX: true, adjustY: true },
             }}
           >
-            <Tooltip trigger={['hover']} placement={'bottom'} title={isSubList ? _l('查询工作表') : _l('使用动态值')}>
+            <Tooltip
+              trigger={['hover']}
+              placement={'bottom'}
+              title={withLinkParams ? _l('使用链接参数') : isSubList ? _l('查询工作表') : _l('使用动态值')}
+            >
               <SelectOtherFieldWrap
                 onClick={() => {
                   if (isSubList) {
@@ -288,7 +324,11 @@ export default class SelectOtherField extends Component {
                   this.setState({ isDynamic: true });
                 }}
               >
-                <i className={cx(isSubList ? 'icon-lookup' : 'icon-workflow_other')}></i>
+                <i
+                  className={cx(
+                    withLinkParams ? 'icon-global_variable' : isSubList ? 'icon-lookup' : 'icon-workflow_other',
+                  )}
+                ></i>
               </SelectOtherFieldWrap>
             </Tooltip>
           </Trigger>

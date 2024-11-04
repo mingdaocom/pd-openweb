@@ -13,7 +13,7 @@ import departmentController from 'src/api/department';
 import moment from 'moment';
 import { Checkbox, Tooltip, Dialog, Input, Menu, MenuItem, UserHead } from 'ming-ui';
 import './userItem.less';
-import { encrypt } from 'src/util';
+import { encrypt, dateConvertToUserZone } from 'src/util';
 import RegExpValidator from 'src/util/expression';
 import Trigger from 'rc-trigger';
 import userController from 'src/api/user';
@@ -500,14 +500,16 @@ class UserItem extends Component {
         {isHideCurrentColumn('joinDate') && typeCursor === 0 && (
           <td className="joinDateTh">
             {user.addProjectTime
-              ? moment(user.addProjectTime).format('YYYY-MM-DD')
-              : moment(user.createTime).format('YYYY-MM-DD')}
+              ? createTimeSpan(dateConvertToUserZone(user.addProjectTime))
+              : createTimeSpan(dateConvertToUserZone(user.createTime))}
           </td>
         )}
         {!isMinSc && typeCursor === 3 ? (
           <Fragment>
             {isHideCurrentColumn('applyDate') && (
-              <td className="dateTh overflow_ellipsis WordBreak">{moment(user.updateTime).format('YYYY-MM-DD')}</td>
+              <td className="dateTh overflow_ellipsis WordBreak">
+                {createTimeSpan(dateConvertToUserZone(user.updateTime))}
+              </td>
             )}
             {isHideCurrentColumn('operator') && (
               <td className="actMenTh overflow_ellipsis WordBreak">

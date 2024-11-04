@@ -51,16 +51,17 @@ export default class SelectOrgRole extends Component {
       });
   }
 
-  getData = (groups, orgRoleGroupId) => {
+  getData = (groups, orgRoleGroupId, index) => {
     const { projectId, appointedOrganizeIds = [] } = this.props;
     let { keywords, pageIndex = 1, treeData, searchList } = this.state;
     let treeList = groups || treeData;
+    const fetchPageIndex = index || pageIndex;
 
     organizeAjax
       .getOrganizes({
         projectId,
         keywords,
-        pageIndex,
+        pageIndex: fetchPageIndex,
         pageSize: keywords ? 50 : 500,
         appointedOrganizeIds,
         orgRoleGroupId,
@@ -85,8 +86,12 @@ export default class SelectOrgRole extends Component {
           treeList[0] && this.setState({ expendTreeNodeKey: [treeList[0].orgRoleGroupId] });
         } else {
           let index = _.findIndex(treeList, l => l.orgRoleGroupId === orgRoleGroupId);
-          treeList[index].children = result.list;
+          let list =
+            fetchPageIndex === 1 ? result.list : _.unionBy(treeList[index].children, result.list, 'organizeId');
+          treeList[index].children = list;
           treeList[index].fetched = true;
+          treeList[index].hasMore = result.allCount > list.length;
+          treeList[index].pageIndex = fetchPageIndex;
         }
 
         this.setState({
@@ -238,7 +243,7 @@ export default class SelectOrgRole extends Component {
             checked={_.includes(selectedOrgRoleIds, roleItem.organizeId)}
             onClick={() => this.checkOrgRoles(roleItem)}
           ></Checkbox>
-          <div className="flex organizeName ellipsis Gray">{roleItem.organizeName}</div>
+          <div className="flex organizeName ellipsis Gray mLeft5">{roleItem.organizeName}</div>
         </div>
       );
     });
@@ -255,7 +260,7 @@ export default class SelectOrgRole extends Component {
       (treeData.length === 1 && treeData[0].orgRoleGroupId === '' && !treeData[0].children.length)
     ) {
       return (
-        <div className="emptyWrap">
+        <div className="emptyWrap h100 flexCenter justifyContentCenter">
           <div className="Gray_bd Font14">{_l('没有可选组织角色')}</div>
         </div>
       );
@@ -269,6 +274,8 @@ export default class SelectOrgRole extends Component {
         </div>
       );
     }
+
+    const list = treeData.filter(l => l.orgRoleGroupId !== '' || l.children.length);
 
     return (
       <ScrollView className="flex orgRolelist" onScrollEnd={this.onScrollEnd}>
@@ -292,6 +299,14 @@ export default class SelectOrgRole extends Component {
                   <span className="Font15 Bold ellipsis">{groupItem.orgRoleGroupName}</span>
                 </div>
                 {this.renderChildren(groupItem)}
+                {groupItem.hasMore && (
+                  <div
+                    className="organizeName Hand valignWrapper ThemeColor pLeft20 pTop13 pBottom13"
+                    onClick={() => this.getData(undefined, groupItem.orgRoleGroupId, groupItem.pageIndex + 1)}
+                  >
+                    <span className={cx({ mLeft16: list.length > 1 })}>{_l('加载更多')}</span>
+                  </div>
+                )}
               </Fragment>
             );
           })}

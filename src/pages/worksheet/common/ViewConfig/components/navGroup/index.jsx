@@ -14,6 +14,7 @@ import NavSort from '../NavSort';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
 import _ from 'lodash';
 import { MaxNavW, MinNavW, defaultNavOpenW } from 'src/pages/worksheet/common/ViewConfig/config.js';
+import SearchConfig from './SearchConfig';
 
 const Wrap = styled.div`
   .hasData {
@@ -303,6 +304,10 @@ export default function NavGroup(params) {
       navshow: !['0', '1'].includes(navshow + '') ? '0' : navshow, //新配置需要前端把这个值设为1
       navfilters: JSON.stringify([]),
       usenav: '0', //新配置 默认不勾选
+      navsearchtype: !!_.get(data, 'advancedSetting.searchtype') ? _.get(data, 'advancedSetting.searchtype') : '0', //0或者空 模糊匹配 1：精确搜索
+      navsearchcontrol: !!_.get(data, 'advancedSetting.searchcontrol')
+        ? _.get(data, 'advancedSetting.searchcontrol')
+        : undefined,
     };
     if ([35].includes(data.type)) {
       info.showallitem = '';
@@ -592,7 +597,16 @@ export default function NavGroup(params) {
               <span className="Absolute unit Gray_9e">px</span>
             </div>
           </React.Fragment>
-          <h6 className="mTop30 Font13 Bold">{_l('设置')}</h6>
+          {_.get(filterData, 'type') === 29 && (
+            <SearchConfig
+              controls={(worksheetControls.find(o => o.controlId === navGroup.controlId) || {}).relationControls || []}
+              data={view.advancedSetting}
+              onChange={newValue => {
+                updateAdvancedSetting({ ...newValue });
+              }}
+            />
+          )}
+          <h6 className="mTop30 Font13 Bold">{_l('其他')}</h6>
           <div className="mTop13">
             <Checkbox
               className="checkBox InlineBlock"

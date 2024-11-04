@@ -284,7 +284,7 @@ export default class Widgets extends Component {
         controlId,
         rowId: recordId,
         checkView: true,
-        getType: getRowGetType(from),
+        getType: data.workId ? 9 : getRowGetType(from),
       })
       .then(data => {
         if (data.resultCode !== 1) {
@@ -336,7 +336,7 @@ export default class Widgets extends Component {
    * 获取上传组件的父级
    */
   getPopupContainer = () => {
-    return $(this.fileBox).closest('.customFieldsContainer')[0] || document.querySelector('.customFieldsContainer');
+    return $(this.fileBox).closest('.customFieldsContainer')[0] || document.querySelector(`.attachmentControl-${this.id}`);
   };
 
   handleDownloadAll = () => {
@@ -733,7 +733,7 @@ export default class Widgets extends Component {
 
     return (
       <div
-        className={cx('customFormControlBox customFormControlScore customFormAttachmentBox', {
+        className={cx('customFormControlBox customFormControlScore customFormAttachmentBox', `attachmentControl-${this.id}`, {
           controlDisabled: pcDisabled,
         })}
         style={{ height: 'auto' }}

@@ -1,556 +1,5 @@
 export default {
   /**
-  * 获取指定项目阶段下的任务列表
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.stageID 阶段ID
-  * @param {} args.sort
-  * @param {} args.status
-  * @param {string} args.completeTime 任务完成时间
-  * @param {boolean} args.withoutTag 未关联任务
-  * @param {array} args.tagIDs 标签列表
-  * @param {integer} args.pageIndex 请求页码
-  * @param {integer} args.pageSize 页面尺寸
-  * @param {object} args.controlSelectedDic 控件筛选
-  * @param {array} args.chargeIds 负责人筛选
-  * @param {} args.filterType
-  * @param {string} args.keywords 关键字
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderTaskListByStageID: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'GetFolderTaskListByStageID', args, options);
-   },
-  /**
-  * 设置 看板负责人
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目id
-  * @param {string} args.stageID 阶段id
-  * @param {string} args.ownerId 负责人id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   setStageOwner: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'SetStageOwner', args, options);
-   },
-  /**
-  * 获取项目下所有任务负责人
-  * @param {Object} args 请求参数
-  * @param {string} args.folderId 项目id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderTaskCharges: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'GetFolderTaskCharges', args, options);
-   },
-  /**
-  * 获取项目配置（之后配置面板的东西在这边加）
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderConfig: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'GetFolderConfig', args, options);
-   },
-  /**
-  * 查询关联项目用项目列表
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络ID
-  * @param {string} args.keyWords 查找关键字
-  * @param {integer} args.pageSize 页面尺寸
-  * @param {integer} args.pageIndex 当前页码
-  * @param {string} args.excludeTaskIDs 需排除的taskid,英文逗号拼接
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderListForUpdateFolderID: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'GetFolderListForUpdateFolderID', args, options);
-   },
-  /**
-  * 查询创建任务用项目列表
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络ID
-  * @param {string} args.keyWords 查找关键字
-  * @param {integer} args.pageSize 页面尺寸
-  * @param {integer} args.pageIndex 当前页码
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderListForCreateTask: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'GetFolderListForCreateTask', args, options);
-   },
-  /**
-  * 获取项目描述和是否有编辑权限
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderDetail: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'GetFolderDetail', args, options);
-   },
-  /**
-  * 获取项目日志 ok
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目
-  * @param {integer} args.pageSize 页面尺寸
-  * @param {integer} args.pageIndex 当前页码
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderLog: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'GetFolderLog', args, options);
-   },
-  /**
-  * 创建项目 OK
-  * @param {Object} args 请求参数
-  * @param {string} args.folderName 项目名称
-  * @param {string} args.projectId 网络ID
-  * @param {} args.visibility
-  * @param {string} args.groupID 群组
-  * @param {string} args.appID
-  * @param {string} args.templateId 模板Id
-  * @param {string} args.mdAppId 应用包Id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addFolder: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'AddFolder', args, options);
-   },
-  /**
-  * 移除项目
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {boolean} args.isDeleteTask 删除任务与否
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   removeFolder: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'RemoveFolder', args, options);
-   },
-  /**
-  * 修改项目看板配置
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {} args.stageConfig
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateStageConfig: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateStageConfig', args, options);
-   },
-  /**
-  * 修改项目归档状态
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {boolean} args.archived 归档/退档
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderArchived: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateFolderArchived', args, options);
-   },
-  /**
-  * 修改项目下任务可见性权限
-  * @param {Object} args 请求参数
-  * @param {string} args.folderId 项目ID
-  * @param {} args.folderAuthVisible
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderAuthVisible: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateFolderAuthVisible', args, options);
-   },
-  /**
-  * 项目修改可见性 OK
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {} args.visibility
-  * @param {string} args.groupID 群组
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderVisibility: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateFolderVisibility', args, options);
-   },
-  /**
-  * 修改项目负责人
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.chargeAccountID 下任负责人accountID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderCharge: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateFolderCharge', args, options);
-   },
-  /**
-  * 修改项目名称 OK
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.folderName 项目名称
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderName: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateFolderName', args, options);
-   },
-  /**
-  * 修改项目描述 OK
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.describe 项目描述
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderDes: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateFolderDes', args, options);
-   },
-  /**
-  * 修改项目成员的消息提醒机制
-adder: suncheng date: 2017年11月24日
-  * @param {Object} args 请求参数
-  * @param {string} args.folderId 项目ID
-  * @param {boolean} args.unNotice 是否提醒
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderMemberNotice: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateFolderMemberNotice', args, options);
-   },
-  /**
-  * 复制项目
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 被复制项目ID
-  * @param {string} args.folderName 新项目名称
-  * @param {string} args.chargeAccountID 负责人accountID
-  * @param {boolean} args.hasDes 是否包含项目描述
-  * @param {boolean} args.hasFolderMember 是否包含项目成员
-  * @param {boolean} args.hasStage 是否包含看板
-  * @param {boolean} args.hasTask 是否包含项目下所有任务
-  * @param {boolean} args.hasTaskMember 是否包含任务成员
-  * @param {boolean} args.hasTaskDes 是否包含项目描述
-  * @param {boolean} args.hasTemplate 是否包含项目模板
-  * @param {string} args.appID
-  * @param {boolean} args.hasChecklist 是否包含检查清单
-  * @param {boolean} args.hasTime 是否包含时间
-  * @param {string} args.projectId 指定网络id
-  * @param {boolean} args.hasTaskAtts 是否包含任务附件
-  * @param {string} args.taskChargeAccountID 任务复制人Id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   duplicateFolder: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'DuplicateFolder', args, options);
-   },
-  /**
-  * 项目看板查询
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderStage: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'GetFolderStage', args, options);
-   },
-  /**
-  * 项目看板新增 OK
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.stageName 看板名
-  * @param {integer} args.sort 排序
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addFolderStage: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'AddFolderStage', args, options);
-   },
-  /**
-  * 修改项目看板
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.stageName 看板名
-  * @param {integer} args.sort 排序
-  * @param {string} args.stageID 看板id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderStage: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateFolderStage', args, options);
-   },
-  /**
-  * 删除项目看板
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.stageID 看板id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   deleteFolderStage: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'DeleteFolderStage', args, options);
-   },
-  /**
-  * 获取不在项目公开范围及非项目有效成员的人
-  * @param {Object} args 请求参数
-  * @param {string} args.folderId 项目ID
-  * @param {array} args.accountIds 需要验证的人
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   checkAccountNeedAddIntoFolder: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'CheckAccountNeedAddIntoFolder', args, options);
-   },
-  /**
-  * 获取项目成员 和公开范围（项目设置接口用）
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderSettingsForCurrentUser: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'GetFolderSettingsForCurrentUser', args, options);
-   },
-  /**
-  * 申请加入项目成为项目成员
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.applyInfo 申请内容描述
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   applyFolderMember: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'ApplyFolderMember', args, options);
-   },
-  /**
-  * 拒绝外人成为项目成员
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.accountID 用户id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   refuseFolderMember: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'RefuseFolderMember', args, options);
-   },
-  /**
-  * 项目成员新增 OK
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.memberIDs 新增用户accountID
-  * @param {object} args.specialAccounts {&#34;key1&#34;:&#34;value1&#34;,&#34;key2&#34;:&#34;value2&#34;}
-  * @param {boolean} args.isAdmin 是否管理员
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addFolderMembers: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'AddFolderMembers', args, options);
-   },
-  /**
-  * 项目成员新增 OK
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.memberID 新增用户accountID
-  * @param {boolean} args.isAdmin 是否默认为管理员
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderMemberStatusAndAuth: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateFolderMemberStatusAndAuth', args, options);
-   },
-  /**
-  * 移除项目成员 OK
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.accountID 移除成员accountID
-  * @param {boolean} args.isRemoveTaskMember 是否同步移除项目下任务成员
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   removeFolderMember: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'RemoveFolderMember', args, options);
-   },
-  /**
-  * 修改项目关于用户置顶 OK
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {boolean} args.isTop 是否置顶
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderTop: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateFolderTop', args, options);
-   },
-  /**
-  * 修改项目显示状态
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {boolean} args.isHidden 是否隐藏
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderDisplay: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateFolderDisplay', args, options);
-   },
-  /**
-  * 移动项目至指定文件夹(fileID空为移出)
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.fileID 文件夹ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderIntoFile: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateFolderIntoFile', args, options);
-   },
-  /**
-  * 修改项目成员权限 ok
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {string} args.accountID 被修改者accountID
-  * @param {boolean} args.isAdmin 是否管理员
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateFolderMemberAuth: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateFolderMemberAuth', args, options);
-   },
-  /**
-  * 获取项目文件列表 OK
-  * @param {Object} args 请求参数
-  * @param {string} args.folderID 项目ID
-  * @param {integer} args.pageIndex 请求页面
-  * @param {integer} args.pageSize 页面尺寸
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getFolderFiles: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'GetFolderFiles', args, options);
-   },
-  /**
-  * 项目文件夹添加
-  * @param {Object} args 请求参数
-  * @param {string} args.fileName 项目文件夹名称
-  * @param {string} args.folderIDs 项目ID  多个项目ID使用,分隔
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   addUserFolderFile: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'AddUserFolderFile', args, options);
-   },
-  /**
-  * 项目文件修改
-  * @param {Object} args 请求参数
-  * @param {string} args.fileName 项目文件夹名称
-  * @param {string} args.ffileID 项目文件夹ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   updateUserFolderFile: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'UpdateUserFolderFile', args, options);
-   },
-  /**
-  * 删除项目文件夹
-  * @param {Object} args 请求参数
-  * @param {string} args.ffileID 项目文件夹ID
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   deleteUserFolderFile: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'DeleteUserFolderFile', args, options);
-   },
-  /**
-  * 获取标签
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.folderId 项目id
-  * @param {} args.fromType
-  * @param {boolean} args.other 项目id
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getTags: function (args, options = {}) {
-     
-     return mdyAPI('TaskCenter', 'GetTags', args, options);
-   },
-  /**
   * 获取默认配置网络
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数
@@ -1731,5 +1180,556 @@ adder: suncheng date: 2017年11月29日
    getTaskListWithStageView: function (args, options = {}) {
      
      return mdyAPI('TaskCenter', 'GetTaskListWithStageView', args, options);
+   },
+  /**
+  * 获取指定项目阶段下的任务列表
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.stageID 阶段ID
+  * @param {} args.sort
+  * @param {} args.status
+  * @param {string} args.completeTime 任务完成时间
+  * @param {boolean} args.withoutTag 未关联任务
+  * @param {array} args.tagIDs 标签列表
+  * @param {integer} args.pageIndex 请求页码
+  * @param {integer} args.pageSize 页面尺寸
+  * @param {object} args.controlSelectedDic 控件筛选
+  * @param {array} args.chargeIds 负责人筛选
+  * @param {} args.filterType
+  * @param {string} args.keywords 关键字
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFolderTaskListByStageID: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'GetFolderTaskListByStageID', args, options);
+   },
+  /**
+  * 设置 看板负责人
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目id
+  * @param {string} args.stageID 阶段id
+  * @param {string} args.ownerId 负责人id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   setStageOwner: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'SetStageOwner', args, options);
+   },
+  /**
+  * 获取项目下所有任务负责人
+  * @param {Object} args 请求参数
+  * @param {string} args.folderId 项目id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFolderTaskCharges: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'GetFolderTaskCharges', args, options);
+   },
+  /**
+  * 获取项目配置（之后配置面板的东西在这边加）
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFolderConfig: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'GetFolderConfig', args, options);
+   },
+  /**
+  * 查询关联项目用项目列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络ID
+  * @param {string} args.keyWords 查找关键字
+  * @param {integer} args.pageSize 页面尺寸
+  * @param {integer} args.pageIndex 当前页码
+  * @param {string} args.excludeTaskIDs 需排除的taskid,英文逗号拼接
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFolderListForUpdateFolderID: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'GetFolderListForUpdateFolderID', args, options);
+   },
+  /**
+  * 查询创建任务用项目列表
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络ID
+  * @param {string} args.keyWords 查找关键字
+  * @param {integer} args.pageSize 页面尺寸
+  * @param {integer} args.pageIndex 当前页码
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFolderListForCreateTask: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'GetFolderListForCreateTask', args, options);
+   },
+  /**
+  * 获取项目描述和是否有编辑权限
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFolderDetail: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'GetFolderDetail', args, options);
+   },
+  /**
+  * 获取项目日志 ok
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目
+  * @param {integer} args.pageSize 页面尺寸
+  * @param {integer} args.pageIndex 当前页码
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFolderLog: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'GetFolderLog', args, options);
+   },
+  /**
+  * 创建项目 OK
+  * @param {Object} args 请求参数
+  * @param {string} args.folderName 项目名称
+  * @param {string} args.projectId 网络ID
+  * @param {} args.visibility
+  * @param {string} args.groupID 群组
+  * @param {string} args.appID
+  * @param {string} args.templateId 模板Id
+  * @param {string} args.mdAppId 应用包Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addFolder: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'AddFolder', args, options);
+   },
+  /**
+  * 移除项目
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {boolean} args.isDeleteTask 删除任务与否
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   removeFolder: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'RemoveFolder', args, options);
+   },
+  /**
+  * 修改项目看板配置
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {} args.stageConfig
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateStageConfig: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateStageConfig', args, options);
+   },
+  /**
+  * 修改项目归档状态
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {boolean} args.archived 归档/退档
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFolderArchived: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateFolderArchived', args, options);
+   },
+  /**
+  * 修改项目下任务可见性权限
+  * @param {Object} args 请求参数
+  * @param {string} args.folderId 项目ID
+  * @param {} args.folderAuthVisible
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFolderAuthVisible: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateFolderAuthVisible', args, options);
+   },
+  /**
+  * 项目修改可见性 OK
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {} args.visibility
+  * @param {string} args.groupID 群组
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFolderVisibility: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateFolderVisibility', args, options);
+   },
+  /**
+  * 修改项目负责人
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.chargeAccountID 下任负责人accountID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFolderCharge: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateFolderCharge', args, options);
+   },
+  /**
+  * 修改项目名称 OK
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.folderName 项目名称
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFolderName: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateFolderName', args, options);
+   },
+  /**
+  * 修改项目描述 OK
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.describe 项目描述
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFolderDes: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateFolderDes', args, options);
+   },
+  /**
+  * 修改项目成员的消息提醒机制
+adder: suncheng date: 2017年11月24日
+  * @param {Object} args 请求参数
+  * @param {string} args.folderId 项目ID
+  * @param {boolean} args.unNotice 是否提醒
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFolderMemberNotice: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateFolderMemberNotice', args, options);
+   },
+  /**
+  * 复制项目
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 被复制项目ID
+  * @param {string} args.folderName 新项目名称
+  * @param {string} args.chargeAccountID 负责人accountID
+  * @param {boolean} args.hasDes 是否包含项目描述
+  * @param {boolean} args.hasFolderMember 是否包含项目成员
+  * @param {boolean} args.hasStage 是否包含看板
+  * @param {boolean} args.hasTask 是否包含项目下所有任务
+  * @param {boolean} args.hasTaskMember 是否包含任务成员
+  * @param {boolean} args.hasTaskDes 是否包含项目描述
+  * @param {boolean} args.hasTemplate 是否包含项目模板
+  * @param {string} args.appID
+  * @param {boolean} args.hasChecklist 是否包含检查清单
+  * @param {boolean} args.hasTime 是否包含时间
+  * @param {string} args.projectId 指定网络id
+  * @param {boolean} args.hasTaskAtts 是否包含任务附件
+  * @param {string} args.taskChargeAccountID 任务复制人Id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   duplicateFolder: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'DuplicateFolder', args, options);
+   },
+  /**
+  * 项目看板查询
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFolderStage: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'GetFolderStage', args, options);
+   },
+  /**
+  * 项目看板新增 OK
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.stageName 看板名
+  * @param {integer} args.sort 排序
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addFolderStage: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'AddFolderStage', args, options);
+   },
+  /**
+  * 修改项目看板
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.stageName 看板名
+  * @param {integer} args.sort 排序
+  * @param {string} args.stageID 看板id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFolderStage: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateFolderStage', args, options);
+   },
+  /**
+  * 删除项目看板
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.stageID 看板id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   deleteFolderStage: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'DeleteFolderStage', args, options);
+   },
+  /**
+  * 获取不在项目公开范围及非项目有效成员的人
+  * @param {Object} args 请求参数
+  * @param {string} args.folderId 项目ID
+  * @param {array} args.accountIds 需要验证的人
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkAccountNeedAddIntoFolder: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'CheckAccountNeedAddIntoFolder', args, options);
+   },
+  /**
+  * 获取项目成员 和公开范围（项目设置接口用）
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFolderSettingsForCurrentUser: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'GetFolderSettingsForCurrentUser', args, options);
+   },
+  /**
+  * 申请加入项目成为项目成员
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.applyInfo 申请内容描述
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   applyFolderMember: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'ApplyFolderMember', args, options);
+   },
+  /**
+  * 拒绝外人成为项目成员
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.accountID 用户id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   refuseFolderMember: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'RefuseFolderMember', args, options);
+   },
+  /**
+  * 项目成员新增 OK
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.memberIDs 新增用户accountID
+  * @param {object} args.specialAccounts {&#34;key1&#34;:&#34;value1&#34;,&#34;key2&#34;:&#34;value2&#34;}
+  * @param {boolean} args.isAdmin 是否管理员
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addFolderMembers: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'AddFolderMembers', args, options);
+   },
+  /**
+  * 项目成员新增 OK
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.memberID 新增用户accountID
+  * @param {boolean} args.isAdmin 是否默认为管理员
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFolderMemberStatusAndAuth: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateFolderMemberStatusAndAuth', args, options);
+   },
+  /**
+  * 移除项目成员 OK
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.accountID 移除成员accountID
+  * @param {boolean} args.isRemoveTaskMember 是否同步移除项目下任务成员
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   removeFolderMember: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'RemoveFolderMember', args, options);
+   },
+  /**
+  * 修改项目关于用户置顶 OK
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {boolean} args.isTop 是否置顶
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFolderTop: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateFolderTop', args, options);
+   },
+  /**
+  * 修改项目显示状态
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {boolean} args.isHidden 是否隐藏
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFolderDisplay: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateFolderDisplay', args, options);
+   },
+  /**
+  * 移动项目至指定文件夹(fileID空为移出)
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.fileID 文件夹ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFolderIntoFile: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateFolderIntoFile', args, options);
+   },
+  /**
+  * 修改项目成员权限 ok
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {string} args.accountID 被修改者accountID
+  * @param {boolean} args.isAdmin 是否管理员
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateFolderMemberAuth: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateFolderMemberAuth', args, options);
+   },
+  /**
+  * 获取项目文件列表 OK
+  * @param {Object} args 请求参数
+  * @param {string} args.folderID 项目ID
+  * @param {integer} args.pageIndex 请求页面
+  * @param {integer} args.pageSize 页面尺寸
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getFolderFiles: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'GetFolderFiles', args, options);
+   },
+  /**
+  * 项目文件夹添加
+  * @param {Object} args 请求参数
+  * @param {string} args.fileName 项目文件夹名称
+  * @param {string} args.folderIDs 项目ID  多个项目ID使用,分隔
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   addUserFolderFile: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'AddUserFolderFile', args, options);
+   },
+  /**
+  * 项目文件修改
+  * @param {Object} args 请求参数
+  * @param {string} args.fileName 项目文件夹名称
+  * @param {string} args.ffileID 项目文件夹ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   updateUserFolderFile: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'UpdateUserFolderFile', args, options);
+   },
+  /**
+  * 删除项目文件夹
+  * @param {Object} args 请求参数
+  * @param {string} args.ffileID 项目文件夹ID
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   deleteUserFolderFile: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'DeleteUserFolderFile', args, options);
+   },
+  /**
+  * 获取标签
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {string} args.folderId 项目id
+  * @param {} args.fromType
+  * @param {boolean} args.other 项目id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getTags: function (args, options = {}) {
+     
+     return mdyAPI('TaskCenter', 'GetTags', args, options);
    },
 };

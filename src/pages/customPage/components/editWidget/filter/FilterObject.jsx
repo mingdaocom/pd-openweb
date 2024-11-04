@@ -7,7 +7,7 @@ import { enumWidgetType } from 'src/pages/customPage/util';
 import reportApi from 'statistics/api/report';
 import _ from 'lodash';
 
-const TagWrap = styled.div`
+export const TagWrap = styled.div`
   .tag {
     display: inline-flex;
     padding: 0 10px;
@@ -34,7 +34,7 @@ const TagWrap = styled.div`
   }
 `;
 
-const AddTagWrap = styled.div`
+export const AddTagWrap = styled.div`
   box-shadow: 0 3px 6px -4px #0000001f, 0 6px 16px 0 #00000014, 0 9px 28px 8px #0000000d;
   .ant-space {
     gap: 0 !important;
@@ -70,7 +70,7 @@ const AddTagWrap = styled.div`
   }
 `;
 
-const getFilterObject = (components, reports) => {
+export const getFilterObject = (components, reports) => {
   return components.filter(c => [enumWidgetType.analysis, enumWidgetType.view, 'analysis', 'view'].includes(c.type)).map(c => {
     const objectId = _.get(c, 'config.objectId');
     const data = { objectId };

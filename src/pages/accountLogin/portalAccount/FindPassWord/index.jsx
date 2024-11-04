@@ -13,6 +13,7 @@ import preall from 'src/common/preall';
 import { navigateTo } from 'router/navigateTo';
 import { FixedContent } from 'src/pages/accountLogin/portalAccount/style';
 import DocumentTitle from 'react-document-title';
+import { isErrSet } from '../util';
 
 const Wrap = styled.div`
   display: flex;
@@ -151,11 +152,12 @@ const WrapCon = styled.div`
   }
   .loginBtn {
     background: #2196f3;
-    height: 40px;
+    height: 48px;
     border-radius: 4px;
-    line-height: 40px;
+    line-height: 48px;
     color: #fff;
-    font-weight: 500;
+    font-weight: bold;
+    font-size: 16px;
     &:hover {
       background: #42a5f5;
     }
@@ -184,6 +186,7 @@ function ContainerCon(props) {
   const [fixInfo, setFixInfo] = useState({});
   const [status, setStatus] = useState(0); //0登录  1注册成功 2您的账号已停用 3待审核 4 审核未通过! 12您访问的门户成员已满额 10000  你访问的链接错误! 20000  你访问的链接已停止访问 是否进入填写信息  status = 9
   const [documentTitle, setdocumentTitle] = useState('');
+  const { customLink } = getRequest();
   useEffect(() => {
     getBaseInfo();
   }, []);
@@ -193,7 +196,7 @@ function ContainerCon(props) {
     let ajaxPromise = '';
     let request = getRequest();
     const { appId = '' } = request;
-    ajaxPromise = externalPortalAjax.getPortalSetByAppId({ appId });
+    ajaxPromise = externalPortalAjax.getPortalSetByAppId({ appId, customLink });
     ajaxPromise &&
       ajaxPromise.then(res => {
         const { portalSetResult = {}, isExist, status } = res;
@@ -202,6 +205,12 @@ function ContainerCon(props) {
           setdocumentTitle(_l('忘记密码 - %0', portalSetResult.pageTitle));
         } else {
           setdocumentTitle(_l('忘记密码'));
+        }
+        const isErrCustomUrl = customLink && isErrSet(portalSetResult);
+        if (status === 40 || isErrCustomUrl) {
+          //扩展链接不存在 || 你访问的链接已停止访问
+          setStatus(40);
+          setLoading(false);
         }
         if (!isEnable || !isExist) {
           !isEnable && setStatus(20000);
@@ -240,6 +249,8 @@ function ContainerCon(props) {
       case 11:
       case 13:
         return _l('你访问的链接已停止访问!');
+      case 40:
+        return _l('你访问的链接无效!');
       case 10000:
         return _l('你访问的链接错误!');
       case 10:
@@ -329,7 +340,7 @@ function ContainerCon(props) {
               <span
                 className="btnUseOldAccount Hand"
                 onClick={() => {
-                  navigateTo(`${window.subPath || ''}/app/${appId}`);
+                  navigateTo(`${window.subPath || ''}/app/${appId}${customLink ? '/' + customLink : ''}`);
                 }}
               >
                 {_l('返回登录页面')}

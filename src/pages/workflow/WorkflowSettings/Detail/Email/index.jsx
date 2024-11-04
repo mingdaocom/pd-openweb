@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { ScrollView, LoadDiv, Dropdown, Radio, RichText } from 'ming-ui';
-import { ACTION_ID, CONTROLS_NAME } from '../../enum';
+import { ACTION_ID } from '../../enum';
+import { getControlTypeName } from '../../utils';
 import flowNode from '../../../api/flowNode';
 import {
   Member,
@@ -167,11 +168,12 @@ export default class Email extends Component {
 
     return (
       <Fragment>
-        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && 
+        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
           <div className="Gray_75 workflowDetailDesc">
-          {!_.get(md, 'global.Config.IsLocal') && _l('仅支持通过明道云代发邮件。')}
-          {_l('邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
-        </div>}
+            {!_.get(md, 'global.Config.IsLocal') && _l('仅支持通过明道云代发邮件。')}
+            {_l('邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
+          </div>
+        )}
         <div className="mTop20 bold">{_l('发送方式')}</div>
         <Dropdown
           className="flowDropdown mTop10"
@@ -411,7 +413,7 @@ export default class Email extends Component {
                 return {
                   type: o.type,
                   value: o.controlId,
-                  field: CONTROLS_NAME[o.type],
+                  field: getControlTypeName(o),
                   text: o.controlName,
                   cAlias: o.alias,
                 };

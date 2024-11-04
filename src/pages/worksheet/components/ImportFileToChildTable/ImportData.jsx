@@ -94,6 +94,7 @@ function splitCsvRows(csvData, splitter) {
   let currentRow = '';
   let inQuotes = false;
   let newlineRegex = /\r\n|\n|\r/;
+  let lastCharWasSplitter = false;
 
   for (let i = 0; i < csvData.length; i++) {
     let char = csvData[i];
@@ -102,22 +103,27 @@ function splitCsvRows(csvData, splitter) {
       inQuotes = !inQuotes;
     }
 
-    if (splitter && char === splitter && inQuotes) {
-      inQuotes = false;
-    }
-
-    if (newlineRegex.test(char) && !inQuotes) {
-      if (currentRow.trim() !== '') {
-        rows.push(currentRow.trim());
+    if (splitter && char === splitter && !inQuotes) {
+      currentRow += char;
+      lastCharWasSplitter = true;
+    } else if (newlineRegex.test(char) && !inQuotes) {
+      if (lastCharWasSplitter) {
+        currentRow += splitter;
       }
+      rows.push(currentRow);
       currentRow = '';
+      lastCharWasSplitter = false;
     } else {
       currentRow += char;
+      lastCharWasSplitter = false;
     }
   }
 
-  if (currentRow.trim() !== '') {
-    rows.push(currentRow.trim());
+  if (currentRow !== '') {
+    if (lastCharWasSplitter) {
+      currentRow += splitter;
+    }
+    rows.push(currentRow);
   }
 
   return rows;

@@ -4,6 +4,7 @@ import { TriggerCondition } from '../components';
 import flowNode from '../../../api/flowNode';
 import { checkConditionsIsNull } from '../../utils';
 import cx from 'classnames';
+import { Tooltip } from 'antd';
 
 export default class Branch extends Component {
   constructor(props) {
@@ -48,7 +49,14 @@ export default class Branch extends Component {
    * 筛选条件头
    */
   triggerConditionHeader() {
-    return <div className="Font13 Gray_75">{_l('设置筛选条件后，满足条件的数据才能进入该分支')}</div>;
+    return (
+      <div className="Font13 Gray_75 flexRow alignItemsCenter">
+        {_l('设置筛选条件后，满足条件的数据才能进入该分支')}
+        <Tooltip title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}>
+          <i className="icon-knowledge-message Font16 mLeft5 Gray_9e" />
+        </Tooltip>
+      </div>
+    );
   }
 
   /**

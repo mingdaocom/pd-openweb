@@ -1,14 +1,35 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+import cx from 'classnames';
+import { Icon } from 'ming-ui';
+import Trigger from 'rc-trigger';
+import styled from 'styled-components';
 import { SOURCE_TYPE } from './config';
-import { createLinksForMessage, dateConvertToUserZone } from 'src/util';
+import { createLinksForMessage } from 'src/util';
 import UploadFiles from 'src/components/UploadFiles';
-import { Tooltip, UserHead, LoadDiv, UserName } from 'ming-ui';
+import { Tooltip, UserHead, LoadDiv, UserName, PreferenceTime } from 'ming-ui';
 import confirm from 'ming-ui/components/Dialog/Confirm';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 import discussionAjax from 'src/api/discussion';
-import _ from 'lodash';
+
+const Menu = styled.ul`
+  width: 140px;
+  padding: 5px 0;
+  border-radius: 3px;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  li {
+    padding: 0 16px;
+    height: 36px;
+    line-height: 36px;
+    width: 100%;
+    &:hover {
+      background-color: #f2f2f2 !important;
+    }
+  }
+`;
 
 const newWhiteList = Object.assign({}, whiteList, { img: ['src', 'alt', 'title', 'width', 'height', 'class'] });
 
@@ -41,6 +62,7 @@ export default class CommentListItem extends React.Component {
     super(props);
     this.state = {
       replayMsg: null,
+      popupVisible: false,
     };
   }
 
@@ -108,8 +130,35 @@ export default class CommentListItem extends React.Component {
     return evt.button === 0;
   }
 
+  renderMoreAction() {
+    const { popupVisible } = this.state;
+
+    return (
+      <Trigger
+        popupVisible={popupVisible}
+        onPopupVisibleChange={visible => this.setState({ popupVisible: visible })}
+        action={['hover']}
+        popupAlign={{
+          points: ['tl', 'bl'],
+          offset: [0, 10],
+          overflow: { adjustX: true, adjustY: true },
+        }}
+        popup={() => (
+          <Menu>
+            <li className="overflow_ellipsis Hand Red" onClick={evt => this.checkMouseDownIsLeft(evt) && this.delComment()}>
+              {_l('删除讨论')}
+            </li>
+          </Menu>
+        )}
+      >
+        <Icon className="ThemeHoverColor3 TxtMiddle Font18" icon="task-point-more" />
+      </Trigger>
+    );
+  }
+
   render() {
     const { comment, sourceType, children } = this.props;
+    const { popupVisible } = this.state;
     const { createAccount = {}, replyAccount = {}, replyId, location, extendsId } = comment;
     const message = createLinksForMessage({
       sourceType,
@@ -162,23 +211,7 @@ export default class CommentListItem extends React.Component {
               </span>
             ) : undefined}
             <div className="Right">
-              {createAccount.accountId === md.global.Account.accountId ? (
-                <a
-                  className="Hidden mRight10 ThemeColor3"
-                  onMouseDown={evt => this.checkMouseDownIsLeft(evt) && this.delComment()}
-                >
-                  {_l('删除')}
-                </a>
-              ) : undefined}
-              <a
-                className="Hidden ThemeColor3"
-                onMouseDown={evt =>
-                  this.checkMouseDownIsLeft(evt) && this.props.switchReplyComment(comment.discussionId)
-                }
-              >
-                {_l('回复')}
-              </a>
-              <span className="commentDate">{createTimeSpan(dateConvertToUserZone(comment.createTime))}</span>
+              <PreferenceTime className="commentDate" value={comment.createTime} />
             </div>
           </div>
           <div
@@ -189,7 +222,6 @@ export default class CommentListItem extends React.Component {
               }),
             }}
           />
-
           <UploadFiles
             isUpload={false}
             attachmentData={comment.attachments}
@@ -197,6 +229,17 @@ export default class CommentListItem extends React.Component {
               this.props.updateComment(Object.assign(comment, { attachments }));
             }}
           />
+          <div className="actionsWrap">
+            <a
+              className={cx('replyBtn Bold', { Hidden: !children && !popupVisible })}
+              onMouseDown={evt => this.checkMouseDownIsLeft(evt) && this.props.switchReplyComment(comment.discussionId)}
+            >
+              {_l('回复')}
+            </a>
+            {createAccount.accountId === md.global.Account.accountId && (
+              <a className={cx('moreBtn', { Hidden: !children && !popupVisible })}>{this.renderMoreAction()}</a>
+            )}
+          </div>
           {location && location.name && location.address ? (
             <div className="mTop5 mBottom5">
               <span

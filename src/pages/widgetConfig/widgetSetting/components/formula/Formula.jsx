@@ -223,11 +223,11 @@ export default class Formula extends React.Component {
     if (showInSideFormulaSelect) {
       this.tagtextarea.cmObj.replaceRange(
         `${key}()`,
-        { line: fnmatchPos.line, ch: fnmatchPos.ch - 1 },
-        { line: fnmatchPos.line, ch: fnmatchPos.ch + fnmatch.length },
+        { line: fnmatchPos.line, ch: fnmatchPos.ch - fnmatch.length },
+        { line: fnmatchPos.line, ch: fnmatchPos.ch - fnmatch.length + key.length + 2 },
         'insertfn',
       );
-      this.tagtextarea.cmObj.setCursor({ line: fnmatchPos.line, ch: fnmatchPos.ch + key.length });
+      this.tagtextarea.cmObj.setCursor({ line: fnmatchPos.line, ch: fnmatchPos.ch - fnmatch.length + key.length + 1 });
       this.tagtextarea.cmObj.focus();
     } else if (shoOutSideFormulaSelect) {
       const cursor = this.tagtextarea.cmObj.getCursor();

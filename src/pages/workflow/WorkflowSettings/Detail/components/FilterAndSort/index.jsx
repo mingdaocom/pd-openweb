@@ -21,7 +21,7 @@ export default ({
   return (
     <Fragment>
       <div className="mTop20 bold">{_l('筛选条件')}</div>
-      {filterText && <div className="Gray_75 mTop5">{filterText}</div>}
+      {filterText && <div className="Gray_75 mTop5 flexRow alignItemsCenter">{filterText}</div>}
 
       {!!data.conditions.length || !!data.filters.length ? (
         <TriggerCondition
@@ -71,7 +71,7 @@ export default ({
         {showRandom && (
           <Checkbox
             className="flexRow"
-            text={_l('忽略排序规则，随机获取一条')}
+            text={_l('忽略排序规则，随机获取')}
             checked={data.random}
             onClick={checked => updateSource({ random: !checked })}
           />

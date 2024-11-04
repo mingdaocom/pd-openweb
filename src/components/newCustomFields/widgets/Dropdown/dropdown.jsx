@@ -173,7 +173,7 @@ export default class Widgets extends Component {
             this.select = select;
           }}
           dropdownClassName={dropdownClassName}
-          className="w100 customAntSelect"
+          className={cx('w100 customAntSelect', { optionDisabled: disabled })}
           disabled={disabled}
           showSearch
           allowClear={checkIds.length > 0}

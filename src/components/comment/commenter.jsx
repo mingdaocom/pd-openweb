@@ -12,11 +12,11 @@ import postAjax from 'src/api/post';
 import { SOURCE_TYPE } from './config';
 import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/mentioninput/mentionsInput';
-import 'src/components/selectGroup/selectAllGroup';
 import './css/commenter.less';
 import { generateRandomPassword } from 'src/util';
 import _ from 'lodash';
 import Emotion from 'src/components/emotion/emotion';
+import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
 
 const ClickAwayable = createDecoratedComponent(withClickAway);
 
@@ -76,6 +76,7 @@ class Commenter extends React.Component {
     shrinkAfterSubmit: false,
     sendPost: true,
     autoFocus: false,
+    groups: undefined,
     onSubmitCallback: () => {},
   };
 
@@ -94,7 +95,7 @@ class Commenter extends React.Component {
   }
 
   componentDidMount() {
-    const { textarea, faceBtn, selectGroup } = this;
+    const { textarea, faceBtn } = this;
     const { textareaMaxHeight, textareaMinHeight, projectId } = this.props;
     const comp = this;
 
@@ -148,21 +149,6 @@ class Commenter extends React.Component {
       offset: this.props.offset,
       popupContainer: this.props.popupContainer,
     });
-
-    // 发布到动态
-    if (!this.props.disableShareToPost) {
-      $(selectGroup).SelectGroup(
-        Object.assign(
-          {
-            whetherTruncation: true,
-            truncationStr: 10,
-            autoPosition: true,
-            isShowSelectProject: false,
-          },
-          this.props.selectGroupOptions,
-        ),
-      );
-    }
 
     // 获得焦点
     if (this.props.autoFocus) {
@@ -233,17 +219,15 @@ class Commenter extends React.Component {
   }
 
   handleSubmit() {
-    let groups;
+    const { groups } = this.state;
+
     if (!this.state.isUploadComplete) {
       alert(_l('文件上传中，请稍等'), 3);
       return false;
     }
-    if (this.state.isReshare) {
-      groups = $(this.selectGroup).SelectGroup('getScope');
-      if (!groups) {
-        alert(_l('请选择分享范围'), 3);
-        return false;
-      }
+    if (this.state.isReshare && !groups) {
+      alert(_l('请选择分享范围'), 3);
+      return false;
     }
 
     const textarea = this.textarea;
@@ -382,8 +366,29 @@ class Commenter extends React.Component {
     }
   };
 
+  handleChangeGroup = value => {
+    this.setState({
+      groups:
+        !value.isMe &&
+        !(value.shareGroupIds || []).length &&
+        !(value.shareProjectIds || []).length &&
+        !(value.radioProjectIds || []).length
+          ? undefined
+          : _.pick(value, ['radioProjectIds', 'shareGroupIds', 'shareProjectIds']),
+    });
+  };
+
   render() {
-    const { canAddLink, appId, projectId, sourceId, placeholder, activePlaceholder, fromAppId } = this.props;
+    const {
+      canAddLink,
+      appId,
+      projectId,
+      sourceId,
+      placeholder,
+      activePlaceholder,
+      fromAppId,
+      selectGroupOptions = {},
+    } = this.props;
     const { isEditing, attachmentData, kcAttachmentData } = this.state;
     const [worksheetId, recordId] = sourceId.split('|');
     const hasAttachment = attachmentData.length || kcAttachmentData.length;
@@ -452,14 +457,11 @@ class Commenter extends React.Component {
             </span>
           ) : null}
           <div className="flex" />
-          <span className={cx('commentSelectGroup', { Hidden: !this.state.isReshare })}>
-            <input
-              type="hidden"
-              ref={selectGroup => {
-                this.selectGroup = selectGroup;
-              }}
-            />
-          </span>
+          {this.state.isReshare && (
+            <span className="commentSelectGroup">
+              <SelectGroupTrigger {...selectGroupOptions} minHeight={260} onChange={this.handleChangeGroup} />
+            </span>
+          )}
           <Button
             id={this.textareaId + '-submit'}
             className="commentSubmit"

@@ -5,7 +5,7 @@ import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import _ from 'lodash';
 import { mdNotification } from 'ming-ui/functions';
-import { emitter } from 'worksheet/util';
+import { emitter, equalToLocalPushUniqueId } from 'worksheet/util';
 import CryptoJS from 'crypto-js';
 
 const getWorksheetInfo = worksheetId => {
@@ -112,7 +112,7 @@ export default () => {
       }
     };
 
-    if (pushUniqueId && pushUniqueId !== md.global.Config.pushUniqueId) {
+    if (!equalToLocalPushUniqueId(pushUniqueId)) {
       return;
     }
 

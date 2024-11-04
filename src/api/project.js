@@ -59,7 +59,7 @@ export default {
   * 获取二级域名页面数据
   * @param {Object} args 请求参数
   * @param {string} args.host Host 地址
-  * @param {string} args.projectId 网络Id
+  * @param {string} args.projectId 组织Id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

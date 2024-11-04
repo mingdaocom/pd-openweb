@@ -54,6 +54,7 @@ const ViewWrap = styled.div`
   &.hideAddRecord .addRecord,
   &.hideAddRecord .addBoardRecord,
   &.hideAddRecord .addRecordItemWrapper,
+  &.hideAddRecord .gunterDirectory .addCoin,
   &.hideSearchRecord .icon-search,
   &.hideSearchRecord .searchWrapper, 
   &.hideSearchRecord .mapSearchRecordAutoComplete {

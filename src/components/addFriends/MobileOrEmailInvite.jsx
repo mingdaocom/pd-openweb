@@ -270,10 +270,12 @@ export default class MobileOrEmailInvite extends Component {
       );
     }
 
+    const text = fromType === FROM_TYPE.GROUPS ? _l('群组') : _l('组织');
+
     return (
       <div className="addFriendsContent">
         <div className="Gray_75 mBottom20 flexRow">
-          <span className="flex">{_l('邀请后，成员会收到邀请链接，验证后可加入组织')}</span>
+          <span className="flex">{_l('邀请后，成员会收到邀请链接，验证后可加入%0', text)}</span>
           {fromType !== FROM_TYPE.GROUPS && (
             <div className="addBox mLeft10">
               <span onClick={() => setDetailMode(DETAIL_MODE.INVITE)}>

@@ -94,7 +94,17 @@ const AppDialog = styled(Dialog)`
 `;
 
 const SelectApp = props => {
-  const { projectId, title = _l('选择应用'), onOk, onClose, isGetManagerApps } = props;
+  const {
+    projectId,
+    title = _l('选择应用'),
+    unionId = undefined,
+    unique = false,
+    ajaxFun = 'getAppsForProject',
+    onOk,
+    onClose,
+    isGetManagerApps,
+    filterFun = l => l,
+  } = props;
   const [appList, setAppList] = useState([]);
   const [fetchState, setFetchState] = useSetState({
     pageIndex: 1,
@@ -128,6 +138,7 @@ const SelectApp = props => {
           <Checkbox
             size="small"
             className="pLeft8"
+            disabled={unique}
             checked={selectedApps.length === appList.length && !!appList.length}
             onClick={checked => setSelectedApps(checked ? [] : appList)}
           />
@@ -141,7 +152,11 @@ const SelectApp = props => {
             checked={!!selectedApps.filter(app => app.appId === item.appId).length}
             onClick={checked =>
               setSelectedApps(
-                checked ? selectedApps.filter(app => app.appId !== item.appId) : selectedApps.concat([item]),
+                checked
+                  ? selectedApps.filter(app => app.appId !== item.appId)
+                  : unique
+                  ? [item]
+                  : selectedApps.concat([item]),
               )
             }
           />
@@ -193,19 +208,19 @@ const SelectApp = props => {
 
   const getProjectAppList = () => {
     if (!fetchState.loading) return;
-    appManagementApi
-      .getAppsForProject({
-        projectId,
-        status: '',
-        order: 3,
-        pageSize: 50,
-        pageIndex: fetchState.pageIndex,
-        keyword: fetchState.keyWords,
-      })
-      .then(({ apps }) => {
-        setAppList(fetchState.pageIndex > 1 ? appList.concat(apps) : apps);
-        setFetchState({ loading: false, noMore: apps.length < 50 });
-      });
+    appManagementApi[ajaxFun]({
+      projectId,
+      status: '',
+      order: 3,
+      pageSize: 50,
+      unionId,
+      pageIndex: fetchState.pageIndex,
+      keyword: fetchState.keyWords,
+    }).then(({ apps }) => {
+      const list = apps.filter(filterFun);
+      setAppList(fetchState.pageIndex > 1 ? appList.concat(list) : list);
+      setFetchState({ loading: false, noMore: apps.length < 50 });
+    });
   };
 
   const onSearch = useCallback(

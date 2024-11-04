@@ -58,7 +58,7 @@ export default class CreateNodeDialog extends Component {
                       appType: 1,
                       actionId: '421',
                       name: _l('查询并更新记录'),
-                      describe: _l('根据查询条件从工作表中获取一条记录并同时更新记录值'),
+                      describe: _l('根据筛选条件和排序规则从工作表中查找符合条件的第一条记录并同时更新记录值（原子性防止并发操作，适用于出入库等场景）'),
                     },
                     {
                       type: 7,
@@ -231,7 +231,7 @@ export default class CreateNodeDialog extends Component {
                   appType: 1,
                   actionId: '107',
                   describe: _l(
-                    '从工作表中筛选符合条件的数据并进行汇总计算，如：记录数量、求和、平均、最大、最小等。注意：当数据频繁变更时可能有一定延时',
+                    '从工作表中筛选符合条件的数据并进行汇总计算，如：记录数量、求和、平均、最大、最小等。注意：当汇总他表字段或者数据频繁变更时可能有一定延时',
                   ),
                 },
                 {
@@ -339,8 +339,8 @@ export default class CreateNodeDialog extends Component {
           ],
         },
         {
-          id: 'component',
-          name: _l('构件%03032'),
+          id: 'process',
+          name: _l('流程'),
           items: [
             {
               type: 29,
@@ -388,6 +388,27 @@ export default class CreateNodeDialog extends Component {
               iconColor: '#4C7D9E',
               iconName: 'icon-pbc',
             },
+            {
+              type: 6,
+              name: _l('更新流程参数%03023'),
+              appType: 102,
+              actionId: '2',
+              iconColor: '#4C7D9E',
+              iconName: 'icon-parameter',
+            },
+            {
+              type: 30,
+              name: _l('中止流程'),
+              actionId: '2',
+              iconColor: '#F15B75',
+              iconName: 'icon-rounded_square',
+            },
+          ],
+        },
+        {
+          id: 'component',
+          name: _l('构件%03032'),
+          items: [
             {
               type: 25,
               featureId: VersionProductType.apiIntergrationNode,
@@ -442,27 +463,12 @@ export default class CreateNodeDialog extends Component {
             },
             {
               type: 6,
-              name: _l('更新流程参数%03023'),
-              appType: 102,
-              actionId: '2',
-              iconColor: '#4C7D9E',
-              iconName: 'icon-parameter',
-            },
-            {
-              type: 6,
               featureId: VersionProductType.globalVariable,
               name: _l('更新全局变量'),
               appType: 104,
               actionId: '2',
               iconColor: '#4C7D9E',
               iconName: 'icon-global_variable',
-            },
-            {
-              type: 30,
-              name: _l('中止流程'),
-              actionId: '2',
-              iconColor: '#F15B75',
-              iconName: 'icon-rounded_square',
             },
           ],
         },
@@ -880,7 +886,11 @@ export default class CreateNodeDialog extends Component {
       this.state.list.forEach(o => {
         _.remove(
           o.items,
-          item => !_.includes([NODE_TYPE.BRANCH, NODE_TYPE.WEBHOOK, NODE_TYPE.CODE, NODE_TYPE.JSON_PARSE], item.type),
+          item =>
+            !_.includes(
+              [NODE_TYPE.BRANCH, NODE_TYPE.WEBHOOK, NODE_TYPE.CODE, NODE_TYPE.JSON_PARSE, NODE_TYPE.AIGC],
+              item.type,
+            ),
         );
 
         o.items.forEach(item => {
@@ -1123,7 +1133,7 @@ export default class CreateNodeDialog extends Component {
     return (
       <ul className={cx('clearfix', { nodeList: !id })} key={id}>
         {id === 'plugin' && (
-          <div className="Gray_75 mLeft17 mTop8 bold">
+          <div className="Gray_75 mLeft17 mTop8 bold mBottom6">
             {data.items[0].isMyCreate ? _l('我开发的') : _l('组织发布的')}
           </div>
         )}
@@ -1217,11 +1227,12 @@ export default class CreateNodeDialog extends Component {
    */
   isConditionalBranch() {
     const { nodeId, flowNodeMap } = this.props;
-    const { typeId, actionId } = flowNodeMap[nodeId] || {};
+    const { typeId, actionId, execute } = flowNodeMap[nodeId] || {};
 
     return (
       _.includes([NODE_TYPE.APPROVAL, NODE_TYPE.SEARCH, NODE_TYPE.FIND_SINGLE_MESSAGE], typeId) ||
-      (typeId === NODE_TYPE.ACTION && actionId === '20')
+      (typeId === NODE_TYPE.ACTION && actionId === '20') ||
+      execute
     );
   }
 
@@ -1244,7 +1255,7 @@ export default class CreateNodeDialog extends Component {
       return;
     }
 
-    // 分支 并且 上一个节点是审批
+    // 分支 并且 上一个节点支持结果分支
     if (item.type === NODE_TYPE.BRANCH && this.isConditionalBranch()) {
       this.setState({ selectItem: item, branchDialogModel: 2 });
     } else if (

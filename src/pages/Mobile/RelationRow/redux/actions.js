@@ -124,6 +124,21 @@ export const loadRowRelationRows = (relationControl, getType) => async (dispatch
       formData: control.formData || rowInfo.templateControls,
       filterKey: 'resultfilters',
     });
+    if (!filterControls) {
+      dispatch({
+        type: 'MOBILE_RELATION_ROWS',
+        data: [],
+      });
+      dispatch({
+        type: 'MOBILE_RELATION_LOAD_PARAMS',
+        data: {
+          pageIndex,
+          loading: false,
+          isMore: false,
+        },
+      });
+      return;
+    }
     params.filterControls = filterControls || [];
   }
   // <- end 关联查询组件逻辑

@@ -83,7 +83,15 @@ export default class Controls extends React.Component {
             maxHeight={height}
             dragable={false}
             showControls={columns.filter(item => !viewcontrols.includes(item.controlId)).map(item => item.controlId)}
-            columns={formatColumnsListForControls(columns)}
+            columns={formatColumnsListForControls(
+              columns.sort((a, b) => {
+                if (a.row === b.row) {
+                  return a.col - b.col;
+                } else {
+                  return a.row - b.row;
+                }
+              }),
+            )}
             onChange={this.columnChange}
             showTabs={true}
           />

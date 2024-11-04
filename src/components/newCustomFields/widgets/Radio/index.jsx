@@ -76,16 +76,18 @@ class Widgets extends Component {
 
   render() {
     const { disabled, advancedSetting, className, vertical, options, value } = this.props;
-    const { direction = '2', width = '200' } = advancedSetting || {};
+    const { direction = '2', width = '200', readonlyshowall } = advancedSetting || {};
     const { checkIds } = getCheckAndOther(value);
+    const readOnlyShow = !browserIsMobile() && readonlyshowall === '1' && disabled ? true : !disabled;
     const displayOptions = options.filter(
-      item => !item.isDeleted && (_.includes(checkIds, item.key) || (!item.hide && !disabled)),
+      item => !item.isDeleted && (_.includes(checkIds, item.key) || (!item.hide && readOnlyShow)),
     );
     return (
       <div
         className={cx(
           'customFormControlBox formBoxNoBorder',
           { controlDisabled: disabled },
+          { readOnlyDisabled: !browserIsMobile() && readonlyshowall === '1' && disabled },
           { groupColumn: direction === '1' || browserIsMobile() },
           { groupRow: direction === '2' && !browserIsMobile() },
         )}

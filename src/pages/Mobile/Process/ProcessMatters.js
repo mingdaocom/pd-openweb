@@ -11,7 +11,8 @@ import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import Card from './Card';
 import ProcessDelegation from './ProcessDelegation';
 import { getRequest } from 'src/util';
-import { verifyPassword } from 'src/util';
+import { verifyPassword, handlePushState, handleReplaceState } from 'src/util';
+import { navigateTo } from 'src/router/navigateTo';
 import './index.less';
 import 'src/pages/worksheet/common/newRecord/NewRecord.less';
 import 'mobile/ProcessRecord/OtherAction/index.less';
@@ -107,15 +108,15 @@ export default class ProcessMatters extends Component {
     super(props);
     const { search } = props.location;
     const data = qs.parse(search);
-    const bottomTab = _.find(tabs, { id: data.tab });
+    const bottomTab = _.find(tabs, { id: data.tab }) || tabs[0] || {};
     this.state = {
       pageIndex: 1,
       pageSize: 30,
       list: [],
       loading: false,
       isMore: true,
-      bottomTab: bottomTab ? bottomTab : tabs[0],
-      topTab: data.tab ? _.find(tabs[0].tabs, { id: data.tab }) : tabs[0].tabs[0],
+      bottomTab: bottomTab,
+      topTab: data.tab ? _.find(bottomTab.tabs, { id: data.tab }) || bottomTab.tabs[0] : bottomTab.tabs[0],
       searchValue: '',
       countData: {},
       appCount: {},
@@ -135,7 +136,15 @@ export default class ProcessMatters extends Component {
         this.setState({ showPassword: true });
       },
     });
+    window.addEventListener('popstate', this.onQueryChange);
   }
+  componentWillUnmount() {
+    window.addEventListener('popstate', this.onQueryChange);
+  }
+  onQueryChange = () => {
+    if (!this.state.previewRecord || _.isEmpty(this.state.previewRecord)) return;
+    handleReplaceState('page', 'processRecord', () => this.setState({ previewRecord: {} }));
+  };
   getTodoList() {
     const param = {};
     const { loading, isMore, topTab, bottomTab, searchValue } = this.state;
@@ -438,6 +447,7 @@ export default class ProcessMatters extends Component {
                     return item.entityName ? `${item.entityName}: ${item.title}` : item.title;
                   }}
                   onClick={() => {
+                    handlePushState('page', 'processRecord');
                     this.setState({
                       previewRecord: { instanceId: item.id, workId: item.workId },
                     });
@@ -461,6 +471,7 @@ export default class ProcessMatters extends Component {
                         return item.entityName ? `${item.entityName}: ${item.title}` : item.title;
                       }}
                       onClick={() => {
+                        handlePushState('page', 'processRecord');
                         this.setState({
                           previewRecord: { instanceId: item.id, workId: item.workId },
                         });
@@ -588,6 +599,7 @@ export default class ProcessMatters extends Component {
                 return item.entityName ? `${item.entityName}: ${item.title}` : item.title;
               }}
               onClick={() => {
+                handlePushState('page', 'processRecord');
                 this.setState({
                   previewRecord: { instanceId: item.id, workId: item.workId },
                 });
@@ -632,6 +644,7 @@ export default class ProcessMatters extends Component {
     const currentTabs = bottomTab.tabs;
     const allowApproveList = list.filter(c => _.get(c, 'flowNode.batch'));
     const rejectList = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
+    const { appId } = getRequest();
     return (
       <div className="processContent flexColumn h100">
         <div className="flex flexColumn">
@@ -749,6 +762,10 @@ export default class ProcessMatters extends Component {
           <Back
             style={{ bottom: 60 }}
             onClick={() => {
+              if (appId) {
+                navigateTo(`/mobile/app/${appId}`);
+                return;
+              }
               history.back();
             }}
           />
@@ -776,6 +793,7 @@ export default class ProcessMatters extends Component {
             if (data.id) {
               this.handleApproveDone(data);
             }
+            history.back();
             this.setState({
               previewRecord: {},
             });

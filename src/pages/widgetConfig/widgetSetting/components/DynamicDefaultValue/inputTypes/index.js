@@ -18,6 +18,7 @@ import RichInput from './RichInput';
 import ArrayInput from './ArrayInput';
 import ObjectInput from './ObjectInput';
 import AttachmentInput from './AttachmentInput';
+import LocationInput from './LocationInput';
 
 export const TYPE_TO_COMP = {
   text: TextInput,
@@ -41,4 +42,5 @@ export const TYPE_TO_COMP = {
   array: ArrayInput,
   array_object: ObjectInput,
   attachment: AttachmentInput,
+  location: LocationInput,
 };

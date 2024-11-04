@@ -7,7 +7,7 @@ import {
 } from 'src/pages/worksheet/common/ViewConfig/util';
 import { Icon, Tooltip, Checkbox } from 'ming-ui';
 import './index.less';
-import { getSetDefault } from './util';
+import { getSetDefault, formatFastFilterData } from './util';
 import bgFastFilters from './img/bgFastFilters.png';
 import FastFilterCon from './fastFilterCon';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
@@ -90,9 +90,11 @@ export default function FastFilter(params) {
           };
     updateCurrentView(
       Object.assign(view, {
-        fastFilters: fastFilters.map(o => {
-          return formatObjWithNavfilters(o);
-        }),
+        fastFilters: formatFastFilterData(
+          fastFilters.map(o => {
+            return formatObjWithNavfilters(o);
+          }),
+        ),
         advancedSetting: data,
         editAttrs: ['fastFilters', 'advancedSetting'],
         editAdKeys: Object.keys(data),

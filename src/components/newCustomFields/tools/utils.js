@@ -4,9 +4,9 @@ import {
   formatValuesOfOriginConditions,
   redefineComplexControl,
 } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { FROM, FORM_ERROR_TYPE } from './config';
+import { FROM, FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT } from './config';
 import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
-import { getStringBytes, accMul, browserIsMobile, formatStrZero } from 'src/util';
+import { getStringBytes, accMul, browserIsMobile, formatStrZero, getContactInfo } from 'src/util';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { getShowFormat, getDatePickerConfigs, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
 import { filterEmptyChildTableRows, getRelateRecordCountFromValue, getNewRecordPageUrl } from 'worksheet/util';
@@ -466,7 +466,7 @@ export function formatControlToServer(
         return result;
       } else if (result.value.isAdd) {
         result.value = JSON.stringify(
-          filterEmptyChildTableRows(control.value.rows).map(row =>
+          filterEmptyChildTableRows(control.store.getState().rows).map(row =>
             formatRowToServer(row, childTableControls || [], { isDraft, isSubList: true }),
           ),
         );
@@ -489,7 +489,7 @@ export function formatControlToServer(
             result.value.updated
               .map(rowid => {
                 const isNew = /^(temp|default)/.test(rowid);
-                let row = _.find(control.value.rows, r => r.rowid === rowid);
+                let row = _.find(control.store.getState().rows, r => r.rowid === rowid);
                 if (!row) {
                   return undefined;
                 }
@@ -911,9 +911,9 @@ export const getEmbedValue = (embedData = {}, id) => {
     case 'userId':
       return md.global.Account.accountId;
     case 'phone':
-      return md.global.Account.mobilePhone;
+      return getContactInfo('mobilePhone');
     case 'email':
-      return md.global.Account.email;
+      return getContactInfo('email');
     case 'language':
       return window.getCurrentLang();
     case 'ua':
@@ -1378,4 +1378,24 @@ export const checkValueByFilterRegex = (data = {}, name, formData, recordId) => 
       }
     }
   }
+};
+
+// 后端接口报错
+export const getServiceError = (badData = [], data, from) => {
+  const serviceError = [];
+  const hideControlErrors = [];
+  badData.forEach(controlId => {
+    const control = _.find(data, d => d.controlId === controlId);
+    const error = {
+      controlId,
+      errorText: FORM_ERROR_TYPE_TEXT.REQUIRED(control),
+      errorType: FORM_ERROR_TYPE.REQUIRED,
+      showError: true,
+    };
+    if (!controlState(control, from).visible) {
+      hideControlErrors.push(error.errorText);
+    }
+    serviceError.push(error);
+  });
+  return { serviceError, hideControlErrors };
 };

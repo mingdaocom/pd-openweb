@@ -520,6 +520,19 @@ export const checkCustomEventError = (controls = []) => {
   return false;
 };
 
+// 表单保存选项集不校验
+export const checkOptionsRepeat = (controls = [], checkCollections = true) => {
+  for (const c of controls) {
+    if (_.includes([9, 10, 11], c.type) && c.dataSource ? checkCollections : true) {
+      const noDelOptions = (c.options || []).filter(o => !o.isDeleted);
+      const uniqOptions = _.uniqBy(noDelOptions, 'value');
+      if (noDelOptions.length !== uniqOptions.length) {
+        return true;
+      }
+    }
+  }
+};
+
 export const formatControlsData = (controls = [], fromSub = false) => {
   return controls.map(item => {
     const { type } = item;

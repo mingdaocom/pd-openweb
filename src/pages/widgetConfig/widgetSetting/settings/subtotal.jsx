@@ -78,8 +78,10 @@ const getTotalType = control => {
     if (includes([0, 6, 8], control.enumDefault2)) return NUMBER_TYPE;
     if (includes([15, 16, 46], control.enumDefault2)) return DATE_TYPE;
   }
-  // 汇总选择公式字段
+  // 汇总选择公式日期字段
   if (control.type === 38 && control.enumDefault2 === 0 && control.enumDefault === 1) return NUMBER_TYPE;
+  // 汇总选择公式函数字段
+  if (control.type === 53 && includes([6], control.enumDefault2)) return NUMBER_TYPE;
   const type = control.type === 30 ? control.sourceControlType : control.type;
   if (includes([6, 8, 31, 28], type)) return NUMBER_TYPE;
   if (includes([15, 16, 46], type)) return DATE_TYPE;
@@ -130,8 +132,6 @@ export default function Subtotal(props) {
   const totalType = getTotalType(selectedControl);
 
   const filters = getAdvanceSetting(data, 'filters');
-
-  const filtersCache = useRef(filters);
 
   const filterControls = filterByTypeAndSheetFieldType(
     resortControlByColRow(filterOnlyShowField(availableControls) || []),
@@ -260,7 +260,7 @@ export default function Subtotal(props) {
                 data={totalType}
                 onChange={value => {
                   const nextData = {
-                    ...handleAdvancedSettingChange({ summaryresult: '' }),
+                    ...handleAdvancedSettingChange(data, { summaryresult: '' }),
                     enumDefault: value,
                     enumDefault2: 6,
                     dot: 0,
@@ -312,13 +312,9 @@ export default function Subtotal(props) {
                 onClick={checked => {
                   if (checked) {
                     onChange(handleAdvancedSettingChange(data, { filters: '' }));
-                  } else {
-                    if (isEmpty(filters) && isEmpty(filtersCache.current)) {
-                      setVisible(true);
-                    } else {
-                      onChange(handleAdvancedSettingChange(data, { filters: JSON.stringify(filtersCache.current) }));
-                    }
+                    return;
                   }
+                  setVisible(true);
                 }}
               />
             </div>
@@ -330,7 +326,6 @@ export default function Subtotal(props) {
                 fromCondition={'subTotal'}
                 helpHref="https://help.mingdao.com/worksheet/control-rollup"
                 onChange={({ filters }) => {
-                  filtersCache.current = filters;
                   onChange(handleAdvancedSettingChange(data, { filters: JSON.stringify(filters) }));
                   setVisible(false);
                 }}
@@ -338,12 +333,7 @@ export default function Subtotal(props) {
               />
             )}
             {!isEmpty(filters) && (
-              <FilterItemTexts
-                {...props}
-                loading={loading}
-                controls={filterColumns}
-                editFn={() => setVisible(true)}
-              />
+              <FilterItemTexts {...props} loading={loading} controls={filterColumns} editFn={() => setVisible(true)} />
             )}
           </SettingItem>
           {dataSource && !isEmpty(filters) && (includes([0, 5], enumDefault) || !sourceControlId) && (

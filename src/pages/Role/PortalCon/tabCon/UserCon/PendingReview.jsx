@@ -26,7 +26,7 @@ const Wrap = styled.div`
   }
   padding: 16px 10px 0 10px;
   .topAct {
-    padding-right:44px;
+    padding-right: 22px;
     min-height: 54px;
     padding-bottom: 16px;
     display: flex;

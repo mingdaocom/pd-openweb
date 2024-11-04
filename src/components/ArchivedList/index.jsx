@@ -3,6 +3,7 @@ import Trigger from 'rc-trigger';
 import { Icon, Menu, MenuItem } from 'ming-ui';
 import instance from 'src/pages/workflow/api/instance';
 import worksheetAjax from 'src/api/worksheet';
+import appManagementAjax from 'src/api/appManagement';
 import styled from 'styled-components';
 import _ from 'lodash';
 import { Tooltip } from 'antd';
@@ -20,9 +21,17 @@ const Box = styled.div`
 const FROM_TYPE = {
   workflow: 1,
   worksheet: 2,
+  log: 3,
 };
 
-export default ({ type, archivedItem = {}, onChange = () => {} }) => {
+export default ({
+  type,
+  archivedItem = {},
+  showSelectItem = true,
+  params = {},
+  iconClassName,
+  onChange = () => {},
+}) => {
   const [showList, setShowList] = useState(false);
   const [list, setList] = useState([]);
   const [selectItem, setSelectItem] = useState(archivedItem);
@@ -68,8 +77,10 @@ export default ({ type, archivedItem = {}, onChange = () => {} }) => {
           <Icon
             icon="drafts_approval"
             className={cx(
-              'Font20 pointer',
-              _.isEmpty(selectItem) ? 'Gray_75 ThemeHoverColor3' : 'ThemeColor3 ThemeHoverColor2 ',
+              `Font20 pointer ${iconClassName}`,
+              _.isEmpty(selectItem)
+                ? `${iconClassName ? iconClassName : 'Gray_75'} ThemeHoverColor3`
+                : 'ThemeColor3 ThemeHoverColor2 ',
             )}
           />
         </Tooltip>
@@ -78,21 +89,36 @@ export default ({ type, archivedItem = {}, onChange = () => {} }) => {
   };
 
   useEffect(() => {
+    setSelectItem(archivedItem);
+  }, [archivedItem]);
+
+  useEffect(() => {
     const promiseFn =
       type === FROM_TYPE.workflow
         ? instance.getArchivedList()
         : type === FROM_TYPE.worksheet
         ? worksheetAjax.getWorksheetArchives()
+        : type === FROM_TYPE.log
+        ? appManagementAjax.getArchivedList(params)
         : null;
 
     if (promiseFn) {
       promiseFn.then(res => {
-        setList(res);
+        const list =
+          type === FROM_TYPE.log
+            ? (res.list || []).map(({ archivedId, startTime, endTime, text }) => ({
+                id: archivedId,
+                start: startTime,
+                end: endTime,
+                text,
+              }))
+            : res;
+        setList(list);
       });
     }
   }, []);
 
-  if (!_.isEmpty(selectItem)) {
+  if (!_.isEmpty(selectItem) && showSelectItem) {
     return (
       <Box className="flexRow alignItemsCenter">
         <div className="bold">{_l('查看已归档数据：')}</div>

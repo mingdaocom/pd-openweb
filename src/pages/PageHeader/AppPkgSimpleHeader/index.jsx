@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { Tooltip, SvgIcon } from 'ming-ui';
 import { navigateTo } from 'router/navigateTo';
 import styled from 'styled-components';
@@ -7,6 +9,7 @@ import homeApp from 'src/api/homeApp';
 import { routerConfigs } from 'src/pages/AppSettings/routerConfig.js';
 import appManagementApi from 'src/api/appManagement';
 import { getTranslateInfo } from 'src/util';
+import { syncAppDetail } from 'src/pages/PageHeader/redux/action';
 
 const HeaderWrap = styled.div`
   height: 50px;
@@ -34,7 +37,7 @@ const HeaderWrap = styled.div`
   }
 `;
 
-export default function AppPkgSimpleHeader(props) {
+function AppPkgSimpleHeader(props) {
   const { appId, navTab } = _.get(props, 'match.params') || '';
   const [appDetail, setAppDetail] = useState({});
   const routerInfo = _.find(['logs', 'analytics', 'settings'], it => props.path.indexOf(it) > -1);
@@ -60,9 +63,11 @@ export default function AppPkgSimpleHeader(props) {
             window[`langData-${appId}`] = lang.items;
             window[`langVersion-${appId}`] = langInfo.version;
             setAppDetail(appDetail);
+            props.syncAppDetail(appDetail);
           });
       } else {
         setAppDetail(appDetail);
+        props.syncAppDetail(appDetail);
       }
     });
   };
@@ -112,3 +117,8 @@ export default function AppPkgSimpleHeader(props) {
     </HeaderWrap>
   );
 }
+
+export default connect(
+  state => ({}),
+  dispatch => bindActionCreators({ syncAppDetail }, dispatch),
+)(AppPkgSimpleHeader);

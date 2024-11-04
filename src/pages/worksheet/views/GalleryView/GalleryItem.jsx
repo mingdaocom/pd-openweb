@@ -59,6 +59,7 @@ export default class GalleryItem extends React.Component {
     return (
       <React.Fragment>
         <EditableCard
+          type="board"
           ref={this.$ref}
           data={data}
           currentView={{

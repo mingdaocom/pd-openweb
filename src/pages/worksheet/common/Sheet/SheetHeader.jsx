@@ -408,20 +408,12 @@ function SheetHeader(props) {
             {/* 工作表讨论权限 && 工作表日志权限 */}
             {!window.isPublicApp &&
               !md.global.Account.isPortal &&
-              !(
-                !isOpenPermit(permitList.discussSwitch, sheetSwitchPermit) &&
-                !isOpenPermit(permitList.logSwitch, sheetSwitchPermit)
-              ) && (
-                <Tooltip
-                  popupPlacement="bottom"
-                  text={
-                    <span>{isOpenPermit(permitList.discussSwitch, sheetSwitchPermit) ? _l('讨论') : _l('日志')}</span>
-                  }
-                >
+              !!isOpenPermit(permitList.discussSwitch, sheetSwitchPermit) && (
+                <Tooltip popupPlacement="bottom" text={<span>{_l('讨论')}</span>}>
                   <span className="mRight16 mTop4">
                     <Icon
                       className="Font18 Gray_9e pointer"
-                      icon={isOpenPermit(permitList.discussSwitch, sheetSwitchPermit) ? 'discussion' : 'draft-box'}
+                      icon="discussion"
                       onClick={() => setDiscussionVisible(!discussionVisible)}
                     />
                   </span>
@@ -495,9 +487,9 @@ function SheetHeader(props) {
           viewId={viewId}
           projectId={projectId}
           worksheetId={worksheetId}
-          logSwitch={isOpenPermit(permitList.logSwitch, sheetSwitchPermit)}
           discussSwitch={isOpenPermit(permitList.discussSwitch, sheetSwitchPermit)}
           onClose={() => setDiscussionVisible(false)}
+          isWorksheetDiscuss={true}
         />
       </RightInMotion>
       <RightInMotion

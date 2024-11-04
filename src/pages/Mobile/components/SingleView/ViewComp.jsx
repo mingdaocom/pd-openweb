@@ -88,7 +88,8 @@ function ViewComp(props) {
   }, [filtersGroup, workSheetLoading, viewId]);
 
   const getAppInfo = () => {
-    if (!appId || _.get(window, 'shareState.shareId')) return;
+    const isEmbed = /\/embed\/view\//.test(location.pathname);
+    if (!appId || _.get(window, 'shareState.shareId') || isEmbed) return;
     homeAppAjax.getApp({ appId }).then(data => {
       setAppColor(data.iconColor);
     });
@@ -151,7 +152,7 @@ function ViewComp(props) {
           </Header>
         )}
         <ViewCon className="flexRow SingleViewBody">
-          <View view={view} />
+          <View view={view} viewFlag={Date.now()} />
         </ViewCon>
         {!_.isEmpty(view) &&
           isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&

@@ -1,9 +1,8 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { LoadDiv } from 'ming-ui';
 import Sidebar from './Sidebar';
 import Loadable from 'react-loadable';
-import { getRequest } from 'src/util';
 import { menuGroup } from './router.config';
 import { navigateTo } from 'src/router/navigateTo';
 import { Switch, Route } from 'react-router-dom';
@@ -43,8 +42,8 @@ const Wrap = styled.div`
     padding: 2px 15px;
     border-radius: 3px;
     &.ant-btn-primary {
-      background-color: #2196F3;
-      border-color: #2196F3;
+      background-color: #2196f3;
+      border-color: #2196f3;
     }
     &.ant-btn-background-ghost {
       background: transparent !important;
@@ -54,14 +53,17 @@ const Wrap = styled.div`
     position: absolute;
   }
   .ant-select {
-    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector, &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-      border-color: #2196F3 !important;
+    &.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+    &.ant-select-focused:not(.ant-select-disabled).ant-select-single:not(.ant-select-customize-input)
+      .ant-select-selector {
+      border-color: #2196f3 !important;
     }
     .ant-select-selector {
       border-radius: 4px !important;
       box-shadow: none !important;
     }
-    .ant-select-selector, .ant-select-selection-item {
+    .ant-select-selector,
+    .ant-select-selection-item {
       height: 32px;
       line-height: 30px;
     }
@@ -70,7 +72,8 @@ const Wrap = styled.div`
       height: auto;
       top: 40%;
     }
-    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item, .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
+    &.ant-select-single.ant-select-show-arrow .ant-select-selection-item,
+    .ant-select-single.ant-select-show-arrow .ant-select-selection-placeholder {
       opacity: 1;
       font-size: 13px;
     }
@@ -84,10 +87,11 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [authorizationState, setAuthorizationState] = useState(false);
   const menus = _.flatten(menuGroup.map(m => _.flatten(m.menus.map(n => n.routes))));
-  const getComponent = component => Loadable({
-    loader: component,
-    loading: () => null
-  });
+  const getComponent = component =>
+    Loadable({
+      loader: component,
+      loading: () => null,
+    });
 
   useEffect(() => {
     privateGuideApi.getPlatformLicenseInfo().then(data => {
@@ -104,7 +108,7 @@ const App = () => {
           <ConfigProvider autoInsertSpaceInButton={false}>
             <Switch>
               {menus.map(({ path, component }) => {
-                return <Route key={path} path={path} component={getComponent(component)} />
+                return <Route key={path} path={path} component={getComponent(component)} />;
               })}
               <Route
                 path="*"
@@ -118,34 +122,32 @@ const App = () => {
         </div>
       </Wrap>
     );
-  }
+  };
+
+  const content = useMemo(() => renderContent(), []);
 
   if (loading) {
-    return (
-      <LoadDiv className="mTop30" />
-    );
+    return <LoadDiv className="mTop30" />;
   } else {
-    return (
-      authorizationState ? (
-        <Switch>
-          <Route path="/privateDeployment/:routeType">{renderContent()}</Route>
-          <Route
-            path="*"
-            render={({ location }) => {
-              navigateTo('/privateDeployment/base');
-              return null;
-            }}
-          />
-        </Switch>
-      ) : (
-        <Wrap>
-          <ConfigProvider autoInsertSpaceInButton={false}>
-            <AuthorizationIntercept />
-          </ConfigProvider>
-        </Wrap>
-      )
+    return authorizationState ? (
+      <Switch>
+        <Route path="/privateDeployment/:routeType">{content}</Route>
+        <Route
+          path="*"
+          render={({ location }) => {
+            navigateTo('/privateDeployment/base');
+            return null;
+          }}
+        />
+      </Switch>
+    ) : (
+      <Wrap>
+        <ConfigProvider autoInsertSpaceInButton={false}>
+          <AuthorizationIntercept />
+        </ConfigProvider>
+      </Wrap>
     );
   }
-}
+};
 
 export default App;

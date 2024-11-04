@@ -14,8 +14,7 @@ import UserCon from './tabCon/UserCon';
 import RoleCon from './tabCon/RoleCon';
 import { navigateTo } from 'router/navigateTo';
 import _ from 'lodash';
-// import { VersionProductType } from 'src/util/enum';
-// import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import CustomUrlDrawer from './customUrl';
 
 const Wrap = styled.div`
   width: 60%;
@@ -48,7 +47,7 @@ const Wrap = styled.div`
     }
   }
   .setBtn {
-    margin-left: 10px;
+    margin-left: 6px;
     line-height: 32px;
     padding: 0 20px;
     background: #2196f3;
@@ -62,21 +61,7 @@ const Wrap = styled.div`
     }
   }
 `;
-const PayButton = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 20px;
-  line-height: 32px;
-  margin-left: 10px;
-  border-radius: 3px;
-  color: #2196f3;
-  background: #e3f2ff;
-  &:hover {
-    color: #1c80d0;
-    background: #d6edff;
-  }
-`;
+
 const conList = [
   {
     url: '/user',
@@ -102,6 +87,7 @@ class PortalCon extends React.Component {
       baseSetResult: {},
       version: 0,
       showPortalSetting: false,
+      showCustomUrlSet: false,
     };
     const { setQuickTag, setDefaultFastFilters } = props;
     setQuickTag();
@@ -173,7 +159,7 @@ class PortalCon extends React.Component {
   };
   render() {
     const { appDetail, appId, closePortal, isAdmin, canEditApp, canEditUser, portal, setQuickTag } = this.props;
-    const { baseSetResult = {}, showEditUrl, portalSet, showPortalSetting, tab } = this.state;
+    const { baseSetResult = {}, showEditUrl, portalSet, showPortalSetting, tab, showCustomUrlSet } = this.state;
     let tablist = conList;
     if (!canEditApp) {
       tablist = tablist.filter(o => !['roleSet'].includes(o.key));
@@ -181,7 +167,14 @@ class PortalCon extends React.Component {
     if (!canEditUser) {
       tablist = tablist.filter(o => !['user', 'statistics'].includes(o.key));
     }
-    // const featureType = getFeatureStatus(appDetail.projectId, VersionProductType.PAY);
+    const divStyle = {
+      marginLeft: 6,
+      height: '32px',
+      padding: '0 10px',
+      lineHeight: '32px',
+      width: 'auto',
+    };
+    const iconStyle = { marginRight: 3 };
     return (
       <WrapCon className="flexColumn overflowHidden">
         <WrapHeader className="">
@@ -211,7 +204,6 @@ class PortalCon extends React.Component {
             <div className="urlSet flexRow alignItemsCenter">
               <ShareUrl
                 className="mainShareUrl"
-                copyShowText
                 theme="light"
                 url={_.get(portalSet, ['portalSetModel', 'portalUrl'])}
                 editUrl={
@@ -224,27 +216,36 @@ class PortalCon extends React.Component {
                     : null
                 }
                 editTip={_l('自定义域名')}
+                customBtns={[
+                  {
+                    showCompletely: true,
+                    tip: _l('链接设置'),
+                    icon: 'add_link',
+                    className: 'openIcon mRight10',
+                    text: _l('链接设置'),
+                    onClick: () => {
+                      this.setState({
+                        showCustomUrlSet: true,
+                      });
+                    },
+                    iconStyle,
+                    style: divStyle,
+                  },
+                ]}
                 copyTip={
                   md.global.SysSettings.hideWeixin
                     ? undefined
                     : _l('可以将链接放在微信公众号的自定义菜单与自动回复内，方便微信用户关注公众号后随时打开此链接')
                 }
+                qrVisible
+                showCompletely={{
+                  qr: true,
+                  copy: true,
+                  iconStyle,
+                  style: divStyle,
+                }}
               />
-              {/* {featureType && (
-                <PayButton
-                  className="Bold Hand"
-                  onClick={() => {
-                    if (featureType === '2') {
-                      buriedUpgradeVersionDialog(appDetail.projectId, VersionProductType.PAY);
-                      return;
-                    }
-                    location.href = `/worksheet/form/edit/${_.get(portalSet, 'portalSetModel.worksheetId')}/pay`;
-                  }}
-                >
-                  <i className="icon icon-sp_payment_white Font20 mRight5" />
-                  {_l('支付')}
-                </PayButton>
-              )} */}
+              
               {canEditApp && (
                 <span
                   className="setBtn Hand flexRow alignItemsCenter"
@@ -273,7 +274,7 @@ class PortalCon extends React.Component {
                 this.setState({
                   portalSet: { ...portalSet, portalSetModel: { ...portalSet.portalSetModel, portalUrl: url } },
                   showEditUrl: false,
-                  baseSetResult: { ...baseSetResult, customeAddressSuffix: customeAddressSuffix },
+                  baseSetResult: { ...baseSetResult, portalUrl: url, customeAddressSuffix: customeAddressSuffix },
                 });
               }
             }}
@@ -304,6 +305,25 @@ class PortalCon extends React.Component {
                 portalSet: data,
                 baseSetResult: data.portalSetModel,
                 version: data.controlTemplate.version,
+              });
+            }}
+          />
+        )}
+        {showCustomUrlSet && (
+          <CustomUrlDrawer
+            show={showCustomUrlSet}
+            appId={appId}
+            baseSetResult={baseSetResult}
+            closeSet={() =>
+              this.setState({
+                showCustomUrlSet: false,
+              })
+            }
+            roleList={_.get(this.props, 'portal.roleList')}
+            onChange={addressExt => {
+              this.setState({
+                baseSetResult: { ...baseSetResult, addressExt },
+                portalSet: { ...portalSet, portalSetModel: { ..._.get(portalSet, 'portalSetModel'), addressExt } },
               });
             }}
           />

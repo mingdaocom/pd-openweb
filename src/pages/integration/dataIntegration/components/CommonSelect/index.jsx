@@ -6,6 +6,7 @@ import _ from 'lodash';
 const SelectWrapper = styled.div`
   .selectItem {
     font-size: 13px;
+    width: ${({ width }) => `${width ? width + 'px' : '100%'} !important`};
     .ant-select-selector {
       min-height: 36px;
       padding: 2px 11px !important;
@@ -31,12 +32,11 @@ export default function CommonSelect(props) {
   const selectRef = useRef();
 
   return (
-    <SelectWrapper ref={selectRef} className={className || ''}>
+    <SelectWrapper ref={selectRef} className={className || ''} width={width}>
       <Select
         className="selectItem"
         getPopupContainer={() => selectRef.current}
         notFoundContent={notFoundContent || _l('暂无数据')}
-        style={{ width: width || '100%' }}
         {...restProps}
       />
     </SelectWrapper>

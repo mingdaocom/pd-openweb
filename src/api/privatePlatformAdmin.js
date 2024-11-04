@@ -10,7 +10,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPlatformAdmins: function (args, options = {}) {
-
+     
      return mdyAPI('PrivatePlatformAdmin', 'GetPlatformAdmins', args, options);
    },
   /**
@@ -22,7 +22,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addPlatformAdmins: function (args, options = {}) {
-
+     
      return mdyAPI('PrivatePlatformAdmin', 'AddPlatformAdmins', args, options);
    },
   /**
@@ -34,7 +34,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removePlatformAdmins: function (args, options = {}) {
-
+     
      return mdyAPI('PrivatePlatformAdmin', 'RemovePlatformAdmins', args, options);
    },
 };

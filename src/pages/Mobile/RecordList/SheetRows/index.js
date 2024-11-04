@@ -7,7 +7,7 @@ import CustomRecordCard from 'mobile/RecordList/RecordCard';
 import * as actions from '../redux/actions';
 import { RecordInfoModal } from 'mobile/Record';
 import withoutRows from './assets/withoutRows.png';
-import { browserIsMobile, addBehaviorLog } from 'src/util';
+import { browserIsMobile, addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
 import RegExpValidator from 'src/util/expression';
 import './index.less';
 import _ from 'lodash';
@@ -16,17 +16,29 @@ class SheetRows extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      previewRecordId: undefined
-    }
+      previewRecordId: undefined,
+    };
   }
-  handleEndReached = (event) => {
+
+  componentDidMount() {
+    window.addEventListener('popstate', this.onQueryChange);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.onQueryChange);
+  }
+  onQueryChange = () => {
+    handleReplaceState('page', 'recordDetail', () => this.setState({ previewRecordId: undefined }));
+  };
+
+  handleEndReached = event => {
     const { target } = event;
     const { sheetRowLoading, sheetView } = this.props;
     const isEnd = target.scrollHeight - target.scrollTop <= target.clientHeight;
     if (isEnd && !sheetRowLoading && sheetView.isMore) {
       this.props.changePageIndex();
     }
-  }
+  };
   renderRow = item => {
     const {
       worksheetControls,
@@ -62,7 +74,7 @@ class SheetRows extends Component {
             return;
           }
 
-          if (window.isMingDaoApp) {
+          if (window.isMingDaoApp && !window.shareState.shareId) {
             const { appId, worksheetId, viewId } = this.props;
             window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
               item.rowid
@@ -70,6 +82,7 @@ class SheetRows extends Component {
             return;
           }
           if (browserIsMobile()) {
+            handlePushState('page', 'recordDetail');
             this.setState({
               previewRecordId: item.rowid,
             });
@@ -113,6 +126,11 @@ class SheetRows extends Component {
           viewId={base.viewId || view.viewId}
           rowId={previewRecordId}
           sheetSwitchPermit={sheetSwitchPermit}
+          canLoadNextRecord={true}
+          currentSheetRows={currentSheetRows}
+          loadNextPageRecords={this.props.changePageIndex}
+          loadedRecordsOver={!(!sheetRowLoading && sheetView.isMore)}
+          changeMobileSheetRows={this.props.changeMobileSheetRows}
           onClose={() => {
             this.setState({
               previewRecordId: undefined,
@@ -154,5 +172,6 @@ export default connect(
     batchOptCheckedData: state.mobile.batchOptCheckedData,
     sheetSwitchPermit: state.mobile.sheetSwitchPermit,
   }),
-  dispatch => bindActionCreators(_.pick(actions, ['changePageIndex', 'changeBatchOptData']), dispatch),
+  dispatch =>
+    bindActionCreators(_.pick(actions, ['changePageIndex', 'changeBatchOptData', 'changeMobileSheetRows']), dispatch),
 )(SheetRows);

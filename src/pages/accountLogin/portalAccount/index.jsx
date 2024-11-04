@@ -11,7 +11,7 @@ import TPAuth from './tpAuth';
 import Info from './Info';
 import { LoadDiv, Icon, SvgIcon } from 'ming-ui';
 import { getRequest } from 'src/util/sso';
-import { statusList, accountResultAction, setAutoLoginKey, getCurrentId } from './util';
+import { statusList, accountResultAction, setAutoLoginKey, getCurrentId, getCurrentExt, isErrSet } from './util';
 import externalPortalAjax from 'src/api/externalPortal';
 import preall from 'src/common/preall';
 import DocumentTitle from 'react-document-title';
@@ -137,11 +137,12 @@ function ContainerCon(props) {
   const [isErrUrl, setIsErrUrl] = useState(false); // 进到登录根据配置信息判断当前版本购买人数是否超过当前版本购买人数
   const [status, setStatus] = useState(0); //0登录  1注册成功 2您的账号已停用 3待审核 4 审核未通过! 12您访问的门户成员已满额 10000  你访问的链接错误! 20000  你访问的链接已停止访问 是否进入填写信息  status = 9
   const [isAutoLogin, setAutoLogin] = useState(false); //是否自动登录
-  const [{ currentAppId, fixInfo, state, documentTitle }, setState] = useSetState({
+  const [{ currentAppId, fixInfo, state, documentTitle, customLink }, setState] = useSetState({
     currentAppId: '',
     fixInfo: {},
     state: '', //微信跳转回到登录需要带的信息
     documentTitle,
+    customLink: '',
   });
 
   useEffect(() => {
@@ -164,8 +165,14 @@ function ContainerCon(props) {
           }
         });
     } else {
-      getCurrentId(id => {
-        setState({ currentAppId: id });
+      getCurrentId((id, suffix) => {
+        const ext = getCurrentExt(id, suffix);
+        setState({
+          currentAppId: id,
+          customLink:
+            ext || (window.isWeiXin && id !== 'NotExist' ? localStorage.getItem(`${id}_portalCustomLink`) : ''),
+        });
+        window.localStorage.removeItem(`${id}_portalCustomLink`);
       });
     }
   }, []);
@@ -200,7 +207,7 @@ function ContainerCon(props) {
         })
         .then(res => {
           const { accountResult } = res;
-          setAutoLoginKey({ ...res, appId: currentAppId });
+          setAutoLoginKey({ ...res, appId: currentAppId }, !window.isWeiXin || accountResult === 1);
           if (accountResult === 1) {
             accountResultAction({ ...res, appId: currentAppId });
           } else {
@@ -242,6 +249,13 @@ function ContainerCon(props) {
             }
           } else {
             // 流览器打开 直接进入手机号登录流程
+            if (
+              customLink &&
+              !_.get(res, 'portalSetResult.registerMode.email') &&
+              !_.get(res, 'portalSetResult.registerMode.phone')
+            ) {
+              setStatus(40); //自定义链接无效
+            }
             setLoading(false);
           }
         },
@@ -264,6 +278,7 @@ function ContainerCon(props) {
     if (!!paramForPcWx) {
       request = paramForPcWx;
     }
+    const param = customLink ? { customLink } : {};
     const { wxState = '', status = '', mdAppId = '', accountId = '' } = request;
     if (!mdAppId) {
       //从returnUrl里提取appid
@@ -274,12 +289,12 @@ function ContainerCon(props) {
         return false;
       }
       setAppId(domainName);
-      ajaxPromise = externalPortalAjax.getPortalSetByAppId({ appId: domainName });
+      ajaxPromise = externalPortalAjax.getPortalSetByAppId({ appId: domainName, ...param });
     } else {
       accountId && setAccountId(accountId);
       domainName = mdAppId;
       setAppId(domainName);
-      ajaxPromise = externalPortalAjax.getPortalSetByAppId({ appId: domainName });
+      ajaxPromise = externalPortalAjax.getPortalSetByAppId({ appId: domainName, ...param });
     }
     if (!domainName) {
       setStatus(10000);
@@ -300,8 +315,17 @@ function ContainerCon(props) {
             documentTitle: _l('登录/注册'),
           });
         }
+        const isErrCustomUrl = customLink && isErrSet(portalSetResult);
         if (status === 12) {
           setIsErrUrl(true); // 进到登录根据配置信息判断当前版本购买人数是否超过当前版本购买人数
+        }
+        if (status === 40 || isErrCustomUrl) {
+          //扩展链接不存在 || 你访问的链接已停止访问
+          setStatus(40);
+          setLoading(false);
+          setState({
+            customLink: '',
+          });
         }
         if (!isEnable || !isExist) {
           !isEnable && setStatus(20000);
@@ -334,7 +358,7 @@ function ContainerCon(props) {
     let appColor = baseSetInfo.appColor || '#00bcd4';
     let appLogoUrl =
       baseSetInfo.appLogoUrl || md.global.FileStoreConfig.pubHost.replace(/\/$/, '') + '/customIcon/0_lego.svg';
-    const { loginMode = {} } = baseSetInfo;
+    const { loginMode = {}, registerMode = {} } = baseSetInfo;
     return (
       <WrapWx className="flexColumn">
         {baseSetInfo.logoImageUrl ? (
@@ -361,6 +385,9 @@ function ContainerCon(props) {
                 })
                 .then(res => {
                   setLoading(false);
+                  customLink && window.isWeiXin
+                    ? safeLocalStorageSetItem(`${appId}_portalCustomLink`, customLink)
+                    : window.localStorage.removeItem(`${appId}_portalCustomLink`);
                   window.location.href = res; //进入微信授权=>微信登录 流程
                   //微信登录 的地址应该是 wxauth?xxxxxxx参数
                 });
@@ -369,31 +396,35 @@ function ContainerCon(props) {
             <Icon type="wechat" />
             {_l('微信一键登录')}
           </div>
-          {loginMode.phone && (
-            <div
-              className="phoneLogin flexRow alignItemsCenter justifyContentCenter"
-              onClick={() => {
-                //进入对应登录流程
-                setLoginForType('phone');
-                setIsWXauth(false);
-              }}
-            >
-              <Icon type="phone2" />
-              {_l('验证码登录')}
-            </div>
-          )}
-          {loginMode.password && (
-            <div
-              className="passwordLogin flexRow alignItemsCenter justifyContentCenter"
-              onClick={() => {
-                //进入对应登录流程
-                setLoginForType('password');
-                setIsWXauth(false);
-              }}
-            >
-              <Icon type="lock" />
-              {_l('密码登录')}
-            </div>
+          {(registerMode.email || registerMode.phone) && (
+            <React.Fragment>
+              {loginMode.phone && (
+                <div
+                  className="phoneLogin flexRow alignItemsCenter justifyContentCenter"
+                  onClick={() => {
+                    //进入对应登录流程
+                    setLoginForType('phone');
+                    setIsWXauth(false);
+                  }}
+                >
+                  <Icon type="phone2" />
+                  {_l('验证码登录')}
+                </div>
+              )}
+              {loginMode.password && (
+                <div
+                  className="passwordLogin flexRow alignItemsCenter justifyContentCenter"
+                  onClick={() => {
+                    //进入对应登录流程
+                    setLoginForType('password');
+                    setIsWXauth(false);
+                  }}
+                >
+                  <Icon type="lock" />
+                  {_l('密码登录')}
+                </div>
+              )}
+            </React.Fragment>
           )}
         </div>
       </WrapWx>
@@ -409,7 +440,7 @@ function ContainerCon(props) {
           />
         )}
         {isTpauth ? (
-          <TPAuth />
+          <TPAuth customLink={customLink} />
         ) : status === 9 ? (
           //9 收集信息
           <Info
@@ -425,10 +456,12 @@ function ContainerCon(props) {
             account={account}
             setAccount={setAccount}
             fixInfo={fixInfo}
+            customLink={customLink}
           />
         ) : (
           <Container
             {...props}
+            customLink={customLink}
             state={state}
             isAutoLogin={isAutoLogin}
             setAutoLogin={setAutoLogin}

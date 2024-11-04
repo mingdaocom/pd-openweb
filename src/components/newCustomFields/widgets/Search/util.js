@@ -21,7 +21,7 @@ const getValue = (control = {}, type) => {
   switch (control.type) {
     case 2:
       if (type === 10000007) {
-        return (control.value || '').replace('，', ',').split(',');
+        return (control.value || '').replace(/，/g, ',').split(',');
       }
       return control.value;
     // 单选、多选
@@ -137,7 +137,7 @@ const getDynamicValue = (item, formData, keywords) => {
 
       //普通数组
       if (item.type === 10000007) {
-        return (source.staticValue || '').replace('，', ',').split(',');
+        return (source.staticValue || '').replace(/，/g, ',').split(',');
       }
     }
   });

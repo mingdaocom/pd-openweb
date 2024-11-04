@@ -276,9 +276,10 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
   } else {
     result.name = _l('未命名图表');
     if (data.appType === 2) {
+      const timeControl = axisControls.filter(n => isTimeControl(n.type))[0] || {};
       result.filter = {
-        filterRangeId: null,
-        filterRangeName: null,
+        filterRangeId: timeControl.controlId || null,
+        filterRangeName: timeControl.controlName || null,
         rangeType: 0,
         rangeValue: null,
         today: true
@@ -887,6 +888,10 @@ export const dropdownScopeData = [
     value: 23,
   },
   {
+    text: _l('财政年度'),
+    value: 24,
+  },
+  {
     text: _l('过去...天'),
     value: 18,
   },
@@ -904,6 +909,17 @@ export const dropdownScopeData = [
     type: 'hr',
   },
 ];
+
+export const fiscalYearData = [{
+  text: _l('上一财政年度'),
+  value: -1,
+}, {
+  text: _l('本财政年度'),
+  value: 0
+}, {
+  text: _l('下一财政年度'),
+  value: -2
+}];
 
 export const pastAndFutureData = [
   {
@@ -1849,7 +1865,7 @@ export const normTypes = [
     value: 4,
   },
   {
-    text: _l('计数'),
+    text: _l('计算'),
     value: 5,
   },
   {
@@ -1965,6 +1981,9 @@ export const formatrChartTimeText = ({ rangeType, rangeValue, dynamicFilter, tod
     const startUnitText = [5, 6].includes(startType) ? `${startCount}${ _.find(unitTypes, { value: startUnit }).name }` : '';
     const endUnitText = [5, 6].includes(endType) ? `${endCount}${ _.find(unitTypes, { value: endUnit }).name }` : '';
     return _l('%0至%1', start + startUnitText, end + endUnitText);
+  } else if (rangeType === 24) {
+    const [year, month] = rangeValue.split(':');
+    return _.find(fiscalYearData, { value: Number(year) }).text;
   } else {
     return [8, 15, 18, 19].includes(rangeType) && today ? `${text}${_l('至今天')}` : text;
   }

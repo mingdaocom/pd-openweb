@@ -107,6 +107,9 @@ export default class WaitingPay extends Component {
         // 免费试用支付订单只保留余额支付
         return !_.includes(['aliPay', 'wechartPay', 'bankPay'], it.id);
       }
+      if (price > 6000) {
+        return it.id !== 'wechartPay';
+      }
       return true;
     });
 

@@ -75,6 +75,7 @@ Common.settingOptions = {
   allowMultipleDevicesUse: 16,
   backHomepageWay: 17,
   timeZone: 18,
+  map: 19,
 };
 
 export default Common;

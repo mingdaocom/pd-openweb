@@ -17,21 +17,6 @@ export default {
      return mdyAPI('Structure', 'GetAllowChooseUsers', args, options);
    },
   /**
-  * 获取组织结构人员
-  * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
-  * @param {string} args.keywords 关键词
-  * @param {integer} args.pageSize 页大小
-  * @param {integer} args.pageIndex 页码
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   getStructureUsers: function (args, options = {}) {
-     
-     return mdyAPI('Structure', 'GetStructureUsers', args, options);
-   },
-  /**
   * 我的下属
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id

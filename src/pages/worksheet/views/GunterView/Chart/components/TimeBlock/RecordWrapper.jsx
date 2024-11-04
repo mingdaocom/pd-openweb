@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import RecordBlock from './RecordBlock';
-import { addBehaviorLog } from 'src/util';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
 import _ from 'lodash';
 import { handleRecordClick } from 'worksheet/util';
 
@@ -28,7 +28,14 @@ export default class RecordWrapper extends Component {
         RecordInfoComponent: component.default
       });
     });
+    window.addEventListener('popstate', this.onQueryChange);
   }
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.onQueryChange);
+  }
+  onQueryChange = () => {
+    handleReplaceState('page', 'recordDetail', () => this.setState({ recordInfoVisible: false }));
+  };
   handleClick = () => {
     if (window.isDrag) {
       return;
@@ -41,13 +48,14 @@ export default class RecordWrapper extends Component {
       },
       row,
       () => {
-        if (window.isMingDaoApp) {
+        if (window.isMingDaoApp && !window.shareState.shareId) {
           window.location.href = `/mobile/record/${appId}/${worksheetId}/${base.viewId}/${row.rowid}`;
         } else {
           this.setState({
             recordInfoVisible: true,
           });
         }
+        handlePushState('page', 'recordDetail');
         addBehaviorLog('worksheetRecord', worksheetId, { rowId: row.rowid }); // 埋点
       },
     );

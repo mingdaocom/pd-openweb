@@ -14,6 +14,7 @@ import { getCurrentRowSize, getPathById } from './util/widgets';
 import {
   formatControlsData,
   checkCustomEventError,
+  checkOptionsRepeat,
   getMsgByCode,
   scrollToVisibleRange,
   getChildWidgetsBySection,
@@ -268,6 +269,10 @@ export default function Container(props) {
     }
 
     if (checkCustomEventError(saveControls)) return;
+    if (checkOptionsRepeat(saveControls, false)) {
+      alert(_l('选项字段存在重复选项'), 3);
+      return;
+    }
 
     let activeWidgetPath = getPathById(widgets, (activeWidget || {}).controlId);
 

@@ -36,7 +36,6 @@ const Con = styled.div`
 `;
 
 const CutCon = styled.div`
-  max-width: 500px;
   overflow: hidden;
   white-space: nowrap;
 `;

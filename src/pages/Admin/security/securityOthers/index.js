@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Config from '../../config';
 import FeatureListWrap from '../../components/FeatureListWrap';
-import LimitAttachmentUpload from './LimitAttachmentUpload';
 import projectSettingController from 'src/api/projectSetting';
 import limitFeatureDialogFunc from './LimitFeatureDialog';
 import AdminTitle from 'src/pages/Admin/common/AdminTitle';
@@ -11,7 +10,6 @@ export default class SecurityOthers extends Component {
     super(props);
     this.state = {
       noneVerificationEnabled: false,
-      showLimitAttachmentUpload: false,
       onlyManagerCreateApp: false,
     };
   }
@@ -59,21 +57,11 @@ export default class SecurityOthers extends Component {
     const projectId = Config.projectId;
     const {
       noneVerificationEnabled,
-      showLimitAttachmentUpload,
       onlyManagerCreateApp,
       apiIntgOnlyManager,
       dataPipeOnlyManager,
       pluginsOnlyManager,
     } = this.state;
-
-    if (showLimitAttachmentUpload) {
-      return (
-        <LimitAttachmentUpload
-          projectId={projectId}
-          onClose={() => this.setState({ showLimitAttachmentUpload: false })}
-        />
-      );
-    }
 
     const limitInfo = {
       onlyManagerCreateApp: _l('创建应用'),
@@ -115,13 +103,7 @@ export default class SecurityOthers extends Component {
                   updateData: data => this.setState({ ...data }),
                 }),
             },
-            {
-              key: 'limitFileDownload',
-              title: _l('单附件上传大小'),
-              description: _l('全局限制应用中工作表、讨论附件中上传的单个文件大小。可设置白名单'),
-              showSlideIcon: true,
-              onClick: () => this.setState({ showLimitAttachmentUpload: true }),
-            },
+
             {
               key: 'passwordFreeVerification',
               title: _l('操作免验证'),

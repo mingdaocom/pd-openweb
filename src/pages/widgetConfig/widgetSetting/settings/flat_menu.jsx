@@ -26,7 +26,7 @@ const OPTIONS_DISPLAY = [
 export default function FlatMenu(props) {
   const { data, onChange, globalSheetInfo, fromPortal, fromExcel } = props;
   const FILTER_OPTIONS_DISPLAY = fromPortal ? OPTIONS_DISPLAY.filter(i => i.value !== '2') : OPTIONS_DISPLAY;
-  const { showtype = '0' } = getAdvanceSetting(data);
+  const { showtype = '0', readonlyshowall } = getAdvanceSetting(data);
   return (
     <Fragment>
       <SettingItem>
@@ -38,7 +38,11 @@ export default function FlatMenu(props) {
             value={showtype}
             onChange={value => {
               onChange({
-                ...handleAdvancedSettingChange(data, { showtype: value, allowadd: '0' }),
+                ...handleAdvancedSettingChange(data, {
+                  showtype: value,
+                  allowadd: '0',
+                  readonlyshowall: value === '1' ? readonlyshowall : '',
+                }),
                 type: _.get(
                   _.find(OPTIONS_DISPLAY, i => i.value === value),
                   'type',

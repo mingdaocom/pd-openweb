@@ -303,7 +303,9 @@ export default class AddViewDisplayMenu extends Component {
       <Wrap className="flexRow">
         <div className="typeMenuWrap" {...rest}>
           <div className="title Bold Font15">{_l('默认视图')}</div>
-          {VIEW_TYPE_ICON.filter(o => o.id !== 'customize').map(({ icon, text, id, color, isNew }) => (
+          {VIEW_TYPE_ICON.filter(
+            o => o.id !== 'customize' && (!md.global.SysSettings.enableMap ? o.id !== 'map' : true),
+          ).map(({ icon, text, id, color, isNew }) => (
             <Trigger
               popup={
                 <GuildWrap className="guildWrap">

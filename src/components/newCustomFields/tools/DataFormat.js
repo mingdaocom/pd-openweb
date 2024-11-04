@@ -30,7 +30,7 @@ import MapLoader from 'ming-ui/components/amap/MapLoader';
 import MapHandler from 'ming-ui/components/amap/MapHandler';
 import departmentAjax from 'src/api/department';
 import organizeAjax from 'src/api/organize';
-import { browserIsMobile, getCurrentProject, toFixed, dateConvertToServerZone } from 'src/util';
+import { browserIsMobile, getCurrentProject, toFixed, dateConvertToServerZone, getContactInfo } from 'src/util';
 import { checkRuleLocked, isEmptyValue } from './filterFn';
 import _, { find, get, includes } from 'lodash';
 import { createRequestPool } from 'worksheet/api/standard';
@@ -70,15 +70,33 @@ const formatTimeValue = (control = {}, isCurrent = false, value) => {
     : moment(value, mode).format('HH:mm:ss');
 };
 
+/**
+ *
+ * 查询出来的值映射前需要异化处理格式
+ */
+const formatSearchResultValue = ({ targetControl = {}, currentControl = {}, controls = [], searchResult = '' }) => {
+  if (_.includes([9, 10, 11], currentControl.type)) {
+    return getControlValue(controls, currentControl, targetControl.controlId, searchResult);
+  } else if (currentControl.type === 2) {
+    return getCurrentValue(
+      _.find(controls, s => s.controlId === targetControl.controlId),
+      searchResult,
+      currentControl,
+    );
+  } else {
+    return searchResult;
+  }
+};
+
 // 处理静态默认值
 const parseStaticValue = (item, staticValue) => {
   // 手机 当前用户
   if (item.type === 3 && _.get(safeParse(staticValue), 'accountId') === 'user-self') {
-    return _.get(md, 'global.Account.mobilePhone');
+    return getContactInfo('mobilePhone');
   }
   // 邮箱 当前用户
   if (item.type === 5 && _.get(safeParse(staticValue), 'accountId') === 'user-self') {
-    return _.get(md, 'global.Account.email');
+    return getContactInfo('email');
   }
 
   // 日期 || 日期时间
@@ -268,16 +286,15 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
         return getEmbedValue(embedData, item.cid);
       }
 
+      const currentTargetControl = _.find(data, i => i.controlId === item.cid);
+
       if (
         currentItem.type === 26 &&
         _.includes(['caid', 'user-self'], item.cid) &&
         !(window.isPublicWorksheet && window.publicWorksheetShareId)
       ) {
         if (item.cid === 'caid' && (embedData || {}).recordId) {
-          const userValue = _.get(
-            _.find(data, i => i.controlId === item.cid),
-            'value',
-          );
+          const userValue = _.get(currentTargetControl, 'value');
           return safeParse(userValue || '[]')[0] || '';
         }
         const obj = _.pick(_.get(md, ['global', 'Account']), ['accountId', 'fullname', 'avatarMiddle']);
@@ -289,20 +306,12 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
       }
 
       if (currentItem.type === 46) {
-        return formatTimeValue(
-          currentItem,
-          item.cid === 'ctime',
-          _.get(
-            _.find(data, c => c.controlId === item.cid),
-            'value',
-          ),
-        );
+        return formatTimeValue(currentItem, item.cid === 'ctime', _.get(currentTargetControl, 'value'));
       }
 
       //文本类控件、嵌入控件(默认值为选项、成员、部门等多异化)
       if (_.includes([2, 41], currentItem.type) || (currentItem.type === 45 && currentItem.enumDefault === 1)) {
-        const currentControl = _.find(data, c => c.controlId === item.cid);
-        return getCurrentValue(currentControl, (currentControl || {}).value, currentItem);
+        return getCurrentValue(currentTargetControl, (currentTargetControl || {}).value, currentItem);
       }
 
       return getControlValue(data, currentItem, item.cid);
@@ -348,7 +357,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
 
     // 选项已删除的校验
     if (_.includes([9, 10, 11], currentItem.type)) {
-      source = source.filter(s => _.find(currentItem.options, c => c.key === s && !c.isDeleted));
+      source = source.filter(s => _.find(currentItem.options, c => s.includes(c.key) && !c.isDeleted));
     }
 
     value = JSON.stringify(source);
@@ -752,7 +761,7 @@ const getControlValue = (data, currentItem, controlId, objValue) => {
           'value',
         );
 
-        const matchOptionKeys = (currentItem.options || []).filter(i => i.value === itemText);
+        const matchOptionKeys = (currentItem.options || []).filter(i => i.value === itemText && !i.isDeleted);
         return isOther ? item : _.get(_.head(matchOptionKeys), 'key') || '';
       })
       .filter(_.identity);
@@ -784,7 +793,7 @@ export const checkRequired = item => {
 
   if (
     item.required &&
-    ((item.type !== 6 && item.type !== 8 ? !item.value : isNaN(parseFloat(item.value))) ||
+    ((!_.includes([6, 8], item.type) ? !item.value : isNaN(parseFloat(item.value))) ||
       (_.isString(item.value) && !item.value.trim()) ||
       (_.includes([9, 10, 11], item.type) && !safeParse(item.value).length) ||
       (item.type === 14 &&
@@ -801,7 +810,8 @@ export const checkRequired = item => {
         (item.value.startsWith('deleteRowIds') || item.value === '0')) ||
       (item.type === 34 &&
         ((item.value.rows && !filterEmptyChildTableRows(item.value.rows).length) || item.value === '0')) ||
-      (item.type === 36 && item.value === '0'))
+      (item.type === 36 && item.value === '0') ||
+      (item.type === 28 && parseFloat(item.value) === 0))
   ) {
     errorType = FORM_ERROR_TYPE.REQUIRED;
   }
@@ -1206,8 +1216,10 @@ export default class DataFormat {
         }
 
         // 定位控件默认选中当前位置
-        if (item.type === 40 && item.default === '1') {
-          locationIds.push(item.controlId);
+        if (item.type === 40 && item.advancedSetting.defsource) {
+          if (_.get(safeParse(item.advancedSetting.defsource), '0.cid') === 'current-location') {
+            locationIds.push(item.controlId);
+          }
         }
 
         // 公式设置视为0配置
@@ -1359,7 +1371,7 @@ export default class DataFormat {
         this.data.forEach(item => {
           if (item.controlId === controlId) {
             // 子表被动赋值
-            if (item.type === 34 && !item.isSubList) {
+            if (item.type === 34 && !item.isSubList && item.store) {
               let loading = true;
               try {
                 loading = item.store.getState().baseLoading;
@@ -1475,6 +1487,16 @@ export default class DataFormat {
               item.value = Math.min(parseInt(Number(value || 0)), maxCount);
             }
 
+            // 定位各端统一保留6位小数
+            if (item.type === 40 && value) {
+              const locationValue = safeParse(value);
+              item.value = JSON.stringify({
+                ...locationValue,
+                x: parseFloat(toFixed(locationValue.x, 6)),
+                y: parseFloat(toFixed(locationValue.y, 6)),
+              });
+            }
+
             // 关联记录
             if (item.type === 29) {
               this.getCurrentRelateData(item);
@@ -1585,6 +1607,7 @@ export default class DataFormat {
             value = currentItem.dataSource.replace(/\$.+?\$/g, matched => {
               const controlId = matched.match(/\$(.+?)\$/)[1];
               let singleControl = _.find(this.data, item => item.controlId === controlId);
+              if (!singleControl && controlId === 'rowid') return this.recordId || '';
 
               if (!singleControl) {
                 return '';
@@ -2497,7 +2520,7 @@ export default class DataFormat {
                   };
                 });
                 if (_.isEmpty(newValue) && _.includes([29], controlType) && this.isMobile) {
-                  updateData(newValue);
+                  updateData(JSON.stringify(newValue));
                   return;
                 }
                 if (_.isEmpty(newValue) && _.includes([29], controlType)) {
@@ -2556,16 +2579,12 @@ export default class DataFormat {
                                   : item.rowid;
                               return;
                             }
-                            row[cid] =
-                              controlVal.type === 2
-                                ? getCurrentValue(
-                                    _.find(controls, s => s.controlId === subCid),
-                                    item[subCid],
-                                    controlVal,
-                                  )
-                                : _.includes([9, 10, 11], controlVal.type)
-                                ? getControlValue(controls, controlVal, subCid, item[subCid])
-                                : item[subCid] || '';
+                            row[cid] = formatSearchResultValue({
+                              targetControl: _.find(controls, s => s.controlId === subCid),
+                              currentControl: controlVal,
+                              controls,
+                              searchResult: item[subCid] || '',
+                            });
                           }
                         });
                         //映射明细所有字段值不为空
@@ -2589,10 +2608,12 @@ export default class DataFormat {
                     const currentId = _.get(canMapConfigs[0] || {}, 'subCid');
                     //取该控件值去填充
                     const item = _.find(controls, c => c.controlId === currentId);
-                    const itemData = _.includes([9, 10, 11], _.get(item, 'type'))
-                      ? getControlValue(controls, currentControl, currentId, (filterData[0] || {})[currentId])
-                      : (filterData[0] || {})[currentId];
-                    const value = getCurrentValue(item, itemData, currentControl);
+                    const value = formatSearchResultValue({
+                      targetControl: item,
+                      currentControl,
+                      controls,
+                      searchResult: (filterData[0] || {})[currentId],
+                    });
                     // 防止新建的时候无效变更引起的报错提示
                     if (searchType === 'init' && _.isEqual(value, currentControl.value)) return;
                     updateData(value);

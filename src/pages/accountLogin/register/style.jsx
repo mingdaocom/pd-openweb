@@ -11,16 +11,16 @@ export const Wrap = styled.div`
   }
 
   .btnForRegister {
-    font-weight: 600;
+    font-weight: bold;
     width: 100%;
-    height: 40px;
-    line-height: 40px;
+    height: 48px;
+    line-height: 48px;
     display: block;
     background: #2296f3;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 16px;
     color: #fff;
-    margin-top: 24px;
+    margin-top: 32px;
     text-align: center;
   }
 
@@ -43,7 +43,7 @@ export const Wrap = styled.div`
     height: 0px;
     opacity: 1;
     display: block;
-    margin-top: 50px;
+    margin-top: 40px;
   }
 
   .line.mTopH {
@@ -55,6 +55,7 @@ export const Wrap = styled.div`
     text-align: center;
     .changeBtn {
       font-size: 14px;
+      font-weight: bold;
     }
     .lineCenter {
       width: 1px;

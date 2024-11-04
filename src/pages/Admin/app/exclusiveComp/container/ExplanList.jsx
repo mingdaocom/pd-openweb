@@ -253,7 +253,7 @@ function ExplanList(props) {
                   user={{ userName: item.creator.fullname, accountId: item.creator.accountId }}
                 />
                 <span className="mRight5">{_l('创建于')}</span>
-                <span>{item.createDateTime ? moment(item.createDateTime).format('YYYY年MM月DD日 HH:mm:ss') : '_'}</span>
+                <span>{item.createDateTime ? createTimeSpan(item.createDateTime) : '_'}</span>
               </Fragment>
             )}
             {[COMPUTING_INSTANCE_STATUS.CreationFailed, COMPUTING_INSTANCE_STATUS.Stopped].includes(item.status) && (
@@ -363,7 +363,7 @@ function ExplanList(props) {
               ) : item.expirationDatetime ? (
                 <Fragment>
                   <span className={item.remainingDays < 1 ? 'Gray_75 mRight5' : 'Gray mRight5'}>
-                    {moment(item.expirationDatetime).format(_l('YYYY年MM月DD日'))}
+                    {moment(item.expirationDatetime).format(_l('YYYY-MM-DD'))}
                     {_l('到期')}
                   </span>
                   {item.remainingDays < 1 ? (

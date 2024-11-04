@@ -205,6 +205,10 @@ class UserCard extends React.Component {
     ) {
       this.fetchData();
     }
+
+    if (nextProps.disabled !== this.props.disabled) {
+      this.setState({ visible: false });
+    }
   }
 
   formatData = function (result) {

@@ -11,15 +11,17 @@ import { ALL_SYS } from 'src/pages/widgetConfig/config/widget';
 import _ from 'lodash';
 
 const AddButton = styled.div`
-  color: #2196f3;
-  border-radius: 3px;
-  padding: 8px 7px;
-  width: max-content;
-  cursor: pointer;
-  border: 1px solid #dcdcdc;
-  justify-content: center;
+  display: inline-flex;
+  padding: 0 10px;
+  height: 32px;
+  max-width: 100%;
+  border: 1px solid #EAEAEA;
+  border-radius: 15px;
+  background-color: #FFFFFF;
+  color: #2196F3;
+  transition: all 0.3s;
   &:hover {
-    background-color: #fafafa;
+    color: #1079cc;
   }
 `;
 
@@ -283,9 +285,9 @@ function DefaultValue(props) {
           </SortColumnsWrap>
         )}
       >
-        <AddButton className="valignWrapper mTop10">
-          <Icon className="Font16" icon="add" />
-          <span>{_l('字段默认值')}</span>
+        <AddButton className="valignWrapper pointer">
+          <Icon className="Font17" icon="add" />
+          <span className="bold">{_l('字段默认值')}</span>
         </AddButton>
       </Trigger>
     </div>

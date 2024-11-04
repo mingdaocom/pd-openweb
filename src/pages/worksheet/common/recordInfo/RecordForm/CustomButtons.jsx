@@ -4,7 +4,7 @@ import cx from 'classnames';
 import styled from 'styled-components';
 import { Button, MenuItem, Icon, Tooltip, Dialog, VerifyPasswordConfirm, SvgIcon } from 'ming-ui';
 import { mdNotification } from 'ming-ui/functions';
-import { verifyPassword, emitter } from 'src/util';
+import { verifyPassword } from 'src/util';
 import IconText from 'worksheet/components/IconText';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import FillRecordControls from '../FillRecordControls';
@@ -12,10 +12,10 @@ import { CUSTOM_BUTTOM_CLICK_TYPE } from 'worksheet/constants/enum';
 import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
 import processAjax from 'src/pages/workflow/api/process';
-import _ from 'lodash';
+import _, { get } from 'lodash';
 import FunctionWrap from 'ming-ui/components/FunctionWrap';
 import CustomButtonConfirm from './CustomButtonConfirm';
-import { getButtonColor, handleRecordError } from 'worksheet/util';
+import { emitter, appendDataToLocalPushUniqueId, getButtonColor, handleRecordError } from 'worksheet/util';
 
 const MenuItemWrap = styled(MenuItem)`
   .btnName {
@@ -69,6 +69,38 @@ export default class CustomButtons extends React.Component {
 
   state = {};
 
+  componentDidMount() {
+    emitter.on('RECORD_WORKFLOW_UPDATE', this.handleRecordWorkflowUpdate);
+  }
+  componentWillUnmount() {
+    emitter.off('RECORD_WORKFLOW_UPDATE', this.handleRecordWorkflowUpdate);
+  }
+
+  get continueFill() {
+    return get(this.activeBtn, 'advancedSetting.continuewrite') === '1';
+  }
+  get tipConfig() {
+    return {
+      enableTip: get(this.activeBtn, 'advancedSetting.opentip') !== '0',
+      tipText: get(this.activeBtn, 'advancedSetting.tiptext') || _l('操作完成'),
+    };
+  }
+
+  handleRecordWorkflowUpdate = ({ recordId: triggerRecordId, triggerBtnId, isSuccess }) => {
+    const { recordId } = this.props;
+    if (
+      this.continueFill &&
+      isSuccess &&
+      recordId === triggerRecordId &&
+      triggerBtnId === get(this.activeBtn, 'btnId')
+    ) {
+      this.setStateFn({
+        fillRecordControlsVisible: false,
+      });
+      this.triggerCustomBtn(this.activeBtn);
+    }
+  };
+
   triggerCustomBtn = btn => {
     const { worksheetId, recordId, handleUpdateWorksheetRow, projectId } = this.props;
     this.remark = undefined;
@@ -82,6 +114,8 @@ export default class CustomButtons extends React.Component {
       alert(_l('正在编辑记录，无法触发自定义按钮'), 3);
       return;
     }
+    this.activeBtn = btn;
+    appendDataToLocalPushUniqueId(_this.tipConfig);
     function run({ remark } = {}) {
       function trigger(btn) {
         if (handleTriggerCustomBtn) {
@@ -230,8 +264,8 @@ export default class CustomButtons extends React.Component {
     const { activeBtn = {} } = this;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
     // 新建记录成功回掉
-    if (this.activeBtn.workflowType === 2) {
-      alert(_l('操作成功'));
+    if (this.activeBtn.workflowType === 2 && get(this.tipConfig, 'enableTip')) {
+      alert(get(this.tipConfig, 'tipText'));
     }
     loadBtns();
     if (btnTypeStr === '12') {
@@ -268,17 +302,6 @@ export default class CustomButtons extends React.Component {
       pushUniqueId: md.global.Config.pushUniqueId,
       btnRemark: this.remark,
     };
-    // if (isFromBatchEdit) {
-    //   delete args.btnRowId;
-    //   delete args.rowId;
-    //   delete args.rowId;
-    //   if (isAll) {
-    //     args.isAll = true;
-    //     args.excludeRowIds = selectedRows.map(row => row.rowid);
-    //   } else {
-    //     args.rowIds = selectedRows.map(row => row.rowid);
-    //   }
-    // }
     if (_.isFunction(handleUpdateWorksheetRow)) {
       handleUpdateWorksheetRow(args);
       this.setStateFn({
@@ -289,13 +312,10 @@ export default class CustomButtons extends React.Component {
     worksheetAjax.updateWorksheetRow(args).then(res => {
       if (res && res.data) {
         emitter.emit('ROWS_UPDATE');
-        this.setStateFn({
-          fillRecordControlsVisible: false,
-        });
         loadBtns();
         onUpdateRow(res.data);
-        if (this.activeBtn.workflowType === 2) {
-          alert(_l('操作成功'));
+        if (this.activeBtn.workflowType === 2 && get(this.tipConfig, 'enableTip')) {
+          alert(get(this.tipConfig, 'tipText'));
         }
         if (targetOptions.recordId === recordId) {
           onUpdate(_.pick(res.data, newControls.map(c => c.controlId).concat('isviewdata')), res.data, newControls);
@@ -304,6 +324,11 @@ export default class CustomButtons extends React.Component {
           hideRecordInfo();
         }
         triggerCallback();
+        if (!this.continueFill) {
+          this.setStateFn({
+            fillRecordControlsVisible: false,
+          });
+        }
       } else {
         if (res.resultCode === 11) {
           if (customwidget && _.isFunction(customwidget.uniqueErrorUpdate)) {
@@ -313,7 +338,7 @@ export default class CustomButtons extends React.Component {
         } else if (res.resultCode === 22) {
           handleRecordError(res.resultCode);
           cb(true, res);
-        } else if (res.resultCode === 32) {
+        } else if (_.includes([31, 32], res.resultCode)) {
           cb(true, res);
         } else {
           handleRecordError(res.resultCode);
@@ -360,9 +385,9 @@ export default class CustomButtons extends React.Component {
     const caseStr = btn.writeObject + '' + btn.writeType;
     const relationControl = _.find(rowInfo.formData, c => c.controlId === btn.relationControl);
     const addRelationControl = _.find(rowInfo.formData || [], c => c.controlId === btn.addRelationControl);
-    this.activeBtn = btn;
     this.fillRecordProps = {};
     this.customButtonConfirm = btn.confirm;
+    appendDataToLocalPushUniqueId({ triggerBtnId: btn.btnId });
     switch (caseStr) {
       case '11': // 本记录 - 填写字段
         this.btnRelateWorksheetId = worksheetId;
@@ -518,7 +543,17 @@ export default class CustomButtons extends React.Component {
   };
 
   renderDialogs() {
-    const { isCharge, worksheetId, viewId, appId, recordId, projectId, isBatchOperate, triggerCallback } = this.props;
+    const {
+      isCharge,
+      worksheetId,
+      viewId,
+      appId,
+      recordId,
+      projectId,
+      isBatchOperate,
+      triggerCallback,
+      sheetSwitchPermit,
+    } = this.props;
     const { rowInfo, fillRecordControlsVisible, newRecordVisible } = this.state;
     const { activeBtn = {}, fillRecordId, btnRelateWorksheetId, fillRecordProps } = this;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
@@ -537,7 +572,9 @@ export default class CustomButtons extends React.Component {
             projectId={projectId}
             visible={fillRecordControlsVisible}
             worksheetId={btnRelateWorksheetId}
+            sheetSwitchPermit={sheetSwitchPermit}
             writeControls={activeBtn.writeControls}
+            continueFill={this.continueFill}
             onSubmit={this.fillRecordControls}
             hideDialog={() => {
               this.setStateFn({
@@ -602,6 +639,7 @@ export default class CustomButtons extends React.Component {
     let buttonComponents = [];
     if (type === 'button') {
       buttonComponents = buttons.map((button, i) => {
+        const buttonColor = getButtonColor(button.color);
         const buttonComponent = (
           <span key={i} className="InlineBlock borderBox mRight6">
             <Button
@@ -613,7 +651,7 @@ export default class CustomButtons extends React.Component {
               disabled={btnDisable[button.btnId] || button.disabled}
               title={button.name}
               style={{
-                ...getButtonColor(button.color),
+                ...buttonColor,
                 maxWidth: '100%',
                 minWidth: 'inherit',
               }}
@@ -634,7 +672,7 @@ export default class CustomButtons extends React.Component {
                     fill={
                       !button.color || button.color === 'transparent' || btnDisable[button.btnId] || button.disabled
                         ? '#bdbdbd'
-                        : '#fff'
+                        : buttonColor.color
                     }
                     size={18}
                   />

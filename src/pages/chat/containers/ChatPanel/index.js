@@ -129,6 +129,7 @@ class ChatPanel extends Component {
           inboxType={item.id}
           count={currentSession.value === item.id ? currentSession.count : 0}
           weak_count={currentSession.value === item.id ? currentSession.weak_count : 0}
+          requestNow={currentSession.value === item.id ? item.requestNow : undefined}
         />
       </div>
     );

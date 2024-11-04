@@ -249,6 +249,14 @@ export default function AddConnector(props) {
     let isFieldsExceedMax = false;
     //目的地是表，是否设置标题
     let isSetTitle = true;
+    //HANA库 依据字段更新时 是否选择依据字段
+    let hanaHasBaseField = true;
+    // HANA库 依据字段更新时 首次读取值校验是否为空
+    let isEmptyFirstValue = false;
+    // HANA库 依据字段更新时 首次读取值校验是否有效
+    let validFirstValue = true;
+    // HANA库 读取间隔为每天，具体时间是否选择
+    let isSetReadTime = true;
 
     submitData.forEach(item => {
       const isCreateTable = _.get(item, ['destNode', 'config', 'createTable']);
@@ -256,6 +264,37 @@ export default function AddConnector(props) {
       if (item.destNode.fields.length === 0) {
         hasCheck = false;
         return;
+      }
+
+      if (item.scheduleConfig) {
+        if (item.scheduleConfig.readType === 1) {
+          const basisField = _.get(item, 'scheduleConfig.config.basisField') || {};
+          const firstValue = _.get(item, 'scheduleConfig.config.firstValue');
+          if (!basisField.id) {
+            hanaHasBaseField = false;
+            return;
+          }
+
+          if (!firstValue && firstValue !== 0) {
+            isEmptyFirstValue = true;
+            return;
+          }
+
+          if ([91, 93].includes(basisField.jdbcTypeId) && !basisField.isPk) {
+            //日期格式
+            const regex =
+              /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:\s(0\d|1\d|2[0-3]):([0-5]\d)(?::([0-5]\d))?)?$/;
+            if (!regex.test(firstValue)) {
+              validFirstValue = false;
+              return;
+            }
+          }
+        }
+
+        if (item.scheduleConfig.readIntervalType === 1 && !item.scheduleConfig.readTime) {
+          isSetReadTime = false;
+          return;
+        }
       }
 
       if (isCreateTable) {
@@ -368,6 +407,26 @@ export default function AddConnector(props) {
 
     if (!isSetTitle) {
       alert(_l('目标工作表未设置标题字段'), 2);
+      return false;
+    }
+
+    if (!hanaHasBaseField) {
+      alert(_l('定时设置依据字段未设置'), 2);
+      return false;
+    }
+
+    if (isEmptyFirstValue) {
+      alert(_l('首次读取开始值不允许为空'), 2);
+      return false;
+    }
+
+    if (!validFirstValue) {
+      alert(_l('首次读取开始值格式不完整'), 2);
+      return false;
+    }
+
+    if (!isSetReadTime) {
+      alert(_l('请选择每天读取具体时间'), 2);
       return false;
     }
 

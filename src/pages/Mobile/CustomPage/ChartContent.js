@@ -327,8 +327,15 @@ function ChartContent(props) {
     if (columnWidthConfig) {
       sessionStorage.setItem(`pivotTableColumnWidthConfig-${widget.value}`, columnWidthConfig);
     }
+    window[`refresh-${objectId}`] = () => {
+      setVisible(false);
+      setTimeout(() => {
+        setVisible(true);
+      }, 100);
+    }
     return () => {
       customPageContent.removeEventListener('scroll', checkVisible, false);
+      delete window[`refresh-${objectId}`];
     };
   }, []);
 

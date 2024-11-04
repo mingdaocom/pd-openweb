@@ -11,8 +11,10 @@ import langConfig from 'src/common/langConfig';
 import accountSetting from 'src/api/accountSetting';
 import { navigateToLogin } from 'src/router/navigateTo';
 import localForage from 'localforage';
+import Avatar from '../Avatar';
 
 export default function UserMenu(props) {
+  const { leftCommonUserHandleWrap } = props;
   const [userVisible, handleChangeVisible] = useState(false);
   const [languageVisible, handleChangeLanguageVisible] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
@@ -41,11 +43,10 @@ export default function UserMenu(props) {
           $('#userSet #userSetItem').removeClass('active');
         }}
       >
-        <ul className="userSetTooltip Normal">
+        <ul className="userSetTooltip Normal" style={leftCommonUserHandleWrap ? { maxHeight: 352 } : {}}>
           {_.map(md.global.Account.projects, project => {
             return (
               <li
-                className="ThemeBGColor3"
                 key={project.projectId}
                 onClick={() => {
                   props.handleUserVisibleChange(false);
@@ -76,7 +77,7 @@ export default function UserMenu(props) {
         <ul className="languageSetTooltip Normal">
           {langConfig.map(item => (
             <li
-              className={cx('ThemeBGColor3', {
+              className={cx({
                 active: (getCookie('i18n_langtag') || md.global.Config.DefaultLang) === item.key,
               })}
               key={item.key}
@@ -114,17 +115,30 @@ export default function UserMenu(props) {
 
   return (
     <div id="userSet">
+      <div className="flexRow accountInfo">
+        <Avatar
+          src={md.global.Account.avatar}
+          size={40}
+          onClick={() => {
+            navigateTo('/personal?type=information');
+          }}
+        />
+        <div className="mLeft12">
+          <div className="Font14 bold">{md.global.Account.fullname}</div>
+          <div className="Gray_75 mTop4">{md.global.Account.mobilePhone}</div>
+        </div>
+      </div>
       <ul className="userSetUL">
-        <li className="ThemeBGColor3" data-tag="account">
+        <li data-tag="account">
           <a href="/personal?type=information" className="Relative">
-            <span className="icon icon-task-select-other" />
-            {_l('个人账户')}
-            {isAccount && <span class="warnLight warnLightUserSetPosition" />}
+            <span className="icon icon-account_circle" />
+            <span className="TxtMiddle">{_l('个人账户')}</span>
+            {isAccount && <span class="warnLight warnLightUserSetPosition"></span>}
           </a>
         </li>
 
         {md.global.Account.superAdmin && (
-          <li className="ThemeBGColor3" data-tag="privateDeployment">
+          <li data-tag="privateDeployment">
             <a href="/privateDeployment/base">
               <span className="icon icon-settings Font16" />
               {_l('系统配置')}
@@ -134,18 +148,17 @@ export default function UserMenu(props) {
 
         {projectLength ? (
           <li
-            className="ThemeBGColor3"
             id="userSetItem"
             onClick={() => {
               projectLength === 1 ? navigateTo(`/admin/home/${md.global.Account.projects[0].projectId}`) : null;
             }}
           >
             <Tooltip
-              popupAlign={{
-                points: ['tr', 'tl'],
-                offset: [-2, -8],
-                overflow: { adjustX: true, adjustY: true },
-              }}
+              popupAlign={
+                leftCommonUserHandleWrap
+                  ? { points: ['tl', 'cr'], offset: [5, -135], overflow: { adjustX: true, adjustY: true } }
+                  : { points: ['tr', 'tl'], offset: [-13, -8], overflow: { adjustX: true, adjustY: true } }
+              }
               onPopupVisibleChange={userVisible => {
                 handleChangeVisible(userVisible);
               }}
@@ -154,27 +167,28 @@ export default function UserMenu(props) {
               popupVisible={projectLength > 1 && userVisible}
             >
               <a className="Hand clearfix">
-                <span className="icon icon-company" />
-                {_l('组织管理')}
+                <span className="icon icon-business" />
+                <span className="TxtMiddle">{_l('组织管理')}</span>
                 {projectLength > 1 && <span className="Right icon-arrow-right font10 LineHeight36" />}
               </a>
             </Tooltip>
           </li>
         ) : (
-          <li className="createCompany" data-tag="createCompany">
-            <a href="/personal?type=enterprise" target="_blank">
-              <span className="pAll5">{_l('全组织使用')}</span>
+          <li className="userSetItem">
+            <a className="" href="/personal?type=enterprise" target="_blank">
+              <span className="icon icon-organization_add" />
+              <span className="TxtMiddle">{_l('创建组织')}</span>
             </a>
           </li>
         )}
 
-        <li className="ThemeBGColor3" id="languageSetItem" onClick={() => {}}>
+        <li id="languageSetItem" onClick={() => {}}>
           <Tooltip
-            popupAlign={{
-              points: ['tr', 'tl'],
-              offset: [-2, -8],
-              overflow: { adjustX: true, adjustY: true },
-            }}
+            popupAlign={
+              leftCommonUserHandleWrap
+                ? { points: ['cl', 'cr'], offset: [5, 55], overflow: { adjustX: true, adjustY: true } }
+                : { points: ['tr', 'tl'], offset: [-13, -8], overflow: { adjustX: true, adjustY: true } }
+            }
             onPopupVisibleChange={languageVisible => {
               handleChangeLanguageVisible(languageVisible);
             }}
@@ -183,8 +197,8 @@ export default function UserMenu(props) {
             popupVisible={languageVisible}
           >
             <a className="Hand clearfix">
-              <span className="icon icon-public" />
-              {_l('语言设置')}
+              <span className="icon icon-language" />
+              <span className="TxtMiddle">{_l('语言设置')}</span>
               <span className="Right icon-arrow-right font10 LineHeight36" />
             </a>
           </Tooltip>
@@ -193,7 +207,7 @@ export default function UserMenu(props) {
 
       {md.global.Config.IsLocal && !md.global.SysSettings.hideDownloadApp && (
         <ul className="userSetUL">
-          <li className="ThemeBGColor3" data-tag="appInstallSetting">
+          <li data-tag="appInstallSetting">
             <a href="/appInstallSetting">
               <span className="icon icon-phonelink Font16" />
               {_l('App下载与设置')}
@@ -203,10 +217,10 @@ export default function UserMenu(props) {
       )}
 
       <ul className="userSetUL">
-        <li className="ThemeBGColor3">
+        <li>
           <a onClick={logout} rel="external">
-            <span className="icon icon-exit" />
-            {_l('安全退出')}
+            <span className="icon icon-logout" />
+            <span className="TxtMiddle">{_l('安全退出')}</span>
           </a>
         </li>
       </ul>

@@ -1,6 +1,6 @@
 import { FLOW_FAIL_REASON } from 'src/pages/workflow/WorkflowSettings/History/config';
 import modalMessage from './modalMessage';
-import { emitter } from 'worksheet/util';
+import { emitter, getDataFromLocalPushUniqueId } from 'worksheet/util';
 
 const STATUS = {
   0: { id: 'closed', text: _l('流程未启用'), action: 'error', promptType: 2 },
@@ -33,10 +33,12 @@ export default () => {
   IM.socket.on('workflow', data => {
     const { status, type, worksheetId, rowId, storeId, total, finished, title, executeType, close } = data;
 
+    const recordId = rowId.indexOf('_') > 0 ? (rowId.match(/(.+?)_/) || '')[1] : rowId;
+
     if (status === 2 || (type === 4 && status === 1)) {
-      emitter.emit('MOBILE_RELOAD_SHEETVIVELIST', {
+      emitter.emit('MOBILE_RELOAD_RECORD_INFO', {
         worksheetId,
-        recordId: rowId.indexOf('_') > 0 ? (rowId.match(/(.+?)_/) || '')[1] : rowId,
+        recordId,
       });
     }
 
@@ -62,12 +64,26 @@ export default () => {
       });
     } else {
       const { id, promptType } = STATUS[status];
-      const description = getSingleNoticeDescription(data);
-
+      let description = getSingleNoticeDescription(data);
+      const triggerData = getDataFromLocalPushUniqueId();
+      const { enableTip, tipText } = triggerData;
+      emitter.emit('RECORD_WORKFLOW_UPDATE', {
+        worksheetId,
+        recordId,
+        status,
+        isSuccess: status === 2,
+        ...triggerData,
+      });
+      if (status === 2 && enableTip === false) {
+        return;
+      }
+      if (status === 2 && enableTip && tipText) {
+        description = tipText;
+      }
       alert({
         msg: description,
         type: _.includes([3, 4], data.type) ? 4 : promptType,
-        timeout: (id === 'pending' ? 10 : 3) * 1000,
+        timeout: 1000,
         key: 'workflow',
       });
     }

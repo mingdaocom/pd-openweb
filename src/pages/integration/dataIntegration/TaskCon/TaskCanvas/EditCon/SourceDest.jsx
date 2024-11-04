@@ -379,14 +379,14 @@ export default class SourceDest extends Component {
     return withoutAdd
       ? data
       : 'DEST_TABLE' === node.nodeType //目的地才有新建工作表
-      ? [
-          {
-            iconName: 'add1',
-            value: 'add',
-            text: dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? _l('新建工作表') : _l('新建数据表'),
-          },
-        ].concat(data)
-      : data;
+        ? [
+            {
+              iconName: 'add1',
+              value: 'add',
+              text: dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? _l('新建工作表') : _l('新建数据表'),
+            },
+          ].concat(data)
+        : data;
   };
 
   onChangeTables = value => {
@@ -410,6 +410,8 @@ export default class SourceDest extends Component {
           workSheetId: '',
           createTable: true,
           isOurCreateTable: true,
+          scheduleConfig: null,
+          scheduleConfigId: '',
         },
         () => {
           setTimeout(() => {
@@ -424,6 +426,8 @@ export default class SourceDest extends Component {
           workSheetId: '',
           createTable: false, //是否新建工作表
           isOurCreateTable: false,
+          scheduleConfig: null,
+          scheduleConfigId: '',
         },
         () => {
           this.setState({
@@ -432,7 +436,10 @@ export default class SourceDest extends Component {
         },
       );
     } else {
-      let dataConfig = {};
+      let dataConfig = {
+        scheduleConfig: null,
+        scheduleConfigId: '',
+      };
       if (dsType === DATABASE_TYPE.APPLICATION_WORKSHEET) {
         if (!appSectionId) {
           const { sections = [] } = appInfo;
@@ -506,6 +513,8 @@ export default class SourceDest extends Component {
                   workSheetId: '',
                   createTable: false, //是否新建工作表
                   isOurCreateTable: false,
+                  scheduleConfig: null,
+                  scheduleConfigId: '',
                 },
                 () => {
                   this.setState({
@@ -569,19 +578,20 @@ export default class SourceDest extends Component {
                 itemLoading={loading}
                 className="mRight12 dropWorksheet"
                 onChange={value => {
+                  const dnName =
+                    dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET
+                      ? value
+                      : (dbList.find(it => it.value === value) || {}).text;
                   this.onChangeConfig(
                     {
-                      dbName:
-                        dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET
-                          ? value
-                          : (dbList.find(it => it.value === value) || {}).text,
+                      dbName: dnName,
                       appId: dsType === DATABASE_TYPE.APPLICATION_WORKSHEET ? value : '',
                       tableName: '',
-                      schema: '',
                       workSheetId: '',
                       createTable: false, //是否新建工作表
                       isOurCreateTable: false,
                       appSectionId: undefined,
+                      schema: dsType === DATABASE_TYPE.HANA ? dbName : '',
                     },
                     () => {
                       this.setState(
@@ -624,6 +634,8 @@ export default class SourceDest extends Component {
                           tableName: '',
                           createTable: false, //是否新建工作表
                           isOurCreateTable: false,
+                          scheduleConfig: null,
+                          scheduleConfigId: '',
                         },
                         () => {
                           this.setState({
@@ -659,6 +671,8 @@ export default class SourceDest extends Component {
                           workSheetId: '',
                           createTable: false, //是否新建工作表
                           isOurCreateTable: false,
+                          scheduleConfig: null,
+                          scheduleConfigId: '',
                         },
                         () => {
                           this.setState({
@@ -677,6 +691,7 @@ export default class SourceDest extends Component {
               {dsType !== DATABASE_TYPE.APPLICATION_WORKSHEET ? (
                 <Wrap>
                   <SelectTables
+                    schema={dsType === DATABASE_TYPE.HANA ? dbName : schema}
                     key={node.nodeId}
                     className={cx('selectItem boderRadAll_4 mTop14 w100', {
                       disabled: schemaTypes.includes(className) ? !dbName || !schema : !dbName,
@@ -688,7 +703,6 @@ export default class SourceDest extends Component {
                     projectId={this.props.currentProjectId}
                     datasourceId={datasourceId || dataDestId}
                     dbName={dbName}
-                    schema={schema}
                     isMultiple={false}
                     disabled={schemaTypes.includes(className) ? !dbName || !schema : !dbName}
                     suffixIcon={<Icon icon="arrow-down-border Font14" />}

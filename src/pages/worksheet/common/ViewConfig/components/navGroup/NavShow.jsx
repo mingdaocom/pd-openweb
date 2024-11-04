@@ -255,7 +255,8 @@ export default function NavShow(props) {
           advancedSettingKey="navfilters"
           onChange={infos => {
             let values = [];
-            switch (data.type) {
+            const type = data.type === 30 ? data.sourceControlType : data.type;
+            switch (type) {
               case 29:
                 values = infos.map(o => o.rowid);
                 break;

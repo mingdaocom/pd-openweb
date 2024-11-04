@@ -8,7 +8,7 @@ import { SpinLoading } from 'antd-mobile';
 import RecordCard from 'src/components/recordCard';
 import { RecordInfoModal } from 'mobile/Record';
 import { WithoutRows } from 'mobile/RecordList/SheetRows';
-import { addBehaviorLog } from 'src/util';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
 import './index.less';
 import _ from 'lodash';
 
@@ -21,6 +21,10 @@ class RelationList extends Component {
   }
   componentDidMount() {
     this.loadData(this.props);
+    if (location.search.indexOf('relateRecord') === -1) {
+      localStorage.removeItem('openRecordDetailIds');
+    }
+    window.addEventListener('popstate', this.onQueryChange);
   }
   componentWillReceiveProps(nextProps) {
     if (this.props.controlId !== nextProps.controlId) {
@@ -30,7 +34,13 @@ class RelationList extends Component {
   }
   componentWillUnmount() {
     this.props.reset();
+    window.removeEventListener('popstate', this.onQueryChange);
   }
+
+  onQueryChange = () => {
+    handleReplaceState('page', 'relateRecord', () => this.setState({ previewRecordId: undefined }));
+  };
+
   loadData = props => {
     const { controlId, control, instanceId, workId, worksheetId, rowId, getType, data: formData } = props;
     let newParams = null;
@@ -69,6 +79,7 @@ class RelationList extends Component {
     } else {
       if (permissionInfo.allowLink) {
         addBehaviorLog('worksheetRecord', worksheet.worksheetId, { rowId: record.rowid }); // 埋点
+        handlePushState('page', 'relateRecord');
         this.setState({
           previewRecordId: record.rowid,
         });

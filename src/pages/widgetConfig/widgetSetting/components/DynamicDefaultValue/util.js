@@ -18,6 +18,7 @@ import {
   CAN_AS_ARRAY_DYNAMIC_FIELD,
   CAN_AS_ARRAY_OBJECT_DYNAMIC_FIELD,
   CAN_AS_RICH_TEXT_DYNAMIC_FIELD,
+  CAN_AS_LOCATION_DYNAMIC_FIELD,
   FIELD_REG_EXP,
   CHECKBOX_TYPES,
   EMEBD_FIELDS,
@@ -27,11 +28,12 @@ import {
 import { SYS } from 'src/pages/widgetConfig/config/widget';
 import _ from 'lodash';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
+import { DYNAMIC_FROM_MODE } from './config';
 
 // 新建子表并配置成员、部门等默认值，后端relationControls不处理，没有补全配置返回
 export const dealIds = (type, dynamicValue) => {
   if (_.isEmpty(dynamicValue)) return dynamicValue;
-  return dynamicValue.map(item => {
+  return (dynamicValue || []).map(item => {
     if (
       _.includes([26, 27, 48], type) &&
       _.includes(['user-self', 'user-departments', 'user-role'], item.staticValue)
@@ -196,6 +198,8 @@ export const FILTER = {
     _.includes(CAN_AS_SCORE_DYNAMIC_FIELD, item.type) || isEnableScoreOption(item) || isFormulaResultAsSubtotal(item),
   // 检查框
   36: item => _.includes(CAN_AS_SWITCH_DYNAMIC_FIELD, item.type),
+  // 定位
+  40: item => _.includes(CAN_AS_LOCATION_DYNAMIC_FIELD, item.type),
   // 富文本
   41: item => _.includes(CAN_AS_RICH_TEXT_DYNAMIC_FIELD, item.type) || isSingleRelate(item),
   // 嵌入
@@ -217,14 +221,19 @@ export const filterControls = (data = {}, controls = []) => {
   );
 };
 
-export const getControls = ({ data = {}, controls, isCurrent, needFilter }) => {
+export const getControls = ({ data = {}, controls, isCurrent, from }) => {
   const { type, enumDefault, dataSource, advancedSetting: { usertype } = {} } = data;
   const filterFn = FILTER[type];
-  //文本字段值可选 关联记录自动编号，不能是当前表单
-  if (_.includes([2], type) && isCurrent) {
+  //文本字段值可选 关联记录自动编号，不能是当前表单,查询工作表都可
+  if (_.includes([2], type) && isCurrent && !_.includes([DYNAMIC_FROM_MODE.SEARCH_WORKSHEET], from)) {
     controls = controls.filter(con => con.type !== 33);
   }
-  if (_.includes([2, 3, 4, 5, 6, 8, 14, 15, 16, 19, 23, 24, 28, 36, 41, 45, 46, 10000007, 10000008], type))
+  // 富文本不支持当前记录的自动编号、文本组合、条码
+  if (type === 41 && isCurrent && !_.includes([DYNAMIC_FROM_MODE.SEARCH_WORKSHEET], from)) {
+    controls = controls.filter(con => !_.includes([32, 33, 47], con.type));
+  }
+
+  if (_.includes([2, 3, 4, 5, 6, 8, 14, 15, 16, 19, 23, 24, 28, 36, 40, 41, 45, 46, 10000007, 10000008], type))
     return _.filter(controls, filterFn);
 
   if (_.includes([7], type)) {
@@ -239,17 +248,25 @@ export const getControls = ({ data = {}, controls, isCurrent, needFilter }) => {
 
   if (_.includes([26], type)) {
     // 默认值不支持部门、组织角色，人员选择范围动态值支持
-    controls =
-      needFilter || _.isUndefined(needFilter) ? _.filter(controls, item => !_.includes([27, 48], item.type)) : controls;
+    controls = _.includes([DYNAMIC_FROM_MODE.USER_CONFIG], from)
+      ? controls
+      : _.filter(controls, item => !_.includes([27, 48], item.type));
     return _.filter(controls, item => filterFn(item, enumDefault) && isSameUser(item, usertype));
   }
   // 默认值部门可选成员字段、查询配置中不可选成员字段
   if (_.includes([27], type)) {
-    return needFilter ? _.filter(controls, item => _.includes([27], item.type)) : _.filter(controls, filterFn);
+    return _.includes([DYNAMIC_FROM_MODE.CUSTOM_EVENT, DYNAMIC_FROM_MODE.SEARCH_WORKSHEET], from)
+      ? _.filter(controls, item => _.includes([27], item.type))
+      : _.filter(controls, filterFn);
   }
   // 默认值支持成员，选择范围不支持成员
   if (_.includes([48], type)) {
-    return needFilter ? _.filter(controls, item => _.includes([48], item.type)) : _.filter(controls, filterFn);
+    return _.includes(
+      [DYNAMIC_FROM_MODE.ORG_CONFIG, DYNAMIC_FROM_MODE.CUSTOM_EVENT, DYNAMIC_FROM_MODE.SEARCH_WORKSHEET],
+      from,
+    )
+      ? _.filter(controls, item => _.includes([48], item.type))
+      : _.filter(controls, filterFn);
   }
   if (_.includes([29], type)) {
     const newControls = filterControls(data, controls);

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import SelectUser from 'mobile/components/SelectUser';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { dealUserRange } from 'src/components/newCustomFields/tools/utils';
-import { Icon } from 'ming-ui';
+import { Icon, UserHead } from 'ming-ui';
 import _ from 'lodash';
 
 const UsersCon = styled.div`
@@ -52,6 +52,10 @@ const UserItem = styled.span`
   }
 `;
 
+const emptyAvatar = _.get(md, 'global.FileStoreConfig.pictureHost')
+  ? md.global.FileStoreConfig.pictureHost.replace(/\/$/, '') + '/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90'
+  : '';
+
 export default function Users(props) {
   const {
     control,
@@ -90,7 +94,17 @@ export default function Users(props) {
       <UsersCon>
         {values.map(item => (
           <UserItem>
-            <img src={item.avatar} alt="" className="userAvatar" />
+            {/* <img src={item.avatar} alt="" className="userAvatar" /> */}
+            <UserHead
+              className="userAvatar InlineBlock"
+              user={{
+                userHead: item.avatar || emptyAvatar,
+                accountId: item.accountId,
+              }}
+              size={28}
+              appId={appId}
+              projectId={projectId}
+            />
             <span className="userName">{item.fullname}</span>
             <Icon icon="close" onClick={() => deleteCurrentUser(item)} />
           </UserItem>

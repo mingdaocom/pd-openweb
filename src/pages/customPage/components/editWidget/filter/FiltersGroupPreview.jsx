@@ -84,6 +84,7 @@ function FiltersGroupPreview(props) {
                   value,
                   advancedSetting,
                   filters: _.flatten(filters.map(item => item.objectControls)),
+                  mobileVisible: widget.mobile.visible
                 };
               } else {
                 return item;

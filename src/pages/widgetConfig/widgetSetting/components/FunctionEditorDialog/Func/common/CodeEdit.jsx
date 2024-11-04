@@ -27,10 +27,11 @@ const Title = styled.div`
     }
   }
   .description {
-    font-size: 13px;
-    color: #bdbdbd;
+    font-size: 12px;
+    color: #9e9e9e;
     font-weight: normal;
     margin-bottom: -10px;
+    margin-top: 6px;
   }
 `;
 
@@ -66,6 +67,11 @@ function getControlDescription(type) {
   switch (type) {
     case WIDGETS_TO_API_TYPE_ENUM.SWITCH:
       result = _l('为检查项字段赋值时请使用true/false，true为选中，false为不选中');
+      break;
+    case WIDGETS_TO_API_TYPE_ENUM.LOCATION:
+      result = _l(
+        '输入位置坐标信息：[x,y,标题,详细地址]。示例: [121.473667,31.230525,"Shanghai","address"]。使用WGS84坐标系，标题、详细地址可不输入',
+      );
       break;
   }
   return result;

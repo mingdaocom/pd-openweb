@@ -1,61 +1,25 @@
 import React from 'react';
 import { getPrintContent } from '../util';
-import { Resizable } from 'react-resizable';
 import { DEFAULT_FONT_SIZE } from '../config';
 import _ from 'lodash';
 import STYLE_PRINT from './exportWordPrintTemCssString';
 import RegExpValidator from 'src/util/expression';
+import BaseColumnHead from 'worksheet/components/BaseColumnHead';
+import DragMask from 'worksheet/common/DragMask';
+import { v4 as uuidv4 } from 'uuid';
+import { emitter } from 'worksheet/util';
 
 let minPictureW = 169;
 let minW = 33;
-const ResizeableTitle = props => {
-  const { onResize, width, index, ...restProps } = props;
-  let borderLeftNone = index === 0 ? { borderLeft: 'none' } : {};
-  let id = restProps.className.split('ant-table-cell ')[1];
-
-  return (
-    <Resizable
-      width={width}
-      height={0}
-      className="ResizableBox"
-      handle={
-        <span
-          className="react-resizable-handle"
-          onClick={e => {
-            e.stopPropagation();
-          }}
-        />
-      }
-      onResize={onResize}
-      draggableOpts={{ enableUserSelectHack: false }}
-      onResizeStop={() => {
-        $(`.${id}`).removeClass('borderLine');
-      }}
-      onResizeStart={() => {
-        if (id === 'orderNumber') {
-          return;
-        }
-        $(`.${id}`).addClass('borderLine');
-      }}
-    >
-      <td
-        {...restProps}
-        style={{
-          width: `${width}px`,
-          ...STYLE_PRINT.relationPrintTable_Tr_Th,
-          ...borderLeftNone,
-        }}
-      />
-    </Resizable>
-  );
-};
 
 export default class TableRelation extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       list: [],
+      columnWidthChangeMaskVisible: false,
     };
+    this.mdTabledId = props.id || uuidv4();
   }
   componentDidMount() {
     this.setData(this.props);
@@ -63,6 +27,7 @@ export default class TableRelation extends React.Component {
     $('.ant-table').css({
       fontSize: printData.font || DEFAULT_FONT_SIZE,
     });
+    emitter.addListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + this.mdTabledId, this.showColumnWidthChangeMask);
   }
 
   componentDidUpdate() {
@@ -82,6 +47,10 @@ export default class TableRelation extends React.Component {
       this.setData(nextProps);
     }
   };
+
+  componentWillUnmount() {
+    emitter.removeListener('TRIGGER_CHANGE_COLUMN_WIDTH_MASK_' + this.mdTabledId, this.showColumnWidthChangeMask);
+  }
 
   setData = props => {
     const { printData, dataSource, controls, orderNumberCheck, id, isShowFn, showData, fileStyle } = props;
@@ -154,9 +123,11 @@ export default class TableRelation extends React.Component {
           className: `${it.controlId}-${id}`,
           width,
           controlId: it.controlId,
+          control: it,
           render: (text, record, index) => {
             if ([29].includes(it.type) && !['2', '5', '6'].includes(it.advancedSetting.showtype)) {
               let list = (it.relationControls || []).find(o => o.attribute === 1) || {};
+
               if (list.type && ![29, 30].includes(list.type)) {
                 it = { ...it, sourceControlType: list.type, advancedSetting: list.advancedSetting };
               }
@@ -200,38 +171,23 @@ export default class TableRelation extends React.Component {
   };
 
   resizeWidth = (controlId, w) => {
-    const { printData, handChange } = this.props;
+    const { handChange } = this.props;
     const { list } = this.state;
-    let n = list.findIndex(it => it.dataIndex === controlId);
-    if (n < 0 || n >= list.length - 1) {
-      return;
-    }
+    let n = list.findIndex(it => it.controlId === controlId);
     let width = list[n].width;
     let nextControl = list[n + 1];
     let nextWidth = nextControl.width;
     let data = [];
-    let nextW = width + nextWidth - w;
     let sumW = _.sum(list.map(it => it.width));
-    if (nextW < minW || w < minW) {
-      // 最小宽度33
-      return;
-    } else {
-      if (
-        (this.isAttachments(list[n]) && w <= minPictureW) ||
-        (this.isAttachments(nextControl) && nextW <= minPictureW)
-      ) {
-        // 附件图片 最小宽度169
-        return;
-      }
-    }
+
     list.map(it => {
-      if (it.dataIndex === controlId) {
+      if (it.controlId === controlId) {
         data.push({
           ...it,
           width: w,
         });
       } else {
-        if (it.dataIndex === nextControl.dataIndex) {
+        if (it.controlId === nextControl.controlId) {
           data.push({
             ...it,
             width: width + nextWidth - w,
@@ -241,16 +197,18 @@ export default class TableRelation extends React.Component {
         }
       }
     });
+
     if (sumW !== _.sum(data.map(it => it.width))) {
       return;
     }
+
     this.setState(
       {
         list: data,
       },
       () => {
         let data = [];
-        data = this.changeData(nextControl.dataIndex, width + nextWidth - w, this.changeData(controlId, w));
+        data = this.changeData(nextControl.controlId, width + nextWidth - w, this.changeData(controlId, w));
         handChange({
           controlStyles: data,
         });
@@ -287,18 +245,6 @@ export default class TableRelation extends React.Component {
     }
     return data;
   };
-
-  handleResize =
-    col =>
-    (e, { size }) => {
-      // 序号暂不拖拽宽度
-      if (col.dataIndex === 'number') {
-        return;
-      }
-
-      $(`.${col.dataIndex}`).addClass('borderLine');
-      this.resizeWidth(col.dataIndex, size.width);
-    };
 
   isIn = controlId => {
     const { printData, id } = this.props;
@@ -347,67 +293,110 @@ export default class TableRelation extends React.Component {
     return width;
   };
 
-  render() {
-    const { printData, dataSource, controls, orderNumberCheck, id, showData, style = {} } = this.props;
+  showColumnWidthChangeMask = ({ columnIndex, columnWidth, defaultLeft, maskMinLeft, callback }) => {
     const { list } = this.state;
+
+    if (columnIndex === list.length - 1) {
+      return;
+    }
+
+    const min = this.isAttachments(list[columnIndex]) ? minPictureW : minW;
+    const nextMin = this.isAttachments(list[columnIndex + 1]) ? minPictureW : minW;
+    this.setState({
+      columnWidthChangeMaskVisible: true,
+      maskLeft: defaultLeft,
+      maskMinLeft: maskMinLeft || defaultLeft - (columnWidth - min),
+      maskMaxLeft: defaultLeft + list[columnIndex + 1].width - nextMin,
+      maskOnChange: left => {
+        this.setState({
+          columnWidthChangeMaskVisible: false,
+        });
+        const newWidth = columnWidth + (left - defaultLeft);
+        callback(newWidth);
+      },
+    });
+  };
+
+  render() {
+    const { dataSource, orderNumberCheck, id, style = {} } = this.props;
+    const { list, columnWidthChangeMaskVisible, maskLeft, maskMaxLeft, maskMinLeft, maskOnChange } = this.state;
 
     if (list.length <= 0 && !orderNumberCheck) {
       return '';
     }
 
-    const columns = list.map((col, index) => ({
-      ...col,
-      onHeaderCell: column => ({
-        width: column.width,
-        onResize: this.handleResize(col),
-      }),
-    }));
-
     return (
-      <table
-        style={{
-          ...STYLE_PRINT.relationPrintTable,
-          ...style,
-        }}
-        cellPadding="0"
-        cellSpacing="0"
-      >
-        <tr>
-          {columns.map((item, index) => {
-            return ResizeableTitle({
-              ...item,
-              ...item.onHeaderCell(item),
-              children: [undefined, item.title],
-              className: `ant-table-cell ${item.className}`,
-              index: index,
-            });
-          })}
-        </tr>
-        {dataSource.map((item, i) => {
-          return (
-            <tr key={`print-relation-tr-${id}-${item.rowid}`}>
-              {columns.map((column, index) => {
-                const borderLeftNone = index === 0 ? { borderLeft: 'none' } : {};
-
-                return (
-                  <td
-                    style={{
-                      width: column.width,
-                      ...STYLE_PRINT.relationPrintTable_Tr_Td,
-                      ...borderLeftNone,
-                      borderBottomColor: index + 1 === column.length ? '#000' : '#ddd',
+      <div className={`sheetViewTable relative id-${this.mdTabledId}-id`}>
+        {columnWidthChangeMaskVisible && (
+          <DragMask value={maskLeft} min={maskMinLeft} max={maskMaxLeft} onChange={maskOnChange} />
+        )}
+        <table
+          className="printRelationTable"
+          style={{
+            ...STYLE_PRINT.relationPrintTable,
+            ...style,
+            tableLayout: 'fixed',
+          }}
+          cellPadding="0"
+          cellSpacing="0"
+        >
+          <tr>
+            {list.map((item, index) => {
+              const borderLeftNone = index === 0 ? { borderLeft: 'none' } : {};
+              return item.dataIndex === 'number' ? (
+                <td
+                  style={{
+                    width: item.width,
+                    minWidth: item.width,
+                    ...STYLE_PRINT.relationPrintTable_Tr_Th,
+                    ...borderLeftNone,
+                    padding: '5px',
+                  }}
+                >
+                  {_l('序号')}
+                </td>
+              ) : (
+                <td style={{ ...STYLE_PRINT.relationPrintTable_Tr_Th, ...borderLeftNone, width: item.width }}>
+                  <BaseColumnHead
+                    disableSort={true}
+                    className={`ant-table-cell ${item.className}`}
+                    style={{ width: item.width, padding: '5px' }}
+                    control={item.control}
+                    columnIndex={index}
+                    updateSheetColumnWidths={({ controlId, value }) => {
+                      this.resizeWidth(controlId, value);
                     }}
-                    className="WordBreak"
-                    key={`print-relation-tr-${id}-${item.rowid}-${column.controlId}`}
-                  >
-                    {column.render(item[column.dataIndex], item, i)}
-                  </td>
-                );
-              })}
-            </tr>
-          );
-        })}
-      </table>
+                  />
+                </td>
+              );
+            })}
+          </tr>
+          {dataSource.map((item, i) => {
+            return (
+              <tr key={`print-relation-tr-${id}-${item.rowid}`}>
+                {list.map((column, index) => {
+                  const borderLeftNone = index === 0 ? { borderLeft: 'none' } : {};
+
+                  return (
+                    <td
+                      style={{
+                        width: column.width,
+                        ...STYLE_PRINT.relationPrintTable_Tr_Td,
+                        ...borderLeftNone,
+                        borderBottomColor: index + 1 === column.length ? '#000' : '#ddd',
+                      }}
+                      className="WordBreak"
+                      key={`print-relation-tr-${id}-${item.rowid}-${column.controlId}`}
+                    >
+                      {column.render(item[column.dataIndex], item, i)}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </table>
+      </div>
     );
   }
 }

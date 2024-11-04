@@ -3,7 +3,8 @@ import React, { Component, Fragment } from 'react';
 import './index.less';
 import flowNode from '../../../../api/flowNode';
 import ActionFields from '../ActionFields';
-import { CONTROLS_NAME, APP_TYPE, NODE_TYPE, GLOBAL_VARIABLE } from '../../../enum';
+import { APP_TYPE, NODE_TYPE, GLOBAL_VARIABLE } from '../../../enum';
+import { getControlTypeName } from '../../../utils';
 import { MenuItem } from 'ming-ui';
 import _ from 'lodash';
 import SelectGlobalVar from 'src/pages/Admin/app/globalVariable/components/SelectGlobalVarDialog';
@@ -116,7 +117,7 @@ export default class SelectOtherFields extends Component {
             return {
               type: o.type,
               value: o.controlId,
-              field: CONTROLS_NAME[o.type],
+              field: getControlTypeName(o),
               text:
                 obj.appType === APP_TYPE.WEBHOOK
                   ? `[${o.enumDefault === 0 ? 'Body' : o.enumDefault === 1001 ? 'Params' : 'Header'}] ${o.controlName}`

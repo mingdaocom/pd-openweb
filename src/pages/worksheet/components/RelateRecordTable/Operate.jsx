@@ -7,6 +7,7 @@ import { Input, Dialog } from 'ming-ui';
 import { get, last, find, isUndefined } from 'lodash';
 import cx from 'classnames';
 import styled from 'styled-components';
+import { emitter } from 'worksheet/util';
 import moment from 'moment';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import addRecord from 'worksheet/common/newRecord/addRecord';
@@ -217,6 +218,9 @@ function Operate(props) {
     filterControls = [],
   } = tableState;
   const allowBatchEdit = base.allowBatchEdit && !!records.length;
+  useEffect(() => {
+    emitter.emit(`relationSearchCount:${recordId}:${control.controlId}`, count);
+  }, [count]);
   return (
     <Con className={className} style={style} smallMode={smallMode}>
       {(addVisible || selectVisible || allowBatchEdit) && (
@@ -354,6 +358,34 @@ function Operate(props) {
       )}
       <div className="flex"></div>
       <div className={cx('operateButtons flexRow alignItemsCenter', { isInForm: base.isInForm && mode !== 'dialog' })}>
+        {!!recordId && <AnimatedInput className="mRight6" keywords={keywords} control={control} onSearch={search} />}
+        {from !== RECORD_INFO_FROM.DRAFT &&
+          allowExportFromSetting &&
+          !!recordId &&
+          !get(window, 'shareState.shareId') && (
+            <ExportSheetButton
+              className="mRight6"
+              style={{
+                height: 28,
+              }}
+              exportSheet={cb => {
+                if (!records.length) {
+                  cb();
+                  alert(_l('数据为空，暂不支持导出！'), 3);
+                  return;
+                }
+                return exportRelateRecordRecords({
+                  worksheetId,
+                  rowId: recordId,
+                  controlId: control.controlId,
+                  filterControls: control.type === 51 ? filterControls : [],
+                  fileName:
+                    `${recordTitle}_${control.controlName}_${moment().format('YYYYMMDDHHmmss')}`.trim() + '.xlsx',
+                  onDownload: cb,
+                });
+              }}
+            />
+          )}
         {!isBatchEditing &&
           from !== 21 &&
           !!recordId &&
@@ -371,7 +403,6 @@ function Operate(props) {
               </IconBtn>
             </span>
           )}
-        {!!recordId && <AnimatedInput className="mRight6" keywords={keywords} control={control} onSearch={search} />}
         {mode === 'recordForm' && !!recordId && from !== RECORD_INFO_FROM.DRAFT && (
           <span
             data-tip={_l('全屏')}
@@ -398,32 +429,7 @@ function Operate(props) {
             </IconBtn>
           </span>
         )}
-        {from !== RECORD_INFO_FROM.DRAFT &&
-          allowExportFromSetting &&
-          !!recordId &&
-          !get(window, 'shareState.shareId') && (
-            <ExportSheetButton
-              style={{
-                height: 28,
-              }}
-              exportSheet={cb => {
-                if (!records.length) {
-                  cb();
-                  alert(_l('数据为空，暂不支持导出！'), 3);
-                  return;
-                }
-                return exportRelateRecordRecords({
-                  worksheetId,
-                  rowId: recordId,
-                  controlId: control.controlId,
-                  filterControls: control.type === 51 ? filterControls : [],
-                  fileName:
-                    `${recordTitle}_${control.controlName}_${moment().format('YYYYMMDDHHmmss')}`.trim() + '.xlsx',
-                  onDownload: cb,
-                });
-              }}
-            />
-          )}
+
         {(!!recordId || control.type === 51) && (
           <Pagination
             allowChangePageSize={base.isTab}

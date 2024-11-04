@@ -22,7 +22,7 @@ import { getIsScanQR } from 'src/components/newCustomFields/components/ScanQRCod
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import { Icon } from 'ming-ui';
 import { completeControls, replaceControlsTranslateInfo } from 'worksheet/util';
-import { browserIsMobile, addBehaviorLog, getTranslateInfo } from 'src/util';
+import { browserIsMobile, addBehaviorLog, getTranslateInfo, handlePushState, handleReplaceState } from 'src/util';
 import _ from 'lodash';
 import RegExpValidator from 'src/util/expression';
 const MAX_COUNT = 200;
@@ -233,6 +233,12 @@ class RelateRecordCards extends Component {
     ) {
       this.loadMoreRecords(1);
     }
+
+    window.addEventListener('popstate', this.onQueryChange);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.onQueryChange);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -338,6 +344,11 @@ class RelateRecordCards extends Component {
     const { control = {}, editable } = this.props;
     return editable && control.enumDefault2 !== 1 && control.enumDefault2 !== 11 && !window.isPublicWorksheet;
   }
+
+  onQueryChange = () => {
+    if (!this.state.previewRecord) return;
+    handleReplaceState('page', 'relateRecord', () => this.setState({ previewRecord: undefined }));
+  };
 
   getCoverUrl(coverId, record) {
     const { controls } = this.state;
@@ -669,6 +680,7 @@ class RelateRecordCards extends Component {
                   /^temp/.test(record.rowid)
                     ? () => {}
                     : () => {
+                        handlePushState('page', 'relateRecord');
                         addBehaviorLog('worksheetRecord', dataSource, { rowId: record.rowid }); // 埋点
                         this.setState({ previewRecord: { recordId: record.rowid } });
                       }
@@ -722,6 +734,7 @@ class RelateRecordCards extends Component {
                     if (from === FROM.SHARE || from === FROM.WORKFLOW) {
                       openRelateSheet('', record.wsid, record.rowid, viewId);
                     } else if (isMobile) {
+                      handlePushState('page', 'relateRecord');
                       disabled && this.setState({ previewRecord: { recordId: record.rowid } });
                     } else {
                       this.setState({ previewRecord: { recordId: record.rowid } });

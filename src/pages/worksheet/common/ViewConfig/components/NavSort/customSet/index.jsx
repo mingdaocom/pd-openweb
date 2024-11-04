@@ -263,7 +263,7 @@ export default function (props) {
               if (setting.filter(o => o !== 'add').length >= maxCount) {
                 return;
               }
-              if ([26].includes(controlInfo.type)) {
+              if ([26].includes(controlInfo.type) || controlInfo.sourceControlType === 26) {
                 addUser(true, getTabTypeBySelectUser(controlInfo));
               } else {
                 setState({

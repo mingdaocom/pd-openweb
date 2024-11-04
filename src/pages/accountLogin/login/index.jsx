@@ -20,6 +20,21 @@ import googleIcon from 'src/pages/NewPrivateDeployment/images/google.svg';
 
 let request = getRequest();
 
+const integrationInto = {
+  1: {
+    iconClassName: 'dingIcon',
+    text: _l('钉钉登录'),
+  },
+  3: {
+    iconClassName: 'workWeixinIcon',
+    text: _l('企业微信登录'),
+  },
+  6: {
+    iconClassName: 'feishuIcon',
+    text: _l('飞书登录'),
+  },
+};
+
 const mapStateToProps = ({ accountInfo, stateList, warnningData }) => ({
   loginData: accountInfo,
   loading: stateList.loading,
@@ -177,6 +192,7 @@ export default class LoginContainer extends React.Component {
       linkInvite,
       hideOther,
       intergrationScanEnabled,
+      projectIntergrationType,
       isOpenSso,
       ssoWebUrl,
       ssoAppUrl,
@@ -205,10 +221,7 @@ export default class LoginContainer extends React.Component {
                   <p className="Font17 Gray mAll0 mTop8">{loadProjectName ? '' : projectNameLang || companyName}</p>
                 )}
               </div>
-              <div
-                className={`titleHeader flexRow alignItemsCenter Bold ${isNetwork ? 'mTop30' : 'mTop40'}
-              `}
-              >
+              <div className={`titleHeader flexRow alignItemsCenter Bold ${isNetwork ? 'mTop32' : 'mTop40'}`}>
                 <div className="title WordBreak hTitle" style={{ WebkitBoxOrient: 'vertical' }}>
                   {loginMode === 2 ? ldapName || _l('LDAP登录') : _l('登录%14002')}
                 </div>
@@ -258,8 +271,24 @@ export default class LoginContainer extends React.Component {
                     </a>
                   )}
                   {intergrationScanEnabled && (
-                    <a onClick={() => getWorkWeiXinCorpInfoByApp(projectId, request.ReturnUrl)}>
-                      <i className="workWeixinIcon mRight8" /> {_l('企业微信登录')}
+                    <a
+                      onClick={() => {
+                        if (_.includes([1, 6], projectIntergrationType)) {
+                          location.href =
+                            projectIntergrationType === 1
+                              ? `${
+                                  md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
+                                }auth/dingding?p=${projectId}`
+                              : `${
+                                  md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
+                                }auth/feishu?p=${projectId}`;
+                        } else {
+                          getWorkWeiXinCorpInfoByApp(projectId, request.ReturnUrl);
+                        }
+                      }}
+                    >
+                      <i className={`${integrationInto[projectIntergrationType].iconClassName} mRight8`} />
+                      {integrationInto[projectIntergrationType].text}
                     </a>
                   )}
                   {isCanWeixin && (

@@ -5,7 +5,7 @@ import SearchWrap from './SearchWrap';
 import Back from '../components/Back';
 import { RecordInfoModal } from 'mobile/Record';
 import favoriteAjax from 'src/api/favorite';
-import { addBehaviorLog } from 'src/util';
+import { addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
 import styled from 'styled-components';
 
 const Wrap = styled.div`
@@ -56,7 +56,16 @@ export default class RecordCollect extends Component {
 
   componentDidMount() {
     this.getData();
+    window.addEventListener('popstate', this.onQueryChange);
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.onQueryChange);
+  }
+
+  onQueryChange = () => {
+    handleReplaceState('page', 'collectRecord', () => this.setState({ collectRecord: {} }));
+  };
 
   getData = () => {
     const { projectId } = _.get(this.props, 'match.params') || {};
@@ -123,6 +132,7 @@ export default class RecordCollect extends Component {
                   key={favoriteId}
                   className="recordItem flexRow pRight0"
                   onClick={() => {
+                    handlePushState('page', 'collectRecord');
                     addBehaviorLog('worksheetRecord', worksheetId, { rowId });
                     this.setState({ collectRecord: item });
                   }}

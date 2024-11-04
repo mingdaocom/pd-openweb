@@ -1,17 +1,14 @@
 import React, { Component, Fragment } from 'react';
-import { Select, DatePicker, Menu, Divider, Input, Dropdown, Button, Modal, Checkbox, Tooltip } from 'antd';
+import { Select, DatePicker, Input, Button, Modal, Checkbox, Tooltip } from 'antd';
 import { Icon } from 'ming-ui';
 import {
   dropdownScopeData,
-  dropdownDayData,
   pastAndFutureData,
-  isPastAndFuture,
-  rangeDots,
+  fiscalYearData,
   timeTypes,
   unitTypes,
   getTodayTooltip,
 } from 'statistics/common';
-import cx from 'classnames';
 import 'moment/locale/zh-cn';
 import locale from 'antd/es/date-picker/locale/zh_CN';
 import { formatNumberFromInput } from 'src/util';
@@ -136,6 +133,8 @@ export default class TimeModal extends Component {
                   data.rangeValue = Number(rangeValue);
                 } else if (value === 20) {
                   data.rangeValue = `${moment().add(-7, 'days').format('YYYY/MM/DD')}-${moment().format('YYYY/MM/DD')}`;
+                } else if (value === 24) {
+                  data.rangeValue = '0:1';
                 } else {
                   data.rangeValue = null;
                 }
@@ -171,6 +170,7 @@ export default class TimeModal extends Component {
           )}
         </div>
         {rangeType == 21 && this.renderDynamicFilter()}
+        {rangeType == 24 && this.renderFiscalYear()}
       </Fragment>
     );
   }
@@ -299,6 +299,49 @@ export default class TimeModal extends Component {
               </Select>
             </Fragment>
           )}
+        </div>
+      </Fragment>
+    );
+  }
+  renderFiscalYear() {
+    const { rangeValue } = this.state;
+    const [year, month] = rangeValue.split(':');
+    return (
+      <Fragment>
+        <Select
+          className="chartSelect w100 mTop10"
+          value={Number(year)}
+          suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+          onChange={value => {
+            this.setState({
+              rangeValue: `${value}:${month}`
+            });
+          }}
+        >
+          {fiscalYearData.map(item => (
+            <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
+              {item.text}
+            </Select.Option>
+          ))}
+        </Select>
+        <div className="flexRow valignWrapper mTop10">
+          <div className="mRight10">{_l('财政年度开始于')}</div>
+          <Select
+            className="chartSelect flex"
+            value={Number(month)}
+            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            onChange={value => {
+              this.setState({
+                rangeValue: `${year}:${value}`
+              });
+            }}
+          >
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(value => (
+              <Select.Option className="selectOptionWrapper" key={value} value={value}>
+                {_l('%0月', value)}
+              </Select.Option>
+            ))}
+          </Select>
         </div>
       </Fragment>
     );

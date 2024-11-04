@@ -13,6 +13,7 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import _ from 'lodash';
 import { handleRecordClick } from 'worksheet/util';
 import { canEditApp, canEditData } from 'worksheet/redux/actions/util.js';
+import { handlePushState, handleReplaceState } from 'src/util';
 
 export const RecordWrapper = styled.div`
   height: 32px;
@@ -136,11 +137,18 @@ export default class Record extends Component {
         CellControlComponent: component.default
       });
     });
+    window.addEventListener('popstate', this.onQueryChange);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.onQueryChange);
   }
   get canedit() {
     const { row, base, sheetSwitchPermit } = this.props;
     return row.allowedit && isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, base.viewId);
   }
+  onQueryChange = () => {
+    handleReplaceState('page', 'recordDetail', () => this.setState({ recordInfoVisible: false }));
+  };
   handleClick = () => {
     const { row, base, controls, sheetSwitchPermit, gunterView } = this.props;
     handleRecordClick(
@@ -161,6 +169,7 @@ export default class Record extends Component {
         } else {
           this.clicktimer = setTimeout(() => {
             this.clicktimer = null;
+            handlePushState('page', 'recordDetail');
             this.setState({
               recordInfoVisible: true,
             });

@@ -9,7 +9,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getQrCode: function (args, options = {}) {
-
+     
      return mdyAPI('CodeAuth', 'GetQrCode', args, options);
    },
   /**
@@ -21,7 +21,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getQrCodeResult: function (args, options = {}) {
-
+     
      return mdyAPI('CodeAuth', 'GetQrCodeResult', args, options);
    },
   /**
@@ -33,7 +33,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getDefaultPicUrl: function (args, options = {}) {
-
+     
      return mdyAPI('CodeAuth', 'GetDefaultPicUrl', args, options);
    },
 };

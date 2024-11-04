@@ -80,6 +80,10 @@ const fillType = [
     name: _l('完整显示'),
     value: 2,
   },
+  {
+    name: _l('拉伸 (会变形)'),
+    value: 3,
+  },
 ];
 
 const fillColorType = [
@@ -445,21 +449,25 @@ function Setting(props) {
       {action !== 3 && (
         <div className="mBottom16">
           <div className="mBottom8">{_l('打开方式')}</div>
-          <div className="btnStyle">
+          <Select
+            className="customPageSelect w100 mBottom16"
+            value={openMode}
+            suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
+            getPopupContainer={() => document.querySelector('.customPageCarouselWrap .setting')}
+            onChange={value => {
+              setComponentConfig({ openMode: value });
+            }}
+          >
             {openModeType
               .filter(data => (action === 2 ? [1, 2].includes(data.value) : true))
-              .map(({ value, name }) => (
-                <div
-                  className={cx('item flex', { active: value === openMode })}
-                  key={value}
-                  onClick={() => {
-                    setComponentConfig({ openMode: value });
-                  }}
-                >
-                  <div className="Font14">{name}</div>
-                </div>
+              .map(item => (
+                <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
+                  <div className="valignWrapper h100">
+                    <span className="mLeft5 Font13 ellipsis">{item.name}</span>
+                  </div>
+                </Select.Option>
               ))}
-          </div>
+          </Select>
         </div>
       )}
     </Wrap>

@@ -61,12 +61,11 @@ export default function RelateRecordOptions(props) {
     load();
   }, [JSON.stringify(formData.map(c => c.value))]);
   useEffect(() => {
-    if (_.isUndefined(staticRecords)) {
-      load();
-    } else {
-      setRecords(staticRecords || []);
-    }
-  }, [JSON.stringify(staticRecords), advancedSetting]);
+    setRecords(staticRecords || []);
+  }, [JSON.stringify(staticRecords)]);
+  useEffect(() => {
+    load();
+  }, [advancedSetting]);
   return (
     <Con>
       {prefixRecords

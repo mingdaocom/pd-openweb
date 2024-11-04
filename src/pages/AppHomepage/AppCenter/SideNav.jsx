@@ -329,22 +329,6 @@ export default function SideNav(props) {
     );
 
     switch (true) {
-      case entry.id === 'educate':
-        return (
-          <Trigger
-            key={index}
-            action={['hover']}
-            popupAlign={{
-              points: ['tl', 'tr'],
-              offset: [16, -108],
-              overflow: { adjustY: true },
-            }}
-            popup={<PopupLinks openInNew items={educateEntries} />}
-            mouseLeaveDelay={0.2}
-          >
-            {content}
-          </Trigger>
-        );
       case !isExpanded && _.includes(['recommend', 'thirdPartyApp', 'integration'], entry.id):
         return (
           <Tooltip key={index} popupPlacement="right" text={<span>{entry.name}</span>}>

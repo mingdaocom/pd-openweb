@@ -110,7 +110,11 @@ export default function SourceCon(props) {
                                 .map((o = {}) => {
                                   let fields = (o.fields || []).filter(
                                     (it = {}) =>
-                                      !!(sourceTables || []).find(a => (it.oid || '').indexOf(a.workSheetId) >= 0),
+                                      !!(sourceTables || []).find(a =>
+                                        _.get(it, 'parentFieldInfo.oid')
+                                          ? _.get(it, 'parentFieldInfo.oid').indexOf(`${a.workSheetId}_`) >= 0
+                                          : (it.oid || '').indexOf(`${a.workSheetId}_`) >= 0,
+                                      ),
                                   );
                                   return {
                                     fields: fields,
@@ -118,6 +122,7 @@ export default function SourceCon(props) {
                                       fields.length <= 0
                                         ? {}
                                         : {
+                                            ...o.resultField,
                                             ...fields[0],
                                             name: _.get(o, 'resultField.name'),
                                             alias: _.get(o, 'resultField.alias'),

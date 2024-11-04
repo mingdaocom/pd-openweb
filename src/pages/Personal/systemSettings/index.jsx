@@ -1,6 +1,7 @@
 import React from 'react';
 import { LoadDiv, Dropdown, Checkbox, RadioGroup } from 'ming-ui';
 import accountSetting from 'src/api/accountSetting';
+import privateMapAjax from 'src/api/privateMap';
 import Beta from 'src/pages/AppSettings/components/Beta';
 import cx from 'classnames';
 import './index.less';
@@ -35,11 +36,14 @@ export default class AccountChart extends React.Component {
       disabledSetLanguage: false,
       timeZones: [],
       currentTimeZone: md.global.Account.timeZone,
+      map: md.global.Account.map || 0,
+      mapList: [],
     };
   }
 
   componentDidMount() {
     this.getData();
+    this.getAvailableMapList();
   }
 
   getData() {
@@ -71,6 +75,18 @@ export default class AccountChart extends React.Component {
       });
     });
   }
+
+  // 已配置地图列表
+  getAvailableMapList = () => {
+    if (!md.global.SysSettings.enableMap) return;
+    privateMapAjax.getAvailableMapList({}).then(res => {
+      const list = (res || []).map(item => ({
+        text: item.type === 0 ? _l('高德地图') : _l('Google地图'),
+        value: item.type,
+      }));
+      this.setState({ mapList: list });
+    });
+  };
 
   // common修改
   sureSettings(settingNum, value, successCallback) {
@@ -175,6 +191,32 @@ export default class AccountChart extends React.Component {
             </div>
           </div>
         </div>
+        {md.global.SysSettings.enableMap && (
+          <div className="systemSettingItem">
+            <div className="systemSettingsLabel Gray_75 LineHeight32">{_l('地图')}</div>
+            <div className="systemSettingsRight">
+              <div className="Gray_75 mBottom10">
+                <Dropdown
+                  className="systemSettingsZone Gray"
+                  border
+                  value={this.state.map}
+                  data={this.state.mapList}
+                  onChange={value => {
+                    this.sureSettings('map', value, () => {
+                      this.setState({ map: value });
+                      md.global.Account.map = value;
+                    });
+                  }}
+                />
+              </div>
+              <div className="Gray_9e">
+                {this.state.map === 1
+                  ? _l('包含全球地图，暂不支持搜索名称定位。')
+                  : _l('支持搜索地点名称定位，地图信息只包含：中国大陆、香港、澳门、台湾地区')}
+              </div>
+            </div>
+          </div>
+        )}
         <div className="systemSettingItem borderNoe">
           <div className="systemSettingsLabel Gray_75">{_l('浏览器新消息通知')}</div>
           <div className="systemSettingsRight">

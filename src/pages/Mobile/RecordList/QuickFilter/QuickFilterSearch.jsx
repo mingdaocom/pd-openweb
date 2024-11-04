@@ -51,12 +51,12 @@ export default function QuickFilterSearch(props) {
     excludeTextFilter,
     isFilter,
     filters = {},
-    detail = {},
     view,
     worksheetInfo,
     sheetControls,
     className,
     showSearch = true,
+    quickFilterWithDefault = [],
     updateFilters = () => {},
   } = props;
 
@@ -65,13 +65,13 @@ export default function QuickFilterSearch(props) {
   };
 
   const renderSidebar = view => {
-    const { fastFilters = [] } = view;
-    const filtersControl = fastFilters
+    const filtersControl = quickFilterWithDefault
       .map(filter => ({
         ...filter,
         control: _.find(sheetControls, c => c.controlId === filter.controlId),
       }))
       .filter(c => c.control);
+
     return (
       <QuickFilter
         projectId={worksheetInfo.projectId}
@@ -99,7 +99,7 @@ export default function QuickFilterSearch(props) {
         })}
         bodyStyle={{
           borderRadius: '14px 0 0 14px',
-          overflow: 'hidden'
+          overflow: 'hidden',
         }}
         position="right"
         visible={filters.visible}

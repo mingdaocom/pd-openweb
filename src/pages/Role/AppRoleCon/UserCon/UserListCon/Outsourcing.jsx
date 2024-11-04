@@ -161,7 +161,7 @@ function Others(props) {
       className: 'timeTr',
       minW: 130,
       render: (text, data, index) => {
-        return moment(data.operateTime).format('YYYY-MM-DD HH:mm');
+        return createTimeSpan(data.operateTime);
       },
     },
     {

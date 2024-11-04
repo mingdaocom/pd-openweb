@@ -41,7 +41,7 @@ function getIcon(type = 'success') {
   );
 }
 
-export function antAlert(msg, type = 1, timeout = 3000, callback, key) {
+export function antAlert(msg, type = 1, timeout = 3000, callback, key, style) {
   if (msg !== null && typeof msg === 'object' && !msg.props) {
     type = msg.type || 1;
     timeout = msg.timeout || 3000;
@@ -58,6 +58,7 @@ export function antAlert(msg, type = 1, timeout = 3000, callback, key) {
     duration: timeout / 1000,
     onClose: callback,
     key,
+    style,
   });
 }
 

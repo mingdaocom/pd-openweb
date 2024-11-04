@@ -1,4 +1,4 @@
-import { ajax, login, browserIsMobile, getRequest, checkLogin, formatOtherParam, addOtherParam } from 'src/util/sso';
+import { ajax, login, browserIsMobile, getRequest, checkLogin, formatOtherParam, addOtherParam, checkOriginUrl } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 import preall from 'src/common/preall';
 
@@ -7,7 +7,7 @@ const isMobile = browserIsMobile();
 
 if (code) {
   if (checkLogin()) {
-    if (url) {
+    if (checkOriginUrl(url)) {
       location.href = decodeURIComponent(url);
     } else {
       location.href = isMobile ? `/mobile` : `/app`;
@@ -25,7 +25,7 @@ if (code) {
         if (accountResult === 1) {
           preall({ type: 'function' });
           setPssId(sessionId);
-          if (url) {
+          if (checkOriginUrl(url)) {
             location.href = decodeURIComponent(url);
           } else {
             location.href = isMobile ? `/mobile` : `/app`;
@@ -39,7 +39,7 @@ if (code) {
   const otherParamString = formatOtherParam(otherParam);
   const newUrl = addOtherParam(url, otherParamString);
   if (checkLogin()) {
-    if (newUrl) {
+    if (checkOriginUrl(newUrl)) {
       location.href = newUrl;
     } else {
       location.href = isMobile ? `/mobile` : `/app`;

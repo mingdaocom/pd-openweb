@@ -109,11 +109,12 @@ const Wrap = styled.div`
   }
   .loginBtn {
     background: #2196f3;
-    height: 40px;
+    height: 48px;
     border-radius: 4px;
-    line-height: 40px;
+    line-height: 48px;
     color: #fff;
-    font-weight: 500;
+    font-weight: bold;
+    font-size: 16px;
     &:hover {
       background: #42a5f5;
     }
@@ -169,6 +170,8 @@ export default function Container(props) {
       case 11:
       case 13:
         return _l('你访问的链接已停止访问!');
+      case 40:
+        return _l('你访问的链接无效!');
       case 10000:
         return _l('你访问的链接错误!');
       case 10:
@@ -225,7 +228,7 @@ export default function Container(props) {
             </div>
             <p className="txtConsole">{_l('审核未通过')}</p>
           </div>
-        ) : [2, 10, 11, 12, 13, 10000, 20000].includes(status) ? (
+        ) : [2, 10, 11, 12, 13, 10000, 20000, 40].includes(status) ? (
           <div className="tipConBox" style={tipStyle}>
             <div className="txtIcon">
               <Icon type="knowledge-message" className="Red" />

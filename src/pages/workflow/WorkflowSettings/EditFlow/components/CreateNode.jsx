@@ -125,7 +125,7 @@ export default class CreateNode extends Component {
       if (this.isConditionalBranch()) {
         this.setState({ branchDialogModel: 2 });
       } else if (!item.nextId || item.nextId === '99' || removeCopyBtn) {
-        this.createBranchNode({ moveType: 0, isOrdinary: false });
+        this.createBranchNode({ moveType: 0, isOrdinary: true });
       } else {
         this.setState({ branchDialogModel: 1 });
       }
@@ -145,11 +145,12 @@ export default class CreateNode extends Component {
    */
   isConditionalBranch() {
     const { item } = this.props;
-    const { typeId, actionId } = item;
+    const { typeId, actionId, execute } = item;
 
     return (
       _.includes([NODE_TYPE.APPROVAL, NODE_TYPE.SEARCH, NODE_TYPE.FIND_SINGLE_MESSAGE], typeId) ||
-      (typeId === NODE_TYPE.ACTION && actionId === '20')
+      (typeId === NODE_TYPE.ACTION && actionId === '20') ||
+      execute
     );
   }
 

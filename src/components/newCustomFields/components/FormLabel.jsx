@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import { RELATE_RECORD_SHOW_TYPE, RELATION_SEARCH_SHOW_TYPE } from 'worksheet/constants/enum';
 import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
 import { getTitleStyle } from 'src/pages/widgetConfig/util/setting';
+import RelationSearchCount from './RelationSearchCount';
 import { isSheetDisplay } from '../../../pages/widgetConfig/util';
 
 const ControlLabel = styled.div`
@@ -96,6 +97,7 @@ export default ({
     titlecolor = item.type === 34 ? '#333' : '#757575',
     allowlink,
     hidetitle,
+    required,
   } = item.advancedSetting || {};
 
   const titleSize = TITLE_SIZE_OPTIONS[titlesize];
@@ -111,7 +113,7 @@ export default ({
 
   const currentErrorItem = _.find(errorItems.concat(uniqueErrorItems), obj => obj.controlId === item.controlId) || {};
   const errorText = currentErrorItem.errorText || '';
-  const isEditable = controlState(item, from).editable;
+  const isEditable = (item.required && required === '1') || controlState(item, from).editable;
   const isRelateRecordTable =
     item.type === 29 && _.get(item, 'advancedSetting.showtype') === String(RELATE_RECORD_SHOW_TYPE.TABLE);
   const isRelationSearchTable =
@@ -227,7 +229,8 @@ export default ({
         {item.type !== 34 ? (
           <div title={item.controlName} className="controlLabelName">
             {item.controlName}
-            {showCount && renderCount(item)}
+            {showCount &&
+              (item.type === 51 ? <RelationSearchCount control={item} recordId={recordId} /> : renderCount(item))}
           </div>
         ) : (
           <div

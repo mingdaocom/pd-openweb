@@ -103,6 +103,7 @@ export default function MobileTable(props) {
     h5abstractids = [],
     appId,
     worksheetId,
+    cellErrors,
   } = props;
 
   const defaultMaxLength = 10;
@@ -250,7 +251,9 @@ export default function MobileTable(props) {
             {isEdit && !disabled && allowcancel && showNumber ? (
               <div className="action" onClick={() => deleteRecord(row.rowid)}>
                 <i className="icon icon-task-new-delete Font16 Red mRight10" style={{ marginLeft: -20 }}></i>
-                <span>{i + 1}</span>
+                <span className={cx({ Red: _.some(controls, v => cellErrors[row.rowid + '-' + v.controlId]) })}>
+                  {i + 1}
+                </span>
               </div>
             ) : isEdit && !disabled && allowcancel ? (
               <i className="icon icon-task-new-delete Font16 Red" onClick={() => deleteRecord(row.rowid)}></i>

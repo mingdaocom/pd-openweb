@@ -7,7 +7,14 @@ import { emitter, handleRecordClick } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
 import RecordInfoWrapper from 'src/pages/worksheet/common/recordInfo/RecordInfoWrapper';
 import { RecordInfoModal } from 'mobile/Record';
-import { getAdvanceSetting, browserIsMobile, addBehaviorLog, emitter as ViewEmitter } from 'src/util';
+import {
+  getAdvanceSetting,
+  browserIsMobile,
+  addBehaviorLog,
+  emitter as ViewEmitter,
+  handlePushState,
+  handleReplaceState,
+} from 'src/util';
 import NoRecords from 'src/pages/worksheet/components/WorksheetTable/components/NoRecords';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -45,6 +52,7 @@ export default class RecordGallery extends Component {
     !hasGroupFilter && this.getFetch(this.props);
     window.addEventListener('resize', this.resizeBind);
     emitter.addListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
+    window.addEventListener('popstate', this.onQueryChange);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -94,7 +102,12 @@ export default class RecordGallery extends Component {
   componentWillUnmount() {
     emitter.removeListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
     window.removeEventListener('resize', this.resizeBind);
+    window.removeEventListener('popstate', this.onQueryChange);
   }
+
+  onQueryChange = () => {
+    handleReplaceState('page', 'recordDetail', () => this.setState({ recordInfoVisible: false }));
+  };
 
   updateRecordEvent = ({ worksheetId, recordId }) => {
     const { base, galleryview } = this.props;
@@ -216,7 +229,7 @@ export default class RecordGallery extends Component {
     const { base, views, sheetSwitchPermit, galleryview, filters, worksheetInfo, controls, quickFilter } = this.props;
     const { viewId, appId, worksheetId, groupId } = base;
     const currentView = views.find(o => o.viewId === viewId) || {};
-    const { gallery = [], galleryViewLoading, galleryLoading } = galleryview;
+    const { gallery = [], galleryViewLoading, galleryLoading, galleryIndex, galleryViewRecordCount } = galleryview;
     const coverCid = currentView.coverCid || _.get(worksheetInfo, ['advancedSetting', 'coverid']);
     let { coverposition = '2', abstract = '' } = getAdvanceSetting(currentView);
     const isTopCover = coverposition === '2';
@@ -301,10 +314,11 @@ export default class RecordGallery extends Component {
                 style={isMobile ? getMStyle() : { width: this.getWidth() }}
                 onClick={() => {
                   handleRecordClick(currentView, item, () => {
-                    if (window.isMingDaoApp) {
+                    if (window.isMingDaoApp && !window.shareState.shareId) {
                       window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${item.rowid}`;
                       return;
                     }
+                    handlePushState('page', 'recordDetail');
                     this.setState({ recordId: item.rowid, recordInfoVisible: true });
                     addBehaviorLog('worksheetRecord', worksheetId, { rowId: item.rowid }); // 埋点
                   });
@@ -340,6 +354,10 @@ export default class RecordGallery extends Component {
                 enablePayment={worksheetInfo.enablePayment}
                 viewId={viewId}
                 rowId={recordId}
+                canLoadNextRecord={true}
+                currentSheetRows={gallery}
+                loadNextPageRecords={() => this.props.fetch(galleryIndex + 1)}
+                loadedRecordsOver={!(gallery.length < galleryViewRecordCount && !galleryLoading)}
                 onClose={() => {
                   this.setState({ recordInfoVisible: false });
                 }}

@@ -86,7 +86,7 @@ export default function ConfigGuide(props) {
         return <DB2Guide type={currentTab} />;
       case DATABASE_TYPE.KAFKA:
         return <KafkaGuide type={currentTab} />;
-      case DATABASE_TYPE.SAP_HANA:
+      case DATABASE_TYPE.HANA:
         return <SapHaNa type={currentTab} />;
       default:
         <div />;

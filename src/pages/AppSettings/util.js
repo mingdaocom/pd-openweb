@@ -1,4 +1,4 @@
-import { APP_ROLE_TYPE, VIEW_TYPE_ICON } from 'src/pages/worksheet/constants/enum';
+import { APP_ROLE_TYPE, VIEW_TYPE_ICON, VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 
 // 获取应用配置列表
 export const getAppConfig = (menus, permissionType) => {
@@ -38,15 +38,6 @@ export const getCheckedInfo = ({ typeList = [], defaultCheckedAll = false, sourc
 
 export const getViewIcon = type => {
   if (_.isUndefined(type)) return;
-  const typeObj = {
-    0: 'sheet',
-    1: 'board',
-    2: 'structure',
-    3: 'gallery',
-    4: 'calendar',
-    5: 'gunter',
-    6: 'detail',
-  };
 
-  return (_.find(VIEW_TYPE_ICON, item => item.id === typeObj[type]) || {}).icon;
+  return (_.find(VIEW_TYPE_ICON, item => item.id === VIEW_DISPLAY_TYPE[type]) || {}).icon;
 };

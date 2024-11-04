@@ -174,10 +174,11 @@ export const getReportData = () => {
         data: false,
       });
     };
-    const fail = () => {
+    const fail = (error) => {
+      const { errorCode } = error || {};
       dispatch({
         type: 'CHANGE_STATISTICS_REPORT_DATA',
-        data: { status: 0 },
+        data: { status: errorCode >= 500 ? -3 : 0 },
       });
       dispatch({
         type: 'CHANGE_STATISTICS_LOADING',

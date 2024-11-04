@@ -7,6 +7,7 @@ import { getTodoCount } from 'src/pages/workflow/MyProcess/Entry';
 import instanceVersionApi from 'src/pages/workflow/api/instanceVersion';
 import ProcessRecordInfo from 'mobile/ProcessRecord';
 import EmptyStatus from '../EmptyStatus';
+import { handlePushState, handleReplaceState } from 'src/util';
 const processList = [
   { key: 'waitingApproval', icon: 'stamp', text: _l('审批'), tab: 'waitingApproval' },
   { key: 'waitingWrite', icon: 'fill', text: _l('填写'), tab: 'waitingWrite' },
@@ -103,6 +104,18 @@ export default function Process(props) {
     getList();
   }, [currentTab]);
 
+  useEffect(() => {
+    window.addEventListener('popstate', onQueryChange);
+    return () => {
+      window.removeEventListener('popstate', onQueryChange);
+    };
+  }, []);
+
+  const onQueryChange = () => {
+    if (_.isEmpty(previewRecord)) return;
+    handleReplaceState('page', 'processRecord', () => setData({ previewRecord: {} }));
+  };
+
   const getTodoCountData = () => {
     getTodoCount().then(countData => {
       setData({ countData });
@@ -192,7 +205,10 @@ export default function Process(props) {
               return (
                 <div
                   className="listItem flexRow alignItemsCenter"
-                  onClick={() => setData({ previewRecord: { instanceId: item.id, workId: item.workId } })}
+                  onClick={() => {
+                    handlePushState('page', 'processRecord');
+                    setData({ previewRecord: { instanceId: item.id, workId: item.workId } });
+                  }}
                 >
                   <img src={_.get(item, 'createAccount.avatar')} className="mRight10" />
                   <div className="flex ellipsis Font15">{item.title || _l('未命名')}</div>

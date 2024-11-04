@@ -261,14 +261,6 @@ export function hasHiddenControl(data, controls) {
   });
 }
 
-export function transWholeTime(time) {
-  const wholeTime = moment(dateConvertToUserZone(time));
-
-  return `${_l('%0年%1月%2日', wholeTime.format('YYYY'), wholeTime.format('MM'), wholeTime.format('DD'))} ${moment(
-    wholeTime,
-  ).format('HH:mm:ss')}`;
-}
-
 export const renderTitleName = (data, isMobile) => {
   const { accountId, accountName, child, fullname } = data;
 

@@ -16,13 +16,13 @@ import {
   SpecificFieldsValue,
   TriggerCondition,
 } from '../components';
-import { ACTION_ID, DATE_SHOW_TYPES, CONTROLS_NAME } from '../../enum';
+import { ACTION_ID, DATE_SHOW_TYPES } from '../../enum';
 import CodeEdit from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog/Func/common/CodeEdit';
 import FunctionEditorDialog from 'src/pages/widgetConfig/widgetSetting/components/FunctionEditorDialog';
 import _ from 'lodash';
 import moment from 'moment';
 import styled from 'styled-components';
-import { handleGlobalVariableName } from '../../utils';
+import { handleGlobalVariableName, getControlTypeName } from '../../utils';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { getSummaryInfo } from 'src/pages/worksheet/util';
 
@@ -779,7 +779,7 @@ export default class Formula extends Component {
       <Fragment>
         <div className="Font14 Gray_75 workflowDetailDesc">
           {_l(
-            '从工作表中筛选符合条件的数据并进行汇总计算，如：记录数量、求和、平均、最大、最小等。注意：当数据频繁变更时可能有一定延时',
+            '从工作表中筛选符合条件的数据并进行汇总计算，如：记录数量、求和、平均、最大、最小等。注意：当汇总他表字段或者数据频繁变更时可能有一定延时',
           )}
         </div>
 
@@ -816,8 +816,11 @@ export default class Formula extends Component {
         {data.appId && (
           <Fragment>
             <div className="mTop20 bold">{_l('筛选条件')}</div>
-            <div className="Gray_75 mTop5">
+            <div className="Gray_75 mTop5 flexRow alignItemsCenter">
               {_l('设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获取所有数据')}
+              <Tooltip title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}>
+                <i className="icon-knowledge-message Font16 mLeft5 Gray_9e" />
+              </Tooltip>
             </div>
             {!!data.filters.length ? (
               <TriggerCondition
@@ -875,7 +878,7 @@ export default class Formula extends Component {
                   return {
                     text: (
                       <Fragment>
-                        <span className="Gray_75 mRight5">[{CONTROLS_NAME[o.type]}]</span>
+                        <span className="Gray_75 mRight5">[{getControlTypeName(o)}]</span>
                         <span>{o.controlName}</span>
                       </Fragment>
                     ),

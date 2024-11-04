@@ -1,10 +1,11 @@
 import './css/editFolder.less';
 import doT from 'dot';
 import editFolderTpl from './tpl/editFolder.html';
-import 'src/components/selectGroup/selectAllGroup';
 import ajaxRequest from 'src/api/taskCenter';
 import { Dialog, Button } from 'ming-ui';
 import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
 
 const EditFolder = function (opts) {
   const defaults = {
@@ -14,6 +15,7 @@ const EditFolder = function (opts) {
     callback: null,
     projectId: null,
     projectName: '',
+    scope: undefined,
   };
 
   this.settings = $.extend(defaults, opts);
@@ -69,19 +71,20 @@ $.extend(EditFolder.prototype, {
       group = settings.selectGroup.split(',');
     }
 
-    $('#privateRange').SelectGroup({
-      defaultValue: {
-        project,
-        group,
-      },
-      defaultIsNone: false,
-      isShowSelectProject: false,
-      autoPosition: true,
-      projectId: settings.projectId,
-      isMe: false,
-      everyoneOnly: true,
-      createGroupInProject: true,
-    });
+    const defaultValue = { shareProjectIds: project, shareGroupIds: group };
+    settings.scope = defaultValue;
+
+    const root = createRoot(document.getElementById('privateGroupRange'));
+    root.render(
+      <SelectGroupTrigger
+        className="editFolderSelectGroup"
+        defaultValue={defaultValue}
+        projectId={settings.projectId}
+        isMe={false}
+        everyoneOnly={true}
+        onChange={this.handleChangeGroup.bind(this)}
+      />,
+    );
 
     // 公开项目
     if (settings.visibility !== 0) {
@@ -94,12 +97,23 @@ $.extend(EditFolder.prototype, {
     });
   },
 
+  handleChangeGroup(value) {
+    const settings = this.settings;
+
+    settings.scope =
+      !(value.shareGroupIds || []).length &&
+      !(value.shareProjectIds || []).length &&
+      !(value.radioProjectIds || []).length
+        ? undefined
+        : _.pick(value, ['radioProjectIds', 'shareGroupIds', 'shareProjectIds']);
+  },
+
   // 验证部分数据
   returnCheck() {
     const settings = this.settings;
     let visibility;
     let groupIds = [];
-    const scope = $('#privateRange').SelectGroup('getScope');
+    const scope = settings.scope;
 
     if ($('#privateFolder :radio').prop('checked')) {
       // 私密项目
@@ -139,14 +153,13 @@ $.extend(EditFolder.prototype, {
     // 群组可见
     if (folderObj.visibility === 1) {
       folderObj.groupInfo = [];
-      $('#privateRange')
+      $('.editFolderSelectGroup')
         .next()
-        .find(':checkbox:checked')
-        .closest('.groupItem')
+        .find('.select.item')
         .each(function () {
           folderObj.groupInfo.push({
             groupID: $(this).attr('data-groupid'),
-            groupName: $(this).text(),
+            groupName: $(this).attr('data-name'),
           });
         });
     }

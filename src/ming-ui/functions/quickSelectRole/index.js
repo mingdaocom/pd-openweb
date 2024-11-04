@@ -108,6 +108,7 @@ export function RoleSelect(props) {
   const [expendTreeNodeKey, setExpendTreeNodeKey] = useState([]);
   const [searchList, setSearchList] = useState([]);
   const [selectData, setSelectData] = useState(value);
+
   let promise = null;
   const isShowRole =
     !md.global.Account.isPortal && (md.global.Account.projects || []).some(it => it.projectId === projectId);
@@ -156,8 +157,9 @@ export function RoleSelect(props) {
     fetchData();
   }, [pageIndex]);
 
-  const fetchData = (groups, orgRoleGroupId) => {
+  const fetchData = (groups, orgRoleGroupId, index) => {
     let treeList = _.cloneDeep(groups || treeData);
+    const fetchPageIndex = index || pageIndex;
 
     let isShowRole =
       !md.global.Account.isPortal && (md.global.Account.projects || []).some(it => it.projectId === projectId);
@@ -172,7 +174,7 @@ export function RoleSelect(props) {
     promise = organizeAjax.getOrganizes({
       keywords,
       projectId,
-      pageIndex,
+      pageIndex: fetchPageIndex,
       pageSize: keywords ? 50 : 500,
       appointedOrganizeIds,
       orgRoleGroupId,
@@ -181,7 +183,7 @@ export function RoleSelect(props) {
       .then(result => {
         setLoading(false);
         if (keywords) {
-          let list = pageIndex === 1 ? result.list : searchList.concat(result.list);
+          let list = fetchPageIndex === 1 ? result.list : searchList.concat(result.list);
           setSearchList(list);
           setIsMore(result.allCount > list.length);
           return;
@@ -196,8 +198,12 @@ export function RoleSelect(props) {
           treeList[0] && setExpendTreeNodeKey([treeList[0].orgRoleGroupId]);
         } else {
           let index = _.findIndex(treeList, l => l.orgRoleGroupId === orgRoleGroupId);
-          treeList[index].children = result.list;
+          let list =
+            fetchPageIndex === 1 ? result.list : _.unionBy(treeList[index].children, result.list, 'organizeId');
+          treeList[index].children = list;
           treeList[index].fetched = true;
+          treeList[index].hasMore = result.allCount > list.length;
+          treeList[index].pageIndex = fetchPageIndex;
         }
         setTreeData(treeList);
       })
@@ -338,6 +344,14 @@ export function RoleSelect(props) {
             </div>
           )}
           {renderChildren(groupItem)}
+          {groupItem.hasMore && (
+            <div
+              className="roleItem Hand valignWrapper ThemeColor"
+              onClick={() => fetchData(undefined, groupItem.orgRoleGroupId, groupItem.pageIndex + 1)}
+            >
+              <span className={cx({ mLeft16: list.length > 1 })}>{_l('加载更多')}</span>
+            </div>
+          )}
         </Fragment>
       );
     });
@@ -347,7 +361,14 @@ export function RoleSelect(props) {
     <RoleSelectWrap ref={conRef} className="selectRoleDialog">
       <div className="searchRoleWrap valignWrapper">
         <Icon icon="search" className="searchIcon Gray_9e mRight8 Font18" />
-        <input type="text" className="flex" ref={inputRef} value={keywords} placeholder={_l('搜索')} onChange={handleSearch} />
+        <input
+          type="text"
+          className="flex"
+          ref={inputRef}
+          value={keywords}
+          placeholder={_l('搜索')}
+          onChange={handleSearch}
+        />
         {keywords && (
           <Icon icon="closeelement-bg-circle" className="Font16 mLeft4 Gray_9e" onClick={() => setKeywords('')} />
         )}

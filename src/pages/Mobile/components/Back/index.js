@@ -45,6 +45,6 @@ export default class Back extends Component {
     );
   }
   render() {
-    return window.isWxWork || window.isMingDaoApp ? null : this.renderContent();
+    return (window.isWxWork && !this.props.filterWxWork) || window.isMingDaoApp ? null : this.renderContent();
   }
 }

@@ -267,6 +267,21 @@
       }
     }
 
+    .optionDisabled.ant-select-disabled {
+      cursor: text;
+      .ant-select-selector {
+        pointer-events: none;
+        .ant-select-selection-item {
+          cursor: text !important;
+          user-select: all !important;
+        }
+      }
+    }
+    .scaleContent .scaleText {
+      cursor: text !important;
+      user-select: all !important;
+    }
+
     .RefreshBtn {
       position: absolute;
       right: 0;
@@ -513,6 +528,26 @@
         box-shadow: none !important;
       }
 
+      &.readOnlyDisabled {
+        .Checkbox--disabled,
+        .Radio--disabled {
+          cursor: pointer !important;
+          &.checked {
+            .Radio-box {
+              border-color: #1e88e5 !important;
+              opacity: 0.7;
+            }
+            .Radio-box-round {
+              background-color: #1e88e5 !important;
+            }
+          }
+          .Checkbox-box,
+          .Radio-box {
+            display: inline-block !important;
+          }
+        }
+      }
+
       &.controlDisabled {
         background: transparent !important;
         border-color: transparent !important;
@@ -523,6 +558,10 @@
         }
         .mdEditorContent {
           max-height: inherit !important;
+        }
+        .Radio--disabled,
+        .Checkbox--disabled {
+          cursor: unset !important;
         }
       }
 
@@ -1005,55 +1044,6 @@
       justify-content: center;
     }
 
-    .customFormControlTags {
-      height: 26px;
-      border-radius: 26px;
-      background: #f7f7f7;
-      display: inline-flex;
-      align-items: center;
-      margin: 4px 8px 4px 0;
-      padding-right: 10px;
-      vertical-align: top;
-      position: relative;
-      max-width: 100%;
-      .departWrap {
-        width: 26px;
-        height: 26px;
-        color: #fff;
-        border-radius: 13px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-      &:hover,
-      &.selected {
-        .tagDel {
-          opacity: 1;
-        }
-      }
-      &.isDelete {
-        .departWrap {
-          background-color: #9e9e9e !important;
-        }
-        & > span {
-          color: #757575;
-        }
-      }
-      .tagDel {
-        cursor: pointer;
-        color: #9e9e9e;
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        opacity: 0;
-        transition: all 0.2s ease-out;
-        &:hover {
-          color: #757575;
-        }
-      }
-    }
-
     .dropdownTitle {
       height: 24px;
       line-height: 24px;
@@ -1200,6 +1190,10 @@
 .showRadioTxtAll {
   height: auto !important;
   white-space: pre-wrap;
+}
+
+.borderRadiusNone {
+  border-radius: 0 !important;
 }
 
 .ant-cascader-menus {
@@ -1390,5 +1384,54 @@ input.customFormControlBox:disabled {
     border-color: #2196f3 !important;
     background: #fff !important;
     box-shadow: none !important;
+  }
+}
+
+.customFormControlTags {
+  height: 26px;
+  border-radius: 26px;
+  background: #f7f7f7 !important;
+  display: inline-flex;
+  align-items: center;
+  margin: 4px 8px 4px 0;
+  padding-right: 10px;
+  vertical-align: top;
+  position: relative;
+  max-width: 100%;
+  .departWrap {
+    width: 26px;
+    height: 26px;
+    color: #fff;
+    border-radius: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  &:hover,
+  &.selected {
+    .tagDel {
+      opacity: 1;
+    }
+  }
+  &.isDelete {
+    .departWrap {
+      background-color: #9e9e9e !important;
+    }
+    & > span {
+      color: #757575;
+    }
+  }
+  .tagDel {
+    cursor: pointer;
+    color: #9e9e9e;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    opacity: 0;
+    transition: all 0.2s ease-out;
+    &:hover {
+      color: #757575;
+    }
   }
 }

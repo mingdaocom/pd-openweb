@@ -4,12 +4,13 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Toast } from 'antd-mobile';
 import Amap from 'ming-ui/components/amap/Amap';
+import { Gmap } from 'ming-ui/components/amap/components/GoogleMap';
 import MDMap from 'ming-ui/components/amap/MDMap';
 import MapLoader from 'ming-ui/components/amap/MapLoader';
 import MapHandler from 'ming-ui/components/amap/MapHandler';
 import { wgs84togcj02 } from 'worksheet/util-purejs';
 import { FROM } from '../../tools/config';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, toFixed } from 'src/util';
 import { CardButton } from 'src/pages/worksheet/components/Basics.jsx';
 import {
   bindWeiXin,
@@ -68,7 +69,9 @@ const LocationWrap = styled.div`
 const { IsLocal } = md.global.Config;
 const isWx = window.isWeiXin && !IsLocal && !window.isWxWork;
 const isMobile = browserIsMobile();
-const isApp = (window.isWxWork || isWx || window.isWeLink || window.isDingTalk || window.isFeiShu || window.isMingDaoApp) && isMobile;
+const isApp =
+  (window.isWxWork || isWx || window.isWeLink || window.isDingTalk || window.isFeiShu || window.isMingDaoApp) &&
+  isMobile;
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -141,13 +144,12 @@ export default class Widgets extends Component {
       return;
     }
   };
-  
 
   handleDingSelectLocation = () => {
     const { onChange } = this.props;
     Toast.show({
       icon: 'loading',
-      content: _l('正在获取取经纬度，请稍后')
+      content: _l('正在获取取经纬度，请稍后'),
     });
     window.dd.device.geolocation.get({
       targetAccuracy: 200,
@@ -170,7 +172,7 @@ export default class Widgets extends Component {
     const { onChange } = this.props;
     Toast.show({
       icon: 'loading',
-      content: _l('正在获取取经纬度，请稍后')
+      content: _l('正在获取取经纬度，请稍后'),
     });
     window.HWH5.getLocation({
       type: 0,
@@ -194,7 +196,7 @@ export default class Widgets extends Component {
       // 获取经纬度
       Toast.show({
         icon: 'loading',
-        content: _l('正在获取取经纬度，请稍后')
+        content: _l('正在获取取经纬度，请稍后'),
       });
       window.tt.getLocation({
         type: 'gcj02',
@@ -239,40 +241,40 @@ export default class Widgets extends Component {
     if ((typeof strDefault === 'string' ? strDefault : '00')[0] === '1') {
       Toast.show({
         icon: 'loading',
-        content: _l('正在获取取经纬度，请稍后')
+        content: _l('正在获取取经纬度，请稍后'),
       });
       window.MDJS.getLocation({
-        success: (res) => {
+        success: res => {
           const { longitude, latitude, address, title } = res;
           onChange(JSON.stringify({ x: longitude, y: latitude, address, title, coordinate: 'wgs84' }));
           Toast.clear();
         },
-        cancel: (res) => {
+        cancel: res => {
           const { errMsg } = res;
           if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
             window.nativeAlert(JSON.stringify(res));
           }
           Toast.clear();
-        }
+        },
       });
     } else {
       window.MDJS.chooseLocation({
         control,
-        success: (res) => {
+        success: res => {
           const { longitude, latitude, coordinate, address, title } = res;
           onChange(JSON.stringify({ x: longitude, y: latitude, address, title, coordinate }));
         },
-        cancel: (res) => {
+        cancel: res => {
           const { errMsg } = res;
           if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
             window.nativeAlert(JSON.stringify(res));
           }
-        }
+        },
       });
     }
-  }
+  };
 
-  handleMDAppOpenLocation = (location) => {
+  handleMDAppOpenLocation = location => {
     window.MDJS.openLocation({
       type: location.coordinate,
       longitude: location.x,
@@ -280,13 +282,13 @@ export default class Widgets extends Component {
       name: location.title,
       address: location.address,
     });
-  }
+  };
 
   handleWxSelectLocation = () => {
     const { onChange } = this.props;
     Toast.show({
       icon: 'loading',
-      content: _l('正在获取取经纬度，请稍后')
+      content: _l('正在获取取经纬度，请稍后'),
     });
     window.wx.getLocation({
       type: 'wgs84',
@@ -306,7 +308,7 @@ export default class Widgets extends Component {
     const { onChange } = this.props;
     Toast.show({
       icon: 'loading',
-      content: _l('正在获取取经纬度，请稍后')
+      content: _l('正在获取取经纬度，请稍后'),
     });
     new MapLoader().loadJs().then(() => {
       new MapHandler().getCurrentPos((status, res) => {
@@ -337,6 +339,8 @@ export default class Widgets extends Component {
     const onlyCanAppUse = (typeof strDefault === 'string' ? strDefault : '00')[0] === '1';
     let location = null;
 
+    const isGoogle = !!md.global.Account.map;
+
     if (value) {
       try {
         location = JSON.parse(value);
@@ -345,7 +349,12 @@ export default class Widgets extends Component {
       }
     }
     let locationForShow = location || {};
-    if ((locationForShow.coordinate || '').toLowerCase() === 'wgs84' && locationForShow.x && locationForShow.y) {
+    if (
+      (locationForShow.coordinate || '').toLowerCase() === 'wgs84' &&
+      locationForShow.x &&
+      locationForShow.y &&
+      !md.global.Account.map
+    ) {
       const coordinate = wgs84togcj02(location.x, location.y);
       locationForShow.x = coordinate[0];
       locationForShow.y = coordinate[1];
@@ -407,6 +416,12 @@ export default class Widgets extends Component {
               if (window.isMingDaoApp) {
                 this.handleMDAppOpenLocation(location);
               } else if (!isMobile || disabled) {
+                if (isGoogle) {
+                  window.open(
+                    `https://www.google.com/maps?q=${location.y},${location.x}&ll=${location.y},${location.x}&z=15`,
+                  );
+                  return;
+                }
                 window.open(`https://uri.amap.com/marker?position=${location.x},${location.y}`);
               } else {
                 if (isApp) {
@@ -421,6 +436,7 @@ export default class Widgets extends Component {
               {!disabled && (
                 <div className="deleteIcon Absolute">
                   <CardButton
+                    className="red"
                     onClick={evt => {
                       evt.stopPropagation();
                       onChange('');
@@ -433,21 +449,21 @@ export default class Widgets extends Component {
 
               <div className="flexRow">
                 <div className="flex">
-                  <div className="title">{location.title || _l('位置')}</div>
-                  <div className="address">{location.address}</div>
+                  <div className="title breakAll">{location.title || _l('位置')}</div>
+                  <div className="address breakAll">{location.address}</div>
                   {(advancedSetting.showxy === '1' || (!location.title && !location.address)) && (
                     <div className="xy">
-                      <span>{_l('经度：%0', location.x)}</span>
-                      <span className="mLeft10">{_l('纬度：%0', location.y)}</span>
+                      <span>{_l('经度：%0', toFixed(location.x, 6))}</span>
+                      <span className="mLeft10">{_l('纬度：%0', toFixed(location.y, 6))}</span>
                     </div>
                   )}
                 </div>
                 {!disabled && !isMobile && !onlyCanAppUse && (
                   <div className="locationIcon">
-                    <span data-tip={_l('重新定位')}>
+                    <span data-tip={_l('编辑定位')}>
                       <Icon
-                        icon="location"
-                        className="Font20 Gray_9e ThemeHoverColor3 pointer"
+                        icon="Reposition-01"
+                        className="Gray_9e ThemeHoverColor3 pointer Font30"
                         onClick={evt => {
                           evt.stopPropagation();
                           if (isApp) {
@@ -463,20 +479,33 @@ export default class Widgets extends Component {
               </div>
 
               {!!enumDefault && (
-                <div className="mapWrap relative">
-                  <div
-                    className="Absolute"
-                    style={{ top: 0, right: 0, bottom: 0, left: 0, background: 'transparent', zIndex: 1 }}
-                  />
-                  <Amap
-                    mapSearch={false}
-                    mapStyle={{ minHeight: '110px', minWidth: 'auto' }}
-                    defaultAddress={{
-                      lng: locationForShow.x,
-                      lat: locationForShow.y,
-                    }}
-                  />
-                </div>
+                <Fragment>
+                  {isGoogle ? (
+                    <div className="mapWrap relative">
+                      <Gmap
+                        lat={locationForShow.y}
+                        lng={locationForShow.x}
+                        disabled={true}
+                        mapContainerStyle={{ width: '100%', minHeight: '110px' }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="mapWrap relative">
+                      <div
+                        className="Absolute"
+                        style={{ top: 0, right: 0, bottom: 0, left: 0, background: 'transparent', zIndex: 1 }}
+                      />
+                      <Amap
+                        mapSearch={false}
+                        mapStyle={{ minHeight: '110px', minWidth: 'auto' }}
+                        defaultAddress={{
+                          lng: locationForShow.x,
+                          lat: locationForShow.y,
+                        }}
+                      />
+                    </div>
+                  )}
+                </Fragment>
               )}
             </div>
           </LocationWrap>
@@ -485,10 +514,11 @@ export default class Widgets extends Component {
         {visible && (
           <MDMap
             isMobile={isMobile}
+            allowCustom={advancedSetting.allowcustom === '1'}
             distance={!!enumDefault2 ? parseInt(advancedSetting.distance) : 0}
             defaultAddress={location || null}
             onAddressChange={({ lng, lat, address, name }) => {
-              onChange(JSON.stringify({ x: lng, y: lat, address, title: name }));
+              onChange(JSON.stringify({ x: lng, y: lat, address, title: name, coordinate: isGoogle ? 'wgs84' : null }));
               this.setState({ visible: false });
             }}
             onClose={() => {

@@ -191,6 +191,18 @@ export default ({
                     />
                   );
                 }
+                if (type === 'location') {
+                  return (
+                    <OtherField
+                      className="timeField"
+                      dynamicValue={dynamicValue}
+                      data={data}
+                      item={item}
+                      text={_l('自定义')}
+                      {...rest}
+                    />
+                  );
+                }
                 if (_.includes(['cascader', 'relateSheet'], type)) {
                   const parsedValue = parseValue(value);
                   const removeValue = item.staticValue;

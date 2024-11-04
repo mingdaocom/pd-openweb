@@ -91,7 +91,7 @@ export default class FillWorksheet extends React.Component {
     this.customwidget.current.submitFormData();
   };
 
-  onSave = (error, { data, updateControlIds, handleRuleError }) => {
+  onSave = (error, { data, updateControlIds, handleRuleError, handleServiceError }) => {
     if (this.issubmitting) {
       return;
     }
@@ -142,9 +142,8 @@ export default class FillWorksheet extends React.Component {
           setSubListUniqueError: badData => {
             this.customwidget.current.dataFormat.callStore('setUniqueError', { badData });
           },
-          setRuleError: badData => {
-            handleRuleError(badData, this.cellObjs);
-          },
+          setRuleError: badData => handleRuleError(badData),
+          setServiceError: badData => handleServiceError(badData),
           params,
         },
         (err, res) => {

@@ -24,8 +24,6 @@ const renderItem = newVal => {
     iconContent = <div className="rangeIcon"></div>;
   } else if (newVal === '2') {
     iconContent = <Icon icon="sidebar_video_tutorial" className="headerArrowIcon Font20" />;
-  } else {
-    iconContent = <Icon icon="star" className="starIcon Font20" />;
   }
 
   return (

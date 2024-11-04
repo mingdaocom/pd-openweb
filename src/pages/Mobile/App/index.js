@@ -282,7 +282,9 @@ class App extends Component {
                         fill={detail.iconColor}
                         size={detail.gridDisplayMode === 1 && screenWidth <= 600 ? 26 : 30}
                       />
-                      <div className="name Gray">{getTranslateInfo(detail.id, null, v.workSheetId).name || v.workSheetName}</div>
+                      <div className="name Gray">
+                        {getTranslateInfo(detail.id, null, v.workSheetId).name || v.workSheetName}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -334,6 +336,7 @@ class App extends Component {
       return (
         <PortalUserSet
           appId={params.appId}
+          worksheetId={params.worksheetId}
           isMobile={true}
           name={appName}
           iconUrl={detail.iconUrl}
@@ -696,14 +699,16 @@ class App extends Component {
               <TabBar.Item
                 title={getTranslateInfo(detail.id, null, item.workSheetId).name || item.workSheetName}
                 key={item.workSheetId}
-                icon={<SvgIcon url={item.iconUrl} fill={selectedTab === item.workSheetId ? detail.iconColor : '#757575'} size={20} />}
+                icon={
+                  <SvgIcon
+                    url={item.iconUrl}
+                    fill={selectedTab === item.workSheetId ? detail.iconColor : '#757575'}
+                    size={20}
+                  />
+                }
               />
             ))}
-            <TabBar.Item
-              title={_l('更多')}
-              key="more"
-              icon={<Icon className="Font20" icon="menu" />}
-            />
+            <TabBar.Item title={_l('更多')} key="more" icon={<Icon className="Font20" icon="menu" />} />
           </TabBar>
         )}
         {<DebugInfo appId={detail.id} debugRoles={debugRoles} />}
@@ -717,7 +722,7 @@ class App extends Component {
     if (isAppLoading) {
       return (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">
-          <SpinLoading color='primary' />
+          <SpinLoading color="primary" />
         </div>
       );
     }

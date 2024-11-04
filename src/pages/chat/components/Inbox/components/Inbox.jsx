@@ -39,8 +39,7 @@ export default class Inbox extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (
       nextProps.inboxType !== this.props.inboxType ||
-      nextProps.count !== this.props.count ||
-      nextProps.weak_count !== this.props.weak_count
+      nextProps.count !== this.props.count
     ) {
       this.setState({
         filter: null,
@@ -94,7 +93,7 @@ export default class Inbox extends React.Component {
 
   renderList() {
     const { type, inboxFavorite, filter, updateNow } = this.state;
-    const { clearUnread, inboxType, count, weak_count } = this.props;
+    const { clearUnread, inboxType, count, weak_count, requestNow } = this.props;
     return (
       <InboxList
         {...{
@@ -105,7 +104,8 @@ export default class Inbox extends React.Component {
           count,
           weak_count: ['calendar'].includes(inboxType) ? weak_count : undefined,
           filter,
-          updateNow
+          updateNow,
+          requestNow
         }}
       />
     );

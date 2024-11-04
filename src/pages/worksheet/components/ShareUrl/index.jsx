@@ -203,6 +203,23 @@ export default class ShareUrl extends React.Component {
           </Icon>
         </Tooltip>
       );
+    const renderCopy = () => {
+      const renderCopyDom = () => {
+        return (
+          <SeparateDisplayButton theme={theme} onClick={() => this.handleCopy(url)} style={showCompletely.style}>
+            <i className="icon-content-copy" style={showCompletely.iconStyle}></i>
+            <span className="text">{_l('复制')}</span>
+          </SeparateDisplayButton>
+        );
+      };
+      return !copyTip ? (
+        renderCopyDom()
+      ) : (
+        <Tooltip popupPlacement="bottom" text={<span>{copyTip}</span>}>
+          {renderCopyDom()}
+        </Tooltip>
+      );
+    };
     return (
       <Fragment>
         <div className={`flexRow ${className}`} style={style}>
@@ -262,10 +279,7 @@ export default class ShareUrl extends React.Component {
           <div className="flexRow">
             {customBtns.map(renderButtons)}
             {showCompletely.copy ? (
-              <SeparateDisplayButton theme={theme} onClick={() => this.handleCopy(url)}>
-                <i className="icon-content-copy"></i>
-                <span className="text">{_l('复制')}</span>
-              </SeparateDisplayButton>
+              renderCopy()
             ) : copyShowText ? (
               !copyTip ? (
                 <TextIcon theme={theme} className="copy" onClick={() => this.handleCopy(url)}>
@@ -310,8 +324,8 @@ export default class ShareUrl extends React.Component {
                 }
               >
                 {showCompletely.qr ? (
-                  <SeparateDisplayButton theme={theme}>
-                    <i className="icon-qr_code Font22 LineHeight36"></i>
+                  <SeparateDisplayButton theme={theme} style={showCompletely.style}>
+                    <i className="icon-qr_code Font22 LineHeight36" style={showCompletely.iconStyle}></i>
                     <span className="text">{_l('二维码')}</span>
                   </SeparateDisplayButton>
                 ) : (

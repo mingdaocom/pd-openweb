@@ -9,6 +9,7 @@ import { getOrderStatusInfo } from '../Merchant/config';
 import { formatDate } from '../util';
 import PayErrorIcon from '../components/PayErrorIcon';
 import { formatNumberThousand } from 'src/util';
+import webCacheAjax from 'src/api/webCache';
 
 const DialogWrap = styled(Dialog)`
   text-align: center !important;
@@ -226,6 +227,16 @@ export default class PrePayOrder extends Component {
             );
           } else if (browserIsMobile()) {
             this.setState({ payLoading: false });
+            // 微信环境下保存当前url用于商家小票返回商家
+            if (window.isWeiXin) {
+              webCacheAjax.add({
+                key: `${res.orderId}`,
+                value:
+                  paymentModule !== 3 || (paymentModule === 3 && !location.pathname.includes('portal'))
+                    ? location.origin
+                    : `${location.origin}/portal`,
+              });
+            }
             location.href = `${md.global.Config.WebUrl}orderpay/${res.orderId}`;
           } else {
             this.setState({ orderId: res.orderId, payLoading: false }, () => this.getData());

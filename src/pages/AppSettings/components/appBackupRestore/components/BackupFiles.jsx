@@ -8,7 +8,7 @@ import EditInput from './EditInput.jsx';
 import HomeApiController from 'api/homeApp';
 import appManagementAjax from 'src/api/appManagement';
 import styled from 'styled-components';
-import { downloadFile, getCurrentProject, getFeatureStatus } from 'src/util';
+import { downloadFile, getCurrentProject, getFeatureStatus, dateConvertToUserZone } from 'src/util';
 import _ from 'lodash';
 import cx from 'classnames';
 import moment from 'moment';
@@ -361,7 +361,7 @@ export default function BackupFiles(props) {
                       />
                     </div>
                     <div className="backupType">{containData ? _l('应用、数据') : _l('应用')}</div>
-                    <div className="backupTime">{moment(operationDateTime).format('YYYY-MM-DD HH:mm:ss')}</div>
+                    <div className="backupTime">{createTimeSpan(dateConvertToUserZone(operationDateTime))}</div>
                     <div className="size">{containData ? size : '-'}</div>
                     <div className="operator ellipsis">{operator.fullname}</div>
                     <div
@@ -392,7 +392,7 @@ export default function BackupFiles(props) {
                                 <Support
                                   text={_l('了解更多')}
                                   type={3}
-                                  href={`/upgrade/choose?projectId=${projectId}&goToPost=true&select=3`}
+                                  href={`/upgrade/choose?projectId=${projectId}&select=3`}
                                 />
                               </span>
                             ) : (
@@ -401,7 +401,7 @@ export default function BackupFiles(props) {
                                 <Support
                                   text={_l('了解更多')}
                                   type={3}
-                                  href={`/upgrade/choose?projectId=${projectId}&goToPost=true&select=3`}
+                                  href={`/upgrade/choose?projectId=${projectId}&select=3`}
                                 />
                               </span>
                             )

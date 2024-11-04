@@ -3,6 +3,7 @@ import './CreateCustomBtn.less';
 import { Drawer } from 'antd';
 import cx from 'classnames';
 import { Icon, Checkbox, Tooltip, RadioGroup, ColorPicker, SvgIcon } from 'ming-ui';
+import { getButtonColor } from 'worksheet/util';
 import AppointDialog from './components/AppointDialog';
 import ShowBtnFilterDialog from './components/ShowBtnFilterDialog';
 import sheetAjax from 'src/api/worksheet';
@@ -87,6 +88,7 @@ class CreateCustomBtnCon extends React.Component {
       ...advancedSetting,
       remarkrequired: isEdit ? advancedSetting.remarkrequired : '1',
       remarkname: advancedSetting.remarkname || _l('操作原因'),
+      tiptext: advancedSetting.tiptext || _l('操作完成'),
     };
     let doubleConfirm = {
       confirmMsg: btnDataInfo.confirmMsg || _l('你确认执行此操作吗？'),
@@ -296,7 +298,49 @@ class CreateCustomBtnCon extends React.Component {
     } = this.state;
     const dataControls = relationControl !== '' ? relationControls : widgetList;
     const isFillOutNull = writeObject !== 1 && !relationControl && writeType !== 1 && !addRelationControlId;
-
+    const renderTips = () => {
+      return (
+        <div>
+          <Checkbox
+            className="checkBox InlineBlock"
+            text={_l('流程执行完成后提示')}
+            checked={_.get(this.state.advancedSetting, 'opentip') !== '0'}
+            onClick={() => {
+              this.setState({
+                advancedSetting: {
+                  ...this.state.advancedSetting,
+                  opentip: _.get(this.state.advancedSetting, 'opentip') !== '0' ? '0' : '1',
+                },
+              });
+            }}
+          />
+          {_.get(this.state.advancedSetting, 'opentip') !== '0' && (
+            <input
+              className={cx('w100 nameInput')}
+              maxLength={50}
+              value={_.get(this.state.advancedSetting, 'tiptext')}
+              onChange={e => {
+                this.setState({
+                  advancedSetting: {
+                    ...this.state.advancedSetting,
+                    tiptext: e.target.value,
+                  },
+                });
+              }}
+              onBlur={e => {
+                const value = _.trim(e.target.value);
+                this.setState({
+                  advancedSetting: {
+                    ...this.state.advancedSetting,
+                    tiptext: value ? value : _l('操作完成'),
+                  },
+                });
+              }}
+            />
+          )}
+        </div>
+      );
+    };
     return (
       <div className="createBtnBox mTop25">
         <h5 className="Gray">{_l('按钮名称')}</h5>
@@ -372,7 +416,12 @@ class CreateCustomBtnCon extends React.Component {
           }}
           checkedValue={clickType}
         />
-        {clickType === 1 && this.renderFlowText()}
+        {clickType === 1 && (
+          <React.Fragment>
+            {this.renderFlowText()}
+            <div className="mTop5">{renderTips()}</div>
+          </React.Fragment>
+        )}
         {clickType === 3 && writeObject !== '' && writeType !== '' && !isFillOutNull && (
           <div className="filterTextCon">
             <div className="txtFilter">
@@ -532,6 +581,22 @@ class CreateCustomBtnCon extends React.Component {
               }}
             />
             {this.renderFlowText()}
+            {workflowType === 1 && renderTips()}
+            {workflowType === 1 && writeObject === 1 && writeType === 1 && (
+              <Checkbox
+                className="checkBox InlineBlock"
+                text={_l('执行完成后继续填写')}
+                checked={_.get(this.state.advancedSetting, 'continuewrite') === '1'}
+                onClick={() => {
+                  this.setState({
+                    advancedSetting: {
+                      ...this.state.advancedSetting,
+                      continuewrite: _.get(this.state.advancedSetting, 'continuewrite') === '1' ? '' : '1',
+                    },
+                  });
+                }}
+              />
+            )}
           </React.Fragment>
         )}
         <div className="line"></div>
@@ -580,7 +645,7 @@ class CreateCustomBtnCon extends React.Component {
   };
 
   renderColors = () => {
-    const { color = 'transparent' } = this.state;
+    const { color = '' } = this.state;
     const isColorTransparent = color => {
       return color.length === 9 && color.slice(-2) === '00';
     };
@@ -601,10 +666,11 @@ class CreateCustomBtnCon extends React.Component {
         >
           <div className="conBox flexRow alignItemsCenter Hand mTop10">
             <div
-              className={cx('colorCon flex TxtCenter TxtMiddle Font18', {
-                Gray: color === 'transparent' || isColorTransparent(color),
-              })}
-              style={{ backgroundColor: color }}
+              className={cx('colorCon flex TxtCenter TxtMiddle Font18')}
+              style={{
+                backgroundColor: color,
+                color: color === 'transparent' || isColorTransparent(color) ? '#333' : getButtonColor(color).color,
+              }}
             >
               A
             </div>
@@ -847,8 +913,8 @@ class CreateCustomBtnCon extends React.Component {
               ? _l('添加按钮...')
               : _l('保存...')
             : !this.state.isEdit
-            ? _l('添加按钮')
-            : _l('保存')}
+              ? _l('添加按钮')
+              : _l('保存')}
         </span>
         <span
           className="cacleBtn"
@@ -1001,7 +1067,7 @@ class CreateCustomBtn extends React.Component {
     );
   };
   render() {
-    const { zIndex, onClose, isClickAway } = this.props;
+    const { zIndex, onClose, isClickAway, btnI = '' } = this.props;
     return (
       <Drawer
         width={640}
@@ -1021,6 +1087,7 @@ class CreateCustomBtn extends React.Component {
             {this.renderTitle()}
             <CreateCustomBtnCon
               {...this.props}
+              key={`${btnI}_btn`}
               onChangeEditStatus={isEdit => {
                 this.setState({
                   isEdit,

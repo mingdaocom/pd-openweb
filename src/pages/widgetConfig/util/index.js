@@ -271,7 +271,7 @@ export const formatViewToDropdown = views => views.map(({ viewId, name }) => ({ 
 
 export const formatAppsToDropdown = (apps, currentAppId) =>
   apps.map(({ appId, appName }) => ({
-    text: appId === currentAppId ? `${appName}（ 本应用 ）` : `${appName}`,
+    text: appId === currentAppId ? `${appName}（ ${_l('本应用')} ）` : `${appName}`,
     value: appId,
   }));
 
@@ -555,11 +555,9 @@ export const supportSettingCollapse = (props, key) => {
       return _.includes(HAVE_TABLE_STYLE_WIDGET, type) || isSheetDisplay(data);
     case 'highsetting':
       switch (type) {
-        case 10:
-          return !(dataSource && advancedSetting.checktype !== '1');
         case 9:
         case 11:
-          return !(dataSource && _.includes(['1', '2'], advancedSetting.showtype));
+          return dataSource ? advancedSetting.showtype !== '2' : true;
         case 30:
           return strDefault.split('')[0] === '0';
         case 34:

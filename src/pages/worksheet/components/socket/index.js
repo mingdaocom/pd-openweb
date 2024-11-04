@@ -1,4 +1,4 @@
-import { emitter } from 'worksheet/util';
+import { emitter, equalToLocalPushUniqueId, getDataFromLocalPushUniqueId } from 'worksheet/util';
 import { mdNotification } from 'ming-ui/functions';
 import './index.less';
 import workflowHistory from './workflowHistory';
@@ -52,17 +52,30 @@ export default function initWorksheetSocket() {
 
   if (!socket) return;
   socket.on('workflow', data => {
-    const { pushUniqueId, status, type, worksheetId, rowId, storeId, total, finished, title, executeType, close } =
-      data;
+    const {
+      pushUniqueId,
+      status,
+      type,
+      worksheetId,
+      rowId = '',
+      storeId,
+      total,
+      finished,
+      title,
+      executeType,
+      close,
+    } = data;
 
-    if (pushUniqueId && pushUniqueId !== md.global.Config.pushUniqueId) {
+    const recordId = rowId.indexOf('_') > 0 ? (rowId.match(/(.+?)_/) || '')[1] : rowId;
+
+    if (!equalToLocalPushUniqueId(pushUniqueId)) {
       return;
     }
 
     if (status === 2 || ((type === 4 || type === 3) && status === 1)) {
       emitter.emit('RELOAD_RECORD_INFO', {
         worksheetId,
-        recordId: rowId.indexOf('_') > 0 ? (rowId.match(/(.+?)_/) || '')[1] : rowId,
+        recordId,
         closeWhenNotViewData: true,
       });
     }
@@ -102,13 +115,27 @@ export default function initWorksheetSocket() {
       });
     } else {
       const { id, promptType } = STATUS[status];
-      const description = getSingleNoticeDescription(data);
+      let description = getSingleNoticeDescription(data);
       const isOperate = _.includes([3, 4], data.type);
-
+      const triggerData = getDataFromLocalPushUniqueId();
+      const { enableTip, tipText } = triggerData;
+      emitter.emit('RECORD_WORKFLOW_UPDATE', {
+        worksheetId,
+        recordId,
+        status,
+        isSuccess: status === 2,
+        ...triggerData,
+      });
+      if (status === 2 && enableTip === false) {
+        return;
+      }
+      if (status === 2 && enableTip && tipText) {
+        description = tipText;
+      }
       alert({
         msg: description,
         type: isOperate ? 4 : promptType,
-        timeout: (id === 'pending' && !isOperate ? 10 : 3) * 1000,
+        timeout: 1000,
         key: 'workflow',
       });
     }

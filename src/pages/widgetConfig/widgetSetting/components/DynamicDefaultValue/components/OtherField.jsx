@@ -16,6 +16,7 @@ import {
   DYNAMIC_FROM_MODE,
   CUR_EMPTY_TYPES,
   CUSTOM_PHP_TYPES,
+  CUR_LOCATION_TYPES,
 } from '../config';
 import _ from 'lodash';
 import { SYS_CONTROLS } from 'src/pages/widgetConfig/config/widget';
@@ -30,7 +31,6 @@ export default function OtherField(props) {
     className,
     globalSheetInfo,
     globalSheetControls = [],
-    needFilter,
     from,
   } = props;
   const { worksheetId } = globalSheetInfo;
@@ -49,6 +49,7 @@ export default function OtherField(props) {
     if (fieldId === 'ocr-file-url') return CUR_OCR_URL_TYPES[0].text;
     if (fieldId === 'empty') return CUR_EMPTY_TYPES[0].text;
     if (fieldId === 'current-time') return WATER_MASK_TYPES[1].text;
+    if (fieldId === 'current-location') return CUR_LOCATION_TYPES[0].text;
     if (_.includes(['codeResult', 'triggerTime', 'triggerUser', 'triggerDepartment', 'triggerOrg'], fieldId)) {
       return _.get(
         _.find(_.flatten(Object.values(CUSTOM_PHP_TYPES)), i => i.id === fieldId),
@@ -95,14 +96,14 @@ export default function OtherField(props) {
   };
   const getFieldNameById = (item, controls) => {
     const { cid, rcid } = item;
-    const filterControls = getControls({ data, controls, isCurrent: true, needFilter });
+    const filterControls = getControls({ data, controls, isCurrent: true, from });
     if (rcid) {
       // 子表控件中 如果是主记录
       if (rcid === worksheetId) {
         return { fieldName: getFieldName(filterControls, cid) };
       }
       const record = _.find(controls, item => item.controlId === rcid);
-      const reFilterControls = getControls({ data, controls: _.get(record, 'relationControls'), needFilter });
+      const reFilterControls = getControls({ data, controls: _.get(record, 'relationControls'), from });
       return {
         recordName: _.get(record, 'controlName'),
         fieldName: getFieldName(reFilterControls, cid),

@@ -119,6 +119,14 @@ export const addOtherParam = (url, param) => {
   }
 }
 
+export const checkOriginUrl = url => {
+  if (url && url.includes('http')) {
+    return url.includes(location.origin);
+  } else {
+    return url;
+  }
+}
+
 export const checkLogin = () => {
   let isLoing = false;
   ajax.post({

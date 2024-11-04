@@ -384,7 +384,10 @@
             nameEditing: options.nameEditing == false? false:true,
             deletion: options.deletion == false? false:true,
             sharing: options.sharing == false? false:true,
-            download: options.sharing == false? false:true,
+            download: options.download == false? false:true,
+            worksheetId: options.worksheetId, // 工作表id
+            rowId: options.rowId, // 记录id
+            controlId: options.controlId, // 字段id
             index: options.index || 0,
             filterRegex:options.filterRegex,
             files: options.files || []
@@ -516,7 +519,3 @@
 
     return MDJS;
 })();
-
-// 更新地址
-// https://sourcecode.mingdao.net/WeeTom/md_js_sdk
-

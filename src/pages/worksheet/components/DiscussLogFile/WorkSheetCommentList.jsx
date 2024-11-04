@@ -95,7 +95,7 @@ export default class WorkSheetCommentList extends Component {
     return (
       <div className="WorkSheetCommentList">
         {(!!discussions.length || isFocus || containAttachment) && (
-          <div className="flexRow alignItemsCenter mBottom8">
+          <div className="flexRow alignItemsCenter mBottom16">
             <div
               className={cx('commentFilterBtn', { isActive: isFocus })}
               onClick={() => this.setState({ isFocus: !isFocus })}

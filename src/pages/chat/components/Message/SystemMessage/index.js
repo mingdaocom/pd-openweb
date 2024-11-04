@@ -28,8 +28,23 @@ export default class SystemMessage extends Component {
       target.classList.contains('invite') && this.invite();
     }
   }
+  handleResetEdit = () => {
+    const { message, session } = this.props;
+    const textarea = $(`#ChatPanel-${session.id}`).find('.ChatPanel-Textarea .Textarea');
+    const currentValue = textarea.val();
+    const onChangeChatValue = window[`onChangeChatValue-${session.id}`] || _.noop;
+    if (currentValue) {
+      onChangeChatValue(`${currentValue} ${message.msg.oldCon}`);
+    } else {
+      onChangeChatValue(message.msg.oldCon);
+    }
+    setTimeout(() => {
+      textarea.focus();
+    }, 0);
+  }
   render() {
-    const { message } = this.props;
+    const { message, session } = this.props;
+    const isFileTransfer = session.id === 'file-transfer';
     return (
       <div className="Message-sysType">
         <div
@@ -56,6 +71,7 @@ export default class SystemMessage extends Component {
             {message.msg.con}
           </div>
         )}
+        {_.get(message.msg, 'oldCon') && message.type === Constant.MSGTYPE_TEXT && !isFileTransfer && <div className="Font13 pointer ThemeColor mLeft8" onClick={this.handleResetEdit}>{_l('重新编辑')}</div>}
       </div>
     );
   }

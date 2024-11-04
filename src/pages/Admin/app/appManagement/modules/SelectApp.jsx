@@ -7,6 +7,8 @@ import { LoadDiv, ScrollView, Checkbox, Tooltip, SvgIcon, SortableList } from 'm
 import cx from 'classnames';
 import _ from 'lodash';
 
+const MAX_EXPORT_NUM = 20;
+
 export default class SelectApp extends React.Component {
   constructor(props) {
     super(props);
@@ -105,8 +107,8 @@ export default class SelectApp extends React.Component {
             <div className="Gray_bd TxtCenter">
               <div>{_l('请从左侧列表选择应用,')}</div>
               <div>
-                {_l('选择的应用工作表总数不能超过')}
-                <span className="Gray">200</span>
+                {_l('选择的应用总数不能超过')}
+                <span className="Gray">{MAX_EXPORT_NUM}</span>
                 {_l('个')}
               </div>
             </div>
@@ -122,7 +124,7 @@ export default class SelectApp extends React.Component {
           <div className="mRight10 svgBox mLeft5" style={{ backgroundColor: item.iconColor }}>
             <SvgIcon url={item.iconUrl} fill="#fff" size={14} />
           </div>
-          <span className="overflow_ellipsis WordBreak">{item.appName}</span>
+          <span className="overflow_ellipsis WordBreak flex">{item.appName}</span>
           <div className="marginLeftAuto">
             <span className="Gray_9e">{item.sheetCount}</span>
             <span
@@ -135,12 +137,14 @@ export default class SelectApp extends React.Component {
     };
 
     return (
-      <SortableList
-        items={selectList}
-        itemKey="appId"
-        renderItem={item => renderSortableItem(item)}
-        onSortEnd={newItems => this.setState({ selectList: newItems })}
-      />
+      <div className="selectBox scrollBox">
+        <SortableList
+          items={selectList}
+          itemKey="appId"
+          renderItem={item => renderSortableItem(item)}
+          onSortEnd={newItems => this.setState({ selectList: newItems })}
+        />
+      </div>
     );
   }
 
@@ -185,15 +189,12 @@ export default class SelectApp extends React.Component {
           <div className="selectAppRightContent">
             <div className="clearfix">
               <span className="Left Font15">{_l('已选')}</span>
-              <Tooltip
-                popupPlacement="top"
-                text={<span>{_l('导出的应用工作表总数上限%0个', exportAppWorksheetLimitCount)}</span>}
-              >
+              <Tooltip popupPlacement="top" text={<span>{_l('导出的应用总数上限%0个', MAX_EXPORT_NUM)}</span>}>
                 <span className="icon-info1 mLeft8 Gray_bd Right LineHeight20"></span>
               </Tooltip>
-              <span className={cx('Right', { errorMag: selectListSheetCount > exportAppWorksheetLimitCount })}>
-                <span>{selectListSheetCount}</span>
-                <span className="Gray_bd">/{exportAppWorksheetLimitCount}</span>
+              <span className={cx('Right', { errorMag: selectList.length > MAX_EXPORT_NUM })}>
+                <span>{selectList.length}</span>
+                <span className="Gray_bd">/{MAX_EXPORT_NUM}</span>
               </span>
             </div>
             {this.renderSelectList()}
@@ -205,15 +206,8 @@ export default class SelectApp extends React.Component {
             disabled={!selectList.length}
             className={cx('ming Button Right nextBtn Button--primary Bold', { disabled: !selectList.length })}
             onClick={() => {
-              if (selectListSheetCount > exportAppWorksheetLimitCount) {
-                alert(
-                  _l(
-                    '导出的应用共%0张表，已超过上限%1张，请重新选择',
-                    selectListSheetCount,
-                    exportAppWorksheetLimitCount,
-                  ),
-                  3,
-                );
+              if (selectList.length > MAX_EXPORT_NUM) {
+                alert(_l('导出的应用共%0个，已超过上限%1个，请重新选择', selectList.length, MAX_EXPORT_NUM), 3);
               } else {
                 this.props.handleNext(selectList);
               }

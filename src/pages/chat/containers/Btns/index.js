@@ -13,41 +13,16 @@ import AddressBook from '../../lib/addressBook';
 import Tooltip from 'ming-ui/components/Tooltip';
 import CreateGroup from 'src/components/group/create/creatGroup';
 import addFriends from 'src/components/addFriends';
-import { Dropdown, Menu } from 'antd';
-import assistantApi from 'src/api/assistant';
-import { SvgIcon } from 'ming-ui';
-import AssistantChatBox from 'src/pages/plugin/assistant/chatBox/AssistantChatBox';
-import { getFeatureStatus, upgradeVersionDialog, getCurrentProject } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
-
-const getProjectInfo = () => {
-  const projectInfo = !_.isEmpty(getCurrentProject(localStorage.getItem('currentProjectId')))
-    ? getCurrentProject(localStorage.getItem('currentProjectId'))
-    : _.get(md, 'global.Account.projects.0');
-  return projectInfo || {};
-}
 
 class Btns extends Component {
   constructor(props) {
     super(props);
-    const { projectId } = getProjectInfo();
-    const featureType = getFeatureStatus(projectId, VersionProductType.assistant);
-    const hideAssistant = !featureType || featureType === '2' || md.global.Config.IsLocal;
     this.state = {
       searchVisible: false,
       menuVisible: false,
       tooltipVisible: true,
       dark: !this.props.visible,
-      aiList: [],
-      projectId,
-      hideAssistant
     };
-  }
-  componentDidMount() {
-    if (!this.state.hideAssistant) {
-      this.getAssistantApiList();
-      window.updateAssistantApiList = this.getAssistantApiList;
-    }
   }
   componentWillReceiveProps(nextProps) {
     this.setState({
@@ -57,19 +32,7 @@ class Btns extends Component {
       this.props.dispatch(actions.setShowAddressBook(true));
     }
   }
-  getAssistantApiList = () => {
-    const { projects = [] } = md.global.Account;
-    const { projectId } = this.state;
-    if (!_.find(projects, { projectId })) {
-      return;
-    }
-    assistantApi.getList({
-      projectId,
-      status: 2
-    }).then(data => {
-      this.setState({ aiList: data });
-    });
-  }
+
   handleOpenChatList() {
     const { visible } = this.props;
 
@@ -230,38 +193,7 @@ class Btns extends Component {
   handleMouseLeave() {
     $('body,html').removeClass('overflowHidden');
   }
-  renderOverlay() {
-    const { aiList } = this.state;
-    if (!aiList.length) {
-      return (
-        <div
-          className="pTop10 pBottom10 pLeft10 boderRadAll_4 Gray_bd card"
-          style={{ width: 160 }}
-        >
-          {_l('暂无可对话AI插件')}
-        </div>
-      );
-    }
-    return (
-      <Menu className="pTop10 pBottom10 boderRadAll_4 chatAiList" style={{ width: 240 }}>
-        {aiList.map(item => (
-          <Menu.Item
-            key={item.id}
-            onClick={() => {
-              AssistantChatBox({ assistantId: item.id, name: item.name });
-            }}
-          >
-            <div className="flexRow valignWrapper pTop3 pBottom3">
-              <div className="circle pAll3 flexRow alignItemsCenter justifyContentCenter" style={{ background: item.iconColor || '#2196f3' }}>
-                <SvgIcon size="20" url={item.iconUrl} fill="#fff" />
-              </div>
-              <div className="mLeft10 Font14 flex bold ellipsis">{item.name}</div>
-            </div>
-          </Menu.Item>
-        ))}
-      </Menu>
-    );
-  }
+
   renderMenu() {
     return (
       <div className="ChatPanel-addToolbar-menu">
@@ -329,26 +261,6 @@ class Btns extends Component {
             </div>
           </Tooltip>
         )}
-        {!this.state.hideAssistant && (
-          <Dropdown
-            trigger={['click']}
-            placement="topRight"
-            overlay={this.renderOverlay()}
-          >
-            <Tooltip
-              popupPlacement={direction}
-              text={
-                <span>
-                  {_l('AI助手')}
-                </span>
-              }
-            >
-              <div className="ChatList-btn ai-btn">
-                <i className="ThemeColor3 icon-ai1" />
-              </div>
-            </Tooltip>
-          </Dropdown>
-        )}
         {!hideChat && (
           <Tooltip
             popupPlacement={direction}
@@ -413,7 +325,11 @@ class Btns extends Component {
         onMouseEnter={this.handleMouseEnter.bind(this)}
         onMouseLeave={this.handleMouseLeave.bind(this)}
       >
-        {this.renderBtns(cx('ChatList-btns ChatList-column-btns', { visible, hideChatBtn: !md.global.Config.IsLocal && !this.state.hideAssistant }))}
+        {this.renderBtns(
+          cx('ChatList-btns ChatList-column-btns', {
+            visible,
+          }),
+        )}
         {this.renderBtns(cx('ChatList-btns ChatList-row-btns', { visible: !visible }))}
         {searchVisible ? (
           <SearchMember

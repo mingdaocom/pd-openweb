@@ -34,6 +34,7 @@ class FillRecordControls extends React.Component {
     className: PropTypes.string,
     worksheetId: PropTypes.string,
     projectId: PropTypes.string,
+    continueFill: PropTypes.bool,
     formData: PropTypes.arrayOf(PropTypes.shape({})),
     writeControls: PropTypes.arrayOf(PropTypes.shape({})),
     hideDialog: PropTypes.func,
@@ -224,7 +225,8 @@ class FillRecordControls extends React.Component {
     this.setState({ submitLoading: true });
     this.customwidget.current.submitFormData();
   }
-  async onSave(error, { data, updateControlIds, handleRuleError }) {
+  async onSave(error, { data, updateControlIds, handleRuleError, handleServiceError }) {
+    const { continueFill } = this.props;
     if (error) {
       this.setState({ submitLoading: false });
       return;
@@ -251,7 +253,9 @@ class FillRecordControls extends React.Component {
         return;
       }
     }
-    this.setState({ isSubmitting: true, submitLoading: false });
+    if (!continueFill) {
+      this.setState({ isSubmitting: true, submitLoading: false });
+    }
     updateControlIds = _.uniq(updateControlIds.concat(writeControls.filter(c => c.defsource).map(c => c.controlId)));
     onSubmit(
       newData
@@ -273,8 +277,11 @@ class FillRecordControls extends React.Component {
         if (res && res.resultCode === 22) {
           this.customwidget.current.dataFormat.callStore('setUniqueError', { badData: res.badData });
         }
+        if (res && res.resultCode === 31) {
+          handleServiceError(res.badData);
+        }
         if (res && res.resultCode === 32) {
-          handleRuleError(res.badData, this.cellObjs);
+          handleRuleError(res.badData);
         }
       },
     );
@@ -291,6 +298,9 @@ class FillRecordControls extends React.Component {
       worksheetId,
       projectId,
       hideDialog,
+      continueFill,
+      viewId,
+      sheetSwitchPermit,
     } = this.props;
     const { submitLoading, formData, showError, formFlag, isSubmitting } = this.state;
 
@@ -309,7 +319,7 @@ class FillRecordControls extends React.Component {
       >
         <div className="newRecordTitle ellipsis Font19 mBottom10">{title}</div>
         {submitLoading && (
-          <LoadMask>
+          <LoadMask style={continueFill ? { zIndex: 10 } : {}}>
             <LoadDiv />
           </LoadMask>
         )}
@@ -327,11 +337,13 @@ class FillRecordControls extends React.Component {
             popupContainer={document.body}
             data={formData.map(c => ({ ...c, isCustomButtonFillRecord: true }))}
             recordId={recordId}
+            viewId={viewId}
             disableRules={!recordId}
             from={3}
             appId={this.props.appId}
             projectId={projectId}
             worksheetId={worksheetId}
+            sheetSwitchPermit={sheetSwitchPermit}
             showError={showError}
             registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
             disabledFunctions={['controlRefresh']}

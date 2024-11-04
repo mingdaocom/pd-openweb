@@ -42,7 +42,7 @@ const Wrap = styled.div(
     color: #9e9e9e;
   }
   .topAct {
-    padding-right:44px;
+    padding-right: 22px;
     min-height: 54px;
     padding-bottom: 16px;
     display: flex;

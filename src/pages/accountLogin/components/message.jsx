@@ -20,9 +20,8 @@ import {
   isTel,
 } from 'src/pages/accountLogin/util.js';
 import _ from 'lodash';
-import { encrypt } from 'src/util';
+import { encrypt, isPasswordRule } from 'src/util';
 import Icon from 'ming-ui/components/Icon';
-import Tooltip from 'ming-ui/components/Tooltip';
 
 let sendVerifyCodeTimer = null;
 let hasClick = false;
@@ -390,9 +389,25 @@ class MessageCon extends React.Component {
     let autoCompleteData = {
       autoComplete: type !== 'login' ? 'new-password' : 'on',
     };
+    const passwordOnWran = (txt, changeWarn) => {
+      if (keys.includes('setPassword') || (changeWarn && keys.includes('password'))) {
+        let data = _.filter(warnningData, it => !('.passwordIcon' === it.tipDom));
+        //设置密码时，提示密码规则 符合验证则不再提示
+        if (!isPasswordRule(txt) && keys.includes('setPassword')) {
+          data = data.concat({
+            tipDom: '.passwordIcon',
+            noErr: true,
+            warnningText:
+              this.state.passwordRegexTip ||
+              `${_l('· 密码长度为8-20 字符')}<br/>${_l('· 需包含字母和数字，区分大小写')}`,
+          });
+        }
+        updateWarn(data);
+      }
+    };
     return (
       <React.Fragment>
-        <div className="messageBox mTop5">
+        <div className="messageBox mTop24">
           {warnningDiv ? (
             warnningDiv.warnningText === 'txt' ? (
               <div
@@ -565,28 +580,26 @@ class MessageCon extends React.Component {
               })}
             >
               <input
-                type={keys.includes('setPassword') && isOpen ? 'text' : 'password'}
+                type={
+                  (keys.includes('setPassword') && isOpen) || (keys.includes('setPassword') && !password)
+                    ? 'text'
+                    : 'password'
+                }
                 className="passwordIcon"
-                onBlur={this.inputOnBlur}
-                onFocus={e => this.inputOnFocus(e, '.passwordIcon')}
+                onBlur={e => {
+                  this.inputOnBlur(e);
+                  let data = _.filter(warnningData, it => !('.passwordIcon' === it.tipDom && it.noErr));
+                  updateWarn(data);
+                }}
+                onFocus={e => {
+                  passwordOnWran(e.target.value.trim());
+                  this.inputOnFocus(e, '.passwordIcon');
+                }}
                 onChange={e => {
-                  let data = _.filter(warnningData, it => !('.passwordIcon' === it.tipDom));
-                  if (keys.includes('setPassword')) {
-                    //设置密码时，提示密码规则
-                    data = [
-                      {
-                        tipDom: '.passwordIcon',
-                        noErr: true,
-                        warnningText:
-                          this.state.passwordRegexTip ||
-                          `${_l('·密码长度为8-20 字符')}<br/>${_l('·需包含字母和数字,区分大小写')}`,
-                      },
-                    ];
-                  }
+                  passwordOnWran(e.target.value.trim(), true);
                   setData({
                     password: e.target.value.trim(),
                   });
-                  updateWarn(data);
                 }}
                 autoComplete={
                   //keys.includes('password') ? 'account-password' :
@@ -599,7 +612,10 @@ class MessageCon extends React.Component {
                   $('.passwordIcon').focus();
                 }}
               >
-                {keys.includes('setPassword') ? _l('新密码%14001') : _l('密码')}
+                {
+                  //keys.includes('setPassword') ? _l('新密码%14001') :
+                  _l('密码')
+                }
               </div>
               {keys.includes('setPassword') && (
                 <span className="passwordTip Hand" onClick={() => this.setState({ isOpen: !isOpen })}>

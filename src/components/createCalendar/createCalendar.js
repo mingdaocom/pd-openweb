@@ -9,7 +9,6 @@ import SelectTimezone from './component/SelectTimezone';
 import { htmlEncodeReg, htmlDecodeReg } from 'src/util';
 import doT from 'dot';
 import taskHtml from './tpl/createCalendar.html';
-import 'src/components/mdDatePicker/mdDatePicker';
 import 'src/components/autoTextarea/autoTextarea';
 import '@mdfe/jquery-plupload';
 import createShare from 'src/components/createShare/createShare';
@@ -317,6 +316,26 @@ $.extend(CreateCalendar.prototype, {
     );
   },
 
+  // 重复结束日期
+  initOverTimeEvent: function () {
+    var settings = this.settings;
+    const overTimeRoot = createRoot($('.repeatDialogConfirm #createCalendarOverTime')[0]);
+    overTimeRoot.render(
+      <div className="Relative">
+        <DatePicker
+          timePicker={false}
+          allowClear={false}
+          min={moment(settings.Start)}
+          selectedValue={settings.overTime ? moment(settings.overTime) : moment()}
+          onOk={value => {
+            settings.overTime = value.format('YYYY-MM-DD');
+            CreateCalendar.methods.repeatResult();
+          }}
+        ></DatePicker>
+      </div>,
+    );
+  },
+
   // 初始化提醒事件
   initRemindEvent: function () {
     var allDay = this.settings.AllDay;
@@ -495,15 +514,15 @@ $.extend(CreateCalendar.prototype, {
           switch (parseInt(value, 10)) {
             case 0:
               $('.repeatDialogConfirm #overCount').hide();
-              $('.repeatDialogConfirm #overTime').hide();
+              $('.repeatDialogConfirm #createCalendarOverTime').removeClass('InlineBlock');
               break;
             case 1:
-              $('.repeatDialogConfirm #overTime').hide();
+              $('.repeatDialogConfirm #createCalendarOverTime').removeClass('InlineBlock');
               $('.repeatDialogConfirm #overCount').show();
               break;
             case 2:
               $('.repeatDialogConfirm #overCount').hide();
-              $('.repeatDialogConfirm #overTime').show();
+              $('.repeatDialogConfirm #createCalendarOverTime').addClass('InlineBlock');
               break;
             default:
               break;
@@ -550,24 +569,7 @@ $.extend(CreateCalendar.prototype, {
         CreateCalendar.methods.repeatResult();
       });
 
-    // 重复结束日期
-    $('.repeatDialogConfirm #txtOverDate')
-      .removeClass('hasDatepicker')
-      .mdDatePicker({
-        dialogStyle: {
-          offsetLeft: -85, // 左偏移量
-          offsetTop: 20, // 上偏移量
-        },
-        isShowClear: false,
-        zIndex: 1002,
-        onChange: function (dateText, inst) {
-          $('#txtOverDate').attr('value', dateText);
-          CreateCalendar.methods.repeatResult();
-        },
-      });
-
-    // 设置最小时间
-    $('.repeatDialogConfirm #txtOverDate').mdDatePicker('setMinDate', moment(settings.Start).format('YYYY-MM-DD'));
+    this.initOverTimeEvent();
 
     CreateCalendar.methods.repeatResult();
   },
@@ -1005,7 +1007,7 @@ CreateCalendar.methods = {
     if (recurType == 1) {
       messages += '，' + _l('共 %0 次', count);
     } else if (recurType == 2) {
-      var day = moment($('#txtOverDate').val()).format(_l('YYYY年MM月DD日'));
+      var day = moment(settings.overTime).format(_l('YYYY年MM月DD日'));
       messages += '，' + _l('截止到 %0', day);
     }
 
@@ -1293,7 +1295,7 @@ CreateCalendar.methods = {
 
       var time = $('#tab_repeatTime').val();
       recurCount = time == 1 ? parseInt($('#txtOverCount').val(), 10) : 0; // 次数
-      untilDate = time == 2 ? moment($('#txtOverDate').val()).toISOString() : ''; // 截至日期
+      untilDate = time == 2 ? moment(settings.overTime).toISOString() : ''; // 截至日期
     }
 
     // 日程成员

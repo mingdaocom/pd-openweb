@@ -1,6 +1,9 @@
-import _ from 'lodash';
+import _, { assign, find, get, includes, isEmpty } from 'lodash';
 import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
+import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { getRequest } from 'src/util';
+import moment from 'moment';
 
 export function getType(control) {
   let { type } = control;
@@ -89,7 +92,7 @@ export function validate(condition) {
     if (condition.dateRange === 18 && condition.filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN) {
       return !_.isUndefined(condition.minValue) && !_.isUndefined(condition.maxValue);
     } else if (condition.dateRange === 18) {
-      return !_.isUndefined(condition.value);
+      return !_.isUndefined(condition.value) && condition.value !== '';
     } else {
       return !!condition.dateRange;
     }
@@ -136,4 +139,90 @@ export function formatFilterValuesToServer(controlType, values = []) {
     default:
       return values.filter(_.isString);
   }
+}
+
+function parseUrlValue({ value, control, filterType } = {}) {
+  if (
+    includes(
+      [
+        WIDGETS_TO_API_TYPE_ENUM.TEXT,
+        WIDGETS_TO_API_TYPE_ENUM.RICH_TEXT,
+        WIDGETS_TO_API_TYPE_ENUM.EMAIL,
+        WIDGETS_TO_API_TYPE_ENUM.MOBILE_PHONE,
+        WIDGETS_TO_API_TYPE_ENUM.CRED,
+      ],
+      control.type,
+    )
+  ) {
+    return { values: [value] };
+  } else if (includes([WIDGETS_TO_API_TYPE_ENUM.NUMBER, WIDGETS_TO_API_TYPE_ENUM.MONEY], control.type)) {
+    if (filterType === FILTER_CONDITION_TYPE.BETWEEN) {
+      const [min, max] = value.split('-');
+      return {
+        minValue: !isNaN(Number(min)) ? Number(min) : min,
+        maxValue: !isNaN(Number(max)) ? Number(max) : max,
+      };
+    } else {
+      return !isNaN(Number(value)) ? { value: Number(value) } : {};
+    }
+  } else if (
+    includes(
+      [WIDGETS_TO_API_TYPE_ENUM.FLAT_MENU, WIDGETS_TO_API_TYPE_ENUM.MULTI_SELECT, WIDGETS_TO_API_TYPE_ENUM.DROP_DOWN],
+      control.type,
+    )
+  ) {
+    return {
+      values: value
+        .split(',')
+        .map(splittedValue => get(find(control.options, { value: splittedValue }), 'key'))
+        .filter(_.identity),
+    };
+  } else if (includes([WIDGETS_TO_API_TYPE_ENUM.DATE, WIDGETS_TO_API_TYPE_ENUM.DATE_TIME], control.type)) {
+    return {
+      dateType: 15,
+      dateRange: 18,
+      value: moment(value, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD'),
+    };
+  } else if (includes([WIDGETS_TO_API_TYPE_ENUM.TIME], control.type)) {
+    const [min, max] = value.split('-');
+    return {
+      dateRange: 18,
+      filterType: 31,
+      minValue: moment(min, 'HH:mm:ss').format('HH:mm:ss'),
+      maxValue: moment(max, 'HH:mm:ss').format('HH:mm:ss'),
+    };
+  } else if (includes([WIDGETS_TO_API_TYPE_ENUM.SWITCH], control.type)) {
+    return {
+      filterType: includes(['1', 'true'], value) ? 2 : includes(['0', 'false'], value) ? 6 : 0,
+      value: 1,
+    };
+  }
+}
+
+function parseDynamicSource({ dynamicSource, control, filterType } = {}) {
+  const urlParams = getRequest();
+  return dynamicSource.map(item => {
+    if (item.rcid !== 'url' || !item.cid || !urlParams[item.cid]) return;
+    const changes = parseUrlValue({ value: urlParams[item.cid], control: redefineComplexControl(control), filterType });
+    return changes;
+  });
+}
+
+export function handleConditionsDefault(conditions, controls) {
+  return conditions.map(condition => {
+    condition = { ...condition };
+    const control = find(controls, { controlId: condition.controlId });
+    if (!control) return condition;
+    if (!isEmpty(condition.dynamicSource)) {
+      const dynamicResult = parseDynamicSource({
+        dynamicSource: condition.dynamicSource,
+        control,
+        filterType: condition.filterType,
+      });
+      if (dynamicResult && dynamicResult[0]) {
+        condition = assign(condition, dynamicResult[0]);
+      }
+    }
+    return condition;
+  });
 }

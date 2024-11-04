@@ -126,6 +126,7 @@ export default class Approval extends Component {
               [OPERATION_TYPE.OVERRULE]: result.flowNodeMap[OPERATION_TYPE.OVERRULE],
               [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE],
               [OPERATION_TYPE.RETURN]: result.flowNodeMap[OPERATION_TYPE.RETURN],
+              [OPERATION_TYPE.WORK]: result.flowNodeMap[OPERATION_TYPE.WORK],
             }),
             formProperties: result.formProperties,
           });
@@ -152,12 +153,15 @@ export default class Approval extends Component {
   /**
    * 更新节点对象数据
    */
-  updateFlowMapSource = (key, obj) => {
+  updateFlowMapSource = (key, obj, callback) => {
     const { data } = this.state;
 
-    this.updateSource({
-      flowNodeMap: Object.assign({}, data.flowNodeMap, { [key]: Object.assign({}, data.flowNodeMap[key], obj) }),
-    });
+    this.updateSource(
+      {
+        flowNodeMap: Object.assign({}, data.flowNodeMap, { [key]: Object.assign({}, data.flowNodeMap[key], obj) }),
+      },
+      callback,
+    );
   };
 
   /**
@@ -1027,12 +1031,13 @@ export default class Approval extends Component {
           desc={
             <span>
               {_l('启用后，待办消息同时会以邮件的形式发送给相关负责人。')}
-              {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && _l('邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
+              {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) &&
+                _l('邮件%0/封，将自动从企业账户扣除。', _.get(md, 'global.PriceConfig.EmailPrice'))}
             </span>
           }
           showApprovalBtn={!data.encrypt}
           flowNodeMap={data.flowNodeMap[OPERATION_TYPE.EMAIL]}
-          updateSource={obj => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj)}
+          updateSource={(obj, callback) => this.updateFlowMapSource(OPERATION_TYPE.EMAIL, obj, callback)}
         />
 
         {data.multipleLevelType === 0 && (
@@ -1068,19 +1073,24 @@ export default class Approval extends Component {
         key: OPERATION_TYPE.BEFORE,
       },
       {
-        title: _l('通过后更新'),
+        title: _l('节点通过后更新'),
         desc: _l('节点通过后，更新数据对象的字段值'),
         key: OPERATION_TYPE.PASS,
       },
       {
-        title: _l('否决后更新'),
+        title: _l('节点否决后更新'),
         desc: _l('节点否决后，更新数据对象的字段值'),
         key: OPERATION_TYPE.OVERRULE,
       },
       {
-        title: _l('退回后更新'),
+        title: _l('节点退回后更新'),
         desc: _l('节点退回后，更新数据对象的字段值'),
         key: OPERATION_TYPE.RETURN,
+      },
+      {
+        title: _l('审批过程中更新'),
+        desc: _l('会签节点多人审批时和逐级审批时，在每个审批人处理后更新'),
+        key: OPERATION_TYPE.WORK,
       },
     ];
 
@@ -1309,7 +1319,7 @@ export default class Approval extends Component {
                       type={3}
                       text={_l('帮助')}
                       className="ThemeColor3 ThemeHoverColor2"
-                      href="https://help.mingdao.com/worksheet/field-filter"
+                      href="https://help.mingdao.com/workflow/node-approve#field"
                     />
                   </div>
 
@@ -1351,7 +1361,9 @@ export default class Approval extends Component {
                             controls={sourceData.controls.filter(o => o.type !== 29)}
                             fields={sourceData.fields}
                             showCurrent={true}
-                            filterType={item.key === OPERATION_TYPE.BEFORE ? 7 : 0}
+                            filterType={
+                              item.key === OPERATION_TYPE.BEFORE ? 7 : item.key === OPERATION_TYPE.WORK ? 8 : 0
+                            }
                             formulaMap={sourceData.formulaMap}
                             updateSource={(obj, callback = () => {}) =>
                               this.updateSource(

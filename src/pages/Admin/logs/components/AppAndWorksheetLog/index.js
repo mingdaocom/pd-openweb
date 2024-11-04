@@ -5,6 +5,8 @@ import SearchWrap from '../../../components/SearchWrap';
 import PageTableCon from '../../../components/PageTableCon';
 import IsAppAdmin from 'src/pages/Admin/components/IsAppAdmin';
 import WorksheetRecordLogDialog from 'src/pages/worksheet/components/WorksheetRecordLog/WorksheetRecordLogDialog';
+import WorksheetLogDrawer from '../WorksheetLogDrawer';
+import ArchivedList from 'src/components/ArchivedList';
 import {
   APP_WORKSHEET_LOG_COLUMNS,
   PRIVATE_APP_WORKSHEET_LOG_COLUMNS,
@@ -94,6 +96,14 @@ const NoAuthorWrap = styled.div`
     color: #757575;
   }
 `;
+const Box = styled.div`
+  width: 100%;
+  height: 36px;
+  background: #fefbe7;
+  border-radius: 3px;
+  border: 1px solid #fce596;
+  padding: 0 12px;
+`;
 const PAGE_SIZE = 50;
 export default class AppAndWorksheetLog extends Component {
   constructor(props) {
@@ -104,7 +114,9 @@ export default class AppAndWorksheetLog extends Component {
     this.state = {
       appList: [],
       worksheetList: [],
-      searchValues: {},
+      searchValues: {
+        worksheetIds: props.worksheetId ? [props.worksheetId] : [],
+      },
       showColumns: columns.map(it => it.dataIndex),
       currentRowInfo: {},
       appPageIndex: 1,
@@ -211,13 +223,10 @@ export default class AppAndWorksheetLog extends Component {
                 const txt = (isUser ? message : opeartContent).replace(/\<a.*?\>/, '').replace(/\<\/a\>/, '');
                 return opeartContent ? (
                   <Tooltip text={<spam>{txt}</spam>} popupPlacement="bottom">
-                    <span>
-                      {isUser ? (
-                        <span dangerouslySetInnerHTML={{ __html: filterXss(message) }}></span>
-                      ) : (
-                        <span dangerouslySetInnerHTML={{ __html: filterXss(opeartContent) }}></span>
-                      )}
-                    </span>
+                    <span
+                      className="wMax100 ellipsis InlineBlock"
+                      dangerouslySetInnerHTML={{ __html: isUser ? filterXss(message) : filterXss(opeartContent) }}
+                    ></span>
                   </Tooltip>
                 ) : (
                   '-'
@@ -299,8 +308,15 @@ export default class AppAndWorksheetLog extends Component {
 
   getConditions = () => {
     const { appId, projectId } = this.props;
-    const { logType, appList, searchValues, worksheetList, isMoreApp } = this.state;
-    const { appIds = [], worksheetIds = [], modules = [], operationTypes = [] } = searchValues;
+    const { logType, appList, searchValues, worksheetList, isMoreApp, archivedItem = {} } = this.state;
+    const {
+      appIds = [],
+      worksheetIds = [],
+      modules = [],
+      operationTypes = [],
+      dateTimeRange = {},
+      archiveDate,
+    } = searchValues;
     const galFeatureType = getFeatureStatus(projectId, VersionProductType.globalBehaviorLog);
     let operationTypesData = OPERATE_LIST.filter(it =>
       logType === 1
@@ -318,6 +334,35 @@ export default class AppAndWorksheetLog extends Component {
         : operationTypesData;
 
     const coditions = [
+      !_.isEmpty(archivedItem)
+        ? {
+            key: 'archiveDate',
+            type: 'antdDatePicker',
+            label: _l('操作时间'),
+            picker: 'month',
+            allowClear: false,
+            value: archiveDate,
+            disabledDate: current => {
+              return (
+                (archivedItem.start && current < moment(archivedItem.start)) ||
+                (archivedItem.end && current > moment(archivedItem.end))
+              );
+            },
+          }
+        : {
+            key: 'dateTimeRange',
+            type: 'antdRangePicker',
+            label: _l('操作时间'),
+            placeholder: [_l('开始日期'), _l('结束日期')],
+            defaultPickerValue: _.isEmpty(archivedItem)
+              ? []
+              : [moment(archivedItem.start, 'YYYY-MM-DD').subtract(30, 'days'), moment(archivedItem.end, 'YYYY-MM-DD')],
+            format: 'YYYY-MM-DD',
+            value: !_.isEmpty(dateTimeRange) ? [dateTimeRange.startDate, dateTimeRange.endDate] : [],
+            disabledDate: current => {
+              return current < moment().subtract(1, 'day').subtract(6, 'months');
+            },
+          },
       {
         key: 'selectUserInfo',
         type: 'selectUser',
@@ -404,14 +449,6 @@ export default class AppAndWorksheetLog extends Component {
         maxTagCount: 'responsive',
         filterOption: (inputValue, option) => option.children.toLowerCase().includes(inputValue.toLowerCase()),
       },
-      {
-        key: 'dateTimeRange',
-        type: 'selectTime',
-        label: _l('操作时间'),
-        placeholder: _l('最近30天'),
-        dateFormat: 'YYYY-MM-DD HH:mm:ss',
-        suffixIcon: <Icon icon="person" className="Font16" />,
-      },
     ];
 
     return coditions.filter(v => {
@@ -429,7 +466,7 @@ export default class AppAndWorksheetLog extends Component {
   getLogList = (params = {}) => {
     this.setState({ loading: true, pageIndex: params.pageIndex });
     const { projectId, appId } = this.props;
-    const { logType, searchValues } = this.state;
+    const { logType, searchValues, archivedItem = {} } = this.state;
     const { pageIndex = 1, pageSize = 50 } = params;
     const {
       selectUserInfo = [],
@@ -438,26 +475,37 @@ export default class AppAndWorksheetLog extends Component {
       modules = [],
       operationTypes = [],
       dateTimeRange = {},
+      archiveDate,
     } = searchValues;
     const { startDate, endDate } = dateTimeRange;
 
-    appManagementAjax
-      .getGlobalLogs({
-        pageIndex,
-        pageSize,
-        projectId,
-        queryType: logType ? logType : undefined,
-        operators: selectUserInfo.map(it => it.accountId),
-        appIds: appId ? [appId] : _.includes(appIds, 'all') ? [] : appIds,
-        worksheetIds: _.includes(worksheetIds, 'all') ? [] : worksheetIds,
-        modules: _.includes(modules, 'all') ? [] : modules,
-        operationTypes: _.includes(operationTypes, 'all') ? [] : operationTypes,
-        startDateTime: startDate
-          ? startDate
-          : moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
-        endDateTime: endDate ? endDate : moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
-        isSingle: appId ? true : false,
-      })
+    let requestPromise = _.isEmpty(archivedItem)
+      ? appManagementAjax.getGlobalLogs
+      : appManagementAjax.getArchivedGlobalLogs;
+
+    requestPromise({
+      pageIndex,
+      pageSize,
+      projectId,
+      queryType: logType ? logType : undefined,
+      operators: selectUserInfo.map(it => it.accountId),
+      appIds: appId ? [appId] : _.includes(appIds, 'all') ? [] : appIds,
+      worksheetIds: _.includes(worksheetIds, 'all') ? [] : worksheetIds,
+      modules: _.includes(modules, 'all') ? [] : modules,
+      operationTypes: _.includes(operationTypes, 'all') ? [] : operationTypes,
+      startDateTime: startDate
+        ? startDate.startOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : _.isEmpty(archivedItem)
+        ? moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : moment(archiveDate).startOf('month').format('YYYY-MM-DD HH:mm:ss'),
+      endDateTime: endDate
+        ? endDate.endOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : _.isEmpty(archivedItem)
+        ? moment().endOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : moment(archiveDate).endOf('month').format('YYYY-MM-DD HH:mm:ss'),
+      isSingle: appId ? true : false,
+      archivedId: archivedItem.id,
+    })
       .then(res => {
         if (res.resultCode === 7) {
           this.setState({ isAuthority: false, loading: false });
@@ -482,7 +530,7 @@ export default class AppAndWorksheetLog extends Component {
   exportListData = (param = {}) => {
     this.setState({ disabledExportBtn: true });
     const { projectId, appId } = this.props;
-    const { logType, searchValues, pageIndex = 1 } = this.state;
+    const { logType, searchValues, pageIndex = 1, archivedItem = {} } = this.state;
     const { pageSize = 50 } = param;
     const {
       selectUserInfo = [],
@@ -491,6 +539,7 @@ export default class AppAndWorksheetLog extends Component {
       modules = [],
       operationTypes = [],
       dateTimeRange = {},
+      archiveDate,
     } = searchValues;
     const { startDate, endDate } = dateTimeRange;
 
@@ -504,11 +553,20 @@ export default class AppAndWorksheetLog extends Component {
       worksheetIds: _.includes(worksheetIds, 'all') || !worksheetIds.length ? undefined : worksheetIds,
       modules: _.includes(modules, 'all') || !modules.length ? undefined : modules,
       operationTypes: _.includes(operationTypes, 'all') || !operationTypes.length ? undefined : operationTypes,
-      startDateTime: startDate ? startDate : moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
-      endDateTime: endDate ? endDate : moment().format('YYYY-MM-DD HH:mm:ss'),
+      startDateTime: startDate
+        ? startDate.startOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : _.isEmpty(archivedItem)
+        ? moment().subtract(29, 'days').startOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : moment(archiveDate).startOf('month').format('YYYY-MM-DD HH:mm:ss'),
+      endDateTime: endDate
+        ? endDate.endOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : _.isEmpty(archivedItem)
+        ? moment().endOf('day').format('YYYY-MM-DD HH:mm:ss')
+        : moment(archiveDate).endOf('month').format('YYYY-MM-DD HH:mm:ss'),
       columnNames: this.columns.map(it => it.title),
       menuName: _.get(_.find(TAB_LIST, v => v.tab === logType) || {}, 'tabName'),
       isSingle: appId ? true : false,
+      archivedId: archivedItem.id,
     };
 
     downloadAjax
@@ -565,6 +623,8 @@ export default class AppAndWorksheetLog extends Component {
       isAuthority,
       controls = [],
       loadingControlDetails,
+      showWorksheetLog,
+      archivedItem = {},
     } = this.state;
     const { appIds = [], worksheetIds = [] } = searchValues;
     const glFeatureType = getFeatureStatus(projectId, VersionProductType.glabalLog);
@@ -592,6 +652,10 @@ export default class AppAndWorksheetLog extends Component {
       );
     }
 
+    let keepFilters = ['dateTimeRange', 'selectUserInfo', 'appIds', 'worksheetIds'].filter(item =>
+      appId ? item !== 'appIds' : true,
+    );
+
     return (
       <Fragment>
         <TabWrap className="orgManagementHeader">
@@ -602,7 +666,20 @@ export default class AppAndWorksheetLog extends Component {
                 className={cx('tabItem', { active: item.tab === logType })}
                 onClick={() => {
                   safeLocalStorageSetItem('globalLogTab', item.tab);
-                  this.setState({ logType: item.tab, searchValues: {} }, this.getLogList);
+
+                  this.setState(
+                    {
+                      logType: item.tab,
+                      searchValues: Object.assign(
+                        {},
+                        _.pick(
+                          searchValues,
+                          keepFilters.filter(v => (item.tab === 1 ? v !== 'worksheetIds' : true)),
+                        ),
+                      ),
+                    },
+                    this.getLogList,
+                  );
                   this.tableWrap && this.tableWrap.setCheckedCols(this.columns.map(it => it.dataIndex));
                 }}
               >
@@ -612,9 +689,37 @@ export default class AppAndWorksheetLog extends Component {
           </div>
 
           <div>
-            {md.global.Config.IsLocal ? '' : <span className="tipInfo mRight26">{_l('保留最近6个月的日志')}</span>}
+            {md.global.Config.IsLocal ? '' : <span className="tipInfo">{_l('保留最近6个月的日志')}</span>}
+            {appId && (
+              <Tooltip text={_l('查看旧版工作表日志')}>
+                <i
+                  className="icon icon-draft-box Gray_9 Hand mLeft26 Font17 Hover_21"
+                  onClick={() => this.setState({ showWorksheetLog: true })}
+                />
+              </Tooltip>
+            )}
+            <ArchivedList
+              type={3}
+              showSelectItem={false}
+              archivedItem={archivedItem}
+              params={{ projectId, appId }}
+              iconClassName="mLeft26 Gray_9"
+              onChange={archivedItem => {
+                this.setState(
+                  {
+                    archivedItem,
+                    searchValues: {
+                      ...searchValues,
+                      archiveDate: moment(archivedItem.start),
+                      dateTimeRange: {},
+                    },
+                  },
+                  this.getLogList,
+                );
+              }}
+            />
             <i
-              className="icon-task-later Gray_9 hoverText mRight26 Font17"
+              className="icon-task-later Gray_9 hoverText mRight26 Font17 mLeft26"
               onClick={() => this.setState({ searchValues: {}, pageIndex: 1 }, this.getLogList)}
             />
             <Tooltip
@@ -640,7 +745,25 @@ export default class AppAndWorksheetLog extends Component {
             {buriedUpgradeVersionDialog(projectId, VersionProductType.globalBehaviorLog, { dialogType: 'content' })}
           </div>
         ) : (
-          <FlexWrap className={cx('orgManagementContent pTop0 flexColumn', { 'pLeft24 pRight24': appId })}>
+          <FlexWrap
+            className={cx('orgManagementContent pTop0 flexColumn', {
+              'pLeft24 pRight24': appId,
+              pTop20: !_.isEmpty(archivedItem),
+            })}
+          >
+            {!_.isEmpty(archivedItem) && (
+              <Box className="flexRow alignItemsCenter">
+                <div className="bold">{_l('查看已归档数据：')}</div>
+                <div className="mLeft5 flex">
+                  {archivedItem.start} {_l('至')} {archivedItem.end}
+                </div>
+                <Icon
+                  icon="closeelement-bg-circle"
+                  className="Font20 mLeft10 Gray_9e ThemeHoverColor3 pointer"
+                  onClick={() => this.setState({ archivedItem: {}, searchValues: {} }, this.getLogList)}
+                />
+              </Box>
+            )}
             <div ref={ele => (this.seatchWrap = ele)}>
               <SearchWrap
                 projectId={projectId}
@@ -664,6 +787,15 @@ export default class AppAndWorksheetLog extends Component {
                   if (_.isEmpty(searchParams) && this.state.keyword) {
                     this.setState({ appPageIndex: 1, keyword: '' }, this.getAppList);
                   }
+
+                  if (!_.isEmpty(archivedItem) && _.isEmpty(searchParams)) {
+                    this.setState(
+                      { searchValues: { archiveDate: moment(archivedItem.start) }, pageIndex: 1 },
+                      this.getLogList,
+                    );
+                    return;
+                  }
+
                   this.setState(
                     {
                       searchValues: _.isEmpty(searchParams)
@@ -731,6 +863,15 @@ export default class AppAndWorksheetLog extends Component {
               />
             )}
           </FlexWrap>
+        )}
+
+        {showWorksheetLog && (
+          <WorksheetLogDrawer
+            visible={showWorksheetLog}
+            projectId={projectId}
+            appId={appId}
+            onClose={() => this.setState({ showWorksheetLog: false })}
+          />
         )}
       </Fragment>
     );

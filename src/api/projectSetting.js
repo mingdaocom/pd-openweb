@@ -1,6 +1,6 @@
 export default {
   /**
-  * 界面定制
+  * 界面定制（人事审批打印功能有调用这个接口，所以不能限制管理员权限）
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
   * @param {Object} options 配置参数
@@ -693,11 +693,16 @@ MD.Enum.ProjectSetting.UserFillDepartmentEnabled
      return mdyAPI('ProjectSetting', 'EditApiProxySettings', args, options);
    },
   /**
-  * &lt;br&gt; ProcessType = 10 &gt;  RemoveProjectUserMemoryCache : 移除 （整网络）网络成员 内存缓存 
-&lt;br&gt; ProcessType = 11 &gt; ResetProjectUserMemoryCache : 重置 （整网络）网络成员 内存缓存 
-&lt;br&gt; ProcessType = 13 &gt; ResetAccountsProjectUserMemoryCache : 重置 网络成员 内存缓存 中 指定成员的 缓存数据！（需传递 AccountIds） 
-&lt;br&gt; ProcessType = 20 &gt; RemovePersonalContactsMemoryCache : 移除 个人联系人内存缓存（可指定 AccountIds，否则 为 全网络）（注：无 重置操作 选项） 
-&lt;br&gt; ProcessType = 30 &gt; RemoveAccountsMemoryCache : 移除 Account 缓存（独立的 缓存信息，好友、外协中使用）（与网络无关）（必须指定 AccountIds） 
+  * 
+ ProcessType = 10 &gt;  RemoveProjectUserMemoryCache : 移除 （整网络）网络成员 内存缓存 
+
+ ProcessType = 11 &gt; ResetProjectUserMemoryCache : 重置 （整网络）网络成员 内存缓存 
+
+ ProcessType = 13 &gt; ResetAccountsProjectUserMemoryCache : 重置 网络成员 内存缓存 中 指定成员的 缓存数据！（需传递 AccountIds） 
+
+ ProcessType = 20 &gt; RemovePersonalContactsMemoryCache : 移除 个人联系人内存缓存（可指定 AccountIds，否则 为 全网络）（注：无 重置操作 选项） 
+
+ ProcessType = 30 &gt; RemoveAccountsMemoryCache : 移除 Account 缓存（独立的 缓存信息，好友、外协中使用）（与网络无关）（必须指定 AccountIds） 
   * @param {Object} args 请求参数
   * @param {} args.processType
   * @param {string} args.projectId

@@ -78,21 +78,6 @@ class Message extends Component {
     this.props.dispatch(actions.setReferMessage(currentSession.value, message));
     utils.highlightReferMessage(currentSession.value);
   }
-  handleAddAtUser(isAt) {
-    if (isAt) return;
-    const { message, session } = this.props;
-    const { fromAccount } = message;
-    const textarea = $(`#ChatPanel-${session.id}`).find('.ChatPanel-Textarea .Textarea');
-    const value = textarea.val();
-    const at = {
-      id: fromAccount.id,
-      logo: fromAccount.logo,
-      name: fromAccount.name,
-      value: fromAccount.name,
-      addAt: true,
-    };
-    textarea.wcMentionsInput('addMention', at);
-  }
   handleRetry() {
     const { message, session } = this.props;
     const messageType = session.isGroup ? Constant.SESSIONTYPE_GROUP : Constant.SESSIONTYPE_USER;
@@ -176,12 +161,13 @@ class Message extends Component {
             session={session}
             moreVisible={moreVisible}
             message={message}
+            isDuplicated={isDuplicated}
             onAddReferMessage={this.handleAddReferMessage.bind(this)}
             onWithdrawMessage={this.handleWithdrawMessage.bind(this)}
             onSetMessageMoreVisible={this.handleSetMessageMoreVisible.bind(this)}
           />
           {!isDuplicated ? (
-            <div className="Message-from" onClick={this.handleAddAtUser.bind(this, isMine || !session.isGroup)}>
+            <div className="Message-from">
               <UserCard sourceId={fromAccount.id} disabled={!fromAccount}>
                 <img
                   ref={avatar => {
@@ -197,10 +183,7 @@ class Message extends Component {
           <div className="Message-body">
             {!isDuplicated ? (
               <div className="Message-title ellipsis">
-                <div
-                  onClick={this.handleAddAtUser.bind(this, isMine || !session.isGroup)}
-                  className={cx('Message-from-name', { ThemeColor3: isMine })}
-                >
+                <div className={cx('Message-from-name', { ThemeColor3: isMine })}>
                   {isMine ? _l('我') : fromAccount.name}
                 </div>
               </div>

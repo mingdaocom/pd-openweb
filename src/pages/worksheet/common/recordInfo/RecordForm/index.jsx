@@ -271,7 +271,7 @@ function RecordForm(props) {
       sectionTab && sectionTab.current && sectionTab.current.setActiveId(tempId);
       setTabHeaderControl(getActiveTabControl(tempId));
 
-      const stickyBar = recordForm.current.querySelector('.topCon .stickyBar');
+      const stickyBar = recordForm.current && recordForm.current.querySelector('.topCon .stickyBar');
       if (stickyBar) {
         stickyBar.id = tempId === 'detail' ? '' : 'stickyBarActive';
       }
@@ -387,7 +387,7 @@ function RecordForm(props) {
           position: 'sticky',
           top: stickyH,
           background: '#fff',
-          zIndex: 2,
+          zIndex: 3,
         });
       }
     }

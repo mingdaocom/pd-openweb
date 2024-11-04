@@ -24,14 +24,55 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { getFilledRequestParams, needHideViewFilters, replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
-import _, { get } from 'lodash';
-import { getTranslateInfo } from 'src/util';
+import _, { find, get, some } from 'lodash';
+import { getTranslateInfo, addBehaviorLog } from 'src/util';
 import { initMapViewData, mapNavGroupFiltersUpdate } from './mapView';
+import {
+  formatFilterValues,
+  formatFilterValuesToServer,
+  handleConditionsDefault,
+  validate,
+} from 'worksheet/common/Sheet/QuickFilter/utils';
+
+export function fireWhenViewLoaded(view, { forceUpdate, controls } = {}) {
+  return (dispatch, getState) => {
+    if (!get(view, 'fastFilters')) return;
+    const newFastFilters = handleConditionsDefault(
+      view.fastFilters || [],
+      controls || get(getState(), 'sheet.controls') || [],
+    );
+    const fastFiltersHasDefaultValue = some(newFastFilters, validate);
+    if (fastFiltersHasDefaultValue || forceUpdate) {
+      if (get(view, 'advancedSetting.enablebtn') !== '1') {
+        dispatch(
+          updateQuickFilter(
+            newFastFilters.filter(validate).map(condition => ({
+              ...condition,
+              filterType: condition.dataType === 29 && condition.filterType === 2 ? 24 : condition.filterType || 2,
+              spliceType: condition.spliceType || 1,
+              values: formatFilterValuesToServer(
+                condition.dataType,
+                formatFilterValues(condition.dataType, condition.values),
+              ),
+              ...(condition.dataType === 36 ? { value: 1 } : {}),
+            })),
+            view,
+            { noLoad: true },
+          ),
+        );
+      }
+      dispatch(updateQuickFilterWithDefault(newFastFilters));
+    } else {
+      dispatch(updateQuickFilterWithDefault(view.fastFilters));
+    }
+  };
+}
 
 export const updateBase = base => {
   return (dispatch, getState) => {
     const sheet = getState().sheet;
-    if (_.get(sheet, 'base.viewId') && base.viewId && _.get(sheet, 'base.viewId') !== base.viewId) {
+    const viewChanged = _.get(sheet, 'base.viewId') && base.viewId && _.get(sheet, 'base.viewId') !== base.viewId;
+    if (viewChanged) {
       const view = _.find(sheet.views, v => v.viewId === base.viewId);
       if (view && needHideViewFilters(view)) {
         dispatch(clearFilters());
@@ -43,6 +84,15 @@ export const updateBase = base => {
         chartId: base.chartId || undefined,
       }),
     });
+    if (viewChanged) {
+      const view = _.find(sheet.views, v => v.viewId === base.viewId);
+      dispatch({
+        type: 'WORKSHEET_SHEETVIEW_CLEAR',
+      });
+      if (view) {
+        dispatch(fireWhenViewLoaded(view, { controls: sheet.controls }));
+      }
+    }
   };
 };
 
@@ -117,6 +167,19 @@ export function loadWorksheet(worksheetId, setRequest) {
           });
           return;
         }
+        const addBehaviorLogInfo = sessionStorage.getItem('addBehaviorLogInfo')
+          ? JSON.parse(sessionStorage.getItem('addBehaviorLogInfo'))
+          : {};
+
+        if (addBehaviorLogInfo.entityId === appId || addBehaviorLogInfo.entityId === worksheetId) {
+          sessionStorage.removeItem('addBehaviorLogInfo');
+        } else if (addBehaviorLogInfo.type === 'group') {
+          addBehaviorLog('worksheet', worksheetId, {}, true);
+        } else {
+          addBehaviorLog('worksheet', worksheetId, {}, true);
+          addBehaviorLog('app', appId, {}, true);
+        }
+
         if (_.get(res, 'template.controls')) {
           res.template.controls = replaceControlsTranslateInfo(appId, worksheetId, res.template.controls);
         }
@@ -132,6 +195,10 @@ export function loadWorksheet(worksheetId, setRequest) {
                   },
             ),
           });
+          const currentView = find(res.views, { viewId });
+          if (currentView) {
+            dispatch(fireWhenViewLoaded(currentView, { controls: res.template.controls }));
+          }
           dispatch(setViewLayout(viewId));
           dispatch({
             type: 'WORKSHEET_SEARCH_CONFIG_INIT',
@@ -523,13 +590,28 @@ export function clearFilters(filters, view) {
 }
 
 // 更新快速筛选条件
-export function updateQuickFilter(filter = [], view) {
+export function updateQuickFilter(filter = [], view, { noLoad } = {}) {
   return (dispatch, getState) => {
     dispatch({
       type: 'WORKSHEET_UPDATE_QUICK_FILTER',
       filter: filter,
     });
-    dispatch(refreshSheet(view, { resetPageIndex: true }));
+    if (!noLoad) {
+      dispatch(refreshSheet(view, { resetPageIndex: true }));
+    }
+  };
+}
+
+// 更新快速筛选条件
+export function updateQuickFilterWithDefault(filter = []) {
+  return dispatch => {
+    dispatch({
+      type: 'WORKSHEET_UPDATE_QUICK_FILTER_WITH_DEFAULT',
+      filter: filter.map(condition => ({
+        ...condition,
+        values: formatFilterValues(condition.dataType, condition.values),
+      })),
+    });
   };
 }
 

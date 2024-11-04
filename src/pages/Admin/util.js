@@ -8,7 +8,7 @@ export const downloadFile = ({ url, params, exportFileName } = {}) => {
   })
     .then(response => response.blob())
     .then(blob => {
-      if (blob.type === 'application/json') {
+      if (blob.type.includes('application/json')) {
         const reader = new FileReader();
         reader.readAsText(blob, 'utf-8');
         reader.onload = function () {

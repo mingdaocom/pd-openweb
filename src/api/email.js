@@ -14,7 +14,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editSmtpSecret: function (args, options = {}) {
-
+     
      return mdyAPI('Email', 'EditSmtpSecret', args, options);
    },
   /**
@@ -25,7 +25,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getSmtpSecret: function (args, options = {}) {
-
+     
      return mdyAPI('Email', 'GetSmtpSecret', args, options);
    },
   /**
@@ -44,7 +44,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sendTest: function (args, options = {}) {
-
+     
      return mdyAPI('Email', 'SendTest', args, options);
    },
 };

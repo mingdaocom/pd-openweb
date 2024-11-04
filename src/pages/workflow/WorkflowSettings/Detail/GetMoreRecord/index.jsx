@@ -15,6 +15,7 @@ import cx from 'classnames';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
 import { checkConditionsIsNull } from '../../utils';
 import _ from 'lodash';
+import { Tooltip } from 'antd';
 
 export default class GetMoreRecord extends Component {
   constructor(props) {
@@ -90,6 +91,7 @@ export default class GetMoreRecord extends Component {
       execute,
       filters,
       destroy,
+      random,
     } = data;
 
     if (_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE], actionId) && !appId) {
@@ -150,6 +152,16 @@ export default class GetMoreRecord extends Component {
       }
     }
 
+    if (
+      _.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.FROM_RECORD], data.actionId) &&
+      random &&
+      !numberFieldValue.fieldValue &&
+      !numberFieldValue.fieldControlId
+    ) {
+      alert(_l('最多获取条数不能为空'), 2);
+      return;
+    }
+
     if (saveRequest) {
       return;
     }
@@ -170,6 +182,7 @@ export default class GetMoreRecord extends Component {
         execute,
         filters,
         destroy,
+        random,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -459,8 +472,18 @@ export default class GetMoreRecord extends Component {
         }
         data={data}
         updateSource={this.updateSource}
-        filterText={_l('设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获得所有数据')}
+        filterText={
+          <Fragment>
+            {_l('设置筛选条件，获得满足条件的数据。如果未设置筛选条件，则获得所有数据')}
+            {data.actionId === ACTION_ID.FROM_WORKSHEET && (
+              <Tooltip title={_l('请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期')}>
+                <i className="icon-knowledge-message Font16 mLeft5 Gray_9e" />
+              </Tooltip>
+            )}
+          </Fragment>
+        }
         filterEncryptCondition={data.actionId === ACTION_ID.FROM_WORKSHEET}
+        showRandom={data.actionId === ACTION_ID.FROM_WORKSHEET}
       />
     );
   }

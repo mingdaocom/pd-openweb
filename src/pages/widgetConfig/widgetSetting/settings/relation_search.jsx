@@ -374,6 +374,8 @@ export default function RelationSearch(props) {
           </div>
           <RelateSheetCover>
             <SortColumns
+              sortAutoChange
+              isShowColumns
               empty={<div />}
               min1msg={_l('至少显示一列')}
               noempty={false}

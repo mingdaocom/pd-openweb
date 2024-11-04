@@ -31,7 +31,7 @@ export const WFSTATUS_OPTIONS = [
 
 export const TEXT_FIELD_SHOWTEXT_TYPE = {
   26: 'accountId',
-  48: 'departmentId',
+  48: 'organizeId',
   27: 'departmentId',
   42: 'key',
   30: 'SHEET_FIELD',

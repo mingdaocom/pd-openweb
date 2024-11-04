@@ -8,6 +8,7 @@ import { find, head, includes, isEmpty } from 'lodash';
 import { SelectOtherField, OtherField, DynamicInput } from '../components';
 import { getOptions, handleAdvancedSettingChange } from '../../../../util/setting';
 import { OptionControl } from '../styled';
+import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 
 export const DefaultOptionSetting = styled(SettingItem)`
   .holder {
@@ -77,12 +78,26 @@ export const DefaultOptionsMenu = styled(DropdownContent)`
 `;
 
 export default function DefaultOptions(props) {
-  const { data, dynamicValue, onDynamicValueChange, onChange, defaultType } = props;
+  const { data, dynamicValue, onDynamicValueChange, onChange, defaultType, from } = props;
   const { type, default: defaultValue, enumDefault2, controlId, dataSource } = data;
   const [visible, setVisible] = useState(false);
   const checkedValue = dynamicValue.map(item => item.staticValue);
   const colorful = enumDefault2 === 1;
-  const options = getOptions(data);
+  let options = getOptions(data);
+
+  if (from === DYNAMIC_FROM_MODE.FAST_FILTER && _.get(data, 'advancedSetting.shownullitem') === '1') {
+    options = [
+      {
+        // color: '#C9E6FC',
+        hide: false,
+        index: 0,
+        isDeleted: false,
+        key: 'isEmpty',
+        score: 0,
+        value: _.get(data, 'advancedSetting.nullitemname') || _l('为空'),
+      },
+    ].concat(options);
+  }
   const isMulti = data.type === 10;
   const $wrap = createRef(null);
 
@@ -127,7 +142,7 @@ export default function DefaultOptions(props) {
   };
 
   const handleFieldClick = data => {
-    if (isMulti) {
+    if (isMulti && _.get(data, '[0].rcid') !== 'url') {
       const value = head(data) || {};
       if (value.cid) {
         const isExist = dynamicValue.some(item => item.cid === value.cid && item.rcid === value.rcid);

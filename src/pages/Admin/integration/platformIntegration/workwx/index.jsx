@@ -6,12 +6,13 @@ import { Popover, Radio, Input, Select } from 'antd';
 import ClipboardButton from 'react-clipboard.js';
 import Ajax from 'src/api/workWeiXin';
 import BuildAppNewRules from './BuildAppNewRules';
-import IntegrationSetPssword from '../../../components/IntegrationSetPssword';
+import IntegrationSetPassword from '../components/IntegrationSetPassword';
 import IntegrationSync from '../components/IntegrationSync';
 import InterfaceLicense from './components/InterfaceLicense';
 import ChartSetting from './components/ChartSetting';
 import { integrationFailed, checkClearIntergrationData } from '../utils';
 import CancelIntegration from '../components/CancelIntegration';
+import EnableScanLogin from '../components/EnableScanLogin';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import workwxPng1 from './workwxSyncCourse/img/1.png';
 import workwxPng2 from './workwxSyncCourse/img/2.png';
@@ -58,7 +59,7 @@ export default class Workwx extends React.Component {
       show2: false,
       isLoading: false,
       canSyncBtn: false,
-      intergrationScanEnabled: false,
+      integrationScanEnabled: false,
       customMappingFieldEnabled: false,
       jobnumberMappingField: null,
       fieldRadio: null,
@@ -100,7 +101,7 @@ export default class Workwx extends React.Component {
           SecretFormat: this.formatStr(res.secret),
           show1: !(res.corpId && res.agentId && res.secret && res.status != 2),
           show2: !(res.corpId && res.agentId && res.secret && res.status != 2),
-          intergrationScanEnabled: res.intergrationScanEnabled,
+          integrationScanEnabled: res.intergrationScanEnabled,
           customMappingFieldEnabled: res.customMappingFieldEnabled,
           jobnumberMappingField: res.jobnumberMappingField,
           fieldRadio: res.jobnumberMappingField !== 'workxeixinapp-userid' ? 'customField' : res.jobnumberMappingField,
@@ -138,19 +139,6 @@ export default class Workwx extends React.Component {
         });
       } else {
         alert(res.item2, 2);
-      }
-    });
-  };
-
-  handleChangeScanEnabled = checked => {
-    Ajax.editWXProjectScanEnabled({
-      projectId: this.props.projectId,
-      status: checked ? 0 : 1,
-    }).then(res => {
-      if (res) {
-        this.setState({
-          intergrationScanEnabled: !checked,
-        });
       }
     });
   };
@@ -480,7 +468,18 @@ export default class Workwx extends React.Component {
 
   renderTabContent = () => {
     const { projectId } = this.props;
-    const { currentTab, CorpId, status, isPassApply, intergrationType, syncWXLabel, qwQuickAprData = {} } = this.state;
+    const {
+      currentTab,
+      CorpId,
+      status,
+      isPassApply,
+      intergrationType,
+      syncWXLabel,
+      integrationScanEnabled,
+      canEditInfo,
+      isHasInfo,
+      isCloseDing,
+    } = this.state;
 
     if (currentTab === 'base') {
       return (
@@ -503,11 +502,17 @@ export default class Workwx extends React.Component {
         <Fragment>
           <div className="stepItem flexRow valignWrapper">
             <div className="flex">
-              <h3 className="stepTitle Font16 Gray mBottom24">{_l('企业微信扫码登录')}</h3>
-              <Switch
-                disabled={(this.state.canEditInfo && !this.state.isHasInfo) || this.state.isCloseDing}
-                checked={this.state.intergrationScanEnabled}
-                onClick={this.handleChangeScanEnabled}
+              <EnableScanLogin
+                integrationType={3}
+                projectId={projectId}
+                scanEnabled={integrationScanEnabled}
+                disabled={(canEditInfo && !isHasInfo) || isCloseDing}
+                href={
+                  intergrationType !== 2
+                    ? `/wxappSyncCourse/${projectId}#scanWorkwx`
+                    : 'https://help.mingdao.com/wecom/ways-login-HAP#scan-code-login'
+                }
+                updateScanEnabled={integrationScanEnabled => this.setState({ integrationScanEnabled })}
               />
               <div className="mTop16 syncBox">
                 <span className="Font14 Gray_75">{_l('开启后，在二级域名下使用企业微信扫一扫，直接登录')}</span>
@@ -524,10 +529,10 @@ export default class Workwx extends React.Component {
                 <Support className="mTop16 Font14" text={_l('如何实现企业微信扫码登录？')} type={3} href="https://help.mingdao.com/wecom/ways-login-HAP#scan-code-login" />
               )}
               {md.global.Config.IsLocal && (
-                <IntegrationSetPssword
+                <IntegrationSetPassword
                   password={this.state.password}
                   isSetPassword={this.state.isSetPassword}
-                  disabled={(this.state.canEditInfo && !this.state.isHasInfo) || this.state.isCloseDing}
+                  disabled={(canEditInfo && !isHasInfo) || isCloseDing}
                 />
               )}
               <div className="stepItem flexRow valignWrapper">

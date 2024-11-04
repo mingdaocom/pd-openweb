@@ -22,6 +22,17 @@ export default {
      return mdyAPI('Account', 'GetContactInfo', args, options);
    },
   /**
+  * 获取当前账户隐私的联系方式
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getMyContactInfo: function (args, options = {}) {
+     
+     return mdyAPI('Account', 'GetMyContactInfo', args, options);
+   },
+  /**
   * 获取个人账户的工作/教育履历
   * @param {Object} args 请求参数
   * @param {} args.type

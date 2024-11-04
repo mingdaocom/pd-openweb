@@ -144,14 +144,7 @@ export default function FillSettings(props) {
               <div className="commonMargin">
                 <CommonFieldDropdown
                   controls={originalControls
-                    .filter(item =>
-                      _.includes(
-                        controls.map(c => {
-                          return c.controlId;
-                        }),
-                        item.controlId,
-                      ),
-                    )
+                    .filter(item => _.find(controls, c => c.controlId === item.controlId) && item.type !== 29) //本地缓存 不支持关联记录字段填充
                     .map(item => {
                       return _.pick(item, ['controlId', 'controlName', 'type']);
                     })}

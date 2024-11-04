@@ -2,15 +2,14 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { quickSelectDept } from 'ming-ui/functions';
 import cx from 'classnames';
-import { Tooltip } from 'ming-ui';
+import { Tooltip, SortableList } from 'ming-ui';
 import SelectUser from 'mobile/components/SelectUser';
 import departmentAjax from 'src/api/department';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { browserIsMobile } from 'src/util';
+import { browserIsMobile, getCurrentProject } from 'src/util';
 import { dealRenderValue, dealUserRange } from '../../tools/utils';
 import _ from 'lodash';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
-import { getCurrentProject } from 'src/util';
 
 export default class Widgets extends Component {
   static propTypes = {
@@ -98,78 +97,107 @@ export default class Widgets extends Component {
     }
   }
 
+  renderItem({ item, items = [], dragging }) {
+    const { projectId, disabled, enumDefault, advancedSetting = {} } = this.props;
+    const { allpath } = advancedSetting;
+
+    return (
+      <Tooltip
+        key={item.departmentId}
+        mouseEnterDelay={0.6}
+        disable={!projectId || dragging}
+        text={
+          !_.get(window, 'shareState.shareId')
+            ? () =>
+                new Promise((resolve, reject) => {
+                  if (!projectId) {
+                    return reject();
+                  }
+
+                  if (item.isDelete) {
+                    resolve(_l('%0部门已被删除', item.deleteCount > 1 ? `${item.deleteCount}个` : ''));
+                    return;
+                  }
+
+                  if (allpath === '1' || _.isEmpty(getCurrentProject(projectId))) {
+                    return resolve(item.departmentName);
+                  }
+
+                  departmentAjax
+                    .getDepartmentFullNameByIds({
+                      projectId,
+                      departmentIds: [item.departmentId],
+                    })
+                    .then(res => {
+                      resolve(_.get(res, '0.name'));
+                    });
+                })
+            : null
+        }
+      >
+        <div
+          className={cx('customFormControlTags pLeft10', {
+            selected: browserIsMobile() && !disabled,
+            isDelete: item.isDelete,
+          })}
+          key={item.departmentId}
+        >
+          <span
+            className="ellipsis"
+            style={{
+              maxWidth: 200,
+              ...(allpath === '1' && !item.isDelete ? { direction: 'rtl', unicodeBidi: 'normal' } : {}),
+            }}
+          >
+            {item.departmentName}
+            {item.deleteCount > 1 && <span className="Gray mLeft5">{item.deleteCount}</span>}
+          </span>
+
+          {((enumDefault === 0 && items.length === 1) || enumDefault !== 0) && !disabled && (
+            <i className="icon-minus-square Font16 tagDel" onClick={() => this.removeDepartment(item.departmentId)} />
+          )}
+        </div>
+      </Tooltip>
+    );
+  }
+
+  handleSort = items => {
+    const { onChange, value } = this.props;
+
+    onChange(
+      JSON.stringify(
+        items
+          .map(l => ({
+            ...l,
+            departmentName: !l.departmentId
+              ? l.departmentName
+              : _.get(
+                  safeParse(value || '[]').find(m => m.departmentId === l.departmentId),
+                  'departmentName',
+                ),
+          })),
+      ),
+    );
+  };
+
   render() {
     const { projectId, disabled, enumDefault, appId, advancedSetting = {}, formData, masterData = {} } = this.props;
-    const { allpath } = advancedSetting;
     const value = dealRenderValue(this.props.value, advancedSetting);
     const { showSelectDepartment } = this.state;
     const deptRange = dealUserRange(this.props, formData, masterData);
 
     return (
       <div className="customFormControlBox customFormControlUser">
-        {value.map((item, index) => {
-          return (
-            <Tooltip
-              key={item.departmentId}
-              mouseEnterDelay={0.6}
-              disable={!projectId}
-              text={
-                !_.get(window, 'shareState.shareId')
-                  ? () =>
-                      new Promise((resolve, reject) => {
-                        if (!projectId) {
-                          return reject();
-                        }
-
-                        if (item.isDelete) {
-                          resolve(_l('%0部门已被删除', item.deleteCount > 1 ? `${item.deleteCount}个` : ''));
-                          return;
-                        }
-
-                        if (allpath === '1' || _.isEmpty(getCurrentProject(projectId))) {
-                          return resolve(item.departmentName);
-                        }
-
-                        departmentAjax
-                          .getDepartmentFullNameByIds({
-                            projectId,
-                            departmentIds: [item.departmentId],
-                          })
-                          .then(res => {
-                            resolve(_.get(res, '0.name'));
-                          });
-                      })
-                  : null
-              }
-            >
-              <div
-                className={cx('customFormControlTags pLeft10', {
-                  selected: browserIsMobile() && !disabled,
-                  isDelete: item.isDelete,
-                })}
-                key={index}
-              >
-                <span
-                  className="ellipsis"
-                  style={{
-                    maxWidth: 200,
-                    ...(allpath === '1' && !item.isDelete ? { direction: 'rtl', unicodeBidi: 'normal' } : {}),
-                  }}
-                >
-                  {item.departmentName}
-                  {item.deleteCount > 1 && <span className="Gray mLeft5">{item.deleteCount}</span>}
-                </span>
-
-                {((enumDefault === 0 && value.length === 1) || enumDefault !== 0) && !disabled && (
-                  <i
-                    className="icon-minus-square Font16 tagDel"
-                    onClick={() => this.removeDepartment(item.departmentId)}
-                  />
-                )}
-              </div>
-            </Tooltip>
-          );
-        })}
+        <SortableList
+          items={value.map(l => ({ ...l, canDrag: !!l.departmentId }))}
+          canDrag={!disabled && enumDefault !== 0}
+          itemKey="departmentId"
+          itemClassName="inlineFlex grab"
+          direction="vertical"
+          renderBody
+          renderItem={item => this.renderItem(item)}
+          onSortEnd={this.handleSort}
+        />
 
         {!disabled && (
           <div

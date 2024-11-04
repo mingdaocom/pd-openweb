@@ -198,7 +198,7 @@ export const formatRecordPoint = (row, view, list = [], controls, currentTime) =
       const key = type === 'Week' ? 'h' : type === 'Month' ? 'd' : 'm';
       // 和当前时间相等
       if (moment(time).isSame(moment(list[i].date))) {
-        n = i;
+        n = isEnd ? i + 1 : i;
       } else {
         if (i < list.length - 1) {
           if (
@@ -251,10 +251,10 @@ export const formatRecordPoint = (row, view, list = [], controls, currentTime) =
     type === 'Month'
       ? moment(endDate).add(1, 'd').subtract(1, 'seconds')
       : type === 'Week'
-      ? moment(endDate).add(12, 'h').subtract(1, 'seconds')
-      : type === 'Year'
-      ? moment(endDate).endOf('month')
-      : moment(endDate).add(30, 'minutes').subtract(1, 'seconds');
+        ? moment(endDate).add(12, 'h').subtract(1, 'seconds')
+        : type === 'Year'
+          ? moment(endDate).endOf('month')
+          : moment(endDate).add(30, 'minutes').subtract(1, 'seconds');
   let start;
   let end;
   //结束时间早于画布开始时间 或 开始时间晚于画布结束时间

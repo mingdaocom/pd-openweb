@@ -112,6 +112,12 @@ export default class PortalUserSet extends Component {
     window.currentLeave = true;
     login.loginOut().then(data => {
       if (data) {
+        let { worksheetId } = this.props;
+        // 清除不走缓存
+        window.clearLocalDataTime({
+          requestData: { worksheetId: worksheetId },
+          clearSpecificKey: 'Worksheet_GetWorksheetInfo',
+        });
         removePssId();
         //删除自动登录的key
         const appId = this.props.appId || getAppId(this.props.match.params);

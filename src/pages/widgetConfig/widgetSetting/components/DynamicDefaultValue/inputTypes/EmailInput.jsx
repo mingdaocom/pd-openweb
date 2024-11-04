@@ -2,9 +2,10 @@ import React, { useState, useEffect, createRef } from 'react';
 import { Input } from 'antd';
 import { DynamicValueInputWrap } from '../styled';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
+import { DYNAMIC_FROM_MODE } from '../config';
 
 export default function (props) {
-  const { onDynamicValueChange, dynamicValue = [], data = {}, defaultType } = props;
+  const { onDynamicValueChange, dynamicValue = [], data = {}, defaultType, from } = props;
   const { staticValue = '', cid = '' } = dynamicValue[0] || {};
   const hasAccountId = !!_.get(safeParse(staticValue), 'accountId');
   const [value, setValue] = useState(staticValue);
@@ -20,9 +21,9 @@ export default function (props) {
     onDynamicValueChange(newValue || []);
   };
 
-  const handleChange = value => {
+  const handleChange = (value, withValueChange = true) => {
     setValue(value);
-    onDynamicValueChange(value ? [{ cid: '', rcid: '', staticValue: value }] : []);
+    withValueChange && onDynamicValueChange(value ? [{ cid: '', rcid: '', staticValue: value }] : []);
   };
   const onTriggerClick = () => {
     defaultType && $wrap.current.triggerClick();
@@ -38,11 +39,14 @@ export default function (props) {
           value={value}
           style={{ width: 'calc(100% - 36px)', borderRadius: '3px 0 0 3px' }}
           onBlur={() => {
+            if (from === DYNAMIC_FROM_MODE.FAST_FILTER) {
+              return onDynamicValueChange(value ? [{ cid: '', rcid: '', staticValue: value }] : []);
+            }
             if (value) {
               setValue(value);
             }
           }}
-          onChange={e => handleChange(e.target.value)}
+          onChange={e => handleChange(e.target.value, from !== DYNAMIC_FROM_MODE.FAST_FILTER)}
         />
       )}
       <SelectOtherField {...props} onDynamicValueChange={setDynamicValue} ref={$wrap} />

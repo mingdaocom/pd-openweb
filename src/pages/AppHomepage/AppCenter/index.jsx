@@ -15,6 +15,7 @@ import { getDashboardColor } from '../Dashboard/utils';
 import homeAppAjax from 'src/api/homeApp';
 import { navigateTo } from 'src/router/navigateTo';
 import { getMyPermissions } from 'src/components/checkPermission';
+import moment from 'moment';
 
 const Con = styled.div`
   display: flex;
@@ -47,8 +48,27 @@ function AppCenter(props) {
   const [platformSetting, setPlatformSetting] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [myPermissions, setMyPermissions] = useState([]);
+  const [advancedThemes, setAdvancedThemes] = useState([]);
+
+  const isWWW = location.host.includes('www.mingdao.com');
+  const themeFileUrlPrefix = `https://filepub.mingdao.com/dashboard/${isWWW ? 'www' : 'meihua'}`;
+
+  const currentThemeKey = _.get(platformSetting, 'advancedSetting.themeKey');
+  const currentTheme = currentThemeKey
+    ? _.get(platformSetting, 'advancedSetting.appIcon')
+      ? platformSetting.advancedSetting
+      : {
+          themeKey: currentThemeKey,
+          appIcon: `${themeFileUrlPrefix}/${currentThemeKey}/app.png`,
+          appCollectIcon: `${themeFileUrlPrefix}/${currentThemeKey}/app_collect.png`,
+          chartCollectIcon: `${themeFileUrlPrefix}/${currentThemeKey}/chart.png`,
+          recordFavIcon: `${themeFileUrlPrefix}/${currentThemeKey}/record.png`,
+          processIcon: `${themeFileUrlPrefix}/${currentThemeKey}/process.png`,
+          recentIcon: `${themeFileUrlPrefix}/${currentThemeKey}/recent.png`,
+          bgImg: `${themeFileUrlPrefix}/${currentThemeKey}/background.png`,
+        }
+    : {};
   const dashboardColor = getDashboardColor((platformSetting || {}).color);
-  const currentTheme = (platformSetting || {}).advancedSetting || {};
 
   useEffect(() => {
     emitter.addListener('CHANGE_CURRENT_PROJECT', changeProject);
@@ -56,6 +76,19 @@ function AppCenter(props) {
     getTodoCount().then(data => setCountData(data));
     currentProject.project !== 'external' &&
       getMyPermissions(currentProject.projectId, false).then(permissionIds => setMyPermissions(permissionIds));
+
+    !md.global.Config.IsLocal &&
+      fetch(`${themeFileUrlPrefix}/themes.js?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 6)}`)
+        .then(res => res.text())
+        .then(res => {
+          const data = eval(res) || [];
+          const themes = data.map(item => ({
+            ...item,
+            themeIcon: `${themeFileUrlPrefix}/${item.themeKey}/main.png`,
+            bulletinPic: `${themeFileUrlPrefix}/${item.themeKey}/banner.jpg`,
+          }));
+          setAdvancedThemes(themes);
+        });
 
     return () => {
       emitter.removeListener('CHANGE_CURRENT_PROJECT', changeProject);
@@ -149,8 +182,10 @@ function AppCenter(props) {
               platformSetting={platformSetting}
               updatePlatformSetting={updatePlatformSetting}
               dashboardColor={dashboardColor}
-              hasBgImg={keyStr === 'dashboard' && currentTheme.bgImg}
+              hasBgImg={keyStr === 'dashboard' && currentThemeKey}
               myPermissions={myPermissions}
+              advancedThemes={advancedThemes}
+              currentTheme={currentTheme}
             />
           </React.Fragment>
         );
@@ -177,8 +212,8 @@ function AppCenter(props) {
     <WaterMark projectId={currentProject.projectId}>
       <Con
         style={{
-          backgroundImage: keyStr === 'dashboard' && currentTheme.bgImg ? `url(${currentTheme.bgImg})` : 'unset',
-          backgroundColor: keyStr === 'dashboard' && currentTheme.bgImg ? dashboardColor.bgColor : 'unset',
+          backgroundImage: keyStr === 'dashboard' && currentThemeKey ? `url(${currentTheme.bgImg})` : 'unset',
+          backgroundColor: keyStr === 'dashboard' && currentThemeKey ? dashboardColor.bgColor : 'unset',
         }}
       >
         <SideNav
@@ -186,7 +221,7 @@ function AppCenter(props) {
           currentProject={currentProject}
           countData={countData}
           dashboardColor={dashboardColor}
-          hasBgImg={keyStr === 'dashboard' && currentTheme.bgImg}
+          hasBgImg={keyStr === 'dashboard' && currentThemeKey}
           myPermissions={myPermissions}
         />
         {renderCon()}

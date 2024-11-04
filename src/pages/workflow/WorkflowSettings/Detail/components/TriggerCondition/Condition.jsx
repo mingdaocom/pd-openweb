@@ -4,13 +4,14 @@ import { Dropdown, Icon, Checkbox, CityPicker, Input } from 'ming-ui';
 import { DateTime } from 'ming-ui/components/NewDateTimePicker';
 import cx from 'classnames';
 import TagInput from '../TagInput';
-import { CONTROLS_NAME, CONDITION_TYPE, DATE_LIST, FORMAT_TEXT } from '../../../enum';
+import { CONDITION_TYPE, DATE_LIST, FORMAT_TEXT } from '../../../enum';
 import {
   getConditionList,
   getConditionNumber,
   getFilterText,
   handleGlobalVariableName,
   checkConditionAllowEmpty,
+  getControlTypeName,
 } from '../../../utils';
 import ActionFields from '../ActionFields';
 import Tag from '../Tag';
@@ -105,7 +106,7 @@ export default class TriggerCondition extends Component {
             return {
               type: o.type,
               value: o.controlId,
-              field: CONTROLS_NAME[o.type],
+              field: getControlTypeName(o),
               text: o.controlName,
               sourceType: o.sourceControlType,
             };
@@ -131,7 +132,7 @@ export default class TriggerCondition extends Component {
   renderTitle(item) {
     return (
       <Fragment>
-        <span className="Gray_75 mRight5">[{CONTROLS_NAME[item.type]}]</span>
+        <span className="Gray_75 mRight5">[{getControlTypeName(item)}]</span>
         <Tooltip title={item.controlName ? null : `ID：${item.controlId}`}>
           <span style={{ color: item.controlName ? '#333' : '#f44336' }}>{item.controlName || _l('字段已删除')}</span>
         </Tooltip>
@@ -665,6 +666,13 @@ export default class TriggerCondition extends Component {
       }
 
       if (_.includes(['9', '10', '17', '18', '39', '40', '41', '42'], item.conditionId)) {
+        const execType =
+          conditionValues[0] && conditionValues[0].type === null
+            ? _.size(conditionValues[0].value) <= 2
+              ? parseInt(conditionValues[0].value)
+              : 20
+            : '';
+
         return (
           <div className="flex">
             <div className="flexRow relative">
@@ -674,12 +682,16 @@ export default class TriggerCondition extends Component {
                 <Dropdown
                   className="flowDropdown flex clearBorderRadius"
                   data={dateList}
-                  value={conditionValues[0] && conditionValues[0].type ? conditionValues[0].type : undefined}
+                  value={
+                    conditionValues[0] && conditionValues[0].type !== undefined
+                      ? conditionValues[0].type || execType
+                      : undefined
+                  }
                   border
                   renderTitle={
-                    !conditionValues[0] || !conditionValues[0].type
+                    !conditionValues[0] || conditionValues[0].type === undefined
                       ? () => <span className="Gray_75">{_l('请选择')}</span>
-                      : () => <span>{DATE_LIST.find(o => o.value === conditionValues[0].type).text}</span>
+                      : () => <span>{DATE_LIST.find(o => o.value === (conditionValues[0].type || execType)).text}</span>
                   }
                   onChange={type =>
                     this.updateConditionDateValue({
@@ -694,7 +706,7 @@ export default class TriggerCondition extends Component {
               {this.renderOtherFields(item, i, j)}
             </div>
 
-            {conditionValues[0] && conditionValues[0].type === 20 && (
+            {conditionValues[0] && (conditionValues[0].type === 20 || execType === 20) && (
               <div className="mTop10 triggerConditionNum triggerConditionDate ThemeBorderColor3">
                 <DateTime
                   selectedValue={

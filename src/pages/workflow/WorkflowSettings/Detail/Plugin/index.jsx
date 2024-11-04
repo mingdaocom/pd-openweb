@@ -85,7 +85,7 @@ export default class Plugin extends Component {
     controls.forEach(item => {
       if (item.required) {
         data.fields.forEach(o => {
-          if (item.controlId === o.fieldId && !o.fieldValue && !o.fieldValueId) {
+          if (item.controlId === o.fieldId && !o.nodeId && !o.fieldValue && !o.fieldValueId) {
             hasError++;
           }
         });
@@ -126,7 +126,9 @@ export default class Plugin extends Component {
         <div className="flex">
           <ScrollView>
             <div className="workflowDetailBox">
-              <div style={{ marginTop: -15 }}>
+              {data.app.describe && <div className="Font14 Gray_75 workflowDetailDesc">{data.app.describe}</div>}
+
+              <div style={{ marginTop: data.app.describe ? 0 : -15 }}>
                 <ProcessParameters
                   {...this.props}
                   data={Object.assign({}, data, { subProcessVariables: data.controls })}

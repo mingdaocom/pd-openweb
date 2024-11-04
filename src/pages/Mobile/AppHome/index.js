@@ -18,7 +18,7 @@ import arrowRightImg from './img/arrowRight.png';
 import arrowLeftImg from './img/arrowLeft.png';
 import './index.less';
 import AppGroupSkeleton from './components/AppGroupSkeleton';
-import { getCurrentProject, addBehaviorLog } from 'src/util';
+import { getCurrentProject, addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
 import TextScanQRCode from 'src/components/newCustomFields/components/TextScanQRCode';
 import { loadSDK } from 'src/components/newCustomFields/tools/utils';
 import RegExpValidator from 'src/util/expression';
@@ -56,6 +56,7 @@ class AppHome extends React.Component {
     }
     window.addEventListener('popstate', this.closePage);
     loadSDK();
+    window.addEventListener('popstate', this.onQueryChange);
   }
   componentWillUnmount() {
     $('html').removeClass('appHomeMobile');
@@ -63,7 +64,12 @@ class AppHome extends React.Component {
     setTimeout(() => {
       window.removeEventListener('popstate', this.closePage);
     }, 0);
+    window.removeEventListener('popstate', this.onQueryChange);
   }
+
+  onQueryChange = () => {
+    handleReplaceState('page', 'collectRecord', () => this.setState({ collectRecord: {} }));
+  };
 
   getProject = () => {
     const projectObj = getCurrentProject(
@@ -327,7 +333,10 @@ class AppHome extends React.Component {
       .filter(_.identity);
 
     if (_.isEmpty(recentAppIds) && _.isEmpty(recentAppItems)) return;
-    const list = recentType === 'app' ? recentApps.filter(o => o && !o.webMobileDisplay) : recentAppItems;
+    let list = recentType === 'app' ? recentApps.filter(o => o && !o.webMobileDisplay) : recentAppItems;
+    list = _.isEmpty(list)
+      ? list
+      : list.concat([{ id: 'empty' }, { id: 'empty' }, { id: 'empty' }, { id: 'empty' }, { id: 'empty' }]);
 
     return (
       <Fragment>
@@ -339,14 +348,14 @@ class AppHome extends React.Component {
           showMore: true,
           iconClass: 'recentIcon',
         })}
-        <div className="groupCon" style={{ height: 210 }}>
+        <div className="groupCon">
           {_.isEmpty(list) ? (
             <EmptyStatus emptyType="recent" emptyTxt={_l('没有最近使用')} />
           ) : (
             list.slice(0, 6).map((item, index) => {
               return (
                 <ApplicationItem
-                  className="recentList"
+                  className={cx('recentList', { empty: item.id === 'empty' })}
                   direction="horizontal"
                   index={index}
                   radius={40}
@@ -390,6 +399,7 @@ class AppHome extends React.Component {
                 key={favoriteId}
                 className="flexRow mBottom14 alignItemsCenter"
                 onClick={() => {
+                  handlePushState('page', 'collectRecord');
                   addBehaviorLog('worksheetRecord', worksheetId, { rowId });
                   this.setState({ collectRecord: item });
                 }}

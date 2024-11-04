@@ -90,7 +90,11 @@ function WorksheetRecordLogSubTable(props) {
         relationWorksheetId: recordInfo.worksheetId,
       })
       .then(res => {
-        res.template.controls = replaceControlsTranslateInfo(recordInfo.appId, control.dataSource, res.template.controls);
+        res.template.controls = replaceControlsTranslateInfo(
+          recordInfo.appId,
+          control.dataSource,
+          res.template.controls,
+        );
         let _column = showControls.map(key => {
           let _cont = res.template.controls.concat(SYSTEM_CONTROL).find(l => l.controlId === key);
           return {
@@ -102,20 +106,25 @@ function WorksheetRecordLogSubTable(props) {
               if (record.type === 'update') {
                 let oldValue = record.oldValue[key] ? [record.oldValue[key]] : [];
                 let newValue = record.newValue[key] ? [record.newValue[key]] : [];
+
                 if (_.startsWith(record.oldValue[key], '[')) {
                   oldValue = safeParse(record.oldValue[key], 'array');
                 }
+
                 if (_.startsWith(record.newValue[key], '[')) {
                   newValue = safeParse(record.newValue[key], 'array');
                 }
+
                 let deleteValue = _.difference(oldValue, newValue);
                 let addValue = _.difference(newValue, oldValue);
                 let defaultValue = _.intersection(newValue, oldValue);
+
                 if (_cont && Object.keys(TEXT_FIELD_SHOWTEXT_TYPE).find(l => l == _cont.type)) {
                   deleteValue = _.differenceBy(oldValue, newValue, TEXT_FIELD_SHOWTEXT_TYPE[_cont.type]);
                   addValue = _.differenceBy(newValue, oldValue, TEXT_FIELD_SHOWTEXT_TYPE[_cont.type]);
                   defaultValue = _.intersectionBy(newValue, oldValue, TEXT_FIELD_SHOWTEXT_TYPE[_cont.type]);
                 }
+
                 return (
                   <React.Fragment>
                     {renderUpdataList(deleteValue, _cont, 'remove')}

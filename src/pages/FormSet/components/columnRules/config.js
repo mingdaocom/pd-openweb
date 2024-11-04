@@ -3,6 +3,7 @@ import {
   checkConditionAvailable,
   getTypeKey,
   getFilterTypes,
+  getConditionType,
 } from 'src/pages/worksheet/common/WorkSheetFilter/util.js';
 import {
   CONTROL_FILTER_WHITELIST,
@@ -232,7 +233,12 @@ export function checkConditionCanSave(filters = [], isSingle) {
     return tempData.every(i => {
       const conditionGroupKey = getTypeKey(i.dataType);
       const conditionGroup = CONTROL_FILTER_WHITELIST[conditionGroupKey] || {};
-      const conditionGroupType = conditionGroup.value;
+      const conditionGroupType = getConditionType({
+        ...i,
+        controlType: i.dataType,
+        conditionGroupType: conditionGroup.value,
+        type: i.filterType,
+      });
       return checkConditionAvailable({
         ...i,
         type: i.filterType || i.type,
@@ -519,7 +525,13 @@ export const filterData = (columns = [], filterItem = [], isSetting, relationCon
       sourceControlType = isSetting || sourceControlType !== -1 ? sourceControlType : data.sourceControlType;
       const conditionGroupKey = getTypeKey(type === 30 ? sourceControlType : type);
       const conditionGroup = CONTROL_FILTER_WHITELIST[conditionGroupKey] || {};
-      const conditionGroupType = conditionGroup.value;
+      const conditionGroupType = getConditionType({
+        ...item,
+        controlType: item.dataType,
+        conditionGroupType: conditionGroup.value,
+        type: item.filterType,
+      });
+
       const value =
         isSetting && item.dynamicSource && item.dynamicSource.length > 0
           ? filterDataRelationText(item.dynamicSource, columns, sourceControlId)

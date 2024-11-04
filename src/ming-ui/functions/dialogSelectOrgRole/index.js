@@ -59,10 +59,11 @@ class DialogSelectOrgRole extends Component {
       });
   }
 
-  fetchData(groups, orgRoleGroupId) {
+  fetchData(groups, orgRoleGroupId, index) {
     const { projectId, appointedOrganizeIds = [] } = this.props;
     const { keywords, pageIndex = 1, treeData, searchList } = this.state;
     let treeList = groups || treeData;
+    const fetchPageIndex = index || pageIndex;
 
     let isShowRole =
       !md.global.Account.isPortal &&
@@ -78,7 +79,7 @@ class DialogSelectOrgRole extends Component {
     this.promise = organizeAjax.getOrganizes({
       keywords,
       projectId,
-      pageIndex,
+      pageIndex: fetchPageIndex,
       pageSize: keywords ? 50 : 500,
       appointedOrganizeIds,
       orgRoleGroupId,
@@ -86,7 +87,7 @@ class DialogSelectOrgRole extends Component {
     this.promise
       .then(result => {
         if (keywords) {
-          let list = pageIndex === 1 ? result.list : searchList.concat(result.list);
+          let list = fetchPageIndex === 1 ? result.list : searchList.concat(result.list);
           this.setState({
             searchList: list,
             isMore: result.allCount > list.length,
@@ -104,8 +105,12 @@ class DialogSelectOrgRole extends Component {
           treeList[0] && this.setState({ expendTreeNodeKey: [treeList[0].orgRoleGroupId] });
         } else {
           let index = _.findIndex(treeList, l => l.orgRoleGroupId === orgRoleGroupId);
-          treeList[index].children = result.list;
+          let list =
+            fetchPageIndex === 1 ? result.list : _.unionBy(treeList[index].children, result.list, 'organizeId');
+          treeList[index].children = list;
           treeList[index].fetched = true;
+          treeList[index].hasMore = result.allCount > list.length;
+          treeList[index].pageIndex = fetchPageIndex;
         }
 
         this.setState({
@@ -257,6 +262,14 @@ class DialogSelectOrgRole extends Component {
                   </div>
                 )}
                 {this.renderChildren(groupItem)}
+                {groupItem.hasMore && (
+                  <div
+                    className="roleItem Hand valignWrapper ThemeColor"
+                    onClick={() => this.fetchData(undefined, groupItem.orgRoleGroupId, groupItem.pageIndex + 1)}
+                  >
+                    <span className={cx({ mLeft16: list.length > 1 })}>{_l('加载更多')}</span>
+                  </div>
+                )}
               </Fragment>
             );
           })}

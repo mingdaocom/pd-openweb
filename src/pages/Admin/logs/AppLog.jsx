@@ -34,13 +34,13 @@ export default class AppLog extends Component {
   componentDidMount() {}
 
   render() {
-    const { appId, projectId } = _.get(this.props, 'match.params') || '';
+    const { appId, projectId, worksheetId } = _.get(this.props, 'match.params') || '';
 
     return (
       <AppLogWrap className="orgManagementWrap h100">
         {!appId && <AdminTitle prefix={_l('日志 - 应用')} />}
 
-        <AppAndWorksheetLog projectId={appId ? projectId : Config.projectId} appId={appId} />
+        <AppAndWorksheetLog projectId={appId ? projectId : Config.projectId} appId={appId} worksheetId={worksheetId} />
       </AppLogWrap>
     );
   }

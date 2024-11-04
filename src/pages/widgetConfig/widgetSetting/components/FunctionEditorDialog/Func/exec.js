@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, { isNumber } from 'lodash';
 import dayjs from 'dayjs';
 import qs from 'query-string';
 import { formatControlValue } from 'src/pages/worksheet/util-purejs';
@@ -81,6 +81,11 @@ function formatFunctionResult(control, value) {
       if (result === 'Invalid date') {
         result = undefined;
       }
+      break;
+    case WIDGETS_TO_API_TYPE_ENUM.LOCATION:
+      const resultArr = _.isString(result) ? result.split(',') : [].concat(result);
+      const [x, y, title, address] = resultArr;
+      result = x && y && !_.isNaN(Number(x)) && !_.isNaN(Number(y)) ? JSON.stringify({ x, y, title, address }) : '';
       break;
   }
   return result;

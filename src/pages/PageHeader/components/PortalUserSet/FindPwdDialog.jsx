@@ -217,7 +217,7 @@ export default function TelDialog(props) {
         ticket: res.ticket,
         randStr: res.randstr,
         captchaType: md.global.getCaptchaType(),
-        account: props.account,
+        account: encrypt(props.account),
         codeType: 4, //更新密码
       };
       let thenFn = data => {

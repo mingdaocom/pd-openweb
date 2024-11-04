@@ -207,6 +207,8 @@ export default function WidgetIntro(props) {
           onChange({
             type: 34,
             size: WHOLE_SIZE,
+            unique: false,
+            enumDefault: 2,
             advancedSetting: {
               allowadd: '1',
               allowcancel: '1',
@@ -281,6 +283,7 @@ export default function WidgetIntro(props) {
             ...handleAdvancedSettingChange(newData, { searchrange: '1', dynamicsrc: '', defaulttype: '' }),
             ..._.pick(data, ['showControls']),
             type: 29,
+            enumDefault: 2,
           });
         },
       });

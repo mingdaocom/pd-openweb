@@ -9,12 +9,12 @@ export class Count extends Component {
     super(props);
   }
   render() {
-    const { smallTitle, isPivotTable, summary, yaxisList, yAxis, extra, onChangeSummary } = this.props;
+    const { smallTitle, isCollectMode, isCalculateMode = true, summary, yaxisList, yAxis = {}, extra, onChangeSummary } = this.props;
     return (
       <Fragment>
-        {isPivotTable && extra}
+        {isCollectMode && extra}
         {smallTitle && smallTitle}
-        {!isPivotTable && (
+        {!isCollectMode && (
           <div className="mBottom16">
             <div className="mBottom8">{_l('显示字段')}</div>
             <Select
@@ -38,11 +38,11 @@ export class Count extends Component {
             </Select>
           </div>
         )}
-        {(isPivotTable ? true : summary.controlId) && (
+        {(isCollectMode ? true : summary.controlId) && (
           <div className="mBottom16">
             <div className="flexRow valignWrapper mBottom8">
               <div>{_l('汇总方式')}</div>
-              {isPivotTable && summary.type === 5 && (
+              {isCollectMode && summary.type === 5 && (
                 <Tooltip placement="bottom" title={_l('汇总按照计算方式显示，需要计算选择的字段和添加的计算字段都显示在透视表中')}>
                   <Icon className="Font15 Gray_9e pointer mLeft5" icon="info" />
                 </Tooltip>
@@ -54,7 +54,7 @@ export class Count extends Component {
               suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
               onChange={value => {
                 const item = _.find(normTypes, { value });
-                if (isPivotTable) {
+                if (isCollectMode) {
                   onChangeSummary({
                     type: item.value,
                     name: item.value === 1 ? '' : item.text,
@@ -68,7 +68,7 @@ export class Count extends Component {
                 }
               }}
             >
-              {(isPivotTable && yAxis.controlType === 10000001 ? normTypes : normTypes.filter(n => n.value !== 5)).map(item => (
+              {(isCalculateMode && yAxis.controlType === 10000001 ? normTypes.filter(n => ![6].includes(n.value)) : normTypes.filter(n => ![5, 6].includes(n.value))).map(item => (
                 <Select.Option className="selectOptionWrapper" value={item.value}>
                   {item.alias || item.text}
                 </Select.Option>

@@ -34,11 +34,19 @@ export const Overload = (props) => {
 export const Abnormal = (props) => {
   const { isEdit, status } = props;
   if (isEdit) {
-    return (
-      <div className="flex flexColumn valignWrapper Gray_9e Font16 h100" style={style}>
-        {_l('选择或将字段拖拽到右侧维度、数值栏添加数据')}
-      </div>
-    );
+    if (status === -3) {
+      return (
+        <div className="flex flexColumn valignWrapper Gray_9e Font16 h100" style={style}>
+          {_l('服务异常，请稍后重试')}
+        </div>
+      );
+    } else {
+      return (
+        <div className="flex flexColumn valignWrapper Gray_9e Font16 h100" style={style}>
+          {_l('选择或将字段拖拽到右侧维度、数值栏添加数据')}
+        </div>
+      );
+    }
   } else {
     if (status === -1) {
       return (

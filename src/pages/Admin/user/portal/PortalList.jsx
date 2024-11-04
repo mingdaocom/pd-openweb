@@ -203,12 +203,8 @@ export default class PortalList extends Component {
         <div className="w150 ellipsis">{item.mobilePhone}</div>
         <div className="w150 ellipsis">{item.email}</div>
         <div className="columnWidth ellipsis">{item.appName}</div>
-        <div className="columnWidth ellipsis">
-          {item.createTime ? moment(item.createTime).format('YYYY年MM月DD日 HH:mm') : ''}
-        </div>
-        <div className="columnWidth ellipsis">
-          {item.lastTime ? moment(item.lastTime).format('YYYY年MM月DD日 HH:mm') : ''}
-        </div>
+        <div className="columnWidth ellipsis">{item.createTime ? createTimeSpan(item.createTime) : ''}</div>
+        <div className="columnWidth ellipsis">{item.lastTime ? createTimeSpan(item.lastTime) : ''}</div>
         <div className="w60 mRight20 TxtCenter">
           <span className="Hand deleteBtn" onClick={() => this.handleDelete([item.accountId])}>
             {_l('删除')}

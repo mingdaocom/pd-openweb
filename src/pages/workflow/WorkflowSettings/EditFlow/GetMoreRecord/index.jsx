@@ -104,7 +104,7 @@ export default class GetMoreRecord extends Component {
               {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
             </div>
           </div>
-          <CreateNode {...this.props} />
+          {item.resultTypeId ? <div className="workflowLineBtn" /> : <CreateNode {...this.props} />}
         </section>
       </div>
     );

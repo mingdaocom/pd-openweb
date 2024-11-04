@@ -6,7 +6,12 @@ import DataCell from './DataCell';
 import cx from 'classnames';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { ROW_HEIGHT } from 'worksheet/constants/enum';
-import { checkCellIsEmpty, controlIsNumber, getRecordColor } from 'worksheet/util';
+import {
+  checkCellIsEmpty,
+  controlIsNumber,
+  getRecordColor,
+  getRelateRecordCountOfControlFromRow,
+} from 'worksheet/util';
 import { getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import styled from 'styled-components';
@@ -132,6 +137,7 @@ export function getIndex({
 const MemorizedDataCell = memo(DataCell, (prevProps, nextProps) => {
   const compareKeys = [
     'lineEditable',
+    'disableQuickEdit',
     'style',
     'className',
     'row.rowid',
@@ -184,6 +190,7 @@ function Cell(props) {
     cellColumnCount,
     rowHeight,
     lineEditable,
+    disableQuickEdit,
     fixedColumnCount,
     columnHeadHeight,
     recordColorConfig,
@@ -249,6 +256,7 @@ function Cell(props) {
       oddRow: rowIndex % 2 === 1,
       readonly:
         lineEditable &&
+        !disableQuickEdit &&
         rowIndex >= 0 &&
         columnIndex > 0 &&
         control.fieldPermission &&
@@ -353,7 +361,8 @@ function Cell(props) {
     });
   }
   const error = cellErrors[`${row.rowid}-${control.controlId}`];
-  const cellEditable = !readonly && row && row.allowedit && controlState(control).editable && lineEditable;
+  const cellEditable =
+    !readonly && row && row.allowedit && controlState(control).editable && lineEditable && !disableQuickEdit;
   const newCellStyle = { ...cellStyle };
   let cellWidth;
   const treeNodeData = get(treeTableViewData, `treeMap.${row.key}`);
@@ -380,7 +389,7 @@ function Cell(props) {
       tableId={tableId}
       tableType={tableType}
       fixedColumnCount={fixedColumnCount}
-      lineEditable={lineEditable}
+      lineEditable={lineEditable && !disableQuickEdit}
       className={className}
       style={newCellStyle}
       columnIndex={columnIndex}
@@ -418,10 +427,16 @@ function Cell(props) {
     const addChildControl = find(controls, c => c.sourceControlId === targetControlId);
     const treeStyle = get(view, 'advancedSetting.treestyle') || '1';
     const expandShowAsPlus = treeStyle === '2';
+    const addSubRecordVisible =
+      addParentControl &&
+      allowAdd &&
+      lineEditable &&
+      controlState(addParentControl).editable &&
+      (find(columns, c => c.controlId === addParentControl.controlId) || !isSubList);
     return (
       <CellCon
         className={cx('expandCell', `row-${includes(['head', 'foot'], cellType) ? cellType : rowIndex}`, {
-          editable: lineEditable && cellEditable,
+          editable: lineEditable && !disableQuickEdit && cellEditable,
         })}
         style={{ ...cellStyle }}
       >
@@ -443,7 +458,10 @@ function Cell(props) {
           }}
         >
           <div className="flex"></div>
-          {!treeNodeData.loading && !treeNodeData.hideExpand && (treeNodeData.childrenIds || []).length > 0 && (
+          {((!treeNodeData.loading && !treeNodeData.hideExpand && (treeNodeData.childrenIds || []).length > 0) ||
+            (isSubList &&
+              treeNodeData.index > 5 &&
+              getRelateRecordCountOfControlFromRow(addChildControl, row) > 0)) && (
             <Tooltip
               mouseEnterDelay={0.8}
               text={
@@ -478,51 +496,47 @@ function Cell(props) {
           <span className="Gray_9e">{(treeNodeData.levelList || []).join('.')}</span>
         </TreeExpandCell>
         {cell}
-        {addParentControl &&
-          allowAdd &&
-          cellEditable &&
-          controlState(addParentControl).editable &&
-          find(columns, c => c.controlId === addParentControl.controlId) && (
-            <Tooltip mouseEnterDelay={0.6} text={_l('添加子记录')} popupPlacement="bottom">
-              <AddChildBtn
-                className={cx('addChildBtn hoverShow ThemeHoverColor3', tableType)}
-                style={{ right: tableType === 'classic' || !(lineEditable && cellEditable) ? 8 : 36 }}
-                onClick={() => {
-                  if (_.isFunction(actions.handleAddNewRecord)) {
-                    actions.handleAddNewRecord(row, { addParentControl, addChildControl });
-                  } else {
-                    import('worksheet/common/newRecord/addRecord').then(addRecord => {
-                      addRecord.default({
+        {addSubRecordVisible && (
+          <Tooltip mouseEnterDelay={0.6} text={_l('添加子记录')} popupPlacement="bottom">
+            <AddChildBtn
+              className={cx('addChildBtn hoverShow ThemeHoverColor3', tableType)}
+              style={{ right: tableType === 'classic' || !(lineEditable && cellEditable) ? 8 : 36 }}
+              onClick={() => {
+                if (_.isFunction(actions.handleAddNewRecord)) {
+                  actions.handleAddNewRecord(row, { addParentControl, addChildControl });
+                } else {
+                  import('worksheet/common/newRecord/addRecord').then(addRecord => {
+                    addRecord.default({
+                      worksheetId,
+                      defaultRelatedSheet: {
                         worksheetId,
-                        defaultRelatedSheet: {
-                          worksheetId,
-                          relateSheetControlId: addParentControl.sourceControlId,
-                          value: {
-                            sid: row.rowid,
-                            sourcevalue: JSON.stringify(row),
-                            type: 8,
-                          },
+                        relateSheetControlId: addParentControl.sourceControlId,
+                        value: {
+                          sid: row.rowid,
+                          sourcevalue: JSON.stringify(row),
+                          type: 8,
                         },
-                        directAdd: true,
-                        showFillNext: true,
-                        onAdd: actions.onTreeAddRecord
-                          ? record => actions.onTreeAddRecord(row, record)
-                          : record => {
-                              if (record) {
-                                if (isFunction(actions.updateTreeNodeExpansion)) {
-                                  actions.updateTreeNodeExpansion(row, { forceUpdate: true });
-                                }
+                      },
+                      directAdd: true,
+                      showFillNext: true,
+                      onAdd: actions.onTreeAddRecord
+                        ? record => actions.onTreeAddRecord(row, record)
+                        : record => {
+                            if (record) {
+                              if (isFunction(actions.updateTreeNodeExpansion)) {
+                                actions.updateTreeNodeExpansion(row, { forceUpdate: true });
                               }
-                            },
-                      });
+                            }
+                          },
                     });
-                  }
-                }}
-              >
-                <i className="icon icon-add" />
-              </AddChildBtn>
-            </Tooltip>
-          )}
+                  });
+                }
+              }}
+            >
+              <i className="icon icon-add" />
+            </AddChildBtn>
+          </Tooltip>
+        )}
       </CellCon>
     );
   }

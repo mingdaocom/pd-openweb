@@ -229,7 +229,10 @@ export default class SystemMessage extends PureComponent {
         MSGTYPES.WorkFlowUserTaskMessage,
         MSGTYPES.WorkFlowSendTaskMessage,
       ].includes(inboxType) && app;
-    const done = [MSGTYPES.WorkFlowTaskMessage, MSGTYPES.WorkFlowUserTaskMessage].includes(inboxType) && !!status;
+    const done =
+      [MSGTYPES.WorkFlowTaskMessage, MSGTYPES.WorkFlowUserTaskMessage, MSGTYPES.WorkFlowSendTaskMessage].includes(
+        inboxType,
+      ) && !!status;
 
     return (
       <div className="messageItem">
@@ -281,7 +284,7 @@ export default class SystemMessage extends PureComponent {
             <div className="Gray_9 mTop8">
               {done && (
                 <Tooltip text={`${createTimeSpan(dateConvertToUserZone(readTime))} ${_l('完成')}`}>
-                  <Done className='Hover_21 Hand'>
+                  <Done className="Hover_21 Hand">
                     <Icon icon="done" className="mRight6" />
                     <span className="text">{_l('已处理')}</span>
                     <span className="mRight12 mLeft12 Gray_bd">|</span>

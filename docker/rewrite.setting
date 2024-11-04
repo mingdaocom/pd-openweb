@@ -13,6 +13,7 @@ rewrite (?i)^/browserupgrade /staticfiles/html/browserupgrade.html break;
 rewrite (?i)^/appLibrary /staticfiles/html/appLibrary.html break;
 rewrite (?i)^/appShortCut /staticfiles/html/appShortCut.html break;
 rewrite (?i)^/filedownloaddenied /staticfiles/html/downloadDenied.html break;
+rewrite (?i)^/404 /staticfiles/html/404.html break;
 
 # 主站 独立入口
 rewrite (?i)^/apps/kcshare/ /kcshare.html break;
@@ -76,6 +77,7 @@ rewrite (?i)^/auth/workwx /auth-workwx.html break;
 rewrite (?i)^/auth/chatTools /auth-chat-tools.html break;
 rewrite (?i)^/auth/welink /auth-welink.html break;
 rewrite (?i)^/auth/feishu /auth-feishu.html break;
+rewrite (?i)^/auth/dingding /auth-dingding.html break;
 rewrite (?i)^/sso/dingding  /sso-dingding.html break;
 rewrite (?i)^/sso/sso  /sso-sso.html break;
 rewrite (?i)^/sso/workweixin  /sso-workweixin.html break;
@@ -119,9 +121,15 @@ rewrite (?i)^/dataMirrorPreview /index.html break;
 # 购买入口
 rewrite (?i)^/orderpay /orderPay.html break;
 
+# 商家小票
+rewrite (?i)^/receipt /receipt.html break;
+
 # 命令行授权
 rewrite (?i)^/cliauth/success /cli-auth-success.html break;
 rewrite (?i)^/cliauth /cli-auth-confirm.html break;
 
 # 插件运行环境 iFrame
 rewrite (?i)^/widgetview /widget-container.html break;
+
+#HAPAI问答窗口
+rewrite (?i)^/hapai /hapAI.html break;

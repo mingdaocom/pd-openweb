@@ -137,8 +137,8 @@ const getItems = props => {
     },
   ];
 
-  // 分段、备注不支持用户设置
-  if (!notWidgetDes(data)) {
+  // 分段、备注、关联列表等不支持用户设置,标签页支持
+  if (!notWidgetDes(data) || data.type === 52) {
     defaultData.unshift({
       key: 'user',
       label: _l('用户'),

@@ -328,7 +328,7 @@ export default {
   /**
   * 验证应用有效性
   * @param {Object} args 请求参数
-  * @param {string} args.appId
+  * @param {string} args.appId 应用id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -720,7 +720,7 @@ export default {
   /**
   * 获取应用下应用项
   * @param {Object} args 请求参数
-  * @param {string} args.appId
+  * @param {string} args.appId 应用id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

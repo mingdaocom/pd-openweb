@@ -61,6 +61,7 @@ const Num = styled.div`
   display: inline-block;
   color: #9e9e9e;
   white-space: pre;
+  margin-left: 8px;
 `;
 
 const ScrollBtn = styled.div`
@@ -101,7 +102,7 @@ export function renderTabs(props) {
         const defaultIcon = control.type === 51 ? 'Worksheet_query' : 'tab';
         return (
           <IconCon isFixedRight={isFixedRight}>
-            <Icon icon={defaultIcon} className="Font14" style={{ color: '#6e6e6e' }} />
+            <Icon icon={defaultIcon} className="Font20" style={{ color: '#6e6e6e' }} />
           </IconCon>
         );
       }
@@ -111,7 +112,7 @@ export function renderTabs(props) {
     return (
       iconUrl && (
         <IconCon isFixedRight={isFixedRight}>
-          <SvgIcon url={iconUrl} fill={isFixedActive ? '#2196f3' : '#6e6e6e'} size={18} />
+          <SvgIcon url={iconUrl} fill={isFixedActive ? '#2196f3' : '#6e6e6e'} size={20} />
         </IconCon>
       )
     );
@@ -144,7 +145,7 @@ export function renderTabs(props) {
             >
               {renderIcon(control, widgetStyle)}
               <span className="ellipsis">{control.controlName}</span>
-              {showNum && !!num && <Num> ( {num} ) </Num>}
+              {showNum && !!num && <Num>{num}</Num>}
             </Tab>
           </Tooltip>
         );

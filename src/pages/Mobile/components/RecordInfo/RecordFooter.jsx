@@ -60,7 +60,7 @@ const getWorksheetShareUrl = ({ appId, worksheetId, recordId, viewId }) => {
     });
 };
 
-const onDeleteRecord = ({ isSubList, recordBase }) => {
+const onDeleteRecord = ({ isSubList, recordBase, handleDeleteSuccess = () => {} }) => {
   const ok = () => {
     const { appId, worksheetId, viewId, recordId } = recordBase;
     worksheetApi
@@ -73,7 +73,7 @@ const onDeleteRecord = ({ isSubList, recordBase }) => {
       .then(({ isSuccess }) => {
         if (isSuccess) {
           alert(_l('删除成功'));
-          history.back();
+          handleDeleteSuccess(recordId);
         } else {
           alert(_l('删除失败'), 2);
         }
@@ -163,7 +163,7 @@ export default class RecordFooter extends Component {
   };
 
   handleMoreOperation = ({ allowDelete, allowShare }) => {
-    const { isSubList, recordBase, recordInfo = {} } = this.props;
+    const { isSubList, recordBase, recordInfo = {}, handleDeleteSuccess = () => {} } = this.props;
     const { isFavorite } = this.state;
     const isExternal = _.isEmpty(getCurrentProject(recordInfo.projectId));
 
@@ -183,7 +183,7 @@ export default class RecordFooter extends Component {
             icon: 'delete2',
             iconClass: 'Font22 Red',
             class: 'Red',
-            fn: () => onDeleteRecord({ isSubList, recordBase }),
+            fn: () => onDeleteRecord({ isSubList, recordBase, handleDeleteSuccess }),
           }
         : null,
     ].filter(_ => _);
@@ -422,7 +422,7 @@ export default class RecordFooter extends Component {
     );
   }
   renderRecordAction() {
-    const { recordInfo, recordBase, loadRecord } = this.props;
+    const { recordInfo, recordBase, loadRecord, handleDeleteSuccess = () => {} } = this.props;
     const { recordActionVisible, customBtns, isFavorite } = this.state;
     return (
       <RecordAction
@@ -436,6 +436,7 @@ export default class RecordFooter extends Component {
         loadRow={loadRecord}
         isFavorite={isFavorite}
         loadCustomBtns={this.loadCustomBtns}
+        handleDeleteSuccess={handleDeleteSuccess}
         recordActionVisible={recordActionVisible}
         onShare={this.handleShare}
         hideRecordActionVisible={() => {

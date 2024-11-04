@@ -9,6 +9,7 @@ import { SettingItem, EditOptionDialog } from '../../../styled';
 import { getDefaultOptions } from '../../../util/setting';
 import DeleteDialog from './DelateDialog';
 import DeleteOptionList from 'src/pages/AppSettings/components/AllOptionList/DeleteOptionList';
+import { checkOptionsRepeat } from '../../../util/data';
 
 export default function EditOptionList(props) {
   const { onOk, options = [], globalSheetInfo = {}, onCancel, worksheetIds = [], ...rest } = props;
@@ -29,6 +30,12 @@ export default function EditOptionList(props) {
       return;
     }
     const nextData = { ...rest, name, colorful, enableScore, options: data };
+
+    if (checkOptionsRepeat([{ ...nextData, type: 9 }])) {
+      alert(_l('选项字段存在重复选项'), 3);
+      return;
+    }
+
     worksheetAjax.saveOptionsCollection({ appId, ...nextData }).then(({ code, data, msg }) => {
       if (code === 1) {
         onOk(_.isEmpty(data) ? nextData : data);
@@ -94,10 +101,9 @@ export default function EditOptionList(props) {
               <AutoIcon icon="content-copy" className="Font16 hoverText" />
             </ClipboardButton>
             {deleteOptions.length > 0 && (
-              <Tooltip title={_l('已删除选项')} placement="bottom">
-                <span className="mLeft15 hoverText flexCenter pointer" onClick={() => setDeleteVisible(true)}>
-                  <AutoIcon icon="trash" className="Font16" />
-                  <span className="mLeft5">{deleteOptions.length}</span>
+              <Tooltip title={_l('恢复选项')} placement="bottom">
+                <span className="mLeft15 flexCenter pointer" onClick={() => setDeleteVisible(true)}>
+                  <AutoIcon icon="trash-loop" className="Font20" />
                 </span>
               </Tooltip>
             )}

@@ -29,10 +29,10 @@ export default function (Comp, props = {}) {
     <Comp
       {...(props.visibleName ? { [props.visibleName]: true } : { visible: true })}
       {...props}
-      onClose={() => {
+      onClose={(...args) => {
         destory();
         if (_.isFunction(props.onClose)) {
-          props.onClose();
+          props.onClose(...args);
         }
       }}
       onCancel={() => {

@@ -865,6 +865,7 @@ export default class AppInfo extends Component {
           {md.global.Account.isPortal ? (
             <PortalUserSet
               appId={md.global.Account.appId}
+              worksheetId={this.props.match.params.worksheetId}
               name={showName}
               iconColor={data.iconColor}
               currentPcNaviStyle={currentPcNaviStyle}

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 import { emitter } from 'worksheet/util';
 import WorkSheetComment from './WorkSheetComment';
-import WorksheetLog from './WorksheetLog';
 import PayLog from './PayLog';
 import WorksheetRocordLog from '../WorksheetRecordLog/WorksheetRocordLog';
 import './DiscussLogFile.less';
@@ -91,20 +90,21 @@ class DiscussLogFile extends Component {
   };
 
   render() {
-    const { workflowStatus, configLoading, workflow, approval, forReacordDiscussion, hiddenTabs } = this.props;
+    const { workflowStatus, configLoading, workflow, approval, forReacordDiscussion, hiddenTabs, isWorksheetDiscuss } =
+      this.props;
     const { status, loading, doNotLoadAtDidMount } = this.state;
+
     return (
       <div className="discussLogFile flexRow">
         <div className="header">
           {this.showTabs.map(tab => (
             <span
               key={tab.id}
-              className={cx(
-                'talk ThemeHoverColor3 ThemeHoverBorderColor3 Font14',
-                `tab${tab.id}`,
-                `tabsNum${this.showTabs.length}`,
-                this.state.status === tab.id && 'ThemeColor3 ThemeBorderColor3 border2',
-              )}
+              className={cx('talk Font14', `tab${tab.id}`, `tabsNum${this.showTabs.length}`, {
+                'ThemeColor3 ThemeBorderColor3 border2': this.state.status === tab.id && !isWorksheetDiscuss,
+                'ThemeHoverColor3 ThemeHoverBorderColor3': !isWorksheetDiscuss,
+                isWorksheetDiscuss: isWorksheetDiscuss,
+              })}
               onClick={() => {
                 this.setState({ status: tab.id, loading: tab.id === status });
                 if (tab.id === status) {
@@ -115,10 +115,10 @@ class DiscussLogFile extends Component {
               }}
             >
               <span
-                className={cx(
-                  'txt InlineBlock overflow_ellipsis WordBreak',
-                  this.state.status === tab.id && 'ThemeColor3 ThemeBorderColor3 border2',
-                )}
+                className={cx('txt InlineBlock overflow_ellipsis WordBreak', {
+                  'ThemeColor3 ThemeBorderColor3 border2': this.state.status === tab.id && !isWorksheetDiscuss,
+                  'Gray Font18': isWorksheetDiscuss,
+                })}
               >
                 {tab.text}
               </span>
@@ -135,12 +135,7 @@ class DiscussLogFile extends Component {
                 <WorkSheetComment status={status} {...this.props} doNotLoadAtDidMount={doNotLoadAtDidMount} />
               </div>
             )}
-            {status === 2 &&
-              (forReacordDiscussion ? (
-                <WorksheetRocordLog ref={this.logRef} {...this.props} />
-              ) : (
-                <WorksheetLog {...this.props} />
-              ))}
+            {status === 2 && forReacordDiscussion && <WorksheetRocordLog ref={this.logRef} {...this.props} />}
           </div>
         )}
       </div>

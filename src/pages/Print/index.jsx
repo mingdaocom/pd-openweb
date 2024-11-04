@@ -335,7 +335,7 @@ class PrintForm extends React.Component {
   getRowRelationRows = () => {
     const { printData, params } = this.state;
     const { worksheetId, rowId } = params;
-    const { receiveControls = [] } = printData;
+    const { receiveControls = [], allControls = [] } = printData;
     let controls = receiveControls.filter(l => l.type === 51);
 
     if (controls.length === 0) return;
@@ -343,7 +343,7 @@ class PrintForm extends React.Component {
     let promiseList = controls.map(control => {
       const newFilter = getFilter({
         control: { ...control, recordId: rowId || printData.rowIdForQr },
-        formData: receiveControls,
+        formData: allControls,
         filterKey: 'resultfilters',
       });
 
@@ -483,6 +483,7 @@ class PrintForm extends React.Component {
         systemControl: SYST_PRINTData(res),
         approvalIds: res.approvalIds,
         filters: res.filters,
+        allControls: res.receiveControls,
       };
 
       let infoPromiseList = [];

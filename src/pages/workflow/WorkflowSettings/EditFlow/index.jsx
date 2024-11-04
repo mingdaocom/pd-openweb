@@ -87,7 +87,7 @@ class EditFlow extends Component {
       }
     });
 
-    $content.width(maxWidth);
+    $content.width(maxWidth + 1600);
   }
 
   setViewCenter() {
@@ -550,7 +550,12 @@ class EditFlow extends Component {
         >
           <div
             className="workflowEditContent"
-            style={{ transform: `scale(${scale / 100})`, transformOrigin: 'center 48px' }}
+            style={{
+              paddingLeft: 800,
+              paddingRight: 800,
+              transform: `scale(${scale / 100})`,
+              transformOrigin: 'center 48px',
+            }}
           >
             {isPlugin && this.renderPluginNode()}
             {this.renderNode({ processId: flowInfo.id, data: flowNodeMap, firstId: startEventId })}

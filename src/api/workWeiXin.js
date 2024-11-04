@@ -102,6 +102,7 @@ export default {
 1 为新开浏览器打开方式，2 为钉钉PC端打开
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {} args.projectIntergrationType
   * @param {integer} args.status 1代表开通；2代表关闭
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -116,6 +117,7 @@ export default {
 1 侧边栏打开（默认），2 浏览器打开
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {} args.projectIntergrationType
   * @param {integer} args.status 1代表开通；2代表关闭
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -129,6 +131,7 @@ export default {
   * 编辑钉钉消息是否进入待办任务
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {} args.projectIntergrationType
   * @param {integer} args.status 1代表开通；2代表关闭
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -265,6 +268,7 @@ export default {
 1代表开通；2代表关闭
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {} args.projectIntergrationType
   * @param {integer} args.status 1代表开通；2代表关闭
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -275,22 +279,24 @@ export default {
      return mdyAPI('WorkWeiXin', 'EditWXProjectSettingStatus', args, options);
    },
   /**
-  * 编辑企业微信是否允许使用扫码登录
+  * 编辑第三方集成是否允许使用扫码登录
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {} args.projectIntergrationType
   * @param {integer} args.status 1代表开通；2代表关闭
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
-   editWXProjectScanEnabled: function (args, options = {}) {
+   editThirdPartyIntergrationScanEnabled: function (args, options = {}) {
      
-     return mdyAPI('WorkWeiXin', 'EditWXProjectScanEnabled', args, options);
+     return mdyAPI('WorkWeiXin', 'EditThirdPartyIntergrationScanEnabled', args, options);
    },
   /**
   * 编辑企业微信是否允许自定义字段匹配
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {} args.projectIntergrationType
   * @param {integer} args.status 1代表开通；2代表关闭
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -330,6 +336,7 @@ export default {
   * 编辑私有部署企业微信是否启用快速审批
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id
+  * @param {} args.projectIntergrationType
   * @param {integer} args.status 1代表开通；2代表关闭
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层

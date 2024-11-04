@@ -12,76 +12,82 @@ import worksheetAjax from 'src/api/worksheet';
 import { addBehaviorLog } from 'src/util';
 import cx from 'classnames';
 
-const Con = styled(Marker)`
-  .iconCon {
-    position: relative;
-    .pinIcon {
-      position: relative;
-      z-index: 9;
-    }
-    .searchRecordSign {
-      width: 48px;
-      height: 16px;
-      background: rgba(255, 147, 0, 0.3);
-      border: 1px solid #ff9300;
-      border-radius: 100%;
-      position: absolute;
-      top: 24px;
-      left: -6px;
-    }
-  }
-  .markCon {
-    display: flex;
-    position: relative;
-    left: -17px;
-    transform: translateX(50%);
-  }
+const wrapStyles = `
+.iconCon {
+  position: relative;
   .pinIcon {
-    color: #f44336 !important;
-  }
-  .content {
-    margin-left: 6px;
-    white-space: nowrap;
-    background-color: transparent;
-    border-radius: 4px;
-    font-size: 13px;
-    color: #333;
     position: relative;
-    .text {
-      display: inline-block;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      vertical-align: top;
-      white-space: nowrap;
-      max-width: 200px;
-      padding: 6px 10px;
-      border-radius: 4px;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-    }
-    .ellipsis {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      vertical-align: top;
-    }
-    &::before {
-      content: ' ';
-      position: absolute;
-      display: block;
-      right: 0px;
-      bottom: 30px;
-      height: 10px;
-      width: calc(100% + 40px);
-    }
-    &:hover {
-      .pinDetail {
-        display: inline-flex;
-      }
+    z-index: 9;
+  }
+  .searchRecordSign {
+    width: 48px;
+    height: 16px;
+    background: rgba(255, 147, 0, 0.3);
+    border: 1px solid #ff9300;
+    border-radius: 100%;
+    position: absolute;
+    top: 24px;
+    left: -6px;
+  }
+}
+.markCon {
+  display: flex;
+  position: relative;
+  left: -17px;
+  transform: translateX(50%);
+}
+.pinIcon {
+  color: #f44336 !important;
+}
+.content {
+  margin-left: 6px;
+  white-space: nowrap;
+  background-color: transparent;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #333;
+  position: relative;
+  .text {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: top;
+    white-space: nowrap;
+    max-width: 200px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  }
+  .ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: top;
+  }
+  &::before {
+    content: ' ';
+    position: absolute;
+    display: block;
+    right: 0px;
+    bottom: 30px;
+    height: 10px;
+    width: calc(100% + 40px);
+  }
+  &:hover {
+    .pinDetail {
+      display: inline-flex;
     }
   }
-  .recordOperateWrap {
-    display: none !important;
-  }
+}
+.recordOperateWrap {
+  display: none !important;
+}
+`;
+const AMapCon = styled(Marker)`
+  ${wrapStyles}
+`;
+const GMapCon = styled.div`
+  ${wrapStyles}
 `;
 
 const PinCardCon = styled.div`
@@ -157,12 +163,14 @@ export default function MarkerCard(props) {
     mobileCloseCard,
     groupId,
     isMobile,
+    type = 'AMap',
     onChangeRecordId = () => {},
     getData,
     updateNavGroup,
   } = props;
   const { position, title, summary, cover, record } = marker;
   const { titleId, tagType, tagcolorid, showControlIds, showControlName, showtitle } = mapViewConfig;
+  const isGMap = type === 'GMap';
   const [active, setActive] = useState(false);
 
   useEffect(() => {
@@ -217,9 +225,11 @@ export default function MarkerCard(props) {
     });
   };
 
+  const Con = type === 'AMap' ? AMapCon : GMapCon;
+
   return (
     <Con {...props} position={[position.x, position.y]} zIndex={active ? 101 : 100}>
-      <div className="markCon">
+      <div className="markCon" style={{ zIndex: isCurrent ? 9 : 1 }}>
         <div className="iconCon">
           <Icon
             icon="location_on"
@@ -263,7 +273,7 @@ export default function MarkerCard(props) {
             onTouchStartCapture={e => {
               e.stopPropagation();
               handleRecordClick(view, marker.record, () => {
-                if (window.isMingDaoApp) {
+                if (window.isMingDaoApp && !window.shareState.shareId) {
                   window.location.href = `/mobile/record/${appId}/${worksheetInfo.worksheetId}/${viewId}/${record.rowid}`;
                   return;
                 }

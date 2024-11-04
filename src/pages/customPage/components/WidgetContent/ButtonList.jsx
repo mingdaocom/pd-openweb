@@ -66,6 +66,8 @@ const getOrganize = (projectId, accountId) => {
   });
 }
 
+let currentBtn = {};
+
 export function ButtonList({ ids, widget, button = {}, editable, layoutType, addRecord, info }) {
   const [createRecordInfo, setInfo] = useState({
     visible: false,
@@ -154,13 +156,16 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
             };
           }),
       })
-      .then(data => {});
+      .then(data => {
+        refreshComponent();
+      });
   }
 
   async function handleClick(item) {
     if (editable) return;
     const { param, action, value, viewId, openMode = 1, name } = item;
 
+    currentBtn = item;
     if (isPublicShare && action !== 4) {
       alert(_l('无权操作'), 3);
       return;
@@ -238,11 +243,16 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
         setCurrentScanBtn(item);
         scanQRCodeRef.current.handleScanCode();
       } else {
-        const { placeholder } = item.config || {};
-        const onOk = () => {
+        const { placeholder, text } = item.config || {};
+        const onOk = ({ eventSource } = {}) => {
           const value = _.get(scanQRCodeRef, 'current.state.value');
           if (value) {
             handleScanQRCodeResult(value, item);
+            if (eventSource === 'pressEnter' && text === 2) {
+              scanQRCodeRef.current.setState({ value: '' });
+              document.querySelector('.confirmSubmitHint').classList.remove('hide');
+              return;
+            }
             dialogConfirm();
           } else {
             alert(_l('请输入内容'), 3);
@@ -252,18 +262,21 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
           width: 480,
           title: <span className="bold">{name}</span>,
           description: (
-            <Input
-              autoFocus={true}
-              defaultValue=""
-              className="w100 confirmInput"
-              placeholder={placeholder}
-              ref={scanQRCodeRef}
-              onKeyDown={e => {
-                if (e.keyCode === 13) {
-                  onOk();
-                }
-              }}
-            />
+            <div className="flexColumn">
+              <Input
+                autoFocus={true}
+                defaultValue=""
+                className="w100 confirmInput"
+                placeholder={placeholder}
+                ref={scanQRCodeRef}
+                onKeyDown={e => {
+                  if (e.keyCode === 13) {
+                    onOk({ eventSource: 'pressEnter' });
+                  }
+                }}
+              />
+              <div className="mTop10 confirmSubmitHint hide" style={{ color: '#4caf50' }}>{_l('已提交，请输入下一条')}</div>
+            </div>
           ),
           footer: (
             <div className="Dialog-footer-btns">
@@ -419,6 +432,13 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
     }
   }
 
+  const refreshComponent = () => {
+    const { refreshObjects = [] } = currentBtn.config;
+    refreshObjects.forEach(item => {
+      window[`refresh-${item.objectId}`] && window[`refresh-${item.objectId}`]();
+    });
+  }
+
   const NewRecordComponent = isMobile ? MobileNewRecord : NewRecord;
 
   return (
@@ -442,6 +462,7 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
           onAdd={data => {
             alert(_l('添加成功'));
             addRecord(data);
+            refreshComponent();
           }}
           title={isMobile ? name : null}
           appId={appId}

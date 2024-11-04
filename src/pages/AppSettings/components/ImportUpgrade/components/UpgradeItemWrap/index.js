@@ -49,6 +49,7 @@ export default function UpgradeItemWrap(props) {
     isExpand,
     checkedInfo = {},
     worksheetDetailData = {},
+    fileType = 0,
     handleExpandCollapse = () => {},
     checkAllCurrentType = () => {},
     checkItem = () => {},
@@ -84,7 +85,8 @@ export default function UpgradeItemWrap(props) {
             <div className="w50 TxtLeft"></div>
           </div>
           {itemList.map((it, i) => {
-            const isChecked = _.includes(checkedInfo[`${type}CheckIds`], it.id);
+            // const isChecked = _.includes(checkedInfo[`${type}CheckIds`], it.id);
+            const isAdd = it.upgradeType === 3 || fileType === 1;
             return (
               <div
                 key={it.id}
@@ -108,7 +110,7 @@ export default function UpgradeItemWrap(props) {
                   )}
                   <span
                     className="ellipsis"
-                    // className={isWorksheetDetail ? '' : 'Hand'}
+                    // className={cx('ellipsis', { Hand: !isWorksheetDetail })}
                     // onClick={() => (isWorksheetDetail ? () => {} : openShowUpgradeDetail(it))}
                   >
                     {it.displayName}
@@ -121,9 +123,7 @@ export default function UpgradeItemWrap(props) {
                   ''
                 ) : (
                   <Fragment>
-                    <div className={`flex action ${it.upgradeType === 3 ? 'addTxtColor' : ''}`}>
-                      {it.upgradeType === 3 ? _l('新增') : _l('更新')}
-                    </div>
+                    <div className={`flex action ${isAdd ? 'addTxtColor' : ''}`}>{isAdd ? _l('新增') : _l('更新')}</div>
                     <div className="w50 TxtLeft">
                       {type === 'worksheets' ? (
                         <span className="Hand ThemeColor" onClick={() => openShowUpgradeDetail(it)}>

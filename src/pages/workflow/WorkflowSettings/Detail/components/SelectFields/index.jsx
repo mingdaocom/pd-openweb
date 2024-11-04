@@ -1,16 +1,16 @@
 import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { Dropdown, Icon } from 'ming-ui';
-import { CONTROLS_NAME } from '../../../enum';
+import { getControlTypeName } from '../../../utils';
 import { Tooltip } from 'antd';
 import _ from 'lodash';
 
-export default function({ controls, selectedIds, placeholder = _l('请选择'), updateSource }) {
+export default function ({ controls, selectedIds, placeholder = _l('请选择'), updateSource }) {
   const list = (controls || []).map(item => {
     return {
       text: (
         <Fragment>
-          <span className="Gray_75 mRight5">[{CONTROLS_NAME[item.type]}]</span>
+          <span className="Gray_75 mRight5">[{getControlTypeName(item)}]</span>
           <span>{item.controlName}</span>
         </Fragment>
       ),

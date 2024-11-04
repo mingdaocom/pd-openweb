@@ -27,6 +27,7 @@ import {
   updateViewShowcount,
   clearFilters,
   updateGroupFilter,
+  fireWhenViewLoaded,
 } from 'worksheet/redux/actions';
 import { changePageSize, changePageIndex } from 'worksheet/redux/actions/sheetview';
 import { addMultiRelateHierarchyControls } from 'worksheet/redux/actions/hierarchy';
@@ -100,6 +101,7 @@ function ViewControl(props) {
     detailView,
     clearFilters,
     updateGroupFilter,
+    fireWhenViewLoaded,
   } = props;
   const { worksheetId, projectId } = worksheetInfo;
   const { count, pageCountAbnormal, rowsSummary } = sheetViewData;
@@ -495,12 +497,19 @@ function ViewControl(props) {
             '.selectize-dropdown',
             '.selectUserBox',
             '.ant-picker-dropdown',
+            '.TimePicker',
           ]}
           showFastFilter={showFastFilter}
-          onClickAway={() => setShowFastFilter(false)}
+          onClickAway={() => {
+            setShowFastFilter(false);
+            fireWhenViewLoaded(view, { forceUpdate: true });
+            refreshSheet(view);
+          }}
           activeFastFilterId={activeFastFilterId}
           onClose={() => {
             setShowFastFilter(false);
+            fireWhenViewLoaded(view, { forceUpdate: true });
+            refreshSheet(view);
           }}
           setActiveFastFilterId={id => {
             setActiveFastFilterId(id);
@@ -572,6 +581,7 @@ export default connect(
         updateViewShowcount,
         clearFilters,
         updateGroupFilter,
+        fireWhenViewLoaded,
       },
       dispatch,
     ),

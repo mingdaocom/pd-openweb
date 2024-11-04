@@ -1,5 +1,6 @@
 import { PUSH_TYPE } from 'src/pages/workflow/WorkflowSettings/enum';
 import homeAppAjax from 'src/api/homeApp';
+import { equalToLocalPushUniqueId } from 'worksheet/util';
 import modalMessage from './modalMessage';
 
 const getAppSimpleInfo = workSheetId => {
@@ -14,7 +15,7 @@ export default props => {
   IM.socket.on('workflow_push', result => {
     if (window.isMingDaoApp) {
       window.MDJS.workflowPushMessage({
-        message: result
+        message: result,
       });
       return;
     }
@@ -32,7 +33,7 @@ export default props => {
       if (pushType === PUSH_TYPE.CREATE) {
         getAppSimpleInfo(worksheetId).then(({ appId }) => {
           location.href = `${window.subPath || ''}/mobile/addRecord/${appId}/${worksheetId}/${
-            viewId ? viewId : (_.get(props, 'viewId') || '')
+            viewId ? viewId : _.get(props, 'viewId') || ''
           }`;
         });
       }
@@ -60,7 +61,7 @@ export default props => {
       }
     };
 
-    if (pushUniqueId && pushUniqueId !== md.global.Config.pushUniqueId) {
+    if (!equalToLocalPushUniqueId(pushUniqueId)) {
       return;
     }
 

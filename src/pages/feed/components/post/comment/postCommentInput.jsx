@@ -8,12 +8,12 @@ import { addComment } from '../../../redux/postActions';
 import { connect } from 'react-redux';
 import { SOURCE_TYPE } from 'src/components/comment/config';
 import UploadFiles from 'src/components/UploadFiles';
-import 'src/components/selectGroup/selectAllGroup';
 import 'src/components/mentioninput/mentionsInput';
 import 'src/components/autoTextarea/autoTextarea';
 import 'src/components/uploadAttachment/uploadAttachment';
 import Emotion from 'src/components/emotion/emotion';
 import _ from 'lodash';
+import { SelectGroupTrigger } from 'ming-ui/functions/quickSelectGroup';
 
 const LET_ME_REPLY = _l('我来回复');
 const TEXT_AREA_MIN_HEIGHT_COLLAPSE = 22;
@@ -39,6 +39,11 @@ class PostCommentInput extends React.Component {
     attachments: [],
     kcAttachments: [],
     isUploadComplete: true,
+    scope: {
+      shareGroupIds: [],
+      shareProjectIds: [],
+      radioProjectIds: [],
+    },
   };
 
   componentDidMount() {
@@ -47,7 +52,7 @@ class PostCommentInput extends React.Component {
 
   componentWillUpdate(nextProps, nextState) {
     if (nextState.isReshare !== this.state.isReshare) {
-      this.resetSelectGroup(nextState.isReshare);
+      this.resetSelectGroup();
     }
   }
 
@@ -90,13 +95,9 @@ class PostCommentInput extends React.Component {
     const comp = this;
     const { postItem, dispatch } = this.props;
     const isToComment = !!postItem.commentID;
-
-    const hidUpdaterUploadID = 'hidUpload_' + postItem.postID + '_' + postItem.commentID + 'C';
     const uploadID = 'cm_' + postItem.postID + '_' + postItem.commentID + 'C';
-
     const textarea = this.textarea;
     const button = this.button;
-    const selectGroup = this.selectGroup;
 
     $(textarea)
       .off()
@@ -122,8 +123,7 @@ class PostCommentInput extends React.Component {
               }
 
               const isReshare = comp.state.isReshare;
-
-              const scope = $(selectGroup).SelectGroup('getScope');
+              const scope = isReshare ? comp.state.scope : undefined;
 
               // 附件
               const attachments = comp.state.attachments;
@@ -165,7 +165,6 @@ class PostCommentInput extends React.Component {
                     _.remove(comp.state.attachments);
                     _.remove(comp.state.kcAttachments);
                     // 卸载上传组件
-                    // comp.state.uploadAttachmentObj.unmount();
                     $('#' + uploadID).removeClass('ThemeColor3');
                     comp.setState({
                       isReshare: false,
@@ -233,14 +232,14 @@ class PostCommentInput extends React.Component {
     });
   };
 
-  resetSelectGroup(isReshare) {
-    const selectGroup = this.selectGroup;
-    if (!isReshare) {
-      $(selectGroup).next('.viewTo').remove();
-      return;
-    }
-    const selectGroupOptions = { defaultValue: { group: [], project: [] }, groupLink: true };
-    $(selectGroup).SelectGroup(selectGroupOptions);
+  resetSelectGroup() {
+    this.setState({
+      scope: {
+        shareGroupIds: [],
+        shareProjectIds: [],
+        radioProjectIds: [],
+      },
+    });
   }
 
   handleMouseover = () => {
@@ -296,12 +295,24 @@ class PostCommentInput extends React.Component {
     }
   }
 
+  handleChangeGroup = value => {
+    this.setState({
+      scope:
+        !value.isMe &&
+        !(value.shareGroupIds || []).length &&
+        !(value.shareProjectIds || []).length &&
+        !(value.radioProjectIds || []).length
+          ? undefined
+          : _.pick(value, ['radioProjectIds', 'shareGroupIds', 'shareProjectIds']),
+    });
+  };
+
   render() {
     const postItem = this.props.postItem;
     const isToComment = !!postItem.commentID;
     const dropElementID = 'text_' + postItem.postID + '_' + postItem.commentID + 'C';
     return (
-      <ClickAway onClickAway={this.componentClickAway}>
+      <ClickAway onClickAwayExceptions={['.quickSelectGroup']} onClickAway={this.componentClickAway}>
         <div className="postCommentBox">
           <div
             className={cx('replyFrame', { replyFrameFocus: this.state.isEditing })}
@@ -370,14 +381,13 @@ class PostCommentInput extends React.Component {
                   }}
                   defaultValue={_l('回复')}
                 />
-                <input
-                  id={'hidden_GroupID_' + postItem.postID + '_' + postItem.commentID + 'C'}
-                  type="hidden"
-                  defaultValue="everyone"
-                  ref={selectGroup => {
-                    this.selectGroup = selectGroup;
-                  }}
-                />
+                {this.state.isReshare && (
+                  <SelectGroupTrigger
+                    defaultValue={{ isMe: true }}
+                    getPopupContainer={() => document.body}
+                    onChange={this.handleChangeGroup}
+                  />
+                )}
               </div>
               <input type="hidden" id={'hidUpload_' + postItem.postID + '_' + postItem.commentID + 'C'} />
               <div className={cx({ hide: !this.state.showAttachment })} style={{ padding: '0 5px' }}>

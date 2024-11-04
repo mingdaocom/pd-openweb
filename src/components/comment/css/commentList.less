@@ -2,68 +2,109 @@
   .singleTalk {
     position: relative;
     padding: 0 12px 0 30px;
+
     .userAvarar {
       position: absolute;
-      top: 13px;
+      top: 0;
       left: 0;
       width: 24px;
       height: 24px;
       vertical-align: top;
     }
+
     .talkDiscussion {
       display: inline-block;
       width: 100%;
       margin-left: 5px;
-      padding-top: 15px;
-      border-bottom: 1px #eee solid;
+
       .commentLocation {
         text-decoration: none;
+
         .icon {
           margin: 0 2px;
           font-size: 16px;
           color: #9f9f9f;
         }
       }
-      &:hover {
-        .Right a {
-          display: inline-block;
+
+      .actionsWrap {
+        height: 36px;
+        display: flex;
+        flex-direction: row-reverse;
+        // justify-content: space-between;
+        gap: 20px;
+        user-select: none;
+
+        a {
+          // display: none;
+          text-decoration: none;
         }
-        .Right .commentDate {
-          display: none;
+
+        a.replyBtn {
+          color: #2196f3 !important;
+
+          &:hover {
+            color: #0063b2 !important;
+          }
+        }
+
+        a.moreBtn {
+          color: #9d9d9d;
+        }
+
+        a.deleteBtn {
+          color: #ff4336 !important;
+
+          &:hover {
+            color: #c91f12 !important;
+          }
         }
       }
+
+      &:hover {
+        .actionsWrap a {
+          display: inline-block !important;
+        }
+      }
+
       .singleTop {
         width: 100%;
         color: #757575;
+
         .userName {
           font-weight: bold;
+
           &:not(:hover) {
             color: #333 !important;
           }
         }
+
         .Right {
           user-select: none;
-          a {
-            text-decoration: none;
-          }
-          a:not(:hover),
+
           .commentDate:not(:hover) {
             color: #aaa !important;
           }
         }
+
         .msgTip:not(:hover) {
           color: #aaa !important;
         }
       }
+
       .singeText {
         font-size: 13px;
-        margin-top: 10px;
-        padding-bottom: 15px;
+        margin-top: 4px;
         word-wrap: break-word;
         clear: both;
+
         a {
           text-decoration: none;
         }
+      }
+
+      .commentBox {
+        margin-bottom: 20px;
       }
     }
   }
