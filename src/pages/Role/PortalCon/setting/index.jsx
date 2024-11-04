@@ -21,7 +21,9 @@ const Wrap = styled.div`
   bottom: 0;
   right: 0;
   z-index: 100;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.2),
+    0 3px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-flow: column nowrap;
   width: 640px;
@@ -218,14 +220,16 @@ class PortalSetting extends React.Component {
     if (!pageTitle) {
       return alert(_l('请输入登录页名称'), 3);
     }
-    if (!smsSignature) {
-      return alert(_l('请输入短信签名'), 3);
-    }
-    if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(smsSignature)) {
-      return alert(_l('短信签名只支持中英文'), 3);
-    }
-    if (getStringBytes(smsSignature) > 16) {
-      return alert(_l('短信签名最多只能16个字节'), 3);
+    if (md.global.SysSettings.enableSmsCustomContent) {
+      if (!smsSignature) {
+        return alert(_l('请输入短信签名'), 3);
+      }
+      if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(smsSignature)) {
+        return alert(_l('短信签名只支持中英文'), 3);
+      }
+      if (getStringBytes(smsSignature) > 16) {
+        return alert(_l('短信签名最多只能16个字节'), 3);
+      }
     }
     if (
       _.get(portalSetModel, 'registerInfo.enable') &&
