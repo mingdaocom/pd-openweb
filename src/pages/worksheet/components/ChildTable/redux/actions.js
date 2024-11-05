@@ -14,37 +14,35 @@ import { createRequestPool } from 'worksheet/api/standard';
 
 const PAGE_SIZE = 200;
 
-export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, getNewRows, updateRows } = {}) {
+export function updateTreeNodeExpansion(
+  row = {},
+  { expandAll, forceUpdate, getNewRows, updateRows, worksheetId, recordId } = {},
+) {
   return (dispatch, getState) => {
     const { base = {}, rows = [], treeTableViewData } = getState();
     const { control } = base;
     const { treeMap, maxLevel } = treeTableViewData;
-    let controlForGetRelationRows, controlIdForGetRelationRows;
-    try {
-      controlForGetRelationRows = control.relationControls.filter(
-        c => c.sourceControlId === control.advancedSetting.layercontrolid,
-      )[0];
-      controlIdForGetRelationRows = controlForGetRelationRows.controlId;
-    } catch (err) {
-      console.log(err);
-    }
     const getNewRowsFn =
       getNewRows ||
       (() =>
         worksheetAjax
           .getRowRelationRows({
-            worksheetId: control.dataSource,
-            rowId: row.rowid,
-            controlId: controlIdForGetRelationRows,
+            worksheetId,
+            rowId: recordId,
+            controlId: control.controlId,
             pageIndex: 1,
-            pageSize: 50,
+            pageSize: 200,
+            fastFilters: [
+              {
+                controlId: 'rowid',
+                value: row.rowid,
+              },
+            ],
           })
           .then(res => {
             const newRows = res.data.map(r => ({
               ...r,
-              pid: row.rowid,
               isAddByTree: true,
-              childrenids: getRelateRecordCountOfControlFromRow(controlForGetRelationRows, r) > 0 ? '[]' : '',
             }));
             dispatch(addRows(newRows));
             return newRows;
@@ -57,6 +55,7 @@ export function updateTreeNodeExpansion(row = {}, { expandAll, forceUpdate, getN
         maxLevel,
         rows,
         getNewRows: getNewRowsFn,
+        isAddsSubTree: true,
         updateRows,
       }),
     );

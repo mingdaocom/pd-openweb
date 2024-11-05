@@ -175,7 +175,17 @@ export function treeTableViewData(state = initialTreeViewParams, action) {
 export const handleUpdateTreeNodeExpansion =
   (
     row = {},
-    { expandAll, forceUpdate, treeMap, maxLevel, rows, updateRows, getNewRows, updateTreeNodeExpansion } = {},
+    {
+      expandAll,
+      forceUpdate,
+      treeMap,
+      maxLevel,
+      rows,
+      updateRows,
+      getNewRows,
+      isAddsSubTree,
+      updateTreeNodeExpansion,
+    } = {},
   ) =>
   async dispatch => {
     const recordId = row.rowid;
@@ -206,9 +216,9 @@ export const handleUpdateTreeNodeExpansion =
         type: 'WORKSHEET_SHEETVIEW_APPEND_ROWS',
         rows: childRows,
       });
-      const newChildrenIds = JSON.stringify(
-        _.uniq(safeParse(row.childrenids, 'array').concat(childRows.map(r => r.rowid))),
-      );
+      const newChildrenIds = isAddsSubTree
+        ? row.childrenids
+        : JSON.stringify(_.uniq(safeParse(row.childrenids, 'array').concat(childRows.map(r => r.rowid))));
       if (forceUpdate) {
         updateRows([recordId], {
           childrenids: newChildrenIds,
@@ -220,24 +230,26 @@ export const handleUpdateTreeNodeExpansion =
           });
       }
       const currentTreeNode = treeMap[treeMapKey] || {};
-      const treeDataUpdaterResult = treeDataUpdater(
-        { treeMap: {} },
-        {
-          noSetRootMapKey: true,
-          rootRows: [
+      const treeDataUpdaterResult = isAddsSubTree
+        ? treeDataUpdater({}, { rootRows: newRows.filter(r => !r.pid), rows: newRows })
+        : treeDataUpdater(
+            { treeMap: {} },
             {
-              ...row,
-              childrenids: newChildrenIds,
+              noSetRootMapKey: true,
+              rootRows: [
+                {
+                  ...row,
+                  childrenids: newChildrenIds,
+                },
+              ],
+              rows: newRows,
+              defaultIndex: currentTreeNode.index,
+              defaultparentKeys: currentTreeNode.parentKeys,
+              defaultLevelList: currentTreeNode.levelList,
+              keyPrefix: treeMapKey,
+              expandSize: 1,
             },
-          ],
-          rows: newRows,
-          defaultIndex: currentTreeNode.index,
-          defaultparentKeys: currentTreeNode.parentKeys,
-          defaultLevelList: currentTreeNode.levelList,
-          keyPrefix: treeMapKey,
-          expandSize: 1,
-        },
-      );
+          );
       dispatch({
         type: 'UPDATE_TREE_TABLE_VIEW_ITEM',
         value: {

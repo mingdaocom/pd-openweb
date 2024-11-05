@@ -67,7 +67,7 @@ export default function InvoiceSetting(props) {
   }, []);
 
   const saveSetting = () => {
-    const formConfig = [...applyInvoiceConfig, ...newInvoiceConfig];
+    const formConfig = data.invoiceType === 1 ? applyInvoiceConfig : [...applyInvoiceConfig, ...newInvoiceConfig];
     const error = formConfig.some(({ key }) => !data[key]);
     if (error) {
       const errInfo = _.find(formConfig, ({ key }) => !data[key]) || {};

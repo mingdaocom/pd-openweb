@@ -1655,7 +1655,14 @@ class ChildTable extends React.Component {
                 }}
                 tableFooter={tableFooter}
                 actions={{
-                  updateTreeNodeExpansion,
+                  updateTreeNodeExpansion: (row, options = {}) =>
+                    updateTreeNodeExpansion(
+                      row,
+                      Object.assign({}, options, {
+                        worksheetId: masterData.worksheetId,
+                        recordId,
+                      }),
+                    ),
                   handleAddNewRecord: (parentRow, { addParentControl } = {}) => {
                     this.updateDefsourceOfControl();
                     const row = this.newRow(

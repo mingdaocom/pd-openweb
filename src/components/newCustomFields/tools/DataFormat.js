@@ -528,7 +528,7 @@ export function handleDotAndRound(currentItem, value, ignoreAddZero = true) {
   const ignoreZero = currentItem.advancedSetting.dotformat === '1';
   if (!ignoreZero && dot !== 0 && ignoreAddZero) {
     value = (value + (value.indexOf('.') > -1 ? '' : '.') + '0000000000000').replace(
-      new RegExp(`(\.\\d{${dot}})(0+)`),
+      new RegExp(`(\\d+\\.\\d{${dot}})(0+)$`),
       '$1',
     );
   }

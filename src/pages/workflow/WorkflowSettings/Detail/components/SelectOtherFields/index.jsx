@@ -234,7 +234,7 @@ export default class SelectOtherFields extends Component {
    * 尾部
    */
   footer() {
-    const { disabledInterface } = this.props;
+    const { item, disabledInterface } = this.props;
 
     return (
       <ul className={cx('flowDetailUserList clearAllFields', { BorderTopGrayC: !disabledInterface })}>
@@ -242,7 +242,7 @@ export default class SelectOtherFields extends Component {
           icon={<i className="icon-workflow_empty" />}
           onClick={() => {
             this.props.handleFieldClick({
-              fieldValue: '',
+              fieldValue: item.type === 26 || item.type === 27 ? '[]' : '',
               nodeId: '',
               fieldValueId: '',
               nodeName: '',

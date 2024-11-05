@@ -345,7 +345,6 @@ export default class AppManagement extends Component {
             size={28}
             projectId={projectId}
             user={{ userHead: item.createAccountInfo.avatar, accountId: item.caid }}
-            operation={this.renderChargeOpHtml(item)}
           />
           <div className="mLeft12 ellipsis flex mRight20">{item.createAccountInfo.fullName}</div>
         </div>
@@ -390,6 +389,10 @@ export default class AppManagement extends Component {
                       {_l('导出')}
                     </li>
                   )}
+                  <li onClick={() => this.chargeFn(item.appId, item.caid, item.appName)}>
+                    <Icon icon="sync1" className="mRight12 Gray_9e" />
+                    {_l('将应用转交给其他人')}
+                  </li>
                   <li
                     className="deleteIcon"
                     onClick={() => {
@@ -618,24 +621,11 @@ export default class AppManagement extends Component {
     }
   }
 
-  /**
-   * 负责人 opHtml
-   */
-  renderChargeOpHtml(item) {
-    const { appId, caid } = item;
-    return (
-      <span
-        className="Gray_9e ThemeHoverColor3 pointer w100 oaButton updateAppCharge"
-        onClick={() => this.chargeFn(appId, caid)}
-      >
-        {_l('将应用转交他人')}
-      </span>
-    );
-  }
+  chargeFn = (appId, accountId, appName) => {
+    const { projectId } = _.get(this.props, 'match.params');
 
-  chargeFn = (appId, accountId) => {
     dialogSelectUser({
-      sourceId: this.props.match.params.projectId,
+      sourceId: projectId,
       fromType: 4,
       fromAdmin: true,
       SelectUserSettings: {
@@ -644,10 +634,30 @@ export default class AppManagement extends Component {
         filterOthers: true,
         filterOtherProject: true,
         selectedAccountIds: [accountId],
-        projectId: this.props.match.params.projectId,
+        projectId,
         unique: true,
         callback: users => {
-          this.updateAppOwner(appId, users[0]);
+          const user = users[0];
+          Dialog.confirm({
+            className: 'transferConfirm',
+            title: _l('确认移交应用'),
+            description: (
+              <div>
+                <div className="mBottom15">{_l('将应用“%0”的拥有者调整为', appName)}</div>
+                <div className="userWrap">
+                  <UserHead
+                    className="InlineBlock"
+                    disabled
+                    size={24}
+                    projectId={projectId}
+                    user={{ userHead: user.avatar, accountId: user.accountId }}
+                  />
+                  <div className="InlineBlock ellipsis mRight10 mLeft5 LineHeight24 fullName">{user.fullname}</div>
+                </div>
+              </div>
+            ),
+            onOk: () => this.updateAppOwner(appId, users[0]),
+          });
         },
       },
     });

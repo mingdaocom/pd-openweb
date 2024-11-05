@@ -98,11 +98,11 @@ const ADD_ORDER_PRICE = {
 
 const WORKFLOW_TYPE_LIST = [
   { title: _l('每月额度升级包'), money: 50, count: 1, month: _l('剩余月份'), key: 1 },
-  { title: _l('单月包'), money: 100, count: 1, month: _l('本月'), key: 2 },
+  { title: _l('单月包'), money: 10, count: 1, month: _l('本月'), key: 2 },
 ];
 const DATASYNC_TYPE_LIST = [
   { title: _l('每月额度升级包'), money: 50, count: 10, month: _l('剩余月份'), key: 1 },
-  { title: _l('单月包'), money: 100, count: 10, month: _l('本月'), key: 2 },
+  { title: _l('单月包'), money: 10, count: 1, month: _l('本月'), key: 2 },
 ];
 const EXCLUSIVE_TYPE_LIST =
   md.global.Config.IsLocal && !md.global.Config.IsPlatformLocal
@@ -306,8 +306,8 @@ export default class ExpansionService extends Component {
     } else {
       this.setState(
         {
-          addUserCount: 10,
-          addUserStep: 10,
+          addUserCount: 1,
+          addUserStep: 1,
           maxUserCount: 1000000,
           loading: false,
         },
@@ -389,9 +389,11 @@ export default class ExpansionService extends Component {
   //减
   handleMinus() {
     const { addUserCount, addUserStep } = this.state;
+
     if (addUserCount <= addUserStep) {
       return;
     }
+
     this.setState(
       {
         addUserCount: addUserCount > addUserStep ? addUserCount - addUserStep : addUserCount,
@@ -405,9 +407,11 @@ export default class ExpansionService extends Component {
   // 加
   handlePlus() {
     const { addUserCount, addUserStep, maxUserCount } = this.state;
+
     if (addUserCount >= maxUserCount) {
       return;
     }
+
     this.setState(
       {
         addUserCount: addUserCount < maxUserCount ? addUserCount + addUserStep : addUserCount,
@@ -546,12 +550,21 @@ export default class ExpansionService extends Component {
                 className={cx('workflowTypeItem', { active: workflowType === item.key })}
                 key={item.key}
                 onClick={() =>
-                  this.setState({ workflowType: item.key, dataSyncType: item.key }, () => this.computePrince())
+                  this.setState(
+                    {
+                      workflowType: item.key,
+                      dataSyncType: item.key,
+                      addUserCount: item.key === 1 ? 10000 : 1000,
+                      addUserStep: item.key === 1 ? 10000 : 1000,
+                    },
+                    () => this.computePrince(),
+                  )
                 }
               >
                 <div className="Font15 Gray Bold">{item.title}</div>
                 <div className="Gray_9e mTop6">
-                  {_l('%0 元', item.money)} / {_l('%0 万次', item.count)}*{item.month}
+                  {_l('%0 元', item.money)} / {item.key === 1 ? _l('%0 W次', item.count) : _l('%0 K次', item.count)}*
+                  {item.month}
                 </div>
               </div>
             );
@@ -577,11 +590,20 @@ export default class ExpansionService extends Component {
               <div
                 className={cx('workflowTypeItem', { active: dataSyncType === item.key })}
                 key={item.key}
-                onClick={() => this.setState({ dataSyncType: item.key }, () => this.computePrince())}
+                onClick={() =>
+                  this.setState(
+                    {
+                      dataSyncType: item.key,
+                      addUserCount: item.key === 1 ? 100000 : 10000,
+                      addUserStep: item.key === 1 ? 100000 : 10000,
+                    },
+                    () => this.computePrince(),
+                  )
+                }
               >
                 <div className="Font15 Gray Bold">{item.title}</div>
                 <div className="Gray_9e mTop6">
-                  {_l('%0 元', item.money)} / {_l('%0 万行', item.count)}*{item.month}
+                  {_l('%0 元', item.money)} / {_l('%0 W行', item.count)}*{item.month}
                 </div>
               </div>
             );
@@ -604,7 +626,7 @@ export default class ExpansionService extends Component {
         <div className="workflowTypeContent">
           <div className="workflowTypeItem active">
             <div className="Font15 Gray Bold">{_l('本年用量扩充包')}</div>
-            <div className="Gray_9e mTop6">{_l('200 元')} / 10 GB</div>
+            <div className="Gray_9e mTop6">{_l('20 元')} / 1 GB</div>
           </div>
         </div>
         <div className="addWorkFlowBox">
