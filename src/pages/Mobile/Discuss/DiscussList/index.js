@@ -72,93 +72,86 @@ class DiscussList extends Component {
           this.props.dispatch(actions.removeSheetDiscussion(discussionId, rowId));
         }
         this.actionSheetHandler.close();
-      }
+      },
     });
   }
-  handleEndReached = (event) => {
+  handleEndReached = event => {
     const { target } = event;
     const { loading, isMore } = this.state;
     const isEnd = target.scrollHeight - target.scrollTop <= target.clientHeight;
     if (isEnd && !loading && isMore) {
       this.getSheetDiscussion(this.state.pageIndex + 1);
     }
-  }
+  };
   renderItem(item) {
     return (
-      <List.Item
-        key={item.discussionId}
-        prefix={(
-          <img src={item.createAccount.avatar} />
-        )}
-      >
+      <List.Item key={item.discussionId} prefix={<img src={item.createAccount.avatar} />}>
         <div className="flexRow alignItemsCenter">
-          <div className="name Font15 Gray">{item.createAccount.fullname}</div>
-          <div className="flexRow valignWrapper Font14 Gray_9e">
-            <div>{createTimeSpan(dateConvertToUserZone(item.createTime))}</div>
+          <div className="flex Font14 Gray bold">
+            <span>{item.createAccount.fullname}</span>
+            {!!item.replyId && (
+              <Fragment>
+                <span className="Gray_75 mLeft5 mRight5">{_l('回复')}</span>
+                <span>{item.replyAccount.fullname}</span>
+              </Fragment>
+            )}
+          </div>
+          <div className="valignWrapper Font14 Gray_9e">
             {item.createAccount.accountId === md.global.Account.accountId && (
-              <Icon className="mLeft5 Font22" icon="more_horiz" onClick={this.openActionSheet.bind(this, item.discussionId)}/>
+              <Icon
+                className="mLeft5 Font22"
+                icon="more_horiz"
+                onClick={this.openActionSheet.bind(this, item.discussionId)}
+              />
             )}
           </div>
         </div>
+        <div className="content Font14 Gray mTop6 mBottom6">
+          <Message item={item} />
+        </div>
+        {!!item.attachments.length && <AttachmentFiles attachments={item.attachments} width="49%" />}
+        <div className="Gray_9e Font12">{createTimeSpan(dateConvertToUserZone(item.createTime))}</div>
         <div
-          className="content Font14 Gray mTop6"
+          className="Absolute replyBtn pRight15 pTop20 TxtRight"
           onClick={() => {
             this.props.onReply(item.discussionId, item.createAccount.fullname);
           }}
         >
-          <Message
-            item={item}
-            showReplyMessage={!!item.replyId}
-            replyAccount={item.replyAccount}
-          />
+          <i className="icon icon-chat Font20 Gray_bd" />
         </div>
-        {!!item.attachments.length && (
-          <AttachmentFiles
-            attachments={item.attachments}
-            width="49%"
-          />
-        )}
       </List.Item>
     );
   }
   render() {
     const { loading, isMore } = this.state;
-    const { sheetDiscussions, height } = this.props;
+    const { sheetDiscussions } = this.props;
     return (
       <Fragment>
-        {
-          _.isEmpty(sheetDiscussions) ? (
-            <div className="flexRow alignItemsCenter justifyContentCenter" style={{height}}>
-              {
-                loading ? (
-                  <SpinLoading color='primary' />
-                ) : (
-                  <div className="withoutData flexColumn alignItemsCenter">
-                    <img src={withoutDisussion} className="mBottom15" />
-                    <span className="text">{_l('暂无讨论')}</span>
-                  </div>
-                )
-              }
-            </div>
-          ) : (
-            <div className="sheetDiscussList h100" onScroll={this.handleEndReached}>
-              <List>
-                {sheetDiscussions.map(item => (
-                  this.renderItem(item)
-                ))}
-              </List>
-              {isMore && (
-                <div className="flexRow justifyContentCenter">{loading ? <SpinLoading color='primary' /> : null}</div>
-              )}
-            </div>
-          )
-        }
+        {_.isEmpty(sheetDiscussions) ? (
+          <div className="flexRow alignItemsCenter justifyContentCenter h100">
+            {loading ? (
+              <SpinLoading color="primary" />
+            ) : (
+              <div className="withoutData flexColumn alignItemsCenter">
+                <img src={withoutDisussion} className="mBottom15" />
+                <span className="text">{_l('暂无讨论')}</span>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="sheetDiscussList h100" onScroll={this.handleEndReached}>
+            <List>{sheetDiscussions.map(item => this.renderItem(item))}</List>
+            {isMore && (
+              <div className="flexRow justifyContentCenter">{loading ? <SpinLoading color="primary" /> : null}</div>
+            )}
+          </div>
+        )}
       </Fragment>
     );
   }
 }
 
-export default connect((state) => {
+export default connect(state => {
   const { sheetDiscussions } = state.mobile;
   return {
     sheetDiscussions,

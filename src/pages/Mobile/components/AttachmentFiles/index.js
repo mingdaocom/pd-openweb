@@ -153,7 +153,14 @@ export class UploadFileWrapper extends Component {
   }
   getMethod() {
     const self = this;
-    const { advancedSetting = {}, projectId, appId, worksheetId, customUploadType, checkValueByFilterRegex } = self.props;
+    const {
+      advancedSetting = {},
+      projectId,
+      appId,
+      worksheetId,
+      customUploadType,
+      checkValueByFilterRegex,
+    } = self.props;
     const method = {
       onAdd(uploader, files, nextStart) {
         if (_.isEmpty(files)) {
@@ -463,6 +470,8 @@ export default class AttachmentList extends Component {
   }
   renderProgress(item) {
     const { progress, base } = item;
+    const { diameter } = this.props;
+
     return (
       <div key={item.id} className="fileWrapper flexColumn" style={this.style}>
         <div className="filePanel flexRow alignItemsCenter justifyContentCenter">
@@ -471,7 +480,7 @@ export default class AttachmentList extends Component {
             isAnimation={false}
             isRound={false}
             strokeWidth={3}
-            diameter={47}
+            diameter={diameter || 47}
             foregroundColor="#BDBDBD"
             backgroundColor="#fff"
             format={percent => ''}

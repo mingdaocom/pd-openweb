@@ -7,6 +7,9 @@ import ConnectChatWindow from 'src/pages/chat/containers/ChatWindow';
 import store from 'redux/configureStore';
 
 export default class ChatWindowEntrypoint extends Component {
+  constructor(props) {
+    super(props);
+  }
   componentDidMount() {
     $('html').addClass('AppChat');
   }

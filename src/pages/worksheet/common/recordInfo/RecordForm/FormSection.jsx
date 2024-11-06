@@ -89,7 +89,9 @@ function FormSection(props, ref) {
   const [isUnfold, setUnfold] = useState(getDefaultIsUnfold(undefined, widgetStyle));
 
   useEffect(() => {
-    setActiveId(_.get(activeControl, 'controlId') || '');
+    const activeId = _.get(activeControl, 'controlId') || '';
+    setActiveId(activeId);
+    onClick(activeId);
     const localIsUnfold = getDefaultIsUnfold(isUnfold, widgetStyle);
     setUnfold(localIsUnfold);
     onUpdateFormSectionWidth(localIsUnfold ? 220 : 55);
@@ -116,8 +118,6 @@ function FormSection(props, ref) {
       setActiveId(controlId);
     },
   };
-
-  console.log(tabControls);
 
   return (
     <FormSectionWrap className="formSection" isFixedRight={widgetStyle.tabposition === '4'} isUnfold={isUnfold}>

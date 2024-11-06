@@ -22,6 +22,8 @@ import ImportPlugin from './ImportPlugin';
 import { getPluginOperateText } from '../util';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 
 const Wrapper = styled.div`
   background: #fff;
@@ -264,6 +266,13 @@ export default function PluginComponent(props) {
             onImportCreateSuccess: () => setFetchState({ loading: true, pageIndex: 1 }),
           });
     } else {
+      const featureType = getFeatureStatus(currentProjectId, VersionProductType.flowPlugin);
+
+      if (featureType === '2') {
+        buriedUpgradeVersionDialog(currentProjectId, VersionProductType.flowPlugin);
+        return;
+      }
+
       pluginApi
         .create(
           {

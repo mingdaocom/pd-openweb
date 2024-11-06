@@ -5,13 +5,7 @@ import * as actions from '../../redux/actions';
 import MessageCon from 'src/pages/accountLogin/components/message';
 import cx from 'classnames';
 import { InviteFromType } from 'src/pages/accountLogin/config.js';
-import {
-  hasCaptcha,
-  setWarnningData,
-  warnningTipFn,
-  getAccountTypes,
-  clickErrInput,
-} from 'src/pages/accountLogin/util.js';
+import { hasCaptcha, setWarnningData, getAccountTypes, clickErrInput, isTel } from 'src/pages/accountLogin/util.js';
 import { captcha } from 'ming-ui/functions';
 import { getRequest, htmlDecodeReg } from 'src/util';
 import _ from 'lodash';
@@ -176,10 +170,27 @@ export default class Container extends React.Component {
       createAccountLoading,
       clearInfoByUrl = () => {},
     } = this.props;
-    const { inviteInfo = {}, isLink, loginForAdd, focusDiv, hasCheckPrivacy } = registerData;
+    const {
+      inviteInfo = {},
+      isLink,
+      loginForAdd,
+      focusDiv,
+      hasCheckPrivacy,
+      canSendCodeByTel = false,
+      dialCode,
+      emailOrTel,
+    } = registerData;
     const { createUserName = '' } = inviteInfo;
     const { version, itiType, loadProjectName, projectNameLang } = this.state;
 
+    const keys = [
+      ...(isLink
+        ? loginForAdd || location.pathname.indexOf('join') >= 0 //定向邀请已存在手机号和邮箱不需要验证
+          ? [getAccountTypes(true), !loginForAdd ? 'setPassword' : 'password']
+          : [getAccountTypes(true), 'code', 'setPassword']
+        : [itiType, 'code', 'setPassword']),
+      (isLink && loginForAdd) || !_.get(md, 'global.SysSettings.enableDeclareRegisterConfirm') ? '' : 'privacy',
+    ];
     return (
       <React.Fragment>
         <div className="titleHeader">
@@ -201,18 +212,34 @@ export default class Container extends React.Component {
             </div>
           )}
         </div>
-        <MessageCon
-          type={isLink ? (loginForAdd ? 'login' : 'invite') : 'register'}
-          keys={[
-            ...(isLink
-              ? loginForAdd || location.pathname.indexOf('join') >= 0 //定向邀请已存在手机号和邮箱不需要验证
-                ? [getAccountTypes(true), !loginForAdd ? 'setPassword' : 'password']
-                : [getAccountTypes(true), 'code', 'setPassword']
-              : [itiType, 'code', 'setPassword']),
-            (isLink && loginForAdd) || !_.get(md, 'global.SysSettings.enableDeclareRegisterConfirm') ? '' : 'privacy',
-          ]}
-          key={version}
-        />
+        <div className="mBottom20">
+          <MessageCon type={isLink ? (loginForAdd ? 'login' : 'invite') : 'register'} keys={keys} key={version} />
+        </div>
+        {isTel(emailOrTel) && dialCode !== '+86' && keys.includes('code') && (
+          <div className="messageBox">
+            <div
+              className={cx('termsText Gray canSendCodeByTel mesDiv', {
+                ...setWarnningData(warnningData, ['canSendCodeByTel'], focusDiv, canSendCodeByTel),
+              })}
+            >
+              <span
+                className="flexRow alignItemsCenter Hand privacyTextCon Bold"
+                onClick={() => {
+                  if (!canSendCodeByTel) {
+                    let data = _.filter(warnningData, it => it.tipDom !== 'canSendCodeByTel');
+                    setData({ focusDiv: 'canSendCodeByTel', canSendCodeByTel: !canSendCodeByTel });
+                    updateWarn(data);
+                  } else {
+                    setData({ canSendCodeByTel: !canSendCodeByTel, focusDiv: 'canSendCodeByTel' });
+                  }
+                }}
+              >
+                <Checkbox checked={canSendCodeByTel} className="InlineBlock" />
+                {_l('我同意接收短信')}
+              </span>
+            </div>
+          </div>
+        )}
         {!(isLink && loginForAdd) && _.get(md, 'global.SysSettings.enableDeclareRegisterConfirm') && (
           <div className="messageBox">
             <div

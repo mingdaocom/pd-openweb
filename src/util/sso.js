@@ -120,6 +120,9 @@ export const addOtherParam = (url, param) => {
 }
 
 export const checkOriginUrl = url => {
+  if (url && url.includes('mingdao.com')) {
+    return url;
+  }
   if (url && url.includes('http')) {
     return url.includes(location.origin);
   } else {

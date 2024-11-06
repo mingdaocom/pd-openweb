@@ -178,7 +178,7 @@ export default function DisplayItem(props) {
           const newActiveWidget = widgets[batchRow][batchCol];
           handleAddWidgets(
             filterBatchWidgets,
-            {},
+            { activePath },
             {
               widgets: filterOldWidgets,
               activeWidget: newActiveWidget,

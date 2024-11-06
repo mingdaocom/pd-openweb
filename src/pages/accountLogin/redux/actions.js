@@ -98,10 +98,18 @@ export const clearInfoByUrl = () => {
 };
 
 // 验证input内容 手机 验证码 密码
-export const isValid = (isForSendCode, keys = []) => {
+export const isValid = (isForSendCode, keys = [], type) => {
   return (dispatch, getState) => {
     const { accountInfo = {}, stateList = {} } = getState();
-    const { emailOrTel = '', verifyCode = '', password = '', fullName = '', hasCheckPrivacy } = accountInfo;
+    const {
+      emailOrTel = '',
+      verifyCode = '',
+      password = '',
+      fullName = '',
+      dialCode,
+      hasCheckPrivacy,
+      canSendCodeByTel,
+    } = accountInfo;
     let isRight = true;
     let warnningData = [];
 
@@ -158,6 +166,18 @@ export const isValid = (isForSendCode, keys = []) => {
         warnningData.push({ tipDom: '#fullName', warnningText: _l('用户名不能为空') });
         isRight = false;
       }
+    }
+
+    if (
+      isForSendCode &&
+      ['invite', 'register'].includes(type) &&
+      isTel(emailOrTel) &&
+      dialCode !== '+86' &&
+      keys.includes('code') &&
+      !canSendCodeByTel
+    ) {
+      warnningData.push({ tipDom: 'canSendCodeByTel', warnningText: _l('未勾选同意接收短信') });
+      isRight = false;
     }
 
     if (!isForSendCode) {

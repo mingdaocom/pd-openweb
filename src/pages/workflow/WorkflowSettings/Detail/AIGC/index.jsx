@@ -271,7 +271,7 @@ export default class AIGC extends Component {
             <Dropdown
               className="flowDropdown w100"
               menuClass="w100"
-              data={Object.keys(data[templateKey]).map(key => ({ text: key, value: data[templateKey][key] }))}
+              data={Object.keys(data[templateKey] || {}).map(key => ({ text: key, value: data[templateKey][key] }))}
               value={templateValue}
               border
               openSearch

@@ -118,6 +118,7 @@ function CopyCustomEvent(props) {
           data={filterControls}
           border
           isAppendToBody
+          openSearch
           value={copyId || undefined}
           placeholder={_l('选择字段')}
           onChange={value => setData({ copyId: value })}
@@ -129,6 +130,7 @@ function CopyCustomEvent(props) {
           data={getEventData()}
           border
           isAppendToBody
+          openSearch
           value={copyEventId || undefined}
           placeholder={_l('选择事件')}
           onChange={value => setData({ copyEventId: value })}

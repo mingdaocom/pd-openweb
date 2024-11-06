@@ -336,7 +336,7 @@ export default class Widgets extends Component {
    * 获取上传组件的父级
    */
   getPopupContainer = () => {
-    return $(this.fileBox).closest('.customFieldsContainer')[0] || document.querySelector(`.attachmentControl-${this.id}`);
+    return $(this.fileBox || document.querySelector(`.attachmentControl-${this.id}`)).closest('.customFieldsContainer')[0];
   };
 
   handleDownloadAll = () => {

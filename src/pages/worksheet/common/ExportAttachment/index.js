@@ -226,6 +226,7 @@ class ExportAttachment extends Component {
             checked={generateFolder}
             onClick={checked => this.setState({ generateFolder: !checked })}
           />
+          <div className="Gray_9e Font13">{_l('文件夹名和附件名的最大长度为90个汉字。超限的文件不会被导出。')}</div>
         </Container>
       </Dialog>
     );

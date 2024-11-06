@@ -176,13 +176,17 @@ export default class CommonUserHandle extends Component {
               <Icon icon="search" className="Font20" onClick={this.openGlobalSearch.bind(this)} />
             </div>
             {md.global.Config.IsLocal ? (
-              <div
-                className="workflowHelpIconWrap pointer"
-                data-tip={_l('帮助')}
-                onClick={() => window.open('https://help.mingdao.com')}
-              >
-                <Icon icon="workflow_help" className="helpIcon Font20" />
-              </div>
+              !md.global.SysSettings.hideHelpTip ? (
+                <div
+                  className="workflowHelpIconWrap pointer"
+                  data-tip={_l('帮助')}
+                  onClick={() => window.open('https://help.mingdao.com')}
+                >
+                  <Icon icon="workflow_help" className="helpIcon Font20" />
+                </div>
+              ) : (
+                ''
+              )
             ) : (
               <Trigger
                 action={['click']}

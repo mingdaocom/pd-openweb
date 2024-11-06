@@ -58,7 +58,9 @@ export default class CreateNodeDialog extends Component {
                       appType: 1,
                       actionId: '421',
                       name: _l('查询并更新记录'),
-                      describe: _l('根据筛选条件和排序规则从工作表中查找符合条件的第一条记录并同时更新记录值（原子性防止并发操作，适用于出入库等场景）'),
+                      describe: _l(
+                        '根据筛选条件和排序规则从工作表中查找符合条件的第一条记录并同时更新记录值（原子性防止并发操作，适用于出入库等场景）',
+                      ),
                     },
                     {
                       type: 7,
@@ -1201,6 +1203,7 @@ export default class CreateNodeDialog extends Component {
             iconUrl: o.iconUrl,
             iconName: 'icon-workflow',
             isMyCreate: o.source === 0,
+            featureId: VersionProductType.flowPlugin,
           };
         });
     };
@@ -1274,6 +1277,7 @@ export default class CreateNodeDialog extends Component {
           NODE_TYPE.API,
           NODE_TYPE.SNAPSHOT,
           NODE_TYPE.LOOP,
+          NODE_TYPE.PLUGIN,
         ],
         item.type,
       ) ||

@@ -1,13 +1,14 @@
-
 .discussTabs {
+  padding-top: 8px;
+  box-sizing: border-box;
   .participation {
     height: 50px;
     padding: 0 20px;
-    background-color: #fff;
+    background-color: #fbfbfb;
     .text {
       flex: 1;
       font-size: 15px;
-      color: #2196F3;
+      color: #2196f3;
     }
     .icon {
       font-size: 23px;
@@ -29,11 +30,11 @@
     top: 12px;
     z-index: 2;
   }
-  .closeDiscuss{
+  .closeDiscuss {
     color: #757575;
     font-weight: 500;
     position: absolute;
-    top: 10px;
+    top: 15px;
     right: 10px;
     z-index: 2;
     height: 24px;
@@ -41,20 +42,27 @@
     padding: 0 12px;
     border-radius: 18px;
     font-size: 13px;
-    background-color: #F5F5F5;
+    background-color: #f5f5f5;
   }
 }
 
 .sheetDiscussList {
   overflow-y: auto;
+  .adm-list-body {
+    border-top: none !important;
+  }
+  .adm-list-item {
+    padding-left: 12px;
+  }
   .adm-list-item-content {
     align-items: flex-start;
+    position: relative;
   }
   .adm-list-item-content-prefix {
     margin-top: 15px;
     img {
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
     }
   }
@@ -64,7 +72,8 @@
   .content {
     white-space: normal !important;
   }
-  .attsImages, .attsFiles {
+  .attsImages,
+  .attsFiles {
     padding: 0;
   }
   .name {
@@ -76,10 +85,17 @@
     justify-content: space-between;
     word-break: break-all;
   }
+  .replyBtn {
+    width: 88px;
+    height: 58px;
+    bottom: 0;
+    right: 0;
+  }
 }
 
 .sheetLogs {
-  .am-list-content, .am-list-extra {
+  .am-list-content,
+  .am-list-extra {
     width: 0px !important;
     font-size: 14px !important;
   }
@@ -88,8 +104,8 @@
 .sheetAttachments {
   height: 100%;
   .attachmentFiles {
-     padding: 10px 10px 0;
-     overflow-y: auto;
-     height: 100%;
+    padding: 10px 10px 0;
+    overflow-y: auto;
+    height: 100%;
   }
 }

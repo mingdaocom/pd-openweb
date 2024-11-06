@@ -9,6 +9,8 @@ export default props => {
   const { className, visible, onClose } = props;
 
   if (isModal) {
+    if (!visible) return null;
+
     const { instanceId, workId } = props;
     return (
       <Popup className={cx('mobileModal full', className)} onClose={onClose} visible={visible}>

@@ -25,7 +25,7 @@ export default function BatchAdd({ data, options, onOk, ...rest }) {
   const { controlId } = data;
   const [value, setValue] = useState('');
   const [checked, setCheck] = useState(false);
-  const isSaved = controlId && !controlId.includes('-');
+  const isSaved = !controlId || (controlId && !controlId.includes('-'));
   const noDelOptions = options.filter(i => !i.isDeleted);
   const deleteOptions = options.filter(i => i.isDeleted);
 
@@ -54,12 +54,12 @@ export default function BatchAdd({ data, options, onOk, ...rest }) {
       title={_l('批量添加')}
       okDisabled={okDisabled}
       onOk={() => {
-        let newOptions = isSaved ? options.filter(n => !_.includes(addOptions, n.value)) : [];
+        let newOptions = isSaved ? [].concat(options) : [];
 
         addOptions.forEach(a => {
-          const deleteOption = _.find(deleteOptions, o => o.value === a && o.isDeleted);
-          if (deleteOption) {
-            newOptions.push({ ...deleteOption, isDeleted: false });
+          const deleteIndex = _.findIndex(newOptions, o => o.value === a && o.isDeleted);
+          if (deleteIndex > -1) {
+            newOptions[deleteIndex].isDeleted = false;
           } else {
             newOptions.push({
               key: uuidv4(),

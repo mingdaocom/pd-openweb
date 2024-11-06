@@ -400,6 +400,8 @@ function Setting(props) {
             <h6 className={cx('Font13 Gray Bold mBottom0 mTop32')}>{_l('登录方式')}</h6>
             <div className="">
               {LOGIN_WAY.map((o, i) => {
+                if (o.key === 'weChat' && md.global.SysSettings.hideWeixin) return;
+
                 return (
                   <Checkbox
                     className="mTop16 InlineBlock mRight60 setCheckbox"

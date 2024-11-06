@@ -207,7 +207,7 @@ class MessageCon extends React.Component {
 
   // 获取验证码
   handleSendVerifyCode = async codeType => {
-    let isValid = await this.props.isValid(true, this.props.keys);
+    let isValid = await this.props.isValid(true, this.props.keys, this.props.type);
     if (isValid) {
       const { dataList = {}, type, sendVerifyCode, appId, updateWarn } = this.props;
       const { emailOrTel = '', dialCode } = dataList;

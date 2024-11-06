@@ -1644,6 +1644,8 @@ export const isPasswordRule = str => {
 export const getContactInfo = key => {
   const contactInfo = safeParse(window.localStorage.getItem('contactInfo') || '{}');
 
+  if (!md.global.Account.accountId) return '';
+
   // 用户不匹配、用户信息更改重新获取数据
   if (
     _.isEmpty(contactInfo) ||
