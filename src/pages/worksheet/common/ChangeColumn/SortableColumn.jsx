@@ -120,7 +120,7 @@ export default function SortableColumn(props) {
       )}
       <SortableList
         useDragHandle
-        items={list.filter(l => !l.sectionId || canDrag)}
+        items={list.filter(l => !l.sectionId || sortAutoChange)}
         itemKey="controlId"
         onSortEnd={handleSortEnd}
         renderItem={renderItem}

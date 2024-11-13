@@ -60,6 +60,8 @@ function RelateRecordTable(props) {
     args => {
       const { recordId, activeRelateTableControlId } = args;
       openRecordInfo({
+        disableOpenRecordFromRelateRecord:
+          get(window, 'shareState.isPublicRecord') || get(window, 'shareState.isPublicView'),
         showPrevNext: true,
         currentSheetRows: records.filter(r => r.rowid),
         from: 2,

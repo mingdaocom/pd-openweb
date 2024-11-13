@@ -755,6 +755,9 @@ export default class RelateRecordDropdown extends React.Component {
         {from !== FROM.PUBLIC_ADD && previewRecord && (
           <RecordInfoWrapper
             visible
+            disableOpenRecordFromRelateRecord={
+              _.get(window, 'shareState.isPublicRecord') || _.get(window, 'shareState.isPublicView')
+            }
             viewId={_.get(control, 'advancedSetting.openview') || control.viewId}
             from={1}
             hideRecordInfo={() => {

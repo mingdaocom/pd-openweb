@@ -147,6 +147,7 @@ export default class RecordInfo extends Component {
       isWorksheetQuery,
       needUpdateControlIds,
       enablePayment,
+      disableOpenRecordFromRelateRecord,
     } = this.props;
     const { recordId, tempFormData } = this.state;
     let { switchPermit } = this.state;
@@ -182,10 +183,19 @@ export default class RecordInfo extends Component {
       // 设置隐藏字段的 hidden 属性
       data.formData = replaceControlsTranslateInfo(appId, worksheetId, data.formData)
         .filter(c => c.controlId !== 'daid')
-        .map(c => ({
-          ...c,
-          hidden: c.hidden || (view.controls || _.get(data, 'view.controls') || []).includes(c.controlId),
-        }));
+        .map(c => {
+          if (disableOpenRecordFromRelateRecord) {
+            try {
+              c.advancedSetting.allowlink = '0';
+            } catch (err) {
+              console.error(err);
+            }
+          }
+          return {
+            ...c,
+            hidden: c.hidden || (view.controls || _.get(data, 'view.controls') || []).includes(c.controlId),
+          };
+        });
 
       const tempControls = needUpdateControlIds
         ? tempFormData

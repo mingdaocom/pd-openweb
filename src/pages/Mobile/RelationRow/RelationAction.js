@@ -161,6 +161,8 @@ class RelationAction extends Component {
       };
     } catch (err) {}
 
+    const currentControl = _.find(formData, v => v.controlId === controlId) || {};
+
     return (
       <Fragment>
         {showRelevanceRecord && (
@@ -175,6 +177,7 @@ class RelationAction extends Component {
             keyWords={recordkeyWords}
             showControls={showControls}
             appId={worksheet.appId}
+            viewId={_.get(currentControl, 'advancedSetting.openview')}
             parentWorksheetId={worksheetId}
             filterRelatesheetControlIds={[controlId]}
             controlId={controlId}

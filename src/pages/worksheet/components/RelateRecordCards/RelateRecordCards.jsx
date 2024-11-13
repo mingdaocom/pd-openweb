@@ -862,6 +862,9 @@ class RelateRecordCards extends Component {
                     worksheetId={dataSource}
                     viewId={advancedSetting.openview || control.viewId}
                     rowId={previewRecord && previewRecord.recordId}
+                    disableOpenRecordFromRelateRecord={
+                      _.get(window, 'shareState.isPublicRecord') || _.get(window, 'shareState.isPublicView')
+                    }
                     onClose={() => {
                       this.setState({ previewRecord: undefined });
                       if (_.isFunction(control.refreshRecord)) {
@@ -872,6 +875,9 @@ class RelateRecordCards extends Component {
                 ) : (
                   <RecordInfoWrapper
                     visible
+                    disableOpenRecordFromRelateRecord={
+                      _.get(window, 'shareState.isPublicRecord') || _.get(window, 'shareState.isPublicView')
+                    }
                     allowAdd={allowNewRecord}
                     appId={appId}
                     viewId={advancedSetting.openview || control.viewId}

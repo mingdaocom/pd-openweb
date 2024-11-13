@@ -171,11 +171,13 @@ export default class AccountChart extends React.Component {
           <div className="systemSettingsRight">
             <div className="Gray_75 mBottom16">
               <Dropdown
-                className="systemSettingsZone Gray"
+                className="systemSettingsZone Gray w100"
                 border
                 value={this.state.currentTimeZone}
                 data={this.state.timeZones}
                 openSearch
+                showItemTitle
+                renderTitle={(selectedData = {}) => <span title={selectedData.text}>{selectedData.text}</span>}
                 onChange={value => {
                   this.sureSettings('timeZone', value, () => {
                     this.setState({ currentTimeZone: value });

@@ -40,13 +40,15 @@ export default class EditPostDialog extends React.Component {
     isUploadComplete: true,
     submitting: false,
     scope: {
-      project: _.map(this.props.postItem.scope.shareProjects, p => p.projectId),
-      group: _.map(this.props.postItem.scope.shareGroups, g => g.groupId),
+      shareProjectIds: _.map(this.props.postItem.scope.shareProjects, p => p.projectId),
+      shareGroupIds: _.map(this.props.postItem.scope.shareGroups, g => g.groupId),
     },
   };
+
   constructor(props) {
     super(props);
     const { postItem } = props;
+
     if (postItem.attachments && postItem.attachments.length) {
       _.forEach(postItem.attachments, attachment => {
         if (attachment.refId) {

@@ -177,7 +177,7 @@ export default class Write extends Component {
         selectNodeId,
         accounts,
         formProperties,
-        submitBtnName: submitBtnName.trim() || _l('提交'),
+        submitBtnName: submitBtnName.trim(),
         schedule,
         operationTypeList,
         encrypt,

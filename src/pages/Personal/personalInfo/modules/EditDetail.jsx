@@ -88,6 +88,7 @@ export default class EditDetail extends React.Component {
         <input
           type="text"
           className={cx('formControl mTop6', { error: isError })}
+          disabled={!md.global.SysSettings.enableEditAccountInfo}
           defaultValue={baseInfo.fullname}
           onChange={e => {
             this.updateValue('fullname', e.target.value);

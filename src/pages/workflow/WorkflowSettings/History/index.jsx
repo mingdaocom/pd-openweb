@@ -69,10 +69,6 @@ class History extends Component {
       ...filterPara,
     };
 
-    if (!para.startDate && !para.archivedId) {
-      para.startDate = moment().add(-6, 'M').format('YYYY/MM/DD HH:mm');
-    }
-
     if (requestPending) return;
 
     this.setState({ requestPending: true });

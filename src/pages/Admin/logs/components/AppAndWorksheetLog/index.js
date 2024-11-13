@@ -454,9 +454,9 @@ export default class AppAndWorksheetLog extends Component {
     return coditions.filter(v => {
       let filterArr = [];
       if (appId) {
-        filterArr = logType === 1 ? ['appIds', 'worksheetIds'] : logType === 2 ? ['appIds', 'modules'] : ['appIds'];
+        filterArr = logType === 1 ? ['appIds'] : logType === 2 ? ['appIds', 'modules'] : ['appIds'];
       } else {
-        filterArr = logType === 1 ? ['worksheetIds'] : logType === 2 ? ['modules'] : [];
+        filterArr = logType === 1 ? [] : logType === 2 ? ['modules'] : [];
       }
 
       return !_.includes(filterArr, v.key);
@@ -867,6 +867,7 @@ export default class AppAndWorksheetLog extends Component {
 
         {showWorksheetLog && (
           <WorksheetLogDrawer
+            selectWorksheetId={!_.isEmpty(worksheetIds) ? worksheetIds[0] : undefined}
             visible={showWorksheetLog}
             projectId={projectId}
             appId={appId}

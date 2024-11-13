@@ -24,6 +24,7 @@ import processAjax from 'src/pages/workflow/api/process';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
 import delegationAjax from 'src/pages/workflow/api/delegation';
 import qiniuAjax from 'src/api/qiniu';
+import attachmentAjax from 'src/api/attachment';
 
 export const api = {
   getFilterRowsTotalNum: data => window.mdyAPI('Worksheet', 'GetFilterRowsTotalNum', getFilledRequestParams(data)),
@@ -78,6 +79,10 @@ function getMainWebApi() {
     {
       controller: 'qiniu',
       ajax: qiniuAjax,
+    },
+    {
+      controller: 'attachment',
+      ajax: attachmentAjax,
     },
   ].forEach(item => {
     mainWebApi[item.controller] = item.ajax;

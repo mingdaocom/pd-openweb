@@ -14,14 +14,6 @@ import moment from 'moment';
 import { verifyPassword } from 'src/util';
 import PrintList from './components/PrintList';
 
-// 处理特殊多语言文本
-const SPECIAL_LANG_TEXT = {
-  通过: _l('通过'),
-  否决: _l('否决'),
-  退回: _l('退回'),
-  提交: _l('提交'),
-};
-
 export default class Header extends Component {
   static propTypes = {
     projectId: string,
@@ -220,11 +212,13 @@ export default class Header extends Component {
             } else {
               this.setState({ isRequest: false, isUrged: true });
             }
-          } else {
-            onSave();
-            onClose();
           }
         });
+
+        if (!_.includes([13, 18], restPara.operationType)) {
+          onSave();
+          onClose();
+        }
       }
     };
 
@@ -391,7 +385,7 @@ export default class Header extends Component {
                               ? _l('处理中...')
                               : isUrged && id === 'urge'
                               ? _l('已催办')
-                              : SPECIAL_LANG_TEXT[btnMap[key]] || btnMap[key] || text}
+                              : btnMap[key] || text}
                           </Button>
                         );
                       })}

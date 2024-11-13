@@ -806,7 +806,7 @@ export const scrollToVisibleRange = (data, widgetProps) => {
 // 批量添加
 export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
   const { widgets, activeWidget, allControls, setWidgets, setActiveWidget, globalSheetInfo = {} } = widgetProps;
-  const { mode, path, location, displayItemType, rowIndex } = para;
+  const { mode, path, location, displayItemType, rowIndex, activePath } = para;
   const tempData = head(data);
   const featureType = getFeatureStatus(globalSheetInfo.projectId, tempData.featureId);
   if (_.includes([49, 50], tempData.type) && featureType === '2') {
@@ -873,23 +873,26 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
       let tempActiveWidget = index ? data[index - 1] : activeWidget;
       currentRowIndex = head(getPathById(newWidgets, get(tempActiveWidget, 'controlId')));
 
-      // 如果激活控件是标签页控件
-      if (tempActiveWidget.type === 52) {
-        // 不支持的控件,已标签页显示的在底下，其他放入分界位置
-        if (notInsetSectionTab(item)) {
-          currentRowIndex = fixedBottomWidgets(item) ? currentRowIndex : getBoundRowByTab(widgets) - 1;
+      // 批量拖拽移动，path区分,不走以下逻辑
+      if (_.isEmpty(activePath)) {
+        // 如果激活控件是标签页控件
+        if (tempActiveWidget.type === 52) {
+          // 不支持的控件,已标签页显示的在底下，其他放入分界位置
+          if (notInsetSectionTab(item)) {
+            currentRowIndex = fixedBottomWidgets(item) ? currentRowIndex : getBoundRowByTab(widgets) - 1;
+          } else {
+            const childrenList = getChildWidgetsBySection(allControls, tempActiveWidget.controlId);
+            currentRowIndex = currentRowIndex + childrenList.length;
+          }
         } else {
-          const childrenList = getChildWidgetsBySection(allControls, tempActiveWidget.controlId);
-          currentRowIndex = currentRowIndex + childrenList.length;
-        }
-      } else {
-        // 当前激活控件非特殊控件，但是添加控件是特殊控件，直接添加末尾
-        if (!fixedBottomWidgets(activeWidget) && fixedBottomWidgets(item)) {
-          currentRowIndex = newWidgets.length - 1;
-        }
-        // 当前激活控件特殊控件，但是添加控件是非特殊控件，直接添加在分界线
-        if (fixedBottomWidgets(activeWidget) && !fixedBottomWidgets(item)) {
-          currentRowIndex = getBoundRowByTab(widgets) - 1;
+          // 当前激活控件非特殊控件，但是添加控件是特殊控件，直接添加末尾
+          if (!fixedBottomWidgets(activeWidget) && fixedBottomWidgets(item)) {
+            currentRowIndex = newWidgets.length - 1;
+          }
+          // 当前激活控件特殊控件，但是添加控件是非特殊控件，直接添加在分界线
+          if (fixedBottomWidgets(activeWidget) && !fixedBottomWidgets(item)) {
+            currentRowIndex = getBoundRowByTab(widgets) - 1;
+          }
         }
       }
     }

@@ -3846,6 +3846,294 @@ msgid "是，保存更改"
 msgstr "是，保存更改"
 
 #: Disabled references:1
+msgid "二维码（公开分享链接）"
+msgstr "二维码（公开分享链接）"
+
+#: Disabled references:1
+msgid "二维码（内部访问链接）"
+msgstr "二维码（内部访问链接）"
+
+#: Disabled references:1
+msgid "条形码（记录ID）"
+msgstr "条形码（记录ID）"
+
+#: Disabled references:1
+msgid "打印人"
+msgstr "打印人"
+
+#: Disabled references:1
+msgid "打印时间"
+msgstr "打印时间"
+
+#: Disabled references:1
+msgid "查看所有字段"
+msgstr "查看所有字段"
+
+#: Disabled references:1
+msgid "所有字段"
+msgstr "所有字段"
+
+#: Disabled references:1
+msgid "字段名称"
+msgstr "字段名称"
+
+#: Disabled references:1
+msgid "字段代码"
+msgstr "字段代码"
+
+#: Disabled references:1
+msgid "字段ID/别名"
+msgstr "字段ID/别名"
+
+#: Disabled references:1
+msgid "字段ID/字段别名"
+msgstr "字段ID/字段别名"
+
+#: Disabled references:1
+msgid "系统字段"
+msgstr "系统字段"
+
+#: Disabled references:1
+msgid "表单字段"
+msgstr "表单字段"
+
+#: Disabled references:1
+msgid "当表单字段包含多个值时，默认以逗号隔开列出所有值。如需将关联表（卡片、下拉框）以表格方式逐行向下列出所有记录的字段值，可将字段代码或字段ID中的“[S]”去掉，并放在表格中使用。"
+msgstr "当表单字段包含多个值时，默认以逗号隔开列出所有值。如需将关联表（卡片、下拉框）以表格方式逐行向下列出所有记录的字段值，可将字段代码或字段ID中的“[S]”去掉，并放在表格中使用。"
+
+#: Disabled references:1
+msgid "子表、关联记录、查询记录（列表）、审批明细"
+msgstr "子表、关联记录、查询记录（列表）、审批明细"
+
+#: Disabled references:1
+msgid "子表、关联记录（列表）、查询记录（列表）、审批明细中的字段支持四种打印方式。打印审批明细时，如果同一条审批流程被重复发起了多次，则只会打印发起时间最近的一次。"
+msgstr "子表、关联记录（列表）、查询记录（列表）、审批明细中的字段支持四种打印方式。打印审批明细时，如果同一条审批流程被重复发起了多次，则只会打印发起时间最近的一次。"
+
+#: Disabled references:1
+msgid "（1）表格打印（默认）：直接将字段代码放入表格中，在表格中逐行向下列出所有记录的字段值。如果要对相同值进行合并单元格，可在字段代码中加上“[M]”，如：#{客户.客户名称[M]}"
+msgstr "（1）表格打印（默认）：直接将字段代码放入表格中，在表格中逐行向下列出所有记录的字段值。如果要对相同值进行合并单元格，可在字段代码中加上“[M]”，如：#{客户.客户名称[M]}"
+
+#: Disabled references:1
+msgid "（2）拼接打印：以逗号隔开列出所有记录的字段值。可在字段代码中加上“[S]”，如#{客户.客户名称[S]}。"
+msgstr "（2）拼接打印：以逗号隔开列出所有记录的字段值。可在字段代码中加上“[S]”，如#{客户.客户名称[S]}。"
+
+#: Disabled references:1
+msgid "（3）填充打印：在指定位置填充列表中固定某一行记录的字段，可在字段代码或字段ID的子表或关联表名后加索引值，如固定显示第一行记录的#{客户.客户名称}加索引号写法为#{客户[1].客户名称}；"
+msgstr "（3）填充打印：在指定位置填充列表中固定某一行记录的字段，可在字段代码或字段ID的子表或关联表名后加索引值，如固定显示第一行记录的#{客户.客户名称}加索引号写法为#{客户[1].客户名称}；"
+
+#: Disabled references:1
+msgid "（4）逐条打印：关联记录（列表）中 每一条记录作为一个整体依次逐条打印。可以将以下代码插入到模板中，代码下方的内容将识别为记录的基本单元。"
+msgstr "（4）逐条打印：关联记录（列表）中 每一条记录作为一个整体依次逐条打印。可以将以下代码插入到模板中，代码下方的内容将识别为记录的基本单元。"
+
+#: Disabled references:1
+msgid "帮助文档"
+msgstr "帮助文档"
+
+#: Disabled references:1
+msgid "单独一行放置在模板中要重复的明细上方，表示下方的明细记录需要一条条单独列出。"
+msgstr "单独一行放置在模板中要重复的明细上方，表示下方的明细记录需要一条条单独列出。"
+
+#: Disabled references:1
+msgid "单独一行放置在模板中要重复的明细下方，表示重复的部分到这里就结束了。"
+msgstr "单独一行放置在模板中要重复的明细下方，表示重复的部分到这里就结束了。"
+
+#: Disabled references:1
+msgid "[审批]"
+msgstr "[审批]"
+
+#: Disabled references:1
+msgid "制作模板 - %0"
+msgstr "制作模板 - %0"
+
+#: Disabled references:1
+msgid "制作模板: %0"
+msgstr "制作模板: %0"
+
+#: Disabled references:1
+msgid "制作说明"
+msgstr "制作说明"
+
+#: Disabled references:1
+msgid "1. 复制你需要的字段代码然后粘贴到您本地 Word 模板（只支持docx格式）或 Excel 模板（只支持xlsx格式）中相应的位置，打印时会获取实际数据中该字段填写的内容。"
+msgstr "1. 复制你需要的字段代码然后粘贴到您本地 Word 模板（只支持docx格式）或 Excel 模板（只支持xlsx格式）中相应的位置，打印时会获取实际数据中该字段填写的内容。"
+
+#: Disabled references:1
+msgid "2. 字段代码必须按照表中的格式填写，否则无法获取到对应字段的数据；如果某两个字段的字段名称相同，为了系统能够识别请选择复制字段ID/字段别名用于制作模板。"
+msgstr "2. 字段代码必须按照表中的格式填写，否则无法获取到对应字段的数据；如果某两个字段的字段名称相同，为了系统能够识别请选择复制字段ID/字段别名用于制作模板。"
+
+#: Disabled references:1
+msgid "3. 平铺类的选项字段如需打印未选中的选项，可在字段代码或ID/别名后加“_Alloptions”，例如：#{单选_Alloptions}。默认为横向平铺，如果要纵向平铺选项，可以添加[V]标记，如#{单选_Alloptions[V]}"
+msgstr "3. 平铺类的选项字段如需打印未选中的选项，可在字段代码或ID/别名后加“_Alloptions”，例如：#{单选_Alloptions}。默认为横向平铺，如果要纵向平铺选项，可以添加[V]标记，如#{单选_Alloptions[V]}"
+
+#: Disabled references:1
+msgid "4. 可获取附件字段中的图片，字段代码为：#{附件$[90*auto_L]$}。其中：90*auto 表示图片宽/高尺寸（单位mm）；_L表示获取的图片质量。"
+msgstr "4. 可获取附件字段中的图片，字段代码为：#{附件$[90*auto_L]$}。其中：90*auto 表示图片宽/高尺寸（单位mm）；_L表示获取的图片质量。"
+
+#: Disabled references:1
+msgid "（1）图片尺寸支持4种设置方式。[90*auto] 表示宽度固定为90，高度自适应。[auto*90] 表示宽度自适应，高度固定为90。[90*50_auto]表示宽高在90*50的范围内同时自适应。[90*50]表示宽高为固定尺寸。"
+msgstr "（1）图片尺寸支持4种设置方式。[90*auto] 表示宽度固定为90，高度自适应。[auto*90] 表示宽度自适应，高度固定为90。[90*50_auto]表示宽高在90*50的范围内同时自适应。[90*50]表示宽高为固定尺寸。"
+
+#: Disabled references:1
+msgid "（2）图片质量支持低、中、高三种设置（默认为低）。低（L）—生成速度快，用于一般打印；中（M）—生成速度适中，打印较清晰；高（H）—生成速度慢，用于高质量彩色打印。"
+msgstr "（2）图片质量支持低、中、高三种设置（默认为低）。低（L）—生成速度快，用于一般打印；中（M）—生成速度适中，打印较清晰；高（H）—生成速度慢，用于高质量彩色打印。"
+
+#: Disabled references:1
+msgid "（3）在打印 Excel 模板时，多张图片排列可能导致撑高合并单元格引起错位，此时可以加 F 启用图片填充模式，此模式下图片不会撑高单元格，例如：#{附件$[auto*20_F]$} 或 #{附件$[auto*90_HF]$}"
+msgstr "（3）在打印 Excel 模板时，多张图片排列可能导致撑高合并单元格引起错位，此时可以加 F 启用图片填充模式，此模式下图片不会撑高单元格，例如：#{附件$[auto*20_F]$} 或 #{附件$[auto*90_HF]$}"
+
+#: Disabled references:1
+msgid "5.可通过代码 #{[qrcode]字段名$[20*20]$} 或 #{[barcode]字段名$[40*10]$} 获取任意字段的二维码 或 条形码。二维码编码方式：QR-code，最大包含150个字（支持汉字）；条形码编码方式：code128，最大包含30个字符（仅支持数字、字母、符号）。"
+msgstr "5.可通过代码 #{[qrcode]字段名$[20*20]$} 或 #{[barcode]字段名$[40*10]$} 获取任意字段的二维码 或 条形码。二维码编码方式：QR-code，最大包含150个字（支持汉字）；条形码编码方式：code128，最大包含30个字符（仅支持数字、字母、符号）。"
+
+#: Disabled references:1
+msgid "6. 如需不打印没有数据的关联表/子表，请将代码：#NoDataNotPrint[start]# 和 #NoDataNotPrint[end]# 插入到模板中，代码之间的关联记录/子表没有数据则不会打印。"
+msgstr "6. 如需不打印没有数据的关联表/子表，请将代码：#NoDataNotPrint[start]# 和 #NoDataNotPrint[end]# 插入到模板中，代码之间的关联记录/子表没有数据则不会打印。"
+
+#: Disabled references:1
+msgid "7. 批量打印 Word 模板时，默认所有数据连续打印，如需实现分页功能（每条数据另起一页），需在模板中的第一个段落配置段前分页。设置方法可参考"
+msgstr "7. 批量打印 Word 模板时，默认所有数据连续打印，如需实现分页功能（每条数据另起一页），需在模板中的第一个段落配置段前分页。设置方法可参考"
+
+#: Disabled references:1
+msgid "这里"
+msgstr "这里"
+
+#: Disabled references:1
+msgid " Excel 模板批量打印时会自动分页打印，无需特殊设置。"
+msgstr " Excel 模板批量打印时会自动分页打印，无需特殊设置。"
+
+#: Disabled references:1
+msgid "了解更多制作技巧和注意事项。"
+msgstr "了解更多制作技巧和注意事项。"
+
+#: Disabled references:1
+msgid "或下载"
+msgstr "或下载"
+
+#: Disabled references:1
+msgid "系统 Word 模板"
+msgstr "系统 Word 模板"
+
+#: Disabled references:1
+msgid "系统 Excel 模板"
+msgstr "系统 Excel 模板"
+
+#: Disabled references:1
+msgid "示范模板快速开始"
+msgstr "示范模板快速开始"
+
+#: Disabled references:1
+msgid "字段代码对照表"
+msgstr "字段代码对照表"
+
+#: Disabled references:1
+msgid "对方不是您的联系人，无法查看"
+msgstr "对方不是您的联系人，无法查看"
+
+#: Disabled references:1
+msgid "20人以下"
+msgstr "20人以下"
+
+#: Disabled references:1
+msgid "21-99人"
+msgstr "21-99人"
+
+#: Disabled references:1
+msgid "100-499人"
+msgstr "100-499人"
+
+#: Disabled references:1
+msgid "500-999人"
+msgstr "500-999人"
+
+#: Disabled references:1
+msgid "1000-9999人"
+msgstr "1000-9999人"
+
+#: Disabled references:1
+msgid "10000人以上"
+msgstr "10000人以上"
+
+#: Disabled references:1
+msgid "总经办"
+msgstr "总经办"
+
+#: Disabled references:1
+msgid "技术/IT/研发"
+msgstr "技术/IT/研发"
+
+#: Disabled references:1
+msgid "产品/设计"
+msgstr "产品/设计"
+
+#: Disabled references:1
+msgid "销售/市场/运营"
+msgstr "销售/市场/运营"
+
+#: Disabled references:1
+msgid "人事/财务/行政"
+msgstr "人事/财务/行政"
+
+#: Disabled references:1
+msgid "资源/仓储/采购"
+msgstr "资源/仓储/采购"
+
+#: Disabled references:1
+msgid "总裁/总经理/CEO"
+msgstr "总裁/总经理/CEO"
+
+#: Disabled references:1
+msgid "副总裁/副总经理/VP"
+msgstr "副总裁/副总经理/VP"
+
+#: Disabled references:1
+msgid "总监/主管/经理"
+msgstr "总监/主管/经理"
+
+#: Disabled references:1
+msgid "员工/专员/执行"
+msgstr "员工/专员/执行"
+
+#: Disabled references:1
+msgid "我是用户"
+msgstr "我是用户"
+
+#: Disabled references:1
+msgid "我是用户，并对明道云 %0伙伴政策%1 感兴趣"
+msgstr "我是用户，并对明道云 %0伙伴政策%1 感兴趣"
+
+#: Disabled references:1
+msgid "待确认日程"
+msgstr "待确认日程"
+
+#: Disabled references:1
+msgid "同步日程到其他应用"
+msgstr "同步日程到其他应用"
+
+#: Disabled references:1
+msgid "分类日程"
+msgstr "分类日程"
+
+#: Disabled references:1
+msgid "隐藏自己"
+msgstr "隐藏自己"
+
+#: Disabled references:1
+msgid "隐藏我的日程"
+msgstr "隐藏我的日程"
+
+#: Disabled references:1
+msgid "清空全部"
+msgstr "清空全部"
+
+#: Disabled references:1
+msgid "查看同事日程"
+msgstr "查看同事日程"
+
+#: Disabled references:1
+msgid "返回我的日程"
+msgstr "返回我的日程"
+
+#: Disabled references:1
 msgid "邮箱绑定成功"
 msgstr "邮箱绑定成功"
 
@@ -10474,6 +10762,114 @@ msgid "账户资料"
 msgstr "账户资料"
 
 #: Disabled references:1
+msgid "请输入服务器 ID"
+msgstr "请输入服务器 ID"
+
+#: Disabled references:1
+msgid "请输入组织名称"
+msgstr "请输入组织名称"
+
+#: Disabled references:1
+msgid "请输入职位"
+msgstr "请输入职位"
+
+#: Disabled references:1
+msgid "密钥申请成功，请复制后去申请页面填写"
+msgstr "密钥申请成功，请复制后去申请页面填写"
+
+#: Disabled references:1
+msgid "密钥申请失败"
+msgstr "密钥申请失败"
+
+#: Disabled references:1
+msgid "密钥申请失败，该服务器ID已申请过密钥"
+msgstr "密钥申请失败，该服务器ID已申请过密钥"
+
+#: Disabled references:1
+msgid "10人以下"
+msgstr "10人以下"
+
+#: Disabled references:1
+msgid "10～50人"
+msgstr "10～50人"
+
+#: Disabled references:1
+msgid "51～100人"
+msgstr "51～100人"
+
+#: Disabled references:1
+msgid "101～250人"
+msgstr "101～250人"
+
+#: Disabled references:1
+msgid "251～500人"
+msgstr "251～500人"
+
+#: Disabled references:1
+msgid "501人及以上"
+msgstr "501人及以上"
+
+#: Disabled references:1
+msgid "密钥申请"
+msgstr "密钥申请"
+
+#: Disabled references:1
+msgid "服务器 ID"
+msgstr "服务器 ID"
+
+#: Disabled references:1
+msgid "预计使用人数"
+msgstr "预计使用人数"
+
+#: Disabled references:1
+msgid "社区版（私有部署免费版）"
+msgstr "社区版（私有部署免费版）"
+
+#: Disabled references:1
+msgid "专业版试用（有效期30天，每个服务器ID仅可申请1次）"
+msgstr "专业版试用（有效期30天，每个服务器ID仅可申请1次）"
+
+#: Disabled references:1
+msgid "生成密钥"
+msgstr "生成密钥"
+
+#: Disabled references:1
+msgid "社区版"
+msgstr "社区版"
+
+#: Disabled references:1
+msgid "大型专业版"
+msgstr "大型专业版"
+
+#: Disabled references:1
+msgid "教学版"
+msgstr "教学版"
+
+#: Disabled references:1
+msgid "专业版试用"
+msgstr "专业版试用"
+
+#: Disabled references:1
+msgid "申请密钥"
+msgstr "申请密钥"
+
+#: Disabled references:1
+msgid "服务器ID"
+msgstr "服务器ID"
+
+#: Disabled references:1
+msgid "开始时间"
+msgstr "开始时间"
+
+#: Disabled references:1
+msgid "到期时间"
+msgstr "到期时间"
+
+#: Disabled references:1
+msgid "暂无密钥"
+msgstr "暂无密钥"
+
+#: Disabled references:1
 msgid "语言设置"
 msgstr "语言"
 
@@ -13418,208 +13814,208 @@ msgid "任务已删除"
 msgstr "任务已删除"
 
 #: Disabled references:1
-msgid "待完成"
-msgstr "待完成"
+msgid "暂无使用"
+msgstr "暂无使用"
 
 #: Disabled references:1
-msgid "今天要做"
-msgstr "今天要做"
+msgid "暂无导出历史"
+msgstr "暂无导出历史"
 
 #: Disabled references:1
-msgid "最近要做"
-msgstr "最近要做"
+msgid "密码不符合规范"
+msgstr "密码不符合规范"
 
 #: Disabled references:1
-msgid "以后考虑"
-msgstr "以后考虑"
+msgid "授权组织不能超过10个"
+msgstr "授权组织不能超过10个"
 
 #: Disabled references:1
-msgid "待完成的任务，点击任务前的按钮分配何时开始任务"
-msgstr "待完成的任务，点击任务前的按钮分配何时开始任务"
+msgid "插件导出成功"
+msgstr "插件导出成功"
 
 #: Disabled references:1
-msgid "这个分类下是你计划今天要做的任务"
-msgstr "这个分类下是你计划今天要做的任务"
+msgid "导出插件"
+msgstr "导出插件"
 
 #: Disabled references:1
-msgid "这个分类下是你计划近期开始要做的任务"
-msgstr "这个分类下是你计划近期开始要做的任务"
+msgid "将插件导出为 .mdye 格式，可以导入到其他组织使用"
+msgstr "将插件导出为 .mdye 格式，可以导入到其他组织使用"
 
 #: Disabled references:1
-msgid "这个分类下是你计划以后要做的任务"
-msgstr "这个分类下是你计划以后要做的任务"
+msgid "导出中..."
+msgstr "导出中..."
 
 #: Disabled references:1
-msgid "没有搜索到相关任务"
-msgstr "没有搜索到相关任务"
+msgid "导入时校验授权密钥"
+msgstr "导入时校验授权密钥"
 
 #: Disabled references:1
-msgid "没有筛选结果"
-msgstr "没有筛选结果"
+msgid "输入密码"
+msgstr "输入密码"
 
 #: Disabled references:1
-msgid "没有已完成任务"
-msgstr "没有已完成任务"
+msgid "随机生成"
+msgstr "随机生成"
 
 #: Disabled references:1
 msgid "有%0位外部用户邀请失败。外部用户短信邀请用量达到上限。"
 msgstr "有%0位外部用户邀请失败。外部用户短信邀请用量达到上限。"
 
 #: Disabled references:1
-msgid "用户已存在，请勿重复添加"
-msgstr "用户已存在，请勿重复添加"
+msgid "上传失败, 请选择.mdye格式文件"
+msgstr "上传失败, 请选择.mdye格式文件"
 
 #: Disabled references:1
-msgid "无法添加，单个任务下至多添加100个检查清单"
-msgstr "无法添加，单个任务下至多添加100个检查清单"
+msgid "插件类型"
+msgstr "插件类型"
 
 #: Disabled references:1
-msgid "检查项至多可添加100个"
-msgstr "检查项至多可添加100个"
+msgid "作者"
+msgstr "作者"
 
 #: Disabled references:1
-msgid "标记该任务为已完成"
-msgstr "标记该任务为已完成"
+msgid "发布说明"
+msgstr "发布说明"
 
 #: Disabled references:1
-msgid "标记该任务为未完成"
-msgstr "标记该任务为未完成"
+msgid "请输入导出时设置的密码"
+msgstr "请输入导出时设置的密码"
 
 #: Disabled references:1
-msgid "同时标记该任务下所有任务为已完成"
-msgstr "同时标记该任务下所有任务为已完成"
+msgid "导入插件"
+msgstr "导入插件"
 
 #: Disabled references:1
-msgid "同时标记该任务下所有任务为未完成"
-msgstr "同时标记该任务下所有任务为未完成"
+msgid "导入创建"
+msgstr "导入创建"
 
 #: Disabled references:1
-msgid "任务已锁定，但我是创建者或负责人可以操作"
-msgstr "任务已锁定，但我是创建者或负责人可以操作"
+msgid "将插件文件导入组织创建一个新的插件，启用后即可在全组织范围内使用。"
+msgstr "将插件文件导入组织创建一个新的插件，启用后即可在全组织范围内使用。"
 
 #: Disabled references:1
-msgid "任务已锁定，无法操作"
-msgstr "任务已锁定，无法操作"
+msgid "大小："
+msgstr "大小："
 
 #: Disabled references:1
-msgid "标记完成"
-msgstr "标记完成"
+msgid "请选择.mdye格式的应用文件"
+msgstr "请选择.mdye格式的应用文件"
 
 #: Disabled references:1
-msgid "点击创建任务"
-msgstr "点击创建任务"
+msgid "正在解析文件..."
+msgstr "正在解析文件..."
 
 #: Disabled references:1
-msgid "或使用右上角 + 号创建任务"
-msgstr "或使用右上角 + 号创建任务"
+msgid "文件上传中..."
+msgstr "文件上传中..."
 
 #: Disabled references:1
-msgid "置顶项目"
-msgstr "置顶项目"
+msgid "删除插件"
+msgstr "删除插件"
 
 #: Disabled references:1
-msgid "彻底删除项目“%0”"
-msgstr "彻底删除项目“%0”"
+msgid "删除后，使用该插件的工作流将无法使用"
+msgstr "删除后，使用该插件的工作流将无法使用"
 
 #: Disabled references:1
-msgid "项目将彻底删除且无法恢复。请确认您和其他项目的参与者都不再需要项目中的数据再执行此操作"
-msgstr "项目将彻底删除且无法恢复。请确认您和其他项目的参与者都不再需要项目中的数据再执行此操作"
+msgid "删除后，使用该插件的视图将无法使用"
+msgstr "删除后，使用该插件的视图将无法使用"
 
 #: Disabled references:1
-msgid "只删除此项目"
-msgstr "只删除此项目"
+msgid "未命名插件"
+msgstr "未命名插件"
 
 #: Disabled references:1
-msgid "删除项目和项目下的所有任务"
-msgstr "删除项目和项目下的所有任务"
+msgid "更新失败"
+msgstr "更新失败"
 
 #: Disabled references:1
-msgid "确定退出该项目？"
-msgstr "确定退出该项目？"
+msgid "配置格式不正确,请输入JSON格式"
+msgstr "配置格式不正确,请输入JSON格式"
 
 #: Disabled references:1
-msgid "申请加入项目1"
-msgstr "申请加入项目1"
+msgid "更新配置成功"
+msgstr "更新配置成功"
 
 #: Disabled references:1
-msgid "向负责人说明你想要加入项目的原因"
-msgstr "向负责人说明你想要加入项目的原因"
+msgid "更新配置失败"
+msgstr "更新配置失败"
 
 #: Disabled references:1
-msgid "开始"
-msgstr "开始"
+msgid "应用 / 工作流"
+msgstr "应用 / 工作流"
 
 #: Disabled references:1
-msgid "按时完成"
-msgstr "按时完成"
+msgid "配置插件运行时所需要的环境参数，采用JSON格式"
+msgstr "配置插件运行时所需要的环境参数，采用JSON格式"
 
 #: Disabled references:1
-msgid "提前%0天完成"
-msgstr "提前%0天完成"
+msgid "添加插件名称"
+msgstr "添加插件名称"
 
 #: Disabled references:1
-msgid "提前%0小时完成"
-msgstr "提前%0小时完成"
+msgid "未发布版本"
+msgstr "未发布版本"
 
 #: Disabled references:1
-msgid "逾期%0天完成"
-msgstr "逾期%0天完成"
+msgid "发布新版本"
+msgstr "发布新版本"
 
 #: Disabled references:1
-msgid "逾期%0小时完成"
-msgstr "逾期%0小时完成"
+msgid "创建插件"
+msgstr "创建插件"
 
 #: Disabled references:1
-msgid "逾期%0天"
-msgstr "逾期%0天"
+msgid "更新配置"
+msgstr "更新配置"
 
 #: Disabled references:1
-msgid "逾期%0小时"
-msgstr "逾期%0小时"
+msgid "恢复默认成功"
+msgstr "恢复默认成功"
 
 #: Disabled references:1
-msgid "延期%0天未开始"
-msgstr "延期%0天未开始"
+msgid "恢复默认失败"
+msgstr "恢复默认失败"
 
 #: Disabled references:1
-msgid "延期%0小时未开始"
-msgstr "延期%0小时未开始"
+msgid "恢复默认"
+msgstr "恢复默认"
 
 #: Disabled references:1
-msgid "只有此任务的成员才能操作"
-msgstr "只有此任务的成员才能操作"
+msgid "请选择一个已提交的代码"
+msgstr "请选择一个已提交的代码"
 
 #: Disabled references:1
-msgid "已完成任务，点击标记为未完成"
-msgstr "已完成任务，点击标记为未完成"
+msgid "请正确填写版本号"
+msgstr "请正确填写版本号"
 
 #: Disabled references:1
-msgid "选择何时处理这条任务"
-msgstr "选择何时处理这条任务"
+msgid "版本号必须大于${latestVersion}"
+msgstr "版本号必须大于${latestVersion}"
 
 #: Disabled references:1
-msgid "已分配为今天要做，点击可重新分配"
-msgstr "已分配为今天要做，点击可重新分配"
+msgid "发布说明不能为空"
+msgstr "发布说明不能为空"
 
 #: Disabled references:1
-msgid "已分配为最近要做，点击可重新分配"
-msgstr "已分配为最近要做，点击可重新分配"
+msgid "发布说明最多150个字符"
+msgstr "发布说明最多150个字符"
 
 #: Disabled references:1
-msgid "已分配为以后考虑，点击可重新分配"
-msgstr "已分配为以后考虑，点击可重新分配"
+msgid "发布配置格式不正确,请输入JSON格式"
+msgstr "发布配置格式不正确,请输入JSON格式"
 
 #: Disabled references:1
-msgid "将任务设为未完成"
-msgstr "将任务设为未完成"
+msgid "发布成功"
+msgstr "发布成功"
 
 #: Disabled references:1
-msgid "您在修改一个已被标记为完成的任务，若将其设为未完成，则当前的“任务完成时间”数据将被删除。是否确认修改？"
-msgstr "您在修改一个已被标记为完成的任务，若将其设为未完成，则当前的“任务完成时间”数据将被删除。是否确认修改？"
+msgid "发布新版本到组织"
+msgstr "发布新版本到组织"
 
 #: Disabled references:1
-msgid "设为未完成"
-msgstr "设为未完成"
+msgid "选择已提交的代码"
+msgstr "选择已提交的代码"
 
 #: Disabled references:1
 msgid "没有获取到合适的字段建议"
@@ -14546,460 +14942,460 @@ msgid "日期段控件已下架，不支持配置"
 msgstr "日期段控件已下架，不支持配置"
 
 #: Disabled references:1
-msgid "工作表事件"
-msgstr "工作表事件"
+msgid "价税合计（大写）"
+msgstr "价税合计（大写）"
 
 #: Disabled references:1
-msgid "人员事件"
-msgstr "人员事件"
+msgid "价税合计（小写）"
+msgstr "价税合计（小写）"
 
 #: Disabled references:1
-msgid "Webhook"
-msgstr "Webhook"
+msgid "收款人"
+msgstr "收款人"
 
 #: Disabled references:1
-msgid "循环"
-msgstr "循环"
+msgid "复核人"
+msgstr "复核人"
 
 #: Disabled references:1
-msgid "子流程"
-msgstr "子流程"
+msgid "开票人"
+msgstr "开票人"
 
 #: Disabled references:1
-msgid "审批流程"
-msgstr "审批流程"
+msgid "发票明细"
+msgstr "发票明细"
 
 #: Disabled references:1
-msgid "事件推送"
-msgstr "事件推送"
+msgid "文字"
+msgstr "文字"
 
 #: Disabled references:1
-msgid "全部应用"
-msgstr "全部应用"
+msgid "通用文字"
+msgstr "通用文字"
 
 #: Disabled references:1
-msgid "暂无工作流"
-msgstr "暂无工作流"
+msgid "身份证"
+msgstr "身份证"
 
 #: Disabled references:1
-msgid "管理工作流“%0”"
-msgstr "管理工作流“%0”"
+msgid "增值税发票"
+msgstr "增值税发票"
 
 #: Disabled references:1
-msgid "如果你不是工作流所在应用的管理员，需要将自己加为管理员以获得权限"
-msgstr "如果你不是工作流所在应用的管理员，需要将自己加为管理员以获得权限"
+msgid "卡片"
+msgstr "卡片"
 
 #: Disabled references:1
-msgid "全部状态"
-msgstr "全部状态"
+msgid "下拉框"
+msgstr "下拉框"
 
 #: Disabled references:1
-msgid "短信模版"
-msgstr "短信模版"
+msgid "单条"
+msgstr "单条"
 
 #: Disabled references:1
-msgid "本月执行数"
-msgstr "本月执行数"
+msgid "多条"
+msgstr "多条"
 
 #: Disabled references:1
-msgid " %0 月额度"
-msgstr " %0 月额度"
+msgid "标签页表格"
+msgstr "标签页表格"
 
 #: Disabled references:1
-msgid " %0 本月额度"
-msgstr " %0 本月额度"
+msgid "年%04019"
+msgstr "年"
 
 #: Disabled references:1
-msgid "购买升级包"
-msgstr "购买升级包"
+msgid "月%04020"
+msgstr "月"
 
 #: Disabled references:1
-msgid "购买付费版"
-msgstr "购买付费版"
+msgid "天%04021"
+msgstr "天"
 
 #: Disabled references:1
-msgid "本月剩余执行额度到达2%时，自动购买100元/1万次的单月包，从账户余额中扣款"
-msgstr "本月剩余执行额度到达2%时，自动购买100元/1万次的单月包，从账户余额中扣款"
+msgid "时%04022"
+msgstr "时"
 
 #: Disabled references:1
-msgid "自动订购"
-msgstr "自动订购"
+msgid "分%04023"
+msgstr "分"
 
 #: Disabled references:1
-msgid "流程名称 / 创建人"
-msgstr "流程名称 / 创建人"
+msgid "秒%04024"
+msgstr "秒"
 
 #: Disabled references:1
 msgid "确认关闭自动订购？"
 msgstr "确认关闭自动订购？"
 
 #: Disabled references:1
-msgid "是否开启自动订购？"
-msgstr "是否开启自动订购？"
+msgid "开关%02066"
+msgstr "开关"
 
 #: Disabled references:1
-msgid "开启后，当月剩余执行额度为2%时，自动购买 %0 100元/1万次 %1 的单月包，从账户余额中扣款"
-msgstr "开启后，当月剩余执行额度为2%时，自动购买 %0 100元/1万次 %1 的单月包，从账户余额中扣款"
+msgid "是/否%02067"
+msgstr "是/否"
 
 #: Disabled references:1
-msgid "自动化工作流"
-msgstr "自动化工作流"
+msgid "YYYY-MM-DD"
+msgstr "YYYY-MM-DD"
 
 #: Disabled references:1
-msgid "新建工作流"
-msgstr "新建工作流"
+msgid "YYYY/MM/DD"
+msgstr "YYYY/MM/DD"
 
 #: Disabled references:1
-msgid "新建封装业务流程"
-msgstr "新建封装业务流程"
+msgid "YYYY年M月D日"
+msgstr "YYYY年M月D日"
 
 #: Disabled references:1
-msgid "未命名工作流"
-msgstr "未命名工作流"
+msgid "M/D/YYYY"
+msgstr "M/D/YYYY"
 
 #: Disabled references:1
-msgid "修改工作表"
-msgstr "修改工作表"
+msgid "D/M/YYYY"
+msgstr "D/M/YYYY"
 
 #: Disabled references:1
-msgid "触发流程"
-msgstr "触发流程"
+msgid "全掩盖"
+msgstr "全掩盖"
 
 #: Disabled references:1
-msgid "执行动作"
-msgstr "执行动作"
+msgid "-显示前1个字，后1个字"
+msgstr "-显示前1个字，后1个字"
 
 #: Disabled references:1
-msgid "状态 / 创建时间"
-msgstr "状态 / 创建时间"
+msgid "-显示前3位，后4位"
+msgstr "-显示前3位，后4位"
 
 #: Disabled references:1
-msgid "状态 / 更新时间"
-msgstr "状态 / 更新时间"
+msgid "-显示前3位，@和之后的字"
+msgstr "-显示前3位，@和之后的字"
 
 #: Disabled references:1
-msgid "没有搜索到流程"
-msgstr "没有搜索到流程"
+msgid "-全掩盖，虚拟为5位"
+msgstr "-全掩盖，虚拟为5位"
 
 #: Disabled references:1
-msgid "定时触发"
-msgstr "定时触发"
+msgid "身份证件"
+msgstr "身份证件"
 
 #: Disabled references:1
-msgid "组织人员事件触发"
-msgstr "组织人员事件触发"
+msgid "-显示后4位"
+msgstr "-显示后4位"
 
 #: Disabled references:1
-msgid "外部用户事件触发"
-msgstr "外部用户事件触发"
+msgid "住址"
+msgstr "住址"
 
 #: Disabled references:1
-msgid "填写节点"
-msgstr "填写节点"
+msgid "-显示前4个字，后4个字"
+msgstr "-显示前4个字，后4个字"
 
 #: Disabled references:1
-msgid "更新记录"
-msgstr "更新记录"
+msgid "IP地址"
+msgstr "IP地址"
 
 #: Disabled references:1
-msgid "批量新增记录"
-msgstr "批量新增记录"
+msgid "-显示第1段IP"
+msgstr "-显示第1段IP"
 
 #: Disabled references:1
-msgid "移至其他应用"
-msgstr "移至其他应用"
+msgid "车牌号"
+msgstr "车牌号"
 
 #: Disabled references:1
-msgid "未命名业务流程"
-msgstr "未命名业务流程"
+msgid "-显示前1个字，后2位"
+msgstr "-显示前1个字，后2位"
 
 #: Disabled references:1
 msgid "搜索流程名称"
 msgstr "搜索流程名称"
 
 #: Disabled references:1
-msgid "移动工作流“%0”至其他应用"
-msgstr "移动工作流“%0”至其他应用"
+msgid "日期间的时长"
+msgstr "日期间的时长"
 
 #: Disabled references:1
-msgid "请选择一个其他应用"
-msgstr "请选择一个其他应用"
+msgid "为日期加减时间"
+msgstr "为日期加减时间"
 
 #: Disabled references:1
 msgid "发送 API 请求"
 msgstr "发送 API 请求"
 
 #: Disabled references:1
-msgid "业务流程数组"
-msgstr "业务流程数组"
+msgid "可设为日期 或 日期+时间"
+msgstr "可设为日期 或 日期+时间"
 
 #: Disabled references:1
-msgid "JSON 解析"
-msgstr "JSON 解析"
+msgid "从预设的地址中进行选择"
+msgstr "从预设的地址中进行选择"
 
 #: Disabled references:1
-msgid "人员信息"
-msgstr "人员信息"
+msgid "自由连接%04008"
+msgstr "自由连接"
 
 #: Disabled references:1
-msgid "部门信息"
-msgstr "部门信息"
+msgid "引用项目、任务、日程、审批单等。例：一个“产品更新”记录可以添加多个“需求”任务，由于只是引用，不会影响被引用的对象本身"
+msgstr "引用项目、任务、日程、审批单等。例：一个“产品更新”记录可以添加多个“需求”任务，由于只是引用，不会影响被引用的对象本身"
 
 #: Disabled references:1
-msgid "API数组"
-msgstr "API数组"
+msgid "可添加其他项目、任务、文件、审批单等，以卡片(引用链接)形式展示出来。例：一个“产品更新”任务可添加多个“需求”任务卡片，由于只是引用，不会影响被引用的任务本身的子母任务结构"
+msgstr "可添加其他项目、任务、文件、审批单等，以卡片(引用链接)形式展示出来。例：一个“产品更新”任务可添加多个“需求”任务卡片，由于只是引用，不会影响被引用的任务本身的子母任务结构"
 
 #: Disabled references:1
-msgid "AIGC"
-msgstr "AIGC"
+msgid "分段%04006"
+msgstr "分段"
 
 #: Disabled references:1
-msgid "人工节点"
-msgstr "人工节点"
+msgid "对表单进行分段"
+msgstr "对表单进行分段"
 
 #: Disabled references:1
 msgid "日期段"
 msgstr "日期段"
 
 #: Disabled references:1
-msgid "日期时间段"
-msgstr "日期时间段"
+msgid "加入的成员将收到通知并允许查看记录。还可以通过角色来控制权限"
+msgstr "加入的成员将收到通知并允许查看记录。还可以通过角色来控制权限"
 
 #: Disabled references:1
-msgid "人员"
-msgstr "人员"
+msgid "选择组织中的部门"
+msgstr "选择组织中的部门"
 
 #: Disabled references:1
 msgid "函数"
 msgstr "函数"
 
 #: Disabled references:1
-msgid "数组"
-msgstr "数组"
+msgid "他表字段%04004"
+msgstr "他表字段"
 
 #: Disabled references:1
-msgid "Row ID"
-msgstr "Row ID"
+msgid "从关联的记录中选择字段显示在当前表中"
+msgstr "从关联的记录中选择字段显示在当前表中"
 
 #: Disabled references:1
-msgid "普通数组"
-msgstr "普通数组"
+msgid "文本组合%04000"
+msgstr "文本组合"
 
 #: Disabled references:1
-msgid "对象数组"
-msgstr "对象数组"
+msgid "将当前记录中的字段进行组合"
+msgstr "将当前记录中的字段进行组合"
 
 #: Disabled references:1
-msgid "等于%03056"
-msgstr "等于"
+msgid "为每条记录生成自定义规则的编号"
+msgstr "为每条记录生成自定义规则的编号"
 
 #: Disabled references:1
-msgid "是其中一个%03079"
-msgstr "是其中一个"
+msgid "子表%04002"
+msgstr "子表"
 
 #: Disabled references:1
-msgid "不等于%03057"
-msgstr "不等于"
+msgid "支持在表单中一次填入多条信息、比如一次填写多条费用明细"
+msgstr "支持在表单中一次填入多条信息、比如一次填写多条费用明细"
 
 #: Disabled references:1
-msgid "不是任何一个%03077"
-msgstr "不是任何一个"
+msgid "检查项"
+msgstr "检查项"
 
 #: Disabled references:1
-msgid "下级包含%03076"
-msgstr "下级包含"
+msgid "可以选中或取消选中"
+msgstr "可以选中或取消选中"
 
 #: Disabled references:1
-msgid "标题包含%03085"
-msgstr "标题包含"
+msgid "汇总%04005"
+msgstr "汇总"
 
 #: Disabled references:1
-msgid "包含其中一个%03082"
-msgstr "包含其中一个"
+msgid "汇总关联记录或子表中的数据，如：汇总订单明细中的商品总价，最大支持汇总1000行数据。"
+msgstr "汇总关联记录或子表中的数据，如：汇总订单明细中的商品总价，最大支持汇总1000行数据。"
 
 #: Disabled references:1
-msgid "包含%03058"
-msgstr "包含"
+msgid "将当前记录中的字段进行数值或日期计算"
+msgstr "将当前记录中的字段进行数值或日期计算"
 
 #: Disabled references:1
-msgid "下级不包含%03081"
-msgstr "下级不包含"
+msgid "在此添加 注意事项 或 填写要求 等，来指导使用者(或填写者)正确地操作"
+msgstr "在此添加 注意事项 或 填写要求 等，来指导使用者(或填写者)正确地操作"
 
 #: Disabled references:1
-msgid "标题不包含%03086"
-msgstr "标题不包含"
+msgid "把注意事项或填写要求作为“备注”加入，来指导使用者(或填写者)正确使用"
+msgstr "把注意事项或填写要求作为“备注”加入，来指导使用者(或填写者)正确使用"
 
 #: Disabled references:1
-msgid "不包含任何一个%03083"
-msgstr "不包含任何一个"
+msgid "可通过定位输入地理位置"
+msgstr "可通过定位输入地理位置"
 
 #: Disabled references:1
-msgid "不包含%03059"
-msgstr "不包含"
+msgid "可控制文本样式，添加图片"
+msgstr "可控制文本样式，添加图片"
 
 #: Disabled references:1
-msgid "开头是%03060"
-msgstr "开头是"
+msgid "通过签名确定签名人身份"
+msgstr "通过签名确定签名人身份"
 
 #: Disabled references:1
-msgid "结尾是%03062"
-msgstr "结尾是"
+msgid "级联选择%04003"
+msgstr "级联选择"
 
 #: Disabled references:1
-msgid "不为空%03065"
-msgstr "不为空"
+msgid "以层级视图作为数据源来选择目标表的记录,仅支持本表关联"
+msgstr "以层级视图作为数据源来选择目标表的记录,仅支持本表关联"
 
 #: Disabled references:1
-msgid "为空%03065"
-msgstr "为空"
+msgid "文本识别"
+msgstr "文本识别"
 
 #: Disabled references:1
-msgid "小于%03067"
-msgstr "小于"
+msgid "识别输入图片，将识别结果填充到对应字段。"
+msgstr "识别输入图片，将识别结果填充到对应字段。"
 
 #: Disabled references:1
-msgid "大于%03066"
-msgstr "大于"
+msgid "备注%04007"
+msgstr "备注"
 
 #: Disabled references:1
-msgid "小于等于%03069"
-msgstr "小于等于"
+msgid "在表单中添加说明信息"
+msgstr "在表单中添加说明信息"
 
 #: Disabled references:1
-msgid "大于等于%03068"
-msgstr "大于等于"
+msgid "嵌入%04010"
+msgstr "嵌入"
 
 #: Disabled references:1
-msgid "在范围内%03070"
-msgstr "在范围内"
+msgid "在表单中嵌入URL，支持使用其他字段值传参"
+msgstr "在表单中嵌入URL，支持使用其他字段值传参"
 
 #: Disabled references:1
-msgid "不在范围内%03071"
-msgstr "不在范围内"
+msgid "可将关联的数据源转成条形码或二维码显示"
+msgstr "可将关联的数据源转成条形码或二维码显示"
 
 #: Disabled references:1
-msgid "早于%03072"
-msgstr "早于"
+msgid "可设为小时分钟秒"
+msgstr "可设为小时分钟秒"
 
 #: Disabled references:1
-msgid "晚于%03073"
-msgstr "晚于"
+msgid "选择组织中的角色，支持配置选择的组织角色的权限。"
+msgstr "选择组织中的角色，支持配置选择的组织角色的权限。"
 
 #: Disabled references:1
-msgid "开始等于"
-msgstr "开始等于"
+msgid "可调用API接口获取数据，并将数据填充到字段。"
+msgstr "可调用API接口获取数据，并将数据填充到字段。"
 
 #: Disabled references:1
-msgid "开始早于"
-msgstr "开始早于"
+msgid "可用于快速查看其他表的数据。"
+msgstr "可用于快速查看其他表的数据。"
 
 #: Disabled references:1
-msgid "开始晚于"
-msgstr "开始晚于"
+msgid "标签页"
+msgstr "标签页"
 
 #: Disabled references:1
-msgid "开始已填写"
-msgstr "开始已填写"
+msgid "可用于分组字段，组织相关的信息或功能。"
+msgstr "可用于分组字段，组织相关的信息或功能。"
 
 #: Disabled references:1
-msgid "开始未填写"
-msgstr "开始未填写"
+msgid "请填写文本内容"
+msgstr "请填写文本内容"
 
 #: Disabled references:1
-msgid "结束等于"
-msgstr "结束等于"
+msgid "请填写手机号码"
+msgstr "请填写手机号码"
 
 #: Disabled references:1
-msgid "结束早于"
-msgstr "结束早于"
+msgid "请填写座机号码"
+msgstr "请填写座机号码"
 
 #: Disabled references:1
-msgid "结束晚于"
-msgstr "结束晚于"
+msgid "请填写邮箱地址"
+msgstr "请填写邮箱地址"
 
 #: Disabled references:1
-msgid "结束已填写"
-msgstr "结束已填写"
+msgid "请填写数值"
+msgstr "请填写数值"
 
 #: Disabled references:1
-msgid "结束未填写"
-msgstr "结束未填写"
+msgid "请填写身份证"
+msgstr "请填写身份证"
 
 #: Disabled references:1
 msgid "不选中"
 msgstr "不选中"
 
 #: Disabled references:1
-msgid "属于%03080"
-msgstr "属于%03080"
+msgid "请选择日期"
+msgstr "请选择日期"
 
 #: Disabled references:1
-msgid "不属于%03078"
-msgstr "不属于"
+msgid "请选择成员"
+msgstr "请选择成员"
 
 #: Disabled references:1
-msgid "晚于等于%03075"
-msgstr "晚于等于"
+msgid "日期公式"
+msgstr "日期公式"
 
 #: Disabled references:1
-msgid "早于等于%03074"
-msgstr "早于等于"
+msgid "函数公式"
+msgstr "函数公式"
 
 #: Disabled references:1
-msgid "同时包含%03084"
-msgstr "同时包含"
+msgid "编辑状态下不支持查看"
+msgstr "编辑状态下不支持查看"
 
 #: Disabled references:1
-msgid "开头不是%03061"
-msgstr "开头不是"
+msgid "流程名称"
+msgstr "流程名称"
 
 #: Disabled references:1
-msgid "结尾不是%03063"
-msgstr "结尾不是"
+msgid "节点负责人"
+msgstr "节点负责人"
 
 #: Disabled references:1
-msgid "直属上司"
-msgstr "直属上司"
+msgid "节点开始时间"
+msgstr "节点开始时间"
 
 #: Disabled references:1
-msgid "主部门负责人"
-msgstr "主部门负责人"
+msgid "剩余时间"
+msgstr "剩余时间"
 
 #: Disabled references:1
-msgid "主部门上级负责人"
-msgstr "主部门上级负责人"
+msgid "发起时间"
+msgstr "发起时间"
 
 #: Disabled references:1
-msgid "主部门中的职位"
-msgstr "主部门中的职位"
+msgid "记录ID"
+msgstr "记录ID"
 
 #: Disabled references:1
-msgid "组织角色分管负责人"
-msgstr "组织角色分管负责人"
+msgid "最近修改人"
+msgstr "最近修改人"
 
 #: Disabled references:1
-msgid "部门负责人"
-msgstr "部门负责人"
+msgid "布局字段"
+msgstr "布局"
 
 #: Disabled references:1
-msgid "上级部门负责人"
-msgstr "上级部门负责人"
+msgid "操作设置"
+msgstr "操作设置"
 
 #: Disabled references:1
-msgid "部门中的职位"
-msgstr "部门中的职位"
+msgid "表格设置"
+msgstr "表格设置"
 
 #: Disabled references:1
-msgid "点击按钮后立即执行"
-msgstr "点击按钮后立即执行"
+msgid "双向关联"
+msgstr "双向关联"
 
 #: Disabled references:1
-msgid "点击按钮后需要二次确认"
-msgstr "点击按钮后需要二次确认"
+msgid "字段属性"
+msgstr "字段属性"
 
 #: Disabled references:1
-msgid "点击按钮填写指定内容后立即执行"
-msgstr "点击按钮填写指定内容后立即执行"
+msgid "移动端设置"
+msgstr "移动端设置"
 
 #: Disabled references:1
 msgid "今年"
@@ -15014,52 +15410,52 @@ msgid "弹出提示"
 msgstr "弹出提示"
 
 #: Disabled references:1
-msgid "卡片通知"
-msgstr "卡片通知"
+msgid "输入验证信息失败"
+msgstr "输入验证信息失败"
 
 #: Disabled references:1
-msgid "打开记录创建层"
-msgstr "打开记录创建层"
+msgid "指定参数的数据不存在"
+msgstr "指定参数的数据不存在"
 
 #: Disabled references:1
-msgid "打开记录详情页"
-msgstr "打开记录详情页"
+msgid "权限不够"
+msgstr "权限不够"
 
 #: Disabled references:1
-msgid "打开工作表视图"
-msgstr "打开工作表视图"
+msgid "请求超时"
+msgstr "请求超时"
 
 #: Disabled references:1
-msgid "打开自定义页面"
-msgstr "打开自定义页面"
+msgid "数据异常，请勿多窗口编辑或者多人同时编辑，请刷新浏览器重试！"
+msgstr "数据异常，请勿多窗口编辑或者多人同时编辑，请刷新浏览器重试！"
 
 #: Disabled references:1
-msgid "分组标题"
-msgstr "分组标题"
+msgid "%0别名重复"
+msgstr "%0别名重复"
 
 #: Disabled references:1
-msgid "ISO"
-msgstr "ISO"
+msgid "该字段已删除"
+msgstr "该字段已删除"
 
 #: Disabled references:1
 msgid "全局变量(应用)"
 msgstr "全局变量(应用)"
 
 #: Disabled references:1
-msgid "全局变量(组织)"
-msgstr "全局变量(组织)"
+msgid "标签页内字段将移动到外部，不会被删除"
+msgstr "标签页内字段将移动到外部，不会被删除"
 
 #: Disabled references:1
-msgid "您无权访问或已删除"
-msgstr "您无权访问或已删除"
+msgid "选中"
+msgstr "选中"
 
 #: Disabled references:1
-msgid "工作流已删除"
-msgstr "工作流已删除"
+msgid "未选中"
+msgstr "未选中"
 
 #: Disabled references:1
-msgid "工作流插件"
-msgstr "工作流插件"
+msgid "没有配置显示字段"
+msgstr "没有配置显示字段"
 
 #: Disabled references:1
 msgid "发起工作流"
@@ -17230,44 +17626,44 @@ msgid "知识中心"
 msgstr "知识中心"
 
 #: Disabled references:1
-msgid "失败，请稍后再试"
-msgstr "失败，请稍后再试"
+msgid "青柠"
+msgstr "青柠"
 
 #: Disabled references:1
-msgid "升级版本后可在应用中创建聚合表"
-msgstr "升级版本后可在应用中创建聚合表"
+msgid "苍黑"
+msgstr "苍黑"
 
 #: Disabled references:1
-msgid "升级版本"
-msgstr "升级版本"
+msgid "自定义主题色"
+msgstr "自定义主题色"
 
 #: Disabled references:1
-msgid "已启用聚合表个数"
-msgstr "已启用聚合表个数"
+msgid "饱和度建议不低于70"
+msgstr "饱和度建议不低于70"
 
 #: Disabled references:1
-msgid "%0 / %1 个"
-msgstr "%0 / %1 个"
+msgid "（现在 %0）"
+msgstr "（现在 %0）"
 
 #: Disabled references:1
 msgid "扩充"
 msgstr "扩充"
 
 #: Disabled references:1
-msgid "聚合表名称 / 创建人"
-msgstr "聚合表名称 / 创建人"
+msgid "选择颜色"
+msgstr "选择颜色"
 
 #: Disabled references:1
-msgid "聚合表名称"
-msgstr "聚合表名称"
+msgid "办公"
+msgstr "办公"
 
 #: Disabled references:1
-msgid "暂无聚合表"
-msgstr "暂无聚合表"
+msgid "财务"
+msgstr "财务"
 
 #: Disabled references:1
-msgid "已达到使用上限，请考虑购买增补包或升级版本"
-msgstr "已达到使用上限，请考虑购买增补包或升级版本"
+msgid "符号"
+msgstr "符号"
 
 #: Disabled references:1
 msgid "立即购买"
@@ -17330,44 +17726,44 @@ msgid "导入应用"
 msgstr "导入应用"
 
 #: Disabled references:1
-msgid "导出应用"
-msgstr "导出应用"
+msgid "饮食"
+msgstr "饮食"
 
 #: Disabled references:1
-msgid "应用回收站"
-msgstr "应用回收站"
+msgid "活动"
+msgstr "活动"
 
 #: Disabled references:1
-msgid "获取文件密码"
-msgstr "获取文件密码"
+msgid "交通"
+msgstr "交通"
 
 #: Disabled references:1
-msgid "选择要导出的应用"
-msgstr "选择要导出的应用"
+msgid "地点"
+msgstr "地点"
 
 #: Disabled references:1
-msgid "全部数据库"
-msgstr "全部数据库"
+msgid "图标"
+msgstr "图标"
 
 #: Disabled references:1
-msgid "系统默认数据库"
-msgstr "系统默认数据库"
+msgid "线框"
+msgstr "线框"
 
 #: Disabled references:1
-msgid "外部链接"
-msgstr "外部链接"
+msgid "默认图标"
+msgstr "默认图标"
 
 #: Disabled references:1
 msgid "你确定删除此应用吗？"
 msgstr "你确定删除此应用吗？"
 
 #: Disabled references:1
-msgid "应用下所有数据将被删除，请确认所有应用成员都不再需要此应用后，再执行此操作"
-msgstr "应用下所有数据将被删除，请确认所有应用成员都不再需要此应用后，再执行此操作"
+msgid "黑色"
+msgstr "黑色"
 
 #: Disabled references:1
-msgid "我确认执行此操作"
-msgstr "我确认执行此操作"
+msgid "导航色"
+msgstr "导航色"
 
 #: Disabled references:1
 msgid "操作失败，请稍候重试！"
@@ -17378,16 +17774,16 @@ msgid "你确定关闭此应用吗？"
 msgstr "你确定关闭此应用吗？"
 
 #: Disabled references:1
-msgid "关闭应用后，所有人将无法再继续使用和查看此应用，应用下的工作流将全部关闭。"
-msgstr "关闭应用后，所有人将无法再继续使用和查看此应用，应用下的工作流将全部关闭。"
+msgid "删除应用"
+msgstr "删除应用"
 
 #: Disabled references:1
-msgid "你确定开启此应用吗？"
-msgstr "你确定开启此应用吗？"
+msgid "删除应用 “%0”"
+msgstr "删除应用 “%0”"
 
 #: Disabled references:1
-msgid "重新开启应用后，你需要在应用中手动开启需要运行的工作流"
-msgstr "重新开启应用后，你需要在应用中手动开启需要运行的工作流"
+msgid "注意：应用下所有配置与数据(包括聚合表)将被删除，删除后可在工作台首页回收站恢复。"
+msgstr "注意：应用下所有配置与数据(包括聚合表)将被删除，删除后可在工作台首页回收站恢复。"
 
 #: Disabled references:1
 msgid "将应用转交他人"
@@ -17398,12 +17794,12 @@ msgid "已创建工作表（含聚合表）"
 msgstr "已创建工作表（含聚合表）"
 
 #: Disabled references:1
-msgid "所属数据库"
-msgstr "所属数据库"
+msgid "错误原因"
+msgstr "错误原因"
 
 #: Disabled references:1
-msgid "工作表数"
-msgstr "工作表数"
+msgid "支持 excel"
+msgstr "支持 excel格式"
 
 #: Disabled references:1
 msgid "错误行"
@@ -17810,6 +18206,122 @@ msgid "若”WEB-移动端“未填写，通过WEB-移动端登录时，系统�
 msgstr "若”WEB-移动端“未填写，通过WEB-移动端登录时，系统默认使用”WEB-PC端“地址登录"
 
 #: Disabled references:1
+msgid "公众号名称"
+msgstr "公众号名称"
+
+#: Disabled references:1
+msgid "取消绑定"
+msgstr "取消绑定"
+
+#: Disabled references:1
+msgid "AppID"
+msgstr "AppID"
+
+#: Disabled references:1
+msgid "已授权权限"
+msgstr "已授权权限"
+
+#: Disabled references:1
+msgid "主体名称"
+msgstr "主体名称"
+
+#: Disabled references:1
+msgid "开发者ID（AppID）"
+msgstr "开发者ID（AppID）"
+
+#: Disabled references:1
+msgid "微信公众号管理后台-设置与开发-基本配置页面内的字段"
+msgstr "微信公众号管理后台-设置与开发-基本配置页面内的字段"
+
+#: Disabled references:1
+msgid "开发者密码(AppSecret)"
+msgstr "开发者密码(AppSecret)"
+
+#: Disabled references:1
+msgid "用户管理权限 "
+msgstr "用户管理权限 "
+
+#: Disabled references:1
+msgid "网页服务权限"
+msgstr "网页服务权限"
+
+#: Disabled references:1
+msgid "群发与通知权限"
+msgstr "群发与通知权限"
+
+#: Disabled references:1
+msgid "已授权权限列表"
+msgstr "已授权权限列表"
+
+#: Disabled references:1
+msgid "重新授权"
+msgstr "重新授权"
+
+#: Disabled references:1
+msgid "取消绑定后，本组织内与公众号所有相关信息将失效（包含但不限于外部用户、模板消息）请您谨慎操作。"
+msgstr "取消绑定后，本组织内与公众号所有相关信息将失效（包含但不限于外部用户、模板消息）请您谨慎操作。"
+
+#: Disabled references:1
+msgid "成功取消绑定"
+msgstr "成功取消绑定"
+
+#: Disabled references:1
+msgid "1. 重新授权时不可换绑其他微信公众号，否则重新授权将失败；"
+msgstr "1. 重新授权时不可换绑其他微信公众号，否则重新授权将失败；"
+
+#: Disabled references:1
+msgid "2. 为保证您在明道云功能的正常使用，授权时请保持默认选择，把开放平台账号管理权限统一授权给明道云"
+msgstr "2. 为保证您在明道云功能的正常使用，授权时请保持默认选择，把开放平台账号管理权限统一授权给明道云"
+
+#: Disabled references:1
+msgid "已认证"
+msgstr "已认证"
+
+#: Disabled references:1
+msgid "绑定微信公众号"
+msgstr "绑定微信公众号"
+
+#: Disabled references:1
+msgid "绑定公众号后，外部门户将可以通过指定的域名获取该公众号下微信用户的授权及OpenID，可以通过工作流为外部的微信用户推送模板消息"
+msgstr "绑定公众号后，外部门户将可以通过指定的域名获取该公众号下微信用户的授权及OpenID，可以通过工作流为外部的微信用户推送模板消息"
+
+#: Disabled references:1
+msgid "立即授权"
+msgstr "立即授权"
+
+#: Disabled references:1
+msgid "为了可以获取到 OpenID 及基本信息或"
+msgstr "为了可以获取到 OpenID 及基本信息或"
+
+#: Disabled references:1
+msgid "使用模板消息功能必须选择"
+msgstr "使用模板消息功能必须选择"
+
+#: Disabled references:1
+msgid "已认证的企业服务号"
+msgstr "已认证的企业服务号"
+
+#: Disabled references:1
+msgid "第三方平台"
+msgstr "第三方平台"
+
+#: Disabled references:1
+msgid "从第三方同步通讯录，只能集成一个平台"
+msgstr "从第三方同步通讯录，只能集成一个平台"
+
+#: Disabled references:1
+msgid "操作失败，已启用“%0”集成"
+msgstr "操作失败，已启用“%0”集成"
+
+#: Disabled references:1
+msgid "历史日志"
+msgstr "历史日志"
+
+#: Disabled references:1
+msgid "组织管理日志"
+msgstr "组织管理日志"
+
+#: Disabled references:1
 msgid "从第三方同步通讯录，只能集成一个平台"
 msgstr "从第三方同步通讯录，只能集成一个平台"
 
@@ -18126,270 +18638,6 @@ msgid "10万"
 msgstr "10万"
 
 #: Disabled references:1
-msgid "安全 - 账号"
-msgstr "安全 - 账号"
-
-#: Disabled references:1
-msgid "设置用户加入组织时的规则和需要填写的信息"
-msgstr "设置用户加入组织时的规则和需要填写的信息"
-
-#: Disabled references:1
-msgid "通讯录可见范围"
-msgstr "通讯录可见范围"
-
-#: Disabled references:1
-msgid "设置成员在可以看到的组织架构范围"
-msgstr "设置成员在可以看到的组织架构范围"
-
-#: Disabled references:1
-msgid "安全 - 数据"
-msgstr "安全 - 数据"
-
-#: Disabled references:1
-msgid "屏幕水印"
-msgstr "屏幕水印"
-
-#: Disabled references:1
-msgid "启用水印配置后，将在组织所有应用内显示当前使用者的姓名"
-msgstr "启用水印配置后，将在组织所有应用内显示当前使用者的姓名"
-
-#: Disabled references:1
-msgid "禁止成员下载应用、讨论附件，保护组织文件安全"
-msgstr "禁止成员下载应用、讨论附件，保护组织文件安全"
-
-#: Disabled references:1
-msgid "已设置：禁止所有设备下载"
-msgstr "已设置：禁止所有设备下载"
-
-#: Disabled references:1
-msgid "已设置：禁止所有Web移动端下载"
-msgstr "已设置：禁止所有Web移动端下载"
-
-#: Disabled references:1
-msgid "单附件上传"
-msgstr "单附件上传"
-
-#: Disabled references:1
-msgid "全局限制应用中工作表、讨论附件中上传的单个文件大小。可设置白名单"
-msgstr "全局限制应用中工作表、讨论附件中上传的单个文件大小。可设置白名单"
-
-#: Disabled references:1
-msgid "加密规则"
-msgstr "加密规则"
-
-#: Disabled references:1
-msgid "配置工作表字段加密存储时可以选择的加密方式"
-msgstr "配置工作表字段加密存储时可以选择的加密方式"
-
-#: Disabled references:1
-msgid "在发送API请求时可选择通过设置的代理服务器发送"
-msgstr "在发送API请求时可选择通过设置的代理服务器发送"
-
-#: Disabled references:1
-msgid "添加应用"
-msgstr "添加应用"
-
-#: Disabled references:1
-msgid "已选择%0个应用"
-msgstr "已选择%0个应用"
-
-#: Disabled references:1
-msgid "保存失败，超出上限"
-msgstr "保存失败，超出上限"
-
-#: Disabled references:1
-msgid "系统支持的附件大小上限为 %0，可设置组织下允许的附件大小上限"
-msgstr "系统支持的附件大小上限为 %0，可设置组织下允许的附件大小上限"
-
-#: Disabled references:1
-msgid "全局配置"
-msgstr "全局配置"
-
-#: Disabled references:1
-msgid "单个附件大小"
-msgstr "单个附件大小"
-
-#: Disabled references:1
-msgid "额外配置"
-msgstr "额外配置"
-
-#: Disabled references:1
-msgid "限制方式"
-msgstr "限制方式"
-
-#: Disabled references:1
-msgid "禁止所有设备下载"
-msgstr "禁止所有设备下载"
-
-#: Disabled references:1
-msgid "禁止所有Web移动端下载"
-msgstr "禁止所有Web移动端下载"
-
-#: Disabled references:1
-msgid "白名单"
-msgstr "白名单"
-
-#: Disabled references:1
-msgid "允许以下成员下载，不受「限制方式」的管控"
-msgstr "允许以下成员下载，不受「限制方式」的管控"
-
-#: Disabled references:1
-msgid "代理服务器设置"
-msgstr "代理服务器设置"
-
-#: Disabled references:1
-msgid "接口类型"
-msgstr "接口类型"
-
-#: Disabled references:1
-msgid "请选择接口类型"
-msgstr "请选择接口类型"
-
-#: Disabled references:1
-msgid "服务器地址"
-msgstr "服务器地址"
-
-#: Disabled references:1
-msgid "IP、域名"
-msgstr "IP、域名"
-
-#: Disabled references:1
-msgid "端口号"
-msgstr "端口号"
-
-#: Disabled references:1
-msgid "请输入服务器地址"
-msgstr "请输入服务器地址"
-
-#: Disabled references:1
-msgid "地址格式不正确"
-msgstr "地址格式不正确"
-
-#: Disabled references:1
-msgid "无效的端口号"
-msgstr "无效的端口号"
-
-#: Disabled references:1
-msgid "身份验证"
-msgstr "身份验证"
-
-#: Disabled references:1
-msgid "请输入用户名"
-msgstr "请输入用户名"
-
-#: Disabled references:1
-msgid "创建应用"
-msgstr "创建应用"
-
-#: Disabled references:1
-msgid "创建 API 连接"
-msgstr "创建 API 连接"
-
-#: Disabled references:1
-msgid "开发插件"
-msgstr "开发插件"
-
-#: Disabled references:1
-msgid "安全 - 其他"
-msgstr "安全 - 其他"
-
-#: Disabled references:1
-msgid "功能限制"
-msgstr "功能限制"
-
-#: Disabled references:1
-msgid "关闭全员功能，只允许授权的管理员使用"
-msgstr "关闭全员功能，只允许授权的管理员使用"
-
-#: Disabled references:1
-msgid "已关闭:%0"
-msgstr "已关闭:%0"
-
-#: Disabled references:1
-msgid "操作免验证"
-msgstr "操作免验证"
-
-#: Disabled references:1
-msgid "关闭后，全组织下的自定义按钮、审批配置了登录密码验证的地方必须每次验证密码后方可继续操作"
-msgstr "关闭后，全组织下的自定义按钮、审批配置了登录密码验证的地方必须每次验证密码后方可继续操作"
-
-#: Disabled references:1
-msgid "订单明细"
-msgstr "订单明细"
-
-#: Disabled references:1
-msgid "退款订单"
-msgstr "退款订单"
-
-#: Disabled references:1
-msgid "选择支付渠道"
-msgstr "选择支付渠道"
-
-#: Disabled references:1
-msgid "申请商户号"
-msgstr "申请商户号"
-
-#: Disabled references:1
-msgid "此处申请的商户号是支付场景下的唯一标识，用于后续的收款交易及提现等功能"
-msgstr "此处申请的商户号是支付场景下的唯一标识，用于后续的收款交易及提现等功能"
-
-#: Disabled references:1
-msgid "开通支付"
-msgstr "开通支付"
-
-#: Disabled references:1
-msgid "商户进件是由第三方支付公司（中投支付）提供，请按照支付公司要求完成资料填写及签约"
-msgstr "商户进件是由第三方支付公司（中投支付）提供，请按照支付公司要求完成资料填写及签约"
-
-#: Disabled references:1
-msgid "支付意愿认证"
-msgstr "支付意愿认证"
-
-#: Disabled references:1
-msgid "经办人/法人使用微信/支付宝扫码根据提示注册新商家后完成意愿认证，只有认证成功后才可使用微信/支付宝进行收款"
-msgstr "经办人/法人使用微信/支付宝扫码根据提示注册新商家后完成意愿认证，只有认证成功后才可使用微信/支付宝进行收款"
-
-#: Disabled references:1
-msgid "注册中"
-msgstr "注册中"
-
-#: Disabled references:1
-msgid "开通中"
-msgstr "开通中"
-
-#: Disabled references:1
-msgid "已开通"
-msgstr "已开通"
-
-#: Disabled references:1
-msgid "已禁用"
-msgstr "已禁用"
-
-#: Disabled references:1
-msgid "已申请退款"
-msgstr "已申请退款"
-
-#: Disabled references:1
-msgid "转入退款"
-msgstr "转入退款"
-
-#: Disabled references:1
-msgid "已关闭"
-msgstr "已关闭"
-
-#: Disabled references:1
-msgid "已完结"
-msgstr "已完结"
-
-#: Disabled references:1
-msgid "已撤销"
-msgstr "已撤销"
-
-#: Disabled references:1
-msgid "支付中"
-msgstr "支付中"
-
-#: Disabled references:1
 msgid "待处理"
 msgstr "待处理"
 
@@ -18456,6 +18704,270 @@ msgstr "支付 - ${(_.find(TABS, v => v.key === currentTab) || {}).label || '商
 #: Disabled references:1
 msgid "创建商户"
 msgstr "创建商户"
+
+#: Disabled references:1
+msgid "没有订单号，请联系管理员"
+msgstr "没有订单号，请联系管理员"
+
+#: Disabled references:1
+msgid "商户单号"
+msgstr "商户单号"
+
+#: Disabled references:1
+msgid "支付总额"
+msgstr "支付总额"
+
+#: Disabled references:1
+msgid "返回商家"
+msgstr "返回商家"
+
+#: Disabled references:1
+msgid "订单不存在"
+msgstr "订单不存在"
+
+#: Disabled references:1
+msgid "商户暂未开通微信支付"
+msgstr "商户暂未开通微信支付"
+
+#: Disabled references:1
+msgid "支付金额："
+msgstr "支付金额："
+
+#: Disabled references:1
+msgid "支付内容："
+msgstr "支付内容："
+
+#: Disabled references:1
+msgid "收款账户："
+msgstr "收款账户："
+
+#: Disabled references:1
+msgid "支付方式："
+msgstr "支付方式："
+
+#: Disabled references:1
+msgid "订单编号："
+msgstr "订单编号："
+
+#: Disabled references:1
+msgid "下单时间："
+msgstr "下单时间："
+
+#: Disabled references:1
+msgid "交易单号："
+msgstr "交易单号："
+
+#: Disabled references:1
+msgid "支付时间："
+msgstr "支付时间："
+
+#: Disabled references:1
+msgid "未查询到支付内容或付款金额！"
+msgstr "未查询到支付内容或付款金额！"
+
+#: Disabled references:1
+msgid "收款方："
+msgstr "收款方："
+
+#: Disabled references:1
+msgid "请使用微信扫码支付"
+msgstr "请使用微信扫码支付"
+
+#: Disabled references:1
+msgid "请使用支付宝扫码支付"
+msgstr "请使用支付宝扫码支付"
+
+#: Disabled references:1
+msgid "支付剩余时间："
+msgstr "支付剩余时间："
+
+#: Disabled references:1
+msgid "%0分%1秒"
+msgstr "%0分%1秒"
+
+#: Disabled references:1
+msgid "商户暂不支持微信支付"
+msgstr "商户暂不支持微信支付"
+
+#: Disabled references:1
+msgid "商户暂不支持支付宝支付"
+msgstr "商户暂不支持支付宝支付"
+
+#: Disabled references:1
+msgid "请在微信app内下单支付"
+msgstr "请在微信app内下单支付"
+
+#: Disabled references:1
+msgid "正在发起支付，请稍候…"
+msgstr "正在发起支付，请稍候…"
+
+#: Disabled references:1
+msgid "交易单号"
+msgstr "交易单号"
+
+#: Disabled references:1
+msgid "支付内容"
+msgstr "支付内容"
+
+#: Disabled references:1
+msgid "支付状态"
+msgstr "支付状态"
+
+#: Disabled references:1
+msgid "支付方式"
+msgstr "支付方式"
+
+#: Disabled references:1
+msgid "付款人"
+msgstr "付款人"
+
+#: Disabled references:1
+msgid "付款人ID"
+msgstr "付款人ID"
+
+#: Disabled references:1
+msgid "支付时间"
+msgstr "支付时间"
+
+#: Disabled references:1
+msgid "交易明细"
+msgstr "交易明细"
+
+#: Disabled references:1
+msgid "确认订单"
+msgstr "确认订单"
+
+#: Disabled references:1
+msgid "扫码支付"
+msgstr "扫码支付"
+
+#: Disabled references:1
+msgid "支付内容：%0"
+msgstr "支付内容：%0"
+
+#: Disabled references:1
+msgid "订单编号：%0"
+msgstr "订单编号：%0"
+
+#: Disabled references:1
+msgid "收款方：%0"
+msgstr "收款方：%0"
+
+#: Disabled references:1
+msgid "下单时间：%0"
+msgstr "下单时间：%0"
+
+#: Disabled references:1
+msgid "应付金额："
+msgstr "应付金额："
+
+#: Disabled references:1
+msgid "订单已生成，请完成确认"
+msgstr "订单已生成，请完成确认"
+
+#: Disabled references:1
+msgid "订单已生成，请使用移动设备扫码完成支付"
+msgstr "订单已生成，请使用移动设备扫码完成支付"
+
+#: Disabled references:1
+msgid "订单已生成，请于 %0 内完成确认"
+msgstr "订单已生成，请于 %0 内完成确认"
+
+#: Disabled references:1
+msgid "订单已生成，请于 %0 内完成支付"
+msgstr "订单已生成，请于 %0 内完成支付"
+
+#: Disabled references:1
+msgid "查看订单"
+msgstr "查看订单"
+
+#: Disabled references:1
+msgid "表单已提交"
+msgstr "表单已提交"
+
+#: Disabled references:1
+msgid "请支付"
+msgstr "请支付"
+
+#: Disabled references:1
+msgid "放弃支付"
+msgstr "放弃支付"
+
+#: Disabled references:1
+msgid "处理中..."
+msgstr "处理中..."
+
+#: Disabled references:1
+msgid "付款"
+msgstr "付款"
+
+#: Disabled references:1
+msgid "是否拒绝退款?"
+msgstr "是否拒绝退款?"
+
+#: Disabled references:1
+msgid "是否同意退款?"
+msgstr "是否同意退款?"
+
+#: Disabled references:1
+msgid "同意退款后，申请的退款金额 ¥%0 将原路退回到用户账户中"
+msgstr "同意退款后，申请的退款金额 ¥%0 将原路退回到用户账户中"
+
+#: Disabled references:1
+msgid "请输入退款金额"
+msgstr "请输入退款金额"
+
+#: Disabled references:1
+msgid "至少退款0.01元"
+msgstr "至少退款0.01元"
+
+#: Disabled references:1
+msgid "您是否确定退款?"
+msgstr "您是否确定退款?"
+
+#: Disabled references:1
+msgid "退款金额"
+msgstr "退款金额"
+
+#: Disabled references:1
+msgid "最多可退款%0元"
+msgstr "最多可退款%0元"
+
+#: Disabled references:1
+msgid "全部退款"
+msgstr "全部退款"
+
+#: Disabled references:1
+msgid "10万"
+msgstr "10万"
+
+#: Disabled references:1
+msgid "安全 - 账号"
+msgstr "安全 - 账号"
+
+#: Disabled references:1
+msgid "设置用户加入组织时的规则和需要填写的信息"
+msgstr "设置用户加入组织时的规则和需要填写的信息"
+
+#: Disabled references:1
+msgid "通讯录可见范围"
+msgstr "通讯录可见范围"
+
+#: Disabled references:1
+msgid "设置成员在可以看到的组织架构范围"
+msgstr "设置成员在可以看到的组织架构范围"
+
+#: Disabled references:1
+msgid "安全 - 数据"
+msgstr "安全 - 数据"
+
+#: Disabled references:1
+msgid "屏幕水印"
+msgstr "屏幕水印"
+
+#: Disabled references:1
+msgid "启用水印配置后，将在组织所有应用内显示当前使用者的姓名"
+msgstr "启用水印配置后，将在组织所有应用内显示当前使用者的姓名"
 
 #: Disabled references:1
 msgid "没有订单号，请联系管理员"
@@ -18670,24 +19182,24 @@ msgid "请输入退款金额"
 msgstr "请输入退款金额"
 
 #: Disabled references:1
-msgid "至少退款0.01元"
-msgstr "至少退款0.01元"
+msgid "共享文件"
+msgstr "共享文件"
 
 #: Disabled references:1
-msgid "您是否确定退款?"
-msgstr "您是否确定退款?"
+msgid "您确定要将成员从各个模块移除吗?"
+msgstr "您确定要将成员从各个模块移除吗?"
 
 #: Disabled references:1
-msgid "退款金额"
-msgstr "退款金额"
+msgid "您选择的成员可能有任务负责人/群组管理员，移除后相关负责人将替换为企业小秘书（企业小秘书作为暂时接管相关模块的负责人，后续成员可根据自己的需求随时进行替换）"
+msgstr "您选择的成员可能有任务负责人/群组管理员，移除后相关负责人将替换为企业小秘书（企业小秘书作为暂时接管相关模块的负责人，后续成员可根据自己的需求随时进行替换）"
 
 #: Disabled references:1
-msgid "最多可退款%0元"
-msgstr "最多可退款%0元"
+msgid "移除成员失败"
+msgstr "移除成员失败"
 
 #: Disabled references:1
-msgid "全部退款"
-msgstr "全部退款"
+msgid "无外协人员"
+msgstr "无外协人员"
 
 #: Disabled references:1
 msgid "上传图标保留颜色"
@@ -19158,56 +19670,56 @@ msgid "人员加入规则"
 msgstr "人员加入规则"
 
 #: Disabled references:1
-msgid "共享文件"
-msgstr "共享文件"
+msgid "正在备份应用："
+msgstr "正在备份应用："
 
 #: Disabled references:1
-msgid "您确定要将成员从各个模块移除吗?"
-msgstr "您确定要将成员从各个模块移除吗?"
+msgid "共有 %0 个应用项"
+msgstr "共有 %0 个应用项"
 
 #: Disabled references:1
-msgid "您选择的成员可能有任务负责人/群组管理员，移除后相关负责人将替换为企业小秘书（企业小秘书作为暂时接管相关模块的负责人，后续成员可根据自己的需求随时进行替换）"
-msgstr "您选择的成员可能有任务负责人/群组管理员，移除后相关负责人将替换为企业小秘书（企业小秘书作为暂时接管相关模块的负责人，后续成员可根据自己的需求随时进行替换）"
+msgid "同时备份数据"
+msgstr "同时备份数据"
 
 #: Disabled references:1
-msgid "移除成员失败"
-msgstr "移除成员失败"
+msgid "预计共有 %0 行记录"
+msgstr "预计共有 %0 行记录"
 
 #: Disabled references:1
-msgid "无外协人员"
-msgstr "无外协人员"
+msgid "不限制备份文件个数"
+msgstr "不限制备份文件个数"
 
 #: Disabled references:1
-msgid "Ta们被邀请加入各个模块与本组织协作"
-msgstr "被邀请加入各个协作模块的外部用户"
+msgid " 每个备份文件仅保留%0天有效期，超过%0天的会自动删除"
+msgstr " 每个备份文件仅保留%0天有效期，超过%0天的会自动删除"
 
 #: Disabled references:1
-msgid "但不是本组织成员称为“外协人员”"
-msgstr "但不是本组织成员，称为“外协人员”"
+msgid " 备份文件一年有效，占用应用附件存储量"
+msgstr " 备份文件一年有效，占用应用附件存储量"
 
 #: Disabled references:1
-msgid "搜索姓名/职位/组织"
-msgstr "搜索姓名/职位/组织"
+msgid "每个应用最多可备份10个文件"
+msgstr "每个应用最多可备份10个文件"
 
 #: Disabled references:1
-msgid "最近登录时间"
-msgstr "最近登录时间"
+msgid "每个备份文件仅保留60天有效期，超过60天的会自动删除"
+msgstr "每个备份文件仅保留60天有效期，超过60天的会自动删除"
 
 #: Disabled references:1
-msgid "注册时间"
-msgstr "注册时间"
+msgid "支持仅备份应用或者备份应用和数据，备份后的文件可以下载保存"
+msgstr "支持仅备份应用或者备份应用和数据，备份后的文件可以下载保存"
 
 #: Disabled references:1
-msgid "删除用户"
-msgstr "删除用户"
+msgid "每个应用最多创建10个备份文件，每个文件仅保留60天有效期。"
+msgstr "每个应用最多创建10个备份文件，每个文件仅保留60天有效期。"
 
 #: Disabled references:1
-msgid "删除后用户需要重新注册才可访问所在的应用"
-msgstr "删除后用户需要重新注册才可访问所在的应用"
+msgid "从文件还原"
+msgstr "从文件还原"
 
 #: Disabled references:1
-msgid "计费外部用户人数"
-msgstr "计费外部用户人数"
+msgid "操作日志"
+msgstr "操作日志"
 
 #: Disabled references:1
 msgid "续费"
@@ -19218,72 +19730,72 @@ msgid "姓名 / 手机号 / 邮箱"
 msgstr "姓名 / 手机号 / 邮箱"
 
 #: Disabled references:1
-msgid "加入应用"
-msgstr "加入应用"
+msgid "应用正在导入升级中..."
+msgstr "应用正在导入升级中..."
 
 #: Disabled references:1
-msgid "在工作表和工作流的汇报关系检索时，若当前用户的所有下级用户总数超过2000（含），系统将默认仅获取当前用户的“直属下一级”所有用户。"
-msgstr "在工作表和工作流的汇报关系检索时，若当前用户的所有下级用户总数超过2000（含），系统将默认仅获取当前用户的“直属下一级”所有用户。"
+msgid "导入升级完成"
+msgstr "导入升级完成"
 
 #: Disabled references:1
-msgid "勾选后允许员工在「个人账户/我的组织/我的汇报关系」中管理下属"
-msgstr "勾选后允许员工在「个人账户/我的组织/我的汇报关系」中管理下属"
+msgid "导入升级失败"
+msgstr "导入升级失败"
 
 #: Disabled references:1
-msgid "允许员工自行管理下属"
-msgstr "允许员工自行管理下属"
+msgid "应用“${appName}”正在导入升级，完成后会通知您"
+msgstr "应用“${appName}”正在导入升级，完成后会通知您"
 
 #: Disabled references:1
-msgid "勾选后允许员工在「个人账户/我的组织/我的汇报关系」中查看汇报关系"
-msgstr "勾选后允许员工在「个人账户/我的组织/我的汇报关系」中查看汇报关系"
+msgid "应用“${appName}”导入升级完成"
+msgstr "应用“${appName}”导入升级完成"
 
 #: Disabled references:1
-msgid "全员可以查看汇报关系"
-msgstr "全员可以查看汇报关系"
+msgid "应用“${appName}”导入升级失败"
+msgstr "应用“${appName}”导入升级失败"
 
 #: Disabled references:1
-msgid "角色组存在组织角色，无法删除"
-msgstr "角色组存在组织角色，无法删除"
+msgid "恢复成功"
+msgstr "恢复成功"
 
 #: Disabled references:1
-msgid "角色存在成员，无法删除"
-msgstr "角色存在成员，无法删除"
+msgid "恢复失败"
+msgstr "恢复失败"
 
 #: Disabled references:1
-msgid "确定删除此角色？"
-msgstr "确定删除此角色？"
+msgid "彻底删除成功"
+msgstr "彻底删除成功"
 
 #: Disabled references:1
-msgid "确定要删除此角色组？"
-msgstr "确定要删除此角色组？"
+msgid "彻底删除失败"
+msgstr "彻底删除失败"
 
 #: Disabled references:1
-msgid "调整成功"
-msgstr "调整成功"
+msgid "该视图已删除"
+msgstr "该视图已删除"
 
 #: Disabled references:1
-msgid "加载"
-msgstr "加载"
+msgid "动作名称"
+msgstr "动作名称"
 
 #: Disabled references:1
-msgid "角色组"
-msgstr "角色组"
+msgid "删除者"
+msgstr "删除者"
 
 #: Disabled references:1
-msgid "导入角色"
-msgstr "导入角色"
+msgid "删除时间"
+msgstr "删除时间"
 
 #: Disabled references:1
-msgid "导出角色"
-msgstr "导出角色"
+msgid "将彻底删除动作“%0”"
+msgstr "将彻底删除动作“%0”"
 
 #: Disabled references:1
-msgid "暂无结果"
-msgstr "暂无结果"
+msgid "彻底删除该数据后，将无法恢复。"
+msgstr "彻底删除该数据后，将无法恢复。"
 
 #: Disabled references:1
-msgid "可以根据成员属性去创建角色，如，技术、生产、销售设置后应用可以直接选择角色"
-msgstr "可以根据成员属性去创建角色，如，技术、生产、销售设置后应用可以直接选择角色"
+msgid "我确定执行此操作"
+msgstr "我确定执行此操作"
 
 #: Disabled references:1
 msgid "以下工作表存在错误配置："
@@ -21390,124 +21902,124 @@ msgid "编辑失败"
 msgstr "编辑失败"
 
 #: Disabled references:1
-msgid "创建动态"
-msgstr "创建动态"
+msgid "取消手机号/邮箱注册后，外部用户将不能使用原账号登录，请您谨慎配置"
+msgstr "取消手机号/邮箱注册后，外部用户将不能使用原账号登录，请您谨慎配置"
 
 #: Disabled references:1
-msgid "邀请"
-msgstr "邀请"
+msgid "暂未绑定公众号，请前往"
+msgstr "暂未绑定公众号，请前往"
 
 #: Disabled references:1
-msgid "从空白创建"
-msgstr "从空白创建"
+msgid "添加微信公众账号"
+msgstr "添加微信公众账号"
 
 #: Disabled references:1
-msgid "从Excel创建"
-msgstr "从Excel创建"
+msgid "官方认证服务号"
+msgstr "官方认证服务号"
 
 #: Disabled references:1
-msgid "创建自定义页面"
-msgstr "创建自定义页面"
+msgid "只勾选微信登录后首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。"
+msgstr "只勾选微信登录后首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。"
 
 #: Disabled references:1
-msgid "支持"
-msgstr "支持"
+msgid "验证码每条%0，将自动从企业账户扣除。"
+msgstr "验证码每条%0，将自动从企业账户扣除。"
 
 #: Disabled references:1
-msgid "学习视频"
-msgstr "学习视频"
+msgid "允许访问的用户"
+msgstr "允许访问的用户"
 
 #: Disabled references:1
-msgid "社区提问"
-msgstr "社区提问"
+msgid "登录设置"
+msgstr "登录设置"
 
 #: Disabled references:1
-msgid "寻找伙伴支持"
-msgstr "寻找伙伴支持"
+msgid "登录时需同意用户协议和隐私条款"
+msgstr "登录时需同意用户协议和隐私协议"
 
 #: Disabled references:1
-msgid "人工客服"
-msgstr "人工客服"
+msgid "平台已预置了通用协议内容（无公司主体），因各门户的具体业务不同收集的用户信息不同，请您务必根据公司实际业务重新上传符合规定的协议内容"
+msgstr "平台已预置了通用协议内容（无公司主体），因各门户的具体业务不同收集的用户信息不同，请您务必根据公司实际业务重新上传符合规定的协议内容"
 
 #: Disabled references:1
-msgid "博客"
-msgstr "博客"
+msgid "和"
+msgstr "和"
 
 #: Disabled references:1
-msgid "最近更新"
-msgstr "最近更新"
+msgid "通过微信扫码登录时，需先关注公众号"
+msgstr "通过微信扫码登录时，需先关注公众号"
 
 #: Disabled references:1
-msgid "API文档"
-msgstr "API文档"
+msgid "外部用户注册开始/停止时间"
+msgstr "外部用户注册开始/停止时间"
 
 #: Disabled references:1
-msgid "版本和价格"
-msgstr "版本和价格"
+msgid "外部用户通过账号密码或微信扫码登录后，需要额外进行验证码验证，验证通过后才能成功登录"
+msgstr "外部用户通过账号密码或微信扫码登录后，需要额外进行验证码验证，验证通过后才能成功登录"
 
 #: Disabled references:1
-msgid "HAP助手"
-msgstr "HAP助手"
+msgid "功能设置"
+msgstr "功能设置"
 
 #: Disabled references:1
-msgid "您好，请问需要什么帮助？"
-msgstr "您好，请问需要什么帮助？"
+msgid "允许参与记录讨论"
+msgstr "允许参与记录讨论"
 
 #: Disabled references:1
-msgid "最多可输入32个字符"
-msgstr "最多可输入32个字符"
+msgid "确定切换为不可见内部讨论？"
+msgstr "确定切换为不可见内部讨论？"
 
 #: Disabled references:1
-msgid "超级搜索(F)..."
-msgstr "超级搜索(F)..."
+msgid "确定切换为可见全部讨论？"
+msgstr "确定切换为可见全部讨论？"
 
 #: Disabled references:1
-msgid "过期应用"
-msgstr "过期应用"
+msgid "切换后，已有的外部讨论内容全部归为内部讨论，外部用户对其不可查看且不能回复；"
+msgstr "切换后，已有的外部讨论内容全部归为内部讨论，外部用户对其不可查看且不能回复；"
 
 #: Disabled references:1
-msgid "应用数量已达到最大值"
-msgstr "应用数量已达到最大值"
+msgid "切换后，应用成员回复已有讨论，回复内容归属于内部讨论，外部用户不可查看且不能回复"
+msgstr "切换后，应用成员回复已有讨论，回复内容归属于内部讨论，外部用户不可查看且不能回复"
 
 #: Disabled references:1
-msgid "个人最多可创建3个应用，请使用标准版或更高版本以创建更多应用"
-msgstr "个人最多可创建3个应用，请使用标准版或更高版本以创建更多应用"
+msgid "切换后，讨论分为两个讨论区域，外部用户只能参与外部讨论"
+msgstr "切换后，讨论分为两个讨论区域，外部用户只能参与外部讨论"
 
 #: Disabled references:1
-msgid "应用下工作表数量已达到最大值"
-msgstr "应用下工作表数量已达到最大值"
+msgid "切换后，外部和内部两个讨论共用一个讨论区，已有的外部和内部讨论内容归在一起"
+msgstr "切换后，外部和内部两个讨论共用一个讨论区，已有的外部和内部讨论内容归在一起"
 
 #: Disabled references:1
-msgid "个人下单个应用中最多可创建3个工作表，请使用标准版或更高版本以创建更多工作表"
-msgstr "个人下单个应用中最多可创建3个工作表，请使用标准版或更高版本以创建更多工作表"
+msgid "外部用户与成员共用一个讨论区域，可见全部讨论内容"
+msgstr "外部用户与成员共用一个讨论区域，可见全部讨论内容"
 
 #: Disabled references:1
-msgid "工作表行记录数量已达到最大值"
-msgstr "工作表行记录数量已达到最大值"
+msgid "分为内部和外部两个讨论区，外部用户不可见内部讨论区"
+msgstr "分为内部和外部两个讨论区，外部用户不可见内部讨论区"
 
 #: Disabled references:1
-msgid "个人下单个工作表中最多可创建1000条行记录，请使用标准版或更高版本以创建更多行记录"
-msgstr "个人下单个工作表中最多可创建1000条行记录，请使用标准版或更高版本以创建更多行记录"
+msgid "允许查看审批流转详情"
+msgstr "允许查看审批流转详情"
 
 #: Disabled references:1
-msgid "项目数量已达到最大值"
-msgstr "项目数量已达到最大值"
+msgid "水印设置"
+msgstr "水印设置"
 
 #: Disabled references:1
-msgid "个人最多可创建5个项目，请使用标准版或更高版本以创建更多项目"
-msgstr "个人最多可创建5个项目，请使用标准版或更高版本以创建更多项目"
+msgid "启用水印配置后，将在外部门户内显示当前使用者的姓名+手机号后4位或邮箱前缀"
+msgstr "启用水印配置后，将在外部门户内显示当前使用者的姓名+手机号后4位或邮箱前缀"
 
 #: Disabled references:1
-msgid "当前版本最多可以创建5个应用，请购买应用扩展包或升级到更高版本"
-msgstr "当前版本最多可以创建5个应用，请购买应用扩展包或升级到更高版本"
+msgid "通知设置"
+msgstr "通知设置"
 
 #: Disabled references:1
-msgid "工作表数量已达到最大值"
-msgstr "工作表数量已达到最大值"
+msgid "新用户注册、激活时通知管理员"
+msgstr "新用户注册、激活时通知管理员"
 
 #: Disabled references:1
-msgid "标准版最多可创建100个工作表，请升级版本以创建更多工作表"
-msgstr "标准版最多可创建100个工作表，请升级版本以创建更多工作表"
+msgid "审核结果短信通知外部用户"
+msgstr "审核结果短信通知外部用户"
 
 #: Disabled references:1
 msgid "立即升级"
@@ -21518,36 +22030,36 @@ msgid "标准版单个工作表下最多可创建10万条行记录，请升级�
 msgstr "标准版单个工作表下最多可创建10万条行记录，请升级版本以创建更多行记录"
 
 #: Disabled references:1
-msgid "外部用户人数额度不足"
-msgstr "外部用户人数额度不足"
+msgid "编辑工作流"
+msgstr "编辑工作流"
 
 #: Disabled references:1
-msgid "外部用户人数已达到上限，请购买外部用户扩充包"
-msgstr "外部用户人数已达到上限，请购买外部用户扩充包"
+msgid "名片配置"
+msgstr "名片配置"
 
 #: Disabled references:1
-msgid "购买外部用户扩充包"
-msgstr "购买外部用户扩充包"
+msgid "设置外部用户的名片层中可以被其他人查看到的信息"
+msgstr "设置外部用户的名片层中可以被其他人查看到的信息"
 
 #: Disabled references:1
-msgid "账号余额不足"
-msgstr "账号余额不足"
+msgid "组织成员查看"
+msgstr "组织成员查看"
 
 #: Disabled references:1
-msgid "当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值"
-msgstr "当前企业账号余额不足，无法通过短信/邮件通知用户，请先充值"
+msgid "外部用户查看"
+msgstr "外部用户查看"
 
 #: Disabled references:1
-msgid "当前版本最多可以创建10个应用，请购买应用扩展包或升级到更高版本"
-msgstr "当前版本最多可以创建10个应用，请购买应用扩展包或升级到更高版本"
+msgid "字段标题"
+msgstr "字段标题"
 
 #: Disabled references:1
-msgid "专业版单个应用下最多可创建30个工作表，请升级版本以创建更多工作表"
-msgstr "专业版单个应用下最多可创建30个工作表，请升级版本以创建更多工作表"
+msgid "请选择字段类型"
+msgstr "请选择字段类型"
 
 #: Disabled references:1
-msgid "专业版单个工作表下最多可创建100万条行记录，请升级版本以创建更多行记录"
-msgstr "专业版单个工作表下最多可创建100万条行记录，请升级版本以创建更多行记录"
+msgid "收集"
+msgstr "收集"
 
 #: Disabled references:1
 msgid "当前版本最多可创建30个应用，请升级版本"
@@ -21558,16 +22070,16 @@ msgid "当前版本最多可创建100个工作表，请升级版本"
 msgstr "当前版本最多可创建100个工作表，请升级版本"
 
 #: Disabled references:1
-msgid "010-53103053 转 1"
-msgstr "010-53103053 转 1"
+msgid "建议上传不小于1920*1080px的封面图片，更利于首页展示，推荐免费图库"
+msgstr "建议上传不小于1920*1080px的封面图片，更利于首页展示，推荐免费图库"
 
 #: Disabled references:1
 msgid "当前版本工作表下最多可创建10万条行记录，请升级版本"
 msgstr "当前版本工作表下最多可创建10万条行记录，请升级版本"
 
 #: Disabled references:1
-msgid "当前版本的应用数已达上限"
-msgstr "当前版本的应用数已达上限"
+msgid "登录页Logo"
+msgstr "登录页Logo"
 
 #: Disabled references:1
 msgid "当前版本最多只能存在1个应用，请联系顾问提供支持"
@@ -21582,40 +22094,40 @@ msgid "当前版本工作表下最多可创建10万条行记录，请联系顾�
 msgstr "当前版本工作表下最多可创建10万条行记录，请联系顾问提供支持"
 
 #: Disabled references:1
-msgid "专业版 (试用) 最多可以创建10个应用，请付费升级正式版以扩展更多用量"
-msgstr "专业版 (试用) 最多可以创建10个应用，请付费升级正式版以扩展更多用量"
+msgid "左右"
+msgstr "左右"
 
 #: Disabled references:1
-msgid "专业版 (试用) 单个应用下最多可创建30个工作表，请付费升级正式版以扩展更多用量"
-msgstr "专业版 (试用) 单个应用下最多可创建30个工作表，请付费升级正式版以扩展更多用量"
+msgid "背景设置"
+msgstr "背景设置"
 
 #: Disabled references:1
-msgid "专业版 (试用) 单个工作表下最多可创建100万条行记录，请付费升级正式版以扩展更多用量"
-msgstr "专业版 (试用) 单个工作表下最多可创建100万条行记录，请付费升级正式版以扩展更多用量"
+msgid "因为平台安全措施需要，自定义的短信签名和通知内容暂时只对付费组织生效。免费和试用组织只能按默认内容发送"
+msgstr "因为平台安全措施需要，自定义的短信签名和通知内容暂时只对付费组织生效。免费和试用组织只能按默认内容发送"
 
 #: Disabled references:1
-msgid "外部用户人数已达到上限，请购买付费版本"
-msgstr "外部用户人数已达到上限，请购买付费版本"
+msgid "短信通知"
+msgstr "短信通知"
 
 #: Disabled references:1
-msgid "免费版最多可创建100个工作表，请升级版本以创建更多工作表"
-msgstr "免费版最多可创建100个工作表，请升级版本以创建更多工作表"
+msgid "注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义。"
+msgstr "注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义。"
 
 #: Disabled references:1
-msgid "工作表总行记录数量已达到最大值"
-msgstr "工作表总行记录数量已达到最大值"
+msgid "短信收费标准：短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。"
+msgstr "短信收费标准：短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。"
 
 #: Disabled references:1
-msgid "免费版最多可创建5万条行记录，请升级以继续"
-msgstr "免费版最多可创建5万条行记录，请升级以继续"
+msgid "签名内容长度为2-12个字；由中英文组成，不能纯英文；签名内容必须能辨别所属公司名称或品牌名称；不符合规范的签名平台会清空需重新输入，同时运营商也会拦截。"
+msgstr "签名内容长度为2-12个字；由中英文组成，不能纯英文；签名内容必须能辨别所属公司名称或品牌名称；不符合规范的签名平台会清空需重新输入，同时运营商也会拦截。"
 
 #: Disabled references:1
-msgid "单个工作表行记录数量已达到最大值"
-msgstr "单个工作表行记录数量已达到最大值"
+msgid "收不到短信？"
+msgstr "收不到短信？"
 
 #: Disabled references:1
-msgid "免费版最多可创建1万条行记录，请升级以继续"
-msgstr "免费版最多可创建1万条行记录，请升级以继续"
+msgid "此签名适用于外部门户的短信场景：外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝)"
+msgstr "此签名适用于外部门户的短信场景：外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝)"
 
 #: Disabled references:1
 msgid "请输入手机号"
@@ -21634,100 +22146,100 @@ msgid "新手机号"
 msgstr "新手机号"
 
 #: Disabled references:1
-msgid "新邮箱"
-msgstr "新邮箱"
+msgid "邮件通知"
+msgstr "邮件通知"
 
 #: Disabled references:1
-msgid "操作过于频繁，请稍后再试"
-msgstr "操作过于频繁，请稍后再试"
+msgid "注册开启审核后，审核结果(通过、拒绝)会邮件告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对邮件内容自定义。"
+msgstr "注册开启审核后，审核结果(通过、拒绝)会邮件告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对邮件内容自定义。"
 
 #: Disabled references:1
-msgid "请输入正确的手机号"
-msgstr "请输入正确的手机号"
+msgid "针对相应的邮件会进行收费收费标准：邮件%0/封，将自动从企业账户扣除。"
+msgstr "针对相应的邮件会进行收费收费标准：邮件%0/封，将自动从企业账户扣除。"
 
 #: Disabled references:1
-msgid "绑定失败，请稍后再试"
-msgstr "绑定失败，请稍后再试"
+msgid "发件人名称"
+msgstr "发件人名称"
 
 #: Disabled references:1
-msgid "修改手机号"
-msgstr "修改手机号"
+msgid "请输入发件人名称"
+msgstr "请输入发件人名称"
 
 #: Disabled references:1
-msgid "上一步"
-msgstr "上一步"
+msgid "邮件设置"
+msgstr "邮件设置"
 
 #: Disabled references:1
-msgid "您是否确认注销账号？"
-msgstr "您是否确认注销账号？"
+msgid "信息收集"
+msgstr "信息收集"
 
 #: Disabled references:1
-msgid "账号一旦注销将无法登录平台，且会解除与第三方账号的绑定关系、身份、账号信息等将被清空且无法找回"
-msgstr "账号一旦注销将无法登录平台，且会解除与第三方账号的绑定关系、身份、账号信息等将被清空且无法找回"
+msgid "自定义登录界面"
+msgstr "自定义登录界面"
 
 #: Disabled references:1
-msgid "注销失败，请稍后再试"
-msgstr "注销失败，请稍后再试"
+msgid "消息设置"
+msgstr "消息设置"
 
 #: Disabled references:1
-msgid "注销账户"
-msgstr "注销账户"
+msgid "您是否保存当前页的更改"
+msgstr "您是否保存当前页的更改"
 
 #: Disabled references:1
-msgid "该用户不存在，不能设置密码"
-msgstr "该用户不存在，不能设置密码"
+msgid "当前有尚未保存的更改，您在离开当前页面前是否需要保存这些更改。"
+msgstr "当前有尚未保存的更改，您在离开当前页面前是否需要保存这些更改。"
 
 #: Disabled references:1
-msgid "请输入8-20位，需包含字母和数字"
-msgstr "请输入8-20位，需包含字母和数字"
+msgid "关闭后所有人将不能再访问门户"
+msgstr "关闭后所有人将不能再访问门户"
 
 #: Disabled references:1
-msgid "前后密码一致!"
-msgstr "前后密码一致!"
+msgid "关闭门户"
+msgstr "关闭门户"
 
 #: Disabled references:1
-msgid "验证码错误!"
-msgstr "验证码错误!"
+msgid "外部门户名称不能为空"
+msgstr "外部门户名称不能为空"
 
 #: Disabled references:1
-msgid "密码修改次数过多被锁定，请 %0 分钟后再试，或 重置密码"
-msgstr "密码修改次数过多被锁定，请 %0 分钟后再试，或 重置密码"
+msgid "短信签名不能为空"
+msgstr "短信签名不能为空"
 
 #: Disabled references:1
-msgid "验证码已经失效，请重新发送!"
-msgstr "验证码已经失效，请重新发送!"
+msgid "短信签名格式不正确"
+msgstr "短信签名格式不正确"
 
 #: Disabled references:1
-msgid "修改密码失败,请稍后再试!"
-msgstr "修改密码失败,请稍后再试!"
+msgid "发件人名称不能为空"
+msgstr "发件人名称不能为空"
 
 #: Disabled references:1
-msgid "当前企业账号余额不足，无法发送短信"
-msgstr "当前企业账号余额不足，无法发送短信"
+msgid "已开启外部用户注册开始/停止时间，但未选择开始/停止时间"
+msgstr "已开启外部用户注册开始/停止时间，但未选择开始/停止时间"
 
 #: Disabled references:1
-msgid "请输入新密码！"
-msgstr "请输入新密码！"
+msgid "用户列表信息名称不能为空"
+msgstr "用户列表信息名称不能为空"
 
 #: Disabled references:1
-msgid "我的账户"
-msgstr "我的账户"
+msgid "颜色"
+msgstr "颜色"
 
 #: Disabled references:1
-msgid "已设置"
-msgstr "已设置"
+msgid "背景图"
+msgstr "背景图"
 
 #: Disabled references:1
 msgid "设置失败，请稍后再试"
 msgstr "设置失败，请稍后再试"
 
 #: Disabled references:1
-msgid "我的信息"
-msgstr "我的信息"
+msgid "删除失败，请稍后重试"
+msgstr "删除失败，请稍后重试"
 
 #: Disabled references:1
-msgid "注销此账户"
-msgstr "注销此账户"
+msgid "最近 7 天"
+msgstr "最近 7 天"
 
 #: Disabled references:1
 msgid "安全退出"
@@ -22354,388 +22866,388 @@ msgid "非“人员”类型的成员，只能由管理员或运营者操作"
 msgstr "非“人员”类型的成员，只能由管理员或运营者操作"
 
 #: Disabled references:1
-msgid "保存失败，请稍后再试"
-msgstr "保存失败，请稍后再试"
+msgid "正在导出数据 “%0”"
+msgstr "正在导出数据 “%0”"
 
 #: Disabled references:1
-msgid "生成地址"
-msgstr "生成地址"
+msgid "这可能需要一段时间，现在您可以进行其他操作，全部导出完成将后通知您"
+msgstr "这可能需要一段时间，现在您可以进行其他操作，全部导出完成将后通知您"
 
 #: Disabled references:1
-msgid "外部门户通过配置注册方式、登录方式、角色可生成多个链接，实现外部用户个性化登录。"
-msgstr "外部门户通过配置注册方式、登录方式、角色可生成多个链接，实现外部用户个性化登录。"
+msgid "导出文件准备完成"
+msgstr "导出文件准备完成"
 
 #: Disabled references:1
-msgid "你确认删除？"
-msgstr "你确认删除？"
+msgid "“%0” 导出文件已准备完成，文件下载链接将于24小时失效，请尽快下载"
+msgstr "“%0” 导出文件已准备完成，文件下载链接将于24小时失效，请尽快下载"
 
 #: Disabled references:1
-msgid "删除后，用户不能通过该地址访问"
-msgstr "删除后，用户不能通过该地址访问"
+msgid "导出数据 “%0” 失败"
+msgstr "导出数据 “%0” 失败"
 
 #: Disabled references:1
-msgid "保存设置"
-msgstr "保存设置"
+msgid "立即下载"
+msgstr "立即下载"
 
 #: Disabled references:1
-msgid "此处配置的注册登录方式需遵循基础设置的配置范围，如超出范围则链接无效"
-msgstr "此处配置的注册登录方式需遵循基础设置的配置范围，如超出范围则链接无效"
+msgid "名片"
+msgstr "名片"
 
 #: Disabled references:1
-msgid "请选择有效的默认角色"
-msgstr "请选择有效的默认角色"
+msgid "收起完整信息"
+msgstr "收起完整信息"
 
 #: Disabled references:1
-msgid "至少选择一种登录方式"
-msgstr "至少选择一种登录方式"
+msgid "展示完整信息"
+msgstr "展示完整信息"
 
 #: Disabled references:1
-msgid "至少选择一种注册方式"
-msgstr "至少选择一种注册方式"
+msgid "描述："
+msgstr "描述："
 
 #: Disabled references:1
 msgid "默认角色"
 msgstr "默认角色"
 
 #: Disabled references:1
-msgid "该角色已删除"
-msgstr "该角色已删除"
+msgid "更换头像"
+msgstr "更换头像"
 
 #: Disabled references:1
-msgid "修改失败请稍后再试"
-msgstr "修改失败请稍后再试"
+msgid "修改个人设置"
+msgstr "修改个人设置"
 
 #: Disabled references:1
-msgid "可见全部讨论"
-msgstr "可见全部讨论"
+msgid "发送私信"
+msgstr "发送私信"
 
 #: Disabled references:1
-msgid "不可见内部讨论"
-msgstr "不可见内部讨论"
+msgid "发送 E-mail"
+msgstr "发送 E-mail"
 
 #: Disabled references:1
-msgid "任何人"
-msgstr "任何人"
+msgid "我的动态墙"
+msgstr "我的动态墙"
 
 #: Disabled references:1
-msgid "通过审核的用户"
-msgstr "通过审核的用户"
+msgid "%0的动态墙"
+msgstr "%0的动态墙"
 
 #: Disabled references:1
-msgid "仅定向邀请的用户"
-msgstr "仅定向邀请的用户"
+msgid "还未绑定明道云帐号"
+msgstr "还未绑定明道云账号"
 
 #: Disabled references:1
-msgid "门户名称"
-msgstr "门户名称"
+msgid "请选择绑定已有帐户，或创建新帐号"
+msgstr "请选择绑定已有账户，或创建新账号"
 
 #: Disabled references:1
-msgid "请输入门户名称"
-msgstr "请输入门户名称"
+msgid "登录并绑定"
+msgstr "登录并绑定"
 
 #: Disabled references:1
-msgid "取消手机号/邮箱注册后，外部用户将不能使用原账号登录，请您谨慎配置"
-msgstr "取消手机号/邮箱注册后，外部用户将不能使用原账号登录，请您谨慎配置"
+msgid "注册新帐号"
+msgstr "注册新账号"
 
 #: Disabled references:1
-msgid "暂未绑定公众号，请前往"
-msgstr "暂未绑定公众号，请前往"
+msgid "请输入手机！"
+msgstr "请输入手机！"
 
 #: Disabled references:1
-msgid "添加微信公众账号"
-msgstr "添加微信公众账号"
+msgid "前后密码一致"
+msgstr "前后密码一致"
 
 #: Disabled references:1
-msgid "官方认证服务号"
-msgstr "官方认证服务号"
+msgid "忘记密码 - %0"
+msgstr "忘记密码 - %0"
 
 #: Disabled references:1
-msgid "只勾选微信登录后首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。"
-msgstr "只勾选微信登录后首次扫码后需要输入手机号与微信绑定，后续可单独微信扫码快速登录。"
+msgid "链接访问存在异常"
+msgstr "链接访问存在异常"
 
 #: Disabled references:1
-msgid "验证码每条%0，将自动从企业账户扣除。"
-msgstr "验证码每条%0，将自动从企业账户扣除。"
+msgid "验证码发送失败!"
+msgstr "验证码发送失败!"
 
 #: Disabled references:1
-msgid "允许访问的用户"
-msgstr "允许访问的用户"
+msgid "验证码发送过于频繁，请切换验证方式!"
+msgstr "验证码发送过于频繁，请切换验证方式!"
 
 #: Disabled references:1
-msgid "登录设置"
-msgstr "登录设置"
+msgid "手机未绑定，请使用邮箱验证！"
+msgstr "手机未绑定，请使用邮箱验证！"
 
 #: Disabled references:1
-msgid "登录时需同意用户协议和隐私条款"
-msgstr "登录时需同意用户协议和隐私协议"
+msgid "邮箱未绑定，请使用手机短信验证！"
+msgstr "邮箱未绑定，请使用手机短信验证！"
 
 #: Disabled references:1
-msgid "平台已预置了通用协议内容（无公司主体），因各门户的具体业务不同收集的用户信息不同，请您务必根据公司实际业务重新上传符合规定的协议内容"
-msgstr "平台已预置了通用协议内容（无公司主体），因各门户的具体业务不同收集的用户信息不同，请您务必根据公司实际业务重新上传符合规定的协议内容"
+msgid "使用邮箱验证"
+msgstr "使用邮箱验证"
 
 #: Disabled references:1
-msgid "和"
-msgstr "和"
+msgid "使用手机短信验证"
+msgstr "使用手机短信验证"
 
 #: Disabled references:1
-msgid "通过微信扫码登录时，需先关注公众号"
-msgstr "通过微信扫码登录时，需先关注公众号"
+msgid "两步验证 - 明道云 | APaaS平台、零代码、hpaPaaS、iPaaS、BaaS、快速开发工具、中台应用"
+msgstr "两步验证 - 明道云 | APaaS平台、零代码、hpaPaaS、iPaaS、BaaS、快速开发工具、中台应用"
 
 #: Disabled references:1
-msgid "外部用户注册开始/停止时间"
-msgstr "外部用户注册开始/停止时间"
+msgid "该帐号未注册"
+msgstr "该账号未注册"
 
 #: Disabled references:1
 msgid "外部用户通过账号密码或微信扫码登录后，需要额外进行验证码验证，验证通过后才能成功登录"
 msgstr "外部用户通过账号密码或微信扫码登录后，需要额外进行验证码验证，验证通过后才能成功登录"
 
 #: Disabled references:1
-msgid "功能设置"
-msgstr "功能设置"
+msgid "登录两步验证"
+msgstr "登录两步验证"
 
 #: Disabled references:1
-msgid "允许参与记录讨论"
-msgstr "允许参与记录讨论"
+msgid "使用绑定的"
+msgstr "使用绑定的"
 
 #: Disabled references:1
-msgid "确定切换为不可见内部讨论？"
-msgstr "确定切换为不可见内部讨论？"
+msgid "接收验证码"
+msgstr "接收验证码"
 
 #: Disabled references:1
-msgid "确定切换为可见全部讨论？"
-msgstr "确定切换为可见全部讨论？"
+msgid "验证码已发送至"
+msgstr "验证码已发送至"
 
 #: Disabled references:1
-msgid "切换后，已有的外部讨论内容全部归为内部讨论，外部用户对其不可查看且不能回复；"
-msgstr "切换后，已有的外部讨论内容全部归为内部讨论，外部用户对其不可查看且不能回复；"
+msgid "再次获取..."
+msgstr "再次获取..."
 
 #: Disabled references:1
-msgid "切换后，应用成员回复已有讨论，回复内容归属于内部讨论，外部用户不可查看且不能回复"
-msgstr "切换后，应用成员回复已有讨论，回复内容归属于内部讨论，外部用户不可查看且不能回复"
+msgid "再次获取"
+msgstr "再次获取"
 
 #: Disabled references:1
-msgid "切换后，讨论分为两个讨论区域，外部用户只能参与外部讨论"
-msgstr "切换后，讨论分为两个讨论区域，外部用户只能参与外部讨论"
+msgid "确认..."
+msgstr "确认..."
 
 #: Disabled references:1
-msgid "切换后，外部和内部两个讨论共用一个讨论区，已有的外部和内部讨论内容归在一起"
-msgstr "切换后，外部和内部两个讨论共用一个讨论区，已有的外部和内部讨论内容归在一起"
+msgid "您已提交申请，请耐心等待管理员审批！"
+msgstr "您已提交申请，请耐心等待管理员审批！"
 
 #: Disabled references:1
-msgid "外部用户与成员共用一个讨论区域，可见全部讨论内容"
-msgstr "外部用户与成员共用一个讨论区域，可见全部讨论内容"
+msgid "该组织门牌号不存在"
+msgstr "该组织门牌号不存在"
 
 #: Disabled references:1
-msgid "分为内部和外部两个讨论区，外部用户不可见内部讨论区"
-msgstr "分为内部和外部两个讨论区，外部用户不可见内部讨论区"
+msgid "你加入的组织用户额度不足，请联系该组织管理员"
+msgstr "你加入的组织用户额度不足，请联系该组织管理员"
 
 #: Disabled references:1
-msgid "允许查看审批流转详情"
-msgstr "允许查看审批流转详情"
+msgid "该组织未开启搜索加入，请联系组织管理员"
+msgstr "该组织未开启搜索加入，请联系组织管理员"
 
 #: Disabled references:1
-msgid "水印设置"
-msgstr "水印设置"
+msgid "您提交的加入申请未被通过"
+msgstr "您提交的加入申请未被通过"
 
 #: Disabled references:1
-msgid "启用水印配置后，将在外部门户内显示当前使用者的姓名+手机号后4位或邮箱前缀"
-msgstr "启用水印配置后，将在外部门户内显示当前使用者的姓名+手机号后4位或邮箱前缀"
+msgid "申请加入失败，您在该企业已离职，请联系管理员恢复权限"
+msgstr "申请加入失败，您在该企业已离职，请联系管理员恢复权限"
 
 #: Disabled references:1
-msgid "通知设置"
-msgstr "通知设置"
+msgid "示例：MD1314"
+msgstr "示例：MD1314"
 
 #: Disabled references:1
-msgid "新用户注册、激活时通知管理员"
-msgstr "新用户注册、激活时通知管理员"
+msgid "请填写组织门牌号"
+msgstr "请填写组织门牌号"
 
 #: Disabled references:1
-msgid "审核结果短信通知外部用户"
-msgstr "审核结果短信通知外部用户"
+msgid "组织门牌号可以通过管理员获取"
+msgstr "组织门牌号可以通过管理员获取"
 
 #: Disabled references:1
-msgid "有讨论消息时（被提到、被回复）通知外部用户"
-msgstr "有讨论消息时（被提到、被回复）通知外部用户"
+msgid "没有组织门牌号？"
+msgstr "没有组织门牌号？"
 
 #: Disabled references:1
-msgid "编辑工作流"
-msgstr "编辑工作流"
+msgid "加入..."
+msgstr "加入..."
 
 #: Disabled references:1
-msgid "名片配置"
-msgstr "名片配置"
+msgid "请填写组织名称"
+msgstr "请填写组织名称"
 
 #: Disabled references:1
-msgid "设置外部用户的名片层中可以被其他人查看到的信息"
-msgstr "设置外部用户的名片层中可以被其他人查看到的信息"
+msgid "您当前账号默认成为组织的管理员"
+msgstr "您当前账号默认成为组织的管理员"
 
 #: Disabled references:1
-msgid "组织成员查看"
-msgstr "组织成员查看"
+msgid "创建..."
+msgstr "创建..."
 
 #: Disabled references:1
-msgid "外部用户查看"
-msgstr "外部用户查看"
+msgid "已有"
+msgstr "已有"
 
 #: Disabled references:1
-msgid "字段标题"
-msgstr "字段标题"
+msgid "同事已经在用，我要找到并加入组织"
+msgstr "同事已经在用，我要找到并加入组织"
 
 #: Disabled references:1
-msgid "请选择字段类型"
-msgstr "请选择字段类型"
+msgid "新的"
+msgstr "新的"
 
 #: Disabled references:1
-msgid "收集"
-msgstr "收集"
+msgid "我想自己创建一个新组织"
+msgstr "我想自己创建一个新组织"
 
 #: Disabled references:1
-msgid "用户列表信息设置"
-msgstr "用户列表信息设置"
+msgid "创建或加入组织"
+msgstr "创建或加入组织"
 
 #: Disabled references:1
-msgid "外部用户列表在系统字段的基础上，还可增加自定义字段的配置；如果自定义字段需要用户注册/登录时填写收集，点击左侧的收集勾选框，需要用户必填可点击右侧的必填勾选框"
-msgstr "外部用户列表在系统字段的基础上，还可增加自定义字段的配置；如果自定义字段需要用户注册/登录时填写收集，点击左侧的收集勾选框，需要用户必填可点击右侧的必填勾选框"
+msgid "抱歉，操作过于频繁或者创建的组织已经达到上限，请升级至付费版本即可创建更多组织，如有疑问请咨询客服！"
+msgstr "抱歉，操作过于频繁或者创建的组织已经达到上限，请升级至付费版本即可创建更多组织，如有疑问请咨询客服！"
 
 #: Disabled references:1
-msgid "建议上传不小于1920*1080px的封面图片，更利于首页展示，推荐免费图库"
-msgstr "建议上传不小于1920*1080px的封面图片，更利于首页展示，推荐免费图库"
+msgid "该手机号已注册，您可以使用已有账号登录"
+msgstr "该手机号已注册，您可以使用已有账号登录"
 
 #: Disabled references:1
-msgid "登录页名称"
-msgstr "登录页名称"
+msgid "您已经是该组织成员，可直接登录"
+msgstr "您已经是该组织成员，可直接登录"
 
 #: Disabled references:1
-msgid "登录页Logo"
-msgstr "登录页Logo"
+msgid "您已成功加入该组织"
+msgstr "您已成功加入该组织"
 
 #: Disabled references:1
-msgid "点击上传"
-msgstr "点击上传"
+msgid "您的申请已提交，请等待管理员审批"
+msgstr "您的申请已提交，请等待管理员审批"
 
 #: Disabled references:1
-msgid "登录页面结构"
-msgstr "登录页面结构"
+msgid "免费模式的组织无法加入，请开通付费版"
+msgstr "免费模式的组织无法加入，请开通付费版"
 
 #: Disabled references:1
-msgid "居中"
-msgstr "居中"
+msgid "填写名片"
+msgstr "填写名片"
 
 #: Disabled references:1
-msgid "左右"
-msgstr "左右"
+msgid "完善名片信息"
+msgstr "完善名片信息"
 
 #: Disabled references:1
-msgid "背景设置"
-msgstr "背景设置"
+msgid "链接已失效"
+msgstr "链接已失效"
 
 #: Disabled references:1
-msgid "因为平台安全措施需要，自定义的短信签名和通知内容暂时只对付费组织生效。免费和试用组织只能按默认内容发送"
-msgstr "因为平台安全措施需要，自定义的短信签名和通知内容暂时只对付费组织生效。免费和试用组织只能按默认内容发送"
+msgid "邀请已取消或者过期，可通过快速注册联系邀请人"
+msgstr "邀请已取消或者过期，可通过快速注册联系邀请人"
 
 #: Disabled references:1
-msgid "短信通知"
-msgstr "短信通知"
+msgid "快速注册"
+msgstr "快速注册"
 
 #: Disabled references:1
-msgid "注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义。"
-msgstr "注册开启审核后，审核结果(通过、拒绝)会短信告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对短信内容自定义。"
+msgid "%0邀请您加入组织"
+msgstr "%0邀请您加入组织"
 
 #: Disabled references:1
-msgid "短信收费标准：短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。"
-msgstr "短信收费标准：短信%0/条，自动从企业账务中心扣费。70字计一条短信，超过70字以67字每条计费。每个标点、空格、英文字母都算一个字。短信实际发送可能有10-20分钟的延时。"
+msgid "%0邀请您加入"
+msgstr "%0邀请您加入"
 
 #: Disabled references:1
-msgid "签名内容长度为2-12个字；由中英文组成，不能纯英文；签名内容必须能辨别所属公司名称或品牌名称；不符合规范的签名平台会清空需重新输入，同时运营商也会拦截。"
-msgstr "签名内容长度为2-12个字；由中英文组成，不能纯英文；签名内容必须能辨别所属公司名称或品牌名称；不符合规范的签名平台会清空需重新输入，同时运营商也会拦截。"
+msgid "我同意接收短信"
+msgstr "我同意接收短信"
 
 #: Disabled references:1
-msgid "收不到短信？"
-msgstr "收不到短信？"
+msgid "《使用条款》%14000"
+msgstr "《使用条款》"
 
 #: Disabled references:1
-msgid "此签名适用于外部门户的短信场景：外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝)"
-msgstr "此签名适用于外部门户的短信场景：外部门户用户注册登录、邀请外部用户注册、外部用户审核(通过/拒绝)"
+msgid "《隐私条款》"
+msgstr "《隐私协议》"
 
 #: Disabled references:1
 msgid "短信设置"
 msgstr "短信设置"
 
 #: Disabled references:1
-msgid "邮件通知"
-msgstr "邮件通知"
+msgid "已有账号"
+msgstr "已有账号"
 
 #: Disabled references:1
-msgid "注册开启审核后，审核结果(通过、拒绝)会邮件告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对邮件内容自定义。"
-msgstr "注册开启审核后，审核结果(通过、拒绝)会邮件告知注册用户；外部门户类型设为私有后再添加用户后也会发送邀请通知，支持对邮件内容自定义。"
+msgid "登录已有账号"
+msgstr "登录已有账号"
 
 #: Disabled references:1
-msgid "针对相应的邮件会进行收费收费标准：邮件%0/封，将自动从企业账户扣除。"
-msgstr "针对相应的邮件会进行收费收费标准：邮件%0/封，将自动从企业账户扣除。"
+msgid "请填写姓名"
+msgstr "请填写姓名"
 
 #: Disabled references:1
-msgid "发件人名称"
-msgstr "发件人名称"
+msgid "请填写邮箱"
+msgstr "请填写邮箱"
 
 #: Disabled references:1
-msgid "请输入发件人名称"
-msgstr "请输入发件人名称"
+msgid "完善个人信息"
+msgstr "完善个人信息"
 
 #: Disabled references:1
-msgid "邮件设置"
-msgstr "邮件设置"
+msgid "请填写真实信息，方便大家与您联系"
+msgstr "请填写真实信息，方便大家与您联系"
 
 #: Disabled references:1
-msgid "信息收集"
-msgstr "信息收集"
+msgid "邮箱(选填)"
+msgstr "邮箱(选填)"
 
 #: Disabled references:1
-msgid "自定义登录界面"
-msgstr "自定义登录界面"
+msgid "YYYY 年 MMM"
+msgstr "YYYY 年 MMM"
 
 #: Disabled references:1
-msgid "消息设置"
-msgstr "消息设置"
+msgid "YYYY 年 MMMD日"
+msgstr "YYYY 年 MMMD日"
 
 #: Disabled references:1
-msgid "您是否保存当前页的更改"
-msgstr "您是否保存当前页的更改"
+msgid "YYYY 年 MMMD日 dddd"
+msgstr "YYYY 年 MMMD日 dddd"
 
 #: Disabled references:1
-msgid "当前有尚未保存的更改，您在离开当前页面前是否需要保存这些更改。"
-msgstr "当前有尚未保存的更改，您在离开当前页面前是否需要保存这些更改。"
+msgid "该日程为他人的私密日程，无法查看"
+msgstr "该日程为他人的私密日程，无法查看"
 
 #: Disabled references:1
-msgid "关闭后所有人将不能再访问门户"
-msgstr "关闭后所有人将不能再访问门户"
+msgid "新日程"
+msgstr "新日程"
 
 #: Disabled references:1
-msgid "关闭门户"
-msgstr "关闭门户"
+msgid "双击创建日程"
+msgstr "双击创建日程"
 
 #: Disabled references:1
-msgid "外部门户名称不能为空"
-msgstr "外部门户名称不能为空"
+msgid "全天"
+msgstr "全天"
 
 #: Disabled references:1
-msgid "短信签名不能为空"
-msgstr "短信签名不能为空"
+msgid "第%0周"
+msgstr "第%0周"
 
 #: Disabled references:1
-msgid "短信签名格式不正确"
-msgstr "短信签名格式不正确"
+msgid "任务不可更改"
+msgstr "任务不可更改"
 
 #: Disabled references:1
-msgid "发件人名称不能为空"
-msgstr "发件人名称不能为空"
+msgid "您确定更改日程信息吗?"
+msgstr "您确定更改日程信息吗?"
 
 #: Disabled references:1
-msgid "已开启外部用户注册开始/停止时间，但未选择开始/停止时间"
-msgstr "已开启外部用户注册开始/停止时间，但未选择开始/停止时间"
+msgid "您确定编辑重复日程吗?"
+msgstr "您确定编辑重复日程吗?"
 
 #: Disabled references:1
-msgid "用户列表信息名称不能为空"
-msgstr "用户列表信息名称不能为空"
+msgid " %0年%1月%2日"
+msgstr " %0年%1月%2日"
 
 #: Disabled references:1
 msgid "邮箱邀请"
@@ -23202,152 +23714,152 @@ msgid "数据量过大，请添加时间范围或添加筛选条件减少数据�
 msgstr "数据量过大，请添加时间范围或添加筛选条件减少数据量"
 
 #: Disabled references:1
-msgid "构成要素不存在或已删除"
-msgstr "构成要素不存在或已删除"
+msgid "您已确认参加该日程"
+msgstr "您已确认参加该日程"
 
 #: Disabled references:1
 msgid "Y轴"
 msgstr "Y轴"
 
 #: Disabled references:1
-msgid "数值(1)"
-msgstr "数值(1)"
+msgid "邀请联系人"
+msgstr "邀请联系人"
 
 #: Disabled references:1
-msgid "辅助Y轴"
-msgstr "辅助Y轴"
+msgid "快速发起一个临时聊天，有需要可以转为群组"
+msgstr "快速发起一个临时聊天，有需要可以转为群组"
 
 #: Disabled references:1
-msgid "数值(2)"
-msgstr "数值(2)"
+msgid "发起聊天"
+msgstr "发起聊天"
 
 #: Disabled references:1
-msgid "图例"
-msgstr "图例"
+msgid "创建群组进行协作，群组可以设置管理员管理群组成员，并可作为动态分享范围，关联部门"
+msgstr "创建群组进行协作，群组可以设置管理员管理群组成员，并可作为动态分享范围，关联部门"
 
 #: Disabled references:1
-msgid "数据标签"
-msgstr "数据标签"
+msgid "通讯录"
+msgstr "通讯录"
 
 #: Disabled references:1
-msgid "布局"
-msgstr "布局"
+msgid "已不在该群组中，请联系管理员"
+msgstr "已不在该群组中，请联系管理员"
 
 #: Disabled references:1
-msgid "每行显示个数"
-msgstr "每行显示个数"
+msgid "加载失败，点击重新加载。"
+msgstr "加载失败，点击重新加载。"
 
 #: Disabled references:1
-msgid "允许容器内滚动"
-msgstr "允许容器内滚动"
+msgid "取消置顶"
+msgstr "取消置顶"
 
 #: Disabled references:1
-msgid "当统计项较多时，勾选此配置可以在容器内滚动查看"
-msgstr "当统计项较多时，勾选此配置可以在容器内滚动查看"
+msgid "置顶"
+msgstr "置顶"
 
 #: Disabled references:1
-msgid "维度轴"
-msgstr "维度轴"
+msgid "允许提醒"
+msgstr "允许提醒"
 
 #: Disabled references:1
-msgid "X轴"
-msgstr "X轴"
+msgid "字体大小"
+msgstr "字体大小"
 
 #: Disabled references:1
-msgid "四象限"
-msgstr "四象限"
+msgid "群组设置"
+msgstr "群组设置"
 
 #: Disabled references:1
-msgid "右上象限"
-msgstr "右上象限"
+msgid "聊天设置"
+msgstr "聊天设置"
 
 #: Disabled references:1
-msgid "左上象限"
-msgstr "左上象限"
+msgid "关闭消息免打扰"
+msgstr "关闭消息免打扰"
 
 #: Disabled references:1
-msgid "左下象限"
-msgstr "左下象限"
+msgid "已设为官方群"
+msgstr "已设为官方群"
 
 #: Disabled references:1
-msgid "右下象限"
-msgstr "右下象限"
+msgid "搜索成员、文件或聊天记录"
+msgstr "搜索成员、文件或聊天记录"
 
 #: Disabled references:1
-msgid "测量轴"
-msgstr "测量轴"
+msgid "搜索文件或聊天记录"
+msgstr "搜索文件或聊天记录"
 
 #: Disabled references:1
-msgid "词大小范围"
-msgstr "词大小范围"
+msgid "查看文件"
+msgstr "查看文件"
 
 #: Disabled references:1
-msgid "数据过滤"
-msgstr "数据过滤"
+msgid "隐藏会话详情"
+msgstr "隐藏会话详情"
 
 #: Disabled references:1
-msgid "行数据"
-msgstr "行数据"
+msgid "显示会话详情"
+msgstr "显示会话详情"
 
 #: Disabled references:1
-msgid "列数据"
-msgstr "列数据"
+msgid "新窗口聊天"
+msgstr "新窗口聊天"
 
 #: Disabled references:1
-msgid "显示标题"
-msgstr "显示标题"
+msgid "消息无法发送，请刷新页面重新连接"
+msgstr "消息无法发送，请刷新页面重新连接"
 
 #: Disabled references:1
-msgid "添加图表标题"
-msgstr "添加图表标题"
+msgid "你发送了一个抖动"
+msgstr "你发送了一个抖动"
 
 #: Disabled references:1
-msgid "显示说明"
-msgstr "显示说明"
+msgid "说点什么…"
+msgstr "说点什么…"
 
 #: Disabled references:1
-msgid "图形颜色"
-msgstr "图形颜色"
+msgid "以下是新消息"
+msgstr "以下是新消息"
 
 #: Disabled references:1
-msgid "辅助Y轴总计"
-msgstr "辅助Y轴总计"
+msgid "查看动态"
+msgstr "查看动态"
 
 #: Disabled references:1
 msgid "从"
 msgstr "从"
 
 #: Disabled references:1
-msgid "添加筛选字段"
-msgstr "添加筛选字段"
+msgid "网络已断开"
+msgstr "网络已断开"
 
 #: Disabled references:1
-msgid "堆叠"
-msgstr "堆叠"
+msgid "刷新页面"
+msgstr "刷新页面"
 
 #: Disabled references:1
-msgid "累计"
-msgstr "累计"
+msgid "%0条未读消息"
+msgstr "%0条未读消息"
 
 #: Disabled references:1
-msgid "不能移动到当前页面"
-msgstr "不能移动到当前页面"
+msgid "网络已断开，点击刷新页面"
+msgstr "网络已断开，点击刷新页面"
 
 #: Disabled references:1
-msgid "移动到自定义页面"
-msgstr "移动到自定义页面"
+msgid "当前仅允许群主及管理员邀请新成员"
+msgstr "当前仅允许群主及管理员邀请新成员"
 
 #: Disabled references:1
-msgid "复制到自定义页面"
-msgstr "复制到自定义页面"
+msgid "邀请好友"
+msgstr "邀请好友"
 
 #: Disabled references:1
-msgid "页面"
-msgstr "页面"
+msgid "%0创建成功"
+msgstr "%0创建成功"
 
 #: Disabled references:1
-msgid "请选择页面"
-msgstr "请选择页面"
+msgid "快去%0加入当前%1吧"
+msgstr "快去%0加入当前%1吧"
 
 #: Disabled references:1
 msgid "有查看权限的记录"
@@ -23370,28 +23882,56 @@ msgid "字段"
 msgstr "字段"
 
 #: Disabled references:1
-msgid "正在导出数据 “%0”"
-msgstr "正在导出数据 “%0”"
+msgid "加载失败，点击重新加载"
+msgstr "加载失败，点击重新加载"
 
 #: Disabled references:1
-msgid "这可能需要一段时间，现在您可以进行其他操作，全部导出完成将后通知您"
-msgstr "这可能需要一段时间，现在您可以进行其他操作，全部导出完成将后通知您"
+msgid "有人@了你"
+msgstr "有人@了你"
 
 #: Disabled references:1
-msgid "导出文件准备完成"
-msgstr "导出文件准备完成"
+msgid "您的权限不足或此动态已被删除，无法查看"
+msgstr "您的权限不足或此动态已被删除，无法查看"
 
 #: Disabled references:1
-msgid "“%0” 导出文件已准备完成，文件下载链接将于24小时失效，请尽快下载"
-msgstr "“%0” 导出文件已准备完成，文件下载链接将于24小时失效，请尽快下载"
+msgid "所有动态"
+msgstr "所有动态"
 
 #: Disabled references:1
-msgid "导出数据 “%0” 失败"
-msgstr "导出数据 “%0” 失败"
+msgid "群组中暂无动态"
+msgstr "群组中暂无动态"
 
 #: Disabled references:1
-msgid "立即下载"
-msgstr "立即下载"
+msgid "文档"
+msgstr "文档"
+
+#: Disabled references:1
+msgid "视频"
+msgstr "视频"
+
+#: Disabled references:1
+msgid "我上传的文件"
+msgstr "我上传的文件"
+
+#: Disabled references:1
+msgid "所有文件"
+msgstr "所有文件"
+
+#: Disabled references:1
+msgid "群组中暂无文件"
+msgstr "群组中暂无文件"
+
+#: Disabled references:1
+msgid "该聊天中暂无文件"
+msgstr "该聊天中暂无文件"
+
+#: Disabled references:1
+msgid "仅显示其他协作关系"
+msgstr "仅显示其他协作关系"
+
+#: Disabled references:1
+msgid "所有成员"
+msgstr "所有成员"
 
 #: Disabled references:1
 msgid "自定义排序"
@@ -25582,132 +26122,132 @@ msgid "请选择商户"
 msgstr "请选择商户"
 
 #: Disabled references:1
-msgid "请选择支付内容"
-msgstr "请选择支付内容"
+msgid "通过%0明道云协作平台%1分享"
+msgstr "通过%0明道云协作平台%1分享"
 
 #: Disabled references:1
-msgid "请选择支付金额"
-msgstr "请选择支付金额"
+msgid "新建成功"
+msgstr "新建成功"
 
 #: Disabled references:1
-msgid "支付按钮设置（工作表记录）"
-msgstr "支付按钮设置（工作表记录）"
+msgid "打开APP"
+msgstr "打开App"
 
 #: Disabled references:1
-msgid "应用内成员可用"
-msgstr "应用内成员可用"
+msgid "链接有效期至%0"
+msgstr "链接有效期至%0"
 
 #: Disabled references:1
-msgid "外部门户用户可用"
-msgstr "外部门户用户可用"
+msgid "创建消息"
+msgstr "创建消息"
 
 #: Disabled references:1
-msgid "请先开启外部门户功能"
-msgstr "请先开启外部门户功能"
+msgid "检索知识库"
+msgstr "检索知识库"
 
 #: Disabled references:1
-msgid "按钮显示条件"
-msgstr "按钮显示条件"
+msgid "AI对话"
+msgstr "AI对话"
 
 #: Disabled references:1
-msgid "当支付内容、支付金额字段不为空时"
-msgstr "当支付内容、支付金额字段不为空时"
+msgid "助手创建成功！"
+msgstr "助手创建成功！"
 
 #: Disabled references:1
-msgid "，且满足以下条件："
-msgstr "，且满足以下条件："
+msgid "正在更新助手配置"
+msgstr "正在更新助手配置"
 
 #: Disabled references:1
-msgid "清除条件"
-msgstr "清除条件"
+msgid "停止"
+msgstr "停止"
 
 #: Disabled references:1
-msgid "10分钟"
-msgstr "10分钟"
+msgid "重新开始"
+msgstr "重新开始"
 
 #: Disabled references:1
-msgid "20分钟"
-msgstr "20分钟"
+msgid "请先保存，再测试"
+msgstr "请先保存，再测试"
 
 #: Disabled references:1
-msgid "25分钟"
-msgstr "25分钟"
+msgid "请输入…"
+msgstr "请输入…"
 
 #: Disabled references:1
-msgid "30分钟"
-msgstr "30分钟"
+msgid "描述不能为空"
+msgstr "描述不能为空"
 
 #: Disabled references:1
-msgid "注：修改支付相关配置，可能影响已经支付订单，请谨慎操作"
-msgstr "注：修改支付相关配置，可能影响已经支付订单，请谨慎操作"
+msgid "指示不能为空"
+msgstr "指示不能为空"
 
 #: Disabled references:1
-msgid "在工作表记录中显示支付按钮，可以在用户使用外部门户时支付，或组织内完成支付"
-msgstr "在工作表记录中显示支付按钮，可以在用户使用外部门户时支付，或组织内完成支付"
+msgid "对话设置"
+msgstr "对话设置"
 
 #: Disabled references:1
-msgid "在公开表单提交后支付，常用于活动报名等场景"
-msgstr "在公开表单提交后支付，常用于活动报名等场景"
+msgid "集成设置"
+msgstr "集成设置"
 
 #: Disabled references:1
-msgid "请先开启公开表单功能"
-msgstr "请先开启公开表单功能"
+msgid "生成中..."
+msgstr "生成中..."
 
 #: Disabled references:1
-msgid "支付设置"
-msgstr "支付设置"
+msgid "自动生成"
+msgstr "自动生成"
 
 #: Disabled references:1
-msgid "选择商户"
-msgstr "选择商户"
+msgid "示例"
+msgstr "示例"
 
 #: Disabled references:1
-msgid "订单/支付页面显示的商品/产品简要描述"
-msgstr "订单/支付页面显示的商品/产品简要描述"
+msgid "我们建议使用结构化提示来创建助手的角色和预提示。结构化提示更易于阅读，可以提高迭代效率，并使Bot的性能更加稳定。以下是一位企业知识库助手的例子："
+msgstr "我们建议使用结构化提示来创建助手的角色和预提示。结构化提示更易于阅读，可以提高迭代效率，并使Bot的性能更加稳定。以下是一位企业知识库助手的例子："
 
 #: Disabled references:1
-msgid "选择文本字段"
-msgstr "选择文本字段"
+msgid "指示"
+msgstr "指示"
 
 #: Disabled references:1
-msgid "支持字段：金额、数值、公式、汇总；限制在2位小数（超过只取前两位数值），可支付的金额范围：0.01~10000"
-msgstr "支持字段：金额、数值、公式、汇总；限制在2位小数（超过只取前两位数值），可支付的金额范围：0.01~10000"
+msgid "查看示例"
+msgstr "查看示例"
 
 #: Disabled references:1
-msgid "选择金额、数值、公式、汇总字段"
-msgstr "选择金额、数值、公式、汇总字段"
+msgid "可以设定对话的背景、角色及限制条件，以便根据这些设定来定制和优化助手的回答"
+msgstr "可以设定对话的背景、角色及限制条件，以便根据这些设定来定制和优化助手的回答"
 
 #: Disabled references:1
-msgid "设置交易有效期"
-msgstr "设置交易有效期"
+msgid "知识库已删除"
+msgstr "知识库已删除"
 
 #: Disabled references:1
-msgid "开启后用户需要在系统设置的时间内完成交易，逾期平台将关闭交易，同时该记录将不再支持用户支付"
-msgstr "开启后用户需要在系统设置的时间内完成交易，逾期平台将关闭交易，同时该记录将不再支持用户支付"
+msgid "开场白"
+msgstr "开场白"
 
 #: Disabled references:1
-msgid "选择或填写时间"
-msgstr "选择或填写时间"
+msgid "示例提问"
+msgstr "示例提问"
 
 #: Disabled references:1
-msgid "允许退款"
-msgstr "允许退款"
+msgid "方式一：页面链接"
+msgstr "方式一：页面链接"
 
 #: Disabled references:1
-msgid "开通后完成交易7天内的订单支持申请退款，目前仅付款人可申请退款"
-msgstr "开通后完成交易7天内的订单支持申请退款，目前仅付款人可申请退款"
+msgid "方式二：iframe链接"
+msgstr "方式二：iframe链接"
 
 #: Disabled references:1
-msgid "在记录详情侧边栏显示支付订单信息"
-msgstr "在记录详情侧边栏显示支付订单信息"
+msgid "选择知识库"
+msgstr "选择知识库"
 
 #: Disabled references:1
-msgid "字段映射"
-msgstr "字段映射"
+msgid "+ 新建知识库"
+msgstr "+ 新建知识库"
 
 #: Disabled references:1
-msgid "将订单明细映射到当前记录"
-msgstr "将订单明细映射到当前记录"
+msgid "暂无数据，请先添加知识库"
+msgstr "暂无数据，请先添加知识库"
 
 #: Disabled references:1
 msgid "功能增强"
@@ -28766,60 +29306,60 @@ msgid "成员类型"
 msgstr "成员类型"
 
 #: Disabled references:1
-msgid "请选择以下高亮节点进行复制"
-msgstr "请选择以下高亮节点进行复制"
+msgid "从版本%0开始编辑"
+msgstr "从版本%0开始编辑"
 
 #: Disabled references:1
-msgid "%0个节点复制成功"
-msgstr "%0个节点复制成功"
+msgid "删除当前编辑中的草稿和所有更新，此操作无法撤回"
+msgstr "删除当前编辑中的草稿和所有更新，此操作无法撤回"
 
 #: Disabled references:1
-msgid "请先配置发起审批的数据对象"
-msgstr "请先配置发起审批的数据对象"
+msgid "将以当前的版本创建草稿。您当前正在编辑中的草稿和所有更新将会被删除，此操作无法撤回"
+msgstr "将以当前的版本创建草稿。您当前正在编辑中的草稿和所有更新将会被删除，此操作无法撤回"
 
 #: Disabled references:1
-msgid "要保存对节点的修改吗？"
-msgstr "要保存对节点的修改吗？"
+msgid "确定删除"
+msgstr "确定删除"
 
 #: Disabled references:1
-msgid "当前节点中有尚未保存的修改，你在继续操作前是否需要保存这些修改？"
-msgstr "当前节点中有尚未保存的修改，你在继续操作前是否需要保存这些修改？"
+msgid "设置版本名称：%0"
+msgstr "设置版本名称：%0"
 
 #: Disabled references:1
-msgid "否，放弃修改"
-msgstr "否，放弃修改"
+msgid "版本名称"
+msgstr "版本名称"
 
 #: Disabled references:1
-msgid "是，前往保存"
-msgstr "是，前往保存"
+msgid "组织使用中"
+msgstr "组织使用中"
 
 #: Disabled references:1
-msgid "设置名称和图标"
-msgstr "设置名称和图标"
+msgid "%0 发布于 %1"
+msgstr "%0 发布于 %1"
 
 #: Disabled references:1
-msgid "画布概览"
-msgstr "画布概览"
+msgid "重命名版本"
+msgstr "重命名版本"
 
 #: Disabled references:1
-msgid "节点数量过多此功能不可用"
-msgstr "节点数量过多此功能不可用"
+msgid "从此版本编辑"
+msgstr "从此版本编辑"
 
 #: Disabled references:1
-msgid "适应高度"
-msgstr "适应高度"
+msgid "查看历史版本"
+msgstr "查看历史版本"
 
 #: Disabled references:1
-msgid "触发流程的数据对象已删除。必须重新设置触发方式后，才能配置其他节点"
-msgstr "触发流程的数据对象已删除。必须重新设置触发方式后，才能配置其他节点"
+msgid "编辑中…"
+msgstr "编辑中…"
 
 #: Disabled references:1
-msgid "已选择%0个复制节点"
-msgstr "已选择%0个复制节点"
+msgid "更新于 %0"
+msgstr "更新于 %0"
 
 #: Disabled references:1
-msgid "选择要复制的节点，依次复制到目标位置"
-msgstr "选择要复制的节点，依次复制到目标位置"
+msgid "是否放弃保存工作流？"
+msgstr "是否放弃保存工作流？"
 
 #: Disabled references:1
 msgid "删除更改"
@@ -31498,70 +32038,6 @@ msgid "删除后无法恢复(物理删除)，请谨慎操作！"
 msgstr "删除后无法恢复(物理删除)，请谨慎操作！"
 
 #: Disabled references:1
-msgid "视图设置"
-msgstr "视图设置"
-
-#: Disabled references:1
-msgid "显示列"
-msgstr "显示列"
-
-#: Disabled references:1
-msgid "排序%05028"
-msgstr "排序"
-
-#: Disabled references:1
-msgid "快速筛选"
-msgstr "快速筛选"
-
-#: Disabled references:1
-msgid "筛选列表"
-msgstr "筛选列表"
-
-#: Disabled references:1
-msgid "插件设置"
-msgstr "设置"
-
-#: Disabled references:1
-msgid "开发调试"
-msgstr "开发调试"
-
-#: Disabled references:1
-msgid "参数映射"
-msgstr "参数映射"
-
-#: Disabled references:1
-msgid "提交%05036"
-msgstr "提交"
-
-#: Disabled references:1
-msgid "卡片设置"
-msgstr "卡片设置"
-
-#: Disabled references:1
-msgid "显示序号"
-msgstr "显示序号"
-
-#: Disabled references:1
-msgid "显示记录快捷方式"
-msgstr "显示记录快捷方式"
-
-#: Disabled references:1
-msgid "在记录前显示“更多”图标，点击后可以在下拉菜单中进行记录操作。"
-msgstr "在记录前显示“更多”图标，点击后可以在下拉菜单中进行记录操作。"
-
-#: Disabled references:1
-msgid "显示汇总行"
-msgstr "显示汇总行"
-
-#: Disabled references:1
-msgid "显示垂直表格线"
-msgstr "显示垂直表格线"
-
-#: Disabled references:1
-msgid "显示交替行颜色"
-msgstr "显示交替行颜色"
-
-#: Disabled references:1
 msgid "标题行文字换行"
 msgstr "标题行文字换行"
 
@@ -31604,6 +32080,178 @@ msgstr "当看板滚动时，始终固定第1个看板在左侧，方便向其�
 #: Disabled references:1
 msgid "插件发布后将作为使用者的视图配置"
 msgstr "插件发布后将作为使用者的视图配置"
+
+#: Disabled references:1
+msgid "下级包含%25024"
+msgstr "下级包含"
+
+#: Disabled references:1
+msgid "包含%25003"
+msgstr "包含"
+
+#: Disabled references:1
+msgid "是其中一个%25017"
+msgstr "是其中一个"
+
+#: Disabled references:1
+msgid "包含其中一个%25021"
+msgstr "包含其中一个"
+
+#: Disabled references:1
+msgid "等于%25001"
+msgstr "等于"
+
+#: Disabled references:1
+msgid "开头是%25005"
+msgstr "开头是"
+
+#: Disabled references:1
+msgid "结尾是%25007"
+msgstr "结尾是"
+
+#: Disabled references:1
+msgid "开头不是%25006"
+msgstr "开头不是"
+
+#: Disabled references:1
+msgid "结尾不是%25008"
+msgstr "结尾不是"
+
+#: Disabled references:1
+msgid "下级不包含%25025"
+msgstr "下级不包含"
+
+#: Disabled references:1
+msgid "不包含%25004"
+msgstr "不包含"
+
+#: Disabled references:1
+msgid "不是任何一个%25018"
+msgstr "不是任何一个"
+
+#: Disabled references:1
+msgid "不包含任何一个%25022"
+msgstr "不包含任何一个"
+
+#: Disabled references:1
+msgid "不等于%25002"
+msgstr "不等于"
+
+#: Disabled references:1
+msgid "为空%25009"
+msgstr "为空"
+
+#: Disabled references:1
+msgid "不为空%25010"
+msgstr "不为空"
+
+#: Disabled references:1
+msgid "属于%25019"
+msgstr "属于"
+
+#: Disabled references:1
+msgid "在范围内%25011"
+msgstr "在范围内"
+
+#: Disabled references:1
+msgid "不属于%25020"
+msgstr "不属于"
+
+#: Disabled references:1
+msgid "不在范围内%25012"
+msgstr "不在范围内"
+
+#: Disabled references:1
+msgid "晚于%25014"
+msgstr "晚于"
+
+#: Disabled references:1
+msgid "早于%25013"
+msgstr "早于"
+
+#: Disabled references:1
+msgid "早于等于%25015"
+msgstr "早于等于"
+
+#: Disabled references:1
+msgid "晚于等于%25016"
+msgstr "晚于等于"
+
+#: Disabled references:1
+msgid "本人"
+msgstr "本人"
+
+#: Disabled references:1
+msgid "本人和下属"
+msgstr "本人和下属"
+
+#: Disabled references:1
+msgid "是常规用户"
+msgstr "是常规用户"
+
+#: Disabled references:1
+msgid "是外部门户用户"
+msgstr "是外部门户用户"
+
+#: Disabled references:1
+msgid "同时包含%25023"
+msgstr "同时包含"
+
+#: Disabled references:1
+msgid "同时包含"
+msgstr "同时包含"
+
+#: Disabled references:1
+msgid "将来14天"
+msgstr "将来14天"
+
+#: Disabled references:1
+msgid "保存成功！"
+msgstr "保存成功！"
+
+#: Disabled references:1
+msgid "新的筛选"
+msgstr "新的筛选"
+
+#: Disabled references:1
+msgid "%0 项"
+msgstr "%0 项"
+
+#: Disabled references:1
+msgid "获取筛选列表失败"
+msgstr "获取筛选列表失败"
+
+#: Disabled references:1
+msgid "已成功重命名！"
+msgstr "已成功重命名！"
+
+#: Disabled references:1
+msgid "另存为筛选器"
+msgstr "另存为筛选器"
+
+#: Disabled references:1
+msgid "添加筛选器"
+msgstr "添加筛选器"
+
+#: Disabled references:1
+msgid "我的筛选"
+msgstr "我的筛选"
+
+#: Disabled references:1
+msgid "仅系统角色可见（包含管理员、开发者）"
+msgstr "仅系统角色可见（包含管理员、开发者）"
+
+#: Disabled references:1
+msgid "%060天后将被自动删除"
+msgstr "%060天后将被自动删除"
+
+#: Disabled references:1
+msgid "是否清空回收站"
+msgstr "是否清空回收站"
+
+#: Disabled references:1
+msgid "清空后，记录无法恢复，请谨慎操作！"
+msgstr "清空后，记录无法恢复，请谨慎操作！"
 
 #: Disabled references:1
 msgid "下级包含%25024"
@@ -32618,6 +33266,34 @@ msgid "图形验证失败"
 msgstr "图形验证失败"
 
 #: Disabled references:1
+msgid "数据不存在"
+msgstr "数据不存在"
+
+#: Disabled references:1
+msgid "分享已关闭"
+msgstr "分享已关闭"
+
+#: Disabled references:1
+msgid "图形验证验证错误"
+msgstr "图形验证验证错误"
+
+#: Disabled references:1
+msgid "需要密码"
+msgstr "需要密码"
+
+#: Disabled references:1
+msgid "请输入密码访问"
+msgstr "请输入密码访问"
+
+#: Disabled references:1
+msgid "(密码区分大小写)"
+msgstr "(密码区分大小写)"
+
+#: Disabled references:1
+msgid "图形验证失败"
+msgstr "图形验证失败"
+
+#: Disabled references:1
 msgid "未找到相关的人员或群聊"
 msgstr "未找到相关的人员或群聊"
 
@@ -33034,6 +33710,14 @@ msgid "双击创建记录"
 msgstr "双击创建记录"
 
 #: Disabled references:1
+msgid "暂未添加记录"
+msgstr "暂未添加记录"
+
+#: Disabled references:1
+msgid "删除失败请稍后再试"
+msgstr "删除失败请稍后再试"
+
+#: Disabled references:1
 msgid "插件未发布"
 msgstr "插件未发布"
 
@@ -33068,14 +33752,6 @@ msgstr "继续开发"
 #: Disabled references:1
 msgid "加载脚本%0失败"
 msgstr "加载脚本%0失败"
-
-#: Disabled references:1
-msgid "暂未添加记录"
-msgstr "暂未添加记录"
-
-#: Disabled references:1
-msgid "删除失败请稍后再试"
-msgstr "删除失败请稍后再试"
 
 #: Disabled references:1
 msgid "周%05034"
@@ -33260,6 +33936,470 @@ msgstr "下一级关联"
 #: Disabled references:1
 msgid "第一级"
 msgstr "第一级"
+
+#: Disabled references:1
+msgid "附件编辑"
+msgstr "附件编辑"
+
+#: Disabled references:1
+msgid "任务已被删除"
+msgstr "任务已被删除"
+
+#: Disabled references:1
+msgid "项目已被删除"
+msgstr "项目已被删除"
+
+#: Disabled references:1
+msgid "日程已被删除"
+msgstr "日程已被删除"
+
+#: Disabled references:1
+msgid "文件已被删除"
+msgstr "文件已被删除"
+
+#: Disabled references:1
+msgid "申请单已被删除"
+msgstr "申请单已被删除"
+
+#: Disabled references:1
+msgid "请选择数据库"
+msgstr "请选择数据库"
+
+#: Disabled references:1
+msgid "存储到哪个数据库？"
+msgstr "存储到哪个数据库？"
+
+#: Disabled references:1
+msgid "选择应用的存储数据库，应用内工作表数据将会保存在所选专属数据库内"
+msgstr "选择应用的存储数据库，应用内工作表数据将会保存在所选专属数据库内"
+
+#: Disabled references:1
+msgid "注意：应用创建后，所属数据库不可再修改"
+msgstr "注意：应用创建后，所属数据库不可再修改"
+
+#: Disabled references:1
+msgid "请选择应用的存储数据库"
+msgstr "请选择应用的存储数据库"
+
+#: Disabled references:1
+msgid "置顶应用"
+msgstr "置顶应用"
+
+#: Disabled references:1
+msgid "暂无第三方应用"
+msgstr "暂无第三方应用"
+
+#: Disabled references:1
+msgid "第三方应用"
+msgstr "第三方应用"
+
+#: Disabled references:1
+msgid "明道云应用市场"
+msgstr "明道云应用市场"
+
+#: Disabled references:1
+msgid "所有类型"
+msgstr "所有类型"
+
+#: Disabled references:1
+msgid "导出的应用文件有效期为30天，请尽快下载"
+msgstr "导出的应用文件有效期为30天，请尽快下载"
+
+#: Disabled references:1
+msgid "按日期筛选"
+msgstr "按日期筛选"
+
+#: Disabled references:1
+msgid "搜索应用名称/操作者"
+msgstr "搜索应用名称/操作者"
+
+#: Disabled references:1
+msgid "暂无日志信息"
+msgstr "暂无日志信息"
+
+#: Disabled references:1
+msgid "工作表 %0"
+msgstr "工作表 %0"
+
+#: Disabled references:1
+msgid "自定义页面 %0"
+msgstr "自定义页面 %0"
+
+#: Disabled references:1
+msgid "所属应用"
+msgstr "所属应用"
+
+#: Disabled references:1
+msgid "查看密码"
+msgstr "查看密码"
+
+#: Disabled references:1
+msgid "复制密码"
+msgstr "复制密码"
+
+#: Disabled references:1
+msgid "不导出"
+msgstr "不导出"
+
+#: Disabled references:1
+msgid "每张表最多导出10000条记录"
+msgstr "每张表最多导出10000条记录"
+
+#: Disabled references:1
+msgid "自定义导出的记录数量"
+msgstr "自定义导出的记录数量"
+
+#: Disabled references:1
+msgid "该应用下没有工作表"
+msgstr "该应用下没有工作表"
+
+#: Disabled references:1
+msgid "已选 %0 行（最大5万行）"
+msgstr "已选 %0 行（最大5万行）"
+
+#: Disabled references:1
+msgid "导入密码"
+msgstr "导入密码"
+
+#: Disabled references:1
+msgid "文件无法解析，请重新上传"
+msgstr "文件无法解析，请重新上传"
+
+#: Disabled references:1
+msgid "该文件不是当前组织的应用，请重新上传"
+msgstr "该文件不是当前组织的应用，请重新上传"
+
+#: Disabled references:1
+msgid "该文件没有任何密码，无需解密"
+msgstr "该文件没有任何密码，无需解密"
+
+#: Disabled references:1
+msgid "上传应用 .mdy文件，获取导入密码、应用锁密码"
+msgstr "上传应用 .mdy文件，获取导入密码、应用锁密码"
+
+#: Disabled references:1
+msgid "请选择.mdy格式的应用文件"
+msgstr "请选择.mdy格式的应用文件"
+
+#: Disabled references:1
+msgid "文件上传失败"
+msgstr "文件上传失败"
+
+#: Disabled references:1
+msgid "解密成功"
+msgstr "解密成功"
+
+#: Disabled references:1
+msgid "导入时需要验证密码"
+msgstr "导入时需要验证密码"
+
+#: Disabled references:1
+msgid "导入后不允许修改应用配置"
+msgstr "导入后不允许修改应用配置"
+
+#: Disabled references:1
+msgid "锁定后，导入的应用下所有用户不能查看、修改应用的配置，用户验证密码后可解锁其在应用下的操作权限。"
+msgstr "锁定后，导入的应用下所有用户不能查看、修改应用的配置，用户验证密码后可解锁其在应用下的操作权限。"
+
+#: Disabled references:1
+msgid "请输入8-20位字符，必须含字母+数字"
+msgstr "请输入8-20位字符，必须含字母+数字"
+
+#: Disabled references:1
+msgid "设置解锁密码"
+msgstr "设置解锁密码"
+
+#: Disabled references:1
+msgid "导出示例数据"
+msgstr "导出示例数据"
+
+#: Disabled references:1
+msgid "将应用配置导出为文件，之后可以将此文件导入其他组织以实现应用迁移，可选择同时导出部分示例数据。"
+msgstr "将应用配置导出为文件，之后可以将此文件导入其他组织以实现应用迁移，可选择同时导出部分示例数据。"
+
+#: Disabled references:1
+msgid "此应用工作表关联了未选择导出的应用工作表，直接导出将失去这部分关联"
+msgstr "此应用工作表关联了未选择导出的应用工作表，直接导出将失去这部分关联"
+
+#: Disabled references:1
+msgid "请保存密码，或导出后在导出记录中查看"
+msgstr "请保存密码，或导出后在导出记录中查看"
+
+#: Disabled references:1
+msgid "立即导出"
+msgstr "立即导出"
+
+#: Disabled references:1
+msgid "密码错误，验证失败"
+msgstr "密码错误，验证失败"
+
+#: Disabled references:1
+msgid "失败次数过多，请于15分钟后尝试"
+msgstr "失败次数过多，请于15分钟后尝试"
+
+#: Disabled references:1
+msgid "导入失败，导入将导致目标网络的工作表总数超过上限"
+msgstr "导入失败，导入将导致目标网络的工作表总数超过上限"
+
+#: Disabled references:1
+msgid "导入失败，导入将导致目标网络的应用数量超过上限"
+msgstr "导入失败，导入将导致目标网络的应用数量超过上限"
+
+#: Disabled references:1
+msgid "上传失败，文件类型错误"
+msgstr "上传失败，文件类型错误"
+
+#: Disabled references:1
+msgid "解析失败，不是有效的应用文件"
+msgstr "解析失败，不是有效的应用文件"
+
+#: Disabled references:1
+msgid "大小：%0"
+msgstr "大小：%0"
+
+#: Disabled references:1
+msgid "文件已加密，需验证通过才能导入"
+msgstr "文件已加密，需验证通过才能导入"
+
+#: Disabled references:1
+msgid "文件解析成功，即将导入以下%0个应用"
+msgstr "文件解析成功，即将导入以下%0个应用"
+
+#: Disabled references:1
+msgid "（从高版本系统导出）"
+msgstr "（从高版本系统导出）"
+
+#: Disabled references:1
+msgid "将应用文件导入组织生成一个新的应用，以实现应用快速迁移或创建。在导入私有部署环境前，请确认私有部署的版本，高版本向低版本导入，可能会导入失败。"
+msgstr "将应用文件导入组织生成一个新的应用，以实现应用快速迁移或创建。在导入私有部署环境前，请确认私有部署的版本，高版本向低版本导入，可能会导入失败。"
+
+#: Disabled references:1
+msgid "插件未发布"
+msgstr "插件未发布"
+
+#: Disabled references:1
+msgid "立即导入"
+msgstr "立即导入"
+
+#: Disabled references:1
+msgid "未找到 \"%0\" 相关应用，请更换关键词试试"
+msgstr "未找到 \"%0\" 相关应用，请更换关键词试试"
+
+#: Disabled references:1
+msgid "请从左侧列表选择应用,"
+msgstr "请从左侧列表选择应用,"
+
+#: Disabled references:1
+msgid "选择的应用总数不能超过"
+msgstr "选择的应用总数不能超过"
+
+#: Disabled references:1
+msgid "个"
+msgstr "个"
+
+#: Disabled references:1
+msgid "已选"
+msgstr "已选"
+
+#: Disabled references:1
+msgid "导出的应用总数上限%0个"
+msgstr "导出的应用总数上限%0个"
+
+#: Disabled references:1
+msgid "导出的应用共%0个，已超过上限%1个，请重新选择"
+msgstr "导出的应用共%0个，已超过上限%1个，请重新选择"
+
+#: Disabled references:1
+msgid "暂未添加记录"
+msgstr "暂未添加记录"
+
+#: Disabled references:1
+msgid "删除失败请稍后再试"
+msgstr "删除失败请稍后再试"
+
+#: Disabled references:1
+msgid "周%05034"
+msgstr "周"
+
+#: Disabled references:1
+msgid "文件处理"
+msgstr "文件处理"
+
+#: Disabled references:1
+msgid "这可能需要一段时间，现在您可以进行其他操作，导出完成后通知您"
+msgstr "这可能需要一段时间，现在您可以进行其他操作，导出完成后通知您"
+
+#: Disabled references:1
+msgid "1级"
+msgstr "1级"
+
+#: Disabled references:1
+msgid "导出成功"
+msgstr "导出成功"
+
+#: Disabled references:1
+msgid "成功导出%0个应用：%1。请尽快下载，下载链接于30天后失效"
+msgstr "成功导出%0个应用：%1。请尽快下载，下载链接于30天后失效"
+
+#: Disabled references:1
+msgid "%0导出时异常，请重新导出"
+msgstr "%0导出时异常，请重新导出"
+
+#: Disabled references:1
+msgid "这可能需要一段时间，现在您可以进行其他操作，导入完成后通知您"
+msgstr "这可能需要一段时间，现在您可以进行其他操作，导入完成后通知您"
+
+#: Disabled references:1
+msgid "正在导入%0... ( %1/%2 )"
+msgstr "正在导入%0... ( %1/%2 )"
+
+#: Disabled references:1
+msgid "导入成功"
+msgstr "导入成功"
+
+#: Disabled references:1
+msgid "成功导入%0个应用：%1。"
+msgstr "成功导入%0个应用：%1。"
+
+#: Disabled references:1
+msgid "%0导入异常，请重新导入"
+msgstr "%0导入异常，请重新导入"
+
+#: Disabled references:1
+msgid "打开应用"
+msgstr "打开应用"
+
+#: Disabled references:1
+msgid "搜索变量名称"
+msgstr "搜索变量名称"
+
+#: Disabled references:1
+msgid "组织变量"
+msgstr "组织变量"
+
+#: Disabled references:1
+msgid "值为空"
+msgstr "值为空"
+
+#: Disabled references:1
+msgid "确定删除这个变量？"
+msgstr "确定删除这个变量？"
+
+#: Disabled references:1
+msgid "删除变量后，无法恢复"
+msgstr "删除变量后，无法恢复"
+
+#: Disabled references:1
+msgid "添加变量"
+msgstr "添加变量"
+
+#: Disabled references:1
+msgid "选择全局变量"
+msgstr "选择全局变量"
+
+#: Disabled references:1
+msgid "变量名称不能为空"
+msgstr "变量名称不能为空"
+
+#: Disabled references:1
+msgid "变量名称不符合规范, 请以字母开头，数字和下划线组合命名"
+msgstr "变量名称不符合规范, 请以字母开头，数字和下划线组合命名"
+
+#: Disabled references:1
+msgid "变量值不能为空"
+msgstr "变量值不能为空"
+
+#: Disabled references:1
+msgid "名称已被占用"
+msgstr "名称已被占用"
+
+#: Disabled references:1
+msgid "没有授权应用"
+msgstr "没有授权应用"
+
+#: Disabled references:1
+msgid "编辑应用变量"
+msgstr "编辑应用变量"
+
+#: Disabled references:1
+msgid "编辑组织变量"
+msgstr "编辑组织变量"
+
+#: Disabled references:1
+msgid "添加应用变量"
+msgstr "添加应用变量"
+
+#: Disabled references:1
+msgid "添加组织变量"
+msgstr "添加组织变量"
+
+#: Disabled references:1
+msgid "变量名称"
+msgstr "变量名称"
+
+#: Disabled references:1
+msgid "仅允许使用字母（不区分大小写）、数字和下划线组合，且必须以字母开头。支持以“变量分组.变量名称”规则创建，会将变量名称前的内容自动归组。变量名称创建后不允许修改。"
+msgstr "仅允许使用字母（不区分大小写）、数字和下划线组合，且必须以字母开头。支持以“变量分组.变量名称”规则创建，会将变量名称前的内容自动归组。变量名称创建后不允许修改。"
+
+#: Disabled references:1
+msgid "变量类型"
+msgstr "变量类型"
+
+#: Disabled references:1
+msgid "变量值"
+msgstr "变量值"
+
+#: Disabled references:1
+msgid "掩码显示"
+msgstr "掩码显示"
+
+#: Disabled references:1
+msgid "在使用和查看变量时显示为掩码，应用管理员可以点击后解码查看"
+msgstr "在使用和查看变量时显示为掩码，应用管理员可以点击后解码查看"
+
+#: Disabled references:1
+msgid "是否允许在工作流中更新"
+msgstr "是否允许在工作流中更新"
+
+#: Disabled references:1
+msgid "授权范围"
+msgstr "授权范围"
+
+#: Disabled references:1
+msgid "添加工作流"
+msgstr "添加工作流"
+
+#: Disabled references:1
+msgid "工作流中引用的子流程、封装业务流程，会在工作流所在的专属算力资源上运行。"
+msgstr "工作流中引用的子流程、封装业务流程，会在工作流所在的专属算力资源上运行。"
+
+#: Disabled references:1
+msgid "添加(%0)"
+msgstr "添加(%0)"
+
+#: Disabled references:1
+msgid "未选择工作流"
+msgstr "未选择工作流"
+
+#: Disabled references:1
+msgid "工作流名称"
+msgstr "工作流名称"
+
+#: Disabled references:1
+msgid "工流程名称"
+msgstr "工流程名称"
+
+#: Disabled references:1
+msgid "检测到工作流已存在其他专属算力中，是否移动？"
+msgstr "检测到工作流已存在其他专属算力中，是否移动？"
+
+#: Disabled references:1
+msgid "不移动"
+msgstr "不移动"
+
+#: Disabled references:1
+msgid "所属算力服务"
+msgstr "所属算力服务"
 
 #: Disabled references:1
 msgid "修改头像"
@@ -33602,184 +34742,184 @@ msgid "工作流中引用的子流程、封装业务流程，会在工作流所�
 msgstr "工作流中引用的子流程、封装业务流程，会在工作流所在的专属算力资源上运行。"
 
 #: Disabled references:1
-msgid "添加(%0)"
-msgstr "添加(%0)"
+msgid "试用已过期，请付费后继续使用"
+msgstr "试用已过期，请付费后继续使用"
 
 #: Disabled references:1
-msgid "未选择工作流"
-msgstr "未选择工作流"
+msgid "如有疑问，请联系您的专属顾问"
+msgstr "如有疑问，请联系您的专属顾问"
 
 #: Disabled references:1
-msgid "工作流名称"
-msgstr "工作流名称"
+msgid "前往付费"
+msgstr "前往付费"
 
 #: Disabled references:1
-msgid "工流程名称"
-msgstr "工流程名称"
+msgid "预计两个工作日反馈信息，如有疑问，请联系您的专属顾问"
+msgstr "预计两个工作日反馈信息，如有疑问，请联系您的专属顾问"
 
 #: Disabled references:1
-msgid "检测到工作流已存在其他专属算力中，是否移动？"
-msgstr "检测到工作流已存在其他专属算力中，是否移动？"
+msgid "企业微信集成"
+msgstr "企业微信集成"
 
 #: Disabled references:1
-msgid "不移动"
-msgstr "不移动"
+msgid "扫码登录与同步"
+msgstr "扫码登录与同步"
 
 #: Disabled references:1
-msgid "所属算力服务"
-msgstr "所属算力服务"
+msgid "聊天工具栏配置"
+msgstr "聊天工具栏配置"
 
 #: Disabled references:1
-msgid "连接成功"
-msgstr "连接成功"
+msgid "请输入信息字段"
+msgstr "请输入信息字段"
 
 #: Disabled references:1
-msgid "连接失败，请检查"
-msgstr "连接失败，请检查"
+msgid "从企业微信后台获取对接信息，即可开始集成以及同步通讯录"
+msgstr "从企业微信后台获取对接信息，即可开始集成以及同步通讯录"
 
 #: Disabled references:1
-msgid "数据库实例"
-msgstr "数据库实例"
+msgid "1.对接信息"
+msgstr "1.对接信息"
 
 #: Disabled references:1
-msgid "连接中，请稍后…"
-msgstr "连接中，请稍后…"
+msgid "关闭企业微信集成后，无法再从企业微信处进入明道云应用"
+msgstr "关闭企业微信集成后，无法再从企业微信处进入明道云应用"
 
 #: Disabled references:1
-msgid "实例名称"
-msgstr "实例名称"
+msgid "完成步骤 1 后，填入CorpId、AgentId、Secret后可对接应用与同步通讯录"
+msgstr "完成步骤 1 后，填入CorpId、AgentId、Secret后可对接应用与同步通讯录"
 
 #: Disabled references:1
-msgid "数据库地址"
-msgstr "数据库地址"
+msgid "企业微信字段同步"
+msgstr "企业微信字段同步"
 
 #: Disabled references:1
-msgid "数据库名称"
-msgstr "数据库名称"
+msgid "完成通讯录同步的基础配置后，可将企业微信用户账号或者企业微信自定义信息字段同步到系统的工号字段"
+msgstr "完成通讯录同步的基础配置后，可将企业微信用户账号或者企业微信自定义信息字段同步到系统的工号字段"
 
 #: Disabled references:1
-msgid "其他连接串参数"
-msgstr "其他连接串参数"
+msgid "同步企业微信标签"
+msgstr "同步企业微信标签"
 
 #: Disabled references:1
-msgid "没有可选算力"
-msgstr "没有可选算力"
+msgid "同步到"
+msgstr "同步到"
 
 #: Disabled references:1
-msgid "并发数"
-msgstr "并发数"
+msgid "同步企业微信用户账号 或 自定义信息字段 到工号字段"
+msgstr "同步企业微信用户账号 或 自定义信息字段 到工号字段"
 
 #: Disabled references:1
-msgid "%0核"
-msgstr "%0核"
+msgid "企业微信用户账号和企业微信自定义字段只可选择一个同步到工号字段"
+msgstr "企业微信用户账号和企业微信自定义字段只可选择一个同步到工号字段"
 
 #: Disabled references:1
-msgid "创建中，请稍候（约需要几分钟）..."
-msgstr "创建中，请稍候（约需要几分钟）..."
+msgid "企业微信用户账号"
+msgstr "企业微信用户账号"
 
 #: Disabled references:1
-msgid "启动中"
-msgstr "启动中"
+msgid "企业微信自定义信息字段"
+msgstr "企业微信自定义信息字段"
 
 #: Disabled references:1
-msgid "停止中"
-msgstr "停止中"
+msgid "同步到工号字段"
+msgstr "同步到工号字段"
 
 #: Disabled references:1
-msgid "重启中"
-msgstr "重启中"
+msgid "如何同步？"
+msgstr "如何同步？"
 
 #: Disabled references:1
-msgid "销毁中"
-msgstr "销毁中"
+msgid "在企业微信中使用快速审批"
+msgstr "在企业微信中使用快速审批"
 
 #: Disabled references:1
-msgid "已销毁"
-msgstr "已销毁"
+msgid "此功能需要配置企业微信中的应用接收回调消息服务。配置完成后，企业微信中的工作流审批消息卡片可以直接显示通过否决按钮，无需打开审批详情即可直接完成审批（注：需要审批节点启用了快速审批功能）。"
+msgstr "此功能需要配置企业微信中的应用接收回调消息服务。配置完成后，企业微信中的工作流审批消息卡片可以直接显示通过否决按钮，无需打开审批详情即可直接完成审批（注：需要审批节点启用了快速审批功能）。"
 
 #: Disabled references:1
-msgid "销毁失败"
-msgstr "销毁失败"
+msgid "请将下面的字段内容完整准确的复制到企业微信-应用管理-接收消息-设置API接收对应的字段内。"
+msgstr "请将下面的字段内容完整准确的复制到企业微信-应用管理-接收消息-设置API接收对应的字段内。"
 
 #: Disabled references:1
-msgid "不能为空"
-msgstr "不能为空"
+msgid "申请企业微信集成"
+msgstr "申请企业微信集成"
 
 #: Disabled references:1
 msgid "添加人"
 msgstr "添加人"
 
 #: Disabled references:1
-msgid "添加时间"
-msgstr "添加时间"
+msgid "明道云OA"
+msgstr "明道云OA"
 
 #: Disabled references:1
-msgid "用户授权"
-msgstr "用户授权"
+msgid "升级到明道云标准版+OA"
+msgstr "升级到明道云标准版+OA"
 
 #: Disabled references:1
-msgid "被授权的用户创建应用时，可选择专属数据库进行存储"
-msgstr "被授权的用户创建应用时，可选择专属数据库进行存储"
+msgid "购买明道云审批"
+msgstr "购买明道云审批"
 
 #: Disabled references:1
-msgid "%0个部门、%1个组织角色、%2个职位、%3名成员"
-msgstr "%0个部门、%1个组织角色、%2个职位、%3名成员"
+msgid "明道云标准版+审批"
+msgstr "明道云标准版+审批"
 
 #: Disabled references:1
-msgid "搜索用户、部门、组织角色、职位"
-msgstr "搜索用户、部门、组织角色、职位"
+msgid "应用拓展包"
+msgstr "应用拓展包"
 
 #: Disabled references:1
-msgid "添加用户"
-msgstr "添加用户"
+msgid "每月工作流扩充包"
+msgstr "每月工作流扩充包"
 
 #: Disabled references:1
-msgid "该实例不可删除"
-msgstr "该实例不可删除"
+msgid "当月工作流扩充包"
+msgstr "当月工作流扩充包"
 
 #: Disabled references:1
-msgid "请确认是否删除%0数据库？"
-msgstr "请确认是否删除%0数据库？"
+msgid "外部用户增补包"
+msgstr "外部用户增补包"
 
 #: Disabled references:1
-msgid "查看存储应用"
-msgstr "查看存储应用"
+msgid "每月数据同步算力包"
+msgstr "每月数据同步算力包"
 
 #: Disabled references:1
 msgid "可将指定应用内的所有工作表数据存储到专属数据库中，免受系统默认数据库的影响，适用于隔离等场景，当前支持最多创建%0个可用专属数据库实例；管理员创建应用时，可选择专属数据库。"
 msgstr "可将指定应用内的所有工作表数据存储到专属数据库中，免受系统默认数据库的影响，适用于隔离等场景，当前支持最多创建%0个可用专属数据库实例；管理员创建应用时，可选择专属数据库。"
 
 #: Disabled references:1
-msgid "存储应用数"
-msgstr "存储应用数"
+msgid "专属算力组织到期时长包"
+msgstr "专属算力组织到期时长包"
 
 #: Disabled references:1
-msgid "管理算力"
-msgstr "管理算力"
+msgid "专属算力单月包"
+msgstr "专属算力单月包"
 
 #: Disabled references:1
-msgid "服务已过期"
-msgstr "服务已过期"
+msgid "获取打印记录文件生成PDF文件"
+msgstr "获取打印记录文件生成PDF文件"
 
 #: Disabled references:1
-msgid "移出工作流"
-msgstr "移出工作流"
+msgid "聚合表数量购买"
+msgstr "聚合表数量购买"
 
 #: Disabled references:1
-msgid "移出%0个工作流"
-msgstr "移出%0个工作流"
+msgid "无需开票"
+msgstr "无需开票"
 
 #: Disabled references:1
-msgid "请联系组织超级管理员购买或升级"
-msgstr "请联系组织超级管理员购买或升级"
+msgid " 等待支付"
+msgstr " 等待支付"
 
 #: Disabled references:1
 msgid "重新创建中..."
 msgstr "重新创建中..."
 
 #: Disabled references:1
-msgid "组织购买专属算力服务后，将重要的工作流添加到专属算力服务中运行，可免受本组织或平台其他组织的流程堵塞影响"
-msgstr "组织购买专属算力服务后，将重要的工作流添加到专属算力服务中运行，可免受本组织或平台其他组织的流程堵塞影响"
+msgid "发票接收人"
+msgstr "发票接收人"
 
 #: Disabled references:1
 msgid "创建专属算力"
@@ -33790,340 +34930,340 @@ msgid "购买专属算力"
 msgstr "购买专属算力"
 
 #: Disabled references:1
-msgid "资源ID"
-msgstr "资源ID"
+msgid "Email地址"
+msgstr "Email地址"
 
 #: Disabled references:1
-msgid "复制资源ID"
-msgstr "复制资源ID"
+msgid "Email收件人"
+msgstr "Email收件人"
 
 #: Disabled references:1
 msgid "规格"
 msgstr "规格"
 
 #: Disabled references:1
-msgid "%0并发数"
-msgstr "%0并发数"
+msgid "开户行"
+msgstr "开户行"
 
 #: Disabled references:1
-msgid "到期"
-msgstr "到期"
+msgid "注册地址"
+msgstr "注册地址"
 
 #: Disabled references:1
-msgid "工作流数"
-msgstr "工作流数"
+msgid "注册电话"
+msgstr "注册电话"
 
 #: Disabled references:1
-msgid "将重要的工作流添加到专属算力中运行，可免受本组织或平台其他组织的流程堵塞影响"
-msgstr "将重要的工作流添加到专属算力中运行，可免受本组织或平台其他组织的流程堵塞影响"
+msgid "申请失败"
+msgstr "申请失败"
 
 #: Disabled references:1
-msgid "搜索变量名称"
-msgstr "搜索变量名称"
+msgid "申请发票"
+msgstr "申请发票"
 
 #: Disabled references:1
-msgid "组织变量"
-msgstr "组织变量"
+msgid "%0填写格式有误"
+msgstr "%0填写格式有误"
 
 #: Disabled references:1
-msgid "值为空"
-msgstr "值为空"
+msgid "普票"
+msgstr "普票"
 
 #: Disabled references:1
-msgid "确定删除这个变量？"
-msgstr "确定删除这个变量？"
+msgid "增票"
+msgstr "增票"
 
 #: Disabled references:1
-msgid "删除变量后，无法恢复"
-msgstr "删除变量后，无法恢复"
+msgid "确定取消该订单？"
+msgstr "确定取消该订单？"
 
 #: Disabled references:1
-msgid "添加变量"
-msgstr "添加变量"
+msgid "正在取消订单..."
+msgstr "正在取消订单..."
 
 #: Disabled references:1
-msgid "选择全局变量"
-msgstr "选择全局变量"
+msgid "已成功取消订单"
+msgstr "已成功取消订单"
 
 #: Disabled references:1
-msgid "变量名称不能为空"
-msgstr "变量名称不能为空"
+msgid "取消订单失败"
+msgstr "取消订单失败"
 
 #: Disabled references:1
-msgid "变量名称不符合规范, 请以字母开头，数字和下划线组合命名"
-msgstr "变量名称不符合规范, 请以字母开头，数字和下划线组合命名"
+msgid "组织管理 - 账务 - %0"
+msgstr "组织管理 - 账务 - %0"
 
 #: Disabled references:1
-msgid "变量值不能为空"
-msgstr "变量值不能为空"
+msgid "无相应订单数据"
+msgstr "无相应订单数据"
 
 #: Disabled references:1
-msgid "名称已被占用"
-msgstr "名称已被占用"
+msgid "复制账单Id"
+msgstr "复制账单Id"
 
 #: Disabled references:1
-msgid "没有授权应用"
-msgstr "没有授权应用"
+msgid "账务%15000"
+msgstr "账务"
 
 #: Disabled references:1
-msgid "编辑应用变量"
-msgstr "编辑应用变量"
+msgid "发票设置"
+msgstr "发票设置"
 
 #: Disabled references:1
-msgid "编辑组织变量"
-msgstr "编辑组织变量"
+msgid "余额预警"
+msgstr "余额预警"
 
 #: Disabled references:1
-msgid "添加应用变量"
-msgstr "添加应用变量"
+msgid "预警（%0）"
+msgstr "预警（%0）"
 
 #: Disabled references:1
-msgid "添加组织变量"
-msgstr "添加组织变量"
+msgid "支付记录"
+msgstr "支付记录"
 
 #: Disabled references:1
-msgid "变量名称"
-msgstr "变量名称"
+msgid "扣费记录"
+msgstr "扣费记录"
 
 #: Disabled references:1
-msgid "仅允许使用字母（不区分大小写）、数字和下划线组合，且必须以字母开头。支持以“变量分组.变量名称”规则创建，会将变量名称前的内容自动归组。变量名称创建后不允许修改。"
-msgstr "仅允许使用字母（不区分大小写）、数字和下划线组合，且必须以字母开头。支持以“变量分组.变量名称”规则创建，会将变量名称前的内容自动归组。变量名称创建后不允许修改。"
+msgid "按照时间筛选"
+msgstr "按照时间筛选"
 
 #: Disabled references:1
-msgid "变量类型"
-msgstr "变量类型"
+msgid "发票状态"
+msgstr "发票状态"
 
 #: Disabled references:1
-msgid "变量值"
-msgstr "变量值"
+msgid "当前使用：%0人"
+msgstr "当前使用：%0人"
 
 #: Disabled references:1
-msgid "掩码显示"
-msgstr "掩码显示"
+msgid "增补"
+msgstr "增补"
 
 #: Disabled references:1
-msgid "在使用和查看变量时显示为掩码，应用管理员可以点击后解码查看"
-msgstr "在使用和查看变量时显示为掩码，应用管理员可以点击后解码查看"
+msgid "100人"
+msgstr "100人"
 
 #: Disabled references:1
-msgid "是否允许在工作流中更新"
-msgstr "是否允许在工作流中更新"
+msgid "5元/人年"
+msgstr "5元/人年"
 
 #: Disabled references:1
-msgid "授权范围"
-msgstr "授权范围"
+msgid "1000人"
+msgstr "1000人"
 
 #: Disabled references:1
-msgid "所有类型"
-msgstr "所有类型"
+msgid "1元/人年"
+msgstr "1元/人年"
 
 #: Disabled references:1
-msgid "导出的应用文件有效期为30天，请尽快下载"
-msgstr "导出的应用文件有效期为30天，请尽快下载"
+msgid "10000人"
+msgstr "10000人"
 
 #: Disabled references:1
-msgid "按日期筛选"
-msgstr "按日期筛选"
+msgid "0.5元/人年"
+msgstr "0.5元/人年"
 
 #: Disabled references:1
-msgid "搜索应用名称/操作者"
-msgstr "搜索应用名称/操作者"
+msgid "10万人"
+msgstr "10万人"
 
 #: Disabled references:1
-msgid "暂无日志信息"
-msgstr "暂无日志信息"
+msgid "购买方式"
+msgstr "购买方式"
 
 #: Disabled references:1
-msgid "工作表 %0"
-msgstr "工作表 %0"
+msgid "购买人数："
+msgstr "购买人数："
 
 #: Disabled references:1
-msgid "自定义页面 %0"
-msgstr "自定义页面 %0"
+msgid "到期时间："
+msgstr "到期时间："
 
 #: Disabled references:1
-msgid "所属应用"
-msgstr "所属应用"
+msgid "（计费：%0天）"
+msgstr "（计费：%0天）"
 
 #: Disabled references:1
-msgid "查看密码"
-msgstr "查看密码"
+msgid "用户自助购买用户包"
+msgstr "用户自助购买用户包"
 
 #: Disabled references:1
-msgid "复制密码"
-msgstr "复制密码"
+msgid "用户自助购买工作流"
+msgstr "用户自助购买工作流"
 
 #: Disabled references:1
-msgid "不导出"
-msgstr "不导出"
+msgid "用户自助购买应用附件上传量"
+msgstr "用户自助购买应用附件上传量"
 
 #: Disabled references:1
-msgid "每张表最多导出10000条记录"
-msgstr "每张表最多导出10000条记录"
+msgid "用户自助购买外部门户用户包"
+msgstr "用户自助购买外部门户用户包"
 
 #: Disabled references:1
-msgid "自定义导出的记录数量"
-msgstr "自定义导出的记录数量"
+msgid "用户自助购买数据同步算力升级包"
+msgstr "用户自助购买数据同步算力升级包"
 
 #: Disabled references:1
-msgid "该应用下没有工作表"
-msgstr "该应用下没有工作表"
+msgid "续费专属算力"
+msgstr "续费专属算力"
 
 #: Disabled references:1
-msgid "已选 %0 行（最大5万行）"
-msgstr "已选 %0 行（最大5万行）"
+msgid "扩充聚合表数量"
+msgstr "扩充聚合表数量"
 
 #: Disabled references:1
-msgid "导入密码"
-msgstr "导入密码"
+msgid "扩充成员数量"
+msgstr "扩充成员数量"
 
 #: Disabled references:1
-msgid "文件无法解析，请重新上传"
-msgstr "文件无法解析，请重新上传"
+msgid "购买工作流执行数升级包"
+msgstr "购买工作流执行数升级包"
 
 #: Disabled references:1
-msgid "该文件不是当前组织的应用，请重新上传"
-msgstr "该文件不是当前组织的应用，请重新上传"
+msgid "购买应用附件上传量扩充包"
+msgstr "购买应用附件上传量扩充包"
 
 #: Disabled references:1
-msgid "该文件没有任何密码，无需解密"
-msgstr "该文件没有任何密码，无需解密"
+msgid "购买外部用户人数"
+msgstr "购买外部用户人数"
 
 #: Disabled references:1
-msgid "上传应用 .mdy文件，获取导入密码、应用锁密码"
-msgstr "上传应用 .mdy文件，获取导入密码、应用锁密码"
+msgid "购买数据同步算力升级包"
+msgstr "购买数据同步算力升级包"
 
 #: Disabled references:1
-msgid "请选择.mdy格式的应用文件"
-msgstr "请选择.mdy格式的应用文件"
+msgid "选择升级包"
+msgstr "选择升级包"
 
 #: Disabled references:1
-msgid "文件上传失败"
-msgstr "文件上传失败"
+msgid "选择类型"
+msgstr "选择类型"
 
 #: Disabled references:1
-msgid "解密成功"
-msgstr "解密成功"
+msgid "选择增补人数"
+msgstr "选择增补人数"
 
 #: Disabled references:1
-msgid "导入时需要验证密码"
-msgstr "导入时需要验证密码"
+msgid "选择购买人数和方式"
+msgstr "选择购买人数和方式"
 
 #: Disabled references:1
-msgid "导入后不允许修改应用配置"
-msgstr "导入后不允许修改应用配置"
+msgid "选择规格"
+msgstr "选择规格"
 
 #: Disabled references:1
-msgid "锁定后，导入的应用下所有用户不能查看、修改应用的配置，用户验证密码后可解锁其在应用下的操作权限。"
-msgstr "锁定后，导入的应用下所有用户不能查看、修改应用的配置，用户验证密码后可解锁其在应用下的操作权限。"
+msgid "确认续费信息"
+msgstr "确认续费信息"
 
 #: Disabled references:1
-msgid "请输入8-20位字符，必须含字母+数字"
-msgstr "请输入8-20位字符，必须含字母+数字"
+msgid "每月额度升级包"
+msgstr "每月额度升级包"
 
 #: Disabled references:1
-msgid "设置解锁密码"
-msgstr "设置解锁密码"
+msgid "剩余月份"
+msgstr "剩余月份"
 
 #: Disabled references:1
-msgid "导出示例数据"
-msgstr "导出示例数据"
+msgid "单月包"
+msgstr "单月包"
 
 #: Disabled references:1
-msgid "将应用配置导出为文件，之后可以将此文件导入其他组织以实现应用迁移，可选择同时导出部分示例数据。"
-msgstr "将应用配置导出为文件，之后可以将此文件导入其他组织以实现应用迁移，可选择同时导出部分示例数据。"
+msgid "组织到期时间"
+msgstr "组织到期时间"
 
 #: Disabled references:1
-msgid "此应用工作表关联了未选择导出的应用工作表，直接导出将失去这部分关联"
-msgstr "此应用工作表关联了未选择导出的应用工作表，直接导出将失去这部分关联"
+msgid "单月包（本月）"
+msgstr "单月包（本月）"
 
 #: Disabled references:1
-msgid "请保存密码，或导出后在导出记录中查看"
-msgstr "请保存密码，或导出后在导出记录中查看"
+msgid "订单已创建成功，正在转到付款页..."
+msgstr "订单已创建成功，正在转到付款页..."
 
 #: Disabled references:1
-msgid "立即导出"
-msgstr "立即导出"
+msgid "%0 元"
+msgstr "%0 元"
 
 #: Disabled references:1
-msgid "密码错误，验证失败"
-msgstr "密码错误，验证失败"
+msgid "%0 W次"
+msgstr "%0 W次"
 
 #: Disabled references:1
-msgid "失败次数过多，请于15分钟后尝试"
-msgstr "失败次数过多，请于15分钟后尝试"
+msgid "%0 K次"
+msgstr "%0 K次"
 
 #: Disabled references:1
-msgid "导入失败，导入将导致目标网络的工作表总数超过上限"
-msgstr "导入失败，导入将导致目标网络的工作表总数超过上限"
+msgid "每月工作流执行数增加数量"
+msgstr "每月工作流执行数增加数量"
 
 #: Disabled references:1
-msgid "导入失败，导入将导致目标网络的应用数量超过上限"
-msgstr "导入失败，导入将导致目标网络的应用数量超过上限"
+msgid "本月工作流执行数增加数量"
+msgstr "本月工作流执行数增加数量"
 
 #: Disabled references:1
-msgid "上传失败，文件类型错误"
-msgstr "上传失败，文件类型错误"
+msgid "%0 W行"
+msgstr "%0 W行"
 
 #: Disabled references:1
-msgid "解析失败，不是有效的应用文件"
-msgstr "解析失败，不是有效的应用文件"
+msgid "每月同步任务算力行数增加数量"
+msgstr "每月同步任务算力行数增加数量"
 
 #: Disabled references:1
-msgid "大小：%0"
-msgstr "大小：%0"
+msgid "本月同步任务算力行数增加数量"
+msgstr "本月同步任务算力行数增加数量"
 
 #: Disabled references:1
-msgid "文件已加密，需验证通过才能导入"
-msgstr "文件已加密，需验证通过才能导入"
+msgid "本年用量扩充包"
+msgstr "本年用量扩充包"
 
 #: Disabled references:1
-msgid "文件解析成功，即将导入以下%0个应用"
-msgstr "文件解析成功，即将导入以下%0个应用"
+msgid "20 元"
+msgstr "20 元"
 
 #: Disabled references:1
-msgid "（从高版本系统导出）"
-msgstr "（从高版本系统导出）"
+msgid "购买数量"
+msgstr "购买数量"
 
 #: Disabled references:1
-msgid "将应用文件导入组织生成一个新的应用，以实现应用快速迁移或创建。在导入私有部署环境前，请确认私有部署的版本，高版本向低版本导入，可能会导入失败。"
-msgstr "将应用文件导入组织生成一个新的应用，以实现应用快速迁移或创建。在导入私有部署环境前，请确认私有部署的版本，高版本向低版本导入，可能会导入失败。"
+msgid "仅本年内使用有效，次年1月1日清零"
+msgstr "仅本年内使用有效，次年1月1日清零"
 
 #: Disabled references:1
-msgid "导入时匹配人员部门职位"
-msgstr "导入时匹配人员部门职位"
+msgid "单个增量用户包5人起购，最多只能扩充 %0 人，如有特别需求，请联系我们 400-665-6655"
+msgstr "单个增量用户包5人起购，最多只能扩充 %0 人，如有特别需求，请联系我们 400-665-6655"
 
 #: Disabled references:1
-msgid "将工作表、工作流、角色中的人员部门职位与网络中的进行匹配可保证应用的完整性"
-msgstr "将工作表、工作流、角色中的人员部门职位与网络中的进行匹配可保证应用的完整性"
+msgid "每月执行数免费额度不足时可购买使用，即时生效。"
+msgstr "每月执行数免费额度不足时可购买使用，即时生效。"
 
 #: Disabled references:1
-msgid "立即导入"
-msgstr "立即导入"
+msgid "每月同步任务数的算力不足时，可购买使用，立即生效。"
+msgstr "每月同步任务数的算力不足时，可购买使用，立即生效。"
 
 #: Disabled references:1
-msgid "未找到 \"%0\" 相关应用，请更换关键词试试"
-msgstr "未找到 \"%0\" 相关应用，请更换关键词试试"
+msgid "聚合表扩充5个起购"
+msgstr "聚合表扩充5个起购"
 
 #: Disabled references:1
-msgid "请从左侧列表选择应用,"
-msgstr "请从左侧列表选择应用,"
+msgid "并发数是指同一个时间点可同时运行的实例数"
+msgstr "并发数是指同一个时间点可同时运行的实例数"
 
 #: Disabled references:1
-msgid "选择的应用总数不能超过"
-msgstr "选择的应用总数不能超过"
+msgid "购买时长"
+msgstr "购买时长"
 
 #: Disabled references:1
 msgid "已选"
 msgstr "已选"
 
 #: Disabled references:1
-msgid "导出的应用总数上限%0个"
-msgstr "导出的应用总数上限%0个"
+msgid "300 元/人/年（版本剩余时间）"
+msgstr "300 元/人/年（版本剩余时间）"
 
 #: Disabled references:1
-msgid "导出的应用共%0个，已超过上限%1个，请重新选择"
-msgstr "导出的应用共%0个，已超过上限%1个，请重新选择"
+msgid "100元/个/年（版本剩余时间）"
+msgstr "100元/个/年（版本剩余时间）"
 
 #: Disabled references:1
 msgid "应用结构"
@@ -35326,24 +36466,24 @@ msgid "勾选后，角色下成员可以添加、移除其他成员"
 msgstr "勾选后，角色下成员可以添加、移除其他成员"
 
 #: Disabled references:1
-msgid "名称修改失败"
-msgstr "名称修改失败"
+msgid "确定删除角色"
+msgstr "确定删除角色"
 
 #: Disabled references:1
-msgid "没有任何权限"
-msgstr "没有任何权限"
+msgid "此角色其他成员不可见"
+msgstr "此角色其他成员不可见"
 
 #: Disabled references:1
-msgid "前往编辑"
-msgstr "前往编辑"
+msgid "等"
+msgstr "等"
 
 #: Disabled references:1
-msgid "拥有权限"
-msgstr "拥有权限"
+msgid "所有权限"
+msgstr "所有权限"
 
 #: Disabled references:1
-msgid "人事权限"
-msgstr "人事权限"
+msgid "申请"
+msgstr "申请"
 
 #: Disabled references:1
 msgid "获取列表失败"
@@ -36790,16 +37930,16 @@ msgid "执行翻译"
 msgstr "执行翻译"
 
 #: Disabled references:1
-msgid "翻译中..."
-msgstr "翻译中..."
+msgid "设置错误提示"
+msgstr "设置错误提示"
 
 #: Disabled references:1
-msgid "智能翻译"
-msgstr "智能翻译"
+msgid "在输入或提交记录时校验并提示错误，错误时不允许提交"
+msgstr "在输入或提交记录时校验并提示错误，错误时不允许提交"
 
 #: Disabled references:1
-msgid "对照语言"
-msgstr "对照语言"
+msgid "请输入提示内容..."
+msgstr "请输入提示内容..."
 
 #: Disabled references:1
 msgid "用备份还原了新应用"
@@ -38098,6 +39238,210 @@ msgid "财政年度开始于"
 msgstr "财政年度开始于"
 
 #: Disabled references:1
+msgid "分类"
+msgstr "分类"
+
+#: Disabled references:1
+msgid "更多日程..."
+msgstr "更多日程..."
+
+#: Disabled references:1
+msgid "未找到今后的日程列表"
+msgstr "未找到今后的日程列表"
+
+#: Disabled references:1
+msgid "您可以创建新日程或使用快捷键"
+msgstr "您可以创建新日程或使用快捷键"
+
+#: Disabled references:1
+msgid "创建新日程"
+msgstr "创建新日程"
+
+#: Disabled references:1
+msgid "(全天)"
+msgstr "(全天)"
+
+#: Disabled references:1
+msgid "日程内容已更改"
+msgstr "日程内容已更改"
+
+#: Disabled references:1
+msgid "邀请您参加此日程"
+msgstr "邀请您参加此日程"
+
+#: Disabled references:1
+msgid "参加"
+msgstr "参加"
+
+#: Disabled references:1
+msgid "日程标题最大长度266个字符"
+msgstr "日程标题最大长度266个字符"
+
+#: Disabled references:1
+msgid "加入分享日程"
+msgstr "加入分享日程"
+
+#: Disabled references:1
+msgid "创建为新任务"
+msgstr "创建为新任务"
+
+#: Disabled references:1
+msgid "加入Outlook"
+msgstr "加入Outlook"
+
+#: Disabled references:1
+msgid "群发消息"
+msgstr "群发消息"
+
+#: Disabled references:1
+msgid "退出日程"
+msgstr "退出日程"
+
+#: Disabled references:1
+msgid "删除日程"
+msgstr "删除日程"
+
+#: Disabled references:1
+msgid "【明道云平台】"
+msgstr "【明道云平台】"
+
+#: Disabled references:1
+msgid "%0 邀请您参加日程：%1"
+msgstr "%0 邀请您参加日程：%1"
+
+#: Disabled references:1
+msgid "时间：%0"
+msgstr "时间：%0"
+
+#: Disabled references:1
+msgid "地点：%0"
+msgstr "地点：%0"
+
+#: Disabled references:1
+msgid "地点：无"
+msgstr "地点：无"
+
+#: Disabled references:1
+msgid "描述：%0"
+msgstr "描述：%0"
+
+#: Disabled references:1
+msgid "描述：无"
+msgstr "描述：无"
+
+#: Disabled references:1
+msgid "请选择发送人员"
+msgstr "请选择发送人员"
+
+#: Disabled references:1
+msgid "时间与行程冲突"
+msgstr "时间与行程冲突"
+
+#: Disabled references:1
+msgid "不需要参加"
+msgstr "不需要参加"
+
+#: Disabled references:1
+msgid "无理由"
+msgstr "无理由"
+
+#: Disabled references:1
+msgid "您确定要退出该日程吗？"
+msgstr "您确定要退出该日程吗？"
+
+#: Disabled references:1
+msgid "仅此日程"
+msgstr "仅此日程"
+
+#: Disabled references:1
+msgid "此操作仅更改单个日程，其他日程不受影响"
+msgstr "此操作仅更改单个日程，其他日程不受影响"
+
+#: Disabled references:1
+msgid "所有日程"
+msgstr "所有日程"
+
+#: Disabled references:1
+msgid "此操作会更改后续所有的日程"
+msgstr "此操作会更改后续所有的日程"
+
+#: Disabled references:1
+msgid "添加新分类"
+msgstr "添加新分类"
+
+#: Disabled references:1
+msgid "请输入分类日程名称"
+msgstr "请输入分类日程名称"
+
+#: Disabled references:1
+msgid "褐色"
+msgstr "褐色"
+
+#: Disabled references:1
+msgid "蓝色"
+msgstr "蓝色"
+
+#: Disabled references:1
+msgid "黄色"
+msgstr "黄色"
+
+#: Disabled references:1
+msgid "未填写地址"
+msgstr "未填写地址"
+
+#: Disabled references:1
+msgid "成员:"
+msgstr "成员:"
+
+#: Disabled references:1
+msgid "未填写摘要"
+msgstr "未填写摘要"
+
+#: Disabled references:1
+msgid "同步日程到您的outlook或其他应用"
+msgstr "同步日程到您的outlook或其他应用"
+
+#: Disabled references:1
+msgid "请使用以下网址通过其他应用访问使用您的日历。可将其复制粘贴到任何支持iCal格式的日历产品中"
+msgstr "请使用以下网址通过其他应用访问使用您的日历。可将其复制粘贴到任何支持iCal格式的日历产品中"
+
+#: Disabled references:1
+msgid "添加订阅"
+msgstr "添加订阅"
+
+#: Disabled references:1
+msgid "复制Internet日历地址"
+msgstr "复制Internet日历地址"
+
+#: Disabled references:1
+msgid "iCal又称iCalendar-使用这种格式可以从其他应用程序中查看您当前日历的只读版本"
+msgstr "iCal又称iCalendar-使用这种格式可以从其他应用程序中查看您当前日历的只读版本"
+
+#: Disabled references:1
+msgid "请按下列步骤操作，来使用您的日历网址"
+msgstr "请按下列步骤操作，来使用您的日历网址"
+
+#: Disabled references:1
+msgid "在本页上方，复制ICAL格式日历网址"
+msgstr "在本页上方，复制ICAL格式日历网址"
+
+#: Disabled references:1
+msgid "Mac日历"
+msgstr "Mac日历"
+
+#: Disabled references:1
+msgid "参与的任务"
+msgstr "参与的任务"
+
+#: Disabled references:1
+msgid "负责的任务"
+msgstr "负责的任务"
+
+#: Disabled references:1
+msgid "托付的任务"
+msgstr "托付的任务"
+
+#: Disabled references:1
 msgid "加载失败，点击重试"
 msgstr "加载失败，点击重试"
 
@@ -38122,6 +39466,14 @@ msgid "在这查看所有和%0相关的消息"
 msgstr "在这查看所有和%0相关的消息"
 
 #: Disabled references:1
+msgid "您已取消发送"
+msgstr "您已取消发送"
+
+#: Disabled references:1
+msgid "来自知识中心"
+msgstr "来自知识中心"
+
+#: Disabled references:1
 msgid "暂无权限查看该动态或者该动态已经被删除"
 msgstr "暂无权限查看该动态或者该动态已经被删除"
 
@@ -38140,14 +39492,6 @@ msgstr "投票已关闭"
 #: Disabled references:1
 msgid "%0人参加投票"
 msgstr "%0人参加投票"
-
-#: Disabled references:1
-msgid "您已取消发送"
-msgstr "您已取消发送"
-
-#: Disabled references:1
-msgid "来自知识中心"
-msgstr "来自知识中心"
 
 #: Disabled references:1
 msgid "该消息已撤回"
@@ -38508,6 +39852,10 @@ msgstr "AI助手设置"
 #: Disabled references:1
 msgid "悬浮框"
 msgstr "悬浮框"
+
+#: Disabled references:1
+msgid "请选择一个工作表来创建图表"
+msgstr "请选择一个工作表来创建图表"
 
 #: Disabled references:1
 msgid "请选择一个工作表来创建图表"
@@ -39410,44 +40758,44 @@ msgid "云端"
 msgstr "云端"
 
 #: Disabled references:1
-msgid "搜索数据源名称、地址"
-msgstr "搜索数据源名称、地址"
+msgid "有序主键"
+msgstr "有序主键"
 
 #: Disabled references:1
-msgid "创建于 %0"
-msgstr "创建于 %0"
+msgid "例如，上次同步范围是1至100，本次将从大于100开始。"
+msgstr "例如，上次同步范围是1至100，本次将从大于100开始。"
 
 #: Disabled references:1
-msgid "暂无可选择数据"
-msgstr "暂无可选择数据"
+msgid "注意：此方式无法同步修改的数据"
+msgstr "注意：此方式无法同步修改的数据"
 
 #: Disabled references:1
-msgid "长度"
-msgstr "长度"
+msgid "例如，上次同步到2024年6月14日00:29:49，本次将从此时间点后开始。"
+msgstr "例如，上次同步到2024年6月14日00:29:49，本次将从此时间点后开始。"
 
 #: Disabled references:1
-msgid "精度"
-msgstr "精度"
+msgid "首次读取开始值"
+msgstr "首次读取开始值"
 
 #: Disabled references:1
-msgid "数值最大支持16位数字"
-msgstr "数值最大支持16位数字"
+msgid "YYYY 表示四位数的年份"
+msgstr "YYYY 表示四位数的年份"
 
 #: Disabled references:1
-msgid "字段注释"
-msgstr "字段注释"
+msgid "MM 表示两位数的月份"
+msgstr "MM 表示两位数的月份"
 
 #: Disabled references:1
-msgid "映射关系失效"
-msgstr "映射关系失效"
+msgid "DD 表示两位数的日"
+msgstr "DD 表示两位数的日"
 
 #: Disabled references:1
-msgid "字段(源)"
-msgstr "字段(源)"
+msgid "HH 表示两位数的小时（24小时制）"
+msgstr "HH 表示两位数的小时（24小时制）"
 
 #: Disabled references:1
-msgid "主键"
-msgstr "主键"
+msgid "MI 表示两位数的分钟"
+msgstr "MI 表示两位数的分钟"
 
 #: Disabled references:1
 msgid "名称包含特殊字符，无法同步"
@@ -39458,20 +40806,24 @@ msgid "暂不支持同步"
 msgstr "暂不支持同步"
 
 #: Disabled references:1
-msgid "不允许NULL"
-msgstr "不允许NULL"
+msgid "接受格式:YYYY-MM-DD HH:MI:SS。"
+msgstr "接受格式:YYYY-MM-DD HH:MI:SS。"
 
 #: Disabled references:1
-msgid "字段名称(目标)"
-msgstr "字段名称(目标)"
+msgid "默认值取自数据库数据。"
+msgstr "默认值取自数据库数据。"
 
 #: Disabled references:1
-msgid "设置字段注释"
-msgstr "设置字段注释"
+msgid "数据源的定时设置是共用的，可在"
+msgstr "数据源的定时设置是共用的，可在"
 
 #: Disabled references:1
-msgid "取消设为标题"
-msgstr "取消设为标题"
+msgid "数据源-定时配置"
+msgstr "数据源-定时配置"
+
+#: Disabled references:1
+msgid "查看。"
+msgstr "查看。"
 
 #: Disabled references:1
 msgid "不可选与数据源相同的表"
@@ -40954,6 +42306,38 @@ msgid "截止到目前为止各个项目看板下未完成和已完成的任务�
 msgstr "截止到目前为止各个项目看板下未完成和已完成的任务数量统计"
 
 #: Disabled references:1
+msgid "复制清单"
+msgstr "复制清单"
+
+#: Disabled references:1
+msgid "复制后，在要使用的清单中点击“添加检查项”并粘贴文本，将会自动创建复制的检查项。"
+msgstr "复制后，在要使用的清单中点击“添加检查项”并粘贴文本，将会自动创建复制的检查项。"
+
+#: Disabled references:1
+msgid "删除清单"
+msgstr "删除清单"
+
+#: Disabled references:1
+msgid "一个检查项"
+msgstr "一个检查项"
+
+#: Disabled references:1
+msgid "删除清单？"
+msgstr "删除清单？"
+
+#: Disabled references:1
+msgid "清单被删除后，将无法恢复。"
+msgstr "清单被删除后，将无法恢复。"
+
+#: Disabled references:1
+msgid "无法在当前项目下创建任务"
+msgstr "无法在当前项目下创建任务"
+
+#: Disabled references:1
+msgid "转为任务"
+msgstr "转为任务"
+
+#: Disabled references:1
 msgid "复制任务"
 msgstr "复制任务"
 
@@ -40992,22 +42376,6 @@ msgstr "子任务将包含以上所选的复制内容"
 #: Disabled references:1
 msgid "子任务负责人"
 msgstr "子任务负责人"
-
-#: Disabled references:1
-msgid "关联项目"
-msgstr "关联项目"
-
-#: Disabled references:1
-msgid "选择您需要打印的部分"
-msgstr "选择您需要打印的部分"
-
-#: Disabled references:1
-msgid "可将二维码贴于办公场地或设备旁，协作者可直接扫码查看任务"
-msgstr "可将二维码贴于办公场地或设备旁，协作者可直接扫码查看任务"
-
-#: Disabled references:1
-msgid "任务自定义字段内容"
-msgstr "任务自定义字段内容"
 
 #: Disabled references:1
 msgid "当前任务下有子任务"
@@ -41066,6 +42434,10 @@ msgid "添加标签"
 msgstr "添加标签"
 
 #: Disabled references:1
+msgid "关联项目"
+msgstr "关联项目"
+
+#: Disabled references:1
 msgid "关联母任务"
 msgstr "关联母任务"
 
@@ -41110,32 +42482,36 @@ msgid "复制清单"
 msgstr "复制清单"
 
 #: Disabled references:1
-msgid "复制后，在要使用的清单中点击“添加检查项”并粘贴文本，将会自动创建复制的检查项。"
-msgstr "复制后，在要使用的清单中点击“添加检查项”并粘贴文本，将会自动创建复制的检查项。"
+msgid "可将二维码贴于办公场地或设备旁，协作者可直接扫码查看任务"
+msgstr "可将二维码贴于办公场地或设备旁，协作者可直接扫码查看任务"
 
 #: Disabled references:1
-msgid "删除清单"
-msgstr "删除清单"
+msgid "任务自定义字段内容"
+msgstr "任务自定义字段内容"
 
 #: Disabled references:1
-msgid "一个检查项"
-msgstr "一个检查项"
+msgid "标记为未完成"
+msgstr "标记为未完成"
 
 #: Disabled references:1
-msgid "删除清单？"
-msgstr "删除清单？"
+msgid "更改负责人"
+msgstr "更改负责人"
 
 #: Disabled references:1
-msgid "清单被删除后，将无法恢复。"
-msgstr "清单被删除后，将无法恢复。"
+msgid "查看子任务详情和评论"
+msgstr "查看子任务详情和评论"
 
 #: Disabled references:1
-msgid "无法在当前项目下创建任务"
-msgstr "无法在当前项目下创建任务"
+msgid "任务名称不能为空"
+msgstr "任务名称不能为空"
 
 #: Disabled references:1
-msgid "转为任务"
-msgstr "转为任务"
+msgid "如果分解后的任务比较复杂、需要分别指派负责人，或需要在每条任务中分别记录跟进情况的，建议使用子任务。其他情况下，建议使用检查清单来做关键结果追踪，支持将重要检查项一键转为任务"
+msgstr "如果分解后的任务比较复杂、需要分别指派负责人，或需要在每条任务中分别记录跟进情况的，建议使用子任务。其他情况下，建议使用检查清单来做关键结果追踪，支持将重要检查项一键转为任务"
+
+#: Disabled references:1
+msgid "添加子任务"
+msgstr "添加子任务"
 
 #: Disabled references:1
 msgid "只显示与我有关"
@@ -43418,6 +44794,38 @@ msgid "传递参数"
 msgstr "传递参数"
 
 #: Disabled references:1
+msgid "必须选择一个账户"
+msgstr "必须选择一个账户"
+
+#: Disabled references:1
+msgid "请选择 API 模板"
+msgstr "请选择 API 模板"
+
+#: Disabled references:1
+msgid "API已删除"
+msgstr "API已删除"
+
+#: Disabled references:1
+msgid "变更API"
+msgstr "变更API"
+
+#: Disabled references:1
+msgid "传递参数"
+msgstr "传递参数"
+
+#: Disabled references:1
+msgid "设置筛选条件后，满足条件的数据才能进入该分支"
+msgstr "设置筛选条件后，满足条件的数据才能进入该分支"
+
+#: Disabled references:1
+msgid "请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期"
+msgstr "请谨慎选择“他表字段”作为条件字段，可能因为数据同步更新延迟而导致结果非预期"
+
+#: Disabled references:1
+msgid "添加筛选条件"
+msgstr "添加筛选条件"
+
+#: Disabled references:1
 msgid "用户名、密码不能为空"
 msgstr "用户名、密码不能为空"
 
@@ -45578,92 +46986,92 @@ msgid "频率"
 msgstr "频率"
 
 #: Disabled references:1
-msgid "第%0天"
-msgstr "第%0天"
+msgid "输出参数不允许为空"
+msgstr "输出参数不允许为空"
 
 #: Disabled references:1
-msgid "结束执行时间不能小于开始执行时间"
-msgstr "结束执行时间不能小于开始执行时间"
+msgid "执行次数不能为空"
+msgstr "执行次数不能为空"
 
 #: Disabled references:1
-msgid "结束执行时间不能晚于当前时间"
-msgstr "结束执行时间不能晚于当前时间"
+msgid "添加参数"
+msgstr "添加参数"
 
 #: Disabled references:1
-msgid "生成初始七次的执行时间"
-msgstr "生成初始七次的执行时间"
+msgid "在工作流使用时，作为返回结果的字段名称"
+msgstr "在工作流使用时，作为返回结果的字段名称"
 
 #: Disabled references:1
-msgid "每分钟都触发"
-msgstr "每分钟都触发"
+msgid "启用平台API能力时，在API文档中作为输出参数的名称。未填写时，使用字段名"
+msgstr "启用平台API能力时，在API文档中作为输出参数的名称。未填写时，使用字段名"
 
 #: Disabled references:1
-msgid "按范围触发"
-msgstr "按范围触发"
+msgid "参数说明"
+msgstr "参数说明"
 
 #: Disabled references:1
-msgid "按固定值触发"
-msgstr "按固定值触发"
+msgid "启用平台API能力时，在API文档中作为输出参数的说明"
+msgstr "启用平台API能力时，在API文档中作为输出参数的说明"
 
 #: Disabled references:1
-msgid "按一定增量触发"
-msgstr "按一定增量触发"
+msgid "字段名（必填）"
+msgstr "字段名（必填）"
 
 #: Disabled references:1
-msgid "每小时都触发"
-msgstr "每小时都触发"
+msgid "执行单次"
+msgstr "执行单次"
 
 #: Disabled references:1
-msgid "每天都触发"
-msgstr "每天都触发"
+msgid "执行多次"
+msgstr "执行多次"
 
 #: Disabled references:1
-msgid "每月的最后一天触发"
-msgstr "每月的最后一天触发"
+msgid "并行"
+msgstr "并行"
 
 #: Disabled references:1
-msgid "天/星期"
-msgstr "天/星期"
+msgid "同时执行多条业务流程，即便某条业务流程运行中止，也不影响其他业务流程的执行。"
+msgstr "同时执行多条业务流程，即便某条业务流程运行中止，也不影响其他业务流程的执行。"
 
 #: Disabled references:1
-msgid "每月都触发"
-msgstr "每月都触发"
+msgid "逐条执行"
+msgstr "逐条执行"
 
 #: Disabled references:1
-msgid "输入范围"
-msgstr "输入范围"
+msgid "依次执行多条业务流程，每条业务流程需要等前一条业务流程通过后再开始触发；如果某条业务流程运行中止，则后续的业务流程都不再触发。"
+msgstr "依次执行多条业务流程，每条业务流程需要等前一条业务流程通过后再开始触发；如果某条业务流程运行中止，则后续的业务流程都不再触发。"
 
 #: Disabled references:1
-msgid "分开始，每隔"
-msgstr "分开始，每隔"
+msgid "执行方式"
+msgstr "执行方式"
 
 #: Disabled references:1
-msgid "时开始，每隔"
-msgstr "时开始，每隔"
+msgid "执行次数"
+msgstr "执行次数"
 
 #: Disabled references:1
-msgid "日开始，每隔"
-msgstr "日开始，每隔"
+msgid "多条业务流程的执行方式"
+msgstr "多条业务流程的执行方式"
 
 #: Disabled references:1
-msgid "每小时"
-msgstr "每小时"
+msgid "业务流程执行完毕后，再开始下一个节点"
+msgstr "业务流程执行完毕后，再开始下一个节点"
 
 #: Disabled references:1
-msgid "工作日(星期一至星期五)"
-msgstr "工作日(星期一至星期五)"
+msgid "勾选后，当执行次数为单次时，之后节点可使用业务流程的输出参数"
+msgstr "勾选后，当执行次数为单次时，之后节点可使用业务流程的输出参数"
 
 #: Disabled references:1
-msgid "定时"
-msgstr "定时"
+msgid "向业务流程的输入参数传递初始值，供其执行时使用"
+msgstr "向业务流程的输入参数传递初始值，供其执行时使用"
 
 #: Disabled references:1
-msgid "本节点中配置的所有时间数值均基于 %0 执行。"
-msgstr "本节点中配置的所有时间数值均基于 %0 执行。"
+msgid "业务流程无效或已删除"
+msgstr "业务流程无效或已删除"
 
 #: Disabled references:1
-msgid "当到达此时间点后，流程将会被自动关闭"
-msgstr "当到达此时间点后，流程将会被自动关闭"
+msgid "依据字段值"
+msgstr "依据字段值"
 
 #: Disabled references:1
 msgid "一直循环运行一段流程，并在参数达到退出条件后结束"
@@ -45678,100 +47086,100 @@ msgid "在本组织下，正在被以下事件调用"
 msgstr "在本组织下，正在被以下事件调用"
 
 #: Disabled references:1
-msgid "未被任何流程或按钮调用"
-msgstr "未被任何流程或按钮调用"
+msgid "其它应用下的自定义页面"
+msgstr "其它应用下的自定义页面"
 
 #: Disabled references:1
-msgid "工作流："
-msgstr "工作流："
+msgid "自定义页面无效或已删除"
+msgstr "自定义页面无效或已删除"
 
 #: Disabled references:1
-msgid "默认选项值"
-msgstr "默认选项值"
+msgid "按照所选视图配置的显示字段发送，如果操作者被分发了此视图，可以直接按权限编辑记录、执行自定义动作"
+msgstr "按照所选视图配置的显示字段发送，如果操作者被分发了此视图，可以直接按权限编辑记录、执行自定义动作"
 
 #: Disabled references:1
-msgid "默认值 (2019-10-01 09:00)"
-msgstr "默认值 (2019-10-01 09:00)"
+msgid "刷新当前页面"
+msgstr "刷新当前页面"
 
 #: Disabled references:1
-msgid "默认值 (人员ID)"
-msgstr "默认值 (人员ID)"
+msgid "弹层"
+msgstr "弹层"
 
 #: Disabled references:1
-msgid "默认值 (部门ID)"
-msgstr "默认值 (部门ID)"
+msgid "打开新页面"
+msgstr "打开新页面"
 
 #: Disabled references:1
-msgid "默认值 (组织角色ID)"
-msgstr "默认值 (组织角色ID)"
+msgid "推送模态窗口"
+msgstr "推送模态窗口"
 
 #: Disabled references:1
-msgid "默认值 (示例：[] )"
-msgstr "默认值 (示例：[] )"
+msgid "提示内容不允许为空"
+msgstr "提示内容不允许为空"
 
 #: Disabled references:1
-msgid "从JSON示例生成"
-msgstr "从JSON示例生成"
+msgid "链接不允许为空"
+msgstr "链接不允许为空"
 
 #: Disabled references:1
-msgid "JSON格式有错误"
-msgstr "JSON格式有错误"
+msgid "自定义页面不允许为空"
+msgstr "自定义页面不允许为空"
 
 #: Disabled references:1
-msgid "参数名（必填）"
-msgstr "参数名（必填）"
+msgid "工作表不允许为空"
+msgstr "工作表不允许为空"
 
 #: Disabled references:1
-msgid "没有输入参数的 API 请直接保存完成配置"
-msgstr "没有输入参数的 API 请直接保存完成配置"
+msgid "视图不允许为空"
+msgstr "视图不允许为空"
 
 #: Disabled references:1
-msgid "选项名和选项值不能为空"
-msgstr "选项名和选项值不能为空"
+msgid "记录不允许为空"
+msgstr "记录不允许为空"
 
 #: Disabled references:1
-msgid "在用户输入时字段的显示名称。如：请输入手机号"
-msgstr "在用户输入时字段的显示名称。如：请输入手机号"
+msgid "标题不允许为空"
+msgstr "标题不允许为空"
 
 #: Disabled references:1
-msgid "在节点、API调用时使用的参数名称，如：phone。未填写时，使用字段名"
-msgstr "在节点、API调用时使用的参数名称，如：phone。未填写时，使用字段名"
+msgid "在顶部显示并自动消失。用于一句话的简短提示"
+msgstr "在顶部显示并自动消失。用于一句话的简短提示"
 
 #: Disabled references:1
 msgid "选项值"
 msgstr "选项值"
 
 #: Disabled references:1
-msgid "添加默认值，如果用户未输入或映射任何数据，则使用此内容"
-msgstr "添加默认值，如果用户未输入或映射任何数据，则使用此内容"
+msgid "触发按钮后，直接推送指定内容给按钮操作者。不能是一个延时反馈（该节点与触发器之间不能有延时、人工和子流程节点）如果流程执行中触发了多个界面推送节点，只生效第一个"
+msgstr "触发按钮后，直接推送指定内容给按钮操作者。不能是一个延时反馈（该节点与触发器之间不能有延时、人工和子流程节点）如果流程执行中触发了多个界面推送节点，只生效第一个"
 
 #: Disabled references:1
-msgid "填写说明"
-msgstr "填写说明"
+msgid "推送内容"
+msgstr "推送内容"
 
 #: Disabled references:1
-msgid "为用户输入此参数时提供必要的帮助说明"
-msgstr "为用户输入此参数时提供必要的帮助说明"
+msgid "卡片按钮"
+msgstr "卡片按钮"
 
 #: Disabled references:1
-msgid "开关"
-msgstr "开关"
+msgid "按钮%0"
+msgstr "按钮%0"
 
 #: Disabled references:1
-msgid "数组结构（请给出一个范例）"
-msgstr "数组结构（请给出一个范例）"
+msgid "创建草稿记录"
+msgstr "创建草稿记录"
 
 #: Disabled references:1
-msgid "作为标题字段"
-msgstr "作为标题字段"
+msgid "提示类型"
+msgstr "提示类型"
 
 #: Disabled references:1
-msgid "在查看执行历史时，使用此字段作为数据标题"
-msgstr "在查看执行历史时，使用此字段作为数据标题"
+msgid "指定时间后"
+msgstr "指定时间后"
 
 #: Disabled references:1
-msgid "其他：%0"
-msgstr "其他：%0"
+msgid "永不，需要手动关闭"
+msgstr "永不，需要手动关闭"
 
 #: Disabled references:1
 msgid "未被任何流程触发"
@@ -45786,136 +47194,136 @@ msgid "触发方式"
 msgstr "触发方式"
 
 #: Disabled references:1
-msgid "包括用户自行注销或被管理员注销"
-msgstr "包括用户自行注销或被管理员注销"
+msgid "必须选择一个自定义页面"
+msgstr "必须选择一个自定义页面"
 
 #: Disabled references:1
-msgid "验证格式失败，请修改"
-msgstr "验证格式失败，请修改"
+msgid "必须选择一个统计图表"
+msgstr "必须选择一个统计图表"
 
 #: Disabled references:1
-msgid "请配置key-value参数"
-msgstr "请配置key-value参数"
+msgid "必须输入页面地址"
+msgstr "必须输入页面地址"
 
 #: Disabled references:1
-msgid "Webhook URL"
-msgstr "Webhook URL"
+msgid "获取自定义页面的快照图片，供流程中其他节点使用。"
+msgstr "获取自定义页面的快照图片，供流程中其他节点使用。"
 
 #: Disabled references:1
-msgid "我们为您生成了一个用来接收请求的URL"
-msgstr "我们为您生成了一个用来接收请求的URL"
+msgid "获取统计图表的快照图片，供流程中其他节点使用。"
+msgstr "获取统计图表的快照图片，供流程中其他节点使用。"
 
 #: Disabled references:1
-msgid "生成参数列表"
-msgstr "生成参数列表"
+msgid "通过链接地址获取页面的快照图片，供流程中其他节点使用。"
+msgstr "通过链接地址获取页面的快照图片，供流程中其他节点使用。"
 
 #: Disabled references:1
-msgid "系统将根据生成的参数列表来抓取请求中的数据"
-msgstr "系统将根据生成的参数列表来抓取请求中的数据"
+msgid "页面类型"
+msgstr "页面类型"
 
 #: Disabled references:1
-msgid "从请求范例生成"
-msgstr "从请求范例生成"
+msgid "选择自定义页面"
+msgstr "选择自定义页面"
 
 #: Disabled references:1
-msgid "请准备一条GET或POST请求"
-msgstr "请准备一条GET或POST请求"
+msgid "快照不能获取已配置按权限访问的图表"
+msgstr "快照不能获取已配置按权限访问的图表"
 
 #: Disabled references:1
-msgid "从JSON数据范例生成"
-msgstr "从JSON数据范例生成"
+msgid "输入页面地址"
+msgstr "输入页面地址"
 
 #: Disabled references:1
-msgid "从key-value pairs生成"
-msgstr "从key-value pairs生成"
+msgid "输入外部公开页面完整地址，需要账号登录的页面无法获取。外部页面可能捕捉不完整或出错，请测试是否可以正常使用。"
+msgstr "输入外部公开页面完整地址，需要账号登录的页面无法获取。外部页面可能捕捉不完整或出错，请测试是否可以正常使用。"
 
 #: Disabled references:1
-msgid "请在3分钟内向URL发送一条GET或POST请求"
-msgstr "请在3分钟内向URL发送一条GET或POST请求"
+msgid "页面宽度"
+msgstr "页面宽度"
 
 #: Disabled references:1
-msgid "当前URL并没有收到任何有效请求，是否重试?"
-msgstr "当前URL并没有收到任何有效请求，是否重试?"
+msgid "页面高度"
+msgstr "页面高度"
 
 #: Disabled references:1
-msgid "正在接收请求…"
-msgstr "正在接收请求…"
+msgid "等待时长"
+msgstr "等待时长"
 
 #: Disabled references:1
-msgid "生成Body全文参数"
-msgstr "生成Body全文参数"
+msgid "等待页面加载一段时间后再开始截图。当截取页面未完全加载时，可适当延长时间。单位秒，默认60秒。"
+msgstr "等待页面加载一段时间后再开始截图。当截取页面未完全加载时，可适当延长时间。单位秒，默认60秒。"
 
 #: Disabled references:1
-msgid "勾选后，将会生成一个记录Body全文的文本格式参数"
-msgstr "勾选后，将会生成一个记录Body全文的文本格式参数"
+msgid "记录链接不能为空"
+msgstr "记录链接不能为空"
 
 #: Disabled references:1
-msgid "请提供一个请求数据示例 （JSON格式）"
-msgstr "请提供一个请求数据示例 （JSON格式）"
+msgid "必须选择一个目标工作表"
+msgstr "必须选择一个目标工作表"
 
 #: Disabled references:1
-msgid "参数列表"
-msgstr "参数列表"
+msgid "通过解析内部成员访问或对外公开分享的记录链接来获取对应的记录对象，供流程中的其他节点使用。场景例如：仓库管理员在PC端使用扫描枪来扫描商品的二维码，将指向的记录链接写入文本框，由工作流解析出关联的产品，实现自动化出入库。"
+msgstr "通过解析内部成员访问或对外公开分享的记录链接来获取对应的记录对象，供流程中的其他节点使用。场景例如：仓库管理员在PC端使用扫描枪来扫描商品的二维码，将指向的记录链接写入文本框，由工作流解析出关联的产品，实现自动化出入库。"
 
 #: Disabled references:1
-msgid "系统将根据以下参数列表来抓取请求中的数据。支持将参数设为必填项，此时如果对方的请求中没有附带该参数时，我们将返回错误消息\"msg\": \"参数缺少必填项\"。"
-msgstr "系统将根据以下参数列表来抓取请求中的数据。支持将参数设为必填项，此时如果对方的请求中没有附带该参数时，我们将返回错误消息\"msg\": \"参数缺少必填项\"。"
+msgid "根据筛选条件和排序规则从工作表中查找符合条件的第一条数据，并在获取的同时对记录进行更新（原子性防止并发操作，适用于出入库等场景）"
+msgstr "根据筛选条件和排序规则从工作表中查找符合条件的第一条数据，并在获取的同时对记录进行更新（原子性防止并发操作，适用于出入库等场景）"
 
 #: Disabled references:1
-msgid "请求"
-msgstr "请求"
+msgid "从工作表中通过筛选条件和排序规则直接删除符合条件的唯一数据"
+msgstr "从工作表中通过筛选条件和排序规则直接删除符合条件的唯一数据"
 
 #: Disabled references:1
-msgid "自定义返回数据"
-msgstr "自定义返回数据"
+msgid "选择多条数据节点"
+msgstr "选择多条数据节点"
 
 #: Disabled references:1
-msgid "系统默认接受数据后返回"
-msgstr "系统默认接受数据后返回"
+msgid "使用记录更新前的数据"
+msgstr "使用记录更新前的数据"
 
 #: Disabled references:1
-msgid "当新增记录时触发流程"
-msgstr "当新增记录时触发流程"
+msgid "执行到本节点时保存该记录更新前的数据，供流程中的其他节点使用"
+msgstr "执行到本节点时保存该记录更新前的数据，供流程中的其他节点使用"
 
 #: Disabled references:1
-msgid "仅更新记录时"
-msgstr "仅更新记录时"
+msgid "使用记录的最新数据"
+msgstr "使用记录的最新数据"
 
 #: Disabled references:1
-msgid "删除记录时"
-msgstr "删除记录时"
+msgid "每次其他节点使用到本节点数据时，重新获取该记录的最新数据"
+msgstr "每次其他节点使用到本节点数据时，重新获取该记录的最新数据"
 
 #: Disabled references:1
-msgid "订阅事件类型"
-msgstr "订阅事件类型"
+msgid "新版查找方式支持通过多个筛选条件和排序规则来实现更精准查找。"
+msgstr "新版查找方式支持通过多个筛选条件和排序规则来实现更精准查找。"
 
 #: Disabled references:1
-msgid "选择触发字段"
-msgstr "选择触发字段"
+msgid "注意：切换后您需要重新配置查找规则"
+msgstr "注意：切换后您需要重新配置查找规则"
 
 #: Disabled references:1
-msgid "当以上指定的其中一个字段更新时将触发流程，如未指定则表示任何字段更新时都会触发"
-msgstr "当以上指定的其中一个字段更新时将触发流程，如未指定则表示任何字段更新时都会触发"
+msgid "，是否切换为新版？"
+msgstr "，是否切换为新版？"
 
 #: Disabled references:1
-msgid "请设置有效的参数"
-msgstr "请设置有效的参数"
+msgid "切换为新版，并重新配置"
+msgstr "切换为新版，并重新配置"
 
 #: Disabled references:1
-msgid "自定义数据返回JSON格式错误，请修改"
-msgstr "自定义数据返回JSON格式错误，请修改"
+msgid "被之后节点使用时"
+msgstr "被之后节点使用时"
 
 #: Disabled references:1
-msgid "数组范例数据有错误"
-msgstr "数组范例数据有错误"
+msgid "获取记录数据"
+msgstr "获取记录数据"
 
 #: Disabled references:1
-msgid "对象数组下至少要有一个参数"
-msgstr "对象数组下至少要有一个参数"
+msgid "删除前保留记录数据，供之后的流程节点使用"
+msgstr "删除前保留记录数据，供之后的流程节点使用"
 
 #: Disabled references:1
-msgid "对象数组下，子节点的别名为必填"
-msgstr "对象数组下，子节点的别名为必填"
+msgid "暂无工作表，请先在应用里创建"
+msgstr "暂无工作表，请先在应用里创建"
 
 #: Disabled references:1
 msgid "单选的选项名和选项值不能为空"
@@ -49290,6 +50698,106 @@ msgid "你修改的设置尚未保存，确定要离开吗？"
 msgstr "你修改的设置尚未保存，确定要离开吗？"
 
 #: Disabled references:1
+msgid "隐藏的成员"
+msgstr "隐藏的成员"
+
+#: Disabled references:1
+msgid "被隐藏的成员 ，不会显示在通讯录中"
+msgstr "被隐藏的成员 ，不会显示在通讯录中"
+
+#: Disabled references:1
+msgid "限制查看外部门"
+msgstr "限制查看外部门"
+
+#: Disabled references:1
+msgid "被限制后，只能看到本部门的通讯录"
+msgstr "被限制后，只能看到本部门的通讯录"
+
+#: Disabled references:1
+msgid "规则生效范围包含所选部门的子部门"
+msgstr "规则生效范围包含所选部门的子部门"
+
+#: Disabled references:1
+msgid "当前用户数已超出人数限制"
+msgstr "当前用户数已超出人数限制"
+
+#: Disabled references:1
+msgid "恢复权限"
+msgstr "恢复权限"
+
+#: Disabled references:1
+msgid "额外可见的成员"
+msgstr "额外可见的成员"
+
+#: Disabled references:1
+msgid "限制查看所有人"
+msgstr "限制查看所有人"
+
+#: Disabled references:1
+msgid "被隐藏的成员 被限制后，不能看到企业所有通讯录"
+msgstr "被隐藏的成员 被限制后，不能看到企业所有通讯录"
+
+#: Disabled references:1
+msgid "请完善规则内容"
+msgstr "请完善规则内容"
+
+#: Disabled references:1
+msgid "焦点"
+msgstr "焦点"
+
+#: Disabled references:1
+msgid "规则 %0"
+msgstr "规则 %0"
+
+#: Disabled references:1
+msgid "确定删除这条规则么？"
+msgstr "确定删除这条规则么？"
+
+#: Disabled references:1
+msgid "错误详情"
+msgstr "错误详情"
+
+#: Disabled references:1
+msgid "以下 %0 项 升级失败"
+msgstr "以下 %0 项 升级失败"
+
+#: Disabled references:1
+msgid " 会员管理 "
+msgstr " 会员管理 "
+
+#: Disabled references:1
+msgid " 会员卡号 "
+msgstr " 会员卡号 "
+
+#: Disabled references:1
+msgid " 新增失败 "
+msgstr " 新增失败 "
+
+#: Disabled references:1
+msgid " 充值看板 "
+msgstr " 充值看板 "
+
+#: Disabled references:1
+msgid " 更新失败 "
+msgstr " 更新失败 "
+
+#: Disabled references:1
+msgid " 外部功能 新增失败"
+msgstr " 外部功能 新增失败"
+
+#: Disabled references:1
+msgid " 技术人员 新增失败"
+msgstr " 技术人员 新增失败"
+
+#: Disabled references:1
+msgid " 新增充值流程 新增失败"
+msgstr " 新增充值流程 新增失败"
+
+#: Disabled references:1
+msgid "部分变更"
+msgstr "部分变更"
+
+#: Disabled references:1
 msgid "审批角色"
 msgstr "审批角色"
 
@@ -49362,10 +50870,6 @@ msgid "请选择用户导出"
 msgstr "请选择用户导出"
 
 #: Disabled references:1
-msgid "当前用户数已超出人数限制"
-msgstr "当前用户数已超出人数限制"
-
-#: Disabled references:1
 msgid "恢复权限"
 msgstr "恢复权限"
 
@@ -49382,8 +50886,8 @@ msgid "导出选中用户"
 msgstr "导出选中用户"
 
 #: Disabled references:1
-msgid "请完善规则内容"
-msgstr "请完善规则内容"
+msgid "更新详情"
+msgstr "更新详情"
 
 #: Disabled references:1
 msgid "焦点"
@@ -49392,154 +50896,6 @@ msgstr "焦点"
 #: Disabled references:1
 msgid "共%0个字段"
 msgstr "共%0个字段"
-
-#: Disabled references:1
-msgid "更新详情"
-msgstr "更新详情"
-
-#: Disabled references:1
-msgid "错误详情"
-msgstr "错误详情"
-
-#: Disabled references:1
-msgid "以下 %0 项 升级失败"
-msgstr "以下 %0 项 升级失败"
-
-#: Disabled references:1
-msgid " 会员管理 "
-msgstr " 会员管理 "
-
-#: Disabled references:1
-msgid " 会员卡号 "
-msgstr " 会员卡号 "
-
-#: Disabled references:1
-msgid " 新增失败 "
-msgstr " 新增失败 "
-
-#: Disabled references:1
-msgid " 充值看板 "
-msgstr " 充值看板 "
-
-#: Disabled references:1
-msgid " 更新失败 "
-msgstr " 更新失败 "
-
-#: Disabled references:1
-msgid " 外部功能 新增失败"
-msgstr " 外部功能 新增失败"
-
-#: Disabled references:1
-msgid " 技术人员 新增失败"
-msgstr " 技术人员 新增失败"
-
-#: Disabled references:1
-msgid " 新增充值流程 新增失败"
-msgstr " 新增充值流程 新增失败"
-
-#: Disabled references:1
-msgid "部分变更"
-msgstr "部分变更"
-
-#: Disabled references:1
-msgid "升级范围"
-msgstr "升级范围"
-
-#: Disabled references:1
-msgid "不更新应用外观导航"
-msgstr "不更新应用外观导航"
-
-#: Disabled references:1
-msgid "不更新角色的显隐配置"
-msgstr "不更新角色的显隐配置"
-
-#: Disabled references:1
-msgid "导入时匹配人员部门和组织角色"
-msgstr "导入时匹配人员部门和组织角色"
-
-#: Disabled references:1
-msgid "升级时同时备份当前版本"
-msgstr "升级时同时备份当前版本"
-
-#: Disabled references:1
-msgid "工作表数量超标"
-msgstr "工作表数量超标"
-
-#: Disabled references:1
-msgid "上传的文件不能来源于同一个应用"
-msgstr "上传的文件不能来源于同一个应用"
-
-#: Disabled references:1
-msgid "导入文件不在允许升级范围内"
-msgstr "导入文件不在允许升级范围内"
-
-#: Disabled references:1
-msgid "应用中没有可导入的数据"
-msgstr "应用中没有可导入的数据"
-
-#: Disabled references:1
-msgid "密码错误，校验失败"
-msgstr "密码错误，校验失败"
-
-#: Disabled references:1
-msgid "%0密码错误，校验失败"
-msgstr "%0密码错误，校验失败"
-
-#: Disabled references:1
-msgid "上传多个应用文件，实现多个应用整体升级。最多上传%0个文件。"
-msgstr "上传多个应用文件，实现多个应用整体升级。最多上传%0个文件。"
-
-#: Disabled references:1
-msgid "导入单个应用文件，实现对当前应用快速升级。"
-msgstr "导入单个应用文件，实现对当前应用快速升级。"
-
-#: Disabled references:1
-msgid "请确认私有部署的版本，高版本向低版本导入，可能会导入失败。"
-msgstr "请确认私有部署的版本，高版本向低版本导入，可能会导入失败。"
-
-#: Disabled references:1
-msgid "应用升级需要一段时间，正在升级中的应用将为不可用状态。"
-msgstr "应用升级需要一段时间，正在升级中的应用将为不可用状态。"
-
-#: Disabled references:1
-msgid "文件已加密，需要验证通过才能上传"
-msgstr "文件已加密，需要验证通过才能上传"
-
-#: Disabled references:1
-msgid "正在校验升级内容..."
-msgstr "正在校验升级内容..."
-
-#: Disabled references:1
-msgid "此步骤可能耗时较久，请耐心等待"
-msgstr "此步骤可能耗时较久，请耐心等待"
-
-#: Disabled references:1
-msgid "本次升级将会有以下变更，请确认要更新的内容，取消勾选则表示不作变更"
-msgstr "本次升级将会有以下变更，请确认要更新的内容，取消勾选则表示不作变更"
-
-#: Disabled references:1
-msgid "本次升级将会有以下变更"
-msgstr "本次升级将会有以下变更"
-
-#: Disabled references:1
-msgid "数据正在加载中..."
-msgstr "数据正在加载中..."
-
-#: Disabled references:1
-msgid "选择需要升级的应用，可以选择同源应用升级或者生成为新的应用"
-msgstr "选择需要升级的应用，可以选择同源应用升级或者生成为新的应用"
-
-#: Disabled references:1
-msgid "退出导入升级"
-msgstr "退出导入升级"
-
-#: Disabled references:1
-msgid "当前进程不会被保存"
-msgstr "当前进程不会被保存"
-
-#: Disabled references:1
-msgid "应用导入升级"
-msgstr "应用导入升级"
 
 #: Disabled references:1
 msgid "请求校验异常"
@@ -49556,6 +50912,10 @@ msgstr "重试超过6次"
 #: Disabled references:1
 msgid "解析错误"
 msgstr "解析错误"
+
+#: Disabled references:1
+msgid "工作表数量超标"
+msgstr "工作表数量超标"
 
 #: Disabled references:1
 msgid "密码不正确，请重新输入密码"
@@ -49676,6 +51036,106 @@ msgstr "轴"
 #: Disabled references:1
 msgid "字体色"
 msgstr "字体色"
+
+#: Disabled references:1
+msgid "（组织者）"
+msgstr "（组织者）"
+
+#: Disabled references:1
+msgid "群发邮件"
+msgstr "群发邮件"
+
+#: Disabled references:1
+msgid "更新日程信息后，是否需要通知参与人员重新确认？"
+msgstr "更新日程信息后，是否需要通知参与人员重新确认？"
+
+#: Disabled references:1
+msgid "不需要"
+msgstr "不需要"
+
+#: Disabled references:1
+msgid "通知重新确认"
+msgstr "通知重新确认"
+
+#: Disabled references:1
+msgid "日程重复性修改，不支持此操作"
+msgstr "日程重复性修改，不支持此操作"
+
+#: Disabled references:1
+msgid "添加会议地点"
+msgstr "添加会议地点"
+
+#: Disabled references:1
+msgid "未填写会议地点"
+msgstr "未填写会议地点"
+
+#: Disabled references:1
+msgid "全天:"
+msgstr "全天:"
+
+#: Disabled references:1
+msgid "重复：%0 "
+msgstr "重复：%0 "
+
+#: Disabled references:1
+msgid "重复:"
+msgstr "重复:"
+
+#: Disabled references:1
+msgid "频率:"
+msgstr "频率:"
+
+#: Disabled references:1
+msgid "结果:"
+msgstr "结果:"
+
+#: Disabled references:1
+msgid "添加出席者"
+msgstr "添加出席者"
+
+#: Disabled references:1
+msgid "通过日程分享加入的用户"
+msgstr "通过日程分享加入的用户"
+
+#: Disabled references:1
+msgid "退出本日程"
+msgstr "退出本日程"
+
+#: Disabled references:1
+msgid "移出本日程"
+msgstr "移出本日程"
+
+#: Disabled references:1
+msgid "重新发送邀请"
+msgstr "重新发送邀请"
+
+#: Disabled references:1
+msgid "来自微信邀请"
+msgstr "来自微信邀请"
+
+#: Disabled references:1
+msgid "私密日程 (仅成员可见)"
+msgstr "私密日程 (仅成员可见)"
+
+#: Disabled references:1
+msgid "仅日程组织者可修改"
+msgstr "仅日程组织者可修改"
+
+#: Disabled references:1
+msgid "日程内容默认公开给所有同事，勾选私密日程，将仅对参与人员公开。"
+msgstr "日程内容默认公开给所有同事，勾选私密日程，将仅对参与人员公开。"
+
+#: Disabled references:1
+msgid "勾选电话提醒，将以电话语音形式通知您"
+msgstr "勾选电话提醒，将以电话语音形式通知您"
+
+#: Disabled references:1
+msgid "只显示与我相关"
+msgstr "只显示与我相关"
+
+#: Disabled references:1
+msgid "添加摘要"
+msgstr "添加摘要"
 
 #: Disabled references:1
 msgid "回复、提到我的人"
@@ -49922,6 +51382,78 @@ msgid "详细结果"
 msgstr "详细结果"
 
 #: Disabled references:1
+msgid "工作表数据"
+msgstr "工作表数据"
+
+#: Disabled references:1
+msgid "从当前用户作为管理员的应用工作表实时同步"
+msgstr "从当前用户作为管理员的应用工作表实时同步"
+
+#: Disabled references:1
+msgid "外部数据源"
+msgstr "外部数据源"
+
+#: Disabled references:1
+msgid "从本地数据库，云数据库或消息队列服务器读取数据并实时同步"
+msgstr "从本地数据库，云数据库或消息队列服务器读取数据并实时同步"
+
+#: Disabled references:1
+msgid "%0个筛选条件"
+msgstr "%0个筛选条件"
+
+#: Disabled references:1
+msgid "分类 %0个字段，汇总 %1个字段"
+msgstr "分类 %0个字段，汇总 %1个字段"
+
+#: Disabled references:1
+msgid "分类 %0个字段"
+msgstr "分类 %0个字段"
+
+#: Disabled references:1
+msgid "汇总 %0个字段"
+msgstr "汇总 %0个字段"
+
+#: Disabled references:1
+msgid "更新发布..."
+msgstr "更新发布..."
+
+#: Disabled references:1
+msgid "此操作会重新同步全量数据"
+msgstr "此操作会重新同步全量数据"
+
+#: Disabled references:1
+msgid "识别重复数据"
+msgstr "识别重复数据"
+
+#: Disabled references:1
+msgid "未选择目标字段时, 会根据数据源的主键字段判断重复"
+msgstr "未选择目标字段时, 会根据数据源的主键字段判断重复"
+
+#: Disabled references:1
+msgid "在同步时，依据目标字段"
+msgstr "在同步时，依据目标字段"
+
+#: Disabled references:1
+msgid "识别重复，并"
+msgstr "识别重复，并"
+
+#: Disabled references:1
+msgid "覆盖"
+msgstr "覆盖"
+
+#: Disabled references:1
+msgid "“覆盖”会导致数据同步变慢"
+msgstr "“覆盖”会导致数据同步变慢"
+
+#: Disabled references:1
+msgid "其他配置"
+msgstr "其他配置"
+
+#: Disabled references:1
+msgid "在本次同步数据之前，彻底清空目标表数据"
+msgstr "在本次同步数据之前，彻底清空目标表数据"
+
+#: Disabled references:1
 msgid "对源数据进行分类和汇总统计运算后，作为新的数据进入本节点。"
 msgstr "对源数据进行分类和汇总统计运算后，作为新的数据进入本节点。"
 
@@ -49992,6 +51524,122 @@ msgstr "由于预览数据基于流式实时传输，显示的数据可能与实
 #: Disabled references:1
 msgid "字段配置"
 msgstr "字段配置"
+
+#: Disabled references:1
+msgid "数据源名称不能为空"
+msgstr "数据源名称不能为空"
+
+#: Disabled references:1
+msgid "没有可创建的同步任务"
+msgstr "没有可创建的同步任务"
+
+#: Disabled references:1
+msgid "请先选择目标数据库"
+msgstr "请先选择目标数据库"
+
+#: Disabled references:1
+msgid "未选择Schema"
+msgstr "未选择Schema"
+
+#: Disabled references:1
+msgid "未选择或填写数据表"
+msgstr "未选择或填写数据表"
+
+#: Disabled references:1
+msgid "未设置重复数据识别方式"
+msgstr "未设置重复数据识别方式"
+
+#: Disabled references:1
+msgid "有同步任务未选择主键字段"
+msgstr "有同步任务未选择主键字段"
+
+#: Disabled references:1
+msgid "目的地主键未设置相关映射"
+msgstr "目的地主键未设置相关映射"
+
+#: Disabled references:1
+msgid "有同步任务未选择任何字段"
+msgstr "有同步任务未选择任何字段"
+
+#: Disabled references:1
+msgid "已勾选的字段信息未填写完整"
+msgstr "已勾选的字段信息未填写完整"
+
+#: Disabled references:1
+msgid "目标表名称已存在, 需要修改目的地表名称"
+msgstr "目标表名称已存在, 需要修改目的地表名称"
+
+#: Disabled references:1
+msgid "字段名不能重复"
+msgstr "字段名不能重复"
+
+#: Disabled references:1
+msgid "新建表名不能重复"
+msgstr "新建表名不能重复"
+
+#: Disabled references:1
+msgid "新建工作表字段数不能超过200"
+msgstr "新建工作表字段数不能超过200"
+
+#: Disabled references:1
+msgid "目标工作表未设置标题字段"
+msgstr "目标工作表未设置标题字段"
+
+#: Disabled references:1
+msgid "定时设置依据字段未设置"
+msgstr "定时设置依据字段未设置"
+
+#: Disabled references:1
+msgid "首次读取开始值不允许为空"
+msgstr "首次读取开始值不允许为空"
+
+#: Disabled references:1
+msgid "首次读取开始值格式不完整"
+msgstr "首次读取开始值格式不完整"
+
+#: Disabled references:1
+msgid "余量不足"
+msgstr "余量不足"
+
+#: Disabled references:1
+msgid "当前版本最多可创建${res.maxTaskNum}个同步任务, 请升级版本以创建更多同步任务"
+msgstr "当前版本最多可创建${res.maxTaskNum}个同步任务, 请升级版本以创建更多同步任务"
+
+#: Disabled references:1
+msgid "免费版最多可创建${res.maxTaskNum}个同步任务, 请升级版本以创建更多同步任务"
+msgstr "免费版最多可创建${res.maxTaskNum}个同步任务, 请升级版本以创建更多同步任务"
+
+#: Disabled references:1
+msgid "创建%0个同步任务"
+msgstr "创建%0个同步任务"
+
+#: Disabled references:1
+msgid "太棒了！同步任务创建成功"
+msgstr "太棒了！同步任务创建成功"
+
+#: Disabled references:1
+msgid "可在"
+msgstr "可在"
+
+#: Disabled references:1
+msgid "中查看任务的运行状态与同步详情"
+msgstr "中查看任务的运行状态与同步详情"
+
+#: Disabled references:1
+msgid "连续60天无数据同步，会自动停止"
+msgstr "连续60天无数据同步，会自动停止"
+
+#: Disabled references:1
+msgid "查看同步任务"
+msgstr "查看同步任务"
+
+#: Disabled references:1
+msgid "任务创建中..."
+msgstr "任务创建中..."
+
+#: Disabled references:1
+msgid "可能需要一些时间，请耐心等待"
+msgstr "可能需要一些时间，请耐心等待"
 
 #: Disabled references:1
 msgid "从当前用户作为管理员的应用工作表实时同步"
@@ -50374,6 +52022,34 @@ msgid "依据字段 %0 更新数据"
 msgstr "依据字段 %0 更新数据"
 
 #: Disabled references:1
+msgid "删除数据源"
+msgstr "删除数据源"
+
+#: Disabled references:1
+msgid "删除后，相关的同步任务会立即终止"
+msgstr "删除后，相关的同步任务会立即终止"
+
+#: Disabled references:1
+msgid "数据源删除成功"
+msgstr "数据源删除成功"
+
+#: Disabled references:1
+msgid "源类型"
+msgstr "源类型"
+
+#: Disabled references:1
+msgid "地址"
+msgstr "地址"
+
+#: Disabled references:1
+msgid "源 / 目的地"
+msgstr "源 / 目的地"
+
+#: Disabled references:1
+msgid "搜索数据源名称 / 地址 / 创建人"
+msgstr "搜索数据源名称 / 地址 / 创建人"
+
+#: Disabled references:1
 msgid "作为源"
 msgstr "作为源"
 
@@ -50576,6 +52252,30 @@ msgstr "展开到%0级任务"
 #: Disabled references:1
 msgid "展开层级"
 msgstr "展开层级"
+
+#: Disabled references:1
+msgid "添加关注的同事"
+msgstr "添加关注的同事"
+
+#: Disabled references:1
+msgid "添加经常协作的同事，将显示他负责的任务中您可见的部分"
+msgstr "添加经常协作的同事，将显示他负责的任务中您可见的部分"
+
+#: Disabled references:1
+msgid "更多任务"
+msgstr "更多任务"
+
+#: Disabled references:1
+msgid "您还没有下属"
+msgstr "您还没有下属"
+
+#: Disabled references:1
+msgid "可前往 组织管理-员工汇报关系中设置，或关注与您协作的同事，查看相关任务进展。"
+msgstr "可前往 组织管理-员工汇报关系中设置，或关注与您协作的同事，查看相关任务进展。"
+
+#: Disabled references:1
+msgid "添加同事"
+msgstr "添加同事"
 
 #: Disabled references:1
 msgid "加为项目成员"
@@ -53766,6 +55466,22 @@ msgid "如：在商品表中以商品类型（生鲜、副食、饮料等）作�
 msgstr "如：在商品表中以商品类型（生鲜、副食、饮料等）作为筛选列表时，如果当前选中了饮料分类，则创建记录时商品类型默认为饮料。"
 
 #: Disabled references:1
+msgid "周天"
+msgstr "周天"
+
+#: Disabled references:1
+msgid "添加里程碑字段"
+msgstr "添加里程碑字段"
+
+#: Disabled references:1
+msgid "里程碑"
+msgstr "里程碑"
+
+#: Disabled references:1
+msgid "选择一个检查项字段标记记录属性为里程碑"
+msgstr "选择一个检查项字段标记记录属性为里程碑"
+
+#: Disabled references:1
 msgid "卡片显示内容"
 msgstr "卡片显示内容"
 
@@ -54046,6 +55762,62 @@ msgid "您确定要取消导入数据吗？"
 msgstr "您确定要取消导入数据吗？"
 
 #: Disabled references:1
+msgid "请输入天数"
+msgstr "请输入天数"
+
+#: Disabled references:1
+msgid "包括今天"
+msgstr "包括今天"
+
+#: Disabled references:1
+msgid "六级"
+msgstr "六级"
+
+#: Disabled references:1
+msgid "七级"
+msgstr "七级"
+
+#: Disabled references:1
+msgid "八级"
+msgstr "八级"
+
+#: Disabled references:1
+msgid "九级"
+msgstr "九级"
+
+#: Disabled references:1
+msgid "十级"
+msgstr "十级"
+
+#: Disabled references:1
+msgid "当前表单"
+msgstr "当前表单"
+
+#: Disabled references:1
+msgid "选择已添加的筛选项"
+msgstr "选择已添加的筛选项"
+
+#: Disabled references:1
+msgid "选择当前表单字段"
+msgstr "选择当前表单字段"
+
+#: Disabled references:1
+msgid "使用“%0”"
+msgstr "使用“%0”"
+
+#: Disabled references:1
+msgid "该用户已存在"
+msgstr "该用户已存在"
+
+#: Disabled references:1
+msgid "有%25026"
+msgstr "有"
+
+#: Disabled references:1
+msgid "无%25027"
+msgstr "无"
+
+#: Disabled references:1
 msgid "仅更新"
 msgstr "仅更新"
 
@@ -54212,6 +55984,18 @@ msgstr "数据导入 - 上传Excel（1/3）"
 #: Disabled references:1
 msgid "支持10MB以内的xls、xlsx、csv文件, 最大行数不超过%0行，列数不超过200列；导入多选类型的控件，请确保Excel字段内各个选项/人员用“，”隔开；导入地区控件，省市县之间以“/”隔开，如：江西省/上饶市/铅山县，如填写的地区格式没有“/”，则会按照名称精准匹配"
 msgstr "支持10MB以内的xls、xlsx、csv文件, 最大行数不超过%0行，列数不超过200列；导入多选类型的控件，请确保Excel字段内各个选项/人员用“，”隔开；导入地区控件，省市县之间以“/”隔开，如：江西省/上饶市/铅山县，如填写的地区格式没有“/”，则会按照名称精准匹配"
+
+#: Disabled references:1
+msgid "错误单元格分两种，非留白和留白类错误，留白类错误在错误报告中红字提示"
+msgstr "错误单元格分两种，非留白和留白类错误，留白类错误在错误报告中红字提示"
+
+#: Disabled references:1
+msgid "下载错误报告"
+msgstr "下载错误报告"
+
+#: Disabled references:1
+msgid "错误报告"
+msgstr "错误报告"
 
 #: Disabled references:1
 msgid "编辑选中记录"
@@ -54476,6 +56260,10 @@ msgstr "个用户"
 #: Disabled references:1
 msgid "批准"
 msgstr "批准"
+
+#: Disabled references:1
+msgid "批准成功"
+msgstr "批准成功"
 
 #: Disabled references:1
 msgid "批量批准用户加入失败"

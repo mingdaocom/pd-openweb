@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import { Drawer } from 'antd';
 import { Input, SvgIcon, LoadDiv } from 'ming-ui';
@@ -10,6 +10,7 @@ import _ from 'lodash';
 
 export default function WorksheetLogDrawer(props) {
   const { visible, projectId, appId, onClose = () => {} } = props;
+  const worksheetListRef = useRef(null);
   const [{ worksheetLoading, worksheetList, selectWorksheetId, searchValue, searchWorksheetList }, setData] =
     useSetState({
       worksheetLoading: true,
@@ -26,7 +27,7 @@ export default function WorksheetLogDrawer(props) {
         setData({
           worksheetLoading: false,
           worksheetList: res.filter(v => v.type === 0),
-          selectWorksheetId: _.get(res, '[0].workSheetId'),
+          selectWorksheetId: props.selectWorksheetId || _.get(res, '[0].workSheetId'),
         });
       })
       .catch(err => {
@@ -43,6 +44,13 @@ export default function WorksheetLogDrawer(props) {
   useEffect(() => {
     getWorksheets();
   }, []);
+
+  useEffect(() => {
+    if (!!props.selectWorksheetId && worksheetListRef) {
+      const index = _.findIndex(worksheetList, v => v.workSheetId === props.selectWorksheetId);
+      worksheetListRef.current.scrollTop = index * 36;
+    }
+  }, [worksheetList]);
 
   return (
     <Drawer
@@ -62,7 +70,7 @@ export default function WorksheetLogDrawer(props) {
             <Input placeholder={_l('搜索')} value={searchValue} onChange={handleSearch} />
           </div>
           <div className="mTop15 mLeft16 mBottom10">{_l('选择工作表')}</div>
-          <div className="worksheetList flex">
+          <div className="worksheetList flex" ref={worksheetListRef}>
             {worksheetLoading ? (
               <LoadDiv className="mTop50" />
             ) : searchValue && _.isEmpty(searchWorksheetList) ? (

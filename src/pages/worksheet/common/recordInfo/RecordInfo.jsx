@@ -325,6 +325,7 @@ export default class RecordInfo extends Component {
       hideRows,
       hideRecordInfo,
       enablePayment,
+      disableOpenRecordFromRelateRecord,
       onError = _.noop,
     } = props || this.props;
     let { sheetSwitchPermit } = this.state;
@@ -381,6 +382,13 @@ export default class RecordInfo extends Component {
           ...c,
           hidden: c.hidden || (view.controls || _.get(data, 'view.controls') || []).includes(c.controlId),
         };
+        if (disableOpenRecordFromRelateRecord) {
+          try {
+            newControl.advancedSetting.allowlink = '0';
+          } catch (err) {
+            console.error(err);
+          }
+        }
         if (c.type === 29 && get(c, 'advancedSetting.showtype') === String(RELATE_RECORD_SHOW_TYPE.TABLE)) {
           // 关联表格配置了过滤结果后，需要不显示实际关联数量，显示过滤后数量
           const strDefault = c.strDefault || '';

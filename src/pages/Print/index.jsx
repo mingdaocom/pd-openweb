@@ -443,6 +443,13 @@ class PrintForm extends React.Component {
           relaControl.dataSource,
           relaControl.relationControls,
         );
+        if (res.relationMaps[key] && _.get(res.relationMaps[key], 'template.controls')) {
+          res.relationMaps[key].template.controls = replaceControlsTranslateInfo(
+            appId,
+            relaControl.dataSource,
+            res.relationMaps[key].template.controls,
+          );
+        }
       });
 
       const rules = resData[1];
@@ -899,7 +906,7 @@ class PrintForm extends React.Component {
                   className="Font16"
                   style={{ marginLeft: -14, 'vertical-align': 'bottom' }}
                 />
-                {_l(fileTypeNum === 5 ? '下载Excel文件' : '下载Word文件')}
+                {fileTypeNum === 5 ? _l('下载 Excel 文件') : _l('下载 Word 文件')}
               </p>
             )}
             <div

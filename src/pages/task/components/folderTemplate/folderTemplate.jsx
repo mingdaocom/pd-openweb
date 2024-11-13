@@ -112,6 +112,15 @@ export default class FolderTemplate extends Component {
   render() {
     const templateType = this.state.templateType;
     const templates = this.state.templates;
+    const TYPE_NAME = {
+      '-1': _l('我的模板'),
+      0: _l('常用模板'),
+      1: _l('产品研发'),
+      2: _l('行政人事'),
+      3: _l('销售管理'),
+      4: _l('市场营销'),
+      5: _l('其他行业'),
+    };
 
     return (
       <Dialog
@@ -122,72 +131,78 @@ export default class FolderTemplate extends Component {
         showFooter={false}
         onCancel={this.props.onClose}
       >
-        {templateType.length === 0 ? <LoadDiv /> : <div className="flexRow">
-          {templateType.length > 1 && (
-            <ul className="folderTemplateSidebar">
-              {templateType.map((type, i) => {
-                return (
-                  <li
-                    className={cx({ ThemeColor3: type.templateTypeId === this.state.selectType })}
-                    key={i}
-                    onClick={() => this.getTemplates(type.templateTypeId)}
-                  >
-                    <i className={type.templateTypeIcon} />
-                    {type.templateTypeName}
-                  </li>
-                );
-              })}
+        {templateType.length === 0 ? (
+          <LoadDiv />
+        ) : (
+          <div className="flexRow">
+            {templateType.length > 1 && (
+              <ul className="folderTemplateSidebar">
+                {templateType.map((type, i) => {
+                  return (
+                    <li
+                      className={cx({ ThemeColor3: type.templateTypeId === this.state.selectType })}
+                      key={i}
+                      onClick={() => this.getTemplates(type.templateTypeId)}
+                    >
+                      <i className={type.templateTypeIcon} />
+                      {TYPE_NAME[type.templateTypeId]}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+
+            <ul className="flex folderTemplateList">
+              {templates.length ? undefined : <LoadDiv />}
+              {templates
+                .filter(tpl => tpl.templateId || (!tpl.templateId && this.state.selectType === '0'))
+                .map((tpl, i) => {
+                  return (
+                    <li
+                      className={cx(
+                        'boderRadAll_3',
+                        tpl.templateId === '' ? 'folderTemplateNull ThemeColor3 ThemeBorderColor3' : '',
+                      )}
+                      key={i}
+                      style={{ backgroundImage: 'url(' + tpl.icon + ')' }}
+                      onClick={() =>
+                        this.folderTemplateListClick(tpl.templateId, tpl.templateName, tpl.background, tpl.materials)
+                      }
+                    >
+                      <div
+                        className={cx('folderTemplateItem ellipsis', { folderTemplateItemPosition: tpl.templateId })}
+                      >
+                        {tpl.templateId ? undefined : <i className="icon-addapplication" />}
+                        {tpl.templateName}
+                      </div>
+
+                      {tpl.templateId ? <div className="folderTemplateBG" /> : undefined}
+
+                      {tpl.templateId ? (
+                        <div className="folderTemplateDesc">
+                          <div>{tpl.title ? tpl.title : <span className="Font15">{tpl.templateName}</span>}</div>
+                        </div>
+                      ) : undefined}
+
+                      {tpl.templateId ? (
+                        <div className="folderTemplateOperator">
+                          {tpl.isCustom ? (
+                            <span
+                              className="ThemeColor3 tip-top"
+                              data-tip={_l('删除模板')}
+                              onClick={evt => this.delTemplate(tpl.templateId, evt)}
+                            >
+                              <i className="icon-task-new-delete" />
+                            </span>
+                          ) : undefined}
+                        </div>
+                      ) : undefined}
+                    </li>
+                  );
+                })}
             </ul>
-          )}
-
-          <ul className="flex folderTemplateList">
-            {templates.length ? undefined : <LoadDiv />}
-            {templates
-              .filter(tpl => tpl.templateId || (!tpl.templateId && this.state.selectType === '0'))
-              .map((tpl, i) => {
-                return (
-                  <li
-                    className={cx(
-                      'boderRadAll_3',
-                      tpl.templateId === '' ? 'folderTemplateNull ThemeColor3 ThemeBorderColor3' : '',
-                    )}
-                    key={i}
-                    style={{ backgroundImage: 'url(' + tpl.icon + ')' }}
-                    onClick={() =>
-                      this.folderTemplateListClick(tpl.templateId, tpl.templateName, tpl.background, tpl.materials)
-                    }
-                  >
-                    <div className={cx('folderTemplateItem ellipsis', { folderTemplateItemPosition: tpl.templateId })}>
-                      {tpl.templateId ? undefined : <i className="icon-addapplication" />}
-                      {tpl.templateName}
-                    </div>
-
-                    {tpl.templateId ? <div className="folderTemplateBG" /> : undefined}
-
-                    {tpl.templateId ? (
-                      <div className="folderTemplateDesc">
-                        <div>{tpl.title ? tpl.title : <span className="Font15">{tpl.templateName}</span>}</div>
-                      </div>
-                    ) : undefined}
-
-                    {tpl.templateId ? (
-                      <div className="folderTemplateOperator">
-                        {tpl.isCustom ? (
-                          <span
-                            className="ThemeColor3 tip-top"
-                            data-tip={_l('删除模板')}
-                            onClick={evt => this.delTemplate(tpl.templateId, evt)}
-                          >
-                            <i className="icon-task-new-delete" />
-                          </span>
-                        ) : undefined}
-                      </div>
-                    ) : undefined}
-                  </li>
-                );
-              })}
-          </ul>
-        </div>}
+          </div>
+        )}
 
         {this.state.showCreateFolder ? (
           <CreateFolder

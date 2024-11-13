@@ -121,7 +121,7 @@ export default class Link extends Component {
         formProperties,
         time,
         password: newPassword,
-        submitButtonName: submitButtonName.trim() || _l('提交'),
+        submitButtonName: submitButtonName.trim(),
         submitType,
         modifyTime,
         addNotAllowView,

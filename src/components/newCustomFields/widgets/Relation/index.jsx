@@ -58,8 +58,11 @@ export default class Widgets extends Component {
   }
 
   render() {
-    const { from, disabled, value, enumDefault } = this.props;
+    const { from, disabled, value } = this.props;
     const { dialogVisible } = this.state;
+
+    // 私有部署没有申请单，兼容到全部
+    const enumDefault = md.global.Config.IsLocal && this.props.enumDefault === 5 ? 0 : this.props.enumDefault;
 
     const text = getRelationText(enumDefault);
 

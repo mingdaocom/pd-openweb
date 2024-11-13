@@ -541,6 +541,8 @@ const generateLocalizationParams = (requestData = {}) => {
         'WorksheetSetting_SavPaymentSetting',
         'Worksheet_UpdateEntityName',
         'Login_LoginOut',
+        'Worksheet_UpdateWorksheetRow',
+        'Worksheet_AddWorksheetRow',
       ],
     },
     Worksheet_GetQueryBySheetId: {
