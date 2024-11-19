@@ -153,6 +153,11 @@ export default class extends Component {
       wordStyle: {
         fontSize: [ydisplay.minValue || 20, ydisplay.maxValue || 60],
       },
+      theme: {
+        styleSheet: {
+          backgroundColor: '#fff'
+        }
+      },
       color: ({ datum }) => {
         if (datum) {
           const index = _.findIndex(data, { originalId: datum.originalId });

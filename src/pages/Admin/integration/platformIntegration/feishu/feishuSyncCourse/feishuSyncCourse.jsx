@@ -112,13 +112,19 @@ export default class WorkwxSyncCourse extends React.Component {
           <img src={fsImg4} />
           <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('3. 前往“权限管理”，开启所需的七个权限')}</p>
           <ul className="mLeft15">
-            <li className="mTop5">{_l('a.[用户]获取用户邮箱信息')}</li>
-            <li className="mTop5">{_l('b.[用户]获取用户手机号')}</li>
-            <li className="mTop5">{_l('c.[用户]获取用户userid')}</li>
-            <li className="mTop5">{_l('d.[消息]以应用的身份发消息')}</li>
-            <li className="mTop5">{_l('e.[消息]给多个用户批量发消息')}</li>
-            <li className="mTop5">{_l('f.[通讯录]以应用身份访问通讯录（历史版本）')}</li>
-            <li className="mTop5">{_l('g.[应用管理]获取应用信息')}</li>
+            <li className="mTop5">{_l('a.获取应用信息')}</li>
+            <li className="mTop5">{_l('b.获取通讯录基本信息')}</li>
+            <li className="mTop5">{_l('c.获取通讯录部门组织架构信息')}</li>
+            <li className="mTop5">{_l('d.获取部门基础信息')}</li>
+            <li className="mTop5">{_l('e.获取部门组织架构信息')}</li>
+            <li className="mTop5">{_l('f.获取用户组织架构信息')}</li>
+            <li className="mTop5">{_l('g.获取用户基本信息')}</li>
+            <li className="mTop5">{_l('h.获取用户邮箱信息')}</li>
+            <li className="mTop5">{_l('i.获取用户受雇信息')}</li>
+            <li className="mTop5">{_l('j.获取用户 user ID')}</li>
+            <li className="mTop5">{_l('k.获取用户手机号')}</li>
+            <li className="mTop5">{_l('l.以应用的身份发消息')}</li>
+            <li className="mTop5">{_l('m.给多个用户批量发消息')}</li>
           </ul>
           <img src={fsImg5} />
           <p className="Font14 Gray_75 mTop24 LineHeight22">

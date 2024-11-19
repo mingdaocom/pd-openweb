@@ -59,9 +59,9 @@ const Tab = styled.div`
 `;
 const Num = styled.div`
   display: inline-block;
-  color: #9e9e9e;
+  color: #757575;
   white-space: pre;
-  margin-left: 8px;
+  margin-left: 6px;
 `;
 
 const ScrollBtn = styled.div`

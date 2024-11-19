@@ -109,7 +109,7 @@ const EXCLUSIVE_TYPE_LIST =
     ? [{ title: _l('组织到期时间'), key: 1 }]
     : [
         { title: _l('组织到期时间'), key: 1 },
-        { title: _l('单月包（本月）'), key: 0 },
+        { title: _l('当月有效'), key: 0 },
       ];
 
 const getFormatCount = count => {
@@ -738,11 +738,6 @@ export default class ExpansionService extends Component {
                 ? monthEndDate.format('YYYY年MM月DD日')
                 : moment(exclusiveInfo.currentLicense.endDate).format('YYYY年MM月DD日')}
             </span>
-            <span className="" style={{ color: '#b4b4b4' }}>{`（${_l('计费')}：${
-              exclusiveInfo.type === 0
-                ? moment(monthEndDate).diff(new Date(), 'days') + 1
-                : exclusiveInfo.currentLicense.expireDays
-            }${_l('天')}）`}</span>
           </div>
         )}
       </Fragment>

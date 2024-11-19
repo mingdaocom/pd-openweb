@@ -55,6 +55,6 @@ export function renderTxt(src, cb = () => {}) {
   fetch(src)
     .then(res => res.text())
     .then(text => {
-      cb(null, `<div  class="txt-viewer">${text}</div>`);
+      cb(null, text);
     });
 }

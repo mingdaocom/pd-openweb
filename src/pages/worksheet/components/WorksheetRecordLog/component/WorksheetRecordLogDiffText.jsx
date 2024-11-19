@@ -8,6 +8,7 @@ import { browserIsMobile } from 'src/util';
 import '../WorksheetRecordLogValue.less';
 
 const TEXT_MAX_LENGTH = 500;
+const LOAD_COUNT = 2000;
 
 const renderDiffText = props => {
   return (
@@ -45,7 +46,7 @@ function WorksheetRecordLogDiffText(props) {
   const [diff2, setDiff2] = useState(diff);
 
   useEffect(() => {
-    if(control && control.enumDefault !== 2) {
+    if (control && control.enumDefault !== 2) {
       let textComputeStyle = getComputedStyle(textRef.current);
       let textHeight = Number(textComputeStyle.height.replace('px', ''));
       let lineHeight = Number(textComputeStyle.lineHeight.replace('px', ''));
@@ -68,13 +69,23 @@ function WorksheetRecordLogDiffText(props) {
       return;
     }
     if (sign === 1) {
-      if (oldValue.length > diffCount * 500 || newValue.length > diffCount * 500) {
+      if (
+        oldValue.length > TEXT_MAX_LENGTH + (diffCount - 1) * LOAD_COUNT ||
+        newValue.length > TEXT_MAX_LENGTH + (diffCount - 1) * LOAD_COUNT
+      ) {
         let _diff = null;
         setOpen(true);
         let preDiffCount = diffCount;
         setDiffCount(preDiffCount + 1);
-        let _oldValue = oldValue.slice(preDiffCount * 500, (preDiffCount + 1) * 500);
-        let _newValue = newValue.slice(preDiffCount * 500, (preDiffCount + 1) * 500);
+        let _oldValue = oldValue.slice(
+          TEXT_MAX_LENGTH + (preDiffCount - 1) * LOAD_COUNT,
+          TEXT_MAX_LENGTH + preDiffCount * LOAD_COUNT,
+        );
+        let _newValue = newValue.slice(
+          TEXT_MAX_LENGTH + (preDiffCount - 1) * LOAD_COUNT,
+          TEXT_MAX_LENGTH + preDiffCount * LOAD_COUNT,
+        );
+
         if (type === 'rich_text') {
           _diff = diff2.concat(
             diffChars(
@@ -128,7 +139,9 @@ function WorksheetRecordLogDiffText(props) {
                   {_l('收起')}
                 </span>
               )}
-              {(oldValue.length > diffCount * 500 || newValue.length > diffCount * 500 || !open) && (
+              {(oldValue.length > TEXT_MAX_LENGTH + (diffCount - 1) * LOAD_COUNT ||
+                newValue.length > TEXT_MAX_LENGTH + (diffCount - 1) * LOAD_COUNT ||
+                !open) && (
                 <span className="WorksheetRecordLogOpen" onClick={() => clickHandle(1)}>
                   {_l('查看更多')}
                 </span>

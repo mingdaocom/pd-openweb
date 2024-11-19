@@ -407,11 +407,12 @@ export function ButtonList({ ids, widget, button = {}, editable, layoutType, add
       const filterId = isFilter && scanBtn.filterId ? scanBtn.filterId : '';
       const searchId = scanBtn.searchId ? scanBtn.searchId : '';
       if (isMobile) {
-        window.mobileNavigateTo(
-          `/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${encodeURIComponent(
-            result,
-          )}&filterId=${filterId}&searchId=${searchId}`,
-        );
+        const url = `/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${encodeURIComponent(result)}&filterId=${filterId}&searchId=${searchId}`;
+        if (window.mobileNavigateTo) {
+          window.mobileNavigateTo(url);
+        } else {
+          location.href = url;
+        }
       } else {
         // window.open(`/mobile/searchRecord/${appId}/${value}/${viewId}?keyWords=${encodeURIComponent(
         //     result,

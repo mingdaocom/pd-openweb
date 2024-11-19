@@ -306,7 +306,9 @@ export const getFormulaControls = (controls, data) => {
       (includes([9, 10, 11], type) && enumDefault === 1) ||
       (type === 38 && includes([1], enumDefault)) ||
       // 非日期汇总
-      (type === 37 && !includes([15, 16], enumDefault2))
+      (type === 37 && !includes([15, 16], enumDefault2)) ||
+      // 公式函数-数值
+      (type === 53 && enumDefault2 === 6)
     );
   });
 };

@@ -233,6 +233,11 @@ export default class extends Component {
         },
       },
       rawFields: ['originalId'],
+      theme: {
+        styleSheet: {
+          backgroundColor: '#fff'
+        }
+      },
       color: (data) => {
         const id = data['series-field-key'];
         let color = colors[0];

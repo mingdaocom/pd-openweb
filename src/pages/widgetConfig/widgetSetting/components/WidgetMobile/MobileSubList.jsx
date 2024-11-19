@@ -70,6 +70,8 @@ export default function MobileSubList({ data, onChange }) {
       <SettingItem>
         <div className="settingItemTitle">{_l('摘要字段（最多3个）')}</div>
         <SortColumns
+          sortAutoChange
+          isShowColumns
           noempty={false}
           showControls={abstractIds}
           columns={filterControls}

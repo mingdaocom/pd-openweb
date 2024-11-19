@@ -94,7 +94,7 @@ export default class WidgetsVerifyCode extends Component {
   };
 
   handleSend() {
-    this.setState({ count: 30 });
+    this.setState({ count: 60 });
 
     this.timer = setInterval(() => {
       const { count } = this.state;

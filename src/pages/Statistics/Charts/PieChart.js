@@ -237,6 +237,11 @@ export default class extends Component {
           formatter: findName,
         },
       },
+      theme: {
+        styleSheet: {
+          backgroundColor: '#fff'
+        }
+      },
       color: (data) => {
         const index = _.findIndex(baseConfig.data, { originalId: data.originalId });
         let color = colors[index % colors.length];

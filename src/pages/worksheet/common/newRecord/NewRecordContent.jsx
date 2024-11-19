@@ -43,6 +43,7 @@ const Con = styled.div`
       flex: 1;
       min-width: 0;
       padding: 0 24px;
+      overflow-x: ${({ isMobile }) => (isMobile ? 'hidden' : 'unset')};
     }
   }
   .fixedLeftOrRight {
@@ -357,7 +358,7 @@ function NewRecordForm(props) {
     }
   }
   registerFunc({ newRecord, setRestoreVisible });
-  const RecordCon = notDialog ? React.Fragment : ScrollView;
+  const RecordCon = notDialog || isMobile ? React.Fragment : ScrollView;
   const recordTitle = title || _l('创建%0', entityName || worksheetInfo.entityName || '');
   const fillTempRecordValue = (tempNewRecord, formData) => {
     setIsSettingTempData(true);
@@ -440,7 +441,7 @@ function NewRecordForm(props) {
         },
       }}
     >
-      <Con>
+      <Con isMobile={isMobile}>
         {isMobile ? (
           <MobileRecordRecoverConfirm
             visible={restoreVisible}

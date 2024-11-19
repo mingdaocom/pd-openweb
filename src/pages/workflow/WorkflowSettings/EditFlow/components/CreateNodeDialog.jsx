@@ -818,7 +818,7 @@ export default class CreateNodeDialog extends Component {
     ) {
       _.remove(this.state.list, o => o.id !== 'notice');
       this.state.list.forEach(o => {
-        _.remove(o.items, item => item.type === NODE_TYPE.CC);
+        _.remove(o.items, item => _.includes([NODE_TYPE.CC, NODE_TYPE.NOTICE], item.type));
       });
     }
 
@@ -965,7 +965,15 @@ export default class CreateNodeDialog extends Component {
       this.setState({ list: _.cloneDeep(this.cacheList) });
     }
 
-    if (!!nextProps.nodeId && !nextProps.isPlugin && featureType) {
+    if (
+      !!nextProps.nodeId &&
+      !nextProps.isPlugin &&
+      featureType &&
+      !(
+        nextProps.flowInfo.startAppType === APP_TYPE.EXTERNAL_USER &&
+        nextProps.flowInfo.startTriggerId === TRIGGER_ID.DISCUSS
+      )
+    ) {
       this.getPluginList();
     }
   }
@@ -1412,19 +1420,25 @@ export default class CreateNodeDialog extends Component {
                 />
                 <Icon icon="search" className="Font18 Gray_9e" />
               </div>
-              {!keywords.trim() && featureType && (
-                <ul className="createNodeTabs flexRow Font14">
-                  {TABS.map(item => (
-                    <li
-                      key={item.value}
-                      className={cx('ThemeHoverBorderColor3', { 'ThemeColor3 ThemeBorderColor3': item.value === tab })}
-                      onClick={() => this.setState({ tab: item.value })}
-                    >
-                      {item.text}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              {!keywords.trim() &&
+                featureType &&
+                !(
+                  flowInfo.startAppType === APP_TYPE.EXTERNAL_USER && flowInfo.startTriggerId === TRIGGER_ID.DISCUSS
+                ) && (
+                  <ul className="createNodeTabs flexRow Font14">
+                    {TABS.map(item => (
+                      <li
+                        key={item.value}
+                        className={cx('ThemeHoverBorderColor3', {
+                          'ThemeColor3 ThemeBorderColor3': item.value === tab,
+                        })}
+                        onClick={() => this.setState({ tab: item.value })}
+                      >
+                        {item.text}
+                      </li>
+                    ))}
+                  </ul>
+                )}
             </Fragment>
           )}
 

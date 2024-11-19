@@ -332,6 +332,8 @@ export default function SubListSetting(props) {
   const renderUniqControls = () => {
     return (
       <SortColumns
+        sortAutoChange
+        isShowColumns
         noempty={false}
         showControls={showUniqueControls}
         columns={recordUniqControls}

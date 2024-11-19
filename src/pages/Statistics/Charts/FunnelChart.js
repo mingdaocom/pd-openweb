@@ -342,6 +342,11 @@ export default class extends Component {
       },
       isTransposed: displaySetup.showChartType === 2,
       shape: style.funnelShape,
+      theme: {
+        styleSheet: {
+          backgroundColor: '#fff'
+        }
+      },
       color: ({ name }) => {
         const index = _.findIndex(data, { name });
         const { id, value } = _.find(data, { name }) || {};

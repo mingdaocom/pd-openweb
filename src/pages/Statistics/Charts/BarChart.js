@@ -348,6 +348,11 @@ export default class extends Component {
         formatter: () => null
       } : undefined,
       rawFields: ['groupName', 'controlId', 'originalId'].concat(split.controlId ? undefined : 'value'),
+      theme: {
+        styleSheet: {
+          backgroundColor: '#fff'
+        }
+      },
       color: data => {
         const controlId = formatControlInfo(data.groupName).id;
         const controlIndex = _.findIndex(yaxisList, { controlId });

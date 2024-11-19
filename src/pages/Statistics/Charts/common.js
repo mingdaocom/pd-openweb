@@ -261,22 +261,23 @@ export const LegendTypeData = [
  * 自动添加数量级
  */
 export const abbreviateNumber = (value, dot, formatValue = toFixed) => {
+  const absValue = Math.abs(value);
   if (window.getCurrentLang() === 'en') {
-    if (value >= 1000000000) {
+    if (absValue >= 1000000000) {
       return `${formatValue(value / 1000000000, dot)}B`;
-    } else if (value >= 1000000) {
+    } else if (absValue >= 1000000) {
       return `${formatValue(value / 1000000, dot)}M`;
-    } else if (value >= 1000) {
+    } else if (absValue >= 1000) {
       return `${formatValue(value / 1000, dot)}K`;
     } else {
       return dot === '' ? value : formatValue(value, dot);
     }
   } else {
-    if (value >= 100000000) {
+    if (absValue >= 100000000) {
       return `${formatValue(value / 100000000, dot)}${_l('亿')}`;
-    } else if (value >= 10000) {
+    } else if (absValue >= 10000) {
       return `${formatValue(value / 10000, dot)}${_l('万')}`;
-    } else if (value >= 1000) {
+    } else if (absValue >= 1000) {
       return `${formatValue(value / 1000, dot)}K`;
     } else {
       return dot === '' ? value : formatValue(value, dot);

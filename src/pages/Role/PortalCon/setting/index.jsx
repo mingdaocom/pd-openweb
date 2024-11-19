@@ -19,7 +19,9 @@ const Wrap = styled.div`
   bottom: 0;
   right: 0;
   z-index: 100;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.2),
+    0 3px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-flow: column nowrap;
   width: 640px;
@@ -202,20 +204,20 @@ class PortalSetting extends React.Component {
       alert(_l('外部门户名称不能为空'), 3);
       return false;
     }
-
-    if (md.global.SysSettings.enableSmsCustomContent && !smsSignature) {
-      alert(_l('短信签名不能为空'), 3);
-      return false;
-    } else if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(smsSignature) || smsSignature.length > 12) {
-      alert(_l('短信签名格式不正确'), 3);
-      return false;
+    if (md.global.SysSettings.enableSmsCustomContent) {
+      if (!smsSignature) {
+        alert(_l('短信签名不能为空'), 3);
+        return false;
+      } else if (!/^[\u4E00-\u9FA5A-Za-z]+$/.test(smsSignature) || smsSignature.length > 12) {
+        alert(_l('短信签名格式不正确'), 3);
+        return false;
+      }
     }
 
     if (!emailSignature) {
       alert(_l('发件人名称不能为空'), 3);
       return false;
     }
-
 
     if (
       _.get(portalSetModel, 'registerInfo.enable') &&

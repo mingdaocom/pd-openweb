@@ -68,6 +68,7 @@ export default class DisplayControl extends React.Component {
         {text && <p className="mTop6 Gray_75 viewSetText">{text}</p>}
         <div className="settingContent mTop8">
           <SortColumns
+            sortAutoChange
             //关联表的设置 可拖拽排序
             noempty={false} //不需要至少显示一列
             controlsSorts={controlsSorts}
@@ -118,8 +119,8 @@ export default class DisplayControl extends React.Component {
                   const showcount = !!_.get(view, 'advancedSetting.showcount')
                     ? undefined
                     : effectiveControls.length > 3
-                    ? 3
-                    : effectiveControls.length;
+                      ? 3
+                      : effectiveControls.length;
                   this.props.updateCurrentView({
                     ...view,
                     appId,

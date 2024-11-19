@@ -75,12 +75,12 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
     dispatch({ type: 'WORKSHEET_PERMISSION_INIT', value: currentNavWorksheetInfo.switches || [] });
     dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: currentNavWorksheetInfo });
     dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
-    const views = currentNavWorksheetInfo.views.filter(
+    const views = (currentNavWorksheetInfo.views || []).filter(
       v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
     );
     const view = base.viewId ? _.find(views, v => v.viewId === base.viewId) : views[0] || {};
 
-    dispatch(fireWhenViewLoaded(view, { controls: currentNavWorksheetInfo.template.controls }));
+    dispatch(fireWhenViewLoaded(view, { controls: _.get(currentNavWorksheetInfo, 'template.controls') || [] }));
   } else {
     dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: true });
   }

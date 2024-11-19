@@ -35,6 +35,10 @@ export default class Widgets extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    return !_.isEqual(nextProps.flag, this.props.flag) || !_.isEqual(nextState.width, this.state.width);
+  }
+
   onChange = _.debounce(value => {
     this.props.onChange(value);
   }, 500);

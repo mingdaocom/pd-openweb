@@ -17,7 +17,7 @@ const BasicsSettingConfig = [
   },
   {
     type: 'allowDownloadPermission',
-    label: _l('打印值允许下载打印文件为空的字段'),
+    label: _l('允许下载打印文件'),
     tip: null,
     negate: true,
     isNumber: true,

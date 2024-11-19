@@ -309,7 +309,7 @@ export default class LineChart extends React.Component {
                     <span class="g2-tooltip-marker" style="background-color: ${it.color};"></span>
                     <span class="g2-tooltip-name">${it.name}</span>:
                     <span class="g2-tooltip-value">${
-                      it.value > 0 ? formatter(it.value) + ' ' + unit : 0 + ' ' + unit
+                      it.value > 0 ? formatter(it.value) + ' ' + it.data.unit : 0 + ' ' + it.data.unit
                     }</span>
                     </li>`
                         : ``,

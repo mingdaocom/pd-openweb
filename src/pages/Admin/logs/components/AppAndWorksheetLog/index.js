@@ -317,6 +317,7 @@ export default class AppAndWorksheetLog extends Component {
       dateTimeRange = {},
       archiveDate,
     } = searchValues;
+    const { startDate, endDate } = dateTimeRange;
     const galFeatureType = getFeatureStatus(projectId, VersionProductType.globalBehaviorLog);
     let operationTypesData = OPERATE_LIST.filter(it =>
       logType === 1
@@ -360,6 +361,12 @@ export default class AppAndWorksheetLog extends Component {
             format: 'YYYY-MM-DD',
             value: !_.isEmpty(dateTimeRange) ? [dateTimeRange.startDate, dateTimeRange.endDate] : [],
             disabledDate: current => {
+              if (md.global.Config.IsLocal) {
+                return (
+                  current < moment(endDate).subtract(6, 'months') ||
+                  current > moment(startDate).add(6, 'months').format('YYYYMMDDHHmmss')
+                );
+              }
               return current < moment().subtract(1, 'day').subtract(6, 'months');
             },
           },
@@ -775,10 +782,10 @@ export default class AppAndWorksheetLog extends Component {
 
                   if (
                     md.global.Config.IsLocal &&
-                    moment(endDate).subtract(180, 'days').format('YYYYMMDDHHmmss') >
+                    moment(endDate).subtract(6, 'months').format('YYYYMMDDHHmmss') >
                       moment(startDate).format('YYYYMMDDHHmmss')
                   ) {
-                    alert(_l('最大跨度180天'), 2);
+                    alert(_l('最大跨度6个月'), 2);
                     return;
                   }
                   if (searchParams.appIds && searchParams.appIds.length && !_.isEqual(searchParams.appIds, appIds)) {

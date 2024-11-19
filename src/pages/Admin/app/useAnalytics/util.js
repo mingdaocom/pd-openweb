@@ -1,3 +1,5 @@
+import { formatFileSize } from 'src/util';
+
 const subTypeNames = {
   1: _l('成员'),
   2: _l('外部门户用户'),
@@ -22,6 +24,7 @@ export const dateDimension = [
 ];
 
 export const formatter = v => String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const units = ['B', 'KB', 'MB', 'GB', 'TB'];
 
 export const formatChartData = (type, initData = [], isFilterByDepartment) => {
   let data = [];
@@ -49,12 +52,15 @@ export const formatChartData = (type, initData = [], isFilterByDepartment) => {
       });
 
       let maxSize = Math.max(...data.map(item => item.value));
-      let maxValue = (maxSize / Math.pow(1024, 2)).toFixed(2) * 1;
+      const maxValue = formatFileSize(maxSize, 2);
+      const unit = maxValue.slice(maxValue.length - 2);
+      const index = _.findIndex(units, v => v === unit);
       data = data.map(v => ({
         ...v,
-        value:
-          maxValue > 1024 ? (v.value / Math.pow(1024, 3)).toFixed(2) * 1 : (v.value / Math.pow(1024, 2)).toFixed(2) * 1,
+        value: (v.value / Math.pow(1024, index)).toFixed(2) * 1,
+        unit,
       }));
+
       break;
     default:
   }

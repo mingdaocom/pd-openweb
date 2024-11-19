@@ -348,6 +348,11 @@ export default class extends Component {
           nice: false,
         },
       },
+      theme: {
+        styleSheet: {
+          backgroundColor: '#fff'
+        }
+      },
       connectNulls: xaxes.emptyType !== 3,
       smooth: displaySetup.showChartType,
       animation: true,

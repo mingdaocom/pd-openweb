@@ -115,7 +115,7 @@ export default class SortableAppItem extends Component {
         ? workSheetInfo
         : workSheetInfo.filter(item => [1, 4].includes(item.status) && !item.navigateHide))[0] || {};
     if (firstAppItem.type === 2) {
-      const { workSheetInfo = [] } = _.find(childSections, { appSectionId: firstAppItem.workSheetId });
+      const { workSheetInfo = [] } = _.find(childSections, { appSectionId: firstAppItem.workSheetId }) || {};
       const childrenFirstAppItem =
         (isCharge
           ? workSheetInfo

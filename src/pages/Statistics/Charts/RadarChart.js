@@ -292,6 +292,11 @@ export default class extends Component {
       },
       limitInPlot: true,
       area: {},
+      theme: {
+        styleSheet: {
+          backgroundColor: '#fff'
+        }
+      },
       color: colors,
       tooltip: {
         shared: true,

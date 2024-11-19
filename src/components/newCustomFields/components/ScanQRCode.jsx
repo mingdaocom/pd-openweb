@@ -316,6 +316,10 @@ export default class Widgets extends Component {
     );
   };
   handleOpenUploadFile = () => {
+    const { resetCameraLoading } = this.state;
+
+    if (resetCameraLoading || !this.html5QrCode) return;
+
     this.html5QrCode
       .stop()
       .then(ignore => {

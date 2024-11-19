@@ -249,7 +249,11 @@ const checkFiltersAvailable = async props => {
       //   break;
       // 自定义函数
       case FILTER_VALUE_ENUM.CUSTOM_FUN:
-        const funResult = calcDefaultValueFunction({ fnControl: { ...props, advancedSetting }, formData });
+        const funResult = calcDefaultValueFunction({
+          fnControl: { ...props, advancedSetting },
+          formData,
+          forceSyncRun: true,
+        });
         result.push(funResult);
         break;
     }

@@ -316,7 +316,7 @@ function ExplanList(props) {
                                   type="renewcomputing"
                                   routePath="expansionserviceComputing"
                                   projectId={projectId}
-                                  extraParams={item.id}
+                                  extraParam={item.id}
                                 />
                               </li>
                             )}

@@ -264,6 +264,11 @@ export default class extends Component {
       colorField: split.controlId,
       size: [5, 20],
       rawFields: ['originalId', xField],
+      theme: {
+        styleSheet: {
+          backgroundColor: '#fff'
+        }
+      },
       color: (data) => {
         const controlId = data[split.controlId];
         let color = colors[0];

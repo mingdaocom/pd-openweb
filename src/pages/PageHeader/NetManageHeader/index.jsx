@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import CommonUserHandle from '../components/CommonUserHandle';
 import styled from 'styled-components';
 import { navigateTo } from 'src/router/navigateTo';
+import { match } from 'path-to-regexp';
 import './index.less';
 import _ from 'lodash';
 
@@ -40,6 +41,7 @@ const PAGE_HEADER_ROUTE = {
   search: ['/search'],
 };
 
+const fn = match('/admin/:roleType/:projectId');
 export default class NetManageHeader extends Component {
   static propTypes = {};
   static defaultProps = {};
@@ -62,7 +64,16 @@ export default class NetManageHeader extends Component {
     return (
       <div className="netManageHeaderWrap">
         <div className="netManageLogo">
-          <HomeEntry data-tip={_l('首页')} onClick={() => navigateTo('/dashboard')}>
+          <HomeEntry
+            data-tip={_l('首页')}
+            onClick={() => {
+              const { params } = fn(location.pathname) || {};
+              if (!_.isEmpty(params)) {
+                localStorage.setItem('currentProjectId', params.projectId);
+              }
+              navigateTo('/dashboard');
+            }}
+          >
             <i className="icon-home_page Font18"></i>
           </HomeEntry>
           {text && <div className="netManageTitle">{text}</div>}

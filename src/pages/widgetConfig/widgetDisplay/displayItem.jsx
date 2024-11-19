@@ -169,7 +169,7 @@ export default function DisplayItem(props) {
         const filterOldWidgets = batchRemoveItems(widgets, filterBatchWidgets);
         // 批量拖拽走批量新增逻辑，定位新的activeWidget进行批量操作
         // activePath[0]小于0，拖拽到头部
-        if (activePath[0] < 0) {
+        if (_.get(activePath, '0') < 0) {
           const newWidgets = putControlByOrder(filterBatchWidgets).concat(filterOldWidgets);
           setWidgets(genWidgetRowAndCol(newWidgets));
           setActiveWidget(last(filterBatchWidgets));

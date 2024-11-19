@@ -68,7 +68,7 @@ UploadNewVersion.prototype = {
       NV.$newVersionFileName = NV.$dialog.find('#newVersionFileName');
       NV.$newVersionFileDetail = NV.$dialog.find('#newVersionFileDetail');
       NV.$newVersionFileName.val(NV.name);
-    }, 200);
+    }, 20);
   },
   uploaded: function (qiniuInfo) {
     let server = getUrlByBucketName(qiniuInfo.bucket);

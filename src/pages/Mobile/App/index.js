@@ -109,10 +109,15 @@ class App extends Component {
 
   detectionUrl = ({ permissionType, isLock, appNaviStyle, sections }) => {
     const { params } = this.props.match;
+    const { viewHideNavi } = this.state;
     if (appNaviStyle === 2 && !params.worksheetId && !sessionStorage.getItem('detectionUrl')) {
       const isCharge = canEditApp(permissionType, isLock);
       const { appSectionId } = sections[0];
-      const workSheetInfo = this.getWorksheetList(sections);
+      const workSheetInfo = this.getWorksheetList(sections).filter(
+        item =>
+          item.type !== 2 &&
+          (viewHideNavi && isCharge ? true : [1, 3].includes(item.status) && !item.navigateHide),
+      );
       const { workSheetId } = isCharge
         ? workSheetInfo[0]
         : workSheetInfo.filter(o => [1, 3].includes(o.status) && !o.navigateHide)[0];

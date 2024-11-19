@@ -4,6 +4,7 @@ import LoadDiv from 'ming-ui/components/LoadDiv';
 import { func, string, any } from 'prop-types';
 import { renderCode, renderMarkdown, renderTxt } from './core';
 import { PREVIEW_TYPE } from '../constant/enum';
+import TextPreview from './TextPreview';
 import './codeViewer.less';
 
 const renderFn = {
@@ -57,7 +58,15 @@ export default function TextViewer(props) {
   }, [src]);
   return (
     <Con className="codeViewer" onWheel={e => e.stopPropagation()} type={type}>
-      {loading ? <LoadDiv size="big" /> : <Content dangerouslySetInnerHTML={{ __html: content }} />}
+      {loading ? (
+        <LoadDiv size="big" />
+      ) : String(type) === String(PREVIEW_TYPE.TXT) ? (
+        <Content>
+          <TextPreview text={content} />
+        </Content>
+      ) : (
+        <Content dangerouslySetInnerHTML={{ __html: content }} />
+      )}
     </Con>
   );
 }

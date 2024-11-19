@@ -87,7 +87,6 @@ const Wrap = styled.div`
     }
   }
   .exAccountSendCon {
-    width: 100%;
     height: 36px;
     background: #f5f5f5;
     border-radius: 3px;
@@ -610,9 +609,7 @@ export default function BaseSet(props) {
                 });
               }}
             />
-            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
-              {_l('允许参与记录讨论')}
-            </div>
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('允许参与记录讨论')}</div>
           </SwitchStyle>
           <div style={{ 'margin-left': '36px' }}>
             {portalSetModel.allowExAccountDiscuss && (
@@ -704,9 +701,7 @@ export default function BaseSet(props) {
                 });
               }}
             />
-            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
-              {_l('允许查看审批流转详情')}
-            </div>
+            <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">{_l('允许查看审批流转详情')}</div>
           </SwitchStyle>
         </div>
         <div className="mTop5">
@@ -790,12 +785,15 @@ export default function BaseSet(props) {
               }}
             />
             <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
-              {_l('有讨论消息时（被提到、被回复）通知外部用户')}
+              <div>{_l('有讨论消息时（被提到、被回复）通知外部用户')}</div>
+            </div>
+            <div className="Gray_9e Font12" style={{ marginLeft: 44, marginTop: -5 }}>
+              {_l('消息通过短信、邮件、服务号消息发送给外部用户')}
             </div>
           </SwitchStyle>
         </div>
         {noticeScope.discussionNotice && (
-          <div className="exAccountSendCon flexRow Font13">
+          <div className="exAccountSendCon flexRow Font13 mTop5" style={{ marginLeft: 44 }}>
             {epDiscussWorkFlow.workFlowName && (
               <span className="flex">
                 {epDiscussWorkFlow.workFlowName}

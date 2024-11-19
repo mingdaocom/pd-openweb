@@ -207,7 +207,7 @@ export default class ExecDialog extends Component {
         viewId={viewId}
         recordId={rowId}
         worksheetId={worksheetId}
-        recordTitle={data.title}
+        recordTitle={data.recordTitle ? data.title : ''}
         renderHeader={({ resultCode }) => {
           return (
             <Header

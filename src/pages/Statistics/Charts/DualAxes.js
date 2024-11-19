@@ -228,6 +228,11 @@ export default class extends Component {
       isStack: displaySetup.isPile,
       seriesField: 'groupName',
       rawFields: ['groupName', 'controlId', 'originalId'].concat(split.controlId ? undefined : 'value'),
+      theme: {
+        styleSheet: {
+          backgroundColor: '#fff'
+        }
+      },
       color: data => {
         const controlId = formatControlInfo(data.groupName).id;
         const controlIndex = _.findIndex(yaxisList, { controlId });

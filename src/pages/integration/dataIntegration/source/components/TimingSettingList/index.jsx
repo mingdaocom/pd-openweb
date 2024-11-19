@@ -6,6 +6,7 @@ import { Drawer } from 'antd';
 import TimingSetting from 'src/pages/integration/dataIntegration/components/TimingSetting';
 import scheduleConfigApi from 'src/pages/integration/api/scheduleConfig.js';
 import _ from 'lodash';
+import moment from 'moment';
 
 const TimingSettingListWrapper = styled.div`
   background: #fff;
@@ -177,7 +178,9 @@ export default function TimingSettingList({ projectId, sourceId, onViewUseDetail
                     ? _l('读取完整数据覆盖写入目的地')
                     : _l('依据字段 %0 更新数据', _.get(timingItem, 'config.basisField.name'))}
                 </div>
-                <div className="lastReadDate">{timingItem.lastReadDate}</div>
+                <div className="lastReadDate">
+                  {timingItem.lastReadTime ? moment(timingItem.lastReadTime).format('YYYY-MM-DD HH:mm:ss') : '-'}
+                </div>
                 <div className="operateColumn">
                   <Icon icon="delete1" className="Font16" onClick={() => onDelete(timingItem.id)} />
                 </div>
