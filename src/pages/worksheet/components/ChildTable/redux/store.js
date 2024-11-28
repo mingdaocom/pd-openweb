@@ -7,6 +7,7 @@ import { get } from 'lodash';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { isEmpty } from 'lodash';
+import { handleUpdateDefsourceOfControl } from '../ChildTable';
 import { resetRows, clearRows, setRowsFromStaticRows } from './actions';
 import {
   getSubListError,
@@ -80,6 +81,12 @@ export default function generateStore(
         workId,
       });
       controls = get(worksheetInfo, 'template.controls');
+      controls = handleUpdateDefsourceOfControl({
+        recordId,
+        relateRecordControl: { ...control, worksheetId: relationWorksheetId },
+        masterData,
+        controls,
+      });
     }
     if (!searchConfig) {
       const queryRes = await sheetAjax.getQueryBySheetId({ worksheetId });

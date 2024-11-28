@@ -786,6 +786,7 @@ const getSyncLicenseInfo = projectId => {
  *  获取功能状态 1: 正常 2: 升级
  */
 export function getFeatureStatus(projectId, featureId) {
+  if (window.shareState.shareId) return;
   if (!/^[A-Za-z0-9]{8}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{4}-[A-Za-z0-9]{12}$/.test(projectId)) return;
 
   const { Versions = [] } = md.global || {};
@@ -1661,4 +1662,9 @@ export const getContactInfo = key => {
   }
 
   return contactInfo[key];
+};
+
+// 获取地图配置
+export const getMapConfig = () => {
+  return md.global.Account.accountId ? md.global.Account.map : md.global.Config.DefaultMap;
 };

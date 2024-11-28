@@ -61,7 +61,6 @@ const Num = styled.div`
   display: inline-block;
   color: #757575;
   white-space: pre;
-  margin-left: 6px;
 `;
 
 const ScrollBtn = styled.div`
@@ -86,7 +85,7 @@ const IconCon = styled.span`
 `;
 
 export function renderTabs(props) {
-  const { widgetStyle = {}, controls = [], activeControlId, onClick, showTip = false } = props;
+  const { widgetStyle = {}, controls = [], activeControlId, onClick, showTip = false, isFixedLeft } = props;
 
   function renderIcon(control) {
     let iconUrl = control.iconUrl;
@@ -145,7 +144,7 @@ export function renderTabs(props) {
             >
               {renderIcon(control, widgetStyle)}
               <span className="ellipsis">{control.controlName}</span>
-              {showNum && !!num && <Num>{num}</Num>}
+              {showNum && !!num && <Num>{isFixedLeft ? num : `（${num}）`}</Num>}
             </Tab>
           </Tooltip>
         );

@@ -237,11 +237,14 @@ export default class VersionUpgrade extends Component {
     );
   };
 
-  toPurchase = () => {
+  toPurchase = version => {
     let ele = document.getElementById('purchaseInfoWrap');
+
     if (ele) {
       ele.scrollIntoView();
     }
+
+    this.setState({ activeVersion: version });
   };
 
   renderFeatureDetail = () => {
@@ -394,7 +397,12 @@ export default class VersionUpgrade extends Component {
                         ￥{item.monthPrice} /{_l('月')}
                       </div>
                       {item.showPurchaseBtn && (
-                        <Button className="purchaseBtn Normal" type="ghost" size="large" onClick={this.toPurchase}>
+                        <Button
+                          className="purchaseBtn Normal"
+                          type="ghost"
+                          size="large"
+                          onClick={() => this.toPurchase(item.version)}
+                        >
                           {_l('购买')}
                         </Button>
                       )}

@@ -797,10 +797,10 @@ class TaskBasic extends Component {
                   maxHeight={500}
                   placeholder={hasAuth ? _l('添加描述') : _l('未添加描述')}
                   onClickNull={e => {
-                    hasAuth &&
-                      this.setState({
-                        isEditing: true,
-                      });
+                    if (hasAuth) {
+                      this.cacheSummary = data.summary || '';
+                      this.setState({ isEditing: true });
+                    }
                   }}
                 />
               ) : (

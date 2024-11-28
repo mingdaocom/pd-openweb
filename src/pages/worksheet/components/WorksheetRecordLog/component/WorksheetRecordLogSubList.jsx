@@ -52,7 +52,7 @@ function WorksheetRecordLogSubList(props) {
   };
 
   return (
-    <div className="worksheetRecordLogSubList">
+    <div className="worksheetRecordLogSubList nowrap">
       {getSummary()}
       <span className={cx('WorksheetRecordLogOpen', { hideEle: isMobile })} onClick={() => setDialog(true)}>
         {_l('查看详情')}

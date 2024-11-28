@@ -1,4 +1,4 @@
-import _, { concat, difference, find, findKey, forEach, get, includes, isUndefined, set, uniq } from 'lodash';
+import _, { concat, difference, find, findKey, forEach, get, includes, isEmpty, isUndefined, set, uniq } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
 import {
   SYSTEM_CONTROL,
@@ -506,28 +506,28 @@ export function saveSheetLayout({ closePopup = () => {} }) {
       viewId,
       editAttrs: ['AdvancedSetting'],
     };
+    updates.advancedSetting = {
+      fixedcolumncount: fixedColumnCount,
+      sheetcolumnwidths: JSON.stringify(sheetColumnWidths),
+      layoutupdatetime: new Date().getTime(),
+    };
     if (sheetHiddenColumns.length) {
       updates.editAttrs = updates.editAttrs.concat('ShowControls');
       if (view.advancedSetting.customdisplay === '1' && view.showControls.length) {
         updates.showControls = view.showControls.filter(cid => !_.find(sheetHiddenColumns, hcid => hcid === cid));
       } else {
-        updates.advancedSetting = { ...view.advancedSetting, customdisplay: '1' };
+        updates.advancedSetting.customdisplay = '1';
         updates.showControls = controls
           .filter(
             c =>
               /^\w{24}$/.test(c.controlId) || _.includes(safeParse(view.advancedSetting.sysids, 'array'), c.controlId),
           )
           .sort((a, b) => (a.row * 10 + a.col > b.row * 10 + b.col ? 1 : -1))
-          .filter(c => includes(view.showControls, c.controlId))
+          .filter(c => (isEmpty(view.showControls) ? true : includes(view.showControls, c.controlId)))
           .filter(c => !_.find(sheetHiddenColumns, hcid => hcid === c.controlId))
           .map(c => c.controlId);
       }
     }
-    updates.advancedSetting = {
-      fixedcolumncount: fixedColumnCount,
-      sheetcolumnwidths: JSON.stringify(sheetColumnWidths),
-      layoutupdatetime: new Date().getTime(),
-    };
     updates.editAdKeys = Object.keys(updates.advancedSetting);
     delete updates.advancedSetting.fixedColumnCount;
     delete updates.advancedSetting.layoutUpdateTime;

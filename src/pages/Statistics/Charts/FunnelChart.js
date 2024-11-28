@@ -102,10 +102,11 @@ const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { controlId
   }
 
   value.forEach((item, index) => {
-    const name = item.x;
+    const yaxis = controlId ? {} : _.find(yaxisList, { controlId: item.originalX });
+    const name = yaxis.rename || item.x;
     cloneData.forEach(element => {
-      const target = element.value.filter(n => n.x === name);
-      const { rename, emptyShowType } = _.find(yaxisList, { controlId: element.c_id }) || yaxisList[0];
+      const target = element.value.filter(n => n.x === item.x);
+      const { emptyShowType } = _.find(yaxisList, { controlId: element.c_id }) || yaxisList[0];
       const hideEmptyValue = !emptyShowType && !target[0].v;
       if (target.length && !hideEmptyValue) {
         result.push({
@@ -113,7 +114,7 @@ const formatChartData = (data, { isAccumulate, showOptionIds = [] }, { controlId
           groupName: element.key,
           index: value.length - index,
           value: target[0].v,
-          name: rename || name || _l('空'),
+          name: name || _l('空'),
         });
       }
     });

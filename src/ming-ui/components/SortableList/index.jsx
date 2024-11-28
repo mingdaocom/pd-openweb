@@ -7,6 +7,7 @@ import { array, func, string, bool } from 'prop-types';
 import ListItemLayer from './ItemLayer';
 
 let dragging = false;
+let oldIndex = undefined;
 
 const DragItem = props => {
   const {
@@ -80,6 +81,7 @@ const DragItem = props => {
     }),
     begin: () => {
       dragging = true;
+      oldIndex = index;
       window.MD_DRAG_ITEM = {
         width: ref.current.offsetWidth,
         height: ref.current.offsetHeight,
@@ -88,7 +90,8 @@ const DragItem = props => {
     end: () => {
       window.MD_DRAG_ITEM = undefined;
       dragging = false;
-      onDragEnd(index);
+      onDragEnd(index, oldIndex);
+      oldIndex = undefined;
     },
   });
 
@@ -150,9 +153,9 @@ function SortableComponent(props) {
         item={item}
         dragType={dragType}
         moveItem={moveItem}
-        onDragEnd={newIndex => {
+        onDragEnd={(newIndex, oldIndex) => {
           if (!_.isEqual(items, listItems)) {
-            onSortEnd(listItems, newIndex);
+            onSortEnd(listItems, newIndex, oldIndex);
           }
           dragging = false;
           setDragging(false);

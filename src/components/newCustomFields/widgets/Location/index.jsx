@@ -10,7 +10,7 @@ import MapLoader from 'ming-ui/components/amap/MapLoader';
 import MapHandler from 'ming-ui/components/amap/MapHandler';
 import { wgs84togcj02 } from 'worksheet/util-purejs';
 import { FROM } from '../../tools/config';
-import { browserIsMobile, toFixed } from 'src/util';
+import { browserIsMobile, toFixed, getMapConfig } from 'src/util';
 import { CardButton } from 'src/pages/worksheet/components/Basics.jsx';
 import {
   bindWeiXin,
@@ -339,7 +339,7 @@ export default class Widgets extends Component {
     const onlyCanAppUse = (typeof strDefault === 'string' ? strDefault : '00')[0] === '1';
     let location = null;
 
-    const isGoogle = !!md.global.Account.map;
+    const isGoogle = !!getMapConfig();
 
     if (value) {
       try {
@@ -353,7 +353,7 @@ export default class Widgets extends Component {
       (locationForShow.coordinate || '').toLowerCase() === 'wgs84' &&
       locationForShow.x &&
       locationForShow.y &&
-      !md.global.Account.map
+      !getMapConfig()
     ) {
       const coordinate = wgs84togcj02(location.x, location.y);
       locationForShow.x = coordinate[0];

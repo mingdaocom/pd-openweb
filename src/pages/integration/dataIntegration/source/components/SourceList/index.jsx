@@ -285,7 +285,7 @@ export default function SourceList(props) {
     const params = {
       projectId: props.currentProjectId,
       pageNo: fetchState.pageNo,
-      pageSize: 20,
+      pageSize: 50,
       searchBody: fetchState.keyWords,
       roleType: fetchState.roleType,
       fromType: fetchState.fromType === 'ALL' ? null : fetchState.fromType,
@@ -303,7 +303,7 @@ export default function SourceList(props) {
           };
         });
         setSourceList(fetchState.pageNo > 0 ? sourceList.concat(list) : list);
-        setFetchState({ loading: false, noMore: result.content.length < 20 });
+        setFetchState({ loading: false, noMore: result.content.length < 50 });
       }
     });
   };

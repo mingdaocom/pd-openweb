@@ -10,6 +10,7 @@ import { batchCopyWidgets, handleMoveWidgets, batchResetWidgets } from '../../ut
 import { putControlByOrder, notInsetSectionTab, isSheetDisplay } from '../../util';
 import { find, flatten } from 'lodash';
 import { UN_REQUIRED_WIDGET } from '../../config';
+import WidgetWarning from '../../widgetSetting/components/WidgetBase/WidgetWarning';
 
 const WidgetBatchWrap = styled.div`
   position: absolute;
@@ -142,6 +143,7 @@ function WidgetBatch(props) {
       </div>
 
       <div className="batchContentWrap">
+        <WidgetWarning type="batchOption" />
         <SettingItem>
           <div className="settingItemTitle">{_l('验证')}</div>
           <div className="labelWrap">

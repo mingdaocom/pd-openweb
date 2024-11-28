@@ -107,6 +107,47 @@ const isMobile = browserIsMobile();
 const systemControls = SYSTEM_CONTROLS.map(c => ({ ...c, fieldPermission: '111' }));
 const MAX_COUNT = 1000;
 
+export function handleUpdateDefsourceOfControl({ recordId, relateRecordControl, masterData, controls = [] } = {}) {
+  return controls.map(control => {
+    if (
+      control.type === 29 &&
+      control.sourceControlId === relateRecordControl.controlId &&
+      control.dataSource === relateRecordControl.worksheetId
+    ) {
+      try {
+        control.advancedSetting = _.assign({}, control.advancedSetting, {
+          defsource: JSON.stringify([
+            {
+              staticValue: JSON.stringify([
+                JSON.stringify({
+                  rowid: recordId,
+                  ...[{}, ...(get(masterData, 'formData') || []).filter(c => c.type !== 34)].reduce((a = {}, b = {}) =>
+                    Object.assign(a, {
+                      [b.controlId]:
+                        b.type === 29 && _.isObject(b.value) && b.value.records
+                          ? JSON.stringify(
+                              // 子表使用双向关联字段作为默认值 RELATERECORD_OBJECT
+                              b.value.records.map(r => ({ sid: r.rowid, sourcevalue: JSON.stringify(r) })),
+                            )
+                          : b.value,
+                    }),
+                  ),
+                }),
+              ]),
+            },
+          ]),
+        });
+        return control;
+      } catch (err) {
+        console.error(err);
+        return control;
+      }
+    } else {
+      return control;
+    }
+  });
+}
+
 class ChildTable extends React.Component {
   static contextType = RecordInfoContext;
   static propTypes = {
@@ -411,49 +452,11 @@ class ChildTable extends React.Component {
   }
 
   updateDefsourceOfControl(nextProps) {
-    const {
-      recordId,
-      control: { controlId },
-      masterData,
-    } = nextProps || this.props;
+    const { recordId, masterData } = nextProps || this.props;
     const { controls } = this.state;
     const relateRecordControl = (nextProps || this.props).control;
     this.setState({
-      controls: controls.map(control => {
-        if (
-          control.type === 29 &&
-          control.sourceControlId === controlId &&
-          control.dataSource === relateRecordControl.worksheetId
-        ) {
-          try {
-            control.advancedSetting = _.assign({}, control.advancedSetting, {
-              defsource: JSON.stringify([
-                {
-                  staticValue: JSON.stringify([
-                    JSON.stringify({
-                      rowid: recordId,
-                      ...[{}, ...masterData.formData.filter(c => c.type !== 34)].reduce((a = {}, b = {}) =>
-                        Object.assign(a, {
-                          [b.controlId]:
-                            b.type === 29 && _.isObject(b.value) && b.value.records
-                              ? JSON.stringify(
-                                  // 子表使用双向关联字段作为默认值 RELATERECORD_OBJECT
-                                  b.value.records.map(r => ({ sid: r.rowid, sourcevalue: JSON.stringify(r) })),
-                                )
-                              : b.value,
-                        }),
-                      ),
-                    }),
-                  ]),
-                },
-              ]),
-            });
-            return control;
-          } catch (err) {}
-        } else {
-          return control;
-        }
-      }),
+      controls: handleUpdateDefsourceOfControl({ recordId, relateRecordControl, masterData, controls }),
     });
   }
 
@@ -1608,13 +1611,13 @@ class ChildTable extends React.Component {
                           >
                             {frozenIndex === columnIndex && (
                               <Fragment>
-                                <i className="icon icon-task-new-locked font16 mRight6"></i>
+                                <i className="icon icon-task-new-no-locked font16 mRight6"></i>
                                 {_l('解冻')}
                               </Fragment>
                             )}
                             {frozenIndex !== columnIndex && (
                               <Fragment>
-                                <i className="icon icon-task-new-no-locked font16 mRight6"></i>
+                                <i className="icon icon-task-new-locked font16 mRight6"></i>
                                 {_l('冻结')}
                               </Fragment>
                             )}

@@ -45,9 +45,15 @@ export default class CountDown extends Component {
   };
 
   formatTime = (d, h, m, s) => {
-    return `${d > 0 ? _l('%0天', d) : ''}${h > 0 ? _l('%0时', h) : ''}${m > 0 ? _l('%0分', m) : ''}${
-      s > 0 ? _l('%0秒', s) : ''
-    }`;
+    if (d > 0) {
+      return _l('%0天%1时%2分%3秒', d, h, m, s);
+    } else if (h > 0) {
+      return _l('%0时%1分%2秒', h, m, s);
+    } else if (m > 0) {
+      return _l(`%0分%1秒`, m, s);
+    } else {
+      return _l(`%0秒`, s);
+    }
   };
 
   render() {

@@ -350,7 +350,7 @@ export const getDynamicValue = (data, currentItem, masterData, embedData) => {
       currentItem.enumDefault === 2 &&
       _.get(currentItem, 'advancedSetting.showtype') === String(RELATE_RECORD_SHOW_TYPE.CARD)
     ) {
-      source = source.map(r => ({ ...r, isNew: true, isFromDefault: true }));
+      source = source.filter(r => _.isObject(r)).map(r => ({ ...r, isNew: true, isFromDefault: true }));
     } else {
       source = _.uniqBy(source);
     }
@@ -1108,27 +1108,6 @@ export default class DataFormat {
     const isInit = true;
     this.storeCenter = storeCenter || {};
 
-    // store 挂载
-    this.data.forEach(item => {
-      if (item.hidden) return;
-      if (item.type === 53 && item.dataSource) {
-        item.advancedSetting = { ...item.advancedSetting, defaultfunc: item.dataSource, defaulttype: '1' };
-      }
-      if (item.storeFromDefault) {
-        item.store = item.storeFromDefault;
-        delete item.storeFromDefault;
-      } else if (item.type === 34 && setSubListStore && !item.store) {
-        item.store = this.getControlStore(item);
-      } else if (
-        !this.isMobile &&
-        item.type === 29 &&
-        includes(['2', '5', '6'], get(item, 'advancedSetting.showtype')) &&
-        !item.store
-      ) {
-        item.store = this.getControlStore(item);
-      }
-    });
-
     // 新建初始化
     if (isCreate) {
       function isRelateRecordWithStaticValue(control) {
@@ -1173,7 +1152,13 @@ export default class DataFormat {
           if (this.isMobile && item.type === 29 && _.isString(value) && _.isEmpty(JSON.parse(value))) {
             this.updateDataSource({ controlId: item.controlId, value: null, isInit });
           } else if (value) {
-            this.updateDataSource({ controlId: item.controlId, value, isInit });
+            if (item.type === 29 && isRelateRecordTableControl(item)) {
+              setTimeout(() => {
+                this.updateDataSource({ controlId: item.controlId, value, isInit });
+              }, 0);
+            } else {
+              this.updateDataSource({ controlId: item.controlId, value, isInit });
+            }
           }
         } else if (
           item.type === 38 &&
@@ -1228,6 +1213,27 @@ export default class DataFormat {
         }
       });
     }
+
+    // store 挂载
+    this.data.forEach(item => {
+      if (item.hidden) return;
+      if (item.type === 53 && item.dataSource) {
+        item.advancedSetting = { ...item.advancedSetting, defaultfunc: item.dataSource, defaulttype: '1' };
+      }
+      if (item.storeFromDefault) {
+        item.store = item.storeFromDefault;
+        delete item.storeFromDefault;
+      } else if (item.type === 34 && setSubListStore && !item.store) {
+        item.store = this.getControlStore(item);
+      } else if (
+        !this.isMobile &&
+        item.type === 29 &&
+        includes(['2', '5', '6'], get(item, 'advancedSetting.showtype')) &&
+        !item.store
+      ) {
+        item.store = this.getControlStore(item);
+      }
+    });
 
     if (!(isCreate || ignoreLock) && checkRuleLocked(rules, this.data, _.get(this.embedData, 'recordId'))) {
       disabled = true;
@@ -1318,6 +1324,13 @@ export default class DataFormat {
         recordId,
         instanceId,
         workId,
+        masterData: {
+          worksheetId,
+          recordId,
+          formData: this.data
+            .map(c => _.pick(c, ['controlId', 'type', 'value', 'options', 'attribute', 'enumDefault']))
+            .filter(c => !!c.value),
+        },
       });
     } else if (control.type === 29) {
       store = generateRelateRecordTableStore(control, {

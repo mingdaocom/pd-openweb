@@ -3,6 +3,7 @@ import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap } from '../styled';
 import _ from 'lodash';
 import MDMap from 'ming-ui/components/amap/MDMap';
+import { getMapConfig } from 'src/util';
 
 export default class LocationInput extends Component {
   constructor(props) {
@@ -48,7 +49,7 @@ export default class LocationInput extends Component {
                     y: lat,
                     address,
                     title: name,
-                    coordinate: !!md.global.Account.map ? 'wgs84' : null,
+                    coordinate: !!getMapConfig() ? 'wgs84' : null,
                   }),
                 },
               ]);

@@ -170,7 +170,7 @@ export default class UploadFiles extends Component {
       attachmentData,
       temporaryData: formatTemporaryData(temporaryData),
       kcAttachmentData: formatKcAttachmentData(kcAttachmentData),
-      maxTotalSize: 1024 * 4,
+      maxTotalSize: md.global.SysSettings.fileUploadLimitSize,
       originCount: originCount || 0,
     };
     // 当前上传的文件

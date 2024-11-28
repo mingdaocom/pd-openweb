@@ -197,7 +197,7 @@ export default function FieldMappingList(props) {
   };
 
   //更新FieldsMapping
-  const updateFieldsMapping = data => {
+  const updateFieldsMapping = (data, isOnChange) => {
     const newFieldsMapping = (fieldsMapping || []).map(o => {
       if (
         _.get(o, ['sourceField', 'id']) === _.get(data, ['sourceField', 'id']) &&
@@ -208,7 +208,7 @@ export default function FieldMappingList(props) {
         return o;
       }
     });
-    setFieldsMapping && setFieldsMapping(newFieldsMapping);
+    setFieldsMapping && setFieldsMapping(newFieldsMapping, isOnChange);
   };
 
   const renderInputName = data => {
@@ -251,13 +251,16 @@ export default function FieldMappingList(props) {
             }
           }}
           onChange={value =>
-            updateFieldsMapping({
-              ...data,
-              destField: {
-                ...destField,
-                name: value,
+            updateFieldsMapping(
+              {
+                ...data,
+                destField: {
+                  ...destField,
+                  name: value,
+                },
               },
-            })
+              true,
+            )
           }
         />
         <div className="numberTips">

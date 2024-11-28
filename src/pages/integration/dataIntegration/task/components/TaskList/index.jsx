@@ -376,7 +376,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
     const fetchListParams = {
       projectId,
       pageNo: fetchState.pageNo,
-      pageSize: 20,
+      pageSize: 50,
       searchBody: fetchState.keyWords,
       status: fetchState.taskStatus === 'ALL' ? null : fetchState.taskStatus,
       sourceType: fetchState.sourceType === 'ALL' ? null : fetchState.sourceType,
@@ -388,7 +388,7 @@ export default function TaskList({ projectId, onRefreshComponents }) {
     ajaxPromise.then(result => {
       if (result) {
         setTaskList(fetchState.pageNo > 0 ? taskList.concat(result.content) : result.content);
-        setFetchState({ loading: false, noMore: result.content.length < 20 });
+        setFetchState({ loading: false, noMore: result.content.length < 50 });
       }
     });
   }, [

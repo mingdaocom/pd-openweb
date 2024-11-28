@@ -143,7 +143,7 @@ export default function DestEdit(props) {
         fieldsMapping={mapData.map(o => {
           return { ...o, sourceField: { ...o.sourceField, name: o.sourceField.alias } };
         })}
-        setFieldsMapping={mapping => {
+        setFieldsMapping={(mapping, isOnChange) => {
           const data = mapping.map(o => {
             if (!_.get(node, ['nodeConfig', 'config', 'createTable'])) {
               return {
@@ -172,6 +172,10 @@ export default function DestEdit(props) {
               };
             }
           });
+          if (isOnChange) {
+            setState({ mapData: data });
+            return;
+          }
           onChangeInfo({
             node: {
               ...node,

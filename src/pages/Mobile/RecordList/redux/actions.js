@@ -124,27 +124,14 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
         sub: sheetTranslateInfo.formSub || advancedSetting.sub,
         continue: sheetTranslateInfo.formContinue || advancedSetting.continue,
       };
-      workSheetInfo.views = views
-        .map(item => {
-          return {
-            ...item,
-            name: getTranslateInfo(base.appId, null, item.viewId).name || item.name,
-          };
-        })
-        .filter(
-          v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
+      let view = base.viewId ? _.find(workSheetInfo.views, v => v.viewId === base.viewId) : workSheetInfo.views[0];
+      if (_.includes(['hide', 'spc&happ'], _.get(view, 'advancedSetting.showhide'))) {
+        view = _.find(
+          workSheetInfo.views,
+          v => !_.includes(['hide', 'spc&happ'], _.get(v, 'advancedSetting.showhide')),
         );
-      if (
-        base.type !== 'single' &&
-        !_.includes(
-          workSheetInfo.views.map(v => v.viewId),
-          base.viewId,
-        ) &&
-        !_.isEmpty(workSheetInfo.views)
-      ) {
-        dispatch(updateBase({ ...base, viewId: workSheetInfo.views[0].viewId }));
+        dispatch(updateBase({ ...base, viewId: view.viewId }));
       }
-      const view = base.viewId ? _.find(workSheetInfo.views, v => v.viewId === base.viewId) : workSheetInfo.views[0];
       if (workSheetInfo.template) {
         workSheetInfo.template.controls = replaceControlsTranslateInfo(
           base.appId,
@@ -195,7 +182,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
 const promiseRequests = {};
 
 export const fetchSheetRows =
-  (params = {}) =>
+  (param = {}) =>
   (dispatch, getState) => {
     const {
       base,
@@ -207,6 +194,7 @@ export const fetchSheetRows =
       mobileNavGroupFilters,
       sheetRowLoading,
       filterControls = [],
+      currentSheetRows,
     } = getState().mobile;
 
     const { appId, worksheetId, viewId, groupId, maxCount, type } = base;
@@ -223,13 +211,14 @@ export const fetchSheetRows =
     }
     const { keyWords } = filters;
     const { chartId } = getRequest();
-    let { pageIndex } = sheetView;
-    let extraParams = params ? { ...params } : {};
+    let pageIndex = param.pageIndex || sheetView.pageIndex;
+    let extraParams = param;
     let pageSize = 20;
     if (!worksheetId) {
       return;
     }
     dispatch({ type: 'MOBILE_FETCH_SHEETROW_START' });
+
     if (maxCount) {
       pageIndex = 1;
       pageSize = maxCount;
@@ -270,16 +259,16 @@ export const fetchSheetRows =
     });
     promiseRequests[requestId] = sheetAjax.getFilterRows(params);
     promiseRequests[requestId].then(sheetRowsAndTem => {
-      const currentSheetRows = sheetRowsAndTem && sheetRowsAndTem.data ? sheetRowsAndTem.data : [];
-      const type = pageIndex === 1 ? 'MOBILE_CHANGE_SHEET_ROWS' : 'MOBILE_ADD_SHEET_ROWS';
-      const isMore = maxCount ? false : currentSheetRows.length === pageSize;
+      const newData = sheetRowsAndTem && sheetRowsAndTem.data ? sheetRowsAndTem.data : [];
+      const listData = pageIndex === 1 ? newData : currentSheetRows.concat(newData);
+      const isMore = listData.length < sheetRowsAndTem.count;
       dispatch({
-        type,
-        data: currentSheetRows,
+        type: 'MOBILE_CHANGE_SHEET_ROWS',
+        data: listData,
       });
       dispatch({
         type: 'CHANGE_GALLERY_VIEW_DATA',
-        list: currentSheetRows,
+        list: listData,
       });
       dispatch(changeSheetControls());
       dispatch({
@@ -291,12 +280,14 @@ export const fetchSheetRows =
         sheetView: {
           isMore,
           count: sheetRowsAndTem.count,
+          pageIndex,
         },
       });
       dispatch({ type: 'MOBILE_FETCH_SHEETROW_SUCCESS' });
       promiseRequests[worksheetId] = undefined;
     });
   };
+
 export const changeMobileSheetRows = data => (dispatch, getState) => {
   dispatch({ type: 'MOBILE_CHANGE_SHEET_ROWS', data });
 };
@@ -311,11 +302,7 @@ export const unshiftSheetRow = data => (dispatch, getState) => {
 export const changePageIndex = pageIndex => (dispatch, getState) => {
   const { sheetView } = getState().mobile;
   const index = pageIndex || sheetView.pageIndex + 1;
-  dispatch({
-    type: 'MOBILE_UPDATE_SHEET_VIEW',
-    sheetView: { pageIndex: index },
-  });
-  dispatch(fetchSheetRows());
+  dispatch(fetchSheetRows({ pageIndex: index }));
 };
 
 export const updateQuickFilter =

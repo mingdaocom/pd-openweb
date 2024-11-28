@@ -132,7 +132,7 @@ export default function UrlParams(props) {
               getCopyContent: (type, url) =>
                 type === 'private' ? url : `${url} ${currentSheetInfo.name}-${view.name}`,
               onUpdate: value => {
-                updateCurrentView(Object.assign({}, view, value));
+                updateCurrentView({ ...view, ...value, editAttrs: Object.keys(value) });
               },
             })
           }

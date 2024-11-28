@@ -17,6 +17,8 @@ import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
 import { sortDataByCustomNavs } from 'src/pages/worksheet/common/Sheet/GroupFilter/util';
 import { getViewActionInfo } from 'src/pages/Mobile/RecordList/util';
+import { isOpenPermit } from 'src/pages/FormSet/util.js';
+import { permitList } from 'src/pages/FormSet/config.js';
 import cx from 'classnames';
 import './index.less';
 import _ from 'lodash';

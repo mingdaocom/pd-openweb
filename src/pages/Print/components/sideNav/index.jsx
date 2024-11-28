@@ -394,7 +394,7 @@ class SideNav extends React.Component {
               allowDownloadPermission: printData.allowDownloadPermission,
             }}
             printFont={printData.font || DEFAULT_FONT_SIZE}
-            nameWidth={(printData.advanceSettings.find(l => l.key === 'nameWidth') || {}).value}
+            nameWidth={(_.find(printData.advanceSettings, l => l.key === 'nameWidth') || {}).value}
             changeAdvanceSettings={this.changeAdvanceSettings}
             handChange={handChange}
           />

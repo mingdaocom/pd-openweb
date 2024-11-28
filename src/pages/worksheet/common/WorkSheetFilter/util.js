@@ -459,9 +459,14 @@ export function getFilterTypes(control = {}, conditionType, from) {
       typeEnums = [
         FILTER_CONDITION_TYPE.EQ,
         FILTER_CONDITION_TYPE.NE,
-        FILTER_CONDITION_TYPE.BETWEEN,
-        FILTER_CONDITION_TYPE.NBETWEEN,
-        ...(from === 'rule' ? [] : [FILTER_CONDITION_TYPE.LIKE, FILTER_CONDITION_TYPE.NCONTAIN]),
+        ...(from === 'rule'
+          ? []
+          : [
+              FILTER_CONDITION_TYPE.BETWEEN,
+              FILTER_CONDITION_TYPE.NBETWEEN,
+              FILTER_CONDITION_TYPE.LIKE,
+              FILTER_CONDITION_TYPE.NCONTAIN,
+            ]),
         FILTER_CONDITION_TYPE.EQ_FOR_SINGLE,
         FILTER_CONDITION_TYPE.ISNULL,
         FILTER_CONDITION_TYPE.HASVALUE,

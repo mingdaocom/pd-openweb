@@ -101,7 +101,7 @@ const StyledFixedTable = styled(FixedTable)`
   }
   &:not(.classic) {
     .cell.hover:not(.isediting):not(.highlight):not(.highlightFromProps) {
-      background-color: rgba(0, 0, 0, 0.04) !important;
+      background-color: #f5f5f5 !important;
     }
   }
   &.classic {

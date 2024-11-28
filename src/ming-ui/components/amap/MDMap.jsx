@@ -13,6 +13,7 @@ import OperatorIcon from './components/OperatorIcon';
 import GoogleMap from './components/GoogleMap';
 import { AnimationWrap } from 'src/pages/widgetConfig/styled/index.js';
 import functionWrap from 'ming-ui/components/FunctionWrap';
+import { getMapConfig } from 'src/util';
 
 const MAP_TYPE = [
   { text: _l('地图位置'), value: 0 },
@@ -439,7 +440,7 @@ export default class MDMap extends Component {
   }
 
   render() {
-    const MapComponent = !!md.global.Account.map ? GoogleMap : GDMap;
+    const MapComponent = !!getMapConfig() ? GoogleMap : GDMap;
     return <MapComponent {...this.props} />;
   }
 }

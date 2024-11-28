@@ -88,8 +88,8 @@ const Item = props => {
           {...(isOtherShowFeild(control)
             ? { renderError: () => <span className="Red">{_l('%0(无效类型)', control.controlName)}</span> }
             : !control
-            ? { renderError: () => <span className="Red">{_l('字段已删除')}</span> }
-            : {})}
+              ? { renderError: () => <span className="Red">{_l('字段已删除')}</span> }
+              : {})}
         />
         <Dropdown
           border
@@ -244,7 +244,7 @@ export default class SortConditions extends React.Component {
       .map(c => ({
         text: c.controlName,
         value: c.controlId,
-        itemContentStyle: { padding: '0 30px' },
+        itemContentStyle: { padding: '0 0 0 30px' },
         iconName: getIconByType(c.type),
       }));
   };

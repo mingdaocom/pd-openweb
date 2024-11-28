@@ -226,7 +226,7 @@ export default function WorksheetRecordLogItem(props) {
               WORKFLOW_SYSTEM_CONTROL.find(l => l.controlId === item.id) ? (
                 <span className="selectTriggerChild WordBreak">
                   <Icon className="Font16 Gray_9e" icon={widgetInfo.icon} />
-                  <span>{item.name}</span>
+                  <span className='flex'>{item.name}</span>
                 </span>
               ) : (
                 <TriggerSelect
@@ -238,7 +238,7 @@ export default function WorksheetRecordLogItem(props) {
                 >
                   <span className="selectTriggerChild hasHover WordBreak">
                     <Icon className="Font16 Gray_9e" icon={widgetInfo.icon} />
-                    <span>{control.controlName || item.name}</span>
+                    <span className='flex'>{control.controlName || item.name}</span>
                   </span>
                 </TriggerSelect>
               )}

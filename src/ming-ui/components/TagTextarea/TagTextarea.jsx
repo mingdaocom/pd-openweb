@@ -145,7 +145,7 @@ export default class TagTextarea extends React.Component {
           this.cmcon.classList.remove('active');
         }
         if (!_.isUndefined(this.tempValue)) {
-          onChange(null, this.tempValue, this.tempObj);
+          this.props.onChange(null, this.tempValue, this.tempObj);
           this.tempValue = undefined;
           this.tempObj = undefined;
         }

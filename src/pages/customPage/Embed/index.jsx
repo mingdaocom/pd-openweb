@@ -8,7 +8,7 @@ import MobileCustomPage from 'src/pages/Mobile/CustomPage';
 import { LoadDiv } from 'ming-ui';
 import homeAppApi from 'src/api/homeApp';
 import UnusualContent from 'src/components/UnusualContent';
-import { socketInit } from 'src/socket/mobileSocketInit';
+import socketInit from 'src/socket';
 import { browserIsMobile } from 'src/util';
 import './index.less';
 
@@ -39,9 +39,7 @@ export default class EmbedPage extends Component {
       .catch(() => {
         location.href = '/login';
       });
-    if (isMobile) {
-      socketInit();
-    }
+    socketInit();
   }
   renderPage() {
     const { data, status } = this.state;

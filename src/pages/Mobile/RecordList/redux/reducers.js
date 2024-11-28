@@ -20,8 +20,6 @@ export const currentSheetRows = (state = [], action) => {
   switch (action.type) {
     case 'MOBILE_CHANGE_SHEET_ROWS':
       return Object.assign([], action.data);
-    case 'MOBILE_ADD_SHEET_ROWS':
-      return Object.assign([], state.concat(action.data));
     case 'MOBILE_UNSHIFT_SHEET_ROWS':
       state.unshift(action.data);
       return Object.assign([], state);

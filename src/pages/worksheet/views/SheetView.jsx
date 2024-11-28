@@ -65,7 +65,7 @@ class TableView extends React.Component {
   }
 
   componentDidMount() {
-    const { view, fetchRows, setRowsEmpty, navGroupFilters, noLoadAtDidMount } = this.props;
+    const { view, fetchRows, setRowsEmpty, navGroupFilters, noLoadAtDidMount, setViewLayout = () => {} } = this.props;
     if (!!this.chartId) {
       fetchRows({ isFirst: true });
     } else if (
@@ -73,6 +73,7 @@ class TableView extends React.Component {
       (this.navGroupToSearch() && _.isEmpty(navGroupFilters))
     ) {
       setRowsEmpty();
+      setViewLayout(view.viewId);
     } else if (!noLoadAtDidMount) {
       fetchRows({ isFirst: true });
     }
@@ -91,6 +92,7 @@ class TableView extends React.Component {
       navGroupFilters,
       quickFilter,
       abortRequest = () => {},
+      setViewLayout = () => {},
     } = nextProps;
     const changeView = this.props.worksheetId === nextProps.worksheetId && this.props.viewId !== nextProps.viewId;
     if (!_.isEqual(get(nextProps, ['navGroupFilters']), get(this.props, ['navGroupFilters']))) {
@@ -105,6 +107,7 @@ class TableView extends React.Component {
       abortRequest();
       if (noNavGroup || get(view, 'advancedSetting.clicksearch') === '1') {
         setRowsEmpty();
+        setViewLayout(view.viewId);
       } else {
         fetchRows({ changeView });
       }
@@ -448,10 +451,10 @@ class TableView extends React.Component {
   }
 
   get hideRowHead() {
-    const { sheetSwitchPermit, view, viewId } = this.props;
+    const { sheetSwitchPermit, isTreeTableView, view, viewId } = this.props;
     const { tableType } = this;
     const showOperate = (get(view, 'advancedSetting.showquick') || '1') === '1';
-    const showNumber = (get(view, 'advancedSetting.showno') || '1') === '1';
+    const showNumber = (get(view, 'advancedSetting.showno') || '1') === '1' && !isTreeTableView;
     const allowBatchEdit = isOpenPermit(permitList.batchEdit, sheetSwitchPermit, viewId);
     return tableType !== 'classic' && !showOperate && !allowBatchEdit && !showNumber;
   }
@@ -470,10 +473,10 @@ class TableView extends React.Component {
   }
 
   get rowHeadWidth() {
-    const { view } = this.props;
+    const { view, isTreeTableView } = this.props;
     const { numberWidth } = this;
     const showOperate = (get(view, 'advancedSetting.showquick') || '1') === '1';
-    const showNumber = (get(view, 'advancedSetting.showno') || '1') === '1';
+    const showNumber = (get(view, 'advancedSetting.showno') || '1') === '1' && !isTreeTableView;
     if (this.rowHeadOnlyNum) {
       return numberWidth + 24;
     }
@@ -1093,6 +1096,7 @@ export default connect(
     bindActionCreators(
       {
         ..._.pick(sheetviewActions, [
+          'setViewLayout',
           'setRowsEmpty',
           'addRecord',
           'fetchRows',

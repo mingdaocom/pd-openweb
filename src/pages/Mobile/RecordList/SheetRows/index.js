@@ -9,6 +9,7 @@ import { RecordInfoModal } from 'mobile/Record';
 import withoutRows from './assets/withoutRows.png';
 import { browserIsMobile, addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
 import RegExpValidator from 'src/util/expression';
+import { ScrollView } from 'ming-ui';
 import './index.less';
 import _ from 'lodash';
 
@@ -31,24 +32,15 @@ class SheetRows extends Component {
     handleReplaceState('page', 'recordDetail', () => this.setState({ previewRecordId: undefined }));
   };
 
-  handleEndReached = event => {
-    const { target } = event;
+  handleEndReached = () => {
     const { sheetRowLoading, sheetView } = this.props;
-    const isEnd = target.scrollHeight - target.scrollTop <= target.clientHeight;
-    if (isEnd && !sheetRowLoading && sheetView.isMore) {
+    if (!sheetRowLoading && sheetView.isMore) {
       this.props.changePageIndex();
     }
   };
   renderRow = item => {
-    const {
-      worksheetControls,
-      base,
-      view,
-      worksheetInfo,
-      batchOptVisible,
-      batchOptCheckedData,
-      sheetSwitchPermit
-    } = this.props;
+    const { worksheetControls, base, view, worksheetInfo, batchOptVisible, batchOptCheckedData, sheetSwitchPermit } =
+      this.props;
     return (
       <CustomRecordCard
         key={item.rowid}
@@ -105,18 +97,16 @@ class SheetRows extends Component {
     } = this.props;
     return (
       <Fragment>
-        <div className="sheetRowsWrapper flex pTop10" onScroll={this.handleEndReached}>
-          {currentSheetRows.map(item => (
-            this.renderRow(item)
-          ))}
-          {
-            sheetView.isMore ? (
-              <div className="flexRow justifyContentCenter">{sheetRowLoading ? <SpinLoading color='primary' /> : null}</div>
-            ) : (
-              <div className="Height50 mBottom5"></div>
-            )
-          }
-        </div>
+        <ScrollView className="sheetRowsWrapper flex pTop10" onScrollEnd={this.handleEndReached}>
+          {currentSheetRows.map(item => this.renderRow(item))}
+          {sheetView.isMore ? (
+            <div className="flexRow justifyContentCenter">
+              {sheetRowLoading ? <SpinLoading color="primary" /> : null}
+            </div>
+          ) : (
+            <div className="Height50 mBottom5"></div>
+          )}
+        </ScrollView>
         <RecordInfoModal
           className="full"
           visible={!!previewRecordId}

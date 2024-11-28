@@ -92,7 +92,9 @@ function EditableCellCon(props) {
               className={`clearbtn icon icon-cancel Font16 Hand ${iconClassName}`}
               onClick={e => {
                 e.stopPropagation();
-                onClear();
+                if (onClear) {
+                  onClear();
+                }
               }}
             />
           </span>

@@ -33,6 +33,15 @@ const OTHER_TEXT = {
       '这是一个兼容保留的历史配置，现在此字段类型已不再支持此设置。如果你不需要此功能可以取消勾选，避免性能浪费。',
     ),
   },
+  batchOption: {
+    text: (
+      <span>
+        <span>{_l('如何快速批量选择？')}</span>
+        <br />
+        <span>{_l('先勾选一个字段，然后按下shift键，再勾选或点击另一个字段，这样两个字段之间的字段也会被选中。')}</span>
+      </span>
+    ),
+  },
 };
 
 export default function WidgetWarning({ type }) {

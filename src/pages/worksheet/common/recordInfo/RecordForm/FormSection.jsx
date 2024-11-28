@@ -41,13 +41,16 @@ const FormSectionWrap = styled.div`
       background-color: #2196f3;
     }
     & > span.ellipsis {
-      display: ${props => (props.isUnfold ? 'inline-block' : 'none')};
+      display: ${props => (props.isUnfold ? 'inline-block;' : 'none')};
     }
     & > span:first-child {
       margin-right: ${props => (props.isUnfold ? '' : '0px')};
     }
     & > div {
-      ${props => (props.isUnfold ? '' : 'font-size: 12px;margin-left:0px;line-height: 13px;margin-top: 4px;')}
+      ${props =>
+        props.isUnfold
+          ? 'width: 24px;text-align: right;margin: 0 0 0 auto;'
+          : 'font-size: 12px;margin:4px 0 0 0;line-height: 13px'}
     }
   }
   .expandIcon {
@@ -112,6 +115,7 @@ function FormSection(props, ref) {
     controls: tabControls,
     activeControlId,
     widgetStyle,
+    isFixedLeft: widgetStyle.tabposition === '3',
     showTip: !isUnfold,
     onClick: controlId => {
       onClick(controlId);

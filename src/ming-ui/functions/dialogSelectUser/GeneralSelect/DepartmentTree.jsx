@@ -149,25 +149,23 @@ export default class DepartmentTree extends Component {
 
   handleSelectGroup = id => {
     const { pageIndex } = this.state;
-    const { userSettings, projectId } = this.props;
+    const { userSettings, projectId, isNetwork } = this.props;
     this.setState({ groupId: id, loading: true });
-    departmentController
-      .getDepartmentUsers({
-        filterAccountIds: userSettings.filterAccountIds,
-        departmentId: id,
-        projectId,
-        pageIndex,
-        pageSize: 100,
-      })
-      .then(data => {
-        const groupList = this.state.groupList.concat(data.list);
-        this.setState({
-          isMore: groupList.length !== data.allCount,
-          loading: false,
-          pageIndex: pageIndex + 1,
-          groupList,
-        });
+    departmentController[isNetwork ? 'getProjectDepartmentUsers' : 'getDepartmentUsers']({
+      filterAccountIds: userSettings.filterAccountIds,
+      departmentId: id,
+      projectId,
+      pageIndex,
+      pageSize: 100,
+    }).then(data => {
+      const groupList = this.state.groupList.concat(data.list);
+      this.setState({
+        isMore: groupList.length !== data.allCount,
+        loading: false,
+        pageIndex: pageIndex + 1,
+        groupList,
       });
+    });
   };
 
   updateTreeData = (list, key, subs) => {

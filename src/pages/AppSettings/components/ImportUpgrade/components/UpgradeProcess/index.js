@@ -178,12 +178,13 @@ export default class UpgradeProcess extends Component {
     const { projectId } = this.props;
     const { batchId } = this.state;
 
+    this.setState({ checkFiles: [] });
+
     if (!isUpdate && this.state.files.length) {
       this.setState({ addFilesLoading: true });
     }
 
     const res = [];
-
     for (let l of checkFiles) {
       res.push(
         await appManagementAjax.batchImportCheck({
@@ -276,16 +277,24 @@ export default class UpgradeProcess extends Component {
     });
   };
 
-  onUploadComplete = (up, files) => {
-    const { batchUpdate } = this.state;
+  onUploadComplete = (up, file, response) => {
+    const { batchUpdate, checkFiles = [] } = this.state;
+    const { key } = response;
 
     if (batchUpdate) {
-      this.batchCheckFiles(files.slice(0, 10));
+      this.setState(
+        {
+          checkFiles: checkFiles.concat({ ...file, key }),
+        },
+        () => {
+          up.files.length === this.state.checkFiles.length && this.batchCheckFiles(this.state.checkFiles.slice(0, 10));
+        },
+      );
     } else {
       this.setState(
         {
-          file: files[0],
-          url: md.global.FileStoreConfig.documentHost + files[0].key,
+          file: file,
+          url: md.global.FileStoreConfig.documentHost + file.key,
           errTip: '',
           analyzeLoading: false,
         },
@@ -314,7 +323,7 @@ export default class UpgradeProcess extends Component {
             !this.state.analyzeLoading && this.setState({ file: batchUpdate ? {} : file, analyzeLoading: true });
           }, 200);
         }}
-        onUploadComplete={this.onUploadComplete}
+        onUploaded={this.onUploadComplete}
         onError={() => {
           this.setState({
             file: {},

@@ -844,7 +844,7 @@ export const handleAddWidgets = (data, para = {}, widgetProps, callback) => {
         update(widgets, {
           [rowIndex]: {
             $apply: item => {
-              const nextRow = item.concat(data);
+              const nextRow = (item || []).concat(data);
               return nextRow.map(value => ({ ...value, size: WHOLE_SIZE / nextRow.length }));
             },
           },

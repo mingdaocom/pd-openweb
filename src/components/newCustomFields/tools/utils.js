@@ -1218,6 +1218,7 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
             showtype: control.type === 51 && showType === '5' ? '1' : _.includes(['5', '6'], showType) ? '2' : showType,
             icon: control.type === 29 && _.includes(['2', '6'], showType) ? 'link_record' : 'Worksheet_query',
           },
+          sourceControlType: _.includes(['5', '6'], showType) ? 2 : control.sourceControlType,
         };
       }
       return control;

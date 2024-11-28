@@ -227,7 +227,7 @@ export default class extends Component {
     if (xaxes.cid) {
       const isNumber = isFormatNumber(xaxes.controlType);
       const value = currentData.originalId;
-      param[xaxes.cid] = contrastType ? currentData.name : (isNumber && value ? Number(value) : value);
+      param[xaxes.cid] = contrastType ? currentData.originalName : (isNumber && value ? Number(value) : value);
       linkageMatch.value = value;
       linkageMatch.filters.push({
         controlId: xaxes.controlId,

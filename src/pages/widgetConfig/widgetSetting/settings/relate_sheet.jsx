@@ -281,7 +281,8 @@ export default function RelateSheet(props) {
               onChange(nextData);
               return;
             }
-            onChange({ enumDefault: value });
+            // 多条清掉不允许重复配置
+            onChange({ enumDefault: value, unique: false });
           }}
           size="small"
         />

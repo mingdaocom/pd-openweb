@@ -54,6 +54,7 @@ class VideoPlayer extends Component {
     this.props.changeStateOfAttachment();
   }
   render() {
+    const { canDownload } = this.props;
     return (
       <div className="videoPlayer">
         <video
@@ -61,6 +62,11 @@ class VideoPlayer extends Component {
           ref={content => (this.videoContent = content)}
           preload="metadata"
           controlsList="nodownload"
+          onContextMenu={e => {
+            if (!canDownload) {
+              e.preventDefault();
+            }
+          }}
           style={{
             maxWidth: window.innerWidth * 0.8 + 'px',
             maxHeight: window.innerHeight * 0.8 + 'px',

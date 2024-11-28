@@ -79,6 +79,8 @@ export default class CommentListItem extends React.Component {
       removeComment,
     } = this.props;
 
+    this.setState({ popupVisible: false })
+
     confirm({
       title: _l('您确定要删除该讨论吗？'),
       onOk: () => {
@@ -137,7 +139,7 @@ export default class CommentListItem extends React.Component {
       <Trigger
         popupVisible={popupVisible}
         onPopupVisibleChange={visible => this.setState({ popupVisible: visible })}
-        action={['hover']}
+        action={['click']}
         popupAlign={{
           points: ['tl', 'bl'],
           offset: [0, 10],

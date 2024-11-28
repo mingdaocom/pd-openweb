@@ -27,6 +27,16 @@ const SortableItemContent = styled.div`
   }
 `;
 
+function arrayMove(array, oldIndex, newIndex) {
+  if (oldIndex < 0 || oldIndex >= array.length || newIndex < 0 || newIndex >= array.length) {
+    return array;
+  }
+  const newArray = [...array]
+  const [movedItem] = newArray.splice(oldIndex, 1)
+  newArray.splice(newIndex, 0, movedItem)
+  return newArray
+}
+
 const renderOverlay = (props) => {
   const { item, onNormType, onEmptyShowType, onChangeControlId, onChangeCurrentReport, allControls, currentReport } =
     props;
@@ -257,14 +267,15 @@ export default class YAxis extends Component {
       yaxisList: newYaxisList,
     });
   };
-  handleSortEnd = list => {
+  handleSortEnd = (list, newIndex, oldIndex) => {
     const { currentReport, yaxisList, onChangeCurrentReport } = this.props;
     const { reportType, config } = currentReport;
     const data = { yaxisList: list };
     if (reportType === reportTypes.ProgressChart) {
+      const targetList = config.targetList || [];
       data.config = {
         ...config,
-        targetList: list,
+        targetList: arrayMove(targetList, oldIndex, newIndex),
       };
     }
     onChangeCurrentReport(data);

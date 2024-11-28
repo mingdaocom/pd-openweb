@@ -261,6 +261,7 @@ export function init() {
             value: { error: _l('没有权限') },
           });
         });
+      if (!res) return;
       relateWorksheetInfo = res.worksheet;
       const { addedRecordIds, deletedRecordIds, isDeleteAll } = get(getState(), 'changes');
       if (isEmpty(addedRecordIds) && isEmpty(deletedRecordIds) && !isDeleteAll) {

@@ -22,6 +22,9 @@ const DisplayTabWrap = styled.div`
     .animaItem {
       height: 24px;
       line-height: 24px;
+      width: fit-content;
+      padding: 0 10px;
+      flex: unset;
     }
   }
 `;
@@ -34,7 +37,7 @@ export default function DisplayTab(props) {
     <DisplayTabWrap>
       <div className="tabHeaderContent">
         <span className="Gray_9e Font14 Bold">{_l('标签页')}</span>
-        <AnimationWrap className="switchStyleWrap" style={{ width: 98, background: '#ededed', fontSize: 12 }}>
+        <AnimationWrap className="switchStyleWrap" style={{ background: '#ededed', fontSize: 12 }}>
           {TAB_DISPLAY_TYPE.map(item => (
             <div
               className={cx('animaItem', { active: selectTab === item.value })}

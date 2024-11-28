@@ -21,6 +21,8 @@ const BtnsWrap = styled.div`
   background-color: #fff;
   padding: 0 10px;
   box-sizing: border-box;
+  z-index: 2;
+  background-color: #fff;
 
   &.confirm {
     border: none;
@@ -82,6 +84,8 @@ function NewRecord(props) {
   const [loading, setLoading] = useState();
   const [autoFill, setAutoFill] = useState(null);
   const doubleConfirm = safeParse(_.get(worksheetInfo, 'advancedSetting.doubleconfirm'));
+  const ua = window.navigator.userAgent.toLowerCase();
+  const isHonor = ua.match(/honor/i) == 'honor';
 
   useEffect(() => {
     const cancel = () => {
@@ -221,7 +225,10 @@ function NewRecord(props) {
   };
 
   const header = (
-    <div className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8">
+    <div
+      className="flexRow valignWrapper pTop15 pLeft20 pRight20 pBottom8"
+      style={isHonor ? { zIndex: 2, background: '#fff' } : {}}
+    >
       <div className="title Font18 Gray flex bold leftAlign ellipsis">
         {advancedSetting.title || props.title || (props.entityName && _l('创建%0', props.entityName))}
       </div>
@@ -300,7 +307,7 @@ function NewRecord(props) {
       )}
       <div className="flexColumn leftAlign h100">
         {notDialog ? null : header}
-        <ScrollView className="flex">
+        <ScrollView style={isHonor ? { position: 'static' } : {}}>
           <div className="pAll20 pTop0 h100">{content}</div>
         </ScrollView>
         {footer}

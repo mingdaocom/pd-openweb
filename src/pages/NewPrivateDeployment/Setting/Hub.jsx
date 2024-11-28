@@ -348,7 +348,7 @@ const MapSetting = props => {
   const [popupVisible, setPopupVisible] = useState(false);
   const [mapPrams, setMapParams] = useState({ key: '', secret: '' });
   const [serveType, setServeType] = useState(0);
-  const { key, secret } = mapPrams;
+  const { key, secret, id } = mapPrams;
   const existType = _.find([0, 1], item =>
     _.includes(
       mapList.map(v => v.type),
@@ -381,10 +381,11 @@ const MapSetting = props => {
     if (!_.trim(key) || (serveType === 0 && !_.trim(secret))) return;
 
     promise({
+      id,
       type: serveType,
       secretDict: {
         key: encrypt(key),
-        secret: encrypt(secret),
+        secret: secret ? encrypt(secret) : undefined,
       },
     }).then(res => {
       if (res) {
@@ -392,6 +393,14 @@ const MapSetting = props => {
         if (actionType === 'add') {
           setMapParams({ key: '', secret: '' });
           getMapList();
+        } else {
+          const newList = mapList.map(item => {
+            if (id === item.id) {
+              return { ...item, secretObject: { key, secret } };
+            }
+            return item;
+          });
+          setMapList(newList);
         }
       }
     });
@@ -456,7 +465,7 @@ const MapSetting = props => {
                 <MenuItem
                   onClick={() => {
                     setPopupVisible(undefined);
-                    setMapParams(item.secretObject);
+                    setMapParams({ ...item.secretObject, id: item.id });
                     setServeType(item.type);
                     setActionType('edit');
                   }}

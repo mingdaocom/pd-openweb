@@ -332,6 +332,7 @@ class ImageViewer extends React.Component {
   }
 
   render() {
+    const { canDownload } = this.props;
     const width = this.state.originSize ? this.state.originSize.width : 0;
     const { scale, left, top, rotate, dragStart } = this.state;
     return (
@@ -360,6 +361,11 @@ class ImageViewer extends React.Component {
                 className={cx('dragAbleImg noSelect', this.state.dragStart ? 'grabbing' : 'grab')}
                 onMouseDown={this.initDrag}
                 onTouchStart={this.initDrag}
+                onContextMenu={e => {
+                  if (!canDownload) {
+                    e.preventDefault();
+                  }
+                }}
               />
             )}
           </div>

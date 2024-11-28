@@ -83,14 +83,17 @@ class SetOrgNameMultipleLanguages extends Component {
           langConfig.map(item => {
             const { code, value } = item;
             const currentLanguageData = (_.find(settingLanguageData, v => v.langType === code) || {}).data || [];
-            const currentName = _.isEmpty(currentLanguageData) ? undefined : currentLanguageData[0].value;
+            const currentName =
+              code === getCurrentLangCode(md.global.Config.DefaultLang) || _.isEmpty(currentLanguageData)
+                ? currentLangName
+                : currentLanguageData[0].value;
 
             return (
               <div key={code} className="mBottom15">
                 <div className="mBottom5">{value}</div>
                 <InputWrap
-                  disabled={code === getCurrentLangCode()}
-                  value={code === getCurrentLangCode() ? currentLangName : currentName}
+                  disabled={code === getCurrentLangCode(md.global.Config.DefaultLang)}
+                  value={currentName}
                   className="w100"
                   onChange={value => {
                     let newData = _.clone(settingLanguageData);

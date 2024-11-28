@@ -41,7 +41,12 @@ class ThumbnailItem extends React.Component {
     const { previewType, size, name } = attachment;
     const ext = attachment.ext.toLowerCase();
     let content;
-    if (previewType === PREVIEW_TYPE.PICTURE && size < MAX_IMG_VIEW_SIZE && !this.state.error && (!attachment.refId || attachment.shareUrl)) {
+    if (
+      previewType === PREVIEW_TYPE.PICTURE &&
+      size < MAX_IMG_VIEW_SIZE &&
+      !this.state.error &&
+      (!attachment.refId || attachment.shareUrl)
+    ) {
       const imagePath = attachment.viewUrl;
       content = (
         <img
@@ -50,6 +55,7 @@ class ThumbnailItem extends React.Component {
               error: true,
             });
           }}
+          onContextMenu={e => e.preventDefault()}
           src={imagePath}
           alt=""
         />

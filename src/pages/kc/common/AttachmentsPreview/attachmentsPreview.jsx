@@ -338,6 +338,7 @@ class AttachmentsPreview extends React.Component {
                         ref={imageViewer => {
                           this.refImageViewer = imageViewer;
                         }}
+                        canDownload={showDownload && canDownload}
                         src={viewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, 'imageView2/0')}
                         con={this.refPreviewCon}
                         toggleFullscreen={this.props.actions.toggleFullScreen}
@@ -442,6 +443,7 @@ class AttachmentsPreview extends React.Component {
                       <VideoPlayer
                         src={currentAttachment.viewUrl || _.get(currentAttachment, 'sourceNode.path')}
                         attachment={currentAttachment}
+                        canDownload={showDownload && canDownload}
                       />
                     );
                   case PREVIEW_TYPE.NEW_PAGE:
@@ -496,6 +498,7 @@ class AttachmentsPreview extends React.Component {
           </div>
           {previewType === PREVIEW_TYPE.PICTURE ? (
             <ThumbnailGuide
+              canDownload={canDownload && showDownload}
               bigit={this.bigit}
               smallit={this.smallit}
               rotate={this.rotate}

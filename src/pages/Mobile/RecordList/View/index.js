@@ -121,14 +121,14 @@ class View extends Component {
       return this.renderError();
     }
 
-    if (viewResultCode !== 1 || _.isEmpty(view)) {
-      return (
-        <State
-          resultCode={_.isEmpty(view) ? 7 : viewResultCode}
-          type={worksheetInfo.resultCode !== 1 ? 'sheet' : 'view'}
-        />
-      );
-    }
+    // if (viewResultCode !== 1 || _.isEmpty(view)) {
+    //   return (
+    //     <State
+    //       resultCode={_.isEmpty(view) ? 7 : viewResultCode}
+    //       type={worksheetInfo.resultCode !== 1 ? 'sheet' : 'view'}
+    //     />
+    //   );
+    // }
 
     if (_.isEmpty(view)) {
       return null;

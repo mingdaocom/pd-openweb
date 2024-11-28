@@ -15,7 +15,7 @@ import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/Calen
 import { calculateZoomLevel, parseRecord, calculatePoleCenter } from './utils';
 import PinMarker from './components/PinMarker';
 import Map from './amap/Map';
-import { browserIsMobile, handlePushState, handleReplaceState } from 'src/util';
+import { browserIsMobile, handlePushState, handleReplaceState, getMapConfig } from 'src/util';
 import { RecordInfoModal } from 'mobile/Record';
 import { LoadDiv } from 'ming-ui';
 import GMap from './GMap/GMap';
@@ -44,7 +44,7 @@ function MapView(props) {
   } = props;
   const { mapViewState, mapViewLoading, refreshMap } = mapView;
   const isMobile = browserIsMobile();
-  const isGoogle = !!md.global.Account.map;
+  const isGoogle = !!getMapConfig();
 
   const conRef = useRef();
   const [zoom, setZoom] = useState(5);

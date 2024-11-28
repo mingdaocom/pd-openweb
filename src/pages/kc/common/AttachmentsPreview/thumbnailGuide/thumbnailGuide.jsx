@@ -90,7 +90,7 @@ class ThumbnailGuide extends React.Component {
   };
 
   render() {
-    const { index, attachments } = this.props;
+    const { index, attachments, canDownload } = this.props;
     const { showThumbnail } = this.state;
     const currentAttachment = attachments[index];
     const { viewUrl = '' } = currentAttachment;
@@ -165,15 +165,17 @@ class ThumbnailGuide extends React.Component {
                     }}
                     title={_l('向右旋转')}
                   />
-                  <a
-                    className="originImage Hand noSelect"
-                    href={originalImageUrl}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                    title={_l('查看图片')}
-                  >
-                    {_l('原图')}
-                  </a>
+                  {canDownload && (
+                    <a
+                      className="originImage Hand noSelect"
+                      href={originalImageUrl}
+                      rel="noopener noreferrer"
+                      target="_blank"
+                      title={_l('查看图片')}
+                    >
+                      {_l('原图')}
+                    </a>
+                  )}
                 </div>
               )}
             </div>

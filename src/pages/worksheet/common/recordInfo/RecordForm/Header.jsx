@@ -13,6 +13,7 @@ import MoreMenu from './MoreMenu';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
+import CreateByMingDaoYun from 'src/components/CreateByMingDaoYun';
 import favoriteApi from 'src/api/favorite.js';
 import { getCurrentProject } from 'src/util';
 
@@ -246,7 +247,7 @@ export default function InfoHeader(props) {
           )}
           {React.cloneElement(header, { onSubmit: onSubmit, isSmall })}
           {showSideBar && from !== RECORD_INFO_FROM.DRAFT && sideBarBtn()}
-          {closeBtn()}
+          {!notDialog && closeBtn()}
         </div>
       )}
       {!header && (
@@ -303,10 +304,7 @@ export default function InfoHeader(props) {
               hideRecordInfo={hideRecordInfo}
             />
           )}
-          {(!isPublicRecordLand ||
-            _.get(window, 'shareState.isPublicView') ||
-            _.get(window, 'shareState.isPublicPage')) &&
-            closeBtn()}
+          {!notDialog && closeBtn()}
         </div>
       )}
     </div>

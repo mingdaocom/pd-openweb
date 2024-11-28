@@ -139,9 +139,9 @@ const OPTIONS = [
 export default function DebugConfig(params) {
   const tagtextarea = useRef(null);
   const { worksheetId, view = {}, onChangeView } = params;
-  const { viewId } = view;
+  const { viewId, pluginInfo = {} } = view;
   const [
-    { stepState, cur, editHref, templateType, customViewDebugUrl, localStorageCustomViewDebugUrl, configuration },
+    { stepState, cur, editHref, templateType, customViewDebugUrl, localStorageCustomViewDebugUrl, configuration, version },
     setState,
   ] = useSetState({
     stepState: 0,
@@ -150,7 +150,8 @@ export default function DebugConfig(params) {
     templateType: 1,
     customViewDebugUrl: window.localStorage.getItem(`customViewDebugUrl_${viewId}`),
     localStorageCustomViewDebugUrl: window.localStorage.getItem(`customViewDebugUrl_${viewId}`),
-    configuration: '',
+    configuration: _.isEmpty(pluginInfo.configuration) ? '' : JSON.stringify(pluginInfo.configuration),
+    version: 0,
   });
   useEffect(() => {
     const { view } = params;
@@ -161,6 +162,7 @@ export default function DebugConfig(params) {
       templateType,
       cur: editHref ? cur : stepState,
       configuration: _.isEmpty(configuration) ? '' : JSON.stringify(configuration),
+      version: version + 1,
     });
   }, [params]);
   const handleCopy = content => {
@@ -419,6 +421,7 @@ export default function DebugConfig(params) {
               codeMirrorMode="javascript"
               getRef={tag => (tagtextarea.current = tag)}
               // lineNumbers
+              key={JSON.stringify(version)}
               height={0}
               onChange={(err, value, obj) => {
                 // console.log(err, value, obj);

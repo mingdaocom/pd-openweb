@@ -41,6 +41,7 @@ export const AddRelate = styled.div`
     border-radius: 3px;
     transform: translateX(-50%);
     overflow: hidden;
+    width: max-content;
     li {
       line-height: 34px;
       padding: 0 22px;

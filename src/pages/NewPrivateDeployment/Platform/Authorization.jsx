@@ -725,7 +725,7 @@ const Authorization = props => {
   const [platformLicenseInfo, setPlatformLicenseInfo] = useState({});
 
   const handleUpdatePage = () => {
-    document.querySelector('.privateDeploymentSidebar .menuItem.active').click();
+    location.reload();
   }
 
   useEffect(() => {

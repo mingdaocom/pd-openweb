@@ -280,7 +280,7 @@ export default class SortableRecordItem extends Component {
                 emitter.emit('ROWS_UPDATE');
               }}
               updateSuccess={(recordIds, value, relateSheet) => {
-                if (!relateSheet.isviewdata) {
+                if (!_.isUndefined(relateSheet.isviewdata) && !relateSheet.isviewdata) {
                   return;
                 }
                 updateHierarchyData({ path, pathId, recordId: recordIds[0], value, relateSheet });
