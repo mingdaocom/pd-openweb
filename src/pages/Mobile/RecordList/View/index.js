@@ -163,6 +163,7 @@ class View extends Component {
     const quickFilter = String(viewType) === customize ? this.props.pcQuickFilter : this.props.quickFilter;
     const isFilter = quickFilter.length;
     const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
+    const isBottomNav = appNaviStyle === 2 && location.href.includes('mobile/app'); // 底部导航
 
     if (hasGroupFilter) {
       return (
@@ -182,7 +183,7 @@ class View extends Component {
           (String(viewType) === detail && view.childType !== 1) ||
           (String(viewType) === customize && !_.isEmpty(quickFilterWithDefault))) && (
           <QuickFilterSearch
-            className={String(viewType) === customize ? 'fixedMobileQuickFilter' : ''}
+            className={String(viewType) === customize ? `fixedMobileQuickFilter ${isBottomNav ? 'bottom70' : ''}` : ''}
             showSearch={String(viewType) === customize ? false : true}
             excludeTextFilter={viewFilters}
             isFilter={isFilter}

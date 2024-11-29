@@ -710,7 +710,7 @@ class PublicConfig extends React.Component {
                   if (this.validateConfigData()) {
                     this.saveSetting(() => {
                       onClose();
-                      alert('保存成功');
+                      alert(_l('保存成功'));
                     });
                   }
                 }}
@@ -759,7 +759,7 @@ class PublicConfig extends React.Component {
                   if (confirmDialog.isOnClose) {
                     this.setState({ confirmDialog: { visible: false } });
                     onClose();
-                    alert('保存成功');
+                    alert(_l('保存成功'));
                   } else {
                     this.setState({ activeTab: confirmDialog.tabValue, confirmDialog: { visible: false } });
                   }

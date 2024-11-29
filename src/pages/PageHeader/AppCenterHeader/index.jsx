@@ -267,17 +267,6 @@ function AppCenterHeader(props) {
                 ? _l('试用期剩余%0天', _.get(currentProject, 'currentLicense.expireDays'))
                 : ''}
             </div>
-            <div
-              className="upgrade Hand"
-              onClick={() =>
-                purchaseMethodFunc({ projectId: currentProject.projectId, isTrial: currentProject.licenseType == 2 })
-              }
-            >
-              <i className="icon icon-auto_awesome Font16 TxtMiddle mRight5" />
-              <span className="Font12 White TxtMiddle bold">
-                {currentProject.licenseType == 2 ? _l('购买') : _l('升级')}
-              </span>
-            </div>
           </UpgradeWrap>
         )}
       </div>

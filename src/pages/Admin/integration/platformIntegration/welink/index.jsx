@@ -494,16 +494,6 @@ export default class Welink extends React.Component {
                   <React.Fragment>
                     <h2 className="Font18 Gray">{_l('试用已过期，请付费后继续使用')}</h2>
                     <p className="mTop15 Font13 Gray_75">{_l('如有疑问，请联系您的专属顾问')}</p>
-                    <Button
-                      type="primary"
-                      className="applyBtn mBottom10 mTop25"
-                      onClick={e => {
-                        // 前往付费
-                        purchaseMethodFunc({ projectId: this.props.projectId });
-                      }}
-                    >
-                      {_l('前往付费')}
-                    </Button>
                   </React.Fragment>
                 ) : (
                   <React.Fragment>

@@ -208,24 +208,13 @@ export default class extends React.Component {
               if (licenseType === 0) {
                 link = (
                   <span>
-                    {_l('当前用户数已超出人数限制，请去购买')}
-                    <a
-                      href="javascript:void(0);"
-                      onClick={() => {
-                        purchaseMethodFunc({ projectId });
-                      }}
-                    >
-                      {_l('付费版本')}
-                    </a>
+                    {_l('当前用户数已超出人数限制')}
                   </span>
                 );
               } else {
                 link = (
                   <span>
-                    {_l('当前用户数已超出人数限制，请去购买')}
-                    <a href={`/admin/expansionserviceResign/${projectId}/user`} target="_self">
-                      {_l('用户包')}
-                    </a>
+                    {_l('当前用户数已超出人数限制')}
                   </span>
                 );
               }

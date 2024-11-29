@@ -24,6 +24,9 @@ const SearchWrapper = styled.div`
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.16);
     z-index: 2;
     display: flex !important;
+    &.bottom70 {
+      bottom: 70px;
+    }
     > div {
       margin: 0;
       width: 100%;
