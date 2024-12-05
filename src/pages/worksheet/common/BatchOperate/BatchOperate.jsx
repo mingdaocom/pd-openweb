@@ -638,7 +638,7 @@ class BatchOperate extends React.Component {
                               {_l('此操作将彻底删除所有数据，不可从回收站中恢复！')}
                             </span>
                             {_l(
-                              '当前所选记录数量超过0%行，数据不会进入回收站而直接进行彻底删除。此操作只有应用管理员可以执行。',
+                              '当前所选记录数量超过%0行，数据不会进入回收站而直接进行彻底删除。此操作只有应用管理员可以执行。',
                               md.global.SysSettings.worktableBatchOperateDataLimitCount,
                             )}
                             <div className="Bold Gray mTop18">{_l('注意:')}</div>

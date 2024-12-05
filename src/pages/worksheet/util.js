@@ -3,7 +3,7 @@ import moment from 'moment';
 import filterXss from 'xss';
 import copy from 'copy-to-clipboard';
 import axios from 'axios';
-import { getRequest, isLightColor, toFixed } from 'src/util';
+import { getRequest, isLightColor, toFixed, browserIsMobile } from 'src/util';
 import { generate } from '@ant-design/colors';
 import { UNIT_TYPE } from '../widgetConfig/config/setting';
 import { TinyColor } from '@ctrl/tinycolor';
@@ -1664,7 +1664,7 @@ export const getButtonColor = mainColor => {
       : '#333';
   if (mainColor === 'transparent') {
     fontColor = '#333';
-    borderColor = '#ccc';
+    borderColor = browserIsMobile() ? '#eee': '#ccc';
   }
   return {
     backgroundColor: mainColor || '#2196f3',

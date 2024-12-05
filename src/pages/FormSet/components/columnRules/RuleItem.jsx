@@ -161,10 +161,7 @@ class RuleItems extends React.Component {
         </div>
         <span className={cx('ruleItemTextRow', { Gray_bd: disabled })}>
           <span className="leftLabel">{_l('当满足条件')}</span>
-          <span className="rightLabel">
-            {renderFilterItemTexts(filters, disabled, worksheetControls)}
-            <span className="mLeft20 gray_9e">{_l('时')}</span>
-          </span>
+          <span className="rightLabel">{renderFilterItemTexts(filters, disabled, worksheetControls)}</span>
         </span>
         {ruleItems.map(actionItem => this.renderActionItem(actionItem, disabled))}
 

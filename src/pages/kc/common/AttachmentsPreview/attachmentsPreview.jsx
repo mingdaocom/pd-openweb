@@ -370,14 +370,11 @@ class AttachmentsPreview extends React.Component {
                     }
 
                     if (previewService === 'wps' && (isWpsPreview(ext) || defaultWpsPreview(ext))) {
-                      const url = addToken(currentAttachment.viewUrl, false);
                       viewUrl = `${md.global.Config.WpsUrl}/view?url=${encodeURIComponent(
-                        url,
+                        currentAttachment.viewUrl,
                       )}&attname=${encodeURIComponent(
                         currentAttachment.name || currentAttachment.sourceNode.originalFilename,
                       )}.${ext}`;
-                    } else {
-                      viewUrl = addToken(viewUrl, false);
                     }
 
                     return (

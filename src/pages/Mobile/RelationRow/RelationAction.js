@@ -256,7 +256,7 @@ class RelationAction extends Component {
       >
         <Button className="flex mLeft6 mRight6 Font13" color="primary">
           <Fragment>
-            <Icon icon="qr_code_19" className="Font20" />
+            <Icon icon="qr_code_19" className="Font20 TxtBottom" />
             {_l('扫码关联')}
           </Fragment>
         </Button>

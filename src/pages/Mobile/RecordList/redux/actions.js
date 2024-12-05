@@ -70,6 +70,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
     currentNavWorksheetId &&
     localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`) &&
     JSON.parse(localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`));
+  dispatch({ type: 'MOBILE_UPDATE_SHEET_VIEW', sheetView: { pageIndex: 1, isMore: true, count: 0 } });
   if (appNaviStyle === 2 && currentNavWorksheetInfo) {
     dispatch({ type: 'WORKSHEET_INIT', value: currentNavWorksheetInfo });
     dispatch({ type: 'WORKSHEET_PERMISSION_INIT', value: currentNavWorksheetInfo.switches || [] });
@@ -202,6 +203,9 @@ export const fetchSheetRows =
     views = views.filter(
       v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
     );
+    const view = _.find(views, v => v.viewId === viewId) || views[0];
+    let hasGroupFilter = !_.isEmpty(view.navGroup) && view.navGroup.length > 0; // 是否存在分组列表
+    if (hasGroupFilter && !_.includes([0, 6], view.viewType)) return;
     const defaultViewId = _.get(views[0], 'viewId');
     const showCurrentView = _.some(views, v => v.viewId === viewId);
     const isMobileSingleView = type === 'single';
@@ -217,7 +221,6 @@ export const fetchSheetRows =
     if (!worksheetId) {
       return;
     }
-    dispatch({ type: 'MOBILE_FETCH_SHEETROW_START' });
 
     if (maxCount) {
       pageIndex = 1;
@@ -228,6 +231,10 @@ export const fetchSheetRows =
     if (promiseRequest && promiseRequest.abort) {
       promiseRequest.abort();
     }
+
+    dispatch({ type: 'MOBILE_UPDATE_SHEET_VIEW', sheetView: { pageIndex } });
+    dispatch({ type: 'MOBILE_FETCH_SHEETROW_START' });
+
     const params = getFilledRequestParams({
       worksheetId,
       appId,
@@ -280,7 +287,6 @@ export const fetchSheetRows =
         sheetView: {
           isMore,
           count: sheetRowsAndTem.count,
-          pageIndex,
         },
       });
       dispatch({ type: 'MOBILE_FETCH_SHEETROW_SUCCESS' });

@@ -648,74 +648,76 @@ const GroupFilter = props => {
           setPreviewRecordId(undefined);
         }}
       />
-      <Popup className={cx('groupFilterDrawer')} position="right" visible={drawerVisible} onClose={handleOpenDrawer}>
-        <div className="groupDetailBox">
-          {!batchOptVisible && (
-            <div
-              className="groupTitle"
-              onClick={() => {
-                setDrawerVisible(false);
-              }}
-            >
-              <Icon icon="arrow-left-border" className="mRight2 Gray_75 TxtMiddle mBottom3" />
-              <span className="Font15">{currentGroup.txt}</span>
-            </div>
-          )}
-          <div className="groupDetailCon flexColumn overflowHidden">
-            <Component {...viewProps} changeActionSheetModalIndex={true} />
+      {drawerVisible && (
+        <Popup className={cx('groupFilterDrawer')} position="right" visible={drawerVisible} onClose={handleOpenDrawer}>
+          <div className="groupDetailBox">
+            {!batchOptVisible && (
+              <div
+                className="groupTitle"
+                onClick={() => {
+                  setDrawerVisible(false);
+                }}
+              >
+                <Icon icon="arrow-left-border" className="mRight2 Gray_75 TxtMiddle mBottom3" />
+                <span className="Font15">{currentGroup.txt}</span>
+              </div>
+            )}
+            <div className="groupDetailCon flexColumn overflowHidden">
+              <Component {...viewProps} changeActionSheetModalIndex={true} />
 
-            <div
-              className="recordActionWrap"
-              style={{
-                position: 'fixed',
-                right: 20,
-                bottom: recordActionWrapBottom,
-                display: 'flex',
-                flexDirection: 'column',
-              }}
-            >
-              {showBatchBtn && (
-                <BatchOperationBtn className="Static mTop10" onClick={() => props.changeBatchOptVisible(true)} />
-              )}
+              <div
+                className="recordActionWrap"
+                style={{
+                  position: 'fixed',
+                  right: 20,
+                  bottom: recordActionWrapBottom,
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                {showBatchBtn && (
+                  <BatchOperationBtn className="Static mTop10" onClick={() => props.changeBatchOptVisible(true)} />
+                )}
 
-              {canAddRecord && (
-                <AddRecordBtn
-                  entityName={worksheetInfo.entityName}
-                  backgroundColor={appColor}
-                  className="Static mTop10"
-                  onClick={() => {
-                    let defaultFormData = getDefaultValueInCreate();
-                    let param =
-                      usenav === '1'
-                        ? {
-                            defaultFormData,
-                            defaultFormDataEditable: true,
+                {canAddRecord && (
+                  <AddRecordBtn
+                    entityName={worksheetInfo.entityName}
+                    backgroundColor={appColor}
+                    className="Static mTop10"
+                    onClick={() => {
+                      let defaultFormData = getDefaultValueInCreate();
+                      let param =
+                        usenav === '1'
+                          ? {
+                              defaultFormData,
+                              defaultFormDataEditable: true,
+                            }
+                          : {};
+                      openAddRecord({
+                        ...param,
+                        className: 'full',
+                        worksheetInfo,
+                        appId,
+                        worksheetId: worksheetInfo.worksheetId,
+                        viewId: view.viewId,
+                        addType: 2,
+                        entityName: worksheetInfo.entityName,
+                        onAdd: data => {
+                          if (view.viewType) {
+                            props.addNewRecord(data, view);
+                          } else {
+                            props.unshiftSheetRow(data);
                           }
-                        : {};
-                    openAddRecord({
-                      ...param,
-                      className: 'full',
-                      worksheetInfo,
-                      appId,
-                      worksheetId: worksheetInfo.worksheetId,
-                      viewId: view.viewId,
-                      addType: 2,
-                      entityName: worksheetInfo.entityName,
-                      onAdd: data => {
-                        if (view.viewType) {
-                          props.addNewRecord(data, view);
-                        } else {
-                          props.unshiftSheetRow(data);
-                        }
-                      },
-                    });
-                  }}
-                />
-              )}
+                        },
+                      });
+                    }}
+                  />
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </Popup>
+        </Popup>
+      )}
     </div>
   );
 };

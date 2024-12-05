@@ -11,11 +11,7 @@ class MobileGalleryView extends Component {
   }
 
   render() {
-    const { view } = this.props;
-
-    let hasGroupFilter = !_.isEmpty(view.navGroup) && view.navGroup.length > 0; // 是否存在分组列表
-
-    return <GalleryView {...this.props} hasGroupFilter={hasGroupFilter} />;
+    return <GalleryView {...this.props} />;
   }
 }
 

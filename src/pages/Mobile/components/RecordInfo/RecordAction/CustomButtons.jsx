@@ -56,7 +56,7 @@ export default class CustomButtons extends Component {
                   btnDisable[btn.btnId] || btn.disabled
                     ? 'rgba(117, 117, 117, 0.5)'
                     : btn.color && btn.color !== 'transparent'
-                    ? btn.color
+                    ? getButtonColor(btn.color).color
                     : '#333'
                 }
                 size={15}

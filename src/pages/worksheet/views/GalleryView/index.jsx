@@ -48,8 +48,7 @@ export default class RecordGallery extends Component {
   }
 
   componentDidMount() {
-    let hasGroupFilter = this.props.hasGroupFilter ? this.props.hasGroupFilter : false; // mobile画廊视图是否有分组列表，若有在mobile进行数据更新
-    !hasGroupFilter && this.getFetch(this.props);
+    this.getFetch(this.props);
     window.addEventListener('resize', this.resizeBind);
     emitter.addListener('RELOAD_RECORD_INFO', this.updateRecordEvent);
     window.addEventListener('popstate', this.onQueryChange);
@@ -69,7 +68,6 @@ export default class RecordGallery extends Component {
     const currentView = views.find(o => o.viewId === viewId) || {};
     const preView = this.props.views.find(o => o.viewId === this.props.base.viewId) || {};
     const { clicksearch } = getAdvanceSetting(currentView);
-    let hasGroupFilter = this.props.hasGroupFilter ? this.props.hasGroupFilter : false;
     if (clicksearch === '1' && quickFilter.length <= 0) {
       return;
     }
@@ -89,7 +87,7 @@ export default class RecordGallery extends Component {
     ) {
       setTimeout(
         () => {
-          !hasGroupFilter && this.getFetch(nextProps);
+          this.getFetch(nextProps);
           this.resizeBind(nextProps);
         },
         // 修改颜色字段时晚一点取, 不然返回的数据还是不包括新改的字段的值

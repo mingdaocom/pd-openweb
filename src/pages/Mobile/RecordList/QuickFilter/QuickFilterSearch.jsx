@@ -89,7 +89,7 @@ export default function QuickFilterSearch(props) {
   };
 
   return (
-    <SearchWrapper className={`searchWrapper flexRow valignWrapper pLeft12 pRight12 pTop15 pBottom5 ${className}`}>
+    <SearchWrapper className={`searchWrapper flexRow valignWrapper pLeft10 pRight10 pTop10 pBottom10 ${className}`}>
       {showSearch && <Search textFilters={[]} viewType={view.viewType} />}
       {!_.isEmpty(excludeTextFilter) && (
         <FilterWrapper>

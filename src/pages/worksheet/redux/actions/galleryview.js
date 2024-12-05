@@ -8,7 +8,7 @@ let preWorksheetIds = [];
 export const fetch = index => {
   return (dispatch, getState) => {
     const { base, filters, galleryview, quickFilter, navGroupFilters } = getState().sheet;
-    const { filterControls } = getState().mobile;
+    const { filterControls, mobileNavGroupFilters } = getState().mobile;
     const { appId, viewId, worksheetId, chartId, maxCount } = base;
     let { galleryIndex, gallery } = galleryview;
     const isMobile = browserIsMobile();
@@ -30,7 +30,7 @@ export const fetch = index => {
       fastFilters: isMobile
         ? formatQuickFilter(_.get(getState(), 'mobile.quickFilter') || [])
         : formatQuickFilter(quickFilter),
-      navGroupFilters,
+      navGroupFilters: isMobile ? mobileNavGroupFilters : navGroupFilters,
     };
     if (maxCount) {
       args.pageIndex = 1;

@@ -989,6 +989,7 @@ export default class CustomFields extends Component {
       const tabErrorControls = data
         .filter(d => _.find(totalErrors, t => t.controlId === d.controlId) && d.sectionId)
         .map(t => _.find(data, d => d.controlId === t.sectionId))
+        .filter(_.identity)
         .sort((a, b) => a.row - b.row);
       if (!!tabErrorControls.length && !_.find(tabErrorControls, t => t.controlId === activeRelateRecordControlId)) {
         const tempId = _.get(tabErrorControls, '0.controlId');

@@ -273,7 +273,9 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
         }
       }
     }
-    result.auth = currentReport.auth;
+    if (!_.isEmpty(currentReport) && result.reportType !== currentReport.reportType) {
+      result.auth = currentReport.auth;
+    }
   } else {
     result.name = _l('未命名图表');
     if (data.appType === 2) {
