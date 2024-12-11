@@ -113,8 +113,8 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
 
   if (
     window.isWeiXin &&
-    (((window.subPath || location.href.indexOf('theportal.cn') > -1) && !md.global.Account.isPortal) ||
-      (!window.subPath && location.href.indexOf('theportal.cn') === -1 && md.global.Account.isPortal))
+    ((window.subPath || location.href.indexOf('theportal.cn') > -1) && !md.global.Account.isPortal) ||
+    (!window.subPath && location.href.indexOf('theportal.cn') === -1 && md.global.Account.isPortal)
   ) {
     navigateToLogout();
     window.isWaiting = true;

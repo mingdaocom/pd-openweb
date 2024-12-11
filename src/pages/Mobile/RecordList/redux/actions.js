@@ -131,6 +131,8 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
           workSheetInfo.views,
           v => !_.includes(['hide', 'spc&happ'], _.get(v, 'advancedSetting.showhide')),
         );
+      }
+      if (view) {
         dispatch(updateBase({ ...base, viewId: view.viewId }));
       }
       if (workSheetInfo.template) {
@@ -232,8 +234,8 @@ export const fetchSheetRows =
       promiseRequest.abort();
     }
 
-    dispatch({ type: 'MOBILE_UPDATE_SHEET_VIEW', sheetView: { pageIndex } });
     dispatch({ type: 'MOBILE_FETCH_SHEETROW_START' });
+    dispatch({ type: 'MOBILE_UPDATE_SHEET_VIEW', sheetView: { pageIndex } });
 
     const params = getFilledRequestParams({
       worksheetId,
@@ -306,9 +308,11 @@ export const unshiftSheetRow = data => (dispatch, getState) => {
 };
 
 export const changePageIndex = pageIndex => (dispatch, getState) => {
-  const { sheetView } = getState().mobile;
+  const { sheetView, sheetRowLoading } = getState().mobile;
   const index = pageIndex || sheetView.pageIndex + 1;
-  dispatch(fetchSheetRows({ pageIndex: index }));
+  if (!sheetRowLoading && sheetView.isMore) {
+    dispatch(fetchSheetRows({ pageIndex: index }));
+  }
 };
 
 export const updateQuickFilter =

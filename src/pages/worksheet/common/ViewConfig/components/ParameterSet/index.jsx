@@ -106,6 +106,7 @@ const CustomControlDrop = props => {
       <div className="">
         <SortColumns
           //关联表的设置 可拖拽排序
+          sortAutoChange
           noempty={false} //不需要至少显示一列
           controlsSorts={value}
           showControls={value}

@@ -125,7 +125,8 @@ function MessageComp(props) {
     if (modal) {
       modal.close();
     }
-    modal = Dialog.alert({
+
+    modal = Dialog.show({
       content: (
         <BatchModalWrap>
           <div className="flexRow">
@@ -134,10 +135,16 @@ function MessageComp(props) {
               <span className="bold Font18 TxtBottom mLeft10">{title}</span>
             </div>
           </div>
-          <div className="mobileNoticeContent">{getBatchNoticeDescription(batchInfo)}</div>
+          <div className="TxtCenter">{getBatchNoticeDescription(batchInfo)}</div>
         </BatchModalWrap>
       ),
-      confirmText: _l('关闭'),
+      actions: [
+        {
+          key: 'close',
+          text: '关闭',
+          onClick: () => modal.close(),
+        },
+      ],
     });
   };
 

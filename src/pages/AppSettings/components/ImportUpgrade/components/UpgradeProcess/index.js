@@ -294,7 +294,7 @@ export default class UpgradeProcess extends Component {
       this.setState(
         {
           file: file,
-          url: md.global.FileStoreConfig.documentHost + file.key,
+          url: md.global.FileStoreConfig.documentHost + key,
           errTip: '',
           analyzeLoading: false,
         },

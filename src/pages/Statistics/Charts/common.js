@@ -134,20 +134,21 @@ export const getAuxiliaryLineConfig = (auxiliaryLines = [], data, { yaxisList, c
     const controlId = control ? item.controlId : null;
     const dot = control ? (control.ydot || control.dot) : 2;
     const getValue = () => {
+      const formatValue = value => (value < 1 && value > 0) && dot == 0 ? value : Number(toFixed(value, dot));
       if (item.type === 'constantLine') {
         return item.value;
       }
       if (item.type === 'minLine' && controlId) {
-        return Number(toFixed(getControlMinValue(data, controlId), dot));
+        return formatValue(getControlMinValue(data, controlId));
       }
       if (item.type === 'maxLine' && controlId) {
-        return Number(toFixed(getControlMaxValue(data, controlId), dot));
+        return formatValue(getControlMaxValue(data, controlId));
       }
       if (item.type === 'averageLine' && controlId) {
-        return Number(toFixed(getControlAvgValue(data, controlId), dot));
+        return formatValue(getControlAvgValue(data, controlId));
       }
       if (item.type === 'medianLine' && controlId) {
-        return Number(toFixed(getControlMedianValue(data, controlId), dot));
+        return formatValue(getControlMedianValue(data, controlId));
       }
       if (item.type === 'percentLine' && controlId) {
         return getControlPercentValue(data, controlId, item.percent);
