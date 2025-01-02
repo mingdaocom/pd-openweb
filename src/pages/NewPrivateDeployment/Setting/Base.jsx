@@ -484,12 +484,12 @@ const Base = props => {
           </Fragment>
         )}
         {renderServerState()}
-        {!IsCluster && (
+        {/*!IsCluster && (
           <Fragment>
             <Divider className="mTop20 mBottom20" />
             {renderInstallCaptainUrl()}
           </Fragment>
-        )}
+        )*/}
       </div>
       {renderAppSetting()}
     </Fragment>
