@@ -70,11 +70,16 @@ export default function DefCom(props) {
         data={{
           ...dataControls,
           type: dataType,
-          enumDefault: [26, 27, 48].includes(dataType)
-            ? _.get(control, 'advancedSetting.allowitem') === '2'
-              ? 1
-              : 0
-            : dataControls.enumDefault,
+          enumDefault:
+            29 === dataType
+              ? _.get(control, 'advancedSetting.allowitem') === '2'
+                ? 2
+                : 1
+              : [26, 27, 48].includes(dataType)
+                ? _.get(control, 'advancedSetting.allowitem') === '2'
+                  ? 1
+                  : 0
+                : dataControls.enumDefault,
           advancedSetting: {
             ..._.omit(dataControls.advancedSetting, ['dynamicsrc', 'defaulttype']),
             ...advancedSetting,

@@ -375,12 +375,13 @@ export default class RecordInfo extends Component {
         !_.get(window, 'shareState.isPublicForm') &&
         !_.get(window, 'shareState.isPublicWorkflowRecord')
       ) {
+        const hideDiscuss = !isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId);
+        const hideApprove = !isOpenPermit(permitList.approveDetailsSwitch, sheetSwitchPermit, viewId);
         try {
           portalConfigSet =
-            (appId === _.get(window, ['appInfo', 'id']) && !_.get(window, ['appInfo', 'epEnableStatus'])) ||
-            !isOpenPermit(permitList.recordDiscussSwitch, sheetSwitchPermit, viewId)
-              ? //同一个应用 且外部门户为开启的情况 不去获取外部门户讨论设置
-                {}
+            (appId === _.get(window, ['appInfo', 'id']) && !_.get(window, ['appInfo', 'epEnableStatus'])) || //同一个应用 且外部门户为开启的情况 不去获取外部门户讨论设置
+            (hideDiscuss && hideApprove) //讨论和审批都关闭 不去获取外部门户讨论设置
+              ? {}
               : await this.getPortalConfigSet(data);
         } catch (e) {}
       }

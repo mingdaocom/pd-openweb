@@ -814,7 +814,7 @@ export const getCurrentValue = (item, data, control) => {
               }
               return curValue;
             })
-            .join('、');
+            .join(', ');
         case 14:
           const fileData = getAttachmentData({ value: data });
           return fileData.map(f => f.originalFileName || f.originalFilename).join('、');

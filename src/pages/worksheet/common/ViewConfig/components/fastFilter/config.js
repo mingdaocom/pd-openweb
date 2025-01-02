@@ -55,8 +55,8 @@ export const DATE_TYPE = [
   ],
 ];
 
-export const DATE_TYPE_PASS = [52, 21, 22, 23, 53, 54, 55, 56, 57, 63, 64, 65];
-export const DATE_TYPE_FUTURE = [51, 31, 32, 33, 66, 67, 68, 58, 59, 60, 61, 62];
+export const DATE_TYPE_PASS = [2, 5, 8, 13, 16, 52, 21, 22, 23, 53, 54, 55, 56, 57, 63, 64, 65];
+export const DATE_TYPE_FUTURE = [3, 6, 9, 14, 17, 51, 31, 32, 33, 66, 67, 68, 58, 59, 60, 61, 62];
 
 export const DATE_TYPE_M = [7, 8, 9, 12, 13, 14, 15, 16, 17];
 export const DATE_TYPE_Y = [15, 16, 17];
