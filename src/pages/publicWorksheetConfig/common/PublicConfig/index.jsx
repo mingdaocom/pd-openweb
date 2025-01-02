@@ -19,6 +19,7 @@ import AbilityExpandSettings from './AbilityExpandSettings';
 import SectionTitle from './SectionTitle';
 import ReceiptSettings from './ReceiptSettings';
 import WeChatEnhance from './WeChatEnhance';
+import WeChatSettings from './WeChatSettings';
 
 const NewDropdown = styled(Dropdown)`
   width: 250px;
