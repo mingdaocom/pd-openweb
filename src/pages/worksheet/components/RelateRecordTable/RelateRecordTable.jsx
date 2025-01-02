@@ -34,6 +34,7 @@ function RelateRecordTable(props) {
     control,
     records,
     useHeight,
+    isDraft,
     onUpdateCell = () => {},
   } = props;
   const { updateWorksheetControls } = props;
@@ -73,6 +74,7 @@ function RelateRecordTable(props) {
         worksheetId: relateWorksheetInfo.worksheetId,
         relationWorksheetId: base.worksheetId,
         rules: relateWorksheetInfo.rules,
+        isDraft,
         updateRows: ([rowid], newRecord) => {
           updateRecord(newRecord);
         },
@@ -138,6 +140,7 @@ function RelateRecordTable(props) {
     <Fragment>
       {
         <Operate
+          isDraft={isDraft}
           mode={mode}
           formData={formData}
           smallMode={smallMode}
@@ -166,6 +169,8 @@ function RelateRecordTable(props) {
           updateWorksheetControls={updateWorksheetControls}
           cache={tableCache}
           onUpdateCell={onUpdateCell}
+          isDraft={isDraft}
+          formData={formData}
         />
       </TableCon>
       {isSplit && <div style={{ height: 30 }} />}

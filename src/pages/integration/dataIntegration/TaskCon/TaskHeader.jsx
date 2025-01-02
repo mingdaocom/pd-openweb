@@ -37,7 +37,7 @@ const Wrap = styled.div`
   .title {
     font-size: 16px;
     font-weight: 400;
-    color: #333333;
+    color: #151515;
   }
   .tabCon {
     display: flex;

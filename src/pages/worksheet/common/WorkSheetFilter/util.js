@@ -1,9 +1,14 @@
-import _, { assign } from 'lodash';
+import _, { assign, get, includes } from 'lodash';
 import moment from 'moment';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { checkIsTextControl, getFormData, getSelectedOptions } from 'src/pages/worksheet/util';
+import {
+  checkIsTextControl,
+  getFormData,
+  getSelectedOptions,
+  isRelateRecordTableControl,
+} from 'src/pages/worksheet/util';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import { ROW_ID_CONTROL, SYSTEM_DATE_CONTROL, WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
 import { validate } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils';
 import {
@@ -13,7 +18,9 @@ import {
   getFilterTypeLabel,
   API_ENUM_TO_TYPE,
   getControlSelectType,
+  DATE_RANGE_TYPE,
 } from './enum';
+import { browserIsMobile } from 'src/util';
 
 export function getConditionType(condition) {
   return (condition.controlType === 28 || condition.dataType === 28) &&
@@ -28,6 +35,22 @@ export function formatConditionForSave(condition, relationType, options = {}) {
   if (_.get(condition, 'control') && controlType === 25) {
     controlType = 8;
     controlId = condition.control.dataSource.slice(1, -1);
+  }
+  if (
+    condition.value &&
+    condition.conditionGroupType === CONTROL_FILTER_WHITELIST.DATE.value &&
+    condition.dateRange === 18 &&
+    condition.dateRangeType
+  ) {
+    condition.value = moment(condition.value).format(
+      {
+        [DATE_RANGE_TYPE.YEAR]: 'YYYY',
+        [DATE_RANGE_TYPE.MONTH]: 'YYYY-MM',
+        [DATE_RANGE_TYPE.DAY]: 'YYYY-MM-DD',
+        [DATE_RANGE_TYPE.HOUR]: 'YYYY-MM-DD HH',
+        [DATE_RANGE_TYPE.MINUTE]: 'YYYY-MM-DD HH:mm',
+      }[condition.dateRangeType] || 'YYYY-MM-DD HH:mm:ss',
+    );
   }
   return {
     controlId: controlId,
@@ -249,8 +272,8 @@ export function checkConditionAvailable(condition) {
       if (type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN) {
         return !_.isUndefined(minValue) && !_.isUndefined(maxValue);
       } else {
-        return dateRange === 10 || dateRange === 11 || dateRange === 18
-          ? !_.isUndefined(value) && !_.isUndefined(value)
+        return _.includes([10, 11, 18, 101, 102], dateRange)
+          ? !_.isUndefined(value) && value !== ''
           : !_.isUndefined(dateRange);
       }
     case CONTROL_FILTER_WHITELIST.OPTIONS.value:
@@ -265,6 +288,7 @@ export function checkConditionAvailable(condition) {
 
 export function getConditionOverrideValue(type, condition, valueType) {
   const { value, values, dateRange, dateRangeType, fullValues } = condition;
+  let newDateRangeType = dateRangeType;
   const conditionGroupType = getConditionType(condition);
   const base = {
     type,
@@ -273,7 +297,7 @@ export function getConditionOverrideValue(type, condition, valueType) {
     minValue: undefined,
     value: undefined,
     dateRange: 0,
-    dateRangeType: 1,
+    dateRangeType: DATE_RANGE_TYPE.DAY,
     dynamicSource:
       valueType === 2
         ? [
@@ -303,22 +327,31 @@ export function getConditionOverrideValue(type, condition, valueType) {
     case CONTROL_FILTER_WHITELIST.BOOL.value:
       return base;
     case CONTROL_FILTER_WHITELIST.DATE.value:
+      if (_.includes([101, 102], dateRange)) {
+        newDateRangeType = DATE_RANGE_TYPE.DAY;
+      } else if (!includes([FILTER_CONDITION_TYPE.DATE_EQ, FILTER_CONDITION_TYPE.DATE_NE], type)) {
+        newDateRangeType = get(condition, 'control.advancedSetting.showtype')
+          ? Number(get(condition, 'control.advancedSetting.showtype'))
+          : DATE_RANGE_TYPE.DAY;
+      } else if (!includes([DATE_RANGE_TYPE.HOUR, DATE_RANGE_TYPE.MINUTE], newDateRangeType)) {
+        newDateRangeType = DATE_RANGE_TYPE.DAY;
+      }
       if (type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN) {
         return Object.assign({}, base, {
           minValue: moment().add(-1, 'day').startOf('day').format('YYYY-MM-DD HH:mm:ss'),
           maxValue: moment().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
           dateRange,
-          dateRangeType,
+          dateRangeType: newDateRangeType,
         });
       } else {
         return Object.assign({}, base, {
           dateRange: dateRange,
           value:
-            _.includes([10, 11], dateRange) ||
+            _.includes([101, 102, 10, 11], dateRange) ||
             (_.get(condition, 'control.type') === 16 && _.get(condition, 'control.advancedSetting.showtype') === '6')
               ? value
               : formatDateValue({ type, value }),
-          dateRangeType: dateRangeType || 1,
+          dateRangeType: newDateRangeType || DATE_RANGE_TYPE.DAY,
         });
       }
     case CONTROL_FILTER_WHITELIST.OPTIONS.value:
@@ -678,7 +711,14 @@ export function redefineComplexControl(control) {
     return { ...control, ...{ type: 2, originType: control.type } };
   }
   if (control.type === 38) {
-    return { ...control, ...{ type: control.enumDefault === 2 ? 15 : 6, originType: control.type } };
+    return {
+      ...control,
+      ...{
+        type:
+          control.enumDefault === 2 ? (_.includes(['8', '9'], control.unit) ? 46 : control.unit === '3' ? 15 : 16) : 6,
+        originType: control.type,
+      },
+    };
   }
   if (control.type === 50) {
     return { ...control, ...{ type: 2, originType: control.type } };
@@ -946,6 +986,8 @@ export function getFilter({ control, formData = [], filterKey = 'filters' }) {
   } catch (err) {
     return [];
   }
+  const abortFilterWhenEmpty =
+    get(conditions, '0.emptyRule') === 3 || get(conditions, '0.groupFilters.0.emptyRule') === 3;
   function handleFormatCondition(condition) {
     if (_.isEmpty(condition.dynamicSource)) {
       return Object.assign({}, condition, {
@@ -967,6 +1009,7 @@ export function getFilter({ control, formData = [], filterKey = 'filters' }) {
         formData,
         relateControl: control,
         ignoreFilterControl: control.ignoreFilterControl,
+        abortFilterWhenEmpty,
       });
     }
   }
@@ -975,7 +1018,7 @@ export function getFilter({ control, formData = [], filterKey = 'filters' }) {
       return handleFormatCondition(condition);
     } else {
       const formattedGroupFilters = condition.groupFilters.map(handleFormatCondition);
-      if (_.get(condition, 'groupFilters.0.spliceType') === 1) {
+      if (_.get(condition, 'groupFilters.0.spliceType') === 1 && abortFilterWhenEmpty) {
         // 且 条件
         return !formattedGroupFilters.filter(f => !f).length
           ? {
@@ -993,6 +1036,7 @@ export function getFilter({ control, formData = [], filterKey = 'filters' }) {
     }
   });
   const filteredConditions = conditions.filter(_.identity);
+  if (!abortFilterWhenEmpty) return filteredConditions;
   if (filteredConditions.length) {
     if (filteredConditions[0].spliceType === 1) {
       // 且 条件
@@ -1006,33 +1050,17 @@ export function getFilter({ control, formData = [], filterKey = 'filters' }) {
   }
 }
 
-export function fillConditionValue({ condition, formData, relateControl, ignoreFilterControl = false }) {
+export function fillConditionValue({
+  condition,
+  formData,
+  relateControl,
+  ignoreFilterControl = false,
+  abortFilterWhenEmpty = false,
+}) {
   const { dataType, controlId } = condition;
   const dynamicSource = condition.dynamicSource[0];
-  const systemControls = [
-    {
-      controlId: 'ownerid',
-      controlName: _l('拥有者'),
-      type: 26,
-    },
-    {
-      controlId: 'caid',
-      controlName: _l('创建人'),
-      type: 26,
-    },
-    {
-      controlId: 'ctime',
-      controlName: _l('创建时间'),
-      type: 16,
-    },
-    {
-      controlId: 'utime',
-      controlName: _l('最近修改时间'),
-      type: 16,
-    },
-  ];
   const filterControl = _.find(
-    (relateControl.relationControls || []).concat(systemControls),
+    (relateControl.relationControls || []).concat([...SYSTEM_DATE_CONTROL, ...ROW_ID_CONTROL]),
     item => item.controlId === controlId,
   );
   if (!dynamicSource || (!filterControl && !ignoreFilterControl)) {
@@ -1081,14 +1109,30 @@ export function fillConditionValue({ condition, formData, relateControl, ignoreF
     data: formData,
   });
   if (!value) {
-    return;
+    return abortFilterWhenEmpty ? undefined : condition;
   }
   // // 强制异化，rowid取关联记录的值
   if (controlId === 'rowid' && dynamicControl.type === 29) {
     try {
-      condition.values = (_.isObject(value) ? value.records : JSON.parse(value))
-        .map(r => r.sid || r.rowid)
-        .filter(_.identity);
+      if (isRelateRecordTableControl(dynamicControl) && !browserIsMobile()) {
+        condition.values = relateControl.recordId
+          ? [`cid|${dynamicControl.controlId}`].concat(
+              get(dynamicControl.store && dynamicControl.store.getState(), 'changes.addedRecordIds'),
+              [],
+            )
+          : dynamicControl.store
+              .getState()
+              .records.map(r => r.rowid)
+              .filter(_.identity);
+      } else {
+        if (isRelateRecordTableControl(dynamicControl) && browserIsMobile() && relateControl.recordId) {
+          condition.values = [`cid|${dynamicControl.controlId}`];
+        } else {
+          condition.values = (_.isObject(value) ? value.records : JSON.parse(value))
+            .map(r => r.sid || r.rowid)
+            .filter(_.identity);
+        }
+      }
     } catch (err) {
       condition.values = [];
     }

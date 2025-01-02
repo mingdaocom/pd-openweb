@@ -8,9 +8,10 @@ import * as utils from '../../utils/';
 import { getClassNameByExt } from 'src/util';
 import { FileItem } from '../Files';
 import RegExpValidator from 'src/util/expression';
+
 const format = res => {
   return res.map(file => {
-    file.$date = createTimeSpan(file.time);
+    file.$date = utils.formatMsgDate(file.time);
     file.$size = utils.formatFileSize(file.size);
     file.iconClass = getClassNameByExt(`.${RegExpValidator.getExtOfFileName(file.name)}`);
     if (file.type === 2) {

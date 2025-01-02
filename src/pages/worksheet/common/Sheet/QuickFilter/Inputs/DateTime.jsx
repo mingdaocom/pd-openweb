@@ -5,7 +5,8 @@ import DatePicker from 'src/components/newCustomFields/widgets/Date';
 import cx from 'classnames';
 import { func, shape, string } from 'prop-types';
 import { getShowFormat, getDatePickerConfigs } from 'src/pages/widgetConfig/util/setting.js';
-import { DATE_OPTIONS, FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { DATE_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/config';
 import _, { includes } from 'lodash';
 import moment from 'moment';
 import TimeZoneTag from 'ming-ui/components/TimeZoneTag';
@@ -22,7 +23,7 @@ const Con = styled.div`
   align-items: center;
   height: 32px;
   line-height: 32px;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   .backIcon {
     display: none;
@@ -47,7 +48,7 @@ const Con = styled.div`
     }
   }
   &:hover:not(.active) {
-    border-color: #ccc;
+    border-color: var(--border-color);
   }
   &.active {
     border-color: #2196f3;
@@ -136,7 +137,7 @@ export default function DateTime(props) {
     appId,
   } = props;
   const filterType = props.filterType || FILTER_CONDITION_TYPE.DATE_BETWEEN;
-  let dateOptions = DATE_OPTIONS;
+  let dateOptions = DATE_TYPE.concat([[{ text: _l('指定时间'), value: 18 }]]);
   const [active, setActive] = useState();
   if (dateRangeType) {
     control.advancedSetting.showtype = String(dateRangeType);
@@ -187,8 +188,8 @@ export default function DateTime(props) {
               onChange({
                 dateRange: 18,
                 filterType: 31,
-                minValue: moments[0] && moments[0].format(valueFormat === 'YYYY-MM-DD HH' ? undefined : valueFormat),
-                maxValue: moments[1] && moments[1].format(valueFormat === 'YYYY-MM-DD HH' ? undefined : valueFormat),
+                minValue: moments[0] && moments[0].format(valueFormat),
+                maxValue: moments[1] && moments[1].format(valueFormat),
               });
             }}
           />
@@ -207,7 +208,8 @@ export default function DateTime(props) {
               onChange({
                 dateRange: 18,
                 filterType: filterType || FILTER_CONDITION_TYPE.DATEENUM,
-                value: moment(date).format(valueFormat === 'YYYY-MM-DD HH' ? undefined : valueFormat),
+                value: moment(date).format(valueFormat),
+                dateRangeType,
               });
             }}
             notConvertZone={true}
@@ -230,6 +232,7 @@ export default function DateTime(props) {
                 dateRange: newValue,
                 minValue: undefined,
                 maxValue: undefined,
+                dateRangeType,
               };
               onChange(change);
             }}

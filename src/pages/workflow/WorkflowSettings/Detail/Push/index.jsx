@@ -2,7 +2,14 @@ import React, { Component, Fragment } from 'react';
 import { ScrollView, Dropdown, LoadDiv, Radio, Checkbox } from 'ming-ui';
 import cx from 'classnames';
 import flowNode from '../../../api/flowNode';
-import { DetailHeader, DetailFooter, CustomTextarea, SpecificFieldsValue, SingleControlValue } from '../components';
+import {
+  DetailHeader,
+  DetailFooter,
+  CustomTextarea,
+  SpecificFieldsValue,
+  SingleControlValue,
+  PromptSound,
+} from '../components';
 import { PUSH_TYPE, PUSH_LIST, APP_TYPE, ACTION_ID } from '../../enum';
 import homeApp from 'src/api/homeApp';
 import _ from 'lodash';
@@ -116,8 +123,12 @@ export default class Push extends Component {
     flowNode
       .getNodeDetail({ processId, nodeId: selectNodeId, flowNodeType: selectNodeType, instanceId, appId, actionId })
       .then(result => {
+        if (result.pushType === PUSH_TYPE.AUDIO && result.promptSound.type === 0) {
+          result.promptSound.type = 1;
+        }
+
         this.setState({ data: result });
-        !instanceId && !currentAppList.length && this.getWorksheetsByAppId();
+        !instanceId && !currentAppList.length && result.pushType !== PUSH_TYPE.AUDIO && this.getWorksheetsByAppId();
       });
   }
 
@@ -191,6 +202,7 @@ export default class Push extends Component {
       buttons,
       actionId,
       fields,
+      promptSound,
     } = data;
 
     let hasError = false;
@@ -202,6 +214,11 @@ export default class Push extends Component {
     });
 
     if (this.checkHasError(data) || hasError) {
+      return;
+    }
+
+    if (pushType === PUSH_TYPE.AUDIO && promptSound.type === 2 && !promptSound.content) {
+      alert('内容不允许为空', 2);
       return;
     }
 
@@ -227,6 +244,7 @@ export default class Push extends Component {
         buttons,
         actionId,
         fields: actionId === ACTION_ID.CREATE_RECORD ? fields : [],
+        promptSound,
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -429,7 +447,7 @@ export default class Push extends Component {
 
         {data.pushType === PUSH_TYPE.CREATE && (
           <Fragment>
-            {/* <div className="mTop15">
+            <div className="mTop15">
               <Checkbox
                 text={_l('创建草稿记录')}
                 checked={data.actionId === ACTION_ID.CREATE_RECORD}
@@ -441,7 +459,7 @@ export default class Push extends Component {
                   }
                 }}
               />
-            </div> */}
+            </div>
 
             {data.actionId === ACTION_ID.CREATE_RECORD &&
               data.fields.map((item, i) => {
@@ -645,13 +663,26 @@ export default class Push extends Component {
         <DetailHeader
           {...this.props}
           data={{ ...data }}
-          icon="icon-interface_push"
+          icon={data.pushType === PUSH_TYPE.AUDIO ? 'icon-volume_up' : 'icon-interface_push'}
           bg="BGBlue"
           updateSource={this.updateSource}
         />
         <div className="flex">
           <ScrollView>
-            <div className="workflowDetailBox">{data.pushType ? this.renderContent() : this.renderNullContent()}</div>
+            <div className="workflowDetailBox">
+              {data.pushType === PUSH_TYPE.AUDIO ? (
+                <PromptSound
+                  {...this.props}
+                  promptSound={data.promptSound}
+                  formulaMap={data.formulaMap}
+                  updateSource={this.updateSource}
+                />
+              ) : data.pushType ? (
+                this.renderContent()
+              ) : (
+                this.renderNullContent()
+              )}
+            </div>
           </ScrollView>
         </div>
         <DetailFooter
@@ -660,7 +691,8 @@ export default class Push extends Component {
             (_.includes([PUSH_TYPE.ALERT, PUSH_TYPE.LINK], data.pushType) && data.content.trim()) ||
             (_.includes([PUSH_TYPE.CREATE, PUSH_TYPE.VIEW, PUSH_TYPE.PAGE], data.pushType) && data.appId) ||
             (data.pushType === PUSH_TYPE.DETAIL && data.selectNodeId) ||
-            (data.pushType === PUSH_TYPE.NOTIFICATION && (data.title || '').trim())
+            (data.pushType === PUSH_TYPE.NOTIFICATION && (data.title || '').trim()) ||
+            data.pushType === PUSH_TYPE.AUDIO
           }
           onSave={this.onSave}
         />

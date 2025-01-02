@@ -7,6 +7,8 @@ import SearchInput from 'src/pages/AppHomepage/AppCenter/components/SearchInput'
 import { navigateTo } from 'src/router/navigateTo';
 import { sysRoleType } from 'src/pages/Role/config.js';
 import ItemCon from './ItemCon';
+import { Icon } from 'ming-ui';
+
 const WrapL = styled.div`
   .roleSearch {
     background: #fff;
@@ -21,6 +23,16 @@ const Wrap = styled.p`
   color: #9e9e9e;
   padding-left: 18px;
   margin: 10px 0 4px 0;
+`;
+
+const WrapTips = styled.div`
+  height: 48px;
+  line-height: 48px;
+  text-align: center;
+  width: 200px;
+  margin: 10px auto;
+  background: #f5f5f5;
+  border-radius: 24px;
 `;
 
 const navList = [
@@ -50,7 +62,7 @@ export default class Con extends React.Component {
       canEditApp,
       selectDebugRole,
     } = this.props;
-    const { roleInfos = [], apply = [], outsourcing = {}, total } = appRole;
+    const { roleInfos = [], apply = [], outsourcing = {}, total, roleLimitInfo = {} } = appRole;
     const { roleId, roleList = [], keywords } = this.props;
     const sysList = roleList.filter(o => sysRoleType.includes(o.roleType));
     const otherList = roleList.filter(o => !sysRoleType.includes(o.roleType));
@@ -83,8 +95,8 @@ export default class Con extends React.Component {
                         {o.roleId === 'all'
                           ? total || 0
                           : o.roleId === 'apply'
-                          ? apply.length
-                          : outsourcing.totalCount || 0}
+                            ? apply.length
+                            : outsourcing.totalCount || 0}
                       </span>
                     </li>
                   );
@@ -143,6 +155,21 @@ export default class Con extends React.Component {
             </ul>
           )}
         </div>
+        {roleLimitInfo.limitState && (
+          <WrapTips>
+            <Icon icon="error_outline" className="Font16 Gray_75" />
+            <span className="mLeft6">
+              {_l('使用人数限制')}
+              <span className="mLeft3">
+                (
+                <span className={cx({ Red: roleLimitInfo.currentCount > roleLimitInfo.maxCount })}>
+                  {roleLimitInfo.currentCount || 0}
+                </span>
+                /<span className="">{roleLimitInfo.maxCount || 0}</span>)
+              </span>
+            </span>
+          </WrapTips>
+        )}
       </React.Fragment>
     );
   };

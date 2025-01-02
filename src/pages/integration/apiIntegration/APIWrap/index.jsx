@@ -17,8 +17,23 @@ import axios from 'axios';
 import moment from 'moment';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import HistoryVersion from 'src/pages/workflow/WorkflowSettings/Header/HistoryVersion.jsx';
+import DocumentTitle from 'react-document-title';
+
+const WrapMenu = styled(Menu)`
+  .historyVersion {
+    top: 0;
+    right: 0;
+    left: initial;
+    bottom: 0;
+    z-index: 1;
+  }
+`;
 
 const Wrap = styled.div`
+  .maxWidth100 {
+    max-width: 100px;
+  }
   width: 800px;
   height: 100%;
   position: fixed;
@@ -41,7 +56,7 @@ const Wrap = styled.div`
     li {
       font-size: 15px;
       font-weight: 600;
-      color: #333;
+      color: #151515;
       display: inline-block;
       margin: 0 0;
       padding: 24px 20px 10px;
@@ -103,7 +118,7 @@ const Wrap = styled.div`
         border: none;
         width: 90%;
         &:focus {
-          color: #333 !important;
+          color: #151515 !important;
         }
       }
     }
@@ -284,10 +299,11 @@ function APISetting(props) {
     const hasManageAuth = checkPermission(res[0].companyId, PERMISSION_ENUM.MANAGE_API_CONNECTS);
     //后端——>列表上的数据可能不对，需要重新获取
     const apiData = await getAPIDetail(processId);
+    const dataNew = { ...apiData, ...res[1] };
     setState({
       hasManageAuth,
       info: res[0],
-      data: { ...apiData, ...res[1] },
+      data: dataNew,
     });
     !props.connectInfo //从连接的api管理进来的 参数上带了connectInfo，不需要重新获取
       ? packageVersionAjax
@@ -303,7 +319,7 @@ function APISetting(props) {
               setState({
                 apkInfo: res,
                 loading: false,
-                isConnectOwner: hasManageAuth || res.isOwner,
+                isConnectOwner: (hasManageAuth || res.isOwner) && !dataNew.parentId,
               });
             },
             () => {
@@ -317,7 +333,7 @@ function APISetting(props) {
           )
       : setState({
           loading: false,
-          isConnectOwner: hasManageAuth || props.connectInfo.isOwner,
+          isConnectOwner: (hasManageAuth || props.connectInfo.isOwner) && !dataNew.parentId,
           apkInfo: props.connectInfo,
         });
   };
@@ -440,6 +456,7 @@ function APISetting(props) {
     }
   };
   const renderTabCon = () => {
+    if (data.parentId) return <div className="pBottom10" />;
     return (
       <div className="tabCon tabBox">
         <ul>
@@ -459,6 +476,7 @@ function APISetting(props) {
       </div>
     );
   };
+
   if (loading) {
     return (
       <Wrap className={props.className}>
@@ -466,9 +484,7 @@ function APISetting(props) {
       </Wrap>
     );
   }
-  {
-    props.forPage ? (document.title = `${_l('集成中心')}-${data.name || _l('未命名 API')}`) : '';
-  }
+
   const renderIcon = () => {
     return data.iconName ? (
       <LogoWrap
@@ -487,11 +503,16 @@ function APISetting(props) {
   const renderOption = () => {
     return (
       <React.Fragment>
-        {data.ownerAccount && data.ownerAccount.accountId && (
+        {data.ownerAccount && _.get(data, 'ownerAccount.accountId') && (
           <div className="Gray_75 node TxtMiddle mLeft10 flexRow alignItemsCenter">
             {(!isFix || props.forPage) && (
               <React.Fragment>
-                <span className="Gray mRight8">{data.ownerAccount.fullName}</span>
+                <span
+                  className="Gray mRight8 maxWidth100 overflow_ellipsis"
+                  title={_.get(data, 'ownerAccount.fullName')}
+                >
+                  {_.get(data, 'ownerAccount.fullName')}
+                </span>
                 <span className="" style={{ color: '#999' }}>
                   {apkInfo.type === 2 ? _l('安装于') : data.lastModifiedDate ? _l('更新于') : _l('创建于')}
                   {apkInfo.type === 2 ? data.createdDate : data.lastModifiedDate || data.createdDate}
@@ -501,8 +522,9 @@ function APISetting(props) {
             {(location.href.indexOf('integrationApi') < 0 || (apkInfo.type === 1 && isConnectOwner)) && (
               <Trigger
                 action={['click']}
+                zIndex={1000}
                 popup={
-                  <Menu>
+                  <WrapMenu>
                     {location.href.indexOf('integrationApi') < 0 && (
                       <MenuItemWrap
                         icon={<Icon icon="launch" className="Font17 mLeft5" />}
@@ -515,21 +537,37 @@ function APISetting(props) {
                     )}
                     {/* 自定义的api才能有删除的权限 */}
                     {apkInfo.type === 1 && isConnectOwner && (
-                      <RedMenuItemWrap
-                        icon={<Icon icon="task-new-delete" className="Font17 mLeft5" />}
-                        onClick={() => {
-                          setState({
-                            showMenu: false,
-                          });
-                          props.onDel && props.onDel(data);
-                        }}
-                      >
-                        <span>{_l('删除')}</span>
-                      </RedMenuItemWrap>
+                      <React.Fragment>
+                        {data.lastPublishDate && (
+                          <HistoryVersion
+                            isIntegration
+                            popupClassName="historyActionPopup"
+                            wrapClassName="historyVersion"
+                            flowInfo={data}
+                            customBtn={() => {
+                              return (
+                                <MenuItemWrap icon={<Icon icon="sp_library_books_white" className="Font17 mLeft5" />}>
+                                  <span>{_l('历史版本')}</span>
+                                </MenuItemWrap>
+                              );
+                            }}
+                          />
+                        )}
+                        <RedMenuItemWrap
+                          icon={<Icon icon="task-new-delete" className="Font17 mLeft5" />}
+                          onClick={() => {
+                            setState({
+                              showMenu: false,
+                            });
+                            props.onDel && props.onDel(data);
+                          }}
+                        >
+                          <span>{_l('删除')}</span>
+                        </RedMenuItemWrap>
+                      </React.Fragment>
                     )}
-                  </Menu>
+                  </WrapMenu>
                 }
-                popupClassName={cx('dropdownTrigger')}
                 popupVisible={showMenu}
                 onPopupVisibleChange={visible => {
                   setState({
@@ -537,11 +575,9 @@ function APISetting(props) {
                   });
                 }}
                 popupAlign={{
-                  points: ['tl', 'bl'],
-                  overflow: {
-                    adjustX: true,
-                    adjustY: true,
-                  },
+                  points: ['tr', 'bl'],
+                  offset: [-150, 0],
+                  overflow: { adjustX: true, adjustY: true },
                 }}
               >
                 <ActWrap
@@ -567,6 +603,7 @@ function APISetting(props) {
       </React.Fragment>
     );
   };
+
   return (
     <Wrap
       className={props.className}
@@ -581,6 +618,8 @@ function APISetting(props) {
         }
       }}
     >
+      <DocumentTitle title={props.forPage ? `${_l('集成')}-${data.name || _l('未命名 API')}` : ''} />
+
       <div className="conSetting" style={{ background: tab === 2 ? '#fff' : 'none' }}>
         <div className={cx('headTop', { isFix })} ref={headerRef}>
           <div className="flexRow leftCon">

@@ -5,7 +5,9 @@ import worksheetAjax from 'src/api/worksheet';
 import CellControl from 'src/pages/worksheet/components/CellControls';
 import { getTitleTextFromControls, controlState } from 'src/components/newCustomFields/tools/utils';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
+import { SYSTEM_ENUM } from 'src/components/newCustomFields/tools/config';
 import { RecordInfoModal } from 'mobile/Record';
+import { updateDraftTotalInfo } from 'src/pages/worksheet/common/WorksheetDraft/utils';
 import { BrowserRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import _ from 'lodash';
@@ -15,7 +17,7 @@ const ModalWrap = styled(Popup)`
     padding-top: 25px;
   }
   .adm-popup-body {
-    color: #333 !important;
+    color: #151515 !important;
     background-color: #f5f5f5;
   }
   .recordCardContent {
@@ -54,15 +56,12 @@ const DraftEntry = styled.div`
   position: relative;
   margin-right: 16px;
   padding-top: 3px;
-  .draftDot {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    right: 1px;
-    top: 3px;
-    background-color: #f44336;
-  }
+`;
+
+const TotalNumWrap = styled.span`
+  background-color: #eaeaea;
+  padding: 2px 6px;
+  border-radius: 10px;
 `;
 
 function MobileDraftList(props) {
@@ -72,12 +71,13 @@ function MobileDraftList(props) {
     appId,
     worksheetId,
     controls = [],
-    draftData = [],
-    getDraftData = () => {},
+    addNewRecord, // 提交草稿新增记录
     sheetSwitchPermit,
     worksheetInfo = {},
+    updateDraftTotal = () => {},
   } = props;
   const [currentRowId, setCurrentRowId] = useState('');
+  const [draftData, setDraftDataList] = useState([]);
 
   // 将关联列表表格、标签页表格转换为卡片形式
   const updateMobileControls = (control = {}) => {
@@ -94,28 +94,29 @@ function MobileDraftList(props) {
     return control;
   };
 
+  const getDraftData = () => {
+    worksheetAjax
+      .getFilterRows({
+        appId,
+        worksheetId: worksheetId || worksheetInfo.worksheetId,
+        getType: 21,
+      })
+      .then(res => {
+        setDraftDataList(res.data);
+        updateDraftTotal(res.data.length);
+      });
+  };
+
+  useEffect(() => {
+    getDraftData();
+  }, []);
+
   const renderRow = data => {
     const titleText = getTitleTextFromControls(controls, data);
     const displayControls = controls.filter(
       item =>
         !_.includes([...SHEET_VIEW_HIDDEN_TYPES, 47], item.type) &&
-        !_.includes(
-          [
-            'wfname',
-            'wfcuaids',
-            'wfcaid',
-            'wfctime',
-            'wfrtime',
-            'wfftime',
-            'wfstatus',
-            'rowid',
-            'ownerid',
-            'caid',
-            'uaid',
-            'ctime',
-          ],
-          item.controlId,
-        ) &&
+        !_.includes(SYSTEM_ENUM, item.controlId) &&
         controlState(item, 2).visible,
     );
     const utimeControl = controls.find(v => _.includes(['utime'], v.controlId));
@@ -125,7 +126,6 @@ function MobileDraftList(props) {
       .slice(0, 2)
       .concat(utimeControl ? utimeControl : [])
       .map(control => updateMobileControls(control));
-
 
     return (
       <div
@@ -209,42 +209,31 @@ function MobileDraftList(props) {
 
         <RecordInfoModal
           className="full"
+          allowEmptySubmit
           visible={!!currentRowId}
           appId={appId}
           worksheetId={worksheetId}
           rowId={currentRowId}
           sheetSwitchPermit={sheetSwitchPermit}
           worksheetInfo={worksheetInfo}
-          draftFormControls={controls
-            .filter(
-              item =>
-                !_.includes([...SHEET_VIEW_HIDDEN_TYPES, 33], item.type) &&
-                !_.includes(
-                  [
-                    'wfname',
-                    'wfcuaids',
-                    'wfcaid',
-                    'wfctime',
-                    'wfrtime',
-                    'wfftime',
-                    'wfstatus',
-                    'rowid',
-                    'ownerid',
-                    'caid',
-                    'uaid',
-                    'ctime',
-                    'utime',
-                  ],
-                  item.controlId,
-                ),
-            )
-            .map(control => updateMobileControls(control))}
           getDataType={21}
           from={21}
           onClose={() => {
             getDraftData({ appId, worksheetId });
             setCurrentRowId('');
           }}
+          updateDraftList={(rowId, rowData) => {
+            let data = _.clone(draftData);
+            if (!rowData) {
+              data = data.filter(it => it.rowid !== rowId);
+            } else {
+              const index = _.findIndex(data, it => it.rowid === rowId);
+              data[index] = rowData;
+            }
+            updateDraftTotal(data.length);
+            setDraftDataList(data);
+          }}
+          addNewRecord={addNewRecord}
         />
       </ModalWrap>
     </BrowserRouter>
@@ -252,48 +241,60 @@ function MobileDraftList(props) {
 }
 
 export default function MobileDraft(props) {
-  const { appId, controls = [], worksheetInfo, worksheetId, sheetSwitchPermit } = props;
+  const { appId, controls = [], worksheetInfo, worksheetId, sheetSwitchPermit, ...rest } = props;
   const [visible, setVisible] = useState(false);
-  const [draftData, setDraftData] = useState([]);
+  const [total, setTotal] = useState(_.get(window, `draftTotalNumInfo[${worksheetId}]`));
 
-  useEffect(() => {
-    getDraftData();
-  }, []);
+  // 获取草稿箱计数
+  const loadDraftDataCount = () => {
+    if (window.draftTotalNumInfo && window.draftTotalNumInfo[worksheetId]) return;
 
-  const getDraftData = () => {
     worksheetAjax
-      .getFilterRows({
+      .getFilterRowsTotalNum({
         appId,
-        worksheetId: worksheetId || worksheetInfo.worksheetId,
+        worksheetId,
         getType: 21,
       })
       .then(res => {
-        setDraftData(res.data);
+        const total = Number(res) || 0;
+        updateDraftTotalInfo({ worksheetId, total });
+        setTotal(total);
       });
   };
+
+  useEffect(() => {
+    loadDraftDataCount();
+  }, []);
+
   return (
     <Fragment>
-      {!_.isEmpty(draftData) && (
+      {total ? (
         <DraftEntry
           onClick={() => {
             setVisible(true);
           }}
         >
-          <i className="icon-drafts_approval Font22 Gray_9d"></i>
-          {/* {!_.isEmpty(draftData) && <span className="draftDot"></span>} */}
+          <Icon icon="drafts_approval" className="Font20 Gray_9e pointer mTop4" />
+          <span className="TxtTop mLeft5 Font13 Gray_75">{_l('草稿箱')}</span>
+          {total ? <TotalNumWrap className="TxtTop mLeft5 Gray Font13">{total}</TotalNumWrap> : ''}
         </DraftEntry>
+      ) : (
+        ''
       )}
 
       <MobileDraftList
+        {...rest}
         visible={visible}
         appId={appId}
         worksheetId={worksheetInfo.worksheetId}
         controls={controls}
-        draftData={draftData}
         worksheetInfo={worksheetInfo}
-        getDraftData={getDraftData}
         onCancel={() => setVisible(false)}
         sheetSwitchPermit={sheetSwitchPermit}
+        updateDraftTotal={total => {
+          setTotal(total);
+          updateDraftTotalInfo({ worksheetId, total });
+        }}
       />
     </Fragment>
   );

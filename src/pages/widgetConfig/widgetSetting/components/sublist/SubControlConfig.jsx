@@ -31,7 +31,7 @@ const SubControlConfigWrap = styled.div`
     line-height: 36px;
     padding: 12px 20px;
     font-size: 15px;
-    color: #333;
+    color: #151515;
     span {
       margin-left: 6px;
     }

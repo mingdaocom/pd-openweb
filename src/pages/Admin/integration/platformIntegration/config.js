@@ -25,4 +25,12 @@ export const INTEGRATION_INFO = {
     unbindRelationAjax: workWeiXinAjax.unbindFeiShuUserRelation,
     syncAjax: workWeiXinAjax.syncFeishuToMingByApp,
   },
+  7: {
+    text: 'Lark',
+    checkAjax: workWeiXinAjax.checkFeiShuToMingByApp,
+    getAddressAjax: workWeiXinAjax.getFeiShuStructureInfo,
+    getRelationsAjax: workWeiXinAjax.getFeiShuUserRelations,
+    unbindRelationAjax: workWeiXinAjax.unbindFeiShuUserRelation,
+    syncAjax: workWeiXinAjax.syncFeishuToMingByApp,
+  },
 };

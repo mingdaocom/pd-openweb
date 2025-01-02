@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircleFilled, CloseCircleFilled, ExclamationCircleFilled, InfoCircleFilled } from '@ant-design/icons';
 import { isUnTextWidget } from 'src/components/newCustomFields/tools/utils';
+import { isCustomWidget } from '../../../util';
 
 // 事件
 export const ADD_EVENT_ENUM = {
@@ -61,6 +62,7 @@ export const ACTION_VALUE_ENUM = {
   VOICE: '10',
   LINK: '11',
   CREATE: '12',
+  OPERATION_FLOW: '13',
 };
 
 // 事件动作类型
@@ -70,6 +72,7 @@ export const ACTION_VALUE_TYPE = [
   { text: _l('设置字段值'), value: ACTION_VALUE_ENUM.SET_VALUE },
   { text: _l('刷新字段值'), value: ACTION_VALUE_ENUM.REFRESH_VALUE },
   // { text: _l('提示错误'), value: ACTION_VALUE_ENUM.ERROR },
+  { text: _l('调用封装业务流程'), value: ACTION_VALUE_ENUM.OPERATION_FLOW },
   { text: _l('调用已集成 API'), value: ACTION_VALUE_ENUM.API },
   { text: _l('提示消息'), value: ACTION_VALUE_ENUM.MESSAGE },
   { text: _l('播放声音'), value: ACTION_VALUE_ENUM.VOICE },
@@ -112,7 +115,7 @@ export const getEventDisplay = (data = {}) => {
     filterEventEnum.push(ADD_EVENT_ENUM.CHANGE);
   }
   if (
-    _.includes(SUPPORT_FOCUS_WIDGET, data.type) ||
+    (_.includes(SUPPORT_FOCUS_WIDGET, data.type) && !isCustomWidget(data)) ||
     (data.type === 6 && _.get(data, 'advancedSetting.showtype') === '0')
   ) {
     filterEventEnum.push(ADD_EVENT_ENUM.FOCUS, ADD_EVENT_ENUM.BLUR);

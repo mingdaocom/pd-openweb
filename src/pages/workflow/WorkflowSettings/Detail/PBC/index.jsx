@@ -257,8 +257,8 @@ export default class PBC extends Component {
             onOk={() => this.setState({ selectFieldId: '' })}
           >
             <div className="flexRow">
-              <div className="flex bold">
-                <div>{_l('类型')}</div>
+              <div className="flex">
+                <div className="bold">{_l('类型')}</div>
                 <div className="mTop10">{this.renderFieldType(selectItem)}</div>
               </div>
               <div className="flex mLeft10"></div>
@@ -285,9 +285,9 @@ export default class PBC extends Component {
                 className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
                 placeholder={_l('参数名')}
                 value={selectItem.alias}
-                onChange={e => this.updateExportFields('alias', e.target.value.replace(/[^a-z\d-_]/gi, ''), selectItem)}
+                onChange={e => this.updateExportFields('alias', e.target.value, selectItem)}
                 onBlur={e => {
-                  let value = e.target.value.trim();
+                  let value = e.target.value.trim().replace(/[^a-z\d-_]/gi, '');
 
                   if (value && !/^[a-zA-Z]{1}/.test(value)) {
                     value = (isPlugin ? 'plugin' : 'pbp') + value;

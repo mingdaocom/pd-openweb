@@ -63,7 +63,7 @@ export default function Departments(props) {
 
   return (
     <div className="controlWrapper">
-      <div className="Font14 bold mBottom15">{control.controlName}</div>
+      <div className="Font14 bold mBottom15 controlName">{control.controlName}</div>
       <DepartmentsCon>
         {values.map(item => (
           <DepartmentsItem>

@@ -64,7 +64,7 @@ const TextIcon = styled(TextBlock)`
   line-height: 36px;
   display: inline-block;
   padding: 0 20px;
-  color: #333;
+  color: #151515;
   font-size: 13px;
   font-weight: 500;
   margin-left: 6px;
@@ -90,7 +90,7 @@ const SeparateDisplayButton = styled(TextBlock)`
   justify-content: space-around;
   align-items: center;
   padding: 0 5px;
-  color: #333;
+  color: #151515;
   font-size: 13px;
   font-weight: 500;
   i {

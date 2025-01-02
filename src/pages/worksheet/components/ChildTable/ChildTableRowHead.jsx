@@ -32,6 +32,7 @@ const Con = styled.span`
   }
   .operateBtn {
     margin: 0 13px;
+    min-width: 18px;
   }
   .operateBtn,
   .open .icon {
@@ -101,6 +102,7 @@ const Con = styled.span`
 
 export default function RowHead(props) {
   const {
+    useUserPermission,
     row = {},
     allowOpenRecord,
     allowCopy,
@@ -112,6 +114,7 @@ export default function RowHead(props) {
     style,
     isSelectAll,
     rowIndex,
+    recordId,
     showCheckbox,
     selectedRowIds,
     showNumber = true,
@@ -195,7 +198,7 @@ export default function RowHead(props) {
           defaultCustomButtons={[]}
           allowCopy={allowCopy}
           shows={['copy']}
-          allowDelete
+          allowDelete={useUserPermission && !!recordId ? row.allowdelete : true}
           showTask={false}
           showHr={false}
           onDelete={onDelete}
@@ -205,9 +208,15 @@ export default function RowHead(props) {
       {!disabled && isSavedData && allowAdd && !allowCancel && allowCopy && (
         <i className="operateBtn icon icon-copy hand ThemeHoverColor3" onClick={onCopy}></i>
       )}
-      {!disabled && isSavedData && allowCancel && !allowAdd && (
-        <i className="operateBtn delete icon icon-task-new-delete hand" onClick={onDelete}></i>
-      )}
+      {!disabled &&
+        isSavedData &&
+        allowCancel &&
+        !allowAdd &&
+        ((useUserPermission ? row.allowdelete : true) ? (
+          <i className="operateBtn delete icon icon-task-new-delete hand" onClick={onDelete}></i>
+        ) : (
+          <span className="operateBtn"></span>
+        ))}
       {allowOpenRecord && (
         <span className="open" onClick={() => onOpen(rowIndex)}>
           <i className="icon icon-worksheet_enlarge ThemeHoverColor3"></i>

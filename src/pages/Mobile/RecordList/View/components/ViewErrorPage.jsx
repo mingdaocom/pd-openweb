@@ -13,7 +13,7 @@ const ViewErrorPageContainer = styled.div`
     font-size: 72px;
   }
   .errorTitle {
-    color: #333;
+    color: #151515;
     font-size: 16px;
     margin: 16px 0px 28px;
   }

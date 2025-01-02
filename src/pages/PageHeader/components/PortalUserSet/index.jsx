@@ -208,7 +208,7 @@ export default class PortalUserSet extends Component {
             <div className="headerCenter">
               <div
                 className={cx('appName Font16 Hand', { appNameM: isMobile })}
-                style={{ color: isMobile ? '#333' : '#fff' }}
+                style={{ color: isMobile ? '#151515' : '#fff' }}
               >
                 {this.props.name || name}
               </div>
@@ -276,9 +276,9 @@ export default class PortalUserSet extends Component {
                   {(currentData.find(o => o.alias === 'name') || {}).value}
                 </span>
               </div>
-              <div className={cx('email flexRow mTop32')}>
-                <span className="title InlineBlock Gray_9e">{_l('手机号')}</span>
-                <span className="telNumber flex">
+              <div className={cx('email mTop32')}>
+                <span className="title Gray_9e Block w100">{_l('手机号')}</span>
+                <span className="telNumber mTop10 Block">
                   {(currentData.find(o => o.alias === 'mobilephone') || {}).value}
                   <span
                     className={cx('edit ThemeColor3 Hand InlineBlock', {
@@ -295,9 +295,9 @@ export default class PortalUserSet extends Component {
                   </span>
                 </span>
               </div>
-              <div className={cx('tel flexRow mTop24')}>
-                <span className="title InlineBlock Gray_9e">{_l('邮箱')}</span>
-                <span className="telNumber flex">
+              <div className={cx('tel mTop24')}>
+                <span className="title Gray_9e Block w100">{_l('邮箱')}</span>
+                <span className="telNumber mTop10 Block">
                   {(currentData.find(o => o.controlId === 'portal_email') || {}).value}
                   <span
                     className={cx('edit ThemeColor3 Hand InlineBlock', {
@@ -314,10 +314,10 @@ export default class PortalUserSet extends Component {
                   </span>
                 </span>
               </div>
-              <div className={cx('tel flexRow mTop24')}>
-                <span className="title InlineBlock Gray_9e">{_l('密码')}</span>
+              <div className={cx('tel mTop24')}>
+                <span className="title Gray_9e Block w100">{_l('密码')}</span>
                 <span
-                  className={cx('telNumber flex', {
+                  className={cx('telNumber Block mTop10', {
                     Gray_bd: !this.state.hasPassword,
                   })}
                 >
@@ -334,9 +334,9 @@ export default class PortalUserSet extends Component {
                   </span>
                 </span>
               </div>
-              <div className={cx('tel flexRow alignItemsCenter mTop24')}>
-                <span className="title InlineBlock Gray_9e">{_l('语言设置')}</span>
-                <div className="languagueSetting flexRow flex">
+              <div className={cx('tel alignItemsCenter mTop24')}>
+                <span className="title Gray_9e Block w100">{_l('语言设置')}</span>
+                <div className="languagueSetting flexRow mTop10">
                   {langConfig.map(item => {
                     return (
                       <div

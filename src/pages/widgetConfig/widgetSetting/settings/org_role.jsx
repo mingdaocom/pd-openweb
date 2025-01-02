@@ -27,7 +27,7 @@ export default function OrgRole(props) {
           size="middle"
           checkedValue={enumDefault}
           data={DISPLAY_OPTIONS}
-          onChange={value => onChange({ enumDefault: value })}
+          onChange={value => onChange({ enumDefault: value, unique: false })}
         />
       </SettingItem>
       <RoleConfig {...props} />

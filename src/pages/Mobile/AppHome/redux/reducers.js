@@ -69,3 +69,12 @@ export const projectGroupsNameLang = (state = {}, action) => {
       return state;
   }
 };
+
+export const appHomeScrollY = (state = 0, action) => {
+  switch (action.type) {
+    case 'APP_HOME_SCROLL_Y':
+      return action.data;
+    default:
+      return state;
+  }
+}

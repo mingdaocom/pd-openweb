@@ -152,9 +152,6 @@ const getTools = ({ widgetType, layoutType, reportType }) => {
   if (['view', 'filter'].includes(widgetType)) {
     return WEB_CONTENT_TOOLS.filter(item => !['move', 'copy'].includes(item.type));
   };
-  if ('ai' === widgetType) {
-    return WEB_CONTENT_TOOLS.filter(item => !['move', 'copy', 'setting'].includes(item.type));
-  }
   if (widgetType !== 'analysis') {
     return WEB_CONTENT_TOOLS.filter(item => item.type !== 'move');
   };

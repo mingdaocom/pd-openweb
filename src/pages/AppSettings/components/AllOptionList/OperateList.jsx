@@ -12,7 +12,7 @@ const OperateWrap = styled(Menu)`
     width: 160px !important;
   }
   .ming.MenuItem .Item-content:not(.disabled):hover {
-    color: #333 !important;
+    color: #151515 !important;
     background-color: #f5f5f5 !important;
   }
   .ming.Item .Item-content:not(.disabled):hover .icon {

@@ -6,7 +6,7 @@ import { Icon, LoadDiv, ScrollView } from 'ming-ui';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 
 const AuthListDrawer = styled(Drawer)`
-  color: #333;
+  color: #151515;
   .ant-drawer-mask {
     background-color: transparent;
   }

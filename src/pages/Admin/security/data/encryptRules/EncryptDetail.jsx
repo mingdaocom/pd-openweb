@@ -27,7 +27,7 @@ const TabWrap = styled.div`
   .tabItem {
     height: 100%;
     font-size: 13px;
-    color: #333;
+    color: #151515;
     margin-right: 26px;
     padding-bottom: 12px;
   }

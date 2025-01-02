@@ -461,7 +461,7 @@ export default class FileComponent extends Component {
                 className="UploadFiles-panelBtn UploadFiles-panelBtn-edit"
                 data-tip={_l('重命名')}
               >
-                <i className="ThemeHoverColor3 icon-new_mail" />
+                <i className="ThemeHoverColor3 icon-rename_input" />
               </div>
             </div>
           )}
@@ -619,7 +619,7 @@ export default class FileComponent extends Component {
                 className="UploadFiles-panelBtn UploadFiles-panelBtn-edit"
                 data-tip={_l('重命名')}
               >
-                <i className="ThemeHoverColor3 icon-new_mail" />
+                <i className="ThemeHoverColor3 icon-rename_input" />
               </div>
             </div>
           )}

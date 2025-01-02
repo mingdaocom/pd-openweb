@@ -90,6 +90,9 @@ function generate() {
         return;
       }
       if (!isProduction) {
+        if (moduleName.startsWith('free-field-sandbox')) {
+          $('head').append('<script src="/staticfiles/tailwindcss.js"></script>');
+        }
         // 开发模式
         $entryScript.replaceWith(
           ['modules_a', 'modules_b', 'core', 'common', 'vendors', 'globals', moduleName]
@@ -109,18 +112,25 @@ function generate() {
             ? ['vendors', 'globals']
             : ['modules_a', 'modules_b', 'core', 'common', 'vendors', 'globals'];
         const isWidgetContainer = moduleName.startsWith('widget-container');
+        const isFreeField = moduleName.startsWith('free-field-sandbox');
+        const noCommonResource = isFreeField || isWidgetContainer;
         $entryScript.replaceWith(
-          [...(!isWidgetContainer ? baseEntry : []), moduleName]
+          [...(!noCommonResource ? baseEntry : []), moduleName]
             .filter(key => !!manifestData[key] && manifestData[key].js)
             .map(key => `<script src="${getPublicPath(entry.type) + manifestData[key].js}"></script>`)
             .join(''),
         );
-        if (!isWidgetContainer) {
+        if (!noCommonResource) {
           $('head').append(
             ['css', ...baseEntry, moduleName]
               .filter(key => !!manifestData[key] && manifestData[key].css)
               .map(key => `<link rel="stylesheet" href="${getPublicPath(entry.type) + manifestData[key].css}" />`)
               .join(''),
+          );
+        }
+        if (moduleName.startsWith('free-field-sandbox')) {
+          $('head').append(
+            `<script src="${getPublicPath('index').replace('dist/pack/', '')}staticfiles/tailwindcss.js"></script>`,
           );
         }
       }

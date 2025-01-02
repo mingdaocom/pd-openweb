@@ -44,7 +44,7 @@ const NodeWrap = styled.div`
         font-size: 15px;
         max-width: 135px;
         margin-bottom: 4px;
-        color: #333;
+        color: #151515;
       }
     }
     .subordinateCount {

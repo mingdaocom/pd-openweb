@@ -31,7 +31,7 @@ const renderItem = newVal => {
       className="mTop5 w100 mBottom5 flexColumn"
       style={{ background: '#fff', padding: '0 12px', borderRadius: '3px' }}
     >
-      <SectionItemWrap theme={THEME_COLORS[newVal]} color="#333" sectionstyle={newVal}>
+      <SectionItemWrap theme={THEME_COLORS[newVal]} color="#151515" sectionstyle={newVal}>
         <div className="titleBox">
           {iconContent}
           <div className="titleText">{_l('标题')}</div>

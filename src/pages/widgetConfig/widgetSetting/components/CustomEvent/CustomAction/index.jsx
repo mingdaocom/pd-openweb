@@ -12,6 +12,7 @@ import CreateRecord from './actionTypes/CreateRecord';
 import IntegratedApi from './actionTypes/IntegratedApi';
 import PlayVoice from './actionTypes/PlayVoice';
 import functionWrap from 'ming-ui/components/FunctionWrap';
+import OperationFlow from './actionTypes/OperationFlow ';
 
 const CustomActionConfig = props => {
   const { actionData = {} } = props;
@@ -49,6 +50,9 @@ const CustomActionConfig = props => {
     // 创建新纪录
     case ACTION_VALUE_ENUM.CREATE:
       return <CreateRecord {...props} />;
+    // 封装业务流程
+    case ACTION_VALUE_ENUM.OPERATION_FLOW:
+      return <OperationFlow {...props} />;
   }
 };
 

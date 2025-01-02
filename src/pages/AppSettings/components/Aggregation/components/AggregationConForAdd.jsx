@@ -65,6 +65,7 @@ export default function AddAggregation(props) {
       worksheetId,
     );
     if (hs) {
+      setState({ showList: false });
       alert(_l('不能重复添加相同计算方式的相同字段'), 3);
       return;
     }
@@ -127,9 +128,7 @@ export default function AddAggregation(props) {
       isCalculateField: true,
     };
     updateAggregateDt(newDt);
-    setState({
-      showCalculation: false,
-    });
+    setState({ showCalculation: false });
   };
 
   const allControls = (_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || [])
@@ -148,6 +147,31 @@ export default function AddAggregation(props) {
       return { ...o, controlName: o.alias, controlId: _.get(o, 'id'), type: 6 };
     });
 
+  const renderPopup = () => {
+    return (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length > 0 ? (
+      <ChooseControlsForAggregation
+        worksheets={_.get(sourceDt, 'nodeConfig.config.sourceTables').map(o => {
+          return {
+            ...o,
+            controls: (sourceInfos.find(it => it.worksheetId === o.workSheetId) || {}).controls,
+            tableName: getTranslateInfo(o.appId, null, o.workSheetId).name || o.tableName,
+          };
+        })}
+        worksheetId={
+          (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length > 1
+            ? ''
+            : (_.get(sourceDt, 'nodeConfig.config.sourceTables') || [])[0].workSheetId
+        }
+        list={[]}
+        flowData={flowData}
+        sourceInfos={sourceInfos}
+        onChange={onChange}
+      />
+    ) : (
+      <span className="" />
+    );
+  };
+
   return (
     <React.Fragment>
       {isMax ? (
@@ -159,44 +183,31 @@ export default function AddAggregation(props) {
         >
           {renderAddAgg()}
         </div>
+      ) : props.updateLoading ? (
+        <span className="InlineBlock">
+          <span className={cx('mTop16 Bold alignItemsCenter flexRow Gray_bd')}>{_l('加载中...')}</span>
+        </span>
       ) : (
         <Trigger
           action={['click']}
           getPopupContainer={() => document.body}
-          key={`ChooseControlsForAggregation_${(_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).length}`}
+          key={`ChooseControlsForAggregation_${(_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).length}_${showList}`}
           popupAlign={{ points: ['tl', 'bl'], offset: [0, 4], overflow: { adjustX: true, adjustY: true } }}
           popupVisible={showList}
           onPopupVisibleChange={showList => setState({ showList })}
-          popup={
-            (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length > 0 ? (
-              <ChooseControlsForAggregation
-                worksheets={_.get(sourceDt, 'nodeConfig.config.sourceTables').map(o => {
-                  return {
-                    ...o,
-                    controls: (sourceInfos.find(it => it.worksheetId === o.workSheetId) || {}).controls,
-                    tableName: getTranslateInfo(o.appId, null, o.workSheetId).name || o.tableName,
-                  };
-                })}
-                worksheetId={
-                  (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length > 1
-                    ? ''
-                    : (_.get(sourceDt, 'nodeConfig.config.sourceTables') || [])[0].workSheetId
-                }
-                list={[]}
-                flowData={flowData}
-                sourceInfos={sourceInfos}
-                onChange={onChange}
-              />
-            ) : (
-              <span className=""></span>
-            )
-          }
+          popupClassName="aggregationChooseControlTriggerWrap"
+          popup={renderPopup()}
         >
           {renderAddAgg()}
         </Trigger>
       )}
       {(_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length > 0 &&
-        (_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).filter(o => !o.isCalculateField).length > 0 && (
+        (_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).filter(o => !o.isCalculateField).length > 0 &&
+        (props.updateLoading ? (
+          <span className="InlineBlock">
+            <span className={cx('mTop16 Bold alignItemsCenter flexRow Gray_bd')}>{_l('加载中...')}</span>
+          </span>
+        ) : (
           <span className="InlineBlock">
             <span
               className={cx('Hand mTop16 Gray_75 ThemeHoverColor3 Bold flexRow alignItemsCenter', { mLeft25: !isMax })}
@@ -210,7 +221,7 @@ export default function AddAggregation(props) {
               <span>{_l('计算字段')}</span>
             </span>
           </span>
-        )}
+        ))}
 
       {showCalculation && (
         <CalculationDialog

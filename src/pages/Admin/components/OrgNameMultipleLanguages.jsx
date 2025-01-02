@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Icon, Dialog, FunctionWrap, Input, LoadDiv } from 'ming-ui';
+import { Icon, Dialog, FunctionWrap, Input, LoadDiv, Textarea } from 'ming-ui';
 import langConfig from 'src/common/langConfig';
 import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
@@ -26,7 +26,7 @@ class SetOrgNameMultipleLanguages extends Component {
   }
 
   getProjectLangs = () => {
-    const { projectId, type, correlationId } = this.props;
+    const { projectId, type, correlationId, currentLangName } = this.props;
     const { settingLanguageData } = this.state;
 
     this.setState({ loading: true });
@@ -40,7 +40,12 @@ class SetOrgNameMultipleLanguages extends Component {
       .then((res = []) => {
         this.setState({
           settingLanguageData: !_.isEmpty(res)
-            ? res.map(({ langType, data }) => ({ langType, data }))
+            ? res.map(({ langType, data }) => {
+                if (type === 30 && !!currentLangName && langType === getCurrentLangCode(md.global.Config.DefaultLang)) {
+                  return { langType, data: [{ key: 'name', value: currentLangName }] };
+                }
+                return { langType, data };
+              })
             : settingLanguageData,
           loading: false,
         });
@@ -50,29 +55,35 @@ class SetOrgNameMultipleLanguages extends Component {
   onOk = () => {
     const { projectId, type, correlationId, onCancel = () => {}, updateName = () => {} } = this.props;
     const { settingLanguageData = [] } = this.state;
-
-    appManagementAjax
-      .editProjectLangs({
+    let AjaxFetch = null;
+    if (type === 30) {
+      AjaxFetch = appManagementAjax.editPasswordRegexTipLangs({
+        data: settingLanguageData,
+      });
+    } else {
+      AjaxFetch = appManagementAjax.editProjectLangs({
         projectId,
         type,
         correlationId: correlationId || projectId,
         data: settingLanguageData,
-      })
-      .then(res => {
-        if (res) {
-          const currentLang = _.find(settingLanguageData, v => v.langType === getCurrentLangCode());
-
-          alert(_l('设置成功'));
-          currentLang && updateName(currentLang);
-          onCancel();
-        } else {
-          alert(_l('设置失败'), 2);
-        }
       });
+    }
+
+    AjaxFetch.then(res => {
+      if (res) {
+        const currentLang = _.find(settingLanguageData, v => v.langType === getCurrentLangCode());
+
+        alert(_l('设置成功'));
+        currentLang && updateName(currentLang);
+        onCancel();
+      } else {
+        alert(_l('设置失败'), 2);
+      }
+    });
   };
 
   render() {
-    const { onCancel = () => {}, currentLangName } = this.props;
+    const { onCancel = () => {}, currentLangName, type } = this.props;
     const { loading, settingLanguageData = [] } = this.state;
 
     return (
@@ -88,29 +99,39 @@ class SetOrgNameMultipleLanguages extends Component {
                 ? currentLangName
                 : currentLanguageData[0].value;
 
+            const param = {
+              disabled: code === getCurrentLangCode(md.global.Config.DefaultLang),
+              className: 'w100',
+              onChange: value => {
+                let newData = _.clone(settingLanguageData);
+                const index = _.findIndex(newData, v => v.langType === code);
+                const temp = {
+                  langType: code,
+                  data: [{ key: 'name', value }],
+                };
+                if (index === -1) {
+                  newData.push(temp);
+                } else {
+                  newData[index] = temp;
+                }
+                this.setState({ settingLanguageData: newData });
+              },
+            };
+
             return (
               <div key={code} className="mBottom15">
                 <div className="mBottom5">{value}</div>
-                <InputWrap
-                  disabled={code === getCurrentLangCode(md.global.Config.DefaultLang)}
-                  value={currentName}
-                  className="w100"
-                  onChange={value => {
-                    let newData = _.clone(settingLanguageData);
-                    const index = _.findIndex(newData, v => v.langType === code);
-                    const temp = {
-                      langType: code,
-                      data: [{ key: 'name', value }],
-                    };
-                    if (index === -1) {
-                      newData.push(temp);
-                    } else {
-                      newData[index] = temp;
-                    }
-
-                    this.setState({ settingLanguageData: newData });
-                  }}
-                />
+                {type === 30 ? (
+                  <Textarea
+                    {...param}
+                    className={'w100 pTop6 pBottom6'}
+                    minHeight={36}
+                    maxHeight={120}
+                    defaultValue={currentName || ''}
+                  />
+                ) : (
+                  <InputWrap {...param} value={currentName} />
+                )}
               </div>
             );
           })

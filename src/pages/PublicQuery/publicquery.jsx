@@ -16,7 +16,7 @@ const Con = styled.div`
     h3 {
       font-size: 22px;
       text-align: center;
-      color: #333333;
+      color: #151515;
       padding-bottom: 32px;
     }
     .err {
@@ -167,7 +167,6 @@ class Publicquery extends React.Component {
                     controlId: o.controlId,
                     dataType: o.type,
                     dateRange: 0,
-                    dateRangeType: 1,
                     filterType: 2,
                     spliceType: 1,
                     value: o.value,

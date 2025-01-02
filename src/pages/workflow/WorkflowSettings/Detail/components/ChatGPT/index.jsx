@@ -16,9 +16,8 @@ const Null = styled.div`
   > div {
     opacity: 0;
   }
-  .icon-ai {
+  .icon-ai1 {
     font-size: 80px;
-    color: #ff9a00;
   }
   .exampleBox {
     width: 480px;
@@ -108,9 +107,9 @@ const Avatar = styled.div`
   height: 36px;
   margin-right: 8px;
   border-radius: 50%;
-  font-size: 20px;
+  font-size: 24px;
   color: #fff;
-  background: #ff9a00;
+  background: #f2f2f2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -176,7 +175,7 @@ const Cursor = styled.span`
   display: inline-block;
   width: 10px;
   height: 16px;
-  background: #333;
+  background: #151515;
   animation: fadeIn 0.6s ease-in-out infinite;
   margin-top: 3px;
   vertical-align: top;
@@ -187,7 +186,7 @@ const NullContent = ({ codeType }) => {
     <Null className="flexColumn alignItemsCenter justifyContentCenter flex h100">
       <div className="TxtCenter animation">
         <div>
-          <i className="icon-ai" />
+          <i className="icon-ai1" />
         </div>
         <div className="mTop15 bold Font20">{_l('您好！我是 AI 代码生成助手')}</div>
         <div className="mTop10">

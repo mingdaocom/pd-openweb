@@ -233,27 +233,27 @@ export const ROUTE_CONFIG = {
   integrationTask: {
     path: '/integration/taskCon/:id/:type?',
     component: () => import('src/pages/integration/dataIntegration/TaskCon'),
-    title: _l('集成中心'),
+    title: _l('集成'),
   },
   integrationSource: {
     path: '/integration/sourceDetail/:sourceId/:type?',
     component: () => import('src/pages/integration/dataIntegration/source/components/AddOrEditSource'),
-    title: _l('集成中心'),
+    title: _l('集成'),
   },
   integration: {
     path: '/integration/:type?/:listType?',
     component: () => import('src/pages/integration'),
-    title: _l('集成中心'),
+    title: _l('集成'),
   },
   integrationConnect: {
-    path: '/integrationConnect/:id?',
+    path: '/integrationConnect/:id?/:tab?',
     component: () => import('src/pages/integration/apiIntegration/ConnectWrap'),
-    title: _l('集成中心'),
+    title: _l('集成'),
   },
   integrationApi: {
     path: '/integrationApi/:apiId?',
     component: () => import('src/pages/integration/integrationApi'),
-    title: _l('集成中心'),
+    title: _l('集成'),
   },
   dataMirrorPreview: {
     path: '/dataMirrorPreview/:id?',
@@ -263,13 +263,23 @@ export const ROUTE_CONFIG = {
   plugin: {
     path: '/plugin/:type?',
     component: () => import('src/pages/plugin'),
-    title: _l('插件中心'),
+    title: _l('插件'),
   },
   // 微信支付
   wechatPay: {
     path: '/wechatPay/:projectId/:orderId',
     component: () => import('src/components/pay/wechatPay'),
     title: _l('微信支付'),
+  },
+  certification: {
+    path: '/certification/:certSource/:projectId?',
+    component: () => import('src/pages/certification'),
+    title: _l('认证'),
+  },
+  certificationDetail: {
+    path: '/certificationDetail/:certSource/:projectId?',
+    component: () => import('src/pages/certification/CertificationDetail'),
+    title: _l('我的认证'),
   },
   default: {
     path: '/app',
@@ -336,6 +346,9 @@ const withoutChatPathList = [
   'embed/view',
   'aggregation',
   'dataMirrorPreview',
+  'certification',
+  'certificationDetail',
+  'app/lib',
 ];
 export const withoutHeaderUrl = `/(.*)(${withoutHeaderPathList.join('|')})`;
 export const withoutChatUrl = `/(.*)(${withoutChatPathList.join('|')})`;

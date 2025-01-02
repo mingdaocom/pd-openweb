@@ -212,7 +212,7 @@ export default class Footer extends Component {
       onSubmit({ callback: saveFunction, ignoreError: isStash, ignoreAlert: isStash, silent: isStash });
     }
   };
-  handleAction = ({ action, content = '', forwardAccountId, backNodeId, signature, files }) => {
+  handleAction = ({ action, content = '', forwardAccountId, backNodeId, signature, files, countersignType }) => {
     const { instance } = this.props;
     const { ignoreRequired } = (instance || {}).flowNode || {};
 
@@ -224,7 +224,7 @@ export default class Footer extends Component {
     if (_.includes(['before', 'after'], action)) {
       this.request(
         ACTION_TO_METHOD[action],
-        { before: action === 'before', opinion: content, forwardAccountId, signature, files },
+        { before: action === 'before', opinion: content, forwardAccountId, signature, files, countersignType },
         action === 'before',
       );
     }
@@ -285,10 +285,10 @@ export default class Footer extends Component {
         this.actionOperationHandler = ActionSheet.show({
           actions: [{
             key: 'after',
-            text: <div className="Gray bold">{_l('通过申请后增加一位审批人')}</div>
+            text: <div className="Gray bold">{_l('通过申请后增加审批人')}</div>
           },{
             key: 'before',
-            text: <div className="Gray bold">{_l('在我审批前增加一位审批人')}</div>
+            text: <div className="Gray bold">{_l('在我审批前增加审批人')}</div>
           }],
           extra: (
             <div className="flexRow header">

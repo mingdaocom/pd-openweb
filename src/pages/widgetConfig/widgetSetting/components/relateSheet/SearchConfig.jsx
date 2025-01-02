@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { Menu, MenuItem, Checkbox, RadioGroup, Dialog, Dropdown, Icon } from 'ming-ui';
 import { Tooltip } from 'antd';
 import { SYS } from 'src/pages/widgetConfig/config/widget';
@@ -56,7 +56,7 @@ const ConfigWrap = styled.div`
 `;
 
 export default function ApiSearchConfig(props) {
-  const { data, onChange, onClose, controls = [] } = props;
+  const { data, onChange, onClose, controls = [], title } = props;
   const [visible, setVisible] = useState(false);
 
   const searchableControls = formatControlsToDropdown(
@@ -92,10 +92,12 @@ export default function ApiSearchConfig(props) {
     );
   };
 
+  const hideConfig = _.includes([35], data.type);
+
   return (
     <Dialog
       visible={true}
-      title={<span className="Bold">{_l('查询设置')}</span>}
+      title={<span className="Bold">{title || _l('查询设置')}</span>}
       width={560}
       onCancel={onClose}
       onOk={() => {
@@ -144,70 +146,74 @@ export default function ApiSearchConfig(props) {
           />
         </div>
         {isForbidEncry() && <div className="Gray_9e mTop10 mLeft80">{_l('当前字段已加密，按照精确搜索查询')}</div>}
-        <div className="configItem">
-          <div className="title">{_l('设置')}</div>
-          <Checkbox
-            checked={clicksearch === '1'}
-            text={_l('在搜索后显示可选记录')}
-            onClick={checked => {
-              setState({ clicksearch: checked ? '0' : '1' });
-            }}
-          />
-        </div>
-        {showtype !== '3' && (
-          <SettingItem className="mTop36">
-            <div className="settingItemTitle">{_l('筛选')}</div>
-            <div className="subTitle Gray_9e">{_l('用户通过以下字段筛选关联记录')}</div>
-            <FastFilter
-              from="fastFilter"
-              className="relateSheetSearchConfig"
-              customAdd={() => {
-                return (
-                  <Trigger
-                    action={['click']}
-                    popupVisible={visible}
-                    onPopupVisibleChange={visible => {
-                      setVisible(visible);
-                    }}
-                    popupStyle={{ width: 280 }}
-                    popup={
-                      <SelectControl
-                        list={filterOnlyShowField(controls).filter(({ type, sourceControlType, controlId }) => {
-                          const ids = searchfilters.map(({ controlId }) => controlId);
-                          return (
-                            _.includes(FASTFILTER_CONDITION_TYPE, type === 30 ? sourceControlType : type) &&
-                            !ids.includes(controlId)
-                          );
-                        })}
-                        onClick={item => {
-                          setState({ searchfilters: searchfilters.concat(_.pick(item, ['controlId'])) });
+        {hideConfig ? null : (
+          <Fragment>
+            <div className="configItem">
+              <div className="title">{_l('设置')}</div>
+              <Checkbox
+                checked={clicksearch === '1'}
+                text={_l('在搜索后显示可选记录')}
+                onClick={checked => {
+                  setState({ clicksearch: checked ? '0' : '1' });
+                }}
+              />
+            </div>
+            {showtype !== '3' && (
+              <SettingItem className="mTop36">
+                <div className="settingItemTitle">{_l('筛选')}</div>
+                <div className="subTitle Gray_9e">{_l('用户通过以下字段筛选关联记录')}</div>
+                <FastFilter
+                  from="fastFilter"
+                  className="relateSheetSearchConfig"
+                  customAdd={() => {
+                    return (
+                      <Trigger
+                        action={['click']}
+                        popupVisible={visible}
+                        onPopupVisibleChange={visible => {
+                          setVisible(visible);
                         }}
-                      />
-                    }
-                    popupAlign={{
-                      points: ['tl', 'bl'],
-                      offset: [0, 3],
-                      overflow: {
-                        adjustX: true,
-                        adjustY: true,
-                      },
-                    }}
-                  >
-                    <div className="addFilterControl pointer">+ {_l('添加筛选字段')}</div>
-                  </Trigger>
-                );
-              }}
-              fastFilters={searchfilters}
-              worksheetControls={controls}
-              onDelete={handleDelete}
-              onAdd={item => {
-                setState({ searchfilters: searchfilters.concat(item) });
-              }}
-              onSortEnd={newItems => {
-                setState({ searchfilters: newItems });
-              }}
-            />
-          </SettingItem>
+                        popupStyle={{ width: 280 }}
+                        popup={
+                          <SelectControl
+                            list={filterOnlyShowField(controls).filter(({ type, sourceControlType, controlId }) => {
+                              const ids = searchfilters.map(({ controlId }) => controlId);
+                              return (
+                                _.includes(FASTFILTER_CONDITION_TYPE, type === 30 ? sourceControlType : type) &&
+                                !ids.includes(controlId)
+                              );
+                            })}
+                            onClick={item => {
+                              setState({ searchfilters: searchfilters.concat(_.pick(item, ['controlId'])) });
+                            }}
+                          />
+                        }
+                        popupAlign={{
+                          points: ['tl', 'bl'],
+                          offset: [0, 3],
+                          overflow: {
+                            adjustX: true,
+                            adjustY: true,
+                          },
+                        }}
+                      >
+                        <div className="addFilterControl pointer">+ {_l('添加筛选字段')}</div>
+                      </Trigger>
+                    );
+                  }}
+                  fastFilters={searchfilters}
+                  worksheetControls={controls}
+                  onDelete={handleDelete}
+                  onAdd={item => {
+                    setState({ searchfilters: searchfilters.concat(item) });
+                  }}
+                  onSortEnd={newItems => {
+                    setState({ searchfilters: newItems });
+                  }}
+                />
+              </SettingItem>
+            )}
+          </Fragment>
         )}
       </ConfigWrap>
     </Dialog>

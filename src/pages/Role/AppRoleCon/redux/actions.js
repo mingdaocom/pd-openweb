@@ -1,4 +1,6 @@
 import appManagementAjax from 'src/api/appManagement.js';
+import _ from 'lodash';
+
 export const setLoading = data => {
   return (dispatch, getState) => {
     dispatch({ type: 'UPDATE_ROLE_LOADING', data });
@@ -96,6 +98,7 @@ export const getRoleSummary = (appId, cb, loading) => {
         return;
       }
       dispatch(setAppRoleSummary(res.roleInfos || []));
+      dispatch({ type: 'UPDATE_APPROLESUMMARY_ROLELIMITINFO', data: _.omit(res, ['roleInfos']) });
       dispatch({ type: 'ROLE_UPDATE_PAGE_LOADING', data: false });
       cb && cb(res.roleInfos || []);
     });
@@ -133,14 +136,14 @@ export const getUserList = (props, isUserList) => {
     }
     ajax = ['all', 'apply', 'outsourcing'].includes(roleId)
       ? appManagementAjax.getTotalMember({
-        appId,
-        ...appRolePagingModel,
-      })
+          appId,
+          ...appRolePagingModel,
+        })
       : appManagementAjax.getMembersByRole({
-        appId,
-        roleId,
-        ...appRolePagingModel,
-      });
+          appId,
+          roleId,
+          ...appRolePagingModel,
+        });
     ajax.then(res => {
       ['all', 'apply', 'outsourcing'].includes(roleId) &&
         dispatch({ type: 'UPDATE_APPUSER_LIST_ALL_TOTAL', data: res.totalCount });

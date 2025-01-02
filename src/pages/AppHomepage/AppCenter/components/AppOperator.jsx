@@ -60,6 +60,8 @@ export default ({
   createType,
   isDashboard,
   allowCreate,
+  sourceType,
+  isGoodsStatus,
   ...propsRest
 }) => {
   let list = [...(ROLE_OPERATION[role] || DEFAULT_ROLE_OPERATION)];
@@ -82,6 +84,17 @@ export default ({
 
   if (isDashboard) {
     list = _.filter(list, o => o.type !== 'setGroup');
+  }
+
+  if (sourceType === 60) {
+    _.remove(list, o => o.type === 'copy');
+
+    if (!isGoodsStatus) {
+      _.remove(list, o => o.type === 'edit');
+    }
+    if (!_.find(list, { type: 'del' })) {
+      list.push(EXTERNAL_LINK_OPERATION[2]);
+    }
   }
 
   return (

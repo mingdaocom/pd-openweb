@@ -26,7 +26,7 @@ const CardWrapper = styled.div`
 
 const CardTitle = styled.div`
   margin-bottom: 20px;
-  color: #333333;
+  color: #151515;
   font-size: 15px;
   font-weight: bold;
 `;
@@ -44,7 +44,7 @@ const RowLabelText = styled.div`
 
 const RowValue = styled.div`
   flex: 4;
-  color: #333333;
+  color: #151515;
   font-size: ${props => (props.isMobile ? '13px' : '14px')};
   overflow: hidden;
 `;

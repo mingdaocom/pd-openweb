@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react';
 import DropdownWrapper from '../../../components/Dropdown';
 import styled from 'styled-components';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
-import { SettingItem } from '../../../styled';
+import { SettingItem, SetConfig } from '../../../styled';
 import DialogMapping from './DaialogMapping';
 import _ from 'lodash';
 
@@ -36,23 +36,6 @@ const MappingWrap = styled.div`
   }
   .ant-dropdown-trigger {
     margin-top: 9px;
-  }
-`;
-
-const SetConfig = styled.div`
-  height: 36px;
-  line-height: 34px;
-  text-align: center;
-  border-radius: 3px;
-  cursor: pointer;
-  border: ${props => (props.hasSet ? '1px solid #ddd' : '1px dashed #ddd')};
-  i {
-    font-size: 15px;
-    color: #4caf50;
-    margin-right: 7px;
-  }
-  &:hover {
-    border-color: #2196f3;
   }
 `;
 

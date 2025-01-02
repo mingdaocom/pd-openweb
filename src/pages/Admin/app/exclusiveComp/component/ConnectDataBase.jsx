@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Dialog, Switch, Textarea } from 'ming-ui';
+import { Dialog, Switch, Textarea, Tooltip, Icon } from 'ming-ui';
 import _ from 'lodash';
 import TextInput from './TextInput';
 import projectAjax from 'src/api/project';
@@ -211,7 +211,12 @@ function ConnectDataBase(props) {
           isRequired={false}
           onChange={e => handleChangeData({ other: e.target.value })}
         />
-        <div className="Font14 mBottom4">{_l('状态')}</div>
+        <div className="Font14 mBottom4 valignWrapper">
+          {_l('新增应用')}
+          <Tooltip text={_l('开启时，允许拥有“应用服务和资源”的管理员，新增应用到这个数据库')}>
+            <Icon icon="info_outline" className="Font16 Gray_bd mLeft8" />
+          </Tooltip>
+        </div>
         <div className="SwitchCon mBottom16">
           <Switch
             className="mRight8"
@@ -220,7 +225,7 @@ function ConnectDataBase(props) {
               setData({ ...data, status: !checked ? 1 : 0 });
             }}
           />
-          <span>{data.status ? _l('已启用') : _l('已关闭')}</span>
+          <span>{data.status ? _l('允许') : _l('不允许')}</span>
         </div>
         <div className="Font14 mBottom4">{_l('备注')}</div>
         <Textarea minHeight={62} value={data.remark} onChange={value => handleChangeData({ remark: value })} />

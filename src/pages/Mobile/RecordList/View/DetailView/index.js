@@ -26,8 +26,13 @@ class DetailView extends Component {
   }
 
   renderWithoutRows = () => {
-    const { filters, quickFilter, view } = this.props;
+    const { filters, quickFilter, view, activeSavedFilter = {} } = this.props;
     const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
+
+    const handlePullToRefresh = () => {
+      this.props.updateIsPullRefreshing(true);
+      this.props.changePageIndex(1);
+    };
 
     if (needClickToSearch && _.isEmpty(quickFilter)) {
       return <WithoutRows text={_l('执行查询后显示结果')} />;
@@ -35,12 +40,12 @@ class DetailView extends Component {
     if (filters.keyWords) {
       return <WithoutRows text={_l('没有搜索结果')} />;
     }
-    if (quickFilter.length) {
+    if (quickFilter.length || !_.isEmpty(activeSavedFilter)) {
       return <WithoutRows text={_l('没有符合条件的记录')} />;
     }
     return (
       <Fragment>
-        <WithoutRows text={_l('此视图下暂无记录')} />
+        <WithoutRows text={_l('此视图下暂无记录')} onRefresh={handlePullToRefresh} />
       </Fragment>
     );
   };
@@ -88,12 +93,13 @@ export default connect(
       'currentSheetRows',
       'base',
       'sheetSwitchPermit',
+      'activeSavedFilter'
     ]),
   }),
   dispatch =>
     bindActionCreators(
       {
-        ..._.pick(actions, ['fetchSheetRows', 'updateFilters']),
+        ..._.pick(actions, ['fetchSheetRows', 'updateFilters', 'changePageIndex', 'updateIsPullRefreshing']),
       },
       dispatch,
     ),

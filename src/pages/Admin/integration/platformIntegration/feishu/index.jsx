@@ -37,34 +37,39 @@ export default class FeiShu extends React.Component {
       isSetPassword: false,
       passwordError: false,
       currentTab: 'base',
+      isEditing: false,
     };
   }
 
   componentDidMount() {
+    const { projectIntergrationType, type } = this.props;
+    const isLark = type === 'lark';
+
     Ajax.getFeishuProjectSettingInfo({ projectId: this.props.projectId }).then(res => {
-      this.setState({
-        pageLoading: false,
-      });
-      if (!res) {
+      this.setState({ pageLoading: false });
+
+      if (!res || ((projectIntergrationType === 0 || res.status === 2) && isLark !== res.isLark)) {
         res = {
           appId: '',
           appSecret: '',
           status: '',
+          isLark,
         };
       }
+
       if (res) {
         this.setState({
           AppId: res.appId,
           AppSecret: res.appSecret,
-          isHasInfo: res.status === 2 || (res.appId && res.appSecret),
+          isHasInfo: res.appId && res.appSecret,
           canEditInfo: !res.appId && !res.appSecret,
           isCloseDing: res.status === 2,
           AppIdFormat: this.formatStr(res.appId), //用于显示
           AppSecretFormat: this.formatStr(res.appSecret),
           show1: !(res.appId && res.appSecret && res.status != 2),
           show2: !(res.appId && res.appSecret && res.status != 2),
-          status: res.status,
           integrationScanEnabled: res.intergrationScanEnabled,
+          ..._.pick(res, ['customNameIcon', 'status', 'isLark']),
         });
       }
     });
@@ -76,10 +81,12 @@ export default class FeiShu extends React.Component {
       alert('请输入相关信息', 3);
       return;
     }
+
     Ajax.editFeishuProjectSetting({
       projectId: this.props.projectId,
       appId: this.state.AppId,
       appSecret: this.state.AppSecret,
+      isLark: this.state.isLark,
     }).then(res => {
       if (res) {
         if (res.item1) {
@@ -116,6 +123,7 @@ export default class FeiShu extends React.Component {
     Ajax.editFeishuProjectSettingStatus({
       projectId: this.props.projectId,
       status: tag,
+      isLark: this.state.isLark,
     }).then(res => {
       if (res) {
         callback();
@@ -193,7 +201,7 @@ export default class FeiShu extends React.Component {
 
   stepRender = () => {
     const { projectId } = this.props;
-    const { canEditInfo, isHasInfo, isCloseDing } = this.state;
+    const { canEditInfo, isHasInfo, isCloseDing, isLark, AppId, AppSecret } = this.state;
 
     return (
       <div className="pBottom100">
@@ -212,8 +220,15 @@ export default class FeiShu extends React.Component {
             </div>
           ) : (
             <React.Fragment>
-              <p className="mTop16 Font14 Gray_75">{_l('从飞书开放平台获取对接信息，即可开始集成以及同步通讯录')}</p>
-              <Link to={`/feishuSyncCourse/${this.props.projectId}`} target="_blank" className="mTop16 Font14 howApply">
+              <p className="mTop16 Font14 Gray_75">
+                {!isLark ? _l('从飞书开放平台获取对接信息，') : _l('从Lark开放平台获取对接信息，')}
+                {_l('即可开始集成以及同步通讯录')}
+              </p>
+              <Link
+                to={`/feishuSyncCourse/${this.props.projectId}?type=${isLark ? 'lark' : 'feishu'}`}
+                target="_blank"
+                className="mTop16 Font14 howApply stopPropagation"
+              >
                 {_l('如何获取对接信息？')}
               </Link>
             </React.Fragment>
@@ -237,7 +252,9 @@ export default class FeiShu extends React.Component {
             <span className="Font13 Gray_75 Right closeDing">
               <span
                 className="mLeft10 switchBtn tip-bottom-left"
-                data-tip={_l('关闭飞书集成后，无法再从飞书处进入应用')}
+                data-tip={
+                  isLark ? _l('关闭Lark集成后，无法再从Lark处进入应用') : _l('关闭飞书集成后，无法再从飞书处进入应用')
+                }
               >
                 <Switch checked={!this.state.isCloseDing} onClick={checked => this.editDingStatus(checked ? 2 : 1)} />
               </span>
@@ -254,6 +271,7 @@ export default class FeiShu extends React.Component {
                   <li className="mTop16">{this.inputRender('AppSecret', 'App Secret')}</li>
                 </ul>
               </div>
+              {}
               <div className="TxtRight mTop30">
                 {!this.state.canEditInfo ? (
                   <Button
@@ -262,6 +280,7 @@ export default class FeiShu extends React.Component {
                     onClick={e => {
                       this.setState({
                         canEditInfo: true,
+                        isEditing: true,
                       });
                     }}
                   >
@@ -271,6 +290,7 @@ export default class FeiShu extends React.Component {
                   <Button
                     type="primary"
                     className="saveInfo"
+                    disabled={!AppId || !AppSecret}
                     onClick={e => {
                       checkClearIntergrationData({
                         projectId: this.props.projectId,
@@ -286,7 +306,7 @@ export default class FeiShu extends React.Component {
           )}
         </div>
         <IntegrationSync
-          integrationType={6}
+          integrationType={isLark ? 7 : 6}
           step="3."
           syncDisabled={(canEditInfo && !isHasInfo) || isCloseDing}
           projectId={projectId}
@@ -312,16 +332,18 @@ export default class FeiShu extends React.Component {
   };
   render() {
     const { projectId } = this.props;
-    const { currentTab, AppId, AppSecret, integrationScanEnabled, isCloseDing } = this.state;
+    const { currentTab, AppId, AppSecret, integrationScanEnabled, isCloseDing, customNameIcon, isLark, isEditing } =
+      this.state;
 
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
     }
+
     return (
       <div className="orgManagementWrap feishuMainContent">
         <div className="orgManagementHeader">
           <div className="h100 flexRow alignItemsCenter">
-            {!(!this.state.isCloseDing && AppId && AppSecret) && (
+            {!(!this.state.isCloseDing && AppId && AppSecret) && !isEditing && (
               <i className="icon-backspace Font22 ThemeHoverColor3 pointer mRight10" onClick={this.props.onClose} />
             )}
             <div
@@ -330,7 +352,7 @@ export default class FeiShu extends React.Component {
               })}
             >
               {[
-                { key: 'base', label: _l('飞书集成') },
+                { key: 'base', label: isLark ? _l('Lark集成') : _l('飞书集成') },
                 { key: 'other', label: _l('扫码登录') },
               ].map(({ key, label }) => {
                 if (key === 'other' && !(this.state.status === 1 && !this.state.isCloseDing)) return;
@@ -363,12 +385,14 @@ export default class FeiShu extends React.Component {
           {currentTab === 'other' && (
             <Fragment>
               <EnableScanLogin
-                integrationType={6}
+                integrationType={isLark ? 7 : 6}
                 projectId={projectId}
                 scanEnabled={integrationScanEnabled}
                 disabled={isCloseDing}
-                href={`/feishuSyncCourse/${projectId}`}
+                href={`/feishuSyncCourse/${projectId}?type=${isLark ? 'lark' : 'feishu'}`}
                 updateScanEnabled={integrationScanEnabled => this.setState({ integrationScanEnabled })}
+                customNameIcon={customNameIcon}
+                updateCustomNameIcon={customNameIcon => this.setState({ customNameIcon })}
               />
               {md.global.Config.IsLocal && (
                 <IntegrationSetPassword

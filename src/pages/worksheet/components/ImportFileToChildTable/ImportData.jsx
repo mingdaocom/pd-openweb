@@ -28,7 +28,7 @@ const Header = styled.div`
     font-weight: 500;
     left: 24px;
     font-size: 17px;
-    color: #333;
+    color: #151515;
   }
   .tabs {
     display: inline-block;

@@ -9,6 +9,8 @@ import taskFlowApi from 'src/pages/integration/api/taskFlow';
 import { navigateTo } from 'src/router/navigateTo';
 import onlySyncBg from 'staticfiles/images/onlySync.png';
 import syncWithDealBg from 'staticfiles/images/syncWithDeal.png';
+import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 
 const SyncTaskWrapper = styled.div`
   display: flex;
@@ -156,6 +158,7 @@ export default function CreateSyncTask(props) {
       }
     });
   };
+  const featureType = getFeatureStatus(currentProjectId, VersionProductType.datantergration);
 
   return (
     <SyncTaskWrapper>
@@ -171,7 +174,15 @@ export default function CreateSyncTask(props) {
             </div>
             <img src={onlySyncBg} width={330} />
           </CardWrapper>
-          <CardWrapper onClick={() => onInitTaskFlow()}>
+          <CardWrapper
+            onClick={() => {
+              if (featureType === '2') {
+                buriedUpgradeVersionDialog(currentProjectId, VersionProductType.datantergration);
+                return;
+              }
+              onInitTaskFlow();
+            }}
+          >
             <div>
               <Radio text={_l('同步时需要对数据进行处理')} checked={syncType === SYNC_TYPE.SYNC_WITH_DEAL} />
               <div className="Gray_9e mTop8 mLeft30">{_l('创建单个同步任务，并立即对其添加数据处理步骤')}</div>

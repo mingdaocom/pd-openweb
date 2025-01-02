@@ -50,7 +50,7 @@ const PageList = styled.div`
     padding: 0 14px;
     line-height: 28px;
     height: 28px;
-    color: #333;
+    color: #151515;
     &.dot {
       line-height: 20px;
     }

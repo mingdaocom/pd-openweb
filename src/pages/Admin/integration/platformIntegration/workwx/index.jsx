@@ -102,6 +102,7 @@ export default class Workwx extends React.Component {
           show1: !(res.corpId && res.agentId && res.secret && res.status != 2),
           show2: !(res.corpId && res.agentId && res.secret && res.status != 2),
           integrationScanEnabled: res.intergrationScanEnabled,
+          customNameIcon: res.customNameIcon,
           customMappingFieldEnabled: res.customMappingFieldEnabled,
           jobnumberMappingField: res.jobnumberMappingField,
           fieldRadio: res.jobnumberMappingField !== 'workxeixinapp-userid' ? 'customField' : res.jobnumberMappingField,
@@ -298,7 +299,7 @@ export default class Workwx extends React.Component {
             ) : (
               <React.Fragment>
                 <p className="mTop16 Font14 Gray_75">{_l('从企业微信后台获取对接信息，即可开始集成以及同步通讯录')}</p>
-                <Link to={`/wxappSyncCourse/${projectId}`} target="_blank" className="mTop16 Font14 howApply">
+                <Link to={`/wxappSyncCourse/${projectId}`} target="_blank" className="mTop16 Font14 howApply stopPropagation">
                   {_l('如何获取对接信息？')}
                 </Link>
               </React.Fragment>
@@ -479,6 +480,7 @@ export default class Workwx extends React.Component {
       canEditInfo,
       isHasInfo,
       isCloseDing,
+      customNameIcon = {},
     } = this.state;
 
     if (currentTab === 'base') {
@@ -507,27 +509,16 @@ export default class Workwx extends React.Component {
                 projectId={projectId}
                 scanEnabled={integrationScanEnabled}
                 disabled={(canEditInfo && !isHasInfo) || isCloseDing}
+                customDoc={intergrationType === 2}
                 href={
                   intergrationType !== 2
                     ? `/wxappSyncCourse/${projectId}#scanWorkwx`
                     : 'https://help.mingdao.com/wecom/ways-login-HAP#scan-code-login'
                 }
                 updateScanEnabled={integrationScanEnabled => this.setState({ integrationScanEnabled })}
+                customNameIcon={customNameIcon}
+                updateCustomNameIcon={customNameIcon => this.setState({ customNameIcon })}
               />
-              <div className="mTop16 syncBox">
-                <span className="Font14 Gray_75">{_l('开启后，在二级域名下使用企业微信扫一扫，直接登录')}</span>
-              </div>
-              {intergrationType !== 2 ? (
-                <Link
-                  to={`/wxappSyncCourse/${projectId}#scanWorkwx`}
-                  target="_blank"
-                  className="mTop16 Font14 howApply"
-                >
-                  {_l('如何实现企业微信扫码登录？')}
-                </Link>
-              ) : (
-                <Support className="mTop16 Font14" text={_l('如何实现企业微信扫码登录？')} type={3} href="https://help.mingdao.com/wecom/ways-login-HAP#scan-code-login" />
-              )}
               {md.global.Config.IsLocal && (
                 <IntegrationSetPassword
                   password={this.state.password}
@@ -599,7 +590,7 @@ export default class Workwx extends React.Component {
                             <Link
                               to={`/wxappSyncCourse/${projectId}#syncField`}
                               target="_blank"
-                              className="mTop16 Font14 howApply mLeft10"
+                              className="mTop16 Font14 howApply mLeft10 stopPropagation"
                             >
                               {_l('如何同步？')}
                             </Link>

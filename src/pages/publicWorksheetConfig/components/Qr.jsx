@@ -10,7 +10,7 @@ const Con = styled.div(
 const Tip = styled.div`
   text-align: center;
   font-size: 13px;
-  color: #333;
+  color: #151515;
   line-height: 1em;
   margin: 8px 0 -2px;
 `;

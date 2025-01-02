@@ -53,7 +53,7 @@ const Header = styled.div`
     width: 50px;
     text-align: center;
     &:hover {
-      color: #333;
+      color: #151515;
     }
   }
 `;

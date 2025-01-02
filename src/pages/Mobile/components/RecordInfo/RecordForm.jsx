@@ -2,9 +2,9 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import cx from 'classnames';
-import { Icon } from 'ming-ui';
+import { Icon, PullToRefreshWrapper } from 'ming-ui';
 import CustomFields from 'src/components/newCustomFields';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromControls, controlState } from 'src/components/newCustomFields/tools/utils';
 import SheetWorkflow from 'src/pages/workflow/components/SheetWorkflow';
 import FormCover from 'worksheet/common/recordInfo/RecordForm/FormCover';
 import DocumentTitle from 'react-document-title';
@@ -15,6 +15,8 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import * as actions from 'mobile/RelationRow/redux/actions';
 import PayLog from 'src/pages/worksheet/components/DiscussLogFile/PayLog';
 import { handlePrePayOrder } from 'src/pages/Admin/pay/PrePayorder';
+import { selectUser } from 'src/pages/Mobile/components/SelectUser';
+import { updateRecordOwner } from 'src/pages/worksheet/common/recordInfo/crtl.js';
 import _ from 'lodash';
 import { formatNumberThousand } from 'src/util';
 
@@ -32,7 +34,8 @@ export default class RecordForm extends Component {
       props.getDataType !== 21 &&
       !props.isPublicShare &&
       !_.get(window, 'shareState.isPublicForm') &&
-      !_.get(window, 'shareState.isPublicWorkflowRecord');
+      !_.get(window, 'shareState.isPublicWorkflowRecord') &&
+      !window.isPublicApp;
   }
   componentDidMount() {
     if (this.isLoadApprove) {
@@ -97,7 +100,7 @@ export default class RecordForm extends Component {
         fixedSheetNameWrapEl && fixedSheetNameWrapEl.classList.remove('fixedSheetNameWrapBG');
       }
     }
-    if (tabsEl && tabsEl.offsetTop - 55 <= scrollTop) {
+    if (tabsEl && tabsEl.offsetTop - 55 <= scrollTop && !workflow) {
       fixedTabsEl && fixedTabsEl.classList.remove('hide');
     } else {
       fixedTabsEl && fixedTabsEl.classList.add('hide');
@@ -178,12 +181,27 @@ export default class RecordForm extends Component {
       controlProps,
       refreshBtnNeedLoading,
       view = {},
+      updateRecordDialogOwner = () => {},
     } = this.props;
-    const { advancedSetting, formStyleImggeData } = recordInfo;
+    const { advancedSetting, formStyleImggeData, ownerAccount, allowEdit, projectId } = recordInfo;
+    const { worksheetId, recordId, appId } = recordBase || {};
 
     if (isEditRecord) return;
 
     const isCoverid = _.get(advancedSetting, 'coverid') && !_.isEmpty(formStyleImggeData);
+    const ownerControl = _.find(formData, c => c.controlId === 'ownerid');
+    const showOwner =
+      ownerControl &&
+      !_.isEmpty(ownerAccount) &&
+      !_.find(view.controls, controlId => controlId === 'ownerid') &&
+      (controlState(ownerControl).visible || ownerControl.controlId === 'ownerid');
+    const ownerEditable =
+      ownerControl &&
+      allowEdit &&
+      ownerControl &&
+      controlState(ownerControl).editable &&
+      recordBase.from !== RECORD_INFO_FROM.DRAFT &&
+      !window.isPublicApp;
 
     if ((!formCoverVisible && isCoverid) || (formCoverVisible && !isCoverid)) {
       return;
@@ -195,19 +213,61 @@ export default class RecordForm extends Component {
       </div>
     );
     const sheetInfo = (
-      <div
-        className="sheetName flex bold"
-        onClick={() => {
-          if (location.pathname.indexOf('public') > -1 || window.isPublicApp || md.global.Account.isPortal) return;
-          window.mobileNavigateTo &&
-            window.mobileNavigateTo(
-              `/mobile/recordList/${recordBase.appId}/${recordInfo.groupId}/${recordBase.worksheetId}`,
-            );
-          onClose && onClose();
-        }}
-      >
-        <span className="ellipsis">{recordInfo.worksheetName}</span>
-      </div>
+      <Fragment>
+        {getDataType === 21 ? (
+          <div className="sheetName ellipsis">{_l('编辑草稿')}</div>
+        ) : (
+          <div
+            className="sheetName bold"
+            onClick={() => {
+              if (location.pathname.indexOf('public') > -1 || window.isPublicApp || md.global.Account.isPortal) return;
+              window.mobileNavigateTo &&
+                window.mobileNavigateTo(
+                  `/mobile/recordList/${recordBase.appId}/${recordInfo.groupId}/${recordBase.worksheetId}`,
+                );
+              onClose && onClose();
+            }}
+          >
+            <span className="ellipsis">{recordInfo.worksheetName}</span>
+          </div>
+        )}
+        <div className="flex"></div>
+        {showOwner && (
+          <div
+            className="owner sheetName bold mLeft6"
+            onClick={() => {
+              if (!ownerEditable) return;
+              selectUser({
+                type: 'user',
+                projectId,
+                appId,
+                onlyOne: true,
+                userType: 3,
+                filterAccountIds: [ownerAccount.accountId],
+                includeUndefinedAndMySelf: true,
+                onSave: async users => {
+                  try {
+                    const { account, record } = await updateRecordOwner({
+                      worksheetId,
+                      recordId,
+                      accountId:
+                        users[0].accountId === 'user-self'
+                          ? _.get(md, ['global', 'Account', 'accountId'])
+                          : users[0].accountId,
+                    });
+                    updateRecordDialogOwner(account, record);
+                    alert(_l('修改成功'));
+                  } catch (err) {
+                    alert(_l('修改失败'), 2);
+                  }
+                },
+              });
+            }}
+          >
+            <span class="ellipsis">{_l('拥有者：%0', ownerAccount.fullname)}</span>
+          </div>
+        )}
+      </Fragment>
     );
 
     if (formCoverVisible && isCoverid) {
@@ -226,8 +286,8 @@ export default class RecordForm extends Component {
               Absolute: view.viewType === 6 && view.childType === 1,
             })}
           >
-            <div className="flexRow alignItemsCenter">
-              {refreshRecordIcon}
+            <div className="flexRow alignItemsCenter w100">
+              {/* {refreshRecordIcon} */}
               {sheetInfo}
             </div>
           </div>
@@ -242,15 +302,9 @@ export default class RecordForm extends Component {
 
     return (
       <div className="flexRow sheetNameWrap">
-        <div className="flexRow alignItemsCenter">
-          {getDataType === 21 ? (
-            <div className="sheetName ellipsis">{`${advancedSetting.title || '创建记录'}（${_l('草稿')}）`}</div>
-          ) : (
-            <Fragment>
-              {refreshRecordIcon}
-              {sheetInfo}
-            </Fragment>
-          )}
+        <div className="flexRow alignItemsCenter w100">
+          {/* {getDataType !== 21 && refreshRecordIcon} */}
+          {sheetInfo}
         </div>
       </div>
     );
@@ -268,9 +322,9 @@ export default class RecordForm extends Component {
       registerCell,
       controlProps,
       changeMobileTab,
-      loadDraftChildTableData,
       workflow,
       currentTab,
+      isDraft,
     } = this.props;
     const { from } = recordBase;
     const approveInfo = this.renderApprove();
@@ -289,8 +343,9 @@ export default class RecordForm extends Component {
           isCharge={recordBase.isCharge}
           ignoreLock={from === RECORD_INFO_FROM.WORKFLOW || from === RECORD_INFO_FROM.DRAFT}
           showError={false}
-          disabled={workflow ? !recordInfo.allowEdit : !isEditRecord}
+          disabled={workflow ? (from === 6 ? !isEditRecord : !recordInfo.allowEdit) : !isEditRecord}
           from={from === 21 ? from : recordBase.recordId && !isEditRecord ? 3 : 6}
+          isDraft={isDraft || from === RECORD_INFO_FROM.DRAFT}
           flag={random.toString()}
           projectId={recordInfo.projectId}
           appId={recordBase.appId}
@@ -300,7 +355,6 @@ export default class RecordForm extends Component {
           groupId={recordBase.groupId}
           rules={recordInfo.rules}
           controlProps={controlProps}
-          loadDraftChildTableData={loadDraftChildTableData}
           registerCell={registerCell}
           isWorksheetQuery={recordInfo.isWorksheetQuery}
           recordCreateTime={recordInfo.createTime}
@@ -357,6 +411,7 @@ export default class RecordForm extends Component {
       workflow,
       currentTab,
       payConfig = {},
+      controlProps,
     } = this.props;
     const { entityName, rules } = recordInfo;
     const recordTitle = getTitleTextFromControls(formData);
@@ -371,30 +426,32 @@ export default class RecordForm extends Component {
           style={{ overflowX: 'hidden', overflowY: 'auto' }}
           onScroll={this.handleScroll}
         >
-          <DocumentTitle
-            title={
-              isEditRecord
-                ? `${_l('编辑')}${entityName}`
-                : recordTitle
-                ? `${recordTitle}`
-                : `${entityName}${_l('详情')}`
-            }
-          />
-          {this.renderHeader({ formCoverVisible: true })}
-          {!isEditRecord && (
-            <div className={cx('header', { pTop10: !isModal })}>
-              <div className="title">{recordTitle}</div>
-            </div>
-          )}
-          {!isEditRecord && isShowPay && (
-            <div className="payWrap flexRow alignItemsCenter Bold" onClick={this.handlePay}>
-              <div className="flex ellipsis mRight10 Font15">{payDescription}</div>
-              <div className="Font15 mRight10">¥ {formatNumberThousand(payAmount)}</div>
-              <div className="payBtn Font15">{_l('付款')}</div>
-            </div>
-          )}
-          <div className="flex">{this.renderCustomFields()}</div>
-          {!_.includes([29, 51], currentTab.type) && workflow && workflow({ formData })}
+          <PullToRefreshWrapper disabled={isEditRecord} onRefresh={controlProps.refreshRecord}>
+            <DocumentTitle
+              title={
+                isEditRecord
+                  ? `${_l('编辑')}${entityName}`
+                  : recordTitle
+                  ? `${recordTitle}`
+                  : `${entityName}${_l('详情')}`
+              }
+            />
+            {this.renderHeader({ formCoverVisible: true })}
+            {!isEditRecord && (
+              <div className={cx('header', { pTop10: !isModal })}>
+                <div className="title">{recordTitle}</div>
+              </div>
+            )}
+            {!isEditRecord && isShowPay && (
+              <div className="payWrap flexRow alignItemsCenter Bold" onClick={this.handlePay}>
+                <div className="flex ellipsis mRight10 Font15">{payDescription}</div>
+                <div className="Font15 mRight10">¥ {formatNumberThousand(payAmount)}</div>
+                <div className="payBtn Font15">{_l('付款')}</div>
+              </div>
+            )}
+            <div className="flex">{this.renderCustomFields()}</div>
+            {!_.includes([29, 51], currentTab.type) && workflow && workflow({ formData })}
+          </PullToRefreshWrapper>
         </div>
       </Fragment>
     );

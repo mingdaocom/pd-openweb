@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Icon, ScrollView, LoadDiv, Switch } from 'ming-ui';
-import { Popup, Button, Checkbox, List } from 'antd-mobile';
+import { Icon, ScrollView, LoadDiv, Switch, PopupWrapper } from 'ming-ui';
+import { Checkbox, List, Collapse } from 'antd-mobile';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import userAjax from 'src/api/user';
 import departmentAjax from 'src/api/department';
 import externalPortalAjax from 'src/api/externalPortal';
+import { getAccounts } from 'src/ming-ui/functions/quickSelectUser/util';
 import './index.less';
 import _ from 'lodash';
 
@@ -44,12 +45,15 @@ export default class SelectUser extends Component {
       rootData: [],
       treeData: [],
       selectUserDepPath: [],
+      // 最常协作
+      oftenUsers: [],
+      isOftenUsersShow: true,
     };
   }
   componentDidMount() {
-    const { type, staticAccounts = [], advancedSetting = {} } = this.props;
+    const { type, staticAccounts = [], advancedSetting = {}, userType } = this.props;
     if (type === 'user') {
-      if (!_.isEmpty(staticAccounts)) {
+      if (!_.isEmpty(staticAccounts) && advancedSetting.navshow === '2' && userType !== 2) {
         this.setState({ users: staticAccounts });
       } else {
         this.setState(
@@ -87,10 +91,19 @@ export default class SelectUser extends Component {
     return true;
   }
   requestContactUserList = () => {
-    const { loading, isMore } = this.state;
-    const { staticAccounts = [] } = this.props;
+    const { loading, isMore, users, searchValue, selectedUsers, portalUserVisible } = this.state;
+    const {
+      staticAccounts = [],
+      userType,
+      advancedSetting = {},
+      includeUndefinedAndMySelf,
+      prefixAccounts = [],
+      prefixAccountIds = [],
+    } = this.props;
+    const { navshow } = advancedSetting;
 
-    if (!_.isEmpty(staticAccounts)) {
+    if (!_.isEmpty(staticAccounts) && navshow === '2' && userType !== 2) {
+      this.setState({ users: staticAccounts.filter(u => u.fullname.includes(_.trim(searchValue))) });
       return;
     }
 
@@ -106,17 +119,10 @@ export default class SelectUser extends Component {
       this.request.abort();
     }
 
-    const { pageIndex, pageSize, users, searchValue } = this.state;
-    const {
-      projectId,
-      selectRangeOptions,
-      filterAccountIds = [],
-      appointedAccountIds = [],
-      userType,
-      appId,
-    } = this.props;
+    const { pageIndex, pageSize } = this.state;
+    const { projectId, selectRangeOptions, filterAccountIds = [], appointedAccountIds = [], appId } = this.props;
 
-    if (userType === 2) {
+    if (userType === 2 || portalUserVisible) {
       this.request = externalPortalAjax
         .getUsersByApp({
           projectId,
@@ -137,7 +143,8 @@ export default class SelectUser extends Component {
     } else {
       if (selectRangeOptions) {
         this.request = userAjax.getProjectContactUserListByApp({
-          keywords: searchValue,
+          filterAccountIds,
+          keywords: _.trim(searchValue),
           projectId,
           pageIndex,
           pageSize,
@@ -145,10 +152,10 @@ export default class SelectUser extends Component {
         });
       } else {
         this.request = userAjax.getContactUserList({
-          keywords: searchValue,
+          keywords: _.trim(searchValue),
           projectId,
           filterFriend: false,
-          includeUndefinedAndMySelf: false,
+          includeUndefinedAndMySelf,
           pageIndex,
           pageSize,
           dataRange: 2,
@@ -156,16 +163,35 @@ export default class SelectUser extends Component {
           includeSystemField: false,
           filterAccountIds,
           appointedAccountIds,
-          prefixAccountIds: [],
+          prefixAccountIds,
         });
       }
       this.request.then(result => {
         const { list } = result.users;
+        let oftenUsers = _.get(result, 'oftenUsers.list') || [];
+        let prefixUsers = prefixAccounts;
+
+        if (includeUndefinedAndMySelf && !searchValue) {
+          const result = getAccounts({
+            list: _.cloneDeep(oftenUsers),
+            includeUndefinedAndMySelf,
+            includeSystemField: false,
+            filterAccountIds: filterAccountIds.concat(selectedUsers.map(v => v.accountId)).filter(_.identity),
+            prefixAccountIds,
+            prefixAccounts,
+          });
+          prefixUsers = result.prefixUsers;
+          const prefixUsersIds = prefixUsers.map(v => v.accountId);
+          oftenUsers = oftenUsers.filter(v => !_.includes(prefixUsersIds, v.accountId));
+        }
+
         this.setState({
           users: users.concat(list),
           loading: false,
           pageIndex: pageIndex + 1,
           isMore: list.length === pageSize,
+          prefixUsers: includeUndefinedAndMySelf && !searchValue ? prefixUsers : this.state.prefixUsers,
+          oftenUsers,
         });
       });
     }
@@ -181,7 +207,7 @@ export default class SelectUser extends Component {
       department,
       searchValue,
     } = this.state;
-    const { projectId, departrangetype = '0' } = this.props;
+    const { projectId, departrangetype = '0', filterAccountIds } = this.props;
 
     if (!onlyJoinDepartmentChecked && departrangetype !== '0') {
       this.requestSearchDepartment(true);
@@ -201,7 +227,7 @@ export default class SelectUser extends Component {
       pageIndex: depPageIndex,
       pageSize: 100,
       onlyMyJoin: onlyJoinDepartmentChecked,
-      filterAccountIds: [],
+      filterAccountIds: filterAccountIds || [],
       departmentId: department ? department.departmentId : undefined,
     });
     this.request.then(({ subDepts = [], members = [] }) => {
@@ -324,8 +350,8 @@ export default class SelectUser extends Component {
     });
   };
   getChildren = (data = [], currentId) => {
-    let arr = [],
-      result = [];
+    let arr = [];
+    let result = [];
     const func = (data, id) => {
       data.find(item => {
         if (item.subDepartments && item.subDepartments.length) {
@@ -368,6 +394,12 @@ export default class SelectUser extends Component {
   };
   handleSearch = () => {
     const { type } = this.props;
+    if (type === 'department') {
+      this.setState({
+        onlyJoinDepartmentChecked: false,
+        departmentPath: [],
+      })
+    }
     this.setState(
       {
         users: [],
@@ -391,7 +423,7 @@ export default class SelectUser extends Component {
           }}
         >
           <input
-            type="text"
+            type="search"
             placeholder={type === 'user' ? _l('搜索人员') : _l('搜索部门')}
             className="Font14"
             value={searchValue}
@@ -401,11 +433,13 @@ export default class SelectUser extends Component {
             onKeyDown={event => {
               event.which === 13 && this.handleSearch();
             }}
+            onBlur={this.handleSearch}
           />
         </form>
         {searchValue ? (
           <Icon
             icon="workflow_cancel"
+            onMouseDown={event => event.preventDefault()}
             onClick={() => {
               this.setState(
                 {
@@ -422,13 +456,74 @@ export default class SelectUser extends Component {
 
   onlyShowJoinDepartment = checked => {
     this.setState(
-      { onlyJoinDepartmentChecked: !checked, depPageIndex: 1, departments: [], isMoreDep: true, loading: true },
+      { onlyJoinDepartmentChecked: !checked, depPageIndex: 1, departments: [], isMoreDep: true, loading: true, departmentPath: [] },
       () => {
-        this.requestContactProjectDepartments();
+        const { type } = this.props;
+        if (type === 'department' && checked) this.requestSearchDepartment(true);
+        else this.requestContactProjectDepartments();
       },
     );
   };
 
+  // 选择人员-点击 人员行
+  selectedAccount = item => {
+    const { selectedUsers } = this.state;
+    const { onlyOne } = this.props;
+    const isSelected = selectedUsers.filter(user => user.accountId === item.accountId).length;
+    if (onlyOne) {
+      this.setState(
+        {
+          selectedUsers: isSelected ? [] : [item],
+        },
+        this.handleSave,
+      );
+      return;
+    }
+    if (isSelected) {
+      this.setState({
+        selectedUsers: selectedUsers.filter(user => user.accountId !== item.accountId),
+      });
+    } else {
+      this.setState({
+        selectedUsers: selectedUsers.concat(item),
+      });
+    }
+  };
+
+  // 选择部门-点击 部门行
+  selectedDepartment = item => {
+    const { selectedUsers } = this.state;
+    const { selectDepartmentType } = this.props;
+    const { onlyOne } = this.props;
+    if (item.disabledSubDepartment || item.disabled) return;
+    const isSelected = selectedUsers.filter(department => department.departmentId === item.departmentId).length;
+    let children = this.getChildren(this.state.treeData, item.departmentId);
+    let temp = selectedUsers.filter(it =>
+      selectDepartmentType === 'current' ? !_.includes(children, it.departmentId) : true,
+    );
+    if (onlyOne) {
+      this.setState(
+        {
+          selectedUsers: isSelected ? [] : [item],
+          selectedAllUsers: isSelected ? [] : [item],
+        },
+        this.handleSave,
+      );
+      return;
+    } else if (isSelected) {
+      this.setState({
+        selectedUsers: temp.filter(department => department.departmentId !== item.departmentId),
+        selectedAllUsers: temp.filter(department => department.departmentId !== item.departmentId),
+      });
+    } else {
+      this.setState({
+        selectedUsers: temp.concat(item),
+        selectedAllUsers: temp.concat(item),
+      });
+    }
+  };
+
+  // 已选择项
   renderSelected() {
     const { selectedUsers } = this.state;
     const { type, selectDepartmentType } = this.props;
@@ -439,7 +534,7 @@ export default class SelectUser extends Component {
         <ScrollView style={{ maxHeight: 92, minHeight: 46 }} ref={el => (this.selectedScrollViewEl = el)}>
           {selectedUsers.map(item => (
             <span className="selectedItem" key={item[id]}>
-              <span>{item[name]}</span>
+              <span className="ellipsis curSelected">{item[name]}</span>
               {selectDepartmentType === 'all' && <Icon icon="workflow" className="Gray_9e mLeft5" />}
               <Icon
                 icon="close"
@@ -447,7 +542,7 @@ export default class SelectUser extends Component {
                 onClick={() => {
                   const { selectedUsers } = this.state;
                   this.setState({
-                    selectedUsers: selectedUsers.filter(user => user[id] != item[id]),
+                    selectedUsers: selectedUsers.filter(user => user[id] !== item[id]),
                   });
                 }}
               />
@@ -457,6 +552,115 @@ export default class SelectUser extends Component {
       </div>
     );
   }
+
+  // 人员选择行
+  renderSelectUserItem(item, key) {
+    let { departmentName } = _.get(item, 'departmentInfo') || {};
+    // 指定人员时，部门字段取department
+    if (item.department) departmentName = item.department;
+    let { job } = item;
+    let avatar = item.avatar || 'https://dn-mdpic.mingdao.com/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90';
+    const { onlyOne, filterAccountIds = [] } = this.props;
+    return (
+      <div key={`${key}_${item.accountId}`} className="checkItemBox" onClick={() => this.selectedAccount(item)}>
+        {!onlyOne && (
+          <div className="checkboxBox" onMouseDown={event => event.preventDefault()}>
+            <Checkbox
+              style={{ '--icon-size': '18px' }}
+              checked={isChecked(
+                item.accountId,
+                this.state.selectedUsers.map(item => item.accountId),
+              )}
+              onClick={() => this.selectedAccount(item)}
+            />
+          </div>
+        )}
+        <div className="checkItemInfoBox" onMouseDown={event => event.preventDefault()}>
+          <img src={avatar} className="avatar" />
+          <div className="useInfoBox">
+            <div className={cx('fullname ellipsis', { bold: key === 'prefix' })}>
+              {key === 'prefix' &&
+              !filterAccountIds.includes(md.global.Account.accountId) &&
+              item.accountId === md.global.Account.accountId
+                ? _l('我自己')
+                : item.fullname}
+            </div>
+            <div className="departmentInfo ellipsis">
+              {departmentName && job ? `${departmentName} / ${job}` : departmentName || job}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 人员-部门-选择行
+  renderSelectUserWithDepartmentItem(item) {
+    return (
+      <div
+        key={item.departmentId}
+        className="departmentItemBox"
+        onClick={() => {
+          this.setState(
+            {
+              department: item,
+              selectUserDepPath: this.state.selectUserDepPath.concat(item),
+            },
+            this.requestContactProjectDepartments,
+          );
+        }}
+      >
+        <div className="departmentSelectItemInfoBox" onMouseDown={event => event.preventDefault()}>
+          <div className="departmentItemContent">
+            <div className="groupWrapper">
+              <Icon icon="group" className="Font22 White" />
+            </div>
+            <div className="departmentName">{item.departmentName}</div>
+          </div>
+          <Icon icon="arrow-right-border" className="Font18 Gray_bd" />
+        </div>
+      </div>
+    );
+  }
+
+  // 部门选择行
+  renderSelectDepartmentItem(item) {
+    const { onlyOne } = this.props;
+    return (
+      <div key={item.departmentId} className="departmentItemBox">
+        {!onlyOne && (
+          <div className="checkboxBox" onMouseDown={event => event.preventDefault()}>
+            <Checkbox
+              style={{ '--icon-size': '18px' }}
+              checked={
+                item.disabledSubDepartment ||
+                isChecked(
+                  item.departmentId,
+                  this.state.selectedUsers.map(item => item.departmentId),
+                )
+              }
+              disabled={item.disabledSubDepartment || item.disabled}
+              onClick={() => this.selectedDepartment(item)}
+            />
+          </div>
+        )}
+        <div className="departmentSelectItemInfoBox" onMouseDown={event => event.preventDefault()}>
+          <div className="departmentItemContent" onClick={() => this.selectedDepartment(item)}>
+            <div className="groupWrapper">
+              <Icon icon="group" className="Font22 White" />
+            </div>
+            <div className="departmentName">{item.departmentName}</div>
+          </div>
+          {item.haveSubDepartment && (
+            <div className="extraDivision" onClick={() => this.handleSelectSubDepartment(item)}>
+              <Icon icon="arrow-right-border" className="Font18 Gray_bd" />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   renderDepartment() {
     const {
       departmentVisible,
@@ -469,14 +673,16 @@ export default class SelectUser extends Component {
       onlyJoinDepartmentChecked,
       selectedAllUsers = [],
       selectUserDepPath,
+      oftenUsers,
+      prefixUsers = [],
     } = this.state;
-    const { type, selectDepartmentType, filterAccountIds = [] } = this.props;
+    const { type, filterAccountIds = [], includeUndefinedAndMySelf, userType } = this.props;
 
     if (departmentVisible) {
       return (
         <List
           className="departmentWrapper flex flexColumn leftAlign"
-          header={(
+          header={
             type === 'user' ? (
               <div className="Font15">
                 <span
@@ -552,7 +758,7 @@ export default class SelectUser extends Component {
                 ))}
               </Fragment>
             )
-          )}
+          }
         >
           {loading ? (
             <div className="pTop30 pBottom30">
@@ -565,164 +771,23 @@ export default class SelectUser extends Component {
               </div>
             ) : (
               <ScrollView className="flex">
-                {departmentUsers.map((item, index) =>
-                  item.isDep ? (
-                    <List.Item
-                      prefix={
-                        <div className="groupWrapper">
-                          <Icon icon="group" className="Font22 White" />
-                        </div>
-                      }
-                      onClick={() => {
-                        this.setState(
-                          {
-                            department: item,
-                            selectUserDepPath: this.state.selectUserDepPath.concat(item),
-                          },
-                          this.requestContactProjectDepartments,
-                        );
-                      }}
-                    >
-                      {item.departmentName}
-                    </List.Item>
-                  ) : (
-                    <div className="flexRow w100 alignItemsCenter pTop10 pBottom10 pLeft15 pRight15">
-                      <Checkbox
-                        key={item.accountId}
-                        checked={isChecked(
-                          item.accountId,
-                          this.state.selectedUsers.map(item => item.accountId),
-                        )}
-                        onClick={() => {
-                          const { selectedUsers } = this.state;
-                          const { onlyOne } = this.props;
-                          const isSelected = selectedUsers.filter(user => user.accountId === item.accountId).length;
-                          if (onlyOne) {
-                            this.setState({
-                              selectedUsers: isSelected ? [] : [item],
-                            });
-                            return;
-                          }
-                          if (isSelected) {
-                            this.setState({
-                              selectedUsers: selectedUsers.filter(user => user.accountId != item.accountId),
-                            });
-                          } else {
-                            this.setState({
-                              selectedUsers: selectedUsers.concat(item),
-                            });
-                          }
-                        }}
-                      >
-                        <Fragment>
-                          <img src={item.avatar} className="avatar" />
-                          {item.fullname}
-                        </Fragment>
-                      </Checkbox>
-                    </div>
-                  ),
+                {departmentUsers.map(item =>
+                  item.isDep ? this.renderSelectUserWithDepartmentItem(item) : this.renderSelectUserItem(item),
                 )}
-                {_.isEmpty(departmentUsers) ? <div className="pTop30 pBottom30 TxtCenter">{_l('暂无人员')}</div> : null}
+                {_.isEmpty(departmentUsers) ? <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div> : null}
               </ScrollView>
             )
           ) : (
             <ScrollView className="flex">
-              <div className="flexRow onlyShowJoinDepartment">
-                <span>{_l('只看我加入的部门')}</span>
+              <div className="flexRow onlyShowJoinDepartment" onMouseDown={(e) => e.preventDefault()}>
+                <span className="onlySelf">{_l('只看我加入的部门')}</span>
                 <Switch checked={onlyJoinDepartmentChecked} onClick={this.onlyShowJoinDepartment} />
               </div>
-              {departments.map((item, index) => (
+              {departments.map(item => (
                 <Fragment key={item.departmentId}>
-                  {type === 'department' ? (
-                    <List.Item
-                      className="departmentItem"
-                      arrow={item.haveSubDepartment}
-                      prefix={
-                        <div
-                          className="flexRow valignWrapper"
-                          onClick={event => {
-                            const { selectedUsers } = this.state;
-                            const { onlyOne } = this.props;
-                            if (item.disabledSubDepartment) return;
-                            const isSelected = selectedUsers.filter(
-                              department => department.departmentId === item.departmentId,
-                            ).length;
-                            let children = this.getChildren(this.state.treeData, item.departmentId);
-                            let temp = selectedUsers.filter(it =>
-                              selectDepartmentType === 'current' ? !_.includes(children, it.departmentId) : true,
-                            );
-                            if (onlyOne) {
-                              this.setState({
-                                selectedUsers: isSelected ? [] : [item],
-                                selectedAllUsers: isSelected ? [] : [item],
-                              });
-                              return;
-                            }
-                            if (isSelected) {
-                              this.setState({
-                                selectedUsers: temp.filter(department => department.departmentId != item.departmentId),
-                                selectedAllUsers: temp.filter(
-                                  department => department.departmentId != item.departmentId,
-                                ),
-                              });
-                            } else {
-                              this.setState({
-                                selectedUsers: temp.concat(item),
-                                selectedAllUsers: temp.concat(item),
-                              });
-                            }
-                          }}
-                        >
-                          <Checkbox
-                            className="mRight10"
-                            checked={
-                              item.disabledSubDepartment
-                                ? true
-                                : isChecked(
-                                    item.departmentId,
-                                    this.state.selectedUsers.map(item => item.departmentId),
-                                  )
-                            }
-                            disabled={item.disabledSubDepartment || item.disabled}
-                          />
-                          <div className="groupWrapper">
-                            <Icon icon="group" className="Font22 White" />
-                          </div>
-                        </div>
-                      }
-                      onClick={event => {
-                        const { selectedUsers } = this.state;
-                        if (
-                          item.haveSubDepartment &&
-                          (event.target.classList.contains('adm-list-item-content-main') ||
-                            event.target.classList.contains('adm-list-item-content-arrow'))
-                        ) {
-                          this.handleSelectSubDepartment(item);
-                        }
-                      }}
-                    >
-                      {item.departmentName}
-                    </List.Item>
-                  ) : (
-                    <List.Item
-                      prefix={
-                        <div className="groupWrapper">
-                          <Icon icon="group" className="Font22 White" />
-                        </div>
-                      }
-                      onClick={() => {
-                        this.setState(
-                          {
-                            department: item,
-                            selectUserDepPath: this.state.selectUserDepPath.concat(item),
-                          },
-                          this.requestContactProjectDepartments,
-                        );
-                      }}
-                    >
-                      {item.departmentName}
-                    </List.Item>
-                  )}
+                  {type === 'department'
+                    ? this.renderSelectDepartmentItem(item)
+                    : this.renderSelectUserWithDepartmentItem(item)}
                 </Fragment>
               ))}
               {_.isEmpty(departments) ? <div className="pTop30 pBottom30 TxtCenter">{_l('暂无部门')}</div> : null}
@@ -734,133 +799,181 @@ export default class SelectUser extends Component {
     let currentAccount = md.global.Account || {};
     return (
       <Fragment>
-        <List>
-          <List.Item
-            prefix={<Icon icon="department" className="TxtMiddle Font18 Gray_9e" />}
-            onClick={() => {
-              this.requestContactProjectDepartments();
-              this.setState({ departmentVisible: true });
-            }}
-          >
-            <div className="Font15 Gray mTop5 mBottom5">
-               {_l('按部门选择')}
-            </div>
-          </List.Item>
-        </List>
-        {!filterAccountIds.includes(currentAccount.accountId) && (
-          <div
-            className="currentAccount mTop10"
-            onClick={() => {
-              this.selectedAccount(currentAccount);
-            }}
-          >
-            <img src={currentAccount.avatar} className="avatar mRight10" />
-            <span>{_l('我自己')}</span>
-          </div>
-        )}
+        <div className="conditionSelectBox">
+          <List>
+            <List.Item
+              key="departmentSelect"
+              prefix={<Icon icon="department" className="selectIconBox TxtMiddle Font18 White" />}
+              arrowIcon={<Icon icon="arrow-right-border" className="Font18 Gray_75" />}
+              onClick={() => {
+                this.requestContactProjectDepartments();
+                this.setState({ departmentVisible: true });
+              }}
+            >
+              <div className="conditionSelectInfo">{_l('按部门选择')}</div>
+            </List.Item>
+            {userType === 3 && (
+              <List.Item
+                key="departmentSelect"
+                prefix={<Icon icon="supervisor_account" className="portalIconBox TxtMiddle Font18 White" />}
+                arrowIcon={<Icon icon="arrow-right-border" className="Font20 Gray_75" />}
+                onClick={() => {
+                  this.setState({ portalUserVisible: true, pageIndex: 1, users: [] }, this.requestContactUserList);
+                }}
+              >
+                <div className="conditionSelectInfo">{_l('外部门户')}</div>
+              </List.Item>
+            )}
+            {includeUndefinedAndMySelf
+              ? prefixUsers.map(item => {
+                  return this.renderSelectUserItem(item, 'prefix');
+                })
+              : !filterAccountIds.includes(currentAccount.accountId) && (
+                  <List.Item
+                    key="mySelfSelect"
+                    prefix={<img src={currentAccount.avatar} className="avatar" />}
+                    arrowIcon={false}
+                    onClick={() => this.selectedAccount(currentAccount)}
+                  >
+                    <div className="conditionSelectInfo">{_l('我自己')}</div>
+                  </List.Item>
+                )}
+          </List>
+        </div>
       </Fragment>
     );
   }
-  selectedAccount = item => {
-    const { selectedUsers } = this.state;
-    const { onlyOne } = this.props;
-    const isSelected = selectedUsers.filter(user => user.accountId === item.accountId).length;
-    if (onlyOne) {
-      this.setState({
-        selectedUsers: isSelected ? [] : [item],
-      });
-      return;
-    }
-    if (isSelected) {
-      this.setState({
-        selectedUsers: selectedUsers.filter(user => user.accountId != item.accountId),
-      });
-    } else {
-      this.setState({
-        selectedUsers: selectedUsers.concat(item),
-      });
-    }
-  };
+
+  // 渲染人员列表
   renderUsers() {
     const { selectRangeOptions, userType, staticAccounts = [] } = this.props;
-    const { users, loading, pageIndex } = this.state;
-    const isStatic = !_.isEmpty(staticAccounts);
+    const { users, loading, pageIndex, oftenUsers, isOftenUsersShow } = this.state;
+    const isStatic =
+      !_.isEmpty(staticAccounts) &&
+      !(staticAccounts.length === 1 && _.get(staticAccounts, '0.accountId') === 'isEmpty');
+
     return (
       <div className="flex">
         <ScrollView onScrollEnd={this.requestContactUserList}>
           {!isStatic && !selectRangeOptions && (userType === 1 || userType === 3) && this.renderDepartment()}
-          <List header={isStatic ? null : 'A-Z'}>
+          {/* 最常协作 */}
+          {oftenUsers && oftenUsers.length > 0 && (
+            <Fragment>
+              <div
+                className="sortTitle oftenUserHeader"
+                onClick={() => {
+                  this.setState({ isOftenUsersShow: !isOftenUsersShow });
+                }}
+              >
+                <span>{_l('最常协作')}</span>
+                <Icon icon="arrow-down-border" className={`Font18 Gray_75 ${isOftenUsersShow ? 'rotatable' : ''}`} />
+              </div>
+              {isOftenUsersShow && <div>{oftenUsers.map(item => this.renderSelectUserItem(item, 'often'))}</div>}
+            </Fragment>
+          )}
+          {isStatic || selectRangeOptions || userType === 2 ? null : <div className="sortTitle">A-Z</div>}
+          <div>
             {loading && pageIndex === 1 ? (
               <div className="pTop30 pBottom30">
                 <LoadDiv size="middle" />
               </div>
             ) : (
               <Fragment>
-                {users.map(item => {
-                  let { departmentName } = _.get(item, 'departmentInfo') || {};
-                  let { job } = item;
-                  return (
-                    <div className="flexRow w100 alignItemsCenter pTop10 pBottom10 pLeft15 pRight15" onClick={() => this.selectedAccount(item)}>
-                      <Checkbox
-                        key={item.accountId}
-                        checked={isChecked(
-                          item.accountId,
-                          this.state.selectedUsers.map(item => item.accountId),
-                        )}
-                        onClick={() => this.selectedAccount(item)}
-                      >
-                      </Checkbox>
-                      <div className="userInfo mLeft10 Gray">
-                        <img src={item.avatar} className="avatar" />
-                        {item.fullname}
-                      </div>
-                      <span className="Gray_9e mLeft16 Font12 flex ellipsis">
-                        {departmentName && job ? `${departmentName} / ${job}` : departmentName || job}
-                      </span>
-                    </div>
-                  );
-                })}
+                {users.map(item => this.renderSelectUserItem(item, 'common'))}
                 {loading ? (
                   <div className="pTop10 pBottom10">
                     <LoadDiv size="middle" />
                   </div>
                 ) : null}
-                {_.isEmpty(users) ? <div className="pTop30 pBottom30 TxtCenter">{_l('暂无人员')}</div> : null}
+                {_.isEmpty(users) ? <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div> : null}
               </Fragment>
             )}
-          </List>
+          </div>
         </ScrollView>
       </div>
     );
   }
+
+  renderPortalUsers = () => {
+    const { loading, pageIndex, users = [] } = this.state;
+    const {} = this.props;
+
+    return (
+      <List
+        className="departmentWrapper flex flexColumn leftAlign"
+        header={
+          <div className="Font15">
+            <span
+              className="avtive mRight3"
+              onClick={() =>
+                this.setState({ portalUserVisible: false, pageIndex: 1, users: [] }, this.requestContactUserList)
+              }
+            >
+              {_l('全体人员')}
+            </span>
+            <span>
+              <i className="mRight3">{'>'}</i>
+              {_l('按外部门户选择')}
+            </span>
+          </div>
+        }
+      >
+        <ScrollView onScrollEnd={this.requestContactUserList}>
+          <List>
+            {loading && pageIndex === 1 ? (
+              <div className="pTop30 pBottom30">
+                <LoadDiv size="middle" />
+              </div>
+            ) : (
+              <Fragment>
+                {users.map(item => this.renderSelectUserItem(item, 'common'))}
+                {loading ? (
+                  <div className="pTop10 pBottom10">
+                    <LoadDiv size="middle" />
+                  </div>
+                ) : null}
+                {_.isEmpty(users) ? <div className="pTop30 pBottom30 TxtCenter Gray_9e Font15">{_l('暂无人员')}</div> : null}
+              </Fragment>
+            )}
+          </List>
+        </ScrollView>
+      </List>
+    );
+  };
+
   renderContent() {
-    const { departmentVisible } = this.state;
+    const { departmentVisible, portalUserVisible } = this.state;
     const { userType = 1, type } = this.props;
     return (
       <div className="flex flexColumn">
-        {((type === 'user' && !departmentVisible) || type === 'department') && this.renderSearch()}
+        {((type === 'user' && !departmentVisible && !portalUserVisible) || type === 'department') &&
+          this.renderSearch()}
         {this.renderSelected()}
-        {departmentVisible && (userType === 1 || userType === 3) ? this.renderDepartment() : null}
-        {!departmentVisible ? this.renderUsers() : null}
+        {portalUserVisible ? (
+          this.renderPortalUsers()
+        ) : (
+          <Fragment>
+            {departmentVisible && (userType === 1 || userType === 3) ? this.renderDepartment() : null}
+            {!departmentVisible ? this.renderUsers() : null}
+          </Fragment>
+        )}
       </div>
     );
   }
   render() {
-    const { visible, onClose } = this.props;
+    const { selectedUsers } = this.state;
+    const { type, visible, onClose, onlyOne } = this.props;
     return (
-      <Popup visible={visible} onClose={onClose} className="mobileModal full">
-        <div className="selectUserModal flexColumn h100">
-          {this.renderContent()}
-          <div className="flexRow WhiteBG pAll10">
-            <Button className="flex mLeft6 mRight6 Gray_75 bold Font14" onClick={onClose}>
-              {_l('取消')}
-            </Button>
-            <Button className="flex mLeft6 mRight6 bold Font14" onClick={this.handleSave} color="primary">
-              {_l('确定')}
-            </Button>
-          </div>
-        </div>
-      </Popup>
+      <PopupWrapper
+        bodyClassName="heightPopupBody40"
+        visible={visible}
+        title={type === 'user' ? _l('人员选择') : _l('部门选择')}
+        confirmDisable={!selectedUsers.length}
+        onClose={onClose}
+        onConfirm={onlyOne ? null : this.handleSave}
+      >
+        <div className="selectUserContentBox flexColumn">{this.renderContent()}</div>
+      </PopupWrapper>
     );
   }
 }

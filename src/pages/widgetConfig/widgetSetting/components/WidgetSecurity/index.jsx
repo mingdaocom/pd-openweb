@@ -76,7 +76,7 @@ export default function ControlMask(props) {
       {datamask === '1' && (
         <EditInfo style={{ margin: '8px 0' }} onClick={() => setVisible(true)}>
           <div className="text overflow_ellipsis Gray">
-            <span className="Bold">{_l('掩码方式： ')}</span>
+            <span className="Bold">{_l('掩码方式：')}</span>
             {_.get(
               DISPLAY_MASK.concat(CUSTOM_DISPLAY).find(item => item.value === masktype),
               'text',

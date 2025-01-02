@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import PDFObject from 'pdfobject';
+import PDFObject, { embed } from 'pdfobject';
 import styled from 'styled-components';
 import { FlexCenter, rotate } from 'worksheet/components/Basics';
 
@@ -15,6 +15,7 @@ const Con = styled.div`
 `;
 
 const Header = styled.div`
+  position: relative;
   display: flex;
   height: 50px;
   padding: 0 10px 0 20px;
@@ -27,7 +28,7 @@ const Header = styled.div`
     font-size: 17px;
     line-height: 50px;
     font-weight: bold;
-    color: #333333;
+    color: #151515;
     max-width: 100%;
   }
   .close {
@@ -45,7 +46,7 @@ const Header = styled.div`
 const Pagination = styled.div`
   display: flex;
   font-size: 13px;
-  color #333;
+  color #151515;
   align-items: center;
   .info {
     margin-right: 8px;
@@ -65,6 +66,21 @@ const Pagination = styled.div`
       cursor: not-allowed;
       color: #BDBDBD;
     }
+  }
+`;
+
+const PrintButton = styled.div`
+  position: absolute;
+  right: 40px;
+  top: 70px;
+  background: #151515639;
+  color: #f1f1f1;
+  font-size: 20px;
+  border-radius: 3px;
+  padding: 5px 10px;
+  cursor: pointer;
+  &:hover {
+    background: #434649;
   }
 `;
 
@@ -154,6 +170,19 @@ export default function GeneratingPopup(props) {
               <i className="icon icon-arrow-right-border"></i>
             </FlexCenter>
           </Pagination>
+        )}
+        {window.isSafari && !loading && (
+          <PrintButton
+            onClick={() => {
+              try {
+                embedRef.current.querySelector('iframe').contentWindow.print();
+              } catch (e) {
+                console.error(e);
+              }
+            }}
+          >
+            <i className="icon icon-print"></i>
+          </PrintButton>
         )}
         <i className="icon icon-close close" onClick={onClose}></i>
       </Header>

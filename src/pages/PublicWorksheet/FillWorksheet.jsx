@@ -20,6 +20,7 @@ import { getRequest, browserIsMobile } from 'src/util';
 import cx from 'classnames';
 import localForage from 'localforage';
 import FormSection from 'src/pages/worksheet/common/recordInfo/RecordForm/FormSection';
+import { TinyColor } from '@ctrl/tinycolor';
 
 const ImgCon = styled.div`
   position: relative;
@@ -191,7 +192,7 @@ export default class FillWorksheet extends React.Component {
           this.setState({
             submitLoading: false,
           });
-          onSubmit(res.isPayOrder, res.rowId);
+          onSubmit(res.isPayOrder, res.rowId, data);
         },
       );
     };
@@ -241,7 +242,7 @@ export default class FillWorksheet extends React.Component {
   };
 
   render() {
-    const { loading, publicWorksheetInfo = {}, rules, status, isPreview } = this.props;
+    const { loading, publicWorksheetInfo = {}, rules, status, isPreview, themeBgColor } = this.props;
     const { submitLoading, formData, showError } = this.state;
     const {
       name,
@@ -259,7 +260,6 @@ export default class FillWorksheet extends React.Component {
       limitWriteTime = {},
       completeNumber,
       cacheDraft,
-      themeBgColor,
       advancedSetting = {},
     } = publicWorksheetInfo;
     const request = getRequest();
@@ -325,7 +325,7 @@ export default class FillWorksheet extends React.Component {
                     <div className="itemInfo">
                       <span>{_l('已收集')}</span>
                       <span className="Gray mLeft5 mRight5">
-                        {_l(`${completeNumber || 0}/${limitWriteCount.limitWriteCount} `)}
+                        {_l(`${completeNumber || 0}/${limitWriteCount.limitWriteCount}`)}
                       </span>
                       <span>{_l('份, 还剩')}</span>
                       <span className="Gray mLeft5 mRight5">
@@ -428,7 +428,13 @@ export default class FillWorksheet extends React.Component {
               isPreview
             }
             loading={submitLoading}
-            style={{ height: '40px', lineHeight: '40px', background: themeBgColor, padding: 0 }}
+            style={{
+              height: '40px',
+              lineHeight: '40px',
+              background: themeBgColor,
+              padding: 0,
+              color: new TinyColor(themeBgColor).isDark() ? '#fff' : 'rgba(0, 0, 0, 0.45)',
+            }}
             onClick={this.handleSubmit}
           >
             <span className="InlineBlock ellipsis w100">{submitBtnName}</span>

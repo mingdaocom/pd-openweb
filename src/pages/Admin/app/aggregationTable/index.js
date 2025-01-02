@@ -6,6 +6,7 @@ import TableEmpty from 'src/pages/Admin/common/TableEmpty';
 import Search from 'src/pages/workflow/components/Search';
 import PaginationWrap from '../../components/PaginationWrap';
 import PurchaseExpandPack from '../../components/PurchaseExpandPack';
+import SelectUser from '../../components/SelectUser';
 import appManagementAjax from 'src/api/appManagement';
 import projectAjax from 'src/api/project';
 import syncTaskApi from 'src/pages/integration/api/syncTask.js';
@@ -27,6 +28,7 @@ export default class AggregationTable extends Component {
       pageIndex: 1,
       list: [],
       sortId: 'createDate',
+      userInfo: [],
     };
     this.ajaxPromise = null;
     this.changeTaskAjax = null;
@@ -42,7 +44,7 @@ export default class AggregationTable extends Component {
 
   getList = () => {
     const { projectId } = this.props.match.params;
-    const { appId, keyWords, pageIndex, taskStatus, isAsc, sortId } = this.state;
+    const { appId, keyWords, pageIndex, taskStatus, isAsc, sortId, userInfo = [] } = this.state;
 
     this.setState({ loading: true });
 
@@ -61,6 +63,7 @@ export default class AggregationTable extends Component {
         appId: appId ? appId : undefined,
         status: taskStatus ? taskStatus : undefined,
         type: 1, // 组织下聚合表数据（非应用下不包含数据源）
+        createrIds: userInfo.map(v => v.accountId),
       },
       { isAggTable: true },
     );
@@ -155,6 +158,7 @@ export default class AggregationTable extends Component {
                   ...item,
                   taskStatus:
                     item.taskStatus !== TASK_STATUS_TYPE.RUNNING ? TASK_STATUS_TYPE.RUNNING : TASK_STATUS_TYPE.STOP,
+                  aggTableTaskStatus: item.taskStatus !== TASK_STATUS_TYPE.RUNNING ? 1 : item.aggTableTaskStatus,
                 };
               } else {
                 return o;
@@ -191,6 +195,7 @@ export default class AggregationTable extends Component {
       limitAggregationTableCount = 0,
       effectiveAggregationTableCount = 0,
       isMoreApp,
+      userInfo,
     } = this.state;
     let featureType = getFeatureStatus(projectId, VersionProductType.aggregation);
 
@@ -269,10 +274,16 @@ export default class AggregationTable extends Component {
               suffixIcon={<Icon icon="arrow-down-border Font14" />}
               onChange={value => this.setState({ taskStatus: value, pageIndex: 1 }, this.searchDataList)}
             />
-
+            <SelectUser
+              className="mdAntSelect w180 mLeft15 "
+              placeholder={_l('搜索创建人')}
+              projectId={projectId}
+              userInfo={userInfo}
+              changeData={data => this.setState({ userInfo: data }, this.searchDataList)}
+            />
             <div className="flex" />
             <Search
-              placeholder={_l('聚合表名称 / 创建人')}
+              placeholder={_l('聚合表名称')}
               handleChange={keyWords => {
                 this.setState({ keyWords, list: [], pageIndex: 1 }, this.searchDataList);
               }}

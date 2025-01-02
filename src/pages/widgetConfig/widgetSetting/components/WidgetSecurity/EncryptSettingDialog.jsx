@@ -22,7 +22,7 @@ export default function EncryptSettingDialog(props) {
       {_l('无可用加密规则，请')}
       <Support
         type={3}
-        text={_l('前往组织后台 ')}
+        text={_l('前往组织后台')}
         href={`${location.origin}/admin/settings/${projectId}/isShowEncryptRules`}
       />
       {_l('进行配置')}

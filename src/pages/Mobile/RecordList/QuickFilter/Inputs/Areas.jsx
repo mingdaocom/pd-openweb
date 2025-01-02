@@ -62,7 +62,7 @@ export default function Areas(props) {
 
   return (
     <div className="controlWrapper">
-      <div className="Font14 bold mBottom15">{control.controlName}</div>
+      <div className="Font14 bold mBottom15 controlName">{control.controlName}</div>
       <AreaCon>
         {values.map(item => (
           <AreaItem isMultiple={isMultiple}>

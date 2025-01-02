@@ -7,6 +7,7 @@ import noAppImg from './img/noApp.png';
 import noAppListImg from './img/noList.png';
 import noRoleImg from './img/lock.png';
 import FixedPage from 'src/pages/Mobile/App/FixedPage';
+import Back from '../Back';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
 import { getAppLangDetail } from 'src/util';
 import styled from 'styled-components';
@@ -29,6 +30,7 @@ const STATUS_TO_TEXT = {
   2: { src: noAppImg, text: _l('应用不存在') },
   4: { src: noRoleImg, text: _l('你还不是应用成员，无权访问此应用') },
   5: { src: noRoleImg, text: _l('未分配任何工作表，请联系此应用的管理员') },
+  20: { src: noRoleImg, text: _l('当前应用已过期') },
 };
 
 export class AppPermissionsInfo extends React.Component {
@@ -120,6 +122,14 @@ export class AppPermissionsInfo extends React.Component {
         </div>
 
         {this.renderApplyJoinApp()}
+
+        <Back
+          icon="home"
+          style={{ bottom: '20px' }}
+          onClick={() => {
+            window.mobileNavigateTo('/mobile/dashboard');
+          }}
+        />
       </div>
     );
   }

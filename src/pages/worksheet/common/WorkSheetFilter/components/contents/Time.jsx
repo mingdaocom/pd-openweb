@@ -28,7 +28,7 @@ export default class Date extends Component {
     const { control = {}, type, value, minValue, maxValue, onChange } = this.props;
     const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
     const unit = String(control.unit);
-    const timeFormat = unit === '1' ? 'HH:mm' : 'HH:mm:ss';
+    const timeFormat = _.includes(['1', '8'], unit) ? 'HH:mm' : 'HH:mm:ss';
     return (
       <div className="worksheetFilterDateCondition">
         {type === FILTER_CONDITION_TYPE.DATE_BETWEEN || type === FILTER_CONDITION_TYPE.DATE_NBETWEEN ? (

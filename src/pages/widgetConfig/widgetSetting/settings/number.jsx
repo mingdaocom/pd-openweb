@@ -10,6 +10,7 @@ import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
 import _ from 'lodash';
+import { isCustomWidget } from '../../util';
 
 const NUMBER_TYPES = [
   {
@@ -192,7 +193,7 @@ export default function Number(props) {
 
   return (
     <Fragment>
-      <SettingItem>
+      <SettingItem hide={isCustomWidget(data)}>
         <div className="settingItemTitle">{_l('输入方式')}</div>
         <Dropdown
           border

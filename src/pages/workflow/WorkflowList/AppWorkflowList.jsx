@@ -403,7 +403,7 @@ class AppWorkflowList extends Component {
         {TYPES.filter(o => o.value !== FLOW_TYPE.EVENT_PUSH || count[o.value]).map(item => (
           <Fragment>
             {item.value === FLOW_TYPE.PBC && <div className="workflowHeaderLine" />}
-            <Link className="NoUnderline" to={`${url}?type=${item.value}`} key={item.value}>
+            <Link className="NoUnderline stopPropagation" to={`${url}?type=${item.value}`} key={item.value}>
               <li className={cx({ 'active ThemeColor3': type === item.value })}>
                 {type === item.value && <span className="activeLine" />}
                 <i className={cx('Font18', item.icon, type === item.value ? 'ThemeColor3' : 'Gray_75')} />
@@ -722,7 +722,7 @@ class AppWorkflowList extends Component {
         onClickAway={() => this.setState({ selectFlowId: '' })}
       >
         <MenuItem>
-          <Link to={`/workflowedit/${data.id}/2`}>
+          <Link to={`/workflowedit/${data.id}/2`} className="stopPropagation">
             <span className="icon-restore2 Gray_75 Font16 pLeft12 mRight10" />
             {_l('历史')}
           </Link>

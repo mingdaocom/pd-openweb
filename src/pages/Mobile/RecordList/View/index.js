@@ -112,7 +112,10 @@ class View extends Component {
       worksheetInfo,
       filters,
       quickFilterWithDefault,
+      savedFilters,
+      activeSavedFilter,
       updateFilters = () => {},
+      updateActiveSavedFilter = () => {},
     } = this.props;
 
     const { viewType, advancedSetting = {} } = view;
@@ -144,23 +147,22 @@ class View extends Component {
       controls,
       sheetSwitchPermit,
     };
-
+    const navData = (_.get(worksheetInfo, 'template.controls') || []).find(
+      o => o.controlId === _.get(view, 'navGroup[0].controlId'),
+    );
     let hasGroupFilter =
       view.viewId === base.viewId &&
       !_.isEmpty(view.navGroup) &&
       view.navGroup.length > 0 &&
       !location.search.includes('chartId') &&
-      _.includes([sheet, gallery, map], String(view.viewType)); // 是否存在分组列表
+      _.includes([sheet, gallery, map], String(view.viewType)) &&
+      navData; // 是否存在分组列表
 
     const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
-    const viewFilters = quickFilterWithDefault
-      .map(filter => ({
-        ...filter,
-        control: _.find(sheetControls, c => c.controlId === filter.controlId),
-      }))
-      .filter(c => c.control);
 
-    const quickFilter = String(viewType) === customize ? this.props.pcQuickFilter : this.props.quickFilter;
+    const quickFilter = _.includes([customize, board], String(viewType))
+      ? this.props.pcQuickFilter
+      : this.props.quickFilter;
     const isFilter = quickFilter.length;
     const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
     const isBottomNav = appNaviStyle === 2 && location.href.includes('mobile/app'); // 底部导航
@@ -179,13 +181,12 @@ class View extends Component {
 
     return (
       <div className="overflowHidden flex mobileView flexColumn Relative">
-        {(_.includes([gallery, resource], String(viewType)) ||
+        {(_.includes([gallery, resource, board], String(viewType)) ||
           (String(viewType) === detail && view.childType !== 1) ||
           (String(viewType) === customize && !_.isEmpty(quickFilterWithDefault))) && (
           <QuickFilterSearch
             className={String(viewType) === customize ? `fixedMobileQuickFilter ${isBottomNav ? 'bottom70' : ''}` : ''}
             showSearch={String(viewType) === customize ? false : true}
-            excludeTextFilter={viewFilters}
             isFilter={isFilter}
             filters={filters}
             detail={detail}
@@ -194,10 +195,13 @@ class View extends Component {
             sheetControls={sheetControls}
             updateFilters={updateFilters}
             quickFilterWithDefault={quickFilterWithDefault}
+            savedFilters={savedFilters}
+            activeSavedFilter={activeSavedFilter}
+            updateActiveSavedFilter={updateActiveSavedFilter}
           />
         )}
         {_.includes(
-          [gallery, resource, customize],
+          [gallery, resource, customize, board],
           String(viewType) || (String(viewType) === detail && view.childType !== 1),
         ) &&
         needClickToSearch &&
@@ -230,6 +234,8 @@ export default connect(
       'filters',
       'quickFilter',
       'quickFilterWithDefault',
+      'savedFilters',
+      'activeSavedFilter',
     ]),
   }),
   dispatch =>
@@ -248,6 +254,7 @@ export default connect(
           'changeMobileSheetRows',
           'updateGroupFilter',
           'updateFilters',
+          'updateActiveSavedFilter',
         ]),
       },
       dispatch,

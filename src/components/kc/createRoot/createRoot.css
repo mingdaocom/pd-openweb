@@ -310,7 +310,7 @@
   }
 
   #updatePermission .itemLi:not(.ThemeBGColor3) .itemText {
-    color: #333;
+    color: #151515;
   }
 
   #updatePermission .itemLi:first-child {
@@ -395,7 +395,7 @@
     line-height: 35px;
     margin-left: 13px;
     box-sizing: border-box;
-    color: #333;
+    color: #151515;
     cursor: pointer;
     z-index: 10;
     width: 325px;
@@ -434,7 +434,7 @@
     line-height: 30px;
     padding: 0 10px;
     font-size: 12px;
-    color: #333;
+    color: #151515;
   }
 
     #folderAttributeList .projectItem:hover {
@@ -464,7 +464,7 @@
     line-height: 30px;
     cursor: pointer;
     text-align: center;
-    color: #333;
+    color: #151515;
   }
 
     #checkInviter li:hover {

@@ -4,7 +4,8 @@ import cx from 'classnames';
 import { func, shape, string, number } from 'prop-types';
 import MobileDatePicker from 'src/ming-ui/components/MobileDatePicker';
 import { Input, TimeZoneTag } from 'ming-ui';
-import { DATE_OPTIONS, FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
+import { DATE_TYPE } from 'worksheet/common/ViewConfig/components/fastFilter/config';
 import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
 import { Option } from './Options';
 import RightSidebar from './RightSidebar';
@@ -55,13 +56,16 @@ export default function DateTime(props) {
       : !dateRange;
   const showType = _.get(control, 'advancedSetting.showtype');
   const valueFormat = getShowFormat(control);
-  const date = _.includes(['4', '5'], showType)
-    ? DATE_OPTIONS.map(os =>
-        os.filter(o => _.includes(showType === '5' ? [15, 16, 17] : [7, 8, 9, 12, 13, 14, 15, 16, 17], o.value)),
+  let date = _.includes(['4', '5'], showType)
+    ? DATE_TYPE.map(os =>
+        os.filter(o =>
+          _.includes(showType === '5' ? [15, 16, 17, 18] : [7, 8, 9, 12, 13, 14, 15, 16, 17, 18], o.value),
+        ),
       )
         .filter(item => item.length)
         .map(os => os.filter(o => _.includes(allowedDateRange.concat(18), o.value)))
-    : DATE_OPTIONS.map(os => os.filter(o => _.includes(allowedDateRange.concat(18), o.value)));
+    : DATE_TYPE.map(os => os.filter(o => _.includes(allowedDateRange.concat(18), o.value)));
+  date = date.filter(v => v.length);
   const optionDate = _.flatten(date);
   const startDateValue = minValue ? moment(replaceTimeValue(minValue)).toDate() : null;
   const endDateValue = maxValue ? moment(replaceTimeValue(maxValue)).toDate() : null;
@@ -81,7 +85,7 @@ export default function DateTime(props) {
   return (
     <div className="controlWrapper">
       <div className="flexRow valignWrapper mBottom15">
-        <div className="Font14 bold flex ellipsis">{control.controlName}</div>
+        <div className="Font14 bold flex ellipsis controlName">{control.controlName}</div>
         {!!dateRange && dateRange !== 18 && (
           <div className="selected ellipsis">{_.get(_.find(optionDate, { value: dateRange }), 'text')}</div>
         )}
@@ -115,6 +119,9 @@ export default function DateTime(props) {
                 precision={precisionObj[showType]}
                 isOpen={startDateVisible}
                 value={startDateValue ? moment(replaceTimeValue(startDateValue)).toDate() : new Date()}
+                onClose={() => {
+                  setStartDateVisible(false);
+                }}
                 onSelect={date => {
                   const d =
                     control.controlId === 'ctime' || control.controlId === 'utime'
@@ -164,6 +171,9 @@ export default function DateTime(props) {
                 value={endDateValue ? moment(replaceTimeValue(endDateValue)).toDate() : new Date()}
                 min={moment(startDateValue).toDate()}
                 precision={precisionObj[showType]}
+                onClose={() => {
+                  setEndDateVisible(false);
+                }}
                 onSelect={date => {
                   const d =
                     control.controlId === 'ctime' || control.controlId === 'utime'
@@ -212,6 +222,9 @@ export default function DateTime(props) {
                 precision={precisionObj[showType]}
                 isOpen={startDateVisible}
                 value={value ? moment(replaceTimeValue(value)).toDate() : new Date()}
+                onClose={() => {
+                  setStartDateVisible(false);
+                }}
                 onSelect={date => {
                   const d =
                     control.controlId === 'ctime' || control.controlId === 'utime'

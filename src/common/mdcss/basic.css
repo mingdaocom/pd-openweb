@@ -12,7 +12,7 @@ ul,
 textarea,
 button {
   font-size: 13px;
-  color: #333;
+  color: #151515;
   line-height: 1.5;
 }
 
@@ -35,7 +35,7 @@ html {
 }
 
 html body {
-  color: #333;
+  color: #151515;
   font-size: 13px !important;
   margin: 0px;
   padding: 0px;
@@ -1288,6 +1288,10 @@ body .Hidden {
   padding-left: 40px !important;
 }
 
+.pLeft42 {
+  padding-left: 42px !important;
+}
+
 .pLeft45 {
   padding-left: 45px !important;
 }
@@ -1447,11 +1451,11 @@ body .Hidden {
 }
 
 .Gray {
-  color: #333 !important;
+  color: #151515 !important;
 }
 
 .Gray14 {
-  color: #333 !important;
+  color: #151515 !important;
   font-size: 14px;
 }
 
@@ -2096,6 +2100,14 @@ body .Hidden {
 
 .icon-chatnetwork-type6 {
   color: #ba68c8;
+}
+
+.icon-custom-01,
+.icon-ai,
+.icon-ai1 {
+  background: linear-gradient(316deg, #c822eb, #6e00ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* 移除input在 ie和chrome下的样式*/
@@ -3185,7 +3197,7 @@ html:not(.appHomeMobile) .ant-message {
 }
 
 .mdAntSelect.ant-select-single.ant-select-show-arrow .ant-select-selection-item {
-  color: #333 !important;
+  color: #151515 !important;
 }
 
 .mdAntSelect.ant-select-show-arrow .ant-select-selection-search {

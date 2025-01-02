@@ -58,7 +58,7 @@
     padding: 0 0 0 20px;
     line-height: 44px;
     font-size: 16px;
-    color: #333;
+    color: #151515;
 
     .addFilterBtn {
       float: right;
@@ -152,11 +152,11 @@
     }
 
     &:not(:hover) {
-      color: #333 !important;
+      color: #151515 !important;
       background-color: #fff !important;
 
       input {
-        color: #333;
+        color: #151515;
       }
 
       .moreOperateBtn,
@@ -170,7 +170,7 @@
       border-top: 1px solid #e0e0e0;
 
       input {
-        color: #333;
+        color: #151515;
       }
 
       .slideIcon {
@@ -432,7 +432,7 @@
             color: #9e9e9e !important;
           }
           span {
-            color: #333 !important;
+            color: #151515 !important;
           }
         }
       }
@@ -634,7 +634,24 @@
   }
 
   .dateValue input {
-    width: 118px !important;
+    width: 90px !important;
+    border-radius: 3px 0 0 3px;
+    vertical-align: middle;
+  }
+
+  .dateRangeType {
+    border: 1px solid #ccc;
+    height: 36px;
+    line-height: 24px;
+    border-radius: 0 3px 3px 0;
+    vertical-align: middle;
+    width: 70px !important;
+    border-left: none;
+    .icon {
+      float: right;
+      margin-top: 5px;
+      margin-right: 4px;
+    }
   }
 
   .includeToday {
@@ -746,7 +763,7 @@
     margin: 0 6px 6px 0;
     background-color: #e5e5e5;
     border-radius: 12px;
-    color: #333;
+    color: #151515;
 
     .iconCon {
       border-radius: 50%;
@@ -803,21 +820,9 @@
 }
 
 .worksheetFilterCascaderCondition {
-  .customAntSelect,
-  .cascaderDropdown {
-    width: 100% !important;
-    height: 1px;
-    overflow: hidden;
-    opacity: 0;
-    float: left;
-    padding: 0;
-    margin-top: -16px;
-    * {
-      height: 1px !important;
-      min-height: 1px !important;
-      overflow: hidden !important;
+    .cascaderDropdown {
+      margin-top: 0px !important;
     }
-  }
 }
 
 // .worksheetFilterCascaderPopup {
@@ -1032,7 +1037,7 @@
         opacity: 0.6;
 
         &.icon {
-          color: #333;
+          color: #151515;
           opacity: 0.2;
           cursor: pointer;
           font-size: 12px;
@@ -1106,7 +1111,7 @@
         line-height: 36px;
         padding-left: 8px;
         box-sizing: border-box;
-        color: #333;
+        color: #151515;
         font-weight: 500;
         padding: 0 16px;
         margin: 0;

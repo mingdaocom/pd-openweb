@@ -10,6 +10,7 @@ import fixedDataAjax from 'src/api/fixedData.js';
 import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
+import CertificationButton from 'src/pages/certification/CertificationButton';
 
 const detailList = [
   { label: _l('生日'), key: 'birthdate', filter: 'transFromDate' },
@@ -113,21 +114,28 @@ export default class PersonalInfo extends React.Component {
   renderAccountInfo() {
     const { accountInfo, dataUsage, dataPlan, percent } = this.state;
     return (
-      <div className="flexRow">
-        <div className="detailContainer pTop0 pBottom0">
-          <div className="flexCenter">
-            <span className="Gray_75 itemLabel">{_l('当前版本')}</span>
-            {accountInfo.accountType == 0 ? (
-              <span className="freeTag">{_l('免费版')}</span>
-            ) : (
-              <Fragment>
-                <span className="accountTag">{_l('付费版')}</span>
-                <span className="Gray_9e mLeft10 mRight5">{_l('剩余 %0 天', accountInfo.expireDays)}</span>
-                <Tooltip popupPlacement="top" text={<span>{_l('到期时间：根据您所在组织最晚到期时间为准。')}</span>}>
-                  <span className="icon-novice-circle Font15 Gray_bd mLeft2 Hand" />
-                </Tooltip>
-              </Fragment>
-            )}
+      <div className="detailContainer pTop0 pBottom0 w100">
+        <div className="flexRow alignItemsCenter">
+          <span className="Gray_75 itemLabel">{_l('当前版本')}</span>
+          {accountInfo.accountType == 0 ? (
+            <span className="freeTag">{_l('免费版')}</span>
+          ) : (
+            <Fragment>
+              <span className="accountTag">{_l('付费版')}</span>
+              <span className="Gray_9e mLeft10 mRight5">{_l('剩余 %0 天', accountInfo.expireDays)}</span>
+              <Tooltip popupPlacement="top" text={<span>{_l('到期时间：根据您所在组织最晚到期时间为准。')}</span>}>
+                <span className="icon-novice-circle Font15 Gray_bd mLeft2 Hand" />
+              </Tooltip>
+            </Fragment>
+          )}
+        </div>
+        <div className="flexRow mTop16">
+          <span className="Gray_75 itemLabel">{_l('身份认证')}</span>
+          <div>
+            <CertificationButton authType={accountInfo.authType} />
+            <div className="Gray_9e mTop2">
+              {_l('试用、免费版用户需要完成身份认证后才能添加好友以及邀请用户加入群组')}
+            </div>
           </div>
         </div>
       </div>

@@ -84,7 +84,7 @@ class Updater extends React.Component {
   }
 
   post = () => {
-    const { shareGroup } = this.state;
+    const { shareGroup = {} } = this.state;
     if (!this.state.isUploadComplete) {
       alert(_l('文件上传中，请稍等'), 3);
       return;
@@ -96,9 +96,9 @@ class Updater extends React.Component {
       kcAttachmentData: this.state.kcAttachmentData,
       isUploadComplete: this.state.isUploadComplete,
       scope:
-        shareGroup.shareGroupIds.length ||
-        shareGroup.shareProjectIds.length ||
-        shareGroup.radioProjectIds.length ||
+        (shareGroup.shareGroupIds || []).length ||
+        (shareGroup.shareProjectIds || []).length ||
+        (shareGroup.radioProjectIds || []).length ||
         shareGroup.isMe
           ? _.pick(shareGroup, ['radioProjectIds', 'shareGroupIds', 'shareProjectIds'])
           : undefined,

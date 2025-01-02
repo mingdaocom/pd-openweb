@@ -100,7 +100,7 @@ function Statistics(props) {
       title: v => `${moment().format('MM月DD日')}   ${v}`,
       showContent: true,
       domStyles: {
-        'g2-tooltip-list-item': { textAlign: 'left', color: '#333' },
+        'g2-tooltip-list-item': { textAlign: 'left', color: '#151515' },
         'g2-tooltip-title': { color: '#757575' },
       },
     },

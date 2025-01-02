@@ -7,7 +7,7 @@ import UploadFilesTrigger from 'src/components/UploadFilesTrigger';
 import cx from 'classnames';
 import { UploadFileWrapper } from 'mobile/components/AttachmentFiles';
 import { getRowGetType } from 'worksheet/util';
-import { checkValueByFilterRegex } from 'src/components/newCustomFields/tools/utils';
+import { checkValueByFilterRegex, controlState } from 'src/components/newCustomFields/tools/utils';
 import Files from './Files';
 import FileEditModal from './Files/FileEditModal';
 import attachmentApi from 'src/api/attachment';
@@ -72,12 +72,11 @@ export default class Widgets extends Component {
     if (nextProps.value !== this.props.value) {
       if (this.checkFileNeedLoad(nextProps.value)) {
         this.loadAttachments(nextProps);
-      } else {
-        const initMobileFiles =
-          !nextProps.value || !this.props.value
-            ? { mobileFiles: [], mobileCamcorderFiles: [], mobileCameraFiles: [] }
-            : {};
+      } else if (this.props.flag !== nextProps.flag) {
+        const initMobileFiles = { mobileFiles: [], mobileCamcorderFiles: [], mobileCameraFiles: [] };
         this.setState({ value: nextProps.value, ...initMobileFiles });
+      } else {
+        this.setState({ value: nextProps.value });
       }
     }
     if (_.get(nextProps, 'advancedSetting.showtype') === '3' && nextProps.formWidth !== this.props.formWidth) {
@@ -236,7 +235,7 @@ export default class Widgets extends Component {
   checkValueByFilterRegex = name => {
     const { advancedSetting, formData, recordId } = this.props;
     return checkValueByFilterRegex({ advancedSetting }, RegExpValidator.getNameOfFileName(name), formData, recordId);
-  }
+  };
 
   /**
    * 编辑明道附件名称
@@ -336,12 +335,14 @@ export default class Widgets extends Component {
    * 获取上传组件的父级
    */
   getPopupContainer = () => {
-    return $(this.fileBox || document.querySelector(`.attachmentControl-${this.id}`)).closest('.customFieldsContainer')[0];
+    return $(this.fileBox || document.querySelector(`.attachmentControl-${this.id}`)).closest(
+      '.customFieldsContainer',
+    )[0];
   };
 
   handleDownloadAll = () => {
     const { downloadAllLoading } = this.state;
-    const { appId, worksheetId, viewId, recordId, controlId, from } = this.props;
+    const { appId, worksheetId, viewId, recordId, controlId, from, masterData } = this.props;
 
     if (downloadAllLoading) return;
 
@@ -355,6 +356,9 @@ export default class Widgets extends Component {
         controlId,
         checkView: true,
         getType: from === 21 ? from : 1,
+        ParentWorksheetId: _.get(masterData, 'worksheetId'),
+        ParentRowId: _.get(masterData, 'recordId'),
+        foreignControlId: _.get(masterData, 'controlId'),
       })
       .finally(() => {
         this.setState({ downloadAllLoading: false });
@@ -373,7 +377,7 @@ export default class Widgets extends Component {
     const control = _.find(formData, { controlId }) || {};
     if (mingdaoAppError) {
       window.MDJS.showUploadingImage({
-        sessionId: this.sessionId
+        sessionId: this.sessionId,
       });
       return;
     }
@@ -385,7 +389,7 @@ export default class Widgets extends Component {
       projectId,
       control,
       checkValueByFilterRegex: this.checkValueByFilterRegex,
-      success: (res) => {
+      success: res => {
         // 传入的sessionId 为空时, 由App随机生成, 每个sessionId 对应App中一个文件管理器
         this.sessionId = res.sessionId;
         const { error, uploading, completed } = res;
@@ -395,32 +399,41 @@ export default class Widgets extends Component {
         this.setState({ mingdaoAppError: error });
         // 有成功上传的文件就会返回
         if (completed) {
-          this.setState({
-            mobileFiles: _.uniqBy(this.state.mobileFiles.concat(completed), 'fileName')
-          }, () => {
-            this.handleMobileChangeFiles();
-          });
+          this.setState(
+            {
+              mobileFiles: _.uniqBy(this.state.mobileFiles.concat(completed), 'fileName'),
+            },
+            () => {
+              this.handleMobileChangeFiles();
+            },
+          );
         }
       },
-      cancel: function (res) {}
+      cancel: function (res) {},
     });
-  }
+  };
 
   handleMobileChangeFiles = () => {
-    const { mobileFiles, mobileCameraFiles , mobileCamcorderFiles } = this.state;
+    const { mobileFiles, mobileCameraFiles, mobileCamcorderFiles } = this.state;
     const files = [...mobileFiles, ...mobileCameraFiles, ...mobileCamcorderFiles];
     this.filesChanged(files, 'attachments');
-  }
+  };
 
   handleCheckMobileFiles = deletedFile => {
     if (deletedFile) {
       this.setState({
-        mobileFiles: this.state.mobileFiles.filter(n => n.progress ? n.id !== deletedFile.id : n.fileID !== deletedFile.fileID),
-        mobileCameraFiles: this.state.mobileCameraFiles.filter(n => n.progress ? n.id !== deletedFile.id : n.fileID !== deletedFile.fileID),
-        mobileCamcorderFiles: this.state.mobileCamcorderFiles.filter(n => n.progress ? n.id !== deletedFile.id : n.fileID !== deletedFile.fileID),
+        mobileFiles: this.state.mobileFiles.filter(n =>
+          n.progress ? n.id !== deletedFile.id : n.fileID !== deletedFile.fileID,
+        ),
+        mobileCameraFiles: this.state.mobileCameraFiles.filter(n =>
+          n.progress ? n.id !== deletedFile.id : n.fileID !== deletedFile.fileID,
+        ),
+        mobileCamcorderFiles: this.state.mobileCamcorderFiles.filter(n =>
+          n.progress ? n.id !== deletedFile.id : n.fileID !== deletedFile.fileID,
+        ),
       });
     }
-  }
+  };
 
   renderMobileUploadTrigger = ({
     className,
@@ -431,7 +444,7 @@ export default class Widgets extends Component {
     icon,
     iconClass,
     styles = {},
-    type
+    type,
   }) => {
     const { from, appId, worksheetId, projectId, enumDefault2, advancedSetting, strDefault = '10', hint } = this.props;
     const { isComplete, uploadStart, mingdaoAppUploading, mingdaoAppError } = this.state;
@@ -442,7 +455,9 @@ export default class Widgets extends Component {
         <Icon className={cx('Gray_9e TxtMiddle', { iconClass })} icon={icon ? icon : 'attachment'} />
         <span className="Gray Font13 mLeft5 addFileName overflow_ellipsis flex">{addFileName}</span>
         {!!mingdaoAppUploading && (
-          <span className="mLeft5 ThemeColor3 fileUpdateLoading Font13">{_l('%0个附件正在上传', mingdaoAppUploading)}</span>
+          <span className="mLeft5 ThemeColor3 fileUpdateLoading Font13">
+            {_l('%0个附件正在上传', mingdaoAppUploading)}
+          </span>
         )}
         {!!mingdaoAppError && (
           <span className="mLeft5 Red fileUpdateLoading Font13">{_l('%0个附件上传失败', mingdaoAppError)}</span>
@@ -453,7 +468,11 @@ export default class Widgets extends Component {
 
     if (window.isMingDaoApp) {
       return (
-        <div className={cx('triggerTraget mobile', className)} style={{ height: 34, ...styles }} onClick={this.mingDaoAppChooseImage}>
+        <div
+          className={cx('triggerTraget mobile', className)}
+          style={{ height: 34, ...styles }}
+          onClick={this.mingDaoAppChooseImage}
+        >
           {Content}
         </div>
       );
@@ -480,29 +499,47 @@ export default class Widgets extends Component {
               uploadStart: isComplete ? false : true,
             });
             if (type === 'file') {
-              this.setState({
-                mobileFiles: _.uniqBy(this.state.mobileFiles.filter(n => !('progress' in n)).concat(files), 'fileName')
-              }, () => {
-                this.handleMobileChangeFiles();
-              });
+              this.setState(
+                {
+                  mobileFiles: _.uniqBy(
+                    this.state.mobileFiles.filter(n => !('progress' in n)).concat(files),
+                    'fileName',
+                  ),
+                },
+                () => {
+                  this.handleMobileChangeFiles();
+                },
+              );
             }
             if (type === 'camera') {
-              this.setState({
-                mobileCameraFiles: _.uniqBy(this.state.mobileCameraFiles.filter(n => !('progress' in n)).concat(files), 'fileName')
-              }, () => {
-                this.handleMobileChangeFiles();
-              });
+              this.setState(
+                {
+                  mobileCameraFiles: _.uniqBy(
+                    this.state.mobileCameraFiles.filter(n => !('progress' in n)).concat(files),
+                    'fileName',
+                  ),
+                },
+                () => {
+                  this.handleMobileChangeFiles();
+                },
+              );
             }
             if (type === 'camcorder') {
-              this.setState({
-                mobileCamcorderFiles: _.uniqBy(this.state.mobileCamcorderFiles.filter(n => !('progress' in n)).concat(files), 'fileName')
-              }, () => {
-                this.handleMobileChangeFiles();
-              });
+              this.setState(
+                {
+                  mobileCamcorderFiles: _.uniqBy(
+                    this.state.mobileCamcorderFiles.filter(n => !('progress' in n)).concat(files),
+                    'fileName',
+                  ),
+                },
+                () => {
+                  this.handleMobileChangeFiles();
+                },
+              );
             }
             if (isComplete) {
               this.mobileFileRef[type].setState({
-                files: []
+                files: [],
               });
             }
           }}
@@ -531,12 +568,13 @@ export default class Widgets extends Component {
       viewIdForPermit = '',
       enumDefault2,
       advancedSetting,
-      isSubList,
       disabled,
       hint,
       flag,
       canAddKnowledge,
-      formData,
+      masterData,
+      isDraft,
+      sourceControlId,
     } = this.props;
     const isOnlyAllowMobile = strDefault.split('')[1] === '1';
     const {
@@ -595,22 +633,27 @@ export default class Widgets extends Component {
     const coverType = advancedSetting.covertype || '0';
     const allAownload =
       advancedSetting.alldownload !== '0' && recordAttachmentSwitch && !_.get(window, 'shareState.shareId') && recordId;
-
     const filesProps = {
       recordBaseInfo: {
         worksheetId,
         recordId,
       },
       flag,
+      projectId,
       showType,
       coverType,
       controlId,
+      sourceControlId,
       controlType: otherSheetControlType,
       viewMore: !!recordId,
       allowDownload: allowDownload && (!!_.get(window, 'shareState.shareId') || recordAttachmentSwitch),
       allowShare: allowDownload && !_.get(window, 'shareState.shareId') && !md.global.Account.isPortal,
       allowSort: showType === '4' ? false : enumDefault === 3 && (isMobile ? false : !pcDisabled),
-      allowEditName: isMobile ? false : !pcDisabled && !_.get(window, 'shareState.shareId'),
+      allowEditName: isMobile
+        ? allowUpload && controlState(this.props, from).editable && !_.get(window, 'shareState.shareId')
+        : !pcDisabled && !_.get(window, 'shareState.shareId'),
+      isDraft,
+      masterData,
       advancedSetting,
       attachments,
       knowledgeAtts,
@@ -624,7 +667,7 @@ export default class Widgets extends Component {
       onChangeAttachmentData: res => this.filesChanged(res, 'attachmentData'),
       onRemoveFile: file => {
         this.handleCheckMobileFiles(file);
-      }
+      },
     };
 
     if (isMobile) {
@@ -655,7 +698,15 @@ export default class Widgets extends Component {
                 </Fragment>
               ) : (
                 <Fragment>
-                  {showFile && this.renderMobileUploadTrigger({ originCount, strDefault, attachments, styles, type: 'file' })}
+                  {showFile &&
+                    this.renderMobileUploadTrigger({
+                      originCount,
+                      strDefault,
+                      attachments,
+                      styles,
+                      type: 'file',
+                      iconClass: 'Font16',
+                    })}
                   {showCamera &&
                     this.renderMobileUploadTrigger({
                       originCount,
@@ -665,8 +716,8 @@ export default class Widgets extends Component {
                       customUploadType: 'camara',
                       className: cx({ mLeft6: showFile }),
                       icon: 'camera_alt',
-                      iconClass: 'Font16',
-                      type: 'camera'
+                      iconClass: 'Font18',
+                      type: 'camera',
                     })}
                   {showCamcorder &&
                     this.renderMobileUploadTrigger({
@@ -677,8 +728,8 @@ export default class Widgets extends Component {
                       customUploadType: 'camcorder',
                       className: cx({ mLeft6: showFile || showCamera }),
                       icon: 'video2',
-                      iconClass: 'Font18',
-                      type: 'camcorder'
+                      iconClass: 'Font20',
+                      type: 'camcorder',
                     })}
                 </Fragment>
               )}
@@ -698,7 +749,7 @@ export default class Widgets extends Component {
                 currentFile && currentFile.removeFile({ id: data.id });
                 if (_.find(state.files, { id: data.id })) {
                   this.mobileFileRef['file'].setState({
-                    files: state.files.filter(n => n.id !== data.id)
+                    files: state.files.filter(n => n.id !== data.id),
                   });
                 }
               }
@@ -707,7 +758,7 @@ export default class Widgets extends Component {
                 currentFile && currentFile.removeFile({ id: data.id });
                 if (_.find(state.files, { id: data.id })) {
                   this.mobileFileRef['camera'].setState({
-                    files: state.files.filter(n => n.id !== data.id)
+                    files: state.files.filter(n => n.id !== data.id),
                   });
                 }
               }
@@ -716,7 +767,7 @@ export default class Widgets extends Component {
                 currentFile && currentFile.removeFile({ id: data.id });
                 if (_.find(state.files, { id: data.id })) {
                   this.mobileFileRef['camcorder'].setState({
-                    files: state.files.filter(n => n.id !== data.id)
+                    files: state.files.filter(n => n.id !== data.id),
                   });
                 }
               }
@@ -733,9 +784,13 @@ export default class Widgets extends Component {
 
     return (
       <div
-        className={cx('customFormControlBox customFormControlScore customFormAttachmentBox', `attachmentControl-${this.id}`, {
-          controlDisabled: pcDisabled,
-        })}
+        className={cx(
+          'customFormControlBox customFormControlScore customFormAttachmentBox',
+          `attachmentControl-${this.id}`,
+          {
+            controlDisabled: pcDisabled,
+          },
+        )}
         style={{ height: 'auto' }}
         ref={fileBox => {
           this.fileBox = fileBox;
@@ -792,8 +847,10 @@ export default class Widgets extends Component {
                 )}
               </div>
             </UploadFilesTrigger>
+          ) : attachmentData.length || attachments.length ? (
+            <div className="flex" />
           ) : (
-            (attachmentData.length || attachments.length) ? <div className="flex" /> : <div className="customFormNull" />
+            <div className="customFormNull" />
           )}
           <div className="valignWrapper">
             {showType === '4' && (
@@ -824,7 +881,9 @@ export default class Widgets extends Component {
             )}
           </div>
         </div>
-        {filesVisible && <Files {...filesProps} isDeleteFile={allowDelete && !(disabled || isOnlyAllowMobile)} from={from} />}
+        {filesVisible && (
+          <Files {...filesProps} isDeleteFile={allowDelete && !(disabled || isOnlyAllowMobile)} from={from} />
+        )}
       </div>
     );
   }

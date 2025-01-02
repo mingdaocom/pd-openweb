@@ -1,4 +1,13 @@
-import { ajax, login, browserIsMobile, getRequest, checkLogin, formatOtherParam, addOtherParam, checkOriginUrl } from 'src/util/sso';
+import {
+  ajax,
+  login,
+  browserIsMobile,
+  getRequest,
+  checkLogin,
+  formatOtherParam,
+  addOtherParam,
+  checkOriginUrl,
+} from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
 import preall from 'src/common/preall';
 
@@ -54,12 +63,14 @@ if (code) {
       },
       async: true,
       succees: result => {
-        const { agentId, state, callBackUrl } = result.data;
-        const defaultCallBackUrl = 'https://open.feishu.cn/open-apis';
+        const { agentId, state, callBackUrl, isLark } = result.data;
+        const defaultCallBackUrl = isLark ? 'https://accounts.larksuite.com' : 'https://open.feishu.cn/open-apis';
         const redirect_uri = encodeURIComponent(
           `${location.origin}/auth/feishu?url=${newUrl ? encodeURIComponent(newUrl) : ''}`,
         );
-        location.href = `${callBackUrl || defaultCallBackUrl}/authen/v1/index?redirect_uri=${redirect_uri}&app_id=${agentId}&state=${state}`;
+        location.href = `${
+          callBackUrl || defaultCallBackUrl
+        }/authen/v1/index?redirect_uri=${redirect_uri}&app_id=${agentId}&state=${state}`;
       },
       error: login,
     });

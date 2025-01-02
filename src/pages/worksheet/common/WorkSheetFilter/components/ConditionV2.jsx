@@ -98,11 +98,7 @@ export default class Condition extends Component {
 
   getValueType = props => {
     const dynamicSource = _.get(props, 'condition.dynamicSource') || [];
-    return this.isCanDynamicsource(props) &&
-      this.setIsDynamicsourceFn() &&
-      !!dynamicSource.filter(item => item.rcid === 'url').length
-      ? 2
-      : 1;
+    return !!dynamicSource.filter(item => item.rcid === 'url').length ? 2 : 1;
   };
 
   setIsDynamicsourceFn = () => {
@@ -148,8 +144,8 @@ export default class Condition extends Component {
   };
 
   changeConditionType = type => {
-    const { condition, onChange, from } = this.props;
-    const overrideValue = getConditionOverrideValue(type, condition, this.state.valueType);
+    const { control, condition, onChange, from } = this.props;
+    const overrideValue = getConditionOverrideValue(type, { ...condition, control }, this.state.valueType);
     if (
       includes([FILTER_CONDITION_TYPE.DATE_BETWEEN, FILTER_CONDITION_TYPE.DATE_NBETWEEN], type) &&
       condition.maxValue &&
@@ -208,12 +204,12 @@ export default class Condition extends Component {
             data={valueTypeOptions}
             value={this.state.valueType}
             onChange={value => {
-              this.setState({ valueType: value });
+              this.setState({ valueType: value, isDynamicsource: value !== 1 });
               if (value === 1) {
-                onChange({ dynamicSource: [] });
+                onChange({ dynamicSource: [], isDynamicsource: false });
               } else {
                 const dateRangeSetObj =
-                  conditionGroupType === CONTROL_FILTER_WHITELIST.DATE.value ? { dateRange: 0, dateRangeType: 0 } : {};
+                  conditionGroupType === CONTROL_FILTER_WHITELIST.DATE.value ? { dateRange: 0, dateRangeType: 3 } : {};
                 onChange({
                   values: [],
                   dynamicSource: [

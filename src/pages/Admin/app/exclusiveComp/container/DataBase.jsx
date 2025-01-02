@@ -5,7 +5,6 @@ import Trigger from 'rc-trigger';
 import { Button, Icon, Tooltip, LoadDiv, Dialog } from 'ming-ui';
 import projectAjax from 'src/api/project';
 import DataBaseImg from '../images/database.png';
-import Status from '../component/Status';
 import ConnectDataBase from '../component/ConnectDataBase';
 import { navigateTo } from 'router/navigateTo';
 import './DataBase.less';
@@ -16,14 +15,14 @@ const MoreOperateMenu = styled.ul`
   border-radius: 3px 3px 3px 3px;
   width: 160px;
   font-size: 13px;
-  color: #333;
+  color: #151515;
   padding: 4px 0;
   li {
     line-height: 36px;
     padding: 0 24px;
     cursor: pointer;
     a {
-      color: #333;
+      color: #151515;
       transition: none !important;
     }
     &:hover {
@@ -36,32 +35,27 @@ const MoreOperateMenu = styled.ul`
   }
 `;
 
-const STATUS_OPTIONS = {
-  0: {
-    text: _l('已禁用'),
-    textColor: '#757575',
-    loading: false,
-    icon: null,
-    color: '#BDBDBD',
+const DISPLAY_DATA = [
+  {
+    label: _l('存储应用数'),
+    key: 'numberOfApp',
+    defaultValue: 0,
   },
-  1: {
-    text: _l('已启用'),
-    textColor: '#757575',
-    loading: false,
-    icon: null,
-    color: '#00CA86',
+  {
+    label: _l('数据库地址'),
+    key: 'host',
+    defaultValue: '',
   },
-  '-1': {
-    text: _l('已删除'),
-    textColor: '#F51744',
-    loading: false,
-    icon: null,
-    color: '#F51744',
+  {
+    label: _l('新增应用'),
+    key: 'status',
+    format: l => <span className={l === 1 ? 'allowCreateColor' : 'Gray'}>{l === 1 ? _l('允许') : _l('不允许')}</span>,
+    defaultValue: '',
   },
-};
+];
 
 function DataBase(props) {
-  const { projectId, refresh } = props;
+  const { projectId, refresh, history } = props;
   const [createConnect, setCreateConnect] = useState({ visible: false, id: undefined, data: {} });
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -136,11 +130,12 @@ function DataBase(props) {
     });
   };
 
+  const toManage = item => history.push(`/admin/database/${projectId}/${item.id}`, item);
+
   const renderPopup = item => {
     return (
       <MoreOperateMenu>
         <li onClick={() => onEdit(item)}>{_l('编辑')}</li>
-        <li onClick={() => navigateTo(`/admin/app/${projectId}?dbInstanceId=${item.id}`)}>{_l('查看存储应用')}</li>
         {item.numberOfApp === 0 && <li onClick={() => removeDialog(item)}>{_l('删除')}</li>}
       </MoreOperateMenu>
     );
@@ -184,18 +179,22 @@ function DataBase(props) {
             <li key={`database-${item.id}`}>
               <div className="header">
                 <div className="left">
-                  <span className="imgCon mRight8">
-                    <img src={DataBaseImg} />
+                  <span className='valignWrapper' onClick={() => toManage(item)}>
+                    <span className="imgCon mRight8 Hand">
+                      <img src={DataBaseImg} />
+                    </span>
+                    <span className="name flex mRight8 Font15 Bold Hand">{item.name}</span>
                   </span>
-                  <span className="name flex mRight8 Font15 Bold">{item.name}</span>
                   {item.remark && (
                     <Tooltip text={item.remark}>
                       <span className="icon-info_outline Font16 Gray_bd"></span>
                     </Tooltip>
                   )}
-                  <Status className="mLeft15" value={item.status} statusConfig={STATUS_OPTIONS} />
                 </div>
                 <div className="right">
+                  <span className="manageBtn" onClick={() => toManage(item)}>
+                    {_l('应用管理')}
+                  </span>
                   <Trigger
                     popupVisible={popupVisibleId === item.id}
                     action={['click']}
@@ -210,14 +209,17 @@ function DataBase(props) {
                 </div>
               </div>
               <div className="content Font13 valignWrapper">
-                <div>
-                  <div className="label Gray_9e mBottom8">{_l('存储应用数')}</div>
-                  <div className="value">{item.numberOfApp || 0}</div>
-                </div>
-                <div>
-                  <div className="label Gray_9e mBottom8">{_l('数据库地址')}</div>
-                  <div className="value">{item.host || ''}</div>
-                </div>
+                {DISPLAY_DATA.map(l => {
+                  const itemValue = item[l.key] || l.defaultValue;
+
+                  return (
+                    <div>
+                      <div className="label Gray_9e mBottom8">{l.label}</div>
+                      <div className="value">{!!l.format ? l.format(itemValue) : itemValue}</div>
+                    </div>
+                  );
+                })}
+                <div></div>
               </div>
             </li>
           ))}

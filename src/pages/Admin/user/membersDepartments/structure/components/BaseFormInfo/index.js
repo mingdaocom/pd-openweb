@@ -49,7 +49,7 @@ export default class BaseFormInfo extends Component {
     const { typeCursor, editCurrentUser = {}, actType } = this.props;
     if (typeCursor === 2 || actType === 'add') {
       this.getJobList();
-      this.getWorksiteList();
+      this.getWorksiteList(typeCursor === 2 ? editCurrentUser.workSite : undefined);
     }
     this.updateBaseInfo(this.props);
   }
@@ -331,109 +331,121 @@ export default class BaseFormInfo extends Component {
       <Fragment>
         <div className="formGroup">
           <div className="formLabel">{_l('部门')}</div>
-          {departmentInfos.map((item, i) => {
-            const fullName = fullDepartmentInfo[item.departmentId] || '';
-            return (
-              <span
-                className={cx('itemSpan mAll5', { disabledDepartment: typeCursor === 2 })}
-                onMouseEnter={() => this.getDepartmentFullName([item.departmentId])}
-              >
-                <Icon className="departmentIcon Font14 TxtMiddle mRight6" icon="department1" />
-                {
-                  <Tooltip
-                    tooltipClass="departmentFullNametip"
-                    popupPlacement="bottom"
-                    text={<div>{fullName}</div>}
-                    mouseEnterDelay={0.5}
+          {!_.isEmpty(departmentInfos) || typeCursor !== 2 ? (
+            <Fragment>
+              {departmentInfos.map((item, i) => {
+                const fullName = fullDepartmentInfo[item.departmentId] || '';
+                return (
+                  <span
+                    className={cx('itemSpan mAll5', { disabledDepartment: typeCursor === 2 })}
+                    onMouseEnter={() => this.getDepartmentFullName([item.departmentId])}
                   >
-                    <span>{item.departmentName}</span>
-                  </Tooltip>
-                }
-                {i === 0 && <span className="isTopIcon">{_l('主')}</span>}
-                {typeCursor !== 2 && (
-                  <div className="moreOption mLeft8">
-                    <Trigger
-                      popupClassName="moreActionTrigger"
-                      action={['click']}
-                      popupAlign={{ points: ['tl', 'bl'], offset: [10, 10] }}
-                      popupVisible={visible && currentDepartmentId === item.departmentId}
-                      onPopupVisibleChange={visible => {
-                        this.setState({ visible });
-                      }}
-                      popup={
-                        <ul>
-                          {i !== 0 && (
-                            <li
-                              onClick={() => {
-                                let list = departmentInfos.filter(it => it.departmentId !== item.departmentId);
-                                let data = departmentInfos.find(it => it.departmentId === item.departmentId);
-                                list.unshift(data);
-                                this.setState({
-                                  departmentInfos: list,
-                                  visible: false,
-                                });
-                              }}
-                            >
-                              {_l('设为主属部门')}
-                            </li>
-                          )}
-                          <li
-                            onClick={() => {
-                              let list = departmentInfos.filter(it => it.departmentId !== item.departmentId);
-                              this.setState({
-                                departmentInfos: list,
-                                visible: false,
-                              });
+                    <Icon className="departmentIcon Font14 TxtMiddle mRight6" icon="department1" />
+                    {
+                      <Tooltip
+                        tooltipClass="departmentFullNametip"
+                        popupPlacement="bottom"
+                        text={<div>{fullName}</div>}
+                        mouseEnterDelay={0.5}
+                      >
+                        <span>{item.departmentName}</span>
+                      </Tooltip>
+                    }
+                    {i === 0 && <span className="isTopIcon">{_l('主')}</span>}
+                    {typeCursor !== 2 && (
+                      <div className="moreOption mLeft8">
+                        <Trigger
+                          popupClassName="moreActionTrigger"
+                          action={['click']}
+                          popupAlign={{ points: ['tl', 'bl'], offset: [10, 10] }}
+                          popupVisible={visible && currentDepartmentId === item.departmentId}
+                          onPopupVisibleChange={visible => {
+                            this.setState({ visible });
+                          }}
+                          popup={
+                            <ul>
+                              {i !== 0 && (
+                                <li
+                                  onClick={() => {
+                                    let list = departmentInfos.filter(it => it.departmentId !== item.departmentId);
+                                    let data = departmentInfos.find(it => it.departmentId === item.departmentId);
+                                    list.unshift(data);
+                                    this.setState({
+                                      departmentInfos: list,
+                                      visible: false,
+                                    });
+                                  }}
+                                >
+                                  {_l('设为主属部门')}
+                                </li>
+                              )}
+                              <li
+                                onClick={() => {
+                                  let list = departmentInfos.filter(it => it.departmentId !== item.departmentId);
+                                  this.setState({
+                                    departmentInfos: list,
+                                    visible: false,
+                                  });
+                                }}
+                              >
+                                {_l('删除')}
+                              </li>
+                            </ul>
+                          }
+                        >
+                          <Icon
+                            className="Font14 Hand Gray_bd TxtMiddle"
+                            icon="moreop"
+                            onClick={e => {
+                              e.stopPropagation();
+                              this.setState({ visible: true, currentDepartmentId: item.departmentId });
                             }}
-                          >
-                            {_l('删除')}
-                          </li>
-                        </ul>
-                      }
-                    >
-                      <Icon
-                        className="Font14 Hand Gray_bd TxtMiddle"
-                        icon="moreop"
-                        onClick={e => {
-                          e.stopPropagation();
-                          this.setState({ visible: true, currentDepartmentId: item.departmentId });
-                        }}
-                      />
-                    </Trigger>
-                  </div>
-                )}
-              </span>
-            );
-          })}
-          {typeCursor !== 2 && (
-            <Icon
-              className="Font26 Hand Gray_9e mAll5 TxtMiddle"
-              icon="task_add-02"
-              onClick={e => this.dialogSelectDeptFn(e)}
-            />
+                          />
+                        </Trigger>
+                      </div>
+                    )}
+                  </span>
+                );
+              })}
+              {typeCursor !== 2 && (
+                <Icon
+                  className="Font26 Hand Gray_9e mAll5 TxtMiddle"
+                  icon="task_add-02"
+                  onClick={e => this.dialogSelectDeptFn(e)}
+                />
+              )}
+            </Fragment>
+          ) : (
+            <div className="formControl disabled"></div>
           )}
         </div>
-        {!hideRole && typeCursor !== 2 && (
-          <div className="formGroup">
-            <div className="formLabel">{_l('角色')}</div>
+        <div className="formGroup">
+          <div className="formLabel">{_l('角色')}</div>
+          {!_.isEmpty(orgRoles) || typeCursor !== 2 ? (
             <RoleTagsWrap className="formRolesValue">
               {orgRoles.map(item => {
                 return (
                   <span className="roleTag" key={item.id}>
                     <Icon icon="person_new" className="Gray_9e Font18 mRight8 TxtMiddle" />
                     <span>{item.name}</span>
-                    <Icon icon="clear" className="mLeft8 Hand" onClick={() => this.deleteOrgRoles(item)} />
+                    {typeCursor !== 2 && (
+                      <Icon icon="clear" className="mLeft8 Hand" onClick={() => this.deleteOrgRoles(item)} />
+                    )}
                   </span>
                 );
               })}
-              <Icon
-                className="Font26 Hand Gray_9e mAll5 TxtMiddle"
-                icon="task_add-02"
-                onClick={e => this.dialogSelectRoleFn(e)}
-              />
+              {typeCursor !== 2 && (
+                <Icon
+                  className="Font26 Hand Gray_9e mAll5 TxtMiddle"
+                  icon="task_add-02"
+                  onClick={e => this.dialogSelectRoleFn(e)}
+                />
+              )}
             </RoleTagsWrap>
-          </div>
-        )}
+          ) : (
+            <div className="formControl disabled"></div>
+          )}
+        </div>
 
         <div className="formGroup">
           <div className="formLabel">

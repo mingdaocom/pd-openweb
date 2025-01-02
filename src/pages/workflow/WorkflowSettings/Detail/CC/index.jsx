@@ -11,6 +11,7 @@ import {
   CustomTextarea,
   WriteFields,
   EmailApproval,
+  PromptSoundDialog,
 } from '../components';
 import worksheet from 'src/api/worksheet';
 import _ from 'lodash';
@@ -106,7 +107,7 @@ export default class CC extends Component {
   /**
    * 更新节点对象数据
    */
-  updateFlowMapSource = (key, obj, callback) => {
+  updateFlowMapSource = (key, obj, callback = () => {}) => {
     const { data } = this.state;
 
     this.updateSource(
@@ -327,6 +328,13 @@ export default class CC extends Component {
                     onClick={checked => this.updateSource({ showTitle: !checked })}
                   />
                 </div>
+
+                <PromptSoundDialog
+                  {...this.props}
+                  promptSound={data.flowNodeMap[OPERATION_TYPE.PROMPT_SOUND].promptSound}
+                  formulaMap={data.flowNodeMap[OPERATION_TYPE.PROMPT_SOUND].formulaMap}
+                  updateSource={obj => this.updateFlowMapSource(OPERATION_TYPE.PROMPT_SOUND, obj)}
+                />
 
                 <div className="Font13 mTop25 bold">{_l('其他')}</div>
                 <EmailApproval

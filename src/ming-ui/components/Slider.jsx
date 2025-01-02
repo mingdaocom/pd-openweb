@@ -392,7 +392,7 @@ export default function Slider(props) {
                     percent={scale.percent}
                   >
                     {showScaleText && (
-                      <span style={{ color: valuePercent < scale.percent ? '#9e9e9e' : '#333' }}>{scale.text}</span>
+                      <span style={{ color: valuePercent < scale.percent ? '#9e9e9e' : '#151515' }}>{scale.text}</span>
                     )}
                   </ScalePoint>
                 </Tooltip>

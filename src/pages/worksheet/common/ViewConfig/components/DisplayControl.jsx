@@ -69,6 +69,7 @@ export default class DisplayControl extends React.Component {
         <div className="settingContent mTop8">
           <SortColumns
             sortAutoChange
+            isShowColumns
             //关联表的设置 可拖拽排序
             noempty={false} //不需要至少显示一列
             controlsSorts={controlsSorts}

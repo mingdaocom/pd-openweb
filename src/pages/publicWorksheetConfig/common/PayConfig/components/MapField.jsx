@@ -27,18 +27,18 @@ export default class MapField extends Component {
     super(props);
     this.state = {
       mapFields: [
-        { controlId: 'orderNo', controlName: _l('订单编号'), type: 2 },
-        { controlId: 'totalFee', controlName: _l('交易金额'), type: 8 },
-        { controlId: 'payMethod', controlName: _l('支付方式'), type: 2 },
-        { controlId: 'payStatus', controlName: _l('订单状态'), type: 2 },
-        { controlId: 'createOrderTime', controlName: _l('下单时间'), type: 16 },
-        { controlId: 'payTime', controlName: _l('支付时间'), type: 16 },
-        { controlId: 'refundFee', controlName: _l('退款金额'), type: 8 },
-        { controlId: 'settleFee', controlName: _l('结算金额'), type: 8 },
-        { controlId: 'tradeFee', controlName: _l('结算手续费'), type: 8 },
-        { controlId: 'mchId', controlName: _l('商户号'), type: 2 },
-        { controlId: 'sourceType', controlName: _l('订单来源'), type: 2 },
-        { controlId: 'payAccount', controlName: _l('下单人'), type: 2 },
+        { controlId: 'orderNo', controlName: _l('订单编号'), type: [2] },
+        { controlId: 'totalFee', controlName: _l('交易金额'), type: [8] },
+        { controlId: 'payMethod', controlName: _l('支付方式'), type: [2, 11] },
+        { controlId: 'payStatus', controlName: _l('订单状态'), type: [2, 11] },
+        { controlId: 'createOrderTime', controlName: _l('下单时间'), type: [16] },
+        { controlId: 'payTime', controlName: _l('支付时间'), type: [16] },
+        { controlId: 'refundFee', controlName: _l('退款金额'), type: [8] },
+        { controlId: 'settleFee', controlName: _l('结算金额'), type: [8] },
+        { controlId: 'tradeFee', controlName: _l('结算手续费'), type: [8] },
+        { controlId: 'mchId', controlName: _l('商户号'), type: [2] },
+        { controlId: 'sourceType', controlName: _l('订单来源'), type: [2, 11] },
+        { controlId: 'payAccount', controlName: _l('下单人'), type: [2] },
         // { controlId: 'refundOrderNo', controlName: _l('退款订单'), type: 2 },
         // { controlId: 'refundStatus', controlName: _l('退款状态'), type: 2 },
         // { controlId: 'refundFee', controlName: _l('退款金额'), type: 8 },
@@ -109,7 +109,7 @@ export default class MapField extends Component {
           cancelAble
           data={columns.filter(
             v =>
-              v.type === item.type &&
+              _.includes(item.type || [], v.type) &&
               !_.includes(
                 filterControlIds.filter(t => t !== item.mapFieldControlId),
                 v.value,
@@ -149,7 +149,7 @@ export default class MapField extends Component {
           {_l('订单明细')}
           <span>{'（' + _l('注意：不能选择已在公开表单配置过映射的字段') + '）'}</span>
         </div>
-        {mapFields.slice(0, 11).map(item => this.renderRow(item))}
+        {mapFields.map(item => this.renderRow(item))}
         {/* <div className="Gray_9e mBottom10">{_l('退款订单')}</div>
         {mapFields.slice(11).map(item => this.renderRow(item))} */}
       </Dialog>

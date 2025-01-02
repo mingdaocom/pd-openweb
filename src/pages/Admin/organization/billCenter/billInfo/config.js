@@ -91,7 +91,7 @@ export const orderRecordStatus = {
 };
 
 export const orderRecordText = {
-  waiting: _l(' 等待支付'),
+  waiting: _l('等待支付'),
   success: _l('交易成功'),
   failure: _l('交易失败'),
   cancel: _l('取消订单'),
@@ -109,19 +109,20 @@ export const PAID_RECORD_TYPE = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16,
 export const RECHARGE_RECORD_TYPE = [1, 15, 20, 24, 27, 29];
 
 export const invoiceConfig = [
-  { key: 'taxNumber', text: _l('税务登记号') },
-  { key: 'address', text: _l('邮寄地址') },
-  { key: 'recipientName', text: _l('发票接收人'), half: true },
-  { key: 'postcode', text: _l('邮编'), verify: /^\d+$/, half: true },
-  { key: 'contactPhone', text: _l('电话'), verify: /^\d+\-?\d+$/, half: true },
-  { key: 'mobilePhone', text: _l('手机'), verify: /^\d+$/, half: true },
+  { key: 'taxNumber', text: _l('税务登记号'), require: true },
+  { key: 'address', text: _l('邮寄地址'), require: true },
+  { key: 'recipientName', text: _l('发票接收人'), half: true, require: true },
+  { key: 'postcode', text: _l('邮编'), verify: /^\d+$/, half: true, require: true },
+  { key: 'contactPhone', text: _l('电话'), verify: /^\d+\-?\d+$/, half: true, require: true },
+  { key: 'mobilePhone', text: _l('手机'), verify: /^\d+$/, half: true, require: true },
   {
     key: 'email',
     text: _l('Email地址'),
     verify: /^(\w+)(\.\w+)*@(\w+)(\.\w+)*.(\w+)$/i,
     half: true,
+    require: true,
   },
-  { key: 'emailRecipientName', text: _l('Email收件人'), half: true },
+  { key: 'emailRecipientName', text: _l('Email收件人'), half: true, require: true },
   { key: 'fax', text: _l('传真') },
 ];
 
@@ -135,10 +136,10 @@ export const applyInvoiceConfig = [
 ];
 
 export const newInvoiceConfig = [
-  { key: 'taxBank', text: _l('开户行') },
-  { key: 'taxBankNumber', text: _l('账号') },
-  { key: 'taxRegAddress', text: _l('注册地址') },
-  { key: 'taxRegContactPhone', text: _l('注册电话'), verify: /^\d+\-?\d+$/ },
+  { key: 'taxBank', text: _l('开户行'), require: true },
+  { key: 'taxBankNumber', text: _l('账号'), require: true },
+  { key: 'taxRegAddress', text: _l('注册地址'), require: true },
+  { key: 'taxRegContactPhone', text: _l('注册电话'), verify: /^\d+\-?\d+$/, require: true },
 ];
 
 export const DATE_FILTER = [

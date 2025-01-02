@@ -1,12 +1,13 @@
 import _ from 'lodash';
 import homeAppAjax from 'src/api/homeApp';
 import favoriteAjax from 'src/api/favorite';
-import appManagementApi from 'src/api/appManagement'
+import appManagementApi from 'src/api/appManagement';
 
-export const getMyApp = projectId => dispatch => {
-  dispatch({
-    type: 'MOBILE_FETCHHOMELIST_START',
-  });
+export const getMyApp = (projectId, isPullRefresh) => dispatch => {
+  if (!isPullRefresh) {
+    dispatch({ type: 'MOBILE_FETCHHOMELIST_START' });
+  }
+
   homeAppAjax.getMyApp({ projectId, containsLinks: true }).then(res => {
     const { markedGroupIds = [], personalGroups = [], projectGroups = [], apps = [] } = res;
     let markedGroup = markedGroupIds
@@ -85,10 +86,11 @@ export const getHomePlatformSetting = projectId => dispatch => {
     });
   });
 };
-export const myPlatform = projectId => dispatch => {
-  dispatch({
-    type: 'MOBILE_FETCHHOMELIST_START',
-  });
+export const myPlatform = (projectId, isPullRefresh) => dispatch => {
+  if (!isPullRefresh) {
+    dispatch({ type: 'MOBILE_FETCHHOMELIST_START' });
+  }
+
   Promise.all([
     homeAppAjax.myPlatform({ projectId, containsLinks: true }),
     projectId ? homeAppAjax.myPlatformLang({ projectId, noCache: false }) : undefined,
@@ -148,3 +150,11 @@ export const clearAllCollectCharts = () => dispatch => {
     data: [],
   });
 };
+
+export const updateAppHomeScrollY = scrollY => (dispatch) => {
+  dispatch({
+    type: 'APP_HOME_SCROLL_Y',
+    data: scrollY
+  })
+}
+

@@ -48,7 +48,9 @@ export const Wrap = styled.div`
 export const WrapDropW = styled.div`
   width: 100%;
   border-radius: 3px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 2px 6px rgba(0, 0, 0, 0.1);
   padding: 6px 0;
   background-color: #fff;
 `;
@@ -149,13 +151,14 @@ export const Header = styled.div`
     font-size: 17px;
     .name {
       box-sizing: border-box;
-      max-width: 240px;
+      max-width: 500px;
       margin-top: 1px;
       padding: 0 10px;
       border-bottom: 1px dashed #9e9e9e;
       cursor: pointer;
     }
     input {
+      max-width: 500px;
       border: none;
       font-size: 17px;
       border-bottom: 2px solid #2196f3;

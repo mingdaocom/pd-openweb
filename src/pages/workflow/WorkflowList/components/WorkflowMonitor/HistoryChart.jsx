@@ -125,7 +125,7 @@ export default class HistoryChart extends PureComponent {
         offset: -40,
         offsetY: -20,
         domStyles: {
-          'g2-tooltip-list-item': { textAlign: 'left', color: '#333' },
+          'g2-tooltip-list-item': { textAlign: 'left', color: '#151515' },
           'g2-tooltip-title': { color: '#757575' },
         },
         customContent: (title, items) => {

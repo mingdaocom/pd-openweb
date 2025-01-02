@@ -10,6 +10,9 @@ import localForage from 'localforage';
 
 const OkButtonWrap = styled.div`
   width: 105px;
+  > button {
+    width: max-content !important;
+  }
 `;
 
 const RoleSelectWrap = styled.div`

@@ -44,11 +44,11 @@ const ImportWrap = styled.div`
         font-size: 14px;
         font-family: FZLanTingHeiS;
         font-weight: 600;
-        color: #333333;
+        color: #151515;
         margin-bottom: 17px;
       }
       .color_b {
-        color: #333333;
+        color: #151515;
       }
       .color_gr {
         color: #1bb954;
@@ -222,7 +222,7 @@ const ListErrorInfo = styled.div`
         .ant-table-cell {
           padding: 18px 10px;
           border: none;
-          color: #333;
+          color: #151515;
           border-bottom: 1px solid #eaeaea;
           .avatar {
             width: 32px;

@@ -80,7 +80,7 @@ export default class BranchItem extends Component {
                     <div key={j} className="workflowBranchItemTag">
                       <span
                         className="ellipsis maxWidth mRight5"
-                        style={{ color: obj.nodeName && obj.filedValue ? '#333' : '#f44336' }}
+                        style={{ color: obj.nodeName && obj.filedValue ? '#151515' : '#f44336' }}
                       >
                         {obj.nodeName && obj.filedValue
                           ? obj.nodeType === NODE_TYPE.FORMULA
@@ -144,8 +144,8 @@ export default class BranchItem extends Component {
             <Fragment key={i}>
               {obj.controlId ? (
                 <Fragment>
-                  <span style={{ color: obj.nodeName ? '#333' : '#f44336' }}>{obj.nodeName || _l('节点已删除')}</span>-
-                  <span style={{ color: obj.controlName ? '#333' : '#f44336' }}>
+                  <span style={{ color: obj.nodeName ? '#151515' : '#f44336' }}>{obj.nodeName || _l('节点已删除')}</span>-
+                  <span style={{ color: obj.controlName ? '#151515' : '#f44336' }}>
                     {obj.controlName || _l('字段已删除')}
                   </span>
                 </Fragment>

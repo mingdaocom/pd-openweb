@@ -67,7 +67,7 @@ export default function PostgreSQLGuide(props) {
       <h5>{_l('修改wal_level的配置项')}</h5>
       <div>{_l('修改 postgresql.conf 文件后，需要重新启动 PostgreSQL 服务以使更改生效。')}</div>
       <div className="sqlText">
-        <div>{_l('在postgresql.conf文件中修改或添加 wal_level 配置项为：wal_level = logical ')}</div>
+        <div>{_l('在postgresql.conf文件中修改或添加 wal_level 配置项为：wal_level = logical')}</div>
       </div>
       <p>
         {_l('更多配置项参考')}

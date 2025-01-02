@@ -59,10 +59,10 @@ export const CustomButton = styled.div(
 
 // html 元素
 export const Hr = styled.div(
-  ({ color = '#E8E8E8' }) => `border: none; border-top: 1px solid ${color}; margin: 20px 0;`,
+  ({ color = '#ddd', margin = '20px 0' }) => `border: none; border-top: 1px solid ${color}; margin: ${margin};`,
 );
 const H = styled.div`
-  color: #333;
+  color: #151515;
   font-weight: bold;
   vertical-align: middle;
   margin: 16px 0;
@@ -113,7 +113,7 @@ export const TextBlock = styled.div`
   height: 36px;
   line-height: 36px;
   background-color: #f1f1f1;
-  color: #333;
+  color: #151515;
   font-size: 14px;
   padding: 0 10px;
 `;
@@ -217,11 +217,21 @@ export const CardButton = styled.span`
   align-items: center;
   justify-content: center;
   border: 1px solid #f5f5f5;
+  ${({ isMobile }) => (isMobile ? 'width: 32px;height: 32px;font-size: 18px;' : '')}
   &:hover {
-    color: #333;
-    box-shadow: 0px 2px 8px 1px rgba(0, 0, 0, 0.16);
+    ${({ isMobile }) => (!isMobile ? ' color: #151515; box-shadow: 0px 2px 8px 1px rgba(0, 0, 0, 0.16);' : '')}
   }
   &.red:hover {
     color: #f44336;
   }
 `;
+
+export const FormTopImgCon = styled.div`
+  width: 100%;
+  border-radius: 3px 3px 0px 0px;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: auto;
+  }
+`

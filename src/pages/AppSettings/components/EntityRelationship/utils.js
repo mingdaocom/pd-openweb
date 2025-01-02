@@ -39,7 +39,7 @@ export function createLabelOption(control, sourceWorksheet) {
       ],
       attrs: {
         txt: {
-          fill: '#333',
+          fill: '#151515',
           fontSize: 13,
           textAnchor: 'middle',
           textVerticalAnchor: 'middle',
@@ -61,7 +61,7 @@ export function createLabelOption(control, sourceWorksheet) {
       ],
       attrs: {
         txt: {
-          fill: '#333',
+          fill: '#151515',
           fontSize: 13,
           textAnchor: 'middle',
           textVerticalAnchor: 'middle',

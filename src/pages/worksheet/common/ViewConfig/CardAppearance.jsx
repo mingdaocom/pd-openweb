@@ -112,14 +112,17 @@ export default class CardAppearance extends Component {
     const viewControlData = worksheetControls.find(o => o.controlId === viewControl) || {};
     const {
       hidenone = '0',
-      navshow = [26].includes(viewControlData.type) ? '1' : '0',
+      navshow = [26, 27, 48].includes(viewControlData.type) ||
+      (viewControlData.type === 30 && [26, 27, 48].includes(viewControlData.sourceControlType))
+        ? '1'
+        : '0',
       navempty = '1', //默认显示
       freezenav = '0', //默认关闭
     } = getAdvanceSetting(view);
     const isBoardView = String(viewType) === '1';
     const isHierarchyView = String(viewType) === '2';
     const isMultiHierarchyView = isHierarchyView && String(childType) === '2';
-    let navfilters = getAdvanceSetting(view).navfilters;
+    // let navfilters = getAdvanceSetting(view).navfilters;
     // const isShowDisplayConfig = () => {
     //   // 人员看板不显示此配置
     //   const { type } = find(worksheetControls, item => item.controlId === viewControl) || {};
@@ -174,14 +177,15 @@ export default class CardAppearance extends Component {
                     customitems: '',
                   };
                   const viewControlData = worksheetControls.find(o => o.controlId === value) || {};
+                  const type = viewControlData.type === 30 ? viewControlData.sourceControlType : viewControlData.type;
                   if (
-                    (!['0'].includes(navshow) && ![26].includes(viewControlData.type)) ||
-                    (!['1'].includes(navshow) && [26].includes(viewControlData.type))
+                    (!['0'].includes(navshow) && ![26, 27, 48].includes(type)) ||
+                    (!['1'].includes(navshow) && [26, 27, 48].includes(type))
                   ) {
                     //显示指定项和全部 不重置显示项设置
                     advanced = {
                       ...advanced,
-                      navshow: [26].includes(viewControlData.type) ? '1' : '0',
+                      navshow: [26, 27, 48].includes(type) ? '1' : '0',
                       navfilters: JSON.stringify([]),
                     };
                   }

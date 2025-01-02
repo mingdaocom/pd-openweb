@@ -127,6 +127,7 @@ export default function FilterControl(props) {
               param.value = '';
               param.minValue = '';
               param.maxValue = '';
+              param.showDefsource = undefined;
               Object.assign(param, data);
             }
             setSearchValue('');
@@ -235,6 +236,8 @@ export default function FilterControl(props) {
             dataType={dataType}
             filter={filter}
             setFilter={setFilter}
+            allControls={props.allControls}
+            sheet={firstSheet}
           />
         </Fragment>
       )}

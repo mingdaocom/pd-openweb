@@ -162,7 +162,8 @@ class ChatPanel extends Component {
       '.ant-cascader-menus',
       '.InboxFilterWrapper',
       '.ant-picker-dropdown',
-      'addMembersMoreAction',
+      '.addMembersMoreAction',
+      '.ChatList-ContextMenu'
     ];
     return (
       <ClickAwayable

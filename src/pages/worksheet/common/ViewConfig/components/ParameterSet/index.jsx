@@ -190,7 +190,7 @@ export default function ParameterSet(params) {
         advancedSetting: {
           ...o.advancedSetting,
           hinttype: '2',
-          titlecolor: '#333333ff',
+          titlecolor: '#151515ff',
           titlestyle: '1000',
           hidetitle: !o.controlName ? '1' : '',
         },

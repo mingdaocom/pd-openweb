@@ -139,7 +139,7 @@ export const defaultNumberChartStyle = {
   textAlign: 'center',
   columnCount: 4,
   fontSize: 28,
-  fontColor: '#333',
+  fontColor: '#151515',
   contrastColor: 0,
   contrastValueDot: 2,
   lastContrastText: _l('环比'),

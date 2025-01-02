@@ -116,6 +116,7 @@ function TableComp(props) {
     handleSaveSheetLayout,
     updateTreeNodeExpansion = () => {},
     onUpdateCell = () => {},
+    isDraft,
   } = props;
   const { addedRecords = [] } = changes;
   let { records } = props;
@@ -128,6 +129,8 @@ function TableComp(props) {
     treeLayerControlId,
     isCharge,
     recordId,
+    worksheetId,
+    formData,
     allowEdit,
     sheetSwitchPermit,
     controlPermission,
@@ -231,6 +234,7 @@ function TableComp(props) {
   }
   return (
     <WorksheetTable
+      isDraft={isDraft}
       isTreeTableView={isTreeTableView}
       treeLayerControlId={treeLayerControlId}
       treeTableViewData={treeTableViewData}
@@ -244,6 +248,12 @@ function TableComp(props) {
       loading={tableLoading}
       fromModule={WORKSHEETTABLE_FROM_MODULE.RELATE_RECORD}
       fixedColumnCount={fixedColumnCount}
+      masterData={() => ({
+        controlId: control.controlId,
+        recordId,
+        worksheetId,
+        formData,
+      })}
       rowCount={!useHeight ? rowCount : undefined}
       defaultScrollLeft={defaultScrollLeft}
       allowlink={get(control, 'advancedSetting.allowlink')}
@@ -298,6 +308,8 @@ function TableComp(props) {
           recordId={recordId}
           projectId={relateWorksheetInfo.projectId}
           deleteRelateRow={handleRemoveRelation}
+          isDraft={isDraft}
+          from={from}
           removeRecords={rows => {
             deleteRecords(rows.map(r => r.rowid));
           }}
@@ -323,6 +335,7 @@ function TableComp(props) {
           onRecreate={() => {
             handleRecreateRecord(row, {
               openRecord: id => handleOpenRecordInfo({ recordId: id }),
+              isDraft,
             });
           }}
           updateRows={newRow => {
@@ -386,6 +399,7 @@ function TableComp(props) {
             disabled={isNewRecord || from === RECORD_INFO_FROM.DRAFT}
             sheetHiddenColumnIds={sheetHiddenColumnIds}
             isAsc={rest.control.controlId === (sortControl || {}).controlId ? (sortControl || {}).isAsc : undefined}
+            isDraft={isDraft}
             changeSort={newIsAsc => {
               let newDefaultScrollLeft;
               try {

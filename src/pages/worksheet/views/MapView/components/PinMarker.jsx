@@ -45,7 +45,7 @@ const wrapStyles = `
   background-color: transparent;
   border-radius: 4px;
   font-size: 13px;
-  color: #333;
+  color: #151515;
   position: relative;
   .text {
     display: inline-block;
@@ -100,7 +100,7 @@ const PinCardCon = styled.div`
   border-radius: 3px;
   background-color: #fff;
   box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 4px 0px, rgba(0, 0, 0, 0.12) 0px 0px 2px 0px;
-  color: #333;
+  color: #151515;
   display: block;
   overflow: hidden;
   &.active {
@@ -117,7 +117,7 @@ function getTagColor(tagType, colorControl, record = {}) {
   if (tagType === '1') {
     return {
       color: '#fff',
-      bgColor: '#333',
+      bgColor: '#151515',
     };
   } else if (tagType === '2') {
     try {
@@ -132,17 +132,17 @@ function getTagColor(tagType, colorControl, record = {}) {
 
       return {
         bgColor: color,
-        color: new TinyColor(color).isLight() ? '#333' : '#fff',
+        color: new TinyColor(color).isLight() ? '#151515' : '#fff',
       };
     } catch (err) {
       return {
-        color: '#333',
+        color: '#151515',
         bgColor: '#fff',
       };
     }
   } else {
     return {
-      color: '#333',
+      color: '#151515',
       bgColor: '#fff',
     };
   }

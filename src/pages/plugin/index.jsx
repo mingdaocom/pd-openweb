@@ -6,11 +6,7 @@ import ErrorBoundary from 'src/ming-ui/components/ErrorWrapper';
 import { emitter, getCurrentProject } from 'src/util';
 import PluginComponent from './pluginComponent';
 import _ from 'lodash';
-import Assistant from './assistant';
-import KnowledgeBase from './knowledgeBase';
-import { navigateTo } from 'src/router/navigateTo';
-import { getFeatureStatus, upgradeVersionDialog } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
+import { upgradeVersionDialog } from 'src/util';
 import { getMyPermissions } from 'src/components/checkPermission';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
@@ -60,8 +56,6 @@ export default class PluginContainer extends React.Component {
   };
 
   render() {
-    const { match = { params: {} } } = this.props;
-    const { type = '' } = match.params;
     const { currentProjectId, currentProjectName, myPermissions } = this.state;
     const param = {
       ...this.props,
@@ -74,9 +68,6 @@ export default class PluginContainer extends React.Component {
         _.find(md.global.Account.projects, item => item.projectId === currentProjectId),
         'allowPlugin',
       ) || hasPermission(myPermissions, [PERMISSION_ENUM.DEVELOP_PLUGIN, PERMISSION_ENUM.MANAGE_PLUGINS]);
-    const featureType = getFeatureStatus(currentProjectId, VersionProductType.assistant);
-    const noAssistantAuth =
-      !hasPermission(myPermissions, PERMISSION_ENUM.MANAGE_PLUGINS) || !featureType || featureType === '2';
 
     if (!hasPluginAuth) {
       return upgradeVersionDialog({
@@ -88,17 +79,10 @@ export default class PluginContainer extends React.Component {
       });
     }
 
-    if (noAssistantAuth) {
-      if (['assistant', 'knowledgeBase'].includes(type)) {
-        navigateTo('/plugin/view');
-        return '';
-      }
-    }
-
     return (
       <div className="flexRow h100">
-        <DocumentTitle title={_l('插件中心')} />
-        <SideNav {...param} noAssistantAuth={noAssistantAuth} />
+        <DocumentTitle title={_l('插件')} />
+        <SideNav {...param} />
         <div className="flex">
           <ErrorBoundary>
             <Switch>
@@ -112,8 +96,6 @@ export default class PluginContainer extends React.Component {
                   <PluginComponent {...param} myPermissions={myPermissions} pluginType={PLUGIN_TYPE.WORKFLOW} />
                 )}
               />
-              <Route path="/plugin/assistant" component={() => <Assistant {...param} />} />
-              <Route path="/plugin/knowledgeBase" component={() => <KnowledgeBase {...param} />} />
               <Route path="*" component={() => <PluginComponent {...param} myPermissions={myPermissions} />} exact />
             </Switch>
           </ErrorBoundary>

@@ -407,6 +407,7 @@ function ViewControl(props) {
             '.Tooltip',
             '#quickSelectDept',
             '.ant-drawer-mask',
+            '.attachmentsPreview',
           ]}
           onClickAway={() => setViewConfigVisible(false)}
           columns={controls.filter(item => {
@@ -498,6 +499,7 @@ function ViewControl(props) {
             '.selectUserBox',
             '.ant-picker-dropdown',
             '.TimePicker',
+            '.attachmentsPreview',
           ]}
           showFastFilter={showFastFilter}
           onClickAway={() => {
@@ -515,7 +517,7 @@ function ViewControl(props) {
             setActiveFastFilterId(id);
           }}
           updateCurrentView={data => {
-            saveView(viewId, _.pick(data, data.editAttrs || []));
+            saveView(viewId, _.pick(data, [...(data.editAttrs || []), 'editAdKeys']));
           }}
         />
       )}

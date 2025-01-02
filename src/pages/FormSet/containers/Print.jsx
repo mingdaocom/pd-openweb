@@ -12,6 +12,8 @@ import _ from 'lodash';
 import sheetAjax from 'src/api/worksheet';
 import PrintSortableItem from '../components/PrintSortableItem';
 
+const MAX_PRINT_COUNT = 50;
+
 const PRINT_TYPE_CLASSIFY = {
   0: [PRINT_TYPE.SYS_PRINT, PRINT_TYPE.WORD_PRINT, PRINT_TYPE.EXCEL_PRINT],
   1: [PRINT_TYPE.QR_CODE_PRINT, PRINT_TYPE.BAR_CODE_PRINT],
@@ -139,6 +141,8 @@ class Print extends React.Component {
   };
 
   addDrawerPrintTemp = fileType => {
+    if (this.checkedPrintTempCount(0)) return;
+
     const { worksheetInfo } = this.props;
 
     if (getFeatureStatus(worksheetInfo.projectId, VersionProductType.wordPrintTemplate) === '2') {
@@ -187,6 +191,56 @@ class Print extends React.Component {
   changeState = value => {
     this.setState({
       ...value,
+    });
+  };
+
+  checkedPrintTempCount = type => {
+    const data = this.state.printData.filter(it => PRINT_TYPE_CLASSIFY[type].includes(it.type));
+
+    if (data.length >= MAX_PRINT_COUNT) {
+      alert(
+        type === 0
+          ? _l('记录打印模版数量已达上限（%0）', MAX_PRINT_COUNT)
+          : _l('条码打印模版数量已达上限（%0）', MAX_PRINT_COUNT),
+        3,
+      );
+      return true;
+    }
+
+    return false;
+  };
+
+  addNewRecordPrintTemp = () => {
+    if (this.checkedPrintTempCount(0)) {
+      return;
+    }
+
+    this.setState({
+      ...this.state,
+      showPrintTemDialog: true,
+      templateId: '',
+      type: 'new',
+      isDefault: true,
+      showCreatePrintTemp: false,
+    });
+  };
+
+  addCodePrintTemp = type => {
+    const { worksheetInfo = {} } = this.props;
+
+    if (this.checkedPrintTempCount(1)) return;
+
+    this.setState({ showCreatePrintTemp: false });
+    printQrBarCode({
+      isCharge: true,
+      mode: 'newTemplate',
+      printType: type === PRINT_TYPE.QR_CODE_PRINT ? 1 : 3,
+      projectId: worksheetInfo.projectId,
+      worksheetId: worksheetInfo.worksheetId,
+      controls: _.get(worksheetInfo, 'template.controls'),
+      onClose: () => {
+        this.loadPrint({ worksheetId: worksheetInfo.worksheetId });
+      },
     });
   };
 
@@ -254,9 +308,19 @@ class Print extends React.Component {
                     <div className="more w80px"></div>
                   </div>
                   <div className="printTemplatesList-box sortablePrintItemList flex">
-                    {defaultTemData.length > 0 && <p className="printTemTi">{_l('记录打印')}</p>}
+                    {defaultTemData.length > 0 && (
+                      <p className="printTemTi">
+                        {_l('记录打印')}
+                        {`（${defaultTemData.length}）`}
+                      </p>
+                    )}
                     {defaultTemData.length > 0 && this.renderPrintItem(defaultTemData || [], 0)}
-                    {codeTemData.length > 0 && <p className="printTemTi">{_l('条码打印')}</p>}
+                    {codeTemData.length > 0 && (
+                      <p className="printTemTi">
+                        {_l('条码打印')}
+                        {`（${codeTemData.length}）`}
+                      </p>
+                    )}
                     {codeTemData.length > 0 && this.renderPrintItem(codeTemData || [], 1)}
                   </div>
                 </div>
@@ -277,7 +341,7 @@ class Print extends React.Component {
             bodyStyle={{ padding: 0 }}
           >
             <EditPrint
-              onClickAwayExceptions={[]}
+              onClickAwayExceptions={['.mui-dialog-dialog', '.ant-picker-dropdown']}
               downLoadUrl={worksheetInfo.downLoadUrl}
               onClickAway={() => this.setState({ showEditPrint: false, type: '' })}
               onClose={() => this.setState({ showEditPrint: false, type: '' })}
@@ -296,31 +360,10 @@ class Print extends React.Component {
             worksheetProjectId={worksheetInfo.projectId}
             onCloseDrawer={() => this.setState({ showCreatePrintTemp: false })}
             visible={showCreatePrintTemp}
-            addNewRecordPrintTemp={() => {
-              this.setState({
-                ...this.state,
-                showPrintTemDialog: true,
-                templateId: '',
-                type: 'new',
-                isDefault: true,
-                showCreatePrintTemp: false,
-              });
-            }}
+            addNewRecordPrintTemp={this.addNewRecordPrintTemp}
             addWordPrintTemp={() => this.addDrawerPrintTemp('Word')}
             addExcelPrintTemp={() => this.addDrawerPrintTemp('Excel')}
-            addCodePrintTemp={type => {
-              printQrBarCode({
-                isCharge: true,
-                mode: 'newTemplate',
-                printType: type === PRINT_TYPE.QR_CODE_PRINT ? 1 : 3,
-                projectId: worksheetInfo.projectId,
-                worksheetId: worksheetInfo.worksheetId,
-                controls: _.get(worksheetInfo, 'template.controls'),
-                onClose: () => {
-                  this.loadPrint({ worksheetId: worksheetInfo.worksheetId });
-                },
-              });
-            }}
+            addCodePrintTemp={this.addCodePrintTemp}
           />
         </div>
       </div>

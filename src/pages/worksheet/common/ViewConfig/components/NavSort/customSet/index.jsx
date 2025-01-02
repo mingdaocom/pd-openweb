@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import sheetAjax from 'src/api/worksheet';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import SortList from './components/SortList';
-import { quickSelectUser } from 'ming-ui/functions';
+import { quickSelectUser, quickSelectDept, quickSelectRole } from 'ming-ui/functions';
 import cx from 'classnames';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
@@ -62,14 +62,6 @@ export default function (props) {
     appId,
     maxCount,
   } = props;
-  const isJSON = str => {
-    try {
-      JSON.parse(str);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
   const formatSetting = () => {
     const data = getAdvanceSetting(view, advancedSettingKey) || [];
     if ([29].includes(controlInfo.type)) {
@@ -78,10 +70,20 @@ export default function (props) {
         return { ...da, rowid: da.id };
       });
     }
-    if (isSameType([26], controlInfo)) {
+    if (isSameType([26, 27, 48], controlInfo)) {
+      const keyId = isSameType([26], controlInfo)
+        ? 'accountId'
+        : isSameType([27], controlInfo)
+          ? 'departmentId'
+          : 'organizeId';
+      const keyName = isSameType([26], controlInfo)
+        ? 'fullname'
+        : isSameType([27], controlInfo)
+          ? 'departmentName'
+          : 'organizeName';
       return data.map(o => {
         let da = safeParse(o) || {};
-        return { ...da, accountId: da.id, fullname: da.name };
+        return { ...da, [keyId]: da.id, [keyName]: da.name };
       });
     }
     return data;
@@ -96,9 +98,13 @@ export default function (props) {
     loading: false,
   });
 
+  const valueRef = useRef();
+  useEffect(() => {
+    valueRef.current = setting;
+  }, [setting]);
   const formatSettingData = list => {
     let settingList = maxCount ? list.slice(0, maxCount) : list;
-    settingList = [29].includes(controlInfo.type)
+    settingList = isSameType([29], controlInfo)
       ? settingList.map(data => {
           const control = ((controlInfo || {}).relationControls || []).find(it => it.attribute === 1);
           return {
@@ -119,10 +125,12 @@ export default function (props) {
       formatSettingData(list.map(o => o.key));
     }
     if (isSameType([28], controlInfo)) {
-      const list = new Array(parseInt(_.get(control, ['advancedSetting', 'max']) || '1', 10));
+      const list = [...new Array(parseInt(_.get(controlInfo, ['advancedSetting', 'max']) || '1', 10))].map(
+        (o, i) => i + 1 + '',
+      );
       formatSettingData(list);
     }
-    if (controlInfo.type === 29) {
+    if (isSameType([29], controlInfo)) {
       const worksheetId = controlInfo.dataSource;
       const args = {
         worksheetId,
@@ -142,6 +150,13 @@ export default function (props) {
     }
   };
 
+  const onChangeSettingUser = (isMultiple, users) => {
+    const list = isMultiple ? _.uniqBy([...valueRef.current, ...users], 'accountId') : users;
+    setState({
+      setting: maxCount ? list.slice(0, maxCount) : list,
+    });
+  };
+
   const addUser = (isMultiple = true, tabType) => {
     quickSelectUser($ref.current, {
       showMoreInvite: false,
@@ -155,23 +170,63 @@ export default function (props) {
         left: -1,
       },
       zIndex: 10001,
+      isDynamic: true,
       filterAccountIds: [md.global.Account.accountId, 'user-self'],
-      selectedAccountIds: setting.map(l => l.accountId),
+      selectedAccountIds: valueRef.current.map(l => l.accountId),
       SelectUserSettings: {
         projectId,
         unique: !isMultiple,
         filterResigned: false,
         callback(users) {
-          const list = isMultiple ? _.uniqBy([...setting, ...users], 'accountId') : users;
-          setState({
-            setting: maxCount ? list.slice(0, maxCount) : list,
-          });
+          onChangeSettingUser(isMultiple, users);
         },
       },
       selectCb(users) {
-        const list = isMultiple ? _.uniqBy([...setting, ...users], 'accountId') : users;
+        onChangeSettingUser(isMultiple, users);
+      },
+    });
+  };
+
+  const onSaveAddDep = (data, isCancel = false) => {
+    const lastIds = _.sortedUniq(setting.map(l => l.departmentId));
+    const newIds = _.sortedUniq(data.map(l => l.departmentId));
+    if ((data.length === 0 || _.isEqual(lastIds, newIds)) && !isCancel) return;
+    const newData = isCancel
+      ? valueRef.current.filter(l => l.departmentId !== data[0].departmentId)
+      : _.uniqBy(valueRef.current.concat(data), 'departmentId');
+    setState({
+      setting: maxCount ? newData.slice(0, maxCount) : newData,
+    });
+  };
+
+  const addDep = (e, isMultiple = true) => {
+    quickSelectDept(e.target, {
+      projectId,
+      isIncludeRoot: false,
+      unique: !isMultiple,
+      key: JSON.stringify(setting),
+      showCreateBtn: false,
+      selectedDepartment: setting,
+      selectFn: onSaveAddDep,
+    });
+  };
+
+  //添加角色
+  const addRole = e => {
+    quickSelectRole(e.target, {
+      projectId,
+      unique: false,
+      offset: {
+        left: -167,
+      },
+      value: setting,
+      onSave: (data, isCancel = false) => {
+        if (!data.length) return;
+        const newData = isCancel
+          ? valueRef.current.filter(l => l.organizeId !== data[0].organizeId)
+          : _.uniqBy(valueRef.current.concat(data), 'organizeId');
         setState({
-          setting: maxCount ? list.slice(0, maxCount) : list,
+          setting: maxCount ? newData.slice(0, maxCount) : newData,
         });
       },
     });
@@ -205,7 +260,7 @@ export default function (props) {
           </div>
           {/* 操作 重置 清空 */}
           <div className="act">
-            {![26].includes(controlInfo.type) && maxCount && (
+            {!isSameType([26, 27, 48], controlInfo) && maxCount && (
               <span
                 className="reset Hand"
                 onClick={() => {
@@ -244,11 +299,7 @@ export default function (props) {
               setting={setting}
               maxCount={maxCount}
               controls={controls} //字段名称 用作显示
-              onChange={setting => {
-                setState({
-                  setting,
-                });
-              }}
+              onChange={setting => setState({ setting })}
               controlInfo={controlInfo} //分组字段信息
             />
           )}
@@ -259,12 +310,16 @@ export default function (props) {
               'add InlineBlock mTop6 Bold TxtCenter',
               setting.filter(o => o !== 'add').length >= maxCount ? 'disable Gray_9e' : 'Hand ThemeColor3',
             )}
-            onClick={() => {
+            onClick={e => {
               if (setting.filter(o => o !== 'add').length >= maxCount) {
                 return;
               }
-              if ([26].includes(controlInfo.type) || controlInfo.sourceControlType === 26) {
+              if (isSameType([26], controlInfo)) {
                 addUser(true, getTabTypeBySelectUser(controlInfo));
+              } else if (isSameType([27], controlInfo)) {
+                addDep(e, true);
+              } else if (isSameType([48], controlInfo)) {
+                addRole(e, true);
               } else {
                 setState({
                   setting: setting.concat(['add']),

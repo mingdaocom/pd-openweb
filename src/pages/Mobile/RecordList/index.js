@@ -147,9 +147,12 @@ class RecordList extends Component {
     const { appNaviStyle, debugRole } = detail;
 
     const { name } = worksheetInfo;
-    let views = worksheetInfo.views.filter(
-      v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
-    );
+    let views =
+      base.type === 'single'
+        ? worksheetInfo.views
+        : worksheetInfo.views.filter(
+            v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
+          );
     const view = _.find(views, { viewId }) || views[0];
     const { params } = match;
     const { hash } = history.location;
@@ -352,6 +355,7 @@ export default connect(
           'changeMobileGroupFilters',
           'changeBatchOptVisible',
           'updateFilterControls',
+          'updateQuickFilter',
         ]),
         addNewRecord,
       },

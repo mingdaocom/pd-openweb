@@ -53,7 +53,7 @@ const HorizontalChartContent = styled.div`
   width: ${props => `${props.width}px`};
   left: ${props => `${props.height}px`};
   .count {
-    color: #333;
+    color: #151515;
     font-weight: 500;
     font-size: 20px;
     font-family: system-ui, BlinkMacSystemFont, segoe ui, Roboto, Helvetica, Arial, sans-serif, apple color emoji,

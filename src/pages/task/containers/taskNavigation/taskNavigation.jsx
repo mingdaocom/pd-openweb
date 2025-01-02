@@ -916,7 +916,7 @@ class TaskNavigation extends Component {
             if (sb.length > 0) {
               $ul
                 .find('.exitFile')
-                .after(' <ul class="moveToFileBox"> <li class="moveToFile">' + _l('移动到') + '</li></ul> ');
+                .after('<ul class="moveToFileBox"> <li class="moveToFile">' + _l('移动到') + '</li></ul>');
               $ul.find('.moveToFileBox .moveToFile').after(sb);
             }
 

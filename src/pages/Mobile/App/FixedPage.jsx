@@ -26,7 +26,7 @@ const FixedContent = styled.div`
     }
   }
   .fixeding {
-    color: #333;
+    color: #151515;
     font-size: 17px;
   }
   .fixedInfo {
@@ -35,7 +35,7 @@ const FixedContent = styled.div`
   }
   .fixRemark {
     font-size: 13px;
-    color: #333;
+    color: #151515;
   }
 `;
 

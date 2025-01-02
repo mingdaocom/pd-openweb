@@ -48,7 +48,7 @@ const Wrap = styled.div`
     }
 
     .name {
-      color: #333333;
+      color: #151515;
       font-size: 13px;
       margin-left: 10px;
       display: inline-block;

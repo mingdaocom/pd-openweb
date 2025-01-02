@@ -16,7 +16,7 @@ import webCacheAjax from 'src/api/webCache';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
 import { updateRulesData } from 'src/components/newCustomFields/tools/filterFn';
 import axios from 'axios';
-import { getControlsForPrint, SYST_PRINTData, isRelation, getVisibleControls } from './util';
+import { getControlsForPrint, SYST_PRINTData, isRelation, getVisibleControls, useUserPermission } from './util';
 import appManagementAjax from 'src/api/appManagement';
 import _ from 'lodash';
 import { addBehaviorLog, getTranslateInfo, getAppLangDetail } from 'src/util';
@@ -335,7 +335,7 @@ class PrintForm extends React.Component {
   getRowRelationRows = () => {
     const { printData, params } = this.state;
     const { worksheetId, rowId } = params;
-    const { receiveControls = [], allControls = [] } = printData;
+    const { receiveControls = [] } = printData;
     let controls = receiveControls.filter(l => l.type === 51);
 
     if (controls.length === 0) return;
@@ -343,7 +343,7 @@ class PrintForm extends React.Component {
     let promiseList = controls.map(control => {
       const newFilter = getFilter({
         control: { ...control, recordId: rowId || printData.rowIdForQr },
-        formData: allControls,
+        formData: receiveControls,
         filterKey: 'resultfilters',
       });
 
@@ -358,6 +358,7 @@ class PrintForm extends React.Component {
             pageSize: 1000,
             rowId,
             filterControls: newFilter,
+            getType: 5,
           })
         : [];
     });
@@ -369,12 +370,24 @@ class PrintForm extends React.Component {
         let _index = controls.findIndex(l => l.controlId === item.controlId);
 
         if (_index > -1 && item.type === 51) {
+          res[_index].template.controls = replaceControlsTranslateInfo(
+            res[_index].worksheet.appId,
+            res[_index].worksheet.worksheetId,
+            res[_index].template.controls,
+          );
           _printData.receiveControls[index].value =
             (res[_index].data || []).length === 0 ? '' : JSON.stringify(res[_index].data);
           _printData.receiveControls[index].relationsData = res[_index];
 
-          if ((_printData.receiveControls[index].relationControls || []).length === 0 && res[_index].template)
+          if ((_printData.receiveControls[index].relationControls || []).length === 0 && res[_index].template) {
             _printData.receiveControls[index].relationControls = res[_index].template.controls;
+          } else {
+            _printData.receiveControls[index].relationControls = replaceControlsTranslateInfo(
+              res[_index].worksheet.appId,
+              res[_index].worksheet.worksheetId,
+              _printData.receiveControls[index].relationControls,
+            );
+          }
         }
       });
 
@@ -438,18 +451,22 @@ class PrintForm extends React.Component {
 
       _.forEach(res.relationMaps, function (value, key) {
         const relaControl = res.receiveControls.find(l => l.controlId === key);
-        res.relationMaps[key].controls = replaceControlsTranslateInfo(
+
+        relaControl.relationControls = relaControl.relationControls.map(l => {
+          return _.assign(
+            l,
+            _.pick(
+              _.find(res.relationMaps[key].template.controls, m => m.controlId === l.controlId),
+              ['dot', 'advancedSetting'],
+            ),
+          );
+        });
+
+        res.relationMaps[key].template.controls = replaceControlsTranslateInfo(
           appId,
           relaControl.dataSource,
           relaControl.relationControls,
         );
-        if (res.relationMaps[key] && _.get(res.relationMaps[key], 'template.controls')) {
-          res.relationMaps[key].template.controls = replaceControlsTranslateInfo(
-            appId,
-            relaControl.dataSource,
-            res.relationMaps[key].template.controls,
-          );
-        }
       });
 
       const rules = resData[1];
@@ -463,7 +480,9 @@ class PrintForm extends React.Component {
       receiveControls = getControlsForPrint(receiveControls, res.relationMaps, needVisible, {
         info: info,
         fileStyle: (_.get(res, 'advanceSettings') || []).find(l => l.key === 'atta_style'),
+        user_info: (_.get(res, 'advanceSettings') || []).find(l => l.key === 'user_info'),
       });
+      receiveControls = replaceControlsTranslateInfo(appId, worksheetId, receiveControls);
 
       let dat = (res.receiveControls || []).filter(o => ![43, 49].includes(o.type)); //去除 文本识别 43 接口查询按钮
       let attribute = dat.find(it => it.attribute === 1);
@@ -477,7 +496,7 @@ class PrintForm extends React.Component {
         ...this.state.printData,
         ..._.omit(res, ['rowId']),
         rowIdForQr: res.rowId,
-        receiveControls: replaceControlsTranslateInfo(appId, worksheetId, receiveControls),
+        receiveControls,
         rules,
         attributeName,
         font: Number(res.font || DEFAULT_FONT_SIZE),
@@ -490,12 +509,13 @@ class PrintForm extends React.Component {
         systemControl: SYST_PRINTData(res),
         approvalIds: res.approvalIds,
         filters: res.filters,
-        allControls: res.receiveControls,
       };
 
       let infoPromiseList = [];
-      receiveControls.forEach(l => {
-        if (l.type === 51) {
+      let controlIndexList = [];
+      receiveControls.forEach((l, i) => {
+        if (l.type === 34 && useUserPermission(l)) {
+          controlIndexList.push(i);
           infoPromiseList.push(
             sheetAjax.getWorksheetInfo({
               worksheetId: l.dataSource,
@@ -519,18 +539,21 @@ class PrintForm extends React.Component {
         );
       } else {
         Promise.all(infoPromiseList).then(res => {
-          let _receiveControls = receiveControls.map(item => {
-            return {
-              ...item,
-              relationControls: item.relationControls || [],
-            };
+          res.map((item, index) => {
+            const oldControls = receiveControls[controlIndexList[index]].relationControls.map(l => l.controlId);
+            let newControls = getVisibleControls(
+              (_.get(item, 'template.controls') || []).filter(it => oldControls.includes(it.controlId)),
+              true,
+            );
+            newControls = replaceControlsTranslateInfo(item.appId, item.worksheetId, newControls);
+            receiveControls[controlIndexList[index]].relationControls = newControls;
+            _printData.relationMaps[controlIndexList[index]] &&
+              (_printData.relationMaps[controlIndexList[index]].template.controls = newControls);
           });
+
           this.setState(
             {
-              printData: {
-                ..._printData,
-                receiveControls: _receiveControls,
-              },
+              printData: _printData,
               isLoading: false,
             },
             () => {
@@ -723,6 +746,9 @@ class PrintForm extends React.Component {
             }
           },
         );
+      })
+      .catch(err => {
+        this.setState({ saveLoading: false });
       });
   };
 
@@ -730,10 +756,9 @@ class PrintForm extends React.Component {
     let { params, ajaxUrlStr } = this.state;
 
     this.setState({
-      pdfUrl: `${md.global.Config.AjaxApiUrl}file/docview?fileName=${params.name}.docx&filePath=${ajaxUrlStr.replace(
-        /\?.*/,
-        '',
-      )}`,
+      pdfUrl: `${md.global.Config.AjaxApiUrl}file/docview?fileName=${params.name}.${
+        params.fileTypeNum === 5 ? 'xlsx' : 'docx'
+      }&filePath=${ajaxUrlStr.replace(/\?.*/, '')}`,
       isLoading: false,
     });
   };

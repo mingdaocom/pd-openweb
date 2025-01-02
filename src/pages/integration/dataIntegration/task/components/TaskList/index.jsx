@@ -72,7 +72,7 @@ const TaskListBox = styled.div`
     }
     .titleText {
       font-size: 14px;
-      color: #333;
+      color: #151515;
       font-weight: 600;
     }
     .ant-switch-checked {
@@ -190,7 +190,7 @@ const TaskIcon = styled.div`
     line-height: 17px;
     border: 1px solid #fff;
     border-radius: 50%;
-    background: #333;
+    background: #151515;
     color: #fff;
     font-size: 12px;
     font-weight: 600;
@@ -252,7 +252,7 @@ const FilterItem = styled.div`
       cursor: pointer;
       line-height: 26px;
       font-size: 12px;
-      color: #333;
+      color: #151515;
 
       &.isActive {
         font-weight: 600;
@@ -527,7 +527,10 @@ export default function TaskList({ projectId, onRefreshComponents }) {
       title: _l('任务'),
       render: item => {
         return (
-          <Link className="flexRow alignItemsCenter pRight8 pointer" to={`/integration/taskCon/${item.flowId}`}>
+          <Link
+            className="flexRow alignItemsCenter pRight8 pointer stopPropagation"
+            to={`/integration/taskCon/${item.flowId}`}
+          >
             <div className="flexRow alignItemsCenter pLeft8 titleColumn">
               <ToolTip text={item.sourceTypeName}>
                 <TaskIcon>

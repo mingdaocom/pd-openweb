@@ -348,7 +348,6 @@ export function getEventList({
         controlId: o.begin,
         datatype: o.startData.type,
         spliceType: 2, //或
-        dateRangeType: 1,
         values: [],
       });
     });

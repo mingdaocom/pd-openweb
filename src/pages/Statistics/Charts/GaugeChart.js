@@ -296,7 +296,7 @@ export default class extends Component {
           style: {
             stroke: '#D0D0D0',
             lineWidth: 1,
-            fill: '#333',
+            fill: '#151515',
           },
         },
         pin: {

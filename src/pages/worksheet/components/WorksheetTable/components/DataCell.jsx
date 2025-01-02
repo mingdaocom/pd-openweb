@@ -17,6 +17,7 @@ export default function MDCell(props) {
     fixedColumnCount,
     getPopupContainer,
     from,
+    isDraft,
   } = props;
   const {
     tableType,
@@ -82,6 +83,7 @@ export default function MDCell(props) {
       className={className}
       style={style}
       allowlink={allowlink}
+      isDraft={isDraft}
       canedit={
         lineEditable &&
         !find(

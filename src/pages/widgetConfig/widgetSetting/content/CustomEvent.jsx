@@ -52,13 +52,13 @@ export default function CustomEvent(props) {
   const [loadingItems, setLoading] = useState({});
 
   /**
-   * 调用已集成api需要接口获取数据
+   * 调用已集成api、封装业务流程api需要接口获取数据
    */
-  const getApiInfo = dataSource => {
+  const getApiInfo = (dataSource, actionType) => {
     if (!dataSource || loadingItems[dataSource]) return {};
     if (window.IntegratedApi[dataSource]) return window.IntegratedApi[dataSource];
     setLoading({ ...loadingItems, [dataSource]: true });
-    worksheetAjax.getApiControlDetail({ apiTemplateId: dataSource }).then(res => {
+    worksheetAjax.getApiControlDetail({ apiTemplateId: dataSource, actionType }).then(res => {
       window.IntegratedApi[dataSource] = res;
       setLoading({ ...loadingItems, [dataSource]: false });
     });
@@ -226,17 +226,23 @@ export default function CustomEvent(props) {
         const curFile = _.find(voiceFiles, v => v.fileKey === fileKey);
         if (!fileKey || !curFile) return;
         return <div className="textCon breakAll">{_.get(curFile, 'fileName')}</div>;
+      case ACTION_VALUE_ENUM.OPERATION_FLOW:
       case ACTION_VALUE_ENUM.API:
-        const { basicInfo = {} } = getApiInfo(dataSource) || {};
+        const { basicInfo = {}, enabled } = getApiInfo(dataSource, actionType) || {};
         const { linkName, name } = basicInfo;
 
         if (loadingItems[dataSource]) {
           return <LoadDiv />;
         }
+
+        if ((!linkName && !name) || !enabled) {
+          return <div className="textCon Red">{_l('已删除')}</div>;
+        }
+
         return (
           <Fragment>
             <div className="textCon">
-              <span className="title mRight10">{`[${linkName}]`}</span>
+              {linkName && <span className="title mRight10">{`[${linkName}]`}</span>}
               {name}
             </div>
             <div className="textCon mTop8">

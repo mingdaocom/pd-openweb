@@ -23,7 +23,7 @@ const SearchBtn = styled.div`
   border-radius: 3px;
   padding: 0 16px;
   background: #fff;
-  color: #333;
+  color: #151515;
   font-size: 13px;
   &:hover {
     background: ${props => (props.isMobile ? '#fff' : '#f5f5f5')};
@@ -84,6 +84,7 @@ export default class Widgets extends Component {
       projectId,
       appId,
       type,
+      enumDefault2,
     } = this.props;
     const { keywords } = this.state;
 
@@ -108,6 +109,7 @@ export default class Widgets extends Component {
       apkId: appId,
       apiTemplateId: dataSource,
       authId: authaccount,
+      actionType: enumDefault2 === 1 ? 13 : 8,
     };
 
     if (window.isPublicWorksheet) {
@@ -203,7 +205,7 @@ export default class Widgets extends Component {
     const isMobile = browserIsMobile();
     return (
       <Fragment>
-        <div className={cx('ellipsis', { Gray: isMobile, Bold: itemDesc.length > 0 })}>
+        <div className={cx('itemTitleBox ellipsis', { Gray: isMobile, Bold: itemDesc.length > 0 })}>
           {titleValue || _l('无标题')}
         </div>
         {itemDescValues.length ? (

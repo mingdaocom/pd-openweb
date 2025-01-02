@@ -63,6 +63,7 @@ export const WIDGETS_TO_API_TYPE_ENUM = {
   RELATION_SEARCH: 51,
   SECTION: 52,
   FORMULA_FUNC: 53,
+  CUSTOM: 54,
   REMARK: 10010,
 };
 
@@ -161,7 +162,7 @@ export const DEFAULT_CONFIG = {
     minSize: WHOLE_SIZE,
   },
   SPLIT_LINE: {
-    icon: 'menu',
+    icon: 'divider',
     widgetName: _l('分段%04006'),
     intro: _l('对表单进行分段'),
     minSize: WHOLE_SIZE,
@@ -287,7 +288,7 @@ export const DEFAULT_CONFIG = {
   },
   REMARK: {
     widgetName: _l('备注%04007'),
-    icon: 'info',
+    icon: 'remarks',
     defaultHint: _l('在此添加 注意事项 或 填写要求 等，来指导使用者(或填写者)正确地操作'),
     tip: _l('把注意事项或填写要求作为“备注”加入，来指导使用者(或填写者)正确使用'),
     intro: _l('在表单中添加说明信息'),
@@ -333,9 +334,13 @@ export const DEFAULT_CONFIG = {
     intro: _l('可用于快速查看其他表的数据。'),
   },
   SECTION: {
-    icon: 'tab',
+    icon: 'subheader',
     widgetName: _l('标签页'),
     intro: _l('可用于分组字段，组织相关的信息或功能。'),
+  },
+  CUSTOM: {
+    icon: 'custom-01',
+    widgetName: _l('自定义字段'),
   },
 };
 
@@ -475,7 +480,7 @@ export const DEFAULT_DATA = {
     enumDefault: 0,
     advancedSetting: {
       theme: '#2196F3',
-      color: '#333333',
+      color: '#151515',
     },
   },
   AREA_CITY: {
@@ -498,6 +503,9 @@ export const DEFAULT_DATA = {
     enumDefault2: 0,
     userPermission: 1,
     noticeItem: 0,
+    advancedSetting: {
+      checkusertype: '1',
+    },
   },
   DEPARTMENT: {
     controlName: _l('部门'),
@@ -561,6 +569,7 @@ export const DEFAULT_DATA = {
     controlName: _l('子表%04002'),
     size: 12,
     enumDefault: 2,
+    strDefault: '000',
     advancedSetting: {
       allowadd: '1',
       allowcancel: '1',
@@ -578,6 +587,7 @@ export const DEFAULT_DATA = {
       allowcopy: '1',
       allowimport: '1',
       allowbatch: '1',
+      searchrange: '1',
     },
   },
   SWITCH: {
@@ -685,6 +695,7 @@ export const DEFAULT_DATA = {
     controlName: _l('API查询'),
     size: 6,
     enumDefault: 0,
+    enumDefault2: 0,
     hint: _l('查询'),
   },
   SEARCH: {
@@ -707,6 +718,14 @@ export const DEFAULT_DATA = {
   SECTION: {
     controlName: _l('标签页'),
     size: 12,
+  },
+  CUSTOM: {
+    controlName: _l('自定义字段'),
+    size: 12,
+    advancedSetting: {
+      height: '240',
+      allowfull: '1',
+    },
   },
 };
 export const WORKFLOW_SYSTEM_CONTROL = [
@@ -836,6 +855,7 @@ export const ADVANCE_WIDGETS = pick(DEFAULT_CONFIG, [
   'BAR_CODE',
   'MONEY_CN',
   'EMBED',
+  'CUSTOM',
 ]);
 
 export const RELATE_WIDGETS = pick(DEFAULT_CONFIG, [
@@ -851,10 +871,10 @@ export const RELATE_WIDGETS = pick(DEFAULT_CONFIG, [
 export const SPECIAL_WIDGETS = pick(DEFAULT_CONFIG, ['SPLIT_LINE', 'SECTION', 'REMARK']);
 
 export const WIDGET_GROUP_TYPE = {
+  SPECIAL: { widgets: SPECIAL_WIDGETS, title: _l('布局字段') },
   COMMON_USE: { widgets: COMMON_USE_WIDGETS, title: _l('常用') },
   ADVANCE: { widgets: ADVANCE_WIDGETS, title: _l('高级') },
   RELATE: { widgets: RELATE_WIDGETS, title: _l('关联') },
-  SPECIAL: { widgets: SPECIAL_WIDGETS, title: _l('布局字段') },
 };
 
 export const NORMAL_CONTROLS = ['uaid', 'rowid'];

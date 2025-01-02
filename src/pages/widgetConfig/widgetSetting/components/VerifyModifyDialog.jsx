@@ -58,11 +58,12 @@ export function verifyModifyDialog(props) {
         handleClose();
       }}
       onOk={() => {
-        handleClose();
-        props.handleSave();
-        if (_.isFunction(props.toPage)) {
-          props.toPage();
-        }
+        props.handleSave(() => {
+          handleClose();
+          if (_.isFunction(props.toPage)) {
+            props.toPage();
+          }
+        });
       }}
       onCancel={handleClose}
       {...props}

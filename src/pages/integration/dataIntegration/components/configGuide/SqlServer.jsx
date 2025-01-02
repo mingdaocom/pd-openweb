@@ -188,7 +188,7 @@ export default function SqlServerGuide(props) {
       <h5>{_l('先决条件')}</h5>
       <ul>
         <li>{_l('当前账号是数据库db_owner固定角色的成员')}</li>
-        <li>{_l('将系统 IP 添加到 SQL Server 服务器的访问白名单 ')}</li>
+        <li>{_l('将系统 IP 添加到 SQL Server 服务器的访问白名单')}</li>
       </ul>
 
       <h5>{_l('检查 SQL Server 版本')}</h5>

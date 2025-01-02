@@ -41,7 +41,7 @@ const DialogBox = styled(Dialog)`
       cursor: pointer;
       position: relative;
       &:not(.active) {
-        color: #333 !important;
+        color: #151515 !important;
       }
       &.active:after {
         position: absolute;

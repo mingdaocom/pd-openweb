@@ -46,6 +46,13 @@ const configs = [
     projectIntergrationType: 6,
     privatePermission: 'hideFeishu',
   },
+  {
+    type: 'lark',
+    src: feishuImg,
+    text: _l('Lark'),
+    featureId: 12,
+    projectIntergrationType: 6,
+  },
 ];
 
 export default class PlatformIntegration extends Component {
@@ -54,7 +61,7 @@ export default class PlatformIntegration extends Component {
     this.state = {
       loading: true,
     };
-    Config.setPageTitle(_l('第三方平台集成'));
+    Config.setPageTitle(_l('第三方平台'));
   }
 
   componentDidMount() {
@@ -67,9 +74,9 @@ export default class PlatformIntegration extends Component {
           let currentIntegrationType = (
             _.find(configs, item => item.projectIntergrationType === projectIntergrationType) || {}
           ).type;
-          this.setState({ [`${currentIntegrationType}Visible`]: true, loading: false });
+          this.setState({ [`${currentIntegrationType}Visible`]: true, loading: false, projectIntergrationType });
         } else {
-          this.setState({ loading: false });
+          this.setState({ loading: false, projectIntergrationType: 0 });
         }
       })
       .catch(err => {
@@ -89,15 +96,24 @@ export default class PlatformIntegration extends Component {
 
   handleShowIntegration = () => {
     const { projectId } = _.get(this.props, 'match.params') || {};
-    const { workwxVisible, dingVisible, welinkVisible, feishuVisible } = this.state;
+    const { workwxVisible, dingVisible, welinkVisible, feishuVisible, larkVisible, projectIntergrationType } =
+      this.state;
+
     if (workwxVisible) {
       return <Workwx projectId={projectId} onClose={() => this.setState({ workwxVisible: false })} />;
     } else if (dingVisible) {
       return <Ding projectId={projectId} onClose={() => this.setState({ dingVisible: false })} />;
     } else if (welinkVisible) {
       return <Welink projectId={projectId} onClose={() => this.setState({ welinkVisible: false })} />;
-    } else if (feishuVisible) {
-      return <FeiShu projectId={projectId} onClose={() => this.setState({ feishuVisible: false })} />;
+    } else if (feishuVisible || larkVisible) {
+      return (
+        <FeiShu
+          type={feishuVisible ? 'feishu' : 'lark'}
+          projectIntergrationType={projectIntergrationType}
+          projectId={projectId}
+          onClose={() => this.setState({ feishuVisible: false, larkVisible: false })}
+        />
+      );
     }
     return null;
   };
@@ -117,7 +133,7 @@ export default class PlatformIntegration extends Component {
     }
 
     return (
-      <div className="orgManagementWrap">
+      <div className="orgManagementWrap platform">
         <div className="platformIntegrationWrap">
           <div className="mBottom16 Font22 bold TxtCenter">{_l('第三方平台')}</div>
           <div className="Gray_9e Font14 mBottom40 TxtCenter">{_l('从第三方同步通讯录，只能集成一个平台')}</div>
@@ -129,7 +145,7 @@ export default class PlatformIntegration extends Component {
 
             return (
               <div
-                className="integrationItem flexRow alignItemsCenter"
+                className="integrationItem flexRow alignItemsCenter Hand"
                 onClick={() => this.handleClick({ featureType, ...item })}
               >
                 <img src={src} />

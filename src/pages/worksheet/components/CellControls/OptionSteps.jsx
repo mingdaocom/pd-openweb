@@ -14,7 +14,7 @@ function getOptionStyle(option, cell) {
   return cell.enumDefault2 === 1 && option.color
     ? {
         backgroundColor: option.color,
-        color: option.color && isLightColor(option.color) ? '#333' : '#fff',
+        color: option.color && isLightColor(option.color) ? '#151515' : '#fff',
       }
     : {};
 }

@@ -3,10 +3,11 @@ export function sortDataByCustomNavs(data, view = {}, controls = []) {
   if (_.get(view, 'advancedSetting.navshow') === '2') {
     customItems = safeParse(_.get(view, 'advancedSetting.navfilters'), 'array');
   }
-  const viewControls = _.find(controls, c => c.controlId === _.get(view, 'navGroup[0].controlId'));
+  const viewControls = _.find(controls, c => c.controlId === _.get(view, 'navGroup[0].controlId')) || {};
+  const controlType = viewControls.type === 30 ? viewControls.sourceControlType : viewControls.type;
   if (!_.isEmpty(customItems) && viewControls) {
     const sortIds = customItems.map(i => {
-      if (_.includes([9, 10, 11, 28], viewControls.type)) {
+      if (_.includes([9, 10, 11, 28], controlType)) {
         return i;
       } else {
         const itemVal = safeParse(i);
@@ -20,3 +21,11 @@ export function sortDataByCustomNavs(data, view = {}, controls = []) {
   }
   return data;
 }
+
+export const getSourceControlByNav = (navGroup, controls) => {
+  let source = controls.find(o => o.controlId === navGroup.controlId) || {};
+  return {
+    ...source,
+    type: 30 === source.type ? source.sourceControlType : source.type,
+  };
+};

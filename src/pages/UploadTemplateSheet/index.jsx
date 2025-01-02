@@ -736,15 +736,22 @@ export default class UploadTemplateSheet extends React.Component {
                 )}
               </span>
             </p>
+            <p className="Gray_75">
+              <span>
+                {_l(
+                  '7. 如需打印字段所选成员的工号、邮箱、手机号，请将代码：工号: _ID； 邮箱: _Email； 手机号: _Phone。插入到模版中，如#{[member]字段ID$[(_ID;_Email;_Phone)]$}  实现拼接样式：张三(888;1511515@qq.com;13475236985)',
+                )}
+              </span>
+            </p>
 
             <p className="Gray_75">
               <span>
                 {_l(
-                  '7. 批量打印 Word 模板时，默认所有数据连续打印，如需实现分页功能（每条数据另起一页），需在模板中的第一个段落配置段前分页。设置方法可参考',
+                  '8. 批量打印 Word 模板时，默认所有数据连续打印，如需实现分页功能（每条数据另起一页），需在模板中的第一个段落配置段前分页。设置方法可参考',
                 )}
               </span>
               <Support type={3} href="https://help.mingdao.com/worksheet/batch-print" text={_l('这里')} />。
-              <span>{_l(' Excel 模板批量打印时会自动分页打印，无需特殊设置。')}</span>
+              <span>{_l('Excel 模板批量打印时会自动分页打印，无需特殊设置。')}</span>
             </p>
             <br />
             <p className="Gray_75">

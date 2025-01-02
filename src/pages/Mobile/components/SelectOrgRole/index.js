@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
-import { Icon, ScrollView, LoadDiv } from 'ming-ui';
-import { Popup, Button, Checkbox } from 'antd-mobile';
+import { Icon, ScrollView, LoadDiv, PopupWrapper } from 'ming-ui';
+import { Checkbox } from 'antd-mobile';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import organizeAjax from 'src/api/organize.js';
 import './index.less';
@@ -20,6 +20,9 @@ export default class SelectOrgRole extends Component {
       pageIndex: 1,
       selectedOrgRole: [],
     };
+    this.debounceSearch = _.debounce(() => {
+      this.handleSearch();
+    }, 500);
   }
   componentDidMount() {
     this.init();
@@ -136,16 +139,17 @@ export default class SelectOrgRole extends Component {
           }}
         >
           <input
-            type="text"
+            type="search"
             placeholder={_l('搜索组织角色')}
             className="Font14"
             value={keywords}
             onChange={e => {
-              this.setState({ keywords: e.target.value });
+              this.setState({ keywords: e.target.value }, this.debounceSearch);
             }}
             onKeyDown={event => {
               event.which === 13 && this.handleSearch();
             }}
+            onBlur={this.handleSearch}
           />
         </form>
         {keywords ? (
@@ -182,7 +186,7 @@ export default class SelectOrgRole extends Component {
         <ScrollView style={{ maxHeight: 92, minHeight: 46 }}>
           {selectedOrgRole.map(item => (
             <span className="selectedItem" key={item.organizeId}>
-              <span>{item.organizeName}</span>
+              <span className="ellipsis curSelected">{item.organizeName}</span>
               <Icon
                 icon="close"
                 className="Gray_9e Font15"
@@ -224,13 +228,21 @@ export default class SelectOrgRole extends Component {
     let copySelectedOrgRole = [...selectedOrgRole];
     if (!isSelected) {
       !unique && copySelectedOrgRole.push(item);
-      this.setState({ selectedOrgRole: !unique ? copySelectedOrgRole : [item] });
+      this.setState(
+        {
+          selectedOrgRole: !unique ? copySelectedOrgRole : [item],
+        },
+        () => {
+          if (unique) this.handleSave();
+        },
+      );
     } else {
       this.setState({ selectedOrgRole: selectedOrgRole.filter(it => it.organizeId !== item.organizeId) });
     }
   };
 
   renderChildren = groupItem => {
+    const { unique } = this.props;
     const { expendTreeNodeKey, selectedOrgRole, keywords, searchList } = this.state;
     const selectedOrgRoleIds = selectedOrgRole.map(item => item.organizeId);
 
@@ -239,11 +251,14 @@ export default class SelectOrgRole extends Component {
     return (groupItem ? groupItem.children : searchList).map(roleItem => {
       return (
         <div className="flexRow orgRoleItem" key={roleItem.organizeId} onClick={() => this.checkOrgRoles(roleItem)}>
-          <Checkbox
-            checked={_.includes(selectedOrgRoleIds, roleItem.organizeId)}
-            onClick={() => this.checkOrgRoles(roleItem)}
-          ></Checkbox>
-          <div className="flex organizeName ellipsis Gray mLeft5">{roleItem.organizeName}</div>
+          {!unique && (
+            <Checkbox
+              style={{ '--icon-size': '18px' }}
+              checked={_.includes(selectedOrgRoleIds, roleItem.organizeId)}
+              onClick={() => this.checkOrgRoles(roleItem)}
+            />
+          )}
+          <div className="flex organizeName ellipsis Gray">{roleItem.organizeName}</div>
         </div>
       );
     });
@@ -278,7 +293,7 @@ export default class SelectOrgRole extends Component {
     const list = treeData.filter(l => l.orgRoleGroupId !== '' || l.children.length);
 
     return (
-      <ScrollView className="flex orgRolelist" onScrollEnd={this.onScrollEnd}>
+      <ScrollView className="flex orgRoleList" onScrollEnd={this.onScrollEnd}>
         {!keywords &&
           treeData.map(groupItem => {
             if (groupItem.orgRoleGroupId === '' && !groupItem.children.length) return null;
@@ -286,7 +301,7 @@ export default class SelectOrgRole extends Component {
             return (
               <Fragment key={`mobile-role-fragment-${groupItem.orgRoleGroupId}`}>
                 <div
-                  className="groupItem GrayBGF8 Hand ellipsis"
+                  className="groupItem Hand ellipsis"
                   key={`mobile-role-groupItem-${groupItem.orgRoleGroupId}`}
                   onClick={() => this.handleExpend(groupItem)}
                 >
@@ -299,7 +314,7 @@ export default class SelectOrgRole extends Component {
                   <span className="Font15 Bold ellipsis">{groupItem.orgRoleGroupName}</span>
                 </div>
                 {this.renderChildren(groupItem)}
-                {groupItem.hasMore && (
+                {groupItem.hasMore && expendTreeNodeKey.includes(groupItem.orgRoleGroupId) && (
                   <div
                     className="organizeName Hand valignWrapper ThemeColor pLeft20 pTop13 pBottom13"
                     onClick={() => this.getData(undefined, groupItem.orgRoleGroupId, groupItem.pageIndex + 1)}
@@ -326,21 +341,19 @@ export default class SelectOrgRole extends Component {
   };
 
   render() {
-    const { visible, onClose } = this.props;
+    const { visible, onClose, unique } = this.props;
+    const { selectedOrgRole } = this.state;
     return (
-      <Popup visible={visible} onClose={onClose} className="mobileModal full">
-        <div className="selectUserModal flexColumn h100">
-          {this.renderContent()}
-          <div className="flexRow WhiteBG pAll10">
-            <Button className="flex mLeft6 mRight6 Gray_75 bold Font14" onClick={onClose}>
-              {_l('取消')}
-            </Button>
-            <Button className="flex mLeft6 mRight6 bold Font14" onClick={this.handleSave} color="primary">
-              {_l('确定')}
-            </Button>
-          </div>
-        </div>
-      </Popup>
+      <PopupWrapper
+        bodyClassName="heightPopupBody40"
+        visible={visible}
+        title={_l('组织角色')}
+        confirmDisable={!selectedOrgRole.length}
+        onClose={onClose}
+        onConfirm={unique ? null : this.handleSave}
+      >
+        <div className="selectOrgRoleModal flexColumn">{this.renderContent()}</div>
+      </PopupWrapper>
     );
   }
 }

@@ -6,7 +6,6 @@ import CarouselPreview from 'src/pages/customPage/components/editWidget/carousel
 import { StateChartContent } from './ChartContent';
 import ViewContent from './ViewContent';
 import Filter from './FilterContent';
-import Ai from './AiContent';
 import { RichText } from 'ming-ui';
 import { getTranslateInfo } from 'src/util';
 
@@ -102,11 +101,6 @@ function WidgetDisplay(props) {
       const { config, componentConfig } = widget;
       return (
         <CarouselPreview config={config} componentConfig={componentConfig} />
-      );
-    }
-    if (componentType === 'ai') {
-      return (
-        <Ai widget={widget}/>
       );
     }
   };

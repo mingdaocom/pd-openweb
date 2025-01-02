@@ -26,7 +26,7 @@ export const Button = styled.div`
   cursor: pointer;
   height: 36px;
   line-height: 36px;
-  color: #333;
+  color: #151515;
   border: 1px solid #dddddd;
   font-size: 13px;
   .content {
@@ -57,7 +57,7 @@ const DropIcon = styled.span`
   width: 36px;
   text-align: center;
   cursor: pointer;
-  color: #333;
+  color: #151515;
   height: 34px;
   &:hover {
     background-color: #f5f5f5;

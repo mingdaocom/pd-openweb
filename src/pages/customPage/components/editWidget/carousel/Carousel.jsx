@@ -10,7 +10,7 @@ import { previewQiniuUrl } from 'src/components/previewAttachments';
 import RecordInfoWrapper from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import { dealMaskValue } from 'src/pages/widgetConfig/widgetSetting/components/WidgetSecurity/util';
 import { RecordInfoModal } from 'mobile/Record';
-import { browserIsMobile, addBehaviorLog } from 'src/util';
+import { browserIsMobile, addBehaviorLog, handlePushState, handleReplaceState } from 'src/util';
 import { getBarCodeValue } from 'src/components/newCustomFields/tools/utils';
 import { parseDataSource } from 'src/pages/widgetConfig/util/setting';
 import { getUrlList } from './util';
@@ -256,6 +256,17 @@ export default function CarouselPreview(props) {
     }
   }, [worksheetId, viewId, image, title, subTitle, url, config.displayMode]);
 
+  const onQueryChange = () => {
+    handleReplaceState('page', 'recordDetail', () => setPreviewRecord({}));
+  };
+
+  useEffect(() => {
+    window.addEventListener('popstate', onQueryChange);
+    return () => {
+      window.removeEventListener('popstate', onQueryChange);
+    };
+  }, []);
+
   const contentWidth = _.get(contentRef.current, 'clientWidth');
   const contentHeight = _.get(contentRef.current, 'clientHeight');
   const style = {
@@ -280,6 +291,9 @@ export default function CarouselPreview(props) {
         return;
       }
       if (openMode === 1) {
+        if (isMobile) {
+          handlePushState('page', 'recordDetail');
+        }
         setPreviewRecord({ appId, rowId: rowid });
       }
       if (openMode === 2) {

@@ -41,7 +41,7 @@ const Wrap = styled(DropdownContent)`
     line-height: 36px;
     &:not(disabled):hover {
       background-color: #f5f5f5;
-      color: #333;
+      color: #151515;
     }
     .countryName {
       margin: 0 6px;

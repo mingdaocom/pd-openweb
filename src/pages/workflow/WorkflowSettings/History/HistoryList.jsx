@@ -28,7 +28,7 @@ const Box = styled.div`
   align-items: center;
   margin: 10px 24px 0;
   > a {
-    color: #333;
+    color: #151515;
     border-bottom: 1px dashed #757575;
     margin: 0 3px;
     &:hover {
@@ -216,6 +216,7 @@ export default class HistoryList extends Component {
                               id: o.id,
                               status: o.status,
                               cause: o.instanceLog.cause,
+                              instanceType: o.instanceType,
                             };
                           })
                         : [],

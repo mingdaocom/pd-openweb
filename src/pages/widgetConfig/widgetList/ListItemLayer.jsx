@@ -20,10 +20,10 @@ const ItemLayer = styled.div`
     line-height: 40px;
     padding-left: 10px;
     padding-right: 4px;
-    background: #fff;
+    background: #f8f8f8;
     border-radius: 3px;
-    border: 1px solid #2196f3;
-    box-shadow: 0 0 4px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #d5d5d5;
+    box-shadow: 0 4px 16px 0px rgba(0, 0, 0, 0.24);
     opacity: 0;
     &.isDragging {
       opacity: 1;
@@ -31,8 +31,12 @@ const ItemLayer = styled.div`
     .content {
       display: flex;
       align-items: center;
-      color: #2196f3;
+      i {
+        color: #9e9e9e;
+      }
       span {
+        color: #757575;
+        font-weight: bold;
         margin-left: 6px;
       }
     }

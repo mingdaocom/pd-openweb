@@ -8,7 +8,7 @@ import { refreshWorksheetControls } from 'worksheet/redux/actions';
 import { Icon, Button } from 'ming-ui';
 import QuickFilterSearch from 'mobile/RecordList/QuickFilter/QuickFilterSearch';
 import SheetRows, { WithoutRows } from '../../SheetRows';
-import { SpinLoading, Dialog } from 'antd-mobile';
+import { SpinLoading, Dialog, Popup } from 'antd-mobile';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import worksheetAjax from 'src/api/worksheet';
@@ -51,7 +51,16 @@ const BatchOptBtn = styled.div`
       vertical-align: middle;
     }
   }
-}
+`;
+
+const Btn = styled(Button)`
+  border: 1px solid #eee !important;
+  background-color: #fff !important;
+  &.delete {
+    background-color: #f44336 !important;
+    border: 1px solid #f44336;
+    color: #fff;
+  }
 `;
 
 const CUSTOM_BUTTOM_CLICK_TYPE = {
@@ -63,19 +72,23 @@ const CUSTOM_BUTTOM_CLICK_TYPE = {
 class SheetView extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = { deleteVisible: false };
   }
   componentWillUnmount() {
     this.props.changeBatchOptVisible(false);
   }
   renderWithoutRows() {
-    const { appId, worksheetInfo, sheetSwitchPermit, filters, quickFilter, view } = this.props;
+    const { appId, worksheetInfo, sheetSwitchPermit, filters, quickFilter, view, activeSavedFilter = {} } = this.props;
+    const handlePullToRefresh = () => {
+      this.props.updateIsPullRefreshing(true);
+      this.props.changePageIndex(1);
+    };
 
     if (filters.keyWords) {
       return <WithoutRows text={_l('没有搜索结果')} />;
     }
 
-    if (quickFilter.length) {
+    if (quickFilter.length || !_.isEmpty(activeSavedFilter)) {
       return <WithoutRows text={_l('没有符合条件的记录')} />;
     }
 
@@ -83,6 +96,7 @@ class SheetView extends Component {
       <Fragment>
         <WithoutRows
           text={_l('此视图下暂无记录')}
+          onRefresh={handlePullToRefresh}
           children={
             isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) &&
             worksheetInfo.allowAdd && (
@@ -102,10 +116,11 @@ class SheetView extends Component {
     );
   }
   renderContent() {
-    const { view, currentSheetRows, sheetRowLoading, sheetView, quickFilter, batchOptCheckedData } = this.props;
+    const { view, currentSheetRows, sheetRowLoading, sheetView, quickFilter, batchOptCheckedData, isPullRefreshing } =
+      this.props;
     const needClickToSearch = _.get(view, 'advancedSetting.clicksearch') === '1';
 
-    if (sheetRowLoading && sheetView.pageIndex === 1) {
+    if (!isPullRefreshing && sheetRowLoading && sheetView.pageIndex === 1) {
       return (
         <div className="flexRow justifyContentCenter alignItemsCenter h100">
           <SpinLoading color="primary" />
@@ -154,12 +169,8 @@ class SheetView extends Component {
   };
   // 批量操作全选
   selectedAll = () => {
-    const { batchOptCheckedData, currentSheetRows } = this.props;
-    if (!_.isEqual(currentSheetRows.length, batchOptCheckedData.length)) {
-      this.props.changeBatchOptData(currentSheetRows.map(item => item.rowid));
-    } else {
-      this.props.changeBatchOptData([]);
-    }
+    const { batchCheckAll } = this.props;
+    this.props.updateBatchCheckAll(!batchCheckAll);
   };
   comfirmDelete = () => {
     const {
@@ -228,28 +239,6 @@ class SheetView extends Component {
         });
       this.props.changeBatchOptVisible(false);
     }
-  };
-  // 批量删除
-  batchDelete = () => {
-    const { worksheetInfo, batchOptCheckedData } = this.props;
-    if (window.isPublicApp) {
-      alert(_l('预览模式下，不能操作'), 3);
-      return;
-    }
-    Dialog.confirm({
-      title: (
-        <div className="Font16" style={{ fontWeight: 700, textAlign: 'center' }}>
-          {_l('确认删除记录?')}
-        </div>
-      ),
-      content: (
-        <div className="Font13" style={{ color: '#333' }}>
-          {_l('60天内可在 回收站 内找回已删除%0，无编辑权限的数据无法删除。', worksheetInfo.entityName)}
-        </div>
-      ),
-      confirmText: <span className="Red">{_l('删除')}</span>,
-      onConfirm: this.comfirmDelete,
-    });
   };
   triggerCustomBtn = (btn, isAll) => {
     const { worksheetId, viewId, batchOptCheckedData, filters, quickFilter, navGroupFilters } = this.props;
@@ -388,17 +377,15 @@ class SheetView extends Component {
       viewId,
       changeActionSheetModalIndex,
       quickFilterWithDefault,
+      savedFilters,
+      batchCheckAll,
+      activeSavedFilter,
       updateFilters = () => {},
+      updateActiveSavedFilter = () => {},
     } = this.props;
     const { detail } = appDetail;
-    let { customBtns = [], showButtons, customButtonLoading } = this.state;
+    let { customBtns = [], showButtons, customButtonLoading, deleteVisible } = this.state;
     const sheetControls = _.get(worksheetInfo, ['template', 'controls']);
-    const viewFilters = quickFilterWithDefault
-      .map(filter => ({
-        ...filter,
-        control: _.find(sheetControls, c => c.controlId === filter.controlId),
-      }))
-      .filter(c => c.control);
     const isFilter = quickFilter.length;
     let checkedCount = batchOptCheckedData.length;
     const canDelete =
@@ -419,11 +406,10 @@ class SheetView extends Component {
             </a>
             {_.isEmpty(batchOptCheckedData) && <span>{_l('请选择')}</span>}
             {!_.isEmpty(batchOptCheckedData) && <span>{_l(`已选中%0条`, checkedCount)}</span>}
-            <a onClick={this.selectedAll}>{_l('全选')}</a>
+            <a onClick={this.selectedAll}>{batchCheckAll ? _l('取消全选') : _l('全选')}</a>
           </div>
         )}
         <QuickFilterSearch
-          excludeTextFilter={viewFilters}
           isFilter={isFilter}
           filters={filters}
           detail={detail}
@@ -432,6 +418,9 @@ class SheetView extends Component {
           sheetControls={sheetControls}
           updateFilters={updateFilters}
           quickFilterWithDefault={quickFilterWithDefault}
+          savedFilters={savedFilters}
+          activeSavedFilter={activeSavedFilter}
+          updateActiveSavedFilter={updateActiveSavedFilter}
         />
         {this.renderContent()}
         {batchOptVisible && (canDelete || showCusTomBtn) && (
@@ -441,7 +430,14 @@ class SheetView extends Component {
                 className={cx('deleteOpt flex', {
                   disabledDel: !canDelete,
                 })}
-                onClick={!canDelete ? () => {} : this.batchDelete}
+                onClick={() => {
+                  if (!canDelete) return;
+                  if (window.isPublicApp) {
+                    alert(_l('预览模式下，不能操作'), 3);
+                    return;
+                  }
+                  this.setState({ deleteVisible: true });
+                }}
               >
                 <Icon icon="delete_12" className="mRight16" />
                 {_l('删除')}
@@ -484,6 +480,37 @@ class SheetView extends Component {
           handleUpdateWorksheetRow={this.handleUpdateWorksheetRow}
           currentSheetRows={this.props.currentSheetRows}
         />
+
+        {deleteVisible && (
+          <Popup
+            closeOnMaskClick
+            visible={deleteVisible}
+            position="bottom"
+            className="mobileModal topRadius"
+            bodyClassName="pTop10 pBottom10 pLeft15 pRight15"
+          >
+            <div className="Font16 bold mBottom10">{_l('确认删除记录?')}</div>
+            <div className="Font13 Gray_9e mBottom10">
+              {_l('60天内可在 回收站 内找回已删除%0，无编辑权限的数据无法删除。', worksheetInfo.entityName)}
+            </div>
+            <div className="flexRow mBottom10">
+              <Btn
+                radius
+                className="flex mRight6 bold Gray_75 Font13"
+                onClick={() => this.setState({ deleteVisible: false })}
+              >
+                {_l('取消')}
+              </Btn>
+              <Btn
+                radius
+                className="flex mLeft6 bold Font13 delete"
+                onClick={() => this.setState({ deleteVisible: false }, this.comfirmDelete)}
+              >
+                {_l('确定')}
+              </Btn>
+            </div>
+          </Popup>
+        )}
       </Fragment>
     );
   }
@@ -507,6 +534,10 @@ export default connect(
         'worksheetControls',
         'appDetail',
         'quickFilterWithDefault',
+        'isPullRefreshing',
+        'batchCheckAll',
+        'savedFilters',
+        'activeSavedFilter',
       ]),
       sheetViewConfig: sheet.sheetview.sheetViewConfig,
       navGroupFilters: sheet.navGroupFilters,
@@ -516,7 +547,16 @@ export default connect(
   dispatch =>
     bindActionCreators(
       {
-        ..._.pick(actions, ['fetchSheetRows', 'updateFilters', 'changeBatchOptVisible', 'changeBatchOptData']),
+        ..._.pick(actions, [
+          'fetchSheetRows',
+          'updateFilters',
+          'changeBatchOptVisible',
+          'changeBatchOptData',
+          'updateBatchCheckAll',
+          'updateActiveSavedFilter',
+          'changePageIndex',
+          'updateIsPullRefreshing',
+        ]),
         refreshWorksheetControls,
       },
       dispatch,

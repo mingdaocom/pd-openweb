@@ -104,6 +104,11 @@ const Box = styled.div`
   border: 1px solid #fce596;
   padding: 0 12px;
 `;
+const AvatarWrap = styled.div`
+  width: 24px;
+  height: 24px;
+  background: #f5f5f5;
+`
 const PAGE_SIZE = 50;
 export default class AppAndWorksheetLog extends Component {
   constructor(props) {
@@ -157,20 +162,28 @@ export default class AppAndWorksheetLog extends Component {
               case 'accountId':
                 const isNormalUser = accountId && accountId.length === 36;
                 const extra = isNormalUser ? {} : { headClick: () => {} };
+                const isPublicFileDownload = operationType === 12 && accountId === 'user-publicform';
 
                 return (
                   <div className="flexRow">
-                    <UserHead
-                      className="circle mRight8"
-                      user={{
-                        userHead: avatar,
-                        accountId: accountId,
-                      }}
-                      size={24}
-                      appId={appId}
-                      {...extra}
-                      projectId={projectId}
-                    />
+                    {isPublicFileDownload ? (
+                      <AvatarWrap className='pointer circle mRight8 valignWrapper justifyContentCenter'>
+                        <Icon icon="worksheet" className="Gray_9e Font16 TxtMiddle" />
+                      </AvatarWrap>
+                    ) : (
+                      <UserHead
+                        className="circle mRight8"
+                        user={{
+                          userHead: avatar,
+                          accountId: accountId,
+                        }}
+                        size={24}
+                        appId={appId}
+                        {...extra}
+                        projectId={projectId}
+                      />
+                    )}
+
                     {isNormalUser ? (
                       <UserName
                         className="Gray Font13 pRight10 pTop3 flex ellipsis"
@@ -180,7 +193,7 @@ export default class AppAndWorksheetLog extends Component {
                         }}
                       />
                     ) : (
-                      <div>{fullname}</div>
+                      <div>{isPublicFileDownload ? _l('公开访问') : fullname}</div>
                     )}
                   </div>
                 );

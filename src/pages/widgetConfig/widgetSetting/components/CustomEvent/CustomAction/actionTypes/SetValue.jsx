@@ -113,7 +113,7 @@ export default function SetValue(props) {
           </div>
         )}
         <AddFields
-          handleClick={value => setState({ actionItems: actionItems.concat(value) })}
+          handleClick={value => setState({ actionItems: actionItems.concat([{ controlId: value.controlId }]) })}
           selectControls={selectControls}
           disabled={!selectControls.length}
         />

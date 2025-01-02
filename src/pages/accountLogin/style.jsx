@@ -61,7 +61,7 @@ export const Wrap = styled.div`
         .title {
           text-align: left;
           font-size: 26px;
-          color: #333333;
+          color: #151515;
           line-height: 1.75;
 
           span {

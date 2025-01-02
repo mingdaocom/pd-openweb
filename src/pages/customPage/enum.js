@@ -26,9 +26,5 @@ export const widgets = {
   embedUrl: {
     icon: 'url',
     name: _l('嵌入url'),
-  },
-  ai: {
-    icon: 'ai1',
-    name: _l('AI助手'),
-  },
+  }
 };

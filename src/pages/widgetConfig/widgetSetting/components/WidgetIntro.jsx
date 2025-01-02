@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { Dialog, Support, Icon } from 'ming-ui';
-import { DEFAULT_INTRO_LINK } from '../../config';
+import { Dialog, Icon } from 'ming-ui';
 import { WidgetIntroWrap, IntroMenu } from '../../styled';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../../config/widget';
-import { enumWidgetType, getWidgetInfo, canSetAsTitle, supportWidgetIntroOptions } from '../../util';
+import {
+  enumWidgetType,
+  getWidgetInfo,
+  canSetAsTitle,
+  supportWidgetIntroOptions,
+  checkWidgetMaxNumErr,
+  isCustomWidget,
+} from '../../util';
 import { handleAdvancedSettingChange } from '../../util/setting';
 import { WHOLE_SIZE } from '../../config/Drag';
 import { Tooltip } from 'antd';
@@ -69,7 +75,7 @@ const SWITCH_ENUM = {
 };
 
 export default function WidgetIntro(props) {
-  const { data = {}, from, onChange, mode, setMode, globalSheetInfo = {}, isRecycle } = props;
+  const { data = {}, from, onChange, mode, setMode, globalSheetInfo = {}, isRecycle, allControls } = props;
   const {
     type,
     controlId,
@@ -125,7 +131,7 @@ export default function WidgetIntro(props) {
                   if (window.subListSheetConfig[controlId]) {
                     window.subListSheetConfig[controlId].mode = 'relate';
                   }
-                  onChange({ data, needUpdate: true });
+                  onChange({ ...handleAdvancedSettingChange(data, { searchrange: '1' }), needUpdate: true });
                   alert(_l('转换成功'));
                 } else {
                   alert(_l('转换失败'), 2);
@@ -166,6 +172,14 @@ export default function WidgetIntro(props) {
 
     if (info.type === 'DATE' || info.type === 'DATE_TIME') {
       newData = { ...newData, enumDefault: 0, unit: '' };
+    }
+
+    if (info.type === 'RICH_TEXT') {
+      const error = checkWidgetMaxNumErr(newData, allControls);
+      if (error) {
+        alert(error, 3);
+        return;
+      }
     }
 
     if (type === 6 || type === 8) {
@@ -308,6 +322,7 @@ export default function WidgetIntro(props) {
 
   const isAllowSwitch = () => {
     if (type === 29 && from === 'subList') return false;
+    if (isCustomWidget(data)) return false;
     return switchList.length > 0;
   };
 
@@ -348,16 +363,6 @@ export default function WidgetIntro(props) {
             {isAllowSwitch() && <Icon icon="task_custom_btn_unfold" className="mLeft6 Gray_75" />}
           </div>
         </Trigger>
-
-        <Tooltip placement={'bottom'} title={intro}>
-          <span style={{ marginLeft: '3px' }}>
-            <Support
-              type={3}
-              href={moreIntroLink || DEFAULT_INTRO_LINK}
-              text={<i className="icon-help Font16 Gray_9e"></i>}
-            />
-          </span>
-        </Tooltip>
       </div>
 
       <div className="introOptions">

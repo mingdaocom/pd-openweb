@@ -25,8 +25,8 @@ const checkFuncs = {
     const { md = {} } = window;
     const { global = {} } = md;
     const { SysSettings = {} } = global;
-    const { passwordRegexTip, passwordRegex } = SysSettings;
-    if (!(pwd && RegExpValidator.isPasswordValid(pwd, passwordRegex))) {
+    const { passwordRegexTip } = SysSettings;
+    if (!(pwd && RegExpValidator.isPasswordValid(pwd))) {
       return passwordRegexTip || _l('密码，至少8-20位，且含字母+数字');
     }
   },
@@ -111,7 +111,7 @@ export default class InitBindAccountDialog extends Component {
       function (res) {
         if (res.ret === 0) {
           accountController
-            .sendVerifyCode({
+            .sendChangeAccountVerifyCode({
               account: _this.iti.getNumber(),
               ticket: res.ticket,
               randStr: res.randstr,

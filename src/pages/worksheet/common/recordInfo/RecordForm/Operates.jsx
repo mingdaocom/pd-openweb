@@ -100,6 +100,7 @@ export default class Operates extends Component {
       onUpdate,
       customBtnTriggerCb,
       sheetSwitchPermit,
+      isDraft
     } = this.props;
     const { customBtns, buttonShowNum, btnDisable } = this.state;
     const { viewId, worksheetId, recordId, appId } = recordbase;
@@ -127,6 +128,7 @@ export default class Operates extends Component {
               onButtonClick={this.disableCustomButton}
               triggerCallback={customBtnTriggerCb}
               sheetSwitchPermit={sheetSwitchPermit}
+              isDraft={isDraft}
             />
           </div>
         </div>

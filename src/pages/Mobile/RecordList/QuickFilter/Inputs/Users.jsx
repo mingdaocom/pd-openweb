@@ -90,7 +90,7 @@ export default function Users(props) {
   };
   return (
     <div className="controlWrapper">
-      <div className="Font14 bold mBottom15">{control.controlName}</div>
+      <div className="Font14 bold mBottom15 controlName">{control.controlName}</div>
       <UsersCon>
         {values.map(item => (
           <UserItem>
@@ -126,9 +126,6 @@ export default function Users(props) {
           type="user"
           userType={getTabTypeBySelectUser(control)}
           appId={appId || ''}
-          selectRangeOptions={
-            !!_.get(control, 'advancedSetting.chooserange') ? dealUserRange(control, props.controls) : false
-          }
           onlyOne={!isMultiple}
           advancedSetting={advancedSetting}
           onClose={() => setShowSelectUser(false)}

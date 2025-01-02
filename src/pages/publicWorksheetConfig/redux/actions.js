@@ -118,6 +118,11 @@ export function loadPublicWorksheet({ worksheetId }) {
     publicWorksheetAjax
       .getPublicWorksheetInfo({ worksheetId })
       .then(data => {
+        const extendDatas = data.extendDatas;
+        const shareConfig = safeParse(extendDatas.shareConfig);
+        shareConfig.title = shareConfig.title || `${data.name} - ${_l('公开填写')}`;
+        shareConfig.desc = shareConfig.desc || _l('请填写内容');
+        extendDatas.shareConfig = JSON.stringify(shareConfig);
         dispatch({
           type: 'PUBLICWORKSHEET_LOAD_SUCCESS',
           controls: data.controls,
@@ -150,6 +155,7 @@ export function loadPublicWorksheet({ worksheetId }) {
             ]),
           },
           worksheetSettings: {
+            extendDatas,
             ..._.pick(data, [
               'limitWriteFrequencySetting',
               'ipControlId',

@@ -100,14 +100,29 @@ function SettingMenu(props) {
 
   const handleChangeViewType = (viewType = 'sheet') => {
     if (viewType !== VIEW_DISPLAY_TYPE[item.viewType]) {
+      const advancedSetting = _.omit(item.advancedSetting || {}, [
+        'navfilters',
+        'topfilters',
+        'topshow',
+        'customitems',
+        'customnavs',
+      ]);
+      if (advancedSetting.navshow && _.get(item, 'navGroup[0].controlId')) {
+        let control = controls.find(o => o.controlId === _.get(item, 'navGroup[0].controlId'));
+        let type = control.type;
+        if (type === 30) {
+          type = control.sourceControlType;
+        }
+        advancedSetting.navshow = [26, 27, 48].includes(type) ? '1' : '0';
+      }
       changeViewDisplayType(
         getDefaultViewSet({
-          ...item,
+          ..._.omit(item, ['fastFilters', 'navGroup']),
           viewControl: 'gunter' === viewType ? '' : item.viewControl, //转换成甘特图，viewControl清空
           viewControls: [],
           viewType: VIEW_DISPLAY_TYPE[viewType],
           filters: item.filters, // formatValuesOfOriginConditions(item.filters),
-          advancedSetting: _.omit(item.advancedSetting || {}, ['navfilters', 'navshow', 'topfilters', 'topshow']), //更换视图类型，把分组清空
+          advancedSetting,
         }),
       );
       if (viewType === 'detail') {

@@ -41,7 +41,7 @@ const TAB_POSITION_TYPE = [
 ];
 
 export const FILL_COLOR = [
-  { value: '3', text: _l('黑色'), color: '#333333' },
+  { value: '3', text: _l('黑色'), color: '#151515' },
   { value: '1', text: _l('白色'), color: '#ffffff' },
   { value: '2', text: _l('灰色'), color: '#F5F5F5' },
   { value: '4', text: _l('模糊图片'), img: img },
@@ -69,22 +69,6 @@ const TITLE_TYPE = [
   { value: '2', text: _l('右对齐'), img: 'align-right' },
 ];
 
-const IntroWrap = styled.div`
-  .title {
-    display: flex;
-    align-items: center;
-    .icon {
-      font-size: 18px;
-      color: #757575;
-    }
-    > span {
-      margin-left: 8px;
-      font-size: 15px;
-      font-weight: 700;
-    }
-  }
-`;
-
 const WidgetStyleWrap = styled.div`
   position: absolute;
   background: #fff;
@@ -96,6 +80,12 @@ const WidgetStyleWrap = styled.div`
   z-index: 9;
   overflow: auto;
   overflow-x: hidden;
+  .introTitle {
+    display: flex;
+    align-items: center;
+    font-size: 17px;
+    font-weight: 700;
+  }
 `;
 
 const DropItemWrap = styled.div`
@@ -174,12 +164,7 @@ function WidgetStyleSetting(props) {
 
   return (
     <WidgetStyleWrap>
-      <IntroWrap>
-        <div className="title relative">
-          <i className="icon Font20 icon-style" />
-          <span>{_l('表单样式')}</span>
-        </div>
-      </IntroWrap>
+      <div className="introTitle">{_l('表单样式')}</div>
       <SettingCollapseWrap
         bordered={false}
         activeKey={expandKeys}
@@ -522,7 +507,7 @@ export default function WidgetStyle(props) {
           setBatchActive([]);
         }}
       >
-        <Icon icon="style" />
+        <Icon icon="design-services" />
         <div className="recycle">{_l('表单样式')}</div>
       </div>
       {activeStatus &&

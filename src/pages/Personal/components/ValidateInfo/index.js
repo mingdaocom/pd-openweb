@@ -177,7 +177,7 @@ export default class ValidateInfoCon extends Component {
       _this.setState({ sendCodeLoading: true, sendCodeTxt: _l('发送中...') });
 
       accountController
-        .sendVerifyCode({
+        .sendChangeAccountVerifyCode({
           account: type === 'email' ? email : _this.iti.getNumber(),
           ticket: res.ticket,
           randStr: res.randstr,
@@ -230,7 +230,7 @@ export default class ValidateInfoCon extends Component {
     const { type, callback = () => {} } = this.props;
     const { verifyCode, email } = this.state;
 
-    if (!verifyCode) {
+    if (!md.global.SysSettings.allowBindAccountNoVerify && !verifyCode) {
       alert(_l('请输入验证码'), 3);
       this.verifyCode.focus();
       return;
@@ -318,29 +318,31 @@ export default class ValidateInfoCon extends Component {
                 />
               </MobileInputWrap>
             )}
-            <div className="flexRow mBottom20">
-              <InputCom
-                type="text"
-                ref={ele => (this.verifyCode = ele)}
-                placeholder={_l('请输入验证码')}
-                className="mRight15 inputBox txtVerifyCode flex"
-                maxlength={6}
-                onChange={e => this.changeValue(e, 'verifyCode')}
-                onKeyUp={e => {
-                  if (e.keyCode === 13) {
-                    this.sendChangeAccountVerifyCode();
-                  }
-                }}
-              />
-              <button
-                disabled={sendCodeLoading}
-                className="Button ming Button--primary Button--medium pLeft0 pRight0"
-                style={{ minWidth: 120 }}
-                onClick={this.sendChangeAccountVerifyCode}
-              >
-                {sendCodeTxt}
-              </button>
-            </div>
+            {!md.global.SysSettings.allowBindAccountNoVerify && (
+              <div className="flexRow mBottom20">
+                <InputCom
+                  type="text"
+                  ref={ele => (this.verifyCode = ele)}
+                  placeholder={_l('请输入验证码')}
+                  className="mRight15 inputBox txtVerifyCode flex"
+                  maxlength={6}
+                  onChange={e => this.changeValue(e, 'verifyCode')}
+                  onKeyUp={e => {
+                    if (e.keyCode === 13) {
+                      this.sendChangeAccountVerifyCode();
+                    }
+                  }}
+                />
+                <button
+                  disabled={sendCodeLoading}
+                  className="Button ming Button--primary Button--medium pLeft0 pRight0"
+                  style={{ minWidth: 120 }}
+                  onClick={this.sendChangeAccountVerifyCode}
+                >
+                  {sendCodeTxt}
+                </button>
+              </div>
+            )}
             <button
               className="Button ming Button--primary Button--medium btnUpdateAccount w100"
               onClick={this.updateAccount}

@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import cx from 'classnames';
+import store from 'redux/configureStore';
 import { Dialog } from 'ming-ui';
 import FilterConfig from 'worksheet/common/WorkSheetFilter/common/FilterConfig';
 import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
@@ -16,13 +16,13 @@ export default class Filter extends Component {
     this.state = {
       oldConditions: props.filterItem,
       newConditions: undefined,
-      visible: false
-    }
+      visible: false,
+    };
   }
   saveFilter = (conditions = []) => {
     const { oldConditions } = this.state;
     if (_.isEqual(oldConditions, conditions)) {
-      return
+      return;
     }
     this.setState({ oldConditions: conditions });
     conditions = conditions.map(item => {
@@ -31,8 +31,8 @@ export default class Filter extends Component {
       if (isTime && isMoment) {
         return {
           ...item,
-          value: item.value.format('YYYY-MM-DD')
-        }
+          value: item.value.format('YYYY-MM-DD'),
+        };
       } else {
         return item;
       }
@@ -51,9 +51,12 @@ export default class Filter extends Component {
       });
   };
   render() {
-    const { filter, projectId, axisControls, worksheetInfo, filterItem, filterResigned = true } = this.props;
+    const { filter, projectId, worksheetInfo, filterItem, sourceType } = this.props;
+    const urlParams = _.get(store.getState(), 'customPage.urlParams') || [];
     const { visible } = this.state;
-    const filterItemTexts = filterData(worksheetInfo.columns, filterItem);
+    const urlParamsColumns = urlParams.map(i => ({ controlName: i, controlId: i }));
+    const filterColumns = [...worksheetInfo.columns, ...urlParamsColumns];
+    const filterItemTexts = filterData(filterColumns, filterItem, true, filterColumns);
     return (
       <div className="mBottom20">
         <div className="Bold mBottom12 Font13">{_l('筛选')}</div>
@@ -64,14 +67,17 @@ export default class Filter extends Component {
             filterItemTexts={filterItemTexts}
             onClear={() => {
               this.setState({
-                newConditions: []
+                newConditions: [],
               });
               this.saveFilter([]);
             }}
             editFn={() => this.setState({ visible: true })}
           />
         ) : (
-          <div className="filterWrapper flexRow alignItemsCenter Gray_bd Font13 Hover_21" onClick={() => this.setState({ visible: true })}>
+          <div
+            className="filterWrapper flexRow alignItemsCenter Gray_bd Font13 Hover_21"
+            onClick={() => this.setState({ visible: true })}
+          >
             {_l('添加筛选字段')}
           </div>
         )}
@@ -100,10 +106,11 @@ export default class Filter extends Component {
             columns={worksheetInfo.columns}
             sheetSwitchPermit={worksheetInfo.switches}
             conditions={filterItem}
+            urlParams={sourceType === 1 ? urlParams : undefined}
             filterResigned={false}
             onConditionsChange={conditions => {
               this.setState({
-                newConditions: conditions.filter(n => n.isGroup ? n.groupFilters.length : true)
+                newConditions: conditions.filter(n => (n.isGroup ? n.groupFilters.length : true)),
               });
             }}
           />

@@ -4,11 +4,13 @@ import { useSetState } from 'react-use';
 import cx from 'classnames';
 import { Icon } from 'ming-ui';
 import { getIconByType } from 'src/pages/widgetConfig/util';
-import { getCanSelectControls, formatControls, isIn, canAgg, canChooseForParent } from '../util';
+import { getCanSelectControls, formatControls, isIn, canAgg, canChooseForParent, sourceIsMax } from '../util';
 import { isFormulaResultAsSubtotal } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
+import _ from 'lodash';
 
 const Wrap = styled.div`
   width: 240px;
+  overflow-y: auto;
   max-height: 320px;
   min-height: 300px;
   .controls {
@@ -69,7 +71,7 @@ const WrapCon = styled.div`
 
 function ChooseControl(props) {
   const inputRef = useRef(null);
-  const { title, onChange, parentName, showNext, controlId } = props;
+  const { title, onChange, parentName, showNext, controlId, hasFormat } = props;
   const [{ keywords }, setState] = useSetState({ keywords: '' });
   useEffect(() => {
     setTimeout(() => {
@@ -77,7 +79,7 @@ function ChooseControl(props) {
     }, 300);
   }, []);
   const renderDrop = () => {
-    let controlsByKey = formatControls(props.controls, props.worksheetId).filter(
+    let controlsByKey = (hasFormat ? props.controls : formatControls(props.controls, props.worksheetId)).filter(
       o =>
         (o.controlName || '').toLowerCase().indexOf((keywords || '').toLowerCase()) >= 0 &&
         (parentName ? ![29, 34, 35].includes(o.type) : !parentName), //下集不可选 关联记录、级连选择、子表
@@ -114,7 +116,7 @@ function ChooseControl(props) {
             controlsByKey.map(o => {
               const isFull =
                 o.isFull || ([29, 34, 35].includes(o.type) && !canChooseForParent(props.flowData, o.dataSource));
-              const disable = o.disableChoose || isFull;
+              const disable = o.disableChoose || o.isLimit || isFull;
               const hs = controlId === o.controlId;
               return (
                 <div
@@ -125,7 +127,8 @@ function ChooseControl(props) {
                   })}
                   onClick={event => {
                     if (isFull) {
-                      return alert(_l('数据源已达上限'), 3);
+                      sourceIsMax(_.get(props, 'flowData.projectId'));
+                      return;
                     }
                     if (disable) {
                       return;

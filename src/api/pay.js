@@ -80,6 +80,17 @@ export default {
      return mdyAPI('Pay', 'PaymentNotify', args, options);
    },
   /**
+  * 应用市场支付回调
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   marketplacePaymentNotify: function (args, options = {}) {
+     
+     return mdyAPI('Pay', 'MarketplacePaymentNotify', args, options);
+   },
+  /**
   * 提现回调
   * @param {Object} args 请求参数
   * @param {Object} options 配置参数

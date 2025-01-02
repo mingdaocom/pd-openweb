@@ -21,7 +21,7 @@ const WrapCon = styled.div`
       }
     }
     span.itemSpan {
-      color: #333 !important;
+      color: #151515 !important;
       font-size: 15px;
     }
     .ming.Item .Item-content:not(.disabled):hover {

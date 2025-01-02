@@ -9,7 +9,7 @@ import { useSetState } from 'react-use';
 
 const SectionName = styled.div`
   font-size: 13px;
-  color: #333;
+  color: #151515;
   font-weight: 500;
   margin: 18px 0 8px;
   position: relative;

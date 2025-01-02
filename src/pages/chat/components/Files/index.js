@@ -9,6 +9,7 @@ import { getClassNameByExt, dateConvertToUserZone } from 'src/util';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
 import moment from 'moment';
 import RegExpValidator from 'src/util/expression';
+
 export const splitFiles = list => {
   const ranges = {};
   ranges[_l('今天')] = [moment().startOf('day'), moment().endOf('day')];
@@ -19,7 +20,7 @@ export const splitFiles = list => {
     if (file.type === 2) {
       file.previewUrl = `${file.url}&imageView2/0/w/100/h/100/q/90`;
     }
-    file.$date = createTimeSpan(dateConvertToUserZone(file.time));
+    file.$date = utils.formatMsgDate(dateConvertToUserZone(file.time));
     file.$size = utils.formatFileSize(file.size);
     file.iconClass = getClassNameByExt(`.${RegExpValidator.getExtOfFileName(file.name)}`);
     const fileTime = moment(file.time);

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import styled from 'styled-components';
-import { LoadDiv, SvgIcon } from 'ming-ui';
+import { LoadDiv, SvgIcon, Dropdown } from 'ming-ui';
 import { Tooltip } from 'antd';
 import { dialogSelectIntegrationApi } from 'ming-ui/functions';
 import worksheetAjax from 'src/api/worksheet';
+import processAjax from 'src/pages/workflow/api/processVersion';
 import { SettingItem } from '../../../styled';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import { dealRequestControls } from '../../../util/data';
@@ -13,6 +14,7 @@ import SearchMapping from './SearchMapping';
 import SearchMappingFilter from './SearchMappingFilter';
 import SelectAuthAccount from 'src/pages/workflow/WorkflowSettings/Detail/components/SelectAuthAccount';
 import _ from 'lodash';
+import cx from 'classnames';
 
 const SearchMode = styled.div`
   display: flex;
@@ -139,7 +141,14 @@ function BasicInfo(props) {
 }
 
 export default function ApiSearchConfig(props) {
-  const { data = {}, globalSheetInfo = {}, onChange, status: { saveIndex } = {}, fromCustomFilter } = props;
+  const {
+    data = {},
+    globalSheetInfo = {},
+    onChange,
+    status: { saveIndex } = {},
+    fromCustomFilter, // 自定义事件条件
+    fromOperationFlow, // 业务封装流程
+  } = props;
   const requestmap = getAdvanceSetting(data, 'requestmap') || [];
   const responsemap = getAdvanceSetting(data, 'responsemap') || [];
   const { authaccount } = getAdvanceSetting(data);
@@ -148,21 +157,26 @@ export default function ApiSearchConfig(props) {
   const [requestControls, setRequestControls] = useState([]);
   const [responseControls, setResponseControls] = useState([]);
   const [originResponseControls, setOriginResponseControls] = useState([]);
+  const [flowList, setList] = useState([]);
+  const [enabled, setEnabled] = useState(true);
 
   useEffect(() => {
     if (!data.dataSource) return;
     setLoading(true);
 
-    worksheetAjax.getApiControlDetail({ apiTemplateId: data.dataSource }).then(res => {
-      const { basicInfo = {}, requestControls = [], responseControls = [] } = res || {};
-      if (_.isFunction(props.setControls)) {
-        props.setControls(requestControls);
-      }
-      setApiInfo(basicInfo);
-      dealResult(requestControls, responseControls, basicInfo);
-      setOriginResponseControls(responseControls);
-      setLoading(false);
-    });
+    worksheetAjax
+      .getApiControlDetail({ apiTemplateId: data.dataSource, actionType: fromOperationFlow ? 13 : 8 })
+      .then(res => {
+        const { basicInfo = {}, requestControls = [], responseControls = [], enabled } = res || {};
+        if (_.isFunction(props.setControls)) {
+          props.setControls(requestControls);
+        }
+        setEnabled(enabled);
+        setApiInfo(basicInfo);
+        dealResult(requestControls, responseControls, basicInfo);
+        setOriginResponseControls(responseControls);
+        setLoading(false);
+      });
   }, [data.dataSource]);
 
   useEffect(() => {
@@ -171,7 +185,7 @@ export default function ApiSearchConfig(props) {
       setRequestControls([]);
       setResponseControls([]);
     }
-  }, [data.controlId]);
+  }, [data.controlId, data.enumDefault2]);
 
   useEffect(() => {
     if (saveIndex > 0) {
@@ -180,6 +194,17 @@ export default function ApiSearchConfig(props) {
       curControl && onChange(curControl);
     }
   }, [saveIndex]);
+
+  useEffect(() => {
+    processAjax.list({ relationId: globalSheetInfo.appId, processListType: 10 }).then(res => {
+      const list = (res || []).reduce((total, its) => {
+        const enabledList = (its.processList || []).filter(i => i.enabled);
+        return total.concat(enabledList);
+      }, []);
+
+      setList(list.map(i => ({ text: i.name, value: i.id })));
+    });
+  }, [globalSheetInfo.appId]);
 
   // 输入参数 | 输出参数
   const dealResult = (requestControls = [], responseControls = [], basicInfo) => {
@@ -215,51 +240,69 @@ export default function ApiSearchConfig(props) {
     }
   };
 
+  const handleSelect = id => {
+    if (id && id !== data.dataSource) {
+      onChange({
+        ...handleAdvancedSettingChange(data, {
+          requestmap: '',
+          responsemap: '',
+          itemsource: '',
+          itemtitle: '',
+          itemdesc: '',
+          authaccount: '',
+        }),
+        dataSource: id,
+      });
+    }
+  };
+
+  const isDelete = data.dataSource && !loading && !enabled;
+
   // 选择已集成的api
   const integrationApi = () => {
     dialogSelectIntegrationApi({
       projectId: globalSheetInfo.projectId,
       appId: globalSheetInfo.appId,
-      onOk: id => {
-        if (id && id !== data.dataSource) {
-          onChange({
-            ...handleAdvancedSettingChange(data, {
-              requestmap: '',
-              responsemap: '',
-              itemsource: '',
-              itemtitle: '',
-              itemdesc: '',
-              authaccount: '',
-            }),
-            dataSource: id,
-          });
-        }
-      },
+      onOk: id => handleSelect(id),
     });
   };
 
   return (
     <Fragment>
-      <SettingItem>
-        <div className="settingItemTitle">{_l('调用已集成API')}</div>
-        {loading ? (
-          <LoadDiv className="mTop20 flexCenter" size="small" />
-        ) : (
-          <Fragment>
-            <BasicInfo data={data} apiInfo={apiInfo} onClick={integrationApi} globalSheetInfo={globalSheetInfo} />
-            {_.get(apiInfo, 'hasAuth') && (
-              <AuthWrap>
-                <span className="authRequired">*</span>
-                <SelectAuthAccount
-                  authId={authaccount}
-                  apiId={data.dataSource}
-                  onChange={authId => onChange(handleAdvancedSettingChange(data, { authaccount: authId }))}
-                />
-              </AuthWrap>
-            )}
-          </Fragment>
-        )}
-      </SettingItem>
+      {fromOperationFlow ? (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('选择封装业务流程')}</div>
+          <Dropdown
+            border
+            className={cx({ error: isDelete })}
+            data={flowList}
+            value={isDelete ? undefined : data.dataSource || undefined}
+            placeholder={isDelete ? <span className="Red">{_l('已删除')}</span> : _l('请选择封装业务流程')}
+            onChange={value => handleSelect(value)}
+          />
+        </SettingItem>
+      ) : (
+        <SettingItem>
+          <div className="settingItemTitle">{_l('调用已集成API')}</div>
+          {loading ? (
+            <LoadDiv className="mTop20 flexCenter" size="small" />
+          ) : (
+            <Fragment>
+              <BasicInfo data={data} apiInfo={apiInfo} onClick={integrationApi} globalSheetInfo={globalSheetInfo} />
+              {_.get(apiInfo, 'hasAuth') && (
+                <AuthWrap>
+                  <span className="authRequired">*</span>
+                  <SelectAuthAccount
+                    authId={authaccount}
+                    apiId={data.dataSource}
+                    onChange={authId => onChange(handleAdvancedSettingChange(data, { authaccount: authId }))}
+                  />
+                </AuthWrap>
+              )}
+            </Fragment>
+          )}
+        </SettingItem>
+      )}
 
       {/**输入参数 */}
 

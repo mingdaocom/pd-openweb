@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import linkifyit from 'linkify-it';
 
 export default function MdLinkify(props) {
-  const { properties } = props;
+  const { properties, unLimit } = props;
 
   // 剥离string
-  const parseChildren = (children) => {
+  const parseChildren = children => {
     if (typeof children === 'string') {
-      return children.length > 1000 ? children : parseString(children);
+      return children.length > 1000 && !unLimit ? children : parseString(children);
     }
     return children;
   };
@@ -50,5 +50,7 @@ export default function MdLinkify(props) {
     return elements.length === 1 ? elements[0] : elements;
   };
 
-  return parseChildren(props.children);
+  return useMemo(() => {
+    return parseChildren(props.children);
+  }, [props.children]);
 }

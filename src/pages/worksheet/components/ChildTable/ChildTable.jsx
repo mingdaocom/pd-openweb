@@ -18,7 +18,7 @@ import ChildTableContext from './ChildTableContext';
 import { selectRecord } from 'src/components/recordCardListDialog';
 import { mobileSelectRecord } from 'src/components/recordCardListDialog/mobile';
 import { controlState, getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
-import { FORM_ERROR_TYPE_TEXT, FROM } from 'src/components/newCustomFields/tools/config';
+import { FORM_ERROR_TYPE_TEXT, FROM, WIDGET_VALUE_ID } from 'src/components/newCustomFields/tools/config';
 import { canAsUniqueWidget } from 'src/pages/widgetConfig/util/setting';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { getSheetViewRows, getTreeExpandCellWidth } from 'worksheet/common/TreeTableHelper';
@@ -189,6 +189,7 @@ class ChildTable extends React.Component {
       headHeight: 34,
       frozenIndex: this.settings.frozenIndex,
       frozenIndexChanged: false,
+      disableMaskDataControls: {},
     };
     this.state.sheetColumnWidths = this.getSheetColumnWidths();
     this.controls = props.controls;
@@ -326,6 +327,12 @@ class ChildTable extends React.Component {
     return { ...parsedSettings, minCount, maxCount, rownum, treeLayerControlId };
   }
 
+  get useUserPermission() {
+    const { control } = this.props;
+    const [isHiddenOtherViewRecord] = (control.strDefault || '000').split('');
+    return !!+isHiddenOtherViewRecord;
+  }
+
   get searchConfig() {
     const { searchConfig, base } = this.props;
     return get(base, 'searchConfig') || searchConfig;
@@ -344,6 +351,7 @@ class ChildTable extends React.Component {
   getControls(props, { newControls } = {}) {
     props = props || this.props;
     const { baseLoading, from, appId, base = {}, control = {}, updateBase } = props;
+    const { useUserPermission } = this;
     const { instanceId, workId, worksheetInfo } = base;
     const isWorkflow =
       ((instanceId && workId) || window.shareState.isPublicWorkflowRecord) &&
@@ -363,6 +371,8 @@ class ChildTable extends React.Component {
               controlPermissions:
                 isRelateRecordTableControl(c) || c.type === 34
                   ? '000'
+                  : useUserPermission
+                  ? c.controlPermissions
                   : controlState(control, from).editable
                   ? '111'
                   : '101',
@@ -385,10 +395,12 @@ class ChildTable extends React.Component {
       } else {
         control.fieldPermission = replaceByIndex(control.fieldPermission || '111', 2, '1');
       }
-      if (!isWorkflow) {
-        control.controlPermissions = '111';
-      } else {
-        control.controlPermissions = replaceByIndex(control.controlPermissions || '111', 2, '1');
+      if (!useUserPermission) {
+        if (!isWorkflow) {
+          control.controlPermissions = '111';
+        } else {
+          control.controlPermissions = replaceByIndex(control.controlPermissions || '111', 2, '1');
+        }
       }
       if (
         control.controlId === 'ownerid' ||
@@ -566,6 +578,7 @@ class ChildTable extends React.Component {
       rowid: tempRowId,
       pid: (defaultRow && defaultRow.pid) || '',
       allowedit: true,
+      allowdelete: true,
       addTime: new Date().getTime(),
     };
   };
@@ -910,10 +923,10 @@ class ChildTable extends React.Component {
 
   compareValue(control, value1, value2) {
     try {
-      if (control && control.type === 26) {
+      if (control && _.includes([26, 27, 48], control.type)) {
         return _.isEqual(
-          safeParse(value1, 'array').map(c => c.accountId),
-          safeParse(value2, 'array').map(c => c.accountId),
+          safeParse(value1, 'array').map(c => c[WIDGET_VALUE_ID[control.type]]),
+          safeParse(value2, 'array').map(c => c[WIDGET_VALUE_ID[control.type]]),
         );
       } else {
         return value1 === value2;
@@ -1034,12 +1047,12 @@ class ChildTable extends React.Component {
       updateBase,
       masterData,
       updateTreeNodeExpansion,
+      isDraft,
     } = this.props;
     const { isTreeTableView } = base;
     const { projectId, rules } = this.worksheetInfo;
     const { searchConfig } = this;
     let {
-      allowadd,
       allowcancel,
       allowedit,
       batchcids,
@@ -1055,6 +1068,9 @@ class ChildTable extends React.Component {
       h5showtype,
       h5abstractids,
     } = parseAdvancedSetting(control.advancedSetting);
+    const { useUserPermission } = this;
+    let allowadd = parseAdvancedSetting(control.advancedSetting).allowadd;
+    allowadd = allowadd && (useUserPermission ? this.worksheetInfo.allowAdd : true);
     const { maxCount, allowOpenRecord, allowCopy, titleWrap, treeLayerControlId } = this.settings;
     const maxShowRowCount = this.props.maxShowRowCount || rownum;
     const rowHeight = ROW_HEIGHT[rowheight] || 34;
@@ -1078,6 +1094,8 @@ class ChildTable extends React.Component {
       frozenIndex,
       frozenIndexChanged,
       isMobileSearchFocus,
+      isAddRowByLine,
+      disableMaskDataControls,
     } = this.state;
     const { treeMap = {} } = treeTableViewData;
     const batchAddControls = batchcids.map(id => _.find(controls, { controlId: id })).filter(_.identity);
@@ -1093,7 +1111,7 @@ class ChildTable extends React.Component {
       } else if (/^empty/.test(row.rowid)) {
         return { ...row, allowedit: allowadd };
       } else {
-        return { ...row, allowedit: allowedit };
+        return { ...row, allowedit: allowedit && (useUserPermission ? row.allowedit : true) };
       }
     });
     const originRows = tableRows;
@@ -1105,10 +1123,7 @@ class ChildTable extends React.Component {
     const disabledNew = noColumns || disabled || !allowadd;
     const allowBatch = !_.includes([FROM.DEFAULT], from) && this.settings.allowBatch;
     const allowBatchDelete = allowcancel || (allowadd && !!originRows.filter(r => /^temp/.test(r.rowid)).length);
-    const allowImport =
-      this.settings.allowImport &&
-      !_.includes([FROM.DEFAULT], from) &&
-      (!_.get(window, 'shareState.shareId') || _.get(window, 'shareState.isPublicForm'));
+    const allowImport = this.settings.allowImport && !_.includes([FROM.DEFAULT], from);
     const showBatchEdit =
       !isMobile &&
       !disabled &&
@@ -1118,7 +1133,7 @@ class ChildTable extends React.Component {
     const showImport = !isMobile && allowImport && !disabledNew;
     const RowDetailComponent = isMobile ? RowDetailMobile : RowDetail;
     if (!columns.length) {
-      return <div className="Gray_9e">{_l('没有支持填写的字段')}</div>;
+      return <div className="childTableEmptyTag"></div>;
     }
     if (keywords) {
       tableRows = filterRowsByKeywords({ rows: tableRows, controls: controls, keywords });
@@ -1179,6 +1194,7 @@ class ChildTable extends React.Component {
         ),
       };
     }
+
     const operateComp = (
       <Fragment>
         {showSearch && (
@@ -1315,7 +1331,7 @@ class ChildTable extends React.Component {
                   )}
                   {showImport && (
                     <span
-                      className={cx('importFromFile tip-top', { disabled: isExceed })}
+                      className={cx('importFromFile tip-bottom', { disabled: isExceed })}
                       onClick={isExceed ? () => {} : this.handleImport}
                       data-tip={_l('导入数据')}
                     >
@@ -1344,7 +1360,9 @@ class ChildTable extends React.Component {
                       className={cx('operateButton', { disabled: !selectedRowIds.length })}
                       onClick={() => {
                         if (selectedRowIds.length) {
-                          deleteRows(allowcancel ? selectedRowIds : selectedRowIds.filter(rid => /^temp/.test(rid)));
+                          deleteRows(allowcancel ? selectedRowIds : selectedRowIds.filter(rid => /^temp/.test(rid)), {
+                            useUserPermission: useUserPermission && !!recordId,
+                          });
                           this.setState({
                             selectedRowIds: [],
                             isBatchEditing: selectedRowIds.length === tableRows.length,
@@ -1431,6 +1449,7 @@ class ChildTable extends React.Component {
                 treeTableViewData={treeTableViewData}
                 expandCellAppendWidth={this.expandCellAppendWidth}
                 from={from}
+                isDraft={isDraft}
                 tableType="classic"
                 isSubList
                 showAsZebra={false}
@@ -1456,7 +1475,16 @@ class ChildTable extends React.Component {
                 worksheetId={control.dataSource}
                 projectId={projectId}
                 appId={appId}
-                columns={columns}
+                columns={columns.map(c =>
+                  disableMaskDataControls[c.controlId]
+                    ? {
+                        ...c,
+                        advancedSetting: Object.assign({}, c.advancedSetting, {
+                          datamask: '0',
+                        }),
+                      }
+                    : c,
+                )}
                 controls={controls}
                 data={keywords ? filterEmptyChildTableRows(tableData) : tableData}
                 sheetColumnWidths={{ ...sheetColumnWidths, ...tempSheetColumnWidths }}
@@ -1471,9 +1499,16 @@ class ChildTable extends React.Component {
                 sheetViewHighlightRows={[{}, ...selectedRowIds].reduce((a, b) => ({ ...a, [b]: true }))}
                 renderRowHead={args => (
                   <RowHead
+                    useUserPermission={useUserPermission}
                     showNumber={!hidenumber}
                     lineNumberBegin={showAsPages ? (pageIndex - 1) * pageSize : 0}
-                    showCheckbox={isBatchEditing && !!tableRows.length}
+                    showCheckbox={
+                      isBatchEditing &&
+                      !!tableRows.length &&
+                      (useUserPermission && !!recordId
+                        ? _.get(args.row, 'allowdelete') || (allowadd && allowCopy) || args.rowIndex === -1
+                        : true)
+                    }
                     {...args}
                     isSelectAll={selectedRowIds.length === tableRows.length}
                     selectedRowIds={selectedRowIds}
@@ -1481,6 +1516,7 @@ class ChildTable extends React.Component {
                     allowAdd={allowadd}
                     allowCopy={allowCopy}
                     allowCancel={allowcancel}
+                    recordId={recordId}
                     changeSheetLayoutVisible={
                       control.isCharge && (!_.isEmpty(tempSheetColumnWidths) || frozenIndexChanged)
                     }
@@ -1568,6 +1604,9 @@ class ChildTable extends React.Component {
                 )}
                 renderColumnHead={({ ...rest }) => {
                   const { control, columnIndex } = rest;
+                  const maskData =
+                    _.get(control, 'advancedSetting.datamask') === '1' &&
+                    _.get(control, 'advancedSetting.isdecrypt') === '1';
                   return (
                     <ColumnHead
                       disableSort={isTreeTableView}
@@ -1622,6 +1661,21 @@ class ChildTable extends React.Component {
                               </Fragment>
                             )}
                           </MenuItem>
+                          {maskData && (
+                            <MenuItem
+                              onClick={() => {
+                                if (get(window, 'shareState.shareId')) {
+                                  return;
+                                }
+                                this.setState({
+                                  disableMaskDataControls: { ...disableMaskDataControls, [control.controlId]: true },
+                                });
+                              }}
+                            >
+                              <i className="icon icon-eye_off"></i>
+                              {_l('解码')}
+                            </MenuItem>
+                          )}
                         </Menu>
                       )}
                       {...rest}
@@ -1736,6 +1790,7 @@ class ChildTable extends React.Component {
               allowcancel={allowcancel}
               allowadd={allowadd}
               disabled={disabled}
+              controlPermission={controlPermission}
               rows={tableRows}
               controls={columns}
               onOpen={this.openDetail}
@@ -1746,7 +1801,20 @@ class ChildTable extends React.Component {
               h5abstractids={h5abstractids}
               appId={appId}
               worksheetId={control.dataSource}
+              rules={rules}
               cellErrors={cellErrors}
+              projectId={projectId}
+              allowedit={allowedit}
+              isAddRowByLine={isAddRowByLine}
+              from={from}
+              isDraft={isDraft}
+              masterData={() => this.props.masterData}
+              getMasterFormData={() => this.props.masterData.formData}
+              useUserPermission={useUserPermission}
+              recordId={recordId}
+              updateIsAddByLine={value => this.setState({ isAddRowByLine: value })}
+              onSave={this.handleRowDetailSave}
+              submitChildTableCheckData={control.submitChildTableCheckData}
             />
           )}
           {loading &&
@@ -1765,7 +1833,7 @@ class ChildTable extends React.Component {
             ))}
 
           {isMobile && (
-            <div className="operate valignWrapper">
+            <div className="operate valignWrapper mTop12">
               {isMobile && !disabledNew && !isExceed && addRowFromRelateRecords && (
                 <span
                   className="addRowByDialog h5 ellipsis mRight10"
@@ -1784,7 +1852,8 @@ class ChildTable extends React.Component {
                     this.handleAddRowByLine();
                     this.setState({
                       previewRowIndex: isMobile && keywords ? originRows.length : tableRows.length,
-                      recordVisible: true,
+                      recordVisible: h5showtype === '2' ? false : true,
+                      isAddRowByLine: true,
                     });
                   }}
                 >
@@ -1808,7 +1877,8 @@ class ChildTable extends React.Component {
               ignoreLock={/^(temp|default|empty)/.test((tableData[previewRowIndex] || {}).rowid)}
               visible
               aglinBottom={!!recordId}
-              from={from}
+              from={from === FROM.DRAFT ? 3 : from}
+              isDraft={isDraft}
               worksheetId={control.dataSource}
               projectId={projectId}
               appId={appId}
@@ -1832,7 +1902,11 @@ class ChildTable extends React.Component {
               disabled={disabled || (!/^temp/.test(_.get(tableData, `${previewRowIndex}.rowid`)) && !allowedit)}
               isExceed={isExceed}
               mobileIsEdit={mobileIsEdit}
-              allowDelete={/^temp/.test(_.get(tableData, `${previewRowIndex}.rowid`)) || allowcancel}
+              allowDelete={
+                /^temp/.test(_.get(tableData, `${previewRowIndex}.rowid`)) ||
+                (allowcancel &&
+                  (useUserPermission && !!recordId ? _.get(tableData[previewRowIndex], 'allowdelete') : true))
+              }
               controls={controls}
               data={previewRowIndex > -1 ? tableData[previewRowIndex] || {} : this.newRow()}
               switchDisabled={{

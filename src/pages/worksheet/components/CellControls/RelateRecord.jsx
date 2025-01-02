@@ -254,6 +254,7 @@ export default class RelateRecord extends React.Component {
       updateEditingStatus,
       popupContainer,
       onClick,
+      isDraft,
     } = this.props;
     const { addedIds = [], deletedIds = [] } = this.isSubList ? this : {};
     let { records } = this.state;
@@ -296,7 +297,7 @@ export default class RelateRecord extends React.Component {
                     worksheetId,
                     viewId,
                     from,
-                    control: { ...cell, isDraft: from === 21 },
+                    control: { ...cell, isDraft: from === 21 || isDraft },
                     controls: cell.relationControls,
                     recordId,
                     sheetSwitchPermit,
@@ -316,7 +317,7 @@ export default class RelateRecord extends React.Component {
                     viewId,
                     worksheetId,
                     recordId,
-                    control: { ...cell, isDraft: from === 21 },
+                    control: { ...cell, isDraft: from === 21 || isDraft },
                     allowEdit: editable,
                     formdata: _.isFunction(rowFormData) ? rowFormData() : rowFormData,
                     onUpdateCount: () => {
@@ -356,7 +357,8 @@ export default class RelateRecord extends React.Component {
             disabled={!editable}
             selected={records}
             cellFrom={from}
-            control={{ ...cell, formData: rowFormData, worksheetId, recordId }}
+            control={{ ...cell, formData: rowFormData, worksheetId, recordId, isDraft }}
+            isDraft={isDraft}
             formData={rowFormData}
             viewId={cell.viewId}
             worksheetId={worksheetId}
@@ -406,6 +408,7 @@ export default class RelateRecord extends React.Component {
           >
             <RelateRecordTags
               from={from}
+              isDraft={isDraft}
               disabled
               count={count}
               style={style}
@@ -426,6 +429,7 @@ export default class RelateRecord extends React.Component {
             popup={
               <RelateRecordTags
                 from={from}
+                isDraft={isDraft}
                 rowIndex={rowIndex}
                 ref={this.relateRecordTagsPopup}
                 isediting

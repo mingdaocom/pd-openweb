@@ -94,7 +94,7 @@ $.extend(CreateCalendar.prototype, {
     Dialog.confirm({
       dialogClasses: `${settings.frameid} createCalendar_container`,
       title: _l('创建日程'),
-      width: 570,
+      width: 800,
       noFooter: true,
       onOk: () => {
         _this.send();
@@ -177,19 +177,9 @@ $.extend(CreateCalendar.prototype, {
         case 'repeat':
           _this.initUpdateRepeat($this);
           break;
-        case 'addMember':
-          $('#addCalendarMembers').removeClass('Hidden');
-          event.stopPropagation();
-          $this.remove();
-          break;
         case 'address':
           $('#addressContent').removeClass('Hidden');
           $('#txtAddress').focus();
-          $this.remove();
-          break;
-        case 'desc':
-          $('#createCalendarDesc').removeClass('Hidden');
-          $('#txtDesc').focus();
           $this.remove();
           break;
         default:
@@ -1115,8 +1105,8 @@ CreateCalendar.methods = {
                           calendarTime =
                             moment(calendar.startTime).format(getFormatText(calendar.startTime, 'YYYY-MM-DD')) +
                             ' - ' +
-                            moment(calendar.endTime).format(getFormatText(calendar.endTime, 'YYYY-MM-DD')) +
-                            _l(' (全天)');
+                            moment(calendar.endTime).format(getFormatText(calendar.endTime, 'YYYY-MM-DD ')) +
+                            _l('(全天)');
                         } else {
                           calendarTime =
                             moment(calendar.startTime).format(getFormatText(calendar.startTime, 'YYYY-MM-DD HH:mm')) +

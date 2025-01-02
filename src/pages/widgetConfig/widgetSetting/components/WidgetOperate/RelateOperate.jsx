@@ -112,6 +112,7 @@ export default function RelateOperate(props) {
             <FilterDialog
               {...props}
               showCustom
+              showEmptyRule
               filters={filters}
               supportGroup
               relationControls={controls}

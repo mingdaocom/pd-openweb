@@ -200,6 +200,22 @@ export default {
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
+   sendChangeAccountVerifyCode: function (args, options = {}) {
+     
+     return mdyAPI('Account', 'SendChangeAccountVerifyCode', args, options);
+   },
+  /**
+  * 发送验证码
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.account 账号
+  * @param {boolean} args.needCheckCode 是否需要验证密码输入
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
    sendVerifyCode: function (args, options = {}) {
      
      return mdyAPI('Account', 'SendVerifyCode', args, options);

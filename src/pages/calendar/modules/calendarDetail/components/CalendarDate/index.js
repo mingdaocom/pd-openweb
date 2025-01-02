@@ -24,7 +24,10 @@ class EditBlock extends Component {
   }
 
   handleDateChange(selectValue) {
-    const { calendar: { allDay }, change } = this.props;
+    const {
+      calendar: { allDay },
+      change,
+    } = this.props;
     const [startTime, endTime] = selectValue;
     if (allDay) {
       startTime.startOf('day');
@@ -39,7 +42,7 @@ class EditBlock extends Component {
           start: startTime.format('YYYY-MM-DD HH:mm'),
           end: endTime.format('YYYY-MM-DD HH:mm'),
         });
-      }
+      },
     );
   }
 
@@ -48,7 +51,9 @@ class EditBlock extends Component {
     if (unSelected) {
       return <span className="editWrapper">{_l('请选择')}</span>;
     } else {
-      const { calendar: { start, end, allDay } } = this.props;
+      const {
+        calendar: { start, end, allDay },
+      } = this.props;
       const format = allDay ? 'YYYY-MM-DD (ddd)' : 'YYYY-MM-DD (ddd) HH:mm';
       return (
         <span className="editWrapper">
@@ -61,7 +66,10 @@ class EditBlock extends Component {
   }
 
   render() {
-    const { calendar: { start, allDay, end, isChildCalendar }, change } = this.props;
+    const {
+      calendar: { start, allDay, end, isChildCalendar },
+      change,
+    } = this.props;
     const { unSelected } = this.state;
     const rangePickerProps = {
       offset: {
@@ -140,7 +148,9 @@ export default class CalendarDate extends Component {
   }
 
   handleClick() {
-    const { calendar: { editable } } = this.props;
+    const {
+      calendar: { editable },
+    } = this.props;
     if (typeof window.getSelection === 'function') {
       const selectText = window.getSelection().toString();
       if (selectText) return false;
@@ -157,7 +167,9 @@ export default class CalendarDate extends Component {
     return (
       <div onClick={this.handleClick.bind(this)} className="pTop5 pBottom5 w100">
         <div className="calLine">{formatShowTime(calendar)}</div>
-        {calendar.isRecur && !calendar.isChildCalendar ? <div className="calLine">{_l('重复：%0 ', formatRecur(calendar))}</div> : null}
+        {calendar.isRecur && !calendar.isChildCalendar ? (
+          <div className="calLine">{_l('重复：%0', formatRecur(calendar))}</div>
+        ) : null}
       </div>
     );
   }

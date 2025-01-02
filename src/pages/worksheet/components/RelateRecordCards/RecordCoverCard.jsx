@@ -29,6 +29,7 @@ const Con = styled.div`
     display: flex;
     top: -11px;
     right: -11px;
+    ${({ isMobile }) => (isMobile ? 'top: -16px;right: -16px;' : '')}
     visibility: hidden;
     z-index: 2;
   }
@@ -52,7 +53,7 @@ const Title = styled.div`
   font-weight: 500;
   font-size: 14px;
   line-height: 20px;
-  color: #333;
+  color: #151515;
 `;
 
 const ControlCon = styled.div`
@@ -117,12 +118,26 @@ export default function RecordCoverCard(props) {
               className="mRight8 tip-bottom"
               style={isMobile ? { visibility: 'visible' } : {}}
               onClick={click(onReplaceRecord)}
-              data-tip={_l('重新选择')}
+              onTouchStart={e => {
+                e.preventDefault();
+                onReplaceRecord();
+              }}
+              data-tip={isMobile ? '' : _l('重新选择')}
+              isMobile={isMobile}
             >
               <i className="icon icon-swap_horiz"></i>
             </CardButton>
           )}
-          <CardButton className="red" style={isMobile ? { visibility: 'visible' } : {}} onClick={click(onDelete)}>
+          <CardButton
+            className={isMobile ? '' : 'red'}
+            style={isMobile ? { visibility: 'visible' } : {}}
+            onClick={click(onDelete)}
+            onTouchStart={e => {
+              e.preventDefault();
+              onDelete();
+            }}
+            isMobile={isMobile}
+          >
             <i className="icon icon-close"></i>
           </CardButton>
         </div>
@@ -171,7 +186,7 @@ export default function RecordCoverCard(props) {
           }}
           onClick={e => {
             e.stopPropagation();
-            previewQiniuUrl(cover.replace(/imageView2.+/, ''), {
+            previewQiniuUrl(cover.replace(/imageView2\/2\/w\/200\|/, ''), {
               disableDownload: true,
               ext: (cover.match(/\.(jpg|jpeg|png|gif|bmp)(\?|$)/i) || '')[1] || 'png',
             });

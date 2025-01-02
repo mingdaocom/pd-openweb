@@ -13,18 +13,17 @@ export default class EditPassword extends Component {
     const { md = {} } = window;
     const { global = {} } = md;
     const { SysSettings = {} } = global;
-    const { passwordRegexTip, passwordRegex } = SysSettings;
+    const { passwordRegexTip } = SysSettings;
     this.state = {
       originPassword: '',
       newPassword: '',
       confirmPassword: '',
       passwordRegexTip,
-      passwordRegex,
     };
   }
 
   isPasswordRule = str => {
-    return RegExpValidator.isPasswordValid(str, this.state.passwordRegex);
+    return RegExpValidator.isPasswordValid(str);
   };
 
   handleSubmit() {

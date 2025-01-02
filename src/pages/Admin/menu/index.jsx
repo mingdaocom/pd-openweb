@@ -119,7 +119,7 @@ export default class AdminLeftMenu extends Component {
           to={path}
           className={cx('stopPropagation', {
             pLeft12: isHome,
-            pLeft40: !isHome,
+            pLeft42: !isHome,
             'activeItem bold': isActive(),
             activeExtend: isActive() && isExtend,
           })}

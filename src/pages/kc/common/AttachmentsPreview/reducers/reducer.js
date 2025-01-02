@@ -161,6 +161,15 @@ function previewService(state = false, action) {
   }
 }
 
+function wpsEditUrl(state = '', action) {
+  switch (action.type) {
+    case 'ATTACHMENT_EDIT_DETAIL':
+      return action.wpsEditUrl;
+    default:
+      return state;
+  }
+}
+
 export default combineReducers({
   attachments,
   originAttachments,
@@ -176,4 +185,5 @@ export default combineReducers({
   loadMoreFinished,
   onClose,
   previewService,
+  wpsEditUrl,
 });

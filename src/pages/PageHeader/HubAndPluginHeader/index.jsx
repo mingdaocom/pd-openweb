@@ -69,7 +69,7 @@ export default class HubAndPluginHeader extends Component {
             <HomeEntry data-tip={_l('首页')} onClick={() => navigateTo('/dashboard')}>
               <i className="icon-home_page Font18"></i>
             </HomeEntry>
-            <div className="nativeTitle">{isPlugin ? _l('插件中心') : _l('集成中心')}</div>
+            <div className="nativeTitle">{isPlugin ? _l('插件') : _l('集成')}</div>
           </div>
           <SwitchProject />
           <Motion style={{ x: spring(indexSideVisible ? 0 : -352) }}>

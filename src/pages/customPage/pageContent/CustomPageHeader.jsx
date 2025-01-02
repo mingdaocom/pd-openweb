@@ -166,7 +166,7 @@ export default function CustomPageHeader(props) {
           title: <span className="Bold">{_l('删除自定义页面 “%0”', name)}</span>,
           description: (
             <div>
-              <span style={{ color: '#333', fontWeight: 'bold' }}>
+              <span style={{ color: '#151515', fontWeight: 'bold' }}>
                 {_l('注意：自定义页面下所有配置和数据将被删除。')}
               </span>
               {_l('请务必确认所有应用成员都不再需要此自定义页面后，再执行此操作。')}
@@ -547,11 +547,12 @@ export default function CustomPageHeader(props) {
           className="sideAbsolute"
           onClose={() => {
             setConfigVisible(false);
-            const { id, adjustScreen, config } = props;
+            const { id, adjustScreen, config, urlParams } = props;
             customApi.updatePage({
               appId: id,
               adjustScreen,
               config,
+              urlParams
             });
           }}
         />

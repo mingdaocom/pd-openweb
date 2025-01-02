@@ -66,14 +66,28 @@ export default class ChangeColumn extends Component {
     });
   }
 
-  handleItemClick = (column, hideFocus) => {
-    const { noempty, min1msg, maxSelectedNum, selected, columns } = this.props;
+  isOverRange = checked => {
+    const { noempty, min1msg, maxSelectedNum, selected } = this.props;
 
-    if (selected.indexOf(column.controlId) > -1) {
-      if (noempty && selected.length === 1) {
-        alert(min1msg || _l('至少显示一个字段'), 3);
-        return;
-      }
+    if (
+      (checked && maxSelectedNum && selected.length >= maxSelectedNum) ||
+      (!checked && noempty && selected.length === 1)
+    ) {
+      alert(checked ? _l('最多显示%0个字段', maxSelectedNum) : min1msg || _l('至少显示一个字段'), 3);
+      return true;
+    }
+
+    return false;
+  };
+
+  handleItemClick = (column, hideFocus) => {
+    const { selected, columns } = this.props;
+
+    const cheched = !selected.includes(column.controlId);
+
+    if (this.isOverRange(cheched)) return;
+
+    if (!cheched) {
       let _selected = selected.filter(controlId => {
         if (column.type === 52) {
           return (
@@ -94,11 +108,6 @@ export default class ChangeColumn extends Component {
         selected: _selected,
       });
     } else {
-      if (maxSelectedNum && selected.length >= maxSelectedNum) {
-        alert(_l('最多显示%0个字段', maxSelectedNum), 3);
-        return;
-      }
-
       this.handleChange({
         selected: _.union(
           selected.concat(
@@ -130,6 +139,14 @@ export default class ChangeColumn extends Component {
       const oldIsShow = selected.includes(newList[newIndex].controlId);
 
       if (newIsShow !== oldIsShow) {
+        if (this.isOverRange(!oldIsShow)) {
+          this.handleChange({
+            ...param,
+            controlsSorts: this.state.controlsSorts.map(l => l),
+          });
+          return;
+        }
+
         param.selected = oldIsShow
           ? selected.filter(controlId => controlId !== newList[newIndex].controlId)
           : selected.concat(newList[newIndex].controlId);

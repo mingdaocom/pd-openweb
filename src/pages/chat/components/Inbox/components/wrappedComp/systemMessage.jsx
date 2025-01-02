@@ -10,6 +10,7 @@ import AddressBookDialog from 'src/pages/chat/lib/addressBook';
 import ExecDialog from 'src/pages/workflow/components/ExecDialog';
 import linkify from 'linkifyjs/html';
 import { navigateTo } from 'src/router/navigateTo';
+import { formatMsgDate } from 'src/pages/chat/utils';
 import xss from 'xss';
 import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFromExcel/ErrorDialog';
 import TaskCenterController from 'src/api/taskCenter';
@@ -274,7 +275,7 @@ export default class SystemMessage extends PureComponent {
                       ),
                       xssOptions,
                     ),
-                  ),
+                  ).replace(/&/g, '&#38;'),
                 }}
                 ref={el => {
                   this.msg = el;
@@ -283,7 +284,7 @@ export default class SystemMessage extends PureComponent {
             </div>
             <div className="Gray_9 mTop8">
               {done && (
-                <Tooltip text={`${createTimeSpan(dateConvertToUserZone(readTime))} ${_l('完成')}`}>
+                <Tooltip text={`${formatMsgDate(dateConvertToUserZone(readTime))} ${_l('完成')}`}>
                   <Done className="Hover_21 Hand">
                     <Icon icon="done" className="mRight6" />
                     <span className="text">{_l('已处理')}</span>
@@ -291,7 +292,7 @@ export default class SystemMessage extends PureComponent {
                   </Done>
                 </Tooltip>
               )}
-              {createTimeSpan(dateConvertToUserZone(createTime))}
+              {formatMsgDate(dateConvertToUserZone(createTime))}
               {hasApp && (
                 <Fragment>
                   <Dot></Dot>

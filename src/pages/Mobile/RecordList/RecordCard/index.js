@@ -3,7 +3,7 @@ import { Icon, Tooltip } from 'ming-ui';
 import cx from 'classnames';
 import { Checkbox } from 'antd-mobile';
 import CellControl from 'src/pages/worksheet/components/CellControls';
-import { getTitleTextFromControls } from 'src/components/newCustomFields/tools/utils';
+import { getTitleTextFromControls, controlState } from 'src/components/newCustomFields/tools/utils';
 import worksheetAjax from 'src/api/worksheet';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
@@ -62,7 +62,7 @@ export default class RecordCard extends Component {
       { controlId: 'caid', controlName: _l('创建人'), type: 26 },
       { controlId: 'ctime', controlName: _l('创建时间'), type: 16 },
       { controlId: 'utime', controlName: _l('最近修改时间'), type: 16 },
-    ].concat(controls);
+    ].concat(controls.filter(l => controlState(l).visible));
     return showControls.map(scid => _.find(allControls, c => c.controlId === scid));
   }
   get url() {
@@ -87,7 +87,7 @@ export default class RecordCard extends Component {
     return url;
   }
   previewAttachment(attachments, index) {
-    const { data, view, controls } = this.props;
+    const { data, view, controls, projectId } = this.props;
     const coverCidControl = _.find(controls, { controlId: view.coverCid }) || {};
     const hideFunctions = ['editFileName'];
     const { allowdownload = '1' } = coverCidControl.advancedSetting;
@@ -114,6 +114,7 @@ export default class RecordCard extends Component {
       recordId: data.rowid,
       controlId: view.coverCid,
       worksheetId: view.worksheetId,
+      projectId,
     });
   }
   handleCoverClick = e => {
@@ -183,7 +184,7 @@ export default class RecordCard extends Component {
     );
   }
   renderControl(id, nameVisible = false) {
-    const { data, view } = this.props;
+    const { data, view, projectId } = this.props;
     const { cardControls } = this;
     const visibleControl = _.find(cardControls, { controlId: id }) || {};
     const cell = Object.assign({}, visibleControl, { value: data[visibleControl.controlId] });
@@ -228,6 +229,7 @@ export default class RecordCard extends Component {
             <CellControl
               className={`control-val-${visibleControl.controlId} w100`}
               worksheetId={view.worksheetId}
+              projectId={projectId}
               row={data}
               rowHeight={34}
               cell={cell}
@@ -242,17 +244,22 @@ export default class RecordCard extends Component {
   }
   renderContent() {
     const { data, view, allowAdd, controls, sheetSwitchPermit } = this.props;
-    const { viewType, advancedSetting, coverCid, showControlName } = view;
+    const { viewType, advancedSetting, coverCid, showControlName, viewId } = view;
     const isShowWorkflowSys = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit);
     let titleControl = _.find(controls, control => control.attribute === 1) || {};
     const titleText = getTitleTextFromControls(controls, data);
     const { checked } = this.state;
     const appshowtype = viewType === 6 ? '1' : advancedSetting.appshowtype || '0';
-    const displayControls = isShowWorkflowSys
-      ? view.displayControls.filter(id => id !== titleControl.controlId)
-      : view.displayControls
-          .filter(id => id !== titleControl.controlId)
-          .filter(v => !_.includes(WORKFLOW_SYSTEM_FIELDS_SORT, v));
+    const displayControls = view.displayControls.filter(id => {
+      const itControl = controls.find(l => l.controlId === id);
+
+      return (
+        id !== titleControl.controlId &&
+        !!itControl &&
+        controlState(itControl).visible &&
+        (isShowWorkflowSys || !_.includes(WORKFLOW_SYSTEM_FIELDS_SORT, id))
+      );
+    });
     const recordColorConfig = getRecordColorConfig(view);
     const recordColor =
       recordColorConfig &&
@@ -262,6 +269,14 @@ export default class RecordCard extends Component {
         controls,
         row: data,
       });
+
+    const showCheckItem = _.find(controls || [], v => v.controlId === advancedSetting.checkradioid) || {};
+    const canEdit =
+      !_.get(window, 'shareState.isPublicView') &&
+      !_.get(window, 'shareState.isPublicPage') &&
+      isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, viewId) &&
+      data.allowedit &&
+      controlState(showCheckItem).editable; // 当前快速编辑检查项字段是否可编辑
 
     return (
       <div
@@ -280,9 +295,10 @@ export default class RecordCard extends Component {
         <div className={cx('flexRow valignWrapper mBottom5', `control-val-${titleControl.controlId}`)}>
           {advancedSetting.checkradioid && !_.includes(view.controls || [], advancedSetting.checkradioid) && (
             <Checkbox
-              className="mRight5"
-              disabled={!allowAdd}
+              className="mRight10"
+              disabled={!canEdit}
               checked={checked}
+              style={{ '--icon-size': '18px' }}
               onChange={this.handleChangeCheckbox}
               onClick={e => {
                 e.stopPropagation();

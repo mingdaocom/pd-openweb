@@ -321,15 +321,22 @@ function Hierarchy(props) {
     const idPara = _.pick(props, ['appId', 'viewId']);
     const isTextTitle = item => item.attribute === 1 && item.type === 2;
     const { viewControl } = view;
-    const filteredControls = _.filter(controls, item => isTextTitle(item) || item.controlId === viewControl);
+    const filteredControls = _.filter(
+      controls,
+      item => isTextTitle(item) || item.controlId === viewControl || !!_.get(item, 'advancedSetting.defsource'),
+    );
     const getReceiveControls = val =>
       filteredControls.map(item => {
         if (isTextTitle(item)) return { ..._.pick(item, ['controlId', 'type']), value: val };
+
+        const defsource = safeParse(_.get(item, 'advancedSetting.defsource'));
+
         return {
           ..._.pick(item, ['controlId', 'type']),
-          value: addRecordDefaultValue,
+          value: item.controlId === viewControl ? addRecordDefaultValue : _.get(defsource, '[0].staticValue'),
         };
       });
+
     if (Array.isArray(value)) {
       worksheetAjax
         .addWSRowsBatch({

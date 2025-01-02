@@ -74,9 +74,9 @@ export default function Options(props) {
   return (
     <div className="controlWrapper">
       <div className="flexRow valignWrapper mBottom15">
-        <div className="Font14 bold flex ellipsis">{control.controlName}</div>
+        <div className="Font14 bold flex ellipsis controlName">{control.controlName}</div>
         {!_.isEmpty(values) && (
-          <div className="selected ellipsis">{multiple ? _l('选择%0项', values.length) : _.find(options, { key: values[0] }).value }</div>
+          <div className="selected ellipsis">{multiple ? _l('选择%0项', values.length) : _.get(_.find(options, { key: values[0] }), 'value') }</div>
         )}
       </div>
       <div>

@@ -35,9 +35,6 @@ export const getIndexById = ({ component, components }) => {
   return _.findIndex(components, item => item.id === id || item.uuid === id);
 };
 export const getDefaultLayout = ({ components = [], index = components.length, layoutType = 'web', titleVisible, type, config = {} }) => {
-  if (type === 'ai' && config.showType === 'suspension') {
-    return null;
-  }
   if (layoutType === 'web') {
     if (type === 'view') {
       return { x: (components.length * 6) % 12, y: Infinity, w: 12, h: 10, minW: 2, minH: 6 };
@@ -89,7 +86,7 @@ export const getComponentTitleText = component => {
   if (enumType === 'view') return config.name;
   if (enumType === 'filter') return _l('筛选组件');
   if (enumType === 'carousel') return _l('轮播图');
-  if (_.includes(['embedUrl', 'ai'], enumType)) return value;
+  if (_.includes(['embedUrl'], enumType)) return value;
   return value;
 };
 
@@ -264,37 +261,20 @@ export const fillObjectId = components => {
   });
 }
 
-// 过滤悬浮ai组件
-export const filterSuspensionAiComponent = components => {
-  return components.filter(c => {
-    if (enumWidgetType.ai === c.type || 'ai' === c.type) {
-      const config = _.get(c, 'config') || {};
-      return config.showType === 'embed';
-    }
-    return true;
-  });
-}
-
-export const getSuspensionAiComponent = components => {
-  return components.filter(c => {
-    if (enumWidgetType.ai === c.type || 'ai' === c.type) {
-      const config = _.get(c, 'config') || {};
-      return config.showType === 'suspension';
-    }
-    return false;
-  })[0];
-}
-
 export const formatNavfilters = data => {
   const { advancedSetting } = data;
   const { navshow, navfilters, showNavfilters } = advancedSetting;
-  if (['2', '3'].includes(navshow) && navfilters && !showNavfilters) {
+  if (['2'].includes(navshow) && navfilters && !showNavfilters) {
     const res = JSON.parse(navfilters);
     const { values } = handleCondition({
       ...data,
       values: res
     });
     return JSON.stringify(values);
+  }
+  if (['3'].includes(navshow) && navfilters && !showNavfilters) {
+    const res = JSON.parse(navfilters);
+    return JSON.stringify(res.map(handleCondition))
   }
   return navfilters;
 }

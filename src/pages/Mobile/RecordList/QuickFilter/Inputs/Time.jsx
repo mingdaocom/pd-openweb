@@ -41,7 +41,7 @@ export default function Time(props) {
   return (
     <div className="controlWrapper">
       <div className="flexRow valignWrapper mBottom15">
-        <div className="Font14 bold flex ellipsis">{control.controlName}</div>
+        <div className="Font14 bold flex ellipsis controlName">{control.controlName}</div>
         {!!dateRange && dateRange !== 18 && (
           <div className="selected ellipsis">{_.find(optionDate, { value: dateRange }).text}</div>
         )}
@@ -105,6 +105,9 @@ export default function Time(props) {
               }
               isOpen={startDateVisible}
               value={startDateValue ? new Date(startDateValue) : new Date()}
+              onClose={() => {
+                setStartDateVisible(false);
+              }}
               onSelect={date => {
                 onChange({
                   dateRange: 18,
@@ -176,6 +179,9 @@ export default function Time(props) {
                       },
                     }
               }
+              onClose={() => {
+                setEndDateVisible(false);
+              }}
               onSelect={date => {
                 onChange({
                   dateRange: 18,

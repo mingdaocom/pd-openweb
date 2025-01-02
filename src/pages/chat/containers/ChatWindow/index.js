@@ -74,7 +74,7 @@ class ChatWindow extends Component {
     socketInit();
     // 注册事件
     type == Constant.SESSIONTYPE_USER ? socketEvent.userInit.call(this) : socketEvent.groupInit.call(this);
-    socketEvent.stateInit.call(this);
+
     socket.Contact.setCurrentChat({
       value: id,
       type: Number(type),
@@ -88,7 +88,7 @@ class ChatWindow extends Component {
   }
   render() {
     const { loading } = this.state;
-    const { currentSession, currentSessionList } = this.props;
+    const { currentSessionList } = this.props;
     return (
       <div className="ChatPanel-wrapper ChatPanel-window">
         {loading ? (
@@ -106,11 +106,9 @@ class ChatWindow extends Component {
 }
 
 const ConnectChatWindow = connect(state => {
-  const { currentSession, currentSessionList, sessionList, isWindow } = state.chat;
+  const { currentSessionList, isWindow } = state.chat;
   return {
-    currentSession,
     currentSessionList,
-    sessionList,
     isWindow,
   };
 })(ChatWindow);

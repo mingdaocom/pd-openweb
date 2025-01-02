@@ -669,7 +669,7 @@ class CreateCustomBtnCon extends React.Component {
               className={cx('colorCon flex TxtCenter TxtMiddle Font18')}
               style={{
                 backgroundColor: color,
-                color: color === 'transparent' || isColorTransparent(color) ? '#333' : getButtonColor(color).color,
+                color: color === 'transparent' || isColorTransparent(color) ? '#151515' : getButtonColor(color).color,
               }}
             >
               A

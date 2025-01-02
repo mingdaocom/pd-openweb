@@ -121,7 +121,7 @@ const getLineValue = value => {
       start: ['min', value],
       end: ['max', value],
       style: {
-        stroke: '#333',
+        stroke: '#151515',
       },
     }]
   } else {
@@ -249,7 +249,7 @@ export default class extends Component {
         controlId: split.controlId,
         values: [param[split.cid]],
         controlName: split.controlName,
-        controlValue: formatControlInfo(currentData.groupName).name,
+        controlValue: _.get(formatControlInfo(currentData.groupName), 'name'),
         type: split.controlType,
         control: split
       });

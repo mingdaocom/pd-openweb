@@ -65,6 +65,15 @@ const CancelButton = styled(Button)`
   }
 `;
 
+const ExtraButton = styled(Button)`
+  font-weight: 600;
+  user-select: none;
+  color: #fff;
+  border: 1px solid #fff;
+  margin-right: 10px;
+  line-height: 26px;
+`;
+
 export default function EditingBar(props) {
   const {
     style = {},
@@ -124,7 +133,7 @@ export default function EditingBar(props) {
           onClick={e => e.stopPropagation()}
           className="editingBar"
         >
-          <Con style={{ background: isBlack ? '#333' : '#2196f3' }}>
+          <Con style={{ background: isBlack ? '#151515' : '#2196f3' }}>
             <span className="flex bold">{title}</span>
             {loading && <Loading className="icon icon-loading_button" />}
             {!loading && cancelText && (

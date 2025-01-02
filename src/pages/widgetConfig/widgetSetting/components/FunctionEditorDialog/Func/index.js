@@ -20,7 +20,7 @@ const Con = styled.div`
   display: flex;
   height: 100%;
   flex-direction: column;
-  color: #333;
+  color: #151515;
 `;
 const Header = styled.div`
   height: 50px;

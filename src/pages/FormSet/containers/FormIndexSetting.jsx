@@ -177,7 +177,7 @@ const ArrowDown = styled.span`
 
 const MAX_COUNT = md.global.Config.IsLocal ? 10 : 5;
 const sortRules = { 1: _l('升序'), '-1': _l('降序'), text: _l('文本索引') };
-const FILTER_TYPE_LIST = [40, 42, 43, 21, 25, 45, 14, 34, 22, 10010, 30, 47, 49, 50, 51, 52];
+const FILTER_TYPE_LIST = [40, 42, 43, 21, 25, 45, 14, 34, 22, 10010, 30, 47, 49, 50, 51, 52, 54];
 
 function FormIndexSetting(props) {
   const { worksheetInfo } = props;

@@ -44,7 +44,7 @@ const Wrap = styled.div`
     .anticon-minus-square {
       svg path {
         &:first-child {
-          fill: #333;
+          fill: #151515;
         }
         &:last-child {
           fill: #bdbdbd;

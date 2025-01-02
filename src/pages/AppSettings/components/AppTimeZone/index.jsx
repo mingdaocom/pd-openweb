@@ -7,7 +7,7 @@ import _ from 'lodash';
 
 const AppTimeZoneDropdown = styled(Dropdown)`
   width: 500px;
-  color: #333;
+  color: #151515;
   .Dropdown--border {
     height: 32px;
   }

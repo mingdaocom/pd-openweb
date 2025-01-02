@@ -225,22 +225,33 @@ export default class SortConditions extends React.Component {
 
   getCanSelectColumns = controlId => {
     const { columns, sortConditions } = this.state;
-    const control = _.find(columns, c => c.controlId === controlId);
     const sortConditionControls = sortConditions
       .map(c => _.find(columns, column => column.controlId === c.controlId))
       .filter(_.identity);
-    // 人员，部门，关联，组织角色，附件，级联选择此类支持多选的数组格式，都只能选择一个排序
-    const list = [26, 27, 29, 48, 35, 14, 9, 10, 11];
-    // const optionTypes = [9, 10, 11];
-    const isExist = !!sortConditionControls.find(o => list.includes(o.type) || list.includes(o.sourceControlType));
     return filterOnlyShowField(columns)
-      .filter(o => ![42, 47, 49, 51, 52].includes(o.type)) //排除签名字段 扫码 接口查询按钮 查询记录
-      .filter(
-        c =>
-          (!_.find(sortConditions, sc => sc.controlId === c.controlId) || c.controlId === controlId) &&
-          (!(isExist && _.find(list, type => [c.type, c.sourceControlType].includes(type))) ||
-            (control && _.find(list, type => [control.type, control.sourceControlType].includes(type)))),
-      )
+      .filter(o => {
+        if (o.controlId === controlId) return true;
+        //排除签名字段 扫码 接口查询按钮 查询记录 或 已选中且非当前id
+        if ([42, 47, 49, 51, 52, 54].includes(o.type) || _.find(sortConditions, sc => sc.controlId === o.controlId))
+          return false;
+        // 人员，部门，关联，组织角色，附件，级联选择此类支持多选的数组格式，都只能选择一个排序 选项strDefault=index除外
+        const list = [26, 27, 29, 48, 35, 14];
+        const optionTypes = [9, 10, 11];
+        const isExist = !!sortConditionControls.find(
+          o =>
+            (list.includes(o.type === 30 ? o.sourceControlType : o.type) ||
+              (optionTypes.includes(o.type === 30 ? o.sourceControlType : o.type) && o.strDefault !== 'index')) &&
+            controlId !== o.controlId,
+        );
+        // 存在数组类类型 都只能选择一个排序 选项strDefault=index除外
+        if (isExist) {
+          const type = o.type === 30 ? o.sourceControlType : o.type;
+          return optionTypes.includes(type) && o.strDefault === 'index'
+            ? true
+            : ![...list, ...optionTypes].includes(type);
+        }
+        return true;
+      })
       .map(c => ({
         text: c.controlName,
         value: c.controlId,

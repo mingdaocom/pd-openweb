@@ -59,9 +59,9 @@ export default class EditInfo extends React.Component {
     return (
       <div className="baseInfoEditContent Gray">
         <div className="Gray_9e mBottom24">
-          {_l('邮箱和手机设置请到 ')}
+          {_l('邮箱和手机设置请到')}
           <span
-            className="ThemeColor3 Hover_49 Hand"
+            className="ThemeColor3 Hover_49 Hand mLeft3"
             onClick={() => {
               this.props.closeDialog();
               navigateTo(common.url({ type: 'account' }));
@@ -69,7 +69,7 @@ export default class EditInfo extends React.Component {
           >
             {_l('账户与隐私')}
           </span>
-          {_l(' 页面设置')}
+          {_l('页面设置')}
         </div>
         {/**微信 */}
         <div className="Bold">{_l('微信')}</div>

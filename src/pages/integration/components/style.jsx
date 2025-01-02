@@ -77,7 +77,7 @@ export const Wrap = styled.div`
     line-height: 36px;
     background: #f4f4f3;
     border: 1px solid #e0e0e0;
-    color: #333;
+    color: #151515;
     font-size: 14px;
     padding: 0 10px;
     overflow: hidden;

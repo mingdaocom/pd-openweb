@@ -67,6 +67,7 @@ export default function ManageBackupFiles(props) {
   const [createBackupVisible, setCreateBackUpVisible] = useState(false);
   const [showLog, setShowLog] = useState(false);
   const [showBackupFromFiles, setShowBackupFromFiles] = useState(false);
+  const [countLoading, setCountLoading] = useState(true);
   const [backupInfo, setBackupInfo] = useState({
     isLoading: false,
     fileList: [],
@@ -105,10 +106,16 @@ export default function ManageBackupFiles(props) {
   }, [appId]);
 
   const getBackupCount = () => {
-    appManagementAjax.getValidBackupFileInfo({ appId, projectId }).then(res => {
-      setValidLimit(res.validLimit);
-      setCurrentValid(res.currentValid);
-    });
+    appManagementAjax
+      .getValidBackupFileInfo({ appId, projectId })
+      .then(res => {
+        setValidLimit(res.validLimit);
+        setCurrentValid(res.currentValid);
+        setCountLoading(false);
+      })
+      .catch(err => {
+        setCountLoading(false);
+      });
   };
 
   return (
@@ -117,7 +124,9 @@ export default function ManageBackupFiles(props) {
         title={_l('备份与还原')}
         addBtnName={_l('备份')}
         description={
-          validLimit === -1
+          countLoading
+            ? ''
+            : validLimit === -1
             ? _l('支持仅备份应用或者备份应用和数据，备份后的文件可以下载保存')
             : _l('每个应用最多创建10个备份文件，每个文件仅保留60天有效期。')
         }
@@ -158,6 +167,7 @@ export default function ManageBackupFiles(props) {
         projectId={projectId}
         appId={appId}
         appName={appName}
+        data={data}
         validLimit={validLimit}
         currentValid={currentValid}
         getList={getList}

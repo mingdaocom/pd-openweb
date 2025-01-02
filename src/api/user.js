@@ -221,7 +221,7 @@ export default {
   /**
   * 网络管理 - 获取网络下用户列表（projectId不存在加载好友，projectId存在加载公司通讯录）
 当 dataRange=project时 projectId不能为空
-用于网络管理通讯录简化弹层
+用于【网络管理/管理后台 - 不受通讯录规则限制】通讯录简化弹层
   * @param {Object} args 请求参数
   * @param {integer} args.pageIndex 页码
   * @param {integer} args.pageSize 页大小

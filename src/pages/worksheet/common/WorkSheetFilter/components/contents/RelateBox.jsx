@@ -76,9 +76,9 @@ export default class RelateBox extends Component {
           dynamicControls,
           items =>
             _.includes([29, 51], items.type) &&
-            !isSheetDisplay(items) &&
             items.dataSource === dataSource &&
-            items.controlId !== controlId,
+            items.controlId !== controlId &&
+            (widgetControlData.isSubList ? !isSheetDisplay(items) : true),
         ),
       );
     }

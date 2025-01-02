@@ -14,11 +14,26 @@ import { permitList } from 'src/pages/FormSet/config.js';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import { getFilledRequestParams } from 'worksheet/util';
 import { emitter } from 'src/util';
-import { sortDataByCustomNavs } from './util';
+import { sortDataByCustomNavs, getSourceControlByNav } from './util';
 import { Con } from './style';
 
 let getNavGroupRequest = null;
 let preWorksheetIds = [];
+
+const TYPES = {
+  26: {
+    name: 'fullname',
+    id: 'accountId',
+  },
+  27: {
+    name: 'departmentName',
+    id: 'departmentId',
+  },
+  48: {
+    name: 'organizeName',
+    id: 'organizeId',
+  },
+};
 
 function GroupFilter(props) {
   const {
@@ -62,8 +77,8 @@ function GroupFilter(props) {
     }
   }, [navGroupFilters]);
   useEffect(() => {
-    let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
-    if (29 === soucre.type && getAdvanceSetting(view).navshow === '1' && isOpenGroup) {
+    let source = getSourceControlByNav(navGroup, controls);
+    if ([29, 26, 27, 48].includes(source.type) && getAdvanceSetting(view).navshow === '1' && isOpenGroup) {
       getNavGroupCount();
     }
     isOpenGroup && fetch();
@@ -88,9 +103,9 @@ function GroupFilter(props) {
     fetch();
   }, [keywords]);
   useEffect(() => {
-    let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
+    let source = getSourceControlByNav(navGroup, controls);
     let { navshow } = getAdvanceSetting(view);
-    if (29 === soucre.type && navshow === '1') {
+    if ([26, 27, 48, 29].includes(source.type) && navshow === '1') {
       fetch();
     }
   }, [navGroupCounts]);
@@ -106,11 +121,11 @@ function GroupFilter(props) {
     if (!navGroup.controlId || !rowIdForFilter) {
       updateGroupFilter([], view);
     } else {
-      let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
+      let source = getSourceControlByNav(navGroup, controls);
       let obj = _.omit(navGroup, ['isAsc']);
       let filterType = 2; //选项的选中
-      if ([29, 35].includes(soucre.type)) {
-        if (soucre.type === 29 && !navGroup.viewId) {
+      if ([29, 35].includes(source.type)) {
+        if (source.type === 29 && !navGroup.viewId) {
           //未选择了层级视图 按是筛选
           filterType = 24;
         } else {
@@ -127,7 +142,7 @@ function GroupFilter(props) {
             ...obj,
             values: rowIdForFilter === 'null' ? [] : [rowIdForFilter],
             navNames: [navName],
-            dataType: soucre.type,
+            dataType: source.type,
             filterType,
           },
         ],
@@ -136,8 +151,8 @@ function GroupFilter(props) {
     }
   }, [rowIdForFilter, navGroup]);
   const isSoucreTree = () => {
-    let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
-    return soucre.type === 35 || (soucre.type === 29 && navGroup.viewId);
+    let source = getSourceControlByNav(navGroup, controls);
+    return source.type === 35 || (source.type === 29 && navGroup.viewId);
   };
   const isTreeStyle = () => {
     return !keywords && isSoucreTree();
@@ -176,12 +191,11 @@ function GroupFilter(props) {
     const { rowId, cb } = obj || {};
     let key = keywords;
     let data = [];
-    let filter = navGroup;
-    let soucre = controls.find(o => o.controlId === filter.controlId) || {};
+    let source = getSourceControlByNav(navGroup, controls);
+    let { navshow } = getAdvanceSetting(view);
     //级联选择字段 或 已配置层级展示的关联字段
-    if ([29, 35].includes(soucre.type)) {
-      let { navshow } = getAdvanceSetting(view);
-      if (29 === soucre.type && navshow === '1' && !key) {
+    if ([29, 35].includes(source.type)) {
+      if (29 === source.type && navshow === '1' && !key) {
         dataUpdate({
           filterData: navGroupData,
           data: navGroupCounts
@@ -198,32 +212,94 @@ function GroupFilter(props) {
         });
       } else {
         loadData({
-          worksheetId: soucre.dataSource,
-          viewId: 29 === soucre.type ? filter.viewId : soucre.viewId,
+          worksheetId: source.dataSource,
+          viewId: 29 === source.type ? navGroup.viewId : source.viewId,
           rowId,
           cb,
         });
       }
+    } else if ([26, 27, 48].includes(source.type) && navshow === '1') {
+      dataUpdate({
+        filterData: navGroupData,
+        data: navGroupCounts
+          .filter(o => !['all', ''].includes(o.key)) //排除全部和空
+          .map(item => {
+            return {
+              value: item.key,
+              txt: item.name,
+              isLeaf: false,
+            };
+          }),
+        rowId,
+        cb,
+      });
     } else {
-      let options = (controls.find(o => o.controlId === filter.controlId) || {}).options || [];
-      data = !filter.isAsc ? options.slice().reverse() : options;
-      data = data
-        .filter(o => !o.isDeleted)
-        .map(o => {
-          return {
-            ...o,
-            txt: o.value,
-            value: o.key,
-          };
-        })
-        .filter(o => (key ? o.txt.indexOf(key) >= 0 : true));
+      switch (source.type) {
+        case 9:
+        case 10:
+        case 11:
+          let options = (controls.find(o => o.controlId === _.get(navGroup, 'controlId')) || {}).options || [];
+          data = !navGroup.isAsc ? options.slice().reverse() : options;
+          data = data
+            .filter(o => !o.isDeleted)
+            .map(o => {
+              return {
+                ...o,
+                txt: o.value,
+                value: o.key,
+              };
+            });
+          break;
+        case 28:
+          data = [
+            ...new Array(
+              parseInt(
+                _.get(controls.find(o => o.controlId === _.get(source, 'controlId')) || {}, 'advancedSetting.max') ||
+                  '1',
+                10,
+              ),
+            ),
+          ].map((o, i) => {
+            return {
+              txt: _l('%0 级', parseInt(i + 1, 10)),
+              value: JSON.stringify(i + 1),
+            };
+          });
+          data = !navGroup.isAsc ? data.slice().reverse() : data;
+          break;
+        case 26:
+        case 27:
+        case 48:
+          let { navfilters = '[]', navshow } = getAdvanceSetting(view);
+          try {
+            navfilters = JSON.parse(navfilters);
+          } catch (error) {
+            navfilters = [];
+          }
+          data = navfilters.map(o => {
+            const item = safeParse(o) || {};
+            return {
+              txt: JSON.stringify({
+                [TYPES[source.type].id]: item.id,
+                [TYPES[source.type].name]: item.name,
+                avatar: item.avatar,
+              }),
+              value: item.id,
+              isLeaf: false,
+            };
+          });
+          break;
+        default:
+          break;
+      }
+      data = data.filter(o => (key ? o.txt.indexOf(key) >= 0 : true));
       setGroupFilterData(data);
       setLoading(false);
     }
   };
   const renderTxt = (item, control, viewId) => {
-    let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
-    if (keywords && (soucre.type === 35 || (soucre.type === 29 && navGroup.viewId && !!viewId && !!item.path))) {
+    let source = getSourceControlByNav(navGroup, controls);
+    if (keywords && (source.type === 35 || (source.type === 29 && navGroup.viewId && !!viewId && !!item.path))) {
       //视图是否删除 !!viewId
       const path = safeParse(item.path, 'array');
       return path.map((text, i) => {
@@ -251,9 +327,9 @@ function GroupFilter(props) {
     if (!isOpenGroup) {
       return;
     }
-    let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
+    let source = getSourceControlByNav(navGroup, controls);
     let param =
-      soucre.type === 35
+      source.type === 35
         ? {
             getType: 10,
           }
@@ -261,7 +337,7 @@ function GroupFilter(props) {
             appId,
             searchType: 1,
             getType: !viewId ? 7 : 10,
-            viewId: viewId || soucre.viewId, //关联记录时，如果有关联视图，应该按照视图设置的排序方式排序
+            viewId: viewId || source.viewId, //关联记录时，如果有关联视图，应该按照视图设置的排序方式排序
           };
     param.keyWords = keywords;
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
@@ -270,16 +346,16 @@ function GroupFilter(props) {
     } catch (error) {
       navfilters = [];
     }
-    if (soucre.type !== 35 && navfilters.length > 0 && ['3'].includes(navshow)) {
+    if (source.type !== 35 && navfilters.length > 0 && ['3'].includes(navshow)) {
       /// 显示 符合筛选条件的处理
       let filterControls = navfilters.map(o => handleCondition(o));
       param = { ...param, filterControls };
     }
-    if (soucre.type === 29) {
+    if (source.type === 29) {
       //关联表作为
       param.sortControls = safeParse(_.get(view, 'advancedSetting.navsorts'), 'array');
-      if (!!_.get(soucre, 'advancedSetting.searchcontrol') && keywords) {
-        param.controlId = _.get(soucre, 'controlId');
+      if (!!_.get(source, 'advancedSetting.searchcontrol') && keywords) {
+        param.controlId = _.get(source, 'controlId');
       }
       if (!!_.get(view, 'advancedSetting.navsearchcontrol') && keywords) {
         param.keyWords = undefined;
@@ -291,7 +367,7 @@ function GroupFilter(props) {
             groupFilters: [
               {
                 dataType: (
-                  ((controls.find(o => o.controlId === _.get(soucre, 'controlId')) || {}).relationControls || []).find(
+                  ((controls.find(o => o.controlId === _.get(source, 'controlId')) || {}).relationControls || []).find(
                     o => o.controlId === _.get(view, 'advancedSetting.navsearchcontrol'),
                   ) || {}
                 ).type,
@@ -341,7 +417,7 @@ function GroupFilter(props) {
       } else {
         let { data = [] } = result;
         let newDate = data;
-        if (soucre.type !== 35 && navfilters.length > 0 && navshow === '2') {
+        if (source.type !== 35 && navfilters.length > 0 && navshow === '2') {
           newDate = [];
           const ids = navfilters.map(value => safeParse(value).id);
           ids.map(it => {
@@ -394,8 +470,8 @@ function GroupFilter(props) {
       let count = Number(
         (navGroupCounts.find(o => o.key === (!d.value ? 'all' : d.value === 'null' ? '' : d.value)) || {}).count || 0,
       );
-      const soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
-      const { advancedSetting, type } = soucre;
+      let source = getSourceControlByNav(navGroup, controls);
+      const { advancedSetting, type } = source;
       const { allpath = '0' } = advancedSetting;
       const nStr = allpath === '1' && type === 35 ? (!!str ? str + '/' : '') + d.txt : d.txt; //级联选项控件，结果显示层级路径
       const showCount = count > 0 && view.viewType !== 2;
@@ -411,6 +487,7 @@ function GroupFilter(props) {
             onClick={() => {
               updateFilter(d.value);
               setNavName(keywords && type === 35 ? d.text : nStr);
+              setNavAvatar(d.a);
             }}
           >
             <div className={cx('gListDiv', { hasCount: showCount })}>
@@ -471,11 +548,11 @@ function GroupFilter(props) {
     if (navGroupData && navGroupData.length <= 0 && keywords) {
       return <div className="noData mTop35 TxtCenter Gray_9e">{_l('没有搜索结果')}</div>;
     }
-    let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
+    let source = getSourceControlByNav(navGroup, controls);
     let navData = navGroupData;
     navData = sortDataByCustomNavs(navData, view, controls);
     if (!keywords) {
-      if ((soucre.type === 29 && !!navGroup.viewId) || [35].includes(soucre.type)) {
+      if ((source.type === 29 && !!navGroup.viewId) || [35].includes(source.type)) {
         //关联记录以层级视图时|| 级联没有显示项
         navData = [
           {
@@ -505,7 +582,7 @@ function GroupFilter(props) {
             : navData;
       }
     }
-    let isOption = [9, 10, 11].includes(soucre.type) || [9, 10, 11].includes(soucre.sourceControlType); //是否选项
+    let isOption = [9, 10, 11, 28].includes(source.type) || [9, 10, 11, 28].includes(source.sourceControlType); //是否选项
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
     try {
       navfilters = JSON.parse(navfilters);
@@ -516,15 +593,17 @@ function GroupFilter(props) {
     if (navGroup.controlId === 'wfstatus' && !isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit)) {
       navshow = '0';
     }
-    if (isOption && navfilters.length > 0 && navshow === '2') {
+    if (navfilters.length > 0 && navshow === '2') {
       // 显示 指定项 //加上全部和空
-      let list = ['', ...navfilters, 'null'];
-      const data = navData;
-      navData = [];
-      list.map(it => {
-        navData = navData.concat(data.find(o => o.value === it));
-      });
-      navData = navData.filter(o => !!o);
+      if (isOption) {
+        let list = ['', ...navfilters, 'null'];
+        const data = navData;
+        navData = [];
+        list.map(it => {
+          navData = navData.concat(data.find(o => o.value === it));
+        });
+        navData = navData.filter(o => !!o);
+      }
     }
     return (
       <ScrollView className="flex">
@@ -535,7 +614,7 @@ function GroupFilter(props) {
             <ul>
               {navData.map((o, i) => {
                 let styleCss =
-                  isOption && soucre.enumDefault2 === 1 && !!o.key
+                  isOption && source.enumDefault2 === 1 && !!o.key
                     ? {
                         backgroundColor: o.color,
                       }
@@ -549,6 +628,9 @@ function GroupFilter(props) {
                   return;
                 }
                 const showCount = count > 0 && view.viewType !== 2;
+                const keyStr = _.includes([26, 27, 48], source.type) ? TYPES[source.type].name : '';
+                const txtName =
+                  keyStr && !['null', ''].includes(o.value) ? safeParse(o.txt)[keyStr] : o.txt || _l('未命名');
                 return (
                   <li
                     className={cx('gList Hand', {
@@ -563,10 +645,10 @@ function GroupFilter(props) {
                     }}
                   >
                     <div className={cx('gListDiv')}>
-                      {isOption && soucre.enumDefault2 === 1 && !!o.key && (
+                      {isOption && source.enumDefault2 === 1 && !!o.key && (
                         <span className="option" style={styleCss}></span>
                       )}
-                      <span className="optionTxt InlineBlock WordBreak overflow_ellipsis">{o.txt || _l('未命名')}</span>
+                      <span className="optionTxt InlineBlock WordBreak overflow_ellipsis">{txtName}</span>
                       {showCount && <span className="count">{count}</span>}
                     </div>
                   </li>

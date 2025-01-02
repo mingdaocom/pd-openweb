@@ -1,9 +1,10 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, createRef } from 'react';
 import { bindActionCreators } from 'redux';
-import { Icon, WaterMark, SvgIcon } from 'ming-ui';
+import { Icon, WaterMark, SvgIcon, PullToRefreshWrapper } from 'ming-ui';
 import cx from 'classnames';
 import { connect } from 'react-redux';
 import * as actions from './redux/actions';
+import * as appActions from '../App/redux/actions';
 import webCache from 'src/api/webCache';
 import TabBar from '../components/TabBar';
 import SelectProject from '../components/SelectProject';
@@ -42,6 +43,9 @@ class AppHome extends React.Component {
       guideStep: 0,
       recentType: 'app',
     };
+    this.contentRef = createRef();
+    this.handleScroll = _.debounce(this.handleScroll.bind(this), 300);
+    this.isSetScrollTop = false;
   }
   componentDidMount() {
     const maturityTime = moment(md.global.Account.createTime).add(7, 'day').format('YYYY-MM-DD');
@@ -57,6 +61,9 @@ class AppHome extends React.Component {
     window.addEventListener('popstate', this.closePage);
     loadSDK();
     window.addEventListener('popstate', this.onQueryChange);
+
+    // 清除工作表滚动条高度
+    this.props.updateAppScrollY(0);
   }
   componentWillUnmount() {
     $('html').removeClass('appHomeMobile');
@@ -67,22 +74,35 @@ class AppHome extends React.Component {
     window.removeEventListener('popstate', this.onQueryChange);
   }
 
+  componentDidUpdate() {
+    const { isHomeLoading, appHomeScrollY } = this.props;
+
+    if (!this.isSetScrollTop && !isHomeLoading > 0 && appHomeScrollY > 0 && this.contentRef && this.contentRef.current) {
+      this.contentRef.current.scrollTop = appHomeScrollY;
+      this.isSetScrollTop = true;
+    }
+  }
+
+  handleScroll = (e) => {
+    this.props.updateAppHomeScrollY(e.target.scrollTop);
+  };
+
   onQueryChange = () => {
     handleReplaceState('page', 'collectRecord', () => this.setState({ collectRecord: {} }));
   };
 
-  getProject = () => {
+  getProject = (isPullRefresh = false) => {
     const projectObj = getCurrentProject(
       localStorage.getItem('currentProjectId') || (md.global.Account.projects[0] || {}).projectId,
     );
     const currentProject = !_.isEmpty(projectObj) ? projectObj : { projectId: 'external', companyName: _l('外部协作') };
     const projectId = currentProject ? currentProject.projectId : null;
     if (projectId === 'external') {
-      this.props.getMyApp();
+      this.props.getMyApp(isPullRefresh);
       this.props.clearAllCollectCharts();
       return;
     }
-    this.props.myPlatform(projectId);
+    this.props.myPlatform(projectId, isPullRefresh);
     this.props.getHomePlatformSetting(projectId);
     this.props.getAllFavorites(projectId);
     this.props.getAllCollectCharts(projectId);
@@ -120,6 +140,7 @@ class AppHome extends React.Component {
         [app.enName, app.name].filter(_.identity).join('').toLowerCase().indexOf(keyWords.trim().toLowerCase()) > -1,
     );
   };
+
   renderSearchApp = () => {
     let { searchValue } = this.state;
     const { myPlatformData = {} } = this.props;
@@ -505,52 +526,54 @@ class AppHome extends React.Component {
     }
 
     return (
-      <div className="content flexColumn">
-        {!boardSwitch && <div className="spaceBottom"></div>}
-        {/* 宣传栏 */}
-        {boardSwitch && !isExternal ? (
+      <div ref={this.contentRef} className="content flexColumn" onScroll={this.handleScroll}>
+        <PullToRefreshWrapper onRefresh={() => this.getProject(true)}>
+          {!boardSwitch && <div className="spaceBottom"></div>}
+          {/* 宣传栏 */}
+          {boardSwitch && !isExternal ? (
+            <Fragment>
+              <BulletinBoard loading={false} platformSetting={platformSetting} height={150} />
+              <div className="spaceBottom"></div>
+            </Fragment>
+          ) : (
+            ''
+          )}
+
+          {/* 流程待办 */}
+          <Process todoDisplay={todoDisplay} projectId={currentProject.projectId} />
+          <div className="spaceBottom"></div>
+
           <Fragment>
-            <BulletinBoard loading={false} platformSetting={platformSetting} height={150} />
-            <div className="spaceBottom"></div>
+            {sortModuleTypes.map(moduleType => {
+              switch (moduleType) {
+                case MODULE_TYPES.APP_COLLECTION:
+                  // 应用收藏
+                  return displayMark && !isExternal ? this.renderCollectAppList() : '';
+                case MODULE_TYPES.RECENT:
+                  // 最近使用
+                  return displayCommonApp && !isExternal ? this.renderRecent() : '';
+                case MODULE_TYPES.ROW_COLLECTION:
+                  // 记录收藏
+                  return rowCollect && !isExternal ? this.renderCollectRecords() : '';
+                case MODULE_TYPES.CHART_COLLECTION:
+                  // 图表收藏
+                  return this.renderCollectCharts(currentProject.projectId, reportAutoRefreshTimer);
+                default:
+                  return null;
+              }
+            })}
           </Fragment>
-        ) : (
-          ''
-        )}
 
-        {/* 流程待办 */}
-        <Process todoDisplay={todoDisplay} projectId={currentProject.projectId} />
-        <div className="spaceBottom"></div>
-
-        <Fragment>
-          {sortModuleTypes.map(moduleType => {
-            switch (moduleType) {
-              case MODULE_TYPES.APP_COLLECTION:
-                // 应用收藏
-                return displayMark && !isExternal ? this.renderCollectAppList() : '';
-              case MODULE_TYPES.RECENT:
-                // 最近使用
-                return displayCommonApp && !isExternal ? this.renderRecent() : '';
-              case MODULE_TYPES.ROW_COLLECTION:
-                // 记录收藏
-                return rowCollect && !isExternal ? this.renderCollectRecords() : '';
-              case MODULE_TYPES.CHART_COLLECTION:
-                // 图表收藏
-                return this.renderCollectCharts(currentProject.projectId, reportAutoRefreshTimer);
-              default:
-                return null;
-            }
-          })}
-        </Fragment>
-
-        {/* 应用 */}
-        {(displayApp || isExternal) && (
-          <ApplicationList
-            myAppData={myPlatformData}
-            myPlatformLang={myPlatformLang}
-            projectId={currentProject.projectId}
-            projectGroupsNameLang={projectGroupsNameLang}
-          />
-        )}
+          {/* 应用 */}
+          {(displayApp || isExternal) && (
+            <ApplicationList
+              myAppData={myPlatformData}
+              myPlatformLang={myPlatformLang}
+              projectId={currentProject.projectId}
+              projectGroupsNameLang={projectGroupsNameLang}
+            />
+          )}
+        </PullToRefreshWrapper>
       </div>
     );
   };
@@ -588,6 +611,7 @@ export default connect(
       myPlatformLang,
       collectCharts,
       projectGroupsNameLang,
+      appHomeScrollY,
     } = state.mobile;
     return {
       isHomeLoading,
@@ -597,6 +621,7 @@ export default connect(
       myPlatformLang,
       collectCharts,
       projectGroupsNameLang,
+      appHomeScrollY,
     };
   },
   dispatch =>
@@ -610,7 +635,11 @@ export default connect(
           'getMyApp',
           'getAllCollectCharts',
           'clearAllCollectCharts',
+          'updateAppHomeScrollY',
         ]),
+        ..._.pick(appActions, [
+          'updateAppScrollY',
+        ])
       },
       dispatch,
     ),

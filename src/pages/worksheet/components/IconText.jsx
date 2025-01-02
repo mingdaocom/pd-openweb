@@ -7,7 +7,7 @@ import styled from 'styled-components';
 const Con = styled.div`
   display: inline-block;
   cursor: pointer;
-  color: #333;
+  color: #151515;
   padding: 0px 12px;
   height: 28px;
   line-height: 28px;

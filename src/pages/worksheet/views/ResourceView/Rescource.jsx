@@ -10,6 +10,7 @@ import ToolBar from './ToolBar';
 import domtoimage from 'dom-to-image';
 import { types, timeWidth, timeWidthHalf } from './config';
 import { browserIsMobile } from 'src/util';
+import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
 
 const Wrap = styled.div`
   width: 100%;
@@ -57,9 +58,11 @@ export default function Resource(props) {
     onFetch();
   }, [props.view, resourceview.currentTime]);
   const onFetch = () => {
-    const { dataSource = '', type } = (controls || []).find(o => o.controlId === props.view.viewControl) || {};
+    const { dataSource = '' } = (controls || []).find(o => o.controlId === props.view.viewControl) || {};
     getTimeList(() => {
-      !!dataSource && type === 29 && getRelationControls(dataSource);
+      !!dataSource &&
+        isSameType([29], (controls || []).find(o => o.controlId === props.view.viewControl) || {}) &&
+        getRelationControls(dataSource);
       fetchRows();
     });
   };

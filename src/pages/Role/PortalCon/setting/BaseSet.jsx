@@ -340,14 +340,14 @@ export default function BaseSet(props) {
           })}
           <br />
           {_.get(props, ['portalSet', 'portalSetModel', 'loginMode', 'weChat']) && !loading && (
-            <div className={cx(' Gray_9e mTop4 InlineBlock', { noWX: !isWXExist, WX: !!isWXExist })}>
+            <div className={cx('Gray_9e mTop4 InlineBlock', { noWX: !isWXExist, WX: !!isWXExist })}>
               {!isWXExist ? (
                 <React.Fragment>
-                  {_l('暂未绑定公众号，请前往')}
+                  {_l('暂未绑定服务号，请前往')}
                   <a className="Hand mLeft5 mRight5 InlineBlock" href={`/admin/weixin/${projectId}`} target="_blank">
                     {_l('组织管理')}
                   </a>
-                  {_l('添加微信公众账号')}
+                  {_l('添加微信服务号')}
                 </React.Fragment>
               ) : (
                 <React.Fragment>
@@ -442,7 +442,7 @@ export default function BaseSet(props) {
             )}
           </div>
         </div>
-        {/* 私有部署根据系统配置提供是否需要关注公众号的配置 */}
+        {/* 私有部署根据系统配置提供是否需要关注服务号的配置 */}
         {!md.global.SysSettings.hideWeixin && (
           <div className="mTop5">
             <SwitchStyle>
@@ -462,7 +462,7 @@ export default function BaseSet(props) {
                 }}
               />
               <div className="switchText LineHeight32 InlineBlock Normal Gray mLeft12">
-                {_l('通过微信扫码登录时，需先关注公众号')}
+                {_l('通过微信扫码登录时，需先关注服务号')}
               </div>
             </SwitchStyle>
           </div>

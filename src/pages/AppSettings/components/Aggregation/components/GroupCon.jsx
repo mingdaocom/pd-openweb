@@ -19,7 +19,7 @@ import {
 import { WrapS } from './style';
 import Trigger from 'rc-trigger';
 import { getTranslateInfo } from 'src/util';
-import { DEFAULT_COLORS } from '../config';
+import { DEFAULT_COLORS, canArraySplit } from '../config';
 import _ from 'lodash';
 
 const WrapItem = styled.div`
@@ -41,6 +41,11 @@ const WrapItem = styled.div`
     }
   }
 `;
+
+const arraySplitList = [
+  { txt: _l('拆开'), value: true },
+  { txt: _l('合并'), value: false },
+];
 export default function GroupCon(props) {
   const { list, onChange, sourceTables, updateErr, flowData, sourceInfos } = props;
 
@@ -112,29 +117,28 @@ export default function GroupCon(props) {
               <Icon icon="info_outline" className="Hand Gray_9e ThemeHoverColor3 Font16" />
             </Tooltip>
           )}
-          {/* {isDateTimeGroup(item) || isTimeGroup(item)  */}
-          {isDateTimeGroup(item) ? (
-            <Trigger
-              action={['click']}
-              popupVisible={popupVisible}
-              onPopupVisibleChange={popupVisible => {
-                setState({ popupVisible });
-              }}
-              getPopupContainer={() => document.body}
-              popupAlign={{ points: ['tl', 'bl'], offset: [0, 4], overflow: { adjustX: true, adjustY: true } }}
-              popup={
-                <WrapS className={cx('Relative')}>
-                  <MenuItem
-                    className="settingSheet"
-                    onClick={() => {
-                      setState({
-                        showChangeName: true,
-                        popupVisible: false,
-                      });
-                    }}
-                  >
-                    <span className="text Font14">{_l('重命名')}</span>
-                  </MenuItem>
+          <Trigger
+            action={['click']}
+            popupVisible={popupVisible}
+            onPopupVisibleChange={popupVisible => {
+              setState({ popupVisible });
+            }}
+            getPopupContainer={() => document.body}
+            popupAlign={{ points: ['tl', 'bl'], offset: [0, 4], overflow: { adjustX: true, adjustY: true } }}
+            popup={
+              <WrapS className={cx('Relative')}>
+                <MenuItem
+                  className="settingSheet"
+                  onClick={() => {
+                    setState({
+                      showChangeName: true,
+                      popupVisible: false,
+                    });
+                  }}
+                >
+                  <span className="text Font14">{_l('重命名')}</span>
+                </MenuItem>
+                {isDateTimeGroup(item) && (
                   <React.Fragment>
                     <Trigger
                       action={['hover']}
@@ -201,36 +205,93 @@ export default function GroupCon(props) {
                         }}
                       >
                         <span className="text flex Font14">{_l('归组')}</span>
+                        <span className="Gray_75">
+                          {
+                            getDefaultOperationForGroup(item).find(
+                              o => o.value === _.get(item, 'resultField.aggFuncType'),
+                            ).text
+                          }
+                        </span>
                         <Icon className="Font15 Gray_9e Font13" icon="arrow-right-tip" />
                       </MenuItem>
                     </Trigger>
                   </React.Fragment>
-                </WrapS>
+                )}
+                {canArraySplit(item.resultField.controlSetting) && (
+                  <React.Fragment>
+                    <Trigger
+                      action={['hover']}
+                      popupAlign={{
+                        points: ['tl', 'tr'],
+                        offset: [0, -5],
+                        overflow: { adjustX: true, adjustY: true },
+                      }}
+                      popup={
+                        <WrapS className="Relative">
+                          {arraySplitList.map(o => {
+                            return (
+                              <MenuItem
+                                className={cx('settingSheet flexRow Font14', {
+                                  ThemeColor3: !o.value === !item.arraySplit,
+                                })}
+                                onClick={() => {
+                                  if (!o.value === !item.arraySplit) {
+                                    return;
+                                  }
+
+                                  onUpdate(
+                                    items.map(a => {
+                                      if (_.get(a, 'resultField.id') === _.get(item, 'resultField.id')) {
+                                        return {
+                                          ...a,
+                                          arraySplit: o.value,
+                                        };
+                                      }
+                                      return a;
+                                    }),
+                                  );
+                                  setState({
+                                    popupVisible: false,
+                                  });
+                                }}
+                              >
+                                <span className="flexRow w100">
+                                  <span className="flex"> {o.txt}</span>
+                                </span>
+                              </MenuItem>
+                            );
+                          })}
+                        </WrapS>
+                      }
+                    >
+                      <MenuItem
+                        className="flexRow alignItemsCenter"
+                        onClick={() => {
+                          setState({
+                            popupVisible: true,
+                          });
+                        }}
+                      >
+                        <span className="text flex Font14">{_l('归组')}</span>
+                        <span className="Gray_75">{arraySplitList.find(o => !o.value === !item.arraySplit).txt}</span>
+                        <Icon className="Font15 Gray_9e Font13" icon="arrow-right-tip" />
+                      </MenuItem>
+                    </Trigger>
+                  </React.Fragment>
+                )}
+              </WrapS>
+            }
+          >
+            <Icon
+              icon="arrow-down-border"
+              className="Hand Gray_9e ThemeHoverColor3 Font16 mLeft8"
+              onClick={() =>
+                setState({
+                  popupVisible: true,
+                })
               }
-            >
-              <Icon
-                icon="arrow-down-border"
-                className="Hand Gray_9e ThemeHoverColor3 Font16 mLeft8"
-                onClick={() =>
-                  setState({
-                    popupVisible: true,
-                  })
-                }
-              />
-            </Trigger>
-          ) : (
-            <Tooltip title={_l('重命名')}>
-              <Icon
-                icon="rename_input"
-                className="Font16 Hand Gray_75 ThemeHoverColor3 mLeft8"
-                onClick={() => {
-                  setState({
-                    showChangeName: true,
-                  });
-                }}
-              />
-            </Tooltip>
-          )}
+            />
+          </Trigger>
           <Tooltip title={_l('删除')}>
             <Icon
               icon="clear"

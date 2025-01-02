@@ -11,7 +11,13 @@ import { getRequest, dateConvertToServerZone, dateConvertToUserZone } from 'src/
 import _ from 'lodash';
 import moment from 'moment';
 import dayjs from 'dayjs';
-import { types, timeWidth, timeWidthHalf } from 'src/pages/worksheet/views/ResourceView/config.js';
+import {
+  types,
+  timeWidth,
+  timeWidthHalf,
+  kanbanSize,
+  pageSize,
+} from 'src/pages/worksheet/views/ResourceView/config.js';
 import { getHoverColor } from 'src/pages/worksheet/views/CalendarView/util.js';
 import { isLightColor } from 'src/util';
 import { sortDataByCustomItems } from 'src/pages/worksheet/redux/actions/util.js';
@@ -73,7 +79,8 @@ export const fetchRows = (refresh = true) => {
           ...filters,
           fastFilters: formatQuickFilter(quickFilter),
           kanbanIndex: 1,
-          kanbanSize: 50,
+          kanbanSize: kanbanSize,
+          pageSize: pageSize,
         }),
       )
       .then(({ data, count, resultCode }) => {
@@ -134,8 +141,8 @@ export const fetchRowsByGroupId = (kanbanKey, kanbanIndex) => {
           ...filters,
           fastFilters: formatQuickFilter(quickFilter),
           kanbanIndex: 1,
-          kanbanSize: 50,
-          pageSize: 20,
+          kanbanSize: kanbanSize,
+          pageSize: pageSize,
           kanbanKey,
           pageIndex: kanbanIndex,
         }),
@@ -213,7 +220,7 @@ const formatRows = (item, view, controls, gridTimes, mustParse = true, currentTi
     let colorData = controls.find(it => it.controlId === _.get(view, 'advancedSetting.colorid')) || {};
     data = fillRecordTimeBlockColor(data, colorData);
     const hoverColor = getHoverColor(data.color);
-    const fontColor = isLightColor(data.color) ? '#333' : '#fff';
+    const fontColor = isLightColor(data.color) ? '#151515' : '#fff';
     data = {
       ...data, // color
       ...formatRecordPoint(data, view, gridTimes, controls, currentTime),

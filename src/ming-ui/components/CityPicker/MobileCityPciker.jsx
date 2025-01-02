@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { LoadDiv, Icon, Radio } from 'ming-ui';
-import { Popup, List } from 'antd-mobile';
+import { LoadDiv, Icon, Radio, PopupWrapper } from 'ming-ui';
 import '../less/MobileCityPicker.less';
 import _ from 'lodash';
 
@@ -39,6 +38,14 @@ export default class MobileCityPicker extends Component {
       indexLevel: 1,
       keywords: '',
     };
+
+    this.handleClose = this.handleClose.bind(this);
+    this.handleBack = this.handleBack.bind(this);
+    this.handleClear = this.handleClear.bind(this);
+    this.handleSave = this.handleSave.bind(this);
+    this.debounceSearch = _.debounce(keywords => {
+      this.props.getCitys({ keywords });
+    }, 500);
   }
 
   onNext(item) {
@@ -74,6 +81,39 @@ export default class MobileCityPicker extends Component {
     this.props.getCitys({ keywords });
   }
 
+  handleChange(e) {
+    const keywords = e.target.value;
+    this.setState({ keywords });
+    this.debounceSearch(keywords);
+  }
+
+  handleClose() {
+    const { onClose } = this.props;
+    onClose();
+    this.setState({ visible: false, indexLevel: 1 });
+  }
+
+  handleBack() {
+    const { onClear, select } = this.props;
+    this.setState({ indexLevel: select.length > 2 ? 2 : 1 });
+    select.length > 2 ? handleClick(select[0], 1) : onClear(false);
+  }
+
+  handleClear() {
+    const { onClear } = this.props;
+    onClear();
+    this.setState({ visible: false, indexLevel: 1 });
+  }
+
+  handleSave() {
+    const { select, onClear, onClose, callback } = this.props;
+    const { indexLevel } = this.state;
+    select.length && callback && callback(select, indexLevel);
+    this.setState({ visible: false, indexLevel: 1 });
+    onClear(false);
+    select.length && onClose && onClose();
+  }
+
   renderSearch() {
     const { keywords } = this.state;
 
@@ -88,28 +128,22 @@ export default class MobileCityPicker extends Component {
           }}
         >
           <input
-            type="text"
+            type="search"
             placeholder={_l('搜索')}
             className="Font14"
             value={keywords}
-            onChange={e => {
-              this.setState({ keywords: e.target.value });
-            }}
+            onChange={e => this.handleChange(e)}
             onKeyDown={event => {
               event.which === 13 && this.handleSearch();
             }}
+            onBlur={() => this.handleSearch()}
           />
         </form>
         {keywords ? (
           <Icon
             icon="workflow_cancel"
             onClick={() => {
-              this.setState(
-                {
-                  keywords: '',
-                },
-                this.handleSearch,
-              );
+              this.setState({ keywords: '' }, this.handleSearch);
             }}
           />
         ) : null}
@@ -122,8 +156,6 @@ export default class MobileCityPicker extends Component {
       disabled,
       children,
       placeholder,
-      onClear,
-      onClose = () => {},
       callback = () => {},
       showConfirmBtn,
       defaultValue,
@@ -143,84 +175,68 @@ export default class MobileCityPicker extends Component {
             <input readOnly value={select.length === 0 ? defaultValue : last.path} placeholder={placeholder} />
           )}
         </span>
-
-        <Popup
-          className="mobileCityPicker mobileModal topRadius"
+        <PopupWrapper
+          bodyClassName="heightPopupBody40"
           visible={visible}
-          onClose={() => {
-            onClose();
-            this.setState({ visible: false, indexLevel: 1 });
-          }}
+          title={indexLevel ? LEVEL_TEXT[indexLevel - 1] : _l('选择地区')}
+          confirmDisable={!select.length}
+          clearDisable={!defaultValue}
+          onClose={this.handleClose}
+          onBack={select.length > 0 && this.handleBack}
+          onClear={this.handleClear}
+          onConfirm={this.handleSave}
         >
-          <div className="header">
-            <div className="flexRow">
-              <div
-                className="flex ThemeColor3 pLeft16 TxtLeft"
-                onClick={() => {
-                  if (select.length === 0) {
-                    onClear();
-                    this.setState({ visible: false, indexLevel: 1 });
-                  } else {
-                    this.setState({ indexLevel: select.length > 2 ? 2 : 1 });
-                    select.length > 2 ? handleClick(select[0], 1) : onClear(false);
-                  }
-                }}
-              >
-                {!!select.length ? _l('返回') : _l('清除')}
-              </div>
-              <div>{indexLevel ? LEVEL_TEXT[indexLevel - 1] : _l('选择地区')}</div>
-              {showConfirmBtn ? (
-                <div
-                  className="flex ThemeColor3 pRight16 TxtRight"
-                  onClick={() => {
-                    select.length && callback(select, indexLevel);
-                    this.setState({ visible: false, indexLevel: 1 });
-                    onClear(false);
-                    select.length && this.props.onClose && this.props.onClose();
-                  }}
-                >
-                  {_l('确定')}
-                </div>
+          <div className="mobileCityPicker flexColumn">
+            {this.renderSearch()}
+            <div className="cityPickerContentBox flex">
+              {loading ? (
+                <LoadDiv />
               ) : (
-                <div className="flex pLeft16"></div>
+                <div className="popupListBox">
+                  {data.length > 0 &&
+                    listData.map(item => {
+                      return (
+                        <div
+                          className="popupListItem"
+                          key={item.id}
+                          onClick={() =>
+                            this.onNext({
+                              ...item,
+                              last: level === 2 && particularlyCity.includes(item.id) ? true : item.last,
+                            })
+                          }
+                        >
+                          <div
+                            style={{
+                              color: select.length && select[select.length - 1].id === item.id ? '#2196f3' : '#151515',
+                            }}
+                          >
+                            {showConfirmBtn && <Radio checked={(last || {}).id === item.id} />}
+                          </div>
+                          <div className="popupListItemContentBox">
+                            <div
+                              className="popupListItemContent"
+                              style={{
+                                color: select.length && select[select.length - 1].id === item.id ? '#2196f3' : '#151515',
+                              }}
+                            >
+                              {!_.isArray(data[0]) ? item.path : item.name}
+                            </div>
+                            {!item.last &&
+                              level > indexLevel &&
+                              _.isArray(data[0]) &&
+                              (level === 2 ? !particularlyCity.includes(item.id) : true) && (
+                                <Icon className="Font20 Gray_9e" icon="navigate_next" />
+                              )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
               )}
             </div>
-            {this.renderSearch()}
           </div>
-          <div style={{ height: 250, overflowY: 'auto' }}>
-            {loading ? (
-              <LoadDiv />
-            ) : (
-              <List>
-                {data.length > 0 &&
-                  listData.map(item => {
-                    return (
-                      <List.Item key={item.id} arrowIcon={false} onClick={() => this.onNext({...item, last: level === 2 && particularlyCity.includes(item.id) ? true : item.last})}>
-                        <div
-                          className="mobileCityPickerListItem valignWrapper"
-                          style={{
-                            color: select.length && select[select.length - 1].id === item.id ? '#2196f3' : '#000',
-                          }}
-                        >
-                          {showConfirmBtn ? (
-                            <Radio
-                              checked={(last || {}).id === item.id}
-                              text={!_.isArray(data[0]) ? item.path : item.name}
-                            />
-                          ) : (
-                            <span>{!_.isArray(data[0]) ? item.path : item.name}</span>
-                          )}
-                          {!item.last && level > indexLevel && _.isArray(data[0]) && (level === 2 ? !particularlyCity.includes(item.id) : true) && (
-                            <Icon className="Font20 Gray_9e" icon="navigate_next" />
-                          )}
-                        </div>
-                      </List.Item>
-                    );
-                  })}
-              </List>
-            )}
-          </div>
-        </Popup>
+        </PopupWrapper>
       </Fragment>
     );
   }

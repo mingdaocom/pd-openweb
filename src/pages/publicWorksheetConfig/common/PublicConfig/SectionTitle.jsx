@@ -11,7 +11,7 @@ const TitleWrapper = styled.div`
   cursor: pointer;
 
   .titleText {
-    color: #333;
+    color: #151515;
     font-weight: bold;
     vertical-align: middle;
     font-size: 15px;

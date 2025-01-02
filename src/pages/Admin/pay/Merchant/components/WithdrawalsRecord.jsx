@@ -179,8 +179,8 @@ export default class WithdrawalsRecord extends Component {
       max: banlance,
       desc: (
         <div className="Gray_9e Font12 mTop10">
-          <div>{_l('1、提现手续费说明：beta版暂时不收取手续费')}</div>
-          <div>{_l('2、可提现金额=余额-手续费（0元）；余额的变动会影响后续退款是否成功')}</div>
+          <div>{_l('1、提现手续费说明：当前版本暂不收取手续费')}</div>
+          <div>{_l('2、余额的变动会影响后续退款是否成功')}</div>
         </div>
       ),
       updateList: () => {

@@ -11,6 +11,7 @@ import PortalProgress from './PortalProgress';
 import projectAjax from 'src/api/project';
 import _ from 'lodash';
 import moment from 'moment';
+import { getCurrentProject } from 'src/util';
 
 //操作类型
 const EXPAND_TYPE = {
@@ -132,6 +133,8 @@ export default class ExpansionService extends Component {
     super();
     this.expandType = Config.params[3];
     this.isPortalUser = _.includes([EXPAND_TYPE.PORTALUSER, EXPAND_TYPE.PORTALUPGRADE], this.expandType);
+    const currentProject = getCurrentProject(Config.projectId);
+    const disabledPurchase = _.includes([0, 2], currentProject.licenseType);
     this.state = {
       step: 1,
       addUserCount: 5, // 输入增加的人数
@@ -142,8 +145,8 @@ export default class ExpansionService extends Component {
       needSalesAssistance: true,
       totalNum: 0,
       isPay: false,
-      workflowType: 1,
-      dataSyncType: 1,
+      workflowType: disabledPurchase ? 2 : 1,
+      dataSyncType: disabledPurchase ? 2 : 1,
       balance: 0,
       showWorkflowExtPack: false,
       autoPurchaseWorkflowExtPack: false,
@@ -172,14 +175,16 @@ export default class ExpansionService extends Component {
 
   //获取余额
   componentDidMount() {
+    const { workflowType, dataSyncType } = this.state;
     const licenseType = _.get(Config.project || {}, 'licenseType');
     const expandType = this.expandType;
+
     if (expandType === EXPAND_TYPE.WORKFLOW) {
       projectSetting.getAutoPurchaseWorkflowExtPack({ projectId: Config.projectId }).then(res => {
         this.setState(
           {
-            addUserCount: 10000,
-            addUserStep: 10000,
+            addUserCount: workflowType === 1 ? 10000 : 1000,
+            addUserStep: workflowType === 1 ? 10000 : 1000,
             maxUserCount: 5000000,
             balance: res.balance,
             showWorkflowExtPack:
@@ -194,8 +199,8 @@ export default class ExpansionService extends Component {
       projectSetting.getAutoPurchaseDataPipelineExtPack({ projectId: Config.projectId }).then(res => {
         this.setState(
           {
-            addUserCount: 100000,
-            addUserStep: 100000,
+            addUserCount: dataSyncType === 1 ? 100000 : 10000,
+            addUserStep: dataSyncType === 1 ? 100000 : 10000,
             maxUserCount: 5000000,
             balance: res.balance,
             showDataSyncExtPack:
@@ -541,10 +546,15 @@ export default class ExpansionService extends Component {
   //工作流新增时间类型选择
   renderWorkFlowContent() {
     const { workflowType } = this.state;
+    const currentProject = getCurrentProject(Config.projectId);
+    const disabledPurchase = _.includes([0, 2], currentProject.licenseType);
+
     return (
       <Fragment>
         <div className="workflowTypeContent">
           {WORKFLOW_TYPE_LIST.map(item => {
+            if (disabledPurchase && item.key === 1) return;
+
             return (
               <div
                 className={cx('workflowTypeItem', { active: workflowType === item.key })}
@@ -582,10 +592,15 @@ export default class ExpansionService extends Component {
 
   renderDataSyncContent() {
     const { dataSyncType } = this.state;
+    const currentProject = getCurrentProject(Config.projectId);
+    const disabledPurchase = _.includes([0, 2], currentProject.licenseType);
+
     return (
       <Fragment>
         <div className="workflowTypeContent">
           {DATASYNC_TYPE_LIST.map(item => {
+            if (disabledPurchase && item.key === 1) return null;
+
             return (
               <div
                 className={cx('workflowTypeItem', { active: dataSyncType === item.key })}

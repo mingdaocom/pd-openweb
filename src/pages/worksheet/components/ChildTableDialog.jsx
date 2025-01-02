@@ -45,12 +45,13 @@ const Header = styled.div`
   padding: 0 24px;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
   .inner {
     width: 100%;
   }
   .main {
     font-size: 17px;
-    color: #333;
+    color: #151515;
     font-weight: bold;
   }
   .split {
@@ -63,7 +64,7 @@ const Header = styled.div`
     color: #757575;
     max-width: 600px;
     &:hover {
-      color: #333;
+      color: #151515;
     }
   }
   .openInNewTab {
@@ -81,6 +82,7 @@ const Header = styled.div`
 `;
 const Content = styled.div`
   position: relative;
+  overflow: hidden;
   padding: 0 25px 36px;
   flex: 1;
   display: flex;
@@ -181,7 +183,6 @@ export default function ChildTableDialog(props) {
           if (data.resultCode === 22) {
             store.setUniqueError({ badData: data.badData });
           }
-          handleRecordError(data.resultCode);
           cache.current.isSaving = false;
           setIsSaving(false);
         } else {
@@ -281,6 +282,7 @@ export default function ChildTableDialog(props) {
           )}
         </Header>
         <Content>
+          {console.log(control)}
           <ChildTable
             valueChanged={props.valueChanged === true ? props.valueChanged : changed}
             needResetControls={needUpdateControls}
@@ -304,11 +306,7 @@ export default function ChildTableDialog(props) {
                 ? control
                 : {
                     ...control,
-                    advancedSetting: Object.assign({}, control.advancedSetting, {
-                      allowadd: '0',
-                      allowcancel: '0',
-                      allowedit: '0',
-                    }),
+                    fieldPermission: '100',
                   }),
               addRefreshEvents: (name, value) => {
                 cache.current.reload = value;
@@ -318,7 +316,7 @@ export default function ChildTableDialog(props) {
             recordId={recordId}
             searchConfig={searchConfig}
             sheetSwitchPermit={sheetSwitchPermit}
-            masterData={masterData}
+            masterData={{ recordId, controlId: control.controlId, ...masterData }}
             projectId={projectId}
             onChange={changedValues => {
               if (openFrom === 'cell') {

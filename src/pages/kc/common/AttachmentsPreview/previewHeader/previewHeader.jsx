@@ -20,6 +20,8 @@ import EditableBlock from '../editableBlock';
 import _ from 'lodash';
 import 'rc-trigger/assets/index.css';
 import VersionList from '../versionList';
+import { getFeatureStatus, buriedUpgradeVersionDialog, addToken, browserIsMobile } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 
 class PreviewHeader extends React.Component {
   static propTypes = {
@@ -101,20 +103,32 @@ class PreviewHeader extends React.Component {
   };
 
   downloadAttachment = () => {
-    const { attachment } = this.props;
+    const { attachment, logExtend } = this.props;
     const { canDownload } = previewUtil.getPermission(attachment, {
       hideFunctions: this.props.hideFunctions,
       fromType: this.props.fromType,
     });
     if (canDownload) {
-      window.open(previewUtil.getDownloadUrl(attachment, this.props.extra));
+      window.open(previewUtil.getDownloadUrl(attachment, { ...this.props.extra, logExtend }));
     } else {
       alert(_l('您权限不足，无法下载或保存。请联系文件夹管理员或文件上传者'), 3);
     }
   };
 
   render() {
-    const { attachment, fromType, hideFunctions, className, error, extra } = this.props;
+    const {
+      attachment,
+      fromType,
+      hideFunctions,
+      className,
+      error,
+      extra,
+      previewService,
+      projectId,
+      isDraft,
+      wpsEditUrl,
+      allowEdit,
+    } = this.props;
     const { name, ext, previewType } = attachment;
     const deleted = error.status === LOADED_STATUS.DELETED;
     const {
@@ -132,9 +146,106 @@ class PreviewHeader extends React.Component {
           hideFunctions,
           fromType,
         });
+    const isWps = previewService === 'wps';
+    const featureType = getFeatureStatus(projectId, VersionProductType.editAttachment);
+    const isMobile = browserIsMobile();
+    const isRecordFileNewTab =
+      location.pathname.indexOf('recordfile') > -1 || location.pathname.indexOf('rowfile') > -1; // 记录内附件新开页
+    const showEdit =
+      md.global.Config.EnableDocEdit &&
+      allowEdit &&
+      (featureType || isRecordFileNewTab) &&
+      wpsEditUrl &&
+      isWpsPreview(ext, true) &&
+      !isDraft; // （编辑授权指标||新开页）&可编辑权限&可编辑文档类型&非草稿箱
+
+    const renderAttachmentAction = () => {
+      return (
+        <div className={cx('flexRow flex justifyContentCenter', { mobileAttachmentAction: isMobile })}>
+          {!md.global.Config.IsLocal && (isWpsPreview(ext) || defaultWpsPreview(ext)) ? (
+            <Fragment>
+              {!isWps ? (
+                <div
+                  className={cx('setWPSPreview', { wpsPreview: !showEdit && !isMobile })}
+                  onClick={() => {
+                    this.props.changePreviewService('wps');
+                  }}
+                >
+                  <span className="bold">{_l('预览失败？使用WPS预览')}</span>
+                </div>
+              ) : (
+                <Trigger
+                  popupVisible={this.state.showSavePreviewService}
+                  onPopupVisibleChange={visible => {
+                    this.setState({
+                      showSavePreviewService: visible,
+                    });
+                  }}
+                  action={['click']}
+                  popupAlign={{
+                    points: ['tl', 'bl'],
+                    offset: [76, 0],
+                    overflow: { adjustX: true, adjustY: true },
+                  }}
+                  popup={
+                    <Menu style={{ width: 237 }}>
+                      <MenuItem
+                        onClick={() => {
+                          this.setState({
+                            isPreferred: false,
+                            showSavePreviewService: false,
+                          });
+                          this.props.changePreviewService('original');
+                        }}
+                      >
+                        {_l('使用默认方式预览')}
+                      </MenuItem>
+                    </Menu>
+                  }
+                >
+                  <div
+                    className="setWPSPreview usingWPS"
+                    onClick={() => {
+                      this.setState({ showSavePreviewService: true, wpsPreviewUrl: 'https://www.mingdao.com/' });
+                    }}
+                  >
+                    <span className="bold">{_l('正在使用WPS服务预览')}</span>
+                    <i className="icon icon-arrow-down White mLeft5"></i>
+                  </div>
+                </Trigger>
+              )}
+            </Fragment>
+          ) : (
+            ''
+          )}
+          {isMobile && showEdit && <div className="flex"></div>}
+          {/* 编辑 草稿箱内不支持附件在线编辑 */}
+          {showEdit && (
+            <div
+              className={cx('setWPSPreview editFileBtn bold centerBtn', {})}
+              onClick={() => {
+                if (featureType === '2') {
+                  buriedUpgradeVersionDialog(projectId, VersionProductType.editAttachment);
+                  return;
+                }
+                if (this.props.onClose) {
+                  this.props.onClose();
+                  window.open(wpsEditUrl);
+                } else {
+                  location.href = wpsEditUrl;
+                }
+              }}
+            >
+              <i className="icon icon-hr_edit mRight5 Font18" />
+              {_l('在线编辑')}
+            </div>
+          )}
+        </div>
+      );
+    };
 
     return (
-      <div className={cx('previewHeader flexRow', className)}>
+      <div className={cx('previewHeader flexRow Relative', className, { isMobile, Relative: !showEdit && !isMobile })}>
         <div className="flexRow">
           <EditableBlock
             onChange={value => {
@@ -192,75 +303,7 @@ class PreviewHeader extends React.Component {
             </div>
           )}
         </div>
-        <div className="flexRow flex justifyContentCenter">
-          {!md.global.Config.IsLocal && (isWpsPreview(ext) || defaultWpsPreview(ext)) ? (
-            <Fragment>
-              {!isWps ? (
-                <div
-                  className={cx('setWPSPreview', {})}
-                  onClick={() => {
-                    this.props.changePreviewService('wps');
-                  }}
-                >
-                  <span className="bold">{_l('预览失败？使用WPS预览')}</span>
-                </div>
-              ) : (
-                <Trigger
-                  popupVisible={this.state.showSavePreviewService}
-                  onPopupVisibleChange={visible => {
-                    this.setState({
-                      showSavePreviewService: visible,
-                    });
-                  }}
-                  action={['click']}
-                  popupAlign={{
-                    points: ['tl', 'bl'],
-                    offset: [76, 0],
-                    overflow: { adjustX: true, adjustY: true },
-                  }}
-                  popup={
-                    <Menu style={{ width: 237 }}>
-                      {/* <MenuItem
-                        disabled={this.state.isPreferred}
-                        onClick={() => {
-                          this.setState({
-                            isPreferred: true,
-                            showSavePreviewService: false,
-                          });
-                        }}
-                      >
-                        {_l('设为首选项')}
-                      </MenuItem> */}
-                      <MenuItem
-                        onClick={() => {
-                          this.setState({
-                            isPreferred: false,
-                            showSavePreviewService: false,
-                          });
-                          this.props.changePreviewService('original');
-                        }}
-                      >
-                        {_l('使用默认方式预览')}
-                      </MenuItem>
-                    </Menu>
-                  }
-                >
-                  <div
-                    className="setWPSPreview useingWPS"
-                    onClick={() => {
-                      this.setState({ showSavePreviewService: true, wpsPreviewUrl: 'https://www.mingdao.com/' });
-                    }}
-                  >
-                    <span className="bold">{_l('正在使用WPS服务预览')}</span>
-                    <i className="icon icon-arrow-down White mLeft5"></i>
-                  </div>
-                </Trigger>
-              )}
-            </Fragment>
-          ) : (
-            ''
-          )}
-        </div>
+        {!isMobile ? renderAttachmentAction() : <div className="flex"></div>}
         <div className="flexRow btns">
           {showKcVersionPanel && attachment.sourceNode.canEdit && (
             <div className="historyPanel">
@@ -390,6 +433,7 @@ class PreviewHeader extends React.Component {
                       extra.openControlAttachmentInNewTab(
                         (attachment.originNode || attachment.sourceNode).fileID ||
                           (attachment.originNode || attachment.sourceNode).fileId,
+                        this.props,
                       );
                     }}
                   />
@@ -433,6 +477,8 @@ class PreviewHeader extends React.Component {
             </div>
           )}
         </div>
+
+        {isMobile && renderAttachmentAction()}
       </div>
     );
   }
@@ -450,6 +496,7 @@ function mapStateToProps(state) {
     hideFunctions: state.hideFunctions,
     fromType: state.fromType,
     previewService: state.previewService,
+    wpsEditUrl: state.wpsEditUrl,
   };
 }
 

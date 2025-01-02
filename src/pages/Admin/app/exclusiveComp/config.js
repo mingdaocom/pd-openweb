@@ -9,6 +9,7 @@ export const TYPE_LIST = [
   { label: _l('审批流程'), value: 11 },
   { label: _l('封装业务流程'), value: 10 },
 ];
+
 export const COMPUTING_INSTANCE_STATUS = {
   Creating: 0,
   CreationFailed: 1,
@@ -20,4 +21,13 @@ export const COMPUTING_INSTANCE_STATUS = {
   Destroying: 7,
   Destroyed: 8,
   DestroyFailed: 9,
+};
+
+export const MIGRATE_CODE = {
+  0: _l('迁移失败'),
+  1: _l('开始迁移'),
+  2: _l('应用状态错误（迁移中/维护中/升级中）'),
+  3: _l('操作限制（1天一次）'),
+  4: _l('应用不存在'),
+  5: _l('专属数据库不存在'),
 };

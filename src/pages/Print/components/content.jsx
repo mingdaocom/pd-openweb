@@ -130,6 +130,7 @@ export default class Con extends React.Component {
       viewIdForPermit: viewId,
       controls,
       fileStyle,
+      user_info: safeParse((advanceSettings.find(l => l.key === 'user_info') || {}).value),
     };
     const controlData = putControlByOrder(
       replaceHalfWithSizeControls(
@@ -446,6 +447,8 @@ export default class Con extends React.Component {
     const fontType = FONT_STYLE[printData.font || DEFAULT_FONT_SIZE];
     const fileStyle = safeParse((advanceSettings.find(l => l.key === 'atta_style') || {}).value);
     const relationFileStyle = _.pickBy(fileStyle, (value, key) => _.startsWith(key, `${tableList.controlId}_`));
+    const user_info = safeParse((advanceSettings.find(l => l.key === 'user_info') || {}).value);
+    const relationUserInfo = _.pickBy(user_info, (value, key) => _.startsWith(key, `${tableList.controlId}_`));
 
     //空置隐藏则不显示
     if (isHideNull && list.length <= 0) {
@@ -561,6 +564,7 @@ export default class Con extends React.Component {
               fontSize: printData.font || DEFAULT_FONT_SIZE,
             }}
             fileStyle={relationFileStyle}
+            user_info={relationUserInfo}
           />
         ) : (
           // 平铺
@@ -579,6 +583,7 @@ export default class Con extends React.Component {
                     showUnit: true,
                     fileStyle: relationFileStyle,
                     dataSource: tableList.controlId,
+                    user_info: relationUserInfo,
                   };
 
                   return this.isShow(
@@ -622,6 +627,7 @@ export default class Con extends React.Component {
                             showUnit: true,
                             fileStyle: relationFileStyle,
                             dataSource: tableList.controlId,
+                            user_info: relationUserInfo,
                           };
 
                           if ([29].includes(it.type)) {
@@ -1190,7 +1196,7 @@ export default class Con extends React.Component {
                   )}
                   {printData.printTime && (
                     <span>
-                      {_l(' 打印时间：')}
+                      {_l('打印时间：')}
                       {dateConvertToUserZone(new Date())}
                     </span>
                   )}

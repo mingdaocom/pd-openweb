@@ -6,9 +6,9 @@ import { connect } from 'react-redux';
 import _ from 'lodash';
 
 const MODULE_TO_TITLE = {
-  center: _l(' 任务'),
-  star: _l('星标任务-任务 '),
-  subordinate: _l('下属任务-任务 '),
+  center: _l('任务'),
+  star: _l('星标任务-任务'),
+  subordinate: _l('下属任务-任务'),
 };
 
 class TaskEntrypoint extends Component {

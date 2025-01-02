@@ -17,6 +17,7 @@ import {
   fixedBottomWidgets,
   notInsetSectionTab,
   isTabSheetList,
+  checkWidgetMaxNumErr,
 } from '.';
 import { getPathById, isHaveGap } from './widgets';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
@@ -489,12 +490,27 @@ const dealCusTomEventActions = (actionItems = [], controls = []) => {
   });
 };
 
-export const checkCustomEventError = (controls = []) => {
-  let errorMsg = '';
+// 表单保存选项集不校验
+export const checkOptionsRepeat = (controls = [], checkCollections = true) => {
+  for (const c of controls) {
+    if (_.includes([9, 10, 11], c.type) && c.dataSource ? checkCollections : true) {
+      const noDelOptions = (c.options || []).filter(o => !o.isDeleted);
+      const uniqOptions = _.uniqBy(noDelOptions, 'value');
+      if (noDelOptions.length !== uniqOptions.length) {
+        return true;
+      }
+    }
+  }
+};
 
+// 表单保存校验
+export const checkWidgetErrorBySave = (controls = [], originControls = []) => {
+  let errorMsg = '';
+  let errorNum = 3;
   for (const data of controls) {
+    // 自定义事件校验
     const customEvent = getAdvanceSetting(data, 'custom_event') || [];
-    if (customEvent.length > 0 && !errorMsg) {
+    if (customEvent.length > 0) {
       const customActionItems = customEvent.map(({ eventActions = [] } = {}) => {
         return _.reduce(
           eventActions,
@@ -510,29 +526,49 @@ export const checkCustomEventError = (controls = []) => {
 
       if (_.some(_.flatten(customActionItems), a => !_.find(controls, c => c.controlId === a.controlId))) {
         errorMsg = _l(`%0字段事件配置异常`, data.controlName);
+        errorNum = 2;
+        break;
+      }
+    }
+
+    // 选项校验
+    if (_.includes([9, 10, 11], data.type) && !data.dataSource) {
+      const noDelOptions = (data.options || []).filter(o => !o.isDeleted);
+      const uniqOptions = _.uniqBy(noDelOptions, 'value');
+      const originOptions =
+        _.get(
+          _.find(originControls, o => o.controlId === data.controlId),
+          'options',
+        ) || [];
+      const hasChanged = !_.isEqual(
+        (data.options || []).map(d => d.value),
+        originOptions.map(o => o.value),
+      );
+      if (noDelOptions.length !== uniqOptions.length && hasChanged) {
+        errorMsg = _l('选项字段存在重复选项');
+        break;
+      }
+    }
+
+    // 自定义字段--引用配置校验
+    const reference = getAdvanceSetting(data, 'reference') || [];
+    if (!_.isEmpty(reference)) {
+      if (reference.some(r => !r.name)) {
+        errorMsg = _l('变量名不允许为空');
+        break;
+      }
+      if (_.uniqBy(reference, 'name').length !== reference.length) {
+        errorMsg = _l('变量名不允许重复');
         break;
       }
     }
   }
 
   if (errorMsg) {
-    alert(errorMsg, 2);
+    alert(errorMsg, errorNum);
     return true;
   }
   return false;
-};
-
-// 表单保存选项集不校验
-export const checkOptionsRepeat = (controls = [], checkCollections = true) => {
-  for (const c of controls) {
-    if (_.includes([9, 10, 11], c.type) && c.dataSource ? checkCollections : true) {
-      const noDelOptions = (c.options || []).filter(o => !o.isDeleted);
-      const uniqOptions = _.uniqBy(noDelOptions, 'value');
-      if (noDelOptions.length !== uniqOptions.length) {
-        return true;
-      }
-    }
-  }
 };
 
 export const formatControlsData = (controls = [], fromSub = false) => {
@@ -1017,6 +1053,14 @@ export const getChildWidgetsBySection = (controls = [], id) => {
 // 批量复制控件数据处理
 export const batchCopyWidgets = (props, selectWidgets = []) => {
   const { widgets, allControls, queryConfigs, setActiveWidget, setWidgets } = props;
+
+  for (var i = 0; i < selectWidgets.length; i++) {
+    const err = checkWidgetMaxNumErr(selectWidgets[i], [...allControls, selectWidgets.splice(0, i)]);
+    if (err) {
+      alert(err, 3);
+      return;
+    }
+  }
 
   const copyWidgets = [];
   let childCount = 0;

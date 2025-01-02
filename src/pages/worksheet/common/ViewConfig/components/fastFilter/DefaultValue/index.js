@@ -3,7 +3,7 @@ import DynamicDefaultValue from 'src/pages/widgetConfig/widgetSetting/components
 import _ from 'lodash';
 import styled from 'styled-components';
 import cx from 'classnames';
-import 'src/pages/widgetConfig/index.less'
+import 'src/pages/widgetConfig/index.less';
 
 const Wrap = styled.div`
   &.hideDynamic {
@@ -55,6 +55,7 @@ export default function Input(props) {
           'onChange',
           'titleControl',
           'withLinkParams',
+          'withDY',
           'linkParams',
           'withMaxOrMin',
         ])}

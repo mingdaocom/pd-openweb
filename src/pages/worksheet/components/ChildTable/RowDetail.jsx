@@ -124,6 +124,7 @@ export default class RowDetail extends React.Component {
       masterData,
       widgetStyle = {},
       rules,
+      isDraft,
     } = this.props;
     const { flag } = this.state;
     const formdata = _.isEmpty(data)
@@ -158,7 +159,7 @@ export default class RowDetail extends React.Component {
             sheetSwitchPermit={sheetSwitchPermit}
             columnNumber={1}
             from={from === 21 ? 21 : isMobile && isWorkflow ? 3 : recordId ? 3 : 2}
-            isDraft={from === 21}
+            isDraft={isDraft}
             isCreate={false}
             recordId={recordId}
             ref={this.customwidget}

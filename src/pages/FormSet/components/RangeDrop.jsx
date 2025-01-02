@@ -57,7 +57,7 @@ const RangeBox = styled.div`
     }
     .Radio-text {
       font-weight: initial;
-      color: #333;
+      color: #151515;
     }
   }
   .conLine {

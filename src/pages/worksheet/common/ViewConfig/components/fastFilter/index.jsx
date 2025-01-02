@@ -1,27 +1,23 @@
 import React, { createRef, useState, useEffect, useRef } from 'react';
+import { useSetState } from 'react-use';
 import styled from 'styled-components';
-import {
-  updateViewAdvancedSetting,
-  formatObjWithNavfilters,
-  formatAdvancedSettingByNavfilters,
-} from 'src/pages/worksheet/common/ViewConfig/util';
-import { Icon, Tooltip, Checkbox } from 'ming-ui';
+import { formatObjWithNavfilters } from 'src/pages/worksheet/common/ViewConfig/util';
+import { Icon, Tooltip, Checkbox, Dropdown } from 'ming-ui';
 import './index.less';
 import { getSetDefault, formatFastFilterData } from './util';
 import bgFastFilters from './img/bgFastFilters.png';
 import FastFilterCon from './fastFilterCon';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { getIconByType } from 'src/pages/widgetConfig/util';
+import cx from 'classnames';
 
 const Wrap = styled.div`
   .hasData {
     .checkBox {
       vertical-align: middle;
     }
-    .ming.Checkbox.checked .Checkbox-box {
-      // background-color: #9e9e9e;
-    }
     .ming.Checkbox.Checkbox--disabled {
-      color: #333;
+      color: #151515;
     }
     .iconWrap {
       display: inline-block;
@@ -40,7 +36,7 @@ const Wrap = styled.div`
     h6 {
       font-size: 20px;
       font-weight: 500;
-      color: #333333;
+      color: #151515;
       text-align: center;
       padding: 0;
       padding-top: 32px;
@@ -56,14 +52,47 @@ const Wrap = styled.div`
       margin: 24px auto 0;
     }
   }
+  .fastFilterControlDropdown {
+    height: auto;
+    min-height: 36px;
+    .itemT {
+      background: #f5f5f5;
+      border-radius: 4px 4px 4px 4px;
+      padding: 3px 8px 3px 10px;
+      border: 1px solid #e0e0e0;
+      i {
+        color: #9e9e9e;
+        &:hover {
+          color: #757575;
+        }
+      }
+    }
+    .Dropdown--border,
+    .dropdownTrigger .Dropdown--border {
+      min-height: 36px !important;
+      height: auto !important;
+    }
+    .Dropdown--input .value {
+      display: flex !important;
+      & > div {
+        flex: 1 !important;
+        display: flex !important;
+        flex-flow: row wrap !important;
+        gap: 5px;
+      }
+    }
+  }
 `;
 
 export default function FastFilter(params) {
   const { worksheetControls = [], setFastFilter, view = {}, updateCurrentView, currentSheetInfo } = params;
   const { advancedSetting = {} } = view;
-  let { enablebtn, clicksearch } = advancedSetting;
+  let { enablebtn, clicksearch, fastrequired, requiredcids } = advancedSetting;
   let [fastFilters, setData] = useState(view.fastFilters || []);
   let [showAddCondition, setShowAddCondition] = useState();
+  const [{ dropDownVisible }, setState] = useSetState({
+    dropDownVisible: false,
+  });
   useEffect(() => {
     const d = setSysWorkflowTimeControlFormat(view.fastFilters || [], currentSheetInfo.switches || []);
     setData(d);
@@ -76,9 +105,15 @@ export default function FastFilter(params) {
     setShowAddCondition(false);
   };
   const onDelete = controlId => {
-    updateView(fastFilters.filter(o => o.controlId !== controlId));
+    const ids = safeParse(requiredcids, 'array');
+    const data = fastFilters.filter(o => o.controlId !== controlId);
+    if (ids.includes(controlId)) {
+      updateView(data, { requiredcids: JSON.stringify(ids.filter(o => o !== controlId)) });
+    } else {
+      updateView(data);
+    }
   };
-  const updateView = fastFilters => {
+  const updateView = (fastFilters, advanced) => {
     let data =
       fastFilters.length > 0
         ? {
@@ -87,7 +122,10 @@ export default function FastFilter(params) {
         : {
             clicksearch: '0', //
             enablebtn: '0',
+            requiredcids: '[]',
+            fastrequired: '',
           };
+    data = { ...advanced, ...data };
     updateCurrentView(
       Object.assign(view, {
         fastFilters: formatFastFilterData(
@@ -116,16 +154,14 @@ export default function FastFilter(params) {
     setFastFilter(false, data.controlId);
   };
 
-  const updateAdvancedSetting = data => {
+  const updateAdvancedSettingWithEitAdKeys = advanced => {
     setShowAddCondition(false);
-    updateCurrentView(
-      Object.assign(view, {
-        advancedSetting: updateViewAdvancedSetting(view, {
-          ...data,
-        }),
-        editAttrs: ['advancedSetting'],
-      }),
-    );
+    updateCurrentView({
+      ...view,
+      advancedSetting: advanced,
+      editAdKeys: Object.keys(advanced),
+      editAttrs: ['advancedSetting'],
+    });
   };
 
   const renderFastFilterCon = () => {
@@ -161,8 +197,9 @@ export default function FastFilter(params) {
               text={_l('启用查询按钮')}
               checked={enablebtn === '1'}
               onClick={() => {
-                updateAdvancedSetting({
+                updateAdvancedSettingWithEitAdKeys({
                   enablebtn: enablebtn !== '1' ? '1' : '0',
+                  fastrequired: '',
                 });
               }}
             />
@@ -175,13 +212,118 @@ export default function FastFilter(params) {
               </div>
             </Tooltip>
           </div>
+          {enablebtn === '1' && (
+            <div className="mTop15 mLeft30">
+              <React.Fragment>
+                <Checkbox
+                  className="checkBox InlineBlock"
+                  text={_l('查询时必填')}
+                  checked={fastrequired === '1'}
+                  onClick={() => {
+                    updateAdvancedSettingWithEitAdKeys({
+                      fastrequired: fastrequired !== '1' ? '1' : '0',
+                    });
+                  }}
+                />
+                {fastrequired === '1' && (
+                  <Dropdown
+                    selectClose={false}
+                    placeholder={_l('请选择')}
+                    className={cx('w100 mTop8 fastFilterControlDropdown', {
+                      hs: safeParse(requiredcids, 'array').length > 0,
+                    })}
+                    renderItem={item => {
+                      if (item.value === 'all') {
+                        return <div className={'itemText Hand forAll flexRow alignItemsCenter'}>{item.text}</div>;
+                      }
+                      const isCur = !!safeParse(requiredcids, 'array').includes(item.value);
+                      return (
+                        <div
+                          className={cx('itemText flexRow alignItemsCenter', {
+                            isCur,
+                          })}
+                        >
+                          <Icon icon={getIconByType(item.type)} className="Font18 Relative" />
+                          <span className="mLeft10 flex Gray">{item.text}</span>
+                          {isCur && <Icon icon="done_2" className="Relative ThemeColor3 Font18" />}
+                        </div>
+                      );
+                    }}
+                    popupVisible={dropDownVisible}
+                    onVisibleChange={visible => setState({ dropDownVisible: visible })}
+                    value={safeParse(requiredcids, 'array').length <= 0 ? undefined : safeParse(requiredcids, 'array')}
+                    onChange={value => {
+                      let data = [];
+                      if (!value) {
+                        data = [];
+                      } else if (value == 'all') {
+                        data = fastFilters.map(o => o.controlId);
+                      } else if (safeParse(requiredcids, 'array').includes(value)) {
+                        data = safeParse(requiredcids, 'array').filter(o => o !== value);
+                      } else {
+                        data = [...safeParse(requiredcids, 'array'), value];
+                      }
+                      updateAdvancedSettingWithEitAdKeys({
+                        requiredcids: JSON.stringify(data),
+                      });
+                    }}
+                    renderTitle={() => {
+                      return (
+                        <div className="">
+                          {(safeParse(requiredcids, 'array') || []).map(it => {
+                            const info = worksheetControls.find(o => o.controlId === it);
+                            const isDel = !fastFilters.find(item => item.controlId === it) || !info;
+                            return (
+                              <div className={cx('itemT InlineBlock', { Red: isDel })}>
+                                {!isDel ? info.controlName : _l('已删除')}
+                                <Icon
+                                  icon={'close'}
+                                  className="Hand mLeft3"
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    let data = safeParse(requiredcids, 'array').filter(a => a !== it);
+                                    updateAdvancedSettingWithEitAdKeys({
+                                      requiredcids: JSON.stringify(data),
+                                    });
+                                  }}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    }}
+                    border
+                    menuClass={'paramControlDropdownMenu paramControlDropdownMenuSet'}
+                    cancelAble
+                    isAppendToBody
+                    openSearch
+                    data={[
+                      // { value: 'all', text: _l('全部') },
+                      ...fastFilters
+                        .map(o => {
+                          const info = worksheetControls.find(it => it.controlId === o.controlId) || {};
+                          return {
+                            ...o,
+                            value: o.controlId,
+                            text: info.controlName,
+                            type: info.type,
+                          };
+                        })
+                        .filter(o => o.type !== 36 && !!o.type), //检查项不支持
+                    ]}
+                  />
+                )}
+              </React.Fragment>
+            </div>
+          )}
           <div className="mTop15">
             <Checkbox
               className="checkBox InlineBlock"
               text={_l('在执行查询后显示数据')}
               checked={clicksearch === '1'}
               onClick={() => {
-                updateAdvancedSetting({
+                updateAdvancedSettingWithEitAdKeys({
                   clicksearch: clicksearch !== '1' ? '1' : '0',
                 });
               }}

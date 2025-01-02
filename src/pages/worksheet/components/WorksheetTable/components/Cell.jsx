@@ -216,6 +216,7 @@ function Cell(props) {
     cellUniqueValidate,
     updateCell,
     actions = {},
+    isDraft,
   } = data;
   const cellCache = useRef({});
   const { columnIndex, rowIndex } = getIndex({
@@ -378,6 +379,7 @@ function Cell(props) {
       key={key}
       isTrash={isTrash}
       from={from}
+      isDraft={isDraft}
       allowlink={allowlink}
       isSubList={isSubList}
       fromModule={fromModule}
@@ -508,6 +510,7 @@ function Cell(props) {
                   import('worksheet/common/newRecord/addRecord').then(addRecord => {
                     addRecord.default({
                       worksheetId,
+                      isDraft,
                       defaultRelatedSheet: {
                         worksheetId,
                         relateSheetControlId: addParentControl.sourceControlId,

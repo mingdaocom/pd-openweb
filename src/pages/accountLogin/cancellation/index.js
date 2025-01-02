@@ -181,7 +181,7 @@ export default class Cancellation extends Component {
     const { overdueDiff } = this.state;
     let min = Math.floor(overdueDiff / 60);
     let sec = overdueDiff % 60;
-    let overdueDate = min ? (sec > 0 ? _l(' %0 分 %1 秒', min, sec) : _l(' %0 分', min)) : _l(' %0 秒', sec);
+    let overdueDate = min ? (sec > 0 ? _l('%0 分 %1 秒', min, sec) : _l('%0 分', min)) : _l('%0 秒', sec);
     this.setState({ overdueDate, overdueDiff: overdueDiff - 1 });
   };
 
@@ -194,11 +194,11 @@ export default class Cancellation extends Component {
     let hours = diffValue % 24;
     let deadline = days
       ? hours > 0
-        ? _l(' %0 天 %1 小时', days, hours)
-        : _l(' %0 天', days)
+        ? _l('%0 天 %1 小时', days, hours)
+        : _l('%0 天', days)
       : hours > 0
-      ? _l(' %0 小时', hours)
-      : _l(' 1 小时');
+      ? _l('%0 小时', hours)
+      : _l('1 小时');
 
     return (
       <Fragment>
@@ -207,13 +207,13 @@ export default class Cancellation extends Component {
         </div>
         <div className="Font13 Bold">
           {_l('账号将在')}
-          {deadline}
+         <span className='mLeft3'> {deadline}</span>
           {_l('后正式注销，不可撤销！')}
         </div>
         {overdueDiff > 0 ? (
           <div className="mTop50">
-            {_l('如需撤销，请在 ')} <span className="ThemeColor3 mTop50 mBottom10">{overdueDate} </span>{' '}
-            {_l(' 内撤销申请')}
+            {_l('如需撤销，请在')} <span className="ThemeColor3 mTop50 mBottom10 mLeft3 mRight3">{overdueDate} </span>
+            {_l('内撤销申请')}
           </div>
         ) : (
           ''

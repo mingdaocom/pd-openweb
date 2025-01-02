@@ -134,7 +134,7 @@ export default class TriggerCondition extends Component {
       <Fragment>
         <span className="Gray_75 mRight5">[{getControlTypeName(item)}]</span>
         <Tooltip title={item.controlName ? null : `ID：${item.controlId}`}>
-          <span style={{ color: item.controlName ? '#333' : '#f44336' }}>{item.controlName || _l('字段已删除')}</span>
+          <span style={{ color: item.controlName ? '#151515' : '#f44336' }}>{item.controlName || _l('字段已删除')}</span>
         </Tooltip>
       </Fragment>
     );
@@ -525,8 +525,14 @@ export default class TriggerCondition extends Component {
       );
     }
 
-    // 数字 || 金额 || 公式 || 日期公式时长
-    if (filedTypeId === 6 || filedTypeId === 8 || filedTypeId === 31 || (filedTypeId === 38 && enumDefault === 1)) {
+    // 数字 || 金额 || 等级中的6个类型 || 公式 || 日期公式时长
+    if (
+      filedTypeId === 6 ||
+      filedTypeId === 8 ||
+      (filedTypeId === 28 && _.includes(['11', '12', '13', '14', '15', '16'], item.conditionId)) ||
+      filedTypeId === 31 ||
+      (filedTypeId === 38 && enumDefault === 1)
+    ) {
       return (
         <div className="flex">
           <div className="flexRow relative">
@@ -1131,7 +1137,7 @@ export default class TriggerCondition extends Component {
   updateConditionValue = ({ value, i, j, second, isSingle }) => {
     const data = _.cloneDeep(this.props.data);
     const { updateSource } = this.props;
-    const { filedTypeId } = data[i][j];
+    const { filedTypeId, conditionId } = data[i][j];
 
     // 文本 || 手机号码 || 电话号码 || 邮箱 || 证件  || 关联单条 || 文本组合 || 自动编号 || api查询
     if (
@@ -1158,10 +1164,11 @@ export default class TriggerCondition extends Component {
       }
     }
 
-    // 数字 || 金额  || 公式 || 日期公式时长
+    // 数字 || 金额 || 等级中的6个类型 || 公式 || 日期公式时长
     if (
       filedTypeId === 6 ||
       filedTypeId === 8 ||
+      (filedTypeId === 28 && _.includes(['11', '12', '13', '14', '15', '16'], conditionId)) ||
       filedTypeId === 31 ||
       (filedTypeId === 38 && typeof second === 'boolean')
     ) {

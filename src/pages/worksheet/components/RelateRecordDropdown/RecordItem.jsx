@@ -162,7 +162,7 @@ export default class RecordItem extends React.PureComponent {
             className={cx('title', { Bold: titleIsBold })}
             title={titleText}
             style={{
-              color: '#333',
+              color: '#151515',
               fontWeight: size === SIZE.BIG ? 'bold' : 'normal',
               lineHeight: showCoverAndControls && !!showControls.length ? '1.5' : '24px',
               marginBottom: showCoverAndControls && !!showControls.length ? 4 : 0,

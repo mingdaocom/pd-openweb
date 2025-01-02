@@ -17,7 +17,7 @@ export default function DateTimeList(props) {
   const renderItem = (date) => {
     return (
       date.map((o, i) => (
-        <Item className="flexRow valignWrapper pLeft15 pRight15" key={i}>
+        <Item className="flexRow valignWrapper pLeft15 pRight15 controlName" key={i}>
           <div
             key={o.value}
             className="flex ellipsis Font14"

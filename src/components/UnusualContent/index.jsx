@@ -1,9 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import { oneOf } from 'prop-types';
-import { Button, Dialog, Textarea, Skeleton, SvgIcon, UserHead } from 'ming-ui';
+import { Dialog, Textarea, Skeleton, SvgIcon, UserHead, Button } from 'ming-ui';
 import api from 'src/api/appManagement';
+import marketplaceApi from 'src/api/marketplace';
 import unauthorizedPic from './unauthorized.png';
 import turnoffPic from './turnoff.png';
+import overduePic from './overdue.png';
 import _ from 'lodash';
 import './index.less';
 
@@ -13,6 +15,9 @@ const STATUS_TO_TEXT = {
   4: { src: unauthorizedPic, text: _l('你还不是应用成员，无权访问此应用') },
   5: { src: unauthorizedPic, text: _l('未分配任何工作表，请联系此应用的管理员') },
   6: { src: turnoffPic, text: _l('工作表或自定义页面已删除') },
+  20: { src: overduePic, text: _l('当前应用已过期，如要继续使用，请立即续订') },
+  30: { src: turnoffPic, text: _l('应用已删除，如需使用请从回收站内恢复') },
+  31: { src: turnoffPic, text: _l('应用已被彻底删除，如需使用请重新安装') },
 };
 
 export default class UnusualContent extends Component {
@@ -22,10 +27,11 @@ export default class UnusualContent extends Component {
   state = {
     remark: '',
     applyJoinAppVisible: false,
+    reinstallLoading: false
   };
   updateState = (obj, cb) => {
     this.setState({ obj }, cb);
-  };
+  }
   applyJoinApp = () => {
     const { appId } = this.props;
     const { remark } = this.state;
@@ -35,7 +41,19 @@ export default class UnusualContent extends Component {
       }
       this.setState({ applyJoinAppVisible: false });
     });
-  };
+  }
+  reinstall = () => {
+    const { appId } = this.props;
+    this.setState({ reinstallLoading: true });
+    marketplaceApi.reinstall({
+      appId
+    }).then(data => {
+      if (data) {
+        alert(_l('安装成功'));
+        location.href = '/dashboard';
+      }
+    }).finally(() => this.setState({ reinstallLoading: false }));
+  }
   renderApply() {
     const { appPkg } = this.props;
     const { name, iconUrl, iconColor, projectId, managers = [], projectName } = appPkg;
@@ -85,7 +103,7 @@ export default class UnusualContent extends Component {
   render() {
     const { status, appPkg } = this.props;
     const { src, text } = STATUS_TO_TEXT[status] || {};
-    const { applyJoinAppVisible, remark } = this.state;
+    const { applyJoinAppVisible, remark, reinstallLoading } = this.state;
     return (
       <div className="unusualContentWrap">
         <div className="unusualSkeletonWrap">
@@ -101,13 +119,31 @@ export default class UnusualContent extends Component {
               <div className="imgWrap">
                 <img src={src} alt={_l('错误图片')} />
               </div>
-              <div className="explainText">{text}</div>
+              {_.includes([20], status) ? (
+                _.get(appPkg.license, 'status') === 2 ? (
+                  <div className="explainText">{text}</div>
+                ) : (
+                  <div className="explainText">{_l('应用已退单，如需使用，请重新购买')}</div>
+                )
+              ) : (
+                <div className="explainText">{text}</div>
+              )}
             </Fragment>
           )}
           {_.includes([4], status) &&
             !md.global.Account.isPortal && ( //外部门户无法申请
               <Button onClick={() => this.setState({ applyJoinAppVisible: true })}>{_l('申请加入')}</Button>
             )}
+          {_.includes([31], status) && (
+            <Button onClick={this.reinstall} loading={reinstallLoading}>
+              {_l('重新安装')}
+            </Button>
+          )}
+          {_.includes([20], status) && _.get(appPkg.license, 'status') === 2 && (
+            <Button onClick={() => window.open(`${md.global.Config.MarketUrl}/app/${appPkg.goodsId}?projectId=${appPkg.projectId}&purchaseRecordId=${appPkg.license.id}&buyTypeEnum=1&planType=${appPkg.license.planType}`)}>
+              {_l('立即续订')}
+            </Button>
+          )}
         </div>
         {applyJoinAppVisible && (
           <Dialog

@@ -1,12 +1,10 @@
-import React, { useState, memo, useRef, useEffect, Fragment } from 'react';
-import { string } from 'prop-types';
+import React, { useState, memo, useRef, Fragment } from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { EditWidget, WidgetList, WidgetContent } from '../components';
-import AiDisplay from '../components/WidgetContent/AiDisplay';
 import cx from 'classnames';
 import _ from 'lodash';
-import { replaceColor, isLightColor, filterSuspensionAiComponent, getSuspensionAiComponent } from 'src/pages/customPage/util';
+import { replaceColor, isLightColor } from 'src/pages/customPage/util';
 
 const ContentWrap = styled.div`
   box-sizing: border-box;
@@ -58,8 +56,7 @@ function webLayout(props) {
   const $ref = useRef(null);
   const { adjustScreen } = rest;
   const pageConfig = replaceColor(config || {}, appPkg.iconColor || rest.apk.iconColor);
-  const components = filterSuspensionAiComponent(props.components || []);
-  const suspensionAi = getSuspensionAiComponent(props.components || []);
+  const components = props.components || [];
   return (
     <Fragment>
       {editable && <WidgetList {...props} />}
@@ -90,13 +87,6 @@ function webLayout(props) {
               <p>{_l('从左侧添加组件，开始创建页面')}</p>
             </div>
           )
-        )}
-        {suspensionAi && (
-          <AiDisplay
-            editable={editable}
-            widget={suspensionAi}
-            delWidget={delWidget}
-          />
         )}
         {!_.isEmpty(editingWidget) && (
           <EditWidget

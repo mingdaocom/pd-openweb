@@ -160,10 +160,11 @@ export default function FilterObject(props) {
               if (checked) {
                 const newObjects = filterObject.map(c => {
                   const { name, ...data } = c;
+                  const isSameSheet = data.worksheetId === _.get(objectControls[0], 'worksheetId');
                   return {
                     ...data,
-                    controlId: _.get(objectControls[0], 'controlId'),
-                    control: _.get(objectControls[0], 'control')
+                    controlId: isSameSheet ? _.get(objectControls[0], 'controlId') : undefined,
+                    control: isSameSheet ? _.get(objectControls[0], 'control') : undefined
                   };
                 });
                 changeObjects(newObjects);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { LoadDiv, Dialog, Radio } from 'ming-ui';
+import { LoadDiv, Dialog, Radio, Icon } from 'ming-ui';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
 import APITable from './APITable';
@@ -37,6 +37,12 @@ const Wrap = styled.div`
       opacity: 1;
       border-radius: 3px;
     }
+  }
+  .warnCon {
+    padding: 5px 10px;
+    color: #f3b454;
+    background: rgba(243, 180, 84, 0.1);
+    border-radius: 3px;
   }
 `;
 export default function PublishDialog(props) {
@@ -207,6 +213,12 @@ export default function PublishDialog(props) {
               </div>
             )}
           </WrapHeader>
+          {connectInfo.hasAuth && (
+            <div className="warnCon flexRow alignItemsCenter mTop10">
+              <Icon type="info" className="Font16 mRight5" />
+              {_l('注意：该类型连接上架后，用户需要授权使用，共用一套API配置，且只能查看自己使用的数据')}
+            </div>
+          )}
           <div className="desCon">
             {desList.map(o => {
               return (

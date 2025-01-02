@@ -33,7 +33,7 @@ export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, so
     data.columnBgColor = pivoTableColor;
     data.lineBgColor = pivoTableColor;
     data.columnTextColor = isLight ? '#757575' : '#fff';
-    data.lineTextColor = isLight ? '#333' : '#fff';
+    data.lineTextColor = isLight ? '#151515' : '#fff';
   } else if ([2, 3].includes(sourceType)) {
     if (data.columnBgColor === 'themeColor') {
       data.columnBgColor = '#fafafa';
@@ -41,7 +41,7 @@ export const replaceColor = ({ pivotTableStyle, customPageConfig, themeColor, so
     }
     if (data.lineBgColor === 'themeColor') {
       data.columnBgColor = '#fff';
-      data.lineTextColor = '#333';
+      data.lineTextColor = '#151515';
     }
   } else {
     const { columnTextColor, lineTextColor } = data;

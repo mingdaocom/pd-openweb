@@ -231,7 +231,7 @@ function RecordFav(props) {
             className={cx('itemIcon flexRow alignItemsCenter justifyContentCenter', {
               isA: o.appId === appId,
             })}
-            style={{ backgroundColor: o.appId === 'all' ? '#333' : o.appColor }}
+            style={{ backgroundColor: o.appId === 'all' ? '#151515' : o.appColor }}
           >
             <SvgIcon
               url={o.appId === 'all' ? 'https://fp1.mingdaoyun.cn/customIcon/sys_10_5_star.svg' : o.appIconUrl}

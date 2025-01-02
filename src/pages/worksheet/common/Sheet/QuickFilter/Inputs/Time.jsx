@@ -22,7 +22,7 @@ const Con = styled.div`
   align-items: center;
   height: 32px;
   line-height: 32px;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   .ant-picker {
     width: 100%;

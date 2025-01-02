@@ -217,8 +217,8 @@ function LoginContainer(props) {
           }
         } else {
           if (16 === res.accountResult) {
-            //16 代表未绑定微信公众号
-            setState({ stateWX: '', urlWX: '', txt: _l('未绑定微信公众号'), loading: false });
+            //16 代表未绑定微信服务号
+            setState({ stateWX: '', urlWX: '', txt: _l('未绑定微信服务号'), loading: false });
           } else if (17 === res.accountResult) {
             //17代表微信扫码登录方式关闭；
             setState({ stateWX: '', urlWX: '', txt: _l('微信扫码登录方式关闭'), loading: false });
@@ -263,7 +263,7 @@ function LoginContainer(props) {
           } else if (accountResult === 30) {
             setState({ scan: true });
           } else if (accountResult === 32) {
-            //32用户已经扫码但是未关注公众号 暂时接着轮询
+            //32用户已经扫码但是未关注服务号 暂时接着轮询
             setState({ scan: true });
           } else if (accountResult === -6) {
             //两步验证
@@ -779,7 +779,7 @@ function LoginContainer(props) {
                 <img src={urlWX} />
               ) : (
                 <p className="pAll30 Font18 Gray_bd">
-                  {txt || _l('授权不足，请管理员到组织管理-微信公众号重新绑定授权')}
+                  {txt || _l('授权不足，请管理员到组织管理-微信服务号重新绑定授权')}
                 </p>
               )}
               {!scan && (
@@ -798,7 +798,7 @@ function LoginContainer(props) {
               )}
             </div>
             <div className="mTop16 TxtCenter Gray_75 Font14 Bold">
-              {subscribeWXOfficial ? _l('扫描关注微信公众号并登录') : _l('微信扫码登录')}
+              {subscribeWXOfficial ? _l('扫描关注微信服务号并登录') : _l('微信扫码登录')}
             </div>
             <div
               className="mTop20 flexRow alignItemsCenter Hand justifyContentCenter"

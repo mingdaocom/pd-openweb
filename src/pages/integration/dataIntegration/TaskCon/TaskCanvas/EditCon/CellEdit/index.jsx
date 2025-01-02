@@ -411,7 +411,7 @@ export default class CellEdit extends Component {
           // 主键字段
           if (fieldsMapping.filter(o => _.get(o, 'destField.isPk')).length <= 0) {
             disable = true;
-            txt = _l('目标工作表未设置主键 ');
+            txt = _l('目标工作表未设置主键');
           }
         }
         //新建，且目的地或数据源有库类型，都需要验证dataType
@@ -420,7 +420,7 @@ export default class CellEdit extends Component {
             fieldsMapping.filter(o => !!_.get(o, 'destField.isCheck') && !_.get(o, 'destField.dataType')).length > 0
           ) {
             disable = true;
-            txt = _l('目标字段未设置类型 ');
+            txt = _l('目标字段未设置类型');
           }
         }
       } else {
@@ -623,7 +623,11 @@ export default class CellEdit extends Component {
                       scheduleConfigId={_.get(node, 'nodeConfig.config.scheduleConfig.id')}
                       sourceId={_.get(node, 'nodeConfig.config.datasourceId')}
                       dbName={_.get(node, 'nodeConfig.config.dbName')}
-                      schema={_.get(node, 'nodeConfig.config.schema')}
+                      schema={
+                        _.get(node, 'nodeConfig.config.dsType') === DATABASE_TYPE.HANA
+                          ? _.get(node, 'nodeConfig.config.dbName')
+                          : _.get(node, 'nodeConfig.config.schema')
+                      }
                       tableName={_.get(node, 'nodeConfig.config.tableName')}
                       sourceFields={_.get(node, 'nodeConfig.fields') || []}
                       onChange={scheduleConfig => {

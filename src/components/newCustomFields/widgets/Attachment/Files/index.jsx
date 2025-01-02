@@ -8,7 +8,9 @@ import previewAttachments from 'src/components/previewAttachments/previewAttachm
 import RecordInfoContext from 'worksheet/common/recordInfo/RecordInfoContext';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { formatFileSize, getClassNameByExt } from 'src/util';
-import { browserIsMobile, addBehaviorLog } from 'src/util';
+import { browserIsMobile, addBehaviorLog, addToken } from 'src/util';
+import { isWpsPreview } from 'src/pages/kc/utils';
+import attachmentApi from 'src/api/attachment';
 import ImageCard from './ImageCard';
 import SmallCard from './SmallCard';
 import ListCard, { ListCardHeader } from './ListCard';
@@ -57,14 +59,28 @@ const filterImageAttachments = data => {
 };
 
 const renderSortableItem = props => {
-  const { recordId, showType, allowShare, allowDownload, allowEditName, onOpenControlAttachmentInNewTab, item } = props;
+  const {
+    recordId,
+    showType,
+    allowShare,
+    wpsEditUrls,
+    allowDownload,
+    allowEditName,
+    onOpenControlAttachmentInNewTab,
+    item,
+  } = props;
   const data = item;
   const { accountId, sourceID } = data;
   const isMdFile = accountId || sourceID;
   const isKc = !!data.refId;
 
   const FileComponent = CardComponent[showType];
-  const fileProps = { isMdFile, isKc };
+  const fileProps = {
+    isMdFile,
+    isKc,
+    wpsEditUrl: wpsEditUrls[data.fileID],
+    allowShare: (data.ext || '').includes('url') ? false : allowShare,
+  };
 
   if (isMdFile) {
     const isPicture = isKc ? !!data.shareUrl : RegExpValidator.fileIsPicture(data.ext);
@@ -74,7 +90,11 @@ const renderSortableItem = props => {
       fileClassName: getClassNameByExt(data.attachmentType === 5 ? false : data.ext),
       fileSize: formatFileSize(data.filesize),
       isMore:
-        (allowShare || allowDownload || (allowEditName && !isKc) || (recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState))) &&
+        (fileProps.wpsEditUrl ||
+          allowShare ||
+          allowDownload ||
+          (allowEditName && !isKc) ||
+          (recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState))) &&
         md.global.Account.accountId &&
         !_.get(window, 'shareState.shareId'),
       isDownload: isKc
@@ -128,7 +148,17 @@ const SortableListWrap = props => {
 };
 
 const Files = props => {
-  const { className, controlId, controlType, onChangedAllFiles, onSortAttachment, onAttachmentName, flag, ...otherProps } = props;
+  const {
+    className,
+    controlId,
+    controlType,
+    onChangedAllFiles,
+    onSortAttachment,
+    onAttachmentName,
+    flag,
+    masterData,
+    ...otherProps
+  } = props;
   const { attachmentData, onChangeAttachmentData } = props;
   const { knowledgeAtts, onChangeKnowledgeAtts } = props;
   const { attachments, onChangeAttachments, from } = props;
@@ -137,6 +167,7 @@ const Files = props => {
   const [viewMoreVisible, setViewMoreVisible] = useState(false);
   const [viewMore, setViewMore] = useState(props.viewMore);
   const [smallSize, setSmallSize] = useState(false);
+  const [wpsEditUrls, setWpsEditUrls] = useState({});
   const { recordBaseInfo = {} } = useContext(RecordInfoContext) || props;
   const ref = useRef(null);
 
@@ -145,6 +176,12 @@ const Files = props => {
   const isLargeImageCard = ['4'].includes(showType);
   const showLineCount = isListCard ? 10 : 5;
   const isOtherSheet = controlType === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD;
+  const isSubListFile =
+    masterData &&
+    _.get(
+      (masterData.formData || []).find(l => l.controlId === masterData.controlId),
+      'type',
+    ) === WIDGETS_TO_API_TYPE_ENUM.SUB_LIST;
 
   useEffect(() => {
     const allAttachments = attachments.concat(knowledgeAtts).concat(attachmentData);
@@ -214,8 +251,10 @@ const Files = props => {
 
   // 明道云附件预览
   const handleMDPreview = data => {
-    const { allowShare, allowDownload = false, advancedSetting } = props;
-    const hideFunctions = ['editFileName', 'saveToKnowlege'].concat(allowDownload ? [] : ['download']).concat(allowShare ? [] : ['share']);
+    const { allowShare, allowDownload = false, advancedSetting, projectId, isDraft } = props;
+    const hideFunctions = ['editFileName', 'saveToKnowlege']
+      .concat(allowDownload ? [] : ['download'])
+      .concat(allowShare ? [] : ['share']);
     addBehaviorLog('previewFile', recordBaseInfo.worksheetId, { fileId: data.fileID, rowId: recordBaseInfo.recordId });
     if (window.isMingDaoApp) {
       window.MDJS.previewImage({
@@ -248,6 +287,13 @@ const Files = props => {
         worksheetId: recordBaseInfo.worksheetId,
         fileId: data.fileID,
         recordId: recordBaseInfo.recordId,
+        controlId,
+        projectId,
+        isDraft,
+        masterWorksheetId: _.get(masterData, 'worksheetId'),
+        masterRecordId: _.get(masterData, 'recordId'),
+        masterControlId: _.get(masterData, 'controlId'),
+        allowEdit: props.allowEditName
       },
       {
         mdReplaceAttachment: newAttachment => {
@@ -341,6 +387,7 @@ const Files = props => {
   };
 
   const handleOpenControlAttachmentInNewTab = (fileId, options = {}) => {
+    const { recordBaseInfo } = props;
     if (!recordBaseInfo) {
       return;
     }
@@ -358,6 +405,36 @@ const Files = props => {
     );
   };
 
+  const handleTriggerMore = file => {
+    const parentWorksheetId = _.get(masterData, 'worksheetId');
+    const parentRowId = _.get(masterData, 'recordId');
+    const parentControlId = _.get(masterData, 'controlId');
+    if (
+      props.allowEditName &&
+      isWpsPreview(RegExpValidator.getExtOfFileName(file.ext), true) &&
+      !_.get(window, 'shareState.shareId')
+    ) {
+      let attachmentShareId;
+      if (!controlId) {
+        attachmentShareId = location.pathname.match(/.*\/(recordfile|rowfile)\/(\w+)/)[2];
+      }
+      attachmentApi
+        .getAttachmentEditDetail({
+          fileId: file.fileID,
+          worksheetId: recordBaseInfo.worksheetId,
+          rowId: recordBaseInfo.recordId,
+          controlId,
+          attachmentShareId,
+          parentWorksheetId,
+          parentRowId,
+          foreignControlId: parentControlId
+        })
+        .then(data => {
+          setWpsEditUrls(values => ({ ...values, [file.fileID]: data.wpsEditUrl }));
+        });
+    }
+  };
+
   return (
     <ConfigProvider autoInsertSpaceInButton={false}>
       {isListCard && !!sortAllAttachments.length && <ListCardHeader />}
@@ -373,8 +450,13 @@ const Files = props => {
             ? sortAllAttachments.filter(filterImageAttachments).filter((_, index) => index < showLineCount)
             : sortAllAttachments
         }
+        wpsEditUrls={wpsEditUrls}
+        controlId={controlId}
         worksheetId={recordBaseInfo.worksheetId}
         recordId={recordBaseInfo.recordId}
+        isOtherSheet={isOtherSheet}
+        isSubListFile={isSubListFile}
+        masterData={masterData}
         onDeleteMDFile={handleDeleteMDFile}
         onDeleteKCFile={handleDeleteKCFile}
         onDeleteFile={handleDeleteFile}
@@ -395,6 +477,7 @@ const Files = props => {
         onPreview={handlePreview}
         onOpenControlAttachmentInNewTab={controlId && !isOtherSheet && handleOpenControlAttachmentInNewTab}
         onSortEnd={handleSortEnd}
+        onTriggerMore={handleTriggerMore}
         {...otherProps}
       />
       {viewMoreVisible && (

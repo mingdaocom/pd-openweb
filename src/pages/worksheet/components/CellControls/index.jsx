@@ -530,6 +530,7 @@ export default class CellControl extends React.Component {
       onClick,
       onFocusCell,
       chatButton,
+      isDraft,
     } = this.props;
     const { isediting } = this.state;
     const error = this.error;
@@ -630,6 +631,7 @@ export default class CellControl extends React.Component {
       sheetSwitchPermit,
       viewId,
       appId,
+      isDraft,
       updateCell: this.handleUpdateCell,
       updateControlValue: updateCell,
       onClick: this.clickHandle,

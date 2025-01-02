@@ -8,9 +8,10 @@ import { getNodeInfo, getAllSourceList } from '../util';
 import cx from 'classnames';
 import { Tooltip } from 'antd';
 import { DEFAULT_COLORS } from '../config';
-import { filterForFilterDialog, updateConfig } from '../util';
+import { filterForFilterDialog, updateConfig, getSourceMaxCountByVersion, sourceIsMax } from '../util';
 import { getTranslateInfo } from 'src/util';
 import _ from 'lodash';
+import { getSyncLicenseInfo } from 'src/util';
 
 export default function SourceCon(props) {
   const { projectId, appId, getWorksheets, onChange, onChangeByInit = () => {} } = props;
@@ -117,6 +118,7 @@ export default function SourceCon(props) {
                                       ),
                                   );
                                   return {
+                                    ...o,
                                     fields: fields,
                                     resultField:
                                       fields.length <= 0
@@ -148,7 +150,9 @@ export default function SourceCon(props) {
     const sourceDt = getNodeInfo(props.flowData, 'DATASOURCE');
     const sourceTablesData = _.get(sourceDt, 'nodeConfig.config.sourceTables') || [];
     const sourceDtList = getAllSourceList(props.flowData, props.sourceInfos);
-    const canAdd = sourceDtList.length < 5 && sourceDtList.length > 0;
+    const canAdd =
+      sourceDtList.length < getSourceMaxCountByVersion(_.get(props, 'flowData.projectId') || props.projectId) &&
+      sourceDtList.length > 0;
     return (
       <WrapSelectCon>
         {sourceDtList.map((o, index) => {
@@ -221,23 +225,40 @@ export default function SourceCon(props) {
             </WrapWorksheet>
           </React.Fragment>
         )}
-        {canAdd && (
-          <React.Fragment>
-            <div className="topCon" onClick={e => e.stopPropagation()} />
-            <WrapWorksheet className={'Relative isAdd'}>
-              <div
-                className={cx(
-                  'alignItemsCenter Bold flexRowCon',
-                  !canAdd ? 'Gray_bd' : 'Gray_75 ThemeHoverColor3 Hand',
-                )}
-                onClick={() => setState({ isChange: false })}
-              >
-                <Icon icon="add" className="InlineBlock Font16" />
-                <span>{_l('工作表')}</span>
-              </div>
-            </WrapWorksheet>
-          </React.Fragment>
-        )}
+
+        {sourceDtList.length > 0 &&
+          (['2', '3'].includes(_.get(getSyncLicenseInfo(projectId) || {}, 'version.versionIdV2')) && !canAdd ? (
+            ''
+          ) : (
+            <React.Fragment>
+              <div className="topCon" onClick={e => e.stopPropagation()} />
+              <WrapWorksheet className={'Relative isAdd'}>
+                <div
+                  className={cx(
+                    'alignItemsCenter Bold flexRowCon',
+                    !canAdd || props.updateLoading ? 'Gray_bd' : 'Gray_75 ThemeHoverColor3 Hand',
+                  )}
+                  onClick={e => {
+                    if (!canAdd) {
+                      e.stopPropagation();
+                      sourceIsMax(projectId);
+                      return;
+                    }
+                    setState({ isChange: false });
+                  }}
+                >
+                  {props.updateLoading ? (
+                    _l('加载中...')
+                  ) : (
+                    <React.Fragment>
+                      <Icon icon="add" className="InlineBlock Font16" />
+                      <span>{_l('工作表')}</span>
+                    </React.Fragment>
+                  )}
+                </div>
+              </WrapWorksheet>
+            </React.Fragment>
+          ))}
       </WrapSelectCon>
     );
   };
@@ -311,9 +332,7 @@ export default function SourceCon(props) {
     );
     const filters = _.get(dataInfo, 'filterConfig.items') || [];
     const sourceInfo = props.sourceInfos.find(it => it.worksheetId === filterVisibleId) || {};
-    const relateControls = filterForFilterDialog(sourceInfo.controls || []).filter(
-      control => !(control.type === 29 && control.enumDefault === 2), //排除关联多条
-    );
+    const relateControls = filterForFilterDialog(sourceInfo.controls || []);
 
     const onChangeWithFilterDialog = ({ filters }) => {
       let items = filters.map(o => {

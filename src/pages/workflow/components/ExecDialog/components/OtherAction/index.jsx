@@ -149,6 +149,7 @@ export default class OtherAction extends Component {
       showPassword: false,
       removeNoneVerification: false,
       files: '',
+      countersignType: 1,
     };
   }
 
@@ -186,7 +187,7 @@ export default class OtherAction extends Component {
 
   onOk = () => {
     const { projectId, action, onOk, onCancel } = this.props;
-    const { content, backNodeId, selectedUsers, entrustList, showPassword, files } = this.state;
+    const { content, backNodeId, selectedUsers, entrustList, showPassword, files, countersignType } = this.state;
     const { auth, encrypt } = (this.props.data || {}).flowNode || {};
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
     const passSignature = _.includes(['pass', 'after'], action) && _.includes(auth.passTypeList, 1);
@@ -209,11 +210,11 @@ export default class OtherAction extends Component {
 
       if (this.signature) {
         this.signature.saveSignature(signature => {
-          onOk({ action, content, userId, backNodeId, signature, files: attachments });
+          onOk({ action, content, userId, backNodeId, signature, files: attachments, countersignType });
           onCancel();
         });
       } else {
-        onOk({ action, content, userId, backNodeId, signature: undefined, files: attachments });
+        onOk({ action, content, userId, backNodeId, signature: undefined, files: attachments, countersignType });
         onCancel();
       }
     };
@@ -290,11 +291,14 @@ export default class OtherAction extends Component {
       <div className="mBottom20">
         <div className="bold">
           {_.includes(['after', 'before'], action)
-            ? _l('加签给')
+            ? _l('加签')
             : action === 'addApprove'
             ? _l('添加成员')
             : _l('转交给')}
-          {action === 'addApprove' && !!selectedUsers.length && `(${selectedUsers.length})`}
+
+          {_.includes(['after', 'before', 'addApprove'], action) &&
+            !!selectedUsers.length &&
+            `(${selectedUsers.length})`}
         </div>
 
         <div>
@@ -305,7 +309,7 @@ export default class OtherAction extends Component {
                 <span className="ellipsis mLeft8" style={{ maxWidth: 300 }}>
                   {user.fullname}
                 </span>
-                {action === 'addApprove' && (
+                {_.includes(['after', 'before', 'addApprove'], action) && (
                   <i
                     className="icon-close Font14 mLeft5 Gray_75 pointer"
                     onClick={() =>
@@ -350,19 +354,15 @@ export default class OtherAction extends Component {
             );
           })}
 
-          {(action === 'addApprove' ||
-            !selectedUsers.length ||
-            (action !== 'addApprove' && !!selectedUsers.length)) && (
-            <i
-              className={cx(
-                'Font26 Gray_75 ThemeHoverColor3 pointer mTop10 InlineBlock relative',
-                action !== 'addApprove' && !!selectedUsers.length
-                  ? 'icon-task-folder-charge'
-                  : 'icon-task-add-member-circle',
-              )}
-              onClick={this.selectUser}
-            />
-          )}
+          <i
+            className={cx(
+              'Font26 Gray_75 ThemeHoverColor3 pointer mTop10 InlineBlock relative',
+              !_.includes(['after', 'before', 'addApprove'], action) && !!selectedUsers.length
+                ? 'icon-task-folder-charge'
+                : 'icon-task-add-member-circle',
+            )}
+            onClick={this.selectUser}
+          />
         </div>
       </div>
     );
@@ -385,7 +385,7 @@ export default class OtherAction extends Component {
     const appointedAccountIds = ((operationUserRange || {})[TYPES[action]] || []).filter(
       id => id !== md.global.Account.accountId,
     );
-    const unique = action !== 'addApprove';
+    const unique = !_.includes(['after', 'before', 'addApprove'], action);
 
     quickSelectUser(event.target, {
       offset: {
@@ -399,8 +399,7 @@ export default class OtherAction extends Component {
       filterFriend: true,
       filterOthers: true,
       filterOtherProject: true,
-      filterAccountIds: [md.global.Account.accountId],
-      isDynamic: !unique,
+      filterAccountIds: [md.global.Account.accountId].concat(this.state.selectedUsers.map(o => o.accountId)),
       onSelect: users => {
         const selectedUsers = unique ? users : _.uniqBy(this.state.selectedUsers.concat(users), user => user.accountId);
 
@@ -463,6 +462,33 @@ export default class OtherAction extends Component {
   }
 
   /**
+   * 渲染加载方式
+   */
+  renderSignType = () => {
+    const { countersignType } = this.state;
+    const personsPassing = [
+      { text: _l('或签（一名审批人通过或否决即可）'), value: 3 },
+      { text: _l('会签（需所有审批人通过）'), value: 1 },
+      { text: _l('会签（只需一名审批人通过，否决需全员否决）'), value: 2 },
+      // { text: _l('会签（按比例投票通过）'), value: 4 },
+    ];
+
+    return (
+      <div className="mBottom20">
+        <div className="bold">{_l('多人审批时采用的审批方式')}</div>
+        <Dropdown
+          className="mTop10 w100"
+          menuClass="w100"
+          data={personsPassing}
+          value={countersignType}
+          border
+          onChange={countersignType => this.setState({ countersignType })}
+        />
+      </div>
+    );
+  };
+
+  /**
    * 渲染审批意见列表
    */
   renderTemplateList() {
@@ -497,7 +523,17 @@ export default class OtherAction extends Component {
     const { action, onCancel, projectId } = this.props;
     const { callBackNodeType, opinionTemplate, app = {} } = this.props.data;
     const { auth, encrypt } = (this.props.data || {}).flowNode || {};
-    const { content, backNodeId, showCode, link, resultCode, showPassword, removeNoneVerification, files } = this.state;
+    const {
+      content,
+      backNodeId,
+      showCode,
+      link,
+      resultCode,
+      selectedUsers,
+      showPassword,
+      removeNoneVerification,
+      files,
+    } = this.state;
     const backFlowNodes = ((this.props.data || {}).backFlowNodes || []).map(item => {
       return {
         text: item.name,
@@ -616,6 +652,8 @@ export default class OtherAction extends Component {
 
         {_.includes(['after', 'before', 'transfer', 'transferApprove', 'addApprove'], action) && this.renderMember()}
 
+        {_.includes(['after', 'before'], action) && selectedUsers.length > 1 && this.renderSignType()}
+
         {!hideContent && (
           <Fragment>
             <div className="relative bold">
@@ -624,7 +662,7 @@ export default class OtherAction extends Component {
                   *
                 </div>
               )}
-              {_l('审批意见')}
+              {action === 'return' ? _l('撤回理由') : _l('审批意见')}
             </div>
             <div className="mTop10 relative">
               <div className="flexRow">

@@ -34,7 +34,7 @@ const Wrap = styled.div`
   }
 `;
 
-const errors = { 0: _l('保存失败'), 3: _l('名称重复'), 21: _l('Key无效'), 22: _l('IV无效 ') };
+const errors = { 0: _l('保存失败'), 3: _l('名称重复'), 21: _l('Key无效'), 22: _l('IV无效') };
 
 const handleMask = (val, isMask) => {
   if (!val) return;

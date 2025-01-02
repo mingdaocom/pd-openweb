@@ -15,7 +15,7 @@ export const stylesheet_er = `
   box-sizing: border-box;
   background: #ffffff;
   border-radius: 4px;
-  color: #333;
+  color: #151515;
   height: 100%;
   padding: 6px 0;
   border: 1px solid #dddddd;

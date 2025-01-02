@@ -193,6 +193,22 @@ function BoardView(props) {
   const handleSelectField = obj => {
     if (!isCharge) return;
     const nextView = { ...view, ...obj };
+    const advancedSetting = _.omit(nextView.advancedSetting || {}, [
+      'navfilters',
+      'topfilters',
+      'topshow',
+      'customitems',
+      'customnavs',
+    ]);
+    if (advancedSetting.navshow && _.get(nextView, 'viewControl')) {
+      let control = controls.find(o => o.controlId === _.get(nextView, 'viewControl'));
+      let type = control.type;
+      if (type === 30) {
+        type = control.sourceControlType;
+      }
+      advancedSetting.navshow = [26, 27, 48].includes(type) ? '1' : '0';
+    }
+    nextView.advancedSetting = advancedSetting;
     setViewConfigVisible(true);
     saveView(viewId, nextView, () => {
       initBoardViewData(nextView);

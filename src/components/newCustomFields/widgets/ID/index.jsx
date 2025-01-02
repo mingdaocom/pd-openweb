@@ -45,6 +45,16 @@ export default class Widgets extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      !_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled'])) ||
+      !_.isEqual(_.pick(nextState, ['isEditing', 'maskStatus']), _.pick(this.state, ['isEditing', 'maskStatus']))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   formatValue = val => {
     return (val || '').toUpperCase();
   };

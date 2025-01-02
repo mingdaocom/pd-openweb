@@ -58,6 +58,12 @@ const START_TYPE_TEXT = {
   2: _l('新增或更新记录'),
 };
 
+const SIGN_COUNTERSIGN_TYPE = {
+  1: _l('会签'),
+  2: _l('会签'),
+  3: _l('或签'),
+};
+
 /**
  * 格式化时间
  */
@@ -417,8 +423,7 @@ export default class StepItem extends Component {
   renderTimeConsuming() {
     const { data } = this.props;
     const workItems = ((data || {}).workItems || []).filter(
-      item =>
-        _.includes([3, 4], item.type) && !_.includes([2, 8, 9, 10, 16, 17, 22], _.get(item, 'workItemLog.action')),
+      item => _.includes([3, 4], item.type) && !_.includes([2, 8, 9, 10, 22], _.get(item, 'workItemLog.action')),
     );
     const timeConsuming = [];
     const endTimeConsuming = [];
@@ -570,6 +575,7 @@ export default class StepItem extends Component {
       sort,
       debugEventDump,
       explain,
+      signType,
     } = data || {};
     /** 是否是当前流程节点 */
     let isCurrentWork =
@@ -603,6 +609,7 @@ export default class StepItem extends Component {
           >
             <div className={'stepName bold Font15 flex ellipsis'}>
               {flowNode.name}
+              {!!signType && `-${SIGN_COUNTERSIGN_TYPE[signType]}`}
               {multipleLevelType !== 0 && sort && _l('（第%0级）', sort)}
               {isCC && `(${workItems.length})`}
             </div>

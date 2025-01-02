@@ -8,8 +8,10 @@ import Trigger from 'rc-trigger';
 import './index.less';
 
 const SmallCard = props => {
-  const { data, isMobile, isDeleteFile, allowEditName, recordId } = props;
-  const { allowShare, allowDownload, onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
+  const { data, isMobile, isDeleteFile, wpsEditUrl, allowEditName, recordId, controlId, masterData, isSubListFile } =
+    props;
+  const { allowShare, allowDownload, onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } =
+    props;
   const { isKc, browse, fileClassName, fileSize, isMore, isDownload } = props;
   const previewUrl = data.previewUrl.replace(/imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/, `imageView2/1/w/200/h/140`);
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -19,6 +21,7 @@ const SmallCard = props => {
   const [fileSizeVisible, setFileSizeVisible] = useState(true);
   const ref = useRef(null);
   const allowReset = allowEditName && !isKc;
+  const allowNewPage = recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState);
 
   useEffect(() => {
     if (isPicture) {
@@ -37,7 +40,7 @@ const SmallCard = props => {
 
   const renderDropdownOverlay = (
     <Menu style={{ width: 150 }} className="Relative">
-      {recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
+      {allowNewPage && (
         <MenuItem
           key="newPage"
           icon={<Icon icon="launch" className="Font17 pRight5" />}
@@ -50,7 +53,7 @@ const SmallCard = props => {
           {_l('新页面打开')}
         </MenuItem>
       )}
-      {recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
+      {allowNewPage && (
         <MenuItem
           key="newPage"
           icon={<Icon icon="floating-layer" className="Font17 pRight5" />}
@@ -63,11 +66,25 @@ const SmallCard = props => {
           {_l('浮窗打开')}
         </MenuItem>
       )}
+      {md.global.Config.EnableDocEdit && wpsEditUrl && allowNewPage && <div className="hr-line" />}
+      {md.global.Config.EnableDocEdit && wpsEditUrl && (
+        <MenuItem
+          key="onLineEdit"
+          icon={<Icon icon="new_mail" className="Font17 pRight5" />}
+          onClick={e => {
+            e.stopPropagation();
+            window.open(wpsEditUrl);
+            setDropdownVisible(false);
+          }}
+        >
+          {_l('在线编辑')}
+        </MenuItem>
+      )}
       {(allowReset || allowShare) && <div className="hr-line" />}
       {allowReset && (
         <MenuItem
-          key="new_mail"
-          icon={<Icon icon="new_mail" className="Font17 pRight5" />}
+          key="rename_input"
+          icon={<Icon icon="rename_input" className="Font17 pRight5" />}
           onClick={e => {
             e.stopPropagation();
             setIsEdit(true);
@@ -145,7 +162,12 @@ const SmallCard = props => {
                   <div
                     className="btnWrap pointer"
                     onClick={() => {
-                      handleDownload(data, isDownload);
+                      handleDownload(data, isDownload, {
+                        controlId: isSubListFile ? _.get(masterData, 'controlId') : controlId,
+                        rowId: recordId,
+                        parentWorksheetId: _.get(masterData, 'worksheetId'),
+                        parentRowId: _.get(masterData, 'recordId'),
+                      });
                     }}
                   >
                     <Icon className="Gray_9e Font17" icon="download" />
@@ -164,7 +186,10 @@ const SmallCard = props => {
                   action={['click']}
                   popup={renderDropdownOverlay}
                   popupVisible={dropdownVisible}
-                  onPopupVisibleChange={dropdownVisible => setDropdownVisible(dropdownVisible)}
+                  onPopupVisibleChange={dropdownVisible => {
+                    dropdownVisible && !wpsEditUrl && props.onTriggerMore(data);
+                    setDropdownVisible(dropdownVisible);
+                  }}
                   popupAlign={{
                     points: ['tr', 'br'],
                     offset: [5, 5],
@@ -257,7 +282,7 @@ const NotSaveSmallCard = props => {
             >
               <Tooltip title={_l('重命名')} placement="bottom">
                 <div className="btnWrap pointer" onClick={() => setIsEdit(true)}>
-                  <Icon className="Gray_9e Font17" icon="new_mail" />
+                  <Icon className="Gray_9e Font17" icon="rename_input" />
                 </div>
               </Tooltip>
             </ResetNamePopup>

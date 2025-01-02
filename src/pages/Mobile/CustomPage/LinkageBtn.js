@@ -34,7 +34,7 @@ const AutoLinkagePopover = styled.div`
 `;
 
 const LinkageBtn = (props) => {
-  const { isSuspensionAi, linkageFiltersGroup = {}, deleteLinkageFiltersGroup, deleteAllLinkageFiltersGroup } = props;
+  const { linkageFiltersGroup = {}, deleteLinkageFiltersGroup, deleteAllLinkageFiltersGroup } = props;
   if (_.isEmpty(linkageFiltersGroup)) {
     return null;
   }
@@ -110,7 +110,6 @@ const LinkageBtn = (props) => {
     >
       <Wrap
         className="flexRow alignItemsCenter justifyContentCenter card autoLinkageTrigger"
-        style={{ bottom: isSuspensionAi ? 140 : undefined }}
       >
         <Icon icon="linkage_filter" className="Font22 ThemeColor" />
       </Wrap>

@@ -4,6 +4,7 @@ import { SettingItem } from '../../styled';
 import SelectOptions from '../components/OptionList/SelectOptions';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
 import DisplayOptions from '../components/OptionList/DisplayOptions';
+import { isCustomWidget } from '../../util';
 
 const OPTIONS_DISPLAY = [
   {
@@ -29,7 +30,7 @@ export default function FlatMenu(props) {
   const { showtype = '0', readonlyshowall } = getAdvanceSetting(data);
   return (
     <Fragment>
-      <SettingItem>
+      <SettingItem hide={isCustomWidget(data)}>
         <div className="settingItemTitle">{_l('显示方式')}</div>
         <div className="labelWrap">
           <Dropdown

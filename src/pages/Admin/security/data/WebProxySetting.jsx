@@ -16,14 +16,14 @@ const FormBox = styled.div`
   min-height: 0;
   padding: 0 32px;
   .formModuleTitle {
-    color: #333333;
+    color: #151515;
     font-size: 15px;
     font-weight: 600;
     margin: 25px 0 32px 30px;
   }
   .formItem {
     display: flex;
-    color: #333333;
+    color: #151515;
     font-size: 13px;
     margin-bottom: 10px;
     .formLabel {

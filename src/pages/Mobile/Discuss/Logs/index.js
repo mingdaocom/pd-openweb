@@ -16,10 +16,15 @@ class Logs extends Component {
   }
 
   render() {
-    const { worksheetId, rowId, originalData } = this.props;
+    const { worksheetId, rowId, originalData, refreshDiscussCount } = this.props;
     return (
       <LogsContent>
-        <WorksheetRocordLog worksheetId={worksheetId} rowId={rowId} controls={originalData || []} />
+        <WorksheetRocordLog
+          worksheetId={worksheetId}
+          rowId={rowId}
+          controls={originalData || []}
+          refreshDiscussCount={refreshDiscussCount}
+        />
       </LogsContent>
     );
   }

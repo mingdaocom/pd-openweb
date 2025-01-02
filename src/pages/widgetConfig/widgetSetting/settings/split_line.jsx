@@ -15,7 +15,7 @@ const FOLD_DISPLAY = [
 export default function SplitLine(props) {
   const { data, globalSheetInfo, styleInfo: { info = {} } = {}, onChange } = props;
   const { enumDefault2 = 1 } = data;
-  const { theme = '#2196f3', color = '#333', icon = '' } = getAdvanceSetting(data);
+  const { theme = '#2196f3', color = '#151515', icon = '' } = getAdvanceSetting(data);
 
   return (
     <Fragment>
@@ -24,7 +24,7 @@ export default function SplitLine(props) {
         <SectionItem>
           <div className="label">{_l('文字')}</div>
           <ColorSetting
-            defaultValue="#333333"
+            defaultValue="#151515"
             value={color}
             onChange={value => onChange(handleAdvancedSettingChange(data, { color: value }))}
           />

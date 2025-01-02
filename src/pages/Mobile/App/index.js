@@ -1,7 +1,7 @@
-import React, { Fragment, Component } from 'react';
+import React, { Fragment, Component, createRef } from 'react';
 import { connect } from 'react-redux';
 import { Dialog, SpinLoading, Collapse, TabBar, Space, List } from 'antd-mobile';
-import { Icon, WaterMark, SvgIcon } from 'ming-ui';
+import { Icon, WaterMark, SvgIcon, PullToRefreshWrapper } from 'ming-ui';
 import cx from 'classnames';
 import * as actions from './redux/actions';
 import { APP_ROLE_TYPE } from 'src/pages/worksheet/constants/enum.js';
@@ -21,11 +21,10 @@ import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { transferValue } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
 import MoreAction from './MoreAction';
-import _ from 'lodash';
-import { addBehaviorLog, getTranslateInfo } from 'src/util';
+import _, { create } from 'lodash';
+import { addBehaviorLog, getTranslateInfo, getAppFeaturesVisible } from 'src/util';
 
 let modal = null;
-
 class App extends Component {
   constructor(props) {
     super(props);
@@ -39,17 +38,27 @@ class App extends Component {
       viewHideNavi: false,
       level2ExpandKeys: [],
     };
+    this.contentRef = createRef();
     if (isHideTabBar) {
       sessionStorage.setItem('hideTabBar', true);
     }
+
+    this.handleScroll = _.debounce(this.handleScroll.bind(this), 300);
+    this.isSetScrollTop = false;
   }
 
   componentDidMount() {
     const { params } = this.props.match;
+    // if (this.props.appScrollY <= 0) {
+    // }
     this.props.dispatch(actions.getAppDetail(params.appId, this.detectionUrl));
     $('html').addClass('appListMobile');
     const { viewHideNavi } = _.get(this.props, 'appDetail.detail') || {};
     this.setState({ viewHideNavi });
+
+    // window.addEventListener('popstate', this.handleSetScrollTop);
+
+    // this.handleSetScrollTop();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -63,6 +72,7 @@ class App extends Component {
         safeLocalStorageSetItem('currentNavWorksheetId', nextWorksheetId);
       }
     }
+
     if (!_.isEqual(this.props.appDetail, nextProps.appDetail)) {
       const { appSection = [], detail = {} } = _.get(nextProps, 'appDetail') || {};
       const { viewHideNavi } = _.get(nextProps, 'appDetail.detail') || {};
@@ -87,6 +97,15 @@ class App extends Component {
     }
   }
 
+  componentDidUpdate() {
+    const { appSection } = this.props.appDetail;
+
+    if (!this.isSetScrollTop && appSection.length > 0 && this.props.appScrollY > 0 && this.contentRef && this.contentRef.current) {
+      this.contentRef.current.scrollTop = this.props.appScrollY;
+      this.isSetScrollTop = true;
+    }
+  }
+
   componentWillUnmount() {
     $('html').removeClass('appListMobile');
     sessionStorage.removeItem('detectionUrl');
@@ -96,7 +115,25 @@ class App extends Component {
       modal = null;
     }
     this.setState({ appMoreActionVisible: false });
+    window.removeEventListener('popstate', this.handleSetScrollTop);
   }
+
+  handleScroll = e => {
+    this.props.dispatch(actions.updateAppScrollY(e.target.scrollTop));
+  };
+
+  handleRefresh = () => {
+    const { params } = this.props.match;
+    this.props.dispatch(actions.getAppDetail(params.appId, this.detectionUrl, true));
+  };
+
+  handleSetScrollTop = () => {
+    if (this.contentRef && this.contentRef.current) {
+      setTimeout(() => {
+        this.contentRef.current.scrollTop = this.props.appScrollY;
+      }, 0);
+    }
+  };
 
   navigateTo(url) {
     url = (window.subPath || '') + url;
@@ -115,8 +152,7 @@ class App extends Component {
       const { appSectionId } = sections[0];
       const workSheetInfo = this.getWorksheetList(sections).filter(
         item =>
-          item.type !== 2 &&
-          (viewHideNavi && isCharge ? true : [1, 3].includes(item.status) && !item.navigateHide),
+          item.type !== 2 && (viewHideNavi && isCharge ? true : [1, 3].includes(item.status) && !item.navigateHide),
       );
       const { workSheetId } = isCharge
         ? workSheetInfo[0]
@@ -307,7 +343,7 @@ class App extends Component {
     if (level == 'level1') {
       return (
         <div className="accordionHeaderWrap appSectionHeader">
-          <div className="Bold flex ellipsis Gray">{name}</div>
+          <div className="Bold flex ellipsis Gray">{name || _l('未命名分组')}</div>
           {_.includes(expandGroupKeys, data.appSectionId) ? (
             <Icon icon="minus" className="appSectionIcon" />
           ) : (
@@ -478,8 +514,9 @@ class App extends Component {
       appStatus,
       debugRole = {},
     } = detail;
-    const isUpgrade = _.includes([4, 11], appStatus);
+    const isUpgrade = _.includes([4, 11, 12], appStatus);
     const isAuthorityApp = permissionType >= APP_ROLE_TYPE.ADMIN_ROLE;
+    const { s } = getAppFeaturesVisible();
     appSection = isAuthorityApp
       ? appSection
       : appSection
@@ -510,8 +547,8 @@ class App extends Component {
     const hasDebugRoles = debugRole.canDebug && !_.isEmpty(debugRoles);
     if (!detail || detail.length <= 0) {
       return <AppPermissionsInfo appStatus={2} appId={params.appId} />;
-    } else if (status === 4) {
-      return <AppPermissionsInfo appStatus={4} appId={params.appId} />;
+    } else if ([4, 20].includes(status)) {
+      return <AppPermissionsInfo appStatus={status} appId={params.appId} />;
     } else {
       return (
         <Fragment>
@@ -531,46 +568,52 @@ class App extends Component {
                 <FixedPage fixAccount={fixAccount} fixRemark={fixRemark} isNoPublish={webMobileDisplay} />
               )
             ) : (
-              <div className={cx('appSectionCon flex', { pBottom40: hasDebugRoles })}>
-                {status === 5 ||
-                (appSection.length <= 1 && (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0)) ? (
-                  // 应用无权限||成员身份 且 无任何数据
-                  <AppPermissionsInfo appStatus={5} appId={params.appId} />
-                ) : appSection.length <= 1 &&
-                  (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0) &&
-                  [APP_ROLE_TYPE.POSSESS_ROLE, APP_ROLE_TYPE.ADMIN_ROLE].includes(detail.permissionType) ? (
-                  // 管理员身份 且 无任何数据
-                  <AppPermissionsInfo appStatus={1} appId={params.appId} />
-                ) : (
-                  <Fragment>
-                    <Collapse
-                      arrow={null}
-                      className={cx('levelCollapse', { emptyAppSection: isEmptyAppSection })}
-                      onChange={key => {
-                        if (appNaviDisplayType === 2) {
-                          key = key.filter(v => !_.includes(expandGroupKeys, v));
-                        }
-                        safeLocalStorageSetItem(
-                          `appExpandGroupInfo-${detail.id}`,
-                          JSON.stringify({
-                            expandGroupKeys: key,
-                            appNaviDisplayType: detail.appNaviDisplayType,
-                            appNaviStyle: detail.appNaviStyle,
-                            level2ExpandKeys: appExpandGroupInfo.level2ExpandKeys || [],
-                          }),
-                        );
-                        this.setState({ expandGroupKeys: key });
-                      }}
-                      {...accordionExtraParam}
-                    >
-                      {appSection.map(item => this.renderSection(item, 'level1'))}
-                    </Collapse>
-                  </Fragment>
-                )}
+              <div
+                ref={this.contentRef}
+                className={cx('appSectionCon flex', { pBottom40: hasDebugRoles })}
+                onScroll={this.handleScroll}
+              >
+                <PullToRefreshWrapper onRefresh={this.handleRefresh}>
+                  {status === 5 ||
+                  (appSection.length <= 1 && (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0)) ? (
+                    // 应用无权限||成员身份 且 无任何数据
+                    <AppPermissionsInfo appStatus={5} appId={params.appId} />
+                  ) : appSection.length <= 1 &&
+                    (appSection.length <= 0 || appSection[0].workSheetInfo.length <= 0) &&
+                    [APP_ROLE_TYPE.POSSESS_ROLE, APP_ROLE_TYPE.ADMIN_ROLE].includes(detail.permissionType) ? (
+                    // 管理员身份 且 无任何数据
+                    <AppPermissionsInfo appStatus={1} appId={params.appId} />
+                  ) : (
+                    <Fragment>
+                      <Collapse
+                        arrow={null}
+                        className={cx('levelCollapse', { emptyAppSection: isEmptyAppSection })}
+                        onChange={key => {
+                          if (appNaviDisplayType === 2) {
+                            key = key.filter(v => !_.includes(expandGroupKeys, v));
+                          }
+                          safeLocalStorageSetItem(
+                            `appExpandGroupInfo-${detail.id}`,
+                            JSON.stringify({
+                              expandGroupKeys: key,
+                              appNaviDisplayType: detail.appNaviDisplayType,
+                              appNaviStyle: detail.appNaviStyle,
+                              level2ExpandKeys: appExpandGroupInfo.level2ExpandKeys || [],
+                            }),
+                          );
+                          this.setState({ expandGroupKeys: key });
+                        }}
+                        {...accordionExtraParam}
+                      >
+                        {appSection.map(item => this.renderSection(item, 'level1'))}
+                      </Collapse>
+                    </Fragment>
+                  )}
+                </PullToRefreshWrapper>
               </div>
             )}
           </div>
-          {((!isHideTabBar && !window.isPublicApp && !md.global.Account.isPortal && !fixed) ||
+          {((s && !isHideTabBar && !window.isPublicApp && !md.global.Account.isPortal && !fixed) ||
             (fixed && isAuthorityApp)) && (
             <Back
               style={{
@@ -739,7 +782,7 @@ class App extends Component {
 }
 
 export default connect(state => {
-  const { appDetail, isAppLoading, isQuitSuccess, batchOptVisible, debugRoles } = state.mobile;
+  const { appDetail, isAppLoading, isQuitSuccess, batchOptVisible, debugRoles, appScrollY } = state.mobile;
   // status: null, // 0: 加载中 1:正常 2:关闭 3:删除 4:不是应用成员 5:是应用成员但未分配视图
   return {
     appDetail,
@@ -747,5 +790,6 @@ export default connect(state => {
     isQuitSuccess,
     batchOptVisible,
     debugRoles,
+    appScrollY,
   };
 })(App);

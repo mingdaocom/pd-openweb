@@ -54,7 +54,7 @@ const ConnectorWrapper = styled.div`
     }
     .nameText {
       margin-left: 10px;
-      color: #333;
+      color: #151515;
       font-size: 14px;
     }
   }
@@ -187,7 +187,7 @@ const ConnectorCard = styled.div`
       margin-top: 15px;
       font-size: 15px;
       line-height: 20px;
-      color: #333;
+      color: #151515;
     }
   }
 `;

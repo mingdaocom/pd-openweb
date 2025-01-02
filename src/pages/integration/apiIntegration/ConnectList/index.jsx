@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import autoSize from 'ming-ui/decorators/autoSize';
-import { Support, ScrollView, Dropdown } from 'ming-ui';
+import { Support, ScrollView, Dropdown, Menu, Icon } from 'ming-ui';
 import styled from 'styled-components';
 import cx from 'classnames';
 import List from './List';
@@ -15,7 +15,15 @@ import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import { MenuItemWrap } from 'src/pages/integration/apiIntegration/style.js';
+import ImportDialog from './ImportDialog';
+import Trigger from 'rc-trigger';
 
+const TABLIST = [
+  { tab: 1, txt: _l('自定义') },
+  { tab: 2, txt: _l('安装') },
+  { tab: 3, txt: _l('授权') },
+];
 const Wrap = styled.div`
   .mLeft18 {
     margin-left: 18px;
@@ -47,7 +55,7 @@ const Wrap = styled.div`
         border-bottom: 4px solid rgba(0, 0, 0, 0);
         a {
           height: 44px;
-          color: #333;
+          color: #151515;
           padding: 10px;
           font-weight: 600;
           display: inline-block;
@@ -97,6 +105,9 @@ function Con(props) {
     countSort: 0,
     timeSort: 0,
     searchType: 0,
+    tab: 1,
+    isCreate: false,
+    showMenu: false,
   };
   const [
     {
@@ -112,6 +123,9 @@ function Con(props) {
       countSort,
       timeSort,
       searchType,
+      tab,
+      showMenu,
+      isCreate,
     },
     setState,
   ] = useSetState({ ...initData, listCount: 0 });
@@ -138,18 +152,33 @@ function Con(props) {
     if (!sorter.lastModifiedDate && !sorter.apiCount) {
       sorter = undefined;
     }
-    ajaxPromise = packageVersionAjax.getList(
-      {
-        companyId: props.currentProjectId,
-        types: [1, 2],
-        pageIndex: pageIndex,
-        pageSize: PageSize,
-        keyword: keywords,
-        isOwner: searchType !== 0,
-        sorter,
-      },
-      { isIntegration: true },
-    );
+    ajaxPromise =
+      tab === 3
+        ? packageVersionAjax.getInstallList(
+            {
+              companyId: props.currentProjectId,
+              // types: [2],
+              pageIndex: pageIndex,
+              pageSize: PageSize,
+              keyword: keywords,
+              isOwner: searchType !== 0,
+              sorter,
+              hasAuth: true,
+            },
+            { isIntegration: true },
+          )
+        : packageVersionAjax.getList(
+            {
+              companyId: props.currentProjectId,
+              types: [tab],
+              pageIndex: pageIndex,
+              pageSize: PageSize,
+              keyword: keywords,
+              isOwner: searchType !== 0,
+              sorter,
+            },
+            { isIntegration: true },
+          );
     ajaxPromise.then(res => {
       ajaxPromise = null;
       setState({
@@ -193,7 +222,7 @@ function Con(props) {
 
   useEffect(() => {
     fetchData();
-  }, [props.currentProjectId, pageIndex, keywords, hasChange, countSort, timeSort, searchType]);
+  }, [props.currentProjectId, pageIndex, keywords, hasChange, countSort, timeSort, searchType, tab]);
 
   useEffect(() => {
     packageVersionAjax
@@ -214,21 +243,31 @@ function Con(props) {
       });
   }, [hasChange]);
 
+  const renderBtn = () => {
+    return (
+      <span
+        className="addConnect Bold Hand"
+        onClick={e => {
+          const projectId = props.currentProjectId;
+          if (featureType === '2') {
+            e.stopPropagation();
+            setState({ showMenu: false });
+            buriedUpgradeVersionDialog(projectId, VersionProductType.apiIntergration);
+          }
+        }}
+      >
+        <i className="icon-add" />
+        {_l('自定义连接')}
+      </span>
+    );
+  };
+
   const listConRender = () => {
     return (
       <React.Fragment>
         <WrapListHeader className={cx('headCon flexRow', { pBottom12: !hasManageAuth })}>
           <div className="flex flexRow">
-          <SearchInput
-                className="searchCon"
-                placeholder={_l('搜索连接')}
-                value={keywords}
-                onChange={handleSearch}
-              />
-              {/* ① 组织管理员，可以选择查看所有连接和我的连接
-              1、我的连接即拥有者包含我的连接
-              2、仅对组织应用管理员展示
-              3、筛选后，「我的连接」后的数量也需变化 */}
+            <SearchInput className="searchCon" placeholder={_l('搜索连接')} value={keywords} onChange={handleSearch} />
             {hasManageAuth && (
               <Dropdown
                 value={searchType}
@@ -258,22 +297,50 @@ function Con(props) {
               />
             )}
           </div>
-          {featureType && canCreateAPIConnect && (
-            <span
-              className="addConnect Bold Hand"
-              onClick={() => {
-                const projectId = props.currentProjectId;
-                if (featureType === '2') {
-                  buriedUpgradeVersionDialog(projectId, VersionProductType.apiIntergration);
-                } else {
-                  setState({ showConnect: true, connectData: null });
+          {featureType &&
+            canCreateAPIConnect &&
+            tab === 1 &&
+            (featureType === '2' ? (
+              renderBtn()
+            ) : (
+              <Trigger
+                action={['click']}
+                popupVisible={showMenu}
+                popupAlign={{
+                  points: ['tr', 'br'],
+                  offset: [0, 5],
+                  overflow: { adjustX: true, adjustY: true },
+                }}
+                onPopupVisibleChange={visible => {
+                  setState({
+                    showMenu: visible,
+                  });
+                }}
+                popup={
+                  <Menu>
+                    <MenuItemWrap
+                      icon={<Icon icon="add" className="Font17 mLeft5" />}
+                      onClick={() => {
+                        setState({ showConnect: true, connectData: null, showMenu: false });
+                      }}
+                    >
+                      <span>{_l('创建自定义连接')}</span>
+                    </MenuItemWrap>
+                    <MenuItemWrap
+                      icon={<Icon icon="knowledge-upload" className="Font17 mLeft5" />}
+                      onClick={() => {
+                        setState({ isCreate: true, showMenu: false, connectData: null });
+                      }}
+                    >
+                      <span>{_l('导入连接')}</span>
+                    </MenuItemWrap>
+                  </Menu>
                 }
-              }}
-            >
-              <i className="icon-add" />
-              {_l('自定义连接')}
-            </span>
-          )}
+                popupClassName={cx('dropdownTrigger')}
+              >
+                {renderBtn()}
+              </Trigger>
+            ))}
         </WrapListHeader>
       </React.Fragment>
     );
@@ -313,6 +380,7 @@ function Con(props) {
         {listConRender()}
         <List
           {...param}
+          tab={tab}
           onCreate={onCreate}
           featureType={featureType}
           updateList={list => {
@@ -343,6 +411,26 @@ function Con(props) {
           </div>
         </div>
         <div className="listCon">
+          <div className="navTab">
+            <ul>
+              {TABLIST.map((o, i) => {
+                return (
+                  <li
+                    key={i}
+                    className={cx({ isCur: o.tab === tab })}
+                    onClick={() => {
+                      if (tab === o.tab) {
+                        return;
+                      }
+                      setState({ tab: o.tab, pageIndex: 1 });
+                    }}
+                  >
+                    <a className="pLeft18">{o.txt}</a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
           <React.Fragment>
             <div className={cx('Con mTop40')}>{renderCon()}</div>
           </React.Fragment>
@@ -362,6 +450,13 @@ function Con(props) {
                 });
               }
             }}
+          />
+        )}
+        {isCreate && (
+          <ImportDialog
+            projectId={props.currentProjectId}
+            onClose={() => setState({ isCreate: false })}
+            onFresh={onFresh}
           />
         )}
       </Wrap>

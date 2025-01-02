@@ -277,11 +277,11 @@ class UserItem extends Component {
     const { md = {} } = window;
     const { global = {} } = md;
     const { SysSettings = {} } = global;
-    const { passwordRegexTip, passwordRegex } = SysSettings;
+    const { passwordRegexTip } = SysSettings;
     if (_.isEmpty(password)) {
       alert(_l('请输入新密码'), 3);
       return;
-    } else if (!RegExpValidator.isPasswordValid(password, passwordRegex)) {
+    } else if (!RegExpValidator.isPasswordValid(password)) {
       alert(passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字'), 3);
       return;
     }
@@ -358,6 +358,7 @@ class UserItem extends Component {
     const { isMinSc, optListVisible, showWorkHandover } = this.state;
     let { jobs, departments, departmentInfos, jobInfos, isDepartmentChargeUser } = user;
     let departmentData = departmentId ? departmentInfos : departments || departmentInfos || [];
+    const orgRoleInfos = typeCursor === 2 ? user.orgRoleInfos : user.orgRoles;
     let jobData = jobs || jobInfos;
     let totalColWidth = 0;
     columnsInfo.forEach(item => {
@@ -462,6 +463,18 @@ class UserItem extends Component {
                     .join('；')}
                 </span>
               </Tooltip>
+            </div>
+          </td>
+        )}
+        {isHideCurrentColumn('role') && (
+          <td className="roleTh">
+            <div className="WordBreak overflow_ellipsis">
+              <span
+                className="ellipsis InlineBlock wMax100 space"
+                title={(orgRoleInfos || []).map(it => it.name).join('；')}
+              >
+                {(orgRoleInfos || []).map(it => it.name).join('；')}
+              </span>
             </div>
           </td>
         )}

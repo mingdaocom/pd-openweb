@@ -25,7 +25,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addRole: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'AddRole', args, options);
    },
   /**
@@ -40,7 +40,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeRole: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'RemoveRole', args, options);
    },
   /**
@@ -67,7 +67,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addRoleMembers: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'AddRoleMembers', args, options);
    },
   /**
@@ -87,7 +87,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeRoleMembers: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'RemoveRoleMembers', args, options);
    },
   /**
@@ -103,7 +103,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    setRoleCharger: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'SetRoleCharger', args, options);
    },
   /**
@@ -119,7 +119,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    cancelRoleCharger: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'CancelRoleCharger', args, options);
    },
   /**
@@ -132,7 +132,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    quitAppForRole: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'QuitAppForRole', args, options);
    },
   /**
@@ -145,7 +145,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    quitRole: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'QuitRole', args, options);
    },
   /**
@@ -160,7 +160,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editAppRole: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'EditAppRole', args, options);
    },
   /**
@@ -181,7 +181,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeUserToRole: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'RemoveUserToRole', args, options);
    },
   /**
@@ -194,7 +194,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateMemberStatus: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'UpdateMemberStatus', args, options);
    },
   /**
@@ -207,7 +207,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateAppRoleNotify: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'UpdateAppRoleNotify', args, options);
    },
   /**
@@ -220,7 +220,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateAppDebugModel: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'UpdateAppDebugModel', args, options);
    },
   /**
@@ -233,7 +233,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    setDebugRoles: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'SetDebugRoles', args, options);
    },
   /**
@@ -248,7 +248,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    copyRole: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'CopyRole', args, options);
    },
   /**
@@ -262,7 +262,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    copyRoleToExternalPortal: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'CopyRoleToExternalPortal', args, options);
    },
   /**
@@ -276,7 +276,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    copyExternalRolesToInternal: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'CopyExternalRolesToInternal', args, options);
    },
   /**
@@ -289,7 +289,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sortRoles: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'SortRoles', args, options);
    },
   /**
@@ -302,11 +302,11 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppRoleSetting: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppRoleSetting', args, options);
    },
   /**
-  * 获取应用下所用角色基本信息（不含具体权限）
+  * 获取 应用角色基本信息 列表（不含具体权限，包含  成员、职位等信息）
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
   * @param {Object} options 配置参数
@@ -314,8 +314,20 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getRolesWithUsers: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetRolesWithUsers', args, options);
+   },
+  /**
+  * 获取 应用下所有角色信息（简要信息：含应用Id、角色Id、角色名称、是否为管理员）
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getSimpleRoles: function (args, options = {}) {
+
+     return mdyAPI('AppManagement', 'GetSimpleRoles', args, options);
    },
   /**
   * 分页获取 全部成员
@@ -331,7 +343,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getTotalMember: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetTotalMember', args, options);
    },
   /**
@@ -345,7 +357,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getRolesByMemberId: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetRolesByMemberId', args, options);
    },
   /**
@@ -359,7 +371,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getOutsourcingMembers: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetOutsourcingMembers', args, options);
    },
   /**
@@ -372,7 +384,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppRoleSummary: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppRoleSummary', args, options);
    },
   /**
@@ -384,7 +396,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getDebugRoles: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetDebugRoles', args, options);
    },
   /**
@@ -402,7 +414,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getMembersByRole: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetMembersByRole', args, options);
    },
   /**
@@ -418,7 +430,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    batchEditMemberRole: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'BatchEditMemberRole', args, options);
    },
   /**
@@ -431,7 +443,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    batchMemberQuitApp: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'BatchMemberQuitApp', args, options);
    },
   /**
@@ -444,7 +456,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getRoleDetail: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetRoleDetail', args, options);
    },
   /**
@@ -456,7 +468,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAddRoleTemplate: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAddRoleTemplate', args, options);
    },
   /**
@@ -471,7 +483,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppForManager: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppForManager', args, options);
    },
   /**
@@ -484,7 +496,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getManagerApps: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetManagerApps', args, options);
    },
   /**
@@ -496,7 +508,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    refresh: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'Refresh', args, options);
    },
   /**
@@ -509,7 +521,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUserIdApps: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetUserIdApps', args, options);
    },
   /**
@@ -524,7 +536,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    replaceRoleMemberForApps: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'ReplaceRoleMemberForApps', args, options);
    },
   /**
@@ -541,12 +553,13 @@ export default {
   * @param {boolean} args.containsLinks 是否包含链接类型
   * @param {integer} args.filterDBType 数据筛选类型（0：全部，1= 默认数据库，2 =专属数据库，DbInstanceId传具体id）
   * @param {string} args.dbInstanceId 数据库实例id
+  * @param {array} args.createrIds 创建者ids
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppsForProject: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppsForProject', args, options);
    },
   /**
@@ -563,12 +576,13 @@ export default {
   * @param {boolean} args.containsLinks 是否包含链接类型
   * @param {integer} args.filterDBType 数据筛选类型（0：全部，1= 默认数据库，2 =专属数据库，DbInstanceId传具体id）
   * @param {string} args.dbInstanceId 数据库实例id
+  * @param {array} args.createrIds 创建者ids
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppsByProject: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppsByProject', args, options);
    },
   /**
@@ -580,7 +594,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getApps: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetApps', args, options);
    },
   /**
@@ -595,7 +609,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getToken: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetToken', args, options);
    },
   /**
@@ -609,19 +623,19 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editAppStatus: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'EditAppStatus', args, options);
    },
   /**
   * 检测是否是网络后台应用管理员
   * @param {Object} args 请求参数
-  * @param {string} args.projectId 网络id
+  * @param {array} args.appIds
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkIsAppAdmin: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'CheckIsAppAdmin', args, options);
    },
   /**
@@ -633,7 +647,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkAppAdminForUser: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'CheckAppAdminForUser', args, options);
    },
   /**
@@ -645,7 +659,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addRoleMemberForAppAdmin: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'AddRoleMemberForAppAdmin', args, options);
    },
   /**
@@ -661,7 +675,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeWorkSheetAscription: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'RemoveWorkSheetAscription', args, options);
    },
   /**
@@ -678,7 +692,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeWorkSheetForApp: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'RemoveWorkSheetForApp', args, options);
    },
   /**
@@ -694,11 +708,11 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppItemRecoveryList: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppItemRecoveryList', args, options);
    },
   /**
-  * 
+  *
   * @param {Object} args 请求参数
   * @param {string} args.id 应用项回收站记录id
   * @param {string} args.projectId 组织id
@@ -708,7 +722,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    appItemRecovery: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'AppItemRecovery', args, options);
    },
   /**
@@ -728,12 +742,15 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editWorkSheetInfoForApp: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'EditWorkSheetInfoForApp', args, options);
    },
   /**
   * 变更应用拥有者
   * @param {Object} args 请求参数
+  * @param {integer} args.pageIndex 当前页
+  * @param {integer} args.pageSize 页大小
+  * @param {string} args.projectId 组织id
   * @param {string} args.appId 应用id
   * @param {string} args.memberId 新的应用拥有者
   * @param {Object} options 配置参数
@@ -741,12 +758,14 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateAppOwner: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'UpdateAppOwner', args, options);
    },
   /**
   * 应用分组下新增项
   * @param {Object} args 请求参数
+  * @param {string} args.id 应用项回收站记录id
+  * @param {string} args.projectId 组织id
   * @param {string} args.appId 应用id
   * @param {string} args.appSectionId SectionId
   * @param {string} args.name 名称
@@ -760,7 +779,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addWorkSheet: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'AddWorkSheet', args, options);
    },
   /**
@@ -775,7 +794,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addSheet: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'AddSheet', args, options);
    },
   /**
@@ -789,7 +808,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    changeSheet: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'ChangeSheet', args, options);
    },
   /**
@@ -804,7 +823,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    copyCustomPage: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'CopyCustomPage', args, options);
    },
   /**
@@ -818,7 +837,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addAuthorize: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'AddAuthorize', args, options);
    },
   /**
@@ -830,7 +849,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAuthorizes: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAuthorizes', args, options);
    },
   /**
@@ -846,7 +865,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editAuthorizeStatus: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'EditAuthorizeStatus', args, options);
    },
   /**
@@ -859,7 +878,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    deleteAuthorizeStatus: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'DeleteAuthorizeStatus', args, options);
    },
   /**
@@ -873,7 +892,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editAuthorizeRemark: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'EditAuthorizeRemark', args, options);
    },
   /**
@@ -886,8 +905,22 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWeiXinBindingInfo: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetWeiXinBindingInfo', args, options);
+   },
+  /**
+  * 迁移应用
+  * @param {Object} args 请求参数
+  * @param {string} args.appId 应用id
+  * @param {string} args.dbInstanceId 专属数据库id
+  * @param {string} args.projectId 组织id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   migrate: function (args, options = {}) {
+
+     return mdyAPI('AppManagement', 'Migrate', args, options);
    },
   /**
   * 获取当前应用的的申请信息
@@ -900,7 +933,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppApplyInfo: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppApplyInfo', args, options);
    },
   /**
@@ -913,7 +946,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addAppApply: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'AddAppApply', args, options);
    },
   /**
@@ -929,7 +962,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editAppApplyStatus: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'EditAppApplyStatus', args, options);
    },
   /**
@@ -945,7 +978,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getIcon: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetIcon', args, options);
    },
   /**
@@ -958,7 +991,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addCustomIcon: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'AddCustomIcon', args, options);
    },
   /**
@@ -974,7 +1007,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    deleteCustomIcon: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'DeleteCustomIcon', args, options);
    },
   /**
@@ -990,7 +1023,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getCustomIconByProject: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetCustomIconByProject', args, options);
    },
   /**
@@ -1002,7 +1035,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppsCategoryInfo: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppsCategoryInfo', args, options);
    },
   /**
@@ -1014,7 +1047,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppsLibraryInfo: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppsLibraryInfo', args, options);
    },
   /**
@@ -1027,7 +1060,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    installApp: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'InstallApp', args, options);
    },
   /**
@@ -1040,7 +1073,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppLibraryDetail: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppLibraryDetail', args, options);
    },
   /**
@@ -1053,7 +1086,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getLibraryToken: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetLibraryToken', args, options);
    },
   /**
@@ -1071,7 +1104,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getLogs: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetLogs', args, options);
    },
   /**
@@ -1085,7 +1118,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getExportsByApp: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetExportsByApp', args, options);
    },
   /**
@@ -1099,7 +1132,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getExportPassword: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetExportPassword', args, options);
    },
   /**
@@ -1112,7 +1145,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addWorkflow: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'AddWorkflow', args, options);
    },
   /**
@@ -1126,7 +1159,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getEntityShare: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetEntityShare', args, options);
    },
   /**
@@ -1142,7 +1175,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editEntityShareStatus: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'EditEntityShareStatus', args, options);
    },
   /**
@@ -1160,7 +1193,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getEntityShareById: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetEntityShareById', args, options);
    },
   /**
@@ -1175,7 +1208,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    deleteBackupFile: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'DeleteBackupFile', args, options);
    },
   /**
@@ -1195,7 +1228,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    pageGetBackupRestoreOperationLog: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'PageGetBackupRestoreOperationLog', args, options);
    },
   /**
@@ -1208,7 +1241,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppSupportInfo: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppSupportInfo', args, options);
    },
   /**
@@ -1224,7 +1257,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    renameBackupFileName: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'RenameBackupFileName', args, options);
    },
   /**
@@ -1237,7 +1270,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getValidBackupFileInfo: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetValidBackupFileInfo', args, options);
    },
   /**
@@ -1258,7 +1291,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    restore: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'Restore', args, options);
    },
   /**
@@ -1276,7 +1309,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    restoreData: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'RestoreData', args, options);
    },
   /**
@@ -1289,7 +1322,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    backup: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'Backup', args, options);
    },
   /**
@@ -1303,7 +1336,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkRestoreFile: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'CheckRestoreFile', args, options);
    },
   /**
@@ -1315,7 +1348,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getTarTaskInfo: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetTarTaskInfo', args, options);
    },
   /**
@@ -1333,7 +1366,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    allUsageOverviewStatistics: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'AllUsageOverviewStatistics', args, options);
    },
   /**
@@ -1351,7 +1384,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    appUsageOverviewStatistics: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'AppUsageOverviewStatistics', args, options);
    },
   /**
@@ -1371,7 +1404,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    usageStatisticsForDimension: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'UsageStatisticsForDimension', args, options);
    },
   /**
@@ -1397,7 +1430,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getGlobalLogs: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetGlobalLogs', args, options);
    },
   /**
@@ -1424,7 +1457,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getArchivedGlobalLogs: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetArchivedGlobalLogs', args, options);
    },
   /**
@@ -1437,7 +1470,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getArchivedList: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetArchivedList', args, options);
    },
   /**
@@ -1451,7 +1484,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetsUnderTheApp: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetWorksheetsUnderTheApp', args, options);
    },
   /**
@@ -1470,7 +1503,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addLock: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'AddLock', args, options);
    },
   /**
@@ -1489,7 +1522,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    unlock: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'Unlock', args, options);
    },
   /**
@@ -1509,7 +1542,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editLockPassword: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'EditLockPassword', args, options);
    },
   /**
@@ -1532,7 +1565,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    resetLock: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'ResetLock', args, options);
    },
   /**
@@ -1555,8 +1588,41 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    closeLock: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'CloseLock', args, options);
+   },
+  /**
+  * 市场已安装应用升级校验
+  * @param {Object} args 请求参数
+  * @param {string} args.tradeId 已购应用详情id
+  * @param {string} args.id 历史版本id
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   marketAppUpgrade: function (args, options = {}) {
+
+     return mdyAPI('AppManagement', 'MarketAppUpgrade', args, options);
+   },
+  /**
+  * 执行市场已安装应用升级
+  * @param {Object} args 请求参数
+  * @param {string} args.id 批次id
+  * @param {array} args.worksheets 勾选的升级的表
+  * @param {array} args.workflows 勾选升级的流
+  * @param {array} args.pages 勾选升级的页面
+  * @param {array} args.roles 勾选升级的角色
+  * @param {boolean} args.backupCurrentVersion 备份当前版本
+  * @param {boolean} args.matchOffice 是否匹配用户
+  * @param {boolean} args.roleHide 不更新角色显影配置（隐藏应用）
+  * @param {boolean} args.noUpgradeStyle 不升级应用外观，导航
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   marketUpgrade: function (args, options = {}) {
+
+     return mdyAPI('AppManagement', 'MarketUpgrade', args, options);
    },
   /**
   * 校验升级文件
@@ -1571,7 +1637,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkUpgrade: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'CheckUpgrade', args, options);
    },
   /**
@@ -1586,7 +1652,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetUpgrade: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetWorksheetUpgrade', args, options);
    },
   /**
@@ -1608,7 +1674,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    upgrade: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'Upgrade', args, options);
    },
   /**
@@ -1620,7 +1686,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getUpgradeLogs: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetUpgradeLogs', args, options);
    },
   /**
@@ -1633,7 +1699,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getMdyInfo: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetMdyInfo', args, options);
    },
   /**
@@ -1649,7 +1715,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    batchExportApp: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'BatchExportApp', args, options);
    },
   /**
@@ -1670,7 +1736,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getsByUnionId: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetsByUnionId', args, options);
    },
   /**
@@ -1682,7 +1748,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getBatchId: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetBatchId', args, options);
    },
   /**
@@ -1698,7 +1764,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    batchImportCheck: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'BatchImportCheck', args, options);
    },
   /**
@@ -1716,7 +1782,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    batchImport: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'BatchImport', args, options);
    },
   /**
@@ -1729,7 +1795,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppLangs: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppLangs', args, options);
    },
   /**
@@ -1743,7 +1809,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    createAppLang: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'CreateAppLang', args, options);
    },
   /**
@@ -1757,7 +1823,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    deleteAppLang: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'DeleteAppLang', args, options);
    },
   /**
@@ -1770,7 +1836,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppLangDetail: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppLangDetail', args, options);
    },
   /**
@@ -1789,7 +1855,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editAppLang: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'EditAppLang', args, options);
    },
   /**
@@ -1805,11 +1871,11 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    machineTranslation: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'MachineTranslation', args, options);
    },
   /**
-  * 
+  *
   * @param {Object} args 请求参数
   * @param {string} args.appId 应用id
   * @param {Object} options 配置参数
@@ -1817,7 +1883,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppStructureForER: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetAppStructureForER', args, options);
    },
   /**
@@ -1825,13 +1891,13 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.projectId 组织id
   * @param {array} args.correlationIds 业务模块id（不需要筛选业务，不传就行）
-  * @param {integer} args.type 业务模块，0 = 组织名称，20 = 应用分组（不需要筛选业务，不传就行）
+  * @param {integer} args.type 业务模块，0 = 组织名称，20 = 应用分组（不需要筛选业务，不传就行），30 = 密码提示
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectLangs: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetProjectLangs', args, options);
    },
   /**
@@ -1844,7 +1910,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getsByProjectIds: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetsByProjectIds', args, options);
    },
   /**
@@ -1859,8 +1925,20 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editProjectLangs: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'EditProjectLangs', args, options);
+   },
+  /**
+  * 编辑密码规则提示多语言
+  * @param {Object} args 请求参数
+  * @param {array} args.data 翻译数据
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editPasswordRegexTipLangs: function (args, options = {}) {
+
+     return mdyAPI('AppManagement', 'EditPasswordRegexTipLangs', args, options);
    },
   /**
   * 获取组织名称多语言(只能获取名称)
@@ -1871,7 +1949,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getProjectLang: function (args, options = {}) {
-     
+
      return mdyAPI('AppManagement', 'GetProjectLang', args, options);
    },
 };

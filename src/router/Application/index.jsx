@@ -101,8 +101,12 @@ export default class Application extends Component {
       return <LoadDiv />;
     }
 
-    if (_.includes([10, 11], appStatus)) {
+    if (_.includes([10, 11, 12], appStatus)) {
       return <UpgradeContent appPkg={appPkg} />;
+    }
+
+    if (_.includes([20], appStatus)) {
+      return <UnusualContent appPkg={appPkg} status={appStatus} appId={appId} />;
     }
 
     if ((pcDisplay || fixed) && !isAuthorityApp && !_.includes(pathname, 'role')) {

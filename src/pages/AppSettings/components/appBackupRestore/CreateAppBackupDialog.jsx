@@ -200,13 +200,10 @@ export default function CreateBackupModal(props) {
             <Fragment>
               <div className="mTop50"> - {_l('不限制备份文件个数')}</div>
               <div>
-                -
+                {'-' + ' '}
                 {md.global.Config.IsLocal
-                  ? _l(
-                      ' 每个备份文件仅保留%0天有效期，超过%0天的会自动删除',
-                      md.global.SysSettings.appBackupRecycleDays,
-                    )
-                  : _l(' 备份文件一年有效，占用应用附件存储量')}
+                  ? _l('每个备份文件仅保留%0天有效期，超过%0天的会自动删除', md.global.SysSettings.appBackupRecycleDays)
+                  : _l('备份文件一年有效，占用应用附件存储量')}
                 <Support text={_l('帮助')} type={3} href="https://help.mingdao.com/application/backup-restore" />
               </div>
             </Fragment>

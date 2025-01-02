@@ -11,7 +11,6 @@ import FiltersGroupPreview from '../editWidget/filter/FiltersGroupPreview';
 import CarouselPreview from '../editWidget/carousel/Carousel';
 import MobileFilter from 'mobile/CustomPage/FilterContent';
 import MobileView from 'mobile/CustomPage/ViewContent';
-import AiDisplay from './AiDisplay';
 import { reportTypes } from 'statistics/Charts/common';
 import { browserIsMobile, getTranslateInfo } from 'src/util';
 
@@ -139,9 +138,6 @@ const WidgetDisplay = forwardRef((props, $cardRef) => {
           />
         )
       );
-    }
-    if (componentType === 'ai') {
-      return <AiDisplay widget={widget} />;
     }
   };
   if (componentType === 'filter') {

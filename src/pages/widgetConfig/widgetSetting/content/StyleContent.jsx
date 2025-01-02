@@ -7,7 +7,7 @@ import WidgetColor from '../components/WidgetColor';
 import cx from 'classnames';
 import { handleAdvancedSettingChange, updateConfig } from '../../util/setting';
 import { SettingCollapseWrap } from './styled';
-import { notExplainDisplay } from '../../util';
+import { isCustomWidget, notExplainDisplay } from '../../util';
 import { HAVE_VALUE_STYLE_WIDGET } from '../../config';
 import { SectionItem } from '../components/SplitLineConfig/style';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue.jsx';
@@ -42,7 +42,7 @@ const getStyleOptions = data => {
       key: 'title',
     });
   }
-  if (_.includes(HAVE_VALUE_STYLE_WIDGET, data.type)) {
+  if (!isCustomWidget(data) && _.includes(HAVE_VALUE_STYLE_WIDGET, data.type)) {
     defaultData.push({
       text: _l('值'),
       key: 'value',
@@ -76,7 +76,7 @@ const DefaultStyle = ({ data, onChange }) => {
               <WidgetColor
                 type="normal"
                 fromWidget={true}
-                color={advancedSetting[colorKey] || (item.key === 'title' && type !== 34 ? '#757575' : '#333')}
+                color={advancedSetting[colorKey] || (item.key === 'title' && type !== 34 ? '#757575' : '#151515')}
                 handleChange={color => {
                   onChange(handleAdvancedSettingChange(data, { [colorKey]: color }));
                 }}

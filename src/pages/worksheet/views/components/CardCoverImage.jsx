@@ -149,7 +149,7 @@ const COVER_IMAGE_POSITION = {
 };
 
 export default function CardCoverImage(props) {
-  const { data, stateData = {}, sheetSwitchPermit = [], currentView, viewId = '' } = props;
+  const { data, stateData = {}, sheetSwitchPermit = [], currentView, viewId = '', projectId } = props;
   const { allAttachments = [], coverData = {}, formData, rowId } = data;
   const { type, controlId, advancedSetting = {} } = coverData;
   const allowDownload = advancedSetting.allowdownload || '1';
@@ -200,6 +200,7 @@ export default function CardCoverImage(props) {
         recordId: rowId,
         worksheetId,
         controlId,
+        projectId,
       },
       {
         openControlAttachmentInNewTab: recordAttachmentSwitch

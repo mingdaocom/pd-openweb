@@ -507,7 +507,7 @@ function Edit(params) {
                   <div className="title mTop24">
                     {o === 'fieldId' ? (
                       <React.Fragment>
-                        {_l('变量 id ')}
+                        {_l('变量 id')}
                         <span className="Red">*</span>
                       </React.Fragment>
                     ) : (

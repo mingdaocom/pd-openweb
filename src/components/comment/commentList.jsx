@@ -63,7 +63,9 @@ class CommentList extends React.Component {
       this.props.isFocus !== nextProps.isFocus ||
       this.props.containAttachment !== nextProps.containAttachment ||
       nextProps.entityType !== this.props.entityType || //内部和外部讨论
-      this.props.sourceId !== nextProps.sourceId
+      this.props.sourceId !== nextProps.sourceId ||
+      this.props.focusType !== nextProps.focusType ||
+      this.props.keywords !== nextProps.keywords
     ) {
       this.abortRequest();
       this.setState(
@@ -102,7 +104,8 @@ class CommentList extends React.Component {
   }
 
   fetch() {
-    const { sourceId, sourceType, isFocus, containAttachment, commentList, entityType } = this.props;
+    const { sourceId, sourceType, isFocus, containAttachment, commentList, entityType, focusType, keywords } =
+      this.props;
     const { pageIndex, pageSize } = this.state;
 
     this.setState({
@@ -117,6 +120,8 @@ class CommentList extends React.Component {
       isFocus,
       containAttachment,
       entityType,
+      focusType,
+      keywords,
     });
     this.ajax
       .then(res => {

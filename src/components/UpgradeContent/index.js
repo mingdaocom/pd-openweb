@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import cx from 'classnames';
 import { Skeleton } from 'ming-ui';
 
 const UpgradeContentWrap = styled.div`
@@ -62,18 +63,26 @@ const STATUS_INFO = {
     text: _l('应用正在还原中...'),
     color: '#4caf50',
   },
+  12: {
+    text: _l('应用迁移中...'),
+    color: '#ff755e',
+    icon: 'icon-setting',
+    desc: _l('该应用正在迁移数据库，暂停访问'),
+  },
 };
 
 export default function UpgradeContent({ appPkg, showLeftSkeleton = true, isMobile }) {
   const { currentPcNaviStyle, appStatus } = appPkg;
+  const icon = STATUS_INFO[appStatus].icon || 'icon-unarchive';
 
   if (isMobile) {
     return (
       <MobileWrap>
         <IconWrap>
-          <i className="icon-unarchive Gray_9e Font48" />
+          <i className={cx('Font48', icon)} style={{ color: STATUS_INFO[appStatus].color }}/>
         </IconWrap>
         <div className="Gray_bd Font17 mTop20">{STATUS_INFO[appStatus].text}</div>
+        {!!STATUS_INFO[appStatus].desc && <div className="Gray_9e mTop10">{STATUS_INFO[appStatus].desc}</div>}
       </MobileWrap>
     );
   }
@@ -87,9 +96,10 @@ export default function UpgradeContent({ appPkg, showLeftSkeleton = true, isMobi
       )}
       <div className="unusualContent">
         <div className="imgWrap mBottom14">
-          <i className="icon-unarchive Font56" style={{ color: STATUS_INFO[appStatus].color }} />
+          <i className={cx('Font56', icon)} style={{ color: STATUS_INFO[appStatus].color }} />
         </div>
         <div className="Font17 bold">{STATUS_INFO[appStatus].text}</div>
+        {!!STATUS_INFO[appStatus].desc && <div className="Font13 Gray_9e mTop10">{STATUS_INFO[appStatus].desc}</div>}
       </div>
     </UpgradeContentWrap>
   );

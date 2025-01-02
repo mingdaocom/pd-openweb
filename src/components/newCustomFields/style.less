@@ -1,7 +1,7 @@
 .customFieldsContainer {
   background: #fff;
   margin: 0 -12px;
-  color: #333;
+  color: #151515;
   line-height: normal;
 
   &:after {
@@ -61,12 +61,12 @@
       border-color: #e0e0e0 !important;
       &:not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(.customFormControlScore):not(
           .customFormControlUser
-        ) {
+        ):not(.customFormControlDropDown) {
         padding-right: 12px !important;
       }
       &:not([type='tel']):not(.formBoxNoBorder):not(.relateRecord):not(.customFormControlSwitch):not(
           .customFormControlScore
-        ):not(.customFormControlUser):not(.customFormTextareaBox) {
+        ):not(.customFormControlUser):not(.customFormTextareaBox):not(.customFormControlDropDown) {
         padding-left: 12px !important;
       }
       &.controlDisabled {
@@ -78,7 +78,7 @@
       &.customFormReadonly {
         background: #f9f9f9 !important;
         border-color: #e0e0e0 !important;
-        padding: 8px 12px 6px !important;
+        padding: 8px 20px 6px !important;
       }
       > .icon-arrow-right-border {
         margin-right: -5px;
@@ -109,7 +109,7 @@
 
       .Item-content:not(.disabled):hover {
         background: #f2f2f2 !important;
-        color: #333 !important;
+        color: #151515 !important;
       }
     }
   }
@@ -896,7 +896,7 @@
 
           .Item-content:not(.disabled):hover {
             background: #f2f2f2 !important;
-            color: #333 !important;
+            color: #151515 !important;
           }
         }
       }
@@ -959,7 +959,7 @@
           margin-bottom: 10px;
 
           &--disabled {
-            color: #333;
+            color: #151515;
 
             .Radio-box {
               display: none;
@@ -1009,7 +1009,7 @@
         margin-right: 20px;
 
         &--disabled {
-          color: #333;
+          color: #151515;
 
           .Checkbox-box {
             display: none;
@@ -1217,9 +1217,9 @@
 }
 
 input.customFormControlBox:disabled {
-  color: #333;
+  color: #151515;
   opacity: 1;
-  -webkit-text-fill-color: #333;
+  -webkit-text-fill-color: #151515;
 }
 .customCascader {
   .ant-select-selection-placeholder {
@@ -1239,7 +1239,7 @@ input.customFormControlBox:disabled {
     }
     .ant-select-selection-item {
       opacity: 0.4;
-      color: #333;
+      color: #151515;
     }
   }
 
@@ -1251,13 +1251,13 @@ input.customFormControlBox:disabled {
 
   &.ant-select-disabled {
     .ant-select-selector {
-      color: #333 !important;
+      color: #151515 !important;
       border-color: #fff !important;
       background: #fff !important;
       padding: 0 !important;
     }
     .ant-select-selection-item {
-      color: #333;
+      color: #151515;
       padding: 0;
     }
     .ant-select-arrow {

@@ -39,7 +39,7 @@ const EditUserExtendInfoCon = styled.div`
   }
   .clearBtn {
     background: #fff;
-    color: #333;
+    color: #151515;
     font-weight: 400;
     border: 1px solid #eaeaea;
   }

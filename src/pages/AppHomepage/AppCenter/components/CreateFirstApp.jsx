@@ -24,7 +24,7 @@ const FullCon = styled.div`
     font-size: 32px;
   }
   & > p {
-    color: #333;
+    color: #151515;
   }
   .introWrap {
     display: flex;
@@ -53,7 +53,7 @@ const FullCon = styled.div`
       margin-top: 8px;
       font-size: 18px;
       font-weight: 600;
-      color: #333;
+      color: #151515;
     }
     .desc {
       margin-top: 8px;

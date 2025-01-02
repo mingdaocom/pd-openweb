@@ -42,7 +42,6 @@ rewrite (?i)^/public/apidoc /worksheetapi.html break;
 rewrite (?i)^/public/workflow /workflowrecordshare.html break;
 rewrite (?i)^/m/detail/calendar /calendar-share.html break;
 rewrite (?i)^/excelfile /excelfile.html break;
-rewrite (?i)^/public/assistant/ /assistant.html break;
 
 # 企业微信落地
 rewrite (?i)^/workweixin /workWeixin.html break;
@@ -117,6 +116,8 @@ rewrite (?i)^/favorite /index.html break;
 rewrite (?i)^/dashboard /index.html break;
 rewrite (?i)^/aggregation /index.html break;
 rewrite (?i)^/dataMirrorPreview /index.html break;
+rewrite (?i)^/certification /index.html break;
+rewrite (?i)^/certificationDetail /index.html break;
 
 # 购买入口
 rewrite (?i)^/orderpay /orderPay.html break;
@@ -130,6 +131,7 @@ rewrite (?i)^/cliauth /cli-auth-confirm.html break;
 
 # 插件运行环境 iFrame
 rewrite (?i)^/widgetview /widget-container.html break;
+rewrite (?i)^/freefield /free-field-sandbox.html break;
 
 #HAPAI问答窗口
 rewrite (?i)^/hapai /hapAI.html break;

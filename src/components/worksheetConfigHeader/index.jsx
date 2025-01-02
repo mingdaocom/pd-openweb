@@ -4,7 +4,6 @@ import { Button, Tabs } from 'ming-ui';
 import { navigateTo } from 'src/router/navigateTo';
 import './index.less';
 import { toEditWidgetPage } from '../../pages/widgetConfig/util';
-import WidgetAiRecommend from 'src/pages/widgetConfig/Header/WidgetAiRecommend';
 import _ from 'lodash';
 
 /**
@@ -83,7 +82,7 @@ export default class WorksheetConfigHeader extends Component {
   }
 
   render() {
-    const { showSaveButton, saveLoading, worksheetName, onBack, onSave, onClose, showAiBtn } = this.props;
+    const { showSaveButton, saveLoading, worksheetName, onBack, onSave, onClose } = this.props;
     return (
       <div className="worksheetConfigHeader">
         <div className="customHeadBox flexRow">
@@ -109,7 +108,6 @@ export default class WorksheetConfigHeader extends Component {
               this.handleRedirect(tab.value);
             }}
           />
-          {showAiBtn && <WidgetAiRecommend {...this.props} />}
           <Button className="closeConfigPage" onClick={onClose}>
             {_l('关闭')}
           </Button>

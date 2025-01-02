@@ -22,7 +22,7 @@ const Tab = styled.div`
   line-height: 55px;
   padding: 0 19px;
   font-size: 15px;
-  color: #333;
+  color: #151515;
   text-align: center;
   cursor: pointer;
   font-weight: bold;
@@ -98,7 +98,7 @@ export function renderTabs(props) {
     if (_.includes([51, 52], control.type)) {
       const icon = _.get(control, 'advancedSetting.icon');
       if (!icon) {
-        const defaultIcon = control.type === 51 ? 'Worksheet_query' : 'tab';
+        const defaultIcon = control.type === 51 ? 'Worksheet_query' : 'subheader';
         return (
           <IconCon isFixedRight={isFixedRight}>
             <Icon icon={defaultIcon} className="Font20" style={{ color: '#6e6e6e' }} />

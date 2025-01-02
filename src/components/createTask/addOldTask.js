@@ -32,7 +32,7 @@ const SearchTaskCon = styled.ul`
       background-color: #1e88e5;
     }
     &.noData {
-      color: #333 !important;
+      color: #151515 !important;
       background-color: #fff !important;
     }
   }

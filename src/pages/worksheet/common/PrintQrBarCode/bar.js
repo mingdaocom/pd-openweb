@@ -218,7 +218,7 @@ export class BarLabel {
     const { paddingX, paddingY, height } = this.layout;
     this.ctx.textBaseline = 'top';
     this.ctx.textAlign = 'center';
-    this.ctx.fillStyle = '#333';
+    this.ctx.fillStyle = '#151515';
     const text =
       this.cutTextByWidth(2 * this.unitSize, value, this._width - paddingX * 2 * this.unitSize).slice(0, 1)[0] || '';
     this.ctx.font = 2 * this.unitSize + 'px "Times New Roman"';

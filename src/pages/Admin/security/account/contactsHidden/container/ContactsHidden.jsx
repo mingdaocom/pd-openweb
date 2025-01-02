@@ -32,6 +32,15 @@ let rules = [
     extraTxt: _l('额外可见的成员'),
     ruleType: 15,
   },
+  {
+    type: 'hideForAllUser',
+    title: _l('对所有人隐藏'),
+    description: _l('添加的用户在本组织通讯录中隐藏'),
+    editDescription: '',
+    limitTxt: _l('对组织所有成员隐藏'),
+    extraTxt: '',
+    ruleType: 20,
+  },
 ];
 
 class ContactsHidden extends React.Component {

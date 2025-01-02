@@ -16,10 +16,9 @@ import {
   SHOW_RELATE_TYPE,
   DATE_RANGE,
   DATE_GRANULARITY_TYPE,
-  DATE_TYPE_M,
-  DATE_TYPE_Y,
-  getDefaultDateRangeType
+  getDefaultDateRangeType,
 } from 'worksheet/common/ViewConfig/components/fastFilter/util';
+import { DATE_TYPE_M, DATE_TYPE_Y } from 'worksheet/common/ViewConfig/components/fastFilter/config';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 
 const RadioWrap = styled.div`
@@ -80,9 +79,18 @@ export default function FilterSetting(props) {
   const { advancedSetting = {} } = filter;
   const { dataType } = props;
   const [timeVisible, setTimeVisible] = useState(false);
+  const defaultDaterange = '[1,2,3,4,5,6,7,8,9,12,13,14,15,16,17,21,22,23,31,32,33]';
+
+  useEffect(() => {
+    if (DATE_RANGE.keys.includes(dataType) && _.isEmpty(advancedSetting.daterange)) {
+      changeAdvancedSetting({
+        daterange: defaultDaterange
+      });
+    }
+  }, []);
 
   const getDaterange = () => {
-    let daterange = advancedSetting.daterange || '[1,2,3,4,5,6,7,8,9,12,13,14,15,16,17,21,22,23,31,32,33]';
+    let daterange = advancedSetting.daterange || defaultDaterange;
     try {
       daterange = JSON.parse(daterange);
     } catch (error) {
@@ -108,24 +116,28 @@ export default function FilterSetting(props) {
     const value = filter[data.key];
     let types = data.types;
     if (['dateRangeType'].includes(data.key)) {
-      types = _.get(firstControlData, 'advancedSetting.showtype') === '5' ? types.filter(o => o.value === 5) : _.get(firstControlData, 'advancedSetting.showtype') === '4' ? types.filter(o => o.value !== 3) : types;
+      types =
+        _.get(firstControlData, 'advancedSetting.showtype') === '5'
+          ? types.filter(o => o.value === 5)
+          : _.get(firstControlData, 'advancedSetting.showtype') === '4'
+          ? types.filter(o => o.value !== 3)
+          : types;
     }
     const handleChange = value => {
       const param = { [data.key]: value };
       if (data.key === 'filterType') {
-        param.dateRangeType = value !== FILTER_CONDITION_TYPE.DATEENUM ? undefined : getDefaultDateRangeType(firstControlData);
+        param.dateRangeType =
+          value !== FILTER_CONDITION_TYPE.DATEENUM ? undefined : getDefaultDateRangeType(firstControlData);
       }
       if (data.key === 'dateRangeType') {
         changeAdvancedSetting({
           [DATE_RANGE.key]: JSON.stringify(
-            daterange.filter(o =>
-              value == 5 ? DATE_TYPE_Y.includes(o) : value == 4 ? DATE_TYPE_M.includes(o) : true,
-            ),
-          )
+            daterange.filter(o => (value == 5 ? DATE_TYPE_Y.includes(o) : value == 4 ? DATE_TYPE_M.includes(o) : true)),
+          ),
         });
       }
       setFilter(param);
-    }
+    };
     return (
       <Fragment>
         <div className="Gray Font13 mBottom8 Font13">{data.txt}</div>
@@ -189,12 +201,12 @@ export default function FilterSetting(props) {
               })}
               onClick={() => {
                 const result = {
-                  [data.key]: item.value
-                }
+                  [data.key]: _.toString(item.value),
+                };
                 if (data.key === 'allowitem' && item.value === 1) {
                   const { values = [] } = filter;
                   changeAdvancedSetting(result, {
-                    values: values.length ? [values[0]] : values
+                    values: values.length ? [values[0]] : values,
                   });
                 } else {
                   changeAdvancedSetting(result);
@@ -259,7 +271,7 @@ export default function FilterSetting(props) {
   const renderTimeType = () => {
     const dateRangeType = (_.get(filter, 'dateRangeType') || '').toString();
     const showType = (_.get(firstControlData, 'advancedSetting.showtype') || '').toString();
-    let dateRanges = DATE_RANGE.types;
+    let dateRanges = DATE_RANGE.types.filter((_, index) => [0, 1, 2].includes(index));
     let isAllRange = daterange.length >= DATE_RANGE.default.length;
     if (_.includes(['4', '5'], showType) || _.includes(['4', '5'], dateRangeType)) {
       dateRanges = dateRanges
@@ -271,6 +283,7 @@ export default function FilterSetting(props) {
         ? daterange.length >= DATE_TYPE_Y.length
         : daterange.length >= DATE_TYPE_M.length;
     }
+
     return (
       <Fragment>
         <div className="Gray Font13 mBottom8 Font13">{DATE_RANGE.txt}</div>
@@ -312,7 +325,12 @@ export default function FilterSetting(props) {
           return renderDrop(o);
         }
       })}
-      {DATE_GRANULARITY_TYPE.keys.includes(dataType) && [FILTER_CONDITION_TYPE.DATEENUM].includes(filter.filterType) && renderDrop(DATE_GRANULARITY_TYPE)}
+      {DATE_GRANULARITY_TYPE.keys.includes(dataType) &&
+        [FILTER_CONDITION_TYPE.DATEENUM].includes(filter.filterType) &&
+        renderDrop({
+          ...DATE_GRANULARITY_TYPE,
+          types: DATE_GRANULARITY_TYPE.types.filter(item => [1, 2].includes(item.value) ? false : true)
+        })}
       {[OPTIONS_ALLOWITEM, DIRECTION_TYPE, SHOW_RELATE_TYPE].map(o => {
         if (o.keys.includes(dataType)) {
           return renderShowType(o);

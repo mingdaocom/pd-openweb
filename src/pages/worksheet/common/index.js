@@ -6,7 +6,6 @@ export { default as WorkSheetFilter } from './WorkSheetFilter';
 export { default as NewRecord } from './newRecord/NewRecord';
 export { default as addRecord } from './newRecord/addRecord';
 export { default as RecordInfo } from './recordInfo';
-export { default as EditRecord } from './editRecord';
 export { default as WorkSheetTrash } from './WorkSheetTrash';
 export { openWorkSheetTrash } from './WorkSheetTrash';
 export { default as ExportSheet } from './ExportSheet';

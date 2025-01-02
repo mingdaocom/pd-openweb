@@ -55,7 +55,15 @@ const AddBtn = styled.div`
 
 function ViewComp(props) {
   const { showHeader, headerLeft, headerRight } = props;
-  const { base, workSheetLoading, worksheetInfo, sheetSwitchPermit, filtersGroup = [], showPageTitle } = props;
+  const {
+    base,
+    workSheetLoading,
+    worksheetInfo,
+    sheetSwitchPermit,
+    filtersGroup = [],
+    showPageTitle,
+    config = {},
+  } = props;
   const { loadWorksheet, updateFilters, updateFiltersGroup } = props;
   const { views = [], allowAdd } = worksheetInfo;
   const { viewId, appId, worksheetId } = base;
@@ -134,6 +142,7 @@ function ViewComp(props) {
         onAdd: addRecord,
         showDraftsEntry: true,
         sheetSwitchPermit,
+        isDraft: config.isDraft,
       });
     }
   };

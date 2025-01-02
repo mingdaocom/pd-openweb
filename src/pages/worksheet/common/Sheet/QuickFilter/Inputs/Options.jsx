@@ -14,7 +14,7 @@ const Con = styled.div`
   line-height: 0px;
   .ant-select {
     border-radius: 4px;
-    border: 1px solid #dddddd;
+    border: 1px solid var(--border-color);
     ${({ isMultiple }) => (isMultiple ? '' : 'height: 32px;')}
     line-height: 32px;
     overflow: hidden;

@@ -22,6 +22,7 @@ import {
   controlState,
   getArrBySpliceType,
   checkValueByFilterRegex,
+  halfSwitchSize,
 } from './utils';
 import intlTelInput from '@mdfe/intl-tel-input';
 import utils from '@mdfe/intl-tel-input/build/js/utils';
@@ -1051,6 +1052,7 @@ export default class DataFormat {
     masterData,
     from = FROM.DEFAULT,
     storeCenter,
+    loadRowsWhenChildTableStoreCreated = false,
     searchConfig = [],
     embedData = {},
     onAsyncChange = () => {},
@@ -1082,6 +1084,7 @@ export default class DataFormat {
     this.activeTrigger = activeTrigger;
     this.loopList = [];
     this.isMobile = browserIsMobile();
+    this.loadRowsWhenChildTableStoreCreated = loadRowsWhenChildTableStoreCreated;
 
     this.requestPool = requestPool || createRequestPool({ abortController });
     this.debounceMap = new Map();
@@ -1119,6 +1122,9 @@ export default class DataFormat {
         .filter(isRelateRecordWithStaticValue)
         .concat(this.data.filter(c => !isRelateRecordWithStaticValue(c)));
       dataForInit.forEach(item => {
+        if (item.type === 53 && item.dataSource) {
+          item.advancedSetting = { ...item.advancedSetting, defaultfunc: item.dataSource, defaulttype: '1' };
+        }
         if (item.value) {
           this.updateDataSource({ controlId: item.controlId, value: item.value, notInsertControlIds: true, isInit });
         } else if (item.advancedSetting && item.advancedSetting.defaultfunc && item.type !== 30) {
@@ -1217,9 +1223,7 @@ export default class DataFormat {
     // store 挂载
     this.data.forEach(item => {
       if (item.hidden) return;
-      if (item.type === 53 && item.dataSource) {
-        item.advancedSetting = { ...item.advancedSetting, defaultfunc: item.dataSource, defaulttype: '1' };
-      }
+
       if (item.storeFromDefault) {
         item.store = item.storeFromDefault;
         delete item.storeFromDefault;
@@ -1242,7 +1246,7 @@ export default class DataFormat {
     this.data.forEach(item => {
       item.advancedSetting = item.advancedSetting || {};
       item.dataSource = item.dataSource || '';
-      item.disabled = !!disabled || item.disabled;
+      item.disabled = (item.ignoreDisabled ? false : !!disabled) || item.disabled;
       item.fieldPermission = _.includes(SYSTEM_ENUM, item.controlId)
         ? '0' + (item.fieldPermission || '111').slice(-2)
         : item.fieldPermission;
@@ -1283,6 +1287,11 @@ export default class DataFormat {
         item.disabled = true;
       }
 
+      // 兼容老数据没有size的情况
+      if (!item.size) {
+        item.size = halfSwitchSize(item, from);
+      }
+
       const { errorType, errorText } = onValidator({ item, data, masterData, ignoreRequired, verifyAllControls });
 
       if (errorType) {
@@ -1310,7 +1319,7 @@ export default class DataFormat {
   }
 
   getControlStore(control) {
-    const { appId, recordId, instanceId, workId, worksheetId, from } = this;
+    const { appId, recordId, instanceId, workId, worksheetId, from, loadRowsWhenChildTableStoreCreated } = this;
     let store = this.storeCenter[control.controlId];
     if (store) {
       return store;
@@ -1332,6 +1341,13 @@ export default class DataFormat {
             .filter(c => !!c.value),
         },
       });
+      if (loadRowsWhenChildTableStoreCreated) {
+        store.initAndLoadRows({
+          worksheetId: this.worksheetId,
+          recordId,
+          controlId: control.controlId,
+        });
+      }
     } else if (control.type === 29) {
       store = generateRelateRecordTableStore(control, {
         appId,
@@ -1494,6 +1510,15 @@ export default class DataFormat {
               if (parseFloat(value || 0) > maxCount) item.value = maxCount;
             }
 
+            // 成员控件
+            if (item.type === 26 && value && item.advancedSetting.checkusertype === '1') {
+              const filterValues = safeParse(value || '[]').filter((v = {}) => {
+                const result = (v.accountId || '').startsWith('a#');
+                return item.advancedSetting.usertype === '2' ? result : !result;
+              });
+              item.value = _.isEmpty(filterValues) ? '' : JSON.stringify(filterValues);
+            }
+
             // 等级控件
             if (item.type === 28) {
               const maxCount = (item.advancedSetting || {}).max || (item.enumDefault === 1 ? 5 : 10);
@@ -1556,7 +1581,7 @@ export default class DataFormat {
 
             // 变更控件的id集合
             if (
-              !_.includes([25, 30, 31, 32, 33, 37], item.type) &&
+              !_.includes([25, 30, 31, 32, 33], item.type) &&
               !_.includes(this.controlIds, controlId) &&
               !notInsertControlIds
             ) {
@@ -2377,7 +2402,7 @@ export default class DataFormat {
         //筛选值字段
         const fieldResult =
           _.includes(['rowid', 'currenttime'], _.get(item.dynamicSource[0] || {}, 'cid')) ||
-          (_.find(this.data, da => da.controlId === _.get(item.dynamicSource[0] || {}, 'cid')) || {}).value;
+          _.find(this.data, da => da.controlId === _.get(item.dynamicSource[0] || {}, 'cid'));
         //条件字段
         const conditionExit = _.find(controls.concat(SYSTEM_CONTROLS), con => con.controlId === item.controlId);
         return isDynamicValue ? fieldResult : conditionExit;
@@ -2511,6 +2536,7 @@ export default class DataFormat {
                 id,
                 getAllControls: true,
                 sortControls: moreSort,
+                ...(get(window, 'shareState.shareId') ? { relationWorksheetId: currentConfig.worksheetId } : {}),
               },
               controlId,
               control.controlId,
@@ -2532,6 +2558,8 @@ export default class DataFormat {
                     name: getCurrentValue(titleControl, nameValue, { type: 2 }),
                   };
                 });
+                // 关联记录空值不赋值，防止死循环
+                if (_.isEmpty(newValue) && (currentControl.value || '').startsWith('deleteRowIds')) return;
                 if (_.isEmpty(newValue) && _.includes([29], controlType) && this.isMobile) {
                   updateData(JSON.stringify(newValue));
                   return;

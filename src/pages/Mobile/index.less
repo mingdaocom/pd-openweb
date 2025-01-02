@@ -10,8 +10,6 @@ body {
   --adm-color-primary: #2196f3;
   .adm-button {
     height: 36px;
-    padding: 0;
-    line-height: 36px;
     --border-radius: 18px;
   }
 }
@@ -104,7 +102,7 @@ input::placeholder {
     background-color: #ededed;
   }
   .disabled .am-list-content {
-    color: #33333380 !important;
+    color: #15151580 !important;
   }
 }
 
@@ -122,7 +120,20 @@ input::placeholder {
   }
   .adm-popup-body-position-bottom {
     padding-bottom: calc(~'constant(safe-area-inset-bottom) - 20px') !important;
-    padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px') !important;  
+    padding-bottom: calc(~'env(safe-area-inset-bottom) - 20px') !important;
+  }
+}
+
+.mobilePopup {
+  // 选择人员、部门，弹窗距离顶部40px
+  .heightPopupBody40 {
+    height: calc(~'100% - 40px');
+    .popupWrapper {
+      height: 100%;
+      .popupContentBox {
+        height: calc(~'100% - 44px');
+      }
+    }
   }
 }
 

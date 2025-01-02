@@ -27,7 +27,7 @@ const PopupCon = styled.div`
   background-color: #fff;
   .title {
     font-size: 15px;
-    color: #333;
+    color: #151515;
     font-weight: 500;
   }
   .description {

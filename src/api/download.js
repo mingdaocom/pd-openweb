@@ -303,6 +303,9 @@ export default {
   * @param {boolean} args.checkView 是否验证视图
   * @param {string} args.relationWorksheetId 关联控件ID
   * @param {string} args.controlId 附件控件id
+  * @param {string} args.parentWorksheetId 主表id 不是子表/关联表/他表 就不传
+  * @param {string} args.parentRowId 主表行记录id 不是子表/关联表/他表 就不传
+  * @param {string} args.foreignControlid 主表关联控件id 不是子表/关联表/他表 就不传
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -343,6 +346,17 @@ export default {
    appLibrary: function (args, options = {}) {
      options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
      return mdyAPI('Download', 'AppLibrary', args, options);
+   },
+  /**
+  * 下载授权应用文件
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   trade: function (args, options = {}) {
+     options.ajaxOptions = Object.assign({}, options.ajaxOptions, { type: 'GET' }); 
+     return mdyAPI('Download', 'Trade', args, options);
    },
   /**
   * 下载插件导出文件

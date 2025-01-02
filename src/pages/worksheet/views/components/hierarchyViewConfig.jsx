@@ -24,7 +24,7 @@ const HierarchyViewConfigWrap = styled.div`
     }
     .controlName {
       margin: 0 4px 0 12px;
-      color: #333;
+      color: #151515;
     }
     li {
       display: flex;

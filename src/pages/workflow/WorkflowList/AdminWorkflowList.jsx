@@ -20,6 +20,7 @@ import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMe
 import { checkIsAppAdmin } from 'ming-ui/functions';
 import Config from 'src/pages/Admin/config';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
+import SelectUser from 'src/pages/Admin/components/SelectUser';
 import _ from 'lodash';
 import moment from 'moment';
 
@@ -51,7 +52,7 @@ export default class AdminWorkflowList extends Component {
       useCount: '',
       count: 0,
       appList: [{ label: _l('全部应用'), value: '' }],
-
+      userInfo: [],
       apkId: '',
       enabled: 0,
       processListType: '',
@@ -116,7 +117,7 @@ export default class AdminWorkflowList extends Component {
    * 获取list
    */
   getList() {
-    const { list, apkId, enabled, processListType, isAsc, keyWords, pageIndex, sortId } = this.state;
+    const { list, apkId, enabled, processListType, isAsc, keyWords, pageIndex, sortId, userInfo } = this.state;
     const { projectId } = this.props.match.params;
 
     this.setState({ loading: true });
@@ -135,6 +136,7 @@ export default class AdminWorkflowList extends Component {
       pageIndex,
       pageSize: 50,
       sortId,
+      createrIds: userInfo.map(v => v.accountId).join(','),
     });
 
     this.postList.then(result => {
@@ -314,7 +316,7 @@ export default class AdminWorkflowList extends Component {
           />
           <div className="mLeft12 ellipsis flex mRight20">{item.createdBy.fullName}</div>
         </div>
-        <Link to={`/workflowedit/${item.id}/2`} className="w20 mRight20 TxtCenter">
+        <Link to={`/workflowedit/${item.id}/2`} className="w20 mRight20 TxtCenter stopPropagation">
           <span data-tip={_l('历史')}>
             <Icon icon="restore2" className="listBtn ThemeHoverColor3 Gray_75" />
           </span>
@@ -402,6 +404,7 @@ export default class AdminWorkflowList extends Component {
       autoPurchaseWorkflowExtPack,
       activeTab,
       isMoreApp,
+      userInfo,
     } = this.state;
     const { limitExecCount, useExecCount, quantity } = useCount;
 
@@ -462,11 +465,17 @@ export default class AdminWorkflowList extends Component {
                   {!!(quantity.quantityLicense || quantity.quantityMonthly) && (
                     <span className="Gray_75">
                       （{_l('包含')}
-                      {!!quantity.quantityLicense &&
-                        _l(' %0 月额度', quantity.quantityLicense.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,'))}
+                      {!!quantity.quantityLicense && (
+                        <span className="mLeft3">
+                          {_l('%0 月额度', quantity.quantityLicense.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,'))}
+                        </span>
+                      )}
                       {!!quantity.quantityLicense && !!quantity.quantityMonthly && <span>，</span>}
-                      {!!quantity.quantityMonthly &&
-                        _l(' %0 本月额度', quantity.quantityMonthly.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,'))}
+                      {!!quantity.quantityMonthly && (
+                        <span className="mLeft3">
+                          {_l('%0 本月额度', quantity.quantityMonthly.toString().replace(/(\d)(?=(\d{3})+$)/g, '$1,'))}
+                        </span>
+                      )}
                       ）
                     </span>
                   )}
@@ -475,7 +484,7 @@ export default class AdminWorkflowList extends Component {
 
                   <span
                     className="bold"
-                    style={{ color: (limitExecCount - useExecCount) / limitExecCount > 0.1 ? '#333' : '#f44336' }}
+                    style={{ color: (limitExecCount - useExecCount) / limitExecCount > 0.1 ? '#151515' : '#f44336' }}
                   >
                     {(overage || 0).toFixed(2)}%
                   </span>
@@ -483,7 +492,7 @@ export default class AdminWorkflowList extends Component {
               ) : (
                 _l('加载中...')
               )}
-              {!md.global.Config.IsLocal && !_.includes([0, 2], licenseType) && (
+              {!md.global.Config.IsLocal && (
                 <div className="workflowAutoOrder">
                   <Switch
                     checked={autoPurchaseWorkflowExtPack}
@@ -538,10 +547,16 @@ export default class AdminWorkflowList extends Component {
                 suffixIcon={<Icon icon="arrow-down-border Font14" />}
                 onChange={value => this.updateState({ processListType: value })}
               />
-
+              <SelectUser
+                className="mdAntSelect w180 mLeft15"
+                placeholder={_l('搜索创建人')}
+                projectId={params.projectId}
+                userInfo={userInfo}
+                changeData={data => this.updateState({ userInfo: data })}
+              />
               <div className="flex" />
               <Search
-                placeholder={_l('流程名称 / 创建人')}
+                placeholder={_l('流程名称')}
                 handleChange={keyWords => this.updateState({ keyWords: keyWords.trim() })}
               />
             </div>

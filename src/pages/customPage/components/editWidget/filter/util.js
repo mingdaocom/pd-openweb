@@ -1,11 +1,15 @@
 import _ from 'lodash';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
+import {
+  handleConditionsDefault,
+} from 'worksheet/common/Sheet/QuickFilter/utils';
 
 export const formatFiltersGroup = (id, filtersGroup) => {
   const targets = _.flatten(Object.keys(filtersGroup).map(item => filtersGroup[item])).filter(c => _.find(c.objectControls, { objectId: id }));
   const filters = targets.map(f => {
     const { controlId } = _.find(f.objectControls, { objectId: id });
     const data = _.pick(f, [
+      'dynamicSource',
       'dataType',
       'filterType',
       'dateRange',
@@ -66,6 +70,11 @@ export const formatFilters = filters => {
       type: controlData ? controlData.type : defaultType
     };
     const { advancedSetting } = data;
+
+    if (controlData) {
+      const newFastFilters = handleConditionsDefault([{ ...data, controlId: controlData.controlId }], [controlData]);
+      Object.assign(data, newFastFilters[0]);
+    }
 
     return {
       control,

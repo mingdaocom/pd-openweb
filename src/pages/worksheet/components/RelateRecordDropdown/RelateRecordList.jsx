@@ -7,7 +7,7 @@ import ChildTableContext from '../ChildTable/ChildTableContext';
 import { TextAbsoluteCenter } from 'worksheet/components/StyledComps';
 import { getFilter } from 'worksheet/common/WorkSheetFilter/util';
 import ReacordItem from './RecordItem';
-import _ from 'lodash';
+import _, { get, isEmpty } from 'lodash';
 
 export default class RelateRecordList extends React.PureComponent {
   static contextType = ChildTableContext;
@@ -37,6 +37,7 @@ export default class RelateRecordList extends React.PureComponent {
       records: props.staticRecords || [],
       pageIndex: 1,
       activeId: undefined,
+      ignoreAllFilters: false,
     };
     this.handleSearch = _.debounce(this.handleSearch, 500);
   }
@@ -131,6 +132,7 @@ export default class RelateRecordList extends React.PureComponent {
   loadRecord() {
     const {
       from,
+      isDraft,
       isQuickFilter,
       control,
       formData,
@@ -145,12 +147,13 @@ export default class RelateRecordList extends React.PureComponent {
       staticRecords,
       getFilterRowsGetType,
       fastSearchControlArgs,
+      ignoreRowIds = [],
     } = this.props;
     const _this = this;
     if (!_.isEmpty(staticRecords)) {
       return;
     }
-    const { pageIndex, keyWords, records, worksheetInfo } = this.state;
+    const { pageIndex, keyWords, records, worksheetInfo, ignoreAllFilters } = this.state;
     if (_.get(control, 'advancedSetting.clicksearch') === '1' && !keyWords) {
       this.setState({ loading: false, records: [] });
       return;
@@ -163,7 +166,7 @@ export default class RelateRecordList extends React.PureComponent {
       filterControls = getFilter({ control, formData });
     }
     // 存在不符合条件值的条件
-    if (filterControls === false && !isQuickFilter) {
+    if (filterControls === false && !isQuickFilter && !ignoreAllFilters) {
       this.setState({ error: 'notCorrectCondition', loading: false });
       return;
     }
@@ -180,9 +183,15 @@ export default class RelateRecordList extends React.PureComponent {
       status: 1,
       keyWords,
       isGetWorksheet: true,
-      getType: getFilterRowsGetType || 7, // 32 是快速筛选专用，只处理记录可见逻辑，不生效字段其它配置。
-      filterControls: filterControls || [],
+      getType: getFilterRowsGetType || (isDraft ? 27 : 7), // 32 是快速筛选专用，只处理记录可见逻辑，不生效字段其它配置。
+      filterControls: ignoreAllFilters ? [] : filterControls || [],
+      rowId: get(control, 'recordId'),
     };
+    if (!isEmpty(ignoreRowIds)) {
+      args.requestParams = {
+        _system_excluderowids: JSON.stringify(ignoreRowIds),
+      };
+    }
     if (fastSearchControlArgs) {
       delete args['keyWords'];
       if (String(keyWords || '').trim()) {
@@ -197,7 +206,6 @@ export default class RelateRecordList extends React.PureComponent {
                 spliceType: 1,
                 filterType: fastSearchControlArgs.filterType,
                 dateRange: 0,
-                dateRangeType: 1,
                 isDynamicsource: false,
                 values: [keyWords],
               },
@@ -222,14 +230,14 @@ export default class RelateRecordList extends React.PureComponent {
     this.searchAjax = getFilterRowsPromise(args);
     this.searchAjax.then(res => {
       if (res.resultCode === 1) {
-        let ignoreRowIds = [];
+        let ignoreRowIdsForChildTable = [];
         if (control.unique || control.uniqueInRecord) {
-          ignoreRowIds = (_.get(_this, 'context.rows') || [])
+          ignoreRowIdsForChildTable = (_.get(_this, 'context.rows') || [])
             .map(r => _.get(safeParse(r[control.controlId], 'array'), '0.sid'))
             .filter(_.identity);
         }
         let newRecords = records.concat(
-          res.data.filter(row => row.rowid !== recordId && !_.includes(ignoreRowIds, row.rowid)),
+          res.data.filter(row => row.rowid !== recordId && !_.includes(ignoreRowIdsForChildTable, row.rowid)),
         );
         const needSort =
           keyWords && pageIndex === 1 && _.get(control, 'advancedSetting.searchcontrol') && searchControl;
@@ -237,6 +245,7 @@ export default class RelateRecordList extends React.PureComponent {
           newRecords = newRecords.sort((a, b) => (b[searchControl.controlId] === keyWords ? 1 : -1));
         }
         this.setState({
+          error: undefined,
           records: newRecords,
           loading: false,
           loadouted: res.data.length < 20,
@@ -288,6 +297,8 @@ export default class RelateRecordList extends React.PureComponent {
     const {
       style,
       maxHeight,
+      isCharge,
+      recordId,
       isMobile,
       control,
       coverCid,
@@ -302,6 +313,7 @@ export default class RelateRecordList extends React.PureComponent {
       allowNewRecord,
       onNewRecord,
     } = this.props;
+    const allowShowIgnoreAllFilters = isCharge && recordId === 'FAKE_RECORD_ID_FROM_BATCH_EDIT';
     const { error, loading, worksheet = {}, keyWords, controls, loadouted, allowAdd, activeId } = this.state;
     let records = (loading ? [] : prefixRecords).concat(this.state.records);
     if (!_.isEmpty(staticRecords) && keyWords) {
@@ -325,7 +337,13 @@ export default class RelateRecordList extends React.PureComponent {
         <div
           className="flexColumn"
           style={{
-            minHeight: records.length ? recordItemHeight : !records.length && !keyWords && !loading ? 100 : 50,
+            minHeight: records.length
+              ? recordItemHeight
+              : !records.length && !keyWords && !loading
+              ? window.innerHeight / 2 > 300
+                ? 300
+                : 100
+              : 50,
             height: recordListHeight > 323 ? 323 : recordListHeight,
           }}
         >
@@ -350,6 +368,14 @@ export default class RelateRecordList extends React.PureComponent {
                         ? _l('不存在符合条件的%0', worksheet.entityName || (control && control.sourceEntityName) || '')
                         : _l('没有权限')
                       : _l('暂无记录')}
+                    {error === 'notCorrectCondition' && allowShowIgnoreAllFilters && (
+                      <div
+                        className="mTop10 ThemeColor3 TxtCenter Hand"
+                        onClick={() => this.setState({ ignoreAllFilters: true }, this.loadRecord)}
+                      >
+                        {_l('查看全部记录')}
+                      </div>
+                    )}
                   </div>
                 </TextAbsoluteCenter>
               )}

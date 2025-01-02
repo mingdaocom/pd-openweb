@@ -13,15 +13,10 @@ import homeAppAjax from 'src/api/homeApp';
 import SelectDBInstance from './SelectDBInstance';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import Trigger from 'rc-trigger';
 
 const ADD_APP_MODE = [
   { id: 'createFromEmpty', icon: 'plus', text: _l('从空白创建%01003'), href: '/app/lib' },
-  {
-    id: 'installFromLib',
-    icon: 'sidebar_application_library',
-    text: _l('从应用库中安装%01004'),
-    href: '/app/lib',
-  },
   {
     id: 'importExcelCreateApp',
     icon: 'new_excel',
@@ -67,7 +62,6 @@ export default class AddAppItem extends Component {
       case 'createFromEmpty':
         const COLORS = getThemeColors(projectId);
         const iconColor = COLORS[_.random(0, COLORS.length - 1)];
-        this.setState({ addTypeVisible: false });
         const lightColor = generate(iconColor)[0];
         this.props.createAppFromEmpty({
           projectId,
@@ -200,67 +194,76 @@ export default class AddAppItem extends Component {
     const hasAppResourceAuth = hasPermission(myPermissions, PERMISSION_ENUM.APP_RESOURCE_SERVICE);
 
     return (
-      <div className={'addAppItemWrap ' + className}>
-        {children ? (
-          <div onClick={this.handleAddAppItemClick}>{children}</div>
-        ) : (
-          <Fragment>
-            <div className="addAppItem" onClick={this.handleAddAppItemClick} />
-            <div className="info">{_l('新建应用')}</div>
-          </Fragment>
-        )}
-        {addTypeVisible && (
-          <Menu
-            className="addAppItemMenu"
-            onClickAwayExceptions={['.addAppItem']}
-            onClickAway={() => {
-              this.setState({ addTypeVisible: false });
-            }}
-          >
-            {ADD_APP_MODE.filter(o => !(o.id === 'installFromLib' && md.global.SysSettings.hideTemplateLibrary)).map(
-              ({ id, icon, text, href, featureId }) => {
-                const featureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
-                if (featureId && !featureType) return;
-                return (
-                  <MenuItem
-                    key={id}
-                    icon={<Icon icon={icon} className="addItemIcon Font18" />}
-                    onClick={() => {
-                      if (featureType === 2) {
-                        buriedUpgradeVersionDialog(projectId, VersionProductType.appImportExport);
-                        return;
-                      }
-                      if (id === 'createFromEmpty') {
-                        const currentProject = getCurrentProject(projectId);
-                        const hasDataBase =
-                          getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
-                          !md.global.Config.IsPlatformLocal;
-                        if (hasDataBase && hasAppResourceAuth) {
-                          this.getMyDbInstances({ id, href }, 'createFromEmpty');
+      <React.Fragment>
+        <Trigger
+          action={['click']}
+          popupVisible={addTypeVisible}
+          popupAlign={{
+            points: children ? ['tr', 'br'] : ['tl', 'bl'],
+            offset: children ? [0, 5] : [-16, -50],
+            overflow: { adjustX: true, adjustY: true },
+          }}
+          popup={
+            <Menu className="addAppItemMenu">
+              {ADD_APP_MODE.filter(o => !(o.id === 'installFromLib' && md.global.SysSettings.hideTemplateLibrary)).map(
+                ({ id, icon, text, href, featureId }) => {
+                  const featureType = getFeatureStatus(projectId, VersionProductType.appImportExport);
+                  if (featureId && !featureType) return;
+                  return (
+                    <MenuItem
+                      key={id}
+                      icon={<Icon icon={icon} className="addItemIcon Font18" />}
+                      onClick={() => {
+                        this.setState({ addTypeVisible: false });
+                        if (featureType === 2) {
+                          buriedUpgradeVersionDialog(projectId, VersionProductType.appImportExport);
                           return;
                         }
-                      }
-                      if (id === 'importExcelCreateApp') {
-                        this.setState({ dialogImportExcel: true });
-                      }
-                      this.handleClick({ id, href });
-                    }}
-                  >
-                    {text}
-                  </MenuItem>
-                );
-              },
+                        if (id === 'createFromEmpty') {
+                          const currentProject = getCurrentProject(projectId);
+                          const hasDataBase =
+                            getFeatureStatus(projectId, VersionProductType.dataBase) === '1' &&
+                            !md.global.Config.IsPlatformLocal;
+                          if (hasDataBase && hasAppResourceAuth) {
+                            this.getMyDbInstances({ id, href }, 'createFromEmpty');
+                            return;
+                          }
+                        }
+                        if (id === 'importExcelCreateApp') {
+                          this.setState({ dialogImportExcel: true });
+                        }
+                        this.handleClick({ id, href });
+                      }}
+                    >
+                      {text}
+                    </MenuItem>
+                  );
+                },
+              )}
+              <hr className="divider" />
+              <MenuItem
+                key="externalLink"
+                icon={<Icon icon="add_link" className="addItemIcon Font18" />}
+                onClick={() => this.setState({ externalLinkDialogVisible: true, addTypeVisible: false })}
+              >
+                {_l('添加外部链接')}
+              </MenuItem>
+            </Menu>
+          }
+          onPopupVisibleChange={visible => this.setState({ addTypeVisible: visible })}
+        >
+          <div className={'addAppItemWrap ' + className}>
+            {children ? (
+              <div onClick={this.handleAddAppItemClick}>{children}</div>
+            ) : (
+              <Fragment>
+                <div className="addAppItem" onClick={this.handleAddAppItemClick} />
+                <div className="info">{_l('新建应用')}</div>
+              </Fragment>
             )}
-            <hr className="divider" />
-            <MenuItem
-              key="externalLink"
-              icon={<Icon icon="add_link" className="addItemIcon Font18" />}
-              onClick={() => this.setState({ externalLinkDialogVisible: true })}
-            >
-              {_l('添加外部链接')}
-            </MenuItem>
-          </Menu>
-        )}
+          </div>
+        </Trigger>
+
         {dialogImportExcel && (
           <DialogImportExcelCreate
             projectId={projectId}
@@ -279,7 +282,7 @@ export default class AddAppItem extends Component {
             onCancel={() => this.setState({ externalLinkDialogVisible: false })}
           />
         )}
-      </div>
+      </React.Fragment>
     );
   }
 }

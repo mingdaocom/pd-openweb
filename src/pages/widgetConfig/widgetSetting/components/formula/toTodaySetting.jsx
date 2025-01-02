@@ -11,7 +11,7 @@ import _ from 'lodash';
 const COMPUTE_MODE = [
   {
     value: '1',
-    text: _l('目标日期 减去 此刻 '),
+    text: _l('目标日期 减去 此刻'),
   },
   { value: '2', text: _l('此刻 减去 目标日期') },
 ];

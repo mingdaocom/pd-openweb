@@ -17,7 +17,7 @@ const Con = styled.div`
   &.editable {
     .name {
       cursor: pointer;
-      border-bottom: 1px dashed #333;
+      border-bottom: 1px dashed #151515;
       max-width: 250px;
     }
     input {

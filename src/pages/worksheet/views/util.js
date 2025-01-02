@@ -48,9 +48,13 @@ export const AS_ABSTRACT_CONTROL = [
   41, // _l('富文本'),
 ];
 
-// 可以在看板视图中展示的控件: 单选，等级，成员，单条的关联他表
-const SELECTABLE_FIELDS_TYPE_IN_BOARD = [9, 10, 11, 26, 28, 29];
-const filterAllCanSelectInBoardControls = item => _.includes(SELECTABLE_FIELDS_TYPE_IN_BOARD, item.type);
+// 可以在看板视图中展示的控件: 单选，等级，成员，单条的关联他表,部门，组织角色 他表字段（存储数据）
+const SELECTABLE_FIELDS_TYPE_IN_BOARD = [9, 10, 11, 26, 27, 28, 29, 48];
+const filterAllCanSelectInBoardControls = item =>
+  _.includes(SELECTABLE_FIELDS_TYPE_IN_BOARD, item.type) ||
+  (item.type === 30 &&
+    SELECTABLE_FIELDS_TYPE_IN_BOARD.includes(item.sourceControlType) &&
+    (item.strDefault || '').split('')[0] !== '1');
 const defaultFormatter = ({ controlName, controlId }) => ({ value: controlId, text: controlName });
 export const filterAndFormatterControls = (
   { controls = [], filter = filterAllCanSelectInBoardControls, formatter = defaultFormatter } = {

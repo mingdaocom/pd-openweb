@@ -83,6 +83,8 @@ class Members extends Component {
       members.push(`<span class="ThemeColor3">${users[i].fullname}</span>`);
     }
 
+    const message = members.join('、') + (users.length > 3 ? _l('等%0人', users.length) : '');
+
     Dialog.confirm({
       title: _l('加为项目成员'),
       cancelText: _l('暂不需要'),
@@ -90,10 +92,7 @@ class Members extends Component {
       closable: false,
       children: (
         <div style="color: #999;">
-          {_l(
-            '您添加的%0不是项目成员也不在项目当前公开范围内，是否要将他们加入项目？',
-            members.join('、') + (users.length > 3 ? _l(' 等%0人', users.length) : ''),
-          )}
+          {_l('您添加的%0不是项目成员也不在项目当前公开范围内，是否要将他们加入项目？', message)}
         </div>
       ),
       onOk: () => {

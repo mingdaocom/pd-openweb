@@ -154,7 +154,7 @@ export default class KcAppItem extends React.Component {
             item.type === NODE_TYPE.FOLDER ? (
               !isRecycle ? (
                 <Link
-                  className="listName ellipsis"
+                  className="listName ellipsis stopPropagation"
                   title={item.name}
                   to={encodeURI(`${baseUrl}/${path}/${item.name}`.replace(/#/g, '%23'))}
                 >
@@ -292,7 +292,7 @@ export default class KcAppItem extends React.Component {
               item.type === NODE_TYPE.FOLDER ? (
                 !isRecycle ? (
                   <Link
-                    className="listName ellipsis"
+                    className="listName ellipsis stopPropagation"
                     title={item.name}
                     to={encodeURI(`${baseUrl}/${path}/${item.name}`)}
                   >

@@ -17,7 +17,7 @@ const Wrap = styled.div`
     li {
       font-size: 15px;
       font-weight: 600;
-      color: #333;
+      color: #151515;
       display: inline-block;
       margin: 0 18px;
       padding: 0 20px 10px;

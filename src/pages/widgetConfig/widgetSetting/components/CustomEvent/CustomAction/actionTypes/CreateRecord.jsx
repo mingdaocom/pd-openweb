@@ -134,7 +134,7 @@ export default function CreateRecord(props) {
         )}
         <AddFields
           className={isEmpty ? 'mTop20' : ''}
-          handleClick={value => setState({ actionItems: actionItems.concat(value) })}
+          handleClick={value => setState({ actionItems: actionItems.concat([{ controlId: value.controlId }]) })}
           selectControls={selectControls}
           text={_l('字段默认值')}
         />

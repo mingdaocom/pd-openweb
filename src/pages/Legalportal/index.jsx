@@ -44,7 +44,7 @@ const Wrap = styled.div`
     .contextTitle {
       font-weight: bold;
       font-size: 32px;
-      color: #333333;
+      color: #151515;
       line-height: 56px;
       text-align: left;
       font-style: normal;
@@ -79,7 +79,7 @@ const Wrap = styled.div`
         font-weight: bold;
         font-size: 16px;
         line-height: 40px;
-        color: #333333;
+        color: #151515;
         padding-left: 12px;
         &:hover {
           color: #2196f3;

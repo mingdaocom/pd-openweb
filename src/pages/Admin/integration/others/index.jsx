@@ -12,6 +12,7 @@ import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 import { hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
+import SettingIconAndName from '../../components/SettingIconAndName';
 
 const headerTitle = {
   index: _l('其他'),
@@ -23,9 +24,12 @@ const DATA_INFO = [
     key: 'effective',
     label: _l('LDAP登录'),
     showSetting: true,
-    description: _l('在付费版下，您可以集成LDAP用户目录，实现统一身份认证管理 （需确保员工的账号已和邮箱绑定）'),
+    description: _l(
+      '在付费版下，您可以通过组织的二级域名登录页面，通过集成LDAP账号登录，实现统一身份认证管理 （确保员工的账号已与邮箱绑定，系统通过邮箱进行映射）',
+    ),
     featureId: VersionProductType.LDAPIntergration,
     showCustomName: true,
+    iconClassName: 'icon-lock',
   },
   {
     key: 'sso',
@@ -33,18 +37,19 @@ const DATA_INFO = [
     showSetting: true,
     description: _l('在付费版本下，您可以通过组织的二级域名，以SSO登录方式登录到平台'),
     showCustomName: true,
+    iconClassName: 'icon-tab_move',
   },
   {
     key: 'enabledMDLogin',
     label: _l('平台帐号登录'),
-    description: _l('当组织启用了LDAP，SSO或第三方平台集成帐号登录时，可以关闭本平台账号登录'),
+    description: _l('在组织的二级域名登录页面，当组织启用了LDAP、SSO或第三方平台账号登录时，可以关闭本系统账号登录'),
   },
   {
     key: 'orgKey',
     label: _l('开放接口'),
     showSetting: false,
     docLink: 'https://www.showdoc.com.cn/mingdao',
-    description: _l('此密钥是用于访问企业授权开放接口的凭证'),
+    description: _l('此密钥是用于访问系统企业授权开放API接口的凭证'),
   },
   // {
   //   key: 'integrationAuthority',
@@ -150,6 +155,7 @@ export default class OtherTool extends Component {
             mustWorkphone: data.mustWorkphone,
             createIfNotExists: data.createIfNotExists,
             initLdapData: { ...data, DNGroupList: _.isEmpty(DNGroupList) ? [{ dn: '', groupName: '' }] : DNGroupList },
+            iconUrl: data.iconUrl,
           });
         }
       });
@@ -653,7 +659,7 @@ export default class OtherTool extends Component {
   };
 
   // 保存自定义名称
-  saveCustomName = key => {
+  saveCustomName = (key, { icon, success = () => {} } = {}) => {
     const currentName = this.state[`${key}CustomName`];
     if (!currentName) {
       alert(_l('名称不得为空'), 2);
@@ -661,15 +667,16 @@ export default class OtherTool extends Component {
     }
     this.setState({ [`set${key}Name`]: false });
 
-    if (_.isEqual(currentName, this.state[`${key}DefaultCustomName`])) return;
+    if (key === 'sso' && _.isEqual(currentName, this.state[`${key}DefaultCustomName`])) return;
 
     const ajax = key === 'sso' ? projectSettingController.setSsoName : projectSettingController.updateLdapName;
-    const params = key === 'sso' ? { ssoName: currentName } : { ldapName: currentName };
+    const params = key === 'sso' ? { ssoName: currentName } : { ldapName: currentName, ldapIcon: icon || '' };
 
     ajax({ projectId: Config.projectId, ...params })
       .then(res => {
         if (res) {
           alert(_l('修改成功'));
+          success();
           this.setState({ [`${key}DefaultCustomName`]: currentName });
         } else {
           alert(_l('修改失败'), 2);
@@ -688,9 +695,11 @@ export default class OtherTool extends Component {
     return (
       <Fragment>
         {DATA_INFO.map(item => {
-          const { key, featureId, docLink, showSetting, description, showCustomName, label } = item;
+          const { key, featureId, docLink, showSetting, description, showCustomName, label, iconClassName } = item;
           const featureType = getFeatureStatus(Config.projectId, featureId);
-          if ((item.featureId && !featureType) || !hasPermission(authority, AUTH_MAPPING[item.key]) || key== 'sso') return;
+          if ((item.featureId && !featureType) || !hasPermission(authority, AUTH_MAPPING[item.key])) return null;
+
+          if (key === 'sso') return null;
 
           return (
             <div className="toolItem">
@@ -763,50 +772,71 @@ export default class OtherTool extends Component {
                   {docLink && <Support text={_l('查看文档')} type={3} href={docLink} />}
                 </div>
                 {showCustomName && (
-                  <div className="customNameWrap mTop8">
-                    <span className="Gray_9e">{_l('自定义名称：')}</span>
-                    {this.state[`set${key}Name`] ? (
-                      <input
-                        ref={node => (this.customNameInput = node)}
-                        value={this.state[`${key}CustomName`]}
-                        className="customNameInput"
-                        onChange={e => this.setState({ [`${key}CustomName`]: e.target.value })}
-                      />
+                  <Fragment>
+                    {key === 'sso' && md.global.Config.IsLocal ? (
+                      <div className="customNameWrap mTop8">
+                        <span className="Gray_9e">{_l('自定义显示登录文案：')}</span>
+                        {this.state[`set${key}Name`] ? (
+                          <input
+                            ref={node => (this.customNameInput = node)}
+                            value={this.state[`${key}CustomName`]}
+                            className="customNameInput"
+                            onChange={e => this.setState({ [`${key}CustomName`]: e.target.value })}
+                          />
+                        ) : (
+                          <span className="name">{this.state[`${key}CustomName`]}</span>
+                        )}
+                        {this.state[`set${key}Name`] ? (
+                          <Fragment>
+                            <span className="ThemeColor Hand mLeft16 mRight20" onClick={() => this.saveCustomName(key)}>
+                              {_l('保存')}
+                            </span>
+                            <span
+                              className="ThemeColor Hand"
+                              onClick={() => {
+                                this.setState({
+                                  [`set${key}Name`]: false,
+                                  [`${key}CustomName`]: this.state[`${key}DefaultCustomName`],
+                                });
+                              }}
+                            >
+                              {_l('取消')}
+                            </span>
+                          </Fragment>
+                        ) : this.state[key] ? (
+                          <Icon
+                            icon="edit"
+                            className="Font12 mLeft8 Gray_9e Hover_21 Hand"
+                            onClick={() => {
+                              setTimeout(() => {
+                                this.customNameInput.focus();
+                              }, 500);
+                              this.setState({ [`set${key}Name`]: true });
+                            }}
+                          />
+                        ) : (
+                          ''
+                        )}
+                      </div>
                     ) : (
-                      <span className="name">{this.state[`${key}CustomName`]}</span>
-                    )}
-                    {this.state[`set${key}Name`] ? (
-                      <Fragment>
-                        <span className="ThemeColor Hand mLeft16 mRight20" onClick={() => this.saveCustomName(key)}>
-                          {_l('保存')}
-                        </span>
-                        <span
-                          className="ThemeColor Hand"
-                          onClick={() => {
-                            this.setState({
-                              [`set${key}Name`]: false,
-                              [`${key}CustomName`]: this.state[`${key}DefaultCustomName`],
-                            });
-                          }}
-                        >
-                          {_l('取消')}
-                        </span>
-                      </Fragment>
-                    ) : this.state[key] ? (
-                      <Icon
-                        icon="edit"
-                        className="Font12 mLeft8 Gray_9e Hover_21 Hand"
-                        onClick={() => {
-                          setTimeout(() => {
-                            this.customNameInput.focus();
-                          }, 500);
-                          this.setState({ [`set${key}Name`]: true });
+                      <SettingIconAndName
+                        className="mTop8"
+                        iconClassName={iconClassName}
+                        defaultName={label}
+                        name={this.state[`${key}CustomName`]}
+                        iconUrl={this.state.iconUrl}
+                        handleSave={params => {
+                          params.success();
+                          this.setState(
+                            {
+                              [`${key}CustomName`]: params.name,
+                            },
+                            () => this.saveCustomName(key, params),
+                          );
                         }}
                       />
-                    ) : (
-                      ''
                     )}
-                  </div>
+                  </Fragment>
                 )}
               </div>
             </div>

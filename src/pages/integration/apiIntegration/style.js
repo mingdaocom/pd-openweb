@@ -1,10 +1,10 @@
 import styled from 'styled-components';
-import { MenuItem } from 'ming-ui';
+import { MenuItem, Menu } from 'ming-ui';
 
 export const TableWrap = styled.div`
   .ant-table-thead > tr > th {
     background: #fff !important;
-    color: #333333;
+    color: #151515;
     font-size: 13px;
     font-weight: normal;
     &:not(:last-child):not(.ant-table-selection-column):not(.ant-table-row-expand-icon-cell):not([colspan])::before {
@@ -156,4 +156,37 @@ export const WrapBtn = styled.div`
   &:hover {
     color: #2196f3;
   }
+  &.btnToAccount {
+    background: #fff;
+    border-radius: 4px 4px 4px 4px;
+    border: 1px solid #2196f3;
+    color: #2196f3;
+    &.disable {
+      border: 1px solid #e0e0e0;
+      color: #151515;
+      background: #f4f4f3;
+    }
+  }
+`;
+
+export const MoreOperate = styled.span`
+  cursor: pointer;
+  text-align: center;
+  border-radius: 3px;
+  line-height: 24px;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  color: #9e9e9e;
+  font-size: 18px;
+  &:hover {
+    color: #2196f3;
+  }
+`;
+
+export const MenuWrap = styled(Menu)`
+  position: relative !important;
+  overflow: auto;
+  padding: 6px 0 !important;
+  width: 200px !important;
 `;

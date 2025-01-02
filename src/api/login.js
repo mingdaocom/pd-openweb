@@ -7,11 +7,16 @@ export default {
   * @param {} args.captchaType
   * @param {string} args.account 账号
   * @param {string} args.password 密码
+密码直接登录
+  * @param {string} args.verifyCode 验证码
+验证码直接登录
   * @param {boolean} args.isCookie 是否记住用户名密码
   * @param {string} args.unionId 第三方账号id标识
   * @param {string} args.state 第三方账号随机码
   * @param {} args.tpType
   * @param {string} args.regFrom 登录广告来源
+  * @param {string} args.appKey 移动端 AppKey
+只支持iOS/Android
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -19,6 +24,22 @@ export default {
    mDAccountLogin: function (args, options = {}) {
      
      return mdyAPI('Login', 'MDAccountLogin', args, options);
+   },
+  /**
+  * 发送登录验证验证码
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.account 账户
+  * @param {} args.lang
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   sendLoginVerifyCode: function (args, options = {}) {
+     
+     return mdyAPI('Login', 'SendLoginVerifyCode', args, options);
    },
   /**
   * 使用明道云账号自动登录，如果登录失败，需要把本地保存的密码清理掉
@@ -54,30 +75,7 @@ export default {
      return mdyAPI('Login', 'MDTwofactorLogin', args, options);
    },
   /**
-  * 检查登陆状态
-登录返回true，未登录则返回false
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   checkLogin: function (args, options = {}) {
-     
-     return mdyAPI('Login', 'CheckLogin', args, options);
-   },
-  /**
-  * 登出
-  * @param {Object} args 请求参数
-  * @param {Object} options 配置参数
-  * @param {Boolean} options.silent 是否禁止错误弹层
-  * @returns {Promise<Boolean, ErrorModel>}
-  **/
-   loginOut: function (args, options = {}) {
-     
-     return mdyAPI('Login', 'LoginOut', args, options);
-   },
-  /**
-  * 发送验证码
+  * 发送两步验证验证码
   * @param {Object} args 请求参数
   * @param {string} args.ticket 验证码返票据
   * @param {string} args.randStr 票据随机字符串
@@ -112,6 +110,29 @@ export default {
    lDAPLogin: function (args, options = {}) {
      
      return mdyAPI('Login', 'LDAPLogin', args, options);
+   },
+  /**
+  * 检查登录状态
+登录返回true，未登录则返回false
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   checkLogin: function (args, options = {}) {
+     
+     return mdyAPI('Login', 'CheckLogin', args, options);
+   },
+  /**
+  * 登出
+  * @param {Object} args 请求参数
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   loginOut: function (args, options = {}) {
+     
+     return mdyAPI('Login', 'LoginOut', args, options);
    },
   /**
   * 第三方账号登录

@@ -16,6 +16,7 @@ import {
   UpdateFields,
   OperatorEmpty,
   CustomTextarea,
+  PromptSoundDialog,
 } from '../components';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -127,6 +128,7 @@ export default class Approval extends Component {
               [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE],
               [OPERATION_TYPE.RETURN]: result.flowNodeMap[OPERATION_TYPE.RETURN],
               [OPERATION_TYPE.WORK]: result.flowNodeMap[OPERATION_TYPE.WORK],
+              [OPERATION_TYPE.PROMPT_SOUND]: result.flowNodeMap[OPERATION_TYPE.PROMPT_SOUND],
             }),
             formProperties: result.formProperties,
           });
@@ -1303,6 +1305,13 @@ export default class Approval extends Component {
                       onChange={this.updateSource}
                     />
                   )}
+
+                  <PromptSoundDialog
+                    {...this.props}
+                    promptSound={data.flowNodeMap[OPERATION_TYPE.PROMPT_SOUND].promptSound}
+                    formulaMap={data.flowNodeMap[OPERATION_TYPE.PROMPT_SOUND].formulaMap}
+                    updateSource={obj => this.updateFlowMapSource(OPERATION_TYPE.PROMPT_SOUND, obj)}
+                  />
 
                   <div className="Font13 bold mTop25">{_l('其他')}</div>
                   {this.renderSeniorSettings()}

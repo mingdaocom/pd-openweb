@@ -169,7 +169,7 @@ export const CardItem = styled.div`
       font-weight: bold;
       margin-left: 4px;
       margin-right: 4px;
-      color: #333;
+      color: #151515;
     }
   }
 `;

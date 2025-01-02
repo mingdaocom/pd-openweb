@@ -63,7 +63,7 @@ const ConfirmDialogWrap = styled(Popup)`
 `;
 const SectionName = styled.div`
   font-size: 13px;
-  color: #333;
+  color: #151515;
   font-weight: 500;
   margin: 0px 0 10px;
   position: relative;

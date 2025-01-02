@@ -395,15 +395,15 @@ export default class Code extends Component {
                   className="flexRow alignItemsCenter"
                   onClick={() => this.setState({ showCodeSnippetDialog: true })}
                 >
-                  <i className="icon-custom-description Font16" />
+                  <i className="icon-custom-description Font20" />
                   {_l('代码片段库')}
                 </CodeSnippetButton>
-                {md.global.Config.EnableAI && (
+                {!md.global.SysSettings.hideAIBasicFun && (
                   <CodeSnippetButton
                     className="flexRow alignItemsCenter mLeft15"
                     onClick={() => this.setState({ showChatGPTDialog: true })}
                   >
-                    <i className="icon-ai1 Font16" style={{ color: '#FF9A00' }} />
+                    <i className="icon-ai1 Font20" />
                     {_l('生成代码')}
                   </CodeSnippetButton>
                 )}

@@ -101,7 +101,7 @@ function TipsRender(props) {
       </WrapTip>
       {!isForPortal && (
         <React.Fragment>
-          <p className="mBottom0 mTop24 Gray_75">{_l('额外包含')}</p>
+          <p className="mBottom0 mTop24 Gray_75">{_l('其它')}</p>
           <div className={'tipItem flexRow alignItemsCenter mTop20'}>
             <Switch
               size="small"
@@ -111,7 +111,7 @@ function TipsRender(props) {
                 onChange(props.value === 30 ? 20 : 30);
               }}
             />
-            <span className="mLeft10">{type === 'look' ? _l('下属加入的记录') : _l('下属拥有的记录')}</span>
+            <span className="mLeft10">{type === 'look' ? _l('额外包含下属加入的记录') : _l('额外包含下属拥有的记录')}</span>
             {type !== 'look' && (
               <Tooltip text={<span>{_l('在组织管理【汇报关系】中管理用户的下属')}</span>} popupPlacement="top">
                 <i className="icon-info_outline Font16 mLeft6 Gray_bd" />

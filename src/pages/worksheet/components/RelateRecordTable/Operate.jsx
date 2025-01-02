@@ -188,6 +188,7 @@ function Operate(props) {
     updateWorksheetControls,
     deleteOriginalRecords,
     updateBase,
+    isDraft,
   } = props;
   const { addedRecords } = changes;
   const {
@@ -263,12 +264,19 @@ function Operate(props) {
               needCache: recordId || worksheetId !== control.dataSource,
               directAdd: true,
               showFillNext: true,
+              isDraft,
               onAdd: record => {
                 if (record) {
                   appendRecords([record]);
                 }
               },
               openRecord: id => handleOpenRecordInfo({ recordId: id }),
+              handleAddRelation:
+                control.type === 29
+                  ? selectedRecords => {
+                      handleAddRelation(selectedRecords);
+                    }
+                  : undefined,
             });
           }}
           onSelect={() => {
@@ -282,6 +290,7 @@ function Operate(props) {
               controlId: control.controlId,
               recordId,
               relateSheetId: relateWorksheetInfo.worksheetId,
+              isDraft: from === RECORD_INFO_FROM.DRAFT || control.from === RECORD_INFO_FROM.DRAFT,
               filterRowIds: [recordId].concat(
                 recordId && from !== 21 && base.saveSync
                   ? []
@@ -380,7 +389,9 @@ function Operate(props) {
                   controlId: control.controlId,
                   filterControls: control.type === 51 ? filterControls : [],
                   fileName:
-                    `${recordTitle}_${control.controlName}_${moment().format('YYYYMMDDHHmmss')}`.trim() + '.xlsx',
+                    `${recordTitle ? recordTitle + '_' : ''}${control.controlName}_${moment().format(
+                      'YYYYMMDDHHmmss',
+                    )}`.trim() + '.xlsx',
                   onDownload: cb,
                 });
               }}

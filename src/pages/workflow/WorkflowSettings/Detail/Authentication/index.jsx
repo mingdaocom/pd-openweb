@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { ScrollView, LoadDiv, Dropdown, Icon, RadioGroup } from 'ming-ui';
+import { ScrollView, LoadDiv, Dropdown, Icon, RadioGroup, Checkbox } from 'ming-ui';
 import flowNode from '../../../api/flowNode';
 import {
   DetailHeader,
@@ -30,7 +30,7 @@ const Tabs = styled.ul`
     font-weight: bold;
     &:not(.active) {
       border-color: transparent !important;
-      color: #333 !important;
+      color: #151515 !important;
     }
   }
 `;
@@ -91,6 +91,7 @@ export default class Authentication extends Component {
               formControls: [],
               body: '',
               testMap: {},
+              retryControls: [],
             },
           ];
         }
@@ -116,7 +117,8 @@ export default class Authentication extends Component {
   onSave = () => {
     const { data, saveRequest } = this.state;
     const { name, fields, expireAfterSeconds } = data;
-    let { webHookNodes } = data;
+    let { webHookNodes = [] } = data;
+    const retryControl = _.get(webHookNodes[this.testIndex], 'retryControls[0]');
     let hasError = false;
 
     if (data.appType === APP_TYPE.BASIC_AUTH) {
@@ -169,6 +171,13 @@ export default class Authentication extends Component {
       }
       if (hasRawError) {
         alert(_l('raw(JSON)不能为空'), 2);
+        return;
+      }
+    }
+
+    if (retryControl) {
+      if (!retryControl.value || (retryControl.type === 10002 && !retryControl.name)) {
+        alert(_l('请完善刷新条件'), 2);
         return;
       }
     }
@@ -296,7 +305,7 @@ export default class Authentication extends Component {
                   border
                   onChange={method => this.updateAjaxParameter({ method: method }, i)}
                 />
-                <div className="flex">
+                <div className="flex minWidth0">
                   <CustomTextarea
                     projectId={this.props.companyId}
                     processId={this.props.processId}
@@ -458,6 +467,8 @@ export default class Authentication extends Component {
               />
               <div className="flex mLeft10">{_l('秒')}</div>
             </div>
+
+            {isIntegration && data.appType === APP_TYPE.OAUTH2 && this.renderTokenRefreshCondition()}
           </Fragment>
         )}
 
@@ -603,6 +614,95 @@ export default class Authentication extends Component {
       this.updateSource({ expireAfterSeconds: num });
     }
   }
+
+  /**
+   * 渲染token刷新条件
+   */
+  renderTokenRefreshCondition() {
+    const { data } = this.state;
+    const refreshType = _.get(data.webHookNodes[this.testIndex], 'retryControls[0].type');
+    const refreshName = _.get(data.webHookNodes[this.testIndex], 'retryControls[0].name') || '';
+    const refreshValue = _.get(data.webHookNodes[this.testIndex], 'retryControls[0].value') || '';
+
+    return (
+      <Fragment>
+        <div className="Font13 mTop25">
+          <Checkbox
+            className="InlineBlock bold"
+            text={_l('配置 Access Token 刷新条件')}
+            checked={!!refreshType}
+            onClick={checked =>
+              this.updateAjaxParameter(
+                checked ? { retryControls: [] } : { retryControls: [{ type: 10001, name: '', value: '' }] },
+                this.testIndex,
+              )
+            }
+          />
+        </div>
+        <div className="Font13 mTop5 Gray_75">{_l('根据 API 状态码/错误码，设置判断刷新Access Token的条件')}</div>
+
+        {!!(data.webHookNodes[this.testIndex].retryControls || []).length && (
+          <div className="flexRow mTop10">
+            <Dropdown
+              className="flowDropdown mRight10"
+              style={{ width: 115 }}
+              data={[
+                { text: _l('状态码'), value: 10001 },
+                { text: _l('错误码'), value: 10002 },
+              ]}
+              value={refreshType}
+              border
+              onChange={value =>
+                this.updateAjaxParameter({ retryControls: [{ type: value, name: '', value: '' }] }, this.testIndex)
+              }
+            />
+
+            {refreshType === 10002 && (
+              <input
+                type="text"
+                className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 mRight10"
+                style={{ width: 180 }}
+                placeholder={_l('请输入错误码字段名称，如 code')}
+                value={refreshName}
+                onChange={evt => this.updateTokenRefreshValue(evt, 'name')}
+                onBlur={evt => this.updateTokenRefreshValue(evt, 'name', true)}
+              />
+            )}
+
+            <input
+              type="text"
+              className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
+              placeholder={
+                refreshType === 10001
+                  ? _l('请输入指定刷新 token 的 HTTP 状态码，如：400,401(多个状态码用英文逗号隔开)')
+                  : _l('请输入指定错误码，如：400,401(多个状态码用英文逗号隔开)')
+              }
+              value={refreshValue}
+              onChange={evt => this.updateTokenRefreshValue(evt, 'value')}
+              onBlur={evt => this.updateTokenRefreshValue(evt, 'value', true)}
+            />
+          </div>
+        )}
+      </Fragment>
+    );
+  }
+
+  /**
+   * 更新token刷新值
+   */
+  updateTokenRefreshValue = (evt, key, isBlur = false) => {
+    const { data } = this.state;
+    let value = evt.target.value;
+
+    if (isBlur) {
+      value = value.trim();
+    }
+
+    this.updateAjaxParameter(
+      { retryControls: [{ ..._.get(data.webHookNodes[this.testIndex], 'retryControls[0]'), [key]: value }] },
+      this.testIndex,
+    );
+  };
 
   render() {
     const { data } = this.state;

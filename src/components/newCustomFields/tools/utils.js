@@ -4,14 +4,20 @@ import {
   formatValuesOfOriginConditions,
   redefineComplexControl,
 } from 'src/pages/worksheet/common/WorkSheetFilter/util';
-import { FROM, FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT } from './config';
+import { FROM, FORM_ERROR_TYPE, FORM_ERROR_TYPE_TEXT, WIDGET_VALUE_ID } from './config';
 import { isEnableScoreOption } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/util';
 import { getStringBytes, accMul, browserIsMobile, formatStrZero, getContactInfo } from 'src/util';
 import { getStrBytesLength } from 'src/pages/Role/PortalCon/tabCon/util-pure.js';
 import { getShowFormat, getDatePickerConfigs, getTitleStyle } from 'src/pages/widgetConfig/util/setting';
 import { filterEmptyChildTableRows, getRelateRecordCountFromValue, getNewRecordPageUrl } from 'worksheet/util';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
-import { getSwitchItemNames, isOldSheetList, isTabSheetList, supportDisplayRow } from 'src/pages/widgetConfig/util';
+import {
+  getSwitchItemNames,
+  isCustomWidget,
+  isOldSheetList,
+  isTabSheetList,
+  supportDisplayRow,
+} from 'src/pages/widgetConfig/util';
 import _, { countBy, get, includes, isEmpty } from 'lodash';
 import moment from 'moment';
 import renderText from 'src/pages/worksheet/components/CellControls/renderText';
@@ -630,14 +636,6 @@ export const getRangeErrorType = ({ type, value, advancedSetting = {} }) => {
   return '';
 };
 
-const FILTER_TYPE = {
-  26: 'accountId',
-  27: 'departmentId',
-  29: 'sid',
-  35: 'sid',
-  48: 'organizeId',
-};
-
 export const formatFiltersValue = (filters = [], data = [], recordId) => {
   let conditions = formatValuesOfOriginConditions(filters) || [];
   let hasCurrent = false;
@@ -663,6 +661,9 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
       let currentControl = _.find(data, da => da.controlId === cid);
       if (currentControl && currentControl.type === 30) {
         currentControl = redefineComplexControl(currentControl);
+      }
+      if (currentControl && currentControl.type === 53) {
+        currentControl.type = currentControl.enumDefault2;
       }
       //排除为空、不为空、在范围，不在范围类型
       if (currentControl && currentControl.value && !_.includes([7, 8, 11, 12, 31, 32], item.filterType)) {
@@ -706,7 +707,7 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
         }
         //人员、部门、关联表、组织角色
         if (_.includes([26, 27, 35, 48], currentControl.type)) {
-          item.values = JSON.parse(currentControl.value || '[]').map(ac => ac[FILTER_TYPE[currentControl.type]]);
+          item.values = JSON.parse(currentControl.value || '[]').map(ac => ac[WIDGET_VALUE_ID[currentControl.type]]);
           return;
         }
         if (
@@ -717,7 +718,7 @@ export const formatFiltersValue = (filters = [], data = [], recordId) => {
             if (typeof currentControl.value === 'string') {
               item.values = currentControl.value.startsWith('deleteRowIds')
                 ? []
-                : safeParse(currentControl.value || '[]').map(ac => ac[FILTER_TYPE[currentControl.type]]);
+                : safeParse(currentControl.value || '[]').map(ac => ac[WIDGET_VALUE_ID[currentControl.type]]);
             } else if (_.isObject(currentControl.value)) {
               item.values = (_.get(currentControl, 'value.records') || []).map(ac => ac.rowid);
             } else {
@@ -1092,7 +1093,9 @@ export const dealUserRange = (control = {}, data = [], masterData = {}) => {
         const sourceVal = sourcevalue && safeParse(sourcevalue);
         if (currentItem && _.isArray(sourceVal)) {
           const arrKey = getArrKey(currentItem);
-          ranges[arrKey] = _.uniq((ranges[arrKey] || []).concat(sourceVal.map(s => s[FILTER_TYPE[currentItem.type]])));
+          ranges[arrKey] = _.uniq(
+            (ranges[arrKey] || []).concat(sourceVal.map(s => s[WIDGET_VALUE_ID[currentItem.type]])),
+          );
         }
       } else {
         const currentItem =
@@ -1102,7 +1105,7 @@ export const dealUserRange = (control = {}, data = [], masterData = {}) => {
           const arrKey = getArrKey(currentItem);
           ranges[arrKey] = _.uniq(
             (ranges[arrKey] || []).concat(
-              JSON.parse(currentItem.value || '[]').map(i => i[FILTER_TYPE[currentItem.type]]),
+              JSON.parse(currentItem.value || '[]').map(i => i[WIDGET_VALUE_ID[currentItem.type]]),
             ),
           );
         }
@@ -1111,7 +1114,7 @@ export const dealUserRange = (control = {}, data = [], masterData = {}) => {
       const arrKey = getArrKey(item);
       const userInfo = safeParse(item.staticValue || '{}');
       const chooseId = item.type === 1 ? 26 : item.type === 2 ? 27 : 48;
-      const chooseValue = _.get(userInfo, [FILTER_TYPE[chooseId]]);
+      const chooseValue = _.get(userInfo, [WIDGET_VALUE_ID[chooseId]]);
       if (chooseValue) {
         ranges[arrKey] = _.uniq((ranges[arrKey] || []).concat(chooseValue));
       }
@@ -1242,9 +1245,9 @@ export const getControlsByTab = (controls = [], widgetStyle = {}, from, ignoreSe
 export const getValueStyle = data => {
   const item = Object.assign({}, data);
   let type = item.type;
-  let { valuecolor = '#333', valuesize = '0', valuestyle = '0000' } = item.advancedSetting || {};
+  let { valuecolor = '#151515', valuesize = '0', valuestyle = '0000' } = item.advancedSetting || {};
   if (item.type === 30) {
-    valuecolor = _.get(item, 'sourceControl.advancedSetting.valuecolor') || '#333';
+    valuecolor = _.get(item, 'sourceControl.advancedSetting.valuecolor') || '#151515';
     valuesize = _.get(item, 'sourceControl.advancedSetting.valuesize') || '0';
     valuestyle = _.get(item, 'sourceControl.advancedSetting.valuestyle') || '0000';
     type = _.get(item, 'sourceControl.type');
@@ -1317,9 +1320,9 @@ export const getArrBySpliceType = (filters = []) => {
 
 // 不允许重复传参格式处理
 export const formatControlValue = (value, type) => {
-  if (_.includes([26, 29], type)) {
+  if (_.includes([26, 27, 29, 48], type)) {
     return safeParse(value.startsWith('deleteRowIds') ? '[]' : value || '[]')
-      .map(ac => ac[FILTER_TYPE[type]])
+      .map(ac => ac[WIDGET_VALUE_ID[type]])
       .join('');
   }
   return value;
@@ -1329,6 +1332,7 @@ export const formatControlValue = (value, type) => {
 export const isUnTextWidget = (data = {}) => {
   //200自定义控件
   const UN_TEXT_TYPE = [9, 10, 11, 14, 15, 16, 19, 23, 24, 26, 27, 28, 29, 34, 35, 36, 40, 42, 45, 46, 47, 48, 200];
+  if (isCustomWidget(data)) return true;
   if (_.includes(UN_TEXT_TYPE, data.type)) return true;
   if (data.type === 6 && _.includes(['2', '3'], _.get(data, 'advancedSetting.showtype'))) return true;
   if (data.type === 2 && browserIsMobile() && (data.strDefault || '10').split('')[1] === '1') return true;

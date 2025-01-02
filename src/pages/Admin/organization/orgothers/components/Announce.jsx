@@ -24,7 +24,7 @@ const WrapCom = styled.div`
     .toolItemLabel {
       width: 155px;
       font-size: 13px;
-      color: #333333;
+      color: #151515;
     }
     .toolItemRight {
       flex: 1;
@@ -46,7 +46,7 @@ const WrapCom = styled.div`
         margin-top: 10px;
         display: flex;
         align-items: center;
-        color: #333333;
+        color: #151515;
         font-size: 13px;
       }
     }

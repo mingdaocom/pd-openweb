@@ -30,6 +30,16 @@ export default class Widgets extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      !_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled'])) ||
+      !_.isEqual(_.pick(nextState, ['showSelectDepartment']), _.pick(this.state, ['showSelectDepartment']))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   /**
    * 选择部门
    */
@@ -166,16 +176,15 @@ export default class Widgets extends Component {
 
     onChange(
       JSON.stringify(
-        items
-          .map(l => ({
-            ...l,
-            departmentName: !l.departmentId
-              ? l.departmentName
-              : _.get(
-                  safeParse(value || '[]').find(m => m.departmentId === l.departmentId),
-                  'departmentName',
-                ),
-          })),
+        items.map(l => ({
+          ...l,
+          departmentName: !l.departmentId
+            ? l.departmentName
+            : _.get(
+                safeParse(value || '[]').find(m => m.departmentId === l.departmentId),
+                'departmentName',
+              ),
+        })),
       ),
     );
   };

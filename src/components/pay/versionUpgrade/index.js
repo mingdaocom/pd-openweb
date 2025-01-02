@@ -488,7 +488,7 @@ export default class VersionUpgrade extends Component {
                       <span className="Font28 Bold">￥</span>
                       <span className="LineHeight35 Font44 bold500">{totalPrice}</span>
                     </div>
-                    <div className="TxtLeft InlineBlock Gray_9e mLeft10">{_l(' 约%0 /月 ', averageMonthPrice)}</div>
+                    <div className="TxtLeft InlineBlock Gray_9e mLeft10 mLeft3">{_l('约%0 /月', averageMonthPrice)}</div>
                   </div>
                 )}
               </div>
@@ -517,7 +517,7 @@ export default class VersionUpgrade extends Component {
                 </div>
                 <div className="LineHeight30 Gray_8 mTop12 Font14 TxtLeft">
                   {_l(
-                    ' 如需发票，请拨打400-665-6655联系顾问，为您开具发票；您也可以在完成支付后前往组织管理 - > 账务中心，进行申请。 ',
+                    '如需发票，请拨打400-665-6655联系顾问，为您开具发票；您也可以在完成支付后前往组织管理 - > 账务中心，进行申请。',
                   )}
                 </div>
                 <div className="payMethod">

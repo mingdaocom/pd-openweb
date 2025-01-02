@@ -157,7 +157,7 @@ var MyUpdater = {
             });
           }
           $this.html(
-            '<span>' + _l('本地文件存入知识中心: ') + '</span><span class="mLeft15 kcNodePath">' + path + '</span>',
+            '<span>' + _l('本地文件存入知识中心:') + '</span><span class="mLeft15 kcNodePath">' + path + '</span>',
           ); // TODO: position
           $('#addAttachmentToKcToggle').prop('checked', true);
         })

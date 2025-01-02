@@ -50,8 +50,8 @@ export default class MobileOrEmailInvite extends Component {
   };
 
   handleSearch = () => {
-    const { isPayUsers } = this.props;
-    if (!isPayUsers) {
+    const { needAlert } = this.props;
+    if (needAlert) {
       alert(_l('非付费用户不允许添加'), 2);
       return;
     }
@@ -146,6 +146,11 @@ export default class MobileOrEmailInvite extends Component {
 
   submit = () => {
     const { list = [], loading } = this.state;
+    const { needAlert } = this.props;
+    if (needAlert) {
+      alert(_l('非付费用户不允许添加'), 2);
+      return;
+    }
 
     if (loading) return;
 

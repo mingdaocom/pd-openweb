@@ -20,11 +20,11 @@ export default ({ onOk, onCancel, onSubmit }) => {
             });
           }}
         >
-          <div className="text flex">{_l('通过申请后增加一位审批人')}</div>
+          <div className="text flex">{_l('通过申请后增加审批人')}</div>
           <Icon icon="arrow-right-border" />
         </div>
         <div className="action flexRow" onClick={() => onOk('before')}>
-          <div className="text flex">{_l('在我审批前增加一位审批人')}</div>
+          <div className="text flex">{_l('在我审批前增加审批人')}</div>
           <Icon icon="arrow-right-border" />
         </div>
       </div>

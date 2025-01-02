@@ -8,32 +8,30 @@
   .mui-dialog-header {
     display: none;
   }
-  .headerContent {
+  .searchBox {
+    width: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    height: 49px;
+    position: relative;
+    height: 48px;
     border-bottom: 1px solid #eaeaea;
-    padding: 0 17px;
-    .searchBox {
-      display: flex;
-      align-items: center;
-      position: relative;
-      .icon-search1 {
-        position: absolute;
-        top: 13px;
-        left: 0;
-        color: #9d9d9d;
-        cursor: pointer;
-      }
-      input {
-        border: 0;
-        width: 800px;
-        height: 48px;
-        padding-left: 34px;
-      }
+    padding: 0 40px 0 20px;
+    cursor: pointer;
+    &.searchLink {
+      height: 40px;
+      padding: 0 20px;
+    }
+    .icon-search1 {
+      color: #9d9d9d;
+    }
+    input {
+      border: 0;
+      width: 100%;
+      height: 100%;
+      padding: 0 8px;
     }
   }
+
   .emptyContent {
     display: flex;
     flex-direction: column;
@@ -78,68 +76,79 @@
     display: flex;
     flex: 1;
     min-height: 0;
-    .apiGroup {
-      width: 250px;
-      border-right: 1px solid #eaeaea;
-      height: 100%;
+
+    .emptyChildContent {
+      flex: 1;
+      width: 100%;
       display: flex;
       flex-direction: column;
-      .apiGroupContent {
-        flex: 1;
-        min-height: 0;
-        padding: 8px 0;
-        box-sizing: border-box;
-        overflow-x: hidden;
+      align-items: center;
+      justify-content: center;
+      &.emptyLink {
+        .emptyIcon {
+          width: 40px;
+          height: 40px;
+          line-height: 40px;
+          i {
+            font-size: 13px;
+          }
+        }
       }
-      .groupItem {
+      .emptyIcon {
+        width: 130px;
+        height: 130px;
+        line-height: 130px;
+        border-radius: 50%;
+        display: inline-block;
+        background: #f5f5f5;
+        text-align: center;
+        margin-bottom: 24px;
+        i {
+          font-size: 64px;
+          vertical-align: middle;
+        }
+      }
+    }
+
+    .linkContent {
+      width: 210px;
+      border-right: 2px solid #d9d9d9;
+      display: flex;
+      flex-direction: column;
+      .title {
         height: 48px;
         line-height: 48px;
-        padding-left: 20px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        &:hover {
-          background-color: #f7f7f7;
-        }
-        &.active {
-          background: rgba(33, 150, 243, 0.08);
-          position: relative;
-          &::before {
-            content: '';
-            position: absolute;
-            width: 4px;
-            height: 22px;
-            background: #2196f3;
-            border-radius: 3px;
-            top: 13px;
-            left: 2px;
+        padding: 0 14px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .linkBox {
+        padding: 0 7px;
+        .linkItem {
+          width: 100%;
+          height: 30px;
+          line-height: 30px;
+          margin-top: 5px;
+          padding: 0 12px;
+          font-size: 12px;
+          border-radius: 6px;
+          cursor: pointer;
+          &.active {
+            background: #f5f5f5;
+            color: #2196f3;
           }
-          span {
-            font-weight: bold;
+          &:hover {
+            background: #f5f5f5;
           }
-        }
-        .defaultApi,
-        img {
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          margin-right: 10px;
-          flex-shrink: 0;
-        }
-        .defaultApi {
-          text-align: center;
-          line-height: 28px;
-          background-color: #fff;
-          border: 1px solid #efefef;
-          color: #9e9e9e;
         }
       }
       .groupBottom {
         cursor: pointer;
         font-weight: bold;
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        margin: 16px auto 24px auto;
+        justify-content: center;
+        height: 36px;
         &:hover {
           color: #2196f3;
           i {
@@ -151,6 +160,70 @@
         }
       }
     }
+
+    .apiContent {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .apiGroup {
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+      padding: 10px 0;
+      display: flex;
+      flex-direction: column;
+      .apiGroupContent {
+        flex: 1;
+        min-height: 0;
+        box-sizing: border-box;
+        .groupItem {
+          height: 48px;
+          line-height: 48px;
+          padding-left: 20px;
+          margin: 0 7px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          &:hover {
+            background-color: #f7f7f7;
+          }
+          &.active {
+            background: rgba(33, 150, 243, 0.08);
+            position: relative;
+            &::before {
+              content: '';
+              position: absolute;
+              width: 4px;
+              height: 22px;
+              background: #2196f3;
+              border-radius: 3px;
+              top: 13px;
+              left: 2px;
+            }
+            span {
+              font-weight: bold;
+            }
+          }
+          .defaultApi,
+          img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            margin-right: 10px;
+            flex-shrink: 0;
+          }
+          .defaultApi {
+            text-align: center;
+            line-height: 28px;
+            background-color: #fff;
+            border: 1px solid #efefef;
+            color: #9e9e9e;
+          }
+        }
+      }
+    }
     .childListContent {
       flex: 1;
       padding: 8px 12px;
@@ -158,26 +231,6 @@
       overflow-x: hidden;
       .nano-pane {
         right: -8px !important;
-      }
-      .emptyChildContent {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 140px;
-        .emptyIcon {
-          width: 130px;
-          height: 130px;
-          line-height: 130px;
-          border-radius: 50%;
-          display: inline-block;
-          background: #f5f5f5;
-          text-align: center;
-          margin-bottom: 24px;
-          i {
-            font-size: 64px;
-            vertical-align: middle;
-          }
-        }
       }
       .childItem {
         padding: 12px 18px;

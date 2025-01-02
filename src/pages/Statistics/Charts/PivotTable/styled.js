@@ -102,7 +102,7 @@ const PivotTableContent = styled.div`
       position: absolute;
       top: 0;
       height: 100%;
-      border-left: 1px dashed #333;
+      border-left: 1px dashed #151515;
     }
     .ant-table-cell-fix-left {
       z-index: 3;

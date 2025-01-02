@@ -20,10 +20,11 @@ const Con = styled.div`
 `;
 
 const Item = styled.div(
-  ({ maxWidth, isConfigMode, isLastLine, highlight }) => `
+  ({ maxWidth, isConfigMode, isLastLine, highlight, requiredError }) => `
   display: flex;
   margin-bottom: ${isLastLine ? 0 : 8}px;
   width: ${maxWidth};
+  --border-color: ${requiredError ? '#f44336' : '#ddd'};
   ${
     isConfigMode
       ? `
@@ -125,7 +126,7 @@ function turnControl(control) {
     control.type = control.enumDefault2 || 6;
   }
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE) {
-    control.type = control.enumDefault === 2 ? 15 : 6;
+    control.type = control.enumDefault === 2 ? (control.unit === '3' ? 15 : 16) : 6;
   }
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_FUNC) {
     control.type = control.enumDefault2;
@@ -182,6 +183,7 @@ export default function Conditions(props) {
     onFilterClick,
   } = props;
   const [values, setValues] = useState({});
+  const [requiredErrorVisible, setRequiredErrorVisible] = useState(false);
   const didMount = useRef();
   const showQueryBtn = _.isUndefined(props.showQueryBtn)
     ? _.get(view, 'advancedSetting.enablebtn') === '1'
@@ -195,8 +197,12 @@ export default function Conditions(props) {
         .map(filter => {
           const controlObj = filter.control || _.find(controls, c => c.controlId === filter.controlId);
           const newControl = controlObj && _.cloneDeep(turnControl(controlObj));
+          const isRequired =
+            _.get(view, 'advancedSetting.fastrequired') === '1' &&
+            _.includes(_.get(view, 'advancedSetting.requiredcids', ''), (newControl || {}).controlId);
           return {
             ...filter,
+            isRequired,
             dataType: newControl ? newControl.type : filter.dataType,
             control: newControl,
             filterType: newControl && newControl.encryId ? 2 : filter.filterType,
@@ -208,20 +214,30 @@ export default function Conditions(props) {
       JSON.stringify(filters),
       JSON.stringify(controls.map(c => _.pick(c, ['controlName', 'options']))),
       JSON.stringify(controls.filter(c => c.relationControls).map(c => _.map(c.relationControls, rc => rc.controlId))),
+      _.get(view, 'advancedSetting.fastrequired'),
+      _.get(view, 'advancedSetting.requiredcids'),
     ],
   );
   function update(newValues) {
     didMount.current = true;
     const valuesToUpdate = newValues || values;
-    const quickFilter = items
-      .map((item, i) => ({
-        ...item,
-        filterType: item.filterType || (item.dataType === 29 ? 24 : 2),
-        spliceType: item.spliceType || 1,
-        ...valuesToUpdate[`${_.get(item, 'control.controlId')}-${i}`],
-      }))
-      .filter(validate)
-      .map(conditionAdapter);
+    const needCheckRequired = _.get(view, 'advancedSetting.fastrequired') === '1';
+    const itemsWithValues = items.map((item, i) => ({
+      ...item,
+      filterType: item.filterType || (item.dataType === 29 ? 24 : 2),
+      spliceType: item.spliceType || 1,
+      ...valuesToUpdate[`${_.get(item, 'control.controlId')}-${i}`],
+    }));
+    if (needCheckRequired) {
+      const emptyItems = itemsWithValues.filter(item => item.isRequired && !validate(item));
+      if (emptyItems.length) {
+        setRequiredErrorVisible(true);
+        alert(_l('请填写%0筛选值', _.get(emptyItems, '0.control.controlName')), 3);
+        return;
+      }
+    }
+    setRequiredErrorVisible(false);
+    const quickFilter = itemsWithValues.filter(validate).map(conditionAdapter);
     if (quickFilter.length) {
       const formattedFilter = quickFilter.map(c => {
         let values = formatFilterValuesToServer(c.dataType, c.values);
@@ -249,6 +265,7 @@ export default function Conditions(props) {
   }
   useEffect(() => {
     didMount.current = false;
+    setRequiredErrorVisible(false);
     setValues(getDefaultValues(filters));
   }, [view.viewId]);
   useEffect(() => {
@@ -298,11 +315,20 @@ export default function Conditions(props) {
         filterValue: { values: c.values, ...(c.filterType === 7 ? { filterType: c.filterType } : {}) },
       })),
     );
+  store.current.values = values;
   return (
     <Con className={className} isConfigMode={isConfigMode} style={items.length ? { marginTop: 8 } : {}}>
       {visibleItems.map((item, i) => (
         <Item
           isConfigMode={isConfigMode}
+          requiredError={
+            requiredErrorVisible &&
+            item.isRequired &&
+            !validate({
+              ...item,
+              ...values[`${item.control.controlId}-${i}`],
+            })
+          }
           highlight={activeFilterId === item.fid}
           key={i}
           className={cx(
@@ -322,6 +348,7 @@ export default function Conditions(props) {
         >
           <Label className="label ellipsis" title={item.control.controlName}>
             {item.control.controlName || _l('未命名')}
+            {item.isRequired && <span style={{ color: '#f44336' }}>*</span>}
           </Label>
           <Content className="content">
             <FilterInput
@@ -334,6 +361,7 @@ export default function Conditions(props) {
               {...values[`${item.control.controlId}-${i}`]}
               filtersData={filtersData}
               onChange={(change = {}, { forceUpdate } = {}) => {
+                const values = store.current.values;
                 store.current.activeType = item.control.type;
                 const key = `${item.control.controlId}-${i}`;
                 const newValues = {
@@ -372,6 +400,7 @@ export default function Conditions(props) {
               onClick={() => {
                 setValues({});
                 resetQuickFilter(view);
+                setRequiredErrorVisible(false);
               }}
             >
               {_l('重置')}

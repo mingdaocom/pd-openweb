@@ -192,7 +192,7 @@ function AppCenterHeader(props) {
             }}
           >
             <div className="flex ellipsis"> {project.companyName}</div>
-            <div className={cx(' Font12 mLeft10 Gray_9e Normal', { trial: isTrial, free: isFree })}>
+            <div className={cx('Font12 mLeft10 Gray_9e Normal', { trial: isTrial, free: isFree })}>
               {isFree ? _l('免费版') : isTrial ? _l('试用') : _.get(project, 'version.name')}
             </div>
           </ProjectItem>

@@ -10,9 +10,9 @@ const Con = styled.div`
   align-items: center;
   min-height: 32px;
   line-height: 32px;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
-  border: 1px solid ${({ active }) => (active ? '#2196f3' : '#ddd')} !important;
+  border: 1px solid ${({ active }) => (active ? '#2196f3' : 'var(--border-color)')} !important;
   .clearIcon {
     display: none;
   }
@@ -42,7 +42,7 @@ const Icon = styled.i`
 
 const InputWrap = styled(Input)`
   font-size: 13px;
-  color: #333 !important;
+  color: #151515 !important;
   height: 32px !important;
   &::-webkit-input-placeholder {
     color: #bdbdbd;

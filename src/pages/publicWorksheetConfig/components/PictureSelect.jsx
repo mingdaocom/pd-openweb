@@ -5,18 +5,18 @@ import styled from 'styled-components';
 
 const PicList = styled.div`
   margin-top: 10px;
-  height: 260px;
+  height: 146px;
 `;
 const Pic = styled.div`
   cursor: pointer;
   position: relative;
-  width: 80px;
-  height: 60px;
+  width: 90px;
+  height: 70px;
   display: inline-block;
   margin-right: 6px;
   background-size: cover !important;
   background-color: rgba(0, 0, 0, 0.4) !important;
-  :nth-child(3n) {
+  :nth-child(6n) {
     margin-right: 0px;
   }
   .picMask,
@@ -37,8 +37,8 @@ const Pic = styled.div`
 `;
 const PicMask = styled.div`
   position: absolute;
-  width: 80px;
-  height: 60px;
+  width: 90px;
+  height: 70px;
   background-color: rgba(0, 0, 0, 0.2);
   text-align: center;
   line-height: 60px;
@@ -47,6 +47,8 @@ const PicMask = styled.div`
 `;
 const Pages = styled.div`
   text-align: center;
+  line-height: 0;
+  margin-top: 15px;
 `;
 const PageCon = styled.div`
   cursor: pointer;
@@ -76,7 +78,7 @@ export default class extends React.Component {
     };
   }
   render() {
-    const { images, coverUrl, onChange = () => {} } = this.props;
+    const { images, coverUrl = '', onChange = () => {} } = this.props;
     const { pageIndex } = this.state;
     return (
       <div>
@@ -86,7 +88,9 @@ export default class extends React.Component {
               onClick={() => onChange(md.global.FileStoreConfig.pubHost + url)}
               style={{ background: `url(${md.global.FileStoreConfig.pubHost + url}?imageView2/1/w/160)` }}
             >
-              <PicMask className={cx('picMask', { active: md.global.FileStoreConfig.pubHost + url === coverUrl })}>
+              <PicMask
+                className={cx('picMask', { active: md.global.FileStoreConfig.pubHost + url === coverUrl.split('?')[0] })}
+              >
                 <i className="icon icon-hr_ok"></i>
               </PicMask>
             </Pic>

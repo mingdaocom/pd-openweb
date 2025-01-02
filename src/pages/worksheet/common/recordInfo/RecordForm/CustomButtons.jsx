@@ -287,6 +287,7 @@ export default class CustomButtons extends React.Component {
       isAll,
       selectedRows,
       handleUpdateWorksheetRow,
+      setCustomButtonActive = () => {},
     } = this.props;
     const args = {
       appId: targetOptions.appId,
@@ -323,12 +324,13 @@ export default class CustomButtons extends React.Component {
         if (this.activeBtn.writeObject === 1 && !res.data.isviewdata) {
           hideRecordInfo();
         }
-        triggerCallback();
         if (!this.continueFill) {
           this.setStateFn({
             fillRecordControlsVisible: false,
           });
+          setCustomButtonActive(false);
         }
+        triggerCallback();
       } else {
         if (res.resultCode === 11) {
           if (customwidget && _.isFunction(customwidget.uniqueErrorUpdate)) {
@@ -336,7 +338,6 @@ export default class CustomButtons extends React.Component {
             cb(true);
           }
         } else if (res.resultCode === 22) {
-          handleRecordError(res.resultCode);
           cb(true, res);
         } else if (_.includes([31, 32], res.resultCode)) {
           cb(true, res);
@@ -553,6 +554,7 @@ export default class CustomButtons extends React.Component {
       isBatchOperate,
       triggerCallback,
       sheetSwitchPermit,
+      isDraft,
     } = this.props;
     const { rowInfo, fillRecordControlsVisible, newRecordVisible } = this.state;
     const { activeBtn = {}, fillRecordId, btnRelateWorksheetId, fillRecordProps } = this;
@@ -561,6 +563,7 @@ export default class CustomButtons extends React.Component {
       <React.Fragment key="dialogs">
         {fillRecordControlsVisible && (
           <FillRecordControls
+            isDraft={isDraft}
             isCharge={isCharge}
             isBatchOperate={isBatchOperate}
             className="recordOperateDialog"
@@ -709,7 +712,7 @@ export default class CustomButtons extends React.Component {
               disabled={btnDisable[button.btnId] || button.disabled}
               icon={button.icon || 'custom_actions'}
               iconUrl={button.iconUrl}
-              iconColor={!button.icon ? '#bdbdbd' : button.color === 'transparent' ? '#333' : button.color}
+              iconColor={!button.icon ? '#bdbdbd' : button.color === 'transparent' ? '#151515' : button.color}
               text={button.name}
               onClick={evt => {
                 if (btnDisable[button.btnId] || button.disabled) {
@@ -739,7 +742,7 @@ export default class CustomButtons extends React.Component {
                 />
               ) : (
                 <Icon
-                  style={{ color: button.color === 'transparent' ? '#333' : button.color }}
+                  style={{ color: button.color === 'transparent' ? '#151515' : button.color }}
                   icon={button.icon || 'custom_actions'}
                   className="Font17 mLeft5"
                 />

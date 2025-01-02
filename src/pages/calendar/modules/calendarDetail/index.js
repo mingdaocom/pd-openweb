@@ -111,7 +111,7 @@ class Container extends Component {
         <Dialog
           visible
           dialogClasses="calendarEdit"
-          width={570}
+          width={800}
           showFooter={false}
           closable={false}
           overlayClosable={true}
@@ -121,6 +121,10 @@ class Container extends Component {
           }}
           ref={this.dialogRef}
           type="fixed"
+          onCancel={() => {
+            this.props.handleClose && this.props.handleClose();
+            $('.calendarEdit').parent().remove();
+          }}
         >
           {this.renderContent()}
         </Dialog>

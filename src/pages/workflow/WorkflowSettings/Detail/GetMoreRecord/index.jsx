@@ -9,6 +9,7 @@ import {
   SpecificFieldsValue,
   FindMode,
   UpdateFields,
+  RefreshFieldData,
 } from '../components';
 import { ACTION_ID, APP_TYPE } from '../../enum';
 import cx from 'classnames';
@@ -94,7 +95,13 @@ export default class GetMoreRecord extends Component {
       random,
     } = data;
 
-    if (_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE], actionId) && !appId) {
+    if (
+      _.includes(
+        [ACTION_ID.FROM_WORKSHEET, ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE, ACTION_ID.REFRESH_MULTIPLE_DATA],
+        actionId,
+      ) &&
+      !appId
+    ) {
       alert(_l('必须选择工作表'), 2);
       return;
     }
@@ -304,12 +311,16 @@ export default class GetMoreRecord extends Component {
               ACTION_ID.FROM_JSON_PARSE_ARRAY,
               ACTION_ID.BATCH_UPDATE,
               ACTION_ID.BATCH_DELETE,
+              ACTION_ID.REFRESH_MULTIPLE_DATA,
             ],
             data.actionId,
           ) && <div className="bold mBottom20">{actionTypes[data.actionId]}</div>}
 
         <div className="Font14 Gray_75 workflowDetailDesc">
-          {!_.includes([ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE], data.actionId) &&
+          {!_.includes(
+            [ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE, ACTION_ID.REFRESH_MULTIPLE_DATA],
+            data.actionId,
+          ) &&
             _l(
               '您获取的多条数据可供本流程的数据处理节点或子流程节点使用。被数据处理节点（新增、更新、删除）使用，最多支持%0条。被子流程节点使用，最多支持%1条。',
               workflowBatchGetDataLimitCount,
@@ -327,6 +338,11 @@ export default class GetMoreRecord extends Component {
 
           {data.actionId === ACTION_ID.BATCH_DELETE &&
             _l('在本节点内删除，最大支持%0行。此节点对象不能被流程中其他节点使用', worktableBatchOperateDataLimitCount)}
+
+          {data.actionId === ACTION_ID.REFRESH_MULTIPLE_DATA &&
+            _l(
+              '校准刷新符合筛选条件的工作表记录的计算结果、选项排序和分值、他表字段和汇总结果，此节点为异步排队执行，一次最多刷新10万行记录。每次校准必须间隔120分钟以上，否则将跳过节点',
+            )}
         </div>
 
         {(!data.actionId ||
@@ -344,8 +360,10 @@ export default class GetMoreRecord extends Component {
           )) &&
           this.renderSelectArrayType()}
 
-        {_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE], data.actionId) &&
-          this.renderWorksheet()}
+        {_.includes(
+          [ACTION_ID.FROM_WORKSHEET, ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE, ACTION_ID.REFRESH_MULTIPLE_DATA],
+          data.actionId,
+        ) && this.renderWorksheet()}
         {data.actionId === ACTION_ID.FROM_RECORD && this.renderRecord()}
         {data.actionId === ACTION_ID.FROM_ADD && this.renderAdd()}
         {_.includes(
@@ -388,6 +406,14 @@ export default class GetMoreRecord extends Component {
 
         {_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.FROM_RECORD, ACTION_ID.FROM_ADD], data.actionId) &&
           isSelect && <FindMode execute={data.execute} onChange={execute => this.updateSource({ execute })} />}
+
+        {data.actionId === ACTION_ID.REFRESH_MULTIPLE_DATA && data.appId && (
+          <RefreshFieldData
+            controls={data.controls.map(o => ({ ...o, type: o.originalType }))}
+            fields={data.fields}
+            updateSource={this.updateSource}
+          />
+        )}
       </div>
     );
   }
@@ -482,6 +508,7 @@ export default class GetMoreRecord extends Component {
         }
         filterEncryptCondition={data.actionId === ACTION_ID.FROM_WORKSHEET}
         showRandom={data.actionId === ACTION_ID.FROM_WORKSHEET}
+        hideSort={data.actionId === ACTION_ID.REFRESH_MULTIPLE_DATA}
       />
     );
   }
@@ -750,7 +777,7 @@ export default class GetMoreRecord extends Component {
       appList.push({ id: appId, name, otherApkId, otherApkName });
     }
 
-    if (data.actionId === ACTION_ID.BATCH_UPDATE) {
+    if (_.includes([ACTION_ID.BATCH_UPDATE, ACTION_ID.REFRESH_MULTIPLE_DATA], data.actionId)) {
       this.getNodeDetail(this.props, { appId });
     } else {
       this.updateSource({ appId, appList, conditions: [], filters: [], fields: [], controls: [] }, () => {
@@ -816,6 +843,7 @@ export default class GetMoreRecord extends Component {
 
   render() {
     const { data, showOtherWorksheet } = this.state;
+    const isRefresh = data.actionId === ACTION_ID.REFRESH_MULTIPLE_DATA;
 
     if (_.isEmpty(data)) {
       return <LoadDiv className="mTop15" />;
@@ -826,8 +854,8 @@ export default class GetMoreRecord extends Component {
         <DetailHeader
           {...this.props}
           data={{ ...data }}
-          icon="icon-transport"
-          bg="BGYellow"
+          icon={isRefresh ? 'icon-architecture' : 'icon-transport'}
+          bg={isRefresh ? 'BGGreen' : 'BGYellow'}
           updateSource={this.updateSource}
         />
         <div className="flex">
@@ -836,7 +864,15 @@ export default class GetMoreRecord extends Component {
         <DetailFooter
           {...this.props}
           isCorrect={
-            (_.includes([ACTION_ID.FROM_WORKSHEET, ACTION_ID.BATCH_UPDATE, ACTION_ID.BATCH_DELETE], data.actionId) &&
+            (_.includes(
+              [
+                ACTION_ID.FROM_WORKSHEET,
+                ACTION_ID.BATCH_UPDATE,
+                ACTION_ID.BATCH_DELETE,
+                ACTION_ID.REFRESH_MULTIPLE_DATA,
+              ],
+              data.actionId,
+            ) &&
               data.appId) ||
             (_.includes(
               [

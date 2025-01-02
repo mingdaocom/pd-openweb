@@ -56,7 +56,7 @@ const FilterDialog = styled(Dialog)`
     align-items: center;
     padding: 9px 14px 9px 20px;
     font-size: 13px;
-    color: #333;
+    color: #151515;
     .avatarCon {
       margin-right: 10px;
       width: 20px;

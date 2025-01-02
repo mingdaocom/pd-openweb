@@ -9,6 +9,7 @@ import UserLink from './userLink';
 import ReplyTo from './replyTo';
 import { SOURCE_TYPE } from '../../constants';
 import { formatTopic, splitSourceId, buildSourceLink } from '../../util';
+import { formatMsgDate } from 'src/pages/chat/utils';
 import DiscussionController from 'src/api/discussion';
 import postAjax from 'src/api/post';
 import confirm from 'ming-ui/components/Dialog/Confirm';
@@ -247,7 +248,7 @@ class CommentItem extends React.Component {
               className="Gray_a NoUnderline"
               title={_l('点击查看动态详情')}
             >
-              {createTimeSpan(createTime)}
+              {formatMsgDate(createTime)}
             </a>
           );
         case SOURCE_TYPE.TASK:
@@ -257,7 +258,7 @@ class CommentItem extends React.Component {
               className="Gray_a NoUnderline"
               title={_l('点击查看任务详情')}
             >
-              {createTimeSpan(createTime)}
+              {formatMsgDate(createTime)}
             </a>
           );
         case SOURCE_TYPE.FOLDER:
@@ -267,7 +268,7 @@ class CommentItem extends React.Component {
               className="Gray_a NoUnderline"
               title={_l('点击查看项目详情')}
             >
-              {createTimeSpan(createTime)}
+              {formatMsgDate(createTime)}
             </a>
           );
         case SOURCE_TYPE.CALENDAR: {
@@ -277,7 +278,7 @@ class CommentItem extends React.Component {
               className="Gray_a NoUnderline"
               title={_l('点击查看日程详情')}
             >
-              {createTimeSpan(createTime)}
+              {formatMsgDate(createTime)}
             </a>
           );
         }

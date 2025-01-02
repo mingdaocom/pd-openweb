@@ -218,6 +218,16 @@ export const HomePageWrap = styled.div`
     border-radius: 24px;
     cursor: pointer;
   }
+  .trialAuthenticate {
+    background-color: #fef5e9;
+    color: #151515;
+    &:hover {
+      background-color: #fdebd5;
+    }
+    .icon-gift {
+      color: #f89a2e;
+    }
+  }
 
   .inviteUserWrap {
     position: absolute;
@@ -266,7 +276,7 @@ export const HomePageWrap = styled.div`
         margin: 0 12px 0 10px;
       }
       .balance {
-        color: #333;
+        color: #151515;
         font-size: 16px;
         margin: 0;
         font-weight: 600;

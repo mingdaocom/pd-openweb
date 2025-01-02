@@ -1,11 +1,11 @@
-.selectUserModal {
+.selectUserContentBox {
+  height: 100%;
   text-align: left;
-  background-color: #f8f8f8;
-
+  // 搜索栏
   .searchWrapper {
     display: flex;
     align-items: center;
-    background-color: #fff;
+    background-color: #F8F8F8;
     border-radius: 24px;
     padding: 7px 10px;
     margin: 10px 15px;
@@ -21,24 +21,32 @@
       width: 100%;
       border: 0;
       padding: 0 5px;
+      background-color: #F8F8F8;
     }
   }
 
+  // 已选中
   .selectedWrapper {
-    color: #333;
-    padding: 10px 10px 0;
+    color: #151515;
+    padding: 10px 16px 0;
     margin: 5px 0 10px;
     text-align: left;
     background-color: #fff;
 
     .selectedItem {
+      display: flex;
+      align-items: center;
       border-radius: 24px;
-      padding: 0px 16px;
-      height: 30px;
-      line-height: 30px;
+      padding: 0px 8px;
+      height: 24px;
       background-color: #f0f0f0;
       margin: 0 10px 10px 0;
       float: left;
+      font-size: 13px;
+
+      .curSelected {
+        max-width: 200px;
+      }
     }
     .icon {
       margin-left: 5px;
@@ -49,28 +57,27 @@
     .adm-list-body, .adm-list-body-inner {
       height: 100%;
     }
-    .adm-list-item-content-main {
-      padding: 15px 0 !important;
-    }
     .avtive {
       color: #2196f3;
     }
-    .groupWrapper {
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 24px;
-      background-color: #2196f3;
-    }
   }
 
+  .adm-list-header {
+    padding-left: 16px;
+  }
   .adm-list-body {
     border: none !important;
-    .adm-list-item-content-main, .adm-checkbox-content {
-      color: #333;
-      font-size: 15px;
+  }
+
+  .adm-list-item {
+    padding-left: 16px !important;
+    .adm-list-item-content {
+      padding-right: 12px !important;
+      .adm-list-item-content-main {
+        padding: 7px 0 !important;
+        color: #151515;
+        font-size: 15px;
+      }
     }
   }
 
@@ -78,26 +85,162 @@
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    margin-right: 16px;
   }
   .onlyShowJoinDepartment {
     display: flex;
     justify-content: space-between;
     padding: 13px 15px 13px 0;
-    margin-left: 15px;
+    margin-left: 16px;
+    .onlySelf {
+      font-size: 15px;
+    }
   }
-  .currentAccount {
-    height: 50px;
-    line-height: 50px;
-    background: #fff;
-    padding: 0 11px;
-    text-align: left;
-    color: #333;
+
+  // 条件筛选：按部门选择 && 选择自己
+  .conditionSelectBox {
+    border-bottom: 1px solid #EAEAEA;
+
+    .adm-list-item {
+      .adm-list-item-content {
+        height: 50px !important;
+        border-top: initial !important;
+        border-bottom: 1px solid #EAEAEA !important;
+      }
+      &:last-child .adm-list-item-content {
+        border-bottom: initial !important;
+      }
+    }
+    .selectIconBox,
+    .portalIconBox {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: #2196f3;
+    }
+    .portalIconBox {
+      background-color: #4caf50;
+    }
+    .conditionSelectInfo {
+      font-family: FZLanTingHeiS, FZLanTingHeiS;
+      font-size: 15px;
+      color: #151515;
+      font-weight: bold;
+    }
+    .fullname {
+      font-size: 15px !important;
+    }
   }
-  .userInfo {
-    max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+
+  // 最常协作
+  .oftenUserHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .rotatable {
+      transform: rotate(180deg);
+    }
+  }
+
+  // 人员选择行
+  .checkItemBox {
+    display: flex;
+    align-items: center;
+    padding-left: 16px;
+    width: 100%;
+    &:last-child .checkItemInfoBox {
+      border-bottom: initial;
+    }
+    .checkboxBox {
+      margin-right: 12px;
+    }
+    .checkItemInfoBox {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      padding: 7px 0;
+      border-bottom: 1px solid #EAEAEA;
+      .useInfoBox {
+        flex: 1;
+        margin-left: 11px;
+        .fullname {
+          max-width: calc(~'100vw - 110px');
+          font-weight: 600;
+          font-size: 13px;
+          color: #151515;
+        }
+        .departmentInfo {
+          max-width: calc(~'100vw - 110px');
+          font-size: 12px;
+          color: #757575;
+        }
+      }
+    }
+  }
+
+  // A-Z
+  .sortTitle {
+    padding: 12px 12px 12px 16px;
+    color: #151515;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  // 部门选择行
+  .departmentItemBox {
+    display: flex;
+    align-items: center;
+    padding-left: 16px;
+    width: 100%;
+    &:last-child .departmentSelectItemInfoBox {
+      border-bottom: initial;
+    }
+    .checkboxBox {
+      margin-right: 12px;
+    }
+    .departmentSelectItemInfoBox {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      font-size: 15px;
+      color: #151515;
+      font-weight: bold;
+      padding: 7px 12px 7px 0;
+      border-bottom: 1px solid #EAEAEA;
+      .departmentItemContent {
+        display: flex;
+        align-items: center;
+        flex: 1;
+        .groupWrapper {
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 24px;
+          background-color: #2196f3;
+        }
+        .departmentName {
+          flex: 1;
+          margin-left: 11px;
+          font-size: 15px;
+          color: #151515;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+
+  .extraDivision {
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    border-left: 1px solid #eeeeee;
+    height: 20px;
+    color: #eeeeee;
   }
 }

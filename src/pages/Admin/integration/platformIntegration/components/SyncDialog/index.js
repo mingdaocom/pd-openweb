@@ -303,10 +303,22 @@ export default class SyncDialog extends Component {
       },
     });
   };
-  getCount = type => {
+
+  getUserList = type => {
     const { logDetailItems = [] } = this.state;
-    let itemArr = logDetailItems.filter(item => item.type === type);
-    return (itemArr && !_.isEmpty(itemArr) && itemArr[0].items.length) || 0;
+
+    return (
+      _.get(
+        logDetailItems.find(item => item.type === type),
+        'items',
+      ) || []
+    );
+  };
+
+  getCount = type => {
+    if (type === 6) return _.difference(this.getUserList(type), this.getUserList(5)).length;
+
+    return this.getUserList(type).length;
   };
   renderSyncInfo = () => {
     const { visible, isBindRelationship, integrationType } = this.props;
@@ -383,36 +395,36 @@ export default class SyncDialog extends Component {
             <div className="syncInfo">
               <div className="Font15 bold mBottom3">{_l('同步内容')}</div>
               <div className="Gray_75">
-                {_l('新增组织用户 ')}
-                <span className="bold Gray">
+                {_l('新增组织用户')}
+                <span className="bold Gray mLeft3 mRight3">
                   {this.getCount(4) - bindQWUserIds.length >= 0 ? this.getCount(4) - bindQWUserIds.length : 0}
                 </span>
-                {_l(' 个；匹配到已有组织用户 ')}
-                <span className="bold Gray">{bindQWUserIds.length}</span>
-                {_l(' 个')}
+                {_l('个；匹配到已有组织用户')}
+                <span className="bold Gray mLeft3 mRight3">{bindQWUserIds.length}</span>
+                {_l('个')}
                 {this.getCount(6) ? (
                   <span>
-                    {_l('; 同步%0用户信息 ', INTEGRATION_INFO[integrationType].text)}
-                    <span className="bold Gray">{this.getCount(6)}</span>
-                    {_l(' 个')}
+                    {_l('; 同步%0用户信息', INTEGRATION_INFO[integrationType].text)}
+                    <span className="bold Gray mLeft3 mRight3">{this.getCount(6)}</span>
+                    {_l('个')}
                   </span>
                 ) : (
                   ''
                 )}
                 {this.getCount(5) ? (
                   <span>
-                    {_l('；解除与组织用户绑定关系 ')}
-                    <span className="bold Gray">{this.getCount(5)}</span>
-                    {_l(' 个')}
+                    {_l('；解除与组织用户绑定关系')}
+                    <span className="bold Gray mLeft3 mRight3">{this.getCount(5)}</span>
+                    {_l('个')}
                   </span>
                 ) : (
                   ''
                 )}
                 {this.getCount(17) ? (
                   <span>
-                    {_l('；已恢复离职用户 ')}
-                    <span className="bold Gray">{this.getCount(17)}</span>
-                    {_l(' 个')}
+                    {_l('；已恢复离职用户')}
+                    <span className="bold Gray mLeft3 mRight3">{this.getCount(17)}</span>
+                    {_l('个')}
                   </span>
                 ) : (
                   ''
@@ -422,10 +434,10 @@ export default class SyncDialog extends Component {
             <div className="bindInfo mTop20 mBottom15">
               <div className="Font15 bold mBottom3">{_l('绑定关系')}</div>
               <div className="">
-                {_l('将未绑定过 ')}
-                <span className="bold">{_l('%0的组织用户', INTEGRATION_INFO[integrationType].text)}</span>
+                {_l('将未绑定过')}
+                <span className="bold mLeft3">{_l('%0的组织用户', INTEGRATION_INFO[integrationType].text)}</span>
                 {_l('与')}
-                <span className="bold">{_l('本次同步的%0用户 ', INTEGRATION_INFO[integrationType].text)}</span>
+                <span className="bold mRight3">{_l('本次同步的%0用户', INTEGRATION_INFO[integrationType].text)}</span>
                 {_l('建立绑定关系')}
               </div>
             </div>

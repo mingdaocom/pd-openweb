@@ -100,7 +100,7 @@ export default function AssignValue(props) {
       <AssignValueContent>
         <div className="hint Gray_9e">
           {_l(
-            '启用后，可以为每个选项赋分值。赋值后的选项字段可以公式运算或作为数值字段默认值使用。字段值取所有选择项的分值求和，支持输入正负值。 ',
+            '启用后，可以为每个选项赋分值。赋值后的选项字段可以公式运算或作为数值字段默认值使用。字段值取所有选择项的分值求和，支持输入正负值。',
           )}
         </div>
         <div className="switchWrap flexCenter">

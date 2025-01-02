@@ -38,7 +38,7 @@ const Wrap = styled.div`
         }
         a {
           font-weight: 600;
-          color: #333 !important;
+          color: #151515 !important;
           font-size: 17px;
         }
         &.menuTab-active {

@@ -20,8 +20,9 @@ import {
   isTel,
 } from 'src/pages/accountLogin/util.js';
 import _ from 'lodash';
-import { encrypt, isPasswordRule } from 'src/util';
+import { encrypt } from 'src/util';
 import Icon from 'ming-ui/components/Icon';
+import RegExpValidator from 'src/util/expression';
 
 let sendVerifyCodeTimer = null;
 let hasClick = false;
@@ -393,7 +394,7 @@ class MessageCon extends React.Component {
       if (keys.includes('setPassword') || (changeWarn && keys.includes('password'))) {
         let data = _.filter(warnningData, it => !('.passwordIcon' === it.tipDom));
         //设置密码时，提示密码规则 符合验证则不再提示
-        if (!isPasswordRule(txt) && keys.includes('setPassword')) {
+        if (!RegExpValidator.isPasswordValid(txt) && keys.includes('setPassword')) {
           data = data.concat({
             tipDom: '.passwordIcon',
             noErr: true,

@@ -12,7 +12,7 @@ export default function SplitLineSection(props) {
   // fromType = 'display' 表单详情
   const { data, sectionstyle, widgets = [], activeWidget = {}, from, fromType, renderData = [], setNavVisible } = props;
   const { enumDefault2 = 0, controlName, controlId } = data;
-  const { theme = '#2196f3', color = '#333', icon = '', hidetitle } = getAdvanceSetting(data);
+  const { theme = '#2196f3', color = '#151515', icon = '', hidetitle } = getAdvanceSetting(data);
   const isMobile = browserIsMobile();
   const [visible, setVisible] = useState(enumDefault2 !== 2);
   const curControls = fromType === 'display' ? renderData : _.flatten(widgets);

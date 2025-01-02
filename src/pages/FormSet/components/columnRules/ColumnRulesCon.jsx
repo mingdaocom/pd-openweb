@@ -92,18 +92,22 @@ class ColumnRulesCon extends React.Component {
             </div>
           </div>
           <div className="columnRuleTabs">
-            {TABS_DISPLAY.map(item => (
-              <div
-                className={cx('tabItem', { active: activeTab === item.value })}
-                onClick={() => {
-                  if (hasRuleChanged(columnRulesListData, selectRules)) return;
-                  selectRules.ruleId && clearColumnRules();
-                  updateActiveTab(item.value);
-                }}
-              >
-                {item.text}
-              </div>
-            ))}
+            {TABS_DISPLAY.map(item => {
+              const list = columnRulesListData.filter(i => i.type === item.value);
+              return (
+                <div
+                  className={cx('tabItem', { active: activeTab === item.value })}
+                  onClick={() => {
+                    if (hasRuleChanged(columnRulesListData, selectRules)) return;
+                    selectRules.ruleId && clearColumnRules();
+                    updateActiveTab(item.value);
+                  }}
+                >
+                  {item.text}
+                  {list.length > 0 && <span className='mLeft3'>({list.length})</span>}
+                </div>
+              );
+            })}
           </div>
           <div className="columnRuleDesc">
             <span className="Gray_9e">

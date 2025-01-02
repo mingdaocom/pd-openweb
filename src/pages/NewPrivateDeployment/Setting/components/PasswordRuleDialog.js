@@ -1,7 +1,16 @@
 import React, { Component, Fragment } from 'react';
-import { Dialog, Input } from 'ming-ui';
+import { Dialog, Input, Textarea } from 'ming-ui';
 import _ from 'lodash';
+import OrgNameMultipleLanguages from 'src/pages/Admin/components/OrgNameMultipleLanguages';
+import styled from 'styled-components';
 
+const Wrap = styled.div`
+  .passWordLanguages {
+    position: absolute;
+    right: 10px;
+    line-height: 36px;
+  }
+`;
 export default class PasswordRuleDialog extends Component {
   constructor(props) {
     super(props);
@@ -28,15 +37,15 @@ export default class PasswordRuleDialog extends Component {
         onOk={() => {
           if (_.isEmpty(passwordRegex)) {
             alert(_l('密码规则不能为空'), 3);
-            return
+            return;
           }
           if (_.isEmpty(passwordRegexTip)) {
             alert(_l('密码规则提示说明不能为空'), 3);
-            return
+            return;
           }
           onSave({
             passwordRegex,
-            passwordRegexTip
+            passwordRegexTip,
           });
           onCancel();
         }}
@@ -44,12 +53,40 @@ export default class PasswordRuleDialog extends Component {
       >
         <div className="mTop5 mBottom20">
           <div className="mBottom5">{_l('密码规则（正则表达式）')}</div>
-          <Input className="w100" value={passwordRegex} onChange={value => { this.setState({ passwordRegex: value }) }} placeholder={_l('请输入密码正则表达式')}/>
+          <Wrap>
+            <Input
+              className="w100"
+              value={passwordRegex}
+              onChange={value => {
+                this.setState({ passwordRegex: value });
+              }}
+              placeholder={_l('请输入密码正则表达式')}
+            />
+          </Wrap>
         </div>
-        <div>
+        <Wrap className="Relative">
           <div className="mBottom5">{_l('提示说明')}</div>
-          <Input className="w100" value={passwordRegexTip} onChange={value => { this.setState({ passwordRegexTip: value }) }} placeholder={_l('请输入密码正则表达式说明文字')}/>
-        </div>
+          <Textarea
+            className={'w100 pRight40 pTop6 pBottom6'}
+            minHeight={36}
+            maxHeight={120}
+            defaultValue={passwordRegexTip || ''}
+            placeholder={_l('请输入密码正则表达式说明文字')}
+            onChange={value => {
+              this.setState({ passwordRegexTip: value });
+            }}
+          />
+          <OrgNameMultipleLanguages
+            className="passWordLanguages"
+            type={30}
+            currentLangName={passwordRegexTip}
+            updateName={data => {
+              if (data) {
+                md.global.SysSettings.passwordRegexTip = _.get(data, 'data[0].value');
+              }
+            }}
+          />
+        </Wrap>
       </Dialog>
     );
   }

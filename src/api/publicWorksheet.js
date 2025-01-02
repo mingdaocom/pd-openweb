@@ -48,6 +48,7 @@ export default {
   * @param {} args.weChatSetting
   * @param {} args.abilityExpand
   * @param {} args.limitWriteFrequencySetting
+  * @param {object} args.extendDatas 扩展数据
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -426,7 +427,7 @@ export default {
   * @param {} args.masterRecord
   * @param {string} args.pushUniqueId 推送ID
   * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
-  * @param {integer} args.rowStatus 1：正常 21：草稿箱
+  * @param {integer} args.rowStatus 1：正常 21：草稿箱 22：提交草稿箱
   * @param {string} args.draftRowId 草稿ID
   * @param {string} args.clientId 未登录用户临时登录凭据
   * @param {Object} options 配置参数

@@ -2,6 +2,7 @@
  * 工作流状态
  */
 export const FLOW_STATUS = {
+  '-1': { status: 'delete', text: _l('异常') },
   1: { status: 'pending', text: _l('进行中') },
   2: { status: 'completed', text: _l('完成') },
   3: { status: 'suspend', text: _l('中止') },
@@ -123,6 +124,7 @@ export const FLOW_FAIL_REASON = {
  * 状态对应的颜色值
  */
 export const STATUS2COLOR = {
+  delete: { color: '#ffa340', bgColor: '#fff5eb' },
   pending: { color: '#2195f3', bgColor: '#e7f3fd' },
   fail: { color: '#f44336', bgColor: '#fdebe9' },
   suspend: { color: '#ffa340', bgColor: '#fff5eb' },

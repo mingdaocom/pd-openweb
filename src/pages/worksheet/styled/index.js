@@ -13,7 +13,7 @@ export const TextEllipsis = styled.div`
 
 export const Text = styled.p`
   font-size: 13px;
-  color: ${props => (props.color ? props.color : '#333')};
+  color: ${props => (props.color ? props.color : '#151515')};
   text-align: ${props => props.align || 'initial'};
 `;
 

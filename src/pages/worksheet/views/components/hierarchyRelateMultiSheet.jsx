@@ -15,7 +15,7 @@ const ControlsWrap = styled.div`
   }
   .controlName {
     margin: 0 12px;
-    color: #333;
+    color: #151515;
   }
   .relateItem {
     display: flex;

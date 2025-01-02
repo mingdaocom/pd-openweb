@@ -142,6 +142,7 @@ function RecordForm(props) {
     type = 'edit',
     loading,
     from,
+    isDraft,
     formFlag,
     abnormal,
     isLock,
@@ -166,10 +167,11 @@ function RecordForm(props) {
     saveDraft = () => {},
     onError,
     masterRecordRowId,
+    loadRowsWhenChildTableStoreCreated,
     onWidgetChange = () => {},
+    onManualWidgetChange = () => {},
     widgetStyle = {},
     renderAbnormal,
-    loadDraftChildTableData = () => {},
     payConfig = {},
     onRefresh = () => {},
     onUpdateFormSectionWidth = () => {},
@@ -267,6 +269,7 @@ function RecordForm(props) {
   const handleSectionClick = controlId => {
     const tempId = controlId || defaultTabId;
     if (isFixedLeft || isFixedRight) {
+      if (tempId === _.get(customwidget, 'current.state.activeTabControlId')) return;
       customwidget && customwidget.current && customwidget.current.setActiveTabControlId(tempId);
       sectionTab && sectionTab.current && sectionTab.current.setActiveId(tempId);
       setTabHeaderControl(getActiveTabControl(tempId));
@@ -310,12 +313,6 @@ function RecordForm(props) {
     }, 200);
   }, [loading]);
 
-  useEffect(() => {
-    emitter.addListener('RELOAD_RECORD_INFO_BEGIN', refreshId =>
-      refreshId === recordId ? handleSectionClick() : () => {},
-    );
-    return () => emitter.removeListener('RELOAD_RECORD_INFO_BEGIN', handleSectionClick);
-  }, []);
   function setSplit(value) {
     if (value) {
       safeLocalStorageSetItem('recordinfoSplitHeight', topHeight || formHeight * 0.5);
@@ -531,6 +528,7 @@ function RecordForm(props) {
                     forceFull={formWidth < 500 ? 1 : undefined}
                     ref={customwidget}
                     from={from === 21 ? from : recordId ? 3 : isMobile ? 5 : 2}
+                    isDraft={from === RECORD_INFO_FROM.DRAFT || isDraft}
                     flag={formFlag}
                     widgetStyle={widgetStyle}
                     controlProps={{ ...controlProps, updateWorksheetControls, updateRelateRecordTableCount }}
@@ -554,6 +552,7 @@ function RecordForm(props) {
                     onSave={onSave}
                     saveDraft={saveDraft}
                     onError={onError}
+                    loadRowsWhenChildTableStoreCreated={loadRowsWhenChildTableStoreCreated}
                     sheetSwitchPermit={sheetSwitchPermit}
                     viewId={viewId}
                     showSplitIcon={type === 'edit' && commonData.length > 0}
@@ -566,6 +565,7 @@ function RecordForm(props) {
                       }
                     }}
                     onWidgetChange={onWidgetChange}
+                    onManualWidgetChange={onManualWidgetChange}
                     handleEventPermission={() => {
                       setEventData(_.get(customwidget, 'current.state.renderData'));
                     }}
@@ -587,7 +587,6 @@ function RecordForm(props) {
                       updateWorksheetControls,
                       handleSectionClick,
                     }}
-                    loadDraftChildTableData={loadDraftChildTableData}
                   />
                 </div>
               </div>

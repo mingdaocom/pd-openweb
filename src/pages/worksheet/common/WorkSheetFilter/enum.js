@@ -205,6 +205,7 @@ export const DATE_RANGE_TYPE = {
   MONTH: 4,
   YEAR: 5,
   SECOND: 6,
+  QUARTER: 11,
 };
 
 export function getControlSelectType(control) {
@@ -344,6 +345,11 @@ export function getFilterTypeLabel(typeKey, type, control, controlType) {
 
 export const DATE_OPTIONS = [
   [
+    { text: _l('指定日期'), value: 18 },
+    { text: _l('指定日期时间（时）'), value: 18.2, dateRangeType: DATE_RANGE_TYPE.HOUR },
+    { text: _l('指定日期时间（分）'), value: 18.1, dateRangeType: DATE_RANGE_TYPE.MINUTE },
+  ],
+  [
     { text: _l('今天'), value: 1 },
     { text: _l('昨天'), value: 2 },
     { text: _l('明天'), value: 3 },
@@ -369,8 +375,10 @@ export const DATE_OPTIONS = [
     { text: _l('明年'), value: 17 },
   ],
   [
-    { text: _l('过去...天'), value: 10 },
-    { text: _l('将来...天'), value: 11 },
+    { text: _l('过去...(旧)'), value: 10 },
+    { text: _l('将来...(旧)'), value: 11 },
+    { text: _l('过去...'), value: 101 },
+    { text: _l('将来...'), value: 102 },
     { text: _l('过去7天'), value: 21 },
     { text: _l('过去14天'), value: 22 },
     { text: _l('过去30天'), value: 23 },
@@ -378,7 +386,6 @@ export const DATE_OPTIONS = [
     { text: _l('将来14天'), value: 32 },
     { text: _l('将来30天'), value: 33 },
   ],
-  [{ text: _l('指定时间'), value: 18 }],
 ];
 
 export const valueTypeOptions = [
@@ -397,4 +404,13 @@ export const DEFAULT_COLUMNS = [
     controlName: _l('此刻'),
     type: 16,
   },
+];
+
+export const DATE_RANGE_TYPE_OPTIONS = [
+  { text: _l('年'), value: DATE_RANGE_TYPE.YEAR },
+  { text: _l('季度'), value: DATE_RANGE_TYPE.QUARTER },
+  { text: _l('月'), value: DATE_RANGE_TYPE.MONTH },
+  { text: _l('天'), value: DATE_RANGE_TYPE.DAY },
+  { text: _l('小时'), value: DATE_RANGE_TYPE.HOUR },
+  { text: _l('分'), value: DATE_RANGE_TYPE.MINUTE },
 ];

@@ -23,7 +23,7 @@ const Wrap = styled.div`
       padding: 2px 4px;
     }
     .updatePrivateKey {
-      color: #333;
+      color: #151515;
       border-radius: 4px;
       padding: 2px 4px;
       border: 1px solid #EAEAEA;

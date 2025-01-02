@@ -101,3 +101,12 @@ export const SOURCE_INFO = {
   6: _l('公开表单'),
   11: _l('数据集成'),
 };
+
+export const EDIT_TYPE_TEXT = {
+  12: _l('编辑了附件'),
+  13: _l('下载了附件'),
+  22: _l('下载了'),
+  23: _l('编辑了'),
+};
+
+export const SUBLIST_FILE_EDIT_TYPE = [22, 23];

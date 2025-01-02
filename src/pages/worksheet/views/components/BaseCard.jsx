@@ -8,6 +8,7 @@ import update from 'immutability-helper';
 import cx from 'classnames';
 import _ from 'lodash';
 import { Icon } from 'ming-ui';
+import { Checkbox } from 'antd-mobile';
 import { FlexCenter, Text } from 'worksheet/styled';
 import { checkCellIsEmpty, getRecordColor, getControlStyles } from 'src/pages/worksheet/util';
 import { get, includes, findIndex, isEmpty, noop } from 'lodash';
@@ -237,7 +238,7 @@ const BaseCard = props => {
   const $ref = useRef(null);
 
   const multiRelateViewConfig = getMultiRelateViewConfig(currentView, stateData);
-  const { coverposition = '0', abstract } = getAdvanceSetting(multiRelateViewConfig);
+  const { coverposition = '0', abstract, checkradioid } = getAdvanceSetting(multiRelateViewConfig);
   const showCover = !!currentView.coverCid;
 
   if (isEmpty(data)) return null;
@@ -249,7 +250,6 @@ const BaseCard = props => {
   const showControlStyle =
     _.get(para, 'advancedSetting.controlstyle') === '1' || _.get(para, 'advancedSetting.controlstyleapp') === '1';
   abstractValue = abstract ? abstractValue : '';
-
   const otherFields = update(fields, { $splice: [[titleIndex, 1]] });
   const titleMasked =
     (isCharge || _.get(titleField, 'advancedSetting.isdecrypt') === '1') &&
@@ -274,6 +274,15 @@ const BaseCard = props => {
     const titleValue = renderCellText(titleField, { noMask: forceShowFullValue });
     const content = titleValue || _l('未命名');
     if (props.renderTitle) return props.renderTitle({ content, titleField });
+
+    const showCheckItem = _.find(data.formData || [], v => v.controlId === checkradioid) || {};
+    const canEdit =
+      !_.get(window, 'shareState.isPublicView') &&
+      !_.get(window, 'shareState.isPublicPage') &&
+      isOpenPermit(permitList.quickSwitch, sheetSwitchPermit, para.viewId) &&
+      allowEdit &&
+      controlState(showCheckItem).editable;
+
     return (
       <div
         className={cx('titleText', `control-val-${titleField.controlId}`, {
@@ -289,6 +298,18 @@ const BaseCard = props => {
           setForceShowFullValue(true);
         }}
       >
+        {isMobile && checkradioid && !_.isEmpty(showCheckItem) && (
+          <Checkbox
+            className="mRight10"
+            disabled={!canEdit}
+            checked={showCheckItem.value === '1'}
+            style={{ '--icon-size': '18px' }}
+            onChange={() => props.onChange(showCheckItem, showCheckItem.value === '1' ? '0' : '1')}
+            onClick={e => {
+              e.stopPropagation();
+            }}
+          />
+        )}
         {content}
         {titleMasked && titleValue && (
           <i
@@ -323,7 +344,7 @@ const BaseCard = props => {
             className="overflowHidden"
             cell={item}
             from={4}
-            editable={canEdit}
+            editable={isMobile ? false : canEdit}
             updateCell={({ value }) => props.onChange(item, value)}
           />
         </div>
@@ -398,7 +419,7 @@ const BaseCard = props => {
     fieldShowCount && fieldShowCount !== 'undefined' && (!hoverShowAll || isQuickEditing)
       ? fieldList.slice(0, fieldShowCount)
       : fieldList,
-  );
+  ).filter(l => controlState(l).visible);
   const canHoverShowAll =
     fieldShowCount &&
     fieldShowCount !== 'undefined' &&
@@ -453,7 +474,7 @@ const BaseCard = props => {
           )}
         />
       )}
-      {includes(['1', '2'], coverposition) && <CardCoverImage {...props} viewId={viewId} />}
+      {includes(['1', '2'], coverposition) && <CardCoverImage {...props} viewId={viewId} projectId={projectId} />}
       <div className="fieldContentWrap">
         {renderTitleControl({ forceShowFullValue })}
         {renderAbstract()}
@@ -475,7 +496,7 @@ const BaseCard = props => {
         )}
       </div>
       {/* // 封面图片右放置 */}
-      {includes(['0'], coverposition) && <CardCoverImage {...props} viewId={viewId} />}
+      {includes(['0'], coverposition) && <CardCoverImage {...props} viewId={viewId} projectId={projectId} />}
       {!hideOperate && (
         <div className="recordOperateWrap" onClick={e => e.stopPropagation()}>
           <RecordOperate

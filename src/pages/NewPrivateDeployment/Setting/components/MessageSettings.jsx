@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { Icon, Dropdown, Dialog, Button, Input, ScrollView, LoadDiv } from 'ming-ui';
+import { Icon, Dropdown, Dialog, Input } from 'ming-ui';
 import sms from 'src/api/sms';
 import styled from 'styled-components';
 import _ from 'lodash';
@@ -8,7 +8,7 @@ const Wrap = styled.div`
   .privateTplList {
     align-items: center;
     padding: 19px 40px;
-    border: 1px solid #EAEAEA;
+    border: 1px solid #eaeaea;
     box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.08);
   }
 `;
@@ -25,6 +25,37 @@ const PrivateTplAdd = styled.span`
     border-color: #9e9e9e;
   }
 `;
+
+const DEFAULT_VALUE = {
+  Tencentyun: {
+    signature: '',
+    name: 'Tencentyun',
+    secret: {
+      appId: '',
+      appKey: '',
+    },
+    sms: {
+      china: {
+        templates: [],
+      },
+    },
+    status: 1,
+  },
+  Aliyun: {
+    signature: '',
+    name: 'Aliyun',
+    secret: {
+      accessKey: '',
+      accessSecret: '',
+    },
+    sms: {
+      china: {
+        templates: [],
+      },
+    },
+    status: 1,
+  },
+};
 
 export default class MessageSettings extends Component {
   constructor(props) {
@@ -46,105 +77,74 @@ export default class MessageSettings extends Component {
           keys: ['accessKey', 'accessSecret'],
         },
       },
-      data: [
-        {
-          signature: '',
-          name: 'Tencentyun',
-          secret: {
-            appId: '',
-            appKey: '',
-          },
-          sms: {
-            china: {
-              templates: [],
-            },
-          },
-        },
-        {
-          signature: '',
-          name: 'Aliyun',
-          secret: {
-            accessKey: '',
-            accessSecret: '',
-          },
-          sms: {
-            china: {
-              templates: [],
-            },
-          },
-        },
-      ],
+      item: props.item || DEFAULT_VALUE[props.name],
     };
   }
 
-  componentDidMount() {
-    const { data } = this.state;
-
-    sms.getProviders().then(result => {
-      data.forEach(item => {
-        if (!result.find(o => o.name === item.name)) {
-          result.push(item);
-        }
-      });
-
-      this.setState({ data: result, loading: false });
-    });
+  componentDidUpdate(prevProps) {
+    if (this.props.name && prevProps.item !== this.props.item) {
+      this.setState({ item: this.props.item || DEFAULT_VALUE[this.props.name] });
+    }
   }
 
   editProviders = () => {
-    const { operators, data } = this.state;
-    let errorSize = 0;
+    const { operators, item } = this.state;
+    const { name } = this.props;
 
-    data.forEach(item => {
-      const operator = operators[item.name];
-      if (
-        !(
-          (!item.signature && !item.secret[operator.keys[0]] && !item.secret[operator.keys[1]] && item.sms.china.templates.length === 0) ||
-          (item.signature && item.secret[operator.keys[0]] && item.secret[operator.keys[1]] && item.sms.china.templates.length > 0)
-        )
-      ) {
-        errorSize++;
-      }
-    });
+    const operator = operators[name];
 
-    if (errorSize > 0) {
+    if (
+      !(
+        (!item.signature &&
+          !item.secret[operator.keys[0]] &&
+          !item.secret[operator.keys[1]] &&
+          item.sms.china.templates.length === 0) ||
+        (item.signature &&
+          item.secret[operator.keys[0]] &&
+          item.secret[operator.keys[1]] &&
+          item.sms.china.templates.length > 0)
+      )
+    ) {
       alert(_l('保存失败，请检查配置信息'), 2);
       return;
     }
 
     sms
-      .editProviders({ providers: data })
+      .editProvider({ provider: item })
       .then(result => {
-        alert(_l('设置完成'));
-        this.props.onSave(data);
+        if (result) {
+          alert(_l('设置成功'));
+          this.props.onSave(item);
+        } else {
+          alert(_l('设置失败'), 2);
+        }
       })
       .catch(() => {
-        alert(_l('修改失败'), 2);
+        alert(_l('设置失败'), 2);
       });
   };
 
   onChangeSecret(name, key, value) {
-    const data = [].concat(this.state.data);
-    const current = data.find(item => item.name === name);
+    const current = _.cloneDeep(this.state.item);
 
     current.secret[key] = value;
-    this.setState({ data });
+    this.setState({ item: current });
   }
 
   onChangeSignature(name, value) {
-    const data = [].concat(this.state.data);
-    const current = data.find(item => item.name === name);
-
-    current.signature = value;
-    this.setState({ data });
+    this.setState({
+      item: {
+        ...this.state.item,
+        signature: value,
+      },
+    });
   }
 
   onDeleteTemplate(name, index) {
-    const data = [].concat(this.state.data);
-    const current = data.find(item => item.name === name);
+    const current = _.cloneDeep(this.state.item);
 
     _.remove(current.sms.china.templates, (item, i) => i === index);
-    this.setState({ data });
+    this.setState({ item: current });
   }
 
   onChangeCode(value) {
@@ -176,9 +176,8 @@ export default class MessageSettings extends Component {
   }
 
   onSave = () => {
-    const { editDialogKey, editIndex, currentTemp } = this.state;
-    const data = [].concat(this.state.data);
-    const current = data.find(item => item.name === editDialogKey);
+    const { editIndex, currentTemp } = this.state;
+    const current = _.cloneDeep(this.state.item);
 
     if (!currentTemp.id) {
       alert(_l('模板 Code不能为空'), 2);
@@ -195,7 +194,7 @@ export default class MessageSettings extends Component {
       current.sms.china.templates.push(currentTemp);
     }
 
-    this.setState({ data, editDialogKey: '', currentTemp: null });
+    this.setState({ item: current, editDialogKey: '', currentTemp: null });
   };
 
   renderTemplates(name, templates) {
@@ -229,7 +228,10 @@ export default class MessageSettings extends Component {
             >
               {_l('编辑')}
             </span>
-            <span className="ThemeColor3 ThemeHoverColor2 mLeft35 pointer" onClick={() => this.onDeleteTemplate(name, i)}>
+            <span
+              className="ThemeColor3 ThemeHoverColor2 mLeft35 pointer"
+              onClick={() => this.onDeleteTemplate(name, i)}
+            >
               {_l('删除')}
             </span>
           </div>
@@ -258,14 +260,22 @@ export default class MessageSettings extends Component {
           {_l('模板类型')}
           <span className="Gray_bd">{_l('（暂仅支持验证码）')}</span>
         </div>
-        <Dropdown className="w100 mTop10" style={{ background: '#f5f5f5' }} disabled={true} value={currentTemp.type} border data={TYPES} />
+        <Dropdown
+          className="w100 mTop10"
+          style={{ background: '#f5f5f5' }}
+          disabled={true}
+          value={currentTemp.type}
+          border
+          data={TYPES}
+        />
         <div className="Font14 mTop20">{_l('模版 Code')}</div>
         <Input className="w100 mTop10" value={currentTemp.id} onChange={value => this.onChangeCode(value.trim())} />
         <div className="Font14 mTop20">{_l('变量参数')}</div>
-        {editDialogKey==='Tencentyun'
-         ? <div className="Font12 mTop10 Gray_bd">{_l('如："您的验证码是{1}，感谢您的使用"，则参数为 {1}。')}</div>
-         : <div className="Font12 mTop10 Gray_bd">{_l('如："您的验证码是${code}，感谢您的使用"，则参数为 code。')}</div>
-        }
+        {editDialogKey === 'Tencentyun' ? (
+          <div className="Font12 mTop10 Gray_bd">{_l('如："您的验证码是{1}，感谢您的使用"，则参数为 {1}。')}</div>
+        ) : (
+          <div className="Font12 mTop10 Gray_bd">{_l('如："您的验证码是${code}，感谢您的使用"，则参数为 code。')}</div>
+        )}
         {currentTemp.vars.map((item, i) => {
           return (
             <div className="mTop10" key={i}>
@@ -288,56 +298,58 @@ export default class MessageSettings extends Component {
 
   render() {
     const { name } = this.props;
-    const { loading, operators, data } = this.state;
-
-    if (loading) {
-      return <LoadDiv />
-    }
+    const { operators, item } = this.state;
+    const operator = operators[name];
+    const templates = _.get(item, 'sms.china.templates');
 
     return (
       <Wrap className="flexColumn">
         <div className="flex">
-          {data.filter(item => item.name === name).map(item => {
-            const operator = operators[item.name];
-            const { templates } = item.sms.china;
-            return (
-              <Fragment key={item.name}>
-                <div className="flexColumn">
-                  <div className="flex">
-                    <div className="Font14 mBottom5">{operator.tags[0]}</div>
-                    <Input
-                      className="w100"
-                      value={item.secret[operator.keys[0]]}
-                      onChange={value => this.onChangeSecret(item.name, operator.keys[0], value.trim())}
-                    />
-                  </div>
-                  <div className="flex">
-                    <div className="Font14 mTop15 mBottom5">{operator.tags[1]}</div>
-                    <Input
-                      type="password"
-                      className="w100"
-                      value={item.secret[operator.keys[1]]}
-                      onChange={value => this.onChangeSecret(item.name, operator.keys[1], value.trim())}
-                    />
-                  </div>
-                  <div className="flex">
-                    <div className="Font14 mTop15 mBottom5">{_l('签名')}</div>
-                    <Input className="w100" value={item.signature} onChange={value => this.onChangeSignature(item.name, value.trim())} />
-                  </div>
-                </div>
-                {!_.isEmpty(templates) && <div className="Font14 mTop10 mBottom5">{_l('短信模板')}</div>}
-                {this.renderTemplates(item.name, templates)}
-                <div
-                  style={{ color: '#2196F3' }}
-                  className="mTop20 pointer"
-                  onClick={() => this.setState({ editDialogKey: item.name, editIndex: '', currentTemp: { type: 1, id: '', vars: [] } })}
-                >
-                  <Icon icon="add" />
-                  {_l('添加模板')}
-                </div>
-              </Fragment>
-            );
-          })}
+          <Fragment key={item.name}>
+            <div className="flexColumn">
+              <div className="flex">
+                <div className="Font14 mBottom5">{operator.tags[0]}</div>
+                <Input
+                  className="w100"
+                  value={item.secret[operator.keys[0]]}
+                  onChange={value => this.onChangeSecret(item.name, operator.keys[0], value.trim())}
+                />
+              </div>
+              <div className="flex">
+                <div className="Font14 mTop15 mBottom5">{operator.tags[1]}</div>
+                <Input
+                  type="password"
+                  className="w100"
+                  value={item.secret[operator.keys[1]]}
+                  onChange={value => this.onChangeSecret(item.name, operator.keys[1], value.trim())}
+                />
+              </div>
+              <div className="flex">
+                <div className="Font14 mTop15 mBottom5">{_l('签名')}</div>
+                <Input
+                  className="w100"
+                  value={item.signature}
+                  onChange={value => this.onChangeSignature(item.name, value.trim())}
+                />
+              </div>
+            </div>
+            {!_.isEmpty(templates) && <div className="Font14 mTop10 mBottom5">{_l('短信模板')}</div>}
+            {this.renderTemplates(item.name, templates)}
+            <div
+              style={{ color: '#2196F3' }}
+              className="mTop20 pointer"
+              onClick={() =>
+                this.setState({
+                  editDialogKey: item.name,
+                  editIndex: '',
+                  currentTemp: { type: 1, id: '', vars: [] },
+                })
+              }
+            >
+              <Icon icon="add" />
+              {_l('添加模板')}
+            </div>
+          </Fragment>
         </div>
         {this.renderEditDialog()}
       </Wrap>

@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Support, Icon, Dropdown, Switch, LoadDiv, Button, Tooltip } from 'ming-ui';
 import { Select } from 'antd';
+import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { filterData } from 'src/pages/FormSet/components/columnRules/config.js';
 import { FilterItemTexts } from 'src/pages/widgetConfig/widgetSetting/components/FilterData';
 import MapField from './components/MapField';
@@ -76,6 +77,7 @@ export default class PayConfig extends Component {
       expireTime: 10,
       loading: true,
       isRefundAllowed: false, //是否启用退款
+      isAllowedAddOption: false, //
       scenes: {},
       enableOrderVisible: false,
       internalUser: {
@@ -114,6 +116,7 @@ export default class PayConfig extends Component {
         isEnabledExternalPortal,
         isEnabledPublicForm,
         boundControlIds = [],
+        isAllowedAddOption,
       } = settings;
       const { internalUser = {}, externalUser = {} } = worksheetPaymentSetting;
       const controls = _.get(worksheetInfo, 'template.controls') || [];
@@ -136,6 +139,7 @@ export default class PayConfig extends Component {
           'enableOrderVisible',
           'orderVisibleViewId',
           'isRefundAllowed',
+          'isAllowedAddOption',
         ]),
         fieldMaps: filterDeleteFields(settings.fieldMaps, controls),
         internalUser: {
@@ -202,6 +206,7 @@ export default class PayConfig extends Component {
       orderVisibleViewIds = [],
       internalUser = {},
       externalUser = {},
+      isAllowedAddOption,
     } = this.state;
 
     if (scenes.publicWorkSheet) {
@@ -232,6 +237,7 @@ export default class PayConfig extends Component {
         expireTime,
         enableOrderVisible,
         isRefundAllowed,
+        isAllowedAddOption,
         orderVisibleViewId: JSON.stringify(orderVisibleViewIds),
         worksheetPaymentSetting: {
           internalUser: {
@@ -264,6 +270,7 @@ export default class PayConfig extends Component {
               orderVisibleViewId: JSON.stringify(orderVisibleViewIds),
               internalUser,
               externalUser,
+              isAllowedAddOption,
             },
           });
         } else {
@@ -289,6 +296,7 @@ export default class PayConfig extends Component {
       externalUser,
       isRefundAllowed,
       orderVisibleViewIds = [],
+      isAllowedAddOption,
     } = this.state;
     const { publicWorkSheet, workSheet } = scenes;
 
@@ -310,6 +318,7 @@ export default class PayConfig extends Component {
             internalUser,
             externalUser,
             isRefundAllowed,
+            isAllowedAddOption,
           };
 
     return !_.isEqual(currentSettings, initSettings);
@@ -392,7 +401,10 @@ export default class PayConfig extends Component {
                       </div>
                       {hasFilters ? (
                         <FilterItemTexts
-                          filterItemTexts={filterData(controls, filter)}
+                          filterItemTexts={filterData(
+                            controls.map(control => redefineComplexControl(control)),
+                            filter,
+                          )}
                           loading={false}
                           editFn={() => this.setState({ showFilterDialog: true, filterType: key })}
                         />
@@ -455,6 +467,8 @@ export default class PayConfig extends Component {
       orderVisibleViewIds = [],
       isEnabledPublicForm,
       boundControlIds,
+      isAllowedAddOption,
+      initSettings,
     } = this.state;
 
     const isEmptyField = Object.keys(fieldMaps).every(v => !fieldMaps[v]);
@@ -650,6 +664,20 @@ export default class PayConfig extends Component {
                 />
                 <div className="subTitle">{_l('字段映射')}</div>
                 <div className="Gray_9e mBottom16">{_l('将订单明细映射到当前记录')}</div>
+                <div className="flexRow alignItemsCenter mBottom10">
+                  <Switch
+                    className="mRight8"
+                    size="small"
+                    checked={isAllowedAddOption}
+                    onClick={checked => {
+                      this.setState({
+                        isAllowedAddOption: !checked,
+                        fieldMaps: checked ? filterDeleteFields(fieldMaps, controls, !checked) : initSettings.fieldMaps,
+                      });
+                    }}
+                  />
+                  <span className="bold Font14">{_l('选择选项字段映射时，未映射的选项内容可增加为选项')}</span>
+                </div>
                 <div className="mapSettingBtn Hand" onClick={() => this.setState({ showMapFieldsDialog: true })}>
                   {isEmptyField ? (
                     _l('点击设置')

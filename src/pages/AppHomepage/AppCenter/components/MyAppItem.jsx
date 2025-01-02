@@ -204,6 +204,8 @@ export default class MyAppItem extends Component {
       appLang,
       allowCreate,
       myPermissions = [],
+      sourceType,
+      isGoodsStatus
     } = this.props;
     const isShowSelectIcon = selectIconVisible || newAppItemId === id;
     const iconColor = this.props.iconColor || '#2196f3';
@@ -211,6 +213,7 @@ export default class MyAppItem extends Component {
     const black = '#1b2025' === navColor;
     const light = [lightColor, '#ffffff', '#f5f6f7'].includes(navColor);
     const appName = _.get(_.find(appLang, { key: id }), 'value') || name;
+    const hideTrigger = sourceType === 60 && !isGoodsStatus && isDashboard;
 
     return (
       <div
@@ -235,7 +238,7 @@ export default class MyAppItem extends Component {
           >
             <div className="myAppItemDetail" style={{ backgroundColor: light ? lightColor : navColor || iconColor }}>
               <SvgIcon url={iconUrl} fill={black || light ? iconColor : '#fff'} size={48} />
-              <AppStatusComp {..._.pick(this.props, ['isGoodsStatus', 'isNew', 'fixed'])} />
+              <AppStatusComp {..._.pick(this.props, ['isGoodsStatus', 'isNew', 'fixed', 'appStatus'])} />
             </div>
             {type === 'external' ? (
               <div className="externalAppInfo">
@@ -259,9 +262,7 @@ export default class MyAppItem extends Component {
           >
             <Icon className="Font16" icon={isMarked ? 'task-star' : 'star-hollow'} />
           </div>
-          {(canEditApp(permissionType, isLock) ||
-            canEditData(permissionType) ||
-            (!_.includes(['external', 'star', 'personal'], type) && !isDashboard)) && (
+          {(canEditApp(permissionType, isLock) || canEditData(permissionType) || (!_.includes(['external', 'star', 'personal'], type) && !isDashboard)) && !hideTrigger && (
             <Trigger
               popupVisible={editAppVisible}
               popupClassName="myAppItemOperatorTriggerWrap"
@@ -281,6 +282,8 @@ export default class MyAppItem extends Component {
                   isDashboard={isDashboard}
                   allowCreate={allowCreate}
                   myPermissions={myPermissions}
+                  sourceType={sourceType}
+                  isGoodsStatus={isGoodsStatus}
                 />
               }
               popupAlign={{

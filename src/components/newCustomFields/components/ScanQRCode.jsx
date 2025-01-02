@@ -79,6 +79,7 @@ export default class Widgets extends Component {
     if (window.isDingTalk || window.isWeLink || isWx || window.isWxWork || window.isFeiShu) {
       return;
     }
+
     import('html5-qrcode').then(data => {
       this.qrCodeComponent = data;
     });
@@ -142,14 +143,14 @@ export default class Widgets extends Component {
     if (scantype === '2') {
       return ['qrCode'];
     }
-  }
+  };
   handleScanCode = () => {
     const { projectId, control } = this.props;
 
     if (window.isMingDaoApp) {
       window.MDJS.scanQRCode({
         control,
-        success: (res) => {
+        success: res => {
           this.props.onScanQRCodeResult(res.resultStr);
         },
         cancel: function (res) {
@@ -157,7 +158,7 @@ export default class Widgets extends Component {
           if (!(errMsg.includes('cancel') || errMsg.includes('canceled'))) {
             window.nativeAlert(JSON.stringify(res));
           }
-        }
+        },
       });
       return;
     }

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { formatter } from '../../util';
 import _ from 'lodash';
 import moment from 'moment';
@@ -126,7 +126,7 @@ export default class LineChart extends React.Component {
               },
               style: {
                 fontSize: 13,
-                fill: '#333',
+                fill: '#151515',
               },
             },
             itemSpacing: 50,
@@ -196,7 +196,7 @@ export default class LineChart extends React.Component {
               },
               style: {
                 fontSize: 13,
-                fill: '#333',
+                fill: '#151515',
               },
             },
             marker: {
@@ -280,7 +280,7 @@ export default class LineChart extends React.Component {
               },
               style: {
                 fontSize: 13,
-                fill: '#333',
+                fill: '#151515',
               },
             },
             maxWidth: this.lineChartEle.clientWidth <= 1100 ? 800 : 1200,
@@ -292,8 +292,8 @@ export default class LineChart extends React.Component {
           },
           tooltip: {
             customContent: (title, items) => {
-              let unit = total.slice(total.length - 2);
               const currentTotal = _.reduce(items, (sum, item) => (sum = sum + Number(item.value)), 0);
+              let unit = currentTotal > 0 ? _.get(items, '[0].data.unit') : total.slice(total.length - 2);
 
               return `<div class="g2TooltipWrap">
                 <div class="g2-tooltip-title">${title}</div>

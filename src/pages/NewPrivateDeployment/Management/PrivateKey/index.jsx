@@ -29,7 +29,7 @@ const Wrap = styled.div`
     }
   }
   .personalEntrypointInfo {
-    color: #333333;
+    color: #151515;
     background-color: #F5F5F5;
     padding: 10px;
     border-radius: 3px;

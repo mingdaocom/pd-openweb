@@ -9,7 +9,7 @@ const IconWrap = styled.i`
   &.action {
     cursor: pointer;
     &:hover {
-      color: #333;
+      color: #151515;
     }
   }
   &.delete {

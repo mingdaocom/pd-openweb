@@ -9,7 +9,7 @@ import { addToken } from 'src/util';
 import styled from 'styled-components';
 
 const Wrap = styled.div`
-  color: #333333;
+  color: #151515;
   font-size: 13px;
   display: flex;
   flex-direction: column;

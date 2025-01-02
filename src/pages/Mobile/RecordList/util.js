@@ -92,7 +92,7 @@ export const getViewActionInfo = ({
       break;
     case detail:
       canAddRecord = canAddRecord && childType !== 1;
-      recordActionWrapBottom = childType === 1 ? recordActionWrapBottom + 80 : recordActionWrapBottom;
+      recordActionWrapBottom = childType === 1 ? recordActionWrapBottom + 100 : recordActionWrapBottom;
       break;
     case resource:
       const viewControlInfo =

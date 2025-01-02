@@ -360,7 +360,7 @@ const RequiredStrictVerification = props => {
           </div>
           <div className="mTop5">
             {_l(
-              '注意：存在多访问地址时无法开启',
+              '注意：存在多访问地址时，仅主地址下有效',
             )}
           </div>
         </div>

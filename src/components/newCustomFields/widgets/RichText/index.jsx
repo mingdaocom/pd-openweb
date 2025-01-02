@@ -18,6 +18,7 @@ export default class Widgets extends Component {
     this.state = {
       isEditing: false,
       width: props.width,
+      focused: false,
     };
   }
 
@@ -36,7 +37,11 @@ export default class Widgets extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return !_.isEqual(nextProps.flag, this.props.flag) || !_.isEqual(nextState.width, this.state.width) || !_.isEqual(nextProps.value, this.props.value);
+    return (
+      !_.isEqual(nextProps.flag, this.props.flag) ||
+      !_.isEqual(nextState.width, this.state.width) ||
+      (!_.isEqual(nextProps.value, this.props.value) && !nextState.focused)
+    );
   }
 
   onChange = _.debounce(value => {
@@ -97,6 +102,8 @@ export default class Widgets extends Component {
         maxHeight={maxHeight}
         autoSize={{ height: displayRow ? 'auto' : '100%' }}
         handleFocus={() => triggerCustomEvent(ADD_EVENT_ENUM.FOCUS)}
+        onFocus={() => this.setState({ focused: true })}
+        onBlur={() => this.setState({ focused: false })}
       />
     );
   }

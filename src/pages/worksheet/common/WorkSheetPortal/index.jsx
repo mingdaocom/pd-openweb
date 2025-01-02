@@ -9,6 +9,7 @@ import cx from 'classnames';
 import WorksheetEmpty from 'worksheet/common/WorksheetEmpty/WorksheetEmpty';
 import CreateAppItem from '../WorkSheetLeft/CreateAppItem';
 import MoreOperation from '../WorkSheetLeft/MoreOperation';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import Drag from '../WorkSheetLeft/Drag';
 import AppItem from './AppItem';
 import homeAppApi from 'src/api/homeApp';
@@ -26,6 +27,7 @@ const WorkSheetPortal = props => {
       ? props.data
       : props.data.filter(item => [1, 4].includes(item.status) && !item.navigateHide).filter(filterEmptyAppItem);
   const ref = useRef(null);
+  const isEditApp = canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock']));
 
   const getSheetList = () => {
     sheetListActions.getSheetList({
@@ -129,14 +131,14 @@ const WorkSheetPortal = props => {
                     url={
                       item.iconUrl ? item.iconUrl : `${md.global.FileStoreConfig.pubHost}customIcon/${item.icon}.svg`
                     }
-                    fill={'#333'}
+                    fill={'#151515'}
                     className="mRight5"
                   />
                 )}
                 <div className="Font16 bold">
                   {getTranslateInfo(appId, null, item.workSheetId).name || item.workSheetName}
                 </div>
-                {renderIcon()}
+                {isEditApp && renderIcon()}
                 {isCharge && !item.notMore && (
                   <MoreOperation isGroup appItem={appItem} onChangeEdit={setEditId} {...props}>
                     <div className="moreIcon mLeft10">

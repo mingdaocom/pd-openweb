@@ -30,7 +30,7 @@ export default class Message extends Component {
     return (
       <div className="pLeft8 pRight8">
         <div className="pTop5">
-          <span className="Gray_75">{_l('发送给: ')}</span>
+          <span className="Gray_75">{_l('发送给:')}</span>
           <MembersName {...this.props} accounts={item.accounts} />
         </div>
         <div className="pBottom5 mTop4">

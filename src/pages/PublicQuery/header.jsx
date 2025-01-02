@@ -33,7 +33,7 @@ const PublicqueryHeader = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #333;
+    color: #151515;
   }
 `;
 class WorksheetShareHeader extends React.Component {

@@ -14,8 +14,10 @@ RegExpValidator.isURL = function (str) {
 };
 
 // 验证密码格式是否符合
-RegExpValidator.isPasswordValid = function (str, passwordRegex) {
-  const regex = passwordRegex ? new RegExp(passwordRegex) : /^(?=.*\d)(?=.*[a-zA-Z]).{8,20}$/;
+RegExpValidator.isPasswordValid = function (str) {
+  const regex = _.get(md, 'global.SysSettings.passwordRegex')
+    ? new RegExp(_.get(md, 'global.SysSettings.passwordRegex'))
+    : /^(?=.*\d)(?=.*[a-zA-Z]).{8,20}$/;
   return regex.test(str);
 };
 

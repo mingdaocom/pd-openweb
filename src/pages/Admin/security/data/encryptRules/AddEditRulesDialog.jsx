@@ -54,7 +54,7 @@ const FormItem = styled.div`
     border: 1px solid #eaeaea;
   }
 `;
-const errors = { 0: _l('新建失败'), 3: _l('名称重复'), 21: _l('Key无效'), 22: _l('IV无效 ') };
+const errors = { 0: _l('新建失败'), 3: _l('名称重复'), 21: _l('Key无效'), 22: _l('IV无效') };
 
 const { Option } = Select;
 export default class AddEditRulesDialog extends Component {

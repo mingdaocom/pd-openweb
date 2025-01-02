@@ -22,7 +22,7 @@ const SortableBtnListWrap = styled.ul`
     min-width: 180px;
     line-height: 36px;
     background-color: #fff;
-    color: #333;
+    color: #151515;
     .btnIcon {
       margin: 0 7px;
     }

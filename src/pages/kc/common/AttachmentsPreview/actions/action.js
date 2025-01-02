@@ -4,17 +4,18 @@
 import attachmentAjax from 'src/api/attachment';
 import kcAjax from 'src/api/kc';
 import fileAjax from 'src/api/file';
-import { getToken, addBehaviorLog } from 'src/util';
+import { getToken, addBehaviorLog, getFeatureStatus } from 'src/util';
+import { VersionProductType } from 'src/util/enum';
 import saveToKnowledge from 'src/components/saveToKnowledge/saveToKnowledge';
 import folderDg from 'src/components/kc/folderSelectDialog/folderSelectDialog';
 import { NODE_VISIBLE_TYPE, PICK_TYPE } from '../../../constant/enum';
 import kcService from '../../../api/service';
 import { EXT_TYPE_DIC, PREVIEW_TYPE, LOADED_STATUS } from '../constant/enum';
 import { splitFileName } from '../constant/util';
-import { defaultWpsPreview } from '../../../utils';
+import { defaultWpsPreview, isWpsPreview } from '../../../utils';
 import ACTION_TYPES from '../constant/actionTypes';
 import * as ajax from '../ajax';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 
 function addViewCount(attachment) {
   if (
@@ -87,7 +88,10 @@ function loadAttachment(attachment, options = {}) {
         });
     } else if (
       (attachment.ext || '').toLocaleLowerCase() !== 'pdf' &&
-      ((previewAttachmentType === 'COMMON' && !!refId && md.global.Account.accountId) ||
+      ((previewAttachmentType === 'COMMON' &&
+        !!refId &&
+        isEmpty((attachment || {}).sourceNode) &&
+        md.global.Account.accountId) ||
         previewAttachmentType === 'KC_ID')
     ) {
       attachmentPromise = ajax.getKcNodeDetail(refId, options.worksheetId).then(data => {
@@ -135,7 +139,7 @@ function loadAttachment(attachment, options = {}) {
             status: LOADED_STATUS.DELETED,
           });
         }
-        if (options.disableNoPeimission && data.refId && !data.shareUrl) {
+        if (options.disableNoPeimission && data.refId && !data.privateDownloadUrl) {
           throw new AttachmentError({
             text: '您权限不足，无法分享，请联系管理员或文件上传者',
             status: LOADED_STATUS.DELETED,
@@ -153,7 +157,6 @@ function loadAttachment(attachment, options = {}) {
 
     Promise.all([attachmentPromise])
       .then(([newAttachment]) => {
-        previewAttachmentType = newAttachment.previewAttachmentType;
         previewType = newAttachment.previewType;
         if (previewAttachmentType === 'COMMON') {
           if (attachment.sourceNode.viewUrl) {
@@ -194,6 +197,50 @@ function loadAttachment(attachment, options = {}) {
         });
       });
   });
+}
+
+export function getAttachmentEditDetail(params) {
+  const {
+    currentAttachment,
+    controlId,
+    recordId,
+    worksheetId,
+    projectId,
+    dispatch,
+    masterWorksheetId,
+    masterRecordId,
+    masterControlId,
+    allowEdit,
+  } = params;
+  const isNewTab = location.pathname.indexOf('recordfile') > -1 || location.pathname.indexOf('rowfile') > -1;
+  const featureType = getFeatureStatus(projectId, VersionProductType.editAttachment);
+
+  if ((!isNewTab && featureType !== '1') || !allowEdit || !md.global.Config.EnableDocEdit) return;
+
+  if (isWpsPreview(currentAttachment.ext, true) && !_.get(window, 'shareState.shareId')) {
+    let attachmentShareId;
+    if (!controlId && isNewTab) {
+      attachmentShareId = location.pathname.match(/.*\/(recordfile|rowfile)\/(\w+)/)[2];
+    }
+
+    attachmentAjax
+      .getAttachmentEditDetail({
+        fileId: currentAttachment.sourceNode.fileID || currentAttachment.sourceNode.fileId,
+        worksheetId,
+        rowId: recordId,
+        controlId,
+        attachmentShareId,
+        parentWorksheetId: masterWorksheetId,
+        parentRowId: masterRecordId,
+        foreignControlId: masterControlId,
+      })
+      .then(res => {
+        dispatch({ type: 'ATTACHMENT_EDIT_DETAIL', wpsEditUrl: res.wpsEditUrl });
+      })
+      .catch(err => {
+        dispatch({ type: 'ATTACHMENT_EDIT_DETAIL', wpsEditUrl: '' });
+      });
+  }
 }
 
 function getExtType(ext) {
@@ -328,6 +375,13 @@ export function init(options, extra) {
           error: err,
         });
       });
+
+    getAttachmentEditDetail({
+      currentAttachment,
+      ...options,
+      dispatch,
+    });
+
     if (index > attachments.length - 3) {
       loadMoreAttachments(getState(), dispatch);
     }
@@ -415,6 +469,7 @@ function changeIndexThunk(dispatch, getState, index, flag, extra = {}) {
     fileId: _.get(state.attachments || [], `[${index}].sourceNode.fileID`),
     rowId: extra.recordId,
   });
+  getAttachmentEditDetail({ ...extra, dispatch, currentAttachment: _.get(state.attachments || [], `[${index}]`) });
   dispatch({
     type: 'FILE_PREVIEW_CHANGE_INDEX',
     index,

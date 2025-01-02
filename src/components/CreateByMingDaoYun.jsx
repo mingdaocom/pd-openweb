@@ -5,7 +5,7 @@ import styled from 'styled-components';
 const CreatedBy = styled.div`
   color: #757575;
   a {
-    color: #333;
+    color: #151515;
     font-weight: bold;
     font-style: italic;
     &:hover {

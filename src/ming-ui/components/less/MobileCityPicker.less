@@ -1,19 +1,12 @@
 .mobileCityPicker {
+  height: 100%;
   font-size: 15px !important;
-  .header {
-    padding: 10px 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    font-size: 17px;
-  }
+
   .am-tabs-default-bar-tab {
     padding: 0;
     height: 36px;
   }
-  .mobileCityPickerListItem {
-    justify-content: space-between;
-  }
+
   .searchWrapper {
     display: flex;
     align-items: center;
@@ -22,7 +15,7 @@
     padding: 7px 10px;
     margin: 10px 15px 0 15px;
     .icon-h5_search {
-      color: #80a4c7;
+      color: #757575;
       font-size: 14px;
     }
     .icon-workflow_cancel {
@@ -36,6 +29,32 @@
       background: rgba(0, 0, 0, 0);
     }
   }
+
+  .cityPickerContentBox {
+    overflow-y: auto;
+    .popupListBox {
+      padding-left: 16px;
+      .popupListItem {
+        display: flex;
+        align-items: center;
+        &:nth-child(n + 2) .popupListItemContentBox {
+          border-top: 1px solid #EAEAEA;
+        }
+        .ming.Radio {
+          margin-right: initial;
+        }
+        .popupListItemContentBox {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex: 1;
+          padding: 12px 6px 12px 0;
+          font-size: 15px;
+        }
+      }
+    }
+  }
+
   .CityPicker-input-textCon::-webkit-input-placeholder {
     color: #bdbdbd;
     font-size: 13px;
@@ -49,12 +68,12 @@
     font-size: 13px;
   }
   .CityPicker-input-placeholder-Gray3::-webkit-input-placeholder {
-    color: #333 !important;
+    color: #151515 !important;
   }
   .CityPicker-input-placeholder-Gray3::-moz-placeholder {
-    color: #333 !important;
+    color: #151515 !important;
   }
   .CityPicker-input-placeholder-Gray3::-ms-input-placeholder {
-    color: #333 !important;
+    color: #151515 !important;
   }
 }

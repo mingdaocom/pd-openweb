@@ -14,7 +14,7 @@ const Con = styled.div`
   line-height: 32px;
   border-radius: 4px;
   overflow: hidden;
-  border: 1px solid ${({ active }) => (active ? '#2196f3' : '#ddd')} !important;
+  border: 1px solid ${({ active }) => (active ? '#2196f3' : 'var(--border-color)')} !important;
   .clearIcon {
     display: none;
   }
@@ -35,17 +35,9 @@ const Con = styled.div`
   }
   .customCascaderInput,
   .customAntSelect {
-    width: 100% !important;
-    height: 1px;
-    overflow: hidden;
-    opacity: 0;
-    float: left;
-    padding: 0;
-    margin: 0 -8px !important;
-    * {
-      height: 1px !important;
-      min-height: 1px !important;
-      overflow: hidden !important;
+    .ant-select-selector {
+      border: none !important;
+      min-height: 34px !important;
     }
   }
 `;

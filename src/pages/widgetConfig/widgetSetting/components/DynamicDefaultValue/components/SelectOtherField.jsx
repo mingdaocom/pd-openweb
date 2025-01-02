@@ -27,6 +27,8 @@ import styled from 'styled-components';
 import cx from 'classnames';
 import _ from 'lodash';
 import { isSheetDisplay } from 'src/pages/widgetConfig/util';
+import { getDaterange } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/util.js';
+import { DATE_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
 
 const MenuStyle = styled.div`
   display: flex;
@@ -56,6 +58,7 @@ export default class SelectOtherField extends Component {
     filedVisible: false,
     searchVisible: false,
     fxVisible: false,
+    showPopupType: '',
   };
 
   // 插入标签;
@@ -162,7 +165,13 @@ export default class SelectOtherField extends Component {
   handleActionForLinkParam = value => {
     const { onDynamicValueChange } = this.props;
     onDynamicValueChange([{ cid: value, rcid: 'url', staticValue: '', isAsync: true }]);
-    this.setState({ isDynamic: false });
+    this.setState({ isDynamic: false, showPopupType: '' });
+  };
+
+  handleActionForDY = value => {
+    const { onDynamicValueChange } = this.props;
+    onDynamicValueChange([{ cid: value, rcid: 'dateRange', staticValue: '', isAsync: true }]);
+    this.setState({ isDynamic: false, showPopupType: '' });
   };
 
   getCurrentField = data => {
@@ -175,8 +184,8 @@ export default class SelectOtherField extends Component {
         this.props.writeObject === 1
           ? CURRENT_TYPES[data.type] || []
           : (CURRENT_TYPES[data.type] || []).concat([
-            { icon: 'icon-workflow_other', text: _l('当前记录的字段值'), key: 1 },
-          ]);
+              { icon: 'icon-workflow_other', text: _l('当前记录的字段值'), key: 1 },
+            ]);
       customTypes = this.props.showEmpty ? CUR_EMPTY_TYPES.concat(customTypes) : customTypes;
       return customTypes.filter(c => !_.includes(['keyword'], c.key));
     }
@@ -228,11 +237,15 @@ export default class SelectOtherField extends Component {
     if (this.props.showEmpty) {
       types = CUR_EMPTY_TYPES.concat(types);
     }
+    // 未保存子表不支持查询工作表
+    if (this.props.from === 'subList' && this.props.subListSheetId.includes('-')) {
+      types = types.filter(item => !_.includes([OTHER_FIELD_TYPE.SEARCH], item.key));
+    }
     return types;
   };
 
   render() {
-    const { isDynamic, filedVisible, fxVisible, searchVisible } = this.state;
+    const { isDynamic, filedVisible, fxVisible, searchVisible, showPopupType } = this.state;
     const {
       data,
       dynamicValue,
@@ -245,12 +258,118 @@ export default class SelectOtherField extends Component {
       showEmpty,
       from,
       withLinkParams,
+      withDY,
       linkParams = [],
       hideDynamic,
     } = this.props;
+
     const filterTypes = this.getCurrentField(data);
     //子表、列表默认显示查询工作表icon，如包含清空操作时，显示动态值icon操作
     const isSubList = (_.includes([34], data.type) || isSheetDisplay(data)) && !showEmpty;
+
+    const renderPopupForQuickFilter = () => {
+      switch (showPopupType) {
+        case 'DY_DATE':
+          return (
+            <Menu style={{ maxHeight: 200, overflowY: 'auto' }}>
+              {getDaterange(data.advancedSetting || {}).map(o => {
+                return (
+                  <MenuItem
+                    className="overflow_ellipsis"
+                    onClick={e => {
+                      this.handleActionForDY(o);
+                      e.stopPropagation();
+                    }}
+                  >
+                    <MenuStyle>{(_.flattenDeep(DATE_TYPE).find(it => it.value == o) || {}).text}</MenuStyle>
+                  </MenuItem>
+                );
+              })}
+            </Menu>
+          );
+
+        case 'DY_LINK':
+          return linkParams.length > 0 ? (
+            <Menu>
+              {linkParams.map(item => {
+                return (
+                  <MenuItem
+                    className="overflow_ellipsis"
+                    onClick={e => {
+                      this.handleActionForLinkParam(item);
+                      e.stopPropagation();
+                    }}
+                  >
+                    <MenuStyle>{item}</MenuStyle>
+                  </MenuItem>
+                );
+              })}
+            </Menu>
+          ) : (
+            <Menu>
+              <div className="Gray_75 pLeft16 pTop8 pBottom8">{_l('未添加链接参数')}</div>
+            </Menu>
+          );
+        default:
+          return (
+            <Menu>
+              <MenuItem
+                className="overflow_ellipsis"
+                onClick={e => {
+                  this.setState({ showPopupType: 'DY_DATE', isDynamic: true });
+                  e.stopPropagation();
+                }}
+              >
+                <MenuStyle>
+                  <i className={`icon-hr_time Font20 mRight15`}></i>
+                  {_l('动态时间')}
+                </MenuStyle>
+              </MenuItem>
+              <MenuItem
+                className="overflow_ellipsis"
+                onClick={e => {
+                  this.setState({ showPopupType: 'DY_LINK', isDynamic: true });
+                  e.stopPropagation();
+                }}
+              >
+                <MenuStyle>
+                  <i className={`icon-global_variable Font20 mRight15`}></i>
+                  {_l('链接参数')}
+                </MenuStyle>
+              </MenuItem>
+            </Menu>
+          );
+      }
+    };
+
+    const renderPopup = () => {
+      if (from === DYNAMIC_FROM_MODE.FAST_FILTER && (withLinkParams || withDY)) {
+        return renderPopupForQuickFilter();
+      }
+      return propFiledVisible || filedVisible ? (
+        <SelectFields
+          onClickAway={() => this.setState({ isDynamic: false, filedVisible: false })}
+          data={data}
+          dynamicValue={dynamicValue}
+          onClick={this.insertField}
+          onMultiUserChange={onDynamicValueChange}
+          {...this.props}
+        />
+      ) : (
+        <Menu>
+          {filterTypes.map(item => {
+            return (
+              <MenuItem className="overflow_ellipsis" onClick={() => this.handleAction(item)}>
+                <MenuStyle>
+                  {from !== DYNAMIC_FROM_MODE.CUSTOM_PHP && <i className={`${item.icon} Font20 mRight15`}></i>}
+                  {item.text}
+                </MenuStyle>
+              </MenuItem>
+            );
+          })}
+        </Menu>
+      );
+    };
     return (
       <Fragment>
         <div ref={this.$wrap} className="selectOtherFieldContainer">
@@ -260,50 +379,7 @@ export default class SelectOtherField extends Component {
             popupVisible={isDynamic && !isSubList}
             onPopupVisibleChange={isDynamic => this.setState({ isDynamic })}
             getPopupContainer={() => popupContainer || this.$wrap.current}
-            popup={() => {
-              return withLinkParams ? (
-                linkParams.length > 0 ? (
-                  <Menu>
-                    {linkParams.map(item => {
-                      return (
-                        <MenuItem className="overflow_ellipsis" onClick={(e) => {
-                          this.handleActionForLinkParam(item)
-                          e.stopPropagation();
-                        }}>
-                          <MenuStyle>{item}</MenuStyle>
-                        </MenuItem>
-                      );
-                    })}
-                  </Menu>
-                ) : (
-                  <Menu>
-                    <div className="Gray_75 pLeft16 pTop8 pBottom8">{_l('未添加链接参数')}</div>
-                  </Menu>
-                )
-              ) : propFiledVisible || filedVisible ? (
-                <SelectFields
-                  onClickAway={() => this.setState({ isDynamic: false, filedVisible: false })}
-                  data={data}
-                  dynamicValue={dynamicValue}
-                  onClick={this.insertField}
-                  onMultiUserChange={onDynamicValueChange}
-                  {...this.props}
-                />
-              ) : (
-                <Menu>
-                  {filterTypes.map(item => {
-                    return (
-                      <MenuItem className="overflow_ellipsis" onClick={() => this.handleAction(item)}>
-                        <MenuStyle>
-                          {from !== DYNAMIC_FROM_MODE.CUSTOM_PHP && <i className={`${item.icon} Font20 mRight15`}></i>}
-                          {item.text}
-                        </MenuStyle>
-                      </MenuItem>
-                    );
-                  })}
-                </Menu>
-              );
-            }}
+            popup={renderPopup}
             popupAlign={{
               points: ['tr', 'br'],
               offset: [0, 5],
@@ -313,7 +389,7 @@ export default class SelectOtherField extends Component {
             <Tooltip
               trigger={['hover']}
               placement={'bottom'}
-              title={withLinkParams ? _l('使用链接参数') : isSubList ? _l('查询工作表') : _l('使用动态值')}
+              title={withLinkParams && !withDY ? _l('使用链接参数') : isSubList ? _l('查询工作表') : _l('使用动态值')}
             >
               <SelectOtherFieldWrap
                 onClick={() => {
@@ -321,12 +397,20 @@ export default class SelectOtherField extends Component {
                     this.setState({ searchVisible: true });
                     return;
                   }
+                  if (from === DYNAMIC_FROM_MODE.FAST_FILTER) {
+                    this.setState({ isDynamic: true, showPopupType: withDY ? '' : 'DY_LINK' });
+                    return;
+                  }
                   this.setState({ isDynamic: true });
                 }}
               >
                 <i
                   className={cx(
-                    withLinkParams ? 'icon-global_variable' : isSubList ? 'icon-lookup' : 'icon-workflow_other',
+                    withLinkParams && !withDY
+                      ? 'icon-global_variable'
+                      : isSubList
+                        ? 'icon-lookup'
+                        : 'icon-workflow_other',
                   )}
                 ></i>
               </SelectOtherFieldWrap>

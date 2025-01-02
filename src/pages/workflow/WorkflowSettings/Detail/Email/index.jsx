@@ -293,7 +293,7 @@ export default class Email extends Component {
                       condition={fieldsData}
                       handleFieldClick={({ nodeId, fieldValueId, nAlias, cAlias }) => {
                         this.setState({ fieldsVisible: false });
-                        copy(`#{${nAlias || nodeId}.${cAlias || fieldValueId}}`);
+                        copy(`#{${nAlias || nodeId}.${cAlias || fieldValueId}}`, { format: 'text/plain' });
                         alert(_l('已复制'));
                       }}
                       onClose={() => this.setState({ fieldsVisible: false })}

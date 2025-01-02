@@ -41,7 +41,7 @@ const Wrap = styled.div`
       align-items: center;
       width: 100%;
       line-height: 44px;
-      color: #333;
+      color: #151515;
     }
     .freeTag {
       display: inline-block;
@@ -123,14 +123,9 @@ class SideNav extends React.Component {
                             isDisabled: item.disabled,
                           })}
                         >
-                          <Link
-                            className="overflow_ellipsis pRight10"
-                            to={`/plugin/${item.type}`}
-                            onClick={e => e.preventDefault()}
-                          >
+                          <Link className="overflow_ellipsis pRight10 stopPropagation" to={`/plugin/${item.type}`}>
                             <Icon icon={item.icon} />
                             <span>{item.text}</span>
-                            {item.type === 'assistant' && <div className="freeTag">{_l('限免')}</div>}
                             {item.type === 'node' && <Icon icon="beta1" className="betaIcon" />}
                           </Link>
                         </li>

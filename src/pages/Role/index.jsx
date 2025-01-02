@@ -118,7 +118,7 @@ const WrapPop = styled.div`
     h6 {
       font-size: 15px;
       font-weight: 600;
-      color: #333333;
+      color: #151515;
     }
     li {
       color: #757575;

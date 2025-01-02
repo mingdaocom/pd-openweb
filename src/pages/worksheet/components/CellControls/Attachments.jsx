@@ -12,7 +12,7 @@ import { openControlAttachmentInNewTab, downloadAttachmentById } from 'worksheet
 import { getClassNameByExt, formatFileSize, addBehaviorLog, browserIsMobile } from 'src/util';
 import { bool, func, number, shape, string } from 'prop-types';
 import previewAttachments from 'src/components/previewAttachments/previewAttachments';
-import { checkValueByFilterRegex } from 'src/components/newCustomFields/tools/utils';
+import { checkValueByFilterRegex, controlState } from 'src/components/newCustomFields/tools/utils';
 import _ from 'lodash';
 import { FROM } from './enum';
 import RegExpValidator from 'src/util/expression';
@@ -138,7 +138,7 @@ const HoverPreviewPanelCon = styled.div`
     word-break: break-all;
   }
   .fileName {
-    color: #333;
+    color: #151515;
   }
   .panelFooter {
     margin-top: 2px;
@@ -277,6 +277,13 @@ function previewAttachment({
   controlId,
   from,
   advancedSetting,
+  allowEdit,
+  onlyEditSelf,
+  projectId,
+  masterWorksheetId,
+  masterRecordId,
+  masterControlId,
+  sourceControlId,
 }) {
   const recordAttachmentSwitch =
     !!_.get(window, 'shareState.shareId') || isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
@@ -301,7 +308,7 @@ function previewAttachment({
           });
         }
         return Object.assign({}, attachment, {
-          previewAttachmentType: attachment.refId ? 'KC_ID' : 'COMMON_ID',
+          previewAttachmentType: 'COMMON_ID',
         });
       }),
       showThumbnail: true,
@@ -312,6 +319,13 @@ function previewAttachment({
       recordId,
       controlId,
       from,
+      allowEdit,
+      onlyEditSelf,
+      projectId,
+      masterWorksheetId,
+      masterRecordId,
+      masterControlId,
+      sourceControlId,
     },
     {
       openControlAttachmentInNewTab: handleOpenControlAttachmentInNewTab,
@@ -331,9 +345,10 @@ function HoverPreviewPanel(props, cb = () => {}) {
     onUpdate,
     deleteLocalAttachment,
     sheetSwitchPermit,
+    masterData,
   } = props;
   const { originalFilename, ext = '', filesize } = attachment;
-  const { controlId, advancedSetting } = cell;
+  const { controlId, advancedSetting, sourceControlId } = cell;
   const { appId, viewId, worksheetId, recordId, disableDownload } = cellInfo;
   const [loading, setLoading] = useState(true);
   const allowDelete = advancedSetting.allowdelete || '1';
@@ -410,7 +425,10 @@ function HoverPreviewPanel(props, cb = () => {}) {
                     refId: attachment.refId,
                     worksheetId,
                     rowId: recordId,
-                    controlId,
+                    controlId: _.get(masterData, 'controlId') || controlId,
+                    parentWorksheetId: _.get(masterData, 'worksheetId'),
+                    parentRowId: _.get(masterData, 'recordId'),
+                    sourceControlId: sourceControlId,
                   })
                 }
               ></i>
@@ -455,14 +473,16 @@ function Attachment(props) {
     sheetSwitchPermit,
     onUpdate,
     deleteLocalAttachment,
+    projectId,
   } = props;
-  const { appId, recordId, worksheetId, from } = cellInfo;
+  const { appId, recordId, worksheetId, from, masterData = () => {} } = cellInfo;
   const { attachment } = props;
   const [isPicture, setIsPicture] = useState(RegExpValidator.fileIsPicture(attachment.ext));
   const smallThumbnailUrl = (attachment.previewUrl || '').replace(
     /imageView2\/\d\/w\/\d+\/h\/\d+(\/q\/\d+)?/,
     'imageView2/2/h/' + fileHeight,
   );
+
   useEffect(() => {
     setIsPicture(RegExpValidator.fileIsPicture(attachment.ext));
   }, [attachment.ext]);
@@ -479,6 +499,7 @@ function Attachment(props) {
           smallThumbnailUrl={smallThumbnailUrl}
           cell={cell}
           cellInfo={cellInfo}
+          masterData={masterData()}
           onUpdate={onUpdate}
           deleteLocalAttachment={deleteLocalAttachment}
         />
@@ -508,26 +529,34 @@ function Attachment(props) {
             sheetSwitchPermit,
             viewId,
             disableDownload: cellInfo.disableDownload,
-            handleOpenControlAttachmentInNewTab: isTrash
-              ? undefined
-              : (fileId, options = {}) => {
-                  openControlAttachmentInNewTab({
-                    appId,
-                    recordId,
-                    viewId: !isSubList ? viewId : undefined,
-                    worksheetId,
-                    controlId: cell.controlId,
-                    fileId,
-                    getType: from === 21 ? from : undefined,
-                    ...options,
-                  });
-                },
+            handleOpenControlAttachmentInNewTab:
+              isTrash || browserIsMobile()
+                ? undefined
+                : (fileId, options = {}) => {
+                    openControlAttachmentInNewTab({
+                      appId,
+                      recordId,
+                      viewId: !isSubList ? viewId : undefined,
+                      worksheetId,
+                      controlId: cell.controlId,
+                      fileId,
+                      getType: from === 21 ? from : undefined,
+                      ...options,
+                    });
+                  },
             worksheetId,
             recordId,
             fileId: attachment.fileID,
             controlId: cell.controlId,
             from,
             advancedSetting: cell.advancedSetting,
+            allowEdit: controlState(cell, from).editable && _.get(cell, 'advancedSetting.allowedit') === '1',
+            onlyEditSelf: _.get(cell, 'advancedSetting.onlyeditself') === '1',
+            projectId,
+            masterWorksheetId: (masterData() || {}).worksheetId,
+            masterRecordId: (masterData() || {}).recordId,
+            masterControlId: (masterData() || {}).controlId,
+            sourceControlId: cell.sourceControlId,
           });
           e.stopPropagation();
         }}
@@ -693,6 +722,7 @@ function cellAttachments(props, sourceRef) {
       attachments={attachments}
       sheetSwitchPermit={sheetSwitchPermit}
       viewId={viewId}
+      projectId={projectId}
       onUpdate={valueStr => {
         setAttachments(parseValue(valueStr));
       }}

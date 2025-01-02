@@ -54,7 +54,7 @@ export default class Editor extends Component {
       clearCacheLoading: false,
       showType: resume ? 1 : 0,
       resume: resumeInfo.value || '',
-      resumeColor: resumeInfo.color || '#333333'
+      resumeColor: resumeInfo.color || '#151515'
     };
   }
 

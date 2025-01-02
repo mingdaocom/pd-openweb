@@ -3,12 +3,13 @@ import cx from 'classnames';
 import { Tooltip, Button } from 'antd';
 import styled from 'styled-components';
 import { useSetState } from 'react-use';
-import { includes, isEmpty } from 'lodash';
+import { get, includes, isEmpty } from 'lodash';
 import worksheetAjax from 'src/api/worksheet';
-import { canSetAsTitle } from '../../util';
+import { canSetAsTitle, isCustomWidget } from '../../util';
 import DeleteConfirm from './DeleteConfirm';
 import { NOT_NEED_DELETE_CONFIRM } from '../../config';
 import { handleAdvancedSettingChange } from '../../util/setting';
+import { openDevelopWithAI } from '../../widgetSetting/components/DevelopWithAI';
 
 const DeleteBothWayRelateWrap = styled.div`
   display: flex;
@@ -35,6 +36,7 @@ const OperationWrap = styled.div`
       }
     }
     &.batchMode {
+      .customIcon,
       .setAsTitle,
       .copyControl,
       .delWidget {
@@ -58,7 +60,7 @@ const OperationWrap = styled.div`
       font-size: 16px;
       vertical-align: middle;
     }
-    &:hover {
+    &:hover:not(.customIcon) {
       color: #2196f3;
       background-color: #edf7fe;
     }
@@ -72,7 +74,16 @@ const OperationWrap = styled.div`
 `;
 
 export default function WidgetOperation(props) {
-  const { isBatchActive, batchMode, fromType, data = {}, handleOperate, queryConfig, globalSheetInfo = {} } = props;
+  const {
+    isBatchActive,
+    batchMode,
+    fromType,
+    data = {},
+    handleOperate,
+    queryConfig,
+    globalSheetInfo = {},
+    rest,
+  } = props;
   const { type, controlId, attribute, dataSource, sourceControl } = data;
 
   const [deleteConfirmVisible, setVisible] = useState(false);
@@ -202,6 +213,26 @@ export default function WidgetOperation(props) {
   return (
     <OperationWrap>
       <div className={cx('operationWrap', { isBatchActive, batchMode })}>
+        {isCustomWidget(data) && (
+          <Tooltip placement="bottom" trigger={['hover']} title={_l('进入AI辅助开发')}>
+            <div
+              className="customIcon operationIconWrap"
+              onClick={() => {
+                openDevelopWithAI({
+                  worksheetId: globalSheetInfo.worksheetId,
+                  control: data,
+                  defaultCode: get(data, 'advancedSetting.custom_js', ''),
+                  rest: {
+                    ...rest,
+                    onChange: props.onChange,
+                  },
+                });
+              }}
+            >
+              <i className="icon-custom-01" />
+            </div>
+          </Tooltip>
+        )}
         {attribute !== 1 && canSetAsTitle(data) && (
           <Tooltip placement="bottom" trigger={['hover']} title={_l('设为标题')}>
             <div

@@ -244,6 +244,32 @@ export default class CreateNodeDialog extends Component {
                 },
               ],
             },
+            {
+              name: _l('校准'),
+              iconColor: '#01CA83',
+              iconName: 'icon-architecture',
+              typeText: _l('校准数据'),
+              secondList: [
+                {
+                  type: 6,
+                  name: _l('校准单条数据'),
+                  appType: 1,
+                  actionId: '6',
+                  describe: _l(
+                    '即时校准刷新工作表单条记录中的公式计算、他表字段和汇总等延迟同步结果，后续节点可使用校准后的值',
+                  ),
+                },
+                {
+                  type: 13,
+                  name: _l('校准工作表'),
+                  appType: 1,
+                  actionId: '415',
+                  describe: _l(
+                    '校准刷新符合筛选条件的工作表记录的计算结果、选项排序和分值、他表字段和汇总结果，此节点为异步排队执行，一次最多刷新10万行记录。每次校准必须间隔120分钟以上，否则将跳过节点',
+                  ),
+                },
+              ],
+            },
           ],
         },
         {
@@ -337,6 +363,14 @@ export default class CreateNodeDialog extends Component {
               actionId: '203',
               iconColor: '#2196f3',
               iconName: 'icon-wechat',
+            },
+            {
+              type: 17,
+              featureId: VersionProductType.interfacePush,
+              pushType: 8,
+              name: _l('声音播报'),
+              iconColor: '#2196f3',
+              iconName: 'icon-volume_up',
             },
           ],
         },
@@ -788,7 +822,7 @@ export default class CreateNodeDialog extends Component {
             },
           ],
         },
-      ],
+      ].filter(o => !(_.get(window, 'md.global.SysSettings.hideAIGCNode') && o.id === 'ai')),
       selectItem: null,
       selectSecond: false,
       branchDialogModel: 0,
@@ -1306,6 +1340,7 @@ export default class CreateNodeDialog extends Component {
         prveId: nodeId,
         typeId: item.type,
         appId: item.appId,
+        pushType: item.pushType,
       });
     }
   }
@@ -1395,7 +1430,7 @@ export default class CreateNodeDialog extends Component {
                 {!(
                   (selectProcessId && flowInfo.id !== selectProcessId) ||
                   isApproval ||
-                  flowNodeMap[flowInfo.startNodeId].nextId === '99'
+                  (flowNodeMap[flowInfo.startNodeId] || {}).nextId === '99'
                 ) && (
                   <div className="copyNodeBtn" onClick={() => selectCopy(flowInfo.id)}>
                     <i className="icon-copy Font18 mRight5" />
@@ -1471,8 +1506,8 @@ export default class CreateNodeDialog extends Component {
                   name: isApprovalProcess
                     ? _l('未命名审批流程')
                     : triggerId === ACTION_ID.CONDITION_LOOP
-                    ? _l('满足条件时循环')
-                    : _l('循环指定次数'),
+                      ? _l('满足条件时循环')
+                      : _l('循环指定次数'),
                   prveId: nodeId,
                   typeId: isApprovalProcess ? NODE_TYPE.APPROVAL_PROCESS : NODE_TYPE.LOOP,
                   appId: processId,

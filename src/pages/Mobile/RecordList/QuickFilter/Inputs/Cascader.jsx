@@ -387,7 +387,7 @@ export default class Cascader extends Component {
       <Fragment>
         <div className="controlWrapper">
           <div className="flexRow valignWrapper mBottom15">
-            <div className="Font14 bold flex ellipsis">{control.controlName}</div>
+            <div className="Font14 bold flex ellipsis controlName">{control.controlName}</div>
             {/* <Icon
               icon="arrow-right-border"
               className="Font16 TxtMiddle"

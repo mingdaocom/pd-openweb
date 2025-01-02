@@ -30,8 +30,17 @@ export default class TabBar extends Component {
               history.push('/mobile/appBox');
             }}
           >
-            <Icon icon="application_library" />
-            <span>{_l('应用库')}</span>
+          {md.global.Config.IsLocal ? (
+            <Fragment>
+              <Icon icon="application_library" />
+              <span>{_l('应用库')}</span>
+            </Fragment>
+          ) : (
+            <Fragment>
+              <Icon icon="merchant" />
+              <span>{_l('市场')}</span>
+            </Fragment>
+          )}
           </div>
         )}
         <div

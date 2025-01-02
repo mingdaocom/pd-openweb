@@ -86,7 +86,7 @@ export default function Preview(props) {
 
   return (
     <Wrap className="h100 flexColumn">
-      <DocumentTitle title={`${_l('集成中心')} - ${_l('镜像数据')}`} />
+      <DocumentTitle title={`${_l('集成')} - ${_l('镜像数据')}`} />
       <React.Fragment>
         <div className="Gray_75 Normal Font13 mTop5">{_l('预览%0的前100行数据', tableName)}</div>
         <div className="overflowHidden flex mTop36 dataMirrorPreview">

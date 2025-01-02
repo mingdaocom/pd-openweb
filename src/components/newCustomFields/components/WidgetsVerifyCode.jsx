@@ -20,6 +20,16 @@ export default class WidgetsVerifyCode extends Component {
     this.iti = initIntlTelInput();
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      !_.isEqual(_.pick(nextProps, ['verifyCode']), _.pick(this.props, ['verifyCode'])) ||
+      !_.isEqual(_.pick(nextState, ['isSubmit', 'count']), _.pick(this.state, ['isSubmit', 'count']))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   handleVerify = () => {
     const { value, worksheetId } = this.props;
     const _this = this;

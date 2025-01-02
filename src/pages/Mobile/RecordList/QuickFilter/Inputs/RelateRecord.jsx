@@ -92,7 +92,7 @@ export default function RelateRecord(props) {
   return (
     <div className="controlWrapper">
       <div className="flexRow valignWrapper mBottom15">
-        <div className="Font14 bold flex ellipsis">{control.controlName}</div>
+        <div className="Font14 bold flex ellipsis controlName">{control.controlName}</div>
         {!_.isEmpty(values) && (
           <div className="selected ellipsis">
             {isMultiple

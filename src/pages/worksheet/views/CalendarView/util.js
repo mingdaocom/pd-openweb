@@ -164,7 +164,7 @@ export const setDataFormat = pram => {
         ],
         backgroundColor: stringColor,
         borderColor: stringColor,
-        textColor: stringColor && isLightColor(stringColor) ? '#333' : '#fff',
+        textColor: stringColor && isLightColor(stringColor) ? '#151515' : '#fff',
       });
     }
   });
@@ -232,7 +232,7 @@ export const setDataFormatByRowId = pram => {
       timeList,
       backgroundColor: stringColor,
       borderColor: stringColor,
-      textColor: stringColor && isLightColor(stringColor) ? '#333' : '#fff',
+      textColor: stringColor && isLightColor(stringColor) ? '#151515' : '#fff',
     },
   ];
 };

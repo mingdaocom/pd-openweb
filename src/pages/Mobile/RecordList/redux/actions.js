@@ -3,9 +3,16 @@ import homeAppAjax from 'src/api/homeApp';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import { refreshSheet } from 'src/pages/worksheet/redux/actions/index.js';
 import { getRequest, getTranslateInfo } from 'src/util';
-import { getFilledRequestParams, replaceControlsTranslateInfo, needHideViewFilters } from 'worksheet/util';
+import {
+  getFilledRequestParams,
+  replaceControlsTranslateInfo,
+  needHideViewFilters,
+  formatQuickFilter,
+} from 'worksheet/util';
 import { handleConditionsDefault, validate } from 'src/pages/Mobile/RecordList/QuickFilter/utils.js';
 import { formatFilterValues, formatFilterValuesToServer } from 'src/pages/worksheet/common/Sheet/QuickFilter/utils.js';
+import { formatOriginFilterGroupValue } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { formatForSave } from 'src/pages/worksheet/common/WorkSheetFilter/model';
 import _, { get, some } from 'lodash';
 
 function fireWhenViewLoaded(view, { controls = [] } = {}) {
@@ -48,6 +55,7 @@ export const updateBase = base => (dispatch, getState) => {
   const view = _.find(views, v => v.viewId === base.viewId);
   if (viewChanged && view && !needHideViewFilters(view)) {
     dispatch({ type: 'MOBILE_UPDATE_FILTERS' });
+    dispatch({ type: 'MOBILE_UPDATE_QUICK_FILTER', filter: [] });
     dispatch(fireWhenViewLoaded(view, { controls: template.controls }));
   }
   dispatch({
@@ -71,14 +79,19 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
     localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`) &&
     JSON.parse(localStorage.getItem(`currentNavWorksheetInfo-${currentNavWorksheetId}`));
   dispatch({ type: 'MOBILE_UPDATE_SHEET_VIEW', sheetView: { pageIndex: 1, isMore: true, count: 0 } });
+  dispatch(updateActiveSavedFilter([]));
   if (appNaviStyle === 2 && currentNavWorksheetInfo) {
     dispatch({ type: 'WORKSHEET_INIT', value: currentNavWorksheetInfo });
     dispatch({ type: 'WORKSHEET_PERMISSION_INIT', value: currentNavWorksheetInfo.switches || [] });
     dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: currentNavWorksheetInfo });
     dispatch({ type: 'MOBILE_WORK_SHEET_UPDATE_LOADING', loading: false });
-    const views = (currentNavWorksheetInfo.views || []).filter(
-      v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
-    );
+    dispatch(loadSavedFilters(currentNavWorksheetId));
+    const views =
+      base.type === 'single'
+        ? currentNavWorksheetInfo.views
+        : (currentNavWorksheetInfo.views || []).filter(
+            v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
+          );
     const view = base.viewId ? _.find(views, v => v.viewId === base.viewId) : views[0] || {};
 
     dispatch(fireWhenViewLoaded(view, { controls: _.get(currentNavWorksheetInfo, 'template.controls') || [] }));
@@ -126,7 +139,7 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
         continue: sheetTranslateInfo.formContinue || advancedSetting.continue,
       };
       let view = base.viewId ? _.find(workSheetInfo.views, v => v.viewId === base.viewId) : workSheetInfo.views[0];
-      if (_.includes(['hide', 'spc&happ'], _.get(view, 'advancedSetting.showhide'))) {
+      if (_.includes(['hide', 'spc&happ'], _.get(view, 'advancedSetting.showhide')) && base.type !== 'single') {
         view = _.find(
           workSheetInfo.views,
           v => !_.includes(['hide', 'spc&happ'], _.get(v, 'advancedSetting.showhide')),
@@ -138,10 +151,11 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
       if (workSheetInfo.template) {
         workSheetInfo.template.controls = replaceControlsTranslateInfo(
           base.appId,
-          workSheetInfo.workSheetId,
+          workSheetInfo.worksheetId,
           template.controls || [],
         );
       }
+      dispatch(loadSavedFilters(workSheetInfo.worksheetId));
       dispatch({ type: 'WORKSHEET_INIT', value: workSheetInfo });
       dispatch({ type: 'WORKSHEET_PERMISSION_INIT', value: switches });
       dispatch({ type: 'MOBILE_WORK_SHEET_INFO', data: workSheetInfo });
@@ -182,6 +196,16 @@ export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {
     });
 };
 
+export const loadSavedFilters = worksheetId => (dispatch, getState) => {
+  sheetAjax.getWorksheetFilters({ worksheetId }).then(data => {
+    let filters = data.map(formatOriginFilterGroupValue);
+    if (md.global.Account.isPortal) {
+      filters = filters.filter(o => o.type !== 2); // 外部门户 排除公共筛选
+    }
+    dispatch({ type: 'UPDATE_SAVED_FILTERS', filters });
+  });
+};
+
 const promiseRequests = {};
 
 export const fetchSheetRows =
@@ -197,14 +221,20 @@ export const fetchSheetRows =
       mobileNavGroupFilters,
       sheetRowLoading,
       filterControls = [],
+      batchCheckAll,
+      batchOptVisible,
       currentSheetRows,
+      batchOptCheckedData,
     } = getState().mobile;
 
     const { appId, worksheetId, viewId, groupId, maxCount, type } = base;
     let { views = [] } = worksheetInfo;
-    views = views.filter(
-      v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
-    );
+    views =
+      base.type === 'single'
+        ? views
+        : views.filter(
+            v => _.get(v, 'advancedSetting.showhide') !== 'hide' && _.get(v, 'advancedSetting.showhide') !== 'spc&happ',
+          );
     const view = _.find(views, v => v.viewId === viewId) || views[0];
     let hasGroupFilter = !_.isEmpty(view.navGroup) && view.navGroup.length > 0; // 是否存在分组列表
     if (hasGroupFilter && !_.includes([0, 6], view.viewType)) return;
@@ -250,19 +280,7 @@ export const fetchSheetRows =
       sortControls: [],
       reportId: chartId ? chartId : undefined,
       filtersGroup: sheetFiltersGroup,
-      fastFilters: quickFilter.map(f =>
-        _.pick(f, [
-          'controlId',
-          'dataType',
-          'spliceType',
-          'filterType',
-          'dateRange',
-          'value',
-          'values',
-          'minValue',
-          'maxValue',
-        ]),
-      ),
+      fastFilters: formatQuickFilter(quickFilter),
       navGroupFilters: mobileNavGroupFilters,
       ...extraParams,
     });
@@ -271,6 +289,14 @@ export const fetchSheetRows =
       const newData = sheetRowsAndTem && sheetRowsAndTem.data ? sheetRowsAndTem.data : [];
       const listData = pageIndex === 1 ? newData : currentSheetRows.concat(newData);
       const isMore = listData.length < sheetRowsAndTem.count;
+      if (batchOptVisible) {
+        if (batchCheckAll) {
+          dispatch(changeBatchOptData(listData.map(item => item.rowid)));
+        }
+        if (batchOptCheckedData.length === sheetRowsAndTem.count) {
+          dispatch({ type: 'UPDATE_BATCH_CHECK_ALL', data: true });
+        }
+      }
       dispatch({
         type: 'MOBILE_CHANGE_SHEET_ROWS',
         data: listData,
@@ -292,6 +318,7 @@ export const fetchSheetRows =
         },
       });
       dispatch({ type: 'MOBILE_FETCH_SHEETROW_SUCCESS' });
+      dispatch(updateIsPullRefreshing(false));
       promiseRequests[worksheetId] = undefined;
     });
   };
@@ -308,9 +335,9 @@ export const unshiftSheetRow = data => (dispatch, getState) => {
 };
 
 export const changePageIndex = pageIndex => (dispatch, getState) => {
-  const { sheetView, sheetRowLoading } = getState().mobile;
+  const { sheetView, sheetRowLoading, isPullRefreshing } = getState().mobile;
   const index = pageIndex || sheetView.pageIndex + 1;
-  if (!sheetRowLoading && sheetView.isMore) {
+  if ((!sheetRowLoading && sheetView.isMore) || isPullRefreshing || pageIndex === 1) {
     dispatch(fetchSheetRows({ pageIndex: index }));
   }
 };
@@ -332,7 +359,7 @@ export const updateQuickFilter =
 
     if (noLoad) return;
 
-    if (view.viewType === 7) {
+    if (_.includes([1, 7, 21], view.viewType)) {
       dispatch({
         type: 'WORKSHEET_UPDATE_QUICK_FILTER',
         filter: filter,
@@ -358,7 +385,6 @@ export function updateQuickFilterWithDefault(filter = []) {
 export const updateFilters = (filters, view) => (dispatch, getState) => {
   const { base = {}, worksheetInfo = {} } = getState().mobile;
   view = view || _.find(worksheetInfo.views || [], item => base.viewId === item.viewId) || {};
-
   dispatch({
     type: 'MOBILE_UPDATE_FILTERS',
     filters,
@@ -370,6 +396,11 @@ export const updateFilters = (filters, view) => (dispatch, getState) => {
     });
     dispatch(refreshSheet(view, { changeFilters: true }));
   }
+};
+
+export const updateActiveSavedFilter = (filter, view) => (dispatch, getState) => {
+  dispatch({ type: 'UPDATE_ACTIVE_SAVED_FILTERS', filter });
+  dispatch({ type: 'MOBILE_UPDATE_FILTER_CONTROLS', filterControls: formatForSave(filter) });
 };
 
 export const updateFiltersGroup = filter => (dispatch, getState) => {
@@ -465,6 +496,18 @@ export const changeMobielSheetLoading = loading => (dispatch, getState) => {
 
 export const changeBatchOptVisible = flag => (dispatch, getState) => {
   dispatch({ type: 'CHABGE_MOBILE_BATCHOPT_VISIBLE', flag });
+  dispatch(updateBatchCheckAll(false));
+  dispatch(changeBatchOptData([]));
+};
+
+export const updateBatchCheckAll = isAll => (dispatch, getState) => {
+  const { currentSheetRows } = getState().mobile;
+  dispatch({ type: 'UPDATE_BATCH_CHECK_ALL', data: isAll });
+  if (isAll) {
+    dispatch(changeBatchOptData(currentSheetRows.map(item => item.rowid)));
+  } else {
+    dispatch(changeBatchOptData([]));
+  }
 };
 
 export const changeBatchOptData = data => (dispatch, getState) => {
@@ -486,4 +529,8 @@ export const updateClickChart = flag => (dispatch, getState) => {
 
 export const updateFilterControls = filterControls => dispatch => {
   dispatch({ type: 'MOBILE_UPDATE_FILTER_CONTROLS', filterControls });
+};
+
+export const updateIsPullRefreshing = flag => dispatch => {
+  dispatch({ type: 'MOBILE_IS_PULL_REFRESHING', flag });
 };

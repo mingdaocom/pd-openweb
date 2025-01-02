@@ -12,7 +12,6 @@ import View from './view';
 import RichText from './richText';
 import Filter from './filter';
 import Carousel from './carousel';
-import Ai from './ai';
 import _ from 'lodash';
 
 const TYPE_TO_COMPONENTS = {
@@ -23,7 +22,6 @@ const TYPE_TO_COMPONENTS = {
   richText: RichText,
   filter: Filter,
   carousel: Carousel,
-  ai: Ai
 };
 
 function EditWidget(props) {

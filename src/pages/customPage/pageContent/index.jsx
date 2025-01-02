@@ -184,13 +184,14 @@ function CustomPageContent(props) {
       .getPage({
         appId: pageId,
       })
-      .then(({ components, desc, apk, adjustScreen, name, config, version }) => {
+      .then(({ components, desc, apk, adjustScreen, urlParams, name, config, version }) => {
         const componentsData = isMobile ? components.filter(item => item.mobile.visible) : components;
         addBehaviorLog('customPage', pageId, {}, true);
         updatePageInfo({
           components: componentsData,
           desc,
           adjustScreen,
+          urlParams,
           pageId,
           apk: apk || {},
           config: config || defaultConfig,
@@ -282,6 +283,7 @@ export default connect(
       'visible',
       'desc',
       'adjustScreen',
+      'urlParams',
       'apk',
       'pageName',
       'flag',

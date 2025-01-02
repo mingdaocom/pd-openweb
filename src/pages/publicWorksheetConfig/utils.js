@@ -199,3 +199,10 @@ export const saveSelectExtensionNavType = (worksheetId, navType, navValue) => {
   }
   localStorage.setItem('sheetConfigNavInfo', JSON.stringify(sheetConfigNavInfo));
 };
+
+export const getPageConfig = (pageConfigs = '[]', pageConfigKey) => {
+  const configs = safeParse(pageConfigs);
+  const index = _.findIndex(configs, l => l.key === pageConfigKey);
+
+  return configs[index < 0 ? 0 : index] || {};
+};

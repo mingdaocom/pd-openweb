@@ -33,7 +33,7 @@ export default class Widgets extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps, nextState) {
+  componentWillReceiveProps(nextProps) {
     if (
       this.text &&
       (!_.isEqual(nextProps.enumDefault, this.props.enumDefault) || !_.isEqual(nextProps.value, this.props.value))
@@ -41,6 +41,16 @@ export default class Widgets extends Component {
       this.text.value =
         nextProps.enumDefault === 2 ? (nextProps.value || '').replace(/\r\n|\n/g, ' ') : nextProps.value || '';
     }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      !_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled'])) ||
+      !_.isEqual(_.pick(nextState, ['isEditing', 'maskStatus']), _.pick(this.state, ['isEditing', 'maskStatus']))
+    ) {
+      return true;
+    }
+    return false;
   }
 
   onFocus = e => {
@@ -111,7 +121,13 @@ export default class Widgets extends Component {
       if (this.state.maskStatus) {
         return dealMaskValue(this.props);
       }
-      return isUnLink ? value : <Linkify properties={{ target: '_blank' }}>{value}</Linkify>;
+      return isUnLink ? (
+        value
+      ) : (
+        <Linkify properties={{ target: '_blank' }} unLimit={true}>
+          {value}
+        </Linkify>
+      );
     } else {
       return hint;
     }
@@ -133,7 +149,7 @@ export default class Widgets extends Component {
       advancedSetting,
       projectId,
       maskPermissions,
-      formData
+      formData,
     } = this.props;
     let { hint } = this.props;
     const { isEditing, maskStatus } = this.state;

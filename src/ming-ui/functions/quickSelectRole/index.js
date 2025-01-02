@@ -52,7 +52,7 @@ const RoleSelectWrap = styled.div`
     text-align: center;
   }
   .selectCurrent {
-    color: #333333;
+    color: #151515;
     margin: 4px 0;
     padding: 0 17px;
     height: 44px;

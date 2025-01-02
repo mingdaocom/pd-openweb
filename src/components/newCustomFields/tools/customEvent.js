@@ -177,7 +177,17 @@ const createRecord = async props => {
 
 // api查询
 const handleSearchApi = async props => {
-  const { advancedSetting = {}, dataSource, formData, projectId, worksheetId, appId, controlId, recordId } = props;
+  const {
+    advancedSetting = {},
+    dataSource,
+    formData,
+    projectId,
+    worksheetId,
+    appId,
+    controlId,
+    recordId,
+    actionType,
+  } = props;
   const requestMap = safeParse(advancedSetting.requestmap || '[]');
   const apiFormData = formData.concat([{ controlId: 'rowid', value: recordId }]);
   const paramsData = getParamsByConfigs(requestMap, apiFormData);
@@ -191,6 +201,7 @@ const handleSearchApi = async props => {
     apiTemplateId: dataSource,
     apiEventId: advancedSetting.apiEventId,
     authId: advancedSetting.authaccount,
+    actionType,
   };
 
   if (window.isPublicWorksheet) {
@@ -360,9 +371,10 @@ const triggerCustomActions = async props => {
           }
         });
         break;
-      // 调用api
+      // 调用api、事件封装流程
+      case ACTION_VALUE_ENUM.OPERATION_FLOW:
       case ACTION_VALUE_ENUM.API:
-        const apiRes = await handleSearchApi({ ...props, advancedSetting, dataSource });
+        const apiRes = await handleSearchApi({ ...props, advancedSetting, dataSource, actionType });
         handleUpdateApi(
           {
             ...props,

@@ -74,7 +74,6 @@ const Tag = styled.div`
   border-radius: 3px;
   padding: 0 10px;
   margin: 6px 0 0 6px;
-  max-width: calc(100% - 13px);
   &.isediting.allowRemove {
     padding-right: 24px;
   }
@@ -144,6 +143,7 @@ function getDefaultRelateSheetValue({ worksheetId, control, recordId, rowFormDat
 export default forwardRef(function RelateRecordTags(props, ref) {
   const {
     from,
+    isDraft,
     disabled,
     isediting,
     rowIndex,
@@ -254,12 +254,16 @@ export default forwardRef(function RelateRecordTags(props, ref) {
       controlId: control.controlId,
       recordId,
       relateSheetId: control.dataSource,
-      filterRowIds: records.map(r => r.rowid).concat(needIgnoreRowIds),
+      filterRowIds: records
+        .map(r => r.rowid)
+        .concat(needIgnoreRowIds)
+        .concat(control.dataSource === worksheetId ? recordId : []),
       ignoreRowIds: deletedIds,
       selectedCount: count,
       maxCount: 50,
       formData: _.isFunction(rowFormData) ? rowFormData() : rowFormData,
       defaultRelatedSheet: getDefaultRelateSheetValue({ worksheetId, control, recordId, rowFormData }),
+      isDraft: from === 21 || isDraft,
       onOk: async selectedRecords => {
         setChanged(true);
         setRecords(records.concat(selectedRecords));
@@ -305,6 +309,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
                 allowOpenRecord: allowOpenRecord && record.rowid && !/^temp/.test(record.rowid),
                 allowRemove,
               })}
+              style={{ maxWidth: records.length < count ? 'calc(100% - 40px)' : 'calc(100% - 13px)' }}
               key={i}
               title={text}
               onClick={e => {
@@ -372,6 +377,7 @@ export default forwardRef(function RelateRecordTags(props, ref) {
                   filterRelateSheetIds: [control.dataSource],
                   filterRelatesheetControlIds: [control.controlId],
                   masterRecordRowId: recordId,
+                  isDraft,
                   defaultRelatedSheet: getDefaultRelateSheetValue({ worksheetId, control, recordId, rowFormData }),
                   onAdd: record => {
                     setChanged(true);

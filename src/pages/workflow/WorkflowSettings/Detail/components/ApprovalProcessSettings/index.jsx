@@ -70,8 +70,8 @@ export default props => {
   const [printList, setPrintList] = useState([]);
   const worksheetId = selectNodeType === NODE_TYPE.FIRST ? data.appId : data.selectNodeObj.appId;
   const InitiatorAction = [
-    { text: _l('允许发起人撤回'), key: 'allowRevoke' },
-    { text: _l('允许审批人撤回'), key: 'allowTaskRevoke' },
+    { text: _l('允许发起人撤回流程'), key: 'allowRevoke' },
+    { text: _l('允许审批人撤回上次审批结果'), key: 'allowTaskRevoke' },
     { text: _l('允许发起人催办'), key: 'allowUrge' },
   ];
   const INITIATOR_TYPE = [

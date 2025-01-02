@@ -7,6 +7,7 @@ import PublicLink from './PublicLink';
 import DetailList from './DetailList';
 import './index.less';
 import _ from 'lodash';
+import account from 'src/api/account';
 import { getMyPermissions, hasPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 
@@ -47,6 +48,7 @@ class AddFriends extends Component {
       visible: true,
       selectTab: TABS[0].value,
       isPayUsers: true,
+      authType: 0, // 0未认证 1: 个人认证 2: 企业认证
       detailMode: 0, //
       url: '',
       code: '',
@@ -61,11 +63,34 @@ class AddFriends extends Component {
     const myPermissions = projectId ? getMyPermissions(projectId) : [];
     const hasMemberManageAuth = hasPermission(myPermissions, PERMISSION_ENUM.MEMBER_MANAGE);
 
-    this.setState({
-      isPayUsers: projects.some(item => item.licenseType !== 0) || IsLocal,
-      myPermissions,
-      selectTab: hasMemberManageAuth ? TABS[0].value : TABS[1].value,
-    });
+    this.setState(
+      {
+        isPayUsers: projects.some(item => item.licenseType === 1) || IsLocal,
+        myPermissions,
+        selectTab: hasMemberManageAuth ? TABS[0].value : TABS[1].value,
+      },
+      () => {
+        // 非付费用户获取认证信息
+        if (!this.state.isPayUsers) {
+          account.getAccountListInfo({}).then(res => {
+            this.setState({ authType: _.get(res, 'accountInfo.authType') || 0 });
+          });
+        }
+      },
+    );
+  }
+
+  get showCertification() {
+    const { fromType } = this.props;
+    const { isPayUsers, authType } = this.state;
+    // 非付费用户
+    if (!isPayUsers) {
+      // 个人邀请、群组邀请
+      if (fromType === FROM_TYPE.PERSONAL || fromType === FROM_TYPE.GROUPS) {
+        return authType === 0;
+      }
+    }
+    return false;
   }
 
   setDetailMode = value => {
@@ -148,13 +173,13 @@ class AddFriends extends Component {
   };
 
   renderContent = () => {
-    const { selectTab, isPayUsers, url, code, tokens, myPermissions = [] } = this.state;
+    const { selectTab, url, code, tokens, myPermissions = [] } = this.state;
     const showInviteRules = hasPermission(myPermissions, PERMISSION_ENUM.SECURITY);
     const options = {
       onCancel: this.onCancel,
       projectId: this.props.projectId,
       fromType: this.props.fromType,
-      isPayUsers,
+      needAlert: this.showCertification,
       setDetailMode: this.setDetailMode,
       showInviteRules,
     };
@@ -168,8 +193,8 @@ class AddFriends extends Component {
   };
 
   render() {
-    const { onClose } = this.props;
-    const { isPayUsers, detailMode } = this.state;
+    const { onClose, projectId } = this.props;
+    const { detailMode } = this.state;
 
     return (
       <Dialog
@@ -182,11 +207,14 @@ class AddFriends extends Component {
       >
         <div className="dialogAddFriendsContainer">
           {this.renderHeader()}
-          {!isPayUsers && (
+          {this.showCertification && (
             <div class="safeWarning">
               {_l(
-                '近期有不法分子利用平台进行诈骗活动。为了保障平台安全，暂时只允许付费组织中的用户发起邀请。对您使用造成的不便，深表歉意！',
+                '近期有不法分子利用平台进行诈骗活动。为了保护平台安全，此功能需要完成身份认证后才能使用。对您使用造成的不便，深表歉意！',
               )}
+              <a href={`/certification/project/${projectId}?returnUrl=${encodeURIComponent(location.href)}`}>
+                {_l('前往认证')}
+              </a>
             </div>
           )}
           {this.renderTabs()}

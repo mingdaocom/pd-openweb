@@ -1,13 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { Icon, MobileDatePicker } from 'ming-ui';
+import { Icon, MobileDatePicker, MdAntDatePicker } from 'ming-ui';
 import cx from 'classnames';
-import { DatePicker as PCDatePicker } from 'antd';
 import { FROM } from '../../tools/config';
-import zh_CN from 'antd/es/date-picker/locale/zh_CN';
-import zh_TW from 'antd/es/date-picker/locale/zh_TW';
-import en_US from 'antd/es/date-picker/locale/en_US';
-import ja_JP from 'antd/es/date-picker/locale/ja_JP';
 import { getDynamicValue } from '../../tools/DataFormat';
 import { compareWithTime } from '../../tools/utils';
 import { browserIsMobile, dateConvertToUserZone, dateConvertToServerZone } from 'src/util';
@@ -197,6 +192,9 @@ export default class Widgets extends Component {
               min={minDate ? new Date(moment(minDate)) : new Date(1900, 1, 1, 0, 0, 0)}
               max={maxDate ? new Date(moment(maxDate)) : new Date(2100, 12, 31, 23, 59, 59)}
               disabled={disabled}
+              onClose={() => {
+                this.setState({ showDatePicker: false });
+              }}
               onSelect={date => {
                 this.onChange(date);
                 this.setState({ showDatePicker: false });
@@ -205,7 +203,7 @@ export default class Widgets extends Component {
                 this.setState({ showDatePicker: false });
                 this.onChange(null);
               }}
-            ></MobileDatePicker>
+            />
           )}
         </Fragment>
       );
@@ -231,9 +229,8 @@ export default class Widgets extends Component {
         {!isOpen ? (
           this.renderValue(showformat, value)
         ) : (
-          <PCDatePicker
+          <MdAntDatePicker
             className={cx('w100 customAntPicker customFormControlBox', { controlDisabled: disabled })}
-            locale={lang === 'en' ? en_US : lang === 'ja' ? ja_JP : lang === 'zh-Hant' ? zh_TW : zh_CN}
             disabled={disabled}
             value={value ? moment(dateTime) : ''}
             picker={dateProps.mode === 'datetime' ? 'date' : dateProps.mode}

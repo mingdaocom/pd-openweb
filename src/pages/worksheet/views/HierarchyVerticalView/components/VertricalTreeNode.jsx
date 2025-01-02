@@ -15,7 +15,7 @@ const ParentNodeWrap = styled.div`
   text-align: center;
   font-size: 13px;
   font-weight: 600;
-  color: #333333;
+  color: #151515;
   position: relative;
   .rootAddRecord {
     position: absolute;

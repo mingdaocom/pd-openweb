@@ -45,6 +45,9 @@ export default function UserMenu(props) {
       >
         <ul className="userSetTooltip Normal" style={leftCommonUserHandleWrap ? { maxHeight: 352 } : {}}>
           {_.map(md.global.Account.projects, project => {
+            const isFree = project.licenseType === 0; // 免费版
+            const isTrial = project.licenseType === 2; // 试用版
+
             return (
               <li
                 key={project.projectId}
@@ -54,7 +57,10 @@ export default function UserMenu(props) {
                   navigateTo(`/admin/home/${project.projectId}`);
                 }}
               >
-                <span>{project.companyName}</span>
+                <div className="flex ellipsis ">{project.companyName}</div>
+                <div className={cx('Font12 mLeft10 Gray_9e Normal', { trial: isTrial, free: isFree })}>
+                  {isFree ? _l('免费版') : isTrial ? _l('试用') : _.get(project, 'version.name')}
+                </div>
               </li>
             );
           })}

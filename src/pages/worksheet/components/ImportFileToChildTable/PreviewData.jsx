@@ -16,7 +16,7 @@ const Header = styled.div`
   .title {
     font-weight: 500;
     font-size: 17px;
-    color: #333;
+    color: #151515;
   }
 `;
 
@@ -53,7 +53,7 @@ const Footer = styled.div`
 const CellText = styled.div`
   display: block;
   font-size: 13px;
-  color: #333;
+  color: #151515;
   line-height: 20px;
 `;
 

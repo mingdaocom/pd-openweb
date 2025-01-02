@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import cx from 'classnames';
 import { Icon, Support, LoadDiv } from 'ming-ui';
 import { useSetState } from 'react-use';
-import { CardTopWrap } from '../apiIntegration/style';
+import { CardTopWrap, WrapBtn } from '../apiIntegration/style';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { Wrap } from './style';
 import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
@@ -43,7 +43,7 @@ const taps = ['authorization_back', 'authorization_address', 'authorization_code
 //授权回调
 function AuthParam(props) {
   const cache = useRef({});
-  const { href, companyId, index, onChange } = props;
+  const { href, companyId, index, toAccountTab } = props;
   const [node, setNode] = useState(props.node);
   const [{ showEdit, key }, setState] = useSetState({ showEdit: false, key: '' });
   useEffect(() => {
@@ -148,13 +148,13 @@ function AuthParam(props) {
     if ((node.webHookNodes || []).length <= 0) {
       return '';
     }
-    return <div className="flexRow mBottom20 pLeft20 pRight20">{_.get(node, 'webHookNodes[0].url')}</div>;
+    return <div className="flexRow mBottom20 pLeft20 pRight20 breakAll">{_.get(node, 'webHookNodes[0].url')}</div>;
   };
 
   const renderUrl = withTime => {
     return (
       <div className=" pLeft20 pRight20">
-        <div className="flexRow mBottom20">{_.get(node, 'webHookNodes[0].url')}</div>
+        <div className="flexRow mBottom20 breakAll">{_.get(node, 'webHookNodes[0].url')}</div>
         {withTime && node.expireAfterSeconds !== undefined && (
           <div className="flexRow mBottom20">
             {node.expireAfterSeconds <= 0 ? (
@@ -221,6 +221,18 @@ function AuthParam(props) {
               cb();
             }}
           />
+          <WrapBtn
+            className={cx(
+              'btnToAccount  mTop10 InlineBlock',
+              !_.get(cache, 'current.node.sendContent') ? 'disable' : 'Hand',
+            )}
+            onClick={() => {
+              if (!_.get(cache, 'current.node.sendContent')) return;
+              toAccountTab();
+            }}
+          >
+            {_l('添加授权账户')}
+          </WrapBtn>
         </div>
       )}
       {['authorization_back'].includes(key) && (

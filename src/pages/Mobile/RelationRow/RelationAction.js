@@ -137,7 +137,7 @@ class RelationAction extends Component {
   };
   renderDialog() {
     const { showCreateRecord, recordkeyWords, showRelevanceRecord } = this.state;
-    const { base, rowInfo, relationRow, actionParams, permissionInfo } = this.props;
+    const { base, rowInfo, relationRow, actionParams, permissionInfo, isDraft } = this.props;
     const { showControls, coverCid } = actionParams;
     const { worksheet } = relationRow;
     const { rowId, controlId, worksheetId } = base;
@@ -177,7 +177,7 @@ class RelationAction extends Component {
             keyWords={recordkeyWords}
             showControls={showControls}
             appId={worksheet.appId}
-            viewId={_.get(currentControl, 'advancedSetting.openview')}
+            viewId={currentControl.viewId}
             parentWorksheetId={worksheetId}
             filterRelatesheetControlIds={[controlId]}
             controlId={controlId}
@@ -189,6 +189,7 @@ class RelationAction extends Component {
             relateSheetId={worksheet.worksheetId}
             getDataType={this.props.getDataType}
             relationRowIds={(this.props.relationRows || []).map(it => it.rowid)}
+            isDraft={isDraft}
             onClose={() => {
               this.setState({ recordkeyWords: '' });
               this.handleSetShowRelevanceRecord(false);
@@ -236,6 +237,7 @@ class RelationAction extends Component {
 
     return (
       <RelateScanQRCode
+        className="flex mLeft6 mRight6"
         projectId={worksheet.projectId}
         worksheetId={worksheet.worksheetId}
         filterControls={filterControls}
@@ -254,10 +256,10 @@ class RelationAction extends Component {
           this.setState({ showRelevanceRecord: true, recordkeyWords: keyWords });
         }}
       >
-        <Button className="flex mLeft6 mRight6 Font13" color="primary">
+        <Button className="Font13 bold pLeft0 pRight0 TxtCenter InlineBlock w100" color="primary">
           <Fragment>
-            <Icon icon="qr_code_19" className="Font20 TxtBottom" />
-            {_l('扫码关联')}
+            <Icon icon="qr_code_19" className="Font18 TxtBottom" />
+            <span className='mLeft4'>{_l('扫码关联')}</span>
           </Fragment>
         </Button>
       </RelateScanQRCode>
@@ -285,7 +287,7 @@ class RelationAction extends Component {
             onClick={() => {
               Dialog.confirm({
                 content: isSubList ? _l('确认删除吗？') : _l('确认取消选中的关联关系吗？'),
-                onConfirm: this.removeRelationRows
+                onConfirm: this.removeRelationRows,
               });
             }}
           >
@@ -322,7 +324,7 @@ class RelationAction extends Component {
         {control.type !== 51 && allowRemoveRelation && hasEdit && !rulesLocked && (
           <Button
             disabled={!relationRows.length}
-            className="flex mLeft6 mRight6 edit Gray_75 bold Font13"
+            className="flex mLeft6 mRight6 edit Gray_75 bold Font13 pLeft0 pRight0 TxtCenter"
             onClick={() => {
               this.handleSetEdit(true);
             }}
@@ -332,13 +334,11 @@ class RelationAction extends Component {
         )}
         {allowNewRecord && !rulesLocked && (
           <Fragment>
-            {onlyRelateByScanCode && (
-              this.renderRelateScanQRCodeBtn()
-            )}
+            {onlyRelateByScanCode && this.renderRelateScanQRCodeBtn()}
             {!disabledManualWrite && (
               <Button
                 color="primary"
-                className="flex mLeft6 mRight6 bold Font13"
+                className="flex mLeft6 mRight6 bold Font13 pLeft0 pRight0 TxtCenter"
                 onClick={() => {
                   if (control.type === 51) {
                     this.setState({ showCreateRecord: true });

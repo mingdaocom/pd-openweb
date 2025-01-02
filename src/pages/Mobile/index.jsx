@@ -36,9 +36,6 @@ class App extends Component {
   componentDidMount() {
     this.switchPath(this.props.location);
     sessionStorage.setItem('entryUrl', location.href);
-    if (window.isMingDaoApp) {
-      import('mobile/components/MDJSSDK/md_js_1.0.js');
-    }
     const { pc_slide = '' } = getRequest();
     if (pc_slide.includes('true')) {
       sessionStorage.setItem('dingtalk_pc_slide', 'true');

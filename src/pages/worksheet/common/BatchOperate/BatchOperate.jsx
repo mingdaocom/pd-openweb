@@ -8,7 +8,7 @@ import { Tooltip, Dialog } from 'ming-ui';
 import processAjax from 'src/pages/workflow/api/process';
 import worksheetAjax from 'src/api/worksheet';
 import { copyRow } from 'worksheet/controllers/record';
-import { editRecord } from 'worksheet/common/editRecord';
+import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
 import { refreshRecord } from 'worksheet/common/RefreshRecordDialog';
 import { printQrBarCode } from 'worksheet/common/PrintQrBarCode';
 import IconText from 'worksheet/components/IconText';
@@ -396,15 +396,18 @@ class BatchOperate extends React.Component {
     const selectedTip = (
       <div className="selected">
         <span className="selectedStatus">
-          {allWorksheetIsSelected
-            ? _l(
-                select1000
-                  ? `已选择 ${md.global.SysSettings.worktableBatchOperateDataLimitCount} 条数据`
-                  : `已选择"${view.name}"所有 %0 条%1`,
-                selectedLength,
-                entityName,
-              )
-            : _l('已选择本页 %0 条%1', selectedLength, entityName)}
+          {(() => {
+            if (allWorksheetIsSelected) {
+              if (select1000) {
+                return _l(`已选择 ${md.global.SysSettings.worktableBatchOperateDataLimitCount} 条数据`);
+              }
+              if (selectedLength === -1) {
+                return _l(`已选择"%0"所有%1`, view.name, entityName);
+              }
+              return _l(`已选择"%0"所有 %1 条%2`, view.name, selectedLength, entityName);
+            }
+            return _l('已选择本页 %0 条%1', selectedLength, entityName);
+          })()}
         </span>
       </div>
     );
@@ -429,10 +432,11 @@ class BatchOperate extends React.Component {
                     return;
                   }
                   function handleEdit() {
-                    editRecord({
+                    batchEditRecord({
                       appId,
                       viewId,
                       projectId,
+                      isCharge,
                       view,
                       worksheetId,
                       searchArgs: filters,
@@ -450,7 +454,10 @@ class BatchOperate extends React.Component {
                       worksheetInfo: worksheetInfo,
                     });
                   }
-                  if (selectedLength > md.global.SysSettings.worktableBatchOperateDataLimitCount) {
+                  if (
+                    selectedLength > md.global.SysSettings.worktableBatchOperateDataLimitCount ||
+                    selectedLength === -1
+                  ) {
                     Dialog.confirm({
                       title: (
                         <span style={{ fontWeight: 500, lineHeight: '1.5em' }}>
@@ -602,7 +609,8 @@ class BatchOperate extends React.Component {
                     title: <span className="Red">{_l('批量删除%0', entityName)}</span>,
                     buttonType: 'danger',
                     description:
-                      selectedLength <= md.global.SysSettings.worktableBatchOperateDataLimitCount
+                      selectedLength <= md.global.SysSettings.worktableBatchOperateDataLimitCount &&
+                      selectedLength !== -1
                         ? _l(
                             '%0天内可在 回收站 内找回已删除%1，无编辑权限的数据无法删除。',
                             md.global.SysSettings.worksheetRowRecycleDays,
@@ -634,7 +642,7 @@ class BatchOperate extends React.Component {
                         ),
                         description: (
                           <div style={{ marginLeft: 36 }}>
-                            <span style={{ color: '#333', fontWeight: 'bold' }}>
+                            <span style={{ color: '#151515', fontWeight: 'bold' }}>
                               {_l('此操作将彻底删除所有数据，不可从回收站中恢复！')}
                             </span>
                             {_l(
@@ -647,7 +655,7 @@ class BatchOperate extends React.Component {
                               <li style={{ listStyle: 'inside' }}>
                                 {_l('其他表与已删除记录的关联关系不会被清除，记录将显示为“已删除”')}
                               </li>
-                              <li style={{ listStyle: 'inside' }}>{_l('彻底删除不触发工作流')}</li>
+                              <li style={{ listStyle: 'inside' }}>{_l('彻底删除不触发工作流、同步任务')}</li>
                             </ul>
                             {!isCharge && <div className="Gray mTop20">{_l('你没有权限进行此操作！')}</div>}
                           </div>
@@ -706,7 +714,7 @@ class BatchOperate extends React.Component {
                 list={[
                   {
                     text: _l('校准数据'),
-                    icon: 'Empty_nokey',
+                    icon: 'architecture',
                     onClick: () => {
                       if (window.isPublicApp) {
                         alert(_l('预览模式下，不能操作'), 3);

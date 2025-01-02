@@ -11,10 +11,6 @@ import { formatForSave } from './model';
 import Filters from './Filters';
 import _ from 'lodash';
 
-const FilterBtn = styled.span`
-  line-height: 27px;
-`;
-
 const SelectedFilter = styled(FlexCenter)`
   display: inline-flex;
   border-radius: 4px;
@@ -98,7 +94,12 @@ export default function FiltersPopup(props) {
             )[0];
             return $targetTarget;
           }}
-          onClickAwayExceptions={['.ant-cascader-menus', '.ant-tree-select-dropdown', '#quickSelectDept', '.selectRoleDialog']}
+          onClickAwayExceptions={[
+            '.ant-cascader-menus',
+            '.ant-tree-select-dropdown',
+            '#quickSelectDept',
+            '.selectRoleDialog',
+          ]}
           onClickAway={() => setPopupVisible(false)}
         >
           <Filters
@@ -131,11 +132,11 @@ export default function FiltersPopup(props) {
         }
       }}
     >
-      <div ref={btnRef} className="mTop4">
+      <div ref={btnRef}>
         {!filteredText && (
-          <FilterBtn data-tip={_l('筛选')} className={`mRight10 mTop2 ${className}`}>
+          <span data-tip={_l('筛选')} className={className}>
             <i className="icon icon-worksheet_filter Gray_9e Hand Font18 ThemeHoverColor3"></i>
-          </FilterBtn>
+          </span>
         )}
         {filteredText && (
           <SelectedFilter>

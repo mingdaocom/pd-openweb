@@ -16,6 +16,7 @@ export default {
   * @param {string} args.orderVisibleViewId 订单可见视图id
   * @param {} args.worksheetPaymentSetting
   * @param {boolean} args.isRefundAllowed 是否启用退款
+  * @param {boolean} args.isAllowedAddOption 允许新增选项
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

@@ -1,6 +1,7 @@
 import update from 'immutability-helper';
 import { get, head, isArray } from 'lodash';
 import findIndex from 'lodash/findIndex';
+import { WIDGET_VALUE_ID } from 'src/components/newCustomFields/tools/config';
 
 export const getIndex = (state, data) => {
   const { key, rowId } = data;
@@ -59,8 +60,8 @@ const getKeyAndName = data => {
 
   const dealFn = parseData => {
     const firstItem = head(parseData);
-    if (type === 26) {
-      return { name: JSON.stringify(firstItem), targetKey: _.get(firstItem, 'accountId') };
+    if (_.includes([26, 27, 48], type)) {
+      return { name: JSON.stringify(firstItem), targetKey: _.get(firstItem, WIDGET_VALUE_ID[TYPE]) };
     }
     if (type === 29) {
       return { name: firstItem.name, targetKey: _.get(firstItem, 'sid') };

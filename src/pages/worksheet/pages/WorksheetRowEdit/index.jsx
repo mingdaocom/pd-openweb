@@ -44,9 +44,6 @@ class WorksheetRowEdit extends Component {
         this.setState({ Components: res });
       });
     }
-    if (window.isMingDaoApp) {
-      import('mobile/components/MDJSSDK/md_js_1.0.js');
-    }
   }
 
   /**

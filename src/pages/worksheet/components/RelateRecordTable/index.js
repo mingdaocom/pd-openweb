@@ -81,6 +81,7 @@ export default function RelateRecordTableIndex(props) {
       }),
     );
   }, [
+    recordId,
     formData
       .filter(a => (get(control, 'advancedSetting.resultfilters') || '').indexOf(a.controlId) > -1)
       .map(c => c.value)

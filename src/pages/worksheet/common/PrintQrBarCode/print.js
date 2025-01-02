@@ -109,7 +109,7 @@ function cutString(text, maxWidth, fontSize, maxLine = 3) {
 function genTextCanvas({
   text,
   fontSize = 12,
-  color = '#333',
+  color = '#151515',
   width = 100,
   isCenter = false,
   lineHeight = 1.2,
@@ -147,7 +147,7 @@ function genTextCanvas({
       t = cutString(t, width, fontSize, 1)[0];
     }
     if (firstIsBigger && i === 0) {
-      ctx.fillStyle = '#333';
+      ctx.fillStyle = '#151515';
       ctx.font = `bold ${fontSize + 1}px PingFang SC`;
       ctx.fillText(t, isCenter ? width / 2 : 0, fontSize * lineHeight * i + 2);
       ctx.fillStyle = color;
@@ -311,7 +311,7 @@ export class QrPdf {
         const titleTextCanvas = genTextCanvas({
           text: texts[0] ? cutString(texts[0], (textWidth || width) - 5, secFontSize, topLines) : _l('未命名'),
           fontSize: secFontSize,
-          color: '#333',
+          color: '#151515',
           width: textWidth,
           lineHeight: 1.5,
           pixelScale,
@@ -321,7 +321,7 @@ export class QrPdf {
           textCanvas = genTextCanvas({
             text: texts.slice(1),
             fontSize: secFontSize,
-            color: '#333',
+            color: '#151515',
             width: textWidth,
             lineHeight: 1.5,
             pixelScale,
@@ -408,7 +408,7 @@ export class QrPdf {
     const titleTextCanvas = genTextCanvas({
       text: texts[0] ? cutString(texts[0], textWidth || width, secFontSize) : _l('未命名'),
       fontSize: secFontSize,
-      color: '#333',
+      color: '#151515',
       width: textWidth || width,
       isCenter: true,
       lineHeight: 1.5,
@@ -421,7 +421,7 @@ export class QrPdf {
       textCanvas = genTextCanvas({
         text: texts.slice(1),
         fontSize: secFontSize,
-        color: '#333',
+        color: '#151515',
         width: textWidth || width,
         isCenter: true,
         lineHeight: 1.5,

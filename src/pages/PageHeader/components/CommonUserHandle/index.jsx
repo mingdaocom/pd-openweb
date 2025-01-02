@@ -63,12 +63,11 @@ const AdminEntry = styled(VerticalMiddle)`
   }
 `;
 
-const HelpWrap = styled.div`
-  width: 72px;
+const EntryWrap = styled.div`
   height: 32px;
   line-height: 32px;
   border-radius: 20px 20px 20px 20px;
-  padding-left: 10px;
+  padding: 0 10px;
   cursor: pointer;
   &:hover {
     background: rgba(0, 0, 0, 0.05);
@@ -236,10 +235,10 @@ export default class CommonUserHandle extends Component {
             )}
 
             {md.global.Config.IsLocal && !md.global.SysSettings.hideHelpTip && (
-              <HelpWrap onClick={() => window.open('https://help.mingdao.com')}>
-                <Icon icon="workflow_help Font17 Gray_75 TxtMiddle" className="helpIcon Font20" />
+              <EntryWrap onClick={() => window.open('https://help.mingdao.com')}>
+                <Icon icon="workflow_help" className="helpIcon Font20 Gray_75 TxtMiddle" />
                 <span className="Gray_75 mLeft5 TxtMiddle">{_l('帮助')}</span>
-              </HelpWrap>
+              </EntryWrap>
             )}
             {!md.global.Config.IsLocal && (
               <Trigger
@@ -258,17 +257,19 @@ export default class CommonUserHandle extends Component {
                   overflow: { adjustX: true, adjustY: true },
                 }}
               >
-                <HelpWrap onClick={() => this.setState({ popupVisible: true })}>
-                  <Icon icon="workflow_help Font17 Gray_75 TxtMiddle" className="helpIcon Font20" />
+                <EntryWrap onClick={() => this.setState({ popupVisible: true })}>
+                  <Icon icon="workflow_help" className="helpIcon Font20 Gray_75 TxtMiddle" />
                   <span className="Gray_75 mLeft5 TxtMiddle">{_l('帮助')}</span>
-                </HelpWrap>
+                </EntryWrap>
               </Trigger>
             )}
+
             {type === 'dashboard' && hasProjectAdminAuth && (
               <MdLink to={`/admin/home/${currentProject.projectId}`}>
-                <AdminEntry data-tip={_l('组织管理')} className="tip-bottom-left">
-                  <i className="icon icon-business"></i>
-                </AdminEntry>
+                <EntryWrap>
+                  <i className="icon icon-business Font20 Gray_75 TxtMiddle"></i>
+                  <span className="Gray_75 mLeft5 TxtMiddle">{_l('组织管理')}</span>
+                </EntryWrap>
               </MdLink>
             )}
             {type === 'dashboard' && newVersion && (

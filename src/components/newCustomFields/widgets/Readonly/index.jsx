@@ -28,6 +28,13 @@ export default class Widgets extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps) {
+    if (!_.isEqual(_.pick(nextProps, ['value']), _.pick(this.props, ['value']))) {
+      return true;
+    }
+    return false;
+  }
+
   render() {
     const { value, type, dot, unit, advancedSetting } = this.props;
     const isUnLink = type === 32 && advancedSetting.analysislink !== '1';

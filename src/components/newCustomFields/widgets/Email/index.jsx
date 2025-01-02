@@ -44,6 +44,16 @@ export default class Widgets extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      !_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled'])) ||
+      !_.isEqual(_.pick(nextState, ['isEditing', 'maskStatus']), _.pick(this.state, ['isEditing', 'maskStatus']))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   handleFocus = event => {
     this.setState({ originValue: event.target.value.trim() });
     if (_.isFunction(this.props.triggerCustomEvent)) {

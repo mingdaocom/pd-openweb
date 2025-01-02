@@ -399,7 +399,11 @@ export default function PreviewData(props) {
                   key={JSON.stringify(filters)}
                   data={data}
                   chatButton={false}
-                  emptyText={filters.length > 0 || !!keyWords ? _l('没有符合条件的记录') : _l('暂无数据')}
+                  emptyText={
+                    filters.length > 0 || !!keyWords
+                      ? _l('没有符合条件的记录')
+                      : _l('暂无数据或数据量较大时整合速度会有所减慢，请耐心等候')
+                  }
                   enableRules={false}
                   lineNumberBegin={(pageIndex - 1) * pageSize}
                   showEmptyForResize={false}

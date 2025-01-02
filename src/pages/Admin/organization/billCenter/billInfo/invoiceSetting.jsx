@@ -44,6 +44,8 @@ const SaveInvoice = styled.div`
   text-align: right;
 `;
 
+const commonRequire = ['address', 'contactPhone', 'email'];
+
 export default function InvoiceSetting(props) {
   const { projectId, onClose } = props;
   const [data, setData] = useSetState({});
@@ -56,7 +58,8 @@ export default function InvoiceSetting(props) {
 
   const saveSetting = () => {
     const saveApi = () => {
-      projectAjax.updateProjectFinance({ projectId, ...data, invoiceType: data.invoiceType || 1 })
+      projectAjax
+        .updateProjectFinance({ projectId, ...data, invoiceType: data.invoiceType || 1 })
         .then(() => {
           alert(_l('保存成功'));
         })
@@ -64,27 +67,31 @@ export default function InvoiceSetting(props) {
           onClose();
         });
     };
-    if (data.invoiceType === 2) {
-      const isFieldFill = ['taxBank', 'taxBankNumber', 'taxRegAddress', 'taxRegContactPhone'].every(key => {
-        if (!data[key]) {
-          alert(
-            _l(
-              '%0属于必填项，请填写后提交',
-              get(
-                find(newInvoiceConfig, item => item.key === key),
-                'text',
-              ),
-            ),
-            2,
-          );
+
+    let isFieldFill = true;
+
+    invoiceConfig
+      .filter(l => l.require)
+      .forEach(item => {
+        if (!data[item.key]) {
+          isFieldFill = false;
+          alert(_l('%0属于必填项，请填写后提交', item.text), 2);
+          return;
         }
-        return data[key];
       });
-      if (isFieldFill) {
-        saveApi();
-      }
-      return;
+
+    if (data.invoiceType === 2 && isFieldFill) {
+      newInvoiceConfig.forEach(item => {
+        if (!data[item.key]) {
+          isFieldFill = false;
+          alert(_l('%0属于必填项，请填写后提交', item.text), 2);
+          return;
+        }
+      });
     }
+
+    if (!isFieldFill) return;
+
     saveApi();
   };
   return (
@@ -100,14 +107,18 @@ export default function InvoiceSetting(props) {
             {_l('保存')}
           </Button>
         </SaveInvoice>
-      }>
+      }
+    >
       <InvoiceContentWrap>
         <InvoiceSettingWrap>
           {invoiceConfig.map(item => {
-            const { key, text, verify, half } = item;
+            const { key, text, verify, half, require = false } = item;
             return (
               <li className={cx({ half })} key={key}>
-                <div className="name">{text}</div>
+                <div className="name">
+                  {require && <span className="Red mRight3">*</span>}
+                  {text}
+                </div>
                 <Input
                   value={data[key]}
                   onChange={value => setData({ [key]: value })}
@@ -136,10 +147,13 @@ export default function InvoiceSetting(props) {
 
         <InvoiceSettingWrap className={cx('newInvoiceConfig', { expanded: data.invoiceType === 2 })}>
           {newInvoiceConfig.map(item => {
-            const { key, text, verify } = item;
+            const { key, text, verify, require } = item;
             return (
               <li key={key}>
-                <div className="name">{text}</div>
+                <div className="name">
+                  {require && <span className="Red mRight3">*</span>}
+                  {text}
+                </div>
                 <Input
                   value={data[key]}
                   onChange={value => setData({ [key]: value })}

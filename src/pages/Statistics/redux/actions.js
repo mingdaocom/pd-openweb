@@ -20,7 +20,7 @@ import { reportTypes } from 'statistics/Charts/common';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
 import { formatValuesOfOriginConditions, redefineComplexControl } from 'worksheet/common/WorkSheetFilter/util';
 import { getAppFeaturesPath, getTranslateInfo } from 'src/util';
-import { replaceControlsTranslateInfo } from 'src/pages/worksheet/util';
+import { replaceControlsTranslateInfo, getFilledRequestParams } from 'src/pages/worksheet/util';
 import { fillUrl } from 'src/router/navigateTo';
 import _ from 'lodash';
 
@@ -216,6 +216,7 @@ export const getReportData = () => {
         version,
         reload: true,
         filters: [],
+        ...getFilledRequestParams({})
       };
       if (!_.isEmpty(filters)) {
         params.filters.push(filters);

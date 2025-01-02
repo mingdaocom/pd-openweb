@@ -3,6 +3,7 @@ import { Dropdown } from 'ming-ui';
 import { SettingItem } from '../../../styled';
 import { handleAdvancedSettingChange, getAdvanceSetting } from '../../../util/setting';
 import InputValue from 'src/pages/widgetConfig/widgetSetting/components/WidgetVerify/InputValue';
+import { isCustomWidget } from 'src/pages/widgetConfig/util';
 
 const MULTI_SELECT_DISPLAY = [
   {
@@ -31,7 +32,7 @@ export default function DisplayOptions({ data, onChange }) {
 
   return (
     <Fragment>
-      <SettingItem>
+      <SettingItem hide={isCustomWidget(data)}>
         <div className="settingItemTitle">{_l('排列方式')}</div>
         <Dropdown
           border

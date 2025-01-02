@@ -118,7 +118,7 @@ const Wrap = styled.div`
       line-height: 1 !important;
       text-align: center;
       &:hover {
-        color: #333 !important;
+        color: #151515 !important;
       }
       & > span {
         width: 100% !important;
@@ -156,7 +156,7 @@ const Wrap = styled.div`
       // background-color: #9e9e9e;
     }
     .ming.Checkbox.Checkbox--disabled {
-      color: #333;
+      color: #151515;
     }
     .iconWrap {
       display: inline-block;
@@ -175,7 +175,7 @@ const Wrap = styled.div`
     h6 {
       font-size: 20px;
       font-weight: 500;
-      color: #333333;
+      color: #151515;
       text-align: center;
       padding: 0;
       padding-top: 32px;
@@ -296,12 +296,13 @@ export default function NavGroup(params) {
     );
   };
   const addNavGroups = data => {
+    data = { ...data, type: data.type === 30 ? data.sourceControlType : data.type };
     const d = getSetDefault(data);
     let info = {
       shownullitem: '1', //默认新增显示空
       navsorts: '',
       customnavs: '',
-      navshow: !['0', '1'].includes(navshow + '') ? '0' : navshow, //新配置需要前端把这个值设为1
+      navshow: [26, 27, 48].includes(data.type) ? '1' : !['0', '1'].includes(navshow + '') ? '0' : navshow, //新配置需要前端把这个值设为1
       navfilters: JSON.stringify([]),
       usenav: '0', //新配置 默认不勾选
       navsearchtype: !!_.get(data, 'advancedSetting.searchtype') ? _.get(data, 'advancedSetting.searchtype') : '0', //0或者空 模糊匹配 1：精确搜索
@@ -435,9 +436,12 @@ export default function NavGroup(params) {
               }}
             />
             {/*  支持排序的字段：关联记录、人员、选项、等级*/}
-            {[29, 26, 9, 10, 11, 28].includes(
+            {([29, 26, 9, 10, 11, 28, 27, 48].includes(
               (worksheetControls.find(o => o.controlId === navGroup.controlId) || {}).type,
-            ) &&
+            ) ||
+              [29, 26, 9, 10, 11, 28, 27, 48].includes(
+                (worksheetControls.find(o => o.controlId === navGroup.controlId) || {}).sourceControlType,
+              )) &&
               !['2'].includes(navshow) && (
                 <NavSort
                   view={view}
@@ -453,7 +457,12 @@ export default function NavGroup(params) {
                     let data = {};
                     if (
                       editAdKeys.includes('navsorts') &&
-                      [9, 10, 11].includes((worksheetControls.find(o => o.controlId === navGroup.controlId) || {}).type)
+                      ([9, 10, 11, 28].includes(
+                        (worksheetControls.find(o => o.controlId === navGroup.controlId) || {}).type,
+                      ) ||
+                        [9, 10, 11, 28].includes(
+                          (worksheetControls.find(o => o.controlId === navGroup.controlId) || {}).sourceControlType,
+                        ))
                     ) {
                       //  _l('升序') '0', _l('降序') '1',
                       data = { navGroup: [{ ...navGroup, isAsc: newValue.navsorts + '' !== '1' }] };
@@ -521,7 +530,7 @@ export default function NavGroup(params) {
         <div className="hasData">
           <div className="viewSetTitle">{_l('筛选列表')}</div>
           <div className="Gray_75 mTop8 mBottom4">
-            {_l('将所选字段选项以列表的形式显示在视图左侧，帮助用户快速查看记录，支持选项、关联记录和级联选择字段。')}
+            {_l('将所选字段选项以列表的形式显示在视图左侧，帮助用户快速查看记录。')}
           </div>
           <React.Fragment>
             <div className="con">
@@ -638,9 +647,7 @@ export default function NavGroup(params) {
             <img src={bgNavGroups} alt="" srcset="" />
           </div>
           <h6 className="">{_l('筛选列表')}</h6>
-          <p className="text Gray_75">
-            {_l('将所选字段选项以列表的形式显示在视图左侧，帮助用户快速查看记录，支持选项、关联记录和级联选择字段。')}
-          </p>
+          <p className="text Gray_75">{_l('将所选字段选项以列表的形式显示在视图左侧，帮助用户快速查看记录。')}</p>
           {renderAdd({
             comp: () => {
               return (

@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { widgets } from '../../enum';
 import EditWidget from '../editWidget';
-import { getFeatureStatus } from 'src/util';
-import { VersionProductType } from 'src/util/enum';
 import _ from 'lodash';
 
 const WidgetWrap = styled.div`
@@ -48,9 +46,7 @@ const WidgetWrap = styled.div`
 
 function WidgetList({ components, addWidget = _.noop, ...rest }) {
   const [createWidget, setWidget] = useState({});
-  const { projectId } = rest.appPkg;
-  const featureType = getFeatureStatus(projectId, VersionProductType.assistant);
-  const hideAssistant = !featureType || featureType === '2' || md.global.Config.IsLocal;
+
   return (
     <WidgetWrap>
       <div className="header">
@@ -60,7 +56,7 @@ function WidgetList({ components, addWidget = _.noop, ...rest }) {
         </div> */}
       </div>
       <ul className="widgetList">
-        {_.keys(widgets).filter(n => n === 'ai' ? !hideAssistant : true).map(key => {
+        {_.keys(widgets).map(key => {
           const { icon, name } = widgets[key];
           return (
             <li

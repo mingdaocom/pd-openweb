@@ -46,10 +46,6 @@ const parseShareId = () => {
     window.shareState.isPublicChart = true;
     window.shareState.shareId = (location.pathname.match(/.*\/public\/chart\/(\w{24})/) || '')[1];
   }
-  if (/\/public\/assistant/.test(location.pathname)) {
-    window.shareState.isAssistant = true;
-    window.shareState.shareId = (location.pathname.match(/.*\/public\/assistant\/(\w{24})/) || '')[1];
-  }
 };
 
 const clearLocalStorage = () => {
@@ -60,7 +56,7 @@ const clearLocalStorage = () => {
       .forEach(item => {
         localStorage.removeItem(item.key);
       });
-  } catch (err) {}
+  } catch (err) { }
 };
 
 const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
@@ -97,6 +93,7 @@ const getGlobalMeta = ({ allowNotLogin, requestParams } = {}) => {
   if (urlObj.searchParams.get('access_token')) {
     window.access_token = urlObj.searchParams.get('access_token');
   }
+  args.lang = getCurrentLangCode();
 
   // 获取global数据
   const data = global.getGlobalMeta(args, { ajaxOptions: { sync: true } });

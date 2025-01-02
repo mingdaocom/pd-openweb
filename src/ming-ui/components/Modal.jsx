@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Modal } from 'antd';
 import { Button } from 'ming-ui';
 import ErrorWrapper from './ErrorWrapper';
+
 import './less/Modal.less';
 import _ from 'lodash';
 
@@ -12,6 +13,9 @@ const ModalButtonCon = styled.div`
   position: absolute;
   right: 40px;
   top: 0;
+  .draftEntry {
+    margin-right: 10px !important;
+  }
 `;
 
 const ModalButton = styled.div`
@@ -20,8 +24,14 @@ const ModalButton = styled.div`
   line-height: 40px;
   text-align: center;
   color: #9e9e9e;
+  span {
+    color: #757575;
+  }
   &:hover {
     color: #2196f3;
+    span {
+      color: #2196f3;
+    }
   }
 `;
 
@@ -159,11 +169,11 @@ export default function MdModal(props) {
   }
   if (fullScreen) {
     modalProps.className = modalProps.className + ' fullScreen';
-    modalProps.style.height = window.innerHeight;
-    modalProps.style.width = window.innerWidth;
+    modalProps.style.height = '100%';
+    modalProps.style.width = '100%';
     modalProps.style.maxWidth = 'unset';
     modalProps.style.verticalAlign = 'middle';
-    modalProps.width = window.innerWidth;
+    modalProps.width = '100%';
   }
   return (
     <Modal
@@ -176,9 +186,13 @@ export default function MdModal(props) {
       <ModalButtonCon className="flexRow">
         {iconButtons.map((btn, i) => (
           <ModalButton key={i} onClick={btn.onClick}>
-            <TipCon data-tip={btn.tip}>
-              <i className={`icon ${btn.icon}`}></i>
-            </TipCon>
+            {btn.ele ? (
+              btn.ele
+            ) : (
+              <TipCon data-tip={btn.tip}>
+                <i className={`icon ${btn.icon}`}></i>
+              </TipCon>
+            )}
           </ModalButton>
         ))}
         {allowScale && (

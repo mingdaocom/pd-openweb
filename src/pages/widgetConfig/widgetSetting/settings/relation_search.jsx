@@ -357,7 +357,7 @@ export default function RelationSearch(props) {
       {showtype !== '3' && (
         <SettingItem>
           <div className="settingItemTitle mBottom8">
-            <span style={{ fontWeight: 'normal' }}>{_l('显示字段')}</span>
+            <span>{_l('显示字段')}</span>
             {enumDefault === 1 && (
               <Tooltip
                 className="hoverTip"

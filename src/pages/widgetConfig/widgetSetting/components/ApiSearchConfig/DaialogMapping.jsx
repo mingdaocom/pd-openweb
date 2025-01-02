@@ -10,7 +10,15 @@ import './DialogMapping.less';
 import _ from 'lodash';
 
 export default function DialogMapping(props) {
-  const { data = {}, responseControls = [], originResponseControls = [], allControls = [], onClose, onChange } = props;
+  const {
+    data = {},
+    responseControls = [],
+    originResponseControls = [],
+    allControls = [],
+    onClose,
+    onChange,
+    fromOperationFlow,
+  } = props;
   const { itemsource = '' } = getAdvanceSetting(data);
   const responsemap = getAdvanceSetting(data, 'responsemap') || [];
   const [mappingData, setMappingData] = useState(responsemap);
@@ -90,35 +98,29 @@ export default function DialogMapping(props) {
     const parentMappingItem = _.find(mappingData, i => i.id === item.dataSource);
     const filterSYS = SYS.concat(SYS_CONTROLS);
     const filterSelf = allControls.filter(i => i.controlId !== data.controlId || !_.includes(filterSYS, i.controlId));
-    const filterMappingData = mappingData.filter(i => {
-      if (item.dataSource) {
-        return i.pid === item.dataSource && i.subid && i.subid !== showValue;
-      }
-      return (i.subid || i.cid) !== showValue;
-    });
     let filterData = [];
 
     // 如果是子表
     if (parentMappingItem && parentMappingItem.type === 10000008) {
       const parentControl = _.find(filterSelf, i => i.controlId === parentMappingItem.cid) || {};
-      filterData = getMapControls(
-        item,
-        (parentControl.relationControls || []).filter(i => !_.includes(filterSYS, i.controlId)),
-      ).filter(
-        i =>
-          !_.includes(
-            filterMappingData.map(i => i.subid),
-            i.controlId,
-          ),
-      );
+      const filterIds = mappingData
+        .filter(i => i.pid && i.cid === parentControl.controlId && i.subid !== showValue)
+        .map(i => i.subid);
+      const relationControls = (parentControl.relationControls || []).filter(i => {
+        return !_.includes([...filterSYS, ...filterIds], i.controlId);
+      });
+      filterData = getMapControls(item, relationControls);
     } else {
-      filterData = getMapControls(item, filterSelf).filter(
-        c =>
-          !_.includes(
-            filterMappingData.filter(i => i.cid && !i.subid).map(i => i.cid),
-            c.controlId,
-          ),
-      );
+      filterData = getMapControls(item, filterSelf).filter(c => {
+        if (c.parentId) {
+          return !_.find(mappingData, m => m.cid === c.parentId && m.subid !== showValue);
+        } else {
+          return !_.find(
+            mappingData,
+            m => (item.type === 10000008 ? true : !m.subid) && m.cid === c.controlId && m.cid !== showValue,
+          );
+        }
+      });
     }
 
     function formatItem(list) {
@@ -289,6 +291,9 @@ export default function DialogMapping(props) {
       title={<span className="Bold">{_l('建立映射')}</span>}
       onCancel={onClose}
       className={cx('DialogMappingConfig', { mappingHeight: noData })}
+      {...(fromOperationFlow
+        ? { description: _l('流程中有其他PBP、子流程、循环流程、代办、延时节点时，输出参数映射无效') }
+        : {})}
       okText={_l('保存')}
       onOk={() => {
         const filterMapping = mappingData.filter(i => i.cid);

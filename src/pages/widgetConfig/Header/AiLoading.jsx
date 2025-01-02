@@ -11,23 +11,25 @@ const AiLoadingWrap = styled.div`
     left: 50%;
     transform: translate(-50%, -50%);
     color: #fff;
+    background: unset;
+    -webkit-text-fill-color: #fff;
   }
   .box1 {
     margin-top: -30px;
     margin-left: -30px;
-    background: conic-gradient(orange, rgb(255, 210, 126));
+    background: conic-gradient(#6e32f8, #b63ee6);
     animation: regAni 2s ease 0s infinite;
   }
   .box2 {
-    border: 1px solid orange;
+    border: 1px solid #d546e6;
     animation: wAni 3s cubic-bezier(0.3, 0.57, 0.56, 0.93) 0s infinite;
   }
   .box3 {
-    border: 1px solid orange;
+    border: 1px solid #d546e6;
     animation: wAni 3s cubic-bezier(0.3, 0.57, 0.56, 0.93) 1s infinite;
   }
   .box4 {
-    border: 1px solid orange;
+    border: 1px solid #d546e6;
     animation: wAni 3s cubic-bezier(0.3, 0.57, 0.56, 0.93) 2s infinite;
   }
   .box1,

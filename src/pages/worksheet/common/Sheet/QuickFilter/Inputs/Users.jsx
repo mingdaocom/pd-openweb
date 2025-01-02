@@ -11,9 +11,9 @@ const Con = styled.div`
   align-items: center;
   min-height: 32px;
   line-height: 32px;
-  border: 1px solid #dddddd;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
-  border: 1px solid ${({ active }) => (active ? '#2196f3' : '#ddd')} !important;
+  border: 1px solid ${({ active }) => (active ? '#2196f3' : 'var(--border-color)')} !important;
   .clearIcon {
     display: none;
   }
@@ -37,7 +37,7 @@ const UsersCon = styled.div`
 const UserItem = styled.div`
   font-size: 13px;
   display: inline-block;
-  color: #333;
+  color: #151515;
   background: #e5e5e5;
   height: 24px;
   line-height: 24px;
@@ -56,7 +56,7 @@ const UserItem = styled.div`
 
 const SingleUserItem = styled.div`
   font-size: 13px;
-  color: #333;
+  color: #151515;
   .userHead {
     display: inline-block !important;
     margin-right: 8px;

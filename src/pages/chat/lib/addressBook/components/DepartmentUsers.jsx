@@ -54,7 +54,7 @@ const UserItem = styled.div`
     white-space: nowrap;
   }
   .fullname {
-    color: #333333;
+    color: #151515;
   }
   .jobs {
     color: #757575;

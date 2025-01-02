@@ -26,6 +26,15 @@ class Widgets extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps) {
+    if (
+      !_.isEqual(_.pick(nextProps, ['value', 'width', 'disabled']), _.pick(this.props, ['value', 'width', 'disabled']))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   getItemWidth = displayOptions => {
     const { width = '200', direction = '2' } = this.props.advancedSetting || {};
     let itemWidth = 100;

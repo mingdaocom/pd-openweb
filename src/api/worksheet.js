@@ -10,7 +10,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getViewPermission: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetViewPermission', args, options);
    },
   /**
@@ -23,7 +23,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAppExtendAttr: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetAppExtendAttr', args, options);
    },
   /**
@@ -35,7 +35,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getExtendAttrOptionalControl: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetExtendAttrOptionalControl', args, options);
    },
   /**
@@ -45,13 +45,14 @@ export default {
   * @param {string} args.worksheetId 工作表Id
   * @param {string} args.userControlId 用户控件
   * @param {array} args.extendAttrs 扩展字段属性
+  * @param {array} args.extendAndAttrs 扩展且字段属性
   * @param {integer} args.status 状态【9：关闭 1：正常】
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    saveAppExtendAttr: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SaveAppExtendAttr', args, options);
    },
   /**
@@ -72,7 +73,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    copyWorksheet: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'CopyWorksheet', args, options);
    },
   /**
@@ -86,7 +87,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateEntityName: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'UpdateEntityName', args, options);
    },
   /**
@@ -99,7 +100,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editDeveloperNotes: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditDeveloperNotes', args, options);
    },
   /**
@@ -113,7 +114,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateWorksheetAlias: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'UpdateWorksheetAlias', args, options);
    },
   /**
@@ -127,7 +128,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateWorksheetDec: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'UpdateWorksheetDec', args, options);
    },
   /**
@@ -144,7 +145,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateWorksheetShareRange: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'UpdateWorksheetShareRange', args, options);
    },
   /**
@@ -168,7 +169,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetInfo: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorksheetInfo', args, options);
    },
   /**
@@ -196,7 +197,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetInfoByWorkItem: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorksheetInfoByWorkItem', args, options);
    },
   /**
@@ -215,7 +216,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetShareUrl: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorksheetShareUrl', args, options);
    },
   /**
@@ -236,7 +237,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getShareInfoByShareId: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetShareInfoByShareId', args, options);
    },
   /**
@@ -247,7 +248,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getRefreshRowsMinute: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetRefreshRowsMinute', args, options);
    },
   /**
@@ -269,7 +270,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getRowByID: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetRowByID', args, options);
    },
   /**
@@ -282,7 +283,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAttachmentDetail: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetAttachmentDetail', args, options);
    },
   /**
@@ -299,7 +300,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAttachmentShareId: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetAttachmentShareId', args, options);
    },
   /**
@@ -321,7 +322,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getRowDetail: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetRowDetail', args, options);
    },
   /**
@@ -334,7 +335,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorkItem: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorkItem', args, options);
    },
   /**
@@ -361,7 +362,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getRowRelationRows: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetRowRelationRows', args, options);
    },
   /**
@@ -382,7 +383,7 @@ export default {
   * @param {} args.masterRecord
   * @param {string} args.pushUniqueId 推送ID
   * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
-  * @param {integer} args.rowStatus 1：正常 21：草稿箱
+  * @param {integer} args.rowStatus 1：正常 21：草稿箱 22：提交草稿箱
   * @param {string} args.draftRowId 草稿ID
   * @param {string} args.clientId 未登录用户临时登录凭据
   * @param {Object} options 配置参数
@@ -390,8 +391,37 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addWorksheetRow: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'AddWorksheetRow', args, options);
+   },
+  /**
+  * 保存草稿箱记录
+  * @param {Object} args 请求参数
+  * @param {string} args.ticket 验证码返票据
+  * @param {string} args.randStr 票据随机字符串
+  * @param {} args.captchaType
+  * @param {string} args.worksheetId 工作表id
+  * @param {array} args.receiveControls 该行所有的cell
+  * @param {array} args.receiveRows 批量新增所有rows
+  * @param {string} args.viewId 视图Id
+  * @param {string} args.appId 应用Id
+  * @param {string} args.btnId 自定义按钮ID
+  * @param {string} args.btnRemark 按钮备注
+  * @param {string} args.btnWorksheetId 点击按钮对应的工作表ID
+  * @param {string} args.btnRowId 点击按钮对应的行记录ID
+  * @param {} args.masterRecord
+  * @param {string} args.pushUniqueId 推送ID
+  * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
+  * @param {integer} args.rowStatus 1：正常 21：草稿箱 22：提交草稿箱
+  * @param {string} args.draftRowId 草稿ID
+  * @param {string} args.clientId 未登录用户临时登录凭据
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   saveDraftRow: function (args, options = {}) {
+
+     return mdyAPI('Worksheet', 'SaveDraftRow', args, options);
    },
   /**
   * 批量添加行
@@ -411,7 +441,7 @@ export default {
   * @param {} args.masterRecord
   * @param {string} args.pushUniqueId 推送ID
   * @param {string} args.verifyCode 验证码【根据配置来校验是否必填】
-  * @param {integer} args.rowStatus 1：正常 21：草稿箱
+  * @param {integer} args.rowStatus 1：正常 21：草稿箱 22：提交草稿箱
   * @param {string} args.draftRowId 草稿ID
   * @param {string} args.clientId 未登录用户临时登录凭据
   * @param {Object} options 配置参数
@@ -419,7 +449,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addWSRowsBatch: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'AddWSRowsBatch', args, options);
    },
   /**
@@ -436,13 +466,13 @@ export default {
   * @param {string} args.btnWorksheetId 点击按钮对应的工作表ID
   * @param {string} args.btnRowId 点击按钮对应的行记录ID
   * @param {string} args.pushUniqueId 推送ID
-  * @param {integer} args.rowStatus 1：正常 11：草稿箱
+  * @param {integer} args.rowStatus 1：正常 21：草稿箱
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateWorksheetRow: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'UpdateWorksheetRow', args, options);
    },
   /**
@@ -457,7 +487,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    checkFieldUnique: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'CheckFieldUnique', args, options);
    },
   /**
@@ -486,7 +516,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateWorksheetRows: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'UpdateWorksheetRows', args, options);
    },
   /**
@@ -507,7 +537,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateRowRelationRows: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'UpdateRowRelationRows', args, options);
    },
   /**
@@ -524,7 +554,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    replaceRowRelationRows: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'ReplaceRowRelationRows', args, options);
    },
   /**
@@ -545,7 +575,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    refreshSummary: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'RefreshSummary', args, options);
    },
   /**
@@ -574,7 +604,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    refreshWorksheetRows: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'RefreshWorksheetRows', args, options);
    },
   /**
@@ -598,7 +628,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    deleteWorksheetRows: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'DeleteWorksheetRows', args, options);
    },
   /**
@@ -620,7 +650,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    restoreWorksheetRows: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'RestoreWorksheetRows', args, options);
    },
   /**
@@ -639,7 +669,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeWorksheetRows: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'RemoveWorksheetRows', args, options);
    },
   /**
@@ -687,7 +717,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getFilterRows: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetFilterRows', args, options);
    },
   /**
@@ -737,7 +767,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getFilterRowsByQueryDefault: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetFilterRowsByQueryDefault', args, options);
    },
   /**
@@ -785,7 +815,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getFilterRowsTotalNum: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetFilterRowsTotalNum', args, options);
    },
   /**
@@ -808,7 +838,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getFilterRowsReport: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetFilterRowsReport', args, options);
    },
   /**
@@ -823,7 +853,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getLogs: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetLogs', args, options);
    },
   /**
@@ -848,7 +878,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetOperationLogs: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorksheetOperationLogs', args, options);
    },
   /**
@@ -870,7 +900,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getDetailTableLog: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetDetailTableLog', args, options);
    },
   /**
@@ -895,7 +925,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    batchGetWorksheetOperationLogs: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'BatchGetWorksheetOperationLogs', args, options);
    },
   /**
@@ -912,7 +942,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateWorksheetRowShareRange: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'UpdateWorksheetRowShareRange', args, options);
    },
   /**
@@ -927,7 +957,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getRowsShortUrl: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetRowsShortUrl', args, options);
    },
   /**
@@ -949,7 +979,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    copyRow: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'CopyRow', args, options);
    },
   /**
@@ -972,7 +1002,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getNavGroup: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetNavGroup', args, options);
    },
   /**
@@ -984,7 +1014,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetArchives: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorksheetArchives', args, options);
    },
   /**
@@ -1002,7 +1032,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    saveWorksheetFilter: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SaveWorksheetFilter', args, options);
    },
   /**
@@ -1015,7 +1045,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetFilters: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorksheetFilters', args, options);
    },
   /**
@@ -1030,7 +1060,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetFilterById: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorksheetFilterById', args, options);
    },
   /**
@@ -1043,7 +1073,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    deleteWorksheetFilter: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'DeleteWorksheetFilter', args, options);
    },
   /**
@@ -1057,7 +1087,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sortWorksheetFilters: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SortWorksheetFilters', args, options);
    },
   /**
@@ -1102,7 +1132,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    saveWorksheetView: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SaveWorksheetView', args, options);
    },
   /**
@@ -1115,7 +1145,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetViews: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorksheetViews', args, options);
    },
   /**
@@ -1128,7 +1158,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    deleteWorksheetView: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'DeleteWorksheetView', args, options);
    },
   /**
@@ -1141,7 +1171,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    copyWorksheetView: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'CopyWorksheetView', args, options);
    },
   /**
@@ -1155,7 +1185,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sortWorksheetViews: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SortWorksheetViews', args, options);
    },
   /**
@@ -1172,7 +1202,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetBtns: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorksheetBtns', args, options);
    },
   /**
@@ -1189,7 +1219,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetBtnByID: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorksheetBtnByID', args, options);
    },
   /**
@@ -1205,7 +1235,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    optionWorksheetBtn: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'OptionWorksheetBtn', args, options);
    },
   /**
@@ -1243,7 +1273,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    saveWorksheetBtn: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SaveWorksheetBtn', args, options);
    },
   /**
@@ -1259,7 +1289,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    copyWorksheetBtn: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'CopyWorksheetBtn', args, options);
    },
   /**
@@ -1272,7 +1302,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getControlRules: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetControlRules', args, options);
    },
   /**
@@ -1294,11 +1324,11 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    saveControlRule: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SaveControlRule', args, options);
    },
   /**
-  * 
+  *
   * @param {Object} args 请求参数
   * @param {string} args.worksheetId
   * @param {string} args.ruleId
@@ -1316,7 +1346,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sortControlRules: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SortControlRules', args, options);
    },
   /**
@@ -1335,7 +1365,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    saveWorksheetControls: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SaveWorksheetControls', args, options);
    },
   /**
@@ -1354,7 +1384,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addWorksheetControls: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'AddWorksheetControls', args, options);
    },
   /**
@@ -1378,7 +1408,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetControls: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorksheetControls', args, options);
    },
   /**
@@ -1391,7 +1421,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getAiFieldRecommendation: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetAiFieldRecommendation', args, options);
    },
   /**
@@ -1415,7 +1445,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetsControls: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorksheetsControls', args, options);
    },
   /**
@@ -1434,7 +1464,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editControlsAlias: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditControlsAlias', args, options);
    },
   /**
@@ -1448,7 +1478,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editGenerateControlsDefaultAlias: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditGenerateControlsDefaultAlias', args, options);
    },
   /**
@@ -1467,7 +1497,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editWorksheetControls: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditWorksheetControls', args, options);
    },
   /**
@@ -1486,7 +1516,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    resetControlIncrease: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'ResetControlIncrease', args, options);
    },
   /**
@@ -1510,7 +1540,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    deleteWorksheetAutoID: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'DeleteWorksheetAutoID', args, options);
    },
   /**
@@ -1529,7 +1559,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editControlsStatus: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditControlsStatus', args, options);
    },
   /**
@@ -1543,7 +1573,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPrintList: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetPrintList', args, options);
    },
   /**
@@ -1555,7 +1585,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getFormComponent: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetFormComponent', args, options);
    },
   /**
@@ -1582,7 +1612,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPrint: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetPrint', args, options);
    },
   /**
@@ -1609,7 +1639,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getCodePrint: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetCodePrint', args, options);
    },
   /**
@@ -1636,7 +1666,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getPrintTemplate: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetPrintTemplate', args, options);
    },
   /**
@@ -1650,7 +1680,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editPrint: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditPrint', args, options);
    },
   /**
@@ -1670,7 +1700,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    saveRecordCodePrintConfig: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SaveRecordCodePrintConfig', args, options);
    },
   /**
@@ -1683,7 +1713,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editPrintName: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditPrintName', args, options);
    },
   /**
@@ -1697,7 +1727,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editPrintRange: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditPrintRange', args, options);
    },
   /**
@@ -1710,7 +1740,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editPrintFilter: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditPrintFilter', args, options);
    },
   /**
@@ -1723,7 +1753,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editTemplateDownloadPermission: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditTemplateDownloadPermission', args, options);
    },
   /**
@@ -1737,7 +1767,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editPrintTemplateSort: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditPrintTemplateSort', args, options);
    },
   /**
@@ -1749,7 +1779,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    deletePrint: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'DeletePrint', args, options);
    },
   /**
@@ -1761,7 +1791,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getRowIndexes: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetRowIndexes', args, options);
    },
   /**
@@ -1780,7 +1810,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addRowIndex: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'AddRowIndex', args, options);
    },
   /**
@@ -1803,7 +1833,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateRowIndex: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'UpdateRowIndex', args, options);
    },
   /**
@@ -1818,7 +1848,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateRowIndexCustomeIndexName: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'UpdateRowIndexCustomeIndexName', args, options);
    },
   /**
@@ -1834,7 +1864,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    removeRowIndex: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'RemoveRowIndex', args, options);
    },
   /**
@@ -1851,7 +1881,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getLinkDetail: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetLinkDetail', args, options);
    },
   /**
@@ -1864,7 +1894,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getFormSubmissionSettings: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetFormSubmissionSettings', args, options);
    },
   /**
@@ -1873,12 +1903,13 @@ export default {
   * @param {string} args.workSheetId 工作表id
   * @param {string} args.appId 应用id
   * @param {object} args.advancedSetting 配置项数据
+  * @param {array} args.editAdKeys 编辑AdvancedSetting属性keys
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editWorksheetSetting: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditWorksheetSetting', args, options);
    },
   /**
@@ -1890,7 +1921,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getSwitch: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetSwitch', args, options);
    },
   /**
@@ -1906,7 +1937,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editSwitch: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditSwitch', args, options);
    },
   /**
@@ -1919,7 +1950,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    batchEditSwitch: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'BatchEditSwitch', args, options);
    },
   /**
@@ -1932,7 +1963,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getSwitchPermit: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetSwitchPermit', args, options);
    },
   /**
@@ -1946,7 +1977,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getWorksheetApiInfo: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetWorksheetApiInfo', args, options);
    },
   /**
@@ -1966,7 +1997,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getCollectionsByAppId: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetCollectionsByAppId', args, options);
    },
   /**
@@ -1986,7 +2017,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    saveOptionsCollection: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SaveOptionsCollection', args, options);
    },
   /**
@@ -2006,7 +2037,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    updateOptionsCollectionAppId: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'UpdateOptionsCollectionAppId', args, options);
    },
   /**
@@ -2026,7 +2057,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    deleteOptionsCollection: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'DeleteOptionsCollection', args, options);
    },
   /**
@@ -2046,7 +2077,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getCollectionByCollectId: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetCollectionByCollectId', args, options);
    },
   /**
@@ -2066,7 +2097,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getCollectionsByCollectIds: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetCollectionsByCollectIds', args, options);
    },
   /**
@@ -2086,7 +2117,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getQuoteControlsById: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetQuoteControlsById', args, options);
    },
   /**
@@ -2097,7 +2128,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    addOrUpdateOptionSetApiInfo: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'AddOrUpdateOptionSetApiInfo', args, options);
    },
   /**
@@ -2108,7 +2139,7 @@ export default {
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    optionSetListApiInfo: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'OptionSetListApiInfo', args, options);
    },
   /**
@@ -2123,7 +2154,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    ocr: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'Ocr', args, options);
    },
   /**
@@ -2135,7 +2166,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getQuery: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetQuery', args, options);
    },
   /**
@@ -2147,7 +2178,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getQueryBySheetId: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetQueryBySheetId', args, options);
    },
   /**
@@ -2170,7 +2201,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    saveQuery: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SaveQuery', args, options);
    },
   /**
@@ -2189,7 +2220,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    saveFiltersGroup: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SaveFiltersGroup', args, options);
    },
   /**
@@ -2208,7 +2239,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getFiltersGroupByIds: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetFiltersGroupByIds', args, options);
    },
   /**
@@ -2227,7 +2258,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    deleteFiltersGroupByIds: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'DeleteFiltersGroupByIds', args, options);
    },
   /**
@@ -2242,12 +2273,13 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {string} args.formId 公开表单id
   * @param {string} args.apiEventId 动作事件id（不传默认识别为api查询字段）
   * @param {string} args.authId 授权账户Id
+  * @param {integer} args.actionType 事件执行类型 调用api 8 调用封装业务流程 13
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    excuteApiQuery: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'ExcuteApiQuery', args, options);
    },
   /**
@@ -2255,12 +2287,13 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @param {Object} args 请求参数
   * @param {string} args.apiTemplateId api模板id
   * @param {integer} args.type 是否为请求参数模板 1-请求模板 2-响应模板 不传-请求响应
+  * @param {integer} args.actionType 事件执行类型 调用api 8 调用封装业务流程 13
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getApiControlDetail: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetApiControlDetail', args, options);
    },
   /**
@@ -2276,7 +2309,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    sortAttachment: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SortAttachment', args, options);
    },
   /**
@@ -2301,7 +2334,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    editAttachmentName: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'EditAttachmentName', args, options);
    },
   /**
@@ -2314,7 +2347,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    getExportConfig: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'GetExportConfig', args, options);
    },
   /**
@@ -2335,7 +2368,7 @@ remark:待识别文件url ，图片的 Url 地址。要求图片经Base64编码�
   * @returns {Promise<Boolean, ErrorModel>}
   **/
    saveExportConfig: function (args, options = {}) {
-     
+
      return mdyAPI('Worksheet', 'SaveExportConfig', args, options);
    },
 };

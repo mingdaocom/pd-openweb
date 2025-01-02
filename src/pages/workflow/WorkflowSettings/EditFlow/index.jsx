@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import './index.less';
 import nodeModules from './nodeModules';
 import End from './End';
-import { CreateNodeDialog, Thumbnail, NodeWrap, WhiteNode } from './components';
+import { CreateNodeDialog, Thumbnail, NodeWrap, WhiteNode, ExceedDialog } from './components';
 import Detail from '../Detail';
 import cx from 'classnames';
 import { Dialog, LoadDiv, EditingBar, SvgIcon } from 'ming-ui';
@@ -105,7 +105,19 @@ class EditFlow extends Component {
    * 选择添加节点的id
    */
   selectAddNodeId = (nodeId, selectProcessId) => {
+    const { workflowDetail } = this.props;
+    const { flowNodeMap } = workflowDetail;
+
     this.props.changeFlowInfo(false);
+
+    // if (
+    //   nodeId &&
+    //   !selectProcessId &&
+    //   Object.keys(flowNodeMap).filter(o => !_.includes([1, 2, 100], flowNodeMap[o].typeId)).length >= 201
+    // ) {
+    //   ExceedDialog();
+    //   return;
+    // }
 
     if (nodeId && this.change && this.state.selectNodeId) {
       this.detailUpdateConfirm(() => {
@@ -156,13 +168,24 @@ class EditFlow extends Component {
    * 创建复制节点
    */
   createCopyNode = () => {
+    const { workflowDetail } = this.props;
     const { nodeId, selectCopyIds, selectProcessId } = this.state;
+    const { flowNodeMap } = workflowDetail;
     const copyNodeSize = selectCopyIds.length;
 
     if (!copyNodeSize) {
       alert(_l('请选择以下高亮节点进行复制'), 2);
       return;
     }
+
+    // if (
+    //   nodeId &&
+    //   selectProcessId === workflowDetail.id &&
+    //   Object.keys(flowNodeMap).filter(o => !_.includes([1, 2, 100], flowNodeMap[o].typeId)).length + copyNodeSize > 201
+    // ) {
+    //   ExceedDialog();
+    //   return;
+    // }
 
     this.props.dispatch(
       addFlowNode(

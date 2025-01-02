@@ -283,7 +283,7 @@ function Preview(props) {
   //根据状态轮询
   const refresh = id => {
     if (cache.current.syncTaskStatus === 'STOP') return;
-    const worksheetId = id || cache.current.worksheetId || worksheetId;
+    let worksheetId = id || cache.current.worksheetId || worksheetId;
     if (ajaxPromiseStatus) {
       ajaxPromiseStatus.abort();
     }
@@ -296,10 +296,15 @@ function Preview(props) {
       { isAggTable: true },
     );
     ajaxPromiseStatus.then(async res => {
+      const { taskStatus } = res;
+      if (res.worksheetId && res.worksheetId !== worksheetId) {
+        worksheetId = res.worksheetId;
+        changeInfoWithWorksheetId(res);
+      }
       //完成 UN_PUBLIC RUNNING STOP ERROR CREATING FINISHED
-      onChangeStatus(res);
-      if (!['CREATING', 'RUNNING'].includes(res)) {
-        if ('FINISHED' === res) {
+      onChangeStatus(taskStatus);
+      if (!['CREATING', 'RUNNING'].includes(taskStatus)) {
+        if ('FINISHED' === taskStatus) {
           //结束后获取计数，无计数=>则延迟2s重新获取计数和数据
           // console.log('结束后获取计数', moment().format('YYYY/MM/DD HH:mm:ss'));
           const allNum = await getNumFetch(worksheetId);
@@ -334,6 +339,15 @@ function Preview(props) {
         getRunFetch(worksheetId);
       }
     });
+  };
+
+  const changeInfoWithWorksheetId = (data = {}) => {
+    if (data.worksheetId) {
+      const worksheetId = data.worksheetId || flowData.worksheetId;
+      let newData = { ...flowData, worksheetId };
+      setState({ worksheetId, flowData: newData, pageIndex: 1 });
+      cache.current.worksheetId = worksheetId;
+    }
   };
 
   //预览发布
@@ -385,14 +399,10 @@ function Preview(props) {
         onChangeStatus('ERROR');
         return;
       }
-      let newData = { ...flowData, fieldIdAndAssignCidMap: data.fieldIdAndAssignCidMap, worksheetId: data.worksheetId };
-      setState({
-        worksheetId: data.worksheetId,
-        flowData: newData,
-        pageIndex: 1,
-      });
-      cache.current.worksheetId = data.worksheetId;
+      let newData = { ...flowData, fieldIdAndAssignCidMap: data.fieldIdAndAssignCidMap };
+      setState({ flowData: newData, pageIndex: 1 });
       setControls(newData);
+      changeInfoWithWorksheetId(data);
       refresh(data.worksheetId); //发布成功开始轮询
     } catch (error) {
       if (cache.current.syncTaskStatus !== 'STOP') {

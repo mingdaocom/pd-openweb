@@ -53,10 +53,7 @@ export default class MobileRadio extends Component {
               })}
         </span>
 
-        <Popup
-          visible={visible}
-          className="mobileCheckboxDialog mobileModal minFull topRadius"
-        >
+        <Popup visible={visible} className="mobileCheckboxDialog mobileModal minFull topRadius">
           <div className="flexColumn h100">
             <div className="flexRow valignWrapper mobileCheckboxBtnsWrapper">
               <div className="Hand ThemeColor bold Font15 mRight10" onClick={() => this.setState({ visible: false })}>
@@ -66,14 +63,16 @@ export default class MobileRadio extends Component {
               <div className="Font15 Visibility">{_l('确定')}</div>
             </div>
             <div className="mobileCheckboxSearchWrapper">
-              <Icon icon="h5_search" />
-              <input
-                className="flex"
-                type="search"
-                placeholder={allowAdd ? _l('搜索或添加选项') : _l('搜索')}
-                value={keywords}
-                onChange={evt => this.setState({ keywords: evt.target.value })}
-              />
+              <Icon icon="h5_search" className="Gray_75 Font14" />
+              <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
+                <input
+                  className="w100"
+                  type="search"
+                  placeholder={allowAdd ? _l('搜索或添加选项') : _l('搜索')}
+                  value={keywords}
+                  onChange={evt => this.setState({ keywords: evt.target.value })}
+                />
+              </form>
               {keywords && <Icon icon="workflow_cancel" onClick={() => this.setState({ keywords: '' })} />}
             </div>
             <List className="flex" style={{ overflow: 'auto' }}>
@@ -84,7 +83,12 @@ export default class MobileRadio extends Component {
               )}
 
               {data
-                .filter(item => item.value.indexOf(keywords) > -1)
+                .filter(
+                  item =>
+                    `${item.value || ''}|${item.pinYin || ''}`.search(
+                      new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i'),
+                    ) !== -1,
+                )
                 .map(item => (
                   <List.Item
                     key={item.key}

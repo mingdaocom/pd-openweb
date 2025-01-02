@@ -235,7 +235,7 @@ class PortalCon extends React.Component {
                 copyTip={
                   md.global.SysSettings.hideWeixin
                     ? undefined
-                    : _l('可以将链接放在微信公众号的自定义菜单与自动回复内，方便微信用户关注公众号后随时打开此链接')
+                    : _l('可以将链接放在微信服务号的自定义菜单与自动回复内，方便微信用户关注公众号后随时打开此链接')
                 }
                 qrVisible
                 showCompletely={{

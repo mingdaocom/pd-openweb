@@ -12,6 +12,7 @@ const clickAwayExceptions = [
   '.addLinkFileDialog',
   '#attachemntsPreviewContainer',
   '.mdEmotion',
+  '.discussionFilterCon > .List'
 ];
 
 export default class Discussion extends Component {

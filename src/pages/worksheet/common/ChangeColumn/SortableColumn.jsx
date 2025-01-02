@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Icon, Tooltip, SortableList } from 'ming-ui';
 import _ from 'lodash';
 import cx from 'classnames';
@@ -32,6 +32,27 @@ export default function SortableColumn(props) {
       filteredHideColumns,
     );
   }
+
+  const listRef = useRef(null);
+  const scrollTopRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollTopRef && !scrollTopRef.current) return;
+
+    setTimeout(() => {
+      listRef.current.scrollTop = scrollTopRef.current;
+      scrollTopRef.current = undefined;
+    }, 0);
+  }, [items]);
+
+  const onItemClick = item => {
+    const scrollTop = listRef.current.scrollTop;
+    handleItemClick(item, !canDrag && !search);
+
+    if (!sortAutoChange || !isShowColumns) return;
+
+    scrollTopRef.current = scrollTop;
+  };
 
   const renderSortCon = item => {
     return (
@@ -87,7 +108,7 @@ export default function SortableColumn(props) {
           <Icon
             icon={selected.indexOf(item.controlId) > -1 ? 'ic_toggle_on' : 'ic_toggle_off'}
             className="switchIcon Font30 mRight8 Hand"
-            onClick={() => handleItemClick(item, !canDrag && !search)}
+            onClick={() => onItemClick(item)}
           />
           {canDrag ? <DragHandle>{renderSortCon(item)}</DragHandle> : renderSortCon(item)}
           {tabColumns && tabColumns.length !== 0 && !search && (
@@ -106,7 +127,7 @@ export default function SortableColumn(props) {
   };
 
   return (
-    <div className="columnCheckList" style={{ overflow: 'auto', maxHeight }}>
+    <div className="columnCheckList" style={{ overflow: 'auto', maxHeight }} ref={listRef}>
       {!items.length && <div className="emptyTip TxtCenter">{_l('没有搜索结果')}</div>}
       {sortAutoChange && isShowColumns && (!search || !!filteredShowColumns.length) && (
         <React.Fragment>

@@ -113,7 +113,7 @@ export default class ShowControlModal extends Component {
       const columns = nextProps.relationControls
         .filter(item => {
           return (
-            ![10010, 21, 22, 25, 29, 30, 41, 42, 43, 45, 47, 49, 51, 52].includes(item.type) &&
+            ![10010, 21, 22, 25, 29, 30, 41, 42, 43, 45, 47, 49, 51, 52, 54].includes(item.type) &&
             !_.find(nextProps.fields, { controlId: item.controlId })
           );
         })

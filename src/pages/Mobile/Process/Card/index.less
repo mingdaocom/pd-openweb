@@ -49,7 +49,7 @@
     }
   }
   &Body {
-    color: #333;
+    color: #151515;
     font-size: 15px;
     padding: 12px 0;
     font-weight: 500;
@@ -58,6 +58,17 @@
       height: 24px;
       border-radius: 50%;
       margin-right: 10px;
+    }
+    .overflow_ellipsis_line3 {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      overflow: hidden;
+    }
+    .maxWidth80{
+      max-width: 80px;
     }
   }
   &Footer {

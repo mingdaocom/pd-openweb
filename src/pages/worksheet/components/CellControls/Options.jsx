@@ -14,7 +14,7 @@ import { formatControlToServer } from 'src/components/newCustomFields/tools/util
 import CellErrorTips from './comps/CellErrorTip';
 import { FROM } from './enum';
 import EditableCellCon from '../EditableCellCon';
-import _ from 'lodash';
+import _, { isEmpty } from 'lodash';
 
 const OtherOptionCon = styled.div`
   background: #fff;
@@ -164,7 +164,7 @@ function getOptionStyle(option, cell) {
         color:
           (option.color && isLightColor(option.color)) ||
           (cell.controlId === 'wfstatus' && _.includes(['abort', 'other'], option.key))
-            ? '#333'
+            ? '#151515'
             : '#fff',
       }
     : {};
@@ -454,7 +454,7 @@ export default class Options extends React.Component {
           isediting={isediting}
           onIconClick={() => updateEditingStatus(true)}
         >
-          {!!value && (
+          {!!value && !isEmpty(selectedOptions) && (
             <div className={cx('cellOptions cellControl', { singleLine })}>
               {selectedOptions.map((option, index) => {
                 return (

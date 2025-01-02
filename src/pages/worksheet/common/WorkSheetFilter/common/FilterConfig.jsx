@@ -3,7 +3,7 @@ import { bool, string, shape, arrayOf, number, func } from 'prop-types';
 import styled from 'styled-components';
 import { SYSTEM_CONTROLS } from 'worksheet/constants/enum';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
-import { WORKFLOW_SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
+import { SYS_CONTROLS_WORKFLOW } from 'src/pages/widgetConfig/config/widget';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import { createReducer, createActions, initialState, formatForSave } from '../model';
@@ -70,9 +70,7 @@ export default function SingleFilter(props) {
   const showWorkflowControl = isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit, viewId);
   function filterAddConditionControls(controls) {
     return filterOnlyShowField(
-      showWorkflowControl
-        ? controls
-        : controls.filter(c => !_.find(WORKFLOW_SYSTEM_CONTROL, { controlId: c.controlId })),
+      showWorkflowControl ? controls : controls.filter(c => !_.find(SYS_CONTROLS_WORKFLOW, [c.controlId])),
     );
   }
   useEffect(() => {

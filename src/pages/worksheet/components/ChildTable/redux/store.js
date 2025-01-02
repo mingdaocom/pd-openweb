@@ -8,7 +8,7 @@ import publicWorksheetAjax from 'src/api/publicWorksheet';
 import { formatSearchConfigs } from 'src/pages/widgetConfig/util';
 import { isEmpty } from 'lodash';
 import { handleUpdateDefsourceOfControl } from '../ChildTable';
-import { resetRows, clearRows, setRowsFromStaticRows } from './actions';
+import { resetRows, clearRows, loadRows, setRowsFromStaticRows } from './actions';
 import {
   getSubListError,
   getSubListUniqueError,
@@ -107,6 +107,7 @@ export default function generateStore(
     store.dispatch({
       type: 'UPDATE_BASE',
       value: {
+        from,
         control,
         max,
         searchConfig,
@@ -173,6 +174,19 @@ export default function generateStore(
       value: {},
     });
   };
+  store.initAndLoadRows = async ({ worksheetId, recordId, controlId } = {}) => {
+    await store.init();
+    const state = store.getState();
+    const { base = {} } = state;
+    store.dispatch(
+      loadRows({
+        worksheetId,
+        recordId,
+        controlId,
+        from: get(base, 'from'),
+      }),
+    );
+  };
   store.getErrors = () => {
     const state = store.getState();
     const { rows, base = {} } = state;
@@ -194,7 +208,7 @@ export default function generateStore(
     return error;
   };
   store.setUniqueError = ({ badData = [] } = {}) => {
-    const { controlId, error } = getSubListUniqueError({ badData, control });
+    const { controlId, error } = getSubListUniqueError({ store, badData, control });
     if (controlId !== control.controlId) return;
     if (!isEmpty(error)) {
       store.dispatch({

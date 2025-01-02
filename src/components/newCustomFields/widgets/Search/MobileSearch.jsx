@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { Select } from 'antd';
-import { Popup } from 'antd-mobile';
-import { LoadDiv, Icon, Radio } from 'ming-ui';
+import { LoadDiv, Icon, PopupWrapper } from 'ming-ui';
 import './index.less';
 import _ from 'lodash';
 
@@ -64,37 +63,25 @@ export default class MobileSearch extends Component {
           }}
           notFoundContent={null}
         />
-        <Popup
+        <PopupWrapper
+          bodyClassName="heightPopupBody40"
           visible={visible}
-          className="searchListModals mobileModal minFull topRadius"
+          title={controlName}
+          onClose={() => {
+            this.setState({ visible: false, mobileOptionData: [] });
+            if (this.searchInput) {
+              this.searchInput.value = '';
+            }
+          }}
+          onClear={() => {
+            this.setState({ visible: false, currentChecked: '', mobileOptionData: [] });
+            if (this.searchInput) {
+              this.searchInput.value = '';
+            }
+            this.props.onChange();
+          }}
         >
-          <Fragment>
-            <div className="flexRow header">
-              <div
-                className="ThemeColor3 TxtLeft pRight16 Font15"
-                onClick={() => {
-                  this.setState({ visible: false, mobileOptionData: [] });
-                  if (this.searchInput) {
-                    this.searchInput.value = '';
-                  }
-                }}
-              >
-                {_l('取消')}
-              </div>
-              <div className="flex ellipsis TxtCenter">{controlName}</div>
-              <div
-                className="ThemeColor3 pLeft16 TxtRight Font15"
-                onClick={() => {
-                  this.setState({ visible: false, currentChecked: '', mobileOptionData: [] });
-                  if (this.searchInput) {
-                    this.searchInput.value = '';
-                  }
-                  this.props.onChange();
-                }}
-              >
-                {_l('移除')}
-              </div>
-            </div>
+          <div className="searchListModals">
             {enumDefault === 2 && clicksearch === '0' ? (
               <div className="searchBox GrayBGF8 selectSearchBox">
                 <input
@@ -168,15 +155,14 @@ export default class MobileSearch extends Component {
                         });
                       }}
                     >
-                      <Radio checked={item[itemtitle] === currentChecked} />
-                      <div className="flex TxtLeft overflowHidden itemContent"> {labelNode}</div>
+                      <div className="flex overflowHidden itemContent"> {labelNode}</div>
                     </div>
                   );
                 })}
               </div>
             )}
-          </Fragment>
-        </Popup>
+          </div>
+        </PopupWrapper>
       </Fragment>
     );
   }

@@ -119,7 +119,7 @@ export default class Template extends Component {
       <Fragment>
         <div className="Gray_75 workflowDetailDesc">
           {_l(
-            '发送服务号消息是指向已关注公众号的微信用户发送模版消息。发送对象支持使用人员字段（通过微信授权注册的外部门户用户）或文本字段（存储微信公众号openid）。使用微信公众号模板消息需要组织后台绑定已认证的企业服务号，并在微信公众号后台开通“模板消息”功能。',
+            '发送服务号消息是指向已关注服务号的微信用户发送模版消息。发送对象支持使用人员字段（通过微信授权注册的外部门户用户）或文本字段（存储微信服务号openid）。使用微信服务号模板消息需要组织后台绑定已认证的企业服务号，并在微信服务号后台开通“模板消息”功能。',
           )}
         </div>
         <div className="mTop20 bold">{_l('服务号')}</div>
@@ -159,7 +159,7 @@ export default class Template extends Component {
           {_l('发送给')}
           <span
             className="workflowDetailTipsWidth mLeft5 Gray_9e tip-bottom-right"
-            data-tip={_l('发送对象必须是已关注当前公众号的外部用户')}
+            data-tip={_l('发送对象必须是已关注当前服务号的外部用户')}
           >
             <i className="Font16 icon-info" />
           </span>
@@ -218,7 +218,7 @@ export default class Template extends Component {
           {_l('选择模板')}
           <span
             className="workflowDetailTipsWidth mLeft5 Gray_9e tip-bottom-right"
-            data-tip={_l('请严格按照模板消息的运营规范配置，防止模板消息被封。如未添加消息模板，请先去公众号中配置。')}
+            data-tip={_l('请严格按照模板消息的运营规范配置，防止模板消息被封。如未添加消息模板，请先去服务号中配置。')}
           >
             <i className="Font16 icon-info" />
           </span>
@@ -229,7 +229,7 @@ export default class Template extends Component {
           value={data.appId || undefined}
           border
           openSearch
-          noData={_l('公众号未添加消息模板')}
+          noData={_l('服务号未添加消息模板')}
           placeholder={_l('搜索模板')}
           onChange={appId => this.getNodeDetail(this.props, appId)}
         />
@@ -306,7 +306,7 @@ export default class Template extends Component {
               </Fragment>
             ) : (
               <Fragment>
-                <div className="mTop15 Gray_75">{_l('选择小程序链接，则小程序需已关联该公众号')}</div>
+                <div className="mTop15 Gray_75">{_l('选择小程序链接，则小程序需已关联该服务号')}</div>
                 <div className="mTop15">{_l('小程序ID（AppID）')}</div>
                 <div className="mTop10">
                   <CustomTextarea

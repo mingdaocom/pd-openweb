@@ -128,7 +128,10 @@ export default class Date extends React.Component {
             onIconClick={() => updateEditingStatus(true)}
           >
             {!!value && (
-              <div className={cx('worksheetCellPureString userSelectNone ellipsis', { linelimit: needLineLimit })}>
+              <div
+                className={cx('worksheetCellPureString userSelectNone ellipsis', { linelimit: needLineLimit })}
+                title={renderText({ ...cell, value })}
+              >
                 {renderText({ ...cell, value })}
               </div>
             )}
@@ -164,7 +167,7 @@ export default class Date extends React.Component {
                   onChange={this.handleChange}
                   compProps={{
                     showDatePicker: isediting,
-                    getPopupContainer: cellPopupContainer,
+                    getPopupContainer: () => document.body,
                   }}
                 />
               </div>

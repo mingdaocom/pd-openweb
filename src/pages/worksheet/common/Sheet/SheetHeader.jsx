@@ -23,7 +23,6 @@ import {
   refreshSheet,
   refreshWorksheetControls,
   clearChartId,
-  // loadDraftDataCount,
 } from 'worksheet/redux/actions';
 import { updateSheetList, deleteSheet, updateSheetListAppItem } from 'worksheet/redux/actions/sheetList';
 import SheetMoreOperate from './SheetMoreOperate';
@@ -51,19 +50,44 @@ const Con = styled.div`
 const VerticalCenter = styled.div`
   display: flex;
   align-items: center;
-  .draftDot {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    right: 0;
-    top: 0;
-    background-color: #f44336;
+  .actionWrap {
+    display: flex;
+    border-radius: 5px;
+    padding: 5px 5px;
+    margin-right: 8px;
+    cursor: pointer;
+    &:hover {
+      background: #f7f7f7 !important;
+      .icon {
+        color: #2196f3 !important;
+      }
+    }
+    &.draftEntry {
+      padding-top: 0;
+      padding-bottom: 0;
+      height: 28px;
+      &:hover {
+        .draftTxt {
+          color: #2196f3 !important;
+        }
+      }
+    }
+  }
+  .actionIcon {
+    color: #9e9e9e !important;
+    border-radius: 5px;
+
+    &:hover {
+      background: #f7f7f7 !important;
+      .icon {
+        color: #2196f3 !important;
+      }
+    }
   }
 `;
 
 function SheetHeader(props) {
-  const { appPkg, worksheetInfo, controls, sheetSwitchPermit, draftDataCount } = props;
+  const { appPkg, worksheetInfo, controls, sheetSwitchPermit } = props;
   const showPublic = isOpenPermit(permitList.statisticsSwitch, sheetSwitchPermit);
   const showSelf = isOpenPermit(permitList.statisticsSelfSwitch, sheetSwitchPermit);
   const { type, appId, groupId, view, viewId, isCharge } = props;
@@ -95,7 +119,6 @@ function SheetHeader(props) {
     setHighLightOfRows,
     clearChartId,
     clearSelect,
-    loadDraftDataCount = () => {},
   } = props;
   const { pageSize, sortControls } = sheetFetchParams;
   const updateFiltersWithView = args => updateFilters(args, view);
@@ -112,14 +135,8 @@ function SheetHeader(props) {
   const sheetList = [1, 3].includes(appPkg.currentPcNaviStyle) ? getAppSectionData(groupId) : props.sheetList;
   const sheet = findSheet(worksheetId, sheetList) || {};
   const canNewRecord = isOpenPermit(permitList.createButtonSwitch, sheetSwitchPermit) && allowAdd;
-  const { rows, count, permission, rowsSummary } = sheetViewData;
+  const { rows, count, permission, rowsSummary, pageCountAbnormal } = sheetViewData;
   const { allWorksheetIsSelected, sheetSelectedRows = [] } = sheetViewConfig;
-
-  useEffect(() => {
-    if (advancedSetting.closedrafts !== '1') {
-      loadDraftDataCount({ appId, worksheetId });
-    }
-  }, [worksheetId]);
 
   useEffect(() => {
     const resumeInfo = resume ? JSON.parse(resume) : {};
@@ -134,6 +151,7 @@ function SheetHeader(props) {
     <BatchOperate
       type={type}
       isCharge={isCharge}
+      pageCountAbnormal={pageCountAbnormal}
       permissionType={_.get(appPkg, 'permissionType')}
       isLock={_.get(appPkg, 'isLock')}
       appId={appId}
@@ -153,7 +171,9 @@ function SheetHeader(props) {
       allWorksheetIsSelected={allWorksheetIsSelected}
       rows={rows}
       selectedRows={sheetSelectedRows}
-      selectedLength={allWorksheetIsSelected ? count - sheetSelectedRows.length : sheetSelectedRows.length}
+      selectedLength={
+        pageCountAbnormal ? -1 : allWorksheetIsSelected ? count - sheetSelectedRows.length : sheetSelectedRows.length
+      }
       updateViewPermission={updateViewPermission}
       sheetSwitchPermit={sheetSwitchPermit}
       rowsSummary={rowsSummary}
@@ -373,7 +393,7 @@ function SheetHeader(props) {
                       </span>
                     ) : (
                       <WorkSheetFilter
-                        className="mRight16 mTop1"
+                        className="actionWrap"
                         chartId={chartId}
                         isCharge={isCharge}
                         appPkg={appPkg}
@@ -396,9 +416,11 @@ function SheetHeader(props) {
             )}
             {!window.isPublicApp && (showPublic || (showSelf && !md.global.Account.isPortal)) && (
               <Tooltip popupPlacement="bottom" text={<span>{_l('统计')}</span>}>
-                <span className="mRight16 mTop4">
+                <span className="actionWrap">
                   <Icon
-                    className={cx('openStatisticsBtn Gray_9e Font18 pointer', { ThemeColor3: statisticsVisible })}
+                    className={cx('openStatisticsBtn Gray_9e Font18 actionIcon', {
+                      ThemeColor3: statisticsVisible,
+                    })}
                     icon="worksheet_column_chart"
                     onClick={() => setStatisticsVisible(!statisticsVisible)}
                   />
@@ -410,9 +432,9 @@ function SheetHeader(props) {
               !md.global.Account.isPortal &&
               !!isOpenPermit(permitList.discussSwitch, sheetSwitchPermit) && (
                 <Tooltip popupPlacement="bottom" text={<span>{_l('讨论')}</span>}>
-                  <span className="mRight16 mTop4">
+                  <span className="actionWrap">
                     <Icon
-                      className="Font18 Gray_9e pointer"
+                      className="Font18 Gray_9e actionIcon"
                       icon="discussion"
                       onClick={() => setDiscussionVisible(!discussionVisible)}
                     />
@@ -420,8 +442,9 @@ function SheetHeader(props) {
                 </Tooltip>
               )}
             {/* 草稿箱入口 */}
-            {advancedSetting.closedrafts !== '1' && (
+            {canNewRecord && advancedSetting.closedrafts !== '1' && (
               <WorksheetDraft
+                className="actionWrap"
                 showFillNext={true}
                 appId={appId}
                 view={view}
@@ -429,8 +452,7 @@ function SheetHeader(props) {
                 sheetSwitchPermit={sheetSwitchPermit}
                 isCharge={isCharge}
                 needCache={false}
-                draftDataCount={draftDataCount}
-                addNewRecord={props.addNewRecord}
+                addNewRecord={props.addRecord}
                 allowAdd={canNewRecord}
                 setHighLightOfRows={setHighLightOfRows}
               />
@@ -439,7 +461,7 @@ function SheetHeader(props) {
             {canNewRecord && (
               <span
                 style={{ backgroundColor: appPkg.iconColor || '#2196f3' }}
-                className="addRow"
+                className="addRow mLeft8"
                 onClick={openNewRecord}
               >
                 <span className="Icon icon icon-plus Font13 mRight5 White" />
@@ -549,7 +571,6 @@ export default connect(
     sheetFetchParams: state.sheet.sheetview.sheetFetchParams,
     sheetViewData: state.sheet.sheetview.sheetViewData,
     sheetViewConfig: state.sheet.sheetview.sheetViewConfig,
-    draftDataCount: state.sheet.draftDataCount,
   }),
   dispatch =>
     bindActionCreators(
@@ -585,7 +606,6 @@ export default connect(
         deleteSheet,
         refreshWorksheetControls,
         clearChartId,
-        // loadDraftDataCount,
       },
       dispatch,
     ),

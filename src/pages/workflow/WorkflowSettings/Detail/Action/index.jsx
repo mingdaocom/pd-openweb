@@ -9,6 +9,7 @@ import DeleteNodeObj from './DeleteNodeObj';
 import RelationFields from './RelationFields';
 import UpdateGlobalVariable from './UpdateGlobalVariable';
 import CreateCalendar from './CreateCalendar';
+import RefreshData from './RefreshData';
 import { checkConditionsIsNull, getIcons } from '../../utils';
 import _ from 'lodash';
 
@@ -287,6 +288,19 @@ export default class Action extends Component {
         />
       );
     }
+
+    /**
+     * 校准单条数据
+     */
+    if (data.actionId === ACTION_ID.REFRESH_SINGLE_DATA) {
+      return (
+        <RefreshData
+          data={data}
+          SelectNodeObjectChange={this.SelectNodeObjectChange}
+          updateSource={this.updateSource}
+        />
+      );
+    }
   }
   /**
    * 下拉框更改
@@ -354,7 +368,7 @@ export default class Action extends Component {
     const { data } = this.state;
     const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], data.appType)
       ? 'BGBlueAsh'
-      : data.appType === APP_TYPE.TASK
+      : data.appType === APP_TYPE.TASK || data.actionId === ACTION_ID.REFRESH_SINGLE_DATA
       ? 'BGGreen'
       : data.appType === APP_TYPE.CALENDAR
       ? 'BGRed'
@@ -380,7 +394,7 @@ export default class Action extends Component {
 
               {((!data.selectNodeId &&
                 !data.appId &&
-                data.actionId !== ACTION_ID.DELETE &&
+                !_.includes([ACTION_ID.DELETE, ACTION_ID.REFRESH_SINGLE_DATA], data.actionId) &&
                 !_.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], data.appType)) ||
                 (data.actionId === ACTION_ID.EDIT &&
                   data.selectNodeId &&
@@ -419,9 +433,10 @@ export default class Action extends Component {
           {...this.props}
           isCorrect={
             (data.actionId === ACTION_ID.ADD && data.appId) ||
-            ((data.actionId === ACTION_ID.EDIT ||
-              data.actionId === ACTION_ID.DELETE ||
-              data.actionId === ACTION_ID.RELATION) &&
+            (_.includes(
+              [ACTION_ID.EDIT, ACTION_ID.DELETE, ACTION_ID.RELATION, ACTION_ID.REFRESH_SINGLE_DATA],
+              data.actionId,
+            ) &&
               data.selectNodeId) ||
             _.includes([APP_TYPE.PROCESS, APP_TYPE.CALENDAR], data.appType)
           }

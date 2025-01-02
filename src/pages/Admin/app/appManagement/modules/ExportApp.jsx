@@ -116,15 +116,9 @@ export default class ExportApp extends React.Component {
   checkedPassword = (checkFiled, password) => {
     let reason;
     let copyErrors = { ...this.state.errors };
-    const { passwordRegex } = md.global.SysSettings;
 
-    if (
-      !password ||
-      password.length < 8 ||
-      password.length > 20 ||
-      !RegExpValidator.isPasswordValid(password, passwordRegex)
-    ) {
-      reason = _l('请输入8-20位字符，必须含字母+数字');
+    if (!RegExpValidator.isPasswordValid(password)) {
+      reason = _.get(md, 'global.SysSettings.passwordRegexTip') || _l('密码，至少8-20位，且含字母+数字');
     }
 
     if (!reason) {

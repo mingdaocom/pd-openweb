@@ -81,8 +81,8 @@ const ListWrap = styled.div`
 const DataDBInstances = [{ label: _l('系统默认数据库'), value: '' }];
 
 export default function BackupFiles(props) {
-  const { appId, projectId, currentValid, validLimit, permissionType, backupInfo = {}, getList = () => {} } = props;
-
+  const { appId, projectId, currentValid, validLimit, permissionType, backupInfo = {}, getList = () => {}, data } = props;
+  const { sourceType } = data;
   const [
     {
       isLoading,
@@ -240,10 +240,10 @@ export default function BackupFiles(props) {
           })
           .then(res => {
             if (res) {
-              alert(_l('删除成功 '));
+              alert(_l('删除成功'));
               getList({ pageIndex: 1 });
             } else {
-              alert(_l('删除失败 '), 2);
+              alert(_l('删除失败'), 2);
             }
           });
       },
@@ -421,7 +421,7 @@ export default function BackupFiles(props) {
                               {_l('还原')}
                             </span>
                           )}
-                          {!expired && permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE && status === 0 && (
+                          {!expired && permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE && status === 0 && sourceType !== 60 && (
                             <Dropdown
                               trigger={['click']}
                               placement={['bottomRight']}
@@ -468,7 +468,8 @@ export default function BackupFiles(props) {
                                 {!expired &&
                                   permissionType !== APP_ROLE_TYPE.DEVELOPERS_ROLE &&
                                   canCreateApp &&
-                                  status === 0 && (
+                                  status === 0 &&
+                                  sourceType !== 60 && (
                                     <MenuItem onClick={() => restoreNewApp(item)}>
                                       <span>{_l('还原为新应用')}</span>
                                     </MenuItem>

@@ -8,7 +8,7 @@ export default function CheckboxComp(props) {
   const { control, filterType, onChange = () => {}, onRemove } = props;
   return (
     <div className="controlWrapper">
-      <div className="ellipsis Font14 bold mBottom15">{control.controlName}</div>
+      <div className="ellipsis Font14 bold mBottom15 controlName">{control.controlName}</div>
       <Option>
         <Checkbox
           text={_l('未选中')}

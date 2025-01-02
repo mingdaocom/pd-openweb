@@ -19,6 +19,13 @@ export default class Widgets extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps) {
+    if (!_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled']))) {
+      return true;
+    }
+    return false;
+  }
+
   onChange = value => {
     this.props.onChange(value);
   };

@@ -29,7 +29,7 @@ const Tab = styled.div`
   color: #757575;
   border-radius: 6px;
   &.active {
-    color: #333;
+    color: #151515;
     background: #fff;
   }
 `;

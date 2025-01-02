@@ -2,7 +2,7 @@ import { includes, isUndefined, assign, find, get, isEmpty } from 'lodash';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/pages/widgetConfig/config/widget';
 import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
 import { formatFilterValuesToServer } from 'worksheet/common/Sheet/QuickFilter';
-import { getRequest } from 'src/util';
+import { getRequest, browserIsMobile } from 'src/util';
 import moment from 'moment';
 
 export const formatQuickFilter = filter => {
@@ -26,8 +26,8 @@ export function turnControl(control) {
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD) {
     control.type = control.sourceControlType;
   }
-  if (control.type === WIDGETS_TO_API_TYPE_ENUM.SUBTOTAL && control) {
-    control.type = control.enumDefault2 || 6;
+  if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE) {
+    control.type = control.enumDefault === 2 ? (control.unit === '3' ? 15 : 16) : 6;
   }
   if (control.type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_DATE) {
     control.type = control.enumDefault === 2 ? 15 : 6;
@@ -122,6 +122,9 @@ export function validate(condition) {
     if (condition.dateRange === 18 && condition.filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN) {
       return !isUndefined(condition.minValue) && !isUndefined(condition.maxValue);
     } else if (condition.dateRange === 18) {
+      if (browserIsMobile()) {
+        return !!condition.value;
+      }
       return !isUndefined(condition.value);
     } else {
       return !!condition.dateRange;

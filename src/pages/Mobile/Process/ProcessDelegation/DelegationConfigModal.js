@@ -19,7 +19,7 @@ const ModalWrap = styled(Popup)`
     .formItem {
       .label {
         font-size: 14px;
-        color: #333;
+        color: #151515;
         font-weight: 600;
       }
     }
@@ -260,6 +260,9 @@ export default function DelegationConfigModal(props) {
                     isOpen={startDateVisible}
                     value={dateInfo.startDate ? dateInfo.startDate : new Date()}
                     min={new Date()}
+                    onClose={() => {
+                      setStartDateVisible(false);
+                    }}
                     onSelect={date => {
                       setDateInfo({ ...dateInfo, startDate: date });
                       setStartDateVisible(false);
@@ -298,6 +301,9 @@ export default function DelegationConfigModal(props) {
                     isOpen={endDateVisible}
                     value={dateInfo.endDate || new Date()}
                     min={dateInfo.startDate || new Date()}
+                    onClose={() => {
+                      setEndDateVisible(false);
+                    }}
                     onSelect={date => {
                       setDateInfo({ ...dateInfo, endDate: date });
                       setEndDateVisible(false);

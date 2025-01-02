@@ -269,7 +269,7 @@ export default function SheetMoreOperate(props) {
                   ),
                   description: (
                     <div>
-                      <span style={{ color: '#333', fontWeight: 'bold' }}>
+                      <span style={{ color: '#151515', fontWeight: 'bold' }}>
                         {_l('注意：工作表下所有配置和数据将被删除。')}
                       </span>
                       {_l('请务必确认所有应用成员都不再需要此工作表后，再执行此操作。')}

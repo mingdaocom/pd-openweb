@@ -9,6 +9,7 @@ import localForage from 'localforage';
 import versionApi from 'src/api/version';
 import CryptoJS from 'crypto-js';
 import { PUBLIC_KEY } from 'src/util/enum';
+import { v4 as uuidv4 } from 'uuid';
 
 const axios = baseAxios.create();
 
@@ -372,6 +373,33 @@ window.createTimeSpan = (dateStr, showType = 1) => {
   return isShowSort ? `${_l('%0年', year)}` : `${_l('%0年%1月%2日', year, simpleMonth, simpleDay)} ${hour}:${minute}`;
 };
 
+const tabId = Date.now().toString();
+
+/**
+ * 添加tabId
+ */
+localStorage.setItem('tabIds', JSON.stringify(safeParse(localStorage.getItem('tabIds'), 'array').concat(tabId)));
+
+/**
+ * 判断是否是最新窗口
+ * @returns {boolean}
+ */
+window.isNewTab = () => {
+  const tabIds = safeParse(localStorage.getItem('tabIds'), 'array');
+
+  return _.max(tabIds) === tabId;
+};
+
+/**
+ * 移除tabId
+ */
+window.addEventListener('beforeunload', () => {
+  const tabIds = safeParse(localStorage.getItem('tabIds'), 'array');
+  const newTabIds = tabIds.filter(id => id !== tabId);
+
+  localStorage.setItem('tabIds', JSON.stringify(newTabIds));
+});
+
 /**
  * 获取错误信息
  * @returns {Object}
@@ -446,7 +474,7 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
   let headers = {
     Authorization: getPssId() ? `md_pss_id ${getPssId()}` : '',
     AccountId: !ajaxOptions.url && _.get(md.global.Account, 'accountId') ? md.global.Account.accountId : undefined,
-    'X-Requested-With': !ajaxOptions.url ? 'XMLHttpRequest' : undefined,
+    'X-Requested-With': 'XMLHttpRequest',
     ...(ajaxOptions.header || {}),
   };
   const clientId = window.clientId || sessionStorage.getItem('clientId');
@@ -467,6 +495,26 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
     headers.clientId = clientId;
   }
 
+  if (window.apireply_forbid) {
+    // AES-256-CBC 加密函数
+    const encryptAES256CBC = plainText => {
+      // 将密钥和 IV 转换为 CryptoJS 的 WordArray
+      const keyWordArray = CryptoJS.enc.Hex.parse(window.apireply_hex_key);
+      const ivWordArray = CryptoJS.enc.Hex.parse(window.apireply_hex_iv);
+
+      // 加密
+      const encrypted = CryptoJS.AES.encrypt(plainText, keyWordArray, {
+        iv: ivWordArray,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7, // 默认是 Pkcs7
+      });
+
+      return encrypted.toString(); // 返回加密后的字符串
+    };
+
+    headers['x-nonce'] = encryptAES256CBC(uuidv4() + '_' + moment().unix());
+  }
+
   // 应用库
   if (window.publicAppAuthorization) {
     if (
@@ -483,7 +531,6 @@ const disposeRequestParams = (controllerName, actionName, data, ajaxOptions) => 
 
   // 工作流&统计服务
   if (window.access_token) {
-    headers.access_token = access_token;
     headers.Authorization = `access_token ${access_token}`;
   }
 

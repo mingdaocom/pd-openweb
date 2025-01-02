@@ -3,6 +3,7 @@ import discussionAjax from 'src/api/discussion';
 import { Icon } from 'ming-ui';
 import styled from 'styled-components';
 import DiscussInfo from 'mobile/Discuss';
+import { handlePushState } from 'src/util';
 import _ from 'lodash';
 
 const ChartCountWrap = styled.div`
@@ -77,6 +78,7 @@ export default class ChatCount extends Component {
         <ChartCountWrap
           className={className}
           onClick={() => {
+            handlePushState('page', 'discussInfos');
             this.setState({ visible: true });
             onClick();
           }}
@@ -96,6 +98,8 @@ export default class ChatCount extends Component {
           viewId={viewId}
           originalData={originalData}
           projectId={this.props.projectId}
+          discussionCount={discussionCount}
+          getDiscussionsCount={this.getDiscussionsCount}
           onClose={() => {
             this.setState({
               visible: false,

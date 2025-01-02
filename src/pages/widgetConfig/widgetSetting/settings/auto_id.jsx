@@ -35,7 +35,7 @@ const RuleInfo = styled.li`
   .relateControlInfo {
     line-height: 24px;
     margin: 6px 0;
-    color: #333;
+    color: #151515;
     i {
       vertical-align: text-bottom;
     }
@@ -44,7 +44,7 @@ const RuleInfo = styled.li`
     margin: 0 6px;
   }
   .controlInfo {
-    color: #333;
+    color: #151515;
     i {
       vertical-align: text-bottom;
     }
@@ -244,7 +244,7 @@ function SortableItem({ index, rule, allControls, deleteRule, updateRule, render
             </Menu>
           }
         >
-          <DropdownPlaceholder color={format ? '#333' : '#bdbdbd'}>
+          <DropdownPlaceholder color={format ? '#151515' : '#bdbdbd'}>
             {text || 'YYYYMMDD'} <AutoIcon icon="expand_more" />
           </DropdownPlaceholder>
         </Dropdown>

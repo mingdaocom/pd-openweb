@@ -12,14 +12,14 @@ const FilterTextCon = styled.div`
   border-radius: 3px;
   padding: 8px 16px 10px;
   box-sizing: border-box;
-  color: #333;
+  color: #151515;
   margin-top: 10px;
   display: flex;
 
   .txtFilter {
     flex: 1;
     font-size: 13px;
-    color: #333;
+    color: #151515;
     line-height: 20px;
 
     p {

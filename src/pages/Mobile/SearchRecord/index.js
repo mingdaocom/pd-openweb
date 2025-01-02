@@ -147,6 +147,7 @@ class Search extends Component {
         key={item.rowid}
         data={item}
         view={view}
+        projectId={sheetInfo.projectId}
         controls={worksheetControls}
         allowAdd={sheetInfo.allowAdd}
         onClick={() => {

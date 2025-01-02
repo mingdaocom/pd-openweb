@@ -4,7 +4,7 @@ import account from 'src/api/account';
 import accountSetting from 'src/api/accountSetting';
 import accountGuideController from 'src/api/accountGuide';
 import { Checkbox, Select } from 'antd';
-import { LoadDiv, Tooltip, Dialog } from 'ming-ui';
+import { LoadDiv, Tooltip, Dialog, Icon } from 'ming-ui';
 import EditPassword from './EditPassword';
 import { initBindAcoount } from '../components/InitBindAccountDialog';
 import { validateFunc } from '../components/ValidateInfo';
@@ -13,11 +13,18 @@ import cx from 'classnames';
 import { captcha } from 'ming-ui/functions';
 import common from '../common';
 import { encrypt } from 'src/util';
+import workwxImg from 'src/pages/Admin/integration/platformIntegration/images/workwx.png';
 
 let accountList = [
-  { key: 'weiXinBind', icon: 'icon-wechat', color: 'weiBindColor', label: _l('微信') },
-  { key: 'qqBind', icon: 'icon-qq', color: 'qqBindColor', label: _l('QQ') },
-  { key: 'workBind', color: 'workBindColor', needHide: true },
+  { key: 'weiXinBind', icon: 'wechat', color: 'weiBindColor', label: _l('微信') },
+  { key: 'qqBind', icon: 'qq', color: 'qqBindColor', label: _l('QQ') },
+  {
+    key: 'workBind',
+    iconIsImage: true,
+    color: 'workBindColor',
+    label: _l('企业微信'),
+    needHide: true,
+  },
 ];
 
 const tipsConfig = {
@@ -42,15 +49,15 @@ const TPType = {
 const WORKBINDOPTION = state => {
   switch (state) {
     case 1:
-      return { icon: 'icon-invite-ding', label: _l('钉钉') };
+      return { icon: 'invite-ding', label: _l('钉钉'), iconIsImage: false };
     case 2:
     case 3:
-      return { icon: 'icon-enterprise_wechat', label: _l('企业微信') };
+      return { icon: 'enterprise_wechat', label: _l('企业微信'), iconIsImage: false };
     case 4:
-      return { icon: 'icon-welink', label: _l('Welink') };
+      return { icon: 'welink', label: _l('Welink'), iconIsImage: false };
     case 5:
     case 6:
-      return { icon: 'icon-feishu', label: _l('飞书') };
+      return { icon: 'feishu', label: _l('飞书'), iconIsImage: false };
   }
 };
 export default class AccountChart extends React.Component {
@@ -266,7 +273,7 @@ export default class AccountChart extends React.Component {
             <Select.Option value={2}>{_l('不允许任何人')}</Select.Option>
           </Select>
         </div>
-        <div className="mTop32 flexRow">
+        <div className="mTop16 flexRow">
           <span className="InlineBlock accountLabel Gray_75">{_l('手机和邮箱')}</span>
           <span className="flexColumn">
             <Checkbox
@@ -313,7 +320,7 @@ export default class AccountChart extends React.Component {
   //验证邮箱
   handleReviewEmail() {
     var throttled = _.throttle(
-      function(res) {
+      function (res) {
         if (res.ret === 0) {
           account
             .sendProjectBindEmail({
@@ -321,7 +328,7 @@ export default class AccountChart extends React.Component {
               randStr: res.randstr,
               captchaType: md.global.getCaptchaType(),
             })
-            .then(function(data) {
+            .then(function (data) {
               if (data) {
                 alert(_l('发送成功'));
               } else {
@@ -411,7 +418,7 @@ export default class AccountChart extends React.Component {
     }
     return (
       <div className="accountChartContainer">
-        <div className="Font17 Bold Gray mBottom40">{_l('账户')}</div>
+        <div className="Font17 Bold Gray mBottom6">{_l('账户')}</div>
         {this.renderWarning()}
         <div className="accountRowItem clearfix">
           <div className="accountLabel Gray_75">
@@ -460,7 +467,7 @@ export default class AccountChart extends React.Component {
           </span>
           {this.renderRedDot(mobilePhoneWarnLight, 'accountMobilePhone')}
         </div>
-        {needInit ? null : (
+        {needInit && isNullCredential ? null : (
           <Fragment>
             <div className="accountRowItem clearfix">
               <div className="accountLabel Gray_75">{_l('邮箱')}</div>
@@ -519,26 +526,7 @@ export default class AccountChart extends React.Component {
             </div>
           </Fragment>
         )}
-        {!md.global.Config.IsLocal && (
-          <div className="accountRowItem">
-            <div className="accountLabel Gray_75">{_l('账号绑定')}</div>
-            {accountList.map(({ key, label, color, icon, needHide = false }, index) => {
-              const data = this.state[key] || {};
-              return (
-                <span className={cx({ mLeft80: index, Hidden: needHide && !data.isBind })}>
-                  <span className={cx('Font16', icon, data.isBind ? color : 'Gray_9e')}></span>
-                  <span className="Gray mLeft12">{label}</span>
-                  {data.isBind && <span className="mLeft8 Gray_9e">{_l('已绑定：%0', data.nickName)}</span>}
-                  {!needHide && (
-                    <span className="Hand ThemeColor3 Hover_49 mLeft24" onClick={() => this.handleBind(key)}>
-                      {data.isBind ? _l('解绑') : _l('绑定')}
-                    </span>
-                  )}
-                </span>
-              );
-            })}
-          </div>
-        )}
+
         {md.global.Config.IsPlatformLocal && (
           <div className="accountRowItem">
             <div className="accountLabel Gray_75">{_l('账户注销')}</div>
@@ -547,7 +535,46 @@ export default class AccountChart extends React.Component {
             </div>
           </div>
         )}
-        <div className="Font17 Bold Gray mBottom40 mTop20">{_l('隐私')}</div>
+
+        {!md.global.Config.IsLocal && (
+          <Fragment>
+            <div className="Font17 Bold Gray mBottom4 mTop20">{_l('第三方账户')}</div>
+            <div className="Gray_75 mBottom20">{_l('绑定后，可通过第三方应用快速登录')}</div>
+            <div className="bindingWrap mBottom24">
+              {accountList.map(({ key, label, color, icon, needHide = false, iconIsImage = false }, index) => {
+                const data = this.state[key] || {};
+
+                if (needHide && !data.isBind) return null;
+
+                return (
+                  <span className="bingingItem" key={`bingingItem-${key}`}>
+                    {iconIsImage ? (
+                      <img src={workwxImg} className="mRight8 iconImg" />
+                    ) : (
+                      <Icon icon={icon} className={cx(color, 'Font18 mRight8')} />
+                    )}
+                    {data.isBind && key === 'workBind' && <span>{_l('账号ID：')}</span>}
+                    <Tooltip text={data.nickName || ''} disable={!data.isBind}>
+                      <span className="text overflow_ellipsis flex">
+                        {data.isBind ? data.nickName || label : label}
+                      </span>
+                    </Tooltip>
+                    {!needHide && (
+                      <span
+                        className={cx(data.isBind ? 'Gray_6 Hover_red' : 'ThemeColor3 Hover_49', 'Hand')}
+                        onClick={() => this.handleBind(key)}
+                      >
+                        {data.isBind ? _l('解绑') : _l('绑定')}
+                      </span>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+            <div className="splitLine"></div>
+          </Fragment>
+        )}
+        <div className="Font17 Bold Gray mBottom16 mTop20">{_l('隐私')}</div>
         {this.joinFriend()}
         <Dialog
           title={isNullCredential ? _l('设置密码') : _l('修改密码')}

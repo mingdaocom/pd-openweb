@@ -1,14 +1,13 @@
 import React, { Fragment, useState } from 'react';
 import { Checkbox, Dropdown } from 'ming-ui';
 import { Tooltip } from 'antd';
-import { SettingItem, SheetViewWrap } from '../../../../styled';
+import { SettingItem, SheetViewWrap, EditInfo } from '../../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../../util/setting';
 import _ from 'lodash';
-import { SYSTEM_CONTROL } from '../../../../config/widget';
 import { FilterItemTexts, FilterDialog } from '../../../components/FilterData';
 import cx from 'classnames';
 import DynamicDefaultValue from '../../DynamicDefaultValue';
-import { filterSysControls } from '../../../../util';
+import SearchConfig from '../../relateSheet/SearchConfig';
 
 const TOP_SHOW_OPTIONS = [
   { text: _l('全部顶层'), value: '0' },
@@ -54,11 +53,12 @@ const topFiltersToDefsource = data => {
 };
 
 export default function CascaderConfig(props) {
-  const { data, allControls, onChange, globalSheetControls } = props;
+  const { data, onChange, globalSheetControls } = props;
   const { relationControls = [] } = data;
   const [visibleInfo, setVisibleInfo] = useState({
     filtersVisible: false,
     topfiltersVisible: false,
+    searchVisible: false,
   });
   const {
     minlayer = '0',
@@ -68,6 +68,7 @@ export default function CascaderConfig(props) {
     limitlayer = '0',
     searchrange = '1',
     anylevel = '0',
+    searchcontrol = '',
   } = getAdvanceSetting(data);
   const filters = getAdvanceSetting(data, 'filters');
   const isEndLayer = Number(limitlayer) > 0;
@@ -75,9 +76,6 @@ export default function CascaderConfig(props) {
   const renderFilter = key => {
     const visibleKey = `${key}Visible`;
     const filterData = getAdvanceSetting(data, key) || [];
-    const tempAllControls = allControls.concat(
-      SYSTEM_CONTROL.filter(c => _.includes(['caid', 'ownerid'], c.controlId)),
-    );
     return (
       <Fragment>
         {visibleInfo[visibleKey] && (
@@ -85,10 +83,9 @@ export default function CascaderConfig(props) {
             {...props}
             filters={filterData}
             supportGroup
-            relationControls={filterSysControls(relationControls)}
+            relationControls={relationControls}
             globalSheetControls={globalSheetControls}
             fromCondition={'relateSheet'}
-            allControls={tempAllControls}
             onChange={({ filters }) => {
               onChange(handleAdvancedSettingChange(data, { [key]: JSON.stringify(filters) }));
               setVisibleInfo({ [visibleKey]: false });
@@ -102,7 +99,6 @@ export default function CascaderConfig(props) {
             filters={filterData}
             globalSheetControls={globalSheetControls}
             controls={relationControls}
-            allControls={tempAllControls}
             editFn={() => setVisibleInfo({ [visibleKey]: true })}
           />
         )}
@@ -275,6 +271,55 @@ export default function CascaderConfig(props) {
             </Tooltip>
           </Checkbox>
         </div>
+        <div className="labelWrap">
+          <Checkbox
+            size="small"
+            checked={!!searchcontrol}
+            onClick={() => {
+              if (searchcontrol) {
+                onChange(
+                  handleAdvancedSettingChange(data, {
+                    searchcontrol: '',
+                    searchtype: '',
+                  }),
+                );
+              }
+              setVisibleInfo({ searchVisible: !searchcontrol });
+            }}
+          >
+            <span>{_l('搜索设置')}</span>
+            <Tooltip placement="bottom" title={_l('设置按数据源表中记录的具体字段进行搜索。未设置时，按记录搜索。')}>
+              <i className="icon-help Gray_9e Font16"></i>
+            </Tooltip>
+          </Checkbox>
+        </div>
+        {visibleInfo.searchVisible && (
+          <SearchConfig
+            {...props}
+            title={_l('搜索设置')}
+            controls={relationControls}
+            onClose={() => setVisibleInfo({ searchVisible: false })}
+            onChange={value =>
+              onChange(
+                handleAdvancedSettingChange(data, _.pick(value.advancedSetting, ['searchtype', 'searchcontrol'])),
+              )
+            }
+          />
+        )}
+        {searchcontrol && (
+          <EditInfo style={{ marginTop: '8px' }} onClick={() => setVisibleInfo({ searchVisible: true })}>
+            <div className="text overflow_ellipsis Gray">
+              <span className="Bold mRight3">{_l('搜索')}</span>
+              {_.get(
+                relationControls.find(item => item.controlId === searchcontrol),
+                'controlName',
+              ) || _l('字段已删除')}
+            </div>
+            <div className="edit">
+              <i className="icon-edit"></i>
+            </div>
+          </EditInfo>
+        )}
       </SettingItem>
     </Fragment>
   );

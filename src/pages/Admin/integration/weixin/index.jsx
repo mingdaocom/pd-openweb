@@ -11,14 +11,14 @@ import './index.less';
 import _ from 'lodash';
 
 const CONFIG_OPTIONS = [
-  { key: 'name', text: _l('公众号名称'), clickText: _l('取消绑定'), clickKey: 'unbind' },
+  { key: 'name', text: _l('服务号名称'), clickText: _l('取消绑定'), clickKey: 'unbind' },
   {
     key: 'appId',
     text: _l('开发者ID（AppID）'),
     clickText: _l('复制'),
     clickKey: 'copy',
     private: true,
-    desc: _l('微信公众号管理后台-设置与开发-基本配置页面内的字段'),
+    desc: _l('微信服务号管理后台-设置与开发-基本配置页面内的字段'),
   },
   {
     key: 'appSecret',
@@ -26,32 +26,32 @@ const CONFIG_OPTIONS = [
     clickText: _l('复制'),
     clickKey: 'copy',
     private: true,
-    desc: _l('微信公众号管理后台-设置与开发-基本配置页面内的字段'),
+    desc: _l('微信服务号管理后台-设置与开发-基本配置页面内的字段'),
   },
 ];
 const FORM_CONFIG = [
-  { key: 'name', label: _l('公众号名称'), type: 'text' },
+  { key: 'name', label: _l('服务号名称'), type: 'text' },
   {
     key: 'appId',
     label: _l('开发者ID（AppID）'),
     type: 'text',
-    description: _l('微信公众号管理后台-设置与开发-基本配置页面内的字段'),
+    description: _l('微信服务号管理后台-设置与开发-基本配置页面内的字段'),
   },
   {
     key: 'appSecret',
     label: _l('开发者密码(AppSecret)'),
     type: 'password',
-    description: _l('微信公众号管理后台-设置与开发-基本配置页面内的字段'),
+    description: _l('微信服务号管理后台-设置与开发-基本配置页面内的字段'),
   },
 ];
 const PLATFORM_CONFIG_OPTIONS = [
-  { key: 'nickName', text: _l('公众号名称'), clickText: _l('取消绑定'), clickKey: 'unbind' },
+  { key: 'nickName', text: _l('服务号名称'), clickText: _l('取消绑定'), clickKey: 'unbind' },
   { key: 'appId', text: _l('AppID'), clickText: _l('复制'), clickKey: 'copy' },
   { key: 'funcInfo', text: _l('已授权权限'), clickText: _l('查看'), clickKey: 'view' },
   { key: 'principalName', text: _l('主体名称') },
 ];
 const AUTH_OPTIONS = [
-  { value: 2, text: _l('用户管理权限 ') },
+  { value: 2, text: _l('用户管理权限') },
   { value: 4, text: _l('网页服务权限') },
   { value: 7, text: _l('群发与通知权限') },
 ];
@@ -70,7 +70,7 @@ export default class WeiXin extends Component {
     };
   }
   componentDidMount() {
-    Config.setPageTitle(_l('微信公众号'));
+    Config.setPageTitle(_l('微信服务号'));
     const { state, auth_code } = getRequest();
     if (md.global.Config.IsPlatformLocal && auth_code) {
       this.setState({ loading: true });
@@ -118,7 +118,7 @@ export default class WeiXin extends Component {
       title: <span className="Font17 Bold">{_l('重新授权')}</span>,
       description: (
         <span>
-          <span>{_l('1. 重新授权时不可换绑其他微信公众号，否则重新授权将失败；')}</span>
+          <span>{_l('1. 重新授权时不可换绑其他微信服务号，否则重新授权将失败；')}</span>
           <span className="Block">
             {_l('2. 为保证功能的正常使用，授权时请保持默认选择，把开放平台账号管理权限统一授权给此系统')}
           </span>
@@ -170,7 +170,7 @@ export default class WeiXin extends Component {
       Dialog.confirm({
         title: <span className="Font17 Bold">{_l('取消绑定')}</span>,
         description: _l(
-          '取消绑定后，本组织内与公众号所有相关信息将失效（包含但不限于外部用户、模板消息）请您谨慎操作。',
+          '取消绑定后，本组织内与服务号所有相关信息将失效（包含但不限于外部用户、模板消息）请您谨慎操作。',
         ),
         onOk: () => {
           projectAjax.cancelBindingWeiXin({ appId: data.appId, projectId: Config.projectId }).then(result => {
@@ -224,7 +224,7 @@ export default class WeiXin extends Component {
         }
       >
         <div className="content">
-          {_l('取消授权，本组织公众号所有相关信息将失效（包含但不限于外部用户、模板消息）请您谨慎操作。')}
+          {_l('取消授权，本组织服务号所有相关信息将失效（包含但不限于外部用户、模板消息）请您谨慎操作。')}
         </div>
       </Modal>
     );
@@ -239,10 +239,10 @@ export default class WeiXin extends Component {
     return (
       <Fragment>
         <span className="icon-wechat icon" />
-        <div className="subTitle fontWeight600">{_l('绑定微信公众号')}</div>
+        <div className="subTitle fontWeight600">{_l('绑定微信服务号')}</div>
         <div className="desTxt">
           {_l(
-            '绑定公众号后，外部门户将可以通过指定的域名获取该服务号下微信用户的授权及openID，可以通过工作流为外部的微信用户推送模板消息',
+            '绑定服务号后，外部门户将可以通过指定的域名获取该服务号下微信用户的授权及openID，可以通过工作流为外部的微信用户推送模板消息',
           )}
         </div>
         {!isPlatformLocal && (
@@ -290,7 +290,7 @@ export default class WeiXin extends Component {
               <span className="Bold">{_l('已认证的微信服务号')}</span>
             </div>
             <div className="descriptionsInfo">
-              {_l('2.为获取微信授权需要将您公司的访问域名加入到公众号的网页授权域名内')}
+              {_l('2.为获取微信授权需要将您公司的访问域名加入到服务号的网页授权域名内')}
             </div>
           </div>
         )}
@@ -409,7 +409,7 @@ export default class WeiXin extends Component {
     }
     return (
       <div className="orgManagementWrap adminWeiXinContainer">
-        <div className="Font17 Bold orgManagementHeader">{_l('微信公众号')}</div>
+        <div className="Font17 Bold orgManagementHeader">{_l('微信服务号')}</div>
         <div className="wechatInfo flex">
           {isBind ? (
             <div className="wechatSuccessContent">{this.renderSuccessContent()}</div>

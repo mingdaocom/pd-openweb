@@ -20,7 +20,7 @@ const Con = styled.div`
   justify-content: center;
   align-items: center;
   overflow: auto;
-  ${({ type }) => type === PREVIEW_TYPE.CODE && 'background-color: #333 !important'}
+  ${({ type }) => type === PREVIEW_TYPE.CODE && 'background-color: #151515 !important'}
   ${({ type }) => (type === PREVIEW_TYPE.MARKDOWN || type === PREVIEW_TYPE.TXT) && 'background-color: #fff !important'}
 `;
 

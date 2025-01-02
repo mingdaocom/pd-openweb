@@ -7,7 +7,7 @@ import styled from 'styled-components';
 const DialogWrap = styled(Dialog)`
   .test-textarea {
     padding: 8px;
-    color: #333;
+    color: #151515;
     box-sizing: border-box;
     width: 100%;
     border-radius: 3px;

@@ -206,6 +206,7 @@ export default class AddUser extends Component {
       jobNumber = '',
       workSiteId = '',
       contactPhone = '',
+      orgRoles = [],
     } = this.baseFormInfo.state;
     const { projectId } = this.props;
     const errors = {
@@ -251,6 +252,7 @@ export default class AddUser extends Component {
         fullname: !_.isEmpty(user) ? user.fullname : userName,
         account: inviteType === 'mobile' ? mobile : email,
         accountId: !md.global.Config.IsLocal || !_.isEmpty(user) ? user.accountId : '',
+        orgRoleIds: orgRoles.map(l => l.id).join(';'),
       };
       if (md.global.Config.IsLocal) {
         params.verifyType = _.includes(['mobile', 'email'], inviteType) ? 0 : 1;
@@ -401,6 +403,10 @@ export default class AddUser extends Component {
                   setTimeout(() => {
                     this.itiFn();
                   }, 200);
+                  if (val === 'autonomously' && this.itiAutonomously) {
+                    this.itiAutonomously.destroy();
+                    this.itiAutonomously = null;
+                  }
                   this.clearError('mobile');
                   this.clearError('email');
                   this.clearError('autonomously');
@@ -504,7 +510,21 @@ export default class AddUser extends Component {
             field={'autonomouslyPasswrod'}
             value={autonomouslyPasswrod}
             placeholder={passwordRegexTip || _l('密码，8-20位，必须含字母+数字')}
-            label={<span>{_l('初始密码')}</span>}
+            label={
+              <span>
+                {_l('初始密码')}
+                {passwordRegexTip ? (
+                  <Tooltip
+                    text={<span style={{ whiteSpace: 'pre-line' }}>{passwordRegexTip}</span>}
+                    popupPlacement="top"
+                  >
+                    <Icon icon="info_outline" className="Font16 mLeft5 Gray_9e" />
+                  </Tooltip>
+                ) : (
+                  ''
+                )}
+              </span>
+            }
             onFocus={() => this.clearError('autonomouslyPasswrod')}
             onChange={e => this.changeFormInfo(e, 'autonomouslyPasswrod')}
             error={errors.autonomouslyPasswrod}
@@ -585,7 +605,6 @@ export default class AddUser extends Component {
                     jobList={jobList}
                     worksiteList={worksiteList}
                     baseInfo={{ ...baseInfo, departmentIds: departmentId ? [departmentId] : [] }}
-                    hideRole
                     authority={authority}
                   />
                 </div>

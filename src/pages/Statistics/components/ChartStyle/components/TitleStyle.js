@@ -48,7 +48,7 @@ export const defaultPivotTableStyle = {
   lineTextAlign: 'left',
   columnTextColor: '#757575',
   columnBgColor: '#fafafa',
-  lineTextColor: '#333',
+  lineTextColor: '#151515',
   lineBgColor: '#fff',
   evenBgColor: '#fafcfd',
   oddBgColor: '#ffffff',

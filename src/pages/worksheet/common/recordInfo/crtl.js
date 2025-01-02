@@ -8,10 +8,11 @@ import { openShareDialog } from 'src/pages/worksheet/components/Share';
 import { getAppFeaturesPath } from 'src/util';
 import { replacePorTalUrl } from 'src/pages/accountLogin/portalAccount/util';
 import _ from 'lodash';
-import { handleRecordError, postWithToken, replaceBtnsTranslateInfo } from 'worksheet/util';
+import { handleRecordError, postWithToken, replaceBtnsTranslateInfo, checkCellIsEmpty } from 'worksheet/util';
 import { getRuleErrorInfo } from 'src/components/newCustomFields/tools/filterFn';
 import appManagement from 'src/api/appManagement';
 import { exportSheet } from 'worksheet/components/ChildTable/redux/actions';
+import { SYSTEM_ENUM } from 'src/components/newCustomFields/tools/config';
 
 export function getWorksheetInfo(...args) {
   return worksheetAjax.getWorksheetInfo(...args);
@@ -104,7 +105,7 @@ export function updateRecord(
   };
   const updatedControls = data
     .filter(control => updateControlIds.indexOf(control.controlId) > -1 && control.type !== 30)
-    .map(control => formatControlToServer(control, { isDraft }));
+    .map(control => formatControlToServer(control));
   let apiargs = {
     appId,
     viewId,
@@ -119,6 +120,10 @@ export function updateRecord(
     apiargs.getType = 9;
     apiargs.instanceId = instanceId;
     apiargs.workId = workId;
+  }
+
+  if (isDraft) {
+    apiargs.rowStatus = 21;
   }
 
   const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
@@ -156,7 +161,6 @@ export function updateRecord(
           triggerUniqueError(res.badData);
         } else if (res.resultCode === 22) {
           setSubListUniqueError(res.badData);
-          handleRecordError(res.resultCode);
         } else if (res.resultCode === 31) {
           setServiceError(res.badData);
         } else if (res.resultCode === 32) {
@@ -171,6 +175,95 @@ export function updateRecord(
       console.error(err);
       handleCallback(err);
       alert(_l('保存失败，请稍后重试'), 2);
+    });
+}
+
+export function handleSubmitDraft(
+  {
+    worksheetId,
+    viewId,
+    appId,
+    recordId,
+    formData = [],
+    rules = [],
+    triggerUniqueError = () => {},
+    setSubListUniqueError = () => {},
+    handleRecordError = () => {},
+    setRuleError = () => {},
+    onSubmitEnd = () => {},
+    onSubmitSuccess = () => {},
+  },
+  callback = () => {},
+) {
+  const handleCallback = (...args) => {
+    try {
+      callback(...args);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // 草稿提交仅传业务规则相关字段
+  const receiveControlsIds = rules.reduce((controlIds, item) => {
+    const { filters = [], ruleItems = [] } = item;
+    let ids = [];
+    if (!_.isEmpty(filters)) {
+      filters.forEach(it => {
+        controlIds = controlIds.concat((it.groupFilters || []).map(v => v.controlId)).concat(it.controlId);
+      });
+    }
+    if (!_.isEmpty(ruleItems)) {
+      ruleItems.forEach(it => {
+        controlIds = controlIds.concat(it.controls.map(it => it.controlId));
+      });
+    }
+
+    return controlIds.concat(ids);
+  }, []);
+
+  const receiveControls = formData
+    .filter(item => !_.includes([30, 31, 32, 51], item.type) && _.includes(receiveControlsIds, item.controlId))
+    .map(c => formatControlToServer(c, { isNewRecord: true, isDraft: true }));
+
+  const args = {
+    worksheetId,
+    receiveControls,
+    viewId,
+    appId,
+    pushUniqueId: md.global.Config.pushUniqueId,
+    rowStatus: 22,
+    draftRowId: recordId,
+  };
+  worksheetAjax
+    .saveDraftRow(args)
+    .then(res => {
+      if (res.resultCode === 1) {
+        if (!res.data) {
+          alert(_l('记录添加成功'));
+          onSubmitEnd();
+          return;
+        }
+        onSubmitSuccess(res.data);
+        onSubmitEnd();
+      } else {
+        if (res.resultCode === 11) {
+          triggerUniqueError(res.badData);
+        } else if (res.resultCode === 22) {
+          setSubListUniqueError(res.badData);
+        } else if (res.resultCode === 31) {
+          setServiceError(res.badData);
+        } else if (res.resultCode === 32) {
+          setRuleError(res.badData);
+        } else {
+          handleRecordError(res.resultCode);
+        }
+        handleCallback(true);
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      handleCallback(err);
+      alert(_l('提交失败，请稍后重试'), 2);
     });
 }
 

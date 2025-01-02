@@ -88,7 +88,7 @@ class AppSettings extends Component {
 
   getConfigList = () => {
     const { data } = this.state;
-    const { permissionType, isLock, isPassword, projectId, sourceType, id } = data;
+    const { permissionType, isLock, isPassword, projectId, sourceType, id, license = {} } = data;
     const isNormalApp = sourceType === 1;
     const isOwner = permissionType === APP_ROLE_TYPE.POSSESS_ROLE; // 拥有者
     const canLock = _.includes(
@@ -106,6 +106,27 @@ class AppSettings extends Component {
         if (it.type === 'lock') {
           if (canLock && data.isPassword) return true; // 管理员、开发者、运营者+开发者、拥有者对自己已解锁的应用有恢复锁定权限
           if (!(isOwner && isNormalApp && !isLock && !isPassword)) return false; // 仅普通应用的拥有者可锁定应用
+        }
+        return true;
+      })
+      .filter(it => {
+        // 应用市场
+        if (['options', 'aggregations', 'relationship', 'export', 'recyclebin'].includes(it.type) && sourceType === 60) {
+          if (['export'].includes(it.type)) {
+            return false;
+          }
+          // 模版应用
+          if (license.goodsPushType === 1) {
+            return true;
+          }
+          // 免费
+          if (license.licenseType === 0) {
+            return !isLock;
+          }
+          // 收费
+          if (license.licenseType === 1) {
+            return false;
+          }
         }
         return true;
       });
@@ -205,7 +226,7 @@ class AppSettings extends Component {
                       <Fragment>
                         <span className="flex">
                           {text}
-                          {['aggregations', 'timezone'].includes(type) && <Beta className="mRight15" />}
+                          {['timezone'].includes(type) && <Beta className="mRight15" />}
                         </span>
                         {item.featureId &&
                           getFeatureStatus(projectId, item.featureId) === '2' &&

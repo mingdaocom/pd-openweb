@@ -1,10 +1,25 @@
 import React, { useState } from 'react';
 import sheetAjax from 'src/api/worksheet';
 import cx from 'classnames';
+import { isPublicLink } from '../tools/utils';
+import { FROM } from '../tools/config';
 import _ from 'lodash';
 
-export default ({ worksheetId, recordId, item, onChange = () => {} }) => {
+export default props => {
+  const { disabledFunctions = [], from, recordId, item, worksheetId, disabled, onChange } = props;
   const [isRefresh, setRefresh] = useState(false);
+
+  const showRefreshBtn =
+    !disabledFunctions.includes('controlRefresh') &&
+    from !== FROM.DRAFT &&
+    !isPublicLink() &&
+    recordId &&
+    !recordId.includes('default') &&
+    !recordId.includes('temp') &&
+    md.global.Account.accountId &&
+    ((item.type === 30 && (item.strDefault || '').split('')[0] !== '1') || _.includes([31, 32, 37, 38, 53], item.type));
+
+  if (!showRefreshBtn) return null;
 
   return (
     <span

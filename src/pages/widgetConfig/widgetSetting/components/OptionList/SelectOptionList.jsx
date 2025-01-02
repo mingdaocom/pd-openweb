@@ -87,7 +87,7 @@ export default function SelectOptionList(props) {
       <DialogFooter className="flexCenter">
         <div className="flexCenter addOptionList Bold" onClick={() => setVisible(true)}>
           <i className="icon-add Font18"></i>
-          {_l(' 新建选项集')}
+          {_l('新建选项集')}
         </div>
         <div className="btns flexCenter">
           <div className="text hoverText Gray_9e pointer" onClick={onCancel}>

@@ -1,8 +1,7 @@
 import React, { Fragment } from 'react';
 import styled from 'styled-components';
 import { WidgetContent } from '../components';
-import { replaceColor, getIconByType, getComponentTitleText, filterSuspensionAiComponent, getSuspensionAiComponent } from '../util';
-import AiDisplay from '../components/WidgetContent/AiDisplay';
+import { replaceColor, getIconByType, getComponentTitleText } from '../util';
 
 const MobileList = styled.div`
   box-sizing: border-box;
@@ -97,8 +96,7 @@ const dealComponents = (components = []) => {
 };
 export default function MobileLayout(props) {
   const { components, updateWidgetVisible, config, appPkg, apk } = props;
-  const { hidedComponents, visibleComponents } = dealComponents(filterSuspensionAiComponent(components));
-  const suspensionAi = getSuspensionAiComponent(components);
+  const { hidedComponents, visibleComponents } = dealComponents(components);
   const pageConfig = replaceColor(config || {}, appPkg.iconColor || apk.iconColor);
   return (
     <Fragment>
@@ -135,13 +133,6 @@ export default function MobileLayout(props) {
                 config={pageConfig}
               />
             </div>
-            {suspensionAi && (
-              <AiDisplay
-                editable={true}
-                widget={suspensionAi}
-                delWidget={props.delWidget}
-              />
-            )}
           </div>
         </div>
       </MobileConfig>

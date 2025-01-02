@@ -34,6 +34,16 @@ export default class Widgets extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      !_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled'])) ||
+      !_.isEqual(_.pick(nextState, ['showSelectUser']), _.pick(this.state, ['showSelectUser']))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   /**
    * 选择用户
    */
@@ -70,7 +80,7 @@ export default class Widgets extends Component {
       quickSelectUser($(event.target).closest('.addBtn')[0], {
         showMoreInvite: false,
         selectRangeOptions,
-        tabType,
+        tabType: controlId === '_ownerid' ? 3 : tabType,
         appId,
         prefixAccounts:
           !_.includes(selectedAccountIds, md.global.Account.accountId) && !hasUserRange
@@ -80,6 +90,15 @@ export default class Widgets extends Component {
                   fullname: md.global.Account.fullname,
                   avatar: md.global.Account.avatar,
                 },
+                ...(controlId === '_ownerid'
+                  ? [
+                      {
+                        accountId: 'user-undefined',
+                        fullname: _l('未指定'),
+                        avatar: 'https://dn-mdpic.mingdao.com/UserAvatar/undefined.gif?imageView2/1/w/100/h/100/q/90',
+                      },
+                    ]
+                  : []),
               ]
             : [],
         selectedAccountIds,
@@ -173,6 +192,7 @@ export default class Widgets extends Component {
     const { projectId, disabled, enumDefault, formData = [], appId, masterData = {}, onChange } = this.props;
     const { showSelectUser } = this.state;
     const value = this.getUserValue();
+    const filterAccountIds = _.map(value, 'accountId')
 
     return (
       <div className="customFormControlBox customFormControlUser">
@@ -205,6 +225,7 @@ export default class Widgets extends Component {
             appId={appId || ''}
             selectRangeOptions={dealUserRange(this.props, formData, masterData)}
             onlyOne={enumDefault === 0}
+            filterAccountIds={filterAccountIds}
             onClose={() => this.setState({ showSelectUser: false })}
             onSave={this.onSave}
           />

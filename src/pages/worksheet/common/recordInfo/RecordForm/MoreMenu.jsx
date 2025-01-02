@@ -19,6 +19,7 @@ export default function MoreMenu(props) {
     handleAddSheetRow,
     hideRecordInfo,
     hideFav,
+    isDraft,
   } = props;
   const { from, isCharge, appId, worksheetId, viewId, recordId, workId, instanceId } = recordbase;
   const { allowDelete, formData, projectId, allowAdd, rowData } = recordinfo;
@@ -49,6 +50,7 @@ export default function MoreMenu(props) {
       onUpdate={onUpdate}
       onCopySuccess={handleAddSheetRow}
       hideRecordInfo={hideRecordInfo}
+      isDraft={isDraft}
       onRecreate={() => {
         handleRowData({
           rowId: recordId,
@@ -64,6 +66,7 @@ export default function MoreMenu(props) {
             defaultFormDataEditable: true,
             directAdd: false,
             writeControls: defcontrols,
+            isDraft,
             onAdd: record => {
               handleAddSheetRow({ ...record }, recordId);
               alert(_l('创建成功'));

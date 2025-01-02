@@ -43,7 +43,7 @@ export default function WidgetRelate(props) {
               }),
             })
           }
-          text={_l('扫码添加关联  ')}
+          text={_l('扫码添加关联')}
         />
       </SettingItem>
       {!!+onlyRelateByScanCode && (

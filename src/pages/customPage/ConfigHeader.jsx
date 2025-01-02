@@ -31,7 +31,7 @@ const ConfigHeader = styled(FlexCenter)`
     .back {
       color: #757575;
       &:hover {
-        color: #333;
+        color: #151515;
       }
     }
   }
@@ -163,7 +163,7 @@ export default (props) => {
         </div>
       )}
       <div className="pageName">
-        <span className="Bold mRight10">{_l('编辑自定义页面:  ')}</span>
+        <span className="Bold mRight10">{_l('编辑自定义页面：')}</span>
         {isEdit ? (
           <input
             autoFocus

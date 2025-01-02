@@ -290,7 +290,7 @@ function PluginSettings(params) {
           <div className="w100 Gray_75">{_l('类型')}</div>
           <div className="w130 mLeft12 Gray_75">{_l('名称')}</div>
           <div className="w130 mLeft12 Gray_75">
-            {_l('变量 id ')}
+            {_l('变量 id')}
             <span className="Red">*</span>
           </div>
           <div className="actionCon TxtRight">

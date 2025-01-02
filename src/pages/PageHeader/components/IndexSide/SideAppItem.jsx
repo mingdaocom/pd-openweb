@@ -12,7 +12,7 @@ const AppStatus = styled.div`
   padding: 0 8px;
   line-height: 22px;
   box-sizing: border-box;
-  background: #333;
+  background: #151515;
   color: #fff;
   margin-left: 8px;
   text-align: center;

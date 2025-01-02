@@ -29,11 +29,10 @@ export const handleAdvancedSettingChange = (data, obj) => {
   };
 };
 
-export const getControlsSorts = (data, controls) => {
-  const { controlssorts = '[]' } = getAdvanceSetting(data);
+export const getControlsSorts = (data, controls, key = 'controlssorts') => {
+  const parsedSorts = getAdvanceSetting(data, [key]) || [];
   const defaultSorts = controls.map(item => item.controlId);
   try {
-    let parsedSorts = JSON.parse(controlssorts);
     if (_.isEmpty(parsedSorts)) return defaultSorts;
     return parsedSorts;
   } catch (error) {
@@ -291,7 +290,11 @@ export const getSortControls = (data, controls) => {
 };
 
 export const getDatePickerConfigs = (data = {}) => {
-  const showType = getAdvanceSetting(data, 'showtype');
+  let showType = getAdvanceSetting(data, 'showtype');
+
+  if (data.originType === 38 || data.type === 38) {
+    showType = data.unit;
+  }
 
   switch (showType) {
     // 年月日时分
@@ -437,6 +440,6 @@ export const canAsUniqueWidget = item => {
   return (
     _.includes([2, 3, 4, 5, 7], item.type) ||
     (item.type === 29 && item.enumDefault === 1) ||
-    (item.type === 26 && item.enumDefault === 0)
+    (_.includes([26, 27, 48], item.type) && item.enumDefault === 0)
   );
 };

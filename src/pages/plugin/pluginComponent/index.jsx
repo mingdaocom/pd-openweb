@@ -52,7 +52,7 @@ const Wrapper = styled.div`
         border-bottom: 4px solid rgba(0, 0, 0, 0);
         a {
           height: 44px;
-          color: #333;
+          color: #151515;
           padding: 10px;
           font-weight: 600;
           display: inline-block;

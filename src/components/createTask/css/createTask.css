@@ -290,7 +290,7 @@
   font-size: 32px;
 }
 .taskUpdateCharge:not(:hover) .ThemeColor3 {
-  color: #333 !important;
+  color: #151515 !important;
 }
 .taskTabs {
   margin-top: 20px;
@@ -398,7 +398,7 @@
   cursor: pointer;
 }
 #txtLastDate span {
-  color: #333 !important;
+  color: #151515 !important;
 }
 #txtLastDate:not(:hover) {
   border-color: #949494 !important;

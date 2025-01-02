@@ -55,6 +55,9 @@ const Con = styled.div`
   .number {
     display: inline-block;
   }
+  .showMore:hover {
+    color: #757575;
+  }
   &.rowHadFocus {
     .openRecord {
       visibility: visible;
@@ -119,6 +122,7 @@ export default function RowHead(props) {
     readonly,
     isTrash,
     isDraft,
+    isDraftTable,
     rowHeadOnlyNum,
     isCharge,
     isDevAndOps,
@@ -146,6 +150,7 @@ export default function RowHead(props) {
     onReverseSelect = () => {},
     saveSheetLayout,
     resetSheetLayout,
+    worksheetInfo = {},
     setHighLight = () => {},
     refreshWorksheetControls = () => {},
     onOpenRecord = () => {},
@@ -189,9 +194,9 @@ export default function RowHead(props) {
     >
       {rowIndex !== -1 && (
         <React.Fragment>
-          {showOperate && !readonly && !isTrash && !isDraft ? (
+          {showOperate && !readonly && !isTrash && !isDraftTable ? (
             <RecordOperate
-              {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId, isCharge, isDevAndOps }}
+              {...{ appId, viewId, worksheetId, recordId: row.rowid, projectId, isCharge, isDevAndOps, isDraft }}
               formdata={controls.map(c => ({ ...c, value: row[c.controlId] }))}
               shows={['share', 'print', 'copy', 'copyId', 'openinnew', 'recreate', 'fav']}
               allowCopy={allowAdd && row.allowedit}
@@ -239,6 +244,8 @@ export default function RowHead(props) {
                     defaultFormDataEditable: true,
                     directAdd: false,
                     writeControls: defcontrols,
+                    worksheetInfo,
+                    isDraft,
                     onAdd: record => {
                       setHighLight(tableId, rowIndex + 1);
                       handleAddSheetRow({ ...record }, row.rowid);
@@ -252,7 +259,7 @@ export default function RowHead(props) {
             <span className="moreOperate" style={{ width: 24 }} />
           )}
           {(hasBatch || showNumber) && (
-            <div className="numberCon" style={{ marginLeft: isDraft ? 0 : 10, width: numberWidth }}>
+            <div className="numberCon" style={{ marginLeft: 10, width: numberWidth }}>
               {showNumber && <div className="number">{lineNumberBegin + rowIndex + 1}</div>}
               {!readonly && hasBatch && (
                 <div className="checkbox">
@@ -304,20 +311,11 @@ export default function RowHead(props) {
                     }}
                     popupAlign={{
                       points: ['tl', 'bl'],
-                      offset: [-32, 10],
+                      offset: [2, 10],
                     }}
-                    action={['click']}
+                    action={['hover']}
                     popup={
                       <Menu>
-                        <MenuItem
-                          onClick={e => {
-                            e.stopPropagation();
-                            handleCheckAll(true);
-                            setSelectAllPanelVisible(false);
-                          }}
-                        >
-                          {_l('选择本页记录%02053')}
-                        </MenuItem>
                         <MenuItem
                           onClick={e => {
                             e.stopPropagation();
@@ -325,23 +323,24 @@ export default function RowHead(props) {
                             onSelectAllWorksheet(true);
                           }}
                         >
-                          {_l('选择所有记录%02054')}
+                          {_l('选择所有')}
                         </MenuItem>
-                        {(selectedIds.length || allWorksheetIsSelected) && (
-                          <MenuItem
-                            onClick={e => {
-                              e.stopPropagation();
-                              setSelectAllPanelVisible(false);
-                              onReverseSelect();
-                            }}
-                          >
-                            {_l('反选%02055')}
-                          </MenuItem>
-                        )}
+                        <MenuItem
+                          onClick={e => {
+                            e.stopPropagation();
+                            setSelectAllPanelVisible(false);
+                            onReverseSelect();
+                          }}
+                        >
+                          {_l('反选本页')}
+                        </MenuItem>
                       </Menu>
                     }
                   >
-                    <i className="icon icon-expand_more Hand" style={{ position: 'absolute', top: 5, right: -15 }}></i>
+                    <i
+                      className="icon icon-expand_more Hand Font20 showMore"
+                      style={{ position: 'absolute', top: 2, right: -22 }}
+                    ></i>
                   </Trigger>
                 )}
               </div>

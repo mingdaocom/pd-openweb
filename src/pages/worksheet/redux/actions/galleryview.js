@@ -37,7 +37,7 @@ export const fetch = index => {
       args.pageSize = maxCount;
     }
 
-    if (window.isMingDaoApp) {
+    if (isMobile) {
       args.filterControls = filterControls;
     }
     if (

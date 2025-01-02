@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import sheetAjax from 'src/api/worksheet';
 import renderCellText from 'src/pages/worksheet/components/CellControls/renderText';
-import { LoadDiv, Icon, Radio } from 'ming-ui';
+import { LoadDiv, Icon, Radio, PopupWrapper } from 'ming-ui';
 import cx from 'classnames';
 import { Cascader, TreeSelect } from 'antd';
 import { Popup, List } from 'antd-mobile';
@@ -13,6 +13,7 @@ import _ from 'lodash';
 import { checkCellIsEmpty } from 'worksheet/util';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
+import './index.less';
 
 const getItem = value => {
   return checkCellIsEmpty(value)
@@ -21,6 +22,10 @@ const getItem = value => {
         name: (safeParse(value)[0] || {}).name || _l('未命名'),
         sid: (safeParse(value)[0] || {}).sid || '',
       };
+};
+
+const inputValueReg = (inputValue, regType) => {
+  return new RegExp(inputValue.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), regType || 'i');
 };
 
 export default class Widgets extends Component {
@@ -62,6 +67,10 @@ export default class Widgets extends Component {
       isError: false,
       treeExpandedKeys: [], // 数据实时拉，防止上次展开状态残留
     };
+    this.handleClose = this.handleClose.bind(this);
+    this.handleBack = this.handleBack.bind(this);
+    this.handleClear = this.handleClear.bind(this);
+    this.handleSave = this.handleSave.bind(this);
   }
 
   ajax = '';
@@ -411,56 +420,29 @@ export default class Widgets extends Component {
   }
 
   /**
-   * 渲染h5头部
+   * PopupWrapper事件
    */
-  renderH5Header() {
-    const { advancedSetting, onChange } = this.props;
-    const { anylevel = '0', minlayer = '0' } = advancedSetting;
-    const { operatePath, selectItem, layersName } = this.state;
-    const minLayer = Number(minlayer);
+  handleClose() {
+    this.setState({ visible: false, operatePath: [], selectItem: {} });
+  }
 
-    return (
-      <div
-        className="flexRow Font17 ThemeColor3 pLeft15 pRight15 relative"
-        style={{ height: 46, alignItems: 'center' }}
-      >
-        {operatePath.length ? (
-          <div
-            onClick={() => {
-              const newPath = [].concat(operatePath);
-              newPath.pop();
-              this.setState({ operatePath: newPath });
-            }}
-          >
-            <Icon icon="arrow-left-border" />
-            {_l('返回')}
-          </div>
-        ) : (
-          <div
-            onClick={() => {
-              this.setState({ visible: false, operatePath: [], selectItem: {}, value: '', selectedId: '' });
-              onChange('');
-            }}
-          >
-            {_l('清除')}
-          </div>
-        )}
-        <div className="flex" />
-        <div className="ellipsis Gray" style={{ position: 'absolute', left: '50%', marginLeft: -65, width: 130 }}>
-          {(layersName || [])[operatePath.length] || _l('%0级', nzh.cn.encodeS(operatePath.length + 1))}
-        </div>
-        {(minLayer && !+anylevel ? operatePath.length >= minLayer : !+anylevel) && (
-          <div
-            onClick={() => {
-              this.setState({ visible: false, operatePath: [], selectItem: {}, selectedId: selectItem.id });
-              this.treeSelectChange(selectItem.id, selectItem.label);
-            }}
-          >
-            {_l('确定')}
-          </div>
-        )}
-      </div>
-    );
+  handleBack() {
+    const { operatePath } = this.state;
+    const newPath = [].concat(operatePath);
+    newPath.pop();
+    this.setState({ operatePath: newPath });
+  }
+
+  handleClear() {
+    const { onChange } = this.props;
+    this.setState({ visible: false, operatePath: [], selectItem: {}, value: '', selectedId: '' });
+    onChange('');
+  }
+
+  handleSave() {
+    const { selectItem } = this.state;
+    this.setState({ visible: false, operatePath: [], selectItem: {}, selectedId: selectItem.id });
+    this.treeSelectChange(selectItem.id, selectItem.label);
   }
 
   /**
@@ -652,6 +634,7 @@ export default class Widgets extends Component {
    * 搜索
    */
   handleSearch = _.throttle(() => {
+    if (!this.state.keywords) return;
     this.loadData();
   }, 500);
 
@@ -669,8 +652,10 @@ export default class Widgets extends Component {
       control,
       hint,
     } = this.props;
-    const { showtype = '3', anylevel = '0' } = advancedSetting;
-    const { visible, options, searchOptions, value, keywords, isError, treeExpandedKeys } = this.state;
+    const { showtype = '3', anylevel = '0', minlayer = '0', searchcontrol } = advancedSetting;
+    const { visible, options, searchOptions, value, keywords, isError, treeExpandedKeys, operatePath, layersName } =
+      this.state;
+    const minLayer = Number(minlayer);
 
     if (browserIsMobile()) {
       return (
@@ -696,15 +681,19 @@ export default class Widgets extends Component {
           </button>
 
           {visible && (
-            <Popup
-              className="mobileModal topRadius"
-              visible={true}
-              closeOnMaskClick={true}
-              onClose={() => this.setState({ visible: false, operatePath: [], selectItem: {} })}
+            <PopupWrapper
+              bodyClassName="heightPopupBody40"
+              visible={visible}
+              title={(layersName || [])[operatePath.length] || _l('%0级', nzh.cn.encodeS(operatePath.length + 1))}
+              confirmDisable={!(minLayer && !+anylevel ? operatePath.length >= minLayer : !+anylevel)}
+              clearDisable={!value}
+              onClose={this.handleClose}
+              onBack={operatePath.length > 0 && this.handleBack}
+              onClear={this.handleClear}
+              onConfirm={this.handleSave}
             >
-              {this.renderH5Header()}
-              <div style={{ height: 280, overflowY: 'auto' }}>{this.renderH5Content()}</div>
-            </Popup>
+              <div className="mobileCascader flexColumn">{this.renderH5Content()}</div>
+            </PopupWrapper>
           )}
         </Fragment>
       );
@@ -729,7 +718,7 @@ export default class Widgets extends Component {
               {keywords
                 ? searchOptions === null
                   ? _l('搜索中...')
-                  : _l('无搜索结果')
+                  : _l('请输入更多关键词')
                 : isError
                 ? _l('数据源异常')
                 : options === null
@@ -780,10 +769,27 @@ export default class Widgets extends Component {
             }
             return filterResult.some(
               option =>
+                !!searchcontrol ||
                 JSON.parse(option.path || '[]')
                   .join('/')
-                  .search(new RegExp(inputValue.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i')) !== -1,
+                  .search(inputValueReg(inputValue)) !== -1,
             );
+          },
+          sort: (a, b, inputValue) => {
+            const reg = inputValueReg(inputValue, 'g');
+            const formatValue = value =>
+              JSON.parse(_.head(value).path || '[]').map(i => {
+                const idx = i.search(reg);
+                return idx === -1 ? 999 : idx;
+              });
+            const aIndexArr = formatValue(a);
+            const bIndexArr = formatValue(b);
+            const maxCount = Math.max(aIndexArr.length, bIndexArr.length);
+
+            for (let i = 0; i < maxCount; i++) {
+              if (_.isUndefined(bIndexArr[i]) || aIndexArr[i] < bIndexArr[i]) return -1;
+              if (_.isUndefined(aIndexArr[i]) || aIndexArr[i] > bIndexArr[i]) return 1;
+            }
           },
           render: (inputValue, resultArr = []) => {
             return this.renderLabel({ path: resultArr[0].path }, control);
@@ -805,7 +811,7 @@ export default class Widgets extends Component {
           keywords
             ? searchOptions === null
               ? _l('搜索中...')
-              : _l('无搜索结果')
+              : _l('请输入更多关键词')
             : isError
             ? _l('数据源异常')
             : options === null

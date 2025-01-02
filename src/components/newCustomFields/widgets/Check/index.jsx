@@ -20,6 +20,13 @@ export default class Widgets extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps) {
+    if (!_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled']))) {
+      return true;
+    }
+    return false;
+  }
+
   onChange = checked => {
     const value = checked ? '0' : '1';
     this.props.onChange(value);

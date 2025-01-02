@@ -1,5 +1,5 @@
-import React, { Fragment, useState } from 'react';
-import { Dialog, LoadDiv, Support } from 'ming-ui';
+import React, { Fragment, useState, useRef } from 'react';
+import { Dialog, Support } from 'ming-ui';
 import { isEmpty, isEqual } from 'lodash';
 import FilterConfig from 'src/pages/worksheet/common/WorkSheetFilter/common/FilterConfig';
 import 'src/pages/worksheet/common/WorkSheetFilter/WorkSheetFilter.less';
@@ -11,6 +11,7 @@ import {
 } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { getAdvanceSetting, isSingleRelateSheet } from '../../../util/setting';
 import { filterControlsFromAll } from '../../../util';
+import EmptyRuleConfig from '../EmptyRuleConfig';
 import './filterDialog.less';
 
 export default function FilterDialog(props) {
@@ -32,10 +33,14 @@ export default function FilterDialog(props) {
     showCustom = false,
     filterKey = 'filters',
     sheetSwitchPermit = [],
+    showEmptyRule = false,
+    from,
   } = props;
 
   const { sourceControlId = '', type = '' } = data;
-  const [filters, setFilters] = useState(props.filters || getAdvanceSetting(data, [filterKey]));
+  const originFilters = props.filters || getAdvanceSetting(data, [filterKey]);
+  const [filters, setFilters] = useState(originFilters);
+  const ruleRef = useRef(null);
 
   const relateSheetList = filterControlsFromAll(
     allControls,
@@ -69,6 +74,8 @@ export default function FilterDialog(props) {
           const conditionGroupKey = getTypeKey(redefineComplexControl(control).type);
           const conditionGroupType = (CONTROL_FILTER_WHITELIST[conditionGroupKey] || {}).value;
           const dataRangeInfo = fromCondition === 'subTotal' && conditionGroupKey === 'DATE' ? { dateRange: 18 } : {};
+
+          const ruleConfig = showEmptyRule && ruleRef.current ? { emptyRule: ruleRef.current } : {};
           let initialDynamicSource = {
             ...condition,
             ...dataRangeInfo,
@@ -80,6 +87,7 @@ export default function FilterDialog(props) {
             value: undefined,
             fullValues: [],
             isDynamicsource: true,
+            ...ruleConfig,
           };
           let initialSource = {
             ...condition,
@@ -88,6 +96,7 @@ export default function FilterDialog(props) {
             type: condition.filterType,
             dynamicSource: [],
             isDynamicsource: false,
+            ...ruleConfig,
           };
           if (condition.isDynamicsource === undefined) {
             if ((_.get(condition, 'dynamicSource') || []).length > 0) {
@@ -126,7 +135,7 @@ export default function FilterDialog(props) {
           showCustom={showCustom}
           from={fromCondition}
           filterResigned={false}
-          widgetControlData={{ ...data, globalSheetId: globalSheetInfo.worksheetId }} // 关联控件配置
+          widgetControlData={{ ...data, globalSheetId: globalSheetInfo.worksheetId, isSubList: from === 'subList' }} // 关联控件配置
           sourceControlId={sourceControlId}
           relateSheetList={relateSheetList} // 除去自身的本表的关联单条的数据
           onConditionsChange={conditions => {
@@ -134,6 +143,11 @@ export default function FilterDialog(props) {
           }}
           globalSheetControls={globalSheetControls}
         />
+
+        {showEmptyRule && (
+          <EmptyRuleConfig {...props} filters={filters} handleChange={value => (ruleRef.current = value)} />
+        )}
+
         {!hideSupport && (
           <Support
             type={3}

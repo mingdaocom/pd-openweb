@@ -1,21 +1,13 @@
 import React, { Component } from 'react';
-import DatePicker from 'ming-ui/components/DatePicker/Calendar';
 import { shape, number, func } from 'prop-types';
 import moment from 'moment';
 import { OtherFieldList, SelectOtherField, DynamicInput } from '../components';
 import { DynamicValueInputWrap, WrapMaxOrMin } from '../styled';
-import { getDatePickerConfigs, getAdvanceSetting } from '../../../../util/setting';
+import { getDatePickerConfigs } from '../../../../util/setting';
 import _ from 'lodash';
-import { getShowFormat } from 'src/pages/widgetConfig/util/setting.js';
-import { MdAntDateRangePicker } from 'ming-ui';
+import { MdAntDateRangePicker, MdAntDatePicker } from 'ming-ui';
 import { DYNAMIC_FROM_MODE } from 'src/pages/widgetConfig/widgetSetting/components/DynamicDefaultValue/config.js';
 
-function getPicker(type) {
-  return {
-    4: 'month',
-    5: 'year',
-  }[type];
-}
 export default class DateInput extends Component {
   static propTypes = {
     onDynamicValueChange: func,
@@ -36,9 +28,8 @@ export default class DateInput extends Component {
     }
   }
   state = {
-    datePickerVisible: false,
     defValue: '',
-    maxOrmin: '',
+    isDynamic: false,
   };
 
   componentDidMount() {
@@ -46,62 +37,46 @@ export default class DateInput extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!_.isEqual(nextProps.data, this.props.data)) {
+    if (!_.isEqual(nextProps.dynamicValue, this.props.dynamicValue)) {
       this.updateValue(nextProps);
     }
   }
 
-  updateValue = nextProps => {
-    const { data } = nextProps || this.props;
-    const defSource = getAdvanceSetting(data, 'defsource');
-    const { staticValue, cid = '' } = _.get(defSource, '0') || {};
-    if (!cid && staticValue && staticValue !== '2') {
-      this.setState({
-        defValue: moment(staticValue),
-        maxOrmin: staticValue,
-      });
-    } else {
-      this.setState({
-        defValue: moment(),
-        maxOrmin: staticValue,
-      });
-    }
-  };
+  updateValue(nextProps) {
+    const { dynamicValue = [] } = nextProps || this.props;
+    const { staticValue, cid = '' } = _.get(dynamicValue, '0') || {};
+    const tempValue = !cid && staticValue && staticValue !== '2' ? staticValue : '';
+    this.setState({
+      defValue: tempValue || '',
+      isDynamic: !!cid || _.includes(['2'], staticValue),
+    });
+  }
 
   handleClick = () => {
-    this.setState({ datePickerVisible: true });
+    this.updateValue();
   };
-  handleAssignTimeChange = (date, formatMode) => {
+
+  handleDateChange = (date, formatMode) => {
+    const { data, withMaxOrMin } = this.props;
+
     if (_.isNull(date)) {
-      this.clearTime();
+      this.setState({ defValue: '', isDynamic: false });
+      this.props.onDynamicValueChange([]);
       return;
     }
-    const { data } = this.props;
-    const time = moment(date.format(formatMode)).format(data.type === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD');
-    this.setState({ defValue: moment(time) });
-    const newValue = [{ rcid: '', cid: '', staticValue: time, time }];
+
+    const formatDate = value => {
+      let formatText = data.type === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
+      if (withMaxOrMin) {
+        formatText = formatText.replace(/-/g, '/');
+      }
+      return moment(value.format(formatMode)).format(formatText);
+    };
+
+    const time = _.isArray(date) ? `${formatDate(date[0])}-${formatDate(date[1])}` : formatDate(date);
+    this.setState({ defValue: time });
+    const newValue = [{ rcid: '', cid: '', staticValue: time, ...(time.includes('-') ? {} : { time }) }];
     this.props.onDynamicValueChange(newValue);
-  };
-
-  onChangeMaxOrMin = result => {
-    const { onDynamicValueChange = () => {} } = this.props;
-    if (!result.minValue && !result.maxValue) {
-      this.setState({ maxOrmin: `` });
-      return onDynamicValueChange([]);
-    }
-    this.setState({ maxOrmin: `${result.minValue}-${result.maxValue}` });
-    return onDynamicValueChange([
-      {
-        cid: '',
-        rcid: '',
-        staticValue: `${result.minValue}-${result.maxValue}`,
-      },
-    ]);
-  };
-
-  clearTime = () => {
-    this.setState({ datePickerVisible: false });
-    this.props.onDynamicValueChange([]);
   };
 
   onTriggerClick = () => {
@@ -109,74 +84,52 @@ export default class DateInput extends Component {
     defaultType && this.$wrap.triggerClick();
   };
 
-  renderWrapMaxOrMin = () => {
+  renderContent() {
     const { data, withMaxOrMin, from } = this.props;
-    const { maxOrmin = '' } = this.state;
-    if (!withMaxOrMin || from !== DYNAMIC_FROM_MODE.FAST_FILTER) {
-      return;
-    }
-    const showValueFormat = getShowFormat(data);
-    const timeFormat = showValueFormat.split(' ')[1];
-
-    const minValue = maxOrmin ? maxOrmin.split('-')[0] : '';
-    const maxValue = maxOrmin ? maxOrmin.split('-')[1] : '';
-    const showType = _.get(data, 'advancedSetting.showtype');
-    return (
-      <WrapMaxOrMin className="flexRow alignItemsCenter">
-        <MdAntDateRangePicker
-          className="customAntPicker timeMaxOrMinCon"
-          key={maxOrmin}
-          value={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
-          showTime={timeFormat ? { format: timeFormat } : false}
-          picker={getPicker(showType)}
-          format={showValueFormat}
-          onChange={moments => {
-            if (!moments || !_.isArray(moments)) {
-              moments = [];
-            }
-            this.onChangeMaxOrMin({
-              minValue: moments[0] && moments[0].format('YYYY/MM/DD HH:mm:ss'),
-              maxValue: moments[1] && moments[1].format('YYYY/MM/DD HH:mm:ss'),
-            });
-          }}
-        />
-      </WrapMaxOrMin>
-    );
-  };
-
-  render() {
-    const { data, defaultType, withMaxOrMin, from } = this.props;
-    const { datePickerVisible, defValue } = this.state;
+    const { isDynamic, defValue = '' } = this.state;
     const dateProps = getDatePickerConfigs(data);
     const formatMode = dateProps.formatMode;
+
+    if (isDynamic) {
+      return <OtherFieldList {...this.props} onClick={this.handleClick} formatMode={formatMode} />;
+    }
+    if (withMaxOrMin && from === DYNAMIC_FROM_MODE.FAST_FILTER) {
+      const [minValue, maxValue] = defValue.split('-');
+      return (
+        <WrapMaxOrMin className="flexRow alignItemsCenter">
+          <MdAntDateRangePicker
+            className="customAntPicker timeMaxOrMinCon"
+            key={defValue}
+            value={minValue && maxValue ? [moment(minValue), moment(maxValue)] : []}
+            showTime={dateProps.mode === 'datetime'}
+            picker={dateProps.mode === 'datetime' ? 'date' : dateProps.mode}
+            format={dateProps.formatMode}
+            onChange={time => this.handleDateChange(time, formatMode)}
+          />
+        </WrapMaxOrMin>
+      );
+    }
+
+    return (
+      <MdAntDatePicker
+        value={defValue ? moment(defValue) : ''}
+        className="datePicker"
+        format={dateProps.formatMode}
+        showTime={dateProps.mode === 'datetime'}
+        picker={dateProps.mode === 'datetime' ? 'date' : dateProps.mode}
+        onChange={time => this.handleDateChange(time, formatMode)}
+        onOk={time => this.handleDateChange(time, formatMode)}
+      />
+    );
+  }
+
+  render() {
+    const { defaultType } = this.props;
+
     return (
       <DynamicValueInputWrap>
-        {defaultType ? (
-          <DynamicInput {...this.props} onTriggerClick={this.onTriggerClick} />
-        ) : withMaxOrMin && from === DYNAMIC_FROM_MODE.FAST_FILTER ? (
-          this.renderWrapMaxOrMin()
-        ) : (
-          <OtherFieldList {...this.props} onClick={this.handleClick} formatMode={formatMode} />
-        )}
+        {defaultType ? <DynamicInput {...this.props} onTriggerClick={this.onTriggerClick} /> : this.renderContent()}
         <SelectOtherField {...this.props} ref={con => (this.$wrap = con)} />
-
-        {datePickerVisible && (
-          <DatePicker
-            value={defValue || moment()}
-            className="datePicker"
-            onClickAwayExceptions={['.TimePicker-panel']}
-            onClickAway={() => this.setState({ datePickerVisible: false })}
-            style={{ margin: '0', top: '100%', width: '100%', position: 'absolute', zIndex: '1050' }}
-            {..._.pick(dateProps, ['mode', 'showMinute', 'showSecond'])}
-            onChange={time => this.handleAssignTimeChange(time, formatMode)}
-            onSelect={time => this.handleAssignTimeChange(time, formatMode)}
-            onClear={() => this.clearTime()}
-            onOk={time => {
-              this.handleAssignTimeChange(time, formatMode);
-              this.setState({ datePickerVisible: false });
-            }}
-          />
-        )}
       </DynamicValueInputWrap>
     );
   }

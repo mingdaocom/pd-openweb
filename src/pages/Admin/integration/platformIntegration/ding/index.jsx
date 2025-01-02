@@ -86,6 +86,7 @@ export default class Ding extends React.Component {
           ddMessagUrlPcSlide: res.ddMessagUrlPcSlide,
           status: res.status,
           integrationScanEnabled: res.intergrationScanEnabled,
+          customNameIcon: res.customNameIcon,
         });
       }
     });
@@ -216,7 +217,7 @@ export default class Ding extends React.Component {
           ) : (
             <React.Fragment>
               <p className="mTop16 Font14 Gray_75">{_l('从钉钉开放平台获取对接信息，即可开始集成以及同步通讯录')}</p>
-              <Link to={`/dingSyncCourse/${this.props.projectId}`} target="_blank" className="mTop16 Font14 howApply">
+              <Link to={`/dingSyncCourse/${this.props.projectId}`} target="_blank" className="mTop16 Font14 howApply stopPropagation">
                 {_l('如何获取对接信息？')}
               </Link>
             </React.Fragment>
@@ -382,7 +383,8 @@ export default class Ding extends React.Component {
   };
   render() {
     const { projectId } = this.props;
-    const { currentTab, CorpId, AppKey, AppSecret, AgentId, integrationScanEnabled, isCloseDing } = this.state;
+    const { currentTab, CorpId, AppKey, AppSecret, AgentId, integrationScanEnabled, isCloseDing, customNameIcon } =
+      this.state;
 
     if (this.state.pageLoading) {
       return <LoadDiv className="mTop80" />;
@@ -433,6 +435,8 @@ export default class Ding extends React.Component {
                   disabled={isCloseDing}
                   href={`/dingSyncCourse/${projectId}`}
                   updateScanEnabled={integrationScanEnabled => this.setState({ integrationScanEnabled })}
+                  customNameIcon={customNameIcon}
+                  updateCustomNameIcon={customNameIcon => this.setState({ customNameIcon })}
                 />
               </div>
               {md.global.Config.IsLocal && (

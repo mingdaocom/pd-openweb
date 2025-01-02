@@ -12,7 +12,7 @@ import {
   DEFAULT_CONFIG,
   WORKFLOW_SYSTEM_CONTROL,
 } from 'src/pages/widgetConfig/config/widget';
-import { CIRCLE_TAGS_CONTROL_TYPE, RECT_TAGS_CONTROL_TYPE } from '../enum.js';
+import { CIRCLE_TAGS_CONTROL_TYPE, RECT_TAGS_CONTROL_TYPE, SUBLIST_FILE_EDIT_TYPE } from '../enum.js';
 import { handleSelectTagsValue, diffSelectTagsValue, getExtendParams } from '../util';
 
 function renderContent(data, recordInfo, extendParam) {
@@ -21,7 +21,11 @@ function renderContent(data, recordInfo, extendParam) {
   let controls = recordInfo.controls && recordInfo.controls.length ? recordInfo.controls : recordInfo.formdata;
   let control = controls ? controls.find(l => id === l.controlId) : undefined;
 
-  if (CIRCLE_TAGS_CONTROL_TYPE.includes(type) || RECT_TAGS_CONTROL_TYPE.includes(type)) {
+  if (
+    CIRCLE_TAGS_CONTROL_TYPE.includes(type) ||
+    RECT_TAGS_CONTROL_TYPE.includes(type) ||
+    SUBLIST_FILE_EDIT_TYPE.includes(editType)
+  ) {
     const { newList = [], oldList = [], onlyNew = false } = handleSelectTagsValue({ ...data, control, requestType });
     const { _oldValue, _newValue, _defaultValue } = diffSelectTagsValue({ newList, oldList, type, editType, control });
 
@@ -59,13 +63,14 @@ function renderContent(data, recordInfo, extendParam) {
   } else if ([14, 42].includes(type)) {
     let newList = safeParse(newValue, 'array');
     let oldList = safeParse(oldValue, 'array');
+    const isFileEdit = type === 14 && [12, 13].includes(editType);
 
     if (typeof newList[0] !== 'object') {
       newList = [];
     }
 
-    if (typeof oldList[0] !== 'object') {
-      oldList = [];
+    if (typeof oldList[0] !== 'object' || isFileEdit) {
+      oldList = isFileEdit ? newList : [];
     }
 
     let _oldValue = _.differenceBy(oldList, newList, type === 14 ? 'fileId' : 'key');
@@ -134,10 +139,15 @@ export default function WorksheetRecordLogItem(props) {
   };
 
   const isVisibleLog = (item, control) => {
-    if ((item.newValue === '' && item.oldValue === '') || ['thirdprimary'].includes(item.id)) return false;
+    if (
+      ((item.newValue || item.newText) === '' && (item.oldValue || item.oldText) === '') ||
+      ['thirdprimary'].includes(item.id)
+    )
+      return false;
 
     const controlPermissions = (control && control.controlPermissions) || '000';
-    const visible = controlPermissions[0] === '1' || item.id.length !== 24;
+    const visible =
+      controlPermissions[0] === '1' || item.id.length !== 24 || SUBLIST_FILE_EDIT_TYPE.includes(item.editType);
 
     return visible;
   };
@@ -158,11 +168,11 @@ export default function WorksheetRecordLogItem(props) {
           let _text = ' ';
 
           if (item.editType === 1) {
-            _text = _l(' 添加了');
+            _text += _l('添加了');
           } else if (item.editType === 2) {
-            _text = _l(' 取消了');
+            _text += _l('取消了');
           } else {
-            _text = item.newValue ? _l(' 添加了') : _l(' 取消了');
+            _text += item.newValue ? _l('添加了') : _l('取消了');
           }
 
           extendText = `${_text}${_l(
@@ -171,10 +181,7 @@ export default function WorksheetRecordLogItem(props) {
           )}`;
         } else if (object) {
           showDelete = false;
-          extendText = `${item.editType !== 2 ? _l(' 添加了') : _l(' 取消了')}${_l(
-            '%0条',
-            object.length || 1,
-          )}关联记录`;
+          extendText = ` ${item.editType !== 2 ? _l('添加了') : _l('取消了')}${_l('%0条关联记录', object.length || 1)}`;
         }
       }
 
@@ -183,7 +190,7 @@ export default function WorksheetRecordLogItem(props) {
       }
     }
 
-    if (['transf_task', 'del_discussion'].indexOf(item.id) > -1) {
+    if (['transf_task', 'del_discussion'].indexOf(item.id) > -1 || SUBLIST_FILE_EDIT_TYPE.includes(item.editType)) {
       showDelete = false;
     }
 
@@ -216,7 +223,9 @@ export default function WorksheetRecordLogItem(props) {
 
         return (
           <div
-            className={cx('worksheet-rocord-log-item', { 'worksheet-rocord-log-item-Row': item.type === 34 })}
+            className={cx('worksheet-rocord-log-item', {
+              'worksheet-rocord-log-item-Row': item.type === 34 && !SUBLIST_FILE_EDIT_TYPE.includes(item.editType),
+            })}
             key={`worksheet-rocord-log-item-${item.id}`}
           >
             <div className="widgetTitle">
@@ -226,7 +235,7 @@ export default function WorksheetRecordLogItem(props) {
               WORKFLOW_SYSTEM_CONTROL.find(l => l.controlId === item.id) ? (
                 <span className="selectTriggerChild WordBreak">
                   <Icon className="Font16 Gray_9e" icon={widgetInfo.icon} />
-                  <span className='flex'>{item.name}</span>
+                  <span className="flex">{item.name}</span>
                 </span>
               ) : (
                 <TriggerSelect
@@ -238,14 +247,16 @@ export default function WorksheetRecordLogItem(props) {
                 >
                   <span className="selectTriggerChild hasHover WordBreak">
                     <Icon className="Font16 Gray_9e" icon={widgetInfo.icon} />
-                    <span className='flex'>{control.controlName || item.name}</span>
+                    <span className="flex">{control.controlName || item.name}</span>
                   </span>
                 </TriggerSelect>
               )}
 
               <span className="extendText">{extendText}</span>
             </div>
-            {(!item.isDeleted || ['transf_task', 'del_discussion'].indexOf(item.id) > -1) &&
+            {(!item.isDeleted ||
+              ['transf_task', 'del_discussion'].indexOf(item.id) > -1 ||
+              SUBLIST_FILE_EDIT_TYPE.includes(item.editType)) &&
               renderContent(item, recordInfo, {
                 createTime: operatContent.createTime,
                 uniqueId: operatContent.uniqueId,

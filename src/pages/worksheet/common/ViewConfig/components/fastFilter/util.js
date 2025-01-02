@@ -1,6 +1,9 @@
 import _ from 'lodash';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { DATE_TYPE, DATE_TYPE_ALL, DATE_TYPE_M, DATE_TYPE_Y, DATE_TYPE_D, DATE_TYPE_H, DATE_TYPE_H_M, DATE_SHOW_TYPE } from './config';
+import { DATE_RANGE_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js'
+
 // 文本筛选方式
 const TEXT_TYPE = [
   { text: _l('等于'), value: FILTER_CONDITION_TYPE.EQ },
@@ -48,47 +51,6 @@ const SHOW_TYPE = [
   { text: _l('平铺'), txt: _l('（最多显示20个）'), value: 1 },
 ];
 
-export const DATE_TYPE_M = [7, 8, 9, 12, 13, 14, 15, 16, 17];
-export const DATE_TYPE_Y = [15, 16, 17];
-//时间
-export const DATE_TYPE = [
-  [{ text: _l('全选'), value: 'all' }],
-  [
-    { text: _l('今天'), value: 1 },
-    { text: _l('昨天'), value: 2 },
-    { text: _l('明天'), value: 3 },
-  ],
-  [
-    { text: _l('本周'), value: 4 },
-    { text: _l('上周'), value: 5 },
-    { text: _l('下周'), value: 6 },
-  ],
-  [
-    { text: _l('本月'), value: 7 },
-    { text: _l('上个月'), value: 8 },
-    { text: _l('下个月'), value: 9 },
-  ],
-  [
-    { text: _l('本季度'), value: 12 },
-    { text: _l('上季度'), value: 13 },
-    { text: _l('下季度'), value: 14 },
-  ],
-  [
-    { text: _l('今年'), value: 15 },
-    { text: _l('去年'), value: 16 },
-    { text: _l('明年'), value: 17 },
-  ],
-  [
-    { text: _l('过去7天'), value: 21 },
-    { text: _l('过去14天'), value: 22 },
-    { text: _l('过去30天'), value: 23 },
-  ],
-  [
-    { text: _l('将来7天'), value: 31 },
-    { text: _l('将来14天'), value: 32 },
-    { text: _l('将来30天'), value: 33 },
-  ],
-];
 // 引导文字
 export const LIMIT = {
   key: 'limit',
@@ -215,29 +177,22 @@ export const NAV_SHOW_TYPE = {
   ],
   txt: _l('显示项'),
 };
-// //显示项 为空设置
-// export const NAVSHOW_NULL_TYPE = {
-//   key: 'shownullitem',
-//   default: 1, //显示
-//   keys: [
-//     29, // 关联表
-//     11, // 选项
-//     10, // 多选
-//     9, // 单选 平铺
-//     26 //成员
-//   ],
-// };
+
 // 数值筛选方式
 const DATE_GRANULARITY_TYPE_ENUM = [
-  { text: _l('年'), value: 5 },
-  { text: _l('月'), value: 4 },
-  { text: _l('日'), value: 3 },
+  { text: _l('年'), value: DATE_RANGE_TYPE.YEAR }, //showtype 5
+  // { text: _l('季'), value: DATE_RANGE_TYPE.QUARTER },//showtype 11
+  { text: _l('月'), value: DATE_RANGE_TYPE.MONTH },// showtype 4
+  { text: _l('日'), value: DATE_RANGE_TYPE.DAY },//showtype3
+  { text: _l('时'), value: DATE_RANGE_TYPE.HOUR },//showtype 2
+  { text: _l('分'), value: DATE_RANGE_TYPE.MINUTE },//showtype 1
+  // { text: _l('秒'), value: DATE_RANGE_TYPE.SECOND }, //showtype 6
 ];
 // 颗粒度
 export const DATE_GRANULARITY_TYPE = {
   //日期
   key: 'dateRangeType',
-  default: 3,
+  default: DATE_RANGE_TYPE.DAY,
   types: DATE_GRANULARITY_TYPE_ENUM,
   keys: [
     15, // 日期
@@ -245,11 +200,8 @@ export const DATE_GRANULARITY_TYPE = {
   ],
   txt: _l('颗粒度'),
 };
-export const DATE_TYPE_ALL = _.flattenDeep(DATE_TYPE)
-  .map(o => o.value)
-  .filter(o => o !== 'all');
 
-//预设时间
+//预设时间范围选项
 export const DATE_RANGE = {
   key: 'daterange',
   default: DATE_TYPE_ALL, //全选
@@ -258,7 +210,7 @@ export const DATE_RANGE = {
     15, // 日期
     16, //日期时间
   ],
-  txt: _l('预设时间'),
+  txt: _l('预设时间范围选项'),
 };
 //App支持扫码查询
 export const APP_ALLOWSCAN = {
@@ -309,7 +261,7 @@ export const FAST_FILTERS_WHITELIST = [
   DATE_FILTER_TYPE,
   DIRECTION_TYPE,
   SHOW_RELATE_TYPE,
-  DATE_RANGE,
+  // DATE_RANGE,
   OPTIONS_ALLOWITEM,
   APP_ALLOWSCAN,
   RELA_FILTER_TYPE,
@@ -379,20 +331,65 @@ export const Filter_KEYS = ['filterType'];
 export const getControlFormatType = (control = {}) => {
   return redefineComplexControl(control).type;
 };
-export const getDefaultDateRange = (control = {}) => {
-  return _.get(control, 'advancedSetting.showtype') === '5'
+export const getDefaultDateRange = showtype => {
+  return showtype === DATE_SHOW_TYPE.YEAR
     ? DATE_TYPE_Y
-    : _.get(control, 'advancedSetting.showtype') === '4'
-    ? DATE_TYPE_M
-    : DATE_TYPE_ALL;
+    : showtype === DATE_SHOW_TYPE.MONTH
+      ? DATE_TYPE_M
+      : showtype === DATE_SHOW_TYPE.DAY
+        ? DATE_TYPE_D
+        : showtype === DATE_SHOW_TYPE.HOUR
+          ? DATE_TYPE_H
+          : DATE_TYPE_ALL;
 };
+//默认颗粒度日 1
 export const getDefaultDateRangeType = (control = {}) => {
-  return _.get(control, 'advancedSetting.showtype') === '5'
-    ? 5
-    : _.get(control, 'advancedSetting.showtype') === '4'
-    ? 4
-    : 3;
+  return !!_.get(control, 'advancedSetting.showtype') && Number(_.get(control, 'advancedSetting.showtype'))
+    ? Number(_.get(control, 'advancedSetting.showtype')) > 3 && Number(_.get(control, 'advancedSetting.showtype')) < 6
+      ? Number(_.get(control, 'advancedSetting.showtype'))
+      : DATE_RANGE_TYPE.DAY
+    : DATE_RANGE_TYPE.DAY;
 };
+
+//返回对应showtype
+export const getShowtypeByDateRangeType = (dateRangeType) => {
+  switch (dateRangeType) {
+    case DATE_RANGE_TYPE.YEAR:
+      return DATE_SHOW_TYPE.YEAR
+    case DATE_RANGE_TYPE.QUARTER:
+      return DATE_SHOW_TYPE.QUARTER
+    case DATE_RANGE_TYPE.MONTH:
+      return DATE_SHOW_TYPE.MONTH
+    case DATE_RANGE_TYPE.DAY:
+      return DATE_SHOW_TYPE.DAY
+    case DATE_RANGE_TYPE.HOUR:
+      return DATE_SHOW_TYPE.HOUR
+    case DATE_RANGE_TYPE.MINUTE:
+      return DATE_SHOW_TYPE.MINUTE
+    case DATE_RANGE_TYPE.SECOND:
+      return DATE_SHOW_TYPE.SECOND
+  }
+}
+
+export const getDateRangeTypeListByShowtype = (showtype) => {
+  switch (showtype) {
+    case DATE_SHOW_TYPE.YEAR:
+      return DATE_GRANULARITY_TYPE_ENUM.filter(o => o.value === DATE_RANGE_TYPE.YEAR)
+    case DATE_SHOW_TYPE.QUARTER:
+      return DATE_GRANULARITY_TYPE_ENUM.filter(o => [DATE_RANGE_TYPE.YEAR, DATE_RANGE_TYPE.QUARTER].includes(o.value))
+    case DATE_SHOW_TYPE.MONTH:
+      return DATE_GRANULARITY_TYPE_ENUM.filter(o => [DATE_RANGE_TYPE.YEAR, DATE_RANGE_TYPE.QUARTER, DATE_RANGE_TYPE.MONTH].includes(o.value))
+    case DATE_SHOW_TYPE.DAY:
+      return DATE_GRANULARITY_TYPE_ENUM.filter(o => [DATE_RANGE_TYPE.YEAR, DATE_RANGE_TYPE.QUARTER, DATE_RANGE_TYPE.MONTH, DATE_RANGE_TYPE.DAY].includes(o.value))
+    case DATE_SHOW_TYPE.HOUR:
+      return DATE_GRANULARITY_TYPE_ENUM.filter(o => [DATE_RANGE_TYPE.YEAR, DATE_RANGE_TYPE.QUARTER, DATE_RANGE_TYPE.MONTH, DATE_RANGE_TYPE.DAY, DATE_RANGE_TYPE.HOUR].includes(o.value))
+    case DATE_SHOW_TYPE.MINUTE:
+      return DATE_GRANULARITY_TYPE_ENUM.filter(o => [DATE_RANGE_TYPE.YEAR, DATE_RANGE_TYPE.QUARTER, DATE_RANGE_TYPE.MONTH, DATE_RANGE_TYPE.DAY, DATE_RANGE_TYPE.HOUR, DATE_RANGE_TYPE.MINUTE].includes(o.value))
+    default:
+      return DATE_GRANULARITY_TYPE_ENUM
+  }
+}
+
 export const getSetDefault = (control = {}) => {
   let type = getControlFormatType(control);
   let fastFilterSet = {
@@ -413,7 +410,7 @@ export const getSetDefault = (control = {}) => {
         };
       } else {
         if (DATE_RANGE.keys.includes(type) && o.key === 'daterange') {
-          defaultValue = getDefaultDateRange(control);
+          defaultValue = getDefaultDateRange(_.get(control, 'advancedSetting.showtype'));
         }
 
         fastFilterSet = {
@@ -447,10 +444,10 @@ export const formatFastFilterData = info => {
       const key = [29, 35].includes(o.dataType)
         ? 'rowid'
         : o.dataType === 26
-        ? 'accountId'
-        : o.dataType === 27
-        ? 'departmentId'
-        : 'organizeId';
+          ? 'accountId'
+          : o.dataType === 27
+            ? 'departmentId'
+            : 'organizeId';
       values = (values || []).map(o => {
         if (o.indexOf(key) < 0 && o.indexOf('id') < 0) {
           return o;
@@ -460,4 +457,14 @@ export const formatFastFilterData = info => {
     }
     return { ...o, values };
   });
+};
+
+export const getDaterange = advancedSetting => {
+  let daterange = advancedSetting.daterange;
+  try {
+    daterange = JSON.parse(daterange);
+  } catch (error) {
+    daterange = [];
+  }
+  return daterange;
 };

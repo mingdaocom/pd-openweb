@@ -42,7 +42,7 @@ const TreeWrap = styled(Tree)`
     flex: 1;
   }
   .nodeName {
-    color: #333 !important;
+    color: #151515 !important;
   }
   .ant-tree-treenode {
     width: 233px;
@@ -271,10 +271,17 @@ class RoleManage extends Component {
     const { params = {} } = match;
 
     return new Promise(resolve => {
-      if (treeNode.children && treeNode.children.length !== 0) {
+      const expandedKeys = this.state.expandedKeys;
+      const isExpand = this.state.expandedKeys.includes(treeNode.key);
+
+      if (treeNode.children && (treeNode.children.length !== 0 || treeNode.loadData)) {
+        this.setState({
+          expandedKeys: isExpand ? expandedKeys.filter(l => l !== treeNode.key) : expandedKeys.concat(treeNode.key),
+        });
         resolve();
         return;
       }
+
       organizeAjax
         .getOrganizes({
           pageIndex: 1,
@@ -286,6 +293,7 @@ class RoleManage extends Component {
         .then(res => {
           let _data = treeData.map(l => {
             let _children = l.children;
+
             if (l.orgRoleGroupId === treeNode.orgRoleGroupId) {
               _children = res.list.map(l => {
                 return {
@@ -296,13 +304,17 @@ class RoleManage extends Component {
                 };
               });
             }
+
             return {
               ...l,
               children: _children,
+              loadData: l.orgRoleGroupId === treeNode.orgRoleGroupId || l.loadData,
             };
           });
+
           this.setState({
             treeData: _data,
+            expandedKeys: _.uniq(expandedKeys.concat(treeNode.key)),
           });
           resolve();
         });
@@ -423,15 +435,12 @@ class RoleManage extends Component {
     }
 
     const { currentRole } = this.props;
+
     if (!item.isLeaf) {
-      const { expandedKeys } = this.state;
-      const isExpand = expandedKeys.includes(item.key);
       this.loadData(item);
-      this.setState({
-        expandedKeys: isExpand ? expandedKeys.filter(l => l !== item.key) : expandedKeys.concat(item.key),
-      });
       return;
     }
+
     if (item.organizeId !== currentRole.organizeId || forceUpdate) {
       this.props.updateUserPageIndex(1);
       this.props.updateCurrentRole(item);
@@ -715,8 +724,10 @@ class RoleManage extends Component {
     });
   };
 
-  onExpand = keys => {
-    this.setState({ expandedKeys: keys });
+  onExpand = (keys, { node }) => {
+    if (!node.loaded) return;
+
+    this.setState({ expandedKeys: _.uniq(keys) });
   };
 
   render() {

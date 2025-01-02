@@ -12,6 +12,7 @@ import { TITLE_SIZE_OPTIONS } from 'src/pages/widgetConfig/config/setting';
 import { getTitleStyle } from 'src/pages/widgetConfig/util/setting';
 import RelationSearchCount from './RelationSearchCount';
 import { isSheetDisplay } from '../../../pages/widgetConfig/util';
+import { HAVE_VALUE_STYLE_WIDGET } from 'src/pages/widgetConfig/config';
 
 const ControlLabel = styled.div`
   ${({ displayRow, isMobile, titlewidth_app = '100', titlewidth_pc = '100' }) => {
@@ -69,7 +70,7 @@ const ControlLabel = styled.div`
     .controlLabelName {
       margin: 14px 0 0;
       font-size: 15px;
-      color: #333;
+      color: #151515;
     }
     .descBoxInfo {
       margin: 14px 0 0;
@@ -94,7 +95,7 @@ export default ({
     valuesize = '0',
     titlesize = item.type === 34 ? '1' : '0',
     titlestyle = '0000',
-    titlecolor = item.type === 34 ? '#333' : '#757575',
+    titlecolor = item.type === 34 ? '#151515' : '#757575',
     allowlink,
     hidetitle,
     required,
@@ -207,7 +208,7 @@ export default ({
         titleSize={titleSize}
         titleStyle={titleStyle}
         titleColor={titlecolor}
-        valuesize={valuesize}
+        valuesize={_.includes(HAVE_VALUE_STYLE_WIDGET, item.type) ? valuesize : '0'}
         hasContent={showDesc || showOtherIcon || showTitle}
       >
         {loadingItems[item.controlId] ? (
@@ -227,7 +228,7 @@ export default ({
         )}
 
         {item.type !== 34 ? (
-          <div title={item.controlName} className="controlLabelName">
+          <div title={item.controlName} className="controlLabelName WordBreak">
             {item.controlName}
             {showCount &&
               (item.type === 51 ? <RelationSearchCount control={item} recordId={recordId} /> : renderCount(item))}

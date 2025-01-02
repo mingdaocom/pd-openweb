@@ -14,6 +14,8 @@ const MenuBox = styled.div`
   border-radius: 3px;
   background: white;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.13), 0 2px 6px rgba(0, 0, 0, 0.1);
+  max-height: 500px;
+  overflow-y: scroll;
   .icon-new_word {
     color: #2196f3 !important;
   }

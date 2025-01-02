@@ -170,7 +170,7 @@ export default class Overview extends Component {
       value >= 10000 && !isEnLang ? (
         <span>
           {parseFloat(value / 10000)}
-          <span className="Gray_9e Font16">{_l(' 万')}</span>
+          <span className="Gray_9e Font16 mLeft3">{_l('万')}</span>
         </span>
       ) : (
         formatValue(value)
@@ -229,7 +229,7 @@ export default class Overview extends Component {
     const apppersonStatisticsResult = app.personStatisticsResult || [];
 
     this.setState({
-      totalNumberOfexecute: formatter(totalNumberOfexecute) + _l(' 次'),
+      totalNumberOfexecute: formatter(totalNumberOfexecute) + ' ' + _l('次'),
       workflowStatisticsResult: (workflowStatisticsResult || []).map(item => ({
         ...item,
         category: _l('工作流执行数'),
@@ -239,8 +239,8 @@ export default class Overview extends Component {
         : formatFileSize(totalCapacityUsage, 2),
       attachmentStatisticsResult: formatChartData('attachment', attachmentStatisticsResult, isFilterByDepartment),
       subTypeTotal,
-      totalNumberOfRow: formatter(totalNumberOfRow) + _l(' 条'),
-      recordTotal: formatter(recordTotal) + _l(' 人'),
+      totalNumberOfRow: formatter(totalNumberOfRow) + ' ' + _l('条'),
+      recordTotal: formatter(recordTotal) + ' ' + _l('人'),
       recordStatisticsResult: [
         _.isEmpty(rowStatisticsResult)
           ? [{ value1: 10000, value: 10000, category: _l('行记录数') }]
@@ -257,8 +257,8 @@ export default class Overview extends Component {
               category: _l('人数'),
             })),
       ],
-      totalDegree: formatter(totalDegree) + _l(' 次'),
-      appTotal: formatter(appTotal) + _l(' 人'),
+      totalDegree: formatter(totalDegree) + ' ' + _l('次'),
+      appTotal: formatter(appTotal) + ' ' + _l('人'),
       appStatisticsResult: [
         _.isEmpty(degreeStatisticsResult)
           ? [{ value1: 10000, value: 10000, category: _l('次数') }]

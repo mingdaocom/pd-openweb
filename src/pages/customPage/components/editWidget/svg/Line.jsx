@@ -18,7 +18,7 @@ export default props => (
           />
         </g>
       </g>
-      <path data-name="\u8DEF\u5F84 60032" d="M3.542 80.458V0H-.005v84h84v-3.542z" fill="#333" />
+      <path data-name="\u8DEF\u5F84 60032" d="M3.542 80.458V0H-.005v84h84v-3.542z" fill="#151515" />
     </g>
   </svg>
 );

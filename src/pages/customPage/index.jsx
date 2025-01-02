@@ -360,8 +360,10 @@ export default class CustomPage extends Component {
                   ...item.advancedSetting,
                   navfilters,
                   showNavfilters: undefined,
+                  showDefsource: undefined
                 },
-                values: formatFilterValuesToServer(item.dataType, item.values),
+                values: _.isEmpty(item.dynamicSource) ? formatFilterValuesToServer(item.dataType, item.values) : undefined,
+                value: _.isEmpty(item.dynamicSource) ? item.value : undefined,
                 control: undefined,
               };
             }),
@@ -466,7 +468,7 @@ export default class CustomPage extends Component {
   };
 
   handleSave = async () => {
-    const { version, ids, adjustScreen, config, components, updatePageInfo, updateSaveLoading } = this.props;
+    const { version, ids, adjustScreen, urlParams = [], config, components, updatePageInfo, updateSaveLoading } = this.props;
     const pageId = ids.worksheetId;
 
     updateSaveLoading(true);
@@ -484,6 +486,7 @@ export default class CustomPage extends Component {
         version: version,
         components: newComponents,
         adjustScreen,
+        urlParams,
         config,
       })
       .then(({ appId: pageId, version, components, apk }) => {

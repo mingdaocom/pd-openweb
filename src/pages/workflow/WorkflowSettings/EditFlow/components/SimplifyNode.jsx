@@ -47,7 +47,7 @@ const Box = styled.div`
     font-size: 15px;
     text-align: left;
     background: #efefef;
-    color: #333;
+    color: #151515;
     border: none;
   }
 `;

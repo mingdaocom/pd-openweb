@@ -45,7 +45,7 @@ const TabList = styled.div`
       box-sizing: border-box;
       border-bottom: 4px solid rgba(0, 0, 0, 0);
       a {
-        color: #333;
+        color: #151515;
         display: inline-block;
         font-size: 15px;
       }

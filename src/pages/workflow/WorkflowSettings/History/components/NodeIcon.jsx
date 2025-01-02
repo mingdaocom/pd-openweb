@@ -2,6 +2,7 @@ import React from 'react';
 import Icon from 'ming-ui/components/Icon';
 import { NODE_ICON } from '../config';
 import { APP_TYPE, ACTION_ID } from '../../enum';
+import _ from 'lodash';
 
 export default ({ type, appType, actionId, isPlugin, isFirst, isLast }) => {
   let { icon, bgColor } = NODE_ICON[type] || {};
@@ -45,6 +46,12 @@ export default ({ type, appType, actionId, isPlugin, isFirst, isLast }) => {
   if (isPlugin && isLast) {
     icon = 'output';
     bgColor = '#2196f3';
+  }
+
+  // 校准数据
+  if (_.includes([ACTION_ID.REFRESH_SINGLE_DATA, ACTION_ID.REFRESH_MULTIPLE_DATA], actionId)) {
+    icon = 'architecture';
+    bgColor = '#01CA83';
   }
 
   return (

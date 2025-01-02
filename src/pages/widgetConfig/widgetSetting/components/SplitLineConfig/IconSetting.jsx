@@ -54,7 +54,7 @@ export default function IconSetting(props) {
           {iconUrl ? (
             <SvgIcon url={iconUrl} fill="#9E9E9E" size={16} />
           ) : (
-            <span className={cx('Font14', props.type === 52 ? 'icon-tab Gray_9e' : 'icon-block Gray_c')}></span>
+            <span className={cx('Font14', props.type === 52 ? 'icon-subheader Gray_9e' : 'icon-block Gray_c')}></span>
           )}
         </div>
         <span

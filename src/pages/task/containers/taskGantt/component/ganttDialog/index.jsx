@@ -162,7 +162,7 @@ export default class GanttDialog extends Component {
       ctx.fillStyle = '#fff';
       ctx.fillRect(0, 0, width, 50);
       ctx.font = '20px Microsoft YaHei';
-      ctx.fillStyle = '#333';
+      ctx.fillStyle = '#151515';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(name, width / 2, 25);

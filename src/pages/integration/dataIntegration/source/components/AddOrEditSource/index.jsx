@@ -54,7 +54,7 @@ const HeaderWrapper = styled.div`
         box-sizing: border-box;
         border-bottom: 3px solid rgba(0, 0, 0, 0);
         a {
-          color: #333;
+          color: #151515;
           display: inline-block;
           height: 64px;
           padding: 26px 20px 12px 20px;

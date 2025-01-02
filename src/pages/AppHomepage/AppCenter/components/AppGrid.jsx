@@ -182,11 +182,6 @@ const AddAppItemBtn = styled(AddAppItem)`
       background: ${({ themeColor }) => getRgbaByColor(themeColor, '0.8')};
     }
   }
-  &.addAppItemWrap .addAppItemMenu {
-    top: 40px !important;
-    right: 0px;
-    left: auto !important;
-  }
 `;
 
 const GroupTabList = styled.div`

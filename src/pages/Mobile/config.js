@@ -43,7 +43,7 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
     appBox: {
       path: '/mobile/appBox',
       component: () => import('mobile/AppBox'),
-      title: _l('应用库'),
+      title: _l('明道云市场'),
     },
     appBoxList: {
       path: '/mobile/appBoxList/:categoryId',
@@ -105,7 +105,7 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
       title: _l('自定义页面'),
     },
     record: {
-      path: '/mobile/record/:appId/:worksheetId/:viewId?/:rowId',
+      path: '/mobile/record/:appId/:worksheetId/:viewId?/:rowId/:from?',
       component: () => import('mobile/Record'),
       title: _l('详情'),
     },

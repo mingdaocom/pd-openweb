@@ -13,6 +13,7 @@ import autoSize from 'ming-ui/decorators/autoSize';
 import cx from 'classnames';
 import { getIconByType } from 'src/pages/widgetConfig/util';
 import { isRelateRecordTableControl } from 'worksheet/util';
+import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
 
 const Wrap = styled.div`
   width: 100%;
@@ -70,7 +71,10 @@ function ResourceView(props) {
         setSysWorkflowTimeControlFormat(
           controls.filter(
             item =>
-              _.includes([27, 48, 9, 10, 11, 26, 29], item.type) &&
+              (_.includes([27, 48, 9, 10, 11, 26, 29, 28], item.type) ||
+                (item.type === 30 &&
+                  _.includes([27, 48, 9, 10, 11, 26, 29, 28], item.sourceControlType) &&
+                  (item.strDefault || '').split('')[0] !== '1')) &&
               !['rowid'].includes(item.controlId) &&
               !isRelateRecordTableControl(item),
           ),
@@ -97,7 +101,10 @@ function ResourceView(props) {
                     controls
                       .filter(
                         item =>
-                          _.includes([27, 48, 9, 10, 11, 26, 29], item.type) &&
+                          (_.includes([27, 48, 9, 10, 11, 26, 29, 28], item.type) ||
+                            (item.type === 30 &&
+                              _.includes([27, 48, 9, 10, 11, 26, 29, 28], item.sourceControlType) &&
+                              (item.strDefault || '').split('')[0] !== '1')) &&
                           !['rowid'].includes(item.controlId) &&
                           !isRelateRecordTableControl(item),
                       )
@@ -123,7 +130,7 @@ function ResourceView(props) {
                     let data = {
                       viewControl,
                       advancedSetting: {
-                        navshow: viewControlInfo.type === 26 ? '1' : '0',
+                        navshow: isSameType([26, 27, 48], viewControlInfo) ? '1' : '0',
                         navfilters: JSON.stringify([]),
                       },
                       controlsSorts: [],

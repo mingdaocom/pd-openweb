@@ -63,6 +63,7 @@ function setScrollY(cache, newTop) {
 function FixedTable(props, ref) {
   const {
     noRenderEmpty,
+    isSubList,
     loading,
     className,
     showHead,
@@ -270,6 +271,15 @@ function FixedTable(props, ref) {
       }
     }
     if (!$scrollY) {
+      return;
+    }
+    if (
+      isSubList &&
+      (!$scrollY ||
+        ($scrollY &&
+          ((e.deltaY < 0 && $scrollY.scrollTop === 0) ||
+            (e.deltaY > 0 && $scrollY.scrollTop + $scrollY.clientHeight === $scrollY.scrollHeight))))
+    ) {
       return;
     }
     e.preventDefault();

@@ -58,21 +58,26 @@ export default ({
           <div className="mTop15" key={item.value}>
             <Radio
               text={item.text}
+              className="Font15"
               checked={data.triggerId === item.value}
               onClick={() => updateSource({ triggerId: item.value })}
             />
             {item.selectFields && data.triggerId === item.value && (
-              <div className="mLeft30">
-                <SelectFields
-                  controls={data.filedControls}
-                  selectedIds={data.assignFieldIds}
-                  placeholder={_l('选择触发字段')}
-                  updateSource={ids => updateSource({ assignFieldIds: ids })}
-                />
-                <div className="Gray_75 mTop5 Font12">
-                  {_l('当以上指定的其中一个字段更新时将触发流程，如未指定则表示任何字段更新时都会触发')}
+              <Fragment>
+                <div className="mLeft30 bold mTop8 Font13" style={{ marginBottom: -5 }}>
+                  {_l('选择触发字段')}
                 </div>
-              </div>
+                <div className="mLeft30">
+                  <SelectFields
+                    controls={data.filedControls}
+                    selectedIds={data.assignFieldIds}
+                    updateSource={ids => updateSource({ assignFieldIds: ids })}
+                  />
+                  <div className="Gray_75 mTop5 Font13">
+                    {_l('当以上指定的其中一个字段更新时将触发流程，如未指定则表示任何字段更新时都会触发')}
+                  </div>
+                </div>
+              </Fragment>
             )}
             {item.desc && data.triggerId === item.value && <div className="mTop10 mLeft30 Gray_75">{item.desc}</div>}
           </div>

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React, { useState, useEffect, useRef, Fragment } from 'react';
 import styled from 'styled-components';
-import { minHeightObj, lineBottomHeight } from '../config';
+import { minHeightObj, lineBottomHeight, pageSize } from 'src/pages/worksheet/views/ResourceView/config.js';
 import RecordBlock from './RecordBlock';
 import { browserIsMobile } from 'src/util';
 import cx from 'classnames';
@@ -110,7 +110,7 @@ export default function RecordWrap(props) {
                   <div
                     className="Hand Gray_9e ThemeHoverColor3 Font13 LineHeight20 lineBottomHeightMore Left0 Relative"
                     onClick={() => {
-                      fetchRowsByGroupId(o.key, Math.ceil(o.rows.length / 20) + 1);
+                      fetchRowsByGroupId(o.key, Math.ceil(o.rows.length / pageSize) + 1);
                     }}
                   >
                     {_l('查看更多')}

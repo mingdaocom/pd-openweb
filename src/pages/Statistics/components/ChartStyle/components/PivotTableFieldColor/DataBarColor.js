@@ -12,7 +12,7 @@ export default class DataBarColor extends Component {
       max: undefined,
       positiveNumberColor: '#44b9b0',
       negativeNumberColor: '#fe423f',
-      axisColor: '#333333',
+      axisColor: '#151515',
       direction: 1,
       onlyShowBar: false
     }

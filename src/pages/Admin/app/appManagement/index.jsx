@@ -33,6 +33,7 @@ import EventEmitter from 'events';
 import { getFeatureStatus, buriedUpgradeVersionDialog, addBehaviorLog, getCurrentProject } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
+import SelectUser from '../../components/SelectUser';
 import _ from 'lodash';
 import moment from 'moment';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
@@ -111,6 +112,7 @@ export default class AppManagement extends Component {
       order: 3,
       pageIndex: 1,
       keyword: '',
+      userInfo: [],
 
       loading: false,
 
@@ -210,7 +212,7 @@ export default class AppManagement extends Component {
    * 获取应用列表
    */
   getAppList() {
-    const { status, order, pageIndex, keyword, dbInstanceId } = this.state;
+    const { status, order, pageIndex, keyword, dbInstanceId, userInfo = [] } = this.state;
     const { projectId } = this.props.match.params;
 
     this.setState({ loading: true });
@@ -229,6 +231,7 @@ export default class AppManagement extends Component {
       containsLink: true,
       dbInstanceId,
       filterDBType: dbInstanceId === 'all' ? 0 : dbInstanceId === '' ? 1 : 2,
+      createrIds: userInfo.map(v => v.accountId),
     });
     this.postList.then(({ apps, maxCount, total, count }) => {
       this.setState({
@@ -320,7 +323,16 @@ export default class AppManagement extends Component {
               <div className="ellipsis Font14" title={item.appName}>
                 {item.appName}
               </div>
-              {item.isLock && <Icon icon="lock" className="Gray_bd mLeft20 Font16" />}
+              {item.sourceType === 60 && (
+                <Tooltip text={_l('通过市场安装')}>
+                  <Icon icon="merchant" className="Gray_bd mLeft20 Font16" />
+                </Tooltip>
+              )}
+              {item.isLock && (
+                <Tooltip text={_l('应用已锁定')}>
+                  <Icon icon="lock" className="Gray_bd mLeft20 Font16" />
+                </Tooltip>
+              )}
             </div>
           </div>
         </div>
@@ -345,6 +357,7 @@ export default class AppManagement extends Component {
             size={28}
             projectId={projectId}
             user={{ userHead: item.createAccountInfo.avatar, accountId: item.caid }}
+            operation={this.renderChargeOpHtml(item)}
           />
           <div className="mLeft12 ellipsis flex mRight20">{item.createAccountInfo.fullName}</div>
         </div>
@@ -373,7 +386,7 @@ export default class AppManagement extends Component {
             popup={() => {
               return (
                 <ul className="optionPanelTrigger">
-                  {!featureType || item.isLock || item.isGoods || !featureType || item.createType === 1 ? null : (
+                  {!featureType || item.isLock || item.isGoods || !featureType || item.createType === 1 || item.sourceType === 60 ? null : (
                     <li
                       onClick={() => {
                         if (featureType === '2') {
@@ -389,10 +402,6 @@ export default class AppManagement extends Component {
                       {_l('导出')}
                     </li>
                   )}
-                  <li onClick={() => this.chargeFn(item.appId, item.caid, item.appName)}>
-                    <Icon icon="sync1" className="mRight12 Gray_9e" />
-                    {_l('将应用转交给其他人')}
-                  </li>
                   <li
                     className="deleteIcon"
                     onClick={() => {
@@ -621,11 +630,24 @@ export default class AppManagement extends Component {
     }
   }
 
-  chargeFn = (appId, accountId, appName) => {
-    const { projectId } = _.get(this.props, 'match.params');
+  /**
+   * 负责人 opHtml
+   */
+  renderChargeOpHtml(item) {
+    const { appId, caid } = item;
+    return (
+      <span
+        className="Gray_9e ThemeHoverColor3 pointer w100 oaButton updateAppCharge"
+        onClick={() => this.chargeFn(appId, caid)}
+      >
+        {_l('将应用转交他人')}
+      </span>
+    );
+  }
 
+  chargeFn = (appId, accountId) => {
     dialogSelectUser({
-      sourceId: projectId,
+      sourceId: this.props.match.params.projectId,
       fromType: 4,
       fromAdmin: true,
       SelectUserSettings: {
@@ -634,30 +656,10 @@ export default class AppManagement extends Component {
         filterOthers: true,
         filterOtherProject: true,
         selectedAccountIds: [accountId],
-        projectId,
+        projectId: this.props.match.params.projectId,
         unique: true,
         callback: users => {
-          const user = users[0];
-          Dialog.confirm({
-            className: 'transferConfirm',
-            title: _l('确认移交应用'),
-            description: (
-              <div>
-                <div className="mBottom15">{_l('将应用“%0”的拥有者调整为', appName)}</div>
-                <div className="userWrap">
-                  <UserHead
-                    className="InlineBlock"
-                    disabled
-                    size={24}
-                    projectId={projectId}
-                    user={{ userHead: user.avatar, accountId: user.accountId }}
-                  />
-                  <div className="InlineBlock ellipsis mRight10 mLeft5 LineHeight24 fullName">{user.fullname}</div>
-                </div>
-              </div>
-            ),
-            onOk: () => this.updateAppOwner(appId, users[0]),
-          });
+          this.updateAppOwner(appId, users[0]);
         },
       },
     });
@@ -734,6 +736,7 @@ export default class AppManagement extends Component {
       dataDBInstances,
       DBInstancesDialog = false,
       updateVisible,
+      userInfo,
     } = this.state;
     const projectId = this.props.match.params.projectId;
     const { authority = [] } = this.props;
@@ -815,7 +818,7 @@ export default class AppManagement extends Component {
             <span className="bold">{count}</span>
 
             <span className="Gray_9e mLeft15 mRight5">{_l('剩余')}</span>
-            <span className="bold" style={{ color: maxCount - count > 10 ? '#333' : '#f44336' }}>
+            <span className="bold" style={{ color: maxCount - count > 10 ? '#151515' : '#f44336' }}>
               {maxCount - count < 0 ? 0 : maxCount - count}
             </span>
 
@@ -823,7 +826,7 @@ export default class AppManagement extends Component {
               <Fragment>
                 {licenseType === 1 ? (
                   <Link
-                    className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline"
+                    className="ThemeColor3 ThemeHoverColor2 mLeft20 NoUnderline stopPropagation"
                     to={`/admin/upgradeservice/${this.props.match.params.projectId}${
                       vertionType ? '/' + vertionType : ''
                     }`}
@@ -872,6 +875,13 @@ export default class AppManagement extends Component {
               onChange={value => this.updateState({ dbInstanceId: value })}
             />
           )}
+          <SelectUser
+            className="mdAntSelect w180 mLeft15"
+            placeholder={_l('搜索拥有者')}
+            projectId={projectId}
+            userInfo={userInfo}
+            changeData={data => this.updateState({ userInfo: data })}
+          />
           <div className="flex" />
           <Search
             placeholder={_l('应用名称')}

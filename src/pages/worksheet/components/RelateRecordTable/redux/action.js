@@ -547,7 +547,7 @@ export function getDefaultRelatedSheetValue(formData = [], recordId) {
     }),
   };
 }
-export function handleRecreateRecord(record, { openRecord = () => {} } = {}) {
+export function handleRecreateRecord(record, { openRecord = () => {}, isDraft } = {}) {
   return (dispatch, getState) => {
     const state = getState();
     const { base = {}, controls } = state;
@@ -576,6 +576,7 @@ export function handleRecreateRecord(record, { openRecord = () => {} } = {}) {
         defaultFormData: defaultData,
         defaultFormDataEditable: true,
         writeControls: defcontrols,
+        isDraft,
         onAdd: record => {
           if (record) {
             dispatch(appendRecords([_.assign(record, { pid })]));
@@ -634,7 +635,7 @@ export function handleRemoveRelation(recordIds) {
     if (recordIds && !isArray(recordIds)) {
       recordIds = [recordIds];
     }
-    if (recordId && from !== RECORD_INFO_FROM.DRAFT && saveSync) {
+    if (recordId && saveSync) {
       try {
         await updateRelateRecords({
           worksheetId,
@@ -674,7 +675,7 @@ export function handleAddRelation(records) {
     if (records && !isArray(records)) {
       records = [records];
     }
-    if (recordId && from !== RECORD_INFO_FROM.DRAFT && saveSync) {
+    if (recordId && saveSync) {
       try {
         await updateRelateRecords({
           worksheetId,
@@ -687,6 +688,7 @@ export function handleAddRelation(records) {
           updateType: from,
           instanceId,
           workId,
+          updateType: from === RECORD_INFO_FROM.DRAFT ? from : undefined,
         });
         dispatch(appendRecords(records));
         alert(_l('添加记录成功！'));

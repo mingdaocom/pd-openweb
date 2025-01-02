@@ -265,7 +265,7 @@ class BackupFromFilesCom extends Component {
             {_.isEmpty(file)
               ? this.renderUploadBtn(
                   <Button type="primary" radius className={cx({ Visibility: analyzeLoading })}>
-                    {_l('上传文件 ')}
+                    {_l('上传文件')}
                   </Button>,
                 )
               : this.renderUploadBtn(

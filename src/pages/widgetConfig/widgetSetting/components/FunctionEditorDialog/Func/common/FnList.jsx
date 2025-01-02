@@ -73,6 +73,7 @@ export default function FnList(props) {
       _.find(
         functionNames,
         fnName =>
+          fnFilterByControl(fnName, control) &&
           functionDetails[fnName].type === type &&
           (SearchFn(keywords, fnName) || SearchFn(keywords, functionDetails[fnName].name)),
       ),

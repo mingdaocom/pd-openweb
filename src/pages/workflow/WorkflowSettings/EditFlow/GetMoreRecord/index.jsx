@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
 import { ACTION_ID } from '../../enum';
+import { getIcons } from '../../utils';
 import _ from 'lodash';
 
 export default class GetMoreRecord extends Component {
@@ -65,9 +66,11 @@ export default class GetMoreRecord extends Component {
         <div className="workflowContentInfo ellipsis workflowContentBG">
           <span className="Gray_75">{_l('工作表')}</span>“{item.appName}”
         </div>
-        {item.actionId === ACTION_ID.BATCH_UPDATE ? (
+        {_.includes([ACTION_ID.BATCH_UPDATE, ACTION_ID.REFRESH_MULTIPLE_DATA], item.actionId) ? (
           <div className="workflowContentInfo Gray_75 mTop4 pBottom5">
-            {_l('修改了%0个字段', item.fields.length)}
+            {item.actionId === ACTION_ID.REFRESH_MULTIPLE_DATA
+              ? _l('校准了%0个字段', item.fields.length)
+              : _l('修改了%0个字段', item.fields.length)}
             {item.errorFields.length > 0 ? '，' : ''}
             <span className="yellow">{item.errorFields.length || ''}</span>
             {item.errorFields.length > 0 ? _l('个字段存在异常') : ''}
@@ -81,6 +84,7 @@ export default class GetMoreRecord extends Component {
 
   render() {
     const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
+    const isCalibration = item.actionId === ACTION_ID.REFRESH_MULTIPLE_DATA;
 
     return (
       <div className="flexColumn">
@@ -96,10 +100,14 @@ export default class GetMoreRecord extends Component {
           >
             <div className="workflowAvatars flexRow">
               <i
-                className={cx('workflowAvatar icon-transport', item.appId || item.selectNodeId ? 'BGYellow' : 'BGGray')}
+                className={cx(
+                  'workflowAvatar',
+                  item.appId || item.selectNodeId ? (isCalibration ? 'BGGreen' : 'BGYellow') : 'BGGray',
+                  getIcons(item.typeId, item.appType, item.actionId),
+                )}
               />
             </div>
-            <NodeOperate nodeClassName="BGYellow" {...this.props} />
+            <NodeOperate nodeClassName={isCalibration ? 'BGGreen' : 'BGYellow'} {...this.props} />
             <div className="workflowContent Font13">
               {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
             </div>

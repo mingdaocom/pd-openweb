@@ -137,7 +137,7 @@ export default function ApplicationItem(props) {
           <div className={cx('name', { app: !type, ellipsis: !!type })}>{!!type ? itemName : name}</div>
           {!!type && <div className="des ellipsis Font12 Gray_9">{name}</div>}
         </div>
-        {id === 'add' || (!fixed && !isUpgrade && !isNew) ? null : (
+        {id === 'add' || (!fixed && !isUpgrade && !isNew && isGoodsStatus) ? null : (
           <AppStatus
             className="appStatusWrap"
             isGoodsStatus={isGoodsStatus}
@@ -187,7 +187,7 @@ export default function ApplicationItem(props) {
           ) : (
             <Icon icon={icon} className="Font30" />
           )}
-          {id === 'add' || (!fixed && !isUpgrade && !isNew) ? null : (
+          {id === 'add' || (!fixed && !isUpgrade && !isNew && isGoodsStatus) ? null : (
             <AppStatus isGoodsStatus={isGoodsStatus} isNew={isNew} fixed={fixed} isUpgrade={isUpgrade} />
           )}
         </div>

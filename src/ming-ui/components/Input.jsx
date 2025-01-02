@@ -75,7 +75,7 @@ class Input extends Component {
   }
 }
 
-Input.NumberInput = function(props) {
+Input.NumberInput = function (props) {
   const { value, onChange, onBlur, ...rest } = props;
   return (
     <Input

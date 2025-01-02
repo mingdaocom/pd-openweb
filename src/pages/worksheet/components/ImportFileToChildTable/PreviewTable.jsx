@@ -42,7 +42,7 @@ const StyledFixedTable = styled(FixedTable)`
       color: #9d9d9d;
     }
     .controlName {
-      color: #333;
+      color: #151515;
       font-size: 13px;
       font-weight: 500;
     }

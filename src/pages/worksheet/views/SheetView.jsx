@@ -8,7 +8,7 @@ import SheetContext from '../common/Sheet/SheetContext';
 import { emitter, getLRUWorksheetConfig, getRecordColorConfig, handleRecordClick } from 'worksheet/util';
 import ToolBar from './HierarchyView/ToolBar';
 import { getRowDetail } from 'worksheet/api';
-import { editRecord } from 'worksheet/common/editRecord';
+import { batchEditRecord } from 'worksheet/common/BatchEditRecord';
 import { ROW_HEIGHT, SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
 import { Skeleton } from 'ming-ui';
 import { putControlByOrder } from 'src/pages/widgetConfig/util';
@@ -539,12 +539,14 @@ class TableView extends React.Component {
       getWorksheetSheetViewSummary,
       sheetSwitchPermit,
       sheetViewData,
+      isDraft
     } = this.props;
     const { projectId } = worksheetInfo;
     const { allWorksheetIsSelected, sheetSelectedRows } = sheetViewConfig;
     const { disableMaskDataControls } = this.state;
     return (
       <ColumnHead
+        isDraft={isDraft}
         count={sheetViewData.count}
         worksheetId={worksheetId}
         viewId={viewId}
@@ -570,7 +572,7 @@ class TableView extends React.Component {
         rowIsSelected={!!(allWorksheetIsSelected || sheetSelectedRows.length)}
         canBatchEdit={isOpenPermit(permitList.batchEdit, sheetSwitchPermit, viewId)}
         onBatchEdit={() => {
-          editRecord({
+          batchEditRecord({
             appId,
             viewId,
             projectId,
@@ -625,7 +627,8 @@ class TableView extends React.Component {
       refreshWorksheetControls,
     } = this.props;
     // functions
-    const { addRecord, selectRows, updateRows, hideRows, saveSheetLayout, resetSheetLayout, setHighLight } = this.props;
+    const { addRecord, selectRows, updateRows, hideRows, saveSheetLayout, resetSheetLayout, setHighLight, isDraft } =
+      this.props;
     const { allowAdd, worksheetId, projectId } = worksheetInfo;
     const { allWorksheetIsSelected, sheetSelectedRows, sheetHiddenColumns } = sheetViewConfig;
     const showNumber = (get(view, 'advancedSetting.showno') || '1') === '1' && !isTreeTableView;
@@ -636,6 +639,7 @@ class TableView extends React.Component {
     }
     return (
       <RowHead
+        isDraft={isDraft}
         tableType={this.tableType}
         numberWidth={this.numberWidth}
         hasBatch={this.hasBatch}
@@ -666,6 +670,7 @@ class TableView extends React.Component {
         selectedIds={sheetSelectedRows.map(r => r.rowid)}
         sheetSwitchPermit={sheetSwitchPermit}
         customButtons={buttons}
+        worksheetInfo={worksheetInfo}
         onSelectAllWorksheet={value => {
           selectRows({
             selectAll: value,
@@ -809,6 +814,7 @@ class TableView extends React.Component {
       collapseAllTreeTableViewNode,
       expandAllTreeTableViewNode,
       changeTreeTableViewLevelCount,
+      isDraft,
     } = this.props;
     const { readonly } = this;
     const { loading, rows } = sheetViewData;
@@ -903,6 +909,7 @@ class TableView extends React.Component {
         )}
         {!loading && (
           <WorksheetTable
+            isDraft={isDraft}
             showControlStyle={this.showControlStyle}
             isTreeTableView={isTreeTableView}
             treeTableViewData={treeTableViewData}
@@ -1050,6 +1057,7 @@ function SheetViewConnecter(props) {
       {...props}
       fullShowTable={get(context, 'config.fullShowTable') && !isTreeTableView}
       minRowCount={get(context, 'config.minRowCount')}
+      isDraft={get(context, 'config.isDraft')}
       sheetViewData={{ ...sheetViewData, rows }}
       updateRows={(rowIds, value, changedValue) => {
         if (isTreeTableView && !filters.keyWords && view.viewControl && get(changedValue, view.viewControl)) {

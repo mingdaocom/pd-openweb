@@ -34,7 +34,7 @@ export const Button = styled.div`
   padding: 0 16px;
   display: flex;
   align-items: center;
-  color: #333;
+  color: #151515;
   border: 1px solid #dddddd;
   border-radius: 4px;
   > .icon {
@@ -72,7 +72,6 @@ const Con = styled.div(({ isMobile, autoHeight, isCard }) =>
     ? `
       ${autoHeight ? 'height: auto !important;' : ''}
       ${isCard ? '' : 'align-items: center;'}
-      padding: 0px !important;
     `
     : `
     ${autoHeight ? 'height: auto !important;' : ''}
@@ -80,7 +79,11 @@ const Con = styled.div(({ isMobile, autoHeight, isCard }) =>
   `,
 );
 
-const OperateCon = styled.div``;
+const OperateCon = styled.div`
+  &:has(.content:empty) {
+    margin-top: -10px;
+  }
+`;
 
 const RelateScanQRCodeWrap = styled(RelateScanQRCode)`
   &.lineWrap {
@@ -228,7 +231,7 @@ class RelateRecordCards extends Component {
         _.includes(['2', '5', '6'], _.get(this, 'props.control.advancedSetting.originShowType'))) ||
       (browserIsMobile() &&
         _.includes(['2', '5'], _.get(control, 'advancedSetting.showtype')) &&
-        _.includes([FROM.H5_EDIT, FROM.RECORDINFO], control.from) &&
+        _.includes([FROM.H5_EDIT, FROM.RECORDINFO, FROM.DRAFT], control.from) &&
         !_.get(this, 'props.control.hasDefaultValue'))
     ) {
       this.loadMoreRecords(1);
@@ -398,6 +401,7 @@ class RelateRecordCards extends Component {
         controlId,
         pageIndex,
         pageSize: 50,
+        getType: from === FROM.DRAFT ? from : undefined,
       })
       .then(res => {
         this.setState(state => {
@@ -576,12 +580,14 @@ class RelateRecordCards extends Component {
       coverCid,
       formData,
       isCharge,
+      isDraft,
     } = control;
     const { records, deletedIds } = this.state;
     const { disabledManualWrite, isCard } = this;
     const selectOptions = {
       control: control,
       recordId,
+      isCharge,
       ignoreRowIds: deletedIds,
       allowNewRecord: this.allowNewRecord,
       disabledManualWrite: disabledManualWrite,
@@ -607,6 +613,7 @@ class RelateRecordCards extends Component {
       controlId: controlId,
       onOk: onOk,
       formData: formData,
+      isDraft,
       ...(browserIsMobile() && !isCard && !showCoverAndControls
         ? { showControls: [], control: { ...control, showControls: [] } }
         : {}),
@@ -645,7 +652,9 @@ class RelateRecordCards extends Component {
         <div
           className={cx('recordsCon mBottom6', {
             'pLeft10 pRight10':
-              isMobile && _.includes([FROM.H5_EDIT, FROM.RECORDINFO], from) && advancedSetting.showtype === '2',
+              isMobile &&
+              _.includes([FROM.H5_EDIT, FROM.RECORDINFO, FROM.DRAFT], from) &&
+              advancedSetting.showtype === '2',
           })}
         >
           {!!records.length &&
@@ -773,6 +782,7 @@ class RelateRecordCards extends Component {
       hint,
       openRelateSheet,
       showRelateRecordEmpty,
+      isDraft,
     } = control;
     const sourceEntityName = getTranslateInfo(appId, null, dataSource).recordName || control.sourceEntityName;
     const { records, previewRecord, showNewRecord, sheetTemplateLoading, enablePayment } = this.state;
@@ -833,7 +843,7 @@ class RelateRecordCards extends Component {
             isCard={isCard}
             onClick={e => !disabled && !isCard && !disabledManualWrite && this.handleClick(e)}
           >
-            <div className="flex" style={{ minWidth: 0 }}>
+            <div className="flex content" style={{ minWidth: 0 }}>
               {addRelationButtonVisible && (
                 <Fragment>
                   {isCard ? (
@@ -862,6 +872,7 @@ class RelateRecordCards extends Component {
                     worksheetId={dataSource}
                     viewId={advancedSetting.openview || control.viewId}
                     rowId={previewRecord && previewRecord.recordId}
+                    from={from === FROM.DRAFT ? 3 : 1}
                     disableOpenRecordFromRelateRecord={
                       _.get(window, 'shareState.isPublicRecord') || _.get(window, 'shareState.isPublicView')
                     }
@@ -881,7 +892,7 @@ class RelateRecordCards extends Component {
                     allowAdd={allowNewRecord}
                     appId={appId}
                     viewId={advancedSetting.openview || control.viewId}
-                    from={1}
+                    from={from === FROM.DRAFT ? 3 : 1}
                     hideRecordInfo={() => {
                       this.setState({ previewRecord: undefined });
                       if (_.isFunction(control.refreshRecord)) {
@@ -895,6 +906,8 @@ class RelateRecordCards extends Component {
                     currentSheetRows={records}
                     showPrevNext
                     enablePayment={enablePayment}
+                    isRelateRecord={true}
+                    isDraft={isDraft}
                   />
                 ))}
               {showNewRecord && (

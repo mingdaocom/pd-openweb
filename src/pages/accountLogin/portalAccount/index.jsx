@@ -103,7 +103,7 @@ const WrapWx = styled.div`
       width: 100%;
       border-radius: 4px;
       background: #f8f8f8;
-      color: #333;
+      color: #151515;
       line-height: 40px;
       font-size: 14px;
       margin-top: 13px;
@@ -127,7 +127,7 @@ function ContainerCon(props) {
   const [isWXauth, setIsWXauth] = useState(false); //是否手机微信扫码进入外部门户登录页面
   const [loginForType, setLoginForType] = useState(''); //微信点击相应登录方式
   const [baseSetInfo, setBaseSetInfo] = useState({}); //门户配置
-  const [authorizerInfo, setAuthorizerInfo] = useState({}); //微信公众号信息
+  const [authorizerInfo, setAuthorizerInfo] = useState({}); //微信服务号信息
   const [loading, setLoading] = useState(true);
   const [account, setAccount] = useState('');
   const [accountId, setAccountId] = useState('');

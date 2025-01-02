@@ -74,9 +74,9 @@ export default class HistoryHeader extends Component {
     const { onRefresh, isSerial, processId, batchIds, archivedItem } = this.props;
     const { status, isRefresh, showDialog } = this.state;
     const lang = getCookie('i18n_langtag') || md.global.Config.DefaultLang;
-    const stopIdsCount = batchIds.filter(o => o.status === 1).length;
+    const stopIdsCount = batchIds.filter(o => o.status === 1 && o.instanceType !== -1).length;
     const refreshIdsCount = batchIds.filter(
-      o => _.includes([3, 4], o.status) && !_.includes([6666, 7777], o.cause),
+      o => _.includes([3, 4], o.status) && !_.includes([6666, 7777], o.cause) && o.instanceType !== -1,
     ).length;
     const data = this.formatData(FLOW_STATUS);
     data.unshift({ value: 'all', text: _l('所有状态') });
@@ -109,7 +109,10 @@ export default class HistoryHeader extends Component {
                   instanceVersionAjax
                     .resetInstanceList({
                       sources: batchIds
-                        .filter(o => _.includes([3, 4], o.status) && !_.includes([6666, 7777], o.cause))
+                        .filter(
+                          o =>
+                            _.includes([3, 4], o.status) && !_.includes([6666, 7777], o.cause) && o.instanceType !== -1,
+                        )
                         .map(({ id }) => id),
                     })
                     .then(() => {

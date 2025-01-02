@@ -62,6 +62,7 @@ export default function ControlSelect(props) {
     style,
     popupStyle,
     offset,
+    doNotCloseMenuWhenAdd,
     controls = [],
     hiddenIds = [],
     children,
@@ -75,6 +76,7 @@ export default function ControlSelect(props) {
       disabled={disabled}
       renderInParent={!isAppendToBody}
       columns={controls.filter(c => !_.includes(hiddenIds, c.controlId))}
+      doNotCloseMenuWhenAdd={doNotCloseMenuWhenAdd}
       onAdd={onChange}
       offset={offset || [0, 0]}
       classNamePopup="addControlDrop"

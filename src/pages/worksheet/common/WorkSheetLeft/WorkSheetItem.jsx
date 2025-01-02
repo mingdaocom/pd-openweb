@@ -93,6 +93,7 @@ export default class WorkSheetItem extends Component {
     const showIcon = currentPcNaviStyle === 3 && hideFirstSection && appItem.firstGroupIndex === 0 ? true : displayIcon.split('')[layerIndex] === '1';
     const isNewOpen = configuration.openType == '2';
     const url = this.getNavigateUrl(isActive);
+    const isEditApp = canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock']));
     const handleNewOpen = () => {
       const dataSource = transferValue(urlTemplate);
       const urlList = [];
@@ -160,7 +161,7 @@ export default class WorkSheetItem extends Component {
             <Icon className="Font16 mRight10 mTop2 openIcon" icon="launch" />
           </Tooltip>
         )}
-        {renderHideIcon()}
+        {isEditApp && renderHideIcon()}
       </Fragment>
     );
     return (

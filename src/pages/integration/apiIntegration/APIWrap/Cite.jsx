@@ -26,7 +26,7 @@ const Wrap = styled.div`
         border-top: 1px solid #f4f4f4;
       }
       .name a {
-        color: #333;
+        color: #151515;
       }
       &:hover {
         .name a {

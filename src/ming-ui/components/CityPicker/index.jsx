@@ -102,11 +102,21 @@ export default function CityPicker(props) {
   const isMobile = browserIsMobile();
   const cityPickerRef = useRef(null);
   const triggerRef = useRef(null);
+  const popupRef = useRef(null);
 
   const [visible, setVisible] = useState(popupVisible);
   const [data, setData] = useState([]);
   const [select, setSelect] = useState(Array.isArray(defaultValue) ? defaultValue : []);
   const [loadingId, setLoadingId] = useState(false);
+  const [searchSelect, setSearchSelect] = useState(undefined);
+
+  useEffect(() => {
+    !isMobile && window.addEventListener('keydown', handleKeydown);
+
+    return () => {
+      !isMobile && window.removeEventListener('keydown', handleKeydown);
+    };
+  }, [data, select, searchSelect]);
 
   useEffect(() => {
     if (!defaultValue && !isMobile && data.length > 0) {
@@ -132,8 +142,7 @@ export default function CityPicker(props) {
   }, [search]);
 
   useEffect(() => {
-    setVisible(popupVisible);
-    handleVisible(popupVisible);
+    onChangeVisible(popupVisible);
   }, [popupVisible]);
 
   useEffect(() => {
@@ -145,6 +154,11 @@ export default function CityPicker(props) {
   const init = () => {
     setSelect([]);
     setData(_.isArray(data[0]) ? data[0] : [data[0]]);
+  };
+
+  const onChangeVisible = value => {
+    setVisible(value);
+    handleVisible(value);
   };
 
   const getCitys = (param = {}, key = 0) => {
@@ -159,17 +173,83 @@ export default function CityPicker(props) {
       });
   };
 
-  const handleClick = (item, key) => {
+  // 37: left 38: up 39: right 40: down 13: enter
+  const handleKeydown = e => {
+    if (![37, 38, 39, 40, 13].includes(e.keyCode) || !data.length || !popupRef.current) return;
+    if (search && [37, 39].includes(e.keyCode)) return;
+
+    let levelIndex = select.length;
+    const currentItem = _.last(select);
+
+    if (search && [38, 40].includes(e.keyCode)) {
+      const currentIndex = _.findIndex(data, l => l.id === (searchSelect || {}).id);
+      const nextIndex =
+        currentIndex > -1
+          ? e.keyCode === 38
+            ? Math.max(0, currentIndex - 1)
+            : Math.min(currentIndex + 1, data.length - 1)
+          : e.keyCode === 38
+          ? data.length - 1
+          : 0;
+      setSearchSelect(data[nextIndex]);
+      activeItemScrollView();
+      return;
+    }
+
+    if (e.keyCode === 13 && (levelIndex > 0 || searchSelect)) {
+      searchSelect && callback([searchSelect], searchSelect.path.split('/').length);
+      onChangeVisible(false);
+      handleClose(searchSelect ? [searchSelect] : select);
+      searchSelect && setSearchSelect(undefined);
+      activeItemScrollView();
+      return;
+    }
+
+    const itemIndex = currentItem ? _.findIndex(data[levelIndex - 1], l => l.id === currentItem.id) : 0;
+    let nextItem = undefined;
+    let nextLevel = 0;
+
+    if ([38, 40].includes(e.keyCode)) {
+      nextItem = !currentItem
+        ? _.get(data, `[0][${e.keyCode === 40 ? 0 : data[0].length - 1}]`)
+        : data[levelIndex - 1][
+            e.keyCode === 40 ? Math.min(itemIndex + 1, data[levelIndex - 1].length) : Math.max(0, itemIndex - 1)
+          ];
+      nextLevel = levelIndex || 1;
+    } else {
+      const nextIndex = e.keyCode === 39 ? levelIndex : Math.max(0, levelIndex - 2);
+      nextItem = e.keyCode === 39 ? _.get(data[nextIndex], '[0]') : select[nextIndex];
+      nextLevel = nextIndex + 1;
+    }
+
+    if (!nextItem) return;
+
+    nextItem.last = nextLevel === 2 && particularlyCity.includes(nextItem.id) ? true : nextItem.last;
+    handleClick(nextItem, nextLevel, false);
+    activeItemScrollView();
+  };
+
+  const activeItemScrollView = () => {
+    setTimeout(() => {
+      const items = document.querySelectorAll('.CascaderSelectWrap-List-Item.active');
+
+      if (items.length > 0) {
+        const lastActiveItem = items[items.length - 1];
+        lastActiveItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 500);
+  };
+
+  const handleClick = (item, key, autoClose = true) => {
     let value = key > select.length ? select.concat(item) : select.slice(0, key - 1).concat(item);
 
     setSelect(value);
-    callback(value, item.last || key === level ? level : value.length);
+    callback(value, item.last || key === level ? level : value.length, autoClose);
 
     if (item.last || key === level) {
       key <= select.length && setData(data.slice(0, key));
-      setVisible(false);
-      handleVisible(false);
-      handleClose(value);
+      autoClose && onChangeVisible(false);
+      autoClose && handleClose(value);
       return;
     }
 
@@ -184,7 +264,7 @@ export default function CityPicker(props) {
 
   const renderPopup = () => {
     return (
-      <div id="CascaderSelect-Ming" className="CityPicker">
+      <div id="CascaderSelect-Ming" className="CityPicker" ref={popupRef}>
         {search ? (
           <CascaderSearchSelectWrap>
             {data.map(item => {
@@ -194,13 +274,14 @@ export default function CityPicker(props) {
 
               return (
                 <li
-                  className="valignWrapper"
+                  className={cx('valignWrapper CascaderSelectWrap-List-Item', {
+                    active: _.get(searchSelect, 'id') === item.id,
+                  })}
                   key={`CascaderSearchSelectWrap-List-Item-${item.id}`}
                   onClick={e => {
                     e.stopPropagation();
                     callback([item], item.path.split('/').length);
-                    setVisible(false);
-                    handleVisible(false);
+                    onChangeVisible(false);
                     handleClose([item]);
                   }}
                 >
@@ -292,6 +373,7 @@ export default function CityPicker(props) {
     return (
       <MobileCityPicker
         data={data}
+        defaultValue={defaultValue}
         select={select}
         level={level}
         disabled={disabled}
@@ -312,8 +394,8 @@ export default function CityPicker(props) {
       className={cx('ming CityPicker-wrapper', className)}
       onClick={e => {
         if (disabled || (manual && !visible)) return;
-        setVisible(true);
-        handleVisible(true);
+
+        onChangeVisible(true);
       }}
     >
       <Trigger
@@ -323,8 +405,7 @@ export default function CityPicker(props) {
         onPopupVisibleChange={visible => {
           if (disabled || (manual && visible)) return;
 
-          setVisible(visible);
-          handleVisible(visible);
+          onChangeVisible(visible);
           if (!visible) {
             handleClose(select);
           }

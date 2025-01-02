@@ -53,6 +53,7 @@ export default function Header(props) {
     sheetFetchParams,
     sheetSwitchPermit,
     fromEmbed = false,
+    isDraft,
   } = props;
   const { changePageSize, changePageIndex, updateFiltersWithView, updateSearchRecord, refreshSheet, openNewRecord } =
     props;
@@ -107,7 +108,7 @@ export default function Header(props) {
         fromEmbed &&
         !_.isEmpty(view) &&
         !isPublicLink() && (
-          <EmbedAddRecord className="addRecord flexCenter Block" onClick={openNewRecord}>
+          <EmbedAddRecord className="addRecord flexCenter Block" onClick={() => openNewRecord({ isDraft })}>
             <Icon icon="plus" className="Font14 mRight2" />
             <span className="Bold Font14">{_l('添加%0', entityName)}</span>
           </EmbedAddRecord>

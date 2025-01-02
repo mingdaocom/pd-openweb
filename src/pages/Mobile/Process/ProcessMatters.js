@@ -108,7 +108,11 @@ export default class ProcessMatters extends Component {
     super(props);
     const { search } = props.location;
     const data = qs.parse(search);
-    const bottomTab = _.find(tabs, { id: data.tab }) || tabs[0] || {};
+    const savedTabs = localStorage.getItem('currentProcessTab')
+      ? JSON.parse(localStorage.getItem('currentProcessTab'))
+      : {};
+    const bottomTab = savedTabs.bottomTab || _.find(tabs, { id: data.tab }) || tabs[0] || {};
+
     this.state = {
       pageIndex: 1,
       pageSize: 30,
@@ -116,7 +120,11 @@ export default class ProcessMatters extends Component {
       loading: false,
       isMore: true,
       bottomTab: bottomTab,
-      topTab: data.tab ? _.find(bottomTab.tabs, { id: data.tab }) || bottomTab.tabs[0] : bottomTab.tabs[0],
+      topTab: savedTabs.topTab
+        ? savedTabs.topTab
+        : data.tab
+        ? _.find(bottomTab.tabs, { id: data.tab }) || bottomTab.tabs[0]
+        : bottomTab.tabs[0],
       searchValue: '',
       countData: {},
       appCount: {},
@@ -137,6 +145,7 @@ export default class ProcessMatters extends Component {
       },
     });
     window.addEventListener('popstate', this.onQueryChange);
+    localStorage.removeItem('currentProcessTab');
   }
   componentWillUnmount() {
     window.addEventListener('popstate', this.onQueryChange);
@@ -210,7 +219,11 @@ export default class ProcessMatters extends Component {
       });
     }
   }
+  saveCurrentTab = (topTab, bottomTab) => {
+    localStorage.setItem('currentProcessTab', JSON.stringify({ topTab, bottomTab }));
+  };
   handleChangeCompleteTab = tab => {
+    this.saveCurrentTab(tab.tabs[0], tab);
     this.setState(
       {
         loading: false,
@@ -226,6 +239,7 @@ export default class ProcessMatters extends Component {
     );
   };
   handleChangeTopTab = tab => {
+    this.saveCurrentTab(tab, this.state.bottomTab);
     this.setState(
       {
         loading: false,
@@ -277,7 +291,7 @@ export default class ProcessMatters extends Component {
   };
   hanndleApprove = (type, batchType) => {
     const { approveCards } = this.state;
-    const rejectCards = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
+    const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const cards = type === 5 ? rejectCards : approveCards;
     const signatureCard = cards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = cards.filter(card => _.get(card.flowNode, 'encrypt'));
@@ -299,7 +313,7 @@ export default class ProcessMatters extends Component {
   handleBatchApprove = (signature, approveType) => {
     const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
     const { approveCards } = this.state;
-    const rejectCards = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
+    const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const cards = approveType === 5 ? rejectCards : approveCards;
     const selects = cards.map(({ id, workId, flowNode }) => {
       const data = { id, workId, opinion: _l('批量处理') };
@@ -331,7 +345,7 @@ export default class ProcessMatters extends Component {
     const { approveType, encryptType } = this.state;
     const type = approveType || encryptType;
     const batchType = type === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
-    const approveCards = type === 4 ? this.state.approveCards : this.state.approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
+    const approveCards = type === 4 ? this.state.approveCards : this.state.approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const signatureApproveCards = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
     return (
@@ -421,8 +435,8 @@ export default class ProcessMatters extends Component {
   }
   renderRejectDialog() {
     const { approveCards, batchApproval, filter, topTab } = this.state;
-    const rejectCards = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
-    const noRejectCards = approveCards.filter(c => !_.get(c, 'flowNode.btnMap')[5]);
+    const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
+    const noRejectCards = approveCards.filter(c => !('5' in _.get(c, 'flowNode.btnMap')));
     return (
       <ModalWrap
         visible={true}
@@ -643,7 +657,7 @@ export default class ProcessMatters extends Component {
     } = this.state;
     const currentTabs = bottomTab.tabs;
     const allowApproveList = list.filter(c => _.get(c, 'flowNode.batch'));
-    const rejectList = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
+    const rejectList = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const { appId } = getRequest();
     return (
       <div className="processContent flexColumn h100">
@@ -684,7 +698,7 @@ export default class ProcessMatters extends Component {
             <div className="batchApprovalFooter flexColumn">
               <div className="valignWrapper">
                 <Checkbox
-                  checked={allowApproveList.length && allowApproveList.length === approveCards.length}
+                  checked={!!allowApproveList.length && allowApproveList.length === approveCards.length}
                   disabled={!allowApproveList.length}
                   onChange={checked => {
                     if (checked) {
@@ -762,11 +776,12 @@ export default class ProcessMatters extends Component {
           <Back
             style={{ bottom: 60 }}
             onClick={() => {
+              localStorage.removeItem('currentProcessTab');
               if (appId) {
                 navigateTo(`/mobile/app/${appId}`);
                 return;
               }
-              history.back();
+              navigateTo(`/mobile/dashboard`);
             }}
           />
         )}

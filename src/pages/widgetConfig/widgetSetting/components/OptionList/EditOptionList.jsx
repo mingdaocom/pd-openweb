@@ -81,7 +81,7 @@ export default function EditOptionList(props) {
         <Input value={name} placeholder={_l('选项集')} onChange={e => setName(e.target.value)} />
       </SettingItem>
       <SettingItem className="pLeft24 pRight24">
-        <div className="settingItemTitle">{_l('选项 ( %0 ) ', getOptionCount())}</div>
+        <div className="settingItemTitle">{_l('选项（ %0 ）', getOptionCount())}</div>
         <div className="flexCenter" style={{ justifyContent: 'space-between' }}>
           <div className="flexCenter">
             <i

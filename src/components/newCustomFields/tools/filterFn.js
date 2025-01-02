@@ -3,6 +3,7 @@ import {
   FILTER_CONDITION_TYPE,
   API_ENUM_TO_TYPE,
   DATE_OPTIONS,
+  DATE_RANGE_TYPE,
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import moment from 'moment';
 import { getTypeKey, redefineComplexControl, getConditionType } from 'src/pages/worksheet/common/WorkSheetFilter/util';
@@ -27,6 +28,7 @@ const TIME_OPTIONS = {
   4: 'hour',
   5: 'minute',
   6: 'second',
+  11: 'quarter',
 };
 
 const TIME_MODE_OPTIONS = {
@@ -38,6 +40,14 @@ const TIME_MODE_OPTIONS = {
   'YYYY-MM-DD HH:mm:ss': 6,
   'HH:mm': 5,
   'HH:mm:ss': 6,
+};
+
+const timeModeByDateRangeType = dateRangeType => {
+  let rangeTypes = {};
+  _.keys(DATE_RANGE_TYPE).forEach(key => {
+    rangeTypes[DATE_RANGE_TYPE[key]] = key.toLowerCase();
+  });
+  return rangeTypes[dateRangeType];
 };
 
 // 时间格式化数值
@@ -134,10 +144,40 @@ const dateFn = (dateRange, value, isEQ) => {
 };
 
 const dayFn = (filterData = {}, value, isGT, type) => {
-  let { dateRange, dynamicSource = [], dataType } = filterData;
+  let { dateRange, dynamicSource = [], dataType, dateRangeType, value: editValue } = filterData;
   if (dynamicSource.length > 0) {
     dateRange = 0;
   }
+
+  let dateRangeTypeNum;
+
+  if (_.includes([101, 102], dateRange)) {
+    const isFeature = dateRange === 102;
+    // 过去....|将来...
+    switch (dateRangeType) {
+      case DATE_RANGE_TYPE.YEAR:
+        dateRange = isFeature ? 17 : 16;
+        dateRangeTypeNum = Number(`${isFeature ? '' : '-'}${editValue || 1}`);
+        break;
+      case DATE_RANGE_TYPE.QUARTER:
+        dateRange = isFeature ? 14 : 13;
+        dateRangeTypeNum = (editValue || 1) * 3;
+        break;
+      case DATE_RANGE_TYPE.MONTH:
+        dateRange = isFeature ? 9 : 8;
+        dateRangeTypeNum = editValue || 1;
+        break;
+      case DATE_RANGE_TYPE.DAY:
+        dateRange = isFeature ? 3 : 2;
+        dateRangeTypeNum = editValue || 1;
+        break;
+      case DATE_RANGE_TYPE.MONTH:
+      case DATE_RANGE_TYPE.MINUTE:
+        dateRangeTypeNum = value || 1;
+        break;
+    }
+  }
+
   // isGT 早与 ！isGT 晚与
   switch (dateRange) {
     // { text: _l('今天'), value: 1 },
@@ -145,10 +185,14 @@ const dayFn = (filterData = {}, value, isGT, type) => {
       return moment().format('YYYY-MM-DD');
     // { text: _l('昨天'), value: 2 },
     case 2:
-      return moment().subtract(1, 'days').format('YYYY-MM-DD');
+      return moment()
+        .subtract(dateRangeTypeNum || 1, 'days')
+        .format('YYYY-MM-DD');
     // { text: _l('明天'), value: 3 },
     case 3:
-      return moment().add(1, 'days').format('YYYY-MM-DD');
+      return moment()
+        .add(dateRangeTypeNum || 1, 'days')
+        .format('YYYY-MM-DD');
     // { text: _l('本周'), value: 4 },
     case 4:
       return isGT ? moment().weekday(0).format('YYYY-MM-DD') : moment().endOf('isoWeek').format('YYYY-MM-DD');
@@ -167,22 +211,22 @@ const dayFn = (filterData = {}, value, isGT, type) => {
     case 8:
       return isGT
         ? moment()
-            .month(moment().month() - 1)
+            .month(moment().month() - (dateRangeTypeNum || 1))
             .startOf('month')
             .format('YYYY-MM-DD')
         : moment()
-            .month(moment().month() - 1)
+            .month(moment().month() - (dateRangeTypeNum || 1))
             .endOf('month')
             .format('YYYY-MM-DD');
     // { text: _l('下个月'), value: 9 },
     case 9:
       return isGT
         ? moment()
-            .month(moment().month() + 1)
+            .month(moment().month() + (dateRangeTypeNum || 1))
             .startOf('month')
             .format('YYYY-MM-DD')
         : moment()
-            .month(moment().month() + 1)
+            .month(moment().month() + (dateRangeTypeNum || 1))
             .endOf('month')
             .format('YYYY-MM-DD');
     // { text: _l('本季度'), value: 12 },
@@ -191,26 +235,52 @@ const dayFn = (filterData = {}, value, isGT, type) => {
     // { text: _l('上季度'), value: 13 },
     case 13:
       return isGT
-        ? moment().startOf('quarter').subtract(3, 'month').format('YYYY-MM-DD')
-        : moment().endOf('quarter').subtract(3, 'month').format('YYYY-MM-DD');
+        ? moment()
+            .startOf('quarter')
+            .subtract(dateRangeTypeNum || 3, 'month')
+            .format('YYYY-MM-DD')
+        : moment()
+            .endOf('quarter')
+            .subtract(dateRangeTypeNum || 3, 'month')
+            .format('YYYY-MM-DD');
     // { text: _l('下季度'), value: 14 },
     case 14:
       return isGT
-        ? moment().startOf('quarter').add(3, 'month').format('YYYY-MM-DD')
-        : moment().endOf('quarter').add(3, 'month').format('YYYY-MM-DD');
+        ? moment()
+            .startOf('quarter')
+            .add(dateRangeTypeNum || 3, 'month')
+            .format('YYYY-MM-DD')
+        : moment()
+            .endOf('quarter')
+            .add(dateRangeTypeNum || 3, 'month')
+            .format('YYYY-MM-DD');
     // { text: _l('今年'), value: 15 },
     case 15:
       return isGT ? moment().format('YYYY') + '-01' + '-01' : moment().endOf('year').format('YYYY-MM-DD');
     // { text: _l('去年'), value: 16 },
     case 16:
       return isGT
-        ? moment().add(-1, 'year').format('YYYY') + '-01' + '-01'
-        : moment().add(-1, 'year').endOf('year').format('YYYY-MM-DD');
+        ? moment()
+            .add(dateRangeTypeNum || -1, 'year')
+            .format('YYYY') +
+            '-01' +
+            '-01'
+        : moment()
+            .add(dateRangeTypeNum || -1, 'year')
+            .endOf('year')
+            .format('YYYY-MM-DD');
     // { text: _l('明年'), value: 17 },
     case 17:
       return isGT
-        ? moment().add(1, 'year').format('YYYY') + '-01' + '-01'
-        : moment().add(1, 'year').endOf('year').format('YYYY-MM-DD');
+        ? moment()
+            .add(dateRangeTypeNum || 1, 'year')
+            .format('YYYY') +
+            '-01' +
+            '-01'
+        : moment()
+            .add(dateRangeTypeNum || 1, 'year')
+            .endOf('year')
+            .format('YYYY-MM-DD');
     // { text: _l('过去...天'), value: 10 },
     case 10:
     case 21:
@@ -229,10 +299,18 @@ const dayFn = (filterData = {}, value, isGT, type) => {
         .format('YYYY-MM-DD');
     // { text: _l('指定时间'), value: 18 },
     case 18:
+    case 101:
+    case 102:
       const formatMode = (
         getDatePickerConfigs({ advancedSetting: { showtype: filterData.dataShowType }, type: dataType }) || {}
       ).formatMode;
-      return moment(value).format(formatMode || 'YYYY-MM-DD');
+      let tempTime = moment(value);
+      if (dateRange === 101) {
+        tempTime = moment().subtract(dateRangeTypeNum || 1, timeModeByDateRangeType(dateRangeType));
+      } else if (dateRange === 102) {
+        tempTime = moment().add(dateRangeTypeNum || 1, timeModeByDateRangeType(dateRangeType));
+      }
+      return tempTime.format(formatMode || 'YYYY-MM-DD');
     default:
       //日期时间
       return type === 16 ? moment(value).format('YYYY-MM-DD HH:mm') : moment(value).format('YYYY-MM-DD');
@@ -241,7 +319,7 @@ const dayFn = (filterData = {}, value, isGT, type) => {
 
 export const filterFn = (filterData, originControl, data = [], recordId) => {
   try {
-    let { filterType = '', dataType = '', dynamicSource = [], dateRange } = filterData;
+    let { filterType = '', dataType = '', dynamicSource = [], dateRange, dateRangeType } = filterData;
     const control = redefineComplexControl(originControl);
     if (!control) {
       return true;
@@ -256,7 +334,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
     let { value = '', advancedSetting = {} } = control;
     // 指定时间添加显示格式配置
     if (filterData.dateRange === 18) {
-      filterData.dataShowType = advancedSetting.showtype;
+      filterData.dataShowType = dateRangeType === 3 ? advancedSetting.showtype : dateRangeType;
     }
     //手机号去除区号
     if (control.type === 3) {
@@ -353,9 +431,14 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
     if (_.includes([15, 16, 46], control.type)) {
       formatMode = getFormatMode(control, currentControl, conditionGroupType);
       timeLevel = TIME_OPTIONS[TIME_MODE_OPTIONS[formatMode]];
-      // 今天、昨天、明天，对比单位天
-      if (_.includes([1, 2, 3], dateRange) && !dynamicSource.length) {
-        timeLevel = 'day';
+
+      if (!dynamicSource.length) {
+        // 今天、昨天、明天，对比单位天
+        if (_.includes([1, 2, 3, 10, 11], dateRange)) {
+          timeLevel = 'day';
+        } else if (dateRange === 18) {
+          timeLevel = dateRangeType === '3' ? timeLevel : timeModeByDateRangeType(dateRangeType);
+        }
       }
     }
 
@@ -766,7 +849,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
           case CONTROL_FILTER_WHITELIST.SUBLIST.value: // 子表
             store = control.store;
             state = store && store.getState();
-            if (state && state.rows && !state.baseLoading) {
+            if (state && state.rows && !state.baseLoading && !state.dataLoading) {
               return filterEmptyChildTableRows(state.rows).length <= 0;
             } else {
               return value === '0' || !value;
@@ -843,9 +926,12 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
           case CONTROL_FILTER_WHITELIST.SUBLIST.value: // 子表
             store = control.store;
             state = store && store.getState();
-            if (state && state.rows && !state.baseLoading) {
+            if (state && state.rows && !state.baseLoading && !state.dataLoading) {
               return filterEmptyChildTableRows(state.rows).length > 0;
             } else {
+              if (_.isObject(value)) {
+                return filterEmptyChildTableRows(value.rows).length > 0;
+              }
               return Number(value) > 0;
             }
           default:
@@ -1027,16 +1113,14 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
             let day = dayFn(filterData, compareValue, true, currentControl.type);
             //过去 | 将来
             const hasToday = _.includes(filterData.values || [], 'today');
-            if (dateRange === 10) {
-              return (
-                (hasToday ? moment(value).isSameOrBefore(moment(), 'day') : moment(value).isBefore(moment(), 'day')) &&
-                moment(value).isSameOrAfter(day, 'day')
-              );
-            } else if (dateRange === 11) {
-              return (
-                (hasToday ? moment(value).isSameOrAfter(moment(), 'day') : moment(value).isAfter(moment(), 'day')) &&
-                moment(value).isSameOrBefore(day, 'day')
-              );
+            if (_.includes([10, 101], dateRange)) {
+              return hasToday
+                ? moment(value).isSameOrBefore(moment(), timeLevel) && moment(value).isSameOrAfter(day, timeLevel)
+                : moment(value).isBefore(moment(), timeLevel) && moment(value).isSameOrAfter(day, timeLevel);
+            } else if (_.includes([11, 102], dateRange)) {
+              return hasToday
+                ? moment(value).isSameOrAfter(moment(), timeLevel) && moment(value).isSameOrBefore(day, timeLevel)
+                : moment(value).isAfter(moment(), timeLevel) && moment(value).isSameOrBefore(day, timeLevel);
               // 本周、本月、本季度、今年等等
             } else if (_.includes([4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17], dateRange) && !dynamicSource.length) {
               return dateFn(dateRange, value, true);

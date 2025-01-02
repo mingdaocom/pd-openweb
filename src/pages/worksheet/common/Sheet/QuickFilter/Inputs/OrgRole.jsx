@@ -12,7 +12,7 @@ const Con = styled.div`
   line-height: 32px;
   border: 1px solid #dddddd;
   border-radius: 4px;
-  border: 1px solid ${({ active }) => (active ? '#2196f3' : '#ddd')} !important;
+  border: 1px solid ${({ active }) => (active ? '#2196f3' : 'var(--border-color)')} !important;
   .clearIcon {
     display: none;
   }
@@ -35,7 +35,7 @@ const DepartmentsCon = styled.div`
 
 const DepartmentsText = styled.div`
   font-size: 13px;
-  color: #333;
+  color: #151515;
 `;
 
 const Icon = styled.i`

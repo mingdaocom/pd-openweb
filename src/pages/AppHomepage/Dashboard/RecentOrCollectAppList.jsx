@@ -65,7 +65,7 @@ const AppItem = styled.div`
     min-width: 0;
     .titleName {
       font-size: 14px;
-      color: #333;
+      color: #151515;
     }
     .appName {
       font-size: 12px;
@@ -222,7 +222,7 @@ function RecentOrCollectAppList(props) {
               fill={!!item.type ? getAppOrItemColor(item, true).iconColor : getAppOrItemColor(item).iconColor}
               size={20}
             />
-            <AppStatusComp {..._.pick(item, ['isGoodsStatus', 'isNew', 'fixed'])} isRecent={true} />
+            <AppStatusComp {..._.pick(item, ['isGoodsStatus', 'isNew', 'fixed', 'appStatus'])} isRecent={true} />
           </div>
           <div className="textContent">
             <div className="titleName overflow_ellipsis" title={!!item.type ? itemName : appName}>

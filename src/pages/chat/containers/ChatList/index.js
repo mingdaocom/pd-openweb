@@ -14,6 +14,7 @@ class Chat extends Component {
     super(props);
   }
   componentDidMount() {
+    if (location.href.includes('chat_window')) return;
     // 注册事件
     socket.socketInitEvent.call(this);
     // 回复窗口

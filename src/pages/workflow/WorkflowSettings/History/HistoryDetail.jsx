@@ -372,7 +372,7 @@ export default class HistoryDetail extends Component {
                     ? FLOW_FAIL_REASON[cause]
                     : !nodeName
                     ? FLOW_FAIL_REASON[cause] || causeMsg
-                    : `${_l('节点: ')} ${nodeName}, ${
+                    : `${_l('节点:')} ${nodeName}, ${
                         cause === 7777 ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg
                       }`
                   : ''}

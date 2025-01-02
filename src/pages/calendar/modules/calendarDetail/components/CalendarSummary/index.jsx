@@ -1,12 +1,14 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import Icon from 'ming-ui/components/Icon';
-import Textarea from 'ming-ui/components/Textarea';
+import { Icon, Textarea, Linkify } from 'ming-ui';
 
 export default class CalendarSummary extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      isFocus: false,
+    };
     this.changeText = this.changeText.bind(this);
   }
 
@@ -19,18 +21,29 @@ export default class CalendarSummary extends Component {
 
   render() {
     const { editable, attachments } = this.props;
+    const { isFocus } = this.state;
+
     return (
       <div className="calendarSummary calRow">
         <Icon icon={'task-signal'} className="Font18 calIcon" />
         <div className="calLine">
-          <div className="summaryBox">
-            <Textarea
-              minHeight={18}
-              maxHeight={150}
-              placeholder={editable ? _l('添加摘要') : _l('未填写摘要')}
-              onChange={this.changeText}
-              value={this.props.description}
-            />
+          <div className="summaryBox" onClick={() => this.setState({ isFocus: true })}>
+            {isFocus || !this.props.description ? (
+              <Textarea
+                minHeight={18}
+                maxHeight={150}
+                isFocus
+                placeholder={editable ? _l('添加摘要') : _l('未填写摘要')}
+                onBlur={() => this.setState({ isFocus: false })}
+                onChange={this.changeText}
+                value={this.props.description}
+              />
+            ) : (
+              <div style={{ minHeight: 20, whiteSpace: 'pre-wrap' }}>
+                <Linkify properties={{ target: '_blank' }}>{this.props.description}</Linkify>
+              </div>
+            )}
+
             {attachments && attachments.length ? (
               <div
                 className="attachmentBox"

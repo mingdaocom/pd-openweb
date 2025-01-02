@@ -1,6 +1,6 @@
 import React, { useState, Fragment } from 'react';
 import { Icon, ColorPicker } from 'ming-ui';
-import { Tooltip, Checkbox, Select, Switch } from 'antd';
+import { Tooltip, Checkbox, Select, Switch, Input } from 'antd';
 import cx from 'classnames';
 import { generate } from '@ant-design/colors';
 import { getPorjectChartColors } from 'statistics/Charts/common';
@@ -109,6 +109,9 @@ const Wrap = styled.div`
     margin-right: 30px;
     font-weight: 600;
   }
+  .icon-delete1:hover {
+    color: #F44336 !important;
+  }
   .typeSelect {
     font-size: 13px;
     border-radius: 3px;
@@ -155,6 +158,36 @@ const Wrap = styled.div`
       color: inherit;
     }
   }
+  .pageInput {
+    &.ant-input-affix-wrapper {
+      padding: 0 0 0 11px;
+      .ant-input {
+        height: 30px;
+      }
+    }
+    &.ant-input-affix-wrapper:hover, &:hover {
+      border-color: #2196F3 !important;
+    }
+    &.ant-input-affix-wrapper, &.ant-input-affix-wrapper-focused, & {
+      border-radius: 4px !important;
+      box-shadow: none !important;
+    }
+    .ant-input-suffix {
+      width: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0 4px 4px 0;
+      border-left: 1px solid #d9d9d9;
+      background-color: #fff;
+    }
+    .icon-expand_less, .icon-expand_more {
+      line-height: 10px;
+    }
+    &.ant-picker-range .ant-picker-input > input {
+      font-size: 13px;
+    }
+  }
 `;
 
 const refreshs = [{
@@ -198,7 +231,7 @@ export const defaultConfig = {
 };
 
 export default (props) => {
-  const { adjustScreen, apk, className } = props;
+  const { adjustScreen, apk, className, urlParams = [] } = props;
   const { onClose, updatePageInfo, updateModified = _.noop } = props;
   const [selectChartColorVisible, setSelectChartColorVisible] = useState(false);
   const { appPkg } = store.getState();
@@ -389,7 +422,7 @@ export default (props) => {
           <div className="selectChartColor flexRow alignItemsCenter pointer flex" onClick={() => setSelectChartColorVisible(true)}>
             <div className="flexRow alignItemsCenter flex">
               {showColors.map((color, index) => (
-                <div key={index} style={{ background: color }} className="colorBlock"/>
+                <div key={index} style={{ background: color }} className="colorBlock" />
               ))}
               <div className="colorName ellipsis">{name}</div>
             </div>
@@ -674,6 +707,75 @@ export default (props) => {
     );
   };
 
+  const renderUrlparamsConfig = () => {
+    const onAdd = () => {
+      updatePageInfo({
+        urlParams: urlParams.concat('')
+      });
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('.urlParamsWrap input');
+        const input = inputs[inputs.length - 1];
+        input && input.focus();
+      }, 0);
+    }
+    const onValidate = index => {
+      const currentValue = urlParams[index];
+  
+      if (!currentValue.trim()) {
+        alert(_l('参数名不能为空'), 3);
+        return;
+      }
+  
+      if (urlParams.filter(p => p === currentValue).length > 1) {
+        alert(_l('参数重复'), 3);
+        return;
+      }
+    };
+    return (
+      <Fragment>
+        <div className="Gray Font14 bold mTop20 mBottom10">{_l('链接参数')}</div>
+        <div className="Gray_9e Font13 mBottom10">{_l('指定参数名，可作为查询字符串附加在自定义页面链接后。在加载页面时可动态获取参数值用于自定义页面的筛选条件。')}</div>
+        {urlParams.map((value, index) => (
+          <div className="flexRow alignItemsCenter mBottom10 urlParamsWrap">
+            <Input
+              placeholder={_l('请输入参数名')}
+              className="pageInput"
+              value={value}
+              maxLength={20}
+              onChange={event => {
+                const newParams = urlParams.map((p, i) => {
+                  return i === index ? event.target.value : p;
+                });
+                updatePageInfo({
+                  urlParams: newParams
+                });
+              }}
+              onBlur={() => {
+                onValidate(index);
+              }}
+            />
+            <Tooltip title={_l('删除')} placement="top">
+              <Icon
+                icon="delete1"
+                className="Gray_9e Font19 pointer"
+                onClick={() => {
+                  const newParams = urlParams.filter((_, i) => i !== index);
+                  updatePageInfo({
+                    urlParams: newParams
+                  });
+                }}
+              />
+            </Tooltip>
+          </div>
+        ))}
+        <div className="flexRow alignItemsCenter pointer Gray_9e mTop10 hoverText" onClick={onAdd} style={{ width: 'fit-content' }}>
+          <Icon icon="add" className="Font17" />
+          <span>{_l('参数')}</span>
+        </div>
+      </Fragment>
+    );
+  }
+
   return (
     <SideWrapper
       isMask={true}
@@ -683,13 +785,20 @@ export default (props) => {
           <span className="Font17">{_l('页面配置')}</span>
         </Fragment>
       )}
-      onClose={onClose}
+      onClose={() => {
+        updatePageInfo({
+          urlParams: _.uniq(urlParams.filter(value => value))
+        });
+        onClose();
+      }}
     >
       <Wrap>
         {renderBgConfig()}
         <div className="line mTop20 mBottom20" />
         {renderChartColorConfig()}
         {renderPivoTableColorConfig()}
+        <div className="line mTop20 mBottom20" />
+        {renderUrlparamsConfig()}
         <div className="line mTop20 mBottom20" />
         {renderPageConfig()}
       </Wrap>

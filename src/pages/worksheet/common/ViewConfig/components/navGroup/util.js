@@ -22,9 +22,9 @@ export const GROUPFILTER_CONDITION_TYPE = [
   // 21, // 自由连接
   // 22, // 分割线
   // 25, // 大写金额
-  // 26, // 成员
-  // 27, // 部门
-  // 28, // 等级
+  26, // 成员
+  27, // 部门
+  28, // 等级
   29, // 关联表
   // 30, // 他表字段
   // 31, // 公式  31数值计算 38日期计算
@@ -38,13 +38,14 @@ export const GROUPFILTER_CONDITION_TYPE = [
   // 10010, // 备注
   35, //级联选择
   // 34, //子表
+  48, //组织角色
 ];
 
 export const canNavGroup = (control, worksheetId) => {
   if (
     GROUPFILTER_CONDITION_TYPE.includes(control.type) ||
     (control.type === 30 && //支持他表字段 仅存储(9,10,11)
-      [9, 10, 11].includes(control.sourceControlType) &&
+      GROUPFILTER_CONDITION_TYPE.includes(control.sourceControlType) &&
       (control.strDefault || '').split('')[0] !== '1')
   ) {
     if (control.type === 29) {
@@ -84,7 +85,16 @@ export const OPTIONS = {
     11, // 选项
     10, // 多选
     9, // 单选 平铺
+    28,
   ],
+};
+export const OPTIONSOTHER = {
+  //成员 部门 组织角色
+  data: [
+    { key: 'navshow', types: NAVSHOW_TYPE.filter(o => ['1', '2'].includes(o.value)), txt: '显示项', default: '1' },
+    { key: 'isAsc', types: OPTIONS_TYPE, txt: '排序方式', default: true },
+  ],
+  keys: [26, 27, 48],
 };
 const RELATE_TYPE = [
   { text: _l('是'), value: 24 },
@@ -111,7 +121,7 @@ export const getSetDefault = control => {
     dataType: type,
   };
   let data = {};
-  [OPTIONS, RELATES, CASCADER].map(o => {
+  [OPTIONS, OPTIONSOTHER, RELATES, CASCADER].map(o => {
     if (o.keys.includes(type) || o.keys.includes(sourceControlType)) {
       o.data.map(it => {
         data = {
@@ -130,7 +140,7 @@ export const getSetDefault = control => {
 export const getSetHtmlData = type => {
   let data = [];
   type &&
-    [OPTIONS, RELATES, CASCADER].map(it => {
+    [OPTIONS, OPTIONSOTHER, RELATES, CASCADER].map(it => {
       if (it.keys.includes(type)) {
         it.data.map(o => {
           data.push({

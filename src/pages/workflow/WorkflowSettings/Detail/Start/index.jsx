@@ -345,7 +345,7 @@ export default class Start extends Component {
           <i className="icon-add Font16" />
           {_l('筛选条件')}
         </span>
-        <div className={cx('mTop10', isNatural ? 'Gray_75' : 'Gray_bd')}>
+        <div className={cx('mTop10 Font13', isNatural ? 'Gray_75' : 'Gray_bd')}>
           {_l('设置筛选条件，仅使满足条件的记录进入流程。')}
         </div>
       </div>

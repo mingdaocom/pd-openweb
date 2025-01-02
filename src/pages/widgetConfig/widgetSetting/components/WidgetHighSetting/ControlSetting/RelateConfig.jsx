@@ -70,14 +70,14 @@ export default function RelateConfig(props) {
       {searchcontrol && (
         <EditInfo style={{ marginTop: '8px' }} onClick={() => setState({ searchVisible: true })}>
           <div className="text overflow_ellipsis Gray">
-            <span className="Bold">{_l('搜索 ')}</span>
+            <span className="Bold mRight3">{_l('搜索')}</span>
             {get(
               controls.find(item => item.controlId === searchcontrol),
               'controlName',
             ) || _l('字段已删除')}
             {searchfilters.length > 0 && (
               <Fragment>
-                <span className="Bold">{_l('；筛选 ')}</span>
+                <span className="Bold mRight3">{_l('；筛选')}</span>
                 {_l('%0个字段', searchfilters.length)}
               </Fragment>
             )}

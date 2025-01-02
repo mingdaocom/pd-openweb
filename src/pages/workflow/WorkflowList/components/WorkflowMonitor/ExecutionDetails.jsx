@@ -398,7 +398,7 @@ export default class ExecutionDetails extends Component {
                     getPopupContainer={() => this.props.monitorContainer}
                   >
                     <span className="Hand Hover_1f">
-                      <span style={{ color: waiting ? '#F44336' : '#333' }}>{!waiting ? _l('正常') : _l('暂停')}</span>
+                      <span style={{ color: waiting ? '#F44336' : '#151515' }}>{!waiting ? _l('正常') : _l('暂停')}</span>
                       <Icon icon="arrow-down" className="Gray_75 mLeft5" />
                     </span>
                   </PauseTimeList>

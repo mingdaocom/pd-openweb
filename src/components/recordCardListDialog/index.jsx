@@ -196,12 +196,14 @@ export default class RecordCardListDialog extends Component {
       controlId,
       control,
       formData,
+      isDraft,
       pageSize,
     } = this.props;
     const {
       pageIndex,
       keyWords,
       list,
+      ignoreAllFilters,
       sortControls,
       quickFilters = [],
       filterForControlSearch,
@@ -218,7 +220,7 @@ export default class RecordCardListDialog extends Component {
       filterControls = getFilter({ control: { ...control, recordId }, formData });
     }
     // 存在不符合条件值的条件
-    if (filterControls === false) {
+    if (filterControls === false && !ignoreAllFilters) {
       this.setState({ error: 'notCorrectCondition', loading: false });
       return;
     }
@@ -234,9 +236,9 @@ export default class RecordCardListDialog extends Component {
       status: 1,
       keyWords: _.trim(keyWords),
       isGetWorksheet: true,
-      getType: 7,
+      getType: isDraft ? 27 : 7,
       sortControls,
-      filterControls: filterControls || [],
+      filterControls: ignoreAllFilters ? [] : filterControls || [],
       fastFilters: quickFilters.map(f =>
         _.pick(f, [
           'controlId',
@@ -285,6 +287,7 @@ export default class RecordCardListDialog extends Component {
         this.setState(
           {
             focusIndex: needSort && filteredList[0] && filteredList[0][searchControl.controlId] === keyWords ? 0 : -1,
+            error: undefined,
             list: filteredList,
             loading: false,
             loadouted: res.data.length < pageSize,
@@ -438,6 +441,7 @@ export default class RecordCardListDialog extends Component {
       relateSheetId,
       control,
       filterRelatesheetControlIds,
+      recordId,
       visible,
       multiple,
       allowNewRecord,
@@ -448,6 +452,7 @@ export default class RecordCardListDialog extends Component {
       onText,
       masterRecordRowId,
       isCharge,
+      isDraft,
     } = this.props;
     const {
       loading,
@@ -466,6 +471,7 @@ export default class RecordCardListDialog extends Component {
       filterForControlSearch,
     } = this.state;
     const { cardControls } = this;
+    const allowShowIgnoreAllFilters = isCharge && recordId === 'FAKE_RECORD_ID_FROM_BATCH_EDIT';
     const searchConfig = control ? getSearchConfig(control) : {};
     const { clickSearch, searchControl } = searchConfig;
     const showList = !control || !(clickSearch && !keyWords);
@@ -500,35 +506,40 @@ export default class RecordCardListDialog extends Component {
           )}
           {showList ? (
             <React.Fragment>
-              <div className="recordCardListHeader flexRow" style={{ padding: coverCid ? '6px 94px 6px 6px' : '6px' }}>
-                {cardControls.slice(0, 7).map((control, i) => {
-                  const canSort = this.canSort(control);
-                  const isAsc = this.getControlSortStatus(control);
-                  return (
-                    <div
-                      className={cx('controlName flex Hand', { title: control.attribute })}
-                      key={i}
-                      onClick={() => {
-                        this.handleSort(control, isAsc);
-                      }}
-                    >
-                      {control.attribute === 1 ? (
-                        <i className="icon icon-ic_title"></i>
-                      ) : (
-                        <span className="ellipsis Bold Font12 Gray_75 controlNameValue">{control.controlName}</span>
-                      )}
-                      {canSort && (
-                        <span className="orderStatus">
-                          <span className="flexColumn">
-                            <i className={cx('icon icon-arrow-up', { ThemeColor3: isAsc === true })}></i>
-                            <i className={cx('icon icon-arrow-down', { ThemeColor3: isAsc === false })}></i>
+              {error !== 'notCorrectCondition' && (
+                <div
+                  className="recordCardListHeader flexRow"
+                  style={{ padding: coverCid ? '6px 94px 6px 6px' : '6px' }}
+                >
+                  {cardControls.slice(0, 7).map((control, i) => {
+                    const canSort = this.canSort(control);
+                    const isAsc = this.getControlSortStatus(control);
+                    return (
+                      <div
+                        className={cx('controlName flex Hand', { title: control.attribute })}
+                        key={i}
+                        onClick={() => {
+                          this.handleSort(control, isAsc);
+                        }}
+                      >
+                        {control.attribute === 1 ? (
+                          <i className="icon icon-ic_title"></i>
+                        ) : (
+                          <span className="ellipsis Bold Font12 Gray_75 controlNameValue">{control.controlName}</span>
+                        )}
+                        {canSort && (
+                          <span className="orderStatus">
+                            <span className="flexColumn">
+                              <i className={cx('icon icon-arrow-up', { ThemeColor3: isAsc === true })}></i>
+                              <i className={cx('icon icon-arrow-down', { ThemeColor3: isAsc === false })}></i>
+                            </span>
                           </span>
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
               <ScrollView
                 className="recordCardList flex"
                 ref={this.listRef}
@@ -573,6 +584,14 @@ export default class RecordCardListDialog extends Component {
                               {error === 'notCorrectCondition'
                                 ? _l('不存在符合条件的%0', worksheet.entityName || control.sourceEntityName || '')
                                 : _l('没有权限')}
+                              {error === 'notCorrectCondition' && allowShowIgnoreAllFilters && (
+                                <div
+                                  className="mTop10 ThemeColor3 TxtCenter Hand"
+                                  onClick={() => this.setState({ ignoreAllFilters: true }, this.loadRecord)}
+                                >
+                                  {_l('查看全部记录')}
+                                </div>
+                              )}
                             </p>
                           ) : (
                             <p className="emptyTip">
@@ -621,6 +640,7 @@ export default class RecordCardListDialog extends Component {
                   filterRelateSheetIds={[relateSheetId]}
                   filterRelatesheetControlIds={filterRelatesheetControlIds}
                   defaultFormDataEditable
+                  isDraft={isDraft}
                   defaultFormData={
                     searchControl && checkIsTextControl(searchControl.type) && keyWords
                       ? {

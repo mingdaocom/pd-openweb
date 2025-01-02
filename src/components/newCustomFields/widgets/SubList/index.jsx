@@ -41,7 +41,7 @@ export default class SubList extends React.Component {
         rows,
       });
     }
-    const { value, recordId, from, controlId, loadDraftChildTableData = () => {} } = this.props;
+    const { value, recordId, from, controlId } = this.props;
     const onChange =
       lastAction.type === 'UPDATE_ROW' && lastAction.asyncUpdate ? this.debounceChange : this.props.onChange;
     const isAdd = !recordId;
@@ -51,6 +51,7 @@ export default class SubList extends React.Component {
           'INIT_ROWS',
           'LOAD_ROWS',
           'UPDATE_BASE_LOADING',
+          'UPDATE_DATA_LOADING',
           'UPDATE_BASE',
           'UPDATE_CELL_ERRORS',
           'FORCE_SET_OUT_ROWS',
@@ -109,10 +110,6 @@ export default class SubList extends React.Component {
         });
       }
     }
-
-    if (from === 21 && lastAction.type === 'INIT_ROWS') {
-      loadDraftChildTableData(controlId);
-    }
   };
 
   componentWillUnmount() {
@@ -134,10 +131,11 @@ export default class SubList extends React.Component {
       viewIdForPermit,
       sheetSwitchPermit,
       flag,
+      isDraft,
     } = this.props;
     const control = { ...this.props };
     return (
-      <div className="mdsubList" style={{ minHeight: 74, margin: '2px 0 12px' }}>
+      <div className="mdsubList">
         {
           <ChildTable
             showSearch
@@ -152,7 +150,10 @@ export default class SubList extends React.Component {
             recordId={recordId}
             sheetSwitchPermit={sheetSwitchPermit}
             flag={flag}
+            isDraft={isDraft}
             masterData={{
+              controlId: control.controlId,
+              recordId,
               worksheetId,
               formData: formData
                 .map(c => _.pick(c, ['controlId', 'type', 'value', 'options', 'attribute', 'enumDefault']))

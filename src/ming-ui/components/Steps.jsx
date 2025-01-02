@@ -348,7 +348,7 @@ export default function Steps(props) {
                 {filterOptions.map((option, index) => {
                   return (
                     <span className="portraitContentItem">
-                      <span style={{ color: index <= currentValue ? '#333' : '#9e9e9e' }} className="portraitScaleText">
+                      <span style={{ color: index <= currentValue ? '#151515' : '#9e9e9e' }} className="portraitScaleText">
                         {option.value}
                       </span>
                     </span>
@@ -470,7 +470,7 @@ export default function Steps(props) {
               {filterOptions.map((option, index) => {
                 return (
                   <span className="contentItem">
-                    <span style={{ color: index <= currentValue ? '#333' : '#9e9e9e' }} className="scaleText">
+                    <span style={{ color: index <= currentValue ? '#151515' : '#9e9e9e' }} className="scaleText">
                       {option.value}
                     </span>
                   </span>

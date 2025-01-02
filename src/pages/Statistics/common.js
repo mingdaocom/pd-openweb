@@ -250,7 +250,7 @@ export function initConfigDetail(id, data, currentReport, customPageConfig) {
           columnBgColor: pivoTableColor,
           lineBgColor: pivoTableColor,
           columnTextColor: isLight ? '#757575' : '#fff',
-          lineTextColor: isLight ? '#333' : '#fff',
+          lineTextColor: isLight ? '#151515' : '#fff',
         }
       }
     } else if (reportTypes.NumberChart == result.reportType) {

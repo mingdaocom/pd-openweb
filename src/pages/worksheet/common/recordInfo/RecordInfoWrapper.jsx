@@ -95,12 +95,6 @@ export default class RecordInfoWrapper extends Component {
     }
   };
 
-  saveDraftData({ draftType }) {
-    if (this.recordinfo.current) {
-      this.recordinfo.current.saveDraftData({ draftType });
-    }
-  }
-
   render() {
     const { notDialog, width, visible, from, instanceId, workId } = this.props;
     const { loading, error, errorMsg, worksheetId, recordId, viewId } = this.state;

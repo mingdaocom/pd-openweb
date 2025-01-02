@@ -50,6 +50,10 @@ const AdvancedConfig = [
 const ERROR_CODE = {
   6: _l('工作表数量超标'),
   13: _l('上传的文件不能来源于同一个应用'),
+  20: _l('业务模块类型错误'),
+  30: _l('当前网络已存在此应用'),
+  31: _l('应用不属于当前组织'),
+  32: _l('不允许导入市场的应用'),
 };
 
 export default class UpgradeProcess extends Component {
@@ -184,6 +188,8 @@ export default class UpgradeProcess extends Component {
       this.setState({ addFilesLoading: true });
     }
 
+    this.setState({ batchCheckedLoading: true });
+
     const res = [];
     for (let l of checkFiles) {
       res.push(
@@ -204,7 +210,7 @@ export default class UpgradeProcess extends Component {
         alert(_l('%0密码错误，校验失败', _.get(checkFiles[0], 'apps[0].name')), 2);
       const index = _.findIndex(files, l => _.get(l, 'fileName') === _.get(checkFiles[0], 'fileName'));
       files[index] = { ...checkFiles[0], code: res[0].apps.length > 1 ? 1 : res[0].code };
-      this.setState({ files: [...files], analyzeLoading: false, addFilesLoading: false });
+      this.setState({ files: [...files], analyzeLoading: false, addFilesLoading: false, batchCheckedLoading: false });
     } else {
       const newList = res
         .filter((l, i) => {
@@ -218,7 +224,12 @@ export default class UpgradeProcess extends Component {
           ..._.pick(checkFiles[l.i], ['key', 'password', 'fileName', 'name']),
           code: l.apps.length > 1 ? 1 : l.code,
         }));
-      this.setState({ files: files.concat(newList), analyzeLoading: false, addFilesLoading: false });
+      this.setState({
+        files: files.concat(newList),
+        analyzeLoading: false,
+        addFilesLoading: false,
+        batchCheckedLoading: false,
+      });
     }
 
     this.destroyUploadWrap();
@@ -341,8 +352,18 @@ export default class UpgradeProcess extends Component {
   };
 
   renderUploadFile = () => {
-    const { file, errTip, isEncrypt, password, compareLoading, analyzeLoading, files, batchUpdate, addFilesLoading } =
-      this.state;
+    const {
+      file,
+      errTip,
+      isEncrypt,
+      password,
+      compareLoading,
+      analyzeLoading,
+      files,
+      batchUpdate,
+      addFilesLoading,
+      batchCheckedLoading,
+    } = this.state;
     const IsLocal = _.get(md, 'global.Config.IsLocal');
 
     return (
@@ -414,8 +435,7 @@ export default class UpgradeProcess extends Component {
                 {compareLoading && <div className="Gray_9e Font14 mTop16">{_l('此步骤可能耗时较久，请耐心等待')}</div>}
               </Fragment>
             )}
-
-            {compareLoading
+            {compareLoading || batchCheckedLoading
               ? ''
               : _.isEmpty(file)
               ? this.renderUploadBtn(

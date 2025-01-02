@@ -30,7 +30,7 @@ const HeaderWrap = styled.div`
   }
   .needUpgrade {
     background: #eee;
-    color: #333;
+    color: #151515;
     &:hover {
       background: #dbdbdb;
     }

@@ -146,9 +146,11 @@ class ImportAndExport extends Component {
         currentTab === 'import' ? importUser.importUserList(requestData) : importUser.importEditUserList(requestData);
       promiseRequest
         .then(result => {
-          const { dowloadId, actionResult, failUsers } = result;
+          const { dowloadId, actionResult, failUsers, successCount } = result;
           this.setState({ importFileLoading: false, resultDetail: result });
-          if (actionResult === 1) {
+          if (actionResult === 0 || (actionResult === 1 && !failUsers.length && !successCount)) {
+            alert(_l('导入失败'), 2);
+          } else if (actionResult === 1) {
             if (_.isEmpty(failUsers)) alert(_l('导入成功'));
             _this.setState({
               importError: false,
@@ -156,8 +158,6 @@ class ImportAndExport extends Component {
               fileName: '',
               fileUrl: '',
             });
-          } else if (actionResult === 0) {
-            alert(_l('导入失败'), 2);
           } else if (actionResult === 2) {
             alert(_l('验证码错误'), 3);
           } else if (actionResult === 3) {

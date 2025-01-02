@@ -47,7 +47,7 @@ const Description = styled.div`
     padding-left: 18px;
     margin-bottom: 10px;
     position: relative;
-    color: #333;
+    color: #151515;
     &::before {
       position: absolute;
       top: 7px;
@@ -55,7 +55,7 @@ const Description = styled.div`
       content: '';
       width: 5px;
       height: 5px;
-      background: #333;
+      background: #151515;
       border-radius: 50%;
     }
   }
@@ -605,7 +605,7 @@ class Header extends Component {
             <p>
               •
               <span className="mLeft5">
-                {_l('暂时仅主流程中的节点支持此功能。引用的子流程、PBP中的节点仍为实际执行人，可 单独去测试这些节点。')}
+                {_l('暂时仅主流程中的节点支持此功能。引用的子流程、PBP中的节点仍为实际执行人，可单独去测试这些节点。')}
               </span>
             </p>
           </div>

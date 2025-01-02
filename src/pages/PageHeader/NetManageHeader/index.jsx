@@ -30,6 +30,7 @@ const MODULE_TO_TEXT = {
   group: _l('群组信息'),
   systemSetting: _l('系统配置'),
   search: _l('超级搜索'),
+  certification: _l('认证'),
 };
 
 const PAGE_HEADER_ROUTE = {
@@ -39,6 +40,7 @@ const PAGE_HEADER_ROUTE = {
   group: ['/group/groupValidate'],
   user: ['user', '/user_:userId?'],
   search: ['/search'],
+  certification: ['/certification/:roleType?'],
 };
 
 const fn = match('/admin/:roleType/:projectId');
@@ -57,6 +59,7 @@ export default class NetManageHeader extends Component {
     if (_.includes(PAGE_HEADER_ROUTE.group, path)) return 'group';
     if (_.includes(PAGE_HEADER_ROUTE.search, path)) return 'search';
     if (_.includes(PAGE_HEADER_ROUTE.systemSetting, path)) return 'systemSetting';
+    if (_.includes(PAGE_HEADER_ROUTE.certification, path)) return 'certification';
     return '';
   };
   render() {

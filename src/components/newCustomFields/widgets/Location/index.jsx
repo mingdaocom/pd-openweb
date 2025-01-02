@@ -37,11 +37,11 @@ const LocationWrap = styled.div`
     .title {
       padding: 10px 12px 0;
       font-size: 14px;
-      color: #333;
+      color: #151515;
       font-weight: 700;
     }
     .address {
-      color: #333;
+      color: #151515;
       font-size: 12px;
       padding: 2px 12px 6px;
     }

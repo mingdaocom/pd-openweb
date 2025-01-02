@@ -20,6 +20,18 @@ const NATIVE_APP_ITEM = [
   { id: 'hr', icon: 'hr_home', text: _l('人事'), color: '#607D8B', href: '/hr', key: 5, openInNew: true },
 ];
 
+const NATIVE_INTERAGION_ITEM = [
+  { id: 'api', icon: 'connect', color: '#AF52DE', text: _l('API集成'), href: '/integration/connect', key: 1 },
+  {
+    id: 'datapipeline',
+    icon: 'a-Data_integration1',
+    color: '#00C7BE',
+    text: _l('数据集成'),
+    href: '/integration/dataConnect',
+    key: 2,
+  },
+];
+
 const Con = styled.div`
   overflow: hidden;
   background-color: ${({ themeBgColor }) => themeBgColor};
@@ -168,13 +180,20 @@ const moduleEntries = [
     fullName: _l('收藏'),
     href: '/favorite',
   },
-  {
-    type: 'lib',
-    icon: 'custom_store',
-    name: _l('应用库%01000'),
-    fullName: _l('应用库%01012'),
-    href: '/app/lib',
-  },
+  !md.global.Config.IsLocal
+    ? {
+        type: 'market',
+        icon: 'merchant',
+        name: _l('市场'),
+        fullName: _l('市场'),
+      }
+    : {
+        type: 'lib',
+        icon: 'custom_store',
+        name: _l('应用库%01000'),
+        fullName: _l('应用库%01012'),
+        href: '/app/lib',
+      },
   {
     type: 'cooperation',
     icon: 'cooperation',
@@ -185,13 +204,13 @@ const moduleEntries = [
     type: 'integration',
     icon: 'hub',
     name: _l('集成%01002'),
-    fullName: _l('集成中心%01014'),
+    fullName: _l('集成%01002'),
   },
   {
     type: 'plugin',
     icon: 'extension_black1',
     name: _l('插件'),
-    fullName: _l('插件中心'),
+    fullName: _l('插件'),
   },
 ];
 
@@ -213,6 +232,13 @@ export default function SideNav(props) {
       _.find(md.global.Account.projects, item => item.projectId === projectId),
       'allowPlugin',
     ) || hasPermission(myPermissions, [PERMISSION_ENUM.DEVELOP_PLUGIN, PERMISSION_ENUM.MANAGE_PLUGINS]);
+  const hasDataIntegrationAuth =
+    !_.get(window, 'md.global.SysSettings.hideDataPipeline') &&
+    hasPermission(myPermissions, [
+      PERMISSION_ENUM.CREATE_SYNC_TASK,
+      PERMISSION_ENUM.MANAGE_SYNC_TASKS,
+      PERMISSION_ENUM.MANAGE_DATA_SOURCES,
+    ]);
 
   useEffect(() => {
     privateSource.getSources({ status: 1 }).then(result => {
@@ -261,6 +287,8 @@ export default function SideNav(props) {
                 } else if (entry.type === 'plugin') {
                   const type = localStorage.getItem('pluginUrl');
                   navigateTo('/plugin/' + (type || ''));
+                } else if (entry.type === 'market') {
+                  window.open(md.global.Config.MarketUrl);
                 }
               }
             : _.noop
@@ -301,6 +329,22 @@ export default function SideNav(props) {
           >
             {content}
           </Trigger>
+        );
+      case 'integration':
+        return hasDataIntegrationAuth ? (
+          <Trigger
+            key={index}
+            action={['hover']}
+            popupAlign={{
+              points: ['tl', 'tr'],
+              offset: [12, -4],
+            }}
+            popup={<PopupLinks items={NATIVE_INTERAGION_ITEM} />}
+          >
+            {content}
+          </Trigger>
+        ) : (
+          content
         );
       default:
         return content;

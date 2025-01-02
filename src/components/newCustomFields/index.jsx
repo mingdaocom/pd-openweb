@@ -14,14 +14,12 @@ import WidgetsVerifyCode from './components/WidgetsVerifyCode';
 import {
   convertControl,
   controlState,
-  halfSwitchSize,
   loadSDK,
   getControlsByTab,
   getValueStyle,
   getHideTitleStyle,
   formatControlValue,
   isUnTextWidget,
-  isPublicLink,
   getServiceError,
 } from './tools/utils';
 import { isRelateRecordTableControl } from 'worksheet/util';
@@ -29,22 +27,19 @@ import { FORM_ERROR_TYPE, FROM } from './tools/config';
 import { updateRulesData, checkAllValueAvailable, replaceStr, getRuleErrorInfo } from './tools/filterFn';
 import DataFormat, { checkRequired } from './tools/DataFormat';
 import { browserIsMobile } from 'src/util';
-import { formatSearchConfigs, supportDisplayRow } from 'src/pages/widgetConfig/util';
+import { formatSearchConfigs, supportDisplayRow, isCustomWidget } from 'src/pages/widgetConfig/util';
 import _, { get, isEmpty } from 'lodash';
 import FormLabel from './components/FormLabel';
 import WidgetSection from './components/WidgetSection';
 import MobileWidgetSection from './components/MobileWidgetSection';
 import styled from 'styled-components';
 import RefreshBtn from './components/RefreshBtn';
+import FreeField from './widgets/FreeField';
 import { dealCustomEvent } from './tools/customEvent';
 import { getExpandWidgetIds } from 'src/pages/widgetConfig/widgetSetting/components/SplitLineConfig/config';
 import { ADD_EVENT_ENUM } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config.js';
 
 const CustomFormItemControlWrap = styled.div`
-  &.customFormItemControl .customFormReadonly,
-  &.customFormItemControl .controlDisabled {
-    padding-right: ${props => (props.showRefreshBtn ? '20px' : '0px')} !important;
-  }
   .customFormTextarea {
     ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
   }
@@ -68,7 +63,7 @@ const CustomFormItemControlWrap = styled.div`
     }
     &.customFormControlTelPhone {
       ${props => props.valueStyle}
-      -webkit-text-fill-color: ${props => (props.valueStyle ? 'unset' : '#333')}
+      -webkit-text-fill-color: ${props => (props.valueStyle ? 'unset' : '#151515')}
     }
     .ant-picker-input > input {
       ${props => (props.size ? `font-size: ${props.size} !important;` : '')}
@@ -138,6 +133,7 @@ export default class CustomFields extends Component {
     onRulesLoad: PropTypes.func,
     onSave: PropTypes.func,
     customWidgets: PropTypes.object, // 自定义组件 { key: value } key: control type, value: widget
+    onManualWidgetChange: PropTypes.func, // 手动更新表单数据
   };
 
   static defaultProps = {
@@ -164,7 +160,6 @@ export default class CustomFields extends Component {
       searchConfig: props.searchConfig || [],
       loadingItems: {},
       verifyCode: '', // 验证码
-      childTableControlIds: [],
       activeTabControlId: '',
     };
 
@@ -173,6 +168,7 @@ export default class CustomFields extends Component {
     this.controlRefs = {};
 
     this.storeCenter = {};
+    this.submitChildTableCheckData = this.submitFormData.bind(this); // 数据提交(h5子表快速编辑检查项)
   }
 
   componentWillMount() {
@@ -227,6 +223,11 @@ export default class CustomFields extends Component {
     return { instanceId, workId };
   }
 
+  get isPcCreated() {
+    const { recordId } = this.props;
+    return !browserIsMobile() && (!recordId || recordId === '_FAKE_RECORD_ID');
+  }
+
   con = React.createRef();
 
   /**
@@ -247,6 +248,7 @@ export default class CustomFields extends Component {
       masterRecordRowId,
       ignoreLock,
       verifyAllControls,
+      loadRowsWhenChildTableStoreCreated,
       controlProps = {},
       mobileApprovalRecordInfo = {},
     } = this.props;
@@ -276,6 +278,7 @@ export default class CustomFields extends Component {
         ..._.pick(this.props, ['projectId', 'appId', 'groupId', 'worksheetId', 'recordId', 'viewId']),
       },
       searchConfig: searchConfig.filter(i => i.eventType !== 1),
+      loadRowsWhenChildTableStoreCreated,
       updateLoadingItems: loadingItems => {
         this.setState({ loadingItems });
       },
@@ -388,8 +391,8 @@ export default class CustomFields extends Component {
       controlProps,
       widgetStyle = {},
       disabled,
+      isDraft,
       tabControlProp: { setNavVisible } = {},
-      disabledFunctions = [],
     } = this.props;
     const { instanceId, workId } = this.workflowParams;
     const { titlelayout_pc = '1', titlelayout_app = '1' } = widgetStyle;
@@ -400,36 +403,20 @@ export default class CustomFields extends Component {
     let preIsSection;
     let data = [].concat(renderData).filter(item => !item.hidden && controlState(item, from).visible);
     const richTextControlCount = data.filter(c => c.type === 41).length;
-    const isPcCreated = !isMobile && !recordId;
 
     data.forEach(item => {
       if ((item.row !== prevRow || isMobile || forceFull) && !preIsSection && prevRow > -1) {
         formList.push(
           <div
-            className={cx('customFormLine', { Visibility: isPcCreated })}
+            className={cx('customFormLine', { Visibility: this.isPcCreated })}
             key={`clearfix-${item.row}-${item.col}`}
           />,
         );
       }
 
-      // 兼容老数据没有size的情况
-      if (!item.size) {
-        item.size = halfSwitchSize(item, from);
-      }
-
       const isFull = isMobile || forceFull || item.size === 12;
       const hideTitleStyle = getHideTitleStyle(item, data) || {};
       const displayRow = (isMobile ? titlelayout_app === '2' : titlelayout_pc === '2') && supportDisplayRow(item);
-
-      const showRefreshBtn =
-        !disabledFunctions.includes('controlRefresh') &&
-        from !== FROM.DRAFT &&
-        !isPublicLink() &&
-        recordId &&
-        !recordId.includes('default') &&
-        md.global.Account.accountId &&
-        ((item.type === 30 && (item.strDefault || '').split('')[0] !== '1') ||
-          _.includes([31, 32, 37, 38, 53], item.type));
 
       formList.push(
         <div
@@ -468,8 +455,7 @@ export default class CustomFields extends Component {
           )}
 
           <CustomFormItemControlWrap
-            className={cx('customFormItemControl', { customFormItemControlCreate: isPcCreated })}
-            showRefreshBtn={showRefreshBtn}
+            className={cx('customFormItemControl', { customFormItemControlCreate: this.isPcCreated })}
             isMobile={isMobile}
             {...getValueStyle(item)}
           >
@@ -478,13 +464,15 @@ export default class CustomFields extends Component {
                 instanceId,
                 workId,
                 richTextControlCount,
-                isDraft: from === FROM.DRAFT,
+                isDraft: isDraft || from === FROM.DRAFT,
                 ...(item.type === 22 ? { setNavVisible } : {}),
               }),
             )}
-            {showRefreshBtn && (
-              <RefreshBtn worksheetId={worksheetId} recordId={recordId} item={item} onChange={this.handleChange} />
-            )}
+            <RefreshBtn
+              {..._.pick(this.props, ['disabledFunctions', 'worksheetId', 'recordId', 'from'])}
+              item={item}
+              onChange={this.handleChange}
+            />
             {this.renderVerifyCode(item)}
           </CustomFormItemControlWrap>
         </div>,
@@ -557,8 +545,13 @@ export default class CustomFields extends Component {
    * searchByChange: api查询被动赋值引起的工作表查询，文本类按失焦处理
    */
   handleChange = (value, cid, item, searchByChange = true) => {
-    const { onWidgetChange = () => {} } = this.props;
+    const { onWidgetChange = () => {}, onManualWidgetChange = () => {} } = this.props;
     const { uniqueErrorItems } = this.state;
+
+    if (searchByChange) {
+      // 手动更改表单
+      onManualWidgetChange();
+    }
 
     if (!_.get(value, 'rows')) {
       onWidgetChange();
@@ -642,7 +635,7 @@ export default class CustomFields extends Component {
       customWidgets,
       isDraft,
       masterData,
-      loadDraftChildTableData = () => {},
+      disabledChildTableCheck,
     } = this.props;
     const { renderData } = this.state;
     // 字段描述显示方式
@@ -671,7 +664,15 @@ export default class CustomFields extends Component {
 
     const { type, controlId } = item;
     const widgetName = convertControl(type);
-    const Widgets = widgetName === 'CustomWidgets' ? customWidgets[type] : widgets[widgetName];
+    const isFreeField = isCustomWidget(item);
+    let Widgets;
+    if (isFreeField) {
+      Widgets = FreeField;
+    } else if (widgetName === 'CustomWidgets') {
+      Widgets = customWidgets[type];
+    } else {
+      Widgets = widgets[widgetName];
+    }
 
     if (!Widgets) {
       return undefined;
@@ -684,6 +685,7 @@ export default class CustomFields extends Component {
     // (禁用或只读) 且 内容不存在
     if (
       !_.includes([22, 52, 34], item.type) &&
+      !isCustomWidget(item) &&
       !(item.type === 29 && isRelateRecordTableControl(item)) &&
       !(
         _.includes([9, 10, 11], item.type) &&
@@ -722,14 +724,16 @@ export default class CustomFields extends Component {
           maskPermissions={maskPermissions}
           popupContainer={popupContainer}
           sheetSwitchPermit={sheetSwitchPermit} // 工作表业务模板权限
-          disabled={item.disabled || !isEditable}
+          disabled={
+            item.type === 36 ? disabledChildTableCheck || item.disabled || !isEditable : item.disabled || !isEditable
+          }
           projectId={projectId}
           from={from}
           worksheetId={worksheetId}
           renderData={renderData}
           recordId={recordId}
           appId={appId}
-          isDraft={isDraft} // 子表单条记录详情from不对，新增参数以供使用
+          isDraft={isDraft || from === FROM.DRAFT} // 子表单条记录详情from不对，新增参数以供使用
           viewIdForPermit={viewId}
           initSource={initSource}
           masterData={masterData}
@@ -782,7 +786,7 @@ export default class CustomFields extends Component {
             .concat(systemControlData || [])
             .concat(getMasterFormData() || [])}
           triggerCustomEvent={triggerType => this.triggerCustomEvent({ ...item, triggerType })}
-          loadDraftChildTableData={loadDraftChildTableData}
+          submitChildTableCheckData={this.submitChildTableCheckData}
         />
         {hintShowAsText && <WidgetsDesc item={item} from={from} />}
       </React.Fragment>
@@ -1108,7 +1112,7 @@ export default class CustomFields extends Component {
   }
 
   renderTab(commonData, tabControls) {
-    const { tabControlProp: { isSplit, splitTabDom } = {} } = this.props;
+    const { tabControlProp: { isSplit, splitTabDom } = {}, from, isDraft } = this.props;
     const { activeTabControlId, renderData } = this.state;
     const isMobile = browserIsMobile();
     const sectionProps = {
@@ -1116,6 +1120,7 @@ export default class CustomFields extends Component {
       tabControls,
       hasCommon: commonData.length > 0,
       activeTabControlId: activeTabControlId || _.get(tabControls[0], 'controlId'),
+      isDraft: isDraft || from === FROM.DRAFT,
       setActiveTabControlId: value => this.setActiveTabControlId(value),
       renderForm: value => this.renderForm(value),
       triggerCustomEvent: value => this.triggerCustomEvent({ ...this.props, ...value }),

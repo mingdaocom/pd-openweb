@@ -84,7 +84,7 @@ const FilterItem = styled.div`
       cursor: pointer;
       line-height: 26px;
       font-size: 12px;
-      color: #333;
+      color: #151515;
 
       &.isActive {
         font-weight: 600;

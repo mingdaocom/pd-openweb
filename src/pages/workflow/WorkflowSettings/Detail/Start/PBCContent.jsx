@@ -286,9 +286,9 @@ export default ({ data, updateSource, isIntegration, isPlugin }) => {
         className="ThemeBorderColor3 actionControlBox pTop0 pBottom0 pLeft10 pRight10 flex"
         placeholder={item.dataSource ? _l('参数名（必填）') : _l('参数名')}
         value={item.alias}
-        onChange={e => updateControls('alias', e.target.value.replace(/[^a-z\d-_]/gi, ''), item)}
+        onChange={e => updateControls('alias', e.target.value, item)}
         onBlur={e => {
-          let value = e.target.value.trim();
+          let value = e.target.value.trim().replace(/[^a-z\d-_]/gi, '');
 
           if (value && !/^[a-zA-Z]{1}/.test(value)) {
             value = (isPlugin ? 'plugin' : 'pbp') + value;

@@ -66,6 +66,7 @@ export const VersionProductType = {
   PAY: 40, // 支付
   dataMirror: 41, // 数据镜像
   flowPlugin: 42, // 工作表插件
+  editAttachment: 43, // 附件编辑
 };
 
 export const VersionProductHelpLink = {

@@ -40,7 +40,7 @@ const Header = styled.div`
   flex-shrink: 0;
   .main {
     font-size: 17px;
-    color: #333;
+    color: #151515;
     font-weight: bold;
     width: 100%;
   }
@@ -54,7 +54,7 @@ const Header = styled.div`
     color: #757575;
     max-width: 600px;
     &:hover {
-      color: #333;
+      color: #151515;
     }
   }
   .openInNewTab {

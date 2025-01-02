@@ -17,12 +17,12 @@
 
 .homePostFilter .notGroupHint {
   white-space: normal;
-  color: #333;
+  color: #151515;
 }
 
 .searchFilter .InlineBlock .oldKnowledgeLink {
   background-color: #ffffff;
-  color: #333333;
+  color: #151515;
   display: inline-block;
   font-size: 12px;
   padding-right: 10px;
@@ -91,7 +91,7 @@
 
 .fontAdd {
   background-color: #ffffff;
-  color: #333333;
+  color: #151515;
   display: inline-block;
   width: 20px;
   height: 20px;

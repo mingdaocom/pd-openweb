@@ -393,7 +393,10 @@ export default class ChartDialog extends Component {
             {this.renderCharts()}
             <Tabs className="chartTabs pLeft20 pRight20" defaultActiveKey="setting">
               <Tabs.TabPane tab={_l('配置')} key="setting">
-                <ChartSetting projectId={projectId} />
+                <ChartSetting
+                  projectId={projectId}
+                  sourceType={sourceType}
+                />
               </Tabs.TabPane>
               <Tabs.TabPane tab={_l('样式')} key="style" disabled={reportData.status <= 0}>
                 <ChartStyle

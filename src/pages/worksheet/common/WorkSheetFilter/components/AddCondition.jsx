@@ -34,6 +34,7 @@ export default class AddCondition extends Component {
     let {
       disabled,
       from,
+      doNotCloseMenuWhenAdd,
       columns = [],
       isAppendToBody,
       onAdd,
@@ -46,7 +47,11 @@ export default class AddCondition extends Component {
     } = this.props;
     const { columnListVisible } = this.state;
     // 关联记录支持rowId
-    if (from === 'relateSheet' && _.includes([29, 51], widgetControlData.type)) {
+    if (
+      from === 'relateSheet' &&
+      _.includes([29, 35, 51], widgetControlData.type) &&
+      !_.find(columns, { controlId: 'rowid' })
+    ) {
       columns = columns.concat(ROW_ID_CONTROL);
     }
     if (md.global.Account.isPortal) {
@@ -66,7 +71,7 @@ export default class AddCondition extends Component {
               visible={columnListVisible}
               onAdd={control => {
                 onAdd(control);
-                if (from !== 'fastFilter') {
+                if (from !== 'fastFilter' && !doNotCloseMenuWhenAdd) {
                   this.setState({ columnListVisible: false });
                 }
               }}

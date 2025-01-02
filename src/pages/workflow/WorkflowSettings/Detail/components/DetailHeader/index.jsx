@@ -2,11 +2,11 @@ import React, { Fragment } from 'react';
 import cx from 'classnames';
 import { Support, SvgIcon } from 'ming-ui';
 import NodeNameInput from '../NodeNameInput';
-import { APP_TYPE, NODE_TYPE, SUPPORT_HREF } from '../../../enum';
+import { APP_TYPE, NODE_TYPE, PUSH_TYPE, SUPPORT_HREF } from '../../../enum';
 import _ from 'lodash';
 
 // 获取当前打开节点的详细类型
-const getNodeTypeForSupportHref = ({ actionId, appType }, selectNodeType) => {
+const getNodeTypeForSupportHref = ({ actionId, appType, pushType }, selectNodeType) => {
   if (selectNodeType === NODE_TYPE.FIRST) {
     return `${String(selectNodeType)}-${String(appType)}`;
   }
@@ -20,6 +20,10 @@ const getNodeTypeForSupportHref = ({ actionId, appType }, selectNodeType) => {
 
   if (selectNodeType === NODE_TYPE.AIGC) {
     return `${String(selectNodeType)}-${String(actionId)}`;
+  }
+
+  if (pushType === PUSH_TYPE.AUDIO) {
+    return `${String(selectNodeType)}-${String(pushType)}`;
   }
 
   return String(selectNodeType);

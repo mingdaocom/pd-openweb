@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import ResourceView from 'src/pages/worksheet/views/ResourceView';
 import ViewErrorPage from '../components/ViewErrorPage';
 import { setSysWorkflowTimeControlFormat } from 'src/pages/worksheet/views/CalendarView/util.js';
+import { isRelateRecordTableControl } from 'worksheet/util';
 import * as actions from 'mobile/RecordList/redux/actions';
 import styled from 'styled-components';
 
@@ -19,7 +20,15 @@ function MobileResourceView(props) {
   const viewControlInfo =
     (
       setSysWorkflowTimeControlFormat(
-        controls.filter(item => _.includes([1, 2, 27, 48, 9, 10, 11, 26, 29], item.type)),
+        controls.filter(
+          item =>
+            (_.includes([27, 48, 9, 10, 11, 26, 29, 28], item.type) ||
+              (item.type === 30 &&
+                _.includes([27, 48, 9, 10, 11, 26, 29, 28], item.sourceControlType) &&
+                (item.strDefault || '').split('')[0] !== '1')) &&
+            !['rowid'].includes(item.controlId) &&
+            !isRelateRecordTableControl(item),
+        ),
         sheetSwitchPermit,
       ) || []
     ).find(it => it.controlId === view.viewControl) || {};

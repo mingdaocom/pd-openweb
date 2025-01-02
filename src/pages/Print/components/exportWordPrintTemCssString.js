@@ -3,13 +3,13 @@ export default {
     fontSize: 13,
     fontFamily:
       '"Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif',
-    color: '#333',
+    color: '#151515',
     lineHeight: 1.5,
   },
   p: {
     fontFamily:
       '"Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif',
-    color: '#333',
+    color: '#151515',
     lineHeight: 1.5,
   },
   img: {
@@ -244,7 +244,7 @@ export default {
   },
   fromName: {
     fontSize: 24,
-    color: '#333',
+    color: '#151515',
     fontWeight: 'bold',
     margin: '10px 0 0 0',
   },

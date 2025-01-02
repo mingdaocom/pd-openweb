@@ -79,4 +79,4 @@ export const routerConfigs = [
     text: _l('删除应用%02037'),
     className: 'delApp',
   },
-];
+].filter(o => !(_.get(window, 'md.global.SysSettings.hideDataPipeline') && o.type === 'aggregations'));;

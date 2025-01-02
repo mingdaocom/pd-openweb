@@ -96,6 +96,16 @@ export const roleInfos = (state = [], action) => {
   }
 };
 
+//安装应用相关限制数据
+export const roleLimitInfo = (state = [], action) => {
+  switch (action.type) {
+    case 'UPDATE_APPROLESUMMARY_ROLELIMITINFO':
+      return action.data;
+    default:
+      return state;
+  }
+};
+
 export const selectedIds = (state = [], action) => {
   switch (action.type) {
     case 'UPDATE_SELECTLIST':
@@ -121,6 +131,7 @@ export default combineReducers({
   apply,
   appRolePagingModel,
   roleInfos,
+  roleLimitInfo,
   roleId,
   selectedIds,
   userList,

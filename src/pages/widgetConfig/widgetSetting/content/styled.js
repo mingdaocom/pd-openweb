@@ -13,7 +13,7 @@ export const SettingCollapseWrap = styled(Collapse)`
     }
     .ant-collapse-item > .ant-collapse-header {
       padding: 20px 0 !important;
-      font-size: 14px !important;
+      font-size: 15px !important;
       color: #212121 !important;
       font-weight: bold;
       .anticon {

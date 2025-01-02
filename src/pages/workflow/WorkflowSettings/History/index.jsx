@@ -127,7 +127,7 @@ class History extends Component {
             {_l('触发了以下子流程')}
           </div>
           <Link
-            className="pointer Gray_75 ThemeHoverColor3 Font16 mLeft20"
+            className="pointer Gray_75 ThemeHoverColor3 Font16 mLeft20 stopPropagation"
             to={`${isPlugin ? '/workflowplugin' : '/workflowedit'}/${this.props.flowInfo.id}/2`}
             onClick={() => {
               this.setState({ workId: '', instanceId: '', instanceData: null }, this.handleFilter);

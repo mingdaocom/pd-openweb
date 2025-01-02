@@ -13,7 +13,7 @@ const FilterTextWrap = styled.div`
   border-radius: 3px;
   padding: 2px 12px 8px;
   box-sizing: border-box;
-  color: #333;
+  color: #151515;
   margin: 10px 0;
   display: flex;
   cursor: pointer;
@@ -48,7 +48,7 @@ const FilterTextWrap = styled.div`
   .txtFilter {
     flex: 1;
     font-size: 13px;
-    color: #333;
+    color: #151515;
     line-height: 20px;
     padding-left: 20px;
 
@@ -111,13 +111,16 @@ export default class FilterItemTexts extends React.Component {
         {item.type ? <span className="Bold LineHeight19 mRight10 Gray Font13">{item.type.text}</span> : null}
         {item.value && item.value.type === 'dynamicSource' ? (
           item.value.data.map(it => {
+            const isParam = _.includes(['url'], it.rName);
             if (!it.name) {
-              return <span className="isWrong dynamicsourceSpan">{_l('该字段已删除')}</span>;
+              return (
+                <span className="isWrong dynamicsourceSpan">{isParam ? _l('该参数已删除') : _l('该字段已删除')}</span>
+              );
             }
             return (
               <span className="dynamicsourceSpan">
                 {it.name}
-                {_.includes(['fastFilter'], fromCondition)
+                {_.includes(['fastFilter'], fromCondition) || isParam
                   ? ''
                   : it.id !== 'current-rowid' && <i>{!it.rName ? _l('当前记录') : it.rName}</i>}
               </span>

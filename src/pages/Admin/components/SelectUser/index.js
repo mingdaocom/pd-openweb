@@ -4,7 +4,7 @@ import { Select } from 'antd';
 import { dialogSelectUser } from 'ming-ui/functions';
 
 export default function SelectUser(props) {
-  const { projectId, changeData = () => {}, className, unique = false } = props;
+  const { projectId, changeData = () => {}, className, unique = false, placeholder } = props;
   const [userInfo, setUserInfo] = useState(props.userInfo);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function SelectUser(props) {
     <Select
       className={className}
       value={userInfo.map(item => item.fullname).join(',') || undefined}
-      placeholder={_l('搜索用户')}
+      placeholder={placeholder || _l('搜索用户')}
       dropdownRender={null}
       allowClear
       open={false}

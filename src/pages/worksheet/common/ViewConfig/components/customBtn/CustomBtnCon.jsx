@@ -50,7 +50,7 @@ const Item = ({
               className="mRight12"
               addClassName='TxtMiddle'
               url={iconUrl}
-              fill={!icon ? '#bdbdbd' : !color ? '#2196f3' : color === 'transparent' ? '#333' : color}
+              fill={!icon ? '#bdbdbd' : !color ? '#2196f3' : color === 'transparent' ? '#151515' : color}
               size={18}
             />
           ) : (

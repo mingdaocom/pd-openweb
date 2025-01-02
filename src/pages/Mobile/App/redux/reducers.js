@@ -42,3 +42,12 @@ export const debugRoles = (state = [], action) => {
       return state;
   }
 };
+
+export const appScrollY = (state = 0, action) => {
+  switch (action.type) {
+    case 'APP_SCROLL_Y':
+      return action.data;
+    default:
+      return state;
+  }
+}

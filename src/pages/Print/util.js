@@ -4,7 +4,7 @@ import renderCellText from 'src/pages/worksheet/components/CellControls/renderTe
 import { SYSTEM_CONTROL_WITH_UAID } from 'src/pages/widgetConfig/config/widget';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/setting.js';
 import { getSwitchItemNames } from 'src/pages/widgetConfig/util';
-import { SYST_PRINT, FILTER_SYS } from './config';
+import { SYST_PRINT, FILTER_SYS, USER_CONTROLS } from './config';
 import { RichText } from 'ming-ui';
 import _ from 'lodash';
 import Embed from 'src/components/newCustomFields/widgets/Embed';
@@ -268,8 +268,16 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         //按文本形式 显示关联表标题字段（卡片，下拉）/数量（列表）
         if (item.isRelateMultipleSheet) {
           if (records.length <= 0) return '';
+          const enumDefault = dataItem.type === 29 ? 1 : dataItem.enumDefault;
 
-          return renderCellText({ ...dataItem, enumDefault: dataItem.type === 29 ? 1 : dataItem.enumDefault });
+          return renderCellText({
+            ...dataItem,
+            enumDefault,
+            advancedSetting: _.assign(
+              item.advancedSetting,
+              enumDefault === 1 ? _.get(item, 'sourceControl.advancedSetting') : {},
+            ),
+          });
         }
         //关联表内除标题字段外的其他字段
         let showControlsList = [];
@@ -439,7 +447,13 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
       if (item.sourceControlType <= 0) {
         return '';
       }
-      const showContent = getPrintContent(item, item.sourceControlType, value);
+
+      const showContent = getPrintContent(
+        _.assign({}, item, _.pick(item.sourceControl, ['options'])),
+        item.sourceControlType,
+        value,
+      );
+
       return showContent || '';
     }
     case 9: // OPTIONS 单选 平铺
@@ -487,6 +501,27 @@ export const getPrintContent = (item, sourceControlType, valueItem, relationItem
         dataItem.value === null
         ? ''
         : renderCellText(dataItem) || _l('未命名');
+    case 26: // 成员字段
+      let parsedData = safeParse(value, 'array');
+      const userKey = item.isRelateMultipleSheet ? `${item.dataSource}_${item.controlId}` : item.controlId;
+      const userConfig = _.get(dataItem, `user_info.${userKey}`) || {};
+
+      if (!_.isArray(parsedData)) {
+        parsedData = [parsedData];
+      }
+
+      const textValue = parsedData
+        .filter(user => !!user)
+        .map(user => {
+          const ext = USER_CONTROLS.map(l => (userConfig[l.controlId] ? user[l.controlId] || '' : ''))
+            .filter(l => !!l)
+            .join(';');
+
+          return user.fullname + (ext ? `(${ext})` : '');
+        })
+        .join('、');
+
+      return textValue;
     default:
       return renderCellText(dataItem);
   }
@@ -620,14 +655,15 @@ export const renderRecordAttachments = (value, isRelateMultipleSheet, fileStyle 
   );
 };
 
-export const isVisible = control => {
+export const isVisible = (control, useControlPermissions = false) => {
   const fieldPermission = control.fieldPermission || '111';
+  const controlPermission = !useControlPermissions || _.get(control, 'controlPermissions[0]') === '1';
 
-  return fieldPermission[0] === '1';
+  return fieldPermission[0] === '1' && controlPermission;
 };
 
-export const getVisibleControls = controls => {
-  return controls.filter(control => isVisible(control));
+export const getVisibleControls = (controls, useControlPermissions = false) => {
+  return controls.filter(control => isVisible(control, useControlPermissions));
 };
 
 //规则计算=>隐藏处理
@@ -664,8 +700,6 @@ export const sortByShowControls = list => {
 
 //处理打印数据
 export const getControlsForPrint = (receiveControls, relationMaps = {}, needVisible, additional) => {
-  const fileStyle = safeParse(_.get(additional, 'fileStyle.value'));
-
   let controls = getShowControl(receiveControls)
     .filter(
       o => ![43, 49].includes(o.type) && !FILTER_SYS.includes(o.controlId) && (needVisible || controlState(o).visible),
@@ -680,7 +714,9 @@ export const getControlsForPrint = (receiveControls, relationMaps = {}, needVisi
 
       //关联表数据处理
       if (((control.type === 29 && control.enumDefault === 2) || control.type === 34) && control.checked) {
-        extendAttr.relationControls = getShowControl(control.relationControls);
+        extendAttr.relationControls = getShowControl(
+          _.get(relationMaps[control.controlId], 'template.controls') || control.relationControls,
+        );
         extendAttr.relationsData = relationMaps[control.controlId];
       }
 
@@ -713,4 +749,9 @@ export const isRelation = control => {
     ([29, 51].includes(control.type) && ['2', '5', '6'].includes(_.get(control, 'advancedSetting.showtype'))) ||
     control.type === 34
   );
+};
+
+export const useUserPermission = control => {
+  const [isHiddenOtherViewRecord] = (control.strDefault || '000').split('');
+  return !!+isHiddenOtherViewRecord;
 };

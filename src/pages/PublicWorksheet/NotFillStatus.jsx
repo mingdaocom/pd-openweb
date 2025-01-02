@@ -10,6 +10,7 @@ import FilledRecord from './FilledRecord';
 import { canSubmitByLimitFrequency } from './utils';
 import { getRequest } from 'src/util';
 import FixedContent from 'src/components/FixedContent';
+import renderText from 'src/pages/worksheet/components/CellControls/renderText.js';
 
 const Con = styled.div`
   height: 100%;
@@ -104,7 +105,7 @@ const StatusIcon = ({ status, worksheetId }) => {
 StatusIcon.propTypes = { status: PropTypes.string };
 
 export default function NotFillStatus(props) {
-  const { status, publicWorksheetInfo, onRefill, formData, rules } = props;
+  const { status, publicWorksheetInfo, onRefill, formData, rules, fillData = [] } = props;
   const {
     worksheetId,
     name,
@@ -114,9 +115,31 @@ export default function NotFillStatus(props) {
     abilityExpand = {},
     shareId,
     fixRemark,
+    extendDatas,
   } = publicWorksheetInfo;
   const canSubmitByLimit = canSubmitByLimitFrequency(shareId, limitWriteFrequencySetting);
   const request = getRequest();
+  const afterSubmit = safeParse(extendDatas.afterSubmit);
+
+  const handleReceive = () => {
+    const text = afterSubmit.content || '';
+    const output = text.replace(/#\{([^}]+)\}/g, (match, controlId) => {
+      const control = _.find(fillData, l => l.controlId === controlId);
+
+      if (control.type === 14 && control.value && !_.isArray(safeParse(control.value))) {
+        const fileValue = _.get(safeParse(control.value), 'attachments');
+        fileValue &&
+          fileValue.forEach(l => {
+            l.ext = l.fileExt;
+            l.originalFilename = l.originalFileName;
+          });
+        control.value = JSON.stringify(fileValue);
+      }
+
+      return control ? renderText(control) : '';
+    });
+    return output;
+  };
 
   return (
     <Con className="notFillStatus">
@@ -159,11 +182,11 @@ export default function NotFillStatus(props) {
             )}
 
           <div style={{ minHeight: !receipt ? '224px' : '200px' }}>
-            {receipt && status === FILL_STATUS.COMPLETED && (
+            {afterSubmit.action === 1 && afterSubmit.content && status === FILL_STATUS.COMPLETED && (
               <React.Fragment>
                 <Hr style={{ margin: '20px 0 4px' }} />
                 <Receipt className="receipt">
-                  <RichText data={receipt || ''} className="" disabled={true} />
+                  <RichText data={handleReceive()} className="" disabled={true} />
                 </Receipt>
               </React.Fragment>
             )}

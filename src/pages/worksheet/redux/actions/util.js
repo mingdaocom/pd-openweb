@@ -102,7 +102,8 @@ export function sortDataByCustomItems(data, view = {}, controls = [], firstNotSp
   const viewControls = _.find(controls, c => c.controlId === view.viewControl);
   if (!_.isEmpty(customItems) && viewControls) {
     const sortIds = customItems.map(i => {
-      if (_.includes([9, 10, 11, 28], viewControls.type)) {
+      const type = viewControls.type === 30 ? viewControls.sourceControlType : viewControls.type
+      if (_.includes([9, 10, 11, 28], type)) {
         return i;
       } else {
         const itemVal = safeParse(i);

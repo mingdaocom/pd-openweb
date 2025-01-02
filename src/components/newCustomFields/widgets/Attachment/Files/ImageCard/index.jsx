@@ -20,7 +20,22 @@ const renderFileImage = (url, coverType, imgClassName = 'w100') => {
 
 // 渲染明道云附件
 const ImageCard = props => {
-  const { data, isMobile, isDeleteFile, coverType, allowEditName, allowShare, allowDownload, recordId } = props;
+  const {
+    data,
+    isMobile,
+    isDeleteFile,
+    coverType,
+    wpsEditUrl,
+    allowEditName,
+    allowShare,
+    allowDownload,
+    recordId,
+    controlId,
+    isOtherSheet,
+    sourceControlId,
+    masterData,
+    isSubListFile,
+  } = props;
   const { onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
   const { isKc, browse, fileClassName, fileSize, isMore, isDownload } = props;
   const fullShow = coverType === '1';
@@ -35,6 +50,7 @@ const ImageCard = props => {
   const ref = useRef(null);
   const [isPicture, setIsPicture] = useState(props.isPicture);
   const allowReset = allowEditName && !isKc;
+  const allowNewPage = recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState);
 
   useEffect(() => {
     if (isPicture) {
@@ -51,7 +67,7 @@ const ImageCard = props => {
 
   const renderDropdownOverlay = (
     <Menu style={{ width: 150 }} className="Relative" onClick={e => e.stopPropagation()}>
-      {recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
+      {allowNewPage && (
         <MenuItem
           key="newPage"
           icon={<Icon icon="launch" className="Font17 pRight5" />}
@@ -64,9 +80,9 @@ const ImageCard = props => {
           {_l('新页面打开')}
         </MenuItem>
       )}
-      {recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
+      {allowNewPage && (
         <MenuItem
-          key="newPage"
+          key="newWindow"
           icon={<Icon icon="floating-layer" className="Font17 pRight5" />}
           onClick={e => {
             e.stopPropagation();
@@ -77,11 +93,25 @@ const ImageCard = props => {
           {_l('浮窗打开')}
         </MenuItem>
       )}
+      {md.global.Config.EnableDocEdit && wpsEditUrl && allowNewPage && <div className="hr-line" />}
+      {md.global.Config.EnableDocEdit && wpsEditUrl && (
+        <MenuItem
+          key="onLineEdit"
+          icon={<Icon icon="new_mail" className="Font17 pRight5" />}
+          onClick={e => {
+            e.stopPropagation();
+            window.open(wpsEditUrl);
+            setDropdownVisible(false);
+          }}
+        >
+          {_l('在线编辑')}
+        </MenuItem>
+      )}
       {(allowReset || allowShare) && <div className="hr-line" />}
       {allowReset && (
         <MenuItem
           key="editName"
-          icon={<Icon icon="new_mail" className="Font17 pRight5" />}
+          icon={<Icon icon="rename_input" className="Font17 pRight5" />}
           onClick={e => {
             e.stopPropagation();
             setIsEdit(true);
@@ -239,7 +269,16 @@ const ImageCard = props => {
                   <div
                     onClick={e => {
                       e.stopPropagation();
-                      handleDownload(data, isDownload);
+                      handleDownload(data, isDownload, {
+                        controlId: isOtherSheet
+                          ? sourceControlId
+                          : isSubListFile
+                          ? _.get(masterData, 'controlId')
+                          : controlId,
+                        rowId: recordId,
+                        parentWorksheetId: _.get(masterData, 'worksheetId'),
+                        parentRowId: _.get(masterData, 'recordId'),
+                      });
                     }}
                     className="panelBtn mRight10"
                   >
@@ -252,7 +291,10 @@ const ImageCard = props => {
                   action={['click']}
                   popup={renderDropdownOverlay}
                   popupVisible={dropdownVisible}
-                  onPopupVisibleChange={dropdownVisible => setDropdownVisible(dropdownVisible)}
+                  onPopupVisibleChange={dropdownVisible => {
+                    dropdownVisible && !wpsEditUrl && props.onTriggerMore(data);
+                    setDropdownVisible(dropdownVisible);
+                  }}
                   popupAlign={{
                     points: ['tl', 'bl'],
                     offset: [0, 5],
@@ -318,7 +360,7 @@ const NotSaveImageCard = props => {
 
   return (
     <div
-      className="attachmentFile"
+      className={cx('attachmentFile', { hover: isEdit })}
       onClick={() => {
         if (isEdit) return;
         isKc ? onKCPreview(data) : onPreview(data);
@@ -418,7 +460,7 @@ const NotSaveImageCard = props => {
                 }}
                 className="panelBtn"
               >
-                <Icon className="Gray_9e Font17" icon="new_mail" />
+                <Icon className="Gray_9e Font17" icon="rename_input" />
               </div>
             </Tooltip>
           )}

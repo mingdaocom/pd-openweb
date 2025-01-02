@@ -11,7 +11,7 @@ import styled from 'styled-components';
 
 const Container = styled.div`
   height: 100%;
-  background-color: #f5f5f5f;
+  background-color: #f5f5f5;
   display: flex;
   flex-direction: column;
 `;
@@ -45,7 +45,7 @@ class MobileBoardView extends Component {
 
     return (
       <Container>
-        <SearchWraper>
+        {/* <SearchWraper>
           <Icon icon="h5_search" className="Gray_9e Font17" />
           <input
             className="pAll0 Border0 w100 mLeft5 mRight5"
@@ -75,7 +75,7 @@ class MobileBoardView extends Component {
               }}
             />
           )}
-        </SearchWraper>
+        </SearchWraper> */}
         <div className="flex Relative">
           <BoardView {...this.props} />
         </div>

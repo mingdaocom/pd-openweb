@@ -19,7 +19,7 @@ const Wrap = styled.div`
       min-width: 0;
       border: 1px solid #fff;
       a {
-        color: #333;
+        color: #151515;
         display: inline-block;
         padding: 3px 8px;
         text-align: center;
@@ -31,12 +31,12 @@ const Wrap = styled.div`
       a:hover {
         background-color: #f5f5f5;
         border: 1px solid #f5f5f5;
-        color: #333;
+        color: #151515;
       }
     }
     .ant-pagination-item-active {
       border: 1px solid #fff;
-      color: #333;
+      color: #151515;
       a {
         text-decoration: none;
         color: #1294f7;
@@ -50,7 +50,7 @@ const Wrap = styled.div`
     .ant-pagination-prev,
     .ant-pagination-next {
       a {
-        color: #333;
+        color: #151515;
         &:hover {
           color: #1294f7;
         }

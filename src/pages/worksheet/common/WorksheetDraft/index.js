@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Icon, Menu, MenuItem, Button, Tooltip, Dialog } from 'ming-ui';
+import { Modal, Icon, Menu, MenuItem, Dialog } from 'ming-ui';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import WorksheetDraftOperate from './WorksheetDraftOperate';
 import WorksheetTable from 'worksheet/components/WorksheetTable';
@@ -9,8 +9,11 @@ import RecordInfo from 'worksheet/common/recordInfo/RecordInfoWrapper';
 import worksheetAjax from 'src/api/worksheet';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { SHEET_VIEW_HIDDEN_TYPES } from 'worksheet/constants/enum';
+import { SYSTEM_ENUM } from 'src/components/newCustomFields/tools/config';
+import { updateDraftTotalInfo } from './utils';
 import styled from 'styled-components';
 import { BrowserRouter } from 'react-router-dom';
+import { emitter } from 'src/util';
 
 const Con = styled.div`
   width: 100%;
@@ -31,7 +34,8 @@ const Header = styled.div`
     font-size: 17px;
     font-weight: 500;
   }
-  .closeBtn {
+  .closeBtn,
+  .refreshBtn {
     cursor: pointer;
     line-height: 1em;
     font-size: 22px;
@@ -48,16 +52,10 @@ const Body = styled.div`
   margin: 0 -24px;
 `;
 
-const DraftButton = styled.div`
-  height: 34px !important;
-  line-height: 34px;
-  border: 1px solid #ddd !important;
-  color: #333 !important;
-  background-color: #fff;
-  &:hover {
-    border: 1px solid #2196f3 !important;
-    color: #2196f3 !important;
-  }
+const TotalNumWrap = styled.span`
+  background-color: #eaeaea;
+  padding: 2px 6px;
+  border-radius: 10px;
 `;
 
 function DraftModal(props) {
@@ -69,13 +67,11 @@ function DraftModal(props) {
     sheetSwitchPermit,
     isCharge,
     allowAdd,
-    sheetViewData = {},
-    updateDraftDataCount = () => {},
     setHighLightOfRows = () => {},
+    updateDraftTotal = () => {},
   } = props;
 
   const { worksheetId, projectId, rules = [], isWorksheetQuery, advancedSetting = {}, enablePayment } = worksheetInfo;
-  const { rows } = sheetViewData;
   const [selected, setSelected] = useState([]);
   const [recordInfoVisible, setRecordInfoVisible] = useState(false);
   const [activeRelateTableControlIdOfRecord, setActiveRelateTableControlIdOfRecord] = useState({});
@@ -88,22 +84,7 @@ function DraftModal(props) {
     .filter(
       item =>
         !_.includes(SHEET_VIEW_HIDDEN_TYPES, item.type) &&
-        !_.includes(
-          [
-            'wfname',
-            'wfcuaids',
-            'wfcaid',
-            'wfctime',
-            'wfrtime',
-            'wfftime',
-            'wfstatus',
-            'rowid',
-            'ownerid',
-            'caid',
-            'uaid',
-          ],
-          item.controlId,
-        ) &&
+        !_.includes(SYSTEM_ENUM, item.controlId) &&
         controlState(item, 2).visible,
     )
     .concat([
@@ -121,8 +102,7 @@ function DraftModal(props) {
         : c,
     );
   const recordInfoRef = useRef(null);
-  const numberWidth = String(records.length).length * 8;
-  const rowHeadWidth = numberWidth + 32;
+  const numberWidth = 16
 
   useEffect(() => {
     loadRows({ appId, worksheetId });
@@ -139,9 +119,13 @@ function DraftModal(props) {
         pageSize: 10,
       })
       .then(res => {
-        updateDraftDataCount(res.data.length);
         setRecords(res.data);
         setLoading(false);
+        updateDraftTotal(res.data.length);
+        emitter.emit('UPDATE_DRAFT_TOTAL', {
+          worksheetId,
+          total: res.data.length,
+        });
       });
   };
 
@@ -152,7 +136,7 @@ function DraftModal(props) {
     return (
       <BaseColumnHead
         className={className}
-        style={style}
+        style={{ ...style }}
         worksheetId={worksheetId}
         control={
           disableMaskDataControls[control.controlId]
@@ -198,46 +182,15 @@ function DraftModal(props) {
           alert(_l('删除成功'));
           const data = records.filter(it => !_.includes(ids, it.rowid));
           setRecords(data);
-          updateDraftDataCount(data.length);
           setSelected([]);
-          // if (props.loadDraftDataCount && _.isFunction(props.loadDraftDataCount) && !data.length) {
-          //   props.loadDraftDataCount({ appId, worksheetId });
-          // }
+          updateDraftTotal(data.length);
+          updateDraftTotalInfo({ worksheetId, total: data.length });
+          emitter.emit('UPDATE_DRAFT_TOTAL', { worksheetId, total: data.length });
         } else {
           alert(_l('删除失败'), 2);
         }
       });
   };
-
-  const doubleConfirmSubmit = () => {
-    const doubleConfirm = safeParse(_.get(worksheetInfo, 'advancedSetting.doubleconfirm'));
-    if (_.get(worksheetInfo, 'advancedSetting.enableconfirm') === '1') {
-      Dialog.confirm({
-        title: <div className="breakAll">{doubleConfirm.confirmMsg}</div>,
-        description: doubleConfirm.confirmContent,
-        okText: (
-          <div className="InlineBlock ellipsis" style={{ maxWidth: 100 }}>
-            {doubleConfirm.sureName}
-          </div>
-        ),
-        cancelText: (
-          <div className="InlineBlock ellipsis" style={{ maxWidth: 100 }}>
-            {doubleConfirm.cancelName}
-          </div>
-        ),
-        onOk: submitDraft,
-      });
-
-      return;
-    }
-    submitDraft();
-  };
-
-  const submitDraft = _.throttle(() => {
-    if (recordInfoRef.current) {
-      recordInfoRef.current.saveDraftData({ draftType: 'submit' });
-    }
-  }, 1000);
 
   return (
     <BrowserRouter>
@@ -253,12 +206,17 @@ function DraftModal(props) {
           <WorksheetDraftOperate
             selected={selected}
             deleteSelete={deleteSelete}
+            total={records.length}
             onCancel={() => {
               setSelected([]);
             }}
           />
           <Header>
             <div className="title">{records.length ? `${_l('草稿箱')}（${records.length}/10）` : _l('草稿箱')}</div>
+            <div className="flex"></div>
+            <span className="refreshBtn mRight10" onClick={() => loadRows({ appId, worksheetId })}>
+              <i className="icon icon-refresh1" />
+            </span>
             <span className="closeBtn" onClick={onCancel}>
               <i className="icon icon-close" />
             </span>
@@ -274,6 +232,7 @@ function DraftModal(props) {
               noRenderEmpty={true}
               columns={columns}
               rowHeight={34}
+              rowHeadWidth={88}
               selectedIds={selected}
               data={records}
               controls={controls}
@@ -284,9 +243,9 @@ function DraftModal(props) {
               projectId={projectId}
               renderRowHead={({ className, style, rowIndex }) => (
                 <RowHead
-                  isDraft
+                  isDraftTable
                   className={className}
-                  style={{ ...style, with: String(rowIndex).length * 8 + 64 }}
+                  style={style}
                   numberWidth={numberWidth}
                   lineNumberBegin={0}
                   allowEdit={false}
@@ -324,28 +283,6 @@ function DraftModal(props) {
             ref={recordInfoRef}
             enablePayment={enablePayment}
             controls={controls}
-            draftFormControls={controls.filter(
-              item =>
-                !_.includes([...SHEET_VIEW_HIDDEN_TYPES, 33], item.type) &&
-                !_.includes(
-                  [
-                    'wfname',
-                    'wfcuaids',
-                    'wfcaid',
-                    'wfctime',
-                    'wfrtime',
-                    'wfftime',
-                    'wfstatus',
-                    'rowid',
-                    'ownerid',
-                    'caid',
-                    'uaid',
-                    'ctime',
-                    'utime',
-                  ],
-                  item.controlId,
-                ),
-            )}
             sheetSwitchPermit={sheetSwitchPermit}
             projectId={projectId}
             showPrevNext
@@ -358,6 +295,7 @@ function DraftModal(props) {
             view={{ ...view, controls: [] }}
             from={21}
             visible={recordInfoVisible}
+            worksheetInfo={worksheetInfo}
             hideRecordInfo={closeId => {
               if (!closeId || closeId === recordId) {
                 setRecordInfoVisible(false);
@@ -366,31 +304,22 @@ function DraftModal(props) {
             recordId={recordId}
             activeRelateTableControlId={activeRelateTableControlIdOfRecord}
             worksheetId={worksheetId}
-            renderHeader={() => (
-              <div className="flex flexRow w100 alignItemsCenter">
-                <div className="flex Font17 bold pLeft15">{`${advancedSetting.title || '创建记录'}（${_l(
-                  '草稿',
-                )}）`}</div>
-                <DraftButton
-                  className="ming Button--medium Button mRight12"
-                  onClick={_.throttle(() => {
-                    if (recordInfoRef.current) {
-                      recordInfoRef.current.saveDraftData({ draftType: 'draft' });
-                    }
-                  }, 1000)}
-                >
-                  {_l('存草稿')}
-                </DraftButton>
-                <Button className="mRight12" onClick={doubleConfirmSubmit}>
-                  {advancedSetting.sub || _l('提交')}
-                </Button>
-              </div>
-            )}
             rowStatus={21}
-            loadDraftList={loadRows}
             currentSheetRows={records}
             addNewRecord={props.addNewRecord}
             setHighLightOfRows={setHighLightOfRows}
+            loadRowsWhenChildTableStoreCreated={true}
+            updateDraftList={(rowId, rowData) => {
+              let data = _.clone(records);
+              if (!rowData) {
+                data = data.filter(it => it.rowid !== rowId);
+              } else {
+                const index = _.findIndex(data, it => it.rowid === rowId);
+                data[index] = rowData;
+              }
+              updateDraftTotal(data.length);
+              setRecords(data);
+            }}
           />
         )}
       </Modal>
@@ -406,41 +335,82 @@ function WorksheetDraft(props) {
     worksheetInfo = {},
     sheetSwitchPermit,
     isCharge,
-    sheetViewData = {},
     allowAdd,
     setHighLightOfRows,
+    isNewRecord,
+    className = '',
+    totalNumStyle = {},
   } = props;
-  const [draftDataCount, setDraftDataCount] = useState(props.draftDataCount);
+  const { worksheetId } = worksheetInfo;
+  const [total, setTotal] = useState(_.get(window, `draftTotalNumInfo[${worksheetId}]`));
+
+  // 获取草稿箱计数
+  const loadDraftDataCount = () => {
+    if (window.draftTotalNumInfo && window.draftTotalNumInfo[worksheetId]) return;
+
+    worksheetAjax
+      .getFilterRowsTotalNum({
+        appId,
+        worksheetId,
+        getType: 21,
+      })
+      .then(res => {
+        const total = Number(res) || 0;
+        updateDraftTotalInfo({ worksheetId, total });
+        setTotal(total);
+      });
+  };
 
   useEffect(() => {
-    setDraftDataCount(props.draftDataCount);
-  }, [props.draftDataCount]);
+    loadDraftDataCount();
+  }, []);
+
+  const updateTotal = (obj = {}) => {
+    if (worksheetId === obj.worksheetId) {
+      setTotal(obj.total);
+    }
+  };
+
+  useEffect(() => {
+    emitter.addListener('UPDATE_DRAFT_TOTAL', updateTotal);
+
+    return () => {
+      emitter.removeListener('UPDATE_DRAFT_TOTAL', updateTotal);
+    };
+  }, []);
+
+  if (isNewRecord && !total) return null;
 
   return (
-    <Tooltip popupPlacement="bottom" text={<span>{_l('草稿箱')}</span>}>
-      <span
-        className="mRight16 mTop4 Relative"
-        onClick={() => {
-          openWorkSheetDraft({
-            view,
-            appId,
-            worksheetInfo,
-            sheetSwitchPermit,
-            isCharge,
-            sheetViewData,
-            allowAdd,
-            addNewRecord: props.addNewRecord,
-            updateDraftDataCount: draftDataCount => {
-              setDraftDataCount(draftDataCount);
-            },
-            setHighLightOfRows,
-          });
-        }}
-      >
-        <Icon icon="drafts_approval" className="Font20 Gray_9e pointer mTop4" />
-        {/* {draftDataCount ? <span className="draftDot"></span> : ''} */}
-      </span>
-    </Tooltip>
+    <span
+      className={`Relative Hand draftEntry inlineFlex alignItemsCenter ${className}`}
+      onClick={() => {
+        openWorkSheetDraft({
+          view,
+          appId,
+          worksheetInfo,
+          sheetSwitchPermit,
+          isCharge,
+          allowAdd,
+          addNewRecord: props.addNewRecord,
+          setHighLightOfRows,
+          updateDraftTotal: total => {
+            setTotal(total);
+            updateDraftTotalInfo({ worksheetId, total });
+          },
+        });
+      }}
+    >
+      <Icon icon="drafts_approval" className="Font18 Gray_9e" />
+      <span className="mLeft5 Font13 Gray_75 draftTxt">{_l('草稿箱')}</span>
+      {total ? (
+        <TotalNumWrap className="mLeft5 Gray Font13" style={totalNumStyle}>
+          {total}
+        </TotalNumWrap>
+      ) : (
+        ''
+      )}
+    </span>
   );
 }
 export default WorksheetDraft;

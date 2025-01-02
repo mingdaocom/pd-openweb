@@ -318,12 +318,11 @@ export default class RecordFooter extends Component {
       editable,
       isSubList,
       getDataType,
-      childTableControlIds,
-      canSubmitDraft,
       hideOtherOperate,
       isMobileOperate,
       recordBase,
       recordInfo,
+      isDraft,
     } = this.props;
     const { onEditRecord, onSubmitRecord, onSaveRecord } = this.props;
     const { loading, customBtns } = this.state;
@@ -337,36 +336,18 @@ export default class RecordFooter extends Component {
       !md.global.Account.isPortal;
     return (
       <Fragment>
-        {(allowEdit || getDataType === 21) && !recordBase.workId && (
-          <Button
-            disabled={getDataType === 21 ? false : recordInfo.rulesLocked}
-            className="flex mLeft6 mRight6 Font13"
-            onClick={onEditRecord}
-          >
+        {(allowEdit || isDraft) && (
+          <Button className="flex mLeft6 mRight6 Font13" onClick={onEditRecord}>
             <Icon icon="edit" className="Font15 mRight6 ThemeColor" />
             <span className="ThemeColor bold">{_l('编辑')}</span>
           </Button>
         )}
-        {recordBase.workId && recordBase.from === 6 && (
-          <Button
-            disabled={!formChanged}
-            className="flex mLeft6 mRight6 Font13 bold"
-            color="primary"
-            onClick={onSaveRecord}
-          >
-            {_l('保存')}
-          </Button>
-        )}
-        {getDataType === 21 && ((childTableControlIds && !_.isEmpty(childTableControlIds) && canSubmitDraft) || !childTableControlIds) && (
-          <Button
-            className="flex mLeft6 mRight6 Font13"
-            color="primary"
-            onClick={onSubmitRecord}
-          >
+        {isDraft && (
+          <Button className="flex mLeft6 mRight6 Font13" color="primary" onClick={onSubmitRecord}>
             <span>{recordInfo.advancedSetting.sub || _l('提交')}</span>
           </Button>
         )}
-        {!loading && (
+        {!isDraft && !loading && (
           <Fragment>
             <CustomButtons
               classNames="flex flexShink flexRow ellipsis mLeft6 mRight6 justifyContentCenter"
@@ -379,20 +360,20 @@ export default class RecordFooter extends Component {
                 }
               }}
             />
-            {(!getDataType || getDataType !== 21) && (allowDelete || allowShare) && !customBtns.length && !hideOtherOperate && (
-              <Button
-                className="flex mLeft6 mRight6 Font13"
-                color="primary"
-                onClick={() => this.handleMoreOperation({ allowDelete, allowShare })}
-              >
-                <span className='bold'>{_l('更多操作')}</span>
-              </Button>
-            )}
+            {(!getDataType || getDataType !== 21) &&
+              (allowDelete || allowShare) &&
+              !customBtns.length &&
+              !hideOtherOperate && (
+                <Button
+                  className="flex mLeft6 mRight6 Font13"
+                  color="primary"
+                  onClick={() => this.handleMoreOperation({ allowDelete, allowShare })}
+                >
+                  <span className="bold">{_l('更多操作')}</span>
+                </Button>
+              )}
             {!!customBtns.length && recordBase.appId && !isMobileOperate && (
-              <div
-                className="moreOperation"
-                onClick={() => this.setState({ recordActionVisible: true })}
-              >
+              <div className="moreOperation" onClick={() => this.setState({ recordActionVisible: true })}>
                 <Icon icon="expand_less" className="Font20" />
               </div>
             )}
@@ -402,20 +383,13 @@ export default class RecordFooter extends Component {
     );
   }
   renderEditContent() {
-    const { onCancelSave, onSaveRecord } = this.props
+    const { onCancelSave, onSaveRecord } = this.props;
     return (
       <Fragment>
-        <Button
-          className="flex mLeft6 mRight6 Font13 bold Gray_75"
-          onClick={onCancelSave}
-        >
+        <Button className="flex mLeft6 mRight6 Font13 bold Gray_75" onClick={onCancelSave}>
           <span>{_l('取消')}</span>
         </Button>
-        <Button
-          className="flex mLeft6 mRight6 Font13 bold"
-          color="primary"
-          onClick={onSaveRecord}
-        >
+        <Button className="flex mLeft6 mRight6 Font13 bold" color="primary" onClick={onSaveRecord}>
           {_l('保存')}
         </Button>
       </Fragment>

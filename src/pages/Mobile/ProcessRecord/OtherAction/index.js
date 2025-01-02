@@ -44,7 +44,8 @@ export default class extends Component {
       selectedUser: [],
       entrustList: {},
       customApproveContent: content ? true : false,
-      files: []
+      files: [],
+      countersignType: 1
     };
   }
   componentDidMount() {
@@ -66,7 +67,7 @@ export default class extends Component {
   }
   handleAction = () => {
     const { action, instance } = this.props;
-    const { content, showPassword, selectedUser, entrustList, files, backNodeId = '' } = this.state;
+    const { content, showPassword, selectedUser, entrustList, files, backNodeId = '', countersignType } = this.state;
     const { auth, encrypt } = (instance || {}).flowNode || {};
 
     const passContent = action === 'pass' && _.includes(auth.passTypeList, 100);
@@ -98,10 +99,10 @@ export default class extends Component {
     const submitFun = () => {
       if (this.signature) {
         this.signature.saveSignature(signature => {
-          this.props.onAction({ action, content, forwardAccountId, backNodeId, signature, files: attachments });
+          this.props.onAction({ action, content, forwardAccountId, backNodeId, signature, files: attachments, countersignType });
         });
       } else {
-        this.props.onAction({ action, content, forwardAccountId, backNodeId, signature: undefined, files: attachments });
+        this.props.onAction({ action, content, forwardAccountId, backNodeId, signature: undefined, files: attachments, countersignType });
       }
       if (this.isNoneVerification) {
         this.setState({ showPassword: false });
@@ -266,63 +267,59 @@ export default class extends Component {
         </div>
       );
     }
-    if (_.includes(['transfer', 'transferApprove', 'after', 'before'], action)) {
+    if (_.includes(['transfer', 'transferApprove', 'after', 'before', 'addApprove'], action)) {
       return (
         <div className="itemWrap flexRow valignWrapper">
           <div className="Gray Font13 bold">{currentAction.headerText}</div>
-          {selectedUser.accountId ? (
+          {selectedUser.length ? (
             <div
               className="flex flexRow valignWrapper flexEnd mRight10 mLeft30"
-              onClick={e => this.handleOpenEntrust(e, entrustList[selectedUser.accountId])}
             >
-              <img className="boderRadAll_50 selectedUser" src={selectedUser.avatar} />
-              <span className="mLeft10 Gray ellipsis">{selectedUser.fullname}</span>
-              {!!entrustList[selectedUser.accountId] && <Icon className="Font20 mLeft10" icon="lift" />}
+              {_l('已选 %0 人', selectedUser.length)}
             </div>
           ) : (
             <div className="flex"></div>
           )}
           <Icon
-            className="Gray_9e Font22"
-            icon={selectedUser.accountId ? 'task-folder-charge' : 'task-add-member-circle'}
+            className="Gray_9e Font28"
+            icon={selectedUser.length ? 'task-folder-charge' : 'task-add-member-circle'}
             onClick={() => this.setState({ selectUserVisible: true })}
           />
         </div>
       );
     }
-    if (action === 'addApprove') {
+  }
+  renderSignType() {
+    const { selectedUser, countersignType } = this.state;
+    const { action } = this.props;
+    if (_.includes(['after', 'before'], action) && selectedUser.length > 1) {
+      const personsPassing = [
+        { text: _l('或签（一名审批人通过或否决即可）'), value: 3 },
+        { text: _l('会签（需所有审批人通过）'), value: 1 },
+        { text: _l('会签（只需一名审批人通过，否决需全员否决）'), value: 2 },
+        // { text: _l('会签（按比例投票通过）'), value: 4 },
+      ];
+      const handleOpen = () => {
+        this.actionSheetHandler = ActionSheet.show({
+          actions: personsPassing.map(item => {
+            return {
+              key: item.value,
+              text: <span className="Bold">{item.text}</span>,
+            };
+          }),
+          onAction: (action) => {
+            this.setState({
+              countersignType: action.key
+            });
+            this.actionSheetHandler.close();
+          },
+        });
+      }
       return (
-        <Fragment>
-          <div className="itemWrap flexRow valignWrapper">
-            <div className="Gray Font13 bold flex">
-              {selectedUser.length ? _l(`添加%0位审批人`, selectedUser.length) : currentAction.headerText}
-            </div>
-            <Icon
-              className="Gray_9e Font22"
-              icon="task-add-member-circle"
-              onClick={() => this.setState({ selectUserVisible: true })}
-            />
-          </div>
-          {selectedUser.map(data => (
-            <div className="itemWrap flexRow valignWrapper">
-              <div
-                className="flex flexRow valignWrapper mRight10"
-                onClick={e => this.handleOpenEntrust(e, entrustList[data.accountId])}
-              >
-                <img className="boderRadAll_50 selectedUser" src={data.avatar} />
-                <span className="mLeft10 Gray ellipsis">{data.fullname}</span>
-                {!!entrustList[data.accountId] && <Icon className="Font20 mLeft10" icon="lift" />}
-              </div>
-              <Icon
-                className="Gray_9e Font20"
-                icon="close"
-                onClick={() => {
-                  this.setState({ selectedUser: selectedUser.filter(u => u.accountId !== data.accountId) });
-                }}
-              />
-            </div>
-          ))}
-        </Fragment>
+        <div className="itemWrap flexRow valignWrapper" onClick={handleOpen}>
+          <div className="Gray Font13 bold flex">{_l('多人审批时采用的审批方式')}</div>
+          <div className="flex ellipsis">{_.find(personsPassing, { value: countersignType }).text}</div>
+        </div>
       );
     }
   }
@@ -346,15 +343,14 @@ export default class extends Component {
           selectedUsers={_.isArray(selectedUser) ? selectedUser : [selectedUser]}
           selectRangeOptions={appointedAccountIds ? { appointedAccountIds } : ''}
           type="user"
-          onlyOne={action === 'addApprove' ? false : true}
+          onlyOne={false}
           onClose={() => {
             this.setState({
               selectUserVisible: false,
             });
           }}
           onSave={user => {
-            const selectedUser = action === 'addApprove' ? user : user[0];
-            this.setState({ selectedUser });
+            this.setState({ selectedUser: user });
             this.checkEntrust(user);
           }}
         />
@@ -530,7 +526,7 @@ export default class extends Component {
                         });
                       }}
                     >
-                      <Icon icon="attachment" />
+                      <Icon className="Font16 Gray_75" icon="attachment" />
                     </UploadFileWrapper>
                   )}
                 </div>
@@ -538,9 +534,10 @@ export default class extends Component {
               {isAttachment && this.renderAttachment()}
             </Fragment>
           )}
-          {isSignature && this.renderSignature()}
           {this.renderInfo()}
+          {this.renderSignType()}
           {this.renderSelectUser()}
+          {isSignature && this.renderSignature()}
         </div>
         <div className="flexRow actionBtnWrapper">
           <div className="flex actionBtn bold Gray_75" onClick={this.props.onHide}>

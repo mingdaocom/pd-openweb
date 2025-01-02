@@ -6,6 +6,7 @@ import previewAttachments from 'src/components/previewAttachments/previewAttachm
 import postAjax from 'src/api/post';
 import PostDetails from 'src/pages/feed/components/post/postDetails/postDetails';
 import { Dialog, LoadDiv } from 'ming-ui';
+import { formatMsgDate } from '../../utils';
 
 const classify = files => {
   const imagelist = [];
@@ -143,7 +144,7 @@ export class FeesItem extends Component {
           {filelist && filelist.length ? this.renderFile(filelist) : undefined}
         </div>
         <div className="feed-metadata">
-          <span className="feed-ctime pull-left">{createTimeSpan(dateConvertToUserZone(item.createTime))}</span>
+          <span className="feed-ctime pull-left">{formatMsgDate(dateConvertToUserZone(item.createTime))}</span>
           <span className="feed-comment icon-task-reply-msg">{item.commentCount}</span>
         </div>
       </div>

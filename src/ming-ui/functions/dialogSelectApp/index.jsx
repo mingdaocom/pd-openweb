@@ -100,6 +100,7 @@ const SelectApp = props => {
     unionId = undefined,
     unique = false,
     ajaxFun = 'getAppsForProject',
+    externParam = {},
     onOk,
     onClose,
     isGetManagerApps,
@@ -216,6 +217,7 @@ const SelectApp = props => {
       unionId,
       pageIndex: fetchState.pageIndex,
       keyword: fetchState.keyWords,
+      ...externParam,
     }).then(({ apps }) => {
       const list = apps.filter(filterFun);
       setAppList(fetchState.pageIndex > 1 ? appList.concat(list) : list);

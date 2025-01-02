@@ -4,6 +4,14 @@ import { browserIsMobile } from 'src/util';
 
 import { treeTableViewData, handleTreeNodeRow } from 'worksheet/common/TreeTableHelper/index.js';
 
+function dataLoading(state = true, action) {
+  switch (action.type) {
+    case 'UPDATE_DATA_LOADING':
+      return action.value;
+    default:
+      return state;
+  }
+}
 function baseLoading(state = true, action) {
   switch (action.type) {
     case 'UPDATE_BASE_LOADING':
@@ -143,6 +151,7 @@ function rows(state = [], action) {
 export default combineReducers({
   cellErrors,
   baseLoading,
+  dataLoading,
   base,
   treeTableViewData,
   originRows,

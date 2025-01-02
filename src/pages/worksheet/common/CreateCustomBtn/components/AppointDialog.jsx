@@ -47,10 +47,6 @@ const Wrap = styled.div`
           height: 100%;
         }
       }
-      .datePicker {
-        position: absolute;
-        z-index: 1;
-      }
       .settingItemTitle {
         display: none;
       }

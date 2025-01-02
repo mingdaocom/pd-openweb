@@ -5,6 +5,9 @@ import ErrorDialog from 'src/pages/worksheet/common/WorksheetBody/ImportDataFrom
 import { downloadFile } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
 import _ from 'lodash';
+import { match } from 'path-to-regexp';
+
+const integrationParams = match('/integrationConnect/:id?/:tab?');
 
 export default function customNotice() {
   const { socket } = window.IM || {};
@@ -48,7 +51,8 @@ export default function customNotice() {
     });
 
     socket.on('custom', data => {
-      const { id, status, title, msg, link, linkText, color } = data;
+      const { id, status, title, msg, link, linkText, color, type } = data;
+      const { params } = integrationParams(location.pathname) || {};
       let action = '';
       const linkBtn = {
         text: linkText || _l('查看详情'),
@@ -63,6 +67,13 @@ export default function customNotice() {
         action = 'warning';
       } else {
         action = 'error';
+      }
+
+      // api集成导入升级 type=2 导出，type=101 api导入，type=102 api升级
+      if (status === 2 && type === 102 && !_.isEmpty(params) && params.id === data.id) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 200);
       }
 
       antNotification[action]({

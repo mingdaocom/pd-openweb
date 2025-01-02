@@ -199,7 +199,7 @@ export default function ConfigRelate(props) {
                       <SvgIcon url={item.iconUrl} fill="#999999" size={18} className="InlineBlock Width18" />
                       <span className="Bold mLeft10">{item.sourceEntityName}</span>
                       <span className="Gray_9e mLeft4 Font14">
-                        {_l(' - %0：%1', _.get(DEFAULT_CONFIG[enumWidgetType[type]], 'widgetName'), controlName)}
+                        {` - ${_.get(DEFAULT_CONFIG[enumWidgetType[type]], 'widgetName')}：${controlName}`}
                       </span>
                     </li>
                   );
@@ -246,6 +246,7 @@ export default function ConfigRelate(props) {
           {renderContent()}
         </div>
         <div className="footerBtn">
+          <div className="flex"></div>
           <Button type="link" onClick={closeRelateConfig}>
             {_l('取消')}
           </Button>

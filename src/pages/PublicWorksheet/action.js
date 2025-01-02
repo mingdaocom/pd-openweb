@@ -85,11 +85,11 @@ export function getPublicWorksheetInfo(worksheetId, cb) {
 }
 
 function clearUrl(source) {
-  history.pushState(
-    {},
-    '',
-    source ? `${location.origin}${location.pathname}?source=${source}` : location.origin + location.pathname,
-  );
+  const targetUrl = source
+    ? `${location.origin}${location.pathname}?source=${source}`
+    : location.origin + location.pathname;
+  history.replaceState({ page: 'wechat_redirect' }, '', targetUrl);
+  history.pushState({}, '', targetUrl);
 }
 
 async function getStatus(data, shareId) {
@@ -160,7 +160,7 @@ async function getStatus(data, shareId) {
           safeLocalStorageSetItem('wxUserInfo', JSON.stringify(userInfo || {}));
 
           if (writeScope !== 1 && !md.global.Config.IsLocal && !!userInfo.state && weChatSetting.collectChannel === 1) {
-            //平台或组织用户，非私有部署环境，state不为空，公众号
+            //平台或组织用户，非私有部署环境，state不为空，服务号
             //走自动登录逻辑
             const loginResult = await loginApi.tPLogin({
               unionId: userInfo.unionId,
@@ -182,6 +182,8 @@ async function getStatus(data, shareId) {
                   window.md.global.Account = {};
                 }
               }
+              clearUrl(request.source);
+            } else {
               clearUrl(request.source);
             }
           } else {

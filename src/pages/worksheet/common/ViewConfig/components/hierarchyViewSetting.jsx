@@ -137,7 +137,7 @@ const HierarchyViewSettingWrap = styled.div(
   }
   .controlName {
     margin: 0 4px 0 12px;
-    color: #333;
+    color: #151515;
   }
   .relateItem {
     display: flex;
@@ -333,7 +333,7 @@ export default function HierarchyViewSetting(props) {
               <div className="info">
                 <i className="icon-view Font18 Gray_9e"></i>
                 <span className="controlName Font14 Bold overflow_ellipsis">{currentSheetInfo.name}</span>
-                <span className="Gray_9e">{_l(' (本表) ')}</span>
+                <span className="Gray_9e pLeft3 pRight3">({_l('本表')})</span>
               </div>
               {forCarSet && (
                 <div className="handle">

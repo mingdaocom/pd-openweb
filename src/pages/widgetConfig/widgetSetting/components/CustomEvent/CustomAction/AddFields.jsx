@@ -8,8 +8,10 @@ import { DropdownOverlay } from '../../../../styled';
 import cx from 'classnames';
 
 export default function AddFields(props) {
-  const { handleClick, selectControls, text, disabled } = props;
-  const filterControls = selectControls.filter(i => !_.includes(SYS_CONTROLS.concat(SYS), i.controlId));
+  const { handleClick, selectControls, text, disabled, showSys = false } = props;
+  const filterControls = showSys
+    ? selectControls
+    : selectControls.filter(i => !_.includes(SYS_CONTROLS.concat(SYS), i.controlId));
   const [visible, setVisible] = useState(false);
   const [searchValue, setValue] = useState('');
 
@@ -46,7 +48,7 @@ export default function AddFields(props) {
                   const enumType = enumWidgetType[i.type];
                   const { icon } = DEFAULT_CONFIG[enumType];
                   return (
-                    <div className="item overflow_ellipsis" onClick={() => handleClick([{ controlId: i.controlId }])}>
+                    <div className="item overflow_ellipsis" onClick={() => handleClick(i)}>
                       <Icon icon={icon} className="Font15" />
                       <span className="overflow_ellipsis">{i.controlName}</span>
                     </div>

@@ -1,3 +1,4 @@
+import qs from 'query-string';
 import worksheetAjax from 'src/api/worksheet';
 import kcAjax from 'src/api/kc';
 import attachmentAjax from 'src/api/attachment';
@@ -8,7 +9,16 @@ import { updateOptionsOfControls, checkCellIsEmpty, handleRecordError } from 'wo
 import _ from 'lodash';
 import { emitter } from 'src/util';
 
-export async function downloadAttachmentById({ fileId, refId, worksheetId = undefined, rowId, controlId }) {
+export async function downloadAttachmentById({
+  fileId,
+  refId,
+  worksheetId = undefined,
+  rowId,
+  controlId,
+  parentWorksheetId,
+  parentRowId,
+  sourceControlId,
+}) {
   try {
     if (!fileId && !refId) {
       throw new Error();
@@ -28,7 +38,13 @@ export async function downloadAttachmentById({ fileId, refId, worksheetId = unde
         controlId,
       });
     }
-    window.open(data.downloadUrl);
+    const logExtend = qs.stringify({
+      controlId: sourceControlId || controlId,
+      rowId,
+      parentWorksheetId,
+      parentRowId,
+    });
+    window.open(`${data.downloadUrl}&${logExtend}`);
   } catch (err) {
     console.error(err);
     alert(_l('下载附件失败'), 3);
@@ -240,7 +256,6 @@ export function submitNewRecord(props) {
         }
       } else if (res.resultCode === 22) {
         setSubListUniqueError(res.badData);
-        handleRecordError(res.resultCode);
       } else if (res.resultCode === 31) {
         setServiceError(res.badData);
       } else if (res.resultCode === 32) {
@@ -254,11 +269,6 @@ export function submitNewRecord(props) {
     .catch(err => {
       console.error(err);
       onSubmitEnd();
-      if (_.isObject(err)) {
-        if (!err.errorMessage) {
-          alert(_l('记录添加失败'), 2);
-        }
-      }
     });
 }
 

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import Clipboard from 'react-clipboard.js';
 import copy from 'copy-to-clipboard';
+import qs from 'query-string';
 import Ajax from 'src/api/workWeiXin';
 import { LoadDiv } from 'ming-ui';
 import { compareProps } from 'pages/PageHeader/util.js';
@@ -20,6 +21,11 @@ import scan5 from './img/scan5.png';
 import './style.less';
 import moment from 'moment';
 
+const PlatformName = {
+  feishu: _l('飞书'),
+  lark: 'Lark',
+};
+
 export default class WorkwxSyncCourse extends React.Component {
   constructor(props) {
     super(props);
@@ -27,6 +33,7 @@ export default class WorkwxSyncCourse extends React.Component {
       homeUrl: '',
       loading: true,
       scanSafeDomain: '',
+      type: _.get(qs.parse(location.search), 'type') || 'feishu',
     };
   }
 
@@ -59,16 +66,26 @@ export default class WorkwxSyncCourse extends React.Component {
   }
 
   renderDing = () => {
-    const { homeUrl } = this.state;
+    const { homeUrl, type } = this.state;
+    const isLark = type === 'lark';
+
     return (
       <React.Fragment>
         <div>
-          <h3 className="Font18 Gray mTop40">{_l('1. 登录飞书开放平台 — 点击“创建应用”')}</h3>
-          <img src={fsImg1} />
+          <h3 className="Font18 Gray mTop40">
+            {`${_l('1. 登录%0开放平台', PlatformName[type])} - ${
+              isLark ? _l('点击“创建企业自建应用”') : _l('点击“创建应用”')
+            }`}
+          </h3>
+          <img src={require(`./img/${isLark ? 'lark_1' : '1'}.png`)} />
           <h3 className="Font18 Gray mTop40">{_l('2. 填写应用信息')}</h3>
           <p className="Font14 Gray_75 mTop24 LineHeight22">
-            {_l('选择“企业自建应用”')}
-            <br />
+            {!isLark && (
+              <Fragment>
+                {_l('选择“企业自建应用”')}
+                <br />
+              </Fragment>
+            )}
             {_l('填入应用名称、应用描述')}
             <br />
             {_l('应用Logo建议：')}
@@ -82,9 +99,16 @@ export default class WorkwxSyncCourse extends React.Component {
             </a>
             <br />
           </p>
-          <img src={fsImg2} />
+          <img src={require(`./img/${isLark ? 'lark_2' : '2'}.png`)} />
           <h3 className="Font18 Gray mTop40">{_l('3. 配置对接信息')}</h3>
-          <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('1.进入自建应用，将我们提供的主页地址填入三个字段')}</p>
+          <p className="Font14 Gray_75 mTop24 LineHeight22">{`${_l('1.进入自建应用，')}${
+            isLark ? _l('添加网页应用能力') : _l('将我们提供的主页地址填入三个字段')
+          }`}</p>
+          {isLark && (
+            <p className="Font14 Gray_75 mTop24 LineHeight22">
+              {_l('2.进入网页应用，将我们提供的主页地址填入三个字段')}
+            </p>
+          )}
           <p className="Font14 Gray_75 mTop10 LineHeight22 mLeft15">
             {_l('a.“应用功能 - 网页”，先启用网页，然后填写桌面端及移动端主页')}
           </p>
@@ -104,13 +128,14 @@ export default class WorkwxSyncCourse extends React.Component {
             </Clipboard>
           </div>
           <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('注：复制上方内容，三处保持一致即可')}</p>
-          <img src={fsImg3} />
-          <img src={fsImg3_1} />
+          <img src={require(`./img/${isLark ? 'lark_3' : '3'}.png`)} />
+          <img src={require(`./img/${isLark ? 'lark_3_1' : '3_1'}.png`)} />
+          <img src={require('./img/lark_3_2.png')} />
           <p className="Font14 Gray_75 mTop24 LineHeight22">
-            {_l('2.切换到“机器人”，启用机器人功能，这样在飞书消息测就能直接收到内部的流程、应用消息')}
+            {_l('2.切换到“机器人”，启用机器人功能，这样在%0消息测就能直接收到内部的流程、应用消息', PlatformName[type])}
           </p>
           <img src={fsImg4} />
-          <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('3. 前往“权限管理”，开启所需的七个权限')}</p>
+          <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('3. 前往“权限管理”，开启所需的13个权限')}</p>
           <ul className="mLeft15">
             <li className="mTop5">{_l('a.获取应用信息')}</li>
             <li className="mTop5">{_l('b.获取通讯录基本信息')}</li>
@@ -126,30 +151,31 @@ export default class WorkwxSyncCourse extends React.Component {
             <li className="mTop5">{_l('l.以应用的身份发消息')}</li>
             <li className="mTop5">{_l('m.给多个用户批量发消息')}</li>
           </ul>
-          <img src={fsImg5} />
+          <img src={require(`./img/${isLark ? 'lark_5' : '5'}.png`)} />
           <p className="Font14 Gray_75 mTop24 LineHeight22">
             {_l('4.前往“版本管理与发布”，点击创建版本，填写版本详情。注：可用性状态决定了组织架构同步的范畴')}
           </p>
-          <img src={fsImg6} />
+          <img src={require(`./img/${isLark ? 'lark_6' : '6'}.png`)} />
           <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('5.保存后，申请发布，可通知管理员审核发布即可')}</p>
           <img src={fsImg7} />
           <h3 className="Font18 Gray mTop40">{_l('4. 如何获取App ID和App Secret')}</h3>
           <p className="Font14 Gray_75 mTop24 LineHeight22">
             {_l('“凭证与基础信息”可以查看该App的ID和Secret；回到该系统管理后台，下一步录入信息将会用到')}
           </p>
-          <img src={fsImg8} />
+          <img src={require(`./img/${isLark ? 'lark_8' : '8'}.png`)} />
         </div>
       </React.Fragment>
     );
   };
 
   renderScanContent = () => {
-    const { scanSafeDomain } = this.state;
+    const { scanSafeDomain, type } = this.state;
+    const isLark = type === 'lark';
 
     return (
       <div className="scanWorkwx" style={{ height: 2240 }}>
-        <h3 className="Font18 Gray mTop40">{_l('飞书扫码登录（可选）')}</h3>
-        <p className="mTop24">{_l('开启后，在二级域名下使用钉钉扫一扫，直接登录')}</p>
+        <h3 className="Font18 Gray mTop40">{_l('%0扫码登录（可选）', PlatformName[type])}</h3>
+        <p className="mTop24">{_l('开启后，在二级域名下使用%0扫一扫，直接登录', PlatformName[type])}</p>
         <p className="Font14 Gray_75 mTop20 LineHeight22">{_l('1.设置二级域名')}</p>
         <p className="mTop10">{_l('如果您还没有申请二级域名，请前往 组织 — 组织信息 — 二级域名 处进行配置。')}</p>
         <img src={scan1} />
@@ -167,12 +193,12 @@ export default class WorkwxSyncCourse extends React.Component {
             {_l('复制')}
           </span>
         </div>
-        <img src={scan2} />
+        <img src={require(`./img/${isLark ? 'lark_scan2' : 'scan2'}.png`)} />
         <p className="Font14 Gray_75 mTop24 LineHeight22">{_l('3.启用该功能')}</p>
-        <p className="mTop10">{_l('回到组织管理后台的飞书对接部分，开启第四步的功能开关')}</p>
-        <img src={scan4} />
-        <p className="mTop24">{_l('完成后，从二级域名下登录，点击飞书的图标，扫一扫即可')}</p>
-        <img src={scan5} />
+        <p className="mTop10">{_l('回到组织管理后台的%0对接部分，开启第四步的功能开关', PlatformName[type])}</p>
+        <img src={require(`./img/${isLark ? 'lark_scan4' : 'scan4'}.png`)} />
+        <p className="mTop24">{_l('完成后，从二级域名下登录，点击%0的图标，扫一扫即可', PlatformName[type])}</p>
+        <img src={require(`./img/${isLark ? 'lark_scan5' : 'scan5'}.png`)} />
       </div>
     );
   };

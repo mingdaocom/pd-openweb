@@ -10,13 +10,14 @@ import {
 } from 'src/pages/accountLogin/util.js';
 import registerApi from 'src/api/register';
 import accountApi from 'src/api/account';
-import { encrypt, mdAppResponse, getRequest, isPasswordRule } from 'src/util';
+import { encrypt, mdAppResponse, getRequest, browserIsMobile } from 'src/util';
 import { setPssId } from 'src/util/pssId';
 import { ActionResult, AccountNextActions } from 'src/pages/accountLogin/config.js';
 import { LoginResult } from 'src/pages/accountLogin/login/config.js';
 import { getDataByFilterXSS } from 'src/pages/accountLogin/util.js';
 import moment from 'moment';
 import { navigateTo } from 'src/router/navigateTo';
+import RegExpValidator from 'src/util/expression';
 
 let request = getRequest();
 
@@ -201,7 +202,7 @@ export const isValid = (isForSendCode, keys = [], type) => {
         } else {
           if (keys.includes('setPassword')) {
             //登录时，不需要验证密码的合法性
-            if (!isPasswordRule(password)) {
+            if (!RegExpValidator.isPasswordValid(password)) {
               warnningData.push({ tipDom: '.passwordIcon', warnningText: _l('密码格式错误') });
               isRight = false;
             }
@@ -521,6 +522,7 @@ export const loginCallback = data => {
     const { accountInfo } = getState();
     const { emailOrTel, fullName, isCheck } = accountInfo;
     const { loginGotoAppId } = md.global.SysSettings;
+    const msgStyle = browserIsMobile() ? { 'margin-top': '180px' } : {};
 
     //缓存这次登录的账号
     if (loginMode === 1) {
@@ -561,6 +563,15 @@ export const loginCallback = data => {
     }
 
     if (data.accountResult === LoginResult.accountSuccess) {
+      const { token = {} } = data;
+      if (window.isMingDaoApp) {
+        window.MDJS.login({
+          access_token: token.accessToken,
+          expires_in: 7200,
+          refresh_token: token.rereshToken,
+        });
+        return;
+      }
       setPssId(data.sessionId);
 
       if (request.ReturnUrl) {
@@ -626,7 +637,9 @@ export const loginCallback = data => {
 
       if (data.accountResult === LoginResult.isLock) {
         let t = data.state ? Math.ceil(data.state / 60) : 20;
-
+        if (data.isVerifyLogin) {
+          return alert(_l('错误次数过多，出于安全考虑，暂时锁定您的账户，请%0分钟后尝试，或前往重置密码解除锁定', t), 3, undefined, undefined, undefined, msgStyle);
+        }
         dispatch(
           updateWarn([
             {
@@ -657,6 +670,9 @@ export const loginCallback = data => {
           const t = (state || '').split('|');
 
           if (t.length > 1) {
+            if (data.isVerifyLogin) {
+              return alert(_l('您输入错误%0次，还可尝试%1次', t[1], t[0] - t[1]), 3, undefined, undefined, undefined, msgStyle);
+            }
             dispatch(
               updateWarn([
                 { tipDom: '.warnningDiv', warnningText: _l('您输入错误%0次，还可尝试%1次', t[1], t[0] - t[1]) },

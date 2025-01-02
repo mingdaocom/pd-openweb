@@ -60,13 +60,13 @@ const IconWrap = styled.div`
 `;
 
 const checkErrorPassword = password => {
-  const { passwordRegex, passwordRegexTip } = md.global.SysSettings;
+  const { passwordRegexTip } = md.global.SysSettings;
   if (!password) {
     alert(_l('请输入密码'), 3);
     return true;
   }
 
-  if (!RegExpValidator.isPasswordValid(password, passwordRegex)) {
+  if (!RegExpValidator.isPasswordValid(password)) {
     alert(passwordRegexTip || _l('密码，至少8-20位，且含字母+数字'), 3);
     return true;
   }

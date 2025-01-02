@@ -12,7 +12,7 @@ import filterXSS from 'xss';
 import variableApi from 'src/api/variable';
 
 const LogDrawer = styled(Drawer)`
-  color: #333;
+  color: #151515;
   .ant-drawer-mask {
     background-color: transparent;
   }
@@ -116,7 +116,7 @@ const LogItem = styled.div`
     font-size: 12px;
     color: #9e9e9e;
     a {
-      color: #333;
+      color: #151515;
     }
   }
   .operatorAvatar {

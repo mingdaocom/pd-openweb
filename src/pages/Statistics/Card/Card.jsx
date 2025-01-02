@@ -12,6 +12,7 @@ import { fillValueMap, chartNav, isOptionControl } from '../common';
 import { reportTypes } from '../Charts/common';
 import { Loading, WithoutData, Abnormal } from '../components/ChartStatus';
 import { VIEW_DISPLAY_TYPE } from 'src/pages/worksheet/constants/enum';
+import { getFilledRequestParams } from 'src/pages/worksheet/util';
 import MoreOverlay from './MoreOverlay';
 import charts from '../Charts';
 import { browserIsMobile, getAppFeaturesPath, getTranslateInfo } from 'src/util';
@@ -105,6 +106,7 @@ class Card extends Component {
       filters: printFilter
         ? printFilter
         : [filters, filtersGroup, isLinkageFilter && linkageFiltersGroup].filter(_ => _),
+      ...getFilledRequestParams({}),
     });
     this.request.then(result => {
       result.reportId = report.id;

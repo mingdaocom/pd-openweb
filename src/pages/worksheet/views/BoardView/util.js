@@ -96,7 +96,7 @@ export const dealBoardViewData = props => {
 };
 
 export const getTargetName = (value, controls = {}, { type }) => {
-  if (type === 26) {
+  if (_.includes([26, 27, 48], type)) {
     return value;
   } else if ([9, 11].includes(type)) {
     const findItem = _.find(controls.options || [], i => i.key === JSON.parse(value || [])[0]);

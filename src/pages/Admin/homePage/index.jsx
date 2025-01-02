@@ -3,16 +3,18 @@ import { HomePageWrap, FreeTrialWrap } from './styled';
 import cx from 'classnames';
 import projectAjax from 'src/api/project';
 import processVersionAjax from 'src/pages/workflow/api/processVersion';
+import certificationApi from 'src/api/certification.js';
 import { Modal, Button, Progress } from 'antd';
 import { QUICK_ENTRY_CONFIG, USER_COUNT, ITEM_COUNT, UPLOAD_COUNT, formatFileSize, formatValue } from './config';
 import moment from 'moment';
 import { getCurrentProject, getFeatureStatus, formatNumberThousand } from 'src/util';
 import { navigateTo } from 'src/router/navigateTo';
 import InstallDialog from './installDialog';
-import { Support, Tooltip, Icon } from 'ming-ui';
+import { Support, Tooltip, Icon, Dialog } from 'ming-ui';
 import addFriends from 'src/components/addFriends';
 import { purchaseMethodFunc } from 'src/components/pay/versionUpgrade/PurchaseMethodModal';
 import PurchaseExpandPack from '../components/PurchaseExpandPack';
+import SelectCertification from 'src/pages/certification/SelectCertification';
 import { useSetState } from 'react-use';
 import _ from 'lodash';
 
@@ -53,7 +55,17 @@ export default function HomePage({ match, location: routerLocation }) {
       if (!res.currentLicense.version) {
         res.currentLicense.version = { name: _l('免费版') };
       }
-      setData(res);
+      const resData = _.omit(res, [
+        'effectiveApkCount',
+        'effectiveApkStorageCount',
+        'effectiveWorkflowCount',
+        'effectiveWorksheetCount',
+        'effectiveWorksheetRowCount',
+        'effectiveDataPipelineJobCount',
+        'effectiveDataPipelineRowCount',
+        'effectiveAggregationTableCount',
+      ]);
+      setData(resData);
     });
   };
 
@@ -135,6 +147,28 @@ export default function HomePage({ match, location: routerLocation }) {
     if (type === 'toast') {
       alert(_l('单应用版暂不支持线上续费，请联系顾问进行续费'), 3);
     }
+  };
+
+  // 身份认证
+  const handleAuthenticate = () => {
+    Dialog.confirm({
+      title: _l('请先完成组织身份认证'),
+      description: _l('需要完成组织身份认证后才能进行余额充值'),
+      okText: _l('前往认证'),
+      onOk: () => {
+        certificationApi.getCertInfoList({ certSource: 1, isUpgrade: false }).then(res => {
+          if (res && !!res.length) {
+            SelectCertification({
+              certList: res,
+              projectId,
+              onUpdateCertStatus: authType => setData({ authType }),
+            });
+          } else {
+            navigateTo(`/certification/project/${projectId}?returnUrl=${encodeURIComponent(location.href)}`);
+          }
+        });
+      },
+    });
   };
 
   // 处理中文环境下行记录总数
@@ -417,56 +451,54 @@ export default function HomePage({ match, location: routerLocation }) {
           <div className="userInfo">
             <div className="content">
               <ul>
-                {UPLOAD_COUNT.filter(item =>
-                  md.global.Config.IsPlatformLocal ? item : item.key === 'useExecCount',
-                ).map(({ key, limit, text, link, click, unit, numUnit }) => {
-                  const percentValue = getCountProcess(key, limit);
-                  return (
-                    <li
-                      className="pLeft10 pRight10 Hand"
-                      onClick={() => {
-                        if (key == 'effectiveDataPipelineRowCount') {
-                          localStorage.setItem('currentProjectId', projectId);
-                          return location.assign('/integration/task');
-                        }
-                        linkHref(link);
-                      }}
-                    >
-                      <div className="workflowTitle flexRow">
-                        <div className="flex">
-                          {text}
-                          <span className="Gray_9e">{unit}</span>
-                          {key === 'effectiveApkStorageCount' && (
-                            <Tooltip
-                              popupPlacement="top"
-                              text={<span>{_l('应用中本年的附件上传量，上传即占用，删除不会恢复')}</span>}
-                            >
-                              <span className="icon-help1 Font13 Gray_9e" />
-                            </Tooltip>
-                          )}
-                        </div>
-                        {!isTrial && !isFree ? (
+                {UPLOAD_COUNT.filter(item => (md.global.Config.IsPlatformLocal ? item : item.key === 'useExecCount'))
+                  .filter(o => !(md.global.SysSettings.hideDataPipeline && o.key === 'effectiveDataPipelineRowCount'))
+                  .map(({ key, limit, text, link, click, unit, numUnit }) => {
+                    const percentValue = getCountProcess(key, limit);
+                    return (
+                      <li
+                        className="pLeft10 pRight10 Hand"
+                        onClick={() => {
+                          if (key == 'effectiveDataPipelineRowCount') {
+                            localStorage.setItem('currentProjectId', projectId);
+                            return location.assign('/integration/task');
+                          }
+                          linkHref(link);
+                        }}
+                      >
+                        <div className="workflowTitle flexRow">
+                          <div className="flex">
+                            {text}
+                            <span className="Gray_9e">{unit}</span>
+                            {key === 'effectiveApkStorageCount' && (
+                              <Tooltip
+                                popupPlacement="top"
+                                text={<span>{_l('应用中本年的附件上传量，上传即占用，删除不会恢复')}</span>}
+                              >
+                                <span className="icon-help1 Font13 Gray_9e" />
+                              </Tooltip>
+                            )}
+                          </div>
                           <PurchaseExpandPack text={_l('扩容')} type={click} projectId={projectId} />
-                        ) : null}
-                      </div>
-                      <Progress
-                        showInfo={false}
-                        style={{ margin: '7px 0', textAlign: 'left' }}
-                        trailColor="#eaeaea"
-                        strokeColor={
-                          _.isNaN(Number(percentValue))
-                            ? '#eaeaea'
-                            : percentValue > 90
-                            ? { from: '#F51744 ', to: '#FF5779' }
-                            : { from: '#2196f3 ', to: '#4bb2ff' }
-                        }
-                        strokeWidth={4}
-                        percent={percentValue}
-                      />
-                      {getCountText(key, limit, numUnit)}
-                    </li>
-                  );
-                })}
+                        </div>
+                        <Progress
+                          showInfo={false}
+                          style={{ margin: '7px 0', textAlign: 'left' }}
+                          trailColor="#eaeaea"
+                          strokeColor={
+                            _.isNaN(Number(percentValue))
+                              ? '#eaeaea'
+                              : percentValue > 90
+                                ? { from: '#F51744 ', to: '#FF5779' }
+                                : { from: '#2196f3 ', to: '#4bb2ff' }
+                          }
+                          strokeWidth={4}
+                          percent={percentValue}
+                        />
+                        {getCountText(key, limit, numUnit)}
+                      </li>
+                    );
+                  })}
               </ul>
             </div>
           </div>

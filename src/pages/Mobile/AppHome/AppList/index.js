@@ -53,7 +53,7 @@ class AppList extends Component {
             ) : (
               <Icon icon={data.icon} className="Font30" />
             )}
-            {data.id === 'add' || !data.fixed ? null : (
+            {data.id === 'add' || (!data.fixed && !data.isUpgrade && !data.isNew && data.isGoodsStatus) ? null : (
               <AppStatus isGoodsStatus={data.isGoodsStatus} isNew={data.isNew} fixed={data.fixed} />
             )}
           </div>

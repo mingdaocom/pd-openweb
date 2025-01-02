@@ -107,7 +107,7 @@ class ResetPassword extends React.Component {
     if (isRight && !this.isPasswordRule(password)) {
       warnningData.push({
         tipDom: this.password,
-        warnningText: this.state.passwordRegexTip || _l('密码，8-20位，必须含字母+数字'),
+        warnningText: _l('密码格式错误'),
       });
       isRight = false;
     }

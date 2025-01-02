@@ -24,18 +24,18 @@ const MoreOperateMenu = styled.ul`
   border-radius: 3px 3px 3px 3px;
   width: 160px;
   font-size: 13px;
-  color: #333;
+  color: #151515;
   padding: 4px 0;
   li {
     line-height: 36px;
     padding: 0 24px;
     cursor: pointer;
     a {
-      color: #333;
+      color: #151515;
       transition: none !important;
     }
     .renewal {
-      color: #333 !important;
+      color: #151515 !important;
     }
     &:hover {
       background-color: #2196f3;
@@ -63,7 +63,7 @@ const EmptyWrap = styled.div`
   .desc {
     width: 448px;
     font-size: 14px;
-    color: #333333;
+    color: #151515;
     line-height: 25px;
     margin-bottom: 70px;
     text-align: center;

@@ -4,9 +4,10 @@ import { Dialog } from 'ming-ui';
 export const SettingItem = styled.div`
   margin-top: 20px;
   position: relative;
+  ${props => (props.hide ? 'display: none;' : '')}
   .ant-input {
     font-size: 13px;
-    color: #333;
+    color: #151515;
     line-height: 26px;
     border-radius: 3px;
     &.inputError {
@@ -412,11 +413,11 @@ export const OptionWrap = styled.div`
     ${props => (props.direction === '0' ? `max-width: ${props.width}px;` : '')}
   }
   &.light {
-    color: #333;
+    color: #151515;
   }
   &.withoutColor {
     background: transparent;
-    color: #333;
+    color: #151515;
     padding: 0 4px;
   }
   background-color: ${props => props.color || '#2196f3'};
@@ -553,7 +554,7 @@ export const WidgetIntroWrap = styled.div`
       }
       span {
         margin-left: 8px;
-        font-size: 15px;
+        font-size: 16px;
         font-weight: 600;
       }
     }
@@ -581,7 +582,7 @@ export const WidgetIntroWrap = styled.div`
         margin-right: 0;
       }
       i {
-        color: #9e9e9e;
+        color: #757575;
       }
       &:hover {
         background: #f5f5f5;
@@ -921,6 +922,23 @@ export const EditOptionDialog = styled(Dialog)`
     bottom: 58px;
     background: #fff;
     padding: 12px 36px;
+  }
+`;
+
+export const SetConfig = styled.div`
+  height: 36px;
+  line-height: 34px;
+  text-align: center;
+  border-radius: 3px;
+  cursor: pointer;
+  border: ${props => (props.hasSet ? '1px solid #ddd' : '1px dashed #ddd')};
+  i {
+    font-size: 15px;
+    color: #4caf50;
+    margin-right: 7px;
+  }
+  &:hover {
+    border-color: #2196f3;
   }
 `;
 

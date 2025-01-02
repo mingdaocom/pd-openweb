@@ -35,7 +35,7 @@ const InputCon = styled(Input)`
 const RangeInputCon = styled.div`
   display: flex;
   width: 100%;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
   &:hover:not(:focus) {
     border-color: #ccc !important;

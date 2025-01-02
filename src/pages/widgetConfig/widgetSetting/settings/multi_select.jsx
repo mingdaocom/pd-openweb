@@ -4,6 +4,7 @@ import { SettingItem } from '../../styled';
 import SelectOptions from '../components/OptionList/SelectOptions';
 import DisplayOptions from '../components/OptionList/DisplayOptions';
 import { getAdvanceSetting, handleAdvancedSettingChange } from '../../util/setting';
+import { isCustomWidget } from '../../util';
 
 const OPTIONS_DISPLAY = [
   {
@@ -21,7 +22,7 @@ export default function MultiSelect(props) {
 
   return (
     <Fragment>
-      <SettingItem>
+      <SettingItem hide={isCustomWidget(data)}>
         <div className="settingItemTitle">{_l('显示方式')}</div>
         <RadioGroup
           size="middle"

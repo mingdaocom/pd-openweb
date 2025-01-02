@@ -23,7 +23,7 @@ const PayHeaderWrap = styled.div`
   .netManageTitle {
     height: 32px;
     line-height: 32px;
-    color: #333;
+    color: #151515;
     padding-left: 20px;
     margin-left: 20px;
     font-size: 17px;

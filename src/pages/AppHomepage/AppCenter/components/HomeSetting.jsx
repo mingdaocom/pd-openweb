@@ -56,7 +56,7 @@ const CustomDrawer = styled(Drawer)`
       margin-right: 0;
       &:hover {
         background: #f5f5f5;
-        color: #333;
+        color: #151515;
       }
     }
   }

@@ -22,7 +22,7 @@ export const THEME_COLOR_OPTIONS = [
   '#455964',
 ];
 
-export const TEXT_COLOR_OPTIONS = [...THEME_COLOR_OPTIONS, '#333333', '#757575'];
+export const TEXT_COLOR_OPTIONS = [...THEME_COLOR_OPTIONS, '#151515', '#757575'];
 
 export const getBgData = theme => {
   const rgbArr = [0.24, 0.16, 0.08].map(item => {

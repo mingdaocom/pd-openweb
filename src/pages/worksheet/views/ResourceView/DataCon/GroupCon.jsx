@@ -15,6 +15,8 @@ import { openControlAttachmentInNewTab } from 'worksheet/controllers/record';
 import { getIconNameByExt, getClassNameByExt, browserIsMobile, addBehaviorLog } from 'src/util';
 import emptyCover from 'src/pages/worksheet/assets/emptyCover.png';
 import RegExpValidator from 'src/util/expression';
+import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
+
 const Wrap = styled.div`
   .flexShrink0 {
     flex-shrink: 0;
@@ -388,8 +390,8 @@ export default function GroupCon(props) {
                 width: isM
                   ? '100%'
                   : displayControlsInfo.length <= 0
-                  ? props.directoryWidth
-                  : widthConfig[0] || minControlWidth,
+                    ? props.directoryWidth
+                    : widthConfig[0] || minControlWidth,
                 background: '#fff',
               }}
             >
@@ -504,6 +506,10 @@ export default function GroupCon(props) {
                 o.name
               );
             };
+            const renderName = () => {
+              const row = safeParse(o.name || '{}');
+              return row[isSameType([27], viewControlData) ? 'departmentName' : 'organizeName'];
+            };
             return (
               <div
                 className="th flexRow alignItemsCenter Relative"
@@ -543,16 +549,18 @@ export default function GroupCon(props) {
                     width: isM
                       ? '100%'
                       : displayControlsInfo.length <= 0
-                      ? props.directoryWidth
-                      : widthConfig[0] || minControlWidth,
+                        ? props.directoryWidth
+                        : widthConfig[0] || minControlWidth,
                   }}
                 >
                   <span className="overflow_ellipsis WordBreak flex w100">
-                    {viewControlData.type === 26
+                    {isSameType([26], viewControlData)
                       ? renderAccount(o.name)
-                      : viewControlData.type === 29
-                      ? renderRelate(o)
-                      : o.name}
+                      : isSameType([27, 48], viewControlData)
+                        ? renderName(o)
+                        : isSameType([29], viewControlData)
+                          ? renderRelate(o)
+                          : o.name}
                   </span>
                 </TbWrap>
                 {displayControlsInfo.map((it, index) => {
@@ -599,7 +607,7 @@ export default function GroupCon(props) {
                       onClick={() => {
                         let value = o.key;
                         const info = controls.find(o => o.controlId === view.viewControl) || {};
-                        if (info.type === 26) {
+                        if (isSameType([26], info)) {
                           const { name = '' } = o;
                           if (name) {
                             const user = JSON.parse(name);
@@ -608,27 +616,20 @@ export default function GroupCon(props) {
                             value = '[]';
                           }
                         }
-                        if (info.type === 27) {
+                        if (isSameType([27, 48], info)) {
                           const { name = '', key } = o;
+                          const row = safeParse(o.name || '{}');
                           if (key) {
-                            value = JSON.stringify([{ departmentId: key, departmentName: name }]);
+                            value = JSON.stringify([row]);
                           } else {
                             value = '[]';
                           }
                         }
-                        if (info.type === 48) {
-                          const { name = '', key } = o;
-                          if (key) {
-                            value = JSON.stringify([{ organizeId: key, organizeName: name }]);
-                          } else {
-                            value = '[]';
-                          }
-                        }
-                        if (info.type === 29) {
+                        if (isSameType([29], info)) {
                           value = JSON.stringify([{ sid: o.key, name: o.name }]);
                         }
-                        if (_.includes([9, 10, 11], info.type)) {
-                          value = JSON.stringify([value]);
+                        if (isSameType([9, 10, 11, 28], info)) {
+                          value = isSameType([28], info) ? value : JSON.stringify([value]);
                         }
                         if (o.key === '-1') {
                           value = '';

@@ -47,7 +47,7 @@ const Con = styled.div`
     margin-top: 45px;
   }
   &.isDark {
-    background: #333;
+    background: #151515;
     .iconCon {
       background: #4a4a4a;
       .icon {

@@ -14,7 +14,7 @@ const Con = styled.div`
   height: 32px;
   line-height: 32px;
   .RelateRecordDropdown-selected {
-    border-color: #ddd;
+    border-color: var(--border-color);
     &.active {
       border-color: #2196f3;
     }
@@ -65,7 +65,7 @@ const SelectedTags = styled.div`
     line-height: 24px;
     padding: 0 24px 0 10px;
     background-color: rgba(0, 100, 240, 0.08);
-    color: #333;
+    color: #151515;
     border-radius: 3px;
     .name {
       max-width: 100%;

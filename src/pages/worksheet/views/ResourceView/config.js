@@ -15,3 +15,6 @@ export const resourceTypes = [
   { text: _l('周'), value: '1', key: 'Week' },
   { text: _l('日'), value: '2', key: 'Day' },
 ];
+
+export const kanbanSize = 50;
+export const pageSize = 50;

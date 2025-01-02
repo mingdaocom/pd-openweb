@@ -163,7 +163,7 @@ function User(props) {
     changeExternalManager,
     isOwner,
   } = props;
-  const { selectedIds = [], roleInfos = [] } = appRole;
+  const { selectedIds = [], roleInfos = [], roleLimitInfo = {} } = appRole;
   const [
     {
       keyWords,
@@ -407,10 +407,10 @@ function User(props) {
               roleId !== 'all'
                 ? _l('移到其他角色')
                 : !isExternal
-                ? _l('修改角色')
-                : data.isManager
-                ? _l('取消管理员')
-                : _l('设为管理员'),
+                  ? _l('修改角色')
+                  : data.isManager
+                    ? _l('取消管理员')
+                    : _l('设为管理员'),
           },
           {
             value: 1,
@@ -519,35 +519,38 @@ function User(props) {
   const renderPopup = () => {
     return (
       <Menu style={{ position: 'static' }}>
-        {_.map([_l('人员'), _l('部门'), _l('组织角色'), _l('职位')], (o, i) => {
-          return (
-            <MenuItem
-              key={i}
-              onClick={() => {
-                switch (i) {
-                  case 0:
-                    props.addUserToRole(userList.filter(o => o.memberType === 5).map(user => user.id));
-                    break;
-                  case 1:
-                    props.addDepartmentToRole();
-                    break;
-                  case 2:
-                    props.addOrgRole();
-                    break;
-                  case 3:
-                    props.addJobToRole();
-                    break;
-                }
-                setState({
-                  popupVisible: false,
-                  selectedAll: false,
-                });
-              }}
-            >
-              {o}
-            </MenuItem>
-          );
-        })}
+        {_.map(
+          roleLimitInfo.limitState ? [_l('人员')] : [_l('人员'), _l('部门'), _l('组织角色'), _l('职位')],
+          (o, i) => {
+            return (
+              <MenuItem
+                key={i}
+                onClick={() => {
+                  switch (i) {
+                    case 0:
+                      props.addUserToRole(userList.filter(o => o.memberType === 5).map(user => user.id));
+                      break;
+                    case 1:
+                      props.addDepartmentToRole();
+                      break;
+                    case 2:
+                      props.addOrgRole();
+                      break;
+                    case 3:
+                      props.addJobToRole();
+                      break;
+                  }
+                  setState({
+                    popupVisible: false,
+                    selectedAll: false,
+                  });
+                }}
+              >
+                {o}
+              </MenuItem>
+            );
+          },
+        )}
       </Menu>
     );
   };

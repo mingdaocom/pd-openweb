@@ -256,7 +256,18 @@ class AttachmentsPreview extends React.Component {
         onWheel={this.onWheel}
       >
         {showTitle && <DocumentTitle title={name + '.' + ext} />}
-        <PreviewHeader onClose={this.props.onClose} />
+        <PreviewHeader
+          logExtend={{
+            rowId: options.recordId,
+            parentWorksheetId: options.masterWorksheetId,
+            parentRowId: options.masterRecordId,
+            controlId: options.sourceControlId || options.masterControlId || options.controlId,
+          }}
+          onClose={this.props.onClose}
+          projectId={options.projectId}
+          isDraft={options.isDraft}
+          allowEdit={options.allowEdit}
+        />
         <div className="previewPanel" style={!this.state.attInfoFolded && showAttInfo ? { right: 328 } : {}}>
           <div
             className="previewContainer"
@@ -279,6 +290,9 @@ class AttachmentsPreview extends React.Component {
                       recordId: options.recordId,
                       worksheetId: options.worksheetId,
                       controlId: options.controlId,
+                      projectId: options.projectId,
+                      masterWorksheetId: options.masterWorksheetId,
+                      masterRecordId: options.masterRecordId,
                     });
                   }}
                 >
@@ -296,6 +310,9 @@ class AttachmentsPreview extends React.Component {
                       recordId: options.recordId,
                       worksheetId: options.worksheetId,
                       controlId: options.controlId,
+                      projectId: options.projectId,
+                      masterWorksheetId: options.masterWorksheetId,
+                      masterRecordId: options.masterRecordId,
                     });
                   }}
                 >
@@ -353,7 +370,7 @@ class AttachmentsPreview extends React.Component {
                   }
                   case PREVIEW_TYPE.IFRAME:
                     {
-                      /*if ((ext || '').toLocaleLowerCase() === 'pdf' && !window.isDingTalk) {
+                      /*if ((ext || '').toLocaleLowerCase() === 'pdf' && !window.isDingTalk && previewService !== 'wps') {
                       return (
                         <iframe
                           width="100%"

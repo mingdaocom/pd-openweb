@@ -112,7 +112,7 @@ const Description = styled.div`
   padding: 8px 10px;
   color: #9e9e9e;
   margin-bottom: 20px;
-  color: #333;
+  color: #151515;
 `;
 
 const { Step } = Steps;
@@ -167,7 +167,7 @@ export default class CreateMerchant extends Component {
     this.props.getDataList();
   }
 
-  // 获取微信公众号是否授权
+  // 获取微信服务号是否授权
   getWeiXinBindingInfo = () => {
     const { projectId, currentMerchantInfo = {} } = this.props;
     const { merchant = {} } = this.state;
@@ -448,7 +448,7 @@ export default class CreateMerchant extends Component {
                     <Icon icon="wechat_pay" className="Font24" />
                   </IconWrap>
                   <span className="Font15">{_l('微信')}</span>
-                  <Tooltip text={_l('微信公众号主体必须与创建商户的主体一致')} tooltipStyle={{ maxWidth: 267 }}>
+                  <Tooltip text={_l('微信服务号主体必须与创建商户的主体一致')} tooltipStyle={{ maxWidth: 267 }}>
                     <Icon icon="info" className="Gray_9e mLeft6 Font16" />
                   </Tooltip>
                 </div>

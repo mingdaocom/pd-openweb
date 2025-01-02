@@ -19,7 +19,7 @@ import Sort from 'src/pages/widgetConfig/widgetSetting/components/sublist/Sort';
 import { getSortData } from 'src/pages/worksheet/util';
 import { EditInfo, SettingItem } from '../../styled';
 import { useSheetInfo } from '../../hooks';
-import { getFilterRelateControls } from '../../util';
+import { getFilterRelateControls, isCustomWidget } from '../../util';
 import ConfigRelate from '../components/relateSheet/ConfigRelate';
 import DynamicDefaultValue from '../components/DynamicDefaultValue';
 import { WHOLE_SIZE } from '../../config/Drag';
@@ -287,7 +287,7 @@ export default function RelateSheet(props) {
           size="small"
         />
       </SettingItem>
-      <SettingItem>
+      <SettingItem hide={isCustomWidget(data)}>
         <div className="settingItemTitle">{_l('显示方式')}</div>
         <Dropdown
           border
@@ -367,9 +367,9 @@ export default function RelateSheet(props) {
         )}
       </SettingItem>
       {ddset !== '1' && showtype === '3' ? null : (
-        <SettingItem>
+        <SettingItem hide={isCustomWidget(data)}>
           <div className="settingItemTitle mBottom8">
-            <span style={{ fontWeight: 'normal' }}>{_l('显示字段')}</span>
+            <span>{_l('显示字段')}</span>
             {enumDefault === 1 && (
               <Tooltip
                 className="hoverTip"

@@ -327,7 +327,7 @@ export default class Label {
         leftOffset = (barWidth - realBarWidth) / 2;
       }
       code128.data.split('').forEach((char, i) => {
-        const fillColor = char === '1' ? '#333333' : '#ffffff';
+        const fillColor = char === '1' ? '#151515' : '#ffffff';
         this.doc
           .fillColor(fillColor)
           .rect(
@@ -354,7 +354,7 @@ export default class Label {
         this.doc
           .font('alibaba')
           .fontSize(mmToPt(barFontSize))
-          .fillColor('#333')
+          .fillColor('#151515')
           .text(barValue, mmToPt(this.paddingX * this.unitSize), mmToPt(barTop), {
             width: mmToPt(barWidth),
             height: mmToPt(barTextHeight),
@@ -398,7 +398,7 @@ export default class Label {
     });
     return (width / count) * 2;
   }
-  renderTexts(texts = [], { left = 0, top = 0, fontSize = 10, color = '#333333', width = 100 } = {}) {
+  renderTexts(texts = [], { left = 0, top = 0, fontSize = 10, color = '#151515', width = 100 } = {}) {
     const _this = this;
     this.drawLine(top, width);
     if (!texts.length) return;
@@ -504,7 +504,7 @@ export default class Label {
       renderCell: ({ x, y, w, h, isDark, color }) => {
         this.doc.rect(mmToPt(left) + x, mmToPt(top) + y, w, h);
         if (isDark) {
-          this.doc.fill('#333');
+          this.doc.fill('#151515');
         } else {
           this.doc.fill('#fff');
         }

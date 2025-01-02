@@ -247,6 +247,7 @@ export default function NavShow(props) {
       {showCustom && (
         <SortCustom
           {...props}
+          maxCount={50}
           view={{ advancedSetting }}
           projectId={_.get(filterInfo, 'globalSheetInfo.projectId')}
           appId={_.get(filterInfo, 'globalSheetInfo.appId')}
@@ -258,10 +259,12 @@ export default function NavShow(props) {
             const type = data.type === 30 ? data.sourceControlType : data.type;
             switch (type) {
               case 29:
-                values = infos.map(o => o.rowid);
-                break;
               case 26:
-                values = infos.map(o => o.accountId);
+              case 27:
+              case 48:
+                const key =
+                  29 === type ? 'rowid' : 26 === type ? 'accountId' : 27 === type ? 'departmentId' : 'organizeId';
+                values = infos.map(o => o[key]);
                 break;
               default:
                 values = infos;

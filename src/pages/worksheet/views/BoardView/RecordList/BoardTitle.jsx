@@ -38,7 +38,7 @@ const BoardTitleWrap = styled(FlexCenter)`
       color: #fff;
     }
     &.isLightColor {
-      color: #333;
+      color: #151515;
     }
   }
   .relationSheetType {
@@ -55,7 +55,7 @@ const BoardTitleWrap = styled(FlexCenter)`
   }
   .gradeType {
     font-size: 15px;
-    color: #333;
+    color: #151515;
   }
   .noGroupTitle {
     color: #757575;
@@ -93,7 +93,7 @@ export default class BoardTitle extends Component {
       projectId,
     } = this.props;
 
-    if (noGroup) return <div className="noGroupTitle">{name}</div>;
+    if (noGroup) return <div className="noGroupTitle WordBreak">{name}</div>;
     if (_.includes(CAN_AS_BOARD_OPTION, type)) {
       const isColorful = enumDefault2 === 1 && color;
       return (
@@ -116,6 +116,12 @@ export default class BoardTitle extends Component {
           <span className="Font14 Bold">{fullname}</span>
         </div>
       );
+    }
+    if (type === 27) {
+      return <div className="relationSheetType boardTitle">{(JSON.parse(name) || {}).departmentName}</div>;
+    }
+    if (type === 48) {
+      return <div className="relationSheetType boardTitle">{(JSON.parse(name) || {}).organizeName}</div>;
     }
     if (_.includes([28], type)) {
       const itemnames = JSON.parse(advancedSetting.itemnames || '[]');

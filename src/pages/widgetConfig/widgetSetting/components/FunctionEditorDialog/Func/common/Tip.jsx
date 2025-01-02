@@ -56,7 +56,7 @@ const Des = styled.div`
   bb,
   b {
     font-weight: 500;
-    color: #333;
+    color: #151515;
     margin: 6px 0 4px;
     display: inline-block;
   }

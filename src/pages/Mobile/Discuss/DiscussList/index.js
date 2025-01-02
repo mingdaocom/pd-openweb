@@ -1,6 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
 import cx from 'classnames';
+import { PullToRefreshWrapper } from 'ming-ui';
 import { SpinLoading, ActionSheet, List } from 'antd-mobile';
 import * as actions from '../redux/actions';
 import { Icon } from 'ming-ui';
@@ -9,6 +10,7 @@ import AttachmentFiles from 'mobile/components/AttachmentFiles';
 import withoutDisussion from './assets/withoutDisussion.svg';
 import { dateConvertToUserZone } from 'src/util';
 import _ from 'lodash';
+import './index.less';
 
 class DiscussList extends Component {
   constructor(props) {
@@ -26,27 +28,32 @@ class DiscussList extends Component {
     this.actionSheetHandler && this.actionSheetHandler.close();
     this.props.dispatch(actions.emptySheetDiscussion());
   }
-  getSheetDiscussion(pageIndex) {
+  getSheetDiscussion(pageIndex, isPullRefreshing = false) {
     const { worksheetId, rowId, entityType } = this.props;
-    this.setState({ loading: true });
-    this.props.dispatch(actions.getSheetDiscussion({
-      pageIndex,
-      worksheetId,
-      rowId,
-      entityType,
-    }, isMore => {
-      this.setState({
-        pageIndex,
-        loading: false,
-        isMore,
-      });
-    }));
+    if (!isPullRefreshing) {
+      this.setState({ loading: true });
+    }
+    this.props.dispatch(
+      actions.getSheetDiscussion(
+        {
+          pageIndex,
+          worksheetId,
+          rowId,
+          entityType,
+        },
+        isMore => {
+          this.setState({
+            pageIndex,
+            loading: false,
+            isMore,
+          });
+        },
+      ),
+    );
   }
   openActionSheet(discussionId) {
     const { rowId } = this.props;
-    const BUTTONS = [
-      { name: _l('删除评论'), class: 'Red', icon: 'delete2', iconClass: 'Font18' },
-    ];
+    const BUTTONS = [{ name: _l('删除评论'), class: 'Red', icon: 'delete2', iconClass: 'Font18' }];
     this.actionSheetHandler = ActionSheet.show({
       actions: BUTTONS.map(item => {
         return {
@@ -56,8 +63,8 @@ class DiscussList extends Component {
               <Icon className={cx('mRight10', item.iconClass)} icon={item.icon} />
               <span className="Bold">{item.name}</span>
             </div>
-          )
-        }
+          ),
+        };
       }),
       extra: (
         <div className="flexRow header">
@@ -83,6 +90,11 @@ class DiscussList extends Component {
       this.getSheetDiscussion(this.state.pageIndex + 1);
     }
   };
+  handlePullToRefresh = () => {
+    const { refreshDiscussCount } = this.props;
+    this.getSheetDiscussion(1, true);
+    if (refreshDiscussCount) refreshDiscussCount();
+  }
   renderItem(item) {
     return (
       <List.Item key={item.discussionId} prefix={<img src={item.createAccount.avatar} />}>
@@ -128,22 +140,28 @@ class DiscussList extends Component {
     return (
       <Fragment>
         {_.isEmpty(sheetDiscussions) ? (
-          <div className="flexRow alignItemsCenter justifyContentCenter h100">
+          <div className={cx('sheetDiscussionEmptyBox h100', { 'valignWrapper justifyContentCenter': loading })}>
             {loading ? (
               <SpinLoading color="primary" />
             ) : (
-              <div className="withoutData flexColumn alignItemsCenter">
-                <img src={withoutDisussion} className="mBottom15" />
-                <span className="text">{_l('暂无讨论')}</span>
-              </div>
+              <PullToRefreshWrapper onRefresh={this.handlePullToRefresh}>
+                <div className="flexRow alignItemsCenter justifyContentCenter h100">
+                  <div className="withoutData flexColumn alignItemsCenter">
+                    <img src={withoutDisussion} className="mBottom15" />
+                    <span className="text">{_l('暂无讨论')}</span>
+                  </div>
+                </div>
+              </PullToRefreshWrapper>
             )}
           </div>
         ) : (
           <div className="sheetDiscussList h100" onScroll={this.handleEndReached}>
-            <List>{sheetDiscussions.map(item => this.renderItem(item))}</List>
-            {isMore && (
-              <div className="flexRow justifyContentCenter">{loading ? <SpinLoading color="primary" /> : null}</div>
-            )}
+            <PullToRefreshWrapper onRefresh={this.handlePullToRefresh}>
+              <List>{sheetDiscussions.map(item => this.renderItem(item))}</List>
+              {isMore && (
+                <div className="flexRow justifyContentCenter">{loading ? <SpinLoading color="primary" /> : null}</div>
+              )}
+            </PullToRefreshWrapper>
           </div>
         )}
       </Fragment>

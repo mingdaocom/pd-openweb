@@ -186,6 +186,7 @@ function WorksheetTable(props, ref) {
     actions = {},
     chatButton,
     onColumnHeadHeightUpdate = () => {},
+    isDraft,
   } = props;
   const { emptyIcon, emptyText, sheetIsFiltered, allowAdd, noRecordAllowAdd, showNewRecord } = props; // 空状态
   const { keyWords } = props; // 搜索
@@ -514,6 +515,7 @@ function WorksheetTable(props, ref) {
     <React.Fragment>
       {maskVisible && <DragMask value={maskLeft} min={maskMinLeft} max={maskMaxLeft} onChange={maskOnChange} />}
       <StyledFixedTable
+        isSubList={isSubList}
         controlStyles={showControlStyle && getControlStyles(visibleColumns)}
         disablePanVertical={disablePanVertical}
         noRenderEmpty={noRenderEmpty}
@@ -549,6 +551,7 @@ function WorksheetTable(props, ref) {
           tableId,
           isTrash,
           from,
+          isDraft,
           view,
           readonly,
           allowAdd,

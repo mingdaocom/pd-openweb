@@ -73,6 +73,7 @@ export default class Cascader extends React.Component {
       updateCell,
       onClick,
       worksheetId,
+      recordId,
       rowFormData = () => {},
     } = this.props;
     const { value } = this.state;
@@ -102,6 +103,7 @@ export default class Cascader extends React.Component {
               value={value}
               from={from}
               {...cell}
+              recordId={recordId}
               visible={isediting}
               disabled={!editable}
               onChange={this.handleChange}

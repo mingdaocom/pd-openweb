@@ -114,7 +114,7 @@ const Wrap = styled.div`
         color: #757575;
       }
       .viewName {
-        color: #333;
+        color: #151515;
       }
       &:hover {
         border: 1px solid #2196f3;

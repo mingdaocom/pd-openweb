@@ -230,6 +230,16 @@ class ProcessConfig extends Component {
         value: 6,
       },
     ];
+    const dotMode = [
+      {
+        text: _l('按字段原始值取所有小数位数，如：3.14159'),
+        value: 0,
+      },
+      {
+        text: _l('按字段配置中的小数位数，如：3.14159 配置了4位小数，则取 3.1416'),
+        value: 1,
+      },
+    ];
     const openDebug = _.includes(data.debugEvents, 0);
 
     return (
@@ -321,6 +331,17 @@ class ProcessConfig extends Component {
               text={item.text}
               checked={data.dateShowType === item.value}
               onClick={() => this.updateSource({ dateShowType: item.value })}
+            />
+          </div>
+        ))}
+        <div className="mTop15 bold">{_l('数值字段的小数位数')}</div>
+        <div className="Gray_75 mTop5">{_l('仅支持分支节点条件判断')}</div>
+        {dotMode.map((item, i) => (
+          <div className="mTop15" key={i}>
+            <Radio
+              text={item.text}
+              checked={data.dotType === item.value}
+              onClick={() => this.updateSource({ dotType: item.value })}
             />
           </div>
         ))}
@@ -554,10 +575,6 @@ class ProcessConfig extends Component {
     const { flowInfo } = this.props;
     const { data, errorItems } = this.state;
     const importData = data.processVariables.filter(item => item.processVariableType === 1);
-    const AUTH_TYPE = [
-      { text: _l('使用应用授权'), value: 1 },
-      { text: _l('无需授权'), value: 0 },
-    ];
 
     return (
       <Fragment>
@@ -621,20 +638,7 @@ class ProcessConfig extends Component {
               </div>
             </div>
 
-            <div className="bold Font16 mTop28">{_l('请求鉴权认证')}</div>
-            <div className="mTop15 flexRow">
-              {AUTH_TYPE.map((item, i) => (
-                <Radio
-                  key={i}
-                  className="bold mRight60"
-                  text={item.text}
-                  checked={data.pbcConfig.authType === item.value}
-                  onClick={() =>
-                    this.updateSource({ pbcConfig: Object.assign({}, data.pbcConfig, { authType: item.value }) })
-                  }
-                />
-              ))}
-            </div>
+            {this.renderAuthContent()}
 
             {!!importData.length && (
               <Fragment>
@@ -849,6 +853,72 @@ class ProcessConfig extends Component {
     );
   }
 
+  renderAuthContent() {
+    const { data } = this.state;
+    const AUTH_TYPE = [
+      { text: _l('使用应用授权'), value: 1 },
+      { text: _l('无需授权'), value: 0 },
+    ];
+
+    return (
+      <Fragment>
+        <div className="bold Font16 mTop28">{_l('请求鉴权认证')}</div>
+        <div className="mTop15 flexRow">
+          {AUTH_TYPE.map((item, i) => (
+            <Radio
+              key={i}
+              className="bold mRight60"
+              text={item.text}
+              checked={data.pbcConfig.authType === item.value || (data.pbcConfig.authType === 2 && item.value === 0)}
+              onClick={() =>
+                this.updateSource({ pbcConfig: Object.assign({}, data.pbcConfig, { authType: item.value }) })
+              }
+            />
+          ))}
+        </div>
+        <div className="bold Font16 mTop28">{_l('白名单')}</div>
+        <div className="mTop15">
+          <Checkbox
+            className="InlineBlock Gray"
+            text={_l('使用应用IP白名单')}
+            checked={data.pbcConfig.authType !== 0}
+            disabled={data.pbcConfig.authType === 1}
+            onClick={checked =>
+              this.updateSource({ pbcConfig: Object.assign({}, data.pbcConfig, { authType: checked ? 0 : 2 }) })
+            }
+          />
+        </div>
+      </Fragment>
+    );
+  }
+
+  renderWebhookContent() {
+    const { flowInfo } = this.props;
+    const { data } = this.state;
+
+    return (
+      <Fragment>
+        <div className="bold Font16 mTop28">{_l('平台API能力')}</div>
+        <div className="Gray_75 mTop5">
+          {data.pbcConfig.authType === 0
+            ? _l('为Webhook配置鉴权认证，IP白名单，自定义响应')
+            : _l('为Webhook配置鉴权认证，IP白名单，自定义响应。请求参数需包含 AppKey、Sign')}
+          {data.pbcConfig.authType !== 0 && (
+            <a
+              href={`/worksheetapi/${flowInfo.relationId}`}
+              target="_blank"
+              className="mLeft2 ThemeColor3 ThemeHoverColor2"
+            >
+              {_l('查看文档')}
+            </a>
+          )}
+        </div>
+        {this.renderAuthContent()}
+        {this.renderResponseType()}
+      </Fragment>
+    );
+  }
+
   render() {
     const { flowInfo } = this.props;
     const isWebhook = _.includes([7], flowInfo.startAppType) && !flowInfo.child;
@@ -869,7 +939,7 @@ class ProcessConfig extends Component {
       },
       { text: _l('流程参数'), value: 3, icon: 'tune' },
       { text: _l('平台API能力'), value: 4, icon: 'pbc' },
-      { text: _l('自定义响应'), value: 5, icon: 'workflow_webhook' },
+      { text: _l('平台API能力'), value: 5, icon: 'pbc' },
     ];
     const licenseType = _.get(
       _.find(md.global.Account.projects, item => item.projectId === flowInfo.companyId) || {},
@@ -918,7 +988,7 @@ class ProcessConfig extends Component {
               {tab === 2 && this.renderArtificialContent()}
               {tab === 3 && this.renderParameterContent()}
               {tab === 4 && this.renderPBCContent()}
-              {tab === 5 && this.renderResponseType()}
+              {tab === 5 && this.renderWebhookContent()}
             </div>
           </ScrollView>
 

@@ -1,12 +1,19 @@
 import React from 'react';
-import { WFSTATUS_OPTIONS, WF_STATUS, RETURN_OBJECT_CONTROL_TYPE, FILTER_FIELD_BY_ATTR, SOURCE_INFO } from './enum.js';
 import moment from 'moment';
 import { Icon, Tooltip } from 'ming-ui';
 import _ from 'lodash';
 import filterXSS from 'xss';
 import cx from 'classnames';
 import renderText from 'src/pages/worksheet/components/CellControls/renderText.js';
-import { dateConvertToUserZone } from 'src/util';
+import {
+  WFSTATUS_OPTIONS,
+  WF_STATUS,
+  RETURN_OBJECT_CONTROL_TYPE,
+  FILTER_FIELD_BY_ATTR,
+  SOURCE_INFO,
+  EDIT_TYPE_TEXT,
+  SUBLIST_FILE_EDIT_TYPE,
+} from './enum.js';
 const reg = new RegExp('<[^<>]+>', 'g');
 
 export function assembleListData(data) {
@@ -257,9 +264,14 @@ export function hasHiddenControl(data, controls) {
     const control = _.find(controls, it => logData.id === it.controlId) || {};
     const _controlPermissions = (control && control.controlPermissions) || '000';
 
-    return _controlPermissions[0] === '0' && logData.id.length === 24;
+    return (
+      _controlPermissions[0] === '0' && logData.id.length === 24 && !SUBLIST_FILE_EDIT_TYPE.includes(logData.editType)
+    );
   });
 }
+
+export const isPublicFileDownload = item =>
+  item.accountId === 'user-publicform' && _.get(item, 'child[0].operatContent.logData[0].editType') === 13;
 
 export const renderTitleName = (data, isMobile) => {
   const { accountId, accountName, child, fullname } = data;
@@ -280,7 +292,7 @@ export const renderTitleName = (data, isMobile) => {
     );
   }
 
-  return <span className="titleAvatarText accountName">{fullname}</span>;
+  return <span className="titleAvatarText accountName">{isPublicFileDownload(data) ? _l('公开访问') : fullname}</span>;
 };
 
 export const renderTitleAvatar = (data, isMobile) => {
@@ -349,8 +361,23 @@ export const renderTitleText = (data, extendParam) => {
           </span>
         );
         break;
+      case 8:
       case 2:
-        content = <span className="mLeft2">{_l('更新%0个字段', count)}</span>;
+        const editType = _.get(data, 'child[0].operatContent.logData[0].editType');
+        const editTypeText = editType ? EDIT_TYPE_TEXT[editType] : undefined;
+        let control = null;
+
+        if (SUBLIST_FILE_EDIT_TYPE.includes(editType)) {
+          const controlId = _.get(data, 'child[0].operatContent.logData[0].id');
+          control = controls.find(l => l.controlId === controlId);
+        }
+
+        content = (
+          <span className="mLeft2">
+            {!!editTypeText ? editTypeText : _l('更新%0个字段', count)}
+            {control && <span className="Gray mLeft8">{control.controlName}</span>}
+          </span>
+        );
         break;
       case 3:
       case 5:

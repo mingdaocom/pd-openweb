@@ -7,6 +7,7 @@ import Record from '../Record';
 import { Menu, Dropdown } from 'antd';
 import { Icon } from 'ming-ui';
 import { MenuOverlayWrapper } from 'worksheet/views/GunterView/Directory';
+import GroupContent from 'worksheet/views/GunterView/components/GroupContent';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -154,7 +155,7 @@ export default class GroupItem extends Component {
                   this.handleChangeSubVisible(group.key);
                 }}
               >
-                {group.name || _l('为空')}
+                <GroupContent group={group} />
               </div>
               <div className="Gray_9e totalNum">{rows.length}</div>
               {allowAdd && (
@@ -195,7 +196,7 @@ export default class GroupItem extends Component {
         entityName={worksheetInfo.entityName}
         projectId={worksheetInfo.projectId}
         worksheetId={worksheetInfo.worksheetId}
-        appId={base.base}
+        appId={base.appId}
         viewId={base.viewId}
       />
     );

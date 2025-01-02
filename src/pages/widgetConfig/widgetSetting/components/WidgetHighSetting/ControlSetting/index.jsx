@@ -46,6 +46,8 @@ export default function WidgetConfig(props) {
     showdelete,
     showcount = '0',
     allowcustom,
+    usertype = '1',
+    checkusertype,
   } = getAdvanceSetting(data);
 
   // 文本、文本组合
@@ -212,17 +214,43 @@ export default function WidgetConfig(props) {
 
   if (type === 26) {
     return (
-      <div className="labelWrap">
-        <Checkbox
-          className="checkboxWrap"
-          onClick={checked => {
-            onChange({ noticeItem: Number(!checked) });
-          }}
-          checked={noticeItem === 1}
-          text={_l('加入时收到通知')}
-          size="small"
-        />
-      </div>
+      <Fragment>
+        <div className="labelWrap">
+          <Checkbox
+            className="checkboxWrap"
+            onClick={checked => {
+              onChange({ noticeItem: Number(!checked) });
+            }}
+            checked={noticeItem === 1}
+            text={_l('加入时收到通知')}
+            size="small"
+          />
+        </div>
+        {checkusertype !== '1' && (
+          <div className="labelWrap">
+            <Checkbox
+              className="checkboxWrap"
+              onClick={checked => {
+                onChange(handleAdvancedSettingChange(data, { checkusertype: String(+!checked) }));
+              }}
+              text={_l('仅按成员类型赋值')}
+              checked={checkusertype === '1'}
+              size="small"
+            >
+              <Tooltip
+                popupPlacement="bottom"
+                title={
+                  <span>
+                    {_l('成员类型为常规时，不写入外部门户类型的成员，反之亦然。对工作流API写入或者批量导入不生效')}
+                  </span>
+                }
+              >
+                <i className="icon icon-help Gray_bd Font15 mLeft5 pointer" />
+              </Tooltip>
+            </Checkbox>
+          </div>
+        )}
+      </Fragment>
     );
   }
 

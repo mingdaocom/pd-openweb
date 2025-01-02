@@ -23,7 +23,7 @@ const UnNormalWrap = styled.div`
   .unNormalText {
     margin: 15px 0 20px;
     font-size: 17px;
-    color: #333;
+    color: #151515;
     white-space: pre-wrap;
     text-align: center;
   }

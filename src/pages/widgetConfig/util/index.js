@@ -546,6 +546,8 @@ export const supportSettingCollapse = (props, key) => {
     return _.includes(['base'], key);
   }
 
+  const isCustom = isCustomWidget(data);
+
   switch (key) {
     case 'base':
       return true;
@@ -557,6 +559,7 @@ export const supportSettingCollapse = (props, key) => {
       switch (type) {
         case 9:
         case 11:
+          if (isCustom) return false;
           return dataSource ? advancedSetting.showtype !== '2' : true;
         case 30:
           return strDefault.split('')[0] === '0';
@@ -570,9 +573,11 @@ export const supportSettingCollapse = (props, key) => {
         case 53:
           return _.includes([2, 6, 15, 16], enumDefault2);
         default:
+          if (_.includes([2, 6, 46, 10], type) && isCustom) return false;
           return _.includes(HAVE_HIGH_SETTING_WIDGET, type);
       }
     case 'security':
+      if (_.includes([2, 6], type) && isCustom) return false;
       return (
         HAVE_MASK_WIDGET.includes(type) ||
         (type === 2 && enumDefault === 2) ||
@@ -587,6 +592,7 @@ export const supportSettingCollapse = (props, key) => {
     case 'permission':
       return true;
     case 'mobile':
+      if (_.includes([2, 29], type) && isCustom) return false;
       return (
         (_.includes(HAVE_MOBILE_WIDGET, type) ||
           (type === 14 && _.get(safeParse(advancedSetting.filetype || '{}'), 'type') !== '0')) &&
@@ -626,4 +632,22 @@ export const getSortItems = (items = [], addKey) => {
   return items.map((i, index) => {
     return addKey ? { ...i, key: `item_${index}` } : { ..._.omit(i, ['key']) };
   });
+};
+
+// 自定义控件
+export const isCustomWidget = data => {
+  return data.type === 54 || (_.get(data, 'advancedSetting.customtype') === '1' && data.type !== 30);
+};
+
+// 校验某些控件上限
+export const checkWidgetMaxNumErr = (data, allControls = []) => {
+  // 自定义控件超出提示
+  if (isCustomWidget(data) && allControls.filter(isCustomWidget).length >= 5) {
+    return _l('超过自定义字段数量限制');
+  }
+
+  // 富文本超出提示
+  if (data.type === 41 && allControls.filter(i => i.type === 41).length >= 3) {
+    return _l('富文本字段数量已达上限（3个）');
+  }
 };

@@ -16,6 +16,7 @@ import {
   UpdateFields,
   OperatorEmpty,
   CustomTextarea,
+  PromptSoundDialog,
 } from '../components';
 import styled from 'styled-components';
 import cx from 'classnames';
@@ -91,6 +92,7 @@ export default class Write extends Component {
             flowNodeMap: Object.assign({}, data.flowNodeMap, {
               [OPERATION_TYPE.BEFORE]: result.flowNodeMap[OPERATION_TYPE.BEFORE],
               [OPERATION_TYPE.PASS]: result.flowNodeMap[OPERATION_TYPE.PASS],
+              [OPERATION_TYPE.PROMPT_SOUND]: result.flowNodeMap[OPERATION_TYPE.PROMPT_SOUND],
             }),
             formProperties: result.formProperties,
           });
@@ -122,7 +124,7 @@ export default class Write extends Component {
   /**
    * 更新节点对象数据
    */
-  updateFlowMapSource = (key, obj, callback) => {
+  updateFlowMapSource = (key, obj, callback = () => {}) => {
     const { data } = this.state;
 
     this.updateSource(
@@ -388,6 +390,13 @@ export default class Write extends Component {
                     name={data.submitBtnName}
                     buttonName={_l('提交按钮')}
                     onChange={this.updateSource}
+                  />
+
+                  <PromptSoundDialog
+                    {...this.props}
+                    promptSound={data.flowNodeMap[OPERATION_TYPE.PROMPT_SOUND].promptSound}
+                    formulaMap={data.flowNodeMap[OPERATION_TYPE.PROMPT_SOUND].formulaMap}
+                    updateSource={obj => this.updateFlowMapSource(OPERATION_TYPE.PROMPT_SOUND, obj)}
                   />
 
                   <div className="Font13 mTop25 bold">{_l('其他')}</div>

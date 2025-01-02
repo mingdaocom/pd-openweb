@@ -5,10 +5,12 @@ import { Dialog } from 'antd-mobile';
 import { getAppLangDetail, getTranslateInfo } from 'src/util';
 import _ from 'lodash';
 
-export const getAppDetail = (appId, cb) => (dispatch, getState) => {
-  dispatch({
-    type: 'MOBILE_FETCH_START',
-  });
+export const getAppDetail = (appId, cb, isPullRefresh = false) => (dispatch, getState) => {
+  if (!isPullRefresh) {
+    dispatch({
+      type: 'MOBILE_FETCH_START',
+    });
+  }
   Promise.all([
     homeAppApi
       .getApp({
@@ -41,7 +43,7 @@ export const getAppDetail = (appId, cb) => (dispatch, getState) => {
           data: {
             appName: getTranslateInfo(appId, null, appId).name || detail.name,
             detail: detail,
-            appSection: (detail.sections || []).map(v => ({ ...v, name: v.name || _l('未命名分组') })),
+            appSection: detail.sections,
             status: status,
             processCount: processData ? processData.count : 0,
           },
@@ -137,3 +139,10 @@ export const editAppInfo = (viewHideNavi, callback) => (dispatch, getState) => {
     }
   });
 };
+
+export const updateAppScrollY = scrollY => (dispatch) => {
+  dispatch({
+    type: 'APP_SCROLL_Y',
+    data: scrollY
+  })
+}

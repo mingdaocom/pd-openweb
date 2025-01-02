@@ -16,7 +16,7 @@ const Wrap = styled.div`
     width: 330px;
   }
   .settingItemTitle {
-    color: #333;
+    color: #151515;
   }
   .customTip {
     color: #9e9e9e;

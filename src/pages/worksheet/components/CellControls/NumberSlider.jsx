@@ -182,7 +182,7 @@ export default class NumberSlider extends React.Component {
         showScaleText={isediting || rowHeight > 50}
         showDrag={editable}
         showAsPercent={numshow === '1'}
-        numStyle={from === FROM.CARD ? { color: '#333' } : {}}
+        numStyle={from === FROM.CARD ? { color: '#151515' } : {}}
         tipDirection={rowIndex === 0 ? 'bottom' : undefined}
         min={levelSafeParse(min)}
         max={levelSafeParse(max)}

@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import { Icon, ScrollView, LoadDiv } from 'ming-ui';
-import { Popup, Button } from 'antd-mobile';
+import { Icon, ScrollView, LoadDiv, PopupWrapper } from 'ming-ui';
+import { Button } from 'antd-mobile';
 import sheetAjax from 'src/api/worksheet';
 import publicWorksheetAjax from 'src/api/publicWorksheet';
 import NewRecord from 'src/pages/worksheet/common/newRecord/MobileNewRecord';
@@ -142,8 +142,9 @@ export default class RecordCardListDialog extends Component {
       relationRowIds = [],
       isScan,
       fastSearchControlArgs,
+      isDraft,
     } = this.props;
-    const { pageIndex, keyWords, list, sortControls, worksheetInfo, isScanSearch } = this.state;
+    const { pageIndex, keyWords, list, sortControls, worksheetInfo, isScanSearch, ignoreAllFilters } = this.state;
     let getFilterRowsPromise, args;
     let filterControls;
     if (control && control.advancedSetting.filters) {
@@ -153,7 +154,7 @@ export default class RecordCardListDialog extends Component {
       filterControls = getFilter({ control, formData });
     }
     // 存在不符合条件值的条件
-    if (filterControls === false) {
+    if (filterControls === false && !ignoreAllFilters) {
       this.setState({ loading: false });
       return;
     }
@@ -213,9 +214,9 @@ export default class RecordCardListDialog extends Component {
         status: 1,
         keyWords: isScanSearch && scancontrol === '1' && scancontrolid ? '' : keyWords,
         isGetWorksheet: true,
-        getType: 7,
+        getType: isDraft ? 27 : 7,
         sortControls,
-        filterControls,
+        filterControls: ignoreAllFilters ? [] : filterControls || [],
         fastFilters,
       };
     } else {
@@ -250,7 +251,6 @@ export default class RecordCardListDialog extends Component {
                 spliceType: 1,
                 filterType: fastSearchControlArgs.filterType,
                 dateRange: 0,
-                dateRangeType: 1,
                 isDynamicsource: false,
                 values: [keyWords],
               },
@@ -463,14 +463,17 @@ export default class RecordCardListDialog extends Component {
       <div className="flexRow alignItemsCenter justifyContentCenter mTop10 pLeft10 pRight10">
         <div className="searchWrapper flex">
           <Icon icon="h5_search" />
-          <input
-            type="text"
-            placeholder={_l('搜索%0', this.title)}
-            value={keyWords}
-            onChange={e => {
-              this.handleSearch(e.target.value);
-            }}
-          />
+          <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
+            <input
+              className="w100"
+              type="search"
+              placeholder={_l('搜索%0', this.title)}
+              value={keyWords}
+              onChange={e => {
+                this.handleSearch(e.target.value);
+              }}
+            />
+          </form>
           {keyWords ? (
             <Icon
               icon="workflow_cancel"
@@ -550,6 +553,9 @@ export default class RecordCardListDialog extends Component {
       onOk,
       onClose,
       control,
+      from,
+      isCharge,
+      isDraft,
       staticRecords = [],
     } = this.props;
     const {
@@ -580,6 +586,7 @@ export default class RecordCardListDialog extends Component {
     };
     const coverCid = this.props.coverCid || (control && control.coverCid);
     const entityName = worksheet.entityName || _.get(worksheetInfo, 'entityName') || _l('记录');
+    const allowShowIgnoreAllFilters = isCharge && recordId === 'FAKE_RECORD_ID_FROM_BATCH_EDIT';
 
     return (
       <ScrollView
@@ -620,6 +627,7 @@ export default class RecordCardListDialog extends Component {
               value: defaultRelatedSheetValue,
             }}
             visible={showNewRecord}
+            isDraft={isDraft}
             showDraftsEntry={true}
             sheetSwitchPermit={control && control.sheetSwitchPermit}
             hideNewRecord={() => {
@@ -674,7 +682,20 @@ export default class RecordCardListDialog extends Component {
                 <div className="emptyIcon flexColumn valignWrapper">
                   <i className="icon Icon icon-ic-line Font56" />
                   {error ? (
-                    <p className="emptyTip Gray_9e">{_l('没有权限')}</p>
+                    <p className="emptyTip Gray_9e">
+                      {error === 'notCorrectCondition'
+                        ? _l('不存在符合条件的%0', worksheet.entityName || control.sourceEntityName || '')
+                        : _l('没有权限')}
+
+                      {error === 'notCorrectCondition' && allowShowIgnoreAllFilters && (
+                        <div
+                          className="mTop10 ThemeColor3 TxtCenter Hand"
+                          onClick={() => this.setState({ ignoreAllFilters: true }, this.loadRecorcd)}
+                        >
+                          {_l('查看全部记录')}
+                        </div>
+                      )}
+                    </p>
                   ) : (
                     <p className="emptyTip Gray_9e">
                       {keyWords
@@ -695,27 +716,20 @@ export default class RecordCardListDialog extends Component {
     const { visible, onClose, multiple, disabledManualWrite } = this.props;
     const { value, worksheet, selectedRecords } = this.state;
     return (
-      <Popup visible={visible} onClose={onClose} className="mobileModal full">
-        <div className="flexColumn mobileRecordCardListDialog h100">
+      <PopupWrapper
+        bodyClassName="heightPopupBody40"
+        visible={visible}
+        title={_l('关联记录')}
+        confirmDisable={!selectedRecords.length}
+        confirmText={selectedRecords.length ? _l('确定(%0)', selectedRecords.length) : _l('确定')}
+        onClose={onClose}
+        onConfirm={multiple ? this.handleConfirm : null}
+      >
+        <div className="flexColumn mobileRecordCardListDialog">
           {!disabledManualWrite && this.renderSearchWrapper()}
           {this.renderContent()}
-          <div className="btnsWrapper valignWrapper flexRow">
-            <Button className="flex mLeft6 mRight6 Gray_75 bold Font13" onClick={onClose}>
-              {_l('取消')}
-            </Button>
-            {multiple && (
-              <Button
-                className="flex mLeft6 mRight6 bold Font13"
-                color="primary"
-                disabled={!selectedRecords.length}
-                onClick={this.handleConfirm}
-              >
-                {multiple && selectedRecords.length ? _l('确定(%0)', selectedRecords.length) : _l('确定')}
-              </Button>
-            )}
-          </div>
         </div>
-      </Popup>
+      </PopupWrapper>
     );
   }
 }

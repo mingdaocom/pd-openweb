@@ -4,7 +4,7 @@ import { Motion, spring } from 'react-motion';
 import { generate } from '@ant-design/colors';
 import cx from 'classnames';
 import DocumentTitle from 'react-document-title';
-import { Icon, Menu, MenuItem, Skeleton, UpgradeIcon, SvgIcon } from 'ming-ui';
+import { Icon, Menu, MenuItem, Skeleton, UpgradeIcon, SvgIcon, Tooltip, LoadDiv } from 'ming-ui';
 import { connect } from 'react-redux';
 import { navigateTo } from 'src/router/navigateTo';
 import SelectIcon from 'src/pages/AppHomepage/components/SelectIcon';
@@ -36,7 +36,13 @@ import { setFavicon, getTranslateInfo } from 'src/util';
 import { pcNavList } from 'src/pages/PageHeader/AppPkgHeader/AppDetail/AppNavStyle';
 import RoleSelect from './RoleSelect';
 import appManagementApi from 'src/api/appManagement';
+import marketplacePaymentApi from 'src/api/marketplacePayment';
 import copy from 'copy-to-clipboard';
+
+const APP_STATUS_TEXT = {
+  11: _l('还原中'),
+  12: _l('迁移中'),
+};
 
 const mapStateToProps = ({ sheet, sheetList, appPkg: { appStatus } }) => ({ sheet, sheetList, appStatus });
 const mapDispatchToProps = dispatch => ({
@@ -86,6 +92,7 @@ export default class AppInfo extends Component {
       modifyAppLockPasswordVisible: false,
       lockAppVisisble: false,
       roleDebugVisible: false,
+      createOrderLoading: false,
     };
   }
 
@@ -102,14 +109,16 @@ export default class AppInfo extends Component {
 
   componentWillReceiveProps(nextProps) {
     this.ids = getIds(nextProps);
+    const { data } = this.state;
     if (compareProps(nextProps.match.params, this.props.match.params, ['appId'])) {
       this.getData(nextProps);
     }
+    /*
     if (
-      (this.ids.appId === getIds(this.props).appId && checkRecordInfo(nextProps.location.pathname)) ||
-      checkRecordInfo(this.props.location.pathname)
+      ((this.ids.appId === getIds(this.props).appId && checkRecordInfo(nextProps.location.pathname)) ||
+      checkRecordInfo(this.props.location.pathname)) &&
+      data.id
     ) {
-      const { data } = this.state;
       const isRowInfo = checkRecordInfo(nextProps.location.pathname);
       const currentPcNaviStyle = isRowInfo ? 0 : data.pcNaviStyle;
       const appStatus = isRowInfo ? 0 : nextProps.appStatus;
@@ -123,6 +132,7 @@ export default class AppInfo extends Component {
       this.props.setAppStatus(appStatus);
       this.checkNavigationStyle(currentPcNaviStyle);
     }
+    */
     if (
       this.ids.appId === getIds(this.props).appId &&
       compareProps(nextProps.match.params, this.props.match.params, ['worksheetId'])
@@ -202,6 +212,7 @@ export default class AppInfo extends Component {
       checkRecordInfo(location.pathname) || !_.find(pcNavList, { value: data.pcNaviStyle }) ? 0 : data.pcNaviStyle;
     data.themeType = this.getThemeType(data.iconColor, data.navColor);
     data.needUpdate = Date.now();
+    this.props.setAppStatus(data.appStatus);
 
     this.setState({ data });
     // 同步应用信息至工作表
@@ -229,6 +240,8 @@ export default class AppInfo extends Component {
       'selectAppItmeType',
       'debugRole',
       'displayIcon',
+      'goodsId',
+      'license'
     ]);
     window[`timeZone_${appId}`] = data.timeZone; //记录应用时区
     syncAppDetail(appDetail);
@@ -307,14 +320,14 @@ export default class AppInfo extends Component {
     e.stopPropagation();
     const { currentPcNaviStyle } = this.state.data;
     const { location, sheet, sheetList } = this.props;
+    const { appId } = getIds(this.props);
     if (/row|role|workflow|newrecord/.test(location.pathname)) {
-      const { appId } = getIds(this.props);
       navigateTo(`/app/${appId}`);
       return;
     }
     const { base, views, isCharge } = sheet;
     const { data, appSectionDetail } = sheetList;
-    const { worksheetId, viewId, appId, groupId = '' } = base;
+    const { worksheetId, viewId, groupId = '' } = base;
     const firstSheetId =
       currentPcNaviStyle === 2
         ? ''
@@ -330,9 +343,45 @@ export default class AppInfo extends Component {
     }
   };
 
+  handleCreateOrder = () => {
+    const { data, createOrderLoading } = this.state;
+    if (createOrderLoading) {
+      return;
+    }
+    const createOrder = () => {
+      marketplacePaymentApi
+      .createOrder({
+        projectId: data.projectId,
+        environmentType: 1,
+        licenseId: data.license.licenseId,
+        purchaseRecordId: data.license.id,
+        productId: data.goodsId,
+        productType: 0,
+        buyTypeEnum: 1,
+      })
+      .then(res => {
+        if (res && res.excuteStatus) {
+          window.open(`${md.global.Config.MarketUrl}/orderDetail/${res.orderId}`);
+        }
+      })
+      .finally(() => this.setState({ createOrderLoading: false }));
+    }
+    this.setState({ createOrderLoading: true });
+    marketplacePaymentApi.checkUnpayOrderByPurchaseRecordId({
+      purchaseRecordId: data.license.id,
+    }).then(data => {
+      if (data.hasUnpayOrder) {
+        this.setState({ createOrderLoading: false });
+        window.open(`${md.global.Config.MarketUrl}/orderDetail/${data.orderId}`);
+      } else {
+        createOrder();
+      }
+    });
+  };
+
   renderMenu = ({ type, icon, text, action, ...rest }) => {
     const { data } = this.state;
-    const { projectId, isLock, isPassword, permissionType } = data;
+    const { projectId, isPassword, permissionType, license } = data;
     const canLock = _.includes(
       [
         APP_ROLE_TYPE.ADMIN_ROLE,
@@ -356,6 +405,71 @@ export default class AppInfo extends Component {
           <div style={{ width: '100%', margin: '6px 0', borderTop: '1px solid #EAEAEA' }} />
           {this.renderMenuHtml({ type, icon, text, action, ...rest })}
         </React.Fragment>
+      );
+    }
+
+    if ('appLicense' === type && license) {
+      const planTypes = {
+        0: _l('免费'),
+        1: _l('试用'),
+        2: _l('固定价格'),
+        3: _l('按使用人数订阅'),
+      };
+      return (
+        <Tooltip
+          popupAlign={{ points: ['tr', 'br'], offset: [5, -50], overflow: { adjustX: true, adjustY: true } }}
+          action={['hover']}
+          popup={
+            <div className="Menu ming flexColumn pAll20 appLicenseWrap" style={{ minWidth: 300 }}>
+              <div className="flexRow mBottom10">
+                <div className="Gray_75 mRight15 nowrap">{_l('开发者')}</div>
+                <div className="ellipsis">{license.developName}</div>
+              </div>
+              <div className="flexRow mBottom10">
+                <div className="Gray_75 mRight15 nowrap">{_l('订购计划')}</div>
+                <div className="ellipsis">{planTypes[license.planType]}</div>
+              </div>
+              <div className="flexRow mBottom10">
+                <div className="Gray_75 mRight15 nowrap">{_l('周期')}</div>
+                <div className="ellipsis">
+                  {data.endTime ? (
+                    <Fragment>
+                      <span>{license.day ? _l('剩余%0天', license.day) : ''}</span>
+                      <span className="mLeft10">{_l('%0 到期', data.endTime)}</span>
+                    </Fragment>
+                  ) : (
+                    _l('永久有效')
+                  )}
+                </div>
+              </div>
+              <div className="flexRow mBottom10">
+                <div className="Gray_75 mRight15 nowrap">{_l('人数限制')}</div>
+                <div className="ellipsis">{license.personCount || _l('不限制')}</div>
+              </div>
+              <div className="flexRow mBottom10">
+                <div className="Gray_75 mRight15 nowrap">{_l('版本号')}</div>
+                <div className="ellipsis">{license.versionNo}</div>
+              </div>
+              <div className="flexRow alignItemsCenter">
+                <div className="Gray_75 mRight15 nowrap">{_l('状态')}</div>
+                <div className={cx('licenseStatus', { valid: data.isGoodsStatus })}>
+                  {data.isGoodsStatus ? _l('生效中') : _l('已过期')}
+                </div>
+              </div>
+              {[2, 3].includes(license.planType) && data.isGoodsStatus && data.endTime && (
+                <div
+                  className="renewal mTop10 pointer flexRow alignItemsCenter justifyContentCenter"
+                  onClick={this.handleCreateOrder}
+                >
+                  {this.state.createOrderLoading && <LoadDiv className="mLeft0 mRight5" size={16} />}
+                  {_l('立即续订')}
+                </div>
+              )}
+            </div>
+          }
+        >
+          {this.renderMenuHtml({ type, icon, text, action, ...rest })}
+        </Tooltip>
       );
     }
 
@@ -384,7 +498,7 @@ export default class AppInfo extends Component {
 
   renderMenuHtml = ({ type, icon, text, action, ...rest }) => {
     const { appId } = this.ids;
-    const { projectId, sourceType, permissionType, isPassword, isLock } = this.state.data;
+    const { projectId, sourceType, permissionType, isPassword, isLock, license = {} } = this.state.data;
     const featureType = getFeatureStatus(projectId, rest.featureId);
     const isOwner = permissionType === APP_ROLE_TYPE.POSSESS_ROLE;
 
@@ -434,7 +548,8 @@ export default class AppInfo extends Component {
           }
           if (type === 'appManageMenu') {
             const appManageMenuType = localStorage.getItem('appManageMenu');
-            navigateTo(`/app/${appId}/settings/${appManageMenuType ? appManageMenuType : 'options'}`);
+            const isMarketAstrict = sourceType === 60 ? (license.licenseType ? true : isLock) : false;
+            navigateTo(`/app/${appId}/settings/${isMarketAstrict ? 'variables' : (appManageMenuType ? appManageMenuType : 'options')}`);
             return;
           }
 
@@ -445,6 +560,9 @@ export default class AppInfo extends Component {
         <span>{text}</span>
         {_.includes(['appAnalytics', 'appLogs'], type) && featureType === '2' && <UpgradeIcon />}
         {type === 'worksheetapi' && <Icon icon="external_collaboration" className="mLeft10 worksheetapiIcon" />}
+        {type === 'appLicense' && (
+          <Icon icon="arrow-right-tip" className="mLeft10" style={{ right: 10, left: 'auto' }} />
+        )}
       </MenuItem>
     );
   };
@@ -481,11 +599,12 @@ export default class AppInfo extends Component {
       currentPcNaviStyle,
       themeType,
       sourceType,
+      license = {},
       ssoAddress,
     } = data;
     const isUpgrade = _.includes([10, 11], appStatus);
     const isNormalApp = _.includes([1, 5], appStatus);
-    const { s, tb, tr } = getAppFeaturesVisible();
+    const { s, tb, td } = getAppFeaturesVisible();
     let list = getAppConfig(DROPDOWN_APP_CONFIG, permissionType) || [];
     const isAuthorityApp = canEditApp(permissionType, isLock);
     const canLock = _.includes(
@@ -508,6 +627,16 @@ export default class AppInfo extends Component {
       );
     } else {
       list = _.filter(list, it => !_.includes(['modifyAppLockPassword'], it.type));
+    }
+    // 应用市场
+    if (sourceType === 60) {
+      _.remove(list, o => o.type === 'copy');
+    } else {
+      _.remove(list, o => o.type === 'appLicense');
+    }
+    // 应用市场，应用已过期
+    if (appStatus === 20) {
+      _.remove(list, o => ['modify', 'editNavigation', 'editIntro', 'appManageMenu'].includes(o.type));
     }
 
     const renderHomepageIconWrap = () => {
@@ -549,6 +678,8 @@ export default class AppInfo extends Component {
     };
 
     const renderAppDetailWrap = () => {
+      const isMigrate = appStatus === 12;
+
       return (
         <Fragment>
           {tb && (
@@ -573,9 +704,9 @@ export default class AppInfo extends Component {
               </div>
             </div>
           )}
-          {!(pcDisplay && !isAuthorityApp) && (fixed || isUpgrade) && (
-            <div className={cx({ appFixed: fixed, appUpgrade: isUpgrade })}>
-              {isUpgrade ? (appStatus === 11 ? _l('还原中') : _l('升级中')) : _l('维护中')}
+          {!(pcDisplay && !isAuthorityApp) && (fixed || isUpgrade || isMigrate) && (
+            <div className={cx({ appFixed: fixed || isMigrate, appUpgrade: isUpgrade })}>
+              {isUpgrade || isMigrate ? APP_STATUS_TEXT[appStatus] || _l('升级中') : _l('维护中')}
             </div>
           )}
 
@@ -593,6 +724,7 @@ export default class AppInfo extends Component {
                   <Menu
                     style={{ top: '45px', width: '220px', padding: '6px 0' }}
                     onClickAway={() => this.setState({ appConfigVisible: false })}
+                    onClickAwayExceptions={['.appLicenseWrap']}
                   >
                     {list.map(({ type, icon, text, action, ...rest }) => {
                       return this.renderMenu({ type, icon, text, action, ...rest });
@@ -601,7 +733,7 @@ export default class AppInfo extends Component {
                 )}
               </div>
             )}
-          {(isHaveCharge(permissionType, isLock) ? description : true) && isNormalApp && (
+          {(isHaveCharge(permissionType, isLock) ? description : true) && (isNormalApp || isMigrate) && (
             <div
               className="appIntroWrap pointer"
               data-tip={_l('应用说明')}
@@ -653,7 +785,7 @@ export default class AppInfo extends Component {
             <div className="flex">
               {!(window.isPublicApp || !s || md.global.Account.isPortal) && renderHomepageIconWrap()}
             </div>
-            {!(md.global.Account.isPortal || window.isPublicApp) && tr && (
+            {!(md.global.Account.isPortal || window.isPublicApp) && td && (
               <MyProcessEntry type="appPkg" renderContent={renderContent} />
             )}
           </div>
@@ -747,7 +879,7 @@ export default class AppInfo extends Component {
             showRoleDebug={() => {
               this.setState({ roleDebugVisible: !roleDebugVisible });
             }}
-            otherAllShow={!(fixed && !hasCharge) && !(pcDisplay && !hasCharge)}
+            otherAllShow={checkRecordInfo(location.pathname) ? false : !(fixed && !hasCharge) && !(pcDisplay && !hasCharge)}
           />
         )}
         {[1, 3].includes(currentPcNaviStyle) && (

@@ -77,7 +77,7 @@ export default function FormHeader(props) {
             {createTime && isOpenLogs && (
               <span className="lastLog InlineBlock Font12 Gray_9e">
                 {createTime === updateTime ? createAccount.fullname : editAccount.fullname}
-                {createTime === updateTime ? _l(' 创建于 ') : _l(' 更新于 ')}
+                <span className="mRight3">{createTime === updateTime ? _l('创建于') : _l('更新于')}</span>
                 {createTimeSpan(dateConvertToUserZone(createTime === updateTime ? createTime : updateTime))}
               </span>
             )}

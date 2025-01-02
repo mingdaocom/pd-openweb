@@ -156,6 +156,7 @@ export default class Widgets extends Component {
       relationControls,
       sourceEntityName,
       advancedSetting,
+      isDraft,
       updateWorksheetControls,
       updateRelateRecordTableCount,
       triggerCustomEvent,
@@ -165,6 +166,7 @@ export default class Widgets extends Component {
     showtype = parseInt(showtype, 10);
     const controlPermission = controlState({ ...this.props }, from);
     const records = this.getRecordsData();
+
     if (showtype === RELATE_RECORD_SHOW_TYPE.TABLE) {
       return (
         <RelateRecordTable
@@ -172,6 +174,7 @@ export default class Widgets extends Component {
           instanceId={instanceId}
           workId={workId}
           control={{ ...this.props }}
+          isDraft={isDraft}
           recordId={recordId}
           worksheetId={worksheetId}
           formData={formData}

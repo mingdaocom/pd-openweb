@@ -48,7 +48,7 @@ export const UserItemCon = styled.div`
     overflow: hidden;
   }
   .name {
-    color: #333;
+    color: #151515;
     font-size: 13px;
   }
   .description {
@@ -220,7 +220,7 @@ export function Search(props) {
         ref={inputRef}
         type="text"
         value={keywords}
-        placeholder={type === 'external' ? _l('请输入姓名、手机') : _l('请输入姓名、手机或邮箱')}
+        placeholder={type === 'external' ? _l('请输入姓名、手机') : _l('输入姓名、手机、邮箱、职位或工号均可搜索')}
         onChange={e => setKeywords(e.target.value)}
         onKeyDown={onKeyDown}
       />

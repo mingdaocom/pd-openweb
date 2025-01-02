@@ -1146,7 +1146,7 @@ class RecordCalendar extends Component {
                   $(item.el)
                     .find('.fc-event-title,.fc-event-time')
                     .css({
-                      color: !isLightColor(colorHover) ? '#fff' : '#333',
+                      color: !isLightColor(colorHover) ? '#fff' : '#151515',
                     });
                 }
               }}
@@ -1167,7 +1167,7 @@ class RecordCalendar extends Component {
                   $(item.el)
                     .find('.fc-event-title,.fc-event-time')
                     .css({
-                      color: !isLightColor(item.event.backgroundColor) ? '#fff' : '#333',
+                      color: !isLightColor(item.event.backgroundColor) ? '#fff' : '#151515',
                     });
                 }
               }}

@@ -219,7 +219,7 @@ export default function OracleGuide(props) {
       <h5>{_l('先决条件')}</h5>
       <ul>
         <li>{_l('拥有Oracle数据库的写入权限')}</li>
-        <li>{_l('将系统 IP 添加到 Oracle 服务器的访问白名单 ')}</li>
+        <li>{_l('将系统 IP 添加到 Oracle 服务器的访问白名单')}</li>
       </ul>
 
       <h4>{_l('当前账号具有读写数据库的权限：')}</h4>

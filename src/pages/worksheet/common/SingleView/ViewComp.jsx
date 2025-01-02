@@ -67,6 +67,7 @@ function ViewComp(props) {
           refreshSheet={refreshSheet}
           openNewRecord={openNewRecord}
           fromEmbed={config.fromEmbed}
+          isDraft={config.isDraft}
           updateFiltersWithView={value => updateFilters(value, view)}
         />
       )}

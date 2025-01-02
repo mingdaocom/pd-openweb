@@ -37,6 +37,24 @@ export const worksheetInfo = (state = {}, action) => {
   }
 };
 
+export const savedFilters = (state = [], action) => {
+  switch (action.type) {
+    case 'UPDATE_SAVED_FILTERS':
+      return action.filters;
+    default:
+      return state;
+  }
+};
+
+export const activeSavedFilter = (state = {}, action) => {
+  switch (action.type) {
+    case 'UPDATE_ACTIVE_SAVED_FILTERS':
+      return action.filter;
+    default:
+      return state;
+  }
+};
+
 export const filters = (state = { keyWords: '', quickFilterKeyWords: '', visible: false }, action) => {
   switch (action.type) {
     case 'MOBILE_UPDATE_FILTERS':
@@ -162,6 +180,15 @@ export const batchOptVisible = (state = false, action) => {
   }
 };
 
+export const batchCheckAll = (state = false, action) => {
+  switch (action.type) {
+    case 'UPDATE_BATCH_CHECK_ALL':
+      return action.data;
+    default:
+      return state;
+  }
+};
+
 export const batchOptCheckedData = (state = [], action) => {
   switch (action.type) {
     case 'CAHNGE_BATCHOPT_CHECKED':
@@ -184,6 +211,15 @@ export const filterControls = (state = [], action) => {
   switch (action.type) {
     case 'MOBILE_UPDATE_FILTER_CONTROLS':
       return [...action.filterControls];
+    default:
+      return state;
+  }
+};
+
+export const isPullRefreshing = (state = false, action) => {
+  switch (action.type) {
+    case 'MOBILE_IS_PULL_REFRESHING':
+      return action.flag;
     default:
       return state;
   }

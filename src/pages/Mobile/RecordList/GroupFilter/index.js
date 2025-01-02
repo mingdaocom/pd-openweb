@@ -15,7 +15,7 @@ import { getAdvanceSetting } from 'src/util';
 import { FILTER_CONDITION_TYPE } from 'src/pages/worksheet/common/WorkSheetFilter/enum';
 import { handleCondition } from 'src/pages/widgetConfig/util/data';
 import { AddRecordBtn, BatchOperationBtn } from 'mobile/components/RecordActions';
-import { sortDataByCustomNavs } from 'src/pages/worksheet/common/Sheet/GroupFilter/util';
+import { sortDataByCustomNavs, getSourceControlByNav } from 'src/pages/worksheet/common/Sheet/GroupFilter/util';
 import { getViewActionInfo } from 'src/pages/Mobile/RecordList/util';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
@@ -31,6 +31,22 @@ const TYPE_TO_COMP = {
 };
 
 let ajaxFn = null;
+
+const TYPES = {
+  26: {
+    name: 'fullname',
+    id: 'accountId',
+  },
+  27: {
+    name: 'departmentName',
+    id: 'departmentId',
+  },
+  48: {
+    name: 'organizeName',
+    id: 'organizeId',
+  },
+};
+
 let ajaxRequest = null;
 const GroupFilter = props => {
   const {
@@ -44,7 +60,6 @@ const GroupFilter = props => {
     worksheetInfo,
     appColor,
     mobileNavGroupFilters,
-    appNaviStyle,
     filters,
     viewFlag,
   } = props;
@@ -54,15 +69,20 @@ const GroupFilter = props => {
   const [previewRecordId, setPreviewRecordId] = useState();
   const [navGroupData, setGroupFilterData] = useState([]);
   let [keywords, setKeywords] = useState();
-  const [renderData, setRenderData] = useState([]);
   const [currentNodeId, setCurrentNodeId] = useState();
   const [breadNavHeight, setBreadMavHeight] = useState();
   const [loading, setLoading] = useState(true);
   const [searchRecordList, setSearchRecordList] = useState([]);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [currentGroup, setCurrentGroup] = useState({});
-  let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
-  let isOption = [9, 10, 11].includes(soucre.type) || [9, 10, 11].includes(soucre.sourceControlType); //是否选项
+  const [nextData, setNextData] = useState([]);
+  let source = getSourceControlByNav(navGroup, controls);
+  const keyStr = _.includes([26, 27, 48], source.type) ? TYPES[source.type].name : '';
+  const groupTxtName =
+    keyStr && !['null', ''].includes(currentGroup.value)
+      ? safeParse(currentGroup.txt)[keyStr]
+      : currentGroup.txt || _l('未命名');
+  let isOption = [9, 10, 11].includes(source.type) || [9, 10, 11].includes(source.sourceControlType); //是否选项
   const breadNavBar = useRef();
   const Component = TYPE_TO_COMP[String(view.viewType)];
   const viewProps = {
@@ -93,9 +113,8 @@ const GroupFilter = props => {
     fetch();
   }, [keywords]);
   useEffect(() => {
-    let soucre = controls.find(o => o.controlId === navGroup.controlId) || {};
     let { navshow } = getAdvanceSetting(view);
-    if (29 === soucre.type && navshow === '1') {
+    if ([29, 26, 27, 48].includes(source.type) && navshow === '1') {
       fetch();
     }
   }, [navGroupCounts]);
@@ -109,7 +128,6 @@ const GroupFilter = props => {
     const { controlId } = navGroup;
     if (!controlId) {
       setGroupFilterData([]);
-      setRenderData([]);
       return;
     } else {
       setLoading(true);
@@ -117,18 +135,16 @@ const GroupFilter = props => {
     }
   };
   const isSoucreTree = () => {
-    return soucre.type === 35 || (soucre.type === 29 && navGroup.viewId);
+    return source.type === 35 || (source.type === 29 && navGroup.viewId);
   };
   const setData = obj => {
-    const { rowId, cb } = obj || {};
+    const { rowId, cb, isNext } = obj || {};
     let key = keywords;
     let data = [];
-    let filter = navGroup;
-    let soucre = controls.find(o => o.controlId === filter.controlId) || {};
+    let { navshow } = getAdvanceSetting(view);
     //级联选择字段 或 已配置层级展示的关联字段
-    if ([29, 35].includes(soucre.type)) {
-      let { navshow } = getAdvanceSetting(view);
-      if (29 === soucre.type && navshow === '1' && !key) {
+    if ([29, 35].includes(source.type)) {
+      if (29 === source.type && navshow === '1' && !key) {
         dataUpdate({
           filterData: navGroupData,
           data: navGroupCounts
@@ -145,35 +161,98 @@ const GroupFilter = props => {
         });
       } else {
         fetchData({
-          worksheetId: soucre.dataSource,
-          viewId: 29 === soucre.type ? navGroup.viewId : soucre.viewId,
+          worksheetId: source.dataSource,
+          viewId: 29 === source.type ? navGroup.viewId : source.viewId,
           rowId,
           cb,
+          isNext,
         });
       }
+    } else if ([26, 27, 48].includes(source.type) && navshow === '1') {
+      dataUpdate({
+        filterData: navGroupData,
+        data: navGroupCounts
+          .filter(o => !['all', ''].includes(o.key)) //排除全部和空
+          .map(item => {
+            return {
+              value: item.key,
+              txt: item.name,
+              isLeaf: false,
+            };
+          }),
+        rowId,
+        cb,
+      });
     } else {
-      let options = (controls.find(o => o.controlId === navGroup.controlId) || {}).options || [];
-      data = !navGroup.isAsc ? options.slice().reverse() : options;
-      data = data
-        .filter(o => !o.isDeleted)
-        .map(o => {
-          return {
-            ...o,
-            txt: o.value,
-            value: o.key,
-          };
-        })
-        .filter(o => (key ? o.txt.indexOf(key) >= 0 : true));
+      switch (source.type) {
+        case 9:
+        case 10:
+        case 11:
+          let options = (controls.find(o => o.controlId === _.get(navGroup, 'controlId')) || {}).options || [];
+          data = !navGroup.isAsc ? options.slice().reverse() : options;
+          data = data
+            .filter(o => !o.isDeleted)
+            .map(o => {
+              return {
+                ...o,
+                txt: o.value,
+                value: o.key,
+              };
+            });
+          break;
+        case 28:
+          data = [
+            ...new Array(
+              parseInt(
+                _.get(controls.find(o => o.controlId === _.get(source, 'controlId')) || {}, 'advancedSetting.max') ||
+                  '1',
+                10,
+              ),
+            ),
+          ].map((o, i) => {
+            return {
+              txt: _l('%0 级', parseInt(i + 1, 10)),
+              value: JSON.stringify(i + 1),
+            };
+          });
+          break;
+        case 26:
+        case 27:
+        case 48:
+          let { navfilters = '[]' } = getAdvanceSetting(view);
+          try {
+            navfilters = JSON.parse(navfilters);
+          } catch (error) {
+            navfilters = [];
+          }
+
+          data = navfilters.map(o => {
+            const item = safeParse(o) || {};
+            return {
+              data: item,
+              txt: JSON.stringify({
+                [TYPES[source.type].id]: item.id,
+                [TYPES[source.type].name]: item.name,
+                avatar: item.avatar,
+              }),
+              value: item.id,
+              isLeaf: false,
+            };
+          });
+          break;
+        default:
+          break;
+      }
+      data = data.filter(o => (key ? o.txt.indexOf(key) >= 0 : true));
       setGroupFilterData(data);
-      setRenderData(data);
       setLoading(false);
     }
   };
 
-  const fetchData = ({ worksheetId, viewId, rowId, cb }) => {
+  const fetchData = ({ worksheetId, viewId, rowId, cb, isNext }) => {
     ajaxFn && ajaxFn.abort();
     let param =
-      soucre.type === 35
+      source.type === 35
         ? {
             getType: 10,
           }
@@ -181,7 +260,7 @@ const GroupFilter = props => {
             appId,
             searchType: 1,
             getType: !viewId ? 7 : 10,
-            viewId: viewId || soucre.viewId, //关联记录时，如果有关联视图，应该按照视图设置的排序方式排序
+            viewId: viewId || source.viewId, //关联记录时，如果有关联视图，应该按照视图设置的排序方式排序
           };
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
     try {
@@ -189,14 +268,14 @@ const GroupFilter = props => {
     } catch (error) {
       navfilters = [];
     }
-    if (soucre.type !== 35 && navfilters.length > 0 && ['3'].includes(navshow)) {
+    if (source.type !== 35 && navfilters.length > 0 && ['3'].includes(navshow)) {
       /// 显示 符合筛选条件的处理
       let filterControls = navfilters.map(handleCondition);
       param = { ...param, filterControls };
     }
-    if (soucre.type === 29) {
-      if (!!_.get(soucre, 'advancedSetting.searchcontrol') && keywords) {
-        param.controlId = _.get(soucre, 'controlId');
+    if (source.type === 29) {
+      if (!!_.get(source, 'advancedSetting.searchcontrol') && keywords) {
+        param.controlId = _.get(source, 'controlId');
       }
       if (!!_.get(view, 'advancedSetting.navsearchcontrol') && keywords) {
         param.keywords = undefined;
@@ -208,7 +287,7 @@ const GroupFilter = props => {
             groupFilters: [
               {
                 dataType: (
-                  ((controls.find(o => o.controlId === _.get(soucre, 'controlId')) || {}).relationControls || []).find(
+                  ((controls.find(o => o.controlId === _.get(source, 'controlId')) || {}).relationControls || []).find(
                     o => o.controlId === _.get(view, 'advancedSetting.navsearchcontrol'),
                   ) || {}
                 ).type,
@@ -249,7 +328,7 @@ const GroupFilter = props => {
       } else {
         let { data = [] } = result;
         let newData = data;
-        if (soucre.type !== 35 && navfilters.length > 0 && navshow === '2') {
+        if (source.type !== 35 && navfilters.length > 0 && navshow === '2') {
           newData = [];
           const ids = navfilters.map(value => safeParse(value).id);
           ids.map(it => {
@@ -260,6 +339,20 @@ const GroupFilter = props => {
         const controls = _.get(result, ['template', 'controls']) || [];
         const control = controls.find(item => item.attribute === 1);
         ajaxFn = '';
+        if (isNext) {
+          setNextData(
+            newData.map((item = {}) => {
+              return {
+                value: item.rowid,
+                isLeaf: !item.childrenids,
+                text: item[control.controlId],
+                txt: getTitleTextFromControls(controls, item),
+              };
+            }),
+          );
+        } else {
+          setNextData([]);
+        }
         dataUpdate({
           filterData: navGroupData,
           data: newData.map((item = {}) => {
@@ -283,7 +376,6 @@ const GroupFilter = props => {
         if (item.value === rowId) {
           item.children = data;
           setGroupFilterData(data);
-          setRenderData(data);
         } else if (_.isArray(item.children)) {
           dataUpdate({ filterData: item.children, data, rowId });
         }
@@ -291,7 +383,6 @@ const GroupFilter = props => {
       setGroupFilterData(filterData);
     } else {
       setGroupFilterData(data);
-      setRenderData(data);
     }
     setLoading(false);
     cb && cb();
@@ -302,12 +393,13 @@ const GroupFilter = props => {
     if (!item.children) {
       setData({
         rowId: item.value,
+        isNext: true,
       });
     }
   };
   const renderBreadcrumb = () => {
     let breadlist = getParentId(navGroupData, currentNodeId) || [];
-    breadlist = breadlist.length ? breadlist.concat([{ ...soucre, txt: soucre.controlName }]) : [];
+    breadlist = breadlist.length ? breadlist.concat([{ ...source, txt: source.controlName }]) : [];
     if (breadlist.length) {
       return (
         <div className="breadNavbar" ref={breadNavBar}>
@@ -321,10 +413,11 @@ const GroupFilter = props => {
                       fetchData({ worksheetId: item.wsid, appId, viewId: navGroup.viewId });
                     } else {
                       fetchData({
-                        worksheetId: soucre.dataSource,
+                        worksheetId: source.dataSource,
                         appId,
-                        viewId: 29 === soucre.type ? navGroup.viewId : soucre.viewId,
+                        viewId: 29 === source.type ? navGroup.viewId : source.viewId,
                         rowId: item.value,
+                        isNext: true,
                       });
                     }
                     setCurrentNodeId(item.value);
@@ -345,8 +438,8 @@ const GroupFilter = props => {
     setCurrentGroup(item);
     let obj = _.omit(navGroup, ['isAsc']);
     let filterType = 2; //选项的选中
-    if ([29, 35].includes(soucre.type)) {
-      if (soucre.type === 29 && !navGroup.viewId) {
+    if ([29, 35].includes(source.type)) {
+      if (source.type === 29 && !navGroup.viewId) {
         //未选择了层级视图 按是筛选
         filterType = 24;
       } else {
@@ -362,7 +455,7 @@ const GroupFilter = props => {
       {
         ...obj,
         values: item.value === 'null' ? [] : [item.value],
-        dataType: soucre.type,
+        dataType: source.type,
         filterType,
         navNames: [item.txt],
       },
@@ -389,8 +482,10 @@ const GroupFilter = props => {
         (navGroupCounts.find(o => o.key === (!item.value ? 'all' : item.value === 'null' ? '' : item.value)) || {})
           .count || 0,
       );
-      let { navshow } = getAdvanceSetting(view);
       let hasChildren = !item.isLeaf;
+      let { navshow } = getAdvanceSetting(view);
+      const txtName =
+        keyStr && !['null', ''].includes(item.value) ? safeParse(item.txt)[keyStr] : item.txt || _l('未命名');
       if (isSoucreTree()) {
         return (
           <React.Fragment key={item.value}>
@@ -403,7 +498,7 @@ const GroupFilter = props => {
               >
                 <div className="mRight16"></div>
                 <div className="groupItem flexRow Font14 borderBottom flex">
-                  <div className="flex">{item.txt || _l('未命名')}</div>
+                  <div className="flex">{txtName}</div>
                   {count > 0 && <div className="count">{count}</div>}
                   {hasChildren && <div className="line"></div>}
                   {hasChildren && (
@@ -417,21 +512,22 @@ const GroupFilter = props => {
           </React.Fragment>
         );
       } else {
-        // 显示有数据的项
-        if (navshow === '1' && count <= 0) {
+        // 显示有数据的项 //排除全部和空
+        if (navshow === '1' && count <= 0 && !['null', ''].includes(item.value)) {
           return;
         }
+
         return (
           <React.Fragment key={item.value}>
             <div className="flexRow" onClick={() => toList(item)}>
               <div
                 className={cx('mRight16 width4', {
-                  borderStyle: isOption && soucre.enumDefault2 === 1 && !!item.value,
+                  borderStyle: isOption && source.enumDefault2 === 1 && !!item.value,
                 })}
-                style={{ backgroundColor: isOption && soucre.enumDefault2 === 1 && !!item.value ? item.color : '' }}
+                style={{ backgroundColor: isOption && source.enumDefault2 === 1 && !!item.value ? item.color : '' }}
               ></div>
               <div className="flexRow listItem flex borderBottom">
-                <div className="radioGroupFilterTxt mRight16">{item.txt || _l('未命名')}</div>
+                <div className="radioGroupFilterTxt mRight16">{txtName}</div>
                 {count > 0 && <div className="count">{count}</div>}
               </div>
             </div>
@@ -453,29 +549,6 @@ const GroupFilter = props => {
       }
     }
   };
-  const renderSearchTxt = (item, control) => {
-    if (keywords && (soucre.type === 35 || (soucre.type === 29 && navGroup.viewId && !!item.path))) {
-      const path = JSON.parse(item.path);
-      return path.map((text, i) => {
-        const isLast = i === path.length - 1;
-        if (text.indexOf(keywords) > -1) {
-          return (
-            <React.Fragment key={i}>
-              <span className="ThemeColor3">{text}</span>
-              {!isLast && <span> / </span>}
-            </React.Fragment>
-          );
-        }
-        return (
-          <React.Fragment key={i}>
-            <span>{text}</span>
-            {!isLast && <span> / </span>}
-          </React.Fragment>
-        );
-      });
-    }
-    return control ? renderCellText(Object.assign({}, control, { value: item[control.controlId] })) : _l('未命名');
-  };
   const conRender = () => {
     if (loading) {
       return <LoadDiv />;
@@ -491,20 +564,20 @@ const GroupFilter = props => {
       );
     }
 
-    let tempData = sortDataByCustomNavs(renderData, view, controls);
-
-    if (!keywords && !currentNodeId) {
-      if ((soucre.type === 29 && !!navGroup.viewId) || [35].includes(soucre.type)) {
+    let navData = nextData.length ? nextData : navGroupData;
+    navData = sortDataByCustomNavs(navData, view, controls);
+    if (!keywords) {
+      if ((source.type === 29 && !!navGroup.viewId) || [35].includes(source.type)) {
         //关联记录以层级视图时|| 级联没有显示项
-        tempData = [
+        navData = [
           {
             txt: _l('全部'),
             value: '',
             isLeaf: true,
           },
-        ].concat(tempData);
+        ].concat(navData);
       } else {
-        tempData =
+        navData =
           showallitem !== '1'
             ? [
                 {
@@ -512,19 +585,19 @@ const GroupFilter = props => {
                   value: '',
                   isLeaf: true,
                 },
-              ].concat(tempData)
-            : tempData;
-        tempData =
+              ].concat(navData)
+            : navData;
+        navData =
           shownullitem === '1'
-            ? tempData.concat({
+            ? navData.concat({
                 txt: nullitemname || _l('为空'),
                 value: 'null',
                 isLeaf: true,
               })
-            : tempData;
+            : navData;
       }
     }
-
+    let isOption = [9, 10, 11, 28].includes(source.type) || [9, 10, 11, 28].includes(source.sourceControlType); //是否选项
     let { navfilters = '[]', navshow } = getAdvanceSetting(view);
     try {
       navfilters = JSON.parse(navfilters);
@@ -535,21 +608,23 @@ const GroupFilter = props => {
     if (navGroup.controlId === 'wfstatus' && !isOpenPermit(permitList.sysControlSwitch, sheetSwitchPermit)) {
       navshow = '0';
     }
-
-    if (isOption && navfilters.length > 0 && navshow === '2') {
-      // 显示 指定项
-      let list = ['', ...navfilters, 'null'];
-      const data = tempData;
-      tempData = [];
-      list.map(it => {
-        tempData = tempData.concat(data.find(o => o.value === it));
-      });
-      tempData = tempData.filter(o => !!o);
+    if (navfilters.length > 0 && navshow === '2') {
+      // 显示 指定项 //加上全部和空
+      if (isOption) {
+        let list = ['', ...navfilters, 'null'];
+        const data = navData;
+        navData = [];
+        list.map(it => {
+          navData = navData.concat(data.find(o => o.value === it));
+        });
+        navData = navData.filter(o => !!o);
+      }
     }
+
     return (
       <ScrollView style={{ maxHeight: `calc(100% - 56px - ${breadNavHeight}px)` }}>
         {keywords && <div className="pLeft16 mBottom6 Font13 Bold Gray_75">{_l('分组')}</div>}
-        <div className="listBox">{renderContent(tempData)}</div>
+        <div className="listBox">{renderContent(navData)}</div>
         {keywords && <div className="mTop16 pLeft16 mBottom6 Font13 Bold Gray_75">{_l('记录')}</div>}
         {keywords && (
           <div className="searchRecordResult">
@@ -574,7 +649,7 @@ const GroupFilter = props => {
   const getSearchRecordResult = keywords => {
     let param = keywords
       ? {}
-      : soucre.type === 35
+      : source.type === 35
       ? {
           getType: 10,
         }
@@ -606,8 +681,18 @@ const GroupFilter = props => {
   const getDefaultValueInCreate = () => {
     if (_.isEmpty(mobileNavGroupFilters)) return;
     let data = mobileNavGroupFilters[0];
-    if ([9, 10, 11].includes(data.dataType)) {
+    if ([9, 10, 11, 28].includes(data.dataType)) {
       return { [data.controlId]: JSON.stringify([data.values[0]]) };
+    } else if ([26, 27, 48].includes(data.dataType)) {
+      let value = '';
+      const id = _.get(data, 'values[0]');
+      const name = _.get(data, 'navNames[0]');
+      if (id && name) {
+        value = JSON.stringify([safeParse(name)]);
+      } else {
+        value = '[]';
+      }
+      return { [data.controlId]: value };
     } else if ([29, 35]) {
       return {
         [data.controlId]: JSON.stringify([
@@ -659,7 +744,7 @@ const GroupFilter = props => {
                 }}
               >
                 <Icon icon="arrow-left-border" className="mRight2 Gray_75 TxtMiddle mBottom3" />
-                <span className="Font15">{currentGroup.txt}</span>
+                <span className="Font15">{groupTxtName}</span>
               </div>
             )}
             <div className="groupDetailCon flexColumn overflowHidden">

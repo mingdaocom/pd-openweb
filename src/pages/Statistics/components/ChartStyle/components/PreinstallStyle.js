@@ -21,7 +21,7 @@ const styles = [{
   config: {
     columnTextColor: '#757575',
     columnBgColor: '#fafafa',
-    lineTextColor: '#333',
+    lineTextColor: '#151515',
     lineBgColor: '#fff',
   }
 }, {
@@ -87,7 +87,7 @@ const PreinstallStyle = props => {
             handleChangePivotTableStyle({
               columnTextColor: isLight ? '#757575' : '#fff',
               columnBgColor: 'themeColor',
-              lineTextColor: isLight ? '#333' : '#fff',
+              lineTextColor: isLight ? '#151515' : '#fff',
               lineBgColor: 'themeColor',
             });
           }}

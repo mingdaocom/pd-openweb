@@ -28,6 +28,7 @@ import { canEditData } from 'worksheet/redux/actions/util';
 import { emitter, KVGet } from 'worksheet/util';
 import { RELATE_RECORD_SHOW_TYPE } from 'worksheet/constants/enum';
 import { emitter as ViewEmitter } from 'src/util';
+import { updateDraftTotalInfo } from 'src/pages/worksheet/common/WorksheetDraft/utils';
 import cx from 'classnames';
 
 const Con = styled.div`
@@ -112,11 +113,13 @@ function NewRecordForm(props) {
     onAdd = () => {},
     onCancel = () => {},
     openRecord,
-    loadDraftDataCount = () => {},
     addNewRecord = () => {},
     onWidgetChange = () => {},
+    onManualWidgetChange = () => {},
     hidePublicShare,
     privateShare,
+    isDraft,
+    handleAddRelation,
   } = props;
   const cache = useRef({});
   const cellObjs = useRef({});
@@ -200,13 +203,19 @@ function NewRecordForm(props) {
                   worksheetInfo,
                   isCharge,
                   needCache: false,
-                  loadDraftDataCount,
                   addNewRecord,
                 });
               },
             });
             return;
           }
+          updateDraftTotalInfo({
+            worksheetId,
+            isAdd: true,
+            callback: total => {
+              ViewEmitter.emit('UPDATE_DRAFT_TOTAL', { worksheetId, total });
+            },
+          });
           onCancel();
         },
         onSubmitEnd: () => {
@@ -277,20 +286,22 @@ function NewRecordForm(props) {
         setServiceError: badData => handleServiceError(badData),
         onSubmitSuccess: ({ rowData, newControls }) => {
           if (actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd || notDialog) {
+            if (isDraft && _.isFunction(handleAddRelation)) {
+              handleAddRelation([rowData]);
+              setErrorVisible(false);
+              setRandom(Math.random().toString());
+              focusInput(formcon.current);
+              return;
+            }
+
             alert('保存成功', 1, 1000);
             isSubmitting.current = false;
             let dataForAutoFill = [...formdata];
-            let relateRecordDataForAutoFill = { ...relateRecordData };
             if (advancedSetting.reservecontrols) {
               const controlIds = safeParse(advancedSetting.reservecontrols, 'array');
               dataForAutoFill = dataForAutoFill.map(c =>
                 _.includes(controlIds, c.controlId) ? c : _.find(originFormdata, { controlId: c.controlId }),
               );
-              Object.keys(relateRecordDataForAutoFill).forEach(controlId => {
-                if (!_.includes(controlIds, controlId)) {
-                  delete relateRecordDataForAutoFill[controlId];
-                }
-              });
             }
             if (!autoFill) {
               setFormdata(originFormdata);
@@ -300,6 +311,11 @@ function NewRecordForm(props) {
             } else {
               if (advancedSetting.reservecontrols) {
                 setFormdata(dataForAutoFill);
+                if (get(customwidget, 'current.dataFormat.callStore')) {
+                  customwidget.current.dataFormat.callStore('setEmpty', {
+                    ignoreControlId: safeParse(advancedSetting.reservecontrols, 'array'),
+                  });
+                }
               }
             }
             if (newControls) {
@@ -309,6 +325,7 @@ function NewRecordForm(props) {
                 ),
               );
             }
+
             setErrorVisible(false);
             setRandom(Math.random().toString());
             focusInput(formcon.current);
@@ -338,7 +355,11 @@ function NewRecordForm(props) {
             _.get(cache, 'current.tempSaving.cancel')();
           }
           if (_.isFunction(onAdd)) {
-            onAdd(rowData, { continueAdd: actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd });
+            if (isDraft && _.isFunction(handleAddRelation)) {
+              handleAddRelation([rowData]);
+            } else {
+              onAdd(rowData, { continueAdd: actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd });
+            }
           }
           if (window.customWidgetViewIsActive) {
             emitter.emit('POST_MESSAGE_TO_CUSTOM_WIDGET', {
@@ -531,6 +552,7 @@ function NewRecordForm(props) {
           <div className="customFieldsCon" ref={formcon}>
             <RecordForm
               from={2}
+              isDraft={isDraft}
               type="new"
               loading={formLoading || loading || isSettingTempData}
               recordbase={{
@@ -632,6 +654,7 @@ function NewRecordForm(props) {
                 onWidgetChange();
                 cache.current.formUserChanged = true;
               }}
+              onManualWidgetChange={onManualWidgetChange}
             />
           </div>
         </RecordCon>

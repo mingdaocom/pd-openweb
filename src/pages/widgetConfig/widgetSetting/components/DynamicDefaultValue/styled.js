@@ -26,15 +26,30 @@ export const DynamicValueInputWrap = styled(FlexCenter)`
     line-height: 27px !important;
     margin-left: 3px !important;
   }
+  .datePicker,
   .richInputText {
     width: calc(100% - 36px);
     border-radius: 3px 0 0 3px !important;
-    border: 1px solid #dddddd;
+    border: 1px solid #ccc;
     &.editorNull {
       padding: 0px !important;
     }
     .ck-content {
       padding: 0 12px !important;
+    }
+  }
+  .datePicker {
+    width: calc(100% - 36px);
+    border-radius: 3px 0 0 3px !important;
+    border: 1px solid #ccc !important;
+    padding: 0;
+    .ant-picker-input {
+      height: 34px;
+      line-height: 34px;
+      padding: 0 12px;
+    }
+    .ant-picker-clear {
+      right: 12px;
     }
   }
   .tagInputarea {

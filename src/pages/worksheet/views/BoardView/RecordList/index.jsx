@@ -105,7 +105,7 @@ export default function Board(props) {
   };
   const handleAddRecord = () => {
     let value = list.key;
-    if (list.type === 26) {
+    if (_.includes([26, 27, 48], list.type)) {
       const { name = '' } = boardData.find(item => item.key === list.key) || {};
       if (name) {
         const user = JSON.parse(name);

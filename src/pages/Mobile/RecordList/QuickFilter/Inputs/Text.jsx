@@ -16,7 +16,7 @@ export default function Text(props) {
   const { values = [], control, filterType, onChange } = props;
   return (
     <div className="controlWrapper">
-      <div className="Font14 bold mBottom15">{control.controlName}</div>
+      <div className="Font14 bold mBottom15 controlName">{control.controlName}</div>
       <div className="flex">
         <InputCon
           placeholder={_l('请输入')}

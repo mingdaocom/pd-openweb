@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 import cx from 'classnames';
 import './index.less';
-import config from '../../utils/config';
 import * as utils from '../../utils';
-import * as ajax from '../../utils/ajax';
-import * as socket from '../../utils/socket';
-import Constant from '../../utils/constant';
 import Textarea from 'ming-ui/components/Textarea';
 import GroupController from 'src/api/group';
 
@@ -76,7 +72,7 @@ export default class Announcement extends Component {
       <div className={cx('ChatPanel-Announcement ChatPanel-sessionInfo-item', { 'ChatPanel-Announcement-compile': compile })}>
         <div className="ChatPanel-Announcement-hander ChatPanel-sessionInfo-hander">{_l('群公告')}</div>
         <div className="ChatPanel-Announcement-body">
-          {isAdmin ? this.renderTextarea() : <div className="ChatPanel-Announcement-text" dangerouslySetInnerHTML={{ __html: this.convertValue(value) }} />}
+          <div className="ChatPanel-Announcement-text" dangerouslySetInnerHTML={{ __html: this.convertValue(value) }} />
         </div>
       </div>
     );

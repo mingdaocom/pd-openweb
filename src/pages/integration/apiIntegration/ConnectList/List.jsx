@@ -42,7 +42,7 @@ const Wrap = styled.div`
   }
   .headTr,
   .conTr {
-    color: #333;
+    color: #151515;
     margin: 0;
     p {
       margin: 0;
@@ -54,6 +54,9 @@ const Wrap = styled.div`
       flex: 12;
       display: flex;
       align-items: center;
+      flex-shrink: 0;
+      min-width: 0;
+      word-break: break-word;
       &.option {
         width: 40px;
         flex: initial;
@@ -131,14 +134,14 @@ const RedMenuItemWrap = styled(MenuItemWrap)`
 `;
 function Option(props) {
   const { currentProjectId, data, hasManageAuth } = props;
-  const { id, type, isOwner, name } = data;
+  const { id, type, isOwner, name, hasAuth } = data;
   const [{ popupVisible, showPublish, apiList }, setState] = useSetState({
     popupVisible: false,
     showPublish: false,
     apiList: [],
   });
   const isConnectOwner = hasManageAuth || isOwner;
-  if (!isConnectOwner) {
+  if (!isConnectOwner && !hasAuth) {
     return '';
   }
   const upperConnect = info => {
@@ -160,21 +163,29 @@ function Option(props) {
       });
   };
   const onDel = () => {
-    packageVersionAjax
-      .delete(
-        {
-          id: id,
-        },
-        { isIntegration: true },
-      )
-      .then(res => {
-        if (res) {
-          alert(_l('删除成功'));
-          props.updateList(props.list.filter(o => o.id !== id));
-        } else {
-          alert(_l('有API被引用，请删除引用后重试'), 3);
-        }
-      });
+    const AjaxFetch =
+      props.tab === 3
+        ? packageVersionAjax.unInstall(
+            {
+              id: id,
+              companyId: currentProjectId,
+            },
+            { isIntegration: true },
+          )
+        : packageVersionAjax.delete(
+            {
+              id: id,
+            },
+            { isIntegration: true },
+          );
+    AjaxFetch.then(res => {
+      if (res) {
+        alert(_l('删除成功'));
+        props.updateList(props.list.filter(o => o.id !== id));
+      } else {
+        alert(_l('有API被引用，请删除引用后重试'), 3);
+      }
+    });
   };
   const onCopy = () => {
     packageVersionAjax
@@ -210,54 +221,68 @@ function Option(props) {
         }}
         popup={
           <MenuWrap>
-            {!md.global.Config.IsLocal && //私有部署没有上架
-              type !== 2 && //安装的连接 不能上架
-              !data.hasAuth && ( //授权码鉴权类型连接不允许上架
-                <MenuItemWrap
-                  icon={<Icon icon="publish" className="Font17 mLeft5" />}
-                  onClick={e => {
-                    setState({ popupVisible: false, showPublish: true });
-                    e.stopPropagation();
-                  }}
-                >
-                  {_l('申请上架到API库')}
-                </MenuItemWrap>
-              )}
-            {type !== 2 && ( //自建的连接
-              <MenuItemWrap
-                icon={<Icon icon="copy" className="Font17 mLeft5" />}
-                onClick={e => {
-                  e.stopPropagation();
-                  setState({ popupVisible: false });
-                  Dialog.confirm({
-                    title: <span className="">{`${_l('复制连接')}“${name}”`}</span>,
-                    width: 500,
-                    description: _l('将复制目标连接的所有配置信息'),
-                    okText: _l('复制'),
-                    onOk: () => {
-                      setState({ popupVisible: false });
-                      onCopy();
-                    },
-                  });
-                }}
-              >
-                {_l('复制')}
-              </MenuItemWrap>
+            {isConnectOwner && (
+              <React.Fragment>
+                {!md.global.Config.IsLocal && //私有部署没有上架
+                  type !== 2 && ( //安装的连接 不能上架
+                    <MenuItemWrap
+                      icon={<Icon icon="publish" className="Font17 mLeft5" />}
+                      onClick={e => {
+                        setState({ popupVisible: false, showPublish: true });
+                        e.stopPropagation();
+                      }}
+                    >
+                      {_l('申请上架到API库')}
+                    </MenuItemWrap>
+                  )}
+                {type !== 2 &&
+                  props.tab !== 3 && ( //自建的连接
+                    <MenuItemWrap
+                      icon={<Icon icon="copy" className="Font17 mLeft5" />}
+                      onClick={e => {
+                        e.stopPropagation();
+                        setState({ popupVisible: false });
+                        Dialog.confirm({
+                          title: <span className="">{`${_l('复制连接')}“${name}”`}</span>,
+                          width: 500,
+                          description: _l('将复制目标连接的所有配置信息'),
+                          okText: _l('复制'),
+                          onOk: () => {
+                            setState({ popupVisible: false });
+                            onCopy();
+                          },
+                        });
+                      }}
+                    >
+                      {_l('复制')}
+                    </MenuItemWrap>
+                  )}
+              </React.Fragment>
             )}
             <RedMenuItemWrap
               icon={<Icon icon="delete1" className="Font17 mLeft5" />}
               onClick={e => {
                 e.stopPropagation();
                 setState({ popupVisible: false });
-                Dialog.confirm({
-                  title: <span className="Red">{`${_l('删除连接')}“${name}”`}</span>,
-                  buttonType: 'danger',
-                  width: 500,
-                  description: _l('删除后将不可恢复，确认删除吗？'),
-                  onOk: () => {
-                    onDel();
-                  },
-                });
+                props.tab === 3
+                  ? Dialog.confirm({
+                      title: <span className="Red">{`${_l('确认删除')}`}</span>,
+                      buttonType: 'danger',
+                      width: 500,
+                      description: _l('删除连接后，连接下授权的账户信息也会被删除。'),
+                      onOk: () => {
+                        onDel();
+                      },
+                    })
+                  : Dialog.confirm({
+                      title: <span className="Red">{`${_l('删除连接')}“${name}”`}</span>,
+                      buttonType: 'danger',
+                      width: 500,
+                      description: _l('删除后将不可恢复，确认删除吗？'),
+                      onOk: () => {
+                        onDel();
+                      },
+                    });
               }}
             >
               {_l('删除')}
@@ -338,7 +363,7 @@ const keys = [
     key: 'cid',
     name: _l('创建人'),
     render: item => {
-      return <div className="pRight8">{item.ownerAccount.fullName}</div>;
+      return <div className="pRight8">{_.get(item, 'ownerAccount.fullName')}</div>;
     },
   },
   {
@@ -399,7 +424,7 @@ function List(props) {
             </div>
             {props.list.map(item => {
               const isCharge = item.isOwner || props.hasManageAuth; //只有超级管理员或拥有者可以查看详情 isOwner拥有者
-              if (!isCharge) {
+              if (!isCharge && !item.hasAuth) {
                 return (
                   <div className="conTr Hand">
                     {keys.map(o => {
@@ -409,7 +434,7 @@ function List(props) {
                 );
               } else {
                 return (
-                  <Link className="conTr Hand stopPropagation" to={`/integrationConnect/${item.id}`}>
+                  <Link className="conTr Hand stopPropagation stopPropagation" to={`/integrationConnect/${item.id}`}>
                     {keys.map(o => {
                       return <div className={`${o.key}`}>{o.render ? o.render(item, props) : item[o.key]}</div>;
                     })}
@@ -426,9 +451,9 @@ function List(props) {
             <i className={`icon-connect Font64 TxtMiddle`} />
           </span>
           <p className="Gray_9e mTop20 mBottom0">
-            {props.keywords ? _l('无匹配的结果，换一个关键词试试吧') : _l('暂无可用连接，请先创建 API 连接')}
+            {props.keywords ? _l('无匹配的结果，换一个关键词试试吧') : _l('暂无可用连接')}
           </p>
-          {!props.keywords && props.featureType && props.canCreateAPIConnect && (
+          {!props.keywords && props.featureType && props.canCreateAPIConnect && props.tab === 1 && (
             <span className="addConnect Bold Hand mTop24" onClick={() => props.onCreate()}>
               {_l('创建自定义连接')}
             </span>

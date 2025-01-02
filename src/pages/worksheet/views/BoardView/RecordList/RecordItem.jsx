@@ -99,7 +99,7 @@ function SortableRecordItem(props) {
         if (includes(CAN_AS_BOARD_OPTION, list.type)) {
           nextVal = JSON.stringify([targetKey]);
         }
-        if (list.type === 26) {
+        if (_.includes([26, 27, 48], list.type)) {
           nextVal = getUserValue();
         }
       }

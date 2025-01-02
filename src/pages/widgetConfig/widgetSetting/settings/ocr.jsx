@@ -161,7 +161,7 @@ export default function OcrDisplay(props) {
                 <Button
                   style={{
                     borderStyle: isEmpty(ocrMap) ? 'dashed' : 'solid',
-                    color: batchDisabled ? 'rgba(51, 51, 51, 0.5)' : '#333',
+                    color: batchDisabled ? 'rgba(51, 51, 51, 0.5)' : '#151515',
                   }}
                   onClick={() => {
                     if (batchDisabled) return;

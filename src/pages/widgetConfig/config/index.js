@@ -53,7 +53,7 @@ export const OPTION_COLORS_LIST_HOVER = [
   45: 嵌入
   49: 查询按钮
 */
-export const NOT_AS_TITLE_CONTROL = [14, 10010, 21, 22, 29, 34, 35, 36, 37, 41, 42, 43, 45, 47, 49, 51, 52];
+export const NOT_AS_TITLE_CONTROL = [14, 10010, 21, 22, 29, 34, 35, 36, 37, 41, 42, 43, 45, 47, 49, 51, 52, 54];
 
 /**
  * 不需要设置只读的控件
@@ -69,8 +69,9 @@ export const NOT_AS_TITLE_CONTROL = [14, 10010, 21, 22, 29, 34, 35, 36, 37, 41, 
  * 51: 查询记录
  * 52: 分段
  * 53: 函数公式
+ * 54: 自定义
  */
-export const NOT_NEED_SET_READONLY_CONTROL = [22, 25, 30, 31, 32, 33, 37, 38, 43, 45, 47, 51, 52, 53, 10010];
+export const NOT_NEED_SET_READONLY_CONTROL = [22, 25, 30, 31, 32, 33, 37, 38, 43, 45, 47, 51, 52, 53, 54, 10010];
 
 /**
  * 无内容控件: 备注、分割线,
@@ -103,7 +104,9 @@ export const HAS_DYNAMIC_DEFAULT_VALUE_CONTROL = [
 export const NO_DES_WIDGET = [22, 10010];
 
 // 无验证
-export const NO_VERIFY_WIDGET = [6, 14, 21, 22, 25, 29, 30, 31, 32, 33, 34, 37, 38, 43, 45, 47, 49, 51, 52, 53, 10010];
+export const NO_VERIFY_WIDGET = [
+  6, 14, 21, 22, 25, 29, 30, 31, 32, 33, 34, 37, 38, 43, 45, 47, 49, 51, 52, 53, 54, 10010,
+];
 
 // 有提示文案的控件
 export const HAS_WARNING_CONTROL = [30, 31, 32, 37, 38, 53];
@@ -154,7 +157,7 @@ export const HAVE_MOBILE_WIDGET = [2, 29, 34, 43];
 export const HAVE_VALUE_STYLE_WIDGET = [2, 3, 4, 5, 6, 7, 8, 15, 16, 19, 23, 24, 25, 31, 32, 33, 37, 38, 46, 53];
 
 // 没有必填的控件
-export const UN_REQUIRED_WIDGET = [31, 38, 33, 25, 32, 43, 47, 45, 49, 30, 21, 37, 22, 51, 52, 53, 10010];
+export const UN_REQUIRED_WIDGET = [31, 38, 33, 25, 32, 43, 47, 45, 49, 30, 21, 37, 22, 51, 52, 53, 54, 10010];
 
 // 支持在关联表中可以被搜索的控件
 export const SUPPORT_RELATE_SEARCH = [2, 3, 4, 5, 7, 33, 50];

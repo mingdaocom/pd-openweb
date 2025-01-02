@@ -311,51 +311,53 @@ class Dropdown extends Component {
   }
 
   renderListItem(data) {
-    const { showItemTitle, currentItemClass, value, renderItem } = this.props;
+    const { showItemTitle, currentItemClass, value, renderItem, hiddenValue = [] } = this.props;
 
-    return data.map((item, index) => {
-      if (_.isArray(item)) {
-        return (
-          <Fragment key={index}>
-            {this.renderListItem(item)}
-            {!!item.length && <div className="Dropdown--hr" />}
-          </Fragment>
-        );
-      } else {
-        return (
-          <Fragment key={index}>
-            {item.title ? (
-              <li className="ming MenuItem ming Item title">
-                <div className="pLeft16 pRight16 Gray_9e ellipsis">{item.title}</div>
-              </li>
-            ) : null}
-            {item.isTip ? (
-              <li className="ming MenuItem ming Item title">
-                <div className="pLeft16 pRight16">{item.text}</div>
-              </li>
-            ) : (
-              <MenuItem
-                {...item}
-                className={cx(item.className, value === item.value && currentItemClass ? currentItemClass : '')}
-                data-value={item.value}
-                icon={
-                  item.iconName || item.icon ? <Icon icon={item.iconName || item.icon} hint={item.iconHint} /> : null
-                }
-                iconAtEnd={item.iconAtEnd}
-                iconHint={item.iconHint}
-                onClick={event => {
-                  event.stopPropagation();
-                  this.handleChange(event, item);
-                }}
-                title={showItemTitle && item.text}
-              >
-                {renderItem ? renderItem(item) : <div className="itemText">{item.text}</div>}
-              </MenuItem>
-            )}
-          </Fragment>
-        );
-      }
-    });
+    return data
+      .filter(item => !_.includes(hiddenValue, item.value))
+      .map((item, index) => {
+        if (_.isArray(item)) {
+          return (
+            <Fragment key={index}>
+              {this.renderListItem(item)}
+              {!!item.length && <div className="Dropdown--hr" />}
+            </Fragment>
+          );
+        } else {
+          return (
+            <Fragment key={index}>
+              {item.title ? (
+                <li className="ming MenuItem ming Item title">
+                  <div className="pLeft16 pRight16 Gray_9e ellipsis">{item.title}</div>
+                </li>
+              ) : null}
+              {item.isTip ? (
+                <li className="ming MenuItem ming Item title">
+                  <div className="pLeft16 pRight16">{item.text}</div>
+                </li>
+              ) : (
+                <MenuItem
+                  {...item}
+                  className={cx(item.className, value === item.value && currentItemClass ? currentItemClass : '')}
+                  data-value={item.value}
+                  icon={
+                    item.iconName || item.icon ? <Icon icon={item.iconName || item.icon} hint={item.iconHint} /> : null
+                  }
+                  iconAtEnd={item.iconAtEnd}
+                  iconHint={item.iconHint}
+                  onClick={event => {
+                    event.stopPropagation();
+                    this.handleChange(event, item);
+                  }}
+                  title={showItemTitle && item.text}
+                >
+                  {renderItem ? renderItem(item) : <div className="itemText">{item.text}</div>}
+                </MenuItem>
+              )}
+            </Fragment>
+          );
+        }
+      });
   }
 
   getInputWidth = () => {

@@ -9,6 +9,7 @@ import { keys, includes, isEmpty, findIndex } from 'lodash';
 import { DropdownContent, DropdownPlaceholder } from '../../../styled';
 import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { compareWithTime } from 'src/components/newCustomFields/tools/utils';
+import { isCustomWidget } from 'src/pages/widgetConfig/util';
 
 const WeekWrap = styled(DropdownContent)`
   max-height: 280px;
@@ -126,15 +127,19 @@ export default function DateVerify({ data, onChange }) {
     <Fragment>
       {type !== 46 && !needHide && (
         <Fragment>
-          <div className="labelWrap">
-            <Checkbox
-              size="small"
-              checked={allowweek}
-              onClick={checked => onChange(handleAdvancedSettingChange(data, { allowweek: checked ? '' : '1234567' }))}
-            >
-              <span>{_l('允许选择的星期')}</span>
-            </Checkbox>
-          </div>
+          {!isCustomWidget(data) && (
+            <div className="labelWrap">
+              <Checkbox
+                size="small"
+                checked={allowweek}
+                onClick={checked =>
+                  onChange(handleAdvancedSettingChange(data, { allowweek: checked ? '' : '1234567' }))
+                }
+              >
+                <span>{_l('允许选择的星期')}</span>
+              </Checkbox>
+            </div>
+          )}
           {allowweek && (
             <Dropdown
               trigger={['click']}
@@ -164,7 +169,7 @@ export default function DateVerify({ data, onChange }) {
               <DropdownPlaceholder
                 className={cx({ active: weekVisible })}
                 style={{ marginBottom: '12px' }}
-                color="#333"
+                color="#151515"
               >
                 {allowweek.length === 7
                   ? _l('每天')

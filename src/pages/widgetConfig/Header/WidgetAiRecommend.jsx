@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import Trigger from 'rc-trigger';
+import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
 import cx from 'classnames';
-import { Rate } from 'antd';
+import { Rate, Drawer } from 'antd';
 import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 import { Checkbox, ScrollView, Dropdown } from 'ming-ui';
@@ -32,25 +31,34 @@ const enumLangType = {
   'zh-Hant': 3,
 };
 
-const AiBtnWrap = styled.div`
-  height: 36px;
-  background: #fff;
-  border-radius: 4px;
+const AiWrap = styled.span`
+  color: #9709f2;
   cursor: pointer;
-  margin-right: 10px;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #757575;
-  &:hover {
-    background: #f5f5f5;
+  &:hover span {
+    border-bottom: 1px dashed #9709f2;
   }
-  .aiIcon {
-    font-size: 24px;
-    margin-right: 2px;
-    color: #ff9a00;
-    margin-bottom: 3px;
+  i {
+    background: linear-gradient(316deg, #c822eb, #6e00ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+`;
+
+const DrawerWrap = styled(Drawer)`
+  .ant-drawer-content-wrapper {
+    box-shadow: none !important;
+  }
+  .ant-drawer-header {
+    display: none;
+  }
+  .ant-drawer-body {
+    padding: 12px 0 12px 12px;
+  }
+  .ant-drawer-content {
+    background: transparent;
+  }
+  .ant-drawer-mask {
+    background: transparent !important;
   }
 `;
 
@@ -95,7 +103,6 @@ const AiWidgetWrap = styled.div`
     position: relative;
     .titleIcon {
       font-size: 80px;
-      color: #ff9a00;
       &.error {
         color: #ff3d00;
       }
@@ -187,7 +194,8 @@ const STATUS_TYPES = [
   { value: 2, text: _l('您对本次推荐结果满意吗？') },
 ];
 
-export default function WidgetAiRecommend({ worksheetName, ...rest }) {
+export default function WidgetAiRecommend(props) {
+  const worksheetName = _.get(props, 'globalSheetInfo.name');
   const [visible, setVisible] = useState(false);
   const [status, setStatus] = useState(0); // -1报错，0默认，1搜索中，2搜索成功
   const [rate, setRate] = useState(0);
@@ -271,7 +279,7 @@ export default function WidgetAiRecommend({ worksheetName, ...rest }) {
         return curControl ? getDefaultData(curControl) : null;
       })
       .filter(_.identity);
-    handleAddWidgets(newData, {}, rest, () => {
+    handleAddWidgets(newData, {}, props, () => {
       setVisible(false);
       handleClear();
     });
@@ -285,7 +293,7 @@ export default function WidgetAiRecommend({ worksheetName, ...rest }) {
     const detail = _.find(STATUS_TYPES, i => i.value === status) || {};
     const isSearching = status === 1;
     const windowHeight = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
-    const height = (status === -1 && resultData) || status === 2 ? windowHeight - 80 : '';
+    const height = (status === -1 && resultData) || status === 2 ? windowHeight - 24 : '';
     return (
       <AiWidgetWrap height={height}>
         <span
@@ -294,9 +302,7 @@ export default function WidgetAiRecommend({ worksheetName, ...rest }) {
             setVisible(false);
           }}
         ></span>
-        <div className="aiIconContent">
-          {isSearching ? <AiLoading /> : <span className={cx('icon-ai titleIcon', { error: status === -1 })}></span>}
-        </div>
+        <div className="aiIconContent">{isSearching ? <AiLoading /> : <span className="icon-ai titleIcon"></span>}</div>
         <span className="Font17 mTop20 Bold">{detail.text}</span>
         <div className="Height50 pTop12">
           {status === 2 ? (
@@ -413,26 +419,21 @@ export default function WidgetAiRecommend({ worksheetName, ...rest }) {
   };
 
   return (
-    <Trigger
-      popup={renderContent}
-      popupVisible={visible}
-      onPopupVisibleChange={visible => {
-        setVisible(visible);
-        if (visible && status === 0) {
-          setKeywords(worksheetName);
-        }
-      }}
-      action={['click']}
-      popupAlign={{
-        points: ['tr', 'br'],
-        offset: [225, 5],
-        overflow: { adjustX: true, adjustY: true },
-      }}
-    >
-      <AiBtnWrap>
-        <span className="aiIcon icon-ai"></span>
-        {_l('AI字段建议')}
-      </AiBtnWrap>
-    </Trigger>
+    <Fragment>
+      <AiWrap
+        onClick={() => {
+          setVisible(true);
+          if (status === 0) {
+            setKeywords(worksheetName);
+          }
+        }}
+      >
+        <span className="mLeft3 Bold">{_l('AI建议字段')}</span>
+        <i className="icon-auto_awesome mLeft3"></i>
+      </AiWrap>
+      <DrawerWrap title={null} width={670} visible={visible} placement="left" onClose={() => setVisible(false)}>
+        {renderContent()}
+      </DrawerWrap>
+    </Fragment>
   );
 }

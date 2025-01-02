@@ -11,7 +11,7 @@ const CustomChartContentWrap = styled.div`
     font-family: FZLanTingHeiS;
     font-weight: 600;
     line-height: 13px;
-    color: #333333;
+    color: #151515;
   }
   .nameInput {
     width: 100%;
@@ -139,7 +139,7 @@ const CustomColorsWrap = styled.div`
           content: '';
           width: 1px;
           height: 28px;
-          background: #333;
+          background: #151515;
           display: inline-block;
           position: absolute;
           top: 2px;

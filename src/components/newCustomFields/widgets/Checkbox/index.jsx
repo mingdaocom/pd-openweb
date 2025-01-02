@@ -39,6 +39,19 @@ class Widgets extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      !_.isEqual(
+        _.pick(nextProps, ['value', 'width', 'disabled', 'options']),
+        _.pick(this.props, ['value', 'width', 'disabled', 'options']),
+      ) ||
+      !_.isEqual(_.pick(nextState, ['isFocus', 'keywords']), _.pick(this.state, ['isFocus', 'keywords']))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   /**
    * 渲染列表
    */
@@ -55,7 +68,7 @@ class Widgets extends Component {
           {
             'pLeft12 pRight12': enumDefault2 === 1,
             horizonArrangementItem: checktype == '2' && (direction === '0' || direction === '2') && browserIsMobile(),
-            'showRadioTxtAll Gray': browserIsMobile(),
+            showRadioTxtAll: browserIsMobile(),
           },
         )}
         style={{
@@ -274,8 +287,9 @@ class Widgets extends Component {
     if (keywords.length) {
       noDelOptions = noDelOptions.filter(
         item =>
-          (item.value || '').search(new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i')) !==
-          -1,
+          `${item.value || ''}|${item.pinYin || ''}`.search(
+            new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i'),
+          ) !== -1,
       );
     }
 
@@ -424,7 +438,7 @@ class Widgets extends Component {
           <div
             className={cx(
               'customFormControlBox',
-              { formBoxNoBorder: !isMobile },
+              { formBoxNoBorder: !isMobile, customFormControlDropDown: isMobile },
               { controlDisabled: disabled },
               { readOnlyDisabled: !isMobile && readonlyshowall === '1' && disabled },
             )}

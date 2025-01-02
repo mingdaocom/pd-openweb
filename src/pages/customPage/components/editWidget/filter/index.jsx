@@ -35,6 +35,9 @@ const Wrap = styled.div`
   background-color: #eee;
   height: 100%;
   display: flex;
+  .Menu.List {
+    height: max-content;
+  }
 `;
 
 export const defaultFilterData = {
@@ -117,7 +120,8 @@ export default function Filter(props) {
           filters: filtersGroup.filters.map(f => {
             return {
               ...f,
-              values: formatFilterValues(f.dataType, f.values)
+              values: formatFilterValues(f.dataType, f.values),
+              showDefsource: f.values
             }
           })
         });

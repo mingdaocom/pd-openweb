@@ -132,6 +132,9 @@ $.extend(SettingGroup.prototype, {
     if (type && $.isFunction(options.success)) {
       options.success(options.groupAction[type], args);
     }
+    if (location.href.includes('chat_window')) {
+      window.close();
+    }
   },
   opFailed: function (hint, type) {
     alert(hint || _l('操作失败'), type || 2);
@@ -355,12 +358,6 @@ $.extend(SettingGroup.prototype, {
               $this.val($this.data('content'));
               _this.opFailed();
             });
-        }
-      });
-      $groupInfo.on('keydown', '.groupTextBox', function (event) {
-        const { keyCode } = event;
-        if (keyCode === 13) {
-          $(this).blur();
         }
       });
     }

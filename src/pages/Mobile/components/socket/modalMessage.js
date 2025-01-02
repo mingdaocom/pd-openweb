@@ -7,7 +7,7 @@ const ModalWrap = styled(Popup)`
   overflow: hidden;
   .adm-popup-body {
     padding: 16px;
-    color: #333;
+    color: #151515;
     font-size: 13px;
     display: flex;
     flex-direction: column;
@@ -110,12 +110,12 @@ function MessageComp(props) {
         </div>
       );
     }
-    return <i className={`Font24 ${type} icon-${getIconName(type)}`}></i>;
+    return <i className={`Font20 ${type} icon-${getIconName(type)}`}></i>;
   };
 
   const getBatchNoticeDescription = ({ finished, total, failed, executeType }) => {
     if (finished === total) {
-      return `${_l('执行完成! ')}\n${failed > 0 ? _l('%0条失败', failed) : ''}`;
+      return `${_l('执行完成!')}\n${failed > 0 ? _l('%0条失败', failed) : ''}`;
     } else {
       return _l('正在执行... %0/%1', finished, total);
     }
@@ -141,7 +141,7 @@ function MessageComp(props) {
       actions: [
         {
           key: 'close',
-          text: '关闭',
+          text: <span className="Font13">{_l('关闭')}</span>,
           onClick: () => modal.close(),
         },
       ],

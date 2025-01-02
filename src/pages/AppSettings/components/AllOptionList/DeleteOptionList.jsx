@@ -22,7 +22,7 @@ const OptionQuoteWrap = styled.div`
       cursor: auto;
       &:hover {
         background-color: #fff;
-        color: #333;
+        color: #151515;
       }
     }
   }

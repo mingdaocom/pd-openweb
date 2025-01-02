@@ -15,9 +15,9 @@
 
             if (href.indexOf('code=') > -1 && href.indexOf('state=') > -1) {
                 var returnUrl = decodeURIComponent(href.slice(href.indexOf('returnUrl=') + 10));
-                location.href = returnUrl.indexOf('?') < 0 ? returnUrl.replace(/&/, '?') : returnUrl;
+                location.replace(returnUrl.indexOf('?') < 0 ? returnUrl.replace(/&/, '?') : returnUrl);
             } else {
-                location.href = decodeURIComponent(href.slice(href.indexOf('authUrl=') + 8));
+                location.replace(decodeURIComponent(href.slice(href.indexOf('authUrl=') + 8)));
             }
         </script>
     </body>

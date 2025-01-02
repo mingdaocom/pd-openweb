@@ -6,7 +6,7 @@ import {
   HAS_DYNAMIC_DEFAULT_VALUE_CONTROL,
   NO_VERIFY_WIDGET,
 } from '../../../config';
-import { enumWidgetType } from '../../../util';
+import { enumWidgetType, isCustomWidget } from '../../../util';
 import { canAdjustWidth } from '../../../util/setting';
 import { changeWidgetSize } from '../../../util/widgets';
 import Settings from '../../settings';
@@ -15,6 +15,7 @@ import DynamicDefaultValue from '../DynamicDefaultValue';
 import WidgetVerify from '../WidgetVerify';
 import WidgetOtherExplain from './WidgetOtherExplain';
 import WidgetWidth from './WidgetWidth';
+import WidgetCustom from '../CustomWidget/WidgetCustom';
 
 // 高级设置
 export default function WidgetBase(props) {
@@ -36,6 +37,8 @@ export default function WidgetBase(props) {
       {HAS_WARNING_CONTROL.includes(type) && <WidgetWarning type={type} />}
       {/**字段名称 */}
       <WidgetName {...props} />
+      {/**自定义字段通用设置 */}
+      {isCustomWidget(data) && <WidgetCustom {...props} />}
       {/* rest.type 已指定类型的情况下不可更改 */}
       {!NO_CUSTOM_SETTING_CONTROL.includes(type) && !rest.type && Components && <Components {...props} />}
       {/* 快速创建字段暂时隐藏更多内容 */}

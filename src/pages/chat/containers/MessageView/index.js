@@ -380,18 +380,22 @@ class MessageView extends Component {
     const { session } = this.props;
     const targetText = session.isPost ? _l('群组') : _l('聊天');
     const inviteText = _l('邀请好友');
+    const hideChat = md.global.SysSettings.forbidSuites.includes('6');
     return (
       <div className="ChatPanel-InviteMessage">
         <div className="InviteMessage-icon">
           <div className="InviteMessage-iconImg" />
         </div>
         <div className="InviteMessage-title">{_l('%0创建成功', targetText)}</div>
-        <div
-          className="InviteMessage-content"
-          onClick={this.handleAddMembers}
-          dangerouslySetInnerHTML={{ __html: _l('快去%0加入当前%1吧', `<span class="addMember ThemeColor3">${inviteText}</span>`, targetText) }}
-        >
-        </div>
+        {!hideChat && (
+          <div
+            className="InviteMessage-content"
+            onClick={this.handleAddMembers}
+            dangerouslySetInnerHTML={{
+              __html: _l('快去%0加入当前%1吧', `<span class="addMember ThemeColor3">${inviteText}</span>`, targetText),
+            }}
+          ></div>
+        )}
       </div>
     );
   }

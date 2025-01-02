@@ -31,6 +31,17 @@ export default class Widgets extends Component {
     };
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      !_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled'])) ||
+      !_.isEqual(_.pick(nextState, ['keywords']), _.pick(this.state, ['keywords'])) ||
+      !_.isEqual(_.get(nextProps, 'controlId'), _.get(this.props, 'controlId'))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   /**
    * 渲染头部
    */
@@ -126,7 +137,12 @@ export default class Widgets extends Component {
             {...this.props}
             value={mobileCheckItems}
           >
-            <div className={cx('w100 customFormControlBox', { controlDisabled: disabled })} style={{ height: 'auto' }}>
+            <div
+              className={cx('w100 customFormControlBox customFormControlDropDown', {
+                controlDisabled: disabled,
+              })}
+              style={{ height: 'auto' }}
+            >
               <div className="flexRow h100" style={{ alignItems: 'center', minHeight: 34 }}>
                 <div className="flex minWidth0">
                   {checkIds.length ? (
@@ -157,8 +173,9 @@ export default class Widgets extends Component {
     if (keywords.length) {
       noDelOptions = noDelOptions.filter(
         item =>
-          (item.value || '').search(new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i')) !==
-          -1,
+          `${item.value || ''}|${item.pinYin || ''}`.search(
+            new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i'),
+          ) !== -1,
       );
     }
     const checkItems = noDelOptions

@@ -238,7 +238,7 @@ var process = {
    * 保存流程全局配置
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {保存流程配置} {agents:代理人(array),allowRevoke:允许触发者撤回(boolean),allowTaskRevoke:允许审批人撤回(boolean),allowUrge:允许触发者催办(boolean),callBackType:允许触发者撤回后重新发起 -1: 无配置 0:重新执行  1:直接返回审批节点(integer),dateShowType:日期数据格式1:yyyy-MM-dd HH:mm 6：yyyy-MM-dd HH:mm:ss(integer),debugEvents:调试事件 0开启调试(array),defaultAgent:null(string),defaultCandidateUser:candidateUser获取为空时的默认处理(boolean),defaultErrorCandidateUsers:null(string),disabledPrint:是否关闭系统打印(boolean),endContentType:异常结束返回的contentType(integer),endValue:异常结束返回的配置(string),errorInterval:错误通知间隔时间(integer),errorNotifiers:错误消息通知人(array),executeType:运行方式: 1 并行，2：顺序，3：串行(integer),initiatorMaps:审批人为空处理(object),isSaveVariables:是否只保存流程参数(boolean),pbcConfig:PBC高级设置(ref),permissionLevel:操作时验证用户权限级别 默认 0不需要验证 1查看权限(integer),printIds:打印模版id列表(array),processId:流程ID(string),processIds:编辑版的流程id(array),processVariables:流程参数(array),recordTitle:待办标题(string),required:验证必填字段(boolean),requiredIds:必须审批的节点(array),responseContentType:返回的contentType(integer),revokeNodeIds:通过指定的节点不允许撤回(array),sendTaskPass:触发者不发送通知(boolean),startEventPass:工作流触发者自动通过(boolean),triggerType:触发其他工作流 0 ：允许触发，1：只能触发指定工作流 2：不允许触发(integer),triggerView:触发者查看(boolean),userTaskNullMaps:审批人为空处理(object),userTaskNullPass:审批人为空自动通过(boolean),userTaskPass:审批人自动通过(boolean),value:返回的配置(string),viewNodeIds:可查看意见节点(array),}*saveProcessConfigRequest
+   * @param {保存流程配置} {agents:代理人(array),allowRevoke:允许触发者撤回(boolean),allowTaskRevoke:允许审批人撤回(boolean),allowUrge:允许触发者催办(boolean),callBackType:允许触发者撤回后重新发起 -1: 无配置 0:重新执行  1:直接返回审批节点(integer),dateShowType:日期数据格式1:yyyy-MM-dd HH:mm 6：yyyy-MM-dd HH:mm:ss(integer),debugEvents:调试事件 0开启调试(array),defaultAgent:null(string),defaultCandidateUser:candidateUser获取为空时的默认处理(boolean),defaultErrorCandidateUsers:null(string),disabledPrint:是否关闭系统打印(boolean),dotType:小数位数：0 : 取所有小数位数， 1:根据字段上面配置的小数位数(integer),endContentType:异常结束返回的contentType(integer),endValue:异常结束返回的配置(string),errorInterval:错误通知间隔时间(integer),errorNotifiers:错误消息通知人(array),executeType:运行方式: 1 并行，2：顺序，3：串行(integer),initiatorMaps:审批人为空处理(object),isSaveVariables:是否只保存流程参数(boolean),pbcConfig:PBC高级设置(ref),permissionLevel:操作时验证用户权限级别 默认 0不需要验证 1查看权限(integer),printIds:打印模版id列表(array),processId:流程ID(string),processIds:编辑版的流程id(array),processVariables:流程参数(array),recordTitle:待办标题(string),required:验证必填字段(boolean),requiredIds:必须审批的节点(array),responseContentType:返回的contentType(integer),revokeNodeIds:通过指定的节点不允许撤回(array),sendTaskPass:触发者不发送通知(boolean),startEventPass:工作流触发者自动通过(boolean),triggerType:触发其他工作流 0 ：允许触发，1：只能触发指定工作流 2：不允许触发(integer),triggerView:触发者查看(boolean),userTaskNullMaps:审批人为空处理(object),userTaskNullPass:审批人为空自动通过(boolean),userTaskPass:审批人自动通过(boolean),value:返回的配置(string),viewNodeIds:可查看意见节点 null为默认全可见 空数组就是全不可见(array),}*saveProcessConfigRequest
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */
@@ -264,7 +264,7 @@ var process = {
    * 根据流程id手动触发流程
    * @param {Object} args 请求参数
    * @param {string} [args.access_token] 令牌
-   * @param {RequestStartProcessByProcessId} {dataLog:扩展触发值(string),debugEvents:调试事件(动态人员赋值测试人) 1审批 2短信 3邮件(array),processId:流程id(string),sourceId:行记录id(string),}*startProcess
+   * @param {RequestStartProcessByProcessId} {dataLog:扩展触发值(string),debugEvents:调试事件(动态人员赋值测试人) 1审批 2短信 3邮件(array),fields:参数(array),processId:流程id(string),pushUniqueId:推送唯一标识(string),sourceId:行记录id(string),}*startProcess
    * @param {Object} options 配置参数
    * @param {Boolean} options.silent 是否禁止错误弹层
    */

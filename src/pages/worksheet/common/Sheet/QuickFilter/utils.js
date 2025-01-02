@@ -2,6 +2,7 @@ import _, { assign, find, get, includes, isEmpty } from 'lodash';
 import { FILTER_CONDITION_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'pages/widgetConfig/config/widget';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import { DATE_RANGE_TYPE } from 'worksheet/common/WorkSheetFilter/enum';
 import { getRequest } from 'src/util';
 import moment from 'moment';
 
@@ -90,7 +91,7 @@ export function validate(condition) {
     )
   ) {
     if (condition.dateRange === 18 && condition.filterType === FILTER_CONDITION_TYPE.DATE_BETWEEN) {
-      return !_.isUndefined(condition.minValue) && !_.isUndefined(condition.maxValue);
+      return !!condition.minValue && !!condition.maxValue;
     } else if (condition.dateRange === 18) {
       return !_.isUndefined(condition.value) && condition.value !== '';
     } else {
@@ -141,7 +142,7 @@ export function formatFilterValuesToServer(controlType, values = []) {
   }
 }
 
-function parseUrlValue({ value, control, filterType } = {}) {
+function parseUrlValue({ value, control, filterType, dateRangeType } = {}) {
   if (
     includes(
       [
@@ -181,7 +182,12 @@ function parseUrlValue({ value, control, filterType } = {}) {
     return {
       dateType: 15,
       dateRange: 18,
-      value: moment(value, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD'),
+      value: moment(value, 'YYYY-MM-DD HH:mm:ss').format(
+        {
+          [DATE_RANGE_TYPE.MINUTE]: 'YYYY-MM-DD HH:mm',
+          [DATE_RANGE_TYPE.HOUR]: 'YYYY-MM-DD HH',
+        }[dateRangeType] || 'YYYY-MM-DD',
+      ),
     };
   } else if (includes([WIDGETS_TO_API_TYPE_ENUM.TIME], control.type)) {
     const [min, max] = value.split('-');
@@ -199,11 +205,16 @@ function parseUrlValue({ value, control, filterType } = {}) {
   }
 }
 
-function parseDynamicSource({ dynamicSource, control, filterType } = {}) {
+function parseDynamicSource({ dynamicSource, control, filterType, dateRangeType } = {}) {
   const urlParams = getRequest();
   return dynamicSource.map(item => {
     if (item.rcid !== 'url' || !item.cid || !urlParams[item.cid]) return;
-    const changes = parseUrlValue({ value: urlParams[item.cid], control: redefineComplexControl(control), filterType });
+    const changes = parseUrlValue({
+      value: urlParams[item.cid],
+      control: redefineComplexControl(control),
+      filterType,
+      dateRangeType,
+    });
     return changes;
   });
 }
@@ -218,6 +229,7 @@ export function handleConditionsDefault(conditions, controls) {
         dynamicSource: condition.dynamicSource,
         control,
         filterType: condition.filterType,
+        dateRangeType: condition.dateRangeType,
       });
       if (dynamicResult && dynamicResult[0]) {
         condition = assign(condition, dynamicResult[0]);

@@ -113,7 +113,7 @@ export default function TimeConfig(props) {
             </IntervalWrap>
           }
         >
-          <DropdownPlaceholder className={cx({ active: timeIntervalVisible })} color="#333">
+          <DropdownPlaceholder className={cx({ active: timeIntervalVisible })} color="#151515">
             {_l('%0分钟', timeinterval)}
             <i className="icon-arrow-down-border Font16 Gray_9e"></i>
           </DropdownPlaceholder>

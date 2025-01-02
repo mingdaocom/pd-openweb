@@ -239,3 +239,14 @@ export const OUTPUT_FORMULA_FUNC = [
     value: 46,
   },
 ];
+
+export const DISPLAY_USER_TYPE_OPTIONS = [
+  {
+    text: _l('常规'),
+    value: '1',
+  },
+  {
+    text: _l('外部门户'),
+    value: '2',
+  },
+];

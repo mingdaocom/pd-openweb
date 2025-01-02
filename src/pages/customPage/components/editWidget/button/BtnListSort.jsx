@@ -25,7 +25,7 @@ const SortableBtnListWrap = styled.ul`
 
     cursor: pointer;
     background-color: #fff;
-    color: #333;
+    color: #151515;
     .btnIcon {
       margin: 0 7px;
     }

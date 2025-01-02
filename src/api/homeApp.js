@@ -31,6 +31,7 @@ export default {
   * @param {string} args.appId 应用id
   * @param {string} args.projectId 网络id
   * @param {boolean} args.isHomePage 是否首页 true 是 false 否
+  * @param {boolean} args.noCache 不处理缓存
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

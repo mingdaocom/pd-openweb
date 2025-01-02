@@ -8,7 +8,7 @@ import customApi from 'statistics/api/custom';
 import homeAppApi from 'src/api/homeApp';
 import DocumentTitle from 'react-document-title';
 import GridLayout from 'react-grid-layout';
-import { getDefaultLayout, getEnumType, reorderComponents, replaceColor, filterSuspensionAiComponent, getSuspensionAiComponent } from 'src/pages/customPage/util';
+import { getDefaultLayout, getEnumType, reorderComponents, replaceColor } from 'src/pages/customPage/util';
 import { loadSDK } from 'src/components/newCustomFields/tools/utils';
 import WidgetDisplay from './WidgetDisplay';
 import AppPermissions from '../components/AppPermissions';
@@ -18,7 +18,6 @@ import { getEmbedValue } from 'src/components/newCustomFields/tools/utils.js';
 import store from 'redux/configureStore';
 import { updateFilterComponents } from './redux/actions';
 import { getTranslateInfo } from 'src/util';
-import AiContent from './AiContent';
 import LinkageBtn from './LinkageBtn';
 import 'react-grid-layout/css/styles.css';
 import _ from 'lodash';
@@ -204,7 +203,7 @@ export default class CustomPage extends Component {
   }
   renderContent() {
     const { apk, pageConfig } = this.state;
-    const pageComponents = filterSuspensionAiComponent(this.state.pageComponents);
+    const pageComponents = this.state.pageComponents;
     const { params } = this.props.match;
     const layout = getLayout(pageComponents);
     return (
@@ -278,7 +277,6 @@ export default class CustomPage extends Component {
   render() {
     const { pageTitle, appNaviStyle } = this.props;
     const { pageComponents, loading, pageName, apk, urlTemplate } = this.state;
-    const suspensionAi = getSuspensionAiComponent(pageComponents);
     return (
       <WaterMark projectId={apk.projectId}>
         <div id="componentsWrap" className="h100 w100 GrayBG" style={{ overflowY: 'auto' }}>
@@ -287,9 +285,6 @@ export default class CustomPage extends Component {
             this.renderUrlTemplate()
           ) : (
             loading ? this.renderLoading() : pageComponents.length ? this.renderContent() : this.renderWithoutData()
-          )}
-          {suspensionAi && (
-            <AiContent widget={suspensionAi} />
           )}
           {!window.isMingDaoApp && !(appNaviStyle === 2 && location.href.includes('mobile/app') && md.global.Account.isPortal) && !_.get(window, 'shareState.shareId') && (
             <Back
@@ -302,7 +297,7 @@ export default class CustomPage extends Component {
               }}
             />
           )}
-          <LinkageBtn isSuspensionAi={suspensionAi}/>
+          <LinkageBtn/>
         </div>
       </WaterMark>
     );

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment, createRef } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Icon, WaterMark, LoadDiv } from 'ming-ui';
@@ -24,7 +24,7 @@ import {
 } from 'worksheet/util';
 import { RECORD_INFO_FROM } from 'worksheet/constants/enum';
 import { updateRulesData, checkRuleLocked } from 'src/components/newCustomFields/tools/filterFn';
-import { loadRecord, updateRecord } from 'worksheet/common/recordInfo/crtl';
+import { loadRecord, updateRecord, handleSubmitDraft } from 'worksheet/common/recordInfo/crtl';
 import { formatControlToServer, controlState } from 'src/components/newCustomFields/tools/utils';
 import { MobileRecordRecoverConfirm } from 'worksheet/common/newRecord/MobileNewRecord';
 import { replaceControlsTranslateInfo } from 'worksheet/util';
@@ -59,9 +59,7 @@ export default class RecordInfo extends Component {
       externalPortalConfig: {},
       recordId: props.recordId,
       currentTab: {},
-      childTableControlIds: [],
       restoreVisible: false,
-      canSubmitDraft: false,
       payConfig: {}, // 支付相关
     };
     this.submitType = '';
@@ -69,6 +67,8 @@ export default class RecordInfo extends Component {
     this.cellObjs = {};
     this.confirmHandler = null;
     this.debounceRefresh = _.debounce(this.refreshEvent, 1000);
+    this.draftType = 'save'; // save: 保存  submit: 提交,
+    this.chatCountRef = createRef();
   }
   get isPublicShare() {
     return (
@@ -96,24 +96,27 @@ export default class RecordInfo extends Component {
   componentWillReceiveProps(nextProps) {
     const { currentSheetRows } = nextProps;
     if (!_.isEmpty(currentSheetRows) && currentSheetRows !== this.props.currentSheetRows) {
-      this.loadNextRecord(nextProps);
+      this.loadSwitchRecord(nextProps);
     }
   }
 
   componentDidUpdate(prevProps) {
     const { relationRow } = this.props;
-    const { currentTab, tempFormData = [] } = this.state;
+    const { currentTab, isEditRecord, tempFormData = [] } = this.state;
     if (
       this.customwidget &&
       this.customwidget.current &&
       currentTab.type === 29 &&
-      !_.isEqual(relationRow, prevProps.relationRow)
+      !_.isEqual(relationRow, prevProps.relationRow) &&
+      (!this.ignoreUpdateRelationCount || isEditRecord)
     ) {
       this.customwidget.current.handleChange(
         !_.isNaN(relationRow.count) ? relationRow.count : currentTab.value,
         currentTab.controlId,
         currentTab,
       );
+    } else if (this.ignoreUpdateRelationCount && !_.isEqual(relationRow, prevProps.relationRow)) {
+      this.ignoreUpdateRelationCount = false;
     }
   }
 
@@ -203,19 +206,6 @@ export default class RecordInfo extends Component {
             .concat(needUpdateControlIds.map(id => _.find(data.formData, c => c.controlId === id)).filter(_.identity))
         : data.formData;
 
-      const childTableControlIds = updateRulesData({ rules: data.rules, data: data.formData })
-        .filter(v => {
-          if (v.type === 34) {
-            const tab = _.find(tempControls, c => v.sectionId == c.controlId);
-            return (
-              (tab ? !v.hidden && controlState(v, from).visible : !_.get(tab, 'hidden') && controlState(tab, from)) &&
-              !_.includes(['110', '010', '000', '011'], v.fieldPermission)
-            );
-          }
-          return;
-        })
-        .map(it => it.controlId);
-
       // 封面配置
       const { coverid } = data.advancedSetting;
       const formStyleControl = _.find(data.formData, i => i.controlId === coverid) || {};
@@ -245,7 +235,6 @@ export default class RecordInfo extends Component {
           recordId,
         },
         tempFormData: data.formData,
-        childTableControlIds: !_.isEmpty(childTableControlIds) ? childTableControlIds : undefined,
         loading: false,
         refreshBtnNeedLoading: false,
         payConfig,
@@ -270,6 +259,9 @@ export default class RecordInfo extends Component {
     if (_.isFunction(this.refreshEvents.loadCustomBtns) && !isPublicForm) {
       this.refreshEvents.loadCustomBtns();
     }
+    if (this.chatCountRef && this.chatCountRef.current) {
+      this.chatCountRef.current.getDiscussionsCount();
+    }
   };
   getPortalConfigSet() {
     const { appId } = this.props;
@@ -292,82 +284,7 @@ export default class RecordInfo extends Component {
       );
     }
   };
-  getDraftParams = data => {
-    const { draftFormControls = [] } = this.props;
-    const formData = data
-      .filter(it => it.controlId !== 'ownerid')
-      .filter(item => item.type !== 30 && item.type !== 31 && item.type !== 32 && item.type !== 33)
-      .filter(item => !checkCellIsEmpty(item.value));
-    const formDataIds = formData.map(it => it.controlId);
-    let paramControls = draftFormControls
-      .map(v => (v.type === 29 && !v.value ? { ...v, value: '[]' } : v))
-      .filter(it => !_.includes(formDataIds, it.controlId))
-      .concat(formData);
 
-    return paramControls.map(it => {
-      if (it.type === 34) {
-        return formatControlToServer(
-          {
-            ...it,
-            value: _.isObject(it.value) ? { ...it.value, isAdd: true, updated: [] } : it.value,
-          },
-          { isNewRecord: true, isDraft: true },
-        );
-      }
-      if (it.type === 14) {
-        return formatControlToServer(it, { isSubListCopy: true, isNewRecord: true, isDraft: true });
-      }
-      return formatControlToServer(it, { isNewRecord: true, isDraft: true });
-    });
-  };
-  saveDraftData = ({ draftType }) => {
-    if (window.isPublicApp) {
-      alert(_l('预览模式下，不能操作'), 3);
-      return;
-    }
-    if (draftType === 'submit') {
-      this.submitType = 'draft';
-      this.setState({ submitLoading: true });
-      return this.customwidget.current.submitFormData();
-    }
-    this.setState({ submitLoading: true });
-    const { data } = this.customwidget.current.getSubmitData({
-      silent: true,
-      ignoreAlert: true,
-    });
-    const { recordInfo, recordBase } = this.state;
-    const { appId, viewId, worksheetId, recordId } = recordBase;
-
-    worksheetApi
-      .addWorksheetRow({
-        projectId: recordInfo.projectId,
-        appId,
-        worksheetId,
-        viewId,
-        draftRowId: recordId,
-        rowStatus: draftType === 'submit' ? 11 : 21,
-        pushUniqueId: md.global.Config.pushUniqueId,
-        receiveControls: this.getDraftParams(data),
-      })
-      .then(res => {
-        if (res.resultCode === 1) {
-          alert(draftType === 'submit' ? _l('记录添加成功') : _l('记录保存成功'));
-          this.props.onClose();
-          this.props.getDraftData({ appId, worksheetId });
-        } else if (res.resultCode === 2) {
-          alert(_l('当前草稿已保存，请勿重复提交'), 2);
-        } else {
-          alert(draftType === 'submit' ? _l('记录添加失败') : _l('记录保存失败'), 2);
-        }
-      })
-      .catch(err => {
-        if (_.isObject(err)) {
-          alert(err.errorMessage || _l('记录添加失败'), 2);
-        } else {
-          alert(err || _l('记录添加失败'), 2);
-        }
-      });
-  };
   loadTempValue = updateTime => {
     const { recordBase, recordInfo, tempFormData, formChanged } = this.state;
     const { recordId, viewId } = recordBase;
@@ -462,21 +379,21 @@ export default class RecordInfo extends Component {
       },
     );
   };
-  handleTriggerSave = () => {
+  handleTriggerSave = ({ draftType } = {}) => {
+    this.draftType = draftType;
     this.confirmHandler && this.confirmHandler.close();
     this.setState({
       formChanged: false,
       submitLoading: true,
     });
-    this.customwidget.current.submitFormData();
+    this.submitOptions = { ignoreError: draftType === 'save' };
+    this.customwidget.current.submitFormData({ ignoreAlert: true, ignoreError: draftType === 'save' });
   };
   handleSave = (error, { data, updateControlIds }) => {
-    const { allowEmptySubmit, updateEditStatus = () => {} } = this.props;
+    const { allowEmptySubmit, updateEditStatus = () => {}, onClose = () => {} } = this.props;
     const { callback = () => {}, noSave, ignoreError } = this.submitOptions || {};
     const { recordInfo, recordBase, tempFormData } = this.state;
     const isPublicForm = _.get(window, 'shareState.isPublicForm') && window.shareState.shareId;
-
-    // data = data.filter(c => !isRelateRecordTableControl(c));
 
     if (error && !ignoreError) {
       callback({ error: true });
@@ -498,89 +415,109 @@ export default class RecordInfo extends Component {
       return;
     }
 
-    if (this.submitType === 'draft') {
-      worksheetApi
-        .addWorksheetRow({
-          projectId: recordInfo.projectId,
-          appId: recordBase.appId,
-          worksheetId: recordBase.worksheetId,
-          viewId: recordBase.viewId,
-          draftRowId: recordBase.recordId,
-          rowStatus: 11,
-          pushUniqueId: md.global.Config.pushUniqueId,
-          receiveControls: this.getDraftParams(data),
-        })
-        .then(res => {
-          if (res.resultCode === 1) {
-            alert(_l('记录添加成功'));
-            this.props.onClose();
-          } else if (res.resultCode === 11 && res.badData && !_.isEmpty(res.badData)) {
-            let checkControl = _.find(data, v => _.includes(res.badData, v.controlId)) || {};
-            alert(`${_l('%0不允许重复', checkControl.controlName)}`, 3);
-            this.setState({ submitLoading: false });
-          } else {
-            alert(_l('记录添加失败'), 2);
-            this.setState({ submitLoading: false });
-          }
-        })
-        .catch(err => {
-          if (_.isObject(err)) {
-            alert(err.errorMessage || _l('记录添加失败'), 2);
-          } else {
-            alert(err || _l('记录添加失败'), 2);
-          }
-        });
-    } else {
-      const { from, instanceId, workId, updateSuccess, workflow } = this.props;
-      this.abortChildTable();
-      updateRecord(
+    const { from, instanceId, workId, updateSuccess, workflow, updateDraftList, addNewRecord } = this.props;
+    this.abortChildTable();
+    const isDraft = from === RECORD_INFO_FROM.DRAFT;
+
+    if (isDraft && this.draftType === 'submit') {
+      // 提交草稿（转为正常记录）
+      handleSubmitDraft(
         {
+          formData: data,
           appId: recordBase.appId,
           worksheetId: recordBase.worksheetId,
           viewId: recordBase.viewId,
           recordId: recordBase.recordId,
-          getType: getRowGetType(from),
-          projectId: recordInfo.projectId,
-          instanceId,
-          workId,
-          data,
-          updateControlIds,
-          updateSuccess,
-          isDraft: from === RECORD_INFO_FROM.DRAFT,
-          allowEmptySubmit,
+          rules: _.get(this.props, 'worksheetInfo.rules'),
           triggerUniqueError: badData => {
             if (this.customwidget.current && _.isFunction(this.customwidget.current.uniqueErrorUpdate)) {
               this.customwidget.current.uniqueErrorUpdate(badData);
             }
           },
+          onSubmitEnd: () => {
+            this.setState({ submitLoading: false });
+            onClose();
+          },
+          onSubmitSuccess: rowData => {
+            // 更新草稿列表
+            if (_.isFunction(updateDraftList)) {
+              updateDraftList(recordBase.recordId);
+            } else if (location.pathname.includes('mobile/record')) {
+              // 新开页提交成功后刷新成正常记录
+              location.href = `${location.origin}/mobile/record/${recordBase.appId}/${recordBase.worksheetId}/${rowData.rowid}`;
+            }
+            // 更新记录列表
+            if (_.isFunction(addNewRecord)) {
+              addNewRecord(rowData);
+            }
+          },
         },
-        (err, resdata, logId) => {
-          this.setState({ submitLoading: false });
-          if (!err) {
-            const formData = tempFormData.map(c => _.assign({}, c, { value: resdata[c.controlId] }));
-            updateEditStatus(false);
+        err => {
+          setTimeout(() => {
             this.setState({
-              isEditRecord: false,
-              random: Date.now(),
-              recordInfo: Object.assign(recordInfo, { formData }),
-              tempFormData: formData,
+              submitLoading: false,
             });
-            if (_.isFunction(callback)) {
-              callback({ logId });
-            }
-            if (!workflow) {
-              this.loadRecord();
-            }
-            this.refreshSubList(data, updateControlIds);
-            if (_.isFunction(this.refreshEvents.loadCustomBtns) && !isPublicForm) {
-              this.refreshEvents.loadCustomBtns();
-            }
-          } else {
+          }, 600);
+          if (err) {
             callback({ error: err });
           }
         },
       );
+      return;
     }
+
+    updateRecord(
+      {
+        appId: recordBase.appId,
+        worksheetId: recordBase.worksheetId,
+        viewId: recordBase.viewId,
+        recordId: recordBase.recordId,
+        getType: isDraft ? undefined : getRowGetType(from),
+        projectId: recordInfo.projectId,
+        instanceId,
+        workId,
+        data,
+        updateControlIds,
+        updateSuccess,
+        isDraft,
+        allowEmptySubmit,
+        draftType: this.draftType,
+        triggerUniqueError: badData => {
+          if (this.customwidget.current && _.isFunction(this.customwidget.current.uniqueErrorUpdate)) {
+            this.customwidget.current.uniqueErrorUpdate(badData);
+          }
+        },
+      },
+      (err, resdata, logId) => {
+        this.setState({ submitLoading: false });
+        if (!err) {
+          const formData = tempFormData.map(c => _.assign({}, c, { value: resdata[c.controlId] }));
+          updateEditStatus(false);
+          // 更新草稿列表
+          if (_.isFunction(updateDraftList)) {
+            updateDraftList(recordBase.recordId, Object.assign(recordInfo, { formData }));
+          }
+          this.setState({
+            isEditRecord: false,
+            random: Date.now(),
+            recordInfo: Object.assign(recordInfo, { formData }),
+            tempFormData: formData,
+          });
+          if (_.isFunction(callback)) {
+            callback({ logId });
+          }
+          if (!workflow) {
+            this.loadRecord();
+          }
+          this.refreshSubList(data, updateControlIds);
+          if (_.isFunction(this.refreshEvents.loadCustomBtns) && !isPublicForm) {
+            this.refreshEvents.loadCustomBtns();
+          }
+        } else {
+          callback({ error: err });
+        }
+      },
+    );
   };
   refreshSubList = (tempFormData, updateControlIds) => {
     tempFormData
@@ -592,17 +529,16 @@ export default class RecordInfo extends Component {
       });
   };
   renderRecordBtns() {
-    const { getDataType, worksheetInfo = {}, updateEditStatus = () => {} } = this.props;
+    const { getDataType, worksheetInfo = {}, updateEditStatus = () => {}, isDraft, from } = this.props;
     const { formChanged, isEditRecord, recordInfo, recordBase } = this.state;
     return (
       <RecordFooter
+        isDraft={isDraft || from === RECORD_INFO_FROM.DRAFT}
         formChanged={formChanged}
         isEditRecord={isEditRecord}
         isPublicShare={this.isPublicShare}
         recordBase={recordBase}
         recordInfo={recordInfo}
-        childTableControlIds={this.state.childTableControlIds}
-        canSubmitDraft={this.state.canSubmitDraft}
         loadRecord={this.loadRecord}
         handleDeleteSuccess={this.handleDeleteSuccess}
         addRefreshEvents={(key, fn) => {
@@ -647,7 +583,7 @@ export default class RecordInfo extends Component {
                       className="flex mLeft6 mRight6 Font13 bold flex ellipsis"
                       color="primary"
                       onClick={() => {
-                        this.saveDraftData({ draftType: 'submit' });
+                        this.handleTriggerSave({ draftType: 'submit' });
                         actionHandler.close();
                       }}
                     >
@@ -658,7 +594,7 @@ export default class RecordInfo extends Component {
               ),
             });
           } else {
-            this.saveDraftData({ draftType: 'submit' });
+            this.handleTriggerSave({ draftType: 'submit' });
           }
         }}
         onCancelSave={() => {
@@ -676,9 +612,7 @@ export default class RecordInfo extends Component {
                     <Button
                       className="flex mLeft6 bold flex ellipsis Font13"
                       color="primary"
-                      onClick={() =>
-                        getDataType === 21 ? this.saveDraftData({ draftType: 'draft' }) : this.handleTriggerSave()
-                      }
+                      onClick={() => this.handleTriggerSave(getDataType === 21 ? { draftType: 'save' } : undefined)}
                     >
                       {_l('保存')}
                     </Button>
@@ -695,17 +629,14 @@ export default class RecordInfo extends Component {
             alert(_l('预览模式下，不能操作'), 3);
             return;
           }
-          if (getDataType === 21) {
-            return this.saveDraftData({ draftType: 'draft' });
-          }
-          this.handleTriggerSave();
+          this.handleTriggerSave(getDataType === 21 ? { draftType: 'save' } : undefined);
         }}
         {...this.props}
       />
     );
   }
   renderFooter() {
-    const { hideOtherOperate, footer } = this.props;
+    const { hideOtherOperate, footer, isDraft } = this.props;
     const { recordInfo = {}, recordBase, currentTab, isEditRecord, tempFormData } = this.state;
     if (footer && !recordBase.viewId) {
       return React.cloneElement(footer, {
@@ -719,6 +650,7 @@ export default class RecordInfo extends Component {
     if (currentTab.type === 29 && !isEditRecord) {
       return (
         <RelationAction
+          isDraft={recordBase.from === RECORD_INFO_FROM.DRAFT || isDraft}
           controlId={currentTab.id}
           getDataType={this.props.getDataType}
           formData={tempFormData}
@@ -730,7 +662,7 @@ export default class RecordInfo extends Component {
   }
   renderChatCount() {
     const { isEditRecord, currentTab, externalPortalConfig, recordBase, recordInfo } = this.state;
-    const { getDataType, isModal, isSubList, chartEntryStyle = {}, canLoadNextRecord } = this.props;
+    const { getDataType, isModal, isSubList, chartEntryStyle = {}, canLoadSwitchRecord } = this.props;
     const { allowExAccountDiscuss, exAccountDiscussEnum } = externalPortalConfig;
     const { appId, worksheetId, viewId, recordId } = recordBase;
     const { switchPermit } = recordInfo;
@@ -747,9 +679,9 @@ export default class RecordInfo extends Component {
       (!isPublicShare && !md.global.Account.isPortal && (discussVisible || logVisible)) ||
       (md.global.Account.isPortal && allowExAccountDiscuss && discussVisible);
     const showChatMessage = (!getDataType || getDataType !== 21) && open && !isEditRecord && !isSubList;
-    const showNextRecordEntry = canLoadNextRecord && !_.includes(['approve', 'pay'], currentTab.id);
+    const showSwitchRecordEntry = canLoadSwitchRecord && !_.includes(['approve', 'pay'], currentTab.id);
 
-    if (showChatMessage || showNextRecordEntry) {
+    if (showChatMessage || showSwitchRecordEntry) {
       return (
         <div
           className="extraAction flexRow"
@@ -758,10 +690,11 @@ export default class RecordInfo extends Component {
             ...chartEntryStyle,
           }}
         >
-          {showNextRecordEntry && this.renderNextRecord()}
+          {showSwitchRecordEntry && this.renderSwitchRecord()}
           {showChatMessage && (
             <div className="chatMessageContainer mLeft10">
               <ChatCount
+                ref={this.chatCountRef}
                 allowExAccountDiscuss={allowExAccountDiscuss}
                 exAccountDiscussEnum={exAccountDiscussEnum}
                 recordDiscussSwitch={isOpenPermit(permitList.recordDiscussSwitch, switchPermit, viewId)}
@@ -781,21 +714,21 @@ export default class RecordInfo extends Component {
     }
   }
 
-  loadNextRecord = props => {
+  loadSwitchRecord = props => {
     const { currentSheetRows = [], loadNextPageRecords = () => {}, loadedRecordsOver } = props || this.props;
-    const { recordId, loading } = this.state;
+    const { recordId, loading, isNextRecord } = this.state;
 
     if (loading || _.isEmpty(currentSheetRows)) return;
 
     const index = _.findIndex(currentSheetRows, record => {
       return record && record.rowid === recordId;
     });
-    const newIndex = index + 1;
+    const newIndex = isNextRecord ? index + 1 : index - 1;
     if (!currentSheetRows[newIndex]) {
       if (!loadedRecordsOver && currentSheetRows.length >= 20) {
         loadNextPageRecords();
       } else {
-        alert(_l('暂无下一条'), 3);
+        alert(isNextRecord ? _l('暂无下一条') : _l('暂无上一条'), 3);
       }
       return;
     }
@@ -816,15 +749,28 @@ export default class RecordInfo extends Component {
     }
   };
 
-  renderNextRecord = () => {
+  updateRecordOwner = (newOwner, record) => {
+    const { recordId, recordInfo } = this.state;
+    this.setState({ recordInfo: { ...recordInfo, ownerAccount: newOwner } });
+  };
+
+  renderSwitchRecord = () => {
     const { getDataType, isSubList } = this.props;
     const { isEditRecord } = this.state;
     if (getDataType === 21 || isEditRecord || isSubList) return null;
 
     return (
-      <div className="nextEntryWrap" onClick={() => this.loadNextRecord()}>
-        <i className="icon icon-arrow-down-border Font20 LineHeight44 Gray_75" />
-      </div>
+      <Fragment>
+        <div className="switchRecordEntryWrap" onClick={() => this.setState({ isNextRecord: false }, this.loadSwitchRecord)}>
+          <i className="icon icon-arrow-up-border Font20 LineHeight44" />
+        </div>
+        <div
+          className="switchRecordEntryWrap mLeft10"
+          onClick={() => this.setState({ isNextRecord: true }, this.loadSwitchRecord)}
+        >
+          <i className="icon icon-arrow-down-border Font20 LineHeight44" />
+        </div>
+      </Fragment>
     );
   };
   render() {
@@ -839,6 +785,7 @@ export default class RecordInfo extends Component {
       relationRow,
       view,
       worksheetInfo,
+      isDraft,
     } = this.props;
     const {
       random,
@@ -909,15 +856,11 @@ export default class RecordInfo extends Component {
                 this.customwidget.current.setState({ renderData: this.customwidget.current.getFilterDataByRule() });
               },
             }}
-            loadDraftChildTableData={controlId => {
-              const { childTableControlIds } = this.state;
-              this.loadedChildIds = (this.loadedChildIds || []).concat(controlId);
-              if (childTableControlIds.every(v => _.includes(this.loadedChildIds, v))) {
-                this.setState({ canSubmitDraft: true });
-              }
-            }}
             changeMobileTab={tab => {
-              this.props.updateRelationRows([], relationRow.count || 0);
+              if (isEditRecord) {
+                this.props.updateRelationRows([], 0);
+              }
+              this.ignoreUpdateRelationCount = !isEditRecord;
               this.setState({ currentTab: { id: tab.controlId, ...tab } });
             }}
             externalPortalConfig={externalPortalConfig}
@@ -929,8 +872,10 @@ export default class RecordInfo extends Component {
             workflow={workflow}
             payConfig={payConfig}
             worksheetInfo={worksheetInfo}
+            isDraft={recordBase.from === RECORD_INFO_FROM.DRAFT || isDraft}
             onChange={this.handleFormChange}
             onSave={this.handleSave}
+            updateRecordDialogOwner={this.updateRecordOwner}
             onClose={onClose}
           />
           {this.renderFooter()}

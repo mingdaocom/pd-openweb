@@ -113,7 +113,7 @@ const TaskIcon = styled.div`
     line-height: 17px;
     border: 1px solid #fff;
     border-radius: 50%;
-    background: #333;
+    background: #151515;
     color: #fff;
     font-size: 12px;
     font-weight: 600;

@@ -38,6 +38,7 @@ export default function WidgetDisplay(props) {
     titlestyle = '0000',
     titlecolor = '#757575',
     showtype,
+    customtype,
   } = getAdvanceSetting(data);
   const titleSize = TITLE_SIZE_OPTIONS[titlesize];
   const titleStyle = getTitleStyle(titlestyle);
@@ -128,6 +129,7 @@ export default function WidgetDisplay(props) {
         {required && !(_.includes([51], data.type) || isSheetDisplay(data)) && (
           <div className={cx({ required })}>*</div>
         )}
+        {customtype === '1' && <i className={cx(`typeIcon icon-custom-01`)}></i>}
         <i className={cx(`typeIcon icon-${getIconByType(type)}`)}></i>
 
         {getTitleContent()}

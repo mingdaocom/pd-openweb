@@ -1,3 +1,4 @@
+import qs from 'query-string';
 import { getFileExtends } from 'src/components/UploadFiles/utils';
 import { downloadFile } from 'src/util';
 import RegExpValidator from 'src/util/expression';
@@ -108,14 +109,17 @@ export const handleSaveKcCloud = (data, isDownload) => {
   });
 };
 
-export const handleDownload = (data, isDownload) => {
+export const handleDownload = (data, isDownload, logData) => {
+  const logExtend = logData
+    ? '&' + qs.stringify(_.pick(logData, ['controlId', 'rowId', 'parentWorksheetId', 'parentRowId']))
+    : '';
   const url = data.downloadUrl
     ? data.downloadUrl
     : data.attachmentType == 5
     ? `${data.downloadUrl}&shareFolderId=${data.refId}`
     : `${md.global.Config.AjaxApiUrl}file/downDocument?fileID=${data.fileID}`;
   if (isDownload) {
-    window.open(downloadFile(url));
+    window.open(downloadFile(url + logExtend));
   } else {
     alert(_l('您权限不足，无法下载，请联系管理员或文件上传者'), 3);
   }

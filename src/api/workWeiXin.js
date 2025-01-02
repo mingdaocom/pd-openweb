@@ -293,6 +293,21 @@ export default {
      return mdyAPI('WorkWeiXin', 'EditThirdPartyIntergrationScanEnabled', args, options);
    },
   /**
+  * 编辑第三方集成自定义名称和图标
+  * @param {Object} args 请求参数
+  * @param {string} args.projectId 网络id
+  * @param {} args.projectIntergrationType
+  * @param {string} args.name 自定义名称
+  * @param {string} args.icon
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   editThirdPartyCustomNameIcon: function (args, options = {}) {
+     
+     return mdyAPI('WorkWeiXin', 'EditThirdPartyCustomNameIcon', args, options);
+   },
+  /**
   * 编辑企业微信是否允许自定义字段匹配
   * @param {Object} args 请求参数
   * @param {string} args.projectId 网络id

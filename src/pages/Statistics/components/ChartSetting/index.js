@@ -511,7 +511,7 @@ export default class ChartSetting extends Component {
     );
   }
   render() {
-    const { currentReport, axisControls, projectId, worksheetInfo, filterItem } = this.props;
+    const { currentReport, axisControls, projectId, worksheetInfo, filterItem, sourceType } = this.props;
     const { reportType, displaySetup, filter } = currentReport;
     const { x, y } = getAxisText(reportType, displaySetup ? displaySetup.showChartType : null);
     const isPivotTable = reportType === reportTypes.PivotTable;
@@ -529,6 +529,7 @@ export default class ChartSetting extends Component {
           filter={filter}
           projectId={projectId}
           filterItem={filterItem}
+          sourceType={sourceType}
           axisControls={axisControls}
           worksheetInfo={worksheetInfo}
           onChangeFilterItem={this.handleChangeFilterItem}

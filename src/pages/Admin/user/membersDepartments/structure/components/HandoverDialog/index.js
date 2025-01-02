@@ -55,7 +55,7 @@ export default function HandoverDialogCom(props) {
         <div>
           <div>
             <span className="bold">{_l('建议 “交接工作” 后离职，')}</span>
-            <span>{_l(' 避免工作中断和延误。')}</span>
+            <span>{_l('避免工作中断和延误。')}</span>
           </div>
           <div>{_l('成功离职后，也可以在 “离职交接” 中交接工作。')}</div>
         </div>

@@ -17,6 +17,7 @@ import loginController from 'src/api/login';
 import appManagementController from 'src/api/appManagement';
 import privateSysSetting from 'src/api/privateSysSetting';
 import googleIcon from 'src/pages/NewPrivateDeployment/images/google.svg';
+import VerifyCode from './verifyCode';
 
 let request = getRequest();
 
@@ -32,6 +33,10 @@ const integrationInto = {
   6: {
     iconClassName: 'feishuIcon',
     text: _l('飞书登录'),
+  },
+  lark: {
+    iconClassName: 'feishuIcon',
+    text: _l('Lark登录'),
   },
 };
 
@@ -50,10 +55,13 @@ export default class LoginContainer extends React.Component {
       isNetwork: location.href.indexOf('network') >= 0 || md.global.Config.IsLocal,
       useMessage: true,
       loginMode: 1, //1.手机/邮箱登录 2.用户名登录（LDAP)
+      loginModeType: request.loginModeType === 'verify' ? 2 : 1, //1.密码登录 2.验证码登录
+      verifyResult: '', //是否进入验证码流程
       hideOther:
         isMiniProgram || // 小程序隐藏第三方登录入口
         !!request.unionId || //第三方
-        request.loginMode == 1, //  直接进到平台登陆,隐藏其他登陆方式
+        request.loginMode == 1 || //  直接进到平台登陆,隐藏其他登陆方式
+        window.isMingDaoApp, //  移动端app登录,隐藏其他登陆方式
       openLDAP: false, //是否开启LDAP
       isOpenSystemLogin: true, //是否允许平台登录
       intergrationScanEnabled: false, //开启企业微信扫码登录
@@ -151,7 +159,7 @@ export default class LoginContainer extends React.Component {
           ...res,
           googleSsoSet,
           //request.loginMode == 1 =>进入默认的平台登陆
-          loginMode: request.loginMode == 1 ? 1 : res.openLDAP ? 2 : 1,
+          loginMode: request.loginMode == 1 || request.loginModeType === 'verify' ? 1 : res.openLDAP ? 2 : 1,
           linkInvite: res.projectId ? `/linkInvite?projectId=${res.projectId}` : '',
           title: res.companyName,
           //可通过输入账号的方式登录
@@ -199,15 +207,106 @@ export default class LoginContainer extends React.Component {
       openLDAP,
       isOpenSystemLogin,
       ssoName,
+      ssoIconUrl,
       ldapName,
+      ldapIcon,
       loadProjectName,
       projectNameLang,
       googleSsoSet,
+      loginModeType,
+      verifyResult,
+      customNameIcon = {},
+      isLark,
     } = this.state;
     const isMobile = browserIsMobile();
     const isCanWeixin = !isNetwork && !isMobile;
     const isCanQQ = !isNetwork;
     const canChangeSysOrLDAP = openLDAP && isOpenSystemLogin && isNetwork;
+
+    //ldap || 平台
+    const renderSysOrLDAPBtn = () => {
+      const hasIcon = loginMode === 1 && ldapIcon;
+      return (
+        <a
+          onClick={() => {
+            this.setState({
+              loginMode: loginMode === 1 ? 2 : 1,
+              loginModeType: 1,
+            });
+            this.props.setData({
+              password: '',
+              isCheck: false,
+            });
+            this.props.updateWarn([]);
+          }}
+          className="WordBreak overflow_ellipsis pLeft10 pRight10 flexRow alignItemsCenter"
+        >
+          {!hasIcon ? (
+            <Icon icon={loginMode === 1 ? 'lock' : 'account_circle'} className="mRight5 Gray_75 Font20" />
+          ) : (
+            <span
+              className="btnIcon mRight5 Gray_75"
+              style={{
+                backgroundImage: `url(${ldapIcon})`,
+              }}
+            ></span>
+          )}
+          <span className="txt">{loginMode === 1 ? ldapName || _l('LDAP登录') : _l('平台账号登录')}</span>
+        </a>
+      );
+    };
+    // sso
+    const renderSsoBtn = () => {
+      return (
+        <a href={isMobile ? ssoAppUrl : ssoWebUrl} className="flexRow alignItemsCenter">
+          {ssoIconUrl ? (
+            <span
+              className="btnIcon mRight5 Gray_75"
+              style={{
+                backgroundImage: `url(${ssoIconUrl})`,
+              }}
+            ></span>
+          ) : (
+            <Icon icon={'tab_move'} className="mRight5 Gray_75 Font20" />
+          )}
+          <span className="txt">{ssoName || _l('SSO登录')}</span>
+        </a>
+      );
+    };
+    //第三方集成登录
+    const renderIntegrationBtn = () => {
+      let style = {};
+      if (!!customNameIcon.iconUrl) {
+        style = { backgroundImage: `url(${customNameIcon.iconUrl})` };
+      }
+      return (
+        <a
+          onClick={() => {
+            if (_.includes([1, 6], projectIntergrationType)) {
+              location.href =
+                projectIntergrationType === 1
+                  ? `${
+                      md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
+                    }auth/dingding?p=${projectId}`
+                  : `${
+                      md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
+                    }auth/feishu?p=${projectId}`;
+            } else {
+              getWorkWeiXinCorpInfoByApp(projectId, request.ReturnUrl);
+            }
+          }}
+        >
+          <i
+            className={`${integrationInto[isLark ? 'lark' : projectIntergrationType].iconClassName} mRight8`}
+            style={style}
+          />
+          <span className="txt">
+            {customNameIcon.name || integrationInto[isLark ? 'lark' : projectIntergrationType].text}
+          </span>
+        </a>
+      );
+    };
+
     return (
       <React.Fragment>
         <Wrap>
@@ -221,101 +320,91 @@ export default class LoginContainer extends React.Component {
                   <p className="Font17 Gray mAll0 mTop8">{loadProjectName ? '' : projectNameLang || companyName}</p>
                 )}
               </div>
-              <div className={`titleHeader flexRow alignItemsCenter Bold ${isNetwork ? 'mTop32' : 'mTop40'}`}>
-                <div className="title WordBreak hTitle" style={{ WebkitBoxOrient: 'vertical' }}>
-                  {loginMode === 2 ? ldapName || _l('LDAP登录') : _l('登录%14002')}
-                </div>
-              </div>
-              {useMessage && (
-                <Container
+              {loginModeType === 2 && verifyResult ? (
+                <VerifyCode
                   warnningData={this.props.warnningData}
                   {...this.props.loginData}
                   {..._.pick(this.props, ['isValid', 'setData', 'loginCallback'])}
                   loginMode={loginMode}
+                  loginModeType={loginModeType}
                   projectId={projectId}
                   isNetwork={isNetwork}
+                  changeVerifyActionResult={verifyResult => {
+                    this.setState({ verifyResult });
+                  }}
                 />
-              )}
-              {!hideOther && (
-                <div className="tpLogin">
-                  {/* 开启了ldap或系统登录,并且存在其他登录方式 */}
-                  {useMessage &&
-                    (canChangeSysOrLDAP ||
-                      intergrationScanEnabled ||
-                      isOpenSso ||
-                      isCanWeixin ||
-                      isCanQQ ||
-                      !_.isEmpty(googleSsoSet)) && <div className="title Font14">{_l('或通过以下方式')}</div>}
-                  {canChangeSysOrLDAP && (
-                    <a
-                      onClick={() => {
-                        this.setState({
-                          loginMode: loginMode === 1 ? 2 : 1,
-                        });
-                        this.props.setData({
-                          password: '',
-                          isCheck: false,
-                        });
-                        this.props.updateWarn([]);
+              ) : (
+                <React.Fragment>
+                  <div className={`titleHeader flexRow alignItemsCenter Bold ${isNetwork ? 'mTop32' : 'mTop40'}`}>
+                    <div className="title WordBreak hTitle" style={{ WebkitBoxOrient: 'vertical' }}>
+                      {loginMode === 2 ? ldapName || _l('LDAP登录') : _l('登录%14002')}
+                    </div>
+                  </div>
+                  {useMessage && (
+                    <Container
+                      warnningData={this.props.warnningData}
+                      {...this.props.loginData}
+                      {..._.pick(this.props, ['isValid', 'setData', 'loginCallback'])}
+                      loginMode={loginMode}
+                      loginModeType={loginModeType}
+                      projectId={projectId}
+                      isNetwork={isNetwork}
+                      changeVerifyActionResult={verifyResult => {
+                        this.setState({ verifyResult });
                       }}
-                      className="WordBreak overflow_ellipsis pLeft10 pRight10 flexRow alignItemsCenter"
-                    >
-                      <Icon icon={loginMode === 1 ? 'lock' : 'account_circle'} className="mRight5 Gray_75 Font20" />
-                      <span className="">{loginMode === 1 ? ldapName || _l('LDAP登录') : _l('平台账号登录')}</span>
-                    </a>
+                    />
                   )}
-                  {isOpenSso && (
-                    <a href={isMobile ? ssoAppUrl : ssoWebUrl} className="flexRow alignItemsCenter">
-                      <Icon icon={'tab_move'} className="mRight5 Gray_75 Font20" />
-                      <span className="">{ssoName || _l('SSO登录')}</span>
-                    </a>
-                  )}
-                  {intergrationScanEnabled && (
-                    <a
+                  {loginMode === 1 && md.global.SysSettings.enableVerificationCodeLogin && (
+                    <div
+                      className="Hand ThemeColor3 ThemeHoverColor3 mTop25 TxtCenter Bold"
                       onClick={() => {
-                        if (_.includes([1, 6], projectIntergrationType)) {
-                          location.href =
-                            projectIntergrationType === 1
-                              ? `${
-                                  md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
-                                }auth/dingding?p=${projectId}`
-                              : `${
-                                  md.global.Config.IsLocal ? md.global.Config.WebUrl : location.origin + '/'
-                                }auth/feishu?p=${projectId}`;
-                        } else {
-                          getWorkWeiXinCorpInfoByApp(projectId, request.ReturnUrl);
+                        if (window.isMingDaoApp && loginModeType === 2) {
+                          window.md_js.back({});
+                          return;
                         }
+                        this.setState({ loginModeType: loginModeType === 2 ? 1 : 2 });
                       }}
                     >
-                      <i className={`${integrationInto[projectIntergrationType].iconClassName} mRight8`} />
-                      {integrationInto[projectIntergrationType].text}
-                    </a>
+                      {loginModeType === 2 ? _l('使用帐号密码登录') : _l('使用验证码登录')}
+                    </div>
                   )}
-                  {isCanWeixin && (
-                    <a href="//tp.mingdao.com/weixin/authRequest">
-                      <i className="weixinIcon mRight8" /> {_l('微信登录')}
-                    </a>
-                  )}
-                  {isCanQQ && (
-                    <a href="//tp.mingdao.com/qq/authRequest">
-                      <i className="personalQQIcon mRight8" /> {_l('QQ登录')}
-                    </a>
-                  )}
-                  {!_.isEmpty(googleSsoSet) &&
-                    googleSsoSet.map(o => {
-                      return (
-                        <a href={isMobile ? o.h5IndexUrl : o.webIndexUrl} className="w100 flexRow alignItemsCenter">
-                          <img src={googleIcon} width="20px" className="mRight8" />
-                          {_l('Google登录')}
+                  {!hideOther && (
+                    <div className="tpLogin">
+                      {/* 开启了ldap或系统登录,并且存在其他登录方式 */}
+                      {useMessage &&
+                        (canChangeSysOrLDAP || intergrationScanEnabled || isOpenSso || isCanWeixin || isCanQQ) && (
+                          <div className="title Font14">{_l('或通过以下方式')}</div>
+                        )}
+                      {canChangeSysOrLDAP && renderSysOrLDAPBtn(loginMode === 1 && ldapIcon)}
+                      {isOpenSso && renderSsoBtn()}
+                      {intergrationScanEnabled && renderIntegrationBtn()}
+                      {isCanWeixin && (
+                        <a href="//tp.mingdao.com/weixin/authRequest">
+                          <i className="weixinIcon mRight8" /> {_l('微信登录')}
                         </a>
-                      );
-                    })}
-                </div>
-              )}
-              {isMiniProgram && (
-                <div className="flexRow alignItemsCenter justifyContentCenter mTop25 Gray_75">
-                  {_l('此小程序仅支持组织内部员工登录使用')}
-                </div>
+                      )}
+                      {isCanQQ && (
+                        <a href="//tp.mingdao.com/qq/authRequest">
+                          <i className="personalQQIcon mRight8" /> {_l('QQ登录')}
+                        </a>
+                      )}
+                      {!_.isEmpty(googleSsoSet) &&
+                        googleSsoSet.map(o => {
+                          return (
+                            <a href={isMobile ? o.h5IndexUrl : o.webIndexUrl} className="w100 flexRow alignItemsCenter">
+                              <img src={googleIcon} width="20px" className="mRight8" />
+                              {_l('Google登录')}
+                            </a>
+                          );
+                        })}
+                    </div>
+                  )}
+                  {isMiniProgram && (
+                    <div className="flexRow alignItemsCenter justifyContentCenter mTop25 Gray_75">
+                      {_l('此小程序仅支持组织内部员工登录使用')}
+                    </div>
+                  )}
+                </React.Fragment>
               )}
               <div className="flexRow alignItemsCenter justifyContentCenter footerCon">
                 {!isMiniProgram && !_.get(md, 'global.SysSettings.hideRegister') && (
@@ -323,6 +412,10 @@ export default class LoginContainer extends React.Component {
                     <span
                       className="changeBtn Hand TxtRight"
                       onClick={() => {
+                        if (window.isMingDaoApp) {
+                          window.md_js.back({ closeAll: true, next: 'register' });
+                          return;
+                        }
                         this.props.updateWarn([]);
                         if (md.global.Config.IsPlatformLocal) {
                           //平台版=>/register

@@ -97,10 +97,45 @@ export default class Container extends React.Component {
       });
     }
   };
+  //验证码登录=>发送验证码
+  sendForVerifyCodeLogin = data => {
+    const { emailOrTel, dialCode, changeVerifyActionResult = () => {}, updateWarn = () => {} } = this.props;
+    let { ticket, randstr } = data;
+    loginController
+      .sendLoginVerifyCode({
+        ticket,
+        randStr: randstr,
+        captchaType: md.global.getCaptchaType(),
+        account: encrypt(dialCode + emailOrTel),
+        lang: getCurrentLangCode(),
+      })
+      .then(res => {
+        this.setState({ loginDisabled: false });
+        switch (res.actionResult) {
+          case 1: // 1、发送成功
+          case 8: // 8：发送验证码过于频繁
+            changeVerifyActionResult(res.actionResult);
+            updateWarn([]);
+            break;
+          case 3: // 3：前端图形验证码校验失败
+            this.onBtnForLogin(true);
+            break;
+          case 5: // 5：用户不存在
+            alert(_l('账号不正确'), 3);
+            break;
+          case 21: // 21之前登录锁定了，不能进行发送，通常通过忘记密码重置
+            alert(_l('当前账户已锁定，验证码发送失败'), 3);
+            break;
+          default: // 0：失败
+            alert(_l('验证码发送失败'), 3);
+            break;
+        }
+      });
+  };
 
   onBtnForLogin = async frequentLogin => {
     const { loginDisabled } = this.state;
-    const { loginMode, isValid } = this.props;
+    const { loginMode, isValid, loginModeType, changeVerifyActionResult } = this.props;
     if (loginDisabled) {
       return;
     }
@@ -111,9 +146,21 @@ export default class Container extends React.Component {
       this.setState({
         loginDisabled: true,
       });
-      this.doLogin(res);
+      if (loginModeType !== 2) {
+        this.doLogin(res);
+      } else {
+        // changeVerifyActionResult(1);
+        this.sendForVerifyCodeLogin(res);
+      }
     };
-    let isV = await isValid(false, loginMode === 2 ? ['fullName', 'password'] : [getAccountTypes(true), 'password']);
+    let isV = await isValid(
+      false,
+      loginMode === 2
+        ? ['fullName', 'password']
+        : loginModeType !== 2
+          ? [getAccountTypes(true), 'password']
+          : [getAccountTypes(true)],
+    );
 
     if (isV) {
       if (frequentLogin) {
@@ -129,19 +176,34 @@ export default class Container extends React.Component {
   };
 
   render() {
-    const { isCheck = false, loginMode, setData = () => {}, clearInfoByUrl = () => {} } = this.props;
+    const { isCheck = false, loginMode, loginModeType, setData = () => {}, clearInfoByUrl = () => {} } = this.props;
     let { loginDisabled, version } = this.state;
     return (
       <React.Fragment>
         <MessageCon
           type="login"
-          keys={loginMode === 2 ? ['fullName', 'password'] : [getAccountTypes(true), 'password']}
+          keys={
+            loginMode === 2
+              ? ['fullName', 'password']
+              : loginModeType === 2
+                ? [getAccountTypes(true)]
+                : [getAccountTypes(true), 'password']
+          }
           key={version}
         />
         {loginDisabled && <div className="loadingLine"></div>}
         <div className="mTop24 clearfix Font14">
-          {loginMode !== 2 && (
-            <div className="Left">
+          <div
+            className="cbRememberPasswordDiv Gray Font14 Left Hand flexRow alignItemsCenter"
+            onClick={() => {
+              setData({ isCheck: !isCheck });
+            }}
+          >
+            <Checkbox checked={isCheck} className="InlineBlock" />
+            {_l('下次自动登录')}
+          </div>
+          {loginMode !== 2 && loginModeType !== 2 && (
+            <div className="Right">
               <a
                 target="_blank"
                 className="findPassword"
@@ -154,23 +216,15 @@ export default class Container extends React.Component {
               </a>
             </div>
           )}
-          <div
-            className="cbRememberPasswordDiv Gray Font14 Right Hand flexRow alignItemsCenter"
-            onClick={() => {
-              setData({ isCheck: !isCheck });
-            }}
-          >
-            <Checkbox checked={isCheck} className="InlineBlock" />
-            {_l('下次自动登录')}
-          </div>
         </div>
         <span
           className="btnForLogin Hand"
           onClick={() => {
-            this.onBtnForLogin();
+            this.onBtnForLogin(loginModeType === 2);
           }}
         >
-          {loginDisabled ? _l('登录中...') : _l('登 录')}
+          {loginModeType !== 2 ? _l('登 录') : _l('继 续')}
+          {loginDisabled ? '...' : ''}
         </span>
       </React.Fragment>
     );

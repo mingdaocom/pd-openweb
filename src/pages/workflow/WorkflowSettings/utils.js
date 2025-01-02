@@ -84,6 +84,8 @@ export const getIcons = (type, appType, actionId) => {
         icon = 'icon-invited_users';
       } else if (appType === APP_TYPE.CALENDAR) {
         icon = 'icon-sidebar_calendar';
+      } else if (actionId === ACTION_ID.REFRESH_SINGLE_DATA) {
+        icon = 'icon-architecture';
       }
       break;
     case NODE_TYPE.SEARCH:
@@ -109,7 +111,11 @@ export const getIcons = (type, appType, actionId) => {
       icon = 'icon-workflow_delayed';
       break;
     case NODE_TYPE.GET_MORE_RECORD:
-      icon = 'icon-transport';
+      if (actionId === ACTION_ID.REFRESH_MULTIPLE_DATA) {
+        icon = 'icon-architecture';
+      } else {
+        icon = 'icon-transport';
+      }
       break;
     case NODE_TYPE.CODE:
       icon = 'icon-url';
@@ -343,7 +349,7 @@ export const getConditionList = (type, enumDefault) => {
       list = { ids: ['1', '2', '35', '36', '3', '4', '8', '7'], defaultConditionId: '1' };
       break;
     case 28:
-      list = { ids: ['1', '2', '8', '7'], defaultConditionId: '1' };
+      list = { ids: ['1', '2', '12', '11', '14', '13', '15', '16', '8', '7'], defaultConditionId: '1' };
       break;
     case 26:
     case 48:
@@ -589,7 +595,7 @@ export const handleExecReturnValue = item => {
   const parseMap = MAP[item.type];
 
   if (parseMap) {
-    const value = safeParse(item.fieldValueDefault);
+    const value = safeParse(item.fieldValue);
 
     if (_.isArray(value)) {
       return value.map(obj => parseMap.map(key => obj[key]).join('')).join(',');

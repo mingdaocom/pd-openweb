@@ -16,30 +16,15 @@ import gaodeMap from '../images/gaode_map.png';
 import { encrypt } from 'src/util';
 import _ from 'lodash';
 import styled from 'styled-components';
-
-const EmptyWrap = styled.div`
-  height: 48px;
-  line-height: 46px;
-  border-radius: 3px;
-  border: 1px solid #e6e6e6;
-`;
-const MapItem = styled(EmptyWrap)`
-  display: flex;
-  align-items: center;
-  padding: 0 15px 0 7px;
-  margin-bottom: 12px;
-  .iconImg {
-    width: 20px;
-    height: 20px;
-    margin-right: 8px;
-  }
-`;
+import Item, { EmptyWrap } from './components/Item';
+import AISetting from 'src/pages/NewPrivateDeployment/Setting/components/AISetting.jsx';
+import OCRSetting from 'src/pages/NewPrivateDeployment/Setting/components/OCRSetting.jsx';
 
 const ActionWrap = styled(Menu)`
   width: 160px !important;
   .ming.MenuItem .Item-content:not(.disabled):hover {
     background-color: #f5f5f5 !important;
-    color: #333 !important;
+    color: #151515 !important;
   }
   .ming.MenuItem .Item-content.disabled {
     color: #9e9e9e;
@@ -49,6 +34,8 @@ const ActionWrap = styled(Menu)`
     color: #f51744;
   }
 `;
+
+const EmptyStatus = () => <EmptyWrap className="pLeft16 mBottom12">{_l('未添加服务，功能不可用')}</EmptyWrap>;
 
 const Email = props => {
   const [emailDialogVisible, setEmailDialogVisible] = useState(false);
@@ -140,7 +127,7 @@ const Message = props => {
   const formContent = useRef(null);
   const [currentSms, setCurrentSms] = useState({});
   const [enableSmsCustomContent, setEnableSmsCustomContent] = useState(SysSettings.enableSmsCustomContent);
-  const style = { width: 100 };
+  const [addVisible, setAddVisible] = useState(false);
 
   useEffect(() => {
     smsApi.getProviders().then(result => {
@@ -149,101 +136,153 @@ const Message = props => {
     });
   }, []);
 
-  const renderSms = (data = {}, smsInfo) => {
-    const { name, secret = {}, sms } = data;
-    const { tags, keys, icon } = smsInfo;
-    const id = secret[keys[0]];
-    const key = secret[keys[1]];
+  const SmsList = [
+    {
+      name: _l('腾讯云'),
+      key: 'Tencentyun',
+      tags: ['App ID', 'App Key'],
+      keys: ['appId', 'appKey'],
+      icon: tencentyunIcon,
+    },
+    {
+      name: _l('阿里云'),
+      key: 'Aliyun',
+      tags: ['Access Key', 'Access Secret'],
+      keys: ['accessKey', 'accessSecret'],
+      icon: aliyunIcon,
+    },
+  ];
+
+  const onDelete = item => {
+    smsApi
+      .removeProvider({ name: item.key })
+      .then(res => {
+        if (res) {
+          alert(_l('删除成功'));
+          setSms(sms.filter(l => l.name !== item.key));
+        } else {
+          alert(_l('删除失败'), 2);
+        }
+      })
+      .catch(() => {
+        alert(_l('删除失败'), 2);
+      });
+  };
+
+  const changeStatus = (status, key) => {
+    smsApi
+      .editProviderStatus({ name: key, status: status ? 1 : 2 })
+      .then(res => {
+        if (res) {
+          alert(_l('设置成功'));
+          setSms(
+            sms.map(l => ({
+              ...l,
+              status: l.name === key ? (status ? 1 : 2) : l.status,
+            })),
+          );
+        } else {
+          alert(_l('设置失败'), 2);
+        }
+      })
+      .catch(() => {
+        alert(_l('设置失败'), 2);
+      });
+  };
+
+  const onEdit = data => {
+    const isEdit = _.find(sms, l => l.name === data.name);
+
+    setSms(isEdit ? sms.map(l => (l.name === data.name ? data : l)) : sms.concat(data));
+    setCurrentSms({});
+    !isEdit && smsApi.editProviderStatus({ name: data.name, status: 1 });
+  };
+
+  const renderAddBtn = () => {
+    if (sms.length === SmsList.length) return null;
+
     return (
-      <Fragment>
-        <div className="flexRow valignWrapper mBottom15">
-          <img style={{ width: 15 }} src={icon} />
-          <div className="Font14 bold mLeft5">{smsInfo.title}</div>
-          <div className="Gray_9e mLeft20 pTop2">{_l('仅支持发送登录/注册验证码')}</div>
-        </div>
-        <div className="flexRow valignWrapper mBottom12">
-          <div style={style} className="Gray_75">
-            {tags[0]}
-          </div>
-          <div>{id || _l('未配置')}</div>
-        </div>
-        <div className="flexRow valignWrapper mBottom12">
-          <div style={style} className="Gray_75">
-            {tags[1]}
-          </div>
-          <div>{key ? key.replace(/./g, '*') : _l('未配置')}</div>
-        </div>
-        <div className="flexRow valignWrapper mBottom12">
-          <div style={style} className="Gray_75">
-            {_l('签名')}
-          </div>
-          <div>{data.signature || _l('未配置')}</div>
-        </div>
-        <div className="flexRow valignWrapper mBottom12">
-          <div style={style} className="Gray_75">
-            {_l('短信模板')}
-          </div>
-          <div>{_l('%0个', _.get(sms, 'china.templates.length') || 0)}</div>
-        </div>
-        <div>
-          <Button
-            ghost
-            type="primary"
-            onClick={() => {
-              setCurrentSms(smsInfo);
-            }}
-          >
-            {_l('设置')}
-          </Button>
-        </div>
-      </Fragment>
+      <Trigger
+        popupVisible={addVisible}
+        onPopupVisibleChange={visible => setAddVisible(visible)}
+        action={['click']}
+        popupAlign={{
+          points: ['tl', 'bl'],
+          offset: [0, 5],
+          overflow: { adjustX: true, adjustY: true },
+        }}
+        popup={
+          <ActionWrap>
+            {SmsList.map((item, index) => {
+              return (
+                <MenuItem
+                  disabled={!!sms.find(l => l.name === item.key)}
+                  key={item.key}
+                  onClick={() => {
+                    if (sms.find(l => l.name === item.key)) return;
+
+                    setAddVisible(false);
+                    setCurrentSms(item);
+                  }}
+                >
+                  {item.name}
+                </MenuItem>
+              );
+            })}
+          </ActionWrap>
+        }
+      >
+        <span className="ThemeColor Hand mTop10">
+          <i className="icon-add TxtMiddle mRight3" />
+          <span>{_l('服务')}</span>
+        </span>
+      </Trigger>
     );
   };
 
-  const tencentyunInfo = {
-    title: _l('腾讯云'),
-    name: 'Tencentyun',
-    tags: ['App ID', 'App Key'],
-    keys: ['appId', 'appKey'],
-    icon: tencentyunIcon,
-  };
-  const aliyunInfo = {
-    title: _l('阿里云'),
-    name: 'Aliyun',
-    tags: ['Access Key', 'Access Secret'],
-    keys: ['accessKey', 'accessSecret'],
-    icon: aliyunIcon,
+  const renderList = () => {
+    if (!sms.length) return <EmptyStatus />;
+
+    return SmsList.map((l, i) => {
+      const data = _.find(sms, { name: l.key });
+
+      return data && data.signature ? (
+        <Item
+          key={`sms-item-${l.key}`}
+          item={{
+            ..._.pick(l, ['name', 'icon', 'key']),
+            desc: _l('%0个短信模版', _.get(data, 'sms.china.templates.length') || 0),
+            status: data.status,
+          }}
+          className="pLeft20"
+          onEdit={() => setCurrentSms(l)}
+          onDelete={onDelete}
+          onSwitch={value => {
+            changeStatus(!value, l.key);
+          }}
+        />
+      ) : null;
+    });
   };
 
   return (
     <div className="privateCardWrap flexColumn">
-      <div className="Font17 bold mBottom8">{_l('短信服务')}</div>
-      {loading ? (
-        <LoadDiv />
-      ) : (
-        <Fragment>
-          {renderSms(_.find(sms, { name: 'Tencentyun' }), tencentyunInfo)}
-          <Divider className="mTop20 mBottom20" />
-          {renderSms(_.find(sms, { name: 'Aliyun' }), aliyunInfo)}
-        </Fragment>
-      )}
-      <Divider className="mTop20 mBottom20" />
-      <div className="Font15 bold mBottom8">{_l('自主集成服务')}</div>
-      <div className="Gray_9e">
+      <div className="Font17 bold mBottom20">{_l('短信服务')}</div>
+      <div className="Font14 bold mBottom13">{_l('验证码短信')}</div>
+      <div className="Font13 Gray_9e mBottom12">
         {_l(
-          '如果需要启用系统内短信服务相关的功能(如: 工作流短信通知节点、手机号邀请用户加入产品使用),需自行申请第三方短信服务商账号,然后自主集成或由官方技术团队定制开发',
+          '仅支持发送登录/注册验证码。只需配置一个服务商，若配置了多个服务商，则发送验证码短信时每次会随机选择一个。',
         )}
-        ，
-        <a className="pointer" target="_blank" href="https://docs-pd.mingdao.com/faq/sms">
-          {_l('查看说明')}
-        </a>
       </div>
-      <div className="mTop30">
-        <Checkbox
+      {loading ? <LoadDiv /> : renderList()}
+      {renderAddBtn()}
+      <Divider className="mTop20 mBottom20" />
+      <div className="Font14 bold mBottom13 valignWrapper">
+        <span className="flex">{_l('自定义短信功能')}</span>
+        <Switch
+          size="small"
           checked={!enableSmsCustomContent}
-          text={_l('隐藏短信服务相关的系统功能')}
-          onClick={checked => {
-            const value = checked;
+          onClick={value => {
             updateSysSettings(
               {
                 enableSmsCustomContent: value,
@@ -255,12 +294,19 @@ const Message = props => {
             );
           }}
         />
-        <div className="Gray_9e mTop8 mLeft25">{_l('如果你未完成自主集成,可以在系统内隐藏这些功能入口')}</div>
+      </div>
+      <div className="Font13 Gray_9e">
+        {_l(
+          '开启后将显示短信相关功能入口（如：工作流发送短信节点、手机号邀请用户、外部门户短信通知等）。为保障功能实际可用，需要自行申请第三方短信服务商账号，然后自主集成或由官方技术团队定制开发',
+        )}
+        <a className="pointer" target="_blank" href="https://docs-pd.mingdao.com/faq/sms">
+          {_l('了解自主集成')}
+        </a>
       </div>
       <Dialog
         visible={!_.isEmpty(currentSms)}
         anim={false}
-        title={_l('%0短信配置服务', currentSms.title)}
+        title={_l('%0短信配置服务', currentSms.name)}
         width={680}
         okText={_l('保存')}
         onOk={() => {
@@ -270,11 +316,9 @@ const Message = props => {
       >
         <MessageSettings
           ref={formContent}
-          name={currentSms.name}
-          onSave={data => {
-            setSms(data);
-            setCurrentSms({});
-          }}
+          name={currentSms.key}
+          item={_.find(sms, l => l.name === currentSms.key)}
+          onSave={onEdit}
         />
       </Dialog>
     </div>
@@ -321,7 +365,7 @@ const PlatformIntegration = props => {
   return (
     <div className="privateCardWrap flexColumn">
       <div className="Font17 bold mBottom8">{_l('第三方平台')}</div>
-      <div className="mBottom15 Gray_9e">{_l('如果你的企业不使用下列第三方平台，你可以取消勾选')}</div>
+      <div className="mBottom15 Gray_9e">{_l('如果组织内不使用以下第三方平台，可取消勾选')}</div>
       <div className="flexRow">
         {platTypes.map(item => {
           const { type, text } = item;
@@ -437,58 +481,26 @@ const MapSetting = props => {
 
   const renderItem = options => {
     const { item, DragHandle } = options;
-    return (
-      <MapItem>
-        <DragHandle className="alignItemsCenter flexRow">
-          <Icon className="mRight10 Font16 Hand Gray_bd" icon="drag" />
-        </DragHandle>
-        <img src={item.icon} className="iconImg" />
-        <div className="flex mLeft6">{item.name}</div>
-        <Switch
-          size="small"
-          checked={item.status === 1 ? true : false}
-          onClick={visible => handleEditStatus(visible, item)}
-        />
 
-        <Trigger
-          popupVisible={popupVisible === item.id}
-          onPopupVisibleChange={visible => setPopupVisible(visible ? item.id : undefined)}
-          action={['click']}
-          popupAlign={{
-            points: ['tr', 'br'],
-            offset: [-160, 15],
-            overflow: { adjustX: true, adjustY: true },
-          }}
-          popup={() => {
-            return (
-              <ActionWrap>
-                <MenuItem
-                  onClick={() => {
-                    setPopupVisible(undefined);
-                    setMapParams({ ...item.secretObject, id: item.id });
-                    setServeType(item.type);
-                    setActionType('edit');
-                  }}
-                >
-                  {_l('编辑')}
-                </MenuItem>
-                <MenuItem
-                  className="delete"
-                  onClick={() => {
-                    setPopupVisible(undefined);
-                    setMapList(mapList.filter(v => v.id !== item.id));
-                    removeMap(item);
-                  }}
-                >
-                  {_l('删除')}
-                </MenuItem>
-              </ActionWrap>
-            );
-          }}
-        >
-          <Icon icon="moreop" className="Font16 Hand mLeft15" />
-        </Trigger>
-      </MapItem>
+    return (
+      <Item
+        dragIcon={
+          <DragHandle className="alignItemsCenter flexRow">
+            <Icon className="mRight10 Font16 Hand Gray_bd" icon="drag" />
+          </DragHandle>
+        }
+        item={item}
+        onSwitch={visible => handleEditStatus(visible, item)}
+        onEdit={() => {
+          setMapParams({ ...item.secretObject, id: item.id });
+          setServeType(item.type);
+          setActionType('edit');
+        }}
+        onDelete={() => {
+          setMapList(mapList.filter(v => v.id !== item.id));
+          removeMap(item);
+        }}
+      />
     );
   };
 
@@ -499,7 +511,7 @@ const MapSetting = props => {
         <div className="flexRow">
           <div className="mBottom15 Gray_9e flex mRight20">
             {_l(
-              '开启后，将显示地图服务相关系统功能入口（地图视图、定位字段、个人偏好设置-地图）。若要保证功能正常使用，还需要在下方配置并开启地图服务。个人偏好-地图的初始值将跟随列表中第一个开启的服务。如你未完成服务配置，可先关闭功能入口',
+              '开启后将显示地图相关功能入口（如：地图视图、定位字段、个人偏好设置>地图）。若要保证功能正常使用，还需要在下方配置并开启地图服务。个人偏好>地图的初始值将跟随列表中第一个开启的地图服务',
             )}
           </div>
           <Switch
@@ -520,7 +532,7 @@ const MapSetting = props => {
         {md.global.SysSettings.enableMap && (
           <Fragment>
             {_.isEmpty(mapList) ? (
-              <EmptyWrap className="pLeft16 mBottom12">{_l('未添加服务，功能不可用')}</EmptyWrap>
+              <EmptyStatus />
             ) : (
               <SortableList
                 useDragHandle
@@ -547,7 +559,7 @@ const MapSetting = props => {
             {mapList.length < 2 && (
               <div>
                 <Trigger
-                  popupVisible={popupVisible === true}
+                  popupVisible={popupVisible}
                   onPopupVisibleChange={visible => setPopupVisible(visible)}
                   action={['click']}
                   popupAlign={{
@@ -600,7 +612,7 @@ const MapSetting = props => {
           <Input className="w100" value={key} onChange={value => setMapParams({ ...mapPrams, key: value })} />
           {serveType === 0 && (
             <Fragment>
-              <div className="mBottom8 mTop8">密钥</div>
+              <div className="mBottom8 mTop8">{_l('密钥')}</div>
               <Input className="w100" value={secret} onChange={value => setMapParams({ ...mapPrams, secret: value })} />
             </Fragment>
           )}
@@ -610,12 +622,46 @@ const MapSetting = props => {
   );
 };
 
+const DataPipelineSetting = () => {
+  const [hideDataPipeline, setHideDataPipeline] = useState(md.global.SysSettings.hideDataPipeline);
+  return (
+    <div className="privateCardWrap flexColumn">
+      <div className="flexRow">
+        <div className="Font17 bold mBottom8 flex">{_l('数据集成')}</div>
+        <Switch
+          checked={!hideDataPipeline}
+          onClick={value => {
+            updateSysSettings(
+              {
+                hideDataPipeline: value,
+              },
+              () => {
+                setHideDataPipeline(value);
+                md.global.SysSettings.hideDataPipeline = value;
+              },
+            );
+          }}
+        />
+      </div>
+      <div className="Gray_9e flex mRight20">
+        {_l('开启后将显示数据集成相关功能入口（如：数据集成、聚合表）')}
+        <a className="pointer" target="_blank" href="https://docs-pd.mingdao.com/faq/integrate/flink/combine">
+          {_l('了解服务配置')}
+        </a>
+      </div>
+    </div>
+  );
+};
+
 export default props => {
   return (
     <Fragment>
       <Email {...props} />
       <Message {...props} />
       <MapSetting {...props} />
+      <AISetting {...props} />
+      <OCRSetting {...props} />
+      <DataPipelineSetting {...props} />
       <PlatformIntegration {...props} />
     </Fragment>
   );

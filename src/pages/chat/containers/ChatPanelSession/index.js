@@ -138,9 +138,11 @@ class ChatPanelSession extends Component {
     this.setState({
       value,
     });
-    if (isWindow && window.opener && window.opener.updateChatSessionList) {
-      window.opener.updateChatSessionList(id, value);
-    }
+    try {
+      if (isWindow && window.opener && window.opener.updateChatSessionList) {
+        window.opener.updateChatSessionList(id, value);
+      }
+    } catch (error) {}
   }
   handleSelectedUser(user) {
     const { session } = this.props;
@@ -223,6 +225,7 @@ class ChatPanelSession extends Component {
     };
     this.props.dispatch(actions.removeMessage(session.id, file.file.id));
     this.sendMessage(sendMsg);
+    !this.state.value && this.handleRemoveReferMessage();
   }
   /**
    * 个人发送抖动消息

@@ -68,12 +68,13 @@ export default class Members extends Component {
     const { session } = this.props;
     const { groupMemberCount, isPost } = session;
     const { loading, members } = this.state;
+    const hideChat = md.global.SysSettings.forbidSuites.includes('6');
     return (
       <div className="ChatPanel-Members ChatPanel-sessionInfo-item">
         <div className="ChatPanel-Members-hander ChatPanel-sessionInfo-hander">
           <span>
             {`${isPost ? _l('群成员') : _l('成员')} (${groupMemberCount})`}
-            <InviteOrAddUsers {...session} />
+            {!hideChat && <InviteOrAddUsers {...session} />}
           </span>
           <span
             onClick={this.props.onSetPanelVisible.bind(this, true)}

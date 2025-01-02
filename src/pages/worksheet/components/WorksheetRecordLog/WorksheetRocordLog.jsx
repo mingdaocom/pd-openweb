@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { Icon, ScrollView, LoadDiv, Tooltip, UserHead, PreferenceTime } from 'ming-ui';
+import React, { useState, useEffect, useImperativeHandle, forwardRef, Fragment } from 'react';
+import { Icon, ScrollView, LoadDiv, Tooltip, UserHead, PreferenceTime, PullToRefreshWrapper } from 'ming-ui';
 import { Divider } from 'antd';
 import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
@@ -21,10 +21,11 @@ import {
   getExtendParams,
   hasHiddenControl,
   isUser,
+  isPublicFileDownload,
 } from './util';
 import { filterOnlyShowField } from 'src/pages/widgetConfig/util';
 import { browserIsMobile, createLinksForMessage, getFeatureStatus } from 'src/util';
-import { GET_SYSTEM_USER } from './enum.js';
+import { GET_SYSTEM_USER, EDIT_TYPE_TEXT, SUBLIST_FILE_EDIT_TYPE } from './enum.js';
 import copy from 'copy-to-clipboard';
 import UserPicker from './component/UserPicker';
 import OperatePicker from './component/OperatePicker';
@@ -133,7 +134,7 @@ function WorksheetRecordLog(props, ref) {
     pageIndexs.oldLogIndex && loadLog();
   }, [pageIndexs.oldLogIndex]);
 
-  function initLog() {
+  function initLog(isPullRefresh = false) {
     INIT_SIGN = true;
     setPara({
       selectUsers: undefined,
@@ -165,7 +166,7 @@ function WorksheetRecordLog(props, ref) {
       startDateTime: undefined,
       endDateTime: undefined,
       requestType: 0,
-    });
+    }, isPullRefresh);
   }
 
   const getParams = (param = {}) => {
@@ -184,10 +185,10 @@ function WorksheetRecordLog(props, ref) {
     };
   };
 
-  function loadNewEdition(prop = {}) {
+  function loadNewEdition(prop = {}, isPullRefresh) {
     const { worksheetId, rowId, pageSize = PAGE_SIZE, filterUniqueIds } = props;
     const params = getParams(prop);
-    setMark({ loading: true, loadingAll: !params.lastMark });
+    if (!isPullRefresh) setMark({ loading: true, loadingAll: !params.lastMark });
     const param = {
       worksheetId,
       pageSize,
@@ -581,17 +582,24 @@ function WorksheetRecordLog(props, ref) {
   const renderLogCardTitle = item => {
     const content = (
       <span className="selectTriggerChildAvatar">
-        <UserHead
-          className="worksheetRocordLogCardTitleAvatar"
-          size={20}
-          user={{
-            accountId: item.accountId,
-            userHead: item.avatar,
-          }}
-          appId={appId}
-          projectId={projectId}
-          headClick={() => {}}
-        />
+        {isPublicFileDownload(item) ? (
+          <span className="worksheetRocordLogCardTitleAvatar">
+            <Icon icon="worksheet" className="Gray_9e Font14 TxtMiddle" />
+          </span>
+        ) : (
+          <UserHead
+            className="worksheetRocordLogCardTitleAvatar"
+            size={20}
+            user={{
+              accountId: item.accountId,
+              userHead: item.avatar,
+            }}
+            appId={appId}
+            projectId={projectId}
+            headClick={() => {}}
+          />
+        )}
+
         {renderTitleName(item, isMobile)}
       </span>
     );
@@ -617,12 +625,20 @@ function WorksheetRecordLog(props, ref) {
     return filterUniqueIds || selectUsers || selectField || selectDate.range;
   };
 
+  const handlePullToRefresh = () => {
+    const { refreshDiscussCount } = props;
+
+    initLog(true);
+    if (refreshDiscussCount) refreshDiscussCount();
+  }
+
   return (
     <ScrollView className="logScroll flex worksheetRecordLog" onScrollEnd={handleScroll}>
-      <div className={cx('logBox', { mobileLogBox: isMobile })}>
-        {renderSelectCon()}
-        {renderEmpty()}
-        {!loadingAll &&
+      <PullToRefreshWrapper onRefresh={handlePullToRefresh}>
+        <div className={cx('logBox', { mobileLogBox: isMobile })}>
+          {renderSelectCon()}
+          {renderEmpty()}
+          {!loadingAll &&
           newEditionList.map((item, index) => {
             const { child } = item;
             const ua = getExtendParams(child[0].operatContent.extendParams, 'user_agent');
@@ -651,8 +667,11 @@ function WorksheetRecordLog(props, ref) {
                 {item.child.map((childData, index) => {
                   const showTooltips = hasHiddenControl(childData.operatContent.logData, controlsArray);
                   const updateControlCount = childData.operatContent.logData.filter(
-                    l => l.oldValue !== '' || l.newValue !== '',
+                    l => (l.oldValue || l.oldText) !== '' || (l.newValue || l.newText) !== '',
                   ).length;
+                  const editType = _.get(childData, 'operatContent.logData[0].editType');
+                  const editTypeText = editType ? EDIT_TYPE_TEXT[editType] : undefined;
+                  const control = SUBLIST_FILE_EDIT_TYPE.includes(editType) ? controls.find(l => l.controlId === _.get(childData, 'operatContent.logData[0].id')) : undefined;
 
                   return (
                     <div
@@ -662,11 +681,18 @@ function WorksheetRecordLog(props, ref) {
                       {childData.operatContent.createTime !== item.time && (
                         <div className="worksheetRocordLogCardHrTime">
                           <span>
-                            {!!updateControlCount && _l('更新了 %0个字段', updateControlCount)}
-                            {!!updateControlCount && showTooltips && (
-                              <Tooltip popupPlacement="right" text={<span>{_l('部分字段无权限不可见')}</span>}>
-                                <Icon icon="info_outline" className="Font14 mLeft5" />
-                              </Tooltip>
+                            {!!updateControlCount && (
+                              <Fragment>
+                                {!!editTypeText && updateControlCount === 1
+                                  ? editTypeText
+                                  : _l('更新了 %0个字段', updateControlCount)}
+                                {control && <span className='Gray mLeft8'>{control.controlName}</span>}
+                                {showTooltips && (
+                                  <Tooltip popupPlacement="right" text={<span>{_l('部分字段无权限不可见')}</span>}>
+                                    <Icon icon="info_outline" className="Font14 mLeft5" />
+                                  </Tooltip>
+                                )}
+                              </Fragment>
                             )}
                           </span>
                           <PreferenceTime value={childData.operatContent.createTime} className="timeDataTip" />
@@ -692,37 +718,38 @@ function WorksheetRecordLog(props, ref) {
               </div>
             );
           })}
-        {!loadingAll && !isFilter() && sign.showLodOldButton && discussList.length === 0 && (
-          <p className="loadOldLog">
-            <span
-              onClick={() => {
-                setPara({ pageIndexs: { ...pageIndexs, oldLogIndex: 1 } });
-                setMark({
-                  sign: {
-                    ...sign,
-                    showLodOldButton: false,
-                  },
-                  showDivider: true,
-                });
-              }}
-            >
-              {_l('继续查看旧版日志')}
-            </span>
-          </p>
-        )}
-        {!loadingAll && !isFilter() && showDivider && discussList.length > 0 && (
-          <Divider className="logDivider">
-            {_l('以下是旧版日志')}
-            <Tooltip
-              text={<span>{_l('旧版日志不支持进行筛选。因为新旧版本的升级，可能会产生一段时间重复记录的日志')}</span>}
-            >
-              <Icon className="Font12" icon="Import-failure" />
-            </Tooltip>
-          </Divider>
-        )}
-        {renderOldLog()}
-      </div>
-      {loading && <LoadDiv className="mBottom20" />}
+          {!loadingAll && !isFilter() && sign.showLodOldButton && discussList.length === 0 && (
+            <p className="loadOldLog">
+              <span
+                onClick={() => {
+                  setPara({ pageIndexs: { ...pageIndexs, oldLogIndex: 1 } });
+                  setMark({
+                    sign: {
+                      ...sign,
+                      showLodOldButton: false,
+                    },
+                    showDivider: true,
+                  });
+                }}
+              >
+                {_l('继续查看旧版日志')}
+              </span>
+            </p>
+          )}
+          {!loadingAll && !isFilter() && showDivider && discussList.length > 0 && (
+            <Divider className="logDivider">
+              {_l('以下是旧版日志')}
+              <Tooltip
+                text={<span>{_l('旧版日志不支持进行筛选。因为新旧版本的升级，可能会产生一段时间重复记录的日志')}</span>}
+              >
+                <Icon className="Font12" icon="Import-failure" />
+              </Tooltip>
+            </Divider>
+          )}
+          {renderOldLog()}
+        </div>
+        {loading && <LoadDiv className="mBottom20" />}
+      </PullToRefreshWrapper>
     </ScrollView>
   );
 }

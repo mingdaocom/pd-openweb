@@ -50,7 +50,7 @@ const HistoryListCon = styled.div`
 `;
 
 const ListItem = styled.div`
-  height: 68px;
+  min-height: 68px;
   padding: 0 9px;
   border-radius: 8px;
   margin-bottom: 8px;
@@ -84,7 +84,7 @@ const ListItem = styled.div`
       background: #2196f3;
     }
     &.black {
-      background: #333;
+      background: #151515;
     }
   }
   .icon-more_horiz:not(.active) {
@@ -100,8 +100,8 @@ const MenuBox = styled.div`
   box-shadow: 0 3px 6px 1px rgba(0, 0, 0, 0.1608);
 `;
 
-export default ({ flowInfo, isPlugin }) => {
-  const { enabled, companyId, lastPublishDate } = flowInfo;
+export default ({ flowInfo, isPlugin, customBtn, wrapClassName, isIntegration = false, popupClassName }) => {
+  const { enabled, companyId } = flowInfo;
   const [visible, setVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMore, setIsMore] = useState(false);
@@ -116,7 +116,7 @@ export default ({ flowInfo, isPlugin }) => {
 
     setIsLoading(true);
 
-    process.getHistory({ processId: flowInfo.id, pageIndex, pageSize: 20 }).then(result => {
+    process.getHistory({ processId: flowInfo.id, pageIndex, pageSize: 20 }, { isIntegration }).then(result => {
       setIsLoading(false);
       setIsMore(result.length >= 20);
       setPageIndex(pageIndex);
@@ -124,7 +124,11 @@ export default ({ flowInfo, isPlugin }) => {
     });
   }, 200);
   const openPublishVersion = id => {
-    location.href = isPlugin ? `/workflowplugin/${id}` : `/workflowedit/${id}`;
+    location.href = isIntegration
+      ? `/integrationApi/${id}`
+      : isPlugin
+        ? `/workflowplugin/${id}`
+        : `/workflowedit/${id}`;
   };
   const restoreVision = ({ id, date, index }) => {
     const isCurrent = id === flowInfo.id;
@@ -139,7 +143,7 @@ export default ({ flowInfo, isPlugin }) => {
       okText: isCurrent ? _l('确定删除') : _l('确定'),
       buttonType: isCurrent ? 'danger' : 'primary',
       onOk: () => {
-        process.goBack({ processId: id }).then(() => {
+        process.goBack({ processId: id }, { isIntegration }).then(() => {
           openPublishVersion(flowInfo.id);
         });
       },
@@ -168,7 +172,7 @@ export default ({ flowInfo, isPlugin }) => {
       onOk: () => {
         const name = document.getElementById('processVersionName').value.trim();
 
-        process.updateProcess({ companyId, processId: id, versionName: name }).then(() => {
+        process.updateProcess({ companyId, processId: id, versionName: name }, { isIntegration }).then(() => {
           setList(
             list.map(o => {
               if (o.id === id) {
@@ -210,7 +214,7 @@ export default ({ flowInfo, isPlugin }) => {
                 <span className="mLeft5 mRight5">|</span>
               </Fragment>
             )}
-            <span className="Gray_75">{_l('%0 发布于 %1', item.publisher.fullName, createTimeSpan(item.date))}</span>
+            <span className="Gray_75 WordBreak">{_l('%0 发布于 %1', item.publisher.fullName, createTimeSpan(item.date))}</span>
           </div>
         </div>
         <div className="flexRow alignItemsCenter justifyContentCenter">
@@ -219,6 +223,7 @@ export default ({ flowInfo, isPlugin }) => {
             onPopupVisibleChange={visible => {
               setSelectId(visible ? item.id : '');
             }}
+            popupClassName={popupClassName}
             action={['click']}
             mouseEnterDelay={0.1}
             popupAlign={{ points: ['tl', 'bl'], offset: [0, 0], overflow: { adjustX: 1, adjustY: 2 } }}
@@ -246,16 +251,20 @@ export default ({ flowInfo, isPlugin }) => {
 
   return (
     <Fragment>
-      <HistoryBox
-        className="ThemeHoverColor3 ThemeHoverBorderColor3"
-        data-tip={_l('查看历史版本')}
-        onClick={() => setVisible(true)}
-      >
-        {_l('版本')}
-      </HistoryBox>
+      {customBtn ? (
+        <div onClick={() => setVisible(true)}>{customBtn()}</div>
+      ) : (
+        <HistoryBox
+          className="ThemeHoverColor3 ThemeHoverBorderColor3"
+          data-tip={_l('查看历史版本')}
+          onClick={() => setVisible(true)}
+        >
+          {_l('版本')}
+        </HistoryBox>
+      )}
 
       {visible && (
-        <HistoryListBox className="flexColumn">
+        <HistoryListBox className={cx('flexColumn', wrapClassName)}>
           <header className="Font16 bold flexRow alignItemsCenter mBottom12">
             <div className="flex">{_l('版本')}</div>
             <Icon icon="delete" className="Gray_75 ThemeHoverColor3 pointer Font20" onClick={() => setVisible(false)} />

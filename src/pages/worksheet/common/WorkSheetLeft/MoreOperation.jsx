@@ -134,7 +134,7 @@ const handleDeleteWorkSheet = ({ projectId, appId, groupId, appItem, sheetListAc
     ),
     description: (
       <div>
-        <span style={{ color: '#333', fontWeight: 'bold' }}>
+        <span style={{ color: '#151515', fontWeight: 'bold' }}>
           {type ? _l('注意：自定义页面下所有配置和数据将被删除。') : _l('注意：工作表下所有配置和数据将被删除。')}
         </span>
         {type

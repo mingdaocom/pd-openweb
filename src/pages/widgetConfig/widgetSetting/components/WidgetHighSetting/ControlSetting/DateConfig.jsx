@@ -9,6 +9,7 @@ import { getAdvanceSetting, handleAdvancedSettingChange, getDateToEn } from '../
 import { DropdownContent, DropdownPlaceholder, SettingItem, EditInfo } from '../../../../styled';
 import DateInput from '../../DynamicDefaultValue/inputTypes/DateInput.jsx';
 import moment from 'moment';
+import { isCustomWidget } from 'src/pages/widgetConfig/util';
 
 const INTERVAL = [1, 5, 10, 15, 30, 60];
 
@@ -250,7 +251,7 @@ export default function DateConfig(props) {
     return (
       <Fragment>
         <ShowFormat {...props} />
-        <StartEndTime {...props} />
+        {!isCustomWidget(data) && <StartEndTime {...props} />}
       </Fragment>
     );
   }
@@ -295,13 +296,13 @@ export default function DateConfig(props) {
               </IntervalWrap>
             }
           >
-            <DropdownPlaceholder className={cx({ active: timeIntervalVisible })} color="#333">
+            <DropdownPlaceholder className={cx({ active: timeIntervalVisible })} color="#151515">
               {_l('%0分钟', timeinterval)}
               <i className="icon-arrow-down-border Font16 Gray_9e"></i>
             </DropdownPlaceholder>
           </Dropdown>
         )}
-        <StartEndTime {...props} />
+        {!isCustomWidget(data) && <StartEndTime {...props} />}
       </Fragment>
     );
   }

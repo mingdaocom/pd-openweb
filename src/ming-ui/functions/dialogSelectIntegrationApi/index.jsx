@@ -5,131 +5,128 @@ import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import { getRgbaByColor } from 'src/pages/widgetConfig/util';
 import './index.less';
 import { Tooltip } from 'antd';
-import img from 'staticfiles/images/query.png';
 import _ from 'lodash';
 
-const empty_list = [
-  _l('快递单号查询'),
-  _l('企业名称模糊搜索'),
-  _l('未来7日天气查询'),
-  _l('企业工商信息搜索'),
-  _l('商品条码查询'),
-  _l('商品条码查询'),
-  _l('人脸身份核验'),
-  _l('更多…'),
+const LINK_TYPES = [
+  { text: _l('自定义'), value: 1 },
+  { text: _l('安装'), value: 2 },
+  { text: _l('授权'), value: 3 },
 ];
-
 const totalItem = [{ id: '', name: _l('全部'), iconName: 'icon-apps' }];
-const pageSize = 30;
+const pageSize = 1000;
+const pageIndex = 1;
 
 class SelectIntegrationApi extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      list: [],
-      pageIndex: 1,
-
-      childList: [],
-      childPageIndex: 1,
-
+      linkList: [],
+      apiList: [],
       relationId: '',
       keyword: '',
-
-      loading: true,
-      parentLoading: false,
-      isMore: false,
-      childLoading: false,
-      isChildMore: false,
-      noData: false,
+      apiKeyword: '',
+      linkLoading: false,
+      apiLoading: false,
+      linkType: 1, // 1: 自定义，2: 安装，3: 授权
     };
   }
 
   componentDidMount() {
-    const { projectId, appId } = this.props;
-
-    packageVersionAjax
-      .getApiList({ companyId: projectId, types: [1, 2], apkId: appId }, { isIntegration: true })
-      .then(res => {
-        if (!res.length) {
-          this.setState({ noData: true, loading: false });
-        } else {
-          this.setState({ childList: res, childPageIndex: 2 });
-          this.getList();
-        }
-      });
+    this.getLinkList();
   }
 
-  getList = () => {
+  /**
+   * 获取链接列表
+   */
+  getLinkList = () => {
     const { projectId, appId } = this.props;
-    const { pageIndex, parentLoading, isMore } = this.state;
+    const { linkType, keyword, relationId, linkLoading } = this.state;
 
-    // 加载更多
-    if (pageIndex > 1 && ((parentLoading && isMore) || !isMore)) {
-      return;
-    }
-
-    this.setState({ parentLoading: true });
+    if (linkLoading) return;
 
     if (this.postList) {
       this.postList.abort();
     }
 
-    this.postList = packageVersionAjax.getList(
-      {
-        companyId: projectId,
-        pageIndex,
-        pageSize,
-        apkId: appId,
-        types: [1, 2],
-      },
-      { isIntegration: true },
-    );
+    this.setState({ linkLoading: true });
+
+    if (linkType === 3) {
+      this.postList = packageVersionAjax.getInstallList(
+        {
+          companyId: projectId,
+          pageIndex,
+          pageSize,
+          keyword,
+          hasAuth: true,
+          isOwner: false,
+          apkId: appId,
+        },
+        { isIntegration: true },
+      );
+    } else {
+      this.postList = packageVersionAjax.getList(
+        {
+          companyId: projectId,
+          pageIndex,
+          pageSize,
+          keyword,
+          apkId: appId,
+          types: [linkType],
+        },
+        { isIntegration: true },
+      );
+    }
 
     this.postList.then(res => {
-      this.setState({
-        list: pageIndex === 1 ? totalItem.concat(res) : this.state.list.concat(res),
-        pageIndex: pageIndex + 1,
-        parentLoading: false,
-        loading: false,
-        isMore: res.length === pageSize,
-      });
+      const resultList = (linkType === 3 || keyword ? [] : totalItem).concat(res);
+      this.setState(
+        {
+          linkList: resultList,
+          pageIndex: pageIndex + 1,
+          linkLoading: false,
+          isMore: res.length === pageSize,
+          relationId:
+            relationId && _.find(res, r => r.id === relationId) ? relationId : _.get(_.head(resultList), 'id') || '',
+        },
+        () => {
+          this.getApiList();
+        },
+      );
     });
   };
 
+  /**
+   * 获取api列表
+   */
   getApiList = () => {
     const { projectId, appId } = this.props;
-    const { childPageIndex, childLoading, isChildMore, relationId, keyword } = this.state;
+    const { relationId, apiKeyword, apiLoading, linkType } = this.state;
 
-    // 加载更多
-    if (childPageIndex > 1 && ((childLoading && isChildMore) || !isChildMore)) {
-      return;
+    if (apiLoading) return;
+
+    if (this.apiPostList) {
+      this.apiPostList.abort();
     }
 
-    this.setState({ childLoading: true });
+    this.setState({ apiLoading: true });
 
-    if (this.childPostList) {
-      this.childPostList.abort();
-    }
-
-    this.childPostList = packageVersionAjax.getApiList(
+    this.apiPostList = packageVersionAjax.getApiList(
       {
         companyId: projectId,
         apkId: appId,
-        pageIndex: childPageIndex,
+        pageIndex,
         pageSize,
-        keyword,
-        types: [1, 2],
+        keyword: apiKeyword,
+        types: [linkType],
         ...(relationId ? { relationId } : {}),
       },
       { isIntegration: true },
     );
 
-    this.childPostList.then(res => {
+    this.apiPostList.then(res => {
       this.setState({
-        childList: childPageIndex === 1 ? res : this.state.childList.concat(res),
-        childPageIndex: childPageIndex + 1,
-        childLoading: false,
-        isChildMore: res.length === pageSize,
+        apiList: res,
+        apiLoading: false,
       });
     });
   };
@@ -138,169 +135,44 @@ class SelectIntegrationApi extends Component {
     window.open(`${location.origin}/integration`);
   };
 
-  handleScroll = _.throttle(apiName => {
-    this[apiName]();
-  }, 200);
-
-  handleUpdate = (obj = {}) => {
-    this.setState({ childList: [], childPageIndex: 1, ...obj }, this.getApiList);
+  handleSearch = type => {
+    if (type === 'link') {
+      this.getLinkList();
+    } else {
+      this.getApiList();
+    }
   };
 
-  renderContent() {
-    const {
-      noData,
-      list = [],
-      childList = [],
-      loading,
-      childLoading,
-      pageIndex,
-      childPageIndex,
-      relationId,
-      keyword,
-    } = this.state;
-    let content = null;
-
-    if (noData) {
-      content = (
-        <div className="emptyContent">
-          <img src={img} width={180} />
-          <div className="Font17 Bold mBottom15">{_l('安装预集成的API，或自定义添加')}</div>
-          <div className="tagList">
-            {empty_list.map((item, index) => (
-              <span key={index} className="tagItem">
-                {item}
-              </span>
-            ))}
-          </div>
-          <div className="emptyBtn ThemeHoverBGColor3" onClick={this.handleClick}>
-            <span className="Font14 Bold">
-              {_l('去集成中心安装')}
-              <i className="icon-launch mLeft10"></i>
-            </span>
-          </div>
-        </div>
-      );
-    } else {
-      content = (
-        <div className="selectApiContent">
-          <div className="apiGroup">
-            <div className="apiGroupContent">
-              <ScrollView className="flex" onScrollEnd={() => this.handleScroll('getList')}>
-                {list.map((item, index) => (
-                  <div
-                    key={index}
-                    className={cx('groupItem', { active: relationId === item.id })}
-                    onClick={() => this.handleUpdate({ relationId: item.id })}
-                  >
-                    {item.iconName && item.id ? (
-                      <img src={item.iconName} />
-                    ) : (
-                      <div className="defaultApi">
-                        <i className="icon-connect"></i>
-                      </div>
-                    )}
-                    <span className="ellipsis">{item.name}</span>
-                  </div>
-                ))}
-                {loading && pageIndex > 1 && <LoadDiv className="mTop15" size="small" />}
-              </ScrollView>
-            </div>
-            <div className="groupBottom" onClick={this.handleClick}>
-              {_l('去集成中心添加')}
-              <i className="icon-launch mLeft8 Font14"></i>
-            </div>
-          </div>
-          <div className="childListContent">
-            {childLoading && childPageIndex === 1 ? (
-              <LoadDiv className="mTop15" size="small" />
-            ) : (
-              <Fragment>
-                {_.isEmpty(childList) ? (
-                  <div className="emptyChildContent">
-                    <span className="emptyIcon">
-                      <i className="Gray_bd icon-api" />
-                    </span>
-                    <span className="Font15 Gray_9e Bold">{_l('暂无可用API')}</span>
-                  </div>
-                ) : (
-                  <ScrollView className="flex" onScrollEnd={() => this.handleScroll('getApiList')}>
-                    {childList.map((child, index) => (
-                      <div
-                        key={index}
-                        className="childItem"
-                        onClick={() => {
-                          this.props.onOk(child.id);
-                          this.props.onClose();
-                        }}
-                      >
-                        <div
-                          className="iconWrap"
-                          style={{ backgroundColor: getRgbaByColor(child.iconColor || '#757575', '0.08') }}
-                        >
-                          <SvgIcon url={child.iconName} fill={child.iconColor} size={32} />
-                          <Tooltip placement="bottom" title={(child.apiPackage || {}).name}>
-                            {(child.apiPackage || {}).iconName ? (
-                              <img src={child.apiPackage.iconName} />
-                            ) : (
-                              <div className="defaultIcon">
-                                <i className="icon-connect"></i>
-                              </div>
-                            )}
-                          </Tooltip>
-                        </div>
-                        <div className="iconDesc">
-                          <span className="Bold Font14 ellipsis">{child.name}</span>
-                          {child.explain && (
-                            <span className="Font12 mTop8 Gray_a ellipsis" title={child.explain}>
-                              {child.explain}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                    {childLoading && childPageIndex > 1 && <LoadDiv className="mTop15" size="small" />}
-                  </ScrollView>
-                )}
-              </Fragment>
-            )}
-          </div>
-        </div>
-      );
-    }
+  renderSearch(type) {
+    const keyName = type === 'link' ? 'keyword' : 'apiKeyword';
 
     return (
-      <Fragment>
-        {_.isEmpty(list) ? null : (
-          <div className="headerContent">
-            <div className="searchBox">
-              <i className="icon-search1 Font24" onClick={this.handleUpdate}></i>
-              <input
-                value={keyword}
-                placeholder={_l('搜索API名称')}
-                onChange={e => this.setState({ keyword: e.target.value.trim() })}
-                onKeyDown={evt => {
-                  if (evt.keyCode === 13) {
-                    this.handleUpdate();
-                  }
-                }}
-              />
-              {keyword && (
-                <i
-                  className="icon-cancel1 Gray_9e Font15 pointer"
-                  onClick={() => this.handleUpdate({ keyword: '' })}
-                ></i>
-              )}
-            </div>
-          </div>
+      <div className={cx('searchBox', { searchLink: type === 'link' })}>
+        <i className="icon-search Font18" onClick={() => this.handleSearch(type)}></i>
+        <input
+          value={this.state[keyName]}
+          placeholder={_l('搜索')}
+          onChange={e => this.setState({ [keyName]: e.target.value.trim() })}
+          onKeyDown={evt => {
+            if (evt.keyCode === 13) {
+              this.handleSearch(type);
+            }
+          }}
+        />
+        {this.state[keyName] && (
+          <i
+            className="icon-cancel1 Gray_9e Font15 pointer"
+            onClick={() => this.setState({ [keyName]: '' }, () => this.handleSearch(type))}
+          ></i>
         )}
-        {content}
-      </Fragment>
+      </div>
     );
   }
 
   render() {
     const { onClose } = this.props;
-    const { loading } = this.state;
+    const { linkList = [], apiList = [], linkLoading, apiLoading, relationId, linkType } = this.state;
+
     return (
       <Dialog
         width={880}
@@ -310,7 +182,131 @@ class SelectIntegrationApi extends Component {
         onCancel={onClose}
         className="selectIntegrationApi"
       >
-        {loading ? <LoadDiv className="mTop40" /> : this.renderContent()}
+        <div className="selectApiContent">
+          <div className="linkContent">
+            <div className="title">{_l('选择API')}</div>
+            <div className="linkBox">
+              {LINK_TYPES.map(l => (
+                <div
+                  className={cx('linkItem', { active: linkType === l.value })}
+                  onClick={() =>
+                    this.setState(
+                      {
+                        linkType: l.value,
+                        pageIndex: 1,
+                        keyword: '',
+                        apiKeyword: '',
+                        relationId: '',
+                        apiList: [],
+                        linkList: [],
+                      },
+                      () => {
+                        this.getLinkList();
+                      },
+                    )
+                  }
+                >
+                  {l.text}
+                </div>
+              ))}
+            </div>
+
+            {this.renderSearch('link')}
+
+            <div className="apiGroup">
+              {linkLoading ? (
+                <LoadDiv className="mTop15" size="small" />
+              ) : _.isEmpty(linkList) ? (
+                <div className="emptyChildContent emptyLink">
+                  <span className="emptyIcon">
+                    <i className="Gray_bd icon-connect" />
+                  </span>
+                  <span className="Font15 Gray_9e Bold">{_l('暂无可用连接')}</span>
+                </div>
+              ) : (
+                <ScrollView className="apiGroupContent">
+                  {linkList.map((item, index) => (
+                    <div
+                      key={index}
+                      className={cx('groupItem', { active: relationId === item.id })}
+                      onClick={() => this.setState({ relationId: item.id }, () => this.getApiList())}
+                    >
+                      {item.iconName && item.id ? (
+                        <img src={item.iconName} />
+                      ) : (
+                        <div className="defaultApi">
+                          <i className="icon-connect"></i>
+                        </div>
+                      )}
+                      <span className="ellipsis">{item.name}</span>
+                    </div>
+                  ))}
+                </ScrollView>
+              )}
+            </div>
+            <div className="groupBottom" onClick={this.handleClick}>
+              {_l('去集成中心添加')}
+              <i className="icon-launch mLeft8 Font14"></i>
+            </div>
+          </div>
+
+          <div className="apiContent">
+            {this.renderSearch('api')}
+            {apiLoading ? (
+              <LoadDiv className="mTop15" size="small" />
+            ) : (
+              <Fragment>
+                {_.isEmpty(apiList) ? (
+                  <div className="emptyChildContent">
+                    <span className="emptyIcon">
+                      <i className="Gray_bd icon-api" />
+                    </span>
+                    <span className="Font15 Gray_9e Bold">{_l('暂无可用API')}</span>
+                  </div>
+                ) : (
+                  <div className="childListContent">
+                    <ScrollView className="flex">
+                      {apiList.map((child, index) => (
+                        <div
+                          key={index}
+                          className="childItem"
+                          onClick={() => {
+                            this.props.onOk(child.id);
+                            this.props.onClose();
+                          }}
+                        >
+                          <div
+                            className="iconWrap"
+                            style={{ backgroundColor: getRgbaByColor(child.iconColor || '#757575', '0.08') }}
+                          >
+                            <SvgIcon url={child.iconName} fill={child.iconColor} size={32} />
+                            <Tooltip placement="bottom" title={(child.apiPackage || {}).name}>
+                              {(child.apiPackage || {}).iconName ? (
+                                <img src={child.apiPackage.iconName} />
+                              ) : (
+                                <div className="defaultIcon">
+                                  <i className="icon-connect"></i>
+                                </div>
+                              )}
+                            </Tooltip>
+                          </div>
+                          <div className="iconDesc">
+                            <span className="Bold Font14 ellipsis">{child.name}</span>
+                            {child.explain && (
+                              <span className="Font12 mTop8 Gray_a ellipsis" title={child.explain}>
+                                {child.explain}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </ScrollView>
+                  </div>
+                )}
+              </Fragment>
+            )}
+          </div>
+        </div>
       </Dialog>
     );
   }

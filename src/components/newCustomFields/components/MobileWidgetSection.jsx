@@ -14,7 +14,7 @@ import _ from 'lodash';
 const TabCon = styled.div`
   .md-adm-tabs {
     background-color: #fff;
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid #ccc;
     .adm-tabs-header {
       border: none !important;
     }
@@ -86,7 +86,7 @@ function TabIcon({ control = {}, widgetStyle = {}, activeTabControlId }) {
     if (!icon) {
       return (
         <IconCon>
-          <Icon icon="tab" className="Font14" style={{ color: isActiveCurrentTab ? '#108ee9' : '#757575' }} />
+          <Icon icon="subheader" className="Font14" style={{ color: isActiveCurrentTab ? '#108ee9' : '#757575' }} />
         </IconCon>
       );
     }
@@ -118,6 +118,7 @@ export default function MobileWidgetSection(props) {
     data = [],
     tabControls,
     loadMoreRelateCards,
+    isDraft,
   } = props;
   const { otherTabs = [], changeMobileTab = () => {} } = tabControlProp;
   const [newFlag, setNewFlag] = useState(flag);
@@ -179,7 +180,7 @@ export default function MobileWidgetSection(props) {
           changeMobileTab(_.find(tabs, t => t.controlId === tab));
         }}
       >
-        {tabs.map(tab => {
+        {tabs.map((tab, index) => {
           const count = getCount(tab);
           return (
             <Tabs.Tab
@@ -187,7 +188,7 @@ export default function MobileWidgetSection(props) {
               title={
                 <Fragment>
                   {tab.showTabLine && <i className="tabLine" />}
-                  <span className="tabName ellipsis bold">
+                  <span className={cx('tabName ellipsis bold', { mLeft8: index === 0 })}>
                     <TabIcon control={tab} widgetStyle={widgetStyle} activeTabControlId={activeTabControlId} />
                     {tab.controlName}
                   </span>
@@ -244,7 +245,7 @@ export default function MobileWidgetSection(props) {
     }
 
     // 列表多条、查询记录 呈现态
-    if (recordId && disabled) {
+    if (recordId && (disabled || activeControl.disabled)) {
       return (
         <div className="flexColumn h100">
           <RelationList
@@ -264,7 +265,7 @@ export default function MobileWidgetSection(props) {
     // 列表多条 新增
     if (activeControl.type === 29) {
       const initC = _.find(props.tabControls, v => v.controlId === activeControl.controlId);
-      const c = { ...activeControl, disabled: initC.disabled, value: initC.value };
+      const c = { ...activeControl, disabled: initC.disabled, value: initC.value, isDraft };
       return (
         <RelateTabCon className="pTop10">
           <RelateRecord

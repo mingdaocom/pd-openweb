@@ -13,7 +13,7 @@ import { getFilterRelateControls } from 'src/pages/widgetConfig/util';
 const Title = styled.div`
   font-size: 18px;
   font-weight: 500;
-  color: #333;
+  color: #151515;
   line-height: 70px;
   padding: 0 26px;
 `;

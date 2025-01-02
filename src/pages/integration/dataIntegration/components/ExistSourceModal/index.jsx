@@ -126,7 +126,7 @@ const RightListWrapper = styled.div`
         text-overflow: ellipsis;
         margin-bottom: 6px;
         font-size: 14px;
-        color: #333;
+        color: #151515;
         font-weight: 600;
       }
       span {

@@ -9,7 +9,7 @@ export default function MySQLGuide(props) {
       <h5>{_l('先决条件')}</h5>
       <ul>
         <li className="pointer textUnderline" onClick={() => document.getElementById('versionId').scrollIntoView()}>
-          {_l('支持MySQL的版本: ')}5.6, 5.7, 8.0.x
+          {_l('支持MySQL的版本:')} 5.6, 5.7, 8.0.x
         </li>
         <li className="pointer textUnderline" onClick={() => document.getElementById('binLogId').scrollIntoView()}>
           {_l('需要开启Binlog并设置为ROW模式')}

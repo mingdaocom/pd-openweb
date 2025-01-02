@@ -5,6 +5,7 @@ import Search from './Search';
 import QuickFilter from './';
 import cx from 'classnames';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 const SearchWrapper = styled.div`
   background-color: #f2f2f3;
@@ -51,7 +52,6 @@ const FilterWrapper = styled.div`
 
 export default function QuickFilterSearch(props) {
   const {
-    excludeTextFilter,
     isFilter,
     filters = {},
     view,
@@ -59,22 +59,25 @@ export default function QuickFilterSearch(props) {
     sheetControls,
     className,
     showSearch = true,
+    savedFilters,
+    activeSavedFilter = {},
     quickFilterWithDefault = [],
     updateFilters = () => {},
+    updateActiveSavedFilter = () => {},
   } = props;
+
+  const filtersControl = quickFilterWithDefault
+    .map(filter => ({
+      ...filter,
+      control: _.find(sheetControls, c => c.controlId === filter.controlId),
+    }))
+    .filter(c => c.control);
 
   const handleOpenDrawer = () => {
     updateFilters({ visible: !filters.visible }, view);
   };
 
   const renderSidebar = view => {
-    const filtersControl = quickFilterWithDefault
-      .map(filter => ({
-        ...filter,
-        control: _.find(sheetControls, c => c.controlId === filter.controlId),
-      }))
-      .filter(c => c.control);
-
     return (
       <QuickFilter
         projectId={worksheetInfo.projectId}
@@ -83,7 +86,10 @@ export default function QuickFilterSearch(props) {
         view={view}
         filters={filtersControl}
         controls={sheetControls}
+        savedFilters={savedFilters}
+        activeSavedFilter={activeSavedFilter}
         onHideSidebar={handleOpenDrawer}
+        updateActiveSavedFilter={updateActiveSavedFilter}
       />
     );
   };
@@ -91,9 +97,13 @@ export default function QuickFilterSearch(props) {
   return (
     <SearchWrapper className={`searchWrapper flexRow valignWrapper pLeft10 pRight10 pTop10 pBottom10 ${className}`}>
       {showSearch && <Search textFilters={[]} viewType={view.viewType} />}
-      {!_.isEmpty(excludeTextFilter) && (
+      {(!_.isEmpty(filtersControl) || !_.isEmpty(savedFilters)) && (
         <FilterWrapper>
-          <Icon icon="filter" className={cx('Font20 Gray_9e', { active: isFilter })} onClick={handleOpenDrawer} />
+          <Icon
+            icon="filter"
+            className={cx('Font20 Gray_9e', { active: isFilter || !_.isEmpty(activeSavedFilter) })}
+            onClick={handleOpenDrawer}
+          />
         </FilterWrapper>
       )}
       <Popup

@@ -12,6 +12,7 @@ import './index.less';
 import { isOpenPermit } from 'src/pages/FormSet/util.js';
 import { permitList } from 'src/pages/FormSet/config.js';
 import externalPortalAjax from 'src/api/externalPortal';
+import { handleReplaceState } from 'src/util';
 import AddDiscuss from 'mobile/AddDiscuss';
 import _ from 'lodash';
 
@@ -71,7 +72,16 @@ class Discuss extends Component {
           switchPermit: res,
         });
       });
+    window.addEventListener('popstate', this.onQueryChange);
   }
+
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.onQueryChange);
+  }
+
+  onQueryChange = () => {
+    handleReplaceState('page', 'discussInfos', this.props.onClose);
+  };
 
   getPortalConfigSet = () => {
     const { params } = this.props.match;
@@ -103,6 +113,10 @@ class Discuss extends Component {
         });
       });
   }
+  refreshDiscussCount = () => {
+    const { getDiscussionsCount } = this.props;
+    getDiscussionsCount();
+  };
   render() {
     const { isModal, onClose, originalData, discussionCount } = this.props;
     const { params } = this.props.match;
@@ -141,7 +155,13 @@ class Discuss extends Component {
     return (
       <div className="discussTabs h100 flexColumn">
         {isModal && (
-          <div className="closeDiscuss" onClick={onClose}>
+          <div
+            className="closeDiscuss"
+            onClick={() => {
+              this.onQueryChange();
+              onClose();
+            }}
+          >
             {_l('查看记录')}
           </div>
         )}
@@ -150,6 +170,7 @@ class Discuss extends Component {
           activeLineMode="fixed"
           activeKey={pageType.toString()}
           onChange={type => {
+            this.refreshDiscussCount();
             this.setState({
               pageType: Number(type),
             });
@@ -165,6 +186,7 @@ class Discuss extends Component {
               worksheetId={worksheetId}
               rowId={rowId}
               entityType={entityType}
+              refreshDiscussCount={this.refreshDiscussCount}
               onReply={(replyId, replyName) => {
                 this.setState({
                   replyVisible: true,
@@ -176,7 +198,12 @@ class Discuss extends Component {
         )}
         {recordLogSwitch && pageType === 3 && (
           <div className="flex overflowHidden">
-            <Logs worksheetId={params.worksheetId} rowId={rowId || ''} originalData={originalData} />
+            <Logs
+              worksheetId={params.worksheetId}
+              rowId={rowId || ''}
+              originalData={originalData}
+              refreshDiscussCount={this.refreshDiscussCount}
+            />
           </div>
         )}
         {recordDiscussSwitch && (

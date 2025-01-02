@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect, Fragment, useRef } from 'react';
 import cx from 'classnames';
 import { useSetState } from 'react-use';
 import { LoadDiv, Dialog, Button, Support, Switch, Dropdown, SvgIcon } from 'ming-ui';
@@ -14,6 +14,7 @@ import { checkConditionCanSave } from 'src/pages/FormSet/components/columnRules/
 import _ from 'lodash';
 import { BrowserRouter } from 'react-router-dom';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
+import EmptyRuleConfig from '../EmptyRuleConfig';
 
 const RELATE_SEARCH_TYPE = [
   { key: 'new', text: _l('新建查询') },
@@ -35,6 +36,7 @@ function FilterRelateSearch(props) {
     resultFilters,
     setFilters,
     data,
+    setEmptyRule,
     globalSheetInfo = {},
   } = props;
 
@@ -102,6 +104,7 @@ function FilterRelateSearch(props) {
             currentColumns={currentColumns}
           />
         </div>
+        <EmptyRuleConfig {...props} filters={resultFilters} handleChange={value => setEmptyRule(value)} />
       </Fragment>
     );
   };
@@ -113,6 +116,7 @@ export function RelateSearchWorksheet(props) {
   const { globalSheetInfo, data = {}, deleteWidget, allControls, onOk, isDeleteWorksheet } = props;
   const { dataSource, controlId } = data;
   const { worksheetId, name } = globalSheetInfo;
+  const ruleRef = useRef(null);
 
   const defaultRelateType = props.relateType || (data.sourceControlId ? 'exist' : 'new');
   const defaultAppId = props.appId || globalSheetInfo.appId;
@@ -303,7 +307,7 @@ export function RelateSearchWorksheet(props) {
                     <SvgIcon url={item.iconUrl} fill="#999999" size={18} className="InlineBlock" />
                     <span className="Bold mLeft10">{item.sourceEntityName}</span>
                     <span className="Gray_9e mLeft4 Font14">
-                      {_l(' - %0：%1', _.get(DEFAULT_CONFIG[enumWidgetType[type]], 'widgetName'), controlName)}
+                      {` - ${_.get(DEFAULT_CONFIG[enumWidgetType[type]], 'widgetName')}：${controlName}`}
                     </span>
                   </li>
                 );
@@ -331,6 +335,7 @@ export function RelateSearchWorksheet(props) {
         resultFilters,
         data,
         globalSheetInfo,
+        setEmptyRule: value => (ruleRef.current = value),
         setFilters: value => setInfo({ resultFilters: value }),
       };
       return <FilterRelateSearch {...opts} />;
@@ -399,10 +404,20 @@ export function RelateSearchWorksheet(props) {
               }
               onClick={() => {
                 if (isFilter) {
+                  function formatCondition(condition) {
+                    if (condition.groupFilters) {
+                      return {
+                        ...condition,
+                        groupFilters: condition.groupFilters.map(formatCondition),
+                      };
+                    }
+                    return { ...condition, emptyRule: ruleRef.current };
+                  }
+
                   onOk({
                     sheetId,
                     sourceControlId,
-                    resultFilters,
+                    resultFilters: resultFilters.map(formatCondition).filter(_.identity),
                     relationControls,
                     sheetName,
                   });
@@ -427,6 +442,7 @@ export function RelateSearchWorksheet(props) {
                           filterType: 24,
                           isDynamicsource: true,
                           spliceType: 1,
+                          emptyRule: 3,
                         },
                       ];
                       resultFilters = [{ isGroup: true, spliceType: 2, groupFilters }];

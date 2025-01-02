@@ -24,6 +24,7 @@ export default function ColumnHead(props) {
     frozen,
     getPopupContainer,
     onShowFullValue,
+    isDraft,
   } = props;
   const itemType = control.type === 30 ? control.sourceControlType : control.type;
   const canSort = !disabled && fieldCanSort(itemType);
@@ -44,6 +45,7 @@ export default function ColumnHead(props) {
       changeSort={changeSort}
       updateSheetColumnWidths={updateSheetColumnWidths}
       getPopupContainer={getPopupContainer}
+      isDraft={isDraft}
       renderPopup={({ closeMenu }) => (
         <Menu className="worksheetColumnHeadMenu" style={{ width: 180 }} onClickAway={closeMenu}>
           {canSort &&

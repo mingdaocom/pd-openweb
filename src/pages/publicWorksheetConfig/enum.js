@@ -1,4 +1,8 @@
 import React from 'react';
+import CoverActiveBg from './images/cover_active.png';
+import CoverBg from './images/cover.png';
+import TopActiveBg from './images/top_active.png';
+import TopBg from './images/top.png';
 
 export const themes = [
   { main: '#E91E63', second: '#FEF3F7' },
@@ -67,8 +71,9 @@ export const FFILLLIMIT_OPTIONS = [
 
 export const PUBLISH_CONFIG_TABS = [
   { text: _l('链接设置'), value: 1 },
-  { text: _l('来源参数'), value: 2 },
-  { text: _l('嵌入HTML'), value: 3 },
+  { text: _l('微信增强'), value: 2 },
+  { text: _l('来源参数'), value: 3 },
+  { text: _l('嵌入HTML'), value: 4 },
 ];
 
 export const FILL_TIMES_OPTIONS = [
@@ -181,3 +186,44 @@ export const NAV_NAME = {
   query: _l('公开查询'),
   pay: _l('支付'),
 };
+
+export const SUBMIT_AFTER_OPTIONS = [
+  { label: _l('显示回执'), value: 1 },
+  { label: _l('跳转到指定链接'), value: 2 },
+];
+
+export const LAYOUT_OPTIONS = [
+  {
+    title: _l('显示为背景'),
+    desc: _l('图片会被部分遮挡或裁切，适合作为背景的图片'),
+    value: 1,
+    bg: CoverBg,
+    bgActive: CoverActiveBg,
+  },
+  {
+    title: _l('显示在表单上方'),
+    desc: _l('保持图片完整显示，适合包含文字内容的横幅图片'),
+    value: 2,
+    bg: TopBg,
+    bgActive: TopActiveBg,
+  },
+];
+
+export const WX_ICON_LIST = [
+  'resources/public_wx_31372.png',
+  'resources/public_wx_31370.png',
+  'resources/public_wx_31371.png',
+  'resources/public_wx_31369.png',
+  'resources/public_wx_31373.png',
+  'resources/public_wx_31374.png',
+  'resources/public_wx_31375.png',
+  'resources/public_wx_31376.png',
+  'resources/public_wx_31377.png',
+  'resources/public_wx_31378.png',
+  'resources/public_wx_31379.png',
+  'resources/public_wx_31380.png',
+  'resources/public_wx_31381.png',
+  'resources/public_wx_31382.png',
+  'resources/public_wx_31383.png',
+  'resources/public_wx_31384.png',
+];

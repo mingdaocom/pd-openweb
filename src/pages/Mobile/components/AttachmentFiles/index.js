@@ -471,7 +471,6 @@ export default class AttachmentList extends Component {
   renderProgress(item) {
     const { progress, base } = item;
     const { diameter } = this.props;
-
     return (
       <div key={item.id} className="fileWrapper flexColumn" style={this.style}>
         <div className="filePanel flexRow alignItemsCenter justifyContentCenter">

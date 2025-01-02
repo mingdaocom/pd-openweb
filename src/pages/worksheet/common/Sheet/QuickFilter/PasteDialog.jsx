@@ -22,7 +22,7 @@ const KeywordInput = styled.textarea`
 const Tip = styled.div`
   margin-bottom: -10px;
   text-align: right;
-  color: #333;
+  color: #151515;
 `;
 
 function cutStringByLine(str, length = 500) {

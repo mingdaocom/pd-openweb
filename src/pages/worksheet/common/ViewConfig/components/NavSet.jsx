@@ -26,8 +26,8 @@ export default function NavSet(props) {
     canShowNull,
   } = props;
   const { advancedSetting = {} } = view;
-  const { navshow = [26].includes(viewControlData.type) ? '1' : '0', navfilters = '[]' } = advancedSetting;
-
+  const type = viewControlData.type === 30 ? viewControlData.sourceControlType : viewControlData.type;
+  const { navshow = [26, 27, 48].includes(type) ? '1' : '0', navfilters = '[]' } = advancedSetting;
   return (
     <Wrap>
       <NavShow
@@ -35,13 +35,13 @@ export default function NavSet(props) {
         canShowNull={canShowNull}
         params={{
           types: NAVSHOW_TYPE.filter(o =>
-            viewControlData.type === 29
+            type === 29
               ? true //关联记录 4项
-              : [9, 10, 11, 28].includes(viewControlData.type) // 排除筛选
-              ? o.value !== '3'
-              : [26].includes(viewControlData.type) //分组字段为人员时，显示设置只有 显示有数据的项，显示指定项
-              ? ['1', '2'].includes(o.value)
-              : true,
+              : [9, 10, 11, 28].includes(type) // 排除筛选
+                ? o.value !== '3'
+                : [26, 27, 48].includes(type) //分组字段为人员时，显示设置只有 显示有数据的项，显示指定项
+                  ? ['1', '2'].includes(o.value)
+                  : true,
           ),
           txt: _l('显示项'),
         }}
@@ -77,10 +77,10 @@ export default function NavSet(props) {
         }}
       />
       {/*  支持排序的字段：关联记录、人员、选项、等级*/}
-      {[29, 26, 9, 10, 11, 28].includes(viewControlData.type) && !['2'].includes(navshow) && (
+      {[29, 26, 9, 10, 11, 28, 27, 48].includes(type) && !['2'].includes(navshow) && (
         <NavSort
           view={view}
-          viewControlData={viewControlData}
+          viewControlData={{ ...viewControlData, type }}
           appId={_.get(currentSheetInfo, 'appId')}
           projectId={_.get(currentSheetInfo, 'projectId')}
           controls={worksheetControls}

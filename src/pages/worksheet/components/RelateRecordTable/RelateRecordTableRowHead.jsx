@@ -98,6 +98,8 @@ export default function RowHead(props) {
     recordId,
     relateRecordControlId,
     deleteRelateRow,
+    isDraft,
+    from,
     updateRows = () => {},
     addRecord = () => {},
     saveSheetLayout = () => {},
@@ -171,6 +173,8 @@ export default function RowHead(props) {
                   allowRecreate={allowAdd}
                   isRelateRecordTable
                   disableCustomButtons={!showQuickFromSetting}
+                  isDraft={isDraft}
+                  from={from}
                   shows={
                     showQuickFromSetting
                       ? cx('share', 'print', 'copy', 'recreate', 'fav', {

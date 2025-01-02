@@ -198,7 +198,7 @@ export const accountResultAction = (res, customLink) => {
       msg = _l('您未被邀请注册');
       break;
     case 16:
-      msg = _l('未绑定微信公众号');
+      msg = _l('未绑定微信服务号');
       break;
     case 17:
       msg = _l('微信扫码登录方式关闭');

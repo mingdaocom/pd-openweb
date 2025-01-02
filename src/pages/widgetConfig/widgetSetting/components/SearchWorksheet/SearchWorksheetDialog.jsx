@@ -21,6 +21,7 @@ import { isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { RESULT_DISPLAY } from '../CustomEvent/config';
 import { redefineComplexControl } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { DYNAMIC_FROM_MODE } from '../DynamicDefaultValue/config';
+import EmptyRuleConfig from '../EmptyRuleConfig';
 
 const RadioDisplay = [
   {
@@ -103,6 +104,7 @@ export default class SearchWorksheetDialog extends Component {
       sheetSwitchPermit: [],
       views: [],
       loading: true,
+      emptyRule: '',
     };
   }
 
@@ -233,6 +235,7 @@ export default class SearchWorksheetDialog extends Component {
       moreType,
       resultType,
       queryCount,
+      emptyRule,
     } = this.state;
     const worksheetId = from === 'subList' ? subListSheetId : globalSheetInfo.worksheetId;
     const sourceType = from === 'subList' || worksheetId === sheetId ? 1 : 2;
@@ -244,7 +247,7 @@ export default class SearchWorksheetDialog extends Component {
       sourceId: sheetId,
       sourceName: sheetName,
       sourceType,
-      items,
+      items: items.map(i => ({ ...i, emptyRule })),
       configs,
       moreType,
       resultType,
@@ -595,6 +598,12 @@ export default class SearchWorksheetDialog extends Component {
               <div className="addFilterIcon pointer">{this.renderSearchCom()}</div>
             )}
           </SettingItem>
+
+          <EmptyRuleConfig
+            {...this.props}
+            filters={filterItems}
+            handleChange={value => this.setState({ emptyRule: value })}
+          />
 
           {fromCustom ? (
             <SettingItem className="mTop12">

@@ -91,37 +91,24 @@ export default ({ projectId }) => {
           <span>
             {md.global.Config.IsLocal && (
               <Fragment>
-                <span className="Gray_9e">{_l('同步任务数 ')}</span>
+                <span className="Gray_9e mRight3">{_l('同步任务数')}</span>
                 <span className="Bold">
                   {taskNum.currentTaskNum} / {taskNum.maxTaskNum} ，
                 </span>
               </Fragment>
             )}
-            <span className="Gray_9e">{_l('本月算力 ')}</span>
-            <span className="Bold">{used + _l(' 万行 / ') + total + _l(' 万行')}</span>
-            <span className="Gray_9e">{_l('  剩余 ')}</span>
+            <span className="Gray_9e mRight3">{_l('本月算力')}</span>
+            <span className="Bold">{_l('%0 万行 / %1 万行', used, total)}</span>
+            <span className="Gray_9e mLeft3 mRight3">{_l('剩余')}</span>
             <span className="Bold">{percent}</span>
           </span>
           {!md.global.Config.IsLocal && (
-            <Fragment>
-              {licenseType === 1 ? (
-                <PurchaseExpandPack
-                  className="mLeft10 ThemeHoverColor2"
-                  text={_l('购买升级包')}
-                  type="dataSync"
-                  projectId={projectId}
-                />
-              ) : (
-                <span
-                  className="ThemeColor3 ThemeHoverColor2 mLeft10 NoUnderline"
-                  onClick={() => {
-                    purchaseMethodFunc({ projectId });
-                  }}
-                >
-                  <span className="Bold">{_l('购买付费版')}</span>
-                </span>
-              )}
-            </Fragment>
+            <PurchaseExpandPack
+              className="mLeft10 ThemeHoverColor2"
+              text={_l('购买升级包')}
+              type="dataSync"
+              projectId={projectId}
+            />
           )}
         </div>
       )}

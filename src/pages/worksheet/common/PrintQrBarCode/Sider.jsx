@@ -73,7 +73,7 @@ const Tip = styled.div`
 
 const TypeLabel = styled.div`
   margin-top: 26px;
-  color: #333;
+  color: #151515;
   font-weight: 600;
 `;
 const Spacer = styled.div(

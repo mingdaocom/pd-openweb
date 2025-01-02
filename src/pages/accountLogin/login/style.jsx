@@ -62,7 +62,7 @@ export const Wrap = styled.div`
     line-height: 1.5;
   }
   .findPassword {
-    color: #333 !important;
+    color: #151515 !important;
     &:hover {
       color: #1182dd !important;
     }
@@ -90,7 +90,7 @@ export const Wrap = styled.div`
     .title {
       font-weight: bold;
       font-size: 14px;
-      color: #333;
+      color: #151515;
       margin: 32px auto 0;
       padding-bottom: 6px;
     }
@@ -113,7 +113,7 @@ export const Wrap = styled.div`
       margin-top: 10px;
       font-weight: bold;
       font-size: 14px;
-      color: #333333;
+      color: #151515;
 
       i {
         display: inline-block;
@@ -130,6 +130,12 @@ export const Wrap = styled.div`
       &:hover {
         box-shadow: 0px 1px 2px #00000014;
         background-color: #fafafa;
+      }
+      span.txt {
+        max-width: 80%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
     }
   }
@@ -150,5 +156,12 @@ export const Wrap = styled.div`
   }
   .tpLogin .ssoIcon {
     background-image: url(${ssoIcon});
+  }
+  .btnIcon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-size: cover;
+    background-repeat: no-repeat;
   }
 `;

@@ -39,7 +39,7 @@ const Con = styled.div`
     }
     span {
       position: relative;
-      color: #333 !important;
+      color: #151515 !important;
     }
     input {
       z-index: 1;

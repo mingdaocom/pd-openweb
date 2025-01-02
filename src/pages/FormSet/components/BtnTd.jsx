@@ -95,7 +95,7 @@ export default function BtnTd(props) {
     : it.color === 'transparent' && !it.icon
     ? '#9e9e9e'
     : it.color === 'transparent'
-    ? '#333'
+    ? '#151515'
     : it.color;
   return (
     <div className="printTemplatesList-tr printBtnsList-tr">

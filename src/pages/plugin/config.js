@@ -18,24 +18,6 @@ export const sideNavList = [
       },
     ],
   },
-  {
-    key: 'aiAssistant',
-    title: _l('AI 助手'),
-    list: [
-      {
-        type: 'assistant',
-        text: _l('助手'),
-        icon: 'contact_support',
-        featureId: VersionProductType.assistant,
-      },
-      {
-        type: 'knowledgeBase',
-        text: _l('知识库'),
-        icon: 'import_contacts',
-        featureId: VersionProductType.assistant,
-      },
-    ],
-  },
 ];
 
 export const typeOptionList = [

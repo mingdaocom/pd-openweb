@@ -19,7 +19,7 @@ const GroupItemLink = styled(MdLink)`
 
 const GroupItemCon = styled.div`
   display: block;
-  color: #333;
+  color: #151515;
   font-size: 14px;
   cursor: pointer;
   height: 36px;

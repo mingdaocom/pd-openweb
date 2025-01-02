@@ -238,7 +238,21 @@ export const browserIsMobile = () => {
   const bIsWM = sUserAgent.match(/windows mobile/i) == 'windows mobile';
   const bIsApp = sUserAgent.match(/mingdao application/i) == 'mingdao application';
   const bIsMiniProgram = sUserAgent.match(/miniprogram/i) == 'miniprogram';
-  const value = bIsIphoneOs || bIsMidp || bIsUc7 || bIsUc || bIsAndroid || bIsCE || bIsWM || bIsApp || bIsMiniProgram;
+  const isHuawei = sUserAgent.match(/mobile huaweibrowser/i) == 'mobile huaweibrowser';
+  const isAndroid = sUserAgent.match(/android/i) == 'android';
+
+  const value =
+    bIsIphoneOs ||
+    bIsMidp ||
+    bIsUc7 ||
+    bIsUc ||
+    bIsAndroid ||
+    bIsCE ||
+    bIsWM ||
+    bIsApp ||
+    bIsMiniProgram ||
+    isHuawei ||
+    isAndroid;
 
   if (sUserAgent.includes('dingtalk') || sUserAgent.includes('wxwork')) {
     // 钉钉和微信设备针对侧边栏打开判断为 mobile 环境
@@ -765,7 +779,7 @@ export const upgradeVersionDialog = options => {
 /**
  * 获取网络信息
  */
-const getSyncLicenseInfo = projectId => {
+export const getSyncLicenseInfo = projectId => {
   const { projects = [], externalProjects = [] } = md.global.Account;
   let projectInfo = _.find(projects.concat(externalProjects), o => o.projectId === projectId) || {};
 
@@ -801,7 +815,7 @@ export function getFeatureStatus(projectId, featureId) {
  */
 export function buriedUpgradeVersionDialog(projectId, featureId, extra, onOk) {
   const { Versions = [] } = md.global || {};
-  const { licenseType } = getSyncLicenseInfo(projectId);
+  const { licenseType, version = {} } = getSyncLicenseInfo(projectId);
   const { explainText = '', dialogType } = extra || {};
   let upgradeName, versionType;
 
@@ -815,9 +829,17 @@ export function buriedUpgradeVersionDialog(projectId, featureId, extra, onOk) {
         type: (_.find(versionInfo.Products || [], item => item.ProductType === featureId) || {}).Type,
       };
     };
-    const usableVersion = [getFeatureType('1'), getFeatureType('2'), getFeatureType('3')].filter(
+
+    let usableVersion = [getFeatureType('1'), getFeatureType('2'), getFeatureType('3')].filter(
       item => item.type === '1',
     )[0];
+
+    if (featureId === 38) {
+      usableVersion = {
+        versionName: TYPE_NAME[parseInt(version.versionIdV2 || 0) + 1],
+        versionType: parseInt(version.versionIdV2 || 0) + 1,
+      };
+    }
 
     upgradeName = usableVersion.versionName;
     versionType = usableVersion.versionType;
@@ -981,7 +1003,7 @@ export const getUnUniqName = (data, name = '', key = 'name') => {
       ),
     );
 
-    name = String(name).replace(/\d*$/, maxNumber + 1);
+    name = String(name).replace(/\d*$/, (maxNumber || 0) + 1);
   }
 
   return name;
@@ -1632,14 +1654,6 @@ export const handleReplaceState = (queryKey, queryValue, callback = () => {}) =>
     history.replaceState({ [queryKey]: queryValue }, '', location.href);
     callback();
   }
-};
-
-export const isPasswordRule = str => {
-  const { md = {} } = window;
-  const { global = {} } = md;
-  const { SysSettings = {} } = global;
-  const { passwordRegex } = SysSettings;
-  return RegExpValidator.isPasswordValid(str, passwordRegex);
 };
 
 export const getContactInfo = key => {

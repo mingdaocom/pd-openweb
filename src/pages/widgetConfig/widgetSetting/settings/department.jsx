@@ -29,7 +29,7 @@ export default function Department(props) {
           data={DEPARTMENT_TYPES}
           onChange={type => {
             if (type !== enumDefault) {
-              onChange(handleAdvancedSettingChange({ ...data, enumDefault: type }, { defsource: '' }));
+              onChange(handleAdvancedSettingChange({ ...data, enumDefault: type, unique: false }, { defsource: '' }));
             }
           }}
         />

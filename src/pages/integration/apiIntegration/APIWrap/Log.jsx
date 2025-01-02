@@ -49,7 +49,7 @@ const Wrap = styled.div`
       padding: 15px 8px !important;
       flex: 1;
       .fromTxt a {
-        color: #333 !important;
+        color: #151515 !important;
       }
       &:nth-child(1) {
         flex: 3;
@@ -250,7 +250,7 @@ export default function Log(props) {
       dataIndex: 'user',
       width: 10,
       render: (text, record) => {
-        return (record.createBy || {}).fullName;
+        return <span className="WordBreak">{(record.createBy || {}).fullName}</span>;
       },
     },
     {

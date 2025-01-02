@@ -19,6 +19,16 @@ class WidgetsDesc extends React.Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      !_.isEqual(_.pick(nextProps, ['desc']), _.pick(this.props, ['desc'])) ||
+      !_.isEqual(_.pick(nextState, ['isShow']), _.pick(this.state, ['isShow']))
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   render() {
     const { item, from } = this.props;
     const { isShow } = this.state;

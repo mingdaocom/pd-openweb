@@ -223,6 +223,7 @@ export default {
   * @param {boolean} args.isLink 是否是链接
   * @param {string} args.companyName 公司名
   * @param {array} args.departmentIds 部门id
+  * @param {array} args.orgRoleIds 角色id
   * @param {string} args.workSiteId 工作地id
   * @param {string} args.jobNumber 工号
   * @param {string} args.contactPhone 座机
@@ -249,6 +250,7 @@ export default {
   * @param {array} args.jobIds 职位id
   * @param {string} args.companyName 公司名
   * @param {array} args.departmentIds 部门id
+  * @param {array} args.orgRoleIds 角色id
   * @param {string} args.workSiteId 工作地id
   * @param {string} args.jobNumber 工号
   * @param {string} args.contactPhone 座机

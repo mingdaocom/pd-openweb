@@ -6,7 +6,7 @@ export const BillInfoWrap = styled.div`
   flex-direction: column;
   .billInfoHeader {
     .title {
-      color: '#333333';
+      color: '#151515';
       font-size: 17px;
       font-weight: 600;
     }

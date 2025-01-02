@@ -1,8 +1,17 @@
 import React, { Component, Fragment } from 'react';
 import flowNode from '../../../api/flowNode';
 import { ScrollView, LoadDiv } from 'ming-ui';
-import { SelectUserDropDown, Member, DetailHeader, DetailFooter, CustomTextarea } from '../components';
+import {
+  SelectUserDropDown,
+  Member,
+  DetailHeader,
+  DetailFooter,
+  CustomTextarea,
+  PromptSoundDialog,
+} from '../components';
 import _ from 'lodash';
+import { OPERATION_TYPE } from '../../enum';
+import { clearFlowNodeMapParameter } from '../../utils';
 
 export default class Notice extends Component {
   constructor(props) {
@@ -60,7 +69,7 @@ export default class Notice extends Component {
    */
   onSave = () => {
     const { data, saveRequest } = this.state;
-    const { accounts, name, sendContent } = data;
+    const { accounts, name, sendContent, flowNodeMap } = data;
 
     if (!sendContent.trim()) {
       alert(_l('通知内容不允许为空'), 2);
@@ -84,6 +93,7 @@ export default class Notice extends Component {
         name: name.trim(),
         sendContent: sendContent.trim(),
         accounts,
+        flowNodeMap: clearFlowNodeMapParameter(flowNodeMap),
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -142,6 +152,19 @@ export default class Notice extends Component {
             onClose={() => this.setState({ showSelectUserDialog: false })}
           />
         </div>
+
+        <PromptSoundDialog
+          {...this.props}
+          promptSound={data.flowNodeMap[OPERATION_TYPE.PROMPT_SOUND].promptSound}
+          formulaMap={data.flowNodeMap[OPERATION_TYPE.PROMPT_SOUND].formulaMap}
+          updateSource={obj =>
+            this.updateSource({
+              flowNodeMap: Object.assign({}, data.flowNodeMap, {
+                [OPERATION_TYPE.PROMPT_SOUND]: Object.assign({}, data.flowNodeMap[OPERATION_TYPE.PROMPT_SOUND], obj),
+              }),
+            })
+          }
+        />
       </Fragment>
     );
   }

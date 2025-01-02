@@ -5,7 +5,7 @@ import { Popup } from 'antd-mobile';
 import _ from 'lodash';
 
 export default props => {
-  const { isModal, match, appId, worksheetId, rowId, viewId, projectId, discussionCount } = props;
+  const { isModal, match, appId, worksheetId, rowId, viewId, projectId, discussionCount, getDiscussionsCount } = props;
   const { className, visible, onClose, onAddCount = _.noop, originalData } = props;
   if (isModal) {
     if (!visible) return null;
@@ -21,6 +21,7 @@ export default props => {
             originalData={originalData}
             projectId={projectId}
             discussionCount={discussionCount}
+            getDiscussionsCount={getDiscussionsCount}
           />
         )}
       </Popup>

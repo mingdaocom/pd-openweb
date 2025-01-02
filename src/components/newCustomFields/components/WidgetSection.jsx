@@ -39,6 +39,7 @@ function TableContainer(props) {
     updateWorksheetControls,
     onCountChange,
     onUpdateCell,
+    isDraft
   } = props;
   return (
     <RelateRecordTable
@@ -54,6 +55,7 @@ function TableContainer(props) {
       updateWorksheetControls={updateWorksheetControls}
       onCountChange={onCountChange}
       onUpdateCell={onUpdateCell}
+      isDraft={isDraft}
     />
   );
 }
@@ -76,6 +78,7 @@ export default function WidgetSection(props) {
     activeTabControlId,
     setActiveTabControlId,
     hasCommon,
+    isDraft
   } = props;
   const {
     isSplit,
@@ -143,6 +146,7 @@ export default function WidgetSection(props) {
       return (
         <TableContainer
           {...{
+            isDraft,
             isCharge,
             from,
             disabled,
@@ -151,7 +155,7 @@ export default function WidgetSection(props) {
             recordId,
             formWidth,
             isSplit,
-            control: { ...activeControl, ...controlProps },
+            control: { ...activeControl, ...controlProps, from },
             sideVisible: controlProps.sideVisible,
             sheetSwitchPermit,
             addRefreshEvents: controlProps.addRefreshEvents,

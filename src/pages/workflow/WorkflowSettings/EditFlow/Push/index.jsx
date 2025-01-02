@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import cx from 'classnames';
 import { CreateNode, NodeOperate } from '../components';
-import { PUSH_LIST } from '../../enum';
+import { PUSH_LIST, PUSH_TYPE } from '../../enum';
 
 export default class Push extends Component {
   constructor(props) {
@@ -14,7 +14,7 @@ export default class Push extends Component {
   renderContent() {
     const { item } = this.props;
 
-    if (!item.pushType) {
+    if (!item.pushType || (item.pushType === PUSH_TYPE.AUDIO && item.openMode === 0)) {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
     }
 
@@ -27,11 +27,11 @@ export default class Push extends Component {
       );
     }
 
-    return (
-      <Fragment>
-        <div className="pLeft8 pRight8 ellipsis">{PUSH_LIST.find(o => o.value === item.pushType).text}</div>
-      </Fragment>
-    );
+    if (item.pushType === PUSH_TYPE.AUDIO) {
+      return <div className="pLeft8 pRight8 ellipsis">{item.openMode === 1 ? _l('音频') : _l('语音播报')}</div>;
+    }
+
+    return <div className="pLeft8 pRight8 ellipsis">{PUSH_LIST.find(o => o.value === item.pushType).text}</div>;
   }
 
   render() {
@@ -45,12 +45,20 @@ export default class Push extends Component {
               'workflowItem',
               { workflowItemDisabled: disabled },
               { active: selectNodeId === item.id },
-              { errorShadow: item.pushType && item.isException },
+              { errorShadow: item.pushType && item.isException && item.openMode !== 0 },
             )}
             onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
           >
             <div className="workflowAvatars flexRow">
-              <i className={cx('workflowAvatar icon-interface_push', item.pushType ? 'BGBlue' : 'BGGray')} />
+              <i
+                className={cx(
+                  'workflowAvatar',
+                  item.pushType === PUSH_TYPE.AUDIO ? 'icon-volume_up' : 'icon-interface_push',
+                  item.pushType !== PUSH_TYPE.AUDIO || (item.pushType === PUSH_TYPE.AUDIO && item.openMode !== 0)
+                    ? 'BGBlue'
+                    : 'BGGray',
+                )}
+              />
             </div>
             <NodeOperate nodeClassName="BGBlue" {...this.props} />
             <div className="workflowContent Font13">

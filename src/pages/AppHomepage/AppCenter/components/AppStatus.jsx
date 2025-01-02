@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { string } from 'prop-types';
 import styled from 'styled-components';
 import cx from 'classnames';
 import { getAppStatusText } from 'src/pages/PageHeader/util';
@@ -10,7 +9,7 @@ const AppStatus = styled.div`
   left: 50%;
   bottom: 0;
   border: 2px solid #fff;
-  background-color: #333;
+  background-color: #151515;
   border-radius: 13px;
   color: #fff;
   line-height: 20px;
@@ -28,7 +27,7 @@ const AppStatus = styled.div`
     background: #4caf50;
   }
   &.isNew {
-    background: #333;
+    background: #151515;
   }
   &.mobilePadding {
     padding: 0 8px;
@@ -44,15 +43,15 @@ export default class AppStatusComp extends Component {
   static defaultProps = {};
   state = {};
   render() {
-    const { isGoodsStatus, isNew, fixed, isRecent, isUpgrade, className } = this.props;
+    const { isGoodsStatus, isNew, fixed, isRecent, isUpgrade, className, appStatus } = this.props;
     const isMobile = browserIsMobile();
-    const text = getAppStatusText({ isGoodsStatus, isNew, fixed, isUpgrade });
+    const text = getAppStatusText({ isGoodsStatus, isNew, fixed, isUpgrade, appStatus });
     if (!text) return null;
     return (
       <AppStatus
         className={cx(`${className}`, {
           isOverdue: !isGoodsStatus,
-          fixed,
+          fixed: fixed || appStatus === 12,
           isUpgrade,
           mobilePadding: fixed && isMobile,
           isRecent,

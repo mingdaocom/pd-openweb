@@ -28,7 +28,7 @@ const FormCoverWrap = styled.div`
       width: 100%;
       height: 100%;
       ${props => (props.coverType === '1' ? '' : 'padding-left: 2px;')}
-      background: ${props => props.bgColor || '#333333'};
+      background: ${props => props.bgColor || '#151515'};
     }
   }
 `;

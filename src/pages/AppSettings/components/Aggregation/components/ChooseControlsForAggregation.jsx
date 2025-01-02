@@ -7,6 +7,7 @@ import ChooseControls from './ChooseControls';
 
 const Wrap = styled.div`
   width: 240px;
+  overflow-y: auto;
   .title {
     padding: 0 16px;
     margin-top: 10px;
@@ -32,6 +33,7 @@ const WrapCon = styled.div`
   border-radius: 3px;
   background: white;
   height: 320px;
+  overflow-y: auto;
   .lineLeft {
     width: 0;
     border-left: 1px solid #dddddd;

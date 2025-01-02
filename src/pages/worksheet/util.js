@@ -8,7 +8,6 @@ import { generate } from '@ant-design/colors';
 import { UNIT_TYPE } from '../widgetConfig/config/setting';
 import { TinyColor } from '@ctrl/tinycolor';
 import appManagementAjax from 'src/api/appManagement';
-import publicWorksheet from 'src/api/publicWorksheet';
 import webCache from 'src/api/webCache';
 import { FROM } from 'src/components/newCustomFields/tools/config';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
@@ -33,6 +32,8 @@ import {
 import _, { get, head } from 'lodash';
 import { Base64 } from 'js-base64';
 import { HAVE_VALUE_STYLE_WIDGET } from '../widgetConfig/config';
+import { findLastIndex } from 'lodash';
+import { getSheetViewRows } from './common/TreeTableHelper';
 
 export { calcDate, formatControlValue, getSelectedOptions } from './util-purejs';
 
@@ -81,7 +82,7 @@ export function getSummaryNameByType(type) {
  * 获取统计默认统计类型
  */
 export function getSummaryInfo(type, control) {
-  if (type === 37) {
+  if (type === 37 || type === 53) {
     type = control.enumDefault2;
   }
   if (type === 6 || type === 8 || type === 31 || type === 28 || (type === 38 && control && control.enumDefault === 1)) {
@@ -527,6 +528,16 @@ function getControlCompareValue(c, value) {
   } else if (c.type === 29) {
     return safeParse(value, 'array')
       .map(u => u.sid)
+      .sort()
+      .join('');
+  } else if (c.type === 27) {
+    return safeParse(value, 'array')
+      .map(u => u.departmentId)
+      .sort()
+      .join('');
+  } else if (c.type === 48) {
+    return safeParse(value, 'array')
+      .map(u => u.organizeId)
       .sort()
       .join('');
   } else {
@@ -1163,6 +1174,7 @@ export function parseAdvancedSetting(setting = {}) {
     titlewrap,
     freezeids,
     layercontrolid,
+    searchrange,
   } = setting;
   return {
     allowadd: setting.allowadd === '1', // 子表允许新增
@@ -1394,6 +1406,7 @@ export function formatQuickFilter(items = []) {
       'spliceType',
       'filterType',
       'dateRange',
+      'dateRangeType',
       'value',
       'values',
       'minValue',
@@ -1429,35 +1442,45 @@ export function getRelateRecordCountFromValue(value, propsCount) {
 }
 
 export async function postWithToken(url, tokenArgs = {}, body = {}, axiosConfig = {}) {
-  const token = await (_.get(window, 'shareState.isPublicForm') ? publicWorksheet : appManagementAjax).getToken(
-    tokenArgs,
-  );
-  if (!token) {
-    return Promise.reject('获取token失败');
+  let token;
+
+  if (!_.get(window, 'shareState.shareId')) {
+    token = await appManagementAjax.getToken(tokenArgs);
+
+    if (!token) {
+      return Promise.reject('获取token失败');
+    }
   }
+
   return axios.post(
     url,
     Object.assign({}, body, {
       token,
-      accountId: _.get(window, 'shareState.isPublicForm') ? 'user-publicform' : md.global.Account.accountId,
+      accountId: md.global.Account.accountId,
+      clientId: window.clientId || sessionStorage.getItem('clientId'),
     }),
     axiosConfig,
   );
 }
 
 export async function getWithToken(url, tokenArgs = {}, body = {}, axiosConfig = {}) {
-  const token = await (_.get(window, 'shareState.isPublicForm') ? publicWorksheet : appManagementAjax).getToken(
-    tokenArgs,
-  );
-  if (!token) {
-    return Promise.reject('获取token失败');
+  let token;
+
+  if (!_.get(window, 'shareState.shareId')) {
+    token = await appManagementAjax.getToken(tokenArgs);
+
+    if (!token) {
+      return Promise.reject('获取token失败');
+    }
   }
+
   return axios.get(url, {
     ...axiosConfig,
     params: {
       ...body,
       token,
-      accountId: _.get(window, 'shareState.isPublicForm') ? 'user-publicform' : md.global.Account.accountId,
+      accountId: md.global.Account.accountId,
+      clientId: window.clientId || sessionStorage.getItem('clientId'),
     },
   });
 }
@@ -1661,10 +1684,10 @@ export const getButtonColor = mainColor => {
       _.toLower(mainColor),
     )
       ? '#fff'
-      : '#333';
+      : '#151515';
   if (mainColor === 'transparent') {
-    fontColor = '#333';
-    borderColor = browserIsMobile() ? '#eee': '#ccc';
+    fontColor = '#151515';
+    borderColor = browserIsMobile() ? '#eee' : '#ccc';
   }
   return {
     backgroundColor: mainColor || '#2196f3',
@@ -1713,16 +1736,31 @@ export function handleRecordError(resultCode, control) {
   }
 }
 
-export function getSubListUniqueError({ control, badData = [] } = {}) {
+export function getSubListUniqueError({ store, control, badData = [] } = {}) {
   if (badData[0]) {
     const [childTableControlId, controlId, value] = badData[0].split(':');
-    const rows = control.store.getState().rows;
+    const state = store.getState();
+    let rows = state.rows;
+    if (get(state, 'base.isTreeTableView')) {
+      rows = getSheetViewRows(
+        { rows: _.filter(rows, r => !/^empty-/.test(r.rowid)) },
+        { treeMap: get(state, 'treeTableViewData.treeMap', {}) },
+      );
+    }
     const badRowIds = filterEmptyChildTableRows(rows)
       .filter(r =>
         value.indexOf('-') > -1 ? (r[controlId] || '').indexOf(value) > -1 : (r[controlId] || '') === value,
       )
       .map(r => r.rowid);
+    const lastRowBaIndex = findLastIndex(filterEmptyChildTableRows(rows), r =>
+      value.indexOf('-') > -1 ? (r[controlId] || '').indexOf(value) > -1 : (r[controlId] || '') === value,
+    );
     if (!badRowIds.length) return {};
+    const controlName = _.find(control.relationControls, c => c.controlId === controlId).controlName;
+    alert(
+      _l('记录提交失败：%0中第%1行记录的%2与已有记录重复', control.controlName, lastRowBaIndex + 1, controlName),
+      2,
+    );
     return {
       controlId: childTableControlId,
       error: badRowIds

@@ -97,7 +97,7 @@ export default class Widgets extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps, nextState) {
     if (nextProps.value !== this.props.value && (nextProps.value || this.props.value !== undefined) && this.input) {
       this.setValue(nextProps.value);
       if (!nextProps.value && this.iti) {
@@ -107,6 +107,19 @@ export default class Widgets extends Component {
     if (nextProps.flag !== this.props.flag) {
       this.setState({ maskStatus: _.get(nextProps, 'advancedSetting.datamask') === '1' });
     }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      !_.isEqual(_.pick(nextProps, ['value', 'disabled']), _.pick(this.props, ['value', 'disabled'])) ||
+      !_.isEqual(
+        _.pick(nextState, ['isEditing', 'maskStatus', 'hideCountry', 'itiWidth']),
+        _.pick(this.state, ['isEditing', 'maskStatus', 'hideCountry', 'itiWidth']),
+      )
+    ) {
+      return true;
+    }
+    return false;
   }
 
   componentWillUnmount() {
@@ -142,7 +155,10 @@ export default class Widgets extends Component {
   setValue(value) {
     if (this.iti) {
       this.iti.setNumber(value || '');
-      this.setState({ hideCountry: !_.keys(this.iti.getSelectedCountryData()).length });
+      this.setState({
+        hideCountry: !_.keys(this.iti.getSelectedCountryData()).length,
+        itiWidth: $(this.input).css('padding-left'),
+      });
     }
     // 有些国外号码在插件格式化时会被自动补些数字，导致跟客户录入的数据有出入
     // 手动取值更新，避开控件本身行为
@@ -179,7 +195,7 @@ export default class Widgets extends Component {
       value = this.iti.getNumber();
     }
 
-    this.setState({ hideCountry: !_.keys(countryData).length });
+    this.setState({ hideCountry: !_.keys(countryData).length, itiWidth: $(this.input).css('padding-left') });
     this.props.value !== value && this.props.onChange(value);
   };
 
@@ -222,10 +238,9 @@ export default class Widgets extends Component {
       maskPermissions,
       isCell,
     } = this.props;
-    const { hideCountry, originValue, maskStatus, isEditing } = this.state;
+    const { hideCountry, originValue, maskStatus, isEditing, itiWidth } = this.state;
     const isMask = maskPermissions && value && maskStatus;
     const hiddenCountry = enumDefault === 1 || hideCountry;
-    const itiWidth = $(this.input).css('padding-left');
 
     return (
       <div

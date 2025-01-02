@@ -29,7 +29,7 @@ const Wrap = styled.div`
       align-items: center;
       width: 100%;
       line-height: 44px;
-      color: #333;
+      color: #151515;
       i {
         color: #757575;
       }
@@ -60,11 +60,13 @@ class Sidenav extends React.Component {
   render() {
     const { match = { params: {} }, myPermissions = [], menuAuth = {}, currentProjectId } = this.props;
     const { type = '' } = match.params;
-    const hasDataIntegrationAuth = hasPermission(myPermissions, [
-      PERMISSION_ENUM.CREATE_SYNC_TASK,
-      PERMISSION_ENUM.MANAGE_SYNC_TASKS,
-      PERMISSION_ENUM.MANAGE_DATA_SOURCES,
-    ]);
+    const hasDataIntegrationAuth =
+      !_.get(window, 'md.global.SysSettings.hideDataPipeline') &&
+      hasPermission(myPermissions, [
+        PERMISSION_ENUM.CREATE_SYNC_TASK,
+        PERMISSION_ENUM.MANAGE_SYNC_TASKS,
+        PERMISSION_ENUM.MANAGE_DATA_SOURCES,
+      ]);
 
     return (
       <Wrap>
@@ -76,11 +78,7 @@ class Sidenav extends React.Component {
                 key={index}
                 className={cx('Bold Font14', { cur: o.type === type || (!type && o.type === 'connect') })}
               >
-                <Link
-                  className="pLeft18 overflow_ellipsis pRight10"
-                  to={`/integration/${o.type}`}
-                  onClick={e => e.preventDefault()}
-                >
+                <Link className="pLeft18 overflow_ellipsis pRight10 stopPropagation" to={`/integration/${o.type}`}>
                   <i className={`icon-${o.icon} mRight8 Font20 TxtMiddle`} /> {o.txt}
                 </Link>
               </li>
@@ -105,11 +103,7 @@ class Sidenav extends React.Component {
 
                 return (
                   <li key={index} className={cx('Bold', { cur: o.type === type || (!type && o.type === 'connect') })}>
-                    <Link
-                      className="pLeft18 overflow_ellipsis pRight10"
-                      to={`/integration/${o.type}`}
-                      onClick={e => e.preventDefault()}
-                    >
+                    <Link className="pLeft18 overflow_ellipsis pRight10 stopPropagation" to={`/integration/${o.type}`}>
                       <i className={`icon-${o.icon} mRight8 Font20 TxtMiddle`} /> {o.txt}
                     </Link>
                   </li>

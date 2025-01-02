@@ -30,7 +30,7 @@ const FailInfoCon = styled.div`
   .listTitle {
     justify-content: space-between;
     font-size: 17px;
-    color: #333;
+    color: #151515;
     line-height: 36px;
     margin-bottom: 30px;
     .downloadBtn {
@@ -74,7 +74,7 @@ const FailInfoCon = styled.div`
         .ant-table-cell {
           padding: 8px 12px 8px 0;
           border: none;
-          color: #333;
+          color: #151515;
           .avatar {
             width: 32px;
             height: 32px;

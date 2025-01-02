@@ -166,6 +166,7 @@ export default class Widgets extends Component {
       projectId,
       isCharge,
       viewIdForPermit,
+      isDraft,
     } = this.props;
     const { value, needUpdate, ChartComponents, viewType, controls } = this.state;
     const { height, filters, rownum = '10' } = advancedSetting;
@@ -235,6 +236,7 @@ export default class Widgets extends Component {
                     ...(viewType === VIEW_DISPLAY_TYPE.sheet ? { pageCount: rownum } : {}),
                     fullShowTable: true,
                     minRowCount: 2,
+                    isDraft,
                   },
                 }}
                 filtersGroup={filtersGroup}

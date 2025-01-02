@@ -24,6 +24,8 @@
   }
   .workflowPrintTrigger {
     width: 752px;
+    max-height: 200px;
+    overflow-y: auto;
     .Item-content {
       padding-left: 36px !important;
       &:not(.disabled):hover {
@@ -87,7 +89,9 @@
       .workflowDetailHeaderSupport {
         color: #fff !important;
         &:hover {
-          color: rgba(255, 255, 255, 0.8) !important;
+          i {
+            color: rgba(255, 255, 255, 0.8) !important;
+          }
         }
       }
       .icon-delete {
@@ -140,7 +144,7 @@
         }
         &:focus {
           background: #fff !important;
-          color: #333;
+          color: #151515;
           + .icon-delete {
             display: none;
           }
@@ -465,6 +469,7 @@
       border-radius: 4px;
       min-width: 100px;
       box-sizing: initial;
+      font-size: 13px;
       &:not(:hover):not(:focus):not(.errorBorder):not(.actionClearBorder),
       &:not(.ThemeBorderColor3) {
         border-color: #ddd !important;
@@ -855,7 +860,7 @@
         background: #fff !important;
       }
       .Radio-text {
-        color: #333 !important;
+        color: #151515 !important;
         font-size: 16px;
       }
       .ming.Radio {
@@ -920,7 +925,7 @@
       border-style: solid;
       cursor: pointer;
       &:not(:hover) {
-        color: #333 !important;
+        color: #151515 !important;
         border-color: #ddd !important;
       }
     }

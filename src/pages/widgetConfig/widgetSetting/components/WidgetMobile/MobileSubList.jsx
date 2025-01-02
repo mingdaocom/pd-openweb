@@ -2,7 +2,7 @@ import React from 'react';
 import { RadioGroup } from 'ming-ui';
 import { SettingItem } from '../../../styled';
 import SortColumns from 'src/pages/worksheet/components/SortColumns/SortColumns';
-import { getAdvanceSetting, handleAdvancedSettingChange } from '../../../util/setting';
+import { getAdvanceSetting, handleAdvancedSettingChange, getControlsSorts } from '../../../util/setting';
 import styled from 'styled-components';
 
 const MobileSubListWrap = styled.div`
@@ -36,24 +36,6 @@ export default function MobileSubList({ data, onChange }) {
 
   const filterControls = relationControls.filter(i => _.includes(showControls, i.controlId));
 
-  const renderContent = () => {
-    const textArr = abstractIds
-      .map(i =>
-        _.get(
-          _.find(filterControls, f => f.controlId === i),
-          'controlName',
-        ),
-      )
-      .filter(_.identity)
-      .join('、');
-    return (
-      <div className="Dropdown--input Dropdown--border Hand">
-        {_.isEmpty(abstractIds) ? <span className="Gray_9e">{_l('显示前3列')}</span> : <span>{textArr}</span>}
-        <div className="ming Icon icon icon-arrow-down-border mLeft8 Gray_9e" />
-      </div>
-    );
-  };
-
   return (
     <MobileSubListWrap>
       <SettingItem className="mTop0">
@@ -72,15 +54,17 @@ export default function MobileSubList({ data, onChange }) {
         <SortColumns
           sortAutoChange
           isShowColumns
+          empty={_l('显示前3列')}
           noempty={false}
           showControls={abstractIds}
           columns={filterControls}
           maxSelectedNum={3}
-          children={renderContent()}
+          controlsSorts={getControlsSorts(data, filterControls, 'h5abstractids')}
           showOperate={false}
-          dragable={false}
-          onChange={({ newShowControls }) => {
-            onChange(handleAdvancedSettingChange(data, { h5abstractids: JSON.stringify(newShowControls) }));
+          dragable={true}
+          onChange={({ newShowControls, newControlSorts }) => {
+            const nextSortControls = newControlSorts.filter(item => _.includes(newShowControls, item));
+            onChange(handleAdvancedSettingChange(data, { h5abstractids: JSON.stringify(nextSortControls) }));
           }}
         />
       </SettingItem>

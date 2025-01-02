@@ -38,7 +38,7 @@ const DataSourceWrap = styled.div`
     }
     &.view {
       span {
-        color: #333;
+        color: #151515;
       }
       .viewName {
         color: #2196f3;
@@ -128,7 +128,7 @@ export default function Cascader(props) {
     return (
       <div className="info view">
         <div className="viewInfo">
-          {_l('层级视图: ')}
+          {_l('层级视图:')}
           <div
             className="viewName overflow_ellipsis pointer Bold"
             onClick={() => window.open(`/app/${appId}/${groupId}/${dataSource}/${viewId}`)}

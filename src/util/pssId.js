@@ -9,7 +9,13 @@ export const setPssId = (id, verification = false) => {
     if (md.global.Config.IsLocal && md.global.Config.SessionCookieExpireMinutes) {
       const expireDate = moment().add(md.global.Config.SessionCookieExpireMinutes, 'm').toDate();
       window.setCookie('md_pss_id', id, expireDate);
-    } else if (verification || window.isDingTalk || window.isMiniProgram || location.href.indexOf('localhost') > -1) {
+    } else if (
+      verification ||
+      window.isDingTalk ||
+      window.isMiniProgram ||
+      process.env.NODE_ENV === 'development' ||
+      location.href.indexOf('localhost') > -1
+    ) {
       window.setCookie('md_pss_id', id);
     }
 

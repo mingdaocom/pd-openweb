@@ -201,6 +201,7 @@ class ChatPanelHeader extends Component {
     const { isGroup, isTop, groupId } = session;
     const isSet = 'isSession' in session ? (groupId ? true : false) : true;
     // const isSet = false;
+    const hideChat = md.global.SysSettings.forbidSuites.includes('6');
     return (
       <div className="ChatPanel-addToolbar-menu">
         {isSet ? (
@@ -220,7 +221,7 @@ class ChatPanelHeader extends Component {
           <div className="menuItem-text">{_l('字体大小')}</div>
           <i className="icon-arrow-right-tip" style={{marginLeft: 60, fontSize: 12}}/>
         </div> */}
-        {isGroup ? (
+        {!hideChat && isGroup ? (
           <div className="menuItem ThemeBGColor3" onClick={this.handleSettingGroup.bind(this)}>
             <i className="icon-group" />
             <div className="menuItem-text">{session.isPost ? _l('群组设置') : _l('聊天设置')}</div>

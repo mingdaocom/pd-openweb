@@ -62,7 +62,7 @@ export default function ViewEmpty({ filters = {}, viewFilter = [] }) {
       <MobileViewEmpty>
         <div className="withoutRows flexColumn alignItemsCenter justifyContentCenter">
           <img className="img" src={withoutRows} />
-          <div className="text mTop10">{_l('此视图下暂无记录')}</div>
+          <div className="text mTop10">{text || _l('此视图下暂无记录')}</div>
         </div>
       </MobileViewEmpty>
     );

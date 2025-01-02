@@ -13,13 +13,17 @@ const ListCard = props => {
     data,
     isMobile,
     isDeleteFile,
+    wpsEditUrl,
     allowShare,
     allowDownload,
     isMore,
     allowSort,
     allowEditName,
     recordId,
+    controlId,
     DragHandle,
+    masterData,
+    isSubListFile,
   } = props;
   const { onDeleteMDFile, onOpenControlAttachmentInNewTab, onMDPreview, onAttachmentName } = props;
   const { isKc, browse, fileClassName, fileSize, isDownload } = props;
@@ -28,6 +32,7 @@ const ListCard = props => {
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [isPicture, setIsPicture] = useState(props.isPicture);
+  const allowNewPage = recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState);
 
   useEffect(() => {
     if (isPicture) {
@@ -41,7 +46,7 @@ const ListCard = props => {
 
   const renderDropdownOverlay = (
     <Menu style={{ width: 150 }} className="Relative">
-      {recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
+      {allowNewPage && (
         <MenuItem
           key="newPage"
           icon={<Icon icon="launch" className="Font17 pRight5" />}
@@ -54,7 +59,7 @@ const ListCard = props => {
           {_l('新页面打开')}
         </MenuItem>
       )}
-      {recordId && onOpenControlAttachmentInNewTab && _.isEmpty(window.shareState) && (
+      {allowNewPage && (
         <MenuItem
           key="newPage"
           icon={<Icon icon="floating-layer" className="Font17 pRight5" />}
@@ -65,6 +70,20 @@ const ListCard = props => {
           }}
         >
           {_l('浮窗打开')}
+        </MenuItem>
+      )}
+      {md.global.Config.EnableDocEdit && wpsEditUrl && allowNewPage && <div className="hr-line" />}
+      {md.global.Config.EnableDocEdit && wpsEditUrl && (
+        <MenuItem
+          key="onLineEdit"
+          icon={<Icon icon="new_mail" className="Font17 pRight5" />}
+          onClick={e => {
+            e.stopPropagation();
+            window.open(wpsEditUrl);
+            setDropdownVisible(false);
+          }}
+        >
+          {_l('在线编辑')}
         </MenuItem>
       )}
       {allowShare && <div className="hr-line" />}
@@ -147,7 +166,7 @@ const ListCard = props => {
                   >
                     <Tooltip title={_l('重命名')} placement="bottom">
                       <div className="btnWrap pointer" onClick={() => setIsEdit(true)}>
-                        <Icon className="Gray_9e Font17" icon="new_mail" />
+                        <Icon className="Gray_9e Font20" icon="rename_input" />
                       </div>
                     </Tooltip>
                   </ResetNamePopup>
@@ -157,7 +176,12 @@ const ListCard = props => {
                     <div
                       className="btnWrap pointer"
                       onClick={() => {
-                        handleDownload(data, isDownload);
+                        handleDownload(data, isDownload, {
+                          controlId: isSubListFile ? _.get(masterData, 'controlId') : controlId,
+                          rowId: recordId,
+                          parentWorksheetId: _.get(masterData, 'worksheetId'),
+                          parentRowId: _.get(masterData, 'recordId'),
+                        });
                       }}
                     >
                       <Icon className="Gray_9e Font17" icon="download" />
@@ -176,7 +200,10 @@ const ListCard = props => {
                     action={['click']}
                     popup={renderDropdownOverlay}
                     popupVisible={dropdownVisible}
-                    onPopupVisibleChange={dropdownVisible => setDropdownVisible(dropdownVisible)}
+                    onPopupVisibleChange={dropdownVisible => {
+                      dropdownVisible && !wpsEditUrl && props.onTriggerMore(data);
+                      setDropdownVisible(dropdownVisible);
+                    }}
                     popupAlign={{
                       points: ['tr', 'br'],
                       offset: [5, 5],
@@ -249,7 +276,7 @@ const NotSaveListCard = props => {
             >
               <Tooltip title={_l('重命名')} placement="bottom">
                 <div className="btnWrap pointer" onClick={() => setIsEdit(true)}>
-                  <Icon className="Gray_9e Font17" icon="new_mail" />
+                  <Icon className="Gray_9e Font20" icon="rename_input" />
                 </div>
               </Tooltip>
             </ResetNamePopup>

@@ -60,7 +60,7 @@ export default function OrgRole(props) {
   
   return (
     <div className="controlWrapper">
-      <div className="Font14 bold mBottom15">{control.controlName}</div>
+      <div className="Font14 bold mBottom15 controlName">{control.controlName}</div>
       <OrgRoleCon>
         {values.map(item => (
           <OrgRoleItem>

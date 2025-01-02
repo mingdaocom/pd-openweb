@@ -38,7 +38,7 @@ export const PERMISSION_ENUM = {
   LOGIN_LOG: 17300,
   PROJECT_MANAGE_LOG: 17500,
 
-  //集成和插件中心
+  //集成和插件
   //API集成
   CREATE_API_CONNECT: 19110,
   MANAGE_API_CONNECTS: 19120,
@@ -93,7 +93,7 @@ export const ROUTE_CONFIG = {
   ],
   [PERMISSION_ENUM.USER_ANALYTICS]: ['analytics'],
   [PERMISSION_ENUM.GENERAL_SETTING]: ['settings'],
-  [PERMISSION_ENUM.MERCHANT_SERVICE]: ['merchant', 'transaction','refund', 'withdrawalsrecord'],
+  [PERMISSION_ENUM.MERCHANT_SERVICE]: ['merchant', 'transaction', 'refund', 'withdrawalsrecord'],
   [PERMISSION_ENUM.APP_LOG]: ['applog'],
   [PERMISSION_ENUM.LOGIN_LOG]: ['loginlog'],
   [PERMISSION_ENUM.PROJECT_MANAGE_LOG]: ['orglog'],

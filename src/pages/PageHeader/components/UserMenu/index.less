@@ -17,12 +17,12 @@
   white-space: nowrap;
   text-decoration: none;
   text-overflow: ellipsis;
-  color: #333;
+  color: #151515;
   transition: none;
 }
 
 #userSet .support span {
-  color: #333;
+  color: #151515;
   margin-left: 0px !important;
 }
 
@@ -69,6 +69,10 @@
   font-size: 14px;
 }
 
+.userSetTool {
+  width: 320px;
+}
+
 .userSetTooltip,
 .languageSetTooltip {
   width: 100%;
@@ -95,9 +99,21 @@
   }
 }
 
+.userSetTooltip {
+  li {
+    display: flex;
+  }
+  .trial {
+    color: #ffb100 !important;
+  }
+  .free {
+    color: #4caf50 !important;
+  }
+}
+
 .languageSetTooltip li.active {
   &:hover {
-    color: #333;
+    color: #151515;
   }
   background: #f5f5f9;
 }

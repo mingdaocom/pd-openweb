@@ -74,7 +74,7 @@ export default class IntegrationApi extends React.Component {
     };
     return (
       <Wrap className="Con">
-        <DocumentTitle title={_l('集成中心')} />
+        <DocumentTitle title={_l('集成')} />
         <APIWrap
           {...this.props}
           data={{}}

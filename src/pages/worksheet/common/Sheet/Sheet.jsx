@@ -77,7 +77,9 @@ const EmptyStatus = styled.div`
 
 function getKeyOfFiltersGroup(filtersGroup) {
   function getKey(f) {
-    return JSON.stringify(_.pick(f, ['controlId', 'value', 'values', 'minValue', 'maxValue']));
+    return JSON.stringify(
+      _.pick(f, ['controlId', 'value', 'values', 'minValue', 'maxValue', 'filterType', 'dateRange']),
+    );
   }
   if (_.isEmpty(filtersGroup)) {
     return '';

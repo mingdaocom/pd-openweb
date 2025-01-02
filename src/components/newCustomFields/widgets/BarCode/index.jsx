@@ -70,6 +70,13 @@ export default class Widgets extends Component {
     }
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (!_.isEqual(_.pick(nextState, ['value']), _.pick(this.state, ['value']))) {
+      return true;
+    }
+    return false;
+  }
+
   componentWillUnmount() {
     this.barId && clearTimeout(this.barId);
     if (_.isFunction(this.props.triggerCustomEvent)) {

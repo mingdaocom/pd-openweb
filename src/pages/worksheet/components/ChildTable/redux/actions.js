@@ -7,7 +7,7 @@ import {
   getRelateRecordCountOfControlFromRow,
 } from 'worksheet/util';
 import worksheetAjax from 'src/api/worksheet';
-import _, { get, includes, isString, pick } from 'lodash';
+import _, { find, get, includes, isString, pick } from 'lodash';
 import { treeDataUpdater, handleUpdateTreeNodeExpansion } from 'worksheet/common/TreeTableHelper';
 import DataFormat from 'src/components/newCustomFields/tools/DataFormat';
 import { createRequestPool } from 'worksheet/api/standard';
@@ -138,10 +138,20 @@ export const deleteRow = rowid => (dispatch, getState) => {
   dispatch(updateTreeTableViewData());
 };
 
-export const deleteRows = rowIds => dispatch => {
-  dispatch({ type: 'DELETE_ROWS', rowIds });
-  dispatch(updateTreeTableViewData());
-};
+export const deleteRows =
+  (rowIds, { useUserPermission } = {}) =>
+  (dispatch, getState) => {
+    const { rows } = getState();
+    const filteredRowIds = rowIds.filter(rowId => {
+      const row = find(rows, r => r.rowid === rowId);
+      return row && (useUserPermission ? row.allowdelete : true);
+    });
+    if (filteredRowIds.length === 0) {
+      return;
+    }
+    dispatch({ type: 'DELETE_ROWS', rowIds: filteredRowIds });
+    dispatch(updateTreeTableViewData());
+  };
 
 export const updateRow = ({ rowid, value }, { asyncUpdate, noRealUpdate } = {}) => {
   return dispatch => {
@@ -162,7 +172,7 @@ async function batchLoadRows(args) {
   let total, res;
   while (_.isUndefined(total) || rows.length < total) {
     res = await worksheetAjax.getRowRelationRows(args);
-    rows = rows.concat(res.data || []).map((row, i) => ({ ...row, allowedit: true, addTime: i }));
+    rows = rows.concat(res.data || []).map((row, i) => ({ ...row, addTime: i }));
     if (!total) {
       total = res.count;
     }
@@ -199,6 +209,7 @@ export const loadRows = ({
       .then(batchRes => {
         const { res, rows } = batchRes;
         dispatch({ type: 'LOAD_ROWS', rows });
+        dispatch({ type: 'UPDATE_DATA_LOADING', value: false });
         dispatch(initRows(rows));
         if (isTreeTableView) {
           const { treeMap, maxLevel } = treeDataUpdater(
@@ -347,6 +358,7 @@ export function setRowsFromStaticRows({
   staticRows = [],
   abortController,
   type,
+  allowEdit = true,
   isCreate,
   isDefaultValue = true,
   isQueryWorksheetFill = true,
@@ -384,6 +396,7 @@ export function setRowsFromStaticRows({
         searchConfig,
         isDefaultValue,
         isQueryWorksheetFill,
+        allowEdit,
         isCreate:
           !!recordId ||
           (!_.isUndefined(staticRow.initRowIsCreate)

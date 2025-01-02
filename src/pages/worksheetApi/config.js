@@ -850,6 +850,42 @@ export const appRoleErrorData = {
   success: false,
 };
 
+const roleDetailSuccess = {
+  data: {
+    roleId: _l('角色Id'),
+    name: _l('角色名称'),
+    roleType: _l('角色类型'),
+    description: _l('角色描述'),
+    hideAppForMembers: _l('是否对成员隐藏应用,true：隐藏，false：不隐藏'),
+    permissionWay: _l(
+      '分发所有应用项, 80：可查看、编辑、删除所有记录; 60：可查看所有记录，但只能编辑、删除自己拥有的记录; 30：可查看加入的，只能编辑、删除自己拥有的记录; 20：对所有记录只有查看权限; 0：分发有权限应用项',
+    ),
+    sheets: [
+      {
+        sheetId: _l('工作表ID'),
+        sheetName: _l('工作表名称'),
+        canAdd: _l('是否可以添加记录'),
+        readLevel: _l('读取权限级别'),
+        editLevel: _l('编辑权限级别'),
+        removeLevel: _l('删除权限级别'),
+      },
+    ],
+    extendAttrs: [_l('扩展属性')],
+    optionalControls: [_l('可选控件')],
+    pages: [_l('自定义页面权限')],
+    generalAdd: _l('添加权限'),
+    gneralShare: _l('分享权限'),
+    generalImport: _l('导入权限'),
+    generalExport: _l('导出权限'),
+    generalDiscussion: _l('讨论权限'),
+    generalSystemPrinting: _l('系统打印权限'),
+    generalAttachmentDownload: _l('附件下载权限'),
+    generalLogging: _l('日志权限'),
+  },
+  success: true,
+  error_code: 1,
+};
+
 /**
  * 应用角色
  */
@@ -875,10 +911,128 @@ export const MENU_LIST_APPROLE = [
         desc: _l('角色名称'),
       },
       {
-        name: 'desc',
-        required: _l('是'),
+        name: 'description',
+        required: _l('否'),
         type: 'string',
         desc: _l('角色描述'),
+      },
+      {
+        name: 'hideAppForMembers',
+        required: _l('否'),
+        type: 'boolean',
+        desc: _l('是否对成员隐藏应用 隐藏：true,不隐藏：false'),
+        example: true,
+      },
+      {
+        name: 'roleType',
+        required: _l('否'),
+        type: 'integer',
+        desc: _l('角色类型 0：自定义角色'),
+        example: 0,
+      },
+      {
+        name: 'permissionWay',
+        required: _l('否'),
+        type: 'integer',
+        desc: _l(
+          '权限方式：分发所有应用项，80：可查看、编辑、删除所有记录，60：可查看所有记录，但只能编辑、删除自己拥有的记录，30：可查看加入的，只能编辑、删除自己拥有的记录，20：对所有记录只有查看权限，0：分发有权限应用项',
+        ),
+        example: 80,
+      },
+      {
+        name: 'sheets',
+        required: _l('否'),
+        type: 'array',
+        desc: _l('工作表列表'),
+        example: [
+          {
+            sheetId: '', //工作表 id
+            sheetName: '', //工作表名称
+            canAdd: true, //新增权限
+            views: [
+              {
+                viewId: '',
+                viewName: '',
+                canRead: true, //查看权限
+                canEdit: true, //编辑权限
+                canRemove: true, //删除权限
+                type: 0, //视图类型
+              },
+            ],
+          },
+        ],
+      },
+      {
+        name: 'pages',
+        required: _l('否'),
+        type: 'array',
+        desc: _l('页面列表'),
+        example: [
+          {
+            pageId: '自定义页面 id',
+            name: '页面名称',
+            checked: false, //查看权限
+            navigateHide: false, //是否隐藏导航
+            sortIndex: 1, //排序
+            iconUrl: '',
+          },
+        ],
+      },
+      {
+        name: 'generalAdd',
+        required: _l('否'),
+        type: 'object',
+        desc: _l('添加权限 true：开启，false：不开启'),
+        example: { enable: true },
+      },
+      {
+        name: 'gneralShare',
+        required: _l('否'),
+        type: 'object',
+        desc: _l('分享权限 true：开启，false：不开启'),
+        example: { enable: true },
+      },
+      {
+        name: 'generalImport',
+        required: _l('否'),
+        type: 'object',
+        desc: _l('导入权限 true：开启，false：不开启'),
+        example: { enable: true },
+      },
+      {
+        name: 'generalExport',
+        required: _l('否'),
+        type: 'object',
+        desc: _l('导出权限 true：开启，false：不开启'),
+        example: { enable: true },
+      },
+      {
+        name: 'generalDiscussion',
+        required: _l('否'),
+        type: 'object',
+        desc: _l('讨论权限 true：开启，false：不开启'),
+        example: { enable: true },
+      },
+      {
+        name: 'generalSystemPrinting',
+        required: _l('否'),
+        type: 'object',
+        desc: _l('系统打印权限 true：开启，false：不开启'),
+        example: { enable: true },
+      },
+      {
+        name: 'generalAttachmentDownload',
+        required: _l('否'),
+        type: 'object',
+        desc: _l('附件下载权限 true：开启，false：不开启'),
+        example: { enable: true },
+      },
+      {
+        name: 'generalLogging',
+        required: _l('否'),
+        type: 'object',
+        desc: _l('日志权限 true：开启，false：不开启'),
+        example: { enable: true },
       },
     ]),
     successData: appRoleSuccessData,
@@ -934,6 +1088,22 @@ export const MENU_LIST_APPROLE = [
       },
     ]),
     successData: appRoleSuccessData2,
+    errorData: appRoleErrorData,
+  },
+  {
+    id: 'GetRoleDetail',
+    title: _l('获取角色详情 GET'),
+    isGet: true,
+    apiName: 'open/app/getRoleDetail',
+    data: appInfoParameters.concat([
+      {
+        name: 'roleId',
+        required: _l('是'),
+        type: 'string',
+        desc: _l('角色 Id'),
+      },
+    ]),
+    successData: roleDetailSuccess,
     errorData: appRoleErrorData,
   },
 ];
@@ -2015,6 +2185,10 @@ export const ERROR_CODE = [
       {
         name: 1,
         desc: _l('成功'),
+      },
+      {
+        name: 51,
+        desc: _l('请求限流'),
       },
       {
         name: 10000,

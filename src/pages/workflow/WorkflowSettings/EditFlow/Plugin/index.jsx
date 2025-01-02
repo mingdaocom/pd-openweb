@@ -23,7 +23,7 @@ export default class Plugin extends Component {
       );
     }
 
-    if (!item.fields.length) {
+    if (!(item.fields || []).length) {
       return <div className="pLeft8 pRight8 blue">{_l('设置此节点')}</div>;
     }
 
@@ -49,7 +49,7 @@ export default class Plugin extends Component {
             className={cx(
               'workflowItem',
               { workflowItemDisabled: disabled },
-              { errorShadow: !!item.fields.length && item.isException },
+              { errorShadow: !!(item.fields || []).length && item.isException },
               { active: selectNodeId === item.id },
             )}
             onMouseDown={() => !disabled && openDetail(processId, item.id, item.typeId)}
@@ -62,7 +62,7 @@ export default class Plugin extends Component {
               ) : (
                 <i
                   className="workflowAvatar icon-workflow"
-                  style={{ background: item.fields.length ? item.iconColor || '#2196f3' : '#ddd' }}
+                  style={{ background: (item.fields || []).length ? item.iconColor || '#2196f3' : '#ddd' }}
                 />
               )}
             </div>

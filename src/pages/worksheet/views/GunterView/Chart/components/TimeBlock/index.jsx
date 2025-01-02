@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as actions from 'worksheet/redux/actions/gunterview';
 import RecordWrapper from './RecordWrapper';
+import GroupContent from 'worksheet/views/GunterView/components/GroupContent';
 import './index.less';
 import _ from 'lodash';
 
@@ -46,7 +47,7 @@ export default class TimeBlock extends Component {
                 updateGroupSubVisible(item.key);
               }}
             >
-              <span className="recordTitle">{item.name || _l('为空')}</span>
+              <span className="recordTitle">{<GroupContent group={item} />}</span>
             </div>
           )
         }

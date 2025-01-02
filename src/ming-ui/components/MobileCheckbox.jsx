@@ -115,14 +115,16 @@ export default class MobileCheckbox extends Component {
               </div>
             </div>
             <div className="mobileCheckboxSearchWrapper">
-              <Icon icon="h5_search" />
-              <input
-                className="flex"
-                type="search"
-                placeholder={allowAdd ? _l('搜索或添加选项') : _l('搜索')}
-                value={keywords}
-                onChange={evt => this.setState({ keywords: evt.target.value })}
-              />
+              <Icon icon="h5_search" className="Gray_75 Font14" />
+              <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
+                <input
+                  className="w100"
+                  type="search"
+                  placeholder={allowAdd ? _l('搜索或添加选项') : _l('搜索')}
+                  value={keywords}
+                  onChange={evt => this.setState({ keywords: evt.target.value })}
+                />
+              </form>
               {keywords && (
                 <Icon
                   icon="workflow_cancel"
@@ -139,7 +141,12 @@ export default class MobileCheckbox extends Component {
                   arrowIcon={false}
                   onClick={() => {
                     const options = !!keywords.length
-                      ? source.filter(item => item.value.indexOf(keywords) > -1)
+                      ? source.filter(
+                          item =>
+                            `${item.value || ''}|${item.pinYin || ''}`.search(
+                              new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i'),
+                            ) !== -1,
+                        )
                       : source;
                     this.handleSelectAll(options, selectChecked.length === options.length);
                   }}
@@ -149,7 +156,12 @@ export default class MobileCheckbox extends Component {
               )}
 
               {source
-                .filter(item => item.value.indexOf(keywords) > -1)
+                .filter(
+                  item =>
+                    `${item.value || ''}|${item.pinYin || ''}`.search(
+                      new RegExp(keywords.trim().replace(/([,.+?:()*\[\]^$|{}\\-])/g, '\\$1'), 'i'),
+                    ) !== -1,
+                )
                 .map(item => (
                   <List.Item key={item.key} arrowIcon={false} onClick={() => this.onChange(item.key)}>
                     <Checkbox

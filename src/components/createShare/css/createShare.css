@@ -133,7 +133,7 @@
   cursor: pointer;
 }
 .createShareAlertClose:not(:hover) {
-  color: #333 !important;
+  color: #151515 !important;
 }
 #createShareAlert.ns-hide {
   -webkit-animation-direction: reverse;

@@ -11,7 +11,7 @@ import _ from 'lodash';
 import { dialogSelectApp } from 'ming-ui/functions';
 
 const VarDrawer = styled(Drawer)`
-  color: #333;
+  color: #151515;
   .ant-drawer-mask {
     background-color: transparent;
   }
@@ -94,7 +94,7 @@ const FormItem = styled.div`
     }
     &.ant-select-disabled {
       .ant-select-selector {
-        color: #333 !important;
+        color: #151515 !important;
         background: #f5f5f5 !important;
         border-color: #f5f5f5 !important;
       }

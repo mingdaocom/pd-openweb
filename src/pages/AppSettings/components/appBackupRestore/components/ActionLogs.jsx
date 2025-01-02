@@ -108,7 +108,7 @@ const ActionLogWrap = styled.div`
     }
   }
   .actContent {
-    color: #333;
+    color: #151515;
     padding-left: 8px;
     overflow: hidden;
     white-space: nowrap;

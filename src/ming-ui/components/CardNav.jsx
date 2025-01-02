@@ -10,7 +10,7 @@ const Wrap = styled.ul`
   margin: 12px 14px 0;
   li {
     padding: 14px;
-    color: #333333;
+    color: #151515;
     font-size: 14px;
     cursor: pointer;
     background: #ffffff 0% 0% no-repeat padding-box;

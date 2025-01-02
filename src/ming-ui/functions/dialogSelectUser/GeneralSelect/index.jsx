@@ -1013,7 +1013,7 @@ export default class GeneraSelect extends Component {
           item.users = list;
           const _arr = selectedData.concat(
             (list || [])
-              .filter(user => !this.userSettings.selectedAccountIds.includes(user.accountId))
+              .filter(user => !_.includes(this.userSettings.selectedAccountIds, user.accountId))
               .map(user => {
                 return {
                   type: ChooseType.USER,
@@ -1327,7 +1327,8 @@ export default class GeneraSelect extends Component {
     const type = this.getRenderTypeByTabId(tabId);
     if (type === renderType) {
       if (tabId === UserTabsId.CONACT_USER) {
-        return ((data.users || {}).list || []).concat((data.oftenUsers || {}).list || []).length;
+        const totalUsers = ((data.users || {}).list || []).concat((data.oftenUsers || {}).list || [])
+        return _.uniqBy(totalUsers, 'accountId').length;
       } else if (tabId === UserTabsId.RESIGNED) {
         return data.allCount;
       } else if (tabId === UserTabsId.GROUP) {

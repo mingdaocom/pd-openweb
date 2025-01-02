@@ -3,7 +3,7 @@ import reducer from './reducer';
 import { init, refresh } from './action';
 import thunk from 'redux-thunk';
 import { v4 } from 'uuid';
-import { find, get } from 'lodash';
+import { find, get, includes, isEmpty } from 'lodash';
 import { isRelateRecordTableControl } from 'worksheet/util';
 
 export default function generateStore(
@@ -54,7 +54,7 @@ export default function generateStore(
         treeLayerControl.type === 29 &&
         !isRelateRecordTableControl(treeLayerControl) &&
         !!treeLayerControlId,
-      initialCount: Number(control.value),
+      initialCount: Number(control.initialValue || control.value || 0),
     },
   });
   store.dispatch({
@@ -65,12 +65,14 @@ export default function generateStore(
     store.dispatch({ type: 'RESET' });
     store.dispatch(refresh());
   };
-  store.setEmpty = () => {
-    store.dispatch({ type: 'RESET' });
-    store.dispatch({ type: 'CLEAR_RECORDS' });
-  };
   store.init = () => store.dispatch(init());
-  store.setEmpty = () => {
+  store.setEmpty = ({ ignoreControlId = [] } = {}) => {
+    const state = store.getState();
+    const { base = {} } = state;
+    const controlId = get(base, 'control.controlId');
+    if (!isEmpty(ignoreControlId) && includes(ignoreControlId, controlId)) {
+      return;
+    }
     store.dispatch({ type: 'RESET' });
     store.dispatch({ type: 'CLEAR_RECORDS' });
   };

@@ -48,7 +48,7 @@ const WrapCon = styled.div`
       .txt {
         font-size: 32px;
         font-weight: 400;
-        color: #333333;
+        color: #151515;
       }
       .txtTime {
         font-size: 12px;
@@ -95,7 +95,7 @@ const WrapCon = styled.div`
       display: inline-block;
       margin: 0 32px;
       cursor: pointer;
-      color: #333;
+      color: #151515;
       &.disable {
         cursor: not-allowed;
         color: #aaaaaa;
@@ -295,7 +295,7 @@ function Monitor(props) {
         title: v => `${moment(v).format('MMMDo HH:mm')}`,
         showContent: true,
         domStyles: {
-          'g2-tooltip-list-item': { textAlign: 'left', color: '#333' },
+          'g2-tooltip-list-item': { textAlign: 'left', color: '#151515' },
           'g2-tooltip-title': { color: '#757575' },
         },
       },

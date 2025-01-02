@@ -16,9 +16,9 @@ export default {
   * @param {Object} args 请求参数
   * @param {string} args.fileId 文件id
   * @param {integer} args.type 分享 = 3 ，公开查询=11,填写链接=14, 草稿箱传21
-  * @param {string} args.shareId
+  * @param {string} args.shareId 分享id
   * @param {string} args.worksheetId 工作表id
-  * @param {string} args.rowId 工作表行id
+  * @param {string} args.rowId 工作表行记录id
   * @param {string} args.controlId 控件id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
@@ -27,6 +27,43 @@ export default {
    getAttachmentDetail: function (args, options = {}) {
      
      return mdyAPI('Attachment', 'GetAttachmentDetail', args, options);
+   },
+  /**
+  * 获取文档编辑链接地址
+  * @param {Object} args 请求参数
+  * @param {string} args.fileId 文件id
+  * @param {integer} args.type 分享 = 3 ，公开查询=11,填写链接=14, 草稿箱传21
+  * @param {string} args.shareId 分享id
+  * @param {string} args.worksheetId 工作表id
+  * @param {string} args.rowId 工作表行记录id
+  * @param {string} args.controlId 控件id
+  * @param {string} args.attachmentShareId 附件分享id
+  * @param {string} args.parentWorksheetId 主表id
+子表的清况
+  * @param {string} args.parentRowId 主记录id
+子表的清况
+  * @param {string} args.foreignControlId 主记录子表控件id
+子表的清况
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAttachmentEditDetail: function (args, options = {}) {
+     
+     return mdyAPI('Attachment', 'GetAttachmentEditDetail', args, options);
+   },
+  /**
+  * 水印预览
+  * @param {Object} args 请求参数
+  * @param {object} args.advancedSetting 图片水印配置
+  * @param {string} args.picUrl 图片地址
+  * @param {Object} options 配置参数
+  * @param {Boolean} options.silent 是否禁止错误弹层
+  * @returns {Promise<Boolean, ErrorModel>}
+  **/
+   getAttachmentViewUrlForWaterMark: function (args, options = {}) {
+     
+     return mdyAPI('Attachment', 'GetAttachmentViewUrlForWaterMark', args, options);
    },
   /**
   * 修改链接附件

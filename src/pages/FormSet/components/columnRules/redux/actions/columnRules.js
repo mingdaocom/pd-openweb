@@ -66,6 +66,11 @@ export function addColumnRules() {
     const stateList = getState().formSet;
     let { columnRulesListData = [], activeTab } = stateList;
 
+    if (columnRulesListData.length >= 50) {
+      alert(_l('业务规则数量已达上限（50个）'), 3);
+      return;
+    }
+
     let selectRulesNew = Object.assign({}, originRuleItem);
     // 验证规则
     if (activeTab === 1) {
@@ -190,6 +195,12 @@ export function copyControlRules(rule) {
   return (dispatch, getState) => {
     const stateList = getState().formSet;
     let { worksheetId, columnRulesListData = [] } = stateList;
+
+    if (columnRulesListData.length >= 50) {
+      alert(_l('业务规则数量已达上限（50个）'), 3);
+      return;
+    }
+
     sheetAjax
       .saveControlRule({
         editAttrs: ['copy'],

@@ -142,7 +142,7 @@ class Search extends Component {
             <input
               type="search"
               className="pAll0 Border0 w100"
-              placeholder={viewType == 7 ? _l('搜索') : _l('搜索共%0条', sheetView.count)}
+              placeholder={_.includes([1, 7], viewType) ? _l('搜索') : _l('搜索共%0条', sheetView.count)}
               value={searchVlaue}
               onChange={e => {
                 const { value } = e.target;

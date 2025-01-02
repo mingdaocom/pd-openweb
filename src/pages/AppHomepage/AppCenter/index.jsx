@@ -51,7 +51,7 @@ function AppCenter(props) {
   const [advancedThemes, setAdvancedThemes] = useState([]);
 
   const isWWW = location.host.includes('www.mingdao.com');
-  const themeFileUrlPrefix = `https://filepub.mingdao.com/dashboard/${isWWW ? 'www' : 'meihua'}`;
+  const themeFileUrlPrefix = `https://fp1.mingdaoyun.cn/dashboard/${isWWW ? 'www' : 'meihua'}`;
 
   const currentThemeKey = _.get(platformSetting, 'advancedSetting.themeKey');
   const currentTheme = currentThemeKey
@@ -78,7 +78,7 @@ function AppCenter(props) {
       getMyPermissions(currentProject.projectId, false).then(permissionIds => setMyPermissions(permissionIds));
 
     !md.global.Config.IsLocal &&
-      fetch(`${themeFileUrlPrefix}/themes.js?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 6)}`)
+      fetch(`${themeFileUrlPrefix}/themes.js?${moment().format('YYYY_MM_DD_') + Math.floor(moment().hour() / 24)}`)
         .then(res => res.text())
         .then(res => {
           const data = eval(res) || [];
@@ -216,14 +216,16 @@ function AppCenter(props) {
           backgroundColor: keyStr === 'dashboard' && currentThemeKey ? dashboardColor.bgColor : 'unset',
         }}
       >
-        <SideNav
-          active={keyStr}
-          currentProject={currentProject}
-          countData={countData}
-          dashboardColor={dashboardColor}
-          hasBgImg={keyStr === 'dashboard' && currentThemeKey}
-          myPermissions={myPermissions}
-        />
+        {!(keyStr === 'lib' && !md.global.Config.IsLocal) && (
+          <SideNav
+            active={keyStr}
+            currentProject={currentProject}
+            countData={countData}
+            dashboardColor={dashboardColor}
+            hasBgImg={keyStr === 'dashboard' && currentThemeKey}
+            myPermissions={myPermissions}
+          />
+        )}
         {renderCon()}
       </Con>
     </WaterMark>

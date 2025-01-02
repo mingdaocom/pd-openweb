@@ -6,6 +6,7 @@ import { Icon } from 'ming-ui';
 import cx from 'classnames';
 import './style.less';
 import orderController from 'src/api/order';
+import { getCurrentProject } from 'src/util';
 
 const productList = [5000, 3000, 2000, 1000];
 
@@ -41,9 +42,11 @@ export default class ValueAddService extends Component {
   }
 
   handleInputFocus() {
+    const { licenseType } = getCurrentProject(Config.projectId);
+
     this.setState({
       isInput: true,
-      inputValue: Number(this.state.inputValue) ? this.state.inputValue : 50,
+      inputValue: Number(this.state.inputValue) ? this.state.inputValue : licenseType === 1 ? 200 : 50,
     });
   }
 

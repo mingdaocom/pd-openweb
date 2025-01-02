@@ -16,7 +16,7 @@ export default function Number(props) {
   const { value, minValue = '', maxValue = '', filterType, onChange = () => {}, control } = props;
   return (
     <div className="controlWrapper">
-      <div className="Font14 bold mBottom15">{control.controlName}</div>
+      <div className="Font14 bold mBottom15 controlName">{control.controlName}</div>
       <div>
         {filterType === FILTER_CONDITION_TYPE.BETWEEN ? (
           <div className="flexRow">

@@ -13,6 +13,7 @@ import DialogSettingInviteRules from 'src/pages/Admin/user/membersDepartments/st
 import 'src/components/uploadAttachment/uploadAttachment';
 import _ from 'lodash';
 import { getCurrentProject } from 'src/util';
+import CertificationButton from 'src/pages/certification/CertificationButton';
 
 export default class CommonInfo extends Component {
   constructor(props) {
@@ -31,6 +32,7 @@ export default class CommonInfo extends Component {
       isLoading: false,
       uploadLoading: false,
       showDialogSettingInviteRules: false,
+      authType: 0, //认证类型
     };
   }
 
@@ -49,7 +51,11 @@ export default class CommonInfo extends Component {
   getAllData() {
     this.setState({ isLoading: true });
     Promise.all([this.getSysColor(), this.getSubDomainInfo(), this.getCommonInfo()]).then(
-      ([{ homeImage, logo, isDefaultLogo }, res, { companyDisplayName, companyName, geographyId, industryId }]) => {
+      ([
+        { homeImage, logo, isDefaultLogo },
+        res,
+        { companyDisplayName, companyName, geographyId, industryId, authType },
+      ]) => {
         this.setState(
           {
             homeImage: `${homeImage}?imageView2/2/w/194/h/52/q/90`,
@@ -61,6 +67,7 @@ export default class CommonInfo extends Component {
             industryId,
             isLoading: false,
             isDefaultLogo,
+            authType,
           },
           () => {
             if (Config.project.licenseType === 0) {
@@ -220,6 +227,7 @@ export default class CommonInfo extends Component {
       isLoading,
       allowProjectCodeJoin,
       showDialogSettingInviteRules,
+      authType,
     } = this.state;
     const showInfo = [1, 2, 3].indexOf(visibleType) > -1;
     const { isSuperAdmin } = getCurrentProject(Config.projectId);
@@ -336,6 +344,19 @@ export default class CommonInfo extends Component {
                   <div className="set-describe mTop4">{_l('组织唯一身份编号，用于沟通反馈问题时使用')}</div>
                 </div>
               </div>
+              {!md.global.Config.IsLocal && (
+                <div className="common-info-row mTop24">
+                  <div className="common-info-row-label">{_l('身份认证')}</div>
+                  <div className="common-info-row-content">
+                    <CertificationButton
+                      authType={authType}
+                      projectId={Config.projectId}
+                      onUpdateCertStatus={authType => this.setState({ authType })}
+                    />
+                    <div className="set-describe mTop4">{_l('试用、免费版组织需要完成身份认证后才能充值余额')}</div>
+                  </div>
+                </div>
+              )}
 
               <div className="split-line" />
 

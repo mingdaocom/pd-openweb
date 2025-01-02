@@ -1,4 +1,4 @@
-import React, { useRef, useState, Fragment, useEffect } from 'react';
+import React, { useRef, useState, Fragment, useLayoutEffect } from 'react';
 import { Dropdown, TagTextarea } from 'ming-ui';
 import { Tooltip } from 'antd';
 import InputSuffix from '../components/formula/InputSuffix';
@@ -30,6 +30,13 @@ export default function FormulaDate(props) {
   const dataSource = parseDataSource(data.dataSource);
   const [selectControlVisible, setVisible] = useState(false);
   const $ref = useRef(null);
+
+  useLayoutEffect(() => {
+    if ($ref.current) {
+      $ref.current.setValue(data.dataSource || '');
+    }
+  }, []);
+
   const getCalcDetail = () => {
     if (enumDefault === 1) {
       return (
@@ -52,7 +59,7 @@ export default function FormulaDate(props) {
           </SettingItem>
           <SettingItem>
             <div className="settingItemTitle">{_l('格式化')}</div>
-            <div className="subTitle Font12 Gray_9e">{_l('参与计算的日期未设置时间时，格式化方式为: ')}</div>
+            <div className="subTitle Font12 Gray_9e">{_l('参与计算的日期未设置时间时，格式化方式为:')}</div>
             <Dropdown
               border
               value={strDefault}
@@ -159,12 +166,7 @@ export default function FormulaDate(props) {
           </SettingItem>
           <SettingItem>
             <div className="settingItemTitle">{_l('输出格式')}</div>
-            <Dropdown
-              border
-              value={unit || '3'}
-              data={saveData}
-              onChange={value => onChange({ unit: value })}
-            />
+            <Dropdown border value={unit || '3'} data={saveData} onChange={value => onChange({ unit: value })} />
           </SettingItem>
         </Fragment>
       );
@@ -173,15 +175,7 @@ export default function FormulaDate(props) {
       return <ToTodaySetting {...props} />;
     }
   };
-  useEffect(() => {
-    if ($ref.current) {
-      $ref.current.setValue(data.dataSource || '');
-    }
-    // 为日期加减时间没有小数配置
-    if (enumDefault === 2) {
-      onChange(handleAdvancedSettingChange({ ...data, dot: 0 }, { dot: '0' }));
-    }
-  }, [data.controlId, enumDefault]);
+
   return (
     <Fragment>
       <SwitchType {...props} />
@@ -201,7 +195,7 @@ export default function FormulaDate(props) {
                 enumDefault: value,
                 dataSource: '',
                 sourceControlId: '',
-                unit: value === 2 && !_.includes(['1', '3', '8', '9'], unit) ? '3' : unit,
+                ...(value === '2' ? { unit: !_.includes(['1', '3', '8', '9'], unit) ? '3' : unit, dot: 0 } : {}),
               });
             }}
           />

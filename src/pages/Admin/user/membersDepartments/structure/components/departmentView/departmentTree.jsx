@@ -443,9 +443,9 @@ class DepartmentTree extends React.Component {
     if (_.isEmpty(newDepartments)) {
       return (
         <div className="Gray_9e Font13 mLeft24 mTop16">
-          {_l('暂无部门，可 ')}
+          {_l('暂无部门，可')}
           <span
-            className="Hand"
+            className="Hand mLeft3"
             style={{ color: '#2196F3' }}
             onClick={() => {
               this.props.updateShowExport(true);

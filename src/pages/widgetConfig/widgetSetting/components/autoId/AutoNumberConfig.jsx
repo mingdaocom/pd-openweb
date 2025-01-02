@@ -201,7 +201,7 @@ export default function AutoNumberConfig(props) {
           </div>
         </SettingItem>
         <div className="hint">
-          <span>{_l('修改后将使用新的初始值重新编号 ')}</span>
+          <span>{_l('修改后将使用新的初始值重新编号')}</span>
           {rule.start && (
             <span
               className="clickable"

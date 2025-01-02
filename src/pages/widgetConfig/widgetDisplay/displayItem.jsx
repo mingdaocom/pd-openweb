@@ -242,19 +242,16 @@ export default function DisplayItem(props) {
       const $scrollWrap = $contentWrap && $contentWrap.querySelector('.nano-content');
 
       if ($scrollWrap) {
-        if (clientY - height <= 0) {
+        if (clientY <= 60) {
           if ($scrollWrap.scrollTop <= height / 2) return;
           $scrollWrap.scrollTo({
-            top: clientY - height <= -30 ? 0 : $scrollWrap.scrollTop - 5 * height,
+            top: $scrollWrap.scrollTop - 4 * height,
             behavior: 'smooth',
           });
-        } else if (clientY >= $scrollWrap.clientHeight - DRAG_DISTANCE.VERTICAL) {
+        } else if (clientY >= $scrollWrap.clientHeight) {
           if ($scrollWrap.scrollHeight - $scrollWrap.scrollTop - $scrollWrap.clientHeight <= height / 2) return;
           $scrollWrap.scrollTo({
-            top:
-              clientY - $scrollWrap.clientHeight > 30
-                ? $scrollWrap.scrollHeight - $scrollWrap.clientHeight
-                : $scrollWrap.scrollTop + 6 * height,
+            top: $scrollWrap.scrollTop + 4 * height,
             behavior: 'smooth',
           });
         }
@@ -501,6 +498,7 @@ export default function DisplayItem(props) {
           isBatchActive={isBatchActive}
           handleOperate={handleOperate}
           onChange={onChange}
+          rest={props}
         />
       )}
       {['top', 'bottom', 'view_top'].includes(dirLocation) && (

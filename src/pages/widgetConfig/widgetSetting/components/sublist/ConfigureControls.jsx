@@ -11,9 +11,10 @@ import SubControlConfig from './SubControlConfig';
 import SelectSheetFromApp from '../SelectSheetFromApp';
 import SelectDataSource from '../SelectDataSource';
 import { DEFAULT_CONFIG, DEFAULT_DATA, WIDGET_GROUP_TYPE } from '../../../config/widget';
-import { enumWidgetType, getWidgetInfo } from '../../../util';
+import { enumWidgetType, getWidgetInfo, checkWidgetMaxNumErr } from '../../../util';
 import { handleAdvancedSettingChange } from '../../../util/setting';
 import worksheetAjax from 'src/api/worksheet';
+import { addCustomDialog } from '../CustomWidget/AddCustomDialog';
 import _ from 'lodash';
 
 const AllWidgetsWrap = styled.div`
@@ -24,6 +25,13 @@ const AllWidgetsWrap = styled.div`
   .ming.Item.widgetMenuItem {
     height: 36px;
     line-height: 36px;
+    &:hover {
+      .icon-custom-01 {
+        color: #fff !important;
+        background: unset;
+        -webkit-text-fill-color: unset;
+      }
+    }
   }
   .ming.Menu {
     width: 100%;
@@ -129,7 +137,8 @@ const SortableItem = ({ item, deleteWidget, configureWidget, DragHandle }) => {
   );
 };
 
-export default function ConfigureControl({ data, globalSheetInfo, controls, onChange, ...rest }) {
+export default function ConfigureControl(props) {
+  const { data, globalSheetInfo, controls, onChange, ...rest } = props;
   const { appId } = globalSheetInfo;
   const $ref = useRef(null);
   const $wrap = useRef(null);
@@ -188,6 +197,11 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                         alert(_l('最多添加100个字段'), 3);
                         return;
                       }
+                      const err = checkWidgetMaxNumErr(data, controls);
+                      if (err) {
+                        alert(err, 3);
+                        return;
+                      }
                       if (type === 35) {
                         setVisible({ selectCascadeDataSourceVisible: true });
                         return;
@@ -233,6 +247,20 @@ export default function ConfigureControl({ data, globalSheetInfo, controls, onCh
                               return;
                             }
                             alert(_l('没有选择工作表'), 3);
+                          },
+                        });
+                        return;
+                      }
+                      if (type === 54) {
+                        setValue(false);
+                        addCustomDialog({
+                          ...props,
+                          data,
+                          onOk: nextData => {
+                            addControl(nextData);
+                          },
+                          onCancel: () => {
+                            handleDeleteWidget(controls.length);
                           },
                         });
                         return;

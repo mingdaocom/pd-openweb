@@ -20,7 +20,7 @@ const TYPES = {
 
 const getBatchNoticeDescription = ({ finished, total, failed, executeType }) => {
   if (finished === total) {
-    return `${_l('执行完成! ')}\n${failed > 0 ? _l('%0条失败', failed) : ''}`;
+    return `${_l('执行完成!')}\n${failed > 0 ? _l('%0条失败', failed) : ''}`;
   } else {
     return executeType === 2 && finished === 0
       ? _l(

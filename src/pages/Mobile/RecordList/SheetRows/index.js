@@ -1,6 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import { connect } from 'react-redux';
-import { Icon } from 'ming-ui';
+import { Icon, PullToRefreshWrapper } from 'ming-ui';
 import { bindActionCreators } from 'redux';
 import { SpinLoading } from 'antd-mobile';
 import CustomRecordCard from 'mobile/RecordList/RecordCard';
@@ -38,6 +38,10 @@ class SheetRows extends Component {
       this.props.changePageIndex();
     }
   };
+  handlePullToRefresh = () => {
+    this.props.updateIsPullRefreshing(true)
+    this.props.changePageIndex(1)
+  }
   renderRow = item => {
     const { worksheetControls, base, view, worksheetInfo, batchOptVisible, batchOptCheckedData, sheetSwitchPermit } =
       this.props;
@@ -48,6 +52,7 @@ class SheetRows extends Component {
         data={item}
         view={view}
         appId={base.appId}
+        projectId={worksheetInfo.projectId}
         controls={worksheetControls}
         allowAdd={worksheetInfo.allowAdd}
         batchOptVisible={batchOptVisible}
@@ -66,13 +71,13 @@ class SheetRows extends Component {
             return;
           }
 
-          if (window.isMingDaoApp && !window.shareState.shareId) {
-            const { appId, worksheetId, viewId } = this.props;
-            window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
-              item.rowid
-            }`;
-            return;
-          }
+          // if (window.isMingDaoApp && !window.shareState.shareId) {
+          //   const { appId, worksheetId, viewId } = this.props;
+          //   window.location.href = `/mobile/record/${base.appId}/${base.worksheetId}/${base.viewId || view.viewId}/${
+          //     item.rowid
+          //   }`;
+          //   return;
+          // }
           if (browserIsMobile()) {
             handlePushState('page', 'recordDetail');
             this.setState({
@@ -95,17 +100,20 @@ class SheetRows extends Component {
       sheetSwitchPermit,
       worksheetInfo = {},
     } = this.props;
+
     return (
       <Fragment>
         <ScrollView className="sheetRowsWrapper flex pTop10" onScrollEnd={this.handleEndReached}>
-          {currentSheetRows.map(item => this.renderRow(item))}
-          {sheetView.isMore ? (
-            <div className="flexRow justifyContentCenter">
-              {sheetRowLoading ? <SpinLoading color="primary" /> : null}
-            </div>
-          ) : (
-            <div className="Height50 mBottom5"></div>
-          )}
+          <PullToRefreshWrapper onRefresh={this.handlePullToRefresh}>
+            {currentSheetRows.map(item => this.renderRow(item))}
+            {sheetView.isMore ? (
+              <div className="flexRow justifyContentCenter">
+                {sheetRowLoading ? <SpinLoading color="primary" /> : null}
+              </div>
+            ) : (
+              <div className="Height50 mBottom5"></div>
+            )}
+          </PullToRefreshWrapper>
         </ScrollView>
         <RecordInfoModal
           className="full"
@@ -116,7 +124,7 @@ class SheetRows extends Component {
           viewId={base.viewId || view.viewId}
           rowId={previewRecordId}
           sheetSwitchPermit={sheetSwitchPermit}
-          canLoadNextRecord={true}
+          canLoadSwitchRecord={true}
           currentSheetRows={currentSheetRows}
           loadNextPageRecords={this.props.changePageIndex}
           loadedRecordsOver={!(!sheetRowLoading && sheetView.isMore)}
@@ -134,9 +142,11 @@ class SheetRows extends Component {
 
 export const WithoutRows = props => {
   return (
-    <div className="withoutRows flexColumn alignItemsCenter justifyContentCenter">
-      <img className="img mBottom10" src={withoutRows} />
-      <div className="text">{props.text}</div>
+    <div className="withoutRows">
+      <div className="withoutRowsContent flexColumn alignItemsCenter justifyContentCenter h100">
+        <img className="img mBottom10" src={withoutRows} />
+        <div className="text">{props.text}</div>
+      </div>
     </div>
   );
 };
@@ -163,5 +173,5 @@ export default connect(
     sheetSwitchPermit: state.mobile.sheetSwitchPermit,
   }),
   dispatch =>
-    bindActionCreators(_.pick(actions, ['changePageIndex', 'changeBatchOptData', 'changeMobileSheetRows']), dispatch),
+    bindActionCreators(_.pick(actions, ['changePageIndex', 'changeBatchOptData', 'changeMobileSheetRows', 'updateIsPullRefreshing']), dispatch),
 )(SheetRows);

@@ -20,7 +20,7 @@ const SetInitialPassword = styled.div`
     position: relative;
     .passwordlabel {
       font-size: 13px;
-      color: #333;
+      color: #151515;
     }
     .password {
       width: 320px;
@@ -90,9 +90,8 @@ export default class IntegrationSetPassword extends Component {
   // 保存密码
   savePassword = () => {
     let { password } = this.state;
-    const { passwordRegex } = md.global.SysSettings;
 
-    if (RegExpValidator.isPasswordValid(password, passwordRegex)) {
+    if (RegExpValidator.isPasswordValid(password)) {
       this.setState({ passwordError: false });
       this.changeInitialPassword(password);
     } else {

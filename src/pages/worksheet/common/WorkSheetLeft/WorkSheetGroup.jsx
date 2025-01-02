@@ -3,6 +3,7 @@ import { Icon, Tooltip, SvgIcon } from 'ming-ui';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
 import WorkSheetItem, { convertColor } from './WorkSheetItem';
+import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
 import MoreOperation from './MoreOperation';
 import Drag from './Drag';
 import { getTranslateInfo } from 'src/util';
@@ -28,6 +29,7 @@ export default function WorkSheetGroup(props) {
   const [isDrag, setIsDrag] = useState(false);
   const isActive = !childrenVisible && isCurrentChildren;
   const showIcon = currentPcNaviStyle === 3 && hideFirstSection && appItem.firstGroupIndex === 0 ? true : displayIcon.split('')[1] === '1';
+  const isEditApp = canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock']));
 
   useEffect(() => {
     if (!sheetListVisible) {
@@ -160,7 +162,7 @@ export default function WorkSheetGroup(props) {
             >
               {workSheetName}
             </span>
-            {renderIcon()}
+            {isEditApp && renderIcon()}
           </div>
           {isCharge && (
             <MoreOperation {...props} isGroup>

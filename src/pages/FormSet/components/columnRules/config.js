@@ -12,6 +12,7 @@ import {
   DATE_OPTIONS,
   DEFAULT_COLUMNS,
   getControlSelectType,
+  DATE_RANGE_TYPE_OPTIONS,
 } from 'src/pages/worksheet/common/WorkSheetFilter/enum.js';
 import { getIconByType, getSwitchItemNames, isSheetDisplay } from 'src/pages/widgetConfig/util';
 import { WIDGETS_TO_API_TYPE_ENUM, SYS_CONTROLS, SYS } from 'pages/widgetConfig/config/widget';
@@ -145,7 +146,7 @@ function filterDropDown(controls = [], actionType) {
   // 公式 汇总 文本组合 自动编号 他表字段 分割线 大写金额 备注 文本识别
   let filterControls = [];
   if (_.includes([3, 4, 5], actionType)) {
-    filterControls.push(31, 38, 37, 32, 33, 30, 22, 25, 45, 47, 51, 53, 10010);
+    filterControls.push(31, 38, 37, 32, 33, 30, 22, 25, 45, 47, 51, 53, 54, 10010);
     if (actionType === 5) {
       filterControls.push(43, 49);
     }
@@ -375,16 +376,20 @@ export const filterText = (key, filterData, control) => {
         return filterData.value;
       }
     case CONTROL_FILTER_WHITELIST.DATE.value:
-      const { dateRange, value } = filterData;
-      const { formatMode } = getDatePickerConfigs(control);
+      const { dateRange, value, dateRangeType } = filterData;
       if (!!filterData.minValue && !!filterData.maxValue) {
+        const { formatMode } = getDatePickerConfigs(control);
         return `${moment(filterData.minValue).format(formatMode)} - ${moment(filterData.maxValue).format(formatMode)}`;
-      } else if (dateRange === 10) {
-        return _l('过去%0天', value);
-      } else if (dateRange === 11) {
-        return _l('将来%0天', value);
+      } else if (_.includes([10, 101, 11, 102], dateRange)) {
+        const isFeature = _.includes([11, 102], dateRange);
+        const rangeText =
+          _.get(
+            _.find(DATE_RANGE_TYPE_OPTIONS, d => d.value === dateRangeType),
+            'text',
+          ) || _l('天');
+        return _.isUndefined(value) || value === '' ? '' : `${isFeature ? _l('将来') : _l('过去')}${value}${rangeText}`;
       } else if (dateRange === 18) {
-        return moment(value).format(formatMode);
+        return value;
       } else if (!dateRange) {
         return '';
       } else {
@@ -393,7 +398,7 @@ export const filterText = (key, filterData, control) => {
         })[0].text;
       }
     case CONTROL_FILTER_WHITELIST.TIME.value:
-      const formatStr = control.unit === '1' ? 'HH:mm' : 'HH:mm:ss';
+      const formatStr = _.includes(['1', '8'], control.unit) ? 'HH:mm' : 'HH:mm:ss';
       if (!!filterData.minValue && !!filterData.maxValue) {
         return `${moment(filterData.minValue, formatStr).format(formatStr)} - ${moment(
           filterData.maxValue,
@@ -485,12 +490,14 @@ export const filterDataRelationText = (dynamicSource = [], columns, sourceContro
       id = item.cid;
       rName = '';
       let contrls = list.find(it => id === it.controlId);
-      data.data.push({
-        name: contrls ? contrls.controlName : '',
-        id: item.cid,
-        rName: item.rcid === 'parent' ? _l('主记录') : rName,
-        type,
-      });
+      if (item.cid) {
+        data.data.push({
+          name: contrls ? contrls.controlName : '',
+          id: item.cid,
+          rName: _.includes(['url'], item.rcid) ? item.rcid : item.rcid === 'parent' ? _l('主记录') : rName,
+          type,
+        });
+      }
     });
   }
   return data;

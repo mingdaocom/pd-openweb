@@ -43,11 +43,12 @@ export const compareProps = (current = {}, next = {}, props = Object.keys(curren
 };
 
 // 应用的状态
-export const getAppStatusText = ({ isGoodsStatus, isNew, fixed, isUpgrade }) => {
+export const getAppStatusText = ({ isGoodsStatus, isNew, fixed, isUpgrade, appStatus }) => {
   if (!isGoodsStatus) return _l('过期');
   if (isUpgrade) return _l('升级中');
   if (fixed) return _l('维护中%01018');
   if (isNew) return _l('新 !');
+  if (appStatus === 12) return _l('迁移中');
   return null;
 };
 

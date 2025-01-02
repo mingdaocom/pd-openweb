@@ -54,7 +54,8 @@ function SubmitFormSetting(props) {
       .editWorksheetSetting({
         workSheetId: worksheetId,
         appId: appId,
-        advancedSetting: newValues,
+        advancedSetting: data,
+        editAdKeys: Object.keys(data),
       })
       .then(res => {
         if (!res) {

@@ -150,7 +150,7 @@ class StructureContent extends Component {
     const { selectedAccountIds } = this.props;
 
     Dialog.confirm({
-      title: _l(' 重新邀请'),
+      title: _l('重新邀请'),
       description: (
         <div className="Gray">
           {_l('您共勾选了')} <span className="ThemeColor"> {selectedAccountIds.length} </span> {_l('个用户')}

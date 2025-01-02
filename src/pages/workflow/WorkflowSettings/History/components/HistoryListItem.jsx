@@ -21,9 +21,11 @@ export default ({
   batchIds,
   onUpdateBatchIds,
   isPlugin,
+  instanceType,
 }) => {
+  const isDelete = instanceType === -1;
   const { cause, nodeName, causeMsg } = instanceLog;
-  const { color } = STATUS2COLOR[FLOW_STATUS[status].status];
+  const { color } = STATUS2COLOR[FLOW_STATUS[isDelete ? -1 : status].status];
   const displayedDate = moment(createDate);
   const [isRetry, setRetry] = useState(false);
   const [versionDate, setVersion] = useState('');
@@ -32,22 +34,24 @@ export default ({
   const showSuspend = status === 1;
 
   return (
-    <li className="historyListItem" onClick={() => onClick(id)}>
+    <li className="historyListItem" onClick={() => !isDelete && onClick(id)}>
       {isRetry && <div className="workflowRetryLoading" />}
       <div className="batch">
-        {status === 2 || cause === 7777 ? null : (
+        {status === 2 || cause === 7777 || isDelete ? null : (
           <Checkbox
             checked={!!batchIds.find(o => o.id === id)}
             onClick={(checked, value, e) => {
               e.stopPropagation();
-              onUpdateBatchIds(!checked ? batchIds.concat({ id, status, cause }) : batchIds.filter(o => o.id !== id));
+              onUpdateBatchIds(
+                !checked ? batchIds.concat({ id, status, cause, instanceType }) : batchIds.filter(o => o.id !== id),
+              );
             }}
           />
         )}
       </div>
       <div className={cx('status', status)}>
         <div className="iconWrap">
-          <HistoryStatus statusCode={status} />
+          <HistoryStatus statusCode={isDelete ? -1 : status} />
         </div>
       </div>
       <div className="triggerData flex overflow_ellipsis Font14 ">{title}</div>
@@ -60,7 +64,7 @@ export default ({
               ? FLOW_FAIL_REASON[cause]
               : !nodeName
               ? FLOW_FAIL_REASON[cause] || causeMsg
-              : `${_l('节点: ')} ${nodeName}, ${
+              : `${_l('节点:')} ${nodeName}, ${
                   cause === 7777 ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg
                 }`
             : ''
@@ -71,26 +75,28 @@ export default ({
             ? FLOW_FAIL_REASON[cause]
             : !nodeName
             ? FLOW_FAIL_REASON[cause] || causeMsg
-            : `${_l('节点: ')} ${nodeName}, ${
+            : `${_l('节点:')} ${nodeName}, ${
                 cause === 7777 ? _l('过期自动中止') : FLOW_FAIL_REASON[cause] || causeMsg
               }`
           : ''}
+
+        {isDelete && _l('已删除')}
       </div>
       <div className="triggerTime Gray_75">
         {displayedDate.isValid() ? displayedDate.format('YYYY-MM-DD HH:mm:ss') : ''}
       </div>
 
       <div className="retry">
-        {(showRetry || showSuspend) && (
+        {(isDelete || showRetry || showSuspend) && (
           <span
-            data-tip={showRetry ? _l('重试') : _l('中止')}
+            data-tip={isDelete ? _l('恢复') : showRetry ? _l('重试') : _l('中止')}
             onClick={e => {
               e.stopPropagation();
               if (isRetry) return;
 
               setRetry(true);
 
-              (showRetry ? instanceVersion.resetInstance : instanceVersion.endInstance)({ instanceId: id })
+              (isDelete || showRetry ? instanceVersion.resetInstance : instanceVersion.endInstance)({ instanceId: id })
                 .then(res => {
                   onUpdateBatchIds(
                     batchIds.map(o => {
@@ -110,7 +116,10 @@ export default ({
                 });
             }}
           >
-            <Icon className="Font16 pointer ThemeHoverColor3 Block Gray_75" icon={showRetry ? 'replay' : 'delete'} />
+            <Icon
+              className="Font16 pointer ThemeHoverColor3 Block Gray_75"
+              icon={isDelete || showRetry ? 'replay' : 'delete'}
+            />
           </span>
         )}
       </div>

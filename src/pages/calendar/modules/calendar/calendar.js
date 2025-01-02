@@ -109,7 +109,9 @@ Calendar.Method = {
           }
 
           var pageX = jsEvent.clientX;
-          var pageY = window.isChrome ? jsEvent.clientY + document.body.scrollTop : jsEvent.clientY + document.documentElement.scrollTop;
+          var pageY = window.isChrome
+            ? jsEvent.clientY + document.body.scrollTop
+            : jsEvent.clientY + document.documentElement.scrollTop;
           var gapRight = $(window).width() - pageX; // 离右边距离
           var calhoverWidth = 360;
 
@@ -135,18 +137,23 @@ Calendar.Method = {
         if (!event.isTask) {
           if (
             Calendar.Comm.settings.otherUsers.length > 1 ||
-            (Calendar.Comm.settings.otherUsers.length == 1 && Calendar.Comm.settings.otherUsers[0] != md.global.Account.accountId)
+            (Calendar.Comm.settings.otherUsers.length == 1 &&
+              Calendar.Comm.settings.otherUsers[0] != md.global.Account.accountId)
           ) {
-            $fcTitle.prepend('<img src="' + event.head + '" style="width:14px;margin-top: 1px; height:14px;margin-bottom:-2px;padding-right: 3px;"/>');
+            $fcTitle.prepend(
+              '<img src="' +
+                event.head +
+                '" style="width:14px;margin-top: 1px; height:14px;margin-bottom:-2px;padding-right: 3px;"/>',
+            );
           }
         } else {
           var taskID = event.eventID;
           $fcTitle.prepend(
-            '<span class="icon-calendartask" data-endtime="' + moment(event.end._i).format('HH:mm') + '" style="width:14px;display: inline-block;height:14px;margin: 1px 3px -2px 0;font-size: 16px;vertical-align: top;"> </span>'
+            '<span class="icon-calendartask" data-endtime="' +
+              moment(event.end._i).format('HH:mm') +
+              '" style="width:14px;display: inline-block;height:14px;margin: 1px 3px -2px 0;font-size: 16px;vertical-align: top;"> </span>',
           );
-          $(element)
-            .find('.fc-resizer')
-            .remove();
+          $(element).find('.fc-resizer').remove();
         }
       },
       loading: function (isLoading, view) {
@@ -190,9 +197,7 @@ Calendar.Method = {
 
         if (multiSelectDay) {
           // 全天事件多选 日期处理
-          settings.End = moment(settings.End)
-            .add(-1, 'day')
-            .format(); // 处理多选的日期多一天
+          settings.End = moment(settings.End).add(-1, 'day').format(); // 处理多选的日期多一天
           settings.AllDay = true;
         }
 
@@ -233,12 +238,8 @@ Calendar.Method = {
                 // 全天事件
                 if (date.format() !== moment(new Date()).format('YYYY-MM-DD')) {
                   // 非当天
-                  settings.Start = moment(date)
-                    .set('hour', 10)
-                    .format('YYYY-MM-DD HH:mm:ss');
-                  settings.End = moment(date)
-                    .set('hour', 11)
-                    .format('YYYY-MM-DD HH:mm:ss'); // 结束时间计算
+                  settings.Start = moment(date).set('hour', 10).format('YYYY-MM-DD HH:mm:ss');
+                  settings.End = moment(date).set('hour', 11).format('YYYY-MM-DD HH:mm:ss'); // 结束时间计算
                   settings.AllDay = true;
                 }
               } else {
@@ -286,7 +287,11 @@ Calendar.Method = {
       // “列表”按钮不存在
       $fcHeaderCenter
         .find('.fc-button-group')
-        .append('<button type="button" class="fc-button fc-list-button fc-state-default fc-corner-right" unselectable="on">' + _l('列表') + '</button>');
+        .append(
+          '<button type="button" class="fc-button fc-list-button fc-state-default fc-corner-right" unselectable="on">' +
+            _l('列表') +
+            '</button>',
+        );
     }
 
     // 点击切换视图
@@ -302,13 +307,9 @@ Calendar.Method = {
         } else {
           // 点击的不是列表选项
           $('#calendar').fullCalendar('render');
-          $('#calendar')
-            .find('.fc-view-container')
-            .show();
+          $('#calendar').find('.fc-view-container').show();
           $('#calendarList').hide();
-          $('#calendar')
-            .find('.fc-left')
-            .show();
+          $('#calendar').find('.fc-left').show();
         }
 
         if ($(this).hasClass('fc-agendaDay-button')) {
@@ -326,10 +327,7 @@ Calendar.Method = {
           safeLocalStorageSetItem('lastView', 'month');
         }
 
-        $(this)
-          .addClass('fc-state-active')
-          .siblings()
-          .removeClass('fc-state-active'); // 当前添加样式，移除同级下面的样式
+        $(this).addClass('fc-state-active').siblings().removeClass('fc-state-active'); // 当前添加样式，移除同级下面的样式
 
         Calendar.Method.editViewStyle(); // 视图样式调整
         Calendar.Method.rememberClickRefresh(); // 刷新视图
@@ -339,10 +337,8 @@ Calendar.Method = {
     $('.fc-list-button').bind('refreshList', function () {
       Calendar.Method.calendarList(
         moment().format('YYYY-MM-DD HH:mm:ss'),
-        moment()
-          .add('2', 'months')
-          .format('YYYY-MM-01'),
-        true
+        moment().add('2', 'months').format('YYYY-MM-01'),
+        true,
       ); // 刷新列表视图数据
     });
 
@@ -350,7 +346,9 @@ Calendar.Method = {
     var fcToolbar = $('.fc-toolbar');
     if (fcToolbar.children('.addNewCalendarBox').length == 0) {
       fcToolbar.prepend(
-        '<div class="addNewCalendarBox ThemeBGColor3 ThemeHoverBGColor2" id="addNewCalendar"><i class="icon-plus"></i>' + _l('新日程') + '</div>'
+        '<div class="addNewCalendarBox ThemeBGColor3 ThemeHoverBGColor2" id="addNewCalendar"><i class="icon-plus"></i>' +
+          _l('新日程') +
+          '</div>',
       );
     }
 
@@ -363,7 +361,11 @@ Calendar.Method = {
         mousemove: function (event) {
           clearTimeout(hoverTitleTimer);
           $('.hoverTitleMessage,.showActiveTitleMessage').hide();
-          if (Calendar.Method.detectLeftButton(event) || $(event.target).hasClass('fc-axis') || $(event.target).closest('.fc-axis').length) {
+          if (
+            Calendar.Method.detectLeftButton(event) ||
+            $(event.target).hasClass('fc-axis') ||
+            $(event.target).closest('.fc-axis').length
+          ) {
             return;
           }
           var pointX = event.clientX;
@@ -387,7 +389,7 @@ Calendar.Method = {
           $('.hoverTitleMessage,.showActiveTitleMessage').hide();
         },
       },
-      '.fc-view tbody:first'
+      '.fc-view tbody:first',
     );
 
     // 鼠标经过title显示title内容
@@ -404,7 +406,12 @@ Calendar.Method = {
       hoverTitleTimer = setTimeout(function () {
         var title = $this.find('.fc-title').html();
         if (title) {
-          if (!(title.indexOf(_l('全天')) > 0 || (!$this.find('.fc-time').length && title.indexOf('icon-calendartask') < 0))) {
+          if (
+            !(
+              title.indexOf(_l('全天')) > 0 ||
+              (!$this.find('.fc-time').length && title.indexOf('icon-calendartask') < 0)
+            )
+          ) {
             if (title.indexOf('icon-calendartask') > 0) {
               // 任务
               title = $this.find('.icon-calendartask').attr('data-endtime') + ' ' + title.split('</span>')[1];
@@ -445,18 +452,13 @@ Calendar.Method = {
     $container.on(
       {
         mouseover: function () {
-          $(this).css(
-            'background',
-            $(this)
-              .attr('data-hoverBgColor')
-              .split(':')[1]
-          );
+          $(this).css('background', $(this).attr('data-hoverBgColor').split(':')[1]);
         },
         mouseout: function () {
           $(this).css('background', 'none');
         },
       },
-      '.notAllDayOver'
+      '.notAllDayOver',
     );
 
     // 创建日程
@@ -471,7 +473,7 @@ Calendar.Method = {
       },
       function () {
         $(this).removeClass('ThemeBGColor3');
-      }
+      },
     );
     $('.fc-today-button').on('click', function () {
       $(this).removeClass('ThemeBGColor3');
@@ -500,17 +502,13 @@ Calendar.Method = {
       parameter.currentView = 'agendaDay';
       Calendar.Method.calendarList(
         moment().format('YYYY-MM-DD HH:mm:ss'),
-        moment()
-          .add('2', 'months')
-          .format('YYYY-MM-01'),
-        true
+        moment().add('2', 'months').format('YYYY-MM-01'),
+        true,
       ); // 添加列表数据
       $('#calendar').fullCalendar('destroy');
       Calendar.Method.loadFullCalendar(parameter);
 
-      $('#calendar')
-        .find('.fc-view-container,.fc-left')
-        .hide();
+      $('#calendar').find('.fc-view-container,.fc-left').hide();
       $('#calendarList').css('display', 'block');
       $('#calendar').fullCalendar('getView').name = 'list';
     } else {
@@ -543,14 +541,7 @@ Calendar.Method = {
       $('.fewWeeks').remove();
 
       $('.fc-toolbar .fc-left h2').append(
-        ' <span class="fewWeeks">' +
-        _l(
-          '第%0周',
-          $('#calendar')
-            .fullCalendar('getDate')
-            .weeks()
-        ) +
-        '</span>'
+        ' <span class="fewWeeks">' + _l('第%0周', $('#calendar').fullCalendar('getDate').weeks()) + '</span>',
       );
     }
 
@@ -570,11 +561,7 @@ Calendar.Method = {
 
       if (viewName == 'agendaWeek') {
         $('.fc-day-header').each(function () {
-          if (
-            $(this)
-              .css('border-bottom-color')
-              .indexOf('rgb(255, 153, 153)') >= 0
-          ) {
+          if ($(this).css('border-bottom-color').indexOf('rgb(255, 153, 153)') >= 0) {
             isToday = true;
           }
         });
@@ -605,7 +592,9 @@ Calendar.Method = {
         });
 
       setTimeout(() => {
-        $('.fc-time-grid-container.fc-scroller').scrollTop((moment().hour() + 2) * 40 - $('.fc-time-grid-container.fc-scroller').height() / 2);
+        $('.fc-time-grid-container.fc-scroller').scrollTop(
+          (moment().hour() + 2) * 40 - $('.fc-time-grid-container.fc-scroller').height() / 2,
+        );
       }, 100);
     }
 
@@ -622,10 +611,7 @@ Calendar.Method = {
     }
 
     if (viewName == 'list') {
-      $('.fc-list-button')
-        .addClass('fc-state-active')
-        .siblings()
-        .removeClass('fc-state-active'); // 当前添加样式，移除同级下面的样式
+      $('.fc-list-button').addClass('fc-state-active').siblings().removeClass('fc-state-active'); // 当前添加样式，移除同级下面的样式
     }
 
     // 日周视图滚动条处理
@@ -690,9 +676,7 @@ Calendar.Method = {
 
       if (isAllDay) {
         starDate = starDate.split(' ')[0];
-        endDate = moment(event.end)
-          .day(-1)
-          .format('YYYY-MM-DD');
+        endDate = moment(event.end).day(-1).format('YYYY-MM-DD');
       }
 
       calendarAjax
@@ -719,9 +703,13 @@ Calendar.Method = {
     };
 
     recurCalendarUpdate(
-      { operatorTitle: _l('您确定更改日程信息吗?'), recurTitle: _l('您确定编辑重复日程吗?'), recurCalendarUpdateFun: editCalendaTimeFun },
+      {
+        operatorTitle: _l('您确定更改日程信息吗?'),
+        recurTitle: _l('您确定编辑重复日程吗?'),
+        recurCalendarUpdateFun: editCalendaTimeFun,
+      },
       { originRecur: event.isRecur, isChildCalendar: event.isChildCalendar },
-      { directRun, callback: revertFunc }
+      { directRun, callback: revertFunc },
     );
   },
 
@@ -899,17 +887,13 @@ Calendar.Method = {
           var data = resource.data;
           data.isFirst = isFirst;
           data.colorClass = Calendar.Method.colorClass;
-          var queryend = moment(endDate2)
-            .add(1, 'M')
-            .format('YYYY-MM-DD');
+          var queryend = moment(endDate2).add(1, 'M').format('YYYY-MM-DD');
           if (isFirst) {
             data.queryEnd = queryend;
             var nowDate = CurrentDate;
-            data.dateTime = _l(' %0年%1月%2日', nowDate.getFullYear(), nowDate.getMonth() + 1, nowDate.getDate());
+            data.dateTime = ' ' + _l('%0年%1月%2日', nowDate.getFullYear(), nowDate.getMonth() + 1, nowDate.getDate());
             var days = [0, 1, 2, 3, 4, 5, 6].map(function (item) {
-              return moment()
-                .day(item)
-                .format('dddd');
+              return moment().day(item).format('dddd');
             });
             data.dateWeek = days[nowDate.getDay()];
             $('#calendar')
@@ -929,7 +913,9 @@ Calendar.Method = {
             }
             $('#calendarListMoreData').html(queryend);
             if (data.calendars) {
-              $('#calendarList .calendarListMore').before(Calendar.Comm.doT.template(listHtml)(Object.assign({}, data, { moment })));
+              $('#calendarList .calendarListMore').before(
+                Calendar.Comm.doT.template(listHtml)(Object.assign({}, data, { moment })),
+              );
             }
           }
         }
@@ -973,7 +959,9 @@ Calendar.Event = function () {
     .on('click', '.calendarListModel li', function (event) {
       var $el = $(this);
       var pageX = event.clientX;
-      var pageY = window.isChrome ? event.clientY + document.body.scrollTop : event.clientY + document.documentElement.scrollTop;
+      var pageY = window.isChrome
+        ? event.clientY + document.body.scrollTop
+        : event.clientY + document.documentElement.scrollTop;
       var gapRight = $(window).width() - pageX; // 离右边距离
       var calhoverWidth = 360;
       var isTask = $el.data('istask');
@@ -995,7 +983,7 @@ Calendar.Event = function () {
             moment().format('YYYY-MM-DD HH:mm:ss'),
             moment($('.calendarListMore a').attr('queryend')).format('YYYY-MM-DD'),
             true,
-            $('.calendarList').scrollTop()
+            $('.calendarList').scrollTop(),
           );
         },
       });
@@ -1005,13 +993,7 @@ Calendar.Event = function () {
       var restCalCount = $(this).attr('restCalCount');
 
       if (parseInt(restCalCount, 10) > 0) {
-        Calendar.Method.calendarList(
-          moment(startDate2)
-            .add('month', -1)
-            .format('YYYY-MM-DD'),
-          startDate2,
-          false
-        );
+        Calendar.Method.calendarList(moment(startDate2).add('month', -1).format('YYYY-MM-DD'), startDate2, false);
       }
     });
 
@@ -1027,16 +1009,12 @@ Calendar.Event = function () {
 
 Calendar.Export = {
   init: function () {
-    CurrentDate = new Date(
-      moment().format()
-    );
+    CurrentDate = new Date(moment().format());
     Calendar.Method.init();
     Calendar.Event();
 
     setInterval(function () {
-      CurrentDate = new Date(
-        moment().format()
-      );
+      CurrentDate = new Date(moment().format());
     }, 6000);
   },
   rememberClickRefresh: Calendar.Method.rememberClickRefresh,

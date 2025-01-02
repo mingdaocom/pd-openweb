@@ -8,7 +8,7 @@ import _ from 'lodash';
 import { controlState } from 'src/components/newCustomFields/tools/utils';
 import { openRecordInfo } from 'worksheet/common/recordInfo';
 import addRecord from 'worksheet/common/newRecord/addRecord';
-import { RELATION_SEARCH_SHOW_TYPE, controlName } from 'worksheet/constants/enum';
+import { RECORD_INFO_FROM, RELATION_SEARCH_SHOW_TYPE, controlName } from 'worksheet/constants/enum';
 import { FlexCenter } from 'worksheet/components/Basics';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import sheetAjax from 'src/api/worksheet';
@@ -31,7 +31,7 @@ const Con = styled.div`
 
 const RecordText = styled.div`
   display: inline-block;
-  color: #333;
+  color: #151515;
   font-size: 13px;
   line-height: 20px;
   white-space: break-spaces;
@@ -51,7 +51,7 @@ const RecordTextAdd = styled(FlexCenter)`
   display: inline-flex;
   width: 20px;
   height: 20px;
-  color: #333;
+  color: #151515;
   font-size: 13px;
   background: #f7f6f8;
   color: #9d9d9d;
@@ -338,8 +338,7 @@ function RelationSearch(props) {
     controlPermission.editable &&
     enumDefault2 !== 1 &&
     enumDefault2 !== 11 &&
-    !window.isPublicWorksheet &&
-    !isDraft;
+    !window.isPublicWorksheet;
   const loadRecords = async (pageIndex = 1) => {
     let relationControls = [...controls];
     setState(oldState => ({ ...oldState, isLoadingMore: true, loading: pageIndex === 1 }));
@@ -410,6 +409,7 @@ function RelationSearch(props) {
     if (isMobile) {
       openAddRecord({
         className: 'full',
+        isDraft: control.from === RECORD_INFO_FROM.DRAFT,
         worksheetId: control.dataSource,
         showDraftsEntry: true,
         entityName,
@@ -422,6 +422,7 @@ function RelationSearch(props) {
       return;
     }
     addRecord({
+      isDraft: control.from === RECORD_INFO_FROM.DRAFT,
       worksheetId: control.dataSource,
       directAdd: true,
       showFillNext: true,
@@ -576,7 +577,7 @@ const Header = styled.div`
   align-items: center;
   .main {
     font-size: 17px;
-    color: #333;
+    color: #151515;
     font-weight: bold;
   }
   .split {
@@ -658,6 +659,7 @@ export default function (props) {
     return (
       <RelateRecordTable
         control={{ ...props }}
+        isDraft={props.isDraft}
         allowEdit={!disabled}
         recordId={recordId}
         worksheetId={worksheetId}

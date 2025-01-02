@@ -77,11 +77,8 @@ export const FORM_ERROR_TYPE_TEXT = {
       }
     }
   },
-  UNIQUE: ({ uniqueInRecord } = {}, isSubList) => {
-    if (!isSubList) {
-      return _l('不允许重复');
-    }
-    return uniqueInRecord ? _l('本记录内不允许重复') : _l('全局不允许重复');
+  UNIQUE: () => {
+    return _l('不允许重复');
   },
   NUMBER_RANGE: ({ value, advancedSetting }) => {
     const { min, max, numshow } = advancedSetting;
@@ -205,3 +202,12 @@ export const SYSTEM_ENUM = [
   'utime',
   'daid',
 ];
+
+// 各控件取值id
+export const WIDGET_VALUE_ID = {
+  26: 'accountId',
+  27: 'departmentId',
+  29: 'sid',
+  35: 'sid',
+  48: 'organizeId',
+};

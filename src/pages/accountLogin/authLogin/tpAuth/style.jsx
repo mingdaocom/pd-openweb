@@ -72,7 +72,7 @@ export const Wrap = styled.div`
   
   .tpLoginContentArea .title {
     font-size: 18px;
-    color: #333;
+    color: #151515;
     margin-bottom: 15px;
   }
   .tpLoginContentArea .desc {
@@ -86,7 +86,7 @@ export const Wrap = styled.div`
   .tpLoginContentArea .btnReg {
     background-color: #f0f0f0;
     border: 1px solid #ddd;
-    color: #333;
+    color: #151515;
   }
   .tpAutoBind {
     width: 120px;

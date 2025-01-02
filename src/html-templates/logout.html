@@ -49,13 +49,21 @@
                         resp = JSON.parse(resp);
                         if (resp && resp.data) {
                             window.localStorage.removeItem('LoginCheckList');
+
                             if (resp.data.redirectUrl) {
                                 location.href = resp.data.redirectUrl;
+                            } else if (location.href.indexOf('?RedirectUrl') > -1) {
+                                location.href = decodeURIComponent(location.search.replace('?RedirectUrl=', ''));
+                            } else if (localStorage.getItem('loginFrom') === '2') {
+                                location.href = window.subPath ? window.subPath + '/network' : '/network';
                             } else {
-                                location.href =
-                                    location.href.indexOf('?ReturnUrl') > -1
-                                        ? (window.subPath || '') + '/network' + location.search
-                                        : (window.subPath || '') + '/network';
+                                var loginUrl = window.subPath ? window.subPath + '/login' : '/login';
+
+                                if (location.href.indexOf('?ReturnUrl') > -1) {
+                                    location.href = loginUrl + location.search;
+                                }  else {
+                                    location.href = loginUrl;
+                                }
                             }
                         }
                     } catch (err) {}

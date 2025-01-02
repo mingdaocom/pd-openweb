@@ -111,7 +111,7 @@ class WorksheetApi extends Component {
       appKey: '',
       authorizes: [],
       addSecretKey: false,
-      isError: false,
+      errorCode: 0, // 1：工作表不存在 2：应用过期
       showAliasDialog: false,
       numberTypeList: [],
       appInfo: {},
@@ -216,8 +216,10 @@ class WorksheetApi extends Component {
         item.type = item.dataType;
         item.desc = item.description;
       }
-      if (worksheetList.length <= 0) {
-        this.setState({ isError: true });
+      if (dataApp.appStatus === 20) {
+        this.setState({ errorCode: 2 });
+      } else if (worksheetList.length <= 0) {
+        this.setState({ errorCode: 1 });
       } else {
         this.setState(
           {
@@ -230,7 +232,7 @@ class WorksheetApi extends Component {
             pbcList,
           },
           () => {
-            document.title = dataApp.name + _l(' API说明');
+            document.title = dataApp.name + ' - ' + _l('API说明');
             this.getWorksheetApiInfo(worksheetList[0].workSheetId);
           },
         );
@@ -939,10 +941,10 @@ class WorksheetApi extends Component {
         {MENU_LIST_APPROLE.map(({ id, isGet, title, data = [], apiName, successData, errorData }, i) => {
           const url = appInfo.apiUrl + apiName;
           let dataObj = {};
-          data.map(({ name, desc }) => {
+          data.map(({ name, desc, example }) => {
             dataObj[name] = _.includes(['appKey', 'sign'], name)
               ? (this.state.data[0] || {})[name] || { appKey: 'YOUR_APP_KEY', sign: 'YOUR_SIGN' }[name]
-              : desc;
+              : example || desc;
           });
 
           return (
@@ -1671,21 +1673,30 @@ class WorksheetApi extends Component {
   }
 
   render() {
-    const { data = [], loading, selectId, dataApp, isError, shareVisible, appInfo, dataPipelineData = [] } = this.state;
+    const {
+      data = [],
+      loading,
+      selectId,
+      dataApp,
+      errorCode,
+      shareVisible,
+      appInfo,
+      dataPipelineData = [],
+    } = this.state;
     const { isSharePage } = this.props;
     const appId = this.getId();
     const sidebarList = isSharePage
       ? SIDEBAR_LIST.filter(l => !['authorizationInstr', 'whiteList'].includes(l.key))
       : SIDEBAR_LIST;
 
-    if (isError) {
+    if (errorCode) {
       return (
         <div className="flexColumn h100">
           <div className="errorBox">
             <span>
               <Icon icon="info" />
             </span>
-            {_l('无法配置，请先创建工作表')}
+            {errorCode === 1 ? _l('无法配置，请先创建工作表') : _l('应用已过期，无法使用 API')}
           </div>
         </div>
       );

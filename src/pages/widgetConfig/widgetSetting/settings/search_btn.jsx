@@ -34,9 +34,14 @@ const SEARCH_TYPES = [
   },
 ];
 
+const SOURCE_TYPES = [
+  { text: _l('已集成API'), value: 0 },
+  { text: _l('封装业务流程'), value: 1 },
+];
+
 export default function SearchBtn(props) {
   const { data = {}, onChange } = props;
-  const { type, enumDefault, controlId } = data;
+  const { type, enumDefault, controlId, enumDefault2 = 0 } = data;
   const { clicksearch = '0', searchfirst = '0' } = getAdvanceSetting(data);
   const isBtn = type === 49;
   const isSaved = controlId && !controlId.includes('-');
@@ -127,7 +132,31 @@ export default function SearchBtn(props) {
         </Fragment>
       )}
 
-      <ApiSearchConfig {...props} />
+      <SettingItem>
+        <div className="settingItemTitle">{_l('调用来源')}</div>
+        <RadioGroup
+          size="middle"
+          checkedValue={enumDefault2}
+          data={SOURCE_TYPES}
+          onChange={value => {
+            if (enumDefault2 === value) return;
+            onChange({
+              ...handleAdvancedSettingChange(data, {
+                requestmap: '',
+                responsemap: '',
+                itemsource: '',
+                itemtitle: '',
+                itemdesc: '',
+                authaccount: '',
+              }),
+              dataSource: '',
+              enumDefault2: value,
+            });
+          }}
+        />
+      </SettingItem>
+
+      <ApiSearchConfig {...props} fromOperationFlow={enumDefault2 === 1} />
     </Fragment>
   );
 }

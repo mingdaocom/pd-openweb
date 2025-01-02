@@ -165,11 +165,11 @@ class GDMap extends Component {
   compareDistance(lng, lat) {
     const { distance } = this.props;
     const { defaultLocation } = this.state;
-    const position = (defaultLocation || {}).position || {};
+    const position = (defaultLocation || {}).position;
 
-    if (!distance) return true;
+    if (!distance || !position) return true;
 
-    const lngLat = new AMap.LngLat(position.lng || '', position.lat || '');
+    const lngLat = new AMap.LngLat(position.lng, position.lat);
     const myDistance = lngLat.distance([lng, lat]);
 
     if (myDistance < distance) {
@@ -282,14 +282,16 @@ class GDMap extends Component {
       <Fragment>
         <div className={cx('mLeft16 mRight16 relative', { mTop16: !isMobile, mTop10: isMobile })}>
           <Icon icon="search" className="Gray_9e Font16 Absolute" style={{ left: 12, top: 10 }} />
-          <input
-            type="text"
-            ref={con => (this.searchRef = con)}
-            placeholder={_l('搜索地点')}
-            className="MDMapInput Gray"
-            onKeyUp={e => e.keyCode === 13 && this.handleChange()}
-            onChange={_.debounce(e => this.handleChange(), 500)}
-          />
+          <form action="#" className="flex" onSubmit={event => event.preventDefault()}>
+            <input
+              type={isMobile ? 'search' : 'text'}
+              ref={con => (this.searchRef = con)}
+              placeholder={_l('搜索地点')}
+              className="MDMapInput Gray"
+              onKeyUp={e => e.keyCode === 13 && this.handleChange()}
+              onChange={_.debounce(e => this.handleChange(), 500)}
+            />
+          </form>
         </div>
         {!!distance && (
           <div className="distanceInfo">

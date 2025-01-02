@@ -117,6 +117,7 @@ export default class MembersPanel extends Component {
     const { dropdownValue, dropdownData, loading, members } = this.state;
     const { session } = this.props;
     const { groupMemberCount } = session;
+    const hideChat = md.global.SysSettings.forbidSuites.includes('6');
     return (
       <div className="ChatPanel-MembersPanel">
         <div className="header">
@@ -125,7 +126,7 @@ export default class MembersPanel extends Component {
             {_l('返回')}
           </span>
           <span className="title">{`${_l('成员')} (${groupMemberCount})`}</span>
-          <InviteOrAddUsers {...session} />
+          {!hideChat && <InviteOrAddUsers {...session} />}
         </div>
         <div className="filter">
           <Dropdown

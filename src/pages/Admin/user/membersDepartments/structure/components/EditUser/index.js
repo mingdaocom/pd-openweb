@@ -31,7 +31,12 @@ export default class EditUser extends Component {
     const { typeCursor, editCurrentUser = {} } = this.props;
     typeCursor !== 2 && this.getUserData();
     if (typeCursor === 2) {
-      this.setState({ ...editCurrentUser, userName: editCurrentUser.fullname, mobile: editCurrentUser.mobilePhone });
+      this.setState({
+        ...editCurrentUser,
+        userName: editCurrentUser.fullname,
+        mobile: editCurrentUser.mobilePhone,
+        baseInfo: { ...editCurrentUser, userName: editCurrentUser.fullname, mobile: editCurrentUser.mobilePhone },
+      });
     }
     if (typeCursor !== 0) {
       const { fullname, mobilePhone, email, status = '' } = editCurrentUser;

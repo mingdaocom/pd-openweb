@@ -173,7 +173,9 @@ function APITable(props) {
                     {keys.map(o => {
                       return (
                         <div className={`${o.key}`}>
-                          {o.render ? o.render(item, selectedList, handleSelect, props.isCheckAll) : item[o.key]}
+                          {o.render
+                            ? o.render(item, selectedList, handleSelect, props.isCheckAll, props.notCheck)
+                            : item[o.key]}
                         </div>
                       );
                     })}

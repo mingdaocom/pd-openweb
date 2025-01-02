@@ -116,6 +116,7 @@ export function getPermission(...args) {
 
 export function getDownloadUrl(attachment, extra) {
   let result;
+  const logExtend = extra && extra.logExtend ? '&' + qs.stringify(extra.logExtend) : '';
   if (attachment.previewAttachmentType === 'KC') {
     if (extra && extra.shareFolderId) {
       result = attachment.sourceNode.downloadUrl + '&shareFolderId=' + extra.shareFolderId;
@@ -145,12 +146,12 @@ export function getDownloadUrl(attachment, extra) {
         ? sourceNode.originalFilename
         : sourceNode.originalFilename + sourceNode.ext;
       const url = urlAddParams(viewUrl, { attname: encodeURIComponent(fileName) });
-      return viewUrl ? downloadFile(url) : url;
+      return viewUrl ? downloadFile(url + logExtend) : url + logExtend;
     } else if (canDownload(attachment)) {
-      return downloadFile(attachment.sourceNode.downloadUrl);
+      return downloadFile(attachment.sourceNode.downloadUrl + logExtend);
     }
   }
-  return downloadFile(result);
+  return downloadFile(result + logExtend);
 }
 
 /**

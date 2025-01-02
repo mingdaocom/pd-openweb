@@ -30,7 +30,7 @@ const WrapCon = styled.div`
     }
   }
   .btn {
-    color: #333;
+    color: #151515;
     font-weight: bold;
     flex: 1;
     height: 32px;
@@ -387,7 +387,7 @@ export default function WorkflowAction(props) {
   const { type, batch, btnMap = {}, callBackType } = flowNode || {};
   const allowBatch = type === 4 && batch;
   const allowApproval = allowBatch && workItem;
-  const allOverrule = btnMap[5] && batch && workItem;
+  const allOverrule = ('5' in btnMap) && batch && workItem;
   const allowCallBack = callBackType !== -1 && !allOverrule && batch && workItem;
   const { backFlowNodes = [] } = currentWorkflow;
   const [updateUserDialogVisible, setUpdateUserDialogVisible] = useState(false);
@@ -476,10 +476,9 @@ export default function WorkflowAction(props) {
         )}
         <MenuItem
           key="end"
-          className="deleteItem"
+          className="deleteItem pLeft15 pRight15"
           style={{ height: 36, color: '#F44336' }}
           icon={<Icon icon="close" className="Font17 pRight5" />}
-          className="pLeft15 pRight15"
           onClick={handleEndInstance}
         >
           {_l('中止')}

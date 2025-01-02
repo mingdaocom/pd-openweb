@@ -13,7 +13,7 @@ export const WrapHeader = styled.div`
   .tabCon {
     flex: 1;
     .tab {
-      color: #333;
+      color: #151515;
       display: inline-block;
       margin-right: 20px;
       padding: 0 12px;
@@ -122,7 +122,7 @@ export const WrapNav = styled.div`
     &.roleSet {
       overflow: auto;
       li {
-        color: #333;
+        color: #151515;
         padding-left: 0;
         .icon {
           color: #9e9e9e;
@@ -237,7 +237,7 @@ export const WrapFooter = styled.div`
     }
   }
   .toUser {
-    color: #333;
+    color: #151515;
     height: 36px;
     padding: 0 30px;
     line-height: 36px;

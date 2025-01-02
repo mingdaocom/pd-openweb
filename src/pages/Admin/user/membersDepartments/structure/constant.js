@@ -58,10 +58,10 @@ export const checkForm = {
   autonomously: checkUser,
   invite: checkUser,
   autonomouslyPasswrod: password => {
-    const { passwordRegexTip, passwordRegex } = _.get(md, 'global.SysSettings') || {};
+    const { passwordRegexTip } = _.get(md, 'global.SysSettings') || {};
     return !$.trim(password)
       ? _l('密码不能为空')
-      : !RegExpValidator.isPasswordValid(password, passwordRegex)
+      : !RegExpValidator.isPasswordValid(password)
       ? passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字')
       : '';
   },

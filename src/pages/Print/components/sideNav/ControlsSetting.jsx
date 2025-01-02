@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import { Icon, Checkbox, Radio, Tooltip } from 'ming-ui';
 import { sortByShowControls, isRelation } from '../../util';
-import { UN_PRINT_CONTROL, SYST_PRINT, PRINT_FILE_OPTIONS } from '../../config';
+import { UN_PRINT_CONTROL, SYST_PRINT, PRINT_FILE_OPTIONS, USER_CONTROLS } from '../../config';
 import _ from 'lodash';
 
 const ControlsSettingConfig = [
@@ -39,6 +39,13 @@ export default function ControlsSetting(props) {
       'value',
     ),
   );
+  const userConfig = safeParse(
+    _.get(
+      advanceSettings.find(l => l.key === 'user_info'),
+      'value',
+    ),
+  );
+  const [expandKey, setExpandKey] = useState([]);
 
   const handleChecked = it => {
     if (SYST_PRINT[it.controlId]) {
@@ -127,6 +134,16 @@ export default function ControlsSetting(props) {
     });
   };
 
+  const handleUserInfo = (controlId, info) => {
+    userConfig[controlId] = _.assign(userConfig[controlId], info);
+    changeAdvanceSettings({
+      key: 'user_info',
+      value: JSON.stringify(userConfig),
+    });
+  };
+
+  const handleExpand = (id, value) => setExpandKey(value ? expandKey.filter(l => l !== id) : expandKey.concat(id));
+
   const renderFileRadio = id => {
     return (
       <div className="mTop12 mLeft26">
@@ -180,7 +197,9 @@ export default function ControlsSetting(props) {
                 onClick={() => handleChecked(it)}
                 text={it.controlName || _l('未命名')}
               />
-              {(isRelationControls || (it.type === 52 && sectionLi.length)) && (
+              {(isRelationControls ||
+                (it.type === 52 && sectionLi.length) ||
+                (it.type === 26 && !systemControl.find(l => l.controlId === it.controlId))) && (
                 <div className={cx({ mLeft24: it.type !== 52 })}>
                   <Icon
                     icon={it.expand ? 'expand_less' : 'expand_more'}
@@ -189,6 +208,7 @@ export default function ControlsSetting(props) {
                   />
                   {it.expand && isRelationControls && renderLiRelation(it)}
                   {it.expand && it.type === 52 && <div className="Relative sectionLiCon">{renderLi(sectionLi)}</div>}
+                  {it.type === 26 && it.expand && renderUserChild(it, it.controlId)}
                 </div>
               )}
               {it.type === 14 && isChecked && renderFileRadio(it.controlId)}
@@ -244,8 +264,11 @@ export default function ControlsSetting(props) {
           text={_l('序号')}
         />
         {liControls.map(it => {
+          const uniqueId = `${list.controlId}_${it.controlId}`;
+          const hasExpandKey = expandKey.includes(uniqueId);
+
           return (
-            <React.Fragment>
+            <div className="Relative" key={`${uniqueId}-li`}>
               <Checkbox
                 checked={it.checked}
                 key={it.controlId}
@@ -255,7 +278,41 @@ export default function ControlsSetting(props) {
                 }
                 text={it.controlName || _l('未命名')}
               />
-              {it.type === 14 && it.checked && renderFileRadio(`${list.controlId}_${it.controlId}`)}
+              {it.type === 26 && (
+                <div className={cx({ mLeft24: it.type !== 52 })}>
+                  <Icon
+                    icon={hasExpandKey ? 'expand_less' : 'expand_more'}
+                    className="Font18 moreList Hand TxtCenter TxtBottom"
+                    onClick={() => handleExpand(uniqueId, hasExpandKey)}
+                  />
+                  {it.type === 26 && hasExpandKey && renderUserChild(it, uniqueId)}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </React.Fragment>
+    );
+  };
+
+  const renderUserChild = (item, uniqueId) => {
+    const config = userConfig[uniqueId] || {};
+    const usertype = _.get(item, 'advancedSetting.usertype');
+
+    return (
+      <React.Fragment>
+        {USER_CONTROLS.filter(l => usertype === '1' || l.controlId !== 'jobNumber').map(it => {
+          const checked = !!config[it.controlId];
+
+          return (
+            <React.Fragment key={`${uniqueId}-${it.controlId}`}>
+              <Checkbox
+                checked={checked}
+                key={uniqueId}
+                className="mTop12"
+                onClick={() => handleUserInfo(uniqueId, { [it.controlId]: !checked })}
+                text={it.controlName || _l('未命名')}
+              />
             </React.Fragment>
           );
         })}

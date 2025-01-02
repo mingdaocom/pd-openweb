@@ -24,7 +24,7 @@ const StatisticContent = styled.div`
         font-weight: 600;
       }
       .dataText {
-        color: #333;
+        color: #151515;
         font-size: 28px;
         font-weight: 600;
         line-height: 32px;

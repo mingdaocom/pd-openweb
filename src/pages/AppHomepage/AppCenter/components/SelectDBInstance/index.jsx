@@ -9,7 +9,7 @@ const DropdownWrap = styled.div`
   max-height: 201px;
   overflow-y: scroll;
   font-size: 13px;
-  color: #333;
+  color: #151515;
   border-radius: 3px;
   .item {
     height: 36px;

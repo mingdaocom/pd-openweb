@@ -8,6 +8,7 @@ import { SYSTEM_CONTROL } from 'src/pages/widgetConfig/config/widget';
 import { TEXT_FIELD_SHOWTEXT_TYPE, UPDATA_ITEM_CLASSNAME_BY_TYPE } from '../enum';
 import sheetAjax from 'src/api/worksheet';
 import { replaceControlsTranslateInfo } from 'worksheet/util';
+import { controlState } from 'src/components/newCustomFields/tools/utils';
 import '../WorksheetRecordLogValue.less';
 
 function MaskCell(props) {
@@ -97,59 +98,63 @@ function WorksheetRecordLogSubTable(props) {
         );
         let _column = showControls.map(key => {
           let _cont = res.template.controls.concat(SYSTEM_CONTROL).find(l => l.controlId === key);
-          return {
-            title: _cont ? _cont.controlName : '',
-            width: 200,
-            dataIndex: key,
-            key: key,
-            render: (value, record) => {
-              if (record.type === 'update') {
-                let oldValue = record.oldValue[key] ? [record.oldValue[key]] : [];
-                let newValue = record.newValue[key] ? [record.newValue[key]] : [];
+          const visible = _cont ? controlState(_cont).visible : false;
 
-                if (_.startsWith(record.oldValue[key], '[')) {
-                  oldValue = safeParse(record.oldValue[key], 'array');
-                }
+          return visible
+            ? {
+                title: _cont ? _cont.controlName : '',
+                width: 200,
+                dataIndex: key,
+                key: key,
+                render: (value, record) => {
+                  if (record.type === 'update') {
+                    let oldValue = record.oldValue[key] ? [record.oldValue[key]] : [];
+                    let newValue = record.newValue[key] ? [record.newValue[key]] : [];
 
-                if (_.startsWith(record.newValue[key], '[')) {
-                  newValue = safeParse(record.newValue[key], 'array');
-                }
+                    if (_.startsWith(record.oldValue[key], '[')) {
+                      oldValue = safeParse(record.oldValue[key], 'array');
+                    }
 
-                let deleteValue = _.difference(oldValue, newValue);
-                let addValue = _.difference(newValue, oldValue);
-                let defaultValue = _.intersection(newValue, oldValue);
+                    if (_.startsWith(record.newValue[key], '[')) {
+                      newValue = safeParse(record.newValue[key], 'array');
+                    }
 
-                if (_cont && Object.keys(TEXT_FIELD_SHOWTEXT_TYPE).find(l => l == _cont.type)) {
-                  deleteValue = _.differenceBy(oldValue, newValue, TEXT_FIELD_SHOWTEXT_TYPE[_cont.type]);
-                  addValue = _.differenceBy(newValue, oldValue, TEXT_FIELD_SHOWTEXT_TYPE[_cont.type]);
-                  defaultValue = _.intersectionBy(newValue, oldValue, TEXT_FIELD_SHOWTEXT_TYPE[_cont.type]);
-                }
+                    let deleteValue = _.difference(oldValue, newValue);
+                    let addValue = _.difference(newValue, oldValue);
+                    let defaultValue = _.intersection(newValue, oldValue);
 
-                return (
-                  <React.Fragment>
-                    {renderUpdataList(deleteValue, _cont, 'remove')}
-                    {renderUpdataList(addValue, _cont, 'add')}
-                    {renderUpdataList(defaultValue, _cont, 'update')}
-                  </React.Fragment>
-                );
+                    if (_cont && Object.keys(TEXT_FIELD_SHOWTEXT_TYPE).find(l => l == _cont.type)) {
+                      deleteValue = _.differenceBy(oldValue, newValue, TEXT_FIELD_SHOWTEXT_TYPE[_cont.type]);
+                      addValue = _.differenceBy(newValue, oldValue, TEXT_FIELD_SHOWTEXT_TYPE[_cont.type]);
+                      defaultValue = _.intersectionBy(newValue, oldValue, TEXT_FIELD_SHOWTEXT_TYPE[_cont.type]);
+                    }
+
+                    return (
+                      <React.Fragment>
+                        {renderUpdataList(deleteValue, _cont, 'remove')}
+                        {renderUpdataList(addValue, _cont, 'add')}
+                        {renderUpdataList(defaultValue, _cont, 'update')}
+                      </React.Fragment>
+                    );
+                  }
+                  let cell = {
+                    ..._cont,
+                    value: value,
+                    value2: value,
+                  };
+
+                  let content = renderText(cell);
+
+                  if (content) {
+                    return <MaskCell cell={cell} />;
+                  } else {
+                    return renderSpecial(cell, record.type);
+                  }
+                },
               }
-              let cell = {
-                ..._cont,
-                value: value,
-                value2: value,
-              };
-
-              let content = renderText(cell);
-
-              if (content) {
-                return <MaskCell cell={cell} />;
-              } else {
-                return renderSpecial(cell, record.type);
-              }
-            },
-          };
+            : null;
         });
-        setColumns(_column);
+        setColumns(_column.filter(l => !!l));
         let _dataNew = safeParse(safeParse(prop.newValue).rows, 'array');
         let _dataOld = safeParse(safeParse(prop.oldValue).rows, 'array');
         let _prop = {
@@ -298,25 +303,29 @@ function WorksheetRecordLogSubTable(props) {
         height: 40,
       }}
       image={Empty.PRESENTED_IMAGE_SIMPLE}
-      description={<span>{_l('无数据，或是移除记录暂不支持查看详情')}</span>}
+      description={<span>{columns.length ? _l('无数据，或是移除记录暂不支持查看详情') : _l('暂无权限查看')}</span>}
     ></Empty>
   );
 
   return (
     <ScrollView className="flex" onScrollEnd={handleScrollEnd}>
-      <ConfigProvider renderEmpty={renderEmpty}>
-        <Table
-          loading={loading}
-          className="worksheetRecordLogSubTable"
-          rowClassName={record => `worksheetRecordLogSubTableRow ${record.type}`}
-          rowKey={record => `worksheetRecordLogSubTableRow-${record.rowid}`}
-          columns={columns}
-          dataSource={data}
-          scroll={{ x: 1300 }}
-          pagination={false}
-          bordered={true}
-        />
-      </ConfigProvider>
+      {!columns.length ? (
+        renderEmpty()
+      ) : (
+        <ConfigProvider renderEmpty={renderEmpty}>
+          <Table
+            loading={loading}
+            className="worksheetRecordLogSubTable"
+            rowClassName={record => `worksheetRecordLogSubTableRow ${record.type}`}
+            rowKey={record => `worksheetRecordLogSubTableRow-${record.rowid}`}
+            columns={columns}
+            dataSource={data}
+            scroll={{ x: 1300 }}
+            pagination={false}
+            bordered={true}
+          />
+        </ConfigProvider>
+      )}
     </ScrollView>
   );
 }

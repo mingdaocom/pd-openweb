@@ -28,7 +28,10 @@ export default class Action extends Component {
     }
 
     // 更新记录
-    if (_.includes([APP_TYPE.SHEET, APP_TYPE.EXTERNAL_USER], item.appType) && item.actionId === ACTION_ID.EDIT) {
+    if (
+      _.includes([APP_TYPE.SHEET, APP_TYPE.EXTERNAL_USER], item.appType) &&
+      _.includes([ACTION_ID.EDIT, ACTION_ID.REFRESH_SINGLE_DATA], item.actionId)
+    ) {
       if (item.selectNodeName) {
         return (
           <Fragment>
@@ -41,7 +44,9 @@ export default class Action extends Component {
               <div className="pLeft8 pRight8 mTop8 yellow pBottom5">{_l('未设置可执行的动作')}</div>
             ) : (
               <div className="pLeft8 pRight8 mTop8 Gray_75 pBottom5">
-                {_l('修改了%0个字段', item.fields.length)}
+                {item.actionId === ACTION_ID.REFRESH_SINGLE_DATA
+                  ? _l('校准了%0个字段', item.fields.length)
+                  : _l('修改了%0个字段', item.fields.length)}
                 {item.errorFields.length > 0 ? '，' : ''}
                 <span className="yellow">{item.errorFields.length || ''}</span>
                 {item.errorFields.length > 0 ? _l('个字段存在异常') : ''}
@@ -266,7 +271,7 @@ export default class Action extends Component {
     const { processId, item, disabled, selectNodeId, openDetail, isSimple } = this.props;
     const bgClassName = _.includes([APP_TYPE.PROCESS, APP_TYPE.GLOBAL_VARIABLE], item.appType)
       ? 'BGBlueAsh'
-      : item.appType === APP_TYPE.TASK
+      : item.appType === APP_TYPE.TASK || item.actionId === ACTION_ID.REFRESH_SINGLE_DATA
       ? 'BGGreen'
       : item.appType === APP_TYPE.CALENDAR
       ? 'BGRed'
@@ -317,7 +322,7 @@ export default class Action extends Component {
               {isSimple ? <span className="pLeft8 pRight8 Gray_75">{_l('加载中...')}</span> : this.renderContent()}
             </div>
           </div>
-          <CreateNode {...this.props} />
+          {item.resultTypeId ? <div className="workflowLineBtn" /> : <CreateNode {...this.props} />}
         </section>
       </div>
     );

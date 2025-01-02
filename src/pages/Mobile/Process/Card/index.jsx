@@ -302,9 +302,9 @@ export default class Card extends Component {
     const { createAccount, controls } = item;
     return (
       <div className="mobileProcessCardBody flexColumn">
-        <div className="valignWrapper">
+        <div className="flexRow">
           <img className="accountAvatar" src={createAccount.avatar} />
-          <span className="ellipsis">{renderBodyTitle()}</span>
+          <span className="breakAll">{renderBodyTitle()}</span>
         </div>
         {this.processInformTabs.includes(currentTab) && (
           <span className="Gray_9e Font13 mTop8 ellipsis">{item.workItem.opinion}</span>
@@ -312,8 +312,8 @@ export default class Card extends Component {
         <div className="flexColumn mTop10">
           {controls.map(item => (
             <div key={item.controlId} className="Font12 flexRow mTop4">
-              <div className="Gray_9e mRight10">{item.controlName}</div>
-              <div className="flex overflow_ellipsis">{item.value || '--'}</div>
+              <div className="Gray_9e mRight10 overflow_ellipsis maxWidth80">{item.controlName}</div>
+              <div className="flex overflow_ellipsis_line3">{item.value || '--'}</div>
             </div>
           ))}
         </div>

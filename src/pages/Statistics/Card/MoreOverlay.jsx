@@ -10,6 +10,7 @@ import { Dropdown, Menu, Divider } from 'antd';
 import reportApi from 'statistics/api/report';
 import sheetApi from 'src/api/worksheet';
 import favoriteApi from 'src/api/favorite';
+import { getFilledRequestParams } from 'src/pages/worksheet/util';
 import _ from 'lodash';
 
 const confirm = Dialog.confirm;
@@ -52,6 +53,7 @@ export default class MoreOverlay extends Component {
         dynamicFilter: rangeType ? filter.dynamicFilter : undefined,
         sorts,
         filters: [filters, filtersGroup, filterControls].filter(n => !_.isEmpty(n)),
+        ...getFilledRequestParams({}),
       })
       .then(result => {})
       .catch(error => {

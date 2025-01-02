@@ -349,7 +349,7 @@ export default class MyProcess extends Component {
   };
   hanndleApprove = (approveType, batchType) => {
     const { approveCards } = this.state;
-    const rejectCards = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
+    const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const cards = approveType === 5 ? rejectCards : approveCards;
     const signatureCard = cards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = cards.filter(card => _.get(card.flowNode, 'encrypt'));
@@ -367,7 +367,7 @@ export default class MyProcess extends Component {
   handleBatchApprove = (signature, approveType) => {
     const batchType = approveType === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
     const { approveCards } = this.state;
-    const rejectCards = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
+    const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const cards = approveType === 5 ? rejectCards : approveCards;
     const selects = cards.map(({ id, workId, flowNode }) => {
       const data = { id, workId, opinion: _l('批量处理') };
@@ -546,7 +546,7 @@ export default class MyProcess extends Component {
       const count = isApprove ? waitingApproval : waitingWrite;
       const { passVisible, rejectVisible } = this.state;
       const allowApproveList = list.filter(c => _.get(c, 'flowNode.batch'));
-      const rejectList = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
+      const rejectList = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
       return (
         <div className={cx('filterWrapper', { hide: count <= 0 })}>
           <div className="valignWrapper flex">
@@ -773,7 +773,7 @@ export default class MyProcess extends Component {
     const type = approveType || encryptType;
     const batchType = type === 4 ? 'auth.passTypeList' : 'auth.overruleTypeList';
     const approveCards =
-      type === 4 ? this.state.approveCards : this.state.approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
+      type === 4 ? this.state.approveCards : this.state.approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
     const signatureApproveCards = approveCards.filter(card => (_.get(card.flowNode, batchType) || []).includes(1));
     const encryptCard = approveCards.filter(card => _.get(card.flowNode, 'encrypt'));
     return (
@@ -850,8 +850,8 @@ export default class MyProcess extends Component {
   }
   renderRejectDialog() {
     const { approveCards, filter, stateTab } = this.state;
-    const rejectCards = approveCards.filter(c => _.get(c, 'flowNode.btnMap')[5]);
-    const noRejectCards = approveCards.filter(c => !_.get(c, 'flowNode.btnMap')[5]);
+    const rejectCards = approveCards.filter(c => '5' in _.get(c, 'flowNode.btnMap'));
+    const noRejectCards = approveCards.filter(c => !('5' in _.get(c, 'flowNode.btnMap')));
     return (
       <Dialog
         visible

@@ -79,7 +79,7 @@ const HeaderWrapper = styled.div`
             color: #fff;
           }
           span {
-            color: #333;
+            color: #151515;
           }
         }
         &.isComplete {

@@ -10,7 +10,7 @@ export const Con = styled.div`
   h6 {
     font-size: 14px;
     font-weight: 600;
-    color: #333333;
+    color: #151515;
     margin-top: 38px;
   }
   .title {
@@ -52,7 +52,7 @@ export const Con = styled.div`
     }
     .ming.MenuItem .Item-content:not(.disabled):hover {
       background-color: #f5f5f5 !important;
-      color: #333 !important;
+      color: #151515 !important;
     }
 
     .btnCon {
@@ -90,7 +90,7 @@ export const Con = styled.div`
         .btnStr {
           background: #ffffff;
           border: 1px solid #e0e0e0;
-          color: #333;
+          color: #151515;
         }
       }
       &.noAction {
@@ -207,7 +207,7 @@ export const WrapTxt = styled.div`
     border-radius: 3px;
     padding: 16px;
     box-sizing: border-box;
-    color: #333;
+    color: #151515;
     margin-top: 12px;
     display: flex;
     &.createCon {
@@ -220,7 +220,7 @@ export const WrapTxt = styled.div`
       min-width: 0;
       flex: 1;
       font-size: 13px;
-      color: #333;
+      color: #151515;
       line-height: 24px;
 
       p {

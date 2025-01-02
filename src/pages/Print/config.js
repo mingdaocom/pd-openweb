@@ -209,3 +209,18 @@ export const PRINT_FILE_OPTIONS = [
     value: '1',
   },
 ];
+
+export const USER_CONTROLS = [
+  {
+    controlId: 'jobNumber',
+    controlName: _l('工号'),
+  },
+  {
+    controlId: 'email',
+    controlName: _l('邮箱'),
+  },
+  {
+    controlId: 'mobilePhone',
+    controlName: _l('手机号'),
+  },
+];

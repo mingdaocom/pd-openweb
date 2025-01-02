@@ -20,7 +20,7 @@ const Con = styled.div`
   display: flex;
   align-items: center;
   height: 32px;
-  border: 1px solid ${({ active }) => (active ? '#2196f3' : '#ddd')} !important;
+  border: 1px solid ${({ active }) => (active ? '#2196f3' : 'var(--border-color)')} !important;
   border-radius: 4px 0 0 4px;
   &:hover {
     border-color: #2196f3 !important;
@@ -65,7 +65,7 @@ const ClearIcon = styled.i`
 
 const AdvancePasteIcon = styled.span`
   cursor: pointer;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-left: none;
   border-radius: 0 4px 4px 0;
   font-size: 20px;
@@ -108,7 +108,7 @@ export default function Text(props) {
   }, [values]);
   return (
     <Out>
-      <Con active={isFocusing}>
+      <Con className="outlineCon" active={isFocusing}>
         <InputCon>
           {!isMultiple ? (
             <Input

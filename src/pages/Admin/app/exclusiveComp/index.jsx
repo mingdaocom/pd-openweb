@@ -8,6 +8,7 @@ import { navigateTo } from 'src/router/navigateTo';
 import ExplanList from './container/ExplanList';
 import ExplanDetail from './container/ExplanDetail';
 import DataBase from './container/DataBase';
+import ManageDataBase from './container/ManageDataBase';
 import { getFeatureStatus } from 'src/util';
 import { VersionProductType } from 'src/util/enum';
 import './index.less';
@@ -18,6 +19,7 @@ export default class ExclusiveComp extends Component {
     this.state = {
       activeKey: _.get(props.match, 'url').includes('computing') ? 'computing' : 'database',
       refresh: -1,
+      baseList: [],
     };
   }
 
@@ -66,7 +68,7 @@ export default class ExclusiveComp extends Component {
   };
 
   render() {
-    const { refresh, activeKey } = this.state;
+    const { refresh, activeKey, baseList } = this.state;
     const projectId = _.get(this.props, 'match.params.projectId');
     const hasDataBase =
       getFeatureStatus(projectId, VersionProductType.dataBase) === '1' && !md.global.Config.IsPlatformLocal;
@@ -76,6 +78,7 @@ export default class ExclusiveComp extends Component {
       <div className="orgManagementWrap exclusiveComp flex flexColumn">
         <AdminTitle prefix={activeKey === 'computing' ? _l('专属算力') : _l('专属数据库')} />
         {this.renderHeader()}
+
         {hasComputing && (
           <Fragment>
             <Route
@@ -94,23 +97,24 @@ export default class ExclusiveComp extends Component {
             />
           </Fragment>
         )}
-
         {hasDataBase && (
-          <Route
-            path={'/admin/database/:projectId'}
-            exact
-            render={({ match: { params } }) => {
-              return <DataBase {...params} refresh={refresh} />;
-            }}
-          />
+          <Fragment>
+            <Route
+              path={'/admin/database/:projectId'}
+              exact
+              render={({ match: { params } }) => {
+                return <DataBase {...params} refresh={refresh} />;
+              }}
+            />
+            <Route
+              path={'/admin/database/:projectId/:id'}
+              exact
+              render={({ match: { params } }) => {
+                return <ManageDataBase {...params} />;
+              }}
+            />
+          </Fragment>
         )}
-        {/* <Route
-          path={'/admin/database/:projectId/:id'}
-          exact
-          render={({ match: { params } }) => {
-            return <DataAuthorize {...params} />;
-          }}
-        /> */}
       </div>
     );
   }

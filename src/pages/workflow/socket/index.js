@@ -7,12 +7,13 @@ import _ from 'lodash';
 import { mdNotification } from 'ming-ui/functions';
 import { emitter, equalToLocalPushUniqueId } from 'worksheet/util';
 import CryptoJS from 'crypto-js';
+import { VOICE_FILE_LIST } from 'src/pages/widgetConfig/widgetSetting/components/CustomEvent/config';
 
 const getWorksheetInfo = worksheetId => {
   return new Promise((resolve, reject) => {
     sheetAjax.getWorksheetInfo({ worksheetId }).then(result => {
       if (result.resultCode === 1) {
-        resolve(result.appId);
+        resolve(result);
       } else {
         resolve('');
       }
@@ -28,6 +29,37 @@ const getAppSimpleInfo = workSheetId => {
   });
 };
 
+const playAudio = audioSrc => {
+  // 创建音频对象，如果尚未创建
+  if (!window.workflowAudioPlayer) {
+    const audio = document.createElement('audio');
+    window.workflowAudioPlayer = audio;
+
+    // 监听音频播放结束事件
+    window.workflowAudioPlayer.addEventListener('ended', () => {
+      // 播放下一个音频
+      if (window.audioQueue.length > 0) {
+        const nextAudio = window.audioQueue.shift();
+
+        window.workflowAudioPlayer.src = nextAudio;
+        window.workflowAudioPlayer.play();
+      }
+    });
+  }
+
+  // 如果没有正在播放，就直接播放
+  if (!window.workflowAudioPlayer.src || window.workflowAudioPlayer.paused) {
+    window.workflowAudioPlayer.src = audioSrc;
+    window.workflowAudioPlayer.play();
+  } else {
+    // 正在播放，则将新的音频源添加到队列
+    if (!window.audioQueue) {
+      window.audioQueue = []; // 初始化队列
+    }
+    window.audioQueue.push(audioSrc); // 将新音频加入队列
+  }
+};
+
 export default () => {
   if (!window.IM) return;
 
@@ -35,9 +67,9 @@ export default () => {
 
   IM.socket.on('workflow_push', result => {
     const pushType = parseInt(Object.keys(result)[0]);
-    const { pushUniqueId, content, promptType, duration, title, buttons = [] } = result[pushType];
+    const { pushUniqueId, content, promptType, duration, title, buttons = [], promptSound } = result[pushType];
     const actionFun = (data, pushType) => {
-      const { appId: worksheetId, content, rowId, viewId, openMode } = data;
+      const { appId: worksheetId, content, rowId, viewId, openMode, code } = data;
 
       if (pushType === PUSH_TYPE.ALERT) {
         alert({
@@ -48,16 +80,33 @@ export default () => {
       }
 
       if (pushType === PUSH_TYPE.CREATE) {
-        addRecord({
-          worksheetId: worksheetId,
-          onAdd: data => {
-            alert(data ? _l('添加成功') : _l('添加失败'));
-          },
-        });
+        if (code === 20037) {
+          alert(_l('草稿数量已经达到10条'), 2);
+          return;
+        }
+
+        if (rowId) {
+          getWorksheetInfo(worksheetId).then(data => {
+            openRecordInfo({
+              worksheetId: worksheetId,
+              recordId: rowId,
+              from: 21,
+              worksheetInfo: data,
+              allowAdd: data.allowAdd,
+            });
+          });
+        } else {
+          addRecord({
+            worksheetId: worksheetId,
+            onAdd: data => {
+              alert(data ? _l('添加成功') : _l('添加失败'));
+            },
+          });
+        }
       }
 
       if (pushType === PUSH_TYPE.DETAIL) {
-        getWorksheetInfo(worksheetId).then(appId => {
+        getWorksheetInfo(worksheetId).then(({ appId }) => {
           if (appId) {
             if (openMode === 2) {
               window.open(`${window.subPath || ''}/app/${appId}/${worksheetId}/${viewId || 'undefined'}/row/${rowId}`);
@@ -110,9 +159,35 @@ export default () => {
           window.open(content, '_blank', options);
         }
       }
+
+      if (pushType === PUSH_TYPE.AUDIO) {
+        const { content, file, language, pitch, preset, speed, type } = promptSound;
+
+        if (type === 1) {
+          if (file) {
+            playAudio(_.get(safeParse(file), '[0].viewUrl'));
+          } else {
+            const filePath = [{ fileKey: '', filePath: require('/staticfiles/images/session_new_message.mp3') }]
+              .concat(VOICE_FILE_LIST)
+              .find(o => o.fileKey === preset).filePath;
+
+            playAudio(filePath);
+          }
+        } else {
+          const utterance = new SpeechSynthesisUtterance(content);
+
+          utterance.lang = language; // 设置为中文
+          utterance.pitch = parseInt(pitch); // 音调
+          utterance.rate = parseInt(speed); // 语速
+          utterance.volume = 1; // 音量
+
+          // 播放语音
+          window.speechSynthesis.speak(utterance);
+        }
+      }
     };
 
-    if (!equalToLocalPushUniqueId(pushUniqueId)) {
+    if (!equalToLocalPushUniqueId(pushUniqueId) && !(window.isNewTab() && pushType === PUSH_TYPE.AUDIO)) {
       return;
     }
 

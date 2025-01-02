@@ -63,7 +63,7 @@ export default class SelectJob extends Component {
           }}
         >
           <input
-            type="text"
+            type="search"
             placeholder={_l('搜索职位')}
             className="Font14"
             value={keywords}
@@ -73,6 +73,7 @@ export default class SelectJob extends Component {
             onKeyDown={event => {
               event.which === 13 && this.handleSearch();
             }}
+            onBlur={this.handleSearch}
           />
         </form>
         {keywords ? (

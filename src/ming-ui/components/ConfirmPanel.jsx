@@ -34,7 +34,7 @@ const Popup = styled.div`
 `;
 const Title = styled.div`
   font-size: 14px;
-  color: #333;
+  color: #151515;
 `;
 const Footer = styled.div`
   overflow: hidden;

@@ -1,7 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Icon, Textarea } from 'ming-ui';
-import { Popup, ActionSheet } from 'antd-mobile';
+import { Popup } from 'antd-mobile';
 import SelectUser from 'mobile/components/SelectUser';
 import AttachmentFiles, { UploadFileWrapper } from '../components/AttachmentFiles';
 import discussionAjax from 'src/api/discussion';
@@ -11,11 +11,8 @@ import externalPortalAjax from 'src/api/externalPortal';
 import { getCaretPosition, setCaretPosition } from 'src/util';
 import _ from 'lodash';
 
-const BASE_BUTTONS = [_l('@用户'), _l('输入@')];
 const SHEET_AT_ALL = _l('@工作表全体成员');
 const ROW_AT_ALL = _l('@记录全体成员');
-const ROW_BUTTONS = [ROW_AT_ALL, ...BASE_BUTTONS];
-const SHEET_BUTTONS = [SHEET_AT_ALL, ...BASE_BUTTONS];
 
 const formatEmpty = value => {
   if (value === 'undefined' || value === 'null') {
@@ -65,41 +62,9 @@ class AddDiscuss extends Component {
       });
     });
   };
-  handleAt() {
-    const { params } = this.props.match;
-    const { rowId } = params;
-    const newRowId = formatEmpty(rowId);
-    const BUTTONS = _.isEmpty(newRowId) ? SHEET_BUTTONS : ROW_BUTTONS;
-    this.actionSheetHandler = ActionSheet.show({
-      actions: BUTTONS.map((item, index) => {
-        return {
-          key: index,
-          text: <span className="Bold">{item}</span>,
-        };
-      }),
-      extra: (
-        <div className="flexRow header">
-          <span className="Font13 Gray_9e">{_l('讨论')}</span>
-          <div className="closeIcon" onClick={() => this.actionSheetHandler.close()}>
-            <Icon icon="close" />
-          </div>
-        </div>
-      ),
-      onAction: (action, index) => {
-        if (index === 0) {
-          this.handlePushValue(` ${BUTTONS[0]} `);
-        }
-        if (index === 1) {
-          this.setState({ showSelectUser: true });
-        }
-        if (index === 2) {
-          this.handlePushValue('@');
-        }
-        this.actionSheetHandler.close();
-      },
-    });
-  }
+
   handlePushValue(text) {
+    text = text + ' ';
     const { value = '', temporaryDiscuss } = this.state;
     const { replyId, replyName } = _.get(this.props, 'match.params.discussionInfo');
     // 当前光标所在位置
@@ -173,6 +138,7 @@ class AddDiscuss extends Component {
         }
       });
   }
+
   renderFiles() {
     const { files } = this.state;
     return (
@@ -227,8 +193,9 @@ class AddDiscuss extends Component {
         />
         {files.length ? <div className="filesWrapper">{this.renderFiles()}</div> : null}
         <div className="handleBar flexRow alignItemsCenter">
-          <div className="flexRow flex">
+          <div className="flexRow flex alignItemsCenter">
             <UploadFileWrapper
+              style={{ paddingTop: '3px' }}
               files={files}
               projectId={projectId}
               appId={appId}
@@ -238,9 +205,18 @@ class AddDiscuss extends Component {
                 });
               }}
             >
-              <Icon icon="attachment" />
+              <Icon icon="attachment" className="mRight20" />
             </UploadFileWrapper>
-            {!md.global.Account.isPortal && <Icon icon="chat-at" onClick={this.handleAt.bind(this)} />}
+            {!md.global.Account.isPortal && (
+              <div className="Gray_9e bold mRight20 Font15" onClick={() => this.handlePushValue(_l('@记录全体成员'))}>
+                <span className="TxtMiddle">{_l('@全体')}</span>
+              </div>
+            )}
+            {!md.global.Account.isPortal && (
+              <div className="Gray_9e bold Font15" onClick={() => this.setState({ showSelectUser: true })}>
+                <span className="TxtMiddle">{_l('@成员')}</span>
+              </div>
+            )}
           </div>
           <div className="addRecord" onClick={this.handleSendMessage.bind(this)}>
             {_l('发送')}

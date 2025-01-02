@@ -6,6 +6,7 @@ import { assign, trim, isObject, isEmpty } from 'lodash';
 import { PICK_TYPE, ROOT_PERMISSION_TYPE, NODE_SORT_TYPE, NODE_SORT_BY } from '../constant/enum';
 import Dialog from 'ming-ui/components/Dialog';
 import React from 'react';
+import _ from 'lodash';
 
 const base64encode = base64.Base64.encode;
 
@@ -354,28 +355,43 @@ export function isOffice(fileExt) {
   return false;
 }
 
-export function isWpsPreview(fileExt) {
+export function isWpsPreview(fileExt, isEdit) {
   var fileExts = [
-    'xls',
-    'xlsx',
-    'xlsm',
-    'xlm',
-    'xlsb',
     'doc',
+    'dot',
+    'wps',
+    'wpt',
     'docx',
     'dotx',
-    'dot',
+    'docm',
     'dotm',
+    'rtf',
+    'txt',
+    'xls',
+    'xlt',
+    'et',
+    'xlsx',
+    'xltx',
+    'csv',
+    'xlsm',
+    'xltm',
+    'ett',
     'ppt',
     'pptx',
-    'pps',
-    'ppsx',
-    'potx',
-    'pot',
     'pptm',
-    'potm',
+    'ppsx',
     'ppsm',
+    'pps',
+    'potx',
+    'potm',
+    'dpt',
+    'dps',
+    'pot',
+    'ofd',
   ];
+  if (isEdit) {
+    fileExts = fileExts.filter(v => !_.includes(['rtf', 'txt', 'csv'], v)).concat('pdf');
+  }
   if (fileExt) {
     fileExt = fileExt.toLowerCase();
     return fileExts.indexOf(fileExt) !== -1;

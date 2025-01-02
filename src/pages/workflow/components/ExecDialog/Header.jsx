@@ -136,7 +136,7 @@ export default class Header extends Component {
     }
   };
 
-  handleAction = ({ action, content = '', userId, backNodeId, signature, files }) => {
+  handleAction = ({ action, content = '', userId, backNodeId, signature, files, countersignType }) => {
     const { ignoreRequired } = (this.props.data || {}).flowNode || {};
 
     content = content.trim();
@@ -146,7 +146,7 @@ export default class Header extends Component {
     if (_.includes(['before', 'after'], action)) {
       this.request(
         ACTION_TO_METHOD[action],
-        { before: action === 'before', opinion: content, forwardAccountId: userId, signature, files },
+        { before: action === 'before', opinion: content, forwardAccountId: userId, signature, files, countersignType },
         action === 'before',
       );
     }

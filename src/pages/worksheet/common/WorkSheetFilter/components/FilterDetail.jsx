@@ -286,6 +286,10 @@ export default function FilterDetail(props) {
               textSize={13}
               onClick={() => {
                 if (featureType === '2') {
+                  if (window.isPublicApp) {
+                    alert(_l('预览模式下，不能操作'), 3);
+                    return;
+                  }
                   buriedUpgradeVersionDialog(projectId, VersionProductType.filterGroup);
                 } else {
                   const spliceType = _.get(conditionsGroups, '0.spliceType');

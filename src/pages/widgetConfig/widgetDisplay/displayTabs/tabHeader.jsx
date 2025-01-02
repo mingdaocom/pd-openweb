@@ -88,7 +88,7 @@ export function TabHeaderItem(props) {
     return iconUrl ? (
       <SvgIcon url={iconUrl} fill="#9e9e9e" size={16} className="mRight8 LineHeight16 Width16" />
     ) : (
-      <Icon icon="tab" className="Font16 mRight8 Gray_9e" />
+      <Icon icon="subheader" className="Font16 mRight8 Gray_9e" />
     );
   };
 

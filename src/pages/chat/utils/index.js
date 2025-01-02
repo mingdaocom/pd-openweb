@@ -4,52 +4,35 @@ import { htmlDecodeReg, dateConvertToUserZone } from 'src/util';
 import moment from 'moment';
 import Emotion from 'src/components/emotion/emotion';
 
-export const formatMsgDate = (dateStr, isText = false) => {
-  const dateTime = new Date();
+export const formatMsgDate = (dateStr) => {
 
-  const date = dateStr.split(' ')[0];
-  const year = date.split('-')[0];
-  const month = date.split('-')[1] - 1;
-  const day = date.split('-')[2];
+  const dateTime = moment(dateStr);
+  const now = moment();
+  const diff = now.diff(dateTime);
+  const milliseconds = diff;
+  const seconds = Math.floor(milliseconds / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const year = dateTime.format('YYYY');
+  const simpleMonth = dateTime.format('M');
+  const simpleDay = dateTime.format('D');
+  const hour = dateTime.format('HH');
+  const minute = dateTime.format('mm');
 
-  const time = dateStr.split(' ')[1];
-  const hour = time.split(':')[0];
-  const minute = time.split(':')[1];
-  const second = time.split(':')[2];
+  // 处理未来时间的情况
+  if (diff < 0) return `${hour}:${minute}`;
 
-  dateTime.setFullYear(year);
-  dateTime.setMonth(month);
-  dateTime.setDate(day);
-  dateTime.setHours(hour);
-  dateTime.setMinutes(minute);
-  dateTime.setSeconds(second);
-
-  const now = new Date();
-
-  const today = new Date();
-  today.setFullYear(now.getFullYear());
-  today.setMonth(now.getMonth());
-  today.setDate(now.getDate());
-  today.setHours(0);
-  today.setMinutes(0);
-  today.setSeconds(0);
-
-  let milliseconds = 0;
-  let timeSpanStr;
-  if (dateTime - today >= 0) {
-    timeSpanStr = hour + ':' + minute;
-  } else {
-    milliseconds = today - dateTime;
-    if (milliseconds < 86400000) {
-      timeSpanStr = _l('昨天') + ' ' + hour + ':' + minute;
-    } else if (milliseconds > 86400000 && year == today.getFullYear()) {
-      timeSpanStr = _l('%0月%1日', month + 1, day);
-    } else {
-      let text = isText ? '%0年%1月%2日' : '%0/%1/%2';
-      timeSpanStr = _l(text, year, month + 1, day);
-    }
+  if (minutes < 60) {
+    return `${hour}:${minute}`;
+  } else if (dateTime.isSame(now, 'd')) {
+    return `${_l('今天')} ${hour}:${minute}`;
+  } else if (dateTime.isSame(now.subtract(1, 'd'), 'd')) {
+    return _l('昨天') + (` ${hour}:${minute}`);
+  } else if (dateTime.format('YYYY') === now.format('YYYY')) {
+    return `${_l('%0月%1日', simpleMonth, simpleDay)}` + (` ${hour}:${minute}`);
   }
-  return timeSpanStr;
+
+  return `${_l('%0年%1月%2日', year, simpleMonth, simpleDay)} ${hour}:${minute}`;
+
 };
 
 /**
@@ -78,7 +61,7 @@ const getTimeStamp = (time, prevTime, force) => {
 
   // 间隔时间小于一分钟的消息将不会显示时间戳
   if (Math.abs(_time - prevTime) > 1000 * 60 || force) {
-    timeStamp = createTimeSpan(moment(_time).format('YYYY-MM-DD HH:mm:ss.S'));
+    timeStamp = formatMsgDate(moment(_time).format('YYYY-MM-DD HH:mm:ss.S'));
     prevTime = _time;
   }
 
@@ -216,7 +199,7 @@ const formatSession = item => {
   }
 
   item._time = item.time;
-  item.time = createTimeSpan(dateConvertToUserZone(item.time), 2);
+  item.time = formatMsgDate(dateConvertToUserZone(item.time), 2);
   item.type = Number(item.type);
   item.messageAtlist = item.atlist;
   item.sendMsg = localStorage.getItem(`textareaValue${item.value}`);
@@ -250,7 +233,7 @@ export const formatMessages = messages => {
 };
 
 export const formatMessage = (message, prevMessage) => {
-  message.timestamp = createTimeSpan(dateConvertToUserZone(message.time));
+  message.timestamp = formatMsgDate(dateConvertToUserZone(message.time));
   message.isMine = message.from === md.global.Account.accountId;
   // 连续消息
   if (
@@ -570,28 +553,11 @@ export const removeFlashTitle = (value, sessionList) => {
   }
 };
 
-const tabId = Date.now().toString();
-const tabIds = JSON.parse(localStorage.getItem('tabIds')) || [];
-
-localStorage.setItem('tabIds', JSON.stringify(tabIds.concat(tabId)));
-
-const isNewTab = () => {
-  const tabIds = JSON.parse(localStorage.getItem('tabIds')) || [];
-  const maxId = _.max(tabIds);
-  return maxId === tabId;
-}
-
-window.addEventListener('beforeunload', () => {
-  const tabIds = JSON.parse(localStorage.getItem('tabIds')) || [];
-  const newTabIds = tabIds.filter(id => id !== tabId);
-  localStorage.setItem('tabIds', JSON.stringify(newTabIds));
-});
-
 /**
  * 聊天新消息的语音提示
  */
 export const playSessionNewMsgAudio = () => {
-  if (!window.isOpenMessageSound || !isNewTab()) return;
+  if (!window.isOpenMessageSound || !window.isNewTab()) return;
   document.getElementById('sessionNewMsgAudio').play();
 };
 
@@ -599,7 +565,7 @@ export const playSessionNewMsgAudio = () => {
  * 系统新消息的语音提示
  */
 export const playSystemNewMsgAudio = () => {
-  if (!window.isOpenMessageSound || !isNewTab()) return;
+  if (!window.isOpenMessageSound || !window.isNewTab()) return;
   document.getElementById('systemNewMsgAudio').play();
 };
 
@@ -694,7 +660,7 @@ export const isCount = (list, filterValue) => {
   for (let i = 0; i < list.length; i++) {
     const session = list[i] || {};
     const hasPush = 'isPush' in session ? session.isPush : true;
-    const notSilient = 'isSilent' in session ? (!session.isSilent || [1, 2].includes(session.showBadge) )  : true;
+    const notSilient = 'isSilent' in session ? !session.isSilent || [1, 2].includes(session.showBadge) : true;
     if (session && session.count && hasPush && notSilient) {
       isCount = true;
       continue;

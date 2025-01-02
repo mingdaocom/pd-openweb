@@ -297,6 +297,17 @@ const featureData = [
     value3: 'basicPng',
   },
   {
+    className: 'editFile',
+    name: _l('文档在线编辑'),
+    dataTip: _l(
+      '支持doc、docx、wps、xls、xlsx、et、ppt、pptx、dps、pdf等主流文档格式，最大文档尺寸100MB以内进行编辑，具体可参考帮助文档说明',
+    ),
+    value0: 'basicNo',
+    value1: 'basicNo',
+    value2: 'basicPng',
+    value3: 'basicPng',
+  },
+  {
     className: 'wordPrint',
     name: _l('Word、Excel打印模板'),
     dataTip: _l('通过上传 Word 和 Excel 模板自由定义记录打印的样式'),

@@ -117,12 +117,12 @@ class ProgressChart extends Component {
         statistic: {
           title: showNumber ? {
             offsetY: 10,
-            style: { color: '#333', fontWeight: 'bold', fontSize: '20px', textAlign: 'center' },
+            style: { color: '#151515', fontWeight: 'bold', fontSize: '20px', textAlign: 'center' },
             formatter: titleFormatter
           } : null,
           content: {
             offsetY: 5,
-            style: { color: '#333', fontSize: '13px', fontWeight: 400, opacity: 0.65 },
+            style: { color: '#151515', fontSize: '13px', fontWeight: 400, opacity: 0.65 },
             formatter: () => yAxis.rename || yAxis.controlName,
           }
         },
@@ -157,11 +157,11 @@ class ProgressChart extends Component {
         statistic: {
           title: showNumber ? {
             offsetY: 10,
-            style: { color: '#333', fontWeight: 'bold', fontSize: '20px', textAlign: 'center', textShadow: '#fff 1px 0 10px' },
+            style: { color: '#151515', fontWeight: 'bold', fontSize: '20px', textAlign: 'center', textShadow: '#fff 1px 0 10px' },
             formatter: titleFormatter
           } : null,
           content: {
-            style: { color: '#333', fontSize: '13px', fontWeight: 400, textShadow: '#fff 1px 0 10px' },
+            style: { color: '#151515', fontSize: '13px', fontWeight: 400, textShadow: '#fff 1px 0 10px' },
             formatter: () => yAxis.rename || yAxis.controlName,
           }
         },

@@ -110,7 +110,7 @@ class FillRecordControls extends React.Component {
                         formFlag: Math.random(),
                         formData: oldState.formData.map(c => (c.controlId === controlId ? { ...c, value } : c)),
                       }));
-                    }, 100);
+                    }, 500);
                   }
                 },
               })
@@ -301,6 +301,7 @@ class FillRecordControls extends React.Component {
       continueFill,
       viewId,
       sheetSwitchPermit,
+      isDraft
     } = this.props;
     const { submitLoading, formData, showError, formFlag, isSubmitting } = this.state;
 
@@ -345,6 +346,7 @@ class FillRecordControls extends React.Component {
             worksheetId={worksheetId}
             sheetSwitchPermit={sheetSwitchPermit}
             showError={showError}
+            isDraft={isDraft}
             registerCell={({ item, cell }) => (this.cellObjs[item.controlId] = { item, cell })}
             disabledFunctions={['controlRefresh']}
             onChange={data => {

@@ -44,6 +44,7 @@ export default {
   * @param {string} args.workSiteId 工作地点id
   * @param {string} args.contactPhone 工作电话
   * @param {string} args.departmentIds 用分号分隔，所选部门Id集（第一个为主部门）
+  * @param {string} args.orgRoleIds 组织角色
   * @param {string} args.jobIds 用分号分隔，所选职位Id集
   * @param {} args.verifyType
   * @param {string} args.password 密码

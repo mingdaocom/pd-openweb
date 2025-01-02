@@ -53,6 +53,7 @@ class UserTable extends React.Component {
     columnsInfo: [
       { value: 'name', label: _l('姓名'), checked: true, width: 200 },
       { value: 'department', label: _l('部门'), checked: true, width: 160 },
+      { value: 'role', label: _l('角色'), checked: true, width: 160 },
       { value: 'position', label: _l('职位'), checked: true, width: 160 },
       { value: 'phone', label: _l('手机'), checked: true, width: 160 },
       { value: 'email', label: _l('邮箱'), checked: true, width: 180 },
@@ -202,7 +203,7 @@ class UserTable extends React.Component {
     let checkedLength = temp.filter(
       item => (!item['typeCursor'] || item.typeCursor === this.props.typeCursor) && item.checked,
     ).length;
-    let isSetShowColumn = typeCursor === 3 ? checkedLength !== 10 : checkedLength !== 8;
+    let isSetShowColumn = typeCursor === 3 ? checkedLength !== 11 : checkedLength !== 9;
     let totalColWidth = 0;
     temp.forEach(item => {
       if (this.isHideCurrentColumn(item.value)) {
@@ -249,6 +250,7 @@ class UserTable extends React.Component {
             </th>
           )}
           {this.isHideCurrentColumn('department') && <th className="departmentTh">{_l('部门')}</th>}
+          {this.isHideCurrentColumn('role') && <th className="roleTh">{_l('角色')}</th>}
           {this.isHideCurrentColumn('position') && <th className="TxtLeft jobTh">{_l('职位')}</th>}
           {this.isHideCurrentColumn('phone') && <th className="mobileTh">{_l('手机')}</th>}
           {!this.state.isMinSc && this.isHideCurrentColumn('email') && <th className="emailTh">{_l('邮箱')}</th>}
@@ -324,6 +326,7 @@ class UserTable extends React.Component {
                   departmentId: v.departmentId || v.id,
                   departmentName: v.departmentName || v.name,
                 })),
+                orgRoles: user.orgRoles || user.orgRoleInfos,
               },
             });
           }}

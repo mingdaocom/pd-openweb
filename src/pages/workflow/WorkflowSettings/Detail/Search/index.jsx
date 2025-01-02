@@ -11,9 +11,9 @@ import {
   CustomTextarea,
   UpdateFields,
 } from '../components';
-import { RELATION_TYPE, ACTION_ID } from '../../enum';
+import { RELATION_TYPE, ACTION_ID, OPERATION_TYPE } from '../../enum';
 import SelectOtherWorksheetDialog from 'src/pages/worksheet/components/SelectWorksheet/SelectOtherWorksheetDialog';
-import { checkConditionsIsNull, getControlTypeName } from '../../utils';
+import { checkConditionsIsNull, getControlTypeName, clearFlowNodeMapParameter } from '../../utils';
 import cx from 'classnames';
 import _ from 'lodash';
 
@@ -124,6 +124,7 @@ export default class Search extends Component {
       destroy,
       execute,
       returnNew,
+      flowNodeMap,
     } = data;
 
     if (
@@ -192,6 +193,7 @@ export default class Search extends Component {
         destroy,
         execute,
         returnNew,
+        flowNodeMap: clearFlowNodeMapParameter(flowNodeMap),
       })
       .then(result => {
         this.props.updateNodeData(result);
@@ -251,7 +253,7 @@ export default class Search extends Component {
    * 渲染工作表
    */
   renderWorksheet() {
-    const { data, cacheKey } = this.state;
+    const { data } = this.state;
     const singleItem = (data.findFields || []).length ? data.findFields[0] : { fieldId: '' };
     const list = _.filter(
       data.controls,
@@ -389,43 +391,28 @@ export default class Search extends Component {
         {data.appId && (
           <FindResult
             executeType={data.executeType}
-            allowAdd={data.actionId === ACTION_ID.WORKSHEET_FIND}
+            allowAdd={_.includes([ACTION_ID.WORKSHEET_FIND, ACTION_ID.RECORD_UPDATE], data.actionId)}
             switchExecuteType={this.switchExecuteType}
           />
         )}
 
         {data.appId && data.executeType === 1 && (
           <Fragment>
-            <div className="actionFieldsSplit mRight0 mTop30" />
-            <div className="Font13 mTop25 bold">{_l('新增记录')}</div>
-            {data.fields.map((item, i) => {
-              const singleObj = _.find(data.addControls, obj => obj.controlId === item.fieldId);
-              const { controlName, sourceEntityName } = singleObj;
-              return (
-                <div key={i} className="relative">
-                  <div className="mTop15 ellipsis Font13">
-                    {controlName || singleObj.controlName}
-                    {singleObj.required && <span className="mLeft5 red">*</span>}
-                    {singleObj.type === 29 && (
-                      <span className="Gray_75">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>
-                    )}
-                  </div>
-                  <SingleControlValue
-                    key={cacheKey + i}
-                    companyId={this.props.companyId}
-                    processId={this.props.processId}
-                    relationId={this.props.relationId}
-                    selectNodeId={this.props.selectNodeId}
-                    controls={data.addControls}
-                    formulaMap={data.formulaMap}
-                    fields={data.fields}
-                    updateSource={this.updateSource}
-                    item={item}
-                    i={i}
-                  />
-                </div>
-              );
-            })}
+            {data.actionId === ACTION_ID.RECORD_UPDATE
+              ? this.renderAddRecord(
+                  data.flowNodeMap[OPERATION_TYPE.CONTINUE],
+                  'controls',
+                  (obj, callback = () => {}) =>
+                    this.updateSource(
+                      {
+                        flowNodeMap: Object.assign({}, data.flowNodeMap, {
+                          [OPERATION_TYPE.CONTINUE]: Object.assign({}, data.flowNodeMap[OPERATION_TYPE.CONTINUE], obj),
+                        }),
+                      },
+                      callback,
+                    ),
+                )
+              : this.renderAddRecord(data, 'addControls', this.updateSource)}
           </Fragment>
         )}
       </Fragment>
@@ -557,8 +544,9 @@ export default class Search extends Component {
   switchExecuteType = executeType => {
     const { data } = this.state;
     const fields = [];
+    const isRecordUpdate = data.actionId === ACTION_ID.RECORD_UPDATE;
 
-    if (executeType === 1) {
+    if (executeType === 1 && !isRecordUpdate) {
       data.addControls.forEach(item => {
         fields.push({
           fieldId: item.controlId,
@@ -573,7 +561,9 @@ export default class Search extends Component {
       });
     }
 
-    this.updateSource(executeType === 1 ? { executeType, fields } : { executeType });
+    this.updateSource(
+      executeType === 1 && !isRecordUpdate ? { executeType, fields } : { executeType, fields: data.fields },
+    );
   };
 
   /**
@@ -645,6 +635,46 @@ export default class Search extends Component {
         {this.selectWorksheet()}
 
         <FindResult executeType={data.executeType} switchExecuteType={this.switchExecuteType} />
+      </Fragment>
+    );
+  }
+
+  /**
+   * 渲染新新记录
+   */
+  renderAddRecord(data, key, updateSource) {
+    const { cacheKey } = this.state;
+
+    return (
+      <Fragment>
+        <div className="actionFieldsSplit mRight0 mTop30" />
+        <div className="Font13 mTop25 bold">{_l('新增记录')}</div>
+        {data.fields.map((item, i) => {
+          const singleObj = _.find(data[key], obj => obj.controlId === item.fieldId);
+          const { controlName, sourceEntityName } = singleObj;
+          return (
+            <div key={i} className="relative">
+              <div className="mTop15 ellipsis Font13">
+                {controlName || singleObj.controlName}
+                {singleObj.required && <span className="mLeft5 red">*</span>}
+                {singleObj.type === 29 && <span className="Gray_75">{`（${_l('工作表')}“${sourceEntityName}”）`}</span>}
+              </div>
+              <SingleControlValue
+                key={cacheKey + i}
+                companyId={this.props.companyId}
+                processId={this.props.processId}
+                relationId={this.props.relationId}
+                selectNodeId={this.props.selectNodeId}
+                controls={data[key]}
+                formulaMap={data.formulaMap}
+                fields={data.fields}
+                updateSource={updateSource}
+                item={item}
+                i={i}
+              />
+            </div>
+          );
+        })}
       </Fragment>
     );
   }

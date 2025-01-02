@@ -174,7 +174,9 @@ export default class SubProcess extends Component {
                     </div>
                     <div style={{ marginLeft: 26 }}>
                       <div className="Font13 Gray_75">
-                        {_l('勾选后，当子流程数据源为工作表多条数据对象时，所有符合筛选条件的记录都将进入子流程')}
+                        {_l(
+                          '勾选后，当子流程数据源为工作表多条数据对象时，所有符合筛选条件的记录都将进入子流程，并忽略数据对象节点配置的排序规则和限制数量',
+                        )}
                       </div>
                       {data.executeAll && (
                         <Fragment>

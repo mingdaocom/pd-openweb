@@ -55,7 +55,7 @@ export default () => {
       if (total === finished && !complete[storeId]) {
         complete[storeId] = data;
       }
-      const noticeTitle = storeId ? _l('批量操作 ”%0“', title) : title;
+      const noticeTitle = storeId ? _l('批量操作 “%0”', title) : title;
       const batchInfo = complete[storeId] || data;
 
       modalMessage({

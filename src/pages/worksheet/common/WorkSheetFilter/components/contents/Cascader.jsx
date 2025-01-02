@@ -108,26 +108,28 @@ export default class RelateRecord extends React.Component {
     const isTree = control.advancedSetting.showtype === '4';
     return (
       <div className="worksheetFilterRelateRecordCondition worksheetFilterCascaderCondition">
-        <div className={cx('recordsCon', { disabled })} onClick={() => this.setState({ selectRecordVisible: true })}>
-          {records.length ? (
-            records.map((record, index) => (
-              <div className="recordItem" key={index}>
-                <span className="recordname ellipsis">{record.name}</span>
-                <span
-                  className="remove"
-                  onClick={e => {
-                    e.stopPropagation();
-                    this.removeRecord(record);
-                  }}
-                >
-                  <i className="icon icon-delete" style={{ marginRight: 2 }}></i>
-                </span>
-              </div>
-            ))
-          ) : (
-            <span className="placeholder">{_l('请选择')}</span>
-          )}
-        </div>
+        {!selectRecordVisible && (
+          <div className={cx('recordsCon', { disabled })} onClick={() => this.setState({ selectRecordVisible: true })}>
+            {records.length ? (
+              records.map((record, index) => (
+                <div className="recordItem" key={index}>
+                  <span className="recordname ellipsis">{record.name}</span>
+                  <span
+                    className="remove"
+                    onClick={e => {
+                      e.stopPropagation();
+                      this.removeRecord(record);
+                    }}
+                  >
+                    <i className="icon icon-delete" style={{ marginRight: 2 }}></i>
+                  </span>
+                </div>
+              ))
+            ) : (
+              <span className="placeholder">{_l('请选择')}</span>
+            )}
+          </div>
+        )}
         <div onClick={e => e.stopPropagation()}>
           {selectRecordVisible && (
             <div

@@ -33,19 +33,26 @@ export default function BaseInfo(props) {
   const { navfilters = '[]', opencover = '1' } = advancedSetting;
 
   const [{ type, coverControls, viewControlInfo, navshow }, setState] = useSetState({
-    type: (worksheetControls.find(it => it.controlId === viewControl) || {}).type,
+    type:
+      (worksheetControls.find(it => it.controlId === viewControl) || {}).type === 30
+        ? (worksheetControls.find(it => it.controlId === viewControl) || {}).sourceControlType
+        : (worksheetControls.find(it => it.controlId === viewControl) || {}).type,
     coverControls: [],
     viewControlInfo: {},
-    navshow: (worksheetControls.find(it => it.controlId === viewControl) || {}).type === 26 ? '1' : '0',
+    navshow:
+      [26, 27, 48].includes((worksheetControls.find(it => it.controlId === viewControl) || {}).type) ||
+      [26, 27, 48].includes((worksheetControls.find(it => it.controlId === viewControl) || {}).sourceControlType)
+        ? '1'
+        : '0',
   });
 
   useEffect(() => {
     const { view, worksheetControls = [] } = props;
     const { viewControl = '' } = view;
     const viewControlInfo = worksheetControls.find(it => it.controlId === viewControl) || {};
-    const { relationControls = [], type } = viewControlInfo;
+    const { relationControls = [], type, sourceControlType } = viewControlInfo;
     setState({
-      type,
+      type: type === 30 ? sourceControlType : type,
       viewControlInfo,
       coverControls: relationControls
         .filter(o => o.type === 14 && _.get(o, 'advancedSetting.hide') !== '1')
@@ -62,7 +69,10 @@ export default function BaseInfo(props) {
         {...props}
         handleChange={viewControl => {
           const viewControlInfo = worksheetControls.find(o => o.controlId === viewControl) || {};
-          const navshowN = viewControlInfo.type === 26 ? '1' : '0';
+          const navshowN =
+            [26, 27, 48].includes(viewControlInfo.type) || [26, 27, 48].includes(viewControlInfo.sourceControlType)
+              ? '1'
+              : '0';
           setState({
             navshow: navshowN,
           });
@@ -87,7 +97,10 @@ export default function BaseInfo(props) {
         controlList={setSysWorkflowTimeControlFormat(
           worksheetControls.filter(
             item =>
-              _.includes([27, 48, 9, 10, 11, 26, 29], item.type) &&
+              (_.includes([27, 48, 9, 10, 11, 26, 29, 28], item.type) ||
+                (item.type === 30 &&
+                  _.includes([27, 48, 9, 10, 11, 26, 29, 28], item.sourceControlType) &&
+                  (item.strDefault || '').split('')[0] !== '1')) &&
               !['rowid'].includes(item.controlId) &&
               !isRelateRecordTableControl(item),
           ),
@@ -97,18 +110,18 @@ export default function BaseInfo(props) {
         addName={'资源'}
         title={_l('资源')}
       />
-      {!!viewControl && ![1, 2, 27, 48].includes(type) && (
+      {!!viewControl && ![1, 2].includes(type) && (
         <NavShow
           params={{
             types: NAVSHOW_TYPE.filter(o => {
-              //选项作为分组，分组没有筛选 成员只有显示有数据的项和指定项
-              if ([26].includes(type)) {
+              //选项作为分组，分组没有筛选 成员、部门、组织角色只有显示有数据的项和指定项
+              if ([26, 27, 48].includes(type)) {
                 return ['1', '2'].includes(o.value);
               } else {
                 if (o.value === '1') {
-                  return [9, 10, 11, 29].includes(type);
+                  return [9, 10, 11, 29, 28].includes(type);
                 }
-                if ([9, 10, 11, 27, 48].includes(type)) {
+                if ([9, 10, 11, 28].includes(type)) {
                   return o.value !== '3';
                 } else {
                   return true;

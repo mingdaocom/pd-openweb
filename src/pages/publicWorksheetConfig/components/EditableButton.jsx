@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Button, Input } from 'ming-ui';
 import styled from 'styled-components';
+import { TinyColor } from '@ctrl/tinycolor';
 
 const SubmitButton = styled(Button)`
   max-width: 756px;
@@ -56,7 +57,11 @@ export default class EditableButton extends React.Component {
           />
         ) : (
           <SubmitButton
-            style={{ background: themeBgColor, padding: 0 }}
+            style={{
+              background: themeBgColor,
+              padding: 0,
+              color: new TinyColor(themeBgColor).isDark() ? '#fff' : 'rgba(0, 0, 0, 0.45)',
+            }}
             onClick={() => {
               this.setState({ isEditing: true }, () => {
                 setTimeout(() => {

@@ -46,7 +46,7 @@ export const FLOW_TYPE_NULL = {
   },
   7: {
     icon: 'other',
-    text: _l('当用户点击记录的自定义按钮后运行流程 '),
+    text: _l('当用户点击记录的自定义按钮后运行流程'),
   },
   8: {
     icon: 'subprocess',
@@ -282,7 +282,7 @@ export const getActionTypeContent = (type, item, disable) => {
     return disable ? (
       item.triggerName
     ) : (
-      <Link to={`/workflowedit/${item.triggerId}`} className="Gray ThemeHoverColor3">
+      <Link to={`/workflowedit/${item.triggerId}`} className="Gray ThemeHoverColor3 stopPropagation">
         {item.triggerName}
       </Link>
     );

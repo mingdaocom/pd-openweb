@@ -263,7 +263,7 @@ export default class SelectWroksheet extends React.Component {
                       {hint || (worksheetType === 1 ? _l('选择您管理的自定义页面') : _l('选择您管理的工作表'))}
                     </div>
                   )}
-                  {loading && _l('  加载中...')}
+                  {loading && _l('加载中...')}
                   {!loading && selectedWorksheet && selectedWorksheet.name}
                   {!loading &&
                     from !== 'customPage' &&

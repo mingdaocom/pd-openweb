@@ -52,6 +52,7 @@ export const ACTION_ID = {
   DELETE: '3',
   CREATE_FILE: '4',
   CREATE_RECORD: '5',
+  REFRESH_SINGLE_DATA: '6',
   RELATION: '20',
   NUMBER_FORMULA: '100',
   DATE_FORMULA: '101',
@@ -82,6 +83,7 @@ export const ACTION_ID = {
   BATCH_UPDATE: '412',
   BATCH_DELETE: '413',
   FROM_PLUGIN_ARRAY: '414',
+  REFRESH_MULTIPLE_DATA: '415',
   RECORD_LINK_FIND: '420',
   RECORD_UPDATE: '421',
   RECORD_DELETE: '422',
@@ -176,6 +178,7 @@ export const OPERATION_TYPE = {
   GET_OPERATION: 103,
   ADD_OPERATION: 104,
   RELATION_OPERATION: 105,
+  PROMPT_SOUND: 106,
 };
 
 export const CONTROLS_NAME = {
@@ -229,6 +232,7 @@ export const CONTROLS_NAME = {
   51: _l('查询记录'),
   52: _l('标签页'),
   53: _l('函数'),
+  54: _l('自定义字段'),
   10000001: _l('人员'),
   10000002: _l('人员'),
   10000003: _l('数组'),
@@ -430,6 +434,8 @@ export const SUPPORT_HREF = {
   16: 'https://help.mingdao.com/workflow/node-subflow',
   // 界面推送
   17: 'https://help.mingdao.com/workflow/node-interface-push',
+  // 声音播放
+  '17-8': 'https://help.mingdao.com/workflow/node-voice-broadcast',
   // 获取记录打印文件
   18: 'https://help.mingdao.com/workflow/node-print-record',
   // 发送服务号消息
@@ -546,6 +552,7 @@ export const PUSH_TYPE = {
   PAGE: 5,
   LINK: 6,
   NOTIFICATION: 7,
+  AUDIO: 8,
 };
 
 export const PUSH_LIST = [
@@ -618,3 +625,25 @@ export const DATE_SHOW_TYPES = [
 ];
 
 export const GLOBAL_VARIABLE = '6038a1cbf18158039fb40e69';
+
+export const LANGUAGE_BCP47 = [
+  { text: _l('简体中文'), value: 'zh-CN' },
+  { text: _l('美式英语'), value: 'en-US' },
+  { text: _l('英式英语'), value: 'en-GB' },
+  { text: _l('澳大利亚英语'), value: 'en-AU' },
+  { text: _l('法语'), value: 'fr-FR' },
+  { text: _l('加拿大法语'), value: 'fr-CA' },
+  { text: _l('德语'), value: 'de-DE' },
+  { text: _l('韩语'), value: 'ko-KR' },
+  { text: _l('日语'), value: 'ja-JP' },
+  { text: _l('俄语'), value: 'ru-RU' },
+  { text: _l('西班牙语'), value: 'es-ES' },
+  { text: _l('墨西哥西班牙语'), value: 'es-MX' },
+  { text: _l('沙特阿拉伯阿拉伯语'), value: 'ar-SA' },
+  { text: _l('葡萄牙语'), value: 'pt-PT' },
+  { text: _l('荷兰语'), value: 'nl-NL' },
+  { text: _l('泰语'), value: 'th-Th' },
+  { text: _l('越南语'), value: 'vi-VN' },
+  { text: _l('印度尼西亚语'), value: 'id-ID' },
+  { text: _l('马来语'), value: 'ms-MY' },
+];

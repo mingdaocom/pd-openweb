@@ -13,7 +13,7 @@ import renderText from './renderText';
 import { emitter, isKeyBoardInputChar } from 'worksheet/util';
 import { FROM } from './enum';
 import { browserIsMobile, accMul, formatStrZero, formatNumberFromInput } from 'src/util';
-import _, { get, isEqual } from 'lodash';
+import _, { get, includes, isEqual } from 'lodash';
 import ChildTableContext from '../ChildTable/ChildTableContext';
 import { toFixed } from '../../../../util';
 import { flushSync } from 'react-dom';
@@ -489,7 +489,11 @@ export default class Text extends React.Component {
       <Trigger
         action={['click']}
         popup={editcontent}
-        getPopupContainer={this.isMultipleLine ? getPopupContainer(popupContainer, rows) : popupContainer}
+        getPopupContainer={
+          this.isMultipleLine || includes(className, 'lastFixedColumn')
+            ? getPopupContainer(popupContainer, rows)
+            : popupContainer
+        }
         popupClassName="filterTrigger"
         popupVisible={isediting}
         destroyPopupOnHide={!window.isSafari} // 不是 Safari

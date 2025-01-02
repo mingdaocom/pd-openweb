@@ -90,7 +90,7 @@ export default class Date extends React.Component {
     }
   };
 
-  handleChange = (array, panelIndex) => {
+  handleChange = (array, panelIndex, autoClose = true) => {
     const { tableFromModule, cell, updateCell, updateEditingStatus } = this.props;
     let level = this.getAreaLevel(cell.type);
     const last = _.last(array);
@@ -117,7 +117,7 @@ export default class Date extends React.Component {
       value: newValue,
       tempValue: newValue,
     });
-    updateEditingStatus(false);
+    autoClose && updateEditingStatus(false);
   };
 
   handleExit = () => {

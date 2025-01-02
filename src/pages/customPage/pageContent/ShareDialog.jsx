@@ -38,7 +38,7 @@ export const UrlWrap = styled.div`
   height: 36px;
   line-height: 36px;
   background-color: #f1f1f1;
-  color: #333;
+  color: #151515;
   font-size: 14px;
   padding: 0 10px;
   overflow: hidden;

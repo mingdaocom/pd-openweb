@@ -11,7 +11,7 @@ import RelateRecordList from './RelateRecordList';
 import NewRecord from 'src/pages/worksheet/common/newRecord/NewRecord';
 import AutoWidthInput from './AutoWidthInput';
 import './style.less';
-import _, { get } from 'lodash';
+import _, { get, uniq } from 'lodash';
 import { checkIsTextControl } from 'worksheet/util';
 
 const OnlyScanTip = styled.div`
@@ -254,6 +254,8 @@ export default class RelateRecordDropdown extends React.Component {
 
   handleClear = () => {
     const { onVisibleChange } = this.props;
+    const { selected, addedIds = [] } = this.state;
+    selected.forEach(this.handleDelete);
     this.setState(
       {
         selected: [],
@@ -358,10 +360,12 @@ export default class RelateRecordDropdown extends React.Component {
     const { insheet, isediting, isQuickFilter, control, allowOpenRecord, entityName, staticRecords } = this.props;
     const { selected, keywords } = this.state;
     const { canSelect, active } = this;
+    const title = getTitleTextFromRelateControl(control, selected[0]);
     return (
       <React.Fragment>
         {!!selected.length && !keywords && (
           <span
+            title={title}
             className="normalSelectedItem placeholder ellipsis"
             onClick={e => {
               if (!allowOpenRecord) {
@@ -371,7 +375,7 @@ export default class RelateRecordDropdown extends React.Component {
               e.stopPropagation();
             }}
           >
-            {selected[0].rowid ? getTitleTextFromRelateControl(control, selected[0]) : _l('关联当前%0', entityName)}
+            {selected[0].rowid ? title : _l('关联当前%0', entityName)}
           </span>
         )}
         {((_.isEmpty(staticRecords) && canSelect) || isQuickFilter) && active && (
@@ -434,8 +438,9 @@ export default class RelateRecordDropdown extends React.Component {
         {!active && _.isEmpty(selected) && !insheet && control.hint && (
           <PlaceHolder className="ellipsis">{control.hint}</PlaceHolder>
         )}
-        {selected.map((record, i) =>
-          active || insheet ? (
+        {selected.map((record, i) => {
+          const title = getTitleTextFromRelateControl(control, record);
+          return active || insheet ? (
             <div
               key={i}
               className={cx('activeSelectedItem', { active, allowRemove: this.allowRemove || record.isNewAdd })}
@@ -448,9 +453,7 @@ export default class RelateRecordDropdown extends React.Component {
                 e.stopPropagation();
               }}
             >
-              <span className="name InlineBlock ellipsis">
-                {record.rowid ? getTitleTextFromRelateControl(control, record) : _l('关联当前%0', entityName)}
-              </span>
+              <span className="name InlineBlock ellipsis">{record.rowid ? title : _l('关联当前%0', entityName)}</span>
               {active && (this.allowRemove || record.isNewAdd) && (
                 <i
                   className="icon icon-close"
@@ -465,6 +468,7 @@ export default class RelateRecordDropdown extends React.Component {
             <div
               key={i}
               className={cx('normalSelectedItem ellipsis multiple', { isEnd: i === length - 1 })}
+              title={title}
               onClick={e => {
                 if (!allowOpenRecord) {
                   return;
@@ -473,10 +477,10 @@ export default class RelateRecordDropdown extends React.Component {
                 e.stopPropagation();
               }}
             >
-              {getTitleTextFromRelateControl(control, record)}
+              {title}
             </div>
-          ),
-        )}
+          );
+        })}
         {(this.canSelect || isQuickFilter) && active && (
           <AutoWidthInput
             mountRef={ref => (this.inputRef = ref)}
@@ -506,6 +510,7 @@ export default class RelateRecordDropdown extends React.Component {
 
   renderPopup({ disabledManualWrite }) {
     const {
+      from,
       isQuickFilter,
       getFilterRowsGetType,
       multiple,
@@ -518,7 +523,8 @@ export default class RelateRecordDropdown extends React.Component {
       onVisibleChange,
     } = this.props;
     const formDataArray = typeof formData === 'function' ? formData() : formData;
-    const { keywords, selected, listvisible, newrecordVisible, renderToTop, cellToTop, activeIndex } = this.state;
+    const { keywords, selected, listvisible, newrecordVisible, renderToTop, cellToTop, activeIndex, deletedIds } =
+      this.state;
     const xOffset = this.isMobile ? 0 : this.getXOffset();
     return (
       <ClickAway
@@ -548,11 +554,14 @@ export default class RelateRecordDropdown extends React.Component {
             isQuickFilter={isQuickFilter}
             activeIndex={activeIndex}
             keyWords={keywords}
+            isDraft={control.isDraft}
+            isCharge={control.isCharge}
             searchControl={this.searchControl}
             control={control}
             formData={formDataArray}
             prefixRecords={prefixRecords}
             staticRecords={staticRecords}
+            ignoreRowIds={uniq(deletedIds.concat(selected.map(r => r.rowid)))}
             maxHeight={renderToTop && cellToTop}
             style={{
               ...(renderToTop
@@ -659,6 +668,7 @@ export default class RelateRecordDropdown extends React.Component {
   render() {
     const {
       from,
+      isDraft,
       insheet,
       popupOffset,
       zIndex,
@@ -707,9 +717,10 @@ export default class RelateRecordDropdown extends React.Component {
           getPopupContainer={popupContainer || (() => document.body)}
           popupAlign={{
             points: insheet || isTop ? ['tl', 'tl'] : ['tl', 'bl'],
-            offset: popupOffset || [0, 0],
+            offset: popupOffset || [0, 2],
             overflow: {
               adjustX: !this.isMobile,
+              adjustY: true,
             },
           }}
           zIndex={zIndex || (this.isMobile ? 999 : 1000)}
@@ -737,6 +748,7 @@ export default class RelateRecordDropdown extends React.Component {
             worksheetId={dataSource}
             addType={2}
             defaultFormDataEditable
+            isDraft={control.isDraft}
             defaultFormData={
               this.searchControl && checkIsTextControl(this.searchControl.type) && keywords
                 ? {
@@ -760,6 +772,7 @@ export default class RelateRecordDropdown extends React.Component {
             }
             viewId={_.get(control, 'advancedSetting.openview') || control.viewId}
             from={1}
+            isDraft={isDraft || from === FROM.DRAFT}
             hideRecordInfo={() => {
               this.setState({ previewRecord: undefined });
             }}
@@ -768,6 +781,7 @@ export default class RelateRecordDropdown extends React.Component {
             relationWorksheetId={this.props.parentWorksheetId}
             currentSheetRows={selected}
             showPrevNext
+            isRelateRecord={true}
             updateRows={(rowIds = [], updatedRow = {}) => {
               if (rowIds[0]) {
                 this.setState({

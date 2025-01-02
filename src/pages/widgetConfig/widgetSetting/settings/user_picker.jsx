@@ -5,6 +5,7 @@ import { handleAdvancedSettingChange } from '../../util/setting';
 import WidgetUserPermission from '../components/WidgetUserPermission';
 import _ from 'lodash';
 import UserConfig from '../components/WidgetHighSetting/ControlSetting/UserConfig';
+import { DISPLAY_USER_TYPE_OPTIONS } from '../../config/setting';
 
 const DISPLAY_OPTIONS = [
   {
@@ -14,16 +15,6 @@ const DISPLAY_OPTIONS = [
   {
     text: _l('多选'),
     value: 1,
-  },
-];
-const DISPLAY_TYPE_OPTIONS = [
-  {
-    text: _l('常规'),
-    value: '1',
-  },
-  {
-    text: _l('外部门户'),
-    value: '2',
   },
 ];
 
@@ -58,7 +49,7 @@ export default function UserPicker(props) {
                     {_l('成员类型')}
                     <span className="mLeft8 Bold">
                       {_.get(
-                        _.find(DISPLAY_TYPE_OPTIONS, i => i.value === usertype),
+                        _.find(DISPLAY_USER_TYPE_OPTIONS, i => i.value === usertype),
                         'text',
                       )}
                     </span>
@@ -70,7 +61,7 @@ export default function UserPicker(props) {
                   <RadioGroup
                     size="middle"
                     checkedValue={usertype}
-                    data={DISPLAY_TYPE_OPTIONS}
+                    data={DISPLAY_USER_TYPE_OPTIONS}
                     onChange={value =>
                       onChange(
                         handleAdvancedSettingChange(

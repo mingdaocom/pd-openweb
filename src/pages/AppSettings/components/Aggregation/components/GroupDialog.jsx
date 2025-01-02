@@ -7,8 +7,16 @@ import { useSetState } from 'react-use';
 import Trigger from 'rc-trigger';
 import ChooseControls from './ChooseControls';
 import 'src/pages/AppSettings/components/Aggregation/components/style.less';
-import { getNodeInfo, getControls, getResultField, isDelStatus } from '../util';
-import _ from 'lodash';
+import {
+  getNodeInfo,
+  getControls,
+  getResultField,
+  isDelStatus,
+  formatControls,
+  getLimitControlByRelativeNum,
+} from '../util';
+import _, { isUndefined } from 'lodash';
+import { canArraySplit, isUnique, GROUPMAX, GROUPLIMITTYPES } from '../config';
 
 const inputW = 240;
 const inputWm = 200;
@@ -19,23 +27,22 @@ const Wrap = styled.div`
 const WrapItem = styled.div(
   ({ length }) => `
   height: 40px;
-  &>span{
-      display: inline-block;
-      height: 40px;
+  padding-left: 36px;
+  & > span {
+    display: inline-block;
+    height: 40px;
   }
-  .leftCon,
-  .rightCon {
+  .leftCon {
     height: 36px;
     line-height: 36px;
     position: absolute;
     flex-shrink: 0;
-    width: 16px;
-    left: 5px;
-    min-width: 16px;
-    &.rightCon {
-      right: 10px;
-      left: initial;
-    }
+    left: 24px;
+    width: 36px;
+    min-width: 36px;
+    text-align: center;
+    background: #fff;
+    z-index: 1;
     &:hover {
       .dragIcon,
       .clearIcon {
@@ -46,6 +53,32 @@ const WrapItem = styled.div(
         }
       }
     }
+    width: 36px;
+    min-width: 36px;
+    text-align: center;
+    .num {
+      opacity: 1;
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%, 0);
+      width: 36px;
+    }
+    .clearIcon {
+      opacity: 0;
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%, 0);
+      width: 36px;
+      z-index: 1;
+    }
+    &:hover {
+      .num {
+        opacity: 0;
+      }
+      .clearIcon {
+        opacity: 1;
+      }
+    }
   }
   .dragIcon,
   .clearIcon {
@@ -53,6 +86,13 @@ const WrapItem = styled.div(
     font-size: 14px;
   }
   &:hover {
+    background: rgba(230, 247, 255, 0.61);
+    .leftCon:not(.tit) {
+      background: rgba(230, 247, 255, 0.61);
+      .num {
+        opacity: 0;
+      }
+    }
     &.cardItemTitle {
       background: #fff;
     }
@@ -71,8 +111,8 @@ const WrapItem = styled.div(
     }
   }
   .joinCon {
-    width: 40px;
-    min-width: 40px;
+    width: 32px;
+    min-width: 32px;
   }
   .Dropdown--input {
     min-width: ${length > 2 ? inputWm : inputW}px;
@@ -83,18 +123,18 @@ const WrapItem = styled.div(
     border: 1px solid #dddddd;
     border-radius: 3px;
     padding: 0 8px 0 12px;
-    &.hasFeil {
+    &.hasField {
       position: relative;
-      .clearFeil,
+      .clearField,
       .icon-arrow-down-border {
         position: absolute;
         right: 6px;
       }
-      .clearFeil {
+      .clearField {
         opacity: 0;
       }
       &:hover {
-        .clearFeil {
+        .clearField {
           opacity: 1;
         }
         .icon-arrow-down-border {
@@ -122,33 +162,44 @@ const WrapDrop = styled.div`
 `;
 const WrapAdd = styled.span`
   color: #2196f3;
+  background: #fff;
+  height: 36px;
+  position: relative;
+  z-index: 1;
 `;
 export default function GroupDialog(props) {
   const { onHide, onOk, visible, className, sourceInfos = [], flowData } = props;
   const tbodyContainer = useRef(null);
   const [{ groupControls }, setState] = useSetState({
-    groupControls: props.groupControls.length <= 0 ? [{}] : props.groupControls,
+    groupControls: props.groupControls.length <= 0 ? [{ arraySplit: true }] : props.groupControls,
   });
 
+  useEffect(() => {
+    const top = tbodyContainer.current && tbodyContainer.current.scrollTop;
+    $('.leftCon').css({ transform: `translate(0,${-top}px)` });
+  }, [groupControls]);
+
   const Item = props => {
-    const { item, onUpdate, items, sourceInfos, DragHandle } = props;
-    // const [{ visibleTrigger }, setState] = useSetState({
-    //   visibleTrigger: false,
-    // });
+    const { item, onUpdate, items, sourceInfos } = props;
     const { num } = item;
     let version = Math.random();
     return (
       <WrapItem className={cx('flexRow cardItem alignItemsCenter mTop12', `${num}_itemC`)} length={sourceInfos.length}>
-        <DragHandle>
-          <div className="leftCon flexRow alignItemsCenter justifyContentCenter">
-            <Icon className="Gray_bd Hand dragIcon ThemeHoverColor3" icon="drag" />
-          </div>
-        </DragHandle>
+        <div className="leftCon flexRow alignItemsCenter justifyContentCenter">
+          <div className="num">{num + 1}</div>
+          <Icon
+            icon="delete1"
+            className="clearIcon Hand del Font16"
+            onClick={() => {
+              onUpdate(items.filter((o, i) => i !== num));
+            }}
+          />
+        </div>
         <div
           className="flex flexRow alignItemsCenter conByWorksheet titleConByWorksheet"
           style={{
-            width: sourceInfos.length * (sourceInfos.length > 2 ? inputWm : inputW) + (sourceInfos.length - 1) * 40,
-            minWidth: sourceInfos.length * (sourceInfos.length > 2 ? inputWm : inputW) + (sourceInfos.length - 1) * 40,
+            width: sourceInfos.length * (sourceInfos.length > 2 ? inputWm : inputW) + (sourceInfos.length - 1) * 32,
+            minWidth: sourceInfos.length * (sourceInfos.length > 2 ? inputWm : inputW) + (sourceInfos.length - 1) * 32,
           }}
         >
           <React.Fragment>
@@ -156,22 +207,33 @@ export default function GroupDialog(props) {
               const fields = _.get(item, `fields`);
               const data = (fields || []).find((o = {}, n) => !!o.oid && n !== i);
               const list = items.map(a => (_.get(a, `fields[${i}].oid`) || '').split('_')[1]);
-              const oidList = items.map(a => (_.get(a, `fields[${i}].oid`) || ''));
+              const oidList = items.map(a => _.get(a, `fields[${i}].oid`) || '');
               let sourceInfo = o;
               const groupDt = getNodeInfo(flowData, 'GROUP');
+              const flowDataNew = _.cloneDeep(flowData);
+              flowDataNew.aggTableNodes[groupDt.nodeId].nodeConfig.config.groupFields = items;
               const sourceInfoData = [
                 {
                   ...sourceInfo,
-                  controls: getControls(data, (sourceInfo || {}).controls || [])
+                  controls: formatControls(getControls(data, (sourceInfo || {}).controls || []), o.worksheetId)
                     .filter(
                       o => !list.includes(o.controlId) && ![6, 8].includes(o.type), //这期先不支持数值金额
                     )
                     .map(o => {
                       return {
                         ...o,
-                        relationControls: getControls(data, o.relationControls || []).filter(
-                          a => !oidList.includes(`${o.dataSource}_${a.controlId}`) && ![6, 8].includes(a.type), //这期先不支持数值金额
-                        ),
+                        relationControls: formatControls(getControls(data, o.relationControls || []))
+                          .filter(
+                            a => !oidList.includes(`${o.dataSource}_${a.controlId}`) && ![6, 8].includes(a.type), //这期先不支持数值金额
+                          )
+                          .map(o => {
+                            if (getLimitControlByRelativeNum(flowDataNew) >= 3 && GROUPLIMITTYPES.includes(o.type)) {
+                              o.isLimit = true;
+                            } else {
+                              o = _.omit(o, ['isLimit']);
+                            }
+                            return o;
+                          }),
                       };
                     }),
                 },
@@ -185,18 +247,19 @@ export default function GroupDialog(props) {
                 : isDel
                   ? _l('已删除')
                   : _.get(item, `fields[${i}].name`);
-              const flowDataNew = _.cloneDeep(flowData);
-              flowDataNew.aggTableNodes[groupDt.nodeId].nodeConfig.config.groupFields = items;
+
               return (
                 <React.Fragment>
                   <Trigger
                     action={['click']}
                     key={`${o.worksheetId}_${i}_${o.controlId}_${version}`}
                     getPopupContainer={() => document.body}
+                    popupClassName="aggregationChooseControlTriggerWrap"
                     popupAlign={{ points: ['tl', 'bl'], offset: [0, 0], overflow: { adjustX: true, adjustY: true } }}
                     popup={
                       <WrapDrop>
                         <ChooseControls
+                          hasFormat
                           title={(o || {}).workSheetName}
                           worksheetId={o.worksheetId}
                           flowData={flowDataNew}
@@ -214,9 +277,9 @@ export default function GroupDialog(props) {
                               isChildField: !!childrenControl, //可选，是否为子表字段(工作表关联字段关联表下的字段)-默认false
                               parentFieldInfo: !!childrenControl
                                 ? {
-                                  controlSetting: control,
-                                  oid: `${o.worksheetId}_${control.controlId}`,
-                                }
+                                    controlSetting: control,
+                                    oid: `${o.worksheetId}_${control.controlId}`,
+                                  }
                                 : {}, //可选，父字段，子表字段的上级字段，isChildField为true的时候必须有
                               isNotNull: true,
                               isTitle: dataControl.attribute === 1, //是否是标题，只有是工作表字段才有值
@@ -240,7 +303,7 @@ export default function GroupDialog(props) {
                   >
                     <div
                       className={cx('Dropdown--input Dropdown--border flexRow alignItemsCenter', {
-                        hasFeil: _.get(item, `fields[${i}].name`),
+                        hasField: _.get(item, `fields[${i}].name`),
                       })}
                     >
                       <div
@@ -274,7 +337,7 @@ export default function GroupDialog(props) {
                       {_.get(item, `fields[${i}].name`) && (
                         <Icon
                           icon="cancel1"
-                          className="Gray_9e mLeft8 clearFeil"
+                          className="Gray_9e mLeft8 clearField"
                           onClick={e => {
                             e.stopPropagation();
                             let newFields = fields || [];
@@ -292,22 +355,13 @@ export default function GroupDialog(props) {
                   </Trigger>
                   {i < sourceInfos.length - 1 && (
                     <div className="joinCon flexRow alignItemsCenter justifyContentCenter">
-                      <Icon icon="task-point-more" className="mLeft5 Font20 Gray_bd" />
+                      <Icon icon="task-point-more" className="Font20 Gray_bd" />
                     </div>
                   )}
                 </React.Fragment>
               );
             })}
           </React.Fragment>
-        </div>
-        <div className="rightCon flexRow alignItemsCenter justifyContentCenter">
-          <Icon
-            icon="delete1"
-            className="clearIcon Hand del Font16 mLeft4"
-            onClick={() => {
-              onUpdate(items.filter((o, i) => i !== num));
-            }}
-          />
         </div>
       </WrapItem>
     );
@@ -363,10 +417,16 @@ export default function GroupDialog(props) {
         let data = o.resultField;
         let name = addUniqueItemWithName(data.alias);
         aliasList.push(name);
-        return {
+        let it = {
           ...o,
           resultField: { ...data, alias: name, name },
         };
+        if (!canArraySplit(it.resultField.controlSetting)) {
+          it = _.omit(it, ['arraySplit']);
+        } else if (isUndefined(it.arraySplit)) {
+          it.arraySplit = !isUnique(it.resultField.controlSetting);
+        }
+        return it;
       }),
     );
     onHide();
@@ -380,13 +440,7 @@ export default function GroupDialog(props) {
       overlayClosable={false}
       title={_l('设置归组')}
       description={_l('对多表数据源归组，请分别选择工作表中的同类型字段进行归组合并')}
-      // footer={null}
-      width={
-        // sourceInfos.length > 2
-        //   ? 3 * inputW + 2 * 40 + 24 * 2
-        // :
-        sourceInfos.length * (sourceInfos.length > 2 ? inputWm : inputW) + (sourceInfos.length - 1) * 40 + 24 * 2
-      }
+      style={{ maxWidth: window.innerWidth - 100, width: 'auto' }}
       onCancel={onHide}
       onOk={() => {
         onSave();
@@ -398,13 +452,14 @@ export default function GroupDialog(props) {
           ref={tbodyContainer}
           onScroll={() => {
             const top = tbodyContainer.current && tbodyContainer.current.scrollTop;
-            $(`.leftCon,.rightCon`).css({
+            $(`.leftCon`).css({
               transform: `translate(0,${-top}px)`,
             });
           }}
         >
           <WrapItem className="flexRow cardItem cardItemTitle  alignItemsCenter" length={sourceInfos.length}>
             <div className="flex flexRow alignItemsCenter conByWorksheet">
+              <div className="leftCon tit"></div>
               {sourceInfos.map((it, i) => {
                 return (
                   <React.Fragment>
@@ -416,17 +471,10 @@ export default function GroupDialog(props) {
             </div>
           </WrapItem>
           <SortableList
-            useDragHandle
-            canDrag
             items={groupControls.map((o, i) => {
               return { ...o, num: i };
             })}
             itemKey="num"
-            onSortEnd={(newItems = [], newIndex) => {
-              setState({
-                groupControls: newItems,
-              });
-            }}
             renderItem={options => (
               <Item
                 {...options}
@@ -441,14 +489,16 @@ export default function GroupDialog(props) {
           />
         </Wrap>
 
-        <WrapAdd
-          className="Hand mTop12 addItem Bold ThemeHoverColor3 flexRow alignItemsCenter"
-          onClick={() => {
-            setState({ groupControls: groupControls.concat({}) });
-          }}
-        >
-          <Icon icon="add" className="InlineBlock Font16" /> <span>{_l('归组')}</span>
-        </WrapAdd>
+        {groupControls.length < GROUPMAX && (
+          <WrapAdd
+            className="Hand pTop12 addItem Bold ThemeHoverColor3 flexRow alignItemsCenter InlineBlock addGroupBtn"
+            onClick={() => {
+              setState({ groupControls: groupControls.concat({}) });
+            }}
+          >
+            <Icon icon="add" className="InlineBlock Font16" /> <span>{_l('归组')}</span>
+          </WrapAdd>
+        )}
       </div>
     </Dialog>
   );

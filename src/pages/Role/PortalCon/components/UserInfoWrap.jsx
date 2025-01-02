@@ -34,7 +34,7 @@ const Wrap = styled.div(
     padding: 24px;
     font-size: 17px;
     font-weight: 600;
-    color: #333333;
+    color: #151515;
   }
   .footerWrap {
     padding: 18px 22px;

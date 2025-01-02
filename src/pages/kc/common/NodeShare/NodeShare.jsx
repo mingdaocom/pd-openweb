@@ -13,7 +13,7 @@ const Abnormal = styled.div`
   align-items: center;
   width: 100%;
   height: 100vh;
-  color: #333;
+  color: #151515;
   font-size: 17px;
   > i {
     font-size: 66px;

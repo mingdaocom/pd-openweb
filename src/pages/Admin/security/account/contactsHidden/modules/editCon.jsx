@@ -160,6 +160,7 @@ class EditCon extends React.Component {
   };
 
   rulesCon = (data, type) => {
+    const { currentEditRule } = this.props;
     const depOrRoleIndex = _.findIndex(
       data,
       it => it.targetType === targetType.dept || it.targetType === targetType.orgRole,
@@ -173,7 +174,12 @@ class EditCon extends React.Component {
         <span
           className="addBtn Font13 Hand mLeft15"
           onClick={e => {
-            if (type === ruleItemType.self) {
+            if (currentEditRule.type === 'hideForAllUser') {
+              this.addUser(
+                list.filter(it => it.targetType === targetType.user),
+                type,
+              );
+            } else if (type === ruleItemType.self) {
               this.setState({
                 showMoreActionSelf: true,
               });
@@ -276,7 +282,7 @@ class EditCon extends React.Component {
       <div className="">
         <p className="Font13">{currentEditRule.limitTxt}</p>
         {this.listCon(hiddenList, ruleItemType.self)}
-        {this.extraCon(extra)}
+        {currentEditRule.type !== 'hideForAllUser' && this.extraCon(extra)}
       </div>
     );
   }

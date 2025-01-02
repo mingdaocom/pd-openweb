@@ -26,8 +26,7 @@ export default function TimeZoneTag(props) {
 
   if (
     _.isUndefined(appTimeZone) ||
-    (md.global.Account.timeZone === 1 ? moment().utcOffset() : md.global.Account.timeZone) === appTimeZone ||
-    /\/plugin\/knowledgeBase/.test(location.pathname) //知识库筛选不显示时区
+    (md.global.Account.timeZone === 1 ? moment().utcOffset() : md.global.Account.timeZone) === appTimeZone
   ) {
     return '';
   }

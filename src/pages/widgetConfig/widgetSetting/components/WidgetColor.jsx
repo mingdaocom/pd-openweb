@@ -19,7 +19,7 @@ const SelectIcon = styled.div`
     font-size: 16px;
   }
   .text {
-    color: ${props => (props.textColor >= 192 ? '#333' : '#fff')};
+    color: ${props => (props.textColor >= 192 ? '#151515' : '#fff')};
   }
   &:hover {
     .text {

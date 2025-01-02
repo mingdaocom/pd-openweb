@@ -226,7 +226,7 @@ export default function TrashDialog(props) {
                   className="InlineBlock TxtTop Icon iconTitle"
                   addClassName="TxtMiddle"
                   url={data.iconUrl}
-                  fill={data.color === 'transparent' ? '#333' : '#fff'}
+                  fill={data.color === 'transparent' ? '#151515' : '#fff'}
                   size={16}
                 />
               ) : (

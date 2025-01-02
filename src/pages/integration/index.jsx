@@ -141,16 +141,20 @@ export default class HubContainer extends React.Component {
       (type === 'task' && menuAuth.noSyncTaskMenu) ||
       (type === 'source' && menuAuth.noSourceMenu)
     ) {
-      const dataIntegrationTypes = dataIntegrationList.map(o => o.type);
-      if (dataIntegrationTypes.includes(type)) {
-        navigateTo('/integration');
-        return '';
-      }
+      const navigateLink = !menuAuth.noCreateTaskMenu
+        ? '/integration/dataConnect'
+        : !menuAuth.noSyncTaskMenu
+        ? '/integration/task'
+        : !menuAuth.noSourceMenu
+        ? '/integration/source'
+        : '/integration';
+      navigateTo(navigateLink);
+      return '';
     }
 
     return (
       <div className="flexRow h100">
-        <DocumentTitle title={!info.txt ? _l('集成中心') : `${_l('集成中心')}-${info.txt}`} />
+        <DocumentTitle title={!info.txt ? _l('集成') : `${_l('集成')}-${info.txt}`} />
         <Sidenav {...param} menuAuth={menuAuth} />
         <div className="flex">
           <ErrorBoundary>

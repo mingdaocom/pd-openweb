@@ -28,7 +28,7 @@ const Con = styled.div`
     h6 {
       font-size: 20px;
       font-weight: 500;
-      color: #333333;
+      color: #151515;
       text-align: center;
       padding: 0;
       padding-top: 32px;
@@ -89,7 +89,7 @@ const SelectedControlCon = styled.div`
   .controlName {
     margin-left: 10px;
     font-size: 14px;
-    color: #333;
+    color: #151515;
   }
   .endIcon {
     .icon {
@@ -164,7 +164,7 @@ const SelectColorShowTypeCon = styled.div`
     justify-content: center;
     align-items: center;
     font-size: 14px;
-    color: #333;
+    color: #151515;
     font-weight: bold;
     cursor: pointer;
     .selected {

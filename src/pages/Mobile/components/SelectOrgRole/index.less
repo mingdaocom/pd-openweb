@@ -1,9 +1,10 @@
-.selectUserModal {
-  background-color: #f8f8f8;
+.selectOrgRoleModal {
+  height: 100%;
+  // 搜索栏
   .searchWrapper {
     display: flex;
     align-items: center;
-    background-color: #fff;
+    background-color: #F8F8F8;
     border-radius: 24px;
     padding: 7px 10px;
     margin: 10px 15px;
@@ -19,30 +20,36 @@
       width: 100%;
       border: 0;
       padding: 0 5px;
+      background-color: #F8F8F8;
     }
   }
   .selectedWrapper {
-    color: #333;
+    color: #151515;
     padding: 10px 10px 0;
     margin: 5px 0 10px;
-    text-align: left;
     background-color: #fff;
 
     .selectedItem {
+      display: flex;
+      align-items: center;
       border-radius: 24px;
-      padding: 0px 16px;
-      height: 30px;
-      line-height: 30px;
+      padding: 0px 8px;
+      height: 24px;
       background-color: #f0f0f0;
       margin: 0 10px 10px 0;
       float: left;
+      font-size: 13px;
+
+      .curSelected {
+        max-width: 200px;
+      }
     }
     .icon {
       margin-left: 5px;
     }
   }
-  .orgRolelist {
-    background-color: #fff;
+
+  .orgRoleList {
     .orgRoleItem {
       height: 46px;
       line-height: 46px;
@@ -52,9 +59,10 @@
         width: 50px;
       }
       .organizeName {
-        text-align: left;
-        border-bottom: 1px solid #f5f5f5;
+        margin-left: 12px;
+        border-bottom: 1px solid #EAEAEA;
         font-size: 15px;
+        color: #151515;
       }
       .am-list-thumb {
         margin-right: 0;

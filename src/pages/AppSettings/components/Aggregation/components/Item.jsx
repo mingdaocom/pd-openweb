@@ -85,7 +85,7 @@ const WrapDialog = styled.div`
 `;
 
 export default function ItemCard(props) {
-  const { item, items, onEdit, onChange, projectId, displayType, appId, onRefresh } = props;
+  const { item, items, onEdit, onChange, projectId, displayType, appId, onRefresh, canEdit } = props;
   const trigger = useRef(null);
   const [{ showChangeName, showMoreOption, updating, showMoveDialog }, setState] = useSetState({
     showChangeName: false,
@@ -325,6 +325,7 @@ export default function ItemCard(props) {
             className="TxtMiddle tableSwitch mRight10"
             checked={item.taskStatus === TASK_STATUS_TYPE.RUNNING}
             onChange={e => {
+              if (!canEdit) return;
               changeTask(item.taskStatus);
             }}
             loading={updating}
@@ -366,7 +367,7 @@ export default function ItemCard(props) {
           item.aggTableTaskStatus !== 0 ? 'ThemeColor Hand ThemeHoverColor3' : 'Gray_9e',
         )}
         onClick={() => {
-          if (item.aggTableTaskStatus === 0) {
+          if (item.aggTableTaskStatus === 0 || !canEdit) {
             return;
           }
           window.open(`/aggregation/${item.worksheetId}`);
@@ -375,89 +376,93 @@ export default function ItemCard(props) {
         {_l('查看')}
       </div>
       <div className="w20px mRight20">
-        <Trigger
-          ref={trigger}
-          action={['click']}
-          popup={
-            <WrapS>
-              <MenuItem
-                icon={<Icon className="Font16" icon={'copy'} />}
-                onClick={event => {
-                  setState({
-                    showMoreOption: false,
-                  });
-                  onCopy(item);
-                  event.stopPropagation();
-                }}
-              >
-                <div className="mLeft16 Gray">{_l('复制')}</div>
-              </MenuItem>
-              <MenuItem
-                onClick={event => {
-                  setState({
-                    showMoveDialog: true,
-                    showMoreOption: false,
-                  });
-                  event.stopPropagation();
-                }}
-                icon={<Icon className="Font16" icon={'swap_horiz'} />}
-              >
-                <div className="mLeft16 Gray">{_l('移动到')}</div>
-              </MenuItem>
-              <MenuItem
-                icon={<Icon className="Font16" icon={'edit'} />}
-                onClick={event => {
-                  setState({
-                    showMoreOption: false,
-                    showChangeName: true,
-                  });
-                  event.stopPropagation();
-                }}
-              >
-                <div className="mLeft16 Gray">{_l('重命名')}</div>
-              </MenuItem>
-              {item.taskStatus !== TASK_STATUS_TYPE.RUNNING && (
+        {!canEdit ? (
+          <span />
+        ) : (
+          <Trigger
+            ref={trigger}
+            action={['click']}
+            popup={
+              <WrapS>
                 <MenuItem
-                  icon={<Icon icon={'delete1'} className="Red Font16" />}
-                  className="Red"
+                  icon={<Icon className="Font16" icon={'copy'} />}
                   onClick={event => {
-                    event.stopPropagation();
                     setState({
                       showMoreOption: false,
                     });
-                    checkItem();
+                    onCopy(item);
+                    event.stopPropagation();
                   }}
                 >
-                  <div className="mLeft16">{_l('删除')}</div>
+                  <div className="mLeft16 Gray">{_l('复制')}</div>
                 </MenuItem>
+                <MenuItem
+                  onClick={event => {
+                    setState({
+                      showMoveDialog: true,
+                      showMoreOption: false,
+                    });
+                    event.stopPropagation();
+                  }}
+                  icon={<Icon className="Font16" icon={'swap_horiz'} />}
+                >
+                  <div className="mLeft16 Gray">{_l('移动到')}</div>
+                </MenuItem>
+                <MenuItem
+                  icon={<Icon className="Font16" icon={'edit'} />}
+                  onClick={event => {
+                    setState({
+                      showMoreOption: false,
+                      showChangeName: true,
+                    });
+                    event.stopPropagation();
+                  }}
+                >
+                  <div className="mLeft16 Gray">{_l('重命名')}</div>
+                </MenuItem>
+                {item.taskStatus !== TASK_STATUS_TYPE.RUNNING && (
+                  <MenuItem
+                    icon={<Icon icon={'delete1'} className="Red Font16" />}
+                    className="Red"
+                    onClick={event => {
+                      event.stopPropagation();
+                      setState({
+                        showMoreOption: false,
+                      });
+                      checkItem();
+                    }}
+                  >
+                    <div className="mLeft16">{_l('删除')}</div>
+                  </MenuItem>
+                )}
+              </WrapS>
+            }
+            popupClassName={cx('dropdownTrigger PolymerizationTrigge')}
+            popupVisible={showMoreOption}
+            onPopupVisibleChange={visible => {
+              setState({
+                showMoreOption: visible,
+              });
+            }}
+            popupAlign={{
+              points: ['tl', 'bl'],
+              offset: [0, 1],
+              overflow: {
+                adjustX: true,
+                adjustY: true,
+              },
+            }}
+          >
+            <Icon
+              icon="task-point-more"
+              className={cx(
+                'moreActive Hand Font20 mLeft6 Gray_9e ThemeHoverColor3',
+                showMoreOption && 'show ThemeColor3',
               )}
-            </WrapS>
-          }
-          popupClassName={cx('dropdownTrigger PolymerizationTrigge')}
-          popupVisible={showMoreOption}
-          onPopupVisibleChange={visible => {
-            setState({
-              showMoreOption: visible,
-            });
-          }}
-          popupAlign={{
-            points: ['tl', 'bl'],
-            offset: [0, 1],
-            overflow: {
-              adjustX: true,
-              adjustY: true,
-            },
-          }}
-        >
-          <Icon
-            icon="task-point-more"
-            className={cx(
-              'moreActive Hand Font20 mLeft6 Gray_9e ThemeHoverColor3',
-              showMoreOption && 'show ThemeColor3',
-            )}
-            onClick={e => e.stopPropagation()}
-          />
-        </Trigger>
+              onClick={e => e.stopPropagation()}
+            />
+          </Trigger>
+        )}
       </div>
       {showChangeName && (
         <ChangeName

@@ -120,11 +120,7 @@ export default function RoleItem(props) {
       <div className={cx('roleItem', { disabled: isApply })} onClick={() => !isApply && onOpenDrawer()}>
         <div className="roleName">
           {role.roleName}
-          {role.isSuperAdmin && (
-            <Tooltip text={<span>{_l('此角色其他成员不可见')}</span>}>
-              <Icon icon="visibility_off" className="Font15 mLeft4" />
-            </Tooltip>
-          )}
+          {role.isSuperAdmin && <Icon icon="people_5" className="Font15 mLeft4 superIcon" />}
         </div>
         <div className="roleMembers">
           <span className="content" ref={membersRef}>

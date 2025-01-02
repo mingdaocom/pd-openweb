@@ -45,6 +45,7 @@ const AppItem = props => {
     });
     window.open(urlList.join(''));
   };
+  const isEditApp = canEditApp(_.get(appPkg, ['permissionType']), _.get(appPkg, ['isLock']));
 
   const renderIcon = () => {
     let icon = 'visibility_off';
@@ -96,7 +97,7 @@ const AppItem = props => {
             </div>
           </MoreOperation>
         )}
-        {renderIcon()}
+        {isEditApp && renderIcon()}
       </div>
     </Drag>
   );

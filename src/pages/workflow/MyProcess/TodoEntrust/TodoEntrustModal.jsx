@@ -13,7 +13,7 @@ import _ from 'lodash';
 
 const ModalTitle = styled.div`
   font-size: 17px;
-  color: #333333;
+  color: #151515;
   font-weight: bold;
 `;
 
@@ -24,7 +24,7 @@ const ModalHintText = styled.div`
 
 const FormItem = styled.div`
   margin-top: 25px;
-  color: #333;
+  color: #151515;
   font-size: 14px;
 `;
 

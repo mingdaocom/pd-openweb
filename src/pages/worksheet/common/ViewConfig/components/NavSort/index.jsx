@@ -1,10 +1,11 @@
 import React, { Fragment, useState } from 'react';
 import styled from 'styled-components';
-import { Dropdown, Tooltip, Icon } from 'ming-ui';
+import { Dropdown, Icon } from 'ming-ui';
 import SortInput from './SortInput';
 import SortCustom from './customSet';
 import { getAdvanceSetting } from 'src/pages/widgetConfig/util/index.js';
 import cx from 'classnames';
+import { isSameType } from 'src/pages/worksheet/common/ViewConfig/util.js';
 
 const Wrap = styled.div`
   .sortInput {
@@ -43,15 +44,15 @@ export default function (props) {
     viewControlData = {},
   } = props;
   const [showCustom, setShow] = useState(false);
-  const canCustom = viewControlData.type !== 28;
-  const canSort = viewControlData.type !== 26;
+  const canCustom = true;
+  const canSort = !isSameType([26, 27, 48], viewControlData);
   return (
     <React.Fragment>
       <div className="title mTop30 Gray Bold">{_l('排序')}</div>
       <Wrap className="flexRow alignItemsCenter mTop10">
         {/* 人员不支持字段排序 */}
         {canSort &&
-          (viewControlData.type === 29 ? (
+          (isSameType([29], viewControlData) ? (
             <SortInput
               className="flex mTop0 sortInput mRight10"
               {...props}
@@ -119,10 +120,12 @@ export default function (props) {
               let values = [];
               switch (type) {
                 case 29:
-                  values = infos.map(o => o.rowid);
-                  break;
                 case 26:
-                  values = infos.map(o => o.accountId);
+                case 27:
+                case 48:
+                  const key =
+                    29 === type ? 'rowid' : 26 === type ? 'accountId' : 27 === type ? 'departmentId' : 'organizeId';
+                  values = infos.map(o => o[key]);
                   break;
                 default:
                   values = infos;

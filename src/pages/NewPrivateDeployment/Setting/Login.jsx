@@ -10,6 +10,7 @@ import { encrypt } from 'src/util';
 import { PUBLIC_KEY } from 'src/util/enum';
 import { updateSysSettings } from '../common';
 import { BrandHomeImage } from '../Platform/Brand';
+import SettingIconAndName from 'src/pages/Admin/components/SettingIconAndName';
 import googleIcon from '../images/google.svg';
 import _ from 'lodash';
 
@@ -21,12 +22,24 @@ const Login = props => {
   const [linkListLoading, setLinkListLoading] = useState(true);
 
   const [
-    { hideRegister, enableMobilePhoneRegister, enableEmailRegister, enableEditAccountInfo, allowBindAccountNoVerify, enableDeclareRegisterConfirm, enableDeclareConfirm, enableFooterInfo, footerThemeColor },
+    {
+      hideRegister,
+      enableMobilePhoneRegister,
+      enableEmailRegister,
+      enableEditAccountInfo,
+      enableVerificationCodeLogin,
+      allowBindAccountNoVerify,
+      enableDeclareRegisterConfirm,
+      enableDeclareConfirm,
+      enableFooterInfo,
+      footerThemeColor,
+    },
     setData,
   ] = useSetState({
     hideRegister: SysSettings.hideRegister,
     enableMobilePhoneRegister: SysSettings.enableMobilePhoneRegister,
     enableEmailRegister: SysSettings.enableEmailRegister,
+    enableVerificationCodeLogin: SysSettings.enableVerificationCodeLogin,
     enableEditAccountInfo: SysSettings.enableEditAccountInfo,
     allowBindAccountNoVerify: SysSettings.allowBindAccountNoVerify,
     enableDeclareRegisterConfirm: SysSettings.enableDeclareRegisterConfirm,
@@ -138,6 +151,25 @@ const Login = props => {
     );
   };
 
+  const renderEnableVerificationCodeLoginInfo = () => {
+    return (
+      <Fragment>
+        <div className="flexRow">
+          <div className="flex flexColumn">
+            <div className="Font14 bold mBottom7">{_l('允许使用验证码登录')}</div>
+            <div className="Gray_9e">
+              {_l('开启时,支持使用短信或邮件验证码登录。为确保功能可用,须先集成短信、邮件服务')}
+            </div>
+          </div>
+          <Switch
+            checked={enableVerificationCodeLogin}
+            onClick={value => changeSysSettings('enableVerificationCodeLogin', value)}
+          />
+        </div>
+      </Fragment>
+    );
+  };
+
   const renderAllowBindAccountNoVerify = () => {
     return (
       <div className="flexRow valignWrapper">
@@ -164,7 +196,10 @@ const Login = props => {
             <div className="Gray_9e">{_l('在登录、注册页底部显示自定义链接如：法律条款、备案号等信息')}</div>
             <div className="flexRow mTop10">
               <div className="Gray_9e mRight30">{_l('颜色')}</div>
-              {[{ text: _l('浅色'), value: 1 }, { text: _l('深色'), value: 2 }].map((item, index) => (
+              {[
+                { text: _l('浅色'), value: 1 },
+                { text: _l('深色'), value: 2 },
+              ].map((item, index) => (
                 <div className="mRight30">
                   <Radio
                     key={index}
@@ -182,10 +217,7 @@ const Login = props => {
               ))}
             </div>
           </div>
-          <Switch
-            checked={enableFooterInfo}
-            onClick={value => changeSysSettings('enableFooterInfo', value)}
-          />
+          <Switch checked={enableFooterInfo} onClick={value => changeSysSettings('enableFooterInfo', value)} />
         </div>
         <div className="mBottom15">
           {linkListLoading ? (
@@ -195,7 +227,9 @@ const Login = props => {
               <div className="flexRow valignWrapper mBottom10">
                 <div className="Gray mRight10">{item.name}</div>
                 <Tooltip title={item.href} placement="top">
-                  <div className="Gray_9e ellipsis" style={{ maxWidth: 400 }}>{item.href}</div>
+                  <div className="Gray_9e ellipsis" style={{ maxWidth: 400 }}>
+                    {item.href}
+                  </div>
                 </Tooltip>
                 <div className="Gray_9e">
                   <Icon
@@ -226,12 +260,14 @@ const Login = props => {
         )}
       </Fragment>
     );
-  }
+  };
 
   return (
     <div className="privateCardWrap flexColumn">
       <div className="Font17 bold mBottom25">{_l('登录与注册')}</div>
       {renderHideRegister()}
+      <Divider className="mTop20 mBottom20" />
+      {renderEnableVerificationCodeLoginInfo()}
       <Divider className="mTop20 mBottom20" />
       {renderAllowEditAccountInfo()}
       <Divider className="mTop20 mBottom20" />
@@ -270,39 +306,43 @@ const GoogleSso = prosp => {
       alert(_l('请完善配置信息'), 3);
       return;
     }
-    privateSysSettingApi.setSso({
-      clientId: encrypt(ssoSettings.clientId),
-      clientSecret: encrypt(ssoSettings.clientSecret),
-      redirectUri: ssoSettings.redirectUri,
-      tpType: ssoSettings.tpType,
-    }).then(data => {
-      const config = {
-        ...ssoSettings,
-        clientSecret: '************'
-      }
-      setSsoSettings(config);
-      setOriginal(config);
-      setEdit(false);
-    });
+    privateSysSettingApi
+      .setSso({
+        clientId: encrypt(ssoSettings.clientId),
+        clientSecret: encrypt(ssoSettings.clientSecret),
+        redirectUri: ssoSettings.redirectUri,
+        tpType: ssoSettings.tpType,
+      })
+      .then(data => {
+        const config = {
+          ...ssoSettings,
+          clientSecret: '************',
+        };
+        setSsoSettings(config);
+        setOriginal(config);
+        setEdit(false);
+      });
   };
-  const handleChangeSsoSettings = (config) => {
+  const handleChangeSsoSettings = config => {
     setSsoSettings(data => {
       return {
         ...data,
-        ...config
-      }
+        ...config,
+      };
     });
-  }
+  };
   const handleSetSsoStatus = status => {
-    privateSysSettingApi.setSsoStatus({
-      tpType: ssoSettings.tpType,
-      status
-    }).then(data => {
-      handleChangeSsoSettings({
-        status: status ? 1 : 0
+    privateSysSettingApi
+      .setSsoStatus({
+        tpType: ssoSettings.tpType,
+        status,
+      })
+      .then(data => {
+        handleChangeSsoSettings({
+          status: status ? 1 : 0,
+        });
       });
-    });
-  }
+  };
   const handleReset = () => {
     handleChangeSsoSettings({
       clientId: original.clientId,
@@ -314,9 +354,7 @@ const GoogleSso = prosp => {
   return (
     <div className="privateCardWrap flexColumn">
       <div className="flexRow">
-        <div className="flex Font17 bold mBottom5">
-          {_l('SSO')}
-        </div>
+        <div className="flex Font17 bold mBottom5">{_l('SSO')}</div>
         <Switch
           checked={ssoSettings.status === 1}
           onClick={value => {
@@ -329,86 +367,80 @@ const GoogleSso = prosp => {
         <img src={googleIcon} width="20px" />
         <span className="mLeft8">{'Google'}</span>
       </div>
-      {ssoSettings.status === 1 && (
-        loading ? (
+      {ssoSettings.status === 1 &&
+        (loading ? (
           <LoadDiv />
-        ) : (
-          edit ? (
-            <Fragment>
-              <div className="flexColumn mBottom20">
-                <div className="mBottom5">{'client id'}</div>
-                <Input
-                  className="flex"
-                  value={ssoSettings.clientId}
-                  onChange={event => {
-                    handleChangeSsoSettings({
-                      clientId: event.target.value.replace(/\s/g, '')
-                    });
-                  }}
-                />
-              </div>
-              <div className="flexColumn mBottom20">
-                <div className="mBottom5">{'client secret'}</div>
-                <Input
-                  className="flex"
-                  type="password"
-                  value={ssoSettings.clientSecret}
-                  onChange={event => {
-                    handleChangeSsoSettings({
-                      clientSecret: event.target.value.replace(/\s/g, '')
-                    });
-                  }}
-                />
-              </div>
-              <div className="flexColumn mBottom20">
-                <div className="mBottom5">{_l('回调地址')}</div>
-                <Input
-                  className="flex"
-                  value={ssoSettings.redirectUri}
-                  onChange={event => {
-                    handleChangeSsoSettings({
-                      redirectUri: event.target.value.replace(/\s/g, '')
-                    });
-                  }}
-                />
-              </div>
-              <div className="flexRow valignWrapper">
-                <Button className="mRight10" type="primary" onClick={handleSave}>{_l('保存')}</Button>
-                <Button onClick={handleReset}>{_l('取消')}</Button>
-              </div>
-            </Fragment>
-          ) : (
-            <Fragment>
-              {ssoSettings.clientId && (
-                <div className="flexRow mBottom20">
-                  <div className="mRight25 Gray_9e">{'client id'}</div>
-                  <div>{ssoSettings.clientId}</div>
-                </div>
-              )}
-              {ssoSettings.clientSecret && (
-                <div className="flexRow mBottom20">
-                  <div className="mRight25 Gray_9e">{'client secret'}</div>
-                  <div>{ssoSettings.clientSecret}</div>
-                </div>
-              )}
-              {ssoSettings.redirectUri && (
-                <div className="flexRow mBottom20">
-                  <div className="mRight25 Gray_9e">{_l('回调地址')}</div>
-                  <div>{ssoSettings.redirectUri}</div>
-                </div>
-              )}
-              <Button
-                ghost
-                type="primary"
-                style={{ width: 'max-content' }}
-                onClick={() => setEdit(true)}
-              >
-                {_l('设置')}
+        ) : edit ? (
+          <Fragment>
+            <div className="flexColumn mBottom20">
+              <div className="mBottom5">{'client id'}</div>
+              <Input
+                className="flex"
+                value={ssoSettings.clientId}
+                onChange={event => {
+                  handleChangeSsoSettings({
+                    clientId: event.target.value.replace(/\s/g, ''),
+                  });
+                }}
+              />
+            </div>
+            <div className="flexColumn mBottom20">
+              <div className="mBottom5">{'client secret'}</div>
+              <Input
+                className="flex"
+                type="password"
+                value={ssoSettings.clientSecret}
+                onChange={event => {
+                  handleChangeSsoSettings({
+                    clientSecret: event.target.value.replace(/\s/g, ''),
+                  });
+                }}
+              />
+            </div>
+            <div className="flexColumn mBottom20">
+              <div className="mBottom5">{_l('回调地址')}</div>
+              <Input
+                className="flex"
+                value={ssoSettings.redirectUri}
+                onChange={event => {
+                  handleChangeSsoSettings({
+                    redirectUri: event.target.value.replace(/\s/g, ''),
+                  });
+                }}
+              />
+            </div>
+            <div className="flexRow valignWrapper">
+              <Button className="mRight10" type="primary" onClick={handleSave}>
+                {_l('保存')}
               </Button>
-            </Fragment>
-          )
-        )
-      )}
+              <Button onClick={handleReset}>{_l('取消')}</Button>
+            </div>
+          </Fragment>
+        ) : (
+          <Fragment>
+            {ssoSettings.clientId && (
+              <div className="flexRow mBottom20">
+                <div className="mRight25 Gray_9e">{'client id'}</div>
+                <div>{ssoSettings.clientId}</div>
+              </div>
+            )}
+            {ssoSettings.clientSecret && (
+              <div className="flexRow mBottom20">
+                <div className="mRight25 Gray_9e">{'client secret'}</div>
+                <div>{ssoSettings.clientSecret}</div>
+              </div>
+            )}
+            {ssoSettings.redirectUri && (
+              <div className="flexRow mBottom20">
+                <div className="mRight25 Gray_9e">{_l('回调地址')}</div>
+                <div>{ssoSettings.redirectUri}</div>
+              </div>
+            )}
+            <Button ghost type="primary" style={{ width: 'max-content' }} onClick={() => setEdit(true)}>
+              {_l('设置')}
+            </Button>
+          </Fragment>
+        ))}
     </div>
   );
 };
@@ -420,43 +452,68 @@ const Sso = prosp => {
   const [ssoAppUrl, setSsoAppUrl] = useState(SysSettings.ssoAppUrl);
   const [ssoName, setSsoName] = useState(SysSettings.ssoName);
   const [enableSso, setEnableSso] = useState(SysSettings.enableSso || false);
+  const [ssoIconUrl, setSsoIconUrl] = useState(SysSettings.ssoIconUrl);
   const handleSave = () => {
-    updateSysSettings({
-      ssoWebUrl,
-      ssoAppUrl,
-      ssoName,
-    }, () => {
-      md.global.SysSettings.ssoWebUrl = ssoWebUrl;
-      md.global.SysSettings.ssoAppUrl = ssoAppUrl;
-      md.global.SysSettings.ssoName = ssoName;
-      setEdit(false);
-    });
+    updateSysSettings(
+      {
+        ssoWebUrl,
+        ssoAppUrl,
+        ssoName,
+      },
+      () => {
+        md.global.SysSettings.ssoWebUrl = ssoWebUrl;
+        md.global.SysSettings.ssoAppUrl = ssoAppUrl;
+        md.global.SysSettings.ssoName = ssoName;
+        setEdit(false);
+      },
+    );
   };
   const handleReset = () => {
     setSsoWebUrl(SysSettings.ssoWebUrl);
     setSsoAppUrl(SysSettings.ssoAppUrl);
-    setSsoName(SysSettings.ssoName);
     setEdit(false);
   };
   return (
     <div className="privateCardWrap flexColumn">
       <div className="flexRow">
-        <div className="flex Font17 bold mBottom5">
-          {_l('SSO自主集成')}
-        </div>
+        <div className="flex Font17 bold mBottom5">{_l('SSO自主集成')}</div>
         <Switch
           checked={enableSso}
           onClick={value => {
-            updateSysSettings({
-              enableSso: !value
-            }, () => {
-              setEnableSso(!value);
-              md.global.SysSettings.enableSso = !value;
-            });
+            updateSysSettings(
+              {
+                enableSso: !value,
+              },
+              () => {
+                setEnableSso(!value);
+                md.global.SysSettings.enableSso = !value;
+              },
+            );
           }}
         />
       </div>
-      <div className="mBottom15 Gray_9e">{_l('当启用SSO自主集成并通过SSO完成登录后，用户在退出登录时将会被重定向回SSO登录页')}</div>
+      <div className="mBottom15 Gray_9e">
+        {_l('当启用SSO自主集成并通过SSO完成登录后，用户在退出登录时将会被重定向回SSO登录页')}
+      </div>
+      <SettingIconAndName
+        className="mBottom10"
+        iconClassName="icon-tab_move"
+        defaultName="SSO"
+        uploadType={4}
+        name={ssoName}
+        iconUrl={ssoIconUrl}
+        handleSave={({ name, iconUrl, file, success = () => {} }) => {
+          const ssoIcon = file && !_.isEmpty(file) ? file.fileName : '';
+          updateSysSettings({ ssoName: name, ssoIcon }, () => {
+            success(iconUrl);
+            setSsoName(name);
+            setSsoIconUrl(iconUrl);
+            md.global.SysSettings.ssoName = name;
+            md.global.SysSettings.ssoIconUrl = iconUrl;
+            md.global.SysSettings.ssoIcon = ssoIcon;
+          });
+        }}
+      />
       {edit ? (
         <Fragment>
           <div className="flexColumn mBottom20">
@@ -479,18 +536,10 @@ const Sso = prosp => {
               }}
             />
           </div>
-          <div className="flexColumn mBottom20">
-            <div className="mBottom5">{_l('按钮名称')}</div>
-            <Input
-              className="flex"
-              value={ssoName}
-              onChange={event => {
-                setSsoName(event.target.value.replace(/\s/g, ''));
-              }}
-            />
-          </div>
           <div className="flexRow valignWrapper">
-            <Button className="mRight10" type="primary" onClick={handleSave}>{_l('保存')}</Button>
+            <Button className="mRight10" type="primary" onClick={handleSave}>
+              {_l('保存')}
+            </Button>
             <Button onClick={handleReset}>{_l('取消')}</Button>
           </div>
         </Fragment>
@@ -508,18 +557,11 @@ const Sso = prosp => {
               <div>{ssoAppUrl}</div>
             </div>
           )}
-          {ssoName && (
-            <div className="flexRow mBottom20">
-              <div className="mRight25 Gray_9e">{_l('按钮名称')}</div>
-              <div>{ssoName}</div>
-            </div>
-          )}
           <Button ghost type="primary" style={{ width: 'max-content' }} onClick={() => setEdit(true)}>
             {_l('设置')}
           </Button>
         </Fragment>
       )}
-
     </div>
   );
 };
@@ -534,12 +576,15 @@ const LoginGotoAppId = props => {
       alert(_l('应用ID格式不正确，请重新输入'), 3);
       return;
     }
-    updateSysSettings({
-      loginGotoAppId
-    }, () => {
-      md.global.SysSettings.loginGotoAppId = loginGotoAppId;
-      setIsEdit(false);
-    });
+    updateSysSettings(
+      {
+        loginGotoAppId,
+      },
+      () => {
+        md.global.SysSettings.loginGotoAppId = loginGotoAppId;
+        setIsEdit(false);
+      },
+    );
   };
   const handleReset = () => {
     setLoginGotoAppId(SysSettings.loginGotoAppId || '');
@@ -550,7 +595,9 @@ const LoginGotoAppId = props => {
     <div className="privateCardWrap flexRow">
       <div className="flex flexColumn">
         <div className="Font14 bold mBottom7">{_l('登录后直接进入应用')}</div>
-        <div className="Gray_9e mBottom15">{_l('支持设置登录后直接进入的应用，应用ID可前往应用管理右上角查看。若未设置，则默认登录后进入工作台')}</div>
+        <div className="Gray_9e mBottom15">
+          {_l('支持设置登录后直接进入的应用，应用ID可前往应用管理右上角查看。若未设置，则默认登录后进入工作台')}
+        </div>
         {isEdit ? (
           <Fragment>
             <div className="mBottom15 valignWrapper">
@@ -564,7 +611,9 @@ const LoginGotoAppId = props => {
               />
             </div>
             <div className="flexRow valignWrapper">
-              <Button className="mRight10" type="primary" onClick={handleSave}>{_l('保存')}</Button>
+              <Button className="mRight10" type="primary" onClick={handleSave}>
+                {_l('保存')}
+              </Button>
               <Button onClick={handleReset}>{_l('取消')}</Button>
             </div>
           </Fragment>
@@ -575,11 +624,7 @@ const LoginGotoAppId = props => {
               <span>{loginGotoAppId ? loginGotoAppId : _l('未设置')}</span>
             </div>
             <div>
-              <Button
-                ghost
-                type="primary"
-                onClick={() => setIsEdit(true)}
-              >
+              <Button ghost type="primary" onClick={() => setIsEdit(true)}>
                 {_l('设置')}
               </Button>
             </div>
@@ -593,10 +638,10 @@ const LoginGotoAppId = props => {
 export default props => {
   return (
     <Fragment>
-      <Login {...props } />
-      <GoogleSso {...props } />
-      <Sso {...props } />
-      <LoginGotoAppId {...props } />
+      <Login {...props} />
+      <GoogleSso {...props} />
+      <Sso {...props} />
+      <LoginGotoAppId {...props} />
     </Fragment>
   );
 };

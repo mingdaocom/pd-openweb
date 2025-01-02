@@ -231,6 +231,7 @@ var processVersion = {
    * @param {string} [args.access_token] 令牌
    * @param {string} [args.apkId] 应用ID
    * @param {string} [args.companyId] 网络id
+   * @param {string} [args.createrIds] 创建者
    * @param {string} [args.enabled] 开启状态 0 全部，1：开启，2：关闭
    * @param {string} [args.isAsc] 是否升序
    * @param {string} [args.keyWords] 搜索框

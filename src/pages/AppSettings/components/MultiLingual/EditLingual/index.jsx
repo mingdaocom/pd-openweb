@@ -143,7 +143,7 @@ export default function Edit(props) {
           /<span className="bold mLeft5">{_.find(langConfig, { code: langInfo.type }).value}</span>
         </div>
         <div className="flexRow alignItemsCenter">
-          {md.global.Config.EnableAI && (
+          {!md.global.SysSettings.hideAIBasicFun && (
             <Popover
               disabled={true}
               trigger="click"

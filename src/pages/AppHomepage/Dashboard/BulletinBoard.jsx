@@ -102,7 +102,10 @@ export default function BulletinBoard(props) {
                 style={{ backgroundImage: `url(${item.url})`, height: `${height}px` }}
               />
               {item.title && (
-                <div className={cx('explain', { pointer: item.link })}>
+                <div
+                  className={cx('explain', { pointer: item.link })}
+                  style={{ paddingRight: bulletinBoards.length === 1 ? 16 : bulletinBoards.length * 16 + 12 }}
+                >
                   <div className="titleText">{item.title}</div>
                 </div>
               )}

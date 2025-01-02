@@ -97,8 +97,8 @@ function APICard(props) {
           checkedChildren={_l('开启')}
           unCheckedChildren={_l('关闭')}
           disabled={!props.isConnectOwner} //只有超级管理员和拥有者可以操作点击有权限的API的「状态」开关
-          checked={props.item.enabled}
-          onChange={() => {
+          checked={!!props.item.enabled}
+          onClick={() => {
             if (!props.isConnectOwner) {
               return;
             }

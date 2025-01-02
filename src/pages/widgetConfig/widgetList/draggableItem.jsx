@@ -4,15 +4,17 @@ import { getEmptyImage } from 'react-dnd-html5-backend-latest';
 import { v4 as uuidv4 } from 'uuid';
 import { DRAG_ITEMS } from '../config/Drag';
 import { DEFAULT_DATA, WIDGETS_TO_API_TYPE_ENUM } from '../config/widget';
-import { enumWidgetType, getDefaultarea } from '../util';
+import { enumWidgetType, getDefaultarea, checkWidgetMaxNumErr } from '../util';
 import { buriedUpgradeVersionDialog } from 'src/util';
 import { Dialog, Checkbox, Button } from 'ming-ui';
 import imgUrl from 'staticfiles/images/tab_img.png';
+import cx from 'classnames';
 import _ from 'lodash';
 
 export default function DraggableItem(props) {
   const { item, addWidget, allControls, setStyleInfo, styleInfo: { info = {} } = {}, globalSheetInfo } = props;
   const { widgetName, icon, enumType, featureType } = item;
+  const isCustomWidget = enumType === 'CUSTOM';
 
   const handleAdd = para => {
     if (featureType === '2') {
@@ -84,6 +86,12 @@ export default function DraggableItem(props) {
       return;
     }
 
+    const err = checkWidgetMaxNumErr(data, allControls);
+    if (err) {
+      alert(err, 3);
+      return;
+    }
+
     addWidget(data, para);
   };
 
@@ -92,6 +100,9 @@ export default function DraggableItem(props) {
       enumType: enumType,
       type: _.includes(['SECTION'], enumType) ? DRAG_ITEMS.LIST_TAB : DRAG_ITEMS.LIST_ITEM,
       widgetType: WIDGETS_TO_API_TYPE_ENUM[enumType],
+    },
+    canDrag: () => {
+      return !_.includes(['SECTION'], enumType);
     },
 
     previewOptions: { captureDraggingState: true },
@@ -108,10 +119,11 @@ export default function DraggableItem(props) {
   }, [preview]);
 
   return (
-    <li className="widgetLi" ref={drag} onClick={handleAdd}>
+    <li className={cx('widgetLi', { widgetCustom: isCustomWidget })} ref={drag} onClick={handleAdd}>
       <div className="widgetItem">
         <i className={`icon-${icon}`}></i>
         <span>{widgetName}</span>
+        {isCustomWidget && <span className="icon-ai-l betaIcon" />}
       </div>
     </li>
   );

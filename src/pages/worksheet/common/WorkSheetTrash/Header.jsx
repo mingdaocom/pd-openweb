@@ -14,11 +14,15 @@ const Con = styled.div`
   margin: 0 -24px;
   padding: 0 24px;
   .queryInput {
-    margin: 5px 16px 0 0;
+    /* margin: 5px 16px 0 0; */
   }
   .pagination {
     line-height: 1em;
     margin-right: 8px;
+    border-radius: 5px;
+    &:hover {
+      background: #f7f7f7;
+    }
   }
   .worksheetFilterBtn {
     line-height: 1em;
@@ -52,6 +56,17 @@ const Operate = styled.span`
   .inputCon > .icon-search {
     &:hover {
       color: #2196f3 !important;
+    }
+  }
+  .actionWrap {
+    margin: 0 8px;
+    display: inline-flex;
+    height: 28px;
+    align-items: center;
+    border-radius: 5px;
+    padding: 0 5px;
+    &:hover {
+      background: #f7f7f7;
     }
   }
 `;
@@ -143,6 +158,7 @@ function Header(props, ref) {
         />
         <WorkSheetFilter
           type="trash"
+          className="actionWrap"
           onlyUseEditing
           zIndex={1000}
           isCharge={isCharge}

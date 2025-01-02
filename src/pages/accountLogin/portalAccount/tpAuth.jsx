@@ -97,14 +97,14 @@ export default function TPAuth(props) {
         if (pcScan) {
           switch (accountResult) {
             case 1:
-              // 返回1，则代表已经关注或者没有开启必须关注公众号，则展现已授权页面即可
+              // 返回1，则代表已经关注或者没有开启必须关注服务号，则展现已授权页面即可
               setState({
                 url: '',
                 loading: false,
               });
               break;
             case 32:
-              //32状态值，需要后续展现关注公众号的二维码
+              //32状态值，需要后续展现关注服务号的二维码
               getUrl(state);
               break;
             default:
@@ -119,7 +119,7 @@ export default function TPAuth(props) {
           if (accountResult === 1) {
             accountResultAction(res);
           } else if (accountResult === 32) {
-            //32状态值，需要后续展现关注公众号的二维码
+            //32状态值，需要后续展现关注服务号的二维码
             getUrl(state);
           } else {
             goPortalLogin(
@@ -138,7 +138,7 @@ export default function TPAuth(props) {
       >
         {url ? (
           <div>
-            <div className="Bold Font20 Gray mTop80">{_l('长按识别下方二维码，关注公众号')}</div>
+            <div className="Bold Font20 Gray mTop80">{_l('长按识别下方二维码，关注服务号')}</div>
             <div className="Bold Font18 Gray_75 mTop16">
               {_l('关注后重新扫码或者打开链接进入')}
               {appName}

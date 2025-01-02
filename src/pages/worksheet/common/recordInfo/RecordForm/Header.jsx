@@ -60,6 +60,7 @@ export default function InfoHeader(props) {
     isOpenNewAddedRecord,
     customBtnTriggerCb,
     payConfig = {},
+    isDraft,
     updateDiscussCount = _.noop,
     // allowExAccountDiscuss = false, //允许外部用户讨论
     // exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
@@ -263,7 +264,6 @@ export default function InfoHeader(props) {
             onClick={() => {
               if (iseditting) return;
               onRefresh();
-              emitter.emit('RELOAD_RECORD_INFO_BEGIN', recordId);
             }}
           >
             <Tooltip offset={[0, 0]} text={<span>{_l('刷新')}</span>}>
@@ -285,6 +285,7 @@ export default function InfoHeader(props) {
               sheetSwitchPermit={sheetSwitchPermit}
               handleAddSheetRow={handleAddSheetRow}
               customBtnTriggerCb={customBtnTriggerCb}
+              isDraft={isDraft}
             />
           ) : (
             <div className="flex" />
@@ -302,6 +303,7 @@ export default function InfoHeader(props) {
               onDelete={onDelete}
               handleAddSheetRow={handleAddSheetRow}
               hideRecordInfo={hideRecordInfo}
+              isDraft={from === RECORD_INFO_FROM.DRAFT || isDraft}
             />
           )}
           {!notDialog && closeBtn()}

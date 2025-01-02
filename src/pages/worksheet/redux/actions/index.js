@@ -445,10 +445,9 @@ export function addNewRecord(data, view) {
 }
 
 // 打开创建记录弹层
-export function openNewRecord() {
+export function openNewRecord({ isDraft } = {}) {
   return (dispatch, getState) => {
-    const { base, views, worksheetInfo, navGroupFilters, sheetSwitchPermit, isCharge, draftDataCount, appPkgData } =
-      getState().sheet;
+    const { base, views, worksheetInfo, navGroupFilters, sheetSwitchPermit, isCharge, appPkgData } = getState().sheet;
     const { appId, viewId, groupId, worksheetId } = base;
     const view = _.find(views, { viewId }) || (!viewId && views[0]) || {};
     const { advancedSetting = {} } = view;
@@ -489,20 +488,17 @@ export function openNewRecord() {
         isCharge: isCharge,
         appPkgData: appPkgData,
         entityName: worksheetInfo.entityName,
+        isDraft,
         onAdd: data => {
           if (!_.isEmpty(data)) {
             dispatch(addNewRecord(data, view));
             dispatch(setHighLightOfRows([data.rowid]));
             return;
           }
-          dispatch({ type: 'UPDATE_DRAFT_DATA_COUNT', data: draftDataCount + 1 });
         },
         updateWorksheetControls: controls => {
           dispatch(updateWorksheetSomeControls(controls));
         },
-        // loadDraftDataCount: () => {
-        //   dispatch(loadDraftDataCount({ appId, worksheetId }));
-        // },
         addNewRecord: (data, view) => {
           dispatch(addNewRecord(data, view));
         },
@@ -511,13 +507,29 @@ export function openNewRecord() {
     if (hasGroupFilter && !_.isEmpty(navGroupFilters) && navGroupFilters.length > 0) {
       let defaultFormData;
       let data = navGroupFilters[0];
-      if ([9, 10, 11].includes(data.dataType)) {
-        defaultFormData = { [data.controlId]: JSON.stringify([data.values[0]]) };
+      if ([9, 10, 11, 28].includes(data.dataType)) {
+        defaultFormData = {
+          [data.controlId]: data.dataType === 28 ? data.values[0] : JSON.stringify([data.values[0]]),
+        };
         handleAdd({
           defaultFormData,
           defaultFormDataEditable: true,
         });
-      } else if ([29, 35]) {
+      } else if ([26, 27, 48].includes(data.dataType)) {
+        let value = '';
+        const id = _.get(data, 'values[0]');
+        const name = _.get(data, 'navNames[0]');
+        if (id && name) {
+          value = JSON.stringify([safeParse(name)]);
+        } else {
+          value = '[]';
+        }
+        defaultFormData = { [data.controlId]: value };
+        handleAdd({
+          defaultFormData,
+          defaultFormDataEditable: true,
+        });
+      } else if ([29, 35].includes(data.dataType)) {
         const targetWorksheetId = _.find(worksheetInfo.template.controls, { controlId: data.controlId }).dataSource;
         if (!targetWorksheetId) {
           return;
@@ -764,27 +776,6 @@ export function initMobileGunter({ appId, worksheetId, viewId, access_token }) {
     });
   };
 }
-
-// 获取草稿箱数据
-// export const loadDraftDataCount =
-//   ({ appId, worksheetId }) =>
-//   (dispatch, getState) => {
-//     if (_.get(window, 'shareState.isPublicView') || _.get(window, 'shareState.isPublicPage')) {
-//       return;
-//     }
-//     worksheetAjax
-//       .getFilterRowsTotalNum({
-//         appId,
-//         worksheetId,
-//         getType: 21,
-//       })
-//       .then(res => {
-//         dispatch({
-//           type: 'UPDATE_DRAFT_DATA_COUNT',
-//           data: Number(res) || 0,
-//         });
-//       });
-//   };
 
 export function updateCurrentViewState(updates) {
   return (dispatch, getState) => {

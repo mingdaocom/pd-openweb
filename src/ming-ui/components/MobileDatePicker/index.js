@@ -25,12 +25,14 @@ export default function MobileDatePicker(props) {
     value,
     onSelect,
     onCancel,
+    onClose,
     precision = 'second',
     confirmText,
     cancelText,
     minuteStep,
     ...rest
   } = props;
+  const clearDisable = /^[A-Za-z]{3} [A-Za-z]{3} \d{1,2} \d{4} \d{2}:\d{2}:\d{2} GMT[+-]\d{4} \(.+\)$/.test(value);
   const [dateTime, setDateTime] = useState(getDate(value, minuteStep));
   const year = {
     format: 'YYYY ' + _l('年'),
@@ -71,17 +73,33 @@ export default function MobileDatePicker(props) {
     second: { year, month, date, hour, minute, second },
   };
 
+  const handleClear = () => {
+    if (clearDisable) return;
+    onCancel();
+  };
+
+  const renderHeader = customHeader => {
+    return (
+      <div className="customHeaderBox">
+        <span className="headerText">{customHeader}</span>
+        <span className={`btnClear ${clearDisable ? 'btnDisable' : ''}`} onClick={handleClear}>
+          {_l('移除')}
+        </span>
+      </div>
+    );
+  };
+
   return (
     <DatePicker
-      customHeader={customHeader}
+      customHeader={renderHeader(customHeader)}
       isOpen={isOpen}
       dateConfig={dateConfig[precision]}
       theme={'ios'}
       value={dateTime}
       onSelect={onSelect}
-      onCancel={onCancel}
+      onCancel={onClose}
       confirmText={confirmText || _l('确认')}
-      cancelText={cancelText || _l('移除')}
+      cancelText={cancelText || _l('取消')}
       onChange={date => {
         if (minuteStep === 1) return;
         const currentMinute = moment(date).minute();
@@ -106,7 +124,7 @@ export default function MobileDatePicker(props) {
         }
       }}
       {...rest}
-    ></DatePicker>
+    />
   );
 }
 

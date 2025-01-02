@@ -12,7 +12,13 @@ import Back from 'mobile/components/Back';
 
 const RecordInfoPage = props => {
   const { params } = props.match;
-  const { appId, worksheetId, viewId, rowId } = params;
+  let { appId, worksheetId, viewId, rowId, from } = params;
+
+  if (rowId.indexOf('-') === -1) {
+    rowId = params.viewId;
+    viewId = null;
+    from = Number(params.rowId);
+  }
 
   useEffect(() => {
     workflowPushSoket();
@@ -24,7 +30,8 @@ const RecordInfoPage = props => {
       worksheetId={worksheetId}
       viewId={viewId}
       recordId={rowId}
-      from={RECORD_INFO_FROM.WORKSHEET_ROW_LAND}
+      from={from || RECORD_INFO_FROM.WORKSHEET_ROW_LAND}
+      getDataType={from}
     />
   );
 };

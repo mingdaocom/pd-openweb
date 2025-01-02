@@ -11,6 +11,7 @@ import { putControlByOrder, notInsetSectionTab, isSheetDisplay } from '../../uti
 import { find, flatten } from 'lodash';
 import { UN_REQUIRED_WIDGET } from '../../config';
 import WidgetWarning from '../../widgetSetting/components/WidgetBase/WidgetWarning';
+import AutoIcon from '../../components/Icon';
 
 const WidgetBatchWrap = styled.div`
   position: absolute;
@@ -87,7 +88,7 @@ function WidgetBatch(props) {
 
   const getDisabledStatus = mode => {
     if (mode === 'readonly') {
-      const unReadOnly = [31, 33, 25, 32, 38, 43, 47, 45, 30, 51, 37, 22, 52, 53, 10010];
+      const unReadOnly = [31, 33, 25, 32, 38, 43, 47, 45, 30, 51, 37, 22, 52, 53, 54, 10010];
       return batchActive.some(i => _.includes(unReadOnly, i.type));
     }
     if (mode === 'required') {
@@ -175,7 +176,7 @@ function WidgetBatch(props) {
                 >
                   <span style={{ marginRight: '4px' }}>{text}</span>
                   <Tooltip placement="bottom" title={tips}>
-                    <Icon icon="help" />
+                    <AutoIcon icon="help" />
                   </Tooltip>
                 </Checkbox>
               </div>

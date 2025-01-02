@@ -71,7 +71,7 @@ const CollectionWrap = styled.div`
     height: 36px;
     display: flex;
     align-items: center;
-    color: #333;
+    color: #151515;
     font-size: 14px;
     border-radius: 3px 3px 3px 3px;
     &:hover {

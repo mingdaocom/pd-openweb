@@ -17,6 +17,8 @@ export default {
   * @param {string} args.worksheetId 工作表id
   * @param {string} args.rowId 工作表纪录id
   * @param {} args.paymentModule
+  * @param {string} args.productId 产品id
+  * @param {string} args.licenseId 套餐id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}
@@ -31,6 +33,8 @@ export default {
   * @param {string} args.worksheetId 工作表id
   * @param {string} args.rowId 工作表纪录id
   * @param {} args.paymentModule
+  * @param {string} args.productId 产品id
+  * @param {string} args.licenseId 套餐id
   * @param {Object} options 配置参数
   * @param {Boolean} options.silent 是否禁止错误弹层
   * @returns {Promise<Boolean, ErrorModel>}

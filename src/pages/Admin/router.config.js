@@ -187,7 +187,7 @@ export const menuList = [
       {
         name: _l('聚合表'),
         key: 'aggregationTable',
-        hasBeta: true,
+        hasBeta: false,
         featureId: VersionProductType.aggregation,
         routes: [
           {
@@ -254,7 +254,7 @@ export const menuList = [
           },
         ],
       },
-    ],
+    ].filter(o => !(_.get(window, 'md.global.SysSettings.hideDataPipeline') && o.key === 'aggregationTable')),
   },
   {
     title: _l('商户服务'),
@@ -376,7 +376,7 @@ export const menuList = [
     icon: 'icon-device_hub',
     subMenuList: [
       {
-        name: _l('第三方平台集成'),
+        name: _l('第三方平台'),
         key: 'platformintegration',
         menuPath: '/admin/platformintegration/:projectId(.*)',
         routes: [
@@ -387,7 +387,7 @@ export const menuList = [
         ],
       },
       {
-        name: _l('微信公众号'),
+        name: _l('微信服务号'),
         key: 'weixin',
         menuPath: '/admin/weixin/:projectId(.*)',
         routes: [

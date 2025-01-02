@@ -238,7 +238,7 @@ export default class Welink extends React.Component {
           ) : (
             <React.Fragment>
               <p className="mTop16 Font14 Gray_75">{_l('从Welink开放平台获取对接信息，即可开始集成以及同步通讯录')}</p>
-              <Link to={`/welinkSyncCourse/${this.props.projectId}`} target="_blank" className="mTop16 Font14 howApply">
+              <Link to={`/welinkSyncCourse/${this.props.projectId}`} target="_blank" className="mTop16 Font14 howApply stopPropagation">
                 {_l('如何获取对接信息？')}
               </Link>
             </React.Fragment>

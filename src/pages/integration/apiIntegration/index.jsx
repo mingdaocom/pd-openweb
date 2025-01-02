@@ -38,7 +38,7 @@ const Wrap = styled.div`
         border-bottom: 4px solid rgba(0, 0, 0, 0);
         a {
           height: 44px;
-          color: #333;
+          color: #151515;
           padding: 10px;
           font-weight: 600;
           display: inline-block;
@@ -98,7 +98,7 @@ function APILibraryCon(props) {
       window.MDAPILibrary({
         DomId: 'containerApiLib',
         featureType: getFeatureStatus(currentProjectId, VersionProductType.apiIntergration),
-        installCallBack: id => {
+        installCallBack: (id, tab) => {
           window.open(`/integrationConnect/${id}`);
         },
         buriedUpgradeVersionDialog: () => {
@@ -116,7 +116,7 @@ function APILibraryCon(props) {
       if (window.MDAPILibrary) {
         renderLibCon();
       } else {
-        loadScript(`https://alifile.mingdaocloud.com/open/js/apilibrary_v2.js?${+new Date()}`, err => {
+        loadScript(`https://alifile.mingdaocloud.com/open/js/apilibrary_v3.js?${+new Date()}`, err => {
           if (!err && window.MDAPILibrary) {
             renderLibCon();
           }

@@ -42,7 +42,8 @@ export default class TableRelation extends React.Component {
       !_.isEqual(nextProps.controls, this.props.controls) ||
       nextProps.showData !== this.props.showData ||
       !_.isEqual(nextProps.orderNumberCheck, this.props.orderNumberCheck) ||
-      !_.isEqual(nextProps.fileStyle, this.props.fileStyle)
+      !_.isEqual(nextProps.fileStyle, this.props.fileStyle) ||
+      !_.isEqual(nextProps.user_info, this.props.user_info)
     ) {
       this.setData(nextProps);
     }
@@ -53,7 +54,7 @@ export default class TableRelation extends React.Component {
   }
 
   setData = props => {
-    const { printData, dataSource, controls, orderNumberCheck, id, isShowFn, showData, fileStyle } = props;
+    const { printData, dataSource, controls, orderNumberCheck, id, isShowFn, showData, fileStyle, user_info } = props;
     let list = [];
 
     if (orderNumberCheck) {
@@ -69,6 +70,7 @@ export default class TableRelation extends React.Component {
     }
 
     let controlsList = [];
+    let sumWidth = 50;
     controls.map(it => {
       let da = false;
       dataSource.map((o, i) => {
@@ -114,6 +116,7 @@ export default class TableRelation extends React.Component {
             : minPictureW
           : w;
         //不显示分割线
+        sumWidth += width;
         list.push({
           title: [6, 8, 20, 31, 37].includes(it.type)
             ? `${it.controlName || _l('未命名')}`
@@ -138,12 +141,20 @@ export default class TableRelation extends React.Component {
               isRelateMultipleSheet: true,
               value: record[it.controlId],
               fileStyle,
+              user_info,
               dataSource: id,
             });
           },
         });
       }
     });
+
+    list.forEach((l, index) => {
+      if(index === 0) return;
+
+      l.width = Math.floor(l.width * 728 / sumWidth);
+    })
+
     this.setState({
       list: list,
     });
@@ -217,17 +228,17 @@ export default class TableRelation extends React.Component {
   };
 
   changeData = (controlId, w, dataList) => {
-    const { printData } = this.props;
+    const { printData, id } = this.props;
     let { controlStyles = [] } = printData;
     let data = [];
     if (dataList) {
       controlStyles = dataList;
     }
     //存的时候 `${controlId}-${id}`
-    let isData = controlStyles.map(it => it.controlId).includes(`${controlId}`);
+    let isData = controlStyles.map(it => it.controlId).includes(`${controlId}-${id}`);
     if (isData) {
       controlStyles.map(it => {
-        if (it.controlId === `${controlId}`) {
+        if (it.controlId === `${controlId}-${id}`) {
           data.push({
             controlId: it.controlId,
             width: w,
@@ -239,7 +250,7 @@ export default class TableRelation extends React.Component {
     } else {
       data = controlStyles;
       data.push({
-        controlId: `${controlId}`,
+        controlId: `${controlId}-${id}`,
         width: w,
       });
     }

@@ -88,7 +88,7 @@ class Header extends React.Component {
                         <meta charset="UTF-8">
                         <title>Document</title>
                       </head>
-                      <body class='printTem' id='wordPrintCon' style="width: 800px;color: #333;line-height: 0;margin: 0px;padding: 0px;background-attachment: fixed;-webkit-text-size-adjust: none;line-height: 1.5;">
+                      <body class='printTem' id='wordPrintCon' style="width: 800px;color: #151515;line-height: 0;margin: 0px;padding: 0px;background-attachment: fixed;-webkit-text-size-adjust: none;line-height: 1.5;">
                         <div style="font-size: 0; line-height: 0;margin: 0; padding: 0;">${
                           noPrint ? content.replace(noPrint.outerHTML, '') : content
                         }</div>

@@ -113,6 +113,8 @@ export default function AggregationTables(props) {
     displayType: 'createDate',
   });
 
+  const featureType = getFeatureStatus(projectId, VersionProductType.aggregation);
+
   useEffect(() => {
     if (!loading) return;
     if (ajaxPromise) ajaxPromise.abort();
@@ -235,7 +237,7 @@ export default function AggregationTables(props) {
                 value={displayType}
                 renderTitle={() => (
                   <span className="Gray_75 bold TxtTop">
-                    {displayType === 'createDate' ? _l(' 创建时间') : _l('更新时间')}
+                    {displayType === 'createDate' ? _l('创建时间') : _l('更新时间')}
                   </span>
                 )}
                 onChange={displayType =>
@@ -312,7 +314,12 @@ export default function AggregationTables(props) {
                 index={index}
                 num={index}
                 displayType={displayType}
+                canEdit={featureType !== '2'}
                 onEdit={() => {
+                  if (featureType === '2') {
+                    buriedUpgradeVersionDialog(projectId, VersionProductType.aggregation);
+                    return;
+                  }
                   setState({ showInfo: true, id: item.aggTableId });
                   navigateTo(`/app/${appId}/settings/aggregation/${item.aggTableId}${location.search}`);
                 }}
@@ -324,8 +331,6 @@ export default function AggregationTables(props) {
       </Fragment>
     );
   };
-
-  const featureType = getFeatureStatus(projectId, VersionProductType.aggregation);
 
   return (
     <Wrap className="flexColumn h100">

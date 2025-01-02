@@ -9,6 +9,7 @@ import Star from './star';
 import ReplyTo from './replyTo';
 import CommentArea from './commentArea';
 import { SOURCE_TYPE } from '../../constants';
+import { formatMsgDate } from 'src/pages/chat/utils';
 import { addBehaviorLog, cutStringWithHtml, dateConvertToUserZone } from 'src/util';
 import xss from 'xss';
 import { whiteList } from 'xss/lib/default';
@@ -195,10 +196,10 @@ export default class BaseMessageComponent extends React.Component {
       <div className="mTop10 pBottom10">
         {sourceId ? (
           <a href={fromLink} target="_blank" className="Gray_a NoUnderline">
-            {createTimeSpan(dateConvertToUserZone(createTime))}
+            {formatMsgDate(dateConvertToUserZone(createTime))}
           </a>
         ) : (
-          <span className="Gray_a">{createTimeSpan(dateConvertToUserZone(createTime))}</span>
+          <span className="Gray_a">{formatMsgDate(dateConvertToUserZone(createTime))}</span>
         )}
       </div>
     );

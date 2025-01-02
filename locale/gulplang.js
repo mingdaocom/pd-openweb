@@ -6,6 +6,7 @@ const gettextToI18next = require('i18next-conv').gettextToI18next;
 const UglifyJS = require('uglify-js');
 const _ = require('lodash');
 const moment = require('moment');
+const fetch = require('node-fetch');
 const langs = eval(
   fs
     .readFileSync(path.join(__dirname, '../src/common/langConfig.js'))
@@ -172,8 +173,63 @@ const clearPoLangKey = function (done) {
   done();
 };
 
+// push key
+const pushKey = function (done) {
+  const rows = _.uniq(langKeys)
+    .map(key => {
+      return [
+        {
+          controlId: 'key',
+          value: key,
+        },
+        {
+          controlId: 'lang_zh_Hans',
+          value: key.replace(/%\d{5}$/, ''),
+        },
+        {
+          controlId: 'lang_zh_Hant',
+          value: escapeSymbol(langPackage['zh-Hant'][key]) || '',
+        },
+        {
+          controlId: 'lang_en',
+          value: escapeSymbol(langPackage['en'][key]) || '',
+        },
+        {
+          controlId: 'lang_ja',
+          value: escapeSymbol(langPackage['ja'][key]) || '',
+        },
+      ];
+    })
+    .filter(item => !!item.filter(o => !o.value).length);
+
+  console.log(`新增key ${rows.length} 个`);
+
+  const sendRequests = async () => {
+    for (const items of _.chunk(rows, 1000)) {
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 延迟 1 秒
+      await fetch('https://api.mingdao.com/v2/open/worksheet/addRows', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          appKey: 'a5d939a67aec0c6d',
+          sign: 'MzlhMjllOWM1Yjg3ZjIyNTdmMGRhMTdjNTczZjYwZGM2NWEwNTg5MGNiZWUxNDc4MjhlYzAyZjIxM2ExMjk4Zg==',
+          worksheetId: 'web_lang_key',
+          triggerWorkflow: true,
+          rows: items,
+        }),
+      });
+    }
+
+    done();
+  };
+
+  sendRequests();
+};
+
 // 提取key
-gulp.task('getDPLangKey', getDPLangKey);
+gulp.task('getDPLangKey', gulp.series(getDPLangKey, pushKey));
 
 // 增量pot文件
 gulp.task('buildDPPot', gulp.series(['getDPLangKey'], buildDPPot));

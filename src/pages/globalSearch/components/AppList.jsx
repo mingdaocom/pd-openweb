@@ -145,7 +145,7 @@ const MoreOperateMenu = styled.ul`
   border-radius: 3px 3px 3px 3px;
   width: 160px;
   font-size: 13px;
-  color: #333;
+  color: #151515;
   padding: 4px 0;
   li {
     line-height: 36px;

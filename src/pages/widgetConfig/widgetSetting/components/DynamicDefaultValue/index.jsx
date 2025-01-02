@@ -51,7 +51,8 @@ export default function DynamicDefaultValue(props) {
     onChange(para);
   };
 
-  const isLinkParams = (getAdvanceSettingByKey(data, 'defsource') || []).filter(o => o.rcid === 'url').length > 0;
+  const isDYForFaster =
+    (getAdvanceSettingByKey(data, 'defsource') || []).filter(o => ['url', 'dateRange'].includes(o.rcid)).length > 0;
   return (
     <SettingItem className={cx({ mTop0: hideTitle })}>
       {!hideTitle && (
@@ -71,7 +72,7 @@ export default function DynamicDefaultValue(props) {
         data={data}
         controls={allControls}
         dynamicValue={dynamicValue}
-        defaultType={defaultType || isLinkParams}
+        defaultType={defaultType || isDYForFaster}
         dynamicData={dynamicData}
         clearOldDefault={clearOldDefault}
         onDynamicValueChange={handleDynamicValueChange}

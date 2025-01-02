@@ -13,11 +13,10 @@ import Content from './content';
 import { getCurrentRowSize, getPathById } from './util/widgets';
 import {
   formatControlsData,
-  checkCustomEventError,
-  checkOptionsRepeat,
   getMsgByCode,
   scrollToVisibleRange,
   getChildWidgetsBySection,
+  checkWidgetErrorBySave,
 } from './util/data';
 import {
   getUrlPara,
@@ -79,7 +78,12 @@ export default function Container(props) {
   const $switchArgs = useRef(null);
   const $contentRef = useRef(null);
 
-  const [status, setStatus] = useSetState({ saved: false, saveIndex: 0, modify: false, noTitleControl: false });
+  const [status, setStatus] = useSetState({
+    saved: false,
+    saveIndex: 0,
+    modify: false,
+    noTitleControl: false,
+  });
 
   const sourceId = props.worksheetId || _.get(getUrlPara(), 'sourceId');
   const [{ getLoading, saveLoading }, setLoading] = useSetState({ getLoading: false, saveLoading: false });
@@ -261,17 +265,15 @@ export default function Container(props) {
       });
   }, []);
 
-  const saveControls = ({ actualWidgets } = {}) => {
+  const saveControls = ({ actualWidgets, callback } = {}) => {
     const saveControls = genControlsByWidgets(actualWidgets || widgets);
     if (!saveControls.some(item => item.attribute === 1)) {
       setStatus({ noTitleControl: true });
       return;
     }
 
-    if (checkCustomEventError(saveControls)) return;
-    if (checkOptionsRepeat(saveControls, false)) {
-      alert(_l('选项字段存在重复选项'), 3);
-      return;
+    if (checkWidgetErrorBySave(saveControls, $originControls.current)) {
+      return callback(true);
     }
 
     let activeWidgetPath = getPathById(widgets, (activeWidget || {}).controlId);
@@ -338,6 +340,29 @@ export default function Container(props) {
           worksheetId: globalInfo.worksheetId,
           appId: globalInfo.appId,
           advancedSetting: styleInfo.info,
+          editAdKeys: [
+            'titlestorage',
+            'coverid',
+            'covertype',
+            'covercolor',
+            'coverheight',
+            'animation',
+            'autosecond',
+            'showthumbnail',
+            'titlelayout_pc',
+            'titlelayout_app',
+            'align_pc',
+            'align_app',
+            'titlewidth_pc',
+            'titlewidth_app',
+            'sectionstyle',
+            'tabposition',
+            'deftabname',
+            'tabicon',
+            'showicon',
+            'hidetab',
+            'sectionshow',
+          ],
         })
         .then(res => {
           if (res) {
@@ -450,14 +475,16 @@ export default function Container(props) {
     localStorage.removeItem(`worksheetConfig-${sourceId}`);
   };
 
-  const handleSave = () => {
-    if (!activeWidget) {
-      saveStyleInfo();
-      saveControls();
-      return;
-    }
+  const handleSave = callback => {
     saveStyleInfo();
-    saveControls();
+    saveControls({
+      callback: err => {
+        if (err) return;
+        if (_.isFunction(callback)) {
+          callback();
+        }
+      },
+    });
   };
 
   return (
@@ -474,7 +501,6 @@ export default function Container(props) {
       ) : (
         <WidgetConfig>
           <Header
-            {...widgetProps}
             {...globalInfo}
             worksheetId={sourceId}
             showSaveButton={!getLoading}
@@ -488,10 +514,11 @@ export default function Container(props) {
           {status.modify && (
             <VerifyModifyDialog
               onOk={() => {
-                handleSave();
-                cancelSubmit($switchArgs.current);
-                localStorage.removeItem(`worksheetConfig-${sourceId}`);
-                setStatus({ modify: false });
+                handleSave(() => {
+                  cancelSubmit($switchArgs.current);
+                  localStorage.removeItem(`worksheetConfig-${sourceId}`);
+                  setStatus({ modify: false });
+                });
               }}
               onCancel={() => {
                 setStatus({ modify: false });

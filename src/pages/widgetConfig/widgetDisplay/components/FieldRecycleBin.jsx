@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { Icon, Dialog, LoadDiv, Tooltip, UpgradeIcon, UserHead } from 'ming-ui';
 import worksheetAjax from 'src/api/worksheet';
-import { getWidgetInfo } from '../../util';
+import { getWidgetInfo, checkWidgetMaxNumErr } from '../../util';
 import { isExceedMaxControlLimit } from '../../util/setting';
 import WidgetDetail from 'src/pages/widgetConfig/widgetSetting';
 import { getFeatureStatus, buriedUpgradeVersionDialog } from 'src/util';
@@ -44,7 +44,7 @@ export default class FieldRecycleBin extends Component {
           originList: tempList,
           filterList: tempList,
           activeWidget: tempList[0],
-          isAdmin: [2, 4].includes(globalSheetInfo.roleType), //开发者和管理员
+          isAdmin: [2, 4, 6].includes(globalSheetInfo.roleType), //开发者和管理员
           loading: false,
         });
       });
@@ -109,9 +109,16 @@ export default class FieldRecycleBin extends Component {
     const { filterList, originList, activeWidget = {}, isComplete } = this.state;
     const { globalSheetInfo = {}, allControls } = this.props;
 
-    if (status === 'recover' && isExceedMaxControlLimit(allControls)) {
-      alert(_l('恢复失败，表单控件数量已达到上限'), 3);
-      return;
+    if (status === 'recover') {
+      if (isExceedMaxControlLimit(allControls)) {
+        alert(_l('恢复失败，表单控件数量已达到上限'), 3);
+        return;
+      }
+      const err = checkWidgetMaxNumErr(item, allControls);
+      if (err) {
+        alert(err, 3);
+        return;
+      }
     }
 
     if (isComplete) return;

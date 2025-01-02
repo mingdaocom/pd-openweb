@@ -4,7 +4,7 @@ import { PERIOD_TYPE } from 'worksheet/views/GunterView/config';
 import moment from 'moment';
 
 const AxisLabel = styled.div`
-  color: #333;
+  color: #151515;
   font-size: 12px;
   text-align: center;
   position: relative;

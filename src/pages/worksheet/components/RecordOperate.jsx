@@ -143,6 +143,7 @@ export default function RecordOperate(props) {
     hideRecordInfo = () => {},
     onRecreate = () => {},
     hideFav,
+    isDraft,
   } = props;
   const showDel = (isOpenPermit(permitList.recordDelete, sheetSwitchPermit, viewId) || isSubList) && allowDelete;
   const showShare =
@@ -334,7 +335,7 @@ export default function RecordOperate(props) {
           <React.Fragment>
             <CustomButtons
               type="menu"
-              {...{ projectId, appId, viewId, worksheetId, recordId, isCharge, sheetSwitchPermit }}
+              {...{ projectId, appId, viewId, worksheetId, recordId, isCharge, sheetSwitchPermit, isDraft }}
               buttons={defaultCustomButtons || customButtons}
               loadBtns={loadButtons}
               triggerCallback={() => changePopupVisible(false)}
@@ -488,8 +489,12 @@ export default function RecordOperate(props) {
                     onDelete();
                   } else {
                     try {
-                      await deleteRecord({ worksheetId, recordId, deleteType: from });
+                      await deleteRecord({ worksheetId, recordId });
                       alert(_l('删除成功'));
+                      if (from === RECORD_INFO_FROM.DRAFT) {
+                        onRemoveRelation({ confirm: false });
+                        return;
+                      }
                       onDeleteSuccess({ appId, worksheetId, viewId, recordId });
                       emitter.emit('ROWS_UPDATE');
                     } catch (err) {

@@ -17,6 +17,7 @@ export default ({
   openNewFilter = false,
   disabledNewFilter = false,
   filterEncryptCondition = false,
+  hideSort = false,
 }) => {
   return (
     <Fragment>
@@ -66,20 +67,24 @@ export default ({
         </div>
       )}
 
-      <div className="mTop20 flexRow">
-        <div className="flex bold">{_l('排序规则')}</div>
-        {showRandom && (
-          <Checkbox
-            className="flexRow"
-            text={_l('忽略排序规则，随机获取')}
-            checked={data.random}
-            onClick={checked => updateSource({ random: !checked })}
-          />
-        )}
-      </div>
-      {sortText && <div className="Gray_75 mTop5">{sortText}</div>}
+      {!hideSort && (
+        <Fragment>
+          <div className="mTop20 flexRow">
+            <div className="flex bold">{_l('排序规则')}</div>
+            {showRandom && (
+              <Checkbox
+                className="flexRow"
+                text={_l('忽略排序规则，随机获取')}
+                checked={data.random}
+                onClick={checked => updateSource({ random: !checked })}
+              />
+            )}
+          </div>
+          {sortText && <div className="Gray_75 mTop5">{sortText}</div>}
 
-      <Sort sorts={data.sorts} controls={data.controls} updateSource={updateSource} />
+          <Sort sorts={data.sorts} controls={data.controls} updateSource={updateSource} />
+        </Fragment>
+      )}
     </Fragment>
   );
 };

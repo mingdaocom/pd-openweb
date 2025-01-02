@@ -1,10 +1,9 @@
 import React, { Fragment, useState, useEffect, useRef } from 'react';
 import { useSetState } from 'react-use';
 import cx from 'classnames';
-import Trigger from 'rc-trigger';
 import { LoadDiv, Icon, Dialog, Support } from 'ming-ui';
+import { Tooltip } from 'antd';
 import CheckBox from 'ming-ui/components/Checkbox';
-import ChooseControls from './ChooseControls';
 import './style.less';
 import GroupDialog from './GroupDialog';
 import GroupCon from './GroupCon';
@@ -15,21 +14,21 @@ import SyncTask from 'src/pages/integration/api/syncTask.js';
 import AggTableAjax from 'src/pages/integration/api/aggTable.js';
 import {
   getNodeInfo,
-  getRuleAlias,
   updateConfig,
   getGroupFields,
-  getGroupInfo,
   setGroupFields,
-  setResultFieldSettingByAggFuncType,
+  getSourceMaxCountByVersion,
+  getAllSourceList,
 } from '../util';
 import Preview from './Preview';
-import { Wrap, WrapDropW, Header } from './style';
+import { Wrap, Header } from './style';
 import 'src/pages/integration/dataIntegration/connector/style.less';
 import SourceCon from './SourceCon';
 import AddAggregation from './AggregationConForAdd';
 import { getTranslateInfo } from 'src/util';
 import DocumentTitle from 'react-document-title';
-import { systemControls } from '../config';
+import { systemControls, GROUPMAX } from '../config';
+import AddGroup from './AddGroup';
 
 export default function Info(props) {
   const scrollDivRef = useRef(null);
@@ -48,9 +47,9 @@ export default function Info(props) {
       isPreviewRunning,
       isChange,
       sourceHasChange,
-      showList,
       isErr,
       errorMsg,
+      updateLoading,
     },
     setState,
   ] = useSetState({
@@ -66,9 +65,9 @@ export default function Info(props) {
     isPreviewRunning: false, //存在未保存的配置 且当前正在保存ing
     isChange: false,
     sourceHasChange: false,
-    showList: false,
     isErr: false,
     errorMsg: '',
+    updateLoading: false,
   });
 
   useEffect(() => {
@@ -76,9 +75,7 @@ export default function Info(props) {
   }, []);
 
   const getInfo = async () => {
-    setState({
-      loading: true,
-    });
+    setState({ loading: true });
     if (!id) {
       initState({});
     } else {
@@ -98,10 +95,7 @@ export default function Info(props) {
   };
 
   const reset = () => {
-    setState({
-      loading: true,
-      isChange: false,
-    });
+    setState({ loading: true, isChange: false });
     AggTableAjax.undoChange({ projectId, appId, aggTableId: id }, { isAggTable: true }).then(res => {
       initState({
         ...flowData,
@@ -132,14 +126,15 @@ export default function Info(props) {
       .getWorksheetsControls({ worksheetIds: ids, handControlSource: true, getRelationSearch: true })
       .then(({ code, data }) => {
         if (code === 1) {
-          const sourceInfos = _.map(ids, id => _.keyBy(data, 'worksheetId')[id]).map((o = {}) => {
+          const sourceInfos = _.map(ids, id => _.keyBy(data, 'worksheetId')[id]).map((o = {}, i) => {
             return {
               ...o,
+              worksheetId: o.worksheetId || ids[i],
               controls: [...(o.controls || []), ...systemControls].map(a => {
                 const relationControls = (a.relationControls || []).filter(it => !it.encryId);
                 return {
                   ...a,
-                  relationControls: [29, 34].includes(a.type)//子表 关联 都支持系统字段
+                  relationControls: [29, 34].includes(a.type) //子表 关联 都支持系统字段
                     ? [...relationControls, ...systemControls]
                     : relationControls,
                 };
@@ -188,6 +183,7 @@ export default function Info(props) {
     const flowData = data || flowData;
     setState({
       isChange,
+      updateLoading: true,
     });
     if (!hasChange && isChange) {
       setState({
@@ -214,6 +210,7 @@ export default function Info(props) {
         }
         setState({
           ...param,
+          updateLoading: false,
           flowData: {
             ...flowData,
             aggTableNodes: {
@@ -229,6 +226,7 @@ export default function Info(props) {
         });
       } else {
         setState({
+          updateLoading: false,
           sourceHasChange: false,
         });
         let infos = {};
@@ -303,9 +301,7 @@ export default function Info(props) {
         }
       },
       () => {
-        setState({
-          updating: false,
-        });
+        setState({ updating: false });
       },
     );
   };
@@ -358,7 +354,6 @@ export default function Info(props) {
   const sourceDt = getNodeInfo(flowData, 'DATASOURCE');
   const groupDt = getNodeInfo(flowData, 'GROUP');
   const aggregateDt = getNodeInfo(flowData, 'AGGREGATE');
-  const getSourceTableData = (_.get(sourceDt, 'nodeConfig.config.sourceTables') || [])[0] || {};
   return (
     <Wrap className="flexColumn h100">
       <DocumentTitle
@@ -372,24 +367,18 @@ export default function Info(props) {
       />
       <Header className="flexRow alignItemsCenter">
         <div className="flex mLeft24 pageName">
-          <div
-            className="iconWrap Hand"
-            onClick={() => {
-              onClose();
-            }}
-          >
+          <div className="iconWrap Hand" onClick={() => onClose()}>
             <i className="back icon-backspace Font24"></i>
           </div>
           {isEdit ? (
             <input
               autoFocus
+              className="flex"
               value={name}
               maxlength="50"
               onChange={e => {
                 const name = e.target.value;
-                setState({
-                  name,
-                });
+                setState({ name });
               }}
               onBlur={() => {
                 if (!name.trim()) {
@@ -403,6 +392,7 @@ export default function Info(props) {
             />
           ) : (
             <div
+              title={(flowData || {}).taskName || _l('未命名聚合表')}
               className="name overflow_ellipsis Font16 Bold"
               onClick={() => setState({ isEdit: true, name: (flowData || {}).taskName })}
             >
@@ -426,9 +416,7 @@ export default function Info(props) {
             <span
               className={cx('reset InlineBlock mRight24 Gray_9e', { 'ThemeHoverColor3 Hand': !isPreviewRunning })}
               onClick={() => {
-                if (isPreviewRunning) {
-                  return;
-                }
+                if (isPreviewRunning) return;
                 reset();
               }}
             >
@@ -454,8 +442,8 @@ export default function Info(props) {
                   ? _l('发布中...')
                   : _l('发布')
                 : updating
-                ? _l('保存中...')
-                : _l('保存')}
+                  ? _l('保存中...')
+                  : _l('保存')}
             </span>
           )}
         </div>
@@ -470,7 +458,20 @@ export default function Info(props) {
                   <div className="TxtLeft Bold Black mBottom20">{_l('预览中无法修改配置，请先停止预览')}</div>
                 </React.Fragment>
               )}
-              <div className="Bold Font14 Gray">{_l('数据源')}</div>
+              <div className="Bold Font14 Gray flexRow alignItemsCenter">
+                {_l('数据源')}
+                <span className="Gray_75 mLeft10">
+                  {getAllSourceList(flowData).length}/{getSourceMaxCountByVersion(projectId)}
+                </span>
+                {!md.global.Config.IsLocal && (
+                  <Tooltip
+                    placement="bottom"
+                    title={<span className="">{_l('标准版支持5个、专业版和旗舰版支持10个')}</span>}
+                  >
+                    <Icon icon="info1" className="Hand Gray_9e ThemeHoverColor3 mLeft5 Font16" />
+                  </Tooltip>
+                )}
+              </div>
               <SourceCon
                 projectId={projectId}
                 appId={appId}
@@ -486,11 +487,21 @@ export default function Info(props) {
                   state && setState({ ...state });
                 }}
                 getWorksheets={getWorksheets}
+                updateLoading={updateLoading}
               />
               <div className="line mTop20" />
               <div className="Bold Font13 Gray mTop24">
                 <div className="flexRow alignItemsCenter">
-                  <span className="flex Font14">{_l('归组字段')} </span>
+                  <span className="flex Font14 flexRow alignItemsCenter">
+                    {_l('归组字段')}
+                    <span className="Gray_75 mLeft10">{`(${getGroupFields(flowData).length}/${GROUPMAX})`}</span>
+                    <Tooltip
+                      placement="bottom"
+                      title={<span className="">{_l('上限添加8个归组字段，关联记录下数组类型字段最多3个')}</span>}
+                    >
+                      <Icon icon="info1" className="Hand Gray_9e ThemeHoverColor3 mLeft5 Font16" />
+                    </Tooltip>
+                  </span>
                   <CheckBox
                     className="Hand Gray_75 ThemeHoverColor3"
                     checked={_.get(groupDt, 'nodeConfig.config.displayNull') !== false}
@@ -527,94 +538,12 @@ export default function Info(props) {
                 )}
                 {/* 单源 */}
                 {(_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length <= 1 ? (
-                  <Trigger
-                    action={['click']}
-                    key={`groupFields_${(getGroupFields(flowData) || []).length}`}
-                    getPopupContainer={() => document.body}
-                    popupAlign={{ points: ['tl', 'bl'], offset: [0, 4], overflow: { adjustX: true, adjustY: true } }}
-                    popupVisible={showList}
-                    onPopupVisibleChange={showList => setState({ showList })}
-                    popup={
-                      (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length <= 0 || !showList ? (
-                        <span />
-                      ) : (
-                        <WrapDropW>
-                          <ChooseControls
-                            title={
-                              getTranslateInfo(getSourceTableData.appId, null, getSourceTableData.workSheetId).name ||
-                              getSourceTableData.tableName
-                            }
-                            worksheetId={getSourceTableData.workSheetId}
-                            flowData={flowData}
-                            sourceInfos={sourceInfos.map(o => {
-                              const { appId, workSheetId, tableName } =
-                                (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).find(
-                                  ii => ii.workSheetId === o.worksheetId,
-                                ) || {};
-                              return {
-                                ...o,
-                                controls: o.controls.filter(o => ![6, 8].includes(o.type)), //归组这一期先不做数值和金额）
-                                tableName: getTranslateInfo(appId, null, workSheetId).name || tableName,
-                              };
-                            })}
-                            onChange={data => {
-                              const { control, childrenControl } = data;
-                              const workSheetId = ((_.get(sourceDt, 'nodeConfig.config.sourceTables') || [])[0] || {})
-                                .workSheetId;
-                              const controlData = !!childrenControl ? childrenControl : control;
-                              const name = !!childrenControl
-                                ? `${control.controlName}-${controlData.controlName}`
-                                : controlData.controlName;
-                              let newDt = {
-                                alias: getRuleAlias(name, flowData),
-                                controlSetting: controlData,
-                                isChildField: !!childrenControl, //可选，是否为子表字段(工作表关联字段关联表下的字段)-默认false
-                                parentFieldInfo: !!childrenControl
-                                  ? {
-                                      controlSetting: control,
-                                      oid: `${workSheetId}_${control.controlId}`,
-                                    }
-                                  : {}, //可选，父字段，子表字段的上级字段，isChildField为true的时候必须有
-                                isNotNull: true,
-                                isTitle: controlData.attribute === 1, //是否是标题，只有是工作表字段才有值
-                                mdType: controlData.type,
-                                name: name,
-                                oid: `${!!childrenControl ? control.dataSource : workSheetId}_${controlData.controlId}`, //工作表:oid记录为 worksheetId_controllId,这里前端需要这种层级关系，后端获取的时候只需controllerId
-                                precision: 0,
-                                scale: 0,
-                              };
-                              const resultField = { ...newDt, ...getGroupInfo({ fields: [newDt] }, flowData) };
-                              const groupFieldAdd = {
-                                fields: [newDt],
-                                resultField: setResultFieldSettingByAggFuncType(resultField),
-                              };
-                              const groupDt = getNodeInfo(flowData, 'GROUP');
-                              onUpdate(
-                                [
-                                  updateConfig(groupDt, {
-                                    displayNull: _.get(groupDt, 'nodeConfig.config.displayNull') !== false,
-                                    groupFields: getGroupFields(flowData).concat(groupFieldAdd),
-                                  }),
-                                ],
-                                true,
-                                flowData,
-                              );
-                              setState({ showList: false });
-                            }}
-                          />
-                        </WrapDropW>
-                      )
-                    }
-                  >
-                    <div
-                      className={cx(
-                        'mTop16 Gray_75 ThemeHoverColor3 qw alignItemsCenter flexRow',
-                        (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).length <= 0 ? '' : 'Hand',
-                      )}
-                    >
-                      <Icon icon="add" className="Font16" /> <span>{_l('字段')}</span>
-                    </div>
-                  </Trigger>
+                  <AddGroup
+                    flowData={flowData}
+                    onUpdate={onUpdate}
+                    sourceInfos={sourceInfos}
+                    updateLoading={updateLoading}
+                  />
                 ) : (
                   <span
                     className="Hand mTop16 Gray_75 ThemeHoverColor3 InlineBlock"
@@ -627,7 +556,10 @@ export default function Info(props) {
                 )}
               </div>
               <div className="line mTop20" />
-              <div className="Bold Font14 Gray mTop24">{_l('聚合字段')}</div>
+              <div className="Bold Font14 Gray mTop24">
+                {_l('聚合字段')}
+                <span className="Gray_75 mLeft10">{`(${(_.get(aggregateDt, 'nodeConfig.config.aggregateFields') || []).filter(o => !o.isCalculateField).length}/10)`}</span>
+              </div>
               <AggregationCon
                 flowData={flowData}
                 sourceInfos={sourceInfos}
@@ -652,6 +584,7 @@ export default function Info(props) {
                 flowData={flowData}
                 sourceInfos={sourceInfos}
                 onUpdate={(data, isChange) => onUpdate(data, isChange, flowData)}
+                updateLoading={updateLoading}
               />
               <div className="line mTop20" />
             </div>
@@ -667,9 +600,7 @@ export default function Info(props) {
               isChange={isChange}
               renderErrerDialog={renderErrerDialog}
               onChangePreview={isPreviewRunning => {
-                setState({
-                  isPreviewRunning,
-                });
+                setState({ isPreviewRunning });
                 if (isPreviewRunning) {
                   scrollDivRef.current.scrollTop = 0;
                 }
@@ -682,22 +613,18 @@ export default function Info(props) {
       {showGroupDialog && (
         <GroupDialog
           visible={showGroupDialog}
-          onHide={() => {
-            setState({
-              showGroupDialog: false,
-            });
-          }}
-          flowData={flowData}
-          sourceInfos={sourceInfos.map(o => {
-            const dataInfo = (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).find(
-              it => it.workSheetId === o.worksheetId,
-            );
+          onHide={() => setState({ showGroupDialog: false })}
+          flowData={_.cloneDeep(flowData)}
+          sourceInfos={_.cloneDeep(sourceInfos).map(o => {
+            const dataInfo =
+              (_.get(sourceDt, 'nodeConfig.config.sourceTables') || []).find(it => it.workSheetId === o.worksheetId) ||
+              {};
             return {
               ...o,
               workSheetName: getTranslateInfo(dataInfo.appId, null, dataInfo.workSheetId).name || dataInfo.tableName,
             };
           })}
-          groupControls={getGroupFields(flowData) || []}
+          groupControls={getGroupFields(_.cloneDeep(flowData)) || []}
           onOk={groupFields => {
             const groupDt = getNodeInfo(flowData, 'GROUP');
             onUpdate(

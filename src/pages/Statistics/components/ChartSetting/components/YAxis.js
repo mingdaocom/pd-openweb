@@ -112,7 +112,7 @@ const renderOverlay = (props) => {
             <div className="flexRow valignWrapper w100">
               <div className="flex">{_l('空值显示')}</div>
               <div className="Font12 Gray_75 emptyTypeName">
-                {_.find(emptyShowTypes, { value: emptyShowType }).text}
+                {_.get(_.find(emptyShowTypes, { value: emptyShowType }), 'text')}
               </div>
             </div>
           }

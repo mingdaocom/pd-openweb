@@ -4,7 +4,7 @@ body,html{
 body,input,img,ol,ul,textarea,button{
   font-size: 12px;
   font-family: Helvetica Neue,Tahoma,Arial,'Hiragino Sans GB',"Microsoft Yahei","宋体","黑体";
-  color:#333;
+  color:#151515;
   line-height:1.5;
 }
 body{
@@ -201,7 +201,7 @@ header.joinStyle{
   margin-top: 14px;
 }
 .dateTime,.addressDesc,.member,.descContent{
-  color: #333;
+  color: #151515;
   line-height: 30px;
   margin-top: 6px;
 }
@@ -271,7 +271,7 @@ header.joinStyle{
   width: 40px;
 }
 .itemName,.itemSize{
-  color: #333;
+  color: #151515;
   line-height: 20px;
   height: 20px;
   padding-top: 10px;
@@ -318,7 +318,7 @@ footer{
 }
 footer .footerTitle{
   text-align: center;
-  color: #333;
+  color: #151515;
   height: 80px;
   line-height: 80px;
 }
@@ -365,7 +365,7 @@ footer a.join.leave{
 .leaveBoxMessage1{
   padding-top: 10px;
   padding-bottom: 5px;
-  color: #333;
+  color: #151515;
 }
 #leaveBox .qrCode img{
   width: 180px;

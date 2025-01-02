@@ -3,6 +3,8 @@ import { DynamicInputStyle } from '../styled';
 import { Tooltip } from 'ming-ui';
 import { handleAdvancedSettingChange } from 'src/pages/widgetConfig/util/setting';
 import { getAdvanceSetting } from 'src/util/index.js';
+import { DATE_TYPE } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/config.js';
+import { getDaterange } from 'src/pages/worksheet/common/ViewConfig/components/fastFilter/util.js';
 
 const ICON_TYPES = [
   { key: 'dynamicsrc', icon: 'icon-lookup', text: _l('查询工作表') },
@@ -46,12 +48,20 @@ export default function DynamicInput({
     }
   };
   const isLinkParams = (getAdvanceSetting(data, 'defsource') || []).filter(o => o.rcid === 'url').length > 0;
-  if (isLinkParams) {
+  const isDYDateTime = (getAdvanceSetting(data, 'defsource') || []).filter(o => o.rcid === 'dateRange').length > 0;
+  if (isLinkParams || isDYDateTime) {
     return (
       <DynamicInputStyle className="">
         {(getAdvanceSetting(data, 'defsource') || []).map(o => {
-          const isDel = !(linkParams || []).includes(o.cid);
-          return <span className={isDel ? 'Red' : ''}>{!isDel ? o.cid : _l('该参数已删除')}</span>;
+          if (isLinkParams) {
+            const isDel = !(linkParams || []).includes(o.cid);
+            return <span className={isDel ? 'Red' : ''}>{!isDel ? o.cid : _l('该参数已删除')}</span>;
+          }
+          if (isDYDateTime) {
+            const info = _.flattenDeep(DATE_TYPE).find(it => it.value == o.cid);
+            const isDel = !info || !getDaterange(data.advancedSetting || {}).includes(o.cid);
+            return <span className={isDel ? 'Red' : ''}>{!isDel ? info.text : _l('已删除')}</span>;
+          }
         })}
         <Tooltip text={<span>{_l('清除')}</span>}>
           <div

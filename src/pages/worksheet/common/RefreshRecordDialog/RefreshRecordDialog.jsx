@@ -67,7 +67,7 @@ const Info = styled.div`
   border-radius: 3px;
   border: 1px solid #fce596;
   padding: 8px;
-  color: #333;
+  color: #151515;
   font-size: 13px;
   margin-top: 8px;
   .icon {

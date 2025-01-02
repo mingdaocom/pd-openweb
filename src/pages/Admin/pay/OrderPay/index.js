@@ -55,7 +55,7 @@ export default class OrderPay extends Component {
 
     orderId = orderId ? orderId : this.props.orderId ? this.props.orderId : params.orderId;
 
-    if (params && params.orderId && params.orderId.length !== 32 && !this.props.orderId) {
+    if (params && params.orderId && params.orderId.length < 32 && !this.props.orderId) {
       this.setState({ orderStatus: -1, errorMessage: _l('订单不存在'), loading: false });
       return;
     }

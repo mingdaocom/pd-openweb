@@ -55,7 +55,6 @@ const Wrap = styled.div`
     justify-content: flex-start;
     .svgIconWrap {
       margin-right: 16px;
-      margin-top: 10px;
     }
   }
   .svgIconWrap {
@@ -164,7 +163,7 @@ const NumberChartContent = styled.div`
     font-size: ${props => props.fontSize}px !important;
     line-height: ${props => props.fontSize}px !important;
     width: 100%;
-    color: #333;
+    color: #151515;
     font-weight: 500;
     font-family: system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   }

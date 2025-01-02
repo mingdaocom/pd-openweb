@@ -39,7 +39,7 @@ const SearchContainer = styled.div`
       width: 100%;
       flex: 1;
       .departmentItem {
-        color: #333;
+        color: #151515;
         font-size: 13px;
         padding-left: 24px;
         line-height: 32px;

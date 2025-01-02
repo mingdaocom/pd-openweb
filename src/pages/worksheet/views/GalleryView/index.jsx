@@ -312,10 +312,10 @@ export default class RecordGallery extends Component {
                 style={isMobile ? getMStyle() : { width: this.getWidth() }}
                 onClick={() => {
                   handleRecordClick(currentView, item, () => {
-                    if (window.isMingDaoApp && !window.shareState.shareId) {
-                      window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${item.rowid}`;
-                      return;
-                    }
+                    // if (window.isMingDaoApp && !window.shareState.shareId) {
+                    //   window.location.href = `/mobile/record/${appId}/${worksheetId}/${viewId}/${item.rowid}`;
+                    //   return;
+                    // }
                     handlePushState('page', 'recordDetail');
                     this.setState({ recordId: item.rowid, recordInfoVisible: true });
                     addBehaviorLog('worksheetRecord', worksheetId, { rowId: item.rowid }); // 埋点
@@ -352,7 +352,7 @@ export default class RecordGallery extends Component {
                 enablePayment={worksheetInfo.enablePayment}
                 viewId={viewId}
                 rowId={recordId}
-                canLoadNextRecord={true}
+                canLoadSwitchRecord={true}
                 currentSheetRows={gallery}
                 loadNextPageRecords={() => this.props.fetch(galleryIndex + 1)}
                 loadedRecordsOver={!(gallery.length < galleryViewRecordCount && !galleryLoading)}

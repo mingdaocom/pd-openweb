@@ -29,13 +29,15 @@ export function formatAttachmentValue(value, isRecreate = false, isRelation = fa
       .filter(item => !item.refId)
       .map((item, index) => {
         let fileUrl = item.fileUrl || item.fileRealPath;
+        const isLinkFile = item.ext === '.url';
         if (!fileUrl && item.filepath && item.filename) {
           fileUrl = `${item.filepath}${item.filename}`;
         }
-        const url = new URL(fileUrl);
+
+        const url = isLinkFile ? {} : new URL(fileUrl);
         const urlPathNameArr = (url.pathname || '').split('/');
-        const fileName = (urlPathNameArr[urlPathNameArr.length - 1] || '').split('.')[0];
-        let filePath = (url.pathname || '').slice(1).replace(fileName + item.ext, '');
+        const fileName = isLinkFile ? item.filename : (urlPathNameArr[urlPathNameArr.length - 1] || '').split('.')[0];
+        let filePath = isLinkFile ? fileUrl : (url.pathname || '').slice(1).replace(fileName + item.ext, '');
         const IsLocal = md.global.Config.IsLocal;
         const host = RegExpValidator.fileIsPicture(item.ext)
           ? md.global.FileStoreConfig.pictureHost
@@ -54,8 +56,8 @@ export function formatAttachmentValue(value, isRecreate = false, isRelation = fa
           ...extAttr,
           fileID: item.fileId || item.fileID,
           fileSize: item.filesize,
-          url: fileUrl + searchParams,
-          viewUrl: fileUrl + searchParams,
+          url: isLinkFile ? undefined : fileUrl + searchParams,
+          viewUrl: isLinkFile ? undefined : fileUrl + searchParams,
           serverName: IsLocal && isRecreate ? host : url.origin + '/',
           filePath,
           fileName,
@@ -97,12 +99,19 @@ export async function fillRowRelationRows(control, rowId, worksheetId, isRecreat
             pid: item.pid,
             childrenids: item.childrenids,
           };
+
           subControls.forEach(c => {
             if (isRecreate && c.type === 29 && c.advancedSetting.showtype === '3') {
               let value = safeParse(item[c.controlId], 'array').slice(0, 5);
               itemValue[c.controlId] = JSON.stringify(value);
               return;
             }
+
+            if (isRecreate && c.type === 29 && c.enumDefault === 1 && c.dataSource === worksheetId) {
+              itemValue[c.controlId] = undefined;
+              return;
+            }
+
             itemValue[c.controlId] =
               c.type === WIDGETS_TO_API_TYPE_ENUM.ATTACHMENT
                 ? formatAttachmentValue(item[c.controlId], isRecreate, true)

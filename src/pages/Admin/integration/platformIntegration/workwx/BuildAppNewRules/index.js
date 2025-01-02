@@ -109,7 +109,7 @@ const BuildAppBox = styled.div`
     cursor: pointer;
   }
   .BoldText {
-    color: #333;
+    color: #151515;
     font-weight: 600;
   }
 `;

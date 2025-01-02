@@ -10,7 +10,7 @@ import emptyImg from './empty.png';
 const Title = styled.div`
   font-size: 16px;
   font-weight: 600;
-  color: #333;
+  color: #151515;
   margin-left: 24px;
 `;
 

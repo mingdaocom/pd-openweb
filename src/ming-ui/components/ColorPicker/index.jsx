@@ -15,7 +15,7 @@ const TYPES = ['HEX', 'RGB'];
 const THEME_COLOR_VALUE = ['DARK_COLOR', 'LIGHT_COLOR'];
 const DEFAULT_COLORS_ROW_1 = [
   '#000000ff',
-  '#333333ff',
+  '#151515ff',
   '#5a5a5aff',
   '#757575ff',
   '#9e9e9eff',
@@ -50,7 +50,7 @@ const DEFAULT_COLORS_ROW_3 = [
 ];
 
 const DEFAULT_COLORS2 = [
-  '#333333ff',
+  '#151515ff',
   '#757575ff',
   '#2196f3ff',
   '#08c9c9ff',
