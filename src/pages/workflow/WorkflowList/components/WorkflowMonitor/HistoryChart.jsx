@@ -123,7 +123,7 @@ export default class HistoryChart extends PureComponent {
         title: v => `${moment(v).format('MMMDo HH:mm')}`,
         showContent: true,
         offset: -40,
-        offsetY: -20,
+        offsetY: -50,
         domStyles: {
           'g2-tooltip-list-item': { textAlign: 'left', color: '#151515' },
           'g2-tooltip-title': { color: '#757575' },

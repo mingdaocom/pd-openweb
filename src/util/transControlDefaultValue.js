@@ -130,6 +130,10 @@ export async function fillRowRelationRows(control, rowId, worksheetId, isRecreat
   return filledControl;
 }
 
+const RE_CREATE_ERROR = {
+  4: _l('记录不存在，请刷新视图'),
+};
+
 export async function handleRowData(props) {
   const { rowId, worksheetId, columns } = props;
   const data = await worksheetAjax.getRowDetail({
@@ -178,5 +182,7 @@ export async function handleRowData(props) {
     });
 
     return { defaultData, defcontrols };
+  } else {
+    RE_CREATE_ERROR[data.resultCode] && alert(RE_CREATE_ERROR[data.resultCode], 2);
   }
 }

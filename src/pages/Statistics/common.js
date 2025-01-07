@@ -2080,9 +2080,9 @@ export const getGradientColors = (startColor, endColor, step) => {
 export const formatterTooltipTitle = (xaxes, key) => {
   if (isTimeControl(xaxes.controlType) && xaxes.particleSizeType === 2) {
     return (title, data) => {
-      const [year, week] = (key ? data[key] : title).split('W');
-      const start = moment().year(year).week(week).startOf('week').format('YYYY-MM-DD');
-      const end = moment().year(year).week(week).endOf('week').format('YYYY-MM-DD');
+      const value = key ? data[key] : title;
+      const start = moment(value, 'GGGG[W]WW').startOf('isoWeek').format('YYYY-MM-DD');
+      const end = moment(value, 'GGGG[W]WW').endOf('isoWeek').format('YYYY-MM-DD');
       return `${start} - ${end}`;
     }
   }

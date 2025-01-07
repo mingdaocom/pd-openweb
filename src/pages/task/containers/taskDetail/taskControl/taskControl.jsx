@@ -131,13 +131,13 @@ class TaskControl extends Component {
       }
 
       if (currentData.type === 14) {
-        const { attachments, knowledgeAtts, attachmentData } = JSON.parse(currentData.value);
+        const { attachments = [], knowledgeAtts = [], attachmentData = [] } = JSON.parse(currentData.value || '{}');
         const oldValue = JSON.parse(oldCurrentData.value);
 
         if (attachmentData.length !== oldValue.length) {
           let deleteFile;
           oldValue.forEach(o => {
-            if (attachmentData.find(att => att.fileID !== o.fileID)) {
+            if (!attachmentData.length || attachmentData.find(att => att.fileID !== o.fileID)) {
               deleteFile = o;
             }
           });

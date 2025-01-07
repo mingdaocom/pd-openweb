@@ -365,6 +365,7 @@ class KcMain extends Component {
                         path={path}
                         baseUrl={baseUrl}
                         item={item}
+                        keywords={keywords}
                         permission={currentRoot.permission}
                         isList={isList}
                         className={cx({ 'first-child': i === 0, 'last-child': i === last })}

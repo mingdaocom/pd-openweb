@@ -281,15 +281,15 @@ const Message = props => {
         <span className="flex">{_l('自定义短信功能')}</span>
         <Switch
           size="small"
-          checked={!enableSmsCustomContent}
+          checked={enableSmsCustomContent}
           onClick={value => {
             updateSysSettings(
               {
-                enableSmsCustomContent: value,
+                enableSmsCustomContent: !value,
               },
               () => {
-                setEnableSmsCustomContent(value);
-                md.global.SysSettings.enableSmsCustomContent = value;
+                setEnableSmsCustomContent(!value);
+                md.global.SysSettings.enableSmsCustomContent = !value;
               },
             );
           }}

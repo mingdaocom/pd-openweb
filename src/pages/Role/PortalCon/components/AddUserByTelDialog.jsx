@@ -178,7 +178,7 @@ function AddUserByTelDialog(props) {
             />
           );
         })}
-        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal') || true) && (
+        {(!_.get(md, 'global.Config.IsLocal') || _.get(md, 'global.Config.IsPlatformLocal')) && (
           <p className="mTop16">
             {type === 1
               ? _l('邮件%0/封，', _.get(md, 'global.PriceConfig.EmailPrice'))

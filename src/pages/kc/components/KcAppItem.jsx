@@ -21,6 +21,7 @@ export default class KcAppItem extends React.Component {
   static propTypes = {
     path: PropTypes.string,
     baseUrl: PropTypes.string,
+    keywords: PropTypes.bool,
     item: PropTypes.object,
     isList: PropTypes.bool,
     isRecycle: PropTypes.bool,
@@ -55,6 +56,7 @@ export default class KcAppItem extends React.Component {
       className,
       path,
       baseUrl,
+      keywords,
       item,
       selected,
       isList,
@@ -156,7 +158,12 @@ export default class KcAppItem extends React.Component {
                 <Link
                   className="listName ellipsis stopPropagation"
                   title={item.name}
-                  to={encodeURI(`${baseUrl}/${path}/${item.name}`.replace(/#/g, '%23'))}
+                  to={encodeURI(
+                    (keywords
+                      ? `${baseUrl}${item.position}`.replace(md.global.Account.accountId, 'my')
+                      : `${baseUrl}/${path}/${item.name}`
+                    ).replace(/#/g, '%23'),
+                  )}
                 >
                   {item.name}
                 </Link>
@@ -257,10 +264,7 @@ export default class KcAppItem extends React.Component {
       /* 缩略视图*/
 
       return (
-        <li
-          data-id={item.id}
-          className={cx('nodeItem noSelect thumbnailItem Relative', { active: selected })}
-        >
+        <li data-id={item.id} className={cx('nodeItem noSelect thumbnailItem Relative', { active: selected })}>
           <div className="thumbnailImg">
             {item.previewUrl || (item.type !== NODE_TYPE.FOLDER && getIconNameByExt(item.ext) === 'doc') ? (
               item.previewUrl ? (
