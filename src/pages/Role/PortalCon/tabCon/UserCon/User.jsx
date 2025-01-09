@@ -560,15 +560,16 @@ function User(props) {
         pageSize,
         excludeRowIds: [],
       };
-      fetch(`${md.global.Config.WorksheetDownUrl}/ExportExcel/ExprotExPortal`, {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify(args),
-      }).then(res => {
-        setSelectedIds([]); //清除选择
-      });
+      window
+        .mdyAPI('', '', args, {
+          ajaxOptions: {
+            url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/ExprotExPortal`,
+          },
+          customParseResponse: true,
+        })
+        .then(() => {
+          setSelectedIds([]); //清除选择
+        });
     });
   };
 

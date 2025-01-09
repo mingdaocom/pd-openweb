@@ -98,17 +98,16 @@ export default class ExportApp extends React.Component {
     } else {
       params.token = this.state.token;
       params.accountId = md.global.Account.accountId;
-      $.ajax({
-        type: 'POST',
-        url: `${md.global.Config.AppFileServer}AppFile/Export`,
-        data: JSON.stringify(params),
-        dataType: 'JSON',
-        contentType: 'application/json',
+      window.mdyAPI('', '', params, {
+        ajaxOptions: {
+          url: `${md.global.Config.AppFileServer}AppFile/Export`,
+        },
+        customParseResponse: true,
       }).then(({ state, exception }) => {
         if (state !== 1) {
           alert(exception, 2, 3000);
         }
-      });
+      })
     }
   }
 

@@ -241,7 +241,7 @@ export default class AppInfo extends Component {
       'debugRole',
       'displayIcon',
       'goodsId',
-      'license'
+      'license',
     ]);
     window[`timeZone_${appId}`] = data.timeZone; //记录应用时区
     syncAppDetail(appDetail);
@@ -350,33 +350,35 @@ export default class AppInfo extends Component {
     }
     const createOrder = () => {
       marketplacePaymentApi
-      .createOrder({
-        projectId: data.projectId,
-        environmentType: 1,
-        licenseId: data.license.licenseId,
-        purchaseRecordId: data.license.id,
-        productId: data.goodsId,
-        productType: 0,
-        buyTypeEnum: 1,
-      })
-      .then(res => {
-        if (res && res.excuteStatus) {
-          window.open(`${md.global.Config.MarketUrl}/orderDetail/${res.orderId}`);
-        }
-      })
-      .finally(() => this.setState({ createOrderLoading: false }));
-    }
+        .createOrder({
+          projectId: data.projectId,
+          environmentType: 1,
+          licenseId: data.license.licenseId,
+          purchaseRecordId: data.license.id,
+          productId: data.goodsId,
+          productType: 0,
+          buyTypeEnum: 1,
+        })
+        .then(res => {
+          if (res && res.excuteStatus) {
+            window.open(`${md.global.Config.MarketUrl}/orderDetail/${res.orderId}`);
+          }
+        })
+        .finally(() => this.setState({ createOrderLoading: false }));
+    };
     this.setState({ createOrderLoading: true });
-    marketplacePaymentApi.checkUnpayOrderByPurchaseRecordId({
-      purchaseRecordId: data.license.id,
-    }).then(data => {
-      if (data.hasUnpayOrder) {
-        this.setState({ createOrderLoading: false });
-        window.open(`${md.global.Config.MarketUrl}/orderDetail/${data.orderId}`);
-      } else {
-        createOrder();
-      }
-    });
+    marketplacePaymentApi
+      .checkUnpayOrderByPurchaseRecordId({
+        purchaseRecordId: data.license.id,
+      })
+      .then(data => {
+        if (data.hasUnpayOrder) {
+          this.setState({ createOrderLoading: false });
+          window.open(`${md.global.Config.MarketUrl}/orderDetail/${data.orderId}`);
+        } else {
+          createOrder();
+        }
+      });
   };
 
   renderMenu = ({ type, icon, text, action, ...rest }) => {
@@ -505,6 +507,7 @@ export default class AppInfo extends Component {
     return (
       <MenuItem
         key={type}
+        data-event={type}
         className={cx('appConfigItem', type)}
         icon={<Icon className="appConfigItemIcon Font18" icon={icon} />}
         onClick={e => {
@@ -549,7 +552,11 @@ export default class AppInfo extends Component {
           if (type === 'appManageMenu') {
             const appManageMenuType = localStorage.getItem('appManageMenu');
             const isMarketAstrict = sourceType === 60 ? (license.licenseType ? true : isLock) : false;
-            navigateTo(`/app/${appId}/settings/${isMarketAstrict ? 'variables' : (appManageMenuType ? appManageMenuType : 'options')}`);
+            navigateTo(
+              `/app/${appId}/settings/${
+                isMarketAstrict ? 'variables' : appManageMenuType ? appManageMenuType : 'options'
+              }`,
+            );
             return;
           }
 
@@ -722,6 +729,7 @@ export default class AppInfo extends Component {
                 <Icon icon="expand_more" className="Font18" style={{ lineHeight: 'inherit' }} />
                 {appConfigVisible && (
                   <Menu
+                    className="appOperate"
                     style={{ top: '45px', width: '220px', padding: '6px 0' }}
                     onClickAway={() => this.setState({ appConfigVisible: false })}
                     onClickAwayExceptions={['.appLicenseWrap']}
@@ -879,7 +887,9 @@ export default class AppInfo extends Component {
             showRoleDebug={() => {
               this.setState({ roleDebugVisible: !roleDebugVisible });
             }}
-            otherAllShow={checkRecordInfo(location.pathname) ? false : !(fixed && !hasCharge) && !(pcDisplay && !hasCharge)}
+            otherAllShow={
+              checkRecordInfo(location.pathname) ? false : !(fixed && !hasCharge) && !(pcDisplay && !hasCharge)
+            }
           />
         )}
         {[1, 3].includes(currentPcNaviStyle) && (

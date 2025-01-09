@@ -33,33 +33,36 @@ class ErrorDialog extends Component {
 
   getSuccess() {
     const { fileKey } = this.props;
+    const requestData = { randomKey: fileKey };
 
-    $.ajax(md.global.Config.WorksheetDownUrl + '/ExportExcel/GetSuccessCount', {
-      data: {
-        randomKey: fileKey,
-      },
-      beforeSend: xhr => {
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      },
-      success: result => {
+    window
+      .mdyAPI('', '', requestData, {
+        ajaxOptions: {
+          type: 'GET',
+          url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/GetSuccessCount`,
+        },
+        customParseResponse: true,
+      })
+      .then(result => {
         this.setState({
           complete: true,
           data: result.data,
         });
-      },
-    });
+      });
   }
   getBatchErrorLog = () => {
     const { fileKey } = this.props;
+    const requestData = { randomKey: fileKey };
 
-    $.ajax(md.global.Config.WorksheetDownUrl + '/ExportExcel/GetImportLogs', {
-      data: {
-        randomKey: fileKey,
-      },
-      beforeSend: xhr => {
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      },
-      success: result => {
+    window
+      .mdyAPI('', '', requestData, {
+        ajaxOptions: {
+          type: 'GET',
+          url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/GetImportLogs`,
+        },
+        customParseResponse: true,
+      })
+      .then(result => {
         const errorData = (result.data || []).filter(it => it.errorCount);
         this.setState({
           complete: true,
@@ -73,8 +76,7 @@ class ErrorDialog extends Component {
             : {},
           selectedImportSheetIds: errorData.map(it => it.worksheetId),
         });
-      },
-    });
+      });
   };
 
   renderTitle = () => {

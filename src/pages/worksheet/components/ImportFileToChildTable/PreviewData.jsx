@@ -180,7 +180,7 @@ export default function PreviewData(props) {
                 data={sheets}
                 onChange={async newSheetIndex => {
                   setTableLoading(true);
-                  const res = await getWithToken(
+                  const data = await getWithToken(
                     `${md.global.Config.WorksheetDownUrl}/Import/PreviewSubtable`,
                     { worksheetId, tokenType: 7 },
                     {
@@ -189,8 +189,8 @@ export default function PreviewData(props) {
                       getSheetIndex: newSheetIndex,
                     },
                   );
-                  if (_.get(res, 'data.data.rows')) {
-                    setCellsData(res.data.data.rows.map(r => r.cells));
+                  if (_.get(data, 'rows')) {
+                    setCellsData(data.rows.map(r => r.cells));
                   } else {
                     setCellsData([]);
                   }

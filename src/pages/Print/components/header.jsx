@@ -100,14 +100,14 @@ class Header extends React.Component {
         html: str || '',
       };
 
-      fetch(`${md.global.Config.WorksheetDownUrl}/ExportWord/ToWord`, {
-        method: 'POST',
-        body: JSON.stringify(param),
-        headers: new Headers({
-          'Content-Type': 'application/json',
-        }),
-      })
-        .then(res => res.blob())
+      window
+        .mdyAPI('', '', param, {
+          ajaxOptions: {
+            url: `${md.global.Config.WorksheetDownUrl}/ExportWord/ToWord`,
+            responseType: 'blob',
+          },
+          customParseResponse: true,
+        })
         .then(data => {
           this.setState({ exportLoading: false });
           let blobUrl = window.URL.createObjectURL(data);

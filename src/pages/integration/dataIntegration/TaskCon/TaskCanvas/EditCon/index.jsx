@@ -17,7 +17,6 @@ import EditFeildsName from 'src/pages/integration/dataIntegration/TaskCon/TaskCa
 import 'src/pages/integration/svgIcon.js';
 import { DATABASE_TYPE } from 'src/pages/integration/dataIntegration/constant.js';
 import sheetAjax from 'src/api/worksheet';
-import axios from 'axios';
 import CellControl from 'worksheet/components/CellControls';
 import 'src/pages/worksheet/components/CellControls/CellControls.less';
 import { formatControls, getNodeName } from 'src/pages/integration/dataIntegration/TaskCon/TaskCanvas/util.js';
@@ -232,41 +231,39 @@ export default class EditorCon extends Component {
     const { nodeId } = node;
     this.setState({ loading: true });
     if (this.isShowMDCell()) {
-      axios
-        .all([
-          sheetAjax.getWorksheetInfo({
-            worksheetId: _.get(node, 'nodeConfig.config.workSheetId'),
-            getTemplate: true,
-          }),
-          sheetAjax.getFilterRows({
-            appId: _.get(node, 'nodeConfig.config.appId'),
-            worksheetId: _.get(node, 'nodeConfig.config.workSheetId'),
-            pageSize: 100,
-            pageIndex: 1,
-            getType: 7, //获取表全部数据
-          }),
-        ])
-        .then(res => {
-          let fieldNames = (_.get(res[0], 'template.controls') || []).filter(o => {
-            let isIn = false;
-            (_.get(node, 'nodeConfig.fields') || [])
-              .filter(o => o.isCheck)
-              .map(it => {
-                if (it.oid && it.oid.indexOf(`${res[0].worksheetId}_${o.controlId}`) >= 0) {
-                  isIn = true;
-                }
-              });
-            return isIn;
-          });
-          this.setState({
-            fieldNames,
-            rows: _.get(res[1], 'data'),
-            loading: false,
-          });
-          if ((_.get(res[0], 'template.controls') || []).length <= 0) {
-            alert(_l('相关工作表已删除，或存在异常'), 2);
-          }
+      Promise.all([
+        sheetAjax.getWorksheetInfo({
+          worksheetId: _.get(node, 'nodeConfig.config.workSheetId'),
+          getTemplate: true,
+        }),
+        sheetAjax.getFilterRows({
+          appId: _.get(node, 'nodeConfig.config.appId'),
+          worksheetId: _.get(node, 'nodeConfig.config.workSheetId'),
+          pageSize: 100,
+          pageIndex: 1,
+          getType: 7, //获取表全部数据
+        }),
+      ]).then(res => {
+        let fieldNames = (_.get(res[0], 'template.controls') || []).filter(o => {
+          let isIn = false;
+          (_.get(node, 'nodeConfig.fields') || [])
+            .filter(o => o.isCheck)
+            .map(it => {
+              if (it.oid && it.oid.indexOf(`${res[0].worksheetId}_${o.controlId}`) >= 0) {
+                isIn = true;
+              }
+            });
+          return isIn;
         });
+        this.setState({
+          fieldNames,
+          rows: _.get(res[1], 'data'),
+          loading: false,
+        });
+        if ((_.get(res[0], 'template.controls') || []).length <= 0) {
+          alert(_l('相关工作表已删除，或存在异常'), 2);
+        }
+      });
     } else {
       TaskFlow.nodeDataPreview({
         projectId,

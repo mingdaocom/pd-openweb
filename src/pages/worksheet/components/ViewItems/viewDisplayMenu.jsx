@@ -13,7 +13,12 @@ export default class ViewDisplayMenu extends Component {
     return (
       <Menu className="viewTypeMenuWrap" {...rest}>
         {VIEW_TYPE_ICON.filter(o => o.id !== 'customize').map(({ icon, text, id, color, isNew }) => (
-          <Menu.Item key={id} className={cx('viewTypeItem', { current: viewType === id })} onClick={() => onClick(id)}>
+          <Menu.Item
+            data-event={id}
+            key={id}
+            className={cx('viewTypeItem', { current: viewType === id })}
+            onClick={() => onClick(id)}
+          >
             <div className="valignWrapper flex">
               <Icon style={{ color, fontSize: '18px' }} icon={icon} />
               <span className="viewName">{text}</span>

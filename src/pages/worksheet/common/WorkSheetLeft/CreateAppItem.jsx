@@ -36,7 +36,7 @@ export default function CreateAppItem(props) {
       appId,
       groupId,
       type,
-      ...args
+      ...args,
     });
     setCreateType('');
   };
@@ -77,7 +77,7 @@ export default function CreateAppItem(props) {
           }}
           popup={
             <div className="createNewMenu">
-              <Menu>
+              <Menu className="createNewOperate">
                 {CREATE_ITEM_LIST.map((item, index) => (
                   <Fragment key={index}>
                     {item.createType === 'customPage' && <div className="spaceLine mTop4 mBottom4"></div>}
@@ -92,7 +92,11 @@ export default function CreateAppItem(props) {
                         popup={
                           <Menu className="createNewMenu subMenu">
                             {item.subList.map(item => (
-                              <MenuItem key={item.createType} onClick={() => handleSwitchCreateType(item.createType)}>
+                              <MenuItem
+                                key={item.createType}
+                                data-event={item.createType}
+                                onClick={() => handleSwitchCreateType(item.createType)}
+                              >
                                 <Icon icon={item.icon} className="Font18 Gray_9e" />
                                 <span className="mLeft20">{item.text}</span>
                               </MenuItem>
@@ -100,7 +104,7 @@ export default function CreateAppItem(props) {
                           </Menu>
                         }
                       >
-                        <MenuItem className="createWorksheetApp" key={item.createType}>
+                        <MenuItem className="createWorksheetApp" key={item.createType} data-event={item.createType}>
                           <Icon icon={item.icon} className="Font18" />
                           <span className="mLeft20">{item.text}</span>
                           <Icon icon="arrow-right-tip" className="Font15" />
@@ -108,6 +112,7 @@ export default function CreateAppItem(props) {
                       </Trigger>
                     ) : (
                       <MenuItem
+                        data-event={item.createType}
                         key={item.createType}
                         onClick={() => {
                           handleSwitchCreateType(item.createType);

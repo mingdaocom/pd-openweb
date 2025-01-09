@@ -67,13 +67,7 @@ export default class WebhookContent extends Component {
     const { data } = this.props;
 
     if (checkJSON(data.jsonParam)) {
-      fetch(data.hookUrl, {
-        method: 'POST',
-        body: data.jsonParam,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }).then(() => {
+      window.mdyAPI('', '', data.jsonParam, { ajaxOptions: { url: data.hookUrl } }).then(() => {
         this.getAppTemplateControls();
       });
     } else {
@@ -86,15 +80,20 @@ export default class WebhookContent extends Component {
    */
   postKeyValueOptions = () => {
     const { data } = this.props;
-    const formData = new FormData();
     const params = data.params.filter(o => !!o.name);
 
     if (params.length) {
-      for (let i = 0; i < params.length; i++) {
-        formData.append(params[i].name, params[i].value);
-      }
+      const requestData = _.reduce(
+        params,
+        (acc, obj) => {
+          acc[obj.name] = obj.value;
 
-      fetch(data.hookUrl, { method: 'POST', body: formData }).then(() => {
+          return acc;
+        },
+        {},
+      );
+
+      window.mdyAPI('', '', requestData, { ajaxOptions: { url: data.hookUrl } }).then(() => {
         this.getAppTemplateControls();
       });
     } else {

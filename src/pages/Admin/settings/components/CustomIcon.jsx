@@ -52,23 +52,21 @@ export default class CustomIcon extends Component {
   download = () => {
     const { projectId } = this.props;
     const { selected } = this.state;
+    window
+    .mdyAPI('', '', { projectId, fileNames: selected }, {
+      ajaxOptions: {
+        url: `${__api_server__.main}Download/CustomIcon`,
+        responseType: 'blob',
+      },
+      customParseResponse: true,
+    }).then(data => {
+      let blobUrl = window.URL.createObjectURL(data);
+      const a = document.createElement('a');
 
-    fetch(`${__api_server__.main}Download/CustomIcon`, {
-      method: 'POST',
-      body: JSON.stringify({ projectId, fileNames: selected }),
-      headers: new Headers({
-        'Content-Type': 'application/json',
-      }),
-    })
-      .then(res => res.blob())
-      .then(data => {
-        let blobUrl = window.URL.createObjectURL(data);
-        const a = document.createElement('a');
-
-        a.download = 'MDFont_' + new Date().getTime();
-        a.href = blobUrl;
-        a.click();
-      });
+      a.download = 'MDFont_' + new Date().getTime();
+      a.href = blobUrl;
+      a.click();
+    });
   };
 
   /**

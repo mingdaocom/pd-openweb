@@ -3,15 +3,15 @@ import { Modal, notification } from 'antd';
 
 export default function displayNotice({ noticeId, displayType, desc, title }) {
   const handleClose = () => {
-    $.ajax({
-      dataType: 'jsonp',
-      url: `${md.global.Config.MdNoticeServer}/notice/read`,
-      data: {
-        accountId: md.global.Account.accountId,
-        noticeId,
-        type: 3,
-      },
-      jsonp: 'jsoncallback',
+    window.mdyAPI('', '', {
+      accountId: md.global.Account.accountId,
+      noticeId,
+      type: 3,
+    }, {
+      ajaxOptions: {
+        type: 'GET',
+        url: `${md.global.Config.MdNoticeServer}/notice/read`
+      }
     });
   };
   if (desc) {

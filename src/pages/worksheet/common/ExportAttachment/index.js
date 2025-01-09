@@ -97,20 +97,19 @@ class ExportAttachment extends Component {
       isGetWorksheet: true,
     };
 
-    $.ajax({
-      headers: {
-        Authorization: `md_pss_id ${getPssId()}`,
-      },
-      type: 'POST',
-      url: `${md.global.Config.AjaxApiUrl}File/DownloadRowsBatchFile`,
-      data: JSON.stringify(params),
-      dataType: 'JSON',
-      contentType: 'application/json',
-    }).then(res => {
-      if (res && res.exception) {
-        alert(res.exception, 2);
-      }
-    });
+    window
+      .mdyAPI('', '', params, {
+        ajaxOptions: {
+          url: `${md.global.Config.AjaxApiUrl}File/DownloadRowsBatchFile`,
+        },
+        customParseResponse: true,
+      })
+      .then(res => {
+        if (res && res.exception) {
+          alert(res.exception, 2);
+        }
+      });
+
     this.props.onCancel();
   };
 

@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { isEmpty, reject } from 'lodash';
 import addRecord from 'worksheet/common/newRecord/addRecord';
 import { openAddRecord as mobileAddRecord } from 'mobile/Record/addRecord';

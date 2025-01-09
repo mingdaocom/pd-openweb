@@ -321,14 +321,18 @@ export default class ConfigControl extends Component {
     this.hasRecordId = _.find(selectRow.cells, rowItem => rowItem.value === recordObj.text) || {};
     fieldsList.push(recordObj);
 
-    const configData = await $.ajax({
-      type: 'GET',
-      url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/GetConfig`,
-      data: {
-        worksheetId,
-        appId,
-        accountId: md.global.Account.accountId,
+    const requestData = {
+      worksheetId,
+      appId,
+      accountId: md.global.Account.accountId,
+    };
+
+    const configData = await window.mdyAPI('', '', requestData, {
+      ajaxOptions: {
+        type: 'GET',
+        url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/GetConfig`,
       },
+      customParseResponse: true,
     });
 
     // 获取先前保存的导入配置
@@ -607,28 +611,26 @@ export default class ConfigControl extends Component {
 
     onSave(fileKey);
 
-    $.ajax(md.global.Config.WorksheetDownUrl + '/ExportExcel/Import', {
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        filePath,
-        fileId,
-        workSheetId: worksheetId,
-        appId,
-        accountId: md.global.Account.accountId,
-        titleNumber: selectRow.rowNumber,
-        cellConfigs,
-        projectId: workSheetProjectId,
-        sheetNumber: importSheetInfo.sheetNumber,
-        randomKey: fileKey,
-        repeatConfig: repeatRecord ? repeatConfig : null,
-        tigger,
-        errorSkip,
-      }),
-      beforeSend: xhr => {
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      },
+    const requestData = {
+      filePath,
+      fileId,
+      workSheetId: worksheetId,
+      appId,
+      accountId: md.global.Account.accountId,
+      titleNumber: selectRow.rowNumber,
+      cellConfigs,
+      projectId: workSheetProjectId,
+      sheetNumber: importSheetInfo.sheetNumber,
+      randomKey: fileKey,
+      repeatConfig: repeatRecord ? repeatConfig : null,
+      tigger,
+      errorSkip,
+    };
+
+    window.mdyAPI('', '', requestData, {
+      ajaxOptions: { url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/Import` },
     });
+
     onCancel();
   };
 
@@ -667,6 +669,7 @@ export default class ConfigControl extends Component {
           errorSkip,
         } = this.state;
         const configsFilter = [];
+
         for (const controlItem of worksheetControls || []) {
           //新增选项、关联记录匹配字段
           if (_.includes([9, 10, 11, 26, 27, 29], controlItem.type)) {
@@ -687,26 +690,28 @@ export default class ConfigControl extends Component {
             });
           }
         }
-        $.ajax({
-          type: 'POST',
-          url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/SaveConfig`,
-          data: JSON.stringify({
-            projectId: workSheetProjectId,
-            worksheetId,
-            repeatConfig: repeatRecord ? repeatConfig : null,
-            tigger,
-            edited,
-            configs: configsFilter,
-            accountId: md.global.Account.accountId,
-            errorSkip,
-          }),
-          dataType: 'JSON',
-          contentType: 'application/json',
-        }).then(res => {
-          if (res) {
-            alert(_l('保存成功'));
-          }
-        });
+
+        const requestData = {
+          projectId: workSheetProjectId,
+          worksheetId,
+          repeatConfig: repeatRecord ? repeatConfig : null,
+          tigger,
+          edited,
+          configs: configsFilter,
+          accountId: md.global.Account.accountId,
+          errorSkip,
+        };
+
+        window
+          .mdyAPI('', '', requestData, {
+            ajaxOptions: { url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/SaveConfig` },
+            customParseResponse: true,
+          })
+          .then(res => {
+            if (res) {
+              alert(_l('保存成功'));
+            }
+          });
       },
       onCancel: () => {},
     });

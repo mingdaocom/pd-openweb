@@ -253,7 +253,7 @@ export const exportSheet = ({
 } = {}) => {
   return async () => {
     try {
-      const res = await postWithToken(
+      const resData = await postWithToken(
         `${md.global.Config.WorksheetDownUrl}/ExportExcel/DetailTable`,
         { worksheetId, tokenType: 8 },
         {
@@ -269,7 +269,7 @@ export const exportSheet = ({
         },
       );
       onDownload();
-      download(res.data, fileName);
+      download(resData, fileName);
     } catch (err) {
       onDownload(err);
       alert(_l('导出失败！请稍候重试'), 2);

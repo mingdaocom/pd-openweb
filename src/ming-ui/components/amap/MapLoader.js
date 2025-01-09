@@ -30,10 +30,20 @@ export default class MapLoader {
       const { key } = getMapKey('amap') || {};
       const AMAP_URL = `https://webapi.amap.com/maps?v=2.0&key=${key}&plugin=AMap.Autocomplete,AMap.PlaceSearch,AMap.Geocoder,AMap.Geolocation,AMap.ToolBar,AMap.Scale,AMap.CitySearch`;
 
-      $.ajax({
-        url: AMAP_URL,
-        dataType: 'script',
-      });
+      fetch(AMAP_URL)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.text();
+        })
+        .then(script => {
+          eval(script);
+        })
+        .catch(error => {
+          console.log(error);
+        });
+
       const aMapTimer = setInterval(() => {
         if (window.AMap && window.AMap.Map) {
           resolve(window.AMap);

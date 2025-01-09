@@ -107,16 +107,18 @@ function OperateMenu(props) {
   }, []);
   useEffect(() => {
     if (selectedApp) {
-      homeApp.getApp({
-        appId: selectedApp,
-        getSection: true
-      }).then(res => {
-        const { sections } = res;
-        setList({
-          ...valueList,
-          groupList: sections.map(item => ({ value: item.appSectionId, text: item.name || _l('未命名分组') })),
+      homeApp
+        .getApp({
+          appId: selectedApp,
+          getSection: true,
+        })
+        .then(res => {
+          const { sections } = res;
+          setList({
+            ...valueList,
+            groupList: sections.map(item => ({ value: item.appSectionId, text: item.name || _l('未命名分组') })),
+          });
         });
-      });
     }
   }, [selectedApp]);
 
@@ -218,83 +220,88 @@ function OperateMenu(props) {
         } else {
           return true;
         }
-      }).filter(o => {
-        if (o.type === 'editCanvas' || o.type === 'displaySetting') {
-          return !currentSheet.urlTemplate;
-        }
-        if (o.type === 'editPage') {
-          return !!currentSheet.urlTemplate;
-        }
-        return true;
-      }).map(({ type, text, icon, ...rest }, index) => {
-        if (type === 'divider') return <Divider key={index} />;
-        if (type === 'move') {
+      })
+        .filter(o => {
+          if (o.type === 'editCanvas' || o.type === 'displaySetting') {
+            return !currentSheet.urlTemplate;
+          }
+          if (o.type === 'editPage') {
+            return !!currentSheet.urlTemplate;
+          }
+          return true;
+        })
+        .map(({ type, text, icon, ...rest }, index) => {
+          if (type === 'divider') return <Divider key={index} />;
+          if (type === 'move') {
+            return (
+              <SubMenu
+                data-event={type}
+                key={index}
+                popupClassName="customPageSubMenu"
+                title={
+                  <Fragment>
+                    <i className={`icon-${icon} `}></i>
+                    <span>{text}</span>
+                  </Fragment>
+                }
+              >
+                {appGroups.map(item => {
+                  return (
+                    <Menu.Item
+                      data-event={`group_${item.appSectionId}`}
+                      className="pointer"
+                      key={item.appSectionId}
+                      disabled={item.appSectionId === ids.groupId}
+                      onClick={() => moveSheetToOtherGroup(item.appSectionId)}
+                    >
+                      <span>{item.name || _l('未命名分组')}</span>
+                    </Menu.Item>
+                  );
+                })}
+                <Divider />
+                <Menu.Item data-event="otherApp" className="otherApp pointer" onClick={() => setVisible(true)}>
+                  <span>{_l('其他应用')}</span>
+                </Menu.Item>
+              </SubMenu>
+            );
+          }
+          if (type === 'displaySetting') {
+            return (
+              <SubMenu
+                data-event={type}
+                key={index}
+                popupClassName="customPageSubMenu"
+                title={
+                  <Fragment>
+                    <i className={`icon-${icon} `}></i>
+                    <span>{text}</span>
+                  </Fragment>
+                }
+              >
+                <AdjustScreenWrap onClick={e => e.stopPropagation()}>
+                  <h3>{_l('强制适应屏幕%07001')}</h3>
+                  <div className="hint">
+                    {_l(
+                      '强制页面适应一屏显示，适合需要在所有尺寸屏幕下始终铺满的情况。（ 如果原始页面过长，组件会被压缩，导致无法正常显示 ）',
+                    )}
+                  </div>
+                  <Switch
+                    checked={adjustScreen}
+                    onChange={() => {
+                      onClick('adjustScreen', { adjustScreen: !adjustScreen });
+                    }}
+                  />
+                </AdjustScreenWrap>
+              </SubMenu>
+            );
+          }
           return (
-            <SubMenu
-              key={index}
-              popupClassName="customPageSubMenu"
-              title={
-                <Fragment>
-                  <i className={`icon-${icon} `}></i>
-                  <span>{text}</span>
-                </Fragment>
-              }
-            >
-              {appGroups.map(item => {
-                return (
-                  <Menu.Item
-                    className="pointer"
-                    key={item.appSectionId}
-                    disabled={item.appSectionId === ids.groupId}
-                    onClick={() => moveSheetToOtherGroup(item.appSectionId)}
-                  >
-                    <span>{item.name || _l('未命名分组')}</span>
-                  </Menu.Item>
-                );
-              })}
-              <Divider />
-              <Menu.Item className="otherApp pointer" onClick={() => setVisible(true)}>
-                <span>{_l('其他应用')}</span>
-              </Menu.Item>
-            </SubMenu>
+            <Menu.Item data-event={type} key={type} onClick={() => onClick(type)} {...rest}>
+              <i className={`icon-${icon}`}></i>
+              <span>{text}</span>
+            </Menu.Item>
           );
-        }
-        if (type === 'displaySetting') {
-          return (
-            <SubMenu
-              key={index}
-              popupClassName="customPageSubMenu"
-              title={
-                <Fragment>
-                  <i className={`icon-${icon} `}></i>
-                  <span>{text}</span>
-                </Fragment>
-              }
-            >
-              <AdjustScreenWrap onClick={e => e.stopPropagation()}>
-                <h3>{_l('强制适应屏幕%07001')}</h3>
-                <div className="hint">
-                  {_l(
-                    '强制页面适应一屏显示，适合需要在所有尺寸屏幕下始终铺满的情况。（ 如果原始页面过长，组件会被压缩，导致无法正常显示 ）',
-                  )}
-                </div>
-                <Switch
-                  checked={adjustScreen}
-                  onChange={() => {
-                    onClick('adjustScreen', { adjustScreen: !adjustScreen });
-                  }}
-                />
-              </AdjustScreenWrap>
-            </SubMenu>
-          );
-        }
-        return (
-          <Menu.Item key={type} onClick={() => onClick(type)} {...rest}>
-            <i className={`icon-${icon}`}></i>
-            <span>{text}</span>
-          </Menu.Item>
-        );
-      })}
+        })}
     </Menu>
   );
 }

@@ -728,6 +728,7 @@ export default class CustomButtons extends React.Component {
     } else {
       buttonComponents = buttons.map((button, i) => (
         <MenuItemWrap
+          data-event={`customBtn_${i}`}
           title={button.name}
           key={i}
           icon={

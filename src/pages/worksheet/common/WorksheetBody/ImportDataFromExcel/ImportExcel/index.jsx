@@ -143,27 +143,30 @@ export default class ImportExcel extends React.Component {
 
   onNext = () => {
     const { hideUploadExcel, worksheetId } = this.props;
+    const requestData = {
+      filePath: this.state.filePaths[0].type === 1 ? this.state.filePaths[0].id : '',
+      fileId: this.state.filePaths[0].type === 2 ? this.state.filePaths[0].id : '',
+      worksheetId,
+    };
 
     this.setState({ loading: true });
 
-    $.ajax(md.global.Config.WorksheetDownUrl + '/ExportExcel/GetPreviewExcel', {
-      data: {
-        filePath: this.state.filePaths[0].type === 1 ? this.state.filePaths[0].id : '',
-        fileId: this.state.filePaths[0].type === 2 ? this.state.filePaths[0].id : '',
-        worksheetId,
-      },
-      beforeSend: xhr => {
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      },
-      success: data => {
+    window
+      .mdyAPI('', '', requestData, {
+        ajaxOptions: {
+          type: 'GET',
+          url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/GetPreviewExcel`,
+        },
+        customParseResponse: true,
+      })
+      .then(data => {
         const fileInfo = {
           filePath: this.state.filePaths[0].type === 1 ? this.state.filePaths[0].id : '',
           fileId: this.state.filePaths[0].type === 2 ? this.state.filePaths[0].id : '',
           fileName: this.state.filePaths[0].name,
         };
         hideUploadExcel(data.data, fileInfo, data.message);
-      },
-    });
+      });
   };
 
   render() {

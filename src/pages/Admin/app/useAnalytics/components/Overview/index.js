@@ -9,7 +9,6 @@ import { formatValue } from 'src/pages/Admin/homePage/config.js';
 import { dialogSelectDept } from 'ming-ui/functions';
 import LineChart from '../LineChart';
 import loadingSvg from '../loading.svg';
-import axios from 'axios';
 import cx from 'classnames';
 import styled from 'styled-components';
 import _ from 'lodash';
@@ -148,21 +147,21 @@ export default class Overview extends Component {
   }
   getOverviewData = () => {
     const { projectId } = this.props;
-    axios
-      .all([
-        projectAjax.getProjectLicenseSupportInfo({ projectId, onlyNormal: true, onlyUsage: true }),
-        processVersionAjax.getProcessUseCount({ companyId: projectId }),
-      ])
-      .then(([data1, data2]) => {
-        const { effectiveApkCount = 0, effectiveWorksheetCount = 0, effectiveWorksheetRowCount = 0 } = data1;
-        const { useProcessCount: effectiveWorkflowCount } = data2;
-        this.setState({
-          effectiveApkCount,
-          effectiveWorksheetCount,
-          effectiveWorksheetRowCount,
-          effectiveWorkflowCount,
-        });
+    Promise.all([
+      projectAjax.getProjectLicenseSupportInfo({ projectId, onlyNormal: true, onlyUsage: true }),
+      processVersionAjax.getProcessUseCount({ companyId: projectId }),
+      attachmentAjax.getAttachmentTotal({ projectId, noCache: true }),
+    ]).then(([data1, data2, effectiveAttachmentTotal = 0]) => {
+      const { effectiveApkCount = 0, effectiveWorksheetCount = 0, effectiveWorksheetRowCount = 0 } = data1;
+      const { useProcessCount: effectiveWorkflowCount } = data2;
+      this.setState({
+        effectiveApkCount,
+        effectiveWorksheetCount,
+        effectiveWorksheetRowCount,
+        effectiveWorkflowCount,
+        effectiveAttachmentTotal,
       });
+    });
   };
   formatStastics = value => {
     const isEnLang = md.global.Account.lang === 'en';

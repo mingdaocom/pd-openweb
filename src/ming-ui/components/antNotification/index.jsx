@@ -73,15 +73,15 @@ const getProps = (props, type = 'success') => {
     onClose: () => {
       // 多窗口关闭
       if (props.key) {
-        $.ajax({
-          dataType: 'jsonp',
-          url: `${md.global.Config.MdNoticeServer}/notice/read`,
-          data: {
-            accountId: md.global.Account.accountId,
-            noticeId: props.key,
-            type: props.removeReadType ? undefined : 3,
-          },
-          jsonp: 'jsoncallback',
+        window.mdyAPI('', '', {
+          accountId: md.global.Account.accountId,
+          noticeId: props.key,
+          type: props.removeReadType ? undefined : 3,
+        }, {
+          ajaxOptions: {
+            type: 'GET',
+            url: `${md.global.Config.MdNoticeServer}/notice/read`
+          }
         });
       }
     },

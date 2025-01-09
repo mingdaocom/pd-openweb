@@ -7,7 +7,6 @@ import { CardTopWrap } from '../apiIntegration/style';
 import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { TYPELIST } from 'src/pages/integration/config';
-import axios from 'axios';
 const Wrap = styled.div`
   p {
     margin: 0;
@@ -75,34 +74,23 @@ function ConnectAuth(props) {
     if (!node || !node.id) {
       return;
     }
-    axios
-      .all([
-        flowNodeAjax.get(
-          {
-            processId: props.connectId,
-          },
-          { isIntegration: true },
-        ),
-        flowNodeAjax.getNodeDetail(
-          {
-            processId: props.id,
-            nodeId: node.id,
-            flowNodeType: node.typeId,
-          },
-          { isIntegration: true },
-        ),
-      ])
-      .then(res => {
-        //更新鉴权认证节点
-        const list = _.toArray((res[0] || {}).flowNodeMap || {});
-        setState({
-          node: {
-            ...node,
-            ...(list.find(o => o.typeId === 22) || {}),
-            ...res[1],
-          },
-        });
+    Promise.all([
+      flowNodeAjax.get({ processId: props.connectId }, { isIntegration: true }),
+      flowNodeAjax.getNodeDetail(
+        { processId: props.id, nodeId: node.id, flowNodeType: node.typeId },
+        { isIntegration: true },
+      ),
+    ]).then(res => {
+      //更新鉴权认证节点
+      const list = _.toArray((res[0] || {}).flowNodeMap || {});
+      setState({
+        node: {
+          ...node,
+          ...(list.find(o => o.typeId === 22) || {}),
+          ...res[1],
+        },
       });
+    });
   };
   const getNodeInfo = () => {
     flowNodeAjax

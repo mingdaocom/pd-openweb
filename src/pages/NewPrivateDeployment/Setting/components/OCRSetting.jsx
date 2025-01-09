@@ -6,7 +6,6 @@ import _ from 'lodash';
 import { EmptyWrap, MyItem, ActionWrap } from './Item';
 import Trigger from 'rc-trigger';
 import PrivateOcr from 'src/api/privateOcr.js';
-import { encrypt } from 'src/util';
 import tencentyunIcon from 'src/pages/NewPrivateDeployment/images/tencentyunIcon.png';
 
 const list = [
@@ -50,7 +49,7 @@ function SetDialog(props) {
           alert(_l('请选择类型'), 3);
           return;
         }
-        if (secretKey === 1 && !baseUrl) {
+        if (type === 1 && !baseUrl) {
           alert(_l('请输入baseURL'), 3);
           return;
         }
@@ -63,7 +62,7 @@ function SetDialog(props) {
           return;
         }
         setState({ loading: true });
-        const param = { type, secretId, secretKey: encrypt(secretKey) };
+        const param = { type, secretId, secretKey };
         if (type === 1) {
           param.baseUrl = baseUrl;
         }

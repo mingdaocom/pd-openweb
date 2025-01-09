@@ -13,43 +13,7 @@ export default class AddBox extends Component {
       loading: true,
     };
   }
-  componentDidMount() {
-    // this.getlibraryByCategory();
-  }
-  // getlibraryByCategory() {
-  //   this.setState({
-  //     loading: true,
-  //   });
-  //   axios.post(`${__api_server__.main}AppManagement/GetAppsCategoryInfo`, {}).then(result => {
-  //     const { data } = result.data;
-  //     if (data) {
-  //       this.setState({
-  //         data,
-  //         loading: false,
-  //       });
-  //     }
-  //   });
-  // }
-  // renderAppList() {
-  //   const { data } = this.state;
-  //   return (
-  //     <List className="categoryList">
-  //       {
-  //         data.map(item => (
-  //           <List.Item
-  //             key={item.categoryId}
-  //             thumb={item.picture.fileUrl}
-  //             onClick={() => {
-  //               this.props.history.push(`/mobile/appBoxList/${item.categoryId}`);
-  //             }}
-  //           >
-  //             {item.name}
-  //           </List.Item>
-  //         ))
-  //       }
-  //     </List>
-  //   );
-  // }
+
   render() {
     const { loading } = this.state;
     return (

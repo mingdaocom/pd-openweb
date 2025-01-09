@@ -103,29 +103,29 @@ export default class ImportApp extends React.Component {
       accountId: md.global.Account.accountId,
       projectId: this.props.projectId ? this.props.projectId : Config.projectId,
     };
-    $.ajax({
-      type: 'POST',
-      url: `${md.global.Config.AppFileServer}AppFile/Check`,
-      data: JSON.stringify(params),
-      dataType: 'JSON',
-      contentType: 'application/json',
-    }).then(({ data: { errorCode, apps = [], isHighVersions } }) => {
-      if (errorCode === 5) {
-        this.setState({ errTip: _l('解析失败，不是有效的应用文件') });
-      } else if (ERRORMSG[errorCode]) {
-        alert(ERRORMSG[errorCode], 2, 4000);
-      } else {
-        this.setState(
-          {
-            step: errorCode >= 2 ? 2 : 3,
-            list: apps,
-            appBeyond: errorCode,
-            isHighVersions,
-          },
-          () => this.uploader.destroy(),
-        );
-      }
-    });
+
+    window
+      .mdyAPI('', '', params, {
+        ajaxOptions: { url: `${md.global.Config.AppFileServer}AppFile/Check` },
+        customParseResponse: true,
+      })
+      .then(({ data: { errorCode, apps = [], isHighVersions } }) => {
+        if (errorCode === 5) {
+          this.setState({ errTip: _l('解析失败，不是有效的应用文件') });
+        } else if (ERRORMSG[errorCode]) {
+          alert(ERRORMSG[errorCode], 2, 4000);
+        } else {
+          this.setState(
+            {
+              step: errorCode >= 2 ? 2 : 3,
+              list: apps,
+              appBeyond: errorCode,
+              isHighVersions,
+            },
+            () => this.uploader.destroy(),
+          );
+        }
+      });
   }
 
   //app导入
@@ -144,13 +144,11 @@ export default class ImportApp extends React.Component {
       groupType: this.props.groupType,
     };
     const res = await this.props.closeDialog(params);
+
     if (res) return;
-    $.ajax({
-      type: 'POST',
-      url: `${md.global.Config.AppFileServer}AppFile/Import`,
-      data: JSON.stringify(params),
-      dataType: 'JSON',
-      contentType: 'application/json',
+
+    window.mdyAPI('', '', params, {
+      ajaxOptions: { url: `${md.global.Config.AppFileServer}AppFile/Import` },
     });
   }
 

@@ -124,16 +124,14 @@ export default class AddAppItem extends Component {
     if (openDBInstanceFrom === 'createFromEmpty') {
       this.handleClick({ id, href, dbInstanceId });
     } else if (openDBInstanceFrom === 'importApp') {
-      $.ajax({
-        type: 'POST',
-        url: `${md.global.Config.AppFileServer}AppFile/Import`,
-        data: JSON.stringify({
-          ...importAppParams,
-          dbInstanceId,
-        }),
-        dataType: 'JSON',
-        contentType: 'application/json',
-      });
+      window.mdyAPI(
+        '',
+        '',
+        { ...importAppParams, dbInstanceId },
+        {
+          ajaxOptions: { url: `${md.global.Config.AppFileServer}AppFile/Import` },
+        },
+      );
     }
   };
 

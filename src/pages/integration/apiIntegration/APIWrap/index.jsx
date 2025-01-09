@@ -13,7 +13,6 @@ import Log from './Log';
 import packageVersionAjax from 'src/pages/workflow/api/packageVersion';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import processAjax from 'src/pages/workflow/api/process.js';
-import axios from 'axios';
 import moment from 'moment';
 import { checkPermission } from 'src/components/checkPermission';
 import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
@@ -282,35 +281,19 @@ function APISetting(props) {
     if (!processId) {
       return;
     }
-    const res = await axios.all([
-      flowNodeAjax.get(
-        {
-          processId,
-        },
-        { isIntegration: true },
-      ),
-      processAjax.getProcessPublish(
-        {
-          processId,
-        },
-        { isIntegration: true },
-      ),
-    ]);
-    const hasManageAuth = checkPermission(res[0].companyId, PERMISSION_ENUM.MANAGE_API_CONNECTS);
+    const flowNodeData = await flowNodeAjax.get({ processId }, { isIntegration: true });
+    const processPublishInfo = await processAjax.getProcessPublish({ processId }, { isIntegration: true });
+    const hasManageAuth = checkPermission(flowNodeData.companyId, PERMISSION_ENUM.MANAGE_API_CONNECTS);
     //后端——>列表上的数据可能不对，需要重新获取
     const apiData = await getAPIDetail(processId);
-    const dataNew = { ...apiData, ...res[1] };
-    setState({
-      hasManageAuth,
-      info: res[0],
-      data: dataNew,
-    });
+    const dataNew = { ...apiData, ...processPublishInfo };
+    setState({ hasManageAuth, info: flowNodeData, data: dataNew });
     !props.connectInfo //从连接的api管理进来的 参数上带了connectInfo，不需要重新获取
       ? packageVersionAjax
           .getDetail(
             {
               isPublic: true,
-              id: res[0].relationId,
+              id: flowNodeData.relationId,
             },
             { isIntegration: true },
           )

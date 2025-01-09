@@ -440,7 +440,7 @@ export default function ImportData(props) {
               style={{ height: '100%' }}
               fileUploaded={async file => {
                 const fileUrl = file.serverName + file.key;
-                const res = await getWithToken(
+                const data = await getWithToken(
                   `${md.global.Config.WorksheetDownUrl}/Import/PreviewSubtable`,
                   { worksheetId, tokenType: 7 },
                   {
@@ -448,8 +448,8 @@ export default function ImportData(props) {
                     filePath: fileUrl.replace(/\?.+/, ''),
                   },
                 );
-                if (_.get(res, 'data.data.rows')) {
-                  onParseExcel(res.data.data, fileUrl);
+                if (_.get(data, 'rows')) {
+                  onParseExcel(data, fileUrl);
                 } else {
                   alert(_l('文件解析失败！'), 2);
                 }

@@ -273,6 +273,7 @@ export default function RecordOperate(props) {
       destroyPopupOnHide
       popup={
         <MenuWrap
+          className="recordOperate"
           style={{ maxHeight: `${maxHeight || 508}px` }}
           onClickAwayExceptions={[
             '.customButtonConfirm',
@@ -286,6 +287,7 @@ export default function RecordOperate(props) {
           {showRemoveRelation && (
             <React.Fragment>
               <MenuItemWrap
+                data-event="cancelRelate"
                 icon={<Icon icon="close" className="Font18 mLeft5" />}
                 onClick={() => {
                   onRemoveRelation();
@@ -303,6 +305,7 @@ export default function RecordOperate(props) {
                 <Hr key={index} />
               ) : (
                 <MenuItemWrap
+                  data-event={`preMenu-${index}`}
                   className="printItem"
                   key={index}
                   icon={<Icon icon={item.icon} className="Font17 mLeft5" />}
@@ -347,6 +350,7 @@ export default function RecordOperate(props) {
           </React.Fragment>
           {canFav && (
             <MenuItemWrap
+              data-event="collect"
               className="printItem"
               icon={
                 <Icon
@@ -364,6 +368,7 @@ export default function RecordOperate(props) {
           )}
           {showShare && (
             <MenuItemWrap
+              data-event="share"
               className="printItem"
               icon={<Icon icon="share" className="Font17 mLeft5" />}
               onClick={() => {
@@ -390,6 +395,7 @@ export default function RecordOperate(props) {
           )}
           {showCopy && (
             <MenuItemWrap
+              data-event="copy"
               className="printItem"
               icon={<Icon icon="copy" className="Font17 mLeft5" />}
               onClick={() => {
@@ -425,6 +431,7 @@ export default function RecordOperate(props) {
           )}
           {showRecreate && (
             <MenuItemWrap
+              data-event="reCreate"
               className="printItem"
               icon={<Icon icon="copy_all" className="Font17 mLeft5" />}
               onClick={() => {
@@ -442,6 +449,7 @@ export default function RecordOperate(props) {
           )}
           {showCopyId && (
             <MenuItemWrap
+              data-event="copyID"
               className="printItem"
               icon={<Icon className="Font17 mLeft5" icon="ID" />}
               onClick={() => {
@@ -465,6 +473,7 @@ export default function RecordOperate(props) {
           )}
           {!window.isPublicApp && showOpenInNew && (
             <MenuItemWrap
+              data-event="openNewPage"
               icon={<Icon icon="launch" className="Font17 mLeft5" />}
               onClick={() => {
                 handleOpenInNew({ appId, worksheetId, viewId, recordId });
@@ -476,6 +485,7 @@ export default function RecordOperate(props) {
           )}
           {showDel && from !== RECORD_INFO_FROM.WORKFLOW && (
             <DeleteItemWrap
+              data-event="delete"
               className="deleteItem"
               icon={<Icon icon="task-new-delete" className="Font17 mLeft5" />}
               onClick={async () => {
@@ -534,6 +544,7 @@ export default function RecordOperate(props) {
           {showHr && showEditForm && <Hr />}
           {!window.isPublicApp && showEditForm && (
             <MenuItemWrap
+              data-event="editSheet"
               className="openCustomWidget"
               icon={<Icon icon="settings" className="Font17 mLeft5" />}
               onClick={() => {

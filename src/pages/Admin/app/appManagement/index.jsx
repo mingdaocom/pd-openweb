@@ -20,12 +20,10 @@ import AppTrash from 'src/pages/worksheet/common/Trash/AppTrash';
 import Search from 'src/pages/workflow/components/Search';
 import ajaxRequest from 'src/api/appManagement';
 import homeAppAjax from 'src/api/homeApp';
-import projectSettingAjaxRequest from 'src/api/projectSetting';
 import { dialogSelectUser, checkIsAppAdmin } from 'ming-ui/functions';
 import Trigger from 'rc-trigger';
 import { createRoot } from 'react-dom/client';
 import ExportApp from './modules/ExportApp';
-import ImportApp from './modules/ImportApp';
 import SelectApp from './modules/SelectApp';
 import AppLog from './modules/AppLog';
 import { Drawer, Select } from 'antd';
@@ -42,20 +40,11 @@ import { decryptFunc } from './modules/Dectypt';
 import projectAjax from 'src/api/project';
 import qs from 'query-string';
 import SelectDBInstance from 'src/pages/AppHomepage/AppCenter/components/SelectDBInstance';
-import { hasPermission } from 'src/components/checkPermission';
-import { PERMISSION_ENUM } from 'src/pages/Admin/enum';
 import UpgradeProcess from 'src/pages/AppSettings/components/ImportUpgrade/components/UpgradeProcess';
 
 export const emitter = new EventEmitter();
 
 const optionData = [
-  // {
-  //   label: _l('导入应用'),
-  //   icon: 'reply1',
-  //   action: 'handleImport',
-  //   hasBeta: true,
-  //   featureId: VersionProductType.appImportExport,
-  // },
   {
     label: _l('导出应用'),
     icon: 'cloud_download',
@@ -246,15 +235,12 @@ export default class AppManagement extends Component {
 
   handleImportApp = dbInstanceId => {
     const { importAppParams } = this.state;
-    $.ajax({
-      type: 'POST',
-      url: `${md.global.Config.AppFileServer}AppFile/Import`,
-      data: JSON.stringify({
-        ...importAppParams,
-        dbInstanceId,
-      }),
-      dataType: 'JSON',
-      contentType: 'application/json',
+    const requestParam = { ...importAppParams, dbInstanceId };
+
+    window.mdyAPI('', '', requestParam, {
+      ajaxOptions: {
+        url: `${md.global.Config.AppFileServer}AppFile/Import`,
+      },
     });
   };
 
@@ -386,7 +372,12 @@ export default class AppManagement extends Component {
             popup={() => {
               return (
                 <ul className="optionPanelTrigger">
-                  {!featureType || item.isLock || item.isGoods || !featureType || item.createType === 1 || item.sourceType === 60 ? null : (
+                  {!featureType ||
+                  item.isLock ||
+                  item.isGoods ||
+                  !featureType ||
+                  item.createType === 1 ||
+                  item.sourceType === 60 ? null : (
                     <li
                       onClick={() => {
                         if (featureType === '2') {
@@ -492,38 +483,6 @@ export default class AppManagement extends Component {
     this.setState({
       exportIds: list.map(item => item.appId),
     });
-  }
-
-  /**
-   * 应用导入
-   */
-  handleImport() {
-    const { hasDataBase } = this.state;
-
-    const options = {
-      title: this.renderHeader('uploadVisible'),
-      visible: true,
-      footer: null,
-      className: 'importSingleAppDialog',
-      width: '640',
-      overlayClosable: false,
-      onCancel: () => this.closeDialog('importSingleAppDialog'),
-    };
-    const root = createRoot(document.createElement('div'));
-
-    root.render(
-      <Dialog {...options}>
-        <ImportApp
-          closeDialog={params => {
-            this.closeDialog('importSingleAppDialog');
-            if (hasDataBase) {
-              this.setState({ importAppParams: params });
-              return this.getDBInstances(true);
-            }
-          }}
-        />
-      </Dialog>,
-    );
   }
 
   // 应用回收站
@@ -769,14 +728,9 @@ export default class AppManagement extends Component {
                     const featureType = getFeatureStatus(projectId, item.featureId);
 
                     if (
-                      _.includes(['handleImport', 'handleExportAll', 'openAppTrash', 'handleUpdateAll'], item.action) &&
+                      _.includes(['handleExportAll', 'openAppTrash', 'handleUpdateAll'], item.action) &&
                       !featureType
                     ) {
-                      return;
-                    }
-
-                    //没有[创建应用]权限不显示导入应用
-                    if (item.action === 'handleImport' && !hasPermission(authority, PERMISSION_ENUM.CREATE_APP)) {
                       return;
                     }
 

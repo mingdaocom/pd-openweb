@@ -82,7 +82,7 @@ export default function RowDetailModal(props) {
         <i
           className="headerBtn icon icon-delete_out Gray_9e Font20"
           onClick={() => {
-            if (type === 'edit') {
+            if (type === 'edit' && !disabled) {
               formContent.current.handleSave(false, false, true);
             }
             onClose();

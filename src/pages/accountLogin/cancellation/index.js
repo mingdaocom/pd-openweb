@@ -153,19 +153,24 @@ export default class Cancellation extends Component {
   };
   revokeApply = () => {
     const { state } = localStorage.getItem('loginStatus') ? JSON.parse(localStorage.getItem('loginStatus')) : {};
-    $.ajax({
-      url: `${md.global.Config.AjaxApiUrl}Account/CancelLogOffAccount?state=${state}`,
-      type: 'POST',
-      params: { state },
-      success: ({ data }) => {
+
+    window
+      .mdyAPI(
+        '',
+        '',
+        { state },
+        {
+          ajaxOptions: { url: `${md.global.Config.AjaxApiUrl}Account/CancelLogOffAccount?state=${state}` },
+        },
+      )
+      .then(data => {
         let type = data === 0 || data === 5 ? 2 : data === 1 ? 1 : 3;
         alert(actionMsg[data], type);
         if (data === 1) {
           // 撤销申请跳转至登录页
           window.location.href = '/login';
         }
-      },
-    });
+      });
   };
   getLoginStateCountDown = () => {
     const { overdueDiff } = this.state;

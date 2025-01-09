@@ -122,9 +122,9 @@ export default class MoreOverlay extends Component {
     favoriteApi.removeReportFavoritesExcludeAccountId({
       projectId,
       reportId: report.id,
-      accountId: createdAccountId
+      accountId: createdAccountId,
     });
-  }
+  };
   handleChangeFavorite = favorite => {
     const { report, worksheetId, projectId, pageId, onCancelFavorite } = this.props;
     const params = {
@@ -176,7 +176,7 @@ export default class MoreOverlay extends Component {
       customPageConfig = {},
       onSheetView,
       onOpenSetting,
-      onRemove
+      onRemove,
     } = this.props;
     const { favorite } = this.state;
     const isSheetView = ![reportTypes.PivotTable].includes(reportType);
@@ -190,9 +190,10 @@ export default class MoreOverlay extends Component {
       !md.global.Account.isPortal &&
       sourceType !== 2;
     return (
-      <Menu className="chartMenu" expandIcon={<Icon icon="arrow-right-tip" />} style={{ width: 180 }}>
+      <Menu className="chartMenu chartOperate" expandIcon={<Icon icon="arrow-right-tip" />} style={{ width: 180 }}>
         {onOpenSetting && (
           <Menu.Item
+            data-event="setting"
             className="pLeft10"
             onClick={() => {
               onOpenSetting();
@@ -207,6 +208,7 @@ export default class MoreOverlay extends Component {
         )}
         {isFavorite && (
           <Menu.Item
+            data-event="collect"
             className="pLeft10"
             onClick={() => {
               this.handleChangeFavorite(!favorite);
@@ -225,6 +227,7 @@ export default class MoreOverlay extends Component {
         )}
         {onSheetView && reportStatus > 0 && (
           <Menu.Item
+            data-event="sheetDisplay"
             className="pLeft10"
             onClick={() => {
               onSheetView();
@@ -237,28 +240,35 @@ export default class MoreOverlay extends Component {
             </div>
           </Menu.Item>
         )}
-        {!md.global.Account.isPortal && !(isEmbedPage || isEmbedChart) && reportStatus > 0 && sourceType !== 3 && chartShare && (
-          <Menu.Item
-            className="pLeft10"
-            onClick={() => {
-              this.setState({ shareVisible: true });
-              this.handleUpdateDropdownVisible(false);
-            }}
-          >
-            <div className="flexRow valignWrapper">
-              <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="share" />
-              <span>{_l('分享')}</span>
-            </div>
-          </Menu.Item>
-        )}
+        {!md.global.Account.isPortal &&
+          !(isEmbedPage || isEmbedChart) &&
+          reportStatus > 0 &&
+          sourceType !== 3 &&
+          chartShare && (
+            <Menu.Item
+              data-event="share"
+              className="pLeft10"
+              onClick={() => {
+                this.setState({ shareVisible: true });
+                this.handleUpdateDropdownVisible(false);
+              }}
+            >
+              <div className="flexRow valignWrapper">
+                <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="share" />
+                <span>{_l('分享')}</span>
+              </div>
+            </Menu.Item>
+          )}
         {!window.isPublicApp && reportStatus > 0 && chartExportExcel && (
           <Menu.SubMenu
-            popupClassName="chartMenu"
+            data-event="export"
+            popupClassName="chartMenu chartSubOperate_export"
             title={_l('导出Excel%06002')}
             icon={<Icon className="Gray_9e Font18 mRight5" icon="file_download" />}
             popupOffset={[0, 0]}
           >
             <Menu.Item
+              data-event="exportOriginal"
               style={{ width: 180 }}
               className="pLeft20"
               onClick={() => {
@@ -268,6 +278,7 @@ export default class MoreOverlay extends Component {
               <div className="flexRow valignWrapper">{_l('按照原值导出%06000')}</div>
             </Menu.Item>
             <Menu.Item
+              data-event="exportUnit"
               style={{ width: 180 }}
               className="pLeft20"
               onClick={() => {
@@ -280,6 +291,7 @@ export default class MoreOverlay extends Component {
         )}
         {[reportTypes.PivotTable].includes(reportType) && !md.global.Account.isPortal && (
           <Menu.Item
+            data-event="print"
             className="pLeft10"
             onClick={() => {
               const { filters = [], filtersGroup = [] } = this.props.exportData;
@@ -298,23 +310,25 @@ export default class MoreOverlay extends Component {
         {isMove && (
           <Fragment>
             <Divider className="mTop5 mBottom5" />
-            <Menu.Item className="pLeft10" onClick={this.handleUpdateOwnerId}>
+            <Menu.Item data-event="publicTransform" className="pLeft10" onClick={this.handleUpdateOwnerId}>
               <div className="flexRow valignWrapper">
                 <Icon className="Gray_9e Font18 mLeft5 mRight5" icon={ownerId ? 'worksheet_public' : 'minus-square'} />
                 <span>{ownerId ? _l('转为公共图表') : _l('从公共中移出')}</span>
               </div>
             </Menu.Item>
             <Menu.SubMenu
-              popupClassName="chartMenu"
+              data-event="copy"
+              popupClassName="chartMenu chartSubOperate_copy"
               title={_l('复制到')}
               icon={<Icon className="Gray_9e Font18 mRight5" icon="content-copy" />}
               popupOffset={[0, 0]}
             >
-              <Menu.Item style={{ width: 180 }} className="pLeft20" onClick={this.handleCopy}>
+              <Menu.Item data-event="curStatistic" style={{ width: 180 }} className="pLeft20" onClick={this.handleCopy}>
                 <div className="flexRow valignWrapper">{_l('当前统计')}</div>
               </Menu.Item>
               {permissionType !== 2 && (
                 <Menu.Item
+                  data-event="customPage"
                   style={{ width: 180 }}
                   className="pLeft20"
                   onClick={() => {
@@ -331,7 +345,7 @@ export default class MoreOverlay extends Component {
         {onRemove && (
           <Fragment>
             <Divider className="mTop5 mBottom5" />
-            <Menu.Item className="pLeft10" onClick={this.handleDelete}>
+            <Menu.Item data-event="delete" className="pLeft10" onClick={this.handleDelete}>
               <div className="flexRow valignWrapper">
                 <Icon className="Gray_9e Font18 mLeft5 mRight5" icon="task-new-delete" />
                 <span>{_l('删除')}</span>
@@ -344,10 +358,23 @@ export default class MoreOverlay extends Component {
   }
   render() {
     const { shareVisible, showPageMove, dropdownVisible } = this.state;
-    const { appId, worksheetId, pageId, report, className, permissions, isCharge, isLock, reportType, permissionType, sourceType, customPageConfig, onSheetView } =
-      this.props;
+    const {
+      appId,
+      worksheetId,
+      pageId,
+      report,
+      className,
+      permissions,
+      isCharge,
+      isLock,
+      reportType,
+      permissionType,
+      sourceType,
+      customPageConfig,
+      onSheetView,
+    } = this.props;
     const { chartExportExcel = true } = customPageConfig;
-    const moreVisible = function() {
+    const moreVisible = (function () {
       if (md.global.Account.isPortal) {
         if (reportType === reportTypes.PivotTable) {
           return chartExportExcel;
@@ -356,7 +383,7 @@ export default class MoreOverlay extends Component {
         }
       }
       return true;
-    }();
+    })();
     return (
       <Fragment>
         {moreVisible && (
@@ -384,7 +411,7 @@ export default class MoreOverlay extends Component {
               worksheetId,
               title: report.name,
               pageId: sourceType === 1 ? pageId : undefined,
-              privateVisible: sourceType === 1 || !sourceType
+              privateVisible: sourceType === 1 || !sourceType,
             }}
             getCopyContent={(type, url) => (type === 'private' ? url : `${url} ${report.name}`)}
             onClose={() => this.setState({ shareVisible: false })}

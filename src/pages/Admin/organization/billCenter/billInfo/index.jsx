@@ -1,5 +1,4 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import axios from 'axios';
 import { LoadDiv, Dropdown, ScrollView, UserHead } from 'ming-ui';
 import orderAjax from 'src/api/order';
 import copy from 'copy-to-clipboard';
@@ -107,9 +106,8 @@ export default function BillInfo({ match }) {
   }, []);
 
   useEffect(() => {
-    axios.all([projectAjax.getProjectLicenseSupportInfo({ projectId })]).then(res => {
-      let data = res.reduce((p, c) => ({ ...p, ...c }), {});
-      setData(data);
+    projectAjax.getProjectLicenseSupportInfo({ projectId }).then(res => {
+      setData(res);
     });
   }, [displayRecordType]);
 

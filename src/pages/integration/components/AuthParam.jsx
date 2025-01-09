@@ -6,7 +6,6 @@ import { CardTopWrap, WrapBtn } from '../apiIntegration/style';
 import flowNodeAjax from 'src/pages/workflow/api/flowNode';
 import { Wrap } from './style';
 import Detail from 'src/pages/workflow/WorkflowSettings/Detail';
-import axios from 'axios';
 import { CustomTextarea } from 'src/pages/workflow/WorkflowSettings/Detail/components';
 import copy from 'copy-to-clipboard';
 import 'src/pages/workflow/WorkflowSettings/Detail/components/Tag/index.less';
@@ -73,31 +72,20 @@ function AuthParam(props) {
     if (!node || !node.id) {
       return;
     }
-    axios
-      .all([
-        flowNodeAjax.get(
-          {
-            processId: props.connectId,
-          },
-          { isIntegration: true },
-        ),
-        flowNodeAjax.getNodeDetail(
-          {
-            processId: props.id,
-            nodeId: node.id,
-            flowNodeType: node.typeId,
-          },
-          { isIntegration: true },
-        ),
-      ])
-      .then(res => {
-        cache.current.node = {
-          ...node,
-          ...((res[0] || {}).flowNodeMap || {})[node.id],
-          ...res[1],
-        };
-        setNode(cache.current.node);
-      });
+    Promise.all([
+      flowNodeAjax.get({ processId: props.connectId }, { isIntegration: true }),
+      flowNodeAjax.getNodeDetail(
+        { processId: props.id, nodeId: node.id, flowNodeType: node.typeId },
+        { isIntegration: true },
+      ),
+    ]).then(res => {
+      cache.current.node = {
+        ...node,
+        ...((res[0] || {}).flowNodeMap || {})[node.id],
+        ...res[1],
+      };
+      setNode(cache.current.node);
+    });
   };
 
   //保存参数

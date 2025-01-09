@@ -287,7 +287,7 @@ export default function CustomPageHeader(props) {
   return (
     <Fragment>
       <header
-        className={cx({
+        className={cx('customPageHeader', {
           embedPageHeader: isEmbed || isEmbedPage,
           hide:
             appPkg.currentPcNaviStyle === 2
@@ -326,8 +326,7 @@ export default function CustomPageHeader(props) {
               <Tooltip
                 text={
                   <span>
-                    {inFull ? _l('退出') : _l('展开')} (
-                    {window.isMacOs ? '⌘ + E' : 'Shift + E'})
+                    {inFull ? _l('退出') : _l('展开')} ({window.isMacOs ? '⌘ + E' : 'Shift + E'})
                   </span>
                 }
                 popupPlacement="bottom"
@@ -424,20 +423,21 @@ export default function CustomPageHeader(props) {
                 content={renderLinkageFiltersPopover()}
               >
                 <Tooltip text={<span>{_l('联动筛选')}</span>} popupPlacement="bottom">
-                  <div className="iconWrap valignWrapper mLeft20 autoLinkageTrigger">
+                  <div data-event="filter" className="iconWrap valignWrapper mLeft20 autoLinkageTrigger">
                     <Icon className="Font22 pointer" icon="linkage_filter" />
                   </div>
                 </Tooltip>
               </Popover>
             )}
             <Tooltip text={<span>{_l('刷新')}</span>} popupPlacement="bottom">
-              <div className="iconWrap valignWrapper mLeft20" onClick={resetPage}>
+              <div data-event="refresh" className="iconWrap valignWrapper mLeft20" onClick={resetPage}>
                 <Icon className="Font20 pointer" icon="task-later" />
               </div>
             </Tooltip>
             {isCharge && !(appPkg.isLock || appPkg.permissionType === APP_ROLE_TYPE.RUNNER_ROLE) && (
               <Tooltip text={<span>{_l('页面配置')}</span>} popupPlacement="bottom">
                 <div
+                  data-event="pageConfig"
                   className="iconWrap valignWrapper mLeft20"
                   onClick={() => {
                     setConfigVisible(true);
@@ -450,6 +450,7 @@ export default function CustomPageHeader(props) {
             {!isPublicShare && !isEmbedPage && apk.appId && !md.global.Account.isPortal && pageConfig.shareVisible && (
               <Tooltip text={<span>{_l('分享')}</span>} popupPlacement="bottom">
                 <div
+                  data-event="share"
                   className="iconWrap valignWrapper mLeft20"
                   onClick={() => {
                     setShareDialogVisible(true);
@@ -466,7 +467,7 @@ export default function CustomPageHeader(props) {
                 </div>
               ) : (
                 <Tooltip text={<span>{_l('保存图片')}</span>} popupPlacement="bottom">
-                  <div className="iconWrap valignWrapper mLeft20" onClick={saveImage}>
+                  <div data-event="savePic" className="iconWrap valignWrapper mLeft20" onClick={saveImage}>
                     <Icon className="Font20 pointer" icon="file_download" />
                   </div>
                 </Tooltip>
@@ -475,7 +476,7 @@ export default function CustomPageHeader(props) {
         )}
         {!isPublicShare && pageConfig.fullScreenVisible && (
           <Tooltip text={<span>{_l('全屏展示')}</span>} popupPlacement="bottom">
-            <div className="iconWrap valignWrapper mLeft20" onClick={() => toggle(true)}>
+            <div data-event="fullScreen" className="iconWrap valignWrapper mLeft20" onClick={() => toggle(true)}>
               <Icon icon="full_screen" className="Font20 pointer" />
             </div>
           </Tooltip>
@@ -552,7 +553,7 @@ export default function CustomPageHeader(props) {
               appId: id,
               adjustScreen,
               config,
-              urlParams
+              urlParams,
             });
           }}
         />

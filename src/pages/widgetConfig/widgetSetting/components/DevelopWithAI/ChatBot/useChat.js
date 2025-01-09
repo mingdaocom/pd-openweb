@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import codeAjax from 'src/api/code';
 import { getPssId } from 'src/util/pssId';
 import { MESSAGE_TYPE } from './enum';
 import { findLast, get, omit } from 'lodash';
@@ -130,22 +131,19 @@ function useChatBot({ params = [], defaultMessages = [], currentCode, onMessageD
         return result;
       }
 
-      // const response = await fetch(`http://localhost:3000/Code/GenerateCodeBlock`, {
-      const response = await fetch(`${md.global.Config.AjaxApiUrl}Code/GenerateCodeBlock`, {
-        signal: abortControllerRef.current.signal,
-        method: 'POST',
-        headers: {
-          Authorization: getPssId() ? `md_pss_id ${getPssId()}` : '',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const response = await codeAjax.generateCodeBlock(
+        {
           codeType: 3,
           params,
           messageList: getMessageList()
             .filter(message => message.type !== MESSAGE_TYPE.SHOW_NOT_SEND)
             .map(message => omit(message, ['id', 'type'])),
-        }),
-      });
+        },
+        {
+          abortController: abortControllerRef.current,
+          isReadableStream: true,
+        },
+      );
 
       setIsRequesting(false);
 

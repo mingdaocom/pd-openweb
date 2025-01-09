@@ -72,7 +72,11 @@ export default class PrintList extends Component {
           this.setState({
             tempList: list
               .filter(l => !l.disabled)
-              .sort((a, b) => PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === a.type)] - PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === b.type)]),
+              .sort(
+                (a, b) =>
+                  PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === a.type)] -
+                  PRINT_TEMP[_.findKey(PRINT_TYPE, l => l === b.type)],
+              ),
             tempListLoaded: true,
           });
         });
@@ -124,6 +128,7 @@ export default class PrintList extends Component {
     if (tempList.length <= 0) {
       return isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId) ? (
         <MenuItemWrap
+          data-event="print"
           className={cx('printItem', { hover: showPrintGroup })}
           icon={<Icon icon="print" className="Font17 mLeft5" />}
           onClick={() => {
@@ -156,11 +161,13 @@ export default class PrintList extends Component {
                     noDefaultPrint: !isOpenPermit(permitList.recordPrintSwitch, sheetSwitchPermit, viewId),
                   })}
                 >
-                  {tempList.map(it => {
+                  {tempList.map((it, index) => {
                     let isCustom = [2, 5].includes(it.type);
 
                     return (
                       <MenuItemWrap
+                        data-event={`printTemp-${index}`}
+                        key={index}
                         className=""
                         icon={
                           isCustom ? (
@@ -241,6 +248,7 @@ export default class PrintList extends Component {
                 <Fragment>
                   <SecTitle>{_l('系统默认打印')}</SecTitle>
                   <MenuItemWrap
+                    data-event="printRecord"
                     className={cx({ defaultPrint: tempList.length > 0 })}
                     onClick={() => {
                       onItemClick();
@@ -255,6 +263,7 @@ export default class PrintList extends Component {
           }
         >
           <MenuItemWrap
+            data-event="print"
             className={cx('printItem', { hover: showPrintGroup })}
             icon={<Icon icon="print" className="Font17 mLeft5" />}
           >

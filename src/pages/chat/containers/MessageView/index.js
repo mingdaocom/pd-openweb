@@ -158,7 +158,7 @@ class MessageView extends Component {
           isMore: !(res.length < config.MSG_LENGTH_MORE),
         });
         resolve(res);
-      }).fail(error => {
+      }).catch(error => {
         this.setState({
           errorParam: param,
         });

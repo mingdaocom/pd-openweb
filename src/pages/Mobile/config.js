@@ -43,16 +43,6 @@ export const ROUTE_CONFIG = addSubPathOfRoutes(
     appBox: {
       path: '/mobile/appBox',
       component: () => import('mobile/AppBox'),
-      title: _l('明道云市场'),
-    },
-    appBoxList: {
-      path: '/mobile/appBoxList/:categoryId',
-      component: () => import('mobile/AppBoxList'),
-      title: _l('应用库'),
-    },
-    appBoxInfo: {
-      path: '/mobile/appBoxInfo/:libraryId',
-      component: () => import('mobile/AppBoxInfo'),
       title: _l('应用库'),
     },
     myHome: {

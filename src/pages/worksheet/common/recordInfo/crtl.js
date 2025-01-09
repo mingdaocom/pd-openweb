@@ -563,7 +563,9 @@ export async function exportRelateRecordRecords({
     rowIds,
   };
   if (typeof rowIds !== 'undefined') {
-    postWithToken(`${downLoadUrl}/ExportExcel/Export`, { worksheetId, tokenType: 8 }, args);
+    postWithToken(`${downLoadUrl}/ExportExcel/Export`, { worksheetId, tokenType: 8 }, args, {
+      responseType: 'blob',
+    });
   } else {
     exportSheet({ worksheetId, rowId, controlId, fileName, filterControls, onDownload })();
   }

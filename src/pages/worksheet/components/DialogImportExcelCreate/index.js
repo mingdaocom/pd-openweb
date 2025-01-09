@@ -82,19 +82,25 @@ class DialogImportExcelCreate extends Component {
   getPreviewData = (params = {}) => {
     const { projectId, appId } = this.props;
     const { filePath, fileType, fileName, token } = params;
-    $.ajax(md.global.Config.WorksheetDownUrl + '/Import/Preview', {
-      data: {
-        accountId: md.global.Account.accountId,
-        projectId,
-        appId,
-        csvName: _.includes(fileType, 'csv') ? fileName : undefined,
-        filePath,
-        token,
-      },
-      beforeSend: xhr => {
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      },
-      success: res => {
+
+    const questParams = {
+      accountId: md.global.Account.accountId,
+      projectId,
+      appId,
+      csvName: _.includes(fileType, 'csv') ? fileName : undefined,
+      filePath,
+      token,
+    };
+
+    window
+      .mdyAPI('', '', questParams, {
+        ajaxOptions: {
+          type: 'GET',
+          url: md.global.Config.WorksheetDownUrl + '/Import/Preview',
+        },
+        customParseResponse: true,
+      })
+      .then(res => {
         this.props.changeSetDataDialogVisible(true);
         this.props.changeDialogUploadVisible(false);
         const { data: sheetList, id, versionLimitSheetCount, currentSheetCount, freeRowCount } = res.data || {};
@@ -171,8 +177,7 @@ class DialogImportExcelCreate extends Component {
           selectCells: (_.get(sheetInfo, 'rows[0].cells') || []).map(it => it.columnNumber),
         });
         this.setState({ id, versionLimitSheetCount, currentSheetCount, freeRowCount, socketId: res.message });
-      },
-    });
+      });
   };
   fileUploaded = file => {
     const { appInfo } = this.props;
@@ -294,14 +299,15 @@ class DialogImportExcelCreate extends Component {
         description: _l('数据将在后台持续导入，导入完成后会给您发送系统通知。'),
       });
       this.setState({ importLoading: true });
-      $.ajax(md.global.Config.WorksheetDownUrl + '/Import/Create', {
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(this.getParams()),
-        beforeSend: xhr => {
-          xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        },
-        success: res => {
+
+      window
+        .mdyAPI('', '', this.getParams(), {
+          ajaxOptions: {
+            url: md.global.Config.WorksheetDownUrl + '/Import/Create',
+          },
+          customParseResponse: true,
+        })
+        .then(res => {
           this.props.onCancel();
           if (isMore) {
             this.importMore();
@@ -309,8 +315,7 @@ class DialogImportExcelCreate extends Component {
             refreshPage();
             this.setState({ importLoading: false });
           }
-        },
-      });
+        });
     } else if (createType === 'app') {
       this.props.changeSetDataDialogVisible(false);
       this.props.changeDialogCreateAppVisible(true);
@@ -327,36 +332,39 @@ class DialogImportExcelCreate extends Component {
       description: _l('数据将在后台持续导入，导入完成后会给您发送系统通知。'),
     });
     this.setState({ importLoading: true });
-    $.ajax(md.global.Config.WorksheetDownUrl + '/Import/Create', {
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        ...this.getParams(),
-        dbInstanceId,
-      }),
-      beforeSend: xhr => {
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      },
-      success: res => {
+
+    window
+      .mdyAPI(
+        '',
+        '',
+        { ...this.getParams(), dbInstanceId },
+        {
+          ajaxOptions: {
+            url: md.global.Config.WorksheetDownUrl + '/Import/Create',
+          },
+          customParseResponse: true,
+        },
+      )
+      .then(res => {
         this.props.updateAppInfo({ ...this.props.appInfo, appId: res.data });
         if (isMore) {
           this.importMore();
         } else {
           this.setState({ importLoading: false, createAppStatus: 1 });
         }
-      },
-    });
+      });
   };
   importMore = () => {
     const { createType, refreshPage = () => {} } = this.props;
-    $.ajax(md.global.Config.WorksheetDownUrl + '/Import/CreateSheet', {
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify(this.getParams(true)),
-      beforeSend: xhr => {
-        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      },
-      success: res => {
+
+    window
+      .mdyAPI('', '', this.getParams(true), {
+        ajaxOptions: {
+          url: md.global.Config.WorksheetDownUrl + '/Import/CreateSheet',
+        },
+        customParseResponse: true,
+      })
+      .then(res => {
         if (createType === 'app') {
           this.setState({ importLoading: false, createAppStatus: 1 });
           this.props.updateAppInfo({ ...this.props.appInfo, appId: res.data });
@@ -365,8 +373,7 @@ class DialogImportExcelCreate extends Component {
           this.props.onCancel();
           refreshPage();
         }
-      },
-    });
+      });
   };
 
   handleCreate = () => {

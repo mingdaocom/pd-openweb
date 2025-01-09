@@ -13,9 +13,11 @@ const SUFFIX = {
   Excel: 'xlsx',
 };
 
-const AJAX_URL = {
-  Word: 'Word',
-  Excel: 'Xlsx',
+const EXPORT_URL = {
+  UploadWord: '/ExportWord/UploadWord',
+  UploadExcel: '/ExportXlsx/UploadXlsx',
+  CreateWord: '/ExportWord/CreateWord',
+  CreateExcel: '/ExportXlsx/CreateXlsx',
 };
 
 @withClickAway
@@ -183,7 +185,7 @@ class EditPrint extends React.Component {
       tokenType: 5,
     });
     if (templateId) {
-      ajaxUrl = downLoadUrl + `/Export${AJAX_URL[fileType]}/Upload${AJAX_URL[fileType]}`;
+      ajaxUrl = downLoadUrl + EXPORT_URL[`Upload${fileType}`];
       option = {
         id: templateId,
         accountId: md.global.Account.accountId,
@@ -192,7 +194,7 @@ class EditPrint extends React.Component {
         token,
       };
     } else {
-      ajaxUrl = downLoadUrl + `/Export${AJAX_URL[fileType]}/Create${AJAX_URL[fileType]}`;
+      ajaxUrl = downLoadUrl + EXPORT_URL[`Create${fileType}`];
       option = {
         worksheetId: worksheetId,
         accountId: md.global.Account.accountId,
@@ -201,33 +203,39 @@ class EditPrint extends React.Component {
         token,
       };
     }
-    $.ajax({
-      type: 'POST',
-      url: ajaxUrl,
-      data: option,
-    }).then(res => {
-      if (res.status !== 1) {
-        alert(res.message, 2);
-      } else {
-        if (!templateId && res.data) {
-          sheetAjax
-            .editTemplateDownloadPermission({
-              id: res.data,
-              allowDownloadPermission,
-            })
-            .then(res => {
-              if (res) {
-                refreshFn();
-                alert(_l('添加成功'));
-                return;
-              }
-            });
+    window
+      .mdyAPI('', '', option, {
+        ajaxOptions: {
+          url: ajaxUrl,
+          header: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        },
+        customParseResponse: true,
+      })
+      .then(res => {
+        if (res.status !== 1) {
+          alert(res.message, 2);
         } else {
-          refreshFn();
-          alert(templateId ? _l('修改成功') : _l('添加成功'));
+          if (!templateId && res.data) {
+            sheetAjax
+              .editTemplateDownloadPermission({
+                id: res.data,
+                allowDownloadPermission,
+              })
+              .then(res => {
+                if (res) {
+                  refreshFn();
+                  alert(_l('添加成功'));
+                  return;
+                }
+              });
+          } else {
+            refreshFn();
+            alert(templateId ? _l('修改成功') : _l('添加成功'));
+          }
         }
-      }
-    });
+      });
   };
 
   render() {

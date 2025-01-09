@@ -136,7 +136,7 @@ function SettingMenu(props) {
   return (
     <Menu className="viewItemMoreOperate">
       {editName && isCharge && (
-        <MenuItem icon={<Icon icon="workflow_write" className="Font18" />} onClick={clickEditName}>
+        <MenuItem data-event="rename" icon={<Icon icon="workflow_write" className="Font18" />} onClick={clickEditName}>
           <span className="text">{_l('重命名%05004')}</span>
         </MenuItem>
       )}
@@ -144,6 +144,7 @@ function SettingMenu(props) {
         <React.Fragment>
           {!isLock && isCharge && (
             <MenuItem
+              data-event="config"
               icon={<Icon icon="settings" className="Font18" />}
               onClick={() => {
                 onOpenView(item);
@@ -171,7 +172,11 @@ function SettingMenu(props) {
                 />
               }
             >
-              <MenuItem className="changeViewDisplayTypeMenuWrap" icon={<Icon icon="swap_horiz" className="Font18" />}>
+              <MenuItem
+                data-event="changeType"
+                className="changeViewDisplayTypeMenuWrap"
+                icon={<Icon icon="swap_horiz" className="Font18" />}
+              >
                 <span className="text">{_l('更改视图类型%05023')}</span>
                 <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
               </MenuItem>
@@ -179,6 +184,7 @@ function SettingMenu(props) {
           )}
           {!isLock && isCharge && !['customize'].includes(VIEW_DISPLAY_TYPE[item.viewType]) && (
             <MenuItem
+              data-event="copy"
               icon={<Icon icon="content-copy" className="Font16" />}
               onClick={() => {
                 onCopyView(item);
@@ -193,6 +199,7 @@ function SettingMenu(props) {
           {/* 分享视图权限 目前只有表视图才能分享*/}
           {canShare() && (
             <MenuItem
+              data-event="share"
               icon={<Icon icon="share" className="Font18" />}
               onClick={() => {
                 if (window.isPublicApp) {
@@ -218,22 +225,29 @@ function SettingMenu(props) {
                 right: { points: ['cl', 'cr'] },
               }}
               popup={
-                <Menu style={{ width: 200 }}>
+                <Menu style={{ width: 200 }} className="viewItemMoreOperate_subMenu">
                   {[
                     {
                       name: _l('导出记录') + '（Excel，CSV）',
                       icon: 'new_excel',
                       exportType: 1,
+                      key: 'exportRecord',
                     },
                     {
                       name: _l('导出附件'),
                       icon: 'attachment',
                       exportType: 2,
+                      key: 'exportAttachment',
                     },
                   ].map(it => {
                     if (it.exportType === 2 && _.isEmpty(getAttachmentControls())) return;
                     return (
-                      <MenuItem icon={<Icon icon={it.icon} />} onClick={() => handleExport(it)}>
+                      <MenuItem
+                        key={it.key}
+                        data-event={it.key}
+                        icon={<Icon icon={it.icon} />}
+                        onClick={() => handleExport(it)}
+                      >
                         <span>{it.name}</span>
                       </MenuItem>
                     );
@@ -242,7 +256,7 @@ function SettingMenu(props) {
               }
               popupAlign={{ offset: [0, -20] }}
             >
-              <MenuItem icon={<Icon icon="download" className="Font18" />}>
+              <MenuItem data-event="export" icon={<Icon icon="download" className="Font18" />}>
                 <span className="text">{_l('导出%05020')}</span>
                 <Icon icon="arrow-right-tip Font15" style={{ fontSize: '16px', right: '10px', left: 'initial' }} />
               </MenuItem>
@@ -253,6 +267,7 @@ function SettingMenu(props) {
 
       {isCharge && (
         <MenuItem
+          data-event="hide"
           icon={
             <Icon
               icon={_.get(item, 'advancedSetting.showhide') !== 'hide' ? 'visibility_off' : 'visibility'}
@@ -278,6 +293,7 @@ function SettingMenu(props) {
       )}
       {isCharge && (
         <MenuItem
+          data-event="delete"
           icon={<Icon icon="hr_delete" className="Font18" />}
           className="delete"
           onClick={() => {

@@ -52,7 +52,7 @@ const CopySheetConfirmDescription = props => {
         <Input className="w100 Gray" value={name} onChange={value => setName(value.trim().slice(0, 100))} />
       </div>
     );
-  }
+  };
 
   return type ? (
     renderResetName()
@@ -259,14 +259,11 @@ const handleCopyWorkSheet = props => {
         >
           {_l('取消')}
         </ConfirmButton>
-        <ConfirmButton
-          action={onOk}
-          type="primary"
-        >
+        <ConfirmButton action={onOk} type="primary">
           {_l('复制')}
         </ConfirmButton>
       </div>
-    )
+    ),
   });
 };
 
@@ -341,6 +338,7 @@ export default function MoreOperation(props) {
       return (
         <Menu className={`worksheetItemOperate worksheetItemOperate-${appItem.workSheetId}`}>
           <MenuItem
+            data-event="collect"
             icon={
               <Icon
                 icon={appItem.isMarked ? 'task-star' : 'star-hollow'}
@@ -362,6 +360,7 @@ export default function MoreOperation(props) {
       <Menu className={`worksheetItemOperate worksheetItemOperate-${appItem.workSheetId}`}>
         {!isGroup && (
           <MenuItem
+            data-event="collect"
             icon={
               <Icon
                 icon={appItem.isMarked ? 'task-star' : 'star-hollow'}
@@ -376,6 +375,7 @@ export default function MoreOperation(props) {
         )}
         {isEditApp && appItem.type === 1 && (appItem.urlTemplate ? true : isActive) && (
           <MenuItem
+            data-event="editExternalLinkCanvas"
             icon={<Icon icon="settings" className="Font16" />}
             onClick={() => {
               if (appItem.urlTemplate) {
@@ -391,6 +391,7 @@ export default function MoreOperation(props) {
         )}
         {showDivider && <hr className="splitter" />}
         <MenuItem
+          data-event="editNameIcon"
           icon={<Icon icon="edit" className="Font16" />}
           onClick={() => {
             if (onChangeEdit) {
@@ -407,6 +408,7 @@ export default function MoreOperation(props) {
           <Fragment>
             {!isGroup && (
               <MenuItem
+                data-event="copy"
                 icon={<Icon icon="content-copy" className="Font16" />}
                 onClick={() => {
                   handleCopyWorkSheet(props);
@@ -417,6 +419,7 @@ export default function MoreOperation(props) {
               </MenuItem>
             )}
             <MenuItem
+              data-event="move"
               icon={<Icon icon="swap_horiz" className="Font18" />}
               onClick={() => {
                 setSheetMoveVisible(true);
@@ -438,6 +441,7 @@ export default function MoreOperation(props) {
               popup={
                 <Menu className="hideItemOperate" style={{ width: 180 }}>
                   <MenuItem
+                    data-event="hideAll"
                     onClick={() => {
                       setPopupVisible(false);
                       handleUpdateWorksheetStatus(appItem.status === 2 ? 1 : 2, props);
@@ -449,6 +453,7 @@ export default function MoreOperation(props) {
                     )}
                   </MenuItem>
                   <MenuItem
+                    data-event="hideInPC"
                     onClick={() => {
                       setPopupVisible(false);
                       handleUpdateWorksheetStatus(appItem.status === 3 ? 1 : 3, props);
@@ -460,6 +465,7 @@ export default function MoreOperation(props) {
                     )}
                   </MenuItem>
                   <MenuItem
+                    data-event="hideInMobile"
                     onClick={() => {
                       setPopupVisible(false);
                       handleUpdateWorksheetStatus(appItem.status === 4 ? 1 : 4, props);
@@ -474,9 +480,7 @@ export default function MoreOperation(props) {
               }
               popupAlign={{ offset: [0, -20] }}
             >
-              <MenuItem
-                icon={<Icon icon="visibility_off" className="Font16" />}
-              >
+              <MenuItem data-event="hideFromNav" icon={<Icon icon="visibility_off" className="Font16" />}>
                 <span className="text flexRow">
                   <span>{_l('从导航中隐藏%02020')}</span>
                   <Tooltip
@@ -501,6 +505,7 @@ export default function MoreOperation(props) {
                 <hr className="splitter" />
                 <div className="Gray_9e pLeft12 mTop10">{_l('新建')}</div>
                 <MenuItem
+                  data-event="emptyCreate"
                   onClick={() => {
                     setCreateType('worksheet');
                     setPopupVisible(false);
@@ -510,6 +515,7 @@ export default function MoreOperation(props) {
                   <span className="text">{_l('从空白创建工作表%02015')}</span>
                 </MenuItem>
                 <MenuItem
+                  data-event="excelCreate"
                   onClick={() => {
                     setCreateType('importExcel');
                     setPopupVisible(false);
@@ -519,6 +525,7 @@ export default function MoreOperation(props) {
                   <span className="text">{_l('从Excel创建工作表%02014')}</span>
                 </MenuItem>
                 <MenuItem
+                  data-event="customPage"
                   icon={<Icon icon="dashboard" className="Font18" />}
                   onClick={() => {
                     setCreateType('customPage');
@@ -531,6 +538,7 @@ export default function MoreOperation(props) {
             )}
             <hr className="splitter" />
             <MenuItem
+              data-event="delete"
               icon={<Icon icon="delete2" className="Font16" />}
               className="delete"
               onClick={() => {

@@ -1,12 +1,12 @@
-import { getPssId } from 'src/util/pssId';
-
 export const downloadFile = ({ url, params, exportFileName } = {}) => {
-  fetch(url, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', Authorization: `md_pss_id ${getPssId()}` },
-    body: JSON.stringify(params),
-  })
-    .then(response => response.blob())
+  window
+    .mdyAPI('', '', params, {
+      ajaxOptions: {
+        url,
+        responseType: 'blob',
+      },
+      customParseResponse: true,
+    })
     .then(blob => {
       if (blob.type.includes('application/json')) {
         const reader = new FileReader();

@@ -148,7 +148,7 @@ export default class Label {
       font: null,
       info: {
         Title: printType === PRINT_TYPE.QR ? _l('打印二维码') : _l('打印条形码'),
-        Author: _l('明道云'),
+        Author: _l('HAP'),
       },
     });
     this.stream = this.doc.pipe(blobStream());

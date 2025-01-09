@@ -696,7 +696,10 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
   const controller = options.abortController || new AbortController();
   const ajaxOptions = options.ajaxOptions || {};
   const method = ajaxOptions.type || 'POST';
+  const responseType = ajaxOptions.responseType || 'json';
   const isSync = ajaxOptions.sync;
+  const customParseResponse = options.customParseResponse; // 自定义解析返回内容
+  const isReadableStream = options.isReadableStream; // 流式响应
   const { url, headers, data } = disposeRequestParams(controllerName, actionName, requestData || {}, ajaxOptions);
 
   if (isSync) {
@@ -723,6 +726,16 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
     } else {
       !options.silent && alert(responseData.exception, 2);
     }
+  }
+
+  // 流式接口
+  if (isReadableStream) {
+    return fetch(url, {
+      signal: controller.signal,
+      method,
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
   }
 
   const promise = new Promise(async (resolve, reject) => {
@@ -760,8 +773,14 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
       data: method === 'POST' ? data : {},
       withCredentials: !ajaxOptions.url,
       signal: controller.signal,
+      responseType,
     })
       .then(response => {
+        if (customParseResponse) {
+          resolve(response.data);
+          return;
+        }
+
         const responseData = response.data || { state: -1, exception: _l('解析返回结果错误') };
 
         if (responseData.exception) {
@@ -776,6 +795,11 @@ window.mdyAPI = (controllerName, actionName, requestData, options = {}) => {
         }
       })
       .catch(error => {
+        if (customParseResponse) {
+          reject(error.response);
+          return;
+        }
+
         if (get(error, 'response.status') === 401 && !/^localhost:/.test(location.host) && !window.isPublicApp) {
           import('src/router/navigateTo').then(({ navigateToLogin }) => {
             navigateToLogin({ needSecondCheck: true });

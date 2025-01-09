@@ -7,7 +7,6 @@ import _ from 'lodash';
 import { EmptyWrap, MyItem, ActionWrap } from './Item';
 import Trigger from 'rc-trigger';
 import PrivateAi from 'src/api/privateAi.js';
-import { encrypt } from 'src/util';
 import openAI from 'src/pages/NewPrivateDeployment/images/openAI.png';
 
 const list = [
@@ -51,7 +50,7 @@ function SetDialog(props) {
           alert(_l('请选择类型'), 3);
           return;
         }
-        if (key === 1 && !baseUrl) {
+        if (type === 1 && !baseUrl) {
           alert(_l('请输入baseURL'), 3);
           return;
         }
@@ -63,8 +62,9 @@ function SetDialog(props) {
           alert(_l('请输入key'), 3);
           return;
         }
+        
         setState({ loading: true });
-        const param = { type, model, key: encrypt(key) };
+        const param = { type, model, key };
         if (type === 1) {
           param.baseUrl = baseUrl;
         }
@@ -95,7 +95,11 @@ function SetDialog(props) {
                 <React.Fragment>
                   <span className="mTop5">
                     {_l('根据接口规范自主集成')}&nbsp;
-                    <a className="pointer" target="_blank" href="https://docs-pd.mingdao.com/faq/integrate/ai/basic/custom">
+                    <a
+                      className="pointer"
+                      target="_blank"
+                      href="https://docs-pd.mingdao.com/faq/integrate/ai/basic/custom"
+                    >
                       {_l('查看')}
                     </a>
                   </span>
@@ -117,7 +121,12 @@ function SetDialog(props) {
               <div className="Font14 mTop15 mBottom5">
                 <span className="Red pRight5">*</span>key
               </div>
-              <Input className="w100" value={key} type="password" onChange={value => setState({ key: value.trim() })} />
+              <Input
+                className="w100"
+                value={key}
+                type="password"
+                onChange={value => setState({ key: value.trim() })}
+              />
             </div>
           </Fragment>
         </div>

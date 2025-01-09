@@ -9,7 +9,6 @@ import { replaceEntities, escapeHtml } from 'remarkable/lib/common/utils';
 import { createParser } from 'eventsource-parser';
 import 'src/pages/kc/common/AttachmentsPreview/codeViewer/codeViewer.less';
 import cx from 'classnames';
-import { getPssId } from 'src/util/pssId';
 import codeAjax from 'src/api/code';
 
 const Null = styled.div`
@@ -238,26 +237,23 @@ export default ({ processId, nodeId, codeType = 1, onSave = () => {}, onClose = 
       }
     });
 
-    const resp = await fetch(`${md.global.Config.AjaxApiUrl}Code/GenerateCodeBlock`, {
-      signal: controller.signal,
-      method: 'POST',
-      headers: {
-        Authorization: getPssId() ? `md_pss_id ${getPssId()}` : '',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        codeType,
-        lang: 0,
-        messageList: _.takeRight(
-          list.filter(item => item.content),
-          11,
-        ).map(({ role, content }) => {
-          return {
-            role,
-            content,
-          };
-        }),
+    const requestData = {
+      codeType,
+      lang: 0,
+      messageList: _.takeRight(
+        list.filter(item => item.content),
+        11,
+      ).map(({ role, content }) => {
+        return {
+          role,
+          content,
+        };
       }),
+    };
+
+    const resp = await codeAjax.generateCodeBlock(requestData, {
+      abortController: controller,
+      isReadableStream: true,
     });
 
     const reader = resp.body.getReader();

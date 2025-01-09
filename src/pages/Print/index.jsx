@@ -229,13 +229,11 @@ class PrintForm extends React.Component {
       token,
     };
 
-    $.ajax({
-      url: downLoadUrl + `/Export${fileTypeNum === 5 ? 'Xlsx' : 'Word'}/Get${fileTypeNum === 5 ? 'Xlsx' : 'Word'}Path`,
-      type: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify(payload),
-    })
+    window
+      .mdyAPI('', '', payload, {
+        ajaxOptions: { url: downLoadUrl + (fileTypeNum === 5 ? '/ExportXlsx/GetXlsxPath' : '/ExportWord/GetWordPath') },
+        customParseResponse: true,
+      })
       .then(r => {
         this.setState(
           {

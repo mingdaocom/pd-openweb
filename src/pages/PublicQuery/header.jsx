@@ -80,14 +80,14 @@ class WorksheetShareHeader extends React.Component {
       pageIndex: 1,
       pageSize,
     };
-    const res = await fetch(`${md.global.Config.WorksheetDownUrl}/ExportExcel/Query`, {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
+
+    const res = await window.mdyAPI('', '', args, {
+      ajaxOptions: {
+        responseType: 'blob',
+        url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/Query`,
       },
-      responseType: 'blob',
-      body: JSON.stringify(args),
-    }).then(res => res.blob());
+      customParseResponse: true,
+    });
 
     // 将响应转换成文件
     const blob = new Blob([res], {

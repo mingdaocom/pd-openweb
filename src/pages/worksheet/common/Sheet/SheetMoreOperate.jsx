@@ -55,13 +55,19 @@ export default function SheetMoreOperate(props) {
     <span className="moreOperate mLeft6 pointer" onClick={() => setMenuVisible(true)}>
       <Icon className="Gray_9d Font20" icon="more_horiz" />
       {menuVisible && (
-        <Menu style={{ zIndex: 999 }} onClick={e => e.stopPropagation()} onClickAway={() => setMenuVisible(false)}>
+        <Menu
+          className="sheetHeaderOperate"
+          style={{ zIndex: 999 }}
+          onClick={e => e.stopPropagation()}
+          onClickAway={() => setMenuVisible(false)}
+        >
           {canEdit && (
             // 运营者有 修改名称和图标和 编辑工作表说明
             <Fragment>
               {isCharge && !isLock && (
                 <React.Fragment>
                   <MenuItem
+                    data-event="editSheet"
                     icon={<Icon icon="settings" className="Font18" />}
                     onClick={() => {
                       toEditWidgetPage(
@@ -90,6 +96,7 @@ export default function SheetMoreOperate(props) {
                           <Fragment>
                             {type === 'customBtn' && <hr className="splitLine" />}
                             <MenuItem
+                              data-event={type}
                               key={type}
                               onClick={() => {
                                 saveSelectExtensionNavType(worksheetId, 'settingNav', type);
@@ -108,6 +115,7 @@ export default function SheetMoreOperate(props) {
                           .filter(v => (v.type === 'pay' && featureType) || v.type !== 'pay')
                           .map(({ type, text }) => (
                             <MenuItem
+                              data-event={type}
                               key={type}
                               onClick={() => {
                                 if (type === 'pay' && featureType === '2') {
@@ -125,6 +133,7 @@ export default function SheetMoreOperate(props) {
                     }
                   >
                     <MenuItem
+                      data-event="setSheet"
                       className="settingSheet"
                       icon={<Icon icon="table" className="Font18 pLeft3" />}
                       onClick={clickSettingSheet}
@@ -137,6 +146,7 @@ export default function SheetMoreOperate(props) {
                 </React.Fragment>
               )}
               <MenuItem
+                data-event="editNameIcon"
                 icon={<Icon icon="edit" className="Font18" />}
                 onClick={() => {
                   setMenuVisible(false);
@@ -146,6 +156,7 @@ export default function SheetMoreOperate(props) {
                 <span className="text">{_l('修改名称和图标%02034')}</span>
               </MenuItem>
               <MenuItem
+                data-event="editIntro"
                 icon={<Icon icon="info" className="Font18" />}
                 onClick={() => {
                   setMenuVisible(false);
@@ -158,6 +169,7 @@ export default function SheetMoreOperate(props) {
               <Fragment>
                 {isCharge && !isLock && (
                   <MenuItem
+                    data-event="setRecordName"
                     icon={<Icon icon="button-edit" />}
                     onClick={() => {
                       setMenuVisible(false);
@@ -176,6 +188,7 @@ export default function SheetMoreOperate(props) {
                   </MenuItem>
                 )}
                 <MenuItem
+                  data-event="copyID"
                   icon={<Icon icon="ID" className="Font18" />}
                   onClick={() => {
                     copy(worksheetId);
@@ -187,6 +200,7 @@ export default function SheetMoreOperate(props) {
                 </MenuItem>
                 {!_.isEmpty(autoNumberControls) && (
                   <MenuItem
+                    data-event="resetNumber"
                     icon={<Icon icon="auto_number" />}
                     onClick={() => {
                       setMenuVisible(false);
@@ -205,6 +219,7 @@ export default function SheetMoreOperate(props) {
           {/* 导入数据权限 */}
           {canImportSwitch && (
             <MenuItem
+              data-event="importExcel"
               icon={<Icon icon="restart" className="Font16" />}
               onClick={() => {
                 if (window.isPublicApp) {
@@ -225,6 +240,7 @@ export default function SheetMoreOperate(props) {
           )}
           {canEdit && (
             <MenuItem
+              data-event="logs"
               icon={<Icon icon="wysiwyg" className="Font16" />}
               onClick={() => {
                 window.open(`/app/${appId}/logs/${projectId}/${worksheetId}`, '__blank');
@@ -235,6 +251,7 @@ export default function SheetMoreOperate(props) {
           )}
           {canSheetTrash && (
             <MenuItem
+              data-event="recycle"
               icon={<Icon icon="recycle" />}
               onClick={() => {
                 openWorkSheetTrash({
@@ -255,6 +272,7 @@ export default function SheetMoreOperate(props) {
           )}
           {canDelete && (
             <MenuItem
+              data-event="delete"
               icon={<Icon icon="delete2" />}
               className="delete"
               onClick={() => {

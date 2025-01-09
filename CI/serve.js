@@ -82,6 +82,16 @@ const middlewareList = [
     if (req.url === '/') {
       res.writeHead(301, { Location: '/dashboard' });
       res.end();
+    } else if (req.url && req.url.startsWith('/__proxy')) {
+      const urlObj = new URL(req.url, 'https://md.md');
+      const proxyUrl = decodeURIComponent(urlObj.searchParams.get('url'));
+      const proxyUrlObj = new URL(proxyUrl);
+      req.url = proxyUrl.replace(proxyUrlObj.origin, '');
+      console.log({
+        url: req.url,
+        origin: proxyUrlObj.origin,
+      });
+      proxy(proxyUrlObj.origin)(req, res, next);
     } else if (req.url && req.url.startsWith('/api/')) {
       // 代理接口请求到 api 服务器
       req.url = req.url.replace('/api/', '/wwwapi/');

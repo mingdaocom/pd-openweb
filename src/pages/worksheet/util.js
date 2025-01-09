@@ -1451,19 +1451,25 @@ export async function postWithToken(url, tokenArgs = {}, body = {}, axiosConfig 
       return Promise.reject('获取token失败');
     }
   }
-
-  return axios.post(
-    url,
+  return window.mdyAPI(
+    '',
+    '',
     Object.assign({}, body, {
       token,
       accountId: md.global.Account.accountId,
       clientId: window.clientId || sessionStorage.getItem('clientId'),
     }),
-    axiosConfig,
+    {
+      customParseResponse: axiosConfig.responseType === 'blob',
+      ajaxOptions: {
+        url,
+        responseType: axiosConfig.responseType,
+      },
+    },
   );
 }
 
-export async function getWithToken(url, tokenArgs = {}, body = {}, axiosConfig = {}) {
+export async function getWithToken(url, tokenArgs = {}, body = {}) {
   let token;
 
   if (!_.get(window, 'shareState.shareId')) {
@@ -1474,15 +1480,22 @@ export async function getWithToken(url, tokenArgs = {}, body = {}, axiosConfig =
     }
   }
 
-  return axios.get(url, {
-    ...axiosConfig,
-    params: {
+  return window.mdyAPI(
+    '',
+    '',
+    {
       ...body,
       token,
       accountId: md.global.Account.accountId,
       clientId: window.clientId || sessionStorage.getItem('clientId'),
     },
-  });
+    {
+      ajaxOptions: {
+        type: 'GET',
+        url,
+      },
+    },
+  );
 }
 
 export function download(blob = '', name) {

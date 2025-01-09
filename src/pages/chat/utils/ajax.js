@@ -15,14 +15,12 @@ const isDevelopment = process.env.NODE_ENV === 'development';
  * @param {*} param
  */
 export const chatSessionList = (param) => {
-  return $.ajax({
-    url: _.get(window, 'config.HTTP_SERVER') + '/chat_list',
-    data: isDevelopment ? { ...param, pss_id: getPssId()  } : param,
-    headers: {
-      pssid: getPssId(),
-    },
-    dataType: 'jsonp',
-    jsonp: 'cb',
+  return window.mdyAPI('', '', param, {
+    customParseResponse: true,
+    ajaxOptions: {
+      type: 'GET',
+      url: _.get(window, 'config.HTTP_SERVER') + '/chat_list'
+    }
   });
 };
 
@@ -67,29 +65,21 @@ export const getMessage = (conf) => {
   }
   if (conf.type === Constant.SESSIONTYPE_GROUP) {
     param.groupid = conf.id;
-    return $.ajax({
-      url: _.get(window, 'config.HTTP_SERVER') + '/group_messages',
-      data: param,
-      headers: {
-        pssid: getPssId(),
-      },
-      type: 'get',
-      dataType: 'jsonp',
-      jsonp: 'cb',
-      timeout: 5000,
+    return window.mdyAPI('', '', param, {
+      customParseResponse: true,
+      ajaxOptions: {
+        type: 'GET',
+        url: _.get(window, 'config.HTTP_SERVER') + '/group_messages'
+      }
     });
   } else if (conf.type === Constant.SESSIONTYPE_USER) {
     param.accountid = conf.id;
-    return $.ajax({
-      url: _.get(window, 'config.HTTP_SERVER') + '/messages',
-      data: param,
-      headers: {
-        pssid: getPssId(),
-      },
-      type: 'get',
-      dataType: 'jsonp',
-      jsonp: 'cb',
-      timeout: 5000,
+    return window.mdyAPI('', '', param, {
+      customParseResponse: true,
+      ajaxOptions: {
+        type: 'GET',
+        url: _.get(window, 'config.HTTP_SERVER') + '/messages'
+      }
     });
   }
 };
@@ -113,15 +103,12 @@ export const getMessageById = (conf) => {
   }
   param.msgid = conf.msgid || '';
   param.size = conf.size || 21;
-  return $.ajax({
-    url: _.get(window, 'config.HTTP_SERVER') + url,
-    data: param,
-    headers: {
-      pssid: getPssId(),
-    },
-    type: 'get',
-    dataType: 'jsonp',
-    jsonp: 'cb',
+  return window.mdyAPI('', '', param, {
+    customParseResponse: true,
+    ajaxOptions: {
+      type: 'GET',
+      url: _.get(window, 'config.HTTP_SERVER') + url
+    }
   });
 };
 
@@ -145,15 +132,12 @@ export const getImageContext = (conf) => {
   param.msgid = conf.msgid || '';
   param.size = conf.size || 20;
   param.type = conf.type || 0; // 0：表示全部上下文图片消息；1：表示上文图片消息；2：表示下文图片消息
-  return $.ajax({
-    url: _.get(window, 'config.HTTP_SERVER') + url,
-    data: param,
-    headers: {
-      pssid: getPssId(),
-    },
-    type: 'get',
-    dataType: 'jsonp',
-    jsonp: 'cb',
+  return window.mdyAPI('', '', param, {
+    customParseResponse: true,
+    ajaxOptions: {
+      type: 'GET',
+      url: _.get(window, 'config.HTTP_SERVER') + url
+    }
   }).then((res) => {
     if (!$.isArray(res)) {
       res = [];

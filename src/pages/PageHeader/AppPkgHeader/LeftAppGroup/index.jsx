@@ -129,8 +129,9 @@ const AppSectionItem = props => {
 
   const renderMenu = () => {
     return (
-      <Menu className="worksheetItemOperate">
+      <Menu className="worksheetItemOperate worksheetItemOperate-GroupList">
         <MenuItem
+          data-event="rename"
           icon={<Icon icon="edit" className="Font16" />}
           onClick={() => {
             setEdit(true);
@@ -142,6 +143,7 @@ const AppSectionItem = props => {
         <hr className="splitter" />
         <div class="Gray_9e pLeft12 pTop7 pBottom3">{_l('新建')}</div>
         <MenuItem
+          data-event="emptyCreate"
           onClick={() => {
             setCreateType('worksheet');
             setPopupVisible(false);
@@ -151,6 +153,7 @@ const AppSectionItem = props => {
           <span className="text">{_l('从空白创建工作表')}</span>
         </MenuItem>
         <MenuItem
+          data-event="excelCreate"
           onClick={() => {
             setDialogImportExcel(true);
             setPopupVisible(false);
@@ -160,6 +163,7 @@ const AppSectionItem = props => {
           <span className="text">{_l('从Excel创建工作表')}</span>
         </MenuItem>
         <MenuItem
+          data-event="customPage"
           icon={<Icon icon="dashboard" className="Font18" />}
           onClick={() => {
             setCreateType('customPage');
@@ -169,6 +173,7 @@ const AppSectionItem = props => {
           <span className="text">{_l('自定义页面')}</span>
         </MenuItem>
         <MenuItem
+          data-event="subGroup"
           icon={<Icon icon="add-files" className="Font16" />}
           onClick={() => {
             setChildrenVisible(true);
@@ -185,6 +190,7 @@ const AppSectionItem = props => {
         </MenuItem>
         <hr className="splitter" />
         <MenuItem
+          data-event="delGroup"
           icon={<Icon icon="delete2" className="Font16" />}
           className="delete"
           onClick={() => {
@@ -206,7 +212,7 @@ const AppSectionItem = props => {
     <div
       className={cx('appGroupWrap', {
         treeAppGroupWrap: currentPcNaviStyle === 3 && !hideAppSection(),
-        hideFirstSection: currentPcNaviStyle === 3 && appPkg.hideFirstSection && item.index === 0
+        hideFirstSection: currentPcNaviStyle === 3 && appPkg.hideFirstSection && item.index === 0,
       })}
     >
       <Drag
@@ -419,7 +425,7 @@ const LeftAppGroup = props => {
     const sectionRes = appSectionDetail.map(n => {
       return {
         ...n,
-        items: getAppSectionData(n.appSectionId)
+        items: getAppSectionData(n.appSectionId),
       };
     });
     if (sectionRes.length === 1) {
@@ -465,10 +471,11 @@ const LeftAppGroup = props => {
     return new TinyColor(appPkg.iconColor).setAlpha(0.3).toRgbString();
   };
 
-  const skeletonVisible = appSectionDetail.length === 1 &&
-              _.isEmpty(appSectionDetail[0].items) &&
-              _.isEmpty(appSectionDetail[0].workSheetName) &&
-              !appSectionDetail[0].edit;
+  const skeletonVisible =
+    appSectionDetail.length === 1 &&
+    _.isEmpty(appSectionDetail[0].items) &&
+    _.isEmpty(appSectionDetail[0].workSheetName) &&
+    !appSectionDetail[0].edit;
 
   return (
     <React.Fragment>
@@ -477,9 +484,7 @@ const LeftAppGroup = props => {
           <Skeleton className="w100 h100" active={true} />
         ) : (
           <Fragment>
-            {skeletonVisible && (
-              <Skeleton className="w100 h100 Absolute" />
-            )}
+            {skeletonVisible && <Skeleton className="w100 h100 Absolute" />}
             <DndProvider key="navigationList" context={window} backend={HTML5Backend}>
               <ScrollView className={cx({ hide: skeletonVisible })}>
                 {appSectionDetail.map((data, index) => (
