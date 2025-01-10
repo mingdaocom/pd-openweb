@@ -359,6 +359,7 @@ export default class RelateRecord extends React.Component {
             cellFrom={from}
             control={{ ...cell, formData: rowFormData, worksheetId, recordId, isDraft }}
             isDraft={isDraft}
+            isSubList={this.isSubList}
             formData={rowFormData}
             viewId={cell.viewId}
             worksheetId={worksheetId}

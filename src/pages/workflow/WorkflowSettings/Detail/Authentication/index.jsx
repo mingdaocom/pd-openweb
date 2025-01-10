@@ -606,8 +606,8 @@ export default class Authentication extends Component {
     if (isBlur) {
       num = parseInt(num || '0');
 
-      if (num > 604800) {
-        num = 604800;
+      if (num > 2628000) {
+        num = 2628000;
       }
 
       evt.target.value = num;

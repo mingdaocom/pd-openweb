@@ -692,11 +692,13 @@ var MyUpdater = {
       var knowledgeID = '';
       knowledgeID = $('#txtKnowledge').val();
 
-      if (result.scope) {
-        rData.scope = result.scope;
-      } else {
-        alert(_l('请选择群组'), 3);
-        return;
+      if (result) {
+        if (result.scope) {
+          rData.scope = result.scope;
+        } else {
+          alert(_l('请选择群组'), 3);
+          return;
+        }
       }
 
       if (postType == '9') {
@@ -823,6 +825,15 @@ var MyUpdater = {
       width: 450,
       okText: _l('是的'),
       cancelText: _l('不用了'),
+      onOk: function () {
+        var isEnableReward = false;
+        var rewardMark = 0;
+        $('#hidden_UpdaterType').val('4');
+        MyUpdater.PostUpdater(false, postObj, callback, 'isReward', isEnableReward, rewardMark);
+      },
+      onCancel: function () {
+        MyUpdater.PostUpdater(false, postObj, callback, 'isPost');
+      },
       children: (
         <div className="pTop20 pBottom20">
           <div className="ThemeColor3 Font16 TxtCenter">{_l('是否将此动态作为问答？')}</div>

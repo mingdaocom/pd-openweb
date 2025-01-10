@@ -216,7 +216,7 @@ export default function BatchEditRecord(props) {
     }
   }, [activeControl]);
   useEffect(() => {
-    if (!loading && addRef.current) {
+    if (!loading && addRef.current && !activeControl) {
       addRef.current.click();
     }
   }, [loading]);

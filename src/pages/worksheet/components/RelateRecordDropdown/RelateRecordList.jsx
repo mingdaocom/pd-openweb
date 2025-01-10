@@ -132,6 +132,7 @@ export default class RelateRecordList extends React.PureComponent {
   loadRecord() {
     const {
       from,
+      isSubList,
       isDraft,
       isQuickFilter,
       control,
@@ -185,7 +186,7 @@ export default class RelateRecordList extends React.PureComponent {
       isGetWorksheet: true,
       getType: getFilterRowsGetType || (isDraft ? 27 : 7), // 32 是快速筛选专用，只处理记录可见逻辑，不生效字段其它配置。
       filterControls: ignoreAllFilters ? [] : filterControls || [],
-      rowId: get(control, 'recordId'),
+      rowId: !isSubList ? get(control, 'recordId') : undefined,
     };
     if (!isEmpty(ignoreRowIds)) {
       args.requestParams = {

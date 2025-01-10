@@ -511,6 +511,7 @@ export default class RelateRecordDropdown extends React.Component {
   renderPopup({ disabledManualWrite }) {
     const {
       from,
+      isSubList,
       isQuickFilter,
       getFilterRowsGetType,
       multiple,
@@ -550,6 +551,7 @@ export default class RelateRecordDropdown extends React.Component {
         {listvisible && !disabledManualWrite && (
           <RelateRecordList
             ref={this.list}
+            isSubList={isSubList}
             getFilterRowsGetType={getFilterRowsGetType}
             isQuickFilter={isQuickFilter}
             activeIndex={activeIndex}

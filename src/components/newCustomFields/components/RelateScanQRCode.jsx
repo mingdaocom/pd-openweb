@@ -12,7 +12,7 @@ export default class Widgets extends Component {
     children: PropTypes.element,
   };
   getRowById = ({ appId, worksheetId, viewId, rowId }) => {
-    const { filterControls, parentWorksheetId } = this.props;
+    const { filterControls, parentWorksheetId, control = {} } = this.props;
 
     const getFilterRowsPromise = window.isPublicWorksheet
       ? publicWorksheetAjax.getRelationRows
@@ -27,6 +27,7 @@ export default class Widgets extends Component {
       getType: 7,
       status: 1,
       searchType: 1,
+      controlId: window.isPublicWorksheet ? control.controlId : undefined,
     }).then(result => {
       const row = _.find(result.data, { rowid: rowId });
       if (row) {
