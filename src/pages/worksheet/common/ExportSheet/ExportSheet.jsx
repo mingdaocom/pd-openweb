@@ -391,7 +391,10 @@ export default class ExportSheet extends Component {
       args.columnRpts = isStatistics ? this.getColumnRpts(exportControlsId) : null;
 
       // 访问导出excel接口
-      window.mdyAPI('', '', args, { ajaxOptions: { url: `${this.props.downLoadUrl}/ExportExcel/Export` } });
+      window.mdyAPI('', '', args, {
+        customParseResponse: true,
+        ajaxOptions: { url: `${this.props.downLoadUrl}/ExportExcel/Export` },
+      });
 
       this.props.onHide();
     })().catch(() => {});

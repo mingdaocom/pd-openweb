@@ -229,6 +229,7 @@ function PasteEdit(props) {
   );
   usePasteText(
     text => {
+      if (document.activeElement.tagName.toLowerCase() === 'input') return;
       if (importDataActiveType !== 1) {
         return;
       }

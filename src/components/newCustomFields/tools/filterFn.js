@@ -143,8 +143,9 @@ const dateFn = (dateRange, value, isEQ) => {
   return isEQ ? result : !result;
 };
 
-const dayFn = (filterData = {}, value, isGT, type) => {
+const dayFn = (filterData = {}, value, isGT, currentControl = {}) => {
   let { dateRange, dynamicSource = [], dataType, dateRangeType, value: editValue } = filterData;
+  const { type } = currentControl;
   if (dynamicSource.length > 0) {
     dateRange = 0;
   }
@@ -313,7 +314,8 @@ const dayFn = (filterData = {}, value, isGT, type) => {
       return tempTime.format(formatMode || 'YYYY-MM-DD');
     default:
       //日期时间
-      return type === 16 ? moment(value).format('YYYY-MM-DD HH:mm') : moment(value).format('YYYY-MM-DD');
+      const formatText = (getDatePickerConfigs(currentControl) || {}).formatMode;
+      return type === 16 ? moment(value).format(formatText) : moment(value).format(formatText);
   }
 };
 
@@ -1036,7 +1038,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
             if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;
             return parseFloat(value) > parseFloat(compareValue);
           case CONTROL_FILTER_WHITELIST.DATE.value:
-            let day = dayFn(filterData, compareValue, false, currentControl.type);
+            let day = dayFn(filterData, compareValue, false, currentControl);
             return !value || (!!dynamicSource.length && !compareValue) ? false : moment(value).isAfter(day, timeLevel);
           case CONTROL_FILTER_WHITELIST.TIME.value:
             return !value || (!!dynamicSource.length && !compareValue)
@@ -1054,7 +1056,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
             if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;
             return parseFloat(value) >= parseFloat(compareValue);
           case CONTROL_FILTER_WHITELIST.DATE.value:
-            let day = dayFn(filterData, compareValue, false, currentControl.type);
+            let day = dayFn(filterData, compareValue, false, currentControl);
             return !value || (!!dynamicSource.length && !compareValue)
               ? false
               : moment(value).isSameOrAfter(day, timeLevel);
@@ -1074,7 +1076,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
             if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;
             return parseFloat(value) < parseFloat(compareValue);
           case CONTROL_FILTER_WHITELIST.DATE.value:
-            let day = dayFn(filterData, compareValue, true, currentControl.type);
+            let day = dayFn(filterData, compareValue, true, currentControl);
             return !value || (!!dynamicSource.length && !compareValue) ? false : moment(value).isBefore(day, timeLevel);
           case CONTROL_FILTER_WHITELIST.TIME.value:
             return !value || (!!dynamicSource.length && !compareValue)
@@ -1092,7 +1094,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
             if (isEmptyValue(value) || isEmptyValue(compareValue)) return false;
             return parseFloat(value) <= parseFloat(compareValue);
           case CONTROL_FILTER_WHITELIST.DATE.value:
-            let day = dayFn(filterData, compareValue, false, currentControl.type);
+            let day = dayFn(filterData, compareValue, false, currentControl);
             return !value || (!!dynamicSource.length && !compareValue)
               ? false
               : moment(value).isSameOrBefore(day, timeLevel);
@@ -1110,7 +1112,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
         switch (conditionGroupType) {
           case CONTROL_FILTER_WHITELIST.DATE.value:
             if (!value || (!!dynamicSource.length && !compareValue)) return false;
-            let day = dayFn(filterData, compareValue, true, currentControl.type);
+            let day = dayFn(filterData, compareValue, true, currentControl);
             //过去 | 将来
             const hasToday = _.includes(filterData.values || [], 'today');
             if (_.includes([10, 101], dateRange)) {
@@ -1140,7 +1142,7 @@ export const filterFn = (filterData, originControl, data = [], recordId) => {
         switch (conditionGroupType) {
           case CONTROL_FILTER_WHITELIST.DATE.value:
             if (!value || (!!dynamicSource.length && !compareValue)) return false;
-            let day = dayFn(filterData, compareValue, true, currentControl.type);
+            let day = dayFn(filterData, compareValue, true, currentControl);
             //过去 | 将来
             const hasToday = _.includes(filterData.values || [], 'today');
             if (dateRange === 10) {

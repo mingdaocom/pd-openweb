@@ -1,4 +1,4 @@
-﻿import GroupController from 'src/api/group';
+import GroupController from 'src/api/group';
 import UserController from 'src/api/user';
 import ChatController from 'src/api/chat';
 import CommonAjax from 'src/api/addressBook';
@@ -98,9 +98,6 @@ export const getMessageById = (conf) => {
     param.accountId = conf.id || '';
     url = '/messages_byid';
   }
-  if (isDevelopment) {
-    param.pss_id = getPssId();
-  }
   param.msgid = conf.msgid || '';
   param.size = conf.size || 21;
   return window.mdyAPI('', '', param, {
@@ -125,9 +122,6 @@ export const getImageContext = (conf) => {
   } else {
     param.accountid = conf.id || 0;
     url = '/user_files_byid';
-  }
-  if (isDevelopment) {
-    param.pss_id = getPssId();
   }
   param.msgid = conf.msgid || '';
   param.size = conf.size || 20;

@@ -141,7 +141,7 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
       }))
       .filter(item => item && item.cells && !_.isEmpty(item.cells));
     if (needHandleRows.length) {
-      const res = await postWithToken(
+      const resData = await postWithToken(
         `${md.global.Config.WorksheetDownUrl}/Import/HandlerPreview`,
         { worksheetId, tokenType: 7 },
         {
@@ -151,8 +151,8 @@ async function convert({ projectId, worksheetId, controlId, mapConfig = [], cont
           rows: needHandleRows,
         },
       );
-      if (_.isArray(_.get(res, 'data.data'))) {
-        res.data.data.forEach(item => {
+      if (_.isArray(resData)) {
+        resData.forEach(item => {
           const index = Number(item.rowIndex);
           item.cells.forEach(cell => {
             const control = _.find(controls, { controlId: cell.controlId });

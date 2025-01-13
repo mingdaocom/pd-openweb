@@ -99,7 +99,7 @@ export default class Widgets extends Component {
   };
 
   renderValue = (showformat, value) => {
-    const { disabled, from, type, notConvertZone, advancedSetting, hint } = this.props;
+    const { disabled, from, type, notConvertZone, advancedSetting, hint = '' } = this.props;
     const dateTime = type === 15 || notConvertZone ? value : dateConvertToUserZone(value);
 
     return (
@@ -110,7 +110,7 @@ export default class Widgets extends Component {
         }}
       >
         <span className={cx('flex ellipsis', { Gray_bd: !value })}>
-          {value ? getDateToEn(showformat, dateTime, advancedSetting.showformat) : hint || _l('请选择日期')}
+          {value ? getDateToEn(showformat, dateTime, advancedSetting.showformat) : hint}
         </span>
         {this.renderIcon(value)}
       </div>

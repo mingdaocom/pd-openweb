@@ -189,7 +189,7 @@ export default function renderText(cell, options = {}) {
             }
             return option.value;
           })
-          .join('、');
+          .join(', ');
         break;
       case 26: // USER_PICKER 成员
         try {

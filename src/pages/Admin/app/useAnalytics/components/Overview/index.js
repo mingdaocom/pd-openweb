@@ -150,8 +150,7 @@ export default class Overview extends Component {
     Promise.all([
       projectAjax.getProjectLicenseSupportInfo({ projectId, onlyNormal: true, onlyUsage: true }),
       processVersionAjax.getProcessUseCount({ companyId: projectId }),
-      attachmentAjax.getAttachmentTotal({ projectId, noCache: true }),
-    ]).then(([data1, data2, effectiveAttachmentTotal = 0]) => {
+    ]).then(([data1, data2]) => {
       const { effectiveApkCount = 0, effectiveWorksheetCount = 0, effectiveWorksheetRowCount = 0 } = data1;
       const { useProcessCount: effectiveWorkflowCount } = data2;
       this.setState({
@@ -159,7 +158,6 @@ export default class Overview extends Component {
         effectiveWorksheetCount,
         effectiveWorksheetRowCount,
         effectiveWorkflowCount,
-        effectiveAttachmentTotal,
       });
     });
   };

@@ -147,6 +147,12 @@ function SheetHeader(props) {
     cache.current.canNewRecord = canNewRecord;
   }, [canNewRecord]);
 
+  let selectedLength = allWorksheetIsSelected ? count - sheetSelectedRows.length : sheetSelectedRows.length;
+
+  if (allWorksheetIsSelected && pageCountAbnormal) {
+    selectedLength = -1;
+  }
+
   const batchOperateComp = (
     <BatchOperate
       type={type}
@@ -171,9 +177,7 @@ function SheetHeader(props) {
       allWorksheetIsSelected={allWorksheetIsSelected}
       rows={rows}
       selectedRows={sheetSelectedRows}
-      selectedLength={
-        pageCountAbnormal ? -1 : allWorksheetIsSelected ? count - sheetSelectedRows.length : sheetSelectedRows.length
-      }
+      selectedLength={selectedLength}
       updateViewPermission={updateViewPermission}
       sheetSwitchPermit={sheetSwitchPermit}
       rowsSummary={rowsSummary}

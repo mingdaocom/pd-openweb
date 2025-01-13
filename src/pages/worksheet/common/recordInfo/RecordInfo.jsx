@@ -39,7 +39,7 @@ import paymentAjax from 'src/api/payment.js';
 const SIDE_MIN_WIDTH = 400;
 
 const Drag = styled.div`
-  z-index: 2;
+  z-index: 11;
   width: 10px;
   height: 100%;
   margin-right: -10px;
@@ -64,10 +64,10 @@ function getSideVisible(from) {
   if (from === RECORD_INFO_FROM.DRAFT) {
     return false;
   } else if (from === RECORD_INFO_FROM.WORKFLOW) {
-    const data = localStorage.getItem('recordInfoOfWorkflowSideVisible')
+    const data = localStorage.getItem('recordInfoOfWorkflowSideVisible');
     return _.isNull(data) ? true : Boolean(localStorage.getItem('recordInfoOfWorkflowSideVisible'));
   } else {
-    const data = localStorage.getItem('recordInfoSideVisible')
+    const data = localStorage.getItem('recordInfoSideVisible');
     return _.isNull(data) ? true : Boolean(localStorage.getItem('recordInfoSideVisible'));
   }
 }

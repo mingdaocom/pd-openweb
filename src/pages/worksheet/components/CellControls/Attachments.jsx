@@ -249,6 +249,7 @@ function parseValue(valueStr, errCb) {
                 attachment.url ||
                 `${attachment.serverName}${attachment.key}`,
               refId: attachment.refID || attachment.refId,
+              shareUrl: attachment.shareUrl,
               filesize: attachment.fileSize || attachment.filesize,
             }
           : attachment;
@@ -520,7 +521,12 @@ function Attachment(props) {
         className="AttachmentCon"
         style={{ maxWidth: cellWidth }}
         onClick={e => {
+          e.stopPropagation();
           if (_.get(window.shareState, 'shareId')) {
+            return;
+          }
+          if (attachment && !!attachment.refId && !attachment.shareUrl) {
+            alert(_l('您权限不足，无法预览，请联系管理员或文件上传者'), 3);
             return;
           }
           previewAttachment({
@@ -558,7 +564,6 @@ function Attachment(props) {
             masterControlId: (masterData() || {}).controlId,
             sourceControlId: cell.sourceControlId,
           });
-          e.stopPropagation();
         }}
       >
         {isPicture ? (
