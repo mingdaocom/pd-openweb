@@ -540,17 +540,28 @@ class PrintForm extends React.Component {
           res.map((item, index) => {
             const oldControls = receiveControls[controlIndexList[index]].relationControls.map(l => l.controlId);
             let newControls = getVisibleControls(
-              (_.get(item, 'template.controls') || []).filter(it => {
+              (
+                _.get(
+                  _printData.relationMaps,
+                  `${receiveControls[controlIndexList[index]].controlId}.template.controls`,
+                ) || []
+              ).filter(it => {
                 const itIndex = _.findIndex(oldControls, l => l === it.controlId);
+                const itControl = (_.get(item, 'template.controls') || []).find(l => l.controlId === it.controlId);
 
                 if (itIndex > -1) {
                   it.checked = _.get(receiveControls[controlIndexList[index]], `relationControls[${itIndex}]`).checked;
+                }
+
+                if (itControl) {
+                  _.assign(it, _.pick(itControl, ['fieldPermission', 'controlPermissions', 'advancedSetting']));
                 }
 
                 return index > -1;
               }),
               true,
             );
+
             newControls = replaceControlsTranslateInfo(item.appId, item.worksheetId, newControls);
             receiveControls[controlIndexList[index]].relationControls = newControls;
             _printData.relationMaps[controlIndexList[index]] &&

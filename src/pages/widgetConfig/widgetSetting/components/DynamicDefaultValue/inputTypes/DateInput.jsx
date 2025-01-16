@@ -66,7 +66,9 @@ export default class DateInput extends Component {
     }
 
     const formatDate = value => {
-      let formatText = data.type === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
+      const dateProps = getDatePickerConfigs(data);
+      const formatMode = dateProps.formatMode;
+      let formatText = formatMode ? formatMode : data.type === 16 ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD';
       if (withMaxOrMin) {
         formatText = formatText.replace(/-/g, '/');
       }

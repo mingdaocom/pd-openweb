@@ -12,7 +12,7 @@ export default class Widgets extends Component {
     children: PropTypes.element,
   };
   getRowById = ({ appId, worksheetId, viewId, rowId }) => {
-    const { filterControls, parentWorksheetId, control = {} } = this.props;
+    const { filterControls = [], parentWorksheetId, control = {} } = this.props;
 
     const getFilterRowsPromise = window.isPublicWorksheet
       ? publicWorksheetAjax.getRelationRows
@@ -20,9 +20,17 @@ export default class Widgets extends Component {
     getFilterRowsPromise({
       appId,
       worksheetId,
-      rowId,
-      filterControls,
-      rowId,
+      filterControls: [
+        ...filterControls,
+        {
+          controlId: 'rowid',
+          dataType: 2,
+          spliceType: 1,
+          filterType: 2,
+          dynamicSource: [],
+          values: [rowId],
+        },
+      ],
       relationWorksheetId: parentWorksheetId,
       getType: 7,
       status: 1,

@@ -1,7 +1,7 @@
 import sheetAjax from 'src/api/worksheet';
 import homeAppAjax from 'src/api/homeApp';
 import { canEditApp } from 'src/pages/worksheet/redux/actions/util';
-import { refreshSheet } from 'src/pages/worksheet/redux/actions/index.js';
+import { refreshSheet, fireWhenViewLoaded as PcFireWhenViewLoaded } from 'src/pages/worksheet/redux/actions/index.js';
 import { getRequest, getTranslateInfo } from 'src/util';
 import {
   getFilledRequestParams,
@@ -17,6 +17,10 @@ import _, { get, some } from 'lodash';
 
 function fireWhenViewLoaded(view, { controls = [] } = {}) {
   return (dispatch, getState) => {
+    if (_.includes([1, 7, 21], view.viewType)) {
+      dispatch(PcFireWhenViewLoaded(view, controls));
+    }
+
     if (!get(view, 'fastFilters')) return;
     const newFastFilters = handleConditionsDefault(view.fastFilters || [], controls);
     const fastFiltersHasDefaultValue = some(newFastFilters, validate);
@@ -52,20 +56,14 @@ export const updateBase = base => (dispatch, getState) => {
   } = getState().mobile;
   const prevViewId = _.get(getState(), 'mobile.base.viewId');
   const viewChanged = prevViewId && base.viewId && prevViewId !== base.viewId;
-  const view = _.find(views, v => v.viewId === base.viewId);
-  if (viewChanged && view && !needHideViewFilters(view)) {
+  const view = _.find(views, v => v.viewId === base.viewId) || {};
+  dispatch({ type: 'WORKSHEET_UPDATE_BASE', base });
+  if ((viewChanged || _.includes([1, 7, 21], view.viewType)) && view && !needHideViewFilters(view)) {
     dispatch({ type: 'MOBILE_UPDATE_FILTERS' });
     dispatch({ type: 'MOBILE_UPDATE_QUICK_FILTER', filter: [] });
     dispatch(fireWhenViewLoaded(view, { controls: template.controls }));
   }
-  dispatch({
-    type: 'MOBILE_UPDATE_BASE',
-    base,
-  });
-  dispatch({
-    type: 'WORKSHEET_UPDATE_BASE',
-    base,
-  });
+  dispatch({ type: 'MOBILE_UPDATE_BASE', base });
 };
 
 export const loadWorksheet = noNeedGetApp => (dispatch, getState) => {

@@ -3,14 +3,15 @@ import styled from 'styled-components';
 import _ from 'lodash';
 import cx from 'classnames';
 import Trigger from 'rc-trigger';
-import { Icon,SvgIcon } from 'ming-ui';
+import { Icon, SvgIcon } from 'ming-ui';
 import TextHeightLine from './TextHeightLine';
 import { GLOBAL_SEARCH_LIST_SETTING, SEARCH_APP_ITEM_TYPE } from '../enum';
 import renderText from 'src/pages/worksheet/components/CellControls/renderText.js';
 import { getAppResultCodeText } from '../utils';
 import { transferExternalLinkUrl } from 'src/pages/AppHomepage/AppCenter/utils';
-import { addBehaviorLog } from 'src/util';
+import { addBehaviorLog, getFeatureStatus } from 'src/util';
 import smartSearchAjax from 'src/api/smartSearch';
+import { VersionProductType } from 'src/util/enum';
 
 const Box = styled.div`
   padding-bottom: 12px;
@@ -368,9 +369,14 @@ export default function AppList(props) {
 
   const renderEmpty = () => {
     if (list && list.length > 0) return null;
-    if (resultCode && [3, 2].indexOf(resultCode) > -1) {
-      return <div className="noData">{getAppResultCodeText(resultCode, currentProjectName)}</div>;
+
+    const needUpdate =
+      dataKey === 'record' && getFeatureStatus(currentProjectId, VersionProductType.globalSearch) !== '1';
+
+    if ((resultCode && [3, 2].indexOf(resultCode) > -1) || needUpdate) {
+      return <div className="noData">{getAppResultCodeText(needUpdate ? 3 : resultCode, currentProjectName)}</div>;
     }
+
     return (
       <div className="noData">{`${
         dataKey === 'app' ? _l('没有搜索到相关应用和应用项') : _l('没有搜索到相关记录')

@@ -13,7 +13,7 @@ import functionWrap from 'ming-ui/components/FunctionWrap';
 import { getFilter } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import Header from './Header';
 import './recordCardListDialog.less';
-import _ from 'lodash';
+import _, { find } from 'lodash';
 
 function getSearchConfig(control) {
   try {
@@ -280,7 +280,11 @@ export default class RecordCardListDialog extends Component {
           'rowid',
         );
         const needSort =
-          keyWords && pageIndex === 1 && _.get(control, 'advancedSetting.searchcontrol') && searchControl;
+          keyWords &&
+          pageIndex === 1 &&
+          _.get(control, 'advancedSetting.searchcontrol') &&
+          searchControl &&
+          find(filteredList, c => c[searchControl.controlId] === keyWords);
         if (needSort && _.get(control, 'advancedSetting.searchtype') !== '1') {
           filteredList = filteredList.sort((a, b) => (b[searchControl.controlId] === keyWords ? 1 : -1));
         }

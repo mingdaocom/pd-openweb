@@ -44,7 +44,20 @@ function WidgetDisplay(props) {
   const { type, value, name, button, param = [], config = {} } = widget;
 
   const renderContent = () => {
-    if (componentType === 'embedUrl') return <PreviewContent value={value} param={param} config={config} />;
+    if (componentType === 'embedUrl') {
+      return (
+        <PreviewContent
+          value={value}
+          param={param}
+          config={config}
+          info={{
+            ...ids,
+            projectId: apk.projectId,
+            itemId: ids.worksheetId
+          }}
+        />
+      )
+    };
     if (componentType === 'richText') {
       const translateInfo = getTranslateInfo(ids.appId, null, widget.id);
       return (

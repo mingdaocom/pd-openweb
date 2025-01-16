@@ -38,8 +38,7 @@ const QrInputWrap = styled.div`
   }
 `;
 
-const { IsLocal } = md.global.Config;
-const isWx = window.isWeiXin && !IsLocal && !window.isWxWork;
+const isWx = window.isWeiXin && !window.isWxWork;
 const isMobile = browserIsMobile();
 
 export const getIsScanQR = () => {

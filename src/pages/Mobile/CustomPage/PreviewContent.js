@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Button, SpinLoading } from 'antd-mobile';
-import PreviewWraper from 'src/pages/customPage/components/previewContent';
+import { PreviewWraper } from 'src/pages/customPage/components/previewContent';
 import cx from 'classnames';
 import share from 'src/api/share';
 import { getIconNameByExt } from 'src/util';
@@ -150,7 +150,7 @@ function parseLink(link, param) {
 }
 
 function PreviewContentWrap(props) {
-  let { value, param, config = {} } = props;
+  let { value, param, config = {}, info = {} } = props;
   const { reload = false, newTab = false } = config;
 
   if (value.includes('kcshareFolder/')) {
@@ -160,7 +160,7 @@ function PreviewContentWrap(props) {
     // 文件
     return <KcShareNodePreviewContent value={value} />;
   } else {
-    return <PreviewWraper reload={reload} newTab={newTab} value={value} param={param} />;
+    return <PreviewWraper reload={reload} newTab={newTab} info={info} value={value} param={param} />;
   }
 }
 

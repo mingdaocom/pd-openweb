@@ -84,10 +84,12 @@ export function getPublicWorksheetInfo(worksheetId, cb) {
   });
 }
 
-function clearUrl(source) {
-  const targetUrl = source
-    ? `${location.origin}${location.pathname}?source=${source}`
-    : location.origin + location.pathname;
+function clearUrl() {
+  const urlParams = new URLSearchParams(location.search);
+  ['code', 'state', 'time', 'appid'].forEach(param => urlParams.delete(param));
+  const search = urlParams.toString();
+
+  const targetUrl = search ? `${location.origin}${location.pathname}?${search}` : location.origin + location.pathname;
   history.replaceState({ page: 'wechat_redirect' }, '', targetUrl);
   history.pushState({}, '', targetUrl);
 }
@@ -182,12 +184,12 @@ async function getStatus(data, shareId) {
                   window.md.global.Account = {};
                 }
               }
-              clearUrl(request.source);
+              clearUrl();
             } else {
-              clearUrl(request.source);
+              clearUrl();
             }
           } else {
-            clearUrl(request.source);
+            clearUrl();
           }
         } else {
           const repeatRequestCount = sessionStorage.getItem('repeatRequestCount') || 0;
@@ -197,7 +199,7 @@ async function getStatus(data, shareId) {
             location.href = location.origin + location.pathname;
             sessionStorage.setItem('repeatRequestCount', repeatRequestCount + 1);
           } else {
-            clearUrl(request.source);
+            clearUrl();
           }
         }
       } else {

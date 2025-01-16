@@ -157,7 +157,7 @@ export default class WriteFields extends Component {
     // 分段
     if (item.type === 52) {
       formProperties.forEach(o => {
-        if (o.sectionId === item.id && !this.isDisabled(o)) {
+        if (o.sectionId === item.id && (!this.isDisabled(o) || _.includes([1, 4], property))) {
           o.property = property;
         }
       });

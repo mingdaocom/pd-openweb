@@ -38,9 +38,9 @@ const Text = styled.span`
 `;
 
 export default function IconText(props) {
-  const { disabled, className, icon, text, iconColor, style, onClick, textCmp, iconUrl } = props;
+  const { disabled, className, icon, text, iconColor, style, onClick, textCmp, iconUrl, dataEvent = '' } = props;
   return (
-    <Con className={cx(className, { disabled })} style={style} onClick={onClick}>
+    <Con className={cx(className, { disabled })} style={style} onClick={onClick} data-event={dataEvent}>
       {icon &&
         (!!iconUrl && icon.endsWith('_svg') ? (
           <SvgIcon className="svgIcon InlineBlock" addClassName="TxtMiddle" url={iconUrl} fill={iconColor} size={18} />

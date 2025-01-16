@@ -71,10 +71,12 @@ const codePrintList = [
   {
     name: _l('打印二维码%02056'),
     printType: 1,
+    key: 'qrCode',
   },
   {
     name: _l('打印条形码%02057'),
     printType: 3,
+    key: 'barCode',
   },
 ];
 
@@ -195,6 +197,7 @@ export default function PrintList(props) {
   return (
     <Con>
       <IconText
+        dataEvent="print"
         icon="print"
         textCmp={() => {
           return (
@@ -212,7 +215,7 @@ export default function PrintList(props) {
           onClickAwayExceptions={['.doNotTriggerClickAway']}
           onClickAway={() => setMenuVisible(false)}
         >
-          <TemplateList>
+          <TemplateList className="tempList">
             {loading && <LoadDiv size="small" />}
             {!loading && !!featureType && templateList.length === 0 && !showCodePrint && (
               <div className="Gray_bd Font13 LineHeight36 pLeft16">{_l('暂无可用模版')}</div>
@@ -221,6 +224,7 @@ export default function PrintList(props) {
               !!featureType &&
               templateList.map((template, i) => (
                 <MenuItem
+                  data-event={`printTemp-${i}`}
                   key={i}
                   icon={
                     [2, 5].includes(template.type) ? (
@@ -282,7 +286,12 @@ export default function PrintList(props) {
           )}
           {!!showCodePrint &&
             codePrintList.map((item, i) => (
-              <MenuItem key={i} className="noIcon" onClick={() => handlePrintQrCode({ printType: item.printType })}>
+              <MenuItem
+                data-event={item.key}
+                key={i}
+                className="noIcon"
+                onClick={() => handlePrintQrCode({ printType: item.printType })}
+              >
                 {item.name}
               </MenuItem>
             ))}

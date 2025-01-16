@@ -269,7 +269,7 @@ export default function (props) {
           </div>
           <div className="Font13 Gray_9e">
             {_l('使用工作流AIGC节点时可根据需要选择不同的模型，备选模型的配置需在配置文件中完成')}{' '}
-            <a className="pointer" target="_blank" href="https://docs-pd.mingdao.com/faq/integrate/aigc/bailian">
+            <a className="pointer" target="_blank" href="https://docs-pd.mingdao.com/faq/integrate/ai/workflow/openai">
               {_l('了解服务配置')}
             </a>
           </div>

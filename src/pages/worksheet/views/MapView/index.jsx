@@ -75,7 +75,7 @@ function MapView(props) {
         .map(r => parseRecord(r, mapViewConfig, controls))
         .filter(d => !_.isEmpty(d.position));
       const coordinates = parsedData.map(c => [c.position.y, c.position.x]);
-      let newZoom = calculateZoomLevel(coordinates, size.width, size.height) || 5;
+      let newZoom = calculateZoomLevel(coordinates, size.width, size.height, 1) || 5;
       if (newZoom < 5) {
         newZoom = 5;
       } else if (newZoom > 19) {

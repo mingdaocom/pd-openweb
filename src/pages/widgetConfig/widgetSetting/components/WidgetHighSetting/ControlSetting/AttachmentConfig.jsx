@@ -518,7 +518,7 @@ export default function AttachmentVerify(props) {
             <Tooltip
               placement="bottom"
               title={_l(
-                '在文件预览和下载时叠加水印。只支持文件大小5M以内图片水印。目前支持的图片的格式为：jepg、png、tiff、bmp、heif',
+                '在文件预览和下载时叠加水印。只支持文件大小5M以内图片水印。目前支持的图片的格式为：jpeg、png、tiff、bmp、heif',
               )}
             >
               <i className="icon-help Gray_9e Font16 Hand"></i>

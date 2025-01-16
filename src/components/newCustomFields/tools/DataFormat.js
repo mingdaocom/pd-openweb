@@ -1224,6 +1224,10 @@ export default class DataFormat {
     this.data.forEach(item => {
       if (item.hidden) return;
 
+      if (item.type === 53 && item.dataSource) {
+        item.advancedSetting = { ...item.advancedSetting, defaultfunc: item.dataSource, defaulttype: '1' };
+      }
+
       if (item.storeFromDefault) {
         item.store = item.storeFromDefault;
         delete item.storeFromDefault;

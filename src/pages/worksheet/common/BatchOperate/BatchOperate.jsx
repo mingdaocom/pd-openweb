@@ -423,6 +423,7 @@ class BatchOperate extends React.Component {
             {type === 'single' && selectedTip}
             {permission && canEdit && (!selectedRow || selectedRow.allowedit) && (
               <IconText
+                dataEvent="edit"
                 icon="hr_edit"
                 text={_l('编辑')}
                 onClick={() => {
@@ -480,6 +481,7 @@ class BatchOperate extends React.Component {
             )}
             {!allWorksheetIsSelected && permission && canCopy && (!selectedRow || selectedRow.allowedit) && (
               <IconText
+                dataEvent="copy"
                 icon="copy"
                 text={_l('复制')}
                 onClick={() => {
@@ -531,6 +533,7 @@ class BatchOperate extends React.Component {
             {showExport && <ExportList {...this.props} />}
             {canDelete && (
               <IconText
+                dataEvent="delete"
                 className="delete"
                 icon="delete2"
                 text={_l('删除')}

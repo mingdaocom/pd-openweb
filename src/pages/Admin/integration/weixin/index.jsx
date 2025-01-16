@@ -286,8 +286,8 @@ export default class WeiXin extends Component {
         {!isPlatformLocal && (
           <div className="descriptions">
             <div className="descriptionsInfo">
-              {_l('1.为了可以获取到 openID及基本信息 或使用模版消息功能必须选择 ')}
-              <span className="Bold">{_l('已认证的微信服务号')}</span>
+              {_l('1.为了可以获取到 openID及基本信息 或使用模版消息功能必须选择')}
+              <span className="Bold mLeft3">{_l('已认证的微信服务号')}</span>
             </div>
             <div className="descriptionsInfo">
               {_l('2.为获取微信授权需要将您公司的访问域名加入到服务号的网页授权域名内')}

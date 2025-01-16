@@ -108,8 +108,9 @@ function PreviewContent(props) {
   return <PreviewWrap>{useMemo(renderContent, [parseLink(value)])}</PreviewWrap>;
 }
 
-function PreviewWraper(props) {
+export function PreviewWraper(props) {
   const { value, reload, newTab, param = [] } = props;
+
   const [now, setNow] = useState(0);
 
   const data = { key: 'now', value: { type: 'static', data: now } };
@@ -166,6 +167,7 @@ function PreviewWraper(props) {
     </PreviewContentWrapper>
   );
 }
+
 export default connect(({ sheet, appPkg, customPage }) => ({
   info: {
     ...sheet.base,

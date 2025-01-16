@@ -181,7 +181,9 @@ export function getBoardViewPageData({ alwaysCallback = noop }) {
       .then(({ data }) => {
         // 将已经存在的看板过滤掉
         const existedKeys = boardData.map(item => item.key);
-        const filterData = data.filter(item => !includes(existedKeys, item.key));
+        const filterData = data
+          .filter(item => !includes(existedKeys, item.key))
+          .map((item, index) => ({ ...item, sort: existedKeys.length + index + 1 }));
         dispatch(changeBoardViewData(boardData.concat(filterData)));
         dispatch(initBoardViewRecordCount({ ...boardViewRecordCount, ...dealBoardViewRecordCount(filterData) }));
         let nextState = { kanbanIndex: kanbanIndex + 1 };

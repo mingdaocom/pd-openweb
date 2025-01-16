@@ -69,7 +69,7 @@ function Group(props) {
 }
 
 function ChartFilter(props) {
-  const datePeriod = dropdownScopeData.filter(item => ![20, 21].includes(item.value));
+  const datePeriod = dropdownScopeData.filter(item => ![20, 21, 24].includes(item.value));
   const { reportType, xaxes, rangeValue, rangeType } = props.data;
   const { rangeValue: defaultRangeValue, rangeType: defaultRangeType, filter } = props.defaultData;
   const xAxisisTime = isTimeControl(xaxes.controlType);

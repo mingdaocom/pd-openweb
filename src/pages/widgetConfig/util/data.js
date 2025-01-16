@@ -1055,7 +1055,7 @@ export const batchCopyWidgets = (props, selectWidgets = []) => {
   const { widgets, allControls, queryConfigs, setActiveWidget, setWidgets } = props;
 
   for (var i = 0; i < selectWidgets.length; i++) {
-    const err = checkWidgetMaxNumErr(selectWidgets[i], [...allControls, selectWidgets.splice(0, i)]);
+    const err = checkWidgetMaxNumErr(selectWidgets[i], [...allControls, ...selectWidgets.slice(0, i)]);
     if (err) {
       alert(err, 3);
       return;

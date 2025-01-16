@@ -1,4 +1,4 @@
-import { pick } from 'lodash';
+import { get, pick } from 'lodash';
 import codeAjax from 'src/api/code';
 import { Text, Date, MultipleSelect, Number, SingleSelect, Time, RelateRecord } from './examples';
 import { WIDGETS_TO_API_TYPE_ENUM } from '../../../config/widget';
@@ -40,7 +40,7 @@ export const generatePrompt = (systemPrompt, { envControls, isRefValue, control 
 
 export const generateParamsForPrompt = ({ envControls, isRefValue, control } = {}) => {
   const defaultCode = getDefaultCompCode(control);
-  const defaultControlDataFormat = getValueHandleDemo(control);
+  let defaultControlDataFormat = getValueHandleDemo(control);
   const defaultExample = `<example>
   <input>实现一个选项类型字段的案例，保证正常接受数据，更新数据</input>
   <response>
@@ -49,6 +49,13 @@ export const generateParamsForPrompt = ({ envControls, isRefValue, control } = {
   \`\`\`
   </response>
 </example>`;
+  if (!get(md, 'global.Account.lang', '').toLowerCase().startsWith('zh')) {
+    defaultControlDataFormat += `
+<response_lang>
+please return as language ${get(md, 'global.Account.lang')}
+</response_lang>
+`;
+  }
   return [
     defaultExample,
     isRefValue ? _l('引用类型') : _l('存储类型'),

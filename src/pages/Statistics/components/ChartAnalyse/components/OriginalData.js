@@ -109,7 +109,7 @@ export default class OriginalData extends Component {
           {!_.isEmpty(displaySetup.showControlIds) && (
             <ShowControlIdWrapper className="flexRow valignWrapper mTop10">
               <div className="flex">{_l('显示%0个字段', displaySetup.showControlIds.length)}</div>
-              <Icon className="Gray_9e pointer" icon="edit" onClick={() => { this.setState({ showControlVisible: true }); }}/>
+              <Icon className="Gray_9e pointer" icon="edit" onClick={() => { this.setState({ showControlVisible: true }); }} />
             </ShowControlIdWrapper>
           )}
         </div>
@@ -129,6 +129,8 @@ export default class OriginalData extends Component {
           }}
         >
           <SortColumns
+            sortAutoChange
+            isShowColumns
             layout={2}
             noShowCount={true}
             noempty={false}

@@ -1,6 +1,5 @@
 import { ajax, login, browserIsMobile, getRequest, checkLogin, checkOriginUrl } from 'src/util/sso';
 import { setPssId } from 'src/util/pssId';
-import preall from 'src/common/preall';
 
 const { code, p, i, s, ret, source, url, state } = getRequest();
 const isMobile = browserIsMobile();
@@ -22,7 +21,6 @@ if (source === 'wxwork') {
       succees: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
-          preall({ type: 'function' });
           setPssId(sessionId);
           if (checkOriginUrl(url)) {
             location.href = decodeURIComponent(url);
@@ -54,7 +52,6 @@ if (source === 'wxwork') {
       succees: result => {
         const { accountResult, sessionId } = result.data;
         if (accountResult === 1) {
-          preall({ type: 'function' });
           setPssId(sessionId);
           if (checkOriginUrl(ret)) {
             location.href = ret;

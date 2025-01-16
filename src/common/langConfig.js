@@ -12,7 +12,7 @@ const config = [
     value: '简体中文',
     languageTeam: 'Chinese Simplified',
     language: 'zh_CN',
-    path: '/staticfiles/lang/zh-Hans/mdTranslation.js',
+    path: '/staticfiles/lang/zh_Hans/mdTranslation.js',
     code: 0,
   },
   {
@@ -20,7 +20,7 @@ const config = [
     value: '繁體中文',
     languageTeam: 'Chinese Traditional',
     language: 'zh_TW',
-    path: '/staticfiles/lang/zh-Hant/mdTranslation.js',
+    path: '/staticfiles/lang/zh_Hant/mdTranslation.js',
     code: 3,
   },
   {

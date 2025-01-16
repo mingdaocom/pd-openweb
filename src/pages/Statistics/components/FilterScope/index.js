@@ -128,7 +128,7 @@ export default class extends Component {
               suffixIcon={<Icon icon="expand_more" className="Gray_9e Font20" />}
               onChange={this.handleUpdateScope}
             >
-              {dropdownScopeData.map(item => (
+              {dropdownScopeData.filter(n => n.value !== 24).map(item => (
                 <Select.Option className="selectOptionWrapper" key={item.value} value={item.value}>
                   {item.text}
                 </Select.Option>

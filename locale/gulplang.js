@@ -20,8 +20,8 @@ const getTranslationJS = function (langPath) {
 const langPackage = {
   en: getTranslationJS('./en/mdTranslation.js'),
   ja: getTranslationJS('./ja/mdTranslation.js'),
-  'zh-Hans': getTranslationJS('./zh-Hans/mdTranslation.js'),
-  'zh-Hant': getTranslationJS('./zh-Hant/mdTranslation.js'),
+  'zh-Hans': getTranslationJS('./zh_Hans/mdTranslation.js'),
+  'zh-Hant': getTranslationJS('./zh_Hant/mdTranslation.js'),
 };
 
 // " 转义处理 并不含 \"
@@ -38,8 +38,8 @@ const escapeSymbol = function (key) {
 // 提取key
 let langKeys = [];
 
-// 动态页面
-const getDPLangKey = function (done) {
+// 提取src下的词条
+const getLangKey = function (done) {
   langKeys = [];
 
   return gulp
@@ -78,8 +78,8 @@ const getDPLangKey = function (done) {
     });
 };
 
-// 生成新增的 pot文件
-const buildDPPot = function (done) {
+// 生成新增的po文件
+const buildNewPo = function (done) {
   let cnContent = '';
   let otherContent = '';
 
@@ -94,7 +94,7 @@ const buildDPPot = function (done) {
   });
 
   langs.forEach(item => {
-    const filePath = `locale/${item.key}/mdTranslation.po`;
+    const filePath = `locale/${item.key.replace('-', '_')}/mdTranslation.po`;
     const poText = fs.readFileSync(filePath);
 
     if (!poText) return;
@@ -116,7 +116,7 @@ const buildDPPot = function (done) {
 
 const buildPoToJs = function (done) {
   langs.forEach(item => {
-    const filePath = `locale/${item.key}/mdTranslation`;
+    const filePath = `locale/${item.key.replace('-', '_')}/mdTranslation`;
     const poText = fs.readFileSync(filePath + '.po');
 
     if (!poText) return;
@@ -151,7 +151,7 @@ const clearPoLangKey = function (done) {
   });
 
   langs.forEach(item => {
-    const filePath = `locale/${item.key}/mdTranslation.po`;
+    const filePath = `locale/${item.key.replace('-', '_')}/mdTranslation.po`;
 
     try {
       fs.writeFileSync(
@@ -174,7 +174,7 @@ const clearPoLangKey = function (done) {
 };
 
 // push key
-const pushKey = function (done) {
+const pushLangKey = function (done) {
   const rows = _.uniq(langKeys)
     .map(key => {
       return [
@@ -183,19 +183,19 @@ const pushKey = function (done) {
           value: key,
         },
         {
-          controlId: 'lang_zh_Hans',
+          controlId: 'zh_Hans',
           value: key.replace(/%\d{5}$/, ''),
         },
         {
-          controlId: 'lang_zh_Hant',
+          controlId: 'zh_Hant',
           value: escapeSymbol(langPackage['zh-Hant'][key]) || '',
         },
         {
-          controlId: 'lang_en',
+          controlId: 'en',
           value: escapeSymbol(langPackage['en'][key]) || '',
         },
         {
-          controlId: 'lang_ja',
+          controlId: 'ja',
           value: escapeSymbol(langPackage['ja'][key]) || '',
         },
       ];
@@ -207,17 +207,18 @@ const pushKey = function (done) {
   const sendRequests = async () => {
     for (const items of _.chunk(rows, 1000)) {
       await new Promise(resolve => setTimeout(resolve, 1000)); // 延迟 1 秒
-      await fetch('https://api.mingdao.com/v2/open/worksheet/addRows', {
+      await fetch('https://api2.mingdao.com/v2/open/worksheet/addRows', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          appKey: 'a5d939a67aec0c6d',
-          sign: 'MzlhMjllOWM1Yjg3ZjIyNTdmMGRhMTdjNTczZjYwZGM2NWEwNTg5MGNiZWUxNDc4MjhlYzAyZjIxM2ExMjk4Zg==',
-          worksheetId: 'web_lang_key',
+          appKey: process.env.LANG_APP_KEY,
+          sign: process.env.LANG_APP_SING,
+          worksheetId: process.env.LANG_WORKSHEET_ID,
           triggerWorkflow: true,
           rows: items,
+          allowPartialSuccess: true,
         }),
       });
     }
@@ -229,13 +230,16 @@ const pushKey = function (done) {
 };
 
 // 提取key
-gulp.task('getDPLangKey', gulp.series(getDPLangKey, pushKey));
+gulp.task('getLangKey', getLangKey);
 
-// 增量pot文件
-gulp.task('buildDPPot', gulp.series(['getDPLangKey'], buildDPPot));
+// push增量key
+gulp.task('pushLangKey', gulp.series(['getLangKey'], pushLangKey));
+
+// 生成新的po文件
+gulp.task('buildNewPo', gulp.series(['getLangKey'], buildNewPo));
 
 // po文件转js文件，供_l('xxxx')使用
 gulp.task('buildPoToJs', buildPoToJs);
 
 // 清理无效的语言key
-gulp.task('clearPoLangKey', gulp.series(['getDPLangKey'], clearPoLangKey));
+gulp.task('clearPoLangKey', gulp.series(['getLangKey'], clearPoLangKey));

@@ -164,8 +164,8 @@ export default class App extends Component {
                   {_l('提交工单')}
                 </span>
               </Trigger>
-              <span className="Gray_9e">{_l('咨询并延长技术支持或查看 ')}</span>
-              <a href="https://docs-pd.mingdao.com/version" target="_blank">
+              <span className="Gray_9e">{_l('咨询并延长技术支持或查看')}</span>
+              <a href="https://docs-pd.mingdao.com/version" target="_blank" className="mLeft3">
                 {_l('其他可升级的版本')}
               </a>
             </Fragment>

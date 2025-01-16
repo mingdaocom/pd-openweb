@@ -25,11 +25,13 @@ const EXPORT_LIST = [
     name: _l('导出记录') + '（Excel，CSV）',
     icon: 'new_excel',
     exportType: 1,
+    key: 'exportRecord',
   },
   {
     name: _l('导出附件'),
     icon: 'attachment',
     exportType: 2,
+    key: 'exportAttachment',
   },
 ];
 
@@ -70,6 +72,7 @@ export default function ExportList(props) {
   return (
     <Con>
       <IconText
+        dataEvent="export"
         icon="file_download"
         textCmp={() => {
           return (
@@ -91,6 +94,7 @@ export default function ExportList(props) {
             if (item.exportType === 2 && _.isEmpty(attachmentControls)) return;
             return (
               <MenuItem
+                data-event={item.key}
                 key={i}
                 className="noIcon"
                 icon={<Icon icon={item.icon} />}

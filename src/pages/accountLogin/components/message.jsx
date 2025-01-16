@@ -593,14 +593,12 @@ class MessageCon extends React.Component {
                   updateWarn(data);
                 }}
                 onFocus={e => {
-                  passwordOnWran(e.target.value.trim());
+                  passwordOnWran(e.target.value);
                   this.inputOnFocus(e, '.passwordIcon');
                 }}
                 onChange={e => {
-                  passwordOnWran(e.target.value.trim(), true);
-                  setData({
-                    password: e.target.value.trim(),
-                  });
+                  passwordOnWran(e.target.value, true);
+                  setData({ password: e.target.value });
                 }}
                 autoComplete={
                   //keys.includes('password') ? 'account-password' :

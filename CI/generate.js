@@ -54,6 +54,19 @@ function generate() {
     };
     if (entry) {
       const moduleName = getEntryName(entry.src, filename);
+      const excludeArr = [
+        'auth-workwx',
+        'auth-chat-tools',
+        'auth-welink',
+        'auth-feishu',
+        'auth-dingding',
+        'sso-dingding',
+        'sso-sso',
+        'sso-workweixin',
+        'widget-container',
+        'free-field-sandbox',
+      ];
+      const noCommonResource = excludeArr.some(key => moduleName.includes(key));
 
       if (!isProduction) {
         apiMap.workflow = '/workflow_api';
@@ -95,7 +108,7 @@ function generate() {
         }
         // 开发模式
         $entryScript.replaceWith(
-          ['modules_a', 'modules_b', 'core', 'common', 'vendors', 'globals', moduleName]
+          ['modules_a', 'modules_b', 'cookies', 'core', 'common', 'vendors', 'globals', moduleName]
             .map(src => `<script src="${getPublicPath(entry.type) + src}.dev.js"></script>`)
             .join(''),
         );
@@ -109,13 +122,11 @@ function generate() {
         );
         const baseEntry =
           entry.type !== 'index'
-            ? ['vendors', 'globals']
-            : ['modules_a', 'modules_b', 'core', 'common', 'vendors', 'globals'];
-        const isWidgetContainer = moduleName.startsWith('widget-container');
-        const isFreeField = moduleName.startsWith('free-field-sandbox');
-        const noCommonResource = isFreeField || isWidgetContainer;
+            ? ['cookies', 'vendors', 'globals']
+            : ['modules_a', 'modules_b', 'cookies', 'core', 'common', 'vendors', 'globals'];
+
         $entryScript.replaceWith(
-          [...(!noCommonResource ? baseEntry : []), moduleName]
+          [...(!noCommonResource ? baseEntry : ['cookies']), moduleName]
             .filter(key => !!manifestData[key] && manifestData[key].js)
             .map(key => `<script src="${getPublicPath(entry.type) + manifestData[key].js}"></script>`)
             .join(''),

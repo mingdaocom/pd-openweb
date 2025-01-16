@@ -652,7 +652,6 @@ export default class CustomButtons extends React.Component {
               size="small"
               type="ghost"
               disabled={btnDisable[button.btnId] || button.disabled}
-              title={button.name}
               style={{
                 ...buttonColor,
                 maxWidth: '100%',

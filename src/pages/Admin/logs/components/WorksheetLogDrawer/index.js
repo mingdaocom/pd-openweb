@@ -24,10 +24,11 @@ export default function WorksheetLogDrawer(props) {
     homeAppAjax
       .getWorksheetsByAppId({ appId })
       .then(res => {
+        const list = res.filter(v => v.type === 0);
         setData({
           worksheetLoading: false,
-          worksheetList: res.filter(v => v.type === 0),
-          selectWorksheetId: props.selectWorksheetId || _.get(res, '[0].workSheetId'),
+          worksheetList: list,
+          selectWorksheetId: props.selectWorksheetId || _.get(list, '[0].workSheetId'),
         });
       })
       .catch(err => {

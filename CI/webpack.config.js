@@ -52,6 +52,7 @@ const rules = isProduction
 module.exports = function (alonePath = '') {
   return {
     entry: {
+      cookies: ['src/common/cookies'],
       globals: ['src/common/global'],
       vendors: [
         'src/library/jquery/jquery.min',
