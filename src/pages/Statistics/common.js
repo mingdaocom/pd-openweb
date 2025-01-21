@@ -1493,6 +1493,17 @@ const fillTranslate = result => {
   if (result.desc) {
     result.desc = getTranslateInfo(appId, result.appId, result.reportId).description || result.desc;
   }
+  if (_.get(result, 'split.dataSource')) {
+    const valueMapTranslateInfo = getTranslateInfo(appId, null, result.split.dataSource);
+    if (!_.isEmpty(valueMapTranslateInfo)) {
+      const map = result.valueMap[result.split.controlId] || {};
+      for(let key in map) {
+        if (map[key] && valueMapTranslateInfo[key]) {
+          map[key] = valueMapTranslateInfo[key];
+        }
+      }
+    }
+  }
   if (result.valueMap) {
     for(let controlId in result.valueMap) {
       const valueMapTranslateInfo = getTranslateInfo(appId, result.appId, controlId);

@@ -32,6 +32,9 @@ function BaseGoogleMap(props) {
     gMapKey,
     mapContainerStyle,
     disabled,
+    children,
+    zoom = 15,
+    options = {},
     onMapLoad = () => {},
     onMapDragEnd = () => {},
     handleClick = () => {},
@@ -59,15 +62,16 @@ function BaseGoogleMap(props) {
 
   return (
     <GoogleMap
-      zoom={15}
+      zoom={zoom}
       mapContainerStyle={mapContainerStyle}
       center={position}
-      options={{ disableDefaultUI: true, ...(disabled ? { disableDoubleClickZoom: true, draggable: false } : {}) }}
+      options={{ disableDefaultUI: true, ...(disabled ? { disableDoubleClickZoom: true, draggable: false } : options) }}
       onLoad={onMapLoad}
       onDragEnd={onMapDragEnd}
       onClick={handleClick}
     >
-      {position && <Marker position={position} icon={markImg}></Marker>}
+      {children}
+      {!children && position && <Marker position={position} icon={markImg}></Marker>}
     </GoogleMap>
   );
 }

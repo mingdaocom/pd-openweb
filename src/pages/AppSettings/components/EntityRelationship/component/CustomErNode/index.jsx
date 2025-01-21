@@ -103,7 +103,9 @@ export default function CustomErNode(props) {
             >
               {
                 iconSvg[
-                  DEFAULT_CONFIG[_.findKey(WIDGETS_TO_API_TYPE_ENUM, l => l === control.type)].icon.replace('-', '_')
+                  (
+                    _.get(DEFAULT_CONFIG[_.findKey(WIDGETS_TO_API_TYPE_ENUM, l => l === control.type)], 'icon') || ''
+                  ).replace('-', '_')
                 ]
               }
             </svg>

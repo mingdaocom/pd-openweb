@@ -11,6 +11,9 @@ const VerifyModifyDialogWrap = styled.div`
   .btns {
     margin-top: 32px;
     text-align: right;
+    .Button {
+      padding: 0 20px;
+    }
     .close {
       margin-right: 16px;
     }

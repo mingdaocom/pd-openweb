@@ -239,6 +239,7 @@ export const browserIsMobile = () => {
   const bIsApp = sUserAgent.match(/mingdao application/i) == 'mingdao application';
   const bIsMiniProgram = sUserAgent.match(/miniprogram/i) == 'miniprogram';
   const isHuawei = sUserAgent.match(/mobile huaweibrowser/i) == 'mobile huaweibrowser';
+  const isHarmony = sUserAgent.match(/penharmony/i) == 'penharmony';
   const isAndroid = sUserAgent.match(/android/i) == 'android';
 
   const value =
@@ -252,6 +253,7 @@ export const browserIsMobile = () => {
     bIsApp ||
     bIsMiniProgram ||
     isHuawei ||
+    isHarmony ||
     isAndroid;
 
   if (sUserAgent.includes('dingtalk') || sUserAgent.includes('wxwork')) {

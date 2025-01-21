@@ -89,7 +89,7 @@ class PublicWorksheetConfigForm extends React.Component {
   }
 
   getThemeBgColor = () => {
-    const config = getPageConfig(_.get(this.props.worksheetSettings.extendDatas, 'pageConfigs'), '');
+    const config = getPageConfig(_.get(this.props.worksheetSettings, 'extendDatas.pageConfigs'), '');
     const { themeBgColor, themeColor } = config;
 
     if (!themeBgColor) {
@@ -123,7 +123,7 @@ class PublicWorksheetConfigForm extends React.Component {
     const disabledControlIds = getDisabledControls(originalControls, worksheetSettings);
     const needHidedControlIds = hidedControlIds.concat(disabledControlIds);
     const theme = this.getThemeBgColor();
-    const extendDatas = worksheetSettings.extendDatas;
+    const extendDatas = worksheetSettings.extendDatas || {};
     const config = getPageConfig(extendDatas.pageConfigs, '');
 
     const renderContent = () => {

@@ -185,7 +185,7 @@ export default function ConfigureControl(props) {
                   type,
                   controlId: uuidv4(),
                 };
-                if (md.global.SysSettings.hideWorksheetControl.includes(key)) return null;
+                if ((md.global.SysSettings.hideWorksheetControl || '').includes(key)) return null;
                 // 子表表单不允许再添加分段、子表、文本识别、嵌入、查询记录、备注
                 if (_.includes([22, 34, 43, 45, 47, 49, 51, 52, 10010], type)) return null;
                 return (

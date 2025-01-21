@@ -148,19 +148,28 @@ export default class DepartmentTree extends Component {
   };
 
   handleSelectGroup = id => {
-    const { pageIndex } = this.state;
+    const { pageIndex, loading, isMore } = this.state;
     const { userSettings, projectId, isNetwork } = this.props;
+
+    if (loading || !isMore) return;
+
+    if (this.departAjax) {
+      this.departAjax.abort();
+    }
+
     this.setState({ groupId: id, loading: true });
-    departmentController[isNetwork ? 'getProjectDepartmentUsers' : 'getDepartmentUsers']({
+
+    this.departAjax = departmentController[isNetwork ? 'getProjectDepartmentUsers' : 'getDepartmentUsers']({
       filterAccountIds: userSettings.filterAccountIds,
       departmentId: id,
       projectId,
       pageIndex,
       pageSize: 100,
-    }).then(data => {
+    });
+    this.departAjax.then(data => {
       const groupList = this.state.groupList.concat(data.list);
       this.setState({
-        isMore: groupList.length !== data.allCount,
+        isMore: groupList.length < data.allCount,
         loading: false,
         pageIndex: pageIndex + 1,
         groupList,
