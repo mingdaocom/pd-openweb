@@ -42,7 +42,7 @@ export default class WidgetsVerifyCode extends Component {
       isAvailable = false;
     } else {
       this.iti.setNumber(value);
-      if (!(this.iti.isValidNumber() || specialTelVerify(value))) {
+      if (!this.iti.isValidNumber() || !specialTelVerify(value)) {
         isAvailable = false;
       }
     }
