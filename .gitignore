@@ -19,6 +19,8 @@ node_modules/*
 
 **/.vscode/**
 *.vscode
+**/.idea/**
+*.idea
 
 # Use yarn
 package-lock.json
