@@ -108,7 +108,7 @@ function SettingMenu(props) {
         'customnavs',
       ]);
       if (advancedSetting.navshow && _.get(item, 'navGroup[0].controlId')) {
-        let control = controls.find(o => o.controlId === _.get(item, 'navGroup[0].controlId'));
+        let control = controls.find(o => o.controlId === _.get(item, 'navGroup[0].controlId')) || {};
         let type = control.type;
         if (type === 30) {
           type = control.sourceControlType;

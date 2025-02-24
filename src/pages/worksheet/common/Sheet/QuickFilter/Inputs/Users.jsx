@@ -1,10 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { arrayOf, func, string } from 'prop-types';
 import { UserHead } from 'ming-ui';
 import { getTabTypeBySelectUser } from 'src/pages/worksheet/common/WorkSheetFilter/util';
 import { quickSelectUser, dialogSelectUser } from 'ming-ui/functions';
-import _ from 'lodash';
+import _, { isEqual } from 'lodash';
 
 const Con = styled.div`
   display: flex;
@@ -74,7 +74,9 @@ const Empty = styled.span`
   color: #bdbdbd;
 `;
 export default function Users(props) {
-  const { values = [], projectId, isMultiple, advancedSetting = {}, onChange = () => {}, appId, from } = props;
+  const { projectId, isMultiple, advancedSetting = {}, onChange = () => {}, appId, from } = props;
+  const [values, setValues] = useState(props.values);
+  const cache = useRef({ values });
   const { shownullitem, nullitemname, navshow, navfilters } = advancedSetting;
   const [active, setActive] = useState();
   const conRef = useRef();
@@ -95,6 +97,12 @@ export default function Users(props) {
       }));
   }
 
+  const handleChange = ({ values }) => {
+    onChange({ values });
+    cache.current.values = values;
+    setValues(values);
+  };
+
   const handleClick = () => {
     const selectIds = values.map(l => l.accountId);
 
@@ -114,7 +122,7 @@ export default function Users(props) {
           unique: !isMultiple,
           selectedAccountIds: selectIds,
           callback(users) {
-            onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
+            handleChange({ values: isMultiple ? _.uniqBy([...cache.current.values, ...users], 'accountId') : users });
             setActive(false);
           },
         },
@@ -122,6 +130,7 @@ export default function Users(props) {
     } else {
       quickSelectUser(conRef.current, {
         showMoreInvite: false,
+        isDynamic: isMultiple,
         isTask: false,
         tabType,
         appId,
@@ -149,12 +158,12 @@ export default function Users(props) {
           unique: !isMultiple,
           filterResigned: false,
           callback(users) {
-            onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
+            handleChange({ values: isMultiple ? _.uniqBy([...cache.current.values, ...users], 'accountId') : users });
             setActive(false);
           },
         },
         selectCb(users) {
-          onChange({ values: isMultiple ? _.uniqBy([...values, ...users], 'accountId') : users });
+          handleChange({ values: isMultiple ? _.uniqBy([...cache.current.values, ...users], 'accountId') : users });
           setActive(false);
         },
         onClose: () => {
@@ -163,6 +172,13 @@ export default function Users(props) {
       });
     }
   };
+
+  useEffect(() => {
+    if (!isEqual(props.values, cache.current.values)) {
+      setValues(props.values);
+      cache.current.values = props.values;
+    }
+  }, [props.values]);
 
   return (
     <Con className={props.className} isEmpty={!values.length} active={active} onClick={handleClick}>
@@ -205,7 +221,7 @@ export default function Users(props) {
                   className="icon icon-delete Gray_9e Font10 mLeft6 Hand"
                   onClick={e => {
                     e.stopPropagation();
-                    onChange({ values: values.filter(v => v.accountId !== user.accountId) });
+                    handleChange({ values: values.filter(v => v.accountId !== user.accountId) });
                   }}
                 />
               </UserItem>
@@ -219,7 +235,7 @@ export default function Users(props) {
           className="icon icon-cancel clearIcon"
           onClick={e => {
             e.stopPropagation();
-            onChange({ values: [] });
+            handleChange({ values: [] });
           }}
         />
       )}

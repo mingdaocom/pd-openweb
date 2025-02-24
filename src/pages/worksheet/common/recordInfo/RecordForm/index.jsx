@@ -64,7 +64,7 @@ const StickyBar = styled.div`
   padding: 0 14px 0 24px;
   opacity: 0;
   transform: translateY(-32px);
-  z-index: 2;
+  z-index: 3;
   font-size: 12px;
   color: #515151;
   line-height: 32px;

@@ -39,7 +39,8 @@ const Con = styled.span`
       background: #2196f3;
     }
   }
-  &.hover {
+  &.hover,
+  &.moreOperateVisible {
     ${({ hideOperate }) =>
       !hideOperate &&
       `
@@ -70,6 +71,7 @@ const OpenRecordBtn = styled(FlexCenter)`
 `;
 export default function RowHead(props) {
   const [confirmVisible, setConfirmVisible] = useState();
+  const [moreOperateVisible, setMoreOperateVisible] = useState(false);
   const {
     tableType,
     isBatchEditing,
@@ -125,7 +127,7 @@ export default function RowHead(props) {
       cancelText={_l('取消')}
     >
       <Con
-        className={cx(className, { isNew: row.isNew })}
+        className={cx(className, { isNew: row.isNew, moreOperateVisible })}
         style={style}
         hideOperate={!recordId && !allowRemoveRelation}
       >
@@ -191,6 +193,7 @@ export default function RowHead(props) {
                     offset: [0, 4],
                     points: ['tl', 'bl'],
                   }}
+                  onPopupVisibleChange={setMoreOperateVisible}
                   onRemoveRelation={({ confirm = true } = {}) => {
                     if (confirm) {
                       setConfirmVisible(true);

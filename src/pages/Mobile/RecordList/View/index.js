@@ -43,7 +43,7 @@ class View extends Component {
     super(props);
   }
   componentDidMount() {
-    const { view, base } = this.props;
+    const { view, base = {} } = this.props;
 
     if (_.includes([0, 6], view.viewType)) {
       if (this.props.mobileNavGroupFilters.length) {

@@ -319,7 +319,7 @@ export default class CellControl extends React.Component {
     switch (e.key) {
       case 'Backspace':
         if (this.editable && haveEditingStatus && !isediting && !cell.required) {
-          this.handleUpdateCell({ value: '' });
+          this.handleUpdateCell({ value: cell.type === 29 ? '[]' : '' });
         }
         break;
       case ' ':

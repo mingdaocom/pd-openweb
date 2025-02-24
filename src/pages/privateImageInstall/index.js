@@ -117,7 +117,7 @@ class PrivateImageInstall extends Component {
           stepResult: Object.assign(stepResult, { createdAdmin: true }),
         });
       })
-      .fail(error => {
+      .catch(error => {
         this.setState({ loading: false });
       });
   };
@@ -144,7 +144,7 @@ class PrivateImageInstall extends Component {
           stepResult: Object.assign(stepResult, { createdProject: true }),
         });
       })
-      .fail(error => {
+      .catch(error => {
         this.setState({ loading: false });
       });
   };

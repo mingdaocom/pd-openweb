@@ -250,7 +250,9 @@ export default function DevelopWithAI(props) {
               setControlName(newName);
             }}
           />
-          <div className="flex TxtCenter Font14 bold">此字段处于公测体验阶段，欢迎体验使用，如有问题欢迎反馈。</div>
+          <div className="flex TxtCenter Font14 bold">
+            {_l('此字段处于公测体验阶段，欢迎体验使用，如有问题欢迎反馈。')}
+          </div>
           <ExitButton onClick={handleExit}>{_l('退出AI辅助开发')}</ExitButton>
         </Header>
         <Container>

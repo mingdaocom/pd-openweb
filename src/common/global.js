@@ -132,7 +132,7 @@ window._l = function (key, ...args) {
     content = content.replace(/%\d{5}$/, '');
   }
 
-  return content;
+  return content.replace(/\\/g, '');
 };
 
 const ua = window.navigator.userAgent.toLowerCase();

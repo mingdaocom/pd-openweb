@@ -179,6 +179,7 @@ export default function RecordOperate(props) {
     !isExternal &&
     _.includes(shows, 'fav');
   function changePopupVisible(value) {
+    onPopupVisibleChange(value);
     if (customButtonActive.current) {
       return;
     }

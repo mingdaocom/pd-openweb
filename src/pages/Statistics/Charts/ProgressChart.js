@@ -83,7 +83,8 @@ class ProgressChart extends Component {
         return formatrChartValue(data.value, false, yaxisList, null, false);
       }
       if (showValueType == 2) {
-        return `${(percentValue * 100).toFixed(2)} %`;
+        const { ydot } = yaxisList[0];
+        return `${(percentValue * 100).toFixed(ydot ? Number(ydot) : 2)} %`;
       }
       return `${formatrChartValue(data.value, false, yaxisList, null, false)}/${formatrChartValue(data.targetValue || 0, false, yaxisList)}`;
     }

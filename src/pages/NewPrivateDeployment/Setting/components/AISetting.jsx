@@ -51,7 +51,7 @@ function SetDialog(props) {
           return;
         }
         if (type === 1 && !baseUrl) {
-          alert(_l('请输入baseURL'), 3);
+          alert(_l('请输入请求地址'), 3);
           return;
         }
         if (!model) {
@@ -104,7 +104,7 @@ function SetDialog(props) {
                     </a>
                   </span>
                   <div className="Font14 mTop15 mBottom5">
-                    <span className="Red pRight5">*</span>baseURL
+                    <span className="Red pRight5">*</span>{_l('请求地址')}
                   </div>
                   <Input
                     className="w100"

@@ -288,7 +288,12 @@ export function init() {
     const sheetSwitchPermit = await worksheetAjax.getSwitchPermit({ worksheetId: control.dataSource });
     const sheetQuery = await worksheetAjax.getQueryBySheetId({ worksheetId: control.dataSource });
     const searchConfig = formatSearchConfigs(sheetQuery);
-    const tableConfig = getTableConfigFromControl(control, { from, allowEdit, relateWorksheetInfo, recordId });
+    const tableConfig = getTableConfigFromControl(get(getState(), 'base.control'), {
+      from,
+      allowEdit,
+      relateWorksheetInfo,
+      recordId,
+    });
     const controls = (get(relateWorksheetInfo, 'template.controls') || []).concat(SYSTEM_CONTROL).filter(
       c =>
         c &&

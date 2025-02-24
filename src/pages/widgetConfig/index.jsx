@@ -273,7 +273,8 @@ export default function Container(props) {
     }
 
     if (checkWidgetErrorBySave(saveControls, $originControls.current)) {
-      return callback(true);
+      _.isFunction(callback) && callback(true);
+      return;
     }
 
     let activeWidgetPath = getPathById(widgets, (activeWidget || {}).controlId);

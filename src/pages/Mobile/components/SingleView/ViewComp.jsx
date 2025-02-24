@@ -56,7 +56,7 @@ const AddBtn = styled.div`
 function ViewComp(props) {
   const { showHeader, headerLeft, headerRight } = props;
   const {
-    base,
+    base = {},
     workSheetLoading,
     worksheetInfo,
     sheetSwitchPermit,

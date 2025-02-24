@@ -102,8 +102,8 @@ class MobileCalendarView extends Component {
           }
           this.setState({ previewRecordId: extendedProps.rowid });
         } else {
-          const { range = {} } = eventInfo.event._instance;
-          range.start && this.getMoreClickData(range.start);
+          const currentDate = _.get(eventInfo, 'event._def.extendedProps.timeList[0].start');
+          currentDate && this.getMoreClickData(currentDate);
           this.props.mobileIsShowMoreClick(true);
         }
       },

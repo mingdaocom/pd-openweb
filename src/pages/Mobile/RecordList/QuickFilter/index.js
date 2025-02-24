@@ -96,7 +96,7 @@ export function QuickFilter(props) {
     updateQuickFilterWithDefault = () => {},
     updateActiveSavedFilter = () => {},
     pcUpdateFilters = () => {},
-    base,
+    base = {},
   } = props;
   const updateQuickFilter = _.includes([21, 1], view.viewType) ? pcUpdateQuickFilter : props.updateQuickFilter;
   const width = document.documentElement.clientWidth - 60;
