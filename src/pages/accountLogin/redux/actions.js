@@ -130,7 +130,7 @@ export const isValid = (isForSendCode, keys = [], type) => {
         };
         //手机号验证
         const isTelRule = () => {
-          if (!iti.isValidNumber() && !specialTelVerify(iti.getNumber())) {
+          if (!iti.isValidNumber() || !specialTelVerify(iti.getNumber())) {
             warnningData.push({ tipDom: '#txtMobilePhone', warnningText: _l('手机号格式错误') });
             isRight = false;
           }
